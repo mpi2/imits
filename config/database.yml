@@ -35,9 +35,9 @@ development:
 # Do not set this db to the same as development or production.
 test:
   adapter: oracle_enhanced
-  database: kermits-2_test
-  username: kermits-2
-  password:
+  database: (DESCRIPTION = (ADDRESS = (COMMUNITY = TCP.world) (PROTOCOL = TCP)(HOST = ocs16)(PORT = 1523)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = cent)) )
+  username: KERMIT_OWNER
+  password: kermit_owner
 
 production:
   adapter: oracle_enhanced

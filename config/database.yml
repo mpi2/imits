@@ -21,12 +21,14 @@ development:
   adapter: oracle_enhanced
   database: |
     (DESCRIPTION =
-        (ADDRESS = (PROTOCOL = TCP)(HOST = ocs9b)(PORT = 1530))
-         (CONNECT_DATA =
-         (SERVER = DEDICATED)
-        (SERVICE_NAME = mige)
+      (ADDRESS = (PROTOCOL = TCP)(HOST = ocs9b)(PORT = 1522))
+      (CONNECT_DATA =
+        (SERVER = DEDICATED)
+        (SERVICE_NAME = MIGD)
       )
-     )
+    )
+  username: external_mi
+  password: moose
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

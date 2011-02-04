@@ -6,6 +6,7 @@ gem 'rails', '3.0.3'
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 gem 'ruby-oci8'
+gem 'activerecord-oracle_enhanced-adapter'
 
 # Use unicorn as the web server
 # gem 'unicorn'

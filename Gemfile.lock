@@ -63,6 +63,7 @@ GEM
       thor (~> 0.14.4)
     rake (0.8.7)
     ruby-oci8 (2.0.4)
+    shoulda (2.11.3)
     thor (0.14.6)
     treetop (1.4.9)
       polyglot (>= 0.3.1)
@@ -77,3 +78,4 @@ DEPENDENCIES
   rails (= 3.0.3)
   rails_on_pg
   ruby-oci8
+  shoulda

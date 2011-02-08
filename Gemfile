@@ -10,6 +10,10 @@ gem 'activerecord-oracle_enhanced-adapter'
 gem 'pg'
 gem 'rails_on_pg'
 
+group :development, :test do
+  gem 'shoulda'
+end
+
 # Use unicorn as the web server
 # gem 'unicorn'
 

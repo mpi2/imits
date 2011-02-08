@@ -1,0 +1,5 @@
+#/bin/bash
+
+rails_cmd=`dirname $0`/rails
+
+exec $rails_cmd generate "$@"

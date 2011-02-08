@@ -1,23 +1,25 @@
-# Oracle/OCI 8i, 9, 10g
-#
-# Requires Ruby/OCI8:
-#  http://rubyforge.org/projects/ruby-oci8/
-#
-# Specify your database using any valid connection syntax, such as a
-# tnsnames.ora service name, or an SQL connect string of the form:
-#
-#   //host:[port][/service name]
-#
-# By default prefetch_rows (OCI_ATTR_PREFETCH_ROWS) is set to 100. And
-# until true bind variables are supported, cursor_sharing is set by default
-# to 'similar'. Both can be changed in the configation below; the defaults
-# are equivalent to specifying:
-#
-#  prefetch_rows: 100
-#  cursor_sharing: similar
-#
-
 development:
+  adapter: postgresql
+  encoding: unicode
+  database: kermits-2_development
+  pool: 5
+  username: kermits-2
+  password: kermits-2
+  host: localhost
+
+# Warning: The database defined as "test" will be erased and
+# re-generated from your development database when you run "rake".
+# Do not set this db to the same as development or production.
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: kermits-2_test
+  pool: 5
+  username: kermits-2
+  password: kermits-2
+  host: localhost
+
+development_oracle:
   adapter: oracle_enhanced
   database: |
     (DESCRIPTION =
@@ -29,18 +31,3 @@ development:
     )
   username: external_mi
   password: moose
-
-# Warning: The database defined as "test" will be erased and
-# re-generated from your development database when you run "rake".
-# Do not set this db to the same as development or production.
-test:
-  adapter: oracle_enhanced
-  database: (DESCRIPTION = (ADDRESS = (COMMUNITY = TCP.world) (PROTOCOL = TCP)(HOST = ocs16)(PORT = 1523)) (CONNECT_DATA = (SERVER = DEDICATED) (SERVICE_NAME = cent)) )
-  username: KERMIT_OWNER
-  password: kermit_owner
-
-production:
-  adapter: oracle_enhanced
-  database: kermits-2_production
-  username: kermits-2
-  password:

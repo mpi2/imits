@@ -7,7 +7,8 @@ gem 'rails', '3.0.3'
 
 gem 'ruby-oci8'
 gem 'activerecord-oracle_enhanced-adapter'
-gem 'sqlite3-ruby', :require => 'sqlite3'
+gem 'pg'
+gem 'rails_on_pg'
 
 # Use unicorn as the web server
 # gem 'unicorn'

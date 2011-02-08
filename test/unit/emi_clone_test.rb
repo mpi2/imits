@@ -1,8 +1,7 @@
 require 'test_helper'
 
 class EmiCloneTest < ActiveSupport::TestCase
-  # Replace this with your real tests.
-  test "the truth" do
-    assert true
+  should 'use table "emi_clone"' do
+    assert_equal 'emi_clone', EmiClone.table_name
   end
 end

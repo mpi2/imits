@@ -12,6 +12,7 @@ gem 'rails_on_pg'
 
 group :development, :test do
   gem 'shoulda', :require => nil
+  gem 'test-unit', :require => nil
 end
 
 # Use unicorn as the web server

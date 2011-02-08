@@ -5,7 +5,7 @@ require 'rails/test_help'
 require 'shoulda'
 
 class ActiveSupport::TestCase
-  fixtures :emi_event, :emi_clone
+  fixtures :emi_clone, :emi_event, :emi_attempt
 
   # Add more helper methods to be used by all tests here...
 end

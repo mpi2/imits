@@ -1,2 +1,3 @@
 development_structure.sql
 schema.rb
+*.sqlite3

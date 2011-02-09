@@ -4,8 +4,26 @@ require 'rails/test_help'
 
 require 'shoulda'
 
+module TestFixtures
+  def self.included(mod)
+    mod.fixtures :emi_clone, :emi_event, :emi_attempt
+  end
+end
+
 class ActiveSupport::TestCase
-  fixtures :emi_clone, :emi_event, :emi_attempt
+  include TestFixtures
 
   # Add more helper methods to be used by all tests here...
+end
+
+
+
+require 'capybara/rails'
+require 'capybara/dsl'
+
+# Capybara.default_driver = :selenium
+
+class ActionDispatch::IntegrationTest
+  include TestFixtures
+  include Capybara
 end

@@ -1,0 +1,198 @@
+---
+EPD0127_4_E01__1:
+  actual_mi_date: 2008-07-29 00:00:00 Z
+  attempt_number: 1
+  back_cross_strain:
+  blast_strain:
+  chimeras_with_glt_from_cct: 4
+  chimeras_with_glt_from_genotyp:
+  colony_name: MBSS
+  comments:
+  created_date: 2010-01-02 00:00:00 Z
+  creator_id: 26.0
+  date_chimera_mated:
+  date_f1_genotype:
+  edit_date: 2010-09-22 00:00:00 Z
+  edited_by: vvi
+  emma: "1"
+  europhenome:
+  event_id: 6561
+  f0_matings_with_offspring: 6.0
+  f1_black: 39
+  f1_germ_line_mice: 24
+  f1_non_black: 1
+  id: 11029.0
+  is_active: true
+  is_emma_sticky:
+  mmrrc:
+  mouse_allele_name:
+  num_blasts: "20"
+  num_recipients:
+  num_transferred:
+  number_100_percent_glt: 3
+  number_born: 18
+  number_btw_10_50_percent_glt: 0
+  number_chimera_mated: 8
+  number_chimera_mating_success: 6
+  number_f0_matings: 8.0
+  number_female_chimeras: 2
+  number_gt_50_percent_glt: 1
+  number_het_offspring: 719
+  number_live_glt_offspring: 64
+  number_lt_10_percent_glt: 0
+  number_male_100_percent: 0
+  number_male_40_to_80_percent: 0
+  number_male_chimeras: 14
+  number_male_gt_80_percent: 14
+  number_male_lt_40_percent: 0
+  number_with_cct: "24"
+  number_with_glt:
+  production_centre_mi_id: "1015"
+  qc_five_prime_cass_integrity: pass
+  qc_five_prime_lr_pcr: na
+  qc_homozygous_loa_sr_pcr: pass
+  qc_lacz_sr_pcr: pass
+  qc_loa_qpcr: na
+  qc_loxp_confirmation: pass
+  qc_mutant_specific_sr_pcr: pass
+  qc_neo_count_qpcr: pass
+  qc_neo_sr_pcr: na
+  qc_southern_blot:
+  qc_three_prime_lr_pcr: na
+  qc_tv_backbone_assay: pass
+  status_dict_id: 9
+  test_cross_strain: B6JTyr<c-Brd>
+  total_chimeras: 16
+  total_f1_mice: 40.0
+
+EPD0127_4_E01__2:
+  actual_mi_date: 2008-07-29 00:00:00 Z
+  attempt_number: 2
+  back_cross_strain: B6N/TacDen
+  blast_strain:
+  chimeras_with_glt_from_cct: 1
+  chimeras_with_glt_from_genotyp:
+  colony_name: MBSS
+  comments:
+  created_date: 2010-01-02 00:00:00 Z
+  creator_id: 26.0
+  date_chimera_mated:
+  date_f1_genotype:
+  edit_date: 2010-09-22 00:00:00 Z
+  edited_by: vvi
+  emma: "1"
+  europhenome:
+  event_id: 6561
+  f0_matings_with_offspring: 2.0
+  f1_black: 16
+  f1_germ_line_mice: 10
+  f1_non_black: 0
+  id: 11101.0
+  is_active: true
+  is_emma_sticky:
+  mmrrc:
+  mouse_allele_name:
+  num_blasts: "20"
+  num_recipients:
+  num_transferred:
+  number_100_percent_glt: 1
+  number_born: 13
+  number_btw_10_50_percent_glt: 0
+  number_chimera_mated: 2
+  number_chimera_mating_success: 2
+  number_f0_matings: 2.0
+  number_female_chimeras: 1
+  number_gt_50_percent_glt: 0
+  number_het_offspring: 350
+  number_live_glt_offspring: 32
+  number_lt_10_percent_glt: 0
+  number_male_100_percent: 0
+  number_male_40_to_80_percent: 0
+  number_male_chimeras: 12
+  number_male_gt_80_percent: 12
+  number_male_lt_40_percent: 0
+  number_with_cct: "10"
+  number_with_glt:
+  production_centre_mi_id: "1016"
+  qc_five_prime_cass_integrity: pass
+  qc_five_prime_lr_pcr: na
+  qc_homozygous_loa_sr_pcr: pass
+  qc_lacz_sr_pcr: pass
+  qc_loa_qpcr: na
+  qc_loxp_confirmation: pass
+  qc_mutant_specific_sr_pcr: pass
+  qc_neo_count_qpcr: pass
+  qc_neo_sr_pcr: na
+  qc_southern_blot:
+  qc_three_prime_lr_pcr: na
+  qc_tv_backbone_assay: pass
+  status_dict_id: 9
+  test_cross_strain: B6JTyr<c-Brd>
+  total_chimeras: 13
+  total_f1_mice: 16.0
+
+EPD0127_4_E01__3:
+  actual_mi_date: 2010-07-21 00:00:00 Z
+  attempt_number: 3
+  back_cross_strain:
+  blast_strain:
+  chimeras_with_glt_from_cct:
+  chimeras_with_glt_from_genotyp:
+  colony_name: WBAA
+  comments:
+  created_date: 2010-07-22 00:00:00 Z
+  creator_id: 26.0
+  date_chimera_mated:
+  date_f1_genotype:
+  edit_date: 2010-09-22 00:00:00 Z
+  edited_by: vvi
+  emma: "0"
+  europhenome:
+  event_id: 6561
+  f0_matings_with_offspring: 0.0
+  f1_black:
+  f1_germ_line_mice:
+  f1_non_black:
+  id: 11723.0
+  is_active: true
+  is_emma_sticky:
+  mmrrc:
+  mouse_allele_name:
+  num_blasts: "51"
+  num_recipients:
+  num_transferred:
+  number_100_percent_glt:
+  number_born: 6
+  number_btw_10_50_percent_glt:
+  number_chimera_mated: 0
+  number_chimera_mating_success: 0
+  number_f0_matings: 0.0
+  number_female_chimeras: 0
+  number_gt_50_percent_glt:
+  number_het_offspring:
+  number_live_glt_offspring:
+  number_lt_10_percent_glt:
+  number_male_100_percent: 1
+  number_male_40_to_80_percent: 0
+  number_male_chimeras: 1
+  number_male_gt_80_percent: 0
+  number_male_lt_40_percent: 0
+  number_with_cct:
+  number_with_glt:
+  production_centre_mi_id: "2530"
+  qc_five_prime_cass_integrity: na
+  qc_five_prime_lr_pcr: na
+  qc_homozygous_loa_sr_pcr: na
+  qc_lacz_sr_pcr: na
+  qc_loa_qpcr: na
+  qc_loxp_confirmation: na
+  qc_mutant_specific_sr_pcr: na
+  qc_neo_count_qpcr: na
+  qc_neo_sr_pcr: na
+  qc_southern_blot:
+  qc_three_prime_lr_pcr: na
+  qc_tv_backbone_assay: na
+  status_dict_id: 3
+  test_cross_strain:
+  total_chimeras: 1
+  total_f1_mice:

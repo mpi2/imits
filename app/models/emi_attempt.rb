@@ -6,9 +6,9 @@ class EmiAttempt < ActiveRecord::Base
   belongs_to :emi_event, :class_name => 'EmiEvent',
           :foreign_key => :event_id # , :include => [:emi_clone]
 
-  def emi_clone; emi_event.emi_clone; end
+  delegate :emi_clone, :proposed_mi_date, :to => :emi_event
 
-  def clone_name; emi_clone.clone_name; end
+  delegate :clone_name, :gene_symbol, :allele_name, :to => :emi_clone
 
   scope :by_clone_name, proc { |clone_name| joins({:emi_event => :emi_clone}).where(:emi_clone => {:clone_name => clone_name}) }
 end

@@ -21,8 +21,26 @@ class EmiAttemptTest < ActiveSupport::TestCase
     assert results.include? emi_attempt('EPD0127_4_E01__3')
   end
 
-  should '#clone_name works' do
-    assert_equal 'EPD0127_4_E01', emi_attempt('EPD0127_4_E01__1').clone_name
+  context 'delegated methods' do
+    setup do
+      @emi_attempt = emi_attempt('EPD0127_4_E01__1')
+    end
+
+    should '#clone_name' do
+      assert_equal 'EPD0127_4_E01', @emi_attempt.clone_name
+    end
+
+    should '#gene_symbol' do
+      assert_equal 'Trafd1', @emi_attempt.gene_symbol
+    end
+
+    should '#allele_name' do
+      assert_equal 'Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>', @emi_attempt.allele_name
+    end
+
+    should '#proposed_mi_date' do
+      assert_equal Date.parse('2008-07-29'), @emi_attempt.proposed_mi_date.to_date
+    end
   end
 
 end

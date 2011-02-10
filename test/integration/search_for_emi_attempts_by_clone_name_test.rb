@@ -20,10 +20,17 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       visit '/'
       fill_in 'clone_names', :with => "EPD0127_4_E01\nEPD0343_1_H06"
       click_button 'Search'
-      save_and_open_page
 
       assert page.has_css? 'tr:nth-child(2) td', :text => 'EPD0127_4_E01'
       assert page.has_css? 'tr:nth-child(5) td', :text => 'EPD0343_1_H06'
+    end
+
+    should 'work if whitespace around clone names' do
+      visit '/'
+      fill_in 'clone_names', :with => "  EPD0127_4_E01\t"
+      click_button 'Search'
+
+      assert page.has_css? 'tr:nth-child(2) td', :text => 'EPD0127_4_E01'
     end
   end
 end

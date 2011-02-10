@@ -21,4 +21,8 @@ class EmiAttemptTest < ActiveSupport::TestCase
     assert results.include? emi_attempt('EPD0127_4_E01__3')
   end
 
+  should '#clone_name works' do
+    assert_equal 'EPD0127_4_E01', emi_attempt('EPD0127_4_E01__1').clone_name
+  end
+
 end

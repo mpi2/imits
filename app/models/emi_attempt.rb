@@ -6,5 +6,7 @@ class EmiAttempt < ActiveRecord::Base
 
   def emi_clone; emi_event.emi_clone; end
 
+  def clone_name; emi_clone.clone_name; end
+
   scope :by_clone_name, proc { |clone_name| joins({:emi_event => :emi_clone}).where(:emi_clone => {:clone_name => clone_name}) }
 end

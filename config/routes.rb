@@ -1,4 +1,9 @@
 Kermits2::Application.routes.draw do
+
+  root :to => "emi_clones#index"
+
+  resources :emi_clones, :only => [:index]
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

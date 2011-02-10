@@ -11,4 +11,6 @@ class EmiAttempt < ActiveRecord::Base
   delegate :clone_name, :gene_symbol, :allele_name, :to => :emi_clone
 
   scope :by_clone_name, proc { |clone_name| joins({:emi_event => :emi_clone}).where(:emi_clone => {:clone_name => clone_name}) }
+
+  scope :by_clone_names, proc { |*clone_names| joins({:emi_event => :emi_clone}).where(:emi_clone => {:clone_name => clone_names}) }
 end

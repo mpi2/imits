@@ -12,3 +12,17 @@ EPD0127_4_E01:
   comments:
   is_failed: false
   distribution_centre_id: 1
+
+EPD0343_1_H06:
+  id: 9750
+  centre_id: 1
+  clone_id: 115474
+  is_interested_only:
+  proposed_mi_date: 2010-09-13 00:00:00 Z
+  creator_id: 26
+  created_date: 2010-09-21 00:00:00 Z
+  edit_date: 2010-09-21 00:00:00 Z
+  edited_by: vvi
+  comments:
+  is_failed:
+  distribution_centre_id: 1

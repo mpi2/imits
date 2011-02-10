@@ -20,3 +20,25 @@ EPD0127_4_E01:
   es_cell_strain: C57BL/6N
   es_cell_line: JM8.N4 (P12)
   customer_priority:
+
+EPD0343_1_H06:
+  id: 115474
+  clone_name: EPD0343_1_H06
+  created_date: 2009-10-20 00:00:00 Z
+  creator_id: 26
+  edit_date: 2010-06-01 15:44:33 Z
+  edited_by: do2
+  pipeline_id: 1
+  gene_symbol: Myo1c
+  allele_name: Myo1c<sup>tm1a(EUCOMM)Wtsi</sup>
+  ensembl_id:
+  otter_id:
+  target_exon:
+  design_id:
+  design_instance_id: 100711
+  recombineering_bac_strain:
+  es_cell_line_type:
+  genotype_pass_level:
+  es_cell_strain: C57BL/6N-A<tm1Brd>/a
+  es_cell_line: JM8A1.N3 (p10)
+  customer_priority:

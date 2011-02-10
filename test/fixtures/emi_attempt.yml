@@ -196,3 +196,69 @@ EPD0127_4_E01__3:
   test_cross_strain:
   total_chimeras: 1
   total_f1_mice:
+
+EPD0343_1_H06__1:
+  id: 11781
+  is_active: true
+  event_id: 9750
+  actual_mi_date: 2010-09-13 00:00:00 Z
+  attempt_number: 1
+  num_recipients:
+  num_blasts: "48"
+  created_date: 2010-09-21 00:00:00 Z
+  creator_id: 26
+  edit_date: 2010-09-22 00:00:00 Z
+  edited_by: vvi
+  number_born:
+  total_chimeras:
+  number_male_chimeras:
+  number_female_chimeras:
+  date_chimera_mated:
+  number_chimera_mated:
+  number_chimera_mating_success:
+  date_f1_genotype:
+  number_male_100_percent:
+  number_male_gt_80_percent:
+  number_male_40_to_80_percent:
+  number_male_lt_40_percent:
+  number_with_glt:
+  comments:
+  status_dict_id: 3
+  num_transferred:
+  number_with_cct:
+  total_f1_mice:
+  blast_strain:
+  number_f0_matings:
+  f0_matings_with_offspring:
+  f1_germ_line_mice:
+  number_lt_10_percent_glt:
+  number_btw_10_50_percent_glt:
+  number_gt_50_percent_glt:
+  number_het_offspring:
+  number_100_percent_glt:
+  test_cross_strain:
+  chimeras_with_glt_from_cct:
+  chimeras_with_glt_from_genotyp:
+  colony_name: MDCF
+  europhenome:
+  emma: "0"
+  mmrrc:
+  number_live_glt_offspring:
+  is_emma_sticky:
+  back_cross_strain:
+  production_centre_mi_id: "2612"
+  f1_black:
+  f1_non_black:
+  mouse_allele_name:
+  qc_five_prime_lr_pcr: na
+  qc_three_prime_lr_pcr: na
+  qc_tv_backbone_assay: na
+  qc_loxp_confirmation: na
+  qc_southern_blot:
+  qc_loa_qpcr: na
+  qc_homozygous_loa_sr_pcr: na
+  qc_neo_count_qpcr: na
+  qc_lacz_sr_pcr: na
+  qc_mutant_specific_sr_pcr: na
+  qc_five_prime_cass_integrity: na
+  qc_neo_sr_pcr: na

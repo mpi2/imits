@@ -6,7 +6,7 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       visit '/'
       fill_in 'clone_names', :with => 'EPD0127_4_E01'
       click_button 'Search'
-      assert_match %r{http://www\.example\.com/emi_clones\?clone_names=EPD0127_4_E01$}, current_url
+      assert_match 'http://www.example.com/emi_clones?clone_names=EPD0127_4_E01', current_url
 
       assert page.has_css? 'tr:nth-child(2) td', :text => 'EPD0127_4_E01'
       assert page.has_css? 'tr:nth-child(2) td', :text => 'Trafd1'
@@ -14,6 +14,16 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       assert page.has_css? 'tr:nth-child(2) td', :text => '29 July 2008'
       assert page.has_css? 'tr:nth-child(2) td', :text => '30 July 2008'
       assert page.has_css? 'tr:nth-child(2) td', :text => 'MBSS'
+    end
+
+    should 'work with a multiple clone names' do
+      visit '/'
+      fill_in 'clone_names', :with => "EPD0127_4_E01\nEPD0343_1_H06"
+      click_button 'Search'
+      save_and_open_page
+
+      assert page.has_css? 'tr:nth-child(2) td', :text => 'EPD0127_4_E01'
+      assert page.has_css? 'tr:nth-child(5) td', :text => 'EPD0343_1_H06'
     end
   end
 end

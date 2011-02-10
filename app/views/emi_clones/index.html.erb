@@ -1,0 +1,16 @@
+<div>
+  <form method="get" action="/emi_clones">
+    <textarea cols="50" rows="10" name="clone_names" id="clone_names"></textarea>
+    <input type="submit" value="Search" />
+  </form>
+</div>
+
+<% if ! @emi_attempts.blank? %>
+  <table>
+    <% @emi_attempts.each do |emi_attempt| %>
+      <tr>
+        <td><%= emi_attempt.clone_name %></td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>

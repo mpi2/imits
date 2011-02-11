@@ -1,1 +1,0 @@
-ENV['NLS_LANG'] = '.UTF8'

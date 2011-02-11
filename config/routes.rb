@@ -1,5 +1,7 @@
 Kermits2::Application.routes.draw do
 
+  netzke
+
   root :to => "emi_attempts#index"
 
   resources :emi_attempts, :only => [:index]

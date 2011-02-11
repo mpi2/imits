@@ -7,6 +7,10 @@ gem 'activerecord-oracle_enhanced-adapter'
 gem 'pg'
 gem 'rails_on_pg'
 
+gem 'netzke-core'
+gem 'netzke-basepack'
+gem 'will_paginate', '~>3.0.pre2'
+
 group :development, :test do
   gem 'shoulda', :require => nil
   gem 'test-unit', :require => nil

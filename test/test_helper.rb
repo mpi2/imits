@@ -21,7 +21,7 @@ end
 require 'capybara/rails'
 require 'capybara/dsl'
 
-# Capybara.default_driver = :selenium
+Capybara.default_driver = :selenium
 
 class ActionDispatch::IntegrationTest
   include TestFixtures

@@ -1,14 +1,17 @@
 require 'test_helper'
 
 class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
+
   context 'searching for emi attempts by clone name' do
     should 'work with a single clone name' do
       visit '/'
       fill_in 'clone_names', :with => 'EPD0127_4_E01'
       click_button 'Search'
-      assert_match 'http://www.example.com/emi_attempts?clone_names=EPD0127_4_E01', current_url
+      sleep 3
+      assert_match %r{^http://[^/]+/emi_attempts\?clone_names=EPD0127_4_E01$}, current_url
 
-      assert page.has_css? 'tr:nth-child(2) td', :text => 'EPD0127_4_E01'
+      #y find('.x-grid3-body .x-grid3-row:nth-child(1)').text
+      assert page.has_css? '.x-grid3-body .x-grid3-row:nth-child(1) .x-grid3-cell-inner', :text => 'EPD0127_4_E01'
       assert page.has_css? 'tr:nth-child(2) td', :text => 'Trafd1'
       assert page.has_css? 'tr:nth-child(2) td', :text => 'Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>'
       assert page.has_css? 'tr:nth-child(2) td', :text => '29 July 2008'
@@ -33,4 +36,5 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       assert page.has_css? 'tr:nth-child(2) td', :text => 'EPD0127_4_E01'
     end
   end
+
 end

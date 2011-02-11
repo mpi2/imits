@@ -1,4 +1,4 @@
-class EmiClonesController < ApplicationController
+class EmiAttemptsController < ApplicationController
   def index
     if !params[:clone_names].blank?
       clone_name = params[:clone_names].lines.collect(&:strip)

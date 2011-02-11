@@ -1,9 +1,9 @@
 require 'test_helper'
 
-class EmiClonesControllerTest < ActionController::TestCase
+class EmiAttemptsControllerTest < ActionController::TestCase
   context 'GET index' do
     should 'route from /' do
-      assert_routing '/', { :controller => 'emi_clones', :action => 'index' }
+      assert_routing '/', { :controller => 'emi_attempts', :action => 'index' }
     end
 
     should 'be root path' do

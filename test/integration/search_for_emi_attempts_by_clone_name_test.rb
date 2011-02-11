@@ -6,7 +6,7 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       visit '/'
       fill_in 'clone_names', :with => 'EPD0127_4_E01'
       click_button 'Search'
-      assert_match 'http://www.example.com/emi_clones?clone_names=EPD0127_4_E01', current_url
+      assert_match 'http://www.example.com/emi_attempts?clone_names=EPD0127_4_E01', current_url
 
       assert page.has_css? 'tr:nth-child(2) td', :text => 'EPD0127_4_E01'
       assert page.has_css? 'tr:nth-child(2) td', :text => 'Trafd1'

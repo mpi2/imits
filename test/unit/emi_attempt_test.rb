@@ -44,4 +44,11 @@ class EmiAttemptTest < ActiveSupport::TestCase
     end
   end
 
+  should '#formatted_proposed_mi_date' do
+    assert_equal '29 July 2008', emi_attempt('EPD0127_4_E01__1').formatted_proposed_mi_date
+  end
+
+  should '#formatted_actual_mi_date' do
+    assert_equal '30 July 2008', emi_attempt('EPD0127_4_E01__1').formatted_actual_mi_date
+  end
 end

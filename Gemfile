@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.3'
+gem 'rails', '3.0.4'
 
 gem 'ruby-oci8'
 gem 'activerecord-oracle_enhanced-adapter'

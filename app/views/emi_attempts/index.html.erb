@@ -5,29 +5,6 @@
   </form>
 </div>
 
-<% if ! @emi_attempts.blank? %>
-  <!--
-  <table>
-    <tr>
-      <th>Clone Name</th>
-      <th>Gene</th>
-      <th>Allele</th>
-      <th>Proposed MI Date</th>
-      <th>Actual MI Date</th>
-      <th>Colony Name</th>
-    </tr>
-    <% @emi_attempts.each do |emi_attempt| %>
-      <tr>
-        <td><%= emi_attempt.clone_name %></td>
-        <td><%= emi_attempt.gene_symbol %></td>
-        <td><%= emi_attempt.allele_name %></td>
-        <td><%= emi_attempt.proposed_mi_date.strftime("%d %B %Y") %></td>
-        <td><%= emi_attempt.actual_mi_date.strftime("%d %B %Y") %></td>
-        <td><%= emi_attempt.colony_name %></td>
-      </tr>
-    <% end %>
-  </table>
-  -->
-
-  <%= emi_attempts_table %>
-<% end %>
+<%# if ! @clone_names.blank? %>
+  <%= emi_attempts_table(@clone_names) %>
+<%# end %>

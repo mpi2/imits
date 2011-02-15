@@ -1,11 +1,20 @@
 module EmiAttemptsHelper
 
-  def emi_attempts_table(emi_attempts_instance_variable_name = :emi_attempts)
-    netzke(emi_attempts_instance_variable_name,
+  def emi_attempts_table(clone_names)
+    netzke(:emi_attempts,
       :class_name => "Basepack::GridPanel", :model => "EmiAttempt",
       :columns => [
-        :clone_name
-      ]
+        {:name => :clone_name, :header => 'Clone'},
+        {:name => :gene_symbol, :header => 'Gene'},
+        {:name => :allele_name, :header => 'Allele'},
+        {:name => :formatted_proposed_mi_date, :header => 'Proposed MI Date'},
+        {:name => :formatted_actual_mi_date, :header => 'Actual MI Date'},
+      ],
+      :prohibit_create => true,
+      :prohibit_update => true,
+      :prohibit_delete => true,
+      :enable_edit_in_form => false,
+      :enable_extended_search => false,
     )
 
   end

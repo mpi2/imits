@@ -1,8 +1,7 @@
 class EmiAttemptsController < ApplicationController
   def index
     if !params[:clone_names].blank?
-      clone_name = params[:clone_names].lines.collect(&:strip)
-      @emi_attempts = EmiAttempt.by_clone_names(clone_name)
+      @clone_names = params[:clone_names].lines.collect(&:strip)
     end
   end
 end

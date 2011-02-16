@@ -10,6 +10,7 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
     context 'with a single clone' do
       setup do
         visit '/'
+        assert_false page.has_css? 'x-grid3'
         fill_in 'clone_names', :with => 'EPD0127_4_E01'
         click_button 'Search'
         sleep 3
@@ -34,9 +35,10 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       visit '/'
       fill_in 'clone_names', :with => "EPD0127_4_E01\nEPD0343_1_H06"
       click_button 'Search'
+      sleep 3
 
-      assert page.has_css? selector_for_table_cell(2), :text => 'EPD0127_4_E01'
-      assert page.has_css? selector_for_table_cell(5), :text => 'EPD0343_1_H06'
+      assert page.has_css? selector_for_table_cell(1), :text => 'EPD0127_4_E01'
+      assert page.has_css? selector_for_table_cell(4), :text => 'EPD0343_1_H06'
     end
 
     should 'work if whitespace around clone names' do
@@ -44,7 +46,7 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       fill_in 'clone_names', :with => "  EPD0127_4_E01\t"
       click_button 'Search'
 
-      assert page.has_css? 'tr:nth-child(2) td', :text => 'EPD0127_4_E01'
+      assert page.has_css? selector_for_table_cell(2), :text => 'EPD0127_4_E01'
     end
   end
 

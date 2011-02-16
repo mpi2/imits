@@ -5,6 +5,5 @@
   </form>
 </div>
 
-<%# if ! @clone_names.blank? %>
-  <%= emi_attempts_table(@clone_names) %>
-<%# end %>
+<%@clones_names ||= [] %>
+<%= emi_attempts_table(@clone_names) %>

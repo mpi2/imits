@@ -24,6 +24,7 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
         assert page.has_css? selector_for_table_cell(1), :text => '29 July 2008'
         assert page.has_css? selector_for_table_cell(1), :text => '30 July 2008'
         assert page.has_css? selector_for_table_cell(1), :text => 'MBSS'
+        assert page.has_css? selector_for_table_cell(1), :text => 'ICS'
       end
 
       should 'not show data for other clones' do

@@ -52,6 +52,10 @@ class EmiAttemptTest < ActiveSupport::TestCase
     should '#proposed_mi_date' do
       assert_equal Date.parse('2008-07-29'), @emi_attempt.proposed_mi_date.to_date
     end
+
+    should '#distribution_centre to event' do
+      assert_equal @emi_attempt.distribution_centre, per_centre('ICS')
+    end
   end
 
   should '#formatted_proposed_mi_date' do

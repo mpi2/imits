@@ -6,6 +6,7 @@ gem 'ruby-oci8'
 gem 'activerecord-oracle_enhanced-adapter'
 gem 'pg'
 gem 'rails_on_pg'
+gem 'sqlite3'
 
 gem 'netzke-core'
 gem 'netzke-basepack'

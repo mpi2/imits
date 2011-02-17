@@ -6,7 +6,7 @@ class EmiAttempt < ActiveRecord::Base
   belongs_to :emi_event, :class_name => 'EmiEvent',
           :foreign_key => :event_id # , :include => [:emi_clone]
 
-  delegate :emi_clone, :proposed_mi_date, :to => :emi_event
+  delegate :emi_clone, :proposed_mi_date, :distribution_centre, :to => :emi_event
 
   delegate :clone_name, :gene_symbol, :allele_name, :to => :emi_clone
 

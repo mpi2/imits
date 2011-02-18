@@ -15,4 +15,12 @@ class EmiAttempt < ActiveRecord::Base
   def formatted_proposed_mi_date; proposed_mi_date.strftime('%d %B %Y'); end
 
   def formatted_actual_mi_date; actual_mi_date.strftime('%d %B %Y'); end
+
+  def set_distribution_centre_by_name(name)
+    return emi_event.update_attributes(:distribution_centre => Centre.find_by_name!(name))
+  end
+
+  def distribution_centre_name
+    return emi_event.distribution_centre.name
+  end
 end

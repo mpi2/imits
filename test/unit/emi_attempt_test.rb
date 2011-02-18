@@ -1,6 +1,13 @@
+# encoding: utf-8
+
 require 'test_helper'
 
 class EmiAttemptTest < ActiveSupport::TestCase
+
+  def default_mi_attempt
+    @default_mi_attempt ||= emi_attempt('EPD0127_4_E01__1')
+  end
+
   should 'use table "emi_attempt"' do
     assert_equal 'emi_attempt', EmiAttempt.table_name
   end
@@ -33,28 +40,24 @@ class EmiAttemptTest < ActiveSupport::TestCase
   end
 
   context 'delegated methods' do
-    setup do
-      @emi_attempt = emi_attempt('EPD0127_4_E01__1')
-    end
-
     should '#clone_name' do
-      assert_equal 'EPD0127_4_E01', @emi_attempt.clone_name
+      assert_equal 'EPD0127_4_E01', default_mi_attempt.clone_name
     end
 
     should '#gene_symbol' do
-      assert_equal 'Trafd1', @emi_attempt.gene_symbol
+      assert_equal 'Trafd1', default_mi_attempt.gene_symbol
     end
 
     should '#allele_name' do
-      assert_equal 'Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>', @emi_attempt.allele_name
+      assert_equal 'Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>', default_mi_attempt.allele_name
     end
 
     should '#proposed_mi_date' do
-      assert_equal Date.parse('2008-07-29'), @emi_attempt.proposed_mi_date.to_date
+      assert_equal Date.parse('2008-07-29'), default_mi_attempt.proposed_mi_date.to_date
     end
 
     should '#distribution_centre to event' do
-      assert_equal @emi_attempt.distribution_centre, per_centre('ICS')
+      assert_equal default_mi_attempt.distribution_centre, per_centre('ICS')
     end
   end
 
@@ -64,5 +67,23 @@ class EmiAttemptTest < ActiveSupport::TestCase
 
   should '#formatted_actual_mi_date' do
     assert_equal '30 July 2008', emi_attempt('EPD0127_4_E01__1').formatted_actual_mi_date
+  end
+
+  context '#set_distribution_centre_by_name' do
+    should 'work' do
+      default_mi_attempt.set_distribution_centre_by_name 'WTSI'
+      default_mi_attempt.reload
+      assert_equal 'WTSI', default_mi_attempt.emi_event.distribution_centre.name
+    end
+
+    should 'not allow assignment of nonexistent centres' do
+      assert_raise(ActiveRecord::RecordNotFound) do
+        default_mi_attempt.set_distribution_centre_by_name 'INVLD'
+      end
+    end
+  end
+
+  should 'have #distribution_centre_name' do
+    assert_equal 'ICS', default_mi_attempt.distribution_centre_name
   end
 end

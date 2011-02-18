@@ -10,7 +10,7 @@ class EmiAttempt < ActiveRecord::Base
 
   delegate :clone_name, :gene_symbol, :allele_name, :to => :emi_clone
 
-  scope :by_clone_names, proc { |*clone_names| joins({:emi_event => :emi_clone}).where(:emi_clone => {:clone_name => clone_names}) }
+  scope :by_clone_names, proc { |clone_names| joins({:emi_event => :emi_clone}).where(:emi_clone => {:clone_name => clone_names}) }
 
   def formatted_proposed_mi_date; proposed_mi_date.strftime('%d %B %Y'); end
 

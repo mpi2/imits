@@ -8,18 +8,29 @@ module EmiAttemptsHelper
         :model => 'EmiAttempt',
         :columns => [
           :clone_name,
-          {:name => :gene_symbol, :header => 'Gene'},
-          {:name => :allele_name, :header => 'Allele'},
-          {:name => :formatted_proposed_mi_date, :header => 'Proposed MI Date'},
-          {:name => :formatted_actual_mi_date, :header => 'Actual MI Date'},
-          {:name => :colony_name, :header => 'Colony'},
-          {:header => 'Distribution Centre', :getter => lambda {|mi_attempt| mi_attempt.distribution_centre.name} }
+          {:name => :gene_symbol, :header => 'Gene', :read_only => true},
+          {:name => :allele_name, :header => 'Allele', :read_only => true},
+          {:name => :formatted_proposed_mi_date, :header => 'Proposed MI Date', :read_only => true},
+          {:name => :formatted_actual_mi_date, :header => 'Actual MI Date', :read_only => true},
+          {:name => :colony_name, :header => 'Colony', :read_only => true},
+
+          { :name => :distribution_centre,
+            :header => 'Distribution Centre',
+            :getter => lambda {|mi_attempt| mi_attempt.distribution_centre.name},
+            #:setter => lambda {|mi_attempt, centre_name| mi_attempt.set_distribution_centre_by_name centre_name },
+            :editor => {
+              :store => ['WOOTSEE', 'Apple'],
+              :editable => false,
+              :xtype => :combo,
+              :force_selection => true,
+              :trigger_action => :all,
+            }
+          }
         ],
-        :prohibit_create => true,
-        :prohibit_update => true,
-        :prohibit_delete => true,
+        #:prohibit_create => true,
+        #:prohibit_delete => true,
         :enable_edit_in_form => false,
-        :enable_extended_search => false,
+        #:enable_extended_search => false,
         :scope => [:by_clone_names, *clone_names ]
       )
     end

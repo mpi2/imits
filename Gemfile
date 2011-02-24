@@ -8,8 +8,8 @@ gem 'pg'
 gem 'rails_on_pg'
 gem 'sqlite3'
 
-gem 'netzke-core'
-gem 'netzke-basepack'
+gem 'netzke-core', :git => "http://github.com/skozlov/netzke-core.git"
+gem 'netzke-basepack', :git => "http://github.com/skozlov/netzke-basepack.git"
 gem 'will_paginate', '~>3.0.pre2'
 
 group :development, :test do

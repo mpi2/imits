@@ -1,3 +1,20 @@
+GIT
+  remote: http://github.com/skozlov/netzke-basepack.git
+  revision: 997e2fd1354b3fe4e11da972fc9c3e1a8df47cc6
+  specs:
+    netzke-basepack (0.6.4)
+      acts_as_list
+      meta_where (>= 0.9.3)
+      netzke-core (~> 0.6.4)
+      will_paginate (~> 3.0.pre2)
+
+GIT
+  remote: http://github.com/skozlov/netzke-core.git
+  revision: 8ff87997b5043d8b6c7f2ae00b06bf706025c9e6
+  specs:
+    netzke-core (0.6.6)
+      activesupport (>= 3.0.1)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -65,13 +82,6 @@ GEM
       activesupport (~> 3.0.4)
       arel (~> 2.0.8)
     mime-types (1.16)
-    netzke-basepack (0.6.3)
-      acts_as_list
-      meta_where (>= 0.9.3)
-      netzke-core (~> 0.6.4)
-      will_paginate (~> 3.0.pre2)
-    netzke-core (0.6.5)
-      activesupport (>= 3.0.1)
     nokogiri (1.4.4)
     pg (0.10.1)
     polyglot (0.3.1)
@@ -120,8 +130,8 @@ DEPENDENCIES
   activerecord-oracle_enhanced-adapter
   capybara
   launchy
-  netzke-basepack
-  netzke-core
+  netzke-basepack!
+  netzke-core!
   pg
   rails (= 3.0.4)
   rails_on_pg

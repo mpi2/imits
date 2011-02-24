@@ -13,7 +13,6 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
         assert_false page.has_css? 'x-grid3'
         fill_in 'clone_names', :with => 'EPD0127_4_E01'
         click_button 'Search'
-        sleep 3
         assert_match %r{^http://[^/]+/emi_attempts\?clone_names=EPD0127_4_E01$}, current_url
       end
 

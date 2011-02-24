@@ -31,7 +31,7 @@ module EmiAttemptsHelper
         #:prohibit_delete => true,
         :enable_edit_in_form => false,
         #:enable_extended_search => false,
-        :scope => [:by_clone_names, *clone_names ]
+        :scope => [:by_clone_names, clone_names ]
       )
     end
   end

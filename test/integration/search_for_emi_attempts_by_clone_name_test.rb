@@ -28,7 +28,7 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       end
 
       should 'not show data for other clones' do
-        assert(!page.has_css?('.x-grid3-cell-inner', :text => 'EPD0343_1_H06'))
+        assert page.has_no_css?('.x-grid3-cell-inner', :text => 'EPD0343_1_H06')
       end
     end
 

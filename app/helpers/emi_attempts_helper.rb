@@ -12,25 +12,27 @@ module EmiAttemptsHelper
           {:name => :allele_name, :header => 'Allele', :read_only => true},
           {:name => :formatted_proposed_mi_date, :header => 'Proposed MI Date', :read_only => true},
           {:name => :formatted_actual_mi_date, :header => 'Actual MI Date', :read_only => true},
-          {:name => :colony_name, :header => 'Colony', :read_only => true},
+          {:name => :colony_name, :header => 'Colony Name', :read_only => true},
 
-          { :name => :distribution_centre,
+          { :name => :distribution_centre_name,
+            :id => 'distribution_centre_name',
             :header => 'Distribution Centre',
-            :getter => lambda {|mi_attempt| mi_attempt.distribution_centre.name},
-            #:setter => lambda {|mi_attempt, centre_name| mi_attempt.set_distribution_centre_by_name centre_name },
+            :setter => lambda {|mi_attempt, centre_name| mi_attempt.set_distribution_centre_by_name centre_name },
+            :editable => true,
             :editor => {
-              :store => ['WOOTSEE', 'Apple'],
+              :store => Centre.all.collect(&:name),
               :editable => false,
               :xtype => :combo,
               :force_selection => true,
               :trigger_action => :all,
             }
           }
+
         ],
-        #:prohibit_create => true,
-        #:prohibit_delete => true,
+        :prohibit_create => true,
+        :prohibit_delete => true,
         :enable_edit_in_form => false,
-        #:enable_extended_search => false,
+        :enable_extended_search => false,
         :scope => [:by_clone_names, clone_names ]
       )
     end

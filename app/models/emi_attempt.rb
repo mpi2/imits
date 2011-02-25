@@ -31,4 +31,29 @@ class EmiAttempt < ActiveRecord::Base
       if is_emma_sticky then return :force_off else return :off end
     end
   end
+
+  class EmmaStatusError < RuntimeError; end
+
+  def emma_status=(status)
+    case status.to_sym
+    when :on then
+      self.emma = true
+      self.is_emma_sticky = false
+
+    when :off then
+      self.emma = false
+      self.is_emma_sticky = false
+
+    when :force_on then
+      self.emma = true
+      self.is_emma_sticky = true
+
+    when :force_off then
+      self.emma = false
+      self.is_emma_sticky = true
+
+    else
+      raise EmmaStatusError, "Invalid status '#{status.inspect}'"
+    end
+  end
 end

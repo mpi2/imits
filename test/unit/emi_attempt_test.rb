@@ -86,4 +86,30 @@ class EmiAttemptTest < ActiveSupport::TestCase
   should 'have #distribution_centre_name' do
     assert_equal 'ICS', default_mi_attempt.distribution_centre_name
   end
+
+  context '#emma_status' do
+    should 'be :on if emma=true and is_emma_sticky=false' do
+      default_mi_attempt.emma = true
+      default_mi_attempt.is_emma_sticky = false
+      assert_equal :on, default_mi_attempt.emma_status
+    end
+
+    should 'be :off if emma=false and is_emma_sticky=false' do
+      default_mi_attempt.emma = false
+      default_mi_attempt.is_emma_sticky = false
+      assert_equal :off, default_mi_attempt.emma_status
+    end
+
+    should 'be :force_on if emma=true and is_emma_sticky=true' do
+      default_mi_attempt.emma = true
+      default_mi_attempt.is_emma_sticky = true
+      assert_equal :force_on, default_mi_attempt.emma_status
+    end
+
+    should 'be :force_off if emma=false and is_emma_sticky=true' do
+      default_mi_attempt.emma = false
+      default_mi_attempt.is_emma_sticky = true
+      assert_equal :force_off, default_mi_attempt.emma_status
+    end
+  end
 end

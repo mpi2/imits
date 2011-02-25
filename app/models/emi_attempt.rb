@@ -23,4 +23,12 @@ class EmiAttempt < ActiveRecord::Base
   def distribution_centre_name
     return emi_event.distribution_centre.name
   end
+
+  def emma_status
+    if emma
+      if is_emma_sticky then return :force_on else return :on end
+    else
+      if is_emma_sticky then return :force_off else return :off end
+    end
+  end
 end

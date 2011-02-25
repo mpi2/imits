@@ -17,13 +17,14 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       end
 
       should 'show all data for that clone' do
-        assert page.has_css? selector_for_table_cell(1), :text => 'EPD0127_4_E01'
-        assert page.has_css? selector_for_table_cell(1), :text => 'Trafd1'
-        assert page.has_css? selector_for_table_cell(1), :text => 'Trafd1tm1a(EUCOMM)Wtsi'
-        assert page.has_css? selector_for_table_cell(1), :text => '29 July 2008'
-        assert page.has_css? selector_for_table_cell(1), :text => '30 July 2008'
-        assert page.has_css? selector_for_table_cell(1), :text => 'MBSS'
-        assert page.has_css? selector_for_table_cell(1), :text => 'ICS'
+        assert page.has_css? selector_for_table_cell(2), :text => 'EPD0127_4_E01'
+        assert page.has_css? selector_for_table_cell(2), :text => 'Trafd1'
+        assert page.has_css? selector_for_table_cell(2), :text => 'Trafd1tm1a(EUCOMM)Wtsi'
+        assert page.has_css? selector_for_table_cell(2), :text => '29 July 2008'
+        assert page.has_css? selector_for_table_cell(2), :text => '30 July 2008'
+        assert page.has_css? selector_for_table_cell(2), :text => 'MBSS'
+        assert page.has_css? selector_for_table_cell(2), :text => 'ICS'
+        assert page.has_css? selector_for_table_cell(2), :text => 'on'
       end
 
       should 'not show data for other clones' do
@@ -35,7 +36,6 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       visit '/'
       fill_in 'clone_names', :with => "EPD0127_4_E01\nEPD0343_1_H06"
       click_button 'Search'
-      sleep 3
 
       assert page.has_css? selector_for_table_cell(1), :text => 'EPD0127_4_E01'
       assert page.has_css? selector_for_table_cell(4), :text => 'EPD0343_1_H06'
@@ -46,7 +46,20 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       fill_in 'clone_names', :with => "  EPD0127_4_E01\t"
       click_button 'Search'
 
-      assert page.has_css? selector_for_table_cell(2), :text => 'EPD0127_4_E01'
+      assert page.has_css? selector_for_table_cell(1), :text => 'EPD0127_4_E01'
+    end
+
+    should 'order by actual mi date' do
+      visit '/emi_attempts?clone_names=EPD0127_4_E01'
+      assert page.has_css? selector_for_table_cell(1), :text => '29 July 2008'
+      assert page.has_css? selector_for_table_cell(2), :text => '30 July 2008'
+      assert page.has_css? selector_for_table_cell(3), :text => '21 July 2010'
+    end
+
+    should 'show emma statuses' do
+      visit '/emi_attempts?clone_names=EPD0127_4_E01'
+      assert page.has_css? selector_for_table_cell(2), :text => 'on'
+      assert page.has_css? selector_for_table_cell(3), :text => 'off'
     end
   end
 

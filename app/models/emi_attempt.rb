@@ -24,11 +24,15 @@ class EmiAttempt < ActiveRecord::Base
     return emi_event.distribution_centre.name
   end
 
+  def emma?
+    return (self.emma == '1')
+  end
+
   def emma_status
-    if emma
-      if is_emma_sticky then return :force_on else return :on end
+    if emma?
+      if is_emma_sticky? then return :force_on else return :on end
     else
-      if is_emma_sticky then return :force_off else return :off end
+      if is_emma_sticky? then return :force_off else return :off end
     end
   end
 
@@ -37,19 +41,19 @@ class EmiAttempt < ActiveRecord::Base
   def emma_status=(status)
     case status.to_sym
     when :on then
-      self.emma = true
+      self.emma = '1'
       self.is_emma_sticky = false
 
     when :off then
-      self.emma = false
+      self.emma = '0'
       self.is_emma_sticky = false
 
     when :force_on then
-      self.emma = true
+      self.emma = '1'
       self.is_emma_sticky = true
 
     when :force_off then
-      self.emma = false
+      self.emma = '0'
       self.is_emma_sticky = true
 
     else

@@ -87,27 +87,44 @@ class EmiAttemptTest < ActiveSupport::TestCase
     assert_equal 'ICS', default_mi_attempt.distribution_centre_name
   end
 
+  context '#emma?' do
+    should 'return true if emma == "1"' do
+      default_mi_attempt.emma = '1'
+      assert_true default_mi_attempt.emma?
+    end
+
+    should 'return false if emma == "0"' do
+      default_mi_attempt.emma = '0'
+      assert_false default_mi_attempt.emma?
+    end
+
+    should 'return false if emma == ""' do
+      default_mi_attempt.emma = ''
+      assert_false default_mi_attempt.emma?
+    end
+  end
+
   context '#emma_status' do
     should 'be :on if emma=true and is_emma_sticky=false' do
-      default_mi_attempt.emma = true
+      default_mi_attempt.emma = '1'
       default_mi_attempt.is_emma_sticky = false
       assert_equal :on, default_mi_attempt.emma_status
     end
 
     should 'be :off if emma=false and is_emma_sticky=false' do
-      default_mi_attempt.emma = false
+      default_mi_attempt.emma = '0'
       default_mi_attempt.is_emma_sticky = false
       assert_equal :off, default_mi_attempt.emma_status
     end
 
     should 'be :force_on if emma=true and is_emma_sticky=true' do
-      default_mi_attempt.emma = true
+      default_mi_attempt.emma = '1'
       default_mi_attempt.is_emma_sticky = true
       assert_equal :force_on, default_mi_attempt.emma_status
     end
 
     should 'be :force_off if emma=false and is_emma_sticky=true' do
-      default_mi_attempt.emma = false
+      default_mi_attempt.emma = '0'
       default_mi_attempt.is_emma_sticky = true
       assert_equal :force_off, default_mi_attempt.emma_status
     end
@@ -116,28 +133,45 @@ class EmiAttemptTest < ActiveSupport::TestCase
   context '#emma_status=' do
     should 'work for on' do
       default_mi_attempt.emma_status = 'on'
-      assert_equal [true, false], [default_mi_attempt.emma?, default_mi_attempt.is_emma_sticky?]
+      default_mi_attempt.save!
+      default_mi_attempt.reload
+      assert_equal ['1', false], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
     end
 
     should 'work for off' do
       default_mi_attempt.emma_status = 'off'
-      assert_equal [false, false], [default_mi_attempt.emma?, default_mi_attempt.is_emma_sticky?]
+      default_mi_attempt.save!
+      default_mi_attempt.reload
+      assert_equal ['0', false], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
     end
 
     should 'work for :force_on' do
       default_mi_attempt.emma_status = 'force_on'
-      assert_equal [true, true], [default_mi_attempt.emma?, default_mi_attempt.is_emma_sticky?]
+      default_mi_attempt.save!
+      default_mi_attempt.reload
+      assert_equal ['1', true], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
     end
 
     should 'work for :force_off' do
       default_mi_attempt.emma_status = 'force_off'
-      assert_equal [false, true], [default_mi_attempt.emma?, default_mi_attempt.is_emma_sticky?]
+      default_mi_attempt.save!
+      default_mi_attempt.reload
+      assert_equal ['0', true], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
     end
 
     should 'error for anything else' do
       assert_raise(EmiAttempt::EmmaStatusError) do
         default_mi_attempt.emma_status = 'invalid'
       end
+    end
+
+    should 'set cause #emma_status to return the right value after being saved' do
+      default_mi_attempt.emma_status = 'force_off'
+      default_mi_attempt.save!
+      default_mi_attempt.reload
+
+      assert_equal ['0', true], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
+      assert_equal :force_off, default_mi_attempt.emma_status
     end
 
   end

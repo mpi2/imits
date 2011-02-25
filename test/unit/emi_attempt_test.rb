@@ -112,4 +112,33 @@ class EmiAttemptTest < ActiveSupport::TestCase
       assert_equal :force_off, default_mi_attempt.emma_status
     end
   end
+
+  context '#emma_status=' do
+    should 'work for on' do
+      default_mi_attempt.emma_status = 'on'
+      assert_equal [true, false], [default_mi_attempt.emma?, default_mi_attempt.is_emma_sticky?]
+    end
+
+    should 'work for off' do
+      default_mi_attempt.emma_status = 'off'
+      assert_equal [false, false], [default_mi_attempt.emma?, default_mi_attempt.is_emma_sticky?]
+    end
+
+    should 'work for :force_on' do
+      default_mi_attempt.emma_status = 'force_on'
+      assert_equal [true, true], [default_mi_attempt.emma?, default_mi_attempt.is_emma_sticky?]
+    end
+
+    should 'work for :force_off' do
+      default_mi_attempt.emma_status = 'force_off'
+      assert_equal [false, true], [default_mi_attempt.emma?, default_mi_attempt.is_emma_sticky?]
+    end
+
+    should 'error for anything else' do
+      assert_raise(EmiAttempt::EmmaStatusError) do
+        default_mi_attempt.emma_status = 'invalid'
+      end
+    end
+
+  end
 end

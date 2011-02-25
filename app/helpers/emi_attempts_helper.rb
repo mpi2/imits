@@ -26,14 +26,25 @@ module EmiAttemptsHelper
               :force_selection => true,
               :trigger_action => :all,
             }
-          }
+          },
 
+          { :name => :emma_status,
+            :header => 'EMMA Status',
+            :editable => true,
+            :editor => {
+              :store => ['force_off', 'force_on', 'on', 'off'],
+              :editable => false,
+              :xtype => :combo,
+              :force_selection => true,
+              :trigger_action => :all,
+            }
+          },
         ],
         :prohibit_create => true,
         :prohibit_delete => true,
         :enable_edit_in_form => false,
         :enable_extended_search => false,
-        :scope => [:by_clone_names, clone_names ]
+        :scope => proc {|r| r.order('actual_mi_date').by_clone_names(clone_names)}
       )
     end
   end

@@ -173,6 +173,6 @@ class EmiAttemptTest < ActiveSupport::TestCase
       assert_equal ['0', true], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
       assert_equal :force_off, default_mi_attempt.emma_status
     end
-
   end
+
 end

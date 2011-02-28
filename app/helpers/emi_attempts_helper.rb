@@ -3,7 +3,7 @@ module EmiAttemptsHelper
   class Grid < Netzke::Basepack::GridPanel
     def configuration
       config_up_to_now = super
-      clone_names = config_up_to_now.fetch(:clone_names)
+      search_terms = config_up_to_now.fetch(:search_terms)
       config_up_to_now.merge(
         :model => 'EmiAttempt',
         :columns => [
@@ -49,13 +49,13 @@ module EmiAttemptsHelper
         :prohibit_delete => true,
         :enable_edit_in_form => false,
         :enable_extended_search => false,
-        :scope => [:by_clone_names, clone_names]
+        :scope => [:by_clone_names, search_terms]
       )
     end
   end
 
-  def emi_attempts_table(clone_names)
+  def emi_attempts_table(search_terms)
     netzke(:micro_injection_attempts, :class_name => "EmiAttemptsHelper::Grid",
-      :clone_names => clone_names)
+      :search_terms => search_terms)
   end
 end

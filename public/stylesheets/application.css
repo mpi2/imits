@@ -1,0 +1,29 @@
+html, body {
+    font-size: 12px;
+    line-height: 1.5em;
+    font-family: arial, helvetica, sans-serif;
+}
+
+sup {
+    vertical-align: super;
+    font-size: 80%;
+}
+
+h1 {
+    display: block;
+    font-size: 2em;
+    line-height: 2em;
+    color: white;
+    background: #074987;
+    margin-bottom: 0.5em;
+}
+
+textarea#search_terms {
+    width: 100%;
+    overflow: auto;
+}
+
+#submit {
+    width: 100%;
+    height: 2em;
+}

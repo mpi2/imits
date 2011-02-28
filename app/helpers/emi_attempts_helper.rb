@@ -10,8 +10,13 @@ module EmiAttemptsHelper
           :clone_name,
           {:name => :gene_symbol, :header => 'Gene', :read_only => true},
           {:name => :allele_name, :header => 'Allele', :read_only => true},
-          {:name => :formatted_proposed_mi_date, :header => 'Proposed MI Date', :read_only => true},
-          {:name => :formatted_actual_mi_date, :header => 'Actual MI Date', :read_only => true},
+
+          { :name => :actual_mi_date,
+            :header => 'Actual MI Date',
+            :read_only => true,
+            :renderer => ['date', 'd-M-Y'],
+          },
+
           {:name => :colony_name, :header => 'Colony Name', :read_only => true},
 
           { :name => :distribution_centre_name,
@@ -44,7 +49,7 @@ module EmiAttemptsHelper
         :prohibit_delete => true,
         :enable_edit_in_form => false,
         :enable_extended_search => false,
-        :scope => proc {|r| r.order('actual_mi_date').by_clone_names(clone_names)}
+        :scope => [:by_clone_names, clone_names]
       )
     end
   end

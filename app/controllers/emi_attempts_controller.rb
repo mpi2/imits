@@ -1,7 +1,7 @@
 class EmiAttemptsController < ApplicationController
   def index
-    if !params[:clone_names].blank?
-      @clone_names = params[:clone_names].lines.collect(&:strip)
+    if !params[:search_terms].blank?
+      @search_terms = params[:search_terms].lines.collect(&:strip)
     end
   end
 end

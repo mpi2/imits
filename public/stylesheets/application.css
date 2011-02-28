@@ -18,6 +18,11 @@ h1 {
     margin-bottom: 0.5em;
 }
 
+form {
+    display: block;
+    margin-bottom: 1em;
+}
+
 textarea#search_terms {
     width: 100%;
     overflow: auto;
@@ -25,5 +30,4 @@ textarea#search_terms {
 
 #submit {
     width: 100%;
-    height: 2em;
 }

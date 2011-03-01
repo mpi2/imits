@@ -8,8 +8,9 @@
         <textarea cols="10" rows="10" name="search_terms" id="search_terms"><%= @search_terms.join "\n" %></textarea>
       </div>
 
-      <div>
+      <div id="buttons">
         <input id="submit" type="submit" value="Search" />
+        <button type="button" onclick="document.getElementById('search_terms').innerHTML = ''">Clear</button>
       </div>
     </form>
   </div>

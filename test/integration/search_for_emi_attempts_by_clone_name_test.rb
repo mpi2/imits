@@ -62,8 +62,15 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
   end
 
   should 'work for search with no terms' do
-      visit '/'
-      click_button 'Search'
-      assert page.has_no_css? 'error'
+    visit '/'
+    click_button 'Search'
+    assert page.has_no_css? 'error'
+  end
+
+  should 'clear form when Clear button is pushed' do
+    visit '/'
+    fill_in 'search_terms', :with => 'some text'
+    click_button 'Clear'
+    assert_blank find('#search_terms').text
   end
 end

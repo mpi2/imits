@@ -5,7 +5,7 @@
   <div class="prefix_4 grid_4">
     <form method="get" action="/emi_attempts">
       <div>
-        <textarea cols="10" rows="10" name="search_terms" id="search_terms"></textarea>
+        <textarea cols="10" rows="10" name="search_terms" id="search_terms"><%= @search_terms.join "\n" %></textarea>
       </div>
 
       <div>
@@ -23,7 +23,6 @@
   <div class="clear"></div>
 </div>
 
-<%  @search_terms ||= [] %>
 <div>
   <%= emi_attempts_table(@search_terms) %>
 </div>

@@ -56,4 +56,14 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
     end
   end
 
+  should 'display search results on searched page' do
+    visit '/emi_attempts?search_terms=EPD0127_4_E01%0D%0AEPD0343_1_H06'
+    assert page.has_css? '#search_terms', :text => "EPD0127_4_E01 EPD0343_1_H06"
+  end
+
+  should 'work for search with no terms' do
+      visit '/'
+      click_button 'Search'
+      assert page.has_no_css? 'error'
+  end
 end

@@ -16,6 +16,11 @@ h1 {
     color: white;
     background: #074987;
     margin-bottom: 0.5em;
+    padding-left: 1em;
+}
+
+#container {
+    margin: 1em;
 }
 
 form {

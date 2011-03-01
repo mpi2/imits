@@ -6,6 +6,14 @@ module EmiAttemptsHelper
       search_terms = config_up_to_now.fetch(:search_terms)
       config_up_to_now.merge(
         :model => 'EmiAttempt',
+
+        :border => true,
+        :header => false,
+        :view_config => {
+          :force_fit => true,
+        },
+        :clicks_to_edit => :auto,
+
         :columns => [
           :clone_name,
           {:name => :gene_symbol, :header => 'Gene', :read_only => true},

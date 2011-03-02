@@ -57,7 +57,7 @@ module MiAttemptsHelper
         :prohibit_delete => true,
         :enable_edit_in_form => false,
         :enable_extended_search => false,
-        :scope => [:by_clone_names, search_terms]
+        :scope => proc { |relation| relation.search search_terms }
       )
     end
   end

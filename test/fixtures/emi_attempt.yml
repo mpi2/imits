@@ -262,3 +262,69 @@ EPD0343_1_H06__1:
   qc_mutant_specific_sr_pcr: na
   qc_five_prime_cass_integrity: na
   qc_neo_sr_pcr: na
+
+EPD0029_1_G04__1:
+  id: 5409
+  is_active: true
+  event_id: 6422
+  actual_mi_date: 2008-02-22 00:00:00 Z
+  attempt_number: 1
+  num_recipients:
+  num_blasts: "40"
+  created_date: 2009-11-13 00:00:00 Z
+  creator_id: 26
+  edit_date: 2011-02-21 00:00:00 Z
+  edited_by: vvi
+  number_born: 20
+  total_chimeras: 9
+  number_male_chimeras: 7
+  number_female_chimeras: 2
+  date_chimera_mated:
+  number_chimera_mated: 5
+  number_chimera_mating_success: 4
+  date_f1_genotype:
+  number_male_100_percent: 0
+  number_male_gt_80_percent: 3
+  number_male_40_to_80_percent: 2
+  number_male_lt_40_percent: 2
+  number_with_glt: 3
+  comments:
+  status_dict_id: 9
+  num_transferred: 40
+  number_with_cct: "20"
+  total_f1_mice: 166
+  blast_strain:
+  number_f0_matings: 5
+  f0_matings_with_offspring: 4
+  f1_germ_line_mice: 20
+  number_lt_10_percent_glt: 0
+  number_btw_10_50_percent_glt: 0
+  number_gt_50_percent_glt: 1
+  number_het_offspring: 371
+  number_100_percent_glt: 0
+  test_cross_strain: B6JTyr<c-Brd>
+  chimeras_with_glt_from_cct: 1
+  chimeras_with_glt_from_genotyp:
+  colony_name: MBFD
+  europhenome:
+  emma: "1"
+  mmrrc:
+  number_live_glt_offspring: 50
+  is_emma_sticky:
+  back_cross_strain: B6N/TacDen
+  production_centre_mi_id: "758"
+  f1_black: 38
+  f1_non_black: 128
+  mouse_allele_name:
+  qc_five_prime_lr_pcr: pass
+  qc_three_prime_lr_pcr: na
+  qc_tv_backbone_assay: pass
+  qc_loxp_confirmation: pass
+  qc_southern_blot:
+  qc_loa_qpcr: na
+  qc_homozygous_loa_sr_pcr: na
+  qc_neo_count_qpcr: pass
+  qc_lacz_sr_pcr: pass
+  qc_mutant_specific_sr_pcr: pass
+  qc_five_prime_cass_integrity: pass
+  qc_neo_sr_pcr: na

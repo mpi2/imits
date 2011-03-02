@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class SearchForMiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
+class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
   def selector_for_table_cell(table_row)
     ".x-grid3-body .x-grid3-row:nth-child(#{table_row}) .x-grid3-cell-inner"
@@ -54,11 +54,29 @@ class SearchForMiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
       assert page.has_css? '.x-grid3-cell-inner', :text => 'on'
       assert page.has_css? '.x-grid3-cell-inner', :text => 'off'
     end
+
+    should 'show search terms when results are shown' do
+      visit '/mi_attempts?search_terms=EPD0127_4_E01%0D%0AEPD0343_1_H06'
+      assert page.has_css? '#search_terms', :text => "EPD0127_4_E01 EPD0343_1_H06"
+    end
   end
 
-  should 'display search results on searched page' do
-    visit '/mi_attempts?search_terms=EPD0127_4_E01%0D%0AEPD0343_1_H06'
-    assert page.has_css? '#search_terms', :text => "EPD0127_4_E01 EPD0343_1_H06"
+  context 'searching for mi attempts by gene symbol' do
+    setup do
+      visit '/'
+      assert_false page.has_css? 'x-grid3'
+      fill_in 'search_terms', :with => 'Trafd1'
+      click_button 'Search'
+    end
+
+    should 'work' do
+      assert_match %r{^http://[^/]+/mi_attempts\?search_terms=Trafd1$}, current_url
+      assert page.has_css? selector_for_table_cell(1), :text => 'EPD0127_4_E01'
+    end
+
+    should 'not find unmatched clones' do
+      assert page.has_no_css?('.x-grid3-cell-inner', :text => 'EPD0343_1_H06')
+    end
   end
 
   should 'work for search with no terms' do

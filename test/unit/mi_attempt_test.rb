@@ -20,9 +20,9 @@ class MiAttemptTest < ActiveSupport::TestCase
     assert_equal emi_clone('EPD0127_4_E01'), emi_attempt('EPD0127_4_E01__1').emi_clone
   end
 
-  context '::by_clone_names' do
+  context '::search (and hence scope by_clone names and by_gene_symbols)' do
     should 'work for multiple clones' do
-      results = MiAttempt.by_clone_names(['EPD0127_4_E01', 'EPD0343_1_H06'])
+      results = MiAttempt.search(['EPD0127_4_E01', 'EPD0343_1_H06'])
       assert_equal 4, results.size
       assert results.include? emi_attempt('EPD0127_4_E01__1')
       assert results.include? emi_attempt('EPD0127_4_E01__2')
@@ -31,23 +31,30 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'work for single clones' do
-      results = MiAttempt.by_clone_names(['EPD0127_4_E01'])
+      results = MiAttempt.search(['EPD0127_4_E01'])
       assert_equal 3, results.size
       assert results.include? emi_attempt('EPD0127_4_E01__1')
       assert results.include? emi_attempt('EPD0127_4_E01__2')
       assert results.include? emi_attempt('EPD0127_4_E01__3')
     end
-  end
 
-  context '::by_gene_symbols' do
-    should 'work for single clone' do
-      results = MiAttempt.by_gene_symbols(['Myo1c'])
+    should 'work for single gene symbol' do
+      results = MiAttempt.search(['Myo1c'])
       assert_equal 1, results.size
       assert results.include? emi_attempt('EPD0343_1_H06__1')
     end
 
     should 'work for multiple clones' do
-      results = MiAttempt.by_gene_symbols(['Trafd1', 'Myo1c'])
+      results = MiAttempt.search(['Trafd1', 'Myo1c'])
+      assert_equal 4, results.size
+      assert results.include? emi_attempt('EPD0127_4_E01__1')
+      assert results.include? emi_attempt('EPD0127_4_E01__2')
+      assert results.include? emi_attempt('EPD0127_4_E01__3')
+      assert results.include? emi_attempt('EPD0343_1_H06__1')
+    end
+
+    should 'work when mixing clone names and gene symbols' do
+      results = MiAttempt.search(['EPD0127_4_E01', 'Myo1c'])
       assert_equal 4, results.size
       assert results.include? emi_attempt('EPD0127_4_E01__1')
       assert results.include? emi_attempt('EPD0127_4_E01__2')

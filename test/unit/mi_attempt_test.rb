@@ -39,6 +39,23 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
   end
 
+  context '::by_gene_symbols' do
+    should 'work for single clone' do
+      results = MiAttempt.by_gene_symbols(['Myo1c'])
+      assert_equal 1, results.size
+      assert results.include? emi_attempt('EPD0343_1_H06__1')
+    end
+
+    should 'work for multiple clones' do
+      results = MiAttempt.by_gene_symbols(['Trafd1', 'Myo1c'])
+      assert_equal 4, results.size
+      assert results.include? emi_attempt('EPD0127_4_E01__1')
+      assert results.include? emi_attempt('EPD0127_4_E01__2')
+      assert results.include? emi_attempt('EPD0127_4_E01__3')
+      assert results.include? emi_attempt('EPD0343_1_H06__1')
+    end
+  end
+
   context 'delegated methods' do
     should '#clone_name' do
       assert_equal 'EPD0127_4_E01', default_mi_attempt.clone_name

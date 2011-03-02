@@ -22,6 +22,13 @@
   </div>
 
   <div class="clear"></div>
+
+  <% if ! Rails.env.production? %>
+  <div class="grid_12">
+    <p id="sample_data_warning">SAMPLE DATA - no real data will be affected by making modifications here</p>
+  </div>
+  <% end %>
+
 </div>
 
 <div>

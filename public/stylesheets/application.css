@@ -23,9 +23,18 @@ h1 {
     margin: 1em;
 }
 
+#sample_data_warning {
+    font-size: 3em;
+    background-color: red;
+    color: white;
+    line-height: 1em;
+    text-align: center;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
 form {
     display: block;
-    margin-bottom: 1em;
 }
 
 textarea#search_terms {

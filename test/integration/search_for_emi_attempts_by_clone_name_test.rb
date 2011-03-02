@@ -73,4 +73,9 @@ class SearchForEmiAttemptsByCloneNameTest < ActionDispatch::IntegrationTest
     click_button 'Clear'
     assert_blank find('#search_terms').text
   end
+
+  should 'display test data warning' do
+    visit '/'
+    assert page.has_content? 'SAMPLE DATA'
+  end
 end

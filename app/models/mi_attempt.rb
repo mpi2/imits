@@ -12,10 +12,6 @@ class MiAttempt < ActiveRecord::Base
 
   scope :by_clone_names, proc { |clone_names| joins({:emi_event => :emi_clone}).where(:emi_clone => {:clone_name => clone_names}) }
 
-  def formatted_proposed_mi_date; proposed_mi_date.strftime('%d %B %Y'); end
-
-  def formatted_actual_mi_date; actual_mi_date.strftime('%d %B %Y'); end
-
   def set_distribution_centre_by_name(name)
     return emi_event.update_attributes(:distribution_centre => Centre.find_by_name!(name))
   end

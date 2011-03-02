@@ -61,14 +61,6 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
   end
 
-  should '#formatted_proposed_mi_date' do
-    assert_equal '29 July 2008', emi_attempt('EPD0127_4_E01__1').formatted_proposed_mi_date
-  end
-
-  should '#formatted_actual_mi_date' do
-    assert_equal '30 July 2008', emi_attempt('EPD0127_4_E01__1').formatted_actual_mi_date
-  end
-
   context '#set_distribution_centre_by_name' do
     should 'work' do
       default_mi_attempt.set_distribution_centre_by_name 'WTSI'

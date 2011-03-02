@@ -1,11 +1,11 @@
-module EmiAttemptsHelper
+module MiAttemptsHelper
 
   class Grid < Netzke::Basepack::GridPanel
     def configuration
       config_up_to_now = super
       search_terms = config_up_to_now.fetch(:search_terms)
       config_up_to_now.merge(
-        :model => 'EmiAttempt',
+        :model => 'MiAttempt',
 
         :border => true,
         :header => false,
@@ -62,8 +62,8 @@ module EmiAttemptsHelper
     end
   end
 
-  def emi_attempts_table(search_terms)
-    netzke(:micro_injection_attempts, :class_name => "EmiAttemptsHelper::Grid",
+  def mi_attempts_table(search_terms)
+    netzke(:micro_injection_attempts, :class_name => "MiAttemptsHelper::Grid",
       :search_terms => search_terms)
   end
 end

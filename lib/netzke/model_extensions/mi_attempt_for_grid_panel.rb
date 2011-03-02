@@ -1,5 +1,5 @@
 module Netzke::ModelExtensions
-  class EmiAttemptForGridPanel < EmiAttempt
+  class MiAttemptForGridPanel < EmiAttempt
     netzke_attribute :clone_name
     netzke_attribute :gene_symbol
     netzke_attribute :allele_name

@@ -2,9 +2,9 @@ Kermits2::Application.routes.draw do
 
   netzke
 
-  root :to => "emi_attempts#index"
+  root :to => "mi_attempts#index"
 
-  resources :emi_attempts, :only => [:index]
+  resources :mi_attempts, :only => [:index]
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

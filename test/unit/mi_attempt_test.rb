@@ -2,14 +2,14 @@
 
 require 'test_helper'
 
-class EmiAttemptTest < ActiveSupport::TestCase
+class MiAttemptTest < ActiveSupport::TestCase
 
   def default_mi_attempt
     @default_mi_attempt ||= emi_attempt('EPD0127_4_E01__1')
   end
 
   should 'use table "emi_attempt"' do
-    assert_equal 'emi_attempt', EmiAttempt.table_name
+    assert_equal 'emi_attempt', MiAttempt.table_name
   end
 
   should 'belong to emi_event' do
@@ -22,7 +22,7 @@ class EmiAttemptTest < ActiveSupport::TestCase
 
   context '::by_clone_names' do
     should 'work for multiple clones' do
-      results = EmiAttempt.by_clone_names(['EPD0127_4_E01', 'EPD0343_1_H06'])
+      results = MiAttempt.by_clone_names(['EPD0127_4_E01', 'EPD0343_1_H06'])
       assert_equal 4, results.size
       assert results.include? emi_attempt('EPD0127_4_E01__1')
       assert results.include? emi_attempt('EPD0127_4_E01__2')
@@ -31,7 +31,7 @@ class EmiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'work for single clones' do
-      results = EmiAttempt.by_clone_names(['EPD0127_4_E01'])
+      results = MiAttempt.by_clone_names(['EPD0127_4_E01'])
       assert_equal 3, results.size
       assert results.include? emi_attempt('EPD0127_4_E01__1')
       assert results.include? emi_attempt('EPD0127_4_E01__2')
@@ -160,7 +160,7 @@ class EmiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'error for anything else' do
-      assert_raise(EmiAttempt::EmmaStatusError) do
+      assert_raise(MiAttempt::EmmaStatusError) do
         default_mi_attempt.emma_status = 'invalid'
       end
     end

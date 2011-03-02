@@ -1,4 +1,4 @@
-class EmiAttempt < ActiveRecord::Base
+class MiAttempt < ActiveRecord::Base
   set_table_name 'emi_attempt'
 
   # The include does not work in postgres, which seems to ignore it, and breaks

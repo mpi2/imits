@@ -3,7 +3,7 @@
 <div class="container_12" style="overflow: hidden">
 
   <div class="prefix_4 grid_4">
-    <form method="get" action="/emi_attempts">
+    <form method="get" action="/mi_attempts">
       <div>
         <textarea cols="10" rows="10" name="search_terms" id="search_terms"><%= @search_terms.join "\n" %></textarea>
       </div>
@@ -32,5 +32,5 @@
 </div>
 
 <div>
-  <%= emi_attempts_table(@search_terms) %>
+  <%= mi_attempts_table(@search_terms) %>
 </div>

@@ -49,3 +49,7 @@ textarea#search_terms {
 #buttons input, #buttons button {
     width: 45%;
 }
+
+#search-message {
+    margin-top: 4.5em;
+}

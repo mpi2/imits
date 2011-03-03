@@ -20,7 +20,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     assert_equal emi_clone('EPD0127_4_E01'), emi_attempt('EPD0127_4_E01__1').emi_clone
   end
 
-  context '::search (and hence scope by_clone names and by_gene_symbols)' do
+  context '::search (and hence the scopes by_clone names and by_gene_symbols)' do
     should 'work for multiple clones' do
       results = MiAttempt.search(['EPD0127_4_E01', 'EPD0343_1_H06'])
       assert_equal 4, results.size
@@ -60,6 +60,14 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert results.include? emi_attempt('EPD0127_4_E01__2')
       assert results.include? emi_attempt('EPD0127_4_E01__3')
       assert results.include? emi_attempt('EPD0343_1_H06__1')
+    end
+
+    should 'not have duplicates in results' do
+      results = MiAttempt.search(['EPD0127_4_E01', 'Trafd1'])
+      assert_equal 3, results.size
+      assert results.include? emi_attempt('EPD0127_4_E01__1')
+      assert results.include? emi_attempt('EPD0127_4_E01__2')
+      assert results.include? emi_attempt('EPD0127_4_E01__3')
     end
   end
 

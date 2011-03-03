@@ -10,8 +10,8 @@ class EmiEventTest < ActiveSupport::TestCase
     assert_equal 'emi_event', EmiEvent.table_name
   end
 
-  should 'belong to emi_clone' do
-    assert_equal emi_clone('EPD0127_4_E01'), default_emi_event.emi_clone
+  should 'belong to clone' do
+    assert_equal emi_clone('EPD0127_4_E01'), default_emi_event.clone
   end
 
   should 'belong to distribution_centre' do

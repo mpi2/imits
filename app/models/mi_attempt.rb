@@ -4,15 +4,15 @@ class MiAttempt < ActiveRecord::Base
   # The include does not work in postgres, which seems to ignore it, and breaks
   # on oracle
   belongs_to :emi_event, :class_name => 'EmiEvent',
-          :foreign_key => :event_id # , :include => [:emi_clone]
+          :foreign_key => :event_id # , :include => [:clone]
 
-  delegate :emi_clone, :proposed_mi_date, :distribution_centre, :to => :emi_event
+  delegate :clone, :proposed_mi_date, :distribution_centre, :to => :emi_event
 
-  delegate :clone_name, :gene_symbol, :allele_name, :to => :emi_clone
+  delegate :clone_name, :gene_symbol, :allele_name, :to => :clone
 
-  scope :by_clone_names, proc { |clone_names| joins({:emi_event => :emi_clone}).where(:emi_clone => {:clone_name => clone_names}) }
+  scope :by_clone_names, proc { |clone_names| joins({:emi_event => :clone}).where(:emi_clone => {:clone_name => clone_names}) }
 
-  scope :by_gene_symbols, proc { |gene_symbols| joins({:emi_event => :emi_clone}).where(:emi_clone => {:gene_symbol => gene_symbols}) }
+  scope :by_gene_symbols, proc { |gene_symbols| joins({:emi_event => :clone}).where(:emi_clone => {:gene_symbol => gene_symbols}) }
 
   scope :by_colony_names, proc { |colony_names| where(:colony_name => colony_names)}
 

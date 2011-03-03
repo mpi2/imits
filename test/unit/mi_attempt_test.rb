@@ -16,11 +16,11 @@ class MiAttemptTest < ActiveSupport::TestCase
     assert_equal emi_event('EPD0127_4_E01'), emi_attempt('EPD0127_4_E01__1').emi_event
   end
 
-  should 'belong to emi clone through emi event' do
-    assert_equal emi_clone('EPD0127_4_E01'), emi_attempt('EPD0127_4_E01__1').emi_clone
+  should 'belong to clone through emi event' do
+    assert_equal emi_clone('EPD0127_4_E01'), emi_attempt('EPD0127_4_E01__1').clone
   end
 
-  context '::search (and hence the scopes by_clone names and by_gene_symbols)' do
+  context '::search (and hence the scopes by_clone names, by_gene_symbols and by_colony_names)' do
     should 'work for multiple clones' do
       results = MiAttempt.search(['EPD0127_4_E01', 'EPD0343_1_H06'])
       assert_equal 4, results.size

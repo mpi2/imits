@@ -14,8 +14,10 @@ class MiAttempt < ActiveRecord::Base
 
   scope :by_gene_symbols, proc { |gene_symbols| joins({:emi_event => :emi_clone}).where(:emi_clone => {:gene_symbol => gene_symbols}) }
 
+  scope :by_colony_names, proc { |colony_names| where(:colony_name => colony_names)}
+
   def self.search(search_terms)
-    (by_clone_names(search_terms).to_a + by_gene_symbols(search_terms).to_a).uniq
+    (by_clone_names(search_terms).to_a + by_gene_symbols(search_terms).to_a + by_colony_names(search_terms).to_a).uniq
   end
 
   def set_distribution_centre_by_name(name)

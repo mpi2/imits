@@ -44,7 +44,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert results.include? emi_attempt('EPD0343_1_H06__1')
     end
 
-    should 'work for multiple clones' do
+    should 'work for multiple gene symbols' do
       results = MiAttempt.search(['Trafd1', 'Myo1c'])
       assert_equal 4, results.size
       assert results.include? emi_attempt('EPD0127_4_E01__1')
@@ -53,13 +53,29 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert results.include? emi_attempt('EPD0343_1_H06__1')
     end
 
-    should 'work when mixing clone names and gene symbols' do
-      results = MiAttempt.search(['EPD0127_4_E01', 'Myo1c'])
-      assert_equal 4, results.size
+    should 'work for single colony name' do
+      results = MiAttempt.search(['MBSS'])
+      assert_equal 2, results.size
+      assert results.include? emi_attempt('EPD0127_4_E01__1')
+      assert results.include? emi_attempt('EPD0127_4_E01__2')
+    end
+
+    should 'work for multiple colony names' do
+      results = MiAttempt.search(['MBSS', 'WBAA'])
+      assert_equal 3, results.size
+      assert results.include? emi_attempt('EPD0127_4_E01__1')
+      assert results.include? emi_attempt('EPD0127_4_E01__2')
+      assert results.include? emi_attempt('EPD0127_4_E01__3')
+    end
+
+    should 'work when mixing clone names, gene symbols and colony names' do
+      results = MiAttempt.search(['EPD0127_4_E01', 'Myo1c', 'MBFD'])
+      assert_equal 5, results.size
       assert results.include? emi_attempt('EPD0127_4_E01__1')
       assert results.include? emi_attempt('EPD0127_4_E01__2')
       assert results.include? emi_attempt('EPD0127_4_E01__3')
       assert results.include? emi_attempt('EPD0343_1_H06__1')
+      assert results.include? emi_attempt('EPD0029_1_G04__1')
     end
 
     should 'not have duplicates in results' do

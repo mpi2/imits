@@ -3,7 +3,7 @@ module MiAttemptsHelper
   class Grid < Netzke::Basepack::GridPanel
     def configuration
       config_up_to_now = super
-      search_terms = config_up_to_now.fetch(:search_terms)
+      search_terms = config_up_to_now.delete(:search_terms)
       config_up_to_now.merge(
         :model => 'MiAttempt',
 
@@ -12,7 +12,9 @@ module MiAttemptsHelper
         :view_config => {
           :force_fit => true,
         },
-        :clicks_to_edit => :auto,
+        :layout => :fit,
+
+        :clicks_to_edit => 1,
 
         :columns => [
           :clone_name,
@@ -63,7 +65,25 @@ module MiAttemptsHelper
   end
 
   def mi_attempts_table(search_terms)
-    netzke(:micro_injection_attempts, :class_name => "MiAttemptsHelper::Grid",
-      :search_terms => search_terms)
+    one = netzke(:micro_injection_attempts_outer,
+      :class_name => "Netzke::Basepack::Panel",
+      :title => 'Micro-Injection Attempts',
+      :layout => :fit,
+      :items => [
+        { :name => :micro_injection_attempts,
+          :class_name => 'MiAttemptsHelper::Grid',
+          :search_terms => search_terms
+        }
+      ]
+    )
+
+    two = javascript_tag(<<-'EOL')
+      Ext.onReady(function(){
+        var outerpanel = Netzke.page.microInjectionAttemptsOuter;
+        Ext.EventManager.onWindowResize(outerpanel.doLayout, outerpanel);
+      });
+    EOL
+
+    return one + "\n" + two
   end
 end

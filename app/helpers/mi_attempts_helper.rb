@@ -9,10 +9,6 @@ module MiAttemptsHelper
 
         :border => true,
         :header => false,
-        :view_config => {
-          :force_fit => true,
-        },
-        :layout => :fit,
 
         :clicks_to_edit => 1,
 

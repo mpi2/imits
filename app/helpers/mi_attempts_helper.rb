@@ -77,7 +77,6 @@ module MiAttemptsHelper
       )
     end
 
-
   js_method(:on_render, <<-JS)
     function(container) {
       Ext.EventManager.onWindowResize(this.doLayout, this);

@@ -20,7 +20,7 @@ h1 {
 }
 
 #container {
-    margin: 1em;
+   margin: 0 1em;
 }
 
 #sample_data_warning {
@@ -52,4 +52,11 @@ textarea#search_terms {
 
 #search-message {
     margin-top: 4.5em;
+}
+
+#footer {
+    font-size: 80%;
+    margin-top: 1em;
+    background: #074987;
+    color: white;
 }

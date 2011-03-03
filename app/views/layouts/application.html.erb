@@ -23,6 +23,10 @@
       <h1>Kermits 2 - <%= @title %></h1>
 
       <%= yield %>
+
+      <div id="footer">
+        <span>Git revision: <%= GIT_REVISION %></span>
+      </div>
     </div>
   </body>
 

@@ -34,9 +34,9 @@ class MiAttempt < ActiveRecord::Base
 
   def emma_status
     if emma?
-      if is_emma_sticky? then return :force_on else return :on end
+      if is_emma_sticky? then return :suitable_sticky else return :suitable end
     else
-      if is_emma_sticky? then return :force_off else return :off end
+      if is_emma_sticky? then return :unsuitable_sticky else return :unsuitable end
     end
   end
 
@@ -44,19 +44,19 @@ class MiAttempt < ActiveRecord::Base
 
   def emma_status=(status)
     case status.to_sym
-    when :on then
+    when :suitable then
       self.emma = '1'
       self.is_emma_sticky = false
 
-    when :off then
+    when :unsuitable then
       self.emma = '0'
       self.is_emma_sticky = false
 
-    when :force_on then
+    when :suitable_sticky then
       self.emma = '1'
       self.is_emma_sticky = true
 
-    when :force_off then
+    when :unsuitable_sticky then
       self.emma = '0'
       self.is_emma_sticky = true
 

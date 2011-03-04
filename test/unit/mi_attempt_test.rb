@@ -168,55 +168,55 @@ class MiAttemptTest < ActiveSupport::TestCase
   end
 
   context '#emma_status' do
-    should 'be :on if emma=true and is_emma_sticky=false' do
+    should 'be :suitable if emma=true and is_emma_sticky=false' do
       default_mi_attempt.emma = '1'
       default_mi_attempt.is_emma_sticky = false
-      assert_equal :on, default_mi_attempt.emma_status
+      assert_equal :suitable, default_mi_attempt.emma_status
     end
 
-    should 'be :off if emma=false and is_emma_sticky=false' do
+    should 'be :unsuitable if emma=false and is_emma_sticky=false' do
       default_mi_attempt.emma = '0'
       default_mi_attempt.is_emma_sticky = false
-      assert_equal :off, default_mi_attempt.emma_status
+      assert_equal :unsuitable, default_mi_attempt.emma_status
     end
 
-    should 'be :force_on if emma=true and is_emma_sticky=true' do
+    should 'be :suitable_sticky if emma=true and is_emma_sticky=true' do
       default_mi_attempt.emma = '1'
       default_mi_attempt.is_emma_sticky = true
-      assert_equal :force_on, default_mi_attempt.emma_status
+      assert_equal :suitable_sticky, default_mi_attempt.emma_status
     end
 
-    should 'be :force_off if emma=false and is_emma_sticky=true' do
+    should 'be :unsuitable_sticky if emma=false and is_emma_sticky=true' do
       default_mi_attempt.emma = '0'
       default_mi_attempt.is_emma_sticky = true
-      assert_equal :force_off, default_mi_attempt.emma_status
+      assert_equal :unsuitable_sticky, default_mi_attempt.emma_status
     end
   end
 
   context '#emma_status=' do
-    should 'work for on' do
-      default_mi_attempt.emma_status = 'on'
+    should 'work for suitable' do
+      default_mi_attempt.emma_status = 'suitable'
       default_mi_attempt.save!
       default_mi_attempt.reload
       assert_equal ['1', false], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
     end
 
-    should 'work for off' do
-      default_mi_attempt.emma_status = 'off'
+    should 'work for unsuitable' do
+      default_mi_attempt.emma_status = 'unsuitable'
       default_mi_attempt.save!
       default_mi_attempt.reload
       assert_equal ['0', false], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
     end
 
-    should 'work for :force_on' do
-      default_mi_attempt.emma_status = 'force_on'
+    should 'work for :suitable_sticky' do
+      default_mi_attempt.emma_status = 'suitable_sticky'
       default_mi_attempt.save!
       default_mi_attempt.reload
       assert_equal ['1', true], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
     end
 
-    should 'work for :force_off' do
-      default_mi_attempt.emma_status = 'force_off'
+    should 'work for :unsuitable_sticky' do
+      default_mi_attempt.emma_status = 'unsuitable_sticky'
       default_mi_attempt.save!
       default_mi_attempt.reload
       assert_equal ['0', true], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
@@ -229,12 +229,12 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'set cause #emma_status to return the right value after being saved' do
-      default_mi_attempt.emma_status = 'force_off'
+      default_mi_attempt.emma_status = 'unsuitable_sticky'
       default_mi_attempt.save!
       default_mi_attempt.reload
 
       assert_equal ['0', true], [default_mi_attempt.emma, default_mi_attempt.is_emma_sticky]
-      assert_equal :force_off, default_mi_attempt.emma_status
+      assert_equal :unsuitable_sticky, default_mi_attempt.emma_status
     end
   end
 

@@ -10,11 +10,11 @@ class MiAttempt < ActiveRecord::Base
 
   delegate :clone_name, :gene_symbol, :allele_name, :to => :clone
 
-  scope :by_clone_names, proc { |clone_names| joins({:emi_event => :clone}).where(:emi_clone => {:clone_name => clone_names}) }
+  scope :by_clone_names, proc { |clone_names| joins({:emi_event => :clone}).where('UPPER(emi_clone.clone_name) IN (?)', clone_names.map(&:upcase)) }
 
-  scope :by_gene_symbols, proc { |gene_symbols| joins({:emi_event => :clone}).where(:emi_clone => {:gene_symbol => gene_symbols}) }
+  scope :by_gene_symbols, proc { |gene_symbols| joins({:emi_event => :clone}).where('UPPER(emi_clone.gene_symbol) IN (?)', gene_symbols.map(&:upcase)) }
 
-  scope :by_colony_names, proc { |colony_names| where(:colony_name => colony_names)}
+  scope :by_colony_names, proc { |colony_names| where('UPPER(colony_name) IN (?)', colony_names.map(&:upcase))}
 
   def self.search(search_terms)
     (by_clone_names(search_terms).to_a + by_gene_symbols(search_terms).to_a + by_colony_names(search_terms).to_a).uniq

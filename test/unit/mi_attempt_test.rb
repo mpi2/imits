@@ -21,6 +21,23 @@ class MiAttemptTest < ActiveSupport::TestCase
   end
 
   context '::search (and hence the scopes by_clone names, by_gene_symbols and by_colony_names)' do
+
+    should 'work for single clone' do
+      results = MiAttempt.search(['EPD0127_4_E01'])
+      assert_equal 3, results.size
+      assert results.include? emi_attempt('EPD0127_4_E01__1')
+      assert results.include? emi_attempt('EPD0127_4_E01__2')
+      assert results.include? emi_attempt('EPD0127_4_E01__3')
+    end
+
+    should 'work for single clone case-insensitively' do
+      results = MiAttempt.search(['epd0127_4_E01'])
+      assert_equal 3, results.size
+      assert results.include? emi_attempt('EPD0127_4_E01__1')
+      assert results.include? emi_attempt('EPD0127_4_E01__2')
+      assert results.include? emi_attempt('EPD0127_4_E01__3')
+    end
+
     should 'work for multiple clones' do
       results = MiAttempt.search(['EPD0127_4_E01', 'EPD0343_1_H06'])
       assert_equal 4, results.size
@@ -30,16 +47,14 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert results.include? emi_attempt('EPD0343_1_H06__1')
     end
 
-    should 'work for single clones' do
-      results = MiAttempt.search(['EPD0127_4_E01'])
-      assert_equal 3, results.size
-      assert results.include? emi_attempt('EPD0127_4_E01__1')
-      assert results.include? emi_attempt('EPD0127_4_E01__2')
-      assert results.include? emi_attempt('EPD0127_4_E01__3')
-    end
-
     should 'work for single gene symbol' do
       results = MiAttempt.search(['Myo1c'])
+      assert_equal 1, results.size
+      assert results.include? emi_attempt('EPD0343_1_H06__1')
+    end
+
+    should 'work for single gene symbol case-insensitively' do
+      results = MiAttempt.search(['myo1C'])
       assert_equal 1, results.size
       assert results.include? emi_attempt('EPD0343_1_H06__1')
     end
@@ -55,6 +70,13 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     should 'work for single colony name' do
       results = MiAttempt.search(['MBSS'])
+      assert_equal 2, results.size
+      assert results.include? emi_attempt('EPD0127_4_E01__1')
+      assert results.include? emi_attempt('EPD0127_4_E01__2')
+    end
+
+    should 'work for single colony name case-insensitively' do
+      results = MiAttempt.search(['mbss'])
       assert_equal 2, results.size
       assert results.include? emi_attempt('EPD0127_4_E01__1')
       assert results.include? emi_attempt('EPD0127_4_E01__2')
@@ -85,6 +107,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert results.include? emi_attempt('EPD0127_4_E01__2')
       assert results.include? emi_attempt('EPD0127_4_E01__3')
     end
+
   end
 
   context 'delegated methods' do

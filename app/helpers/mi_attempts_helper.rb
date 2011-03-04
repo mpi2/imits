@@ -11,6 +11,7 @@ module MiAttemptsHelper
         :header => false,
 
         :clicks_to_edit => 1,
+        :rows_per_page => 100,
 
         :columns => [
           :clone_name,

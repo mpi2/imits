@@ -4,37 +4,37 @@ class CreateEmiAttemptEmiCloneEmiEvent < ActiveRecord::Migration
     raise 'Invalid environment' unless Rails.env.development? || Rails.env.test?
 
     create_table "emi_attempt" do |t|
-      t.boolean  "is_active"
-      t.integer  "event_id"
+      t.boolean  "is_active",                                      :precision => 1,  :scale => 0
+      t.integer  "event_id",                                       :precision => 38, :scale => 0
       t.datetime "actual_mi_date"
-      t.integer  "attempt_number"
-      t.integer  "num_recipients"
+      t.integer  "attempt_number",                                 :precision => 38, :scale => 0
+      t.decimal  "num_recipients"
       t.string   "num_blasts",                     :limit => 4000
       t.datetime "created_date"
-      t.integer "creator_id"
+      t.decimal  "creator_id"
       t.datetime "edit_date"
       t.string   "edited_by",                      :limit => 128
-      t.integer  "number_born"
-      t.integer  "total_chimeras"
-      t.integer  "number_male_chimeras"
-      t.integer  "number_female_chimeras"
+      t.integer  "number_born",                                    :precision => 38, :scale => 0
+      t.integer  "total_chimeras",                                 :precision => 38, :scale => 0
+      t.integer  "number_male_chimeras",                           :precision => 38, :scale => 0
+      t.integer  "number_female_chimeras",                         :precision => 38, :scale => 0
       t.datetime "date_chimera_mated"
-      t.integer  "number_chimera_mated"
-      t.integer  "number_chimera_mating_success"
+      t.integer  "number_chimera_mated",                           :precision => 38, :scale => 0
+      t.integer  "number_chimera_mating_success",                  :precision => 38, :scale => 0
       t.datetime "date_f1_genotype"
-      t.integer  "number_male_100_percent"
-      t.integer  "number_male_gt_80_percent"
-      t.integer  "number_male_40_to_80_percent"
-      t.integer  "number_male_lt_40_percent"
-      t.integer  "number_with_glt"
+      t.integer  "number_male_100_percent",                        :precision => 38, :scale => 0
+      t.integer  "number_male_gt_80_percent",                      :precision => 38, :scale => 0
+      t.integer  "number_male_40_to_80_percent",                   :precision => 38, :scale => 0
+      t.integer  "number_male_lt_40_percent",                      :precision => 38, :scale => 0
+      t.integer  "number_with_glt",                                :precision => 38, :scale => 0
       t.string   "comments",                       :limit => 4000
-      t.integer  "status_dict_id"
-      t.integer  "num_transferred"
+      t.integer  "status_dict_id",                                 :precision => 38, :scale => 0
+      t.decimal  "num_transferred"
       t.string   "number_with_cct",                :limit => 4000
-      t.integer  "total_f1_mice"
+      t.decimal  "total_f1_mice"
       t.string   "blast_strain",                   :limit => 4000
-      t.integer  "number_f0_matings"
-      t.integer  "f0_matings_with_offspring"
+      t.decimal  "number_f0_matings"
+      t.decimal  "f0_matings_with_offspring"
       t.integer  "f1_germ_line_mice",              :limit => 10,   :precision => 10, :scale => 0
       t.integer  "number_lt_10_percent_glt",       :limit => 10,   :precision => 10, :scale => 0
       t.integer  "number_btw_10_50_percent_glt",   :limit => 10,   :precision => 10, :scale => 0
@@ -49,7 +49,7 @@ class CreateEmiAttemptEmiCloneEmiEvent < ActiveRecord::Migration
       t.string   "emma",                           :limit => 1
       t.string   "mmrrc",                          :limit => 1
       t.integer  "number_live_glt_offspring",      :limit => 10,   :precision => 10, :scale => 0
-      t.boolean  "is_emma_sticky"
+      t.boolean  "is_emma_sticky",                                 :precision => 1,  :scale => 0
       t.string   "back_cross_strain",              :limit => 100
       t.string   "production_centre_mi_id",        :limit => 100
       t.integer  "f1_black",                       :limit => 10,   :precision => 10, :scale => 0

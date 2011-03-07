@@ -20,7 +20,7 @@ module MiAttemptsHelper
         :editable => true,
         :getter => lambda { |relation| EMMA_OPTIONS[relation.emma_status] },
         :setter => lambda { |relation, value| relation.emma_status = REVERSE_EMMA_OPTIONS[value] },
-        :width => 120,
+        :width => 175,
         :editor => {
           :mode => :local,
           :store => EMMA_OPTIONS.values,
@@ -28,7 +28,6 @@ module MiAttemptsHelper
           :xtype => :combo,
           :force_selection => true,
           :trigger_action => :all,
-          :list_width => 200,
         },
       }
     end

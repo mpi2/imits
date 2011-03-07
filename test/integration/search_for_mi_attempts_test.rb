@@ -23,7 +23,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         assert page.has_css? selector_for_table_cell(1), :text => '13-Sep-2010'
         assert page.has_css? selector_for_table_cell(1), :text => 'MDCF'
         assert page.has_css? selector_for_table_cell(1), :text => 'WTSI'
-        assert page.has_css? selector_for_table_cell(1), :text => 'off'
+        assert page.has_css? selector_for_table_cell(1), :text => 'Unsuitable for EMMA'
       end
 
       should 'not show data for other clones' do
@@ -51,8 +51,8 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
     should 'show emma statuses' do
       visit '/mi_attempts?search_terms=EPD0127_4_E01'
 
-      assert page.has_css? '.x-grid3-cell-inner', :text => 'on'
-      assert page.has_css? '.x-grid3-cell-inner', :text => 'off'
+      assert page.has_css? '.x-grid3-cell-inner', :text => 'Suitable for EMMA'
+      assert page.has_css? '.x-grid3-cell-inner', :text => 'Unsuitable for EMMA'
     end
 
     should 'show search terms when results are shown' do

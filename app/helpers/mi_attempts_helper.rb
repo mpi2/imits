@@ -1,6 +1,54 @@
+# encoding: utf-8
+
 module MiAttemptsHelper
 
   class InnerGrid < Netzke::Basepack::GridPanel
+
+    EMMA_OPTIONS = {
+      :unsuitable => 'Unsuitable for EMMA',
+      :suitable => 'Suitable for EMMA',
+      :suitable_sticky => 'Suitable for EMMA - STICKY',
+      :unsuitable_sticky => 'Unsuitable for EMMA - STICKY',
+    }
+
+    REVERSE_EMMA_OPTIONS = EMMA_OPTIONS.invert
+
+    def self.emma_status_column_options
+      return {
+        :name => :emma_status,
+        :header => 'EMMA Status',
+        :editable => true,
+        :getter => lambda { |relation| EMMA_OPTIONS[relation.emma_status] },
+        :setter => lambda { |relation, value| relation.emma_status = REVERSE_EMMA_OPTIONS[value] },
+        :width => 120,
+        :editor => {
+          :mode => :local,
+          :store => EMMA_OPTIONS.values,
+          :editable => false,
+          :xtype => :combo,
+          :force_selection => true,
+          :trigger_action => :all,
+          :list_width => 200,
+        },
+      }
+    end
+
+    def self.distribution_centre_name_column_options
+      { :name => :distribution_centre_name,
+        :id => 'distribution_centre_name',
+        :header => 'Distribution Centre',
+        :setter => lambda {|mi_attempt, centre_name| mi_attempt.set_distribution_centre_by_name centre_name },
+        :editable => true,
+        :editor => {
+          :store => Centre.all.collect(&:name),
+          :editable => false,
+          :xtype => :combo,
+          :force_selection => true,
+          :trigger_action => :all,
+        }
+      }
+    end
+
     def configuration
       config_up_to_now = super
       search_terms = config_up_to_now.delete(:search_terms)
@@ -26,31 +74,9 @@ module MiAttemptsHelper
 
           {:name => :colony_name, :header => 'Colony Name', :read_only => true},
 
-          { :name => :distribution_centre_name,
-            :id => 'distribution_centre_name',
-            :header => 'Distribution Centre',
-            :setter => lambda {|mi_attempt, centre_name| mi_attempt.set_distribution_centre_by_name centre_name },
-            :editable => true,
-            :editor => {
-              :store => Centre.all.collect(&:name),
-              :editable => false,
-              :xtype => :combo,
-              :force_selection => true,
-              :trigger_action => :all,
-            }
-          },
+          self.class.distribution_centre_name_column_options,
 
-          { :name => :emma_status,
-            :header => 'EMMA Status',
-            :editable => true,
-            :editor => {
-              :store => ['force_off', 'force_on', 'on', 'off'],
-              :editable => false,
-              :xtype => :combo,
-              :force_selection => true,
-              :trigger_action => :all,
-            }
-          },
+          self.class.emma_status_column_options,
         ],
         :prohibit_create => true,
         :prohibit_delete => true,
@@ -78,12 +104,12 @@ module MiAttemptsHelper
       )
     end
 
-  js_method(:on_render, <<-JS)
-    function(container) {
-      Ext.EventManager.onWindowResize(this.doLayout, this);
-      #{js_full_class_name}.superclass.onRender.call(this, container);
-    }
-  JS
+    js_method(:on_render, <<-JS)
+      function(container) {
+        Ext.EventManager.onWindowResize(this.doLayout, this);
+        #{js_full_class_name}.superclass.onRender.call(this, container);
+      }
+    JS
   end
 
   def mi_attempts_table(search_terms)

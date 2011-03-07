@@ -1,5 +1,5 @@
 set :application, 'kermits-2'
-set :repository,  'http://github.com/i-dcc/kermits-2.git'
+set :repository,  'git://github.com/i-dcc/kermits-2.git'
 set :branch, 'master'
 set :user, `whoami`.chomp
 

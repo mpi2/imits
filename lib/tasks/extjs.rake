@@ -13,7 +13,7 @@ namespace :extjs do
         end
       end
 
-      if ! system("cd #{Rails.root}/public && unzip ../tmp/ext-#{EXTJS_VERSION}.zip")
+      if ! system("cd #{Rails.root}/public && unzip -o ../tmp/ext-#{EXTJS_VERSION}.zip")
         raise "unzip failed!"
       end
     end

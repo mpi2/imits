@@ -1,8 +1,8 @@
 class CreateEmiAttemptEmiCloneEmiEvent < ActiveRecord::Migration
 
-  def self.up
-    raise 'Invalid environment' unless Rails.env.development? || Rails.env.test?
+  raise 'Invalid environment' unless Rails.env.development? || Rails.env.test?
 
+  def self.up
     create_table "emi_attempt" do |t|
       t.boolean  "is_active",                                      :precision => 1,  :scale => 0
       t.integer  "event_id",                                       :precision => 38, :scale => 0
@@ -115,6 +115,8 @@ class CreateEmiAttemptEmiCloneEmiEvent < ActiveRecord::Migration
   end
 
   def self.down
-    raise 'Unsupported'
+    execute 'drop table emi_attempt cascade'
+    execute 'drop table emi_event cascade'
+    execute 'drop table emi_clone cascade'
   end
 end

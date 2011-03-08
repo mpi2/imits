@@ -238,4 +238,6 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
   end
 
+  should belong_to :mi_attempt_status
+
 end

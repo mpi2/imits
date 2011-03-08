@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class MiAttempt < ActiveRecord::Base
   set_table_name 'emi_attempt'
 
@@ -5,6 +7,8 @@ class MiAttempt < ActiveRecord::Base
   # on oracle
   belongs_to :emi_event, :class_name => 'EmiEvent',
           :foreign_key => :event_id # , :include => [:clone]
+
+  belongs_to :mi_attempt_status, :foreign_key => 'status_dict_id'
 
   delegate :clone, :proposed_mi_date, :distribution_centre, :to => :emi_event
 

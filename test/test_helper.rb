@@ -6,10 +6,15 @@ require 'shoulda'
 
 module TestFixtures
   def self.included(mod)
-    mod.set_fixture_class :per_centre => 'Centre'
-    mod.set_fixture_class :emi_attempt => 'MiAttempt'
-    mod.set_fixture_class :emi_clone => 'Clone'
-    mod.fixtures :per_centre, :emi_clone, :emi_event, :emi_attempt
+    mod.set_fixture_class(
+      :per_centre => 'Centre',
+      :emi_attempt => 'MiAttempt',
+      :emi_clone => 'Clone',
+      :emi_event => 'EmiEvent',
+      :emi_status_dict => 'MiAttemptStatus'
+    )
+
+    mod.fixtures :per_centre, :emi_status_dict, :emi_clone, :emi_event, :emi_attempt
   end
 end
 

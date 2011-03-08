@@ -48,6 +48,14 @@ module MiAttemptsHelper
       }
     end
 
+    action :apply do
+      {
+        :text => 'Save Changes',
+        :icon => :tick,
+        :tooltip => 'You must select this to save the changes you have made'
+      }
+    end
+
     def configuration
       config_up_to_now = super
       search_terms = config_up_to_now.delete(:search_terms)
@@ -59,6 +67,10 @@ module MiAttemptsHelper
 
         :clicks_to_edit => 1,
         :rows_per_page => 100,
+
+        :bbar => [
+          :apply.action
+        ],
 
         :columns => [
           :clone_name,

@@ -20,7 +20,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     assert_equal emi_clone('EPD0127_4_E01'), emi_attempt('EPD0127_4_E01__1').clone
   end
 
-  context '::search' do
+  context '::search scope' do
 
     should 'work for single clone' do
       results = MiAttempt.search(['EPD0127_4_E01'])
@@ -111,6 +111,24 @@ class MiAttemptTest < ActiveSupport::TestCase
     should 'be orderable' do
       results = MiAttempt.search(['EPD0127_4_E01', 'Trafd1']).order('emi_clones.clone_name DESC')
     end
+  end
+
+  should 'have scope ::sort_by_clone_name' do
+    got = MiAttempt.joins({:emi_event => :clone}).sort_by_clone_name(:desc).collect(&:clone_name)
+    expected = [
+      'EPD0343_1_H06',
+      'EPD0127_4_E01',
+      'EPD0127_4_E01',
+      'EPD0127_4_E01',
+      'EPD0029_1_G04',
+    ]
+    assert_equal expected, got
+  end
+
+  should 'have scope ::sort_by_gene_symbol' do
+    got = MiAttempt.joins({:emi_event => :clone}).sort_by_gene_symbol(:desc).collect(&:gene_symbol)
+    expected = ["Trafd1", "Trafd1", "Trafd1", "Myo1c", "Gatc"]
+    assert_equal expected, got
   end
 
   context 'delegated methods' do

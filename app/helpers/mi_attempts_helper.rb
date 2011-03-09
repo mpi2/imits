@@ -73,9 +73,22 @@ module MiAttemptsHelper
         ],
 
         :columns => [
-          :clone_name,
-          {:name => :gene_symbol, :header => 'Gene', :read_only => true},
-          {:name => :allele_name, :header => 'Allele', :read_only => true},
+          { :name => :clone_name,
+            :read_only => true,
+            :sortable => true,
+            :sorting_scope => :sort_by_clone_name,
+          },
+
+          { :name => :gene_symbol,
+            :read_only => true,
+            :sortable => true,
+            :sorting_scope => :sort_by_gene_symbol,
+          },
+
+          { :name => :allele_name,
+            :header => 'Allele',
+            :read_only => true,
+          },
 
           { :name => :actual_mi_date,
             :header => 'Actual MI Date',
@@ -97,7 +110,7 @@ module MiAttemptsHelper
         :prohibit_delete => true,
         :enable_edit_in_form => false,
         :enable_extended_search => false,
-        :scope => proc { |relation| relation.search search_terms }
+        :scope => [:search, search_terms]
       )
     end
   end

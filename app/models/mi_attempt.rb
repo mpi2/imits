@@ -14,15 +14,15 @@ class MiAttempt < ActiveRecord::Base
 
   delegate :clone_name, :gene_symbol, :allele_name, :to => :clone
 
-  scope :by_clone_names, proc { |clone_names| joins({:emi_event => :clone}).where('UPPER(emi_clone.clone_name) IN (?)', clone_names.map(&:upcase)) }
-
-  scope :by_gene_symbols, proc { |gene_symbols| joins({:emi_event => :clone}).where('UPPER(emi_clone.gene_symbol) IN (?)', gene_symbols.map(&:upcase)) }
-
-  scope :by_colony_names, proc { |colony_names| where('UPPER(colony_name) IN (?)', colony_names.map(&:upcase))}
-
-  def self.search(search_terms)
-    (by_clone_names(search_terms).to_a + by_gene_symbols(search_terms).to_a + by_colony_names(search_terms).to_a).uniq
-  end
+  scope :search, proc { |terms|
+    terms.map(&:upcase!)
+    joins({:emi_event => :clone}).where(
+      'UPPER(emi_clone.clone_name) IN (?) OR ' +
+      'UPPER(emi_clone.gene_symbol) IN (?) OR ' +
+      'UPPER(colony_name) IN (?)',
+      terms, terms, terms
+    )
+  }
 
   def set_distribution_centre_by_name(name)
     return emi_event.update_attributes(:distribution_centre => Centre.find_by_name!(name))

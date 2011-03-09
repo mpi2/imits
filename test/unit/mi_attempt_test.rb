@@ -20,7 +20,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     assert_equal emi_clone('EPD0127_4_E01'), emi_attempt('EPD0127_4_E01__1').clone
   end
 
-  context '::search (and hence the scopes by_clone names, by_gene_symbols and by_colony_names)' do
+  context '::search' do
 
     should 'work for single clone' do
       results = MiAttempt.search(['EPD0127_4_E01'])
@@ -108,6 +108,9 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert results.include? emi_attempt('EPD0127_4_E01__3')
     end
 
+    should 'be orderable' do
+      results = MiAttempt.search(['EPD0127_4_E01', 'Trafd1']).order('emi_clones.clone_name DESC')
+    end
   end
 
   context 'delegated methods' do

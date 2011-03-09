@@ -86,8 +86,9 @@ module MiAttemptsHelper
           },
 
           { :name => :allele_name,
-            :header => 'Allele',
             :read_only => true,
+            :sortable => true,
+            :sorting_scope => :sort_by_allele_name,
           },
 
           { :name => :actual_mi_date,

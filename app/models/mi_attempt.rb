@@ -32,6 +32,10 @@ class MiAttempt < ActiveRecord::Base
     order("emi_clone.gene_symbol #{direction}")
   }
 
+  scope :sort_by_allele_name, proc { |direction|
+    order("emi_clone.allele_name #{direction}")
+  }
+
   def set_distribution_centre_by_name(name)
     return emi_event.update_attributes(:distribution_centre => Centre.find_by_name!(name))
   end

@@ -131,6 +131,19 @@ class MiAttemptTest < ActiveSupport::TestCase
     assert_equal expected, got
   end
 
+  should 'have scope ::sort_by_allele_name' do
+    got = MiAttempt.joins({:emi_event => :clone}).sort_by_allele_name(:desc).collect(&:allele_name)
+    expected = [
+      "Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>",
+      "Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>",
+      "Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>",
+      "Myo1c<sup>tm1a(EUCOMM)Wtsi</sup>",
+      "Gatc<sup>tm1a(KOMP)Wtsi</sup>"
+    ]
+
+    assert_equal expected, got
+  end
+
   context 'delegated methods' do
     should '#clone_name' do
       assert_equal 'EPD0127_4_E01', default_mi_attempt.clone_name

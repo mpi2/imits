@@ -17,13 +17,19 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
 
       should 'show all data for that clone' do
-        assert page.has_css? selector_for_table_cell(1), :text => 'EPD0343_1_H06'
-        assert page.has_css? selector_for_table_cell(1), :text => 'Myo1c'
-        assert page.has_css? selector_for_table_cell(1), :text => 'Myo1ctm1a(EUCOMM)Wtsi'
-        assert page.has_css? selector_for_table_cell(1), :text => '13-Sep-2010'
-        assert page.has_css? selector_for_table_cell(1), :text => 'MDCF'
-        assert page.has_css? selector_for_table_cell(1), :text => 'WTSI'
-        assert page.has_css? selector_for_table_cell(1), :text => 'Unsuitable for EMMA'
+        [
+          'EPD0343_1_H06',
+          'Myo1c',
+          'Myo1ctm1a(EUCOMM)Wtsi',
+          '13-Sep-2010',
+          'MDCF',
+          'WTSI',
+          'Unsuitable for EMMA',
+          'Micro-injected',
+        ].each do |text|
+          assert(page.has_css?(selector_for_table_cell(1), :text => text),
+            "Expected text '#{text}' in table cell 1, but did not find it")
+        end
       end
 
       should 'not show data for other clones' do

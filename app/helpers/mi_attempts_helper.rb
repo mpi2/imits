@@ -83,6 +83,10 @@ module MiAttemptsHelper
             :renderer => ['date', 'd-M-Y'],
           },
 
+          { :name => 'status',
+            :getter => proc { |relation| relation.mi_attempt_status.name },
+          },
+
           {:name => :colony_name, :header => 'Colony Name', :read_only => true},
 
           self.class.distribution_centre_name_column_options,

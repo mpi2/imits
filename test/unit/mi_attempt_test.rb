@@ -144,6 +144,19 @@ class MiAttemptTest < ActiveSupport::TestCase
     assert_equal expected, got
   end
 
+  should 'have scope ::sort_by_mi_attempt_status' do
+    got = MiAttempt.joins({:emi_event => :clone}).sort_by_mi_attempt_status(:asc).collect(&:mi_attempt_status).collect(&:name)
+    expected = [
+      "Genotype Confirmed",
+      "Genotype Confirmed",
+      "Genotype Confirmed",
+      "Micro-injected",
+      "Micro-injected"
+    ]
+
+    assert_equal expected, got
+  end
+
   context 'delegated methods' do
     should '#clone_name' do
       assert_equal 'EPD0127_4_E01', default_mi_attempt.clone_name

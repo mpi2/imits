@@ -1,0 +1,3 @@
+EXTJS_VERSION = '3.3.1'
+EXTJS_ZIPFILE = "ext-#{EXTJS_VERSION}.zip"
+EXTJS_DOWNLOAD_URL = "http://extjs.cachefly.net/#{EXTJS_ZIPFILE}"

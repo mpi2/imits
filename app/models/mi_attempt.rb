@@ -16,7 +16,7 @@ class MiAttempt < ActiveRecord::Base
 
   scope :search, proc { |terms|
     terms.map(&:upcase!)
-    joins({:emi_event => :clone}).where(
+    joins(:emi_event => :clone).where(
       'UPPER(emi_clone.clone_name) IN (?) OR ' +
       'UPPER(emi_clone.gene_symbol) IN (?) OR ' +
       'UPPER(colony_name) IN (?)',
@@ -25,19 +25,23 @@ class MiAttempt < ActiveRecord::Base
   }
 
   scope :sort_by_clone_name, proc { |direction|
-    order("emi_clone.clone_name #{direction}")
+    joins(:emi_event => :clone).order("emi_clone.clone_name #{direction}")
   }
 
   scope :sort_by_gene_symbol, proc { |direction|
-    order("emi_clone.gene_symbol #{direction}")
+    joins(:emi_event => :clone).order("emi_clone.gene_symbol #{direction}")
   }
 
   scope :sort_by_allele_name, proc { |direction|
-    order("emi_clone.allele_name #{direction}")
+    joins(:emi_event => :clone).order("emi_clone.allele_name #{direction}")
   }
 
   scope :sort_by_mi_attempt_status, proc { |direction|
     joins(:mi_attempt_status).order("emi_status_dict.name #{direction}")
+  }
+
+  scope :sort_by_distribution_centre_name, proc { |direction|
+    joins(:emi_event => :distribution_centre).order("per_centre.name #{direction}")
   }
 
   def set_distribution_centre_by_name(name)

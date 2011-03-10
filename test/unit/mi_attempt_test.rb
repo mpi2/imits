@@ -114,7 +114,7 @@ class MiAttemptTest < ActiveSupport::TestCase
   end
 
   should 'have scope ::sort_by_clone_name' do
-    got = MiAttempt.joins({:emi_event => :clone}).sort_by_clone_name(:desc).collect(&:clone_name)
+    got = MiAttempt.sort_by_clone_name(:desc).collect(&:clone_name)
     expected = [
       'EPD0343_1_H06',
       'EPD0127_4_E01',
@@ -126,13 +126,13 @@ class MiAttemptTest < ActiveSupport::TestCase
   end
 
   should 'have scope ::sort_by_gene_symbol' do
-    got = MiAttempt.joins({:emi_event => :clone}).sort_by_gene_symbol(:desc).collect(&:gene_symbol)
+    got = MiAttempt.sort_by_gene_symbol(:desc).collect(&:gene_symbol)
     expected = ["Trafd1", "Trafd1", "Trafd1", "Myo1c", "Gatc"]
     assert_equal expected, got
   end
 
   should 'have scope ::sort_by_allele_name' do
-    got = MiAttempt.joins({:emi_event => :clone}).sort_by_allele_name(:desc).collect(&:allele_name)
+    got = MiAttempt.sort_by_allele_name(:desc).collect(&:allele_name)
     expected = [
       "Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>",
       "Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>",
@@ -145,7 +145,7 @@ class MiAttemptTest < ActiveSupport::TestCase
   end
 
   should 'have scope ::sort_by_mi_attempt_status' do
-    got = MiAttempt.joins({:emi_event => :clone}).sort_by_mi_attempt_status(:asc).collect(&:mi_attempt_status).collect(&:name)
+    got = MiAttempt.sort_by_mi_attempt_status(:asc).collect(&:mi_attempt_status).collect(&:name)
     expected = [
       "Genotype Confirmed",
       "Genotype Confirmed",
@@ -155,6 +155,11 @@ class MiAttemptTest < ActiveSupport::TestCase
     ]
 
     assert_equal expected, got
+  end
+
+  should 'have scope ::sort_by_distribution_centre_name' do
+    got = MiAttempt.sort_by_distribution_centre_name(:desc).collect(&:distribution_centre_name)
+    assert_equal ['WTSI', 'WTSI', 'ICS', 'ICS', 'ICS'], got
   end
 
   context 'delegated methods' do

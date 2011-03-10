@@ -38,6 +38,8 @@ module MiAttemptsHelper
         :header => 'Distribution Centre',
         :setter => lambda {|mi_attempt, centre_name| mi_attempt.set_distribution_centre_by_name centre_name },
         :editable => true,
+        :sortable => true,
+        :sorting_scope => :sort_by_distribution_centre_name,
         :editor => {
           :store => Centre.all.collect(&:name),
           :editable => false,

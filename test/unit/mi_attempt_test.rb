@@ -292,4 +292,21 @@ class MiAttemptTest < ActiveSupport::TestCase
 
   should belong_to :mi_attempt_status
 
+  context 'auditing' do
+    setup do
+      assert_equal Time.parse('2010-09-22 00:00:00 Z'), default_mi_attempt.edit_date, "Test cannot continue - edit_date must be before NOW to make sure it is set correctly on edit"
+      assert_not_equal 'jb27', default_mi_attempt.edited_by
+      default_mi_attempt.update_attributes!(:emma_status => 'unsuitable_sticky')
+      default_mi_attempt.reload
+    end
+
+    should 'set edit_date to time of editing' do
+      assert_in_delta Time.now, default_mi_attempt.edit_date, 60.seconds
+    end
+
+    should 'set edited_by to jb27' do
+      assert_equal 'jb27', default_mi_attempt.edited_by
+    end
+  end
+
 end

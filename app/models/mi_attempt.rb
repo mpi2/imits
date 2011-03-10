@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class MiAttempt < ActiveRecord::Base
+class MiAttempt < ApplicationModel
   set_table_name 'emi_attempt'
 
   # The include does not work in postgres, which seems to ignore it, and breaks
@@ -43,6 +43,8 @@ class MiAttempt < ActiveRecord::Base
   scope :sort_by_distribution_centre_name, proc { |direction|
     joins(:emi_event => :distribution_centre).order("per_centre.name #{direction}")
   }
+
+  before_save :audit_on_save
 
   def set_distribution_centre_by_name(name)
     return emi_event.update_attributes(:distribution_centre => Centre.find_by_name!(name))

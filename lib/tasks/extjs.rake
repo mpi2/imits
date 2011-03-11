@@ -1,6 +1,6 @@
 require 'fileutils'
 
-require File.dirname(__FILE__) + '/../../config/netzke.rb'
+require File.dirname(__FILE__) + '/../../config/extjs.rb'
 
 namespace :extjs do
   desc "Install extjs #{EXTJS_VERSION} as public/extjs for use by Netzke"

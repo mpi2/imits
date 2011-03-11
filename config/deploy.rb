@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/deploy.rb'
+require File.dirname(__FILE__) + '/extjs.rb'
 
 set :application, 'kermits-2'
 set :repository,  'http://github.com/i-dcc/kermits-2.git'

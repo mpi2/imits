@@ -1,0 +1,16 @@
+---
+zz99:
+  first_name: Test
+  last_name: User
+  password_hash: e320bbc4b8548f355b356a6748b1dea9
+  user_name: zz99
+  email: zz99@sanger.ac.uk
+  address: WTSI, Hinxton
+  centre_id: 1
+  creator_id:
+  created_date:
+  edited_by:
+  edit_date:
+  check_number: 0
+  active: true
+  hidden:

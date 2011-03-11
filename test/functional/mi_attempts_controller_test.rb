@@ -9,5 +9,11 @@ class MiAttemptsControllerTest < ActionController::TestCase
     should 'be root path' do
       assert_equal '/', root_path
     end
+
+    should 'redirect to login path if not logged in' do
+      assert_nil @controller.__send__(:current_user)
+      get 'index'
+      assert_redirected_to page_url(login_path)
+    end
   end
 end

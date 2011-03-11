@@ -9,14 +9,23 @@ sup {
     font-size: 80%;
 }
 
-h1 {
+#header {
     display: block;
-    font-size: 2em;
-    line-height: 2em;
     color: white;
     background: #074987;
     margin-bottom: 0.5em;
     padding-left: 1em;
+}
+
+h1 {
+    font-size: 2em;
+    line-height: 2em;
+}
+
+#header p {
+    width: 10em;
+    float: right;
+    margin-right: 1em;
 }
 
 #container {
@@ -52,6 +61,29 @@ textarea#search_terms {
 
 #search-message {
     margin-top: 4.5em;
+}
+
+#login-form {
+    margin-top: 10em;
+}
+
+#login-form form div {
+    overflow: hidden; /* clear floats */
+}
+
+#login-form label {
+    float: left;
+    width: 8em;
+}
+
+#login-form input {
+    display: block;
+    width: 15em;
+    margin-left: 8em;
+}
+
+#login-form input[type=submit] {
+    margin-top: 1em;
 }
 
 #footer {

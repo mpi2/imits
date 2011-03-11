@@ -17,4 +17,8 @@ class UserTest < ActiveSupport::TestCase
   should 'not authenticate with missing user' do
     assert_nil User.authenticate('missing', 'password')
   end
+
+  should 'have #full_name' do
+    assert_equal 'Test User', User.find_by_user_name('zz99').full_name
+  end
 end

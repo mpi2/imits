@@ -12,7 +12,7 @@ module TestFixtures
       :emi_clone => 'Clone',
       :emi_event => 'EmiEvent',
       :emi_status_dict => 'MiAttemptStatus',
-      :per_person => 'Person'
+      :per_person => 'User'
     )
 
     mod.fixtures :per_person, :per_centre, :emi_status_dict, :emi_clone, :emi_event, :emi_attempt

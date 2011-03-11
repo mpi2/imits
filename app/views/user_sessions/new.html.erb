@@ -1,0 +1,24 @@
+<% @title = "Log in" %>
+
+<div class="container_12" style="overflow: hidden">
+
+  <div id="login-form" class="prefix_4 grid_4 suffix_4">
+    <form method="post" action="/user_sessions">
+      <div>
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text"></input>
+      </div>
+
+      <div>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password"></input>
+      </div>
+
+      <div>
+        <input id="submit" type="submit" value="Login" />
+      </div>
+    </form>
+    <script type="text/javascript">document.getElementById("username").focus();</script>
+  </div>
+
+</div>

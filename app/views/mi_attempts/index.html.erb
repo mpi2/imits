@@ -2,7 +2,15 @@
 
 <div id="micro-injection-summary" class="container_12">
 
-  <div class="prefix_4 grid_4">
+  <div class="grid_4">
+    <p id="search-message">
+      Enter some search terms, separated by new-lines.
+      You can use <em>clone names</em>, <em>gene symbols</em>,
+      and <em>colony names</em>.
+    </p>
+  </div>
+
+  <div class="grid_4 suffix_4">
     <form method="get" action="/mi_attempts">
       <div>
         <textarea cols="10" rows="10" name="search_terms" id="search_terms"><%= @search_terms.join "\n" %></textarea>
@@ -13,13 +21,6 @@
         <button type="button" onclick="document.getElementById('search_terms').innerHTML = ''">Clear</button>
       </div>
     </form>
-  </div>
-
-  <div class="grid_4">
-    <p id="search-message">
-      Enter some search terms, separated by new-lines.<br/>
-      You can use clone names, gene symbols, or colony names.
-    </p>
   </div>
 
   <div class="clear"></div>

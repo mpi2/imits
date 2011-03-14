@@ -32,6 +32,51 @@ h1 {
    margin: 0 1em;
 }
 
+.flash {
+    width: 20%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2em;
+}
+
+.flash p {
+    border: 3px solid white;
+}
+
+.flash p.body {
+    padding: 3px;
+    margin-top: 0;
+}
+
+.flash.notice p {
+    border-color: green;
+}
+
+.flash.error p {
+    border-color: darkred;
+}
+
+.flash p.header {
+    color: white;
+    font-size: 125%;
+    line-height: 1.6em;
+    padding-left: 1em;
+    font-weight: bold;
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 28px;
+}
+
+.flash.notice p.header {
+    background-image: url('/images/icons/flag_green.png');
+    background-color: green;
+}
+
+.flash.error p.header {
+    background-image: url('/images/icons/flag_red.png');
+    background-color: darkred;
+}
+
 #sample_data_warning {
     font-size: 3em;
     background-color: red;

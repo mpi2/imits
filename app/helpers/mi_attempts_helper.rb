@@ -138,18 +138,18 @@ module MiAttemptsHelper
         ]
       )
     end
-
-    js_method(:on_render, <<-JS)
-      function(container) {
-        Ext.EventManager.onWindowResize(this.doLayout, this);
-        #{js_full_class_name}.superclass.onRender.call(this, container);
-      }
-    JS
   end
 
   def mi_attempts_table(search_terms)
+    onready = javascript_tag(<<-'EOL')
+      Ext.onReady(function(){
+        var outerpanel = Netzke.page.microInjectionAttemptsOuter;
+        Ext.EventManager.onWindowResize(outerpanel.doLayout, outerpanel);
+      });
+    EOL
+
     netzke(:micro_injection_attempts_outer,
       :class_name => 'MiAttemptsHelper::OuterGrid',
-      :search_terms => search_terms)
+      :search_terms => search_terms) + "\n" + onready
   end
 end

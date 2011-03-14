@@ -16,12 +16,17 @@ class MiAttempt < ApplicationModel
 
   scope :search, proc { |terms|
     terms.map(&:upcase!)
-    joins(:emi_event => :clone).where(
-      'UPPER(emi_clone.clone_name) IN (?) OR ' +
-      'UPPER(emi_clone.gene_symbol) IN (?) OR ' +
-      'UPPER(colony_name) IN (?)',
-      terms, terms, terms
-    )
+    terms = terms.dup.delete_if {|i| i.strip.empty?}
+    if terms.empty?
+      scoped
+    else
+      joins(:emi_event => :clone).where(
+        'UPPER(emi_clone.clone_name) IN (?) OR ' +
+        'UPPER(emi_clone.gene_symbol) IN (?) OR ' +
+        'UPPER(colony_name) IN (?)',
+        terms, terms, terms
+      )
+    end
   }
 
   scope :sort_by_clone_name, proc { |direction|

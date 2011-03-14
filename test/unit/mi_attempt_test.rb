@@ -22,6 +22,16 @@ class MiAttemptTest < ActiveSupport::TestCase
 
   context '::search scope' do
 
+    should 'return all results when not given any search terms' do
+      results = MiAttempt.search([])
+      assert_equal MiAttempt.count, results.size
+    end
+
+    should 'return all results when only blank lines are in search terms' do
+      results = MiAttempt.search(["", "\t", "    "])
+      assert_equal MiAttempt.count, results.size
+    end
+
     should 'work for single clone' do
       results = MiAttempt.search(['EPD0127_4_E01'])
       assert_equal 3, results.size

@@ -13,19 +13,27 @@ sup {
     display: block;
     color: white;
     background: #074987;
-    margin-bottom: 0.5em;
+    margin-bottom: 2em;
     padding-left: 1em;
+    overflow: hidden; /* clear floats */
 }
 
 h1 {
+    float: left;
+    width: auto;
     font-size: 2em;
     line-height: 2em;
 }
 
 #header p {
-    width: 10em;
+    width: auto;
     float: right;
     margin-right: 1em;
+    margin-top: 1.4em;
+}
+
+#header a {
+    color: white;
 }
 
 #container {
@@ -37,6 +45,7 @@ h1 {
     margin-left: auto;
     margin-right: auto;
     margin-top: 2em;
+    margin-bottom: 2em;
 }
 
 .flash p {
@@ -75,6 +84,11 @@ h1 {
 .flash.error p.header {
     background-image: url('/images/icons/flag_red.png');
     background-color: darkred;
+}
+
+
+#micro-injection-summary {
+    overflow: hidden; /* clear floats */
 }
 
 #sample_data_warning {

@@ -23,9 +23,7 @@
       <div id="header">
         <h1>Kermits 2 - <%= @title %></h1>
         <% if current_user %>
-          <div>
-            <p>You are logged in as <%= current_user.full_name %> :: <a href="/logout">Logout</a></p>
-          </div>
+          <p>You are logged in as <%= current_user.full_name %> :: <a href="/logout">Logout</a></p>
         <% end %>
       </div>
 

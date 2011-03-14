@@ -19,10 +19,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
   context 'As valid user:' do
 
     setup do
-      visit '/login'
-      fill_in 'Username', :with => 'zz99'
-      fill_in 'Password', :with => 's3cr31-6a55w0rd'
-      click_button 'Login'
+      login
     end
 
     context 'searching for mi attempts by clone name' do

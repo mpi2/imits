@@ -13,7 +13,7 @@ class UserSessionsControllerTest < ActionController::TestCase
 
   context 'POST create' do
     should 'set the current user with a correct username/password and redirect to /' do
-      post :create, :username => 'zz99', :password => 's3cr31-6a55w0rd'
+      post :create, :username => 'zz99', :password => 'password'
       assert_redirected_to root_path
     end
 

@@ -1,18 +1,15 @@
 require 'test_helper'
 
 class UserSessionsIntegrationTest < ActionDispatch::IntegrationTest
-  context 'Logging in' do
-    should 'work with valid user' do
-      visit '/login'
-      fill_in 'Username', :with => 'zz99'
-      fill_in 'Password', :with => 's3cr31-6a55w0rd'
-      click_button 'Login'
 
+  context 'Login page' do
+    should 'work with valid user' do
+      login
       assert_match %r{^http://[^/]+/$}, current_url
       assert page.has_css?('p', :text => 'You are logged in as Test User')
     end
 
-    should 'display error with invalid user' do
+    should 'display error when invalid username/password entered' do
       visit '/login'
       fill_in 'Username', :with => 'invaliduser'
       fill_in 'Password', :with => 'invalidpassword'

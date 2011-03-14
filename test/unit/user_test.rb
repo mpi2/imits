@@ -7,7 +7,7 @@ class UserTest < ActiveSupport::TestCase
 
   should 'authenticate with correct password' do
     assert_not_nil User.find_by_user_name('zz99')
-    assert_equal User.find_by_user_name('zz99'), User.authenticate('zz99', 's3cr31-6a55w0rd')
+    assert_equal User.find_by_user_name('zz99'), User.authenticate('zz99', 'password')
   end
 
   should 'not authenticate with incorrect password' do

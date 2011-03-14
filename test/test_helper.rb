@@ -35,4 +35,12 @@ Capybara.default_driver = :selenium
 class ActionDispatch::IntegrationTest
   include TestFixtures
   include Capybara
+
+  def login
+      visit '/login'
+      fill_in 'Username', :with => 'zz99'
+      fill_in 'Password', :with => 'password'
+      click_button 'Login'
+      assert_not_match(%r{^http://[^/]+/login$}, current_url)
+  end
 end

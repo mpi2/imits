@@ -2,7 +2,7 @@
 zz99:
   first_name: Test
   last_name: User
-  password_hash: e320bbc4b8548f355b356a6748b1dea9
+  password_hash: 5f4dcc3b5aa765d61d8327deb882cf99
   user_name: zz99
   email: zz99@sanger.ac.uk
   address: WTSI, Hinxton

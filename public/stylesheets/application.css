@@ -124,6 +124,9 @@ textarea#search_terms {
 
 #login-form {
     margin-top: 10em;
+    margin-left: auto;
+    margin-right: auto;
+    width: 30em;
 }
 
 #login-form form div {

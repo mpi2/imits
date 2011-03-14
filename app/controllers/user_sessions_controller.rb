@@ -8,8 +8,12 @@ class UserSessionsController < ApplicationController
       session[:current_username] = user.user_name
       redirect_to root_path
     else
-      flash[:error] = 'Username or password was incorrect'
-      redirect_to login_path
+      redirect_to login_path, :flash => {:error => 'Username or password was incorrect'}
     end
+  end
+
+  def destroy
+    session[:current_username] = nil
+    redirect_to login_path, :notice => 'You have been logged out'
   end
 end

@@ -23,4 +23,17 @@ class UserSessionsControllerTest < ActionController::TestCase
       assert_not_nil flash[:error]
     end
   end
+
+  context 'GET destroy' do
+    setup do
+      session[:current_username] = 'zz99'
+      get :destroy
+    end
+
+    should 'logout user and redirect to /login with a message' do
+      assert_redirected_to login_path
+      assert_nil session[:current_username]
+      assert_match /logged out/i, flash[:notice]
+    end
+  end
 end

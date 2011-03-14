@@ -19,6 +19,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
   context 'As valid user:' do
 
     setup do
+      visit '/logout'
       login
     end
 

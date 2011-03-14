@@ -6,7 +6,7 @@ class UserSessionsController < ApplicationController
     user = User.authenticate params[:username], params[:password]
     if user
       session[:current_username] = user.user_name
-      redirect_to root_path
+      redirect_to root_path, :flash => {:notice => "Hello #{user.first_name}"}
     else
       redirect_to login_path, :flash => {:error => 'Username or password was incorrect'}
     end

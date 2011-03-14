@@ -12,9 +12,10 @@ class UserSessionsControllerTest < ActionController::TestCase
   end
 
   context 'POST create' do
-    should 'set the current user with a correct username/password and redirect to /' do
+    should 'set the current user with a correct username/password and redirect to / with a flash notice' do
       post :create, :username => 'zz99', :password => 'password'
       assert_redirected_to root_path
+      assert_equal 'Hello Test', flash[:notice]
     end
 
     should 'redirect to /login with a flash error with an incorrect username/password' do

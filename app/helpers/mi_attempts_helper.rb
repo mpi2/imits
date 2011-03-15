@@ -36,7 +36,9 @@ module MiAttemptsHelper
       { :name => :distribution_centre_name,
         :id => 'distribution_centre_name',
         :header => 'Distribution Centre',
-        :setter => lambda {|mi_attempt, centre_name| mi_attempt.set_distribution_centre_by_name centre_name },
+        :setter => lambda { |mi_attempt, centre_name, edited_by|
+          mi_attempt.set_distribution_centre_by_name centre_name, edited_by
+        },
         :editable => true,
         :sortable => true,
         :sorting_scope => :sort_by_distribution_centre_name,

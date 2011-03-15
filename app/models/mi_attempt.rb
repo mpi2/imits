@@ -51,8 +51,9 @@ class MiAttempt < ApplicationModel
 
   before_save :audit_on_save
 
-  def set_distribution_centre_by_name(name)
-    return emi_event.update_attributes(:distribution_centre => Centre.find_by_name!(name))
+  def set_distribution_centre_by_name(name, event_edited_by)
+    return emi_event.update_attributes(:distribution_centre => Centre.find_by_name!(name),
+                                       :edited_by => event_edited_by)
   end
 
   def distribution_centre_name

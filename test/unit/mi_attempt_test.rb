@@ -196,16 +196,18 @@ class MiAttemptTest < ActiveSupport::TestCase
 
   context '#set_distribution_centre_by_name' do
     should 'work' do
-      default_mi_attempt.set_distribution_centre_by_name 'WTSI'
+      assert_true default_mi_attempt.set_distribution_centre_by_name('WTSI', 'zz99')
       default_mi_attempt.reload
       assert_equal 'WTSI', default_mi_attempt.emi_event.distribution_centre.name
+      assert_equal 'zz99', default_mi_attempt.emi_event.edited_by
     end
 
     should 'not allow assignment of nonexistent centres' do
       assert_raise(ActiveRecord::RecordNotFound) do
-        default_mi_attempt.set_distribution_centre_by_name 'INVLD'
+        default_mi_attempt.set_distribution_centre_by_name 'INVLD', nil
       end
     end
+
   end
 
   should 'have #distribution_centre_name' do

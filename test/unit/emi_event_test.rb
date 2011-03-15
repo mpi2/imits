@@ -31,10 +31,6 @@ class EmiEventTest < ActiveSupport::TestCase
     should 'set edit_date to time of editing' do
       assert_in_delta Time.now, default_emi_event.edit_date, 60.seconds
     end
-
-    should 'set edited_by to jb27' do
-      assert_equal 'jb27', default_emi_event.edited_by
-    end
   end
 
 end

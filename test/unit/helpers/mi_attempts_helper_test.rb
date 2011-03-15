@@ -8,14 +8,15 @@ class MiAttemptsHelperTest < ActionView::TestCase
 
     setup do
       @mi_attempt = emi_attempt('EPD0127_4_E01__1')
+      @inner_grid = MiAttemptsHelper::InnerGrid.new
     end
 
-    context '::emma_status_column_options' do
+    context 'emma_status column options' do
       setup do
-        @options = MiAttemptsHelper::InnerGrid.emma_status_column_options
+        @options = @inner_grid.config[:columns].find {|i| i[:name] == :emma_status}
       end
 
-      should 'generate working getter' do
+      should 'have working getter' do
         @mi_attempt.emma_status = :suitable
         assert_equal 'Suitable for EMMA', @options[:getter].call(@mi_attempt)
 
@@ -29,7 +30,7 @@ class MiAttemptsHelperTest < ActionView::TestCase
         assert_equal 'Unsuitable for EMMA - STICKY', @options[:getter].call(@mi_attempt)
       end
 
-      should 'generate working setter' do
+      should 'have working setter' do
         @options[:setter].call(@mi_attempt, 'Unsuitable for EMMA')
         assert_equal :unsuitable, @mi_attempt.emma_status
 
@@ -48,9 +49,9 @@ class MiAttemptsHelperTest < ActionView::TestCase
       end
     end
 
-    context 'distribution_centre_name' do
+    context 'distribution_centre_name column options' do
       setup do
-        @options = MiAttemptsHelper::InnerGrid.distribution_centre_name_column_options
+        @options = @inner_grid.config[:columns].find {|i| i[:name] == :distribution_centre_name}
       end
 
       should 'have working setter' do

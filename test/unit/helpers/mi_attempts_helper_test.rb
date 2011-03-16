@@ -4,11 +4,19 @@ require 'test_helper'
 
 class MiAttemptsHelperTest < ActionView::TestCase
 
+  context 'OuterGrid' do
+    should 'pass current_username to InnerGrid' do
+      outer_grid = MiAttemptsHelper::OuterGrid.new(:current_username => 'zz99')
+      inner_grid_config = outer_grid.config[:items].find {|i| i[:name] == :micro_injection_attempts}
+      assert_equal 'zz99', inner_grid_config[:current_username]
+    end
+  end
+
   context 'InnerGrid' do
 
     setup do
       @mi_attempt = emi_attempt('EPD0127_4_E01__1')
-      @inner_grid = MiAttemptsHelper::InnerGrid.new
+      @inner_grid = MiAttemptsHelper::InnerGrid.new(:current_username => 'zz99')
     end
 
     context 'emma_status column options' do
@@ -63,6 +71,12 @@ class MiAttemptsHelperTest < ActionView::TestCase
 
       should 'allow selection from all centres' do
         assert_equal Centre.count, @options[:editor][:store].size
+      end
+    end
+
+    context 'strong_default_attrs' do
+      should 'have edited_by set to current_username' do
+        assert_equal 'zz99', @inner_grid.config[:strong_default_attrs].symbolize_keys[:edited_by]
       end
     end
   end

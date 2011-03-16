@@ -16,6 +16,7 @@ module MiAttemptsHelper
     def self.emma_status_column_options
       return {
         :name => :emma_status,
+        :id => 'emma_status',
         :header => 'EMMA Status',
         :editable => true,
         :getter => lambda { |relation| EMMA_OPTIONS[relation.emma_status] },
@@ -63,6 +64,7 @@ module MiAttemptsHelper
     def configuration
       config_up_to_now = super
       search_terms = config_up_to_now.delete(:search_terms)
+      current_username = config_up_to_now.delete(:current_username)
       config_up_to_now.merge(
         :model => 'MiAttempt',
 
@@ -119,6 +121,7 @@ module MiAttemptsHelper
         :prohibit_delete => true,
         :enable_edit_in_form => false,
         :enable_extended_search => false,
+        :strong_default_attrs => {:edited_by => current_username},
         :scope => [:search, search_terms]
       )
     end
@@ -128,6 +131,7 @@ module MiAttemptsHelper
     def configuration
       config_up_to_now = super
       search_terms = config_up_to_now.delete(:search_terms)
+      current_username = config_up_to_now.delete(:current_username)
       config_up_to_now.merge(
         :name => :micro_injection_attempts_outer,
         :layout => :fit,
@@ -135,6 +139,7 @@ module MiAttemptsHelper
         :items => [
           { :name => :micro_injection_attempts,
             :class_name => 'MiAttemptsHelper::InnerGrid',
+            :current_username => current_username,
             :search_terms => search_terms
           }
         ]

@@ -33,12 +33,12 @@ module MiAttemptsHelper
       }
     end
 
-    def self.distribution_centre_name_column_options
+    def self.distribution_centre_name_column_options(current_username)
       { :name => :distribution_centre_name,
         :id => 'distribution_centre_name',
         :header => 'Distribution Centre',
-        :setter => lambda { |mi_attempt, centre_name, edited_by|
-          mi_attempt.set_distribution_centre_by_name centre_name, edited_by
+        :setter => lambda { |mi_attempt, centre_name|
+          mi_attempt.set_distribution_centre_by_name centre_name, current_username
         },
         :editable => true,
         :sortable => true,
@@ -113,7 +113,7 @@ module MiAttemptsHelper
             :read_only => true
           },
 
-          self.class.distribution_centre_name_column_options,
+          self.class.distribution_centre_name_column_options(current_username),
 
           self.class.emma_status_column_options,
         ],
@@ -157,6 +157,7 @@ module MiAttemptsHelper
 
     netzke(:micro_injection_attempts_outer,
       :class_name => 'MiAttemptsHelper::OuterGrid',
+      :current_username => current_user.user_name,
       :search_terms => search_terms) + "\n" + onready
   end
 end

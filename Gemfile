@@ -16,7 +16,7 @@ group :development, :test do
   gem 'test-unit', :require => nil
   gem 'capybara', :require => nil
   gem 'launchy'
+  gem 'database_cleaner', :require => nil
   # gem 'vcr'
   # gem 'webmock'
-  # gem 'ruby-debug19'
 end

@@ -64,7 +64,7 @@ class MiAttemptsHelperTest < ActionView::TestCase
 
       should 'have working setter' do
         assert_equal 'ICS', @mi_attempt.distribution_centre_name
-        @options[:setter].call(@mi_attempt, 'WTSI', 'zz99')
+        @options[:setter].call(@mi_attempt, 'WTSI')
         assert_equal 'WTSI', @mi_attempt.distribution_centre_name
         assert_equal 'zz99', @mi_attempt.emi_event.edited_by
       end

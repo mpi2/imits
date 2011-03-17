@@ -95,7 +95,7 @@ em {
     overflow: hidden; /* clear floats */
 }
 
-#sample_data_warning {
+#sample-data-warning {
     font-size: 3em;
     background-color: red;
     color: white;
@@ -109,7 +109,7 @@ form {
     display: block;
 }
 
-textarea#search_terms {
+textarea#search-terms {
     width: 100%;
     overflow: auto;
     height: 10em;

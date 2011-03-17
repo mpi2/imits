@@ -13,12 +13,12 @@
   <div class="grid_4 suffix_4">
     <form method="get" action="/mi_attempts">
       <div>
-        <textarea cols="10" rows="10" name="search_terms" id="search_terms"><%= @search_terms.join "\n" %></textarea>
+        <textarea cols="10" rows="10" name="search_terms" id="search-terms" class="initial-focus"><%= @search_terms.join "\n" %></textarea>
       </div>
 
       <div id="buttons">
         <input id="submit" type="submit" value="Search" />
-        <button type="button" onclick="document.getElementById('search_terms').innerHTML = ''">Clear</button>
+        <input type="reset" value="Clear"/>
       </div>
     </form>
   </div>
@@ -27,7 +27,7 @@
 
   <% if ! Rails.env.production? %>
   <div class="grid_12">
-    <p id="sample_data_warning">SAMPLE DATA - no real data will be affected by making modifications here</p>
+    <p id="sample-data-warning">SAMPLE DATA - no real data will be affected by making modifications here</p>
   </div>
   <% end %>
 

@@ -5,7 +5,7 @@ function onWindowLoad() {
 }
 
 function setInitialFocus() {
-    var thing = getElementsByClassName('initial-focus')[0];
+    var thing = Ext.DomQuery.jsSelect('.initial-focus')[0];
     if(thing) {
         thing.focus();
     }

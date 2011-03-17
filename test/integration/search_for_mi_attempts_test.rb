@@ -79,7 +79,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
       should 'show search terms when results are shown' do
         visit '/mi_attempts?search_terms=EPD0127_4_E01%0D%0AEPD0343_1_H06'
-        assert page.has_css? '#search_terms', :text => "EPD0127_4_E01 EPD0343_1_H06"
+        assert page.has_css? '#search-terms', :text => "EPD0127_4_E01 EPD0343_1_H06"
       end
     end
 
@@ -110,8 +110,8 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
     should 'clear form when Clear button is pushed' do
       visit '/'
       fill_in 'search_terms', :with => 'some text'
-      click_button 'Clear'
-      assert_blank find('#search_terms').text
+      find('input[@type=reset]').click
+      assert_blank find('#search-terms').text
     end
 
     should 'display test data warning' do

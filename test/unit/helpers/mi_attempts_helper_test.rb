@@ -4,19 +4,19 @@ require 'test_helper'
 
 class MiAttemptsHelperTest < ActionView::TestCase
 
-  context 'OuterGrid' do
-    should 'pass current_username to InnerGrid' do
-      outer_grid = MiAttemptsHelper::OuterGrid.new(:current_username => 'zz99')
+  context 'MiAttemptsWidget' do
+    should 'pass current_username to MiAttemptsGrid' do
+      outer_grid = MiAttemptsHelper::MiAttemptsWidget.new(:current_username => 'zz99')
       inner_grid_config = outer_grid.config[:items].find {|i| i[:name] == :micro_injection_attempts}
       assert_equal 'zz99', inner_grid_config[:current_username]
     end
   end
 
-  context 'InnerGrid' do
+  context 'MiAttemptsGrid' do
 
     setup do
       @mi_attempt = emi_attempt('EPD0127_4_E01__1')
-      @inner_grid = MiAttemptsHelper::InnerGrid.new(:current_username => 'zz99')
+      @inner_grid = MiAttemptsHelper::MiAttemptsGrid.new(:current_username => 'zz99')
     end
 
     context 'emma_status column options' do

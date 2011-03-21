@@ -2,7 +2,7 @@
 
 module MiAttemptsHelper
 
-  class InnerGrid < Netzke::Basepack::GridPanel
+  class MiAttemptsGrid < Netzke::Basepack::GridPanel
 
     EMMA_OPTIONS = {
       :unsuitable => 'Unsuitable for EMMA',
@@ -127,7 +127,7 @@ module MiAttemptsHelper
     end
   end
 
-  class OuterGrid < Netzke::Basepack::Panel
+  class MiAttemptsWidget < Netzke::Basepack::Panel
     def configuration
       config_up_to_now = super
       search_terms = config_up_to_now.delete(:search_terms)
@@ -138,7 +138,7 @@ module MiAttemptsHelper
         :title => 'Micro-Injection Attempts',
         :items => [
           { :name => :micro_injection_attempts,
-            :class_name => 'MiAttemptsHelper::InnerGrid',
+            :class_name => 'MiAttemptsHelper::MiAttemptsGrid',
             :current_username => current_username,
             :search_terms => search_terms
           }
@@ -156,7 +156,7 @@ module MiAttemptsHelper
     EOL
 
     netzke(:micro_injection_attempts_outer,
-      :class_name => 'MiAttemptsHelper::OuterGrid',
+      :class_name => 'MiAttemptsHelper::MiAttemptsWidget',
       :current_username => current_user.user_name,
       :search_terms => search_terms) + "\n" + onready
   end

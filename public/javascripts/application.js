@@ -10,3 +10,7 @@ function setInitialFocus() {
         thing.focus();
     }
 }
+
+function switchMiAttemptsGridView(button, event) {
+    console.log(button.id);
+}

@@ -104,30 +104,43 @@ module MiAttemptsHelper
       ]
     end
 
-    def view_config_buttons
-      btnopt = {
-        :toggleable => true,
-        :enable_toggle => true,
-        :toggle_group => 'mi_attempt_view_config',
-        :min_width => 100,
+    js_method :on_switch_view, <<-'JS'
+      function(button, event) {
+        switchMiAttemptsGridView(button, event)
       }
+    JS
 
+    def self.switch_view_button(text, extra_params = {})
+      action_name = text.gsub(' ', '_').downcase + '_view'
+
+      action action_name do
+        {
+          :enable_toggle => true,
+          :toggle_group => 'mi_attempt_view_config',
+          :min_width => 100,
+          :text => text,
+          :id => text.gsub(' ', '-').downcase + '-button',
+          :handler => :on_switch_view
+        }.merge(extra_params)
+      end
+
+      return action_name.to_sym.action
+    end
+
+    def switch_view_button(*args)
+      self.class.switch_view_button(*args)
+    end
+
+    def view_config_buttons
       return {
         :xtype => 'buttongroup',
         :title => 'Choose a View',
         :items => [
-          btnopt.merge(
-            :id => 'everything-button',
-            :text => 'Everything',
-            :pressed => true),
-
-          btnopt.merge(:id => 'transfer-details-button', :text => 'Transfer Details'),
-
-          btnopt.merge(:id => 'litter-details-button', :text => 'Litter Details'),
-
-          btnopt.merge(:id => 'chimera-mating-details-button', :text => 'Chimera Mating Details'),
-
-          btnopt.merge(:id => 'qc-details', :text => 'QC Details')
+          switch_view_button('Everything', :pressed => true),
+          switch_view_button('Transfer Details'),
+          switch_view_button('Litter Details'),
+          switch_view_button('Chimera Mating Details'),
+          switch_view_button('QC Details'),
         ]
       }
     end

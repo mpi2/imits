@@ -116,6 +116,7 @@ module MiAttemptsHelper
       action action_name do
         {
           :enable_toggle => true,
+          :allow_depress => false,
           :toggle_group => 'mi_attempt_view_config',
           :min_width => 100,
           :text => text,

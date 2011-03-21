@@ -13,7 +13,15 @@ module MiAttemptsHelper
 
     REVERSE_EMMA_OPTIONS = EMMA_OPTIONS.invert
 
-    def self.emma_status_column_options
+    action :apply do
+      {
+        :text => 'Save Changes',
+        :icon => :tick,
+        :tooltip => 'You must select this to save the changes you have made'
+      }
+    end
+
+    def emma_status_column_options
       return {
         :name => :emma_status,
         :id => 'emma_status',
@@ -33,12 +41,13 @@ module MiAttemptsHelper
       }
     end
 
-    def self.distribution_centre_name_column_options(current_username)
+    def distribution_centre_name_column_options
       { :name => :distribution_centre_name,
         :id => 'distribution_centre_name',
         :header => 'Distribution Centre',
         :setter => lambda { |mi_attempt, centre_name|
-          mi_attempt.set_distribution_centre_by_name centre_name, current_username
+          mi_attempt.set_distribution_centre_by_name(centre_name,
+            @passed_config[:current_username])
         },
         :editable => true,
         :sortable => true,
@@ -53,19 +62,78 @@ module MiAttemptsHelper
       }
     end
 
-    action :apply do
-      {
-        :text => 'Save Changes',
-        :icon => :tick,
-        :tooltip => 'You must select this to save the changes you have made'
+    def define_columns
+      [
+        { :name => :clone_name,
+          :read_only => true,
+          :sortable => true,
+          :sorting_scope => :sort_by_clone_name,
+        },
+
+        { :name => :gene_symbol,
+          :read_only => true,
+          :sortable => true,
+          :sorting_scope => :sort_by_gene_symbol,
+        },
+
+        { :name => :allele_name,
+          :read_only => true,
+          :sortable => true,
+          :sorting_scope => :sort_by_allele_name,
+        },
+
+        { :name => :actual_mi_date,
+          :header => 'Actual MI Date',
+          :read_only => true,
+          :renderer => ['date', 'd-M-Y'],
+        },
+
+        { :name => 'status',
+          :getter => proc { |relation| relation.mi_attempt_status.name },
+          :sortable => true,
+          :sorting_scope => :sort_by_mi_attempt_status,
+        },
+
+        { :name => :colony_name,
+          :read_only => true
+        },
+
+        distribution_centre_name_column_options,
+
+        emma_status_column_options,
+      ]
+    end
+
+    def view_config_buttons
+      btnopt = {
+        :toggleable => true,
+        :enable_toggle => true,
+        :toggle_group => 'mi_attempt_view_config',
+        :min_width => 100,
+      }
+
+      return {
+        :xtype => 'buttongroup',
+        :title => 'Choose a View',
+        :items => [
+          btnopt.merge(
+            :id => 'everything-button',
+            :text => 'Everything',
+            :pressed => true),
+
+          btnopt.merge(:id => 'transfer-details-button', :text => 'Transfer Details'),
+
+          btnopt.merge(:id => 'litter-details-button', :text => 'Litter Details'),
+
+          btnopt.merge(:id => 'chimera-mating-details-button', :text => 'Chimera Mating Details'),
+
+          btnopt.merge(:id => 'qc-details', :text => 'QC Details')
+        ]
       }
     end
 
     def configuration
-      config_up_to_now = super
-      search_terms = config_up_to_now.delete(:search_terms)
-      current_username = config_up_to_now.delete(:current_username)
-      config_up_to_now.merge(
+      super.merge(
         :model => 'MiAttempt',
 
         :border => true,
@@ -74,55 +142,20 @@ module MiAttemptsHelper
         :clicks_to_edit => 1,
         :rows_per_page => 100,
 
+        :tbar => [self.view_config_buttons],
+
         :bbar => [
           :apply.action
         ],
 
-        :columns => [
-          { :name => :clone_name,
-            :read_only => true,
-            :sortable => true,
-            :sorting_scope => :sort_by_clone_name,
-          },
+        :columns => self.define_columns,
 
-          { :name => :gene_symbol,
-            :read_only => true,
-            :sortable => true,
-            :sorting_scope => :sort_by_gene_symbol,
-          },
-
-          { :name => :allele_name,
-            :read_only => true,
-            :sortable => true,
-            :sorting_scope => :sort_by_allele_name,
-          },
-
-          { :name => :actual_mi_date,
-            :header => 'Actual MI Date',
-            :read_only => true,
-            :renderer => ['date', 'd-M-Y'],
-          },
-
-          { :name => 'status',
-            :getter => proc { |relation| relation.mi_attempt_status.name },
-            :sortable => true,
-            :sorting_scope => :sort_by_mi_attempt_status,
-          },
-
-          { :name => :colony_name,
-            :read_only => true
-          },
-
-          self.class.distribution_centre_name_column_options(current_username),
-
-          self.class.emma_status_column_options,
-        ],
         :prohibit_create => true,
         :prohibit_delete => true,
         :enable_edit_in_form => false,
         :enable_extended_search => false,
-        :strong_default_attrs => {:edited_by => current_username},
-        :scope => [:search, search_terms]
+        :strong_default_attrs => {:edited_by => @passed_config[:current_username]},
+        :scope => [:search, @passed_config[:search_terms]]
       )
     end
   end

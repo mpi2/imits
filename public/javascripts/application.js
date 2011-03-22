@@ -12,7 +12,15 @@ function setInitialFocus() {
 }
 
 function toggleMiAttemptsSwitchViewButton(button, pressed) {
-    if(pressed) {
-        console.log(button.id + ' toggled on');
+    if(!pressed) {return;}
+
+    switch(button.id) {
+        case 'view-everything':
+            console.log('Viewing EVERYTHING');
+            break;
+
+        case 'view-transfer-details':
+            console.log('Viewing details of transfer');
+            break;
     }
 }

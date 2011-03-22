@@ -6,9 +6,9 @@ class MiAttemptsHelperTest < ActionView::TestCase
 
   context 'MiAttemptsWidget' do
     should 'pass current_username to MiAttemptsGrid' do
-      outer_grid = MiAttemptsHelper::MiAttemptsWidget.new(:current_username => 'zz99')
-      inner_grid_config = outer_grid.config[:items].find {|i| i[:name] == :micro_injection_attempts}
-      assert_equal 'zz99', inner_grid_config[:current_username]
+      widget = MiAttemptsHelper::MiAttemptsWidget.new(:current_username => 'zz99')
+      grid_config = widget.config[:items].find {|i| i[:name] == :micro_injection_attempts}
+      assert_equal 'zz99', grid_config[:current_username]
     end
   end
 
@@ -16,12 +16,12 @@ class MiAttemptsHelperTest < ActionView::TestCase
 
     setup do
       @mi_attempt = emi_attempt('EPD0127_4_E01__1')
-      @inner_grid = MiAttemptsHelper::MiAttemptsGrid.new(:current_username => 'zz99')
+      @grid = MiAttemptsHelper::MiAttemptsGrid.new(:current_username => 'zz99')
     end
 
     context 'emma_status column options' do
       setup do
-        @options = @inner_grid.config[:columns].find {|i| i[:name] == :emma_status}
+        @options = @grid.config[:columns].find {|i| i[:name] == :emma_status}
       end
 
       should 'have working getter' do
@@ -59,7 +59,7 @@ class MiAttemptsHelperTest < ActionView::TestCase
 
     context 'distribution_centre_name column options' do
       setup do
-        @options = @inner_grid.config[:columns].find {|i| i[:name] == :distribution_centre_name}
+        @options = @grid.config[:columns].find {|i| i[:name] == :distribution_centre_name}
       end
 
       should 'have working setter' do
@@ -76,7 +76,7 @@ class MiAttemptsHelperTest < ActionView::TestCase
 
     context 'strong_default_attrs' do
       should 'have edited_by set to current_username' do
-        assert_equal 'zz99', @inner_grid.config[:strong_default_attrs].symbolize_keys[:edited_by]
+        assert_equal 'zz99', @grid.config[:strong_default_attrs].symbolize_keys[:edited_by]
       end
     end
   end

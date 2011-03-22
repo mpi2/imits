@@ -104,26 +104,16 @@ module MiAttemptsHelper
       ]
     end
 
-    js_method :on_switch_view, <<-'JS'
-      function(param1, param2) {
-        switchMiAttemptsGridView(param1, param2)
-      }
-    JS
-
-    def self.switch_view_button(text, extra_params = {})
+    def switch_view_button(text, extra_params = {})
       return {
         :enable_toggle => true,
         :allow_depress => false,
         :toggle_group => 'mi_attempt_view_config',
         :min_width => 100,
         :text => text,
-        :id => text.gsub(' ', '-').downcase + '-button',
-        :handler => :on_switch_view
+        :id => 'view-' + text.gsub(' ', '-').downcase,
+        :toggle_handler => 'toggleMiAttemptsSwitchViewButton'.to_json_variable,
       }.merge(extra_params)
-    end
-
-    def switch_view_button(*args)
-      self.class.switch_view_button(*args)
     end
 
     def view_config_buttons
@@ -135,17 +125,7 @@ module MiAttemptsHelper
           switch_view_button('Transfer Details'),
           switch_view_button('Litter Details'),
           switch_view_button('Chimera Mating Details'),
-          switch_view_button('QC Details'),
-
-          {
-            :enable_toggle => true,
-            :allow_depress => false,
-            :toggle_group => 'mi_attempt_view_config',
-            :min_width => 100,
-            :text => 'Test Handler Event',
-            :id => 'test-handler-event-button',
-            :toggle_handler => :on_switch_view
-          }
+          switch_view_button('QC Details')
         ]
       }
     end

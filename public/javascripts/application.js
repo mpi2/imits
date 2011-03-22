@@ -11,6 +11,8 @@ function setInitialFocus() {
     }
 }
 
-function switchMiAttemptsGridView(button, event) {
-    console.log([button.id, event]);
+function toggleMiAttemptsSwitchViewButton(button, pressed) {
+    if(pressed) {
+        console.log(button.id + ' toggled on');
+    }
 }

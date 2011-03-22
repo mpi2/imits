@@ -14,13 +14,7 @@ function setInitialFocus() {
 function toggleMiAttemptsSwitchViewButton(button, pressed) {
     if(!pressed) {return;}
 
-    switch(button.id) {
-        case 'view-everything':
-            console.log('Viewing EVERYTHING');
-            break;
+    var columnsToShow = MI_ATTEMPTS_VIEW_CONFIG[button.viewName];
 
-        case 'view-transfer-details':
-            console.log('Viewing details of transfer');
-            break;
-    }
+    console.log(columnsToShow);
 }

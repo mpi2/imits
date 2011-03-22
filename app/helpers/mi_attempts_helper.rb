@@ -111,7 +111,7 @@ module MiAttemptsHelper
         :toggle_group => 'mi_attempt_view_config',
         :min_width => 100,
         :text => text,
-        :id => 'view-' + text.gsub(' ', '-').downcase,
+        :view_name => text.gsub(' ', '-').downcase,
         :toggle_handler => 'toggleMiAttemptsSwitchViewButton'.to_json_variable,
       }.merge(extra_params)
     end

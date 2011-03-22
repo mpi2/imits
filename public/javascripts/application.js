@@ -12,5 +12,5 @@ function setInitialFocus() {
 }
 
 function switchMiAttemptsGridView(button, event) {
-    console.log(button.id);
+    console.log([button.id, event]);
 }

@@ -22,9 +22,11 @@ module MiAttemptsHelper
     end
 
     def mi_attempt_column(name, extra_params = {})
+      name = name.to_s
       return {
-        :id => name.to_s.gsub('_', '-'),
-        :name => name.to_sym,
+        :id => name,
+        :name => name,
+        :header => name.titleize,
         :read_only => true,
         :sortable => true,
       }.merge(extra_params)
@@ -125,7 +127,7 @@ module MiAttemptsHelper
         :toggle_group => 'mi_attempt_view_config',
         :min_width => 100,
         :text => text,
-        :view_name => text.gsub(' ', '-').downcase,
+        :view_name => text.gsub(' ', '_').downcase,
         :toggle_handler => 'toggleMiAttemptsSwitchViewButton'.to_json_variable,
       }.merge(extra_params)
     end

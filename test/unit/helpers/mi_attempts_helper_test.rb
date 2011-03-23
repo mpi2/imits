@@ -21,7 +21,7 @@ class MiAttemptsHelperTest < ActionView::TestCase
 
     context 'emma_status column options' do
       setup do
-        @options = @grid.config[:columns].find {|i| i[:name] == :emma_status}
+        @options = @grid.config[:columns].find {|i| i[:name] == 'emma_status'}
       end
 
       should 'have working getter' do
@@ -59,7 +59,7 @@ class MiAttemptsHelperTest < ActionView::TestCase
 
     context 'distribution_centre_name column options' do
       setup do
-        @options = @grid.config[:columns].find {|i| i[:name] == :distribution_centre_name}
+        @options = @grid.config[:columns].find {|i| i[:name] == 'distribution_centre_name'}
       end
 
       should 'have working setter' do

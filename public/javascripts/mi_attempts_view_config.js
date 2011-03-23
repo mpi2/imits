@@ -1,32 +1,32 @@
 var MI_ATTEMPTS_VIEW_CONFIG = {
-    'transfer-details': [
-    'blast-strain',
-    'num-blasts',
-    'num-transferred',
-    'no-surrogates-received'
+    'transfer_details': [
+    'blast_strain',
+    'num_blasts',
+    'num_transferred',
+    'no_surrogates_received'
     ],
-    'litter-details': [
-    'number-born',
-    'number-female-chimeras',
-    'number-male-chimeras',
-    'total-chimeras',
-    'number-male-100-percent',
-    'number-male-gt-80-percent',
-    'number-male-40-to-80-percent',
-    'number-male-lt-40-percent'
+    'litter_details': [
+    'number_born',
+    'number_female_chimeras',
+    'number_male_chimeras',
+    'total_chimeras',
+    'number_male_100_percent',
+    'number_male_gt_80_percent',
+    'number_male_40_to_80_percent',
+    'number_male_lt_40_percent'
     ]
 }
 
 // Add common columns to each view
 var commonColumns = [
-'clone-name',
-'gene-symbol',
-'allele-name',
-'actual-mi-date',
+'clone_name',
+'gene_symbol',
+'allele_name',
+'actual_mi_date',
 'status',
-'colony-name',
-'distribution-centre-name',
-'emma-status'
+'colony_name',
+'distribution_centre_name',
+'emma_status'
 ]
 
 var everythingView = [].concat(commonColumns);

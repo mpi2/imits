@@ -99,6 +99,22 @@ module MiAttemptsHelper
         mi_attempt_column(:num_transferred, :header => 'Total Transferred'),
 
         mi_attempt_column(:no_surrogates_received, :header => 'No. Surrogates Receiving'),
+
+        mi_attempt_column(:number_born, :header => 'Total Pups Born'),
+
+        mi_attempt_column(:number_female_chimeras, :header => 'Total Female Chimeras'),
+
+        mi_attempt_column(:number_male_chimeras, :header => 'Total Male Chimeras'),
+
+        mi_attempt_column(:total_chimerasm),
+
+        mi_attempt_column(:number_male_100_percent, :header => '100% Male Chimerism Levels'),
+
+        mi_attempt_column(:number_male_gt_80_percent, :header => '>=80% Male Chimerism Levels'),
+
+        mi_attempt_column(:number_male_40_to_80_percent, :header => '80-40% Male Chimerism Levels'),
+
+        mi_attempt_column(:number_male_lt_40_percent, :header => '<40% Male Chimerism Levels'),
       ]
     end
 

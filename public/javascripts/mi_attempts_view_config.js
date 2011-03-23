@@ -14,6 +14,24 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'number_male_gt_80_percent',
     'number_male_40_to_80_percent',
     'number_male_lt_40_percent'
+    ],
+    'chimera_mating_details': [
+    'test_cross_strain',
+    'back_cross_strain',
+    'number_chimera_mated',
+    'number_chimera_mating_success',
+    'number_with_cct',
+    'chimeras_with_glt_from_genotyp',
+    'number_lt_10_percent_glt',
+    'number_btw_10_50_percent_glt',
+    'number_gt_50_percent_glt',
+    'number_100_percent_glt',
+    'total_f1_mice',
+    'number_with_cct',
+    'number_het_offspring',
+    'number_live_glt_offspring',
+    'mouse_allele_name',
+    'emma_status'
     ]
 }
 
@@ -26,7 +44,6 @@ var commonColumns = [
 'status',
 'colony_name',
 'distribution_centre_name',
-'emma_status'
 ]
 
 var everythingView = [].concat(commonColumns);

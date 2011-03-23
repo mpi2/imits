@@ -92,8 +92,6 @@ module MiAttemptsHelper
 
         distribution_centre_name_column_options,
 
-        emma_status_column_options,
-
         mi_attempt_column(:blast_strain),
 
         mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected'),
@@ -117,6 +115,53 @@ module MiAttemptsHelper
         mi_attempt_column(:number_male_40_to_80_percent, :header => '80-40% Male Chimerism Levels'),
 
         mi_attempt_column(:number_male_lt_40_percent, :header => '<40% Male Chimerism Levels'),
+
+        mi_attempt_column(:test_cross_strain),
+
+        mi_attempt_column(:back_cross_strain),
+
+        mi_attempt_column(:date_chimeras_mated),
+
+        mi_attempt_column(:number_chimera_mated,
+          :header => 'No. Chimera Matings Attempted'),
+
+        mi_attempt_column(:number_chimera_mating_success,
+          :header => 'No. Chimera Matings Successful'),
+
+        mi_attempt_column(:chimeras_with_glt_from_cct,
+          :header => 'No. Chimeras with Germline Transmission from CCT'),
+
+        mi_attempt_column(:chimeras_with_glt_from_genotyp,
+          :header => 'No. Chimeras with Germline Transmission from Genotyping'),
+
+        mi_attempt_column(:number_lt_10_percent_glt,
+          :header => 'No. Chimeras with < 10% GLT'),
+
+        mi_attempt_column(:number_btw_10_50_percent_glt,
+          :header => 'No. Chimeras with 10 - 50% GLT'),
+
+        mi_attempt_column(:number_gt_50_percent_glt,
+          :header => 'No. Chimeras with > 50% GLT'),
+
+        mi_attempt_column(:number_100_percent_glt,
+          :header => 'No. Chimeras with 100% GLT'),
+
+        mi_attempt_column(:total_f1_mice,
+          :header => 'Total F1 Mice from Matings'),
+
+        mi_attempt_column(:number_with_cct,
+          :header => 'No. Coat Colour Transmission Offspring'),
+
+        mi_attempt_column(:number_het_offspring,
+          :header => 'No. Het Offspring'),
+
+        mi_attempt_column(:number_live_glt_offspring,
+          :header => 'No. Live GLT Offspring'),
+
+        mi_attempt_column(:mouse_allele_name,
+          :header => 'Mouse Allele Name'),
+
+        emma_status_column_options,
       ]
     end
 

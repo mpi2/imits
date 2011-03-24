@@ -16,7 +16,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'number_male_lt_40_percent'
     ],
     'chimera_mating_details': [
-    'emma_status'
+    'emma_status',
     'test_cross_strain',
     'back_cross_strain',
     'number_chimera_mated',
@@ -31,7 +31,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'number_with_cct',
     'number_het_offspring',
     'number_live_glt_offspring',
-    'mouse_allele_name',
+    'mouse_allele_name'
     ]
 }
 

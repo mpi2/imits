@@ -199,7 +199,8 @@ module MiAttemptsHelper
         :header => false,
 
         :clicks_to_edit => 1,
-        :rows_per_page => 100,
+        :rows_per_page => 20,
+        :stripe_rows => true,
 
         :tbar => [self.view_config_buttons],
 

@@ -106,7 +106,7 @@ module MiAttemptsHelper
 
         mi_attempt_column(:number_male_chimeras, :header => 'Total Male Chimeras'),
 
-        mi_attempt_column(:total_chimerasm),
+        mi_attempt_column(:total_chimeras),
 
         mi_attempt_column(:number_male_100_percent, :header => '100% Male Chimerism Levels'),
 

@@ -2,12 +2,22 @@ window.onload = onWindowLoad;
 
 function onWindowLoad() {
     setInitialFocus();
+    clearSearchTermsHandler();
 }
 
 function setInitialFocus() {
     var thing = Ext.DomQuery.jsSelect('.initial-focus')[0];
     if(thing) {
         thing.focus();
+    }
+}
+
+function clearSearchTermsHandler() {
+    var el = document.getElementById('clear-search-terms-button');
+    el.onclick = function() {
+        var textarea = document.getElementById('search-terms');
+        textarea.innerHTML = '';
+        textarea.focus();
     }
 }
 

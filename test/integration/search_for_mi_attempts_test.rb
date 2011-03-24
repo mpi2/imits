@@ -108,9 +108,9 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
     end
 
     should 'clear form when Clear button is pushed' do
-      visit '/'
+      visit '/mi_attempts?search_terms=EPD0127_4_E01%0D%0AEPD0343_1_H06'
       fill_in 'search_terms', :with => 'some text'
-      find('input[@type=reset]').click
+      click_button('Clear')
       assert_blank find('#search-terms').text
     end
 

@@ -116,6 +116,8 @@ module MiAttemptsHelper
 
         mi_attempt_column(:number_male_lt_40_percent, :header => '<40% Male Chimerism Levels'),
 
+        emma_status_column_options,
+
         mi_attempt_column(:test_cross_strain),
 
         mi_attempt_column(:back_cross_strain),
@@ -161,7 +163,41 @@ module MiAttemptsHelper
         mi_attempt_column(:mouse_allele_name,
           :header => 'Mouse Allele Name'),
 
-        emma_status_column_options,
+        mi_attempt_column(:qc_southern_blot,
+          :header => 'Southern Blot'),
+
+        mi_attempt_column(:qc_five_prime_lr_pcr,
+          :header => 'Five Prime LRPCR'),
+
+        mi_attempt_column(:qc_five_prime_cass_integrity,
+          :header => 'Five Prime Cassette Integrity'),
+
+        mi_attempt_column(:qc_tv_backbone_assay,
+          :header => 'TV Backbone Assay'),
+
+        mi_attempt_column(:qc_neo_count_qpcr,
+          :header => 'Neo Count SRPCR'),
+
+        mi_attempt_column(:qc_neo_sr_pcr,
+          :header => 'Neo SR PCR'),
+
+        mi_attempt_column(:qc_loa_qpcr,
+          :header => 'LOA QPCR'),
+
+        mi_attempt_column(:qc_homozygous_loa_sr_pcr,
+          :header => 'Homozygous LOA SRPCR'),
+
+        mi_attempt_column(:qc_lacz_sr_pcr,
+          :header => 'LacZ SRPCR'),
+
+        mi_attempt_column(:qc_mutant_specific_sr_pcr,
+          :header => 'Mutant Specific SRPCR'),
+
+        mi_attempt_column(:qc_loxp_confirmation,
+          :header => 'LoxP Confirmation'),
+
+        mi_attempt_column(:qc_three_prime_lr_pcr,
+          :header => 'Three Prime LRPCR')
       ]
     end
 

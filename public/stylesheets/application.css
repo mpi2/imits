@@ -90,6 +90,9 @@ em {
     background-color: darkred;
 }
 
+.wait {
+    cursor: wait;
+}
 
 #mi-attempts-form {
     overflow: hidden; /* clear floats */

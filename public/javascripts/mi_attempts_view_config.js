@@ -19,6 +19,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'emma_status',
     'test_cross_strain',
     'back_cross_strain',
+    'date_chimera_mated',
     'number_chimera_mated',
     'number_chimera_mating_success',
     'number_with_cct',
@@ -57,7 +58,7 @@ var commonColumns = [
 'actual_mi_date',
 'status',
 'colony_name',
-'distribution_centre_name',
+'distribution_centre_name'
 ]
 
 var everythingView = [].concat(commonColumns);

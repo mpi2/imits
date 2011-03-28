@@ -317,4 +317,13 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
   end
 
+  context 'validation' do
+    should validate_numericality_of :num_blasts
+
+    should 'allow nils for num_blasts' do
+      default_mi_attempt.num_blasts = nil
+      assert_true default_mi_attempt.valid?
+    end
+  end
+
 end

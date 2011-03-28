@@ -27,7 +27,8 @@ module MiAttemptsHelper
         :id => name,
         :name => name,
         :header => name.titleize,
-        :read_only => true,
+        :read_only => false,
+        :editable => true,
         :sortable => true,
       }.merge(extra_params)
     end
@@ -94,11 +95,13 @@ module MiAttemptsHelper
 
         mi_attempt_column(:blast_strain),
 
-        mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected'),
+        mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected',
+          :attr_type => :integer),
 
-        mi_attempt_column(:num_transferred, :header => 'Total Transferred'),
+        mi_attempt_column(:num_transferred, :header => 'Total Transferred',
+          :attr_type => :integer),
 
-        mi_attempt_column(:no_surrogates_received, :header => 'No. Surrogates Receiving'),
+        # mi_attempt_column(:no_surrogates_received, :header => 'No. Surrogates Receiving'),
 
         mi_attempt_column(:number_born, :header => 'Total Pups Born'),
 
@@ -106,7 +109,7 @@ module MiAttemptsHelper
 
         mi_attempt_column(:number_male_chimeras, :header => 'Total Male Chimeras'),
 
-        mi_attempt_column(:total_chimeras),
+        mi_attempt_column(:total_chimeras, :read_only => true),
 
         mi_attempt_column(:number_male_100_percent, :header => '100% Male Chimerism Levels'),
 
@@ -149,10 +152,12 @@ module MiAttemptsHelper
           :header => 'No. Chimeras with 100% GLT'),
 
         mi_attempt_column(:total_f1_mice,
-          :header => 'Total F1 Mice from Matings'),
+          :header => 'Total F1 Mice from Matings',
+          :attr_type => :integer),
 
         mi_attempt_column(:number_with_cct,
-          :header => 'No. Coat Colour Transmission Offspring'),
+          :header => 'No. Coat Colour Transmission Offspring',
+          :attr_type => :integer),
 
         mi_attempt_column(:number_het_offspring,
           :header => 'No. Het Offspring'),
@@ -257,7 +262,7 @@ module MiAttemptsHelper
           :apply.action
         ],
 
-        :view_config => selectable_cells_magic_view_config,
+        # :view_config => selectable_cells_magic_view_config,
 
         :columns => self.define_columns,
 

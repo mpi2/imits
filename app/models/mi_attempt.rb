@@ -3,6 +3,8 @@
 class MiAttempt < ApplicationModel
   set_table_name 'emi_attempt'
 
+  validates_numericality_of :num_blasts, :allow_nil => true
+
   # The include does not work in postgres, which seems to ignore it, and breaks
   # on oracle
   belongs_to :emi_event, :class_name => 'EmiEvent',

@@ -227,6 +227,19 @@ module MiAttemptsHelper
       }
     end
 
+    def selectable_cells_magic_view_config
+      new_cell_tpl = <<-'EOL'
+      new Ext.Template(
+        '<td class="x-grid3-col x-grid3-cell x-grid3-td-{id} {css}" style="{style}" tabIndex="0" {cellAttr}>',
+        '<div class="x-grid3-cell-inner x-grid3-col-{id}" unselectable="off" {attr}>{value}</div>',
+        '</td>'
+      )
+      EOL
+      return {
+        :cell_tpl => new_cell_tpl.to_json_variable
+      }
+    end
+
     def configuration
       super.merge(
         :model => 'MiAttempt',
@@ -243,6 +256,8 @@ module MiAttemptsHelper
         :bbar => [
           :apply.action
         ],
+
+        :view_config => selectable_cells_magic_view_config,
 
         :columns => self.define_columns,
 

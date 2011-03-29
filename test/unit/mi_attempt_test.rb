@@ -317,6 +317,16 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
   end
 
+  context 'before save filter' do
+    should 'fill in total_chimeras before save' do
+      default_mi_attempt.number_male_chimeras = 5
+      default_mi_attempt.number_female_chimeras = 4
+      default_mi_attempt.save!
+      default_mi_attempt.reload
+      assert_equal 9, default_mi_attempt.total_chimeras
+    end
+  end
+
   context 'before validation filter' do
     setup do
       default_mi_attempt.num_blasts = '12.12 string'

@@ -53,10 +53,16 @@ class MiAttempt < ApplicationModel
 
   before_save :audit_on_save
 
+  before_save :sum_up_total_chimeras
+
   def integerify_fields
     self.num_blasts = num_blasts.to_i
     self.num_transferred = num_transferred.to_i
     self.total_f1_mice = total_f1_mice.to_i
+  end
+
+  def sum_up_total_chimeras
+    self.total_chimeras = number_male_chimeras + number_female_chimeras
   end
 
   def set_distribution_centre_by_name(name, event_edited_by)

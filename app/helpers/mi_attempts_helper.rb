@@ -167,10 +167,26 @@ module MiAttemptsHelper
           :header => 'Mouse Allele Name'),
 
         mi_attempt_column(:qc_southern_blot,
-          :header => 'Southern Blot'),
+          :header => 'Southern Blot',
+          :editor => {
+            :store => ['', 'pass', 'fail', 'na'],
+            :editable => false,
+            :xtype => :combo,
+            :force_selection => true,
+            :trigger_action => :all,
+          }
+        ),
 
         mi_attempt_column(:qc_five_prime_lr_pcr,
-          :header => 'Five Prime LRPCR'),
+          :header => 'Five Prime LRPCR',
+          :editor => {
+            :store => ['', 'pass', 'fail', 'na'],
+            :editable => false,
+            :xtype => :combo,
+            :force_selection => true,
+            :trigger_action => :all,
+          }
+        ),
 
         mi_attempt_column(:qc_five_prime_cass_integrity,
           :header => 'Five Prime Cassette Integrity'),

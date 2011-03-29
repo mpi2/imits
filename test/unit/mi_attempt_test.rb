@@ -317,12 +317,24 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
   end
 
-  context 'validation' do
-    should validate_numericality_of :num_blasts
+  context 'before validation filter' do
+    setup do
+      default_mi_attempt.num_blasts = '12.12 string'
+      default_mi_attempt.num_transferred = 13.13
+      default_mi_attempt.total_f1_mice = 14.14
+      default_mi_attempt.valid?
+    end
 
-    should 'allow nils for num_blasts' do
-      default_mi_attempt.num_blasts = nil
-      assert_true default_mi_attempt.valid?
+    should 'integerify num_blasts' do
+      assert_equal 12, default_mi_attempt.num_blasts
+    end
+
+    should 'integerify num_transferred' do
+      assert_equal 13, default_mi_attempt.num_transferred
+    end
+
+    should 'integerify total_f1_mice' do
+      assert_equal 14, default_mi_attempt.total_f1_mice
     end
   end
 

@@ -3,8 +3,6 @@
 class MiAttempt < ApplicationModel
   set_table_name 'emi_attempt'
 
-  validates_numericality_of :num_blasts, :allow_nil => true
-
   # The include does not work in postgres, which seems to ignore it, and breaks
   # on oracle
   belongs_to :emi_event, :class_name => 'EmiEvent',
@@ -51,7 +49,15 @@ class MiAttempt < ApplicationModel
     joins(:emi_event => :distribution_centre).order("per_centre.name #{direction}")
   }
 
+  before_validation :integerify_fields
+
   before_save :audit_on_save
+
+  def integerify_fields
+    self.num_blasts = num_blasts.to_i
+    self.num_transferred = num_transferred.to_i
+    self.total_f1_mice = total_f1_mice.to_i
+  end
 
   def set_distribution_centre_by_name(name, event_edited_by)
     return emi_event.update_attributes(:distribution_centre => Centre.find_by_name!(name),

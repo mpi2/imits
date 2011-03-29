@@ -95,11 +95,9 @@ module MiAttemptsHelper
 
         mi_attempt_column(:blast_strain),
 
-        mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected',
-          :attr_type => :integer),
+        mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected'),
 
-        mi_attempt_column(:num_transferred, :header => 'Total Transferred',
-          :attr_type => :integer),
+        mi_attempt_column(:num_transferred, :header => 'Total Transferred'),
 
         # mi_attempt_column(:no_surrogates_received, :header => 'No. Surrogates Receiving'),
 

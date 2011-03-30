@@ -70,6 +70,12 @@ module MiAttemptsHelper
       )
     end
 
+    js_method :floor_number, <<-'JS'
+      function(number) {
+        return Math.floor(number);
+      }
+    JS
+
     def define_columns
       [
         mi_attempt_column(:clone_name, :sorting_scope => :sort_by_clone_name),
@@ -92,7 +98,7 @@ module MiAttemptsHelper
 
         mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected'),
 
-        mi_attempt_column(:num_transferred, :header => 'Total Transferred'),
+        mi_attempt_column(:num_transferred, :header => 'Total Transferred', :renderer => ['floorNumber']),
 
         # mi_attempt_column(:no_surrogates_received, :header => 'No. Surrogates Receiving'),
 

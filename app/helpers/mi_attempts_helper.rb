@@ -88,7 +88,7 @@ module MiAttemptsHelper
 
         distribution_centre_name_column_options,
 
-        mi_attempt_column(:blast_strain),
+        mi_attempt_column(:blast_strain, :editor => local_combo_editor(BLAST_STRAINS)),
 
         mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected'),
 
@@ -114,9 +114,9 @@ module MiAttemptsHelper
 
         emma_status_column_options,
 
-        mi_attempt_column(:test_cross_strain),
+        mi_attempt_column(:test_cross_strain, :editor => local_combo_editor(TEST_CROSS_STRAINS)),
 
-        mi_attempt_column(:back_cross_strain),
+        mi_attempt_column(:back_cross_strain, :editor => local_combo_editor(BACK_CROSS_STRAINS)),
 
         mi_attempt_column(:date_chimeras_mated),
 

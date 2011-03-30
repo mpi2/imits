@@ -83,7 +83,7 @@ module MiAttemptsHelper
         mi_attempt_column(:allele_name, :sorting_scope => :sort_by_allele_name),
 
         mi_attempt_column(:actual_mi_date, :header => 'Actual MI Date',
-          :renderer => ['date', 'd-M-Y']),
+          :attr_type => :date),
 
         mi_attempt_column(:status,
           :getter => proc { |relation| relation.mi_attempt_status.name },
@@ -123,7 +123,7 @@ module MiAttemptsHelper
 
         mi_attempt_column(:back_cross_strain),
 
-        mi_attempt_column(:date_chimeras_mated),
+        mi_attempt_column(:date_chimeras_mated, :attr_type => :date),
 
         mi_attempt_column(:number_chimera_mated,
           :header => 'No. Chimera Matings Attempted'),

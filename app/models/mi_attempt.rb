@@ -62,7 +62,7 @@ class MiAttempt < ApplicationModel
   end
 
   def sum_up_total_chimeras
-    self.total_chimeras = number_male_chimeras + number_female_chimeras
+    self.total_chimeras = number_male_chimeras.to_i + number_female_chimeras.to_i
   end
 
   def set_distribution_centre_by_name(name, event_edited_by)

@@ -33,44 +33,38 @@ module MiAttemptsHelper
       }.merge(extra_params)
     end
 
+    def local_combo_editor(selections)
+      return {
+        :mode => :local,
+        :store => selections,
+        :editable => false,
+        :xtype => :combo,
+        :force_selection => true,
+        :trigger_action => :all,
+      }
+    end
+
     def emma_status_column_options
       return mi_attempt_column(:emma_status).merge(
         :header => 'EMMA Status',
-        :read_only => false,
-        :editable => true,
         :sortable => false,
         :getter => lambda { |relation| EMMA_OPTIONS[relation.emma_status] },
         :setter => lambda { |relation, value| relation.emma_status = REVERSE_EMMA_OPTIONS[value] },
         :width => 175,
-        :editor => {
-          :mode => :local,
-          :store => EMMA_OPTIONS.values,
-          :editable => false,
-          :xtype => :combo,
-          :force_selection => true,
-          :trigger_action => :all,
-        }
+        :editor => local_combo_editor(EMMA_OPTIONS.values)
       )
     end
 
     def distribution_centre_name_column_options
       mi_attempt_column(:distribution_centre_name).merge(
         :header => 'Distribution Centre',
-        :read_only => false,
         :setter => lambda { |mi_attempt, centre_name|
           mi_attempt.set_distribution_centre_by_name(centre_name,
             @passed_config[:current_username])
         },
-        :editable => true,
         :sortable => true,
         :sorting_scope => :sort_by_distribution_centre_name,
-        :editor => {
-          :store => Centre.all.collect(&:name),
-          :editable => false,
-          :xtype => :combo,
-          :force_selection => true,
-          :trigger_action => :all,
-        }
+        :editor => local_combo_editor(Centre.all.collect(&:name))
       )
     end
 

@@ -45,6 +45,8 @@ function toggleMiAttemptsSwitchViewButton(button, pressed) {
             }
         }
 
+        grid.syncSize();
+
         mask.hide();
         Ext.getBody().removeClass('wait');
     }

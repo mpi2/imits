@@ -393,4 +393,12 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
   end
 
+  should 'have valid EMMA_OPTIONS mapping' do
+    assert_equal 4, MiAttempt::EMMA_OPTIONS.size
+    assert_equal MiAttempt::EMMA_OPTIONS[:suitable], 'Suitable for EMMA'
+    assert_equal MiAttempt::EMMA_OPTIONS[:unsuitable], 'Unsuitable for EMMA'
+    assert_equal MiAttempt::EMMA_OPTIONS[:suitable_sticky], 'Suitable for EMMA - STICKY'
+    assert_equal MiAttempt::EMMA_OPTIONS[:unsuitable_sticky], 'Unsuitable for EMMA - STICKY'
+  end
+
 end

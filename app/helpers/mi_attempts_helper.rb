@@ -4,14 +4,7 @@ module MiAttemptsHelper
 
   class MiAttemptsGrid < Netzke::Basepack::GridPanel
 
-    EMMA_OPTIONS = {
-      :unsuitable => 'Unsuitable for EMMA',
-      :suitable => 'Suitable for EMMA',
-      :suitable_sticky => 'Suitable for EMMA - STICKY',
-      :unsuitable_sticky => 'Unsuitable for EMMA - STICKY',
-    }
-
-    REVERSE_EMMA_OPTIONS = EMMA_OPTIONS.invert
+    EMMA_OPTIONS = MiAttempt::EMMA_OPTIONS
 
     QA_STORE_OPTIONS = ['pass', 'fail', 'na']
 
@@ -22,6 +15,24 @@ module MiAttemptsHelper
         :tooltip => 'You must select this to save the changes you have made'
       }
     end
+
+    js_method :floor_number, <<-'JS'
+      function(number) {
+        if(number) {
+          return Math.floor(number);
+        } else {
+          return null;
+        }
+      }
+    JS
+
+    js_method :combo_renderer, <<-'JS'
+      function(submit_value, combo_id) {
+        var combo = Ext.getCmp(combo_id);
+        var record = combo.findRecord(combo.valueField, submit_value);
+        return record ? record.get(combo.displayField) : combo.valueNotFoundText;
+      }
+    JS
 
     def mi_attempt_column(name, extra_params = {})
       name = name.to_s
@@ -35,7 +46,7 @@ module MiAttemptsHelper
       }.merge(extra_params)
     end
 
-    def local_combo_editor(selections)
+    def local_combo_editor(selections, overrides = {})
       return {
         :mode => :local,
         :store => selections,
@@ -43,17 +54,16 @@ module MiAttemptsHelper
         :xtype => :combo,
         :force_selection => true,
         :trigger_action => :all,
-      }
+      }.merge(overrides)
     end
 
     def emma_status_column_options
       return mi_attempt_column(:emma_status).merge(
         :header => 'EMMA Status',
         :sortable => false,
-        :getter => lambda { |relation| EMMA_OPTIONS[relation.emma_status] },
-        :setter => lambda { |relation, value| relation.emma_status = REVERSE_EMMA_OPTIONS[value] },
-        :width => 175,
-        :editor => local_combo_editor(EMMA_OPTIONS.values)
+        :editor => local_combo_editor(EMMA_OPTIONS.keys.zip(EMMA_OPTIONS.values), :id => 'emmaStatusCombo'),
+        :renderer => ['comboRenderer', 'emmaStatusCombo'],
+        :width => 175
       )
     end
 
@@ -69,16 +79,6 @@ module MiAttemptsHelper
         :editor => local_combo_editor(Centre.all.collect(&:name))
       )
     end
-
-    js_method :floor_number, <<-'JS'
-      function(number) {
-        if(number) {
-          return Math.floor(number);
-        } else {
-          return null;
-        }
-      }
-    JS
 
     def define_columns
       [

@@ -1,6 +1,14 @@
 # encoding: utf-8
 
 class MiAttempt < ApplicationModel
+
+  EMMA_OPTIONS = {
+      :unsuitable => 'Unsuitable for EMMA',
+      :suitable => 'Suitable for EMMA',
+      :suitable_sticky => 'Suitable for EMMA - STICKY',
+      :unsuitable_sticky => 'Unsuitable for EMMA - STICKY',
+    }.freeze
+
   set_table_name 'emi_attempt'
 
   # The include does not work in postgres, which seems to ignore it, and breaks

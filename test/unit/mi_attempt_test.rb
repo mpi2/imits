@@ -344,6 +344,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.num_blasts = '12.12 string'
           default_mi_attempt.num_transferred = 13.13
           default_mi_attempt.total_f1_mice = 14.14
+          default_mi_attempt.number_with_cct = '15.15 string'
           default_mi_attempt.valid?
         end
 
@@ -358,6 +359,10 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'integerify total_f1_mice' do
           assert_equal 14.0, default_mi_attempt.total_f1_mice
         end
+
+        should 'integerify number_with_cct' do
+          assert_equal '15', default_mi_attempt.number_with_cct
+        end
       end
 
       context 'when values are nil' do
@@ -365,19 +370,24 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.num_blasts = nil
           default_mi_attempt.num_transferred = nil
           default_mi_attempt.total_f1_mice = nil
+          default_mi_attempt.number_with_cct = nil
           default_mi_attempt.valid?
         end
 
         should 'keep num_blasts as nil' do
-          assert_equal nil, default_mi_attempt.num_blasts
+          assert_nil default_mi_attempt.num_blasts
         end
 
         should 'keep num_transferred as nil' do
-          assert_equal nil, default_mi_attempt.num_transferred
+          assert_nil default_mi_attempt.num_transferred
         end
 
         should 'keep total_f1_mice as nil' do
-          assert_equal nil, default_mi_attempt.total_f1_mice
+          assert_nil default_mi_attempt.total_f1_mice
+        end
+
+        should 'keep number_with_cct as nil' do
+          assert_nil default_mi_attempt.number_with_cct
         end
       end
     end

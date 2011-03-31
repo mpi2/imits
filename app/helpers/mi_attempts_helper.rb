@@ -84,11 +84,13 @@ module MiAttemptsHelper
       [
         mi_attempt_column(:clone_name, :sorting_scope => :sort_by_clone_name),
 
-        mi_attempt_column(:gene_symbol, :sorting_scope => :sort_by_gene_symbol),
+        mi_attempt_column(:gene_symbol, :sorting_scope => :sort_by_gene_symbol,
+          :width => 75),
 
         mi_attempt_column(:allele_name, :sorting_scope => :sort_by_allele_name),
 
-        mi_attempt_column(:actual_mi_date, :header => 'Actual MI Date'),
+        mi_attempt_column(:actual_mi_date, :header => 'Actual MI Date',
+          :width => 84),
 
         mi_attempt_column(:status,
           :getter => proc { |relation| relation.mi_attempt_status.name },
@@ -98,7 +100,8 @@ module MiAttemptsHelper
 
         distribution_centre_name_column_options,
 
-        mi_attempt_column(:blast_strain, :editor => local_combo_editor(BLAST_STRAINS)),
+        mi_attempt_column(:blast_strain,
+          :editor => local_combo_editor(BLAST_STRAINS)),
 
         mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected'),
 
@@ -131,7 +134,8 @@ module MiAttemptsHelper
         mi_attempt_column(:back_cross_strain,
           :editor => local_combo_editor(BACK_CROSS_STRAINS)),
 
-        mi_attempt_column(:date_chimera_mated, :header => 'Date Chimeras Mated'),
+        mi_attempt_column(:date_chimera_mated, :header => 'Date Chimeras Mated',
+          :width => 84),
 
         mi_attempt_column(:number_chimera_mated,
           :header => 'No. Chimera Matings Attempted'),

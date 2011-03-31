@@ -346,7 +346,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'integerify num_blasts' do
-      assert_equal 12, default_mi_attempt.num_blasts
+      assert_equal '12', default_mi_attempt.num_blasts
     end
 
     should 'integerify num_transferred' do

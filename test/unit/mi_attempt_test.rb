@@ -338,23 +338,48 @@ class MiAttemptTest < ActiveSupport::TestCase
   end
 
   context 'before validation filter' do
-    setup do
-      default_mi_attempt.num_blasts = '12.12 string'
-      default_mi_attempt.num_transferred = 13.13
-      default_mi_attempt.total_f1_mice = 14.14
-      default_mi_attempt.valid?
-    end
+    context 'integerify_fields' do
+      context 'when values are filled in' do
+        setup do
+          default_mi_attempt.num_blasts = '12.12 string'
+          default_mi_attempt.num_transferred = 13.13
+          default_mi_attempt.total_f1_mice = 14.14
+          default_mi_attempt.valid?
+        end
 
-    should 'integerify num_blasts' do
-      assert_equal '12', default_mi_attempt.num_blasts
-    end
+        should 'integerify num_blasts' do
+          assert_equal '12', default_mi_attempt.num_blasts
+        end
 
-    should 'integerify num_transferred' do
-      assert_equal 13, default_mi_attempt.num_transferred
-    end
+        should 'integerify num_transferred' do
+          assert_equal 13.0, default_mi_attempt.num_transferred
+        end
 
-    should 'integerify total_f1_mice' do
-      assert_equal 14, default_mi_attempt.total_f1_mice
+        should 'integerify total_f1_mice' do
+          assert_equal 14.0, default_mi_attempt.total_f1_mice
+        end
+      end
+
+      context 'when values are nil' do
+        setup do
+          default_mi_attempt.num_blasts = nil
+          default_mi_attempt.num_transferred = nil
+          default_mi_attempt.total_f1_mice = nil
+          default_mi_attempt.valid?
+        end
+
+        should 'keep num_blasts as nil' do
+          assert_equal nil, default_mi_attempt.num_blasts
+        end
+
+        should 'keep num_transferred as nil' do
+          assert_equal nil, default_mi_attempt.num_transferred
+        end
+
+        should 'keep total_f1_mice as nil' do
+          assert_equal nil, default_mi_attempt.total_f1_mice
+        end
+      end
     end
   end
 

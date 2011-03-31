@@ -56,9 +56,9 @@ class MiAttempt < ApplicationModel
   before_save :sum_up_total_chimeras
 
   def integerify_fields
-    self.num_blasts = num_blasts.to_i.to_s
-    self.num_transferred = num_transferred.to_i
-    self.total_f1_mice = total_f1_mice.to_i
+    self.num_blasts = num_blasts.to_i.to_s if self.num_blasts
+    self.num_transferred = num_transferred.to_i.to_f if self.num_transferred
+    self.total_f1_mice = total_f1_mice.to_i if self.total_f1_mice
   end
 
   def sum_up_total_chimeras

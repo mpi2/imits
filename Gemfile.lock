@@ -1,6 +1,6 @@
 GIT
   remote: http://github.com/skozlov/netzke-basepack.git
-  revision: b022af28b8a77f2b3a4fdd24f982840a88f5cdcd
+  revision: b99ef3267df0c97ca873d8dbf69e22bb418be2df
   specs:
     netzke-basepack (0.6.5)
       acts_as_list
@@ -10,7 +10,7 @@ GIT
 
 GIT
   remote: http://github.com/skozlov/netzke-core.git
-  revision: 3e3735b8b0e531b5380b8afdd0da87f47a493391
+  revision: 4fcea55471435ebd61e419ed57dccbfff959de3d
   specs:
     netzke-core (0.6.7)
       activesupport (>= 3.0.1)

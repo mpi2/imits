@@ -72,7 +72,11 @@ module MiAttemptsHelper
 
     js_method :floor_number, <<-'JS'
       function(number) {
-        return Math.floor(number);
+        if(number) {
+          return Math.floor(number);
+        } else {
+          return null;
+        }
       }
     JS
 
@@ -98,7 +102,8 @@ module MiAttemptsHelper
 
         mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected'),
 
-        mi_attempt_column(:num_transferred, :header => 'Total Transferred', :renderer => ['floorNumber']),
+        mi_attempt_column(:num_transferred, :header => 'Total Transferred',
+          :renderer => ['floorNumber']),
 
         # mi_attempt_column(:no_surrogates_received, :header => 'No. Surrogates Receiving'),
 
@@ -150,9 +155,8 @@ module MiAttemptsHelper
         mi_attempt_column(:number_100_percent_glt,
           :header => 'No. Chimeras with 100% GLT'),
 
-        mi_attempt_column(:total_f1_mice,
-          :header => 'Total F1 Mice from Matings',
-          :attr_type => :integer),
+        mi_attempt_column(:total_f1_mice, :header => 'Total F1 Mice from Matings',
+          :renderer => ['floorNumber']),
 
         mi_attempt_column(:number_with_cct,
           :header => 'No. Coat Colour Transmission Offspring',
@@ -243,19 +247,6 @@ module MiAttemptsHelper
       }
     end
 
-    def selectable_cells_magic_view_config
-      new_cell_tpl = <<-'EOL'
-      new Ext.Template(
-        '<td class="x-grid3-col x-grid3-cell x-grid3-td-{id} {css}" style="{style}" tabIndex="0" {cellAttr}>',
-        '<div class="x-grid3-cell-inner x-grid3-col-{id}" unselectable="off" {attr}>{value}</div>',
-        '</td>'
-      )
-      EOL
-      return {
-        :cell_tpl => new_cell_tpl.to_json_variable
-      }
-    end
-
     def configuration
       super.merge(
         :model => 'MiAttempt',
@@ -272,8 +263,6 @@ module MiAttemptsHelper
         :bbar => [
           :apply.action
         ],
-
-        # :view_config => selectable_cells_magic_view_config,
 
         :columns => self.define_columns,
 

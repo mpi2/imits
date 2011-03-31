@@ -14,10 +14,13 @@ function setInitialFocus() {
 
 function clearSearchTermsHandler() {
     var el = document.getElementById('clear-search-terms-button');
-    el.onclick = function() {
-        var textarea = document.getElementById('search-terms');
-        textarea.innerHTML = '';
-        textarea.focus();
+
+    if(el) {
+        el.onclick = function() {
+            var textarea = document.getElementById('search-terms');
+            textarea.innerHTML = '';
+            textarea.focus();
+        }
     }
 }
 

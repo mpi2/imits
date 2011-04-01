@@ -21,7 +21,6 @@ module MiAttemptsHelper
         // inspired by http://www.sencha.com/learn/Ext_FAQ_Grid#Dirty_Record_.2F_Red_Flag_.28modifying.2C_etc..29
         if( (e.oldValue == null || e.oldValue == "") &&
             (e.value == null || e.value == "") ) {
-          console.log(e);
           e.cancel = true;
           e.record.data[e.field] = e.value;
         }

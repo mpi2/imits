@@ -19,7 +19,7 @@ module MiAttemptsHelper
     js_method :emptyCellsDirtyFlaggingWorkaround, <<-JS
       function(e) {
         // inspired by http://www.sencha.com/learn/Ext_FAQ_Grid#Dirty_Record_.2F_Red_Flag_.28modifying.2C_etc..29
-        if( (e.oldValue == null || e.oldValue == "") &&
+        if( (e.originalValue == null || e.originalValue == "") &&
             (e.value == null || e.value == "") ) {
           e.cancel = true;
           e.record.data[e.field] = e.value;
@@ -27,11 +27,27 @@ module MiAttemptsHelper
       }
     JS
 
-    js_method :init_component, <<-JS
+    js_method :integersWithWrongTypesDirtyFlaggingWorkaround, <<-JS
+      function(e) {
+        if(['num_transferred', 'num_recipients', 'total_f1_mice'].indexOf(e.field) == -1) {
+          return;
+        }
+
+        if(e.originalValue == null) { return; }
+
+        if(parseInt(e.originalValue) == parseInt(e.value)) {
+          e.cancel = true;
+          e.record.data[e.field] = e.value;
+        }
+      }
+    JS
+
+    js_method :initComponent, <<-JS
       function() {
         #{js_full_class_name}.superclass.initComponent.call(this);
 
         this.on('validateedit', this.emptyCellsDirtyFlaggingWorkaround);
+        this.on('validateedit', this.integersWithWrongTypesDirtyFlaggingWorkaround);
       }
     JS
 
@@ -119,6 +135,7 @@ module MiAttemptsHelper
 
         mi_attempt_column(:status,
           :getter => proc { |relation| relation.mi_attempt_status.name },
+          :read_only => true,
           :sorting_scope => :sort_by_mi_attempt_status),
 
         mi_attempt_column(:colony_name),
@@ -128,7 +145,8 @@ module MiAttemptsHelper
         mi_attempt_column(:blast_strain,
           :editor => local_combo_editor(BLAST_STRAINS)),
 
-        mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected'),
+        mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected',
+          :renderer => ['floorNumber'], :attr_type => :integer),
 
         mi_attempt_column(:num_transferred, :header => 'Total Transferred',
           :renderer => ['floorNumber']),

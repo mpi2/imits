@@ -16,6 +16,26 @@ module MiAttemptsHelper
       }
     end
 
+    js_method :emptyCellsDirtyFlaggingWorkaround, <<-JS
+      function(e) {
+        // inspired by http://www.sencha.com/learn/Ext_FAQ_Grid#Dirty_Record_.2F_Red_Flag_.28modifying.2C_etc..29
+        if( (e.oldValue == null || e.oldValue == "") &&
+            (e.value == null || e.value == "") ) {
+          console.log(e);
+          e.cancel = true;
+          e.record.data[e.field] = e.value;
+        }
+      }
+    JS
+
+    js_method :init_component, <<-JS
+      function() {
+        #{js_full_class_name}.superclass.initComponent.call(this);
+
+        this.on('validateedit', this.emptyCellsDirtyFlaggingWorkaround);
+      }
+    JS
+
     js_method :floorNumber, <<-'JS'
       function(number) {
         if(number) {

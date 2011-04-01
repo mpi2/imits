@@ -16,7 +16,7 @@ module MiAttemptsHelper
       }
     end
 
-    js_method :floor_number, <<-'JS'
+    js_method :floorNumber, <<-'JS'
       function(number) {
         if(number) {
           return Math.floor(number);
@@ -26,7 +26,7 @@ module MiAttemptsHelper
       }
     JS
 
-    js_method :combo_renderer, <<-'JS'
+    js_method :comboRenderer, <<-'JS'
       function(submit_value, combo_id) {
         var combo = Ext.getCmp(combo_id);
         var record = combo.findRecord(combo.valueField, submit_value);
@@ -90,7 +90,13 @@ module MiAttemptsHelper
         mi_attempt_column(:allele_name, :sorting_scope => :sort_by_allele_name),
 
         mi_attempt_column(:actual_mi_date, :header => 'Actual MI Date',
-          :width => 84),
+          :width => 84,
+          :renderer => ['date', 'd-m-Y'],
+          :editor => {
+            :xtype => 'datefield',
+            :format => 'd-m-Y'
+          }
+        ),
 
         mi_attempt_column(:status,
           :getter => proc { |relation| relation.mi_attempt_status.name },
@@ -108,7 +114,8 @@ module MiAttemptsHelper
         mi_attempt_column(:num_transferred, :header => 'Total Transferred',
           :renderer => ['floorNumber']),
 
-        # mi_attempt_column(:no_surrogates_received, :header => 'No. Surrogates Receiving'),
+        mi_attempt_column(:num_recipients, :header => 'No. Surrogates Receiving',
+          :renderer => ['floorNumber']),
 
         mi_attempt_column(:number_born, :header => 'Total Pups Born'),
 
@@ -135,7 +142,13 @@ module MiAttemptsHelper
           :editor => local_combo_editor(BACK_CROSS_STRAINS)),
 
         mi_attempt_column(:date_chimera_mated, :header => 'Date Chimeras Mated',
-          :width => 84),
+          :width => 84,
+          :renderer => ['date', 'd-m-Y'],
+          :editor => {
+            :xtype => 'datefield',
+            :format => 'd-m-Y'
+          }
+        ),
 
         mi_attempt_column(:number_chimera_mated,
           :header => 'No. Chimera Matings Attempted'),

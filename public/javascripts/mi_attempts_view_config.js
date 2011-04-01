@@ -3,7 +3,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'blast_strain',
     'num_blasts',
     'num_transferred',
-    'no_surrogates_received'
+    'num_recipients'
     ],
     'litter_details': [
     'number_born',

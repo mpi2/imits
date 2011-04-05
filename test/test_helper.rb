@@ -54,4 +54,8 @@ class ActionDispatch::IntegrationTest
     click_button 'Login'
     assert_not_match(%r{^http://[^/]+/login$}, current_url)
   end
+
+  def default_mi_attempt
+    @default_mi_attempt ||= emi_attempt('EPD0343_1_H06__1')
+  end
 end

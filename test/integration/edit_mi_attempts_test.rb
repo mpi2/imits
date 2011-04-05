@@ -4,10 +4,6 @@ require 'test_helper'
 
 class EditMiAttemptsTest < ActionDispatch::IntegrationTest
 
-  def default_mi_attempt
-    @default_mi_attempt ||= emi_attempt('EPD0343_1_H06__1')
-  end
-
   def assert_mi_attempt_was_audited
     assert_equal 'vvi', default_mi_attempt.edited_by
 
@@ -61,75 +57,6 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
     assert_in_delta Time.now, default_mi_attempt.emi_event.edit_date, 60.seconds
     assert_equal 'zz99', default_mi_attempt.emi_event.edited_by
     assert_equal 'ICS', default_mi_attempt.distribution_centre_name
-  end
-
-  context 'editing blast strain' do
-    setup do
-      login
-      visit '/mi_attempts?search_terms=EPD0343_1_H06'
-
-      find('.x-grid3-col-blast_strain').click # The grid cell
-      find('.x-editor .x-form-trigger').click # The combo box down arrow
-      find('.x-combo-list-item', :text => 'B6JTyr<c-Brd>').click
-    end
-
-    should 'work' do
-      click_button 'Save Changes'
-      sleep 6
-
-      assert_equal 'B6JTyr<c-Brd>', default_mi_attempt.blast_strain
-    end
-
-    should 'show it in the interface properly' do
-      assert_equal 'B6JTyr<c-Brd>', find('.x-grid3-col-blast_strain').text
-      assert_equal 'B6JTyr<c-Brd>', find('.x-form-text').value
-    end
-  end
-
-  context 'editing test cross strain' do
-    setup do
-      login
-      visit '/mi_attempts?search_terms=EPD0343_1_H06'
-
-      find('.x-grid3-col-test_cross_strain').click # The grid cell
-      find('.x-editor .x-form-trigger').click # The combo box down arrow
-      find('.x-combo-list-item', :text => 'B6JTyr<c-Brd>').click
-    end
-
-    should 'work' do
-      click_button 'Save Changes'
-      sleep 6
-
-      assert_equal 'B6JTyr<c-Brd>', default_mi_attempt.test_cross_strain
-    end
-
-    should 'show it in the interface properly' do
-      assert_equal 'B6JTyr<c-Brd>', find('.x-grid3-col-test_cross_strain').text
-      assert_equal 'B6JTyr<c-Brd>', find('.x-form-text').value
-    end
-  end
-
-  context 'editing back cross strain' do
-    setup do
-      login
-      visit '/mi_attempts?search_terms=EPD0343_1_H06'
-
-      find('.x-grid3-col-back_cross_strain').click # The grid cell
-      find('.x-editor .x-form-trigger').click # The combo box down arrow
-      find('.x-combo-list-item', :text => 'B6JTyr<c-Brd>').click
-    end
-
-    should 'work' do
-      click_button 'Save Changes'
-      sleep 6
-
-      assert_equal 'B6JTyr<c-Brd>', default_mi_attempt.back_cross_strain
-    end
-
-    should 'show it in the interface properly' do
-      assert_equal 'B6JTyr<c-Brd>', find('.x-grid3-col-back_cross_strain').text
-      assert_equal 'B6JTyr<c-Brd>', find('.x-form-text').value
-    end
   end
 
 end

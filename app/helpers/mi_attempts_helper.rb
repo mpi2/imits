@@ -92,7 +92,7 @@ module MiAttemptsHelper
       }.merge(overrides)
     end
 
-    def emma_status_column_options
+    def emma_status_column
       return mi_attempt_column(:emma_status).merge(
         :header => 'EMMA Status',
         :sortable => false,
@@ -102,7 +102,7 @@ module MiAttemptsHelper
       )
     end
 
-    def distribution_centre_name_column_options
+    def distribution_centre_name_column
       mi_attempt_column(:distribution_centre_name).merge(
         :header => 'Distribution Centre',
         :setter => lambda { |mi_attempt, centre_name|
@@ -113,6 +113,14 @@ module MiAttemptsHelper
         :sorting_scope => :sort_by_distribution_centre_name,
         :editor => local_combo_editor(Centre.all.collect(&:name))
       )
+    end
+
+    def strain_column(name, values)
+      combo_id = name.to_s.camelize(:lower) + 'Combo'
+      mi_attempt_column(name,
+        :editor => local_combo_editor(values.collect {|i| [i, CGI.escape_html(i)] }, :listWidth => 150, :id => combo_id),
+        :renderer => ['comboRenderer', combo_id])
+
     end
 
     def define_columns
@@ -140,10 +148,9 @@ module MiAttemptsHelper
 
         mi_attempt_column(:colony_name),
 
-        distribution_centre_name_column_options,
+        distribution_centre_name_column,
 
-        mi_attempt_column(:blast_strain,
-          :editor => local_combo_editor(BLAST_STRAINS)),
+        strain_column(:blast_strain, BLAST_STRAINS),
 
         mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected',
           :renderer => ['floorNumber'], :attr_type => :integer),
@@ -170,13 +177,11 @@ module MiAttemptsHelper
 
         mi_attempt_column(:number_male_lt_40_percent, :header => '<40% Male Chimerism Levels'),
 
-        emma_status_column_options,
+        emma_status_column,
 
-        mi_attempt_column(:test_cross_strain,
-          :editor => local_combo_editor(TEST_CROSS_STRAINS)),
+        strain_column(:test_cross_strain, TEST_CROSS_STRAINS),
 
-        mi_attempt_column(:back_cross_strain,
-          :editor => local_combo_editor(BACK_CROSS_STRAINS)),
+        strain_column(:back_cross_strain, BACK_CROSS_STRAINS),
 
         mi_attempt_column(:date_chimera_mated, :header => 'Date Chimeras Mated',
           :width => 84,

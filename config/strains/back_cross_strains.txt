@@ -1,3 +1,5 @@
+
+B6JTyr<c-Brd>
 129S5 or B6N/TacDen
 B6J or B6JIco or B6N/TacDen
 C57BL/6NTAC
@@ -9,15 +11,12 @@ C57BL/6Ntac
 C57bl/6ntac
 129P2/OlaHsd
 B6N/TacDen
-B6JTyr<c-Brd> or B6N/TacDen
-B6JTyr<c-Brd> or B6N/TacDen or CB
-B6JTyr<c-Brd> or B6N/TacUSA
+CB
 C57BL/6N
 C57BL/6NTacDen
 B6JIco
 129/P2
 B6N/TacUSA
-B6JTyr<c-Brd>
 129S5
 C57BL/6J
 B6N/TacDen or B6N/TacUSA

@@ -1,4 +1,5 @@
 
+B6JTyr<c-Brd>
 BALB/cAnNCrl
 Balb/c
 BALB/c AnN Crl
@@ -35,7 +36,6 @@ C57bl/6j
 Balb/CN
 C57BL6/J
 Balb/cN
-B6JTyr<c-Brd>
 BalB/cAnNCrl
 C3Hxbalb/c
 Balb/cAnACrl

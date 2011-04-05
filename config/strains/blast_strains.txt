@@ -1,53 +1,13 @@
 
-B6JTyr<c-Brd>
-BALB/cAnNCrl
-Balb/c
-BALB/c AnN Crl
-C57BL/6J-A<W-J>/J
-Swiss Webster
-BALB/CANnCrl
-C57BL6J
-C57BL
-C57BL/6J Albino
-Balb/cAnNcrl
-C57BL/6J-Tyr<c-2J>/J
-C57Bl6?j
-C57BL/6j
-BALB/cAnCrl
-C57Bl/6j
-BalbcAnNCRl
-C57B6J
-FVB
-C57BL/6JcBrd/cBrd
-CD1
-C57BL/6N
-b
-Balb/Cam
-C567Bl/6J
-Balb/cJ
-C57BL/6J-Tyr<c-2J>
-BALB/CAnNCrl
 Balb/C
-C57Bl/6J
-C57BL6/NCrl
-C57B//6J
-C57BL/5J
-C57bl/6j
-Balb/CN
-C57BL6/J
-Balb/cN
-BalB/cAnNCrl
-C3Hxbalb/c
-Balb/cAnACrl
-C57BL/6
-Balb/cam
-C57BL/6J
-BALB/cAnACrl
-BALb/cAnNCrl
+Balb/Cam
 BALBc/cAnCrl
-C57Bl/6J Albino
-Balb/cAnNCrl
-C57BL/6NCrl
-BalbCAnNCrl
-Balb/cAnnCrl
-B6JIco;B6JTyr<c-Brd>
+BALB/cAnACrl
+Balb/cJ
+Balb/CN
+C3Hxbalb/c
+C57BL/6J
+C57BL/6J-Tyr<c-2J>
+CD1
+FVB
+Swiss Webster

@@ -37,7 +37,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
             'EPD0343_1_H06',
             'Myo1c',
             'Myo1ctm1a(EUCOMM)Wtsi',
-            '13-Sep-2010',
+            '13-09-2010',
             'MDCF',
             'WTSI',
             'Unsuitable for EMMA',

@@ -65,7 +65,7 @@ module MiAttemptsHelper
       function(submit_value, combo_id) {
         var combo = Ext.getCmp(combo_id);
         var record = combo.findRecord(combo.valueField, submit_value);
-        return record ? record.get(combo.displayField) : submit_value;
+        return record ? record.get(combo.displayField) : Ext.util.Format.htmlEncode(submit_value);
       }
     JS
 
@@ -117,8 +117,21 @@ module MiAttemptsHelper
 
     def strain_column(name, values)
       combo_id = name.to_s.camelize(:lower) + 'Combo'
-      mi_attempt_column(name,
-        :editor => local_combo_editor(values.collect {|i| [i, CGI.escape_html(i)] }, :listWidth => 150, :id => combo_id),
+
+      editor = local_combo_editor(
+        values.collect {|i| [i, CGI.escape_html(i)] },
+        :listWidth => 150, :id => combo_id,
+        :listeners => {
+          'select' => 'function(combo, record, index) {combo.el.dom.value = record.data[combo.valueField];}'.to_json_variable,
+          'focus' => 'function(combo) {
+                        var record = combo.findRecord(combo.valueField, combo.value);
+                        if(record) {
+                          combo.el.dom.value = record.data[combo.valueField];
+                        }
+                      }'.to_json_variable
+        })
+
+      mi_attempt_column(name, :editor => editor,
         :renderer => ['comboRenderer', combo_id])
 
     end

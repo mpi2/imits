@@ -153,29 +153,30 @@ module MiAttemptsHelper
         strain_column(:blast_strain, BLAST_STRAINS),
 
         mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected',
-          :renderer => ['floorNumber'], :attr_type => :integer),
+          :renderer => ['floorNumber'], :attr_type => :integer,
+          :align => :right),
 
         mi_attempt_column(:num_transferred, :header => 'Total Transferred',
-          :renderer => ['floorNumber']),
+          :renderer => ['floorNumber'], :align => :right),
 
         mi_attempt_column(:num_recipients, :header => 'No. Surrogates Receiving',
-          :renderer => ['floorNumber']),
+          :renderer => ['floorNumber'], :align => :right),
 
-        mi_attempt_column(:number_born, :header => 'Total Pups Born'),
+        mi_attempt_column(:number_born, :header => 'Total Pups Born', :align => :right),
 
-        mi_attempt_column(:number_female_chimeras, :header => 'Total Female Chimeras'),
+        mi_attempt_column(:number_female_chimeras, :header => 'Total Female Chimeras', :align => :right),
 
-        mi_attempt_column(:number_male_chimeras, :header => 'Total Male Chimeras'),
+        mi_attempt_column(:number_male_chimeras, :header => 'Total Male Chimeras', :align => :right),
 
-        mi_attempt_column(:total_chimeras, :read_only => true),
+        mi_attempt_column(:total_chimeras, :read_only => true, :align => :right),
 
-        mi_attempt_column(:number_male_100_percent, :header => '100% Male Chimerism Levels'),
+        mi_attempt_column(:number_male_100_percent, :header => '100% Male Chimerism Levels', :align => :right),
 
-        mi_attempt_column(:number_male_gt_80_percent, :header => '>=80% Male Chimerism Levels'),
+        mi_attempt_column(:number_male_gt_80_percent, :header => '>=80% Male Chimerism Levels', :align => :right),
 
-        mi_attempt_column(:number_male_40_to_80_percent, :header => '80-40% Male Chimerism Levels'),
+        mi_attempt_column(:number_male_40_to_80_percent, :header => '80-40% Male Chimerism Levels', :align => :right),
 
-        mi_attempt_column(:number_male_lt_40_percent, :header => '<40% Male Chimerism Levels'),
+        mi_attempt_column(:number_male_lt_40_percent, :header => '<40% Male Chimerism Levels', :align => :right),
 
         emma_status_column,
 
@@ -193,41 +194,43 @@ module MiAttemptsHelper
         ),
 
         mi_attempt_column(:number_chimera_mated,
-          :header => 'No. Chimera Matings Attempted'),
+          :header => 'No. Chimera Matings Attempted', :align => :right),
 
         mi_attempt_column(:number_chimera_mating_success,
-          :header => 'No. Chimera Matings Successful'),
+          :header => 'No. Chimera Matings Successful', :align => :right),
 
         mi_attempt_column(:chimeras_with_glt_from_cct,
-          :header => 'No. Chimeras with Germline Transmission from CCT'),
+          :header => 'No. Chimeras with Germline Transmission from CCT',
+          :align => :right),
 
         mi_attempt_column(:chimeras_with_glt_from_genotyp,
-          :header => 'No. Chimeras with Germline Transmission from Genotyping'),
+          :header => 'No. Chimeras with Germline Transmission from Genotyping',
+          :align => :right),
 
         mi_attempt_column(:number_lt_10_percent_glt,
-          :header => 'No. Chimeras with < 10% GLT'),
+          :header => 'No. Chimeras with < 10% GLT', :align => :right),
 
         mi_attempt_column(:number_btw_10_50_percent_glt,
-          :header => 'No. Chimeras with 10 - 50% GLT'),
+          :header => 'No. Chimeras with 10 - 50% GLT', :align => :right),
 
         mi_attempt_column(:number_gt_50_percent_glt,
-          :header => 'No. Chimeras with > 50% GLT'),
+          :header => 'No. Chimeras with > 50% GLT', :align => :right),
 
         mi_attempt_column(:number_100_percent_glt,
-          :header => 'No. Chimeras with 100% GLT'),
+          :header => 'No. Chimeras with 100% GLT', :align => :right),
 
         mi_attempt_column(:total_f1_mice, :header => 'Total F1 Mice from Matings',
-          :renderer => ['floorNumber']),
+          :renderer => ['floorNumber'], :align => :right),
 
         mi_attempt_column(:number_with_cct,
           :header => 'No. Coat Colour Transmission Offspring',
-          :attr_type => :integer),
+          :attr_type => :integer, :align => :right),
 
         mi_attempt_column(:number_het_offspring,
-          :header => 'No. Het Offspring'),
+          :header => 'No. Het Offspring', :align => :right),
 
         mi_attempt_column(:number_live_glt_offspring,
-          :header => 'No. Live GLT Offspring'),
+          :header => 'No. Live GLT Offspring', :align => :right),
 
         mi_attempt_column(:mouse_allele_name,
           :header => 'Mouse Allele Name'),

@@ -58,4 +58,9 @@ class ActionDispatch::IntegrationTest
   def default_mi_attempt
     @default_mi_attempt ||= emi_attempt('EPD0343_1_H06__1')
   end
+
+  def selector_for_table_cell(table_row)
+    ".x-grid3-body .x-grid3-row:nth-child(#{table_row}) .x-grid3-cell-inner"
+  end
+
 end

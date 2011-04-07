@@ -65,7 +65,7 @@ module MiAttemptsHelper
       function(submit_value, combo_id) {
         var combo = Ext.getCmp(combo_id);
         var record = combo.findRecord(combo.valueField, submit_value);
-        return record ? record.get(combo.displayField) : combo.valueNotFoundText;
+        return record ? record.get(combo.displayField) : submit_value;
       }
     JS
 

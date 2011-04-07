@@ -21,8 +21,11 @@ class StrainsTest < ActionDispatch::IntegrationTest
       assert_equal 'C57BL/6J-Tyr<c-2J>', default_mi_attempt.blast_strain
     end
 
-    should 'show it in the interface properly' do
+    should 'show it in the grid properly' do
       assert_equal 'C57BL/6J-Tyr<c-2J>', find('.x-grid3-col-blast_strain').text
+    end
+
+    should_eventually 'show it in the text area properly' do
       assert_equal 'C57BL/6J-Tyr<c-2J>', find('.x-form-text').value
     end
   end
@@ -44,8 +47,11 @@ class StrainsTest < ActionDispatch::IntegrationTest
       assert_equal 'B6JTyr<c-Brd>', default_mi_attempt.test_cross_strain
     end
 
-    should 'show it in the interface properly' do
+    should 'show it in the grid properly' do
       assert_equal 'B6JTyr<c-Brd>', find('.x-grid3-col-test_cross_strain').text
+    end
+
+    should_eventually 'show it in the text area properly' do
       assert_equal 'B6JTyr<c-Brd>', find('.x-form-text').value
     end
   end
@@ -67,8 +73,11 @@ class StrainsTest < ActionDispatch::IntegrationTest
       assert_equal 'B6JTyr<c-Brd>', default_mi_attempt.back_cross_strain
     end
 
-    should 'show it in the interface properly' do
+    should 'show it in the grid properly' do
       assert_equal 'B6JTyr<c-Brd>', find('.x-grid3-col-back_cross_strain').text
+    end
+
+    should_eventually 'show it in the text area properly' do
       assert_equal 'B6JTyr<c-Brd>', find('.x-form-text').value
     end
   end

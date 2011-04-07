@@ -33,8 +33,10 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
   should 'audit MiAttempt when simple numeric field changes' do
     assert_mi_attempt_was_audited do
       find('.x-grid3-col-number_born').click # The cell containing 'Total Pups Born'
+      sleep 1
       find('.x-editor input.x-form-text[@type=text]').set('12')
-      click_button 'Save Changes' # Make text-box lose focus.. will not submit
+      sleep 1
+      find('.x-grid3-col-clone_name').click # Make text-box lose focus
     end
     assert_equal 12, default_mi_attempt.number_born
   end

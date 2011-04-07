@@ -2,10 +2,6 @@ require 'test_helper'
 
 class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
-  def selector_for_table_cell(table_row)
-    ".x-grid3-body .x-grid3-row:nth-child(#{table_row}) .x-grid3-cell-inner"
-  end
-
   should 'need a valid logged in user' do
     visit '/logout'
 

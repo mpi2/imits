@@ -28,7 +28,7 @@ namespace :deploy do
     run "touch #{File.join(current_path,'tmp','restart.txt')} && chmod ugo+w #{File.join(current_path,'tmp','restart.txt')}"
   end
 
-  desc "Symlink shared configs and folders on each release."
+  desc "Symlink shared configs and directories on each release"
   task :symlink_shared do
     run "ln -nfs #{shared_path}/database.yml #{release_path}/config/database.yml"
 
@@ -40,6 +40,13 @@ namespace :deploy do
     run "rm -rf #{var_run_path}/javascripts"
     run "cd #{release_path}/public && mv javascripts #{var_run_path}/javascripts && ln -nfs #{var_run_path}/javascripts javascripts"
     run "chgrp team87 #{var_run_path}/javascripts && chmod g+w #{var_run_path}/javascripts"
+
+    # /public/netzke needs to be writable and empty so netzke can cache its junk there
+    run "rm -rf #{var_run_path}/netzke"
+    run "mkdir #{var_run_path}/netzke"
+    run "chgrp team87 #{var_run_path}/netzke"
+    run "chmod g+w #{var_run_path}/netzke"
+    run "ln -nfs #{var_run_path}/netzke #{release_path}/public/netzke"
   end
 
   desc "Install extjs-#{EXTJS_VERSION} into shared and then symlink it to public/extjs"

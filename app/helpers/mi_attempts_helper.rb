@@ -120,7 +120,7 @@ module MiAttemptsHelper
 
       editor = local_combo_editor(
         values.collect {|i| [i, CGI.escape_html(i)] },
-        :listWidth => 150, :id => combo_id,
+        :id => combo_id,
         :listeners => {
           'select' => 'function(combo, record, index) {combo.el.dom.value = record.data[combo.valueField];}'.to_json_variable,
           'focus' => 'function(combo) {
@@ -132,7 +132,7 @@ module MiAttemptsHelper
         })
 
       mi_attempt_column(name, :editor => editor,
-        :renderer => ['comboRenderer', combo_id])
+        :renderer => ['comboRenderer', combo_id], :width => 130)
 
     end
 

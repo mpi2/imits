@@ -129,7 +129,8 @@ module MiAttemptsHelper
                           combo.el.dom.value = record.data[combo.valueField];
                         }
                       }'.to_json_variable
-        })
+        }
+      )
 
       mi_attempt_column(name, :editor => editor,
         :renderer => ['comboRenderer', combo_id], :width => 130)

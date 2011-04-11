@@ -11,7 +11,7 @@
   </div>
 
   <div class="grid_4 suffix_4">
-    <form method="get" action="/mi_attempts">
+    <%= form_tag mi_attempts_path, :method => :get do %>
       <div>
         <textarea cols="10" rows="10" name="search_terms" id="search-terms" class="initial-focus"><%= @search_terms.join "\n" %></textarea>
       </div>
@@ -20,7 +20,8 @@
         <input id="submit" type="submit" value="Search" />
         <button type="button" id="clear-search-terms-button">Clear</button>
       </div>
-    </form>
+    <% end %>
+
   </div>
 
   <div class="clear"></div>

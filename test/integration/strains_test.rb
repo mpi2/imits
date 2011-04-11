@@ -73,6 +73,7 @@ class StrainsTest < ActionDispatch::IntegrationTest
 
     should 'show it in the text area properly when clicked a second time' do
       find('.x-grid3-col-test_cross_strain').click # The grid cell
+      sleep 2
       assert_equal 'B6JTyr<c-Brd>', find('input#testCrossStrainCombo.x-form-text').value
     end
   end

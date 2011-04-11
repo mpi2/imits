@@ -1,7 +1,7 @@
 <% @title = "Log in" %>
 
 <div id="login-form">
-  <form method="post" action="/user_sessions">
+  <%= form_tag user_sessions_path do %>
     <div>
       <label for="username">Username</label>
       <input id="username" class="initial-focus" name="username" type="text"></input>
@@ -15,5 +15,6 @@
     <div>
       <input id="submit" type="submit" value="Login" />
     </div>
-  </form>
+  <% end %>
+
 </div>

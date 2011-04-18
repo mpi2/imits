@@ -1,7 +1,3 @@
-class Old::Centre < ActiveRecord::Base
+class Old::Centre < Old::ModelBase
   set_table_name 'per_centre'
-
-  def readonly?
-    return true
-  end
 end

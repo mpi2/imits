@@ -8,12 +8,12 @@ class ActiveSupport::TestCase
   self.use_transactional_fixtures = false
 
   set_fixture_class(
-    :per_centre => 'Centre',
-    :emi_attempt => 'MiAttempt',
-    :emi_clone => 'Clone',
-    :emi_event => 'EmiEvent',
-    :emi_status_dict => 'MiAttemptStatus',
-    :per_person => 'User'
+    :per_centre => 'Old::Centre',
+    :emi_attempt => 'Old::MiAttempt',
+    :emi_clone => 'Old::Clone',
+    :emi_event => 'Old::EmiEvent',
+    :emi_status_dict => 'Old::MiAttemptStatus',
+    :per_person => 'Old::User'
   )
 
   fixtures :per_person, :per_centre, :emi_status_dict, :emi_clone, :emi_event, :emi_attempt

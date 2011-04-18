@@ -2,7 +2,7 @@ require 'test_helper'
 
 class UserTest < ActiveSupport::TestCase
   should 'use table per_person' do
-    assert_equal 'per_person', User.table_name
+    assert_equal 'per_person', Old::User.table_name
   end
 
   should 'authenticate with correct password' do

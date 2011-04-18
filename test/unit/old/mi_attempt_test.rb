@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class MiAttemptTest < ActiveSupport::TestCase
+class Old::MiAttemptTest < ActiveSupport::TestCase
 
   def default_mi_attempt
     @default_mi_attempt ||= emi_attempt('EPD0127_4_E01__1')

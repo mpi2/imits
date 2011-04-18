@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class EmiEvent < ApplicationModel
+class Old::EmiEvent < ApplicationModel
   set_table_name 'emi_event'
 
   belongs_to :clone

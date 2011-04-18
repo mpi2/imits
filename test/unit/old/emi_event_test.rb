@@ -2,14 +2,14 @@
 
 require 'test_helper'
 
-class EmiEventTest < ActiveSupport::TestCase
+class Old::EmiEventTest < ActiveSupport::TestCase
 
   def default_emi_event
     @emi_event ||= emi_event('EPD0127_4_E01')
   end
 
   should 'use table "emi_event"' do
-    assert_equal 'emi_event', EmiEvent.table_name
+    assert_equal 'emi_event', Old::EmiEvent.table_name
   end
 
   should 'belong to clone' do

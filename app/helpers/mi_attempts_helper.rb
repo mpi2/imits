@@ -4,7 +4,7 @@ module MiAttemptsHelper
 
   class MiAttemptsGrid < Netzke::Basepack::GridPanel
 
-    EMMA_OPTIONS = MiAttempt::EMMA_OPTIONS
+    #EMMA_OPTIONS = MiAttempt::EMMA_OPTIONS
 
     QA_STORE_OPTIONS = ['pass', 'fail', 'na']
 

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class MiAttempt < ApplicationModel
+class Old::MiAttempt < ApplicationModel
 
   EMMA_OPTIONS = {
       :unsuitable => 'Unsuitable for EMMA',

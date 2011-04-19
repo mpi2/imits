@@ -3,20 +3,10 @@ require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'database_cleaner'
 require 'shoulda'
+require 'factory_girl_rails'
 
 class ActiveSupport::TestCase
   self.use_transactional_fixtures = false
-
-  set_fixture_class(
-    :per_centre => 'Old::Centre',
-    :emi_attempt => 'Old::MiAttempt',
-    :emi_clone => 'Old::Clone',
-    :emi_event => 'Old::EmiEvent',
-    :emi_status_dict => 'Old::MiAttemptStatus',
-    :per_person => 'Old::User'
-  )
-
-  fixtures :per_person, :per_centre, :emi_status_dict, :emi_clone, :emi_event, :emi_attempt
 
   def setup
     DatabaseCleaner.strategy = :transaction

@@ -17,6 +17,7 @@ group :development, :test do
   gem 'capybara', :require => nil
   gem 'launchy'
   gem 'database_cleaner', :require => nil
+  gem 'factory_girl_rails', :require => nil
   # gem 'vcr'
   # gem 'webmock'
 end

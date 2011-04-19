@@ -16,8 +16,9 @@ class ActiveSupport::TestCase
   def teardown
     DatabaseCleaner.clean
   end
-end
 
+  fixtures :all
+end
 
 require 'capybara/rails'
 require 'capybara/dsl'

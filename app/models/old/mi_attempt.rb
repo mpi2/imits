@@ -121,3 +121,75 @@ class Old::MiAttempt < Old::ModelBase
     end
   end
 end
+
+# == Schema Information
+# Schema version: 20110311153640
+#
+# Table name: emi_attempt
+#
+#  id                             :integer         not null, primary key
+#  is_active                      :boolean
+#  event_id                       :integer
+#  actual_mi_date                 :datetime
+#  attempt_number                 :integer
+#  num_recipients                 :decimal(, )
+#  num_blasts                     :string(4000)
+#  created_date                   :datetime
+#  creator_id                     :decimal(, )
+#  edit_date                      :datetime
+#  edited_by                      :string(128)
+#  number_born                    :integer
+#  total_chimeras                 :integer
+#  number_male_chimeras           :integer
+#  number_female_chimeras         :integer
+#  date_chimera_mated             :datetime
+#  number_chimera_mated           :integer
+#  number_chimera_mating_success  :integer
+#  date_f1_genotype               :datetime
+#  number_male_100_percent        :integer
+#  number_male_gt_80_percent      :integer
+#  number_male_40_to_80_percent   :integer
+#  number_male_lt_40_percent      :integer
+#  number_with_glt                :integer
+#  comments                       :string(4000)
+#  status_dict_id                 :integer
+#  num_transferred                :decimal(, )
+#  number_with_cct                :string(4000)
+#  total_f1_mice                  :decimal(, )
+#  blast_strain                   :string(4000)
+#  number_f0_matings              :decimal(, )
+#  f0_matings_with_offspring      :decimal(, )
+#  f1_germ_line_mice              :integer
+#  number_lt_10_percent_glt       :integer
+#  number_btw_10_50_percent_glt   :integer
+#  number_gt_50_percent_glt       :integer
+#  number_het_offspring           :integer
+#  number_100_percent_glt         :integer
+#  test_cross_strain              :string(200)
+#  chimeras_with_glt_from_cct     :integer
+#  chimeras_with_glt_from_genotyp :integer
+#  colony_name                    :string(100)
+#  europhenome                    :string(1)
+#  emma                           :string(1)
+#  mmrrc                          :string(1)
+#  number_live_glt_offspring      :integer
+#  is_emma_sticky                 :boolean
+#  back_cross_strain              :string(100)
+#  production_centre_mi_id        :string(100)
+#  f1_black                       :integer
+#  f1_non_black                   :integer
+#  mouse_allele_name              :string(100)
+#  qc_five_prime_lr_pcr           :string(20)
+#  qc_three_prime_lr_pcr          :string(20)
+#  qc_tv_backbone_assay           :string(20)
+#  qc_loxp_confirmation           :string(20)
+#  qc_southern_blot               :string(20)
+#  qc_loa_qpcr                    :string(20)
+#  qc_homozygous_loa_sr_pcr       :string(20)
+#  qc_neo_count_qpcr              :string(20)
+#  qc_lacz_sr_pcr                 :string(20)
+#  qc_mutant_specific_sr_pcr      :string(20)
+#  qc_five_prime_cass_integrity   :string(20)
+#  qc_neo_sr_pcr                  :string(20)
+#
+

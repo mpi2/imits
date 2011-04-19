@@ -1,6 +1,6 @@
 require 'digest/sha1'
 
-class Old::User < ActiveRecord::Base
+class Old::User < Old::ModelBase
   set_table_name 'per_person'
 
   def self.authenticate(username, password)

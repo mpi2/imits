@@ -5,7 +5,7 @@ gem 'rails', '3.0.6'
 gem 'ruby-oci8'
 gem 'activerecord-oracle_enhanced-adapter'
 gem 'pg'
-gem 'rails_on_pg'
+gem 'foreigner'
 
 gem 'netzke-core', :git => "http://github.com/skozlov/netzke-core.git"
 gem 'netzke-basepack', :git => "http://github.com/skozlov/netzke-basepack.git"

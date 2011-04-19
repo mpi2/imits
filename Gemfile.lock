@@ -68,6 +68,7 @@ GEM
       abstract (>= 1.0.0)
     ffi (0.6.3)
       rake (>= 0.8.7)
+    foreigner (0.9.1)
     i18n (0.5.0)
     json_pure (1.5.1)
     launchy (0.4.0)
@@ -99,7 +100,6 @@ GEM
       activesupport (= 3.0.6)
       bundler (~> 1.0)
       railties (= 3.0.6)
-    rails_on_pg (0.0.1)
     railties (3.0.6)
       actionpack (= 3.0.6)
       activesupport (= 3.0.6)
@@ -130,12 +130,12 @@ DEPENDENCIES
   activerecord-oracle_enhanced-adapter
   capybara
   database_cleaner
+  foreigner
   launchy
   netzke-basepack!
   netzke-core!
   pg
   rails (= 3.0.6)
-  rails_on_pg
   ruby-oci8
   shoulda
   test-unit

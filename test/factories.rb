@@ -9,3 +9,7 @@ Factory.define :clone do |clone|
   clone.allele_name_superscript 'Allele Name Superscript'
   clone.association :pipeline
 end
+
+Factory.define :mi_attempt do |mi_attempt|
+  mi_attempt.association :clone
+end

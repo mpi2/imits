@@ -14,6 +14,10 @@ Factory.define :centre do |centre|
   centre.name 'WTSI'
 end
 
+Factory.define :mi_attempt_status do |mi_attempt_status|
+  mi_attempt_status.description 'Auto-Generated Status Description'
+end
+
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :clone
 end

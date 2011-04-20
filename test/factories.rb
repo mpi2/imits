@@ -10,6 +10,10 @@ Factory.define :clone do |clone|
   clone.association :pipeline
 end
 
+Factory.define :centre do |centre|
+  centre.name 'WTSI'
+end
+
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :clone
 end

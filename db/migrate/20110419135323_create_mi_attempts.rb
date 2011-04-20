@@ -8,7 +8,7 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.references :mi_attempt_status
       table.text :colony_name
       table.references :centre
-      table.integer :distribution_centre_id # TODO: Set up foreign key to correct table
+      table.integer :distribution_centre_id
 
       # Transfer details
       # table.integer :blast_strain_id TODO: table per strain type, or one table with all strains with flags saying what kind of strain each entry is available for?
@@ -64,6 +64,8 @@ class CreateMiAttempts < ActiveRecord::Migration
     end
 
     add_foreign_key :mi_attempts, :clones
+    add_foreign_key :mi_attempts, :centres
+    add_foreign_key :mi_attempts, :centres, :column => :distribution_centre_id
   end
 
   def self.down

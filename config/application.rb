@@ -1,4 +1,4 @@
-ENV['NLS_LANG'] = '.UTF8'
+ENV['NLS_LANG'] = '.UTF8' # TODO Remove when oracle goes away
 
 require File.expand_path('../boot', __FILE__)
 

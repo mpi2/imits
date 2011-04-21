@@ -1,4 +1,3 @@
-
 Balb/C
 Balb/Cam
 BALBc/cAnCrl

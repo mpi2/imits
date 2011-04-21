@@ -5,6 +5,7 @@ class CreateMiAttemptStatuses < ActiveRecord::Migration
 
       t.timestamps
     end
+    add_index :mi_attempt_statuses, :description, :unique => true
   end
 
   def self.down

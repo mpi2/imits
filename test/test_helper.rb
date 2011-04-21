@@ -18,6 +18,11 @@ class ActiveSupport::TestCase
     DatabaseCleaner.clean
   end
 
+  def assert_strain_types(strain_class, strain_file)
+    names = strain_class.joins(:strain).order(:id).map {|i| i.strain.name}
+    assert_equal names.sort, File.read(Rails.root + "config/strains/#{strain_file}.txt").split("\n").sort
+  end
+
   fixtures :all
 end
 

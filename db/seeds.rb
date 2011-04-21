@@ -11,3 +11,7 @@ MiAttemptStatus.find_or_create_by_description('Good', :id => 2)
     strain_class.find_or_create_by_id(strain.id)
   end
 end
+
+['na', 'fail', 'pass'].each do |desc|
+  QAStatus.find_or_create_by_description(desc)
+end

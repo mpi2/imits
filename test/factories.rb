@@ -1,21 +1,19 @@
+#encoding: utf-8
+
 Factory.define :pipeline do |pipeline|
-  pipeline.name 'Pipeline Name'
+  pipeline.sequence(:name) { |n| "Auto-generated Pipeline Name #{n}" }
   pipeline.description 'Pipeline Description'
 end
 
 Factory.define :clone do |clone|
-  clone.clone_name 'Clone Name'
-  clone.marker_symbol 'Marker Symbol'
-  clone.allele_name_superscript 'Allele Name Superscript'
+  clone.sequence(:clone_name) {|n| "Auto-generated Clone Name #{n}" }
+  clone.marker_symbol "Auto-generated Marker Symbol"
+  clone.allele_name_superscript "Auto-generated Allele Name Superscript"
   clone.association :pipeline
 end
 
 Factory.define :centre do |centre|
-  centre.name 'WTSI'
-end
-
-Factory.define :mi_attempt_status do |mi_attempt_status|
-  mi_attempt_status.description 'Auto-Generated Status Description'
+  centre.sequence(:name) {|n| "Auto-generated Centre Name #{n}" }
 end
 
 Factory.define :mi_attempt do |mi_attempt|

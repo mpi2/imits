@@ -7,15 +7,15 @@ class MiAttemptStatusTest < ActiveSupport::TestCase
     should validate_presence_of :description
     should validate_uniqueness_of :description
 
-    context 'easy-access constants' do
-      should 'include IN_PROGRESS' do
-        assert_equal 'In progress', MiAttemptStatus::IN_PROGRESS.description
-        assert_true MiAttemptStatus::IN_PROGRESS.frozen?
+    context 'easy-access methods' do
+      should 'include in_progress' do
+        assert_equal 'In progress', MiAttemptStatus.in_progress.description
+        assert_true MiAttemptStatus.in_progress.frozen?
       end
 
       should 'include GOOD' do
-        assert_equal 'Good', MiAttemptStatus::GOOD.description
-        assert_true MiAttemptStatus::GOOD.frozen?
+        assert_equal 'Good', MiAttemptStatus.good.description
+        assert_true MiAttemptStatus.good.frozen?
       end
     end
 

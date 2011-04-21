@@ -5,7 +5,7 @@ class CreateMiAttempts < ActiveRecord::Migration
       # Important fields / Admin Details
       table.references :clone, :null => false
       table.date :mi_date
-      table.references :mi_attempt_status
+      table.references :mi_attempt_status, :null => false
       table.text :colony_name
       table.references :centre
       table.integer :distribution_centre_id
@@ -64,6 +64,7 @@ class CreateMiAttempts < ActiveRecord::Migration
     end
 
     add_foreign_key :mi_attempts, :clones
+    add_foreign_key :mi_attempts, :mi_attempt_statuses
     add_foreign_key :mi_attempts, :centres
     add_foreign_key :mi_attempts, :centres, :column => :distribution_centre_id
   end

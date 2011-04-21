@@ -148,5 +148,29 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context 'QA field' do
+      [
+        :qc_southern_blot,
+        :qc_five_prime_lrpcr,
+        :qc_five_prime_cassette_integrity,
+        :qc_tv_backbone_assay,
+        :qc_neo_count_qpcr,
+        :qc_neo_sr_pcr,
+        :qc_loa_qpcr,
+        :qc_homozygous_loa_sr_pcr,
+        :qc_lacz_sr_pcr,
+        :qc_mutant_specific_sr_pcr,
+        :qc_loxp_confirmation,
+        :qc_three_prime_lr_pcr
+      ].each do |qc_field|
+        should "have relation called #{qc_field} to QAStatus" do
+          qc_status = QCStatus.find_by_description('na')
+          @mi_attempt.send("#{qc_field}=", qc_status)
+          assert_kind_of QCStatus, @mi_attempt.send(qc_field)
+          assert_equal 'na', @mi_attempt.send(qc_field).description
+        end
+      end
+    end
+
   end
 end

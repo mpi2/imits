@@ -5,7 +5,10 @@ require 'test_helper'
 class MiAttemptTest < ActiveSupport::TestCase
   context 'MiAttempt' do
     setup do
-      @mi_attempt = Factory.create :mi_attempt
+      @mi_attempt = Factory.create :mi_attempt,
+              :blast_strain => Strain.find_by_name('Balb/C'),
+              :colony_background_strain => Strain.find_by_name('129P2/OlaHsd'),
+              :test_cross_strain => Strain.find_by_name('129P2/OlaHsd')
     end
 
     should have_db_column(:clone_id).with_options(:null => false)
@@ -32,9 +35,36 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal 'Good', mi_attempt.mi_attempt_status.description
     end
 
-    should belong_to :blast_strain
+    should 'have a blast strain' do
+      assert_equal Strain, @mi_attempt.blast_strain.class
+      assert_equal 'Balb/C', @mi_attempt.blast_strain.name
+    end
 
+    should 'have a colony background strain' do
+      assert_equal Strain, @mi_attempt.colony_background_strain.class
+      assert_equal '129P2/OlaHsd', @mi_attempt.colony_background_strain.name
+    end
 
+    should 'have a test cross strain' do
+      assert_equal Strain, @mi_attempt.test_cross_strain.class
+      assert_equal '129P2/OlaHsd', @mi_attempt.test_cross_strain.name
+    end
+
+    should 'not allow adding a strain if it is not of the correct type' do
+      strain = Strain.create!(:name => 'Nonexistent Strain')
+
+      assert_raise ActiveRecord::InvalidForeignKey do
+        Factory.create(:mi_attempt, :blast_strain_id => strain.id)
+      end
+
+      assert_raise ActiveRecord::InvalidForeignKey do
+        Factory.create(:mi_attempt, :colony_background_strain_id => strain.id)
+      end
+
+      assert_raise ActiveRecord::InvalidForeignKey do
+        Factory.create(:mi_attempt, :test_cross_strain_id => strain.id)
+      end
+    end
 
     should have_db_column(:is_suitable_for_emma).with_options(:null => false)
     should have_db_column(:is_emma_sticky).with_options(:null => false)

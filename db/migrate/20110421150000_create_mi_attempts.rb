@@ -11,7 +11,6 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.integer :distribution_centre_id
 
       # Transfer details
-      # table.integer :blast_strain_id TODO: table per strain type, or one table with all strains with flags saying what kind of strain each entry is available for?
       table.references :blast_strain
       table.integer :total_blasts_injected
       table.integer :total_transferred
@@ -30,8 +29,8 @@ class CreateMiAttempts < ActiveRecord::Migration
       # Chimera Mating Details
       table.boolean :is_suitable_for_emma, :null => false, :default => false
       table.boolean :is_emma_sticky      , :null => false, :default => false
-      # table.integer :test_cross_strain_id # TODO: as per blast_strain
-      # table.integer :colony_background_strain_id # TODO: as per blast_strain
+      table.references :colony_background_strain
+      table.references :test_cross_strain
       table.date :date_chimeras_mated
       table.integer :number_of_chimera_matings_attempted
       table.integer :number_of_chimera_matings_successful
@@ -70,6 +69,8 @@ class CreateMiAttempts < ActiveRecord::Migration
     add_foreign_key :mi_attempts, :centres
     add_foreign_key :mi_attempts, :centres, :column => :distribution_centre_id
     add_foreign_key :mi_attempts, :blast_strains
+    add_foreign_key :mi_attempts, :colony_background_strains
+    add_foreign_key :mi_attempts, :test_cross_strains
   end
 
   def self.down

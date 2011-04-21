@@ -13,5 +13,5 @@ MiAttemptStatus.find_or_create_by_description('Good', :id => 2)
 end
 
 ['na', 'fail', 'pass'].each do |desc|
-  QAStatus.find_or_create_by_description(desc)
+  QCStatus.find_or_create_by_description(desc)
 end

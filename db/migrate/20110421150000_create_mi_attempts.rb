@@ -60,7 +60,6 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.integer :qc_loxp_confirmation_id
       table.integer :qc_three_prime_lr_pcr_id
 
-
       table.timestamps
     end
 

@@ -20,9 +20,16 @@ class MiAttemptTest < ActiveSupport::TestCase
     should belong_to :mi_attempt_status
 
     should validate_presence_of :mi_attempt_status
+
     should 'set mi_attempt_status to "In progress" by default' do
-      assert_equal mi_attempt_statuses(:in_progress).description,
+      assert_equal 'In progress',
               Factory.build(:mi_attempt).mi_attempt_status.description
     end
+
+    should 'not overwrite status if it is set explicitly' do
+      mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.good)
+      assert_equal 'Good', mi_attempt.mi_attempt_status.description
+    end
+
   end
 end

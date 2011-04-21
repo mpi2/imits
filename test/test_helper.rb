@@ -11,6 +11,7 @@ class ActiveSupport::TestCase
   def setup
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.start
+    load Rails.root + 'db/seeds.rb'
   end
 
   def teardown

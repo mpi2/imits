@@ -67,9 +67,9 @@ class CreateMiAttempts < ActiveRecord::Migration
     add_foreign_key :mi_attempts, :mi_attempt_statuses
     add_foreign_key :mi_attempts, :centres
     add_foreign_key :mi_attempts, :centres, :column => :distribution_centre_id
-    add_foreign_key :mi_attempts, :strains_blast_strain_ids, :column => :blast_strain_id
-    add_foreign_key :mi_attempts, :strains_colony_background_strain_ids, :column =>:colony_background_strain_id
-    add_foreign_key :mi_attempts, :strains_test_cross_strain_ids, :column => :test_cross_strain_id
+    add_foreign_key :mi_attempts, :strain_blast_strain_ids, :column => :blast_strain_id
+    add_foreign_key :mi_attempts, :strain_colony_background_strain_ids, :column => :colony_background_strain_id
+    add_foreign_key :mi_attempts, :strain_test_cross_strain_ids, :column => :test_cross_strain_id
   end
 
   def self.down

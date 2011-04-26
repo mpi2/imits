@@ -1,4 +1,19 @@
 class CreateMiAttempts < ActiveRecord::Migration
+
+  QC_FIELDS = [
+    :qc_southern_blot_id,
+    :qc_five_prime_lrpcr_id,
+    :qc_five_prime_cassette_integrity_id,
+    :qc_tv_backbone_assay_id,
+    :qc_neo_count_qpcr_id,
+    :qc_neo_sr_pcr_id,
+    :qc_loa_qpcr_id,
+    :qc_homozygous_loa_sr_pcr_id,
+    :qc_lacz_sr_pcr_id,
+    :qc_mutant_specific_sr_pcr_id,
+    :qc_loxp_confirmation_id,
+    :qc_three_prime_lr_pcr_id
+  ]
   def self.up
     create_table :mi_attempts do |table|
 
@@ -46,19 +61,9 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.integer :number_of_live_glt_offspring
 
       # QC Details
-      # TODO: All are foreign keys to qc_statuses table
-      table.integer :qc_southern_blot_id
-      table.integer :qc_five_prime_lrpcr_id
-      table.integer :qc_five_prime_cassette_integrity_id
-      table.integer :qc_tv_backbone_assay_id
-      table.integer :qc_neo_count_qpcr_id
-      table.integer :qc_neo_sr_pcr_id
-      table.integer :qc_loa_qpcr_id
-      table.integer :qc_homozygous_loa_sr_pcr_id
-      table.integer :qc_lacz_sr_pcr_id
-      table.integer :qc_mutant_specific_sr_pcr_id
-      table.integer :qc_loxp_confirmation_id
-      table.integer :qc_three_prime_lr_pcr_id
+      QC_FIELDS.each do |qc_field|
+        table.integer qc_field
+      end
 
       table.timestamps
     end
@@ -70,6 +75,7 @@ class CreateMiAttempts < ActiveRecord::Migration
     add_foreign_key :mi_attempts, :strain_blast_strain_ids, :column => :blast_strain_id
     add_foreign_key :mi_attempts, :strain_colony_background_strain_ids, :column => :colony_background_strain_id
     add_foreign_key :mi_attempts, :strain_test_cross_strain_ids, :column => :test_cross_strain_id
+    QC_FIELDS.each { |qc_field| add_foreign_key :mi_attempts, :qc_statuses, :column => qc_field}
   end
 
   def self.down

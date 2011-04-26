@@ -16,15 +16,15 @@ class CreateStrains < ActiveRecord::Migration
     end
     add_index :strains, :name, :unique => true
 
-    create_strain_type_table(:blast_strains)
-    create_strain_type_table(:colony_background_strains)
-    create_strain_type_table(:test_cross_strains)
+    create_strain_type_table(:strains_blast_strain_ids)
+    create_strain_type_table(:strains_colony_background_strain_ids)
+    create_strain_type_table(:strains_test_cross_strain_ids)
   end
 
   def self.down
-    drop_table :test_cross_strains
-    drop_table :colony_background_strains
-    drop_table :blast_strains
+    drop_table :strains_test_cross_strain_ids
+    drop_table :strains_colony_background_strain_ids
+    drop_table :strains_blast_strain_ids
     drop_table :strains
   end
 end

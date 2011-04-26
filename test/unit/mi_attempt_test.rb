@@ -167,7 +167,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           qc_status = QCStatus.find_by_description('na')
           @mi_attempt.send("#{qc_field}=", qc_status)
           assert_kind_of QCStatus, @mi_attempt.send(qc_field)
-          assert_equal 'na', @mi_attempt.send(qc_field).description
+          assert_equal qc_status, @mi_attempt.send(qc_field)
         end
       end
     end

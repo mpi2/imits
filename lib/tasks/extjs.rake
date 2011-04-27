@@ -18,7 +18,7 @@ namespace :extjs do
       end
     end
 
-    FileUtils.rm Rails.root + 'public/extjs'
+    FileUtils.rm_f Rails.root + 'public/extjs'
     FileUtils.ln_sf "ext-#{EXTJS_VERSION}", Rails.root + 'public/extjs'
   end
 end

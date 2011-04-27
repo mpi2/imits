@@ -57,29 +57,6 @@ class Old::MiAttempt < Old::ModelBase
     joins(:emi_event => :distribution_centre).order("per_centre.name #{direction}")
   }
 
-  before_validation :integerify_fields
-
-  before_save :audit_on_save
-
-  before_save :sum_up_total_chimeras
-
-  def integerify_fields
-    self.num_blasts = self.num_blasts.to_i.to_s if self.num_blasts
-    self.num_transferred = self.num_transferred.to_i.to_f if self.num_transferred
-    self.total_f1_mice = self.total_f1_mice.to_i if self.total_f1_mice
-    self.number_with_cct = self.number_with_cct.to_i.to_s if self.number_with_cct
-    self.num_recipients = self.num_recipients.to_i.to_s if self.num_recipients
-  end
-
-  def sum_up_total_chimeras
-    self.total_chimeras = number_male_chimeras.to_i + number_female_chimeras.to_i
-  end
-
-  def set_distribution_centre_by_name(name, event_edited_by)
-    return emi_event.update_attributes(:distribution_centre => Old::Centre.find_by_name!(name),
-                                       :edited_by => event_edited_by)
-  end
-
   def distribution_centre_name
     return emi_event.distribution_centre.name
   end
@@ -96,30 +73,6 @@ class Old::MiAttempt < Old::ModelBase
     end
   end
 
-  class EmmaStatusError < RuntimeError; end
-
-  def emma_status=(status)
-    case status.to_sym
-    when :suitable then
-      self.emma = '1'
-      self.is_emma_sticky = false
-
-    when :unsuitable then
-      self.emma = '0'
-      self.is_emma_sticky = false
-
-    when :suitable_sticky then
-      self.emma = '1'
-      self.is_emma_sticky = true
-
-    when :unsuitable_sticky then
-      self.emma = '0'
-      self.is_emma_sticky = true
-
-    else
-      raise EmmaStatusError, "Invalid status '#{status.inspect}'"
-    end
-  end
 end
 
 # == Schema Information

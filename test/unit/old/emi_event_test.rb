@@ -5,8 +5,8 @@ require 'test_helper'
 class Old::EmiEventTest < ActiveSupport::TestCase
   context 'Old::EmiEvent' do
 
-    def default_emi_event
-      @emi_event ||= emi_event('EPD0127_4_E01')
+    setup do
+      @emi_event = Old::EmiEvent.find(6561)
     end
 
     should 'use table "emi_event"' do
@@ -14,29 +14,15 @@ class Old::EmiEventTest < ActiveSupport::TestCase
     end
 
     should 'be read only by default' do
-      record = Old::EmiEvent.find(:first)
-      assert_equal true, record.readonly?
+      assert_equal true, @emi_event.readonly?
     end
 
     should 'belong to clone' do
-      assert_equal emi_clone('EPD0127_4_E01'), default_emi_event.clone
+      assert_equal Old::Clone.find(@emi_event.clone_id), @emi_event.clone
     end
 
     should 'belong to distribution_centre' do
-      assert_equal per_centre('ICS'), default_emi_event.distribution_centre
-    end
-
-    context 'auditing' do
-      setup do
-        assert_equal Time.parse('2008-12-05 09:37:46 Z'), default_emi_event.edit_date, "Test cannot continue - edit_date must be before NOW to make sure it is set correctly on edit"
-        assert_not_equal 'jb27', default_emi_event.edited_by
-        default_emi_event.update_attributes!(:comments => 'Comment')
-        default_emi_event.reload
-      end
-
-      should 'set edit_date to time of editing' do
-        assert_in_delta Time.now, default_emi_event.edit_date, 60.seconds
-      end
+      assert_equal Old::Centre.find_by_name('CNB'), @emi_event.distribution_centre
     end
 
   end

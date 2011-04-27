@@ -13,12 +13,12 @@ class Old::UserTest < ActiveSupport::TestCase
   end
 
   should 'authenticate with correct password' do
-    assert_not_nil Old::User.find_by_user_name('zz99')
-    assert_equal Old::User.find_by_user_name('zz99'), Old::User.authenticate('zz99', 'password')
+    assert_not_nil Old::User.find_by_user_name('rrs')
+    assert_equal Old::User.find_by_user_name('rrs'), Old::User.authenticate('rrs', 'password')
   end
 
   should 'not authenticate with incorrect password' do
-    assert_nil Old::User.authenticate('zz99', 'incorrect-password')
+    assert_nil Old::User.authenticate('rrs', 'incorrect-password')
   end
 
   should 'not authenticate with missing user' do
@@ -26,6 +26,6 @@ class Old::UserTest < ActiveSupport::TestCase
   end
 
   should 'have #full_name' do
-    assert_equal 'Test User', Old::User.find_by_user_name('zz99').full_name
+    assert_equal 'Ramiro Ramirez-Solis', Old::User.find_by_user_name('rrs').full_name
   end
 end

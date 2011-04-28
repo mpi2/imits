@@ -1,9 +1,9 @@
 var MI_ATTEMPTS_VIEW_CONFIG = {
     'transfer_details': [
     'blast_strain',
-    'num_blasts',
-    'num_transferred',
-    'num_recipients'
+    'total_blasts_injected',
+    'total_transferred',
+    'number_surrogates_receiving'
     ],
     'litter_details': [
     'number_born',

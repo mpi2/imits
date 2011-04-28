@@ -4,7 +4,7 @@ module MiAttemptsHelper
 
   class MiAttemptsGrid < Netzke::Basepack::GridPanel
 
-    EMMA_OPTIONS = Old::MiAttempt::EMMA_OPTIONS
+    EMMA_OPTIONS = MiAttempt::EMMA_OPTIONS
 
     QA_STORE_OPTIONS = ['pass', 'fail', 'na']
 
@@ -75,7 +75,7 @@ module MiAttemptsHelper
         :id => name,
         :name => name,
         :header => name.titleize,
-        :read_only => false,
+        :readOnly => true,
         :editable => true,
         :sortable => true,
       }.merge(extra_params)
@@ -134,16 +134,14 @@ module MiAttemptsHelper
 
       mi_attempt_column(name, :editor => editor,
         :renderer => ['comboRenderer', combo_id], :width => 130)
-
     end
 
     def define_columns
       [
-        mi_attempt_column(:clone_name, :sorting_scope => :sort_by_clone_name),
-
-        mi_attempt_column(:gene_symbol, :sorting_scope => :sort_by_gene_symbol,
+        mi_attempt_column(:clone__clone_name, :header => 'Clone Name'),
+        mi_attempt_column(:clone__marker_symbol, :header => 'Marker Symbol',
           :width => 75),
-
+=begin
         mi_attempt_column(:allele_name, :sorting_scope => :sort_by_allele_name),
 
         mi_attempt_column(:actual_mi_date, :header => 'Actual MI Date',
@@ -165,16 +163,12 @@ module MiAttemptsHelper
         distribution_centre_name_column,
 
         strain_column(:blast_strain, BLAST_STRAINS),
+=end
+        mi_attempt_column(:total_blasts_injected, :align => :right),
 
-        mi_attempt_column(:num_blasts, :header => 'Total Blasts Injected',
-          :renderer => ['floorNumber'], :attr_type => :integer,
-          :align => :right),
+        mi_attempt_column(:total_transferred, :align => :right),
 
-        mi_attempt_column(:num_transferred, :header => 'Total Transferred',
-          :renderer => ['floorNumber'], :align => :right),
-
-        mi_attempt_column(:num_recipients, :header => 'No. Surrogates Receiving',
-          :renderer => ['floorNumber'], :align => :right),
+        mi_attempt_column(:number_surrogates_receiving, :align => :right),
 
         mi_attempt_column(:number_born, :header => 'Total Pups Born', :align => :right),
 
@@ -191,7 +185,7 @@ module MiAttemptsHelper
         mi_attempt_column(:number_male_40_to_80_percent, :header => '80-40% Male Chimerism Levels', :align => :right),
 
         mi_attempt_column(:number_male_lt_40_percent, :header => '<40% Male Chimerism Levels', :align => :right),
-
+=begin
         emma_status_column,
 
         strain_column(:test_cross_strain, TEST_CROSS_STRAINS),
@@ -206,7 +200,7 @@ module MiAttemptsHelper
             :format => 'd-m-Y'
           }
         ),
-
+=end
         mi_attempt_column(:number_chimera_mated,
           :header => 'No. Chimera Matings Attempted', :align => :right),
 
@@ -245,7 +239,7 @@ module MiAttemptsHelper
 
         mi_attempt_column(:number_live_glt_offspring,
           :header => 'No. Live GLT Offspring', :align => :right),
-
+=begin
         mi_attempt_column(:mouse_allele_name,
           :header => 'Mouse Allele Name'),
 
@@ -295,7 +289,8 @@ module MiAttemptsHelper
 
         mi_attempt_column(:qc_three_prime_lr_pcr,
           :header => 'Three Prime LRPCR',
-          :editor => local_combo_editor(QA_STORE_OPTIONS))
+          :editor => local_combo_editor(QA_STORE_OPTIONS)),
+=end
       ]
     end
 
@@ -349,7 +344,7 @@ module MiAttemptsHelper
         :enable_edit_in_form => false,
         :enable_extended_search => false,
         :strong_default_attrs => {:edited_by => @passed_config[:current_username]},
-        :scope => [:search, @passed_config[:search_terms]]
+        # TODO :scope => [:search, @passed_config[:search_terms]]
       )
     end
   end
@@ -385,7 +380,7 @@ module MiAttemptsHelper
 
     netzke(:micro_injection_attempts_widget,
       :class_name => 'MiAttemptsHelper::MiAttemptsWidget',
-      :current_username => current_user.user_name,
+      :current_username => nil, # TODO current_user.user_name,
       :search_terms => search_terms) + "\n" + onready
   end
 end

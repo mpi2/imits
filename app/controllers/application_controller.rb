@@ -12,6 +12,6 @@ class ApplicationController < ActionController::Base
   helper_method :current_user
 
   def current_user
-    User.find_by_user_name session[:current_username]
+    return nil # TODO User.find_by_user_name session[:current_username]
   end
 end

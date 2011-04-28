@@ -1,6 +1,6 @@
 class MiAttemptsController < ApplicationController
 
-  before_filter :authenticate, :only => :index
+  # TODO before_filter :authenticate, :only => :index
 
   def index
     if !params[:search_terms].blank?

@@ -15,7 +15,8 @@ class MiAttemptsHelperTest < ActionView::TestCase
   context 'MiAttemptsGrid' do
 
     setup do
-      @mi_attempt = emi_attempt('EPD0127_4_E01__1')
+      @mi_attempt = Factory.create :mi_attempt
+      3.times { Factory.create :centre }
       @grid = MiAttemptsHelper::MiAttemptsGrid.new(:current_username => 'zz99')
     end
 
@@ -32,6 +33,7 @@ class MiAttemptsHelperTest < ActionView::TestCase
       end
 
       should 'allow selection from all centres' do
+        assert_not_equal 0, Centre.count
         assert_equal Centre.count, @options[:editor][:store].size
       end
     end

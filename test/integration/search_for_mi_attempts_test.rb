@@ -13,12 +13,12 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
   end
 
   context 'As valid user:' do
-
+=begin TODO
     setup do
       visit '/logout'
       login
     end
-
+=end
     context 'searching for mi attempts by clone name' do
       context 'with a single clone' do
         setup do

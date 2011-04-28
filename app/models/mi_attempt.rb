@@ -1,4 +1,12 @@
 class MiAttempt < ActiveRecord::Base
+
+  EMMA_OPTIONS = {
+    :unsuitable => 'Unsuitable for EMMA',
+    :suitable => 'Suitable for EMMA',
+    :suitable_sticky => 'Suitable for EMMA - STICKY',
+    :unsuitable_sticky => 'Unsuitable for EMMA - STICKY',
+  }.freeze
+
   belongs_to :clone
   validates :clone, :presence => true
 

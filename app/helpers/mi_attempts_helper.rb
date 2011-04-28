@@ -137,9 +137,10 @@ module MiAttemptsHelper
 
     def define_columns
       [
-        mi_attempt_column(:clone__clone_name, :header => 'Clone Name'),
+        mi_attempt_column(:clone__clone_name, :header => 'Clone Name',
+          :readOnly => true),
         mi_attempt_column(:clone__marker_symbol, :header => 'Marker Symbol',
-          :width => 75),
+          :width => 75, :readOnly => true),
 
         # TODO mi_attempt_column(:allele_name, :sorting_scope => :sort_by_allele_name),
 
@@ -151,18 +152,18 @@ module MiAttemptsHelper
             :format => 'd-m-Y'
           }
         ),
-=begin
+=begin TODO
         mi_attempt_column(:status,
           :getter => proc { |relation| relation.mi_attempt_status.name },
           :read_only => true,
           :sorting_scope => :sort_by_mi_attempt_status),
-
+=end
         mi_attempt_column(:colony_name),
 
-        distribution_centre_name_column,
+        mi_attempt_column(:distribution_centre__name),
 
-        strain_column(:blast_strain, BLAST_STRAINS),
-=end
+        # TODO strain_column(:blast_strain, BLAST_STRAINS),
+
         mi_attempt_column(:total_blasts_injected, :align => :right),
 
         mi_attempt_column(:total_transferred, :align => :right),

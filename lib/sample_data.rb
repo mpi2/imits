@@ -8,6 +8,8 @@ class SampleData
         object[column.name] = rand(20)
       elsif column.type == :date
         object[column.name] = Date.today.beginning_of_month + rand(29).days
+      elsif column.type == :text
+        object[column.name] = 'Auto-generated ' + column.name.titleize
       else
         puts 'Not filling ' + column.name
       end
@@ -16,6 +18,10 @@ class SampleData
 
   def self.load
     require 'factory_girl_rails'
+
+    Centre.find_or_create_by_name('WTSI')
+    Centre.find_or_create_by_name('ICS')
+
     clone1 = Clone.find_by_clone_name('EPD_RANDOM_1')
     if ! clone1
       clone1 = Factory.create(:clone, :pipeline_id => 1, :clone_name => 'EPD_RANDOM_1')
@@ -29,7 +35,10 @@ class SampleData
     [clone1, clone2].each do |clone|
       MiAttempt.find_all_by_clone_id(clone.id).each(&:destroy)
       3.times do
-        mi_attempt = Factory.build(:mi_attempt, :clone => clone)
+        mi_attempt = Factory.build(:mi_attempt, 
+          :clone => clone,
+          :centre => Centre.all.sample,
+          :distribution_centre => Centre.all.sample)
         fill_non_foreign_key_fields_with_randomness(mi_attempt)
         mi_attempt.save!
       end

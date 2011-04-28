@@ -19,7 +19,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'emma_status',
     'test_cross_strain',
     'back_cross_strain',
-    'date_chimera_mated',
+    'date_chimeras_mated',
     'number_of_chimera_matings_attempted',
     'number_of_chimera_matings_successful',
     'number_of_chimeras_with_glt_from_cct',
@@ -52,10 +52,10 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
 
 // Add common columns to each view
 var commonColumns = [
-'clone_name',
-'gene_symbol',
+'clone__clone_name',
+'clone__marker_symbol',
 'allele_name',
-'actual_mi_date',
+'mi_date',
 'status',
 'colony_name',
 'distribution_centre_name'

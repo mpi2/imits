@@ -75,7 +75,6 @@ module MiAttemptsHelper
         :id => name,
         :name => name,
         :header => name.titleize,
-        :readOnly => true,
         :editable => true,
         :sortable => true,
       }.merge(extra_params)
@@ -141,10 +140,10 @@ module MiAttemptsHelper
         mi_attempt_column(:clone__clone_name, :header => 'Clone Name'),
         mi_attempt_column(:clone__marker_symbol, :header => 'Marker Symbol',
           :width => 75),
-=begin
-        mi_attempt_column(:allele_name, :sorting_scope => :sort_by_allele_name),
 
-        mi_attempt_column(:actual_mi_date, :header => 'Actual MI Date',
+        # TODO mi_attempt_column(:allele_name, :sorting_scope => :sort_by_allele_name),
+
+        mi_attempt_column(:mi_date, :header => 'MI Date',
           :width => 84,
           :renderer => ['date', 'd-m-Y'],
           :editor => {
@@ -152,7 +151,7 @@ module MiAttemptsHelper
             :format => 'd-m-Y'
           }
         ),
-
+=begin
         mi_attempt_column(:status,
           :getter => proc { |relation| relation.mi_attempt_status.name },
           :read_only => true,
@@ -191,8 +190,8 @@ module MiAttemptsHelper
         strain_column(:test_cross_strain, TEST_CROSS_STRAINS),
 
         strain_column(:back_cross_strain, BACK_CROSS_STRAINS),
-
-        mi_attempt_column(:date_chimera_mated, :header => 'Date Chimeras Mated',
+=end
+        mi_attempt_column(:date_chimeras_mated, :header => 'Date Chimeras Mated',
           :width => 84,
           :renderer => ['date', 'd-m-Y'],
           :editor => {
@@ -200,7 +199,7 @@ module MiAttemptsHelper
             :format => 'd-m-Y'
           }
         ),
-=end
+
         mi_attempt_column(:number_of_chimera_matings_attempted,
           :header => 'No. Chimera Matings Attempted', :align => :right),
 

@@ -211,33 +211,33 @@ module MiAttemptsHelper
           :header => 'No. Chimeras with Germline Transmission from CCT',
           :align => :right),
 
-        mi_attempt_column(:chimeras_with_glt_from_genotyp,
+        mi_attempt_column(:number_of_chimeras_with_glt_from_genotyping,
           :header => 'No. Chimeras with Germline Transmission from Genotyping',
           :align => :right),
 
-        mi_attempt_column(:number_lt_10_percent_glt,
-          :header => 'No. Chimeras with < 10% GLT', :align => :right),
+        mi_attempt_column(:number_of_chimeras_with_0_to_9_percent_glt,
+          :header => 'No. Chimeras with 0-10% GLT', :align => :right),
 
-        mi_attempt_column(:number_btw_10_50_percent_glt,
-          :header => 'No. Chimeras with 10 - 50% GLT', :align => :right),
+        mi_attempt_column(:number_of_chimeras_with_10_to_49_percent_glt,
+          :header => 'No. Chimeras with 10-49% GLT', :align => :right),
 
-        mi_attempt_column(:number_gt_50_percent_glt,
-          :header => 'No. Chimeras with > 50% GLT', :align => :right),
+        mi_attempt_column(:number_of_chimeras_with_50_to_99_percent_glt,
+          :header => 'No. Chimeras with 50-99% GLT', :align => :right),
 
-        mi_attempt_column(:number_100_percent_glt,
+        mi_attempt_column(:number_of_chimeras_with_100_percent_glt,
           :header => 'No. Chimeras with 100% GLT', :align => :right),
 
-        mi_attempt_column(:total_f1_mice, :header => 'Total F1 Mice from Matings',
-          :renderer => ['floorNumber'], :align => :right),
+        mi_attempt_column(:total_f1_mice_from_matings,
+          :header => 'Total F1 Mice from Matings', :align => :right),
 
-        mi_attempt_column(:number_with_cct,
+        mi_attempt_column(:number_of_cct_offspring,
           :header => 'No. Coat Colour Transmission Offspring',
           :attr_type => :integer, :align => :right),
 
-        mi_attempt_column(:number_het_offspring,
+        mi_attempt_column(:number_of_het_offspring,
           :header => 'No. Het Offspring', :align => :right),
 
-        mi_attempt_column(:number_live_glt_offspring,
+        mi_attempt_column(:number_of_live_glt_offspring,
           :header => 'No. Live GLT Offspring', :align => :right),
 =begin
         mi_attempt_column(:mouse_allele_name,

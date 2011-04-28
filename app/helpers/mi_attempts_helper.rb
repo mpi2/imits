@@ -170,21 +170,21 @@ module MiAttemptsHelper
 
         mi_attempt_column(:number_surrogates_receiving, :align => :right),
 
-        mi_attempt_column(:number_born, :header => 'Total Pups Born', :align => :right),
+        mi_attempt_column(:total_pups_born, :align => :right),
 
-        mi_attempt_column(:number_female_chimeras, :header => 'Total Female Chimeras', :align => :right),
+        mi_attempt_column(:total_female_chimeras, :align => :right),
 
-        mi_attempt_column(:number_male_chimeras, :header => 'Total Male Chimeras', :align => :right),
+        mi_attempt_column(:total_male_chimeras, :align => :right),
 
         mi_attempt_column(:total_chimeras, :read_only => true, :align => :right),
 
-        mi_attempt_column(:number_male_100_percent, :header => '100% Male Chimerism Levels', :align => :right),
+        mi_attempt_column(:number_of_males_with_100_percent_chimerism, :header => '100% Male Chimerism Levels', :align => :right),
 
-        mi_attempt_column(:number_male_gt_80_percent, :header => '>=80% Male Chimerism Levels', :align => :right),
+        mi_attempt_column(:number_of_males_with_80_to_99_percent_chimerism, :header => '99-80% Male Chimerism Levels', :align => :right),
 
-        mi_attempt_column(:number_male_40_to_80_percent, :header => '80-40% Male Chimerism Levels', :align => :right),
+        mi_attempt_column(:number_of_males_with_40_to_79_percent_chimerism, :header => '79-40% Male Chimerism Levels', :align => :right),
 
-        mi_attempt_column(:number_male_lt_40_percent, :header => '<40% Male Chimerism Levels', :align => :right),
+        mi_attempt_column(:number_of_males_with_0_to_39_percent_chimerism, :header => '39-0% Male Chimerism Levels', :align => :right),
 =begin
         emma_status_column,
 

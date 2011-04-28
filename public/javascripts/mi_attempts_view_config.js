@@ -6,14 +6,14 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'number_surrogates_receiving'
     ],
     'litter_details': [
-    'number_born',
-    'number_female_chimeras',
-    'number_male_chimeras',
+    'total_pups_born',
+    'total_female_chimeras',
+    'total_male_chimeras',
     'total_chimeras',
-    'number_male_100_percent',
-    'number_male_gt_80_percent',
-    'number_male_40_to_80_percent',
-    'number_male_lt_40_percent'
+    'number_of_males_with_0_to_39_percent_chimerism',
+    'number_of_males_with_40_to_79_percent_chimerism',
+    'number_of_males_with_80_to_99_percent_chimerism',
+    'number_of_males_with_100_percent_chimerism',
     ],
     'chimera_mating_details': [
     'emma_status',

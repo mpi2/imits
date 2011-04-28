@@ -201,13 +201,13 @@ module MiAttemptsHelper
           }
         ),
 =end
-        mi_attempt_column(:number_chimera_mated,
+        mi_attempt_column(:number_of_chimera_matings_attempted,
           :header => 'No. Chimera Matings Attempted', :align => :right),
 
-        mi_attempt_column(:number_chimera_mating_success,
+        mi_attempt_column(:number_of_chimera_matings_successful,
           :header => 'No. Chimera Matings Successful', :align => :right),
 
-        mi_attempt_column(:chimeras_with_glt_from_cct,
+        mi_attempt_column(:number_of_chimeras_with_glt_from_cct,
           :header => 'No. Chimeras with Germline Transmission from CCT',
           :align => :right),
 

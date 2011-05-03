@@ -6,8 +6,6 @@ module MiAttemptsHelper
 
     EMMA_OPTIONS = MiAttempt::EMMA_OPTIONS
 
-    QA_STORE_OPTIONS = ['pass', 'fail', 'na']
-
     action :apply do
       {
         :text => 'Save Changes',
@@ -27,17 +25,32 @@ module MiAttemptsHelper
       }
     JS
 
-    js_method :integersWithWrongTypesDirtyFlaggingWorkaround, <<-JS
+    js_method :ensureDate, <<-JS
+      function(date) {
+        if(typeof(date) == "object" && date.constructor == Date) {
+          return date;
+        }
+
+        if(typeof(date) == "string") {
+          return new Date(Date.parse(date));
+        }
+
+        throw "Unsupported date type detected";
+      }
+    JS
+
+    js_method :dateFieldDirtyFlaggingWorkaround, <<-JS
       function(e) {
-        if(['num_transferred', 'num_recipients', 'total_f1_mice'].indexOf(e.field) == -1) {
+        if(['mi_date', 'date_chimeras_mated'].indexOf(e.field) == -1) {
           return;
         }
 
-        if(e.originalValue == null) { return; }
+        var dateValue = this.ensureDate(e.value);
+        var dateOriginalValue = this.ensureDate(e.originalValue);
 
-        if(parseInt(e.originalValue) == parseInt(e.value)) {
+        if(dateOriginalValue.toDateString() == dateValue.toDateString()) {
           e.cancel = true;
-          e.record.data[e.field] = e.value;
+          e.record.data[e.field] = dateValue;
         }
       }
     JS
@@ -47,17 +60,7 @@ module MiAttemptsHelper
         #{js_full_class_name}.superclass.initComponent.call(this);
 
         this.on('validateedit', this.emptyCellsDirtyFlaggingWorkaround);
-        this.on('validateedit', this.integersWithWrongTypesDirtyFlaggingWorkaround);
-      }
-    JS
-
-    js_method :floorNumber, <<-'JS'
-      function(number) {
-        if(number) {
-          return Math.floor(number);
-        } else {
-          return null;
-        }
+        this.on('validateedit', this.dateFieldDirtyFlaggingWorkaround);
       }
     JS
 
@@ -152,6 +155,7 @@ module MiAttemptsHelper
             :format => 'd-m-Y'
           }
         ),
+
 =begin TODO
         mi_attempt_column(:status,
           :getter => proc { |relation| relation.mi_attempt_status.name },

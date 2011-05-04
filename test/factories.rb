@@ -19,3 +19,60 @@ end
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :clone
 end
+
+
+# Specifics
+Factory.define(:centre_WTSI, :parent => :centre) { |i| i.name 'WTSI' }
+Factory.define(:centre_ICS, :parent => :centre) { |i| i.name 'ICS' }
+
+Factory.define :clone_EPD0127_4_E01, :parent => :clone do |clone|
+  clone.clone_name 'EPD0127_4_E01'
+  clone.marker_symbol 'Trafd1'
+  clone.allele_name_superscript 'tm1a(EUCOMM)Wtsi'
+  clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
+
+  clone.after_create do |clone|
+    Factory(:mi_attempt,
+      :clone => clone,
+      :colony_name => 'MBSS',
+      :distribution_centre => Centre.find_by_name!('ICS'))
+
+    Factory(:mi_attempt,
+      :clone => clone,
+      :colony_name => 'MBSS',
+      :distribution_centre => Centre.find_by_name!('ICS'))
+
+    Factory(:mi_attempt,
+      :clone => clone,
+      :colony_name => 'WBAA',
+      :distribution_centre => Centre.find_by_name!('ICS'))
+  end
+end
+
+Factory.define :clone_EPD0343_1_H06, :parent => :clone do |clone|
+  clone.clone_name 'EPD0343_1_H06'
+  clone.marker_symbol 'Myo1c'
+  clone.allele_name_superscript 'tm1a(EUCOMM)Wtsi'
+  clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
+
+  clone.after_create do |clone|
+    Factory(:mi_attempt,
+      :clone => clone,
+      :colony_name => 'MDCF',
+      :distribution_centre => Centre.find_by_name!('WTSI'))
+  end
+end
+
+Factory.define :clone_EPD0029_1_G04, :parent => :clone do |clone|
+  clone.clone_name 'EPD0029_1_G04'
+  clone.marker_symbol 'Gatc'
+  clone.allele_name_superscript 'tm1a(KOMP)Wtsi'
+  clone.pipeline { Pipeline.find_by_name! 'KOMP' }
+
+  clone.after_create do |clone|
+    Factory(:mi_attempt,
+      :clone => clone,
+      :colony_name => 'MBFD',
+      :distribution_centre => Centre.find_by_name!('WTSI'))
+  end
+end

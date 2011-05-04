@@ -18,6 +18,14 @@ class ActiveSupport::TestCase
     DatabaseCleaner.clean
   end
 
+  def create_common_test_objects
+    Factory.create(:centre_WTSI)
+    Factory.create(:centre_ICS)
+    Factory.create(:clone_EPD0127_4_E01)
+    Factory.create(:clone_EPD0343_1_H06)
+    Factory.create(:clone_EPD0029_1_G04)
+  end
+
   def assert_strain_types(strain_class, strain_file)
     names = strain_class.joins(:strain).order(:id).map {|i| i.strain.name}
     assert_equal names.sort, File.read(Rails.root + "config/strains/#{strain_file}.txt").split("\n").sort
@@ -37,6 +45,7 @@ class ActionDispatch::IntegrationTest
   def setup
     DatabaseCleaner.strategy = :deletion
     DatabaseCleaner.start
+    load Rails.root + 'db/seeds.rb'
   end
 
   def teardown

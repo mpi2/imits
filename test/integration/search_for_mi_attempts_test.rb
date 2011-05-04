@@ -13,12 +13,14 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
   end
 
   context 'As valid user:' do
-=begin TODO
     setup do
+      create_common_test_objects
+=begin TODO
       visit '/logout'
       login
-    end
 =end
+    end
+
     context 'searching for mi attempts by clone name' do
       context 'with a single clone' do
         setup do
@@ -56,6 +58,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
         assert page.has_css? '.x-grid3-cell-inner', :text => 'EPD0127_4_E01'
         assert page.has_css? '.x-grid3-cell-inner', :text => 'EPD0343_1_H06'
+        assert page.has_no_css? '.x-grid3-cell-inner', :text => 'EPD0029_1_G04'
       end
 
       should 'work if whitespace around clone names' do

@@ -9,3 +9,14 @@ class MiAttemptStatus < ActiveRecord::Base
     @@good ||= self.find_by_description!('Good').freeze
   end
 end
+
+# == Schema Information
+#
+# Table name: mi_attempt_statuses
+#
+#  id          :integer         not null, primary key
+#  description :text            not null
+#  created_at  :datetime
+#  updated_at  :datetime
+#
+

@@ -164,7 +164,9 @@ module MiAttemptsHelper
 =end
         mi_attempt_column(:colony_name),
 
-        mi_attempt_column(:distribution_centre__name),
+        mi_attempt_column(:production_centre__name, :header => 'Production Centre', :readOnly => true),
+
+        mi_attempt_column(:distribution_centre__name, :header => 'Distribution Centre'),
 
         # TODO strain_column(:blast_strain, BLAST_STRAINS),
 

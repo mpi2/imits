@@ -18,6 +18,7 @@ end
 
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :clone
+  mi_attempt.production_centre { Centre.all.sample }
 end
 
 

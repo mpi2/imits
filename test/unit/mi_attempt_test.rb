@@ -15,11 +15,25 @@ class MiAttemptTest < ActiveSupport::TestCase
     should belong_to :clone
     should validate_presence_of :clone
 
-    should have_db_column :centre_id
-    should belong_to :centre
+    should have_db_column(:production_centre_id).with_options(:null => false)
+    should belong_to :production_centre
 
     should have_db_column :distribution_centre_id
     should belong_to :distribution_centre
+
+    context 'distribution_centre' do
+      should 'should default to production_centre if not set' do
+        mi_attempt = Factory.create :mi_attempt, :production_centre => Centre.find_by_name('WTSI')
+        assert_equal 'WTSI', mi_attempt.distribution_centre.name
+      end
+
+      should 'not default if already set' do
+        mi_attempt = Factory.create :mi_attempt,
+                :production_centre => Centre.find_by_name('WTSI'),
+                :distribution_centre => Centre.find_by_name('ICS')
+        assert_equal 'ICS', mi_attempt.distribution_centre.name
+      end
+    end
 
     should have_db_column(:mi_attempt_status_id).with_options(:null => false)
     should belong_to :mi_attempt_status

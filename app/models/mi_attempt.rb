@@ -13,7 +13,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :mi_attempt_status
   validates :mi_attempt_status, :presence => true
 
-  belongs_to :centre
+  belongs_to :production_centre, :class_name => 'Centre'
   belongs_to :distribution_centre, :class_name => 'Centre'
 
   belongs_to :blast_strain, :class_name => 'Strain'
@@ -37,7 +37,8 @@ class MiAttempt < ActiveRecord::Base
     belongs_to qc_field, :class_name => 'QCStatus'
   end
 
-  after_initialize :defaults
+  after_initialize :set_default_status
+  before_save      :set_missing_distribution_centre
 
   def emma_status
     if is_suitable_for_emma?
@@ -74,8 +75,12 @@ class MiAttempt < ActiveRecord::Base
 
   protected
 
-  def defaults
+  def set_default_status
     self.mi_attempt_status = MiAttemptStatus.in_progress
+  end
+
+  def set_missing_distribution_centre
+    self.distribution_centre ||= self.production_centre
   end
 
 end

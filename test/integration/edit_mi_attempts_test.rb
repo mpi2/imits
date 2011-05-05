@@ -11,9 +11,9 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
     end
 
     def assert_mi_attempt_was_audited
-      #assert_equal 'vvi', @default_mi_attempt.edited_by
+      assert_equal 'vvi', @default_mi_attempt.edited_by
 
-      #login
+      login
       visit '/mi_attempts?search_terms=EPD0343_1_H06'
 
       yield
@@ -23,16 +23,20 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
       sleep 6
 
       @default_mi_attempt.reload
-      #assert_in_delta Time.now, @default_mi_attempt.edit_date, 60.seconds
-      #assert_equal 'zz99', @default_mi_attempt.edited_by
+      assert_in_delta Time.now, @default_mi_attempt.edit_date, 60.seconds
+      assert_equal 'zz99', @default_mi_attempt.edited_by
     end
 
     should 'audit MiAttempt when emma status changes' do
-      assert_mi_attempt_was_audited do
+      visit '/mi_attempts?search_terms=EPD0343_1_H06'
+      # assert_mi_attempt_was_audited do
         find('.x-grid3-col-emma_status').click # The cell containing EMMA status
         find('.x-editor .x-form-trigger').click # The combo box down arrow
         find('.x-combo-list-item:nth-child(4)').click # 'Unsuitable for EMMA - STICKY'
-      end
+      # end
+      click_button 'Save Changes'
+      sleep 6
+      @default_mi_attempt.reload
       assert_equal :unsuitable_sticky, @default_mi_attempt.emma_status
     end
 

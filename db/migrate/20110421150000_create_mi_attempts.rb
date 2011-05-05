@@ -22,7 +22,7 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.date :mi_date
       table.references :mi_attempt_status, :null => false
       table.text :colony_name
-      table.references :centre
+      table.integer :production_centre_id, :null => false
       table.integer :distribution_centre_id
 
       # Transfer details
@@ -70,7 +70,7 @@ class CreateMiAttempts < ActiveRecord::Migration
 
     add_foreign_key :mi_attempts, :clones
     add_foreign_key :mi_attempts, :mi_attempt_statuses
-    add_foreign_key :mi_attempts, :centres
+    add_foreign_key :mi_attempts, :centres, :column => :production_centre_id
     add_foreign_key :mi_attempts, :centres, :column => :distribution_centre_id
     add_foreign_key :mi_attempts, :strain_blast_strain_ids, :column => :blast_strain_id
     add_foreign_key :mi_attempts, :strain_colony_background_strain_ids, :column => :colony_background_strain_id

@@ -9,5 +9,10 @@ class Strain::BlastStrainIdTest < ActiveSupport::TestCase
     should 'be populated with correct data' do
       assert_strain_types(Strain::BlastStrainId, 'blast_strains')
     end
+
+    should 'delegate name to Strain' do
+      sid = Strain::BlastStrainId.find(:first)
+      assert_equal sid.name, sid.strain.name
+    end
   end
 end

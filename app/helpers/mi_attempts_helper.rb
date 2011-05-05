@@ -169,6 +169,7 @@ module MiAttemptsHelper
         mi_attempt_column(:distribution_centre__name, :header => 'Distribution Centre'),
 
         # TODO strain_column(:blast_strain, BLAST_STRAINS),
+        mi_attempt_column(:blast_strain__name, :header => 'Blast Strain'),
 
         mi_attempt_column(:total_blasts_injected, :align => :right),
 

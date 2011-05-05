@@ -1,12 +1,13 @@
 require 'test_helper'
 
 class CloneTest < ActiveSupport::TestCase
-  setup do
-    Factory.create :clone
-  end
-
   context 'Clone' do
+    setup do
+      Factory.create :clone
+    end
+
     should belong_to :pipeline
+    should have_many :mi_attempts
 
     should have_db_column(:clone_name).with_options(:null => false)
     should have_db_index(:clone_name).unique(true)
@@ -21,5 +22,6 @@ class CloneTest < ActiveSupport::TestCase
 
     should have_db_column(:pipeline_id).with_options(:null => false)
     should validate_presence_of :pipeline
+
   end
 end

@@ -35,17 +35,17 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'mouse_allele_name'
     ],
     'qc_details': [
-    'qc_southern_blot',
-    'qc_five_prime_lr_pcr',
-    'qc_five_prime_cass_integrity',
-    'qc_tv_backbone_assay',
-    'qc_neo_count_qpcr',
-    'qc_neo_sr_pcr',
-    'qc_loa_qpcr',
-    'qc_homozygous_loa_sr_pcr',
-    'qc_lacz_sr_pcr',
-    'qc_mutant_specific_sr_pcr',
-    'qc_loxp_confirmation',
+    'qc_southern_blot__description',
+    'qc_five_prime_lrpcr__description',
+    'qc_five_prime_cassette_integrity__description',
+    'qc_tv_backbone_assay__description',
+    'qc_neo_count_qpcr__description',
+    'qc_neo_sr_pcr__description',
+    'qc_loa_qpcr__description',
+    'qc_homozygous_loa_sr_pcr__description',
+    'qc_lacz_sr_pcr__description',
+    'qc_mutant_specific_sr_pcr__description',
+    'qc_loxp_confirmation__description',
     'qc_three_prime_lr_pcr'
     ]
 }

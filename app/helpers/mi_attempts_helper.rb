@@ -138,6 +138,12 @@ module MiAttemptsHelper
         :renderer => ['comboRenderer', combo_id], :width => 130)
     end
 
+    def define_qc_columns
+      MiAttempt::QC_FIELDS.map do |qc_field|
+        mi_attempt_column("#{qc_field}__description", :header => qc_field.to_s.titleize.gsub(/^Qc /, ''))
+      end
+    end
+
     def define_columns
       [
         mi_attempt_column(:clone__clone_name, :header => 'Clone Name',
@@ -245,56 +251,8 @@ module MiAttemptsHelper
 =begin
         mi_attempt_column(:mouse_allele_name,
           :header => 'Mouse Allele Name'),
-
-        mi_attempt_column(:qc_southern_blot,
-          :header => 'Southern Blot',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_five_prime_lr_pcr,
-          :header => 'Five Prime LRPCR',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_five_prime_cass_integrity,
-          :header => 'Five Prime Cassette Integrity',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_tv_backbone_assay,
-          :header => 'TV Backbone Assay',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_neo_count_qpcr,
-          :header => 'Neo Count SRPCR',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_neo_sr_pcr,
-          :header => 'Neo SR PCR',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_loa_qpcr,
-          :header => 'LOA QPCR',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_homozygous_loa_sr_pcr,
-          :header => 'Homozygous LOA SRPCR',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_lacz_sr_pcr,
-          :header => 'LacZ SRPCR',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_mutant_specific_sr_pcr,
-          :header => 'Mutant Specific SRPCR',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_loxp_confirmation,
-          :header => 'LoxP Confirmation',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
-
-        mi_attempt_column(:qc_three_prime_lr_pcr,
-          :header => 'Three Prime LRPCR',
-          :editor => local_combo_editor(QA_STORE_OPTIONS)),
 =end
-      ]
+      ] + define_qc_columns
     end
 
     def switch_view_button(text, extra_params = {})

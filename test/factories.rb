@@ -42,6 +42,10 @@ Factory.define :fully_populated_mi_attempt, :parent => :mi_attempt do |mi_attemp
       puts 'Not filling ' + column.name
     end
   end
+
+  MiAttempt::QC_FIELDS.each do |column_name|
+    mi_attempt.send(column_name) { QcStatus.all.sample }
+  end
 end
 
 Factory.define :clone_EPD0127_4_E01, :parent => :clone do |clone|

@@ -7,6 +7,21 @@ class MiAttempt < ActiveRecord::Base
     :unsuitable_sticky => 'Unsuitable for EMMA - STICKY',
   }.freeze
 
+  QC_FIELDS = [
+    :qc_southern_blot,
+    :qc_five_prime_lrpcr,
+    :qc_five_prime_cassette_integrity,
+    :qc_tv_backbone_assay,
+    :qc_neo_count_qpcr,
+    :qc_neo_sr_pcr,
+    :qc_loa_qpcr,
+    :qc_homozygous_loa_sr_pcr,
+    :qc_lacz_sr_pcr,
+    :qc_mutant_specific_sr_pcr,
+    :qc_loxp_confirmation,
+    :qc_three_prime_lr_pcr
+  ].freeze
+
   belongs_to :clone
   validates :clone, :presence => true
 
@@ -21,20 +36,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
 
-  [
-    :qc_southern_blot,
-    :qc_five_prime_lrpcr,
-    :qc_five_prime_cassette_integrity,
-    :qc_tv_backbone_assay,
-    :qc_neo_count_qpcr,
-    :qc_neo_sr_pcr,
-    :qc_loa_qpcr,
-    :qc_homozygous_loa_sr_pcr,
-    :qc_lacz_sr_pcr,
-    :qc_mutant_specific_sr_pcr,
-    :qc_loxp_confirmation,
-    :qc_three_prime_lr_pcr
-  ].each do |qc_field|
+  QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcStatus'
   end
 

@@ -196,7 +196,7 @@ module MiAttemptsHelper
         mi_attempt_column(:number_of_males_with_0_to_39_percent_chimerism, :header => '39-0% Male Chimerism Levels', :align => :right),
 
         emma_status_column,
-=begin
+=begin TODO
         strain_column(:test_cross_strain, TEST_CROSS_STRAINS),
 
         strain_column(:back_cross_strain, BACK_CROSS_STRAINS),

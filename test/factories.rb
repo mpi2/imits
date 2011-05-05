@@ -24,7 +24,7 @@ end
 #Specifics
 
 Factory.define :fully_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
-  mi_attempt.blast_strain { Strain.find(Strain::BlastStrainId.all.sample.id) }
+  mi_attempt.blast_strain { Strain::BlastStrainId.all.sample }
 
   MiAttempt.columns.each do |column|
     next if ['id', 'created_at', 'updated_at'].include?(column.name.to_s)

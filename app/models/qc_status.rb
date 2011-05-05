@@ -1,2 +1,2 @@
-class QCStatus < ActiveRecord::Base
+class QcStatus < ActiveRecord::Base
 end

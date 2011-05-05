@@ -35,7 +35,7 @@ class MiAttempt < ActiveRecord::Base
     :qc_loxp_confirmation,
     :qc_three_prime_lr_pcr
   ].each do |qc_field|
-    belongs_to qc_field, :class_name => 'QCStatus'
+    belongs_to qc_field, :class_name => 'QcStatus'
   end
 
   before_validation  :set_default_status

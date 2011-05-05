@@ -184,9 +184,9 @@ class MiAttemptTest < ActiveSupport::TestCase
         :qc_three_prime_lr_pcr
       ].each do |qc_field|
         should "have relation called #{qc_field} to QAStatus" do
-          qc_status = QCStatus.find_by_description('na')
+          qc_status = QcStatus.find_by_description('na')
           @mi_attempt.send("#{qc_field}=", qc_status)
-          assert_kind_of QCStatus, @mi_attempt.send(qc_field)
+          assert_kind_of QcStatus, @mi_attempt.send(qc_field)
           assert_equal qc_status, @mi_attempt.send(qc_field)
         end
       end

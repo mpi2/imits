@@ -6,9 +6,9 @@ class MiAttemptTest < ActiveSupport::TestCase
   context 'MiAttempt' do
     setup do
       @mi_attempt = Factory.create :mi_attempt,
-              :blast_strain => Strain.find_by_name('Balb/C'),
-              :colony_background_strain => Strain.find_by_name('129P2/OlaHsd'),
-              :test_cross_strain => Strain.find_by_name('129P2/OlaHsd')
+              :blast_strain_id => Strain.find_by_name('Balb/C').id,
+              :colony_background_strain_id => Strain.find_by_name('129P2/OlaHsd').id,
+              :test_cross_strain_id => Strain.find_by_name('129P2/OlaHsd').id
     end
 
     should have_db_column(:clone_id).with_options(:null => false)
@@ -38,19 +38,25 @@ class MiAttemptTest < ActiveSupport::TestCase
     should have_db_column(:mi_attempt_status_id).with_options(:null => false)
     should belong_to :mi_attempt_status
 
-    should validate_presence_of :mi_attempt_status
-
     should 'set mi_attempt_status to "In progress" by default' do
       assert_equal 'In progress', @mi_attempt.mi_attempt_status.description
     end
 
     should 'not overwrite status if it is set explicitly' do
-      mi_attempt = Factory.build(:mi_attempt, :mi_attempt_status => MiAttemptStatus.good)
+      mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.good)
       assert_equal 'Good', mi_attempt.mi_attempt_status.description
     end
 
+    should 'not reset status to default if assigning id' do
+      local_mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.good)
+      local_mi_attempt.mi_attempt_status_id = MiAttemptStatus.good.id
+      local_mi_attempt.save!
+      local_mi_attempt = MiAttempt.find(local_mi_attempt.id)
+      assert_equal 'Good', local_mi_attempt.mi_attempt_status.description
+    end
+
     should 'have a blast strain' do
-      assert_equal Strain, @mi_attempt.blast_strain.class
+      assert_equal Strain::BlastStrainId, @mi_attempt.blast_strain.class
       assert_equal 'Balb/C', @mi_attempt.blast_strain.name
     end
 

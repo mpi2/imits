@@ -38,8 +38,8 @@ class MiAttempt < ActiveRecord::Base
     belongs_to qc_field, :class_name => 'QCStatus'
   end
 
-  after_initialize :set_default_status
-  before_save      :set_missing_distribution_centre
+  before_validation  :set_default_status
+  before_validation  :set_missing_distribution_centre
 
   def emma_status
     if is_suitable_for_emma?
@@ -77,7 +77,7 @@ class MiAttempt < ActiveRecord::Base
   protected
 
   def set_default_status
-    self.mi_attempt_status = MiAttemptStatus.in_progress
+    self.mi_attempt_status ||= MiAttemptStatus.in_progress
   end
 
   def set_missing_distribution_centre

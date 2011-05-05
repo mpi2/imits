@@ -162,6 +162,8 @@ module MiAttemptsHelper
           :read_only => true,
           :sorting_scope => :sort_by_mi_attempt_status),
 =end
+        mi_attempt_column(:mi_attempt_status__description, :header => 'Status'),
+
         mi_attempt_column(:colony_name),
 
         mi_attempt_column(:production_centre__name, :header => 'Production Centre', :readOnly => true),

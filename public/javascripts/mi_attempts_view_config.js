@@ -56,7 +56,7 @@ var commonColumns = [
 'clone__marker_symbol',
 'allele_name',
 'mi_date',
-'status',
+'mi_attempt_status__description',
 'colony_name',
 'production_centre__name',
 'distribution_centre__name'

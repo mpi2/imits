@@ -22,9 +22,6 @@ end
 
 
 # Specifics
-Factory.define(:centre_WTSI, :parent => :centre) { |i| i.name 'WTSI' }
-Factory.define(:centre_ICS, :parent => :centre) { |i| i.name 'ICS' }
-
 Factory.define :clone_EPD0127_4_E01, :parent => :clone do |clone|
   clone.clone_name 'EPD0127_4_E01'
   clone.marker_symbol 'Trafd1'
@@ -32,17 +29,19 @@ Factory.define :clone_EPD0127_4_E01, :parent => :clone do |clone|
   clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 
   clone.after_create do |clone|
-    Factory(:mi_attempt,
+    Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'MBSS',
-      :distribution_centre => Centre.find_by_name!('ICS'))
+      :distribution_centre => Centre.find_by_name!('ICS'),
+      :is_suitable_for_emma => true)
 
-    Factory(:mi_attempt,
+    Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'MBSS',
-      :distribution_centre => Centre.find_by_name!('ICS'))
+      :distribution_centre => Centre.find_by_name!('ICS'),
+      :is_suitable_for_emma => true)
 
-    Factory(:mi_attempt,
+    Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'WBAA',
       :distribution_centre => Centre.find_by_name!('ICS'))
@@ -56,7 +55,7 @@ Factory.define :clone_EPD0343_1_H06, :parent => :clone do |clone|
   clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 
   clone.after_create do |clone|
-    Factory(:mi_attempt,
+    Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'MDCF',
       :distribution_centre => Centre.find_by_name!('WTSI'))
@@ -70,7 +69,7 @@ Factory.define :clone_EPD0029_1_G04, :parent => :clone do |clone|
   clone.pipeline { Pipeline.find_by_name! 'KOMP' }
 
   clone.after_create do |clone|
-    Factory(:mi_attempt,
+    Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'MBFD',
       :distribution_centre => Centre.find_by_name!('WTSI'))

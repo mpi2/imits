@@ -156,13 +156,7 @@ module MiAttemptsHelper
           }
         ),
 
-=begin TODO
-        mi_attempt_column(:status,
-          :getter => proc { |relation| relation.mi_attempt_status.name },
-          :read_only => true,
-          :sorting_scope => :sort_by_mi_attempt_status),
-=end
-        mi_attempt_column(:mi_attempt_status__description, :header => 'Status'),
+        mi_attempt_column(:mi_attempt_status__description, :header => 'Status', :readOnly => true),
 
         mi_attempt_column(:colony_name),
 

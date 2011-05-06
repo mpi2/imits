@@ -4,22 +4,27 @@ require 'test_helper'
 
 class MiAttemptTest < ActiveSupport::TestCase
   context 'MiAttempt' do
-    setup do
-      @mi_attempt = Factory.create :mi_attempt,
+
+    def default_mi_attempt
+      @default_mi_attempt ||= Factory.create :mi_attempt,
               :blast_strain_id => Strain.find_by_name('Balb/C').id,
               :colony_background_strain_id => Strain.find_by_name('129P2/OlaHsd').id,
               :test_cross_strain_id => Strain.find_by_name('129P2/OlaHsd').id
     end
 
-    should have_db_column(:clone_id).with_options(:null => false)
-    should belong_to :clone
-    should validate_presence_of :clone
+    should 'have clone' do
+      assert_accepts have_db_column(:clone_id).with_options(:null => false), MiAttempt.new
+      assert_accepts belong_to(:clone), MiAttempt.new
+      assert_accepts validate_presence_of(:clone), MiAttempt.new
+    end
 
-    should have_db_column(:production_centre_id).with_options(:null => false)
-    should belong_to :production_centre
+    should 'have centres' do
+      assert_accepts have_db_column(:production_centre_id).with_options(:null => false), MiAttempt.new
+      assert_accepts belong_to(:production_centre), MiAttempt.new
 
-    should have_db_column :distribution_centre_id
-    should belong_to :distribution_centre
+      assert_accepts have_db_column(:distribution_centre_id), MiAttempt.new
+      assert_accepts belong_to(:distribution_centre), MiAttempt.new
+    end
 
     context 'distribution_centre' do
       should 'should default to production_centre if not set' do
@@ -35,11 +40,13 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    should have_db_column(:mi_attempt_status_id).with_options(:null => false)
-    should belong_to :mi_attempt_status
+    should 'have status' do
+      assert_accepts have_db_column(:mi_attempt_status_id).with_options(:null => false), MiAttempt.new
+      assert_accepts belong_to(:mi_attempt_status), MiAttempt.new
+    end
 
     should 'set mi_attempt_status to "In progress" by default' do
-      assert_equal 'In progress', @mi_attempt.mi_attempt_status.description
+      assert_equal 'In progress', default_mi_attempt.mi_attempt_status.description
     end
 
     should 'not overwrite status if it is set explicitly' do
@@ -55,19 +62,23 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal 'Good', local_mi_attempt.mi_attempt_status.description
     end
 
+    should 'have mouse allele name related column' do
+      assert_accepts have_db_column(:mouse_allele_name_derivative_allele_suffix), default_mi_attempt
+    end
+
     should 'have a blast strain' do
-      assert_equal Strain::BlastStrainId, @mi_attempt.blast_strain.class
-      assert_equal 'Balb/C', @mi_attempt.blast_strain.name
+      assert_equal Strain::BlastStrainId, default_mi_attempt.blast_strain.class
+      assert_equal 'Balb/C', default_mi_attempt.blast_strain.name
     end
 
     should 'have a colony background strain' do
-      assert_equal Strain, @mi_attempt.colony_background_strain.class
-      assert_equal '129P2/OlaHsd', @mi_attempt.colony_background_strain.name
+      assert_equal Strain, default_mi_attempt.colony_background_strain.class
+      assert_equal '129P2/OlaHsd', default_mi_attempt.colony_background_strain.name
     end
 
     should 'have a test cross strain' do
-      assert_equal Strain, @mi_attempt.test_cross_strain.class
-      assert_equal '129P2/OlaHsd', @mi_attempt.test_cross_strain.name
+      assert_equal Strain, default_mi_attempt.test_cross_strain.class
+      assert_equal '129P2/OlaHsd', default_mi_attempt.test_cross_strain.name
     end
 
     should 'not allow adding a strain if it is not of the correct type' do
@@ -86,108 +97,94 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    should have_db_column(:is_suitable_for_emma).with_options(:null => false)
-    should have_db_column(:is_emma_sticky).with_options(:null => false)
+    should 'have emma columns' do
+      assert_accepts have_db_column(:is_suitable_for_emma).with_options(:null => false), MiAttempt.new
+      assert_accepts have_db_column(:is_emma_sticky).with_options(:null => false), MiAttempt.new
+    end
 
     should 'set is_suitable_for_emma to false by default' do
-      assert_equal false, @mi_attempt.is_suitable_for_emma?
+      assert_equal false, default_mi_attempt.is_suitable_for_emma?
     end
 
     should 'set is_emma_sticky to false by default' do
-      assert_equal false, @mi_attempt.is_suitable_for_emma?
+      assert_equal false, default_mi_attempt.is_suitable_for_emma?
     end
 
     context '#emma_status' do
       should 'be :suitable if is_suitable_for_emma=true and is_emma_sticky=false' do
-        @mi_attempt.is_suitable_for_emma = true
-        @mi_attempt.is_emma_sticky = false
-        assert_equal :suitable, @mi_attempt.emma_status
+        default_mi_attempt.is_suitable_for_emma = true
+        default_mi_attempt.is_emma_sticky = false
+        assert_equal :suitable, default_mi_attempt.emma_status
       end
 
       should 'be :unsuitable if is_suitable_for_emma=false and is_emma_sticky=false' do
-        @mi_attempt.is_suitable_for_emma = false
-        @mi_attempt.is_emma_sticky = false
-        assert_equal :unsuitable, @mi_attempt.emma_status
+        default_mi_attempt.is_suitable_for_emma = false
+        default_mi_attempt.is_emma_sticky = false
+        assert_equal :unsuitable, default_mi_attempt.emma_status
       end
 
       should 'be :suitable_sticky if is_suitable_for_emma=true and is_emma_sticky=true' do
-        @mi_attempt.is_suitable_for_emma = true
-        @mi_attempt.is_emma_sticky = true
-        assert_equal :suitable_sticky, @mi_attempt.emma_status
+        default_mi_attempt.is_suitable_for_emma = true
+        default_mi_attempt.is_emma_sticky = true
+        assert_equal :suitable_sticky, default_mi_attempt.emma_status
       end
 
       should 'be :unsuitable_sticky if is_suitable_for_emma=false and is_emma_sticky=true' do
-        @mi_attempt.is_suitable_for_emma = false
-        @mi_attempt.is_emma_sticky = true
-        assert_equal :unsuitable_sticky, @mi_attempt.emma_status
+        default_mi_attempt.is_suitable_for_emma = false
+        default_mi_attempt.is_emma_sticky = true
+        assert_equal :unsuitable_sticky, default_mi_attempt.emma_status
       end
     end
 
     context '#emma_status=' do
       should 'work for suitable' do
-        @mi_attempt.emma_status = 'suitable'
-        @mi_attempt.save!
-        @mi_attempt.reload
-        assert_equal [true, false], [@mi_attempt.is_suitable_for_emma?, @mi_attempt.is_emma_sticky?]
+        default_mi_attempt.emma_status = 'suitable'
+        default_mi_attempt.save!
+        default_mi_attempt.reload
+        assert_equal [true, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
       end
 
       should 'work for unsuitable' do
-        @mi_attempt.emma_status = 'unsuitable'
-        @mi_attempt.save!
-        @mi_attempt.reload
-        assert_equal [false, false], [@mi_attempt.is_suitable_for_emma?, @mi_attempt.is_emma_sticky?]
+        default_mi_attempt.emma_status = 'unsuitable'
+        default_mi_attempt.save!
+        default_mi_attempt.reload
+        assert_equal [false, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
       end
 
       should 'work for :suitable_sticky' do
-        @mi_attempt.emma_status = 'suitable_sticky'
-        @mi_attempt.save!
-        @mi_attempt.reload
-        assert_equal [true, true], [@mi_attempt.is_suitable_for_emma?, @mi_attempt.is_emma_sticky?]
+        default_mi_attempt.emma_status = 'suitable_sticky'
+        default_mi_attempt.save!
+        default_mi_attempt.reload
+        assert_equal [true, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
       end
 
       should 'work for :unsuitable_sticky' do
-        @mi_attempt.emma_status = 'unsuitable_sticky'
-        @mi_attempt.save!
-        @mi_attempt.reload
-        assert_equal [false, true], [@mi_attempt.is_suitable_for_emma?, @mi_attempt.is_emma_sticky?]
+        default_mi_attempt.emma_status = 'unsuitable_sticky'
+        default_mi_attempt.save!
+        default_mi_attempt.reload
+        assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
       end
 
       should 'error for anything else' do
         assert_raise(MiAttempt::EmmaStatusError) do
-          @mi_attempt.emma_status = 'invalid'
+          default_mi_attempt.emma_status = 'invalid'
         end
       end
 
       should 'set cause #emma_status to return the right value after being saved' do
-        @mi_attempt.emma_status = 'unsuitable_sticky'
-        @mi_attempt.save!
-        @mi_attempt.reload
+        default_mi_attempt.emma_status = 'unsuitable_sticky'
+        default_mi_attempt.save!
+        default_mi_attempt.reload
 
-        assert_equal [false, true], [@mi_attempt.is_suitable_for_emma?, @mi_attempt.is_emma_sticky?]
-        assert_equal :unsuitable_sticky, @mi_attempt.emma_status
+        assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
+        assert_equal :unsuitable_sticky, default_mi_attempt.emma_status
       end
     end
 
-    context 'QA field' do
-      [
-        :qc_southern_blot,
-        :qc_five_prime_lrpcr,
-        :qc_five_prime_cassette_integrity,
-        :qc_tv_backbone_assay,
-        :qc_neo_count_qpcr,
-        :qc_neo_sr_pcr,
-        :qc_loa_qpcr,
-        :qc_homozygous_loa_sr_pcr,
-        :qc_lacz_sr_pcr,
-        :qc_mutant_specific_sr_pcr,
-        :qc_loxp_confirmation,
-        :qc_three_prime_lr_pcr
-      ].each do |qc_field|
-        should "have relation called #{qc_field} to QAStatus" do
-          qc_status = QcStatus.find_by_description('na')
-          @mi_attempt.send("#{qc_field}=", qc_status)
-          assert_kind_of QcStatus, @mi_attempt.send(qc_field)
-          assert_equal qc_status, @mi_attempt.send(qc_field)
+    context 'QC fields' do
+      MiAttempt::QC_FIELDS.each do |qc_field|
+        should "include #{qc_field}" do
+          assert_accepts belong_to(qc_field), MiAttempt.new
         end
       end
     end

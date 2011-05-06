@@ -8,7 +8,7 @@ end
 Factory.define :clone do |clone|
   clone.sequence(:clone_name) {|n| "Auto-generated Clone Name #{n}" }
   clone.marker_symbol "Auto-generated Marker Symbol"
-  clone.allele_name_superscript "Auto-generated Allele Name Superscript"
+  clone.allele_name_superscript_template "Auto-generated Allele Name Superscript Template"
   clone.association :pipeline
 end
 

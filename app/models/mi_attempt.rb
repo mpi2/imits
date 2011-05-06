@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class MiAttempt < ActiveRecord::Base
 
   EMMA_OPTIONS = {
@@ -73,6 +75,15 @@ class MiAttempt < ActiveRecord::Base
 
     else
       raise EmmaStatusError, "Invalid status '#{status.inspect}'"
+    end
+  end
+
+  def mouse_allele_name_superscript
+    if mouse_allele_name_derivative_allele_suffix.nil?
+      return nil
+    else
+      return clone.allele_name_superscript_template.sub(
+        Clone::TEMPLATE_CHARACTER, mouse_allele_name_derivative_allele_suffix)
     end
   end
 

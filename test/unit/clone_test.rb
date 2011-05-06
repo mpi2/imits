@@ -60,5 +60,13 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
+    context '#allele_name' do
+      should 'work' do
+        @clone.allele_name_superscript = 'tm1a(EUCOMM)Wtsi'
+        @clone.marker_symbol = 'Cbx1'
+        assert_equal 'Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>', @clone.allele_name
+      end
+    end
+
   end
 end

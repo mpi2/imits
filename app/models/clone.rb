@@ -38,6 +38,11 @@ class Clone < ActiveRecord::Base
       self.derivative_allele_suffix = md[2]
     end
   end
+
+  def allele_name
+    return "#{marker_symbol}<sup>#{allele_name_superscript}</sup>"
+  end
+
 end
 
 

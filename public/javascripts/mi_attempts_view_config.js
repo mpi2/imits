@@ -46,7 +46,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'qc_lacz_sr_pcr__description',
     'qc_mutant_specific_sr_pcr__description',
     'qc_loxp_confirmation__description',
-    'qc_three_prime_lr_pcr'
+    'qc_three_prime_lr_pcr__description'
     ]
 }
 

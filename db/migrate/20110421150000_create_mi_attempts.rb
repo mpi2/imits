@@ -2,7 +2,7 @@ class CreateMiAttempts < ActiveRecord::Migration
 
   QC_FIELDS = [
     :qc_southern_blot_id,
-    :qc_five_prime_lrpcr_id,
+    :qc_five_prime_lr_pcr_id,
     :qc_five_prime_cassette_integrity_id,
     :qc_tv_backbone_assay_id,
     :qc_neo_count_qpcr_id,

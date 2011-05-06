@@ -36,7 +36,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     ],
     'qc_details': [
     'qc_southern_blot__description',
-    'qc_five_prime_lrpcr__description',
+    'qc_five_prime_lr_pcr__description',
     'qc_five_prime_cassette_integrity__description',
     'qc_tv_backbone_assay__description',
     'qc_neo_count_qpcr__description',

@@ -9,7 +9,7 @@ class MiAttempt < ActiveRecord::Base
 
   QC_FIELDS = [
     :qc_southern_blot,
-    :qc_five_prime_lrpcr,
+    :qc_five_prime_lr_pcr,
     :qc_five_prime_cassette_integrity,
     :qc_tv_backbone_assay,
     :qc_neo_count_qpcr,

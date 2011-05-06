@@ -151,7 +151,7 @@ module MiAttemptsHelper
         mi_attempt_column(:clone__marker_symbol, :header => 'Marker Symbol',
           :width => 75, :readOnly => true),
 
-        # TODO mi_attempt_column(:allele_name, :sorting_scope => :sort_by_allele_name),
+        mi_attempt_column(:clone__allele_name, :readOnly => true, :header => 'Allele Name'),
 
         mi_attempt_column(:mi_date, :header => 'MI Date',
           :width => 84,

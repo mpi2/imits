@@ -54,7 +54,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
 var commonColumns = [
 'clone__clone_name',
 'clone__marker_symbol',
-'allele_name',
+'clone__allele_name',
 'mi_date',
 'mi_attempt_status__description',
 'colony_name',

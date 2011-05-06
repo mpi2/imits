@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'test_helper'
 
 class CloneTest < ActiveSupport::TestCase
@@ -35,6 +37,26 @@ class CloneTest < ActiveSupport::TestCase
         @clone.derivative_allele_suffix = nil
         @clone.allele_name_superscript_template = 'tm1(EUCOMM)Wtsi'
         assert_equal 'tm1(EUCOMM)Wtsi', @clone.allele_name_superscript
+      end
+    end
+
+    context '#allele_name_superscript=' do
+      should 'store a.n.s.t. and d.a.s. when d.a.s. is present' do
+        @clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
+        assert_equal 'tm2@(KOMP)Wtsi', @clone.allele_name_superscript_template
+        assert_equal 'b', @clone.derivative_allele_suffix
+      end
+
+      should 'store a.n.s.t. only and null out d.a.s. when d.a.s. is not present' do
+        @clone.allele_name_superscript = 'tm1(EUCOMM)Wtsi'
+        assert_equal 'tm1(EUCOMM)Wtsi', @clone.allele_name_superscript_template
+        assert_equal nil, @clone.derivative_allele_suffix
+      end
+
+      should 'raise error if allele name superscript is not in a recognized format' do
+        assert_raise Clone::AlleleNameSuperscriptFormatUnrecognizedError do
+          @clone.allele_name_superscript = 'nonsense'
+        end
       end
     end
 

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class Clone < ActiveRecord::Base
   TEMPLATE_CHARACTER = '@'
 
@@ -14,6 +16,26 @@ class Clone < ActiveRecord::Base
       return allele_name_superscript_template.sub(TEMPLATE_CHARACTER, derivative_allele_suffix)
     else
       return allele_name_superscript_template
+    end
+  end
+
+  class AlleleNameSuperscriptFormatUnrecognizedError < RuntimeError; end
+
+  def allele_name_superscript=(text)
+    re = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/
+
+    md = re.match(text)
+
+    if ! md
+      raise AlleleNameSuperscriptFormatUnrecognizedError, "Bad allele name superscript #{text}"
+    end
+
+    if md[2].blank?
+      self.allele_name_superscript_template = md[1] + md[3]
+      self.derivative_allele_suffix = nil
+    else
+      self.allele_name_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
+      self.derivative_allele_suffix = md[2]
     end
   end
 end

@@ -23,7 +23,13 @@ end
 
 #Specifics
 
-Factory.define :fully_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
+Factory.define :populated_clone, :parent => :clone do |clone|
+  clone.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
+  clone.allele_name_superscript_template 'tm1@(EUCOMM)Wtsi'
+  clone.derivative_allele_suffix 'a'
+end
+
+Factory.define :populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.blast_strain { Strain::BlastStrainId.all.sample }
 
   MiAttempt.columns.each do |column|

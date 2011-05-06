@@ -88,6 +88,7 @@ class MiAttempt < ActiveRecord::Base
 
 end
 
+
 # == Schema Information
 #
 # Table name: mi_attempts
@@ -128,8 +129,9 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
+#  mouse_allele_name_derivative_allele_suffix      :text
 #  qc_southern_blot_id                             :integer
-#  qc_five_prime_lrpcr_id                          :integer
+#  qc_five_prime_lr_pcr_id                         :integer
 #  qc_five_prime_cassette_integrity_id             :integer
 #  qc_tv_backbone_assay_id                         :integer
 #  qc_neo_count_qpcr_id                            :integer

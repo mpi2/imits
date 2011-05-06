@@ -40,16 +40,18 @@ class Clone < ActiveRecord::Base
   end
 end
 
+
 # == Schema Information
 #
 # Table name: clones
 #
-#  id                      :integer         not null, primary key
-#  clone_name              :text            not null
-#  marker_symbol           :text            not null
-#  allele_name_superscript :text            not null
-#  pipeline_id             :integer         not null
-#  created_at              :datetime
-#  updated_at              :datetime
+#  id                               :integer         not null, primary key
+#  clone_name                       :text            not null
+#  marker_symbol                    :text            not null
+#  allele_name_superscript_template :text            not null
+#  derivative_allele_suffix         :text
+#  pipeline_id                      :integer         not null
+#  created_at                       :datetime
+#  updated_at                       :datetime
 #
 

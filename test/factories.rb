@@ -31,6 +31,8 @@ end
 
 Factory.define :populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.blast_strain { Strain::BlastStrain.all.sample }
+  mi_attempt.test_cross_strain { Strain::TestCrossStrain.all.sample }
+  mi_attempt.colony_background_strain { Strain::ColonyBackgroundStrain.all.sample }
 
   MiAttempt.columns.each do |column|
     next if ['id', 'created_at', 'updated_at'].include?(column.name.to_s)

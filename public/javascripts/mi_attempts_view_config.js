@@ -1,6 +1,6 @@
 var MI_ATTEMPTS_VIEW_CONFIG = {
     'transfer_details': [
-    'blast_strain',
+    'blast_strain_id',
     'total_blasts_injected',
     'total_transferred',
     'number_surrogates_receiving'
@@ -17,8 +17,8 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     ],
     'chimera_mating_details': [
     'emma_status',
-    'test_cross_strain',
-    'back_cross_strain',
+    'test_cross_strain_id',
+    'colony_background_strain_id',
     'date_chimeras_mated',
     'number_of_chimera_matings_attempted',
     'number_of_chimera_matings_successful',

@@ -117,18 +117,20 @@ module MiAttemptsHelper
       )
     end
 
-    def strain_column(name, values)
+    def strain_column(name)
+      name = name.to_s
       combo_id = name.to_s.camelize(:lower) + 'Combo'
+      strain_class = Strain.const_get(name.gsub(/_id$/, '').camelize)
 
       editor = local_combo_editor(
-        values.collect {|i| [i, CGI.escape_html(i)] },
+        strain_class.all.map {|strain| [strain.id, CGI.escape_html(strain.name)] },
         :id => combo_id,
         :listeners => {
-          'select' => 'function(combo, record, index) {combo.el.dom.value = record.data[combo.valueField];}'.to_json_variable,
+          'select' => 'function(combo, record, index) {combo.el.dom.value = Ext.util.Format.htmlDecode(record.get(combo.displayField));}'.to_json_variable,
           'focus' => 'function(combo) {
                         var record = combo.findRecord(combo.valueField, combo.value);
                         if(record) {
-                          combo.el.dom.value = record.data[combo.valueField];
+                          combo.el.dom.value = Ext.util.Format.htmlDecode(record.get(combo.displayField));
                         }
                       }'.to_json_variable
         }
@@ -170,8 +172,7 @@ module MiAttemptsHelper
 
         mi_attempt_column(:distribution_centre__name, :header => 'Distribution Centre'),
 
-        # TODO strain_column(:blast_strain, BLAST_STRAINS),
-        mi_attempt_column(:blast_strain__name, :header => 'Blast Strain'),
+        strain_column(:blast_strain_id),
 
         mi_attempt_column(:total_blasts_injected, :align => :right),
 
@@ -196,11 +197,11 @@ module MiAttemptsHelper
         mi_attempt_column(:number_of_males_with_0_to_39_percent_chimerism, :header => '39-0% Male Chimerism Levels', :align => :right),
 
         emma_status_column,
-=begin TODO
-        strain_column(:test_cross_strain, TEST_CROSS_STRAINS),
 
-        strain_column(:back_cross_strain, BACK_CROSS_STRAINS),
-=end
+        strain_column(:test_cross_strain_id),
+
+        strain_column(:colony_background_strain_id),
+
         mi_attempt_column(:date_chimeras_mated, :header => 'Date Chimeras Mated',
           :width => 84,
           :renderer => ['date', 'd-m-Y'],

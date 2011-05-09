@@ -1,6 +1,8 @@
-class Strain::ColonyBackgroundStrainId < ActiveRecord::Base
+class Strain::ColonyBackgroundStrain < ActiveRecord::Base
   attr_accessible :id
   belongs_to :strain, :foreign_key => :id
+
+  delegate :name, :to => :strain
 end
 
 # == Schema Information

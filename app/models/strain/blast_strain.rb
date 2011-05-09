@@ -1,4 +1,4 @@
-class Strain::BlastStrainId < ActiveRecord::Base
+class Strain::BlastStrain < ActiveRecord::Base
   attr_accessible :id
   belongs_to :strain, :foreign_key => :id
 

@@ -81,17 +81,17 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have a blast strain' do
-      assert_equal Strain::BlastStrainId, default_mi_attempt.blast_strain.class
+      assert_equal Strain::BlastStrain, default_mi_attempt.blast_strain.class
       assert_equal 'Balb/C', default_mi_attempt.blast_strain.name
     end
 
     should 'have a colony background strain' do
-      assert_equal Strain, default_mi_attempt.colony_background_strain.class
+      assert_equal Strain::ColonyBackgroundStrain, default_mi_attempt.colony_background_strain.class
       assert_equal '129P2/OlaHsd', default_mi_attempt.colony_background_strain.name
     end
 
     should 'have a test cross strain' do
-      assert_equal Strain, default_mi_attempt.test_cross_strain.class
+      assert_equal Strain::TestCrossStrain, default_mi_attempt.test_cross_strain.class
       assert_equal '129P2/OlaHsd', default_mi_attempt.test_cross_strain.name
     end
 

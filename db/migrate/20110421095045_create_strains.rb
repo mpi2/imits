@@ -9,9 +9,9 @@ class CreateStrains < ActiveRecord::Migration
   end
 
   ID_TABLES = [
-    :strain_blast_strain_ids,
-    :strain_colony_background_strain_ids,
-    :strain_test_cross_strain_ids
+    :strain_blast_strains,
+    :strain_colony_background_strains,
+    :strain_test_cross_strains
   ]
 
   def self.up

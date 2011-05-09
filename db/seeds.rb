@@ -13,9 +13,9 @@ Object.new.instance_eval do
     end
   end
 
-  set_up_strains Strain::BlastStrainId, :blast_strains
-  set_up_strains Strain::ColonyBackgroundStrainId, :colony_background_strains
-  set_up_strains Strain::TestCrossStrainId, :test_cross_strains
+  set_up_strains Strain::BlastStrain, :blast_strains
+  set_up_strains Strain::ColonyBackgroundStrain, :colony_background_strains
+  set_up_strains Strain::TestCrossStrain, :test_cross_strains
 end
 
 ['na', 'fail', 'pass'].each do |desc|

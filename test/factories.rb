@@ -33,6 +33,7 @@ Factory.define :populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.blast_strain { Strain::BlastStrain.all.sample }
   mi_attempt.test_cross_strain { Strain::TestCrossStrain.all.sample }
   mi_attempt.colony_background_strain { Strain::ColonyBackgroundStrain.all.sample }
+  mi_attempt.colony_name { 'Auto-generated Colony Name' }
 
   MiAttempt.columns.each do |column|
     next if ['id', 'created_at', 'updated_at'].include?(column.name.to_s)
@@ -42,12 +43,8 @@ Factory.define :populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
       mi_attempt.send(column.name) { rand(20) }
     elsif column.type == :date
       mi_attempt.send(column.name) { Date.today.beginning_of_month + rand(29).days }
-    elsif column.type == :text
-      mi_attempt.send(column.name) { 'Auto-generated ' + column.name.titleize }
     elsif column.type == :boolean
       mi_attempt.send(column.name) { [true, false].sample }
-    else
-      puts 'Not filling ' + column.name
     end
   end
 

@@ -72,6 +72,12 @@ module MiAttemptsHelper
       }
     JS
 
+    js_method :mouseAlleleNameRenderer, <<-'JS'
+      function(submit_value) {
+        return "Make me do the right thing";
+      }
+    JS
+
     def mi_attempt_column(name, extra_params = {})
       name = name.to_s
       return {
@@ -125,6 +131,18 @@ module MiAttemptsHelper
 
       mi_attempt_column(name, :editor => editor,
         :renderer => ['comboRenderer', combo_id], :width => 130)
+    end
+
+    def mouse_allele_name_columns
+      [
+        mi_attempt_column(:mouse_allele_type,
+          :renderer => ['comboRenderer', 'mouseAlleleTypeCombo'],
+          :editor => local_combo_editor(['a', 'b', 'c', 'd', 'e'], :id => 'mouseAlleleTypeCombo')),
+
+        mi_attempt_column(:mouse_allele_name,
+          :readOnly => true,
+          :renderer => ['mouseAlleleNameRenderer'])
+      ]
     end
 
     def define_qc_columns
@@ -235,12 +253,9 @@ module MiAttemptsHelper
           :header => 'No. Het Offspring', :align => :right),
 
         mi_attempt_column(:number_of_live_glt_offspring,
-          :header => 'No. Live GLT Offspring', :align => :right),
-=begin
-        mi_attempt_column(:mouse_allele_name,
-          :header => 'Mouse Allele Name'),
-=end
-      ] + define_qc_columns
+          :header => 'No. Live GLT Offspring', :align => :right)
+
+      ] + mouse_allele_name_columns + define_qc_columns
     end
 
     def switch_view_button(text, extra_params = {})

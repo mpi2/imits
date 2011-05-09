@@ -12,8 +12,8 @@ class Clone < ActiveRecord::Base
   validates :pipeline, :presence => true
 
   def allele_name_superscript
-    if derivative_allele_suffix
-      return allele_name_superscript_template.sub(TEMPLATE_CHARACTER, derivative_allele_suffix)
+    if allele_type
+      return allele_name_superscript_template.sub(TEMPLATE_CHARACTER, allele_type)
     else
       return allele_name_superscript_template
     end
@@ -32,10 +32,10 @@ class Clone < ActiveRecord::Base
 
     if md[2].blank?
       self.allele_name_superscript_template = md[1] + md[3]
-      self.derivative_allele_suffix = nil
+      self.allele_type = nil
     else
       self.allele_name_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
-      self.derivative_allele_suffix = md[2]
+      self.allele_type = md[2]
     end
   end
 
@@ -54,7 +54,7 @@ end
 #  clone_name                       :text            not null
 #  marker_symbol                    :text            not null
 #  allele_name_superscript_template :text            not null
-#  derivative_allele_suffix         :text
+#  allele_type         :text
 #  pipeline_id                      :integer         not null
 #  created_at                       :datetime
 #  updated_at                       :datetime

@@ -4,7 +4,7 @@ class CreateClones < ActiveRecord::Migration
       t.text :clone_name, :null => false
       t.text :marker_symbol, :null => false
       t.text :allele_name_superscript_template, :null => false
-      t.text :derivative_allele_suffix
+      t.text :allele_type
       t.references :pipeline, :null => false
 
       t.timestamps

@@ -24,33 +24,33 @@ class CloneTest < ActiveSupport::TestCase
 
     should have_db_column(:allele_name_superscript_template).with_options(:null => false)
     should validate_presence_of :allele_name_superscript_template
-    should have_db_column(:derivative_allele_suffix)
+    should have_db_column(:allele_type)
 
     context '#allele_name_superscript' do
-      should 'work when d.a.s. is present' do
-        @clone.derivative_allele_suffix = 'e'
+      should 'work when allele_type is present' do
+        @clone.allele_type = 'e'
         @clone.allele_name_superscript_template = 'tm1@(EUCOMM)Wtsi'
         assert_equal 'tm1e(EUCOMM)Wtsi', @clone.allele_name_superscript
       end
 
-      should 'work when d.a.s. is not present' do
-        @clone.derivative_allele_suffix = nil
+      should 'work when allele_type is not present' do
+        @clone.allele_type = nil
         @clone.allele_name_superscript_template = 'tm1(EUCOMM)Wtsi'
         assert_equal 'tm1(EUCOMM)Wtsi', @clone.allele_name_superscript
       end
     end
 
     context '#allele_name_superscript=' do
-      should 'store a.n.s.t. and d.a.s. when d.a.s. is present' do
+      should 'store a.n.s.t. and allele_type when allele name superscript includes an allele type letter' do
         @clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
         assert_equal 'tm2@(KOMP)Wtsi', @clone.allele_name_superscript_template
-        assert_equal 'b', @clone.derivative_allele_suffix
+        assert_equal 'b', @clone.allele_type
       end
 
-      should 'store a.n.s.t. only and null out d.a.s. when d.a.s. is not present' do
+      should 'store a.n.s.t. only and null out allele_type when allele name superscript does not include an allele type letter' do
         @clone.allele_name_superscript = 'tm1(EUCOMM)Wtsi'
         assert_equal 'tm1(EUCOMM)Wtsi', @clone.allele_name_superscript_template
-        assert_equal nil, @clone.derivative_allele_suffix
+        assert_equal nil, @clone.allele_type
       end
 
       should 'raise error if allele name superscript is not in a recognized format' do

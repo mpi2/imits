@@ -203,5 +203,29 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context 'auditing' do
+      should_eventually 'work'
+    end
+
+    context 'before save filter' do
+      context 'sum_up_total_chimeras before save' do
+        should 'work' do
+          default_mi_attempt.total_male_chimeras = 5
+          default_mi_attempt.total_female_chimeras = 4
+          default_mi_attempt.save!
+          default_mi_attempt.reload
+          assert_equal 9, default_mi_attempt.total_chimeras
+        end
+
+        should 'deal with blank values' do
+          default_mi_attempt.total_male_chimeras = nil
+          default_mi_attempt.total_female_chimeras = nil
+          default_mi_attempt.save!
+          default_mi_attempt.reload
+          assert_equal 0, default_mi_attempt.total_chimeras
+        end
+      end
+    end
+
   end
 end

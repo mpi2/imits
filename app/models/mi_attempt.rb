@@ -42,8 +42,9 @@ class MiAttempt < ActiveRecord::Base
     belongs_to qc_field, :class_name => 'QcStatus'
   end
 
-  before_validation  :set_default_status
-  before_validation  :set_missing_distribution_centre
+  before_validation :set_default_status
+  before_validation :set_missing_distribution_centre
+  before_validation :set_total_chimeras
 
   def emma_status
     if is_suitable_for_emma?
@@ -97,6 +98,9 @@ class MiAttempt < ActiveRecord::Base
     self.distribution_centre ||= self.production_centre
   end
 
+  def set_total_chimeras
+    self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
+  end
 end
 
 

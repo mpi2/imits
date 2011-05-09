@@ -104,19 +104,6 @@ module MiAttemptsHelper
       )
     end
 
-    def distribution_centre_name_column
-      mi_attempt_column(:distribution_centre_name).merge(
-        :header => 'Distribution Centre',
-        :setter => lambda { |mi_attempt, centre_name|
-          mi_attempt.set_distribution_centre_by_name(centre_name,
-            @passed_config[:current_username])
-        },
-        :sortable => true,
-        :sorting_scope => :sort_by_distribution_centre_name,
-        :editor => local_combo_editor(Centre.all.collect(&:name))
-      )
-    end
-
     def strain_column(name)
       name = name.to_s
       combo_id = name.to_s.camelize(:lower) + 'Combo'

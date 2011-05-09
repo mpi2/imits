@@ -63,19 +63,19 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have mouse allele name related column' do
-      assert_accepts have_db_column(:mouse_allele_name_derivative_allele_suffix), default_mi_attempt
+      assert_accepts have_db_column(:mouse_allele_type), default_mi_attempt
     end
 
     context '#mouse_allele_name_superscript' do
-      should 'be nil if mouse_allele_name_derivative_allele_suffix is nil' do
+      should 'be nil if mouse_allele_type is nil' do
         default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
-        default_mi_attempt.mouse_allele_name_derivative_allele_suffix = nil
+        default_mi_attempt.mouse_allele_type = nil
         assert_equal nil, default_mi_attempt.mouse_allele_name_superscript
       end
 
-      should 'be mouse allele name if mouse_allele_name_derivative_allele_suffix is present' do
+      should 'be mouse allele name if mouse_allele_type is present' do
         default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
-        default_mi_attempt.mouse_allele_name_derivative_allele_suffix = 'e'
+        default_mi_attempt.mouse_allele_type = 'e'
         assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_name_superscript
       end
     end

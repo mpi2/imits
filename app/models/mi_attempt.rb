@@ -79,11 +79,11 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def mouse_allele_name_superscript
-    if mouse_allele_name_derivative_allele_suffix.nil?
+    if mouse_allele_type.nil?
       return nil
     else
       return clone.allele_name_superscript_template.sub(
-        Clone::TEMPLATE_CHARACTER, mouse_allele_name_derivative_allele_suffix)
+        Clone::TEMPLATE_CHARACTER, mouse_allele_type)
     end
   end
 
@@ -143,7 +143,7 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
-#  mouse_allele_name_derivative_allele_suffix      :text
+#  mouse_allele_type      :text
 #  qc_southern_blot_id                             :integer
 #  qc_five_prime_lr_pcr_id                         :integer
 #  qc_five_prime_cassette_integrity_id             :integer

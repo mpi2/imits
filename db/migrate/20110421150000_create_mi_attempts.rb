@@ -59,7 +59,7 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.integer :number_of_cct_offspring
       table.integer :number_of_het_offspring
       table.integer :number_of_live_glt_offspring
-      table.text :mouse_allele_name_derivative_allele_suffix
+      table.text :mouse_allele_type
 
       # QC Details
       QC_FIELDS.each do |qc_field|

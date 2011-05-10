@@ -5,8 +5,13 @@ require 'test_helper'
 class MiAttemptTest < ActiveSupport::TestCase
   context 'MiAttempt' do
 
+    def default_clone
+      @default_clone ||= Factory.create :clone_EPD0343_1_H06
+    end
+
     def default_mi_attempt
-      @default_mi_attempt ||= Factory.create :mi_attempt,
+      @default_mi_attempt ||= Factory.create :populated_mi_attempt,
+              :clone => default_clone,
               :blast_strain_id => Strain.find_by_name('Balb/C').id,
               :colony_background_strain_id => Strain.find_by_name('129P2/OlaHsd').id,
               :test_cross_strain_id => Strain.find_by_name('129P2/OlaHsd').id
@@ -73,10 +78,24 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal nil, default_mi_attempt.mouse_allele_name_superscript
       end
 
-      should 'be mouse allele name if mouse_allele_type is present' do
+      should 'work if mouse_allele_type is present' do
         default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
         default_mi_attempt.mouse_allele_type = 'e'
         assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_name_superscript
+      end
+    end
+
+    context '#mouse_allele_name' do
+      should 'be nil if mouse_allele_type is nil' do
+        default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
+        default_mi_attempt.mouse_allele_type = nil
+        assert_equal nil, default_mi_attempt.mouse_allele_name
+      end
+
+      should 'work if mouse_allele_type is present' do
+        default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
+        default_mi_attempt.mouse_allele_type = 'e'
+        assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', default_mi_attempt.mouse_allele_name
       end
     end
 

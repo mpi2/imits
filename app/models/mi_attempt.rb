@@ -25,7 +25,7 @@ class MiAttempt < ActiveRecord::Base
   ].freeze
 
   MOUSE_ALLELE_OPTIONS = [
-    [nil, ''],
+    [nil, '[none]'],
     ['a', 'a - Knockout-first - Reporter Tagged Insertion'],
     ['b', 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion'],
     ['c', 'c - Knockout-First, Post-Flp - Conditional'],
@@ -93,6 +93,14 @@ class MiAttempt < ActiveRecord::Base
     else
       return clone.allele_name_superscript_template.sub(
         Clone::TEMPLATE_CHARACTER, mouse_allele_type)
+    end
+  end
+
+  def mouse_allele_name
+    if mouse_allele_type.nil?
+      return nil
+    else
+      return "#{clone.marker_symbol}<sup>#{mouse_allele_name_superscript}</sup>"
     end
   end
 

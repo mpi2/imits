@@ -72,12 +72,6 @@ module MiAttemptsHelper
       }
     JS
 
-    js_method :mouseAlleleNameRenderer, <<-'JS'
-      function(submit_value) {
-        return "Make me do the right thing";
-      }
-    JS
-
     def mi_attempt_column(name, extra_params = {})
       name = name.to_s
       return {
@@ -139,9 +133,7 @@ module MiAttemptsHelper
           :renderer => ['comboRenderer', 'mouseAlleleTypeCombo'],
           :editor => local_combo_editor(MiAttempt::MOUSE_ALLELE_OPTIONS, :id => 'mouseAlleleTypeCombo', :minListWidth => 350)),
 
-        mi_attempt_column(:mouse_allele_name,
-          :readOnly => true,
-          :renderer => ['mouseAlleleNameRenderer'])
+        mi_attempt_column(:mouse_allele_name, :readOnly => true)
       ]
     end
 

@@ -137,7 +137,7 @@ module MiAttemptsHelper
       [
         mi_attempt_column(:mouse_allele_type,
           :renderer => ['comboRenderer', 'mouseAlleleTypeCombo'],
-          :editor => local_combo_editor(['a', 'b', 'c', 'd', 'e'], :id => 'mouseAlleleTypeCombo')),
+          :editor => local_combo_editor(MiAttempt::MOUSE_ALLELE_OPTIONS, :id => 'mouseAlleleTypeCombo', :minListWidth => 350)),
 
         mi_attempt_column(:mouse_allele_name,
           :readOnly => true,

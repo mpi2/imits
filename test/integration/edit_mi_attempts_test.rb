@@ -71,5 +71,27 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
       assert_equal 'ICS', @default_mi_attempt.distribution_centre_name
     end
 
+    context 'mouse allele type' do
+      should 'be settable to a valid type' do
+        visit '/mi_attempts?search_terms=EPD0343_1_H06'
+        find('.x-grid3-col-mouse_allele_type').click
+        find('.x-editor .x-form-trigger').click # The combo box down arrow
+        find('.x-combo-list-item', :text => 'e - Targeted Non-Conditional').click
+
+        click_button 'Save Changes'
+
+        sleep 6
+
+        @default_mi_attempt.reload
+        assert_equal 'e', @default_mi_attempt.mouse_allele_type
+
+        assert page.has_css?('.x-grid3-col-mouse_allele_name', :text => 'Myo1c<sup>tm1e(EUCOMM)Wtsi</sup>')
+      end
+
+      should 'be settable to nil'
+
+      should 'not be settable if allele type is nil (i.e. it was a deletion)'
+    end
+
   end
 end

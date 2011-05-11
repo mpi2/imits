@@ -11,6 +11,8 @@ class Clone < ActiveRecord::Base
   validates :allele_name_superscript_template, :presence => true
   validates :pipeline, :presence => true
 
+  attr_protected :allele_name_superscript_template
+
   def allele_name_superscript
     if allele_type
       return allele_name_superscript_template.sub(TEMPLATE_CHARACTER, allele_type)

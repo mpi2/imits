@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class CreateMiAttempts < ActiveRecord::Migration
 
   QC_FIELDS = [

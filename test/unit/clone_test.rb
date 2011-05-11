@@ -22,8 +22,21 @@ class CloneTest < ActiveSupport::TestCase
     should have_db_column(:pipeline_id).with_options(:null => false)
     should validate_presence_of :pipeline
 
-    should have_db_column(:allele_name_superscript_template).with_options(:null => false)
-    should validate_presence_of :allele_name_superscript_template
+    context 'allele_name_superscript_template' do
+      should 'have DB column' do
+        assert_should should have_db_column(:allele_name_superscript_template).with_options(:null => false)
+      end
+
+      should 'validate presence' do
+        assert_should validate_presence_of :allele_name_superscript_template
+      end
+
+      should 'not be mass-assignable' do
+        clone = Clone.new(:allele_name_superscript_template => 'nonsense')
+        assert_nil clone.allele_name_superscript_template
+      end
+    end
+
     should have_db_column(:allele_type)
 
     context '#allele_name_superscript' do

@@ -72,6 +72,14 @@ module MiAttemptsHelper
       }
     JS
 
+    js_method :mouseAlleleTypeComboEditMonitor, <<-'JS'
+      function(event) {
+        if(event.field != 'mouse_allele_type') {return;}
+
+        if(event.record.data.allele_type == null) { event.cancel = true; }
+      }
+    JS
+
     def mi_attempt_column(name, extra_params = {})
       name = name.to_s
       return {
@@ -128,10 +136,16 @@ module MiAttemptsHelper
     end
 
     def mouse_allele_name_columns
-      [
+      mouse_allele_type_combo = local_combo_editor(MiAttempt::MOUSE_ALLELE_OPTIONS,
+        :id => 'mouseAlleleTypeCombo', :minListWidth => 350)
+
+      return [
         mi_attempt_column(:mouse_allele_type,
           :renderer => ['comboRenderer', 'mouseAlleleTypeCombo'],
-          :editor => local_combo_editor(MiAttempt::MOUSE_ALLELE_OPTIONS, :id => 'mouseAlleleTypeCombo', :minListWidth => 350)),
+          :editor => mouse_allele_type_combo),
+
+        mi_attempt_column(:allele_type, :header => 'Allele Type', :readOnly => true,
+          :hidden => true, :getter => proc {|mi| mi.clone.allele_type}),
 
         mi_attempt_column(:mouse_allele_name, :readOnly => true)
       ]
@@ -294,6 +308,12 @@ module MiAttemptsHelper
         ],
 
         :columns => self.define_columns,
+
+        :listeners => {
+          'beforeedit' => 'function(event) {
+                        this.mouseAlleleTypeComboEditMonitor(event);
+                      }'.to_json_variable
+        },
 
         :prohibit_create => true,
         :prohibit_delete => true,

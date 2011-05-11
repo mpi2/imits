@@ -88,9 +88,34 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
         assert page.has_css?('.x-grid3-col-mouse_allele_name', :text => 'Myo1c<sup>tm1e(EUCOMM)Wtsi</sup>')
       end
 
-      should 'be settable to nil'
+      should 'be settable to nil' do
+        visit '/mi_attempts?search_terms=EPD0343_1_H06'
+        find('.x-grid3-col-mouse_allele_type').click
+        find('.x-editor .x-form-trigger').click # The combo box down arrow
+        find('.x-combo-list-item', :text => '[none]').click
 
-      should 'not be settable if allele type is nil (i.e. it was a deletion)'
+        click_button 'Save Changes'
+
+        sleep 6
+
+        @default_mi_attempt.reload
+        assert_equal nil, @default_mi_attempt.mouse_allele_type
+
+        assert page.has_css?('.x-grid3-col-mouse_allele_name', :text => '')
+      end
+
+      should 'not be settable if allele type is nil (i.e. it was a deletion)' do
+        MiAttempt.destroy_all
+        deletion_clone = Factory.build(:clone, :marker_symbol => 'Cbx1', :clone_name => 'EPD_CUSTOM_1')
+        deletion_clone.allele_name_superscript = 'tm1(EUCOMM)Wtsi'
+        deletion_clone.save!
+        assert_nil deletion_clone.allele_type
+        Factory.create(:mi_attempt, :clone => deletion_clone)
+
+        visit '/mi_attempts?search_terms=EPD_CUSTOM_1'
+        find('.x-grid3-col-mouse_allele_type').click
+        assert page.has_no_css?('.x-editor .x-form-trigger')
+      end
     end
 
   end

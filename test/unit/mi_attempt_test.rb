@@ -68,7 +68,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have mouse allele name related column' do
-      assert_accepts have_db_column(:mouse_allele_type), default_mi_attempt
+      assert_should have_db_column(:mouse_allele_type)
     end
 
     context '#mouse_allele_name_superscript' do

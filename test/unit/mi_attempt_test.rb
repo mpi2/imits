@@ -10,7 +10,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     def default_mi_attempt
-      @default_mi_attempt ||= Factory.create :populated_mi_attempt,
+      @default_mi_attempt ||= Factory.create :mi_attempt,
               :clone => default_clone,
               :blast_strain_id => Strain.find_by_name('Balb/C').id,
               :colony_background_strain_id => Strain.find_by_name('129P2/OlaHsd').id,
@@ -18,17 +18,17 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have clone' do
-      assert_accepts have_db_column(:clone_id).with_options(:null => false), MiAttempt.new
-      assert_accepts belong_to(:clone), MiAttempt.new
-      assert_accepts validate_presence_of(:clone), MiAttempt.new
+      assert_should have_db_column(:clone_id).with_options(:null => false)
+      assert_should belong_to(:clone)
+      assert_should validate_presence_of(:clone)
     end
 
     should 'have centres' do
-      assert_accepts have_db_column(:production_centre_id).with_options(:null => false), MiAttempt.new
-      assert_accepts belong_to(:production_centre), MiAttempt.new
+      assert_should have_db_column(:production_centre_id).with_options(:null => false)
+      assert_should belong_to(:production_centre)
 
-      assert_accepts have_db_column(:distribution_centre_id), MiAttempt.new
-      assert_accepts belong_to(:distribution_centre), MiAttempt.new
+      assert_should have_db_column(:distribution_centre_id)
+      assert_should belong_to(:distribution_centre)
     end
 
     context 'distribution_centre' do
@@ -46,8 +46,8 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have status' do
-      assert_accepts have_db_column(:mi_attempt_status_id).with_options(:null => false), MiAttempt.new
-      assert_accepts belong_to(:mi_attempt_status), MiAttempt.new
+      assert_should have_db_column(:mi_attempt_status_id).with_options(:null => false)
+      assert_should belong_to(:mi_attempt_status)
     end
 
     should 'set mi_attempt_status to "In progress" by default' do
@@ -131,8 +131,8 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have emma columns' do
-      assert_accepts have_db_column(:is_suitable_for_emma).with_options(:null => false), MiAttempt.new
-      assert_accepts have_db_column(:is_emma_sticky).with_options(:null => false), MiAttempt.new
+      assert_should have_db_column(:is_suitable_for_emma).of_type(:boolean).with_options(:null => false)
+      assert_should have_db_column(:is_emma_sticky).of_type(:boolean).with_options(:null => false)
     end
 
     should 'set is_suitable_for_emma to false by default' do
@@ -140,7 +140,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'set is_emma_sticky to false by default' do
-      assert_equal false, default_mi_attempt.is_suitable_for_emma?
+      assert_equal false, default_mi_attempt.is_emma_sticky?
     end
 
     context '#emma_status' do
@@ -217,9 +217,17 @@ class MiAttemptTest < ActiveSupport::TestCase
     context 'QC fields' do
       MiAttempt::QC_FIELDS.each do |qc_field|
         should "include #{qc_field}" do
-          assert_accepts belong_to(qc_field), MiAttempt.new
+          assert_should belong_to(qc_field)
         end
       end
+    end
+
+    should 'have is_public' do
+      assert_should have_db_column(:is_public).of_type(:boolean).with_options(:default => true, :null => false)
+    end
+
+    should 'have is_released_from_genotyping' do
+      assert_should have_db_column(:is_released_from_genotyping).of_type(:boolean).with_options(:default => false, :null => false)
     end
 
     context 'auditing' do

@@ -122,10 +122,10 @@ class MiAttempt < ActiveRecord::Base
       sql_params << terms  << terms << terms
     end
 
-#    unless production_centre_id.blank?
-#      sql_texts << 'mi_attempts.production_centre_id = ?'
-#      sql_params << production_centre_id
-#    end
+    unless production_centre_id.blank?
+      sql_texts << 'mi_attempts.production_centre_id = ?'
+      sql_params << production_centre_id
+    end
 
     if sql_texts.blank?
       scoped

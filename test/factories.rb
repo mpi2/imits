@@ -64,18 +64,21 @@ Factory.define :clone_EPD0127_4_E01, :parent => :clone do |clone|
       :clone => clone,
       :colony_name => 'MBSS',
       :distribution_centre => Centre.find_by_name!('ICS'),
+      :production_centre => Centre.find_by_name!('ICS'),
       :is_suitable_for_emma => true)
 
     Factory.create(:populated_mi_attempt,
       :clone => clone,
       :colony_name => 'MBSS',
       :distribution_centre => Centre.find_by_name!('ICS'),
+      :production_centre => Centre.find_by_name!('ICS'),
       :is_suitable_for_emma => true)
 
     Factory.create(:populated_mi_attempt,
       :clone => clone,
       :colony_name => 'WBAA',
-      :distribution_centre => Centre.find_by_name!('ICS'))
+      :distribution_centre => Centre.find_by_name!('ICS'),
+      :production_centre => Centre.find_by_name!('ICS'))
   end
 end
 
@@ -89,7 +92,8 @@ Factory.define :clone_EPD0343_1_H06, :parent => :clone do |clone|
     Factory.create(:populated_mi_attempt,
       :clone => clone,
       :colony_name => 'MDCF',
-      :distribution_centre => Centre.find_by_name!('WTSI'))
+      :distribution_centre => Centre.find_by_name!('WTSI'),
+      :production_centre => Centre.find_by_name!('WTSI'))
   end
 end
 
@@ -103,6 +107,7 @@ Factory.define :clone_EPD0029_1_G04, :parent => :clone do |clone|
     Factory.create(:populated_mi_attempt,
       :clone => clone,
       :colony_name => 'MBFD',
-      :distribution_centre => Centre.find_by_name!('WTSI'))
+      :distribution_centre => Centre.find_by_name!('WTSI'),
+      :production_centre => Centre.find_by_name!('WTSI'))
   end
 end

@@ -81,16 +81,21 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     context '#mouse_allele_name' do
+      setup do
+        clone = Factory.create :clone_EPD0343_1_H06
+        @mi_attempt = Factory.build :mi_attempt, :clone => clone
+      end
+
       should 'be nil if mouse_allele_type is nil' do
-        default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
-        default_mi_attempt.mouse_allele_type = nil
-        assert_equal nil, default_mi_attempt.mouse_allele_name
+        @mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
+        @mi_attempt.mouse_allele_type = nil
+        assert_equal nil, @mi_attempt.mouse_allele_name
       end
 
       should 'work if mouse_allele_type is present' do
-        default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
-        default_mi_attempt.mouse_allele_type = 'e'
-        assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', default_mi_attempt.mouse_allele_name
+        @mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
+        @mi_attempt.mouse_allele_type = 'e'
+        assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_name
       end
     end
 
@@ -255,12 +260,12 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'return all results when not given any search terms' do
         results = MiAttempt.search(:search_terms => [])
-        assert_equal 4, results.size
+        assert_equal 5, results.size
       end
 
       should 'return all results when only blank lines are in search terms' do
         results = MiAttempt.search(:search_terms => ["", "\t", "    "])
-        assert_equal 4, results.size
+        assert_equal 5, results.size
       end
 
       should 'work for single clone' do
@@ -343,10 +348,12 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'also search by production centre id in addition to other terms' do
-        results = MiAttempt.search(:search_terms => ['cbx7'],
-          :production_centre_id => Centre.find_by_name('UCD').id)
+        mi = Factory.create(:populated_mi_attempt, :clone => @clone1,
+          :production_centre => Centre.find_by_name!('ICS'))
+        results = MiAttempt.search(:search_terms => ['myo1c'],
+          :production_centre_id => Centre.find_by_name!('ICS').id)
         assert_equal 1, results.size
-        assert_equal 'EPD0013_1_F05', results.first.clone.clone_name
+        assert_equal mi.id, results.first.id
       end
     end
 

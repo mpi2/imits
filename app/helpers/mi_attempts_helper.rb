@@ -152,9 +152,11 @@ module MiAttemptsHelper
     end
 
     def define_qc_columns
-      MiAttempt::QC_FIELDS.map do |qc_field|
+      columns = MiAttempt::QC_FIELDS.map do |qc_field|
         mi_attempt_column("#{qc_field}__description", :header => qc_field.to_s.titleize.gsub(/^Qc /, ''))
       end
+
+      columns << mi_attempt_column(:is_public) << mi_attempt_column(:is_released_from_genotyping)
     end
 
     def define_columns

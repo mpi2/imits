@@ -24,7 +24,7 @@ class CloneTest < ActiveSupport::TestCase
 
     context 'allele_name_superscript_template' do
       should 'have DB column' do
-        assert_should should have_db_column(:allele_name_superscript_template).with_options(:null => false)
+        assert_should have_db_column(:allele_name_superscript_template).with_options(:null => false)
       end
 
       should 'validate presence' do
@@ -37,7 +37,7 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
-    should have_db_column(:allele_type)
+    should have_db_column :allele_type
 
     context '#allele_name_superscript' do
       should 'work when allele_type is present' do

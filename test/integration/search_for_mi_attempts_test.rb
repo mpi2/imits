@@ -21,13 +21,17 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
     end
 
     context 'searching for mi attempts by clone name' do
+
+      setup do
+        create_common_test_objects
+      end
+
       context 'with a single clone' do
         setup do
-          create_common_test_objects
           visit '/mi_attempts'
           fill_in 'search_terms', :with => 'EPD0343_1_H06'
           click_button 'Search'
-          assert_match %r{^http://[^/]+/mi_attempts\?search_terms=EPD0343_1_H06$}, current_url
+          assert_match /search_terms=EPD0343_1_H06/, current_url
         end
 
         should 'show all data for that clone' do
@@ -39,7 +43,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
             'MDCF',
             'WTSI',
             'Unsuitable for EMMA',
-            'Micro-injected',
+            'In progress',
           ].each do |text|
             assert(page.has_css?(selector_for_table_cell(1), :text => text),
               "Expected text '#{text}' in table cell 1, but did not find it")
@@ -47,7 +51,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         end
 
         should 'not show data for other clones' do
-          assert page.has_no_css?('.x-grid3-cell-inner', :text => 'EPD0127_4_E01')
+          assert page.has_no_css?('.x-grid3-col-clone__clone_name', :text => 'EPD0127_4_E01')
         end
       end
 
@@ -92,7 +96,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
 
       should 'work' do
-        assert_match %r{^http://[^/]+/mi_attempts\?search_terms=Trafd1$}, current_url
+        assert_match /search_terms=Trafd1/, current_url
         assert page.has_css? selector_for_table_cell(1), :text => 'EPD0127_4_E01'
       end
 
@@ -107,7 +111,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         @clone2 = Factory.create :clone_EPD0127_4_E01
         @clone3 = Factory.create :clone_EPD0029_1_G04
 
-        @mi_attempt = Factory.create(:populated_mi_attempt, :clone => @clone1,
+        @mi_attempt = Factory.create(:mi_attempt, :clone => @clone1,
           :production_centre => Centre.find_by_name!('ICS'))
 
         visit '/'

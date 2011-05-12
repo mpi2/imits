@@ -23,17 +23,17 @@ end
 
 #Specifics
 
-Factory.define :populated_clone, :parent => :clone do |clone|
+Factory.define :randomly_populated_clone, :parent => :clone do |clone|
   clone.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
   clone.allele_name_superscript_template 'tm1@(EUCOMM)Wtsi'
   clone.allele_type { ('a'..'e').to_a.sample }
 end
 
-Factory.define :populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
+Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.blast_strain { Strain::BlastStrain.all.sample }
   mi_attempt.test_cross_strain { Strain::TestCrossStrain.all.sample }
   mi_attempt.colony_background_strain { Strain::ColonyBackgroundStrain.all.sample }
-  mi_attempt.colony_name { 'Auto-generated Colony Name' }
+  mi_attempt.colony_name { (1..4).map {|i| ('A'..'Z').to_a.sample}.join }
 
   MiAttempt.columns.each do |column|
     next if ['id', 'created_at', 'updated_at'].include?(column.name.to_s)
@@ -60,21 +60,21 @@ Factory.define :clone_EPD0127_4_E01, :parent => :clone do |clone|
   clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 
   clone.after_create do |clone|
-    Factory.create(:populated_mi_attempt,
+    Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'MBSS',
       :distribution_centre => Centre.find_by_name!('ICS'),
       :production_centre => Centre.find_by_name!('ICS'),
       :is_suitable_for_emma => true)
 
-    Factory.create(:populated_mi_attempt,
+    Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'MBSS',
       :distribution_centre => Centre.find_by_name!('ICS'),
       :production_centre => Centre.find_by_name!('ICS'),
       :is_suitable_for_emma => true)
 
-    Factory.create(:populated_mi_attempt,
+    Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'WBAA',
       :distribution_centre => Centre.find_by_name!('ICS'),
@@ -89,11 +89,12 @@ Factory.define :clone_EPD0343_1_H06, :parent => :clone do |clone|
   clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 
   clone.after_create do |clone|
-    Factory.create(:populated_mi_attempt,
+    Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'MDCF',
       :distribution_centre => Centre.find_by_name!('WTSI'),
-      :production_centre => Centre.find_by_name!('WTSI'))
+      :production_centre => Centre.find_by_name!('WTSI'),
+      :mi_date => Date.parse('2010-09-13'))
   end
 end
 
@@ -104,7 +105,7 @@ Factory.define :clone_EPD0029_1_G04, :parent => :clone do |clone|
   clone.pipeline { Pipeline.find_by_name! 'KOMP' }
 
   clone.after_create do |clone|
-    Factory.create(:populated_mi_attempt,
+    Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'MBFD',
       :distribution_centre => Centre.find_by_name!('WTSI'),

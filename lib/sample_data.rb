@@ -17,10 +17,10 @@ class SampleData
         clone.destroy
       end
 
-      clone = Factory.create(:populated_clone, :pipeline_id => clone_data[:pipeline_id], :clone_name => clone_data[:clone_name])
+      clone = Factory.create(:randomly_populated_clone, :pipeline_id => clone_data[:pipeline_id], :clone_name => clone_data[:clone_name])
 
       3.times do
-        Factory.create(:populated_mi_attempt, :clone => clone)
+        Factory.create(:randomly_populated_mi_attempt, :clone => clone)
       end
     end
 

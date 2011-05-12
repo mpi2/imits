@@ -322,7 +322,7 @@ module MiAttemptsHelper
         :enable_edit_in_form => false,
         :enable_extended_search => false,
         :strong_default_attrs => {:edited_by => @passed_config[:current_username]},
-        # TODO :scope => [:search, @passed_config[:search_terms]]
+        :scope => [:search, @passed_config[:search_params]]
       )
     end
   end
@@ -330,7 +330,7 @@ module MiAttemptsHelper
   class MiAttemptsWidget < Netzke::Basepack::Panel
     def configuration
       config_up_to_now = super
-      search_terms = config_up_to_now.delete(:search_terms)
+      search_params = config_up_to_now.delete(:search_params)
       current_username = config_up_to_now.delete(:current_username)
       config_up_to_now.merge(
         :name => :micro_injection_attempts_widget,
@@ -341,14 +341,14 @@ module MiAttemptsHelper
             :class_name => 'MiAttemptsHelper::MiAttemptsGrid',
             :ref => 'grid',
             :current_username => current_username,
-            :search_terms => search_terms
+            :search_params => search_params
           }
         ]
       )
     end
   end
 
-  def mi_attempts_table(search_terms)
+  def mi_attempts_table(search_params)
     onready = javascript_tag(<<-'EOL')
       Ext.onReady(function(){
         var widget = Netzke.page.microInjectionAttemptsWidget;
@@ -359,6 +359,6 @@ module MiAttemptsHelper
     netzke(:micro_injection_attempts_widget,
       :class_name => 'MiAttemptsHelper::MiAttemptsWidget',
       :current_username => nil, # TODO current_user.user_name,
-      :search_terms => search_terms) + "\n" + onready
+      :search_params => search_params) + "\n" + onready
   end
 end

@@ -40,87 +40,94 @@ class Old::MiAttemptTest < ActiveSupport::TestCase
     context '::search scope' do
 
       should 'return all results when not given any search terms' do
-        results = Old::MiAttempt.search([])
+        results = Old::MiAttempt.search(:search_terms => [])
         assert_equal Old::MiAttempt.count, results.size
       end
 
       should 'return all results when only blank lines are in search terms' do
-        results = Old::MiAttempt.search(["", "\t", "    "])
+        results = Old::MiAttempt.search(:search_terms => ["", "\t", "    "])
         assert_equal Old::MiAttempt.count, results.size
       end
 
       should 'work for single clone' do
-        results = Old::MiAttempt.search(['EPD0127_4_E01'])
+        results = Old::MiAttempt.search(:search_terms => ['EPD0127_4_E01'])
         assert_equal 5, results.size
         assert results.include? default_mi_attempt
       end
 
       should 'work for single clone case-insensitively' do
-        results = Old::MiAttempt.search(['epd0127_4_E01'])
+        results = Old::MiAttempt.search(:search_terms => ['epd0127_4_E01'])
         assert_equal 5, results.size
         assert results.include? default_mi_attempt
       end
 
       should 'work for multiple clones' do
-        results = Old::MiAttempt.search(['EPD0127_4_E01', 'EPD0343_1_H06'])
+        results = Old::MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'EPD0343_1_H06'])
         assert_equal 7, results.size
         assert results.include? default_mi_attempt
         assert results.include? alternative_mi_attempt
       end
 
       should 'work for single gene symbol' do
-        results = Old::MiAttempt.search(['Myo1c'])
-        assert_equal 2, results.size
+        results = Old::MiAttempt.search(:search_terms => ['Myo1c'])
+        assert_equal 3, results.size
         assert results.include? alternative_mi_attempt
       end
 
       should 'work for single gene symbol case-insensitively' do
-        results = Old::MiAttempt.search(['myo1C'])
-        assert_equal 2, results.size
+        results = Old::MiAttempt.search(:search_terms => ['myo1C'])
+        assert_equal 3, results.size
         assert results.include? alternative_mi_attempt
       end
 
       should 'work for multiple gene symbols' do
-        results = Old::MiAttempt.search(['Trafd1', 'Myo1c'])
-        assert_equal 7, results.size
+        results = Old::MiAttempt.search(:search_terms => ['Trafd1', 'Myo1c'])
+        assert_equal 8, results.size
         assert results.include? default_mi_attempt
         assert results.include? alternative_mi_attempt
       end
 
       should 'work for single colony name' do
-        results = Old::MiAttempt.search(['MBSS'])
+        results = Old::MiAttempt.search(:search_terms => ['MBSS'])
         assert_equal 2, results.size
         assert results.include? default_mi_attempt
       end
 
       should 'work for single colony name case-insensitively' do
-        results = Old::MiAttempt.search(['mbss'])
+        results = Old::MiAttempt.search(:search_terms => ['mbss'])
         assert_equal 2, results.size
         assert results.include? default_mi_attempt
       end
 
       should 'work for multiple colony names' do
-        results = Old::MiAttempt.search(['MBSS', 'WBAA'])
+        results = Old::MiAttempt.search(:search_terms => ['MBSS', 'WBAA'])
         assert_equal 3, results.size
         assert results.include? default_mi_attempt
       end
 
       should 'work when mixing clone names, gene symbols and colony names' do
-        results = Old::MiAttempt.search(['EPD0127_4_E01', 'Myo1c', 'MBFD'])
-        assert_equal 8, results.size
+        results = Old::MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Myo1c', 'MBFD'])
+        assert_equal 9, results.size
         assert results.include? default_mi_attempt
         assert results.include? alternative_mi_attempt
         assert results.include? Old::MiAttempt.find 5409.0
       end
 
       should 'not have duplicates in results' do
-        results = Old::MiAttempt.search(['EPD0127_4_E01', 'Trafd1'])
+        results = Old::MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Trafd1'])
         assert_equal 5, results.size
         assert results.include? default_mi_attempt
       end
 
       should 'be orderable' do
-        results = Old::MiAttempt.search(['EPD0127_4_E01', 'Trafd1']).order('emi_clones.clone_name DESC')
+        results = Old::MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Trafd1']).order('emi_clones.clone_name DESC')
+      end
+
+      should 'also search by production centre id in addition to other terms' do
+        results = Old::MiAttempt.search(:search_terms => ['cbx7'],
+          :production_centre_id => Old::Centre.find_by_name('UCD').id)
+        assert_equal 1, results.size
+        assert_equal 'EPD0013_1_F05', results.first.clone.clone_name
       end
     end
 

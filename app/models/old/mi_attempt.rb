@@ -22,18 +22,34 @@ class Old::MiAttempt < Old::ModelBase
 
   delegate :clone_name, :gene_symbol, :allele_name, :to => :clone
 
-  scope :search, proc { |terms|
-    terms.map(&:upcase!)
+  scope :search, proc { |params|
+    terms, production_centre_id = params.symbolize_keys.values_at(:search_terms, :production_centre_id)
+
+    terms ||= []
     terms = terms.dup.delete_if {|i| i.strip.empty?}
-    if terms.empty?
+    terms.map(&:upcase!)
+
+    sql_texts = []
+    sql_params = []
+
+    unless terms.blank?
+      sql_texts <<
+              '(UPPER(emi_clone.clone_name) IN (?) OR ' +
+              ' UPPER(emi_clone.gene_symbol) IN (?) OR ' +
+              ' UPPER(colony_name) IN (?))'
+      sql_params << terms << terms << terms
+    end
+
+    unless production_centre_id.blank?
+      sql_texts << 'emi_event.centre_id = ?'
+      sql_params << production_centre_id
+    end
+
+    if sql_texts.blank?
       scoped
     else
-      joins(:emi_event => :clone).where(
-        'UPPER(emi_clone.clone_name) IN (?) OR ' +
-        'UPPER(emi_clone.gene_symbol) IN (?) OR ' +
-        'UPPER(colony_name) IN (?)',
-        terms, terms, terms
-      )
+      sql_text = sql_texts.join(' AND ')
+      joins(:emi_event => :clone).where(sql_text, *sql_params)
     end
   }
 

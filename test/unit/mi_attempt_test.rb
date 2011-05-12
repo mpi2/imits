@@ -5,13 +5,8 @@ require 'test_helper'
 class MiAttemptTest < ActiveSupport::TestCase
   context 'MiAttempt' do
 
-    def default_clone
-      @default_clone ||= Factory.create :clone_EPD0343_1_H06
-    end
-
     def default_mi_attempt
       @default_mi_attempt ||= Factory.create :mi_attempt,
-              :clone => default_clone,
               :blast_strain_id => Strain.find_by_name('Balb/C').id,
               :colony_background_strain_id => Strain.find_by_name('129P2/OlaHsd').id,
               :test_cross_strain_id => Strain.find_by_name('129P2/OlaHsd').id
@@ -230,10 +225,6 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_should have_db_column(:is_released_from_genotyping).of_type(:boolean).with_options(:default => false, :null => false)
     end
 
-    context 'auditing' do
-      should_eventually 'work'
-    end
-
     context 'before save filter' do
       context 'sum_up_total_chimeras before save' do
         should 'work' do
@@ -252,6 +243,115 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal 0, default_mi_attempt.total_chimeras
         end
       end
+    end
+
+    context '::search scope' do
+
+      setup do
+        @clone1 = Factory.create :clone_EPD0343_1_H06
+        @clone2 = Factory.create :clone_EPD0127_4_E01
+        @clone3 = Factory.create :clone_EPD0029_1_G04
+      end
+
+      should 'return all results when not given any search terms' do
+        results = MiAttempt.search(:search_terms => [])
+        assert_equal 4, results.size
+      end
+
+      should 'return all results when only blank lines are in search terms' do
+        results = MiAttempt.search(:search_terms => ["", "\t", "    "])
+        assert_equal 4, results.size
+      end
+
+      should 'work for single clone' do
+        results = MiAttempt.search(:search_terms => ['EPD0127_4_E01'])
+        assert_equal 3, results.size
+        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+      end
+
+      should 'work for single clone case-insensitively' do
+        results = MiAttempt.search(:search_terms => ['epd0127_4_E01'])
+        assert_equal 3, results.size
+        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+      end
+
+      should 'work for multiple clones' do
+        results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'EPD0343_1_H06'])
+        assert_equal 4, results.size
+        assert_include results, @clone1.mi_attempts.first
+        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+        assert_not_include results, @clone3.mi_attempts.first
+      end
+
+      should 'work for single gene symbol' do
+        results = MiAttempt.search(:search_terms => ['Myo1c'])
+        assert_equal 1, results.size
+        assert_include results, @clone1.mi_attempts.first
+      end
+
+      should 'work for single gene symbol case-insensitively' do
+        results = MiAttempt.search(:search_terms => ['myo1C'])
+        assert_equal 1, results.size
+        assert_include results, @clone1.mi_attempts.first
+      end
+
+      should 'work for multiple gene symbols' do
+        results = MiAttempt.search(:search_terms => ['Trafd1', 'Myo1c'])
+        assert_equal 4, results.size
+        assert_include results, @clone1.mi_attempts.first
+        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+        assert_not_include results, @clone3.mi_attempts.first
+      end
+
+      should 'work for single colony name' do
+        results = MiAttempt.search(:search_terms => ['MBSS'])
+        assert_equal 2, results.size
+        @clone2.mi_attempts.each { |mi| assert_include results, mi if mi.colony_name == 'MBSS' }
+        assert_not_include results, @clone3.mi_attempts.first
+      end
+
+      should 'work for single colony name case-insensitively' do
+        results = MiAttempt.search(:search_terms => ['mbss'])
+        assert_equal 2, results.size
+        @clone2.mi_attempts.each { |mi| assert_include results, mi if mi.colony_name == 'MBSS' }
+        assert_not_include results, @clone3.mi_attempts.first
+      end
+
+      should 'work for multiple colony names' do
+        results = MiAttempt.search(:search_terms => ['MBSS', 'WBAA'])
+        assert_equal 3, results.size
+        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+        assert_not_include results, @clone3.mi_attempts.first
+      end
+
+      should 'work when mixing clone names, gene symbols and colony names' do
+        results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Myo1c', 'MBFD'])
+        assert_equal 5, results.size
+        assert_include results, @clone1.mi_attempts.first
+        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+        assert_include results, @clone3.mi_attempts.first
+      end
+
+      should 'not have duplicates in results' do
+        results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Trafd1'])
+        assert_equal 3, results.size
+        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+      end
+
+      should 'be orderable' do
+        results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Trafd1']).order('emi_clones.clone_name DESC')
+      end
+
+      should 'also search by production centre id in addition to other terms' do
+        results = MiAttempt.search(:search_terms => ['cbx7'],
+          :production_centre_id => Centre.find_by_name('UCD').id)
+        assert_equal 1, results.size
+        assert_equal 'EPD0013_1_F05', results.first.clone.clone_name
+      end
+    end
+
+    context 'auditing' do
+      should_eventually 'work'
     end
 
   end

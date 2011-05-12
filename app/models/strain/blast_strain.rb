@@ -5,9 +5,11 @@ class Strain::BlastStrain < ActiveRecord::Base
   delegate :name, :to => :strain
 end
 
+
 # == Schema Information
+# Schema version: 20110421150000
 #
-# Table name: strain_blast_strain_ids
+# Table name: strain_blast_strains
 #
 #  id         :integer         not null, primary key
 #  created_at :datetime

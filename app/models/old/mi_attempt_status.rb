@@ -2,15 +2,16 @@ class Old::MiAttemptStatus < Old::ModelBase
   set_table_name 'emi_status_dict'
 end
 
+
 # == Schema Information
-# Schema version: 20110311153640
+# Schema version: 20110421150000
 #
 # Table name: emi_status_dict
 #
-#  id          :integer         not null, primary key
+#  id          :decimal(, )     not null, primary key
 #  name        :string(512)
 #  description :string(4000)
 #  order_by    :decimal(, )
-#  active      :boolean
+#  active      :boolean(1)
 #
 

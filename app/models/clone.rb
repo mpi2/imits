@@ -48,7 +48,9 @@ class Clone < ActiveRecord::Base
 end
 
 
+
 # == Schema Information
+# Schema version: 20110421150000
 #
 # Table name: clones
 #
@@ -56,7 +58,7 @@ end
 #  clone_name                       :text            not null
 #  marker_symbol                    :text            not null
 #  allele_name_superscript_template :text            not null
-#  allele_type         :text
+#  allele_type                      :text
 #  pipeline_id                      :integer         not null
 #  created_at                       :datetime
 #  updated_at                       :datetime

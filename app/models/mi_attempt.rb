@@ -120,7 +120,9 @@ class MiAttempt < ActiveRecord::Base
 end
 
 
+
 # == Schema Information
+# Schema version: 20110421150000
 #
 # Table name: mi_attempts
 #
@@ -160,7 +162,7 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
-#  mouse_allele_type      :text
+#  mouse_allele_type                               :text
 #  qc_southern_blot_id                             :integer
 #  qc_five_prime_lr_pcr_id                         :integer
 #  qc_five_prime_cassette_integrity_id             :integer
@@ -173,6 +175,8 @@ end
 #  qc_mutant_specific_sr_pcr_id                    :integer
 #  qc_loxp_confirmation_id                         :integer
 #  qc_three_prime_lr_pcr_id                        :integer
+#  is_public                                       :boolean         default(TRUE), not null
+#  is_released_from_genotyping                     :boolean         default(FALSE), not null
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
 #

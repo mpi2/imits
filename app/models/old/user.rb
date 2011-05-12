@@ -20,25 +20,26 @@ class Old::User < Old::ModelBase
 
 end
 
+
 # == Schema Information
-# Schema version: 20110311153640
+# Schema version: 20110421150000
 #
 # Table name: per_person
 #
-#  id            :integer         not null, primary key
+#  id            :integer(38)     not null, primary key
 #  first_name    :string(128)
 #  last_name     :string(128)
 #  password_hash :string(128)
 #  user_name     :string(32)
 #  email         :string(1024)
 #  address       :string(2048)
-#  centre_id     :integer
-#  creator_id    :integer
+#  centre_id     :integer(38)
+#  creator_id    :integer(38)
 #  created_date  :datetime
 #  edited_by     :string(128)
 #  edit_date     :datetime
-#  check_number  :integer         default(0)
-#  active        :boolean
-#  hidden        :boolean
+#  check_number  :integer(38)     default(0)
+#  active        :boolean(1)
+#  hidden        :boolean(1)
 #
 

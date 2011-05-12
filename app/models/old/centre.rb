@@ -2,17 +2,18 @@ class Old::Centre < Old::ModelBase
   set_table_name 'per_centre'
 end
 
+
 # == Schema Information
-# Schema version: 20110311153640
+# Schema version: 20110421150000
 #
 # Table name: per_centre
 #
-#  id           :integer         not null, primary key
 #  name         :string(128)
-#  creator_id   :integer
+#  id           :decimal(, )     not null, primary key
+#  creator_id   :decimal(, )
 #  edit_date    :datetime
 #  edited_by    :string(128)
-#  check_number :integer
+#  check_number :decimal(, )
 #  created_date :datetime
 #
 

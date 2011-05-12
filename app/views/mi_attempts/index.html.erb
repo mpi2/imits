@@ -3,26 +3,28 @@
 <div id="mi-attempts-form" class="container_12">
 
   <div class="grid_4">
-    <p id="search-message">
+    <p class="large-text">
       Enter some search terms, separated by new-lines.
       You can use <em>clone names</em>, <em>gene symbols</em>,
       and <em>colony names</em>.
     </p>
   </div>
 
-  <div class="grid_4 suffix_4">
-    <%= form_tag mi_attempts_path, :method => :get do %>
-      <div>
-        <textarea cols="10" rows="10" name="search_terms" id="search-terms" class="initial-focus"><%= @search_terms.join "\n" %></textarea>
-      </div>
+  <%= form_tag mi_attempts_path, :method => :get do %>
+    <div class="grid_4">
+      <textarea cols="10" rows="10" name="search_terms" id="search-terms" class="initial-focus"><%= @search_terms.join "\n" %></textarea>
+    </div>
 
-      <div id="buttons">
-        <input id="submit" type="submit" value="Search" />
-        <button type="button" id="clear-search-terms-button">Clear</button>
-      </div>
-    <% end %>
+    <div class="grid_4 large-text">
+      <label for="production_centre_id">Filter by Production Centre</label><br/>
+      <%= select_tag 'production_centre_id', options_from_collection_for_select([Centre.new]+Centre.all, :id, :name, @production_centre_id) %>
+    </div>
 
-  </div>
+    <div id="buttons" class="prefix_4 grid_4">
+      <input id="submit" type="submit" value="Search" />
+      <button type="button" id="clear-search-terms-button">Clear</button>
+    </div>
+  <% end %>
 
   <div class="clear"></div>
 

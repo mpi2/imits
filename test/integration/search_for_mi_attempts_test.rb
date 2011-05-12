@@ -14,7 +14,6 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
   context 'As valid user:' do
     setup do
-      create_common_test_objects
 =begin TODO
       visit '/logout'
       login
@@ -24,6 +23,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
     context 'searching for mi attempts by clone name' do
       context 'with a single clone' do
         setup do
+          create_common_test_objects
           visit '/mi_attempts'
           fill_in 'search_terms', :with => 'EPD0343_1_H06'
           click_button 'Search'
@@ -84,6 +84,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
     context 'searching for mi attempts by gene symbol' do
       setup do
+        create_common_test_objects
         visit '/'
         assert_false page.has_css? 'x-grid3'
         fill_in 'search_terms', :with => 'Trafd1'
@@ -97,6 +98,37 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
       should 'not find unmatched clones' do
         assert page.has_no_css?('.x-grid3-cell-inner', :text => 'EPD0343_1_H06')
+      end
+    end
+
+    context 'searching by a term and filtering by production centre' do
+      setup do
+        @clone1 = Factory.create :clone_EPD0343_1_H06
+        @clone2 = Factory.create :clone_EPD0127_4_E01
+        @clone3 = Factory.create :clone_EPD0029_1_G04
+
+        @mi_attempt = Factory.create(:populated_mi_attempt, :clone => @clone1,
+          :production_centre => Centre.find_by_name!('ICS'))
+
+        visit '/'
+        fill_in 'search_terms', :with => "myo1c\n"
+        select 'ICS', :from => 'production_centre_id'
+        click_button 'Search'
+        sleep 3
+      end
+
+      should 'show results that match the search terms and the filter' do
+        assert page.has_css? '.x-grid3-col-clone__clone_name', :text => @mi_attempt.clone.clone_name
+      end
+
+      should 'not show things that only match one of the terms but not the other' do
+        assert_equal 2, @clone1.mi_attempts.size
+        assert_equal 1, all('.x-grid3-col-clone__clone_name').size
+        assert page.has_no_css? '.x-grid3-col-production_centre__name', :text => 'WTSI'
+      end
+
+      should 'have filtered production centre pre-selected in dropdown' do
+        assert page.has_css? '#production_centre_id option[selected="selected"][value="2"]'
       end
     end
 

@@ -8,7 +8,7 @@ end
 Factory.define :clone do |clone|
   clone.sequence(:clone_name) {|n| "Auto-generated Clone Name #{n}" }
   clone.marker_symbol "Auto-generated Marker Symbol"
-  clone.allele_name_superscript_template "Auto-generated Allele Name Superscript Template"
+  clone.allele_name_superscript 'tm1a(AUTO)Generated'
   clone.association :pipeline
 end
 
@@ -18,7 +18,7 @@ end
 
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :clone
-  mi_attempt.production_centre { Centre.all.sample }
+  mi_attempt.production_centre { Centre.find_by_name('WTSI') }
 end
 
 #Specifics
@@ -32,6 +32,7 @@ end
 Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.blast_strain { Strain::BlastStrain.all.sample }
   mi_attempt.test_cross_strain { Strain::TestCrossStrain.all.sample }
+  mi_attempt.production_centre { Centre.all.sample }
   mi_attempt.colony_background_strain { Strain::ColonyBackgroundStrain.all.sample }
   mi_attempt.colony_name { (1..4).map {|i| ('A'..'Z').to_a.sample}.join }
 

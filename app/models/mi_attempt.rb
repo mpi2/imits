@@ -105,7 +105,8 @@ class MiAttempt < ActiveRecord::Base
   end
 
   scope :search, proc { |params|
-    terms, production_centre_id = params.symbolize_keys.values_at(:search_terms, :production_centre_id)
+    terms, production_centre_id, mi_attempt_status_id = params.symbolize_keys.values_at(
+      :search_terms, :production_centre_id, :mi_attempt_status_id)
 
     terms ||= []
     terms = terms.dup.delete_if {|i| i.strip.empty?}
@@ -125,6 +126,11 @@ class MiAttempt < ActiveRecord::Base
     unless production_centre_id.blank?
       sql_texts << 'mi_attempts.production_centre_id = ?'
       sql_params << production_centre_id
+    end
+
+    unless mi_attempt_status_id.blank?
+      sql_texts << 'mi_attempts.mi_attempt_status_id = ?'
+      sql_params << mi_attempt_status_id
     end
 
     if sql_texts.blank?

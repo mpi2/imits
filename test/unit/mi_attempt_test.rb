@@ -347,13 +347,41 @@ class MiAttemptTest < ActiveSupport::TestCase
         results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Trafd1']).order('clones.clone_name DESC').all
       end
 
-      should 'also search by production centre id in addition to other terms' do
+      should 'search by terms and filter by production centre' do
         mi = Factory.create(:mi_attempt, :clone => @clone1,
           :production_centre => Centre.find_by_name!('ICS'))
         results = MiAttempt.search(:search_terms => ['myo1c'],
           :production_centre_id => Centre.find_by_name!('ICS').id)
         assert_equal 1, results.size
         assert_equal mi.id, results.first.id
+      end
+
+      should 'filter by status' do
+        mi1 = Factory.create(:mi_attempt, :clone => @clone1,
+          :mi_attempt_status => MiAttemptStatus.good)
+        mi2 = Factory.create(:mi_attempt, :clone => @clone1,
+          :mi_attempt_status => MiAttemptStatus.good)
+
+        results = MiAttempt.search(
+          :mi_attempt_status_id => MiAttemptStatus.good)
+        assert_equal 2, results.size
+        assert_include results, mi1
+        assert_include results, mi2
+      end
+
+      should 'search by search term and filter by both production centre and status' do
+        production_centre = Centre.find_by_name!('WTSI')
+        status = MiAttemptStatus.create!(:description => 'Nonsense')
+
+        mi = Factory.create(:mi_attempt, :clone => @clone2,
+          :mi_attempt_status => status,
+          :production_centre => production_centre)
+
+        results = MiAttempt.search(:terms => [@clone2.marker_symbol],
+          :mi_attempt_status_id => status.id,
+          :production_centre_id => production_centre.id)
+        assert_include results, mi
+        assert_equal 1, results.size
       end
     end
 

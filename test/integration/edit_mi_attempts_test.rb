@@ -85,7 +85,7 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
         @default_mi_attempt.reload
         assert_equal 'e', @default_mi_attempt.mouse_allele_type
 
-        assert page.has_css?('.x-grid3-col-mouse_allele_name', :text => 'Myo1c<sup>tm1e(EUCOMM)Wtsi</sup>')
+        assert page.has_css?('.x-grid3-col-mouse_allele_name', :text => 'Myo1ctm1e(EUCOMM)Wtsi')
       end
 
       should 'be settable to nil' do

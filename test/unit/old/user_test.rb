@@ -13,8 +13,9 @@ class Old::UserTest < ActiveSupport::TestCase
   end
 
   should 'authenticate with correct password' do
-    assert_not_nil Old::User.find_by_user_name('rrs')
-    assert_equal Old::User.find_by_user_name('rrs'), Old::User.authenticate('rrs', 'password')
+    expected = Old::User.find_by_user_name('aq2')
+    assert_not_nil expected
+    assert_equal expected, Old::User.authenticate(expected.user_name, 'password')
   end
 
   should 'not authenticate with incorrect password' do

@@ -344,11 +344,11 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be orderable' do
-        results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Trafd1']).order('emi_clones.clone_name DESC')
+        results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Trafd1']).order('clones.clone_name DESC').all
       end
 
       should 'also search by production centre id in addition to other terms' do
-        mi = Factory.create(:populated_mi_attempt, :clone => @clone1,
+        mi = Factory.create(:mi_attempt, :clone => @clone1,
           :production_centre => Centre.find_by_name!('ICS'))
         results = MiAttempt.search(:search_terms => ['myo1c'],
           :production_centre_id => Centre.find_by_name!('ICS').id)

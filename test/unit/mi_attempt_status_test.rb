@@ -8,6 +8,8 @@ class MiAttemptStatusTest < ActiveSupport::TestCase
     should validate_presence_of :description
     should validate_uniqueness_of :description
 
+    should have_many :mi_attempts
+
     context 'easy-access methods' do
       should 'include in_progress' do
         assert_equal 'In progress', MiAttemptStatus.in_progress.description

@@ -299,6 +299,8 @@ module MiAttemptsHelper
         :border => true,
         :header => false,
 
+        :title => 'Micro-Injection Attempts',
+
         :clicks_to_edit => 1,
         :rows_per_page => 20,
         :stripe_rows => true,
@@ -335,7 +337,7 @@ module MiAttemptsHelper
       config_up_to_now.merge(
         :name => :micro_injection_attempts_widget,
         :layout => :fit,
-        :title => 'Micro-Injection Attempts',
+        :autoHeight => true,
         :items => [
           { :name => :micro_injection_attempts,
             :class_name => 'MiAttemptsHelper::MiAttemptsGrid',
@@ -346,19 +348,35 @@ module MiAttemptsHelper
         ]
       )
     end
+
+    js_method :manageResize, <<-JS
+      function() {
+        var windowHeight = window.innerHeight - 30;
+        if(!windowHeight) { // fricking IE
+          windowHeight = document.documentElement.clientHeight - 30;
+        }
+        var newGridHeight = windowHeight - this.grid.getEl().getTop();
+        if(newGridHeight < 200) {
+          newGridHeight = 200;
+        }
+        this.grid.setHeight(newGridHeight);
+        this.doLayout();
+      }
+    JS
   end
 
   def mi_attempts_table(search_params)
     onready = javascript_tag(<<-'EOL')
       Ext.onReady(function(){
         var widget = Netzke.page.microInjectionAttemptsWidget;
-        Ext.EventManager.onWindowResize(widget.doLayout, widget);
+        Ext.EventManager.onWindowResize(widget.manageResize, widget);
+        widget.manageResize();
       });
     EOL
 
     netzke(:micro_injection_attempts_widget,
       :class_name => 'MiAttemptsHelper::MiAttemptsWidget',
-      :current_username => nil, # TODO current_user.user_name,
+      # TODO :current_username => current_user.user_name,
       :search_params => search_params) + "\n" + onready
   end
 end

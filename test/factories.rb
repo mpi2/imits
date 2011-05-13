@@ -21,8 +21,6 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.production_centre { Centre.find_by_name('WTSI') }
 end
 
-#Specifics
-
 Factory.define :randomly_populated_clone, :parent => :clone do |clone|
   clone.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
   clone.allele_name_superscript_template 'tm1@(EUCOMM)Wtsi'
@@ -35,6 +33,7 @@ Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_att
   mi_attempt.production_centre { Centre.all.sample }
   mi_attempt.colony_background_strain { Strain::ColonyBackgroundStrain.all.sample }
   mi_attempt.colony_name { (1..4).map {|i| ('A'..'Z').to_a.sample}.join }
+  mi_attempt.mi_attempt_status { MiAttemptStatus.all.sample }
 
   MiAttempt.columns.each do |column|
     next if ['id', 'created_at', 'updated_at'].include?(column.name.to_s)
@@ -53,6 +52,8 @@ Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_att
     mi_attempt.send(column_name) { QcStatus.all.sample }
   end
 end
+
+#Specifics
 
 Factory.define :clone_EPD0127_4_E01, :parent => :clone do |clone|
   clone.clone_name 'EPD0127_4_E01'

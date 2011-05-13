@@ -11,8 +11,11 @@ class MiAttemptsController < ApplicationController
       @search_params[:search_terms] = params[:search_terms].lines.collect(&:strip)
     end
 
-    if !params[:production_centre_id].blank?
-      @search_params[:production_centre_id] = params[:production_centre_id].to_i
+    [:production_centre_id, :mi_attempt_status_id].each do |filter_attr|
+      if !params[filter_attr].blank?
+        @search_params[filter_attr] = params[filter_attr].to_i
+      end
     end
   end
+
 end

@@ -136,6 +136,42 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
     end
 
+    context 'searching by a term and filtering by status' do
+      setup do
+        @clone1 = Factory.create :clone_EPD0343_1_H06
+        @clone2 = Factory.create :clone_EPD0127_4_E01
+        @clone3 = Factory.create :clone_EPD0029_1_G04
+
+        @status = MiAttemptStatus.create!(:description => 'Nonsense')
+
+        @mi_attempt = Factory.create(:mi_attempt, :clone => @clone2,
+          :mi_attempt_status => @status)
+
+        mi_attempt_to_not_be_found = Factory.create(:mi_attempt, :clone => @clone1,
+          :mi_attempt_status => @status)
+
+        sleep 3
+        visit '/'
+        fill_in 'search_terms', :with => "trafd1\n"
+        select 'Nonsense', :from => 'mi_attempt_status_id'
+        click_button 'Search'
+        sleep 3
+      end
+
+      should 'show results that match the search terms and the filter' do
+        assert page.has_css? '.x-grid3-col-clone__clone_name', :text => @mi_attempt.clone.clone_name
+        assert page.has_css? '.x-grid3-col-mi_attempt_status__description', :text => 'Nonsense'
+      end
+
+      should 'not show any non-matching mi attempts' do
+        assert_equal 1, all('.x-grid3-col-clone__clone_name').size
+      end
+
+      should 'have filtered status pre-selected in dropdown' do
+        assert page.has_css? "#mi_attempt_status_id option[selected='selected'][value='#{@status.id}']"
+      end
+    end
+
     should 'work for search with no terms' do
       visit '/'
       click_button 'Search'

@@ -16,8 +16,15 @@
     </div>
 
     <div class="grid_4 large-text">
-      <label for="production_centre_id">Filter by Production Centre</label><br/>
-      <%= select_tag 'production_centre_id', options_from_collection_for_select([Centre.new]+Centre.all, :id, :name, @search_params[:production_centre_id]) %>
+      <p>
+        <label for="production_centre_id">Filter by Production Centre</label><br/>
+        <%= select_tag 'production_centre_id', options_from_collection_for_select([Centre.new]+Centre.all, :id, :name, @search_params[:production_centre_id]) %>
+      </p>
+
+      <p>
+        <label for="mi_attempt_status_id">Filter by Status</label><br/>
+        <%= select_tag 'mi_attempt_status_id', options_from_collection_for_select([MiAttemptStatus.new]+MiAttemptStatus.all, :id, :description, @search_params[:mi_attempt_status_id]) %>
+      </p>
     </div>
 
     <div id="buttons" class="prefix_4 grid_4">

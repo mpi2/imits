@@ -19,7 +19,7 @@ class SampleData
 
       clone = Factory.create(:randomly_populated_clone, :pipeline_id => clone_data[:pipeline_id], :clone_name => clone_data[:clone_name])
 
-      3.times do
+      10.times do
         Factory.create(:randomly_populated_mi_attempt, :clone => clone)
       end
     end

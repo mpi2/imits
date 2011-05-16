@@ -6,8 +6,6 @@ set :branch, 'master'
 set :user, `whoami`.chomp
 
 set :scm, :git
-set :deploy_via, :export
-set :copy_compression, :bz2
 
 set :keep_releases, 5
 set :use_sudo, false

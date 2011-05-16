@@ -1,0 +1,6 @@
+#/bin/bash
+
+rails_cmd=`dirname $0`/rails
+script_name=`basename $0`
+
+exec ${rails_cmd} ${script_name} "$@"

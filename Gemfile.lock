@@ -48,6 +48,8 @@ GEM
     activesupport (3.0.7)
     acts_as_list (0.1.2)
     arel (2.0.9)
+    biomart (0.2.2)
+      builder
     builder (2.1.2)
     capybara (0.4.1.2)
       celerity (>= 0.7.9)
@@ -128,6 +130,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-oracle_enhanced-adapter
+  biomart
   capybara
   database_cleaner
   factory_girl_rails

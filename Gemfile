@@ -7,6 +7,8 @@ gem 'activerecord-oracle_enhanced-adapter'
 gem 'pg'
 gem 'foreigner'
 
+gem 'biomart'
+
 gem 'netzke-core', :git => "http://github.com/skozlov/netzke-core.git"
 gem 'netzke-basepack', :git => "http://github.com/skozlov/netzke-basepack.git"
 gem 'will_paginate', '~>3.0.pre2'

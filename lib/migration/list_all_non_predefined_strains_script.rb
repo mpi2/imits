@@ -12,17 +12,27 @@
 
   distinct_old_strains = Old::MiAttempt.scoped(:select => "distinct #{old_name}").map {|i| i[old_name]}
 
-  strains_needing_cleanup = []
+  strains_needing_cleanup = db_strains.dup
+  found_count = 0
 
   distinct_old_strains.each do |i|
     next if i.nil?
     found = db_strains.find {|a| a == i}
-    unless found
+    if found
+      found_count += 1
+    else
       strains_needing_cleanup << i
     end
   end
 
-  strains_needing_cleanup= strains_needing_cleanup.sort_by {|i| i.to_s.upcase}
+  strains_needing_cleanup = strains_needing_cleanup.sort_by {|i| i.to_s.upcase}
 
-  y({new_name.humanize => strains_needing_cleanup})
+  y(
+    {
+      new_name.humanize => {
+        'names needing cleanup' => strains_needing_cleanup,
+        'names not needing cleanup' => found_count
+      }
+    }
+  )
 end

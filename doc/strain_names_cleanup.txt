@@ -1,0 +1,234 @@
+---
+Blast strains:
+ names needing cleanup:
+
+ - b
+New name: Unknown, please advise.  See clone EPD0103_3_A02
+
+ - B6JIco;B6JTyr<c-Brd> (clone EPD0113_2_B01)
+New name: B6JTyr<c-Brd>
+
+ - Balb/C
+ - Balb/c
+New name: Balb/C
+
+ - Balb/Cam
+ - Balb/cam
+New name: Balb/Cam
+
+ - BALBc/cAnCrl
+As-is
+
+ - Balb/cAnACrl
+ - BALB/cAnACrl
+New name: BALB/cAnACrl
+
+ - BALB/c AnN Crl
+ - Balb/cAnNcrl
+ - BALB/cAnNCrl
+ - BALb/cAnNCrl
+ - Balb/cAnNCrl
+ - BalB/cAnNCrl
+ - BALB/CANnCrl
+ - BALB/CAnNCrl
+ - Balb/cAnnCrl
+New name: BALB/cAnNCrl
+
+ - Balb/cJ
+As-is
+
+ - Balb/cN
+ - Balb/CN
+New name: Balb/CN
+
+ - BalbCAnNCrl (clone EPD0069_1_G06)
+ - BalbcAnNCRl (clone HEPD0530_4_C10)
+Unknown: please advise
+
+ - C3Hxbalb/c
+As-is
+
+ - C567Bl/6J
+ - C57B//6J
+ - C57B6J
+ - C57BL
+ - C57BL/5J
+ - C57BL/6
+ - C57BL/6J
+ - C57BL/6j
+ - C57bl/6j
+ - C57Bl/6j
+ - C57Bl/6J
+ - C57Bl6?j
+ - C57BL6J
+ - C57BL6/J
+New name: C57BL/6J
+
+ - C57Bl/6J Albino
+ - C57BL/6J Albino
+New name: C57BL/6J Albino
+
+ - C57BL/6J-A<W-J>/J
+As-is
+
+ - C57BL/6J-Tyr<c-2J>
+As-is
+
+ - C57BL/6J-Tyr<c-2J>/J
+As-is
+
+ - C57BL/6JcBrd/cBrd
+As-is
+
+ - C57BL/6N
+As-is
+
+ - C57BL/6NCrl
+As-is
+
+ - C57BL6/NCrl
+As-is
+
+ - CD1
+As-is
+
+ - FVB
+As-is
+
+ - Swiss Webster
+As-is
+
+
+
+---
+Test cross strains:
+ names needing cleanup:
+
+ - 129P2/OlaHsd
+As-is
+
+ - 129/P2
+As-is
+
+ - 129S5
+As-is
+
+ - B6JIco
+As-is
+
+ - B6JTyr<c-Brd>
+As-is
+
+ - B6JIco;B6JTyr<c-Brd> (clone EPD0113_2_B01)
+Unknown; please advise
+
+ - B6JTyr<c-Brd>;B6N (many clones)
+Unknown; please advise
+
+ - B6N
+As-is
+
+ - B6N/TacDen
+As-is
+
+ - B6N/TacDen;B6JTyr<c-Brd>;B6N
+Unknown; please advise
+
+ - B6N/TacDen;B6N
+Unknown; please advise
+
+ - B6N/TacUSA
+As-is
+
+ - B6N/TacUSA;B6N
+Unknown; please advise
+
+ - B6Tyr<c-Brd>
+As-is
+
+ - c (clone EPD0065_4_B07)
+Unknown; please advise
+
+ - C57B6NTac
+As-is
+
+ - C57BL/6J
+As-is
+
+ - C57BL/6N
+As-is
+
+ - C57BL/6NTAC
+ - C57BL/6Ntac
+ - C57BL/6NTac
+ - C57bl/6ntac
+New name: C57BL/6NTac
+
+ - C57BL/6NTacDen
+As-is
+
+ - C57BL/6NTacUSA
+As-is
+
+
+
+
+---
+Colony background strains:
+ names needing cleanup:
+
+ - 129/P2
+As-is
+
+ - 129P2/OlaHsd
+As-is
+
+ - 129S5
+As-is
+
+ - 129S5 or B6JTyr<c-Brd>
+ - 129S5 or B6N/TacDen
+Unknown; please advise
+
+ - B6JIco
+As-is
+
+ - B6JIco or B6N/TacDen
+Unknown; please advise
+
+ - B6JTyr<c-Brd>
+As-is
+
+ - B6JTyr<c-Brd> or B6N/TacDen
+ - B6JTyr<c-Brd> or B6N/TacDen or CB
+ - B6JTyr<c-Brd> or B6N/TacUSA
+Unknown; please advise
+
+ - B6N/TacDen
+
+ - B6N/TacDen or B6N/TacUSA
+Unknown; please advise
+
+ - B6N/TacUSA
+As-is
+
+ - C57BL/6J
+As-is
+
+ - C57BL/6N
+As-is
+
+ - C57BL/6Nac
+ - C57BL/6NTac
+ - C57bl/6ntac
+ - C57BL/6Ntac
+ - C57BL/6NTAC
+ - C57B6NTac
+ - C57BL6/NTac
+New name: C57BL/6NTac
+
+ - C57BL/6NTacDen
+As-is
+
+ - C57BL/6NTacUSA
+As-is

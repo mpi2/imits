@@ -22,6 +22,10 @@ class CloneTest < ActiveSupport::TestCase
     should have_db_column(:pipeline_id).with_options(:null => false)
     should validate_presence_of :pipeline
 
+    should 'have mgi_accession_id' do
+      assert_should have_db_column(:mgi_accession_id).of_type(:text).with_options(:null => false)
+    end
+
     context 'allele_name_superscript_template' do
       should 'have DB column' do
         assert_should have_db_column(:allele_name_superscript_template).with_options(:null => false)

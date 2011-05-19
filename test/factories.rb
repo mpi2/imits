@@ -10,6 +10,7 @@ Factory.define :clone do |clone|
   clone.marker_symbol "Auto-generated Marker Symbol"
   clone.allele_name_superscript 'tm1a(AUTO)Generated'
   clone.association :pipeline
+  clone.sequence(:mgi_accession_id) {|n| "MGI:#{"%.10i" % n}"}
 end
 
 Factory.define :centre do |centre|

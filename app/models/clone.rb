@@ -86,6 +86,7 @@ class Clone < ActiveRecord::Base
       :marker_symbol => query[0]['marker_symbol'],
       :allele_name_superscript => query[0]['allele_symbol_superscript'],
       :pipeline => Pipeline.find_by_name!(query[0]['pipeline']),
+      :mgi_accession_id => query[0]['mgi_accession_id']
     )
   end
 

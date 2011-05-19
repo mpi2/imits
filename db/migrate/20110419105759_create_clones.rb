@@ -6,6 +6,7 @@ class CreateClones < ActiveRecord::Migration
       t.text :allele_name_superscript_template, :null => false
       t.text :allele_type
       t.references :pipeline, :null => false
+      t.text :mgi_accession_id, :null => false
 
       t.timestamps
     end

@@ -38,7 +38,8 @@ class Kermits2::Migration
 
       mi_attempt = MiAttempt.new(
         :clone => clone,
-        :production_centre => Centre.first,
+        :production_centre => Centre.find_by_name!(old_mi_attempt.production_centre.name),
+        :distribution_centre => Centre.find_by_name!(old_mi_attempt.distribution_centre.name),
 
         # Transfer details
         :total_blasts_injected => old_mi_attempt.num_blasts,

@@ -81,7 +81,7 @@ class Clone < ActiveRecord::Base
       raise NotFoundError, clone_name.inspect
     end
 
-    clone = Clone.create!(
+    Clone.create!(
       :clone_name => query[0]['escell_clone'],
       :marker_symbol => query[0]['marker_symbol'],
       :allele_name_superscript => query[0]['allele_symbol_superscript'],

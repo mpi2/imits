@@ -50,7 +50,12 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       end
 
       should 'migrate its centres' do
-        flunk
+        Kermits2::Migration.run(:mi_attempt_ids => [11029])
+        assert_equal 1, MiAttempt.count
+        mi_attempt = MiAttempt.first
+
+        assert_equal 'WTSI', mi_attempt.production_centre.name
+        assert_equal 'CNB', mi_attempt.distribution_centre.name
       end
 
       should 'migrate numeric fields from transfer details' do

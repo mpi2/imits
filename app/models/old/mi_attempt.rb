@@ -18,7 +18,7 @@ class Old::MiAttempt < Old::ModelBase
 
   belongs_to :mi_attempt_status, :foreign_key => 'status_dict_id'
 
-  delegate :clone, :proposed_mi_date, :distribution_centre, :to => :emi_event
+  delegate :clone, :proposed_mi_date, :distribution_centre, :production_centre, :to => :emi_event
 
   delegate :clone_name, :gene_symbol, :allele_name, :to => :clone
 

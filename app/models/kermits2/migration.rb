@@ -30,8 +30,11 @@ class Kermits2::Migration
     mi_attempt_ids.each do |mi_attempt_id|
       old_mi_attempt = Old::MiAttempt.find(mi_attempt_id)
 
-      clone = Clone.update_or_create_from_marts_by_clone_name(
-        old_mi_attempt.clone_name)
+      clone = Clone.find_by_clone_name(old_mi_attempt.clone_name)
+      if ! clone
+	clone = Clone.update_or_create_from_marts_by_clone_name(
+          old_mi_attempt.clone_name)
+      end
 
       mi_attempt = MiAttempt.new(
         :clone => clone,

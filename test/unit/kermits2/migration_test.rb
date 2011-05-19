@@ -8,6 +8,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
     setup do
       Pipeline.destroy_all
       Centre.destroy_all
+      assert_equal 0, MiAttempt.count
     end
 
     should 'work from the script' do
@@ -33,10 +34,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
     end
 
     context 'migrating an mi attempt' do
-      should 'migrate across the clone using data from marts if it does not already exist' do
-        old_mi_attempt = Old::MiAttempt.find(11029)
-        assert_not_nil old_mi_attempt
-
+      should 'create clone using data from marts if it does not already exist' do
         Kermits2::Migration.run(:mi_attempt_ids => [11029])
         assert_equal 1, MiAttempt.count
 
@@ -44,6 +42,11 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         clone = mi_attempt.clone
 
         assert_equal 'EPD0127_4_E01', clone.clone_name
+      end
+
+      should 'create 2 mi attempts of the same clone' do
+        Kermits2::Migration.run(:mi_attempt_ids => [11029, 11101])
+        assert_equal 2, MiAttempt.count
       end
 
       should 'migrate its centres' do

@@ -45,6 +45,50 @@ class Clone < ActiveRecord::Base
     return "#{marker_symbol}<sup>#{allele_name_superscript}</sup>"
   end
 
+  IDCC_TARG_REP_DATASET = Biomart::Dataset.new(
+    "http://www.knockoutmouse.org/biomart",
+    { :name => "idcc_targ_rep" }
+  )
+
+  DCC_DATASET = Biomart::Dataset.new(
+    "http://www.knockoutmouse.org/biomart",
+    { :name => "dcc" }
+  )
+
+  class NotFoundError < RuntimeError; end
+
+  def self.update_or_create_from_marts_by_clone_name(clone_name)
+    query = IDCC_TARG_REP_DATASET.search(
+      :filters => { "escell_clone" => [clone_name] },
+      :attributes => [
+        "escell_clone",
+        "pipeline",
+        "mgi_accession_id",
+        "allele_symbol_superscript"
+      ],
+      :process_results => true,
+      :timeout => 300,
+      :federate => [
+        {
+          :dataset => DCC_DATASET,
+          :filters => {},
+          :attributes => ['marker_symbol']
+        }
+      ]
+    )
+
+    if query.blank?
+      raise NotFoundError, clone_name.inspect
+    end
+
+    clone = Clone.create!(
+      :clone_name => query[0]['escell_clone'],
+      :marker_symbol => query[0]['marker_symbol'],
+      :allele_name_superscript => query[0]['allele_symbol_superscript'],
+      :pipeline => Pipeline.find_by_name!(query[0]['pipeline']),
+    )
+  end
+
 end
 
 

@@ -2,12 +2,21 @@ class Kermits2::Migration
   def self.run(params)
     params.symbolize_keys!
 
+    migrate_pipelines
+
     migrate_centres
 
     migrate_mi_attempts_and_their_clones(params)
   end
 
   private
+
+  def self.migrate_pipelines
+    Old::Pipeline.all.each do |old_pipeline|
+      Pipeline.create!(:name => old_pipeline.name,
+        :description => old_pipeline.description)
+    end
+  end
 
   def self.migrate_centres
     Old::Centre.all.each do |old_centre|

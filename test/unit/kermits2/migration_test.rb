@@ -6,6 +6,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
 
   context 'Kermits2::Migration' do
     setup do
+      Pipeline.destroy_all
       Centre.destroy_all
     end
 
@@ -16,6 +17,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
     should 'migrate across centres' do
       Kermits2::Migration.run(:mi_attempt_ids => [])
 
+      assert_equal 8, Centre.count
       centre_names = Centre.all.collect(&:name)
       assert_include centre_names, 'ICS'
       assert_include centre_names, 'WTSI'
@@ -23,7 +25,11 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
     end
 
     should 'migrate across pipelines' do
-      flunk
+      Kermits2::Migration.run(:mi_attempt_ids => [])
+
+      assert_equal 5, Pipeline.count
+      assert_equal 'EUCOMM consortia', Pipeline.find_by_name('EUCOMM').description
+      assert_equal 'TIGM Gene trap resource', Pipeline.find_by_name('TIGM').description
     end
 
     context 'migrating an mi attempt' do
@@ -40,7 +46,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         assert_equal 'EPD0127_4_E01', clone.clone_name
       end
 
-      should 'migrate centres' do
+      should 'migrate its centres' do
         flunk
       end
 

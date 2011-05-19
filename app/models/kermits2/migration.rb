@@ -30,12 +30,8 @@ class Kermits2::Migration
     mi_attempt_ids.each do |mi_attempt_id|
       old_mi_attempt = Old::MiAttempt.find(mi_attempt_id)
 
-      pipeline = Pipeline.find(:first)
-
-      clone = Clone.create!(:marker_symbol => 'tmp',
-        :allele_name_superscript => 'tm1(TMP)tmp',
-        :clone_name => "RAND_#{rand 999999999999}",
-        :pipeline => pipeline)
+      clone = Clone.update_or_create_from_marts_by_clone_name(
+        old_mi_attempt.clone_name)
 
       mi_attempt = MiAttempt.new(
         :clone => clone,

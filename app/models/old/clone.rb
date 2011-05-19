@@ -1,5 +1,6 @@
 class Old::Clone < Old::ModelBase
   set_table_name 'emi_clone'
+  belongs_to :pipeline, :class_name => 'Old::Pipeline'
 end
 
 

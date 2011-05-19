@@ -81,11 +81,16 @@ class Clone < ActiveRecord::Base
       raise NotFoundError, clone_name.inspect
     end
 
+    pipeline = Pipeline.find_by_name(query[0]['pipeline'])
+    if(!pipeline)
+      pipeline = Pipeline.create!(:name => query[0]['pipeline'])
+    end
+
     Clone.create!(
       :clone_name => query[0]['escell_clone'],
       :marker_symbol => query[0]['marker_symbol'],
       :allele_name_superscript => query[0]['allele_symbol_superscript'],
-      :pipeline => Pipeline.find_by_name!(query[0]['pipeline']),
+      :pipeline => pipeline,
       :mgi_accession_id => query[0]['mgi_accession_id']
     )
   end

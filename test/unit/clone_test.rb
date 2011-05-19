@@ -97,6 +97,14 @@ class CloneTest < ActiveSupport::TestCase
           assert_equal 'EUCOMM', clone.pipeline.name
           assert_equal 'MGI:1924893', clone.mgi_accession_id
         end
+
+        should 'create pipeline if it does not already exist' do
+          assert_nil Clone.find_by_clone_name 'EPD0555_1_E10'
+          clone = Clone.update_or_create_from_marts_by_clone_name 'EPD0555_1_E10'
+          assert_kind_of Clone, clone
+          assert_kind_of Clone, Clone.find_by_clone_name('EPD0555_1_E10')
+          assert_equal 'KOMP-CSD', clone.pipeline.name
+        end
       end
     end
 

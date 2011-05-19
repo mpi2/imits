@@ -11,7 +11,6 @@ class PipelineTest < ActiveSupport::TestCase
     should validate_presence_of :name
     should validate_uniqueness_of :name
 
-    should have_db_column(:description).with_options(:null => false)
-    should validate_presence_of :description
+    should have_db_column(:description).with_options(:null => true)
   end
 end

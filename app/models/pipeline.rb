@@ -1,6 +1,5 @@
 class Pipeline < ActiveRecord::Base
   validates :name       , :presence => true, :uniqueness => true
-  validates :description, :presence => true
 end
 
 # == Schema Information
@@ -9,7 +8,7 @@ end
 #
 #  id          :integer         not null, primary key
 #  name        :text            not null
-#  description :text            not null
+#  description :text
 #  created_at  :datetime
 #  updated_at  :datetime
 #

@@ -54,6 +54,20 @@ class Kermits2::Migration
         :number_of_males_with_40_to_79_percent_chimerism => old_mi_attempt.number_male_40_to_80_percent,
         :number_of_males_with_80_to_99_percent_chimerism => old_mi_attempt.number_male_gt_80_percent,
         :number_of_males_with_100_percent_chimerism => old_mi_attempt.number_male_100_percent,
+
+        # Chimera mating details
+        :number_of_chimera_matings_attempted => old_mi_attempt.number_chimera_mated,
+        :number_of_chimera_matings_successful => old_mi_attempt.number_chimera_mating_success,
+        :number_of_chimeras_with_glt_from_cct => old_mi_attempt.chimeras_with_glt_from_cct,
+        :number_of_chimeras_with_glt_from_genotyping => old_mi_attempt.chimeras_with_glt_from_genotyp,
+        :number_of_chimeras_with_0_to_9_percent_glt => old_mi_attempt.number_lt_10_percent_glt,
+        :number_of_chimeras_with_10_to_49_percent_glt => old_mi_attempt.number_btw_10_50_percent_glt,
+        :number_of_chimeras_with_50_to_99_percent_glt => old_mi_attempt.number_gt_50_percent_glt,
+        :number_of_chimeras_with_100_percent_glt => old_mi_attempt.number_100_percent_glt,
+        :total_f1_mice_from_matings => old_mi_attempt.total_f1_mice,
+        :number_of_cct_offspring => old_mi_attempt.number_with_cct,
+        :number_of_het_offspring => old_mi_attempt.number_het_offspring,
+        :number_of_live_glt_offspring => old_mi_attempt.number_live_glt_offspring,
       )
 
       mi_attempt.save!

@@ -45,9 +45,19 @@ class Kermits2::Migration
         :total_blasts_injected => old_mi_attempt.num_blasts,
         :total_transferred => old_mi_attempt.num_transferred,
         :number_surrogates_receiving => old_mi_attempt.num_recipients,
+
+        # Litter details
+        :total_pups_born => old_mi_attempt.number_born,
+        :total_female_chimeras => old_mi_attempt.number_female_chimeras,
+        :total_male_chimeras => old_mi_attempt.number_male_chimeras,
+        :number_of_males_with_0_to_39_percent_chimerism => old_mi_attempt.number_male_lt_40_percent,
+        :number_of_males_with_40_to_79_percent_chimerism => old_mi_attempt.number_male_40_to_80_percent,
+        :number_of_males_with_80_to_99_percent_chimerism => old_mi_attempt.number_male_gt_80_percent,
+        :number_of_males_with_100_percent_chimerism => old_mi_attempt.number_male_100_percent,
       )
 
       mi_attempt.save!
     end
   end
+
 end

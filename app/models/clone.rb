@@ -8,7 +8,6 @@ class Clone < ActiveRecord::Base
 
   validates :clone_name, :presence => true, :uniqueness => true
   validates :marker_symbol, :presence => true
-  validates :allele_name_superscript_template, :presence => true
   validates :pipeline, :presence => true
 
   attr_protected :allele_name_superscript_template
@@ -24,6 +23,12 @@ class Clone < ActiveRecord::Base
   class AlleleNameSuperscriptFormatUnrecognizedError < RuntimeError; end
 
   def allele_name_superscript=(text)
+    if text.nil?
+      self.allele_name_superscript_template = nil
+      self.allele_type = nil
+      return
+    end
+
     re = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/
 
     md = re.match(text)
@@ -90,18 +95,24 @@ class Clone < ActiveRecord::Base
     query = federated_query(clone_names.to_a)
 
     return query.map do |clone_data|
-      pipeline = Pipeline.find_by_name(clone_data['pipeline'])
-      if(!pipeline)
-        pipeline = Pipeline.create!(:name => clone_data['pipeline'])
-      end
+      begin
+        pipeline = Pipeline.find_by_name(clone_data['pipeline'])
+        if(!pipeline)
+          pipeline = Pipeline.create!(:name => clone_data['pipeline'])
+        end
 
-      Clone.create!(
-        :clone_name => clone_data['escell_clone'],
-        :marker_symbol => clone_data['marker_symbol'],
-        :allele_name_superscript => clone_data['allele_symbol_superscript'],
-        :pipeline => pipeline,
-        :mgi_accession_id => clone_data['mgi_accession_id']
-      )
+        Clone.create!(
+          :clone_name => clone_data['escell_clone'],
+          :marker_symbol => clone_data['marker_symbol'],
+          :allele_name_superscript => clone_data['allele_symbol_superscript'],
+          :pipeline => pipeline,
+          :mgi_accession_id => clone_data['mgi_accession_id']
+        )
+      rescue Exception => e
+        e2 = e.class.new("Error while importing #{clone_data['escell_clone']}: #{e.message}")
+        e2.set_backtrace(e.backtrace)
+        raise e2
+      end
     end
   end
 

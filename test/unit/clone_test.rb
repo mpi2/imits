@@ -35,11 +35,7 @@ class CloneTest < ActiveSupport::TestCase
 
     context 'allele_name_superscript_template' do
       should 'have DB column' do
-        assert_should have_db_column(:allele_name_superscript_template).with_options(:null => false)
-      end
-
-      should 'validate presence' do
-        assert_should validate_presence_of :allele_name_superscript_template
+        assert_should have_db_column(:allele_name_superscript_template).with_options(:null => true)
       end
 
       should 'not be mass-assignable' do
@@ -74,6 +70,12 @@ class CloneTest < ActiveSupport::TestCase
       should 'store a.n.s.t. only and null out allele_type when allele name superscript does not include an allele type letter' do
         default_clone.allele_name_superscript = 'tm1(EUCOMM)Wtsi'
         assert_equal 'tm1(EUCOMM)Wtsi', default_clone.allele_name_superscript_template
+        assert_equal nil, default_clone.allele_type
+      end
+
+      should 'set both a.n.s.t. and allele_type to nil when set to nil' do
+        default_clone.allele_name_superscript = nil
+        assert_equal nil, default_clone.allele_name_superscript_template
         assert_equal nil, default_clone.allele_type
       end
 

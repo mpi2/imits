@@ -3,7 +3,7 @@ class CreateClones < ActiveRecord::Migration
     create_table :clones do |t|
       t.text :clone_name, :null => false
       t.text :marker_symbol, :null => false
-      t.text :allele_name_superscript_template, :null => false
+      t.text :allele_name_superscript_template
       t.text :allele_type
       t.references :pipeline, :null => false
       t.text :mgi_accession_id, :null => false

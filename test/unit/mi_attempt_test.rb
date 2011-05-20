@@ -73,6 +73,11 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal nil, default_mi_attempt.mouse_allele_name_superscript
       end
 
+      should 'be nil if Clone#allele_name_superscript_template is nil' do
+        default_mi_attempt.clone.allele_name_superscript = nil
+        assert_equal nil, default_mi_attempt.mouse_allele_name_superscript
+      end
+
       should 'work if mouse_allele_type is present' do
         default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
         default_mi_attempt.mouse_allele_type = 'e'

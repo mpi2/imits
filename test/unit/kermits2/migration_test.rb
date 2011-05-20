@@ -68,7 +68,6 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         assert_nil clone.mgi_accession_id
       end
 
-
       should 'migrate its centres' do
         Kermits2::Migration.run(:mi_attempt_ids => [11029])
         assert_equal 1, MiAttempt.count

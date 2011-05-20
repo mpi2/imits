@@ -42,14 +42,23 @@ class Kermits2::Migration
 
       non_mart_clone_names = (Set.new(new_clone_names) ^ Set.new(clone_names)).to_a
       non_mart_clone_names.each do |non_mart_clone_name|
-        old_clone = Old::Clone.find_by_clone_name(non_mart_clone_name)
-        allele_md = /<sup>(.+)<\/sup>/.match(old_clone.allele_name)
-        Clone.create!(
-          :clone_name => non_mart_clone_name,
-          :marker_symbol => old_clone.gene_symbol,
-          :allele_name_superscript => (allele_md[1] if(allele_md)),
-          :pipeline => Pipeline.find_or_create_by_name(old_clone.pipeline.name)
-        )
+        begin
+          old_clone = Old::Clone.find_by_clone_name(non_mart_clone_name)
+          allele_md = /<sup>(.+)<\/sup>/.match(old_clone.allele_name)
+          clone = Clone.new(
+            :clone_name => non_mart_clone_name,
+            :marker_symbol => old_clone.gene_symbol,
+            :pipeline => Pipeline.find_or_create_by_name(old_clone.pipeline.name)
+          )
+          if allele_md
+            clone.allele_name_superscript = allele_md[1]
+          end
+          clone.save!
+        rescue Exception => e
+          e2 = e.class.new("Error while fallback-DB-importing #{non_mart_clone_name}: #{e.message}")
+          e2.set_backtrace(e.backtrace)
+          raise e2
+        end
       end
     end
   end

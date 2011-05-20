@@ -29,7 +29,7 @@ class CloneTest < ActiveSupport::TestCase
       should validate_presence_of :pipeline
 
       should 'have mgi_accession_id' do
-        assert_should have_db_column(:mgi_accession_id).of_type(:text).with_options(:null => false)
+        assert_should have_db_column(:mgi_accession_id).of_type(:text).with_options(:null => true)
       end
     end
 

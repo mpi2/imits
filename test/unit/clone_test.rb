@@ -84,6 +84,12 @@ class CloneTest < ActiveSupport::TestCase
           default_clone.allele_name_superscript = 'nonsense'
         end
       end
+
+      should 'recognise gene trap alleles' do
+        default_clone.allele_name_superscript = 'Gt(IST12384G7)Tigm'
+        assert_equal 'Gt(IST12384G7)Tigm', default_clone.allele_name_superscript_template
+        assert_equal nil, default_clone.allele_type
+      end
     end
 
     context '#allele_name' do

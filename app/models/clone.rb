@@ -29,21 +29,26 @@ class Clone < ActiveRecord::Base
       return
     end
 
-    re = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/
+    md = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/.match(text)
 
-    md = re.match(text)
-
-    if ! md
-      raise AlleleNameSuperscriptFormatUnrecognizedError, "Bad allele name superscript #{text}"
-    end
-
-    if md[2].blank?
-      self.allele_name_superscript_template = md[1] + md[3]
-      self.allele_type = nil
+    if md
+      if md[2].blank?
+        self.allele_name_superscript_template = md[1] + md[3]
+        self.allele_type = nil
+      else
+        self.allele_name_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
+        self.allele_type = md[2]
+      end
     else
-      self.allele_name_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
-      self.allele_type = md[2]
+      md = /\AGt\(\w+\)\w+\Z/.match(text)
+      if md
+        self.allele_name_superscript_template = text
+        self.allele_type = nil
+      else
+        raise AlleleNameSuperscriptFormatUnrecognizedError, "Bad allele name superscript #{text}"
+      end
     end
+
   end
 
   def allele_name

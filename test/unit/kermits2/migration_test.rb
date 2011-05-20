@@ -116,6 +116,29 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         assert_equal 24, mi_11785.number_of_het_offspring
         assert_equal 21, mi_11785.number_of_live_glt_offspring
       end
+
+      def migrate_mi(mi_id)
+        old_mi_attempts = Old::MiAttempt.find(mi_id)
+        assert_not_nil old_mi_attempts
+
+        Kermits2::Migration.run(:mi_attempt_ids => [mi_id])
+        assert_equal 1, MiAttempt.count
+        assert_equal 1, Clone.count
+
+        MiAttempt.first
+      end
+
+      should 'migrate colony name' do
+        assert_equal 'MAJV', migrate_mi(5268).colony_name
+      end
+
+      should 'migrate emma status' do
+        assert_equal :unsuitable_sticky, migrate_mi(5268).emma_status
+      end
+
+      should 'migrate date_chimeras_mated' do
+        assert_equal Date.parse('2008-08-06'), migrate_mi(3973).date_chimeras_mated
+      end
     end
 
   end

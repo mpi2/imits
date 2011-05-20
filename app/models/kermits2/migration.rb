@@ -84,6 +84,9 @@ class Kermits2::Migration
       :production_centre => Centre.find_by_name!(old_mi_attempt.production_centre.name),
       :distribution_centre => Centre.find_by_name!(old_mi_attempt.distribution_centre.name),
 
+      # Important details
+      :colony_name => old_mi_attempt.colony_name,
+
       # Transfer details
       :total_blasts_injected => old_mi_attempt.num_blasts,
       :total_transferred => old_mi_attempt.num_transferred,
@@ -99,6 +102,8 @@ class Kermits2::Migration
       :number_of_males_with_100_percent_chimerism => old_mi_attempt.number_male_100_percent,
 
       # Chimera mating details
+      :emma_status => old_mi_attempt.emma_status,
+      :date_chimeras_mated => old_mi_attempt.date_chimera_mated,
       :number_of_chimera_matings_attempted => old_mi_attempt.number_chimera_mated,
       :number_of_chimera_matings_successful => old_mi_attempt.number_chimera_mating_success,
       :number_of_chimeras_with_glt_from_cct => old_mi_attempt.chimeras_with_glt_from_cct,

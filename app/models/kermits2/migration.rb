@@ -86,6 +86,7 @@ class Kermits2::Migration
 
       # Important details
       :colony_name => old_mi_attempt.colony_name,
+      :mi_date => old_mi_attempt.actual_mi_date,
 
       # Transfer details
       :total_blasts_injected => old_mi_attempt.num_blasts,
@@ -115,7 +116,12 @@ class Kermits2::Migration
       :total_f1_mice_from_matings => old_mi_attempt.total_f1_mice,
       :number_of_cct_offspring => old_mi_attempt.number_with_cct,
       :number_of_het_offspring => old_mi_attempt.number_het_offspring,
-      :number_of_live_glt_offspring => old_mi_attempt.number_live_glt_offspring
+      :number_of_live_glt_offspring => old_mi_attempt.number_live_glt_offspring,
+      :is_active => old_mi_attempt.is_active,
+      :should_export_to_mart => old_mi_attempt.is_public,
+      :is_released_from_genotyping => old_mi_attempt.released_from_genotyping,
+
+      # Misc
     )
 
     mi_attempt.save!

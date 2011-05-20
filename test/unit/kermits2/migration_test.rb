@@ -136,8 +136,18 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         assert_equal :unsuitable_sticky, migrate_mi(5268).emma_status
       end
 
+      should 'migrate mi_date' do
+        assert_equal Date.parse('2008-01-21'), migrate_mi(5268).mi_date
+      end
+
       should 'migrate date_chimeras_mated' do
         assert_equal Date.parse('2008-08-06'), migrate_mi(3973).date_chimeras_mated
+      end
+
+      should 'migrate miscellaneous booleans' do
+        mi = migrate_mi(12211)
+        assert_equal [true, false, false],
+                [mi.is_active, mi.should_export_to_mart, mi.is_released_from_genotyping]
       end
     end
 

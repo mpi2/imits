@@ -55,11 +55,9 @@ class Clone < ActiveRecord::Base
     { :name => "dcc" }
   )
 
-  class NotFoundError < RuntimeError; end
-
-  def self.update_or_create_from_marts_by_clone_name(clone_name)
-    query = IDCC_TARG_REP_DATASET.search(
-      :filters => { "escell_clone" => [clone_name] },
+  def self.federated_query(clone_names)
+    return IDCC_TARG_REP_DATASET.search(
+      :filters => { "escell_clone" => clone_names },
       :attributes => [
         "escell_clone",
         "pipeline",
@@ -67,7 +65,7 @@ class Clone < ActiveRecord::Base
         "allele_symbol_superscript"
       ],
       :process_results => true,
-      :timeout => 300,
+      :timeout => 600,
       :federate => [
         {
           :dataset => DCC_DATASET,
@@ -76,23 +74,35 @@ class Clone < ActiveRecord::Base
         }
       ]
     )
+  end
 
-    if query.blank?
+  class NotFoundError < RuntimeError; end
+
+  def self.update_or_create_from_marts_by_clone_name(clone_name)
+    clones = create_all_from_marts_by_clone_names([clone_name])
+    if clones.empty?
       raise NotFoundError, clone_name.inspect
     end
+    return clones.first
+  end
 
-    pipeline = Pipeline.find_by_name(query[0]['pipeline'])
-    if(!pipeline)
-      pipeline = Pipeline.create!(:name => query[0]['pipeline'])
+  def self.create_all_from_marts_by_clone_names(clone_names)
+    query = federated_query(clone_names.to_a)
+
+    return query.map do |clone_data|
+      pipeline = Pipeline.find_by_name(clone_data['pipeline'])
+      if(!pipeline)
+        pipeline = Pipeline.create!(:name => clone_data['pipeline'])
+      end
+
+      Clone.create!(
+        :clone_name => clone_data['escell_clone'],
+        :marker_symbol => clone_data['marker_symbol'],
+        :allele_name_superscript => clone_data['allele_symbol_superscript'],
+        :pipeline => pipeline,
+        :mgi_accession_id => clone_data['mgi_accession_id']
+      )
     end
-
-    Clone.create!(
-      :clone_name => query[0]['escell_clone'],
-      :marker_symbol => query[0]['marker_symbol'],
-      :allele_name_superscript => query[0]['allele_symbol_superscript'],
-      :pipeline => pipeline,
-      :mgi_accession_id => query[0]['mgi_accession_id']
-    )
   end
 
 end

@@ -96,10 +96,7 @@ class Clone < ActiveRecord::Base
 
     return query.map do |clone_data|
       begin
-        pipeline = Pipeline.find_by_name(clone_data['pipeline'])
-        if(!pipeline)
-          pipeline = Pipeline.create!(:name => clone_data['pipeline'])
-        end
+        pipeline = Pipeline.find_or_create_by_name(clone_data['pipeline'])
 
         Clone.create!(
           :clone_name => clone_data['escell_clone'],

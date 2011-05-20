@@ -47,6 +47,28 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         assert_equal 2, MiAttempt.count
       end
 
+      should 'import gene trap clones from the old DB data when mart data does not exist' do
+        Kermits2::Migration.run(:mi_attempt_ids => [3775])
+        assert_equal 1, MiAttempt.count
+        clone = MiAttempt.first.clone
+        assert_equal 'EUC0018f04', clone.clone_name
+        assert_equal 'Eed', clone.marker_symbol
+        assert_nil clone.allele_name_superscript_template
+        assert_nil clone.allele_type
+        assert_nil clone.mgi_accession_id
+      end
+
+      should 'import faculty line clones from the old DB data when mart data does not exist' do
+        Kermits2::Migration.run(:mi_attempt_ids => [7330])
+        assert_equal 1, MiAttempt.count
+        clone = MiAttempt.first.clone
+        assert_equal 'EPD0122_6_C07', clone.clone_name
+        assert_equal 'Ptchd2', clone.marker_symbol
+        assert_equal 'tm1a(KOMP)Wtsi', clone.allele_name_superscript
+        assert_nil clone.mgi_accession_id
+      end
+
+
       should 'migrate its centres' do
         Kermits2::Migration.run(:mi_attempt_ids => [11029])
         assert_equal 1, MiAttempt.count

@@ -12,7 +12,7 @@ dcc = Biomart::Dataset.new(
 )
 
 y idcc_targ_rep.search(
-  :filters => { "escell_clone" => ["EPD0021_2_A02", 'EPD0021_2_F04'] },
+  :filters => { "escell_clone" => ['mirKO_ES_PuDtk_4C1', 'EUC0018f04', 'EPD0059_3_E01'] },
   :attributes => [
     "escell_clone",
     "pipeline",

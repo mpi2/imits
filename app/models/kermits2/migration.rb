@@ -31,13 +31,26 @@ class Kermits2::Migration
     if params[:mi_attempt_ids]
       query = query.where(:emi_attempt => {:id => params[:mi_attempt_ids]})
     end
-    clones = query.all
-    clone_names = clones.collect(&:clone_name)
+    old_clones = query.all
+    clone_names = old_clones.collect(&:clone_name)
 
     if clone_names.empty?
       return []
     else
-      Clone.create_all_from_marts_by_clone_names(clone_names)
+      clones = Clone.create_all_from_marts_by_clone_names(clone_names)
+      new_clone_names = clones.map(&:clone_name)
+
+      non_mart_clone_names = (Set.new(new_clone_names) ^ Set.new(clone_names)).to_a
+      non_mart_clone_names.each do |non_mart_clone_name|
+        old_clone = Old::Clone.find_by_clone_name(non_mart_clone_name)
+        allele_md = /<sup>(.+)<\/sup>/.match(old_clone.allele_name)
+        Clone.create!(
+          :clone_name => non_mart_clone_name,
+          :marker_symbol => old_clone.gene_symbol,
+          :allele_name_superscript => (allele_md[1] if(allele_md)),
+          :pipeline => Pipeline.find_or_create_by_name(old_clone.pipeline.name)
+        )
+      end
     end
   end
 

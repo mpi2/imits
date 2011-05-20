@@ -27,12 +27,14 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       assert_equal 5, Pipeline.count
       assert_equal 'EUCOMM consortia', Pipeline.find_by_name('EUCOMM').description
       assert_equal 'TIGM Gene trap resource', Pipeline.find_by_name('TIGM').description
+      assert_equal 0, Clone.count
     end
 
     context 'migrating an mi attempt' do
       should 'create clone using data from marts if it does not already exist' do
         Kermits2::Migration.run(:mi_attempt_ids => [11029])
         assert_equal 1, MiAttempt.count
+        assert_equal 1, Clone.count
 
         mi_attempt = MiAttempt.first
         clone = mi_attempt.clone
@@ -60,6 +62,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
 
         Kermits2::Migration.run(:mi_attempt_ids => [5268, 3973, 7335, 11785])
         assert_equal 4, MiAttempt.count
+        assert_equal 4, Clone.count
 
         mi_5268, mi_3973, mi_7335, mi_11785 = MiAttempt.find(:all, :order => 'id asc')
 

@@ -38,6 +38,7 @@ class Kermits2::Migration::RunFromScriptTest < ActiveSupport::TestCase
     should 'work when invoked as ./script/data_migration' do
       run_script "cd #{Rails.root}; ./script/data_migration"
       assert_equal Old::MiAttempt.count, MiAttempt.count
+      assert_equal 2705, Clone.count
     end
 
   end

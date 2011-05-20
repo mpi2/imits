@@ -6,7 +6,9 @@ class Kermits2::Migration
 
     migrate_centres
 
-    migrate_mi_attempts_and_their_clones(params)
+    migrate_clones(params)
+
+    migrate_mi_attempts(params)
   end
 
   private
@@ -24,9 +26,22 @@ class Kermits2::Migration
     end
   end
 
-  def self.migrate_mi_attempts_and_their_clones(params)
-    params.symbolize_keys!
+  def self.migrate_clones(params)
+    query = Old::Clone.all_that_have_mi_attempts
+    if params[:mi_attempt_ids]
+      query = query.where(:emi_attempt => {:id => params[:mi_attempt_ids]})
+    end
+    clones = query.all
+    clone_names = clones.collect(&:clone_name)
 
+    if clone_names.empty?
+      return []
+    else
+      Clone.create_all_from_marts_by_clone_names(clone_names)
+    end
+  end
+
+  def self.migrate_mi_attempts(params)
     mi_attempt_ids = params[:mi_attempt_ids]
     if mi_attempt_ids.nil?
       mi_attempt_ids = Old::MiAttempt.find_by_sql('select id from emi_attempt').map {|o| o.id.to_i }
@@ -40,11 +55,7 @@ class Kermits2::Migration
   def self.migrate_single_mi_attempt_by_id(mi_attempt_id)
     old_mi_attempt = Old::MiAttempt.find(mi_attempt_id)
 
-    clone = Clone.find_by_clone_name(old_mi_attempt.clone_name)
-    if ! clone
-      clone = Clone.update_or_create_from_marts_by_clone_name(
-        old_mi_attempt.clone_name)
-    end
+    clone = Clone.find_by_clone_name!(old_mi_attempt.clone_name)
 
     mi_attempt = MiAttempt.new(
       :clone => clone,

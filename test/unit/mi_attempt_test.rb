@@ -227,8 +227,12 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    should 'have is_public' do
-      assert_should have_db_column(:is_public).of_type(:boolean).with_options(:default => true, :null => false)
+    should 'have should_export_to_mart' do
+      assert_should have_db_column(:should_export_to_mart).of_type(:boolean).with_options(:default => true, :null => false)
+    end
+
+    should 'have is_active' do
+      assert_should have_db_column(:is_active).of_type(:boolean).with_options(:default => true, :null => false)
     end
 
     should 'have is_released_from_genotyping' do

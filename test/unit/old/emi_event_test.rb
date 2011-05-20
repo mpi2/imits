@@ -25,5 +25,9 @@ class Old::EmiEventTest < ActiveSupport::TestCase
       assert_equal Old::Centre.find_by_name('CNB'), @emi_event.distribution_centre
     end
 
+    should 'have many emi attempts' do
+      assert_kind_of Old::MiAttempt, @emi_event.mi_attempts.first
+    end
+
   end
 end

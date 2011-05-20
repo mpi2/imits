@@ -1,6 +1,13 @@
+# encoding: utf-8
+
 class Old::Clone < Old::ModelBase
   set_table_name 'emi_clone'
   belongs_to :pipeline, :class_name => 'Old::Pipeline'
+  has_many :emi_events, :class_name => 'Old::EmiEvent'
+
+  scope :all_that_have_mi_attempts, proc { |mi_attempt_ids|
+    select('DISTINCT emi_clone.*').joins(:emi_events => :mi_attempts)
+  }
 end
 
 

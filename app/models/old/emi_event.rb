@@ -6,6 +6,7 @@ class Old::EmiEvent < Old::ModelBase
   belongs_to :clone
   belongs_to :distribution_centre, :class_name => 'Old::Centre', :foreign_key => :distribution_centre_id
   belongs_to :production_centre, :class_name => 'Old::Centre', :foreign_key => :centre_id
+  has_many :mi_attempts, :foreign_key => :event_id
 end
 
 

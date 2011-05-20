@@ -11,10 +11,6 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       assert_equal 0, MiAttempt.count
     end
 
-    should 'work from the script' do
-      flunk
-    end
-
     should 'migrate across centres' do
       Kermits2::Migration.run(:mi_attempt_ids => [])
 

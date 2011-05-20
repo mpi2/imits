@@ -8,8 +8,10 @@ require 'factory_girl_rails'
 class ActiveSupport::TestCase
   self.use_transactional_fixtures = false
 
+  def database_strategy; :transaction; end
+
   def setup
-    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.strategy = self.database_strategy
     DatabaseCleaner.start
     load Rails.root + 'db/seeds.rb'
   end
@@ -41,18 +43,14 @@ require 'capybara/dsl'
 
 Capybara.default_driver = :selenium
 
-class ActionDispatch::IntegrationTest
+class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
   include Capybara
 
-  def setup
-    DatabaseCleaner.strategy = :deletion
-    DatabaseCleaner.start
-    load Rails.root + 'db/seeds.rb'
-  end
+  def database_strategy; :deletion; end
 
   def teardown
     Capybara.reset_sessions!
-    DatabaseCleaner.clean
+    super
   end
 
   def login

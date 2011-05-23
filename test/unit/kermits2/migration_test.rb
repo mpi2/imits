@@ -31,6 +31,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
     end
 
     context 'migrating an mi attempt' do
+
       should 'create clone using data from marts if it does not already exist' do
         Kermits2::Migration.run(:mi_attempt_ids => [11029])
         assert_equal 1, MiAttempt.count
@@ -203,7 +204,22 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
 
         assert wrong.empty?, "Incorrect QC fields: #{wrong.inspect}"
       end
-    end
+
+      context 'status' do
+        should 'migrate when originally "Genotype confirmed"' do
+          assert_equal MiAttemptStatus.genotype_confirmed.description, migrate_mi(3702).mi_attempt_status.description
+        end
+
+        should 'migrate non-genotype confirmed statuses like "Chimera mating complete" to "Micro-injection in progress"' do
+          assert_equal MiAttemptStatus.micro_injection_in_progress, migrate_mi(11737).mi_attempt_status
+        end
+
+        should 'migrate non-genotype confirmed statuses like "Failed Attempt" to "Micro-injection in progress"' do
+          assert_equal MiAttemptStatus.micro_injection_in_progress, migrate_mi(3987).mi_attempt_status
+        end
+      end
+
+    end # context 'migrating an mi attempt'
 
   end
 end

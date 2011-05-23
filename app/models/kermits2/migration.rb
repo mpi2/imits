@@ -126,6 +126,11 @@ class Kermits2::Migration
       # Misc
     )
 
+    # Important details (cont)
+    if old_mi_attempt.mi_attempt_status.name == 'Genotype Confirmed'
+      mi_attempt.mi_attempt_status = MiAttemptStatus.genotype_confirmed
+    end
+
     # QC fields (cont)
     {
       :qc_southern_blot => :qc_southern_blot,

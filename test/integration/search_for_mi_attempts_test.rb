@@ -43,7 +43,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
             'MDCF',
             'WTSI',
             'Unsuitable for EMMA',
-            'In progress',
+            'Micro-injection in progress',
           ].each do |text|
             assert(page.has_css?(selector_for_table_cell(1), :text => text),
               "Expected text '#{text}' in table cell 1, but did not find it")

@@ -3,12 +3,12 @@ class MiAttemptStatus < ActiveRecord::Base
 
   has_many :mi_attempts
 
-  def self.in_progress
-    @@in_progress ||= self.find_by_description!('In progress').freeze
+  def self.micro_injection_in_progress
+    @@in_progress ||= self.find_by_description!('Micro-injection in progress').freeze
   end
 
-  def self.good
-    @@good ||= self.find_by_description!('Good').freeze
+  def self.genotype_confirmed
+    @@good ||= self.find_by_description!('Genotype confirmed').freeze
   end
 end
 

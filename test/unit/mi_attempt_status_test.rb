@@ -12,13 +12,13 @@ class MiAttemptStatusTest < ActiveSupport::TestCase
 
     context 'easy-access methods' do
       should 'include in_progress' do
-        assert_equal 'In progress', MiAttemptStatus.in_progress.description
-        assert_true MiAttemptStatus.in_progress.frozen?
+        assert_equal 'Micro-injection in progress', MiAttemptStatus.micro_injection_in_progress.description
+        assert_true MiAttemptStatus.micro_injection_in_progress.frozen?
       end
 
-      should 'include GOOD' do
-        assert_equal 'Good', MiAttemptStatus.good.description
-        assert_true MiAttemptStatus.good.frozen?
+      should 'include genotype_confirmed' do
+        assert_equal 'Genotype confirmed', MiAttemptStatus.genotype_confirmed.description
+        assert_true MiAttemptStatus.genotype_confirmed.frozen?
       end
     end
 

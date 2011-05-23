@@ -144,7 +144,7 @@ class MiAttempt < ActiveRecord::Base
   protected
 
   def set_default_status
-    self.mi_attempt_status ||= MiAttemptStatus.in_progress
+    self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
   end
 
   def set_missing_distribution_centre

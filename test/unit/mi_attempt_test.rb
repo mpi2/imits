@@ -45,21 +45,21 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_should belong_to(:mi_attempt_status)
     end
 
-    should 'set mi_attempt_status to "In progress" by default' do
-      assert_equal 'In progress', default_mi_attempt.mi_attempt_status.description
+    should 'set mi_attempt_status to "Micro-injection in progress" by default' do
+      assert_equal 'Micro-injection in progress', default_mi_attempt.mi_attempt_status.description
     end
 
     should 'not overwrite status if it is set explicitly' do
-      mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.good)
-      assert_equal 'Good', mi_attempt.mi_attempt_status.description
+      mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+      assert_equal 'Genotype confirmed', mi_attempt.mi_attempt_status.description
     end
 
     should 'not reset status to default if assigning id' do
-      local_mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.good)
-      local_mi_attempt.mi_attempt_status_id = MiAttemptStatus.good.id
+      local_mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+      local_mi_attempt.mi_attempt_status_id = MiAttemptStatus.genotype_confirmed.id
       local_mi_attempt.save!
       local_mi_attempt = MiAttempt.find(local_mi_attempt.id)
-      assert_equal 'Good', local_mi_attempt.mi_attempt_status.description
+      assert_equal 'Genotype confirmed', local_mi_attempt.mi_attempt_status.description
     end
 
     should 'have mouse allele name related column' do
@@ -367,12 +367,12 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'filter by status' do
         mi1 = Factory.create(:mi_attempt, :clone => @clone1,
-          :mi_attempt_status => MiAttemptStatus.good)
+          :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
         mi2 = Factory.create(:mi_attempt, :clone => @clone1,
-          :mi_attempt_status => MiAttemptStatus.good)
+          :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
 
         results = MiAttempt.search(
-          :mi_attempt_status_id => MiAttemptStatus.good)
+          :mi_attempt_status_id => MiAttemptStatus.genotype_confirmed)
         assert_equal 2, results.size
         assert_include results, mi1
         assert_include results, mi2

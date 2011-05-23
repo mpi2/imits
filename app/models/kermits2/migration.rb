@@ -117,12 +117,36 @@ class Kermits2::Migration
       :number_of_cct_offspring => old_mi_attempt.number_with_cct,
       :number_of_het_offspring => old_mi_attempt.number_het_offspring,
       :number_of_live_glt_offspring => old_mi_attempt.number_live_glt_offspring,
+
+      # QC fields
       :is_active => old_mi_attempt.is_active,
       :should_export_to_mart => old_mi_attempt.is_public,
-      :is_released_from_genotyping => old_mi_attempt.released_from_genotyping,
+      :is_released_from_genotyping => old_mi_attempt.released_from_genotyping
 
       # Misc
     )
+
+    # QC fields (cont)
+    {
+      :qc_southern_blot => :qc_southern_blot,
+      :qc_five_prime_lr_pcr => :qc_five_prime_lr_pcr,
+      :qc_five_prime_cassette_integrity => :qc_five_prime_cass_integrity,
+      :qc_tv_backbone_assay => :qc_tv_backbone_assay,
+      :qc_neo_count_qpcr => :qc_neo_count_qpcr,
+      :qc_neo_sr_pcr => :qc_neo_sr_pcr,
+      :qc_loa_qpcr => :qc_loa_qpcr,
+      :qc_homozygous_loa_sr_pcr => :qc_homozygous_loa_sr_pcr,
+      :qc_lacz_sr_pcr => :qc_lacz_sr_pcr,
+      :qc_mutant_specific_sr_pcr => :qc_mutant_specific_sr_pcr,
+      :qc_loxp_confirmation => :qc_loxp_confirmation,
+      :qc_three_prime_lr_pcr => :qc_three_prime_lr_pcr
+    }.each do |new_name, old_name|
+      value = QcStatus.find_by_description(old_mi_attempt.send(old_name))
+      if ! value
+        value = QcStatus.find_by_description('na')
+      end
+      mi_attempt.send("#{new_name}=", value)
+    end
 
     mi_attempt.save!
   end

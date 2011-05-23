@@ -149,6 +149,60 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         assert_equal [true, false, false],
                 [mi.is_active, mi.should_export_to_mart, mi.is_released_from_genotyping]
       end
+
+      should 'migrate QC fields none of which are set to null' do
+        mi = migrate_mi(3720)
+
+        expected = {
+          'qc_southern_blot' => 'na',
+          'qc_five_prime_lr_pcr' => 'na',
+          'qc_five_prime_cassette_integrity' => 'na',
+          'qc_tv_backbone_assay' => 'na',
+          'qc_neo_count_qpcr' => 'pass',
+          'qc_neo_sr_pcr' => 'na',
+          'qc_loa_qpcr' => 'fail',
+          'qc_homozygous_loa_sr_pcr' => 'na',
+          'qc_lacz_sr_pcr' => 'na',
+          'qc_mutant_specific_sr_pcr' => 'na',
+          'qc_loxp_confirmation' => 'na',
+          'qc_three_prime_lr_pcr' => 'na'
+        }
+
+        wrong = {}
+        expected.each do |name, value|
+          actual_value = mi.send(name).try(:description)
+          wrong[name] = actual_value if(actual_value != value)
+        end
+
+        assert wrong.empty?, "Incorrect QC fields: #{wrong.inspect}"
+      end
+
+      should 'migrate QC fields that are null as "na"' do
+        mi = migrate_mi(3705)
+
+        expected = {
+          'qc_southern_blot' => 'na',
+          'qc_five_prime_lr_pcr' => 'na',
+          'qc_five_prime_cassette_integrity' => 'na',
+          'qc_tv_backbone_assay' => 'na',
+          'qc_neo_count_qpcr' => 'na',
+          'qc_neo_sr_pcr' => 'na',
+          'qc_loa_qpcr' => 'na',
+          'qc_homozygous_loa_sr_pcr' => 'na',
+          'qc_lacz_sr_pcr' => 'na',
+          'qc_mutant_specific_sr_pcr' => 'na',
+          'qc_loxp_confirmation' => 'na',
+          'qc_three_prime_lr_pcr' => 'na'
+        }
+
+        wrong = {}
+        expected.each do |name, value|
+          actual_value = mi.send(name).try(:description)
+          wrong[name] = actual_value if(actual_value != value)
+        end
+
+        assert wrong.empty?, "Incorrect QC fields: #{wrong.inspect}"
+      end
     end
 
   end

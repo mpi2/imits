@@ -6,11 +6,6 @@ Kermits2::Application.routes.draw do
 
   resources :mi_attempts, :only => [:index]
 
-  get '/login' => 'user_sessions#new'
-  get '/logout' => 'user_sessions#destroy'
-
-  resources :user_sessions, :only => [:create]
-
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

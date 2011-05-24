@@ -65,7 +65,7 @@ em {
     border-color: green;
 }
 
-.flash.error p {
+.flash.error p, .flash.alert p {
     border-color: darkred;
 }
 
@@ -85,7 +85,7 @@ em {
     background-color: green;
 }
 
-.flash.error p.header {
+.flash.error p.header, .flash.alert p.header {
     background-image: url('/images/icons/flag_red.png');
     background-color: darkred;
 }

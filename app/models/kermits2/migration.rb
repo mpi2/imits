@@ -126,6 +126,15 @@ class Kermits2::Migration
       # Misc
     )
 
+    # Chimera mating details (cont)
+    if ! old_mi_attempt.mouse_allele_name.blank?
+      md = /\A[A-Za-z0-9]+<sup>tm\d([a-e])?\(\w+\)\w+<\/sup>\Z/.match(old_mi_attempt.mouse_allele_name)
+      if ! md
+        raise "Bad mouse allele name for #{old_mi_attempt.clone_name}: #{old_mi_attempt.mouse_allele_name}"
+        end
+      mi_attempt.mouse_allele_type = md[1]
+    end
+
     # Important details (cont)
     if old_mi_attempt.mi_attempt_status.name == 'Genotype Confirmed'
       mi_attempt.mi_attempt_status = MiAttemptStatus.genotype_confirmed

@@ -219,6 +219,12 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         end
       end
 
+      should 'migrate mouse allele name when it is set' do
+        mi = migrate_mi(5193.0)
+        assert_equal ['tm1@(EUCOMM)Wtsi', 'a', 'e'],
+                [mi.clone.allele_name_superscript_template, mi.clone.allele_type, mi.mouse_allele_type]
+      end
+
     end # context 'migrating an mi attempt'
 
   end

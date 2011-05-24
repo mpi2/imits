@@ -7,6 +7,7 @@ gem 'activerecord-oracle_enhanced-adapter'
 gem 'pg'
 gem 'foreigner'
 
+gem 'devise'
 gem 'biomart'
 
 gem 'netzke-core', :git => "http://github.com/skozlov/netzke-core.git"

@@ -8,6 +8,8 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
     setup do
       clone = Factory.create(:clone_EPD0343_1_H06)
       @default_mi_attempt = clone.mi_attempts.first
+
+      login # Remove when assert_mi_attempt_was_audited is used to wrap all tests as it should
     end
 
     def assert_mi_attempt_was_audited

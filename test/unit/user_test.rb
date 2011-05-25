@@ -5,9 +5,9 @@ class UserTest < ActiveSupport::TestCase
     subject { Factory.create :user }
 
     should 'have accessible attributes' do
-      expected = %w{email password password_confirmation}
-      attrs_not_in_both = (Set.new(User.accessible_attributes) ^ Set.new(expected))
-      assert_empty attrs_not_in_both, "Accessible attributes error: #{attrs_not_in_both.inspect}"
+      assert_include User.accessible_attributes, :email
+      assert_include User.accessible_attributes, :password
+      assert_include User.accessible_attributes, :password_confirmation
     end
 
     should 'default remember_me to true' do

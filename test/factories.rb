@@ -3,6 +3,7 @@
 Factory.define :user do |user|
   user.sequence(:email) { |n| "user#{n}@example.com" }
   user.password 'password'
+  user.production_centre Centre.find_by_name('WTSI')
 end
 
 Factory.define :pipeline do |pipeline|

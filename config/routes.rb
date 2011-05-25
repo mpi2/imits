@@ -1,5 +1,9 @@
 Kermits2::Application.routes.draw do
 
+  devise_for :users, :skip => [:passwords],
+          :path_names => { :sign_in => 'login', :sign_out => 'logout', :sign_up => 'register' }
+
+
   netzke
 
   root :to => "mi_attempts#index"

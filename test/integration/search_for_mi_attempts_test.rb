@@ -3,21 +3,19 @@ require 'test_helper'
 class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
   should 'need a valid logged in user' do
-    visit '/logout'
+    visit '/users/logout'
 
     visit '/'
-    assert_match %r{/login$}, current_url
+    assert_match %r{/users/login$}, current_url
 
     visit '/mi_attempts'
-    assert_match %r{/login$}, current_url
+    assert_match %r{/users/login$}, current_url
   end
 
   context 'As valid user:' do
     setup do
-=begin TODO
-      visit '/logout'
+      visit '/users/logout'
       login
-=end
     end
 
     context 'searching for mi attempts by clone name' do

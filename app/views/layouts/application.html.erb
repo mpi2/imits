@@ -22,8 +22,8 @@
     <div id="container">
       <div id="header">
         <h1>Kermits 2 - <%= @title %></h1>
-        <% if current_user %>
-          <p>You are logged in as <%= current_user.full_name %> :: <%= link_to 'Logout', logout_path %></p>
+        <% if user_signed_in? %>
+          <p>You are logged in as <%= current_user.email %> :: <%= link_to 'Logout', destroy_user_session_path %></p>
         <% end %>
       </div>
 

@@ -12,5 +12,11 @@ class UserTest < ActiveSupport::TestCase
       assert_include User.accessible_attributes, :remember_me
     end
 
+    context 'remember_me' do
+      should 'be true by default' do
+        assert_equal true, subject.remember_me
+      end
+    end
+
   end
 end

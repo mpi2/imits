@@ -53,12 +53,16 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
     super
   end
 
-  def login
-    visit '/login'
-    fill_in 'Username', :with => 'zz99'
+  def login(email = nil)
+    if email.nil?
+      user = Factory.create :user
+      email = user.email
+    end
+    visit '/users/login'
+    fill_in 'Email', :with => email
     fill_in 'Password', :with => 'password'
     click_button 'Login'
-    assert_not_match(%r{^http://[^/]+/login$}, current_url)
+    assert_not_match(%r{^http://[^/]+/users/login$}, current_url)
   end
 
   def selector_for_table_cell(table_row)

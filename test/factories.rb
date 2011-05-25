@@ -1,5 +1,10 @@
 #encoding: utf-8
 
+Factory.define :user do |user|
+  user.sequence(:email) { |n| "user#{n}@example.com" }
+  user.password 'password'
+end
+
 Factory.define :pipeline do |pipeline|
   pipeline.sequence(:name) { |n| "Auto-generated Pipeline Name #{n}" }
   pipeline.description 'Pipeline Description'

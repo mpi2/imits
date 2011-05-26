@@ -72,6 +72,9 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.boolean :is_active,                   :null => false, :default => true
       table.boolean :is_released_from_genotyping, :null => false, :default => false
 
+      # Misc
+      table.text :comments
+
       table.timestamps
     end
 

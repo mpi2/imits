@@ -269,6 +269,11 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         end
       end
 
+      should 'migrate comments' do
+        mi = migrate_mi 5714
+        assert_equal 'no chimeras born', mi.comments
+      end
+
     end # context 'migrating an mi attempt'
 
   end

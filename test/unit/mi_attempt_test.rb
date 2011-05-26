@@ -408,5 +408,9 @@ class MiAttemptTest < ActiveSupport::TestCase
       should 'save old revisions'
     end
 
+    should 'have comments' do
+      mi = Factory.create :mi_attempt, :comments => 'this is a comment'
+      assert_equal 'this is a comment', mi.comments
+    end
   end
 end

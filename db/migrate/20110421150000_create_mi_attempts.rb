@@ -26,6 +26,7 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.text :colony_name
       table.integer :production_centre_id, :null => false
       table.integer :distribution_centre_id
+      table.integer :updated_by_id
 
       # Transfer details
       table.references :blast_strain
@@ -78,6 +79,7 @@ class CreateMiAttempts < ActiveRecord::Migration
     add_foreign_key :mi_attempts, :mi_attempt_statuses
     add_foreign_key :mi_attempts, :centres, :column => :production_centre_id
     add_foreign_key :mi_attempts, :centres, :column => :distribution_centre_id
+    add_foreign_key :mi_attempts, :users, :column => :updated_by_id
     add_foreign_key :mi_attempts, :strain_blast_strains, :column => :blast_strain_id
     add_foreign_key :mi_attempts, :strain_colony_background_strains, :column => :colony_background_strain_id
     add_foreign_key :mi_attempts, :strain_test_cross_strains, :column => :test_cross_strain_id

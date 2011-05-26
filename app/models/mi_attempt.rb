@@ -41,6 +41,7 @@ class MiAttempt < ActiveRecord::Base
 
   belongs_to :production_centre, :class_name => 'Centre'
   belongs_to :distribution_centre, :class_name => 'Centre'
+  belongs_to :updated_by, :class_name => 'User'
 
   belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
   belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'

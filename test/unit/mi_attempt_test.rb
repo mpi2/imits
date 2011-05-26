@@ -394,8 +394,18 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    context 'auditing' do
-      should_eventually 'work'
+    context 'for auditing' do
+      should 'have updated_by column' do
+        assert_should have_db_column(:updated_by_id).of_type(:integer)
+      end
+
+      should 'have updated_by association' do
+        user = Factory.create :user
+        subject.updated_by_id = user.id
+        assert_equal user, subject.updated_by
+      end
+
+      should 'save old revisions'
     end
 
   end

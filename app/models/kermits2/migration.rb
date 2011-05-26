@@ -136,6 +136,19 @@ class Kermits2::Migration
       # Misc
     )
 
+    # Important details (cont)
+    if(old_mi_attempt.edit_date > old_mi_attempt.emi_event.edit_date)
+      latest_object = old_mi_attempt
+    else
+      latest_object = old_mi_attempt.emi_event
+    end
+    mi_attempt.updated_at = latest_object.edit_date
+    if(latest_object.edited_by.to_i == 26)
+      mi_attempt.updated_by = User.find_by_email('vvi@sanger.ac.uk')
+    else
+      mi_attempt.updated_by = User.find_by_email(Old::User.find_by_user_name(latest_object.edited_by).email)
+    end
+
     # Chimera mating details (cont)
     if ! old_mi_attempt.mouse_allele_name.blank?
       md = /\A[A-Za-z0-9]+<sup>tm\d([a-e])?\(\w+\)\w+<\/sup>\Z/.match(old_mi_attempt.mouse_allele_name)

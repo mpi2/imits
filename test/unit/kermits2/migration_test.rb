@@ -122,8 +122,8 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         assert_equal 0, mi_11785.number_of_chimeras_with_100_percent_glt
         assert_equal 175, mi_11785.total_f1_mice_from_matings
         assert_equal 16, mi_11785.number_of_cct_offspring
-        assert_equal 24, mi_11785.number_of_het_offspring
-        assert_equal 21, mi_11785.number_of_live_glt_offspring
+        assert_equal 28, mi_11785.number_of_het_offspring
+        assert_equal 22, mi_11785.number_of_live_glt_offspring
       end
 
       def migrate_mi(mi_id)
@@ -228,16 +228,39 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       end
 
       should 'migrate mouse allele name when it is set' do
-        mi = migrate_mi(5193.0)
+        mi = migrate_mi(11045)
         assert_equal ['tm1@(EUCOMM)Wtsi', 'a', 'e'],
                 [mi.clone.allele_name_superscript_template, mi.clone.allele_type, mi.mouse_allele_type]
       end
 
       context 'auditing info' do
         context 'when emi_attempt.edit_date > emi_event.edit_date' do
-          should 'set edit date to emi_attempt.edit_date'
+          setup { @mi = migrate_mi(3699) }
 
-          should 'set last_updated_by to emi_attempt.edited_by'
+          should 'set updated_at to emi_attempt.edit_date' do
+            assert_equal '2010-09-30', @mi.updated_at.strftime('%F')
+          end
+
+          should 'set updated_by user to emi_attempt.edited_by' do
+            assert_equal 'vvi@sanger.ac.uk', @mi.updated_by.email
+          end
+        end
+
+        context 'when emi_attempt.edit_date < emi_event.edit_date' do
+          setup { @mi = migrate_mi(3986) }
+
+          should 'set updated_at to emi_event.edit_date' do
+            assert_equal '2009-07-29', @mi.updated_at.strftime('%F')
+          end
+
+          should 'set updated_by to emi_event.edited_by' do
+            assert_equal 'do2@sanger.ac.uk', @mi.updated_by.email
+          end
+        end
+
+        should 'migrate last updated user from emi_attempt when it is set to "26"' do
+          mi = migrate_mi 7136
+          assert_equal User.find_by_email('vvi@sanger.ac.uk'), mi.updated_by
         end
       end
 

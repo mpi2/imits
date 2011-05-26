@@ -155,6 +155,11 @@ textarea#search-terms {
     display: block;
     width: 15em;
     margin-left: 8em;
+    margin-top: 0.5em;
+}
+
+#login-form input[type=checkbox] {
+    width: auto;
 }
 
 #login-form input[type=submit] {

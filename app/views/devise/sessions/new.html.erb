@@ -1,15 +1,24 @@
 <% @title = 'Log in' %>
 
-<%= form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f| %>
-  <p><%= f.label :email %><br />
-    <%= f.email_field :email, :class => 'initial-focus' %></p>
+<div id="login-form">
+  <%= form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f| %>
+    <div>
+      <%= f.label :email %>
+      <%= f.email_field :email, :class => 'initial-focus' %>
+    </div>
 
-  <p><%= f.label :password %><br />
-    <%= f.password_field :password %></p>
+    <div>
+      <%= f.label :password %>
+      <%= f.password_field :password %>
+    </div>
 
-  <% if devise_mapping.rememberable? -%>
-    <p><%= f.check_box :remember_me %> <%= f.label :remember_me %></p>
-  <% end -%>
+    <% if devise_mapping.rememberable? -%>
+      <div>
+        <%= f.label :remember_me %>
+        <%= f.check_box :remember_me %>
+      </div>
+    <% end -%>
 
-  <p><%= f.submit "Login" %></p>
-<% end %>
+    <div><%= f.submit "Login" %></div>
+  <% end %>
+</div>

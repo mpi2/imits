@@ -3,6 +3,8 @@ require 'digest/sha1'
 class Old::User < Old::ModelBase
   set_table_name 'per_person'
 
+  belongs_to :centre, :class_name => 'Old::Centre'
+
   def self.authenticate(username, password)
     password_sha1 = Digest::SHA1.hexdigest(password)
 

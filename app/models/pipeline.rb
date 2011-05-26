@@ -3,6 +3,7 @@ class Pipeline < ActiveRecord::Base
 end
 
 # == Schema Information
+# Schema version: 20110421150000
 #
 # Table name: pipelines
 #
@@ -11,5 +12,9 @@ end
 #  description :text
 #  created_at  :datetime
 #  updated_at  :datetime
+#
+# Indexes
+#
+#  index_pipelines_on_name  (name) UNIQUE
 #
 

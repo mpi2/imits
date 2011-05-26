@@ -15,4 +15,8 @@ end
 #  created_at :datetime
 #  updated_at :datetime
 #
+# Indexes
+#
+#  index_strain_colony_background_strains_on_id  (id) UNIQUE
+#
 

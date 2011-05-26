@@ -44,4 +44,8 @@ end
 #  active        :boolean(1)
 #  hidden        :boolean(1)
 #
+# Indexes
+#
+#  per_person_u01  (user_name) UNIQUE
+#
 

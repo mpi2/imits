@@ -37,4 +37,8 @@ end
 #  es_cell_line              :string(100)
 #  customer_priority         :boolean(1)
 #
+# Indexes
+#
+#  emi_clone_uk1  (clone_name) UNIQUE
+#
 

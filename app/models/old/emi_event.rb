@@ -29,4 +29,8 @@ end
 #  distribution_centre_id :decimal(, )
 #  is_public              :boolean(1)      default(TRUE), not null
 #
+# Indexes
+#
+#  emi_event_uk1  (centre_id,clone_id) UNIQUE
+#
 

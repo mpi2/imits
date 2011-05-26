@@ -3,6 +3,7 @@ class Strain < ActiveRecord::Base
 end
 
 # == Schema Information
+# Schema version: 20110421150000
 #
 # Table name: strains
 #
@@ -10,5 +11,9 @@ end
 #  name       :text            not null
 #  created_at :datetime
 #  updated_at :datetime
+#
+# Indexes
+#
+#  index_strains_on_name  (name) UNIQUE
 #
 

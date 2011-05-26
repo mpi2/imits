@@ -130,10 +130,15 @@ end
 #  id                               :integer         not null, primary key
 #  clone_name                       :text            not null
 #  marker_symbol                    :text            not null
-#  allele_name_superscript_template :text            not null
+#  allele_name_superscript_template :text
 #  allele_type                      :text
 #  pipeline_id                      :integer         not null
+#  mgi_accession_id                 :text
 #  created_at                       :datetime
 #  updated_at                       :datetime
+#
+# Indexes
+#
+#  index_clones_on_clone_name  (clone_name) UNIQUE
 #
 

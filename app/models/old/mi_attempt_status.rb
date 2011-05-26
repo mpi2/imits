@@ -14,4 +14,8 @@ end
 #  order_by    :decimal(, )
 #  active      :boolean(1)
 #
+# Indexes
+#
+#  emi_status_dict_uk1  (name) UNIQUE
+#
 

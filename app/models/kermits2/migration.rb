@@ -6,12 +6,22 @@ class Kermits2::Migration
 
     migrate_centres
 
+    migrate_users
+
     migrate_clones(params)
 
     migrate_mi_attempts(params)
   end
 
   private
+
+  def self.migrate_users
+    Old::User.all.each do |old_user|
+      User.create!(:email => old_user.email,
+        :password => Digest::SHA1.hexdigest(rand(99999999999999999999999).to_s),
+        :production_centre => Centre.find_by_name(old_user.centre.name))
+    end
+  end
 
   def self.migrate_pipelines
     Old::Pipeline.all.each do |old_pipeline|

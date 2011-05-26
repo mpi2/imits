@@ -30,6 +30,14 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       assert_equal 0, Clone.count
     end
 
+    should 'migrate users and their centres' do
+      Kermits2::Migration.run(:mi_attempt_ids => [])
+      assert_equal 'WTSI', User.find_by_email('aq2@sanger.ac.uk').production_centre.name
+      assert_equal 'MRC - Harwell', User.find_by_email('n.adams@har.mrc.ac.uk').production_centre.name
+      assert_equal 'GSF', User.find_by_email('michael.hagn@gsf.de').production_centre.name
+      assert_equal 'UCD', User.find_by_email('jdrapp@ucdavis.edu').production_centre.name
+    end
+
     context 'migrating an mi attempt' do
 
       should 'create clone using data from marts if it does not already exist' do
@@ -223,6 +231,14 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         mi = migrate_mi(5193.0)
         assert_equal ['tm1@(EUCOMM)Wtsi', 'a', 'e'],
                 [mi.clone.allele_name_superscript_template, mi.clone.allele_type, mi.mouse_allele_type]
+      end
+
+      context 'auditing info' do
+        context 'when emi_attempt.edit_date > emi_event.edit_date' do
+          should 'set edit date to emi_attempt.edit_date'
+
+          should 'set last_updated_by to emi_attempt.edited_by'
+        end
       end
 
     end # context 'migrating an mi attempt'

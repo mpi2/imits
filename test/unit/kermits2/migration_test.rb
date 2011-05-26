@@ -262,6 +262,11 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
           mi = migrate_mi 7136
           assert_equal User.find_by_email('vvi@sanger.ac.uk'), mi.updated_by
         end
+
+        should 'migrate when event edit date is missing' do
+          mi = migrate_mi 5700
+          assert_equal '2009-04-23', mi.updated_at.strftime('%F')
+        end
       end
 
     end # context 'migrating an mi attempt'

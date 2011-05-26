@@ -85,6 +85,7 @@ class Kermits2::Migration
   end
 
   def self.migrate_single_mi_attempt_by_id(mi_attempt_id)
+    begin
     old_mi_attempt = Old::MiAttempt.find(mi_attempt_id)
 
     clone = Clone.find_by_clone_name!(old_mi_attempt.clone_name)
@@ -137,7 +138,8 @@ class Kermits2::Migration
     )
 
     # Important details (cont)
-    if(old_mi_attempt.edit_date > old_mi_attempt.emi_event.edit_date)
+    if(old_mi_attempt.emi_event.edit_date.nil? or
+                old_mi_attempt.edit_date > old_mi_attempt.emi_event.edit_date)
       latest_object = old_mi_attempt
     else
       latest_object = old_mi_attempt.emi_event
@@ -185,7 +187,12 @@ class Kermits2::Migration
       mi_attempt.send("#{new_name}=", value)
     end
 
-    mi_attempt.save!
+      mi_attempt.save!
+    rescue => e
+      e2 = e.class.new("Error migrating emi_attempt(#{old_mi_attempt.id}) clone_name(#{old_mi_attempt.clone_name}): #{e.message}")
+      e2.set_backtrace(e.backtrace)
+      raise e2
+    end
   end
 
 end

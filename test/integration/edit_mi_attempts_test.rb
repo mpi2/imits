@@ -6,16 +6,15 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
   context 'Editing an MI Attempt' do
 
     setup do
+      @user1, @user2 = Factory.create(:user), Factory.create(:user)
       clone = Factory.create(:clone_EPD0343_1_H06)
       @default_mi_attempt = clone.mi_attempts.first
-
-      login # Remove when assert_mi_attempt_was_audited is used to wrap all tests as it should
+      @default_mi_attempt.updated_by = @user1
+      @default_mi_attempt.save!
     end
 
     def assert_mi_attempt_was_audited
-      assert_equal 'vvi', @default_mi_attempt.edited_by
-
-      login
+      login(@user2.email)
       visit '/mi_attempts?search_terms=EPD0343_1_H06'
 
       yield
@@ -25,36 +24,34 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
       sleep 6
 
       @default_mi_attempt.reload
-      assert_in_delta Time.now, @default_mi_attempt.edit_date, 60.seconds
-      assert_equal 'zz99', @default_mi_attempt.edited_by
+      assert_in_delta Time.now, @default_mi_attempt.updated_at, 60.seconds
+      assert_equal @user2.email, @default_mi_attempt.updated_by.email
     end
 
     should 'audit MiAttempt when emma status changes' do
-      visit '/mi_attempts?search_terms=EPD0343_1_H06'
-      # assert_mi_attempt_was_audited do
+      assert_mi_attempt_was_audited do
         find('.x-grid3-col-emma_status').click # The cell containing EMMA status
         find('.x-editor .x-form-trigger').click # The combo box down arrow
         find('.x-combo-list-item:nth-child(4)').click # 'Unsuitable for EMMA - STICKY'
-      # end
-      click_button 'Save Changes'
-      sleep 6
-      @default_mi_attempt.reload
+      end
       assert_equal :unsuitable_sticky, @default_mi_attempt.emma_status
     end
 
-    should_eventually 'audit MiAttempt when simple numeric field changes' do
+    should 'audit MiAttempt when simple numeric field changes' do
       assert_mi_attempt_was_audited do
-        find('.x-grid3-col-number_born').click # The cell containing 'Total Pups Born'
+        visit '/mi_attempts?search_terms=EPD0343_1_H06'
+        find('.x-grid3-col-total_pups_born').click # The cell containing 'Total Pups Born'
         sleep 1
         find('.x-editor input.x-form-text[@type=text]').set('12')
         sleep 1
-        find('.x-grid3-col-clone_name').click # Make text-box lose focus
+        find('.x-grid3-col-clone__clone_name').click # Make text-box lose focus
       end
-      assert_equal 12, @default_mi_attempt.number_born
+      assert_equal 12, @default_mi_attempt.total_pups_born
     end
 
     context 'mouse allele type' do
       should 'be settable to a valid type' do
+        login
         visit '/mi_attempts?search_terms=EPD0343_1_H06'
         find('.x-grid3-col-mouse_allele_type').click
         find('.x-editor .x-form-trigger').click # The combo box down arrow
@@ -71,6 +68,7 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
       end
 
       should 'be settable to nil' do
+        login
         visit '/mi_attempts?search_terms=EPD0343_1_H06'
         find('.x-grid3-col-mouse_allele_type').click
         find('.x-editor .x-form-trigger').click # The combo box down arrow
@@ -94,6 +92,7 @@ class EditMiAttemptsTest < ActionDispatch::IntegrationTest
         assert_nil deletion_clone.allele_type
         Factory.create(:mi_attempt, :clone => deletion_clone)
 
+        login
         visit '/mi_attempts?search_terms=EPD_CUSTOM_1'
         find('.x-grid3-col-mouse_allele_type').click
         assert page.has_no_css?('.x-editor .x-form-trigger')

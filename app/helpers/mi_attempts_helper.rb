@@ -326,7 +326,7 @@ module MiAttemptsHelper
         :prohibit_delete => true,
         :enable_edit_in_form => false,
         :enable_extended_search => false,
-        :strong_default_attrs => {:edited_by => @passed_config[:current_username]},
+        :strong_default_attrs => {:updated_by_id => @passed_config[:current_user_id]},
         :scope => [:search, @passed_config[:search_params]]
       )
     end
@@ -336,7 +336,7 @@ module MiAttemptsHelper
     def configuration
       config_up_to_now = super
       search_params = config_up_to_now.delete(:search_params)
-      current_username = config_up_to_now.delete(:current_username)
+      current_user_id = config_up_to_now.delete(:current_user_id)
       config_up_to_now.merge(
         :name => :micro_injection_attempts_widget,
         :layout => :fit,
@@ -345,7 +345,7 @@ module MiAttemptsHelper
           { :name => :micro_injection_attempts,
             :class_name => 'MiAttemptsHelper::MiAttemptsGrid',
             :ref => 'grid',
-            :current_username => current_username,
+            :current_user_id => current_user_id,
             :search_params => search_params
           }
         ]
@@ -379,7 +379,7 @@ module MiAttemptsHelper
 
     netzke(:micro_injection_attempts_widget,
       :class_name => 'MiAttemptsHelper::MiAttemptsWidget',
-      # TODO :current_username => current_user.user_name,
+      :current_user_id => current_user.id,
       :search_params => search_params) + "\n" + onready
   end
 end

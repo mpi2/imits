@@ -33,6 +33,8 @@ class MiAttempt < ActiveRecord::Base
     ['e', 'e - Targeted Non-Conditional']
   ].freeze
 
+  acts_as_audited :protect => false
+
   belongs_to :clone
   validates :clone, :presence => true
 

@@ -4,6 +4,11 @@ class SampleData
 
     require 'factory_girl_rails'
 
+    user = User.find_by_email('test@example.com')
+    if ! user
+      user = Factory.create(:user, :email => 'test@example.com')
+    end
+
     Centre.find_or_create_by_name('WTSI')
     Centre.find_or_create_by_name('ICS')
 

@@ -46,6 +46,8 @@ GEM
       activemodel (= 3.0.7)
       activesupport (= 3.0.7)
     activesupport (3.0.7)
+    acts_as_audited (2.0.0.rc7)
+      rails (>= 3.0.3)
     acts_as_list (0.1.2)
     arel (2.0.9)
     bcrypt-ruby (2.1.4)
@@ -138,6 +140,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-oracle_enhanced-adapter
+  acts_as_audited (~> 2.0.0.rc7)
   biomart
   capybara
   database_cleaner

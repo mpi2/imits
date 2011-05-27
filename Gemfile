@@ -9,6 +9,7 @@ gem 'foreigner'
 
 gem 'devise'
 gem 'biomart'
+gem 'acts_as_audited', '~>2.0.0.rc7'
 
 gem 'netzke-core', :git => "http://github.com/skozlov/netzke-core.git"
 gem 'netzke-basepack', :git => "http://github.com/skozlov/netzke-basepack.git"

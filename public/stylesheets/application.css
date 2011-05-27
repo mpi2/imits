@@ -144,6 +144,7 @@ textarea#search-terms {
 
 #login-form form div {
     overflow: hidden; /* clear floats */
+    margin-top: 0.5em;
 }
 
 #login-form label {
@@ -155,7 +156,6 @@ textarea#search-terms {
     display: block;
     width: 15em;
     margin-left: 8em;
-    margin-top: 0.5em;
 }
 
 #login-form input[type=checkbox] {

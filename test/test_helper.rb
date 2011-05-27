@@ -65,6 +65,10 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
     assert_not_match(%r{^http://[^/]+/users/login$}, current_url)
   end
 
+  def assert_login_page
+    assert_match(%r{^http://[^/]+/users/login$}, current_url)
+  end
+
   def selector_for_table_cell(table_row)
     ".x-grid3-body .x-grid3-row:nth-child(#{table_row}) .x-grid3-cell-inner"
   end

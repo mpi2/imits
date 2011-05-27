@@ -25,6 +25,14 @@ h1 {
     line-height: 2em;
 }
 
+h1 a {
+    text-decoration: none;
+}
+
+h1 a:hover, h1 a:active {
+    text-decoration: underline;
+}
+
 em {
     font-style: italic;
 }
@@ -44,7 +52,7 @@ em {
    margin: 0 1em;
 }
 
-.flash {
+.message {
     width: 20%;
     margin-left: auto;
     margin-right: auto;
@@ -52,24 +60,24 @@ em {
     margin-bottom: 2em;
 }
 
-.flash p {
+.message p {
     border: 3px solid white;
 }
 
-.flash p.body {
+.message p.body {
     padding: 3px;
     margin-top: 0;
 }
 
-.flash.notice p {
+.message.notice p {
     border-color: green;
 }
 
-.flash.error p, .flash.alert p {
+.message.error p, .message.alert p {
     border-color: darkred;
 }
 
-.flash p.header {
+.message p.header {
     color: white;
     font-size: 125%;
     line-height: 1.6em;
@@ -80,18 +88,22 @@ em {
     padding-left: 28px;
 }
 
-.flash.notice p.header {
+.message.notice p.header {
     background-image: url('/images/icons/flag_green.png');
     background-color: green;
 }
 
-.flash.error p.header, .flash.alert p.header {
+.message.error p.header, .message.alert p.header {
     background-image: url('/images/icons/flag_red.png');
     background-color: darkred;
 }
 
 .wait {
     cursor: wait;
+}
+
+#error_explanation, .field_with_errors label {
+    background-color: red;
 }
 
 #mi-attempts-form {
@@ -142,7 +154,7 @@ textarea#search-terms {
     width: 30em;
 }
 
-#login-form form div {
+#login-form form > div {
     overflow: hidden; /* clear floats */
     margin-top: 0.5em;
 }

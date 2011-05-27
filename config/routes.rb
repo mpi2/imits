@@ -1,14 +1,13 @@
 Kermits2::Application.routes.draw do
 
-  devise_for :users, :skip => [:passwords],
-          :path_names => { :sign_in => 'login', :sign_out => 'logout', :sign_up => 'register' }
-
-
   netzke
 
   root :to => "mi_attempts#index"
 
   resources :mi_attempts, :only => [:index]
+
+  devise_for :users,
+          :path_names => { :sign_in => 'login', :sign_out => 'logout' }
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

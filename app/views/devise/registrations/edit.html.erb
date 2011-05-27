@@ -1,0 +1,26 @@
+<% @title = 'Change Password' %>
+
+<%= render_message :notice, 'Change your password here' %>
+
+<div id="login-form">
+  <%= form_for :user, :url => registration_path(:user), :html => { :method => :put } do |form| %>
+    <%= devise_error_messages! %>
+
+    <div>
+      <%= form.label :current_password, 'Current password' %>
+      <%= form.password_field :current_password, :class => 'initial-focus' %>
+    </div>
+
+    <div>
+      <%= form.label :password, 'New password' %>
+      <%= form.password_field :password %>
+    </div>
+
+    <div>
+      <%= form.label :password_confirmation, 'Confirm new password' %>
+      <%= form.password_field :password_confirmation %>
+    </div>
+
+    <div><%= form.submit 'Change password' %></div>
+  <% end %>
+</div>

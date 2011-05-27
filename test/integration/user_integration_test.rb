@@ -23,7 +23,7 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
         fill_in 'Password', :with => 'invalidpassword'
         click_button 'Login'
 
-        assert_match %r{^http://[^/]+/users/login$}, current_url
+        assert_login_page
         assert page.has_content? 'nvalid email or password'
       end
     end
@@ -32,12 +32,47 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
       should 'work' do
         login
         click_link 'Logout'
-        assert_match(%r{^http://[^/]+/users/login$}, current_url)
+        assert_login_page
       end
 
       should 'disable logout link' do
         visit '/users/logout'
         assert page.has_no_css? 'a', :text => 'Logout'
+      end
+    end
+
+    context 'changing passwords' do
+      should 'require login' do
+        visit '/users/edit'
+        assert_login_page
+      end
+
+      should 'work' do
+        user = Factory.create :user
+        login(user.email)
+        click_link 'Change password'
+        fill_in 'Current password', :with => 'password'
+        fill_in 'New password', :with => 'new password'
+        fill_in 'Confirm new password', :with => 'new password'
+        click_button 'Change password'
+        assert_match %r{^http://[^/]+/$}, current_url
+
+        visit '/users/logout'
+        fill_in 'Email', :with => user.email
+        fill_in 'Password', :with => 'new password'
+        click_button 'Login'
+        assert_match %r{^http://[^/]+/$}, current_url
+      end
+
+      should 'validate' do
+        user = Factory.create :user
+        login(user.email)
+        click_link 'Change password'
+        fill_in 'Current password', :with => 'password'
+        fill_in 'New password', :with => 'new password'
+        fill_in 'Confirm new password', :with => 'wrong password confirmation'
+        click_button 'Change password'
+        assert page.has_css? 'h1', :text => /Change Password/
       end
     end
 

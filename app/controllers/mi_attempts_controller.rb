@@ -1,6 +1,6 @@
 class MiAttemptsController < ApplicationController
 
-  before_filter :authenticate_user!, :only => :index
+  before_filter :authenticate_user!
 
   def index
     @search_params = {

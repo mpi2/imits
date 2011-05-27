@@ -29,6 +29,7 @@ namespace :deploy do
   desc "Symlink shared configs and directories on each release"
   task :symlink_shared do
     run "ln -nfs #{shared_path}/database.yml #{release_path}/config/database.yml"
+    run "ln -nfs #{shared_path}/old_database.yml #{release_path}/config/old_database.yml"
 
     # /tmp
     run "mkdir -m 777 -p #{var_run_path}/tmp"

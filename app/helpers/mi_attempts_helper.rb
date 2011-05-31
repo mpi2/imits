@@ -202,7 +202,7 @@ module MiAttemptsHelper
 
         mi_attempt_column(:total_male_chimeras, :align => :right),
 
-        mi_attempt_column(:total_chimeras, :read_only => true, :align => :right),
+        mi_attempt_column(:total_chimeras, :readOnly => true, :align => :right),
 
         mi_attempt_column(:number_of_males_with_100_percent_chimerism, :header => '100% Male Chimerism Levels', :align => :right),
 

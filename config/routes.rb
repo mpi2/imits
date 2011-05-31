@@ -7,7 +7,10 @@ Kermits2::Application.routes.draw do
   resources :mi_attempts, :only => [:index]
 
   devise_for :users,
-          :path_names => { :sign_in => 'login', :sign_out => 'logout' }
+          :path_names => { :sign_in => 'login', :sign_out => 'logout' } do
+    get 'users/edit', :to => 'devise/registrations#edit', :as => :edit_user_registration
+    put '/users', :to => 'devise/registrations#update', :as => :user_registration
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

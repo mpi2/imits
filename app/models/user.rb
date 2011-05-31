@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-  devise :database_authenticatable, :rememberable, :validatable, :registerable
+  devise :database_authenticatable, :rememberable, :validatable
 
   attr_accessible :email, :password, :password_confirmation, :remember_me,
           :production_centre, :production_centre_id

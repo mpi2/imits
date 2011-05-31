@@ -56,10 +56,28 @@ div#mainnav-outer {
 
 div#mainnav {
     float: left;
-    font-size: 2em;
-    line-height: 2em;
+    font-size: 1.5em;
+    line-height: 2.67em;
     position: relative;
     left: -50%;
+    margin-top: 2px;
+}
+
+div#mainnav a {
+    display: block;
+    float: left;
+    width: auto;
+    padding: 0 1em;
+    border: 1px solid white;
+    border-top-left-radius: 15px 30px;
+    border-top-right-radius: 15px 30px;
+    -moz-border-radius-topleft: 15px 30px;
+    -moz-border-radius-topright: 15px 30px;
+}
+
+div#mainnav a.current {
+    background-color: white;
+    color: #074987;
 }
 
 #container {

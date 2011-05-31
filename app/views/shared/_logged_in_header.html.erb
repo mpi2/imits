@@ -1,6 +1,6 @@
-          <p>You are logged in as <%= current_user.email %>
-            ::
-            <%= link_to 'Change password', edit_user_registration_path %>
-            ::
-            <%= link_to 'Logout', destroy_user_session_path %>
-          </p>
+<div class="right">You are logged in as <%= current_user.email %>
+  ::
+  <%= link_to 'Change password', edit_user_registration_path %>
+  ::
+  <%= link_to 'Logout', destroy_user_session_path %>
+</div>

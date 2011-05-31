@@ -9,6 +9,10 @@ sup {
     font-size: 80%;
 }
 
+em {
+    font-style: italic;
+}
+
 #header {
     display: block;
     color: white;
@@ -16,6 +20,18 @@ sup {
     margin-bottom: 2em;
     padding-left: 1em;
     overflow: hidden; /* clear floats */
+    height: 4em;
+}
+
+#header a {
+    color: white;
+}
+
+#header > div.right {
+    width: auto;
+    float: right;
+    margin-right: 1em;
+    line-height: 4em;
 }
 
 h1 {
@@ -33,19 +49,17 @@ h1 a:hover, h1 a:active {
     text-decoration: underline;
 }
 
-em {
-    font-style: italic;
+div#mainnav-outer {
+    position: absolute;
+    left: 50%;
 }
 
-#header p {
-    width: auto;
-    float: right;
-    margin-right: 1em;
-    margin-top: 1.4em;
-}
-
-#header a {
-    color: white;
+div#mainnav {
+    float: left;
+    font-size: 2em;
+    line-height: 2em;
+    position: relative;
+    left: -50%;
 }
 
 #container {

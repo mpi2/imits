@@ -1,3 +1,33 @@
 <% @tab = 'Create' %>
 
-<p>Create me baby</p>
+<div>
+  <%= form_for @mi_attempt do |form| %>
+    <div>
+      <%= form.label :production_centre_id, 'Production Centre' %>
+      <%= form.collection_select :production_centre_id, @centres, :id, :name %>
+    </div>
+
+    <div>
+      <%= form.label :distribution_centre_id, 'Distribution Centre' %>
+      <%= form.collection_select :distribution_centre_id, @centres, :id, :name %>
+    </div>
+
+    <% MiAttempt::QC_FIELDS.each do |qc_field| %>
+      <div>
+        <%= form.label "#{qc_field}_id" %>
+        <%= form.collection_select "#{qc_field}_id", @qc_statuses, :id, :description %>
+      </div>
+    <% end %>
+
+    <% [:should_export_to_mart, :is_active, :is_released_from_genotyping].each do |field| %>
+      <div>
+        <%= form.label field %>
+        <%= form.check_box field %>
+      </div>
+    <% end %>
+
+    <div>
+      <%= form.submit 'Create' %>
+    </div>
+  <% end %>
+</div>

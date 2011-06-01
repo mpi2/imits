@@ -1,5 +1,7 @@
 class MiAttemptsController < ApplicationController
 
+  respond_to :html
+
   before_filter :authenticate_user!
 
   def index
@@ -19,6 +21,19 @@ class MiAttemptsController < ApplicationController
   end
 
   def new
+    @mi_attempt = MiAttempt.new(
+      :production_centre => current_user.production_centre,
+      :distribution_centre => current_user.production_centre)
+    @centres = Centre.all
+    @qc_statuses = QcStatus.all
+  end
+
+  def create
+    mi_attempt = MiAttempt.new(params[:mi_attempt])
+    mi_attempt.clone = Clone.find(:first)
+    mi_attempt.save!
+    flash[:notice] = 'MI Attempt created'
+    redirect_to root_path
   end
 
 end

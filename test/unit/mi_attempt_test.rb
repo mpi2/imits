@@ -26,20 +26,6 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_should belong_to(:distribution_centre)
     end
 
-    context 'distribution_centre' do
-      should 'should default to production_centre if not set' do
-        mi_attempt = Factory.create :mi_attempt, :production_centre => Centre.find_by_name('WTSI')
-        assert_equal 'WTSI', mi_attempt.distribution_centre.name
-      end
-
-      should 'not default if already set' do
-        mi_attempt = Factory.create :mi_attempt,
-                :production_centre => Centre.find_by_name('WTSI'),
-                :distribution_centre => Centre.find_by_name('ICS')
-        assert_equal 'ICS', mi_attempt.distribution_centre.name
-      end
-    end
-
     should 'have status' do
       assert_should have_db_column(:mi_attempt_status_id).with_options(:null => false)
       assert_should belong_to(:mi_attempt_status)

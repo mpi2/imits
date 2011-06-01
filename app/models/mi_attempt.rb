@@ -54,7 +54,6 @@ class MiAttempt < ActiveRecord::Base
   end
 
   before_validation :set_default_status
-  before_validation :set_missing_distribution_centre
   before_validation :set_total_chimeras
 
   def emma_status
@@ -148,10 +147,6 @@ class MiAttempt < ActiveRecord::Base
 
   def set_default_status
     self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
-  end
-
-  def set_missing_distribution_centre
-    self.distribution_centre ||= self.production_centre
   end
 
   def set_total_chimeras

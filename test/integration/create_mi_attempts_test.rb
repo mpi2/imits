@@ -6,6 +6,7 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
   context 'Create MI Attempt' do
 
     should 'require login' do
+      visit '/'
       assert page.has_no_css? '#mainnav a:contains("Create")'
     end
 

@@ -21,8 +21,8 @@
     <div id="container">
       <div id="header">
         <h1><%= link_to 'Kermits 2', root_path %></h1>
-          <%= render '/shared/mainnav' %>
         <% if user_signed_in? %>
+          <%= render '/shared/mainnav' %>
           <%= render '/shared/logged_in_header' %>
         <% end %>
       </div>

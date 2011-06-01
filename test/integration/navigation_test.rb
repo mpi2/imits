@@ -6,7 +6,7 @@ class NavigationTest < ActionDispatch::IntegrationTest
   context 'Navigation' do
 
     def assert_current_link(text)
-      assert page.has_css? "#mainnav a.current:contains(\"#{text}\")"
+      assert page.has_css? "#mainnav a.current", :text => text
     end
 
     should 'not be shown when not logged in' do

@@ -72,7 +72,7 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
         fill_in 'New password', :with => 'new password'
         fill_in 'Confirm new password', :with => 'wrong password confirmation'
         click_button 'Change password'
-        assert page.has_css? 'h1', :text => /Change Password/
+        assert page.has_css? 'h2', :text => 'Change Password'
       end
     end
 

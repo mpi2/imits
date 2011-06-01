@@ -31,7 +31,8 @@ em {
     width: auto;
     float: right;
     margin-right: 1em;
-    line-height: 4em;
+    line-height: 2em;
+    text-align: right;
 }
 
 h1 {

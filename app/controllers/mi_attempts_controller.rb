@@ -18,4 +18,7 @@ class MiAttemptsController < ApplicationController
     end
   end
 
+  def new
+  end
+
 end

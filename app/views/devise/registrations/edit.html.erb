@@ -1,8 +1,6 @@
 <% @title = 'Change Password' %>
 
-<%= render_message :notice, 'Change your password here' %>
-
-<div id="login-form">
+<div id="user-form">
   <%= form_for :user, :url => registration_path(:user), :html => { :method => :put } do |form| %>
     <%= devise_error_messages! %>
 

@@ -11,4 +11,17 @@ module ApplicationHelper
               content_tag(:p, message, :class => 'body')
     end
   end
+
+  def mainnav_links
+    retval = [
+      ['Search & Edit', mi_attempts_path],
+      ['Create', new_mi_attempt_path]
+    ].map do |link|
+      if @tab == link[0]
+        link << {:class => 'current'}
+      end
+      link_to *link
+    end
+    return retval.join.html_safe
+  end
 end

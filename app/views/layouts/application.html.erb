@@ -2,7 +2,7 @@
 <html>
 
   <head>
-    <title>Kermits 2 - <%= @title %></title>
+    <title>Kermits 2 - <%= @tab || @title %></title>
     <%= stylesheet_link_tag 'reset' %>
     <%= netzke_init %>
 
@@ -20,12 +20,14 @@
   <body>
     <div id="container">
       <div id="header">
-        <h1><%= link_to 'Kermits 2', root_path %> - <%= @title %></h1>
-        <%= render '/shared/mainnav' %>
+        <h1><%= link_to 'Kermits 2', root_path %></h1>
+          <%= render '/shared/mainnav' %>
         <% if user_signed_in? %>
           <%= render '/shared/logged_in_header' %>
         <% end %>
       </div>
+
+      <% unless @tab %><h2><%= @title %></h2><% end %>
 
       <%= flash_message :notice %>
 

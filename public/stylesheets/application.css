@@ -42,6 +42,14 @@ h1 {
     line-height: 2em;
 }
 
+h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
 h1 a {
     text-decoration: none;
 }
@@ -82,7 +90,7 @@ div#mainnav a.current {
 }
 
 #container {
-   margin: 0 1em;
+    margin: 0 1em;
 }
 
 .message {
@@ -177,34 +185,34 @@ textarea#search-terms {
     margin-top: 1em;
 }
 
-#login-form {
-    margin-top: 10em;
+#user-form {
+    margin-top: 3em;
     margin-left: auto;
     margin-right: auto;
     width: 30em;
 }
 
-#login-form form > div {
+#user-form form > div {
     overflow: hidden; /* clear floats */
     margin-top: 0.5em;
 }
 
-#login-form label {
+#user-form label {
     float: left;
     width: 8em;
 }
 
-#login-form input {
+#user-form input {
     display: block;
     width: 15em;
     margin-left: 8em;
 }
 
-#login-form input[type=checkbox] {
+#user-form input[type=checkbox] {
     width: auto;
 }
 
-#login-form input[type=submit] {
+#user-form input[type=submit] {
     margin-top: 1em;
 }
 

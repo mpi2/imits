@@ -27,6 +27,7 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
       mi_attempt = MiAttempt.first
       assert_not_nil mi_attempt
 
+      # TODO clone
       assert_equal 'WTSI', mi_attempt.distribution_centre.name
       assert_equal 'ICS', mi_attempt.production_centre.name
 

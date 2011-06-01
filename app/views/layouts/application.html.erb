@@ -4,7 +4,8 @@
   <head>
     <title>Kermits 2 - <%= @tab || @title %></title>
     <%= stylesheet_link_tag 'reset' %>
-    <%= netzke_init %>
+
+    <%= if @netzke_required; netzke_init; end %>
 
     <%= stylesheet_link_tag 'grid' %>
     <!--[if IE]>

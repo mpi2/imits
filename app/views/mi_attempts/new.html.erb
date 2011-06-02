@@ -4,40 +4,72 @@
   <%= form_for @mi_attempt, :html => {:class => 'mi-attempt'} do |form| %>
     <% generator = MiAttemptFieldGenerator.new(form) %>
 
-    <div>
-      <%= form.label :mi_date, 'MI date' %>
-      <%= form.text_field :mi_date, :class => 'date-field' %>
-    </div>
+    <fieldset>
+      <legend>Important details</legend>
 
-    <%= generator.text_field(:colony_name) %>
+      <%= generator.text_field :mi_date, :label => 'MI date', :class => 'date-field initial-focus' %>
 
-    <div>
-      <%= form.label :production_centre_id, 'Production Centre' %>
-      <%= form.collection_select :production_centre_id, @centres, :id, :name %>
-    </div>
+      <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 10) %>
 
-    <div>
-      <%= form.label :distribution_centre_id, 'Distribution Centre' %>
-      <%= form.collection_select :distribution_centre_id, @centres, :id, :name %>
-    </div>
-
-    <div>
-      <%= generator.text_field :total_blasts_injected, :class => 'number-field' %>
-    </div>
-
-    <% MiAttempt::QC_FIELDS.each do |qc_field| %>
       <div>
-        <%= form.label "#{qc_field}_id", qc_field.to_s.gsub(/^qc_(.+)$/, '\1').humanize %>
-        <%= form.collection_select "#{qc_field}_id", @qc_statuses, :id, :description %>
+        <%= form.label :production_centre_id %>
+        <%= form.collection_select :production_centre_id, @centres, :id, :name %>
       </div>
-    <% end %>
 
-    <% [:should_export_to_mart, :is_active, :is_released_from_genotyping].each do |field| %>
       <div>
-        <%= form.label field %>
-        <%= form.check_box field %>
+        <%= form.label :distribution_centre_id %>
+        <%= form.collection_select :distribution_centre_id, @centres, :id, :name %>
       </div>
-    <% end %>
+    </fieldset>
+
+    <fieldset>
+      <legend>Transfer details</legend>
+      <%= generator.number_field :total_blasts_injected %>
+      <%= generator.number_field :total_transferred %>
+      <%= generator.number_field :number_surrogates_receiving %>
+    </fieldset>
+
+    <fieldset>
+      <legend>Litter details</legend>
+      <%= generator.number_field :total_pups_born %>
+      <%= generator.number_field :total_female_chimeras %>
+      <%= generator.number_field :total_male_chimeras %>
+      <%= generator.number_field :number_of_males_with_0_to_39_percent_chimerism %>
+      <%= generator.number_field :number_of_males_with_40_to_79_percent_chimerism %>
+      <%= generator.number_field :number_of_males_with_80_to_99_percent_chimerism %>
+      <%= generator.number_field :number_of_males_with_100_percent_chimerism %>
+    </fieldset>
+
+    <fieldset>
+      <legend>Chimera mating details</legend>
+
+      <%= generator.emma_status_field %>
+      <%= generator.number_field :number_of_chimera_matings_attempted %>
+      <%= generator.number_field :number_of_chimera_matings_successful %>
+      <%= generator.number_field :number_of_chimeras_with_glt_from_cct %>
+      <%= generator.number_field :number_of_chimeras_with_glt_from_genotyping %>
+      <%= generator.number_field :number_of_chimeras_with_0_to_9_percent_glt %>
+      <%= generator.number_field :number_of_chimeras_with_10_to_49_percent_glt %>
+      <%= generator.number_field :number_of_chimeras_with_50_to_99_percent_glt %>
+      <%= generator.number_field :number_of_chimeras_with_100_percent_glt %>
+      <%= generator.number_field :total_f1_mice_from_matings %>
+      <%= generator.number_field :number_of_cct_offspring %>
+      <%= generator.number_field :number_of_het_offspring %>
+      <%= generator.number_field :number_of_live_glt_offspring %>
+    </fieldset>
+
+    <fieldset>
+      <legend>QC details</legend>
+
+      <%= generator.qc_fields %>
+
+      <% [:should_export_to_mart, :is_active, :is_released_from_genotyping].each do |field| %>
+        <div>
+          <%= form.label field %>
+          <%= form.check_box field %>
+        </div>
+      <% end %>
+    </fieldset>
 
     <div>
       <%= form.submit 'Create' %>

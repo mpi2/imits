@@ -25,7 +25,6 @@ class MiAttemptsController < ApplicationController
       :production_centre => current_user.production_centre,
       :distribution_centre => current_user.production_centre)
     @centres = Centre.all
-    @qc_statuses = QcStatus.all
   end
 
   def create

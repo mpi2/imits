@@ -6,7 +6,8 @@ function onWindowLoad() {
 }
 
 Ext.onReady(function() {
-    initDatePickers();
+    initDateFields();
+    initNumberFields();
 });
 
 function setInitialFocus() {
@@ -61,7 +62,7 @@ function toggleMiAttemptsSwitchViewButton(button, pressed) {
     setTimeout(intensiveOperation, 500);
 }
 
-function initDatePickers() {
+function initDateFields() {
     var elements = Ext.DomQuery.jsSelect('.date-field');
     for(var i = 0; i != elements.length; ++i) {
         var textField = elements[i];
@@ -71,10 +72,31 @@ function initDatePickers() {
         outerDiv.replaceChild(renderDiv, textField);
 
         var dateField = new Ext.form.DateField({
+            cls: 'date-field',
             renderTo: renderDiv,
             name: textField.name,
             editable: false,
             format: 'd/m/Y'
+        });
+    }
+}
+
+function initNumberFields() {
+    var elements = Ext.DomQuery.jsSelect('.number-field');
+    for(var i = 0; i != elements.length; ++i) {
+        var textField = elements[i];
+        var outerDiv = textField.parentNode;
+
+        var renderDiv = Ext.DomHelper.createDom({tag: 'div'});
+        outerDiv.replaceChild(renderDiv, textField);
+
+        var numberField = new Ext.form.NumberField({
+            cls: 'number-field',
+            renderTo: renderDiv,
+            name: textField.name,
+            allowDecimals: false,
+            allowNegative: false,
+            width: 40
         });
     }
 }

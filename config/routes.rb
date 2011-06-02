@@ -4,7 +4,7 @@ Kermits2::Application.routes.draw do
 
   root :to => "mi_attempts#index"
 
-  resources :mi_attempts, :only => [:index, :new, :create]
+  resources :mi_attempts, :only => [:index, :new, :create, :edit]
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do

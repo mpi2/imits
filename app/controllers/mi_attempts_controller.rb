@@ -36,4 +36,8 @@ class MiAttemptsController < ApplicationController
     redirect_to root_path
   end
 
+  def edit
+    @mi_attempt = MiAttempt.find(params[:id])
+  end
+
 end

@@ -5,6 +5,10 @@ function onWindowLoad() {
     clearSearchTermsHandler();
 }
 
+Ext.onReady(function() {
+    initDatePickers();
+});
+
 function setInitialFocus() {
     var thing = Ext.DomQuery.jsSelect('.initial-focus')[0];
     if(thing) {
@@ -55,4 +59,22 @@ function toggleMiAttemptsSwitchViewButton(button, pressed) {
     mask.show();
 
     setTimeout(intensiveOperation, 500);
+}
+
+function initDatePickers() {
+    var elements = Ext.DomQuery.jsSelect('.date-field');
+    for(var i = 0; i != elements.length; ++i) {
+        var textField = elements[i];
+        var outerDiv = textField.parentNode;
+
+        var renderDiv = Ext.DomHelper.createDom({tag: 'div'});
+        outerDiv.replaceChild(renderDiv, textField);
+
+        var dateField = new Ext.form.DateField({
+            renderTo: renderDiv,
+            name: textField.name,
+            editable: false,
+            format: 'd/m/Y'
+        });
+    }
 }

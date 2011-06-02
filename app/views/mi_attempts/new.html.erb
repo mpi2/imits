@@ -1,12 +1,15 @@
 <% @tab = 'Create' %>
 
 <div>
-  <%= form_for @mi_attempt do |form| %>
-    <div class="datepicker">
+  <%= form_for @mi_attempt, :html => {:class => 'mi-attempt'} do |form| %>
+    <% generator = MiAttemptFieldGenerator.new(form) %>
+
+    <div>
       <%= form.label :mi_date, 'MI date' %>
-      <%= form.text_field :mi_date, :disabled => true %>
-      <%= image_tag 'icons/calendar.png' %>
+      <%= form.text_field :mi_date, :class => 'date-field' %>
     </div>
+
+    <%= generator.text_field(:colony_name) %>
 
     <div>
       <%= form.label :production_centre_id, 'Production Centre' %>
@@ -18,9 +21,13 @@
       <%= form.collection_select :distribution_centre_id, @centres, :id, :name %>
     </div>
 
+    <div>
+      <%= generator.text_field :total_blasts_injected, :class => 'number-field' %>
+    </div>
+
     <% MiAttempt::QC_FIELDS.each do |qc_field| %>
       <div>
-        <%= form.label "#{qc_field}_id" %>
+        <%= form.label "#{qc_field}_id", qc_field.to_s.gsub(/^qc_(.+)$/, '\1').humanize %>
         <%= form.collection_select "#{qc_field}_id", @qc_statuses, :id, :description %>
       </div>
     <% end %>

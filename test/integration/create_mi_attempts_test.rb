@@ -19,28 +19,29 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
       click_link 'Create'
 
       assert_equal 0, MiAttempt.count
+
+      fill_in 'mi_attempt_colony_name', :with => 'ABCD'
       select 'WTSI', :from => 'mi_attempt_distribution_centre_id'
       select 'ICS', :from => 'mi_attempt_production_centre_id'
       click_button 'mi_attempt_submit'
       sleep 6
+
       assert_equal 1, MiAttempt.count
       mi_attempt = MiAttempt.first
       assert_not_nil mi_attempt
 
-
       # Important fields
       # TODO clone
-      assert_equal '2011-05-31', mi_attempt.mi_date.to_s
       assert_equal MiAttemptStatus.micro_injection_in_progress, mi_attempt.mi_attempt_status
-      assert_nil mi_attempt.colony_name
+      assert_equal 'ABCD', mi_attempt.colony_name
       assert_equal 'WTSI', mi_attempt.distribution_centre.name
       assert_equal 'ICS', mi_attempt.production_centre.name
 
       # Transfer details
-      assert_nil mi_attempt.blast_strain
-      assert_nil mi_attempt.total_blasts_injected
-      assert_nil mi_attempt.total_transferred
-      assert_nil mi_attempt.number_surrogates_receiving
+      # TODO assert_equal 'something', mi_attempt.blast_strain
+      assert_equal 10, mi_attempt.total_blasts_injected
+      assert_equal 9, mi_attempt.total_transferred
+      assert_equal 8, mi_attempt.number_surrogates_receiving
 
       # Litter details
       assert_nil mi_attempt.total_pups_born

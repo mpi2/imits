@@ -216,6 +216,10 @@ textarea#search-terms {
     margin-top: 1em;
 }
 
+form.mi-attempt label {
+    display: block;
+}
+
 #footer {
     font-size: 80%;
     margin-top: 2em;

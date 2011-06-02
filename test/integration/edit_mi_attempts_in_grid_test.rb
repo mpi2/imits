@@ -2,8 +2,8 @@
 
 require 'test_helper'
 
-class EditMiAttemptsTest < ActionDispatch::IntegrationTest
-  context 'Editing an MI Attempt' do
+class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
+  context 'Editing MI Attempt in grid' do
 
     setup do
       @user1, @user2 = Factory.create(:user), Factory.create(:user)

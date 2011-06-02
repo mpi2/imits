@@ -2,6 +2,12 @@
 
 <div>
   <%= form_for @mi_attempt do |form| %>
+    <div class="datepicker">
+      <%= form.label :mi_date, 'MI date' %>
+      <%= form.text_field :mi_date, :disabled => true %>
+      <%= image_tag 'icons/calendar.png' %>
+    </div>
+
     <div>
       <%= form.label :production_centre_id, 'Production Centre' %>
       <%= form.collection_select :production_centre_id, @centres, :id, :name %>

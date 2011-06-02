@@ -3,13 +3,6 @@
 
   <head>
     <title>Kermits 2 - <%= @tab || @title %></title>
-
-    <% if Rails.env.production? %>
-      <%= javascript_include_tag 'jquery-1.6.1.min' %>
-    <% else %>
-      <%= javascript_include_tag 'jquery-1.6.1' %>
-    <% end %>
-
     <%= stylesheet_link_tag 'reset' %>
 
     <%= if @netzke_required; netzke_init; end %>

@@ -20,6 +20,11 @@ class MiAttemptFieldGenerator
     text_field(name, :class => 'number-field')
   end
 
+  def mouse_allele_type_field
+    field_html = @form.select(:mouse_allele_type, MiAttempt::MOUSE_ALLELE_OPTIONS.map {|x, y| [y, x]})
+    form_field(:mouse_allele_type, nil, field_html)
+  end
+
   def qc_fields
     qc_statuses =  QcStatus.all
     MiAttempt::QC_FIELDS.map do |qc_field|

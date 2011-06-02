@@ -49,6 +49,7 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
       fill_in 'mi_attempt[number_of_cct_offspring]', :with => 37
       fill_in 'mi_attempt[number_of_het_offspring]', :with => 36
       fill_in 'mi_attempt[number_of_live_glt_offspring]', :with => 35
+      select MiAttempt::MOUSE_ALLELE_OPTIONS.last[1], :from => 'mi_attempt[mouse_allele_type]'
 
       click_button 'mi_attempt_submit'
       sleep 6

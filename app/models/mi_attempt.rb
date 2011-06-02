@@ -55,6 +55,7 @@ class MiAttempt < ActiveRecord::Base
 
   before_validation :set_default_status
   before_validation :set_total_chimeras
+  before_validation :set_blank_strings_to_nil
 
   def emma_status
     if is_suitable_for_emma?
@@ -151,6 +152,14 @@ class MiAttempt < ActiveRecord::Base
 
   def set_total_chimeras
     self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
+  end
+
+  def set_blank_strings_to_nil
+    self.attributes.each do |name, value|
+      if self[name].respond_to?(:to_str) && self[name].blank?
+        self[name] = nil
+      end
+    end
   end
 end
 

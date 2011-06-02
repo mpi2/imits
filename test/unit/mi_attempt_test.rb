@@ -225,8 +225,8 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_should have_db_column(:is_released_from_genotyping).of_type(:boolean).with_options(:default => false, :null => false)
     end
 
-    context 'before save filter' do
-      context 'sum_up_total_chimeras before save' do
+    context 'before filter' do
+      context 'set_total_chimeras' do
         should 'work' do
           default_mi_attempt.total_male_chimeras = 5
           default_mi_attempt.total_female_chimeras = 4
@@ -241,6 +241,21 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.save!
           default_mi_attempt.reload
           assert_equal 0, default_mi_attempt.total_chimeras
+        end
+      end
+
+      context 'set_blank_strings_to_nil' do
+        should 'work' do
+          default_mi_attempt.total_male_chimeras = 1
+          default_mi_attempt.colony_name = ''
+          default_mi_attempt.mouse_allele_type = ' '
+          default_mi_attempt.is_active = false
+          default_mi_attempt.save!
+          default_mi_attempt.reload
+          assert_equal 1, default_mi_attempt.total_male_chimeras
+          assert_equal nil, default_mi_attempt.colony_name
+          assert_equal nil, default_mi_attempt.mouse_allele_type
+          assert_equal false, default_mi_attempt.is_active
         end
       end
     end

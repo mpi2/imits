@@ -3,6 +3,7 @@ window.onload = onWindowLoad;
 function onWindowLoad() {
     setInitialFocus();
     clearSearchTermsHandler();
+    // TODO onMiAttemptsNew();
 }
 
 Ext.onReady(function() {
@@ -95,4 +96,47 @@ function initNumberFields() {
             width: 40
         });
     });
+}
+
+function onMiAttemptsNew() {
+    var form = Ext.select('form.new.mi-attempt', true).first();
+    if(! form) {return;}
+
+    var mask = new Ext.LoadMask(form, {
+        msg: 'Please choose a clone',
+        removeMask: true
+    });
+    mask.show();
+
+    var window = new Ext.Window({
+        layout: {
+            type: 'vbox',
+            padding: '5',
+            align: 'left'
+        },
+        width: 500,
+        height: 300,
+        closeAction: 'hide',
+        plain: true,
+        title: 'Select a clone before continuing',
+        buttons: [
+        {
+            text: 'Close',
+            handler: function() {window.hide();}
+        }
+        ]
+    });
+
+    var panel = new Ext.Panel({
+        items: [
+        {
+
+        }
+        ]
+    });
+
+    window.add(panel);
+
+    window.show();
+
 }

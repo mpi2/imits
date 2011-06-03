@@ -9,7 +9,7 @@ class CloneTest < ActiveSupport::TestCase
       @default_clone ||= Factory.create :clone
     end
 
-    context 'generally' do
+    context 'miscellaneous' do
       setup do
         assert_not_nil default_clone
       end
@@ -30,6 +30,10 @@ class CloneTest < ActiveSupport::TestCase
 
       should 'have mgi_accession_id' do
         assert_should have_db_column(:mgi_accession_id).of_type(:text).with_options(:null => true)
+      end
+
+      should 'have is_in_targ_rep flag' do
+        assert_should have_db_column(:is_in_targ_rep).of_type(:boolean).with_options(:null => false, :default => false)
       end
     end
 

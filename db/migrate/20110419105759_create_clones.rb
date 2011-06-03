@@ -7,6 +7,7 @@ class CreateClones < ActiveRecord::Migration
       t.text :allele_type
       t.references :pipeline, :null => false
       t.text :mgi_accession_id
+      t.boolean :is_in_targ_rep, :null => false, :default => false
 
       t.timestamps
     end

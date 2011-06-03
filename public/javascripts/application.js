@@ -11,7 +11,7 @@ Ext.onReady(function() {
 });
 
 function setInitialFocus() {
-    var thing = Ext.DomQuery.jsSelect('.initial-focus')[0];
+    var thing = Ext.select('.initial-focus').first();
     if(thing) {
         thing.focus();
     }
@@ -62,41 +62,37 @@ function toggleMiAttemptsSwitchViewButton(button, pressed) {
     setTimeout(intensiveOperation, 500);
 }
 
-function initDateFields() {
-    var elements = Ext.DomQuery.jsSelect('.date-field');
-    for(var i = 0; i != elements.length; ++i) {
-        var textField = elements[i];
-        var outerDiv = textField.parentNode;
-
+function replaceTextFieldWithExtField(selector, replacementCreationFunction) {
+    Ext.select(selector).each(function(textField, composite, idx) {
         var renderDiv = Ext.DomHelper.createDom({tag: 'div'});
-        outerDiv.replaceChild(renderDiv, textField);
+        var name = textField.dom.name;
+        textField.replaceWith(renderDiv);
 
-        var dateField = new Ext.form.DateField({
+        replacementCreationFunction(renderDiv, name);
+    });
+}
+
+function initDateFields() {
+    replaceTextFieldWithExtField('.date-field', function(renderDiv, name) {
+        new Ext.form.DateField({
             cls: 'date-field',
             renderTo: renderDiv,
-            name: textField.name,
+            name: name,
             editable: false,
             format: 'd/m/Y'
         });
-    }
+    });
 }
 
 function initNumberFields() {
-    var elements = Ext.DomQuery.jsSelect('.number-field');
-    for(var i = 0; i != elements.length; ++i) {
-        var textField = elements[i];
-        var outerDiv = textField.parentNode;
-
-        var renderDiv = Ext.DomHelper.createDom({tag: 'div'});
-        outerDiv.replaceChild(renderDiv, textField);
-
-        var numberField = new Ext.form.NumberField({
+    replaceTextFieldWithExtField('.number-field', function(renderDiv, name) {
+        new Ext.form.NumberField({
             cls: 'number-field',
             renderTo: renderDiv,
-            name: textField.name,
+            name: name,
             allowDecimals: false,
             allowNegative: false,
             width: 40
         });
-    }
+    });
 }

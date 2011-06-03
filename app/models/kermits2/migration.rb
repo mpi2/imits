@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class Kermits2::Migration
   def self.run(params = {})
     params.symbolize_keys!

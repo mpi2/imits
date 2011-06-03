@@ -180,7 +180,7 @@ module MiAttemptsHelper
           }
         ),
 
-        mi_attempt_column(:mi_attempt_status__description, :header => 'Status', :readOnly => true),
+        mi_attempt_column(:mi_attempt_status__description, :header => 'Status', :readOnly => true, :width => 150),
 
         mi_attempt_column(:colony_name),
 

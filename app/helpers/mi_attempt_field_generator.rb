@@ -29,7 +29,7 @@ class MiAttemptFieldGenerator
   def qc_fields
     qc_statuses =  QcStatus.all
     MiAttempt::QC_FIELDS.map do |qc_field|
-      form_field("#{qc_field}_id", qc_field.to_s.gsub(/^qc_(.+)$/, '\1').humanize,
+      form_field("#{qc_field}_id", tidy_label(qc_field.to_s.gsub(/^qc_(.+)$/, '\1').humanize),
           @form.collection_select("#{qc_field}_id", qc_statuses, :id, :description))
     end.join.html_safe
   end
@@ -37,8 +37,33 @@ class MiAttemptFieldGenerator
   private
 
   def form_field(name, label, field_html)
+    label ||= tidy_label(name.to_s.humanize)
+
     content_tag(:div,
       @form.label(name, label) + "\n" + field_html
     )
   end
+
+  def tidy_label(old_label)
+    new_label = [
+      'glt',
+      'cct',
+      'het',
+      'lr',
+      'pcr',
+      'sr',
+      'qpcr',
+      'loa',
+      'tv'
+    ].inject(old_label) do |label, snippet|
+      label.gsub(/\b#{snippet}\b/i, snippet.upcase)
+    end
+
+    return new_label.
+            gsub(/loxp/i, 'LoxP').
+            gsub(/lacz/i, 'LacZ')
+
+    return new_label
+  end
+
 end

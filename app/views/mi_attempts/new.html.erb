@@ -7,7 +7,7 @@
     <fieldset>
       <legend>Universal details</legend>
 
-      <%= generator.text_field :mi_date, :label => 'MI date', :class => 'date-field' %>
+      <%= generator.text_field :mi_date, :label => 'Micro-injection date', :class => 'date-field' %>
 
       <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 10) %>
 
@@ -48,10 +48,10 @@
       <%= generator.number_field :number_of_chimera_matings_successful %>
       <%= generator.number_field :number_of_chimeras_with_glt_from_cct %>
       <%= generator.number_field :number_of_chimeras_with_glt_from_genotyping %>
-      <%= generator.number_field :number_of_chimeras_with_0_to_9_percent_glt %>
-      <%= generator.number_field :number_of_chimeras_with_10_to_49_percent_glt %>
-      <%= generator.number_field :number_of_chimeras_with_50_to_99_percent_glt %>
-      <%= generator.number_field :number_of_chimeras_with_100_percent_glt %>
+      <%= generator.number_field :number_of_chimeras_with_0_to_9_percent_glt,   :label => 'Number of chimeras with 0-9% GLT' %>
+      <%= generator.number_field :number_of_chimeras_with_10_to_49_percent_glt, :label => 'Number of chimeras with 10-49% GLT' %>
+      <%= generator.number_field :number_of_chimeras_with_50_to_99_percent_glt, :label => 'Number of chimeras with 50-99% GLT' %>
+      <%= generator.number_field :number_of_chimeras_with_100_percent_glt,      :label => 'Number of chimeras with 100% GLT' %>
       <%= generator.number_field :total_f1_mice_from_matings %>
       <%= generator.number_field :number_of_cct_offspring %>
       <%= generator.number_field :number_of_het_offspring %>

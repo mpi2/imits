@@ -24,6 +24,7 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
       select 'WTSI', :from => 'mi_attempt[distribution_centre_id]'
       select 'ICS', :from => 'mi_attempt[production_centre_id]'
 
+      select 'Swiss Webster', :from => 'mi_attempt[blast_strain_id]'
       fill_in 'mi_attempt[total_blasts_injected]', :with => 10
       fill_in 'mi_attempt[total_transferred]', :with => 9
       fill_in 'mi_attempt[number_surrogates_receiving]', :with => 8
@@ -37,6 +38,8 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
       fill_in 'mi_attempt[number_of_males_with_100_percent_chimerism]', :with => 1
 
       select 'Suitable for EMMA - STICKY', :from => 'mi_attempt[emma_status]'
+      select '129S5', :from => 'mi_attempt[test_cross_strain_id]'
+      select 'B6JTyr<c-Brd>', :from => 'mi_attempt[colony_background_strain_id]'
       fill_in 'mi_attempt[number_of_chimera_matings_attempted]', :with => 42
       fill_in 'mi_attempt[number_of_chimera_matings_successful]', :with => 41
       fill_in 'mi_attempt[number_of_chimeras_with_glt_from_cct]', :with => 40
@@ -82,7 +85,7 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
       assert_equal 'ICS', mi_attempt.production_centre.name
 
       # Transfer details
-      # TODO assert_equal 'something', mi_attempt.blast_strain
+      assert_equal 'Swiss Webster', mi_attempt.blast_strain.name
       assert_equal 10, mi_attempt.total_blasts_injected
       assert_equal 9, mi_attempt.total_transferred
       assert_equal 8, mi_attempt.number_surrogates_receiving
@@ -98,8 +101,8 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
 
       # Chimera mating details
       assert_equal :suitable_sticky, mi_attempt.emma_status
-      # TODO assert_equal something, mi_attempt.test_cross_strain
-      # TODO assert_equal something, mi_attempt.colony_background_strain
+      assert_equal '129S5', mi_attempt.test_cross_strain.name
+      assert_equal 'B6JTyr<c-Brd>', mi_attempt.colony_background_strain.name
       assert_equal 42, mi_attempt.number_of_chimera_matings_attempted
       assert_equal 41, mi_attempt.number_of_chimera_matings_successful
       assert_equal 40, mi_attempt.number_of_chimeras_with_glt_from_cct

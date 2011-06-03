@@ -24,6 +24,7 @@
 
     <fieldset>
       <legend>Transfer details</legend>
+      <%= generator.strains_field :blast_strain %>
       <%= generator.number_field :total_blasts_injected %>
       <%= generator.number_field :total_transferred %>
       <%= generator.number_field :number_surrogates_receiving %>
@@ -44,6 +45,8 @@
       <legend>Chimera mating details</legend>
 
       <%= generator.emma_status_field %>
+      <%= generator.strains_field :colony_background_strain %>
+      <%= generator.strains_field :test_cross_strain %>
       <%= generator.number_field :number_of_chimera_matings_attempted %>
       <%= generator.number_field :number_of_chimera_matings_successful %>
       <%= generator.number_field :number_of_chimeras_with_glt_from_cct %>

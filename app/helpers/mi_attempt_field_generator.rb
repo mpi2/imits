@@ -21,6 +21,13 @@ class MiAttemptFieldGenerator
     text_field(name, options.merge(:class => 'number-field'))
   end
 
+  def strains_field(name)
+    name = name.to_s
+    strain_class = Strain.const_get(name.gsub(/_id$/, '').camelize)
+    field_html = @form.collection_select(name+'_id', strain_class.all, :id, :name, :include_blank => true)
+    form_field(name+'_id', nil, field_html)
+  end
+
   def mouse_allele_type_field
     field_html = @form.select(:mouse_allele_type, MiAttempt::MOUSE_ALLELE_OPTIONS.map {|x, y| [y, x]})
     form_field(:mouse_allele_type, nil, field_html)

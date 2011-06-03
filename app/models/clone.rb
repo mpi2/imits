@@ -108,7 +108,8 @@ class Clone < ActiveRecord::Base
           :marker_symbol => clone_data['marker_symbol'],
           :allele_name_superscript => clone_data['allele_symbol_superscript'],
           :pipeline => pipeline,
-          :mgi_accession_id => clone_data['mgi_accession_id']
+          :mgi_accession_id => clone_data['mgi_accession_id'],
+          :is_in_targ_rep => true
         )
       rescue Exception => e
         e2 = e.class.new("Error while importing #{clone_data['escell_clone']}: #{e.message}")

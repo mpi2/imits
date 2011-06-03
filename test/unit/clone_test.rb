@@ -123,6 +123,7 @@ class CloneTest < ActiveSupport::TestCase
         assert_equal 'tm1a(EUCOMM)Hmgu', clone.allele_name_superscript
         assert_equal 'EUCOMM', clone.pipeline.name
         assert_equal 'MGI:1924893', clone.mgi_accession_id
+        assert_equal true, clone.is_in_targ_rep?
       end
 
       should 'create pipelines if it needs to' do

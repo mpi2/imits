@@ -16,8 +16,9 @@ class MiAttemptFieldGenerator
     form_field(name, label, @form.text_field(name, options))
   end
 
-  def number_field(name)
-    text_field(name, :class => 'number-field')
+  def number_field(name, options = {})
+    raise 'Setting class not supported' if options[:class]
+    text_field(name, options.merge(:class => 'number-field'))
   end
 
   def mouse_allele_type_field

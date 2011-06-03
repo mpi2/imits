@@ -5,9 +5,9 @@
     <% generator = MiAttemptFieldGenerator.new(form) %>
 
     <fieldset>
-      <legend>Important details</legend>
+      <legend>Universal details</legend>
 
-      <%= generator.text_field :mi_date, :label => 'MI date', :class => 'date-field initial-focus' %>
+      <%= generator.text_field :mi_date, :label => 'MI date', :class => 'date-field' %>
 
       <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 10) %>
 
@@ -34,10 +34,10 @@
       <%= generator.number_field :total_pups_born %>
       <%= generator.number_field :total_female_chimeras %>
       <%= generator.number_field :total_male_chimeras %>
-      <%= generator.number_field :number_of_males_with_0_to_39_percent_chimerism %>
-      <%= generator.number_field :number_of_males_with_40_to_79_percent_chimerism %>
-      <%= generator.number_field :number_of_males_with_80_to_99_percent_chimerism %>
-      <%= generator.number_field :number_of_males_with_100_percent_chimerism %>
+      <%= generator.number_field :number_of_males_with_0_to_39_percent_chimerism,   :label => 'Number of males with 0-39% chimerism' %>
+      <%= generator.number_field :number_of_males_with_40_to_79_percent_chimerism,  :label => 'Number of males with 40-79% chimerism' %>
+      <%= generator.number_field :number_of_males_with_80_to_99_percent_chimerism,  :label => 'Number of males with 80-99% chimerism' %>
+      <%= generator.number_field :number_of_males_with_100_percent_chimerism,       :label => 'Number of males with 100% chimerism' %>
     </fieldset>
 
     <fieldset>

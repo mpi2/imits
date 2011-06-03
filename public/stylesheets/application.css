@@ -216,8 +216,31 @@ textarea#search-terms {
     margin-top: 1em;
 }
 
+form.mi-attempt {
+    width: 40em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 form.mi-attempt label {
     display: block;
+}
+
+form.mi-attempt fieldset {
+    border: 1px solid #074987;
+    padding: 10px;
+    margin-bottom: 2em;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+}
+
+form.mi-attempt fieldset legend {
+    font-size: 1.2em;
+    font-style: italic;
+}
+
+form.mi-attempt fieldset > div {
+    margin-bottom: 1em;
 }
 
 #footer {

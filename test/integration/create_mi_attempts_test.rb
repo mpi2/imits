@@ -51,6 +51,22 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
       fill_in 'mi_attempt[number_of_live_glt_offspring]', :with => 35
       select MiAttempt::MOUSE_ALLELE_OPTIONS.last[1], :from => 'mi_attempt[mouse_allele_type]'
 
+      select 'pass', :from => 'mi_attempt[qc_southern_blot_id]'
+      select 'fail', :from => 'mi_attempt[qc_five_prime_lr_pcr_id]'
+      select 'pass', :from => 'mi_attempt[qc_five_prime_cassette_integrity_id]'
+      select 'fail', :from => 'mi_attempt[qc_tv_backbone_assay_id]'
+      select 'pass', :from => 'mi_attempt[qc_neo_count_qpcr_id]'
+      select 'fail', :from => 'mi_attempt[qc_neo_sr_pcr_id]'
+      select 'pass', :from => 'mi_attempt[qc_loa_qpcr_id]'
+      select 'fail', :from => 'mi_attempt[qc_homozygous_loa_sr_pcr_id]'
+      select 'pass', :from => 'mi_attempt[qc_lacz_sr_pcr_id]'
+      select 'fail', :from => 'mi_attempt[qc_mutant_specific_sr_pcr_id]'
+      select 'pass', :from => 'mi_attempt[qc_loxp_confirmation_id]'
+      select 'fail', :from => 'mi_attempt[qc_three_prime_lr_pcr_id]'
+      uncheck 'mi_attempt[should_export_to_mart]'
+      uncheck 'mi_attempt[is_active]'
+      check 'mi_attempt[is_released_from_genotyping]'
+
       click_button 'mi_attempt_submit'
       sleep 6
 

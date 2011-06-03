@@ -29,6 +29,7 @@ class MiAttemptsController < ApplicationController
 
   def create
     mi_attempt = MiAttempt.new(params[:mi_attempt])
+    mi_attempt.updated_by = current_user
     mi_attempt.clone = Clone.find(:first)
     mi_attempt.save!
     flash[:notice] = 'MI Attempt created'

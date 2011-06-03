@@ -5,6 +5,10 @@ require 'test_helper'
 class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
   context 'Create MI Attempt' do
 
+    setup do
+      Factory.create :clone, :clone_name => 'EPD_CREATE_MI'
+    end
+
     should 'require login' do
       visit '/'
       assert page.has_no_css? '#mainnav a:contains("Create")'
@@ -13,7 +17,6 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
     should 'work' do
       centre = Factory.create :centre, :name => 'Test Centre'
       user = Factory.create :user, :production_centre => centre
-      Factory.create :clone, :clone_name => 'EPD_CREATE_MI'
 
       login user.email
       click_link 'Create'
@@ -140,7 +143,6 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
     should 'by default set all optional fields to blank or N/A, and fields with defaults to their defaults' do
       centre = Factory.create :centre, :name => 'Test Centre'
       user = Factory.create :user, :production_centre => centre
-      Factory.create :clone, :clone_name => 'EPD_CREATE_MI'
 
       login user.email
       click_link 'Create'
@@ -211,6 +213,21 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
       assert_true  mi_attempt.should_export_to_mart
       assert_true  mi_attempt.is_active
       assert_false mi_attempt.is_released_from_genotyping
+    end
+
+    should 'save updated_by' do
+      user = Factory.create :user
+      login user.email
+
+      click_link 'Create'
+
+      assert_equal 0, MiAttempt.count
+      click_button 'mi_attempt_submit'
+      sleep 6
+      assert_equal 1, MiAttempt.count
+      mi_attempt = MiAttempt.first
+
+      assert_equal user, mi_attempt.updated_by
     end
 
   end

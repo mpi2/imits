@@ -25,12 +25,12 @@ class MiAttemptsController < ApplicationController
       :production_centre => current_user.production_centre,
       :distribution_centre => current_user.production_centre)
     @centres = Centre.all
+    @clones = Clone.all_in_targ_rep
   end
 
   def create
     mi_attempt = MiAttempt.new(params[:mi_attempt])
     mi_attempt.updated_by = current_user
-    mi_attempt.clone = Clone.find(:first)
     mi_attempt.save!
     flash[:notice] = 'MI Attempt created'
     redirect_to root_path

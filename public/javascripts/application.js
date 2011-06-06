@@ -3,12 +3,13 @@ window.onload = onWindowLoad;
 function onWindowLoad() {
     setInitialFocus();
     clearSearchTermsHandler();
-    // TODO onMiAttemptsNew();
+    onMiAttemptsNew();
 }
 
 Ext.onReady(function() {
     initDateFields();
     initNumberFields();
+    initComboBoxes();
 });
 
 function setInitialFocus() {
@@ -98,45 +99,23 @@ function initNumberFields() {
     });
 }
 
+function initComboBoxes() {
+    Ext.select('select.combo-box', true).each(function(selectField) {
+        var combo = new Ext.form.ComboBox({
+            hiddenId: selectField.id,
+            transform: selectField,
+            triggerAction: 'all',
+            forceSelection: true,
+            autoSelect: false
+        });
+
+        combo.setValue('');
+    });
+}
+
 function onMiAttemptsNew() {
     var form = Ext.select('form.new.mi-attempt', true).first();
     if(! form) {return;}
 
-    var mask = new Ext.LoadMask(form, {
-        msg: 'Please choose a clone',
-        removeMask: true
-    });
-    mask.show();
-
-    var window = new Ext.Window({
-        layout: {
-            type: 'vbox',
-            padding: '5',
-            align: 'left'
-        },
-        width: 500,
-        height: 300,
-        closeAction: 'hide',
-        plain: true,
-        title: 'Select a clone before continuing',
-        buttons: [
-        {
-            text: 'Close',
-            handler: function() {window.hide();}
-        }
-        ]
-    });
-
-    var panel = new Ext.Panel({
-        items: [
-        {
-
-        }
-        ]
-    });
-
-    window.add(panel);
-
-    window.show();
-
+    Ext.get('rest-of-form').hide(false);
 }

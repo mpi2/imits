@@ -17,6 +17,7 @@ Factory.define :clone do |clone|
   clone.allele_name_superscript 'tm1a(AUTO)Generated'
   clone.association :pipeline
   clone.sequence(:mgi_accession_id) {|n| "MGI:#{"%.10i" % n}"}
+  clone.is_in_targ_rep true
 end
 
 Factory.define :centre do |centre|

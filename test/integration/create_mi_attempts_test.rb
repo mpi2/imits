@@ -6,12 +6,45 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
   context 'Create MI Attempt' do
 
     setup do
-      Factory.create :clone, :clone_name => 'EPD_CREATE_MI'
+      Factory.create :clone, :clone_name => 'EPD_CREATE_MI', :is_in_targ_rep => true
     end
 
     should 'require login' do
       visit '/'
       assert page.has_no_css? '#mainnav a:contains("Create")'
+    end
+
+    should 'not show any other fields while a clone is not selected' do
+      login
+      click_link 'Create'
+      assert_false page.find('input[type=submit]').visible?
+      assert_false page.find('input[name="mi_attempt[total_blasts_injected]"]').visible?
+    end
+
+    context 'when choosing from all clones' do
+      should 'only list those in targ_rep' do
+        Factory.create :clone, :clone_name => 'EPD9999_Z_Z01', :is_in_targ_rep => true
+        Factory.create :clone, :clone_name => 'EPD9999_Z_Z02', :is_in_targ_rep => true
+        Factory.create :clone, :clone_name => 'EPD9999_Z_Z03', :is_in_targ_rep => false
+
+        login
+        click_link 'Create'
+
+        find('#mi_attempt_clone_id ~ .x-form-arrow-trigger').click
+        texts = all('.x-combo-list-item').map(&:text)
+        assert_not_include texts, 'EPD9999_Z_Z03'
+        assert_equal 3, all('.x-combo-list-item').size
+      end
+
+      should 'not have any clone selected by default' do
+        login
+        click_link 'Create'
+
+        assert_blank page.find('#mi_attempt_clone_id ~ input[type=text]').value
+        assert_blank page.find('input[name="mi_attempt[clone_id]"]').value
+      end
+
+      should 'disable form "submit on enter" on clones combo'
     end
 
     should 'work' do

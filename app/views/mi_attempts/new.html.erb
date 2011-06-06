@@ -7,8 +7,9 @@
     <fieldset>
       <legend>ES cell clone details</legend>
 
-      <div id="mi_attempt_clone_id_combo">
+      <div>
         <%= form.label :clone_id, 'ES cell clone name' %>
+        <!-- <div id="mi_attempt_clone_id_combo"></div> -->
         <%= form.collection_select :clone_id, @clones, :id, :clone_name %>
       </div>
     </fieldset>

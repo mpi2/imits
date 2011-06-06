@@ -13,14 +13,16 @@ em {
     font-style: italic;
 }
 
+#container {
+    margin: 0 1em;
+}
+
 #header {
     display: block;
     color: white;
     background: #074987;
-    margin-bottom: 2em;
     padding-left: 1em;
     overflow: hidden; /* clear floats */
-    height: 4em;
 }
 
 #header a {
@@ -89,10 +91,11 @@ div#mainnav a.current {
     color: #074987;
 }
 
-#container {
-    margin: 0 1em;
+div#messages {
+    margin-bottom: 2em;
 }
 
+/*
 .message {
     width: 20%;
     margin: 2em auto;
@@ -134,6 +137,52 @@ div#mainnav a.current {
 .message.error p.header, .message.alert p.header {
     background-image: url('/images/icons/flag_red.png');
     background-color: darkred;
+}
+*/
+
+.messages {
+    overflow: hidden;
+}
+
+.message {
+    color: white;
+    margin-top: 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.message .body, .message .header {
+    padding: 3px;
+}
+
+.message .header {
+    width: 6em;
+    float: left;
+    border-right: 1px solid white;
+    padding-left: 28px;
+    background-repeat: no-repeat;
+    background-position: 2px 50%;
+}
+
+.message .body {
+    margin-left: 6.1em;
+    text-align: center;
+}
+
+.message.notice {
+    background-color: green;
+}
+
+.message.error, .message.alert {
+    background-color: darkred;
+}
+
+.message.notice .header {
+    background-image: url('/images/icons/flag_green.png');
+}
+
+.message.error .header, .message.alert .header {
+    background-image: url('/images/icons/flag_red.png');
 }
 
 .wait {

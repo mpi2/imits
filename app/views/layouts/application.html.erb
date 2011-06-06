@@ -28,13 +28,15 @@
         <% end %>
       </div>
 
+      <div id="messages">
+        <%= flash_message :notice %>
+
+        <%= flash_message :error %>
+
+        <%= flash_message :alert %>
+      </div>
+
       <% unless @tab %><h2><%= @title %></h2><% end %>
-
-      <%= flash_message :notice %>
-
-      <%= flash_message :error %>
-
-      <%= flash_message :alert %>
 
       <%= yield %>
 

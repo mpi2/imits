@@ -95,51 +95,6 @@ div#messages {
     margin-bottom: 2em;
 }
 
-/*
-.message {
-    width: 20%;
-    margin: 2em auto;
-}
-
-.message p {
-    border: 3px solid white;
-}
-
-.message p.body {
-    padding: 3px;
-    margin-top: 0;
-}
-
-.message.notice p {
-    border-color: green;
-}
-
-.message.error p, .message.alert p {
-    border-color: darkred;
-}
-
-.message p.header {
-    color: white;
-    font-size: 125%;
-    line-height: 1.6em;
-    padding-left: 1em;
-    font-weight: bold;
-    background-repeat: no-repeat;
-    background-position: left center;
-    padding-left: 28px;
-}
-
-.message.notice p.header {
-    background-image: url('/images/icons/flag_green.png');
-    background-color: green;
-}
-
-.message.error p.header, .message.alert p.header {
-    background-image: url('/images/icons/flag_red.png');
-    background-color: darkred;
-}
-*/
-
 .messages {
     overflow: hidden;
 }

@@ -123,8 +123,11 @@ class Clone < ActiveRecord::Base
 
   def self.all_partitioned_by_marker_symbol
     retval = {}
+    all_clones = Clone.all_in_targ_rep
 
-    Clone.all_in_targ_rep.each do |clone|
+    retval[nil] = all_clones.dup
+
+    all_clones.each do |clone|
       retval[clone.marker_symbol] ||= []
       retval[clone.marker_symbol] << clone
     end

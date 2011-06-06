@@ -205,6 +205,8 @@ class CloneTest < ActiveSupport::TestCase
         assert_equal ['EPD002', 'EPD009', 'EPD015'], clones['Cbx1'].map(&:clone_name)
         assert_equal ['EPD003'], clones['Cbx7'].map(&:clone_name)
         assert_equal ['EPD001', 'EPD006'], clones['Trafd1'].map(&:clone_name)
+        assert_equal ['EPD001', 'EPD002', 'EPD003', 'EPD006', 'EPD009', 'EPD015'],
+                clones[nil].map(&:clone_name)
       end
     end
 

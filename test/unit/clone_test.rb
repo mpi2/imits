@@ -170,16 +170,26 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
-    should 'have scope all_in_targ_rep' do
-      assert_equal 0, Clone.count
-      clones_in_targ_rep = []
-      5.times { clones_in_targ_rep << Factory.create(:clone, :is_in_targ_rep => true) }
-      clones_not_in_targ_rep = []
-      3.times { clones_not_in_targ_rep << Factory.create(:clone, :is_in_targ_rep => false) }
+    context 'scope all_in_targ_rep' do
+      should 'exist' do
+        assert_equal 0, Clone.count
+        clones_in_targ_rep = []
+        5.times { clones_in_targ_rep << Factory.create(:clone, :is_in_targ_rep => true) }
+        clones_not_in_targ_rep = []
+        3.times { clones_not_in_targ_rep << Factory.create(:clone, :is_in_targ_rep => false) }
 
-      result = Clone.all_in_targ_rep
-      assert_equal 5, result.count
-      assert_equal clones_in_targ_rep.sort_by(&:id), result.sort_by(&:id)
+        result = Clone.all_in_targ_rep
+        assert_equal 5, result.count
+        assert_equal clones_in_targ_rep.sort_by(&:id), result.sort_by(&:id)
+      end
+
+      should 'sort by clone_name' do
+        Factory.create(:clone, :clone_name => 'EPD002')
+        Factory.create(:clone, :clone_name => 'EPD003')
+        Factory.create(:clone, :clone_name => 'EPD001')
+
+        assert_equal ['EPD001', 'EPD002', 'EPD003'], Clone.all_in_targ_rep.map(&:clone_name)
+      end
     end
 
   end

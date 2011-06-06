@@ -65,7 +65,7 @@ class Clone < ActiveRecord::Base
     { :name => "dcc" }
   )
 
-  scope :all_in_targ_rep, :conditions => {:is_in_targ_rep => true}
+  scope :all_in_targ_rep, :conditions => {:is_in_targ_rep => true}, :order => 'clone_name'
 
   def self.federated_query(clone_names)
     return IDCC_TARG_REP_DATASET.search(

@@ -1,7 +1,7 @@
 <% @tab = 'Create' %>
 
 <div>
-  <%= form_for @mi_attempt, :html => {:class => 'new mi-attempt', :onsubmit => 'return false'} do |form| %>
+  <%= form_for @mi_attempt, :html => {:class => 'new mi-attempt'} do |form| %>
     <% generator = MiAttemptFieldGenerator.new(form) %>
 
     <fieldset>

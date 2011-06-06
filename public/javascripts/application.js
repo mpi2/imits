@@ -115,6 +115,7 @@ function initTransformedComboBox(element) {
 function onMiAttemptsNew() {
     var form = Ext.select('form.new.mi-attempt', true).first();
     if(! form) {return;}
+    form.dom.onsubmit = function() { return false; };
 
     var restOfForm = Ext.get('rest-of-form');
     restOfForm.hide(false);

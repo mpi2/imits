@@ -40,11 +40,9 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
         login
         click_link 'Create'
 
-        assert_blank page.find('#mi_attempt_clone_id ~ input[type=text]').value
+        assert_blank page.find('input[name="mi_attempt[clone_id]"] ~ input[type=text]').value
         assert_blank page.find('input[name="mi_attempt[clone_id]"]').value
       end
-
-      should 'disable form "submit on enter" on clones combo'
     end
 
     should 'work' do

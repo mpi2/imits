@@ -1,15 +1,15 @@
 <% @tab = 'Create' %>
 
 <div>
-  <%= form_for @mi_attempt, :html => {:class => 'new mi-attempt'} do |form| %>
+  <%= form_for @mi_attempt, :html => {:class => 'new mi-attempt', :onsubmit => 'return false'} do |form| %>
     <% generator = MiAttemptFieldGenerator.new(form) %>
 
     <fieldset>
       <legend>ES cell clone details</legend>
 
-      <div>
+      <div id="mi_attempt_clone_id_combo">
         <%= form.label :clone_id, 'ES cell clone name' %>
-        <%= form.collection_select :clone_id, @clones, :id, :clone_name, {}, :class => 'combo-box' %>
+        <%= form.collection_select :clone_id, @clones, :id, :clone_name %>
       </div>
     </fieldset>
 

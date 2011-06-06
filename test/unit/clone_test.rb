@@ -170,5 +170,17 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
+    should 'have scope all_in_targ_rep' do
+      assert_equal 0, Clone.count
+      clones_in_targ_rep = []
+      5.times { clones_in_targ_rep << Factory.create(:clone, :is_in_targ_rep => true) }
+      clones_not_in_targ_rep = []
+      3.times { clones_not_in_targ_rep << Factory.create(:clone, :is_in_targ_rep => false) }
+
+      result = Clone.all_in_targ_rep
+      assert_equal 5, result.count
+      assert_equal clones_in_targ_rep.sort_by(&:id), result.sort_by(&:id)
+    end
+
   end
 end

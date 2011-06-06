@@ -192,5 +192,21 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
+    context '::all_partitioned_by_marker_symbol' do
+      should 'work' do
+        Factory.create(:clone, :clone_name => 'EPD015', :marker_symbol => 'Cbx1')
+        Factory.create(:clone, :clone_name => 'EPD002', :marker_symbol => 'Cbx1')
+        Factory.create(:clone, :clone_name => 'EPD006', :marker_symbol => 'Trafd1')
+        Factory.create(:clone, :clone_name => 'EPD003', :marker_symbol => 'Cbx7')
+        Factory.create(:clone, :clone_name => 'EPD001', :marker_symbol => 'Trafd1')
+        Factory.create(:clone, :clone_name => 'EPD009', :marker_symbol => 'Cbx1')
+
+        clones = Clone.all_partitioned_by_marker_symbol
+        assert_equal ['EPD002', 'EPD009', 'EPD015'], clones['Cbx1'].map(&:clone_name)
+        assert_equal ['EPD003'], clones['Cbx7'].map(&:clone_name)
+        assert_equal ['EPD001', 'EPD006'], clones['Trafd1'].map(&:clone_name)
+      end
+    end
+
   end
 end

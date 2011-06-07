@@ -40,9 +40,17 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
         login
         click_link 'Create'
 
-        assert_blank page.find('input[name="mi_attempt[clone_id]"] ~ input[type=text]').value
-        assert_blank page.find('input[name="mi_attempt[clone_id]"]').value
+        assert_blank page.find('#mi_attempt_clone_id ~ input[type=text]').value
+        assert_blank page.find('#mi_attempt_clone_id').value
       end
+    end
+
+    context 'when choosing by gene and then its clones' do
+      should 'only list genes for clones in targ rep'
+
+      should 'not have any gene symbol selected by default'
+
+      should 'limit list of clones to the selected gene symbol'
     end
 
     should 'work' do

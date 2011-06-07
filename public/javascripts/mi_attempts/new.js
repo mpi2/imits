@@ -1,8 +1,3 @@
-Ext.onReady(function() {
-    initDateFields();
-    initNumberFields();
-});
-
 function replaceTextFieldWithExtField(selector, replacementCreationFunction) {
     Ext.select(selector).each(function(textField, composite, idx) {
         var renderDiv = Ext.DomHelper.createDom({tag: 'div'});
@@ -38,20 +33,6 @@ function initNumberFields() {
     });
 }
 
-function initTransformedComboBox(element) {
-    var combo = new Ext.form.ComboBox({
-        hiddenId: element.id,
-        transform: element,
-        triggerAction: 'all',
-        forceSelection: true,
-        autoSelect: false
-    });
-
-    combo.setValue('');
-
-    return combo;
-}
-
 function onMiAttemptsNew() {
     var form = Ext.select('form.new.mi-attempt', true).first();
     if(! form) {return;}
@@ -60,35 +41,96 @@ function onMiAttemptsNew() {
     var restOfForm = Ext.get('rest-of-form');
     restOfForm.hide(false);
 
-    var cloneCombo = initTransformedComboBox(form.child('select[name="mi_attempt[clone_id]"]'));
-    console.log(cloneCombo.getStore());
+    // create a Record constructor:
+    var cloneRecord = Ext.data.Record.create([
+        {name: 'id'},
+        {name: 'clone_name'}
+    ]);
 
-    var cloneComboStore = new Ext.data.ArrayStore({
-
+    var cloneReader = new Ext.data.JsonReader({
+        idProperty: 'id',
+        root: 'rows',
+        totalProperty: 'results',
+        fields: ['id', 'clone_name']
     });
-/*
-    var cloneCombo = new Ext.form.ComboBox({
-        hiddenName: 'mi_attempt[clone_id]',
-        hiddenId: 'mi_attempt_clone_id',
+
+    var cloneComboStore = new Ext.data.Store({reader: cloneReader}, cloneRecord);
+
+    var geneCombo = new Ext.form.ComboBox({
         forceSelection: true,
         triggerAction: 'all',
         mode: 'local',
-        renderTo: 'mi_attempt_clone_id_combo',
+        lazyRender: true,
         store: new Ext.data.ArrayStore({
             id: 0,
             fields: [
-            'clone_id',
-            'clone_name'
+            'myId',
+            'displayText'
             ],
             data: [[1, 'item1'], [2, 'item2']]
         }),
-        valueField: 'clone_id',
+        valueField: 'myId',
+        displayField: 'displayText'
+    });
+
+    var cloneCombo = new Ext.form.ComboBox({
+        hiddenName: 'mi_attempt[clone_id]',
+        hiddenId: 'mi_attempt_clone_id',
+        lazyRender: true,
+        forceSelection: true,
+        triggerAction: 'all',
+        mode: 'local',
+        store: cloneComboStore,
+        valueField: 'id',
         displayField: 'clone_name'
     });
-*/
+
+    cloneCombo.setValue('');
+
     cloneCombo.addListener('select', function() {
         restOfForm.show(true);
         form.dom.onsubmit = null;
     });
+
+    var clonePanel = new Ext.Panel({
+        layout: 'vbox',
+        renderTo: 'mi_attempt_clone_id_combo',
+        height: 90,
+        border: false,
+        items: [
+        {
+            xtype: 'panel',
+            layout: 'vbox',
+            height: 40,
+            border: false,
+            items: [
+            {
+                xtype: 'label',
+                text: 'Marker symbol'
+            },
+            geneCombo
+            ]
+        },
+        {
+            xtype: 'panel',
+            layout: 'vbox',
+            height: 40,
+            border: false,
+            items: [
+            {
+                xtype: 'label',
+                text: 'ES cell clone name',
+                forId: 'mi_attempt_clone_id'
+            },
+            cloneCombo
+            ]
+        }
+        ]
+    });
 }
-window.onLoadHooks.push(onMiAttemptsNew);
+
+Ext.onReady(function() {
+    initDateFields();
+    initNumberFields();
+    onMiAttemptsNew();
+});

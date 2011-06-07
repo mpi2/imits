@@ -25,7 +25,7 @@ class MiAttemptsController < ApplicationController
       :production_centre => current_user.production_centre,
       :distribution_centre => current_user.production_centre)
     @centres = Centre.all
-    @clones = Clone.all_in_targ_rep
+    @all_clones_partitioned_by_marker_symbol = Clone.all_partitioned_by_marker_symbol
   end
 
   def create

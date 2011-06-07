@@ -1,5 +1,10 @@
 <% @tab = 'Create' %>
 
+<% content_for :head do %>
+  <%= javascript_tag('all_clones_partitioned_by_marker_symbol='+@all_clones_partitioned_by_marker_symbol.to_json) %>
+  <%= javascript_include_tag('mi_attempts/new') %>
+<% end %>
+
 <div>
   <%= form_for @mi_attempt, :html => {:class => 'new mi-attempt'} do |form| %>
     <% generator = MiAttemptFieldGenerator.new(form) %>
@@ -8,10 +13,11 @@
       <legend>ES cell clone details</legend>
 
       <div>
-        <%= form.label :clone_id, 'ES cell clone name' %>
-        <!-- <div id="mi_attempt_clone_id_combo"></div> -->
-        <%= form.collection_select :clone_id, @clones, :id, :clone_name %>
+        <%#= form.label :clone_id, 'ES cell clone name' %>
+        <%#= form.collection_select :clone_id, @all_clones_partitioned_by_marker_symbol[nil], :id, :clone_name %>
       </div>
+
+      <div id="mi_attempt_clone_id_combo"></div>
     </fieldset>
 
     <div id="rest-of-form">

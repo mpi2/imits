@@ -1,11 +1,11 @@
-window.onload = onWindowLoad;
+Ext.namespace('Kermits2');
 
-window.onLoadHooks = [];
-
-function onWindowLoad() {
-    Ext.each(window.onLoadHooks, function(hook) {
-        hook();
-    });
+Kermits2.property_names = function(obj) {
+    var retval = [];
+    for(i in obj) {
+        retval.push(i);
+    }
+    return retval;
 }
 
 function setInitialFocus() {
@@ -14,7 +14,7 @@ function setInitialFocus() {
         thing.focus();
     }
 }
-window.onLoadHooks.push(setInitialFocus);
+Ext.onReady(setInitialFocus);
 
 function clearSearchTermsHandler() {
     var el = document.getElementById('clear-search-terms-button');
@@ -27,7 +27,7 @@ function clearSearchTermsHandler() {
         }
     }
 }
-window.onLoadHooks.push(clearSearchTermsHandler);
+Ext.onReady(clearSearchTermsHandler);
 
 function toggleMiAttemptsSwitchViewButton(button, pressed) {
     if(!pressed) {return;}

@@ -6,6 +6,7 @@ gem 'ruby-oci8'
 gem 'activerecord-oracle_enhanced-adapter'
 gem 'pg'
 gem 'foreigner'
+gem 'sqlite3'
 
 gem 'devise'
 gem 'biomart'

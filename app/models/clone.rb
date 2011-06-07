@@ -123,7 +123,7 @@ class Clone < ActiveRecord::Base
 
   def self.all_partitioned_by_marker_symbol
     retval = {}
-    all_clones = Clone.all_in_targ_rep(:select => 'id, clone_name, marker_symbol')
+    all_clones = Clone.select('id, clone_name, marker_symbol').all_in_targ_rep
 
     retval[nil] = all_clones.dup
 

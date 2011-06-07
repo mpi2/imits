@@ -210,10 +210,11 @@ class CloneTest < ActiveSupport::TestCase
                 clones[nil].map(&:clone_name)
       end
 
-      should 'select id, clone_name and marker_symbol' do
+      should 'only select id, clone_name and marker_symbol' do
         Factory.create(:clone, :id => 1, :clone_name => 'EPD015', :marker_symbol => 'Cbx1')
         clone = Clone.all_partitioned_by_marker_symbol[nil].first
         assert_equal [1, 'EPD015', 'Cbx1'], [clone.id, clone.clone_name, clone.marker_symbol]
+        assert_nil clone['mgi_accession_id']
       end
     end
 

@@ -34,7 +34,7 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
         find('#mi_attempt_clone_id ~ .x-form-arrow-trigger').click
         texts = all('.x-combo-list-item').map(&:text)
         assert_not_include texts, 'EPD9999_Z_Z03'
-        assert_equal 3, all('.x-combo-list-item').size
+        assert_equal 3, texts.size
       end
 
       should 'not have any clone selected by default' do
@@ -47,28 +47,53 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
     end
 
     context 'when choosing by gene and then its clones' do
-      should 'only list genes for clones in targ rep' do
+      setup do
         Factory.create :clone, :clone_name => 'EPD_NOT_IN_TARG_REP', :is_in_targ_rep => false
         login
         click_link 'Create'
+      end
+
+      should 'only list genes for clones in targ rep' do
         find('#gene-combo ~ .x-form-arrow-trigger').click
         texts = all('.x-combo-list-item').map(&:text)
         assert_equal ['[All]', 'Cbx1'], texts
       end
 
-      should 'not have any gene symbol selected by default'
+      should 'not have all gene symbols selected by default' do
+        assert_equal '[All]', find('input#gene-combo').value
+      end
 
-      should 'limit list of clones to the selected gene symbol'
+      should 'limit list of clones to the selected gene symbol' do
+        create_common_test_objects
+        Factory.create :clone, :clone_name => 'EPD0127_4_E01_DUPLICATE', :marker_symbol => 'Trafd1'
+        click_link 'Create'
+        find('#gene-combo ~ .x-form-arrow-trigger').click
+        find('.x-combo-list-item', :text => 'Trafd1').click
+        find('#mi_attempt_clone_id ~ .x-form-arrow-trigger').click
+        within('div.x-combo-list ~ div.x-combo-list') do
+          texts = all('.x-combo-list-item').map(&:text)
+          assert_equal ['EPD0127_4_E01', 'EPD0127_4_E01_DUPLICATE'], texts
+        end
+      end
     end
 
     should 'work' do
+      assert_equal 0, MiAttempt.count
+
+      create_common_test_objects
+      Factory.create :clone, :marker_symbol => 'Cbx7', :clone_name => 'EPD0013_1_B05'
+      clone = Factory.create :clone, :marker_symbol => 'Cbx7', :clone_name => 'EPD0013_1_F05'
+
       centre = Factory.create :centre, :name => 'Test Centre'
       user = Factory.create :user, :production_centre => centre
 
       login user.email
       click_link 'Create'
 
-      assert_equal 0, MiAttempt.count
+      find('#gene-combo ~ .x-form-arrow-trigger').click
+      find('.x-combo-list-item', :text => 'Cbx7').click
+      find('#mi_attempt_clone_id ~ .x-form-arrow-trigger').click
+      find('div.x-combo-list ~ div.x-combo-list .x-combo-list-item', :text => 'EPD0013_1_F05').click
 
       fill_in 'mi_attempt[colony_name]', :with => 'ABCD'
       select 'WTSI', :from => 'mi_attempt[distribution_centre_id]'
@@ -120,15 +145,15 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
       uncheck 'mi_attempt[is_active]'
       check 'mi_attempt[is_released_from_genotyping]'
 
-      click_button 'mi_attempt_submit'
-      sleep 6
+      assert_difference 'MiAttempt.count', 1 do
+        click_button 'mi_attempt_submit'
+        sleep 6
+      end
 
-      assert_equal 1, MiAttempt.count
-      mi_attempt = MiAttempt.first
-      assert_not_nil mi_attempt
+      mi_attempt = MiAttempt.order('id ASC').last
 
       # Important fields
-      # TODO clone
+      assert_equal clone, mi_attempt.clone
       assert_equal MiAttemptStatus.micro_injection_in_progress, mi_attempt.mi_attempt_status
       assert_equal 'ABCD', mi_attempt.colony_name
       assert_equal 'WTSI', mi_attempt.distribution_centre.name
@@ -188,21 +213,27 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
     should 'go to the right page after submit'
 
     should 'by default set all optional fields to blank or N/A, and fields with defaults to their defaults' do
+      create_common_test_objects
       centre = Factory.create :centre, :name => 'Test Centre'
       user = Factory.create :user, :production_centre => centre
 
       login user.email
       click_link 'Create'
 
-      assert_equal 0, MiAttempt.count
-      click_button 'mi_attempt_submit'
-      sleep 6
-      assert_equal 1, MiAttempt.count
-      mi_attempt = MiAttempt.first
-      assert_not_nil mi_attempt
+      find('#gene-combo ~ .x-form-arrow-trigger').click
+      find('.x-combo-list-item', :text => 'Trafd1').click
+      find('#mi_attempt_clone_id ~ .x-form-arrow-trigger').click
+      find('div.x-combo-list ~ div.x-combo-list .x-combo-list-item', :text => 'EPD0127_4_E01').click
+
+      assert_difference 'MiAttempt.count', 1 do
+        click_button 'mi_attempt_submit'
+        sleep 6
+      end
+
+      mi_attempt = MiAttempt.order('id ASC').last
 
       # Important fields
-      # TODO clone
+      assert_equal Clone.find_by_clone_name('EPD0127_4_E01'), mi_attempt.clone
       assert_nil mi_attempt.mi_date
       assert_equal MiAttemptStatus.micro_injection_in_progress, mi_attempt.mi_attempt_status
       assert_nil mi_attempt.colony_name
@@ -263,16 +294,23 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
     end
 
     should 'save updated_by' do
+      create_common_test_objects
       user = Factory.create :user
       login user.email
 
       click_link 'Create'
 
-      assert_equal 0, MiAttempt.count
-      click_button 'mi_attempt_submit'
-      sleep 6
-      assert_equal 1, MiAttempt.count
-      mi_attempt = MiAttempt.first
+      find('#gene-combo ~ .x-form-arrow-trigger').click
+      find('.x-combo-list-item', :text => '[All]').click
+      find('#mi_attempt_clone_id ~ .x-form-arrow-trigger').click
+      find('div.x-combo-list ~ div.x-combo-list .x-combo-list-item').click
+
+      assert_difference 'MiAttempt.count', 1 do
+        click_button 'mi_attempt_submit'
+        sleep 6
+      end
+
+      mi_attempt = MiAttempt.order('id ASC').last
 
       assert_equal user, mi_attempt.updated_by
     end

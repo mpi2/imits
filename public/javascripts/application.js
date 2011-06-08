@@ -2,7 +2,7 @@ Ext.namespace('Kermits2');
 
 Kermits2.propertyNames = function(obj) {
     var retval = [];
-    for(i in obj) { retval.push(i); }
+    for(var i in obj) { retval.push(i); }
     return retval;
 }
 

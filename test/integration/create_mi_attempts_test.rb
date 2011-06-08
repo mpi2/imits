@@ -6,7 +6,8 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
   context 'Create MI Attempt' do
 
     setup do
-      Factory.create :clone, :clone_name => 'EPD_CREATE_MI', :is_in_targ_rep => true
+      Factory.create :clone, :clone_name => 'EPD_CREATE_MI',
+              :marker_symbol => 'Cbx1', :is_in_targ_rep => true
     end
 
     should 'require login' do
@@ -46,7 +47,14 @@ class CreateMiAttemptsTest < ActionDispatch::IntegrationTest
     end
 
     context 'when choosing by gene and then its clones' do
-      should 'only list genes for clones in targ rep'
+      should 'only list genes for clones in targ rep' do
+        Factory.create :clone, :clone_name => 'EPD_NOT_IN_TARG_REP', :is_in_targ_rep => false
+        login
+        click_link 'Create'
+        find('#gene-combo ~ .x-form-arrow-trigger').click
+        texts = all('.x-combo-list-item').map(&:text)
+        assert_equal ['[All]', 'Cbx1'], texts
+      end
 
       should 'not have any gene symbol selected by default'
 

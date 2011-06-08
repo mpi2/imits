@@ -41,36 +41,31 @@ function onMiAttemptsNew() {
     var restOfForm = Ext.get('rest-of-form');
     restOfForm.hide(false);
 
-    var cloneRecord = Ext.data.Record.create([
-        {name: 'id'},
-        {name: 'clone_name'}
-    ]);
-
-    var cloneReader = new Ext.data.JsonReader({
-        idProperty: 'id',
-        root: 'rows',
-        totalProperty: 'results',
-        fields: ['id', 'clone_name']
+    var genes = [];
+    Ext.each(Kermits2.propertyNames(window.allClonesPartitionedByMarkerSymbol), function(gene) {
+        if(gene == '') {
+            genes.push([gene, '[All]']);
+        } else {
+            genes.push([gene, gene]);
+        }
     });
-
-    var cloneComboStore = new Ext.data.Store({reader: cloneReader}, cloneRecord);
 
     var geneCombo = new Ext.form.ComboBox({
         forceSelection: true,
         triggerAction: 'all',
         mode: 'local',
         lazyRender: true,
-        store: new Ext.data.ArrayStore({
-            id: 0,
-            fields: [
-            'myId',
-            'displayText'
-            ],
-            data: [[1, 'item1'], [2, 'item2']]
-        }),
-        valueField: 'myId',
-        displayField: 'displayText'
+        store: genes,
+        autoSelect: true,
+        id: 'gene-combo'
     });
+
+    geneCombo.onSelectListener = function(combo, record) {
+        var gene = record.data[combo.valueField];
+        cloneCombo.loadDataForGene(gene);
+    }
+
+    geneCombo.addListener('select', geneCombo.onSelectListener);
 
     var cloneCombo = new Ext.form.ComboBox({
         hiddenName: 'mi_attempt[clone_id]',
@@ -79,17 +74,28 @@ function onMiAttemptsNew() {
         forceSelection: true,
         triggerAction: 'all',
         mode: 'local',
-        store: cloneComboStore,
+        store: new Ext.data.JsonStore({
+            root: 'rows',
+            fields: ['id', 'clone_name']
+        }),
         valueField: 'id',
         displayField: 'clone_name'
     });
-
-    cloneCombo.setValue('');
+    cloneCombo.loadDataForGene = function(gene) {
+        this.store.loadData({
+            rows: window.allClonesPartitionedByMarkerSymbol[gene]
+        });
+        this.setValue('');
+        restOfForm.hide(false);
+        form.dom.onsubmit = function() { return false; }
+    }
 
     cloneCombo.addListener('select', function() {
         restOfForm.show(true);
         form.dom.onsubmit = null;
     });
+
+    cloneCombo.loadDataForGene('');
 
     var clonePanel = new Ext.Panel({
         layout: 'vbox',
@@ -126,6 +132,8 @@ function onMiAttemptsNew() {
         }
         ]
     });
+
+    geneCombo.getEl().dom.value = '[All]';
 }
 
 Ext.onReady(function() {

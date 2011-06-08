@@ -1,7 +1,7 @@
 <% @tab = 'Create' %>
 
 <% content_for :head do %>
-  <%= javascript_tag('all_clones_partitioned_by_marker_symbol='+@all_clones_partitioned_by_marker_symbol.to_json) %>
+  <%= javascript_tag('allClonesPartitionedByMarkerSymbol='+@all_clones_partitioned_by_marker_symbol.to_json) %>
   <%= javascript_include_tag('mi_attempts/new') %>
 <% end %>
 

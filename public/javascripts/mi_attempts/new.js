@@ -87,7 +87,7 @@ function onMiAttemptsNew() {
         });
         this.setValue('');
         restOfForm.hide(false);
-        form.dom.onsubmit = function() { return false; }
+        form.dom.onsubmit = function() {return false;}
     }
 
     cloneCombo.addListener('select', function() {
@@ -108,6 +108,7 @@ function onMiAttemptsNew() {
             layout: 'vbox',
             height: 40,
             border: false,
+            margins: '0 0 10 0',
             items: [
             {
                 xtype: 'label',

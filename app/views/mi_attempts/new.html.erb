@@ -12,11 +12,6 @@
     <fieldset>
       <legend>ES cell clone details</legend>
 
-      <div>
-        <%#= form.label :clone_id, 'ES cell clone name' %>
-        <%#= form.collection_select :clone_id, @all_clones_partitioned_by_marker_symbol[nil], :id, :clone_name %>
-      </div>
-
       <div id="mi_attempt_clone_id_combo"></div>
     </fieldset>
 
@@ -64,6 +59,7 @@
       <%= generator.emma_status_field %>
       <%= generator.strains_field :colony_background_strain %>
       <%= generator.strains_field :test_cross_strain %>
+      <%= generator.text_field :date_chimeras_mated, :class => 'date-field' %>
       <%= generator.number_field :number_of_chimera_matings_attempted %>
       <%= generator.number_field :number_of_chimera_matings_successful %>
       <%= generator.number_field :number_of_chimeras_with_glt_from_cct %>

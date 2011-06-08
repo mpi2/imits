@@ -1,5 +1,5 @@
 function replaceTextFieldWithExtField(selector, replacementCreationFunction) {
-    Ext.select(selector).each(function(textField, composite, idx) {
+    Ext.select(selector).each(function(textField) {
         var renderDiv = Ext.DomHelper.createDom({tag: 'div'});
         var name = textField.dom.name;
         textField.replaceWith(renderDiv);
@@ -41,7 +41,6 @@ function onMiAttemptsNew() {
     var restOfForm = Ext.get('rest-of-form');
     restOfForm.hide(false);
 
-    // create a Record constructor:
     var cloneRecord = Ext.data.Record.create([
         {name: 'id'},
         {name: 'clone_name'}

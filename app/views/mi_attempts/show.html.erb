@@ -1,0 +1,25 @@
+<% @title = 'Edit MI Attempt' %>
+
+<% content_for :head do %>
+  <%= javascript_include_tag('mi_attempts/shared') %>
+<% end %>
+
+<div>
+  <%= form_for @mi_attempt, :html => {:class => 'edit show mi-attempt'} do |form| %>
+    <fieldset>
+      <legend>ES cell clone details</legend>
+
+      <div>
+        <div>Marker symbol</div>
+        <div>Abc1</div>
+      </div>
+
+      <div>
+        <div>ES cell clone name</div>
+        <div>EPD00000001</div>
+      </div>
+    </fieldset>
+
+    <%= render 'form_contents', :form => form %>
+  <% end %>
+</div>

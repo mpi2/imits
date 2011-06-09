@@ -1,38 +1,3 @@
-function replaceTextFieldWithExtField(selector, replacementCreationFunction) {
-    Ext.select(selector).each(function(textField) {
-        var renderDiv = Ext.DomHelper.createDom({tag: 'div'});
-        var name = textField.dom.name;
-        textField.replaceWith(renderDiv);
-
-        replacementCreationFunction(renderDiv, name);
-    });
-}
-
-function initDateFields() {
-    replaceTextFieldWithExtField('.date-field', function(renderDiv, name) {
-        new Ext.form.DateField({
-            cls: 'date-field',
-            renderTo: renderDiv,
-            name: name,
-            editable: false,
-            format: 'd/m/Y'
-        });
-    });
-}
-
-function initNumberFields() {
-    replaceTextFieldWithExtField('.number-field', function(renderDiv, name) {
-        new Ext.form.NumberField({
-            cls: 'number-field',
-            renderTo: renderDiv,
-            name: name,
-            allowDecimals: false,
-            allowNegative: false,
-            width: 40
-        });
-    });
-}
-
 function onMiAttemptsNew() {
     var form = Ext.select('form.new.mi-attempt', true).first();
     if(! form) {return;}
@@ -138,7 +103,5 @@ function onMiAttemptsNew() {
 }
 
 Ext.onReady(function() {
-    initDateFields();
-    initNumberFields();
     onMiAttemptsNew();
 });

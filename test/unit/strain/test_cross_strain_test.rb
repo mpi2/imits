@@ -14,5 +14,6 @@ class Strain::TestCrossStrainTest < ActiveSupport::TestCase
       sid = Strain::TestCrossStrain.find(:first)
       assert_equal sid.name, sid.strain.name
     end
+
   end
 end

@@ -21,11 +21,11 @@ class MiAttemptsController < ApplicationController
   end
 
   def new
+    @centres = Centre.all
+    @all_clones_partitioned_by_marker_symbol = Clone.all_partitioned_by_marker_symbol
     @mi_attempt = MiAttempt.new(
       :production_centre => current_user.production_centre,
       :distribution_centre => current_user.production_centre)
-    @centres = Centre.all
-    @all_clones_partitioned_by_marker_symbol = Clone.all_partitioned_by_marker_symbol
   end
 
   def create
@@ -36,8 +36,16 @@ class MiAttemptsController < ApplicationController
     redirect_to root_path
   end
 
-  def edit
+  def show
+    @centres = Centre.all
     @mi_attempt = MiAttempt.find(params[:id])
+  end
+
+  def update
+    @mi_attempt = MiAttempt.find(params[:id])
+    @mi_attempt.update_attributes!(params[:mi_attempt])
+    flash[:notice] = 'MI attempt updated successfully'
+    redirect_to mi_attempts_path
   end
 
 end

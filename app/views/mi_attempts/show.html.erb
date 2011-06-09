@@ -9,14 +9,14 @@
     <fieldset>
       <legend>ES cell clone details</legend>
 
-      <div>
-        <div>Marker symbol</div>
-        <div>Abc1</div>
+      <div class="marker-symbol">
+        <div class="label">Marker symbol</div>
+        <div><%= @mi_attempt.clone.marker_symbol %></div>
       </div>
 
-      <div>
-        <div>ES cell clone name</div>
-        <div>EPD00000001</div>
+      <div class="clone-name">
+        <div class="label">ES cell clone name</div>
+        <div><%= @mi_attempt.clone.clone_name %></div>
       </div>
     </fieldset>
 

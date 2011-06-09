@@ -43,9 +43,11 @@ class MiAttemptsController < ApplicationController
 
   def update
     @mi_attempt = MiAttempt.find(params[:id])
-    @mi_attempt.update_attributes!(params[:mi_attempt])
+    @mi_attempt.attributes = params[:mi_attempt]
+    @mi_attempt.updated_by = current_user
+    @mi_attempt.save!
     flash[:notice] = 'MI attempt updated successfully'
-    redirect_to mi_attempts_path
+    redirect_to @mi_attempt
   end
 
 end

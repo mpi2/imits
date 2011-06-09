@@ -16,11 +16,15 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
         :emma_status => :suitable_sticky,
         :test_cross_strain_id => Strain.find_by_name('129S5').id
       )
-      login
+      user = Factory.create :user, :email => 'editing@example.com'
+      login user.email
       visit mi_attempt_path(@mi_attempt)
     end
 
-    should 'show but not allow editing clone or gene'
+    should 'show but not allow editing clone or gene' do
+      assert_match /Myo1c/, page.find('.marker-symbol').text
+      assert_match /EPD0343_1_H06/, page.find('.clone-name').text
+    end
 
     should 'show default values' do
       assert_equal '129S5', page.find('select[name="mi_attempt[test_cross_strain_id]"] option[selected=selected]').text
@@ -41,7 +45,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
 
       assert_difference 'MiAttempt.count', 0 do
         click_button 'mi_attempt_submit'
-        sleep 6
+        sleep 3
       end
 
       @mi_attempt.reload
@@ -53,9 +57,18 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert_equal true, @mi_attempt.should_export_to_mart?
     end
 
-    should 'set updated_by'
+    should 'set updated_by' do
+      click_button 'mi_attempt_submit'
+      sleep 3
+      @mi_attempt.reload
+      assert_equal 'editing@example.com', @mi_attempt.updated_by.email
+    end
 
-    should 'redirect back to show page'
+    should 'redirect back to show page' do
+      click_button 'mi_attempt_submit'
+      @mi_attempt.reload
+      assert_match /\/mi_attempts\/#{@mi_attempt.id}$/, current_url
+    end
 
   end
 end

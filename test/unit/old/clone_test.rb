@@ -16,7 +16,7 @@ class Old::CloneTest < ActiveSupport::TestCase
     end
 
     should 'have scope all_that_have_mi_attempts' do
-      assert_equal 2705, Old::Clone.all_that_have_mi_attempts.all.size
+      assert_equal 2727, Old::Clone.all_that_have_mi_attempts.all.size
     end
   end
 end

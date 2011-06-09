@@ -17,7 +17,6 @@ class InitializersTest < ActiveSupport::TestCase
 
       should 'set include_root_in_json to false' do
         obj = Person.new
-        y obj.class.name
         obj.name = 'Fred'
         assert_equal({'name' => 'Fred'}, obj.as_json)
       end

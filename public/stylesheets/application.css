@@ -148,6 +148,12 @@ div#messages {
     background-color: red;
 }
 
+.large-text {
+    font-size: 1.5em;
+    line-height: 1.5em;
+    margin-top: 1em;
+}
+
 #mi-attempts-form {
     overflow: hidden; /* clear floats */
 }
@@ -170,23 +176,24 @@ form {
     display: block;
 }
 
-textarea#search-terms {
-    width: 100%;
-    overflow: auto;
+#search-terms {
     height: 10em;
+    width: 100%;
 }
 
 #buttons {
     text-align: center;
 }
-#buttons input, #buttons button {
-    width: 45%;
+
+#buttons button {
+    width: 4em;
+    float: right;
 }
 
-.large-text {
-    font-size: 1.5em;
-    line-height: 1.5em;
-    margin-top: 1em;
+#buttons input[type=submit] {
+    height: 100%;
+    width: 45%;
+    float: left;
 }
 
 #user-form {

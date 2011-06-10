@@ -74,3 +74,7 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
   end
 
 end
+
+class ActionController::TestCase
+  include Devise::TestHelpers
+end

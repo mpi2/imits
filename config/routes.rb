@@ -12,6 +12,8 @@ Kermits2::Application.routes.draw do
     put '/users', :to => 'devise/registrations#update', :as => :user_registration
   end
 
+  resources :centres, :only => [:show, :index]
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

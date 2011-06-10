@@ -52,11 +52,11 @@ h2 {
     margin-bottom: 2em;
 }
 
-h1 a {
+h1 a, #mainnav a {
     text-decoration: none;
 }
 
-h1 a:hover, h1 a:active {
+h1 a:hover, h1 a:active, #mainnav a:hover, #mainnav a:active {
     text-decoration: underline;
 }
 

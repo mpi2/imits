@@ -48,6 +48,12 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
           end
         end
 
+        should 'show edit in form link' do
+          mi = Clone.find_by_clone_name('EPD0343_1_H06').mi_attempts.first
+          selector = selector_for_table_cell(1) + " a[href=\"/mi_attempts/#{mi.id}\"]"
+          assert page.has_css?(selector)
+        end
+
         should 'not show data for other clones' do
           assert page.has_no_css?('.x-grid3-col-clone__clone_name', :text => 'EPD0127_4_E01')
         end

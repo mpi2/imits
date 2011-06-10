@@ -14,6 +14,10 @@ module MiAttemptsHelper
       }
     end
 
+    def default_context_menu
+      return nil
+    end
+
     js_method :emptyCellsDirtyFlaggingWorkaround, <<-JS
       function(e) {
         // inspired by http://www.sencha.com/learn/Ext_FAQ_Grid#Dirty_Record_.2F_Red_Flag_.28modifying.2C_etc..29
@@ -65,10 +69,10 @@ module MiAttemptsHelper
     JS
 
     js_method :comboRenderer, <<-'JS'
-      function(submit_value, combo_id) {
-        var combo = Ext.getCmp(combo_id);
-        var record = combo.findRecord(combo.valueField, submit_value);
-        return record ? record.get(combo.displayField) : Ext.util.Format.htmlEncode(submit_value);
+      function(submitValue, comboId) {
+        var combo = Ext.getCmp(comboId);
+        var record = combo.findRecord(combo.valueField, submitValue);
+        return record ? record.get(combo.displayField) : Ext.util.Format.htmlEncode(submitValue);
       }
     JS
 
@@ -164,6 +168,13 @@ module MiAttemptsHelper
 
     def define_columns
       [
+        mi_attempt_column(:edit_link,
+          :header => 'Edit in form',
+          :readOnly => true,
+          :getter => proc {|mi| "/mi_attempts/#{mi.id}"},
+          :renderer => 'function(link) {return "<a href=\\""+link+"\\">Edit in Form</a>"}'
+        ),
+
         mi_attempt_column(:clone__clone_name, :header => 'Clone Name',
           :readOnly => true),
         mi_attempt_column(:clone__marker_symbol, :header => 'Marker Symbol',

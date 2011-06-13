@@ -26,6 +26,12 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_should belong_to(:distribution_centre)
     end
 
+    should 'validate presence of production_centre' do
+      mi = MiAttempt.new
+      mi.valid?
+      assert_false mi.errors[:production_centre].blank?
+    end
+
     should 'have status' do
       assert_should have_db_column(:mi_attempt_status_id).with_options(:null => false)
       assert_should belong_to(:mi_attempt_status)

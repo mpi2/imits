@@ -44,7 +44,9 @@ class MiAttempt < ActiveRecord::Base
   validates :mi_attempt_status, :presence => true
 
   belongs_to :production_centre, :class_name => 'Centre'
+  validates :production_centre, :presence => true
   belongs_to :distribution_centre, :class_name => 'Centre'
+
   belongs_to :updated_by, :class_name => 'User'
 
   belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'

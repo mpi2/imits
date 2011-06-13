@@ -1,5 +1,3 @@
-require 'pp'
-
 class MiAttemptsController < ApplicationController
 
   respond_to :html, :xml, :json

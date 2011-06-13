@@ -33,7 +33,9 @@ class MiAttempt < ActiveRecord::Base
     ['e', 'e - Targeted Non-Conditional']
   ].freeze
 
-  acts_as_audited :protect => false
+  attr_protected :created_at, :updated_at
+
+  acts_as_audited
 
   belongs_to :clone
   validates :clone, :presence => true

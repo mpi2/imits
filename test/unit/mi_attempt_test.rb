@@ -411,5 +411,11 @@ class MiAttemptTest < ActiveSupport::TestCase
       mi = Factory.create :mi_attempt, :comments => 'this is a comment'
       assert_equal 'this is a comment', mi.comments
     end
+
+    should 'protect private attributes' do
+      assert_equal ['id', 'type', 'created_at', 'updated_at', 'audit_ids'].sort,
+              MiAttempt.protected_attributes.to_a.sort
+    end
+
   end
 end

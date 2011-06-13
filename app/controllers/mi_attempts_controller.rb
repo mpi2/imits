@@ -1,6 +1,6 @@
 class MiAttemptsController < ApplicationController
 
-  respond_to :html, :xml, :json
+  respond_to :html, :json, :xml
 
   before_filter :authenticate_user!
 
@@ -38,9 +38,14 @@ class MiAttemptsController < ApplicationController
   def create
     mi_attempt = MiAttempt.new(params[:mi_attempt])
     mi_attempt.updated_by = current_user
-    mi_attempt.save!
-    flash[:notice] = 'MI Attempt created'
-    redirect_to root_path
+    mi_attempt.save
+
+    respond_with mi_attempt do |format|
+      format.html do
+        flash[:notice] = 'MI Attempt created'
+        redirect_to root_path
+      end
+    end
   end
 
   def show
@@ -53,9 +58,12 @@ class MiAttemptsController < ApplicationController
     @mi_attempt = MiAttempt.find(params[:id])
     @mi_attempt.attributes = params[:mi_attempt]
     @mi_attempt.updated_by = current_user
-    @mi_attempt.save!
-    flash[:notice] = 'MI attempt updated successfully'
-    redirect_to @mi_attempt
+
+    if @mi_attempt.save
+      flash[:notice] = 'MI attempt updated successfully'
+    end
+
+    respond_with @mi_attempt
   end
 
 end

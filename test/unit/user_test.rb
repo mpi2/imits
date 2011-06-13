@@ -18,10 +18,6 @@ class UserTest < ActiveSupport::TestCase
       assert_should have_db_index(:email).unique(true)
     end
 
-    should 'have unique index on reset_password_token' do
-      assert_should have_db_index(:reset_password_token).unique(true)
-    end
-
     should 'belong to production centre' do
       assert_should belong_to :production_centre
     end

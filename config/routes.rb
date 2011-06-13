@@ -13,6 +13,7 @@ Kermits2::Application.routes.draw do
   end
 
   resources :centres, :only => [:show, :index]
+  resources :clones, :only => [:show, :index]
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

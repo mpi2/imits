@@ -419,7 +419,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'protect private attributes' do
-      assert_equal ['id', 'type', 'created_at', 'updated_at', 'audit_ids'].sort,
+      assert_equal ['id', 'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by'].sort,
               MiAttempt.protected_attributes.to_a.sort
     end
 

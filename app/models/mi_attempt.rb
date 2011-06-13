@@ -33,7 +33,7 @@ class MiAttempt < ActiveRecord::Base
     ['e', 'e - Targeted Non-Conditional']
   ].freeze
 
-  attr_protected :created_at, :updated_at
+  attr_protected :created_at, :updated_at, :updated_by
 
   acts_as_audited
 

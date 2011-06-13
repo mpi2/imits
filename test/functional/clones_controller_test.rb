@@ -17,7 +17,7 @@ class ClonesControllerTest < ActionController::TestCase
       should 'get one clone by ID as XML' do
         get :show, :id => @clone.id, :format => :xml
         xml = parse_xml_from_response
-        assert_equal @clone.clone_name, xml.css('clone clone_name').text
+        assert_equal @clone.clone_name, xml.css('clone clone-name').text
       end
 
       should 'get one clone by ID as JSON' do

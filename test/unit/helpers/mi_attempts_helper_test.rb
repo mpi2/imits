@@ -18,7 +18,6 @@ class MiAttemptsHelperTest < ActionView::TestCase
     setup do
       @user1, @user2 = Factory.create(:user), Factory.create(:user)
       @mi_attempt = Factory.create :mi_attempt, :updated_by => @user1
-      # 3.times { Factory.create :centre }
       @grid = MiAttemptsHelper::MiAttemptsGrid.new(:current_user_id => @user2.id)
     end
 

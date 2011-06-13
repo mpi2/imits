@@ -7,8 +7,7 @@ class CentresController < ApplicationController
   end
 
   def index
-    search_params = params.dup.delete_if {|k| ['controller', 'action', 'format', 'page'].include? k }
-    @centres = Centre.search(search_params).all
+    @centres = Centre.search(cleaned_params).all
     respond_with @centres
   end
 

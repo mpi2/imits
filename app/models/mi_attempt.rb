@@ -107,7 +107,11 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
-  scope :search, proc { |params|
+  def self.search(*args, &block)
+    return non_metasearch_search(*args, &block)
+  end
+
+  scope :non_metasearch_search, proc { |params|
     terms, production_centre_id, mi_attempt_status_id = params.symbolize_keys.values_at(
       :search_terms, :production_centre_id, :mi_attempt_status_id)
 

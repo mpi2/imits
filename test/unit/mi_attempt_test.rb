@@ -405,8 +405,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         subject.updated_by_id = user.id
         assert_equal user, subject.updated_by
       end
-
-      should 'save old revisions'
     end
 
     should 'have comments' do

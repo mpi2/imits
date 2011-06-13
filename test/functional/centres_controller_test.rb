@@ -3,14 +3,6 @@ require 'test_helper'
 class CentresControllerTest < ActionController::TestCase
   context 'Centre controller' do
 
-    def parse_xml_from_response
-      return Nokogiri::XML(response.body)
-    end
-
-    def parse_json_from_response
-      return JSON.parse(response.body)
-    end
-
     context 'GET show' do
       setup do
         @centre = Centre.find_by_name('WTSI')

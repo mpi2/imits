@@ -1,22 +1,31 @@
+require 'pp'
+
 class MiAttemptsController < ApplicationController
 
-  respond_to :html
+  respond_to :html, :xml, :json
 
   before_filter :authenticate_user!
 
   def index
-    @search_params = {
-      :search_terms => []
-    }
+    respond_to do |format|
+      format.html do
+        @search_params = {
+          :search_terms => []
+        }
 
-    if !params[:search_terms].blank?
-      @search_params[:search_terms] = params[:search_terms].lines.collect(&:strip)
-    end
+        if !params[:search_terms].blank?
+          @search_params[:search_terms] = params[:search_terms].lines.collect(&:strip)
+        end
 
-    [:production_centre_id, :mi_attempt_status_id].each do |filter_attr|
-      if !params[filter_attr].blank?
-        @search_params[filter_attr] = params[filter_attr].to_i
+        [:production_centre_id, :mi_attempt_status_id].each do |filter_attr|
+          if !params[filter_attr].blank?
+            @search_params[filter_attr] = params[filter_attr].to_i
+          end
+        end
       end
+
+      format.xml { render :xml => MiAttempt.metasearch(cleaned_params).all }
+      format.json { render :json => MiAttempt.metasearch(cleaned_params).all }
     end
   end
 
@@ -39,6 +48,7 @@ class MiAttemptsController < ApplicationController
   def show
     @centres = Centre.all
     @mi_attempt = MiAttempt.find(params[:id])
+    respond_with @mi_attempt
   end
 
   def update

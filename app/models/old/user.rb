@@ -22,9 +22,8 @@ class Old::User < Old::ModelBase
 
 end
 
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: per_person
 #
@@ -48,4 +47,3 @@ end
 #
 #  per_person_u01  (user_name) UNIQUE
 #
-

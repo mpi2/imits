@@ -2,9 +2,8 @@ class Old::Pipeline < Old::ModelBase
   set_table_name 'pln_pipeline'
 end
 
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: pln_pipeline
 #
@@ -17,4 +16,3 @@ end
 #  edit_date    :datetime
 #  check_number :integer(38)
 #
-

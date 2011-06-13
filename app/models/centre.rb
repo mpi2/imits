@@ -5,7 +5,7 @@ class Centre < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: centres
 #
@@ -18,4 +18,3 @@ end
 #
 #  index_centres_on_name  (name) UNIQUE
 #
-

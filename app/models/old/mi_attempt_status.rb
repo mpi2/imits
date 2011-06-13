@@ -2,9 +2,8 @@ class Old::MiAttemptStatus < Old::ModelBase
   set_table_name 'emi_status_dict'
 end
 
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: emi_status_dict
 #
@@ -18,4 +17,3 @@ end
 #
 #  emi_status_dict_uk1  (name) UNIQUE
 #
-

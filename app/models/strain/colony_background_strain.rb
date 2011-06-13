@@ -5,9 +5,8 @@ class Strain::ColonyBackgroundStrain < ActiveRecord::Base
   delegate :name, :to => :strain
 end
 
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: strain_colony_background_strains
 #
@@ -19,4 +18,3 @@ end
 #
 #  index_strain_colony_background_strains_on_id  (id) UNIQUE
 #
-

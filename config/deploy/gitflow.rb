@@ -23,7 +23,8 @@ Capistrano::Configuration.instance(true).load do
     desc "Mark the current code as a staging/qa release"
     task :tag_staging do
       # find latest staging tag for today
-      newTagDate = Date.today.to_s 
+      newTagDate = Date.today.to_s
+
       newTagSerial = 1
 
       todaysStagingTags = `git tag -l '#{application}-staging-#{newTagDate}.*'`
@@ -34,7 +35,7 @@ Capistrano::Configuration.instance(true).load do
       todaysStagingTags.sort! do |a,b|
         String.natcmp(b,a,true)
       end
-      
+
       lastStagingTag = nil
       if todaysStagingTags.length > 0
         lastStagingTag = todaysStagingTags[0]
@@ -72,11 +73,10 @@ Capistrano::Configuration.instance(true).load do
       todaysStagingTags = `git tag -l '#{application}-staging-*' | sort -rn`
       todaysStagingTags = todaysStagingTags.split
 
-
       if !todaysStagingTags.include? tag
         raise "Staging Tag #{tag} does not exist."
       end
-      
+
       tag =~ /#{application}-staging-([0-9]{4}-[0-9]{2}-[0-9]{2}\.[0-9]*)/
       newProductionTag = "#{application}-production-#{$1}"
       puts "promoting staging tag #{tag} to production as '#{newProductionTag}'"

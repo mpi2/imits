@@ -9,9 +9,8 @@ class Old::EmiEvent < Old::ModelBase
   has_many :mi_attempts, :foreign_key => :event_id
 end
 
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: emi_event
 #
@@ -33,4 +32,3 @@ end
 #
 #  emi_event_uk1  (centre_id,clone_id) UNIQUE
 #
-

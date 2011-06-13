@@ -137,10 +137,8 @@ class Clone < ActiveRecord::Base
 
 end
 
-
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: clones
 #
@@ -151,6 +149,7 @@ end
 #  allele_type                      :text
 #  pipeline_id                      :integer         not null
 #  mgi_accession_id                 :text
+#  is_in_targ_rep                   :boolean         default(FALSE), not null
 #  created_at                       :datetime
 #  updated_at                       :datetime
 #
@@ -158,4 +157,3 @@ end
 #
 #  index_clones_on_clone_name  (clone_name) UNIQUE
 #
-

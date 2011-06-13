@@ -5,9 +5,8 @@ class Strain::BlastStrain < ActiveRecord::Base
   delegate :name, :to => :strain
 end
 
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: strain_blast_strains
 #
@@ -19,4 +18,3 @@ end
 #
 #  index_strain_blast_strains_on_id  (id) UNIQUE
 #
-

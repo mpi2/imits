@@ -167,10 +167,8 @@ class MiAttempt < ActiveRecord::Base
   end
 end
 
-
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: mi_attempts
 #
@@ -181,6 +179,7 @@ end
 #  colony_name                                     :text
 #  production_centre_id                            :integer         not null
 #  distribution_centre_id                          :integer
+#  updated_by_id                                   :integer
 #  blast_strain_id                                 :integer
 #  total_blasts_injected                           :integer
 #  total_transferred                               :integer
@@ -226,7 +225,7 @@ end
 #  should_export_to_mart                           :boolean         default(TRUE), not null
 #  is_active                                       :boolean         default(TRUE), not null
 #  is_released_from_genotyping                     :boolean         default(FALSE), not null
+#  comments                                        :text
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
 #
-

@@ -2,7 +2,7 @@ class QcStatus < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: qc_statuses
 #
@@ -15,4 +15,3 @@ end
 #
 #  index_qc_statuses_on_description  (description) UNIQUE
 #
-

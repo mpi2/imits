@@ -5,9 +5,8 @@ class Strain::TestCrossStrain < ActiveRecord::Base
   delegate :name, :to => :strain
 end
 
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: strain_test_cross_strains
 #
@@ -19,4 +18,3 @@ end
 #
 #  index_strain_test_cross_strains_on_id  (id) UNIQUE
 #
-

@@ -13,7 +13,7 @@ class MiAttemptStatus < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: mi_attempt_statuses
 #
@@ -26,4 +26,3 @@ end
 #
 #  index_mi_attempt_statuses_on_description  (description) UNIQUE
 #
-

@@ -91,9 +91,8 @@ class Old::MiAttempt < Old::ModelBase
 
 end
 
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: emi_attempt
 #
@@ -163,5 +162,5 @@ end
 #  qc_neo_sr_pcr                  :string(20)
 #  is_public                      :boolean(1)      default(TRUE), not null
 #  released_from_genotyping       :boolean(1)      default(FALSE), not null
+#  material_deposited             :string(20)      default("frozen_embryos"), not null
 #
-

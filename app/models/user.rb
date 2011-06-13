@@ -11,26 +11,20 @@ class User < ActiveRecord::Base
   end
 end
 
-
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: users
 #
-#  id                     :integer         not null, primary key
-#  email                  :string(255)     default(""), not null
-#  encrypted_password     :string(128)     default(""), not null
-#  reset_password_token   :string(255)
-#  reset_password_sent_at :datetime
-#  remember_created_at    :datetime
-#  production_centre_id   :integer         not null
-#  created_at             :datetime
-#  updated_at             :datetime
+#  id                   :integer         not null, primary key
+#  email                :string(255)     default(""), not null
+#  encrypted_password   :string(128)     default(""), not null
+#  remember_created_at  :datetime
+#  production_centre_id :integer         not null
+#  created_at           :datetime
+#  updated_at           :datetime
 #
 # Indexes
 #
-#  index_users_on_email                 (email) UNIQUE
-#  index_users_on_reset_password_token  (reset_password_token) UNIQUE
+#  index_users_on_email  (email) UNIQUE
 #
-

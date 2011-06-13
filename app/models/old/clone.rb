@@ -10,9 +10,8 @@ class Old::Clone < Old::ModelBase
   }
 end
 
-
 # == Schema Information
-# Schema version: 20110421150000
+# Schema version: 20110527121721
 #
 # Table name: emi_clone
 #
@@ -41,4 +40,3 @@ end
 #
 #  emi_clone_uk1  (clone_name) UNIQUE
 #
-

@@ -88,16 +88,6 @@ class Clone < ActiveRecord::Base
     )
   end
 
-  class NotFoundError < RuntimeError; end
-
-  def self.update_or_create_from_marts_by_clone_name(clone_name)
-    clones = create_all_from_marts_by_clone_names([clone_name])
-    if clones.empty?
-      raise NotFoundError, clone_name.inspect
-    end
-    return clones.first
-  end
-
   def self.create_all_from_marts_by_clone_names(clone_names)
     query = federated_query(clone_names.to_a)
 

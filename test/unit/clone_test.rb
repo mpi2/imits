@@ -147,29 +147,6 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
-    context '::update_or_create_from_marts_by_clone_name' do
-      context 'for new clones' do
-        should 'create clone with given name' do
-          assert_nil Clone.find_by_clone_name 'HEPD0549_6_D02'
-          clone = Clone.update_or_create_from_marts_by_clone_name 'HEPD0549_6_D02'
-          assert_kind_of Clone, clone
-          assert_kind_of Clone, Clone.find_by_clone_name('HEPD0549_6_D02')
-          assert_equal 'C030046E11Rik', clone.marker_symbol
-          assert_equal 'tm1a(EUCOMM)Hmgu', clone.allele_name_superscript
-          assert_equal 'EUCOMM', clone.pipeline.name
-          assert_equal 'MGI:1924893', clone.mgi_accession_id
-        end
-
-        should 'create pipeline if it does not already exist' do
-          assert_nil Clone.find_by_clone_name 'EPD0555_1_E10'
-          clone = Clone.update_or_create_from_marts_by_clone_name 'EPD0555_1_E10'
-          assert_kind_of Clone, clone
-          assert_kind_of Clone, Clone.find_by_clone_name('EPD0555_1_E10')
-          assert_equal 'KOMP-CSD', clone.pipeline.name
-        end
-      end
-    end
-
     context 'scope all_in_targ_rep' do
       should 'exist' do
         assert_equal 0, Clone.count

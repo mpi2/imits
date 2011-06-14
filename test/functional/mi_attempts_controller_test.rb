@@ -5,6 +5,12 @@ require 'test_helper'
 class MiAttemptsControllerTest < ActionController::TestCase
   context 'MiAttempt controller' do
 
+    should 'require authentication with machine interface' do
+        mi_attempt = Factory.create(:mi_attempt)
+        get :show, :id => mi_attempt.id, :format => :json
+        assert ! response.success?
+    end
+
     context 'GET index' do
       should 'route from /' do
         assert_routing '/', { :controller => 'mi_attempts', :action => 'index' }
@@ -17,7 +23,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       context 'support search helpers' do
         setup do
           create_common_test_objects
-          sign_in Factory.create(:user) # TODO http basic authentication
+          sign_in default_user
         end
 
         should 'support search helpers as XML' do
@@ -40,12 +46,14 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
     context 'GET show' do
       setup do
+        sign_in default_user
         @mi_attempt = Factory.create(:mi_attempt)
-        sign_in Factory.create(:user)
       end
 
       should 'get one mi attempt by ID as XML' do
         get :show, :id => @mi_attempt.id, :format => :xml
+        assert response.success?
+
         doc = parse_xml_from_response
         assert_equal @mi_attempt.id, doc.css('mi-attempt id').text.to_i
       end
@@ -59,7 +67,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
     context 'POST create' do
       setup do
-        sign_in Factory.create(:user) # TODO http basic authentication
+        sign_in default_user
       end
 
       def valid_create_for_format(format)
@@ -106,7 +114,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
     context 'PUT update' do
       setup do
-        sign_in Factory.create(:user) # TODO http basic authentication
+        sign_in default_user
       end
 
       [:xml, :json].each do |format|

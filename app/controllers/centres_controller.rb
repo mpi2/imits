@@ -1,5 +1,8 @@
 class CentresController < ApplicationController
+
   respond_to :xml, :json
+
+  before_filter :authenticate_user!
 
   def show
     @centre = Centre.find(params[:id])

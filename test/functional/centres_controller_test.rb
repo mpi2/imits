@@ -3,6 +3,12 @@ require 'test_helper'
 class CentresControllerTest < ActionController::TestCase
   context 'Centre controller' do
 
+    should 'require authentication' do
+      centre = Centre.find_by_name('WTSI')
+      get :show, :id => centre.id, :format => :json
+      assert_false response.success?
+    end
+
     context 'GET show' do
       setup do
         @centre = Centre.find_by_name('WTSI')

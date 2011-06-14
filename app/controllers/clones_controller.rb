@@ -1,7 +1,10 @@
 # encoding: utf-8
 
 class ClonesController < ApplicationController
+
   respond_to :xml, :json
+
+  before_filter :authenticate_user!
 
   def show
     @clone = Clone.find(params[:id])

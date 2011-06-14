@@ -9,6 +9,11 @@ class ClonesControllerTest < ActionController::TestCase
       create_common_test_objects
     end
 
+    should 'require authentication' do
+      get :show, :id => Clone.first.id, :format => :json
+      assert_false response.success?
+    end
+
     context 'GET show' do
       setup do
         @clone = Clone.find_by_clone_name('EPD0127_4_E01')

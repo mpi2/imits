@@ -350,7 +350,7 @@ module MiAttemptsHelper
       current_user_id = config_up_to_now.delete(:current_user_id)
       config_up_to_now.merge(
         :name => :micro_injection_attempts_widget,
-        :title => 'Microinjection Attempts',
+        :title => 'Micro-injection Attempts',
         :layout => :fit,
         :autoHeight => true,
         :items => [

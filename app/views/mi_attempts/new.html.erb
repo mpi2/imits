@@ -7,14 +7,19 @@
 <% end %>
 
 <div>
-  <%= form_for @mi_attempt, :html => {:class => 'new mi-attempt'} do |form| %>
+  <% form_tag nil, :class => 'new mi-attempt' do %>
     <fieldset>
       <legend>ES cell clone details</legend>
 
       <div id="clone-selector"></div>
     </fieldset>
+  <% end %>
+</div>
 
+<div>
+  <%= form_for @mi_attempt, :html => {:class => 'new mi-attempt'} do |form| %>
     <div id="rest-of-form">
+      <div><%= form.hidden_field 'clone_name' %></div>
       <%= render 'form_contents', :form => form %>
     </div>
   <% end %>

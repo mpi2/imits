@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/extjs.rb'
 
 set :application, 'kermits-2'
-set :repository,  'http://github.com/i-dcc/kermits-2.git'
+set :repository,  'git://github.com/i-dcc/kermits-2.git'
 set :branch, 'master'
 set :user, `whoami`.chomp
 
@@ -18,7 +18,7 @@ set :default_environment, {
   'PERL5LIB'  => '/software/team87/brave_new_world/lib/perl5:/software/team87/brave_new_world/lib/perl5/x86_64-linux-thread-multi'
 }
 
-set :bundle_cmd, '/software/team87/brave_new_world/bin/htgt-env.pl --environment Ruby19 /software/team87/brave_new_world/app/ruby-1.9.2-p0/lib/ruby/gems/1.9/bin/bundle'
+set :bundle_cmd, '/software/team87/brave_new_world/bin/htgt-env.pl --environment Live bundle'
 
 namespace :deploy do
   desc "Restart Passenger"
@@ -61,6 +61,7 @@ namespace :deploy do
     run "chgrp -R team87 #{release_path}/public"
     run "chmod 02775 #{release_path}"
   end
+
 end
 
 after "deploy:symlink", "deploy:fix_perms"

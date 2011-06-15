@@ -88,32 +88,50 @@ class Clone < ActiveRecord::Base
     )
   end
 
+  def self.create_clone_from_mart_data(mart_data)
+    pipeline = Pipeline.find_or_create_by_name(mart_data['pipeline'])
+
+    return Clone.create!(
+      :clone_name => mart_data['escell_clone'],
+      :marker_symbol => mart_data['marker_symbol'],
+      :allele_name_superscript => mart_data['allele_symbol_superscript'],
+      :pipeline => pipeline,
+      :mgi_accession_id => mart_data['mgi_accession_id'],
+      :is_in_targ_rep => true
+    )
+  end
+
   def self.create_all_from_marts_by_clone_names(clone_names)
-    query = mart_search(clone_names.to_a)
+    result = mart_search(clone_names.to_a)
 
-    return query.map do |clone_data|
+    return result.map do |mart_data|
       begin
-        pipeline = Pipeline.find_or_create_by_name(clone_data['pipeline'])
-
-        Clone.create!(
-          :clone_name => clone_data['escell_clone'],
-          :marker_symbol => clone_data['marker_symbol'],
-          :allele_name_superscript => clone_data['allele_symbol_superscript'],
-          :pipeline => pipeline,
-          :mgi_accession_id => clone_data['mgi_accession_id'],
-          :is_in_targ_rep => true
-        )
+        self.create_clone_from_mart_data(mart_data)
       rescue Exception => e
-        e2 = e.class.new("Error while importing #{clone_data['escell_clone']}: #{e.message}")
+        e2 = e.class.new("Error while importing #{mart_data['escell_clone']}: #{e.message}")
         e2.set_backtrace(e.backtrace)
         raise e2
       end
     end
   end
 
+  def self.find_or_create_from_mart(clone_name)
+    raise ArgumentError, 'Enter a clone name' if clone_name.blank?
+
+    clone = self.find_by_clone_name(clone_name)
+    return clone if(clone)
+
+    result = mart_search([clone_name])
+    if(result.empty?)
+      return nil
+    else
+      return self.create_clone_from_mart_data(result[0])
+    end
+  end
+
   def self.all_partitioned_by_marker_symbol
     retval = {}
-    all_clones = Clone.select('id, clone_name, marker_symbol').all_in_targ_rep
+    all_clones = self.select('id, clone_name, marker_symbol').all_in_targ_rep
 
     retval[nil] = all_clones.dup
 

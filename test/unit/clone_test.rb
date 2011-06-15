@@ -104,6 +104,16 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
+    def assert_HEPD0549_6_D02_attributes(clone)
+      assert_kind_of Clone, clone
+      assert_kind_of Clone, Clone.find_by_clone_name('HEPD0549_6_D02')
+      assert_equal 'C030046E11Rik', clone.marker_symbol
+      assert_equal 'tm1a(EUCOMM)Hmgu', clone.allele_name_superscript
+      assert_equal 'EUCOMM', clone.pipeline.name
+      assert_equal 'MGI:1924893', clone.mgi_accession_id
+      assert_equal true, clone.is_in_targ_rep?
+    end
+
     context '::create_all_from_marts_by_clone_names' do
       should 'work for clones that it can find' do
         assert_equal 0, Clone.count
@@ -117,13 +127,7 @@ class CloneTest < ActiveSupport::TestCase
         assert_equal clone_names.sort, clones.map(&:clone_name).sort
 
         clone = clones.first
-        assert_kind_of Clone, clone
-        assert_kind_of Clone, Clone.find_by_clone_name('HEPD0549_6_D02')
-        assert_equal 'C030046E11Rik', clone.marker_symbol
-        assert_equal 'tm1a(EUCOMM)Hmgu', clone.allele_name_superscript
-        assert_equal 'EUCOMM', clone.pipeline.name
-        assert_equal 'MGI:1924893', clone.mgi_accession_id
-        assert_equal true, clone.is_in_targ_rep?
+        assert_HEPD0549_6_D02_attributes(clone)
       end
 
       should 'create pipelines if it needs to' do
@@ -144,6 +148,24 @@ class CloneTest < ActiveSupport::TestCase
 
         assert_equal 1, clones.size
         assert_equal ['EPD0127_4_E01'], clones.map(&:clone_name)
+      end
+    end
+
+    context '::find_or_create_from_mart' do
+      should 'create clone from marts if it is not in the DB' do
+        clone = Clone.find_or_create_from_mart('HEPD0549_6_D02')
+        assert_HEPD0549_6_D02_attributes(clone)
+        assert_equal 'EUCOMM', clone.pipeline.name
+      end
+
+      should 'return clone if it is already in the DB without hitting the marts' do
+        Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        assert_equal 'EPD0127_4_E01', Clone.find_or_create_from_mart('EPD0127_4_E01').clone_name
+      end
+
+      should 'return nil if it does not' do
+        Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        assert_nil Clone.find_or_create_from_mart('EPD_NONEXISTENT')
       end
     end
 

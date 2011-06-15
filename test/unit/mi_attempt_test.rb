@@ -418,8 +418,49 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal 'this is a comment', mi.comments
     end
 
+    context '#clone_name virtual attribute' do
+      setup do
+        Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        Factory.create :clone_EPD0343_1_H06_without_mi_attempts
+
+        @mi_attempt = mi = Factory.build(:mi_attempt)
+        mi.clone_id = nil
+        mi.clone = nil
+
+        @mi_attempt.attributes = {:clone_name => 'EPD0127_4_E01'}
+      end
+
+      should 'be written on mass assignment' do
+        assert_equal 'EPD0127_4_E01', @mi_attempt.clone_name
+      end
+
+      should 'be used to set the clone before save' do
+        @mi_attempt.save!
+
+        assert_equal 'EPD0127_4_E01', @mi_attempt.clone.clone_name
+      end
+
+      should 'be overridden by the associated clone\'s name if that exists' do
+        @mi_attempt.clone = Clone.find_by_clone_name('EPD0343_1_H06')
+        assert_equal 'EPD0343_1_H06', @mi_attempt.clone_name
+      end
+
+      should 'not be settable if there is an associated clone' do
+        @mi_attempt.clone = Clone.find_by_clone_name('EPD0343_1_H06')
+        @mi_attempt.clone_name = 'EPD0127_4_E01'
+        assert_equal 'EPD0343_1_H06', @mi_attempt.clone_name
+      end
+
+      should 'pull in clone from marts if it is not in the DB' do
+        @mi_attempt.clone_name = 'EPD0029_1_G04'
+        @mi_attempt.save!
+
+        assert_equal 'EPD0029_1_G04', @mi_attempt.clone_name
+      end
+    end
+
     should 'protect private attributes' do
-      assert_equal ['id', 'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by'].sort,
+      assert_equal ['id', 'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by', 'clone_id', 'clone'].sort,
               MiAttempt.protected_attributes.to_a.sort
     end
 

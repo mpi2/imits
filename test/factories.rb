@@ -64,12 +64,14 @@ end
 
 #Specifics
 
-Factory.define :clone_EPD0127_4_E01, :parent => :clone do |clone|
+Factory.define :clone_EPD0127_4_E01_without_mi_attempts, :parent => :clone do |clone|
   clone.clone_name 'EPD0127_4_E01'
   clone.marker_symbol 'Trafd1'
   clone.allele_name_superscript 'tm1a(EUCOMM)Wtsi'
   clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
+end
 
+Factory.define :clone_EPD0127_4_E01, :parent => :clone_EPD0127_4_E01_without_mi_attempts do |clone|
   clone.after_create do |clone|
     Factory.create(:mi_attempt,
       :clone => clone,
@@ -93,13 +95,15 @@ Factory.define :clone_EPD0127_4_E01, :parent => :clone do |clone|
   end
 end
 
-Factory.define :clone_EPD0343_1_H06, :parent => :clone do |clone|
+Factory.define :clone_EPD0343_1_H06_without_mi_attempts, :parent => :clone do |clone|
   clone.clone_name 'EPD0343_1_H06'
   clone.marker_symbol 'Myo1c'
   clone.allele_name_superscript 'tm1a(EUCOMM)Wtsi'
   clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
+end
 
-  clone.after_create do |clone|
+Factory.define :clone_EPD0343_1_H06, :parent => :clone_EPD0343_1_H06_without_mi_attempts do |clone|
+    clone.after_create do |clone|
     Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'MDCF',

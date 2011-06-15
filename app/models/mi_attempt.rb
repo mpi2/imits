@@ -33,12 +33,26 @@ class MiAttempt < ActiveRecord::Base
     ['e', 'e - Targeted Non-Conditional']
   ].freeze
 
-  attr_protected :created_at, :updated_at, :updated_by
+  attr_protected :created_at, :updated_at, :updated_by, :clone, :clone_id
 
   acts_as_audited
 
   belongs_to :clone
   validates :clone, :presence => true
+
+  def clone_name
+    if(self.clone)
+      self.clone.clone_name
+    else
+      @clone_name
+    end
+  end
+
+  def clone_name=(arg)
+    if(! self.clone)
+      @clone_name = arg
+    end
+  end
 
   belongs_to :mi_attempt_status
   validates :mi_attempt_status, :presence => true
@@ -60,6 +74,7 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_default_status
   before_validation :set_total_chimeras
   before_validation :set_blank_strings_to_nil
+  before_validation :set_clone_from_clone_name
 
   def emma_status
     if is_suitable_for_emma?
@@ -169,6 +184,13 @@ class MiAttempt < ActiveRecord::Base
       end
     end
   end
+
+  def set_clone_from_clone_name
+    if ! self.clone
+      self.clone = Clone.find_or_create_from_mart(clone_name)
+    end
+  end
+
 end
 
 # == Schema Information

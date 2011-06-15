@@ -118,31 +118,44 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
 
         Kermits2.CloneSelectorWindow.superclass.initComponent.call(this);
 
-        this.cloneSearchTab = new Ext.form.FormPanel({
+        this.cloneSearchTab = new Ext.Panel({
+            layout: 'form',
             baseCls: 'x-plain',
             title: 'Search by clone name',
-            buttonAlign: 'left',
+
             items: [
             {
-                xtype: 'textfield',
+                xtype: 'panel',
+                layout: 'hbox',
+                baseCls: 'x-plain',
                 fieldLabel: 'Enter clone name',
-                ref: 'cloneNameField'
-            }
-            ],
-            buttons: [{
-                xtype: 'button',
-                text: 'Search',
-                listeners: {
-                    'click': {
-                        fn: function() {
-                            var cloneName = this.cloneSearchTab.cloneNameField.getValue();
-                            console.log(cloneName);
-                        },
-                        scope: this
+                items: [
+                {
+                    xtype: 'textfield',
+                    ref: '../cloneNameField'
+                },
+                {
+                    xtype: 'button',
+                    text: 'Search',
+                    margins: {
+                        left: 5,
+                        top: 0,
+                        right: 0,
+                        bottom: 0
+                    },
+                    listeners: {
+                        'click': {
+                            fn: function() {
+                                var cloneName = this.cloneSearchTab.cloneNameField.getValue();
+                                this.cloneNameTextField.setValue(cloneName);
+                            },
+                            scope: this
+                        }
                     }
                 }
-            }]
-
+                ]
+            }
+            ]
         });
 
         this.centerPanel = new Ext.TabPanel({
@@ -170,6 +183,8 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
 
 Kermits2.CloneSelectorForm = Ext.extend(Ext.Panel, {
     layout: 'form',
+    border: false,
+    baseCls: 'x-plain',
 
     initComponent: function() {
         this.viewConfig = {
@@ -178,20 +193,51 @@ Kermits2.CloneSelectorForm = Ext.extend(Ext.Panel, {
 
         Kermits2.CloneSelectorForm.superclass.initComponent.call(this);
 
-        this.add(new Ext.Button({
+        var cloneButton = new Ext.Button();
+
+        this.add(new Ext.Panel({
+            layout: 'hbox',
+            baseCls: 'x-plain',
             fieldLabel: 'Select a clone',
-            text: 'Select',
-            listeners: {
-                click: {
-                    fn: function() {
-                        this.cloneSelectorWindow.show();
-                    },
-                    scope: this
+            border: false,
+            items: [
+            {
+                ref: '../cloneNameTextField',
+                xtype: 'textfield',
+                disabled: true,
+                style: {
+                    color: 'black'
+                }
+            },
+            {
+                xtype: 'button',
+                margins: {
+                    left: 5,
+                    right: 0,
+                    top: 0,
+                    bottom: 0
+                },
+                text: 'Select',
+                listeners: {
+                    click: {
+                        fn: function() {
+                            this.cloneSelectorWindow.show();
+                        },
+                        scope: this
+                    }
                 }
             }
+            ]
         }));
 
-        this.cloneSelectorWindow = new Kermits2.CloneSelectorWindow();
+        this.cloneSelectorWindow = new Kermits2.CloneSelectorWindow({
+            cloneNameTextField: this.cloneNameTextField
+        });
+    },
+
+    onRender: function(container) {
+        Kermits2.CloneSelectorForm.superclass.onRender.apply(this, arguments);
+        this.cloneSelectorWindow.show();
     }
 });
 

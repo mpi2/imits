@@ -5,7 +5,14 @@
     <title>Kermits 2 - <%= @tab || @title %></title>
     <%= stylesheet_link_tag 'reset' %>
 
-    <%= netzke_init %>
+    <% if @netzke_required %>
+      <%= netzke_init %>
+    <% else %>
+      <link href="/extjs/resources/css/ext-all.css" media="screen"
+            rel="stylesheet" type="text/css"/>
+      <script src="/extjs/adapter/ext/ext-base-debug.js" type="text/javascript"></script>
+      <script src="/extjs/ext-all-debug.js" type="text/javascript"></script>
+    <% end %>
 
     <%= stylesheet_link_tag 'grid' %>
     <!--[if IE]>

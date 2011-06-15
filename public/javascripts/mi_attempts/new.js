@@ -1,4 +1,4 @@
-function onMiAttemptsNew() {
+function oldOnMiAttemptsNew() {
     var form = Ext.select('form.new.mi-attempt', true).first();
     if(! form) {return;}
     form.dom.onsubmit = function() {return false;};
@@ -100,6 +100,112 @@ function onMiAttemptsNew() {
     });
 
     geneCombo.getEl().dom.value = '[All]';
+}
+
+Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
+    title: 'Search for clones',
+    resizable: false,
+    layout: 'fit',
+    closeAction: 'hide',
+    width: 400,
+    height: 200,
+    plain: true,
+
+    initComponent: function() {
+        this.viewConfig = {
+            forceFit: true
+        };
+
+        Kermits2.CloneSelectorWindow.superclass.initComponent.call(this);
+
+        this.cloneSearchTab = new Ext.form.FormPanel({
+            baseCls: 'x-plain',
+            title: 'Search by clone name',
+            buttonAlign: 'left',
+            items: [
+            {
+                xtype: 'textfield',
+                fieldLabel: 'Enter clone name',
+                ref: 'cloneNameField'
+            }
+            ],
+            buttons: [{
+                xtype: 'button',
+                text: 'Search',
+                listeners: {
+                    'click': {
+                        fn: function() {
+                            var cloneName = this.cloneSearchTab.cloneNameField.getValue();
+                            console.log(cloneName);
+                        },
+                        scope: this
+                    }
+                }
+            }]
+
+        });
+
+        this.centerPanel = new Ext.TabPanel({
+            disablePanel: function() {
+                console.log(this);
+            },
+            padding: 10,
+            baseCls: 'x-plain',
+            defaults: {baseCls: 'x-plain'},
+            activeTab: 0,
+            items: [
+            this.cloneSearchTab,
+            {
+                title: 'Search by gene symbol',
+                items: {
+                    xtype: 'textfield'
+                }
+            }
+            ]
+        });
+
+        this.add(this.centerPanel);
+    }
+});
+
+Kermits2.CloneSelectorForm = Ext.extend(Ext.Panel, {
+    layout: 'form',
+
+    initComponent: function() {
+        this.viewConfig = {
+            forceFit: true
+        };
+
+        Kermits2.CloneSelectorForm.superclass.initComponent.call(this);
+
+        this.add(new Ext.Button({
+            fieldLabel: 'Select a clone',
+            text: 'Select',
+            listeners: {
+                click: {
+                    fn: function() {
+                        this.cloneSelectorWindow.show();
+                    },
+                    scope: this
+                }
+            }
+        }));
+
+        this.cloneSelectorWindow = new Kermits2.CloneSelectorWindow();
+    }
+});
+
+function onMiAttemptsNew() {
+    var form = Ext.select('form.new.mi-attempt', true).first();
+    if(! form) {return;}
+    form.dom.onsubmit = function() {return false;};
+
+    var restOfForm = Ext.get('rest-of-form');
+    restOfForm.hide(false);
+
+    var panel = new Kermits2.CloneSelectorForm({
+       renderTo: 'clone-selector'
+    });
 }
 
 Ext.onReady(function() {

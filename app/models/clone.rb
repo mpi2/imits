@@ -67,7 +67,7 @@ class Clone < ActiveRecord::Base
 
   scope :all_in_targ_rep, :conditions => {:is_in_targ_rep => true}, :order => 'clone_name'
 
-  def self.federated_query(clone_names)
+  def self.mart_search(clone_names)
     return IDCC_TARG_REP_DATASET.search(
       :filters => { "escell_clone" => clone_names },
       :attributes => [
@@ -89,7 +89,7 @@ class Clone < ActiveRecord::Base
   end
 
   def self.create_all_from_marts_by_clone_names(clone_names)
-    query = federated_query(clone_names.to_a)
+    query = mart_search(clone_names.to_a)
 
     return query.map do |clone_data|
       begin

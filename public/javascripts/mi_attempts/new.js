@@ -190,7 +190,7 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
                             var cloneName = listView.getStore().getAt(indices[0]).data['clone_name'];
                             this.cloneSelectorForm.cloneNameTextField.setValue(cloneName);
 
-                            this.hide();
+                            this.hideAfterSelection();
                         },
                         scope: this
                     }
@@ -221,11 +221,11 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
         this.add(this.centerPanel);
     },
 
-    hide: function() {
-        Kermits2.CloneSelectorWindow.superclass.hide.call(this);
+    hideAfterSelection: function() {
         this.cloneSearchTab.cloneNameField.setValue('');
         this.cloneSearchTab.clonesList.getStore().removeAll();
-        Kermits2.restOfForm.show(true);
+        this.hide();
+        Kermits2.restOfForm.showIfHidden();
     }
 });
 

@@ -117,10 +117,10 @@ class Clone < ActiveRecord::Base
   end
 
   def self.find_or_create_from_mart(clone_name)
-    raise ArgumentError, 'Enter a clone name' if clone_name.blank?
-
     clone = self.find_by_clone_name(clone_name)
     return clone if(clone)
+
+    return nil if clone_name.blank?
 
     result = mart_search_by_clone_names([clone_name])
     if(result.empty?)

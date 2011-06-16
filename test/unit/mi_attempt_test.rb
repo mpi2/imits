@@ -15,7 +15,6 @@ class MiAttemptTest < ActiveSupport::TestCase
     should 'have clone' do
       assert_should have_db_column(:clone_id).with_options(:null => false)
       assert_should belong_to(:clone)
-      assert_should validate_presence_of(:clone)
     end
 
     should 'have centres' do
@@ -456,6 +455,19 @@ class MiAttemptTest < ActiveSupport::TestCase
         @mi_attempt.save!
 
         assert_equal 'EPD0029_1_G04', @mi_attempt.clone_name
+      end
+
+      should 'validate as missing if not set and clone is not set either' do
+        @mi_attempt.clone_name = nil
+        @mi_attempt.valid?
+        assert_equal ['cannot be blank'], @mi_attempt.errors['clone_name']
+      end
+
+      should 'not validate as missing if not set but clone is set' do
+        @mi_attempt.clone_name = nil
+        @mi_attempt.clone = Clone.find_by_clone_name('EPD0343_1_H06')
+        @mi_attempt.valid?
+        assert @mi_attempt.errors['clone_name'].blank?
       end
     end
 

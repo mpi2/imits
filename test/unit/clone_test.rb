@@ -163,9 +163,12 @@ class CloneTest < ActiveSupport::TestCase
         assert_equal 'EPD0127_4_E01', Clone.find_or_create_from_mart('EPD0127_4_E01').clone_name
       end
 
-      should 'return nil if it does not' do
-        Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+      should 'return nil if it does not exist in DB or marts' do
         assert_nil Clone.find_or_create_from_mart('EPD_NONEXISTENT')
+      end
+
+      should 'return nil if query was blank' do
+        assert_nil Clone.find_or_create_from_mart('')
       end
     end
 

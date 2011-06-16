@@ -71,10 +71,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       def valid_create_for_format(format)
-        clone = Factory.create :clone
+        clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
         assert_equal 0, MiAttempt.count
         post :create,
-                :mi_attempt => {'clone_id' => clone.id, 'production_centre_id' => 1},
+                :mi_attempt => {'clone_name' => clone.clone_name, 'production_centre_id' => 1},
                 :format => format
         assert_response :success
 
@@ -100,7 +100,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_false response.success?
 
         data = parse_json_from_response
-        assert_include data['clone'], 'cannot be blank'
+        assert_include data['clone_name'], 'cannot be blank'
       end
 
       should 'return errors with invalid params for XML' do

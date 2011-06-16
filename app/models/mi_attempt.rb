@@ -38,7 +38,6 @@ class MiAttempt < ActiveRecord::Base
   acts_as_audited
 
   belongs_to :clone
-  validates :clone, :presence => true
 
   def clone_name
     if(self.clone)
@@ -53,6 +52,8 @@ class MiAttempt < ActiveRecord::Base
       @clone_name = arg
     end
   end
+
+  validates :clone_name, :presence => true
 
   belongs_to :mi_attempt_status
   validates :mi_attempt_status, :presence => true
@@ -187,7 +188,7 @@ class MiAttempt < ActiveRecord::Base
 
   def set_clone_from_clone_name
     if ! self.clone
-      self.clone = Clone.find_or_create_from_mart(clone_name)
+      self.clone = Clone.find_or_create_from_mart(self.clone_name)
     end
   end
 

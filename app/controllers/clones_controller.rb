@@ -16,4 +16,12 @@ class ClonesController < ApplicationController
     respond_with @clones
   end
 
+  def mart_search
+    if params[:clone_name].blank?
+      respond_with []
+    else
+      respond_with Clone.mart_search_by_clone_names( [ params[:clone_name] ] )
+    end
+  end
+
 end

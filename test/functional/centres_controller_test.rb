@@ -11,6 +11,7 @@ class CentresControllerTest < ActionController::TestCase
 
     context 'GET show' do
       setup do
+        sign_in default_user
         @centre = Centre.find_by_name('WTSI')
       end
 
@@ -28,6 +29,10 @@ class CentresControllerTest < ActionController::TestCase
     end
 
     context 'GET index' do
+      setup do
+        sign_in default_user
+      end
+
       should 'support search helpers as XML' do
         get :index, :name_contains => 'WT', :format => :xml
         xml = parse_xml_from_response

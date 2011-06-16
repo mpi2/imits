@@ -67,7 +67,8 @@ class Clone < ActiveRecord::Base
 
   scope :all_in_targ_rep, :conditions => {:is_in_targ_rep => true}, :order => 'clone_name'
 
-  def self.mart_search(clone_names)
+  def self.mart_search_by_clone_names(clone_names)
+    raise ArgumentError, 'Need array of clones please' unless clone_names.kind_of?(Array)
     return IDCC_TARG_REP_DATASET.search(
       :filters => { "escell_clone" => clone_names },
       :attributes => [
@@ -102,7 +103,7 @@ class Clone < ActiveRecord::Base
   end
 
   def self.create_all_from_marts_by_clone_names(clone_names)
-    result = mart_search(clone_names.to_a)
+    result = mart_search_by_clone_names(clone_names.to_a)
 
     return result.map do |mart_data|
       begin
@@ -121,7 +122,7 @@ class Clone < ActiveRecord::Base
     clone = self.find_by_clone_name(clone_name)
     return clone if(clone)
 
-    result = mart_search([clone_name])
+    result = mart_search_by_clone_names([clone_name])
     if(result.empty?)
       return nil
     else

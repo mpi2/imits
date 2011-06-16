@@ -16,6 +16,7 @@ class ClonesControllerTest < ActionController::TestCase
 
     context 'GET show' do
       setup do
+        sign_in default_user
         @clone = Clone.find_by_clone_name('EPD0127_4_E01')
       end
 
@@ -33,6 +34,10 @@ class ClonesControllerTest < ActionController::TestCase
     end
 
     context 'GET index' do
+      setup do
+        sign_in default_user
+      end
+
       should 'support search helpers as XML' do
         get :index, :clone_name_contains => '0127', :format => :xml
         xml = parse_xml_from_response
@@ -45,6 +50,22 @@ class ClonesControllerTest < ActionController::TestCase
         array = parse_json_from_response
         assert_equal 1, array.size
         assert_equal 'EPD0127_4_E01', array.first['clone_name']
+      end
+    end
+
+    context 'GET mart_search' do
+      should 'work with clone_name param for json' do
+        sign_in default_user
+        get :mart_search, :clone_name => 'HEPD0549_6_D02', :format => :json
+        data = parse_json_from_response
+        assert_equal 'HEPD0549_6_D02', data[0]['escell_clone']
+      end
+
+      should 'return empty array if passing in blank clone_name' do
+        sign_in default_user
+        get :mart_search, :clone_name => nil, :format => :json
+        data = parse_json_from_response
+        assert_equal 0, data.size
       end
     end
 

@@ -13,7 +13,11 @@ Kermits2::Application.routes.draw do
   end
 
   resources :centres, :only => [:show, :index]
-  resources :clones, :only => [:show, :index]
+  resources :clones, :only => [:show, :index] do
+    collection do
+      get 'mart_search'
+    end
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

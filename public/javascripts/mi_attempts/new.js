@@ -5,6 +5,7 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
     closeAction: 'hide',
     width: 400,
     height: 200,
+    y: 175,
     plain: true,
 
     initComponent: function() {

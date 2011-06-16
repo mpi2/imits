@@ -3,10 +3,6 @@ Ext.ns('Kermits2.newMI');
 Kermits2.newMI.ClonesList = Ext.extend(Ext.ListView, {
     height: 100,
     width: 180,
-//    store: new Ext.data.ArrayStore({
-//        data: [],
-//        fields: ['clone_name']
-//    }),
     columns: [
     {
         sortable: true,

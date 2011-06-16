@@ -1,3 +1,41 @@
+Kermits2.ClonesList = Ext.extend(Ext.ListView, {
+    height: 100,
+    width: 180,
+    store: new Ext.data.ArrayStore({
+        data: [],
+        fields: ['clone_name']
+    }),
+    columns: [
+    {
+        sortable: true,
+        dataIndex: 'clone_name'
+    }
+    ],
+    autoExpandColumn: '0',
+    singleSelect: true,
+    hideHeaders: true,
+    style: {
+        backgroundColor: 'white'
+    },
+    listeners: {
+        selectionchange: {
+            fn: function(listView) {
+                var indices = listView.getSelectedIndexes();
+                if(indices.length == 0) {
+                    return;
+                }
+                var cloneName = listView.getStore().getAt(indices[0]).data['clone_name'];
+                console.log(listView.ownerCt);
+                listView.initialConfig.cloneSelectorForm.cloneNameTextField.setValue(cloneName);
+                Kermits2.restOfForm.setCloneName(cloneName);
+                listView.initialConfig.cloneSelectorForm.cloneSelectorWindow.hideAfterSelection();
+                Kermits2.restOfForm.showIfHidden();
+            },
+            scope: this
+        }
+    }
+});
+
 Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
     title: 'Search for clones',
     resizable: false,
@@ -15,8 +53,6 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
 
         Kermits2.CloneSelectorWindow.superclass.initComponent.call(this);
 
-        this.cloneSelectorForm = this.initialConfig.cloneSelectorForm;
-
         this.cloneSearchTab = new Ext.Panel({
             layout: 'form',
             unstyled: true,
@@ -31,7 +67,7 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
                 items: [
                 {
                     xtype: 'textfield',
-                    ref: '../cloneNameField'
+                    ref: '../cloneNameSearchBox'
                 },
                 {
                     xtype: 'button',
@@ -55,45 +91,11 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
                 }
                 ]
             },
-            {
-                xtype: 'listview',
-                fieldLabel: 'Choose a clone to micro inject',
+            new Kermits2.ClonesList({
                 ref: 'clonesList',
-                height: 100,
-                width: 180,
-                store: new Ext.data.ArrayStore({
-                    data: [],
-                    fields: ['clone_name']
-                }),
-                columns: [
-                {
-                    sortable: true,
-                    dataIndex: 'clone_name'
-                }
-                ],
-                autoExpandColumn: '0',
-                singleSelect: true,
-                hideHeaders: true,
-                style: {
-                    backgroundColor: 'white'
-                },
-                listeners: {
-                    selectionchange: {
-                        fn: function(listView) {
-                            var indices = listView.getSelectedIndexes();
-                            if(indices.length == 0) {
-                                return;
-                            }
-                            var cloneName = listView.getStore().getAt(indices[0]).data['clone_name'];
-                            this.cloneSelectorForm.cloneNameTextField.setValue(cloneName);
-                            Kermits2.restOfForm.setCloneName(cloneName);
-                            this.hideAfterSelection();
-                            Kermits2.restOfForm.showIfHidden();
-                        },
-                        scope: this
-                    }
-                }
-            }
+                fieldLabel: 'Choose a clone to micro inject',
+                cloneSelectorForm: this.initialConfig.cloneSelectorForm
+            })
             ]
         });
 
@@ -120,7 +122,7 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
     },
 
     hideAfterSelection: function() {
-        this.cloneSearchTab.cloneNameField.setValue('');
+        this.cloneSearchTab.cloneNameSearchBox.setValue('');
         this.cloneSearchTab.clonesList.getStore().removeAll();
         this.hide();
     }
@@ -137,8 +139,6 @@ Kermits2.CloneSelectorForm = Ext.extend(Ext.Panel, {
         };
 
         Kermits2.CloneSelectorForm.superclass.initComponent.call(this);
-
-        var cloneButton = new Ext.Button();
 
         this.add(new Ext.Panel({
             layout: 'hbox',

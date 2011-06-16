@@ -95,6 +95,7 @@ Kermits2.newMI.SearchTab = Ext.extend(Ext.Panel, {
             {
                 xtype: 'textfield',
                 ref: '../searchBox',
+                selectOnFocus: true,
                 listeners: {
                     specialkey: {
                         fn: function(field, e) {
@@ -183,6 +184,14 @@ Kermits2.newMI.CloneSelectorWindow = Ext.extend(Ext.Window, {
             this.markerSymbolSearchTab,
             this.cloneSearchTab
             ]
+        });
+
+        this.centerPanel.addListener('tabchange', function(tabPanel, newTab) {
+            newTab.searchBox.focus();
+        });
+
+        this.addListener('show', function(theWindow) {
+            theWindow.centerPanel.getActiveTab().searchBox.focus(true, 50);
         });
 
         this.add(this.centerPanel);

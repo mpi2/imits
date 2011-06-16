@@ -46,6 +46,15 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
     y: 175,
     plain: true,
 
+    showLoadMask: function() {
+        this.loadMask = new Ext.LoadMask(this.centerPanel.getEl(), {removeMask: true});
+        this.loadMask.show();
+    },
+
+    hideLoadMask: function() {
+        this.loadMask.hide();
+    },
+
     initComponent: function() {
         this.viewConfig = {
             forceFit: true
@@ -58,6 +67,25 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
             unstyled: true,
             title: 'Search by clone name',
 
+            performSearch: function() {
+                this.ownerCt.ownerCt.showLoadMask();
+                Ext.Ajax.request({
+                    url: '/clones/mart_search.json?' + Ext.urlEncode({
+                        'clone_name': this.cloneNameSearchBox.getValue()
+                    }),
+                    success: function(response) {
+                        var data = Ext.decode(response.responseText);
+                        var storeData = [];
+                        Ext.each(data, function(i) {
+                           storeData.push( [ i['escell_clone'] ] );
+                        });
+                        this.clonesList.getStore().loadData(storeData);
+                        this.ownerCt.ownerCt.hideLoadMask();
+                    },
+                    scope: this
+                });
+            },
+
             items: [
             {
                 xtype: 'panel',
@@ -67,7 +95,17 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
                 items: [
                 {
                     xtype: 'textfield',
-                    ref: '../cloneNameSearchBox'
+                    ref: '../cloneNameSearchBox',
+                    listeners: {
+                        specialkey: {
+                            fn: function(field, e) {
+                                if(e.getKey() == e.ENTER) {
+                                    this.cloneSearchTab.performSearch();
+                                }
+                            },
+                            scope: this
+                        }
+                    }
                 },
                 {
                     xtype: 'button',
@@ -80,11 +118,7 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
                     },
                     listeners: {
                         'click': {
-                            fn: function() {
-                                this.cloneSearchTab.clonesList.getStore().loadData([
-                                    ['EPD0127_4_E01']
-                                    ]);
-                            },
+                            fn: function() {this.cloneSearchTab.performSearch()},
                             scope: this
                         }
                     }
@@ -100,9 +134,7 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
         });
 
         this.centerPanel = new Ext.TabPanel({
-            disablePanel: function() {
-                console.log(this);
-            },
+            ref: 'centerPanel',
             padding: 10,
             unstyled: true,
             defaults: {unstyled: true},

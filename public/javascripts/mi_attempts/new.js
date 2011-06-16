@@ -180,8 +180,8 @@ Kermits2.newMI.CloneSelectorWindow = Ext.extend(Ext.Window, {
             defaults: {unstyled: true},
             activeTab: 0,
             items: [
-            this.cloneSearchTab,
-            this.markerSymbolSearchTab
+            this.markerSymbolSearchTab,
+            this.cloneSearchTab
             ]
         });
 

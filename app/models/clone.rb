@@ -55,6 +55,24 @@ class Clone < ActiveRecord::Base
     return "#{marker_symbol}<sup>#{allele_name_superscript}</sup>"
   end
 
+  scope :all_in_targ_rep, :conditions => {:is_in_targ_rep => true}, :order => 'clone_name'
+
+  def self.all_partitioned_by_marker_symbol
+    retval = {}
+    all_clones = self.select('id, clone_name, marker_symbol').all_in_targ_rep
+
+    retval[nil] = all_clones.dup
+
+    all_clones.each do |clone|
+      retval[clone.marker_symbol] ||= []
+      retval[clone.marker_symbol] << clone
+    end
+
+    return retval
+  end
+
+  # BEGIN Mart Operations
+
   IDCC_TARG_REP_DATASET = Biomart::Dataset.new(
     "http://www.knockoutmouse.org/biomart",
     { :name => "idcc_targ_rep" }
@@ -64,8 +82,6 @@ class Clone < ActiveRecord::Base
     "http://www.knockoutmouse.org/biomart",
     { :name => "dcc" }
   )
-
-  scope :all_in_targ_rep, :conditions => {:is_in_targ_rep => true}, :order => 'clone_name'
 
   def self.mart_search_by_clone_names(clone_names)
     raise ArgumentError, 'Need array of clones please' unless clone_names.kind_of?(Array)
@@ -116,7 +132,7 @@ class Clone < ActiveRecord::Base
     end
   end
 
-  def self.find_or_create_from_mart(clone_name)
+  def self.find_or_create_from_mart_by_clone_name(clone_name)
     clone = self.find_by_clone_name(clone_name)
     return clone if(clone)
 
@@ -130,19 +146,26 @@ class Clone < ActiveRecord::Base
     end
   end
 
-  def self.all_partitioned_by_marker_symbol
-    retval = {}
-    all_clones = self.select('id, clone_name, marker_symbol').all_in_targ_rep
-
-    retval[nil] = all_clones.dup
-
-    all_clones.each do |clone|
-      retval[clone.marker_symbol] ||= []
-      retval[clone.marker_symbol] << clone
-    end
-
-    return retval
+  def self.get_clone_names_from_mart_by_marker_symbol(marker_symbol)
+    raise ArgumentError, 'Need marker symbol please' if marker_symbol.blank?
+    return DCC_DATASET.search(
+      :filters => { 'marker_symbol' => [marker_symbol] },
+      :attributes => [
+        'marker_symbol'
+      ],
+      :process_results => true,
+      :timeout => 600,
+      :federate => [
+        {
+          :dataset => IDCC_TARG_REP_DATASET,
+          :filters => {},
+          :attributes => ['escell_clone']
+        }
+      ]
+    )
   end
+
+  # END Mart Operations
 
 end
 

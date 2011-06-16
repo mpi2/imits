@@ -151,24 +151,70 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
-    context '::find_or_create_from_mart' do
+    context '::find_or_create_from_mart_by_clone_name' do
       should 'create clone from marts if it is not in the DB' do
-        clone = Clone.find_or_create_from_mart('HEPD0549_6_D02')
+        clone = Clone.find_or_create_from_mart_by_clone_name('HEPD0549_6_D02')
         assert_HEPD0549_6_D02_attributes(clone)
-        assert_equal 'EUCOMM', clone.pipeline.name
       end
 
       should 'return clone if it is already in the DB without hitting the marts' do
         Factory.create :clone_EPD0127_4_E01_without_mi_attempts
-        assert_equal 'EPD0127_4_E01', Clone.find_or_create_from_mart('EPD0127_4_E01').clone_name
+        assert_equal 'EPD0127_4_E01', Clone.find_or_create_from_mart_by_clone_name('EPD0127_4_E01').clone_name
       end
 
       should 'return nil if it does not exist in DB or marts' do
-        assert_nil Clone.find_or_create_from_mart('EPD_NONEXISTENT')
+        assert_nil Clone.find_or_create_from_mart_by_clone_name('EPD_NONEXISTENT')
       end
 
       should 'return nil if query was blank' do
-        assert_nil Clone.find_or_create_from_mart('')
+        assert_nil Clone.find_or_create_from_mart_by_clone_name('')
+      end
+    end
+
+    context '::get_clone_names_from_mart_by_marker_symbol' do
+
+      should 'return array of clone names with a valid marker symbol' do
+        result = Clone.get_clone_names_from_mart_by_marker_symbol('cbx7')
+        expected = %w{
+          EPD0013_1_B05
+          EPD0013_1_C05
+          EPD0013_1_F05
+          EPD0013_1_H05
+          EPD0018_1_A07
+          EPD0018_1_A08
+          EPD0018_1_A09
+          EPD0018_1_B07
+          EPD0018_1_B08
+          EPD0018_1_C07
+          EPD0018_1_C08
+          EPD0018_1_C09
+          EPD0018_1_D08
+          EPD0018_1_D09
+          EPD0018_1_E08
+          EPD0018_1_E09
+          EPD0018_1_F07
+          EPD0018_1_F08
+          EPD0018_1_G07
+          EPD0018_1_G08
+          EPD0018_1_G09
+          EPD0018_1_H07
+          EPD0018_1_H08
+          EPD0018_1_H09
+        }
+        assert_equal expected.sort, result.map {|i| i['escell_clone']}.sort
+      end
+
+      should 'return clone if it is already in the DB without hitting the marts' do
+        Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        assert_equal 'EPD0127_4_E01', Clone.find_or_create_from_mart_by_marker_symbol('Trafd1').clone_name
+      end
+
+      should 'return nil if it does not exist in DB or marts' do
+        assert_nil Clone.find_or_create_from_mart_by_clone_name('EPD_NONEXISTENT')
+      end
+
+      should 'return nil if query was blank' do
+        assert_nil Clone.find_or_create_from_mart_by_clone_name('')
       end
     end
 

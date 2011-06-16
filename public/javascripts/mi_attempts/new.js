@@ -18,14 +18,14 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
 
         this.cloneSearchTab = new Ext.Panel({
             layout: 'form',
-            baseCls: 'x-plain',
+            unstyled: true,
             title: 'Search by clone name',
 
             items: [
             {
                 xtype: 'panel',
                 layout: 'hbox',
-                baseCls: 'x-plain',
+                unstyled: true,
                 fieldLabel: 'Enter clone name',
                 items: [
                 {
@@ -101,8 +101,8 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
                 console.log(this);
             },
             padding: 10,
-            baseCls: 'x-plain',
-            defaults: {baseCls: 'x-plain'},
+            unstyled: true,
+            defaults: {unstyled: true},
             activeTab: 0,
             items: [
             this.cloneSearchTab,
@@ -128,7 +128,7 @@ Kermits2.CloneSelectorWindow = Ext.extend(Ext.Window, {
 Kermits2.CloneSelectorForm = Ext.extend(Ext.Panel, {
     layout: 'form',
     border: false,
-    baseCls: 'x-plain',
+    unstyled: true,
 
     initComponent: function() {
         this.viewConfig = {
@@ -141,7 +141,7 @@ Kermits2.CloneSelectorForm = Ext.extend(Ext.Panel, {
 
         this.add(new Ext.Panel({
             layout: 'hbox',
-            baseCls: 'x-plain',
+            unstyled: true,
             fieldLabel: 'Select a clone',
             border: false,
             items: [

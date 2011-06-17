@@ -31,6 +31,19 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_false mi.errors[:production_centre].blank?
     end
 
+    should 'default distribution_centre to production_centre' do
+      centre = Factory.create :centre
+      mi = Factory.create :mi_attempt, :production_centre => centre
+      assert_equal centre.name, mi.distribution_centre.name
+    end
+
+    should 'not overwrite distribution_centre with production_centre if former has already been set' do
+      centre1 = Factory.create :centre
+      centre2 = Factory.create :centre
+      mi = Factory.create :mi_attempt, :production_centre => centre1, :distribution_centre => centre2
+      assert_equal centre2.name, mi.distribution_centre.name
+    end
+
     should 'have status' do
       assert_should have_db_column(:mi_attempt_status_id).with_options(:null => false)
       assert_should belong_to(:mi_attempt_status)

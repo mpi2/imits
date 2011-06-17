@@ -82,6 +82,37 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_total_chimeras
   before_validation :set_blank_strings_to_nil
   before_validation :set_clone_from_clone_name
+  before_validation :set_default_distribution_centre
+
+  protected
+
+  def set_default_status
+    self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
+  end
+
+  def set_total_chimeras
+    self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
+  end
+
+  def set_blank_strings_to_nil
+    self.attributes.each do |name, value|
+      if self[name].respond_to?(:to_str) && self[name].blank?
+        self[name] = nil
+      end
+    end
+  end
+
+  def set_clone_from_clone_name
+    if ! self.clone
+      self.clone = Clone.find_or_create_from_mart_by_clone_name(self.clone_name)
+    end
+  end
+
+  def set_default_distribution_centre
+    self.distribution_centre ||= self.production_centre
+  end
+
+  public
 
   def emma_status
     if is_suitable_for_emma?
@@ -173,30 +204,6 @@ class MiAttempt < ActiveRecord::Base
       joins(:clone).where(sql_text, *sql_params)
     end
   }
-
-  protected
-
-  def set_default_status
-    self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
-  end
-
-  def set_total_chimeras
-    self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
-  end
-
-  def set_blank_strings_to_nil
-    self.attributes.each do |name, value|
-      if self[name].respond_to?(:to_str) && self[name].blank?
-        self[name] = nil
-      end
-    end
-  end
-
-  def set_clone_from_clone_name
-    if ! self.clone
-      self.clone = Clone.find_or_create_from_mart_by_clone_name(self.clone_name)
-    end
-  end
 
 end
 

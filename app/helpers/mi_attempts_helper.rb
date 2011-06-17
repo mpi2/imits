@@ -3,6 +3,7 @@
 module MiAttemptsHelper
 
   class MiAttemptsGrid < Netzke::Basepack::GridPanel
+    include ActionController::UrlWriter
 
     EMMA_OPTIONS = MiAttempt::EMMA_OPTIONS
 
@@ -171,7 +172,7 @@ module MiAttemptsHelper
         mi_attempt_column(:edit_link,
           :header => 'Edit in form',
           :readOnly => true,
-          :getter => proc {|mi| "/mi_attempts/#{mi.id}"},
+          :getter => proc {|mi| mi_attempt_path(mi) },
           :renderer => 'function(link) {return "<a href=\\""+link+"\\">Edit in Form</a>"}'
         ),
 

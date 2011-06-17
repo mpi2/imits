@@ -20,32 +20,26 @@ Kermits2.newMI.ClonesList = Ext.extend(Ext.ListView, {
         Kermits2.newMI.ClonesList.superclass.initComponent.call(this);
 
         this.cloneSelectorForm = this.initialConfig.cloneSelectorForm;
+
+        this.addListener({
+            'selectionchange': function() {
+                var indices = this.getSelectedIndexes();
+                if(indices.length == 0) {
+                    return;
+                }
+                var cloneName = this.getStore().getAt(indices[0]).data['clone_name'];
+                this.cloneSelectorForm.onCloneNameSelected(cloneName);
+                this.getStore().removeAll();
+            }
+        });
     },
 
     onRender: function() {
         Kermits2.newMI.ClonesList.superclass.onRender.apply(this, arguments);
-
         this.bindStore(new Ext.data.ArrayStore({
             data: [],
             fields: ['clone_name']
         }));
-    },
-
-    listeners: {
-        selectionchange: {
-            fn: function(listView) {
-                var indices = listView.getSelectedIndexes();
-                if(indices.length == 0) {
-                    return;
-                }
-                var cloneName = listView.getStore().getAt(indices[0]).data['clone_name'];
-                listView.cloneSelectorForm.cloneNameTextField.setValue(cloneName);
-                Kermits2.newMI.restOfForm.setCloneName(cloneName);
-                listView.cloneSelectorForm.window.hideAfterSelection();
-                Kermits2.newMI.restOfForm.showIfHidden();
-            },
-            scope: this
-        }
     }
 });
 
@@ -126,11 +120,11 @@ Kermits2.newMI.SearchTab = Ext.extend(Ext.Panel, {
             ]
         }));
 
-        this.add(new Kermits2.newMI.ClonesList({
-            ref: 'clonesList',
+        this.clonesList = new Kermits2.newMI.ClonesList({
             fieldLabel: 'Choose a clone to micro-inject',
             cloneSelectorForm: this.cloneSelectorForm
-        }));
+        });
+        this.add(this.clonesList);
     }
 });
 
@@ -195,18 +189,15 @@ Kermits2.newMI.CloneSelectorWindow = Ext.extend(Ext.Window, {
         });
 
         this.add(this.centerPanel);
-    },
-
-    hideAfterSelection: function() {
-        this.cloneSearchTab.resetForm();
-        this.hide();
     }
+
 });
 
 Kermits2.newMI.CloneSelectorForm = Ext.extend(Ext.Panel, {
     layout: 'form',
     border: false,
     unstyled: true,
+    labelAlign: 'top',
 
     initComponent: function() {
         this.viewConfig = {
@@ -258,6 +249,13 @@ Kermits2.newMI.CloneSelectorForm = Ext.extend(Ext.Panel, {
     onRender: function() {
         Kermits2.newMI.CloneSelectorForm.superclass.onRender.apply(this, arguments);
         this.window.show();
+    },
+
+    onCloneNameSelected: function(cloneName) {
+        this.cloneNameTextField.setValue(cloneName);
+        this.window.hide();
+        Kermits2.newMI.restOfForm.setCloneName(cloneName);
+        Kermits2.newMI.restOfForm.showIfHidden();
     }
 });
 

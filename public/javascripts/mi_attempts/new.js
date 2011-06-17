@@ -58,7 +58,7 @@ Kermits2.newMI.SearchTab = Ext.extend(Ext.Panel, {
         var urlParams = {}
         urlParams[this.initialConfig.searchParam] = this.searchBox.getValue();
         Ext.Ajax.request({
-            url: '/clones/mart_search.json?' + Ext.urlEncode(urlParams),
+            url: window.martSearchClonesPath + '?' + Ext.urlEncode(urlParams),
             success: function(response) {
                 var data = Ext.decode(response.responseText);
                 var storeData = [];

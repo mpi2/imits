@@ -3,6 +3,7 @@
 <% content_for :head do %>
   <%= javascript_include_tag('mi_attempts/shared') %>
   <%= javascript_include_tag('mi_attempts/new') %>
+  <%= javascript_tag "martSearchClonesPath = '#{mart_search_clones_path}.json';" %>
 <% end %>
 
 <div>

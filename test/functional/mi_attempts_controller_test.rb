@@ -74,7 +74,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
         assert_equal 0, MiAttempt.count
         post :create,
-                :mi_attempt => {'clone_name' => clone.clone_name, 'production_centre_id' => 1},
+                :mi_attempt => {'clone_name' => clone.clone_name, :production_centre_id => Centre.find_by_name('WTSI').id},
                 :format => format
         assert_response :success
 
@@ -109,6 +109,32 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
         doc = parse_xml_from_response
         assert_not_equal 0, doc.xpath('count(//error)')
+      end
+
+      should 'set production centre from params if specified' do
+        user = Factory.create :user, :production_centre => Centre.find_by_name('ICS')
+        sign_in user
+        clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        post :create,
+                :mi_attempt => {'clone_name' => clone.clone_name, 'production_centre_id' => Centre.find_by_name('WTSI')},
+                :format => :json
+        assert_response :success, response.body
+
+        mi_attempt = MiAttempt.first
+        assert_equal 'WTSI', mi_attempt.production_centre.name
+      end
+
+      should 'set production centre to logged in user centre if not specified' do
+        user = Factory.create :user, :production_centre => Centre.find_by_name('ICS')
+        sign_in user
+        clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        post :create,
+                :mi_attempt => {'clone_name' => clone.clone_name},
+                :format => :json
+        assert_response :success, response.body
+
+        mi_attempt = MiAttempt.first
+        assert_equal 'ICS', mi_attempt.production_centre.name
       end
     end
 

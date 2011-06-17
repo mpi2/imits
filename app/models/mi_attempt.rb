@@ -55,6 +55,12 @@ class MiAttempt < ActiveRecord::Base
 
   validates :clone_name, :presence => true
 
+  validates_each :clone_name do |record, attr, value|
+    if !record.clone_name.blank? and record.clone.blank?
+      record.errors.add :clone_name, 'was not found in the marts'
+    end
+  end
+
   belongs_to :mi_attempt_status
   validates :mi_attempt_status, :presence => true
 

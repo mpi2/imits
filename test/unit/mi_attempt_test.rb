@@ -473,6 +473,12 @@ class MiAttemptTest < ActiveSupport::TestCase
         @mi_attempt.valid?
         assert @mi_attempt.errors['clone_name'].blank?
       end
+
+      should 'validate when clone_name is not a valid clone in the marts' do
+        mi_attempt = MiAttempt.new(:clone_name => 'EPD0127_4_G01', :production_centre => Centre.first)
+        assert_false mi_attempt.valid?
+        assert ! mi_attempt.errors[:clone_name].blank?
+      end
     end
 
     should 'protect private attributes' do

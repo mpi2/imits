@@ -29,7 +29,6 @@ class MiAttemptsController < ApplicationController
 
   def new
     @centres = Centre.all
-    @all_clones_partitioned_by_marker_symbol = Clone.all_partitioned_by_marker_symbol
     @mi_attempt = MiAttempt.new(
       :production_centre => current_user.production_centre,
       :distribution_centre => current_user.production_centre)

@@ -3,7 +3,7 @@
 module MiAttemptsHelper
 
   class MiAttemptsGrid < Netzke::Basepack::GridPanel
-    include ActionController::UrlWriter
+    include Rails.application.routes.url_helpers
 
     EMMA_OPTIONS = MiAttempt::EMMA_OPTIONS
 

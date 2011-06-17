@@ -173,7 +173,7 @@ class CloneTest < ActiveSupport::TestCase
 
     context '::get_clone_names_from_mart_by_marker_symbol' do
 
-      should 'return array of clone names with a valid marker symbol' do
+      should 'return sorted array of clone names with a valid marker symbol' do
         result = Clone.get_clone_names_from_mart_by_marker_symbol('cbx7')
         expected = %w{
           EPD0013_1_B05
@@ -201,20 +201,15 @@ class CloneTest < ActiveSupport::TestCase
           EPD0018_1_H08
           EPD0018_1_H09
         }
-        assert_equal expected.sort, result.map {|i| i['escell_clone']}.sort
+        assert_equal expected.sort, result.map {|i| i['escell_clone']}
       end
 
-      should 'return clone if it is already in the DB without hitting the marts' do
-        Factory.create :clone_EPD0127_4_E01_without_mi_attempts
-        assert_equal 'EPD0127_4_E01', Clone.find_or_create_from_mart_by_marker_symbol('Trafd1').clone_name
-      end
-
-      should 'return nil if it does not exist in DB or marts' do
-        assert_nil Clone.find_or_create_from_mart_by_clone_name('EPD_NONEXISTENT')
+      should 'return empty array if it does not exist in DB or marts' do
+        assert_equal [], Clone.get_clone_names_from_mart_by_marker_symbol('Nonexistent')
       end
 
       should 'return nil if query was blank' do
-        assert_nil Clone.find_or_create_from_mart_by_clone_name('')
+        assert_nil Clone.get_clone_names_from_mart_by_marker_symbol('')
       end
     end
 

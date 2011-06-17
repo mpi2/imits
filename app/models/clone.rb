@@ -85,21 +85,21 @@ class Clone < ActiveRecord::Base
 
   def self.mart_search_by_clone_names(clone_names)
     raise ArgumentError, 'Need array of clones please' unless clone_names.kind_of?(Array)
-    return IDCC_TARG_REP_DATASET.search(
-      :filters => { "escell_clone" => clone_names },
-      :attributes => [
-        "escell_clone",
-        "pipeline",
-        "mgi_accession_id",
-        "allele_symbol_superscript"
-      ],
+    return DCC_DATASET.search(
+      :filters => {},
+      :attributes => ['marker_symbol'],
       :process_results => true,
       :timeout => 600,
       :federate => [
         {
-          :dataset => DCC_DATASET,
-          :filters => {},
-          :attributes => ['marker_symbol']
+          :dataset => IDCC_TARG_REP_DATASET,
+          :filters => { "escell_clone" => clone_names },
+          :attributes => [
+            "escell_clone",
+            "pipeline",
+            "mgi_accession_id",
+            "allele_symbol_superscript"
+          ],
         }
       ]
     )
@@ -147,22 +147,23 @@ class Clone < ActiveRecord::Base
   end
 
   def self.get_clone_names_from_mart_by_marker_symbol(marker_symbol)
-    raise ArgumentError, 'Need marker symbol please' if marker_symbol.blank?
-    return DCC_DATASET.search(
-      :filters => { 'marker_symbol' => [marker_symbol] },
-      :attributes => [
-        'marker_symbol'
-      ],
+    return nil if marker_symbol.blank?
+    return IDCC_TARG_REP_DATASET.search(
+      :filters => {},
+      :attributes => ['escell_clone'],
+      :required_attributes => ['escell_clone'],
       :process_results => true,
       :timeout => 600,
       :federate => [
         {
-          :dataset => IDCC_TARG_REP_DATASET,
-          :filters => {},
-          :attributes => ['escell_clone']
+          :filters => { 'marker_symbol' => [marker_symbol] },
+          :attributes => [
+            'marker_symbol'
+          ],
+          :dataset => DCC_DATASET,
         }
       ]
-    )
+    ).sort_by {|i| i['escell_clone']}
   end
 
   # END Mart Operations

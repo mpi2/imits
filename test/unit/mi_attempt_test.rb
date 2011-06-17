@@ -53,8 +53,12 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal 'Genotype confirmed', local_mi_attempt.mi_attempt_status.description
     end
 
-    should 'have mouse allele name related column' do
+    should 'have mouse allele type column' do
       assert_should have_db_column(:mouse_allele_type)
+    end
+
+    context '#mouse_allele_type' do
+      should 'validate'
     end
 
     context '#mouse_allele_name_superscript' do

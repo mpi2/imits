@@ -76,11 +76,21 @@ class MiAttemptsControllerTest < ActionController::TestCase
         post :create,
                 :mi_attempt => {'clone_name' => clone.clone_name, :production_centre_id => Centre.find_by_name('WTSI').id},
                 :format => format
-        assert_response :success
 
         mi_attempt = MiAttempt.first
+
+        if format == :html
+          assert_redirected_to mi_attempt_path(mi_attempt)
+        else
+          assert_response :success
+        end
+
         assert_equal clone, mi_attempt.clone
         return mi_attempt
+      end
+
+      should 'redirect to edit page for HTML' do
+        valid_create_for_format(:html)
       end
 
       should 'work with valid params for JSON' do

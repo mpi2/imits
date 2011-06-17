@@ -43,7 +43,7 @@ class MiAttemptsController < ApplicationController
     respond_with mi_attempt do |format|
       format.html do
         flash[:notice] = 'MI Attempt created'
-        redirect_to root_path
+        redirect_to mi_attempt
       end
     end
   end

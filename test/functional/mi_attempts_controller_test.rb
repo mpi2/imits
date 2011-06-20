@@ -89,8 +89,19 @@ class MiAttemptsControllerTest < ActionController::TestCase
         return mi_attempt
       end
 
-      should 'redirect to edit page for HTML' do
+      should 'on success redirect to edit page for HTML' do
         valid_create_for_format(:html)
+      end
+
+      should 'on validation errors redirect to edit page and show errors' do
+        clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        mi_attempt = Factory.create :mi_attempt, :colony_name => 'MAAB'
+        assert_equal 1, MiAttempt.count
+        post :create, :mi_attempt => {'clone_name' => 'EPD0127_4_E01', 'colony_name' => 'MAAB'}
+        assert_equal 1, MiAttempt.count
+
+        assert ! assigns[:mi_attempt].errors[:colony_name].blank?
+        assert ! flash[:alert].blank?
       end
 
       should 'work with valid params for JSON' do

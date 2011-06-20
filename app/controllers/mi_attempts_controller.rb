@@ -35,17 +35,17 @@ class MiAttemptsController < ApplicationController
   end
 
   def create
-    mi_attempt = MiAttempt.new(params[:mi_attempt])
-    mi_attempt.updated_by = current_user
-    mi_attempt.production_centre ||= current_user.production_centre
-    mi_attempt.save
-
-    respond_with mi_attempt do |format|
-      format.html do
-        flash[:notice] = 'MI Attempt created'
-        redirect_to mi_attempt
-      end
+    @mi_attempt = MiAttempt.new(params[:mi_attempt])
+    @mi_attempt.updated_by = current_user
+    @mi_attempt.production_centre ||= current_user.production_centre
+    if @mi_attempt.save
+      flash[:notice] = 'Micro-injection attempt created'
+    else
+      flash[:alert] = 'Micro-injection could not be saved - please check the values you entered'
+      @centres = Centre.all
     end
+
+    respond_with @mi_attempt
   end
 
   def show

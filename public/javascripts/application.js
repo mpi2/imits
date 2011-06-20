@@ -1,6 +1,7 @@
 Ext.namespace('Kermits2');
 
 (function () {
+    // Inspired by http://zetafleet.com/blog/javascript-dateparse-for-iso-8601
     var origParse = Date.parse;
     Date.parse = function (date) {
         var timestamp = origParse(date);
@@ -20,7 +21,7 @@ Ext.namespace('Kermits2');
 
 Kermits2.propertyNames = function(obj) {
     var retval = [];
-    for(var i in obj) { retval.push(i); }
+    for(var i in obj) {retval.push(i);}
     return retval;
 }
 

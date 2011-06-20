@@ -41,7 +41,7 @@ Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_att
   mi_attempt.production_centre { Centre.all.sample }
   mi_attempt.distribution_centre { Centre.all.sample }
   mi_attempt.colony_background_strain { Strain::ColonyBackgroundStrain.all.sample }
-  mi_attempt.colony_name { ['MABR', 'MANB', 'MCCU', 'APCM', 'MBGY'].sample }
+  mi_attempt.colony_name { (1..4).to_a.map { ('A'..'Z').to_a.sample } }
   mi_attempt.mi_attempt_status { MiAttemptStatus.all.sample }
 
   MiAttempt.columns.each do |column|

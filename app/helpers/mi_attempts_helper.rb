@@ -46,7 +46,15 @@ module MiAttemptsHelper
 
     js_method :dateFieldDirtyFlaggingWorkaround, <<-JS
       function(e) {
+        if(e.cancel == true) {
+          return;
+        }
+
         if(['mi_date', 'date_chimeras_mated'].indexOf(e.field) == -1) {
+          return;
+        }
+
+        if(e.value == null || e.originalValue == null) {
           return;
         }
 

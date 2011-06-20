@@ -5,6 +5,13 @@
 
   <%= generator.text_field :mi_date, :label => 'Micro-injection date', :class => 'date-field' %>
 
+  <% if form.object.mi_attempt_status %>
+    <div>
+      <label>Status</label>
+      <span><%= form.object.mi_attempt_status.description %></span>
+    </div>
+  <% end %>
+
   <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 10) %>
 
   <div>

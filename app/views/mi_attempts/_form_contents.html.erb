@@ -23,6 +23,11 @@
     <%= form.label :distribution_centre_id %>
     <%= form.collection_select :distribution_centre_id, @centres, :id, :name %>
   </div>
+
+  <div>
+    <%= form.label :comments %>
+    <%= form.text_area :comments %>
+  </div>
 </fieldset>
 
 <fieldset>

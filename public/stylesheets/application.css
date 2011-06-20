@@ -254,6 +254,10 @@ form.mi-attempt fieldset > div {
     margin-bottom: 1em;
 }
 
+form.mi-attempt textarea {
+    height: 5em;
+}
+
 #footer {
     font-size: 80%;
     margin-top: 2em;

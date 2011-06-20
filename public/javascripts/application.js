@@ -1,8 +1,27 @@
 Ext.namespace('Kermits2');
 
+(function () {
+    // Inspired by http://zetafleet.com/blog/javascript-dateparse-for-iso-8601
+    var origParse = Date.parse;
+    Date.parse = function (date) {
+        var timestamp = origParse(date);
+
+        if(! isNaN(timestamp)) {
+            return timestamp;
+        }
+
+        var matchData = /(\d{4})-(\d{2})-(\d{2})/.exec(date);
+        if (matchData) {
+            timestamp = Date.UTC(+matchData[1], +matchData[2] - 1, +matchData[3]);
+        }
+
+        return timestamp;
+    };
+}());
+
 Kermits2.propertyNames = function(obj) {
     var retval = [];
-    for(var i in obj) { retval.push(i); }
+    for(var i in obj) {retval.push(i);}
     return retval;
 }
 

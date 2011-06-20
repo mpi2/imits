@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 class MiAttempt < ActiveRecord::Base
+  acts_as_reportable
 
   EMMA_OPTIONS = {
     :unsuitable => 'Unsuitable for EMMA',

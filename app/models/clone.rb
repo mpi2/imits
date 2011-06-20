@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 class Clone < ActiveRecord::Base
+  acts_as_reportable
+  
   TEMPLATE_CHARACTER = '@'
 
   belongs_to :pipeline

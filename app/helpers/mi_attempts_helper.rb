@@ -175,6 +175,19 @@ module MiAttemptsHelper
               mi_attempt_column(:is_released_from_genotyping)
     end
 
+    def date_column(name, params)
+      params = params.merge(
+        :width => 84,
+        :renderer => ['date', 'd-m-Y'],
+        :editor => {
+          :xtype => 'datefield',
+          :format => 'd-m-Y'
+        }
+      )
+
+      return mi_attempt_column(name, params)
+    end
+
     def define_columns
       [
         mi_attempt_column(:edit_link,
@@ -191,14 +204,7 @@ module MiAttemptsHelper
 
         mi_attempt_column(:clone__allele_name, :readOnly => true, :header => 'Allele Name'),
 
-        mi_attempt_column(:mi_date, :header => 'MI Date',
-          :width => 84,
-          :renderer => ['date', 'd-m-Y'],
-          :editor => {
-            :xtype => 'datefield',
-            :format => 'd-m-Y'
-          }
-        ),
+        date_column(:mi_date, :header => 'MI Date'),
 
         mi_attempt_column(:mi_attempt_status__description, :header => 'Status', :readOnly => true, :width => 150),
 
@@ -238,14 +244,7 @@ module MiAttemptsHelper
 
         strain_column(:colony_background_strain_id),
 
-        mi_attempt_column(:date_chimeras_mated, :header => 'Date Chimeras Mated',
-          :width => 84,
-          :renderer => ['date', 'd-m-Y'],
-          :editor => {
-            :xtype => 'datefield',
-            :format => 'd-m-Y'
-          }
-        ),
+        date_column(:date_chimeras_mated, :header => 'Date Chimeras Mated'),
 
         mi_attempt_column(:number_of_chimera_matings_attempted,
           :header => 'No. Chimera Matings Attempted', :align => :right),

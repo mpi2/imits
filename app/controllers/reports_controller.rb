@@ -10,6 +10,8 @@ class ReportsController < ApplicationController
       filters[:production_centre_id] = params[:production_centre_id] unless params[:production_centre_id].blank?
 
       report_column_order_and_names = {
+        'pipeline.name'                                   => 'Pipeline',
+        'production_centre.name'                          => 'Production Centre',
         'clone.clone_name'                                => 'Clone Name',
         'clone.allele_name'                               => 'Clone Allele Name',
         'mi_date'                                         => 'Injection Date',
@@ -42,8 +44,9 @@ class ReportsController < ApplicationController
       @report = MiAttempt.report_table( :all,
         :only       => report_column_order_and_names.keys.map{ |field| field.to_sym },
         :conditions => filters,
-        :include => {
-          :clone                    => { :methods => [ :allele_name ], :only => [ :clone_name ] },
+        :include    => {
+          :production_centre        => { :only => [ :name ] },
+          :clone                    => { :methods => [ :allele_name ], :only => [ :clone_name ], :include => { :pipeline => { :only => [ :name ] } } },
           :blast_strain             => { :methods => [ :name ], :only => [] },
           :colony_background_strain => { :methods => [ :name ], :only => [] },
           :test_cross_strain        => { :methods => [ :name ], :only => [] }

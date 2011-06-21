@@ -1,6 +1,6 @@
 class Strain::ColonyBackgroundStrain < ActiveRecord::Base
   acts_as_reportable
-  
+
   attr_accessible :id
   belongs_to :strain, :foreign_key => :id
 

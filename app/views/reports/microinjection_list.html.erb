@@ -2,7 +2,7 @@
 <%= form_tag( { :controller => 'reports', :action => 'microinjection_list' }, :method => :get ) do |form| %>
   <%= label_tag( :production_centre_id, "Production Centre:" ) %>
   <%= select_tag( :production_centre_id, options_from_collection_for_select( Centre.all, :id, :name ), {:include_blank => true} ) %>
-  
+
   <%= submit_tag 'Go' %>
 <% end %>
 

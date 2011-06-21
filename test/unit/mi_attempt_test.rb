@@ -254,7 +254,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       context 'colony_name' do
-        should 'be unique' do
+        should_eventually 'be unique' do
           assert_should have_db_index(:colony_name).unique(true)
           assert_should validate_uniqueness_of :colony_name
         end

@@ -82,11 +82,11 @@ end
 class ActionController::TestCase
   include Devise::TestHelpers
 
-    def parse_xml_from_response
-      return Nokogiri::XML(response.body)
-    end
+  def parse_xml_from_response
+    return Nokogiri::XML(response.body)
+  end
 
-    def parse_json_from_response
-      return JSON.parse(response.body)
-    end
+  def parse_json_from_response
+    return JSON.parse(response.body)
+  end
 end

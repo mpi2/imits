@@ -1,17 +1,36 @@
 Ext.ns('Kermits2.newMI');
 
 Kermits2.newMI.ClonesList = Ext.extend(Ext.ListView, {
-    height: 100,
-    width: 180,
+    height: 150,
+    width: 500,
     columns: [
     {
-        sortable: true,
-        dataIndex: 'clone_name'
+        header: 'ES Cell Clone',
+        dataIndex: 'escell_clone',
+        width: .21
+    },
+    {
+        header: 'Marker Symbol',
+        dataIndex: 'marker_symbol',
+        width: .17
+    },
+    {
+        header: 'Pipeline',
+        dataIndex: 'pipeline',
+        width: .15
+    },
+    {
+        header: 'Mutation Subtype',
+        dataIndex: 'mutation_subtype'
+    },
+    {
+        header: 'LoxP Screen',
+        dataIndex: 'production_qc_loxp_screen',
+        width: .17
     }
     ],
-    autoExpandColumn: '0',
+    //autoExpandColumn: '0',
     singleSelect: true,
-    hideHeaders: true,
     style: {
         backgroundColor: 'white'
     },
@@ -27,18 +46,17 @@ Kermits2.newMI.ClonesList = Ext.extend(Ext.ListView, {
                 if(indices.length == 0) {
                     return;
                 }
-                var cloneName = this.getStore().getAt(indices[0]).data['clone_name'];
+                var cloneName = this.getStore().getAt(indices[0]).data['escell_clone'];
                 this.cloneSelectorForm.onCloneNameSelected(cloneName);
-                this.getStore().removeAll();
             }
         });
     },
 
     onRender: function() {
         Kermits2.newMI.ClonesList.superclass.onRender.apply(this, arguments);
-        this.bindStore(new Ext.data.ArrayStore({
-            data: [],
-            fields: ['clone_name']
+        this.bindStore(new Ext.data.JsonStore({
+            root: 'rows',
+            fields: ['escell_clone', 'marker_symbol', 'pipeline', 'mutation_subtype', 'production_qc_loxp_screen']
         }));
     }
 });
@@ -46,7 +64,7 @@ Kermits2.newMI.ClonesList = Ext.extend(Ext.ListView, {
 Kermits2.newMI.SearchTab = Ext.extend(Ext.Panel, {
     layout: 'form',
     unstyled: true,
-    labelWidth: 125,
+    labelAlign: 'top',
 
     resetForm: function() {
         this.searchBox.setValue('');
@@ -61,11 +79,7 @@ Kermits2.newMI.SearchTab = Ext.extend(Ext.Panel, {
             url: window.martSearchClonesPath + '?' + Ext.urlEncode(urlParams),
             success: function(response) {
                 var data = Ext.decode(response.responseText);
-                var storeData = [];
-                Ext.each(data, function(i) {
-                    storeData.push( [ i['escell_clone'] ] );
-                });
-                this.clonesList.getStore().loadData(storeData);
+                this.clonesList.getStore().loadData({'rows': data});
                 this.cloneSelectorForm.window.hideLoadMask();
             },
             scope: this
@@ -133,8 +147,8 @@ Kermits2.newMI.CloneSelectorWindow = Ext.extend(Ext.Window, {
     resizable: false,
     layout: 'fit',
     closeAction: 'hide',
-    width: 400,
-    height: 200,
+    width: 550,
+    height: 300,
     y: 175,
     plain: true,
 

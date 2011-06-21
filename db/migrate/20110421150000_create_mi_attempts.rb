@@ -78,7 +78,7 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.timestamps
     end
 
-    add_index :mi_attempts, :colony_name, :unique => true
+    # TODO add_index :mi_attempts, :colony_name, :unique => true
 
     add_foreign_key :mi_attempts, :clones
     add_foreign_key :mi_attempts, :mi_attempt_statuses

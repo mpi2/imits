@@ -65,7 +65,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :mi_attempt_status
   validates :mi_attempt_status, :presence => true
 
-  validates :colony_name, :uniqueness => true, :allow_nil => true
+  # TODO validates :colony_name, :uniqueness => true, :allow_nil => true
 
   belongs_to :production_centre, :class_name => 'Centre'
   validates :production_centre, :presence => true

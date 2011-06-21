@@ -1,6 +1,9 @@
 # encoding: utf-8
 
 class Kermits2::Migration
+
+  class Error < RuntimeError; end
+
   def self.run(params = {})
     params.symbolize_keys!
 
@@ -67,7 +70,7 @@ class Kermits2::Migration
           end
           clone.save!
         rescue Exception => e
-          e2 = e.class.new("Error while fallback-DB-importing #{non_mart_clone_name}: #{e.message}")
+          e2 = Kermits2::Migration::Error.new("Caught exception #{e.class.name}: Error while fallback-DB-importing #{non_mart_clone_name}: #{e.message}")
           e2.set_backtrace(e.backtrace)
           raise e2
         end
@@ -93,7 +96,6 @@ class Kermits2::Migration
       clone = Clone.find_by_clone_name!(old_mi_attempt.clone_name)
 
       mi_attempt = MiAttempt.new(
-        :clone => clone,
         :production_centre => Centre.find_by_name!(old_mi_attempt.production_centre.name),
         :distribution_centre => Centre.find_by_name!(old_mi_attempt.distribution_centre.name),
 
@@ -140,6 +142,8 @@ class Kermits2::Migration
       )
 
       # Important details (cont)
+      mi_attempt.clone = clone
+
       if(old_mi_attempt.emi_event.edit_date.nil? or
                   old_mi_attempt.edit_date > old_mi_attempt.emi_event.edit_date)
         latest_object = old_mi_attempt
@@ -195,8 +199,8 @@ class Kermits2::Migration
       end
 
       mi_attempt.save!
-    rescue => e
-      e2 = e.class.new("Error migrating emi_attempt(#{old_mi_attempt.id}) clone_name(#{old_mi_attempt.clone_name}): #{e.message}")
+    rescue Exception => e
+      e2 = Kermits2::Migration::Error.new("Caught exception #{e.class.name}: Error migrating emi_attempt(#{old_mi_attempt.id}) clone_name(#{old_mi_attempt.clone_name}): #{e.message}")
       e2.set_backtrace(e.backtrace)
       raise e2
     end

@@ -18,9 +18,9 @@ class ClonesController < ApplicationController
 
   def mart_search
     if ! params[:clone_name].blank?
-      respond_with Clone.mart_search_by_clone_names( [ params[:clone_name] ] )
+      respond_with Clone.get_clones_from_mart_by_clone_names( [ params[:clone_name] ] )
     elsif ! params[:marker_symbol].blank?
-      respond_with Clone.get_clone_names_from_mart_by_marker_symbol( params[:marker_symbol] )
+      respond_with Clone.get_clones_from_mart_by_marker_symbol( params[:marker_symbol] )
     else
       respond_with []
     end

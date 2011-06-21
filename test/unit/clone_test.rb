@@ -171,10 +171,31 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
-    context '::get_clone_names_from_mart_by_marker_symbol' do
+    context '::get_clones_from_mart_by_clone_names' do
+      should 'return clones data' do
+        rows = Clone.get_clones_from_mart_by_clone_names(['EPD0127_4_E01', 'EPD0027_2_A01'])
+        assert_equal 2, rows.size
+
+        expected_clone = {
+          'escell_clone' => 'EPD0127_4_E01',
+          'pipeline' => 'EUCOMM',
+          'production_qc_loxp_screen' => 'pass',
+          'mutation_subtype' => 'conditional_ready',
+          'marker_symbol' => 'Trafd1',
+          'allele_symbol_superscript' => 'tm1a(EUCOMM)Wtsi',
+          'mgi_accession_id' => 'MGI:1923551'
+        }
+
+        got = rows.find {|i| i['escell_clone'] == 'EPD0127_4_E01'}
+
+        assert_equal expected_clone, got
+      end
+    end
+
+    context '::get_clones_from_mart_by_marker_symbol' do
 
       should 'return sorted array of clone names with a valid marker symbol' do
-        result = Clone.get_clone_names_from_mart_by_marker_symbol('cbx7')
+        result = Clone.get_clones_from_mart_by_marker_symbol('cbx7')
         expected = %w{
           EPD0013_1_B05
           EPD0013_1_C05
@@ -205,11 +226,27 @@ class CloneTest < ActiveSupport::TestCase
       end
 
       should 'return empty array if it does not exist in DB or marts' do
-        assert_equal [], Clone.get_clone_names_from_mart_by_marker_symbol('Nonexistent')
+        assert_equal [], Clone.get_clones_from_mart_by_marker_symbol('Nonexistent')
       end
 
       should 'return nil if query was blank' do
-        assert_nil Clone.get_clone_names_from_mart_by_marker_symbol('')
+        assert_nil Clone.get_clones_from_mart_by_marker_symbol('')
+      end
+
+      should 'include attributes ES Cell Clone Name, Pipeline, Mutation Subtype, LoxP Screen' do
+        expected = {
+          'escell_clone' => 'EPD0127_4_E01',
+          'pipeline' => 'EUCOMM',
+          'production_qc_loxp_screen' => 'pass',
+          'mutation_subtype' => 'conditional_ready',
+          'marker_symbol' => 'Trafd1'
+        }
+
+        rows = Clone.get_clones_from_mart_by_marker_symbol('Trafd1')
+
+        result = rows.find {|i| i['escell_clone'] == 'EPD0127_4_E01'}
+
+        assert_equal expected, result
       end
     end
 

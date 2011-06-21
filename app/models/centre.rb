@@ -1,4 +1,6 @@
 class Centre < ActiveRecord::Base
+  acts_as_reportable
+
   validates :name, :presence => true, :uniqueness => true
 
   default_scope :order => 'name ASC'

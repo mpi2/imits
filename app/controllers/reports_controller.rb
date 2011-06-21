@@ -6,8 +6,13 @@ class ReportsController < ApplicationController
 
   def microinjection_list
     unless params[:commit].blank?
+      params[:production_centre_id]  = process_filter_param(params[:production_centre_id])
+      params[:pipeline_id]           = process_filter_param(params[:pipeline_id])
+
       filters = {}
-      filters[:production_centre_id] = params[:production_centre_id] unless params[:production_centre_id].blank?
+
+      filters[:production_centre_id] = params[:production_centre_id] unless params[:production_centre_id].nil?
+      filters[:'pipelines.id']       = params[:pipeline_id] unless params[:pipeline_id].nil?
 
       report_column_order_and_names = {
         'pipeline.name'                                   => 'Pipeline',
@@ -61,10 +66,22 @@ class ReportsController < ApplicationController
 
       @report.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
       @report.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
+
+      @report = Grouping(@report, :by => params[:grouping]) unless params[:grouping].blank?
     end
   end
-
+  
   private
+
+  def process_filter_param( param )
+    param ||= []
+    param.delete_if { |elm| elm.blank? }
+    if param.empty?
+      return nil
+    else
+      return param
+    end
+  end
 
   def calculate_percentage( dividend, divisor )
     if dividend and ( divisor and divisor > 0 )

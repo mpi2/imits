@@ -90,3 +90,11 @@ class ActionController::TestCase
     return JSON.parse(response.body)
   end
 end
+
+class InMemoryPerson < ActiveRecord::Base
+  self.establish_connection({:adapter => 'sqlite3', :database => ':memory:', :verbosity => false})
+
+  self.connection.create_table 'in_memory_people', :force => true do |t|
+    t.text 'name'
+  end
+end

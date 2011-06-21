@@ -76,16 +76,16 @@ class Clone < ActiveRecord::Base
   # BEGIN Mart Operations
 
   IDCC_TARG_REP_DATASET = Biomart::Dataset.new(
-    "http://www.knockoutmouse.org/biomart",
-    { :name => "idcc_targ_rep" }
+    'http://www.knockoutmouse.org/biomart',
+    { :name => 'idcc_targ_rep' }
   )
 
   DCC_DATASET = Biomart::Dataset.new(
-    "http://www.knockoutmouse.org/biomart",
-    { :name => "dcc" }
+    'http://www.knockoutmouse.org/biomart',
+    { :name => 'dcc' }
   )
 
-  def self.mart_search_by_clone_names(clone_names)
+  def self.get_clones_from_mart_by_clone_names(clone_names)
     raise ArgumentError, 'Need array of clones please' unless clone_names.kind_of?(Array)
     return DCC_DATASET.search(
       :filters => {},
@@ -95,12 +95,14 @@ class Clone < ActiveRecord::Base
       :federate => [
         {
           :dataset => IDCC_TARG_REP_DATASET,
-          :filters => { "escell_clone" => clone_names },
+          :filters => { 'escell_clone' => clone_names },
           :attributes => [
-            "escell_clone",
-            "pipeline",
-            "mgi_accession_id",
-            "allele_symbol_superscript"
+            'escell_clone',
+            'pipeline',
+            'mgi_accession_id',
+            'allele_symbol_superscript',
+            'mutation_subtype',
+            'production_qc_loxp_screen'
           ],
         }
       ]
@@ -121,7 +123,7 @@ class Clone < ActiveRecord::Base
   end
 
   def self.create_all_from_marts_by_clone_names(clone_names)
-    result = mart_search_by_clone_names(clone_names.to_a)
+    result = get_clones_from_mart_by_clone_names(clone_names.to_a)
 
     return result.map do |mart_data|
       begin
@@ -140,7 +142,7 @@ class Clone < ActiveRecord::Base
 
     return nil if clone_name.blank?
 
-    result = mart_search_by_clone_names([clone_name])
+    result = get_clones_from_mart_by_clone_names([clone_name])
     if(result.empty?)
       return nil
     else
@@ -148,11 +150,16 @@ class Clone < ActiveRecord::Base
     end
   end
 
-  def self.get_clone_names_from_mart_by_marker_symbol(marker_symbol)
+  def self.get_clones_from_mart_by_marker_symbol(marker_symbol)
     return nil if marker_symbol.blank?
     return IDCC_TARG_REP_DATASET.search(
       :filters => {},
-      :attributes => ['escell_clone'],
+      :attributes => [
+        'escell_clone',
+        'pipeline',
+        'production_qc_loxp_screen',
+        'mutation_subtype'
+      ],
       :required_attributes => ['escell_clone'],
       :process_results => true,
       :timeout => 600,

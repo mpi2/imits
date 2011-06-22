@@ -265,14 +265,15 @@ class MiAttempt < ActiveRecord::Base
   }
 
   def default_serializer_options(options = {})
+    options ||= {}
     options.symbolize_keys!
-    options[:methods] ||= [:qc]
+    options[:methods] ||= [:qc, :clone_name]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup
     return options
   end
   private :default_serializer_options
 
-  def to_json(options = {})
+  def as_json(options = {})
     super(default_serializer_options(options))
   end
 

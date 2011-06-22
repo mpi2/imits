@@ -516,6 +516,14 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_false mi_attempt.valid?
         assert ! mi_attempt.errors[:clone_name].blank?
       end
+
+      should 'be output in JSON serialization' do
+        assert_equal 'EPD0127_4_E01', JSON.parse(@mi_attempt.to_json)['clone_name']
+      end
+
+      should 'be output in XML serialization' do
+        assert_equal 'EPD0127_4_E01', Nokogiri::XML(@mi_attempt.to_xml).css('clone-name').text
+      end
     end
 
     context 'private attributes' do
@@ -650,5 +658,8 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     end # virtual #qc attribute
 
+    should 'process default options in #as_json just like #to_json' do
+      assert_equal JSON.parse(default_mi_attempt.to_json), default_mi_attempt.as_json.stringify_keys
+    end
   end
 end

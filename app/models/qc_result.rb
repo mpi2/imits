@@ -1,4 +1,15 @@
 class QcResult < ActiveRecord::Base
+  def self.na
+    @@na ||= self.find_by_description!('na')
+  end
+
+  def self.pass
+    @@pass ||= self.find_by_description!('pass')
+  end
+
+  def self.fail
+    @@fail ||= self.find_by_description!('fail')
+  end
 end
 
 # == Schema Information

@@ -609,6 +609,12 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_match /loxp_confirmation.+morenonsense/, @mi_attempt.errors[:qc].first
         end
       end
+
+      should 'be mass assignable' do
+        @mi_attempt.update_attributes 'qc' => {'southern_blot' => 'fail'}
+
+        assert_equal QcResult.fail, @mi_attempt.qc_southern_blot
+      end
     end # virtual #qc attribute
 
   end

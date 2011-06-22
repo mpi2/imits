@@ -78,7 +78,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
 
   QC_FIELDS.each do |qc_field|
-    belongs_to qc_field, :class_name => 'QcStatus'
+    belongs_to qc_field, :class_name => 'QcResult'
   end
 
   before_validation :set_default_status

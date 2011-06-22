@@ -1,10 +1,10 @@
-class QcStatus < ActiveRecord::Base
+class QcResult < ActiveRecord::Base
 end
 
 # == Schema Information
 # Schema version: 20110527121721
 #
-# Table name: qc_statuses
+# Table name: qc_results
 #
 #  id          :integer         not null, primary key
 #  description :text            not null
@@ -13,5 +13,5 @@ end
 #
 # Indexes
 #
-#  index_qc_statuses_on_description  (description) UNIQUE
+#  index_qc_results_on_description  (description) UNIQUE
 #

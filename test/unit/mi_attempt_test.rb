@@ -133,11 +133,12 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal '129P2/OlaHsd', default_mi_attempt.test_cross_strain.name
       end
 
-      should 'not allow adding a strain if it is not of the correct type' do
+      should_eventually 'not allow adding a strain if it is not of the correct type' do
+        # TODO Make these checks occur in software, and add validation
         strain = Strain.create!(:name => 'Nonexistent Strain')
 
         assert_raise ActiveRecord::InvalidForeignKey do
-          Factory.create(:mi_attempt, :blast_strain_id => strain.id)
+          mi = Factory.create(:mi_attempt, :blast_strain_id => strain.id)
         end
 
         assert_raise ActiveRecord::InvalidForeignKey do

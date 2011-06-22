@@ -521,8 +521,8 @@ class MiAttemptTest < ActiveSupport::TestCase
     context 'private attributes' do
       setup do
         @protected_attributes = [
-          'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by',
-          'clone_id', 'clone'
+          'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by', 'updated_by_id',
+          'clone_id', 'clone', 'mi_attempt_status', 'mi_attempt_status_id'
         ] + MiAttempt::QC_FIELDS.map{|i| "#{i}_id"}
         @protected_attributes.sort!
       end

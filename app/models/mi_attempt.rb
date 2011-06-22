@@ -34,8 +34,10 @@ class MiAttempt < ActiveRecord::Base
     ['e', 'e - Targeted Non-Conditional']
   ].freeze
 
-  PRIVATE_ATTRIBUTES = [:created_at, :updated_at, :updated_by, :clone, :clone_id] +
-          QC_FIELDS.map {|i| "#{i}_id"}
+  PRIVATE_ATTRIBUTES = [
+    :created_at, :updated_at, :updated_by, :updated_by_id, :clone,
+    :clone_id, :mi_attempt_status, :mi_attempt_status_id
+  ] +QC_FIELDS.map {|i| "#{i}_id"}
 
   attr_protected *PRIVATE_ATTRIBUTES
 
@@ -89,6 +91,8 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_blank_strings_to_nil
   before_validation :set_clone_from_clone_name
   before_validation :set_default_distribution_centre
+
+  before_save :save_qc_fields
 
   protected
 
@@ -170,6 +174,55 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
+  validates_each :qc do |record, attr, value|
+    acceptable_results = QcResult.all.map(&:description)
+    error_messages = []
+    record.qc.each_pair do |short_qc_field, result|
+      next unless result
+
+      unless acceptable_results.include? result
+        error_messages << "#{short_qc_field} => '#{result}'"
+      end
+    end
+
+    unless error_messages.blank?
+      record.errors[:qc] = "Erroneous QC fields: #{error_messages.join ', '}"
+    end
+  end
+
+  def qc
+    if @qc.blank?
+      @qc = {}
+
+      QC_FIELDS.each do |qc_field|
+        @qc[qc_field.to_s.gsub(/^qc_/, '')] = self.send(qc_field).try(:description)
+      end
+    end
+
+    return @qc
+  end
+
+  def qc=(args)
+    raise ArgumentError, "Expected hash, got #{args.class}" unless args.is_a? Hash
+    args = args.stringify_keys
+    self.qc.keys.each do |short_qc_field|
+      if args.include? short_qc_field
+        @qc[short_qc_field] = args[short_qc_field]
+      end
+    end
+  end
+
+  def save_qc_fields
+    return if @qc.blank?
+
+    @qc.each do |short_qc_field, result|
+      next unless QC_FIELDS.include?( ('qc_' + short_qc_field).to_sym )
+      result_model = QcResult.find_by_description(result)
+      self.send "qc_#{short_qc_field}=", result_model
+    end
+  end
+  protected :save_qc_fields
+
   def self.search(*args, &block)
     return non_metasearch_search(*args, &block)
   end
@@ -228,8 +281,6 @@ class MiAttempt < ActiveRecord::Base
   end
 
 end
-
-require 'mi_attempt/qc'
 
 # == Schema Information
 # Schema version: 20110527121721

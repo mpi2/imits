@@ -523,5 +523,93 @@ class MiAttemptTest < ActiveSupport::TestCase
               MiAttempt.protected_attributes.to_a.sort
     end
 
+    context 'virtual #qc attribute' do
+      setup do
+        @mi_attempt = Factory.build(:mi_attempt,
+          :qc_southern_blot => QcResult.pass,
+          :qc_five_prime_lr_pcr => QcResult.fail,
+          :qc_five_prime_cassette_integrity => QcResult.na,
+          :qc_tv_backbone_assay => nil,
+          :qc_neo_count_qpcr => QcResult.na,
+          :qc_neo_sr_pcr => QcResult.na,
+          :qc_loa_qpcr => QcResult.na,
+          :qc_homozygous_loa_sr_pcr => QcResult.na,
+          :qc_lacz_sr_pcr => QcResult.na,
+          :qc_mutant_specific_sr_pcr => QcResult.na,
+          :qc_loxp_confirmation => QcResult.na,
+          :qc_three_prime_lr_pcr => QcResult.na)
+      end
+
+      should ', when first accessed, get back existing qc result values' do
+        assert_equal 'pass', @mi_attempt.qc['southern_blot']
+        assert_equal 'fail', @mi_attempt.qc['five_prime_lr_pcr']
+        assert_equal 'na', @mi_attempt.qc['five_prime_cassette_integrity']
+        assert_equal nil, @mi_attempt.qc['tv_backbone_assay']
+      end
+
+      should ', when accessed after an assignment, contains assigned results with others' do
+        @mi_attempt.qc = {
+          'southern_blot' => 'fail',
+          'five_prime_cassette_integrity' => nil,
+          'neo_sr_pcr' => 'nonsense'
+        }
+
+        assert_equal 'fail', @mi_attempt.qc['southern_blot']
+        assert_equal nil, @mi_attempt.qc['five_prime_cassette_integrity']
+        assert_equal 'nonsense', @mi_attempt.qc['neo_sr_pcr']
+        assert_equal 'na', @mi_attempt.qc['neo_count_qpcr']
+      end
+
+      context 'on save' do
+        setup do
+          @changed_qc_hash = {
+            'southern_blot' => 'fail',
+            'five_prime_lr_pcr' => 'pass',
+            'five_prime_cassette_integrity' => nil,
+            'tv_backbone_assay' => 'na'
+          }.freeze
+        end
+
+        should 'write the fields that were specified with qc=' do
+          @mi_attempt.qc = @changed_qc_hash.dup
+          @mi_attempt.save!
+
+          assert_equal QcResult.fail, @mi_attempt.qc_southern_blot
+          assert_equal QcResult.pass, @mi_attempt.qc_five_prime_lr_pcr
+          assert_equal           nil, @mi_attempt.qc_five_prime_cassette_integrity
+          assert_equal   QcResult.na, @mi_attempt.qc_tv_backbone_assay
+        end
+
+        should 'not affect fields that were not specified with qc=' do
+          @mi_attempt.qc = @changed_qc_hash.dup
+          @mi_attempt.save!
+          assert_equal QcResult.na, @mi_attempt.qc_neo_count_qpcr
+        end
+
+        should 'save fine without needing qc to be set first' do
+          assert_nothing_raised do
+            @mi_attempt.save!
+          end
+        end
+
+        should 'ignore fields that are not actual QC fields' do
+          @mi_attempt.qc = {'nonexistent' => 'nonsense'}
+          assert_true @mi_attempt.save
+          assert_false @mi_attempt.qc.keys.include? 'nonexistent'
+        end
+
+        should 'validate that the result string of each field is a valid result' do
+          @mi_attempt.qc = {
+            'southern_blot' => 'nonsense',
+            'loxp_confirmation' => 'morenonsense'
+          }
+
+          assert_false @mi_attempt.valid?
+          assert_match /southern_blot.+nonsense/, @mi_attempt.errors[:qc].first
+          assert_match /loxp_confirmation.+morenonsense/, @mi_attempt.errors[:qc].first
+        end
+      end
+    end # virtual #qc attribute
+
   end
 end

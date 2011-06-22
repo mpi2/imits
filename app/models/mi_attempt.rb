@@ -210,6 +210,8 @@ class MiAttempt < ActiveRecord::Base
 
 end
 
+require 'mi_attempt/qc'
+
 # == Schema Information
 # Schema version: 20110527121721
 #

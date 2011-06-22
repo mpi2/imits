@@ -518,9 +518,30 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    should 'protect private attributes' do
-      assert_equal ['id', 'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by', 'clone_id', 'clone'].sort,
-              MiAttempt.protected_attributes.to_a.sort
+    context 'private attributes' do
+      setup do
+        @protected_attributes = [
+          'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by',
+          'clone_id', 'clone'
+        ] + MiAttempt::QC_FIELDS.map{|i| "#{i}_id"}
+        @protected_attributes.sort!
+      end
+
+      should 'be protected from mass assignment' do
+        assert_equal (@protected_attributes + ['id']).sort, MiAttempt.protected_attributes.to_a.sort
+      end
+
+      should 'not be output in json serialization' do
+        data = JSON.parse(default_mi_attempt.to_json)
+        values_in_both = @protected_attributes & data.keys
+        assert_empty values_in_both
+      end
+
+      should 'not be output in xml serialization' do
+        doc = Nokogiri::XML(default_mi_attempt.to_xml)
+        assert_blank doc.css('qc-loxp-confirmation-id')
+        assert_blank doc.css('created-at')
+      end
     end
 
     context 'virtual #qc attribute' do
@@ -615,6 +636,18 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         assert_equal QcResult.fail, @mi_attempt.qc_southern_blot
       end
+
+      should 'be output in to_xml output' do
+        doc = Nokogiri::XML(@mi_attempt.to_xml)
+        assert_equal 'pass', doc.css('qc > southern-blot').text
+      end
+
+      should 'be output in to_json output' do
+        data = JSON.parse(@mi_attempt.to_json)
+
+        assert_equal @mi_attempt.qc, data['qc']
+      end
+
     end # virtual #qc attribute
 
   end

@@ -34,7 +34,10 @@ class MiAttempt < ActiveRecord::Base
     ['e', 'e - Targeted Non-Conditional']
   ].freeze
 
-  attr_protected :created_at, :updated_at, :updated_by, :clone, :clone_id
+  PRIVATE_ATTRIBUTES = [:created_at, :updated_at, :updated_by, :clone, :clone_id] +
+          QC_FIELDS.map {|i| "#{i}_id"}
+
+  attr_protected *PRIVATE_ATTRIBUTES
 
   acts_as_audited
 
@@ -207,6 +210,22 @@ class MiAttempt < ActiveRecord::Base
       joins(:clone).where(sql_text, *sql_params)
     end
   }
+
+  def default_serializer_options(options = {})
+    options.symbolize_keys!
+    options[:methods] ||= [:qc]
+    options[:except] ||= PRIVATE_ATTRIBUTES.dup
+    return options
+  end
+  private :default_serializer_options
+
+  def to_json(options = {})
+    super(default_serializer_options(options))
+  end
+
+  def to_xml(options = {})
+    super(default_serializer_options(options))
+  end
 
 end
 

@@ -1,10 +1,5 @@
-class Strain::BlastStrain < ActiveRecord::Base
-  acts_as_reportable
-
-  attr_accessible :id
-  belongs_to :strain, :foreign_key => :id
-
-  delegate :name, :to => :strain
+class Strain::BlastStrain < Strain::Base
+  define_interface
 end
 
 # == Schema Information

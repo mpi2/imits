@@ -12,7 +12,7 @@ class Strain::Base < ActiveRecord::Base
     def self.find_by_name(name)
       strain = Strain.find_by_name(name)
       if strain
-        return self.find(strain.id)
+        return self.find_by_id(strain.id)
       else
         return nil
       end
@@ -20,7 +20,7 @@ class Strain::Base < ActiveRecord::Base
 
     def self.find_by_name!(name)
       strain = Strain.find_by_name!(name)
-      return self.find(strain.id)
+      return self.find_by_id!(strain.id)
     end
 
   end

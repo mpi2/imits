@@ -112,8 +112,13 @@ class Kermits2::StrainsTestCase < ActiveSupport::TestCase
           assert_equal strains_object, strains_class.find_by_name(strain_name)
         end
 
-        should 'return nil if said name does not exist' do
+        should 'return nil if said strain does not exist' do
           assert_nil strains_class.find_by_name('Nonexistent')
+        end
+
+        should 'return nil if said strain is not of the right type' do
+          Strain.create!(:name => 'Not of any type')
+          assert_nil strains_class.find_by_name('Not of any type')
         end
       end
 

@@ -118,36 +118,64 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      should 'have a blast strain' do
-        assert_equal Strain::BlastStrain, default_mi_attempt.blast_strain.class
-        assert_equal 'Balb/C', default_mi_attempt.blast_strain.name
-      end
-
-      should 'have a colony background strain' do
-        assert_equal Strain::ColonyBackgroundStrain, default_mi_attempt.colony_background_strain.class
-        assert_equal '129P2/OlaHsd', default_mi_attempt.colony_background_strain.name
-      end
-
-      should 'have a test cross strain' do
-        assert_equal Strain::TestCrossStrain, default_mi_attempt.test_cross_strain.class
-        assert_equal '129P2/OlaHsd', default_mi_attempt.test_cross_strain.name
-      end
-
-      should_eventually 'not allow adding a strain if it is not of the correct type' do
-        # TODO Make these checks occur in software, and add validation
-        strain = Strain.create!(:name => 'Nonexistent Strain')
-
-        assert_raise ActiveRecord::InvalidForeignKey do
-          mi = Factory.create(:mi_attempt, :blast_strain_id => strain.id)
+      context 'strain tests:' do
+        should 'have a blast strain' do
+          assert_equal Strain::BlastStrain, default_mi_attempt.blast_strain.class
+          assert_equal 'Balb/C', default_mi_attempt.blast_strain.name
         end
 
-        assert_raise ActiveRecord::InvalidForeignKey do
-          Factory.create(:mi_attempt, :colony_background_strain_id => strain.id)
+        should 'have a colony background strain' do
+          assert_equal Strain::ColonyBackgroundStrain, default_mi_attempt.colony_background_strain.class
+          assert_equal '129P2/OlaHsd', default_mi_attempt.colony_background_strain.name
         end
 
-        assert_raise ActiveRecord::InvalidForeignKey do
-          Factory.create(:mi_attempt, :test_cross_strain_id => strain.id)
+        should 'have a test cross strain' do
+          assert_equal Strain::TestCrossStrain, default_mi_attempt.test_cross_strain.class
+          assert_equal '129P2/OlaHsd', default_mi_attempt.test_cross_strain.name
         end
+
+        should 'get and assign blast strain via AccessAssociationByAttribute' do
+          default_mi_attempt.update_attributes(:blast_strain_name => 'Balb/Cam')
+          assert_equal 'Balb/Cam', default_mi_attempt.blast_strain_name
+        end
+
+        should 'get and assign colony background strain via AccessAssociationByAttribute' do
+          default_mi_attempt.update_attributes(:colony_background_strain_name => 'B6JTyr<c-Brd>')
+          assert_equal 'B6JTyr<c-Brd>', default_mi_attempt.colony_background_strain_name
+        end
+
+        should 'get and assign test cross strain via AccessAssociationByAttribute' do
+          default_mi_attempt.update_attributes(:test_cross_strain_name => 'C57BL/6NTacUSA')
+          default_mi_attempt.reload
+          assert_equal 'C57BL/6NTacUSA', default_mi_attempt.test_cross_strain_name
+        end
+
+        should 'not allow setting a blast strain if it is not of the correct type' do
+          strain = Strain.create!(:name => 'Nonexistent Strain')
+          mi = Factory.build(:mi_attempt, :blast_strain_name => strain.name)
+          assert_false mi.valid?
+          assert ! mi.errors[:blast_strain_name].blank?
+        end
+
+        should 'not allow setting a colony background strain if it is not of the correct type' do
+          strain = Strain.create!(:name => 'Nonexistent Strain')
+          mi = Factory.build(:mi_attempt, :colony_background_strain_name => strain.name)
+          assert_false mi.valid?
+          assert ! mi.errors[:colony_background_strain_name].blank?
+        end
+
+        should 'not allow setting a colony background strain if it is not of the correct type' do
+          strain = Strain.create!(:name => 'Nonexistent Strain')
+          mi = Factory.build(:mi_attempt, :test_cross_strain_name => strain.name)
+          assert_false mi.valid?
+          assert ! mi.errors[:test_cross_strain_name].blank?
+        end
+
+        should 'not allow mass assignment of strain ids'
+
+        should 'expose *_strain_name virtual methods to JSON API'
+
+        should 'expose *_strain_name virtual methods to XML API'
       end
 
       should 'have emma columns' do

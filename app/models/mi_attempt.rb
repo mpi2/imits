@@ -3,6 +3,8 @@
 class MiAttempt < ActiveRecord::Base
   acts_as_reportable
 
+  extend AccessAssociationByAttribute
+
   EMMA_OPTIONS = {
     :unsuitable => 'Unsuitable for EMMA',
     :suitable => 'Suitable for EMMA',
@@ -79,8 +81,13 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :updated_by, :class_name => 'User'
 
   belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
+  access_association_by_attribute :blast_strain, :name
+
   belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
+  access_association_by_attribute :colony_background_strain, :name
+
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
+  access_association_by_attribute :test_cross_strain, :name
 
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
@@ -174,6 +181,8 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
+  # == BEGIN #qc virtual attribute
+
   validates_each :qc do |record, attr, value|
     acceptable_results = QcResult.all.map(&:description)
     error_messages = []
@@ -222,6 +231,8 @@ class MiAttempt < ActiveRecord::Base
     end
   end
   protected :save_qc_fields
+
+  # == END #qc virtual attribute
 
   def self.search(*args, &block)
     return non_metasearch_search(*args, &block)

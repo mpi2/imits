@@ -171,11 +171,17 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert ! mi.errors[:test_cross_strain_name].blank?
         end
 
-        should 'not allow mass assignment of strain ids'
+        should 'expose *_strain_name virtual methods to JSON API' do
+          data = JSON.parse(default_mi_attempt.to_json)
+          assert_equal ['Balb/C', '129P2/OlaHsd', '129P2/OlaHsd'],
+                  data.values_at('blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name')
+        end
 
-        should 'expose *_strain_name virtual methods to JSON API'
-
-        should 'expose *_strain_name virtual methods to XML API'
+        should 'expose *_strain_name virtual methods to XML API' do
+          doc = Nokogiri::XML(default_mi_attempt.to_xml)
+          assert_equal ['Balb/C', '129P2/OlaHsd', '129P2/OlaHsd'],
+                  [doc.css('blast-strain-name').text, doc.css('colony-background-strain-name').text, doc.css('test-cross-strain-name').text]
+        end
       end
 
       should 'have emma columns' do
@@ -558,13 +564,16 @@ class MiAttemptTest < ActiveSupport::TestCase
       setup do
         @protected_attributes = [
           'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by', 'updated_by_id',
-          'clone_id', 'clone', 'mi_attempt_status', 'mi_attempt_status_id'
+          'clone_id', 'clone', 'mi_attempt_status', 'mi_attempt_status_id',
+          'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id'
         ] + MiAttempt::QC_FIELDS.map{|i| "#{i}_id"}
         @protected_attributes.sort!
       end
 
       should 'be protected from mass assignment' do
-        assert_equal (@protected_attributes + ['id']).sort, MiAttempt.protected_attributes.to_a.sort
+        @protected_attributes.each do |attr|
+          assert_include MiAttempt.protected_attributes, attr
+        end
       end
 
       should 'not be output in json serialization' do

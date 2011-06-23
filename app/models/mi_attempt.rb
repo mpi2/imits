@@ -38,7 +38,8 @@ class MiAttempt < ActiveRecord::Base
 
   PRIVATE_ATTRIBUTES = [
     :created_at, :updated_at, :updated_by, :updated_by_id, :clone,
-    :clone_id, :mi_attempt_status, :mi_attempt_status_id
+    :clone_id, :mi_attempt_status, :mi_attempt_status_id,
+    :blast_strain_id, :colony_background_strain_id, :test_cross_strain_id
   ] +QC_FIELDS.map {|i| "#{i}_id"}
 
   attr_protected *PRIVATE_ATTRIBUTES
@@ -278,7 +279,10 @@ class MiAttempt < ActiveRecord::Base
   def default_serializer_options(options = {})
     options ||= {}
     options.symbolize_keys!
-    options[:methods] ||= [:qc, :clone_name]
+    options[:methods] ||= [
+      :qc, :clone_name,
+      :blast_strain_name, :colony_background_strain_name, :test_cross_strain_name
+    ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup
     return options
   end

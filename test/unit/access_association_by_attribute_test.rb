@@ -37,5 +37,22 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
       assert_equal nil, @pet.owner_name
     end
 
+    should 'set association by given attribute value' do
+      @pet.owner_name = 'Ali'
+      assert_equal 'Ali', @pet.owner.name
+    end
+
+    should 'set association to nil if requested association object does not exist' do
+      @pet.owner_name = 'Nonexistent'
+      assert_equal nil, @pet.owner
+    end
+
+    should ', on set, actually write to DB' do
+      @pet.owner_name = 'Ali'
+      @pet.save!
+      @pet.reload
+      assert_equal 'Ali', @pet.owner.name
+    end
+
   end
 end

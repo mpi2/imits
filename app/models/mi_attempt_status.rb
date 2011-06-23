@@ -1,6 +1,6 @@
 class MiAttemptStatus < ActiveRecord::Base
   acts_as_reportable
-  
+
   validates :description, :presence => true, :uniqueness => true
 
   has_many :mi_attempts

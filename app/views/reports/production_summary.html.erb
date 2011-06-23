@@ -1,0 +1,9 @@
+
+<%= form_tag( { :controller => 'reports', :action => 'production_summary' }, :method => :get ) do |form| %>
+  <%= render 'report_controls' %>
+  <%= submit_tag 'Go' %>
+<% end %>
+
+<% unless params[:commit].blank? %>
+  <%=raw @summary.to_html %>
+<% end %>

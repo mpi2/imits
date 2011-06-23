@@ -34,11 +34,6 @@ class ActiveSupport::TestCase
     assert_accepts matcher, subject
   end
 
-  def assert_strain_types(strain_class, strain_file)
-    names = strain_class.joins(:strain).order(:id).map {|i| i.strain.name}
-    assert_equal names.sort, File.read(Rails.root + "config/strains/#{strain_file}.txt").split("\n").sort
-  end
-
   fixtures :all
 end
 
@@ -88,5 +83,66 @@ class ActionController::TestCase
 
   def parse_json_from_response
     return JSON.parse(response.body)
+  end
+end
+
+class Kermits2::StrainsTestCase < ActiveSupport::TestCase
+  def self.strain_tests_for(strains_class)
+    table_name = strains_class.name.demodulize.tableize
+
+    context strains_class.name do
+      should have_db_column(:id).with_options(:null => false)
+      should have_db_index(:id).unique(true)
+      should belong_to :strain
+
+      should 'be populated with correct data' do
+        names = strains_class.joins(:strain).order(:id).map {|i| i.strain.name}
+        assert_equal names.sort, File.read(Rails.root + "config/strains/#{table_name}.txt").split("\n").sort
+      end
+
+      should 'delegate #name to Strain' do
+        sid = strains_class.find(:first)
+        assert_equal sid.name, sid.strain.name
+      end
+
+      context '::find_by_name' do
+        should 'find the row with given strain name' do
+          strains_object = strains_class.first
+          strain_name = Strain.find(strains_object.id).name
+          assert_equal strains_object, strains_class.find_by_name(strain_name)
+        end
+
+        should 'return nil if said name does not exist' do
+          assert_nil strains_class.find_by_name('Nonexistent')
+        end
+      end
+
+      context '::find_by_name!' do
+        should 'find the row with given strain name' do
+          strains_object = strains_class.first
+          strain_name = Strain.find(strains_object.id).name
+          assert_equal strains_object, strains_class.find_by_name!(strain_name)
+        end
+
+        should 'raise if said name does not exist' do
+          assert_raise(ActiveRecord::RecordNotFound) do
+            strains_class.find_by_name!('Nonexistent')
+          end
+        end
+      end
+
+    end
+
+  end
+
+end
+
+IN_MEMORY_MODEL_CONNECTION_PARAMS = {:adapter => 'sqlite3', :database => ':memory:', :verbosity => false}
+
+class InMemoryPerson < ActiveRecord::Base
+  self.establish_connection IN_MEMORY_MODEL_CONNECTION_PARAMS
+
+  self.connection.create_table :in_memory_people, :force => true do |t|
+    t.text :name
   end
 end

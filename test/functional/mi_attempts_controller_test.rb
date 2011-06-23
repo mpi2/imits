@@ -30,16 +30,16 @@ class MiAttemptsControllerTest < ActionController::TestCase
           get :index, :colony_name_contains => 'MBS', :format => :xml
           doc = parse_xml_from_response
           assert_equal 2, doc.xpath('count(//mi-attempt)')
-          assert_equal '1', doc.css('mi-attempt:nth-child(1) clone-id').text
-          assert_equal '1', doc.css('mi-attempt:nth-child(2) clone-id').text
+          assert_equal 'EPD0127_4_E01', doc.css('mi-attempt:nth-child(1) clone-name').text
+          assert_equal 'EPD0127_4_E01', doc.css('mi-attempt:nth-child(2) clone-name').text
         end
 
         should 'support search helpers as JSON' do
           get :index, :colony_name_contains => 'MBS', :format => :json
           data = parse_json_from_response
           assert_equal 2, data.size
-          assert_equal 1, data[0]['clone_id']
-          assert_equal 1, data[1]['clone_id']
+          assert_equal 'EPD0127_4_E01', data[0]['clone_name']
+          assert_equal 'EPD0127_4_E01', data[1]['clone_name']
         end
       end
     end
@@ -93,7 +93,9 @@ class MiAttemptsControllerTest < ActionController::TestCase
         valid_create_for_format(:html)
       end
 
-      should 'on validation errors redirect to edit page and show errors' do
+      should_eventually 'on validation errors redirect to edit page and show errors' do
+        # TODO clarify with Vivek exactly why colony name should be unique, and
+        # what to do with current active mouse lines that have the same colony names
         clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
         mi_attempt = Factory.create :mi_attempt, :colony_name => 'MAAB'
         assert_equal 1, MiAttempt.count

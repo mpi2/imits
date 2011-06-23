@@ -34,7 +34,7 @@ class MiAttemptFieldGenerator
   end
 
   def qc_fields
-    qc_statuses =  QcStatus.all
+    qc_statuses =  QcResult.all
     MiAttempt::QC_FIELDS.map do |qc_field|
       form_field("#{qc_field}_id", tidy_label(qc_field.to_s.gsub(/^qc_(.+)$/, '\1').humanize),
           @form.collection_select("#{qc_field}_id", qc_statuses, :id, :description))

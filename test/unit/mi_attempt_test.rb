@@ -133,11 +133,12 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal '129P2/OlaHsd', default_mi_attempt.test_cross_strain.name
       end
 
-      should 'not allow adding a strain if it is not of the correct type' do
+      should_eventually 'not allow adding a strain if it is not of the correct type' do
+        # TODO Make these checks occur in software, and add validation
         strain = Strain.create!(:name => 'Nonexistent Strain')
 
         assert_raise ActiveRecord::InvalidForeignKey do
-          Factory.create(:mi_attempt, :blast_strain_id => strain.id)
+          mi = Factory.create(:mi_attempt, :blast_strain_id => strain.id)
         end
 
         assert_raise ActiveRecord::InvalidForeignKey do
@@ -515,12 +516,150 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_false mi_attempt.valid?
         assert ! mi_attempt.errors[:clone_name].blank?
       end
+
+      should 'be output in JSON serialization' do
+        assert_equal 'EPD0127_4_E01', JSON.parse(@mi_attempt.to_json)['clone_name']
+      end
+
+      should 'be output in XML serialization' do
+        assert_equal 'EPD0127_4_E01', Nokogiri::XML(@mi_attempt.to_xml).css('clone-name').text
+      end
     end
 
-    should 'protect private attributes' do
-      assert_equal ['id', 'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by', 'clone_id', 'clone'].sort,
-              MiAttempt.protected_attributes.to_a.sort
+    context 'private attributes' do
+      setup do
+        @protected_attributes = [
+          'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by', 'updated_by_id',
+          'clone_id', 'clone', 'mi_attempt_status', 'mi_attempt_status_id'
+        ] + MiAttempt::QC_FIELDS.map{|i| "#{i}_id"}
+        @protected_attributes.sort!
+      end
+
+      should 'be protected from mass assignment' do
+        assert_equal (@protected_attributes + ['id']).sort, MiAttempt.protected_attributes.to_a.sort
+      end
+
+      should 'not be output in json serialization' do
+        data = JSON.parse(default_mi_attempt.to_json)
+        values_in_both = @protected_attributes & data.keys
+        assert_empty values_in_both
+      end
+
+      should 'not be output in xml serialization' do
+        doc = Nokogiri::XML(default_mi_attempt.to_xml)
+        assert_blank doc.css('qc-loxp-confirmation-id')
+        assert_blank doc.css('created-at')
+      end
     end
 
+    context 'virtual #qc attribute' do
+      setup do
+        @mi_attempt = Factory.build(:mi_attempt,
+          :qc_southern_blot => QcResult.pass,
+          :qc_five_prime_lr_pcr => QcResult.fail,
+          :qc_five_prime_cassette_integrity => QcResult.na,
+          :qc_tv_backbone_assay => nil,
+          :qc_neo_count_qpcr => QcResult.na,
+          :qc_neo_sr_pcr => QcResult.na,
+          :qc_loa_qpcr => QcResult.na,
+          :qc_homozygous_loa_sr_pcr => QcResult.na,
+          :qc_lacz_sr_pcr => QcResult.na,
+          :qc_mutant_specific_sr_pcr => QcResult.na,
+          :qc_loxp_confirmation => QcResult.na,
+          :qc_three_prime_lr_pcr => QcResult.na)
+      end
+
+      should ', when first accessed, get back existing qc result values' do
+        assert_equal 'pass', @mi_attempt.qc['southern_blot']
+        assert_equal 'fail', @mi_attempt.qc['five_prime_lr_pcr']
+        assert_equal 'na', @mi_attempt.qc['five_prime_cassette_integrity']
+        assert_equal nil, @mi_attempt.qc['tv_backbone_assay']
+      end
+
+      should ', when accessed after an assignment, contains assigned results with others' do
+        @mi_attempt.qc = {
+          'southern_blot' => 'fail',
+          'five_prime_cassette_integrity' => nil,
+          'neo_sr_pcr' => 'nonsense'
+        }
+
+        assert_equal 'fail', @mi_attempt.qc['southern_blot']
+        assert_equal nil, @mi_attempt.qc['five_prime_cassette_integrity']
+        assert_equal 'nonsense', @mi_attempt.qc['neo_sr_pcr']
+        assert_equal 'na', @mi_attempt.qc['neo_count_qpcr']
+      end
+
+      context 'on save' do
+        setup do
+          @changed_qc_hash = {
+            'southern_blot' => 'fail',
+            'five_prime_lr_pcr' => 'pass',
+            'five_prime_cassette_integrity' => nil,
+            'tv_backbone_assay' => 'na'
+          }.freeze
+        end
+
+        should 'write the fields that were specified with qc=' do
+          @mi_attempt.qc = @changed_qc_hash.dup
+          @mi_attempt.save!
+
+          assert_equal QcResult.fail, @mi_attempt.qc_southern_blot
+          assert_equal QcResult.pass, @mi_attempt.qc_five_prime_lr_pcr
+          assert_equal           nil, @mi_attempt.qc_five_prime_cassette_integrity
+          assert_equal   QcResult.na, @mi_attempt.qc_tv_backbone_assay
+        end
+
+        should 'not affect fields that were not specified with qc=' do
+          @mi_attempt.qc = @changed_qc_hash.dup
+          @mi_attempt.save!
+          assert_equal QcResult.na, @mi_attempt.qc_neo_count_qpcr
+        end
+
+        should 'save fine without needing qc to be set first' do
+          assert_nothing_raised do
+            @mi_attempt.save!
+          end
+        end
+
+        should 'ignore fields that are not actual QC fields' do
+          @mi_attempt.qc = {'nonexistent' => 'nonsense'}
+          assert_true @mi_attempt.save
+          assert_false @mi_attempt.qc.keys.include? 'nonexistent'
+        end
+
+        should 'validate that the result string of each field is a valid result' do
+          @mi_attempt.qc = {
+            'southern_blot' => 'nonsense',
+            'loxp_confirmation' => 'morenonsense'
+          }
+
+          assert_false @mi_attempt.valid?
+          assert_match /southern_blot.+nonsense/, @mi_attempt.errors[:qc].first
+          assert_match /loxp_confirmation.+morenonsense/, @mi_attempt.errors[:qc].first
+        end
+      end
+
+      should 'be mass assignable' do
+        @mi_attempt.update_attributes 'qc' => {'southern_blot' => 'fail'}
+
+        assert_equal QcResult.fail, @mi_attempt.qc_southern_blot
+      end
+
+      should 'be output in to_xml output' do
+        doc = Nokogiri::XML(@mi_attempt.to_xml)
+        assert_equal 'pass', doc.css('qc > southern-blot').text
+      end
+
+      should 'be output in to_json output' do
+        data = JSON.parse(@mi_attempt.to_json)
+
+        assert_equal @mi_attempt.qc, data['qc']
+      end
+
+    end # virtual #qc attribute
+
+    should 'process default options in #as_json just like #to_json' do
+      assert_equal JSON.parse(default_mi_attempt.to_json), default_mi_attempt.as_json.stringify_keys
+    end
   end
 end

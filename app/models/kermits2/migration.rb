@@ -186,9 +186,9 @@ class Kermits2::Migration
         :qc_loxp_confirmation => :qc_loxp_confirmation,
         :qc_three_prime_lr_pcr => :qc_three_prime_lr_pcr
       }.each do |new_name, old_name|
-        value = QcStatus.find_by_description(old_mi_attempt.send(old_name))
+        value = QcResult.find_by_description(old_mi_attempt.send(old_name))
         if ! value
-          value = QcStatus.find_by_description('na')
+          value = QcResult.find_by_description('na')
         end
         mi_attempt.send("#{new_name}=", value)
       end

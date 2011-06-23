@@ -58,7 +58,7 @@ Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_att
   end
 
   MiAttempt::QC_FIELDS.each do |column_name|
-    mi_attempt.send(column_name) { QcStatus.all.sample }
+    mi_attempt.send(column_name) { QcResult.all.sample }
   end
 end
 

@@ -16,6 +16,7 @@ class CreateMiAttempts < ActiveRecord::Migration
     :qc_loxp_confirmation_id,
     :qc_three_prime_lr_pcr_id
   ]
+
   def self.up
     create_table :mi_attempts do |table|
 
@@ -88,7 +89,10 @@ class CreateMiAttempts < ActiveRecord::Migration
     add_foreign_key :mi_attempts, :strain_blast_strains, :column => :blast_strain_id
     add_foreign_key :mi_attempts, :strain_colony_background_strains, :column => :colony_background_strain_id
     add_foreign_key :mi_attempts, :strain_test_cross_strains, :column => :test_cross_strain_id
-    QC_FIELDS.each { |qc_field| add_foreign_key :mi_attempts, :qc_statuses, :column => qc_field}
+
+    QC_FIELDS.each do |qc_field|
+      add_foreign_key :mi_attempts, :qc_results, :column => qc_field
+    end
   end
 
   def self.down

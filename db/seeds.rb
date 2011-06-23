@@ -19,5 +19,5 @@ Object.new.instance_eval do
 end
 
 ['na', 'fail', 'pass'].each do |desc|
-  QcStatus.find_or_create_by_description(desc)
+  QcResult.find_or_create_by_description(desc)
 end

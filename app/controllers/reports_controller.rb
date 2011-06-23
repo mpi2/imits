@@ -6,15 +6,13 @@ class ReportsController < ApplicationController
 
   def microinjection_list
     unless params[:commit].blank?
-      filters = {}
-      filters[:production_centre_id] = params[:production_centre_id] unless params[:production_centre_id].blank?
-
       report_column_order_and_names = {
         'pipeline.name'                                   => 'Pipeline',
         'production_centre.name'                          => 'Production Centre',
         'clone.clone_name'                                => 'Clone Name',
         'clone.allele_name'                               => 'Clone Allele Name',
         'mi_date'                                         => 'Injection Date',
+        'mi_attempt_status.description'                   => 'Status',
         'colony_background_strain.name'                   => 'Background Strain',
         'blast_strain.name'                               => 'Blastocyst Strain',
         'total_transferred'                               => '# Blastocysts Transferred',
@@ -43,13 +41,14 @@ class ReportsController < ApplicationController
 
       @report = MiAttempt.report_table( :all,
         :only       => report_column_order_and_names.keys.map{ |field| field.to_sym },
-        :conditions => filters,
+        :conditions => process_filter_params( params ),
         :include    => {
           :production_centre        => { :only => [ :name ] },
           :clone                    => { :methods => [ :allele_name ], :only => [ :clone_name ], :include => { :pipeline => { :only => [ :name ] } } },
           :blast_strain             => { :methods => [ :name ], :only => [] },
           :colony_background_strain => { :methods => [ :name ], :only => [] },
-          :test_cross_strain        => { :methods => [ :name ], :only => [] }
+          :test_cross_strain        => { :methods => [ :name ], :only => [] },
+          :mi_attempt_status        => { :only => [:description] }
         }
       )
 
@@ -61,10 +60,76 @@ class ReportsController < ApplicationController
 
       @report.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
       @report.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
+
+      @report = Grouping( @report, :by => params[:grouping] ) unless params[:grouping].blank?
+    end
+  end
+  
+  def production_summary
+    unless params[:commit].blank?
+      report_column_order_and_names = {
+        'pipeline.name'           => 'Pipeline',
+        'production_centre.name'  => 'Production Centre',
+        'mi_date'                 => nil,
+        'clone.clone_name'        => nil,
+        'total_pups_born'         => nil,
+        'total_male_chimeras'     => nil,
+        'mi_attempt_status.description' => 'Status',
+        
+      }
+      
+      @report = MiAttempt.report_table( :all,
+        :only       => report_column_order_and_names.keys.map{ |field| field.to_sym },
+        :conditions => process_filter_params( params ),
+        :include    => {
+          :production_centre => { :only => [ :name ] },
+          :clone             => { :only => [ :clone_name ], :include => { :pipeline => { :only => [ :name ] } } },
+          :mi_attempt_status => { :only => [:description] }
+        }
+      )
+      
+      @report.add_column( 'Month Injected', :after => 'production_centre.name' ) { |row| Date.new( row.mi_date.year, row.mi_date.month, 1 ) }
+      
+      # @report.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
+      # @report.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
+      
+      grouped_report = Grouping( @report, :by => 'Month Injected' )
+      @summary = grouped_report.summary(
+        'Month Injected',
+        '# Clones Injected'           => lambda { |group| count_unique_instances_of( group, 'clone.clone_name' ) },
+        '# at Birth'                  => lambda { |group| count_unique_instances_of( group, 'clone.clone_name', lambda { |row| row.total_pups_born > 0 ? true : false } ) },
+        '# at Weaning'                => lambda { |group| count_unique_instances_of( group, 'clone.clone_name', lambda { |row| row.total_male_chimeras > 0 ? true : false } ) },
+        '# Clones Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'clone.clone_name', lambda { |row| row.send(:'mi_attempt_status.description') == 'Genotype confirmed' ? true : false } ) }
+      )
+      
+      @summary.add_column( '% of Injected (at Birth)',    :after => '# at Birth' )                  { |row| calculate_percentage( row.data['# at Birth'], row.data['# Clones Injected'] ) }
+      @summary.add_column( '% Clones Genotype Confirmed', :after => '# Clones Genotype Confirmed' ) { |row| calculate_percentage( row.data['# Clones Genotype Confirmed'], row.data['# Clones Injected'] ) }
     end
   end
 
   private
+
+  def process_filter_params( params )
+    params[:production_centre_id]  = process_filter_param(params[:production_centre_id])
+    params[:pipeline_id]           = process_filter_param(params[:pipeline_id])
+
+    filters = {}
+
+    filters[:production_centre_id] = params[:production_centre_id] unless params[:production_centre_id].nil?
+    filters[:'pipelines.id']       = params[:pipeline_id] unless params[:pipeline_id].nil?
+
+    return filters
+  end
+
+  def process_filter_param( param )
+    param ||= []
+    param.delete_if { |elm| elm.blank? }
+    if param.empty?
+      return nil
+    else
+      return param
+    end
+  end
 
   def calculate_percentage( dividend, divisor )
     if dividend and ( divisor and divisor > 0 )
@@ -92,6 +157,18 @@ class ReportsController < ApplicationController
     ].compact.sort
 
     return values.first unless values.empty?
+  end
+
+  def count_unique_instances_of( group, data_name, row_condition=nil )
+    array = []
+    group.each do |row|
+      if row_condition.nil?
+        array.push( row.data[data_name] )
+      else
+        array.push( row.data[data_name] ) if row_condition.call(row)
+      end
+    end
+    array.uniq.size
   end
 
 end

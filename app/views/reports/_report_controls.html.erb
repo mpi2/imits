@@ -1,0 +1,26 @@
+<%= label_tag( 'production_centre_id[]', "Production Centre:" ) %>
+<%=
+  select_tag(
+    'production_centre_id[]',
+    options_from_collection_for_select( Centre.order("name").all, :id, :name, params[:production_centre_id] ),
+    { :include_blank => true, :multiple => true }
+  )
+%>
+
+<%= label_tag( 'pipeline_id[]', "Pipeline:" ) %>
+<%=
+  select_tag(
+    'pipeline_id[]',
+    options_from_collection_for_select( Pipeline.order("name").all, :id, :name, params[:pipeline_id] ),
+    { :include_blank => true, :multiple => true }
+  )
+%>
+
+<%= label_tag( :grouping, "Group Report By:" ) %>
+<%=
+  select_tag(
+    :grouping,
+    options_for_select( [['Pipeline'], ['Production Centre']], params[:grouping] ),
+    { :include_blank => true }
+  )
+%>

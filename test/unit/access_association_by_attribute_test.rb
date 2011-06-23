@@ -64,6 +64,14 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
         @pet.reload
         assert_equal 'Ali', @pet.owner.name
       end
+
+      should 'set correctly even if association was previously unset' do
+        @pet.owner = nil
+        @pet.owner_name = 'Ali'
+        @pet.save!
+        @pet.reload
+        assert_equal 'Ali', @pet.owner.name
+      end
     end
 
     context 'on saving with invalid assignment' do

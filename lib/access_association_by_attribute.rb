@@ -3,6 +3,7 @@
 module AccessAssociationByAttribute
   def access_association_by_attribute(association_name, attribute)
     virtual_attribute = "#{association_name}_#{attribute}"
+    association_class = self.reflections[association_name].class_name.constantize
 
     define_method virtual_attribute do
       if instance_variable_defined?("@#{virtual_attribute}")
@@ -21,7 +22,6 @@ module AccessAssociationByAttribute
     define_method "#{virtual_attribute}_before_validation" do
       return unless instance_variable_defined?("@#{virtual_attribute}")
 
-      association_class = self.send(association_name).class
       value = instance_variable_get("@#{virtual_attribute}")
       new_object = association_class.send("find_by_#{attribute}", value)
       if ! new_object
@@ -34,7 +34,6 @@ module AccessAssociationByAttribute
     define_method "#{virtual_attribute}_before_save" do
       return unless instance_variable_defined?("@#{virtual_attribute}")
 
-      association_class = self.send(association_name).class
       value = instance_variable_get("@#{virtual_attribute}")
       new_object = association_class.send("find_by_#{attribute}", value)
       self.send("#{association_name}=", new_object)

@@ -16,7 +16,7 @@ class ReportsController < ApplicationController
     unless params[:commit].blank?
       report = generate_mi_list_report( params )
       report.add_column( 'Month Injected' ) { |row| Date.new( row.data['Injection Date'].year, row.data['Injection Date'].month, 1 ) }
-      
+
       grouped_report = Grouping( report, :by => 'Month Injected' )
       @summary = grouped_report.summary(
         'Month Injected',
@@ -25,14 +25,14 @@ class ReportsController < ApplicationController
         '# at Weaning'                => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Male Chimeras'] > 0 ? true : false } ) },
         '# Clones Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) }
       )
-      
+
       @summary.add_column( '% of Injected (at Birth)',    :after => '# at Birth' )                  { |row| calculate_percentage( row.data['# at Birth'], row.data['# Clones Injected'] ) }
       @summary.add_column( '% Clones Genotype Confirmed', :after => '# Clones Genotype Confirmed' ) { |row| calculate_percentage( row.data['# Clones Genotype Confirmed'], row.data['# Clones Injected'] ) }
     end
   end
 
   protected
-  
+
   def generate_mi_list_report( params )
     report_column_order_and_names = {
       'pipeline.name'                                   => 'Pipeline',
@@ -91,7 +91,7 @@ class ReportsController < ApplicationController
 
     return report
   end
-  
+
   def process_filter_params( params )
     params[:production_centre_id]  = process_filter_param(params[:production_centre_id])
     params[:pipeline_id]           = process_filter_param(params[:pipeline_id])

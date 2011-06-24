@@ -72,7 +72,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :mi_attempt_status
   validates :mi_attempt_status, :presence => true
 
-  # TODO validates :colony_name, :uniqueness => true, :allow_nil => true
+  validates :colony_name, :uniqueness => true, :allow_nil => true
 
   belongs_to :production_centre, :class_name => 'Centre'
   validates :production_centre, :presence => true
@@ -282,7 +282,9 @@ class MiAttempt < ActiveRecord::Base
       :qc, :clone_name,
       :blast_strain_name, :colony_background_strain_name, :test_cross_strain_name
     ]
-    options[:except] ||= PRIVATE_ATTRIBUTES.dup
+    options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
+      :blast_strain_id, :colony_background_strain_id, :test_cross_strain_id
+    ]
     return options
   end
   private :default_serializer_options

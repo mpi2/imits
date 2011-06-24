@@ -177,6 +177,13 @@ class MiAttemptTest < ActiveSupport::TestCase
                   data.values_at('blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name')
         end
 
+        should 'not output strain IDs in serialized output' do
+          data = JSON.parse(default_mi_attempt.to_json)
+          assert ! data.has_key?('blast_strain_id')
+          assert ! data.has_key?('colony_background_strain_id')
+          assert ! data.has_key?('test_cross_strain_id')
+        end
+
         should 'expose *_strain_name virtual methods to XML API' do
           doc = Nokogiri::XML(default_mi_attempt.to_xml)
           assert_equal ['Balb/C', '129P2/OlaHsd', '129P2/OlaHsd'],
@@ -289,13 +296,14 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       context 'colony_name' do
-        should_eventually 'be unique' do
+        should 'be unique' do
+          default_mi_attempt.update_attributes(:colony_name => 'ABCD')
           assert_should have_db_index(:colony_name).unique(true)
           assert_should validate_uniqueness_of :colony_name
         end
 
         should 'allow nils' do
-          assert_nil default_mi_attempt.colony_name
+          default_mi_attempt.update_attributes(:colony_name => nil)
           another_mi_attempt = Factory.build :mi_attempt, :colony_name => nil
           assert_nil another_mi_attempt.colony_name
           another_mi_attempt.valid?
@@ -693,6 +701,11 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
     end # virtual #qc attribute
+
+    should 'not output QC foreign keys in serialized output' do
+      data = JSON.parse(default_mi_attempt.to_json)
+      assert ! data.has_key?('qc_southern_blot_id')
+    end
 
     should 'process default options in #as_json just like #to_json' do
       assert_equal JSON.parse(default_mi_attempt.to_json), default_mi_attempt.as_json.stringify_keys

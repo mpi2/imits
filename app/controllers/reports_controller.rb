@@ -21,8 +21,8 @@ class ReportsController < ApplicationController
       @summary = grouped_report.summary(
         'Month Injected',
         '# Clones Injected'           => lambda { |group| count_unique_instances_of( group, 'Clone Name' ) },
-        '# at Birth'                  => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Pups Born'] > 0 ? true : false } ) },
-        '# at Weaning'                => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Male Chimeras'] > 0 ? true : false } ) },
+        '# at Birth'                  => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Pups Born'].to_i > 0 ? true : false } ) },
+        '# at Weaning'                => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Male Chimeras'].to_i > 0 ? true : false } ) },
         '# Clones Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) }
       )
 
@@ -68,7 +68,7 @@ class ReportsController < ApplicationController
     }
 
     report = MiAttempt.report_table( :all,
-      :only       => report_column_order_and_names.keys.map{ |field| field.to_sym },
+      :only       => report_column_order_and_names.keys,
       :conditions => process_filter_params( params ),
       :include    => {
         :production_centre        => { :only => [ :name ] },

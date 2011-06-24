@@ -15,7 +15,8 @@ module ApplicationHelper
   def mainnav_links
     retval = [
       ['Search & Edit', mi_attempts_path],
-      ['Create', new_mi_attempt_path]
+      ['Create', new_mi_attempt_path],
+      ['Reports', reports_path]
     ].map do |link|
       if @tab == link[0]
         link << {:class => 'current'}

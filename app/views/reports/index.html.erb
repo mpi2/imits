@@ -1,1 +1,6 @@
-w00t
+<% @tab = 'Reports' %>
+
+<ul>
+  <li><%= link_to 'Micro-injection list', url_for(:controller => 'reports', :action => 'microinjection_list') %></li>
+  <li><%= link_to 'Production summary', url_for(:controller => 'reports', :action => 'production_summary') %></li>
+</ul>

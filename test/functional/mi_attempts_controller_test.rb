@@ -90,11 +90,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
       should 'on success redirect to edit page for HTML' do
         valid_create_for_format(:html)
+        assert flash[:alert].blank?
       end
 
-      should_eventually 'on validation errors redirect to edit page and show errors' do
-        # TODO clarify with Vivek exactly why colony name should be unique, and
-        # what to do with current active mouse lines that have the same colony names
+      should 'on validation errors redirect to edit page and show errors' do
         clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
         mi_attempt = Factory.create :mi_attempt, :colony_name => 'MAAB'
         assert_equal 1, MiAttempt.count

@@ -14,7 +14,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
         :colony_name => 'MAAB',
         :total_blasts_injected => 12,
         :emma_status => :suitable_sticky,
-        :test_cross_strain_id => Strain.find_by_name('129S5').id
+        :test_cross_strain_name => '129S5'
       )
       user = Factory.create :user, :email => 'editing@example.com'
       login user.email
@@ -35,7 +35,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert_equal 'suitable_sticky', page.find('select[name="mi_attempt[emma_status]"] option[selected=selected]').value
     end
 
-    should 'edit mi successfully' do
+    should 'edit mi successfully, set updated_by and redirect back to show page' do
       fill_in 'mi_attempt[colony_name]', :with => 'ABCD'
       fill_in 'mi_attempt[total_blasts_injected]', :with => 22
       select 'Suitable for EMMA - STICKY', :from => 'mi_attempt[emma_status]'
@@ -55,19 +55,22 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert_equal 'B6JIco', @mi_attempt.test_cross_strain.name
       assert_equal 'pass', @mi_attempt.qc_southern_blot.description
       assert_equal true, @mi_attempt.should_export_to_mart?
-    end
-
-    should 'set updated_by' do
-      click_button 'mi_attempt_submit'
-      sleep 3
-      @mi_attempt.reload
       assert_equal 'editing@example.com', @mi_attempt.updated_by.email
+
+      assert_match /\/mi_attempts\/#{@mi_attempt.id}$/, current_url
     end
 
-    should 'redirect back to show page' do
-      click_button 'mi_attempt_submit'
-      @mi_attempt.reload
-      assert_match /\/mi_attempts\/#{@mi_attempt.id}$/, current_url
+    should 'handle validation errors' do
+      assert MiAttempt.find_by_colony_name('MBSS')
+      fill_in 'mi_attempt[colony_name]', :with => 'MBSS'
+      assert_difference 'MiAttempt.count', 0 do
+        click_button 'mi_attempt_submit'
+        sleep 3
+      end
+      assert page.has_content? 'Edit MI Attempt'
+      assert page.has_css? '.message.alert'
+      assert page.has_css? '.field_with_errors'
+      assert page.has_css? '.error-message'
     end
 
   end

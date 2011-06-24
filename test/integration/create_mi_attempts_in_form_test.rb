@@ -39,8 +39,8 @@ class CreateMiAttemptsInFormTest < ActionDispatch::IntegrationTest
 
       sleep 3
 
-      assert page.has_content? 'Micro-injection could not be saved'
       assert_equal 'EPD0027_2_A01', page.find(:css, 'input[name="mi_attempt[clone_name]"]').value
+      assert page.has_css? '.message.alert'
       assert page.has_css? '.field_with_errors'
       assert page.has_css? '.error-message'
     end

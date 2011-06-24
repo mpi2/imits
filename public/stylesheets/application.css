@@ -144,10 +144,6 @@ div#messages {
     cursor: wait;
 }
 
-#error_explanation, .field_with_errors label {
-    background-color: red;
-}
-
 .large-text {
     font-size: 1.5em;
     line-height: 1.5em;
@@ -235,18 +231,19 @@ form.mi-attempt {
 
 form.mi-attempt label {
     display: block;
+    font-style: italic;
 }
 
 form.mi-attempt fieldset {
     border: 1px solid #074987;
-    padding: 10px;
+    padding: 20px;
     margin-bottom: 2em;
     border-radius: 15px;
     -moz-border-radius: 15px;
 }
 
 form.mi-attempt fieldset legend {
-    font-size: 1.2em;
+    font-size: 1.4em;
     font-style: italic;
 }
 
@@ -256,6 +253,25 @@ form.mi-attempt fieldset > div {
 
 form.mi-attempt textarea {
     height: 5em;
+}
+
+form.mi-attempt div.field_with_errors {
+    display: inline;
+}
+
+form.mi-attempt fieldset {
+}
+
+form.mi-attempt div.errors {
+    background-color: darkred;
+    color: white;
+    padding-bottom: 1em;
+    margin-left: -0.5em;
+    padding-left: 0.5em;
+}
+
+form.mi-attempt span.error-message {
+    font-weight: bold;
 }
 
 #footer {

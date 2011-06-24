@@ -45,10 +45,11 @@ class MiAttemptFieldGenerator
 
   def form_field(name, label, field_html)
     label ||= tidy_label(name.to_s.humanize)
-
-    content_tag(:div,
-      @form.label(name, label) + "\n" + field_html
-    )
+    contents = @form.label(name, label) + "\n".html_safe + field_html
+    if ! @form.object.errors[name].blank?
+      contents += "\n".html_safe + content_tag(:span, @form.object.errors[name].join(', '), :class => 'error-message')
+    end
+    return content_tag(:div, contents.html_safe).html_safe
   end
 
   def tidy_label(old_label)

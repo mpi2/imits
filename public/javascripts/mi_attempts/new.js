@@ -29,7 +29,6 @@ Kermits2.newMI.ClonesList = Ext.extend(Ext.ListView, {
         width: .17
     }
     ],
-    //autoExpandColumn: '0',
     singleSelect: true,
     style: {
         backgroundColor: 'white'
@@ -103,6 +102,7 @@ Kermits2.newMI.SearchTab = Ext.extend(Ext.Panel, {
             {
                 xtype: 'textfield',
                 ref: '../searchBox',
+                id: this.initialConfig.searchParam + '-search-box',
                 selectOnFocus: true,
                 listeners: {
                     specialkey: {
@@ -262,7 +262,13 @@ Kermits2.newMI.CloneSelectorForm = Ext.extend(Ext.Panel, {
 
     onRender: function() {
         Kermits2.newMI.CloneSelectorForm.superclass.onRender.apply(this, arguments);
-        this.window.show();
+
+        var defaultCloneName = Kermits2.newMI.restOfForm.getCloneName();
+        if(defaultCloneName != '') {
+            this.cloneNameTextField.setValue(defaultCloneName);
+        } else {
+            this.window.show();
+        }
     },
 
     onCloneNameSelected: function(cloneName) {
@@ -275,20 +281,33 @@ Kermits2.newMI.CloneSelectorForm = Ext.extend(Ext.Panel, {
 
 function processRestOfForm() {
     Kermits2.newMI.restOfForm = Ext.get('rest-of-form');
-    Kermits2.newMI.restOfForm.hide(false);
-    Kermits2.newMI.restOfForm.hidden = true;
+
     Kermits2.newMI.restOfForm.showIfHidden = function() {
         if(this.hidden == true) {
             this.show(true);
             this.hidden = false;
         }
     }
+
     Kermits2.newMI.restOfForm.setCloneName = function(cloneName) {
         var cloneNameField = this.child('input[name="mi_attempt[clone_name]"]');
         cloneNameField.set({
             value: cloneName
         });
     }
+
+    Kermits2.newMI.restOfForm.getCloneName = function() {
+        var cloneNameField = this.child('input[name="mi_attempt[clone_name]"]');
+        return cloneNameField.getValue();
+    }
+
+    if(Kermits2.newMI.restOfForm.getCloneName() == '') {
+        Kermits2.newMI.restOfForm.hide(false);
+        Kermits2.newMI.restOfForm.hidden = true;
+    } else {
+        Kermits2.newMI.restOfForm.hidden = false;
+    }
+
 }
 
 Ext.onReady(function() {

@@ -400,22 +400,22 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'work for single colony name' do
         results = MiAttempt.search(:search_terms => ['MBSS'])
-        assert_equal 2, results.size
+        assert_equal 1, results.size
         @clone2.mi_attempts.each { |mi| assert_include results, mi if mi.colony_name == 'MBSS' }
         assert_not_include results, @clone3.mi_attempts.first
       end
 
       should 'work for single colony name case-insensitively' do
         results = MiAttempt.search(:search_terms => ['mbss'])
-        assert_equal 2, results.size
+        assert_equal 1, results.size
         @clone2.mi_attempts.each { |mi| assert_include results, mi if mi.colony_name == 'MBSS' }
         assert_not_include results, @clone3.mi_attempts.first
       end
 
       should 'work for multiple colony names' do
         results = MiAttempt.search(:search_terms => ['MBSS', 'WBAA'])
-        assert_equal 3, results.size
-        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+        assert_equal 2, results.size
+        @clone2.mi_attempts.find_all {|mi| !mi.colony_name.blank?}.each { |mi| assert_include results, mi }
         assert_not_include results, @clone3.mi_attempts.first
       end
 
@@ -564,9 +564,8 @@ class MiAttemptTest < ActiveSupport::TestCase
       setup do
         @protected_attributes = [
           'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by', 'updated_by_id',
-          'clone_id', 'clone', 'mi_attempt_status', 'mi_attempt_status_id',
-          'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id'
-        ] + MiAttempt::QC_FIELDS.map{|i| "#{i}_id"}
+          'clone_id', 'clone', 'mi_attempt_status', 'mi_attempt_status_id'
+        ]
         @protected_attributes.sort!
       end
 

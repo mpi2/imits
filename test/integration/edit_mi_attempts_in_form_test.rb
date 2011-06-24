@@ -39,7 +39,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       fill_in 'mi_attempt[colony_name]', :with => 'ABCD'
       fill_in 'mi_attempt[total_blasts_injected]', :with => 22
       select 'Suitable for EMMA - STICKY', :from => 'mi_attempt[emma_status]'
-      select '129S5', :from => 'mi_attempt[test_cross_strain_id]'
+      select 'B6JIco', :from => 'mi_attempt[test_cross_strain_id]'
       select 'pass', :from => 'mi_attempt[qc_southern_blot_id]'
       check 'mi_attempt[should_export_to_mart]'
 
@@ -52,7 +52,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert_equal 'ABCD', @mi_attempt.colony_name
       assert_equal 22, @mi_attempt.total_blasts_injected
       assert_equal :suitable_sticky, @mi_attempt.emma_status
-      assert_equal '129S5', @mi_attempt.test_cross_strain.name
+      assert_equal 'B6JIco', @mi_attempt.test_cross_strain.name
       assert_equal 'pass', @mi_attempt.qc_southern_blot.description
       assert_equal true, @mi_attempt.should_export_to_mart?
     end

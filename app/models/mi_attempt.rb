@@ -38,9 +38,8 @@ class MiAttempt < ActiveRecord::Base
 
   PRIVATE_ATTRIBUTES = [
     :created_at, :updated_at, :updated_by, :updated_by_id, :clone,
-    :clone_id, :mi_attempt_status, :mi_attempt_status_id,
-    :blast_strain_id, :colony_background_strain_id, :test_cross_strain_id
-  ] +QC_FIELDS.map {|i| "#{i}_id"}
+    :clone_id, :mi_attempt_status, :mi_attempt_status_id
+  ]
 
   attr_protected *PRIVATE_ATTRIBUTES
 

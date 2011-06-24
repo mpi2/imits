@@ -29,17 +29,16 @@ class MiAttemptsControllerTest < ActionController::TestCase
         should 'support search helpers as XML' do
           get :index, :colony_name_contains => 'MBS', :format => :xml
           doc = parse_xml_from_response
-          assert_equal 2, doc.xpath('count(//mi-attempt)')
-          assert_equal 'EPD0127_4_E01', doc.css('mi-attempt:nth-child(1) clone-name').text
-          assert_equal 'EPD0127_4_E01', doc.css('mi-attempt:nth-child(2) clone-name').text
+          assert_equal 1, doc.xpath('count(//mi-attempt)')
+          assert_equal 'EPD0127_4_E01', doc.css('mi-attempt clone-name').text
         end
 
         should 'support search helpers as JSON' do
-          get :index, :colony_name_contains => 'MBS', :format => :json
+          get :index, :colony_name_contains => 'MB', :format => :json
           data = parse_json_from_response
           assert_equal 2, data.size
-          assert_equal 'EPD0127_4_E01', data[0]['clone_name']
-          assert_equal 'EPD0127_4_E01', data[1]['clone_name']
+          assert_equal 'MBSS', data.find {|i| i['clone_name'] == 'EPD0127_4_E01'}['colony_name']
+          assert_equal 'MBFD', data.find {|i| i['clone_name'] == 'EPD0029_1_G04'}['colony_name']
         end
       end
     end

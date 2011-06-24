@@ -82,10 +82,10 @@ Factory.define :clone_EPD0127_4_E01, :parent => :clone_EPD0127_4_E01_without_mi_
 
     Factory.create(:mi_attempt,
       :clone => clone,
-      :colony_name => 'MBSS',
+      :colony_name => nil,
       :distribution_centre => Centre.find_by_name!('ICS'),
       :production_centre => Centre.find_by_name!('ICS'),
-      :is_suitable_for_emma => true)
+      :emma_status => :unsuitable_sticky)
 
     Factory.create(:mi_attempt,
       :clone => clone,

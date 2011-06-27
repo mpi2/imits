@@ -6,5 +6,7 @@ class RootController < ApplicationController
 
   def index
     redirect_to mi_attempts_path(:production_centre_id => current_user.production_centre.id)
+    flash.keep(:notice)
+    flash.keep(:alert)
   end
 end

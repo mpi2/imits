@@ -62,7 +62,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
 
       should 'work with a multiple clone names' do
-        visit '/'
+        visit '/mi_attempts'
         fill_in 'search_terms', :with => "EPD0127_4_E01\nEPD0343_1_H06"
         click_button 'Search'
 
@@ -95,7 +95,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
     context 'searching for mi attempts by gene symbol' do
       setup do
         create_common_test_objects
-        visit '/'
+        visit '/mi_attempts'
         assert_false page.has_css? 'x-grid3'
         fill_in 'search_terms', :with => 'Trafd1'
         click_button 'Search'

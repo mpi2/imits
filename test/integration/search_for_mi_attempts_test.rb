@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'test_helper'
 
 class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
@@ -164,7 +166,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
       should 'show results that match the search terms and the filter' do
         assert page.has_css? '.x-grid3-col-clone__clone_name', :text => @mi_attempt.clone.clone_name
-        assert page.has_css? '.x-grid3-col-mi_attempt_status__description', :text => 'Nonsense'
+        assert page.has_css? '.x-grid3-col-status', :text => 'Nonsense'
       end
 
       should 'not show any non-matching mi attempts' do

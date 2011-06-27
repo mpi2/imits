@@ -20,20 +20,20 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_equal '/', root_path
       end
 
-      context 'support search helpers' do
+      context 'search helpers' do
         setup do
           create_common_test_objects
           sign_in default_user
         end
 
-        should 'support search helpers as XML' do
+        should 'work in XML format' do
           get :index, :colony_name_contains => 'MBS', :format => :xml
           doc = parse_xml_from_response
           assert_equal 1, doc.xpath('count(//mi-attempt)')
           assert_equal 'EPD0127_4_E01', doc.css('mi-attempt clone-name').text
         end
 
-        should 'support search helpers as JSON' do
+        should 'work in JSON format' do
           get :index, :colony_name_contains => 'MB', :format => :json
           data = parse_json_from_response
           assert_equal 2, data.size

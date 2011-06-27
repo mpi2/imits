@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class MiAttemptsController < ApplicationController
 
   respond_to :html, :json, :xml

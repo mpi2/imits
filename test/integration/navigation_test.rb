@@ -22,6 +22,19 @@ class NavigationTest < ActionDispatch::IntegrationTest
         assert_current_link 'Search & Edit'
       end
 
+      should 'filter by user\'s production centre when Search & Edit is clicked' do
+        click_link 'Search & Edit'
+        assert_equal default_user.production_centre.id.to_s,
+                page.find("select[name=production_centre_id] option[selected=selected]").value
+      end
+
+      should 'filter by user\'s production centre when visited via root path' do
+        visit '/'
+        assert_equal default_user.production_centre.id.to_s,
+                page.find("select[name=production_centre_id] option[selected=selected]").value
+      end
+
+
       should 'select Search & Edit tab when on Search & Edit page selected regardless of actual URL' do
         click_link 'Search & Edit'
         assert_current_link 'Search & Edit'

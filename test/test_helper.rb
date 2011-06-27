@@ -54,8 +54,7 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
 
   def login(email = nil)
     if email.nil?
-      @login_default_user ||= Factory.create :user
-      email = @login_default_user.email
+      email = default_user.email
     end
     visit '/users/login'
     fill_in 'Email', :with => email

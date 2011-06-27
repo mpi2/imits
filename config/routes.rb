@@ -1,7 +1,7 @@
 Kermits2::Application.routes.draw do
   netzke
 
-  root :to => "mi_attempts#index"
+  root :to => "root#index"
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update]
 

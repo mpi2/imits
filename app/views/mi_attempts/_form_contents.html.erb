@@ -5,10 +5,10 @@
 
   <%= generator.text_field :mi_date, :label => 'Micro-injection date', :class => 'date-field' %>
 
-  <% if form.object.mi_attempt_status %>
+  <% if form.object.status %>
     <div>
       <label>Status</label>
-      <span><%= form.object.mi_attempt_status.description %></span>
+      <span><%= form.object.status %></span>
     </div>
   <% end %>
 

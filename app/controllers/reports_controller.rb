@@ -7,27 +7,55 @@ class ReportsController < ApplicationController
 
   def microinjection_list
     unless params[:commit].blank?
-      @report = generate_mi_list_report( params )
-      @report = Grouping( @report, :by => params[:grouping] ) unless params[:grouping].blank?
+      @microinjection_list = generate_mi_list_report( params )
+      @microinjection_list = Grouping( @microinjection_list, :by => params[:grouping] ) unless params[:grouping].blank?
     end
   end
-  
+
   def production_summary
     unless params[:commit].blank?
       report = generate_mi_list_report( params )
-      report.add_column( 'Month Injected' ) { |row| Date.new( row.data['Injection Date'].year, row.data['Injection Date'].month, 1 ) }
+      report.add_column( 'Month Injected' ) { |row| "#{row.data['Injection Date'].year}-#{sprintf('%02d', row.data['Injection Date'].month)}" }
 
-      grouped_report = Grouping( report, :by => 'Month Injected' )
-      @summary = grouped_report.summary(
-        'Month Injected',
-        '# Clones Injected'           => lambda { |group| count_unique_instances_of( group, 'Clone Name' ) },
-        '# at Birth'                  => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Pups Born'].to_i > 0 ? true : false } ) },
-        '# at Weaning'                => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Male Chimeras'].to_i > 0 ? true : false } ) },
-        '# Clones Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) }
+      @production_summary = Table(
+        [
+          'Production Centre',
+          'Month Injected',
+          '# Clones Injected',
+          '# at Birth',
+          '% of Injected (at Birth)',
+          '# at Weaning',
+          '# Clones Genotype Confirmed',
+          '% Clones Genotype Confirmed'
+        ]
       )
 
-      @summary.add_column( '% of Injected (at Birth)',    :after => '# at Birth' )                  { |row| calculate_percentage( row.data['# at Birth'], row.data['# Clones Injected'] ) }
-      @summary.add_column( '% Clones Genotype Confirmed', :after => '# Clones Genotype Confirmed' ) { |row| calculate_percentage( row.data['# Clones Genotype Confirmed'], row.data['# Clones Injected'] ) }
+      grouped_report = Grouping( report, :by => [ 'Production Centre', 'Month Injected' ] )
+      grouped_report.each do |production_centre|
+        summary = grouped_report.subgrouping(production_centre).summary(
+          'Month Injected',
+          '# Clones Injected'           => lambda { |group| count_unique_instances_of( group, 'Clone Name' ) },
+          '# at Birth'                  => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Pups Born'].to_i > 0 ? true : false } ) },
+          '# at Weaning'                => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Male Chimeras'].to_i > 0 ? true : false } ) },
+          '# Clones Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) }
+        )
+
+        summary.add_column( '% of Injected (at Birth)',    :after => '# at Birth' )                  { |row| calculate_percentage( row.data['# at Birth'], row.data['# Clones Injected'] ) }
+        summary.add_column( '% Clones Genotype Confirmed', :after => '# Clones Genotype Confirmed' ) { |row| calculate_percentage( row.data['# Clones Genotype Confirmed'], row.data['# Clones Injected'] ) }
+
+        summary.each_entry do |row|
+          hash = row.to_hash
+          hash['Production Centre'] = production_centre
+          @production_summary << hash
+        end
+      end
+      
+      @production_summary.sort_rows_by do |row|
+        datestr = row.data['Month Injected'].split('-')
+        Date.new( datestr[0].to_i, datestr[1].to_i, 1 )
+      end
+      
+      @production_summary = Grouping( @production_summary, :by => [ 'Production Centre' ] )
     end
   end
 

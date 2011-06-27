@@ -8,7 +8,8 @@ class ReportsController < ApplicationController
   def microinjection_list
     unless params[:commit].blank?
       @microinjection_list = generate_mi_list_report( params )
-      @microinjection_list = Grouping( @microinjection_list, :by => params[:grouping] ) unless params[:grouping].blank?
+      @microinjection_list.sort_rows_by!( 'Injected Date', :order => :descending )
+      @microinjection_list = Grouping( @microinjection_list, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
     end
   end
 
@@ -49,13 +50,27 @@ class ReportsController < ApplicationController
           @production_summary << hash
         end
       end
-      
-      @production_summary.sort_rows_by do |row|
+
+      @production_summary.sort_rows_by!( nil, :order => :descending ) do |row|
         datestr = row.data['Month Injected'].split('-')
         Date.new( datestr[0].to_i, datestr[1].to_i, 1 )
       end
-      
-      @production_summary = Grouping( @production_summary, :by => [ 'Production Centre' ] )
+
+      @production_summary = Grouping( @production_summary, :by => [ 'Production Centre' ], :order => :name )
+    end
+  end
+
+  def gene_summary
+    unless params[:commit].blank?
+      report         = generate_mi_list_report( params )
+      grouped_report = Grouping( report, :by => [ 'Production Centre' ], :order => :name )
+
+      @gene_summary  = grouped_report.summary(
+        'Production Centre',
+        '# Genes Injected'           => lambda { |group| count_unique_instances_of( group, 'Marker Symbol' ) },
+        '# Genes Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) },
+        :order => [ 'Production Centre', '# Genes Injected', '# Genes Genotype Confirmed' ]
+      )
     end
   end
 
@@ -66,6 +81,7 @@ class ReportsController < ApplicationController
       'pipeline.name'                                   => 'Pipeline',
       'production_centre.name'                          => 'Production Centre',
       'clone.clone_name'                                => 'Clone Name',
+      'clone.marker_symbol'                             => 'Marker Symbol',
       'clone.allele_name'                               => 'Clone Allele Name',
       'mi_date'                                         => 'Injection Date',
       'mi_attempt_status.description'                   => 'Status',
@@ -100,7 +116,7 @@ class ReportsController < ApplicationController
       :conditions => process_filter_params( params ),
       :include    => {
         :production_centre        => { :only => [ :name ] },
-        :clone                    => { :methods => [ :allele_name ], :only => [ :clone_name ], :include => { :pipeline => { :only => [ :name ] } } },
+        :clone                    => { :methods => [ :allele_name ], :only => [ :clone_name, :marker_symbol ], :include => { :pipeline => { :only => [ :name ] } } },
         :blast_strain             => { :methods => [ :name ], :only => [] },
         :colony_background_strain => { :methods => [ :name ], :only => [] },
         :test_cross_strain        => { :methods => [ :name ], :only => [] },

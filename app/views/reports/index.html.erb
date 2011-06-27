@@ -1,6 +1,7 @@
 <% @tab = 'Reports' %>
 
 <ul>
+  <li><%= link_to 'Gene Summary', url_for(:controller => 'reports', :action => 'gene_summary') %></li>
   <li><%= link_to 'Month-by-Month Production Summary', url_for(:controller => 'reports', :action => 'production_summary') %></li>
   <li><%= link_to 'All Microinjections', url_for(:controller => 'reports', :action => 'microinjection_list') %></li>
 </ul>

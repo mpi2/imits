@@ -15,5 +15,7 @@
 <% end %>
 
 <% unless params[:commit].blank? %>
-  <%=raw @microinjection_list.to_html %>
+  <div id="report">
+    <%=raw @microinjection_list.to_html %>
+  </div>
 <% end %>

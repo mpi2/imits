@@ -1,3 +1,5 @@
+/* @override http://localhost:3000/stylesheets/application.css */
+
 html, body {
     font-size: 12px;
     line-height: 1.5em;
@@ -280,3 +282,64 @@ form.mi-attempt span.error-message {
     background: #074987;
     color: white;
 }
+
+/* @group Tables */
+
+caption {
+	padding: 0 0 5px 0;
+	font-style: italic;
+}
+
+th {
+	border: 1px solid #999;
+	text-align: left;
+	padding: 3px 3px;
+	background-color: #ccc;
+}
+
+td {
+	border: 1px solid #999;
+	padding: 3px 3px;
+}
+
+tr.odd td {
+	background: #f1f1f1;
+}
+
+.nobg, .nobg th, .nobg td {
+	background: none !important;
+}
+
+.noborder, .noborder th, .noborder td, td.noborder {
+	border: none !important;
+}
+
+.nopadding th, .nopadding td {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+.border, .border th, .border td, td.border {
+	border: 1px solid #999 !important;
+}
+
+.bg tr.odd {
+	background: #f1f1f1 !important;
+}
+
+.padding th, .padding td {
+	padding: 3px 3px !important;
+}
+
+/* @end */
+
+/* @group Reports */
+
+#report p {
+	font-weight: bold;
+	font-size: larger;
+	margin-bottom: 5px;
+	margin-top: 5px;
+} 
+
+/* @end */

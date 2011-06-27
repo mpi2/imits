@@ -14,7 +14,7 @@ module ApplicationHelper
 
   def mainnav_links
     retval = [
-      ['Search & Edit', mi_attempts_path],
+      ['Search & Edit', mi_attempts_path(:production_centre_id => current_user.production_centre.id)],
       ['Create', new_mi_attempt_path],
       ['Reports', reports_path]
     ].map do |link|

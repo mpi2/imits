@@ -12,7 +12,7 @@ class MiAttemptTest < ActiveSupport::TestCase
               :test_cross_strain_id => Strain.find_by_name('129P2/OlaHsd').id
     end
 
-    context 'attribute tests' do
+    context 'attribute tests:' do
 
       setup do
         default_mi_attempt
@@ -50,26 +50,52 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal centre2.name, mi.distribution_centre.name
       end
 
-      should 'have status' do
-        assert_should have_db_column(:mi_attempt_status_id).with_options(:null => false)
-        assert_should belong_to(:mi_attempt_status)
+      context '#mi_attempt_status' do
+        should 'exist' do
+          assert_should have_db_column(:mi_attempt_status_id).with_options(:null => false)
+          assert_should belong_to(:mi_attempt_status)
+        end
+
+        should 'be set to "Micro-injection in progress" by default' do
+          assert_equal 'Micro-injection in progress', default_mi_attempt.mi_attempt_status.description
+        end
+
+        should 'not be overwritten if it is set explicitly' do
+          mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+          assert_equal 'Genotype confirmed', mi_attempt.mi_attempt_status.description
+        end
+
+        should 'not be reset to default if assigning id' do
+          local_mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+          local_mi_attempt.mi_attempt_status_id = MiAttemptStatus.genotype_confirmed.id
+          local_mi_attempt.save!
+          local_mi_attempt = MiAttempt.find(local_mi_attempt.id)
+          assert_equal 'Genotype confirmed', local_mi_attempt.mi_attempt_status.description
+        end
+
+        should 'not be mass-assignable' do
+          default_mi_attempt.attributes = {:mi_attempt_status => MiAttemptStatus.genotype_confirmed}
+          assert_not_equal MiAttemptStatus.genotype_confirmed, default_mi_attempt.mi_attempt_status
+        end
+
+        should 'not be exposed to serialization' do
+          data = JSON.parse(default_mi_attempt.to_json)
+          assert_false data.has_key?('mi_attempt_status')
+        end
       end
 
-      should 'set mi_attempt_status to "Micro-injection in progress" by default' do
-        assert_equal 'Micro-injection in progress', default_mi_attempt.mi_attempt_status.description
-      end
+      context '#status virtual attribute' do
+        should 'be the status string when read' do
+          default_mi_attempt.mi_attempt_status = MiAttemptStatus.micro_injection_in_progress
+          assert_equal 'Micro-injection in progress', default_mi_attempt.status
+          default_mi_attempt.mi_attempt_status = MiAttemptStatus.genotype_confirmed
+          assert_equal 'Genotype confirmed', default_mi_attempt.status
+        end
 
-      should 'not overwrite status if it is set explicitly' do
-        mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
-        assert_equal 'Genotype confirmed', mi_attempt.mi_attempt_status.description
-      end
-
-      should 'not reset status to default if assigning id' do
-        local_mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
-        local_mi_attempt.mi_attempt_status_id = MiAttemptStatus.genotype_confirmed.id
-        local_mi_attempt.save!
-        local_mi_attempt = MiAttempt.find(local_mi_attempt.id)
-        assert_equal 'Genotype confirmed', local_mi_attempt.mi_attempt_status.description
+        should 'be nil when actual status association is nil' do
+          default_mi_attempt.mi_attempt_status = nil
+          assert_nil default_mi_attempt.status
+        end
       end
 
       should 'have mouse allele type column' do
@@ -205,73 +231,81 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       context '#emma_status' do
-        should 'be :suitable if is_suitable_for_emma=true and is_emma_sticky=false' do
-          default_mi_attempt.is_suitable_for_emma = true
-          default_mi_attempt.is_emma_sticky = false
-          assert_equal :suitable, default_mi_attempt.emma_status
-        end
+        context 'on read' do
+          should 'be :suitable if is_suitable_for_emma=true and is_emma_sticky=false' do
+            default_mi_attempt.is_suitable_for_emma = true
+            default_mi_attempt.is_emma_sticky = false
+            assert_equal :suitable, default_mi_attempt.emma_status
+          end
 
-        should 'be :unsuitable if is_suitable_for_emma=false and is_emma_sticky=false' do
-          default_mi_attempt.is_suitable_for_emma = false
-          default_mi_attempt.is_emma_sticky = false
-          assert_equal :unsuitable, default_mi_attempt.emma_status
-        end
+          should 'be :unsuitable if is_suitable_for_emma=false and is_emma_sticky=false' do
+            default_mi_attempt.is_suitable_for_emma = false
+            default_mi_attempt.is_emma_sticky = false
+            assert_equal :unsuitable, default_mi_attempt.emma_status
+          end
 
-        should 'be :suitable_sticky if is_suitable_for_emma=true and is_emma_sticky=true' do
-          default_mi_attempt.is_suitable_for_emma = true
-          default_mi_attempt.is_emma_sticky = true
-          assert_equal :suitable_sticky, default_mi_attempt.emma_status
-        end
+          should 'be :suitable_sticky if is_suitable_for_emma=true and is_emma_sticky=true' do
+            default_mi_attempt.is_suitable_for_emma = true
+            default_mi_attempt.is_emma_sticky = true
+            assert_equal :suitable_sticky, default_mi_attempt.emma_status
+          end
 
-        should 'be :unsuitable_sticky if is_suitable_for_emma=false and is_emma_sticky=true' do
-          default_mi_attempt.is_suitable_for_emma = false
-          default_mi_attempt.is_emma_sticky = true
-          assert_equal :unsuitable_sticky, default_mi_attempt.emma_status
-        end
-      end
-
-      context '#emma_status=' do
-        should 'work for suitable' do
-          default_mi_attempt.emma_status = 'suitable'
-          default_mi_attempt.save!
-          default_mi_attempt.reload
-          assert_equal [true, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-        end
-
-        should 'work for unsuitable' do
-          default_mi_attempt.emma_status = 'unsuitable'
-          default_mi_attempt.save!
-          default_mi_attempt.reload
-          assert_equal [false, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-        end
-
-        should 'work for :suitable_sticky' do
-          default_mi_attempt.emma_status = 'suitable_sticky'
-          default_mi_attempt.save!
-          default_mi_attempt.reload
-          assert_equal [true, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-        end
-
-        should 'work for :unsuitable_sticky' do
-          default_mi_attempt.emma_status = 'unsuitable_sticky'
-          default_mi_attempt.save!
-          default_mi_attempt.reload
-          assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-        end
-
-        should 'error for anything else' do
-          assert_raise(MiAttempt::EmmaStatusError) do
-            default_mi_attempt.emma_status = 'invalid'
+          should 'be :unsuitable_sticky if is_suitable_for_emma=false and is_emma_sticky=true' do
+            default_mi_attempt.is_suitable_for_emma = false
+            default_mi_attempt.is_emma_sticky = true
+            assert_equal :unsuitable_sticky, default_mi_attempt.emma_status
           end
         end
 
-        should 'set cause #emma_status to return the right value after being saved' do
-          default_mi_attempt.emma_status = 'unsuitable_sticky'
-          default_mi_attempt.save!
-          default_mi_attempt.reload
+        context 'on write' do
+          should 'work for suitable' do
+            default_mi_attempt.emma_status = 'suitable'
+            default_mi_attempt.save!
+            default_mi_attempt.reload
+            assert_equal [true, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
+          end
 
-          assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-          assert_equal :unsuitable_sticky, default_mi_attempt.emma_status
+          should 'work for unsuitable' do
+            default_mi_attempt.emma_status = 'unsuitable'
+            default_mi_attempt.save!
+            default_mi_attempt.reload
+            assert_equal [false, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
+          end
+
+          should 'work for :suitable_sticky' do
+            default_mi_attempt.emma_status = 'suitable_sticky'
+            default_mi_attempt.save!
+            default_mi_attempt.reload
+            assert_equal [true, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
+          end
+
+          should 'work for :unsuitable_sticky' do
+            default_mi_attempt.emma_status = 'unsuitable_sticky'
+            default_mi_attempt.save!
+            default_mi_attempt.reload
+            assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
+          end
+
+          should 'error for anything else' do
+            assert_raise(MiAttempt::EmmaStatusError) do
+              default_mi_attempt.emma_status = 'invalid'
+            end
+          end
+
+          should 'set cause #emma_status to return the right value after being saved' do
+            default_mi_attempt.emma_status = 'unsuitable_sticky'
+            default_mi_attempt.save!
+            default_mi_attempt.reload
+
+            assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
+            assert_equal :unsuitable_sticky, default_mi_attempt.emma_status
+          end
+        end
+
+        should 'be in serialized output' do
+          default_mi_attempt.emma_status = :suitable_sticky
+          data = JSON.parse(default_mi_attempt.to_json)
+          assert_equal 'suitable_sticky', data['emma_status']
         end
       end
 
@@ -571,8 +605,8 @@ class MiAttemptTest < ActiveSupport::TestCase
     context 'private attributes' do
       setup do
         @protected_attributes = [
-          'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by', 'updated_by_id',
-          'clone_id', 'clone', 'mi_attempt_status', 'mi_attempt_status_id'
+          'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by',
+          'clone', 'mi_attempt_status'
         ]
         @protected_attributes.sort!
       end

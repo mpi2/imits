@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'test_helper'
 
 class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
@@ -60,7 +62,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
 
       should 'work with a multiple clone names' do
-        visit '/'
+        visit '/mi_attempts'
         fill_in 'search_terms', :with => "EPD0127_4_E01\nEPD0343_1_H06"
         click_button 'Search'
 
@@ -93,7 +95,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
     context 'searching for mi attempts by gene symbol' do
       setup do
         create_common_test_objects
-        visit '/'
+        visit '/mi_attempts'
         assert_false page.has_css? 'x-grid3'
         fill_in 'search_terms', :with => 'Trafd1'
         click_button 'Search'
@@ -164,7 +166,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
       should 'show results that match the search terms and the filter' do
         assert page.has_css? '.x-grid3-col-clone__clone_name', :text => @mi_attempt.clone.clone_name
-        assert page.has_css? '.x-grid3-col-mi_attempt_status__description', :text => 'Nonsense'
+        assert page.has_css? '.x-grid3-col-status', :text => 'Nonsense'
       end
 
       should 'not show any non-matching mi attempts' do

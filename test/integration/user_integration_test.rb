@@ -8,7 +8,7 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
         Factory.create :user, :email => 'test@example.com'
         sleep 10
         login 'test@example.com'
-        assert_match %r{^http://[^/]+/$}, current_url
+        assert_match %r{^http://[^/]+/mi_attempts}, current_url
         assert page.has_content? 'Logged in successfully'
       end
 
@@ -55,13 +55,13 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
         fill_in 'New password', :with => 'new password'
         fill_in 'Confirm new password', :with => 'new password'
         click_button 'Change password'
-        assert_match %r{^http://[^/]+/$}, current_url
+        assert_match %r{^http://[^/]+/mi_attempts}, current_url
 
         visit '/users/logout'
         fill_in 'Email', :with => user.email
         fill_in 'Password', :with => 'new password'
         click_button 'Login'
-        assert_match %r{^http://[^/]+/$}, current_url
+        assert_match %r{^http://[^/]+/mi_attempts}, current_url
       end
 
       should 'validate' do

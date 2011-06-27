@@ -37,8 +37,7 @@ class MiAttempt < ActiveRecord::Base
   ].freeze
 
   PRIVATE_ATTRIBUTES = [
-    :created_at, :updated_at, :updated_by, :updated_by_id, :clone,
-    :clone_id, :mi_attempt_status, :mi_attempt_status_id
+    :created_at, :updated_at, :updated_by, :clone, :mi_attempt_status
   ]
 
   attr_protected *PRIVATE_ATTRIBUTES
@@ -49,9 +48,9 @@ class MiAttempt < ActiveRecord::Base
 
   def clone_name
     if(self.clone)
-      self.clone.clone_name
+      return self.clone.clone_name
     else
-      @clone_name
+      return @clone_name
     end
   end
 
@@ -71,6 +70,10 @@ class MiAttempt < ActiveRecord::Base
 
   belongs_to :mi_attempt_status
   validates :mi_attempt_status, :presence => true
+
+  def status
+    return self.mi_attempt_status.try(:description)
+  end
 
   validates :colony_name, :uniqueness => true, :allow_nil => true
 
@@ -279,7 +282,7 @@ class MiAttempt < ActiveRecord::Base
     options ||= {}
     options.symbolize_keys!
     options[:methods] ||= [
-      :qc, :clone_name,
+      :qc, :clone_name, :emma_status,
       :blast_strain_name, :colony_background_strain_name, :test_cross_strain_name
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [

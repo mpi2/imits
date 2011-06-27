@@ -6,7 +6,8 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
   context 'Editing MI Attempt in grid' do
 
     setup do
-      @user1, @user2 = Factory.create(:user), Factory.create(:user)
+      @user1 = Factory.create(:user, :email => 'user1@example.com')
+      @user2 = Factory.create(:user, :email => 'user2@example.com')
       clone = Factory.create(:clone_EPD0343_1_H06)
       @default_mi_attempt = clone.mi_attempts.first
       @default_mi_attempt.updated_by = @user1

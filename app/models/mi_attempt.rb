@@ -282,7 +282,7 @@ class MiAttempt < ActiveRecord::Base
     options ||= {}
     options.symbolize_keys!
     options[:methods] ||= [
-      :qc, :clone_name,
+      :qc, :clone_name, :emma_status,
       :blast_strain_name, :colony_background_strain_name, :test_cross_strain_name
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [

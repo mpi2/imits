@@ -124,12 +124,12 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_not_equal 0, doc.xpath('count(//error)')
       end
 
-      should 'set production centre from params if specified' do
+      should 'set production centre from params instead of user if specified' do
         user = Factory.create :user, :production_centre => Centre.find_by_name('ICS')
         sign_in user
         clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
         post :create,
-                :mi_attempt => {'clone_name' => clone.clone_name, 'production_centre_id' => Centre.find_by_name('WTSI')},
+                :mi_attempt => {'clone_name' => clone.clone_name, 'production_centre_name' => 'WTSI'},
                 :format => :json
         assert_response :success, response.body
 
@@ -174,7 +174,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
 
         put :update, :id => mi_attempt.id,
-                :mi_attempt => {'production_centre_id' => nil},
+                :mi_attempt => {'production_centre_name' => nil},
                 :format => format
         assert_false response.success?
       end

@@ -92,6 +92,8 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
   access_association_by_attribute :test_cross_strain, :name
 
+  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
+
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
   end

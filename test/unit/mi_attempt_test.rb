@@ -98,12 +98,22 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      should 'have mouse allele type column' do
-        assert_should have_db_column(:mouse_allele_type)
-      end
-
       context '#mouse_allele_type' do
-        should 'validate'
+        should 'have mouse allele type column' do
+          assert_should have_db_column(:mouse_allele_type)
+        end
+
+        should 'allow valid types' do
+          [nil, 'a', 'b', 'c', 'd', 'e'].each do |i|
+            assert_should allow_value(i).for :mouse_allele_type
+          end
+        end
+
+        should 'not allow anything else' do
+          ['f', 'A', '1', 'abc'].each do |i|
+            assert_should_not allow_value(i).for :mouse_allele_type
+          end
+        end
       end
 
       context '#mouse_allele_name_superscript' do
@@ -546,7 +556,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         @mi_attempt.attributes = {:clone_name => 'EPD0127_4_E01'}
       end
 
-      should 'be written on mass assignment' do
+      should 'be written on mass assignment when a new record' do
         assert_equal 'EPD0127_4_E01', @mi_attempt.clone_name
       end
 
@@ -605,10 +615,8 @@ class MiAttemptTest < ActiveSupport::TestCase
     context 'private attributes' do
       setup do
         @protected_attributes = [
-          'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by',
-          'clone', 'mi_attempt_status'
-        ]
-        @protected_attributes.sort!
+          'created_at', 'updated_at', 'updated_by', 'clone', 'mi_attempt_status'
+        ].sort
       end
 
       should 'be protected from mass assignment' do

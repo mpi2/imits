@@ -19,7 +19,10 @@ class ReportsController < ApplicationController
   def production_summary
     unless params[:commit].blank?
       report = generate_mi_list_report( params )
-      report.add_column( 'Month Injected' ) { |row| "#{row.data['Injection Date'].year}-#{sprintf('%02d', row.data['Injection Date'].month)}" }
+
+      report.add_column( 'Month Injected' ) do |row|
+        "#{row.data['Injection Date'].year}-#{sprintf('%02d', row.data['Injection Date'].month)}" if row.data['Injection Date']
+      end
 
       @report = Table(
         [
@@ -55,8 +58,12 @@ class ReportsController < ApplicationController
       end
 
       @report.sort_rows_by!( nil, :order => :descending ) do |row|
-        datestr = row.data['Month Injected'].split('-')
-        Date.new( datestr[0].to_i, datestr[1].to_i, 1 )
+        if row.data['Month Injected']
+          datestr = row.data['Month Injected'].split('-')
+          Date.new( datestr[0].to_i, datestr[1].to_i, 1 )
+        else
+          Date.new( 1966, 6, 30 )
+        end
       end
 
       @report = Grouping( @report, :by => [ 'Production Centre' ], :order => :name )

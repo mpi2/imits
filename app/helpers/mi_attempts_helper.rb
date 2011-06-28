@@ -149,7 +149,7 @@ module MiAttemptsHelper
     end
 
     def mouse_allele_name_columns
-      mouse_allele_type_combo = local_combo_editor(MiAttempt::MOUSE_ALLELE_OPTIONS,
+      mouse_allele_type_combo = local_combo_editor(MiAttempt::MOUSE_ALLELE_OPTIONS.to_a,
         :id => 'mouseAlleleTypeCombo', :minListWidth => 350)
 
       return [

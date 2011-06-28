@@ -29,6 +29,7 @@ class CreateMiAttemptsInFormTest < ActionDispatch::IntegrationTest
 
       assert_match /\/mi_attempts\/\d+$/, current_url
       mi_attempt = MiAttempt.find_by_colony_name('MZSQ')
+      assert page.has_content? mi_attempt.colony_name
       assert_equal default_user.email, mi_attempt.updated_by.email
     end
 

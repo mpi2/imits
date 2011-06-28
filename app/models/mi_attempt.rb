@@ -27,14 +27,14 @@ class MiAttempt < ActiveRecord::Base
     :qc_three_prime_lr_pcr
   ].freeze
 
-  MOUSE_ALLELE_OPTIONS = [
-    [nil, '[none]'],
-    ['a', 'a - Knockout-first - Reporter Tagged Insertion'],
-    ['b', 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion'],
-    ['c', 'c - Knockout-First, Post-Flp - Conditional'],
-    ['d', 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter'],
-    ['e', 'e - Targeted Non-Conditional']
-  ].freeze
+  MOUSE_ALLELE_OPTIONS = {
+    nil => '[none]',
+    'a' => 'a - Knockout-first - Reporter Tagged Insertion',
+    'b' => 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion',
+    'c' => 'c - Knockout-First, Post-Flp - Conditional',
+    'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
+    'e' => 'e - Targeted Non-Conditional'
+  }.freeze
 
   PRIVATE_ATTRIBUTES = [
     :created_at, :updated_at, :updated_by, :clone, :mi_attempt_status

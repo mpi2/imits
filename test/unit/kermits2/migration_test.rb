@@ -144,7 +144,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       end
 
       should 'migrate emma status' do
-        assert_equal :unsuitable_sticky, migrate_mi(5268).emma_status
+        assert_equal 'unsuitable_sticky', migrate_mi(5268).emma_status
       end
 
       should 'migrate mi_date' do

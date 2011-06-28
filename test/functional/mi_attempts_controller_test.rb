@@ -12,14 +12,6 @@ class MiAttemptsControllerTest < ActionController::TestCase
     end
 
     context 'GET index' do
-      should 'route from /' do
-        assert_routing '/', { :controller => 'mi_attempts', :action => 'index' }
-      end
-
-      should 'be root path' do
-        assert_equal '/', root_path
-      end
-
       context 'search helpers' do
         setup do
           create_common_test_objects

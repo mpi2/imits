@@ -14,8 +14,8 @@ end
 Factory.define :clone do |clone|
   clone.sequence(:clone_name) {|n| "Auto-generated Clone Name #{n}" }
   clone.marker_symbol "Auto-generated Marker Symbol"
-  clone.allele_name_superscript 'tm1a(AUTO)Generated'
-  clone.association :pipeline
+  clone.allele_name_superscript 'tm1a(EUCOMM)Wtsi'
+  clone.association(:pipeline) { Pipeline.find_by_name! 'EUCOMM' }
   clone.sequence(:mgi_accession_id) {|n| "MGI:#{"%.10i" % n}"}
   clone.is_in_targ_rep true
 end

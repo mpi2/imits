@@ -23,12 +23,26 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should belong_to(:clone)
       end
 
-      should 'have centres' do
-        assert_should have_db_column(:production_centre_id).with_options(:null => false)
-        assert_should belong_to(:production_centre)
+      context 'centres' do
+        should 'exist' do
+          assert_should have_db_column(:production_centre_id).with_options(:null => false)
+          assert_should belong_to(:production_centre)
 
-        assert_should have_db_column(:distribution_centre_id)
-        assert_should belong_to(:distribution_centre)
+          assert_should have_db_column(:distribution_centre_id)
+          assert_should belong_to(:distribution_centre)
+        end
+
+        should 'not allow mass assignment of production_centre_id' do
+          centre = Factory.create :centre, :name => 'NONEXISTENT'
+          default_mi_attempt.attributes = {:production_centre_id => centre.id}
+          assert_not_equal centre.id, default_mi_attempt.production_centre.id
+        end
+
+        should 'not allow mass assignment of distribution_centre_id' do
+          centre = Factory.create :centre, :name => 'NONEXISTENT'
+          default_mi_attempt.attributes = {:distribution_centre_id => centre.id}
+          assert_not_equal centre.id, default_mi_attempt.distribution_centre_id
+        end
       end
 
       should 'validate presence of production_centre' do
@@ -48,6 +62,25 @@ class MiAttemptTest < ActiveSupport::TestCase
         centre2 = Factory.create :centre
         mi = Factory.create :mi_attempt, :production_centre => centre1, :distribution_centre => centre2
         assert_equal centre2.name, mi.distribution_centre.name
+      end
+
+      should 'allow access to production centre via its name' do
+        centre = Factory.create :centre, :name => 'NONEXISTENT'
+        default_mi_attempt.update_attributes(:production_centre_name => 'NONEXISTENT')
+        assert_equal 'NONEXISTENT', default_mi_attempt.production_centre.name
+      end
+
+      should 'allow access to distribution centre via its name' do
+        centre = Factory.create :centre, :name => 'NONEXISTENT'
+        default_mi_attempt.update_attributes(:distribution_centre_name => 'NONEXISTENT')
+        assert_equal 'NONEXISTENT', default_mi_attempt.distribution_centre.name
+      end
+
+      should 'output *_centre_name fields in serialization' do
+        default_mi_attempt.update_attributes(:distribution_centre_name => 'ICS')
+        data = JSON.parse(default_mi_attempt.to_json)
+        assert_equal ['ICS', 'WTSI'],
+                data.values_at('distribution_centre_name', 'production_centre_name')
       end
 
       context '#mi_attempt_status' do
@@ -73,14 +106,17 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal 'Genotype confirmed', local_mi_attempt.mi_attempt_status.description
         end
 
-        should 'not be mass-assignable' do
-          default_mi_attempt.attributes = {:mi_attempt_status => MiAttemptStatus.genotype_confirmed}
+        should 'not be mass-assignable by id' do
+          default_mi_attempt.attributes = {
+            :mi_attempt_status    => MiAttemptStatus.genotype_confirmed,
+            :mi_attempt_status_id => MiAttemptStatus.genotype_confirmed
+          }
           assert_not_equal MiAttemptStatus.genotype_confirmed, default_mi_attempt.mi_attempt_status
         end
 
-        should 'not be exposed to serialization' do
+        should 'not expose id to serialization' do
           data = JSON.parse(default_mi_attempt.to_json)
-          assert_false data.has_key?('mi_attempt_status')
+          assert_false data.has_key?('mi_attempt_status_id')
         end
       end
 
@@ -96,14 +132,28 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.mi_attempt_status = nil
           assert_nil default_mi_attempt.status
         end
-      end
 
-      should 'have mouse allele type column' do
-        assert_should have_db_column(:mouse_allele_type)
+        should 'be in serialization' do
+          assert_equal default_mi_attempt.status, default_mi_attempt.as_json['status']
+        end
       end
 
       context '#mouse_allele_type' do
-        should 'validate'
+        should 'have mouse allele type column' do
+          assert_should have_db_column(:mouse_allele_type)
+        end
+
+        should 'allow valid types' do
+          [nil, 'a', 'b', 'c', 'd', 'e'].each do |i|
+            assert_should allow_value(i).for :mouse_allele_type
+          end
+        end
+
+        should 'not allow anything else' do
+          ['f', 'A', '1', 'abc'].each do |i|
+            assert_should_not allow_value(i).for :mouse_allele_type
+          end
+        end
       end
 
       context '#mouse_allele_name_superscript' do
@@ -122,6 +172,11 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
           default_mi_attempt.mouse_allele_type = 'e'
           assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_name_superscript
+        end
+
+        should 'be output in serialization' do
+          default_mi_attempt.mouse_allele_type = 'e'
+          assert_equal 'tm1e(EUCOMM)Wtsi', default_mi_attempt.as_json['mouse_allele_name_superscript']
         end
       end
 
@@ -546,7 +601,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         @mi_attempt.attributes = {:clone_name => 'EPD0127_4_E01'}
       end
 
-      should 'be written on mass assignment' do
+      should 'be written on mass assignment when a new record' do
         assert_equal 'EPD0127_4_E01', @mi_attempt.clone_name
       end
 
@@ -605,10 +660,9 @@ class MiAttemptTest < ActiveSupport::TestCase
     context 'private attributes' do
       setup do
         @protected_attributes = [
-          'type', 'created_at', 'updated_at', 'audit_ids', 'updated_by',
-          'clone', 'mi_attempt_status'
-        ]
-        @protected_attributes.sort!
+          'created_at', 'updated_at', 'updated_by', 'updated_by_id',
+          'clone', 'clone_id'
+        ].sort
       end
 
       should 'be protected from mass assignment' do

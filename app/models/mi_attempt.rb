@@ -27,17 +27,20 @@ class MiAttempt < ActiveRecord::Base
     :qc_three_prime_lr_pcr
   ].freeze
 
-  MOUSE_ALLELE_OPTIONS = [
-    [nil, '[none]'],
-    ['a', 'a - Knockout-first - Reporter Tagged Insertion'],
-    ['b', 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion'],
-    ['c', 'c - Knockout-First, Post-Flp - Conditional'],
-    ['d', 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter'],
-    ['e', 'e - Targeted Non-Conditional']
-  ].freeze
+  MOUSE_ALLELE_OPTIONS = {
+    nil => '[none]',
+    'a' => 'a - Knockout-first - Reporter Tagged Insertion',
+    'b' => 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion',
+    'c' => 'c - Knockout-First, Post-Flp - Conditional',
+    'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
+    'e' => 'e - Targeted Non-Conditional'
+  }.freeze
 
   PRIVATE_ATTRIBUTES = [
-    :created_at, :updated_at, :updated_by, :clone, :mi_attempt_status
+    'created_at', 'updated_at', 'updated_by', 'updated_by_id',
+    'clone', 'clone_id',
+    'mi_attempt_status', 'mi_attempt_status_id',
+    'production_centre_id', 'distribution_centre_id'
   ]
 
   attr_protected *PRIVATE_ATTRIBUTES
@@ -80,6 +83,8 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :production_centre, :class_name => 'Centre'
   validates :production_centre, :presence => true
   belongs_to :distribution_centre, :class_name => 'Centre'
+  access_association_by_attribute :production_centre, :name
+  access_association_by_attribute :distribution_centre, :name
 
   belongs_to :updated_by, :class_name => 'User'
 
@@ -91,6 +96,8 @@ class MiAttempt < ActiveRecord::Base
 
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
   access_association_by_attribute :test_cross_strain, :name
+
+  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
 
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
@@ -282,11 +289,13 @@ class MiAttempt < ActiveRecord::Base
     options ||= {}
     options.symbolize_keys!
     options[:methods] ||= [
-      :qc, :clone_name, :emma_status,
-      :blast_strain_name, :colony_background_strain_name, :test_cross_strain_name
+      'qc', 'clone_name', 'emma_status', 'status',
+      'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
+      'distribution_centre_name', 'production_centre_name',
+      'mouse_allele_name_superscript'
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
-      :blast_strain_id, :colony_background_strain_id, :test_cross_strain_id
+      'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id'
     ]
     return options
   end

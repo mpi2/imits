@@ -68,10 +68,10 @@ class MiAttemptsController < ApplicationController
     respond_with @mi_attempt do |format|
       format.html do
         if ! @mi_attempt.valid?
-          @centres = Centre.all
           flash[:alert] = 'Micro-injection could not be updated - please check the values you entered'
-          render :action => :show
         end
+        @centres = Centre.all
+        render :action => :show
       end
     end
   end

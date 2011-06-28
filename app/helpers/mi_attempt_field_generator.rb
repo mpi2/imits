@@ -29,7 +29,7 @@ class MiAttemptFieldGenerator
   end
 
   def mouse_allele_type_field
-    field_html = @form.select(:mouse_allele_type, MiAttempt::MOUSE_ALLELE_OPTIONS.map {|x, y| [y, x]})
+    field_html = @form.select(:mouse_allele_type, MiAttempt::MOUSE_ALLELE_OPTIONS.invert)
     form_field(:mouse_allele_type, nil, field_html)
   end
 

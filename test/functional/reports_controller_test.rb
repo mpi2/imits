@@ -14,18 +14,20 @@ class ReportsControllerTest < ActionController::TestCase
         sign_in default_user
       end
       
-      context 'on the /microinjection_list report' do
-        should 'be blank without parameters' do
-          get :microinjection_list
-          assert response.success?
-          assert_nil assigns(:report)
-        end
-        
-        should 'generate a full report with parameters' do
-          get :microinjection_list, 'commit' => 'Go'
-          assert response.success?
-          assert assigns(:report)
-          assert assigns(:report).is_a? Ruport::Data::Table
+      [:microinjection_list, :production_summary, :gene_summary].each do |report|
+        context "the /#{report} report" do
+          should 'be blank without parameters' do
+            get report
+            assert response.success?
+            assert_nil assigns(:report)
+          end
+
+          should 'generate a full report with parameters' do
+            get report, 'commit' => 'Go'
+            assert response.success?
+            assert assigns(:report)
+            assert assigns(:report).is_a?( Ruport::Data::Table ) || assigns(:report).is_a?( Ruport::Data::Grouping )
+          end
         end
       end
     end

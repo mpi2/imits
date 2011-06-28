@@ -1,11 +1,10 @@
 
 <%= form_tag( { :controller => 'reports', :action => 'production_summary' }, :method => :get ) do |form| %>
-  <%= render 'report_controls' %>
-  <%= submit_tag 'Go' %>
+  <%= render :partial => 'report_controls', :locals => { :grouping => false } %>
 <% end %>
 
 <% unless params[:commit].blank? %>
   <div id="report">
-    <%=raw @production_summary.to_html %>
+    <%=raw @report.to_html %>
   </div>
 <% end %>

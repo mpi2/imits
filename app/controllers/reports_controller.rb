@@ -1,5 +1,6 @@
 class ReportsController < ApplicationController
-  respond_to :html
+  respond_to :html, :csv
+
   before_filter :authenticate_user!
 
   def index
@@ -7,18 +8,23 @@ class ReportsController < ApplicationController
 
   def microinjection_list
     unless params[:commit].blank?
-      @microinjection_list = generate_mi_list_report( params )
-      @microinjection_list.sort_rows_by!( 'Injected Date', :order => :descending )
-      @microinjection_list = Grouping( @microinjection_list, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
+      @report = generate_mi_list_report( params )
+      @report.sort_rows_by!( 'Injected Date', :order => :descending )
+      @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
+      
+      render :csv => @report.to_csv if request.format == :csv
     end
   end
 
   def production_summary
     unless params[:commit].blank?
       report = generate_mi_list_report( params )
-      report.add_column( 'Month Injected' ) { |row| "#{row.data['Injection Date'].year}-#{sprintf('%02d', row.data['Injection Date'].month)}" }
 
-      @production_summary = Table(
+      report.add_column( 'Month Injected' ) do |row|
+        "#{row.data['Injection Date'].year}-#{sprintf('%02d', row.data['Injection Date'].month)}" if row.data['Injection Date']
+      end
+
+      @report = Table(
         [
           'Production Centre',
           'Month Injected',
@@ -47,16 +53,22 @@ class ReportsController < ApplicationController
         summary.each_entry do |row|
           hash = row.to_hash
           hash['Production Centre'] = production_centre
-          @production_summary << hash
+          @report << hash
         end
       end
 
-      @production_summary.sort_rows_by!( nil, :order => :descending ) do |row|
-        datestr = row.data['Month Injected'].split('-')
-        Date.new( datestr[0].to_i, datestr[1].to_i, 1 )
+      @report.sort_rows_by!( nil, :order => :descending ) do |row|
+        if row.data['Month Injected']
+          datestr = row.data['Month Injected'].split('-')
+          Date.new( datestr[0].to_i, datestr[1].to_i, 1 )
+        else
+          Date.new( 1966, 6, 30 )
+        end
       end
 
-      @production_summary = Grouping( @production_summary, :by => [ 'Production Centre' ], :order => :name )
+      @report = Grouping( @report, :by => [ 'Production Centre' ], :order => :name )
+
+      render :csv => @report.to_csv if request.format == :csv
     end
   end
 
@@ -65,12 +77,14 @@ class ReportsController < ApplicationController
       report         = generate_mi_list_report( params )
       grouped_report = Grouping( report, :by => [ 'Production Centre' ], :order => :name )
 
-      @gene_summary  = grouped_report.summary(
+      @report  = grouped_report.summary(
         'Production Centre',
         '# Genes Injected'           => lambda { |group| count_unique_instances_of( group, 'Marker Symbol' ) },
         '# Genes Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) },
         :order => [ 'Production Centre', '# Genes Injected', '# Genes Genotype Confirmed' ]
       )
+
+      render :csv => @report.to_csv if request.format == :csv
     end
   end
 

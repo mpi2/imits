@@ -14,6 +14,7 @@ class ActiveSupport::TestCase
     DatabaseCleaner.strategy = self.database_strategy
     DatabaseCleaner.start
     load Rails.root + 'db/seeds.rb'
+    InMemoryPerson.destroy_all
   end
 
   def teardown
@@ -32,6 +33,10 @@ class ActiveSupport::TestCase
 
   def assert_should(matcher)
     assert_accepts matcher, subject
+  end
+
+  def assert_should_not(matcher)
+    assert_rejects matcher, subject
   end
 
   fixtures :all
@@ -149,4 +154,6 @@ class InMemoryPerson < ActiveRecord::Base
   self.connection.create_table :in_memory_people, :force => true do |t|
     t.text :name
   end
+
+  validates :name, :uniqueness => true
 end

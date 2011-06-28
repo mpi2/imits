@@ -1,9 +1,21 @@
 
 <%= form_tag( { :controller => 'reports', :action => 'microinjection_list' }, :method => :get ) do |form| %>
   <%= render 'report_controls' %>
+  
+  <%= label_tag( :grouping, "Group Data By:" ) %>
+  <%=
+    select_tag(
+      :grouping,
+      options_for_select( [['Pipeline'], ['Production Centre']], params[:grouping] ),
+      { :include_blank => true }
+    )
+  %>
+  
   <%= submit_tag 'Go' %>
 <% end %>
 
 <% unless params[:commit].blank? %>
-  <%=raw @report.to_html %>
+  <div id="report">
+    <%=raw @microinjection_list.to_html %>
+  </div>
 <% end %>

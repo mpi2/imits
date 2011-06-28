@@ -15,12 +15,3 @@
     { :include_blank => true, :multiple => true }
   )
 %>
-
-<%= label_tag( :grouping, "Group Report By:" ) %>
-<%=
-  select_tag(
-    :grouping,
-    options_for_select( [['Pipeline'], ['Production Centre']], params[:grouping] ),
-    { :include_blank => true }
-  )
-%>

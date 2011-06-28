@@ -23,7 +23,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should belong_to(:clone)
       end
 
-      context 'centres' do
+      context 'centres tests:' do
         should 'exist' do
           assert_should have_db_column(:production_centre_id).with_options(:null => false)
           assert_should belong_to(:production_centre)
@@ -43,44 +43,44 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.attributes = {:distribution_centre_id => centre.id}
           assert_not_equal centre.id, default_mi_attempt.distribution_centre_id
         end
-      end
 
-      should 'validate presence of production_centre' do
-        mi = MiAttempt.new
-        mi.valid?
-        assert_false mi.errors[:production_centre].blank?
-      end
+        should 'validate presence of production_centre' do
+          mi = MiAttempt.new
+          mi.valid?
+          assert_false mi.errors[:production_centre].blank?
+        end
 
-      should 'default distribution_centre to production_centre' do
-        centre = Factory.create :centre
-        mi = Factory.create :mi_attempt, :production_centre => centre
-        assert_equal centre.name, mi.distribution_centre.name
-      end
+        should 'default distribution_centre to production_centre' do
+          centre = Factory.create :centre
+          mi = Factory.create :mi_attempt, :production_centre => centre
+          assert_equal centre.name, mi.distribution_centre.name
+        end
 
-      should 'not overwrite distribution_centre with production_centre if former has already been set' do
-        centre1 = Factory.create :centre
-        centre2 = Factory.create :centre
-        mi = Factory.create :mi_attempt, :production_centre => centre1, :distribution_centre => centre2
-        assert_equal centre2.name, mi.distribution_centre.name
-      end
+        should 'not overwrite distribution_centre with production_centre if former has already been set' do
+          centre1 = Factory.create :centre
+          centre2 = Factory.create :centre
+          mi = Factory.create :mi_attempt, :production_centre => centre1, :distribution_centre => centre2
+          assert_equal centre2.name, mi.distribution_centre.name
+        end
 
-      should 'allow access to production centre via its name' do
-        centre = Factory.create :centre, :name => 'NONEXISTENT'
-        default_mi_attempt.update_attributes(:production_centre_name => 'NONEXISTENT')
-        assert_equal 'NONEXISTENT', default_mi_attempt.production_centre.name
-      end
+        should 'allow access to production centre via its name' do
+          centre = Factory.create :centre, :name => 'NONEXISTENT'
+          default_mi_attempt.update_attributes(:production_centre_name => 'NONEXISTENT')
+          assert_equal 'NONEXISTENT', default_mi_attempt.production_centre.name
+        end
 
-      should 'allow access to distribution centre via its name' do
-        centre = Factory.create :centre, :name => 'NONEXISTENT'
-        default_mi_attempt.update_attributes(:distribution_centre_name => 'NONEXISTENT')
-        assert_equal 'NONEXISTENT', default_mi_attempt.distribution_centre.name
-      end
+        should 'allow access to distribution centre via its name' do
+          centre = Factory.create :centre, :name => 'NONEXISTENT'
+          default_mi_attempt.update_attributes(:distribution_centre_name => 'NONEXISTENT')
+          assert_equal 'NONEXISTENT', default_mi_attempt.distribution_centre.name
+        end
 
-      should 'output *_centre_name fields in serialization' do
-        default_mi_attempt.update_attributes(:distribution_centre_name => 'ICS')
-        data = JSON.parse(default_mi_attempt.to_json)
-        assert_equal ['ICS', 'WTSI'],
-                data.values_at('distribution_centre_name', 'production_centre_name')
+        should 'output *_centre_name fields in serialization' do
+          default_mi_attempt.update_attributes(:distribution_centre_name => 'ICS')
+          data = JSON.parse(default_mi_attempt.to_json)
+          assert_equal ['ICS', 'WTSI'],
+                  data.values_at('distribution_centre_name', 'production_centre_name')
+        end
       end
 
       context '#mi_attempt_status' do

@@ -37,7 +37,8 @@ class MiAttempt < ActiveRecord::Base
   }.freeze
 
   PRIVATE_ATTRIBUTES = [
-    :created_at, :updated_at, :updated_by, :clone, :mi_attempt_status
+    :created_at, :updated_at, :updated_by, :clone, :mi_attempt_status,
+    :production_centre_id, :distribution_centre_id
   ]
 
   attr_protected *PRIVATE_ATTRIBUTES
@@ -80,6 +81,8 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :production_centre, :class_name => 'Centre'
   validates :production_centre, :presence => true
   belongs_to :distribution_centre, :class_name => 'Centre'
+  access_association_by_attribute :production_centre, :name
+  access_association_by_attribute :distribution_centre, :name
 
   belongs_to :updated_by, :class_name => 'User'
 
@@ -285,7 +288,8 @@ class MiAttempt < ActiveRecord::Base
     options.symbolize_keys!
     options[:methods] ||= [
       :qc, :clone_name, :emma_status,
-      :blast_strain_name, :colony_background_strain_name, :test_cross_strain_name
+      :blast_strain_name, :colony_background_strain_name, :test_cross_strain_name,
+      :distribution_centre_name, :production_centre_name
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
       :blast_strain_id, :colony_background_strain_id, :test_cross_strain_id

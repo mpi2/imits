@@ -23,12 +23,26 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should belong_to(:clone)
       end
 
-      should 'have centres' do
-        assert_should have_db_column(:production_centre_id).with_options(:null => false)
-        assert_should belong_to(:production_centre)
+      context 'centres' do
+        should 'exist' do
+          assert_should have_db_column(:production_centre_id).with_options(:null => false)
+          assert_should belong_to(:production_centre)
 
-        assert_should have_db_column(:distribution_centre_id)
-        assert_should belong_to(:distribution_centre)
+          assert_should have_db_column(:distribution_centre_id)
+          assert_should belong_to(:distribution_centre)
+        end
+
+        should 'not allow mass assignment of production_centre_id' do
+          centre = Factory.create :centre, :name => 'NONEXISTENT'
+          default_mi_attempt.attributes = {:production_centre_id => centre.id}
+          assert_not_equal centre.id, default_mi_attempt.production_centre.id
+        end
+
+        should 'not allow mass assignment of distribution_centre_id' do
+          centre = Factory.create :centre, :name => 'NONEXISTENT'
+          default_mi_attempt.attributes = {:distribution_centre_id => centre.id}
+          assert_not_equal centre.id, default_mi_attempt.distribution_centre_id
+        end
       end
 
       should 'validate presence of production_centre' do
@@ -48,6 +62,25 @@ class MiAttemptTest < ActiveSupport::TestCase
         centre2 = Factory.create :centre
         mi = Factory.create :mi_attempt, :production_centre => centre1, :distribution_centre => centre2
         assert_equal centre2.name, mi.distribution_centre.name
+      end
+
+      should 'allow access to production centre via its name' do
+        centre = Factory.create :centre, :name => 'NONEXISTENT'
+        default_mi_attempt.update_attributes(:production_centre_name => 'NONEXISTENT')
+        assert_equal 'NONEXISTENT', default_mi_attempt.production_centre.name
+      end
+
+      should 'allow access to distribution centre via its name' do
+        centre = Factory.create :centre, :name => 'NONEXISTENT'
+        default_mi_attempt.update_attributes(:distribution_centre_name => 'NONEXISTENT')
+        assert_equal 'NONEXISTENT', default_mi_attempt.distribution_centre.name
+      end
+
+      should 'output *_centre_name fields in serialization' do
+        default_mi_attempt.update_attributes(:distribution_centre_name => 'ICS')
+        data = JSON.parse(default_mi_attempt.to_json)
+        assert_equal ['ICS', 'WTSI'],
+                data.values_at('distribution_centre_name', 'production_centre_name')
       end
 
       context '#mi_attempt_status' do

@@ -85,7 +85,7 @@ Factory.define :clone_EPD0127_4_E01, :parent => :clone_EPD0127_4_E01_without_mi_
       :colony_name => nil,
       :distribution_centre => Centre.find_by_name!('ICS'),
       :production_centre => Centre.find_by_name!('ICS'),
-      :emma_status => :unsuitable_sticky)
+      :emma_status => 'unsuitable_sticky')
 
     Factory.create(:mi_attempt,
       :clone => clone,

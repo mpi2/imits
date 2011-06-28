@@ -232,28 +232,28 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context '#emma_status' do
         context 'on read' do
-          should 'be :suitable if is_suitable_for_emma=true and is_emma_sticky=false' do
+          should 'be suitable if is_suitable_for_emma=true and is_emma_sticky=false' do
             default_mi_attempt.is_suitable_for_emma = true
             default_mi_attempt.is_emma_sticky = false
-            assert_equal :suitable, default_mi_attempt.emma_status
+            assert_equal 'suitable', default_mi_attempt.emma_status
           end
 
-          should 'be :unsuitable if is_suitable_for_emma=false and is_emma_sticky=false' do
+          should 'be unsuitable if is_suitable_for_emma=false and is_emma_sticky=false' do
             default_mi_attempt.is_suitable_for_emma = false
             default_mi_attempt.is_emma_sticky = false
-            assert_equal :unsuitable, default_mi_attempt.emma_status
+            assert_equal 'unsuitable', default_mi_attempt.emma_status
           end
 
-          should 'be :suitable_sticky if is_suitable_for_emma=true and is_emma_sticky=true' do
+          should 'be suitable_sticky if is_suitable_for_emma=true and is_emma_sticky=true' do
             default_mi_attempt.is_suitable_for_emma = true
             default_mi_attempt.is_emma_sticky = true
-            assert_equal :suitable_sticky, default_mi_attempt.emma_status
+            assert_equal 'suitable_sticky', default_mi_attempt.emma_status
           end
 
-          should 'be :unsuitable_sticky if is_suitable_for_emma=false and is_emma_sticky=true' do
+          should 'be unsuitable_sticky if is_suitable_for_emma=false and is_emma_sticky=true' do
             default_mi_attempt.is_suitable_for_emma = false
             default_mi_attempt.is_emma_sticky = true
-            assert_equal :unsuitable_sticky, default_mi_attempt.emma_status
+            assert_equal 'unsuitable_sticky', default_mi_attempt.emma_status
           end
         end
 
@@ -272,14 +272,14 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal [false, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
           end
 
-          should 'work for :suitable_sticky' do
+          should 'work for suitable_sticky' do
             default_mi_attempt.emma_status = 'suitable_sticky'
             default_mi_attempt.save!
             default_mi_attempt.reload
             assert_equal [true, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
           end
 
-          should 'work for :unsuitable_sticky' do
+          should 'work for unsuitable_sticky' do
             default_mi_attempt.emma_status = 'unsuitable_sticky'
             default_mi_attempt.save!
             default_mi_attempt.reload
@@ -298,12 +298,12 @@ class MiAttemptTest < ActiveSupport::TestCase
             default_mi_attempt.reload
 
             assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-            assert_equal :unsuitable_sticky, default_mi_attempt.emma_status
+            assert_equal 'unsuitable_sticky', default_mi_attempt.emma_status
           end
         end
 
         should 'be in serialized output' do
-          default_mi_attempt.emma_status = :suitable_sticky
+          default_mi_attempt.emma_status = 'suitable_sticky'
           data = JSON.parse(default_mi_attempt.to_json)
           assert_equal 'suitable_sticky', data['emma_status']
         end
@@ -742,7 +742,11 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'process default options in #as_json just like #to_json' do
-      assert_equal JSON.parse(default_mi_attempt.to_json), default_mi_attempt.as_json.stringify_keys
+      expected = JSON.parse(default_mi_attempt.to_json)
+      got = default_mi_attempt.as_json.stringify_keys
+
+      assert_equal expected, got, "diff: #{expected.diff(got)}"
     end
+
   end
 end

@@ -35,7 +35,7 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
         find('.x-editor .x-form-trigger').click # The combo box down arrow
         find('.x-combo-list-item:nth-child(4)').click # 'Unsuitable for EMMA - STICKY'
       end
-      assert_equal :unsuitable_sticky, @default_mi_attempt.emma_status
+      assert_equal 'unsuitable_sticky', @default_mi_attempt.emma_status
     end
 
     should 'audit MiAttempt when simple numeric field changes' do

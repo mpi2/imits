@@ -6,10 +6,10 @@ class MiAttempt < ActiveRecord::Base
   extend AccessAssociationByAttribute
 
   EMMA_OPTIONS = {
-    :unsuitable => 'Unsuitable for EMMA',
-    :suitable => 'Suitable for EMMA',
-    :suitable_sticky => 'Suitable for EMMA - STICKY',
-    :unsuitable_sticky => 'Unsuitable for EMMA - STICKY',
+    'unsuitable' => 'Unsuitable for EMMA',
+    'suitable' => 'Suitable for EMMA',
+    'suitable_sticky' => 'Suitable for EMMA - STICKY',
+    'unsuitable_sticky' => 'Unsuitable for EMMA - STICKY',
   }.freeze
 
   QC_FIELDS = [
@@ -136,29 +136,29 @@ class MiAttempt < ActiveRecord::Base
 
   def emma_status
     if is_suitable_for_emma?
-      if is_emma_sticky? then return :suitable_sticky else return :suitable end
+      if is_emma_sticky? then return 'suitable_sticky' else return 'suitable' end
     else
-      if is_emma_sticky? then return :unsuitable_sticky else return :unsuitable end
+      if is_emma_sticky? then return 'unsuitable_sticky' else return 'unsuitable' end
     end
   end
 
   class EmmaStatusError < RuntimeError; end
 
   def emma_status=(status)
-    case status.to_sym
-    when :suitable then
+    case status.to_s
+    when 'suitable' then
       self.is_suitable_for_emma = true
       self.is_emma_sticky = false
 
-    when :unsuitable then
+    when 'unsuitable' then
       self.is_suitable_for_emma = false
       self.is_emma_sticky = false
 
-    when :suitable_sticky then
+    when 'suitable_sticky' then
       self.is_suitable_for_emma = true
       self.is_emma_sticky = true
 
-    when :unsuitable_sticky then
+    when 'unsuitable_sticky' then
       self.is_suitable_for_emma = false
       self.is_emma_sticky = true
 

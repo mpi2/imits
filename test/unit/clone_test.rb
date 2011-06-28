@@ -48,7 +48,9 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
-    should have_db_column :allele_type
+    should 'have allele_type' do
+      assert_should have_db_column :allele_type
+    end
 
     context '#allele_name_superscript' do
       should 'work when allele_type is present' do

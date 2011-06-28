@@ -9,6 +9,9 @@ class SampleData
       user = Factory.create(:user, :email => 'test@example.com')
     end
 
+    Pipeline.find_or_create_by_name('EUCOMM')
+    Pipeline.find_or_create_by_name('KOMP')
+
     Centre.find_or_create_by_name('WTSI')
     Centre.find_or_create_by_name('ICS')
 

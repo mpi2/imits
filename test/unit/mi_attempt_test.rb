@@ -173,6 +173,11 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.mouse_allele_type = 'e'
           assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_name_superscript
         end
+
+        should 'be output in serialization' do
+          default_mi_attempt.mouse_allele_type = 'e'
+          assert_equal 'tm1e(EUCOMM)Wtsi', default_mi_attempt.as_json['mouse_allele_name_superscript']
+        end
       end
 
       context '#mouse_allele_name' do

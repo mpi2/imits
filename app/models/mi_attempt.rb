@@ -291,7 +291,8 @@ class MiAttempt < ActiveRecord::Base
     options[:methods] ||= [
       'qc', 'clone_name', 'emma_status', 'status',
       'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
-      'distribution_centre_name', 'production_centre_name'
+      'distribution_centre_name', 'production_centre_name',
+      'mouse_allele_name_superscript'
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
       'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id'

@@ -285,6 +285,24 @@ form.mi-attempt span.error-message {
 
 /* @group Reports */
 
+div.report_control {
+	display: inline-block;
+	border: 1px solid #929292;
+	background-color: #f6fdff;
+	margin: 5px;
+	padding: 5px;
+}
+
+div.report_control * {
+	vertical-align: top;
+}
+
+#report {
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid #929292;
+}
+
 #report p {
 	font-weight: bold;
 	font-size: larger;

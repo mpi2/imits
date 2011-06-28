@@ -48,7 +48,7 @@ require 'capybara/dsl'
 Capybara.default_driver = :selenium
 
 class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
-  include Capybara
+  include Capybara::DSL
 
   def database_strategy; :deletion; end
 

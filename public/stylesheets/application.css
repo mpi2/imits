@@ -82,10 +82,10 @@ div#mainnav a {
     width: auto;
     padding: 0 1em;
     border: 1px solid white;
-    border-top-left-radius: 15px 30px;
-    border-top-right-radius: 15px 30px;
-    -moz-border-radius-topleft: 15px 30px;
-    -moz-border-radius-topright: 15px 30px;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    -moz-border-radius-topleft: 15px;
+    -moz-border-radius-topright: 15px;
 }
 
 div#mainnav a.current {
@@ -162,7 +162,7 @@ div#messages {
 }
 
 #sample-data-warning {
-    font-size: 3em;
+    font-size: 2em;
     background-color: red;
     color: white;
     line-height: 1em;
@@ -283,56 +283,6 @@ form.mi-attempt span.error-message {
     color: white;
 }
 
-/* @group Tables */
-
-caption {
-	padding: 0 0 5px 0;
-	font-style: italic;
-}
-
-th {
-	border: 1px solid #999;
-	text-align: left;
-	padding: 3px 3px;
-	background-color: #ccc;
-}
-
-td {
-	border: 1px solid #999;
-	padding: 3px 3px;
-}
-
-tr.odd td {
-	background: #f1f1f1;
-}
-
-.nobg, .nobg th, .nobg td {
-	background: none !important;
-}
-
-.noborder, .noborder th, .noborder td, td.noborder {
-	border: none !important;
-}
-
-.nopadding th, .nopadding td {
-	padding-top: 2px;
-	padding-bottom: 2px;
-}
-
-.border, .border th, .border td, td.border {
-	border: 1px solid #999 !important;
-}
-
-.bg tr.odd {
-	background: #f1f1f1 !important;
-}
-
-.padding th, .padding td {
-	padding: 3px 3px !important;
-}
-
-/* @end */
-
 /* @group Reports */
 
 #report p {
@@ -341,5 +291,21 @@ tr.odd td {
 	margin-bottom: 5px;
 	margin-top: 5px;
 } 
+
+#report table th {
+	border: 1px solid #999;
+	text-align: left;
+	padding: 3px 3px;
+	background-color: #ccc;
+}
+
+#report table td {
+	border: 1px solid #999;
+	padding: 3px 3px;
+}
+
+#report table tr.odd td {
+	background: #f1f1f1;
+}
 
 /* @end */

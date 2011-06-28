@@ -37,8 +37,10 @@ class MiAttempt < ActiveRecord::Base
   }.freeze
 
   PRIVATE_ATTRIBUTES = [
-    :created_at, :updated_at, :updated_by, :clone, :mi_attempt_status,
-    :production_centre_id, :distribution_centre_id
+    'created_at', 'updated_at', 'updated_by', 'updated_by_id',
+    'clone', 'clone_id',
+    'mi_attempt_status', 'mi_attempt_status_id',
+    'production_centre_id', 'distribution_centre_id'
   ]
 
   attr_protected *PRIVATE_ATTRIBUTES
@@ -287,12 +289,12 @@ class MiAttempt < ActiveRecord::Base
     options ||= {}
     options.symbolize_keys!
     options[:methods] ||= [
-      :qc, :clone_name, :emma_status,
-      :blast_strain_name, :colony_background_strain_name, :test_cross_strain_name,
-      :distribution_centre_name, :production_centre_name
+      'qc', 'clone_name', 'emma_status', 'status',
+      'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
+      'distribution_centre_name', 'production_centre_name'
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
-      :blast_strain_id, :colony_background_strain_id, :test_cross_strain_id
+      'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id'
     ]
     return options
   end

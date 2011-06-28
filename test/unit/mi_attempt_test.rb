@@ -106,14 +106,17 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal 'Genotype confirmed', local_mi_attempt.mi_attempt_status.description
         end
 
-        should 'not be mass-assignable' do
-          default_mi_attempt.attributes = {:mi_attempt_status => MiAttemptStatus.genotype_confirmed}
+        should 'not be mass-assignable by id' do
+          default_mi_attempt.attributes = {
+            :mi_attempt_status    => MiAttemptStatus.genotype_confirmed,
+            :mi_attempt_status_id => MiAttemptStatus.genotype_confirmed
+          }
           assert_not_equal MiAttemptStatus.genotype_confirmed, default_mi_attempt.mi_attempt_status
         end
 
-        should 'not be exposed to serialization' do
+        should 'not expose id to serialization' do
           data = JSON.parse(default_mi_attempt.to_json)
-          assert_false data.has_key?('mi_attempt_status')
+          assert_false data.has_key?('mi_attempt_status_id')
         end
       end
 
@@ -128,6 +131,10 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'be nil when actual status association is nil' do
           default_mi_attempt.mi_attempt_status = nil
           assert_nil default_mi_attempt.status
+        end
+
+        should 'be in serialization' do
+          assert_equal default_mi_attempt.status, default_mi_attempt.as_json['status']
         end
       end
 
@@ -648,7 +655,8 @@ class MiAttemptTest < ActiveSupport::TestCase
     context 'private attributes' do
       setup do
         @protected_attributes = [
-          'created_at', 'updated_at', 'updated_by', 'clone', 'mi_attempt_status'
+          'created_at', 'updated_at', 'updated_by', 'updated_by_id',
+          'clone', 'clone_id'
         ].sort
       end
 

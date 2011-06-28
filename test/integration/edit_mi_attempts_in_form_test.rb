@@ -58,7 +58,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert_equal 'editing@example.com', @mi_attempt.updated_by.email
 
       assert_match /\/mi_attempts\/#{@mi_attempt.id}$/, current_url
-      assert page.has_content? @mi_attempt.colony_name
+      assert_equal @mi_attempt.colony_name, page.find('input[name="mi_attempt[colony_name]"]').value
     end
 
     should 'handle validation errors' do

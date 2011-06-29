@@ -32,22 +32,22 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_should belong_to(:distribution_centre)
         end
 
-        should 'not allow mass assignment of production_centre_id' do
-          centre = Factory.create :centre, :name => 'NONEXISTENT'
-          default_mi_attempt.attributes = {:production_centre_id => centre.id}
-          assert_not_equal centre.id, default_mi_attempt.production_centre.id
-        end
-
-        should 'not allow mass assignment of distribution_centre_id' do
-          centre = Factory.create :centre, :name => 'NONEXISTENT'
-          default_mi_attempt.attributes = {:distribution_centre_id => centre.id}
-          assert_not_equal centre.id, default_mi_attempt.distribution_centre_id
+        should 'not output ids in serialization' do
+          data = default_mi_attempt.as_json
+          assert_equal [false, false],
+                  [data.keys.include?('production_centre_id'), data.keys.include?('distribution_centre_id')]
         end
 
         should 'validate presence of production_centre' do
           mi = MiAttempt.new
           mi.valid?
           assert_false mi.errors[:production_centre].blank?
+        end
+
+        should 'not validate presence of production_centre if production_centre_name is set' do
+          mi = MiAttempt.new :production_centre_name => 'NONEXISTENT'
+          assert_false mi.valid?
+          assert_blank mi.errors[:production_centre]
         end
 
         should 'default distribution_centre to production_centre' do

@@ -39,8 +39,7 @@ class MiAttempt < ActiveRecord::Base
   PRIVATE_ATTRIBUTES = [
     'created_at', 'updated_at', 'updated_by', 'updated_by_id',
     'clone', 'clone_id',
-    'mi_attempt_status', 'mi_attempt_status_id',
-    'production_centre_id', 'distribution_centre_id'
+    'mi_attempt_status', 'mi_attempt_status_id'
   ]
 
   attr_protected *PRIVATE_ATTRIBUTES
@@ -81,7 +80,7 @@ class MiAttempt < ActiveRecord::Base
   validates :colony_name, :uniqueness => true, :allow_nil => true
 
   belongs_to :production_centre, :class_name => 'Centre'
-  validates :production_centre, :presence => true
+  validates :production_centre, :presence => {:if => proc {|record| record.production_centre_name.blank?} }
   belongs_to :distribution_centre, :class_name => 'Centre'
   access_association_by_attribute :production_centre, :name
   access_association_by_attribute :distribution_centre, :name
@@ -103,9 +102,9 @@ class MiAttempt < ActiveRecord::Base
     belongs_to qc_field, :class_name => 'QcResult'
   end
 
+  before_validation :set_blank_strings_to_nil
   before_validation :set_default_status
   before_validation :set_total_chimeras
-  before_validation :set_blank_strings_to_nil
   before_validation :set_clone_from_clone_name
   before_validation :set_default_distribution_centre
 
@@ -295,7 +294,8 @@ class MiAttempt < ActiveRecord::Base
       'mouse_allele_name_superscript'
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
-      'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id'
+      'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
+      'production_centre_id', 'distribution_centre_id'
     ]
     return options
   end

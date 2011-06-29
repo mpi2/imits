@@ -20,10 +20,6 @@
       </div>
     </fieldset>
 
-    <%= render 'form_contents', :form => form %>
-
-    <div>
-      <%= form.submit 'Update' %>
-    </div>
+    <%= render 'form_contents', :form => form, :submit_text => 'Update' %>
 <% end %>
 </div>

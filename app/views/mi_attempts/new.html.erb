@@ -21,11 +21,7 @@
 
     <div id="rest-of-form">
       <div><%= form.hidden_field 'clone_name' %></div>
-      <%= render 'form_contents', :form => form %>
-
-      <div>
-        <%= form.submit 'Create' %>
-      </div>
+      <%= render 'form_contents', :form => form, :submit_text => 'Create' %>
     </div>
   <% end %>
 </div>

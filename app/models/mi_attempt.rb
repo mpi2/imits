@@ -109,6 +109,7 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_default_distribution_centre
 
   before_save :save_qc_fields
+  before_save :generate_colony_name_if_blank
 
   protected
 
@@ -136,6 +137,16 @@ class MiAttempt < ActiveRecord::Base
 
   def set_default_distribution_centre
     self.distribution_centre ||= self.production_centre
+  end
+
+  def generate_colony_name_if_blank
+    return unless self.colony_name.blank?
+
+    i = 0
+    begin
+      i += 1
+      self.colony_name = "#{self.production_centre_name}-#{self.clone_name}-#{i}"
+    end until self.class.find_by_colony_name(self.colony_name).blank?
   end
 
   public

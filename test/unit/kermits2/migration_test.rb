@@ -125,7 +125,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         assert_equal 175, mi_11785.total_f1_mice_from_matings
         assert_equal 16, mi_11785.number_of_cct_offspring
         assert_equal 28, mi_11785.number_of_het_offspring
-        assert_equal 22, mi_11785.number_of_live_glt_offspring
+        assert_equal 21, mi_11785.number_of_live_glt_offspring
       end
 
       def migrate_mi(mi_id)

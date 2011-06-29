@@ -384,19 +384,40 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should have_db_column(:is_released_from_genotyping).of_type(:boolean).with_options(:default => false, :null => false)
       end
 
-      context 'colony_name' do
+      context '#colony_name' do
         should 'be unique' do
           default_mi_attempt.update_attributes(:colony_name => 'ABCD')
           assert_should have_db_index(:colony_name).unique(true)
           assert_should validate_uniqueness_of :colony_name
         end
 
-        should 'allow nils' do
-          default_mi_attempt.update_attributes(:colony_name => nil)
-          another_mi_attempt = Factory.build :mi_attempt, :colony_name => nil
-          assert_nil another_mi_attempt.colony_name
-          another_mi_attempt.valid?
-          assert_blank another_mi_attempt.errors[:colony_name]
+        should 'be auto-generated if not supplied' do
+          Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+          attributes = {
+            :clone => Clone.find_by_clone_name!('EPD0127_4_E01'),
+            :production_centre_name => 'ICS',
+            :colony_name => nil
+          }
+         mi_attempts = (1..3).to_a.map { Factory.create :mi_attempt, attributes }
+          mi_attempt_last = Factory.create :mi_attempt, attributes.merge(:colony_name => 'MABC')
+
+          assert_equal ['ICS-EPD0127_4_E01-1', 'ICS-EPD0127_4_E01-2', 'ICS-EPD0127_4_E01-3'],
+                  mi_attempts.map(&:colony_name)
+          assert_equal 'MABC', mi_attempt_last.colony_name
+        end
+
+        should 'not be auto-generated if clone was not assigned or found' do
+          mi_attempt = Factory.build :mi_attempt, :clone => nil,
+                  :colony_name => nil
+          assert_false mi_attempt.save
+          assert_nil mi_attempt.colony_name
+        end
+
+        should 'not be auto-generated if production centre was not assigned' do
+          mi_attempt = Factory.build :mi_attempt, :production_centre => nil,
+                  :colony_name => nil
+          assert_false mi_attempt.save
+          assert_nil mi_attempt.colony_name
         end
       end
 
@@ -424,13 +445,11 @@ class MiAttemptTest < ActiveSupport::TestCase
       context 'set_blank_strings_to_nil' do
         should 'work' do
           default_mi_attempt.total_male_chimeras = 1
-          default_mi_attempt.colony_name = ''
           default_mi_attempt.mouse_allele_type = ' '
           default_mi_attempt.is_active = false
           default_mi_attempt.save!
           default_mi_attempt.reload
           assert_equal 1, default_mi_attempt.total_male_chimeras
-          assert_equal nil, default_mi_attempt.colony_name
           assert_equal nil, default_mi_attempt.mouse_allele_type
           assert_equal false, default_mi_attempt.is_active
         end
@@ -505,15 +524,15 @@ class MiAttemptTest < ActiveSupport::TestCase
       should 'work for single colony name case-insensitively' do
         results = MiAttempt.search(:search_terms => ['mbss'])
         assert_equal 1, results.size
-        @clone2.mi_attempts.each { |mi| assert_include results, mi if mi.colony_name == 'MBSS' }
+        assert_include results, MiAttempt.find_by_colony_name!('MBSS')
         assert_not_include results, @clone3.mi_attempts.first
       end
 
       should 'work for multiple colony names' do
         results = MiAttempt.search(:search_terms => ['MBSS', 'WBAA'])
         assert_equal 2, results.size
-        @clone2.mi_attempts.find_all {|mi| !mi.colony_name.blank?}.each { |mi| assert_include results, mi }
-        assert_not_include results, @clone3.mi_attempts.first
+        assert_include results, MiAttempt.find_by_colony_name!('MBSS')
+        assert_include results, MiAttempt.find_by_colony_name!('WBAA')
       end
 
       should 'work when mixing clone names, gene symbols and colony names' do

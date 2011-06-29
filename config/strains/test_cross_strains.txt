@@ -1,8 +1,11 @@
+129P2
 129P2/OlaHsd
-129S5
-B6JIco
-B6JTyr<c-Brd>
-B6N/TacDen
-C57BL/6J
+129S5/SvEvBrd/Wtsi
+C57BL/6J-Tyr<c-Brd>
+C57BL/6JIco;C57BL/6J-Tyr<c-Brd>
 C57BL/6N
-C57BL/6NTacUSA
+C57BL/6NTac
+C57BL/6NTac/Den
+C57BL/6NTac/USA
+Delete once confirmed its use
+c

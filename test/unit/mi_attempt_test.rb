@@ -7,9 +7,9 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     def default_mi_attempt
       @default_mi_attempt ||= Factory.create :mi_attempt,
-              :blast_strain_id => Strain.find_by_name('Balb/C').id,
-              :colony_background_strain_id => Strain.find_by_name('129P2/OlaHsd').id,
-              :test_cross_strain_id => Strain.find_by_name('129P2/OlaHsd').id
+              :blast_strain => Strain::BlastStrain.find_by_name('BALB/c'),
+              :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name('129P2/OlaHsd'),
+              :test_cross_strain => Strain::TestCrossStrain.find_by_name('129P2/OlaHsd')
     end
 
     context 'attribute tests:' do
@@ -202,7 +202,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       context 'strain tests:' do
         should 'have a blast strain' do
           assert_equal Strain::BlastStrain, default_mi_attempt.blast_strain.class
-          assert_equal 'Balb/C', default_mi_attempt.blast_strain.name
+          assert_equal 'BALB/c', default_mi_attempt.blast_strain.name
         end
 
         should 'have a colony background strain' do
@@ -254,7 +254,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'expose *_strain_name virtual methods to JSON API' do
           data = JSON.parse(default_mi_attempt.to_json)
-          assert_equal ['Balb/C', '129P2/OlaHsd', '129P2/OlaHsd'],
+          assert_equal ['BALB/c', '129P2/OlaHsd', '129P2/OlaHsd'],
                   data.values_at('blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name')
         end
 
@@ -267,7 +267,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'expose *_strain_name virtual methods to XML API' do
           doc = Nokogiri::XML(default_mi_attempt.to_xml)
-          assert_equal ['Balb/C', '129P2/OlaHsd', '129P2/OlaHsd'],
+          assert_equal ['BALB/c', '129P2/OlaHsd', '129P2/OlaHsd'],
                   [doc.css('blast-strain-name').text, doc.css('colony-background-strain-name').text, doc.css('test-cross-strain-name').text]
         end
       end

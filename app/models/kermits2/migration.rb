@@ -157,18 +157,23 @@ class Kermits2::Migration
         mi_attempt.updated_by = User.find_by_email(Old::User.find_by_user_name(latest_object.edited_by).email)
       end
 
+      if old_mi_attempt.mi_attempt_status.name == 'Genotype Confirmed'
+        mi_attempt.mi_attempt_status = MiAttemptStatus.genotype_confirmed
+      end
+
+      # Transfer details (cont)
+      mi_attempt.blast_strain_name = old_mi_attempt.blast_strain unless old_mi_attempt.blast_strain.blank?
+
       # Chimera mating details (cont)
+      mi_attempt.test_cross_strain_name = old_mi_attempt.test_cross_strain unless old_mi_attempt.test_cross_strain.blank?
+      mi_attempt.colony_background_strain_name = old_mi_attempt.back_cross_strain unless old_mi_attempt.back_cross_strain.blank?
+
       if ! old_mi_attempt.mouse_allele_name.blank?
         md = /\A[A-Za-z0-9]+<sup>tm\d([a-e])?\(\w+\)\w+<\/sup>\Z/.match(old_mi_attempt.mouse_allele_name)
         if ! md
           raise "Bad mouse allele name for #{old_mi_attempt.clone_name}: #{old_mi_attempt.mouse_allele_name}"
         end
         mi_attempt.mouse_allele_type = md[1]
-      end
-
-      # Important details (cont)
-      if old_mi_attempt.mi_attempt_status.name == 'Genotype Confirmed'
-        mi_attempt.mi_attempt_status = MiAttemptStatus.genotype_confirmed
       end
 
       # QC fields (cont)

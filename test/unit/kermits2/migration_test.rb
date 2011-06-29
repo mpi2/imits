@@ -139,6 +139,24 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         MiAttempt.first
       end
 
+      should 'migrate blast strain' do
+        assert_equal 'BALB/cAnNCrl', migrate_mi(6482).blast_strain_name
+      end
+
+      should 'migrate test cross strain' do
+        assert_equal 'C57BL/6NTac', migrate_mi(11794).test_cross_strain_name
+      end
+
+      should 'migrate colony background strain' do
+        assert_equal 'C57BL/6NTac', migrate_mi(6482).colony_background_strain_name
+      end
+
+      should 'migrate MI with blank strain names' do
+        mi = migrate_mi(7579)
+        assert_equal [nil, nil, nil],
+                [mi.blast_strain_name, mi.test_cross_strain_name, mi.colony_background_strain_name]
+      end
+
       should 'migrate colony name' do
         assert_equal 'MAJV', migrate_mi(5268).colony_name
       end

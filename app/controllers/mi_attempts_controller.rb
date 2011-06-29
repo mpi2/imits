@@ -62,13 +62,13 @@ class MiAttemptsController < ApplicationController
     @mi_attempt.updated_by = current_user
 
     if @mi_attempt.save
-      flash[:notice] = 'MI attempt updated successfully'
+      flash.now[:notice] = 'MI attempt updated successfully'
     end
 
     respond_with @mi_attempt do |format|
       format.html do
         if ! @mi_attempt.valid?
-          flash[:alert] = 'Micro-injection could not be updated - please check the values you entered'
+          flash.now[:alert] = 'Micro-injection could not be updated - please check the values you entered'
         end
         @centres = Centre.all
         render :action => :show

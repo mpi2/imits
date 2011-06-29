@@ -32,6 +32,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'number_of_cct_offspring',
     'number_of_het_offspring',
     'number_of_live_glt_offspring',
+    'mouse_allele_type',
     'mouse_allele_name'
     ],
     'qc_details': [

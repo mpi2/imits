@@ -69,7 +69,7 @@ class Clone < ActiveRecord::Base
     { :name => 'dcc' }
   )
 
-  def self.get_clones_from_mart_by_clone_names(clone_names)
+  def self.get_clones_from_marts_by_clone_names(clone_names)
     raise ArgumentError, 'Need array of clones please' unless clone_names.kind_of?(Array)
     return DCC_DATASET.search(
       :filters => {},
@@ -94,19 +94,25 @@ class Clone < ActiveRecord::Base
   end
 
   def self.create_clone_from_mart_data(mart_data)
-    pipeline = Pipeline.find_or_create_by_name(mart_data['pipeline'])
+    clone = self.new
+    clone.assign_attributes_from_mart_data(mart_data)
+    clone.save!
+    return clone
+  end
 
-    return Clone.create!(
+  def assign_attributes_from_mart_data(mart_data)
+    pipeline = Pipeline.find_or_create_by_name(mart_data['pipeline'])
+    self.attributes = {
       :clone_name => mart_data['escell_clone'],
       :marker_symbol => mart_data['marker_symbol'],
       :allele_name_superscript => mart_data['allele_symbol_superscript'],
       :pipeline => pipeline,
       :mgi_accession_id => mart_data['mgi_accession_id']
-    )
+    }
   end
 
   def self.create_all_from_marts_by_clone_names(clone_names)
-    result = get_clones_from_mart_by_clone_names(clone_names.to_a)
+    result = get_clones_from_marts_by_clone_names(clone_names.to_a)
 
     return result.map do |mart_data|
       begin
@@ -119,13 +125,13 @@ class Clone < ActiveRecord::Base
     end
   end
 
-  def self.find_or_create_from_mart_by_clone_name(clone_name)
+  def self.find_or_create_from_marts_by_clone_name(clone_name)
     clone = self.find_by_clone_name(clone_name)
     return clone if(clone)
 
     return nil if clone_name.blank?
 
-    result = get_clones_from_mart_by_clone_names([clone_name])
+    result = get_clones_from_marts_by_clone_names([clone_name])
     if(result.empty?)
       return nil
     else
@@ -133,7 +139,7 @@ class Clone < ActiveRecord::Base
     end
   end
 
-  def self.get_clones_from_mart_by_marker_symbol(marker_symbol)
+  def self.get_clones_from_marts_by_marker_symbol(marker_symbol)
     return nil if marker_symbol.blank?
     return IDCC_TARG_REP_DATASET.search(
       :filters => {},
@@ -156,6 +162,17 @@ class Clone < ActiveRecord::Base
         }
       ]
     ).sort_by {|i| i['escell_clone']}
+  end
+
+  def self.sync_all_with_marts
+    all_clones = Clone.all
+    all_clones_data = get_clones_from_marts_by_clone_names all_clones.map(&:clone_name)
+
+    all_clones_data.each do |clone_data|
+      clone = all_clones.detect {|c| c.clone_name == clone_data['escell_clone']}
+      clone.assign_attributes_from_mart_data(clone_data)
+      clone.save!
+    end
   end
 
   # END Mart Operations

@@ -148,29 +148,29 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
-    context '::find_or_create_from_mart_by_clone_name' do
+    context '::find_or_create_from_marts_by_clone_name' do
       should 'create clone from marts if it is not in the DB' do
-        clone = Clone.find_or_create_from_mart_by_clone_name('HEPD0549_6_D02')
+        clone = Clone.find_or_create_from_marts_by_clone_name('HEPD0549_6_D02')
         assert_HEPD0549_6_D02_attributes(clone)
       end
 
       should 'return clone if it is already in the DB without hitting the marts' do
         Factory.create :clone_EPD0127_4_E01_without_mi_attempts
-        assert_equal 'EPD0127_4_E01', Clone.find_or_create_from_mart_by_clone_name('EPD0127_4_E01').clone_name
+        assert_equal 'EPD0127_4_E01', Clone.find_or_create_from_marts_by_clone_name('EPD0127_4_E01').clone_name
       end
 
       should 'return nil if it does not exist in DB or marts' do
-        assert_nil Clone.find_or_create_from_mart_by_clone_name('EPD_NONEXISTENT')
+        assert_nil Clone.find_or_create_from_marts_by_clone_name('EPD_NONEXISTENT')
       end
 
       should 'return nil if query was blank' do
-        assert_nil Clone.find_or_create_from_mart_by_clone_name('')
+        assert_nil Clone.find_or_create_from_marts_by_clone_name('')
       end
     end
 
-    context '::get_clones_from_mart_by_clone_names' do
+    context '::get_clones_from_marts_by_clone_names' do
       should 'return clones data' do
-        rows = Clone.get_clones_from_mart_by_clone_names(['EPD0127_4_E01', 'EPD0027_2_A01'])
+        rows = Clone.get_clones_from_marts_by_clone_names(['EPD0127_4_E01', 'EPD0027_2_A01'])
         assert_equal 2, rows.size
 
         expected_clone = {
@@ -189,10 +189,9 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
-    context '::get_clones_from_mart_by_marker_symbol' do
-
+    context '::get_clones_from_marts_by_marker_symbol' do
       should 'return sorted array of clone names with a valid marker symbol' do
-        result = Clone.get_clones_from_mart_by_marker_symbol('cbx7')
+        result = Clone.get_clones_from_marts_by_marker_symbol('cbx7')
         expected = %w{
           EPD0013_1_B05
           EPD0013_1_C05
@@ -223,11 +222,11 @@ class CloneTest < ActiveSupport::TestCase
       end
 
       should 'return empty array if it does not exist in DB or marts' do
-        assert_equal [], Clone.get_clones_from_mart_by_marker_symbol('Nonexistent')
+        assert_equal [], Clone.get_clones_from_marts_by_marker_symbol('Nonexistent')
       end
 
       should 'return nil if query was blank' do
-        assert_nil Clone.get_clones_from_mart_by_marker_symbol('')
+        assert_nil Clone.get_clones_from_marts_by_marker_symbol('')
       end
 
       should 'include attributes ES Cell Clone Name, Pipeline, Mutation Subtype, LoxP Screen' do
@@ -239,11 +238,39 @@ class CloneTest < ActiveSupport::TestCase
           'marker_symbol' => 'Trafd1'
         }
 
-        rows = Clone.get_clones_from_mart_by_marker_symbol('Trafd1')
+        rows = Clone.get_clones_from_marts_by_marker_symbol('Trafd1')
 
         result = rows.find {|i| i['escell_clone'] == 'EPD0127_4_E01'}
 
         assert_equal expected, result
+      end
+    end
+
+    context '::sync_all_from_marts' do
+      should 'sync all clones that have incorrect data' do
+        assert_equal 0, Clone.count
+        clone_HEPD0549_6_D02 = Factory.create :clone,
+                :clone_name => 'HEPD0549_6_D02',
+                :marker_symbol => 'IAmWrong',
+                :allele_name_superscript => 'tm1(WRONG)Wrong',
+                :pipeline => Factory.create(:pipeline, :name => 'WRONG Pipeline'),
+                :mgi_accession_id => 'MGI:WRONG'
+        clone2 = Factory.create :clone, :clone_name => 'EPD0127_4_E01'
+
+        Clone.sync_all_with_marts
+
+        clone_HEPD0549_6_D02.reload; clone2.reload
+        assert_HEPD0549_6_D02_attributes(clone_HEPD0549_6_D02)
+        assert_equal 'Trafd1', clone2.marker_symbol
+      end
+
+      should 'ignore clones that cannot be found in the marts' do
+        clone = Factory.create :clone, :clone_name => 'EPD_NONEXISTENT_1'
+
+        Clone.sync_all_with_marts
+
+        clone_copy = Clone.find_by_id!(clone.id)
+        assert_equal clone, clone_copy
       end
     end
 

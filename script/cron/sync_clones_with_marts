@@ -1,0 +1,3 @@
+#!/bin/bash
+
+exec `dirname $0`/../runner 'Clone.sync_all_with_marts'

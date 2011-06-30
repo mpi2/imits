@@ -33,6 +33,9 @@ class ReportsTest < ActionDispatch::IntegrationTest
         assert_match '/reports/microinjection_list', current_url
         assert_match 'production_centre_id', current_url
         assert page.has_css?('#report table')
+        
+        choose 'format_csv'
+        click_button 'Generate Report'
       end
       
       should 'allow users to get production summary reports' do
@@ -49,6 +52,9 @@ class ReportsTest < ActionDispatch::IntegrationTest
         assert_match '/reports/production_summary', current_url
         assert_match 'production_centre_id', current_url
         assert page.has_css?('#report table')
+        
+        choose 'format_csv'
+        click_button 'Generate Report'
       end
       
       should 'allow users to get gene summary reports' do
@@ -65,6 +71,9 @@ class ReportsTest < ActionDispatch::IntegrationTest
         assert_match '/reports/gene_summary', current_url
         assert_match 'production_centre_id', current_url
         assert page.has_css?('#report table')
+        
+        choose 'format_csv'
+        click_button 'Generate Report'
       end
     end
   end

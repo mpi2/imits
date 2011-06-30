@@ -131,7 +131,7 @@ class MiAttempt < ActiveRecord::Base
 
   def set_clone_from_clone_name
     if ! self.clone
-      self.clone = Clone.find_or_create_from_mart_by_clone_name(self.clone_name)
+      self.clone = Clone.find_or_create_from_marts_by_clone_name(self.clone_name)
     end
   end
 

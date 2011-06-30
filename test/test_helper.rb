@@ -4,6 +4,7 @@ require 'rails/test_help'
 require 'database_cleaner'
 require 'shoulda'
 require 'factory_girl_rails'
+require 'open3'
 
 class ActiveSupport::TestCase
   self.use_transactional_fixtures = false
@@ -144,6 +145,28 @@ class Kermits2::StrainsTestCase < ActiveSupport::TestCase
 
   end
 
+end
+
+class ExternalScriptTestCase < ActiveSupport::TestCase
+  def database_strategy; :deletion; end
+
+  def run_script(commands)
+    error_output = nil
+    exit_status = nil
+    output = nil
+    Open3.popen3("cd #{Rails.root}; #{commands}") do
+      |scriptin, scriptout, scripterr, wait_thr|
+      error_output = scripterr.read
+      exit_status = wait_thr.value.exitstatus
+      output = scriptout.read
+    end
+
+    sleep 3
+
+    assert_blank error_output, "Script has output to STDERR:\n#{error_output}"
+    assert_equal 0, exit_status, "Script exited with error code #{exit_status}"
+    return output
+  end
 end
 
 IN_MEMORY_MODEL_CONNECTION_PARAMS = {:adapter => 'sqlite3', :database => ':memory:', :verbosity => false}

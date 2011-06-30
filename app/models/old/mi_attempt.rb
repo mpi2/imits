@@ -164,3 +164,4 @@ end
 #  released_from_genotyping       :boolean(1)      default(FALSE), not null
 #  material_deposited             :string(20)      default("frozen_embryos"), not null
 #
+

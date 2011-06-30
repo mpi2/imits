@@ -25,3 +25,4 @@ class Strain::Base < ActiveRecord::Base
 
   end
 end
+

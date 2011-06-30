@@ -15,3 +15,4 @@ end
 #  check_number :decimal(, )
 #  created_date :datetime
 #
+

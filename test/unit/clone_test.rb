@@ -31,10 +31,6 @@ class CloneTest < ActiveSupport::TestCase
       should 'have mgi_accession_id' do
         assert_should have_db_column(:mgi_accession_id).of_type(:text).with_options(:null => true)
       end
-
-      should 'have is_in_targ_rep flag' do
-        assert_should have_db_column(:is_in_targ_rep).of_type(:boolean).with_options(:null => false, :default => false)
-      end
     end
 
     context 'allele_name_superscript_template' do
@@ -113,7 +109,6 @@ class CloneTest < ActiveSupport::TestCase
       assert_equal 'tm1a(EUCOMM)Hmgu', clone.allele_name_superscript
       assert_equal 'EUCOMM', clone.pipeline.name
       assert_equal 'MGI:1924893', clone.mgi_accession_id
-      assert_equal true, clone.is_in_targ_rep?
     end
 
     context '::create_all_from_marts_by_clone_names' do
@@ -249,54 +244,6 @@ class CloneTest < ActiveSupport::TestCase
         result = rows.find {|i| i['escell_clone'] == 'EPD0127_4_E01'}
 
         assert_equal expected, result
-      end
-    end
-
-    context 'scope all_in_targ_rep' do
-      should 'exist' do
-        assert_equal 0, Clone.count
-        clones_in_targ_rep = []
-        5.times { clones_in_targ_rep << Factory.create(:clone, :is_in_targ_rep => true) }
-        clones_not_in_targ_rep = []
-        3.times { clones_not_in_targ_rep << Factory.create(:clone, :is_in_targ_rep => false) }
-
-        result = Clone.all_in_targ_rep
-        assert_equal 5, result.count
-        assert_equal clones_in_targ_rep.sort_by(&:id), result.sort_by(&:id)
-      end
-
-      should 'sort by clone_name' do
-        Factory.create(:clone, :clone_name => 'EPD002')
-        Factory.create(:clone, :clone_name => 'EPD003')
-        Factory.create(:clone, :clone_name => 'EPD001')
-
-        assert_equal ['EPD001', 'EPD002', 'EPD003'], Clone.all_in_targ_rep.map(&:clone_name)
-      end
-    end
-
-    context '::all_partitioned_by_marker_symbol' do
-      should 'work' do
-        Factory.create(:clone, :id => 1, :clone_name => 'EPD015', :marker_symbol => 'Cbx1')
-        Factory.create(:clone, :id => 2, :clone_name => 'EPD002', :marker_symbol => 'Cbx1')
-        Factory.create(:clone, :id => 3, :clone_name => 'EPD006', :marker_symbol => 'Trafd1')
-        Factory.create(:clone, :id => 4, :clone_name => 'EPD003', :marker_symbol => 'Cbx7')
-        Factory.create(:clone, :id => 5, :clone_name => 'EPD001', :marker_symbol => 'Trafd1')
-        Factory.create(:clone, :id => 6, :clone_name => 'EPD009', :marker_symbol => 'Cbx1')
-
-        clones = Clone.all_partitioned_by_marker_symbol
-
-        assert_equal ['EPD002', 'EPD009', 'EPD015'], clones['Cbx1'].map(&:clone_name)
-        assert_equal 1, clones['Cbx7'].size
-        assert_equal 2, clones['Trafd1'].size
-        assert_equal ['EPD001', 'EPD002', 'EPD003', 'EPD006', 'EPD009', 'EPD015'],
-                clones[nil].map(&:clone_name)
-      end
-
-      should 'only select id, clone_name and marker_symbol' do
-        Factory.create(:clone, :id => 1, :clone_name => 'EPD015', :marker_symbol => 'Cbx1')
-        clone = Clone.all_partitioned_by_marker_symbol[nil].first
-        assert_equal [1, 'EPD015', 'Cbx1'], [clone.id, clone.clone_name, clone.marker_symbol]
-        assert_nil clone['mgi_accession_id']
       end
     end
 

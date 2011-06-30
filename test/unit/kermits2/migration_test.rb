@@ -49,7 +49,6 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         clone = mi_attempt.clone
 
         assert_equal 'EPD0127_4_E01', clone.clone_name
-        assert_equal true, clone.is_in_targ_rep?
       end
 
       should 'create 2 mi attempts of the same clone' do
@@ -67,7 +66,6 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         assert_nil clone.allele_name_superscript_template
         assert_nil clone.allele_type
         assert_nil clone.mgi_accession_id
-        assert_equal false, clone.is_in_targ_rep?
       end
 
       should 'import faculty line clones from the old DB data when mart data does not exist' do

@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ExternalScriptTestCaseTestTest < ExternalScriptTestCase
+class ExternalScriptTestCaseTest < ExternalScriptTestCase
   context 'ExternalScriptTestCase tests:' do
 
     context '#run_script' do

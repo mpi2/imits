@@ -57,22 +57,6 @@ class Clone < ActiveRecord::Base
     return "#{marker_symbol}<sup>#{allele_name_superscript}</sup>"
   end
 
-  scope :all_in_targ_rep, :conditions => {:is_in_targ_rep => true}, :order => 'clone_name'
-
-  def self.all_partitioned_by_marker_symbol
-    retval = {}
-    all_clones = self.select('id, clone_name, marker_symbol').all_in_targ_rep
-
-    retval[nil] = all_clones.dup
-
-    all_clones.each do |clone|
-      retval[clone.marker_symbol] ||= []
-      retval[clone.marker_symbol] << clone
-    end
-
-    return retval
-  end
-
   # BEGIN Mart Operations
 
   IDCC_TARG_REP_DATASET = Biomart::Dataset.new(
@@ -117,8 +101,7 @@ class Clone < ActiveRecord::Base
       :marker_symbol => mart_data['marker_symbol'],
       :allele_name_superscript => mart_data['allele_symbol_superscript'],
       :pipeline => pipeline,
-      :mgi_accession_id => mart_data['mgi_accession_id'],
-      :is_in_targ_rep => true
+      :mgi_accession_id => mart_data['mgi_accession_id']
     )
   end
 
@@ -191,7 +174,6 @@ end
 #  allele_type                      :text
 #  pipeline_id                      :integer         not null
 #  mgi_accession_id                 :text
-#  is_in_targ_rep                   :boolean         default(FALSE), not null
 #  created_at                       :datetime
 #  updated_at                       :datetime
 #

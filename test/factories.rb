@@ -17,7 +17,6 @@ Factory.define :clone do |clone|
   clone.allele_name_superscript 'tm1a(EUCOMM)Wtsi'
   clone.association(:pipeline) { Pipeline.find_by_name! 'EUCOMM' }
   clone.sequence(:mgi_accession_id) {|n| "MGI:#{"%.10i" % n}"}
-  clone.is_in_targ_rep true
 end
 
 Factory.define :centre do |centre|

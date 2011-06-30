@@ -384,3 +384,7 @@ end
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
 #
+# Indexes
+#
+#  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
+#

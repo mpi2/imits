@@ -102,7 +102,7 @@ end
 #  actual_mi_date                 :datetime
 #  attempt_number                 :integer(38)
 #  num_recipients                 :decimal(, )
-#  num_blasts                     :string(4000)
+#  num_blasts                     :string(20)
 #  created_date                   :datetime
 #  creator_id                     :decimal(, )
 #  edit_date                      :datetime
@@ -120,12 +120,12 @@ end
 #  number_male_40_to_80_percent   :integer(38)
 #  number_male_lt_40_percent      :integer(38)
 #  number_with_glt                :integer(38)
-#  comments                       :string(4000)
+#  comments                       :string(250)
 #  status_dict_id                 :integer(38)
 #  num_transferred                :decimal(, )
-#  number_with_cct                :string(4000)
+#  number_with_cct                :string(20)
 #  total_f1_mice                  :decimal(, )
-#  blast_strain                   :string(4000)
+#  blast_strain                   :string(200)
 #  number_f0_matings              :decimal(, )
 #  f0_matings_with_offspring      :decimal(, )
 #  f1_germ_line_mice              :integer(10)

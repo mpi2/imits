@@ -11,7 +11,7 @@ class ReportsController < ApplicationController
       @report = generate_mi_list_report( params )
       @report.sort_rows_by!( 'Injected Date', :order => :descending )
       @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
-      
+
       render :csv => @report.to_csv if request.format == :csv
     end
   end

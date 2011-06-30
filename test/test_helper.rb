@@ -154,8 +154,7 @@ class ExternalScriptTestCase < ActiveSupport::TestCase
     error_output = nil
     exit_status = nil
     output = nil
-    Open3.popen3("cd #{Rails.root}; #{commands}") do
-      |scriptin, scriptout, scripterr, wait_thr|
+    Open3.popen3("cd #{Rails.root}; #{commands}") do |scriptin, scriptout, scripterr, wait_thr|
       error_output = scripterr.read
       exit_status = wait_thr.value.exitstatus
       output = scriptout.read

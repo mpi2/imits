@@ -53,8 +53,9 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       end
 
       should 'create 2 mi attempts of the same clone' do
-        Kermits2::Migration.run(:mi_attempt_ids => [11029, 11101])
+        Kermits2::Migration.run(:mi_attempt_ids => [5171, 5172])
         assert_equal 2, MiAttempt.count
+        assert_equal ['EPD0017_3_F01'], MiAttempt.all.map(&:clone_name).uniq
       end
 
       should 'import gene trap clones from the old DB data when mart data does not exist' do

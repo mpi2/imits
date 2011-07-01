@@ -78,3 +78,17 @@ function toggleMiAttemptsSwitchViewButton(button, pressed) {
 
     setTimeout(intensiveOperation, 500);
 }
+
+function initDisableOnSubmitButtons() {
+    Ext.select('.disable-on-submit').each(function(button) {
+        button.addListener('click', function() {
+            button.set({
+                'disabled': 'disabled'
+            });
+            var form = button.up('form');
+            form.dom.submit();
+        });
+    });
+}
+
+Ext.onReady(initDisableOnSubmitButtons);

@@ -101,7 +101,7 @@ Factory.define :clone_EPD0343_1_H06_without_mi_attempts, :parent => :clone do |c
 end
 
 Factory.define :clone_EPD0343_1_H06, :parent => :clone_EPD0343_1_H06_without_mi_attempts do |clone|
-    clone.after_create do |clone|
+  clone.after_create do |clone|
     Factory.create(:mi_attempt,
       :clone => clone,
       :colony_name => 'MDCF',

@@ -202,7 +202,10 @@ module MiAttemptsHelper
         mi_attempt_column(:clone__marker_symbol, :header => 'Marker Symbol',
           :width => 75, :readOnly => true),
 
-        mi_attempt_column(:clone__allele_name, :readOnly => true, :header => 'Allele Name'),
+        mi_attempt_column(:allele_name,
+          :readOnly => true,
+          :header => 'Allele Name',
+          :getter => proc {|mi| mi.clone.allele_name}),
 
         date_column(:mi_date, :header => 'MI Date'),
 

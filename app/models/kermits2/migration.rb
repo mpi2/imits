@@ -206,6 +206,7 @@ class Kermits2::Migration
     if mi_attempt_ids.nil?
       mi_attempt_ids = Old::MiAttempt.find_by_sql('select id from emi_attempt').map {|o| o.id.to_i }
     end
+    @@mi_file = File.open("/tmp/list_of_mis_#{Time.now.strftime("%F-%T")}.txt", 'w')
 
     mi_attempt_ids.each do |mi_attempt_id|
       next if EXCLUDE_LIST.include?(mi_attempt_id)
@@ -216,6 +217,9 @@ class Kermits2::Migration
   def self.migrate_single_mi_attempt_by_id(mi_attempt_id)
     begin
       old_mi_attempt = Old::MiAttempt.find(mi_attempt_id)
+
+      @@mi_file.puts old_mi_attempt.id
+      @@mi_file.flush
 
       clone = Clone.find_by_clone_name!(old_mi_attempt.clone_name)
 

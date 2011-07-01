@@ -10,4 +10,3 @@ class Old::ModelBase < ActiveRecord::Base
     self.establish_connection @@old_connection_settings[environment_name]
   end
 end
-

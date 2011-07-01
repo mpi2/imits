@@ -193,8 +193,8 @@ module MiAttemptsHelper
         mi_attempt_column(:edit_link,
           :header => 'Edit in form',
           :readOnly => true,
-          :getter => proc {|mi| mi_attempt_path(mi) },
-          :renderer => 'function(link) {return "<a href=\\""+link+"\\">Edit in Form</a>"}'
+          :getter => proc {|mi| mi.id },
+          :renderer => 'function(miId) {return "<a href=\\"" + window.miAttemptsPath + "/" + miId + "\\">Edit in Form</a>"}'
         ),
 
         mi_attempt_column(:clone__clone_name, :header => 'Clone Name',

@@ -69,7 +69,7 @@ GEM
       ffi (~> 1.0.6)
     color (1.4.1)
     database_cleaner (0.6.7)
-    devise (1.4.0)
+    devise (1.4.2)
       bcrypt-ruby (~> 2.1.2)
       orm_adapter (~> 0.0.3)
       warden (~> 1.0.3)

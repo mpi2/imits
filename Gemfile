@@ -26,4 +26,5 @@ group :development, :test do
   gem 'database_cleaner', :require => nil
   gem 'factory_girl_rails', :require => nil
   gem 'awesome_print'
+  gem 'annotate'
 end

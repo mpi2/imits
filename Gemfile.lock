@@ -1,5 +1,5 @@
 GIT
-  remote: http://github.com/skozlov/netzke-basepack.git
+  remote: git://github.com/skozlov/netzke-basepack.git
   revision: b99ef3267df0c97ca873d8dbf69e22bb418be2df
   specs:
     netzke-basepack (0.6.5)
@@ -9,7 +9,7 @@ GIT
       will_paginate (~> 3.0.pre2)
 
 GIT
-  remote: http://github.com/skozlov/netzke-core.git
+  remote: git://github.com/skozlov/netzke-core.git
   revision: 4fcea55471435ebd61e419ed57dccbfff959de3d
   specs:
     netzke-core (0.6.7)

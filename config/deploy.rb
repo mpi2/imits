@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/extjs.rb'
 
-set :application, 'kermits-2'
+set :application, 'imits'
 set :repository,  'git://github.com/i-dcc/kermits-2.git'
 set :branch, 'master'
 set :user, `whoami`.chomp

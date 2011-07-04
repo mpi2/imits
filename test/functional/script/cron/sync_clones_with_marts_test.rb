@@ -3,7 +3,7 @@
 require 'test_helper'
 
 class SyncClonesWithMartsTest < ExternalScriptTestCase
-  context './script/sync_clones_with_marts' do
+  context './script/cron/sync_clones_with_marts' do
 
     should 'work' do
       clones = [

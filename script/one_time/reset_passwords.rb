@@ -14,7 +14,7 @@ User.all.each do |user|
   body = <<-"EOL"
 Hello,
 
-We have redesigned and redeveloped the new  Kermits to the stage where the old
+We have redesigned and redeveloped the new Kermits to the stage where the old
 site is no longer needed.  However, in the process of doing so, we had to reset
 all the usernames and passwords.  Your new login details are as follows:
 

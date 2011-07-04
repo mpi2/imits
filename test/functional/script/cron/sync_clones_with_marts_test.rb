@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class SyncClonesWithMartsTest < ExternalScriptTestCase
+class Cron::SyncClonesWithMartsTest < ExternalScriptTestCase
   context './script/cron/sync_clones_with_marts' do
 
     should 'work' do

@@ -36,19 +36,7 @@ function initNumberFields() {
     });
 }
 
-function initSubmitButton() {
-    var button = Ext.get('mi_attempt_submit');
-    button.addListener('click', function() {
-        button.set({
-            'disabled': 'disabled'
-        });
-        var form = button.up('form');
-        form.dom.submit();
-    });
-}
-
 Ext.onReady(function() {
     initDateFields();
     initNumberFields();
-    initSubmitButton();
 });

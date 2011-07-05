@@ -100,6 +100,12 @@ class CloneTest < ActiveSupport::TestCase
         default_clone.marker_symbol = 'Cbx1'
         assert_equal 'Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>', default_clone.allele_name
       end
+
+      should 'be nil if allele_name_superscript is nil' do
+        default_clone.allele_name_superscript = nil
+        default_clone.marker_symbol = 'Trafd1'
+        assert_nil default_clone.allele_name
+      end
     end
 
     def assert_HEPD0549_6_D02_attributes(clone)

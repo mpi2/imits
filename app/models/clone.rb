@@ -54,7 +54,11 @@ class Clone < ActiveRecord::Base
   end
 
   def allele_name
-    return "#{marker_symbol}<sup>#{allele_name_superscript}</sup>"
+    if allele_name_superscript
+      return "#{marker_symbol}<sup>#{allele_name_superscript}</sup>"
+    else
+      return nil
+    end
   end
 
   # BEGIN Mart Operations
@@ -198,3 +202,4 @@ end
 #
 #  index_clones_on_clone_name  (clone_name) UNIQUE
 #
+

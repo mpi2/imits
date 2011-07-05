@@ -28,3 +28,4 @@ end
 #
 #  index_mi_attempt_statuses_on_description  (description) UNIQUE
 #
+

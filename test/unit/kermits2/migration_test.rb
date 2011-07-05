@@ -293,6 +293,12 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         assert_equal 'no chimeras born', mi.comments
       end
 
+      should 'not migrate excluded MIs' do
+        assert_equal 0, MiAttempt.count
+        Kermits2::Migration.run(:mi_attempt_ids => [11088, 7562])
+        assert_equal 0, MiAttempt.count
+      end
+
     end # context 'migrating an mi attempt'
 
   end

@@ -1,6 +1,7 @@
+<% @title = 'Gene Summary' %>
 
 <%= form_tag( { :controller => 'reports', :action => 'gene_summary' }, :method => :get ) do |form| %>
-  <%= render :partial => 'report_controls', :locals => { :grouping => false } %>
+  <%= render 'report_controls', :grouping => false %>
 <% end %>
 
 <% unless params[:commit].blank? %>

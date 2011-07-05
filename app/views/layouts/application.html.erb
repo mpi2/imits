@@ -22,6 +22,10 @@
     <%= javascript_include_tag 'mi_attempts_view_config', 'application', :cache => true %>
     <%= csrf_meta_tag %>
 
+    <%= javascript_tag "miAttemptsPath = '#{mi_attempts_path}'" %>
+
+    <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}'" %>
+
     <%= yield :head %>
   </head>
 
@@ -72,5 +76,6 @@
     <div id="footer" class="container_12">
       <% unless GIT_REVISION.blank? %><p>Git revision: <%= GIT_REVISION %></p><% end %>
     </div>
+
   </body>
 </html>

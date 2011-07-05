@@ -4,6 +4,7 @@ class MiAttempt < ActiveRecord::Base
   acts_as_reportable
 
   extend AccessAssociationByAttribute
+  include MiAttempt::StatusChanger
 
   EMMA_OPTIONS = {
     'unsuitable' => 'Unsuitable for EMMA',
@@ -110,6 +111,7 @@ class MiAttempt < ActiveRecord::Base
 
   before_save :save_qc_fields
   before_save :generate_colony_name_if_blank
+  before_save :change_status
 
   protected
 
@@ -388,3 +390,4 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
+

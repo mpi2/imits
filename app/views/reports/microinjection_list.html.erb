@@ -1,6 +1,7 @@
+<% @title = 'All Micro-injections' %>
 
 <%= form_tag( { :controller => 'reports', :action => 'microinjection_list' }, :method => :get ) do |form| %>
-  <%= render :partial => 'report_controls', :locals => { :grouping => true } %>
+  <%= render 'report_controls', :grouping => true %>
 <% end %>
 
 <% unless params[:commit].blank? %>

@@ -4,6 +4,9 @@ class SampleData
 
     require 'factory_girl_rails'
 
+    Centre.find_or_create_by_name('WTSI')
+    Centre.find_or_create_by_name('ICS')
+
     user = User.find_by_email('test@example.com')
     if ! user
       user = Factory.create(:user, :email => 'test@example.com')
@@ -11,9 +14,6 @@ class SampleData
 
     Pipeline.find_or_create_by_name('EUCOMM')
     Pipeline.find_or_create_by_name('KOMP')
-
-    Centre.find_or_create_by_name('WTSI')
-    Centre.find_or_create_by_name('ICS')
 
     [
       {:clone_name => 'EPD_SAMPLE_1', :pipeline_id => 1},

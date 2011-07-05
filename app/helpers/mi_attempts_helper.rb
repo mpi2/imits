@@ -193,8 +193,8 @@ module MiAttemptsHelper
         mi_attempt_column(:edit_link,
           :header => 'Edit in form',
           :readOnly => true,
-          :getter => proc {|mi| mi_attempt_path(mi) },
-          :renderer => 'function(link) {return "<a href=\\""+link+"\\">Edit in Form</a>"}'
+          :getter => proc {|mi| mi.id },
+          :renderer => 'function(miId) {return "<a href=\\"" + window.miAttemptsPath + "/" + miId + "\\">Edit in Form</a>"}'
         ),
 
         mi_attempt_column(:clone__clone_name, :header => 'Clone Name',
@@ -202,7 +202,10 @@ module MiAttemptsHelper
         mi_attempt_column(:clone__marker_symbol, :header => 'Marker Symbol',
           :width => 75, :readOnly => true),
 
-        mi_attempt_column(:clone__allele_name, :readOnly => true, :header => 'Allele Name'),
+        mi_attempt_column(:allele_name,
+          :readOnly => true,
+          :header => 'Allele Name',
+          :getter => proc {|mi| mi.clone.allele_name}),
 
         date_column(:mi_date, :header => 'MI Date'),
 

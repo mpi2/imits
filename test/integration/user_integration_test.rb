@@ -51,10 +51,10 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
         user = Factory.create :user
         login(user.email)
         click_link 'Change password'
-        fill_in 'Current password', :with => 'password'
-        fill_in 'New password', :with => 'new password'
-        fill_in 'Confirm new password', :with => 'new password'
-        click_button 'Change password'
+        fill_in 'user[current_password]', :with => 'password'
+        fill_in 'user[password]', :with => 'new password'
+        fill_in 'user[password_confirmation]', :with => 'new password'
+        click_button 'user_submit'
         assert_match %r{^http://[^/]+/mi_attempts}, current_url
 
         visit '/users/logout'
@@ -68,11 +68,11 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
         user = Factory.create :user
         login(user.email)
         click_link 'Change password'
-        fill_in 'Current password', :with => 'password'
-        fill_in 'New password', :with => 'new password'
-        fill_in 'Confirm new password', :with => 'wrong password confirmation'
-        click_button 'Change password'
-        assert page.has_css? 'h2', :text => 'Change Password'
+        fill_in 'user[current_password]', :with => 'password'
+        fill_in 'user[password]', :with => 'new password'
+        fill_in 'user[password_confirmation]', :with => 'wrong password confirmation'
+        click_button 'user_submit'
+        assert page.has_css? 'legend', :text => 'Change Password'
       end
     end
 

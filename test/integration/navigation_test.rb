@@ -6,12 +6,12 @@ class NavigationTest < ActionDispatch::IntegrationTest
   context 'Navigation' do
 
     def assert_current_link(text)
-      assert page.has_css? "#mainnav a.current", :text => text
+      assert page.has_css? "#navigation li.current a", :text => text
     end
 
     should 'not be shown when not logged in' do
       visit '/'
-      assert page.has_no_css? '#mainnav'
+      assert page.has_no_css? '#navigation'
     end
 
     context 'when logged in' do
@@ -50,7 +50,7 @@ class NavigationTest < ActionDispatch::IntegrationTest
 
       should 'not select any tab when not on a tabbed page' do
         click_link 'Change password'
-        assert page.has_no_css? '#mainnav a.current'
+        assert page.has_no_css? '#navigation a.current'
       end
     end
 

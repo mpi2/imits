@@ -41,7 +41,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       select 'Suitable for EMMA - STICKY', :from => 'mi_attempt[emma_status]'
       select 'C57BL/6N', :from => 'mi_attempt[test_cross_strain_id]'
       select 'pass', :from => 'mi_attempt[qc_southern_blot_id]'
-      check 'mi_attempt[should_export_to_mart]'
+      check 'mi_attempt[report_to_public]'
 
       assert_difference 'MiAttempt.count', 0 do
         click_button 'mi_attempt_submit'
@@ -54,7 +54,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert_equal 'suitable_sticky', @mi_attempt.emma_status
       assert_equal 'C57BL/6N', @mi_attempt.test_cross_strain.name
       assert_equal 'pass', @mi_attempt.qc_southern_blot.description
-      assert_equal true, @mi_attempt.should_export_to_mart?
+      assert_equal true, @mi_attempt.report_to_public?
       assert_equal 'editing@example.com', @mi_attempt.updated_by.email
 
       assert_match /\/mi_attempts\/#{@mi_attempt.id}$/, current_url

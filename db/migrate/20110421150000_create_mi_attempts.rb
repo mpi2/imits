@@ -69,7 +69,7 @@ class CreateMiAttempts < ActiveRecord::Migration
       QC_FIELDS.each do |qc_field|
         table.integer qc_field
       end
-      table.boolean :should_export_to_mart,       :null => false, :default => true
+      table.boolean :report_to_public,            :null => false, :default => true
       table.boolean :is_active,                   :null => false, :default => true
       table.boolean :is_released_from_genotyping, :null => false, :default => false
 

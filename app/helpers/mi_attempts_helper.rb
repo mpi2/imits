@@ -170,7 +170,7 @@ module MiAttemptsHelper
       end
 
       columns <<
-              mi_attempt_column(:should_export_to_mart) <<
+              mi_attempt_column(:report_to_public) <<
               mi_attempt_column(:is_active) <<
               mi_attempt_column(:is_released_from_genotyping)
     end

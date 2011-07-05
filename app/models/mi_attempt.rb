@@ -379,7 +379,7 @@ end
 #  qc_mutant_specific_sr_pcr_id                    :integer
 #  qc_loxp_confirmation_id                         :integer
 #  qc_three_prime_lr_pcr_id                        :integer
-#  should_export_to_mart                           :boolean         default(TRUE), not null
+#  report_to_public                                :boolean         default(TRUE), not null
 #  is_active                                       :boolean         default(TRUE), not null
 #  is_released_from_genotyping                     :boolean         default(FALSE), not null
 #  comments                                        :text

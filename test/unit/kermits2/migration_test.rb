@@ -175,7 +175,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       should 'migrate miscellaneous booleans' do
         mi = migrate_mi(12211)
         assert_equal [true, false, false],
-                [mi.is_active, mi.should_export_to_mart, mi.is_released_from_genotyping]
+                [mi.is_active, mi.report_to_public, mi.is_released_from_genotyping]
       end
 
       should 'migrate QC fields none of which are set to null' do

@@ -48,7 +48,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'qc_mutant_specific_sr_pcr__description',
     'qc_loxp_confirmation__description',
     'qc_three_prime_lr_pcr__description',
-    'should_export_to_mart',
+    'report_to_public',
     'is_active',
     'is_released_from_genotyping'
     ]

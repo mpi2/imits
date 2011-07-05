@@ -263,7 +263,7 @@ class Kermits2::Migration
 
         # QC fields
         :is_active => old_mi_attempt.is_active,
-        :should_export_to_mart => old_mi_attempt.is_public,
+        :report_to_public => old_mi_attempt.is_public,
         :is_released_from_genotyping => old_mi_attempt.released_from_genotyping
 
         # Misc

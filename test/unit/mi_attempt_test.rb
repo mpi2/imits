@@ -372,8 +372,8 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      should 'have should_export_to_mart' do
-        assert_should have_db_column(:should_export_to_mart).of_type(:boolean).with_options(:default => true, :null => false)
+      should 'have report_to_public' do
+        assert_should have_db_column(:report_to_public).of_type(:boolean).with_options(:default => true, :null => false)
       end
 
       should 'have is_active' do

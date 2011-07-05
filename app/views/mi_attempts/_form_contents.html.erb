@@ -76,7 +76,7 @@
 
   <%= generator.qc_fields %>
 
-  <% [:should_export_to_mart, :is_active, :is_released_from_genotyping].each do |field| %>
+  <% [:report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
     <div>
       <%= form.label field %>
       <%= form.check_box field %>

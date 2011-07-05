@@ -22,9 +22,7 @@
     <%= javascript_include_tag 'mi_attempts_view_config', 'application', :cache => true %>
     <%= csrf_meta_tag %>
 
-    <%= javascript_tag "miAttemptsPath = '#{mi_attempts_path}'" %>
-
-    <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}'" %>
+    <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
 
     <%= yield :head %>
   </head>

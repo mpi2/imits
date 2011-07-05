@@ -26,31 +26,55 @@
   </head>
 
   <body>
-    <div id="container">
-      <div id="header">
-        <h1><%= link_to 'Kermits 2', root_path %></h1>
+    <div id="header" class="container_12">
+      <div class="grid_8 alpha">
+        <h1><%= link_to 'iMits', root_path %></h1>
+      </div>
+      <div class="grid_4 omega">
         <% if user_signed_in? %>
-          <%= render '/shared/mainnav' %>
-          <%= render '/shared/logged_in_header' %>
+          <%= render '/layouts/userbox' %>
         <% end %>
       </div>
-
-      <div id="messages">
-        <%= flash_message :notice %>
-
-        <%= flash_message :error %>
-
-        <%= flash_message :alert %>
+    </div>
+    <div class="clear"></div>
+    
+    <% if user_signed_in? %>
+      <div id="navigation" class="container_12">
+        <%= render '/layouts/navigation' %>
       </div>
+      <div class="clear"></div>
+    <% end %>
 
-      <% unless @tab %><h2><%= @title %></h2><% end %>
+    <div id="messages" class="container_12">
+      <% if !Rails.env.production? %>
+        <div class="message non-production-warning">
+          PLEASE NOTE: This site is currently in 'development/testing' mode. This means that:
+          <ul>
+            <li>Performance will be reduced (as any form of caching is turned off)</li>
+            <li>The data in the database is INCOMPLETE/INCORRECT - please do not trust the data in this instance (it is our development playground)</li>
+          </ul>
+          <strong>PLEASE DO NOT ENTER ANY PRODUCTION DATA INTO THIS SITE - IT WILL BE LOST...</strong>
+        </div>
+      <% end %>
+      
+      <% flash[:notice] = "woooooooooooooo" %>
+      <% flash[:error] = "woooooooooooooo" %>
+      <% flash[:alert] = "woooooooooooooo" %>
+      <%= flash_message :notice %>
+      <%= flash_message :error %>
+      <%= flash_message :alert %>
+    </div>
+    <div class="clear"></div>
 
+    <% unless @tab %><h2><%= @title %></h2><% end %>
+
+    <div id="content" class="container_12">
       <%= yield %>
+    </div>
+    <div class="clear"></div>
 
-      <div id="footer">
-        <% unless GIT_REVISION.blank? %><p>Git revision: <%= GIT_REVISION %></p><% end %>
-      </div>
+    <div id="footer" class="container_12">
+      <% unless GIT_REVISION.blank? %><p>Git revision: <%= GIT_REVISION %></p><% end %>
     </div>
   </body>
-
 </html>

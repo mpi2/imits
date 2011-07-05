@@ -1,155 +1,195 @@
 /* @override http://localhost:3000/stylesheets/application.css */
 
-html, body {
-    font-size: 12px;
-    line-height: 1.5em;
-    font-family: arial, helvetica, sans-serif;
-}
+/* CSS gradients from http://www.colorzilla.com/gradient-editor/ */
 
-sup {
-    vertical-align: super;
-    font-size: 80%;
-}
+/* @group Layout */
 
-em {
-    font-style: italic;
-}
-
-#container {
-    margin: 0 1em;
+.clear {
+  clear: both;
+  display: block;
+  overflow: hidden;
+  visibility: hidden;
+  width: 0;
+  height: 0;
 }
 
 #header {
-    display: block;
-    color: white;
-    background: #074987;
-    padding-left: 1em;
-    overflow: hidden; /* clear floats */
+	padding-top: 1em;
 }
 
-#header a {
-    color: white;
-}
-
-#header > div.right {
-    width: auto;
-    float: right;
-    margin-right: 1em;
-    line-height: 2em;
-    text-align: right;
-}
-
-h1 {
-    float: left;
-    width: auto;
-    font-size: 2em;
-    line-height: 2em;
-}
-
-h2 {
-    font-size: 1.5em;
-    font-weight: bold;
-    text-align: center;
+#footer {
     margin-top: 2em;
-    margin-bottom: 2em;
+	margin-bottom: 2em;
+	border-top: 5px solid #a6c5ec;
+	padding-top: 1em;
+	color: #333;
+	font-size: smaller;
 }
 
-h1 a, #mainnav a {
-    text-decoration: none;
+/* @end */
+
+/* @group Type */
+
+html, body {
+    font-size: 12px;
+    line-height: 1.5em;
+    font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
 }
 
-h1 a:hover, h1 a:active, #mainnav a:hover, #mainnav a:active {
-    text-decoration: underline;
+h1, h2, h3, h4, h5, h6 {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-weight: normal;
+	color: #111;
 }
 
-div#mainnav-outer {
-    position: absolute;
-    left: 50%;
-}
+h1 { font-size: 3em; line-height: 1; margin-bottom: 0.5em; }
+h2 { font-size: 2em; margin-bottom: 0.75em; }
+h3 { font-size: 1.5em; line-height: 1; margin-bottom: 1em; }
+h4 { font-size: 1.2em;line-height:1.25; margin-bottom: 1.25em; }
+h5 { font-size: 1em; font-weight:bold; margin-bottom: 1.5em; }
+h6 { font-size: 1em; font-weight:bold; }
 
-div#mainnav {
-    float: left;
-    font-size: 1.5em;
-    line-height: 2.67em;
-    position: relative;
-    left: -50%;
-    margin-top: 2px;
-}
-
-div#mainnav a {
-    display: block;
-    float: left;
-    width: auto;
-    padding: 0 1em;
-    border: 1px solid white;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    -moz-border-radius-topleft: 15px;
-    -moz-border-radius-topright: 15px;
-}
-
-div#mainnav a.current {
-    background-color: white;
-    color: #074987;
-}
-
-div#messages {
-    margin-bottom: 2em;
-}
-
-.messages {
-    overflow: hidden;
-}
-
-.message {
-    color: white;
-    margin-top: 5px;
-    font-size: 1.2em;
-    font-weight: bold;
-}
-
-.message .body, .message .header {
-    padding: 3px;
-}
-
-.message .header {
-    width: 6em;
-    float: left;
-    border-right: 1px solid white;
-    padding-left: 28px;
-    background-repeat: no-repeat;
-    background-position: 2px 50%;
-}
-
-.message .body {
-    margin-left: 6.1em;
-    text-align: center;
-}
-
-.message.notice {
-    background-color: green;
-}
-
-.message.error, .message.alert {
-    background-color: darkred;
-}
-
-.message.notice .header {
-    background-image: url('/images/icons/flag_green.png');
-}
-
-.message.error .header, .message.alert .header {
-    background-image: url('/images/icons/flag_red.png');
-}
-
-.wait {
-    cursor: wait;
-}
+sup { vertical-align: super; font-size: 80%; }
+em { font-style: italic; }
+strong { font-weight: bold; }
 
 .large-text {
     font-size: 1.5em;
     line-height: 1.5em;
     margin-top: 1em;
+}
+
+/* @end */
+
+/* @group Links */
+
+a:focus, a:hover {
+	color: #8f110b;
+}
+
+a {
+	color: #009;
+	text-decoration: underline;
+}
+
+/* @end */
+
+/* @group Lists */
+
+li ul, li ol { margin: 0 1.5em; }
+ul, ol {
+	margin: 0.5em 1.5em;
+}
+ul { list-style-type:disc; }
+ol { list-style-type:decimal; }
+
+/* @end */
+
+/* @group Navigation */
+
+#navigation ul {
+	margin: 0px;
+	padding: 0px;
+	line-height: 29px;
+	white-space: nowrap;
+	border-radius: 4px;
+	background: #d1e0fe; /* Old browsers */
+	background: -moz-linear-gradient(top, #d1e0fe 15%, #a6c5ec 80%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(15%,#d1e0fe), color-stop(80%,#a6c5ec)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #d1e0fe 15%,#a6c5ec 80%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #d1e0fe 15%,#a6c5ec 80%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #d1e0fe 15%,#a6c5ec 80%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d1e0fe', endColorstr='#a6c5ec',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #d1e0fe 15%,#a6c5ec 80%); /* W3C */
+}
+
+#navigation li {
+	list-style-type: none;
+	display: inline;
+	border-left: 1px solid #c0c0c0;
+}
+
+#navigation li:first-child {
+	border: none;
+	margin-left: 10px;
+}
+
+#navigation li a {
+	font-weight: bold;
+	text-decoration: none;
+	padding: 7px 10px 7px 10px;
+	color: #333;
+}
+
+#navigation li.current a,
+#navigation li a:hover {
+	font-weight: bold;
+	color: #8f110b;
+}
+
+/* @end */
+
+/* @group UserBox */
+
+#userbox {
+	padding: 5px;
+}
+
+#userbox-inner {
+ 	border-radius: 5px;
+	border: 1px solid #ccc;
+	background-color: #e7ecfb;
+	padding: 10px;
+	text-align: center;
+}
+
+#userbox-inner a {
+	color: #376598;
+	text-decoration: none;
+}
+
+#userbox-inner a:hover {
+	text-decoration: underline;
+}
+
+/* @end */
+
+/* @group Messages */
+
+div#messages {
+	margin-bottom: 1.5em;
+}
+
+.message {
+	background: url('/images/icons/flag_green.png') no-repeat 4px 6px;
+	padding: 6px 6px 6px 24px;
+	width: auto;
+	border-radius: 4px;
+	margin: 7px 15px 0;
+}
+
+.message.notice {
+	background-image: url('/images/icons/flag_green.png');
+    background-color: #caed9e;
+	border: 2px solid #b0de78;
+}
+
+.message.error, .message.alert {
+    background-image: url('/images/icons/flag_red.png');
+    background-color: #f78b83;
+	border: 2px solid #f06d65;
+}
+
+.message.non-production-warning {
+    background-image: url('/images/icons/flag_yellow.png');
+    background-color: #fbf7aa;
+	border: 2px solid #f0de7d;
+}
+
+/* @end */
+
+.wait {
+    cursor: wait;
 }
 
 #mi-attempts-form {
@@ -274,13 +314,6 @@ form.mi-attempt div.errors {
 
 form.mi-attempt span.error-message {
     font-weight: bold;
-}
-
-#footer {
-    font-size: 80%;
-    margin-top: 2em;
-    background: #074987;
-    color: white;
 }
 
 /* @group Reports */

@@ -6,23 +6,6 @@ module ApplicationHelper
   end
 
   def render_message(message_type, message)
-    content_tag(:div, :class => ['message', message_type]) do
-      content_tag(:p, message_type.capitalize, :class => 'header') +
-              content_tag(:p, message, :class => 'body')
-    end
-  end
-
-  def mainnav_links
-    retval = [
-      ['Search & Edit', mi_attempts_path(:production_centre_id => current_user.production_centre.id)],
-      ['Create', new_mi_attempt_path],
-      ['Reports', reports_path]
-    ].map do |link|
-      if @tab == link[0]
-        link << {:class => 'current'}
-      end
-      link_to *link
-    end
-    return retval.join.html_safe
+    content_tag(:div, message, :class => ['message', message_type])
   end
 end

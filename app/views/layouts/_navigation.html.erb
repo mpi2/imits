@@ -1,0 +1,15 @@
+<%
+  navigation_links = [
+    ['Search & Edit', mi_attempts_path(:production_centre_id => current_user.production_centre.id)],
+    ['Create', new_mi_attempt_path],
+    ['Reports', reports_path]
+  ]
+%>
+
+<ul>
+  <% navigation_links.each do |link| %>
+    <li <% if @tab == link[0] %>class="current"<% end %>>
+      <%= link_to *link %>
+    </li>
+  <% end %>
+</ul>

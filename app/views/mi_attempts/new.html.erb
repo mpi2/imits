@@ -6,7 +6,7 @@
   <%= javascript_tag "martSearchClonesPath = '#{mart_search_clones_path}.json';" %>
 <% end %>
 
-<div>
+<div class="grid_8 prefix_2 suffix_2">
   <%= form_tag nil, :class => 'new mi-attempt' do %>
     <fieldset>
       <legend>ES cell clone details</legend>
@@ -16,11 +16,10 @@
   <% end %>
 </div>
 
-<div>
+<div class="grid_8 prefix_2 suffix_2">
   <%= form_for @mi_attempt, :html => {:class => 'new mi-attempt'} do |form| %>
-
     <div id="rest-of-form">
-      <div><%= form.hidden_field 'clone_name' %></div>
+      <%= form.hidden_field 'clone_name' %>
       <%= render 'form_contents', :form => form, :submit_text => 'Create' %>
     </div>
   <% end %>

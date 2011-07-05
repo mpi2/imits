@@ -66,9 +66,8 @@
     </div>
     <div class="clear"></div>
 
-    <% unless @tab %><h2><%= @title %></h2><% end %>
-
     <div id="content" class="container_12">
+      <% unless @tab %><h2><%= @title %></h2><% end %>
       <%= yield %>
     </div>
     <div class="clear"></div>

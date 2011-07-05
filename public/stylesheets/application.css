@@ -1,7 +1,5 @@
 /* @override http://localhost:3000/stylesheets/application.css */
 
-/* CSS gradients from http://www.colorzilla.com/gradient-editor/ */
-
 /* @group Layout */
 
 .clear {
@@ -45,7 +43,7 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-size: 3em; line-height: 1; margin-bottom: 0.5em; }
 h2 { font-size: 2em; margin-bottom: 0.75em; }
 h3 { font-size: 1.5em; line-height: 1; margin-bottom: 1em; }
-h4 { font-size: 1.2em;line-height:1.25; margin-bottom: 1.25em; }
+h4 { font-size: 1.2em; line-height:1.25; margin-bottom: 1.25em; }
 h5 { font-size: 1em; font-weight:bold; margin-bottom: 1.5em; }
 h6 { font-size: 1em; font-weight:bold; }
 
@@ -63,29 +61,26 @@ strong { font-weight: bold; }
 
 /* @group Links */
 
-a:focus, a:hover {
-	color: #8f110b;
-}
-
-a {
-	color: #009;
-	text-decoration: underline;
-}
+a:focus, a:hover { color: #8f110b; }
+a { color: #009; text-decoration: underline; }
 
 /* @end */
 
 /* @group Lists */
 
 li ul, li ol { margin: 0 1.5em; }
-ul, ol {
-	margin: 0.5em 1.5em;
-}
+ul, ol { margin: 0.5em 1.5em; }
 ul { list-style-type:disc; }
 ol { list-style-type:decimal; }
+
+/* ExtJS Fix */
+ul[class*=x-] { margin: 0; }
 
 /* @end */
 
 /* @group Navigation */
+
+/* CSS gradients from http://www.colorzilla.com/gradient-editor/ */
 
 #navigation ul {
 	margin: 0px;
@@ -188,12 +183,84 @@ div#messages {
 
 /* @end */
 
-.wait {
-    cursor: wait;
+/* @group Forms */
+
+form label {
+	display: block;
+    font-style: italic;
+	text-transform: capitalize;
 }
 
-#mi-attempts-form {
-    overflow: hidden; /* clear floats */
+form fieldset {
+    border: 2px solid #a6c5ec;
+    padding: 20px;
+    margin-bottom: 2em;
+    border-radius: 4px;
+}
+
+form fieldset legend {
+	text-transform: capitalize;
+	padding-left: 5px;
+	padding-right: 5px;
+	font: italic 1.4em Georgia, "Times New Roman", Times, serif;
+}
+
+form fieldset > div {
+    margin-bottom: 1em;
+}
+
+form textarea {
+    height: 5em;
+}
+
+form div.field_with_errors {
+    display: inline;
+}
+
+form div.errors {
+    background-color: #f78b83;
+    padding-top: 0.5em;
+    padding-bottom: 1em;
+    margin-left: -0.5em;
+    padding-left: 0.5em;
+	border: 2px solid #f06d65;
+	border-radius: 4px;
+	color: darkred;
+}
+
+form span.error-message {
+    font-weight: bold;
+}
+
+/* @group User Login / Password Change Form */
+
+#user-form table {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#user-form input {
+    width: 18em;
+    margin-left: 2em;
+	margin-bottom: 1em;
+}
+
+#user-form input[type=checkbox] {
+    width: auto;
+}
+
+#user-form-submit {
+	text-align: center;
+    padding-top: 1em;
+    margin-bottom: 0;
+}
+
+/* @end */
+
+/* @end */
+
+.wait {
+    cursor: wait;
 }
 
 #mi-attempts-grid {
@@ -201,119 +268,9 @@ div#messages {
     height: 100%;
 }
 
-#sample-data-warning {
-    font-size: 2em;
-    background-color: red;
-    color: white;
-    line-height: 1em;
-    text-align: center;
-    margin-top: 1em;
-}
-
-form {
-    display: block;
-}
-
 #search-terms {
     height: 10em;
     width: 100%;
-}
-
-#buttons {
-    text-align: center;
-}
-
-#buttons button {
-    width: 4em;
-    float: right;
-}
-
-#buttons input[type=submit] {
-    height: 100%;
-    width: 45%;
-    float: left;
-}
-
-#user-form {
-    margin-top: 3em;
-    margin-left: auto;
-    margin-right: auto;
-    width: 30em;
-}
-
-#user-form form > div {
-    overflow: hidden; /* clear floats */
-    margin-top: 0.5em;
-}
-
-#user-form label {
-    float: left;
-    width: 8em;
-}
-
-#user-form input {
-    display: block;
-    width: 15em;
-    margin-left: 8em;
-}
-
-#user-form input[type=checkbox] {
-    width: auto;
-}
-
-#user-form input[type=submit] {
-    margin-top: 1em;
-}
-
-form.mi-attempt {
-    width: 40em;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-form.mi-attempt label {
-    display: block;
-    font-style: italic;
-}
-
-form.mi-attempt fieldset {
-    border: 1px solid #074987;
-    padding: 20px;
-    margin-bottom: 2em;
-    border-radius: 15px;
-    -moz-border-radius: 15px;
-}
-
-form.mi-attempt fieldset legend {
-    font-size: 1.4em;
-    font-style: italic;
-}
-
-form.mi-attempt fieldset > div {
-    margin-bottom: 1em;
-}
-
-form.mi-attempt textarea {
-    height: 5em;
-}
-
-form.mi-attempt div.field_with_errors {
-    display: inline;
-}
-
-form.mi-attempt fieldset {
-}
-
-form.mi-attempt div.errors {
-    background-color: darkred;
-    color: white;
-    padding-bottom: 1em;
-    margin-left: -0.5em;
-    padding-left: 0.5em;
-}
-
-form.mi-attempt span.error-message {
-    font-weight: bold;
 }
 
 /* @group Reports */
@@ -337,10 +294,9 @@ div.report_control * {
 }
 
 #report p {
-	font-weight: bold;
-	font-size: larger;
 	margin-bottom: 5px;
 	margin-top: 5px;
+	font: bold x-large Georgia, "Times New Roman", Times, serif;
 } 
 
 #report table th {

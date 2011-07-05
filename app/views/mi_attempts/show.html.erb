@@ -1,10 +1,8 @@
-<% @title = 'Edit MI Attempt' %>
-
 <% content_for :head do %>
   <%= javascript_include_tag('mi_attempts/shared') %>
 <% end %>
 
-<div>
+<div class="grid_8 prefix_2 suffix_2">
   <%= form_for @mi_attempt, :html => {:class => 'edit show mi-attempt'} do |form| %>
     <fieldset>
       <legend>ES cell clone details</legend>

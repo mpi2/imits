@@ -21,7 +21,7 @@ class ReportsTest < ActionDispatch::IntegrationTest
       
       should 'allow users to get reports of all MIs in the system' do
         visit '/reports'
-        click_link 'All Microinjections'
+        click_link 'All Micro-injections'
         
         assert_match '/reports/microinjection_list', current_url
         assert page.has_css?('form')

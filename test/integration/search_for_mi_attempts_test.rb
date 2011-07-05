@@ -193,7 +193,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
     should 'display test data warning' do
       visit '/'
-      assert page.has_content? 'SAMPLE DATA'
+      assert page.has_content? 'DO NOT ENTER ANY PRODUCTION DATA'
     end
 
   end

@@ -68,7 +68,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
         click_button 'mi_attempt_submit'
         sleep 3
       end
-      assert page.has_content? 'Edit MI Attempt'
+      assert_match /\/mi_attempts\/\d+$/, current_url
       assert page.has_css? '.message.alert'
       assert page.has_css? '.field_with_errors'
       assert page.has_css? '.error-message'

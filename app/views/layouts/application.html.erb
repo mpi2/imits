@@ -28,10 +28,10 @@
 
   <body>
     <div id="header" class="container_12">
-      <div class="grid_8 alpha">
+      <div class="grid_8">
         <h1><%= link_to 'iMits', root_path %></h1>
       </div>
-      <div class="grid_4 omega">
+      <div class="grid_4">
         <% if user_signed_in? %>
           <%= render '/layouts/userbox' %>
         <% end %>

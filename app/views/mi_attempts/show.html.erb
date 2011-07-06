@@ -7,15 +7,15 @@
 <div class="grid_8 prefix_2 suffix_2">
   <%= form_for @mi_attempt, :html => {:class => 'edit show mi-attempt'} do |form| %>
     <fieldset>
-      <legend>ES cell clone details</legend>
+      <legend>ES Cell Clone Details</legend>
 
       <div class="marker-symbol">
-        <div class="label">Marker symbol</div>
+        <div class="label">Marker Symbol</div>
         <div><%= @mi_attempt.clone.marker_symbol %></div>
       </div>
 
       <div class="clone-name">
-        <div class="label">ES cell clone name</div>
+        <div class="label">ES Cell Clone Name</div>
         <div><%= @mi_attempt.clone.clone_name %></div>
       </div>
     </fieldset>

@@ -36,7 +36,7 @@ class MiAttemptFieldGenerator
   def qc_fields
     qc_statuses =  QcResult.all
     MiAttempt::QC_FIELDS.map do |qc_field|
-      form_field("#{qc_field}_id", tidy_label(qc_field.to_s.gsub(/^qc_(.+)$/, '\1').humanize),
+      form_field("#{qc_field}_id", tidy_label(qc_field.to_s.gsub(/^qc_(.+)$/, '\1').titlecase),
           @form.collection_select("#{qc_field}_id", qc_statuses, :id, :description))
     end.join.html_safe
   end
@@ -45,7 +45,7 @@ class MiAttemptFieldGenerator
 
   def form_field(name, label, field_html)
     element_classes = []
-    label ||= tidy_label(name.to_s.humanize)
+    label ||= tidy_label(name.to_s.titlecase)
     contents = @form.label(name, label) + "\n".html_safe + field_html
     if ! @form.object.errors[name].blank?
       contents += "\n".html_safe + content_tag(:span, @form.object.errors[name].join(', '), :class => 'error-message')

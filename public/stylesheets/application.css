@@ -273,6 +273,7 @@ form span.error-message {
 #mi-search-form select { margin-left: 1em; }
 #mi-search-form table td { padding-bottom: 1em; }
 #mi-search-form #buttons { margin-bottom: 0; }
+#mi-search-form #buttons a { cursor: pointer; }
 #mi-search-form fieldset { padding-bottom: 10px; margin-bottom: 10px; }
 #mi-search-form fieldset > div { margin-bottom: 7px; }
 

@@ -17,7 +17,7 @@
 
 #header h1 a {
 	display: block;
-	background: url('/images/imits_logo.png') no-repeat left center;
+	background: url('../images/imits_logo.png') no-repeat left center;
 	height: 85px;
 	text-indent: -9999px;
 }
@@ -164,7 +164,7 @@ div#messages {
 }
 
 .message {
-	background: url('/images/icons/flag_green.png') no-repeat 4px 6px;
+	background: url('../images/icons/flag_green.png') no-repeat 4px 6px;
 	padding: 6px 6px 6px 24px;
 	width: auto;
 	border-radius: 4px;
@@ -172,19 +172,19 @@ div#messages {
 }
 
 .message.notice {
-	background-image: url('/images/icons/flag_green.png');
+	background-image: url('../images/icons/flag_green.png');
     background-color: #caed9e;
 	border: 2px solid #b0de78;
 }
 
 .message.error, .message.alert {
-    background-image: url('/images/icons/flag_red.png');
+    background-image: url('../images/icons/flag_red.png');
     background-color: #f78b83;
 	border: 2px solid #f06d65;
 }
 
 .message.non-production-warning {
-    background-image: url('/images/icons/flag_yellow.png');
+    background-image: url('../images/icons/flag_yellow.png');
     background-color: #fbf7aa;
 	border: 2px solid #f0de7d;
 }

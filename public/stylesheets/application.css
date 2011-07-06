@@ -15,6 +15,13 @@
 	padding-top: 1em;
 }
 
+#header h1 a {
+	display: block;
+	background: url('/images/imits_logo.png') no-repeat left center;
+	height: 85px;
+	text-indent: -9999px;
+}
+
 #footer {
     margin-top: 2em;
 	margin-bottom: 2em;
@@ -128,6 +135,7 @@ ul[class*=x-tab] { list-style: none; }
 
 #userbox {
 	padding: 5px;
+	margin-top: 15px;
 }
 
 #userbox-inner {

@@ -191,7 +191,7 @@ module MiAttemptsHelper
     def define_columns
       [
         mi_attempt_column(:edit_link,
-          :header => 'Edit in form',
+          :header => 'Edit in Form',
           :readOnly => true,
           :getter => proc {|mi| mi.id },
           :renderer => 'function(miId) {return "<a href=\\"" + window.basePath + "/mi_attempts/" + miId + "\\">Edit in Form</a>"}'

@@ -138,6 +138,12 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         MiAttempt.first
       end
 
+      should 'migrate deposited_materials' do
+        Kermits2::Migration.run(:mi_attempt_ids => [5268, 7547])
+        assert_equal 'Frozen embryos', MiAttempt.find_by_colony_name!('MAJV').deposited_material_name
+        assert_equal 'Live mice', MiAttempt.find_by_colony_name!('MCBM').deposited_material_name
+      end
+
       should 'migrate blast strain' do
         assert_equal 'BALB/cAnNCrl', migrate_mi(6482).blast_strain_name
       end

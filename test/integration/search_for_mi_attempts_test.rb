@@ -184,13 +184,6 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       assert page.has_no_css? 'error'
     end
 
-    should 'clear form when Clear button is pushed' do
-      visit '/mi_attempts?search_terms=EPD0127_4_E01%0D%0AEPD0343_1_H06'
-      fill_in 'search_terms', :with => 'some text'
-      click_button('Clear')
-      assert_blank find('#search-terms').text
-    end
-
     should 'display test data warning' do
       visit '/'
       assert page.has_content? 'DO NOT ENTER ANY PRODUCTION DATA'

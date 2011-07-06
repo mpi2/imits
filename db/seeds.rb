@@ -21,3 +21,7 @@ end
 ['na', 'fail', 'pass'].each do |desc|
   QcResult.find_or_create_by_description(desc)
 end
+
+['Frozen embryos', 'Live mice', 'Frozen sperm'].each do |name|
+  DepositedMaterial.find_or_create_by_name name
+end

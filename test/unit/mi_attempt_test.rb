@@ -421,6 +421,35 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
+      context '#deposited_material' do
+        should 'be in DB' do
+          assert_should have_db_column(:deposited_material_id).with_options(:null => false)
+        end
+
+        should 'default to "Frozen embryos"' do
+          mi = Factory.create :mi_attempt
+          assert_equal 'Frozen embryos', mi.deposited_material.name
+        end
+
+        should 'be association to DepositedMaterial' do
+          dm = DepositedMaterial.last
+          default_mi_attempt.deposited_material = dm
+          default_mi_attempt.save!
+          assert_equal dm, default_mi_attempt.deposited_material
+        end
+
+        should 'be setup for access_association_by_attribute' do
+          dm = DepositedMaterial.last
+          default_mi_attempt.deposited_material_name = dm.name
+          default_mi_attempt.save!
+          assert_equal dm, default_mi_attempt.deposited_material
+        end
+
+        should 'not expose _id in serialization' do
+          assert_false default_mi_attempt.as_json.has_key? 'deposited_material_id'
+        end
+      end
+
     end # attribute tests
 
     context 'before filter' do

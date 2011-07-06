@@ -1,4 +1,6 @@
 class DepositedMaterial < ActiveRecord::Base
+  default_scope :order => :name
+
   validates :name, :uniqueness => true
 end
 

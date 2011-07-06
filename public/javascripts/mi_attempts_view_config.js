@@ -64,7 +64,8 @@ var commonColumns = [
 'mi_attempt_status__description',
 'colony_name',
 'production_centre__name',
-'distribution_centre__name'
+'distribution_centre__name',
+'deposited_material__name'
 ]
 
 var everythingView = [].concat(commonColumns);

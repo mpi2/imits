@@ -25,6 +25,11 @@
   </div>
 
   <div>
+    <%= form.label :deposited_material_id %>
+    <%= form.collection_select :deposited_material_id, DepositedMaterial.all, :id, :name %>
+  </div>
+
+  <div>
     <%= form.label :comments %>
     <%= form.text_area :comments %>
   </div>

@@ -14,5 +14,12 @@ class DepositedMaterialTest < ActiveSupport::TestCase
       end
     end
 
+    should 'order by name by default' do
+      DepositedMaterial.create! :name => 'ZZZZZZZZZZ'
+      DepositedMaterial.create! :name => 'AAAAAAAAAA'
+      names = DepositedMaterial.all.map(&:name)
+      assert_equal names.sort, names
+    end
+
   end
 end

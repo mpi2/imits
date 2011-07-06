@@ -103,11 +103,15 @@ class MiAttempt < ActiveRecord::Base
     belongs_to qc_field, :class_name => 'QcResult'
   end
 
+  belongs_to :deposited_material
+  access_association_by_attribute :deposited_material, :name
+
   before_validation :set_blank_strings_to_nil
   before_validation :set_default_status
   before_validation :set_total_chimeras
   before_validation :set_clone_from_clone_name
   before_validation :set_default_distribution_centre
+  before_validation :set_default_deposited_material
 
   before_save :save_qc_fields
   before_save :generate_colony_name_if_blank
@@ -149,6 +153,10 @@ class MiAttempt < ActiveRecord::Base
       i += 1
       self.colony_name = "#{self.production_centre_name}-#{self.clone_name}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
+  end
+
+  def set_default_deposited_material
+    self.deposited_material ||= DepositedMaterial.find_by_name!('Frozen embryos')
   end
 
   public
@@ -308,7 +316,7 @@ class MiAttempt < ActiveRecord::Base
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
       'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
-      'production_centre_id', 'distribution_centre_id'
+      'production_centre_id', 'distribution_centre_id', 'deposited_material_id'
     ]
     return options
   end
@@ -337,6 +345,7 @@ end
 #  production_centre_id                            :integer         not null
 #  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer
+#  deposited_material_id                           :integer         not null
 #  blast_strain_id                                 :integer
 #  total_blasts_injected                           :integer
 #  total_transferred                               :integer

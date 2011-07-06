@@ -1,8 +1,8 @@
 <% @tab = 'Reports' %>
 
-<h2>Reports</h2>
+<h2><%= @tab %></h2>
 
-<h3>Microinjection Reports</h3>
+<h3>Micro-injection Reports</h3>
 
 <ul>
   <li><%= link_to 'Gene Summary', url_for(:controller => 'reports', :action => 'gene_summary') %></li>

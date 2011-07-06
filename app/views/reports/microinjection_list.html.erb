@@ -1,6 +1,6 @@
-<% @title = 'All Micro-injections' %>
+<% @title = 'All Micro-Injections' %>
 
-<%= form_tag( { :controller => 'reports', :action => 'microinjection_list' }, :method => :get ) do |form| %>
+<%= form_tag( { :controller => 'reports', :action => 'microinjection_list' }, :method => :get, :class => 'report-form' ) do |form| %>
   <%= render 'report_controls', :grouping => true %>
 <% end %>
 

@@ -1,6 +1,6 @@
 <% @title = 'Month-by-Month Production Summary' %>
 
-<%= form_tag( { :controller => 'reports', :action => 'production_summary' }, :method => :get ) do |form| %>
+<%= form_tag( { :controller => 'reports', :action => 'production_summary' }, :method => :get, :class => 'report-form' ) do |form| %>
   <%= render 'report_controls', :grouping => false %>
 <% end %>
 

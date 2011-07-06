@@ -1,42 +1,61 @@
-Filter Data By:
-<div class="report_control">
-  <%= label_tag( 'production_centre_id[]', "Production Centre" ) %>
-  <%=
-    select_tag(
-      'production_centre_id[]',
-      options_from_collection_for_select( Centre.order("name").all, :id, :name, params[:production_centre_id] ),
-      { :include_blank => true, :multiple => true, :size => 5 }
-    )
-  %>
-
-  <%= label_tag( 'pipeline_id[]', "Pipeline" ) %>
-  <%=
-    select_tag(
-      'pipeline_id[]',
-      options_from_collection_for_select( Pipeline.order("name").all, :id, :name, params[:pipeline_id] ),
-      { :include_blank => true, :multiple => true, :size => 5 }
-    )
-  %>
+<div class="grid_4">
+  <fieldset>
+    <legend>Filter Data On</legend>
+    <table>
+      <tr>
+        <td>
+          <%= label_tag( 'production_centre_id[]', "Production Centre:" ) %>
+          <%=
+            select_tag(
+              'production_centre_id[]',
+              options_from_collection_for_select( Centre.order("name").all, :id, :name, params[:production_centre_id] ),
+              { :include_blank => true, :multiple => true, :size => 5 }
+            )
+          %>
+        </td>
+        <td>
+          <%= label_tag( 'pipeline_id[]', "Pipeline:" ) %>
+          <%=
+            select_tag(
+              'pipeline_id[]',
+              options_from_collection_for_select( Pipeline.order("name").all, :id, :name, params[:pipeline_id] ),
+              { :include_blank => true, :multiple => true, :size => 5 }
+            )
+          %>
+        </td>
+      </tr>
+    </table>
+  </fieldset>
 </div>
 
 <% if grouping %>
-  Group Data By:
-  <div class="report_control">
-    <%=
-      select_tag(
-        :grouping,
-        options_for_select( [['Pipeline'], ['Production Centre']], params[:grouping] ),
-        { :include_blank => true }
-      )
-    %>
+  <div class="grid_4">
+    <fieldset>
+      <legend>Group Data By</legend>
+      <%=
+        select_tag(
+          :grouping,
+          options_for_select( [['Pipeline'], ['Production Centre']], params[:grouping] ),
+          { :include_blank => true }
+        )
+      %>
+    </fieldset>
   </div>
 <% end %>
 
-Download as CSV:
-<div class="report_control csv">
-  yes <%= radio_button_tag( 'format', 'csv' ) %>
-  no <%= radio_button_tag( 'format', 'html', true ) %>
+<div class="grid_4">
+  <fieldset>
+    <legend>CSV Download?</legend>
+    yes <%= radio_button_tag( 'format', 'csv' ) %>
+    no <%= radio_button_tag( 'format', 'html', true ) %>
+  </fieldset>
 </div>
 
-<%= hidden_field_tag( 'commit', 'true' ) %>
-<%= submit_tag 'Generate Report', :class => 'disable-on-submit' %>
+<div class="clear"></div>
+
+<div class="grid_12">
+  <%= hidden_field_tag( 'commit', 'true' ) %>
+  <%= submit_tag 'Generate Report', :class => 'disable-on-submit' %>
+</div>
+
+<div class="clear"></div>

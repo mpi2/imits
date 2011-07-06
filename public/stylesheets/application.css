@@ -75,13 +75,13 @@ ol { list-style-type:decimal; }
 
 /* ExtJS Fix */
 ul[class*=x-] { margin: 0; }
+ul[class*=x-tab] { list-style: none; }
 
 /* @end */
 
 /* @group Navigation */
 
 /* CSS gradients from http://www.colorzilla.com/gradient-editor/ */
-
 #navigation ul {
 	margin: 0px;
 	padding: 0px;
@@ -185,10 +185,10 @@ div#messages {
 
 /* @group Forms */
 
+
 form label {
 	display: block;
     font-style: italic;
-	text-transform: capitalize;
 }
 
 form fieldset {
@@ -199,7 +199,6 @@ form fieldset {
 }
 
 form fieldset legend {
-	text-transform: capitalize;
 	padding-left: 5px;
 	padding-right: 5px;
 	font: italic 1.4em Georgia, "Times New Roman", Times, serif;
@@ -239,10 +238,13 @@ form span.error-message {
 	margin-right: auto;
 }
 
+#user-form table td {
+	padding-bottom: 1em;
+}
+
 #user-form input {
     width: 18em;
     margin-left: 2em;
-	margin-bottom: 1em;
 }
 
 #user-form input[type=checkbox] {
@@ -257,21 +259,28 @@ form span.error-message {
 
 /* @end */
 
+/* @group Micro-Injection Search Form */
+
+#mi-search-form #search-terms { height: 8em; width: 100%; }
+#mi-search-form select { margin-left: 1em; }
+#mi-search-form table td { padding-bottom: 1em; }
+#mi-search-form #buttons { margin-bottom: 0; }
+#mi-search-form fieldset { padding-bottom: 10px; margin-bottom: 10px; }
+#mi-search-form fieldset > div { margin-bottom: 7px; }
+
 /* @end */
 
-.wait {
-    cursor: wait;
-}
+/* @group Reports Form */
 
-#mi-attempts-grid {
-    margin-top: 2em;
-    height: 100%;
-}
+form.report-form table { width: 100%; }
+form.report-form table td { width: 50%; }
+form.report-form table td select { width: 80%; }
+form.report-form fieldset { margin-bottom: 10px; padding: 10px; }
+form.report-form fieldset > div { margin-bottom: 7px; }
 
-#search-terms {
-    height: 10em;
-    width: 100%;
-}
+/* @end */
+
+/* @end */
 
 /* @group Reports */
 
@@ -316,3 +325,11 @@ div.report_control * {
 }
 
 /* @end */
+
+.wait {
+    cursor: wait;
+}
+
+#mi-attempts-grid {
+    margin-top: 1.5em;
+}

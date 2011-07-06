@@ -289,6 +289,12 @@ class Kermits2::Migration
         mi_attempt.mi_attempt_status = MiAttemptStatus.genotype_confirmed
       end
 
+      mi_attempt.deposited_material_name = case old_mi_attempt.material_deposited
+      when 'frozen_embryos' then 'Frozen embryos'
+      when 'live_mice' then 'Live mice'
+      when 'frozen_sperm' then 'Frozen sperm'
+      end
+
       # Transfer details (cont)
       mi_attempt.blast_strain_name = old_mi_attempt.blast_strain unless old_mi_attempt.blast_strain.blank?
 

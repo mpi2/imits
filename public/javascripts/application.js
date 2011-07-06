@@ -34,14 +34,14 @@ function setInitialFocus() {
 Ext.onReady(setInitialFocus);
 
 function clearSearchTermsHandler() {
-    var el = document.getElementById('clear-search-terms-button');
+    var el = Ext.get('clear-search-terms-button');
 
     if(el) {
-        el.onclick = function() {
-            var textarea = document.getElementById('search-terms');
-            textarea.innerHTML = '';
-            textarea.focus();
-        }
+        el.addListener('click', function() {
+            var textarea = Ext.get('search-terms');
+            textarea.dom.value = '';
+            textarea.focus(250);
+        });
     }
 }
 Ext.onReady(clearSearchTermsHandler);

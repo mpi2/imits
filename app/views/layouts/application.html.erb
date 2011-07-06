@@ -8,8 +8,7 @@
     <% if @netzke_required %>
       <%= netzke_init %>
     <% else %>
-      <%= stylesheet_link_tag '/extjs/resources/css/ext-all' %>
-      <%= javascript_include_tag '/extjs/adapter/ext/ext-base-debug', '/extjs/ext-all-debug.js' %>
+      <%= extjs_tags %>
     <% end %>
 
     <%= stylesheet_link_tag 'grid' %>
@@ -39,7 +38,7 @@
       </div>
     </div>
     <div class="clear"></div>
-    
+
     <% if user_signed_in? %>
       <div id="navigation" class="container_12">
         <%= render '/layouts/navigation' %>

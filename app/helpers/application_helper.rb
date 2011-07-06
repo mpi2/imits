@@ -8,4 +8,16 @@ module ApplicationHelper
   def render_message(message_type, message)
     content_tag(:div, message, :class => ['message', message_type])
   end
+
+  def extjs_tags
+    html = stylesheet_link_tag('/extjs/resources/css/ext-all') + "\n"
+
+    if Rails.env.production? or Rails.env.staging?
+      html += javascript_include_tag('/extjs/adapter/ext/ext-base', '/extjs/ext-all')
+    else
+      html += javascript_include_tag('/extjs/adapter/ext/ext-base-debug', '/extjs/ext-all-debug')
+    end
+
+    return html.html_safe
+  end
 end

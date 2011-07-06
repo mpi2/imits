@@ -1,10 +1,12 @@
+<% @title = 'Change Password' %>
+
 <div id="user-form" class="grid_6 prefix_3 suffix_3">
   <%= form_for :user, :url => registration_path(:user), :html => { :method => :put } do |f| %>
     <%= devise_error_messages! %>
-    
+
     <fieldset>
-      <legend>Change Password</legend>
-      
+      <legend><%= @title %></legend>
+
       <table>
         <tr>
           <td><%= f.label :current_password, 'Current Password' %></td>
@@ -19,7 +21,7 @@
           <td><%= f.password_field :password_confirmation %></td>
         </tr>
       </table>
-      
+
       <div id="user-form-submit">
         <%= f.submit 'Change password' %>
       </div>

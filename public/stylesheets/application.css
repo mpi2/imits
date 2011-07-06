@@ -244,6 +244,28 @@ form span.error-message {
     font-weight: bold;
 }
 
+/* @group Collapsible Fieldsets */
+
+form fieldset legend.collapsible-control:hover {
+	cursor: pointer;
+}
+
+form fieldset legend.collapsible-control small {
+	color: #009;
+	font-size: small;
+	text-decoration: underline;
+}
+
+form fieldset legend.collapsible-control small:hover {
+	color: #8f110b;
+}
+
+form fieldset.collapsible-content-hidden {
+	padding: 5px 20px;
+}
+
+/* @end */
+
 /* @group User Login / Password Change Form */
 
 #user-form table {

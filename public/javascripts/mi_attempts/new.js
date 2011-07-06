@@ -223,7 +223,7 @@ Kermits2.newMI.CloneSelectorForm = Ext.extend(Ext.Panel, {
         this.add(new Ext.Panel({
             layout: 'hbox',
             unstyled: true,
-            fieldLabel: 'Select a clone',
+            fieldLabel: 'Select a Clone',
             border: false,
             items: [
             {

@@ -1,87 +1,94 @@
 <% generator = MiAttemptFieldGenerator.new(form) %>
 
-<fieldset>
+<fieldset class="collapsible">
   <legend>Universal Details</legend>
+  <div>
+    <%= generator.text_field :mi_date, :label => 'Micro-Injection Date', :class => 'date-field' %>
 
-  <%= generator.text_field :mi_date, :label => 'Micro-Injection Date', :class => 'date-field' %>
+    <% if form.object.status %>
+      <div>
+        <label>Status</label>
+        <span><%= form.object.status %></span>
+      </div>
+    <% end %>
 
-  <% if form.object.status %>
+    <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
+
     <div>
-      <label>Status</label>
-      <span><%= form.object.status %></span>
+      <%= form.label :production_centre_id, 'Production Centre' %>
+      <%= form.collection_select :production_centre_id, @centres, :id, :name %>
     </div>
-  <% end %>
 
-  <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
+    <div>
+      <%= form.label :distribution_centre_id, 'Distribution Centre' %>
+      <%= form.collection_select :distribution_centre_id, @centres, :id, :name %>
+    </div>
 
-  <div>
-    <%= form.label :production_centre_id, 'Production Centre' %>
-    <%= form.collection_select :production_centre_id, @centres, :id, :name %>
-  </div>
-
-  <div>
-    <%= form.label :distribution_centre_id, 'Distribution Centre' %>
-    <%= form.collection_select :distribution_centre_id, @centres, :id, :name %>
-  </div>
-
-  <div>
-    <%= form.label :comments %>
-    <%= form.text_area :comments %>
+    <div>
+      <%= form.label :comments %>
+      <%= form.text_area :comments %>
+    </div>
   </div>
 </fieldset>
 
-<fieldset>
+<fieldset class="collapsible">
   <legend>Transfer Details</legend>
-  <%= generator.strains_field :blast_strain %>
-  <%= generator.number_field :total_blasts_injected %>
-  <%= generator.number_field :total_transferred %>
-  <%= generator.number_field :number_surrogates_receiving %>
+  <div>
+    <%= generator.strains_field :blast_strain %>
+    <%= generator.number_field :total_blasts_injected %>
+    <%= generator.number_field :total_transferred %>
+    <%= generator.number_field :number_surrogates_receiving %>
+  </div>
 </fieldset>
 
-<fieldset>
+<fieldset class="collapsible">
   <legend>Litter Details</legend>
-  <%= generator.number_field :total_pups_born %>
-  <%= generator.number_field :total_female_chimeras %>
-  <%= generator.number_field :total_male_chimeras %>
-  <%= generator.number_field :number_of_males_with_0_to_39_percent_chimerism,   :label => 'Number of Males with 0-39% Chimerism' %>
-  <%= generator.number_field :number_of_males_with_40_to_79_percent_chimerism,  :label => 'Number of Males with 40-79% Chimerism' %>
-  <%= generator.number_field :number_of_males_with_80_to_99_percent_chimerism,  :label => 'Number of Males with 80-99% Chimerism' %>
-  <%= generator.number_field :number_of_males_with_100_percent_chimerism,       :label => 'Number of Males with 100% Chimerism' %>
+  <div>
+    <%= generator.number_field :total_pups_born %>
+    <%= generator.number_field :total_female_chimeras %>
+    <%= generator.number_field :total_male_chimeras %>
+    <%= generator.number_field :number_of_males_with_0_to_39_percent_chimerism,   :label => 'Number of Males with 0-39% Chimerism' %>
+    <%= generator.number_field :number_of_males_with_40_to_79_percent_chimerism,  :label => 'Number of Males with 40-79% Chimerism' %>
+    <%= generator.number_field :number_of_males_with_80_to_99_percent_chimerism,  :label => 'Number of Males with 80-99% Chimerism' %>
+    <%= generator.number_field :number_of_males_with_100_percent_chimerism,       :label => 'Number of Males with 100% Chimerism' %>
+  </div>
 </fieldset>
 
-<fieldset>
+<fieldset class="collapsible">
   <legend>Chimera Mating Details</legend>
-
-  <%= generator.emma_status_field %>
-  <%= generator.strains_field :colony_background_strain %>
-  <%= generator.strains_field :test_cross_strain %>
-  <%= generator.text_field :date_chimeras_mated, :class => 'date-field' %>
-  <%= generator.number_field :number_of_chimera_matings_attempted %>
-  <%= generator.number_field :number_of_chimera_matings_successful %>
-  <%= generator.number_field :number_of_chimeras_with_glt_from_cct %>
-  <%= generator.number_field :number_of_chimeras_with_glt_from_genotyping %>
-  <%= generator.number_field :number_of_chimeras_with_0_to_9_percent_glt,   :label => 'Number of Chimeras with 0-9% GLT' %>
-  <%= generator.number_field :number_of_chimeras_with_10_to_49_percent_glt, :label => 'Number of Chimeras with 10-49% GLT' %>
-  <%= generator.number_field :number_of_chimeras_with_50_to_99_percent_glt, :label => 'Number of Chimeras with 50-99% GLT' %>
-  <%= generator.number_field :number_of_chimeras_with_100_percent_glt,      :label => 'Number of Chimeras with 100% GLT' %>
-  <%= generator.number_field :total_f1_mice_from_matings %>
-  <%= generator.number_field :number_of_cct_offspring %>
-  <%= generator.number_field :number_of_het_offspring %>
-  <%= generator.number_field :number_of_live_glt_offspring %>
-  <%= generator.mouse_allele_type_field %>
+  <div>
+    <%= generator.emma_status_field %>
+    <%= generator.strains_field :colony_background_strain %>
+    <%= generator.strains_field :test_cross_strain %>
+    <%= generator.text_field :date_chimeras_mated, :class => 'date-field' %>
+    <%= generator.number_field :number_of_chimera_matings_attempted %>
+    <%= generator.number_field :number_of_chimera_matings_successful %>
+    <%= generator.number_field :number_of_chimeras_with_glt_from_cct %>
+    <%= generator.number_field :number_of_chimeras_with_glt_from_genotyping %>
+    <%= generator.number_field :number_of_chimeras_with_0_to_9_percent_glt,   :label => 'Number of Chimeras with 0-9% GLT' %>
+    <%= generator.number_field :number_of_chimeras_with_10_to_49_percent_glt, :label => 'Number of Chimeras with 10-49% GLT' %>
+    <%= generator.number_field :number_of_chimeras_with_50_to_99_percent_glt, :label => 'Number of Chimeras with 50-99% GLT' %>
+    <%= generator.number_field :number_of_chimeras_with_100_percent_glt,      :label => 'Number of Chimeras with 100% GLT' %>
+    <%= generator.number_field :total_f1_mice_from_matings %>
+    <%= generator.number_field :number_of_cct_offspring %>
+    <%= generator.number_field :number_of_het_offspring %>
+    <%= generator.number_field :number_of_live_glt_offspring %>
+    <%= generator.mouse_allele_type_field %>
+  </div>
 </fieldset>
 
-<fieldset>
+<fieldset class="collapsible">
   <legend>QC Details</legend>
+  <div>
+    <%= generator.qc_fields %>
 
-  <%= generator.qc_fields %>
-
-  <% [:report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
-    <div>
-      <%= form.label field, field.to_s.titlecase %>
-      <%= form.check_box field %>
-    </div>
-  <% end %>
+    <% [:report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
+      <div>
+        <%= form.label field, field.to_s.titlecase %>
+        <%= form.check_box field %>
+      </div>
+    <% end %>
+  </div>
 </fieldset>
 
 <div>

@@ -90,5 +90,29 @@ function initDisableOnSubmitButtons() {
         });
     });
 }
-
 Ext.onReady(initDisableOnSubmitButtons);
+
+function toggleCollapsibleFieldsetLegend(legend) {
+    var fieldset = legend.up('fieldset');
+    var div      = fieldset.down('div');
+    div.setVisibilityMode( Ext.Element.DISPLAY );
+    div.toggle();
+    fieldset.toggleClass('collapsible-content-hidden');
+    fieldset.toggleClass('collapsible-content-shown');
+}
+function setupCollapsibleFieldsets() {
+    Ext.select('fieldset.collapsible legend', true).each(function(legend) {
+        legend.insertHtml('beforeEnd', ' <small>(click to expand/collapse)</small>');
+        legend.addClass('collapsible-control');
+        legend.addListener('click', function() { toggleCollapsibleFieldsetLegend(this) });
+        var fieldset = legend.up('fieldset');
+        fieldset.addClass('collapsible-content-shown');
+    });
+}
+function hideDefaultCollapsibleFieldsets() {
+    Ext.select('fieldset.collapsible.hide-by-default legend').each(function(legend) {
+        toggleCollapsibleFieldsetLegend(legend);
+    });
+}
+Ext.onReady(setupCollapsibleFieldsets);
+Ext.onReady(hideDefaultCollapsibleFieldsets);

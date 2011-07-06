@@ -1,27 +1,29 @@
 <% @netzke_required = true; @tab = 'Search & Edit' %>
 
 <%= form_tag mi_attempts_path, :method => :get, :id => 'mi-search-form' do %>
-  <fieldset>
+  <fieldset class="collapsible hide-by-default">
     <legend>Search for Micro-Injections</legend>
-    <div class="grid_6 alpha">
-      <label for="search_terms">Clone Name, Gene Symbol, or Colony Name:</label>
-      <textarea cols="10" rows="10" name="search_terms" id="search-terms" class="initial-focus"><%= @search_params[:search_terms].join "\n" %></textarea>
-    </div>
-    <div class="grid_6 omega">
-      <table>
-        <tr>
-          <td><label for="production_centre_id">Production Centre:</label></td>
-          <td><%= select_tag 'production_centre_id', options_from_collection_for_select([Centre.new]+Centre.all, :id, :name, @search_params[:production_centre_id]) %></td>
-        </tr>
-        <tr>
-          <td><label for="mi_attempt_status_id">Status:</label></td>
-          <td><%= select_tag 'mi_attempt_status_id', options_from_collection_for_select([MiAttemptStatus.new]+MiAttemptStatus.all, :id, :description, @search_params[:mi_attempt_status_id]) %></td>
-        </tr>
-      </table>
-    </div>
-    <div id="buttons" class="grid_12">
-      <input id="submit" type="submit" value="Search" />
-      &ensp;|&ensp;<a id="clear-search-terms-button">Clear</a>
+    <div>
+      <div class="grid_6 alpha">
+        <label for="search_terms">Clone Name, Gene Symbol, or Colony Name:</label>
+        <textarea cols="10" rows="10" name="search_terms" id="search-terms" class="initial-focus"><%= @search_params[:search_terms].join "\n" %></textarea>
+      </div>
+      <div class="grid_6 omega">
+        <table>
+          <tr>
+            <td><label for="production_centre_id">Production Centre:</label></td>
+            <td><%= select_tag 'production_centre_id', options_from_collection_for_select([Centre.new]+Centre.all, :id, :name, @search_params[:production_centre_id]) %></td>
+          </tr>
+          <tr>
+            <td><label for="mi_attempt_status_id">Status:</label></td>
+            <td><%= select_tag 'mi_attempt_status_id', options_from_collection_for_select([MiAttemptStatus.new]+MiAttemptStatus.all, :id, :description, @search_params[:mi_attempt_status_id]) %></td>
+          </tr>
+        </table>
+      </div>
+      <div id="buttons" class="grid_12">
+        <input id="submit" type="submit" value="Search" />
+        &ensp;|&ensp;<a id="clear-search-terms-button">Clear</a>
+      </div>
     </div>
   </fieldset>
 <% end %>
@@ -31,3 +33,14 @@
 <div id="mi-attempts-grid">
   <%= mi_attempts_table(@search_params) %>
 </div>
+
+<script type="text/javascript" charset="utf-8">
+  Ext.onReady( function() {
+    Ext.select('fieldset.collapsible legend').each(function(legend) {
+      legend.addListener('click', function() {
+        var widget = Netzke.page.microInjectionAttemptsWidget;
+        widget.manageResize();
+      });
+    });
+  });
+</script>

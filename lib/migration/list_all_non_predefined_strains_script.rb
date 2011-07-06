@@ -1,38 +1,26 @@
 #!/usr/bin/env ruby
 #encoding: utf-8
 
-[
-  ['blast_strain', 'blast_strains'],
-  ['test_cross_strain', 'test_cross_strains'],
-  ['back_cross_strain', 'colony_background_strains']
-].each do |old_name, new_name|
+all_blast_strains = Strain::BlastStrain.all.map(&:name)
+all_colony_background_strains = Strain::ColonyBackgroundStrain.all.map(&:name)
+all_test_cross_strains = Strain::TestCrossStrain.all.map(&:name)
 
-  new_table_name = Strain.const_get(new_name.singularize.camelize)
-  db_strains = new_table_name.all.map(&:name)
+Old::MiAttempt.all.each do |old_mi|
+  dodgy_strains = {}
 
-  distinct_old_strains = Old::MiAttempt.scoped(:select => "distinct #{old_name}").map {|i| i[old_name]}
-
-  strains_needing_cleanup = db_strains.dup
-  found_count = 0
-
-  distinct_old_strains.each do |i|
-    next if i.nil?
-    found = db_strains.find {|a| a == i}
-    if found
-      found_count += 1
-    else
-      strains_needing_cleanup << i
-    end
+  if ! old_mi.blast_strain.blank? and ! all_blast_strains.include? old_mi.blast_strain
+    dodgy_strains['blast_strain'] = old_mi.blast_strain
   end
 
-  strains_needing_cleanup = strains_needing_cleanup.sort_by {|i| i.to_s.upcase}
+  if ! old_mi.test_cross_strain.blank? and  ! all_test_cross_strains.include? old_mi.test_cross_strain
+    dodgy_strains['test_cross_strain'] = old_mi.test_cross_strain
+  end
 
-  y(
-    {
-      new_name.humanize => {
-        'names needing cleanup' => strains_needing_cleanup,
-        'names not needing cleanup' => found_count
-      }
-    }
-  )
+  if ! old_mi.back_cross_strain.blank? and  ! all_colony_background_strains.include? old_mi.back_cross_strain
+    dodgy_strains['back_cross_strain'] = old_mi.back_cross_strain
+  end
+
+  if ! dodgy_strains.empty?
+    puts "#{old_mi.id.to_i}: #{dodgy_strains.map {|k, v| k + ': ' + v}.join ', '}"
+  end
 end

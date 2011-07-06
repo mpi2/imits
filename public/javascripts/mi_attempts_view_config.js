@@ -33,7 +33,7 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'number_of_het_offspring',
     'number_of_live_glt_offspring',
     'mouse_allele_type',
-    'mouse_allele_name'
+    'mouse_allele_symbol'
     ],
     'qc_details': [
     'qc_southern_blot__description',
@@ -59,7 +59,7 @@ var commonColumns = [
 'edit_link',
 'clone__clone_name',
 'clone__marker_symbol',
-'clone__allele_name',
+'clone__allele_symbol',
 'mi_date',
 'mi_attempt_status__description',
 'colony_name',

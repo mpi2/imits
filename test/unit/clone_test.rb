@@ -33,14 +33,14 @@ class CloneTest < ActiveSupport::TestCase
       end
     end
 
-    context '#allele_name_superscript_template' do
+    context '#allele_symbol_superscript_template' do
       should 'have DB column' do
-        assert_should have_db_column(:allele_name_superscript_template).with_options(:null => true)
+        assert_should have_db_column(:allele_symbol_superscript_template).with_options(:null => true)
       end
 
       should 'not be mass-assignable' do
-        clone = Clone.new(:allele_name_superscript_template => 'nonsense')
-        assert_nil clone.allele_name_superscript_template
+        clone = Clone.new(:allele_symbol_superscript_template => 'nonsense')
+        assert_nil clone.allele_symbol_superscript_template
       end
     end
 
@@ -48,63 +48,63 @@ class CloneTest < ActiveSupport::TestCase
       assert_should have_db_column :allele_type
     end
 
-    context '#allele_name_superscript' do
+    context '#allele_symbol_superscript' do
       should 'work when allele_type is present' do
         default_clone.allele_type = 'e'
-        default_clone.allele_name_superscript_template = 'tm1@(EUCOMM)Wtsi'
-        assert_equal 'tm1e(EUCOMM)Wtsi', default_clone.allele_name_superscript
+        default_clone.allele_symbol_superscript_template = 'tm1@(EUCOMM)Wtsi'
+        assert_equal 'tm1e(EUCOMM)Wtsi', default_clone.allele_symbol_superscript
       end
 
       should 'work when allele_type is not present' do
         default_clone.allele_type = nil
-        default_clone.allele_name_superscript_template = 'tm1(EUCOMM)Wtsi'
-        assert_equal 'tm1(EUCOMM)Wtsi', default_clone.allele_name_superscript
+        default_clone.allele_symbol_superscript_template = 'tm1(EUCOMM)Wtsi'
+        assert_equal 'tm1(EUCOMM)Wtsi', default_clone.allele_symbol_superscript
       end
     end
 
-    context '#allele_name_superscript=' do
+    context '#allele_symbol_superscript=' do
       should 'store a.n.s.t. and allele_type when allele name superscript includes an allele type letter' do
-        default_clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
-        assert_equal 'tm2@(KOMP)Wtsi', default_clone.allele_name_superscript_template
+        default_clone.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+        assert_equal 'tm2@(KOMP)Wtsi', default_clone.allele_symbol_superscript_template
         assert_equal 'b', default_clone.allele_type
       end
 
       should 'store a.n.s.t. only and null out allele_type when allele name superscript does not include an allele type letter' do
-        default_clone.allele_name_superscript = 'tm1(EUCOMM)Wtsi'
-        assert_equal 'tm1(EUCOMM)Wtsi', default_clone.allele_name_superscript_template
+        default_clone.allele_symbol_superscript = 'tm1(EUCOMM)Wtsi'
+        assert_equal 'tm1(EUCOMM)Wtsi', default_clone.allele_symbol_superscript_template
         assert_equal nil, default_clone.allele_type
       end
 
       should 'set both a.n.s.t. and allele_type to nil when set to nil' do
-        default_clone.allele_name_superscript = nil
-        assert_equal nil, default_clone.allele_name_superscript_template
+        default_clone.allele_symbol_superscript = nil
+        assert_equal nil, default_clone.allele_symbol_superscript_template
         assert_equal nil, default_clone.allele_type
       end
 
       should 'raise error if allele name superscript is not in a recognized format' do
-        assert_raise Clone::AlleleNameSuperscriptFormatUnrecognizedError do
-          default_clone.allele_name_superscript = 'nonsense'
+        assert_raise Clone::AlleleSymbolSuperscriptFormatUnrecognizedError do
+          default_clone.allele_symbol_superscript = 'nonsense'
         end
       end
 
       should 'recognise gene trap alleles' do
-        default_clone.allele_name_superscript = 'Gt(IST12384G7)Tigm'
-        assert_equal 'Gt(IST12384G7)Tigm', default_clone.allele_name_superscript_template
+        default_clone.allele_symbol_superscript = 'Gt(IST12384G7)Tigm'
+        assert_equal 'Gt(IST12384G7)Tigm', default_clone.allele_symbol_superscript_template
         assert_equal nil, default_clone.allele_type
       end
     end
 
-    context '#allele_name' do
+    context '#allele_symbol' do
       should 'work' do
-        default_clone.allele_name_superscript = 'tm1a(EUCOMM)Wtsi'
+        default_clone.allele_symbol_superscript = 'tm1a(EUCOMM)Wtsi'
         default_clone.marker_symbol = 'Cbx1'
-        assert_equal 'Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>', default_clone.allele_name
+        assert_equal 'Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>', default_clone.allele_symbol
       end
 
-      should 'be nil if allele_name_superscript is nil' do
-        default_clone.allele_name_superscript = nil
+      should 'be nil if allele_symbol_superscript is nil' do
+        default_clone.allele_symbol_superscript = nil
         default_clone.marker_symbol = 'Trafd1'
-        assert_nil default_clone.allele_name
+        assert_nil default_clone.allele_symbol
       end
     end
 
@@ -112,7 +112,7 @@ class CloneTest < ActiveSupport::TestCase
       assert_kind_of Clone, clone
       assert_kind_of Clone, Clone.find_by_clone_name('HEPD0549_6_D02')
       assert_equal 'C030046E11Rik', clone.marker_symbol
-      assert_equal 'tm1a(EUCOMM)Hmgu', clone.allele_name_superscript
+      assert_equal 'tm1a(EUCOMM)Hmgu', clone.allele_symbol_superscript
       assert_equal 'EUCOMM', clone.pipeline.name
       assert_equal 'MGI:1924893', clone.mgi_accession_id
     end
@@ -258,7 +258,7 @@ class CloneTest < ActiveSupport::TestCase
         clone_HEPD0549_6_D02 = Factory.create :clone,
                 :clone_name => 'HEPD0549_6_D02',
                 :marker_symbol => 'IAmWrong',
-                :allele_name_superscript => 'tm1(WRONG)Wrong',
+                :allele_symbol_superscript => 'tm1(WRONG)Wrong',
                 :pipeline => Factory.create(:pipeline, :name => 'WRONG Pipeline'),
                 :mgi_accession_id => 'MGI:WRONG'
         clone2 = Factory.create :clone, :clone_name => 'EPD0127_4_E01'

@@ -12,21 +12,21 @@ class Clone < ActiveRecord::Base
   validates :marker_symbol, :presence => true
   validates :pipeline, :presence => true
 
-  attr_protected :allele_name_superscript_template
+  attr_protected :allele_symbol_superscript_template
 
-  def allele_name_superscript
+  def allele_symbol_superscript
     if allele_type
-      return allele_name_superscript_template.sub(TEMPLATE_CHARACTER, allele_type)
+      return allele_symbol_superscript_template.sub(TEMPLATE_CHARACTER, allele_type)
     else
-      return allele_name_superscript_template
+      return allele_symbol_superscript_template
     end
   end
 
-  class AlleleNameSuperscriptFormatUnrecognizedError < RuntimeError; end
+  class AlleleSymbolSuperscriptFormatUnrecognizedError < RuntimeError; end
 
-  def allele_name_superscript=(text)
+  def allele_symbol_superscript=(text)
     if text.nil?
-      self.allele_name_superscript_template = nil
+      self.allele_symbol_superscript_template = nil
       self.allele_type = nil
       return
     end
@@ -35,27 +35,27 @@ class Clone < ActiveRecord::Base
 
     if md
       if md[2].blank?
-        self.allele_name_superscript_template = md[1] + md[3]
+        self.allele_symbol_superscript_template = md[1] + md[3]
         self.allele_type = nil
       else
-        self.allele_name_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
+        self.allele_symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
         self.allele_type = md[2]
       end
     else
       md = /\AGt\(\w+\)\w+\Z/.match(text)
       if md
-        self.allele_name_superscript_template = text
+        self.allele_symbol_superscript_template = text
         self.allele_type = nil
       else
-        raise AlleleNameSuperscriptFormatUnrecognizedError, "Bad allele name superscript #{text}"
+        raise AlleleSymbolSuperscriptFormatUnrecognizedError, "Bad allele symbol superscript #{text}"
       end
     end
 
   end
 
-  def allele_name
-    if allele_name_superscript
-      return "#{marker_symbol}<sup>#{allele_name_superscript}</sup>"
+  def allele_symbol
+    if allele_symbol_superscript
+      return "#{marker_symbol}<sup>#{allele_symbol_superscript}</sup>"
     else
       return nil
     end
@@ -109,7 +109,7 @@ class Clone < ActiveRecord::Base
     self.attributes = {
       :clone_name => mart_data['escell_clone'],
       :marker_symbol => mart_data['marker_symbol'],
-      :allele_name_superscript => mart_data['allele_symbol_superscript'],
+      :allele_symbol_superscript => mart_data['allele_symbol_superscript'],
       :pipeline => pipeline,
       :mgi_accession_id => mart_data['mgi_accession_id']
     }
@@ -188,15 +188,15 @@ end
 #
 # Table name: clones
 #
-#  id                               :integer         not null, primary key
-#  clone_name                       :text            not null
-#  marker_symbol                    :text            not null
-#  allele_name_superscript_template :text
-#  allele_type                      :text
-#  pipeline_id                      :integer         not null
-#  mgi_accession_id                 :text
-#  created_at                       :datetime
-#  updated_at                       :datetime
+#  id                                 :integer         not null, primary key
+#  clone_name                         :text            not null
+#  marker_symbol                      :text            not null
+#  allele_symbol_superscript_template :text
+#  allele_type                        :text
+#  pipeline_id                        :integer         not null
+#  mgi_accession_id                   :text
+#  created_at                         :datetime
+#  updated_at                         :datetime
 #
 # Indexes
 #

@@ -194,20 +194,20 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
-  def mouse_allele_name_superscript
+  def mouse_allele_symbol_superscript
     if mouse_allele_type.nil?
       return nil
     else
-      return clone.allele_name_superscript_template.sub(
+      return clone.allele_symbol_superscript_template.sub(
         Clone::TEMPLATE_CHARACTER, mouse_allele_type)
     end
   end
 
-  def mouse_allele_name
+  def mouse_allele_symbol
     if mouse_allele_type.nil?
       return nil
     else
-      return "#{clone.marker_symbol}<sup>#{mouse_allele_name_superscript}</sup>"
+      return "#{clone.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
     end
   end
 
@@ -312,7 +312,7 @@ class MiAttempt < ActiveRecord::Base
       'qc', 'clone_name', 'emma_status', 'status',
       'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
       'distribution_centre_name', 'production_centre_name',
-      'mouse_allele_name_superscript'
+      'mouse_allele_symbol_superscript'
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
       'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',

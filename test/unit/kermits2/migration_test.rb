@@ -63,7 +63,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         clone = MiAttempt.first.clone
         assert_equal 'EUC0018f04', clone.clone_name
         assert_equal 'Eed', clone.marker_symbol
-        assert_nil clone.allele_name_superscript_template
+        assert_nil clone.allele_symbol_superscript_template
         assert_nil clone.allele_type
         assert_nil clone.mgi_accession_id
       end
@@ -74,7 +74,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
         clone = MiAttempt.first.clone
         assert_equal 'EPD0122_6_C07', clone.clone_name
         assert_equal 'Ptchd2', clone.marker_symbol
-        assert_equal 'tm1a(KOMP)Wtsi', clone.allele_name_superscript
+        assert_equal 'tm1a(KOMP)Wtsi', clone.allele_symbol_superscript
         assert_nil clone.mgi_accession_id
       end
 
@@ -255,7 +255,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       should 'migrate mouse allele name when it is set' do
         mi = migrate_mi(11045)
         assert_equal ['tm1@(EUCOMM)Wtsi', 'a', 'e'],
-                [mi.clone.allele_name_superscript_template, mi.clone.allele_type, mi.mouse_allele_type]
+                [mi.clone.allele_symbol_superscript_template, mi.clone.allele_type, mi.mouse_allele_type]
       end
 
       context 'auditing info' do

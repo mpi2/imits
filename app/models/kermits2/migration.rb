@@ -189,7 +189,7 @@ class Kermits2::Migration
             :pipeline => Pipeline.find_or_create_by_name(old_clone.pipeline.name)
           )
           if allele_md
-            clone.allele_name_superscript = allele_md[1]
+            clone.allele_symbol_superscript = allele_md[1]
           end
           clone.save!
         rescue Exception => e

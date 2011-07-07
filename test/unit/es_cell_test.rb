@@ -237,7 +237,7 @@ class EsCellTest < ActiveSupport::TestCase
 
       should 'include attributes ES Cell Clone Name, Pipeline, Mutation Subtype, LoxP Screen' do
         expected = {
-          'escell_es_cell' => 'EPD0127_4_E01',
+          'escell_clone' => 'EPD0127_4_E01',
           'pipeline' => 'EUCOMM',
           'production_qc_loxp_screen' => 'pass',
           'mutation_subtype' => 'conditional_ready',

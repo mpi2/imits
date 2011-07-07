@@ -173,7 +173,7 @@ class EsCell < ActiveRecord::Base
     all_es_cells_data = get_es_cells_from_marts_by_names all_es_cells.map(&:name)
 
     all_es_cells_data.each do |es_cell_data|
-      es_cell = all_es_cells.detect {|c| c.es_cell_name == es_cell_data['escell_es_cell']}
+      es_cell = all_es_cells.detect {|c| c.name == es_cell_data['escell_clone']}
       es_cell.assign_attributes_from_mart_data(es_cell_data)
       es_cell.save!
     end

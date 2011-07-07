@@ -158,7 +158,7 @@ module MiAttemptsHelper
           :editor => mouse_allele_type_combo),
 
         mi_attempt_column(:allele_type, :header => 'Allele Type', :readOnly => true,
-          :hidden => true, :getter => proc {|mi| mi.clone.allele_type}),
+          :hidden => true, :getter => proc {|mi| mi.es_cell.allele_type}),
 
         mi_attempt_column(:mouse_allele_symbol, :readOnly => true)
       ]
@@ -197,15 +197,15 @@ module MiAttemptsHelper
           :renderer => 'function(miId) {return "<a href=\\"" + window.basePath + "/mi_attempts/" + miId + "\\">Edit in Form</a>"}'
         ),
 
-        mi_attempt_column(:clone__clone_name, :header => 'Clone Name',
+        mi_attempt_column(:es_cell__name, :header => 'ES Cell',
           :readOnly => true),
-        mi_attempt_column(:clone__marker_symbol, :header => 'Marker Symbol',
+        mi_attempt_column(:es_cell__marker_symbol, :header => 'Marker Symbol',
           :width => 75, :readOnly => true),
 
         mi_attempt_column(:allele_symbol,
           :readOnly => true,
           :header => 'Allele Name',
-          :getter => proc {|mi| mi.clone.allele_symbol}),
+          :getter => proc {|mi| mi.es_cell.allele_symbol}),
 
         date_column(:mi_date, :header => 'MI Date'),
 

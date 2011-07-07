@@ -8,8 +8,8 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
     setup do
       @user1 = Factory.create(:user, :email => 'user1@example.com')
       @user2 = Factory.create(:user, :email => 'user2@example.com')
-      clone = Factory.create(:clone_EPD0343_1_H06)
-      @default_mi_attempt = clone.mi_attempts.first
+      es_cell = Factory.create(:es_cell_EPD0343_1_H06)
+      @default_mi_attempt = es_cell.mi_attempts.first
       @default_mi_attempt.updated_by = @user1
       @default_mi_attempt.save!
     end
@@ -45,7 +45,7 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
         sleep 1
         find('.x-editor input.x-form-text[@type=text]').set('12')
         sleep 1
-        find('.x-grid3-col-clone__clone_name').click # Make text-box lose focus
+        find('.x-grid3-col-es_cell__name').click # Make text-box lose focus
       end
       assert_equal 12, @default_mi_attempt.total_pups_born
     end
@@ -87,11 +87,11 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
 
       should 'not be settable if allele type is nil (i.e. it was a deletion)' do
         MiAttempt.destroy_all
-        deletion_clone = Factory.build(:clone, :marker_symbol => 'Cbx1', :clone_name => 'EPD_CUSTOM_1')
-        deletion_clone.allele_symbol_superscript = 'tm1(EUCOMM)Wtsi'
-        deletion_clone.save!
-        assert_nil deletion_clone.allele_type
-        Factory.create(:mi_attempt, :clone => deletion_clone)
+        deletion_es_cell = Factory.build(:es_cell, :marker_symbol => 'Cbx1', :name => 'EPD_CUSTOM_1')
+        deletion_es_cell.allele_symbol_superscript = 'tm1(EUCOMM)Wtsi'
+        deletion_es_cell.save!
+        assert_nil deletion_es_cell.allele_type
+        Factory.create(:mi_attempt, :es_cell => deletion_es_cell)
 
         login
         visit '/mi_attempts?search_terms=EPD_CUSTOM_1'

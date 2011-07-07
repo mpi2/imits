@@ -94,9 +94,9 @@ class ReportsController < ApplicationController
     report_column_order_and_names = {
       'pipeline.name'                                   => 'Pipeline',
       'production_centre.name'                          => 'Production Centre',
-      'clone.clone_name'                                => 'Clone Name',
-      'clone.marker_symbol'                             => 'Marker Symbol',
-      'clone.allele_symbol'                             => 'Clone Allele Name',
+      'es_cell.name'                                    => 'Clone Name',
+      'es_cell.marker_symbol'                           => 'Marker Symbol',
+      'es_cell.allele_symbol'                           => 'Clone Allele Name',
       'mi_date'                                         => 'Injection Date',
       'mi_attempt_status.description'                   => 'Status',
       'colony_background_strain.name'                   => 'Background Strain',
@@ -130,7 +130,7 @@ class ReportsController < ApplicationController
       :conditions => process_filter_params( params ),
       :include    => {
         :production_centre        => { :only => [ :name ] },
-        :clone                    => { :methods => [ :allele_symbol ], :only => [ :clone_name, :marker_symbol ], :include => { :pipeline => { :only => [ :name ] } } },
+        :es_cell                  => { :methods => [ :allele_symbol ], :only => [ :name, :marker_symbol ], :include => { :pipeline => { :only => [ :name ] } } },
         :blast_strain             => { :methods => [ :name ], :only => [] },
         :colony_background_strain => { :methods => [ :name ], :only => [] },
         :test_cross_strain        => { :methods => [ :name ], :only => [] },

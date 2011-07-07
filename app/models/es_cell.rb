@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Clone < ActiveRecord::Base
+class EsCell < ActiveRecord::Base
   acts_as_reportable
 
   TEMPLATE_CHARACTER = '@'
@@ -8,7 +8,7 @@ class Clone < ActiveRecord::Base
   belongs_to :pipeline
   has_many :mi_attempts
 
-  validates :clone_name, :presence => true, :uniqueness => true
+  validates :name, :presence => true, :uniqueness => true
   validates :marker_symbol, :presence => true
   validates :pipeline, :presence => true
 
@@ -73,8 +73,8 @@ class Clone < ActiveRecord::Base
     { :name => 'dcc' }
   )
 
-  def self.get_clones_from_marts_by_clone_names(clone_names)
-    raise ArgumentError, 'Need array of clones please' unless clone_names.kind_of?(Array)
+  def self.get_es_cells_from_marts_by_names(names)
+    raise ArgumentError, 'Need array of ES cell names please' unless names.kind_of?(Array)
     return DCC_DATASET.search(
       :filters => {},
       :attributes => ['marker_symbol'],
@@ -83,7 +83,7 @@ class Clone < ActiveRecord::Base
       :federate => [
         {
           :dataset => IDCC_TARG_REP_DATASET,
-          :filters => { 'escell_clone' => clone_names },
+          :filters => { 'escell_clone' => names },
           :attributes => [
             'escell_clone',
             'pipeline',
@@ -97,17 +97,17 @@ class Clone < ActiveRecord::Base
     )
   end
 
-  def self.create_clone_from_mart_data(mart_data)
-    clone = self.new
-    clone.assign_attributes_from_mart_data(mart_data)
-    clone.save!
-    return clone
+  def self.create_es_cell_from_mart_data(mart_data)
+    es_cell = self.new
+    es_cell.assign_attributes_from_mart_data(mart_data)
+    es_cell.save!
+    return es_cell
   end
 
   def assign_attributes_from_mart_data(mart_data)
     pipeline = Pipeline.find_or_create_by_name(mart_data['pipeline'])
     self.attributes = {
-      :clone_name => mart_data['escell_clone'],
+      :name => mart_data['escell_clone'],
       :marker_symbol => mart_data['marker_symbol'],
       :allele_symbol_superscript => mart_data['allele_symbol_superscript'],
       :pipeline => pipeline,
@@ -115,12 +115,12 @@ class Clone < ActiveRecord::Base
     }
   end
 
-  def self.create_all_from_marts_by_clone_names(clone_names)
-    result = get_clones_from_marts_by_clone_names(clone_names.to_a)
+  def self.create_all_from_marts_by_names(names)
+    result = get_es_cells_from_marts_by_names(names.to_a)
 
     return result.map do |mart_data|
       begin
-        self.create_clone_from_mart_data(mart_data)
+        self.create_es_cell_from_mart_data(mart_data)
       rescue Exception => e
         e2 = e.class.new("Error while importing #{mart_data['escell_clone']}: #{e.message}")
         e2.set_backtrace(e.backtrace)
@@ -129,21 +129,21 @@ class Clone < ActiveRecord::Base
     end
   end
 
-  def self.find_or_create_from_marts_by_clone_name(clone_name)
-    clone = self.find_by_clone_name(clone_name)
-    return clone if(clone)
+  def self.find_or_create_from_marts_by_name(name)
+    es_cell = self.find_by_name(name)
+    return es_cell if(es_cell)
 
-    return nil if clone_name.blank?
+    return nil if name.blank?
 
-    result = get_clones_from_marts_by_clone_names([clone_name])
+    result = get_es_cells_from_marts_by_names([name])
     if(result.empty?)
       return nil
     else
-      return self.create_clone_from_mart_data(result[0])
+      return self.create_es_cell_from_mart_data(result[0])
     end
   end
 
-  def self.get_clones_from_marts_by_marker_symbol(marker_symbol)
+  def self.get_es_cells_from_marts_by_marker_symbol(marker_symbol)
     return nil if marker_symbol.blank?
     return IDCC_TARG_REP_DATASET.search(
       :filters => {},
@@ -169,13 +169,13 @@ class Clone < ActiveRecord::Base
   end
 
   def self.sync_all_with_marts
-    all_clones = Clone.all
-    all_clones_data = get_clones_from_marts_by_clone_names all_clones.map(&:clone_name)
+    all_es_cells = EsCell.all
+    all_es_cells_data = get_es_cells_from_marts_by_names all_es_cells.map(&:name)
 
-    all_clones_data.each do |clone_data|
-      clone = all_clones.detect {|c| c.clone_name == clone_data['escell_clone']}
-      clone.assign_attributes_from_mart_data(clone_data)
-      clone.save!
+    all_es_cells_data.each do |es_cell_data|
+      es_cell = all_es_cells.detect {|c| c.es_cell_name == es_cell_data['escell_es_cell']}
+      es_cell.assign_attributes_from_mart_data(es_cell_data)
+      es_cell.save!
     end
   end
 
@@ -186,10 +186,10 @@ end
 # == Schema Information
 # Schema version: 20110527121721
 #
-# Table name: clones
+# Table name: es_cells
 #
 #  id                                 :integer         not null, primary key
-#  clone_name                         :text            not null
+#  name                               :text            not null
 #  marker_symbol                      :text            not null
 #  allele_symbol_superscript_template :text
 #  allele_type                        :text
@@ -200,6 +200,6 @@ end
 #
 # Indexes
 #
-#  index_clones_on_clone_name  (clone_name) UNIQUE
+#  index_es_cells_on_name  (name) UNIQUE
 #
 

@@ -3,15 +3,15 @@
 <% content_for :head do %>
   <%= javascript_include_tag('mi_attempts/shared') %>
   <%= javascript_include_tag('mi_attempts/new') %>
-  <%= javascript_tag "martSearchClonesPath = '#{mart_search_clones_path}.json';" %>
+  <%= javascript_tag "martSearchEsCellsPath = '#{mart_search_es_cells_path}.json';" %>
 <% end %>
 
 <div class="grid_8 prefix_2 suffix_2">
   <%= form_tag nil, :class => 'new mi-attempt' do %>
     <fieldset class="collapsible">
-      <legend>ES Cell Clone Details</legend>
+      <legend>ES Cell Details</legend>
       <div>
-        <div id="clone-selector"></div>
+        <div id="es-cell-selector"></div>
       </div>
     </fieldset>
   <% end %>
@@ -20,7 +20,7 @@
 <div class="grid_8 prefix_2 suffix_2">
   <%= form_for @mi_attempt, :html => {:class => 'new mi-attempt'} do |form| %>
     <div id="rest-of-form">
-      <%= form.hidden_field 'clone_name' %>
+      <%= form.hidden_field 'es_cell_name' %>
       <%= render 'form_contents', :form => form, :submit_text => 'Create' %>
     </div>
   <% end %>

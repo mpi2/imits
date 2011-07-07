@@ -2,34 +2,34 @@
 
 require 'test_helper'
 
-class ClonesControllerTest < ActionController::TestCase
-  context 'ClonesController' do
+class EsCellsControllerTest < ActionController::TestCase
+  context 'EsCellsController' do
 
     setup do
       create_common_test_objects
     end
 
     should 'require authentication' do
-      get :show, :id => Clone.first.id, :format => :json
+      get :show, :id => EsCell.first.id, :format => :json
       assert_false response.success?
     end
 
     context 'GET show' do
       setup do
         sign_in default_user
-        @clone = Clone.find_by_clone_name('EPD0127_4_E01')
+        @es_cell = EsCell.find_by_es_cell_name('EPD0127_4_E01')
       end
 
-      should 'get one clone by ID as XML' do
-        get :show, :id => @clone.id, :format => :xml
+      should 'get one es_cell by ID as XML' do
+        get :show, :id => @es_cell.id, :format => :xml
         xml = parse_xml_from_response
-        assert_equal @clone.clone_name, xml.css('clone clone-name').text
+        assert_equal @es_cell.name, xml.css('es_cell es_cell-name').text
       end
 
-      should 'get one clone by ID as JSON' do
-        get :show, :id => @clone.id, :format => :json
+      should 'get one es_cell by ID as JSON' do
+        get :show, :id => @es_cell.id, :format => :json
         json = parse_json_from_response
-        assert_equal @clone.clone_name, json['clone_name']
+        assert_equal @es_cell.name, json['es_cell_name']
       end
     end
 
@@ -39,17 +39,17 @@ class ClonesControllerTest < ActionController::TestCase
       end
 
       should 'support search helpers as XML' do
-        get :index, :clone_name_contains => '0127', :format => :xml
+        get :index, :es_cell_name_contains => '0127', :format => :xml
         xml = parse_xml_from_response
-        assert_equal 1, xml.xpath('count(//clone)')
-        assert_equal 'EPD0127_4_E01', xml.css('clone clone-name').text
+        assert_equal 1, xml.xpath('count(//es_cell)')
+        assert_equal 'EPD0127_4_E01', xml.css('es_cell name').text
       end
 
       should 'support search helpers as JSON' do
-        get :index, :clone_name_contains => '0127', :format => :json
+        get :index, :es_cell_name_contains => '0127', :format => :json
         array = parse_json_from_response
         assert_equal 1, array.size
-        assert_equal 'EPD0127_4_E01', array.first['clone_name']
+        assert_equal 'EPD0127_4_E01', array.first['name']
       end
     end
 
@@ -58,14 +58,14 @@ class ClonesControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      should 'work with clone_name param' do
-        get :mart_search, :clone_name => 'HEPD0549_6_D02', :format => :json
+      should 'work with es_cell_name param' do
+        get :mart_search, :es_cell_name => 'HEPD0549_6_D02', :format => :json
         data = parse_json_from_response
         assert_equal 'HEPD0549_6_D02', data[0]['escell_clone']
       end
 
-      should 'return empty array if passing in blank clone_name' do
-        get :mart_search, :clone_name => nil, :format => :json
+      should 'return empty array if passing in blank es_cell_name' do
+        get :mart_search, :es_cell_name => nil, :format => :json
         data = parse_json_from_response
         assert_equal 0, data.size
       end

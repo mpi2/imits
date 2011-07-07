@@ -18,9 +18,9 @@ class MiAttemptTest < ActiveSupport::TestCase
         default_mi_attempt
       end
 
-      should 'have clone' do
-        assert_should have_db_column(:clone_id).with_options(:null => false)
-        assert_should belong_to(:clone)
+      should 'have es_cell' do
+        assert_should have_db_column(:es_cell_id).with_options(:null => false)
+        assert_should belong_to(:es_cell)
       end
 
       context 'centres tests:' do
@@ -158,18 +158,18 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context '#mouse_allele_symbol_superscript' do
         should 'be nil if mouse_allele_type is nil' do
-          default_mi_attempt.clone.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          default_mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           default_mi_attempt.mouse_allele_type = nil
           assert_equal nil, default_mi_attempt.mouse_allele_symbol_superscript
         end
 
-        should 'be nil if Clone#allele_symbol_superscript_template is nil' do
-          default_mi_attempt.clone.allele_symbol_superscript = nil
+        should 'be nil if EsCell#allele_symbol_superscript_template is nil' do
+          default_mi_attempt.es_cell.allele_symbol_superscript = nil
           assert_equal nil, default_mi_attempt.mouse_allele_symbol_superscript
         end
 
         should 'work if mouse_allele_type is present' do
-          default_mi_attempt.clone.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          default_mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           default_mi_attempt.mouse_allele_type = 'e'
           assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_symbol_superscript
         end
@@ -182,18 +182,18 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context '#mouse_allele_symbol' do
         setup do
-          clone = Factory.create :clone_EPD0343_1_H06
-          @mi_attempt = Factory.build :mi_attempt, :clone => clone
+          es_cell = Factory.create :es_cell_EPD0343_1_H06
+          @mi_attempt = Factory.build :mi_attempt, :es_cell => es_cell
         end
 
         should 'be nil if mouse_allele_type is nil' do
-          @mi_attempt.clone.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           @mi_attempt.mouse_allele_type = nil
           assert_equal nil, @mi_attempt.mouse_allele_symbol
         end
 
         should 'work if mouse_allele_type is present' do
-          @mi_attempt.clone.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           @mi_attempt.mouse_allele_type = 'e'
           assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_symbol
         end
@@ -392,9 +392,9 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'be auto-generated if not supplied' do
-          Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+          Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
           attributes = {
-            :clone => Clone.find_by_clone_name!('EPD0127_4_E01'),
+            :es_cell => EsCell.find_by_name!('EPD0127_4_E01'),
             :production_centre_name => 'ICS',
             :colony_name => nil
           }
@@ -406,8 +406,8 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal 'MABC', mi_attempt_last.colony_name
         end
 
-        should 'not be auto-generated if clone was not assigned or found' do
-          mi_attempt = Factory.build :mi_attempt, :clone => nil,
+        should 'not be auto-generated if es_cell was not assigned or found' do
+          mi_attempt = Factory.build :mi_attempt, :es_cell => nil,
                   :colony_name => nil
           assert_false mi_attempt.save
           assert_nil mi_attempt.colony_name
@@ -488,9 +488,9 @@ class MiAttemptTest < ActiveSupport::TestCase
     context '::search scope' do
 
       setup do
-        @clone1 = Factory.create :clone_EPD0343_1_H06
-        @clone2 = Factory.create :clone_EPD0127_4_E01
-        @clone3 = Factory.create :clone_EPD0029_1_G04
+        @es_cell1 = Factory.create :es_cell_EPD0343_1_H06
+        @es_cell2 = Factory.create :es_cell_EPD0127_4_E01
+        @es_cell3 = Factory.create :es_cell_EPD0029_1_G04
       end
 
       should 'return all results when not given any search terms' do
@@ -503,58 +503,58 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal 5, results.size
       end
 
-      should 'work for single clone' do
+      should 'work for single es_cell' do
         results = MiAttempt.search(:search_terms => ['EPD0127_4_E01'])
         assert_equal 3, results.size
-        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+        @es_cell2.mi_attempts.each { |mi| assert_include results, mi }
       end
 
-      should 'work for single clone case-insensitively' do
+      should 'work for single es_cell case-insensitively' do
         results = MiAttempt.search(:search_terms => ['epd0127_4_E01'])
         assert_equal 3, results.size
-        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+        @es_cell2.mi_attempts.each { |mi| assert_include results, mi }
       end
 
-      should 'work for multiple clones' do
+      should 'work for multiple es_cells' do
         results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'EPD0343_1_H06'])
         assert_equal 4, results.size
-        assert_include results, @clone1.mi_attempts.first
-        @clone2.mi_attempts.each { |mi| assert_include results, mi }
-        assert_not_include results, @clone3.mi_attempts.first
+        assert_include results, @es_cell1.mi_attempts.first
+        @es_cell2.mi_attempts.each { |mi| assert_include results, mi }
+        assert_not_include results, @es_cell3.mi_attempts.first
       end
 
       should 'work for single gene symbol' do
         results = MiAttempt.search(:search_terms => ['Myo1c'])
         assert_equal 1, results.size
-        assert_include results, @clone1.mi_attempts.first
+        assert_include results, @es_cell1.mi_attempts.first
       end
 
       should 'work for single gene symbol case-insensitively' do
         results = MiAttempt.search(:search_terms => ['myo1C'])
         assert_equal 1, results.size
-        assert_include results, @clone1.mi_attempts.first
+        assert_include results, @es_cell1.mi_attempts.first
       end
 
       should 'work for multiple gene symbols' do
         results = MiAttempt.search(:search_terms => ['Trafd1', 'Myo1c'])
         assert_equal 4, results.size
-        assert_include results, @clone1.mi_attempts.first
-        @clone2.mi_attempts.each { |mi| assert_include results, mi }
-        assert_not_include results, @clone3.mi_attempts.first
+        assert_include results, @es_cell1.mi_attempts.first
+        @es_cell2.mi_attempts.each { |mi| assert_include results, mi }
+        assert_not_include results, @es_cell3.mi_attempts.first
       end
 
       should 'work for single colony name' do
         results = MiAttempt.search(:search_terms => ['MBSS'])
         assert_equal 1, results.size
-        @clone2.mi_attempts.each { |mi| assert_include results, mi if mi.colony_name == 'MBSS' }
-        assert_not_include results, @clone3.mi_attempts.first
+        @es_cell2.mi_attempts.each { |mi| assert_include results, mi if mi.colony_name == 'MBSS' }
+        assert_not_include results, @es_cell3.mi_attempts.first
       end
 
       should 'work for single colony name case-insensitively' do
         results = MiAttempt.search(:search_terms => ['mbss'])
         assert_equal 1, results.size
         assert_include results, MiAttempt.find_by_colony_name!('MBSS')
-        assert_not_include results, @clone3.mi_attempts.first
+        assert_not_include results, @es_cell3.mi_attempts.first
       end
 
       should 'work for multiple colony names' do
@@ -564,26 +564,26 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_include results, MiAttempt.find_by_colony_name!('WBAA')
       end
 
-      should 'work when mixing clone names, gene symbols and colony names' do
+      should 'work when mixing es_cell names, gene symbols and colony names' do
         results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Myo1c', 'MBFD'])
         assert_equal 5, results.size
-        assert_include results, @clone1.mi_attempts.first
-        @clone2.mi_attempts.each { |mi| assert_include results, mi }
-        assert_include results, @clone3.mi_attempts.first
+        assert_include results, @es_cell1.mi_attempts.first
+        @es_cell2.mi_attempts.each { |mi| assert_include results, mi }
+        assert_include results, @es_cell3.mi_attempts.first
       end
 
       should 'not have duplicates in results' do
         results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Trafd1'])
         assert_equal 3, results.size
-        @clone2.mi_attempts.each { |mi| assert_include results, mi }
+        @es_cell2.mi_attempts.each { |mi| assert_include results, mi }
       end
 
       should 'be orderable' do
-        results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Trafd1']).order('clones.clone_name DESC').all
+        results = MiAttempt.search(:search_terms => ['EPD0127_4_E01', 'Trafd1']).order('es_cells.name DESC').all
       end
 
       should 'search by terms and filter by production centre' do
-        mi = Factory.create(:mi_attempt, :clone => @clone1,
+        mi = Factory.create(:mi_attempt, :es_cell => @es_cell1,
           :production_centre => Centre.find_by_name!('ICS'))
         results = MiAttempt.search(:search_terms => ['myo1c'],
           :production_centre_id => Centre.find_by_name!('ICS').id)
@@ -592,9 +592,9 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'filter by status' do
-        mi1 = Factory.create(:mi_attempt, :clone => @clone1,
+        mi1 = Factory.create(:mi_attempt, :es_cell => @es_cell1,
           :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
-        mi2 = Factory.create(:mi_attempt, :clone => @clone1,
+        mi2 = Factory.create(:mi_attempt, :es_cell => @es_cell1,
           :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
 
         results = MiAttempt.search(
@@ -608,11 +608,11 @@ class MiAttemptTest < ActiveSupport::TestCase
         production_centre = Centre.find_by_name!('WTSI')
         status = MiAttemptStatus.create!(:description => 'Nonsense')
 
-        mi = Factory.create(:mi_attempt, :clone => @clone2,
+        mi = Factory.create(:mi_attempt, :es_cell => @es_cell2,
           :mi_attempt_status => status,
           :production_centre => production_centre)
 
-        results = MiAttempt.search(:terms => [@clone2.marker_symbol],
+        results = MiAttempt.search(:terms => [@es_cell2.marker_symbol],
           :mi_attempt_status_id => status.id,
           :production_centre_id => production_centre.id)
         assert_include results, mi
@@ -637,71 +637,71 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal 'this is a comment', mi.comments
     end
 
-    context '#clone_name virtual attribute' do
+    context '#es_cell_name virtual attribute' do
       setup do
-        Factory.create :clone_EPD0127_4_E01_without_mi_attempts
-        Factory.create :clone_EPD0343_1_H06_without_mi_attempts
+        Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        Factory.create :es_cell_EPD0343_1_H06_without_mi_attempts
 
         @mi_attempt = mi = Factory.build(:mi_attempt)
-        mi.clone_id = nil
-        mi.clone = nil
+        mi.es_cell_id = nil
+        mi.es_cell = nil
 
-        @mi_attempt.attributes = {:clone_name => 'EPD0127_4_E01'}
+        @mi_attempt.attributes = {:es_cell_name => 'EPD0127_4_E01'}
       end
 
       should 'be written on mass assignment when a new record' do
-        assert_equal 'EPD0127_4_E01', @mi_attempt.clone_name
+        assert_equal 'EPD0127_4_E01', @mi_attempt.es_cell_name
       end
 
-      should 'be used to set the clone before save' do
+      should 'be used to set the es_cell before save' do
         @mi_attempt.save!
 
-        assert_equal 'EPD0127_4_E01', @mi_attempt.clone.clone_name
+        assert_equal 'EPD0127_4_E01', @mi_attempt.es_cell.es_cell_name
       end
 
-      should 'be overridden by the associated clone\'s name if that exists' do
-        @mi_attempt.clone = Clone.find_by_clone_name('EPD0343_1_H06')
-        assert_equal 'EPD0343_1_H06', @mi_attempt.clone_name
+      should 'be overridden by the associated es_cell\'s name if that exists' do
+        @mi_attempt.es_cell = EsCell.find_by_es_cell_name('EPD0343_1_H06')
+        assert_equal 'EPD0343_1_H06', @mi_attempt.es_cell_name
       end
 
-      should 'not be settable if there is an associated clone' do
-        @mi_attempt.clone = Clone.find_by_clone_name('EPD0343_1_H06')
-        @mi_attempt.clone_name = 'EPD0127_4_E01'
-        assert_equal 'EPD0343_1_H06', @mi_attempt.clone_name
+      should 'not be settable if there is an associated es_cell' do
+        @mi_attempt.es_cell = EsCell.find_by_es_cell_name('EPD0343_1_H06')
+        @mi_attempt.es_cell_name = 'EPD0127_4_E01'
+        assert_equal 'EPD0343_1_H06', @mi_attempt.es_cell_name
       end
 
-      should 'pull in clone from marts if it is not in the DB' do
-        @mi_attempt.clone_name = 'EPD0029_1_G04'
+      should 'pull in es_cell from marts if it is not in the DB' do
+        @mi_attempt.es_cell_name = 'EPD0029_1_G04'
         @mi_attempt.save!
 
-        assert_equal 'EPD0029_1_G04', @mi_attempt.clone_name
+        assert_equal 'EPD0029_1_G04', @mi_attempt.es_cell_name
       end
 
-      should 'validate as missing if not set and clone is not set either' do
-        @mi_attempt.clone_name = nil
+      should 'validate as missing if not set and es_cell is not set either' do
+        @mi_attempt.es_cell_name = nil
         @mi_attempt.valid?
-        assert_equal ['cannot be blank'], @mi_attempt.errors['clone_name']
+        assert_equal ['cannot be blank'], @mi_attempt.errors['es_cell_name']
       end
 
-      should 'not validate as missing if not set but clone is set' do
-        @mi_attempt.clone_name = nil
-        @mi_attempt.clone = Clone.find_by_clone_name('EPD0343_1_H06')
+      should 'not validate as missing if not set but es_cell is set' do
+        @mi_attempt.es_cell_name = nil
+        @mi_attempt.es_cell = EsCell.find_by_es_cell_name('EPD0343_1_H06')
         @mi_attempt.valid?
-        assert @mi_attempt.errors['clone_name'].blank?
+        assert @mi_attempt.errors['es_cell_name'].blank?
       end
 
-      should 'validate when clone_name is not a valid clone in the marts' do
-        mi_attempt = MiAttempt.new(:clone_name => 'EPD0127_4_G01', :production_centre => Centre.first)
+      should 'validate when es_cell_name is not a valid es_cell in the marts' do
+        mi_attempt = MiAttempt.new(:es_cell_name => 'EPD0127_4_G01', :production_centre => Centre.first)
         assert_false mi_attempt.valid?
-        assert ! mi_attempt.errors[:clone_name].blank?
+        assert ! mi_attempt.errors[:es_cell_name].blank?
       end
 
       should 'be output in JSON serialization' do
-        assert_equal 'EPD0127_4_E01', JSON.parse(@mi_attempt.to_json)['clone_name']
+        assert_equal 'EPD0127_4_E01', JSON.parse(@mi_attempt.to_json)['es_cell_name']
       end
 
       should 'be output in XML serialization' do
-        assert_equal 'EPD0127_4_E01', Nokogiri::XML(@mi_attempt.to_xml).css('clone-name').text
+        assert_equal 'EPD0127_4_E01', Nokogiri::XML(@mi_attempt.to_xml).css('es_cell-name').text
       end
     end
 
@@ -709,7 +709,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       setup do
         @protected_attributes = [
           'created_at', 'updated_at', 'updated_by', 'updated_by_id',
-          'clone', 'clone_id'
+          'es_cell', 'es_cell_id'
         ].sort
       end
 

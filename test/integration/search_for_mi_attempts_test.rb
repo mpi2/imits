@@ -20,13 +20,13 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       login
     end
 
-    context 'searching for mi attempts by clone name' do
+    context 'searching for mi attempts by es_cell name' do
 
       setup do
         create_common_test_objects
       end
 
-      context 'with a single clone' do
+      context 'with a single es_cell' do
         setup do
           visit '/mi_attempts'
           fill_in 'search_terms', :with => 'EPD0343_1_H06'
@@ -34,7 +34,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
           assert_match /search_terms=EPD0343_1_H06/, current_url
         end
 
-        should 'show all data for that clone' do
+        should 'show all data for that es_cell' do
           [
             'EPD0343_1_H06',
             'Myo1c',
@@ -51,17 +51,17 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         end
 
         should 'show edit in form link' do
-          mi = Clone.find_by_clone_name('EPD0343_1_H06').mi_attempts.first
+          mi = EsCell.find_by_name('EPD0343_1_H06').mi_attempts.first
           selector = selector_for_table_cell(1) + " a[href=\"/mi_attempts/#{mi.id}\"]"
           assert page.has_css?(selector)
         end
 
-        should 'not show data for other clones' do
-          assert page.has_no_css?('.x-grid3-col-clone__clone_name', :text => 'EPD0127_4_E01')
+        should 'not show data for other es_cells' do
+          assert page.has_no_css?('.x-grid3-col-es_cell__name', :text => 'EPD0127_4_E01')
         end
       end
 
-      should 'work with a multiple clone names' do
+      should 'work with a multiple es_cell names' do
         visit '/mi_attempts'
         fill_in 'search_terms', :with => "EPD0127_4_E01\nEPD0343_1_H06"
         click_button 'Search'
@@ -71,7 +71,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         assert page.has_no_css? '.x-grid3-cell-inner', :text => 'EPD0029_1_G04'
       end
 
-      should 'work if whitespace around clone names' do
+      should 'work if whitespace around es_cell names' do
         visit '/'
         fill_in 'search_terms', :with => "  EPD0343_1_H06\t"
         click_button 'Search'
@@ -92,7 +92,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
     end
 
-    context 'searching for mi attempts by gene symbol' do
+    context 'searching for mi attempts by marker symbol' do
       setup do
         create_common_test_objects
         visit '/mi_attempts'
@@ -106,18 +106,18 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         assert page.has_css? selector_for_table_cell(1), :text => 'EPD0127_4_E01'
       end
 
-      should 'not find unmatched clones' do
+      should 'not find unmatched es_cells' do
         assert page.has_no_css?('.x-grid3-cell-inner', :text => 'EPD0343_1_H06')
       end
     end
 
     context 'searching by a term and filtering by production centre' do
       setup do
-        @clone1 = Factory.create :clone_EPD0343_1_H06
-        @clone2 = Factory.create :clone_EPD0127_4_E01
-        @clone3 = Factory.create :clone_EPD0029_1_G04
+        @es_cell1 = Factory.create :es_cell_EPD0343_1_H06
+        @es_cell2 = Factory.create :es_cell_EPD0127_4_E01
+        @es_cell3 = Factory.create :es_cell_EPD0029_1_G04
 
-        @mi_attempt = Factory.create(:mi_attempt, :clone => @clone1,
+        @mi_attempt = Factory.create(:mi_attempt, :es_cell => @es_cell1,
           :production_centre => Centre.find_by_name!('ICS'))
 
         visit '/'
@@ -128,12 +128,12 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
 
       should 'show results that match the search terms and the filter' do
-        assert page.has_css? '.x-grid3-col-clone__clone_name', :text => @mi_attempt.clone.clone_name
+        assert page.has_css? '.x-grid3-col-es_cell__name', :text => @mi_attempt.es_cell.name
       end
 
       should 'not show things that only match one of the terms but not the other' do
-        assert_equal 2, @clone1.mi_attempts.size
-        assert_equal 1, all('.x-grid3-col-clone__clone_name').size
+        assert_equal 2, @es_cell1.mi_attempts.size
+        assert_equal 1, all('.x-grid3-col-es_cell__name').size
         assert page.has_no_css? '.x-grid3-col-production_centre__name', :text => 'WTSI'
       end
 
@@ -144,16 +144,16 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
     context 'searching by a term and filtering by status' do
       setup do
-        @clone1 = Factory.create :clone_EPD0343_1_H06
-        @clone2 = Factory.create :clone_EPD0127_4_E01
-        @clone3 = Factory.create :clone_EPD0029_1_G04
+        @es_cell1 = Factory.create :es_cell_EPD0343_1_H06
+        @es_cell2 = Factory.create :es_cell_EPD0127_4_E01
+        @es_cell3 = Factory.create :es_cell_EPD0029_1_G04
 
         @status = MiAttemptStatus.create!(:description => 'Nonsense')
 
-        @mi_attempt = Factory.create(:mi_attempt, :clone => @clone2,
+        @mi_attempt = Factory.create(:mi_attempt, :es_cell => @es_cell2,
           :mi_attempt_status => @status)
 
-        mi_attempt_to_not_be_found = Factory.create(:mi_attempt, :clone => @clone1,
+        mi_attempt_to_not_be_found = Factory.create(:mi_attempt, :es_cell => @es_cell1,
           :mi_attempt_status => @status)
 
         sleep 3
@@ -165,12 +165,12 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
 
       should 'show results that match the search terms and the filter' do
-        assert page.has_css? '.x-grid3-col-clone__clone_name', :text => @mi_attempt.clone.clone_name
+        assert page.has_css? '.x-grid3-col-es_cell__name', :text => @mi_attempt.es_cell.name
         assert page.has_css? '.x-grid3-col-status', :text => 'Nonsense'
       end
 
       should 'not show any non-matching mi attempts' do
-        assert_equal 1, all('.x-grid3-col-clone__clone_name').size
+        assert_equal 1, all('.x-grid3-col-es_cell__name').size
       end
 
       should 'have filtered status pre-selected in dropdown' do

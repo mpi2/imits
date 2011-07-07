@@ -23,7 +23,7 @@ class Kermits2::Migration::RunFromScriptTest < ExternalScriptTestCase
       assert_equal expected_mis, MiAttempt.count
       cursor = Old::Clone.connection.execute('select count(distinct emi_clone.clone_name) from emi_attempt inner join emi_event on emi_event.id = emi_attempt.event_id  inner join emi_clone on emi_clone.id = emi_event.clone_id')
       number_of_distinct_clones = cursor.fetch.first.to_i
-      assert_equal number_of_distinct_clones, Clone.count
+      assert_equal number_of_distinct_clones, EsCell.count
     end
 
   end

@@ -21,7 +21,7 @@ class CreateMiAttempts < ActiveRecord::Migration
     create_table :mi_attempts do |table|
 
       # Important fields / Admin Details
-      table.references :clone, :null => false
+      table.references :es_cell, :null => false
       table.date :mi_date
       table.references :mi_attempt_status, :null => false
       table.text :colony_name
@@ -82,7 +82,7 @@ class CreateMiAttempts < ActiveRecord::Migration
 
     add_index :mi_attempts, :colony_name, :unique => true
 
-    add_foreign_key :mi_attempts, :clones
+    add_foreign_key :mi_attempts, :es_cells
     add_foreign_key :mi_attempts, :mi_attempt_statuses
     add_foreign_key :mi_attempts, :centres, :column => :production_centre_id
     add_foreign_key :mi_attempts, :centres, :column => :distribution_centre_id

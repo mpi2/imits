@@ -22,15 +22,15 @@ class MiAttemptsControllerTest < ActionController::TestCase
           get :index, :colony_name_contains => 'MBS', :format => :xml
           doc = parse_xml_from_response
           assert_equal 1, doc.xpath('count(//mi-attempt)')
-          assert_equal 'EPD0127_4_E01', doc.css('mi-attempt clone-name').text
+          assert_equal 'EPD0127_4_E01', doc.css('mi-attempt es-cell-name').text
         end
 
         should 'work in JSON format' do
           get :index, :colony_name_contains => 'MB', :format => :json
           data = parse_json_from_response
           assert_equal 2, data.size
-          assert_equal 'MBSS', data.find {|i| i['clone_name'] == 'EPD0127_4_E01'}['colony_name']
-          assert_equal 'MBFD', data.find {|i| i['clone_name'] == 'EPD0029_1_G04'}['colony_name']
+          assert_equal 'MBSS', data.find {|i| i['es_cell_name'] == 'EPD0127_4_E01'}['colony_name']
+          assert_equal 'MBFD', data.find {|i| i['es_cell_name'] == 'EPD0029_1_G04'}['colony_name']
         end
       end
     end
@@ -62,10 +62,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       def valid_create_for_format(format)
-        clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         assert_equal 0, MiAttempt.count
         post :create,
-                :mi_attempt => {'clone_name' => clone.clone_name, :production_centre_id => Centre.find_by_name('WTSI').id},
+                :mi_attempt => {'es_cell_name' => es_cell.name, :production_centre_id => Centre.find_by_name('WTSI').id},
                 :format => format
 
         mi_attempt = MiAttempt.first
@@ -76,7 +76,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
           assert_response :success
         end
 
-        assert_equal clone, mi_attempt.clone
+        assert_equal es_cell, mi_attempt.es_cell
         return mi_attempt
       end
 
@@ -86,10 +86,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'on validation errors redirect to edit page and show errors' do
-        clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         mi_attempt = Factory.create :mi_attempt, :colony_name => 'MAAB'
         assert_equal 1, MiAttempt.count
-        post :create, :mi_attempt => {'clone_name' => 'EPD0127_4_E01', 'colony_name' => 'MAAB'}
+        post :create, :mi_attempt => {'es_cell_name' => 'EPD0127_4_E01', 'colony_name' => 'MAAB'}
         assert_equal 1, MiAttempt.count
 
         assert ! assigns[:mi_attempt].errors[:colony_name].blank?
@@ -113,7 +113,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_false response.success?
 
         data = parse_json_from_response
-        assert_include data['clone_name'], 'cannot be blank'
+        assert_include data['es_cell_name'], 'cannot be blank'
       end
 
       should 'return errors with invalid params for XML' do
@@ -127,9 +127,9 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'set production centre from params instead of user if specified' do
         user = Factory.create :user, :production_centre => Centre.find_by_name('ICS')
         sign_in user
-        clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         post :create,
-                :mi_attempt => {'clone_name' => clone.clone_name, 'production_centre_name' => 'WTSI'},
+                :mi_attempt => {'es_cell_name' => es_cell.name, 'production_centre_name' => 'WTSI'},
                 :format => :json
         assert_response :success, response.body
 
@@ -140,9 +140,9 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'set production centre to logged in user centre if not specified' do
         user = Factory.create :user, :production_centre => Centre.find_by_name('ICS')
         sign_in user
-        clone = Factory.create :clone_EPD0127_4_E01_without_mi_attempts
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         post :create,
-                :mi_attempt => {'clone_name' => clone.clone_name},
+                :mi_attempt => {'es_cell_name' => es_cell.name},
                 :format => :json
         assert_response :success, response.body
 

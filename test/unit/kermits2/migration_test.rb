@@ -27,7 +27,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       assert_equal 5, Pipeline.count
       assert_equal 'EUCOMM consortia', Pipeline.find_by_name('EUCOMM').description
       assert_equal 'TIGM Gene trap resource', Pipeline.find_by_name('TIGM').description
-      assert_equal 0, Clone.count
+      assert_equal 0, EsCell.count
     end
 
     should 'migrate users and their centres' do
@@ -40,42 +40,42 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
 
     context 'migrating an mi attempt' do
 
-      should 'create clone using data from marts if it does not already exist' do
+      should 'create es cell using data from marts if it does not already exist' do
         Kermits2::Migration.run(:mi_attempt_ids => [11029])
         assert_equal 1, MiAttempt.count
-        assert_equal 1, Clone.count
+        assert_equal 1, EsCell.count
 
         mi_attempt = MiAttempt.first
-        clone = mi_attempt.clone
+        es_cell = mi_attempt.es_cell
 
-        assert_equal 'EPD0127_4_E01', clone.clone_name
+        assert_equal 'EPD0127_4_E01', es_cell.name
       end
 
-      should 'create 2 mi attempts of the same clone' do
+      should 'create 2 mi attempts of the same es_cell' do
         Kermits2::Migration.run(:mi_attempt_ids => [5171, 5172])
         assert_equal 2, MiAttempt.count
-        assert_equal ['EPD0017_3_F01'], MiAttempt.all.map(&:clone_name).uniq
+        assert_equal ['EPD0017_3_F01'], MiAttempt.all.map(&:es_cell_name).uniq
       end
 
-      should 'import gene trap clones from the old DB data when mart data does not exist' do
+      should 'import gene trap es_cells from the old DB data when mart data does not exist' do
         Kermits2::Migration.run(:mi_attempt_ids => [3775])
         assert_equal 1, MiAttempt.count
-        clone = MiAttempt.first.clone
-        assert_equal 'EUC0018f04', clone.clone_name
-        assert_equal 'Eed', clone.marker_symbol
-        assert_nil clone.allele_symbol_superscript_template
-        assert_nil clone.allele_type
-        assert_nil clone.mgi_accession_id
+        es_cell = MiAttempt.first.es_cell
+        assert_equal 'EUC0018f04', es_cell.name
+        assert_equal 'Eed', es_cell.marker_symbol
+        assert_nil es_cell.allele_symbol_superscript_template
+        assert_nil es_cell.allele_type
+        assert_nil es_cell.mgi_accession_id
       end
 
-      should 'import faculty line clones from the old DB data when mart data does not exist' do
+      should 'import faculty line es_cells from the old DB data when mart data does not exist' do
         Kermits2::Migration.run(:mi_attempt_ids => [7330])
         assert_equal 1, MiAttempt.count
-        clone = MiAttempt.first.clone
-        assert_equal 'EPD0122_6_C07', clone.clone_name
-        assert_equal 'Ptchd2', clone.marker_symbol
-        assert_equal 'tm1a(KOMP)Wtsi', clone.allele_symbol_superscript
-        assert_nil clone.mgi_accession_id
+        es_cell = MiAttempt.first.es_cell
+        assert_equal 'EPD0122_6_C07', es_cell.name
+        assert_equal 'Ptchd2', es_cell.marker_symbol
+        assert_equal 'tm1a(KOMP)Wtsi', es_cell.allele_symbol_superscript
+        assert_nil es_cell.mgi_accession_id
       end
 
       should 'migrate its centres' do
@@ -93,7 +93,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
 
         Kermits2::Migration.run(:mi_attempt_ids => [5268, 3973, 7335, 11785])
         assert_equal 4, MiAttempt.count
-        assert_equal 4, Clone.count
+        assert_equal 4, EsCell.count
 
         mi_5268, mi_3973, mi_7335, mi_11785 = MiAttempt.find(:all, :order => 'id asc')
 
@@ -133,7 +133,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
 
         Kermits2::Migration.run(:mi_attempt_ids => [mi_id])
         assert_equal 1, MiAttempt.count
-        assert_equal 1, Clone.count
+        assert_equal 1, EsCell.count
 
         MiAttempt.first
       end
@@ -255,7 +255,7 @@ class Kermits2::MigrationTest < ActiveSupport::TestCase
       should 'migrate mouse allele name when it is set' do
         mi = migrate_mi(11045)
         assert_equal ['tm1@(EUCOMM)Wtsi', 'a', 'e'],
-                [mi.clone.allele_symbol_superscript_template, mi.clone.allele_type, mi.mouse_allele_type]
+                [mi.es_cell.allele_symbol_superscript_template, mi.es_cell.allele_type, mi.mouse_allele_type]
       end
 
       context 'auditing info' do

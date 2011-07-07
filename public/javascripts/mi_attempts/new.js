@@ -1,11 +1,11 @@
 Ext.ns('Kermits2.newMI');
 
-Kermits2.newMI.ClonesList = Ext.extend(Ext.ListView, {
+Kermits2.newMI.EsCellsList = Ext.extend(Ext.ListView, {
     height: 150,
     width: 500,
     columns: [
     {
-        header: 'ES Cell Clone',
+        header: 'ES Cell',
         dataIndex: 'escell_clone',
         width: .21
     },
@@ -35,9 +35,9 @@ Kermits2.newMI.ClonesList = Ext.extend(Ext.ListView, {
     },
 
     initComponent: function() {
-        Kermits2.newMI.ClonesList.superclass.initComponent.call(this);
+        Kermits2.newMI.EsCellsList.superclass.initComponent.call(this);
 
-        this.cloneSelectorForm = this.initialConfig.cloneSelectorForm;
+        this.esCellSelectorForm = this.initialConfig.esCellSelectorForm;
 
         this.addListener({
             'selectionchange': function() {
@@ -45,14 +45,14 @@ Kermits2.newMI.ClonesList = Ext.extend(Ext.ListView, {
                 if(indices.length == 0) {
                     return;
                 }
-                var cloneName = this.getStore().getAt(indices[0]).data['escell_clone'];
-                this.cloneSelectorForm.onCloneNameSelected(cloneName);
+                var esCellName = this.getStore().getAt(indices[0]).data['escell_clone'];
+                this.esCellSelectorForm.onEsCellNameSelected(esCellName);
             }
         });
     },
 
     onRender: function() {
-        Kermits2.newMI.ClonesList.superclass.onRender.apply(this, arguments);
+        Kermits2.newMI.EsCellsList.superclass.onRender.apply(this, arguments);
         this.bindStore(new Ext.data.JsonStore({
             root: 'rows',
             fields: ['escell_clone', 'marker_symbol', 'pipeline', 'mutation_subtype', 'production_qc_loxp_screen']
@@ -67,19 +67,19 @@ Kermits2.newMI.SearchTab = Ext.extend(Ext.Panel, {
 
     resetForm: function() {
         this.searchBox.setValue('');
-        this.clonesList.getStore().removeAll();
+        this.esCellsList.getStore().removeAll();
     },
 
     performSearch: function() {
-        this.cloneSelectorForm.window.showLoadMask();
+        this.esCellSelectorForm.window.showLoadMask();
         var urlParams = {}
         urlParams[this.initialConfig.searchParam] = this.searchBox.getValue();
         Ext.Ajax.request({
-            url: window.martSearchClonesPath + '?' + Ext.urlEncode(urlParams),
+            url: window.martSearchEsCellsPath + '?' + Ext.urlEncode(urlParams),
             success: function(response) {
                 var data = Ext.decode(response.responseText);
-                this.clonesList.getStore().loadData({'rows': data});
-                this.cloneSelectorForm.window.hideLoadMask();
+                this.esCellsList.getStore().loadData({'rows': data});
+                this.esCellSelectorForm.window.hideLoadMask();
             },
             scope: this
         });
@@ -92,7 +92,7 @@ Kermits2.newMI.SearchTab = Ext.extend(Ext.Panel, {
 
         Kermits2.newMI.SearchTab.superclass.initComponent.call(this);
 
-        this.cloneSelectorForm = this.initialConfig.cloneSelectorForm;
+        this.esCellSelectorForm = this.initialConfig.esCellSelectorForm;
 
         this.add(new Ext.Panel({
             layout: 'hbox',
@@ -134,16 +134,16 @@ Kermits2.newMI.SearchTab = Ext.extend(Ext.Panel, {
             ]
         }));
 
-        this.clonesList = new Kermits2.newMI.ClonesList({
-            fieldLabel: 'Choose a clone to micro-inject',
-            cloneSelectorForm: this.cloneSelectorForm
+        this.esCellsList = new Kermits2.newMI.EsCellsList({
+            fieldLabel: 'Choose a ES cell to micro-inject',
+            esCellSelectorForm: this.esCellSelectorForm
         });
-        this.add(this.clonesList);
+        this.add(this.esCellsList);
     }
 });
 
-Kermits2.newMI.CloneSelectorWindow = Ext.extend(Ext.Window, {
-    title: 'Search for clones',
+Kermits2.newMI.EsCellSelectorWindow = Ext.extend(Ext.Window, {
+    title: 'Search for ES cells',
     resizable: false,
     layout: 'fit',
     closeAction: 'hide',
@@ -166,17 +166,17 @@ Kermits2.newMI.CloneSelectorWindow = Ext.extend(Ext.Window, {
             forceFit: true
         };
 
-        Kermits2.newMI.CloneSelectorWindow.superclass.initComponent.call(this);
+        Kermits2.newMI.EsCellSelectorWindow.superclass.initComponent.call(this);
 
-        this.cloneSearchTab = new Kermits2.newMI.SearchTab({
-            cloneSelectorForm: this.initialConfig.cloneSelectorForm,
-            title: 'Search by clone name',
-            searchBoxLabel: 'Enter clone name',
-            searchParam: 'clone_name'
+        this.esCellSearchTab = new Kermits2.newMI.SearchTab({
+            esCellSelectorForm: this.initialConfig.esCellSelectorForm,
+            title: 'Search by ES cell name',
+            searchBoxLabel: 'Enter ES cellname',
+            searchParam: 'es_cell_name'
         });
 
         this.markerSymbolSearchTab = new Kermits2.newMI.SearchTab({
-            cloneSelectorForm: this.initialConfig.cloneSelectorForm,
+            esCellSelectorForm: this.initialConfig.esCellSelectorForm,
             title: 'Search by marker symbol',
             searchBoxLabel: 'Enter marker symbol',
             searchParam: 'marker_symbol'
@@ -190,7 +190,7 @@ Kermits2.newMI.CloneSelectorWindow = Ext.extend(Ext.Window, {
             activeTab: 0,
             items: [
             this.markerSymbolSearchTab,
-            this.cloneSearchTab
+            this.esCellSearchTab
             ]
         });
 
@@ -207,7 +207,7 @@ Kermits2.newMI.CloneSelectorWindow = Ext.extend(Ext.Window, {
 
 });
 
-Kermits2.newMI.CloneSelectorForm = Ext.extend(Ext.Panel, {
+Kermits2.newMI.EsCellSelectorForm = Ext.extend(Ext.Panel, {
     layout: 'form',
     border: false,
     unstyled: true,
@@ -218,16 +218,16 @@ Kermits2.newMI.CloneSelectorForm = Ext.extend(Ext.Panel, {
             forceFit: true
         };
 
-        Kermits2.newMI.CloneSelectorForm.superclass.initComponent.call(this);
+        Kermits2.newMI.EsCellSelectorForm.superclass.initComponent.call(this);
 
         this.add(new Ext.Panel({
             layout: 'hbox',
             unstyled: true,
-            fieldLabel: 'Select a Clone',
+            fieldLabel: 'Select a EsCell',
             border: false,
             items: [
             {
-                ref: '../cloneNameTextField',
+                ref: '../esCellNameTextField',
                 xtype: 'textfield',
                 disabled: true,
                 style: {
@@ -255,26 +255,26 @@ Kermits2.newMI.CloneSelectorForm = Ext.extend(Ext.Panel, {
             ]
         }));
 
-        this.window = new Kermits2.newMI.CloneSelectorWindow({
-            cloneSelectorForm: this
+        this.window = new Kermits2.newMI.EsCellSelectorWindow({
+            esCellSelectorForm: this
         });
     },
 
     onRender: function() {
-        Kermits2.newMI.CloneSelectorForm.superclass.onRender.apply(this, arguments);
+        Kermits2.newMI.EsCellSelectorForm.superclass.onRender.apply(this, arguments);
 
-        var defaultCloneName = Kermits2.newMI.restOfForm.getCloneName();
-        if(defaultCloneName != '') {
-            this.cloneNameTextField.setValue(defaultCloneName);
+        var defaultEsCellName = Kermits2.newMI.restOfForm.getEsCellName();
+        if(defaultEsCellName != '') {
+            this.esCellNameTextField.setValue(defaultEsCellName);
         } else {
             this.window.show();
         }
     },
 
-    onCloneNameSelected: function(cloneName) {
-        this.cloneNameTextField.setValue(cloneName);
+    onEsCellNameSelected: function(esCellName) {
+        this.esCellNameTextField.setValue(esCellName);
         this.window.hide();
-        Kermits2.newMI.restOfForm.setCloneName(cloneName);
+        Kermits2.newMI.restOfForm.setEsCellName(esCellName);
         Kermits2.newMI.restOfForm.showIfHidden();
     }
 });
@@ -289,19 +289,19 @@ function processRestOfForm() {
         }
     }
 
-    Kermits2.newMI.restOfForm.setCloneName = function(cloneName) {
-        var cloneNameField = this.child('input[name="mi_attempt[clone_name]"]');
-        cloneNameField.set({
-            value: cloneName
+    Kermits2.newMI.restOfForm.setEsCellName = function(esCellName) {
+        var esCellNameField = this.child('input[name="mi_attempt[es_cell_name]"]');
+        esCellNameField.set({
+            value: esCellName
         });
     }
 
-    Kermits2.newMI.restOfForm.getCloneName = function() {
-        var cloneNameField = this.child('input[name="mi_attempt[clone_name]"]');
-        return cloneNameField.getValue();
+    Kermits2.newMI.restOfForm.getEsCellName = function() {
+        var esCellNameField = this.child('input[name="mi_attempt[es_cell_name]"]');
+        return esCellNameField.getValue();
     }
 
-    if(Kermits2.newMI.restOfForm.getCloneName() == '') {
+    if(Kermits2.newMI.restOfForm.getEsCellName() == '') {
         Kermits2.newMI.restOfForm.hide(false);
         Kermits2.newMI.restOfForm.hidden = true;
     } else {
@@ -313,7 +313,7 @@ function processRestOfForm() {
 Ext.onReady(function() {
     processRestOfForm();
 
-    var panel = new Kermits2.newMI.CloneSelectorForm({
-        renderTo: 'clone-selector'
+    var panel = new Kermits2.newMI.EsCellSelectorForm({
+        renderTo: 'es-cell-selector'
     });
 });

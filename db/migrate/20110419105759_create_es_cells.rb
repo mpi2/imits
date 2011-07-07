@@ -1,7 +1,7 @@
-class CreateClones < ActiveRecord::Migration
+class CreateEsCells< ActiveRecord::Migration
   def self.up
-    create_table :clones do |t|
-      t.text :clone_name, :null => false
+    create_table :es_cells do |t|
+      t.text :name, :null => false
       t.text :marker_symbol, :null => false
       t.text :allele_symbol_superscript_template
       t.text :allele_type
@@ -11,11 +11,11 @@ class CreateClones < ActiveRecord::Migration
       t.timestamps
     end
 
-    add_index :clones, :clone_name, :unique => true
-    add_foreign_key :clones, :pipelines
+    add_index :es_cells, :name, :unique => true
+    add_foreign_key :es_cells, :pipelines
   end
 
   def self.down
-    drop_table :clones
+    drop_table :es_cells
   end
 end

@@ -57,9 +57,9 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
 // Add common columns to each view
 var commonColumns = [
 'edit_link',
-'clone__clone_name',
-'clone__marker_symbol',
-'clone__allele_symbol',
+'es_cell__name',
+'es_cell__marker_symbol',
+'es_cell__allele_symbol',
 'mi_date',
 'mi_attempt_status__description',
 'colony_name',

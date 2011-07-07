@@ -23,9 +23,9 @@ class ActiveSupport::TestCase
   end
 
   def create_common_test_objects
-    Factory.create(:clone_EPD0127_4_E01)
-    Factory.create(:clone_EPD0343_1_H06)
-    Factory.create(:clone_EPD0029_1_G04)
+    Factory.create(:es_cell_EPD0127_4_E01)
+    Factory.create(:es_cell_EPD0343_1_H06)
+    Factory.create(:es_cell_EPD0029_1_G04)
   end
 
   def default_user

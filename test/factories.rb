@@ -11,12 +11,12 @@ Factory.define :pipeline do |pipeline|
   pipeline.description 'Pipeline Description'
 end
 
-Factory.define :clone do |clone|
-  clone.sequence(:clone_name) {|n| "Auto-generated Clone Name #{n}" }
-  clone.marker_symbol "Auto-generated Marker Symbol"
-  clone.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
-  clone.association(:pipeline) { Pipeline.find_by_name! 'EUCOMM' }
-  clone.sequence(:mgi_accession_id) {|n| "MGI:#{"%.10i" % n}"}
+Factory.define :es_cell do |es_cell|
+  es_cell.sequence(:name) {|n| "Auto-generated ES Cell Name #{n}" }
+  es_cell.marker_symbol "Auto-generated Marker Symbol"
+  es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
+  es_cell.association(:pipeline) { Pipeline.find_by_name! 'EUCOMM' }
+  es_cell.sequence(:mgi_accession_id) {|n| "MGI:#{"%.10i" % n}"}
 end
 
 Factory.define :centre do |centre|
@@ -24,14 +24,14 @@ Factory.define :centre do |centre|
 end
 
 Factory.define :mi_attempt do |mi_attempt|
-  mi_attempt.association :clone
+  mi_attempt.association :es_cell
   mi_attempt.production_centre { Centre.find_by_name('WTSI') }
 end
 
-Factory.define :randomly_populated_clone, :parent => :clone do |clone|
-  clone.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
-  clone.allele_symbol_superscript_template 'tm1@(EUCOMM)Wtsi'
-  clone.allele_type { ('a'..'e').to_a.sample }
+Factory.define :randomly_populated_es_cell, :parent => :es_cell do |es_cell|
+  es_cell.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
+  es_cell.allele_symbol_superscript_template 'tm1@(EUCOMM)Wtsi'
+  es_cell.allele_type { ('a'..'e').to_a.sample }
 end
 
 Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
@@ -63,47 +63,47 @@ end
 
 #Specifics
 
-Factory.define :clone_EPD0127_4_E01_without_mi_attempts, :parent => :clone do |clone|
-  clone.clone_name 'EPD0127_4_E01'
-  clone.marker_symbol 'Trafd1'
-  clone.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
-  clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
+Factory.define :es_cell_EPD0127_4_E01_without_mi_attempts, :parent => :es_cell do |es_cell|
+  es_cell.name 'EPD0127_4_E01'
+  es_cell.marker_symbol 'Trafd1'
+  es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
+  es_cell.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 end
 
-Factory.define :clone_EPD0127_4_E01, :parent => :clone_EPD0127_4_E01_without_mi_attempts do |clone|
-  clone.after_create do |clone|
+Factory.define :es_cell_EPD0127_4_E01, :parent => :es_cell_EPD0127_4_E01_without_mi_attempts do |es_cell|
+  es_cell.after_create do |es_cell|
     Factory.create(:mi_attempt,
-      :clone => clone,
+      :es_cell => es_cell,
       :colony_name => 'MBSS',
       :distribution_centre => Centre.find_by_name!('ICS'),
       :production_centre => Centre.find_by_name!('ICS'),
       :is_suitable_for_emma => true)
 
     Factory.create(:mi_attempt,
-      :clone => clone,
+      :es_cell => es_cell,
       :distribution_centre => Centre.find_by_name!('ICS'),
       :production_centre => Centre.find_by_name!('ICS'),
       :emma_status => 'unsuitable_sticky')
 
     Factory.create(:mi_attempt,
-      :clone => clone,
+      :es_cell => es_cell,
       :colony_name => 'WBAA',
       :distribution_centre => Centre.find_by_name!('ICS'),
       :production_centre => Centre.find_by_name!('ICS'))
   end
 end
 
-Factory.define :clone_EPD0343_1_H06_without_mi_attempts, :parent => :clone do |clone|
-  clone.clone_name 'EPD0343_1_H06'
-  clone.marker_symbol 'Myo1c'
-  clone.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
-  clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
+Factory.define :es_cell_EPD0343_1_H06_without_mi_attempts, :parent => :es_cell do |es_cell|
+  es_cell.name 'EPD0343_1_H06'
+  es_cell.marker_symbol 'Myo1c'
+  es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
+  es_cell.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 end
 
-Factory.define :clone_EPD0343_1_H06, :parent => :clone_EPD0343_1_H06_without_mi_attempts do |clone|
-  clone.after_create do |clone|
+Factory.define :es_cell_EPD0343_1_H06, :parent => :es_cell_EPD0343_1_H06_without_mi_attempts do |es_cell|
+  es_cell.after_create do |es_cell|
     Factory.create(:mi_attempt,
-      :clone => clone,
+      :es_cell => es_cell,
       :colony_name => 'MDCF',
       :distribution_centre => Centre.find_by_name!('WTSI'),
       :production_centre => Centre.find_by_name!('WTSI'),
@@ -111,15 +111,15 @@ Factory.define :clone_EPD0343_1_H06, :parent => :clone_EPD0343_1_H06_without_mi_
   end
 end
 
-Factory.define :clone_EPD0029_1_G04, :parent => :clone do |clone|
-  clone.clone_name 'EPD0029_1_G04'
-  clone.marker_symbol 'Gatc'
-  clone.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
-  clone.pipeline { Pipeline.find_by_name! 'KOMP' }
+Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
+  es_cell.name 'EPD0029_1_G04'
+  es_cell.marker_symbol 'Gatc'
+  es_cell.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
+  es_cell.pipeline { Pipeline.find_by_name! 'KOMP' }
 
-  clone.after_create do |clone|
+  es_cell.after_create do |es_cell|
     Factory.create(:mi_attempt,
-      :clone => clone,
+      :es_cell => es_cell,
       :colony_name => 'MBFD',
       :distribution_centre => Centre.find_by_name!('WTSI'),
       :production_centre => Centre.find_by_name!('WTSI'))

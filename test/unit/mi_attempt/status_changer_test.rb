@@ -68,8 +68,8 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
     end
 
     should 'be invoked as a before_save filter' do
-      clone = Factory.create :clone_EPD0343_1_H06
-      mi_attempt = clone.mi_attempts.first
+      es_cell = Factory.create :es_cell_EPD0343_1_H06
+      mi_attempt = es_cell.mi_attempts.first
       assert_equal 'WTSI', mi_attempt.production_centre.name
       assert_equal MiAttemptStatus.micro_injection_in_progress, mi_attempt.mi_attempt_status
       mi_attempt.is_released_from_genotyping = true

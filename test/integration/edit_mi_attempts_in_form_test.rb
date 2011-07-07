@@ -8,7 +8,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
     setup do
       create_common_test_objects
       @mi_attempt = Factory.create(:mi_attempt,
-        :clone => Clone.find_by_clone_name('EPD0343_1_H06'),
+        :es_cell => EsCell.find_by_name('EPD0343_1_H06'),
         :mi_date => '2011-06-09',
         :date_chimeras_mated => '2011-06-02',
         :colony_name => 'MAAB',
@@ -21,9 +21,9 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       visit mi_attempt_path(@mi_attempt)
     end
 
-    should 'show but not allow editing clone or gene' do
+    should 'show but not allow editing es_cell or gene' do
       assert_match /Myo1c/, page.find('.marker-symbol').text
-      assert_match /EPD0343_1_H06/, page.find('.clone-name').text
+      assert_match /EPD0343_1_H06/, page.find('.es-cell-name').text
     end
 
     should 'show default values' do

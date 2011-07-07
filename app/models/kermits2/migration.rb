@@ -136,7 +136,7 @@ class Kermits2::Migration
 
     migrate_users
 
-    migrate_clones(params)
+    migrate_es_cells(params)
 
     migrate_mi_attempts(params)
   end
@@ -164,36 +164,36 @@ class Kermits2::Migration
     end
   end
 
-  def self.migrate_clones(params)
+  def self.migrate_es_cells(params)
     query = Old::Clone.all_that_have_mi_attempts
     if params[:mi_attempt_ids]
       query = query.where(:emi_attempt => {:id => params[:mi_attempt_ids]})
     end
     old_clones = query.all
-    clone_names = old_clones.collect(&:clone_name)
+    es_cell_names = old_clones.collect(&:clone_name)
 
-    if clone_names.empty?
+    if es_cell_names.empty?
       return []
     else
-      clones = Clone.create_all_from_marts_by_clone_names(clone_names)
-      new_clone_names = clones.map(&:clone_name)
+      es_cells = EsCell.create_all_from_marts_by_names(es_cell_names)
+      new_es_cell_names = es_cells.map(&:name)
 
-      non_mart_clone_names = (Set.new(new_clone_names) ^ Set.new(clone_names)).to_a
-      non_mart_clone_names.each do |non_mart_clone_name|
+      non_mart_es_cell_names = (Set.new(new_es_cell_names) ^ Set.new(es_cell_names)).to_a
+      non_mart_es_cell_names.each do |non_mart_es_cell_name|
         begin
-          old_clone = Old::Clone.find_by_clone_name(non_mart_clone_name)
+          old_clone = Old::Clone.find_by_clone_name(non_mart_es_cell_name)
           allele_md = /<sup>(.+)<\/sup>/.match(old_clone.allele_name)
-          clone = Clone.new(
-            :clone_name => non_mart_clone_name,
+          es_cell = EsCell.new(
+            :name => non_mart_es_cell_name,
             :marker_symbol => old_clone.gene_symbol,
             :pipeline => Pipeline.find_or_create_by_name(old_clone.pipeline.name)
           )
           if allele_md
-            clone.allele_symbol_superscript = allele_md[1]
+            es_cell.allele_symbol_superscript = allele_md[1]
           end
-          clone.save!
+          es_cell.save!
         rescue Exception => e
-          e2 = Kermits2::Migration::Error.new("Caught exception #{e.class.name}: Error while fallback-DB-importing #{non_mart_clone_name}: #{e.message}")
+          e2 = Kermits2::Migration::Error.new("Caught exception #{e.class.name}: Error while fallback-DB-importing #{non_mart_es_cell_name}: #{e.message}")
           e2.set_backtrace(e.backtrace)
           raise e2
         end
@@ -221,7 +221,7 @@ class Kermits2::Migration
       @@mi_file.puts old_mi_attempt.id
       @@mi_file.flush
 
-      clone = Clone.find_by_clone_name!(old_mi_attempt.clone_name)
+      es_cell = EsCell.find_by_name!(old_mi_attempt.clone_name)
 
       mi_attempt = MiAttempt.new(
         :production_centre => Centre.find_by_name!(old_mi_attempt.production_centre.name),
@@ -270,7 +270,7 @@ class Kermits2::Migration
       )
 
       # Important details (cont)
-      mi_attempt.clone = clone
+      mi_attempt.es_cell = es_cell
 
       if(old_mi_attempt.emi_event.edit_date.nil? or
                   old_mi_attempt.edit_date > old_mi_attempt.emi_event.edit_date)

@@ -39,7 +39,7 @@ class MiAttempt < ActiveRecord::Base
 
   PRIVATE_ATTRIBUTES = [
     'created_at', 'updated_at', 'updated_by', 'updated_by_id',
-    'clone', 'clone_id',
+    'es_cell', 'es_cell_id',
     'mi_attempt_status', 'mi_attempt_status_id'
   ]
 
@@ -47,27 +47,27 @@ class MiAttempt < ActiveRecord::Base
 
   acts_as_audited
 
-  belongs_to :clone
+  belongs_to :es_cell
 
-  def clone_name
-    if(self.clone)
-      return self.clone.clone_name
+  def es_cell_name
+    if(self.es_cell)
+      return self.es_cell.name
     else
-      return @clone_name
+      return @es_cell_name
     end
   end
 
-  def clone_name=(arg)
-    if(! self.clone)
-      @clone_name = arg
+  def es_cell_name=(arg)
+    if(! self.es_cell)
+      @es_cell_name = arg
     end
   end
 
-  validates :clone_name, :presence => true
+  validates :es_cell_name, :presence => true
 
-  validates_each :clone_name do |record, attr, value|
-    if !record.clone_name.blank? and record.clone.blank?
-      record.errors.add :clone_name, 'was not found in the marts'
+  validates_each :es_cell_name do |record, attr, value|
+    if !record.es_cell_name.blank? and record.es_cell.blank?
+      record.errors.add :es_cell_name, 'was not found in the marts'
     end
   end
 
@@ -109,7 +109,7 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_blank_strings_to_nil
   before_validation :set_default_status
   before_validation :set_total_chimeras
-  before_validation :set_clone_from_clone_name
+  before_validation :set_es_cell_from_es_cell_name
   before_validation :set_default_distribution_centre
   before_validation :set_default_deposited_material
 
@@ -135,9 +135,9 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
-  def set_clone_from_clone_name
-    if ! self.clone
-      self.clone = Clone.find_or_create_from_marts_by_clone_name(self.clone_name)
+  def set_es_cell_from_es_cell_name
+    if ! self.es_cell
+      self.es_cell = EsCell.find_or_create_from_marts_by_name(self.es_cell_name)
     end
   end
 
@@ -151,7 +151,7 @@ class MiAttempt < ActiveRecord::Base
     i = 0
     begin
       i += 1
-      self.colony_name = "#{self.production_centre_name}-#{self.clone_name}-#{i}"
+      self.colony_name = "#{self.production_centre_name}-#{self.es_cell_name}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
 
@@ -198,8 +198,8 @@ class MiAttempt < ActiveRecord::Base
     if mouse_allele_type.nil?
       return nil
     else
-      return clone.allele_symbol_superscript_template.sub(
-        Clone::TEMPLATE_CHARACTER, mouse_allele_type)
+      return es_cell.allele_symbol_superscript_template.sub(
+        EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
     end
   end
 
@@ -207,7 +207,7 @@ class MiAttempt < ActiveRecord::Base
     if mouse_allele_type.nil?
       return nil
     else
-      return "#{clone.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
+      return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
     end
   end
 
@@ -281,8 +281,8 @@ class MiAttempt < ActiveRecord::Base
 
     unless terms.blank?
       sql_texts <<
-              '(UPPER(clones.clone_name) IN (?) OR ' +
-              ' UPPER(clones.marker_symbol) IN (?) OR ' +
+              '(UPPER(es_cells.name) IN (?) OR ' +
+              ' UPPER(es_cells.marker_symbol) IN (?) OR ' +
               ' UPPER(mi_attempts.colony_name) IN (?))'
       sql_params << terms  << terms << terms
     end
@@ -301,7 +301,7 @@ class MiAttempt < ActiveRecord::Base
       scoped
     else
       sql_text = sql_texts.join(' AND ')
-      joins(:clone).where(sql_text, *sql_params)
+      joins(:es_cell).where(sql_text, *sql_params)
     end
   }
 
@@ -309,7 +309,7 @@ class MiAttempt < ActiveRecord::Base
     options ||= {}
     options.symbolize_keys!
     options[:methods] ||= [
-      'qc', 'clone_name', 'emma_status', 'status',
+      'qc', 'es_cell_name', 'emma_status', 'status',
       'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
       'distribution_centre_name', 'production_centre_name',
       'mouse_allele_symbol_superscript'
@@ -338,7 +338,7 @@ end
 # Table name: mi_attempts
 #
 #  id                                              :integer         not null, primary key
-#  clone_id                                        :integer         not null
+#  es_cell_id                                      :integer         not null
 #  mi_date                                         :date
 #  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :text

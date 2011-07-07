@@ -251,22 +251,30 @@ form span.error-message {
 
 /* @group Collapsible Fieldsets */
 
+form fieldset legend.collapsible-control {
+	padding-left: 16px;
+	background-position: 0 center;
+	background-repeat: no-repeat;
+}
+
 form fieldset legend.collapsible-control:hover {
 	cursor: pointer;
 }
 
-form fieldset legend.collapsible-control small {
-	color: #009;
-	font-size: small;
-	text-decoration: underline;
+form fieldset.collapsible-content-shown legend.collapsible-control {
+	background-image: url('../images/icons/bullet_arrow_down.png');
 }
 
-form fieldset legend.collapsible-control small:hover {
-	color: #8f110b;
+form fieldset.collapsible-content-hidden legend.collapsible-control {
+	background-image: url('../images/icons/bullet_arrow_right.png');
 }
 
 form fieldset.collapsible-content-hidden {
-	padding: 5px 20px;
+	padding: 0 20px;
+	border-bottom: none;
+	border-left: none;
+	border-right: none;
+	border-radius: 0px;
 }
 
 /* @end */

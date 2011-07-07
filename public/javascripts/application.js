@@ -102,7 +102,6 @@ function toggleCollapsibleFieldsetLegend(legend) {
 }
 function setupCollapsibleFieldsets() {
     Ext.select('fieldset.collapsible legend', true).each(function(legend) {
-        legend.insertHtml('beforeEnd', ' <small>(click to expand/collapse)</small>');
         legend.addClass('collapsible-control');
         legend.addListener('click', function() { toggleCollapsibleFieldsetLegend(this) });
         var fieldset = legend.up('fieldset');

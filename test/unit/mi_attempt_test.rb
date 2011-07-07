@@ -656,16 +656,16 @@ class MiAttemptTest < ActiveSupport::TestCase
       should 'be used to set the es_cell before save' do
         @mi_attempt.save!
 
-        assert_equal 'EPD0127_4_E01', @mi_attempt.es_cell.es_cell_name
+        assert_equal 'EPD0127_4_E01', @mi_attempt.es_cell.name
       end
 
       should 'be overridden by the associated es_cell\'s name if that exists' do
-        @mi_attempt.es_cell = EsCell.find_by_es_cell_name('EPD0343_1_H06')
+        @mi_attempt.es_cell = EsCell.find_by_name('EPD0343_1_H06')
         assert_equal 'EPD0343_1_H06', @mi_attempt.es_cell_name
       end
 
       should 'not be settable if there is an associated es_cell' do
-        @mi_attempt.es_cell = EsCell.find_by_es_cell_name('EPD0343_1_H06')
+        @mi_attempt.es_cell = EsCell.find_by_name('EPD0343_1_H06')
         @mi_attempt.es_cell_name = 'EPD0127_4_E01'
         assert_equal 'EPD0343_1_H06', @mi_attempt.es_cell_name
       end
@@ -685,7 +685,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'not validate as missing if not set but es_cell is set' do
         @mi_attempt.es_cell_name = nil
-        @mi_attempt.es_cell = EsCell.find_by_es_cell_name('EPD0343_1_H06')
+        @mi_attempt.es_cell = EsCell.find_by_name('EPD0343_1_H06')
         @mi_attempt.valid?
         assert @mi_attempt.errors['es_cell_name'].blank?
       end
@@ -701,7 +701,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be output in XML serialization' do
-        assert_equal 'EPD0127_4_E01', Nokogiri::XML(@mi_attempt.to_xml).css('es_cell-name').text
+        assert_equal 'EPD0127_4_E01', Nokogiri::XML(@mi_attempt.to_xml).css('es-cell-name').text
       end
     end
 

@@ -2,7 +2,7 @@ drop table clones;
 create table clones (
        id int primary key auto_increment,
        clone_name text not null,
-       allele_name_superscript_template text,
+       allele_symbol_superscript_template text,
        allele_type text
        ) engine = innodb;
 
@@ -34,10 +34,10 @@ insert into mi_attempts (colony_name, mouse_allele_type, clone_id)
 
 drop view mi_attempts_view;
 create view mi_attempts_view as
-select clones.allele_name_superscript_template,
+select clones.allele_symbol_superscript_template,
        clones.allele_type,
-       REPLACE(clones.allele_name_superscript_template, '@', IFNULL(clones.allele_type, '')) AS allele_name_superscript,
-       REPLACE(clones.allele_name_superscript_template, '@', mouse_allele_type) AS mouse_allele_name_superscript,
+       REPLACE(clones.allele_symbol_superscript_template, '@', IFNULL(clones.allele_type, '')) AS allele_symbol_superscript,
+       REPLACE(clones.allele_symbol_superscript_template, '@', mouse_allele_type) AS mouse_allele_symbol_superscript,
        mi_attempts.*
 from mi_attempts
 inner join clones on clones.id = mi_attempts.clone_id;

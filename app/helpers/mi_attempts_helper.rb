@@ -148,7 +148,7 @@ module MiAttemptsHelper
         :renderer => ['comboRenderer', combo_id], :width => 130)
     end
 
-    def mouse_allele_name_columns
+    def mouse_allele_symbol_columns
       mouse_allele_type_combo = local_combo_editor(MiAttempt::MOUSE_ALLELE_OPTIONS.to_a,
         :id => 'mouseAlleleTypeCombo', :minListWidth => 350)
 
@@ -160,7 +160,7 @@ module MiAttemptsHelper
         mi_attempt_column(:allele_type, :header => 'Allele Type', :readOnly => true,
           :hidden => true, :getter => proc {|mi| mi.clone.allele_type}),
 
-        mi_attempt_column(:mouse_allele_name, :readOnly => true)
+        mi_attempt_column(:mouse_allele_symbol, :readOnly => true)
       ]
     end
 
@@ -202,10 +202,10 @@ module MiAttemptsHelper
         mi_attempt_column(:clone__marker_symbol, :header => 'Marker Symbol',
           :width => 75, :readOnly => true),
 
-        mi_attempt_column(:allele_name,
+        mi_attempt_column(:allele_symbol,
           :readOnly => true,
           :header => 'Allele Name',
-          :getter => proc {|mi| mi.clone.allele_name}),
+          :getter => proc {|mi| mi.clone.allele_symbol}),
 
         date_column(:mi_date, :header => 'MI Date'),
 
@@ -292,7 +292,7 @@ module MiAttemptsHelper
         mi_attempt_column(:number_of_live_glt_offspring,
           :header => 'No. Live GLT Offspring', :align => :right)
 
-      ] + mouse_allele_name_columns + define_qc_columns
+      ] + mouse_allele_symbol_columns + define_qc_columns
     end
 
     def switch_view_button(text, extra_params = {})

@@ -14,7 +14,7 @@ end
 Factory.define :clone do |clone|
   clone.sequence(:clone_name) {|n| "Auto-generated Clone Name #{n}" }
   clone.marker_symbol "Auto-generated Marker Symbol"
-  clone.allele_name_superscript 'tm1a(EUCOMM)Wtsi'
+  clone.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   clone.association(:pipeline) { Pipeline.find_by_name! 'EUCOMM' }
   clone.sequence(:mgi_accession_id) {|n| "MGI:#{"%.10i" % n}"}
 end
@@ -30,7 +30,7 @@ end
 
 Factory.define :randomly_populated_clone, :parent => :clone do |clone|
   clone.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
-  clone.allele_name_superscript_template 'tm1@(EUCOMM)Wtsi'
+  clone.allele_symbol_superscript_template 'tm1@(EUCOMM)Wtsi'
   clone.allele_type { ('a'..'e').to_a.sample }
 end
 
@@ -66,7 +66,7 @@ end
 Factory.define :clone_EPD0127_4_E01_without_mi_attempts, :parent => :clone do |clone|
   clone.clone_name 'EPD0127_4_E01'
   clone.marker_symbol 'Trafd1'
-  clone.allele_name_superscript 'tm1a(EUCOMM)Wtsi'
+  clone.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 end
 
@@ -96,7 +96,7 @@ end
 Factory.define :clone_EPD0343_1_H06_without_mi_attempts, :parent => :clone do |clone|
   clone.clone_name 'EPD0343_1_H06'
   clone.marker_symbol 'Myo1c'
-  clone.allele_name_superscript 'tm1a(EUCOMM)Wtsi'
+  clone.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   clone.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 end
 
@@ -114,7 +114,7 @@ end
 Factory.define :clone_EPD0029_1_G04, :parent => :clone do |clone|
   clone.clone_name 'EPD0029_1_G04'
   clone.marker_symbol 'Gatc'
-  clone.allele_name_superscript 'tm1a(KOMP)Wtsi'
+  clone.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
   clone.pipeline { Pipeline.find_by_name! 'KOMP' }
 
   clone.after_create do |clone|

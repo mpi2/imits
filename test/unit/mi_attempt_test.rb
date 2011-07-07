@@ -156,46 +156,46 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      context '#mouse_allele_name_superscript' do
+      context '#mouse_allele_symbol_superscript' do
         should 'be nil if mouse_allele_type is nil' do
-          default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
+          default_mi_attempt.clone.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           default_mi_attempt.mouse_allele_type = nil
-          assert_equal nil, default_mi_attempt.mouse_allele_name_superscript
+          assert_equal nil, default_mi_attempt.mouse_allele_symbol_superscript
         end
 
-        should 'be nil if Clone#allele_name_superscript_template is nil' do
-          default_mi_attempt.clone.allele_name_superscript = nil
-          assert_equal nil, default_mi_attempt.mouse_allele_name_superscript
+        should 'be nil if Clone#allele_symbol_superscript_template is nil' do
+          default_mi_attempt.clone.allele_symbol_superscript = nil
+          assert_equal nil, default_mi_attempt.mouse_allele_symbol_superscript
         end
 
         should 'work if mouse_allele_type is present' do
-          default_mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
+          default_mi_attempt.clone.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           default_mi_attempt.mouse_allele_type = 'e'
-          assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_name_superscript
+          assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_symbol_superscript
         end
 
         should 'be output in serialization' do
           default_mi_attempt.mouse_allele_type = 'e'
-          assert_equal 'tm1e(EUCOMM)Wtsi', default_mi_attempt.as_json['mouse_allele_name_superscript']
+          assert_equal 'tm1e(EUCOMM)Wtsi', default_mi_attempt.as_json['mouse_allele_symbol_superscript']
         end
       end
 
-      context '#mouse_allele_name' do
+      context '#mouse_allele_symbol' do
         setup do
           clone = Factory.create :clone_EPD0343_1_H06
           @mi_attempt = Factory.build :mi_attempt, :clone => clone
         end
 
         should 'be nil if mouse_allele_type is nil' do
-          @mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
+          @mi_attempt.clone.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           @mi_attempt.mouse_allele_type = nil
-          assert_equal nil, @mi_attempt.mouse_allele_name
+          assert_equal nil, @mi_attempt.mouse_allele_symbol
         end
 
         should 'work if mouse_allele_type is present' do
-          @mi_attempt.clone.allele_name_superscript = 'tm2b(KOMP)Wtsi'
+          @mi_attempt.clone.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           @mi_attempt.mouse_allele_type = 'e'
-          assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_name
+          assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_symbol
         end
       end
 

@@ -65,7 +65,7 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
         @default_mi_attempt.reload
         assert_equal 'e', @default_mi_attempt.mouse_allele_type
 
-        assert page.has_css?('.x-grid3-col-mouse_allele_name', :text => 'Myo1ctm1e(EUCOMM)Wtsi')
+        assert page.has_css?('.x-grid3-col-mouse_allele_symbol', :text => 'Myo1ctm1e(EUCOMM)Wtsi')
       end
 
       should 'be settable to nil' do
@@ -82,13 +82,13 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
         @default_mi_attempt.reload
         assert_equal nil, @default_mi_attempt.mouse_allele_type
 
-        assert page.has_css?('.x-grid3-col-mouse_allele_name', :text => '')
+        assert page.has_css?('.x-grid3-col-mouse_allele_symbol', :text => '')
       end
 
       should 'not be settable if allele type is nil (i.e. it was a deletion)' do
         MiAttempt.destroy_all
         deletion_clone = Factory.build(:clone, :marker_symbol => 'Cbx1', :clone_name => 'EPD_CUSTOM_1')
-        deletion_clone.allele_name_superscript = 'tm1(EUCOMM)Wtsi'
+        deletion_clone.allele_symbol_superscript = 'tm1(EUCOMM)Wtsi'
         deletion_clone.save!
         assert_nil deletion_clone.allele_type
         Factory.create(:mi_attempt, :clone => deletion_clone)

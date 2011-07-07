@@ -17,19 +17,19 @@ class EsCellsControllerTest < ActionController::TestCase
     context 'GET show' do
       setup do
         sign_in default_user
-        @es_cell = EsCell.find_by_es_cell_name('EPD0127_4_E01')
+        @es_cell = EsCell.find_by_name('EPD0127_4_E01')
       end
 
       should 'get one es_cell by ID as XML' do
         get :show, :id => @es_cell.id, :format => :xml
         xml = parse_xml_from_response
-        assert_equal @es_cell.name, xml.css('es_cell es_cell-name').text
+        assert_equal @es_cell.name, xml.css('es-cell name').text
       end
 
       should 'get one es_cell by ID as JSON' do
         get :show, :id => @es_cell.id, :format => :json
         json = parse_json_from_response
-        assert_equal @es_cell.name, json['es_cell_name']
+        assert_equal @es_cell.name, json['name']
       end
     end
 
@@ -39,14 +39,14 @@ class EsCellsControllerTest < ActionController::TestCase
       end
 
       should 'support search helpers as XML' do
-        get :index, :es_cell_name_contains => '0127', :format => :xml
+        get :index, :name_contains => '0127', :format => :xml
         xml = parse_xml_from_response
-        assert_equal 1, xml.xpath('count(//es_cell)')
-        assert_equal 'EPD0127_4_E01', xml.css('es_cell name').text
+        assert_equal 1, xml.xpath('count(//es-cell)')
+        assert_equal 'EPD0127_4_E01', xml.css('es-cell name').text
       end
 
       should 'support search helpers as JSON' do
-        get :index, :es_cell_name_contains => '0127', :format => :json
+        get :index, :name_contains => '0127', :format => :json
         array = parse_json_from_response
         assert_equal 1, array.size
         assert_equal 'EPD0127_4_E01', array.first['name']

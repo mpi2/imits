@@ -18,7 +18,7 @@
 </div>
 
 <div class="grid_8 prefix_2 suffix_2">
-  <%= form_for @mi_attempt, :html => {:class => 'new mi-attempt'} do |form| %>
+  <%= form_for @mi_attempt do |form| %>
     <div id="rest-of-form">
       <%= form.hidden_field 'es_cell_name' %>
       <%= render 'form_contents', :form => form, :submit_text => 'Create' %>

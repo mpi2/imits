@@ -204,6 +204,10 @@ form label, form div.label {
     font-style: italic;
 }
 
+input[type=checkbox] ~ label {
+    display: inline;
+}
+
 form fieldset {
     border: 2px solid #a6c5ec;
     padding: 20px;
@@ -299,7 +303,7 @@ form fieldset.collapsible-content-hidden {
 }
 
 #user-form-submit {
-	text-align: center;
+    text-align: center;
     padding-top: 1em;
     margin-bottom: 0;
 }

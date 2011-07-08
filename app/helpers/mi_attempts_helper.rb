@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 module MiAttemptsHelper
-
+=begin
   class MiAttemptsGrid < Netzke::Basepack::GridPanel
     include Rails.application.routes.url_helpers
 
@@ -410,4 +410,5 @@ module MiAttemptsHelper
       :current_user_id => current_user.id,
       :search_params => search_params) + "\n" + onready
   end
+=end
 end

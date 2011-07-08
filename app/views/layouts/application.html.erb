@@ -5,11 +5,7 @@
     <title>iMits - <%= @tab || @title %></title>
     <%= stylesheet_link_tag 'reset' %>
 
-    <% if @netzke_required %>
-      <%= netzke_init %>
-    <% else %>
-      <%= extjs_tags %>
-    <% end %>
+    <%= extjs_tags %>
 
     <%= stylesheet_link_tag 'grid' %>
     <!--[if IE]>

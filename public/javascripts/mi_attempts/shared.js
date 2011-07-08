@@ -1,3 +1,4 @@
+/*
 function replaceTextFieldWithExtField(selector, replacementCreationFunction) {
     Ext.select(selector).each(function(textField) {
         var renderDiv = Ext.DomHelper.createDom({tag: 'div'});
@@ -40,3 +41,4 @@ Ext.onReady(function() {
     initDateFields();
     initNumberFields();
 });
+*/

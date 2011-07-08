@@ -13,9 +13,9 @@ module ApplicationHelper
     html = stylesheet_link_tag('/extjs/resources/css/ext-all') + "\n"
 
     if Rails.env.production? or Rails.env.staging?
-      html += javascript_include_tag('/extjs/adapter/ext/ext-base', '/extjs/ext-all')
+      html += javascript_include_tag('/extjs/ext-all')
     else
-      html += javascript_include_tag('/extjs/adapter/ext/ext-base-debug', '/extjs/ext-all-debug')
+      html += javascript_include_tag('/extjs/ext-all-debug')
     end
 
     return html.html_safe

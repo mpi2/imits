@@ -19,6 +19,7 @@ Ext.namespace('Kermits2');
     };
 }());
 
+/*
 Kermits2.propertyNames = function(obj) {
     var retval = [];
     for(var i in obj) {retval.push(i);}
@@ -115,3 +116,4 @@ function hideDefaultCollapsibleFieldsets() {
 }
 Ext.onReady(setupCollapsibleFieldsets);
 Ext.onReady(hideDefaultCollapsibleFieldsets);
+*/

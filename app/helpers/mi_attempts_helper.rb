@@ -133,6 +133,7 @@ module MiAttemptsHelper
       editor = local_combo_editor(
         strain_class.all.map {|strain| [strain.id, CGI.escape_html(strain.name)] },
         :id => combo_id,
+        :listWidth => 300,
         :listeners => {
           'select' => 'function(combo, record, index) {combo.el.dom.value = Ext.util.Format.htmlDecode(record.get(combo.displayField));}'.to_json_variable,
           'focus' => 'function(combo) {
@@ -396,13 +397,13 @@ module MiAttemptsHelper
   end
 
   def mi_attempts_table(search_params)
-    onready = javascript_tag(<<-'EOL')
+    onready = javascript_tag(<<-'JS')
       Ext.onReady(function(){
         var widget = Netzke.page.microInjectionAttemptsWidget;
         Ext.EventManager.onWindowResize(widget.manageResize, widget);
         widget.manageResize();
       });
-    EOL
+    JS
 
     netzke(:micro_injection_attempts_widget,
       :class_name => 'MiAttemptsHelper::MiAttemptsWidget',

@@ -135,7 +135,7 @@ Kermits2.newMI.SearchTab = Ext.extend(Ext.Panel, {
         }));
 
         this.esCellsList = new Kermits2.newMI.EsCellsList({
-            fieldLabel: 'Choose a ES cell to micro-inject',
+            fieldLabel: 'Choose an ES cell clone to micro-inject',
             esCellSelectorForm: this.esCellSelectorForm
         });
         this.add(this.esCellsList);
@@ -171,7 +171,7 @@ Kermits2.newMI.EsCellSelectorWindow = Ext.extend(Ext.Window, {
         this.esCellSearchTab = new Kermits2.newMI.SearchTab({
             esCellSelectorForm: this.initialConfig.esCellSelectorForm,
             title: 'Search by ES cell name',
-            searchBoxLabel: 'Enter ES cellname',
+            searchBoxLabel: 'Enter ES cell name',
             searchParam: 'es_cell_name'
         });
 
@@ -223,7 +223,7 @@ Kermits2.newMI.EsCellSelectorForm = Ext.extend(Ext.Panel, {
         this.add(new Ext.Panel({
             layout: 'hbox',
             unstyled: true,
-            fieldLabel: 'Select a EsCell',
+            fieldLabel: 'Select an ES cell clone',
             border: false,
             items: [
             {

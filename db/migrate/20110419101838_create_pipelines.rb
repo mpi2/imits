@@ -2,7 +2,7 @@ class CreatePipelines < ActiveRecord::Migration
   def self.up
     create_table :pipelines do |t|
       t.string :name, :limit => 50, :null => false
-      t.string :description
+      t.text :description
 
       t.timestamps
     end

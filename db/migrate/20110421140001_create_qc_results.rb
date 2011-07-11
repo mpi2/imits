@@ -1,7 +1,7 @@
 class CreateQcResults < ActiveRecord::Migration
   def self.up
     create_table :qc_results do |t|
-      t.text :description, :null => false
+      t.string :description, :null => false, :limit => 50
       t.timestamps
     end
 

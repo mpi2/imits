@@ -189,12 +189,12 @@ end
 # Table name: es_cells
 #
 #  id                                 :integer         not null, primary key
-#  name                               :text            not null
-#  marker_symbol                      :text            not null
-#  allele_symbol_superscript_template :text
-#  allele_type                        :text
+#  name                               :string(100)     not null
+#  marker_symbol                      :string(75)      not null
+#  allele_symbol_superscript_template :string(75)
+#  allele_type                        :string(1)
 #  pipeline_id                        :integer         not null
-#  mgi_accession_id                   :text
+#  mgi_accession_id                   :string(40)
 #  created_at                         :datetime
 #  updated_at                         :datetime
 #

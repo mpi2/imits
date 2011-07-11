@@ -1,7 +1,7 @@
 class CreateCentres < ActiveRecord::Migration
   def self.up
     create_table :centres do |t|
-      t.text :name, :null => false
+      t.string :name, :null => false, :limit => 100
 
       t.timestamps
     end

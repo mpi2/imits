@@ -341,7 +341,7 @@ end
 #  es_cell_id                                      :integer         not null
 #  mi_date                                         :date
 #  mi_attempt_status_id                            :integer         not null
-#  colony_name                                     :text
+#  colony_name                                     :string(125)
 #  production_centre_id                            :integer         not null
 #  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer
@@ -375,7 +375,7 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
-#  mouse_allele_type                               :text
+#  mouse_allele_type                               :string(1)
 #  qc_southern_blot_id                             :integer
 #  qc_five_prime_lr_pcr_id                         :integer
 #  qc_five_prime_cassette_integrity_id             :integer

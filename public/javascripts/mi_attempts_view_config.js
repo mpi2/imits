@@ -51,6 +51,11 @@ var MI_ATTEMPTS_VIEW_CONFIG = {
     'report_to_public',
     'is_active',
     'is_released_from_genotyping'
+    ],
+    'summary': [
+    'emma_status',
+    'mouse_allele_type',
+    'mouse_allele_symbol'
     ]
 }
 

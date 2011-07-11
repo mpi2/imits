@@ -9,7 +9,7 @@ class EsCellTest < ActiveSupport::TestCase
       @default_es_cell ||= Factory.create :es_cell
     end
 
-    context 'miscellaneous' do
+    context '(misc. tests)' do
       setup do
         assert_not_nil default_es_cell
       end
@@ -29,7 +29,7 @@ class EsCellTest < ActiveSupport::TestCase
       should validate_presence_of :pipeline
 
       should 'have mgi_accession_id' do
-        assert_should have_db_column(:mgi_accession_id).of_type(:text).with_options(:null => true)
+        assert_should have_db_column(:mgi_accession_id).of_type(:string).with_options(:null => true, :limit => 40)
       end
     end
 

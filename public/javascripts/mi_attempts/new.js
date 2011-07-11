@@ -1,7 +1,53 @@
 Ext.define('Kermits2.newMI.SearchTab', {
     extend: 'Ext.Panel',
-    html: '<p>SearchTab</p>',
-    ui: 'plain'
+    ui: 'plain',
+
+    performSearch: function() {
+        console.log('Performing search');
+    },
+
+    initComponent: function() {
+        this.callParent();
+
+        this.searchBox = Ext.create('Ext.form.field.Text', {
+            id: this.initialConfig.searchParam + '-search-box',
+            selectOnFocus: true,
+            listeners: {
+                specialkey: {
+                    fn: function(field, e) {
+                        if(e.getKey() == e.ENTER) {
+                            this.performSearch();
+                        }
+                    },
+                    scope: this
+                }
+            }
+        });
+
+        this.add(Ext.create('Ext.panel.Panel', {
+            ui: 'plain',
+            layout: 'hbox',
+            items: [
+            this.searchBox,
+            {
+                xtype: 'button',
+                text: 'Search',
+                margins: {
+                    left: 5,
+                    top: 0,
+                    right: 0,
+                    bottom: 0
+                },
+                listeners: {
+                    'click': {
+                        fn: this.performSearch,
+                        scope: this
+                    }
+                }
+            }
+            ]
+        }));
+    }
 });
 
 

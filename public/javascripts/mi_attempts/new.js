@@ -6,11 +6,47 @@ Ext.onReady(function() {
 
 Ext.define('Kermits2.newMI.EsCellSelectorForm', {
     extend: 'Ext.panel.Panel',
-
-    unstyled: true,
+    layout: 'vbox',
+    ui: 'plain',
+    height: 50, // TODO why is this necessary?
 
     initComponent: function() {
         this.callParent();
+
+        this.add(Ext.create('Ext.form.Label', {
+            text: 'Select an ES cell clone'
+        }));
+
+        this.esCellNameTextField = Ext.create('Ext.form.field.Text', {
+            disabled: true
+            // style: { color: 'black' }
+        });
+
+        this.add(Ext.create('Ext.panel.Panel', {
+            layout: 'hbox',
+            ui: 'plain',
+            height: 30,
+            width: 200, // TODO why is this necessary?
+            items: [
+            this.esCellNameTextField,
+            {
+                xtype: 'button',
+                margins: {
+                    left: 5,
+                    right: 0,
+                    top: 0,
+                    bottom: 0
+                },
+                text: 'Select',
+                listeners: {
+                    click: function() {
+                        this.window.show();
+                    },
+                    scope: this
+                }
+            }
+            ]
+        }));
 
         this.window = Ext.create('Kermits2.newMI.EsCellSelectorWindow', {
             esCellSelectorForm: this

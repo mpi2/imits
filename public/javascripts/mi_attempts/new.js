@@ -175,14 +175,12 @@ Ext.define('Kermits2.newMI.SearchTab', {
             id: this.initialConfig.searchParam + '-search-box',
             selectOnFocus: true,
             listeners: {
-                specialkey: {
-                    fn: function(field, e) {
-                        if(e.getKey() == e.ENTER) {
-                            this.performSearch();
-                        }
-                    },
-                    scope: this
-                }
+                specialkey: function(field, e) {
+                    if(e.getKey() == e.ENTER) {
+                        this.performSearch();
+                    }
+                },
+                scope: this
             }
         });
 

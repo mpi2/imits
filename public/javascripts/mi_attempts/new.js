@@ -60,12 +60,12 @@ Ext.define('Kermits2.newMI.EsCellSelectorWindow', {
 
         this.tabPanel.addListener('tabchange', function(panel, newTab) {
             console.log('tab changed');
-            // newTab.searchBox.focus();
+        // newTab.searchBox.focus();
         });
 
         this.addListener('show', function(theWindow) {
             console.log('window shown');
-            // theWindow.centerPanel.getActiveTab().searchBox.focus(true, 50);
+        // theWindow.centerPanel.getActiveTab().searchBox.focus(true, 50);
         });
 
         this.add(this.tabPanel);
@@ -75,8 +75,15 @@ Ext.define('Kermits2.newMI.EsCellSelectorWindow', {
 
 Ext.define('Kermits2.newMI.SearchTab', {
     extend: 'Ext.panel.Panel',
-    ui: 'plain',
+    // ui: 'plain',
     layout: 'vbox',
+
+    padding: {
+        left: 10,
+        top: 0,
+        right: 0,
+        bottom: 0
+    },
 
     performSearch: function() {
         console.log('Performing search');
@@ -100,46 +107,49 @@ Ext.define('Kermits2.newMI.SearchTab', {
             }
         });
 
+        this.add(Ext.create('Ext.form.Label', {
+            text: this.initialConfig.searchBoxLabel,
+            margin: {
+                top: 3,
+                bottom: 0,
+                left: 0,
+                right: 0
+            }
+        }));
+
         this.add(Ext.create('Ext.panel.Panel', {
-            layout: 'vbox',
+            layout: 'hbox',
             // ui: 'plain',
-            flex: 1,
-            margins: {
-                left: 10,
-                top: 10,
-                right: 0,
-                bottom: 0
-            },
+            width: 400, // TODO Figure out why this is needed
             items: [
+            this.searchBox,
             {
-                xtype: 'label',
-                text: this.initialConfig.searchBoxLabel
-            },
-            {
-                layout: 'hbox',
-                // ui: 'plain',
-                width: 300, // TODO Figure out why this is needed
-                items: [
-                this.searchBox,
-                {
-                    xtype: 'button',
-                    text: 'Search',
-                    margins: {
-                        left: 5,
-                        top: 0,
-                        right: 0,
-                        bottom: 0
-                    },
-                    listeners: {
-                        'click': {
-                            fn: this.performSearch,
-                            scope: this
-                        }
+                xtype: 'button',
+                text: 'Search',
+                margins: {
+                    left: 5,
+                    top: 0,
+                    right: 0,
+                    bottom: 0
+                },
+                listeners: {
+                    'click': {
+                        fn: this.performSearch,
+                        scope: this
                     }
                 }
-                ]
             }
             ]
+        }));
+
+        this.add(Ext.create('Ext.form.Label', {
+            text: 'Choose an ES cell clone to micro-inject',
+            margin: {
+                top: 5,
+                bottom: 0,
+                left: 0,
+                right: 0
+            }
         }));
 
     }

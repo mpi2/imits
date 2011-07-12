@@ -199,7 +199,7 @@ div#messages {
 /* @group Forms */
 
 
-form label, form div.label {
+label, .label {
     display: block;
     font-style: italic;
 }

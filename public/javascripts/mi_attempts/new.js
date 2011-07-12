@@ -1,8 +1,44 @@
+Ext.namespace('Kermits2.newMI');
+
 Ext.onReady(function() {
+    processRestOfForm();
+
     var panel = Ext.create('Kermits2.newMI.EsCellSelectorForm', {
         renderTo: 'es-cell-selector'
     });
 });
+
+function processRestOfForm() {
+    Kermits2.newMI.restOfForm = Ext.get('rest-of-form');
+
+    Kermits2.newMI.restOfForm.showIfHidden = function() {
+        if(this.hidden == true) {
+            this.setVisible(true, true);
+            this.hidden = false;
+        }
+    }
+
+    Kermits2.newMI.restOfForm.setEsCellName = function(esCellName) {
+        var esCellNameField = this.child('input[name="mi_attempt[es_cell_name]"]');
+        esCellNameField.set({
+            value: esCellName
+        });
+    }
+
+    Kermits2.newMI.restOfForm.getEsCellName = function() {
+        var esCellNameField = this.child('input[name="mi_attempt[es_cell_name]"]');
+        return esCellNameField.getValue();
+    }
+
+    if(Kermits2.newMI.restOfForm.getEsCellName() == '') {
+        Kermits2.newMI.restOfForm.setVisibilityMode(Ext.Element.DISPLAY);
+        Kermits2.newMI.restOfForm.setVisible(false, false);
+        Kermits2.newMI.restOfForm.hidden = true;
+    } else {
+        Kermits2.newMI.restOfForm.hidden = false;
+    }
+
+}
 
 Ext.define('Kermits2.newMI.EsCellSelectorForm', {
     extend: 'Ext.panel.Panel',
@@ -58,8 +94,8 @@ Ext.define('Kermits2.newMI.EsCellSelectorForm', {
     onEsCellNameSelected: function(esCellName) {
         this.esCellNameTextField.setValue(esCellName);
         this.window.hide();
-        // Kermits2.newMI.restOfForm.setEsCellName(esCellName);
-        // Kermits2.newMI.restOfForm.showIfHidden();
+        Kermits2.newMI.restOfForm.setEsCellName(esCellName);
+        Kermits2.newMI.restOfForm.showIfHidden();
     }
 });
 

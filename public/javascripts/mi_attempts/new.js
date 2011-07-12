@@ -152,7 +152,75 @@ Ext.define('Kermits2.newMI.SearchTab', {
             }
         }));
 
+        this.esCellsList = Ext.create('Kermits2.newMI.EsCellsList', {
+            esCellSelectorForm: this.initialConfig.esCellSelectorForm
+        });
+        this.add(this.esCellsList);
     }
+});
+
+Ext.define('Kermits2.newMI.EsCellsList', {
+    extend: 'Ext.grid.Panel',
+    height: 150,
+    width: 500,
+    store: Ext.create('Ext.data.Store', {
+        fields: ['escell_clone', 'marker_symbol', 'pipeline', 'mutation_subtype', 'production_qc_loxp_screen'],
+        data: {
+            'rows': [
+            {
+                escell_clone: 'EPD0127_4_E01',
+                marker_symbol: 'Trafd1',
+                pipeline: 'EUCOMM',
+                mutation_subtype: 'conditional_ready',
+                production_qc_loxp_screen: 'pass'
+            },
+            {
+                escell_clone: 'EPD0127_4_E04',
+                marker_symbol: 'Trafd1',
+                pipeline: 'EUCOMM',
+                mutation_subtype: 'targeted_non_conditional',
+                production_qc_loxp_screen: 'not confirmed'
+            }
+
+            ]
+        },
+        proxy: {
+            type: 'memory',
+            reader: {
+                type: 'json',
+                root: 'rows'
+            }
+        }
+    }),
+
+    title: null,
+    columns: [
+    {
+        header: 'ES Cell',
+        dataIndex: 'escell_clone',
+        width: 100
+    },
+    {
+        header: 'Marker Symbol',
+        dataIndex: 'marker_symbol',
+        width: 90
+    },
+    {
+        header: 'Pipeline',
+        dataIndex: 'pipeline',
+        width: 80
+    },
+    {
+        header: 'Mutation Subtype',
+        dataIndex: 'mutation_subtype',
+        flex: 1
+    },
+    {
+        header: 'LoxP Screen',
+        dataIndex: 'production_qc_loxp_screen',
+        width: 90
+    }
+    ]
 });
 
 /*

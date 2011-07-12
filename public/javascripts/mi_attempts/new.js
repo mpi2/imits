@@ -75,7 +75,7 @@ Ext.define('Kermits2.newMI.EsCellSelectorWindow', {
 
 Ext.define('Kermits2.newMI.SearchTab', {
     extend: 'Ext.panel.Panel',
-    // ui: 'plain',
+    ui: 'plain',
     layout: 'vbox',
 
     padding: {
@@ -119,7 +119,7 @@ Ext.define('Kermits2.newMI.SearchTab', {
 
         this.add(Ext.create('Ext.panel.Panel', {
             layout: 'hbox',
-            // ui: 'plain',
+            ui: 'plain',
             width: 400, // TODO Figure out why this is needed
             items: [
             this.searchBox,

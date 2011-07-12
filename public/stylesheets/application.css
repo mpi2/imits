@@ -40,7 +40,7 @@
 
 /* @group Type */
 
-html, body {
+html, body, .x-body {
     font-size: 12px;
     line-height: 1.5em;
     font-family: "Lucida Grande", Lucida, Verdana, sans-serif;

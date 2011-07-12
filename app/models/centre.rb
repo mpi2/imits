@@ -12,7 +12,7 @@ end
 # Table name: centres
 #
 #  id         :integer         not null, primary key
-#  name       :text            not null
+#  name       :string(100)     not null
 #  created_at :datetime
 #  updated_at :datetime
 #

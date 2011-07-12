@@ -10,7 +10,7 @@ end
 # Table name: pipelines
 #
 #  id          :integer         not null, primary key
-#  name        :text            not null
+#  name        :string(50)      not null
 #  description :text
 #  created_at  :datetime
 #  updated_at  :datetime

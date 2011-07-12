@@ -18,7 +18,7 @@ end
 # Table name: qc_results
 #
 #  id          :integer         not null, primary key
-#  description :text            not null
+#  description :string(50)      not null
 #  created_at  :datetime
 #  updated_at  :datetime
 #

@@ -15,7 +15,9 @@ class InMemoryPet < ActiveRecord::Base
 
   belongs_to :owner, :class_name => 'InMemoryPerson'
 
-  access_association_by_attribute :owner, :name
+  def self.setup_access
+    access_association_by_attribute :owner, :name
+  end
 end
 
 class AccessAssociationByAttributeTest < ActiveSupport::TestCase
@@ -29,6 +31,10 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
     end
 
     context 'on getting' do
+      setup do
+        InMemoryPet.setup_access
+      end
+
       should 'allow getting the attribute of the associated object' do
         assert_equal @pet.owner.name, @pet.owner_name
       end
@@ -45,6 +51,10 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
     end
 
     context 'on setting' do
+      setup do
+        InMemoryPet.setup_access
+      end
+
       should 'return set value on a get' do
         @pet.owner_name = 'Ali'
         assert_equal 'Ali', @pet.owner_name
@@ -58,6 +68,10 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
     end
 
     context 'on saving with valid assignment' do
+      setup do
+        InMemoryPet.setup_access
+      end
+
       should 'set association by given attribute value' do
         @pet.owner_name = 'Ali'
         @pet.save!
@@ -76,6 +90,7 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
 
     context 'on saving with invalid assignment' do
       setup do
+        InMemoryPet.setup_access
         @pet.owner_name = 'Nonexistent'
         assert_false @pet.save
       end
@@ -86,6 +101,19 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
 
       should 'still return incorrect value that caused error (just like setting a real attribute incorrectly would)' do
         assert_equal 'Nonexistent', @pet.owner_name
+      end
+    end
+
+    context 'attribute alias' do
+      setup do
+        class ::InMemoryPet
+          access_association_by_attribute :owner, :name, :attribute_alias => :full_name
+        end
+      end
+
+      should 'when configured also allow access via alias' do
+        @pet.owner_full_name = @person2.name
+        assert_equal @person2.name, @pet.owner_full_name
       end
     end
 

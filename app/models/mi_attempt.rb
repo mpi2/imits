@@ -101,6 +101,8 @@ class MiAttempt < ActiveRecord::Base
 
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
+
+    access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
 
   belongs_to :deposited_material
@@ -113,7 +115,6 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_default_distribution_centre
   before_validation :set_default_deposited_material
 
-  before_save :save_qc_fields
   before_save :generate_colony_name_if_blank
   before_save :change_status
 
@@ -211,59 +212,6 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
-  # == BEGIN #qc virtual attribute
-
-  validates_each :qc do |record, attr, value|
-    acceptable_results = QcResult.all.map(&:description)
-    error_messages = []
-    record.qc.each_pair do |short_qc_field, result|
-      next unless result
-
-      unless acceptable_results.include? result
-        error_messages << "#{short_qc_field} => '#{result}'"
-      end
-    end
-
-    unless error_messages.blank?
-      record.errors[:qc] = "Erroneous QC fields: #{error_messages.join ', '}"
-    end
-  end
-
-  def qc
-    if @qc.blank?
-      @qc = {}
-
-      QC_FIELDS.each do |qc_field|
-        @qc[qc_field.to_s.gsub(/^qc_/, '')] = self.send(qc_field).try(:description)
-      end
-    end
-
-    return @qc
-  end
-
-  def qc=(args)
-    raise ArgumentError, "Expected hash, got #{args.class}" unless args.is_a? Hash
-    args = args.stringify_keys
-    self.qc.keys.each do |short_qc_field|
-      if args.include? short_qc_field
-        @qc[short_qc_field] = args[short_qc_field]
-      end
-    end
-  end
-
-  def save_qc_fields
-    return if @qc.blank?
-
-    @qc.each do |short_qc_field, result|
-      next unless QC_FIELDS.include?( ('qc_' + short_qc_field).to_sym )
-      result_model = QcResult.find_by_description(result)
-      self.send "qc_#{short_qc_field}=", result_model
-    end
-  end
-  protected :save_qc_fields
-
-  # == END #qc virtual attribute
-
   def self.search(*args, &block)
     return non_metasearch_search(*args, &block)
   end
@@ -313,7 +261,7 @@ class MiAttempt < ActiveRecord::Base
       'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
       'distribution_centre_name', 'production_centre_name',
       'mouse_allele_symbol_superscript'
-    ]
+    ] + QC_FIELDS.map{|i| "#{i}_result"}
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
       'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
       'production_centre_id', 'distribution_centre_id', 'deposited_material_id'
@@ -341,7 +289,7 @@ end
 #  es_cell_id                                      :integer         not null
 #  mi_date                                         :date
 #  mi_attempt_status_id                            :integer         not null
-#  colony_name                                     :text
+#  colony_name                                     :string(125)
 #  production_centre_id                            :integer         not null
 #  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer
@@ -375,7 +323,7 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
-#  mouse_allele_type                               :text
+#  mouse_allele_type                               :string(1)
 #  qc_southern_blot_id                             :integer
 #  qc_five_prime_lr_pcr_id                         :integer
 #  qc_five_prime_cassette_integrity_id             :integer

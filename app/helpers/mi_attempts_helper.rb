@@ -317,7 +317,8 @@ module MiAttemptsHelper
           switch_view_button('Transfer Details'),
           switch_view_button('Litter Details'),
           switch_view_button('Chimera Mating Details'),
-          switch_view_button('QC Details')
+          switch_view_button('QC Details'),
+          switch_view_button('Summary')
         ]
       }
     end

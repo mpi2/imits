@@ -16,7 +16,7 @@ class CreateStrains < ActiveRecord::Migration
 
   def self.up
     create_table :strains do |table|
-      table.text :name, :null => false
+      table.string :name, :null => false, :limit => 50
 
       table.timestamps
     end

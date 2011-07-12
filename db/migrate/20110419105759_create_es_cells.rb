@@ -1,12 +1,12 @@
 class CreateEsCells< ActiveRecord::Migration
   def self.up
     create_table :es_cells do |t|
-      t.text :name, :null => false
-      t.text :marker_symbol, :null => false
-      t.text :allele_symbol_superscript_template
-      t.text :allele_type
+      t.string :name, :null => false, :limit => 100
+      t.string :marker_symbol, :null => false, :limit => 75
+      t.string :allele_symbol_superscript_template, :limit => 75
+      t.string :allele_type, :limit => 1
       t.references :pipeline, :null => false
-      t.text :mgi_accession_id
+      t.string :mgi_accession_id, :limit => 40
 
       t.timestamps
     end

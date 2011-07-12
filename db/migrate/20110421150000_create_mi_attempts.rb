@@ -24,7 +24,7 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.references :es_cell, :null => false
       table.date :mi_date
       table.references :mi_attempt_status, :null => false
-      table.text :colony_name
+      table.string :colony_name, :limit => 125
       table.integer :production_centre_id, :null => false
       table.integer :distribution_centre_id
       table.integer :updated_by_id
@@ -64,7 +64,7 @@ class CreateMiAttempts < ActiveRecord::Migration
       table.integer :number_of_cct_offspring
       table.integer :number_of_het_offspring
       table.integer :number_of_live_glt_offspring
-      table.text :mouse_allele_type
+      table.string :mouse_allele_type, :limit => 1
 
       # QC Details
       QC_FIELDS.each do |qc_field|

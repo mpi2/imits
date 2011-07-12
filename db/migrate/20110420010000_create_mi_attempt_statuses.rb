@@ -1,7 +1,7 @@
 class CreateMiAttemptStatuses < ActiveRecord::Migration
   def self.up
     create_table :mi_attempt_statuses do |t|
-      t.text :description, :null => false
+      t.string :description, :null => false, :limit => 50
 
       t.timestamps
     end

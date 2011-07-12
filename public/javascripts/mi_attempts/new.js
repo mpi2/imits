@@ -18,8 +18,8 @@ Ext.define('Kermits2.newMI.EsCellSelectorForm', {
         }));
 
         this.esCellNameTextField = Ext.create('Ext.form.field.Text', {
-            disabled: true
-            // style: { color: 'black' }
+            disabled: true,
+            style: {color: 'black'}
         });
 
         this.add(Ext.create('Ext.panel.Panel', {
@@ -53,6 +53,13 @@ Ext.define('Kermits2.newMI.EsCellSelectorForm', {
         });
 
         this.window.show();
+    },
+
+    onEsCellNameSelected: function(esCellName) {
+        this.esCellNameTextField.setValue(esCellName);
+        this.window.hide();
+        // Kermits2.newMI.restOfForm.setEsCellName(esCellName);
+        // Kermits2.newMI.restOfForm.showIfHidden();
     }
 });
 
@@ -256,7 +263,16 @@ Ext.define('Kermits2.newMI.EsCellsList', {
         dataIndex: 'production_qc_loxp_screen',
         width: 90
     }
-    ]
+    ],
+
+    initComponent: function() {
+        this.callParent();
+
+        this.addListener('itemclick', function(theView, record) {
+            var esCellName = record.data['escell_clone'];
+            this.initialConfig.esCellSelectorForm.onEsCellNameSelected(esCellName);
+        });
+    }
 });
 
 /*

@@ -1,6 +1,82 @@
+Ext.onReady(function() {
+    var panel = Ext.create('Kermits2.newMI.EsCellSelectorForm', {
+        renderTo: 'es-cell-selector'
+    });
+});
+
+Ext.define('Kermits2.newMI.EsCellSelectorForm', {
+    extend: 'Ext.panel.Panel',
+
+    unstyled: true,
+
+    initComponent: function() {
+        this.callParent();
+
+        this.window = Ext.create('Kermits2.newMI.EsCellSelectorWindow', {
+            esCellSelectorForm: this
+        });
+
+        this.window.show();
+    }
+});
+
+Ext.define('Kermits2.newMI.EsCellSelectorWindow', {
+    extend: 'Ext.window.Window',
+
+    title: 'Search for ES cells',
+    resizable: false,
+    layout: 'fit',
+    closeAction: 'hide',
+    width: 550,
+    height: 300,
+    y: 175,
+    plain: true,
+
+    initComponent: function() {
+        this.callParent();
+
+        this.esCellSearchTab = Ext.create('Kermits2.newMI.SearchTab', {
+            esCellSelectorForm: this.initialConfig.esCellSelectorForm,
+            title: 'Search by ES cell name',
+            searchBoxLabel: 'Enter ES cell name',
+            searchParam: 'es_cell_name'
+        });
+
+        this.markerSymbolSearchTab = new Kermits2.newMI.SearchTab({
+            esCellSelectorForm: this.initialConfig.esCellSelectorForm,
+            title: 'Search by marker symbol',
+            searchBoxLabel: 'Enter marker symbol',
+            searchParam: 'marker_symbol'
+        });
+
+        this.tabPanel = Ext.create('Ext.tab.Panel', {
+            ui: 'plain',
+            activeTab: 0,
+            items: [
+            this.markerSymbolSearchTab,
+            this.esCellSearchTab
+            ]
+        });
+
+        this.tabPanel.addListener('tabchange', function(panel, newTab) {
+            console.log('tab changed');
+            // newTab.searchBox.focus();
+        });
+
+        this.addListener('show', function(theWindow) {
+            console.log('window shown');
+            // theWindow.centerPanel.getActiveTab().searchBox.focus(true, 50);
+        });
+
+        this.add(this.tabPanel);
+    }
+
+});
+
 Ext.define('Kermits2.newMI.SearchTab', {
-    extend: 'Ext.Panel',
+    extend: 'Ext.panel.Panel',
     ui: 'plain',
+    layout: 'vbox',
 
     performSearch: function() {
         console.log('Performing search');
@@ -25,109 +101,49 @@ Ext.define('Kermits2.newMI.SearchTab', {
         });
 
         this.add(Ext.create('Ext.panel.Panel', {
-            ui: 'plain',
-            layout: 'hbox',
+            layout: 'vbox',
+            // ui: 'plain',
+            flex: 1,
+            margins: {
+                left: 10,
+                top: 10,
+                right: 0,
+                bottom: 0
+            },
             items: [
-            this.searchBox,
             {
-                xtype: 'button',
-                text: 'Search',
-                margins: {
-                    left: 5,
-                    top: 0,
-                    right: 0,
-                    bottom: 0
-                },
-                listeners: {
-                    'click': {
-                        fn: this.performSearch,
-                        scope: this
+                xtype: 'label',
+                text: this.initialConfig.searchBoxLabel
+            },
+            {
+                layout: 'hbox',
+                // ui: 'plain',
+                width: 300, // TODO Figure out why this is needed
+                items: [
+                this.searchBox,
+                {
+                    xtype: 'button',
+                    text: 'Search',
+                    margins: {
+                        left: 5,
+                        top: 0,
+                        right: 0,
+                        bottom: 0
+                    },
+                    listeners: {
+                        'click': {
+                            fn: this.performSearch,
+                            scope: this
+                        }
                     }
                 }
+                ]
             }
             ]
         }));
+
     }
 });
-
-
-Ext.define('Kermits2.newMI.EsCellSelectorWindow', {
-    extend: 'Ext.window.Window',
-
-    title: 'Search for ES cells',
-    resizable: false,
-    layout: 'fit',
-    closeAction: 'hide',
-    width: 550,
-    height: 300,
-    y: 175,
-    plain: true,
-
-    initComponent: function() {
-        this.callParent();
-
-        this.esCellSearchTab = Ext.create('Kermits2.newMI.SearchTab', {
-            // esCellSelectorForm: this.initialConfig.esCellSelectorForm,
-            title: 'Search by ES cell name',
-            searchBoxLabel: 'Enter ES cellname',
-            searchParam: 'es_cell_name'
-        });
-
-        this.markerSymbolSearchTab = new Kermits2.newMI.SearchTab({
-            // esCellSelectorForm: this.initialConfig.esCellSelectorForm,
-            title: 'Search by marker symbol',
-            searchBoxLabel: 'Enter marker symbol',
-            searchParam: 'marker_symbol'
-        });
-
-        this.tabPanel = Ext.create('Ext.tab.Panel', {
-            padding: 10,
-            ui: 'plain',
-            activeTab: 0,
-            items: [
-            this.markerSymbolSearchTab,
-            this.esCellSearchTab
-            ]
-        });
-
-        this.tabPanel.addListener('tabchange', function(panel, newTab) {
-            console.log('tab changed');
-            // newTab.searchBox.focus();
-        });
-
-        this.addListener('show', function(theWindow) {
-            console.log('window shown');
-            // theWindow.centerPanel.getActiveTab().searchBox.focus(true, 50);
-        });
-
-        this.add(this.tabPanel);
-    }
-
-});
-
-
-Ext.define('Kermits2.newMI.EsCellSelectorForm', {
-    extend: 'Ext.panel.Panel',
-
-    unstyled: true,
-
-    initComponent: function() {
-        this.callParent();
-
-        this.window = Ext.create('Kermits2.newMI.EsCellSelectorWindow', {
-            esCellSelectorForm: this
-        });
-
-        this.window.show();
-    }
-});
-
-Ext.onReady(function() {
-    var panel = Ext.create('Kermits2.newMI.EsCellSelectorForm', {
-        renderTo: 'es-cell-selector'
-    });
-});
-
 
 /*
 Kermits2.newMI.EsCellsList = Ext.extend(Ext.ListView, {

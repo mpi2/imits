@@ -4,7 +4,7 @@
 if ! Object.constants.include?(:Rails)
   require File.expand_path('../../../config/environment', __FILE__)
 end
-# raise 'Running in production environment - comment out this line to confirm' if Rails.env.production?
+raise 'Running in production environment - comment out this line to confirm' if Rails.env.production?
 
 ActionMailer::Base.logger = nil
 

@@ -4,7 +4,7 @@
 if ! Object.constants.include?(:Rails)
   require File.expand_path('../../../config/environment', __FILE__)
 end
-raise 'Running in production environment - comment out this line to confirm' if Rails.env.production?
+# raise 'Running in production environment - comment out this line to confirm' if Rails.env.production?
 
 ActionMailer::Base.logger = nil
 
@@ -18,6 +18,7 @@ We have redesigned and redeveloped the new Kermits to the stage where the old
 site is no longer needed.  However, in the process of doing so, we had to reset
 all the usernames and passwords.  Your new login details are as follows:
 
+New name: iMits (International Micro-Injection Tracking System)
 New URL : #{SITE_PATH}
 Username: #{user.email}
 Password: #{new_password}

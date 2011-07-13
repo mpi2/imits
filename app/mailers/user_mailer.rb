@@ -1,5 +1,5 @@
 class UserMailer < ActionMailer::Base
-  default :from => 'htgt@sanger.ac.uk'
+  default :from => 'htgt@sanger.ac.uk', :bcc => 'aq2@sanger.ac.uk'
 
   def email(params)
     params = params.symbolize_keys

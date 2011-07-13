@@ -24,7 +24,7 @@
     <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
 
     <%= yield :head %>
-    
+
     <% if Rails.env.production? %>
       <script type="text/javascript">
         var _gaq = _gaq || [];

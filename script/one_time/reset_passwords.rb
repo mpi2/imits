@@ -18,6 +18,7 @@ We have redesigned and redeveloped the new Kermits to the stage where the old
 site is no longer needed.  However, in the process of doing so, we had to reset
 all the usernames and passwords.  Your new login details are as follows:
 
+New name: iMits (International Micro-Injection Tracking System)
 New URL : #{SITE_PATH}
 Username: #{user.email}
 Password: #{new_password}

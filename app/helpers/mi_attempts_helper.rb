@@ -218,9 +218,7 @@ module MiAttemptsHelper
 
         mi_attempt_column(:distribution_centre__name, :header => 'Distribution Centre'),
 
-        mi_attempt_column(:deposited_material_name, :header => 'Deposited Material',
-          :editor => local_combo_editor(DepositedMaterial.all.map(&:name), :id => 'depositedMaterialCombo'),
-          :renderer => ['comboRenderer', 'depositedMaterialCombo']),
+        mi_attempt_column(:deposited_material__name, :header => 'Deposited Material'),
 
         strain_column(:blast_strain_id),
 

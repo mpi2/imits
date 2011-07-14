@@ -9,6 +9,7 @@ class ApplicationControllerTest < ActionController::TestCase
         @controller.params['action'    ] = 'blank'
         @controller.params['format'    ] = 'blank'
         @controller.params['page'      ] = 'blank'
+        @controller.params['per_page'  ] = 'blank'
         @controller.params['utf8'      ] = 'blank'
 
         @controller.params['search'    ] = 'blank'

@@ -24,10 +24,16 @@ class MiAttemptsController < ApplicationController
         end
       end
 
-      format.xml { render :xml => MiAttempt.metasearch(cleaned_params).all }
-      format.json { render :json => MiAttempt.metasearch(cleaned_params).all }
+      format.xml { render :xml => data_for_serialized }
+      format.json { render :json => data_for_serialized }
     end
   end
+
+  def data_for_serialized
+    params.delete(:per_page) if params[:per_page].blank? or params[:per_page].to_i == 0
+    MiAttempt.metasearch(cleaned_params).paginate(:page => params[:page], :per_page => params[:per_page] || 20)
+  end
+  private :data_for_serialized
 
   def new
     @centres = Centre.all

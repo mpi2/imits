@@ -32,6 +32,30 @@ class MiAttemptsControllerTest < ActionController::TestCase
           assert_equal 'MBSS', data.find {|i| i['es_cell_name'] == 'EPD0127_4_E01'}['colony_name']
           assert_equal 'MBFD', data.find {|i| i['es_cell_name'] == 'EPD0029_1_G04'}['colony_name']
         end
+
+        should 'paginate by default for JSON' do
+          200.times {Factory.create :mi_attempt}
+          get :index, :format => :json
+          data = parse_json_from_response
+          assert_equal 20, data.size
+        end
+
+        should 'paginate by default for XML' do
+          200.times {Factory.create :mi_attempt}
+          get :index, :format => :xml
+          assert_equal 20, response.body.scan('<mi-attempt>').size
+        end
+
+        should 'allow pagination' do
+          200.times {Factory.create :mi_attempt}
+          get :index, :format => :json, :per_page => 50
+          data = parse_json_from_response
+          assert_equal 50, data.size
+
+          get :index, :format => :json, :per_page => 0
+          data = parse_json_from_response
+          assert_equal 20, data.size
+        end
       end
     end
 

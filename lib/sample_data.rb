@@ -16,8 +16,8 @@ class SampleData
     Pipeline.find_or_create_by_name('KOMP')
 
     [
-      {:name => 'EPD_SAMPLE_1', :pipeline_id => 1},
-      {:name => 'EPD_SAMPLE_2', :pipeline_id => 2}
+      {:name => 'EPD_SAMPLE_1', :pipeline => Pipeline.find_by_name!('EUCOMM')},
+      {:name => 'EPD_SAMPLE_2', :pipeline => Pipeline.find_by_name!('KOMP')}
     ].each do |es_cell_data|
       es_cell = EsCell.find_by_name(es_cell_data[:name])
       if es_cell
@@ -25,7 +25,7 @@ class SampleData
         es_cell.destroy
       end
 
-      es_cell = Factory.create(:randomly_populated_es_cell, :pipeline_id => es_cell_data[:pipeline_id], :name => es_cell_data[:name])
+      es_cell = Factory.create(:randomly_populated_es_cell, es_cell_data)
 
       10.times do
         Factory.create(:randomly_populated_mi_attempt, :es_cell => es_cell)

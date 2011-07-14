@@ -144,13 +144,11 @@ Ext.define('Kermits2.newMI.EsCellSelectorWindow', {
         });
 
         this.tabPanel.addListener('tabchange', function(panel, newTab) {
-            console.log('tab changed');
-        // newTab.searchBox.focus();
+            newTab.searchBox.focus(true, 100);
         });
 
-        this.addListener('show', function(theWindow) {
-            console.log('window shown');
-        // theWindow.centerPanel.getActiveTab().searchBox.focus(true, 50);
+        this.addListener('show', function() {
+            this.tabPanel.getActiveTab().searchBox.focus(true, 100);
         });
 
         this.add(this.tabPanel);

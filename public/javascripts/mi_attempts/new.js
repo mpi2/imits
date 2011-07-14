@@ -42,9 +42,13 @@ function processRestOfForm() {
 
 Ext.define('Kermits2.newMI.EsCellSelectorForm', {
     extend: 'Ext.panel.Panel',
-    layout: 'vbox',
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
     ui: 'plain',
-    height: 50, // TODO why is this necessary?
+    width: 300,
+    height: 60, // TODO Should be 40, but button is too high
 
     initComponent: function() {
         this.callParent();
@@ -59,10 +63,11 @@ Ext.define('Kermits2.newMI.EsCellSelectorForm', {
         });
 
         this.add(Ext.create('Ext.panel.Panel', {
-            layout: 'hbox',
+            layout: {
+                type: 'hbox',
+                align: 'stretchmax'
+            },
             ui: 'plain',
-            height: 30,
-            width: 200, // TODO why is this necessary?
             items: [
             this.esCellNameTextField,
             {
@@ -129,6 +134,7 @@ Ext.define('Kermits2.newMI.EsCellSelectorWindow', {
         });
 
         this.tabPanel = Ext.create('Ext.tab.Panel', {
+            layout: 'fit',
             ui: 'plain',
             activeTab: 0,
             items: [
@@ -155,12 +161,15 @@ Ext.define('Kermits2.newMI.EsCellSelectorWindow', {
 Ext.define('Kermits2.newMI.SearchTab', {
     extend: 'Ext.panel.Panel',
     ui: 'plain',
-    layout: 'vbox',
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
 
     padding: {
         left: 10,
         top: 0,
-        right: 0,
+        right: 10,
         bottom: 0
     },
 
@@ -195,9 +204,11 @@ Ext.define('Kermits2.newMI.SearchTab', {
         }));
 
         this.add(Ext.create('Ext.panel.Panel', {
-            layout: 'hbox',
+            layout: {
+                type: 'hbox',
+                align: 'stretchmax'
+            },
             ui: 'plain',
-            width: 400, // TODO Figure out why this is needed
             items: [
             this.searchBox,
             {
@@ -239,7 +250,6 @@ Ext.define('Kermits2.newMI.SearchTab', {
 Ext.define('Kermits2.newMI.EsCellsList', {
     extend: 'Ext.grid.Panel',
     height: 150,
-    width: 500,
     store: Ext.create('Ext.data.Store', {
         fields: ['escell_clone', 'marker_symbol', 'pipeline', 'mutation_subtype', 'production_qc_loxp_screen'],
         data: {
@@ -257,6 +267,13 @@ Ext.define('Kermits2.newMI.EsCellsList', {
                 pipeline: 'EUCOMM',
                 mutation_subtype: 'targeted_non_conditional',
                 production_qc_loxp_screen: 'not confirmed'
+            },
+            {
+                escell_clone: 'EPD0127_4_F01',
+                marker_symbol: 'Trafd1',
+                pipeline: 'EUCOMM',
+                mutation_subtype: 'conditional_ready',
+                production_qc_loxp_screen: 'pass'
             }
 
             ]

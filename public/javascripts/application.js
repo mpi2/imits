@@ -92,28 +92,28 @@ function initDisableOnSubmitButtons() {
     });
 }
 Ext.onReady(initDisableOnSubmitButtons);
+*/
 
 function toggleCollapsibleFieldsetLegend(legend) {
     var fieldset = legend.up('fieldset');
     var div      = fieldset.down('div');
     div.setVisibilityMode( Ext.Element.DISPLAY );
     div.toggle();
-    fieldset.toggleClass('collapsible-content-hidden');
-    fieldset.toggleClass('collapsible-content-shown');
+    fieldset.toggleCls('collapsible-content-hidden');
+    fieldset.toggleCls('collapsible-content-shown');
 }
 function setupCollapsibleFieldsets() {
-    Ext.select('fieldset.collapsible legend', true).each(function(legend) {
-        legend.addClass('collapsible-control');
-        legend.addListener('click', function() { toggleCollapsibleFieldsetLegend(this) });
-        var fieldset = legend.up('fieldset');
-        fieldset.addClass('collapsible-content-shown');
+    var collapsible_legends = Ext.select('fieldset.collapsible legend');
+    collapsible_legends.addCls('collapsible-control');
+    collapsible_legends.each(function(elm,comp,idx) {
+        elm.addListener('click', function() { toggleCollapsibleFieldsetLegend( Ext.get(comp.elements[idx]) ) });
+        elm.up('fieldset').addCls('collapsible-content-shown');
     });
 }
 function hideDefaultCollapsibleFieldsets() {
-    Ext.select('fieldset.collapsible.hide-by-default legend').each(function(legend) {
-        toggleCollapsibleFieldsetLegend(legend);
+    Ext.select('fieldset.collapsible.hide-by-default legend').each(function(elm,comp,idx) {
+        toggleCollapsibleFieldsetLegend( Ext.get(comp.elements[idx]) );
     });
 }
 Ext.onReady(setupCollapsibleFieldsets);
 Ext.onReady(hideDefaultCollapsibleFieldsets);
-*/

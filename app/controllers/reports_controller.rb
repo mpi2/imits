@@ -12,7 +12,13 @@ class ReportsController < ApplicationController
       @report.sort_rows_by!( 'Injected Date', :order => :descending )
       @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
 
-      render :csv => @report.to_csv if request.format == :csv
+      if request.format == :csv
+        send_data(
+          @report.to_csv,
+          :type     => 'text/csv; charset=utf-8; header=present',
+          :filename => 'microinjection_list.csv'
+        )
+      end
     end
   end
 
@@ -68,7 +74,13 @@ class ReportsController < ApplicationController
 
       @report = Grouping( @report, :by => [ 'Production Centre' ], :order => :name )
 
-      render :csv => @report.to_csv if request.format == :csv
+      if request.format == :csv
+        send_data(
+          @report.to_csv,
+          :type     => 'text/csv; charset=utf-8; header=present',
+          :filename => 'production_summary.csv'
+        )
+      end
     end
   end
 
@@ -84,7 +96,13 @@ class ReportsController < ApplicationController
         :order => [ 'Production Centre', '# Genes Injected', '# Genes Genotype Confirmed' ]
       )
 
-      render :csv => @report.to_csv if request.format == :csv
+      if request.format == :csv
+        send_data(
+          @report.to_csv,
+          :type     => 'text/csv; charset=utf-8; header=present',
+          :filename => 'gene_summary.csv'
+        )
+      end
     end
   end
 

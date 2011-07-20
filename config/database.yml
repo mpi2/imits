@@ -1,10 +1,11 @@
+---
 development:
   adapter: postgresql
   encoding: unicode
-  database: kermits-2_development
+  database: imits_development
   pool: 5
-  username: kermits-2
-  password: kermits-2
+  username: imits
+  password: imits
   host: localhost
 
 # Warning: The database defined as "test" will be erased and
@@ -13,8 +14,8 @@ development:
 test:
   adapter: postgresql
   encoding: unicode
-  database: kermits-2_test
+  database: imits_test
   pool: 5
-  username: kermits-2
-  password: kermits-2
+  username: imits
+  password: imits
   host: localhost

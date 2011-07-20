@@ -1,4 +1,5 @@
 config/old_database.yml
+coverage/*
 public/javascripts/all.js
 sqlnet.log
 db/dump.*.sql

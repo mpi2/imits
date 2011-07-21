@@ -3,7 +3,7 @@ class Strain::ColonyBackgroundStrain < Strain::Base
 end
 
 # == Schema Information
-# Schema version: 20110527121721
+# Schema version: 20110721091844
 #
 # Table name: strain_colony_background_strains
 #

@@ -13,7 +13,7 @@ class QcResult < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110527121721
+# Schema version: 20110721091844
 #
 # Table name: qc_results
 #

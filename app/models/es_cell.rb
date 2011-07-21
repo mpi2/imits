@@ -184,19 +184,18 @@ class EsCell < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110527121721
+# Schema version: 20110721091844
 #
 # Table name: es_cells
 #
 #  id                                 :integer         not null, primary key
 #  name                               :string(100)     not null
-#  marker_symbol                      :string(75)      not null
 #  allele_symbol_superscript_template :string(75)
 #  allele_type                        :string(1)
 #  pipeline_id                        :integer         not null
-#  mgi_accession_id                   :string(40)
 #  created_at                         :datetime
 #  updated_at                         :datetime
+#  gene_id                            :integer         not null
 #
 # Indexes
 #

@@ -5,17 +5,9 @@ namespace :db do
   # test DB
   task 'structure:dump' => ['db:schema:dump']
 
-  if Rails.env.development?
+  if Rails.env.development? and ENV['NO_ANNOTATE'].blank?
     task :migrate do
       Rake::Task['annotate:models'].invoke
-    end
-
-    namespace :migrate do
-      [:up, :down, :reset, :redo].each do |t|
-        task t do
-          Rake::Task['annotate:models'].invoke
-        end
-      end
     end
   end
 

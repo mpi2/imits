@@ -16,6 +16,7 @@ class EsCellTest < ActiveSupport::TestCase
 
       should belong_to :pipeline
       should have_many :mi_attempts
+      should belong_to :gene
 
       should have_db_column(:name).with_options(:null => false)
       should have_db_index(:name).unique(true)
@@ -90,14 +91,21 @@ class EsCellTest < ActiveSupport::TestCase
     context '#allele_symbol' do
       should 'work' do
         default_es_cell.allele_symbol_superscript = 'tm1a(EUCOMM)Wtsi'
-        default_es_cell.marker_symbol = 'Cbx1'
+        default_es_cell.gene.marker_symbol = 'Cbx1'
         assert_equal 'Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>', default_es_cell.allele_symbol
       end
 
       should 'be nil if allele_symbol_superscript is nil' do
         default_es_cell.allele_symbol_superscript = nil
-        default_es_cell.marker_symbol = 'Trafd1'
+        default_es_cell.gene.marker_symbol = 'Trafd1'
         assert_nil default_es_cell.allele_symbol
+      end
+    end
+
+    context '#marker_symbol' do
+      should 'be the gene marker symbol' do
+        default_es_cell.gene.marker_symbol = 'Xyz1'
+        assert_equal 'Xyz1', default_es_cell.marker_symbol
       end
     end
 

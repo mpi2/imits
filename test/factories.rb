@@ -32,10 +32,14 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.production_centre { Centre.find_by_name('WTSI') }
 end
 
-Factory.define :randomly_populated_es_cell, :parent => :es_cell do |es_cell|
+Factory.define :randomly_populated_gene, :parent => :gene do |gene|
   es_cell.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
+end
+
+Factory.define :randomly_populated_es_cell, :parent => :es_cell do |es_cell|
   es_cell.allele_symbol_superscript_template 'tm1@(EUCOMM)Wtsi'
   es_cell.allele_type { ('a'..'e').to_a.sample }
+  es_cell.association :gene, :factory => :randomly_populated_gene
 end
 
 Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|

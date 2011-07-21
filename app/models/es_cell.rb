@@ -56,11 +56,13 @@ class EsCell < ActiveRecord::Base
 
   def allele_symbol
     if allele_symbol_superscript
-      return "#{self.gene.marker_symbol}<sup>#{allele_symbol_superscript}</sup>"
+      return "#{self.marker_symbol}<sup>#{allele_symbol_superscript}</sup>"
     else
       return nil
     end
   end
+
+  delegate :marker_symbol, :to => :gene
 
   # BEGIN Mart Operations
 

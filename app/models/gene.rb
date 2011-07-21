@@ -1,8 +1,7 @@
 class Gene < ActiveRecord::Base
   has_many :es_cells
 
-  validates_presence_of :marker_symbol
-  validates_uniqueness_of :marker_symbol
+  validates :marker_symbol, :presence => true, :uniqueness => true
 end
 
 # == Schema Information

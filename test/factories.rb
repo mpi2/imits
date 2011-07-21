@@ -33,7 +33,7 @@ Factory.define :mi_attempt do |mi_attempt|
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|
-  es_cell.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
+  gene.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
 end
 
 Factory.define :randomly_populated_es_cell, :parent => :es_cell do |es_cell|
@@ -73,7 +73,7 @@ end
 
 Factory.define :es_cell_EPD0127_4_E01_without_mi_attempts, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0127_4_E01'
-  es_cell.marker_symbol 'Trafd1'
+  es_cell.association(:gene, :marker_symbol => 'Trafd1')
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 end
@@ -103,7 +103,7 @@ end
 
 Factory.define :es_cell_EPD0343_1_H06_without_mi_attempts, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0343_1_H06'
-  es_cell.marker_symbol 'Myo1c'
+  es_cell.association :gene, :marker_symbol => 'Myo1c'
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 end
@@ -121,7 +121,7 @@ end
 
 Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0029_1_G04'
-  es_cell.marker_symbol 'Gatc'
+  es_cell.association :gene, :marker_symbol => 'Gatc'
   es_cell.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
   es_cell.pipeline { Pipeline.find_by_name! 'KOMP' }
 

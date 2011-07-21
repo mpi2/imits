@@ -112,46 +112,34 @@ class EsCellTest < ActiveSupport::TestCase
     def assert_HEPD0549_6_D02_attributes(es_cell)
       assert_kind_of EsCell, es_cell
       assert_kind_of EsCell, EsCell.find_by_name('HEPD0549_6_D02')
-      assert_equal 'C030046E11Rik', es_cell.marker_symbol
+      assert_equal 'C030046E11Rik', es_cell.gene.marker_symbol
       assert_equal 'tm1a(EUCOMM)Hmgu', es_cell.allele_symbol_superscript
       assert_equal 'EUCOMM', es_cell.pipeline.name
-      assert_equal 'MGI:1924893', es_cell.mgi_accession_id
+      assert_equal 'MGI:1924893', es_cell.gene.mgi_accession_id
     end
 
-    context '::create_all_from_marts_by_names' do
-      should 'work for es_cells that it can find' do
-        assert_equal 0, EsCell.count
-        names = [
-          'HEPD0549_6_D02',
-          'EPD0127_4_E01'
-        ]
-        es_cells = EsCell.create_all_from_marts_by_names names
-
-        assert_equal 2, es_cells.size
-        assert_equal names.sort, es_cells.map(&:name).sort
-
-        es_cell = es_cells.first
-        assert_HEPD0549_6_D02_attributes(es_cell)
+    context '::create_es_cell_from_mart_data' do
+      def create_test_es_cell
+         EsCell.create_es_cell_from_mart_data(
+          'escell_clone' => 'HEPD0549_6_D02',
+          'marker_symbol' => 'C030046E11Rik',
+          'allele_symbol_superscript' => 'tm1a(EUCOMM)Hmgu',
+          'pipeline' => 'EUCOMM',
+          'mgi_accession_id' => 'MGI:1924893'
+        )
       end
 
-      should 'create pipelines if it needs to' do
-        assert_nil EsCell.find_by_name 'EPD0555_1_E10'
-        es_cells = EsCell.create_all_from_marts_by_names(['EPD0555_1_E10'])
-        assert_equal 1, es_cells.size
-        assert_kind_of EsCell, es_cells.first
-        assert_kind_of EsCell, EsCell.find_by_name('EPD0555_1_E10')
-        assert_equal 'KOMP-CSD', es_cells.first.pipeline.name
+      should 'work' do
+        assert_nil Gene.find_by_marker_symbol 'C030046E11Rik'
+        es_cell = create_test_es_cell
+        assert_equal ['C030046E11Rik', 'MGI:1924893'],
+                [es_cell.gene.marker_symbol, es_cell.gene.mgi_accession_id]
       end
 
-      should 'skip those it cannot find' do
-        names = [
-          'EUC0018f04',
-          'EPD0127_4_E01'
-        ]
-        es_cells = EsCell.create_all_from_marts_by_names names
-
-        assert_equal 1, es_cells.size
-        assert_equal ['EPD0127_4_E01'], es_cells.map(&:name)
+      should 'work when gene already exists' do
+        gene = Factory.create :gene, :marker_symbol => 'C030046E11Rik', :mgi_accession_id => 'MGI:1924893'
+        es_cell = create_test_es_cell
+        assert_equal gene, es_cell.gene
       end
     end
 
@@ -256,12 +244,14 @@ class EsCellTest < ActiveSupport::TestCase
     context '::sync_all_from_marts' do
       should 'sync all es_cells that have incorrect data' do
         assert_equal 0, EsCell.count
+        gene = Factory.create :gene,
+          :marker_symbol => 'IAmWrong',
+          :mgi_accession_id => 'MGI:WRONG'
         es_cell_HEPD0549_6_D02 = Factory.create :es_cell,
                 :name => 'HEPD0549_6_D02',
-                :marker_symbol => 'IAmWrong',
                 :allele_symbol_superscript => 'tm1(WRONG)Wrong',
                 :pipeline => Factory.create(:pipeline, :name => 'WRONG Pipeline'),
-                :mgi_accession_id => 'MGI:WRONG'
+                :gene => gene
         es_cell2 = Factory.create :es_cell, :name => 'EPD0127_4_E01'
 
         EsCell.sync_all_with_marts

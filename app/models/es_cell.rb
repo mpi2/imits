@@ -103,6 +103,7 @@ class EsCell < ActiveRecord::Base
   def self.create_es_cell_from_mart_data(mart_data)
     es_cell = self.new
     es_cell.assign_attributes_from_mart_data(mart_data)
+    es_cell.gene = Gene.find_or_create_from_mart_data(mart_data)
     es_cell.save!
     return es_cell
   end
@@ -111,25 +112,9 @@ class EsCell < ActiveRecord::Base
     pipeline = Pipeline.find_or_create_by_name(mart_data['pipeline'])
     self.attributes = {
       :name => mart_data['escell_clone'],
-      :marker_symbol => mart_data['marker_symbol'],
       :allele_symbol_superscript => mart_data['allele_symbol_superscript'],
-      :pipeline => pipeline,
-      :mgi_accession_id => mart_data['mgi_accession_id']
+      :pipeline => pipeline
     }
-  end
-
-  def self.create_all_from_marts_by_names(names)
-    result = get_es_cells_from_marts_by_names(names.to_a)
-
-    return result.map do |mart_data|
-      begin
-        self.create_es_cell_from_mart_data(mart_data)
-      rescue Exception => e
-        e2 = e.class.new("Error while importing #{mart_data['escell_clone']}: #{e.message}")
-        e2.set_backtrace(e.backtrace)
-        raise e2
-      end
-    end
   end
 
   def self.find_or_create_from_marts_by_name(name)
@@ -178,6 +163,7 @@ class EsCell < ActiveRecord::Base
     all_es_cells_data.each do |es_cell_data|
       es_cell = all_es_cells.detect {|c| c.name == es_cell_data['escell_clone']}
       es_cell.assign_attributes_from_mart_data(es_cell_data)
+      es_cell.gene = Gene.find_or_create_from_mart_data(es_cell_data)
       es_cell.save!
     end
   end

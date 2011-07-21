@@ -22,15 +22,8 @@ class EsCellTest < ActiveSupport::TestCase
       should validate_presence_of :name
       should validate_uniqueness_of :name
 
-      should have_db_column(:marker_symbol).with_options(:null => false)
-      should validate_presence_of :marker_symbol
-
       should have_db_column(:pipeline_id).with_options(:null => false)
       should validate_presence_of :pipeline
-
-      should 'have mgi_accession_id' do
-        assert_should have_db_column(:mgi_accession_id).of_type(:string).with_options(:null => true, :limit => 40)
-      end
     end
 
     context '#allele_symbol_superscript_template' do

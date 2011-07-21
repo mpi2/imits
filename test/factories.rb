@@ -11,12 +11,16 @@ Factory.define :pipeline do |pipeline|
   pipeline.description 'Pipeline Description'
 end
 
+Factory.define :gene do |gene|
+  gene.sequence(:marker_symbol) { |n| "Auto-generated Symbol #{n}" }
+  gene.sequence(:mgi_accession_id) { |n| "MGI:#{"%.10i" % n}" }
+end
+
 Factory.define :es_cell do |es_cell|
   es_cell.sequence(:name) {|n| "Auto-generated ES Cell Name #{n}" }
-  es_cell.marker_symbol "Auto-generated Marker Symbol"
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.association(:pipeline) { Pipeline.find_by_name! 'EUCOMM' }
-  es_cell.sequence(:mgi_accession_id) {|n| "MGI:#{"%.10i" % n}"}
+  es_cell.association(:gene)
 end
 
 Factory.define :centre do |centre|

@@ -6,10 +6,11 @@ class EsCell < ActiveRecord::Base
   TEMPLATE_CHARACTER = '@'
 
   belongs_to :pipeline
+  belongs_to :gene
   has_many :mi_attempts
 
   validates :name, :presence => true, :uniqueness => true
-  validates :marker_symbol, :presence => true
+  validates :gene, :presence => true
   validates :pipeline, :presence => true
 
   attr_protected :allele_symbol_superscript_template
@@ -55,7 +56,7 @@ class EsCell < ActiveRecord::Base
 
   def allele_symbol
     if allele_symbol_superscript
-      return "#{marker_symbol}<sup>#{allele_symbol_superscript}</sup>"
+      return "#{self.gene.marker_symbol}<sup>#{allele_symbol_superscript}</sup>"
     else
       return nil
     end

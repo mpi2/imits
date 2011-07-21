@@ -1,0 +1,10 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  marker_symbol: Cbx1
+  mgi_accession_id: 'MGI:105369'
+
+two:
+  marker_symbol: Mysm1
+  mgi_accession_id: 'MGI:2444584'
+

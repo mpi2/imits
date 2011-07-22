@@ -218,8 +218,10 @@ class Kermits2::Migration
     begin
       old_mi_attempt = Old::MiAttempt.find(mi_attempt_id)
 
-      @@mi_file.puts old_mi_attempt.id
-      @@mi_file.flush
+      if class_variables.include?(:@@mi_file)
+        @@mi_file.puts old_mi_attempt.id
+        @@mi_file.flush
+      end
 
       es_cell = EsCell.find_by_name!(old_mi_attempt.clone_name)
 

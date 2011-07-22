@@ -1,3 +1,8 @@
+unless ENV['COVERAGE'].to_s.empty?
+  require 'simplecov'
+  SimpleCov.start 'rails'
+end
+
 ENV["RAILS_ENV"] = "test"
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
@@ -5,6 +10,17 @@ require 'database_cleaner'
 require 'shoulda'
 require 'factory_girl_rails'
 require 'open3'
+
+unless ENV['COVERAGE'].to_s.empty?
+  require 'simplecov-rcov'
+  class SimpleCov::Formatter::MergedFormatter
+    def format(result)
+      SimpleCov::Formatter::HTMLFormatter.new.format(result)
+      SimpleCov::Formatter::RcovFormatter.new.format(result)
+    end
+  end
+  SimpleCov.formatter = SimpleCov::Formatter::MergedFormatter
+end
 
 class ActiveSupport::TestCase
   self.use_transactional_fixtures = false

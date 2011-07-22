@@ -102,18 +102,21 @@ function toggleCollapsibleFieldsetLegend(legend) {
     fieldset.toggleCls('collapsible-content-hidden');
     fieldset.toggleCls('collapsible-content-shown');
 }
+
 function setupCollapsibleFieldsets() {
-    var collapsible_legends = Ext.select('fieldset.collapsible legend');
-    collapsible_legends.addCls('collapsible-control');
-    collapsible_legends.each(function(elm,comp,idx) {
+    var collapsibleLegends = Ext.select('fieldset.collapsible legend');
+    collapsibleLegends.addCls('collapsible-control');
+    collapsibleLegends.each(function(elm, comp, idx) {
         elm.addListener('click', function() { toggleCollapsibleFieldsetLegend( Ext.get(comp.elements[idx]) ) });
         elm.up('fieldset').addCls('collapsible-content-shown');
     });
 }
+
 function hideDefaultCollapsibleFieldsets() {
-    Ext.select('fieldset.collapsible.hide-by-default legend').each(function(elm,comp,idx) {
+    Ext.select('fieldset.collapsible.hide-by-default legend').each(function(elm ,comp, idx) {
         toggleCollapsibleFieldsetLegend( Ext.get(comp.elements[idx]) );
     });
 }
+
 Ext.onReady(setupCollapsibleFieldsets);
 Ext.onReady(hideDefaultCollapsibleFieldsets);

@@ -230,7 +230,7 @@ class MiAttempt < ActiveRecord::Base
     unless terms.blank?
       sql_texts <<
               '(UPPER(es_cells.name) IN (?) OR ' +
-              ' UPPER(es_cells.marker_symbol) IN (?) OR ' +
+              ' UPPER(genes.marker_symbol) IN (?) OR ' +
               ' UPPER(mi_attempts.colony_name) IN (?))'
       sql_params << terms  << terms << terms
     end
@@ -249,7 +249,7 @@ class MiAttempt < ActiveRecord::Base
       scoped
     else
       sql_text = sql_texts.join(' AND ')
-      joins(:es_cell).where(sql_text, *sql_params)
+      joins(:es_cell => :gene).where(sql_text, *sql_params)
     end
   }
 

@@ -87,7 +87,7 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
 
       should 'not be settable if allele type is nil (i.e. it was a deletion)' do
         MiAttempt.destroy_all
-        deletion_es_cell = Factory.build(:es_cell, :marker_symbol => 'Cbx1', :name => 'EPD_CUSTOM_1')
+        deletion_es_cell = Factory.build(:es_cell, :gene => Factory.create(:gene, :marker_symbol => 'Cbx1'), :name => 'EPD_CUSTOM_1')
         deletion_es_cell.allele_symbol_superscript = 'tm1(EUCOMM)Wtsi'
         deletion_es_cell.save!
         assert_nil deletion_es_cell.allele_type

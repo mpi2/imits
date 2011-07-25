@@ -22,5 +22,16 @@ class MiAttemptStatusTest < ActiveSupport::TestCase
       end
     end
 
+    should 'include interest-planning statuses' do
+      expected = Set.new([
+        'Interest expressed',
+        'Conflict of interest',
+        'Declined',
+        'Assigned'
+      ])
+
+      assert_empty expected - Set.new(MiAttemptStatus.all.map(&:description))
+    end
+
   end
 end

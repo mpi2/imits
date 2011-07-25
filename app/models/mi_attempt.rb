@@ -108,6 +108,8 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :deposited_material
   access_association_by_attribute :deposited_material, :name
 
+  validates :rank, :inclusion => {:in => 1..3, :allow_nil => true}
+
   before_validation :set_blank_strings_to_nil
   before_validation :set_default_status
   before_validation :set_total_chimeras
@@ -281,7 +283,7 @@ class MiAttempt < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110721091844
+# Schema version: 20110725165610
 #
 # Table name: mi_attempts
 #
@@ -342,6 +344,7 @@ end
 #  comments                                        :text
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
+#  rank                                            :integer
 #
 # Indexes
 #

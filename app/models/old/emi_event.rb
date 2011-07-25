@@ -10,7 +10,7 @@ class Old::EmiEvent < Old::ModelBase
 end
 
 # == Schema Information
-# Schema version: 20110721091844
+# Schema version: 20110725165610
 #
 # Table name: emi_event
 #

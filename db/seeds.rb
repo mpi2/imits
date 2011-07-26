@@ -1,7 +1,13 @@
 # encoding: utf-8
 
-MiAttemptStatus.find_or_create_by_description('Micro-injection in progress', :id => 1)
-MiAttemptStatus.find_or_create_by_description('Genotype confirmed', :id => 2)
+
+[
+  'Micro-injection in progress',
+  'Genotype confirmed',
+  'Micro-injection aborted'
+].each do |description|
+  MiAttemptStatus.find_or_create_by_description description
+end
 
 Object.new.instance_eval do
   def set_up_strains(strain_ids_class, filename)

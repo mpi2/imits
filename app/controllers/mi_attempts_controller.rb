@@ -84,9 +84,9 @@ class MiAttemptsController < ApplicationController
       end
     end
   end
-  
+
   protected
-  
+
   def set_centres_and_consortia
     @centres = Centre.all
     @consortia = Consortium.all

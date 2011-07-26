@@ -136,6 +136,15 @@ class EsCellTest < ActiveSupport::TestCase
                 [es_cell.gene.marker_symbol, es_cell.gene.mgi_accession_id]
       end
 
+      should 'create pipelines if it needs to' do
+        assert_nil EsCell.find_by_name 'EPD0555_1_E10'
+        es_cells = EsCell.create_all_from_marts_by_names(['EPD0555_1_E10'])
+        assert_equal 1, es_cells.size
+        assert_kind_of EsCell, es_cells.first
+        assert_kind_of EsCell, EsCell.find_by_name('EPD0555_1_E10')
+        assert_equal 'EUCOMM', es_cells.first.pipeline.name
+      end
+
       should 'work when gene already exists' do
         gene = Factory.create :gene, :marker_symbol => 'C030046E11Rik', :mgi_accession_id => 'MGI:1924893'
         es_cell = create_test_es_cell

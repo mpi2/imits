@@ -3,6 +3,7 @@
 [
   'Micro-injection in progress',
   'Genotype confirmed',
+  'Micro-injection aborted',
   'Interest expressed',
   'Conflict of interest',
   'Declined',

@@ -20,6 +20,8 @@ module MiAttempt::StatusChanger
         self.mi_attempt_status = MiAttemptStatus.genotype_confirmed
       end
     end
+
+    return true
   end
 
 end

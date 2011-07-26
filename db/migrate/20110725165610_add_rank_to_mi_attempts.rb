@@ -4,6 +4,6 @@ class AddRankToMiAttempts < ActiveRecord::Migration
   end
 
   def self.down
-    remove_column :mi_attempts, :rankls
+    remove_column :mi_attempts, :rank
   end
 end

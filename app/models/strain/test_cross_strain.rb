@@ -3,7 +3,7 @@ class Strain::TestCrossStrain < Strain::Base
 end
 
 # == Schema Information
-# Schema version: 20110725165610
+# Schema version: 20110725141713
 #
 # Table name: strain_test_cross_strains
 #

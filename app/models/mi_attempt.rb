@@ -296,7 +296,7 @@ class MiAttempt < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110725165610
+# Schema version: 20110725141713
 #
 # Table name: mi_attempts
 #
@@ -358,7 +358,6 @@ end
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
 #  consortium_id                                   :integer         not null
-#  rank                                            :integer
 #
 # Indexes
 #

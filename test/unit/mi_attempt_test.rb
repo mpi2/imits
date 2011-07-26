@@ -788,15 +788,5 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal expected, got, "diff: #{expected.diff(got)}"
     end
 
-    context '#rank' do
-      should 'ensure valid rank' do
-        assert_should ensure_inclusion_of(:rank).in_range(1..3)
-      end
-
-      should 'allow null' do
-        assert_should allow_value(nil).for(:rank)
-      end
-    end
-
   end
 end

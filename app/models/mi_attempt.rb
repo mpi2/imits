@@ -112,8 +112,6 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :deposited_material
   access_association_by_attribute :deposited_material, :name
 
-  validates :rank, :inclusion => {:in => 1..3, :allow_nil => true}
-
   before_validation :set_blank_strings_to_nil
   before_validation :set_default_status
   before_validation :set_total_chimeras

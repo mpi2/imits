@@ -102,7 +102,7 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
       should 'still return incorrect value that caused error (just like setting a real attribute incorrectly would)' do
         assert_equal 'Nonexistent', @pet.owner_name
       end
-      
+
       should 'correctly respond to blank parameters' do
         @pet.owner_name = ''
         assert_false @pet.save

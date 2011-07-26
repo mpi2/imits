@@ -5,6 +5,7 @@ class User < ActiveRecord::Base
           :production_centre, :production_centre_id
 
   belongs_to :production_centre, :class_name => 'Centre'
+  belongs_to :consortium
 
   after_initialize do
     self.remember_me = true
@@ -23,6 +24,7 @@ end
 #  production_centre_id :integer         not null
 #  created_at           :datetime
 #  updated_at           :datetime
+#  consortium_id        :integer
 #
 # Indexes
 #

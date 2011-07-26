@@ -33,3 +33,7 @@ end
 ['Frozen embryos', 'Live mice', 'Frozen sperm'].each do |name|
   DepositedMaterial.find_or_create_by_name name
 end
+
+['EUCOMM-EUMODIC','MGP'].each do |consortia|
+  Consortium.find_or_create_by_name consortia
+end

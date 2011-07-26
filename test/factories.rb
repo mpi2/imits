@@ -4,6 +4,7 @@ Factory.define :user do |user|
   user.sequence(:email) { |n| "user#{n}@example.com" }
   user.password 'password'
   user.production_centre { Centre.find_by_name('WTSI') }
+  user.consortium { Consortium.find_by_name('EUCOMM-EUMODIC') }
 end
 
 Factory.define :pipeline do |pipeline|
@@ -17,19 +18,24 @@ Factory.define :gene do |gene|
 end
 
 Factory.define :es_cell do |es_cell|
-  es_cell.sequence(:name) {|n| "Auto-generated ES Cell Name #{n}" }
+  es_cell.sequence(:name) { |n| "Auto-generated ES Cell Name #{n}" }
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.association(:pipeline) { Pipeline.find_by_name! 'EUCOMM' }
   es_cell.association(:gene)
 end
 
 Factory.define :centre do |centre|
-  centre.sequence(:name) {|n| "Auto-generated Centre Name #{n}" }
+  centre.sequence(:name) { |n| "Auto-generated Centre Name #{n}" }
+end
+
+Factory.define :consortium do |consortium|
+  consortium.sequence(:name) { |n| "Auto-generated Consortium Name #{n}" }
 end
 
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :es_cell
   mi_attempt.production_centre { Centre.find_by_name('WTSI') }
+  mi_attempt.consortium { Consortium.find_by_name('EUCOMM-EUMODIC') }
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|

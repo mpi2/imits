@@ -83,6 +83,30 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
+      context 'consortia tests:' do
+        should 'exist' do
+          assert_should have_db_column(:consortium_id)
+          assert_should belong_to(:consortium)
+        end
+
+        should 'not output ids in serialization' do
+          data = default_mi_attempt.as_json
+          assert_false data.keys.include?('consortium_id')
+        end
+
+        should 'validate the presence of a consortium' do
+          mi = MiAttempt.new
+          assert_false mi.valid?
+          assert_false mi.errors[:consortium].blank?
+        end
+
+        should 'allow access to the consortium via its name' do
+          consortium = Factory.create :consortium, :name => 'WEEEEEE'
+          default_mi_attempt.update_attributes( :consortium_name => 'WEEEEEE' )
+          assert_equal 'WEEEEEE', default_mi_attempt.consortium.name 
+        end
+      end
+
       context '#mi_attempt_status' do
         should 'exist' do
           assert_should have_db_column(:mi_attempt_status_id).with_options(:null => false)

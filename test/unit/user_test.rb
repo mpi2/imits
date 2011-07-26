@@ -26,6 +26,10 @@ class UserTest < ActiveSupport::TestCase
       assert_should have_db_column(:production_centre_id).with_options(:null => false)
     end
 
+    should 'have a consortium_id field' do
+      assert_should have_db_column(:consortium_id)
+    end
+
     context 'remember_me' do
       should 'be true by default' do
         assert_equal true, subject.remember_me

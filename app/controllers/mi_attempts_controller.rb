@@ -36,28 +36,31 @@ class MiAttemptsController < ApplicationController
   private :data_for_serialized
 
   def new
-    @centres = Centre.all
+    set_centres_and_consortia
     @mi_attempt = MiAttempt.new(
       :production_centre => current_user.production_centre,
-      :distribution_centre => current_user.production_centre)
+      :distribution_centre => current_user.production_centre,
+      :consortium => current_user.consortium
+    )
   end
 
   def create
     @mi_attempt = MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
     @mi_attempt.production_centre ||= current_user.production_centre
+    @mi_attempt.consortium ||= current_user.consortium
     if @mi_attempt.save
       flash[:notice] = 'Micro-injection attempt created'
     else
       flash.now[:alert] = 'Micro-injection could not be created - please check the values you entered'
-      @centres = Centre.all
+      set_centres_and_consortia
     end
 
     respond_with @mi_attempt
   end
 
   def show
-    @centres = Centre.all
+    set_centres_and_consortia
     @mi_attempt = MiAttempt.find(params[:id])
     respond_with @mi_attempt
   end
@@ -76,10 +79,17 @@ class MiAttemptsController < ApplicationController
         if ! @mi_attempt.valid?
           flash.now[:alert] = 'Micro-injection could not be updated - please check the values you entered'
         end
-        @centres = Centre.all
+        set_centres_and_consortia
         render :action => :show
       end
     end
+  end
+  
+  protected
+  
+  def set_centres_and_consortia
+    @centres = Centre.all
+    @consortia = Consortium.all
   end
 
 end

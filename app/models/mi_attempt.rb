@@ -47,6 +47,10 @@ class MiAttempt < ActiveRecord::Base
 
   acts_as_audited
 
+  belongs_to :consortium
+  validates :consortium, :presence => true
+  access_association_by_attribute :consortium, :name
+
   belongs_to :es_cell
 
   def es_cell_name
@@ -261,12 +265,13 @@ class MiAttempt < ActiveRecord::Base
     options[:methods] ||= [
       'qc', 'es_cell_name', 'emma_status', 'status',
       'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
-      'distribution_centre_name', 'production_centre_name',
+      'distribution_centre_name', 'production_centre_name', 'consortium_name',
       'mouse_allele_symbol_superscript'
     ] + QC_FIELDS.map{|i| "#{i}_result"}
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
       'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
-      'production_centre_id', 'distribution_centre_id', 'deposited_material_id'
+      'production_centre_id', 'distribution_centre_id', 'deposited_material_id',
+      'consortium_id'
     ]
     return options
   end
@@ -344,6 +349,7 @@ end
 #  comments                                        :text
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
+#  consortium_id                                   :integer
 #  rank                                            :integer
 #
 # Indexes

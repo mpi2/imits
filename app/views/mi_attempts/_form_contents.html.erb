@@ -15,8 +15,13 @@
     <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
 
     <div>
-      <%= form.label :consortium_id, 'Consortium' %>
-      <%= form.collection_select :consortium_id, @consortia, :id, :name %>
+      <%=
+        generator.form_field(
+          :consortium_name,
+          'Consortium',
+          form.collection_select( :consortium_name, @consortia, :name, :name, { :include_blank => true } )
+        )
+      %>
     </div>
 
     <div>

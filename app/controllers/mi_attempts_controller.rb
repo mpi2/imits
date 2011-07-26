@@ -39,8 +39,7 @@ class MiAttemptsController < ApplicationController
     set_centres_and_consortia
     @mi_attempt = MiAttempt.new(
       :production_centre => current_user.production_centre,
-      :distribution_centre => current_user.production_centre,
-      :consortium => current_user.consortium
+      :distribution_centre => current_user.production_centre
     )
   end
 
@@ -48,7 +47,6 @@ class MiAttemptsController < ApplicationController
     @mi_attempt = MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
     @mi_attempt.production_centre ||= current_user.production_centre
-    @mi_attempt.consortium ||= current_user.consortium
     if @mi_attempt.save
       flash[:notice] = 'Micro-injection attempt created'
     else

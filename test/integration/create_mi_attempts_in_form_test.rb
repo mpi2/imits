@@ -23,6 +23,7 @@ class CreateMiAttemptsInFormTest < ActionDispatch::IntegrationTest
     should 'save MI and redirect back to show page when valid data' do
       choose_es_cell_from_list
       fill_in 'mi_attempt[colony_name]', :with => 'MZSQ'
+      select 'MGP', :from => 'mi_attempt[consortium_name]'
       click_button 'mi_attempt_submit'
 
       sleep 3
@@ -30,6 +31,7 @@ class CreateMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert_match /\/mi_attempts\/\d+$/, current_url
       mi_attempt = MiAttempt.find_by_colony_name('MZSQ')
       assert_equal mi_attempt.colony_name, page.find('input[name="mi_attempt[colony_name]"]').value
+      assert_equal mi_attempt.consortium_name, page.find('select[name="mi_attempt[consortium_name]"]').value
       assert_equal default_user.email, mi_attempt.updated_by.email
     end
 
@@ -41,6 +43,7 @@ class CreateMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       sleep 3
 
       assert_equal 'EPD0027_2_A01', page.find(:css, 'input[name="mi_attempt[es_cell_name]"]').value
+      assert_equal '', page.find(:css, 'select[name="mi_attempt[consortium_name]"]').value
       assert page.has_css? '.message.alert'
       assert page.has_css? '.field_with_errors'
       assert page.has_css? '.error-message'

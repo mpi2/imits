@@ -41,8 +41,6 @@ class MiAttemptFieldGenerator
     end.join.html_safe
   end
 
-  private
-
   def form_field(name, label, field_html)
     element_classes = []
     label ||= tidy_label(name.to_s.titlecase)
@@ -53,6 +51,8 @@ class MiAttemptFieldGenerator
     end
     return content_tag(:div, contents.html_safe, :class => element_classes.join(' ')).html_safe
   end
+  
+  private
 
   def tidy_label(old_label)
     new_label = [

@@ -50,7 +50,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :consortium
   validates :consortium, :presence => true
   access_association_by_attribute :consortium, :name
-
+  
   belongs_to :es_cell
 
   def es_cell_name
@@ -349,7 +349,7 @@ end
 #  comments                                        :text
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
-#  consortium_id                                   :integer
+#  consortium_id                                   :integer         not null
 #  rank                                            :integer
 #
 # Indexes

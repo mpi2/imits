@@ -32,7 +32,11 @@ module AccessAssociationByAttribute
       value = instance_variable_get("@#{virtual_attribute}")
       new_object = association_class.send("find_by_#{attribute}", value)
       if ! new_object
-        self.errors.add(virtual_attribute, "'#{value}' does not exist")
+        if value.blank?
+          self.errors.add(virtual_attribute, I18n.translate('errors.messages.blank'))
+        else
+          self.errors.add(virtual_attribute, "'#{value}' does not exist")
+        end
       end
     end
 

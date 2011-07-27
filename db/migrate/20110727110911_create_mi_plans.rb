@@ -7,7 +7,7 @@ class CreateMiPlans < ActiveRecord::Migration
     end
 
     create_table :mi_plan_priorities do |t|
-      t.string :name, :limit => 10, :null => false, :unique => true
+      t.string :name, :limit => 10, :null => false
       t.string :description, :limit => 100
 
       t.timestamps
@@ -30,6 +30,8 @@ class CreateMiPlans < ActiveRecord::Migration
     add_foreign_key :mi_plans, :centres, :column => :production_centre_id
 
     add_index :mi_plans, [:gene_id, :consortium_id], :unique => true
+
+    add_index :mi_plan_priorities, :name, :unique => true
   end
 
   def self.down

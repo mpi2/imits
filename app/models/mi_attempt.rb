@@ -108,8 +108,74 @@ class MiAttempt < ActiveRecord::Base
   before_save :make_unsuitable_for_emma_if_is_not_active
 
   ##
+  ## Filter methods
+  ##
+
+  protected
+
+  def set_default_status
+    self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
+  end
+
+  def set_total_chimeras
+    self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
+  end
+
+  def set_blank_strings_to_nil
+    self.attributes.each do |name, value|
+      if self[name].respond_to?(:to_str) && self[name].blank?
+        self[name] = nil
+      end
+    end
+  end
+
+  def set_es_cell_from_es_cell_name
+    if ! self.es_cell
+      self.es_cell = EsCell.find_or_create_from_marts_by_name(self.es_cell_name)
+    end
+  end
+
+  def set_default_distribution_centre
+    self.distribution_centre ||= self.production_centre
+  end
+
+  def set_blank_qc_fields_to_na
+    QC_FIELDS.each do |qc_field|
+      if self.send("#{qc_field}_result").blank?
+        self.send("#{qc_field}_result=", 'na')
+      end
+    end
+  end
+
+  def generate_colony_name_if_blank
+    return unless self.colony_name.blank?
+
+    i = 0
+    begin
+      i += 1
+      self.colony_name = "#{self.production_centre_name}-#{self.es_cell_name}-#{i}"
+    end until self.class.find_by_colony_name(self.colony_name).blank?
+  end
+
+  def set_default_deposited_material
+    if self.deposited_material.nil?
+      self.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
+      self.deposited_material_name = self.deposited_material.name
+    end
+  end
+
+  def make_unsuitable_for_emma_if_is_not_active
+    if ! self.is_active?
+      self.is_suitable_for_emma = false
+    end
+    return true
+  end
+
+  ##
   ## Methods
   ##
+
+  public
 
   def es_cell_name
     if(self.es_cell)
@@ -226,66 +292,6 @@ class MiAttempt < ActiveRecord::Base
 
   def to_xml(options = {})
     super(default_serializer_options(options))
-  end
-
-  protected
-
-  def set_default_status
-    self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
-  end
-
-  def set_total_chimeras
-    self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
-  end
-
-  def set_blank_strings_to_nil
-    self.attributes.each do |name, value|
-      if self[name].respond_to?(:to_str) && self[name].blank?
-        self[name] = nil
-      end
-    end
-  end
-
-  def set_es_cell_from_es_cell_name
-    if ! self.es_cell
-      self.es_cell = EsCell.find_or_create_from_marts_by_name(self.es_cell_name)
-    end
-  end
-
-  def set_default_distribution_centre
-    self.distribution_centre ||= self.production_centre
-  end
-
-  def set_blank_qc_fields_to_na
-    QC_FIELDS.each do |qc_field|
-      if self.send("#{qc_field}_result").blank?
-        self.send("#{qc_field}_result=", 'na')
-      end
-    end
-  end
-
-  def generate_colony_name_if_blank
-    return unless self.colony_name.blank?
-
-    i = 0
-    begin
-      i += 1
-      self.colony_name = "#{self.production_centre_name}-#{self.es_cell_name}-#{i}"
-    end until self.class.find_by_colony_name(self.colony_name).blank?
-  end
-
-  def set_default_deposited_material
-    if self.deposited_material.nil?
-      self.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
-      self.deposited_material_name = self.deposited_material.name
-    end
-  end
-
-  def make_unsuitable_for_emma_if_is_not_active
-    if ! self.is_active?
-      self.is_suitable_for_emma = false
-    end
-    return true
   end
 
   private

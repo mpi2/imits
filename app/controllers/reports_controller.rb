@@ -209,9 +209,9 @@ class ReportsController < ApplicationController
         row.number_of_chimeras_with_50_to_99_percent_glt,
         row.number_of_chimeras_with_100_percent_glt
       ].compact
-      
+
       nums.each { |elm| sum += elm }
-      
+
       return sum
     end
   end

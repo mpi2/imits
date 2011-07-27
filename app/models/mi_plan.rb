@@ -4,6 +4,11 @@ class MiPlan < ActiveRecord::Base
   belongs_to :mi_plan_status
   belongs_to :mi_plan_priority
 
+  access_association_by_attribute :gene, :name
+  access_association_by_attribute :consortium, :name
+  access_association_by_attribute :mi_plan_status, :name
+  access_association_by_attribute :mi_plan_priority, :name
+
   validates :gene, :presence => true
   validates :consortium, :presence => true
   validates :mi_plan_status, :presence => true

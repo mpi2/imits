@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 module AccessAssociationByAttribute
+  # Some behaviour may be undefined if the attribute of the association can be
+  # blank
   def access_association_by_attribute(association_name, attribute, options = {})
     options.symbolize_keys!
 
@@ -30,8 +32,9 @@ module AccessAssociationByAttribute
       return unless instance_variable_defined?("@#{virtual_attribute}")
 
       value = instance_variable_get("@#{virtual_attribute}")
+
       new_object = association_class.send("find_by_#{attribute}", value)
-      if ! new_object
+      if !value.blank? and !new_object
         self.errors.add(virtual_attribute, "'#{value}' does not exist")
       end
     end

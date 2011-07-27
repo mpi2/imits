@@ -86,6 +86,20 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
         @pet.reload
         assert_equal 'Ali', @pet.owner.name
       end
+
+      should 'allow unsetting association by passing nil' do
+        @pet.owner_name = nil
+        @pet.save!
+        @pet.reload
+        assert_equal nil, @pet.owner
+      end
+
+      should 'allow unsetting association by passing anything blank' do
+        @pet.owner_name = ''
+        @pet.save!
+        @pet.reload
+        assert_equal nil, @pet.owner
+      end
     end
 
     context 'on saving with invalid assignment' do

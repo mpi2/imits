@@ -48,10 +48,9 @@ class MiAttempt < ActiveRecord::Base
   acts_as_audited
 
   belongs_to :consortium
-  validates :consortium, :presence => true
-  validates :consortium_id, :presence => true
   access_association_by_attribute :consortium, :name
-  
+  validates_presence_of :consortium_name
+
   belongs_to :es_cell
 
   def es_cell_name
@@ -86,9 +85,10 @@ class MiAttempt < ActiveRecord::Base
   validates :colony_name, :uniqueness => true, :allow_nil => true
 
   belongs_to :production_centre, :class_name => 'Centre'
-  validates :production_centre, :presence => {:if => proc {|record| record.production_centre_name.blank?} }
-  belongs_to :distribution_centre, :class_name => 'Centre'
   access_association_by_attribute :production_centre, :name
+  validates :production_centre_name, :presence => true
+
+  belongs_to :distribution_centre, :class_name => 'Centre'
   access_association_by_attribute :distribution_centre, :name
 
   belongs_to :updated_by, :class_name => 'User'
@@ -106,7 +106,6 @@ class MiAttempt < ActiveRecord::Base
 
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
-
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
 
@@ -119,6 +118,7 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_es_cell_from_es_cell_name
   before_validation :set_default_distribution_centre
   before_validation :set_default_deposited_material
+  before_validation :set_blank_qc_fields_to_na
 
   before_save :generate_colony_name_if_blank
   before_save :change_status
@@ -152,6 +152,14 @@ class MiAttempt < ActiveRecord::Base
     self.distribution_centre ||= self.production_centre
   end
 
+  def set_blank_qc_fields_to_na
+    QC_FIELDS.each do |qc_field|
+      if self.send("#{qc_field}_result").blank?
+        self.send("#{qc_field}_result=", 'na')
+      end
+    end
+  end
+
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?
 
@@ -163,7 +171,10 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def set_default_deposited_material
-    self.deposited_material ||= DepositedMaterial.find_by_name!('Frozen embryos')
+    if self.deposited_material.nil?
+      self.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
+      self.deposited_material_name = self.deposited_material.name
+    end
   end
 
   def make_unsuitable_for_emma_if_is_not_active

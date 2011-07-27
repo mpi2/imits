@@ -83,7 +83,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      context 'consortia tests:' do
+      context '#consortium' do
         should 'exist' do
           assert_should have_db_column(:consortium_id)
           assert_should belong_to(:consortium)
@@ -95,9 +95,8 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'validate the presence of a consortium' do
-          mi = MiAttempt.new
-          assert_false mi.valid?
-          assert_false mi.errors[:consortium].blank?
+          assert_should validate_presence_of :consortium
+          assert_should validate_presence_of :consortium_id
         end
 
         should 'allow access to the consortium via its name' do

@@ -49,6 +49,7 @@ class MiAttempt < ActiveRecord::Base
 
   belongs_to :consortium
   validates :consortium, :presence => true
+  validates :consortium_id, :presence => true
   access_association_by_attribute :consortium, :name
   
   belongs_to :es_cell

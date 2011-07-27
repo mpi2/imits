@@ -68,6 +68,7 @@ var commonColumns = [
 'mi_date',
 'mi_attempt_status__description',
 'colony_name',
+'consortium__name',
 'production_centre__name',
 'distribution_centre__name',
 'deposited_material__name'

@@ -1,10 +1,11 @@
 class CreateMiPlans < ActiveRecord::Migration
   def self.up
     create_table :mi_plan_statuses do |t|
-      t.string :name, :limit => 50, :null => false, :unique => true
+      t.string :name, :limit => 50, :null => false
 
       t.timestamps
     end
+    add_index :mi_plan_statuses, :name, :unique => true
 
     create_table :mi_plan_priorities do |t|
       t.string :name, :limit => 10, :null => false
@@ -12,6 +13,7 @@ class CreateMiPlans < ActiveRecord::Migration
 
       t.timestamps
     end
+    add_index :mi_plan_priorities, :name, :unique => true
 
     create_table :mi_plans do |t|
       t.references :gene, :null => false
@@ -29,9 +31,7 @@ class CreateMiPlans < ActiveRecord::Migration
     add_foreign_key :mi_plans, :mi_plan_priorities
     add_foreign_key :mi_plans, :centres, :column => :production_centre_id
 
-    add_index :mi_plans, [:gene_id, :consortium_id], :unique => true
-
-    add_index :mi_plan_priorities, :name, :unique => true
+    add_index :mi_plans, [:gene_id, :consortium_id, :production_centre_id], :unique => true
   end
 
   def self.down

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'test_helper'
 
 class MiAttemptStatusTest < ActiveSupport::TestCase
@@ -19,6 +21,11 @@ class MiAttemptStatusTest < ActiveSupport::TestCase
       should 'include genotype_confirmed' do
         assert_equal 'Genotype confirmed', MiAttemptStatus.genotype_confirmed.description
         assert_true MiAttemptStatus.genotype_confirmed.frozen?
+      end
+
+      should 'include aborted' do
+        assert_equal 'Micro-injection aborted', MiAttemptStatus.micro_injection_aborted.description
+        assert_true MiAttemptStatus.micro_injection_aborted.frozen?
       end
     end
 

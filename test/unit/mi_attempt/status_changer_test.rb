@@ -77,6 +77,61 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
 
       assert_equal MiAttemptStatus.genotype_confirmed, mi_attempt.mi_attempt_status
     end
-  end
 
+    context 'active flag' do
+      context 'when set to false' do
+        context 'when production centre is WTSI' do
+          should 'set status to aborted, even if is_released_from_gentotyping is true' do
+            mi = Factory.create :mi_attempt,
+                    :production_centre => Centre.find_by_name!('WTSI'),
+                    :is_released_from_genotyping => true
+            mi.is_active = false
+            mi.save!
+
+            assert_equal MiAttemptStatus.micro_injection_aborted, mi.mi_attempt_status
+          end
+        end
+
+        context 'when production centre is not WTSI' do
+          should 'set status to aborted, even if genotype confirmed conditions are met' do
+            mi = Factory.create :mi_attempt,
+                    :production_centre => Centre.find_by_name!('ICS'),
+                    :number_of_het_offspring => 1
+            mi.is_active = false
+            mi.save!
+
+            assert_equal MiAttemptStatus.micro_injection_aborted, mi.mi_attempt_status
+          end
+        end
+      end
+
+      context 'when was false (and status was aborted) and is set to true' do
+        should 'set status to in progress' do
+          mi = Factory.create :mi_attempt,
+                  :production_centre => Centre.find_by_name!('ICS')
+          mi.is_active = false
+          mi.save!
+
+          mi.is_active = true
+          mi.save!
+
+          assert_equal MiAttemptStatus.micro_injection_in_progress, mi.mi_attempt_status
+        end
+
+        should 're-evaluate status based on rules and set to confirmed' do
+          mi = Factory.create :mi_attempt,
+                  :production_centre => Centre.find_by_name!('WTSI'),
+                  :is_released_from_genotyping => true
+          mi.is_active = false
+          mi.save!
+
+          mi.is_active = true
+          mi.save!
+
+          assert_equal MiAttemptStatus.genotype_confirmed, mi.mi_attempt_status
+        end
+      end
+    end
+
+  end
 end

@@ -139,7 +139,7 @@ class EsCellTest < ActiveSupport::TestCase
         assert_equal 1, es_cells.size
         assert_kind_of EsCell, es_cells.first
         assert_kind_of EsCell, EsCell.find_by_name('EPD0555_1_E10')
-        assert_equal 'KOMP-CSD', es_cells.first.pipeline.name
+        assert_equal 'EUCOMM', es_cells.first.pipeline.name
       end
 
       should 'skip those it cannot find' do

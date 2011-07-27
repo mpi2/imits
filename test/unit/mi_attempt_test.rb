@@ -285,6 +285,14 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal false, default_mi_attempt.is_emma_sticky?
       end
 
+      should 'on save set is_suitable_for_emma to false if is_active is false' do
+        default_mi_attempt.is_active = false
+        default_mi_attempt.is_suitable_for_emma = true
+        default_mi_attempt.save!
+
+        assert_equal false, default_mi_attempt.is_suitable_for_emma
+      end
+
       context '#emma_status' do
         context 'on read' do
           should 'be suitable if is_suitable_for_emma=true and is_emma_sticky=false' do

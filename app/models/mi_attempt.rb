@@ -117,6 +117,7 @@ class MiAttempt < ActiveRecord::Base
 
   before_save :generate_colony_name_if_blank
   before_save :change_status
+  before_save :make_unsuitable_for_emma_if_is_not_active
 
   protected
 
@@ -158,6 +159,13 @@ class MiAttempt < ActiveRecord::Base
 
   def set_default_deposited_material
     self.deposited_material ||= DepositedMaterial.find_by_name!('Frozen embryos')
+  end
+
+  def make_unsuitable_for_emma_if_is_not_active
+    if ! self.is_active?
+      self.is_suitable_for_emma = false
+    end
+    return true
   end
 
   public

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class MiAttemptStatus < ActiveRecord::Base
   acts_as_reportable
 
@@ -11,6 +13,10 @@ class MiAttemptStatus < ActiveRecord::Base
 
   def self.genotype_confirmed
     @@good ||= self.find_by_description!('Genotype confirmed').freeze
+  end
+
+  def self.micro_injection_aborted
+    @@aborted ||= self.find_by_description!('Micro-injection aborted').freeze
   end
 end
 

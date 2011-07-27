@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class MiPlanStatus < ActiveRecord::Base
   has_many :mi_plans
   validates :name, :presence => true, :uniqueness => true

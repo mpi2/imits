@@ -4,14 +4,11 @@ class Gene < ActiveRecord::Base
   validates :marker_symbol, :presence => true, :uniqueness => true
 
   def self.find_or_create_from_mart_data(mart_data)
-    gene = Gene.find_by_marker_symbol(mart_data['marker_symbol'])
-    if gene
-      return gene
-    else
-      return Gene.create!(:marker_symbol => mart_data['marker_symbol'],
-        :mgi_accession_id => mart_data['mgi_accession_id'])
-    end
+    return self.find_or_create_by_mgi_accession_id(
+      :marker_symbol => mart_data['marker_symbol'],
+      :mgi_accession_id => mart_data['mgi_accession_id'])
   end
+
 end
 
 # == Schema Information

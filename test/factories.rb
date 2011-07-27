@@ -31,6 +31,13 @@ Factory.define :consortium do |consortium|
   consortium.sequence(:name) { |n| "Auto-generated Consortium Name #{n}" }
 end
 
+Factory.define :mi_plan do |mi_plan|
+  mi_plan.association(:gene)
+  mi_plan.association(:consortium)
+  mi_plan.mi_plan_status   { MiPlanStatus.all.sample }
+  mi_plan.mi_plan_priority { MiPlanPriority.all.sample }
+end
+
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :es_cell
   mi_attempt.production_centre { Centre.find_by_name('WTSI') }

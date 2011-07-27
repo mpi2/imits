@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110725141713
+# Schema version: 20110727110911
 #
 # Table name: users
 #

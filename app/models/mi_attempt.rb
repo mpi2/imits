@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 class MiAttempt < ActiveRecord::Base
+  acts_as_audited
   acts_as_reportable
 
   extend AccessAssociationByAttribute
@@ -45,13 +46,70 @@ class MiAttempt < ActiveRecord::Base
 
   attr_protected *PRIVATE_ATTRIBUTES
 
-  acts_as_audited
+  ##
+  ## Associations
+  ##
 
   belongs_to :consortium
-  access_association_by_attribute :consortium, :name
-  validates_presence_of :consortium_name
-
   belongs_to :es_cell
+  belongs_to :mi_attempt_status
+  belongs_to :production_centre, :class_name => 'Centre'
+  belongs_to :distribution_centre, :class_name => 'Centre'
+  belongs_to :updated_by, :class_name => 'User'
+  belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
+  belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
+  belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
+  belongs_to :deposited_material
+
+  access_association_by_attribute :consortium, :name
+  access_association_by_attribute :production_centre, :name
+  access_association_by_attribute :distribution_centre, :name
+  access_association_by_attribute :blast_strain, :name
+  access_association_by_attribute :colony_background_strain, :name
+  access_association_by_attribute :test_cross_strain, :name
+  access_association_by_attribute :deposited_material, :name
+
+  QC_FIELDS.each do |qc_field|
+    belongs_to qc_field, :class_name => 'QcResult'
+    access_association_by_attribute qc_field, :description, :attribute_alias => :result
+  end
+
+  ##
+  ## Validations
+  ##
+
+  validates :consortium_name, :presence => true
+  validates :es_cell_name, :presence => true
+  validates :mi_attempt_status, :presence => true
+  validates :colony_name, :uniqueness => true, :allow_nil => true
+  validates :production_centre_name, :presence => true
+  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
+
+  validates_each :es_cell_name do |record, attr, value|
+    if !record.es_cell_name.blank? and record.es_cell.blank?
+      record.errors.add :es_cell_name, 'was not found in the marts'
+    end
+  end
+
+  ##
+  ## Filters
+  ##
+
+  before_validation :set_blank_strings_to_nil
+  before_validation :set_default_status
+  before_validation :set_total_chimeras
+  before_validation :set_es_cell_from_es_cell_name
+  before_validation :set_default_distribution_centre
+  before_validation :set_default_deposited_material
+  before_validation :set_blank_qc_fields_to_na
+
+  before_save :generate_colony_name_if_blank
+  before_save :change_status
+  before_save :make_unsuitable_for_emma_if_is_not_active
+
+  ##
+  ## Methods
+  ##
 
   def es_cell_name
     if(self.es_cell)
@@ -67,124 +125,9 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
-  validates :es_cell_name, :presence => true
-
-  validates_each :es_cell_name do |record, attr, value|
-    if !record.es_cell_name.blank? and record.es_cell.blank?
-      record.errors.add :es_cell_name, 'was not found in the marts'
-    end
-  end
-
-  belongs_to :mi_attempt_status
-  validates :mi_attempt_status, :presence => true
-
   def status
     return self.mi_attempt_status.try(:description)
   end
-
-  validates :colony_name, :uniqueness => true, :allow_nil => true
-
-  belongs_to :production_centre, :class_name => 'Centre'
-  access_association_by_attribute :production_centre, :name
-  validates :production_centre_name, :presence => true
-
-  belongs_to :distribution_centre, :class_name => 'Centre'
-  access_association_by_attribute :distribution_centre, :name
-
-  belongs_to :updated_by, :class_name => 'User'
-
-  belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
-  access_association_by_attribute :blast_strain, :name
-
-  belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
-  access_association_by_attribute :colony_background_strain, :name
-
-  belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
-  access_association_by_attribute :test_cross_strain, :name
-
-  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
-
-  QC_FIELDS.each do |qc_field|
-    belongs_to qc_field, :class_name => 'QcResult'
-    access_association_by_attribute qc_field, :description, :attribute_alias => :result
-  end
-
-  belongs_to :deposited_material
-  access_association_by_attribute :deposited_material, :name
-
-  before_validation :set_blank_strings_to_nil
-  before_validation :set_default_status
-  before_validation :set_total_chimeras
-  before_validation :set_es_cell_from_es_cell_name
-  before_validation :set_default_distribution_centre
-  before_validation :set_default_deposited_material
-  before_validation :set_blank_qc_fields_to_na
-
-  before_save :generate_colony_name_if_blank
-  before_save :change_status
-  before_save :make_unsuitable_for_emma_if_is_not_active
-
-  protected
-
-  def set_default_status
-    self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
-  end
-
-  def set_total_chimeras
-    self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
-  end
-
-  def set_blank_strings_to_nil
-    self.attributes.each do |name, value|
-      if self[name].respond_to?(:to_str) && self[name].blank?
-        self[name] = nil
-      end
-    end
-  end
-
-  def set_es_cell_from_es_cell_name
-    if ! self.es_cell
-      self.es_cell = EsCell.find_or_create_from_marts_by_name(self.es_cell_name)
-    end
-  end
-
-  def set_default_distribution_centre
-    self.distribution_centre ||= self.production_centre
-  end
-
-  def set_blank_qc_fields_to_na
-    QC_FIELDS.each do |qc_field|
-      if self.send("#{qc_field}_result").blank?
-        self.send("#{qc_field}_result=", 'na')
-      end
-    end
-  end
-
-  def generate_colony_name_if_blank
-    return unless self.colony_name.blank?
-
-    i = 0
-    begin
-      i += 1
-      self.colony_name = "#{self.production_centre_name}-#{self.es_cell_name}-#{i}"
-    end until self.class.find_by_colony_name(self.colony_name).blank?
-  end
-
-  def set_default_deposited_material
-    if self.deposited_material.nil?
-      self.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
-      self.deposited_material_name = self.deposited_material.name
-    end
-  end
-
-  def make_unsuitable_for_emma_if_is_not_active
-    if ! self.is_active?
-      self.is_suitable_for_emma = false
-    end
-    return true
-  end
-
-  public
 
   def emma_status
     if is_suitable_for_emma?
@@ -277,6 +220,76 @@ class MiAttempt < ActiveRecord::Base
     end
   }
 
+  def as_json(options = {})
+    super(default_serializer_options(options))
+  end
+
+  def to_xml(options = {})
+    super(default_serializer_options(options))
+  end
+
+  protected
+
+  def set_default_status
+    self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
+  end
+
+  def set_total_chimeras
+    self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
+  end
+
+  def set_blank_strings_to_nil
+    self.attributes.each do |name, value|
+      if self[name].respond_to?(:to_str) && self[name].blank?
+        self[name] = nil
+      end
+    end
+  end
+
+  def set_es_cell_from_es_cell_name
+    if ! self.es_cell
+      self.es_cell = EsCell.find_or_create_from_marts_by_name(self.es_cell_name)
+    end
+  end
+
+  def set_default_distribution_centre
+    self.distribution_centre ||= self.production_centre
+  end
+
+  def set_blank_qc_fields_to_na
+    QC_FIELDS.each do |qc_field|
+      if self.send("#{qc_field}_result").blank?
+        self.send("#{qc_field}_result=", 'na')
+      end
+    end
+  end
+
+  def generate_colony_name_if_blank
+    return unless self.colony_name.blank?
+
+    i = 0
+    begin
+      i += 1
+      self.colony_name = "#{self.production_centre_name}-#{self.es_cell_name}-#{i}"
+    end until self.class.find_by_colony_name(self.colony_name).blank?
+  end
+
+  def set_default_deposited_material
+    if self.deposited_material.nil?
+      self.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
+      self.deposited_material_name = self.deposited_material.name
+    end
+  end
+
+  def make_unsuitable_for_emma_if_is_not_active
+    if ! self.is_active?
+      self.is_suitable_for_emma = false
+    end
+    return true
+  end
+
+  private
+
   def default_serializer_options(options = {})
     options ||= {}
     options.symbolize_keys!
@@ -293,20 +306,11 @@ class MiAttempt < ActiveRecord::Base
     ]
     return options
   end
-  private :default_serializer_options
-
-  def as_json(options = {})
-    super(default_serializer_options(options))
-  end
-
-  def to_xml(options = {})
-    super(default_serializer_options(options))
-  end
 
 end
 
 # == Schema Information
-# Schema version: 20110725141713
+# Schema version: 20110727110911
 #
 # Table name: mi_attempts
 #

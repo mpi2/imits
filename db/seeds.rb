@@ -4,10 +4,6 @@
   'Micro-injection in progress',
   'Genotype confirmed',
   'Micro-injection aborted',
-  'Interest expressed',
-  'Conflict of interest',
-  'Declined',
-  'Assigned'
 ].each do |description|
   MiAttemptStatus.find_or_create_by_description description
 end
@@ -38,3 +34,24 @@ end
 ['EUCOMM-EUMODIC','MGP','BASH'].each do |consortia|
   Consortium.find_or_create_by_name consortia
 end
+
+[
+  'Interest',
+  'Conflict',
+  'Declined',
+  'Assigned'
+].each do |description|
+  MiPlanStatus.find_or_create_by_name(description)
+end
+
+{
+  'High'   => 'Estimated injection in the next 0-4 months',
+  'Medium' => 'Estimated injection in the next 5-8 months',
+  'Low'    => 'Estimated injection in the next 9-12 months'
+}.each do |priority,description|
+  mpp = MiPlanPriority.find_or_create_by_name(priority)
+  next unless mpp.description.blank?
+  mpp.description = description
+  mpp.save!
+end
+

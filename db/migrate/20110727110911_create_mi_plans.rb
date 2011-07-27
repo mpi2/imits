@@ -31,7 +31,8 @@ class CreateMiPlans < ActiveRecord::Migration
     add_foreign_key :mi_plans, :mi_plan_priorities
     add_foreign_key :mi_plans, :centres, :column => :production_centre_id
 
-    add_index :mi_plans, [:gene_id, :consortium_id, :production_centre_id], :unique => true
+    add_index :mi_plans, [:gene_id, :consortium_id, :production_centre_id],
+            :unique => true, :name => :mi_plan_logical_key
   end
 
   def self.down

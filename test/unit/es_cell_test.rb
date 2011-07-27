@@ -112,10 +112,10 @@ class EsCellTest < ActiveSupport::TestCase
     def assert_HEPD0549_6_D02_attributes(es_cell)
       assert_kind_of EsCell, es_cell
       assert_kind_of EsCell, EsCell.find_by_name('HEPD0549_6_D02')
+      assert_equal 'MGI:1924893', es_cell.gene.mgi_accession_id
       assert_equal 'C030046E11Rik', es_cell.gene.marker_symbol
       assert_equal 'tm1a(EUCOMM)Hmgu', es_cell.allele_symbol_superscript
       assert_equal 'EUCOMM', es_cell.pipeline.name
-      assert_equal 'MGI:1924893', es_cell.gene.mgi_accession_id
     end
 
     context '::create_es_cell_from_mart_data' do
@@ -251,6 +251,8 @@ class EsCellTest < ActiveSupport::TestCase
     context '::sync_all_from_marts' do
       should 'sync all es_cells that have incorrect data' do
         assert_equal 0, EsCell.count
+        assert_equal 0, Gene.count
+
         gene = Factory.create :gene,
           :marker_symbol => 'IAmWrong',
           :mgi_accession_id => 'MGI:WRONG'

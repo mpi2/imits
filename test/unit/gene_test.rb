@@ -23,6 +23,7 @@ class GeneTest < ActiveSupport::TestCase
       should 'find an existing one' do
         gene = Factory.create :gene, :marker_symbol => 'Trafd1', :mgi_accession_id => 'MGI:1923551'
         assert_equal gene, Gene.find_or_create_from_mart_data(
+          'es_cell_name' => 'EPD0127_4_E01',
           'marker_symbol' => 'Trafd1',
           'mgi_accession_id' => 'MGI:1923551')
       end

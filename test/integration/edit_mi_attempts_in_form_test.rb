@@ -27,7 +27,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
     end
 
     should 'show default values' do
-      assert_equal '129P2', page.find('select[name="mi_attempt[test_cross_strain_id]"] option[selected=selected]').text
+      assert_equal '129P2', page.find('select[name="mi_attempt[test_cross_strain_name]"] option[selected=selected]').text
       assert_equal 'MAAB', page.find('input[name="mi_attempt[colony_name]"]').value
       assert_equal '09/06/2011', page.find('input[name="mi_attempt[mi_date]"]').value
       assert_equal '02/06/2011', page.find('input[name="mi_attempt[date_chimeras_mated]"]').value
@@ -39,8 +39,8 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       fill_in 'mi_attempt[colony_name]', :with => 'ABCD'
       fill_in 'mi_attempt[total_blasts_injected]', :with => 22
       select 'Suitable for EMMA - STICKY', :from => 'mi_attempt[emma_status]'
-      select 'C57BL/6N', :from => 'mi_attempt[test_cross_strain_id]'
-      select 'pass', :from => 'mi_attempt[qc_southern_blot_id]'
+      select 'C57BL/6N', :from => 'mi_attempt[test_cross_strain_name]'
+      select 'pass', :from => 'mi_attempt[qc_southern_blot_result]'
       check 'mi_attempt[report_to_public]'
 
       assert_difference 'MiAttempt.count', 0 do

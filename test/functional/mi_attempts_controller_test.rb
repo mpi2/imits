@@ -212,7 +212,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'return errors with invalid params for JSON' do
         bad_update_for_format(:json)
         data = parse_json_from_response
-        assert_include data['production_centre'], 'cannot be blank'
+        assert_include data['production_centre_name'], 'cannot be blank'
       end
 
       should 'return errors with invalid params for XML' do

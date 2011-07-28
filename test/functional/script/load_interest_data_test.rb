@@ -9,7 +9,7 @@ class LoadInterestDataTest < ExternalScriptTestCase
       return File.expand_path(File.join(Rails.root, "test/sample_input_data/#{name}.csv"))
     end
 
-    should 'work' do
+    should 'create a MiPlan per row of data' do
       assert_equal 0, Gene.count
       assert_equal 0, MiPlan.count
 
@@ -48,6 +48,18 @@ class LoadInterestDataTest < ExternalScriptTestCase
 
       assert_nil Gene.find_by_mgi_accession_id('MGI:1352750')
       assert_equal 4, MiPlan.count
+    end
+
+    should 'load in data from multiple consortia' do
+      assert_equal 0, MiPlan.count
+      output = run_script "./script/load_interest_data.rb #{sample_data_file 'conflict_report/mrc'}"
+      assert output.blank?
+      output = run_script "./script/load_interest_data.rb #{sample_data_file 'conflict_report/wtsi'}"
+      assert output.blank?
+      output = run_script "./script/load_interest_data.rb #{sample_data_file 'conflict_report/monterotondo'}"
+      assert output.blank?
+
+      assert_equal 3, Gene.find_by_mgi_accession_id('MGI:88289').mi_plans.size
     end
 
   end

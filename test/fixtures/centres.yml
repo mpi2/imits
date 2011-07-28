@@ -6,3 +6,7 @@ WTSI:
 ICS:
   id: 2
   name: ICS
+
+"MRC - Harwell":
+  id: 3
+  name: "MRC - Harwell"

@@ -1,0 +1,21 @@
+<% @title = 'Planned Micro-Injections' %>
+
+<h2><%= @title %></h2>
+
+<div class="grid_12">
+  <h3>Counts</h3>
+  <div class="report">
+    <%=raw @summary.to_html %>
+  </div>
+</div>
+
+<div class="grid_12">
+  <h3>Micro-Injection Conflicts</h3>
+  <div class="report">
+    <% if @conflict_report.size == 0 %>
+      <p>No conflicts to report.</p>
+    <% else %>
+      <%=raw @conflict_report.to_html %>
+    <% end %>
+  </div>
+</div>

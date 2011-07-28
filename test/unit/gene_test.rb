@@ -11,6 +11,7 @@ class GeneTest < ActiveSupport::TestCase
       end
 
       should have_many :es_cells
+      should have_many :mi_plans
 
       should have_db_column(:marker_symbol).of_type(:string).with_options(:null => false, :limit => 75)
       should have_db_column(:mgi_accession_id).of_type(:string).with_options(:null => true, :limit => 40)

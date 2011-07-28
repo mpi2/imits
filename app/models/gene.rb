@@ -1,5 +1,6 @@
 class Gene < ActiveRecord::Base
   has_many :es_cells
+  has_many :mi_plans
 
   validates :marker_symbol, :presence => true, :uniqueness => true
 

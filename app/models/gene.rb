@@ -10,6 +10,35 @@ class Gene < ActiveRecord::Base
       :mgi_accession_id => mart_data['mgi_accession_id'])
   end
 
+  # BEGIN Mart Operations
+
+  DCC_DATASET = Biomart::Dataset.new(
+    'http://www.knockoutmouse.org/biomart',
+    { :name => 'dcc' }
+  )
+
+  def self.find_or_create_from_marts_by_mgi_accession_id(mgi_accession_id)
+    return nil if mgi_accession_id.blank?
+
+    gene = self.find_by_mgi_accession_id(mgi_accession_id)
+    return gene if gene
+
+    mart_data = DCC_DATASET.search(
+      :filters =>  { 'mgi_accession_id' => mgi_accession_id },
+      :attributes => ['marker_symbol', 'mgi_accession_id'],
+      :process_results => true,
+      :timeout => 600
+    )
+
+    if mart_data[0].blank?
+      return nil
+    else
+      return self.create!(mart_data[0])
+    end
+  end
+
+  # END Mart Operations
+
 end
 
 # == Schema Information

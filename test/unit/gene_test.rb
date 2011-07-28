@@ -39,5 +39,27 @@ class GeneTest < ActiveSupport::TestCase
       end
     end
 
+    context '::find_or_create_from_marts_by_mgi_accession_id' do
+      should 'create gene from marts if it is not in the DB' do
+        gene = Gene.find_or_create_from_marts_by_mgi_accession_id 'MGI:1923551'
+        assert gene
+        assert_equal 'Trafd1', gene.marker_symbol
+      end
+
+      should 'return gene if it is already in the DB without hitting the marts' do
+        gene = Factory.create :gene,
+                :marker_symbol => 'Abcd1', :mgi_accession_id => 'MGI:1234567890'
+        assert_equal gene, Gene.find_or_create_from_marts_by_mgi_accession_id('MGI:1234567890')
+      end
+
+      should 'return nil if it does not exist in DB or marts' do
+        assert_nil Gene.find_or_create_from_marts_by_mgi_accession_id('MGI:NONEXISTENT1')
+      end
+
+      should 'return nil if query was blank' do
+        assert_nil Gene.find_or_create_from_marts_by_mgi_accession_id('')
+      end
+    end
+
   end
 end

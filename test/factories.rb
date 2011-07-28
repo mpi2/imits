@@ -34,8 +34,8 @@ end
 Factory.define :mi_plan do |mi_plan|
   mi_plan.association(:gene)
   mi_plan.association(:consortium)
-  mi_plan.mi_plan_status   { MiPlanStatus.all.sample }
-  mi_plan.mi_plan_priority { MiPlanPriority.all.sample }
+  mi_plan.mi_plan_status   { MiPlanStatus.find_by_name! 'Interest' }
+  mi_plan.mi_plan_priority { MiPlanPriority.find_by_name! 'High' }
 end
 
 Factory.define :mi_attempt do |mi_attempt|
@@ -83,9 +83,19 @@ end
 
 #Specifics
 
+Factory.define :gene_cbx1, :parent => :gene do |gene|
+  gene.marker_symbol 'Cbx1'
+  gene.mgi_accession_id 'MGI:105369'
+end
+
+Factory.define :gene_trafd1, :parent => :gene do |gene|
+  gene.marker_symbol 'Trafd1'
+  gene.mgi_accession_id 'MGI:1923551'
+end
+
 Factory.define :es_cell_EPD0127_4_E01_without_mi_attempts, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0127_4_E01'
-  es_cell.association(:gene, :marker_symbol => 'Trafd1')
+  es_cell.association(:gene_trafd1)
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 end

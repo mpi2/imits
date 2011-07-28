@@ -4,6 +4,7 @@ require 'test_helper'
 
 class MiPlanTest < ActiveSupport::TestCase
   context 'MiPlan' do
+
     setup do
       Factory.create :mi_plan
     end
@@ -39,9 +40,37 @@ class MiPlanTest < ActiveSupport::TestCase
       assert ! mip2.errors['gene_id'].blank?
 
       # TODO: Need to account for the inevitable... we're gonna get MiP's that have
-      #       a gene and consortium then nil for production_centre, and a duplicate 
+      #       a gene and consortium then nil for production_centre, and a duplicate
       #       with the same gene and consortium BUT with a production_centre assigned.
       #       Really, the fist should be updated to become the second (i.e. not produce a duplicate).
     end
+
+    context '::assign_genes_and_mark_conflicts' do
+      should 'set Interested MiPlan to Assigned status if no other Interested or Assigned MiPlan for the same gene exists' do
+        gene = Factory.create :gene_cbx1
+        only_interest_mi_plan = Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!('BASH')
+
+        MiPlan.assign_genes_and_mark_conflicts
+
+        only_interest_mi_plan.reload
+        assert_equal 'Assigned', only_interest_mi_plan.mi_plan_status.name
+      end
+
+      should 'set all Interested MiPlans that have the same gene to Conflict' do
+        gene = Factory.create :gene_cbx1
+        mi_plans = ['BASH', 'MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
+          Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
+        end
+
+        MiPlan.assign_genes_and_mark_conflicts
+
+        mi_plans.each(&:reload)
+        assert_equal ['Conflict', 'Conflict', 'Conflict'],
+                mi_plans.map {|i| i.mi_plan_status.name }
+      end
+
+      should 'set Interested MiPlan to Assigned if only Declined MiPlans exist for that gene'
+    end
+
   end
 end

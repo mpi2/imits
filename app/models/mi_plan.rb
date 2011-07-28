@@ -16,6 +16,18 @@ class MiPlan < ActiveRecord::Base
   validates :mi_plan_priority, :presence => true
 
   validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]
+
+  def self.assign_genes_and_mark_conflicts
+    grouped_by_gene = self.all.group_by {|i| i.gene.mgi_accession_id}
+
+    grouped_by_gene.each do |mgi_accession_id, mi_plans|
+      mi_plans.each do |mi_plan|
+        mi_plan.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
+        mi_plan.save!
+      end
+    end
+  end
+
 end
 
 # == Schema Information

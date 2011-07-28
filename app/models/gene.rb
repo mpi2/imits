@@ -12,18 +12,13 @@ class Gene < ActiveRecord::Base
 
   # BEGIN Mart Operations
 
-  DCC_DATASET = Biomart::Dataset.new(
-    'http://www.knockoutmouse.org/biomart',
-    { :name => 'dcc' }
-  )
-
   def self.find_or_create_from_marts_by_mgi_accession_id(mgi_accession_id)
     return nil if mgi_accession_id.blank?
 
     gene = self.find_by_mgi_accession_id(mgi_accession_id)
     return gene if gene
 
-    mart_data = DCC_DATASET.search(
+    mart_data = DCC_BIOMART.search(
       :filters =>  { 'mgi_accession_id' => mgi_accession_id },
       :attributes => ['marker_symbol', 'mgi_accession_id'],
       :process_results => true,

@@ -31,7 +31,7 @@ end
   DepositedMaterial.find_or_create_by_name name
 end
 
-['EUCOMM-EUMODIC', 'MGP', 'BASH'].each do |name|
+['EUCOMM-EUMODIC', 'MGP', 'BASH', 'MRC'].each do |name|
   Consortium.find_or_create_by_name name
 end
 

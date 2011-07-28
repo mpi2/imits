@@ -106,6 +106,54 @@ class ReportsController < ApplicationController
     end
   end
 
+  def planned_mis
+    report_column_order_and_names = {
+      'consortium.name'       => 'Consortium',
+      'gene.marker_symbol'    => 'Marker Symbol',
+      'gene.mgi_accession_id' => 'MGI Accession ID',
+      'mi_plan_priority.name' => 'Priority',
+      'mi_plan_status.name'   => 'Status'
+    }
+    
+    all_mi_plans = MiPlan.report_table(
+      :all,
+      :only => [],
+      :include => {
+        :consortium       => { :only => [ :name ] },
+        :gene             => { :only => [ :marker_symbol, :mgi_accession_id ] },
+        :mi_plan_priority => { :only => [ :name ] },
+        :mi_plan_status   => { :only => [ :name ] }
+      }
+    )
+    
+    all_mi_plans.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
+    all_mi_plans.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
+    
+    @summary = Table([ 'Status', 'Consortium', '# High Priority', '# Medium Priority', '# Low Priority' ])
+    
+    grouped_report = Grouping( all_mi_plans, :by => ['Status','Consortium'], :order => :name )
+    grouped_report.each do |status|
+      summary = grouped_report.subgrouping(status).summary(
+        'Consortium',
+        '# High Priority'   => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == 'High' } ) },
+        '# Medium Priority' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == 'Medium' } ) },
+        '# Low Priority'    => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == 'Low' } ) },
+        :order => [ 'Consortium', '# High Priority', '# Medium Priority', '# Low Priority' ]
+      )
+      
+      summary.each_entry do |row|
+        hash = row.to_hash
+        hash['Status'] = status
+        @summary << hash
+      end
+    end
+    
+    @summary = Grouping( @summary, :by => ['Status'], :order => :name )
+    
+    @conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Conflict' }
+    @conflict_report.remove_columns(['Status'])
+  end
+
   protected
 
   def generate_mi_list_report( params )

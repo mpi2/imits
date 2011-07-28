@@ -1,4 +1,6 @@
 class Gene < ActiveRecord::Base
+  acts_as_reportable
+
   has_many :es_cells
   has_many :mi_plans
 

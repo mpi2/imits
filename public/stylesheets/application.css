@@ -46,6 +46,11 @@ html, body, .x-body {
     font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
 }
 
+/* TODO BAD - Find out how to do this in a better, more theme-compatible way */
+.x-panel, .x-window {
+    line-height: 12px;
+}
+
 h1, h2, h3, h4, h5, h6 {
 	font-family: Georgia, "Times New Roman", Times, serif;
 	font-weight: normal;

@@ -48,13 +48,14 @@ Ext.define('Kermits2.newMI.EsCellSelectorForm', {
     },
     ui: 'plain',
     width: 300,
-    height: 60, // TODO Should be 40, but button is too high
+    height: 40,
 
     initComponent: function() {
         this.callParent();
 
         this.add(Ext.create('Ext.form.Label', {
-            text: 'Select an ES cell clone'
+            text: 'Select an ES cell clone',
+            margins: '0 0 5 0'
         }));
 
         this.esCellNameTextField = Ext.create('Ext.form.field.Text', {
@@ -64,8 +65,7 @@ Ext.define('Kermits2.newMI.EsCellSelectorForm', {
 
         this.add(Ext.create('Ext.panel.Panel', {
             layout: {
-                type: 'hbox',
-                align: 'stretchmax'
+                type: 'hbox'
             },
             ui: 'plain',
             items: [
@@ -195,7 +195,7 @@ Ext.define('Kermits2.newMI.SearchTab', {
             text: this.initialConfig.searchBoxLabel,
             margin: {
                 top: 3,
-                bottom: 0,
+                bottom: 3,
                 left: 0,
                 right: 0
             }
@@ -203,8 +203,7 @@ Ext.define('Kermits2.newMI.SearchTab', {
 
         this.add(Ext.create('Ext.panel.Panel', {
             layout: {
-                type: 'hbox',
-                align: 'stretchmax'
+                type: 'hbox'
             },
             ui: 'plain',
             items: [
@@ -232,7 +231,7 @@ Ext.define('Kermits2.newMI.SearchTab', {
             text: 'Choose an ES cell clone to micro-inject',
             margin: {
                 top: 5,
-                bottom: 0,
+                bottom: 3,
                 left: 0,
                 right: 0
             }

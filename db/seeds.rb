@@ -31,8 +31,8 @@ end
   DepositedMaterial.find_or_create_by_name name
 end
 
-['EUCOMM-EUMODIC','MGP','BASH'].each do |consortia|
-  Consortium.find_or_create_by_name consortia
+['EUCOMM-EUMODIC', 'MGP', 'BASH'].each do |name|
+  Consortium.find_or_create_by_name name
 end
 
 [
@@ -40,18 +40,14 @@ end
   'Conflict',
   'Declined',
   'Assigned'
-].each do |description|
-  MiPlanStatus.find_or_create_by_name(description)
+].each do |name|
+  MiPlanStatus.find_or_create_by_name(name)
 end
 
 {
   'High'   => 'Estimated injection in the next 0-4 months',
   'Medium' => 'Estimated injection in the next 5-8 months',
   'Low'    => 'Estimated injection in the next 9-12 months'
-}.each do |priority,description|
-  mpp = MiPlanPriority.find_or_create_by_name(priority)
-  next unless mpp.description.blank?
-  mpp.description = description
-  mpp.save!
+}.each do |priority, description|
+  MiPlanPriority.find_or_create_by_name(:name => priority, :description => description)
 end
-

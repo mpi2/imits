@@ -1,6 +1,9 @@
 # encoding: utf-8
 
 class MiPlan < ActiveRecord::Base
+  acts_as_audited
+  acts_as_reportable
+
   belongs_to :gene
   belongs_to :consortium
   belongs_to :mi_plan_status

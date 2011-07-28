@@ -15,4 +15,8 @@ end
 #  created_at :datetime
 #  updated_at :datetime
 #
+# Indexes
+#
+#  index_mi_plan_statuses_on_name  (name) UNIQUE
+#
 

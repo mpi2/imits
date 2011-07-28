@@ -16,4 +16,8 @@ end
 #  created_at  :datetime
 #  updated_at  :datetime
 #
+# Indexes
+#
+#  index_mi_plan_priorities_on_name  (name) UNIQUE
+#
 

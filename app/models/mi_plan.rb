@@ -31,6 +31,6 @@ end
 #
 # Indexes
 #
-#  index_mi_plans_on_gene_id_and_consortium_id  (gene_id,consortium_id) UNIQUE
+#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id) UNIQUE
 #
 

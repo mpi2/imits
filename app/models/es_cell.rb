@@ -66,26 +66,16 @@ class EsCell < ActiveRecord::Base
 
   # BEGIN Mart Operations
 
-  IDCC_TARG_REP_DATASET = Biomart::Dataset.new(
-    'http://www.knockoutmouse.org/biomart',
-    { :name => 'idcc_targ_rep' }
-  )
-
-  DCC_DATASET = Biomart::Dataset.new(
-    'http://www.knockoutmouse.org/biomart',
-    { :name => 'dcc' }
-  )
-
   def self.get_es_cells_from_marts_by_names(names)
     raise ArgumentError, 'Need array of ES cell names please' unless names.kind_of?(Array)
-    return DCC_DATASET.search(
+    return DCC_BIOMART.search(
       :filters => {},
       :attributes => ['marker_symbol'],
       :process_results => true,
       :timeout => 600,
       :federate => [
         {
-          :dataset => IDCC_TARG_REP_DATASET,
+          :dataset => TARG_REP_BIOMART,
           :filters => { 'escell_clone' => names },
           :attributes => [
             'escell_clone',
@@ -133,7 +123,7 @@ class EsCell < ActiveRecord::Base
 
   def self.get_es_cells_from_marts_by_marker_symbol(marker_symbol)
     return nil if marker_symbol.blank?
-    return IDCC_TARG_REP_DATASET.search(
+    return TARG_REP_BIOMART.search(
       :filters => {},
       :attributes => [
         'escell_clone',
@@ -150,7 +140,7 @@ class EsCell < ActiveRecord::Base
           :attributes => [
             'marker_symbol'
           ],
-          :dataset => DCC_DATASET,
+          :dataset => DCC_BIOMART,
         }
       ]
     ).sort_by {|i| i['escell_clone']}

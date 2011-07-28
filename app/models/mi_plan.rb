@@ -15,7 +15,7 @@ class MiPlan < ActiveRecord::Base
   validates :mi_plan_status, :presence => true
   validates :mi_plan_priority, :presence => true
 
-  validates_uniqueness_of :gene_id, :scoped_to => [:consortium_id, :production_centre_id]
+  validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]
 end
 
 # == Schema Information

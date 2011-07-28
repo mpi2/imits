@@ -27,6 +27,7 @@ class MiPlanTest < ActiveSupport::TestCase
       mip2 = MiPlan.new( :gene => mip.gene, :consortium => mip.consortium )
       assert_false mip2.save
       assert_false mip2.valid?
+      assert ! mip2.errors['gene_id'].blank?
 
       mip.production_centre = Centre.find_by_name('WTSI')
       assert mip.save
@@ -35,6 +36,7 @@ class MiPlanTest < ActiveSupport::TestCase
       mip2.production_centre = mip.production_centre
       assert_false mip2.save
       assert_false mip2.valid?
+      assert ! mip2.errors['gene_id'].blank?
 
       # TODO: Need to account for the inevitable... we're gonna get MiP's that have
       #       a gene and consortium then nil for production_centre, and a duplicate 

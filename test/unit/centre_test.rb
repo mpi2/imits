@@ -21,7 +21,8 @@ class CentreTest < ActiveSupport::TestCase
       Factory.create :centre, :name => 'AA9'
       Factory.create :centre, :name => 'AA1'
 
-      assert_equal %w{AA1 AA9 ICS WTSI ZZ1 ZZ2}, Centre.all.map(&:name)
+      assert_equal ['AA1', 'AA9', 'ICS', 'Monterotondo', 'MRC - Harwell', 'WTSI', 'ZZ1', 'ZZ2'],
+              Centre.all.map(&:name)
     end
   end
 end

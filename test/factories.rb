@@ -95,7 +95,7 @@ end
 
 Factory.define :es_cell_EPD0127_4_E01_without_mi_attempts, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0127_4_E01'
-  es_cell.association(:gene_trafd1)
+  es_cell.association(:gene, :factory => :gene_trafd1)
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 end

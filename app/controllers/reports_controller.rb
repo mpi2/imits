@@ -152,6 +152,11 @@ class ReportsController < ApplicationController
 
     @conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Conflict' }
     @conflict_report.remove_columns(['Status'])
+
+    if request.format == :csv
+      response.headers['Content-Type'] = 'text/csv'
+      response.headers['Content-Disposition'] = 'attachment; filename=planned_microinjections.csv'
+    end
   end
 
   protected

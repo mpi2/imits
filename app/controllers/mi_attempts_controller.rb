@@ -83,6 +83,10 @@ class MiAttemptsController < ApplicationController
     end
   end
 
+  def history
+    @mi_attempt = MiAttempt.find(params[:id])
+  end
+
   protected
 
   def set_centres_and_consortia

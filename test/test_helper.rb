@@ -22,6 +22,12 @@ unless ENV['COVERAGE'].to_s.empty?
   SimpleCov.formatter = SimpleCov::Formatter::MergedFormatter
 end
 
+class ActiveRecord::Base
+  def <=>(other)
+    self.id <=> other.id
+  end
+end
+
 class ActiveSupport::TestCase
   self.use_transactional_fixtures = false
 

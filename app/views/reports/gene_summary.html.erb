@@ -1,13 +1,15 @@
 <% @title = 'Gene Summary' %>
 
-<h2><%= @title %></h2>
+<div class="grid_12">
+  <h2><%= @title %></h2>
+</div>
 
 <%= form_tag( { :controller => 'reports', :action => 'gene_summary' }, :method => :get, :class => 'report-form' ) do |form| %>
   <%= render 'report_controls', :grouping => false %>
 <% end %>
 
 <% unless params[:commit].blank? %>
-  <div id="report">
+  <div class="report grid_12">
     <%=raw @report.to_html %>
   </div>
 <% end %>

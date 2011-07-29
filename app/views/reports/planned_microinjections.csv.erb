@@ -1,0 +1,9 @@
+<%= @summary.to_csv %>
+
+Micro-Injection Conflicts
+
+<% if @conflict_report.size == 0 %>
+No conflicts to report.
+<% else %>
+<%= @conflict_report.to_csv %>
+<% end -%>

@@ -25,7 +25,7 @@ Kermits2.propertyNames = function(obj) {
     for(var i in obj) {retval.push(i);}
     return retval;
 }
-
+*/
 function setInitialFocus() {
     var thing = Ext.select('.initial-focus').first();
     if(thing) {
@@ -33,7 +33,7 @@ function setInitialFocus() {
     }
 }
 Ext.onReady(setInitialFocus);
-
+/*
 function clearSearchTermsHandler() {
     var el = Ext.get('clear-search-terms-button');
 

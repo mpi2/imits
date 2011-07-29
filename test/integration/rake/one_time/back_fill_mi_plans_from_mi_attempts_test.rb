@@ -15,16 +15,20 @@ module Rake
 
           Factory.create :mi_attempt,
                   :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
-                  :production_centre => Centre.find_by_name!('ICS')
+                  :production_centre => Centre.find_by_name!('ICS'),
+                  :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC')
           Factory.create :mi_attempt,
                   :es_cell => Factory.create(:es_cell, :gene => gene_trafd1, :pipeline => Pipeline.find_by_name!('KOMP-CSD')),
-                  :production_centre => Centre.find_by_name!('WTSI')
+                  :production_centre => Centre.find_by_name!('WTSI'),
+                  :consortium => Consortium.find_by_name!('MGP')
           Factory.create :mi_attempt,
                   :es_cell => Factory.create(:es_cell, :gene => gene_cbx2, :pipeline => Pipeline.find_by_name!('EUCOMM')),
-                  :production_centre => Centre.find_by_name!('WTSI')
+                  :production_centre => Centre.find_by_name!('WTSI'),
+                  :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC')
           Factory.create :mi_attempt,
                   :es_cell => Factory.create(:es_cell, :gene => gene_cbx7, :pipeline => Pipeline.find_by_name!('SANGER_FACULTY')),
-                  :production_centre => Centre.find_by_name!('WTSI')
+                  :production_centre => Centre.find_by_name!('WTSI'),
+                  :consortium => Consortium.find_by_name!('MGP')
 
           assert_equal 0, MiPlan.count
           run_script 'rake --trace one_time:back_fill_mi_plans_from_mi_attempts'

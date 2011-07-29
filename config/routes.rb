@@ -3,7 +3,11 @@ Kermits2::Application.routes.draw do
 
   root :to => "root#index"
 
-  resources :mi_attempts, :only => [:index, :new, :create, :show, :update]
+  resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
+    member do
+      get 'history'
+    end
+  end
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do

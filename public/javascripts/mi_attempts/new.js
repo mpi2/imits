@@ -89,11 +89,11 @@ Ext.define('Kermits2.newMI.EsCellSelectorForm', {
             ]
         }));
 
+        this.addListener('render', this.renderHandler, this);
+
         this.window = Ext.create('Kermits2.newMI.EsCellSelectorWindow', {
             esCellSelectorForm: this
         });
-
-        this.window.show();
     },
 
     onEsCellNameSelected: function(esCellName) {
@@ -101,6 +101,16 @@ Ext.define('Kermits2.newMI.EsCellSelectorForm', {
         this.window.hide();
         Kermits2.newMI.restOfForm.setEsCellName(esCellName);
         Kermits2.newMI.restOfForm.showIfHidden();
+    },
+
+    renderHandler: function() {
+        var defaultEsCellName = Kermits2.newMI.restOfForm.getEsCellName();
+        if(defaultEsCellName != '') {
+            this.esCellNameTextField.setValue(defaultEsCellName);
+        } else {
+            this.window.show();
+        }
+
     }
 });
 

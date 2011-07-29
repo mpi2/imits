@@ -4,8 +4,8 @@
   <div style="float:right;">
     <%=
       link_to(
-        'download this report as CSV',
-        { :controller => :reports, :action => :planned_microinjections, :format => :csv },
+        'download this report as csv',
+        url_for( :controller => :reports, :action => :planned_microinjections, :format => :csv ),
         { :class => 'button csv_download' }
       )
     %>

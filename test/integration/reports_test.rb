@@ -85,7 +85,7 @@ class ReportsTest < ActionDispatch::IntegrationTest
         assert_match '/reports/planned_microinjections', current_url
         assert page.has_css?('.report table')
 
-        click_link 'download this report as CSV'
+        click_link 'download this report as csv'
         assert_match '/reports/planned_microinjections', current_url
       end
     end

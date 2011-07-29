@@ -6,7 +6,10 @@
   <h3>Micro-Injection Planning</h3>
 
   <ul>
-    <li><%= link_to 'Planned Micro-injections and Conflicts', url_for(:controller => :reports, :action => :planned_microinjections) %></li>
+    <li>
+      <%= link_to 'Planned Micro-injections and Conflicts', url_for(:controller => :reports, :action => :planned_microinjections) %>
+      <%= link_to '', url_for( :controller => :reports, :action => :planned_microinjections, :format => :csv ), { :class => 'csv_download' } %>
+    </li>
   </ul>
 
   <div class="clear" style="margin-top:15px"></div>

@@ -97,6 +97,8 @@ a.csv_download {
   background-image: url('../images/icons/page_excel.png');
   background-position: 4px center;
   background-repeat: no-repeat;
+  padding-top: 5px;
+  padding-bottom: 5px;
   padding-left: 24px;
 }
 

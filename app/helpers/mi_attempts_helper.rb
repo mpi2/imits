@@ -210,7 +210,8 @@ module MiAttemptsHelper
 
         date_column(:mi_date, :header => 'MI Date'),
 
-        mi_attempt_column(:status, :readOnly => true, :width => 150),
+        mi_attempt_column(:mi_attempt_status__description, :header => 'Status',
+          :readOnly => true, :width => 150),
 
         mi_attempt_column(:colony_name),
 

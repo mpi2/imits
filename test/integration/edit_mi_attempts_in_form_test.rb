@@ -35,6 +35,12 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert_equal 'suitable_sticky', page.find('select[name="mi_attempt[emma_status]"] option[selected=selected]').value
     end
 
+    should 'show the history page' do
+      visit mi_attempt_history_path(@mi_attempt)
+      assert_match /History of Changes/, page.find('h2').text
+      assert page.has_css? 'div.report table'
+    end
+
     should 'edit mi successfully, set updated_by and redirect back to show page' do
       fill_in 'mi_attempt[colony_name]', :with => 'ABCD'
       fill_in 'mi_attempt[total_blasts_injected]', :with => 22

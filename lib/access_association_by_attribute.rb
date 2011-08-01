@@ -33,7 +33,7 @@ module AccessAssociationByAttribute
 
       value = instance_variable_get("@#{virtual_attribute}")
 
-      new_object = association_class.find(:first, :conditions => {attribute => value})
+      new_object = association_class.send("find_by_#{attribute}", value)
       if !value.blank? and !new_object
         self.errors.add(virtual_attribute, "'#{value}' does not exist")
       end
@@ -47,7 +47,7 @@ module AccessAssociationByAttribute
       return true unless instance_variable_defined?("@#{virtual_attribute}")
 
       value = instance_variable_get("@#{virtual_attribute}")
-      new_object = association_class.find(:first, :conditions => {attribute => value})
+      new_object = association_class.send("find_by_#{attribute}", value)
       self.send("#{association_name}=", new_object)
       return true
     end

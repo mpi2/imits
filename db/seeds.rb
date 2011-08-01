@@ -35,10 +35,26 @@ end
   'EUCOMM-EUMODIC',
   'MGP',
   'BASH',
-  'MRC',
-  'MARC'
+  'MARC',
+  'MRC'
 ].each do |name|
   Consortium.find_or_create_by_name name
+end
+
+[
+  'APN',
+  'BCM',
+  'CNB',
+  'HMGU',
+  'ICS',
+  'MARC',
+  'MRC - Harwell',
+  'Monterotondo',
+  'Oulu',
+  'UCD',
+  'WTSI'
+].each do |name|
+  Centre.find_or_create_by_name name
 end
 
 [

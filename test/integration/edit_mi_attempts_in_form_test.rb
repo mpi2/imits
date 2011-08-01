@@ -36,7 +36,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
     end
 
     should 'show the history page' do
-      visit mi_attempt_history_path(@mi_attempt)
+      visit history_mi_attempt_path(@mi_attempt)
       assert_match /History of Changes/, page.find('h2').text
       assert page.has_css? 'div.report table'
     end

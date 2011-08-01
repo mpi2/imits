@@ -56,6 +56,28 @@ module Rake
                   [mi_plan_eucomm_eumodic_1, mi_plan_mgp_1, mi_plan_eucomm_eumodic_2, mi_plan_mgp_2].map {|i| i.mi_plan_priority.name}
         end
 
+        should 'not try to recreate an MiPlan when one with identical attributes already exists' do
+          gene_cbx1 = Factory.create :gene_cbx1
+
+          Factory.create :mi_attempt,
+                  :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
+                  :production_centre => Centre.find_by_name!('ICS'),
+                  :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC')
+          Factory.create :mi_attempt,
+                  :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
+                  :production_centre => Centre.find_by_name!('ICS'),
+                  :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC')
+
+          assert_equal 0, MiPlan.count
+          run_script 'rake --trace one_time:back_fill_mi_plans_from_mi_attempts'
+          assert_equal 1, MiPlan.count
+
+          mi_plan = MiPlan.first
+          assert_equal 'EUCOMM-EUMODIC', mi_plan.consortium.name
+          assert_equal gene_cbx1, mi_plan.gene
+          assert_equal 'ICS', mi_plan.production_centre.name
+        end
+
       end
     end
   end

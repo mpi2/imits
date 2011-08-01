@@ -2,9 +2,11 @@
 EUCOMM:
   id: 1
   name: EUCOMM
-  description: EUCOMM consortia
 
 KOMP:
   id: 2
-  name: KOMP
-  description: KOMP
+  name: KOMP-CSD
+
+SANGER_FACULTY:
+  id: 3
+  name: SANGER_FACULTY

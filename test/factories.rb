@@ -145,7 +145,7 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0029_1_G04'
   es_cell.association :gene, :marker_symbol => 'Gatc'
   es_cell.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
-  es_cell.pipeline { Pipeline.find_by_name! 'KOMP' }
+  es_cell.pipeline { Pipeline.find_by_name! 'KOMP-CSD' }
 
   es_cell.after_create do |es_cell|
     Factory.create(:mi_attempt,

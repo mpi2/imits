@@ -6,7 +6,7 @@ class TestHelperTest < ActiveSupport::TestCase
   context 'Test helper tests:' do
 
     context '#assert_should' do
-      subject { InMemoryPerson.create! :name => 'Assert Should Test' }
+      subject { Test::Person.create! :name => 'Assert Should Test' }
 
       should 'work' do
         assert_should validate_uniqueness_of :name
@@ -14,7 +14,7 @@ class TestHelperTest < ActiveSupport::TestCase
     end
 
     context '#assert_should_not' do
-      subject { InMemoryPerson.new :name => 'Assert Should Test' }
+      subject { Test::Person.new :name => 'Assert Should Test' }
 
       should 'work' do
         assert_should_not validate_numericality_of :name

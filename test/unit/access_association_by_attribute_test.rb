@@ -2,18 +2,17 @@
 
 require 'test_helper'
 
-class InMemoryPet < ActiveRecord::Base
+class Test::Pet < ActiveRecord::Base
   extend AccessAssociationByAttribute
 
-  self.establish_connection IN_MEMORY_MODEL_CONNECTION_PARAMS
-
-  self.connection.create_table :in_memory_pets do |t|
+  self.connection.create_table :test_pets, :force => true do |t|
     t.integer :owner_id
     t.text    :name
     t.text    :animal
   end
+  set_table_name :test_pets
 
-  belongs_to :owner, :class_name => 'InMemoryPerson'
+  belongs_to :owner, :class_name => 'Test::Person'
 
   def self.setup_access
     access_association_by_attribute :owner, :name
@@ -24,15 +23,15 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
   context 'access_association_by_attribute' do
 
     setup do
-      @person1 = InMemoryPerson.create! :name => 'Fred'
-      @person2 = InMemoryPerson.create! :name => 'Ali'
+      @person1 = Test::Person.create! :name => 'Fred'
+      @person2 = Test::Person.create! :name => 'Ali'
 
-      @pet = InMemoryPet.new :name => 'Spot', :animal => 'Dog', :owner => @person1
+      @pet = Test::Pet.new :name => 'Spot', :animal => 'Dog', :owner => @person1
     end
 
     context 'on getting' do
       setup do
-        InMemoryPet.setup_access
+        Test::Pet.setup_access
       end
 
       should 'allow getting the attribute of the associated object' do
@@ -52,7 +51,7 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
 
     context 'on setting' do
       setup do
-        InMemoryPet.setup_access
+        Test::Pet.setup_access
       end
 
       should 'return set value on a get' do
@@ -65,11 +64,19 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
         @pet.owner_name = 'A Name'
         assert_equal 'A Name', @pet.instance_variable_get('@owner_name')
       end
+
+      should_eventually 'not raise when set value is not compatible type-wise with attribute being searched for' do
+        @pet.owner_name = 1
+        assert_nothing_raised do
+          assert_equal false, @pet.valid?
+        end
+        assert ! @pet.errors[:name].blank?
+      end
     end
 
     context 'on saving with valid assignment' do
       setup do
-        InMemoryPet.setup_access
+        Test::Pet.setup_access
       end
 
       should 'set association by given attribute value' do
@@ -104,7 +111,7 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
 
     context 'on saving with invalid assignment' do
       setup do
-        InMemoryPet.setup_access
+        Test::Pet.setup_access
         @pet.owner_name = 'Nonexistent'
         assert_false @pet.save
       end
@@ -120,7 +127,7 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
 
     context 'attribute alias' do
       setup do
-        class ::InMemoryPet
+        class ::Test::Pet
           access_association_by_attribute :owner, :name, :attribute_alias => :full_name
         end
       end

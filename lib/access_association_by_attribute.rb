@@ -29,24 +29,27 @@ module AccessAssociationByAttribute
     end
 
     define_method "#{virtual_attribute}_before_validation" do
-      return unless instance_variable_defined?("@#{virtual_attribute}")
+      return true unless instance_variable_defined?("@#{virtual_attribute}")
 
       value = instance_variable_get("@#{virtual_attribute}")
 
-      new_object = association_class.send("find_by_#{attribute}", value)
+      new_object = association_class.find(:first, :conditions => {attribute => value})
       if !value.blank? and !new_object
         self.errors.add(virtual_attribute, "'#{value}' does not exist")
       end
+
+      return true
     end
 
     before_validation "#{virtual_attribute}_before_validation"
 
     define_method "#{virtual_attribute}_before_save" do
-      return unless instance_variable_defined?("@#{virtual_attribute}")
+      return true unless instance_variable_defined?("@#{virtual_attribute}")
 
       value = instance_variable_get("@#{virtual_attribute}")
-      new_object = association_class.send("find_by_#{attribute}", value)
+      new_object = association_class.find(:first, :conditions => {attribute => value})
       self.send("#{association_name}=", new_object)
+      return true
     end
 
     before_validation "#{virtual_attribute}_before_save"

@@ -37,7 +37,7 @@ class ActiveSupport::TestCase
     DatabaseCleaner.strategy = self.database_strategy
     DatabaseCleaner.start
     load Rails.root + 'db/seeds.rb'
-    InMemoryPerson.destroy_all
+    Test::Person.destroy_all
   end
 
   def teardown
@@ -190,14 +190,11 @@ class ExternalScriptTestCase < ActiveSupport::TestCase
   end
 end
 
-IN_MEMORY_MODEL_CONNECTION_PARAMS = {:adapter => 'sqlite3', :database => ':memory:', :verbosity => false}
-
-class InMemoryPerson < ActiveRecord::Base
-  self.establish_connection IN_MEMORY_MODEL_CONNECTION_PARAMS
-
-  self.connection.create_table :in_memory_people, :force => true do |t|
-    t.text :name
+class Test::Person < ActiveRecord::Base
+  self.connection.create_table :test_people, :force => true do |t|
+    t.string :name
   end
+  set_table_name :test_people
 
   validates :name, :uniqueness => true
 end

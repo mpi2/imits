@@ -68,11 +68,13 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'set Interested MiPlan to Assigned status if no other Interested or Assigned MiPlan for the same gene exists' do
         setup_for_set_one_to_assigned
         assert_equal 'Assigned', @only_interest_mi_plan.mi_plan_status.name
+        MiPlan.assign_genes_and_mark_conflicts
       end
 
       should 'not affect non-Interested MiPlans when setting Interested ones to Assigned' do
         setup_for_set_one_to_assigned
         assert_equal ['Declined', 'Declined'], @declined_mi_plans.map{|i| i.mi_plan_status.name}
+        MiPlan.assign_genes_and_mark_conflicts
       end
 
       should 'set all Interested MiPlans that have the same gene to Conflict' do
@@ -86,6 +88,8 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plans.each(&:reload)
         assert_equal ['Conflict', 'Conflict', 'Conflict'],
                 mi_plans.map {|i| i.mi_plan_status.name }
+
+        MiPlan.assign_genes_and_mark_conflicts
       end
 
       should 'set all Interested MiPlans to Conflict if other MiPlans for the same gene are in Conflict' do
@@ -103,6 +107,8 @@ class MiPlanTest < ActiveSupport::TestCase
         interested_mi_plan.reload
 
         assert_equal 'Conflict', interested_mi_plan.mi_plan_status.name
+
+        MiPlan.assign_genes_and_mark_conflicts
       end
 
       should 'set all Interested MiPlans to Declined if other MiPlans for the same gene are already Assigned' do
@@ -119,6 +125,8 @@ class MiPlanTest < ActiveSupport::TestCase
 
         assert_equal ['Declined', 'Declined'],
                 mi_plans.map {|i| i.mi_plan_status.name }
+
+        MiPlan.assign_genes_and_mark_conflicts
       end
 
     end # ::assign_genes_and_mark_conflicts

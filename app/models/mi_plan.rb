@@ -26,6 +26,8 @@ class MiPlan < ActiveRecord::Base
 
       interested = mi_plans_by_status['Interest']
 
+      next if interested.blank?
+
       if ! mi_plans_by_status['Assigned'].blank?
         interested.each do |mi_plan|
           mi_plan.mi_plan_status = declined_status

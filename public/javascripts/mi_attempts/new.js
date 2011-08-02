@@ -126,6 +126,15 @@ Ext.define('Kermits2.newMI.EsCellSelectorWindow', {
     y: 175,
     plain: true,
 
+    showLoadMask: function() {
+        this.loadMask = new Ext.LoadMask(this.tabPanel.getEl());
+        this.loadMask.show();
+    },
+
+    hideLoadMask: function() {
+        this.loadMask.hide();
+    },
+
     initComponent: function() {
         this.callParent();
 
@@ -182,46 +191,20 @@ Ext.define('Kermits2.newMI.SearchTab', {
     },
 
     performSearch: function() {
-        var data = [
-        {
-            escell_clone: 'EPD0127_4_E01',
-            marker_symbol: 'Trafd1',
-            pipeline: 'EUCOMM',
-            mutation_subtype: 'conditional_ready',
-            production_qc_loxp_screen: 'pass'
-        },
-        {
-            escell_clone: 'EPD0127_4_E04',
-            marker_symbol: 'Trafd1',
-            pipeline: 'EUCOMM',
-            mutation_subtype: 'targeted_non_conditional',
-            production_qc_loxp_screen: 'not confirmed'
-        },
-        {
-            escell_clone: 'EPD0127_4_F01',
-            marker_symbol: 'Trafd1',
-            pipeline: 'EUCOMM',
-            mutation_subtype: 'conditional_ready',
-            production_qc_loxp_screen: 'pass'
-        }
-        ]
-
-/*
-        this.esCellSelectorForm.window.showLoadMask();
         var urlParams = {}
         urlParams[this.initialConfig.searchParam] = this.searchBox.getValue();
+        this.esCellSelectorForm.window.showLoadMask();
         Ext.Ajax.request({
-            url: window.martSearchEsCellsPath + '?' + Ext.urlEncode(urlParams),
+            method: 'GET',
+            url: window.basePath + '/es_cells/mart_search.json',
+            params: urlParams,
             success: function(response) {
                 var data = Ext.decode(response.responseText);
-                this.esCellsList.getStore().loadData({'rows': data});
+                this.esCellsList.getStore().loadData(data, false);
                 this.esCellSelectorForm.window.hideLoadMask();
             },
             scope: this
         });
-*/
-
-        this.esCellsList.getStore().loadData(data, false);
     },
 
     initComponent: function() {

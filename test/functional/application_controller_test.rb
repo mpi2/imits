@@ -11,6 +11,7 @@ class ApplicationControllerTest < ActionController::TestCase
         @controller.params['page'      ] = 'blank'
         @controller.params['per_page'  ] = 'blank'
         @controller.params['utf8'      ] = 'blank'
+        @controller.params['_dc'       ] = 'blank'
 
         @controller.params['search'    ] = 'blank'
         @controller.params['submit'    ] = 'blank'

@@ -182,7 +182,46 @@ Ext.define('Kermits2.newMI.SearchTab', {
     },
 
     performSearch: function() {
-        console.log('Performing search');
+        var data = [
+        {
+            escell_clone: 'EPD0127_4_E01',
+            marker_symbol: 'Trafd1',
+            pipeline: 'EUCOMM',
+            mutation_subtype: 'conditional_ready',
+            production_qc_loxp_screen: 'pass'
+        },
+        {
+            escell_clone: 'EPD0127_4_E04',
+            marker_symbol: 'Trafd1',
+            pipeline: 'EUCOMM',
+            mutation_subtype: 'targeted_non_conditional',
+            production_qc_loxp_screen: 'not confirmed'
+        },
+        {
+            escell_clone: 'EPD0127_4_F01',
+            marker_symbol: 'Trafd1',
+            pipeline: 'EUCOMM',
+            mutation_subtype: 'conditional_ready',
+            production_qc_loxp_screen: 'pass'
+        }
+        ]
+
+/*
+        this.esCellSelectorForm.window.showLoadMask();
+        var urlParams = {}
+        urlParams[this.initialConfig.searchParam] = this.searchBox.getValue();
+        Ext.Ajax.request({
+            url: window.martSearchEsCellsPath + '?' + Ext.urlEncode(urlParams),
+            success: function(response) {
+                var data = Ext.decode(response.responseText);
+                this.esCellsList.getStore().loadData({'rows': data});
+                this.esCellSelectorForm.window.hideLoadMask();
+            },
+            scope: this
+        });
+*/
+
+        this.esCellsList.getStore().loadData(data, false);
     },
 
     initComponent: function() {
@@ -257,33 +296,10 @@ Ext.define('Kermits2.newMI.SearchTab', {
 Ext.define('Kermits2.newMI.EsCellsList', {
     extend: 'Ext.grid.Panel',
     height: 150,
-    store: Ext.create('Ext.data.Store', {
+    store: {
         fields: ['escell_clone', 'marker_symbol', 'pipeline', 'mutation_subtype', 'production_qc_loxp_screen'],
         data: {
-            'rows': [
-            {
-                escell_clone: 'EPD0127_4_E01',
-                marker_symbol: 'Trafd1',
-                pipeline: 'EUCOMM',
-                mutation_subtype: 'conditional_ready',
-                production_qc_loxp_screen: 'pass'
-            },
-            {
-                escell_clone: 'EPD0127_4_E04',
-                marker_symbol: 'Trafd1',
-                pipeline: 'EUCOMM',
-                mutation_subtype: 'targeted_non_conditional',
-                production_qc_loxp_screen: 'not confirmed'
-            },
-            {
-                escell_clone: 'EPD0127_4_F01',
-                marker_symbol: 'Trafd1',
-                pipeline: 'EUCOMM',
-                mutation_subtype: 'conditional_ready',
-                production_qc_loxp_screen: 'pass'
-            }
-
-            ]
+            'rows': []
         },
         proxy: {
             type: 'memory',
@@ -292,7 +308,7 @@ Ext.define('Kermits2.newMI.EsCellsList', {
                 root: 'rows'
             }
         }
-    }),
+    },
 
     title: null,
     columns: [

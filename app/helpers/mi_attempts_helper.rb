@@ -215,6 +215,8 @@ module MiAttemptsHelper
 
         mi_attempt_column(:colony_name),
 
+        mi_attempt_column(:consortium__name, :header => 'Consortium', :readOnly => true),
+
         mi_attempt_column(:production_centre__name, :header => 'Production Centre', :readOnly => true),
 
         mi_attempt_column(:distribution_centre__name, :header => 'Distribution Centre'),

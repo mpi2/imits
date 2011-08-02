@@ -1,0 +1,29 @@
+<% @title = 'Planned Micro-Injections' %>
+
+<div class="grid_12">
+  <div style="float:right;">
+    <%=
+      link_to(
+        'download this report as csv',
+        url_for( :controller => :reports, :action => :planned_microinjections, :format => :csv ),
+        { :class => 'button csv_download' }
+      )
+    %>
+  </div>
+  <h2><%= @title %></h2>
+
+  <h3>Counts</h3>
+  <div class="report">
+    <%=raw @summary.to_html %>
+  </div>
+
+  <h3>Micro-Injection Conflicts</h3>
+  <div class="report">
+    <% if @conflict_report.size == 0 %>
+      <p>No conflicts to report.</p>
+    <% else %>
+      <%=raw @conflict_report.to_html %>
+    <% end %>
+  </div>
+</div>
+

@@ -15,18 +15,28 @@
     <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
 
     <div>
-      <%= form.label :production_centre_id, 'Production Centre' %>
-      <%= form.collection_select :production_centre_id, @centres, :id, :name %>
+      <%=
+        generator.form_field(
+          :consortium_name,
+          'Consortium',
+          form.collection_select( :consortium_name, @consortia, :name, :name, { :include_blank => true } )
+        )
+      %>
     </div>
 
     <div>
-      <%= form.label :distribution_centre_id, 'Distribution Centre' %>
-      <%= form.collection_select :distribution_centre_id, @centres, :id, :name %>
+      <%= form.label :production_centre_name, 'Production Centre' %>
+      <%= form.collection_select :production_centre_name, @centres, :name, :name %>
     </div>
 
     <div>
-      <%= form.label :deposited_material_id %>
-      <%= form.collection_select :deposited_material_id, DepositedMaterial.all, :id, :name %>
+      <%= form.label :distribution_centre_name, 'Distribution Centre' %>
+      <%= form.collection_select :distribution_centre_name, @centres, :name, :name %>
+    </div>
+
+    <div>
+      <%= form.label :deposited_material_name %>
+      <%= form.collection_select :deposited_material_name, DepositedMaterial.all, :name, :name %>
     </div>
 
     <div>

@@ -138,7 +138,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
 
       should 'have filtered production centre pre-selected in dropdown' do
-        assert page.has_css? '#production_centre_id option[selected="selected"][value="2"]'
+        assert page.has_css? '#production_centre_id option[selected="selected"][value="' + Centre.find_by_name('ICS').id.to_s + '"]'
       end
     end
 
@@ -166,7 +166,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
       should 'show results that match the search terms and the filter' do
         assert page.has_css? '.x-grid3-col-es_cell__name', :text => @mi_attempt.es_cell.name
-        assert page.has_css? '.x-grid3-col-status', :text => 'Nonsense'
+        assert page.has_css? '.x-grid3-col-mi_attempt_status__description', :text => 'Nonsense'
       end
 
       should 'not show any non-matching mi attempts' do

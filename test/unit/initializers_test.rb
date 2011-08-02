@@ -8,7 +8,7 @@ class InitializersTest < ActiveSupport::TestCase
     context 'to_json_config' do
 
       should 'set include_root_in_json to false' do
-        obj = InMemoryPerson.new
+        obj = Test::Person.new
         obj.name = 'Fred'
         assert_equal({'name' => 'Fred'}, obj.as_json)
       end

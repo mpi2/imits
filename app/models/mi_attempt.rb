@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 class MiAttempt < ActiveRecord::Base
+  acts_as_audited
   acts_as_reportable
 
   extend AccessAssociationByAttribute
@@ -45,25 +46,44 @@ class MiAttempt < ActiveRecord::Base
 
   attr_protected *PRIVATE_ATTRIBUTES
 
-  acts_as_audited
+  ##
+  ## Associations
+  ##
 
+  belongs_to :consortium
   belongs_to :es_cell
+  belongs_to :mi_attempt_status
+  belongs_to :production_centre, :class_name => 'Centre'
+  belongs_to :distribution_centre, :class_name => 'Centre'
+  belongs_to :updated_by, :class_name => 'User'
+  belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
+  belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
+  belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
+  belongs_to :deposited_material
 
-  def es_cell_name
-    if(self.es_cell)
-      return self.es_cell.name
-    else
-      return @es_cell_name
-    end
+  access_association_by_attribute :consortium, :name
+  access_association_by_attribute :production_centre, :name
+  access_association_by_attribute :distribution_centre, :name
+  access_association_by_attribute :blast_strain, :name
+  access_association_by_attribute :colony_background_strain, :name
+  access_association_by_attribute :test_cross_strain, :name
+  access_association_by_attribute :deposited_material, :name
+
+  QC_FIELDS.each do |qc_field|
+    belongs_to qc_field, :class_name => 'QcResult'
+    access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
 
-  def es_cell_name=(arg)
-    if(! self.es_cell)
-      @es_cell_name = arg
-    end
-  end
+  ##
+  ## Validations
+  ##
 
+  validates :consortium_name, :presence => true
   validates :es_cell_name, :presence => true
+  validates :mi_attempt_status, :presence => true
+  validates :colony_name, :uniqueness => true, :allow_nil => true
+  validates :production_centre_name, :presence => true
+  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
 
   validates_each :es_cell_name do |record, attr, value|
     if !record.es_cell_name.blank? and record.es_cell.blank?
@@ -71,42 +91,9 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
-  belongs_to :mi_attempt_status
-  validates :mi_attempt_status, :presence => true
-
-  def status
-    return self.mi_attempt_status.try(:description)
-  end
-
-  validates :colony_name, :uniqueness => true, :allow_nil => true
-
-  belongs_to :production_centre, :class_name => 'Centre'
-  validates :production_centre, :presence => {:if => proc {|record| record.production_centre_name.blank?} }
-  belongs_to :distribution_centre, :class_name => 'Centre'
-  access_association_by_attribute :production_centre, :name
-  access_association_by_attribute :distribution_centre, :name
-
-  belongs_to :updated_by, :class_name => 'User'
-
-  belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
-  access_association_by_attribute :blast_strain, :name
-
-  belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
-  access_association_by_attribute :colony_background_strain, :name
-
-  belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
-  access_association_by_attribute :test_cross_strain, :name
-
-  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
-
-  QC_FIELDS.each do |qc_field|
-    belongs_to qc_field, :class_name => 'QcResult'
-
-    access_association_by_attribute qc_field, :description, :attribute_alias => :result
-  end
-
-  belongs_to :deposited_material
-  access_association_by_attribute :deposited_material, :name
+  ##
+  ## Filters
+  ##
 
   before_validation :set_blank_strings_to_nil
   before_validation :set_default_status
@@ -114,10 +101,15 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_es_cell_from_es_cell_name
   before_validation :set_default_distribution_centre
   before_validation :set_default_deposited_material
+  before_validation :set_blank_qc_fields_to_na
 
   before_save :generate_colony_name_if_blank
   before_save :change_status
   before_save :make_unsuitable_for_emma_if_is_not_active
+
+  ##
+  ## Filter methods
+  ##
 
   protected
 
@@ -147,6 +139,14 @@ class MiAttempt < ActiveRecord::Base
     self.distribution_centre ||= self.production_centre
   end
 
+  def set_blank_qc_fields_to_na
+    QC_FIELDS.each do |qc_field|
+      if self.send("#{qc_field}_result").blank?
+        self.send("#{qc_field}_result=", 'na')
+      end
+    end
+  end
+
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?
 
@@ -158,7 +158,10 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def set_default_deposited_material
-    self.deposited_material ||= DepositedMaterial.find_by_name!('Frozen embryos')
+    if self.deposited_material.nil?
+      self.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
+      self.deposited_material_name = self.deposited_material.name
+    end
   end
 
   def make_unsuitable_for_emma_if_is_not_active
@@ -168,7 +171,29 @@ class MiAttempt < ActiveRecord::Base
     return true
   end
 
+  ##
+  ## Methods
+  ##
+
   public
+
+  def es_cell_name
+    if(self.es_cell)
+      return self.es_cell.name
+    else
+      return @es_cell_name
+    end
+  end
+
+  def es_cell_name=(arg)
+    if(! self.es_cell)
+      @es_cell_name = arg
+    end
+  end
+
+  def status
+    return self.mi_attempt_status.try(:description)
+  end
 
   def emma_status
     if is_suitable_for_emma?
@@ -238,7 +263,7 @@ class MiAttempt < ActiveRecord::Base
     unless terms.blank?
       sql_texts <<
               '(UPPER(es_cells.name) IN (?) OR ' +
-              ' UPPER(es_cells.marker_symbol) IN (?) OR ' +
+              ' UPPER(genes.marker_symbol) IN (?) OR ' +
               ' UPPER(mi_attempts.colony_name) IN (?))'
       sql_params << terms  << terms << terms
     end
@@ -257,26 +282,9 @@ class MiAttempt < ActiveRecord::Base
       scoped
     else
       sql_text = sql_texts.join(' AND ')
-      joins(:es_cell).where(sql_text, *sql_params)
+      joins(:es_cell => :gene).where(sql_text, *sql_params)
     end
   }
-
-  def default_serializer_options(options = {})
-    options ||= {}
-    options.symbolize_keys!
-    options[:methods] ||= [
-      'qc', 'es_cell_name', 'emma_status', 'status',
-      'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
-      'distribution_centre_name', 'production_centre_name',
-      'mouse_allele_symbol_superscript'
-    ] + QC_FIELDS.map{|i| "#{i}_result"}
-    options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
-      'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
-      'production_centre_id', 'distribution_centre_id', 'deposited_material_id'
-    ]
-    return options
-  end
-  private :default_serializer_options
 
   def as_json(options = {})
     super(default_serializer_options(options))
@@ -286,10 +294,29 @@ class MiAttempt < ActiveRecord::Base
     super(default_serializer_options(options))
   end
 
+  private
+
+  def default_serializer_options(options = {})
+    options ||= {}
+    options.symbolize_keys!
+    options[:methods] ||= [
+      'qc', 'es_cell_name', 'emma_status', 'status',
+      'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
+      'distribution_centre_name', 'production_centre_name', 'consortium_name',
+      'mouse_allele_symbol_superscript'
+    ] + QC_FIELDS.map{|i| "#{i}_result"}
+    options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
+      'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
+      'production_centre_id', 'distribution_centre_id', 'deposited_material_id',
+      'consortium_id'
+    ]
+    return options
+  end
+
 end
 
 # == Schema Information
-# Schema version: 20110527121721
+# Schema version: 20110727110911
 #
 # Table name: mi_attempts
 #
@@ -350,6 +377,7 @@ end
 #  comments                                        :text
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
+#  consortium_id                                   :integer         not null
 #
 # Indexes
 #

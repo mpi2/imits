@@ -81,6 +81,32 @@ strong { font-weight: bold; }
 a:focus, a:hover { color: #8f110b; }
 a { color: #009; text-decoration: underline; }
 
+a.button {
+  display: inline-block;
+  border: 2px solid #b0de78;
+  text-decoration: none;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  background-color: #caed9e;
+  border-radius: 4px;
+  color: #212121;
+  padding: 5px 10px;
+}
+
+a.button:hover {
+  border: 2px solid #f06d65;
+  background-color: #f78b83;
+}
+
+a.csv_download {
+  background-image: url('../images/icons/page_excel.png');
+  background-position: 4px center;
+  background-repeat: no-repeat;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 24px;
+}
+
 /* @end */
 
 /* @group Lists */
@@ -334,6 +360,7 @@ form.report-form table td { width: 50%; }
 form.report-form table td select { width: 80%; }
 form.report-form fieldset { margin-bottom: 10px; padding: 10px; }
 form.report-form fieldset > div { margin-bottom: 7px; }
+form.report-form { margin-bottom: 20px; }
 
 /* @end */
 
@@ -353,31 +380,29 @@ div.report_control * {
 	vertical-align: top;
 }
 
-#report {
+.report {
+  margin-bottom: 20px;
+}
+
+.report p {
+	margin-bottom: 10px;
 	margin-top: 10px;
-	padding-top: 10px;
-	border-top: 1px solid #929292;
+	font: bold medium Georgia, "Times New Roman", Times, serif;
 }
 
-#report p {
-	margin-bottom: 5px;
-	margin-top: 5px;
-	font: bold x-large Georgia, "Times New Roman", Times, serif;
-}
-
-#report table th {
+.report table th {
 	border: 1px solid #999;
 	text-align: left;
 	padding: 3px 3px;
 	background-color: #ccc;
 }
 
-#report table td {
+.report table td {
 	border: 1px solid #999;
 	padding: 3px 3px;
 }
 
-#report table tr.odd td {
+.report table tr.odd td {
 	background: #f1f1f1;
 }
 

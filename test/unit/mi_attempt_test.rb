@@ -32,22 +32,16 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_should belong_to(:distribution_centre)
         end
 
-        should 'not output ids in serialization' do
-          data = default_mi_attempt.as_json
-          assert_equal [false, false],
-                  [data.keys.include?('production_centre_id'), data.keys.include?('distribution_centre_id')]
+        should 'not output production_centre_id in serialization' do
+          assert_equal false, default_mi_attempt.as_json.include?('production_centre_id')
         end
 
-        should 'validate presence of production_centre' do
-          mi = MiAttempt.new
-          mi.valid?
-          assert_false mi.errors[:production_centre].blank?
+        should 'not output distribution_centre_id in serialization' do
+          assert_equal false, default_mi_attempt.as_json.include?('distribution_centre_id')
         end
 
-        should 'not validate presence of production_centre if production_centre_name is set' do
-          mi = MiAttempt.new :production_centre_name => 'NONEXISTENT'
-          assert_false mi.valid?
-          assert_blank mi.errors[:production_centre]
+        should 'validate presence of production_centre_name' do
+          assert_should validate_presence_of :production_centre_name
         end
 
         should 'default distribution_centre to production_centre' do
@@ -80,6 +74,28 @@ class MiAttemptTest < ActiveSupport::TestCase
           data = JSON.parse(default_mi_attempt.to_json)
           assert_equal ['ICS', 'WTSI'],
                   data.values_at('distribution_centre_name', 'production_centre_name')
+        end
+      end
+
+      context '#consortium' do
+        should 'exist' do
+          assert_should have_db_column(:consortium_id)
+          assert_should belong_to(:consortium)
+        end
+
+        should 'not output ids in serialization' do
+          data = default_mi_attempt.as_json
+          assert_false data.keys.include?('consortium_id')
+        end
+
+        should 'be present' do
+          assert_should validate_presence_of :consortium_name
+        end
+
+        should 'allow access to the consortium via its name' do
+          consortium = Factory.create :consortium, :name => 'WEEEEEE'
+          default_mi_attempt.update_attributes( :consortium_name => 'WEEEEEE' )
+          assert_equal 'WEEEEEE', default_mi_attempt.consortium.name 
         end
       end
 
@@ -270,6 +286,11 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal ['BALB/c', '129P2/OlaHsd', '129P2/OlaHsd'],
                   [doc.css('blast-strain-name').text, doc.css('colony-background-strain-name').text, doc.css('test-cross-strain-name').text]
         end
+
+        should 'allow setting blast strain to nil using blast_strain_name' do
+          default_mi_attempt.update_attributes(:blast_strain_name => '')
+          assert_nil default_mi_attempt.blast_strain
+        end
       end
 
       should 'have emma columns' do
@@ -389,6 +410,12 @@ class MiAttemptTest < ActiveSupport::TestCase
           should "output #{qc_field} in serialization" do
             assert default_mi_attempt.as_json.has_key? "#{qc_field}_result"
           end
+
+          should 'default to "na" if assigned a blank' do
+            default_mi_attempt.send("#{qc_field}_result=", '')
+            assert default_mi_attempt.valid?
+            assert_equal 'na', default_mi_attempt.send("#{qc_field}_result")
+          end
         end
       end
 
@@ -446,16 +473,19 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_should have_db_column(:deposited_material_id).with_options(:null => false)
         end
 
-        should 'default to "Frozen embryos"' do
+        should 'default to "Frozen embryos" if nil' do
           mi = Factory.create :mi_attempt
-          assert_equal 'Frozen embryos', mi.deposited_material.name
+          assert_equal 'Frozen embryos', mi.deposited_material_name
+        end
+
+        should 'default to "Frozen embryos" if blank' do
+          mi = Factory.create :mi_attempt
+          mi.update_attributes!(:deposited_material_name => '')
+          assert_equal 'Frozen embryos', mi.deposited_material_name
         end
 
         should 'be association to DepositedMaterial' do
-          dm = DepositedMaterial.last
-          default_mi_attempt.deposited_material = dm
-          default_mi_attempt.save!
-          assert_equal dm, default_mi_attempt.deposited_material
+          assert_should belong_to :deposited_material
         end
 
         should 'be setup for access_association_by_attribute' do

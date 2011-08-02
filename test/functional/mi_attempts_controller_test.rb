@@ -101,7 +101,11 @@ class MiAttemptsControllerTest < ActionController::TestCase
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         assert_equal 0, MiAttempt.count
         post :create,
-                :mi_attempt => {'es_cell_name' => es_cell.name, :production_centre_id => Centre.find_by_name('WTSI').id},
+                :mi_attempt => {
+                  'es_cell_name' => es_cell.name, 
+                  :production_centre_id => Centre.find_by_name('WTSI').id,
+                  :consortium_id => Consortium.find_by_name('MGP').id
+                },
                 :format => format
 
         mi_attempt = MiAttempt.first
@@ -125,7 +129,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         mi_attempt = Factory.create :mi_attempt, :colony_name => 'MAAB'
         assert_equal 1, MiAttempt.count
-        post :create, :mi_attempt => {'es_cell_name' => 'EPD0127_4_E01', 'colony_name' => 'MAAB'}
+        post :create, :mi_attempt => {'es_cell_name' => 'EPD0127_4_E01', 'colony_name' => 'MAAB', 'consortium_name' => 'EUCOMM-EUMODIC'}
         assert_equal 1, MiAttempt.count
 
         assert ! assigns[:mi_attempt].errors[:colony_name].blank?
@@ -160,17 +164,18 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_not_equal 0, doc.xpath('count(//error)')
       end
 
-      should 'set production centre from params instead of user if specified' do
+      should 'set production centre and consortium from params instead of user if specified' do
         user = Factory.create :user, :production_centre => Centre.find_by_name('ICS')
         sign_in user
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         post :create,
-                :mi_attempt => {'es_cell_name' => es_cell.name, 'production_centre_name' => 'WTSI'},
+                :mi_attempt => {'es_cell_name' => es_cell.name, 'production_centre_name' => 'WTSI', 'consortium_name' => 'MGP' },
                 :format => :json
         assert_response :success, response.body
 
         mi_attempt = MiAttempt.first
         assert_equal 'WTSI', mi_attempt.production_centre.name
+        assert_equal 'MGP', mi_attempt.consortium.name
       end
 
       should 'set production centre to logged in user centre if not specified' do
@@ -178,12 +183,13 @@ class MiAttemptsControllerTest < ActionController::TestCase
         sign_in user
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         post :create,
-                :mi_attempt => {'es_cell_name' => es_cell.name},
+                :mi_attempt => {'es_cell_name' => es_cell.name, 'consortium_name' => 'EUCOMM-EUMODIC'},
                 :format => :json
         assert_response :success, response.body
 
         mi_attempt = MiAttempt.first
         assert_equal 'ICS', mi_attempt.production_centre.name
+        assert_equal 'EUCOMM-EUMODIC', mi_attempt.consortium.name
       end
     end
 
@@ -218,7 +224,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'return errors with invalid params for JSON' do
         bad_update_for_format(:json)
         data = parse_json_from_response
-        assert_include data['production_centre'], 'cannot be blank'
+        assert_include data['production_centre_name'], 'cannot be blank'
       end
 
       should 'return errors with invalid params for XML' do

@@ -11,27 +11,47 @@ Factory.define :pipeline do |pipeline|
   pipeline.description 'Pipeline Description'
 end
 
+Factory.define :gene do |gene|
+  gene.sequence(:marker_symbol) { |n| "Auto-generated Symbol #{n}" }
+  gene.sequence(:mgi_accession_id) { |n| "MGI:#{"%.10i" % n}" }
+end
+
 Factory.define :es_cell do |es_cell|
-  es_cell.sequence(:name) {|n| "Auto-generated ES Cell Name #{n}" }
-  es_cell.marker_symbol "Auto-generated Marker Symbol"
+  es_cell.sequence(:name) { |n| "Auto-generated ES Cell Name #{n}" }
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.association(:pipeline) { Pipeline.find_by_name! 'EUCOMM' }
-  es_cell.sequence(:mgi_accession_id) {|n| "MGI:#{"%.10i" % n}"}
+  es_cell.association(:gene)
 end
 
 Factory.define :centre do |centre|
-  centre.sequence(:name) {|n| "Auto-generated Centre Name #{n}" }
+  centre.sequence(:name) { |n| "Auto-generated Centre Name #{n}" }
+end
+
+Factory.define :consortium do |consortium|
+  consortium.sequence(:name) { |n| "Auto-generated Consortium Name #{n}" }
+end
+
+Factory.define :mi_plan do |mi_plan|
+  mi_plan.association(:gene)
+  mi_plan.association(:consortium)
+  mi_plan.mi_plan_status   { MiPlanStatus.find_by_name! 'Interest' }
+  mi_plan.mi_plan_priority { MiPlanPriority.find_by_name! 'High' }
 end
 
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :es_cell
   mi_attempt.production_centre { Centre.find_by_name('WTSI') }
+  mi_attempt.consortium { Consortium.find_by_name('EUCOMM-EUMODIC') }
+end
+
+Factory.define :randomly_populated_gene, :parent => :gene do |gene|
+  gene.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
 end
 
 Factory.define :randomly_populated_es_cell, :parent => :es_cell do |es_cell|
-  es_cell.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
   es_cell.allele_symbol_superscript_template 'tm1@(EUCOMM)Wtsi'
   es_cell.allele_type { ('a'..'e').to_a.sample }
+  es_cell.association :gene, :factory => :randomly_populated_gene
 end
 
 Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
@@ -63,9 +83,19 @@ end
 
 #Specifics
 
+Factory.define :gene_cbx1, :parent => :gene do |gene|
+  gene.marker_symbol 'Cbx1'
+  gene.mgi_accession_id 'MGI:105369'
+end
+
+Factory.define :gene_trafd1, :parent => :gene do |gene|
+  gene.marker_symbol 'Trafd1'
+  gene.mgi_accession_id 'MGI:1923551'
+end
+
 Factory.define :es_cell_EPD0127_4_E01_without_mi_attempts, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0127_4_E01'
-  es_cell.marker_symbol 'Trafd1'
+  es_cell.association(:gene, :factory => :gene_trafd1)
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 end
@@ -95,7 +125,7 @@ end
 
 Factory.define :es_cell_EPD0343_1_H06_without_mi_attempts, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0343_1_H06'
-  es_cell.marker_symbol 'Myo1c'
+  es_cell.association :gene, :marker_symbol => 'Myo1c'
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.pipeline { Pipeline.find_by_name! 'EUCOMM' }
 end
@@ -113,9 +143,9 @@ end
 
 Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0029_1_G04'
-  es_cell.marker_symbol 'Gatc'
+  es_cell.association :gene, :marker_symbol => 'Gatc'
   es_cell.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
-  es_cell.pipeline { Pipeline.find_by_name! 'KOMP' }
+  es_cell.pipeline { Pipeline.find_by_name! 'KOMP-CSD' }
 
   es_cell.after_create do |es_cell|
     Factory.create(:mi_attempt,

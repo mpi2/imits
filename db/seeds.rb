@@ -1,10 +1,9 @@
 # encoding: utf-8
 
-
 [
   'Micro-injection in progress',
   'Genotype confirmed',
-  'Micro-injection aborted'
+  'Micro-injection aborted',
 ].each do |description|
   MiAttemptStatus.find_or_create_by_description description
 end
@@ -30,4 +29,47 @@ end
 
 ['Frozen embryos', 'Live mice', 'Frozen sperm'].each do |name|
   DepositedMaterial.find_or_create_by_name name
+end
+
+[
+  'EUCOMM-EUMODIC',
+  'MGP',
+  'BASH',
+  'MARC',
+  'MRC'
+].each do |name|
+  Consortium.find_or_create_by_name name
+end
+
+[
+  'APN',
+  'BCM',
+  'CNB',
+  'HMGU',
+  'ICS',
+  'MARC',
+  'MRC - Harwell',
+  'Monterotondo',
+  'Oulu',
+  'UCD',
+  'WTSI'
+].each do |name|
+  Centre.find_or_create_by_name name
+end
+
+[
+  'Interest',
+  'Conflict',
+  'Declined',
+  'Assigned'
+].each do |name|
+  MiPlanStatus.find_or_create_by_name(name)
+end
+
+{
+  'High'   => 'Estimated injection in the next 0-4 months',
+  'Medium' => 'Estimated injection in the next 5-8 months',
+  'Low'    => 'Estimated injection in the next 9-12 months'
+}.each do |priority, description|
+  MiPlanPriority.find_or_create_by_name(:name => priority, :description => description)
 end

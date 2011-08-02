@@ -7,7 +7,7 @@ class Centre < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110527121721
+# Schema version: 20110727110911
 #
 # Table name: centres
 #

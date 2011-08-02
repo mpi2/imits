@@ -24,8 +24,8 @@ class MiAttemptFieldGenerator
   def strains_field(name)
     name = name.to_s
     strain_class = Strain.const_get(name.gsub(/_id$/, '').camelize)
-    field_html = @form.collection_select(name+'_id', strain_class.all, :id, :name, :include_blank => true)
-    form_field(name+'_id', nil, field_html)
+    field_html = @form.collection_select(name+'_name', strain_class.all, :name, :name, :include_blank => true)
+    form_field(name+'_name', nil, field_html)
   end
 
   def mouse_allele_type_field
@@ -36,12 +36,10 @@ class MiAttemptFieldGenerator
   def qc_fields
     qc_statuses =  QcResult.all
     MiAttempt::QC_FIELDS.map do |qc_field|
-      form_field("#{qc_field}_id", tidy_label(qc_field.to_s.gsub(/^qc_(.+)$/, '\1').titlecase),
-          @form.collection_select("#{qc_field}_id", qc_statuses, :id, :description))
+      form_field("#{qc_field}_result", tidy_label(qc_field.to_s.gsub(/^qc_(.+)$/, '\1').titlecase),
+          @form.collection_select("#{qc_field}_result", qc_statuses, :description, :description))
     end.join.html_safe
   end
-
-  private
 
   def form_field(name, label, field_html)
     element_classes = []
@@ -53,6 +51,8 @@ class MiAttemptFieldGenerator
     end
     return content_tag(:div, contents.html_safe, :class => element_classes.join(' ')).html_safe
   end
+  
+  private
 
   def tidy_label(old_label)
     new_label = [

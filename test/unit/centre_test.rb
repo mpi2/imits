@@ -16,13 +16,13 @@ class CentreTest < ActiveSupport::TestCase
     end
 
     should 'order by name by default' do
+      Centre.destroy_all
+      Factory.create :centre, :name => 'AA9'
       Factory.create :centre, :name => 'ZZ2'
       Factory.create :centre, :name => 'ZZ1'
-      Factory.create :centre, :name => 'AA9'
       Factory.create :centre, :name => 'AA1'
 
-      assert_equal ['AA1', 'AA9', 'ICS', 'Monterotondo', 'MRC - Harwell', 'WTSI', 'ZZ1', 'ZZ2'],
-              Centre.all.map(&:name)
+      assert_equal ['AA1', 'AA9', 'ZZ1', 'ZZ2'], Centre.all.map(&:name)
     end
   end
 end

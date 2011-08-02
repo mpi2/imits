@@ -82,4 +82,8 @@ class MiAttemptsController < ApplicationController
     end
   end
 
+  def history
+    @mi_attempt = MiAttempt.find(params[:id])
+  end
+
 end

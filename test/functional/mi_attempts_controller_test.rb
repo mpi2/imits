@@ -80,6 +80,18 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
     end
 
+    context 'GET history' do
+      setup do
+        sign_in default_user
+        @mi_attempt = Factory.create(:mi_attempt)
+      end
+
+      should 'show the history page for a given mi_attempt' do
+        get :history, :id => @mi_attempt.id
+        assert response.success?
+      end
+    end
+
     context 'POST create' do
       setup do
         sign_in default_user

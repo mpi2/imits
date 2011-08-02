@@ -1,9 +1,8 @@
 <% @tab = 'Search & Edit' %>
 
 <% content_for :head do %>
-  <%= javascript_include_tag('mi_attempts/index') %>
   <%= javascript_include_tag('mi_attempts/index/view_config') %>
-  <%= javascript_include_tag('mi_attempts/index/grid') %>
+  <%= javascript_include_tag('mi_attempts/index') %>
 <% end %>
 
 <%= form_tag mi_attempts_path, :method => :get, :id => 'mi-search-form' do %>

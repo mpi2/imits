@@ -106,28 +106,8 @@ class ReportsController < ApplicationController
     end
   end
 
-  def planned_microinjections
-    report_column_order_and_names = {
-      'consortium.name'       => 'Consortium',
-      'gene.marker_symbol'    => 'Marker Symbol',
-      'gene.mgi_accession_id' => 'MGI Accession ID',
-      'mi_plan_priority.name' => 'Priority',
-      'mi_plan_status.name'   => 'Status'
-    }
-
-    all_mi_plans = MiPlan.report_table(
-      :all,
-      :only => [],
-      :include => {
-        :consortium       => { :only => [ :name ] },
-        :gene             => { :only => [ :marker_symbol, :mgi_accession_id ] },
-        :mi_plan_priority => { :only => [ :name ] },
-        :mi_plan_status   => { :only => [ :name ] }
-      }
-    )
-
-    all_mi_plans.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
-    all_mi_plans.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
+  def planned_microinjection_summary_and_conflicts
+    all_mi_plans = generate_planned_mi_list_report( nil )
 
     @summary = Table([ 'Status', 'Consortium', '# High Priority', '# Medium Priority', '# Low Priority' ])
 
@@ -160,6 +140,32 @@ class ReportsController < ApplicationController
   end
 
   protected
+
+  def generate_planned_mi_list_report( params )
+    report_column_order_and_names = {
+      'consortium.name'       => 'Consortium',
+      'gene.marker_symbol'    => 'Marker Symbol',
+      'gene.mgi_accession_id' => 'MGI Accession ID',
+      'mi_plan_priority.name' => 'Priority',
+      'mi_plan_status.name'   => 'Status'
+    }
+
+    all_mi_plans = MiPlan.report_table(
+      :all,
+      :only => [],
+      :include => {
+        :consortium       => { :only => [ :name ] },
+        :gene             => { :only => [ :marker_symbol, :mgi_accession_id ] },
+        :mi_plan_priority => { :only => [ :name ] },
+        :mi_plan_status   => { :only => [ :name ] }
+      }
+    )
+
+    all_mi_plans.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
+    all_mi_plans.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
+
+    return all_mi_plans
+  end
 
   def generate_mi_list_report( params )
     report_column_order_and_names = {

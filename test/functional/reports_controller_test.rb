@@ -31,11 +31,11 @@ class ReportsControllerTest < ActionController::TestCase
         end
       end
 
-      context 'the /planned_microinjections report' do
+      context 'the /planned_microinjection_summary_and_conflicts report' do
         should 'just work (tm)' do
           5.times { Factory.create :mi_plan }
 
-          get :planned_microinjections
+          get :planned_microinjection_summary_and_conflicts
           assert response.success?
           assert assigns(:summary)
           assert assigns(:summary).is_a?( Ruport::Data::Grouping )

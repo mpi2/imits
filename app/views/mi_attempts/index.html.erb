@@ -1,4 +1,10 @@
-<% @netzke_required = true; @tab = 'Search & Edit' %>
+<% @tab = 'Search & Edit' %>
+
+<% content_for :head do %>
+  <%= javascript_include_tag('mi_attempts/index') %>
+  <%= javascript_include_tag('mi_attempts/index/view_config') %>
+  <%= javascript_include_tag('mi_attempts/index/grid') %>
+<% end %>
 
 <%= form_tag mi_attempts_path, :method => :get, :id => 'mi-search-form' do %>
   <fieldset class="collapsible">
@@ -30,17 +36,4 @@
 
 <div class="clear"></div>
 
-<div id="mi-attempts-grid">
-  <%= mi_attempts_table(@search_params) %>
-</div>
-
-<script type="text/javascript" charset="utf-8">
-  Ext.onReady( function() {
-    Ext.select('fieldset.collapsible legend').each(function(legend) {
-      legend.addListener('click', function() {
-        var widget = Netzke.page.microInjectionAttemptsWidget;
-        widget.manageResize();
-      });
-    });
-  });
-</script>
+<div id="mi-attempts-grid"></div>

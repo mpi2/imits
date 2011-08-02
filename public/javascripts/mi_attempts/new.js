@@ -293,6 +293,9 @@ Ext.define('Kermits2.newMI.EsCellsList', {
         }
     },
 
+    bodyStyle: {
+      cursor: 'default'
+    },
     title: null,
     columns: [
     {

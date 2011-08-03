@@ -258,47 +258,6 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
-  def self.search(*args, &block)
-    return non_metasearch_search(*args, &block)
-  end
-
-  scope :non_metasearch_search, proc { |params|
-    terms, production_centre_id, mi_attempt_status_id = params.symbolize_keys.values_at(
-      :search_terms, :production_centre_id, :mi_attempt_status_id)
-
-    terms ||= []
-    terms = terms.dup.delete_if {|i| i.strip.empty?}
-    terms.map(&:upcase!)
-
-    sql_texts = []
-    sql_params = []
-
-    unless terms.blank?
-      sql_texts <<
-              '(UPPER(es_cells.name) IN (?) OR ' +
-              ' UPPER(genes.marker_symbol) IN (?) OR ' +
-              ' UPPER(mi_attempts.colony_name) IN (?))'
-      sql_params << terms  << terms << terms
-    end
-
-    unless production_centre_id.blank?
-      sql_texts << 'mi_attempts.production_centre_id = ?'
-      sql_params << production_centre_id
-    end
-
-    unless mi_attempt_status_id.blank?
-      sql_texts << 'mi_attempts.mi_attempt_status_id = ?'
-      sql_params << mi_attempt_status_id
-    end
-
-    if sql_texts.blank?
-      scoped
-    else
-      sql_text = sql_texts.join(' AND ')
-      joins(:es_cell => :gene).where(sql_text, *sql_params)
-    end
-  }
-
   def as_json(options = {})
     super(default_serializer_options(options))
   end

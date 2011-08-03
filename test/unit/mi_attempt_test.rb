@@ -614,17 +614,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           :es_cell => @es_cell1,
           :mi_plan => Factory.create(:mi_plan, :gene => @es_cell1.gene, :production_centre => Centre.find_by_name!('ICS'))
         )
-
         results = MiAttempt.search(:search_terms => ['myo1c'], :production_centre_name => 'ICS')
-
-        results.each do |r|
-          puts "------------"
-          puts "------------"
-          ap r.mi_plan
-          puts "------------"
-          puts "------------"
-        end
-
         assert_equal 1, results.size
         assert_equal mi.id, results.first.id
       end

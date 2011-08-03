@@ -7,7 +7,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
     context '(misc. tests):' do
       setup do
-        Factory.create :mi_plan
+        @default_mi_plan ||= Factory.create :mi_plan
       end
 
       should belong_to :gene
@@ -53,6 +53,28 @@ class MiPlanTest < ActiveSupport::TestCase
         #       with the same gene and consortium BUT with a production_centre assigned.
         #       Really, the fist should be updated to become the second (i.e. not produce a duplicate).
       end
+
+      context '#consortium' do
+        # should 'not output ids in serialization' do
+        #   data = MiPlan.first.as_json
+        #   assert_false data.keys.include?('consortium_id')
+        # end
+
+        should 'allow access to the consortium via its name' do
+          consortium = Factory.create :consortium, :name => 'WEEEEEE'
+          @default_mi_plan.update_attributes( :consortium_name => 'WEEEEEE' )
+          assert_equal 'WEEEEEE', @default_mi_plan.consortium.name
+        end
+      end
+
+      context '#production_centre' do
+        should 'allow access to production centre via its name' do
+          centre = Factory.create :centre, :name => 'NONEXISTENT'
+          @default_mi_plan.update_attributes(:production_centre_name => 'NONEXISTENT')
+          assert_equal 'NONEXISTENT', @default_mi_plan.production_centre.name
+        end
+      end
+
     end
 
     context '::assign_genes_and_mark_conflicts' do

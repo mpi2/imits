@@ -6,10 +6,11 @@ class MiAttemptTest < ActiveSupport::TestCase
   context 'MiAttempt' do
 
     def default_mi_attempt
-      @default_mi_attempt ||= Factory.create :mi_attempt,
-              :blast_strain => Strain::BlastStrain.find_by_name('BALB/c'),
-              :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name('129P2/OlaHsd'),
-              :test_cross_strain => Strain::TestCrossStrain.find_by_name('129P2/OlaHsd')
+      @default_mi_attempt ||= Factory.create( :mi_attempt,
+        :blast_strain             => Strain::BlastStrain.find_by_name('BALB/c'),
+        :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name('129P2/OlaHsd'),
+        :test_cross_strain        => Strain::TestCrossStrain.find_by_name('129P2/OlaHsd')
+      )
     end
 
     context 'attribute tests:' do
@@ -40,22 +41,19 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'default distribution_centre to production_centre' do
-          centre = Factory.create :centre
-          mi = Factory.create :mi_attempt, :production_centre => centre
+          centre  = Factory.create :centre
+          mi_plan = Factory.create :mi_plan, :production_centre => centre
+          mi      = Factory.create :mi_attempt, :mi_plan => mi_plan
           assert_equal centre.name, mi.distribution_centre.name
         end
 
         should 'not overwrite distribution_centre with production_centre if former has already been set' do
           centre1 = Factory.create :centre
           centre2 = Factory.create :centre
-          mi = Factory.create :mi_attempt, :production_centre => centre1, :distribution_centre => centre2
+          mi_plan = Factory.create :mi_plan, :production_centre => centre1
+          mi      = Factory.create :mi_attempt, :mi_plan => mi_plan, :distribution_centre => centre2
           assert_equal centre2.name, mi.distribution_centre.name
-        end
-
-        should 'allow access to production centre via its name' do
-          centre = Factory.create :centre, :name => 'NONEXISTENT'
-          default_mi_attempt.update_attributes(:production_centre_name => 'NONEXISTENT')
-          assert_equal 'NONEXISTENT', default_mi_attempt.production_centre.name
+          assert_not_equal centre1.name, mi.distribution_centre.name
         end
 
         should 'allow access to distribution centre via its name' do
@@ -65,32 +63,10 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'output *_centre_name fields in serialization' do
-          default_mi_attempt.update_attributes(:distribution_centre_name => 'ICS')
-          data = JSON.parse(default_mi_attempt.to_json)
-          assert_equal ['ICS', 'WTSI'],
-                  data.values_at('distribution_centre_name', 'production_centre_name')
-        end
-      end
-
-      context '#consortium' do
-        should 'exist' do
-          assert_should have_db_column(:consortium_id)
-          assert_should belong_to(:consortium)
-        end
-
-        should 'not output ids in serialization' do
-          data = default_mi_attempt.as_json
-          assert_false data.keys.include?('consortium_id')
-        end
-
-        should 'be present' do
-          assert_should validate_presence_of :consortium_name
-        end
-
-        should 'allow access to the consortium via its name' do
-          consortium = Factory.create :consortium, :name => 'WEEEEEE'
-          default_mi_attempt.update_attributes( :consortium_name => 'WEEEEEE' )
-          assert_equal 'WEEEEEE', default_mi_attempt.consortium.name 
+          mi_plan    = Factory.create(:mi_plan, :production_centre => Centre.find_by_name('WTSI'))
+          mi_attempt = Factory.create(:mi_attempt, :mi_plan => mi_plan, :distribution_centre => Centre.find_by_name('ICS'))
+          data       = JSON.parse(mi_attempt.to_json)
+          assert_equal ['ICS', 'WTSI'], data.values_at('distribution_centre_name', 'production_centre_name')
         end
       end
 
@@ -435,9 +411,14 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'be auto-generated if not supplied' do
           Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+          mi_plan = Factory.create(:mi_plan,
+            :gene => EsCell.find_by_name!('EPD0127_4_E01').gene,
+            :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
+            :production_centre_name => 'ICS'
+          )
           attributes = {
+            :mi_plan => mi_plan,
             :es_cell => EsCell.find_by_name!('EPD0127_4_E01'),
-            :production_centre_name => 'ICS',
             :colony_name => nil
           }
          mi_attempts = (1..3).to_a.map { Factory.create :mi_attempt, attributes }
@@ -449,15 +430,16 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'not be auto-generated if es_cell was not assigned or found' do
-          mi_attempt = Factory.build :mi_attempt, :es_cell => nil,
-                  :colony_name => nil
+          mi_attempt = Factory.build :mi_attempt, :es_cell => nil, :colony_name => nil
           assert_false mi_attempt.save
           assert_nil mi_attempt.colony_name
         end
 
         should 'not be auto-generated if production centre was not assigned' do
-          mi_attempt = Factory.build :mi_attempt, :production_centre => nil,
-                  :colony_name => nil
+          mi_plan    = Factory.create :mi_plan
+          assert_nil mi_plan.production_centre
+
+          mi_attempt = Factory.build :mi_attempt, :mi_plan => mi_plan, :colony_name => nil
           assert_false mi_attempt.save
           assert_nil mi_attempt.colony_name
         end

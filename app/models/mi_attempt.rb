@@ -71,19 +71,16 @@ class MiAttempt < ActiveRecord::Base
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
 
-  delegate :consortium_name, :to => :mi_plan
-  delegate :production_centre_name, :production_centre_name=, :production_centre_id, :to => :mi_plan
-
   ##
   ## Validations
   ##
 
   validates :mi_plan, :associated => true
   validates :es_cell_name, :presence => true
+  validates :production_centre_name, :presence => true
+  validates :consortium_name, :presence => true
   validates :mi_attempt_status, :presence => true
   validates :colony_name, :uniqueness => true, :allow_nil => true
-  # validates :production_centre_name, :presence => true
-  # validates :consortium_name, :presence => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
 
   validates_each :es_cell_name do |record, attr, value|
@@ -118,10 +115,11 @@ class MiAttempt < ActiveRecord::Base
   def set_mi_plan
     if ! self.mi_plan
       if self.consortium_name && self.production_centre_name
-        gene = self.es_cell.gene
-        consortium = Consortium.find_by_name(self.consortium_name)
-        production_centre = Centre.find_by_name(self.production_centre_name)
-        self.mi_plan = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id( gene, consortium, production_centre )
+        self.mi_plan = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id(
+          self.es_cell.gene,
+          Consortium.find_by_name(self.consortium_name),
+          Centre.find_by_name(self.production_centre_name)
+        )
       end
     end
   end
@@ -149,7 +147,7 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def set_default_distribution_centre
-    self.distribution_centre ||= self.mi_plan.production_centre
+    self.distribution_centre ||= Centre.find_by_name(self.production_centre_name)
   end
 
   def set_blank_qc_fields_to_na
@@ -189,6 +187,30 @@ class MiAttempt < ActiveRecord::Base
   ##
 
   public
+
+  def consortium_name
+    if self.mi_plan
+      return self.mi_plan.consortium_name
+    else
+      return @consortium_name
+    end
+  end
+
+  def consortium_name=(arg)
+    @consortium_name = arg unless self.mi_plan
+  end
+
+  def production_centre_name
+    if self.mi_plan
+      return self.mi_plan.production_centre_name
+    else
+      return @production_centre_name
+    end
+  end
+
+  def production_centre_name=(arg)
+    @production_centre_name = arg unless self.mi_plan
+  end
 
   def es_cell_name
     if(self.es_cell)
@@ -320,8 +342,7 @@ class MiAttempt < ActiveRecord::Base
     ] + QC_FIELDS.map{|i| "#{i}_result"}
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
       'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
-      'production_centre_id', 'distribution_centre_id', 'deposited_material_id',
-      'consortium_id'
+      'distribution_centre_id', 'deposited_material_id'
     ]
     return options
   end

@@ -1,4 +1,5 @@
 Ext.namespace('Kermits2');
+Ext.namespace('Imits');
 
 (function () {
     // Inspired by http://zetafleet.com/blog/javascript-dateparse-for-iso-8601

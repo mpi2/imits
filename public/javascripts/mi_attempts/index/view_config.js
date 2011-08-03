@@ -1,5 +1,5 @@
 (function() {
-    Kermits2.MiAttempts.Index.VIEW_CONFIG = {
+    Imits.MI_ATTEMPTS_VIEW_CONFIG = {
         'transfer_details': [
         'blast_strain_id',
         'total_blasts_injected',
@@ -77,10 +77,10 @@
 
     var everythingView = [].concat(commonColumns);
 
-    for(var i in Kermits2.MiAttempts.Index.VIEW_CONFIG) {
-        everythingView = everythingView.concat(Kermits2.MiAttempts.Index.VIEW_CONFIG[i]);
-        Kermits2.MiAttempts.Index.VIEW_CONFIG[i] = commonColumns.concat(Kermits2.MiAttempts.Index.VIEW_CONFIG[i]);
+    for(var i in Imits.MI_ATTEMPTS_VIEW_CONFIG) {
+        everythingView = everythingView.concat(Imits.MI_ATTEMPTS_VIEW_CONFIG[i]);
+        Imits.MI_ATTEMPTS_VIEW_CONFIG[i] = commonColumns.concat(Imits.MI_ATTEMPTS_VIEW_CONFIG[i]);
     }
 
-    Kermits2.MiAttempts.Index.VIEW_CONFIG['everything'] = everythingView;
+    Imits.MI_ATTEMPTS_VIEW_CONFIG['everything'] = everythingView;
 })();

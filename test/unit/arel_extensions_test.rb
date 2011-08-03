@@ -4,11 +4,18 @@ require 'test_helper'
 
 class ArelExtensionsTest < ActiveSupport::TestCase
   context 'Arel extension' do
-    context 'case_insensitive_eq' do
+
+    context 'ci_in' do
       should 'work' do
-        p = Test::Person.create!(:name => 'Fred')
-        assert_equal p, Test::Person.where(Test::Person.arel_table[:name].ci_eq('fred')).first
+        Test::Person.create!(:name => 'Ali')
+        Test::Person.create!(:name => 'Fred')
+        Test::Person.create!(:name => 'Bob')
+
+        assert_equal ['Ali', 'Bob'],
+                Test::Person.where(Test::Person.arel_table[:name].ci_in(['ali', 'bob'])).map(&:name)
+
       end
     end
+
   end
 end

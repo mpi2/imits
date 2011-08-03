@@ -3,27 +3,24 @@ module Arel
   module Visitors
     class ToSql
 
-      def visit_Arel_Nodes_CaseInsensitiveEquality(o)
-        right = o.right
-
-        if right.nil?
-          "#{visit o.left} IS NULL"
-        else
-          "UPPER(#{visit o.left}) = UPPER(#{visit right})"
-        end
+      def visit_Arel_Nodes_CaseInsensitiveIn(o)
+        "UPPER(#{visit o.left}) IN (#{visit o.right})"
       end
-
     end
   end
 
   module Nodes
-    class CaseInsensitiveEquality < Arel::Nodes::Equality
-    end
+    class CaseInsensitiveIn < Arel::Nodes::In; end
   end
 
   module Predications
-    def ci_eq(other)
-      Nodes::CaseInsensitiveEquality.new self, other
+    def ci_in(other)
+      if other.kind_of? Array
+        upcased_other = other.map {|i| i.try(:upcase)}
+        Nodes::CaseInsensitiveIn.new(self, upcased_other)
+      else
+        raise "Unsupported operand for ci_in (#{other.class.name})"
+      end
     end
   end
 

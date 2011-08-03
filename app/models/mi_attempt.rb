@@ -117,8 +117,8 @@ class MiAttempt < ActiveRecord::Base
       if self.consortium_name && self.production_centre_name
         self.mi_plan = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id(
           self.es_cell.gene,
-          Consortium.find_by_name(self.consortium_name),
-          Centre.find_by_name(self.production_centre_name)
+          Consortium.find_by_name!(self.consortium_name),
+          Centre.find_by_name!(self.production_centre_name)
         )
       end
     end

@@ -14,11 +14,11 @@
           %>
         </td>
         <td>
-          <%= label_tag( 'pipeline_id[]', "Pipeline:" ) %>
+          <%= label_tag( 'consortium_id[]', "Consortium:" ) %>
           <%=
             select_tag(
-              'pipeline_id[]',
-              options_from_collection_for_select( Pipeline.order("name").all, :id, :name, params[:pipeline_id] ),
+              'consortium_id[]',
+              options_from_collection_for_select( Consortium.order("name").all, :id, :name, params[:consortium_id] ),
               { :include_blank => true, :multiple => true, :size => 5 }
             )
           %>
@@ -35,7 +35,7 @@
       <%=
         select_tag(
           :grouping,
-          options_for_select( [['Pipeline'], ['Production Centre']], params[:grouping] ),
+          options_for_select( [['Consortium'], ['Production Centre']], params[:grouping] ),
           { :include_blank => true }
         )
       %>

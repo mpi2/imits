@@ -41,7 +41,7 @@ class MiAttempt < ActiveRecord::Base
   PRIVATE_ATTRIBUTES = [
     'created_at', 'updated_at', 'updated_by', 'updated_by_id',
     'es_cell', 'es_cell_id',
-    'mi_attempt_status', 'mi_attempt_status_id'
+    'mi_attempt_status', 'mi_attempt_status_id', 'mi_plan_id'
   ]
 
   attr_protected *PRIVATE_ATTRIBUTES
@@ -50,10 +50,9 @@ class MiAttempt < ActiveRecord::Base
   ## Associations
   ##
 
-  belongs_to :consortium
+  belongs_to :mi_plan
   belongs_to :es_cell
   belongs_to :mi_attempt_status
-  belongs_to :production_centre, :class_name => 'Centre'
   belongs_to :distribution_centre, :class_name => 'Centre'
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
@@ -61,8 +60,6 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
   belongs_to :deposited_material
 
-  access_association_by_attribute :consortium, :name
-  access_association_by_attribute :production_centre, :name
   access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :colony_background_strain, :name
@@ -74,15 +71,19 @@ class MiAttempt < ActiveRecord::Base
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
 
+  delegate :consortium_name, :to => :mi_plan
+  delegate :production_centre_name, :production_centre_name=, :production_centre_id, :to => :mi_plan
+
   ##
   ## Validations
   ##
 
-  validates :consortium_name, :presence => true
+  validates :mi_plan, :associated => true
   validates :es_cell_name, :presence => true
   validates :mi_attempt_status, :presence => true
   validates :colony_name, :uniqueness => true, :allow_nil => true
-  validates :production_centre_name, :presence => true
+  # validates :production_centre_name, :presence => true
+  # validates :consortium_name, :presence => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
 
   validates_each :es_cell_name do |record, attr, value|
@@ -98,10 +99,11 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_blank_strings_to_nil
   before_validation :set_default_status
   before_validation :set_total_chimeras
-  before_validation :set_es_cell_from_es_cell_name
-  before_validation :set_default_distribution_centre
   before_validation :set_default_deposited_material
   before_validation :set_blank_qc_fields_to_na
+  before_validation :set_es_cell_from_es_cell_name
+  before_validation :set_mi_plan
+  before_validation :set_default_distribution_centre
 
   before_save :generate_colony_name_if_blank
   before_save :change_status
@@ -112,6 +114,17 @@ class MiAttempt < ActiveRecord::Base
   ##
 
   protected
+
+  def set_mi_plan
+    if ! self.mi_plan
+      if self.consortium_name && self.production_centre_name
+        gene = self.es_cell.gene
+        consortium = Consortium.find_by_name!(self.consortium_name)
+        production_centre = Centre.find_by_name!(self.production_centre_name)
+        self.mi_plan = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id( gene, consortium, production_centre )
+      end
+    end
+  end
 
   def set_default_status
     self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
@@ -136,7 +149,7 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def set_default_distribution_centre
-    self.distribution_centre ||= self.production_centre
+    self.distribution_centre ||= self.mi_plan.production_centre
   end
 
   def set_blank_qc_fields_to_na
@@ -316,7 +329,7 @@ class MiAttempt < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110727110911
+# Schema version: 20110802094958
 #
 # Table name: mi_attempts
 #
@@ -325,7 +338,6 @@ end
 #  mi_date                                         :date
 #  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :string(125)
-#  production_centre_id                            :integer         not null
 #  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer
 #  deposited_material_id                           :integer         not null
@@ -377,7 +389,7 @@ end
 #  comments                                        :text
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
-#  consortium_id                                   :integer         not null
+#  mi_plan_id                                      :integer         not null
 #
 # Indexes
 #

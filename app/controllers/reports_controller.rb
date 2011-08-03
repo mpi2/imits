@@ -106,28 +106,24 @@ class ReportsController < ApplicationController
     end
   end
 
-  def planned_microinjections
-    report_column_order_and_names = {
-      'consortium.name'       => 'Consortium',
-      'gene.marker_symbol'    => 'Marker Symbol',
-      'gene.mgi_accession_id' => 'MGI Accession ID',
-      'mi_plan_priority.name' => 'Priority',
-      'mi_plan_status.name'   => 'Status'
-    }
+  def planned_microinjection_list
+    unless params[:commit].blank?
+      @report = generate_planned_mi_list_report( params )
+      @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
 
-    all_mi_plans = MiPlan.report_table(
-      :all,
-      :only => [],
-      :include => {
-        :consortium       => { :only => [ :name ] },
-        :gene             => { :only => [ :marker_symbol, :mgi_accession_id ] },
-        :mi_plan_priority => { :only => [ :name ] },
-        :mi_plan_status   => { :only => [ :name ] }
-      }
-    )
+      if request.format == :csv
+        send_data(
+          @report.to_csv,
+          :type     => 'text/csv; charset=utf-8; header=present',
+          :filename => 'planned_microinjection_list.csv'
+        )
+      end
 
-    all_mi_plans.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
-    all_mi_plans.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
+    end
+  end
+
+  def planned_microinjection_summary_and_conflicts
+    all_mi_plans = generate_planned_mi_list_report( nil )
 
     @summary = Table([ 'Status', 'Consortium', '# High Priority', '# Medium Priority', '# Low Priority' ])
 
@@ -152,9 +148,42 @@ class ReportsController < ApplicationController
 
     @conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Conflict' }
     @conflict_report.remove_columns(['Status'])
+
+    if request.format == :csv
+      response.headers['Content-Type'] = 'text/csv'
+      response.headers['Content-Disposition'] = 'attachment; filename=planned_microinjections.csv'
+    end
   end
 
   protected
+
+  def generate_planned_mi_list_report( params )
+    report_column_order_and_names = {
+      'consortium.name'         => 'Consortium',
+      'production_centre.name'  => 'Production Centre',
+      'gene.marker_symbol'      => 'Marker Symbol',
+      'gene.mgi_accession_id'   => 'MGI Accession ID',
+      'mi_plan_priority.name'   => 'Priority',
+      'mi_plan_status.name'     => 'Status'
+    }
+
+    all_mi_plans = MiPlan.report_table(
+      :all,
+      :only => [],
+      :include => {
+        :consortium         => { :only => [ :name ] },
+        :production_centre  => { :only => [ :name ] },
+        :gene               => { :only => [ :marker_symbol, :mgi_accession_id ] },
+        :mi_plan_priority   => { :only => [ :name ] },
+        :mi_plan_status     => { :only => [ :name ] }
+      }
+    )
+
+    all_mi_plans.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
+    all_mi_plans.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
+
+    return all_mi_plans
+  end
 
   def generate_mi_list_report( params )
     report_column_order_and_names = {

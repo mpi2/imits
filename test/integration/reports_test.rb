@@ -76,17 +76,17 @@ class ReportsTest < ActionDispatch::IntegrationTest
         click_button 'Generate Report'
       end
 
-      should 'allow users to get planned_microinjections reports' do
+      should 'allow users to get planned_microinjection_summary_and_conflicts reports' do
         5.times { Factory.create :mi_plan }
 
         visit '/reports'
-        click_link 'Planned Micro-injections and Conflicts'
+        click_link 'Planned Micro-injection Summary and Conflicts'
 
-        assert_match '/reports/planned_microinjections', current_url
+        assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url
         assert page.has_css?('.report table')
 
         click_link 'download this report as csv'
-        assert_match '/reports/planned_microinjections', current_url
+        assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url
       end
     end
   end

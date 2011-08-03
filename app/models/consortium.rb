@@ -8,7 +8,7 @@ class Consortium < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110727110911
+# Schema version: 20110802094958
 #
 # Table name: consortia
 #

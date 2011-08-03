@@ -33,15 +33,18 @@ end
 
 Factory.define :mi_plan do |mi_plan|
   mi_plan.association(:gene)
-  mi_plan.association(:consortium)
+  mi_plan.consortium       { Consortium.find_by_name!('EUCOMM-EUMODIC') }
   mi_plan.mi_plan_status   { MiPlanStatus.find_by_name! 'Interest' }
   mi_plan.mi_plan_priority { MiPlanPriority.find_by_name! 'High' }
 end
 
+Factory.define :mi_plan_with_production_centre, :parent => :mi_plan do |mi_plan|
+  mi_plan.production_centre_id { Centre.find_by_name! 'WTSI' }
+end
+
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :es_cell
-  mi_attempt.production_centre { Centre.find_by_name('WTSI') }
-  mi_attempt.consortium { Consortium.find_by_name('EUCOMM-EUMODIC') }
+  mi_attempt.association :mi_plan, :factory => :mi_plan_with_production_centre
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|
@@ -57,7 +60,6 @@ end
 Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.blast_strain { Strain::BlastStrain.all.sample }
   mi_attempt.test_cross_strain { Strain::TestCrossStrain.all.sample }
-  mi_attempt.production_centre { Centre.all.sample }
   mi_attempt.distribution_centre { Centre.all.sample }
   mi_attempt.colony_background_strain { Strain::ColonyBackgroundStrain.all.sample }
   mi_attempt.colony_name { (1..4).to_a.map { ('A'..'Z').to_a.sample }.join }
@@ -102,24 +104,33 @@ end
 
 Factory.define :es_cell_EPD0127_4_E01, :parent => :es_cell_EPD0127_4_E01_without_mi_attempts do |es_cell|
   es_cell.after_create do |es_cell|
-    Factory.create(:mi_attempt,
+    mi_plan = Factory.create(:mi_plan,
+      :gene => Gene.find_by_marker_symbol!('Trafd1'),
+      :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
+      :production_centre => Centre.find_by_name!('ICS')
+    )
+
+    mi1 = Factory.create(:mi_attempt,
       :es_cell => es_cell,
       :colony_name => 'MBSS',
       :distribution_centre => Centre.find_by_name!('ICS'),
-      :production_centre => Centre.find_by_name!('ICS'),
-      :is_suitable_for_emma => true)
+      :is_suitable_for_emma => true,
+      :mi_plan => mi_plan
+    )
 
-    Factory.create(:mi_attempt,
+    mi2 = Factory.create(:mi_attempt,
       :es_cell => es_cell,
       :distribution_centre => Centre.find_by_name!('ICS'),
-      :production_centre => Centre.find_by_name!('ICS'),
-      :emma_status => 'unsuitable_sticky')
+      :emma_status => 'unsuitable_sticky',
+      :mi_plan => mi_plan
+    )
 
-    Factory.create(:mi_attempt,
+    mi3 = Factory.create(:mi_attempt,
       :es_cell => es_cell,
       :colony_name => 'WBAA',
       :distribution_centre => Centre.find_by_name!('ICS'),
-      :production_centre => Centre.find_by_name!('ICS'))
+      :mi_plan => mi_plan
+    )
   end
 end
 
@@ -132,12 +143,19 @@ end
 
 Factory.define :es_cell_EPD0343_1_H06, :parent => :es_cell_EPD0343_1_H06_without_mi_attempts do |es_cell|
   es_cell.after_create do |es_cell|
-    Factory.create(:mi_attempt,
+    mi_plan = Factory.create(:mi_plan,
+      :gene => Gene.find_by_marker_symbol!('Myo1c'),
+      :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
+      :production_centre => Centre.find_by_name!('WTSI')
+    )
+
+    mi_attempt = Factory.create(:mi_attempt,
       :es_cell => es_cell,
       :colony_name => 'MDCF',
       :distribution_centre => Centre.find_by_name!('WTSI'),
-      :production_centre => Centre.find_by_name!('WTSI'),
-      :mi_date => Date.parse('2010-09-13'))
+      :mi_date => Date.parse('2010-09-13'),
+      :mi_plan => mi_plan
+    )
   end
 end
 
@@ -148,10 +166,17 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   es_cell.pipeline { Pipeline.find_by_name! 'KOMP-CSD' }
 
   es_cell.after_create do |es_cell|
-    Factory.create(:mi_attempt,
+    mi_plan = Factory.create(:mi_plan,
+      :gene => Gene.find_by_marker_symbol!('Gatc'),
+      :consortium => Consortium.find_by_name!('MGP'),
+      :production_centre => Centre.find_by_name!('WTSI')
+    )
+
+    mi_attempt = Factory.create(:mi_attempt,
       :es_cell => es_cell,
       :colony_name => 'MBFD',
       :distribution_centre => Centre.find_by_name!('WTSI'),
-      :production_centre => Centre.find_by_name!('WTSI'))
+      :mi_plan => mi_plan
+    )
   end
 end

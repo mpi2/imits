@@ -98,13 +98,20 @@ a.button:hover {
   background-color: #f78b83;
 }
 
-a.csv_download {
-  background-image: url('../images/icons/page_excel.png');
+a.csv_download, a.back {
   background-position: 4px center;
   background-repeat: no-repeat;
   padding-top: 5px;
   padding-bottom: 5px;
   padding-left: 24px;
+}
+
+a.csv_download {
+  background-image: url('../images/icons/page_excel.png');
+}
+
+a.back {
+  background-image: url('../images/icons/control_rewind.png');
 }
 
 /* @end */

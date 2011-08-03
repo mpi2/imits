@@ -4,11 +4,18 @@ class MiPlan < ActiveRecord::Base
   acts_as_audited
   acts_as_reportable
 
+  extend AccessAssociationByAttribute
+
   belongs_to :gene
   belongs_to :consortium
   belongs_to :mi_plan_status
   belongs_to :mi_plan_priority
   belongs_to :production_centre, :class_name => 'Centre'
+
+  has_many :mi_attempts
+
+  access_association_by_attribute :consortium, :name
+  access_association_by_attribute :production_centre, :name
 
   validates :gene, :presence => true
   validates :consortium, :presence => true
@@ -55,7 +62,7 @@ class MiPlan < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110727110911
+# Schema version: 20110802094958
 #
 # Table name: mi_plans
 #

@@ -1,7 +1,11 @@
-<div class="grid_12">
-  <h2>History of Changes for Micro-Injection Attempt <%= @mi_attempt.id %></h2>
+<% @title = "History of Changes for Micro-Injection Attempt #{@mi_attempt.id}" %>
 
-  <%= link_to "back to micro-injection attempt page", mi_attempt_path(@mi_attempt), { :class => 'button back' } %>
+<div class="grid_12">
+  <h2><%= @title %></h2>
+
+  <div style="margin-bottom:10px">
+    <%= link_to "back to the micro-injection attempt page", mi_attempt_path(@mi_attempt), { :class => 'button back' } %>
+  </div>
 
   <div class="report">
     <table>
@@ -9,6 +13,7 @@
         <tr>
           <th>Version</th>
           <th>Date</th>
+          <th>User</th>
           <th colspan="2">Changes</th>
         </tr>
       </thead>
@@ -17,13 +22,25 @@
           <tr>
             <td><%= revision.version %></td>
             <td><%= revision.created_at.to_s(:long) %></td>
+            <td>
+              <% if revision.user %>
+                <%= revision.user.try(:email) %>
+              <% else %>
+                <% if revision.audited_changes.keys.include?('updated_by_id') %>
+                  <% user = User.find(revision.audited_changes['updated_by_id']) %>
+                  <% if user %>
+                    <%= user.try(:email) %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </td>
             <% if revision.action == "create" %>
               <td colspan="2">creation of the object</td>
             <% else %>
-              <td><%= revision.changes.keys.join('<br />') %></td>
+              <td><%= revision.audited_changes.keys.join('<br />').html_safe %></td>
               <td>
-                <% values = revision.changes.values.collect { |val| "'#{val[0] ||= 'null'}' => '#{val[1]}'" } %>
-                <%= values.join('<br />') %>
+                <% values = revision.audited_changes.values.collect { |val| "'#{val[0] ||= 'null'}' => '#{val[1]}'" } %>
+                <%= values.join('<br />').html_safe %>
               </td>
             <% end %>
           </tr>

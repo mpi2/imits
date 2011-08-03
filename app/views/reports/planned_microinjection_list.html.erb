@@ -1,0 +1,16 @@
+<% @title = 'All Planned Micro-Injections' %>
+
+<div class="grid_12">
+  <h2><%= @title %></h2>
+</div>
+
+<%= form_tag( { :controller => :reports, :action => :planned_microinjection_list }, :method => :get, :class => 'report-form' ) do |form| %>
+  <%= render 'report_controls', :grouping => true %>
+<% end %>
+
+<% unless params[:commit].blank? %>
+  <div class="report grid_12">
+    <%=raw @report.to_html %>
+  </div>
+<% end %>
+

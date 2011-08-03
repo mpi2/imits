@@ -8,7 +8,7 @@ module MiAttempt::StatusChanger
       self.mi_attempt_status = MiAttemptStatus.micro_injection_in_progress
     end
 
-    if self.production_centre.name == 'WTSI'
+    if self.production_centre_name == 'WTSI'
       if ! self.is_active?
         self.mi_attempt_status = MiAttemptStatus.micro_injection_aborted
       elsif self.is_released_from_genotyping?

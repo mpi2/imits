@@ -106,6 +106,22 @@ class ReportsController < ApplicationController
     end
   end
 
+  def planned_microinjection_list
+    unless params[:commit].blank?
+      @report = generate_planned_mi_list_report( params )
+      @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
+
+      if request.format == :csv
+        send_data(
+          @report.to_csv,
+          :type     => 'text/csv; charset=utf-8; header=present',
+          :filename => 'planned_microinjection_list.csv'
+        )
+      end
+
+    end
+  end
+
   def planned_microinjection_summary_and_conflicts
     all_mi_plans = generate_planned_mi_list_report( nil )
 
@@ -143,21 +159,23 @@ class ReportsController < ApplicationController
 
   def generate_planned_mi_list_report( params )
     report_column_order_and_names = {
-      'consortium.name'       => 'Consortium',
-      'gene.marker_symbol'    => 'Marker Symbol',
-      'gene.mgi_accession_id' => 'MGI Accession ID',
-      'mi_plan_priority.name' => 'Priority',
-      'mi_plan_status.name'   => 'Status'
+      'consortium.name'         => 'Consortium',
+      'production_centre.name'  => 'Production Centre',
+      'gene.marker_symbol'      => 'Marker Symbol',
+      'gene.mgi_accession_id'   => 'MGI Accession ID',
+      'mi_plan_priority.name'   => 'Priority',
+      'mi_plan_status.name'     => 'Status'
     }
 
     all_mi_plans = MiPlan.report_table(
       :all,
       :only => [],
       :include => {
-        :consortium       => { :only => [ :name ] },
-        :gene             => { :only => [ :marker_symbol, :mgi_accession_id ] },
-        :mi_plan_priority => { :only => [ :name ] },
-        :mi_plan_status   => { :only => [ :name ] }
+        :consortium         => { :only => [ :name ] },
+        :production_centre  => { :only => [ :name ] },
+        :gene               => { :only => [ :marker_symbol, :mgi_accession_id ] },
+        :mi_plan_priority   => { :only => [ :name ] },
+        :mi_plan_status     => { :only => [ :name ] }
       }
     )
 

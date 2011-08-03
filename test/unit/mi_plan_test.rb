@@ -16,6 +16,14 @@ class MiPlanTest < ActiveSupport::TestCase
       should belong_to :mi_plan_status
       should belong_to :mi_plan_priority
 
+      should have_db_column(:gene_id).with_options(:null => false)
+      should have_db_column(:consortium_id).with_options(:null => false)
+      should have_db_column(:production_centre_id)
+      should have_db_column(:mi_plan_status_id).with_options(:null => false)
+      should have_db_column(:mi_plan_priority_id).with_options(:null => false)
+
+      should have_many :mi_attempts
+
       should validate_presence_of :gene
       should validate_presence_of :consortium
       should validate_presence_of :mi_plan_status

@@ -10,6 +10,9 @@
       <%= link_to 'Planned Micro-injection Summary and Conflicts', url_for(:controller => :reports, :action => :planned_microinjection_summary_and_conflicts) %>
       <%= link_to '', url_for( :controller => :reports, :action => :planned_microinjection_summary_and_conflicts, :format => :csv ), { :class => 'csv_download' } %>
     </li>
+    <li>
+      <%= link_to 'All Planned Micro-Injections', url_for(:controller => :reports, :action => :planned_microinjection_list) %>
+    </li>
   </ul>
 
   <div class="clear" style="margin-top:15px"></div>

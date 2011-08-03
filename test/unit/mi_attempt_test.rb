@@ -25,18 +25,13 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context 'centres tests:' do
         should 'exist' do
-          assert_should have_db_column(:production_centre_id).with_options(:null => false)
-          assert_should belong_to(:production_centre)
-
           assert_should have_db_column(:distribution_centre_id)
           assert_should belong_to(:distribution_centre)
         end
 
-        should 'not output production_centre_id in serialization' do
+        should 'not output private attributes in serialization' do
+          assert_equal false, default_mi_attempt.as_json.include?('mi_plan_id')
           assert_equal false, default_mi_attempt.as_json.include?('production_centre_id')
-        end
-
-        should 'not output distribution_centre_id in serialization' do
           assert_equal false, default_mi_attempt.as_json.include?('distribution_centre_id')
         end
 
@@ -633,22 +628,30 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'search by terms and filter by production centre' do
-        mi = Factory.create(:mi_attempt, :es_cell => @es_cell1,
-          :production_centre => Centre.find_by_name!('ICS'))
-        results = MiAttempt.search(:search_terms => ['myo1c'],
-          :production_centre_id => Centre.find_by_name!('ICS').id)
+        mi = Factory.create(:mi_attempt,
+          :es_cell => @es_cell1,
+          :mi_plan => Factory.create(:mi_plan, :gene => @es_cell1.gene, :production_centre => Centre.find_by_name!('ICS'))
+        )
+
+        results = MiAttempt.search(:search_terms => ['myo1c'], :production_centre_name => 'ICS')
+
+        results.each do |r|
+          puts "------------"
+          puts "------------"
+          ap r.mi_plan
+          puts "------------"
+          puts "------------"
+        end
+
         assert_equal 1, results.size
         assert_equal mi.id, results.first.id
       end
 
       should 'filter by status' do
-        mi1 = Factory.create(:mi_attempt, :es_cell => @es_cell1,
-          :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
-        mi2 = Factory.create(:mi_attempt, :es_cell => @es_cell1,
-          :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+        mi1 = Factory.create(:mi_attempt, :es_cell => @es_cell1, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+        mi2 = Factory.create(:mi_attempt, :es_cell => @es_cell1, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
 
-        results = MiAttempt.search(
-          :mi_attempt_status_id => MiAttemptStatus.genotype_confirmed)
+        results = MiAttempt.search(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed)
         assert_equal 2, results.size
         assert_include results, mi1
         assert_include results, mi2
@@ -658,13 +661,15 @@ class MiAttemptTest < ActiveSupport::TestCase
         production_centre = Centre.find_by_name!('WTSI')
         status = MiAttemptStatus.create!(:description => 'Nonsense')
 
-        mi = Factory.create(:mi_attempt, :es_cell => @es_cell2,
-          :mi_attempt_status => status,
-          :production_centre => production_centre)
+        mi = Factory.create(:mi_attempt, :es_cell => @es_cell2, :mi_attempt_status => status)
+        mi.mi_plan.production_centre = production_centre
+        mi.mi_plan.save!
 
-        results = MiAttempt.search(:terms => [@es_cell2.marker_symbol],
+        results = MiAttempt.search(
+          :terms => [@es_cell2.marker_symbol], 
           :mi_attempt_status_id => status.id,
-          :production_centre_id => production_centre.id)
+          :production_centre_name => production_centre.name
+        )
         assert_include results, mi
         assert_equal 1, results.size
       end
@@ -741,7 +746,8 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'validate when es_cell_name is not a valid es_cell in the marts' do
-        mi_attempt = MiAttempt.new(:es_cell_name => 'EPD0127_4_G01', :production_centre => Centre.first)
+        mi_plan = Factory.create(:mi_plan, :production_centre => Centre.first)
+        mi_attempt = MiAttempt.new(:es_cell_name => 'EPD0127_4_G01', :mi_plan => mi_plan)
         assert_false mi_attempt.valid?
         assert ! mi_attempt.errors[:es_cell_name].blank?
       end

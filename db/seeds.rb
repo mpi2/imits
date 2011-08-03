@@ -71,5 +71,9 @@ end
   'Medium' => 'Estimated injection in the next 5-8 months',
   'Low'    => 'Estimated injection in the next 9-12 months'
 }.each do |priority, description|
-  MiPlanPriority.find_or_create_by_name(:name => priority, :description => description)
+  mi_plan_priority = MiPlanPriority.find_or_create_by_name(:name => priority)
+  if mi_plan_priority.description.blank?
+    mi_plan_priority.description = description
+    mi_plan_priority.save!
+  end
 end

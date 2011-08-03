@@ -1,8 +1,7 @@
 # encoding: utf-8
 
 module AccessAssociationByAttribute
-  # Some behaviour may be undefined if the attribute of the association can be
-  # blank
+  # Some behaviour may be undefined if the attribute of the association can be blank
   def access_association_by_attribute(association_name, attribute, options = {})
     options.symbolize_keys!
 
@@ -52,7 +51,7 @@ module AccessAssociationByAttribute
       return true
     end
 
-    before_validation "#{virtual_attribute}_before_save"
+    before_save "#{virtual_attribute}_before_save"
 
   end
 end

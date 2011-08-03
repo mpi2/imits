@@ -51,7 +51,7 @@ module AccessAssociationByAttribute
       return true
     end
 
-    before_save "#{virtual_attribute}_before_save"
+    before_validation "#{virtual_attribute}_before_save"
 
   end
 end

@@ -31,7 +31,7 @@ class MiAttemptsController < ApplicationController
 
   def data_for_serialized
     params.delete(:per_page) if params[:per_page].blank? or params[:per_page].to_i == 0
-    MiAttempt.metasearch(cleaned_params).paginate(:page => params[:page], :per_page => params[:per_page] || 20)
+    MiAttempt.search(cleaned_params).result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
   end
   private :data_for_serialized
 

@@ -19,14 +19,14 @@ class MiAttemptsControllerTest < ActionController::TestCase
         end
 
         should 'work in XML format' do
-          get :index, :colony_name_contains => 'MBS', :format => :xml
+          get :index, :colony_name_cont => 'MBS', :format => :xml
           doc = parse_xml_from_response
           assert_equal 1, doc.xpath('count(//mi-attempt)')
           assert_equal 'EPD0127_4_E01', doc.css('mi-attempt es-cell-name').text
         end
 
         should 'work in JSON format' do
-          get :index, :colony_name_contains => 'MB', :format => :json
+          get :index, :colony_name_cont => 'MB', :format => :json
           data = parse_json_from_response
           assert_equal 2, data.size
           assert_equal 'MBSS', data.find {|i| i['es_cell_name'] == 'EPD0127_4_E01'}['colony_name']
@@ -103,8 +103,8 @@ class MiAttemptsControllerTest < ActionController::TestCase
         post :create,
                 :mi_attempt => {
                   'es_cell_name' => es_cell.name, 
-                  :production_centre_id => Centre.find_by_name('WTSI').id,
-                  :consortium_id => Consortium.find_by_name('MGP').id
+                  :production_centre_name => 'WTSI',
+                  :consortium_name => 'MGP'
                 },
                 :format => format
 

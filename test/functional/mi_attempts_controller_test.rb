@@ -148,16 +148,16 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_equal mi.id.to_s, doc.css('id').text
       end
 
-      should 'return errors with invalid params for JSON' do
-        post :create, :mi_attempt => {'production_centre_id' => 1}, :format => :json
+      should 'return validation errors for JSON' do
+        post :create, :mi_attempt => {'production_centre_name' => 'WTSI'}, :format => :json
         assert_false response.success?
 
         data = parse_json_from_response
         assert_include data['es_cell_name'], 'cannot be blank'
       end
 
-      should 'return errors with invalid params for XML' do
-        post :create, :mi_attempt => {'production_centre_id' => 1}, :format => :xml
+      should 'return validation errors for XML' do
+        post :create, :mi_attempt => {'production_centre_name' => 'WTSI'}, :format => :xml
         assert_false response.success?
 
         doc = parse_xml_from_response
@@ -165,7 +165,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'set production centre and consortium from params instead of user if specified' do
-        user = Factory.create :user, :production_centre => Centre.find_by_name('ICS')
+        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
         sign_in user
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         post :create,
@@ -174,12 +174,12 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_response :success, response.body
 
         mi_attempt = MiAttempt.first
-        assert_equal 'WTSI', mi_attempt.production_centre.name
-        assert_equal 'MGP', mi_attempt.consortium.name
+        assert_equal 'WTSI', mi_attempt.production_centre_name
+        assert_equal 'MGP', mi_attempt.consortium_name
       end
 
       should 'set production centre to logged in user centre if not specified' do
-        user = Factory.create :user, :production_centre => Centre.find_by_name('ICS')
+        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
         sign_in user
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         post :create,
@@ -188,8 +188,8 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_response :success, response.body
 
         mi_attempt = MiAttempt.first
-        assert_equal 'ICS', mi_attempt.production_centre.name
-        assert_equal 'EUCOMM-EUMODIC', mi_attempt.consortium.name
+        assert_equal 'ICS', mi_attempt.production_centre_name
+        assert_equal 'EUCOMM-EUMODIC', mi_attempt.consortium_name
       end
     end
 
@@ -203,7 +203,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
           mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
 
           put :update, :id => mi_attempt.id,
-                  :mi_attempt => {'production_centre_id' => 1, 'total_blasts_injected' => 1},
+                  :mi_attempt => {'total_blasts_injected' => 1},
                   :format => format
           assert_response :success
 
@@ -213,10 +213,11 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       def bad_update_for_format(format)
-        mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
+        Factory.create :mi_attempt, :colony_name => 'EXISTING COLONY NAME'
+        mi_attempt = Factory.create :mi_attempt
 
         put :update, :id => mi_attempt.id,
-                :mi_attempt => {'production_centre_name' => nil},
+                :mi_attempt => {'colony_name' => 'EXISTING COLONY NAME'},
                 :format => format
         assert_false response.success?
       end
@@ -224,7 +225,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'return errors with invalid params for JSON' do
         bad_update_for_format(:json)
         data = parse_json_from_response
-        assert_include data['production_centre_name'], 'cannot be blank'
+        assert_include data['colony_name'], 'has already been taken'
       end
 
       should 'return errors with invalid params for XML' do

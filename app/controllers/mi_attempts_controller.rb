@@ -46,7 +46,7 @@ class MiAttemptsController < ApplicationController
   def create
     @mi_attempt = MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
-    @mi_attempt.production_centre ||= current_user.production_centre
+    @mi_attempt.production_centre_name ||= current_user.production_centre.name
     if @mi_attempt.save
       flash[:notice] = 'Micro-injection attempt created'
     else

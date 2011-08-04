@@ -414,14 +414,14 @@ class MiAttemptTest < ActiveSupport::TestCase
           mi_plan = Factory.create(:mi_plan,
             :gene => EsCell.find_by_name!('EPD0127_4_E01').gene,
             :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-            :production_centre_name => 'ICS'
+            :production_centre => Centre.find_by_name!('ICS')
           )
           attributes = {
             :mi_plan => mi_plan,
             :es_cell => EsCell.find_by_name!('EPD0127_4_E01'),
             :colony_name => nil
           }
-         mi_attempts = (1..3).to_a.map { Factory.create :mi_attempt, attributes }
+          mi_attempts = (1..3).to_a.map { Factory.create :mi_attempt, attributes }
           mi_attempt_last = Factory.create :mi_attempt, attributes.merge(:colony_name => 'MABC')
 
           assert_equal ['ICS-EPD0127_4_E01-1', 'ICS-EPD0127_4_E01-2', 'ICS-EPD0127_4_E01-3'],
@@ -595,6 +595,124 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'be output in XML serialization' do
         assert_equal 'EPD0127_4_E01', Nokogiri::XML(@mi_attempt.to_xml).css('es-cell-name').text
+      end
+    end
+
+    should 'have #gene' do
+      es_cell = Factory.create :es_cell_EPD0343_1_H06
+      mi = es_cell.mi_attempts.first
+      assert_equal es_cell.gene, mi.gene
+    end
+
+    context '#consortium_name virtual attribute' do
+      context 'when mi_plan exists' do
+        should 'on get return mi_plan consortium name' do
+          assert_equal default_mi_attempt.mi_plan.consortium.name, default_mi_attempt.consortium_name
+        end
+
+        should 'when set on update give validation error' do
+          default_mi_attempt.consortium_name = 'Brand New Consortium'
+          default_mi_attempt.valid?
+          assert_equal ['cannot be modified'], default_mi_attempt.errors['consortium_name']
+        end
+      end
+
+      context 'when mi_plan does not exist' do
+        should 'on get return the assigned consortium_name' do
+          mi = MiAttempt.new :consortium_name => 'Nonexistent Consortium'
+          assert_equal 'Nonexistent Consortium', mi.consortium_name
+        end
+
+        should 'when set to nonexistent consortium and validated give error' do
+          mi = MiAttempt.new :consortium_name => 'Nonexistent Consortium'
+          mi.valid?
+           assert_equal ['does not exist'], mi.errors['consortium_name']
+        end
+
+        should 'when set to a valid consortium and validated should not give error' do
+          mi = MiAttempt.new :consortium_name => 'BASH'
+          mi.valid?
+          assert_blank mi.errors['consortium_name']
+        end
+      end
+    end
+
+    context '#production_centre_name virtual attribute' do
+      context 'when mi_plan exists' do
+        should 'on get return mi_plan production_centre name' do
+          assert_equal default_mi_attempt.mi_plan.production_centre.name, default_mi_attempt.production_centre_name
+        end
+
+        should 'when set on update give validation error' do
+          default_mi_attempt.production_centre_name = 'Brand New Centre'
+          default_mi_attempt.valid?
+          assert_equal ['cannot be modified'], default_mi_attempt.errors['production_centre_name']
+        end
+      end
+
+      context 'when mi_plan does not exist' do
+        should 'on get return the assigned production_centre_name' do
+          mi = MiAttempt.new :production_centre_name => 'Nonexistent Centre'
+          assert_equal 'Nonexistent Centre', mi.production_centre_name
+        end
+
+        should 'when set to nonexistent production_centre and validated give error' do
+          mi = MiAttempt.new :production_centre_name => 'Nonexistent Centre'
+          mi.valid?
+           assert_equal ['does not exist'], mi.errors['production_centre_name']
+        end
+
+        should 'when set to a valid production_centre and validated should not give error' do
+          mi = MiAttempt.new :production_centre_name => 'ICS'
+          mi.valid?
+          assert_blank mi.errors['production_centre_name']
+        end
+      end
+    end
+
+    context '#mi_plan' do
+      should 'have a production centre' do
+        mi_plan = Factory.create(:mi_plan)
+        assert_nil mi_plan.production_centre
+        mi = Factory.build :mi_attempt, :mi_plan => mi_plan
+        mi.valid?
+        assert_equal ['must have a production centre (INTERNAL ERROR)'],
+                mi.errors['mi_plan']
+      end
+
+      should 'on save be assigned to a matching MiPlan' do
+        cbx1 = Factory.create :gene_cbx1
+        mi_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+        assert_equal 1, MiPlan.count
+
+        mi_attempt = Factory.build :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_plan => nil
+        mi_attempt.production_centre_name = mi_plan.production_centre.name
+        mi_attempt.consortium_name = mi_plan.consortium.name
+        mi_attempt.save!
+
+        assert_equal 1, MiPlan.count
+        assert_equal mi_plan, mi_attempt.mi_plan
+      end
+
+      should 'be created on save if none match gene, consortium and production centre' do
+        cbx1 = Factory.create :gene_cbx1
+        assert_equal 0, MiPlan.count
+
+        mi_attempt = Factory.build :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_plan => nil
+        mi_attempt.production_centre_name = 'WTSI'
+        mi_attempt.consortium_name = 'BASH'
+        mi_attempt.save!
+
+        assert_equal 1, MiPlan.count
+        assert_equal 'Cbx1', mi_attempt.mi_plan.gene.marker_symbol
+        assert_equal 'WTSI', mi_attempt.mi_plan.production_centre.name
+        assert_equal 'BASH', mi_attempt.mi_plan.consortium.name
+        assert_equal 'High', mi_attempt.mi_plan.mi_plan_priority.name
+        assert_equal 'Assigned', mi_attempt.mi_plan.mi_plan_status.name
       end
     end
 

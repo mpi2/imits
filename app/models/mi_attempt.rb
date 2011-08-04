@@ -75,7 +75,6 @@ class MiAttempt < ActiveRecord::Base
   ## Validations
   ##
 
-  validates :mi_plan, :associated => true
   validates :es_cell_name, :presence => true
   validates :production_centre_name, :presence => true
   validates :consortium_name, :presence => true
@@ -89,6 +88,28 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
+  validates_each :mi_plan do |mi, attr, value|
+    next unless mi.mi_plan
+    if mi.mi_plan.production_centre.blank?
+      mi.errors.add :mi_plan, 'must have a production centre (INTERNAL ERROR)'
+    end
+  end
+
+  validates_each :consortium_name, :production_centre_name do |mi, attr, value|
+    next if value.blank?
+    association_name = attr.to_s.gsub('_name', '')
+    klass = {:consortium_name => Consortium, :production_centre_name => Centre}[attr]
+
+    if mi.mi_plan and value != mi.mi_plan.send(association_name).name
+      mi.errors.add attr, 'cannot be modified'
+    else
+      associated = klass.find_by_name(value)
+      if associated.blank?
+        mi.errors.add attr, 'does not exist'
+      end
+    end
+  end
+
   ##
   ## Filters
   ##
@@ -99,30 +120,18 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_default_deposited_material
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_es_cell_from_es_cell_name
-  before_validation :set_mi_plan
   before_validation :set_default_distribution_centre
 
   before_save :generate_colony_name_if_blank
   before_save :change_status
   before_save :make_unsuitable_for_emma_if_is_not_active
+  before_save :set_mi_plan
 
   ##
   ## Filter methods
   ##
 
   protected
-
-  def set_mi_plan
-    if ! self.mi_plan
-      if self.consortium_name && self.production_centre_name
-        self.mi_plan = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id(
-          self.es_cell.gene,
-          Consortium.find_by_name!(self.consortium_name),
-          Centre.find_by_name!(self.production_centre_name)
-        )
-      end
-    end
-  end
 
   def set_default_status
     self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
@@ -182,6 +191,25 @@ class MiAttempt < ActiveRecord::Base
     return true
   end
 
+  def set_mi_plan
+    if ! self.mi_plan
+      mi_plan_params = {
+            :gene_id => self.gene.id,
+            :consortium_id => Consortium.find_by_name!(self.consortium_name).id,
+            :production_centre_id => Centre.find_by_name!(self.production_centre_name).id
+      }
+
+      self.mi_plan = MiPlan.where(mi_plan_params).first
+      if ! self.mi_plan
+        create_params = mi_plan_params.merge(
+          :mi_plan_status => MiPlanStatus.find_by_name!('Assigned'),
+          :mi_plan_priority => MiPlanPriority.find_by_name!('High'))
+        self.mi_plan = MiPlan.create!(create_params)
+      end
+
+    end
+  end
+
   ##
   ## Methods
   ##
@@ -189,27 +217,31 @@ class MiAttempt < ActiveRecord::Base
   public
 
   def consortium_name
-    if self.mi_plan
-      return self.mi_plan.consortium_name
-    else
+    if ! @consortium_name.blank?
       return @consortium_name
+    else
+      if self.mi_plan
+        @consortium_name = self.mi_plan.consortium.name
+      end
     end
   end
 
   def consortium_name=(arg)
-    @consortium_name = arg unless self.mi_plan
+    @consortium_name = arg
   end
 
   def production_centre_name
-    if self.mi_plan
-      return self.mi_plan.production_centre_name
-    else
+    if ! @production_centre_name.blank?
       return @production_centre_name
+    else
+      if self.mi_plan
+        @production_centre_name = self.mi_plan.production_centre.try(:name)
+      end
     end
   end
 
   def production_centre_name=(arg)
-    @production_centre_name = arg unless self.mi_plan
+    @production_centre_name = arg
   end
 
   def es_cell_name
@@ -279,6 +311,8 @@ class MiAttempt < ActiveRecord::Base
       return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
     end
   end
+
+  delegate :gene, :to => :es_cell
 
   def as_json(options = {})
     super(default_serializer_options(options))

@@ -200,7 +200,9 @@ class MiAttempt < ActiveRecord::Base
       }
 
       self.mi_plan = MiPlan.where(mi_plan_params).first
-      if ! self.mi_plan
+      if self.mi_plan
+        self.mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus.find_by_name!('Assigned'))
+      else
         create_params = mi_plan_params.merge(
           :mi_plan_status => MiPlanStatus.find_by_name!('Assigned'),
           :mi_plan_priority => MiPlanPriority.find_by_name!('High'))

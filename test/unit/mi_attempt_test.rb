@@ -682,7 +682,8 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'on save be assigned to a matching MiPlan' do
         cbx1 = Factory.create :gene_cbx1
-        mi_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+        mi_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1,
+                :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
         assert_equal 1, MiPlan.count
 
         mi_attempt = Factory.build :mi_attempt,
@@ -694,6 +695,26 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         assert_equal 1, MiPlan.count
         assert_equal mi_plan, mi_attempt.mi_plan
+      end
+
+      should 'on save, when assigning a matching MiPlan, set its status to Assigned if it is otherwise' do
+        cbx1 = Factory.create :gene_cbx1
+        mi_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1,
+                :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+        assert_equal 1, MiPlan.count
+
+        mi_attempt = Factory.build :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_plan => nil
+        mi_attempt.production_centre_name = mi_plan.production_centre.name
+        mi_attempt.consortium_name = mi_plan.consortium.name
+        mi_attempt.save!
+
+        assert_equal 1, MiPlan.count
+        mi_plan.reload
+
+        assert_equal mi_plan, mi_attempt.mi_plan
+        assert_equal 'Assigned', mi_plan.mi_plan_status.name
       end
 
       should 'be created on save if none match gene, consortium and production centre' do

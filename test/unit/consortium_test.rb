@@ -5,7 +5,7 @@ class ConsortiumTest < ActiveSupport::TestCase
     context '(misc. tests)' do
       should validate_presence_of :name
       should validate_uniqueness_of :name
-      should have_many :mi_attempts
+      should have_many :mi_plans
     end
   end
 end

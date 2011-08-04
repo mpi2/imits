@@ -4,7 +4,7 @@ class Consortium < ActiveRecord::Base
   validates :name, :presence => true, :uniqueness => true
 
   has_many :users
-  has_many :mi_attempts
+  has_many :mi_plans
 end
 
 # == Schema Information

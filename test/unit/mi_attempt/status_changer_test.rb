@@ -8,7 +8,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
     context 'when production centre is WTSI' do
       setup do
         @mi_attempt = Factory.build :mi_attempt,
-                :production_centre => Centre.find_by_name('WTSI'),
+                :mi_plan => Factory.create(:mi_plan, :production_centre => Centre.find_by_name('WTSI')),
                 :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress
       end
 
@@ -28,7 +28,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
     context 'when production centre is not WTSI' do
       setup do
         @mi_attempt = Factory.build :mi_attempt,
-                :production_centre => Centre.find_by_name('ICS'),
+                :mi_plan => Factory.create(:mi_plan, :production_centre => Centre.find_by_name('ICS')),
                 :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress
       end
 
@@ -70,7 +70,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
     should 'be invoked as a before_save filter' do
       es_cell = Factory.create :es_cell_EPD0343_1_H06
       mi_attempt = es_cell.mi_attempts.first
-      assert_equal 'WTSI', mi_attempt.production_centre.name
+      assert_equal 'WTSI', mi_attempt.production_centre_name
       assert_equal MiAttemptStatus.micro_injection_in_progress, mi_attempt.mi_attempt_status
       mi_attempt.is_released_from_genotyping = true
       mi_attempt.save!
@@ -83,7 +83,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         context 'when production centre is WTSI' do
           should 'set status to aborted, even if is_released_from_gentotyping is true' do
             mi = Factory.create :mi_attempt,
-                    :production_centre => Centre.find_by_name!('WTSI'),
+                    :mi_plan => Factory.create(:mi_plan, :production_centre => Centre.find_by_name!('WTSI')),
                     :is_released_from_genotyping => true
             mi.is_active = false
             mi.save!
@@ -95,7 +95,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         context 'when production centre is not WTSI' do
           should 'set status to aborted, even if genotype confirmed conditions are met' do
             mi = Factory.create :mi_attempt,
-                    :production_centre => Centre.find_by_name!('ICS'),
+                    :mi_plan => Factory.create(:mi_plan, :production_centre => Centre.find_by_name!('ICS')),
                     :number_of_het_offspring => 1
             mi.is_active = false
             mi.save!
@@ -108,7 +108,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
       context 'when was false (and status was aborted) and is set to true' do
         should 'set status to in progress' do
           mi = Factory.create :mi_attempt,
-                  :production_centre => Centre.find_by_name!('ICS')
+                  :mi_plan => Factory.create(:mi_plan, :production_centre => Centre.find_by_name!('ICS'))
           mi.is_active = false
           mi.save!
 
@@ -120,7 +120,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
 
         should 're-evaluate status based on rules and set to confirmed' do
           mi = Factory.create :mi_attempt,
-                  :production_centre => Centre.find_by_name!('WTSI'),
+                  :mi_plan => Factory.create(:mi_plan, :production_centre => Centre.find_by_name!('WTSI')),
                   :is_released_from_genotyping => true
           mi.is_active = false
           mi.save!

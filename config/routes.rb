@@ -13,8 +13,7 @@ Kermits2::Application.routes.draw do
     put '/users', :to => 'devise/registrations#update', :as => :user_registration
   end
 
-  resources :centres, :only => [:show, :index]
-  resources :es_cells, :only => [:show, :index] do
+  resources :es_cells, :only => [] do
     collection do
       get 'mart_search'
     end

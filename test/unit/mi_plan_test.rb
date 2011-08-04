@@ -55,27 +55,6 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
-    context '#consortium' do
-      should_eventually 'not output ids in serialization' do
-        data = MiPlan.first.as_json
-        assert_false data.keys.include?('consortium_id')
-      end
-
-      should 'allow access to the consortium via its name' do
-        Factory.create :consortium, :name => 'WEEEEEE'
-        @default_mi_plan.update_attributes( :consortium_name => 'WEEEEEE' )
-        assert_equal 'WEEEEEE', @default_mi_plan.consortium.name
-      end
-    end
-
-    context '#production_centre' do
-      should 'allow access to production centre via its name' do
-        Factory.create :centre, :name => 'NONEXISTENT'
-        @default_mi_plan.update_attributes(:production_centre_name => 'NONEXISTENT')
-        assert_equal 'NONEXISTENT', @default_mi_plan.production_centre.name
-      end
-    end
-
     context '::assign_genes_and_mark_conflicts' do
       def setup_for_set_one_to_assigned
         gene = Factory.create :gene_cbx1

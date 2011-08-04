@@ -14,9 +14,6 @@ class MiPlan < ActiveRecord::Base
 
   has_many :mi_attempts
 
-  access_association_by_attribute :consortium, :name
-  access_association_by_attribute :production_centre, :name
-
   validates :gene, :presence => true
   validates :consortium, :presence => true
   validates :mi_plan_status, :presence => true

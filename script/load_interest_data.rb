@@ -18,7 +18,7 @@ rows.each do |row|
   next unless start_point == 'breeding'
 
   status_to_set = 'Interest'
-  status_to_set = 'Assigned' if auto_assign and auto_assign == 'assigned'
+  status_to_set = 'Assigned' if auto_assign == 'assigned'
 
   begin
     MiPlan.create!(

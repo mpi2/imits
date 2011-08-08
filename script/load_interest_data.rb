@@ -13,12 +13,17 @@ RANK_PRIORITY_MAP = {
 rows = CSV.read(ARGV[0])
 
 rows.each do |row|
-  consortium_name, production_centre_name, mgi_accession_id, rank, start_point = row
+  consortium_name, production_centre_name, mgi_accession_id, rank, start_point, auto_assign = row
+
   next unless start_point == 'breeding'
+
+  status_to_set = 'Interest'
+  status_to_set = 'Assigned' if auto_assign and auto_assign == 'assigned'
+
   begin
     MiPlan.create!(
       :gene => Gene.find_or_create_from_marts_by_mgi_accession_id(mgi_accession_id),
-      :mi_plan_status => MiPlanStatus.find_by_name!('Interest'),
+      :mi_plan_status => MiPlanStatus.find_by_name!(status_to_set),
       :consortium => Consortium.find_by_name!(consortium_name),
       :production_centre => Centre.find_by_name!(production_centre_name),
       :mi_plan_priority => RANK_PRIORITY_MAP[rank.to_i]

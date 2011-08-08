@@ -36,7 +36,6 @@ end
   'DTCC',
   'EUCOMM-EUMODIC',
   'Helmholtz GMC',
-  'KOMP2',
   'MARC',
   'MGP',
   'MRC',

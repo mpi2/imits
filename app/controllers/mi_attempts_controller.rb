@@ -38,8 +38,8 @@ class MiAttemptsController < ApplicationController
   def new
     set_centres_and_consortia
     @mi_attempt = MiAttempt.new(
-      :production_centre => current_user.production_centre,
-      :distribution_centre => current_user.production_centre
+      :production_centre_name => current_user.production_centre.name,
+      :distribution_centre_name => current_user.production_centre.name
     )
   end
 

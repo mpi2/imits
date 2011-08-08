@@ -1,6 +1,3 @@
-Ext.namespace('Kermits2');
-Ext.namespace('Imits');
-
 (function () {
     // Inspired by http://zetafleet.com/blog/javascript-dateparse-for-iso-8601
     var origParse = Date.parse;
@@ -108,7 +105,9 @@ function setupCollapsibleFieldsets() {
     var collapsibleLegends = Ext.select('fieldset.collapsible legend');
     collapsibleLegends.addCls('collapsible-control');
     collapsibleLegends.each(function(elm, comp, idx) {
-        elm.addListener('click', function() { toggleCollapsibleFieldsetLegend( Ext.get(comp.elements[idx]) ) });
+        elm.addListener('click', function() {
+            toggleCollapsibleFieldsetLegend( Ext.get(comp.elements[idx]) )
+            });
         elm.up('fieldset').addCls('collapsible-content-shown');
     });
 }
@@ -121,3 +120,18 @@ function hideDefaultCollapsibleFieldsets() {
 
 Ext.onReady(setupCollapsibleFieldsets);
 Ext.onReady(hideDefaultCollapsibleFieldsets);
+
+function googleAnalytics() {
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-317752-10']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+}

@@ -14,6 +14,13 @@ Ext.define('Imits.widgets.MiGrid', {
             hidden: true
         },
         {
+            header: 'Edit In Form',
+            dataIndex: 'id',
+            renderer: function(miId) {
+                return Ext.String.format('<a href="{0}/mi_attempts/{1}">Edit in Form</a>', window.basePath, miId);
+            }
+        },
+        {
             dataIndex: 'es_cell_name',
             header: 'ES Cell Name',
             readOnly: true

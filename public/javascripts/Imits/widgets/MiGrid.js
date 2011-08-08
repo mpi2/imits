@@ -1,4 +1,4 @@
-Ext.define('Imits.MiGrid', {
+Ext.define('Imits.widgets.MiGrid', {
     extend: 'Ext.grid.Panel',
     title: 'Micro-Injection Attempts',
     store: {
@@ -19,5 +19,9 @@ Ext.define('Imits.MiGrid', {
         header: 'Colony Name',
         dataIndex: 'colony_name'
     }
-    ]
+    ],
+
+    initComponent: function() {
+        this.callParent();
+    }
 });

@@ -1,5 +1,5 @@
 Ext.onReady(function() {
-    Ext.create('Imits.widgets.MiGrid', {
+    Ext.create('Imits.widget.MiGrid', {
         renderTo: 'mi-attempts-grid'
     });
 });

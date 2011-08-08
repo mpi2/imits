@@ -1,15 +1,16 @@
-Ext.define('Imits.widgets.MiGrid', {
+Ext.define('Imits.widget.MiGrid', {
     extend: 'Ext.grid.Panel',
 
     title: 'Micro-Injection Attempts',
     store: {
         model: 'Imits.model.MiAttempt',
-        autoLoad: true
+        autoLoad: true,
+        autoSync: true
     },
 
-    selType: 'rowmodel',
+    selType: 'cellmodel',
     plugins: [
-    Ext.create('Ext.grid.plugin.RowEditing', {
+    Ext.create('Ext.grid.plugin.CellEditing', {
         autoCancel: false,
         clicksToEdit: 1
     })

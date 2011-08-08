@@ -40,6 +40,9 @@ Ext.define('Imits.model.MiAttempt', {
         url: '/mi_attempts',
         format: 'json',
         startParam: undefined,
-        limitParam: 'per_page'
+        limitParam: 'per_page',
+        writer: Ext.create('Imits.data.JsonWriter', {
+            root: 'mi_attempt'
+        })
     }
 });

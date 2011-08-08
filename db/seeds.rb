@@ -32,7 +32,7 @@ end
 end
 
 [
-  'BASH',
+  'BaSH',
   'DTCC',
   'EUCOMM-EUMODIC',
   'Helmholtz GMC',

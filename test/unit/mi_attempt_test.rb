@@ -472,6 +472,10 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal dm, default_mi_attempt.deposited_material
         end
 
+        should 'expose name in serialized output' do
+          assert_equal default_mi_attempt.deposited_material_name, default_mi_attempt.as_json['deposited_material_name']
+        end
+
         should 'not expose _id in serialization' do
           assert_false default_mi_attempt.as_json.has_key? 'deposited_material_id'
         end

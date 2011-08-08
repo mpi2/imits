@@ -333,7 +333,7 @@ class MiAttempt < ActiveRecord::Base
       'qc', 'es_cell_name', 'emma_status', 'status',
       'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
       'distribution_centre_name', 'production_centre_name', 'consortium_name',
-      'mouse_allele_symbol_superscript'
+      'mouse_allele_symbol_superscript', 'deposited_material_name'
     ] + QC_FIELDS.map{|i| "#{i}_result"}
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
       'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',

@@ -32,17 +32,17 @@ end
 end
 
 [
-  'EUCOMM-EUMODIC',
-  'MGP',
   'BASH',
-  'MARC',
-  'MRC',
+  'DTCC',
+  'EUCOMM-EUMODIC',
+  'Helmholtz GMC',
   'KOMP2',
+  'MARC',
+  'MGP',
+  'MRC',
   'NorCOMM2',
   'PHENOMIN',
-  'Helmholtz GMC',
-  'RIKEN BRC',
-  'DTCC'
+  'RIKEN BRC'
 ].each do |name|
   Consortium.find_or_create_by_name name
 end
@@ -54,9 +54,10 @@ end
   'HMGU',
   'ICS',
   'MARC',
-  'MRC - Harwell',
   'Monterotondo',
+  'MRC - Harwell',
   'Oulu',
+  'RIKEN BRC',
   'UCD',
   'WTSI'
 ].each do |name|

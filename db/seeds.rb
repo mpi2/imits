@@ -36,7 +36,12 @@ end
   'MGP',
   'BASH',
   'MARC',
-  'MRC'
+  'MRC',
+  'KOMP2',
+  'NorCOMM2',
+  'PHENOMIN',
+  'Helmholtz GMC',
+  'RIKEN BRC'
 ].each do |name|
   Consortium.find_or_create_by_name name
 end

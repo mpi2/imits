@@ -5,14 +5,33 @@ Ext.define('Imits.model.MiAttempt', {
         name: 'id',
         type: 'int'
     },
+    'es_cell_name',
+    'es_cell_marker_symbol',
+    'es_cell_allele_symbol',
     {
-        name: 'colony_name',
-        type: 'string'
+        name: 'mi_date',
+        type: 'date'
     },
+    'status',
+    'colony_name',
+    'consortium_name',
+    'production_centre_name',
+    'distribution_centre_name',
+    'deposited_material_name',
+    'blast_strain_name',
     {
-        name: 'es_cell_name',
-        type: 'string',
-        readOnly: true
+        name: 'total_blasts_injected',
+        type: 'int'
+    },
+
+    {
+        name: 'total_transferred',
+        type: 'int'
+    },
+
+    {
+        name: 'number_surrogates_receiving',
+        type: 'int'
     }
     ],
 

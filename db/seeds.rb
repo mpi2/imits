@@ -41,7 +41,8 @@ end
   'NorCOMM2',
   'PHENOMIN',
   'Helmholtz GMC',
-  'RIKEN BRC'
+  'RIKEN BRC',
+  'DTCC'
 ].each do |name|
   Consortium.find_or_create_by_name name
 end

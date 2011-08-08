@@ -22,7 +22,7 @@ class LoadInterestDataTest < ExternalScriptTestCase
       assert_equal 1, gene.mi_plans.size
       mi_plan = gene.mi_plans.first
       assert_equal 'Interest', mi_plan.mi_plan_status.name
-      assert_equal 'BASH', mi_plan.consortium.name
+      assert_equal 'BaSH', mi_plan.consortium.name
       assert_equal 'MRC - Harwell', mi_plan.production_centre.name
       assert_equal 'High', mi_plan.mi_plan_priority.name
 

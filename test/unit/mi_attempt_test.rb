@@ -630,7 +630,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'when set to a valid consortium and validated should not give error' do
-          mi = MiAttempt.new :consortium_name => 'BASH'
+          mi = MiAttempt.new :consortium_name => 'BaSH'
           mi.valid?
           assert_blank mi.errors['consortium_name']
         end
@@ -725,13 +725,13 @@ class MiAttemptTest < ActiveSupport::TestCase
                 :es_cell => Factory.create(:es_cell, :gene => cbx1),
                 :mi_plan => nil
         mi_attempt.production_centre_name = 'WTSI'
-        mi_attempt.consortium_name = 'BASH'
+        mi_attempt.consortium_name = 'BaSH'
         mi_attempt.save!
 
         assert_equal 1, MiPlan.count
         assert_equal 'Cbx1', mi_attempt.mi_plan.gene.marker_symbol
         assert_equal 'WTSI', mi_attempt.mi_plan.production_centre.name
-        assert_equal 'BASH', mi_attempt.mi_plan.consortium.name
+        assert_equal 'BaSH', mi_attempt.mi_plan.consortium.name
         assert_equal 'High', mi_attempt.mi_plan.mi_plan_priority.name
         assert_equal 'Assigned', mi_attempt.mi_plan.mi_plan_status.name
       end

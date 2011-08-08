@@ -58,7 +58,7 @@ class MiPlanTest < ActiveSupport::TestCase
     context '::assign_genes_and_mark_conflicts' do
       def setup_for_set_one_to_assigned
         gene = Factory.create :gene_cbx1
-        @only_interest_mi_plan = Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!('BASH')
+        @only_interest_mi_plan = Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!('BaSH')
         @declined_mi_plans = [
           Factory.create(:mi_plan, :gene => gene,
             :consortium => Consortium.find_by_name!('MGP'),
@@ -87,7 +87,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'set all Interested MiPlans that have the same gene to Conflict' do
         gene = Factory.create :gene_cbx1
-        mi_plans = ['BASH', 'MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
+        mi_plans = ['BaSH', 'MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
 
@@ -109,7 +109,7 @@ class MiPlanTest < ActiveSupport::TestCase
         end
 
         interested_mi_plan = Factory.create :mi_plan,
-                :gene => gene, :consortium => Consortium.find_by_name!('BASH')
+                :gene => gene, :consortium => Consortium.find_by_name!('BaSH')
 
         MiPlan.assign_genes_and_mark_conflicts
         interested_mi_plan.reload
@@ -122,7 +122,7 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'set all Interested MiPlans to Declined if other MiPlans for the same gene are already Assigned' do
         gene = Factory.create :gene_cbx1
         Factory.create :mi_plan, :gene => gene,
-                :consortium => Consortium.find_by_name!('BASH'),
+                :consortium => Consortium.find_by_name!('BaSH'),
                 :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
@@ -145,7 +145,7 @@ class MiPlanTest < ActiveSupport::TestCase
         gene1 = Factory.create :gene_cbx1
         gene2 = Factory.create :gene_trafd1
         bash = Factory.create :mi_plan, :gene => gene1,
-                :consortium => Consortium.find_by_name!('BASH'),
+                :consortium => Consortium.find_by_name!('BaSH'),
                 :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
         consortium_x = Factory.create :mi_plan, :gene => gene1,
                 :consortium => Consortium.find_by_name!('Consortium X'),

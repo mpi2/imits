@@ -7,6 +7,14 @@ Ext.define('Imits.widgets.MiGrid', {
         autoLoad: true
     },
 
+    selType: 'rowmodel',
+    plugins: [
+    Ext.create('Ext.grid.plugin.RowEditing', {
+        autoCancel: false,
+        clicksToEdit: 1
+    })
+    ],
+
     groupedColumns: {
         'common' : [
         {
@@ -40,7 +48,11 @@ Ext.define('Imits.widgets.MiGrid', {
         },
         {
             dataIndex: 'mi_date',
-            header: 'MI Date'
+            header: 'MI Date',
+            editor: {
+                xtype: 'datefield',
+                format: 'd-m-Y'
+            }
         },
         {
             dataIndex: 'status',
@@ -50,7 +62,10 @@ Ext.define('Imits.widgets.MiGrid', {
         },
         {
             dataIndex: 'colony_name',
-            header: 'Colony Name'
+            header: 'Colony Name',
+            editor: {
+                xtype: 'textfield'
+            }
         },
         {
             dataIndex: 'consortium_name',

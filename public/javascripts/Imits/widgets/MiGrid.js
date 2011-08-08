@@ -6,11 +6,13 @@ Ext.define('Imits.widgets.MiGrid', {
         model: 'Imits.model.MiAttempt',
         autoLoad: true
     },
+
     groupedColumns: {
         'common' : [
         {
             dataIndex: 'id',
             header: 'ID',
+            readOnly: true,
             hidden: true
         },
         {
@@ -22,12 +24,13 @@ Ext.define('Imits.widgets.MiGrid', {
         },
         {
             dataIndex: 'es_cell_name',
-            header: 'ES Cell Name',
+            header: 'ES Cell',
             readOnly: true
         },
         {
             dataIndex: 'es_cell_marker_symbol',
             header: 'Marker Symbol',
+            width: 75,
             readOnly: true
         },
         {
@@ -42,6 +45,7 @@ Ext.define('Imits.widgets.MiGrid', {
         {
             dataIndex: 'status',
             header: 'Status',
+            width: 150,
             readOnly: true
         },
         {
@@ -69,24 +73,30 @@ Ext.define('Imits.widgets.MiGrid', {
             readOnly: true
         }
         ],
+
         'transferDetails': [
-            {
-                dataIndex: 'blast_strain_name',
-                header: 'Blast Strain',
-                readOnly: true
-            },
-            {
-                dataIndex: 'total_blasts_injected',
-                header: 'Total Blasts Injected'
-            },
-            {
-                dataIndex: 'total_transferred',
-                header: 'Total Transferred'
-            },
-            {
-                dataIndex: 'number_surrogates_receiving',
-                header: 'No. Surrogates Receiving'
-            }
+        {
+            dataIndex: 'deposited_material_name',
+            header: 'Deposited Material',
+            readOnly: true
+        },
+        {
+            dataIndex: 'blast_strain_name',
+            header: 'Blast Strain',
+            readOnly: true
+        },
+        {
+            dataIndex: 'total_blasts_injected',
+            header: 'Total Blasts Injected'
+        },
+        {
+            dataIndex: 'total_transferred',
+            header: 'Total Transferred'
+        },
+        {
+            dataIndex: 'number_surrogates_receiving',
+            header: '# Surrogates Receiving'
+        }
         ]
     },
 
@@ -94,7 +104,7 @@ Ext.define('Imits.widgets.MiGrid', {
         var columns = [];
         Ext.Object.each(this.groupedColumns, function(viewName, viewColumns) {
             Ext.Array.each(viewColumns, function(column) {
-                Ext.Array.include(columns, column);
+                columns.push(column);
             });
         });
 

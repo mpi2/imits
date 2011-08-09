@@ -120,12 +120,12 @@ class MiAttemptsControllerTest < ActionController::TestCase
       def valid_create_for_format(format)
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         assert_equal 0, MiAttempt.count
-        post :create, :mi_attempt => {
-          'es_cell_name' => es_cell.name,
-          :production_centre_name => 'WTSI',
-          :consortium_name => 'MGP'
-        },
-                :format => format
+        post(:create, :mi_attempt => {
+            'es_cell_name' => es_cell.name,
+            :production_centre_name => 'WTSI',
+            :consortium_name => 'MGP'
+          },
+          :format => format)
 
         mi_attempt = MiAttempt.first
 

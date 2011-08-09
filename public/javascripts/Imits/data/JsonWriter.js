@@ -4,7 +4,6 @@ Ext.define('Imits.data.JsonWriter', {
     write: function(originalRequest) {
         var request = this.callParent([originalRequest]);
         request.jsonData['authenticity_token'] = window.authenticityToken;
-        console.log(request);
         return request;
     }
 });

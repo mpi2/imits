@@ -5,7 +5,20 @@ Ext.define('Imits.widget.MiGrid', {
     store: {
         model: 'Imits.model.MiAttempt',
         autoLoad: true,
-        autoSync: true
+        autoSync: true,
+
+        // TODO Remove when dirty flag bug goes away - try formatting response
+        //  data correctly from server, then see if this is still needed
+        listeners: {
+            'update': {
+                fn: function(store, record) {
+                    // Inspired by "http://www.sencha.com/forum/showthread.php?133767-Store.sync()-does-not-update-dirty-flag&p=608485&viewfull=1#post608485"
+                    if (record.dirty) {
+                        record.commit();
+                    }
+                }
+            }
+        }
     },
 
     selType: 'cellmodel',
@@ -17,7 +30,7 @@ Ext.define('Imits.widget.MiGrid', {
     ],
 
     groupedColumns: {
-        'common' : [
+        'common': [
         {
             dataIndex: 'id',
             header: 'ID',
@@ -53,7 +66,8 @@ Ext.define('Imits.widget.MiGrid', {
             editor: {
                 xtype: 'datefield',
                 format: 'd-m-Y'
-            }
+            },
+            renderer: Ext.util.Format.dateRenderer('d-m-Y')
         },
         {
             dataIndex: 'status',

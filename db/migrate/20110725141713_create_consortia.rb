@@ -31,7 +31,7 @@ class CreateConsortia < ActiveRecord::Migration
 
     eumodic = Consortium.find_or_create_by_name('EUCOMM-EUMODIC')
     mgp     = Consortium.find_or_create_by_name('MGP')
-    bash    = Consortium.find_or_create_by_name('BASH')
+    bash    = Consortium.find_or_create_by_name('BaSH')
 
     # Link to mi_attempts
 

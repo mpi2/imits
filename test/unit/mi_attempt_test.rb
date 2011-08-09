@@ -13,6 +13,17 @@ class MiAttemptTest < ActiveSupport::TestCase
       )
     end
 
+    context 'default scope' do
+      should 'order by ID' do
+        Factory.create :mi_attempt, :id => 500
+        Factory.create :mi_attempt, :id => 20
+        Factory.create :mi_attempt, :id => 200
+
+        all_ids = MiAttempt.all.map(&:id)
+        assert_equal all_ids.sort, all_ids
+      end
+    end
+
     context 'attribute tests:' do
 
       setup do
@@ -528,7 +539,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    should 'have comments' do
+    should 'have #comments' do
       mi = Factory.create :mi_attempt, :comments => 'this is a comment'
       assert_equal 'this is a comment', mi.comments
     end
@@ -630,7 +641,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'when set to nonexistent consortium and validated give error' do
           mi = MiAttempt.new :consortium_name => 'Nonexistent Consortium'
           mi.valid?
-           assert_equal ['does not exist'], mi.errors['consortium_name']
+          assert_equal ['does not exist'], mi.errors['consortium_name']
         end
 
         should 'when set to a valid consortium and validated should not give error' do
@@ -663,7 +674,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'when set to nonexistent production_centre and validated give error' do
           mi = MiAttempt.new :production_centre_name => 'Nonexistent Centre'
           mi.valid?
-           assert_equal ['does not exist'], mi.errors['production_centre_name']
+          assert_equal ['does not exist'], mi.errors['production_centre_name']
         end
 
         should 'when set to a valid production_centre and validated should not give error' do

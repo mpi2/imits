@@ -20,12 +20,15 @@ rows.each do |row|
   status_to_set = 'Interest'
   status_to_set = 'Assigned' if auto_assign == 'assigned'
 
+  production_centre = nil
+  production_centre = Centre.find_by_name!(production_centre_name) unless production_centre_name.blank?
+
   begin
     MiPlan.create!(
       :gene => Gene.find_or_create_from_marts_by_mgi_accession_id(mgi_accession_id),
       :mi_plan_status => MiPlanStatus.find_by_name!(status_to_set),
       :consortium => Consortium.find_by_name!(consortium_name),
-      :production_centre => Centre.find_by_name!(production_centre_name),
+      :production_centre => production_centre,
       :mi_plan_priority => RANK_PRIORITY_MAP[rank.to_i]
     )
   rescue Exception => e

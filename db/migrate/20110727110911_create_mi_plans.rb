@@ -2,6 +2,7 @@ class CreateMiPlans < ActiveRecord::Migration
   def self.up
     create_table :mi_plan_statuses do |t|
       t.string :name, :limit => 50, :null => false
+      t.string :description, :limit => 255
 
       t.timestamps
     end

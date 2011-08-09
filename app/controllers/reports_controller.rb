@@ -149,9 +149,15 @@ class ReportsController < ApplicationController
     @conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Conflict' }
     @conflict_report.remove_columns(['Status'])
 
+    @declined_due_to_conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Declined - Conflict' }
+    @declined_due_to_conflict_report.remove_columns(['Status'])
+
+    @declined_due_to_existing_mi_report = all_mi_plans.sub_table { |row| row['Status'] == 'Declined - MI Attempt' }
+    @declined_due_to_existing_mi_report.remove_columns(['Status'])
+
     if request.format == :csv
       response.headers['Content-Type'] = 'text/csv'
-      response.headers['Content-Disposition'] = 'attachment; filename=planned_microinjections.csv'
+      response.headers['Content-Disposition'] = 'attachment; filename=planned_microinjection_summary_and_conflicts.csv'
     end
   end
 
@@ -167,7 +173,7 @@ class ReportsController < ApplicationController
       'mi_plan_status.name'     => 'Status'
     }
 
-    all_mi_plans = MiPlan.report_table(
+    all_mi_plans = MiPlan.without_mi_attempt.report_table(
       :all,
       :only => [],
       :include => {
@@ -181,6 +187,8 @@ class ReportsController < ApplicationController
 
     all_mi_plans.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
     all_mi_plans.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
+
+    all_mi_plans = all_mi_plans.sort_rows_by('Marker Symbol', :order => :ascending)
 
     return all_mi_plans
   end

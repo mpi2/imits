@@ -47,6 +47,12 @@ class MiAttempt < ActiveRecord::Base
   attr_protected *PRIVATE_ATTRIBUTES
 
   ##
+  ## Scopes
+  ##
+
+  scope :active, where(:is_active => true)
+
+  ##
   ## Associations
   ##
 

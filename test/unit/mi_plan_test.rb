@@ -62,10 +62,10 @@ class MiPlanTest < ActiveSupport::TestCase
         @declined_mi_plans = [
           Factory.create(:mi_plan, :gene => gene,
             :consortium => Consortium.find_by_name!('MGP'),
-            :mi_plan_status => MiPlanStatus.find_by_name!('Declined')),
+            :mi_plan_status => MiPlanStatus.find_by_name!('Declined - Conflict')),
           Factory.create(:mi_plan, :gene => gene,
             :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-            :mi_plan_status => MiPlanStatus.find_by_name!('Declined'))
+            :mi_plan_status => MiPlanStatus.find_by_name!('Declined - Conflict'))
         ]
 
         MiPlan.assign_genes_and_mark_conflicts
@@ -81,7 +81,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'not affect non-Interested MiPlans when setting Interested ones to Assigned' do
         setup_for_set_one_to_assigned
-        assert_equal ['Declined', 'Declined'], @declined_mi_plans.map{|i| i.mi_plan_status.name}
+        assert_equal ['Declined - Conflict', 'Declined - Conflict'], @declined_mi_plans.map{|i| i.mi_plan_status.name}
         MiPlan.assign_genes_and_mark_conflicts
       end
 
@@ -94,8 +94,7 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.assign_genes_and_mark_conflicts
 
         mi_plans.each(&:reload)
-        assert_equal ['Conflict', 'Conflict', 'Conflict'],
-                mi_plans.map {|i| i.mi_plan_status.name }
+        assert_equal ['Conflict', 'Conflict', 'Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
 
         MiPlan.assign_genes_and_mark_conflicts
       end
@@ -119,11 +118,12 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.assign_genes_and_mark_conflicts
       end
 
-      should 'set all Interested MiPlans to Declined if other MiPlans for the same gene are already Assigned' do
+      should 'set all interested MiPlans to "Declined - Conflict" if other MiPlans for the same gene are already Assigned' do
         gene = Factory.create :gene_cbx1
         Factory.create :mi_plan, :gene => gene,
                 :consortium => Consortium.find_by_name!('BaSH'),
                 :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
@@ -131,10 +131,26 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.assign_genes_and_mark_conflicts
         mi_plans.each(&:reload)
 
-        assert_equal ['Declined', 'Declined'],
-                mi_plans.map {|i| i.mi_plan_status.name }
+        assert_equal ['Declined - Conflict', 'Declined - Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
+      end
+
+      should 'set all interested MiPlans to "Declined - MI Attempt" if MiPlans with active MiAttempts already exist' do
+        gene = Factory.create :gene_cbx1
+        plan = Factory.create :mi_plan, 
+          :gene              => gene,
+          :consortium        => Consortium.find_by_name!('BaSH'),
+          :mi_plan_status    => MiPlanStatus.find_by_name!('Assigned'),
+          :production_centre => Centre.find_by_name!('BCM')
+        Factory.create :mi_attempt, :mi_plan => plan
+
+        mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
+          Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
+        end
 
         MiPlan.assign_genes_and_mark_conflicts
+        mi_plans.each(&:reload)
+
+        assert_equal ['Declined - MI Attempt', 'Declined - MI Attempt'], mi_plans.map {|i| i.mi_plan_status.name }
       end
 
     end # ::assign_genes_and_mark_conflicts
@@ -155,13 +171,59 @@ class MiPlanTest < ActiveSupport::TestCase
                 :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
         eucomm = Factory.create :mi_plan, :gene => gene2,
                 :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-                :mi_plan_status => MiPlanStatus.find_by_name!('Declined')
+                :mi_plan_status => MiPlanStatus.find_by_name!('Declined - Conflict')
 
         result = MiPlan.all_grouped_by_mgi_accession_id_then_by_status_name
 
         assert_equal [bash, consortium_x].sort, result[gene1.mgi_accession_id]['Interest'].sort
         assert_equal [mgp], result[gene1.mgi_accession_id]['Assigned']
-        assert_equal [eucomm], result[gene2.mgi_accession_id]['Declined']
+        assert_equal [eucomm], result[gene2.mgi_accession_id]['Declined - Conflict']
+      end
+    end
+
+    context '::with_mi_attempt' do
+      should 'work' do
+        10.times { Factory.create :mi_plan }
+        10.times { Factory.create :mi_attempt }
+
+        assert MiPlan.count > MiPlan.with_mi_attempt.count
+        assert_equal 21, MiPlan.count
+        assert_equal 10, MiPlan.with_mi_attempt.count
+      end
+    end
+
+    context '::with_active_mi_attempt' do
+      should 'work' do
+        10.times { Factory.create :mi_plan }
+        10.times { Factory.create :mi_attempt, :is_active => true }
+        10.times { Factory.create :mi_attempt, :is_active => false }
+
+        assert MiPlan.count > MiPlan.with_active_mi_attempt.count
+        assert_equal 31, MiPlan.count
+        assert_equal 10, MiPlan.with_active_mi_attempt.count
+      end
+    end
+
+    context '::without_mi_attempt' do
+      should 'work' do
+        10.times { Factory.create :mi_plan }
+        10.times { Factory.create :mi_attempt }
+
+        assert MiPlan.count > MiPlan.without_mi_attempt.count
+        assert_equal 21, MiPlan.count
+        assert_equal 11, MiPlan.without_mi_attempt.count
+      end
+    end
+
+    context '::without_active_mi_attempt' do
+      should 'work' do
+        10.times { Factory.create :mi_plan }
+        10.times { Factory.create :mi_attempt, :is_active => true }
+        10.times { Factory.create :mi_attempt, :is_active => false }
+
+        assert MiPlan.count > MiPlan.without_active_mi_attempt.count
+        assert_equal 31, MiPlan.count
+        assert_equal 21, MiPlan.without_active_mi_attempt.count
       end
     end
 

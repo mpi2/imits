@@ -21,21 +21,44 @@ class MiPlan < ActiveRecord::Base
 
   validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]
 
+  def self.with_mi_attempt
+    where('id in (?)', MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+  end
+
+  def self.without_mi_attempt
+    where('id not in (?)', MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+  end
+
+  def self.with_active_mi_attempt
+    where('id in (?)', MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+  end
+
+  def self.without_active_mi_attempt
+    where('id not in (?)', MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+  end
+
   def self.assign_genes_and_mark_conflicts
     conflict_status = MiPlanStatus.find_by_name!('Conflict')
-    declined_status = MiPlanStatus.find_by_name!('Declined')
+    declined_due_to_conflict_status = MiPlanStatus.find_by_name!('Declined - Conflict')
+    declined_due_to_mi_attempt_status = MiPlanStatus.find_by_name!('Declined - MI Attempt')
 
-    self.all_grouped_by_mgi_accession_id_then_by_status_name.each do
-      |mgi_accession_id, mi_plans_by_status|
-
+    self.all_grouped_by_mgi_accession_id_then_by_status_name.each do |mgi_accession_id, mi_plans_by_status|
       interested = mi_plans_by_status['Interest']
 
       next if interested.blank?
 
       if ! mi_plans_by_status['Assigned'].blank?
-        interested.each do |mi_plan|
-          mi_plan.mi_plan_status = declined_status
-          mi_plan.save!
+        assigned_plans_with_mis = MiPlan.where('id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_mi_attempt
+        if ! assigned_plans_with_mis.blank?
+          interested.each do |mi_plan|
+            mi_plan.mi_plan_status = declined_due_to_mi_attempt_status
+            mi_plan.save!
+          end
+        else
+          interested.each do |mi_plan|
+            mi_plan.mi_plan_status = declined_due_to_conflict_status
+            mi_plan.save!
+          end
         end
       elsif ! mi_plans_by_status['Conflict'].blank? or interested.size != 1
         interested.each do |mi_plan|

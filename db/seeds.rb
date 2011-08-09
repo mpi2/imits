@@ -65,14 +65,20 @@ end
   Centre.find_or_create_by_name name
 end
 
-[
-  'Interest',
-  'Conflict',
-  'Declined',
-  'Assigned'
-].each do |name|
-  MiPlanStatus.find_or_create_by_name(name)
+{
+  'Interest'               => 'Interest - A consortium has expressed an intrest to micro-inject this gene',
+  'Conflict'               => 'Conflict - More than one consortium has expressed an intrest in micro-injecting this gene',
+  'Declined - MI Attempt'  => 'Declined - An active micro-injection attempt is already in progress',
+  'Declined - Conflict'    => 'Declined - This gene is already assigned in another planned micro-injection',
+  'Assigned'               => 'Assigned - A single consortium has expressed an intrest in injecting this gene'
+}.each do |name, description|
+  mi_plan_status = MiPlanStatus.find_or_create_by_name(:name => name)
+  if mi_plan_status.description.blank?
+    mi_plan_status.description = description
+    mi_plan_status.save!
+  end
 end
+
 
 {
   'High'   => 'Estimated injection in the next 0-4 months',

@@ -5,7 +5,7 @@
     <%=
       link_to(
         'download this report as csv',
-        url_for( :controller => :reports, :action => :planned_microinjections, :format => :csv ),
+        url_for( :controller => :reports, :action => :planned_microinjection_summary_and_conflicts, :format => :csv ),
         { :class => 'button csv_download' }
       )
     %>
@@ -17,12 +17,34 @@
     <%=raw @summary.to_html %>
   </div>
 
-  <h3>Micro-Injection Conflicts</h3>
+  <h3>Conflicting Micro-Injection Plans</h3>
   <div class="report">
     <% if @conflict_report.size == 0 %>
       <p>No conflicts to report.</p>
     <% else %>
       <%=raw @conflict_report.to_html %>
+    <% end %>
+  </div>
+
+  <h3>Declined Micro-Injection Plans</h3>
+  <p>
+    These micro-injection plans have been declined as there is already an assigned micro-injection plan for the proposed gene.
+  </p>
+  <div class="report">
+    <% if @declined_due_to_conflict_report.size == 0 %>
+      <p>No declined micro-injection plans to report.</p>
+    <% else %>
+      <%=raw @declined_due_to_conflict_report.to_html %>
+    <% end %>
+  </div>
+  <p>
+    These micro-injection plans have been declined as there is already active micro-injection in progress or completed.
+  </p>
+  <div class="report">
+    <% if @declined_due_to_existing_mi_report.size == 0 %>
+      <p>No declined micro-injection plans to report.</p>
+    <% else %>
+      <%=raw @declined_due_to_existing_mi_report.to_html %>
     <% end %>
   </div>
 </div>

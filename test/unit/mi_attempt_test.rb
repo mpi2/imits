@@ -780,5 +780,13 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal expected, got, "diff: #{expected.diff(got)}"
     end
 
+    context '::active' do
+      should 'work' do
+        10.times { Factory.create( :mi_attempt ) }
+        10.times { Factory.create( :mi_attempt, :is_active => false ) }
+        assert_equal MiAttempt.where(:is_active => true).count, MiAttempt.active.count
+      end
+    end
+
   end
 end

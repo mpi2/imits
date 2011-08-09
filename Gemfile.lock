@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/aq2-sanger/ransack.git
-  revision: b3fde36e074e59d204a0a9365dfa79b8f862c0fe
+  revision: d16b9ad9cf8ed2129afc0e1602a665dd07bc27c5
   specs:
     ransack (0.5.4)
       actionpack (~> 3.0)

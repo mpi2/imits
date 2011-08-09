@@ -3,16 +3,29 @@ Ext.define('Imits.model.MiAttempt', {
     fields: [
     {
         name: 'id',
-        type: 'int'
+        type: 'int',
+        persist: false
     },
-    'es_cell_name',
-    'es_cell_marker_symbol',
-    'es_cell_allele_symbol',
+    {
+        name: 'es_cell_name',
+        persist: false
+    },
+    {
+        name: 'es_cell_marker_symbol',
+        persist: false
+    },
+    {
+        name: 'es_cell_allele_symbol',
+        persist: false
+    },
     {
         name: 'mi_date',
         type: 'date'
     },
-    'status',
+    {
+        name: 'status',
+        persist: false
+    },
     'colony_name',
     'consortium_name',
     'production_centre_name',
@@ -42,7 +55,8 @@ Ext.define('Imits.model.MiAttempt', {
         startParam: undefined,
         limitParam: 'per_page',
         writer: Ext.create('Imits.data.JsonWriter', {
-            root: 'mi_attempt'
+            root: 'mi_attempt',
+            writeAllFields: false
         })
     }
 });

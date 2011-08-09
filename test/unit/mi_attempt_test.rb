@@ -13,17 +13,6 @@ class MiAttemptTest < ActiveSupport::TestCase
       )
     end
 
-    context 'default scope' do
-      should 'order by ID' do
-        Factory.create :mi_attempt, :id => 500
-        Factory.create :mi_attempt, :id => 20
-        Factory.create :mi_attempt, :id => 200
-
-        all_ids = MiAttempt.all.map(&:id)
-        assert_equal all_ids.sort, all_ids
-      end
-    end
-
     context 'attribute tests:' do
 
       setup do

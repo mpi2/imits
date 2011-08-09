@@ -44,8 +44,6 @@ class MiAttempt < ActiveRecord::Base
     'mi_attempt_status', 'mi_attempt_status_id', 'mi_plan_id'
   ]
 
-  default_scope :order => 'id ASC'
-
   attr_protected *PRIVATE_ATTRIBUTES
 
   ##

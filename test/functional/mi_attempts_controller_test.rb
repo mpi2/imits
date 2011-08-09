@@ -6,9 +6,9 @@ class MiAttemptsControllerTest < ActionController::TestCase
   context 'MiAttempt controller' do
 
     should 'require authentication with machine interface' do
-        mi_attempt = Factory.create(:mi_attempt)
-        get :show, :id => mi_attempt.id, :format => :json
-        assert ! response.success?
+      mi_attempt = Factory.create(:mi_attempt)
+      get :show, :id => mi_attempt.id, :format => :json
+      assert ! response.success?
     end
 
     context 'GET index' do
@@ -56,6 +56,26 @@ class MiAttemptsControllerTest < ActionController::TestCase
           data = parse_json_from_response
           assert_equal 20, data.size
         end
+
+        should 'sort by ID by default' do
+          Factory.create :mi_attempt, :id => 500
+          Factory.create :mi_attempt, :id => 20
+          Factory.create :mi_attempt, :id => 200
+
+          get :index, 'format' => 'json'
+          all_ids = parse_json_from_response.map {|i| i['id']}
+          assert_equal all_ids.sort, all_ids
+        end
+
+        should 'sort by other parameters' do
+          Factory.create :mi_attempt, :id => 500, :colony_name => 'EPD_001'
+          Factory.create :mi_attempt, :id => 20, :colony_name => 'EPD_003'
+          Factory.create :mi_attempt, :id => 200, :colony_name => 'EPD_002'
+          get :index, 'format' => 'json', 'sorts' => 'colony_name'
+
+          names = parse_json_from_response.map {|i| i['colony_name']}
+          assert_equal names.sort, names
+        end
       end
     end
 
@@ -100,12 +120,11 @@ class MiAttemptsControllerTest < ActionController::TestCase
       def valid_create_for_format(format)
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         assert_equal 0, MiAttempt.count
-        post :create,
-                :mi_attempt => {
-                  'es_cell_name' => es_cell.name, 
-                  :production_centre_name => 'WTSI',
-                  :consortium_name => 'MGP'
-                },
+        post :create, :mi_attempt => {
+          'es_cell_name' => es_cell.name,
+          :production_centre_name => 'WTSI',
+          :consortium_name => 'MGP'
+        },
                 :format => format
 
         mi_attempt = MiAttempt.first

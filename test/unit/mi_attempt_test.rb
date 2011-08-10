@@ -386,6 +386,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             default_mi_attempt.send("#{qc_field}_result=", '')
             assert default_mi_attempt.valid?
             assert_equal 'na', default_mi_attempt.send("#{qc_field}_result")
+            assert_equal 'na', default_mi_attempt.send(qc_field).try(:description)
           end
         end
       end

@@ -46,15 +46,7 @@ class MiAttempt < ActiveRecord::Base
 
   attr_protected *PRIVATE_ATTRIBUTES
 
-  ##
-  ## Scopes
-  ##
-
   scope :active, where(:is_active => true)
-
-  ##
-  ## Associations
-  ##
 
   belongs_to :mi_plan
   belongs_to :es_cell
@@ -72,14 +64,11 @@ class MiAttempt < ActiveRecord::Base
   access_association_by_attribute :test_cross_strain, :name
   access_association_by_attribute :deposited_material, :name
 
+  before_validation :set_blank_qc_fields_to_na # Needs to be here, before AABA
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
-
-  ##
-  ## Validations
-  ##
 
   validates :es_cell_name, :presence => true
   validates :production_centre_name, :presence => true
@@ -116,15 +105,10 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
-  ##
-  ## Filters
-  ##
-
   before_validation :set_blank_strings_to_nil
   before_validation :set_default_status
   before_validation :set_total_chimeras
   before_validation :set_default_deposited_material
-  before_validation :set_blank_qc_fields_to_na
   before_validation :set_es_cell_from_es_cell_name
   before_validation :set_default_distribution_centre
 
@@ -132,10 +116,6 @@ class MiAttempt < ActiveRecord::Base
   before_save :change_status
   before_save :make_unsuitable_for_emma_if_is_not_active
   before_save :set_mi_plan
-
-  ##
-  ## Filter methods
-  ##
 
   protected
 
@@ -217,10 +197,6 @@ class MiAttempt < ActiveRecord::Base
 
     end
   end
-
-  ##
-  ## Methods
-  ##
 
   public
 
@@ -336,7 +312,7 @@ class MiAttempt < ActiveRecord::Base
     options ||= {}
     options.symbolize_keys!
     options[:methods] ||= [
-      'qc', 'es_cell_name', 'emma_status', 'status',
+      'es_cell_name', 'emma_status', 'status',
       'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
       'distribution_centre_name', 'production_centre_name', 'consortium_name',
       'mouse_allele_symbol_superscript', 'deposited_material_name'

@@ -12,10 +12,13 @@ class MiAttemptsControllerTest < ActionController::TestCase
     end
 
     context 'GET index' do
+      setup do
+        sign_in default_user
+      end
+
       context 'search helpers' do
         setup do
           create_common_test_objects
-          sign_in default_user
         end
 
         should 'work in XML format' do
@@ -32,49 +35,71 @@ class MiAttemptsControllerTest < ActionController::TestCase
           assert_equal 'MBSS', data.find {|i| i['es_cell_name'] == 'EPD0127_4_E01'}['colony_name']
           assert_equal 'MBFD', data.find {|i| i['es_cell_name'] == 'EPD0029_1_G04'}['colony_name']
         end
+      end
 
-        should 'paginate by default for JSON' do
-          200.times {Factory.create :mi_attempt}
-          get :index, :format => :json
-          data = parse_json_from_response
-          assert_equal 20, data.size
-        end
+      should 'paginate by default for JSON' do
+        200.times {Factory.create :mi_attempt}
+        get :index, :format => :json
+        data = parse_json_from_response
+        assert_equal 20, data.size
+      end
 
-        should 'paginate by default for XML' do
-          200.times {Factory.create :mi_attempt}
-          get :index, :format => :xml
-          assert_equal 20, response.body.scan('<mi-attempt>').size
-        end
+      should 'paginate by default for XML' do
+        200.times {Factory.create :mi_attempt}
+        get :index, :format => :xml
+        assert_equal 20, response.body.scan('<mi-attempt>').size
+      end
 
-        should 'allow pagination' do
-          200.times {Factory.create :mi_attempt}
-          get :index, :format => :json, :per_page => 50
-          data = parse_json_from_response
-          assert_equal 50, data.size
+      should 'allow pagination' do
+        200.times {Factory.create :mi_attempt}
+        get :index, :format => :json, :per_page => 50
+        data = parse_json_from_response
+        assert_equal 50, data.size
 
-          get :index, :format => :json, :per_page => 0
-          data = parse_json_from_response
-          assert_equal 20, data.size
-        end
+        get :index, :format => :json, :per_page => 0
+        data = parse_json_from_response
+        assert_equal 20, data.size
+      end
 
-        should 'sort by ID by default' do
-          Factory.create :mi_attempt, :id => 500
-          Factory.create :mi_attempt, :id => 20
-          Factory.create :mi_attempt, :id => 200
+      should 'sort by ID by default' do
+        Factory.create :mi_attempt, :id => 500
+        Factory.create :mi_attempt, :id => 20
+        Factory.create :mi_attempt, :id => 200
 
-          get :index, 'format' => 'json'
-          all_ids = parse_json_from_response.map {|i| i['id']}
-          assert_equal all_ids.sort, all_ids
-        end
+        get :index, 'format' => 'json'
+        all_ids = parse_json_from_response.map {|i| i['id']}
+        assert_equal all_ids.sort, all_ids
+      end
 
-        should 'sort by other parameters' do
-          Factory.create :mi_attempt, :id => 500, :colony_name => 'EPD_001'
-          Factory.create :mi_attempt, :id => 20, :colony_name => 'EPD_003'
-          Factory.create :mi_attempt, :id => 200, :colony_name => 'EPD_002'
-          get :index, 'format' => 'json', 'sorts' => 'colony_name'
+      should 'sort by other parameters' do
+        Factory.create :mi_attempt, :id => 500, :colony_name => 'EPD_001'
+        Factory.create :mi_attempt, :id => 20, :colony_name => 'EPD_003'
+        Factory.create :mi_attempt, :id => 200, :colony_name => 'EPD_002'
+        get :index, 'format' => 'json', 'sorts' => 'colony_name'
 
-          names = parse_json_from_response.map {|i| i['colony_name']}
-          assert_equal names.sort, names
+        names = parse_json_from_response.map {|i| i['colony_name']}
+        assert_equal names.sort, names
+      end
+
+      context 'JSON metadata' do
+        should 'be included when metadata parameter is passed' do
+          mi = Factory.create :mi_attempt
+          get :index, :format => 'json', 'metadata' => true
+          expected = {
+            'mi_attempts' => [mi.as_json],
+            'success' => true,
+            'total' => 1
+          }
+          got = parse_json_from_response
+          assert_equal expected['success'], got['success']
+          assert_equal expected['total'], got['total']
+          assert_equal expected['mi_attempts'].size, got['mi_attempts'].size
+          assert_equal expected['mi_attempts'][0].keys.sort, got['mi_attempts'][0].keys.sort
+          expected['mi_attempts'][0].each do |key, value|
+            assert_equal value, got['mi_attempts'][0][key], "Attribute #{key} differed"
+          end
+
+          assert_equal expected, parse_json_from_response
         end
       end
     end

@@ -133,7 +133,15 @@ Ext.define('Imits.widget.MiGrid', {
         var columns = [];
         Ext.Object.each(this.groupedColumns, function(viewName, viewColumns) {
             Ext.Array.each(viewColumns, function(column) {
-                columns.push(column);
+                var existing;
+                Ext.each(columns, function(i) {
+                    if(i.dataIndex == column.dataIndex) {
+                        existing = i;
+                    }
+                });
+                if(!existing) {
+                    columns.push(column);
+                }
             });
         });
 

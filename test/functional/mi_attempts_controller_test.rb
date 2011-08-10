@@ -84,7 +84,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       context 'JSON metadata' do
         should 'be included when metadata parameter is passed' do
           mi = Factory.create :mi_attempt
-          get :index, :format => 'json', 'metadata' => true
+          get :index, :format => 'json', 'metadata' => 'true'
           expected = {
             'mi_attempts' => [mi.as_json],
             'success' => true,
@@ -98,8 +98,15 @@ class MiAttemptsControllerTest < ActionController::TestCase
           expected['mi_attempts'][0].each do |key, value|
             assert_equal value, got['mi_attempts'][0][key], "Attribute #{key} differed"
           end
+        end
 
-          assert_equal expected, parse_json_from_response
+        should 'include total MI attempts' do
+          100.times { Factory.create :mi_attempt }
+          get :index, :format => 'json', 'metadata' => 'true', :per_page => 25
+          got = parse_json_from_response
+          assert_equal true, got['success']
+          assert_equal 25, got['mi_attempts'].size
+          assert_equal 100, got['total']
         end
       end
     end

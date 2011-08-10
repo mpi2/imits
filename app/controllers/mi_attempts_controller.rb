@@ -37,12 +37,12 @@ class MiAttemptsController < ApplicationController
   private :data_for_serialized
 
   def json_formatted(data)
-    return data unless params[:metadata] == true
+    return data unless params[:metadata].to_s == 'true'
     data = data.as_json
     retval = {
       'mi_attempts' => data,
       'success' => true,
-      'total' => data.size
+      'total' => MiAttempt.count
     }
     return retval
   end

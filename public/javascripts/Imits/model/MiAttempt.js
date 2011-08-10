@@ -54,6 +54,12 @@ Ext.define('Imits.model.MiAttempt', {
         format: 'json',
         startParam: undefined,
         limitParam: 'per_page',
+        sortParam: 'sorts',
+        extraParams: {'metadata': true},
+        reader: {
+            type: 'json',
+            root: 'mi_attempts'
+        },
         writer: Ext.create('Imits.data.JsonWriter', {
             root: 'mi_attempt',
             writeAllFields: false

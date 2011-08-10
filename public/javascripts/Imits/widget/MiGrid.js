@@ -7,8 +7,7 @@ Ext.define('Imits.widget.MiGrid', {
         autoLoad: true,
         autoSync: true,
 
-        // TODO Remove when dirty flag bug goes away - try formatting response
-        //  data correctly from server, then see if this is still needed
+        // TODO Remove when dirty flag bug goes away
         listeners: {
             'update': {
                 fn: function(store, record) {
@@ -34,8 +33,7 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'id',
             header: 'ID',
-            readOnly: true,
-            hidden: true
+            readOnly: true
         },
         {
             header: 'Edit In Form',

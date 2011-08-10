@@ -55,7 +55,7 @@ Ext.define('Imits.model.MiAttempt', {
         startParam: undefined,
         limitParam: 'per_page',
         sortParam: 'sorts',
-        extraParams: {'metadata': true},
+        extraParams: {'extended_response': true},
         reader: {
             type: 'json',
             root: 'mi_attempts'

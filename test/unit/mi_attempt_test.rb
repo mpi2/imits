@@ -13,7 +13,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       )
     end
 
-    context 'attribute tests:' do
+    context 'misc attribute tests:' do
 
       setup do
         default_mi_attempt
@@ -482,6 +482,83 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
+      should 'have #comments' do
+        mi = Factory.create :mi_attempt, :comments => 'this is a comment'
+        assert_equal 'this is a comment', mi.comments
+      end
+
+      context '#mi_plan' do
+        should 'have a production centre' do
+          mi_plan = Factory.create(:mi_plan)
+          assert_nil mi_plan.production_centre
+          mi = Factory.build :mi_attempt, :mi_plan => mi_plan
+          mi.valid?
+          assert_equal ['must have a production centre (INTERNAL ERROR)'],
+                  mi.errors['mi_plan']
+        end
+
+        should 'on save be assigned to a matching MiPlan' do
+          cbx1 = Factory.create :gene_cbx1
+          mi_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1,
+                  :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+
+          mi_attempt = Factory.build :mi_attempt,
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :mi_plan => nil
+          mi_attempt.production_centre_name = mi_plan.production_centre.name
+          mi_attempt.consortium_name = mi_plan.consortium.name
+
+          assert_no_difference("MiPlan.count") do
+            mi_attempt.save!
+          end
+
+          assert_equal mi_plan, mi_attempt.mi_plan
+        end
+
+        should 'on save, when assigning a matching MiPlan, set its status to Assigned if it is otherwise' do
+          cbx1 = Factory.create :gene_cbx1
+          mi_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1,
+                  :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+
+          mi_attempt = Factory.build :mi_attempt,
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :mi_plan => nil
+          mi_attempt.production_centre_name = mi_plan.production_centre.name
+          mi_attempt.consortium_name = mi_plan.consortium.name
+
+          assert_no_difference("MiPlan.count") do
+            mi_attempt.save!
+          end
+
+          mi_plan.reload
+          assert_equal mi_plan, mi_attempt.mi_plan
+          assert_equal 'Assigned', mi_plan.mi_plan_status.name
+        end
+
+        should 'be created on save if none match gene, consortium and production centre' do
+          cbx1 = Factory.create :gene_cbx1
+          assert_blank MiPlan.search(:production_centre_name_eq => 'WTSI',
+            :consortium_name_eq => 'BaSH',
+            :es_cell_gene_marker_symbol_eq => 'Cbx1').result
+
+          mi_attempt = Factory.build :mi_attempt,
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :mi_plan => nil
+          mi_attempt.production_centre_name = 'WTSI'
+          mi_attempt.consortium_name = 'BaSH'
+          mi_attempt.save!
+
+          assert_equal 1, MiPlan.search(:production_centre_name_eq => 'WTSI',
+            :consortium_name_eq => 'BaSH',
+            :es_cell_gene_marker_symbol_eq => 'Cbx1').result.count
+          assert_equal 'Cbx1', mi_attempt.mi_plan.gene.marker_symbol
+          assert_equal 'WTSI', mi_attempt.mi_plan.production_centre.name
+          assert_equal 'BaSH', mi_attempt.mi_plan.consortium.name
+          assert_equal 'High', mi_attempt.mi_plan.mi_plan_priority.name
+          assert_equal 'Assigned', mi_attempt.mi_plan.mi_plan_status.name
+        end
+      end
+
     end # attribute tests
 
     context 'before filter' do
@@ -527,11 +604,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         subject.updated_by_id = user.id
         assert_equal user, subject.updated_by
       end
-    end
-
-    should 'have #comments' do
-      mi = Factory.create :mi_attempt, :comments => 'this is a comment'
-      assert_equal 'this is a comment', mi.comments
     end
 
     context '#es_cell_name virtual attribute' do
@@ -675,72 +747,26 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    context '#mi_plan' do
-      should 'have a production centre' do
-        mi_plan = Factory.create(:mi_plan)
-        assert_nil mi_plan.production_centre
-        mi = Factory.build :mi_attempt, :mi_plan => mi_plan
-        mi.valid?
-        assert_equal ['must have a production centre (INTERNAL ERROR)'],
-                mi.errors['mi_plan']
+    context '#es_cell_marker_symbol' do
+      should 'delegate to es_cell' do
+        assert_equal default_mi_attempt.es_cell.marker_symbol, default_mi_attempt.es_cell_marker_symbol
       end
 
-      should 'on save be assigned to a matching MiPlan' do
-        cbx1 = Factory.create :gene_cbx1
-        mi_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1,
-                :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
-        assert_equal 1, MiPlan.count
-
-        mi_attempt = Factory.build :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                :mi_plan => nil
-        mi_attempt.production_centre_name = mi_plan.production_centre.name
-        mi_attempt.consortium_name = mi_plan.consortium.name
-        mi_attempt.save!
-
-        assert_equal 1, MiPlan.count
-        assert_equal mi_plan, mi_attempt.mi_plan
-      end
-
-      should 'on save, when assigning a matching MiPlan, set its status to Assigned if it is otherwise' do
-        cbx1 = Factory.create :gene_cbx1
-        mi_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1,
-                :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
-        assert_equal 1, MiPlan.count
-
-        mi_attempt = Factory.build :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                :mi_plan => nil
-        mi_attempt.production_centre_name = mi_plan.production_centre.name
-        mi_attempt.consortium_name = mi_plan.consortium.name
-        mi_attempt.save!
-
-        assert_equal 1, MiPlan.count
-        mi_plan.reload
-
-        assert_equal mi_plan, mi_attempt.mi_plan
-        assert_equal 'Assigned', mi_plan.mi_plan_status.name
-      end
-
-      should 'be created on save if none match gene, consortium and production centre' do
-        cbx1 = Factory.create :gene_cbx1
-        assert_equal 0, MiPlan.count
-
-        mi_attempt = Factory.build :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                :mi_plan => nil
-        mi_attempt.production_centre_name = 'WTSI'
-        mi_attempt.consortium_name = 'BaSH'
-        mi_attempt.save!
-
-        assert_equal 1, MiPlan.count
-        assert_equal 'Cbx1', mi_attempt.mi_plan.gene.marker_symbol
-        assert_equal 'WTSI', mi_attempt.mi_plan.production_centre.name
-        assert_equal 'BaSH', mi_attempt.mi_plan.consortium.name
-        assert_equal 'High', mi_attempt.mi_plan.mi_plan_priority.name
-        assert_equal 'Assigned', mi_attempt.mi_plan.mi_plan_status.name
+      should 'be in serialization output' do
+        assert_equal default_mi_attempt.es_cell.marker_symbol, default_mi_attempt.as_json['es_cell_marker_symbol']
       end
     end
+
+    context '#es_cell_allele_symbol' do
+      should 'delegate to es_cell' do
+        assert_equal default_mi_attempt.es_cell.allele_symbol, default_mi_attempt.es_cell_allele_symbol
+      end
+
+      should 'be in serialization output' do
+        assert_equal default_mi_attempt.es_cell.allele_symbol, default_mi_attempt.as_json['es_cell_allele_symbol']
+      end
+    end
+
 
     context 'private attributes' do
       setup do

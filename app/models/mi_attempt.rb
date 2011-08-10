@@ -180,9 +180,9 @@ class MiAttempt < ActiveRecord::Base
   def set_mi_plan
     if ! self.mi_plan
       mi_plan_params = {
-            :gene_id => self.gene.id,
-            :consortium_id => Consortium.find_by_name!(self.consortium_name).id,
-            :production_centre_id => Centre.find_by_name!(self.production_centre_name).id
+        :gene_id => self.gene.id,
+        :consortium_id => Consortium.find_by_name!(self.consortium_name).id,
+        :production_centre_id => Centre.find_by_name!(self.production_centre_name).id
       }
 
       self.mi_plan = MiPlan.where(mi_plan_params).first
@@ -300,6 +300,33 @@ class MiAttempt < ActiveRecord::Base
 
   def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
   def es_cell_allele_symbol; es_cell.try(:allele_symbol); end
+
+  def self.translate_search_param(param)
+    translations = {
+      'marker_symbol' => 'es_cell_gene_marker_symbol',
+      'allele_symbol' => 'es_cell_gene_allele_symbol',
+      'consortium_name' => 'mi_plan_consortium_name',
+      'production_centre_name' => 'mi_plan_production_centre_name',
+      'distribution_centre_name' => 'mi_plan_distribution_centre_name'
+    }
+
+    translations.each do |tr_from, tr_to|
+      md = /^#{tr_from}_(.+)$/.match(param)
+      if md
+        return "#{tr_to}_#{md[1]}"
+      end
+    end
+
+    return param
+  end
+
+  def self.public_search(params)
+    translated_params = {}
+    params.stringify_keys.each do |name, value|
+      translated_params[translate_search_param(name)] = value
+    end
+    return self.search(translated_params)
+  end
 
   def as_json(options = {})
     super(default_serializer_options(options))

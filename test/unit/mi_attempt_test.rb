@@ -815,5 +815,59 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '::translate_search_param' do
+      should 'translate marker_symbol' do
+        assert_equal 'es_cell_gene_marker_symbol_eq',
+                MiAttempt.translate_search_param('marker_symbol_eq')
+      end
+
+      should 'translate allele symbol' do
+        assert_equal 'es_cell_gene_allele_symbol_in',
+                MiAttempt.translate_search_param('allele_symbol_in')
+      end
+
+      should 'translate consortium_name' do
+        assert_equal 'mi_plan_consortium_name_ci_in',
+                MiAttempt.translate_search_param('consortium_name_ci_in')
+      end
+
+      should 'translate production_centre' do
+        assert_equal 'mi_plan_production_centre_name_eq',
+                MiAttempt.translate_search_param('production_centre_name_eq')
+      end
+
+      should 'translate distribution_centre' do
+        assert_equal 'mi_plan_distribution_centre_name_eq',
+                MiAttempt.translate_search_param('distribution_centre_name_eq')
+      end
+
+      should 'leave other params untouched' do
+        assert_equal 'colony_name_not_in',
+                MiAttempt.translate_search_param('colony_name_not_in')
+      end
+    end
+
+    context '::public_search' do
+      should 'pass on parameters not needing translation to ::search' do
+        assert_equal default_mi_attempt,
+                MiAttempt.public_search(:colony_name_eq => default_mi_attempt.colony_name).result.first
+      end
+
+      should 'translate searching predicates' do
+        es_cell_1 = Factory.create :es_cell_EPD0127_4_E01
+        es_cell_2 = Factory.create :es_cell_EPD0343_1_H06
+        100.times { Factory.create :mi_attempt }
+        result = MiAttempt.public_search(:marker_symbol_eq => 'Trafd1',
+          :production_centre_name => 'WTSI').result
+
+        colony_names = [es_cell_1, es_cell_2].map(&:mi_attempt).flatten.map(&:colony_name)
+        assert_equal colony_names.sort, result.map(&:colony_name).sort
+      end
+
+      should_eventually 'translate sorting predicates' do
+        flunk 'Dependent on ransack enabling sorting by associations fields'
+      end
+    end
+
   end
 end

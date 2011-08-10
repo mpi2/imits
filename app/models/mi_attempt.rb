@@ -105,6 +105,13 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
+  validate do |mi_attempt|
+    next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
+    if(mi_attempt.es_cell.gene != mi_attempt.mi_plan.gene)
+      mi_attempt.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{mi_attempt.es_cell.gene.marker_symbol} != #{mi_attempt.mi_plan.gene.marker_symbol})"
+    end
+  end
+
   before_validation :set_blank_strings_to_nil
   before_validation :set_default_status
   before_validation :set_total_chimeras

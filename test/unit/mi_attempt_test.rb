@@ -767,6 +767,13 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    should 'validate that es_cell gene is the same as mi_plan gene' do
+      mi = Factory.create :mi_attempt
+      mi.mi_plan.gene = Factory.create :gene
+
+      mi.valid?
+      assert_match /gene mismatch/i, mi.errors[:base].join('; ')
+    end
 
     context 'private attributes' do
       setup do

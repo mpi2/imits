@@ -48,21 +48,7 @@ Ext.define('Imits.model.MiAttempt', {
     }
     ],
 
-    proxy: {
-        type: 'rest',
-        url: '/mi_attempts',
-        format: 'json',
-        startParam: undefined,
-        limitParam: 'per_page',
-        sortParam: 'sorts',
-        extraParams: {'extended_response': true},
-        reader: {
-            type: 'json',
-            root: 'mi_attempts'
-        },
-        writer: Ext.create('Imits.data.JsonWriter', {
-            root: 'mi_attempt',
-            writeAllFields: false
-        })
-    }
+    proxy: Ext.create('Imits.data.Proxy', {
+        resource: 'mi_attempt'
+    })
 });

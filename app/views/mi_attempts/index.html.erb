@@ -1,7 +1,14 @@
 <% @tab = 'Search & Edit' %>
 
+<% files = [
+  'Imits/data/JsonWriter.js',
+  'Imits/data/Proxy.js',
+  'Imits/model/MiAttempt.js',
+  'Imits/widget/MiGrid.js',
+  'mi_attempts/index'
+] %>
 <% content_for :head do %>
-  <%= javascript_include_tag('mi_attempts/index') %>
+  <%= javascript_include_tag(*files) %>
 <% end %>
 
 <%= form_tag mi_attempts_path, :method => :get, :id => 'mi-search-form' do %>

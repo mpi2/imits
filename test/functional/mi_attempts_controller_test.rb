@@ -81,10 +81,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_equal names.sort, names
       end
 
-      context 'JSON metadata' do
-        should 'be included when metadata parameter is passed' do
+      context 'JSON extended_response' do
+        should 'be included when parameter is passed' do
           mi = Factory.create :mi_attempt
-          get :index, :format => 'json', 'metadata' => 'true'
+          get :index, :format => 'json', 'extended_response' => 'true'
           expected = {
             'mi_attempts' => [mi.as_json],
             'success' => true,
@@ -102,7 +102,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
         should 'include total MI attempts' do
           100.times { Factory.create :mi_attempt }
-          get :index, :format => 'json', 'metadata' => 'true', :per_page => 25
+          get :index, :format => 'json', 'extended_response' => 'true', :per_page => 25
           got = parse_json_from_response
           assert_equal true, got['success']
           assert_equal 25, got['mi_attempts'].size
@@ -283,6 +283,24 @@ class MiAttemptsControllerTest < ActionController::TestCase
         bad_update_for_format(:xml)
         doc = parse_xml_from_response
         assert_not_equal 0, doc.xpath('count(//error)')
+      end
+
+      should 'take extended_response parameter into account for JSON' do
+        mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
+
+        put :update, :id => mi_attempt.id,
+                :mi_attempt => {'total_blasts_injected' => 1},
+                :format => 'json', 'extended_response' => true
+        assert_response :success
+
+        got = parse_json_from_response
+        mi_attempt.reload
+        expected = {
+          'total' => 1,
+          'mi_attempts' => [mi_attempt.as_json],
+          'success' => true
+        }
+        assert_equal expected, got
       end
     end
 

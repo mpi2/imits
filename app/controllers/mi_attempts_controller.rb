@@ -25,7 +25,7 @@ class MiAttemptsController < ApplicationController
       end
 
       format.xml { render :xml => data_for_serialized }
-      format.json { render :json => json_formatted(data_for_serialized) }
+      format.json { render :json => json_format_extended_response(data_for_serialized) }
     end
   end
 
@@ -35,18 +35,6 @@ class MiAttemptsController < ApplicationController
     MiAttempt.search(cleaned_params).result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
   end
   private :data_for_serialized
-
-  def json_formatted(data)
-    return data unless params[:metadata].to_s == 'true'
-    data = data.as_json
-    retval = {
-      'mi_attempts' => data,
-      'success' => true,
-      'total' => MiAttempt.count
-    }
-    return retval
-  end
-  private :json_formatted
 
   def new
     set_centres_and_consortia
@@ -93,6 +81,10 @@ class MiAttemptsController < ApplicationController
         set_centres_and_consortia
         render :action => :show
       end
+
+      if @mi_attempt.valid?
+        format.json { render :json => json_format_extended_response(@mi_attempt) }
+      end
     end
   end
 
@@ -100,7 +92,21 @@ class MiAttemptsController < ApplicationController
     @mi_attempt = MiAttempt.find(params[:id])
   end
 
-  protected
+  private
+
+  def json_format_extended_response(data)
+    return data unless params[:extended_response].to_s == 'true'
+
+    data = [data] unless data.kind_of? Array
+    data = data.as_json
+
+    retval = {
+      'mi_attempts' => data,
+      'success' => true,
+      'total' => MiAttempt.count
+    }
+    return retval
+  end
 
   def set_centres_and_consortia
     @centres = Centre.all

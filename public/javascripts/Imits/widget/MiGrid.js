@@ -6,6 +6,7 @@ Ext.define('Imits.widget.MiGrid', {
         model: 'Imits.model.MiAttempt',
         autoLoad: true,
         autoSync: true,
+        remoteSort: true,
 
         // TODO Remove when dirty flag bug goes away
         listeners: {

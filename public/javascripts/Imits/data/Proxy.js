@@ -5,7 +5,6 @@ Ext.define('Imits.data.Proxy', {
         var resource = config.resource;
 
         this.callParent([{
-            type: 'rest',
             format: 'json',
             url: '/' + resource + 's',
             extraParams: {
@@ -14,6 +13,7 @@ Ext.define('Imits.data.Proxy', {
             startParam: undefined,
             limitParam: 'per_page',
             sortParam: 'sorts',
+
             reader: {
                 type: 'json',
                 root: resource + 's'
@@ -21,7 +21,16 @@ Ext.define('Imits.data.Proxy', {
             writer: Ext.create('Imits.data.JsonWriter', {
                 root: resource,
                 writeAllFields: false
-            })
+            }),
+
+            encodeSorters: function(sorters) {
+                if(sorters.length == 0) {
+                    return "";
+                } else {
+                    var sorter = sorters[0]
+                    return sorter.property + ' ' + sorter.direction;
+                }
+            }
         }]);
     }
 });

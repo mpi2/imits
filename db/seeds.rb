@@ -59,6 +59,7 @@ end
   'MRC - Harwell',
   'Oulu',
   'RIKEN BRC',
+  'TCP',
   'UCD',
   'WTSI'
 ].each do |name|

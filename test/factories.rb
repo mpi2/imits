@@ -3,7 +3,7 @@
 Factory.define :user do |user|
   user.sequence(:email) { |n| "user#{n}@example.com" }
   user.password 'password'
-  user.production_centre { Centre.find_by_name('WTSI') }
+  user.production_centre { Centre.find_by_name!('WTSI') }
 end
 
 Factory.define :pipeline do |pipeline|
@@ -33,7 +33,7 @@ end
 
 Factory.define :mi_plan do |mi_plan|
   mi_plan.association :gene
-  mi_plan.association :consortium
+  mi_plan.consortium { Consortium.find_by_name!('EUCOMM-EUMODIC') }
   mi_plan.mi_plan_status   { MiPlanStatus.find_by_name! 'Interest' }
   mi_plan.mi_plan_priority { MiPlanPriority.find_by_name! 'High' }
 end
@@ -44,7 +44,8 @@ end
 
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :es_cell
-  mi_attempt.association :mi_plan, :factory => :mi_plan_with_production_centre
+  mi_attempt.consortium_name 'EUCOMM-EUMODIC'
+  mi_attempt.production_centre_name 'WTSI'
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|
@@ -104,32 +105,34 @@ end
 
 Factory.define :es_cell_EPD0127_4_E01, :parent => :es_cell_EPD0127_4_E01_without_mi_attempts do |es_cell|
   es_cell.after_create do |es_cell|
-    mi_plan = Factory.create(:mi_plan,
-      :gene => Gene.find_by_marker_symbol!('Trafd1'),
-      :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-      :production_centre => Centre.find_by_name!('ICS')
+    common_attrs = {
+      :consortium_name => 'EUCOMM-EUMODIC',
+      :production_centre_name => 'ICS'
+    }
+
+    Factory.create(:mi_attempt,
+      common_attrs.merge(
+        :es_cell => es_cell,
+        :colony_name => 'MBSS',
+        :distribution_centre_name => 'ICS',
+        :is_suitable_for_emma => true
+      )
     )
 
-    mi1 = Factory.create(:mi_attempt,
-      :es_cell => es_cell,
-      :colony_name => 'MBSS',
-      :distribution_centre => Centre.find_by_name!('ICS'),
-      :is_suitable_for_emma => true,
-      :mi_plan => mi_plan
+    Factory.create(:mi_attempt,
+      common_attrs.merge(
+        :es_cell => es_cell,
+        :distribution_centre_name => 'ICS',
+        :emma_status => 'unsuitable_sticky'
+      )
     )
 
-    mi2 = Factory.create(:mi_attempt,
-      :es_cell => es_cell,
-      :distribution_centre => Centre.find_by_name!('ICS'),
-      :emma_status => 'unsuitable_sticky',
-      :mi_plan => mi_plan
-    )
-
-    mi3 = Factory.create(:mi_attempt,
-      :es_cell => es_cell,
-      :colony_name => 'WBAA',
-      :distribution_centre => Centre.find_by_name!('ICS'),
-      :mi_plan => mi_plan
+    Factory.create(:mi_attempt,
+      common_attrs.merge(
+        :es_cell => es_cell,
+        :colony_name => 'WBAA',
+        :distribution_centre_name => 'ICS'
+      )
     )
   end
 end
@@ -143,18 +146,13 @@ end
 
 Factory.define :es_cell_EPD0343_1_H06, :parent => :es_cell_EPD0343_1_H06_without_mi_attempts do |es_cell|
   es_cell.after_create do |es_cell|
-    mi_plan = Factory.create(:mi_plan,
-      :gene => Gene.find_by_marker_symbol!('Myo1c'),
-      :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-      :production_centre => Centre.find_by_name!('WTSI')
-    )
-
-    mi_attempt = Factory.create(:mi_attempt,
+    Factory.create(:mi_attempt,
       :es_cell => es_cell,
       :colony_name => 'MDCF',
-      :distribution_centre => Centre.find_by_name!('WTSI'),
+      :production_centre_name => 'WTSI',
+      :distribution_centre_name => 'WTSI',
       :mi_date => Date.parse('2010-09-13'),
-      :mi_plan => mi_plan
+      :consortium_name => 'EUCOMM-EUMODIC'
     )
   end
 end
@@ -175,8 +173,8 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
     mi_attempt = Factory.create(:mi_attempt,
       :es_cell => es_cell,
       :colony_name => 'MBFD',
-      :distribution_centre => Centre.find_by_name!('WTSI'),
-      :mi_plan => mi_plan
+      :production_centre_name => 'WTSI',
+      :distribution_centre_name => 'WTSI'
     )
   end
 end

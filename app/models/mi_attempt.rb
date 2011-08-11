@@ -95,7 +95,7 @@ class MiAttempt < ActiveRecord::Base
     association_name = attr.to_s.gsub('_name', '')
     klass = {:consortium_name => Consortium, :production_centre_name => Centre}[attr]
 
-    if mi.mi_plan and value != mi.mi_plan.send(association_name).name
+    if mi.mi_plan and mi.mi_plan.send(association_name) and value != mi.mi_plan.send(association_name).name
       mi.errors.add attr, 'cannot be modified'
     else
       associated = klass.find_by_name(value)

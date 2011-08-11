@@ -22,13 +22,64 @@ Ext.define('Imits.widget.MiGrid', {
         }
     },
 
-    selType: 'cellmodel',
+    selType: 'rowmodel',
+
     plugins: [
-    Ext.create('Ext.grid.plugin.CellEditing', {
+    Ext.create('Ext.grid.plugin.RowEditing', {
         autoCancel: false,
         clicksToEdit: 1
     })
     ],
+
+    manageResize: function() {
+        var windowHeight = window.innerHeight - 30;
+        if(!windowHeight) {
+            windowHeight = document.documentElement.clientHeight - 30;
+        }
+        var newGridHeight = windowHeight - this.getEl().getTop();
+        if(newGridHeight < 200) {
+            newGridHeight = 200;
+        }
+        this.setHeight(newGridHeight);
+        this.doLayout();
+    },
+
+    generateColumns: function(config) { // private
+        var columns = [];
+        Ext.Object.each(this.groupedColumns, function(viewName, viewColumns) {
+            Ext.Array.each(viewColumns, function(column) {
+                var existing;
+                Ext.each(columns, function(i) {
+                    if(i.dataIndex == column.dataIndex && i.header == column.header) {
+                        existing = i;
+                    }
+                });
+                if(!existing) {
+                    columns.push(column);
+                }
+            });
+        });
+
+        config.columns = columns;
+    },
+
+    constructor: function(config) {
+        if(config == undefined) {
+            config = {}
+        }
+        this.generateColumns(config);
+        this.callParent([config]);
+    },
+
+    initComponent: function() {
+        this.callParent();
+
+        this.addDocked(Ext.create('Ext.toolbar.Paging', {
+            store: this.getStore(),
+            dock: 'bottom',
+            displayInfo: true
+        }));
+    },
 
     groupedColumns: {
         'common': [
@@ -277,55 +328,7 @@ Ext.define('Imits.widget.MiGrid', {
             readOnly: true
         }
         ]
-    },
-
-    manageResize: function() {
-        var windowHeight = window.innerHeight - 30;
-        if(!windowHeight) {
-            windowHeight = document.documentElement.clientHeight - 30;
-        }
-        var newGridHeight = windowHeight - this.getEl().getTop();
-        if(newGridHeight < 200) {
-            newGridHeight = 200;
-        }
-        this.setHeight(newGridHeight);
-        this.doLayout();
-    },
-
-    generateColumns: function(config) { // private
-        var columns = [];
-        Ext.Object.each(this.groupedColumns, function(viewName, viewColumns) {
-            Ext.Array.each(viewColumns, function(column) {
-                var existing;
-                Ext.each(columns, function(i) {
-                    if(i.dataIndex == column.dataIndex && i.header == column.header) {
-                        existing = i;
-                    }
-                });
-                if(!existing) {
-                    columns.push(column);
-                }
-            });
-        });
-
-        config.columns = columns;
-    },
-
-    constructor: function(config) {
-        if(config == undefined) {
-            config = {}
-        }
-        this.generateColumns(config);
-        this.callParent([config]);
-    },
-
-    initComponent: function() {
-        this.callParent();
-
-        this.addDocked(Ext.create('Ext.toolbar.Paging', {
-            store: this.getStore(),
-            dock: 'bottom',
-            displayInfo: true
-        }));
     }
+// END groupedColumns - ALWAYS keep at bottom of file for easier organization
+
 });

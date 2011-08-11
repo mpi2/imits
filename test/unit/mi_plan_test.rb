@@ -39,7 +39,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_false mip2.valid?
         assert ! mip2.errors['gene_id'].blank?
 
-        mip.production_centre = Centre.find_by_name('WTSI')
+        mip.production_centre = Centre.find_by_name!('WTSI')
         assert mip.save
         assert mip.valid?
 
@@ -136,12 +136,16 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'set all interested MiPlans to "Declined - MI Attempt" if MiPlans with active MiAttempts already exist' do
         gene = Factory.create :gene_cbx1
-        plan = Factory.create :mi_plan, 
-          :gene              => gene,
-          :consortium        => Consortium.find_by_name!('BaSH'),
-          :mi_plan_status    => MiPlanStatus.find_by_name!('Assigned'),
-          :production_centre => Centre.find_by_name!('BCM')
-        Factory.create :mi_attempt, :mi_plan => plan
+        mi_plan = Factory.create :mi_plan,
+                :gene              => gene,
+                :consortium        => Consortium.find_by_name!('BaSH'),
+                :mi_plan_status    => MiPlanStatus.find_by_name!('Assigned'),
+                :production_centre => Centre.find_by_name!('BCM')
+
+        mi_attempt = Factory.create(:mi_attempt, :es_cell => Factory.create(:es_cell, :gene => gene),
+          :consortium_name => 'BaSH', :production_centre_name => 'BCM')
+
+        assert_equal mi_plan, mi_attempt.mi_plan
 
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)

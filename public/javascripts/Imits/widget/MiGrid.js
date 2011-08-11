@@ -326,7 +326,97 @@ Ext.define('Imits.widget.MiGrid', {
             dataIndex: 'mouse_allele_symbol',
             header: 'Mouse Allele Symbol',
             readOnly: true
-        }
+        },
+        ],
+
+        'qcDetails': [
+        {
+            dataIndex: 'qc_southern_blot_result',
+            header: 'Southern Blot',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_five_prime_lr_pcr_result',
+            header: 'Five Prime LR PCR',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_five_prime_cassette_integrity_result',
+            header: 'Five Prime Cassette Integrity',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_tv_backbone_assay_result',
+            header: 'TV Backbone Assay',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_neo_count_qpcr_result',
+            header: 'Neo Count QPCR',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_neo_sr_pcr_result',
+            header: 'Neo SR PCR',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_loa_qpcr_result',
+            header: 'LOA QPCR',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_homozygous_loa_sr_pcr_result',
+            header: 'Homozygous LOA SR PCR',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_lacz_sr_pcr_result',
+            header: 'LacZ SR PCR',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_mutant_specific_sr_pcr_result',
+            header: 'Mutant Specific SR PCR',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_loxp_confirmation_result',
+            header: 'LoxP Confirmation',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'qc_three_prime_lr_pcr_result',
+            header: 'Three Prime LR PCR',
+            sortable: false,
+            readOnly: true
+        },
+        {
+            dataIndex: 'report_to_public',
+            header: 'Report to Public',
+            editor: 'checkbox'
+        },
+        {
+            dataIndex: 'is_active',
+            header: 'Active?',
+            editor: 'checkbox'
+        },
+        {
+            dataIndex: 'is_released_from_genotyping',
+            header: 'Released From Genotyping',
+            editor: 'checkbox'
+        },
         ]
     }
 // END groupedColumns - ALWAYS keep at bottom of file for easier organization

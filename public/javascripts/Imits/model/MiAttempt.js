@@ -153,8 +153,33 @@ Ext.define('Imits.model.MiAttempt', {
     {
         name: 'mouse_allele_symbol',
         readOnly: true
-    }
+    },
 
+    // QC Details
+    'qc_southern_blot_result',
+    'qc_five_prime_lr_pcr_result',
+    'qc_five_prime_cassette_integrity_result',
+    'qc_tv_backbone_assay_result',
+    'qc_neo_count_qpcr_result',
+    'qc_neo_sr_pcr_result',
+    'qc_loa_qpcr_result',
+    'qc_homozygous_loa_sr_pcr_result',
+    'qc_lacz_sr_pcr_result',
+    'qc_mutant_specific_sr_pcr_result',
+    'qc_loxp_confirmation_result',
+    'qc_three_prime_lr_pcr_result',
+    {
+        name: 'report_to_public',
+        type: 'boolean'
+    },
+    {
+        name: 'is_active',
+        type: 'boolean'
+    },
+    {
+        name: 'is_released_from_genotyping',
+        type: 'boolean'
+    }
     ],
 
     proxy: Ext.create('Imits.data.Proxy', {

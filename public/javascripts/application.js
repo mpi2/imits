@@ -107,7 +107,7 @@ function setupCollapsibleFieldsets() {
     collapsibleLegends.each(function(elm, comp, idx) {
         elm.addListener('click', function() {
             toggleCollapsibleFieldsetLegend( Ext.get(comp.elements[idx]) )
-            });
+        });
         elm.up('fieldset').addCls('collapsible-content-shown');
     });
 }
@@ -135,3 +135,9 @@ function googleAnalytics() {
         s.parentNode.insertBefore(ga, s);
     })();
 }
+
+Ext.Loader.setConfig({
+    enabled: true
+});
+Ext.Loader.setPath('Ext', '../extjs');
+Ext.Loader.setPath('Ext.ux', '../extjs/examples/ux');

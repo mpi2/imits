@@ -7,6 +7,7 @@ Ext.define('Imits.widget.MiGrid', {
         autoLoad: true,
         autoSync: true,
         remoteSort: true,
+        pageSize: 20,
 
         // TODO Remove when dirty flag bug goes away
         listeners: {
@@ -134,7 +135,7 @@ Ext.define('Imits.widget.MiGrid', {
         }
         ],
 
-        'litter_details': [
+        'litterDetails': [
         {
             dataIndex: 'total_pups_born',
             header: 'Total Pups Born',
@@ -175,7 +176,120 @@ Ext.define('Imits.widget.MiGrid', {
             header: '39-0% Male Chimerism Levels',
             editor: 'simplenumberfield'
         }
+        ],
+
+        'chimeraMatingDetails': [
+        {
+            dataIndex: 'emma_status',
+            header: 'EMMA Status',
+            readOnly: true,
+            sortable: false
+        },
+        {
+            dataIndex: 'test_cross_strain_name',
+            header: 'Test Cross Strain',
+            readOnly: true,
+            sortable: false
+        },
+        {
+            dataIndex: 'colony_background_strain_name',
+            header: 'Colony Background Strain',
+            readOnly: true,
+            sortable: false
+        },
+        {
+            dataIndex: 'date_chimeras_mated',
+            header: 'Date Chimeras Mated',
+            editor: {
+                xtype: 'datefield',
+                format: 'd-m-Y'
+            },
+            renderer: Ext.util.Format.dateRenderer('d-m-Y')
+        },
+        {
+            dataIndex: 'number_of_chimera_matings_attempted',
+            header: '# Chimera Mating Attempted',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_chimera_matings_successful',
+            header: '# Chimera Matings Successful',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_chimeras_with_glt_from_cct',
+            header: '# Chimeras with Germline Transmission from CCT',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_chimeras_with_glt_from_genotyping',
+            header: 'No. Chimeras with Germline Transmission from Genotyping',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_chimeras_with_0_to_9_percent_glt',
+            header: '# Chimeras with 0-9% GLT',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_chimeras_with_10_to_49_percent_glt',
+            header: '# Chimeras with 10-49% GLT',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_chimeras_with_50_to_99_percent_glt',
+            header: 'No. Chimeras with 50-99% GLT',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_chimeras_with_100_percent_glt',
+            header: 'No. Chimeras with 100% GLT',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'total_f1_mice_from_matings',
+            header: 'Total F1 Mice from Matings',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_cct_offspring',
+            header: '# Coat Colour Transmission Offspring',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_het_offspring',
+            header: '# Het Offspring',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'number_of_live_glt_offspring',
+            header: '# Live GLT Offspring',
+            editor: 'simplenumberfield'
+        },
+        {
+            dataIndex: 'mouse_allele_type',
+            header: 'Mouse Allele Type',
+            readOnly: true
+        },
+        {
+            dataIndex: 'mouse_allele_symbol',
+            header: 'Mouse Allele Symbol',
+            readOnly: true
+        }
         ]
+    },
+
+    manageResize: function() {
+        var windowHeight = window.innerHeight - 30;
+        if(!windowHeight) {
+            windowHeight = document.documentElement.clientHeight - 30;
+        }
+        var newGridHeight = windowHeight - this.getEl().getTop();
+        if(newGridHeight < 200) {
+            newGridHeight = 200;
+        }
+        this.setHeight(newGridHeight);
+        this.doLayout();
     },
 
     generateColumns: function(config) { // private
@@ -198,8 +312,11 @@ Ext.define('Imits.widget.MiGrid', {
     },
 
     constructor: function(config) {
+        if(config == undefined) {
+            config = {}
+        }
         this.generateColumns(config);
-        this.callParent(arguments);
+        this.callParent([config]);
     },
 
     initComponent: function() {

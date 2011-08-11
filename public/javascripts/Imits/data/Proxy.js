@@ -28,7 +28,7 @@ Ext.define('Imits.data.Proxy', {
                     return "";
                 } else {
                     var sorter = sorters[0]
-                    return sorter.property + ' ' + sorter.direction;
+                    return sorter.property + ' ' + sorter.direction.toLowerCase();
                 }
             }
         }]);

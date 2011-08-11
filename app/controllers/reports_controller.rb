@@ -9,7 +9,7 @@ class ReportsController < ApplicationController
   def microinjection_list
     unless params[:commit].blank?
       @report = generate_mi_list_report( params )
-      @report.sort_rows_by!( 'Injected Date', :order => :descending )
+      @report.sort_rows_by!( 'Injection Date', :order => :descending )
       @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
 
       if request.format == :csv
@@ -123,13 +123,34 @@ class ReportsController < ApplicationController
   end
 
   def planned_microinjection_summary_and_conflicts
-    all_mi_plans = generate_planned_mi_list_report( nil )
+    all_mi_plans = generate_planned_mi_list_report
 
-    @summary = Table([ 'Status', 'Consortium', '# High Priority', '# Medium Priority', '# Low Priority' ])
+    # Counts of mi_plans grouped by status
 
-    grouped_report = Grouping( all_mi_plans, :by => ['Status','Consortium'], :order => :name )
-    grouped_report.each do |status|
-      summary = grouped_report.subgrouping(status).summary(
+    # TODO - put an order_by field on the status table and grab this array out of the status table in the future!
+    statuses = [ 'Interest', 'Conflict', 'Declined - MI Attempt', 'Declined - Conflict', 'Assigned' ]
+
+    mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
+    status_args = { :order => ['Consortium']+statuses }
+    statuses.each do |status|
+      status_args[status] = lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == status } ) }
+    end
+
+    @summary_by_status = mi_plans_grouped_by_consortia.summary( 'Consortium',status_args )
+    @summary_by_status.add_column('TOTAL BY CONSORTIUM') { |row| statuses.map{ |status| row[status] }.reduce(:+) }
+
+    totals = ['TOTAL BY STATUS']
+    statuses.each { |status| totals.push( @summary_by_status.sum(status) ) }
+    totals.push( @summary_by_status.sum('TOTAL BY CONSORTIUM') )
+    @summary_by_status << totals
+
+    # Counts of mi_plans grouped by status and priority
+
+    @summary_by_status_and_priority = Table([ 'Consortium', 'Status', '# High Priority', '# Medium Priority', '# Low Priority' ])
+
+    mi_plans_grouped_by_status_consortia = Grouping( all_mi_plans, :by => ['Status','Consortium'], :order => :name )
+    mi_plans_grouped_by_status_consortia.each do |status|
+      summary = mi_plans_grouped_by_status_consortia.subgrouping(status).summary(
         'Consortium',
         '# High Priority'   => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == 'High' } ) },
         '# Medium Priority' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == 'Medium' } ) },
@@ -140,11 +161,13 @@ class ReportsController < ApplicationController
       summary.each_entry do |row|
         hash = row.to_hash
         hash['Status'] = status
-        @summary << hash
+        @summary_by_status_and_priority << hash
       end
     end
 
-    @summary = Grouping( @summary, :by => ['Status'], :order => :name )
+    @summary_by_status_and_priority = Grouping( @summary_by_status_and_priority, :by => ['Status'], :order => :name )
+
+    # Details on conflicting and declined mi_plans
 
     @conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Conflict' }
     @conflict_report.remove_columns(['Status'])
@@ -163,7 +186,7 @@ class ReportsController < ApplicationController
 
   protected
 
-  def generate_planned_mi_list_report( params )
+  def generate_planned_mi_list_report( params={} )
     report_column_order_and_names = {
       'consortium.name'         => 'Consortium',
       'production_centre.name'  => 'Production Centre',
@@ -173,15 +196,16 @@ class ReportsController < ApplicationController
       'mi_plan_status.name'     => 'Status'
     }
 
-    all_mi_plans = MiPlan.without_mi_attempt.report_table(
+    all_mi_plans = MiPlan.without_active_mi_attempt.report_table(
       :all,
-      :only => [],
-      :include => {
-        :consortium         => { :only => [ :name ] },
-        :production_centre  => { :only => [ :name ] },
-        :gene               => { :only => [ :marker_symbol, :mgi_accession_id ] },
-        :mi_plan_priority   => { :only => [ :name ] },
-        :mi_plan_status     => { :only => [ :name ] }
+      :only       => [],
+      :conditions => process_filter_params( params ),
+      :include    => {
+        :consortium         => { :only => [:name] },
+        :production_centre  => { :only => [:name] },
+        :gene               => { :only => [:marker_symbol,:mgi_accession_id] },
+        :mi_plan_priority   => { :only => [:name] },
+        :mi_plan_status     => { :only => [:name] }
       }
     )
 
@@ -193,59 +217,93 @@ class ReportsController < ApplicationController
     return all_mi_plans
   end
 
-  def generate_mi_list_report( params )
+  def generate_mi_list_report( params={} )
     report_column_order_and_names = {
-      'pipeline.name'                                   => 'Pipeline',
-      'production_centre.name'                          => 'Production Centre',
-      'es_cell.name'                                    => 'Clone Name',
-      'es_cell.marker_symbol'                           => 'Marker Symbol',
-      'es_cell.allele_symbol'                           => 'Clone Allele Name',
-      'mi_date'                                         => 'Injection Date',
-      'mi_attempt_status.description'                   => 'Status',
-      'colony_background_strain.name'                   => 'Background Strain',
-      'blast_strain.name'                               => 'Blastocyst Strain',
-      'total_transferred'                               => '# Blastocysts Transferred',
-      'total_pups_born'                                 => '# Pups Born',
-      'total_chimeras'                                  => '# Total Chimeras',
-      'total_male_chimeras'                             => '# Male Chimeras',
-      'total_female_chimeras'                           => '# Female Chimeras',
-      'number_of_males_with_0_to_39_percent_chimerism'  => '# Male Chimeras/Coat Colour < 40%',
-      'number_of_males_with_40_to_79_percent_chimerism' => '# Male Chimeras/Coat Colour 40-79%',
-      'number_of_males_with_80_to_99_percent_chimerism' => '# Male Chimeras/Coat Colour 80-99%',
-      'number_of_males_with_100_percent_chimerism'      => '# Male Chimeras/Coat Colour 100%',
-      'test_cross_strain.name'                          => 'Test Cross Strain',
-      'number_of_chimera_matings_attempted'             => '# Chimeras Set-Up',
-      'number_of_chimeras_with_0_to_9_percent_glt'      => '# Chimeras < 10% GLT',
-      'number_of_chimeras_with_10_to_49_percent_glt'    => '# Chimeras 10-49% GLT',
-      'number_of_chimeras_with_50_to_99_percent_glt'    => '# Chimeras 50-99% GLT',
-      'number_of_chimeras_with_100_percent_glt'         => '# Chimeras 100% GLT',
-      'number_of_cct_offspring'                         => '# Coat Colour Offspring',
-      'number_of_chimeras_with_glt_from_genotyping'     => '# Chimeras with Genotype-Confirmed Transmission',
-      'number_of_het_offspring'                         => '# Heterozygous Offspring',
-      'colony_name'                                     => 'Colony Name',
-      'is_suitable_for_emma'                            => 'Suitable for EMMA?',
-      'comments'                                        => 'Comments',
-      'number_of_chimeras_with_glt_from_cct'            => nil
+      'consortium.name'                                             => 'Consortium',
+      'production_centre.name'                                      => 'Production Centre',
+      'pipeline.name'                                               => 'ES Cell Pipeline',
+      'es_cell.name'                                                => 'Clone Name',
+      'gene.mgi_accession_id'                                       => 'MGI Accession ID',
+      'gene.marker_symbol'                                          => 'Marker Symbol',
+      'es_cell.allele_symbol'                                       => 'Clone Allele Name',
+      'mi_attempts.mi_date'                                         => 'Injection Date',
+      'mi_attempt_status.description'                               => 'Status',
+      'colony_background_strain.name'                               => 'Background Strain',
+      'blast_strain.name'                                           => 'Blastocyst Strain',
+      'mi_attempts.total_transferred'                               => '# Blastocysts Transferred',
+      'mi_attempts.total_pups_born'                                 => '# Pups Born',
+      'mi_attempts.total_chimeras'                                  => '# Total Chimeras',
+      'mi_attempts.total_male_chimeras'                             => '# Male Chimeras',
+      'mi_attempts.total_female_chimeras'                           => '# Female Chimeras',
+      'mi_attempts.number_of_males_with_0_to_39_percent_chimerism'  => '# Male Chimeras/Coat Colour < 40%',
+      'mi_attempts.number_of_males_with_40_to_79_percent_chimerism' => '# Male Chimeras/Coat Colour 40-79%',
+      'mi_attempts.number_of_males_with_80_to_99_percent_chimerism' => '# Male Chimeras/Coat Colour 80-99%',
+      'mi_attempts.number_of_males_with_100_percent_chimerism'      => '# Male Chimeras/Coat Colour 100%',
+      'test_cross_strain.name'                                      => 'Test Cross Strain',
+      'mi_attempts.number_of_chimera_matings_attempted'             => '# Chimeras Set-Up',
+      'mi_attempts.number_of_chimeras_with_0_to_9_percent_glt'      => '# Chimeras < 10% GLT',
+      'mi_attempts.number_of_chimeras_with_10_to_49_percent_glt'    => '# Chimeras 10-49% GLT',
+      'mi_attempts.number_of_chimeras_with_50_to_99_percent_glt'    => '# Chimeras 50-99% GLT',
+      'mi_attempts.number_of_chimeras_with_100_percent_glt'         => '# Chimeras 100% GLT',
+      'mi_attempts.number_of_cct_offspring'                         => '# Coat Colour Offspring',
+      'mi_attempts.number_of_chimeras_with_glt_from_genotyping'     => '# Chimeras with Genotype-Confirmed Transmission',
+      'mi_attempts.number_of_het_offspring'                         => '# Heterozygous Offspring',
+      'mi_attempts.colony_name'                                     => 'Colony Name',
+      'mi_attempts.is_suitable_for_emma'                            => 'Suitable for EMMA?',
+      'mi_attempts.is_active'                                       => 'Active?',
+      'mi_attempts.comments'                                        => 'Comments',
+      'mi_attempts.number_of_chimeras_with_glt_from_cct'            => nil
     }
 
-    report = MiAttempt.report_table( :all,
+    report = MiPlan.with_mi_attempt.report_table( :all,
       :only       => report_column_order_and_names.keys,
       :conditions => process_filter_params( params ),
       :include    => {
-        :production_centre        => { :only => [ :name ] },
-        :es_cell                  => { :methods => [ :allele_symbol ], :only => [ :name, :marker_symbol ], :include => { :pipeline => { :only => [ :name ] } } },
-        :blast_strain             => { :methods => [ :name ], :only => [] },
-        :colony_background_strain => { :methods => [ :name ], :only => [] },
-        :test_cross_strain        => { :methods => [ :name ], :only => [] },
-        :mi_attempt_status        => { :only => [:description] }
+        :consortium        => { :only => [:name] },
+        :production_centre => { :only => [:name] },
+        :gene              => { :only => [:marker_symbol,:mgi_accession_id] },
+        :mi_attempts       => {
+          :only => [
+            :mi_date,
+            :total_transferred,
+            :total_pups_born,
+            :total_chimeras,
+            :total_male_chimeras,
+            :total_female_chimeras,
+            :number_of_males_with_0_to_39_percent_chimerism,
+            :number_of_males_with_40_to_79_percent_chimerism,
+            :number_of_males_with_80_to_99_percent_chimerism,
+            :number_of_males_with_100_percent_chimerism,
+            :number_of_chimera_matings_attempted,
+            :number_of_chimeras_with_0_to_9_percent_glt,
+            :number_of_chimeras_with_10_to_49_percent_glt,
+            :number_of_chimeras_with_50_to_99_percent_glt,
+            :number_of_chimeras_with_100_percent_glt,
+            :number_of_cct_offspring,
+            :number_of_chimeras_with_glt_from_genotyping,
+            :number_of_het_offspring,
+            :colony_name,
+            :is_suitable_for_emma,
+            :is_active,
+            :comments,
+            :number_of_chimeras_with_glt_from_cct
+          ],
+          :include => {
+            :es_cell                  => { :only => [:name], :methods => [:allele_symbol], :include => { :pipeline => { :only => [:name] } } },
+            :blast_strain             => { :only => [], :methods => [:name] },
+            :colony_background_strain => { :only => [], :methods => [:name] },
+            :test_cross_strain        => { :only => [], :methods => [:name] },
+            :mi_attempt_status        => { :only => [:description] }
+          }
+        }
       }
     )
 
-    report.add_column( '% Pups Born',                              :after => 'total_pups_born' )                         { |row| calculate_percentage( row.total_pups_born, row.total_transferred ) }
-    report.add_column( '% Total Chimeras',                         :after => 'total_chimeras' )                          { |row| calculate_percentage( row.total_chimeras, row.total_pups_born ) }
-    report.add_column( '% Male Chimeras',                          :after => 'total_male_chimeras' )                     { |row| calculate_percentage( row.total_male_chimeras, row.total_chimeras ) }
-    report.add_column( '# Chimeras with Coat Colour Transmission', :after => 'number_of_chimeras_with_100_percent_glt' ) { |row| calculate_num_chimeras_with_cct( row ) }
-    report.add_column( '% Chimeras With GLT',                      :after => 'number_of_het_offspring' )                 { |row| calculate_percentage( calculate_max_glt( row ), row.total_male_chimeras ) }
+    report.add_column( '% Pups Born',                              :after => 'mi_attempts.total_pups_born' )                         { |row| calculate_percentage( row.data['mi_attempts.total_pups_born'], row.data['mi_attempts.total_transferred'] ) }
+    report.add_column( '% Total Chimeras',                         :after => 'mi_attempts.total_chimeras' )                          { |row| calculate_percentage( row.data['mi_attempts.total_chimeras'], row.data['mi_attempts.total_pups_born'] ) }
+    report.add_column( '% Male Chimeras',                          :after => 'mi_attempts.total_male_chimeras' )                     { |row| calculate_percentage( row.data['mi_attempts.total_male_chimeras'], row.data['mi_attempts.total_chimeras'] ) }
+    report.add_column( '# Chimeras with Coat Colour Transmission', :after => 'mi_attempts.number_of_chimeras_with_100_percent_glt' ) { |row| calculate_num_chimeras_with_cct( row ) }
+    report.add_column( '% Chimeras With GLT',                      :after => 'mi_attempts.number_of_het_offspring' )                 { |row| calculate_percentage( calculate_max_glt( row ), row.data['mi_attempts.total_male_chimeras'] ) }
 
     report.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
     report.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
@@ -253,20 +311,15 @@ class ReportsController < ApplicationController
     return report
   end
 
-  def process_filter_params( params )
-    params[:production_centre_id]  = process_filter_param(params[:production_centre_id])
-    params[:pipeline_id]           = process_filter_param(params[:pipeline_id])
-
+  def process_filter_params( params={} )
     filters = {}
-
-    filters[:production_centre_id] = params[:production_centre_id] unless params[:production_centre_id].nil?
-    filters[:'pipelines.id']       = params[:pipeline_id] unless params[:pipeline_id].nil?
-
+    filters[:production_centre_id] = process_filter_param(params[:production_centre_id])
+    filters[:consortium_id]        = process_filter_param(params[:consortium_id])
+    filters.delete_if { |key,val| val.nil? }
     return filters
   end
 
-  def process_filter_param( param )
-    param ||= []
+  def process_filter_param( param=[] )
     param.delete_if { |elm| elm.blank? }
     if param.empty?
       return nil
@@ -284,28 +337,23 @@ class ReportsController < ApplicationController
   end
 
   def calculate_num_chimeras_with_cct( row )
-    if row.number_of_chimeras_with_glt_from_cct
-      row.number_of_chimeras_with_glt_from_cct
+    if row.data['mi_attempts.number_of_chimeras_with_glt_from_cct']
+      row.data['mi_attempts.number_of_chimeras_with_glt_from_cct']
     else
-      sum  = 0
-      nums = [
-        row.number_of_chimeras_with_0_to_9_percent_glt,
-        row.number_of_chimeras_with_10_to_49_percent_glt,
-        row.number_of_chimeras_with_50_to_99_percent_glt,
-        row.number_of_chimeras_with_100_percent_glt
-      ].compact
-
-      nums.each { |elm| sum += elm }
-
-      return sum
+      sum = [
+        0,
+        row.data['mi_attempts.number_of_chimeras_with_0_to_9_percent_glt'],
+        row.data['mi_attempts.number_of_chimeras_with_10_to_49_percent_glt'],
+        row.data['mi_attempts.number_of_chimeras_with_50_to_99_percent_glt'],
+        row.data['mi_attempts.number_of_chimeras_with_100_percent_glt']
+      ].compact.reduce(:+)
     end
   end
 
   def calculate_max_glt( row )
     values = [
-      row.number_of_chimeras_with_glt_from_genotyping,
-      row.data['# Chimeras with Coat Colour Transmission'],
-      row.number_of_chimeras_with_glt_from_genotyping
+      row.data['mi_attempts.number_of_chimeras_with_glt_from_genotyping'],
+      row.data['# Chimeras with Coat Colour Transmission']
     ].compact.sort
 
     return values.first unless values.empty?

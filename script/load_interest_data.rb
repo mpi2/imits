@@ -24,13 +24,21 @@ rows.each do |row|
   production_centre = Centre.find_by_name!(production_centre_name) unless production_centre_name.blank?
 
   begin
-    MiPlan.create!(
-      :gene => Gene.find_or_create_from_marts_by_mgi_accession_id(mgi_accession_id),
-      :mi_plan_status => MiPlanStatus.find_by_name!(status_to_set),
-      :consortium => Consortium.find_by_name!(consortium_name),
-      :production_centre => production_centre,
-      :mi_plan_priority => RANK_PRIORITY_MAP[rank.to_i]
-    )
+    gene       = Gene.find_or_create_from_marts_by_mgi_accession_id(mgi_accession_id)
+    status     = MiPlanStatus.find_by_name!(status_to_set)
+    consortium = Consortium.find_by_name!(consortium_name)
+    priority   = RANK_PRIORITY_MAP[rank.to_i]
+    mi_plan    = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id( gene, consortium, production_centre )
+
+    if ! mi_plan
+      MiPlan.create!(
+        :gene => gene,
+        :mi_plan_status => status,
+        :consortium => consortium,
+        :production_centre => production_centre,
+        :mi_plan_priority => priority
+      )
+    end
   rescue Exception => e
     e2 = RuntimeError.new("(#{e.class.name}) (#{row}): #{e.message}")
     e2.set_backtrace(e.backtrace)

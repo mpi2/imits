@@ -1,9 +1,36 @@
-<%= @summary.to_csv %>
+Planned Micro-Injections
 
-Micro-Injection Conflicts
+# Genes in Plannedn Micro-Injection Statuses
+
+<%= @summary_by_status.to_csv %>
+
+# Genes in Planned Micro-Injections by Status / Priority
+
+<%= @summary_by_status_and_priority.to_csv %>
+
+Conflicting Micro-Injection Plans
 
 <% if @conflict_report.size == 0 %>
 No conflicts to report.
 <% else %>
 <%= @conflict_report.to_csv %>
 <% end -%>
+
+Declined Micro-Injection Plans
+
+These micro-injection plans have been declined as there is already an assigned micro-injection plan for the proposed gene.
+
+<% if @declined_due_to_conflict_report.size == 0 %>
+No declined micro-injection plans to report.
+<% else %>
+<%= @declined_due_to_conflict_report.to_csv %>
+<% end -%>
+
+These micro-injection plans have been declined as there is already an active micro-injection in progress or completed.
+
+<% if @declined_due_to_existing_mi_report.size == 0 %>
+No declined micro-injection plans to report.
+<% else %>
+<%= @declined_due_to_existing_mi_report.to_csv %>
+<% end -%>
+

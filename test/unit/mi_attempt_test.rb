@@ -41,31 +41,30 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'default distribution_centre to production_centre' do
-          centre  = Factory.create :centre
-          mi_plan = Factory.create :mi_plan, :production_centre => centre
-          mi      = Factory.create :mi_attempt, :mi_plan => mi_plan
+          centre = Factory.create :centre
+          mi = Factory.create :mi_attempt, :production_centre_name => centre.name
           assert_equal centre.name, mi.distribution_centre.name
         end
 
         should 'not overwrite distribution_centre with production_centre if former has already been set' do
-          centre1 = Factory.create :centre
-          centre2 = Factory.create :centre
-          mi_plan = Factory.create :mi_plan, :production_centre => centre1
-          mi      = Factory.create :mi_attempt, :mi_plan => mi_plan, :distribution_centre => centre2
-          assert_equal centre2.name, mi.distribution_centre.name
-          assert_not_equal centre1.name, mi.distribution_centre.name
+          mi = Factory.create :mi_attempt,
+                  :production_centre_name => 'WTSI',
+                  :distribution_centre_name => 'ICS'
+          assert_equal 'ICS', mi.distribution_centre_name
+          assert_not_equal 'WTSI', mi.distribution_centre_name
         end
 
         should 'allow access to distribution centre via its name' do
-          centre = Factory.create :centre, :name => 'NONEXISTENT'
-          default_mi_attempt.update_attributes(:distribution_centre_name => 'NONEXISTENT')
-          assert_equal 'NONEXISTENT', default_mi_attempt.distribution_centre.name
+          centre = Factory.create :centre, :name => 'New Centre'
+          default_mi_attempt.update_attributes(:distribution_centre_name => 'New Centre')
+          assert_equal 'New Centre', default_mi_attempt.distribution_centre.name
         end
 
         should 'output *_centre_name fields in serialization' do
-          mi_plan    = Factory.create(:mi_plan, :production_centre => Centre.find_by_name('WTSI'))
-          mi_attempt = Factory.create(:mi_attempt, :mi_plan => mi_plan, :distribution_centre => Centre.find_by_name('ICS'))
-          data       = JSON.parse(mi_attempt.to_json)
+          mi_attempt = Factory.create :mi_attempt,
+                  :production_centre_name => 'WTSI',
+                  :distribution_centre_name => 'ICS'
+          data = JSON.parse(mi_attempt.to_json)
           assert_equal ['ICS', 'WTSI'], data.values_at('distribution_centre_name', 'production_centre_name')
         end
       end
@@ -411,16 +410,12 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'be auto-generated if not supplied' do
-          Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-          mi_plan = Factory.create(:mi_plan,
-            :gene => EsCell.find_by_name!('EPD0127_4_E01').gene,
-            :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-            :production_centre => Centre.find_by_name!('ICS')
-          )
+          es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
           attributes = {
-            :mi_plan => mi_plan,
-            :es_cell => EsCell.find_by_name!('EPD0127_4_E01'),
-            :colony_name => nil
+            :es_cell => es_cell,
+            :colony_name => nil,
+            :consortium_name => 'EUCOMM-EUMODIC',
+            :production_centre_name => 'ICS'
           }
           mi_attempts = (1..3).to_a.map { Factory.create :mi_attempt, attributes }
           mi_attempt_last = Factory.create :mi_attempt, attributes.merge(:colony_name => 'MABC')
@@ -491,7 +486,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'have a production centre' do
           mi_plan = Factory.create(:mi_plan)
           assert_nil mi_plan.production_centre
-          mi = Factory.build :mi_attempt, :mi_plan => mi_plan
+          mi = Factory.build :mi_attempt, :mi_plan => mi_plan, :production_centre_name => 'WTSI'
           mi.valid?
           assert_equal ['must have a production centre (INTERNAL ERROR)'],
                   mi.errors['mi_plan']
@@ -767,6 +762,13 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    should 'validate that es_cell gene is the same as mi_plan gene' do
+      mi = Factory.create :mi_attempt
+      mi.mi_plan.gene = Factory.create :gene
+
+      mi.valid?
+      assert_match /gene mismatch/i, mi.errors[:base].join('; ')
+    end
 
     context 'private attributes' do
       setup do
@@ -854,14 +856,15 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'translate searching predicates' do
-        es_cell_1 = Factory.create :es_cell_EPD0127_4_E01
-        es_cell_2 = Factory.create :es_cell_EPD0343_1_H06
-        100.times { Factory.create :mi_attempt }
-        result = MiAttempt.public_search(:marker_symbol_eq => 'Trafd1',
-          :production_centre_name => 'WTSI').result
+        es_cell = Factory.create :es_cell_EPD0127_4_E01
+        Factory.create :es_cell_EPD0343_1_H06
+        Factory.create :mi_attempt, :production_centre_name => 'ICS'
+        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => Gene.find_by_marker_symbol!('Trafd1'))
+        results = MiAttempt.public_search(:marker_symbol_eq => 'Trafd1',
+          :production_centre_name_eq => 'ICS').result
 
-        colony_names = [es_cell_1, es_cell_2].map(&:mi_attempt).flatten.map(&:colony_name)
-        assert_equal colony_names.sort, result.map(&:colony_name).sort
+        colony_names = es_cell.mi_attempts.map(&:colony_name)
+        assert_equal colony_names.sort, results.map(&:colony_name).sort
       end
 
       should_eventually 'translate sorting predicates' do

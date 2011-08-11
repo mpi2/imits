@@ -95,13 +95,20 @@ class MiAttempt < ActiveRecord::Base
     association_name = attr.to_s.gsub('_name', '')
     klass = {:consortium_name => Consortium, :production_centre_name => Centre}[attr]
 
-    if mi.mi_plan and value != mi.mi_plan.send(association_name).name
+    if mi.mi_plan and mi.mi_plan.send(association_name) and value != mi.mi_plan.send(association_name).name
       mi.errors.add attr, 'cannot be modified'
     else
       associated = klass.find_by_name(value)
       if associated.blank?
         mi.errors.add attr, 'does not exist'
       end
+    end
+  end
+
+  validate do |mi_attempt|
+    next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
+    if(mi_attempt.es_cell.gene != mi_attempt.mi_plan.gene)
+      mi_attempt.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{mi_attempt.es_cell.gene.marker_symbol} != #{mi_attempt.mi_plan.gene.marker_symbol})"
     end
   end
 

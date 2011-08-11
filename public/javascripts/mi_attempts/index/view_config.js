@@ -14,7 +14,7 @@
         'number_of_males_with_0_to_39_percent_chimerism',
         'number_of_males_with_40_to_79_percent_chimerism',
         'number_of_males_with_80_to_99_percent_chimerism',
-        'number_of_males_with_100_percent_chimerism',
+        'number_of_males_with_100_percent_chimerism'
         ],
         'chimera_mating_details': [
         'emma_status',

@@ -30,6 +30,10 @@ rows.each do |row|
     priority   = RANK_PRIORITY_MAP[rank.to_i]
     mi_plan    = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id( gene, consortium, production_centre )
 
+    if consortium_name == 'DTCC'
+      mi_plan = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id( gene, Consortium.find_by_name!('DTCC-KOMP'), Centre.find_by_name!('UCD') )
+    end
+
     if ! mi_plan
       MiPlan.create!(
         :gene => gene,

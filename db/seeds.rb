@@ -34,6 +34,7 @@ end
 [
   'BaSH',
   'DTCC',
+  'DTCC-KOMP',
   'EUCOMM-EUMODIC',
   'Helmholtz GMC',
   'MARC',

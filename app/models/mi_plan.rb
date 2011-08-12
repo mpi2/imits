@@ -48,7 +48,7 @@ class MiPlan < ActiveRecord::Base
       next if interested.blank?
 
       if ! mi_plans_by_status['Assigned'].blank?
-        assigned_plans_with_mis = MiPlan.where('id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_mi_attempt
+        assigned_plans_with_mis = MiPlan.where('id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_active_mi_attempt
         if ! assigned_plans_with_mis.blank?
           interested.each do |mi_plan|
             mi_plan.mi_plan_status = declined_due_to_mi_attempt_status

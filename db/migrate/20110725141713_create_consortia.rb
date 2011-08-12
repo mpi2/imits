@@ -29,9 +29,9 @@ class CreateConsortia < ActiveRecord::Migration
 
     # Create the basic consortia rows
 
-    eumodic = Consortium.find_or_create_by_name('EUCOMM-EUMODIC')
-    mgp     = Consortium.find_or_create_by_name('MGP')
-    bash    = Consortium.find_or_create_by_name('BaSH')
+    eumodic  = Consortium.find_or_create_by_name('EUCOMM-EUMODIC')
+    mgp_komp = Consortium.find_or_create_by_name('MGP-KOMP')
+    bash     = Consortium.find_or_create_by_name('BaSH')
 
     # Link to mi_attempts
 
@@ -41,7 +41,7 @@ class CreateConsortia < ActiveRecord::Migration
     MiAttempt.all.each do |mi|
       if mi.production_centre.name == 'WTSI'
         if mi.es_cell.pipeline.name =~ /KOMP/
-          mi.consortium_id = mgp.id
+          mi.consortium_id = mgp_komp.id
         else
           mi.consortium_id = eumodic.id
         end

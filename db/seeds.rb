@@ -39,6 +39,7 @@ end
   'MARC',
   'Monterotondo',
   'MGP',
+  'MGP-KOMP',
   'MRC',
   'NorCOMM2',
   'PHENOMIN',

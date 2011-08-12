@@ -22,19 +22,19 @@ class MiPlan < ActiveRecord::Base
   validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]
 
   def self.with_mi_attempt
-    where('id in (?)', MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+    where('mi_plans.id in (?)', MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id))
   end
 
   def self.without_mi_attempt
-    where('id not in (?)', MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+    where('mi_plans.id not in (?)', MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id))
   end
 
   def self.with_active_mi_attempt
-    where('id in (?)', MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+    where('mi_plans.id in (?)', MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id))
   end
 
   def self.without_active_mi_attempt
-    where('id not in (?)', MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+    where('mi_plans.id not in (?)', MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id))
   end
 
   def self.assign_genes_and_mark_conflicts

@@ -125,7 +125,9 @@ class ReportsController < ApplicationController
   def planned_microinjection_summary_and_conflicts
     all_mi_plans = generate_planned_mi_list_report
 
-    # Counts of mi_plans grouped by status
+    ##
+    ## Counts of mi_plans grouped by status
+    ##
 
     # TODO - put an order_by field on the status table and grab this array out of the status table in the future!
     statuses = [ 'Interest', 'Conflict', 'Declined - MI Attempt', 'Declined - Conflict', 'Assigned' ]
@@ -137,14 +139,20 @@ class ReportsController < ApplicationController
     end
 
     @summary_by_status = mi_plans_grouped_by_consortia.summary( 'Consortium',status_args )
+
+    # Add totals by consortium
     @summary_by_status.add_column('TOTAL BY CONSORTIUM') { |row| statuses.map{ |status| row[status] }.reduce(:+) }
 
+    # Add totals by status
+    gene_counts = MiPlan.without_active_mi_attempt.count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
     totals = ['TOTAL BY STATUS']
-    statuses.each { |status| totals.push( @summary_by_status.sum(status) ) }
-    totals.push( @summary_by_status.sum('TOTAL BY CONSORTIUM') )
+    statuses.each { |status| totals.push( gene_counts[status] ? gene_counts[status] : 0 ) }
+    totals.push( MiPlan.without_active_mi_attempt.count(:gene_id, :distinct => true) )
     @summary_by_status << totals
 
-    # Counts of mi_plans grouped by status and priority
+    ##
+    ## Counts of mi_plans grouped by status and priority
+    ##
 
     @summary_by_status_and_priority = Table([ 'Consortium', 'Status', '# High Priority', '# Medium Priority', '# Low Priority' ])
 
@@ -167,7 +175,9 @@ class ReportsController < ApplicationController
 
     @summary_by_status_and_priority = Grouping( @summary_by_status_and_priority, :by => ['Status'], :order => :name )
 
-    # Details on conflicting and declined mi_plans
+    ##
+    ## Details on conflicting and declined mi_plans
+    ##
 
     @conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Conflict' }
     @conflict_report.remove_columns(['Status'])
@@ -315,11 +325,12 @@ class ReportsController < ApplicationController
     filters = {}
     filters[:production_centre_id] = process_filter_param(params[:production_centre_id])
     filters[:consortium_id]        = process_filter_param(params[:consortium_id])
-    filters.delete_if { |key,val| val.nil? }
+    filters.delete_if { |key,value| value.nil? }
     return filters
   end
 
   def process_filter_param( param=[] )
+    param ||= []
     param.delete_if { |elm| elm.blank? }
     if param.empty?
       return nil

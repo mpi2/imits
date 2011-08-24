@@ -71,6 +71,7 @@ end
 {
   'Interest'               => 'Interest - A consortium has expressed an intrest to micro-inject this gene',
   'Conflict'               => 'Conflict - More than one consortium has expressed an intrest in micro-injecting this gene',
+  'Declined - GLT Mouse'   => 'Declined - A GLT mouse is already recorded in iMits',
   'Declined - MI Attempt'  => 'Declined - An active micro-injection attempt is already in progress',
   'Declined - Conflict'    => 'Declined - This gene is already assigned in another planned micro-injection',
   'Assigned'               => 'Assigned - A single consortium has expressed an intrest in injecting this gene'

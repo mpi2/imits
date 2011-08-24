@@ -37,10 +37,15 @@ class MiPlan < ActiveRecord::Base
     where('mi_plans.id not in (?)', MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id))
   end
 
+  def self.with_genotype_confirmed_mouse
+    where('mi_plans.id in (?)', MiAttempt.genotype_confirmed.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+  end
+
   def self.assign_genes_and_mark_conflicts
-    conflict_status = MiPlanStatus.find_by_name!('Conflict')
-    declined_due_to_conflict_status = MiPlanStatus.find_by_name!('Declined - Conflict')
+    conflict_status                   = MiPlanStatus.find_by_name!('Conflict')
+    declined_due_to_conflict_status   = MiPlanStatus.find_by_name!('Declined - Conflict')
     declined_due_to_mi_attempt_status = MiPlanStatus.find_by_name!('Declined - MI Attempt')
+    declined_due_to_glt_mouse_status  = MiPlanStatus.find_by_name!('Declined - GLT Mouse')
 
     self.all_grouped_by_mgi_accession_id_then_by_status_name.each do |mgi_accession_id, mi_plans_by_status|
       interested = mi_plans_by_status['Interest']
@@ -48,11 +53,20 @@ class MiPlan < ActiveRecord::Base
       next if interested.blank?
 
       if ! mi_plans_by_status['Assigned'].blank?
-        assigned_plans_with_mis = MiPlan.where('id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_active_mi_attempt
-        if ! assigned_plans_with_mis.blank?
-          interested.each do |mi_plan|
-            mi_plan.mi_plan_status = declined_due_to_mi_attempt_status
-            mi_plan.save!
+        assigned_plans_with_mis      = MiPlan.where('id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_active_mi_attempt
+        assigned_plans_with_glt_mice = MiPlan.where('id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_genotype_confirmed_mouse
+
+        if ! assigned_plans_with_mis.blank? or ! assigned_plans_with_glt_mice.blank?
+          if ! assigned_plans_with_glt_mice.blank?
+            interested.each do |mi_plan|
+              mi_plan.mi_plan_status = declined_due_to_glt_mouse_status
+              mi_plan.save!
+            end
+          else
+            interested.each do |mi_plan|
+              mi_plan.mi_plan_status = declined_due_to_mi_attempt_status
+              mi_plan.save!
+            end
           end
         else
           interested.each do |mi_plan|

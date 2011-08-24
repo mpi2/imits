@@ -814,6 +814,23 @@ class MiAttemptTest < ActiveSupport::TestCase
         10.times { Factory.create( :mi_attempt ) }
         10.times { Factory.create( :mi_attempt, :is_active => false ) }
         assert_equal MiAttempt.where(:is_active => true).count, MiAttempt.active.count
+        assert_equal 10, MiAttempt.active.count
+      end
+    end
+
+    context '::genotype_confirmed' do
+      should 'work' do
+        glt_status = MiAttemptStatus.genotype_confirmed
+
+        10.times do
+          Factory.create :randomly_populated_mi_attempt,
+            :number_of_het_offspring => 12,
+            :production_centre_name => 'ICS',
+            :is_active => true
+        end
+
+        assert_equal MiAttempt.where( :mi_attempt_status_id => glt_status.id ).count, MiAttempt.genotype_confirmed.count
+        assert_equal 10, MiAttempt.genotype_confirmed.count
       end
     end
 

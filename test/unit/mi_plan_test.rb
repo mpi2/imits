@@ -157,6 +157,35 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal ['Declined - MI Attempt', 'Declined - MI Attempt'], mi_plans.map {|i| i.mi_plan_status.name }
       end
 
+      should 'set all interested MiPlans to "Declined - GLT Mouse" if MiPlans with GLT Mice already exist' do
+        gene = Factory.create :gene_cbx1
+        mi_plan = Factory.create :mi_plan,
+          :gene              => gene,
+          :consortium        => Consortium.find_by_name!('BaSH'),
+          :mi_plan_status    => MiPlanStatus.find_by_name!('Assigned'),
+          :production_centre => Centre.find_by_name!('BCM')
+
+        mi_attempt = Factory.create :mi_attempt,
+          :es_cell                  => Factory.create(:es_cell, :gene => gene),
+          :consortium_name          => 'BaSH',
+          :production_centre_name   => 'BCM',
+          :number_of_het_offspring  => 12
+
+        assert_equal mi_plan, mi_attempt.mi_plan
+        assert_equal mi_attempt.mi_attempt_status_id, MiAttemptStatus.genotype_confirmed.id
+
+        mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
+          Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
+        end
+
+        mi_plans.each { |plan| assert_equal MiPlanStatus.find_by_name!('Interest'), plan.mi_plan_status }
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plans.each(&:reload)
+
+        assert_equal ['Declined - GLT Mouse', 'Declined - GLT Mouse'], mi_plans.map {|i| i.mi_plan_status.name }
+      end
+
     end # ::assign_genes_and_mark_conflicts
 
     context '::all_grouped_by_mgi_accession_id_then_by_status_name' do
@@ -228,6 +257,23 @@ class MiPlanTest < ActiveSupport::TestCase
         assert MiPlan.count > MiPlan.without_active_mi_attempt.count
         assert_equal 31, MiPlan.count
         assert_equal 21, MiPlan.without_active_mi_attempt.count
+      end
+    end
+
+    context '::with_genotype_confirmed_mouse' do
+      should 'work' do
+        10.times { Factory.create :mi_plan }
+        10.times { Factory.create :mi_attempt, :is_active => true }
+        10.times do
+          Factory.create :randomly_populated_mi_attempt,
+            :number_of_het_offspring => 12,
+            :production_centre_name => 'ICS',
+            :is_active => true
+        end
+
+        assert MiPlan.count > MiPlan.with_genotype_confirmed_mouse.count
+        assert_equal 31, MiPlan.count
+        assert_equal 10, MiPlan.with_genotype_confirmed_mouse.count
       end
     end
 

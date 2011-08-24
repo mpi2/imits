@@ -46,8 +46,6 @@ class MiAttempt < ActiveRecord::Base
 
   attr_protected *PRIVATE_ATTRIBUTES
 
-  scope :active, where(:is_active => true)
-
   belongs_to :mi_plan
   belongs_to :es_cell
   belongs_to :mi_attempt_status
@@ -123,6 +121,14 @@ class MiAttempt < ActiveRecord::Base
   before_save :change_status
   before_save :make_unsuitable_for_emma_if_is_not_active
   before_save :set_mi_plan
+
+  def self.active
+    where(:is_active => true)
+  end
+
+  def self.genotype_confirmed
+    where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id, :is_active => true)
+  end
 
   protected
 

@@ -130,7 +130,7 @@ class ReportsController < ApplicationController
     ##
 
     # TODO - put an order_by field on the status table and grab this array out of the status table in the future!
-    statuses = [ 'Interest', 'Conflict', 'Declined - MI Attempt', 'Declined - Conflict', 'Assigned' ]
+    statuses = [ 'Interest', 'Conflict', 'Declined - Conflict', 'Declined - MI Attempt', 'Declined - GLT Mouse', 'Assigned' ]
 
     mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
     status_args = { :order => ['Consortium']+statuses }

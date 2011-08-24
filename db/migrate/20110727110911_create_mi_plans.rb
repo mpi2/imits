@@ -3,6 +3,7 @@ class CreateMiPlans < ActiveRecord::Migration
     create_table :mi_plan_statuses do |t|
       t.string :name, :limit => 50, :null => false
       t.string :description, :limit => 255
+      t.integer :order_by
 
       t.timestamps
     end

@@ -11,4 +11,6 @@ class MiPlanStatusTest < ActiveSupport::TestCase
   should have_db_index(:name).unique(true)
 
   should have_db_column(:description).with_options(:limit => 255)
+
+  should have_db_column(:order_by)
 end

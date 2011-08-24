@@ -123,25 +123,24 @@ class ReportsController < ApplicationController
   end
 
   def planned_microinjection_summary_and_conflicts
-    all_mi_plans = generate_planned_mi_list_report
+    impc_consortia_ids = Consortium.where('name not in (?)', ['EUCOMM-EUMODIC','MGP-KOMP','DTCC-KOMP']).map(&:id)
+    all_mi_plans       = generate_planned_mi_list_report({ :consortium_id => impc_consortia_ids })
 
     ##
     ## Counts of mi_plans grouped by status
     ##
 
-    # TODO - put an order_by field on the status table and grab this array out of the status table in the future!
-    statuses = [ 'Interest', 'Conflict', 'Declined - Conflict', 'Declined - MI Attempt', 'Declined - GLT Mouse', 'Assigned' ]
-
+    statuses = MiPlanStatus.order('order_by asc').all.map { |s| s.name }
     mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
     status_args = { :order => ['Consortium']+statuses }
     statuses.each do |status|
       status_args[status] = lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == status } ) }
     end
 
-    @summary_by_status = mi_plans_grouped_by_consortia.summary( 'Consortium',status_args )
+    @summary_by_status = mi_plans_grouped_by_consortia.summary( 'Consortium', status_args )
 
     # Add totals by consortium
-    @summary_by_status.add_column('TOTAL BY CONSORTIUM') { |row| statuses.map{ |status| row[status] }.reduce(:+) }
+    @summary_by_status.add_column('TOTAL BY CONSORTIUM') { |row| statuses.map { |status| row[status] }.reduce(:+) }
 
     # Add totals by status
     gene_counts = MiPlan.without_active_mi_attempt.count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)

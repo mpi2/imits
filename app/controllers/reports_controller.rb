@@ -127,7 +127,7 @@ class ReportsController < ApplicationController
     all_mi_plans       = generate_planned_mi_list_report({ :consortium_id => impc_consortia_ids })
 
     mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
-    total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(:gene_id, :distinct => true)
+    total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true)
 
     ##
     ## Counts of mi_plans grouped by status
@@ -146,7 +146,7 @@ class ReportsController < ApplicationController
 
     # Add totals by status
     gene_count_by_status =
-      MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt
+      MiPlan.where('consortium_id in (?)', impc_consortia_ids)
       .count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
     @summary_by_status << totals = ['TOTAL BY STATUS'] + statuses.map { |status| gene_count_by_status[status] || 0 } + [total_number_of_planned_genes]
 
@@ -168,7 +168,7 @@ class ReportsController < ApplicationController
 
     # Add totals by priority
     gene_count_by_priority =
-      MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt
+      MiPlan.where('consortium_id in (?)', impc_consortia_ids)
       .count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
     @summary_by_priority << ['TOTAL BY PRIORITY'] + priorities.map { |priority| gene_count_by_priority[priority] || 0 } + [total_number_of_planned_genes]
 
@@ -188,6 +188,7 @@ class ReportsController < ApplicationController
       end
     end
 
+    @summary_by_status_and_priority.sort_rows_by!('Consortium', :order => :ascending)
     @summary_by_status_and_priority = Grouping(
       @summary_by_status_and_priority,
       :by => ['Status'], :order => lambda { |g| MiPlanStatus.find_by_name!(g.name).order_by }
@@ -198,7 +199,7 @@ class ReportsController < ApplicationController
     ##
 
     @conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Conflict' }
-    @conflict_report.remove_columns(['Status'])
+    @conflict_report.remove_columns(['ID','Status'])
 
     @declined_report = all_mi_plans.sub_table { |row| row['Status'].include? 'Declined' }
     @declined_report.add_column('Reason for Decline') { |row| MiPlan.find(row.data['ID']).reason_for_decline }
@@ -224,7 +225,7 @@ class ReportsController < ApplicationController
       'mi_plan_status.name'     => 'Status'
     }
 
-    all_mi_plans = MiPlan.without_active_mi_attempt.report_table(
+    all_mi_plans = MiPlan.report_table(
       :all,
       :only       => report_column_order_and_names.keys,
       :conditions => process_filter_params( params ),

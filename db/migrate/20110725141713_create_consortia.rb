@@ -25,6 +25,7 @@ class CreateConsortia < ActiveRecord::Migration
       t.string :name, :null => false, :size => 15
       t.string :funding, :size => 100
       t.text :participants
+      t.string :contact
       t.timestamps
     end
     add_index :consortia, :name, :unique => true

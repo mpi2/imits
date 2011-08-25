@@ -126,45 +126,61 @@ class ReportsController < ApplicationController
     impc_consortia_ids = Consortium.where('name not in (?)', ['EUCOMM-EUMODIC','MGP-KOMP','DTCC-KOMP']).map(&:id)
     all_mi_plans       = generate_planned_mi_list_report({ :consortium_id => impc_consortia_ids })
 
+    mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
+    total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(:gene_id, :distinct => true)
+
     ##
     ## Counts of mi_plans grouped by status
     ##
 
     statuses = MiPlanStatus.order('order_by asc').all.map { |s| s.name }
-    mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
-    status_args = { :order => ['Consortium']+statuses }
+    summary_by_status_args = { :order => ['Consortium'] + statuses }
     statuses.each do |status|
-      status_args[status] = lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == status } ) }
+      summary_by_status_args[status] = lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == status } ) }
     end
 
-    @summary_by_status = mi_plans_grouped_by_consortia.summary( 'Consortium', status_args )
+    @summary_by_status = mi_plans_grouped_by_consortia.summary( 'Consortium', summary_by_status_args )
 
     # Add totals by consortium
     @summary_by_status.add_column('TOTAL BY CONSORTIUM') { |row| statuses.map { |status| row[status] }.reduce(:+) }
 
     # Add totals by status
-    gene_counts = MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
-    totals = ['TOTAL BY STATUS']
-    statuses.each { |status| totals.push( gene_counts[status] ? gene_counts[status] : 0 ) }
-    totals.push( MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(:gene_id, :distinct => true) )
-    @summary_by_status << totals
+    gene_count_by_status =
+      MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt
+      .count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
+    @summary_by_status << totals = ['TOTAL BY STATUS'] + statuses.map { |status| gene_count_by_status[status] || 0 } + [total_number_of_planned_genes]
+
+    ##
+    ## Counts of mi_plans grouped by priority
+    ##
+
+    priorities = ['High','Medium','Low']
+    summary_by_priority_args = { :order => ['Consortium'] + priorities }
+    priorities.each do |priority|
+      summary_by_priority_args[priority] =
+        lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == priority } ) }
+    end
+
+    @summary_by_priority = mi_plans_grouped_by_consortia.summary( 'Consortium', summary_by_priority_args )
+
+    # Add totals by consortium
+    @summary_by_priority.add_column('TOTAL BY CONSORTIUM') { |row| priorities.map { |priority| row[priority] }.reduce(:+) }
+
+    # Add totals by priority
+    gene_count_by_priority =
+      MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt
+      .count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
+    @summary_by_priority << ['TOTAL BY PRIORITY'] + priorities.map { |priority| gene_count_by_priority[priority] || 0 } + [total_number_of_planned_genes]
 
     ##
     ## Counts of mi_plans grouped by status and priority
     ##
 
-    @summary_by_status_and_priority = Table([ 'Consortium', 'Status', '# High Priority', '# Medium Priority', '# Low Priority' ])
+    @summary_by_status_and_priority = Table( ['Consortium', 'Status'] + priorities )
 
     mi_plans_grouped_by_status_consortia = Grouping( all_mi_plans, :by => ['Status','Consortium'] )
     mi_plans_grouped_by_status_consortia.each do |status|
-      summary = mi_plans_grouped_by_status_consortia.subgrouping(status).summary(
-        'Consortium',
-        '# High Priority'   => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == 'High' } ) },
-        '# Medium Priority' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == 'Medium' } ) },
-        '# Low Priority'    => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == 'Low' } ) },
-        :order => [ 'Consortium', '# High Priority', '# Medium Priority', '# Low Priority' ]
-      )
-
+      summary = mi_plans_grouped_by_status_consortia.subgrouping(status).summary( 'Consortium', summary_by_priority_args )
       summary.each_entry do |row|
         hash = row.to_hash
         hash['Status'] = status

@@ -17,6 +17,11 @@
     <%=raw @summary_by_status.to_html %>
   </div>
 
+  <h3># Genes in Priority Groups</h3>
+  <div class="report">
+    <%=raw @summary_by_priority.to_html %>
+  </div>
+
   <h3># Genes in Planned Micro-Injections by Status / Priority</h3>
   <div class="report">
     <%=raw @summary_by_status_and_priority.to_html %>

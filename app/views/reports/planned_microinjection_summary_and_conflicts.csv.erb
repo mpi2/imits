@@ -18,19 +18,5 @@ No conflicts to report.
 
 Declined Micro-Injection Plans
 
-These micro-injection plans have been declined as there is already an assigned micro-injection plan for the proposed gene.
-
-<% if @declined_due_to_conflict_report.size == 0 %>
-No declined micro-injection plans to report.
-<% else %>
-<%= @declined_due_to_conflict_report.to_csv %>
-<% end -%>
-
-These micro-injection plans have been declined as there is already an active micro-injection in progress or completed.
-
-<% if @declined_due_to_existing_mi_report.size == 0 %>
-No declined micro-injection plans to report.
-<% else %>
-<%= @declined_due_to_existing_mi_report.to_csv %>
-<% end -%>
+<%= @declined_report.to_csv %>
 

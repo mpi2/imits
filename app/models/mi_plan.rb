@@ -53,8 +53,8 @@ class MiPlan < ActiveRecord::Base
       next if interested.blank?
 
       if ! mi_plans_by_status['Assigned'].blank?
-        assigned_plans_with_mis      = MiPlan.where('id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_active_mi_attempt
-        assigned_plans_with_glt_mice = MiPlan.where('id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_genotype_confirmed_mouse
+        assigned_plans_with_mis      = MiPlan.where('mi_plans.id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_active_mi_attempt
+        assigned_plans_with_glt_mice = MiPlan.where('mi_plans.id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_genotype_confirmed_mouse
 
         if ! assigned_plans_with_mis.blank? or ! assigned_plans_with_glt_mice.blank?
           if ! assigned_plans_with_glt_mice.blank?
@@ -92,6 +92,32 @@ class MiPlan < ActiveRecord::Base
       mi_plans[mgi_accession_id] = all_for_gene.group_by {|i| i.mi_plan_status.name}
     end
     return mi_plans
+  end
+
+  def reason_for_decline
+    reason_string = case self.mi_plan_status.name
+    when 'Declined - GLT Mouse'
+      other_centres_consortia = MiPlan.scoped
+        .where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',{ :gene_id => self.gene_id, :id => self.id })
+        .with_genotype_confirmed_mouse
+        .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
+      "GLT mouse produced at: #{other_centres_consortia.join(', ')}"
+    when 'Declined - MI Attempt'
+      other_centres_consortia = MiPlan.scoped
+        .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
+        .with_active_mi_attempt
+        .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
+      "MI already in progress at: #{other_centres_consortia.join(', ')}"
+    when 'Declined - Conflict'
+      other_consortia = MiPlan
+        .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
+        .without_active_mi_attempt
+        .map{ |p| p.consortium.name }.uniq
+      "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
+    else
+      nil
+    end
+    return reason_string
   end
 end
 

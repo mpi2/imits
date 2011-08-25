@@ -124,7 +124,8 @@ class ReportsController < ApplicationController
 
   def planned_microinjection_summary_and_conflicts
     impc_consortia_ids = Consortium.where('name not in (?)', ['EUCOMM-EUMODIC','MGP-KOMP','DTCC-KOMP']).map(&:id)
-    all_mi_plans       = generate_planned_mi_list_report({ :consortium_id => impc_consortia_ids })
+    all_mi_plans = generate_planned_mi_list_report({ :consortium_id => impc_consortia_ids })
+    all_mi_plans.sort_rows_by!('Consortium', :order => :ascending)
 
     mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
     total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true)
@@ -188,7 +189,6 @@ class ReportsController < ApplicationController
       end
     end
 
-    @summary_by_status_and_priority.sort_rows_by!('Consortium', :order => :ascending)
     @summary_by_status_and_priority = Grouping(
       @summary_by_status_and_priority,
       :by => ['Status'], :order => lambda { |g| MiPlanStatus.find_by_name!(g.name).order_by }
@@ -199,10 +199,11 @@ class ReportsController < ApplicationController
     ##
 
     @conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Conflict' }
+    @conflict_report.add_column('Reason for Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_decline_conflict }
     @conflict_report.remove_columns(['ID','Status'])
 
     @declined_report = all_mi_plans.sub_table { |row| row['Status'].include? 'Declined' }
-    @declined_report.add_column('Reason for Decline') { |row| MiPlan.find(row.data['ID']).reason_for_decline }
+    @declined_report.add_column('Reason for Decline') { |row| MiPlan.find(row.data['ID']).reason_for_decline_conflict }
     @declined_report.remove_columns(['ID'])
     @declined_report = Grouping( @declined_report, :by => ['Status'], :order => lambda { |g| MiPlanStatus.find_by_name!(g.name).order_by } )
 
@@ -240,8 +241,7 @@ class ReportsController < ApplicationController
 
     all_mi_plans.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
     all_mi_plans.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
-
-    all_mi_plans = all_mi_plans.sort_rows_by('Marker Symbol', :order => :ascending)
+    all_mi_plans.sort_rows_by!('Marker Symbol', :order => :ascending)
 
     return all_mi_plans
   end

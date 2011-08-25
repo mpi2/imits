@@ -94,7 +94,7 @@ class MiPlan < ActiveRecord::Base
     return mi_plans
   end
 
-  def reason_for_decline
+  def reason_for_decline_conflict
     reason_string = case self.mi_plan_status.name
     when 'Declined - GLT Mouse'
       other_centres_consortia = MiPlan.scoped
@@ -111,9 +111,17 @@ class MiPlan < ActiveRecord::Base
     when 'Declined - Conflict'
       other_consortia = MiPlan
         .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
+        .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Assigned').id )
         .without_active_mi_attempt
         .map{ |p| p.consortium.name }.uniq
       "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
+    when 'Conflict'
+      other_consortia = MiPlan
+        .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
+        .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Conflict').id )
+        .without_active_mi_attempt
+        .map{ |p| p.consortium.name }.uniq
+      "Other MI plans for: #{other_consortia.join(', ')}"
     else
       nil
     end

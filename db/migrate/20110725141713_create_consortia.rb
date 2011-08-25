@@ -23,6 +23,8 @@ class CreateConsortia < ActiveRecord::Migration
   def self.up
     create_table :consortia do |t|
       t.string :name, :null => false, :size => 15
+      t.string :funding, :size => 100
+      t.text :participants
       t.timestamps
     end
     add_index :consortia, :name, :unique => true

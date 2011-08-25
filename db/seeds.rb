@@ -31,22 +31,27 @@ end
   DepositedMaterial.find_or_create_by_name name
 end
 
-[
-  'BaSH',
-  'DTCC',
-  'DTCC-KOMP',
-  'EUCOMM-EUMODIC',
-  'Helmholtz GMC',
-  'MARC',
-  'Monterotondo',
-  'MGP',
-  'MGP-KOMP',
-  'MRC',
-  'NorCOMM2',
-  'PHENOMIN',
-  'RIKEN BRC'
-].each do |name|
-  Consortium.find_or_create_by_name name
+{
+  'BaSH'            => ['KOMP2','Baylor, Sanger, Harwell'],
+  'DTCC'            => ['KOMP2','Davis-Toronto-Charles River-CHORI'],
+  'DTCC-KOMP'       => ['KOMP','Davis-Toronto-Charles River-CHORI'],
+  'EUCOMM-EUMODIC'  => ['EUCOMM / EUMODIC',nil],
+  'Helmholtz GMC'   => ['Infrafrontier/BMBF','Helmholtz Muenchen'],
+  'MARC'            => ['China','Model Animarl Research Centre, Nanjing University'],
+  'Monterotondo'    => ['European Union','Monterotondo Institute for Cell Biology (CNR)'],
+  'MGP'             => ['Wellcome Trust','Mouse Genetics Project, WTSI'],
+  'MGP-KOMP'        => ['KOMP / Wellcome Trust','Mouse Genetics Project, WTSI'],
+  'MRC'             => ['MRC','MRC - Harwell'],
+  'NorCOMM2'        => ['Genome Canada','NorCOMM2'],
+  'Phenomin'        => ['Phenomin','ICS'],
+  'RIKEN BRC'       => ['Japanese government','RIKEN BRC']
+}.each do |name,details|
+  cons = Consortium.find_or_create_by_name(:name => name)
+  if cons.funding.blank?
+    cons.funding = details[0]
+    cons.participants = details[1]
+    cons.save!
+  end
 end
 
 [
@@ -75,7 +80,7 @@ end
   'Declined - MI Attempt'  => [40,'Declined - An active micro-injection attempt is already in progress'],
   'Declined - Conflict'    => [50,'Declined - This gene is already assigned in another planned micro-injection'],
   'Assigned'               => [60,'Assigned - A single consortium has expressed an intrest in injecting this gene']
-}.each do |name, details|
+}.each do |name,details|
   mi_plan_status = MiPlanStatus.find_or_create_by_name(:name => name)
   if mi_plan_status.description.blank?
     mi_plan_status.description = details[1]

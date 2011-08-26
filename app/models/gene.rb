@@ -43,11 +43,20 @@ end
 #
 # Table name: genes
 #
-#  id               :integer         not null, primary key
-#  marker_symbol    :string(75)      not null
-#  mgi_accession_id :string(40)
-#  created_at       :datetime
-#  updated_at       :datetime
+#  id                                 :integer         not null, primary key
+#  marker_symbol                      :string(75)      not null
+#  mgi_accession_id                   :string(40)
+#  ikmc_projects_count                :integer
+#  conditional_es_cells_count         :integer
+#  non_conditional_es_cells_count     :integer
+#  deletion_es_cells_count            :integer
+#  other_targeted_mice_count          :integer
+#  other_condtional_mice_count        :integer
+#  mutation_published_as_lethal_count :integer
+#  publications_for_gene_count        :integer
+#  go_annotations_for_gene_count      :integer
+#  created_at                         :datetime
+#  updated_at                         :datetime
 #
 # Indexes
 #

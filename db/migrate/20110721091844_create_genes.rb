@@ -12,6 +12,15 @@ class CreateGenes < ActiveRecord::Migration
     create_table :genes do |t|
       t.string :marker_symbol, :null => false, :limit => 75
       t.string :mgi_accession_id, :limit => 40
+      t.integer :ikmc_projects_count
+      t.integer :conditional_es_cells_count
+      t.integer :non_conditional_es_cells_count
+      t.integer :deletion_es_cells_count
+      t.integer :other_targeted_mice_count
+      t.integer :other_condtional_mice_count
+      t.integer :mutation_published_as_lethal_count
+      t.integer :publications_for_gene_count
+      t.integer :go_annotations_for_gene_count
       t.timestamps
     end
     add_index :genes, :marker_symbol, :unique => true

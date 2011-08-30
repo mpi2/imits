@@ -140,7 +140,7 @@ class EsCellTest < ActiveSupport::TestCase
         assert_nil EsCell.find_by_name 'EPD0555_1_E10'
         es_cell = EsCell.find_or_create_from_marts_by_name('EPD0555_1_E10')
         assert_not_nil es_cell
-        assert_equal 'EUCOMM', es_cell.pipeline.name
+        assert_equal 'KOMP-CSD', es_cell.pipeline.name
       end
 
       should 'work when gene already exists' do

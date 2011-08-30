@@ -20,25 +20,6 @@ class GeneTest < ActiveSupport::TestCase
       should validate_uniqueness_of :marker_symbol
     end
 
-    context '::find_or_create_from_mart_data' do
-      should 'find an existing one' do
-        gene = Factory.create :gene, :marker_symbol => 'Trafd1', :mgi_accession_id => 'MGI:1923551'
-        assert_equal gene, Gene.find_or_create_from_mart_data(
-          'es_cell_name' => 'EPD0127_4_E01',
-          'marker_symbol' => 'Trafd1',
-          'mgi_accession_id' => 'MGI:1923551')
-      end
-
-      should 'create a nonexistent one' do
-        assert_nil Gene.find_by_marker_symbol 'Trafd1'
-        gene = Gene.find_or_create_from_mart_data(
-          'marker_symbol' => 'Trafd1',
-          'mgi_accession_id' => 'MGI:1923551')
-        assert_equal 'Trafd1', gene.marker_symbol
-        assert_equal 'MGI:1923551', gene.mgi_accession_id
-      end
-    end
-
     context '::find_or_create_from_marts_by_mgi_accession_id' do
       should 'create gene from marts if it is not in the DB' do
         gene = Gene.find_or_create_from_marts_by_mgi_accession_id 'MGI:1923551'

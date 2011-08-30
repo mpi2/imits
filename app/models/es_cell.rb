@@ -93,7 +93,10 @@ class EsCell < ActiveRecord::Base
   def self.create_es_cell_from_mart_data(mart_data)
     es_cell = self.new
     es_cell.assign_attributes_from_mart_data(mart_data)
-    es_cell.gene = Gene.find_or_create_from_mart_data(mart_data)
+    es_cell.gene = Gene.find_or_create_by_mgi_accession_id(
+      :marker_symbol => mart_data['marker_symbol'],
+      :mgi_accession_id => mart_data['mgi_accession_id']
+    )
     es_cell.save!
     return es_cell
   end
@@ -153,7 +156,10 @@ class EsCell < ActiveRecord::Base
     all_es_cells_data.each do |es_cell_data|
       es_cell = all_es_cells.detect {|c| c.name == es_cell_data['escell_clone']}
       es_cell.assign_attributes_from_mart_data(es_cell_data)
-      es_cell.gene = Gene.find_or_create_from_mart_data(es_cell_data)
+      es_cell.gene = Gene.find_or_create_by_mgi_accession_id(
+        :marker_symbol => es_cell_data['marker_symbol'],
+        :mgi_accession_id => es_cell_data['mgi_accession_id']
+      )
       es_cell.save!
     end
   end

@@ -1,8 +1,8 @@
 GIT
   remote: git://github.com/i-dcc/ransack.git
-  revision: f816a3cee0c28d8dfa23645903093fb93012325f
+  revision: c069a4ce956481e87b6014397c7ad05f6a3dff8c
   specs:
-    ransack (0.5.4)
+    ransack (0.5.5)
       actionpack (~> 3.0)
       activerecord (~> 3.0)
       activesupport (~> 3.0)

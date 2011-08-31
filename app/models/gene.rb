@@ -98,7 +98,7 @@ class Gene < ActiveRecord::Base
     return data
   end
 
-  def self.sync_with_remotes
+  def self.sync_with_remotes(logger=Rails.logger)
     all_genes = Gene.all
 
     all_current_mgi_accession_ids = all_genes.map(&:mgi_accession_id).compact
@@ -112,21 +112,21 @@ class Gene < ActiveRecord::Base
     # create new genes
     new_mgi_ids_to_create = all_remote_mgi_accession_ids - all_current_mgi_accession_ids
     if new_mgi_ids_to_create.size > 0
-      puts "[Gene.sync_with_remotes] Gathering data for #{new_mgi_ids_to_create.size} new gene(s)..."
+      logger.debug "[Gene.sync_with_remotes] Gathering data for #{new_mgi_ids_to_create.size} new gene(s)..."
       new_genes_data = {}
-      new_mgi_ids_to_create.each_slice(1000) { |slice| print '.'; new_genes_data.merge!( get_gene_data_from_remotes(slice) ) }
+      new_mgi_ids_to_create.each_slice(1000) { |slice| new_genes_data.merge!( get_gene_data_from_remotes(slice) ) }
       new_genes_data.each do |mgi_accession_id,gene_data|
-        puts "[Gene.sync_with_remotes] Creating gene entry for #{mgi_accession_id}"
+        logger.debug "[Gene.sync_with_remotes] Creating gene entry for #{mgi_accession_id}"
         Gene.create!(gene_data)
       end
     else
-      puts "[Gene.sync_with_remotes] No new genes need to be created..."
+      logger.debug "[Gene.sync_with_remotes] No new genes need to be created..."
     end
 
     # update existing genes
-    puts "[Gene.sync_with_remotes] Gathering data for existing genes to see if they need updating..."
+    logger.debug "[Gene.sync_with_remotes] Gathering data for existing genes to see if they need updating..."
     current_genes_data = {}
-    all_current_mgi_accession_ids.each_slice(1000) { |slice| print '.'; current_genes_data.merge!( get_gene_data_from_remotes(slice) ) }
+    all_current_mgi_accession_ids.each_slice(1000) { |slice| current_genes_data.merge!( get_gene_data_from_remotes(slice) ) }
     current_genes_data.each do |mgi_accession_id,gene_data|
       current_gene = Gene.find_by_mgi_accession_id(mgi_accession_id)
 
@@ -134,7 +134,7 @@ class Gene < ActiveRecord::Base
       gene_data.each { |key,value| do_update = true if value != current_gene.send(key) }
 
       if do_update
-        puts "[Gene.sync_with_remotes] Updating information for #{current_gene.mgi_accession_id}"
+        logger.debug "[Gene.sync_with_remotes] Updating information for #{current_gene.mgi_accession_id}"
         current_gene.update_attributes!(gene_data)
       end
     end
@@ -143,18 +143,17 @@ class Gene < ActiveRecord::Base
     # don't have any mi_plans hanging off them...
     mgi_ids_to_delete = all_current_mgi_accession_ids - all_remote_mgi_accession_ids
     if mgi_ids_to_delete.size > 0
-      puts "[Gene.sync_with_remotes] Evaluating #{mgi_ids_to_delete.size} gene(s) for deletion..."
+      logger.debug "[Gene.sync_with_remotes] Evaluating #{mgi_ids_to_delete.size} gene(s) for deletion..."
       mgi_ids_to_delete.each do |mgi_accession_id|
         current_gene = Gene.find_by_mgi_accession_id(mgi_accession_id)
         if current_gene.mi_plans.size == 0
-          puts "[Gene.sync_with_remotes] Deleting gene data for #{current_gene.mgi_accession_id}"
+          logger.debug "[Gene.sync_with_remotes] Deleting gene data for #{current_gene.mgi_accession_id}"
           current_gene.destroy
         end
       end
     else
-      puts "[Gene.sync_with_remotes] No gene entries look like they need to be deleted..."
+      logger.debug "[Gene.sync_with_remotes] No gene entries look like they need to be deleted..."
     end
-
   end
 
   # END Mart Operations

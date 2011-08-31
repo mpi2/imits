@@ -823,7 +823,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         glt_status = MiAttemptStatus.genotype_confirmed
 
         10.times do
-          Factory.create :randomly_populated_mi_attempt,
+          Factory.create :mi_attempt,
             :number_of_het_offspring => 12,
             :production_centre_name => 'ICS',
             :is_active => true

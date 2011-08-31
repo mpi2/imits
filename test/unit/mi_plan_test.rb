@@ -265,7 +265,7 @@ class MiPlanTest < ActiveSupport::TestCase
         10.times { Factory.create :mi_plan }
         10.times { Factory.create :mi_attempt, :is_active => true }
         10.times do
-          Factory.create :randomly_populated_mi_attempt,
+          Factory.create :mi_attempt,
             :number_of_het_offspring => 12,
             :production_centre_name => 'ICS',
             :is_active => true

@@ -30,8 +30,16 @@ rows.each do |row|
     priority   = RANK_PRIORITY_MAP[rank.to_i]
     mi_plan    = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id( gene, consortium, production_centre )
 
+    # DTCC fun...
+    #
+    # So... we already have a lot of KOMP2 funded MI's in the system, but they are marked up as 'DTCC-KOMP' - we need to
+    # re-assign these MI Plans/Attempts - except 2 genes those really were KOMP(1) injections, they were just duds that
+    # they are re-injecting with new clones (as part of KOMP2)...
     if consortium_name == 'DTCC'
-      mi_plan = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id( gene, Consortium.find_by_name!('DTCC-KOMP'), Centre.find_by_name!('UCD') )
+      unless ['Obfc2b','Prg3'].include? gene.marker_symbol
+        mi_plan = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id( gene, Consortium.find_by_name!('DTCC-KOMP'), Centre.find_by_name!('UCD') )
+        mi_plan.update_attributes!({ :consortium => consortium, :production_centre => production_centre }) if mi_plan
+      end
     end
 
     if ! mi_plan

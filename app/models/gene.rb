@@ -38,15 +38,15 @@ class Gene < ActiveRecord::Base
       :process_results => true,
       :timeout => 600,
       :filters =>  { 'mgi_accession_id' => mgi_accession_ids },
-      :attributes => ['marker_symbol','mgi_accession_id','ikmc_project','ikmc_project_id']
+      :attributes => ['mgi_accession_id','marker_symbol','ikmc_project','ikmc_project_id']
     )
 
     targ_rep_data = TARG_REP_BIOMART.search(
       :process_results => true,
       :timeout => 600,
       :filters => { 'mgi_accession_id' => mgi_accession_ids },
-      :attributes => ['ikmc_project_id','escell_clone','mutation_subtype'],
-      :required_attributes => ['pipeline','ikmc_project_id','escell_clone','mutation_subtype']
+      :attributes => ['mgi_accession_id','pipeline','escell_clone','mutation_subtype'],
+      :required_attributes => ['escell_clone','mutation_subtype']
     )
 
     dcc_data.each do |row|
@@ -54,9 +54,6 @@ class Gene < ActiveRecord::Base
         :marker_symbol                    => row['marker_symbol'],
         :mgi_accession_id                 => row['mgi_accession_id'],
         :ikmc_project_id                  => [],
-        :conditional_es_cells_count       => [],
-        :non_conditional_es_cells_count   => [],
-        :deletion_es_cells_count          => [],
         :conditional_ready                => [],
         :targeted_non_conditional         => [],
         :deletion                         => []
@@ -69,7 +66,7 @@ class Gene < ActiveRecord::Base
 
     targ_rep_data.each do |row|
       gene = data[ row['mgi_accession_id'] ]
-      if ikmc_projects.include?( row['pipeline'] )
+      if !gene.nil? and ikmc_projects.include?( row['pipeline'] )
         gene[ row['mutation_subtype'].to_sym ].push( row['escell_clone'] )
       end
     end
@@ -99,8 +96,7 @@ class Gene < ActiveRecord::Base
   end
 
   def self.sync_with_remotes(logger=Rails.logger)
-    all_genes = Gene.all
-
+    all_genes                     = Gene.all
     all_current_mgi_accession_ids = all_genes.map(&:mgi_accession_id).compact
     all_remote_mgi_accession_ids  = DCC_BIOMART.search(
       :process_results => true,

@@ -28,4 +28,5 @@ group :development, :test do
   gem 'annotate'
   gem 'simplecov', '>= 0.4.0', :require => false
   gem 'simplecov-rcov',        :require => false
+  gem 'mocha'
 end

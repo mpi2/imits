@@ -18,6 +18,8 @@ module ApplicationHelper
       html += javascript_include_tag('/extjs/ext-all-debug')
     end
 
+    html += javascript_include_tag 'extjs_hacky_monkey_patches'
+
     return html.html_safe
   end
 

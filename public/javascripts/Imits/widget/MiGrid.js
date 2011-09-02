@@ -99,8 +99,7 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'es_cell_name',
             header: 'ES Cell',
-            readOnly: true,
-            sortable: false
+            readOnly: true
         },
         {
             dataIndex: 'es_cell_marker_symbol',
@@ -139,26 +138,22 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'consortium_name',
             header: 'Consortium',
-            readOnly: true,
-            sortable: false
+            readOnly: true
         },
         {
             dataIndex: 'production_centre_name',
             header: 'Production Centre',
-            readOnly: true,
-            sortable: false
+            readOnly: true
         },
         {
             dataIndex: 'distribution_centre_name',
             header: 'Distribution Centre',
-            readOnly: true,
-            sortable: false
+            readOnly: true
         },
         {
             dataIndex: 'deposited_material_name',
             header: 'Deposited Material',
-            readOnly: true,
-            sortable: false
+            readOnly: true
         }
         ],
 
@@ -166,8 +161,7 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'blast_strain_name',
             header: 'Blast Strain',
-            readOnly: true,
-            sortable: false
+            readOnly: true
         },
         {
             dataIndex: 'total_blasts_injected',
@@ -239,14 +233,12 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'test_cross_strain_name',
             header: 'Test Cross Strain',
-            readOnly: true,
-            sortable: false
+            readOnly: true
         },
         {
             dataIndex: 'colony_background_strain_name',
             header: 'Colony Background Strain',
-            readOnly: true,
-            sortable: false
+            readOnly: true
         },
         {
             dataIndex: 'date_chimeras_mated',

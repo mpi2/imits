@@ -109,6 +109,8 @@ class ReportsController < ApplicationController
   def planned_microinjection_list
     unless params[:commit].blank?
       @report = generate_planned_mi_list_report( params )
+      @report.add_column('Reason for Decline/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_decline_conflict }
+      @report.remove_columns(['ID'])
       @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
 
       if request.format == :csv

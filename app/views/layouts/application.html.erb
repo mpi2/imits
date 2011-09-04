@@ -16,11 +16,11 @@
 
     <%= csrf_meta_tag %>
 
-    <%= javascript_include_tag 'application' %>
-    <%= javascript_include_imits_classes %>
-
     <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
     <%= javascript_tag "authenticityToken = '#{form_authenticity_token}';" %>
+
+    <%= javascript_include_tag 'application' %>
+    <%= javascript_include_imits_classes %>
 
     <%= yield :head %>
 

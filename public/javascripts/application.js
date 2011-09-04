@@ -137,7 +137,10 @@ function googleAnalytics() {
 }
 
 Ext.Loader.setConfig({
-    enabled: true
+    enabled: true,
+    paths: {
+        'Imits': window.basePath + '/javascripts/Imits'
+    }
 });
-Ext.Loader.setPath('Ext', '../extjs');
-Ext.Loader.setPath('Ext.ux', '../extjs/examples/ux');
+Ext.Loader.setPath('Ext', window.basePath + '/extjs');
+Ext.Loader.setPath('Ext.ux', window.basePath + '/extjs/examples/ux');

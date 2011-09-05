@@ -1,45 +1,60 @@
-<div class="grid_4">
-  <fieldset>
-    <legend>Filter Data On</legend>
-    <table>
-      <tr>
-        <td>
-          <%= label_tag( 'production_centre_id[]', "Production Centre:" ) %>
-          <%=
-            select_tag(
-              'production_centre_id[]',
-              options_from_collection_for_select( Centre.order("name").all, :id, :name, params[:production_centre_id] ),
-              { :include_blank => true, :multiple => true, :size => 5 }
-            )
-          %>
-        </td>
-        <td>
-          <%= label_tag( 'consortium_id[]', "Consortium:" ) %>
-          <%=
-            select_tag(
-              'consortium_id[]',
-              options_from_collection_for_select( Consortium.order("name").all, :id, :name, params[:consortium_id] ),
-              { :include_blank => true, :multiple => true, :size => 5 }
-            )
-          %>
-        </td>
-      </tr>
-    </table>
-  </fieldset>
-</div>
-
-<% if grouping %>
+<% suppress_centre_consortium_filters ||= false %>
+<% unless suppress_centre_consortium_filters %>
   <div class="grid_4">
     <fieldset>
-      <legend>Group Data By</legend>
-      <%=
-        select_tag(
-          :grouping,
-          options_for_select( [['Consortium'], ['Production Centre']], params[:grouping] ),
-          { :include_blank => true }
-        )
-      %>
+      <legend>Filter Data On</legend>
+      <table>
+        <tr>
+          <td>
+            <%= label_tag( 'production_centre_id[]', "Production Centre:" ) %>
+            <%=
+              select_tag(
+                'production_centre_id[]',
+                options_from_collection_for_select( Centre.order("name").all, :id, :name, params[:production_centre_id] ),
+                { :include_blank => true, :multiple => true, :size => 5 }
+              )
+            %>
+          </td>
+          <td>
+            <%= label_tag( 'consortium_id[]', "Consortium:" ) %>
+            <%=
+              select_tag(
+                'consortium_id[]',
+                options_from_collection_for_select( Consortium.order("name").all, :id, :name, params[:consortium_id] ),
+                { :include_blank => true, :multiple => true, :size => 5 }
+              )
+            %>
+          </td>
+        </tr>
+      </table>
     </fieldset>
+  </div>
+<% end %>
+
+<%
+  grouping        ||= false
+  mi_plan_reports ||= false
+%>
+<% if grouping || mi_plan_reports %>
+  <div class="grid_4">
+    <% if grouping %>
+      <fieldset>
+        <legend>Group Data By</legend>
+        <%=
+          select_tag(
+            :grouping,
+            options_for_select( [['Consortium'], ['Production Centre']], params[:grouping] ),
+            { :include_blank => true }
+          )
+        %>
+      </fieldset>
+    <% end %>
+    <% if mi_plan_reports %>
+      <fieldset>
+        <legend>Include Plans with Active MiAttempts?</legend>
+        <%= select_tag( :include_plans_with_active_attempts, options_for_select( [['no'],['yes']], params[:include_plans_with_active_attempts] ) ) %>
+      </fieldset>
+    <% end %>
   </div>
 <% end %>
 

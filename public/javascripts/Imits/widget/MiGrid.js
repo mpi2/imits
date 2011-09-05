@@ -1,6 +1,8 @@
 Ext.define('Imits.widget.MiGrid', {
     extend: 'Ext.grid.Panel',
 
+    requires: ['Imits.model.MiAttempt'],
+
     title: 'Micro-Injection Attempts',
     store: {
         model: 'Imits.model.MiAttempt',
@@ -402,13 +404,20 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'is_active',
             header: 'Active?',
-            editor: 'checkbox'
+            editor: 'checkbox',
+            renderer: function(value) {
+                if(value == true) {
+                    return '<input type="checkbox" checked=1></input>';
+                } else {
+                    return '<input type="checkbox"></input>';
+                }
+            }
         },
         {
             dataIndex: 'is_released_from_genotyping',
             header: 'Released From Genotyping',
             editor: 'checkbox'
-        },
+        }
         ]
     }
 // END groupedColumns - ALWAYS keep at bottom of file for easier organization

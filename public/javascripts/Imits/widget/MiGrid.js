@@ -170,7 +170,14 @@ Ext.define('Imits.widget.MiGrid', {
             dataIndex: 'blast_strain_name',
             header: 'Blast Strain',
             readOnly: true,
-            sortable: false
+            sortable: false,
+            renderer: function(value) {
+                return Ext.util.Format.htmlEncode(value);
+            },
+            editor: {
+                xtype: 'simplecombo',
+                store: window.MI_ATTEMPT_BLAST_STRAIN_OPTIONS
+            }
         },
         {
             dataIndex: 'total_blasts_injected',
@@ -253,13 +260,27 @@ Ext.define('Imits.widget.MiGrid', {
             dataIndex: 'test_cross_strain_name',
             header: 'Test Cross Strain',
             readOnly: true,
-            sortable: false
+            sortable: false,
+            renderer: function(value) {
+                return Ext.util.Format.htmlEncode(value);
+            },
+            editor: {
+                xtype: 'simplecombo',
+                store: window.MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS
+            }
         },
         {
             dataIndex: 'colony_background_strain_name',
             header: 'Colony Background Strain',
             readOnly: true,
-            sortable: false
+            sortable: false,
+            renderer: function(value) {
+                return Ext.util.Format.htmlEncode(value);
+            },
+            editor: {
+                xtype: 'simplecombo',
+                store: window.MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS
+            }
         },
         {
             dataIndex: 'date_chimeras_mated',

@@ -5,6 +5,9 @@
   <%= javascript_tag "MI_ATTEMPT_QC_OPTIONS = #{QcResult.all.map(&:description).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_DEPOSITED_MATERIAL_OPTIONS = #{DepositedMaterial.all.map(&:name).to_json}" %>
+  <%= javascript_tag "MI_ATTEMPT_BLAST_STRAIN_OPTIONS = #{Strain::BlastStrain.all.map(&:name).to_json}" %>
+  <%= javascript_tag "MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS = #{Strain::ColonyBackgroundStrain.all.map(&:name).to_json}" %>
+  <%= javascript_tag "MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS = #{Strain::TestCrossStrain.all.map(&:name).to_json}" %>
   <%= javascript_include_tag 'mi_attempts/index' %>
 <% end %>
 

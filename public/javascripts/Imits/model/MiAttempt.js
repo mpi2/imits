@@ -1,5 +1,7 @@
 Ext.define('Imits.model.MiAttempt', {
     extend: 'Ext.data.Model',
+    requires: ['Imits.data.Proxy'],
+
     fields: [
     {
         name: 'id',

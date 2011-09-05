@@ -1,7 +1,7 @@
 Ext.define('Imits.widget.MiGrid', {
     extend: 'Ext.grid.Panel',
 
-    requires: ['Imits.model.MiAttempt'],
+    requires: ['Imits.widget.SimpleNumberField', 'Imits.widget.SimpleCombo', 'Imits.widget.QCCombo', 'Imits.widget.BoolGridColumn'],
 
     title: 'Micro-Injection Attempts',
     store: {
@@ -163,7 +163,8 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'blast_strain_name',
             header: 'Blast Strain',
-            readOnly: true
+            readOnly: true,
+            sortable: false
         },
         {
             dataIndex: 'total_blasts_injected',
@@ -229,18 +230,30 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'emma_status',
             header: 'EMMA Status',
+            sortable: false,
+            width: 200,
+            renderer: function(data) {
+                return MI_ATTEMPT_EMMA_OPTIONS[data];
+            },
+            editor: {
+                xtype: 'simplecombo',
+                store: Ext.Array.map(Ext.Object.getKeys(window.MI_ATTEMPT_EMMA_OPTIONS), function(i) {
+                    return [ i, window.MI_ATTEMPT_EMMA_OPTIONS[i] ]
+                })
+            }
+        },
+
+        {
+            dataIndex: 'test_cross_strain_name',
+            header: 'Test Cross Strain',
             readOnly: true,
             sortable: false
         },
         {
-            dataIndex: 'test_cross_strain_name',
-            header: 'Test Cross Strain',
-            readOnly: true
-        },
-        {
             dataIndex: 'colony_background_strain_name',
             header: 'Colony Background Strain',
-            readOnly: true
+            readOnly: true,
+            sortable: false
         },
         {
             dataIndex: 'date_chimeras_mated',
@@ -328,95 +341,88 @@ Ext.define('Imits.widget.MiGrid', {
             dataIndex: 'qc_southern_blot_result',
             header: 'Southern Blot',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_five_prime_lr_pcr_result',
             header: 'Five Prime LR PCR',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_five_prime_cassette_integrity_result',
             header: 'Five Prime Cassette Integrity',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_tv_backbone_assay_result',
             header: 'TV Backbone Assay',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_neo_count_qpcr_result',
             header: 'Neo Count QPCR',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_neo_sr_pcr_result',
             header: 'Neo SR PCR',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_loa_qpcr_result',
             header: 'LOA QPCR',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_homozygous_loa_sr_pcr_result',
             header: 'Homozygous LOA SR PCR',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_lacz_sr_pcr_result',
             header: 'LacZ SR PCR',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_mutant_specific_sr_pcr_result',
             header: 'Mutant Specific SR PCR',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_loxp_confirmation_result',
             header: 'LoxP Confirmation',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'qc_three_prime_lr_pcr_result',
             header: 'Three Prime LR PCR',
             sortable: false,
-            readOnly: true
+            editor: 'qccombo'
         },
         {
             dataIndex: 'report_to_public',
             header: 'Report to Public',
-            editor: 'checkbox'
+            xtype: 'boolgridcolumn'
         },
         {
             dataIndex: 'is_active',
             header: 'Active?',
-            editor: 'checkbox',
-            renderer: function(value) {
-                if(value == true) {
-                    return '<input type="checkbox" checked=1></input>';
-                } else {
-                    return '<input type="checkbox"></input>';
-                }
-            }
+            xtype: 'boolgridcolumn'
         },
         {
             dataIndex: 'is_released_from_genotyping',
             header: 'Released From Genotyping',
-            editor: 'checkbox'
+            xtype: 'boolgridcolumn'
         }
         ]
     }

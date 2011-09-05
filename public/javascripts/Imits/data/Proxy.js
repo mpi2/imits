@@ -1,5 +1,6 @@
 Ext.define('Imits.data.Proxy', {
     extend: 'Ext.data.proxy.Rest',
+    requires: ['Imits.data.JsonWriter'],
 
     constructor: function(config) {
         var resource = config.resource;

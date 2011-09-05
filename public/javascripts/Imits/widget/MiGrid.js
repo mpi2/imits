@@ -150,12 +150,18 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'distribution_centre_name',
             header: 'Distribution Centre',
-            readOnly: true
+            editor: {
+                xtype: 'simplecombo',
+                store: window.MI_ATTEMPT_CENTRE_OPTIONS
+            }
         },
         {
             dataIndex: 'deposited_material_name',
             header: 'Deposited Material',
-            readOnly: true
+            editor: {
+                xtype: 'simplecombo',
+                store: window.MI_ATTEMPT_DEPOSITED_MATERIAL_OPTIONS
+            }
         }
         ],
 

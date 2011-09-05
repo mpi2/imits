@@ -3,6 +3,8 @@
 <% content_for :head do %>
   <%= javascript_tag "MI_ATTEMPT_EMMA_OPTIONS = #{MiAttempt::EMMA_OPTIONS.to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_QC_OPTIONS = #{QcResult.all.map(&:description).to_json}" %>
+  <%= javascript_tag "MI_ATTEMPT_CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
+  <%= javascript_tag "MI_ATTEMPT_DEPOSITED_MATERIAL_OPTIONS = #{DepositedMaterial.all.map(&:name).to_json}" %>
   <%= javascript_include_tag 'mi_attempts/index' %>
 <% end %>
 

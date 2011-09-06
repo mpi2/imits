@@ -77,16 +77,27 @@ class ReportsTest < ActionDispatch::IntegrationTest
       end
 
       should 'allow users to get planned_microinjection_summary_and_conflicts reports' do
-        5.times { Factory.create :mi_plan }
+        15.times { Factory.create :mi_plan }
+        20.times { Factory.create :mi_attempt }
 
         visit '/reports'
         click_link 'Planned Micro-injection Summary and Conflicts'
 
         assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url
+        assert page.has_css?('form')
+        assert_false page.has_css?('form select#grouping')
+
+        click_button 'Generate Report'
+        assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url
         assert page.has_css?('.report table')
 
-        click_link 'download this report as csv'
+        select 'yes', :from => 'include_plans_with_active_attempts'
+        click_button 'Generate Report'
         assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url
+        assert page.has_css?('.report table')
+
+        choose 'format_csv'
+        click_button 'Generate Report'
       end
     end
   end

@@ -14,7 +14,7 @@ class ReportsControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      [:microinjection_list, :production_summary, :gene_summary].each do |report|
+      [:microinjection_list, :production_summary, :gene_summary, :planned_microinjection_list].each do |report|
         context "the /#{report} report" do
           should 'be blank without parameters' do
             get report
@@ -33,14 +33,32 @@ class ReportsControllerTest < ActionController::TestCase
 
       context 'the /planned_microinjection_summary_and_conflicts report' do
         should 'just work (tm)' do
-          5.times { Factory.create :mi_plan }
+          15.times { Factory.create :mi_plan }
+          20.times { Factory.create :mi_attempt }
 
           get :planned_microinjection_summary_and_conflicts
           assert response.success?
-          assert assigns(:summary)
-          assert assigns(:summary).is_a?( Ruport::Data::Grouping )
-          assert assigns(:conflict_report)
-          assert assigns(:conflict_report).is_a?( Ruport::Data::Table )
+          assert_nil assigns(:summary_by_status)
+
+          get :planned_microinjection_summary_and_conflicts, 'commit' => 'Go'
+          assert response.success?
+
+          [
+            :summary_by_status_and_priority,
+            :declined_report
+          ].each do |report|
+            assert assigns(report), "@#{report} has not been assigned"
+            assert assigns(report).is_a?( Ruport::Data::Grouping ), "@#{report} is not a Ruport::Data::Grouping object"
+          end
+
+          [
+            :summary_by_status,
+            :summary_by_priority,
+            :conflict_report
+          ].each do |report|
+            assert assigns(report), "@#{report} has not been assigned"
+            assert assigns(report).is_a?( Ruport::Data::Table ), "@#{report} is not a Ruport::Data::Table object"
+          end
         end
       end
     end

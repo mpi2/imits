@@ -1,44 +1,43 @@
-<% @title = 'Planned Micro-Injections' %>
+<% @title = 'Planned Micro-Injection Summary and Conflicts' %>
 
-<div class="grid_12">
-  <div style="float:right;">
-    <%=
-      link_to(
-        'download this report as csv',
-        url_for( :controller => :reports, :action => :planned_microinjection_summary_and_conflicts, :format => :csv ),
-        { :class => 'button csv_download' }
-      )
-    %>
-  </div>
-  <h2><%= @title %></h2>
+<h2><%= @title %></h2>
 
-  <h3># Genes in Planned Micro-Injection Statuses</h3>
-  <div class="report">
-    <%=raw @summary_by_status.to_html %>
-  </div>
+<%= form_tag( { :controller => :reports, :action => :planned_microinjection_summary_and_conflicts }, :method => :get, :class => 'report-form' ) do |form| %>
+  <%=
+    render( 'report_controls', { :grouping => false, :mi_plan_reports => true, :suppress_centre_consortium_filters => true } )
+  %>
+<% end %>
 
-  <h3># Genes in Priority Groups</h3>
-  <div class="report">
-    <%=raw @summary_by_priority.to_html %>
-  </div>
+<% unless params[:commit].blank? %>
+  <div class="grid_12">
+    <h3># Genes in Planned Micro-Injection Statuses</h3>
+    <div class="report">
+      <%=raw @summary_by_status.to_html %>
+    </div>
 
-  <h3># Genes in Planned Micro-Injections by Status / Priority</h3>
-  <div class="report">
-    <%=raw @summary_by_status_and_priority.to_html %>
-  </div>
+    <h3># Genes in Priority Groups</h3>
+    <div class="report">
+      <%=raw @summary_by_priority.to_html %>
+    </div>
 
-  <h3>Conflicting Micro-Injection Plans</h3>
-  <div class="report">
-    <% if @conflict_report.size == 0 %>
-      <p>No conflicts to report.</p>
-    <% else %>
-      <%=raw @conflict_report.to_html %>
-    <% end %>
-  </div>
+    <h3># Genes in Planned Micro-Injections by Status / Priority</h3>
+    <div class="report">
+      <%=raw @summary_by_status_and_priority.to_html %>
+    </div>
 
-  <h3>Declined Micro-Injection Plans</h3>
-  <div class="report">
-    <%=raw @declined_report.to_html %>
+    <h3>Conflicting Micro-Injection Plans</h3>
+    <div class="report">
+      <% if @conflict_report.size == 0 %>
+        <p>No conflicts to report.</p>
+      <% else %>
+        <%=raw @conflict_report.to_html %>
+      <% end %>
+    </div>
+
+    <h3>Declined Micro-Injection Plans</h3>
+    <div class="report">
+      <%=raw @declined_report.to_html %>
+    </div>
   </div>
-</div>
+<% end %>
 

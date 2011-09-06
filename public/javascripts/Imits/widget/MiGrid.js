@@ -171,12 +171,10 @@ Ext.define('Imits.widget.MiGrid', {
             header: 'Blast Strain',
             readOnly: true,
             sortable: false,
-            renderer: function(value) {
-                return Ext.util.Format.htmlEncode(value);
-            },
+            renderer: 'safeTextRenderer',
             editor: {
                 xtype: 'simplecombo',
-                store: window.MI_ATTEMPT_BLAST_STRAIN_OPTIONS
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_BLAST_STRAIN_OPTIONS)
             }
         },
         {
@@ -261,12 +259,10 @@ Ext.define('Imits.widget.MiGrid', {
             header: 'Test Cross Strain',
             readOnly: true,
             sortable: false,
-            renderer: function(value) {
-                return Ext.util.Format.htmlEncode(value);
-            },
+            renderer: 'safeTextRenderer',
             editor: {
                 xtype: 'simplecombo',
-                store: window.MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS)
             }
         },
         {
@@ -274,12 +270,10 @@ Ext.define('Imits.widget.MiGrid', {
             header: 'Colony Background Strain',
             readOnly: true,
             sortable: false,
-            renderer: function(value) {
-                return Ext.util.Format.htmlEncode(value);
-            },
+            renderer: 'safeTextRenderer',
             editor: {
                 xtype: 'simplecombo',
-                store: window.MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS)
             }
         },
         {

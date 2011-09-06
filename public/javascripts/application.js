@@ -136,6 +136,21 @@ function googleAnalytics() {
     })();
 }
 
+Ext.util.Format.safeTextRenderer = function(value) {
+    if (value === undefined || value === null) {
+        value = '';
+    }
+    else {
+        value = String(value);
+    }
+
+    if (!value) {
+        return '\u00A0';
+    }
+
+    return Ext.util.Format.htmlEncode(value);
+}
+
 Ext.Loader.setConfig({
     enabled: true,
     paths: {

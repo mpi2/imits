@@ -837,12 +837,12 @@ class MiAttemptTest < ActiveSupport::TestCase
     context '::translate_search_param' do
       should 'translate marker_symbol' do
         assert_equal 'es_cell_gene_marker_symbol_eq',
-                MiAttempt.translate_search_param('marker_symbol_eq')
+                MiAttempt.translate_search_param('es_cell_marker_symbol_eq')
       end
 
       should 'translate allele symbol' do
         assert_equal 'es_cell_gene_allele_symbol_in',
-                MiAttempt.translate_search_param('allele_symbol_in')
+                MiAttempt.translate_search_param('es_cell_allele_symbol_in')
       end
 
       should 'translate consortium_name' do

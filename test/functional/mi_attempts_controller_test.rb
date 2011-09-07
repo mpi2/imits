@@ -123,6 +123,20 @@ class MiAttemptsControllerTest < ActionController::TestCase
           assert_equal 25, got['mi_attempts'].size
           assert_equal 100, got['total']
         end
+
+        should 'include total MI attempts from filtering' do
+          found_mis = [
+            Factory.create(:mi_attempt, :colony_name => 'ABC_1'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_2')
+          ]
+          Factory.create(:mi_attempt, :colony_name => 'DEF_1')
+          get :index, :format => 'json', 'extended_response' => 'true', :per_page => 25, 'colony_name_cont' => 'ABC'
+          got = parse_json_from_response
+          assert_equal true, got['success']
+          assert_equal 2, got['mi_attempts'].size
+          assert_equal 2, got['total']
+          assert_equal found_mis.map(&:id).sort, got['mi_attempts'].map{|i| i['id']}
+        end
       end
     end
 

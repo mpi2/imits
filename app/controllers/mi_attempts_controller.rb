@@ -107,7 +107,7 @@ class MiAttemptsController < ApplicationController
     retval = {
       'mi_attempts' => data,
       'success' => true,
-      'total' => MiAttempt.count
+      'total' => data.size
     }
     return retval
   end

@@ -1,7 +1,13 @@
 Ext.define('Imits.widget.MiGrid', {
     extend: 'Ext.grid.Panel',
 
-    requires: ['Imits.widget.SimpleNumberField', 'Imits.widget.SimpleCombo', 'Imits.widget.QCCombo', 'Imits.widget.BoolGridColumn'],
+    requires: [
+    'Imits.widget.SimpleNumberField',
+    'Imits.widget.SimpleCombo',
+    'Imits.widget.QCCombo',
+    'Imits.widget.BoolGridColumn',
+    'Imits.widget.grid.RansackFiltersFeature'
+    ],
 
     title: 'Micro-Injection Attempts',
     store: {
@@ -31,6 +37,13 @@ Ext.define('Imits.widget.MiGrid', {
         autoCancel: false,
         clicksToEdit: 1
     })
+    ],
+
+    features: [
+    {
+        ftype: 'ransack_filters',
+        local: false
+    }
     ],
 
     manageResize: function() {
@@ -101,14 +114,20 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'es_cell_name',
             header: 'ES Cell',
-            readOnly: true
+            readOnly: true,
+            filter: {
+                type: 'string'
+            }
         },
         {
             dataIndex: 'es_cell_marker_symbol',
             header: 'Marker Symbol',
             width: 75,
             readOnly: true,
-            sortable: false
+            sortable: false,
+            filter: {
+                type: 'string'
+            }
         },
         {
             dataIndex: 'es_cell_allele_symbol',

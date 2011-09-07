@@ -35,6 +35,14 @@ class MiAttemptsControllerTest < ActionController::TestCase
           assert_equal 'MBSS', data.find {|i| i['es_cell_name'] == 'EPD0127_4_E01'}['colony_name']
           assert_equal 'MBFD', data.find {|i| i['es_cell_name'] == 'EPD0029_1_G04'}['colony_name']
         end
+
+        should 'work if embedded in q parameter' do
+          get :index, :q => {'es_cell_name_ci_in' => ['epd0127_4_e01', 'epd0029_1_g04']}, :format => :json
+          data = parse_json_from_response
+          assert_equal 4, data.size
+          assert_equal 'MBFD', data.find {|i| i['es_cell_name'] == 'EPD0029_1_G04'}['colony_name']
+          assert_equal 3, data.select {|i| i['es_cell_name'] == 'EPD0127_4_E01'}.size
+        end
       end
 
       should 'paginate by default for JSON' do

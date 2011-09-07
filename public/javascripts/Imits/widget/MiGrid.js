@@ -154,17 +154,28 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'colony_name',
             header: 'Colony Name',
-            editor: 'textfield'
+            editor: 'textfield',
+            filter: {
+                type: 'string'
+            }
         },
         {
             dataIndex: 'consortium_name',
             header: 'Consortium',
-            readOnly: true
+            readOnly: true,
+            filter: {
+                type: 'list',
+                options: window.MI_ATTEMPT_CONSORTIUM_OPTIONS
+            }
         },
         {
             dataIndex: 'production_centre_name',
             header: 'Production Centre',
-            readOnly: true
+            readOnly: true,
+            filter: {
+                type: 'list',
+                options: window.MI_ATTEMPT_CENTRE_OPTIONS
+            }
         },
         {
             dataIndex: 'distribution_centre_name',
@@ -172,6 +183,10 @@ Ext.define('Imits.widget.MiGrid', {
             editor: {
                 xtype: 'simplecombo',
                 store: window.MI_ATTEMPT_CENTRE_OPTIONS
+            },
+            filter: {
+                type: 'list',
+                options: window.MI_ATTEMPT_CENTRE_OPTIONS
             }
         },
         {

@@ -12,7 +12,12 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
     buildQuery: function(filters) {
         var params = {};
         Ext.each(filters, function(filter) {
-            params['q[' + filter.field + '_ci_in]'] = filter.data.value;
+            switch (filter.data.type) {
+                case 'string':
+                case 'list':
+                    params['q[' + filter.field + '_ci_in][]'] = filter.data.value;
+                    break;
+            }
         });
         return params;
     },

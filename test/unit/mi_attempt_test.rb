@@ -855,11 +855,6 @@ class MiAttemptTest < ActiveSupport::TestCase
                 MiAttempt.translate_search_param('production_centre_name_eq')
       end
 
-      should 'translate distribution_centre' do
-        assert_equal 'mi_plan_distribution_centre_name_eq',
-                MiAttempt.translate_search_param('distribution_centre_name_eq')
-      end
-
       should 'leave other params untouched' do
         assert_equal 'colony_name_not_in',
                 MiAttempt.translate_search_param('colony_name_not_in')

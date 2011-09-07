@@ -127,15 +127,22 @@ class MiAttemptsControllerTest < ActionController::TestCase
         should 'include total MI attempts from filtering' do
           found_mis = [
             Factory.create(:mi_attempt, :colony_name => 'ABC_1'),
-            Factory.create(:mi_attempt, :colony_name => 'ABC_2')
+            Factory.create(:mi_attempt, :colony_name => 'ABC_2'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_3'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_4'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_5'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_6'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_7'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_8'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_9')
           ]
           Factory.create(:mi_attempt, :colony_name => 'DEF_1')
-          get :index, :format => 'json', 'extended_response' => 'true', :per_page => 25, 'colony_name_cont' => 'ABC'
+          get :index, :format => 'json', 'extended_response' => 'true', :per_page => 5, 'colony_name_cont' => 'ABC', 'sorts' => 'colony_name ASC'
           got = parse_json_from_response
           assert_equal true, got['success']
-          assert_equal 2, got['mi_attempts'].size
-          assert_equal 2, got['total']
-          assert_equal found_mis.map(&:id).sort, got['mi_attempts'].map{|i| i['id']}
+          assert_equal 5, got['mi_attempts'].size
+          assert_equal 9, got['total']
+          assert_equal found_mis[0..4].map(&:id).sort, got['mi_attempts'].map{|i| i['id']}
         end
       end
     end

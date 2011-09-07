@@ -24,21 +24,38 @@ class MiAttemptsController < ApplicationController
         end
       end
 
-      format.xml { render :xml => data_for_serialized }
-      format.json { render :json => json_format_extended_response(data_for_serialized) }
+      format.xml { render :xml => data_for_serialized(:xml) }
+      format.json { render :json => data_for_serialized(:json) }
     end
   end
 
-  def data_for_serialized
+  def data_for_serialized(format)
     params[:sorts] = 'id' if(params[:sorts].blank?)
     params.delete(:per_page) if params[:per_page].blank? or params[:per_page].to_i == 0
-    if params[:q]
-      params.merge!(params[:q])
-      params.delete(:q)
+
+    result = MiAttempt.public_search(params_cleaned_for_search(params)).result
+
+    retval = result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
+    if format == :json and params[:extended_response].to_s == 'true'
+      return json_format_extended_response(retval, result.count)
+    else
+      return retval
     end
-    MiAttempt.public_search(cleaned_params).result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
   end
   private :data_for_serialized
+
+  def json_format_extended_response(data, total)
+    data = [data] unless data.kind_of? Array
+    data = data.as_json
+
+    retval = {
+      'mi_attempts' => data,
+      'success' => true,
+      'total' => total
+    }
+    return retval
+  end
+  private :json_format_extended_response
 
   def new
     set_centres_and_consortia
@@ -87,7 +104,7 @@ class MiAttemptsController < ApplicationController
       end
 
       if @mi_attempt.valid?
-        format.json { render :json => json_format_extended_response(@mi_attempt) }
+        format.json { render :json => json_format_extended_response(@mi_attempt, 1) }
       end
     end
   end
@@ -97,20 +114,6 @@ class MiAttemptsController < ApplicationController
   end
 
   private
-
-  def json_format_extended_response(data)
-    return data unless params[:extended_response].to_s == 'true'
-
-    data = [data] unless data.kind_of? Array
-    data = data.as_json
-
-    retval = {
-      'mi_attempts' => data,
-      'success' => true,
-      'total' => data.size
-    }
-    return retval
-  end
 
   def set_centres_and_consortia
     @centres = Centre.all

@@ -36,7 +36,7 @@ class MiAttemptsController < ApplicationController
       params.merge!(params[:q])
       params.delete(:q)
     end
-    MiAttempt.search(cleaned_params).result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
+    MiAttempt.public_search(cleaned_params).result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
   end
   private :data_for_serialized
 

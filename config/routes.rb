@@ -1,4 +1,7 @@
 Kermits2::Application.routes.draw do
+  get "mi_plans/gene_selection"
+  post "mi_plans/gene_selection"
+
   root :to => "root#index"
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do

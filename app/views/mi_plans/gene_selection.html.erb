@@ -1,0 +1,59 @@
+
+<% content_for :head do %>
+  <%= javascript_include_tag 'mi_plans/gene_selection' %>
+<% end %>
+
+<%= search_form_for @q, :url => url_for('/mi_plans/gene_selection'), :html => { :id => 'gene-search-form', :method => :post }  do |f| %>
+  <fieldset class="collapsible">
+    <legend>Search for Genes</legend>
+    <div>
+      <div class="grid_6 alpha">
+        <%= f.label :marker_symbol_or_mgi_accession_id_ci_in, 'Marker Symbol or MGI Accession ID:' %>
+        <textarea id="q_marker_symbol_or_mgi_accession_id_ci_in" name="q[marker_symbol_or_mgi_accession_id_ci_in]"><%=
+            if !params[:q].blank? && !params[:q][:marker_symbol_or_mgi_accession_id_ci_in].blank?
+              params[:q][:marker_symbol_or_mgi_accession_id_ci_in].join("\n")
+            end
+        -%></textarea>
+      </div>
+      <div id="buttons" class="grid_12">
+        <input id="submit" type="submit" value="Search" />
+        &ensp;|&ensp;
+        <a id="clear-search-terms-button">Clear</a>
+      </div>
+    </div>
+  </fieldset>
+<% end %>
+
+<div class="clear"></div>
+
+<% unless @genes.empty? %>
+  <div id="gene-selection-table-container">
+    <table id="gene-selection-table">
+      <thead>
+        <tr>
+          <th>Gene</th>
+          <th># IKMC Projects</th>
+          <th># Clones</th>
+          <th>MIs Assigned</th>
+          <th>MIs in Progress</th>
+          <th>GLT Mice</th>
+          <th>Register Interest?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @genes.each do |gene| %>
+          <tr>
+            <td><%= gene.marker_symbol %></td>
+            <td><%= gene.ikmc_projects_count %></td>
+            <td><%= gene.pretty_print_types_of_cells_available %></td>
+            <td><%= gene.pretty_print_assigned_mi_plans %></td>
+            <td><%= gene.pretty_print_mi_attempts_in_progress %></td>
+            <td><%= gene.pretty_print_mi_attempts_genotype_confirmed %></td>
+            <td></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+

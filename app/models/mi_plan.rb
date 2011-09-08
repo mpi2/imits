@@ -22,19 +22,27 @@ class MiPlan < ActiveRecord::Base
   validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]
 
   def self.with_mi_attempt
-    where('mi_plans.id in (?)', MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+    ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)
+    raise "Cannot run 'mi_plan.with_mi_attempt' when there are no mi_attempts" if ids.empty?
+    where('mi_plans.id in (?)',ids)
   end
 
   def self.without_mi_attempt
-    where('mi_plans.id not in (?)', MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+    ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)
+    raise "Cannot run 'mi_plan.without_mi_attempt' when there are no mi_attempts" if ids.empty?
+    where('mi_plans.id not in (?)',ids)
   end
 
   def self.with_active_mi_attempt
-    where('mi_plans.id in (?)', MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+    ids = MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id)
+    raise "Cannot run 'mi_plan.with_active_mi_attempt' when there are no active mi_attempts" if ids.empty?
+    where('mi_plans.id in (?)',ids)
   end
 
   def self.without_active_mi_attempt
-    where('mi_plans.id not in (?)', MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+    ids = MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id)
+    raise "Cannot run 'mi_plan.without_active_mi_attempt' when there are no active mi_attempts" if ids.empty?
+    where('mi_plans.id not in (?)',ids)
   end
 
   def self.with_genotype_confirmed_mouse

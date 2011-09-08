@@ -130,6 +130,14 @@ class MiAttempt < ActiveRecord::Base
     where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id, :is_active => true)
   end
 
+  def self.in_progress
+    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id, :is_active => true)
+  end
+
+  def self.aborted
+    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id, :is_active => true)
+  end
+
   protected
 
   def set_default_status

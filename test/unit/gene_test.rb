@@ -158,5 +158,111 @@ class GeneTest < ActiveSupport::TestCase
       end
     end
 
+    context '#pretty_print_types_of_cells_available' do
+      should 'work' do
+        gene = Factory.create :gene,
+                :marker_symbol => 'Moo1',
+                :mgi_accession_id => 'MGI:12345',
+                :conditional_es_cells_count => 2,
+                :non_conditional_es_cells_count => 10,
+                :deletion_es_cells_count => 5
+
+        assert gene
+        assert_equal "2 Conditional</br>10 Targeted Trap</br>5 Deletion", gene.pretty_print_types_of_cells_available
+      end
+    end
+
+    context '#pretty_print_assigned_mi_plans' do
+      should 'work' do
+        gene = Factory.create :gene,
+          :marker_symbol => 'Moo1',
+          :mgi_accession_id => 'MGI:12345'
+
+        Factory.create :mi_plan,
+          :gene => gene,
+          :consortium => Consortium.find_by_name!('BaSH'), 
+          :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+
+        Factory.create :mi_plan,
+          :gene => gene,
+          :consortium => Consortium.find_by_name!('MGP'),
+          :production_centre => Centre.find_by_name!('WTSI'),
+          :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+
+        Factory.create :mi_attempt, :is_active => true
+
+        assert gene
+        assert_equal 2, gene.mi_plans.count
+        assert_equal '', gene.pretty_print_mi_attempts_in_progress
+        assert_equal '', gene.pretty_print_mi_attempts_genotype_confirmed
+        assert_match '[BaSH]', gene.pretty_print_assigned_mi_plans
+        assert_match '[MGP:WTSI]', gene.pretty_print_assigned_mi_plans
+      end
+    end
+
+    context '#pretty_print_mi_attempts_in_progress' do
+      should 'work' do
+        gene = Factory.create :gene,
+          :marker_symbol => 'Moo1',
+          :mgi_accession_id => 'MGI:12345'
+
+        2.times do
+          Factory.create :mi_attempt,
+            :es_cell => Factory.create(:es_cell, :gene => gene),
+            :consortium_name => 'MGP',
+            :production_centre_name => 'WTSI',
+            :is_active => true
+        end
+
+        3.times do
+          Factory.create :mi_attempt,
+            :es_cell => Factory.create(:es_cell, :gene => gene),
+            :consortium_name => 'DTCC',
+            :production_centre_name => 'UCD',
+            :is_active => true
+        end
+
+        assert gene
+        assert_equal 2, gene.mi_plans.count
+        assert_equal '', gene.pretty_print_assigned_mi_plans
+        assert_equal '', gene.pretty_print_mi_attempts_genotype_confirmed
+        assert_match '[MGP:WTSI:2]', gene.pretty_print_mi_attempts_in_progress
+        assert_match '[DTCC:UCD:3]', gene.pretty_print_mi_attempts_in_progress
+      end
+    end
+
+    context '#pretty_print_mi_attempts_genotype_confirmed' do
+      should 'work' do
+        gene = Factory.create :gene,
+          :marker_symbol => 'Moo1',
+          :mgi_accession_id => 'MGI:12345'
+
+        2.times do
+          Factory.create :mi_attempt,
+            :es_cell => Factory.create(:es_cell, :gene => gene),
+            :consortium_name => 'MGP',
+            :production_centre_name => 'WTSI',
+            :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+            :is_active => true
+        end
+
+        3.times do
+          Factory.create :mi_attempt,
+            :es_cell => Factory.create(:es_cell, :gene => gene),
+            :consortium_name => 'DTCC',
+            :production_centre_name => 'UCD',
+            :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+            :is_active => true
+        end
+
+        assert gene
+        assert_equal 2, gene.mi_plans.count
+        assert_equal '', gene.pretty_print_assigned_mi_plans
+        assert_equal '', gene.pretty_print_mi_attempts_in_progress
+        assert_match '[MGP:WTSI:2]', gene.pretty_print_mi_attempts_genotype_confirmed
+        assert_match '[DTCC:UCD:3]', gene.pretty_print_mi_attempts_genotype_confirmed
+      end
+    end
+
   end
 end

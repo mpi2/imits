@@ -7,6 +7,65 @@ class Gene < ActiveRecord::Base
 
   validates :marker_symbol, :presence => true, :uniqueness => true
 
+  # BEGIN Helper functions for clean reporting
+
+  def pretty_print_types_of_cells_available
+    html = []
+    {
+      :conditional_es_cells_count     => 'Conditional',
+      :non_conditional_es_cells_count => 'Targeted Trap',
+      :deletion_es_cells_count        => 'Deletion'
+    }.each do |method,type|
+      html.push("#{self.send(method)} #{type}") unless self.send(method).nil?
+    end
+    return html.join('</br>').html_safe
+  end
+
+  def pretty_print_assigned_mi_plans
+    html = []
+    self.mi_plans
+      .where( :mi_plan_status_id => MiPlanStatus.find_by_name!('Assigned').id )
+      .without_active_mi_attempt
+      .each do |mi_plan|
+        string = "[#{mi_plan.consortium.name}"
+        string << ":#{mi_plan.production_centre.name}" unless mi_plan.production_centre_id.nil?
+        string << "]"
+        html.push(string)
+    end
+    return html.join(' ').html_safe
+  end
+
+  def pretty_print_mi_attempts_in_progress
+    return pretty_print_mi_attempts_helper(:in_progress)
+  end
+
+  def pretty_print_mi_attempts_genotype_confirmed
+    return pretty_print_mi_attempts_helper(:genotype_confirmed)
+  end
+
+  def pretty_print_mi_attempts_helper(method)
+    mi_counts = {}
+
+    self.mi_attempts.send(method).each do |mi_attempt|
+      key = "#{mi_attempt.mi_plan.consortium.name}:#{mi_attempt.mi_plan.production_centre.name}"
+      if mi_counts[key].nil?
+        mi_counts[key] = 1
+      else
+        mi_counts[key] = mi_counts[key] + 1
+      end
+    end
+
+    html = []
+    mi_counts.each do |key,count|
+      html.push("[#{key}:#{count}]")
+    end
+    return html.join(' ').html_safe
+  end
+
+  private(:pretty_print_mi_attempts_helper)
+
+  # END Helper functions for clean reporting
+
   # BEGIN Mart Operations
 
   def self.find_or_create_from_marts_by_mgi_accession_id(mgi_accession_id)

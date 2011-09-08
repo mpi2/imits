@@ -1,6 +1,6 @@
 <%
   navigation_links = [
-    ['Search & Edit', mi_attempts_path(:production_centre_id => current_user.production_centre.id)],
+    ['Search & Edit', mi_attempts_path('q[production_centre_name]' => current_user.production_centre.name)],
     ['Create', new_mi_attempt_path],
     ['Reports', reports_path]
   ]

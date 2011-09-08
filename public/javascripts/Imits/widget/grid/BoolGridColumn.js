@@ -1,4 +1,4 @@
-Ext.define('Imits.widget.BoolGridColumn', {
+Ext.define('Imits.widget.grid.BoolGridColumn', {
     extend: 'Ext.grid.column.Column',
     alias: 'widget.boolgridcolumn',
 
@@ -9,5 +9,10 @@ Ext.define('Imits.widget.BoolGridColumn', {
         } else {
             return '<input type="checkbox"></input>';
         }
+    },
+
+    filter: {
+        type: 'boolean',
+        defaultValue: null
     }
 });

@@ -35,6 +35,21 @@ class MiAttemptsControllerTest < ActionController::TestCase
           assert_equal 'MBSS', data.find {|i| i['es_cell_name'] == 'EPD0127_4_E01'}['colony_name']
           assert_equal 'MBFD', data.find {|i| i['es_cell_name'] == 'EPD0029_1_G04'}['colony_name']
         end
+
+        should 'translate search params' do
+          get :index, 'es_cell_marker_symbol_eq' => 'Trafd1', :format => :json
+          data = parse_json_from_response
+          assert_equal 3, data.size
+          assert_equal 3, data.select {|i| i['es_cell_name'] == 'EPD0127_4_E01'}.size
+        end
+
+        should 'work if embedded in q parameter' do
+          get :index, :q => {'es_cell_name_ci_in' => ['epd0127_4_e01', 'epd0029_1_g04']}, :format => :json
+          data = parse_json_from_response
+          assert_equal 4, data.size
+          assert_equal 'MBFD', data.find {|i| i['es_cell_name'] == 'EPD0029_1_G04'}['colony_name']
+          assert_equal 3, data.select {|i| i['es_cell_name'] == 'EPD0127_4_E01'}.size
+        end
       end
 
       should 'paginate by default for JSON' do
@@ -107,6 +122,27 @@ class MiAttemptsControllerTest < ActionController::TestCase
           assert_equal true, got['success']
           assert_equal 25, got['mi_attempts'].size
           assert_equal 100, got['total']
+        end
+
+        should 'include total MI attempts from filtering' do
+          found_mis = [
+            Factory.create(:mi_attempt, :colony_name => 'ABC_1'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_2'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_3'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_4'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_5'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_6'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_7'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_8'),
+            Factory.create(:mi_attempt, :colony_name => 'ABC_9')
+          ]
+          Factory.create(:mi_attempt, :colony_name => 'DEF_1')
+          get :index, :format => 'json', 'extended_response' => 'true', :per_page => 5, 'colony_name_cont' => 'ABC', 'sorts' => 'colony_name ASC'
+          got = parse_json_from_response
+          assert_equal true, got['success']
+          assert_equal 5, got['mi_attempts'].size
+          assert_equal 9, got['total']
+          assert_equal found_mis[0..4].map(&:id).sort, got['mi_attempts'].map{|i| i['id']}
         end
       end
     end

@@ -1,7 +1,14 @@
 Ext.define('Imits.widget.MiGrid', {
     extend: 'Ext.grid.Panel',
 
-    requires: ['Imits.widget.SimpleNumberField', 'Imits.widget.SimpleCombo', 'Imits.widget.QCCombo', 'Imits.widget.BoolGridColumn'],
+    requires: [
+    'Imits.widget.SimpleNumberField',
+    'Imits.widget.SimpleCombo',
+    'Imits.widget.QCCombo',
+    'Imits.widget.grid.BoolGridColumn',
+    'Imits.widget.grid.RansackFiltersFeature',
+    'Imits.widget.grid.SimpleDateColumn'
+    ],
 
     title: 'Micro-Injection Attempts',
     store: {
@@ -31,6 +38,13 @@ Ext.define('Imits.widget.MiGrid', {
         autoCancel: false,
         clicksToEdit: 1
     })
+    ],
+
+    features: [
+    {
+        ftype: 'ransack_filters',
+        local: false
+    }
     ],
 
     manageResize: function() {
@@ -101,14 +115,20 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'es_cell_name',
             header: 'ES Cell',
-            readOnly: true
+            readOnly: true,
+            filter: {
+                type: 'string'
+            }
         },
         {
             dataIndex: 'es_cell_marker_symbol',
             header: 'Marker Symbol',
             width: 75,
             readOnly: true,
-            sortable: false
+            sortable: false,
+            filter: {
+                type: 'string'
+            }
         },
         {
             dataIndex: 'es_cell_allele_symbol',
@@ -117,35 +137,46 @@ Ext.define('Imits.widget.MiGrid', {
             sortable: false
         },
         {
+            xtype: 'simpledatecolumn',
             dataIndex: 'mi_date',
-            header: 'MI Date',
-            editor: {
-                xtype: 'datefield',
-                format: 'd-m-Y'
-            },
-            renderer: Ext.util.Format.dateRenderer('d-m-Y')
+            header: 'MI Date'
         },
         {
             dataIndex: 'status',
             header: 'Status',
             width: 150,
             readOnly: true,
-            sortable: false
+            sortable: false,
+            filter: {
+                type: 'list',
+                options: window.MI_ATTEMPT_STATUS_OPTIONS
+            }
         },
         {
             dataIndex: 'colony_name',
             header: 'Colony Name',
-            editor: 'textfield'
+            editor: 'textfield',
+            filter: {
+                type: 'string'
+            }
         },
         {
             dataIndex: 'consortium_name',
             header: 'Consortium',
-            readOnly: true
+            readOnly: true,
+            filter: {
+                type: 'list',
+                options: window.MI_ATTEMPT_CONSORTIUM_OPTIONS
+            }
         },
         {
             dataIndex: 'production_centre_name',
             header: 'Production Centre',
-            readOnly: true
+            readOnly: true,
+            filter: {
+                type: 'list',
+                options: window.MI_ATTEMPT_CENTRE_OPTIONS
+            }
         },
         {
             dataIndex: 'distribution_centre_name',
@@ -153,6 +184,10 @@ Ext.define('Imits.widget.MiGrid', {
             editor: {
                 xtype: 'simplecombo',
                 store: window.MI_ATTEMPT_CENTRE_OPTIONS
+            },
+            filter: {
+                type: 'list',
+                options: window.MI_ATTEMPT_CENTRE_OPTIONS
             }
         },
         {
@@ -171,12 +206,10 @@ Ext.define('Imits.widget.MiGrid', {
             header: 'Blast Strain',
             readOnly: true,
             sortable: false,
-            renderer: function(value) {
-                return Ext.util.Format.htmlEncode(value);
-            },
+            renderer: 'safeTextRenderer',
             editor: {
                 xtype: 'simplecombo',
-                store: window.MI_ATTEMPT_BLAST_STRAIN_OPTIONS
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_BLAST_STRAIN_OPTIONS)
             }
         },
         {
@@ -261,12 +294,10 @@ Ext.define('Imits.widget.MiGrid', {
             header: 'Test Cross Strain',
             readOnly: true,
             sortable: false,
-            renderer: function(value) {
-                return Ext.util.Format.htmlEncode(value);
-            },
+            renderer: 'safeTextRenderer',
             editor: {
                 xtype: 'simplecombo',
-                store: window.MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS)
             }
         },
         {
@@ -274,22 +305,16 @@ Ext.define('Imits.widget.MiGrid', {
             header: 'Colony Background Strain',
             readOnly: true,
             sortable: false,
-            renderer: function(value) {
-                return Ext.util.Format.htmlEncode(value);
-            },
+            renderer: 'safeTextRenderer',
             editor: {
                 xtype: 'simplecombo',
-                store: window.MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS)
             }
         },
         {
+            xtype: 'simpledatecolumn',
             dataIndex: 'date_chimeras_mated',
-            header: 'Date Chimeras Mated',
-            editor: {
-                xtype: 'datefield',
-                format: 'd-m-Y'
-            },
-            renderer: Ext.util.Format.dateRenderer('d-m-Y')
+            header: 'Date Chimeras Mated'
         },
         {
             dataIndex: 'number_of_chimera_matings_attempted',

@@ -164,15 +164,10 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   es_cell.pipeline { Pipeline.find_by_name! 'KOMP-CSD' }
 
   es_cell.after_create do |es_cell|
-    mi_plan = Factory.create(:mi_plan,
-      :gene => Gene.find_by_marker_symbol!('Gatc'),
-      :consortium => Consortium.find_by_name!('MGP'),
-      :production_centre => Centre.find_by_name!('WTSI')
-    )
-
     mi_attempt = Factory.create(:mi_attempt,
       :es_cell => es_cell,
       :colony_name => 'MBFD',
+      :consortium_name => 'MGP',
       :production_centre_name => 'WTSI',
       :distribution_centre_name => 'WTSI'
     )

@@ -385,7 +385,7 @@ Ext.define('Imits.widget.MiGrid', {
             dataIndex: 'mouse_allele_symbol',
             header: 'Mouse Allele Symbol',
             readOnly: true
-        },
+        }
         ],
 
         'qcDetails': [

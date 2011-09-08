@@ -96,7 +96,7 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
   end
 
   def selector_for_table_cell(table_row)
-    ".x-grid3-body .x-grid3-row:nth-child(#{table_row}) .x-grid3-cell-inner"
+    ".x-grid-body tbody tr:nth-child(#{table_row+1}) .x-grid-cell-inner"
   end
 
 end

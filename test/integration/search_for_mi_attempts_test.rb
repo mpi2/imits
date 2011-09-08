@@ -29,9 +29,8 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       context 'with a single es_cell' do
         setup do
           visit '/mi_attempts'
-          fill_in 'search_terms', :with => 'EPD0343_1_H06'
+          fill_in 'q[terms]', :with => 'EPD0343_1_H06'
           click_button 'Search'
-          assert_match /search_terms=EPD0343_1_H06/, current_url
         end
 
         should 'show all data for that es_cell' do

@@ -15,7 +15,7 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
 
         var production_centre_name = window.MI_ATTEMPT_SEARCH_PARAMS.production_centre_name;
         var status = window.MI_ATTEMPT_SEARCH_PARAMS.status;
-        var terms = window.MI_ATTEMPT_SEARCH_PARAMS.terms;
+        this.terms = window.MI_ATTEMPT_SEARCH_PARAMS.terms.split("\n");
 
         if(!Ext.isEmpty(production_centre_name)) {
             this.addFilter({
@@ -55,7 +55,9 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
             }
         });
 
-        // params['q[es_cell_marker_symbol_or_es_cell_name_ci_in][]'] = ['epd0127_4_e01', 'cbx7'];
+        if(!Ext.isEmpty(this.terms)) {
+            params['q[es_cell_marker_symbol_or_es_cell_name_or_colony_name_ci_in][]'] = this.terms;
+        }
 
         return params;
     },

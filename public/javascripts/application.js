@@ -32,19 +32,6 @@ function setInitialFocus() {
 }
 Ext.onReady(setInitialFocus);
 /*
-function clearSearchTermsHandler() {
-    var el = Ext.get('clear-search-terms-button');
-
-    if(el) {
-        el.addListener('click', function() {
-            var textarea = Ext.get('search-terms');
-            textarea.dom.value = '';
-            textarea.focus(250);
-        });
-    }
-}
-Ext.onReady(clearSearchTermsHandler);
-
 function toggleMiAttemptsSwitchViewButton(button, pressed) {
     if(!pressed) {return;}
 

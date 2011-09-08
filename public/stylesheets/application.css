@@ -360,6 +360,14 @@ form fieldset.collapsible-content-hidden {
 
 /* @end */
 
+/* @group MiPlan/Gene Search Form */
+
+#gene-search-form #q_marker_symbol_or_mgi_accession_id_ci_in { height: 8em; width: 100%; }
+#gene-search-form fieldset { padding-bottom: 10px; margin-bottom: 10px; }
+#gene-search-form fieldset > div { margin-bottom: 7px; }
+
+/* @end */
+
 /* @group Reports Form */
 
 form.report-form table { width: 100%; }

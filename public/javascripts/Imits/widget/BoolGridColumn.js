@@ -9,5 +9,10 @@ Ext.define('Imits.widget.BoolGridColumn', {
         } else {
             return '<input type="checkbox"></input>';
         }
+    },
+
+    filter: {
+        type: 'boolean',
+        defaultValue: null
     }
 });

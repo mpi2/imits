@@ -17,6 +17,10 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
                 case 'list':
                     params['q[' + filter.field + '_ci_in][]'] = filter.data.value;
                     break;
+
+                case 'boolean':
+                    params['q[' + filter.field + '_eq]'] = filter.data.value;
+                    break;
             }
         });
         return params;

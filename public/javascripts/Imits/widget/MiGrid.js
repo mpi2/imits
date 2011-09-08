@@ -146,7 +146,11 @@ Ext.define('Imits.widget.MiGrid', {
             header: 'Status',
             width: 150,
             readOnly: true,
-            sortable: false
+            sortable: false,
+            filter: {
+                type: 'list',
+                options: window.MI_ATTEMPT_STATUS_OPTIONS
+            }
         },
         {
             dataIndex: 'colony_name',

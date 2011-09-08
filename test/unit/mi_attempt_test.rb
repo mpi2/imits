@@ -855,6 +855,11 @@ class MiAttemptTest < ActiveSupport::TestCase
                 MiAttempt.translate_search_param('production_centre_name_eq')
       end
 
+      should 'translate status' do
+        assert_equal 'mi_attempt_status_description_ci_in',
+                MiAttempt.translate_search_param('status_ci_in')
+      end
+
       should 'leave other params untouched' do
         assert_equal 'colony_name_not_in',
                 MiAttempt.translate_search_param('colony_name_not_in')

@@ -1,11 +1,11 @@
 GIT
   remote: git://github.com/i-dcc/ransack.git
-  revision: c069a4ce956481e87b6014397c7ad05f6a3dff8c
+  revision: 57dfec71789cfd8c1571d149bf01cf028df8aac6
   specs:
-    ransack (0.5.5)
+    ransack (0.5.7)
       actionpack (~> 3.0)
       activerecord (~> 3.0)
-      activesupport (~> 3.0)
+      polyamorous (~> 0.5.0)
 
 GEM
   remote: http://rubygems.org/
@@ -95,6 +95,8 @@ GEM
       color (>= 1.4.0)
       transaction-simple (~> 1.3)
     pg (0.11.0)
+    polyamorous (0.5.0)
+      activerecord (~> 3.0)
     polyglot (0.3.1)
     rack (1.2.3)
     rack-mount (0.6.14)

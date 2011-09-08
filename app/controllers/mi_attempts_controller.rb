@@ -9,19 +9,11 @@ class MiAttemptsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @search_params = {
-          :search_terms => []
-        }
+        set_centres_and_consortia
+        q = params[:q] ||= {}
 
-        if !params[:search_terms].blank?
-          @search_params[:search_terms] = params[:search_terms].lines.collect(&:strip)
-        end
-
-        [:production_centre_id, :mi_attempt_status_id].each do |filter_attr|
-          if !params[filter_attr].blank?
-            @search_params[filter_attr] = params[filter_attr].to_i
-          end
-        end
+        q[:terms] ||= ''
+        q[:terms] = q[:terms].lines.map(&:strip).select{|i|!i.blank?}.join("\n")
       end
 
       format.xml { render :xml => data_for_serialized(:xml) }

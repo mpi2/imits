@@ -11,6 +11,7 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
 
     buildQuery: function(filters) {
         var params = {};
+
         Ext.each(filters, function(filter) {
             switch (filter.data.type) {
                 case 'string':
@@ -28,6 +29,9 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
                     break;
             }
         });
+
+        // TODO params['q[es_cell_marker_symbol_or_es_cell_name_ci_in][]'] = ['epd0127_4_e01', 'cbx7'];
+
         return params;
     },
 

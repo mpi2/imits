@@ -14,7 +14,7 @@ class RootControllerTest < ActionController::TestCase
       should 'redirect to mi_attempts#index with production centre set to default user\'s one' do
         sign_in default_user
         get :index
-        assert_redirected_to mi_attempts_path(:production_centre_id => default_user.production_centre.id)
+        assert_redirected_to mi_attempts_path('q[production_centre_name]' => default_user.production_centre.name)
       end
     end
 

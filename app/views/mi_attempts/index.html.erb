@@ -10,6 +10,7 @@
   <%= javascript_tag "MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS = #{Strain::ColonyBackgroundStrain.all.map(&:name).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS = #{Strain::TestCrossStrain.all.map(&:name).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_STATUS_OPTIONS = #{MiAttemptStatus.all.map(&:description).to_json}" %>
+  <%= javascript_tag "MI_ATTEMPT_SEARCH_PARAMS = #{params[:q].to_json}" %>
   <%= javascript_include_tag 'mi_attempts/index' %>
 <% end %>
 
@@ -18,18 +19,18 @@
     <legend>Search for Micro-Injections</legend>
     <div>
       <div class="grid_6 alpha">
-        <label for="search_terms">ES Cell Name, Gene Symbol, or Colony Name:</label>
-        <textarea cols="10" rows="10" name="search_terms" id="search-terms" class="initial-focus"><%= @search_params[:search_terms].join "\n" %></textarea>
+        <label for="q[terms]">ES Cell Name, Gene Symbol, or Colony Name:</label>
+        <textarea cols="10" rows="10" name="q[terms]" id="search-terms" class="initial-focus"><%= params[:q][:terms] %></textarea>
       </div>
       <div class="grid_6 omega">
         <table>
           <tr>
-            <td><label for="production_centre_id">Production Centre:</label></td>
-            <td><%= select_tag 'production_centre_id', options_from_collection_for_select([Centre.new]+Centre.all, :id, :name, @search_params[:production_centre_id]) %></td>
+            <td><label for="q[production_centre_name]">Production Centre:</label></td>
+            <td><%= select_tag 'q[production_centre_name]', options_for_select(['']+@centres.map(&:name), params[:q][:production_centre_name]) %></td>
           </tr>
           <tr>
-            <td><label for="mi_attempt_status_id">Status:</label></td>
-            <td><%= select_tag 'mi_attempt_status_id', options_from_collection_for_select([MiAttemptStatus.new]+MiAttemptStatus.all, :id, :description, @search_params[:mi_attempt_status_id]) %></td>
+            <td><label for="q[status]">Status:</label></td>
+            <td><%= select_tag 'q[status]', options_for_select(['']+MiAttemptStatus.all.map(&:description), params[:q][:status]) %></td>
           </tr>
         </table>
       </div>

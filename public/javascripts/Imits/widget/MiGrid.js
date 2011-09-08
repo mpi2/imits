@@ -5,8 +5,9 @@ Ext.define('Imits.widget.MiGrid', {
     'Imits.widget.SimpleNumberField',
     'Imits.widget.SimpleCombo',
     'Imits.widget.QCCombo',
-    'Imits.widget.BoolGridColumn',
-    'Imits.widget.grid.RansackFiltersFeature'
+    'Imits.widget.grid.BoolGridColumn',
+    'Imits.widget.grid.RansackFiltersFeature',
+    'Imits.widget.grid.SimpleDateColumn'
     ],
 
     title: 'Micro-Injection Attempts',
@@ -136,13 +137,9 @@ Ext.define('Imits.widget.MiGrid', {
             sortable: false
         },
         {
+            xtype: 'simpledatecolumn',
             dataIndex: 'mi_date',
-            header: 'MI Date',
-            editor: {
-                xtype: 'datefield',
-                format: 'd-m-Y'
-            },
-            renderer: Ext.util.Format.dateRenderer('d-m-Y')
+            header: 'MI Date'
         },
         {
             dataIndex: 'status',
@@ -311,13 +308,9 @@ Ext.define('Imits.widget.MiGrid', {
             }
         },
         {
+            xtype: 'simpledatecolumn',
             dataIndex: 'date_chimeras_mated',
-            header: 'Date Chimeras Mated',
-            editor: {
-                xtype: 'datefield',
-                format: 'd-m-Y'
-            },
-            renderer: Ext.util.Format.dateRenderer('d-m-Y')
+            header: 'Date Chimeras Mated'
         },
         {
             dataIndex: 'number_of_chimera_matings_attempted',

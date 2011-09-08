@@ -21,6 +21,11 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
                 case 'boolean':
                     params['q[' + filter.field + '_eq]'] = filter.data.value;
                     break;
+
+                case 'date':
+                    var dateParts = filter.data.value.split('/');
+                    params['q[' + filter.field + '_' + filter.data.comparison + ']'] = [dateParts[2]+'-'+dateParts[0]+'-'+dateParts[1]];
+                    break;
             }
         });
         return params;

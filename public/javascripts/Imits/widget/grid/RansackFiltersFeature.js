@@ -9,6 +9,31 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
      */
     encode: false,
 
+    /** @private */
+    constructor : function(config) {
+        this.callParent([config]);
+
+        var production_centre_name = window.MI_ATTEMPT_SEARCH_PARAMS.production_centre_name;
+        var status = window.MI_ATTEMPT_SEARCH_PARAMS.status;
+        var terms = window.MI_ATTEMPT_SEARCH_PARAMS.terms;
+
+        if(!Ext.isEmpty(production_centre_name)) {
+            this.addFilter({
+                type: 'string',
+                dataIndex: 'production_centre_name',
+                value: production_centre_name
+            });
+        }
+
+        if(!Ext.isEmpty(status)) {
+            this.addFilter({
+                type: 'string',
+                dataIndex: 'status',
+                value: status
+            });
+        }
+    },
+
     buildQuery: function(filters) {
         var params = {};
 
@@ -30,7 +55,7 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
             }
         });
 
-        // TODO params['q[es_cell_marker_symbol_or_es_cell_name_ci_in][]'] = ['epd0127_4_e01', 'cbx7'];
+        // params['q[es_cell_marker_symbol_or_es_cell_name_ci_in][]'] = ['epd0127_4_e01', 'cbx7'];
 
         return params;
     },

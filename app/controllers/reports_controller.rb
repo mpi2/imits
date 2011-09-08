@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class ReportsController < ApplicationController
   respond_to :html, :csv
 

@@ -3,19 +3,14 @@ require 'fileutils'
 require File.dirname(__FILE__) + '/../../config/extjs.rb'
 
 namespace :extjs do
-  task :download do
-    if ! File.file?(Rails.root + "tmp/#{EXTJS_ZIPFILE}")
-      if ! system("cd #{Rails.root}/tmp && wget -q #{EXTJS_DOWNLOAD_URL} -O #{EXTJS_ZIPFILE}")
-        raise "wget failed!"
-      end
-    end
-  end
-
   desc "Install extjs #{EXTJS_VERSION} as public/extjs"
-  task :install => :download do
+  task :install do
 
     if ! File.directory?(Rails.root + "public/#{EXTJS_BASEDIR}")
-      if ! system("cd #{Rails.root}/public && unzip -q -o ../tmp/#{EXTJS_ZIPFILE}")
+      file = "#{EXTJS_PATH}/#{EXTJS_ZIPFILE}"
+      file = Rails.root + "tmp/#{EXTJS_ZIPFILE}" if ! File.file?(file)
+      raise "Cannot find zip file at #{EXTJS_PATH}/#{EXTJS_ZIPFILE} or #{file}!" if ! File.file?(file)
+      if ! system("cd #{Rails.root}/public && unzip -q -o #{file}")
         raise "unzip failed!"
       end
     end

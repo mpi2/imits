@@ -4,8 +4,6 @@ gem 'rake', '0.8.7'
 gem 'rails', '~> 3.0.9'
 gem 'hoptoad_notifier'
 
-gem 'ruby-oci8'
-gem 'activerecord-oracle_enhanced-adapter'
 gem 'pg'
 gem 'foreigner'
 

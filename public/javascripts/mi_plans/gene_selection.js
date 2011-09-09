@@ -1,4 +1,7 @@
-Ext.require('Imits.model.Gene');
+Ext.require([
+  'Imits.model.Gene',
+  'Imits.widget.grid.RansackFiltersFeature'
+]);
 var grid;
 Ext.onReady(function() {
 
@@ -25,6 +28,12 @@ Ext.onReady(function() {
       remoteFilter: true,
       pageSize: 20,
     },
+    features: [
+      {
+        ftype: 'ransack_filters',
+        local: false
+      }
+    ],
     columns: [
       {
         header: 'Gene',
@@ -107,9 +116,7 @@ Ext.onReady(function() {
     for (var field in GENE_SEARCH_PARAMS) {
       filters.push({ property: field, value: GENE_SEARCH_PARAMS[field] });
     }
-
-    store = grid.getStore();
-    store.filter(filters);
+    grid.getStore().filter(filters);
   }
 
 });

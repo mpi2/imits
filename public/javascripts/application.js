@@ -141,7 +141,8 @@ Ext.util.Format.safeTextRenderer = function(value) {
 Ext.Loader.setConfig({
     enabled: true,
     paths: {
-        'Imits': window.basePath + '/javascripts/Imits'
+        'Imits': window.basePath + '/javascripts/Imits',
+        'Imits.widget': window.basePath + '/javascripts/Imits/widget'
     }
 });
 Ext.Loader.setPath('Ext', window.basePath + '/extjs');

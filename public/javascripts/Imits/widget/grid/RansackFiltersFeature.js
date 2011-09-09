@@ -9,31 +9,6 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
      */
     encode: false,
 
-    /** @private */
-    constructor : function(config) {
-        this.callParent([config]);
-
-        var production_centre_name = window.MI_ATTEMPT_SEARCH_PARAMS.production_centre_name;
-        var status = window.MI_ATTEMPT_SEARCH_PARAMS.status;
-        this.terms = window.MI_ATTEMPT_SEARCH_PARAMS.terms.split("\n");
-
-        if(!Ext.isEmpty(production_centre_name)) {
-            this.addFilter({
-                type: 'string',
-                dataIndex: 'production_centre_name',
-                value: production_centre_name
-            });
-        }
-
-        if(!Ext.isEmpty(status)) {
-            this.addFilter({
-                type: 'string',
-                dataIndex: 'status',
-                value: status
-            });
-        }
-    },
-
     buildQuery: function(filters) {
         var params = {};
 
@@ -54,10 +29,6 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
                     break;
             }
         });
-
-        if(!Ext.isEmpty(this.terms)) {
-            params['q[es_cell_marker_symbol_or_es_cell_name_or_colony_name_ci_in][]'] = this.terms;
-        }
 
         return params;
     },

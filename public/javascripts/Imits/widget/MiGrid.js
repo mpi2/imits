@@ -6,7 +6,7 @@ Ext.define('Imits.widget.MiGrid', {
     'Imits.widget.SimpleCombo',
     'Imits.widget.QCCombo',
     'Imits.widget.grid.BoolGridColumn',
-    'Imits.widget.grid.RansackFiltersFeature',
+    'Imits.widget.grid.MiAttemptRansackFiltersFeature',
     'Imits.widget.grid.SimpleDateColumn'
     ],
 
@@ -42,7 +42,7 @@ Ext.define('Imits.widget.MiGrid', {
 
     features: [
     {
-        ftype: 'ransack_filters',
+        ftype: 'mi_attempt_ransack_filters',
         local: false
     }
     ],

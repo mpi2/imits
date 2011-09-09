@@ -16,8 +16,8 @@ class ApplicationController < ActionController::Base
       end
 
       dirty_params['filter'].each do |filter|
-        if filter['value'].match("\n")
-          filter['value'] = filter['value'].split("\n")
+        if filter['property'].match(/\_in/)
+          filter['value'] = filter['value'].lines.map(&:strip)
         end
         dirty_params.merge!({ filter['property'] => filter['value'] })
       end

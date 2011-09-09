@@ -3,6 +3,8 @@ Kermits2::Application.routes.draw do
   post "mi_plans/gene_selection"
 
   root :to => "root#index"
+  
+  resources :genes, :only => [:index]
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
     member do

@@ -21,6 +21,20 @@ class Gene < ActiveRecord::Base
     return html.join('</br>').html_safe
   end
 
+  def pretty_print_non_assigned_mi_plans
+    html = []
+    self.mi_plans
+      .where('mi_plan_status_id != ?', MiPlanStatus.find_by_name!('Assigned').id)
+      .each do |mi_plan|
+        string = "[#{mi_plan.consortium.name}"
+        string << ":#{mi_plan.production_centre.name}" unless mi_plan.production_centre_id.nil?
+        string << ":#{mi_plan.mi_plan_status.name}"
+        string << "]"
+        html.push(string)
+      end
+    return html.join('</br>').html_safe
+  end
+
   def pretty_print_assigned_mi_plans
     html = []
     self.mi_plans
@@ -32,7 +46,7 @@ class Gene < ActiveRecord::Base
         string << "]"
         html.push(string)
     end
-    return html.join(' ').html_safe
+    return html.join('</br>').html_safe
   end
 
   def pretty_print_mi_attempts_in_progress
@@ -59,7 +73,7 @@ class Gene < ActiveRecord::Base
     mi_counts.each do |key,count|
       html.push("[#{key}:#{count}]")
     end
-    return html.join(' ').html_safe
+    return html.join('</br>').html_safe
   end
 
   private(:pretty_print_mi_attempts_helper)

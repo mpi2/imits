@@ -34,7 +34,8 @@
           <th>Gene</th>
           <th># IKMC Projects</th>
           <th># Clones</th>
-          <th>MIs Assigned</th>
+          <th>Non-Assigned MIs</th>
+          <th>Assigned MIs</th>
           <th>MIs in Progress</th>
           <th>GLT Mice</th>
           <th>Register Interest?</th>
@@ -46,6 +47,7 @@
             <td><%= gene.marker_symbol %></td>
             <td><%= gene.ikmc_projects_count %></td>
             <td><%= gene.pretty_print_types_of_cells_available %></td>
+            <td><%= gene.pretty_print_non_assigned_mi_plans %></td>
             <td><%= gene.pretty_print_assigned_mi_plans %></td>
             <td><%= gene.pretty_print_mi_attempts_in_progress %></td>
             <td><%= gene.pretty_print_mi_attempts_genotype_confirmed %></td>

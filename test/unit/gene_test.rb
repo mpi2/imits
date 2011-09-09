@@ -172,6 +172,35 @@ class GeneTest < ActiveSupport::TestCase
       end
     end
 
+    context '#pretty_print_non_assigned_mi_plans' do
+      should 'work' do
+        gene = Factory.create :gene,
+          :marker_symbol => 'Moo1',
+          :mgi_accession_id => 'MGI:12345'
+
+        Factory.create :mi_plan,
+          :gene => gene,
+          :consortium => Consortium.find_by_name!('BaSH'), 
+          :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+
+        Factory.create :mi_plan,
+          :gene => gene,
+          :consortium => Consortium.find_by_name!('MGP'),
+          :production_centre => Centre.find_by_name!('WTSI'),
+          :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+
+        Factory.create :mi_attempt, :is_active => true
+
+        assert gene
+        assert_equal 2, gene.mi_plans.count
+        assert_match '', gene.pretty_print_assigned_mi_plans
+        assert_equal '', gene.pretty_print_mi_attempts_in_progress
+        assert_equal '', gene.pretty_print_mi_attempts_genotype_confirmed
+        assert_match '[BaSH:Interest]', gene.pretty_print_non_assigned_mi_plans
+        assert_match '[MGP:WTSI:Interest]', gene.pretty_print_non_assigned_mi_plans
+      end
+    end
+
     context '#pretty_print_assigned_mi_plans' do
       should 'work' do
         gene = Factory.create :gene,
@@ -193,6 +222,7 @@ class GeneTest < ActiveSupport::TestCase
 
         assert gene
         assert_equal 2, gene.mi_plans.count
+        assert_equal '', gene.pretty_print_non_assigned_mi_plans
         assert_equal '', gene.pretty_print_mi_attempts_in_progress
         assert_equal '', gene.pretty_print_mi_attempts_genotype_confirmed
         assert_match '[BaSH]', gene.pretty_print_assigned_mi_plans
@@ -224,6 +254,7 @@ class GeneTest < ActiveSupport::TestCase
 
         assert gene
         assert_equal 2, gene.mi_plans.count
+        assert_equal '', gene.pretty_print_non_assigned_mi_plans
         assert_equal '', gene.pretty_print_assigned_mi_plans
         assert_equal '', gene.pretty_print_mi_attempts_genotype_confirmed
         assert_match '[MGP:WTSI:2]', gene.pretty_print_mi_attempts_in_progress
@@ -257,6 +288,7 @@ class GeneTest < ActiveSupport::TestCase
 
         assert gene
         assert_equal 2, gene.mi_plans.count
+        assert_equal '', gene.pretty_print_non_assigned_mi_plans
         assert_equal '', gene.pretty_print_assigned_mi_plans
         assert_equal '', gene.pretty_print_mi_attempts_in_progress
         assert_match '[MGP:WTSI:2]', gene.pretty_print_mi_attempts_genotype_confirmed

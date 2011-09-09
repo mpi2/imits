@@ -227,6 +227,36 @@ class Gene < ActiveRecord::Base
 
   # END Mart Operations
 
+  def as_json(options = {})
+    super(default_serializer_options(options))
+  end
+
+  def to_xml(options = {})
+    super(default_serializer_options(options))
+  end
+
+  PRIVATE_ATTRIBUTES = [
+    'created_at', 'updated_at', 'updated_by', 'updated_by_id',
+  ]
+
+  attr_protected *PRIVATE_ATTRIBUTES
+
+  private
+
+  def default_serializer_options(options = {})
+    options ||= {}
+    options.symbolize_keys!
+    options[:methods] ||= [
+      :pretty_print_types_of_cells_available,
+      :pretty_print_non_assigned_mi_plans,
+      :pretty_print_assigned_mi_plans,
+      :pretty_print_mi_attempts_in_progress,
+      :pretty_print_mi_attempts_genotype_confirmed
+    ]
+    options[:except] ||= PRIVATE_ATTRIBUTES.dup + []
+    return options
+  end
+
 end
 
 # == Schema Information

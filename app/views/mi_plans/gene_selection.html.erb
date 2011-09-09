@@ -1,17 +1,18 @@
 
 <% content_for :head do %>
+  <%= javascript_tag "GENE_SEARCH_PARAMS = #{params[:q].to_json}" %>
   <%= javascript_include_tag 'mi_plans/gene_selection' %>
 <% end %>
 
-<%= search_form_for @q, :url => url_for('/mi_plans/gene_selection'), :html => { :id => 'gene-search-form', :method => :post }  do |f| %>
+<%= form_tag url_for('/mi_plans/gene_selection'), :method => :get, :id => 'gene-search-form'  do %>
   <fieldset class="collapsible">
     <legend>Search for Genes</legend>
     <div>
       <div class="grid_6 alpha">
-        <%= f.label :marker_symbol_or_mgi_accession_id_ci_in, 'Marker Symbol or MGI Accession ID:' %>
+        <label for="q[marker_symbol_or_mgi_accession_id_ci_in]">Marker Symbol or MGI Accession ID:</label>
         <textarea id="q_marker_symbol_or_mgi_accession_id_ci_in" name="q[marker_symbol_or_mgi_accession_id_ci_in]"><%=
             if !params[:q].blank? && !params[:q][:marker_symbol_or_mgi_accession_id_ci_in].blank?
-              params[:q][:marker_symbol_or_mgi_accession_id_ci_in].join("\n")
+              params[:q][:marker_symbol_or_mgi_accession_id_ci_in]
             end
         -%></textarea>
       </div>
@@ -26,36 +27,5 @@
 
 <div class="clear"></div>
 
-<% unless @genes.empty? %>
-  <div id="gene-selection-table-container">
-    <table id="gene-selection-table">
-      <thead>
-        <tr>
-          <th>Gene</th>
-          <th># IKMC Projects</th>
-          <th># Clones</th>
-          <th>Non-Assigned MIs</th>
-          <th>Assigned MIs</th>
-          <th>MIs in Progress</th>
-          <th>GLT Mice</th>
-          <th>Register Interest?</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @genes.each do |gene| %>
-          <tr>
-            <td><%= gene.marker_symbol %></td>
-            <td><%= gene.ikmc_projects_count %></td>
-            <td><%= gene.pretty_print_types_of_cells_available %></td>
-            <td><%= gene.pretty_print_non_assigned_mi_plans %></td>
-            <td><%= gene.pretty_print_assigned_mi_plans %></td>
-            <td><%= gene.pretty_print_mi_attempts_in_progress %></td>
-            <td><%= gene.pretty_print_mi_attempts_genotype_confirmed %></td>
-            <td></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
-  </div>
-<% end %>
+<div id="mi-planning-grid"></div>
 

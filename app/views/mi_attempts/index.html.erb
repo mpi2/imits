@@ -10,6 +10,7 @@
   <%= javascript_tag "MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS = #{Strain::ColonyBackgroundStrain.all.map(&:name).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS = #{Strain::TestCrossStrain.all.map(&:name).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_STATUS_OPTIONS = #{MiAttemptStatus.all.map(&:description).to_json}" %>
+  <%= javascript_tag "MI_ATTEMPT_MOUSE_ALLELE_TYPE_OPTIONS = #{MiAttempt::MOUSE_ALLELE_OPTIONS.map{|k,v|[k, v]}.to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_SEARCH_PARAMS = #{params[:q].to_json}" %>
   <%= javascript_include_tag 'mi_attempts/index' %>
 <% end %>

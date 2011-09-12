@@ -297,7 +297,10 @@ Ext.define('Imits.widget.MiGrid', {
             renderer: 'safeTextRenderer',
             editor: {
                 xtype: 'simplecombo',
-                store: Ext.Array.merge([''], window.MI_ATTEMPT_BLAST_STRAIN_OPTIONS)
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_BLAST_STRAIN_OPTIONS),
+                listConfig: {
+                    minWidth: 200
+                }
             }
         },
         {
@@ -373,7 +376,10 @@ Ext.define('Imits.widget.MiGrid', {
                 xtype: 'simplecombo',
                 store: Ext.Array.map(Ext.Object.getKeys(window.MI_ATTEMPT_EMMA_OPTIONS), function(i) {
                     return [ i, window.MI_ATTEMPT_EMMA_OPTIONS[i] ]
-                })
+                }),
+                listConfig: {
+                    minWidth: 200
+                }
             }
         },
         {
@@ -384,7 +390,10 @@ Ext.define('Imits.widget.MiGrid', {
             renderer: 'safeTextRenderer',
             editor: {
                 xtype: 'simplecombo',
-                store: Ext.Array.merge([''], window.MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS)
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS),
+                listConfig: {
+                    minWidth: 200
+                }
             }
         },
         {
@@ -395,7 +404,10 @@ Ext.define('Imits.widget.MiGrid', {
             renderer: 'safeTextRenderer',
             editor: {
                 xtype: 'simplecombo',
-                store: Ext.Array.merge([''], window.MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS)
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS),
+                listConfig: {
+                    minWidth: 200
+                }
             }
         },
         {
@@ -466,7 +478,14 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'mouse_allele_type',
             header: 'Mouse Allele Type',
-            readOnly: true
+            readOnly: true,
+            editor: {
+                xtype: 'simplecombo',
+                store: window.MI_ATTEMPT_MOUSE_ALLELE_TYPE_OPTIONS,
+                listConfig: {
+                    minWidth: 300
+                }
+            }
         },
         {
             dataIndex: 'mouse_allele_symbol',

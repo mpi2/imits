@@ -57,14 +57,13 @@ function setupCollapsibleFieldsets() {
         elm.up('fieldset').addCls('collapsible-content-shown');
     });
 }
+Ext.onReady(setupCollapsibleFieldsets);
 
 function hideDefaultCollapsibleFieldsets() {
     Ext.select('fieldset.collapsible.hide-by-default legend').each(function(elm ,comp, idx) {
         toggleCollapsibleFieldsetLegend( Ext.get(comp.elements[idx]) );
     });
 }
-
-Ext.onReady(setupCollapsibleFieldsets);
 Ext.onReady(hideDefaultCollapsibleFieldsets);
 
 function googleAnalytics() {

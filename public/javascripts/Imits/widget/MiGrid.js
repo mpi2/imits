@@ -478,7 +478,6 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'mouse_allele_type',
             header: 'Mouse Allele Type',
-            readOnly: true,
             editor: {
                 xtype: 'simplecombo',
                 store: window.MI_ATTEMPT_MOUSE_ALLELE_TYPE_OPTIONS,

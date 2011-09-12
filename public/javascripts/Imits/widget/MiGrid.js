@@ -60,8 +60,10 @@ Ext.define('Imits.widget.MiGrid', {
         this.doLayout();
     },
 
-    generateColumns: function(config) { // private
+    /** @private */
+    generateColumns: function(config) {
         var columns = [];
+
         Ext.Object.each(this.groupedColumns, function(viewName, viewColumns) {
             Ext.Array.each(viewColumns, function(column) {
                 var existing;
@@ -79,12 +81,51 @@ Ext.define('Imits.widget.MiGrid', {
         config.columns = columns;
     },
 
+    /** @private */
+    generateViews: function() {
+        var views = {};
+        this.testme = 'hello';
+
+        var commonColumns = Ext.pluck(this.groupedColumns.common, 'dataIndex');
+        var everythingView = Ext.Array.merge(commonColumns, []);
+
+        // First generate the groups from the groupedColumns
+        Ext.Object.each(this.groupedColumns, function(viewName, viewColumnConfigs) {
+            if(viewName === 'common') {
+                return;
+            }
+
+            var viewColumns = Ext.pluck(viewColumnConfigs, 'dataIndex');
+            views[viewName] = Ext.Array.merge(commonColumns, viewColumns);
+        });
+
+        this.views = views;
+        this.views['Everything'] = everythingView;
+        console.log(this.views);
+    },
+
     constructor: function(config) {
         if(config == undefined) {
-            config = {}
+            config = {};
         }
         this.generateColumns(config);
+        this.generateViews();
         this.callParent([config]);
+    },
+
+    switchViewButtonConfig: function(text) {
+        return {
+            text: text,
+            enableToggle: true,
+            toggleGroup: 'mi_grid_view_config',
+            grid: this,
+            listeners: {
+                'toggle': function(button, pressed) {
+                    var grid = this.initialConfig.grid;
+                    // TODO
+                }
+            }
+        }
     },
 
     initComponent: function() {
@@ -94,6 +135,19 @@ Ext.define('Imits.widget.MiGrid', {
             store: this.getStore(),
             dock: 'bottom',
             displayInfo: true
+        }));
+
+        this.addDocked(Ext.create('Ext.container.ButtonGroup', {
+            title: 'Choose a View',
+            layout: 'table',
+            items: [
+            this.switchViewButtonConfig('Everything'),
+            this.switchViewButtonConfig('Transfer Details'),
+            this.switchViewButtonConfig('Litter Details'),
+            this.switchViewButtonConfig('Chimera Mating Details'),
+            this.switchViewButtonConfig('QC Details'),
+            this.switchViewButtonConfig('Summary')
+            ]
         }));
     },
 
@@ -106,8 +160,9 @@ Ext.define('Imits.widget.MiGrid', {
         },
         {
             header: 'Edit In Form',
-            dataIndex: 'id',
-            renderer: function(miId) {
+            dataIndex: 'edit_link',
+            renderer: function(value, metaData, record) {
+                var miId = record.getId();
                 return Ext.String.format('<a href="{0}/mi_attempts/{1}">Edit in Form</a>', window.basePath, miId);
             },
             sortable: false
@@ -200,7 +255,7 @@ Ext.define('Imits.widget.MiGrid', {
         }
         ],
 
-        'transferDetails': [
+        'Transfer Details': [
         {
             dataIndex: 'blast_strain_name',
             header: 'Blast Strain',
@@ -229,7 +284,7 @@ Ext.define('Imits.widget.MiGrid', {
         }
         ],
 
-        'litterDetails': [
+        'Litter Details': [
         {
             dataIndex: 'total_pups_born',
             header: 'Total Pups Born',
@@ -272,7 +327,7 @@ Ext.define('Imits.widget.MiGrid', {
         }
         ],
 
-        'chimeraMatingDetails': [
+        'Chimera Mating Details': [
         {
             dataIndex: 'emma_status',
             header: 'EMMA Status',
@@ -288,7 +343,6 @@ Ext.define('Imits.widget.MiGrid', {
                 })
             }
         },
-
         {
             dataIndex: 'test_cross_strain_name',
             header: 'Test Cross Strain',
@@ -388,7 +442,7 @@ Ext.define('Imits.widget.MiGrid', {
         }
         ],
 
-        'qcDetails': [
+        'QC Details': [
         {
             dataIndex: 'qc_southern_blot_result',
             header: 'Southern Blot',

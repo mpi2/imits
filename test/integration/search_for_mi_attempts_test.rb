@@ -42,9 +42,9 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
             'MDCF',
             'WTSI',
             'Unsuitable for EMMA',
-            'Micro-injection in progress',
+            'Micro-injection in progress'
           ].each do |text|
-            assert(page.has_css?(selector_for_table_cell(1), :text => text),
+            assert(page.has_css?('div', :text => text),
               "Expected text '#{text}' in table cell 1, but did not find it")
           end
         end
@@ -56,38 +56,38 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         end
 
         should 'not show data for other es_cells' do
-          assert page.has_no_css?('.x-grid3-col-es_cell__name', :text => 'EPD0127_4_E01')
+          assert page.has_no_css?('div', :text => 'EPD0127_4_E01')
         end
       end
 
       should 'work with a multiple es_cell names' do
         visit '/mi_attempts'
-        fill_in 'search_terms', :with => "EPD0127_4_E01\nEPD0343_1_H06"
+        fill_in 'q[terms]', :with => "EPD0127_4_E01\nEPD0343_1_H06"
         click_button 'Search'
 
-        assert page.has_css? '.x-grid3-cell-inner', :text => 'EPD0127_4_E01'
-        assert page.has_css? '.x-grid3-cell-inner', :text => 'EPD0343_1_H06'
-        assert page.has_no_css? '.x-grid3-cell-inner', :text => 'EPD0029_1_G04'
+        assert page.has_css? 'div', :text => 'EPD0127_4_E01'
+        assert page.has_css? 'div', :text => 'EPD0343_1_H06'
+        assert page.has_no_css? 'div', :text => 'EPD0029_1_G04'
       end
 
       should 'work if whitespace around es_cell names' do
         visit '/'
-        fill_in 'search_terms', :with => "  EPD0343_1_H06\t"
+        fill_in 'q[terms]', :with => "  EPD0343_1_H06\t"
         click_button 'Search'
 
-        assert page.has_css? selector_for_table_cell(1), :text => 'EPD0343_1_H06'
+        assert page.has_css? 'div', :text => 'EPD0343_1_H06'
       end
 
       should 'show emma statuses' do
-        visit '/mi_attempts?search_terms=EPD0127_4_E01'
+        visit '/mi_attempts?q[terms]=EPD0127_4_E01'
 
-        assert page.has_css? '.x-grid3-cell-inner', :text => 'Suitable for EMMA'
-        assert page.has_css? '.x-grid3-cell-inner', :text => 'Unsuitable for EMMA'
+        assert page.has_css? 'div', :text => 'Suitable for EMMA'
+        assert page.has_css? 'div', :text => 'Unsuitable for EMMA'
       end
 
       should 'show search terms when results are shown' do
-        visit '/mi_attempts?search_terms=EPD0127_4_E01%0D%0AEPD0343_1_H06'
-        assert page.has_css? '#search-terms', :text => "EPD0127_4_E01 EPD0343_1_H06"
+        visit "/mi_attempts?q[terms]=EPD0127_4_E01%0D%0AEPD0343_1_H06"
+        assert page.has_css? 'textarea[@name="q[terms]"]', :text => "EPD0127_4_E01 EPD0343_1_H06"
       end
     end
 
@@ -95,18 +95,17 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       setup do
         create_common_test_objects
         visit '/mi_attempts'
-        assert_false page.has_css? 'x-grid3'
-        fill_in 'search_terms', :with => 'Trafd1'
+        fill_in 'q[terms]', :with => 'Trafd1'
         click_button 'Search'
       end
 
       should 'work' do
-        assert_match /search_terms=Trafd1/, current_url
-        assert page.has_css? selector_for_table_cell(1), :text => 'EPD0127_4_E01'
+        assert_match /q%5Bterms%5D=Trafd1/, current_url
+        assert page.has_css? 'div', :text => 'EPD0127_4_E01'
       end
 
       should 'not find unmatched es_cells' do
-        assert page.has_no_css?('.x-grid3-cell-inner', :text => 'EPD0343_1_H06')
+        assert page.has_no_css?('div', :text => 'EPD0343_1_H06')
       end
     end
 
@@ -117,27 +116,27 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         @es_cell3 = Factory.create :es_cell_EPD0029_1_G04
 
         @mi_attempt = Factory.create(:mi_attempt, :es_cell => @es_cell1,
-          :production_centre => Centre.find_by_name!('ICS'))
+          :production_centre_name => 'ICS')
 
         visit '/'
-        fill_in 'search_terms', :with => "myo1c\n"
-        select 'ICS', :from => 'production_centre_id'
+        fill_in 'q[terms]', :with => "myo1c\n"
+        select 'ICS', :from => 'q[production_centre_name]'
         click_button 'Search'
         sleep 3
       end
 
       should 'show results that match the search terms and the filter' do
-        assert page.has_css? '.x-grid3-col-es_cell__name', :text => @mi_attempt.es_cell.name
+        assert page.has_css?('div', :text => @mi_attempt.es_cell.name)
       end
 
       should 'not show things that only match one of the terms but not the other' do
         assert_equal 2, @es_cell1.mi_attempts.size
-        assert_equal 1, all('.x-grid3-col-es_cell__name').size
-        assert page.has_no_css? '.x-grid3-col-production_centre__name', :text => 'WTSI'
+        assert_equal 1, all('.x-grid-row').size
+        assert page.has_no_css?('div.x-grid-cell-inner', :text => 'WTSI')
       end
 
       should 'have filtered production centre pre-selected in dropdown' do
-        assert page.has_css? '#production_centre_id option[selected="selected"][value="' + Centre.find_by_name('ICS').id.to_s + '"]'
+        assert page.has_css? 'select[@name="q[production_centre_name]"] option[selected="selected"][value="ICS"]'
       end
     end
 
@@ -157,30 +156,30 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
 
         sleep 3
         visit '/'
-        fill_in 'search_terms', :with => "trafd1\n"
-        select 'Nonsense', :from => 'mi_attempt_status_id'
+        fill_in 'q[terms]', :with => "trafd1\n"
+        select 'Nonsense', :from => 'q[status]'
         click_button 'Search'
         sleep 3
       end
 
       should 'show results that match the search terms and the filter' do
-        assert page.has_css? '.x-grid3-col-es_cell__name', :text => @mi_attempt.es_cell.name
-        assert page.has_css? '.x-grid3-col-mi_attempt_status__description', :text => 'Nonsense'
+        assert page.has_css? 'div', :text => @mi_attempt.es_cell.name
+        assert page.has_css? 'div', :text => 'Nonsense'
       end
 
       should 'not show any non-matching mi attempts' do
-        assert_equal 1, all('.x-grid3-col-es_cell__name').size
+        assert_equal 1, all('.x-grid-row').size
       end
 
       should 'have filtered status pre-selected in dropdown' do
-        assert page.has_css? "#mi_attempt_status_id option[selected='selected'][value='#{@status.id}']"
+        assert page.has_css? 'select[@name="q[status]"] option[selected="selected"][value="Nonsense"]'
       end
     end
 
     should 'work for search with no terms' do
       visit '/'
       click_button 'Search'
-      assert page.has_no_css? 'error'
+      assert ! page.has_content?('error')
     end
 
     should 'display test data warning' do

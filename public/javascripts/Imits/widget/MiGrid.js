@@ -48,8 +48,10 @@ Ext.define('Imits.widget.MiGrid', {
         this.doLayout();
     },
 
-    generateColumns: function(config) { // private
+    /** @private */
+    generateColumns: function(config) {
         var columns = [];
+
         Ext.Object.each(this.groupedColumns, function(viewName, viewColumns) {
             Ext.Array.each(viewColumns, function(column) {
                 var existing;
@@ -67,12 +69,82 @@ Ext.define('Imits.widget.MiGrid', {
         config.columns = columns;
     },
 
+    /** @private */
+    generateViews: function() {
+        var views = {};
+
+        var commonColumns = Ext.pluck(this.groupedColumns.common, 'dataIndex');
+        var everythingView = Ext.Array.merge(commonColumns, []);
+
+        // First generate the groups from the groupedColumns
+        Ext.Object.each(this.groupedColumns, function(viewName, viewColumnConfigs) {
+            if(viewName === 'common') {
+                return;
+            }
+
+            var viewColumns = Ext.pluck(viewColumnConfigs, 'dataIndex');
+            views[viewName] = Ext.Array.merge(commonColumns, viewColumns);
+            everythingView = Ext.Array.merge(everythingView, viewColumns);
+        });
+
+        views['Everything'] = everythingView;
+
+        var grid = this;
+        Ext.Object.each(this.additionalViewColumns, function(viewName) {
+            views[viewName] = Ext.Array.merge(commonColumns, grid.additionalViewColumns[viewName]);
+        });
+        this.views = views;
+    },
+
     constructor: function(config) {
         if(config == undefined) {
-            config = {}
+            config = {};
         }
         this.generateColumns(config);
+        this.generateViews();
         this.callParent([config]);
+    },
+
+    switchViewButtonConfig: function(text, pressedByDefault) {
+        var grid = this;
+        return {
+            text: text,
+            enableToggle: true,
+            allowDepress: false,
+            toggleGroup: 'mi_grid_view_config',
+            minWidth: 100,
+            pressed: (pressedByDefault === true),
+            listeners: {
+                'toggle': function(button, pressed) {
+                    if(!pressed) {
+                        return;
+                    }
+                    function intensiveOperation() {
+                        var columnsToShow = grid.views[text];
+                        Ext.each(grid.columns, function(column) {
+                            if(columnsToShow.indexOf(column.dataIndex) == -1) {
+                                column.setVisible(false);
+                            } else {
+                                column.setVisible(true);
+                            }
+                        });
+
+                        mask.hide();
+                        Ext.getBody().removeCls('wait');
+                    }
+
+                    var mask = new Ext.LoadMask(grid.getEl(),
+                    {
+                        msg: 'Please wait&hellip;',
+                        removeMask: true
+                    });
+
+                    Ext.getBody().addCls('wait');
+                    mask.show();
+                    setTimeout(intensiveOperation, 100);
+                }
+            }
+        }
     },
 
     initComponent: function() {
@@ -83,7 +155,22 @@ Ext.define('Imits.widget.MiGrid', {
             dock: 'bottom',
             displayInfo: true
         }));
+
+        this.addDocked(Ext.create('Ext.container.ButtonGroup', {
+            layout: 'hbox',
+            dock: 'top',
+            items: [
+            this.switchViewButtonConfig('Everything', true),
+            this.switchViewButtonConfig('Transfer Details'),
+            this.switchViewButtonConfig('Litter Details'),
+            this.switchViewButtonConfig('Chimera Mating Details'),
+            this.switchViewButtonConfig('QC Details'),
+            this.switchViewButtonConfig('Summary')
+            ]
+        }));
     },
+
+    // BEGIN COLUMN DEFINITION
 
     groupedColumns: {
         'common': [
@@ -94,8 +181,9 @@ Ext.define('Imits.widget.MiGrid', {
         },
         {
             header: 'Edit In Form',
-            dataIndex: 'id',
-            renderer: function(miId) {
+            dataIndex: 'edit_link',
+            renderer: function(value, metaData, record) {
+                var miId = record.getId();
                 return Ext.String.format('<a href="{0}/mi_attempts/{1}">Edit in Form</a>', window.basePath, miId);
             },
             sortable: false
@@ -188,7 +276,7 @@ Ext.define('Imits.widget.MiGrid', {
         }
         ],
 
-        'transferDetails': [
+        'Transfer Details': [
         {
             dataIndex: 'blast_strain_name',
             header: 'Blast Strain',
@@ -217,7 +305,7 @@ Ext.define('Imits.widget.MiGrid', {
         }
         ],
 
-        'litterDetails': [
+        'Litter Details': [
         {
             dataIndex: 'total_pups_born',
             header: 'Total Pups Born',
@@ -235,7 +323,7 @@ Ext.define('Imits.widget.MiGrid', {
         },
         {
             dataIndex: 'total_chimeras',
-            header: 'Total Female Chimeras',
+            header: 'Total Chimeras',
             readOnly: true
         },
         {
@@ -260,7 +348,7 @@ Ext.define('Imits.widget.MiGrid', {
         }
         ],
 
-        'chimeraMatingDetails': [
+        'Chimera Mating Details': [
         {
             dataIndex: 'emma_status',
             header: 'EMMA Status',
@@ -276,7 +364,6 @@ Ext.define('Imits.widget.MiGrid', {
                 })
             }
         },
-
         {
             dataIndex: 'test_cross_strain_name',
             header: 'Test Cross Strain',
@@ -376,7 +463,7 @@ Ext.define('Imits.widget.MiGrid', {
         }
         ],
 
-        'qcDetails': [
+        'QC Details': [
         {
             dataIndex: 'qc_southern_blot_result',
             header: 'Southern Blot',
@@ -465,7 +552,15 @@ Ext.define('Imits.widget.MiGrid', {
             xtype: 'boolgridcolumn'
         }
         ]
+    },
+
+    additionalViewColumns: {
+        'Summary': [
+        'emma_status',
+        'mouse_allele_type',
+        'mouse_allele_symbol'
+        ]
     }
-// END groupedColumns - ALWAYS keep at bottom of file for easier organization
+// END COLUMN DEFINITION - ALWAYS keep at bottom of file for easier organization
 
 });

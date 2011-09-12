@@ -20,7 +20,12 @@
   <%= form_for @mi_attempt do |form| %>
     <div id="rest-of-form">
       <%= form.hidden_field 'es_cell_name' %>
-      <%= render 'form_contents', :form => form, :submit_text => 'Create' %>
+      <%= render 'form_contents', :form => form %>
+
+        <div>
+          <%# = form.submit 'Create' %>
+          <button id="mi_attempt_submit">Create</button>
+        </div>
     </div>
   <% end %>
 </div>

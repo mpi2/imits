@@ -9,35 +9,59 @@ Ext.onReady(function() {
 });
 
 function processRestOfForm() {
-    Imits.MiAttempts.New.restOfForm = Ext.get('rest-of-form');
+    var restOfForm = Ext.get('rest-of-form');
 
-    Imits.MiAttempts.New.restOfForm.showIfHidden = function() {
+    restOfForm.showIfHidden = function() {
         if(this.hidden == true) {
             this.setVisible(true, true);
             this.hidden = false;
         }
     }
 
-    Imits.MiAttempts.New.restOfForm.setEsCellName = function(esCellName) {
+    restOfForm.setEsCellName = function(esCellName) {
         var esCellNameField = this.child('input[name="mi_attempt[es_cell_name]"]');
         esCellNameField.set({
             value: esCellName
         });
     }
 
-    Imits.MiAttempts.New.restOfForm.getEsCellName = function() {
+    restOfForm.getEsCellName = function() {
         var esCellNameField = this.child('input[name="mi_attempt[es_cell_name]"]');
         return esCellNameField.getValue();
     }
 
-    if(Imits.MiAttempts.New.restOfForm.getEsCellName() == '') {
-        Imits.MiAttempts.New.restOfForm.setVisibilityMode(Ext.Element.DISPLAY);
-        Imits.MiAttempts.New.restOfForm.setVisible(false, false);
-        Imits.MiAttempts.New.restOfForm.hidden = true;
+    if(restOfForm.getEsCellName() == '') {
+        restOfForm.setVisibilityMode(Ext.Element.DISPLAY);
+        restOfForm.setVisible(false, false);
+        restOfForm.hidden = true;
     } else {
-        Imits.MiAttempts.New.restOfForm.hidden = false;
+        restOfForm.hidden = false;
     }
+/*
+    Ext.select('#mi_attempt_submit').each(function(button) {
+        button.addListener('click', function() {
+            if(confirm("Are you sure you want to create this?")) {
+                button.set({
+                    'disabled': 'disabled'
+                });
+            }
+            //var form = button.up('form');
+            //form.dom.submit();
+        });
+    });
+*/
+    var submitButton = Ext.get('mi_attempt_submit').dom; // restOfForm.down('input[@type="submit"]');
+    console.log(submitButton);
+    submitButton.addListener('click', function() {
+        if(false && window.confirm("Are you sure you want to create this?")) {
+            console.log('blah');
+            submitButton.set({
+                'disabled': 'disabled'
+            });
+        }
+    });
 
+    Imits.MiAttempts.New.restOfForm = restOfForm;
 }
 
 Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
@@ -60,7 +84,9 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
 
         this.esCellNameTextField = Ext.create('Ext.form.field.Text', {
             disabled: true,
-            style: {color: 'black'}
+            style: {
+                color: 'black'
+            }
         });
 
         this.add(Ext.create('Ext.panel.Panel', {
@@ -294,7 +320,7 @@ Ext.define('Imits.MiAttempts.New.EsCellsList', {
     },
 
     bodyStyle: {
-      cursor: 'default'
+        cursor: 'default'
     },
     title: null,
     columns: [

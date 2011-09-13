@@ -324,8 +324,6 @@ class MiAttempt < ActiveRecord::Base
 
   def self.translate_search_param(param)
     translations = {
-      'marker_symbol'           => 'es_cell_gene_marker_symbol',
-      'allele_symbol'           => 'es_cell_gene_allele_symbol',
       'es_cell_marker_symbol'   => 'es_cell_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_gene_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',

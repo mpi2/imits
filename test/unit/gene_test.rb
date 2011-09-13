@@ -122,6 +122,11 @@ class GeneTest < ActiveSupport::TestCase
         TARG_REP_BIOMART.stubs(:search).returns(targ_rep_clone_data)
       end
 
+      teardown do
+        DCC_BIOMART.unstub(:search)
+        TARG_REP_BIOMART.unstub(:search)
+      end
+
       should 'work' do
         assert_equal 0, Gene.all.count
 

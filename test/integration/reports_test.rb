@@ -77,7 +77,7 @@ class ReportsTest < ActionDispatch::IntegrationTest
       end
 
       should 'allow users to get planned_microinjection_summary_and_conflicts reports' do
-        15.times { Factory.create :mi_plan }
+        15.times { Factory.create :mi_plan, :consortium_id => Consortium.find_by_name!('DTCC').id }
         20.times { Factory.create :mi_attempt }
 
         visit '/reports'

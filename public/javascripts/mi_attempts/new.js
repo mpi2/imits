@@ -18,11 +18,12 @@ function processRestOfForm() {
         }
     }
 
-    restOfForm.setEsCellName = function(esCellName) {
+    restOfForm.setEsCellName = function(esCellName, esCellMarkerSymbol) {
         var esCellNameField = this.child('input[name="mi_attempt[es_cell_name]"]');
         esCellNameField.set({
             value: esCellName
         });
+        restOfForm.selectedEsCellMarkerSymbol = esCellMarkerSymbol;
     }
 
     restOfForm.getEsCellName = function() {
@@ -40,13 +41,29 @@ function processRestOfForm() {
 
     var submitButton = Ext.get('mi_attempt_submit');
     submitButton.addListener('click', function() {
-        if(window.confirm("Are you sure you want to create this?")) {
-            submitButton.set({
-                'disabled': 'disabled'
-            });
-            var form = submitButton.up('form');
-            form.dom.submit();
-        }
+        submitButton.dom.disabled = 'disabled';
+        Ext.getBody().addCls('wait');
+
+        Ext.Ajax.request({
+            url: basePath + '/mi_attempts.json',
+            method: 'GET',
+            params: {
+                es_cell_marker_symbol_eq: restOfForm.selectedEsCellMarkerSymbol
+            },
+            success: function(response) {
+                var mis = Ext.JSON.decode(response.responseText);
+                if(!Ext.isEmpty(mis)) {
+                    if(!window.confirm("Gene " + restOfForm.selectedEsCellMarkerSymbol + " has already been micro-injected.\nAre you sure you want to create this?")) {
+                        Ext.getBody().removeCls('wait');
+                        submitButton.dom.disabled = undefined;
+                        return;
+                    }
+                }
+
+                var form = submitButton.up('form');
+                form.dom.submit();
+            }
+        });
     });
 
     Imits.MiAttempts.New.restOfForm = restOfForm;
@@ -110,10 +127,10 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
         });
     },
 
-    onEsCellNameSelected: function(esCellName) {
+    onEsCellNameSelected: function(esCellName, esCellMarkerSymbol) {
         this.esCellNameTextField.setValue(esCellName);
         this.window.hide();
-        Imits.MiAttempts.New.restOfForm.setEsCellName(esCellName);
+        Imits.MiAttempts.New.restOfForm.setEsCellName(esCellName, esCellMarkerSymbol);
         Imits.MiAttempts.New.restOfForm.showIfHidden();
     },
 
@@ -344,7 +361,7 @@ Ext.define('Imits.MiAttempts.New.EsCellsList', {
 
         this.addListener('itemclick', function(theView, record) {
             var esCellName = record.data['escell_clone'];
-            this.initialConfig.esCellSelectorForm.onEsCellNameSelected(esCellName);
+            this.initialConfig.esCellSelectorForm.onEsCellNameSelected(record.data['escell_clone'], record.data['marker_symbol']);
         });
     }
 });

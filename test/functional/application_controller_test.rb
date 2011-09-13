@@ -45,6 +45,30 @@ class ApplicationControllerTest < ActionController::TestCase
         assert_equal({'submit' => 'blank', 'attr1_eq' => 'blank', 'attr2_eq' => 'blank'},
           @controller.send(:params_cleaned_for_search, dirty_params))
       end
+
+      should 'process the "filter" sub-array' do
+        expected_params = {
+          'submit'    => 'blank',
+          'attr1_eq'  => 'weee',
+          'attr2_in'  => ['foo','bar','baz']
+        }
+
+        dirty_params = {
+          'controller'  => 'blank',
+          'submit'      => 'blank',
+          'filter'      => [
+            { 'property' => 'attr1_eq', 'value' => 'weee' },
+            { 'property' => 'attr2_in', 'value' => "foo\nbar \nbaz" }
+          ]
+        }
+
+        assert_equal expected_params, @controller.send(:params_cleaned_for_search, dirty_params)
+
+        dirty_params['filter'] = dirty_params['filter'].to_json
+
+        assert dirty_params['filter'].is_a?(String)
+        assert_equal expected_params, @controller.send(:params_cleaned_for_search, dirty_params)
+      end
     end
 
   end

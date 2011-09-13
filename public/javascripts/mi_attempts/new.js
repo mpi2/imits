@@ -37,27 +37,15 @@ function processRestOfForm() {
     } else {
         restOfForm.hidden = false;
     }
-/*
-    Ext.select('#mi_attempt_submit').each(function(button) {
-        button.addListener('click', function() {
-            if(confirm("Are you sure you want to create this?")) {
-                button.set({
-                    'disabled': 'disabled'
-                });
-            }
-            //var form = button.up('form');
-            //form.dom.submit();
-        });
-    });
-*/
-    var submitButton = Ext.get('mi_attempt_submit').dom; // restOfForm.down('input[@type="submit"]');
-    console.log(submitButton);
+
+    var submitButton = Ext.get('mi_attempt_submit');
     submitButton.addListener('click', function() {
-        if(false && window.confirm("Are you sure you want to create this?")) {
-            console.log('blah');
+        if(window.confirm("Are you sure you want to create this?")) {
             submitButton.set({
                 'disabled': 'disabled'
             });
+            var form = submitButton.up('form');
+            form.dom.submit();
         }
     });
 

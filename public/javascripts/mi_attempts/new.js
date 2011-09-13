@@ -1,46 +1,46 @@
-Ext.namespace('Kermits2.MiAttempts.New');
+Ext.namespace('Imits.MiAttempts.New');
 
 Ext.onReady(function() {
     processRestOfForm();
 
-    var panel = Ext.create('Kermits2.MiAttempts.New.EsCellSelectorForm', {
+    var panel = Ext.create('Imits.MiAttempts.New.EsCellSelectorForm', {
         renderTo: 'es-cell-selector'
     });
 });
 
 function processRestOfForm() {
-    Kermits2.MiAttempts.New.restOfForm = Ext.get('rest-of-form');
+    Imits.MiAttempts.New.restOfForm = Ext.get('rest-of-form');
 
-    Kermits2.MiAttempts.New.restOfForm.showIfHidden = function() {
+    Imits.MiAttempts.New.restOfForm.showIfHidden = function() {
         if(this.hidden == true) {
             this.setVisible(true, true);
             this.hidden = false;
         }
     }
 
-    Kermits2.MiAttempts.New.restOfForm.setEsCellName = function(esCellName) {
+    Imits.MiAttempts.New.restOfForm.setEsCellName = function(esCellName) {
         var esCellNameField = this.child('input[name="mi_attempt[es_cell_name]"]');
         esCellNameField.set({
             value: esCellName
         });
     }
 
-    Kermits2.MiAttempts.New.restOfForm.getEsCellName = function() {
+    Imits.MiAttempts.New.restOfForm.getEsCellName = function() {
         var esCellNameField = this.child('input[name="mi_attempt[es_cell_name]"]');
         return esCellNameField.getValue();
     }
 
-    if(Kermits2.MiAttempts.New.restOfForm.getEsCellName() == '') {
-        Kermits2.MiAttempts.New.restOfForm.setVisibilityMode(Ext.Element.DISPLAY);
-        Kermits2.MiAttempts.New.restOfForm.setVisible(false, false);
-        Kermits2.MiAttempts.New.restOfForm.hidden = true;
+    if(Imits.MiAttempts.New.restOfForm.getEsCellName() == '') {
+        Imits.MiAttempts.New.restOfForm.setVisibilityMode(Ext.Element.DISPLAY);
+        Imits.MiAttempts.New.restOfForm.setVisible(false, false);
+        Imits.MiAttempts.New.restOfForm.hidden = true;
     } else {
-        Kermits2.MiAttempts.New.restOfForm.hidden = false;
+        Imits.MiAttempts.New.restOfForm.hidden = false;
     }
 
 }
 
-Ext.define('Kermits2.MiAttempts.New.EsCellSelectorForm', {
+Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
     extend: 'Ext.panel.Panel',
     layout: {
         type: 'vbox',
@@ -91,7 +91,7 @@ Ext.define('Kermits2.MiAttempts.New.EsCellSelectorForm', {
 
         this.addListener('render', this.renderHandler, this);
 
-        this.window = Ext.create('Kermits2.MiAttempts.New.EsCellSelectorWindow', {
+        this.window = Ext.create('Imits.MiAttempts.New.EsCellSelectorWindow', {
             esCellSelectorForm: this
         });
     },
@@ -99,12 +99,12 @@ Ext.define('Kermits2.MiAttempts.New.EsCellSelectorForm', {
     onEsCellNameSelected: function(esCellName) {
         this.esCellNameTextField.setValue(esCellName);
         this.window.hide();
-        Kermits2.MiAttempts.New.restOfForm.setEsCellName(esCellName);
-        Kermits2.MiAttempts.New.restOfForm.showIfHidden();
+        Imits.MiAttempts.New.restOfForm.setEsCellName(esCellName);
+        Imits.MiAttempts.New.restOfForm.showIfHidden();
     },
 
     renderHandler: function() {
-        var defaultEsCellName = Kermits2.MiAttempts.New.restOfForm.getEsCellName();
+        var defaultEsCellName = Imits.MiAttempts.New.restOfForm.getEsCellName();
         if(defaultEsCellName != '') {
             this.esCellNameTextField.setValue(defaultEsCellName);
         } else {
@@ -114,7 +114,7 @@ Ext.define('Kermits2.MiAttempts.New.EsCellSelectorForm', {
     }
 });
 
-Ext.define('Kermits2.MiAttempts.New.EsCellSelectorWindow', {
+Ext.define('Imits.MiAttempts.New.EsCellSelectorWindow', {
     extend: 'Ext.window.Window',
 
     title: 'Search for ES cells',
@@ -138,14 +138,14 @@ Ext.define('Kermits2.MiAttempts.New.EsCellSelectorWindow', {
     initComponent: function() {
         this.callParent();
 
-        this.esCellSearchTab = Ext.create('Kermits2.MiAttempts.New.SearchTab', {
+        this.esCellSearchTab = Ext.create('Imits.MiAttempts.New.SearchTab', {
             esCellSelectorForm: this.initialConfig.esCellSelectorForm,
             title: 'Search by ES cell name',
             searchBoxLabel: 'Enter ES cell name',
             searchParam: 'es_cell_name'
         });
 
-        this.markerSymbolSearchTab = new Kermits2.MiAttempts.New.SearchTab({
+        this.markerSymbolSearchTab = new Imits.MiAttempts.New.SearchTab({
             esCellSelectorForm: this.initialConfig.esCellSelectorForm,
             title: 'Search by marker symbol',
             searchBoxLabel: 'Enter marker symbol',
@@ -175,7 +175,7 @@ Ext.define('Kermits2.MiAttempts.New.EsCellSelectorWindow', {
 
 });
 
-Ext.define('Kermits2.MiAttempts.New.SearchTab', {
+Ext.define('Imits.MiAttempts.New.SearchTab', {
     extend: 'Ext.panel.Panel',
     ui: 'plain',
     layout: {
@@ -269,14 +269,14 @@ Ext.define('Kermits2.MiAttempts.New.SearchTab', {
             }
         }));
 
-        this.esCellsList = Ext.create('Kermits2.MiAttempts.New.EsCellsList', {
+        this.esCellsList = Ext.create('Imits.MiAttempts.New.EsCellsList', {
             esCellSelectorForm: this.initialConfig.esCellSelectorForm
         });
         this.add(this.esCellsList);
     }
 });
 
-Ext.define('Kermits2.MiAttempts.New.EsCellsList', {
+Ext.define('Imits.MiAttempts.New.EsCellsList', {
     extend: 'Ext.grid.Panel',
     height: 150,
     store: {

@@ -17,13 +17,6 @@
     };
 }());
 
-/*
-Kermits2.propertyNames = function(obj) {
-    var retval = [];
-    for(var i in obj) {retval.push(i);}
-    return retval;
-}
-*/
 function setInitialFocus() {
     var thing = Ext.select('.initial-focus').first();
     if(thing) {
@@ -31,39 +24,6 @@ function setInitialFocus() {
     }
 }
 Ext.onReady(setInitialFocus);
-/*
-function toggleMiAttemptsSwitchViewButton(button, pressed) {
-    if(!pressed) {return;}
-
-    var mask = new Ext.LoadMask(Ext.get('micro_injection_attempts_widget'),
-        {msg: 'Reticulating columns...', removeMask: true});
-
-    function intensiveOperation() {
-        var grid = Netzke.page.microInjectionAttemptsWidget.grid;
-        columnModel = grid.getColumnModel();
-
-        var columnsToShow = MI_ATTEMPTS_VIEW_CONFIG[button.viewName];
-
-        for(var idx = 0; idx < columnModel.getColumnCount(); ++idx) {
-            var columnId = columnModel.getColumnId(idx);
-            if(columnsToShow.indexOf(columnId) == -1) {
-                columnModel.setHidden(idx, true);
-            } else {
-                columnModel.setHidden(idx, false);
-            }
-        }
-
-        grid.syncSize();
-
-        mask.hide();
-        Ext.getBody().removeClass('wait');
-    }
-
-    Ext.getBody().addClass('wait');
-    mask.show();
-
-    setTimeout(intensiveOperation, 500);
-}
 
 function initDisableOnSubmitButtons() {
     Ext.select('.disable-on-submit').each(function(button) {
@@ -77,7 +37,6 @@ function initDisableOnSubmitButtons() {
     });
 }
 Ext.onReady(initDisableOnSubmitButtons);
-*/
 
 function toggleCollapsibleFieldsetLegend(legend) {
     var fieldset = legend.up('fieldset');
@@ -98,14 +57,13 @@ function setupCollapsibleFieldsets() {
         elm.up('fieldset').addCls('collapsible-content-shown');
     });
 }
+Ext.onReady(setupCollapsibleFieldsets);
 
 function hideDefaultCollapsibleFieldsets() {
     Ext.select('fieldset.collapsible.hide-by-default legend').each(function(elm ,comp, idx) {
         toggleCollapsibleFieldsetLegend( Ext.get(comp.elements[idx]) );
     });
 }
-
-Ext.onReady(setupCollapsibleFieldsets);
 Ext.onReady(hideDefaultCollapsibleFieldsets);
 
 function googleAnalytics() {

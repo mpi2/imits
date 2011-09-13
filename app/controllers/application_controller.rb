@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
       end
 
       dirty_params['filter'].each do |filter|
-        if filter['property'].match(/\_in/)
+        if filter['property'].match(/\_in/) and !filter['value'].is_a?(Array)
           filter['value'] = filter['value'].lines.map(&:strip)
         end
         dirty_params.merge!({ filter['property'] => filter['value'] })

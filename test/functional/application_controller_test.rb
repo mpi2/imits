@@ -64,10 +64,29 @@ class ApplicationControllerTest < ActionController::TestCase
 
         assert_equal expected_params, @controller.send(:params_cleaned_for_search, dirty_params)
 
-        dirty_params['filter'] = dirty_params['filter'].to_json
+        dirty_params2 = {
+          'controller'  => 'blank',
+          'submit'      => 'blank',
+          'filter'      => [
+            { 'property' => 'attr1_eq', 'value' => 'weee' },
+            { 'property' => 'attr2_in', 'value' => "foo\nbar \nbaz" }
+          ].to_json
+        }
 
-        assert dirty_params['filter'].is_a?(String)
-        assert_equal expected_params, @controller.send(:params_cleaned_for_search, dirty_params)
+        assert dirty_params2['filter'].is_a?(String)
+        assert_equal expected_params, @controller.send(:params_cleaned_for_search, dirty_params2)
+
+        dirty_params3 = {
+          'controller'  => 'blank',
+          'submit'      => 'blank',
+          'filter'      => [
+            { 'property' => 'attr1_eq', 'value' => 'weee' },
+            { 'property' => 'attr2_in', 'value' => ['foo','bar','baz'] }
+          ].to_json
+        }
+
+        assert dirty_params3['filter'].is_a?(String)
+        assert_equal expected_params, @controller.send(:params_cleaned_for_search, dirty_params3)
       end
     end
 

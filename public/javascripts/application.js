@@ -25,19 +25,19 @@ function setInitialFocus() {
 }
 Ext.onReady(setInitialFocus);
 
-//function initDisableOnSubmitButtons() {
-//    Ext.select('.disable-on-submit').each(function(button) {
-//        button.addListener('click', function() {
-//            button.set({
-//                'disabled': 'disabled'
-//            });
-//            var form = button.up('form');
-//            form.dom.submit();
-//        });
-//    });
-//}
-//Ext.onReady(initDisableOnSubmitButtons);
-//
+function initDisableOnSubmitButtons() {
+    Ext.select('.disable-on-submit').each(function(button) {
+        button.addListener('click', function() {
+            button.set({
+                'disabled': 'disabled'
+            });
+            var form = button.up('form');
+            form.dom.submit();
+        });
+    });
+}
+Ext.onReady(initDisableOnSubmitButtons);
+
 function toggleCollapsibleFieldsetLegend(legend) {
     var fieldset = legend.up('fieldset');
     var div      = fieldset.down('div');

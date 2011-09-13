@@ -3,8 +3,11 @@ Kermits2::Application.routes.draw do
 
   resources :genes, :only => [:index]
 
-  resources :mi_plans, :only => [:create]
-  match 'mi_plans/gene_selection' => 'mi_plans#gene_selection'
+  resources :mi_plans, :only => [:create] do
+    collection do
+      get 'gene_selection'
+    end
+  end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
     member do

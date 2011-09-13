@@ -56,6 +56,10 @@ class MiPlanTest < ActiveSupport::TestCase
     end
 
     context '::assign_genes_and_mark_conflicts' do
+      setup do
+        2.times { Factory.create :mi_attempt }
+      end
+      
       def setup_for_set_one_to_assigned
         gene = Factory.create :gene_cbx1
         @only_interest_mi_plan = Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!('BaSH')

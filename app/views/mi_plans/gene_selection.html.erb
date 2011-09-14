@@ -1,4 +1,4 @@
-
+<% @title = "Register Interest in Micro-Injecting Genes" %>
 <% content_for :head do %>
   <%= javascript_tag "GENE_SEARCH_PARAMS = #{params[:q].to_json}" %>
   <%= javascript_tag "CENTRE_COMBO_OPTS = #{@centre_combo_options.to_json}" %>
@@ -8,9 +8,11 @@
   <%= javascript_include_tag 'mi_plans/gene_selection' %>
 <% end %>
 
+<h2><%= @title %></h2>
+
 <%= form_tag url_for('/mi_plans/gene_selection'), :method => :get, :id => 'gene-search-form'  do %>
   <fieldset class="collapsible">
-    <legend>Search for Genes</legend>
+    <legend>Filter Genes</legend>
     <div>
       <div class="grid_6 alpha">
         <label for="q[marker_symbol_or_mgi_accession_id_ci_in]">Marker Symbol or MGI Accession ID:</label>

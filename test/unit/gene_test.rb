@@ -9,6 +9,7 @@ class GeneTest < ActiveSupport::TestCase
     context '(misc. tests)' do
       setup do
         Factory.create :gene
+        create_common_test_objects
       end
 
       should have_many :es_cells
@@ -19,6 +20,22 @@ class GeneTest < ActiveSupport::TestCase
 
       should validate_presence_of :marker_symbol
       should validate_uniqueness_of :marker_symbol
+
+      should 'no output private attributes in serialization' do
+        gene_json = Gene.first.to_json
+        assert_false gene_json.include? 'created_at'
+        assert_false gene_json.include? 'updated_at'
+        assert_false gene_json.include? 'updated_by'
+      end
+
+      should 'include pretty_print methods in serialization' do
+        gene_json = Gene.first.to_json
+        assert gene_json.include? 'pretty_print_types_of_cells_available'
+        assert gene_json.include? 'pretty_print_non_assigned_mi_plans'
+        assert gene_json.include? 'pretty_print_assigned_mi_plans'
+        assert gene_json.include? 'pretty_print_mi_attempts_in_progress'
+        assert gene_json.include? 'pretty_print_mi_attempts_genotype_confirmed'
+      end
     end
 
     context '::find_or_create_from_marts_by_mgi_accession_id' do
@@ -300,6 +317,5 @@ class GeneTest < ActiveSupport::TestCase
         assert_match '[DTCC:UCD:3]', gene.pretty_print_mi_attempts_genotype_confirmed
       end
     end
-
   end
 end

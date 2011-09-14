@@ -430,3 +430,15 @@ div.report_control * {
 #mi-attempts-grid {
     margin-top: 1.5em;
 }
+
+/* @group ExtJS Icons */
+
+.icon-grid {
+    background-image: url(../images/icons/application_view_columns.png) !important;
+}
+
+.icon-add {
+    background-image: url(../images/icons/add.png) !important;
+}
+
+/* @end */

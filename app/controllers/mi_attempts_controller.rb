@@ -22,32 +22,8 @@ class MiAttemptsController < ApplicationController
   end
 
   def data_for_serialized(format)
-    params[:sorts] = 'id' if(params[:sorts].blank?)
-    params.delete(:per_page) if params[:per_page].blank? or params[:per_page].to_i == 0
-
-    result = MiAttempt.public_search(params_cleaned_for_search(params)).result
-
-    retval = result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
-    if format == :json and params[:extended_response].to_s == 'true'
-      return json_format_extended_response(retval, result.count)
-    else
-      return retval
-    end
+    super(format, 'id', MiAttempt, :public_search)
   end
-  private :data_for_serialized
-
-  def json_format_extended_response(data, total)
-    data = [data] unless data.kind_of? Array
-    data = data.as_json
-
-    retval = {
-      'mi_attempts' => data,
-      'success' => true,
-      'total' => total
-    }
-    return retval
-  end
-  private :json_format_extended_response
 
   def new
     set_centres_and_consortia

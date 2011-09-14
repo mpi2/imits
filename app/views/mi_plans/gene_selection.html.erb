@@ -1,6 +1,10 @@
 <% @title = "Register Interest in Micro-Injecting Genes" %>
 <% content_for :head do %>
-  <%= javascript_tag "GENE_SEARCH_PARAMS = #{params[:q].to_json}" %>
+  <%
+    gene_search_params = params[:q]
+    gene_search_params = '' if gene_search_params.empty?
+  -%>
+  <%= javascript_tag "GENE_SEARCH_PARAMS = #{gene_search_params.to_json}" %>
   <%= javascript_tag "CENTRE_COMBO_OPTS = #{@centre_combo_options.to_json}" %>
   <%= javascript_tag "CONSORTIUM_COMBO_OPTS = #{@consortia_combo_options.to_json}" %>
   <%= javascript_tag "PRIORITY_COMBO_OPTS = #{@priority_combo_options.to_json}" %>

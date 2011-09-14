@@ -106,4 +106,9 @@ Ext.Loader.setConfig({
 Ext.Loader.setPath('Ext', window.basePath + '/extjs');
 Ext.Loader.setPath('Ext.ux', window.basePath + '/extjs/examples/ux');
 
-Ext.require('Imits.model.MiAttempt'); // TODO Why?!?!
+// TODO Why?!?!
+Ext.require([
+  'Imits.model.MiAttempt',
+  'Imits.model.Gene'
+]);
+

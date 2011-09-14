@@ -5,7 +5,7 @@
 </div>
 
 <%= form_tag( { :controller => :reports, :action => :planned_microinjection_list }, :method => :get, :class => 'report-form' ) do |form| %>
-  <%= render 'report_controls', :grouping => true %>
+  <%= render 'report_controls', :grouping => true, :mi_plan_reports => true %>
 <% end %>
 
 <% unless params[:commit].blank? %>

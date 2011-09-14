@@ -1,6 +1,10 @@
 
 <% content_for :head do %>
   <%= javascript_tag "GENE_SEARCH_PARAMS = #{params[:q].to_json}" %>
+  <%= javascript_tag "CENTRE_COMBO_OPTS = #{@centre_combo_options.to_json}" %>
+  <%= javascript_tag "CONSORTIUM_COMBO_OPTS = #{@consortia_combo_options.to_json}" %>
+  <%= javascript_tag "PRIORITY_COMBO_OPTS = #{@priority_combo_options.to_json}" %>
+  <%= javascript_tag "INTEREST_STATUS_ID = #{@interest_status_id}" %>
   <%= javascript_include_tag 'mi_plans/gene_selection' %>
 <% end %>
 

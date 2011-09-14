@@ -1,10 +1,13 @@
 Kermits2::Application.routes.draw do
-  get "mi_plans/gene_selection"
-  post "mi_plans/gene_selection"
-
   root :to => "root#index"
-  
+
   resources :genes, :only => [:index]
+
+  resources :mi_plans, :only => [:create] do
+    collection do
+      get 'gene_selection'
+    end
+  end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
     member do

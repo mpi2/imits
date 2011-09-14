@@ -33,7 +33,7 @@ class ReportsControllerTest < ActionController::TestCase
 
       context 'the /planned_microinjection_summary_and_conflicts report' do
         should 'just work (tm)' do
-          15.times { Factory.create :mi_plan }
+          15.times { Factory.create :mi_plan, :consortium_id => Consortium.find_by_name!('DTCC').id }
           20.times { Factory.create :mi_attempt }
 
           get :planned_microinjection_summary_and_conflicts

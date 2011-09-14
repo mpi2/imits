@@ -110,7 +110,11 @@ class ReportsController < ApplicationController
 
   def planned_microinjection_list
     unless params[:commit].blank?
-      @report = generate_planned_mi_list_report( params )
+      include_plans_with_active_attempts = false
+      include_plans_with_active_attempts = true if params[:include_plans_with_active_attempts] == 'yes'
+      params.delete(:include_plans_with_active_attempts)
+
+      @report = generate_planned_mi_list_report( params, include_plans_with_active_attempts )
       @report.add_column('Reason for Decline/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_decline_conflict }
       @report.remove_columns(['ID'])
       @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?

@@ -1,6 +1,8 @@
 Ext.require([
   'Imits.model.Gene',
-  'Imits.widget.grid.RansackFiltersFeature'
+  'Imits.widget.grid.RansackFiltersFeature',
+  'Ext.ux.RowExpander',
+  'Ext.selection.CheckboxModel'
 ]);
 var grid;
 Ext.onReady(function() {
@@ -16,11 +18,10 @@ Ext.onReady(function() {
     }
   );
 
-  // var grid = Ext.create('Imits.widget.GeneGrid', { renderTo: 'mi-planning-grid' });
-
   grid = Ext.create('Ext.grid.Panel', {
     renderTo: 'mi-planning-grid',
-    title: 'Genes',
+    title: 'Please Select the Genes You Would Like to Register Interest In',
+    columnLines: true,
     store: {
       model: 'Imits.model.Gene',
       autoLoad: true,
@@ -28,6 +29,7 @@ Ext.onReady(function() {
       remoteFilter: true,
       pageSize: 20,
     },
+    selModel: Ext.create('Ext.selection.CheckboxModel'),
     features: [
       {
         ftype: 'ransack_filters',
@@ -38,12 +40,10 @@ Ext.onReady(function() {
       {
         header: 'Gene',
         dataIndex: 'marker_symbol',
-        readOnly: true
-      },
-      {
-        header: 'MGI ID',
-        dataIndex: 'mgi_accession_id',
-        readOnly: true
+        readOnly: true,
+        renderer: function(marker_symbol) {
+          return Ext.String.format('<a href="http://www.knockoutmouse.org/martsearch/search?query='+marker_symbol+'" target="_blank">'+marker_symbol+'</a>')
+        }
       },
       {
         header: '# IKMC Projects',
@@ -60,25 +60,33 @@ Ext.onReady(function() {
         header: 'Non-Assigned MIs',
         dataIndex: 'pretty_print_non_assigned_mi_plans',
         readOnly: true,
-        sortable: false
+        sortable: false,
+        width: 250,
+        flex: 1
       },
       {
         header: 'Assigned MIs',
         dataIndex: 'pretty_print_assigned_mi_plans',
         readOnly: true,
-        sortable: false
+        sortable: false,
+        width: 200,
+        flex: 1
       },
       {
         header: 'MIs in Progress',
         dataIndex: 'pretty_print_mi_attempts_in_progress',
         readOnly: true,
-        sortable: false
+        sortable: false,
+        width: 200,
+        flex: 1
       },
       {
         header: 'GLT Mice',
         dataIndex: 'pretty_print_mi_attempts_genotype_confirmed',
         readOnly: true,
-        sortable: false
+        sortable: false,
+        width: 200,
+        flex: 1
       }
     ],
     manageResize: function() {
@@ -95,6 +103,8 @@ Ext.onReady(function() {
         this.doLayout();
     }
   });
+
+  // Add pagination toolbar
   grid.addDocked(
       Ext.create('Ext.toolbar.Paging', {
         store: grid.getStore(),
@@ -102,15 +112,89 @@ Ext.onReady(function() {
         displayInfo: true
       })
   );
-  grid.manageResize();
 
+  // Add widget toolbar
+  function create_combobox ( label, store_source ) {
+    return Ext.create('Ext.form.ComboBox', {
+      fieldLabel: label,
+      store: Ext.create('Ext.data.Store', { data: store_source, fields: ['id','name'] }),
+      queryMode: 'local',
+      forceSelection: true,
+      displayField: 'name',
+      valueField: 'id'
+    });
+  }
+
+  var consortium_combo = create_combobox( 'Consortium', CONSORTIUM_COMBO_OPTS );
+  var centre_combo     = create_combobox( 'Production Centre', CENTRE_COMBO_OPTS );
+  var priority_combo   = create_combobox( 'Priority', PRIORITY_COMBO_OPTS );
+
+  grid.addDocked(
+    Ext.create('Ext.toolbar.Toolbar', {
+      dock: 'top',
+      items: [
+        consortium_combo,
+        centre_combo,
+        priority_combo,
+        {
+          text: 'Register Interest',
+          cls:'x-btn-text-icon',
+          iconCls: 'add',
+          handler: function () {
+            var selected_genes = grid.selModel.selected;
+            var consortium_id  = consortium_combo.getSubmitValue();
+            var centre_id      = centre_combo.getSubmitValue();
+            var priority_id    = priority_combo.getSubmitValue();
+
+            if (selected_genes.length == 0) { alert('You must select some genes to assign interest to'); return false; }
+            if (consortium_id == null)      { alert('You must select a consortium'); return false; }
+            if (priority_id == null)        { alert('You must selct a priority'); return false; }
+
+            grid.setLoading(true);
+
+            selected_genes.each( function(gene_row) {
+              var gene_id = gene_row.raw['id'];
+              Ext.Ajax.request({
+                method: 'POST',
+                url: basePath + '/mi_plans.json',
+                params: {
+                  'mi_plan[gene_id]': gene_id,
+                  'mi_plan[consortium_id]': consortium_id,
+                  'mi_plan[production_centre_id]': centre_id,
+                  'mi_plan[mi_plan_priority_id]': priority_id,
+                  'mi_plan[mi_plan_status_id]': INTEREST_STATUS_ID,
+                  authenticity_token: authenticityToken
+                },
+                failure: function (response) {
+                  // TODO: Handle creation errors...
+                  console.log('EPIC FAIL!');
+                  console.log(response);
+                }
+              });
+            });
+
+            var store = grid.getStore();
+            store.sync();
+            store.load();
+
+            grid.setLoading(false);
+
+            return false;
+          }
+        }
+      ]
+    })
+  );
+
+
+  // Resize the grid and set up listeners
+  grid.manageResize();
   Ext.EventManager.onWindowResize(grid.manageResize, grid);
   Ext.select('.collapsible-control').each(function(element) {
-    element.addListener('click', function() {
-      this.manageResize();
-    }, grid);
+    element.addListener( 'click', function() { this.manageResize(); }, grid );
   });
 
+  // Finally, do we need to pre-filter the grid?
   if (GENE_SEARCH_PARAMS) {
     filters = [];
     for (var field in GENE_SEARCH_PARAMS) {

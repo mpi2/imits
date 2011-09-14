@@ -29,7 +29,7 @@ Ext.define('Imits.widget.grid.MiAttemptRansackFiltersFeature', {
     },
 
     buildQuery: function(filters) {
-        var params = this.callParent(filters);
+        var params = this.callParent([filters]);
         var terms = window.MI_ATTEMPT_SEARCH_PARAMS.terms;
 
         if(!Ext.isEmpty(terms)) {

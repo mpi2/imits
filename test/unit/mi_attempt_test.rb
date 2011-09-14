@@ -877,7 +877,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         Factory.create :es_cell_EPD0343_1_H06
         Factory.create :mi_attempt, :production_centre_name => 'ICS'
         Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => Gene.find_by_marker_symbol!('Trafd1'))
-        results = MiAttempt.public_search(:marker_symbol_eq => 'Trafd1',
+        results = MiAttempt.public_search(:es_cell_marker_symbol_eq => 'Trafd1',
           :production_centre_name_eq => 'ICS').result
 
         colony_names = es_cell.mi_attempts.map(&:colony_name)

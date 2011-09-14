@@ -1,5 +1,3 @@
-require File.dirname(__FILE__) + '/extjs.rb'
-
 set :application, 'imits'
 set :repository,  'git://github.com/i-dcc/imits.git'
 set :branch, 'master'
@@ -29,7 +27,6 @@ namespace :deploy do
   desc "Symlink shared configs and directories on each release"
   task :symlink_shared do
     run "ln -nfs #{shared_path}/database.yml #{release_path}/config/database.yml"
-    run "ln -nfs #{shared_path}/old_database.yml #{release_path}/config/old_database.yml"
 
     # /tmp
     run "mkdir -m 777 -p #{var_run_path}/tmp"
@@ -39,20 +36,11 @@ namespace :deploy do
     run "rm -rf #{var_run_path}/javascripts"
     run "cd #{release_path}/public && mv javascripts #{var_run_path}/javascripts && ln -nfs #{var_run_path}/javascripts javascripts"
     run "chgrp team87 #{var_run_path}/javascripts && chmod g+w #{var_run_path}/javascripts"
-
-    # /public/netzke needs to be writable and empty so netzke can cache its junk there
-    run "rm -rf #{var_run_path}/netzke"
-    run "mkdir #{var_run_path}/netzke"
-    run "chgrp team87 #{var_run_path}/netzke"
-    run "chmod g+w #{var_run_path}/netzke"
-    run "ln -nfs #{var_run_path}/netzke #{release_path}/public/netzke"
   end
 
-  desc "Install extjs-#{EXTJS_VERSION} into shared and then symlink it to public/extjs"
+  desc "Install extjs into shared and then symlink it to public/extjs"
   task :extjs do
-    run "cd #{release_path}/tmp && wget -q --no-clobber #{EXTJS_DOWNLOAD_URL}"
-    run "cd #{release_path}/public && unzip -qn #{release_path}/tmp/ext-#{EXTJS_VERSION}.zip && " +
-            "ln -sfn ext-#{EXTJS_VERSION} extjs"
+    run "cd #{release_path} && #{bundle_cmd} exec rake extjs:install"
   end
 
   desc "Set the permissions of the filesystem so that others in the team can deploy, and the team87 user can do their stuff"

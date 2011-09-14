@@ -21,6 +21,7 @@ Ext.onReady(function() {
   grid = Ext.create('Ext.grid.Panel', {
     renderTo: 'mi-planning-grid',
     title: 'Please Select the Genes You Would Like to Register Interest In',
+    iconCls: 'icon-grid',
     columnLines: true,
     store: {
       model: 'Imits.model.Gene',
@@ -30,12 +31,7 @@ Ext.onReady(function() {
       pageSize: 20,
     },
     selModel: Ext.create('Ext.selection.CheckboxModel'),
-    features: [
-      {
-        ftype: 'ransack_filters',
-        local: false
-      }
-    ],
+    features: [{ ftype: 'ransack_filters', local: false }],
     columns: [
       {
         header: 'Gene',
@@ -114,9 +110,11 @@ Ext.onReady(function() {
   );
 
   // Add widget toolbar
-  function create_combobox ( label, store_source ) {
+  function create_combobox ( label, label_width, store_source ) {
     return Ext.create('Ext.form.ComboBox', {
       fieldLabel: label,
+      labelAlign: 'right',
+      labelWidth: label_width,
       store: Ext.create('Ext.data.Store', { data: store_source, fields: ['id','name'] }),
       queryMode: 'local',
       forceSelection: true,
@@ -125,9 +123,9 @@ Ext.onReady(function() {
     });
   }
 
-  var consortium_combo = create_combobox( 'Consortium', CONSORTIUM_COMBO_OPTS );
-  var centre_combo     = create_combobox( 'Production Centre', CENTRE_COMBO_OPTS );
-  var priority_combo   = create_combobox( 'Priority', PRIORITY_COMBO_OPTS );
+  var consortium_combo = create_combobox( 'Consortium', 65, CONSORTIUM_COMBO_OPTS );
+  var centre_combo     = create_combobox( 'Production Centre', 100, CENTRE_COMBO_OPTS );
+  var priority_combo   = create_combobox( 'Priority', 47, PRIORITY_COMBO_OPTS );
 
   grid.addDocked(
     Ext.create('Ext.toolbar.Toolbar', {
@@ -136,17 +134,19 @@ Ext.onReady(function() {
         consortium_combo,
         centre_combo,
         priority_combo,
+        '  ',
         {
           text: 'Register Interest',
+          border: '10 5 3 10',
           cls:'x-btn-text-icon',
-          iconCls: 'add',
+          iconCls: 'icon-add',
           handler: function () {
             var selected_genes = grid.selModel.selected;
             var consortium_id  = consortium_combo.getSubmitValue();
             var centre_id      = centre_combo.getSubmitValue();
             var priority_id    = priority_combo.getSubmitValue();
 
-            if (selected_genes.length == 0) { alert('You must select some genes to assign interest to'); return false; }
+            if (selected_genes.length == 0) { alert('You must select some genes to register interest in'); return false; }
             if (consortium_id == null)      { alert('You must select a consortium'); return false; }
             if (priority_id == null)        { alert('You must selct a priority'); return false; }
 

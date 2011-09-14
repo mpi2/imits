@@ -20,6 +20,7 @@
   <%= form_for @mi_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
     <div id="rest-of-form">
       <%= form.hidden_field 'es_cell_name' %>
+      <%= form.hidden_field 'es_cell_marker_symbol' %>
       <%= render 'form_contents', :form => form %>
 
         <div>

@@ -21,6 +21,11 @@
       </div>
     </fieldset>
 
-    <%= render 'form_contents', :form => form, :submit_params => ['Update', :class => 'disable-on-submit'] %>
+    <%= render 'form_contents', :form => form %>
+
+    <div>
+      <%= form.submit 'Update', :class => 'disable-on-submit' %>
+    </div>
+
 <% end %>
 </div>

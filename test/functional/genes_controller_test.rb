@@ -1,7 +1,8 @@
 require 'test_helper'
 
 class GenesControllerTest < ActionController::TestCase
-  context 'Gene controller' do
+  context 'GenesController' do
+
     should 'require authentication' do
       10.times { Factory.create :gene }
       get :index, :format => :json
@@ -64,5 +65,6 @@ class GenesControllerTest < ActionController::TestCase
         assert_equal 50, parse_json_from_response.size
       end
     end
+
   end
 end

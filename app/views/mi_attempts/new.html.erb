@@ -6,7 +6,7 @@
 <% end %>
 
 <div class="grid_8 prefix_2 suffix_2">
-  <%= form_tag nil, :class => 'new mi-attempt' do %>
+  <%= form_tag nil do %>
     <fieldset class="collapsible">
       <legend>ES Cell Details</legend>
       <div>
@@ -17,10 +17,15 @@
 </div>
 
 <div class="grid_8 prefix_2 suffix_2">
-  <%= form_for @mi_attempt do |form| %>
+  <%= form_for @mi_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
     <div id="rest-of-form">
       <%= form.hidden_field 'es_cell_name' %>
-      <%= render 'form_contents', :form => form, :submit_text => 'Create' %>
+      <%= form.hidden_field 'es_cell_marker_symbol' %>
+      <%= render 'form_contents', :form => form %>
+
+        <div>
+          <button id="mi_attempt_submit">Create</button>
+        </div>
     </div>
   <% end %>
 </div>

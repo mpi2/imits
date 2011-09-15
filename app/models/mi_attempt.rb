@@ -379,14 +379,13 @@ class MiAttempt < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110802094958
+# Schema version: 20110915000000
 #
 # Table name: mi_attempts
 #
 #  id                                              :integer         not null, primary key
 #  es_cell_id                                      :integer         not null
 #  mi_date                                         :date
-#  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :string(125)
 #  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer

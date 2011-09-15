@@ -3,12 +3,13 @@ class CreateMiAttemptStatusStamps < ActiveRecord::Migration
   class MiAttempt::StatusStamp < ActiveRecord::Base; end
 
   def self.up
-    create_table :mi_attempt_status_stamps do |table|
+    create_table :mi_attempt_status_stamps, :id => false do |table|
       table.integer :mi_attempt_id, :null => false
       table.integer :mi_attempt_status_id, :null => false
 
       table.timestamps
     end
+    execute('ALTER TABLE mi_attempt_status_stamps ADD PRIMARY KEY (mi_attempt_id, mi_attempt_status_id)')
     add_index :mi_attempt_status_stamps, [:mi_attempt_id, :mi_attempt_status_id],
             :unique => true, :name => :index_mi_attempt_status_stamp_on_ids
 

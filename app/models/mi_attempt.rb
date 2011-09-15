@@ -40,21 +40,20 @@ class MiAttempt < ActiveRecord::Base
 
   PRIVATE_ATTRIBUTES = [
     'created_at', 'updated_at', 'updated_by', 'updated_by_id',
-    'es_cell', 'es_cell_id',
-    'mi_attempt_status', 'mi_attempt_status_id', 'mi_plan_id'
+    'es_cell', 'es_cell_id', 'mi_plan_id'
   ]
 
   attr_protected *PRIVATE_ATTRIBUTES
 
   belongs_to :mi_plan
   belongs_to :es_cell
-  belongs_to :mi_attempt_status
   belongs_to :distribution_centre, :class_name => 'Centre'
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
   belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
   belongs_to :deposited_material
+  has_many :status_stamps
 
   access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
@@ -71,7 +70,6 @@ class MiAttempt < ActiveRecord::Base
   validates :es_cell_name, :presence => true
   validates :production_centre_name, :presence => true
   validates :consortium_name, :presence => true
-  validates :mi_attempt_status, :presence => true
   validates :colony_name, :uniqueness => true, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
 
@@ -111,14 +109,14 @@ class MiAttempt < ActiveRecord::Base
   end
 
   before_validation :set_blank_strings_to_nil
-  before_validation :set_default_status
+  # TODO before_validation :set_default_status
   before_validation :set_total_chimeras
   before_validation :set_default_deposited_material
   before_validation :set_es_cell_from_es_cell_name
   before_validation :set_default_distribution_centre
 
   before_save :generate_colony_name_if_blank
-  before_save :change_status
+  # TODO before_save :change_status
   before_save :make_unsuitable_for_emma_if_is_not_active
   before_save :set_mi_plan
 
@@ -327,8 +325,7 @@ class MiAttempt < ActiveRecord::Base
       'es_cell_marker_symbol'   => 'es_cell_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_gene_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
-      'production_centre_name'  => 'mi_plan_production_centre_name',
-      'status'                  => 'mi_attempt_status_description'
+      'production_centre_name'  => 'mi_plan_production_centre_name'
     }
 
     translations.each do |tr_from, tr_to|

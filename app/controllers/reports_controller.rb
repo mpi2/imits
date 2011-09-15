@@ -116,10 +116,28 @@ class ReportsController < ApplicationController
 
       @report = generate_planned_mi_list_report( params, include_plans_with_active_attempts )
       @report.add_column('Reason for Decline/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_decline_conflict }
+
+      mis_by_gene_methods = {
+        'Non-Assigned MI Plans' => :pretty_print_non_assigned_mi_plans,
+        'Assigned MI Plans'     => :pretty_print_assigned_mi_plans,
+        'MIs in Progress'       => :pretty_print_mi_attempts_in_progress,
+        'GLT Mice'              => :pretty_print_mi_attempts_genotype_confirmed
+      }
+
+      mis_by_gene_methods.each do |title,method|
+        @report.add_column(title) { |row| MiPlan.find(row.data['ID']).gene.send(method) }
+      end
+
       @report.remove_columns(['ID'])
       @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
 
       if request.format == :csv
+        @report.each_entry do |row|
+          mis_by_gene_methods.each do |title,method|
+            row[title] = row[title].gsub('</br>',' ')
+          end
+        end
+
         send_data(
           @report.to_csv,
           :type     => 'text/csv; charset=utf-8; header=present',

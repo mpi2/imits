@@ -1,5 +1,5 @@
 Ext.define('Imits.widget.MiGrid', {
-    extend: 'Ext.grid.Panel',
+    extend: 'Imits.widget.Grid',
 
     requires: [
     'Imits.widget.SimpleNumberField',
@@ -34,19 +34,6 @@ Ext.define('Imits.widget.MiGrid', {
         local: false
     }
     ],
-
-    manageResize: function() {
-        var windowHeight = window.innerHeight - 30;
-        if(!windowHeight) {
-            windowHeight = document.documentElement.clientHeight - 30;
-        }
-        var newGridHeight = windowHeight - this.getEl().getTop();
-        if(newGridHeight < 200) {
-            newGridHeight = 200;
-        }
-        this.setHeight(newGridHeight);
-        this.doLayout();
-    },
 
     /** @private */
     generateColumns: function(config) {

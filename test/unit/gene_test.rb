@@ -35,6 +35,7 @@ class GeneTest < ActiveSupport::TestCase
         assert gene_json.include? 'pretty_print_assigned_mi_plans'
         assert gene_json.include? 'pretty_print_mi_attempts_in_progress'
         assert gene_json.include? 'pretty_print_mi_attempts_genotype_confirmed'
+        assert gene_json.include? 'pretty_print_aborted_mi_attempts'
       end
     end
 
@@ -211,15 +212,17 @@ class GeneTest < ActiveSupport::TestCase
           :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
 
-        Factory.create :mi_attempt, :is_active => true
+        Factory.create :mi_attempt,
+          :es_cell => Factory.create(:es_cell, :gene => gene),
+          :consortium_name => 'MARC',
+          :production_centre_name => 'MARC',
+          :is_active => true
 
         assert gene
-        assert_equal 2, gene.mi_plans.count
-        assert_nil gene.pretty_print_assigned_mi_plans
-        assert_nil gene.pretty_print_mi_attempts_in_progress
-        assert_nil gene.pretty_print_mi_attempts_genotype_confirmed
+        assert_equal 3, gene.mi_plans.count
         assert_match '[BaSH:Interest]', gene.pretty_print_non_assigned_mi_plans
         assert_match '[MGP:WTSI:Interest]', gene.pretty_print_non_assigned_mi_plans
+        assert_false gene.pretty_print_non_assigned_mi_plans.include?('[MARC:MARC]')
       end
     end
 
@@ -240,15 +243,17 @@ class GeneTest < ActiveSupport::TestCase
           :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
 
-        Factory.create :mi_attempt, :is_active => true
+        Factory.create :mi_attempt,
+          :es_cell => Factory.create(:es_cell, :gene => gene),
+          :consortium_name => 'MARC',
+          :production_centre_name => 'MARC',
+          :is_active => true
 
         assert gene
-        assert_equal 2, gene.mi_plans.count
-        assert_nil gene.pretty_print_non_assigned_mi_plans
-        assert_nil gene.pretty_print_mi_attempts_in_progress
-        assert_nil gene.pretty_print_mi_attempts_genotype_confirmed
+        assert_equal 3, gene.mi_plans.count
         assert_match '[BaSH]', gene.pretty_print_assigned_mi_plans
         assert_match '[MGP:WTSI]', gene.pretty_print_assigned_mi_plans
+        assert_false gene.pretty_print_assigned_mi_plans.include?('[MARC:MARC]')
       end
     end
 
@@ -274,13 +279,17 @@ class GeneTest < ActiveSupport::TestCase
             :is_active => true
         end
 
+        Factory.create :mi_attempt,
+          :es_cell => Factory.create(:es_cell, :gene => gene),
+          :consortium_name => 'MARC',
+          :production_centre_name => 'MARC',
+          :is_active => false
+
         assert gene
-        assert_equal 2, gene.mi_plans.count
-        assert_nil gene.pretty_print_non_assigned_mi_plans
-        assert_nil gene.pretty_print_assigned_mi_plans
-        assert_nil gene.pretty_print_mi_attempts_genotype_confirmed
+        assert_equal 3, gene.mi_plans.count
         assert_match '[MGP:WTSI:2]', gene.pretty_print_mi_attempts_in_progress
         assert_match '[DTCC:UCD:3]', gene.pretty_print_mi_attempts_in_progress
+        assert_false gene.pretty_print_mi_attempts_in_progress.include?('[MARC:MARC:1]')
       end
     end
 
@@ -308,13 +317,54 @@ class GeneTest < ActiveSupport::TestCase
             :is_active => true
         end
 
+        Factory.create :mi_attempt,
+          :es_cell => Factory.create(:es_cell, :gene => gene),
+          :consortium_name => 'MARC',
+          :production_centre_name => 'MARC',
+          :is_active => false
+
         assert gene
-        assert_equal 2, gene.mi_plans.count
-        assert_nil gene.pretty_print_non_assigned_mi_plans
-        assert_nil gene.pretty_print_assigned_mi_plans
-        assert_nil gene.pretty_print_mi_attempts_in_progress
+        assert_equal 3, gene.mi_plans.count
         assert_match '[MGP:WTSI:2]', gene.pretty_print_mi_attempts_genotype_confirmed
         assert_match '[DTCC:UCD:3]', gene.pretty_print_mi_attempts_genotype_confirmed
+        assert_false gene.pretty_print_mi_attempts_genotype_confirmed.include?('[MARC:MARC:1]')
+      end
+    end
+    
+    context '#pretty_print_aborted_mi_attempts' do
+      should 'work' do
+        gene = Factory.create :gene,
+          :marker_symbol => 'Moo1',
+          :mgi_accession_id => 'MGI:12345'
+
+        3.times do
+          Factory.create :mi_attempt,
+            :es_cell => Factory.create(:es_cell, :gene => gene),
+            :consortium_name => 'DTCC',
+            :production_centre_name => 'UCD',
+            :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+            :is_active => true
+        end
+
+        2.times do
+          Factory.create :mi_attempt,
+            :es_cell => Factory.create(:es_cell, :gene => gene),
+            :consortium_name => 'MGP',
+            :production_centre_name => 'WTSI',
+            :is_active => false
+        end
+
+        Factory.create :mi_attempt,
+          :es_cell => Factory.create(:es_cell, :gene => gene),
+          :consortium_name => 'MARC',
+          :production_centre_name => 'MARC',
+          :is_active => false
+
+        assert gene
+        assert_equal 3, gene.mi_plans.count
+        assert_match '[MGP:WTSI:2]', gene.pretty_print_aborted_mi_attempts
+        assert_match '[MARC:MARC:1]', gene.pretty_print_aborted_mi_attempts
+        assert_false gene.pretty_print_aborted_mi_attempts.include?('[DTCC:UCD:3]')
       end
     end
   end

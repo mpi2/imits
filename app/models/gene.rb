@@ -39,6 +39,10 @@ class Gene < ActiveRecord::Base
     return Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk(self.id)[self.marker_symbol]
   end
 
+  def pretty_print_aborted_mi_attempts
+    return Gene.pretty_print_aborted_mi_attempts_in_bulk(self.id)[self.marker_symbol]
+  end
+
   def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil)
     sql = <<-SQL
       select distinct
@@ -86,7 +90,7 @@ class Gene < ActiveRecord::Base
       left join centres on mi_plans.production_centre_id = centres.id
       left join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
       where mi_plan_statuses.name = 'Assigned'
-      and ( mi_attempts.is_active = false or mi_attempts.id is null )
+      and mi_attempts.id is null
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?
 
@@ -108,16 +112,20 @@ class Gene < ActiveRecord::Base
   end
 
   def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_id=nil)
-    return pretty_print_mi_attempts_helper('Micro-injection in progress',gene_id)
+    return pretty_print_mi_attempts_helper('true','Micro-injection in progress',gene_id)
   end
 
   def self.pretty_print_mi_attempts_genotype_confirmed_in_bulk(gene_id=nil)
-    return pretty_print_mi_attempts_helper('Genotype confirmed',gene_id)
+    return pretty_print_mi_attempts_helper('true','Genotype confirmed',gene_id)
+  end
+
+  def self.pretty_print_aborted_mi_attempts_in_bulk(gene_id=nil)
+    return pretty_print_mi_attempts_helper('false',nil,gene_id)
   end
 
   private
 
-  def self.pretty_print_mi_attempts_helper(status,gene_id=nil)
+  def self.pretty_print_mi_attempts_helper(active,status,gene_id=nil)
     sql = <<-SQL
       select
         genes.marker_symbol,
@@ -130,9 +138,9 @@ class Gene < ActiveRecord::Base
       join centres on mi_plans.production_centre_id = centres.id
       join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
       join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.mi_attempt_status_id
-      where mi_attempts.is_active = true
     SQL
-    sql << "and mi_attempt_statuses.description = '#{status}' "
+    sql << "where mi_attempts.is_active = #{active} "
+    sql << "and mi_attempt_statuses.description = '#{status}' " unless status.nil?
     sql << "and genes.id = #{gene_id} " unless gene_id.nil?
     sql << "group by genes.marker_symbol, consortia.name, centres.name"
 
@@ -144,9 +152,7 @@ class Gene < ActiveRecord::Base
       genes[ res['marker_symbol'] ] << string
     end
 
-    genes.each do |marker_symbol,values|
-      genes[marker_symbol] = values.join('</br>')
-    end
+    genes.each { |marker_symbol,values| genes[marker_symbol] = values.join('</br>') }
 
     return genes
   end
@@ -326,7 +332,8 @@ class Gene < ActiveRecord::Base
       :pretty_print_non_assigned_mi_plans,
       :pretty_print_assigned_mi_plans,
       :pretty_print_mi_attempts_in_progress,
-      :pretty_print_mi_attempts_genotype_confirmed
+      :pretty_print_mi_attempts_genotype_confirmed,
+      :pretty_print_aborted_mi_attempts
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + []
     return options

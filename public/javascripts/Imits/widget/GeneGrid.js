@@ -66,6 +66,21 @@ Ext.define('Imits.widget.GeneGrid', {
       flex: 1
     },
     {
+      header: 'Aborted MIs',
+      dataIndex: 'pretty_print_aborted_mi_attempts',
+      readOnly: true,
+      sortable: false,
+      width: 200,
+      flex: 1,
+      xtype: 'templatecolumn',
+      tpl: new Ext.XTemplate(
+        '<tpl for="this.processedMIs(pretty_print_aborted_mi_attempts)">',
+          '<a href="'+basePath+'/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={prod_centre}" target="_blank">[{consortium}:{prod_centre}:{count}]</a></br>',
+        '</tpl>',
+        { processedMIs: split_mi_string }
+      )
+    },
+    {
       header: 'MIs in Progress',
       dataIndex: 'pretty_print_mi_attempts_in_progress',
       readOnly: true,

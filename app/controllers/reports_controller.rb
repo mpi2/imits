@@ -17,6 +17,7 @@ class ReportsController < ApplicationController
         '# Clones',
         'Non-Assigned MIs',
         'Assigned MIs',
+        'Aborted MIs',
         'MIs in Progress',
         'GLT Mice'
       ]
@@ -26,6 +27,7 @@ class ReportsController < ApplicationController
     assigned_mis     = Gene.pretty_print_assigned_mi_plans_in_bulk
     mis_in_progress  = Gene.pretty_print_mi_attempts_in_progress_in_bulk
     glt_mice         = Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk
+    aborted_mis      = Gene.pretty_print_aborted_mi_attempts_in_bulk
 
     Gene.order('marker_symbol asc').each do |gene|
       @report << {
@@ -35,6 +37,7 @@ class ReportsController < ApplicationController
         '# Clones'          => gene.pretty_print_types_of_cells_available.gsub('</br>',' '),
         'Non-Assigned MIs'  => non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('</br>',' ') : nil,
         'Assigned MIs'      => assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('</br>',' ') : nil,
+        'Aborted MIs'       => aborted_mis[gene.marker_symbol] ? aborted_mis[gene.marker_symbol].gsub('</br>',' ') : nil,
         'MIs in Progress'   => mis_in_progress[gene.marker_symbol] ? mis_in_progress[gene.marker_symbol].gsub('</br>',' ') : nil,
         'GLT Mice'          => glt_mice[gene.marker_symbol] ? glt_mice[gene.marker_symbol].gsub('</br>',' ') : nil
       }
@@ -160,6 +163,7 @@ class ReportsController < ApplicationController
       mis_by_gene = {
         'Non-Assigned MIs' => Gene.pretty_print_non_assigned_mi_plans_in_bulk,
         'Assigned MIs'     => Gene.pretty_print_assigned_mi_plans_in_bulk,
+        'Aborted MIs'      => Gene.pretty_print_aborted_mi_attempts_in_bulk,
         'MIs in Progress'  => Gene.pretty_print_mi_attempts_in_progress_in_bulk,
         'GLT Mice'         => Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk
       }

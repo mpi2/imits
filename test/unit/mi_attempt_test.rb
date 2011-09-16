@@ -804,20 +804,39 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    context '::genotype_confirmed' do
-      should 'work' do
-        glt_status = MiAttemptStatus.genotype_confirmed
+    should_eventually 'have ::genotype_confirmed' do # TODO when status changer works
+      glt_status = MiAttemptStatus.genotype_confirmed
 
-        10.times do
-          Factory.create :mi_attempt,
-            :number_of_het_offspring => 12,
-            :production_centre_name => 'ICS',
-            :is_active => true
-        end
-
-        assert_equal MiAttempt.where( :mi_attempt_status_id => glt_status.id ).count, MiAttempt.genotype_confirmed.count
-        assert_equal 10, MiAttempt.genotype_confirmed.count
+      10.times do
+        Factory.create :mi_attempt,
+                :number_of_het_offspring => 12,
+                :production_centre_name => 'ICS',
+                :is_active => true
       end
+
+      assert_equal 10, MiAttempt.genotype_confirmed.count
+      assert_equal MiAttempt::StatusStamp.where(:mi_attempt_status_id => glt_status.id).count, MiAttempt.genotype_confirmed.count
+    end
+
+    should_eventually 'have ::in_progress' do # TODO when status changer works
+      the_status = MiAttemptStatus.in_progress
+
+      10.times { Factory.create :mi_attempt }
+
+      assert_equal 10, MiAttempt.in_progress.count
+      assert_equal MiAttempt::StatusStamp.where(:mi_attempt_status_id => the_status.id).count, MiAttempt.in_progress.count
+    end
+
+    should_eventually 'have ::aborted' do # TODO when status changer works
+      the_status = MiAttemptStatus.aborted
+
+      10.times do
+        mi = Factory.create :mi_attempt
+        mi.status_stamps.create!(:mi_attempt_status => the_status)
+      end
+
+      assert_equal 10, MiAttempt.aborted.count
+      assert_equal MiAttempt::StatusStamp.where(:mi_attempt_status_id => the_status.id).count, MiAttempt.aborted.count
     end
 
     context '::translate_search_param' do

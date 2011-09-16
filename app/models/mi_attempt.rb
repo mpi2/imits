@@ -125,7 +125,7 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def self.genotype_confirmed
-    where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id, :is_active => true)
+    joins(:status_stamps).where(StatusStamp.table_name => {:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id}, :is_active => true)
   end
 
   def self.in_progress

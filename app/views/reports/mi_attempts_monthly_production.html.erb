@@ -1,10 +1,10 @@
-<% @title = 'Month-by-Month Production Summary' %>
+<% @title = 'Micro-Injection Attempts: Month-by-Month Summary' %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>
 </div>
 
-<%= form_tag( { :controller => 'reports', :action => 'production_summary' }, :method => :get, :class => 'report-form' ) do |form| %>
+<%= form_tag( { :controller => 'reports', :action => 'mi_attempts_monthly_production' }, :method => :get, :class => 'report-form' ) do |form| %>
   <%= render 'report_controls', :grouping => false %>
 <% end %>
 

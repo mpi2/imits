@@ -8,7 +8,46 @@ class ReportsController < ApplicationController
   def index
   end
 
-  def microinjection_list
+  def genes_list
+    @report = Table(
+      [
+        'Marker Symbol',
+        'MGI Accession ID',
+        '# IKMC Projects',
+        '# Clones',
+        'Non-Assigned MIs',
+        'Assigned MIs',
+        'MIs in Progress',
+        'GLT Mice'
+      ]
+    )
+
+    non_assigned_mis = Gene.pretty_print_non_assigned_mi_plans_in_bulk
+    assigned_mis     = Gene.pretty_print_assigned_mi_plans_in_bulk
+    mis_in_progress  = Gene.pretty_print_mi_attempts_in_progress_in_bulk
+    glt_mice         = Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk
+
+    Gene.order('marker_symbol asc').each do |gene|
+      @report << {
+        'Marker Symbol'     => gene.marker_symbol,
+        'MGI Accession ID'  => gene.mgi_accession_id,
+        '# IKMC Projects'   => gene.ikmc_projects_count,
+        '# Clones'          => gene.pretty_print_types_of_cells_available.gsub('</br>',' '),
+        'Non-Assigned MIs'  => non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('</br>',' ') : nil,
+        'Assigned MIs'      => assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('</br>',' ') : nil,
+        'MIs in Progress'   => mis_in_progress[gene.marker_symbol] ? mis_in_progress[gene.marker_symbol].gsub('</br>',' ') : nil,
+        'GLT Mice'          => glt_mice[gene.marker_symbol] ? glt_mice[gene.marker_symbol].gsub('</br>',' ') : nil
+      }
+    end
+
+    send_data(
+      @report.to_csv,
+      :type     => 'text/csv; charset=utf-8; header=present',
+      :filename => 'genes_list.csv'
+    )
+  end
+
+  def mi_attempts_list
     unless params[:commit].blank?
       @report = generate_mi_list_report( params )
       @report.sort_rows_by!( 'Injection Date', :order => :descending )
@@ -18,13 +57,13 @@ class ReportsController < ApplicationController
         send_data(
           @report.to_csv,
           :type     => 'text/csv; charset=utf-8; header=present',
-          :filename => 'microinjection_list.csv'
+          :filename => 'mi_attempts_list.csv'
         )
       end
     end
   end
 
-  def production_summary
+  def mi_attempts_monthly_production
     unless params[:commit].blank?
       report = generate_mi_list_report( params )
 
@@ -80,13 +119,13 @@ class ReportsController < ApplicationController
         send_data(
           @report.to_csv,
           :type     => 'text/csv; charset=utf-8; header=present',
-          :filename => 'production_summary.csv'
+          :filename => 'mi_attempts_monthly_production.csv'
         )
       end
     end
   end
 
-  def gene_summary
+  def mi_attempts_by_gene
     unless params[:commit].blank?
       report         = generate_mi_list_report( params )
       grouped_report = Grouping( report, :by => [ 'Production Centre' ], :order => :name )
@@ -102,7 +141,7 @@ class ReportsController < ApplicationController
         send_data(
           @report.to_csv,
           :type     => 'text/csv; charset=utf-8; header=present',
-          :filename => 'gene_summary.csv'
+          :filename => 'mi_attempts_by_gene.csv'
         )
       end
     end
@@ -116,28 +155,26 @@ class ReportsController < ApplicationController
 
       @report = generate_planned_mi_list_report( params, include_plans_with_active_attempts )
       @report.add_column('Reason for Decline/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_decline_conflict }
+      @report.remove_columns(['ID'])
 
-      mis_by_gene_methods = {
-        'Non-Assigned MI Plans' => :pretty_print_non_assigned_mi_plans,
-        'Assigned MI Plans'     => :pretty_print_assigned_mi_plans,
-        'MIs in Progress'       => :pretty_print_mi_attempts_in_progress,
-        'GLT Mice'              => :pretty_print_mi_attempts_genotype_confirmed
+      mis_by_gene = {
+        'Non-Assigned MIs' => Gene.pretty_print_non_assigned_mi_plans_in_bulk,
+        'Assigned MIs'     => Gene.pretty_print_assigned_mi_plans_in_bulk,
+        'MIs in Progress'  => Gene.pretty_print_mi_attempts_in_progress_in_bulk,
+        'GLT Mice'         => Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk
       }
 
-      mis_by_gene_methods.each do |title,method|
-        @report.add_column(title) { |row| MiPlan.find(row.data['ID']).gene.send(method) }
+      mis_by_gene.each do |title,store|
+        @report.add_column(title) do |row|
+          data = store[row.data['Marker Symbol']]
+          data.gsub!('</br>',' ') if request.format == :csv and !data.nil?
+          data
+        end
       end
 
-      @report.remove_columns(['ID'])
       @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
 
       if request.format == :csv
-        @report.each_entry do |row|
-          mis_by_gene_methods.each do |title,method|
-            row[title] = row[title].gsub('</br>',' ')
-          end
-        end
-
         send_data(
           @report.to_csv,
           :type     => 'text/csv; charset=utf-8; header=present',

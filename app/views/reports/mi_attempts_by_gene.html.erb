@@ -1,10 +1,10 @@
-<% @title = 'Gene Summary' %>
+<% @title = 'Micro-Injection Attempts: Gene Summary' %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>
 </div>
 
-<%= form_tag( { :controller => 'reports', :action => 'gene_summary' }, :method => :get, :class => 'report-form' ) do |form| %>
+<%= form_tag( { :controller => 'reports', :action => 'mi_attempts_by_gene' }, :method => :get, :class => 'report-form' ) do |form| %>
   <%= render 'report_controls', :grouping => false %>
 <% end %>
 

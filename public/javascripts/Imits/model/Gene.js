@@ -10,6 +10,7 @@ Ext.define('Imits.model.Gene', {
       { name: 'pretty_print_types_of_cells_available', readOnly: true },
       { name: 'pretty_print_non_assigned_mi_plans', readOnly: true },
       { name: 'pretty_print_assigned_mi_plans', readOnly: true },
+      { name: 'pretty_print_aborted_mi_attempts', readOnly: true },
       { name: 'pretty_print_mi_attempts_in_progress', readOnly: true },
       { name: 'pretty_print_mi_attempts_genotype_confirmed', readOnly: true }
     ]

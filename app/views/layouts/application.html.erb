@@ -72,5 +72,6 @@
       <% unless GIT_REVISION.blank? %><p>Git revision: <%= GIT_REVISION %></p><% end %>
     </div>
 
+    <%= yield :footer %>
   </body>
 </html>

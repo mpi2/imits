@@ -4,7 +4,7 @@
   <%= javascript_include_tag('mi_attempts/shared') %>
 <% end %>
 
-<div class="grid_8 prefix_2 suffix_2">
+<div id="mi-attempt-box" class="grid_8 prefix_2 suffix_2">
   <%= form_for @mi_attempt, :html => {:class => 'edit show mi-attempt'} do |form| %>
     <fieldset class="collapsible">
       <legend>ES Cell Details</legend>

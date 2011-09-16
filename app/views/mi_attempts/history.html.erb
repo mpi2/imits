@@ -27,7 +27,12 @@
                 <%= revision.user.try(:email) %>
               <% else %>
                 <% if revision.audited_changes.keys.include?('updated_by_id') %>
-                  <% user = User.find_by_id(revision.audited_changes['updated_by_id']) %>
+                  <%
+                    user = case revision.audited_changes['updated_by_id']
+                    when Fixnum then User.find_by_id(revision.audited_changes['updated_by_id'])
+                    when Array then User.find_by_id(revision.audited_changes['updated_by_id'].last)
+                    end
+                  %>
                   <% if user %>
                     <%= user.try(:email) %>
                   <% end %>

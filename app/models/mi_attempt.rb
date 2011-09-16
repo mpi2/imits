@@ -53,7 +53,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
   belongs_to :deposited_material
-  has_many :status_stamps
+  has_many :status_stamps, :order => 'created_at ASC'
 
   access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
@@ -262,7 +262,7 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def status
-    return self.mi_attempt_status.try(:description)
+    return self.status_stamps.last.try(:description)
   end
 
   def emma_status

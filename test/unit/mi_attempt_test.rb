@@ -72,25 +72,38 @@ class MiAttemptTest < ActiveSupport::TestCase
       context '#status_stamps' do
         should 'be an association' do
           assert_should have_many :status_stamps
-          mi = Factory.create :mi_attempt
-          stamp1 = MiAttempt::StatusStamp.create!(:mi_attempt => mi, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
-          stamp2 = MiAttempt::StatusStamp.create!(:mi_attempt => mi, :mi_attempt_status => MiAttemptStatus.micro_injection_aborted)
+        end
+
+        should 'be ordered by created_at (soonest last)' do
+          mi = default_mi_attempt
+          mi.status_stamps.clear
+
+          stamp1 = mi.status_stamps.create!(:created_at => 1.day.ago,
+            :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+          stamp2 = mi.status_stamps.create!(:created_at => 2.days.ago,
+            :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
           mi.reload
-          assert_include mi.status_stamps, stamp1
-          assert_include mi.status_stamps, stamp2
+
+          assert_equal [stamp2.description, stamp1.description], mi.status_stamps.map(&:description)
         end
       end
 
       context '#status virtual attribute' do
         should 'be the status string of the latest status stamp when read' do
-          default_mi_attempt.mi_attempt_status = MiAttemptStatus.micro_injection_in_progress
-          assert_equal 'Micro-injection in progress', default_mi_attempt.status
-          default_mi_attempt.mi_attempt_status = MiAttemptStatus.genotype_confirmed
-          assert_equal 'Genotype confirmed', default_mi_attempt.status
+          mi = default_mi_attempt
+          mi.status_stamps.clear
+
+          mi.status_stamps.create!(:created_at => 1.day.ago,
+            :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+          mi.status_stamps.create!(:created_at => 2.days.ago,
+            :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
+          mi.reload
+
+          assert_equal 'Genotype confirmed', mi.status
         end
 
         should 'be nil when actual status association is nil' do
-          default_mi_attempt.mi_attempt_status = nil
+          default_mi_attempt.status_stamps.clear
           assert_nil default_mi_attempt.status
         end
 

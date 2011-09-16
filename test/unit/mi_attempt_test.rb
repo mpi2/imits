@@ -82,7 +82,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       context '#status virtual attribute' do
-        should 'be the status string when read' do
+        should 'be the status string of the latest status stamp when read' do
           default_mi_attempt.mi_attempt_status = MiAttemptStatus.micro_injection_in_progress
           assert_equal 'Micro-injection in progress', default_mi_attempt.status
           default_mi_attempt.mi_attempt_status = MiAttemptStatus.genotype_confirmed
@@ -529,6 +529,16 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
+      should 'have updated_by column' do
+        assert_should have_db_column(:updated_by_id).of_type(:integer)
+      end
+
+      should 'have updated_by association' do
+        user = Factory.create :user
+        default_mi_attempt.updated_by_id = user.id
+        assert_equal user, default_mi_attempt.updated_by
+      end
+
     end # attribute tests
 
     context 'before filter' do
@@ -561,18 +571,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal nil, default_mi_attempt.mouse_allele_type
           assert_equal false, default_mi_attempt.is_active
         end
-      end
-    end
-
-    context 'for auditing' do
-      should 'have updated_by column' do
-        assert_should have_db_column(:updated_by_id).of_type(:integer)
-      end
-
-      should 'have updated_by association' do
-        user = Factory.create :user
-        subject.updated_by_id = user.id
-        assert_equal user, subject.updated_by
       end
     end
 

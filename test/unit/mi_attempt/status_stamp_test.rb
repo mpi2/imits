@@ -10,5 +10,10 @@ class MiAttempt::StatusStampTest < ActiveSupport::TestCase
 
     should belong_to :mi_attempt
     should belong_to :mi_attempt_status
+
+    should 'have #description proxy' do
+      stamp = MiAttempt::StatusStamp.new(:mi_attempt_status => MiAttemptStatus.micro_injection_aborted)
+      assert_equal MiAttemptStatus.micro_injection_aborted.description, stamp.description
+    end
   end
 end

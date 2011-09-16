@@ -1,6 +1,7 @@
 Ext.define('Imits.widget.GeneGrid', {
   extend: 'Imits.widget.Grid',
   requires: [
+    'Imits.widget.Grid',
     'Imits.widget.grid.RansackFiltersFeature',
     'Ext.ux.RowExpander',
     'Ext.selection.CheckboxModel'
@@ -124,6 +125,7 @@ Ext.define('Imits.widget.GeneGrid', {
               if (priority_id == null)        { alert('You must selct a priority'); return false; }
 
               grid.setLoading(true);
+              var failed_genes = [];
 
               selected_genes.each( function(gene_row) {
                 var gene_id = gene_row.raw['id'];
@@ -138,11 +140,7 @@ Ext.define('Imits.widget.GeneGrid', {
                     'mi_plan[mi_plan_status_id]': window.INTEREST_STATUS_ID,
                     authenticity_token: authenticityToken
                   },
-                  failure: function (response) {
-                    // TODO: Handle creation errors...
-                    console.log('EPIC FAIL!');
-                    console.log(response);
-                  }
+                  failure: function (response) { failed_genes.push(gene_row); }
                 });
               });
 
@@ -151,6 +149,13 @@ Ext.define('Imits.widget.GeneGrid', {
               store.load();
 
               grid.setLoading(false);
+
+              if ( !Ext.isEmpty(failed_genes) ) {
+                var error_str = 'An error occured trying to register interest on the following genes: ';
+                error_str = error_str + failed_genes.join(', ');
+                error_str = error_str + '. Please try registering your interest again.'
+                alert(error_str);
+              }
 
               return false;
             }

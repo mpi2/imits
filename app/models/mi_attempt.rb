@@ -109,7 +109,6 @@ class MiAttempt < ActiveRecord::Base
   end
 
   before_validation :set_blank_strings_to_nil
-  # TODO before_validation :set_default_status
   before_validation :set_total_chimeras
   before_validation :set_default_deposited_material
   before_validation :set_es_cell_from_es_cell_name
@@ -264,6 +263,12 @@ class MiAttempt < ActiveRecord::Base
   def status
     return self.status_stamps.last.try(:description)
   end
+
+  def add_status_stamp(new_status)
+    self.status_stamps.create!(:mi_attempt_status => new_status)
+    self.status_stamps.reload
+  end
+  private :add_status_stamp
 
   def emma_status
     if is_suitable_for_emma?

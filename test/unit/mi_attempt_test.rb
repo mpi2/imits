@@ -15,10 +15,6 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     context 'misc attribute tests:' do
 
-      setup do
-        #default_mi_attempt
-      end
-
       should 'have es_cell' do
         assert_should have_db_column(:es_cell_id).with_options(:null => false)
         assert_should belong_to(:es_cell)
@@ -109,6 +105,24 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'be in serialization' do
           assert_equal default_mi_attempt.status, default_mi_attempt.as_json['status']
+        end
+      end
+
+      context '#add_status_stamp' do
+        setup do
+          default_mi_attempt.status_stamps.clear
+          default_mi_attempt.send(:add_status_stamp, MiAttemptStatus.micro_injection_aborted)
+        end
+
+        should 'add the stamp' do
+          assert_not_nil MiAttempt::StatusStamp.where(
+            :mi_attempt_id => default_mi_attempt.id,
+            :mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
+        end
+
+        should 'reload the association' do
+          assert_equal [MiAttemptStatus.micro_injection_aborted],
+                  default_mi_attempt.status_stamps
         end
       end
 

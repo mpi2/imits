@@ -1,3 +1,14 @@
+// Helper function for cell templates - see in the grid below...
+function split_mi_string(mi_string) {
+  var mis = []
+  var pattern = /^\[(.+)\:(.+)\:(\d+)\]$/;
+  Ext.Array.each( mi_string.split('</br>'), function(mi) {
+    var match = pattern.exec(mi);
+    mis.push({ consortium: match[1], prod_centre: match[2], count: match[3] });
+  });
+  return mis;
+}
+
 Ext.define('Imits.widget.GeneGrid', {
   extend: 'Imits.widget.Grid',
   requires: [
@@ -23,8 +34,8 @@ Ext.define('Imits.widget.GeneGrid', {
       header: 'Gene',
       dataIndex: 'marker_symbol',
       readOnly: true,
-      renderer: function(marker_symbol) {
-        return Ext.String.format('<a href="http://www.knockoutmouse.org/martsearch/search?query='+marker_symbol+'" target="_blank">'+marker_symbol+'</a>')
+      renderer: function(symbol) {
+        return Ext.String.format('<a href="http://www.knockoutmouse.org/martsearch/search?query={0}" target="_blank">{0}</a>', symbol)
       }
     },
     {
@@ -60,7 +71,14 @@ Ext.define('Imits.widget.GeneGrid', {
       readOnly: true,
       sortable: false,
       width: 200,
-      flex: 1
+      flex: 1,
+      xtype: 'templatecolumn',
+      tpl: new Ext.XTemplate(
+        '<tpl for="this.processedMIs(pretty_print_mi_attempts_in_progress)">',
+          '<a href="'+basePath+'/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={prod_centre}" target="_blank">[{consortium}:{prod_centre}:{count}]</a></br>',
+        '</tpl>',
+        { processedMIs: split_mi_string }
+      )
     },
     {
       header: 'GLT Mice',
@@ -68,7 +86,14 @@ Ext.define('Imits.widget.GeneGrid', {
       readOnly: true,
       sortable: false,
       width: 200,
-      flex: 1
+      flex: 1,
+      xtype: 'templatecolumn',
+      tpl: new Ext.XTemplate(
+        '<tpl for="this.processedMIs(pretty_print_mi_attempts_genotype_confirmed)">',
+          '<a href="'+basePath+'/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={prod_centre}" target="_blank">[{consortium}:{prod_centre}:{count}]</a></br>',
+        '</tpl>',
+        { processedMIs: split_mi_string }
+      )
     }
   ],
 

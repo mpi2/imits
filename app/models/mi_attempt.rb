@@ -115,9 +115,10 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_default_distribution_centre
 
   before_save :generate_colony_name_if_blank
-  # TODO before_save :change_status
   before_save :make_unsuitable_for_emma_if_is_not_active
   before_save :set_mi_plan
+
+  after_save :change_status
 
   def self.active
     where(:is_active => true)

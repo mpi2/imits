@@ -300,21 +300,20 @@ class GeneTest < ActiveSupport::TestCase
           :mgi_accession_id => 'MGI:12345'
 
         2.times do
-          Factory.create :mi_attempt,
+          mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
             :es_cell => Factory.create(:es_cell, :gene => gene),
             :consortium_name => 'MGP',
-            :production_centre_name => 'WTSI',
-            :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
             :is_active => true
+          assert_equal MiAttemptStatus.genotype_confirmed.description, mi.status
         end
 
         3.times do
-          Factory.create :mi_attempt,
+          mi = Factory.create :mi_attempt_genotype_confirmed,
             :es_cell => Factory.create(:es_cell, :gene => gene),
             :consortium_name => 'DTCC',
             :production_centre_name => 'UCD',
-            :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
             :is_active => true
+          assert_equal MiAttemptStatus.genotype_confirmed.description, mi.status
         end
 
         Factory.create :mi_attempt,
@@ -338,12 +337,12 @@ class GeneTest < ActiveSupport::TestCase
           :mgi_accession_id => 'MGI:12345'
 
         3.times do
-          Factory.create :mi_attempt,
+          mi = Factory.create :mi_attempt_genotype_confirmed,
             :es_cell => Factory.create(:es_cell, :gene => gene),
             :consortium_name => 'DTCC',
             :production_centre_name => 'UCD',
-            :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
             :is_active => true
+          assert_equal MiAttemptStatus.genotype_confirmed.description, mi.status
         end
 
         2.times do

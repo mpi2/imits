@@ -48,6 +48,16 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.production_centre_name 'WTSI'
 end
 
+Factory.define :mi_attempt_genotype_confirmed, :parent => :mi_attempt do |mi_attempt|
+  mi_attempt.production_centre_name 'ICS'
+  mi_attempt.number_of_het_offspring 1
+end
+
+Factory.define :wtsi_mi_attempt_genotype_confirmed, :parent => :mi_attempt do |mi_attempt|
+  mi_attempt.production_centre_name 'WTSI'
+  mi_attempt.is_released_from_genotyping true
+end
+
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|
   gene.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
 end

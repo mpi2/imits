@@ -129,11 +129,11 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def self.in_progress
-    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id, :is_active => true)
+    joins(:status_stamps).where(StatusStamp.table_name => {:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id}, :is_active => true)
   end
 
   def self.aborted
-    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id, :is_active => true)
+    joins(:status_stamps).where(StatusStamp.table_name => {:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id}, :is_active => true)
   end
 
   protected

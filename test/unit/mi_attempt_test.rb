@@ -124,7 +124,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             :mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
         end
 
-        should 'reload the association' do
+        should 'update the association afterwards' do
           assert_equal [MiAttemptStatus.micro_injection_aborted],
                   default_mi_attempt.status_stamps
         end
@@ -822,7 +822,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    should_eventually 'have ::genotype_confirmed' do # TODO when status changer works
+    should 'have ::genotype_confirmed' do
       glt_status = MiAttemptStatus.genotype_confirmed
 
       10.times do
@@ -836,8 +836,8 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal MiAttempt::StatusStamp.where(:mi_attempt_status_id => glt_status.id).count, MiAttempt.genotype_confirmed.count
     end
 
-    should_eventually 'have ::in_progress' do # TODO when status changer works
-      the_status = MiAttemptStatus.in_progress
+    should 'have ::in_progress' do
+      the_status = MiAttemptStatus.micro_injection_in_progress
 
       10.times { Factory.create :mi_attempt }
 
@@ -845,8 +845,8 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal MiAttempt::StatusStamp.where(:mi_attempt_status_id => the_status.id).count, MiAttempt.in_progress.count
     end
 
-    should_eventually 'have ::aborted' do # TODO when status changer works
-      the_status = MiAttemptStatus.aborted
+    should 'have ::aborted' do
+      the_status = MiAttemptStatus.micro_injection_aborted
 
       10.times do
         mi = Factory.create :mi_attempt

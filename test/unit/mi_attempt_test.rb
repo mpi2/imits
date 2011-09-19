@@ -15,10 +15,6 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     context 'misc attribute tests:' do
 
-      setup do
-        default_mi_attempt
-      end
-
       should 'have es_cell' do
         assert_should have_db_column(:es_cell_id).with_options(:null => false)
         assert_should belong_to(:es_cell)
@@ -69,58 +65,68 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      context '#mi_attempt_status' do
-        should 'exist' do
-          assert_should have_db_column(:mi_attempt_status_id).with_options(:null => false)
-          assert_should belong_to(:mi_attempt_status)
+      context '#status_stamps' do
+        should 'be an association' do
+          assert_should have_many :status_stamps
         end
 
-        should 'be set to "Micro-injection in progress" by default' do
-          assert_equal 'Micro-injection in progress', default_mi_attempt.mi_attempt_status.description
-        end
+        should 'be ordered by created_at (soonest last)' do
+          mi = default_mi_attempt
+          mi.status_stamps.destroy_all
 
-        should 'not be overwritten if it is set explicitly' do
-          mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
-          assert_equal 'Genotype confirmed', mi_attempt.mi_attempt_status.description
-        end
+          stamp1 = mi.status_stamps.create!(:created_at => 1.day.ago,
+            :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+          stamp2 = mi.status_stamps.create!(:created_at => 2.days.ago,
+            :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
+          mi.reload
 
-        should 'not be reset to default if assigning id' do
-          local_mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
-          local_mi_attempt.mi_attempt_status_id = MiAttemptStatus.genotype_confirmed.id
-          local_mi_attempt.save!
-          local_mi_attempt = MiAttempt.find(local_mi_attempt.id)
-          assert_equal 'Genotype confirmed', local_mi_attempt.mi_attempt_status.description
-        end
-
-        should 'not be mass-assignable by id' do
-          default_mi_attempt.attributes = {
-            :mi_attempt_status    => MiAttemptStatus.genotype_confirmed,
-            :mi_attempt_status_id => MiAttemptStatus.genotype_confirmed
-          }
-          assert_not_equal MiAttemptStatus.genotype_confirmed, default_mi_attempt.mi_attempt_status
-        end
-
-        should 'not expose id to serialization' do
-          data = JSON.parse(default_mi_attempt.to_json)
-          assert_false data.has_key?('mi_attempt_status_id')
+          assert_equal [stamp2.description, stamp1.description], mi.status_stamps.map(&:description)
         end
       end
 
       context '#status virtual attribute' do
-        should 'be the status string when read' do
-          default_mi_attempt.mi_attempt_status = MiAttemptStatus.micro_injection_in_progress
-          assert_equal 'Micro-injection in progress', default_mi_attempt.status
-          default_mi_attempt.mi_attempt_status = MiAttemptStatus.genotype_confirmed
-          assert_equal 'Genotype confirmed', default_mi_attempt.status
+        should 'be the status string of the latest status stamp when read' do
+          mi = default_mi_attempt
+          mi.status_stamps.destroy_all
+
+          mi.status_stamps.create!(:created_at => 3.day.ago,
+            :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+          mi.status_stamps.create!(:created_at => 25.hours.ago,
+            :mi_attempt_status => MiAttemptStatus.micro_injection_aborted)
+          mi.status_stamps.create!(:created_at => 1.day.ago,
+            :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+          mi.status_stamps.create!(:created_at => 2.days.ago,
+            :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
+          mi.reload
+
+          assert_equal 'Genotype confirmed', mi.status
         end
 
         should 'be nil when actual status association is nil' do
-          default_mi_attempt.mi_attempt_status = nil
+          default_mi_attempt.status_stamps.destroy_all
           assert_nil default_mi_attempt.status
         end
 
         should 'be in serialization' do
           assert_equal default_mi_attempt.status, default_mi_attempt.as_json['status']
+        end
+      end
+
+      context '#add_status_stamp' do
+        setup do
+          default_mi_attempt.status_stamps.destroy_all
+          default_mi_attempt.send(:add_status_stamp, MiAttemptStatus.micro_injection_aborted)
+        end
+
+        should 'add the stamp' do
+          assert_not_nil MiAttempt::StatusStamp.where(
+            :mi_attempt_id => default_mi_attempt.id,
+            :mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
+        end
+
+        should 'update the association afterwards' do
+          assert_equal [MiAttemptStatus.micro_injection_aborted],
+                  default_mi_attempt.status_stamps
         end
       end
 
@@ -554,6 +560,16 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
+      should 'have updated_by column' do
+        assert_should have_db_column(:updated_by_id).of_type(:integer)
+      end
+
+      should 'have updated_by association' do
+        user = Factory.create :user
+        default_mi_attempt.updated_by_id = user.id
+        assert_equal user, default_mi_attempt.updated_by
+      end
+
     end # attribute tests
 
     context 'before filter' do
@@ -586,18 +602,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal nil, default_mi_attempt.mouse_allele_type
           assert_equal false, default_mi_attempt.is_active
         end
-      end
-    end
-
-    context 'for auditing' do
-      should 'have updated_by column' do
-        assert_should have_db_column(:updated_by_id).of_type(:integer)
-      end
-
-      should 'have updated_by association' do
-        user = Factory.create :user
-        subject.updated_by_id = user.id
-        assert_equal user, subject.updated_by
       end
     end
 
@@ -818,20 +822,39 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    context '::genotype_confirmed' do
-      should 'work' do
-        glt_status = MiAttemptStatus.genotype_confirmed
+    should 'have ::genotype_confirmed' do
+      glt_status = MiAttemptStatus.genotype_confirmed
 
-        10.times do
-          Factory.create :mi_attempt,
-            :number_of_het_offspring => 12,
-            :production_centre_name => 'ICS',
-            :is_active => true
-        end
-
-        assert_equal MiAttempt.where( :mi_attempt_status_id => glt_status.id ).count, MiAttempt.genotype_confirmed.count
-        assert_equal 10, MiAttempt.genotype_confirmed.count
+      10.times do
+        Factory.create :mi_attempt,
+                :number_of_het_offspring => 12,
+                :production_centre_name => 'ICS',
+                :is_active => true
       end
+
+      assert_equal 10, MiAttempt.genotype_confirmed.count
+      assert_equal MiAttempt::StatusStamp.where(:mi_attempt_status_id => glt_status.id).count, MiAttempt.genotype_confirmed.count
+    end
+
+    should 'have ::in_progress' do
+      the_status = MiAttemptStatus.micro_injection_in_progress
+
+      10.times { Factory.create :mi_attempt }
+
+      assert_equal 10, MiAttempt.in_progress.count
+      assert_equal MiAttempt::StatusStamp.where(:mi_attempt_status_id => the_status.id).count, MiAttempt.in_progress.count
+    end
+
+    should 'have ::aborted' do
+      the_status = MiAttemptStatus.micro_injection_aborted
+
+      10.times do
+        mi = Factory.create :mi_attempt
+        mi.status_stamps.create!(:mi_attempt_status => the_status)
+      end
+
+      assert_equal 10, MiAttempt.aborted.count
+      assert_equal MiAttempt::StatusStamp.where(:mi_attempt_status_id => the_status.id).count, MiAttempt.aborted.count
     end
 
     context '::translate_search_param' do
@@ -855,7 +878,7 @@ class MiAttemptTest < ActiveSupport::TestCase
                 MiAttempt.translate_search_param('production_centre_name_eq')
       end
 
-      should 'translate status' do
+      should_eventually 'translate status' do
         assert_equal 'mi_attempt_status_description_ci_in',
                 MiAttempt.translate_search_param('status_ci_in')
       end

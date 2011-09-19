@@ -1,10 +1,10 @@
-<% @title = 'All Micro-Injections' %>
+<% @title = 'Micro-Injection Attempts' %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>
 </div>
 
-<%= form_tag( { :controller => 'reports', :action => 'microinjection_list' }, :method => :get, :class => 'report-form' ) do |form| %>
+<%= form_tag( { :controller => 'reports', :action => 'mi_attempts_list' }, :method => :get, :class => 'report-form' ) do |form| %>
   <%= render 'report_controls', :grouping => true %>
 <% end %>
 

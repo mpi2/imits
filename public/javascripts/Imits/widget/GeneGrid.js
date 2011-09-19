@@ -1,6 +1,18 @@
+// Helper function for cell templates - see in the grid below...
+function split_mi_string(mi_string) {
+  var mis = []
+  var pattern = /^\[(.+)\:(.+)\:(\d+)\]$/;
+  Ext.Array.each( mi_string.split('</br>'), function(mi) {
+    var match = pattern.exec(mi);
+    mis.push({ consortium: match[1], prod_centre: match[2], count: match[3] });
+  });
+  return mis;
+}
+
 Ext.define('Imits.widget.GeneGrid', {
   extend: 'Imits.widget.Grid',
   requires: [
+    'Imits.widget.Grid',
     'Imits.widget.grid.RansackFiltersFeature',
     'Ext.ux.RowExpander',
     'Ext.selection.CheckboxModel'
@@ -22,8 +34,8 @@ Ext.define('Imits.widget.GeneGrid', {
       header: 'Gene',
       dataIndex: 'marker_symbol',
       readOnly: true,
-      renderer: function(marker_symbol) {
-        return Ext.String.format('<a href="http://www.knockoutmouse.org/martsearch/search?query='+marker_symbol+'" target="_blank">'+marker_symbol+'</a>')
+      renderer: function(symbol) {
+        return Ext.String.format('<a href="http://www.knockoutmouse.org/martsearch/search?query={0}" target="_blank">{0}</a>', symbol)
       }
     },
     {
@@ -54,12 +66,34 @@ Ext.define('Imits.widget.GeneGrid', {
       flex: 1
     },
     {
+      header: 'Aborted MIs',
+      dataIndex: 'pretty_print_aborted_mi_attempts',
+      readOnly: true,
+      sortable: false,
+      width: 200,
+      flex: 1,
+      xtype: 'templatecolumn',
+      tpl: new Ext.XTemplate(
+        '<tpl for="this.processedMIs(pretty_print_aborted_mi_attempts)">',
+          '<a href="'+basePath+'/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={prod_centre}" target="_blank">[{consortium}:{prod_centre}:{count}]</a></br>',
+        '</tpl>',
+        { processedMIs: split_mi_string }
+      )
+    },
+    {
       header: 'MIs in Progress',
       dataIndex: 'pretty_print_mi_attempts_in_progress',
       readOnly: true,
       sortable: false,
       width: 200,
-      flex: 1
+      flex: 1,
+      xtype: 'templatecolumn',
+      tpl: new Ext.XTemplate(
+        '<tpl for="this.processedMIs(pretty_print_mi_attempts_in_progress)">',
+          '<a href="'+basePath+'/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={prod_centre}" target="_blank">[{consortium}:{prod_centre}:{count}]</a></br>',
+        '</tpl>',
+        { processedMIs: split_mi_string }
+      )
     },
     {
       header: 'GLT Mice',
@@ -67,7 +101,14 @@ Ext.define('Imits.widget.GeneGrid', {
       readOnly: true,
       sortable: false,
       width: 200,
-      flex: 1
+      flex: 1,
+      xtype: 'templatecolumn',
+      tpl: new Ext.XTemplate(
+        '<tpl for="this.processedMIs(pretty_print_mi_attempts_genotype_confirmed)">',
+          '<a href="'+basePath+'/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={prod_centre}" target="_blank">[{consortium}:{prod_centre}:{count}]</a></br>',
+        '</tpl>',
+        { processedMIs: split_mi_string }
+      )
     }
   ],
 
@@ -124,6 +165,7 @@ Ext.define('Imits.widget.GeneGrid', {
               if (priority_id == null)        { alert('You must selct a priority'); return false; }
 
               grid.setLoading(true);
+              var failed_genes = [];
 
               selected_genes.each( function(gene_row) {
                 var gene_id = gene_row.raw['id'];
@@ -138,11 +180,7 @@ Ext.define('Imits.widget.GeneGrid', {
                     'mi_plan[mi_plan_status_id]': window.INTEREST_STATUS_ID,
                     authenticity_token: authenticityToken
                   },
-                  failure: function (response) {
-                    // TODO: Handle creation errors...
-                    console.log('EPIC FAIL!');
-                    console.log(response);
-                  }
+                  failure: function (response) { failed_genes.push(gene_row); }
                 });
               });
 
@@ -151,6 +189,13 @@ Ext.define('Imits.widget.GeneGrid', {
               store.load();
 
               grid.setLoading(false);
+
+              if ( !Ext.isEmpty(failed_genes) ) {
+                var error_str = 'An error occured trying to register interest on the following genes: ';
+                error_str = error_str + failed_genes.join(', ');
+                error_str = error_str + '. Please try registering your interest again.'
+                alert(error_str);
+              }
 
               return false;
             }

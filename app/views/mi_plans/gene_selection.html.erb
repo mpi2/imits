@@ -1,5 +1,5 @@
 <% @title = "Register Interest in Micro-Injecting Genes" %>
-<% content_for :head do %>
+<% content_for :footer do %>
   <%
     gene_search_params = params[:q]
     gene_search_params = '' if gene_search_params.empty?
@@ -25,6 +25,24 @@
               params[:q][:marker_symbol_or_mgi_accession_id_ci_in]
             end
         -%></textarea>
+      </div>
+      <div class="grid_6 omega">
+        <label for="q[mi_plans_consortium_id_in]">MIs for Consortium:</label>
+        <%=
+          select_tag(
+            'q[mi_plans_consortium_id_eq]',
+            options_from_collection_for_select(Consortium.all,'id','name',params[:q][:mi_plans_consortium_id_eq]),
+            { :include_blank => true }
+          )
+        %>
+        <label for="q[mi_plans_production_centre_id_eq]">MIs at Production Centre:</label>
+        <%=
+          select_tag(
+            'q[mi_plans_production_centre_id_eq]',
+            options_from_collection_for_select(Centre.all,'id','name',params[:q][:mi_plans_production_centre_id_eq]),
+            { :include_blank => true }
+          )
+        %>
       </div>
       <div id="buttons" class="grid_12">
         <input id="submit" type="submit" value="Search" />

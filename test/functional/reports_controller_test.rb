@@ -14,7 +14,7 @@ class ReportsControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      [:microinjection_list, :production_summary, :gene_summary, :planned_microinjection_list].each do |report|
+      [:mi_attempts_list, :mi_attempts_monthly_production, :mi_attempts_by_gene, :planned_microinjection_list].each do |report|
         context "the /#{report} report" do
           should 'be blank without parameters' do
             get report

@@ -22,61 +22,142 @@ class Gene < ActiveRecord::Base
   end
 
   def pretty_print_non_assigned_mi_plans
-    html = []
-    self.mi_plans
-      .where('mi_plan_status_id != ?', MiPlanStatus.find_by_name!('Assigned').id)
-      .each do |mi_plan|
-        string = "[#{mi_plan.consortium.name}"
-        string << ":#{mi_plan.production_centre.name}" unless mi_plan.production_centre_id.nil?
-        string << ":#{mi_plan.mi_plan_status.name}"
-        string << "]"
-        html.push(string)
-      end
-    return html.join('</br>').html_safe
+    html = Gene.pretty_print_non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+    return html ? html.html_safe : nil
   end
 
   def pretty_print_assigned_mi_plans
-    html = []
-    self.mi_plans
-      .where( :mi_plan_status_id => MiPlanStatus.find_by_name!('Assigned').id )
-      .without_active_mi_attempt
-      .each do |mi_plan|
-        string = "[#{mi_plan.consortium.name}"
-        string << ":#{mi_plan.production_centre.name}" unless mi_plan.production_centre_id.nil?
-        string << "]"
-        html.push(string)
-    end
-    return html.join('</br>').html_safe
+    html = Gene.pretty_print_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+    return html ? html.html_safe : nil
   end
 
   def pretty_print_mi_attempts_in_progress
-    return pretty_print_mi_attempts_helper(:in_progress)
+    return Gene.pretty_print_mi_attempts_in_progress_in_bulk(self.id)[self.marker_symbol]
   end
 
   def pretty_print_mi_attempts_genotype_confirmed
-    return pretty_print_mi_attempts_helper(:genotype_confirmed)
+    return Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk(self.id)[self.marker_symbol]
   end
 
-  def pretty_print_mi_attempts_helper(method)
-    mi_counts = {}
-
-    self.mi_attempts.send(method).each do |mi_attempt|
-      key = "#{mi_attempt.mi_plan.consortium.name}:#{mi_attempt.mi_plan.production_centre.name}"
-      if mi_counts[key].nil?
-        mi_counts[key] = 1
-      else
-        mi_counts[key] = mi_counts[key] + 1
-      end
-    end
-
-    html = []
-    mi_counts.each do |key,count|
-      html.push("[#{key}:#{count}]")
-    end
-    return html.join('</br>').html_safe
+  def pretty_print_aborted_mi_attempts
+    return Gene.pretty_print_aborted_mi_attempts_in_bulk(self.id)[self.marker_symbol]
   end
 
-  private(:pretty_print_mi_attempts_helper)
+  def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil)
+    sql = <<-SQL
+      select distinct
+        genes.marker_symbol,
+        consortia.name as consortium,
+        centres.name as production_centre,
+        mi_plan_statuses.name as status
+      from genes
+      join mi_plans on mi_plans.gene_id = genes.id
+      join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
+      join consortia on mi_plans.consortium_id = consortia.id
+      left join centres on mi_plans.production_centre_id = centres.id
+      where mi_plan_statuses.name != 'Assigned'
+    SQL
+    sql << "and genes.id = #{gene_id}" unless gene_id.nil?
+
+    genes = {}
+    results = ActiveRecord::Base.connection.execute(sql)
+    results.each do |res|
+      string = "[#{res['consortium']}"
+      string << ":#{res['production_centre']}" unless res['production_centre'].nil?
+      string << ":#{res['status']}"
+      string << "]"
+      genes[ res['marker_symbol'] ] ||= []
+      genes[ res['marker_symbol'] ] << string
+    end
+
+    genes.each do |marker_symbol,values|
+      genes[marker_symbol] = values.join('</br>')
+    end
+
+    return genes
+  end
+
+  def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil)
+    sql = <<-SQL
+      select distinct
+        genes.marker_symbol,
+        consortia.name as consortium,
+        centres.name as production_centre
+      from genes
+      join mi_plans on mi_plans.gene_id = genes.id
+      join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
+      join consortia on mi_plans.consortium_id = consortia.id
+      left join centres on mi_plans.production_centre_id = centres.id
+      left join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
+      where mi_plan_statuses.name = 'Assigned'
+      and mi_attempts.id is null
+    SQL
+    sql << "and genes.id = #{gene_id}" unless gene_id.nil?
+
+    genes = {}
+    results = ActiveRecord::Base.connection.execute(sql)
+    results.each do |res|
+      string = "[#{res['consortium']}"
+      string << ":#{res['production_centre']}" unless res['production_centre'].nil?
+      string << "]"
+      genes[ res['marker_symbol'] ] ||= []
+      genes[ res['marker_symbol'] ] << string
+    end
+
+    genes.each do |marker_symbol,values|
+      genes[marker_symbol] = values.join('</br>')
+    end
+
+    return genes
+  end
+
+  def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_id=nil)
+    return pretty_print_mi_attempts_helper('true','Micro-injection in progress',gene_id)
+  end
+
+  def self.pretty_print_mi_attempts_genotype_confirmed_in_bulk(gene_id=nil)
+    return pretty_print_mi_attempts_helper('true','Genotype confirmed',gene_id)
+  end
+
+  def self.pretty_print_aborted_mi_attempts_in_bulk(gene_id=nil)
+    return pretty_print_mi_attempts_helper('false',nil,gene_id)
+  end
+
+  private
+
+  def self.pretty_print_mi_attempts_helper(active,status,gene_id=nil)
+    sql = <<-SQL
+      select
+        genes.marker_symbol,
+        consortia.name as consortium,
+        centres.name as production_centre,
+        count(mi_attempts.id) as count
+      from genes
+      join mi_plans on mi_plans.gene_id = genes.id
+      join consortia on mi_plans.consortium_id = consortia.id
+      join centres on mi_plans.production_centre_id = centres.id
+      join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
+      join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.mi_attempt_status_id
+    SQL
+    sql << "where mi_attempts.is_active = #{active} "
+    sql << "and mi_attempt_statuses.description = '#{status}' " unless status.nil?
+    sql << "and genes.id = #{gene_id} " unless gene_id.nil?
+    sql << "group by genes.marker_symbol, consortia.name, centres.name"
+
+    genes = {}
+    results = ActiveRecord::Base.connection.execute(sql)
+    results.each do |res|
+      string = "[#{res['consortium']}:#{res['production_centre']}:#{res['count']}]"
+      genes[ res['marker_symbol'] ] ||= []
+      genes[ res['marker_symbol'] ] << string
+    end
+
+    genes.each { |marker_symbol,values| genes[marker_symbol] = values.join('</br>') }
+
+    return genes
+  end
+
+  public
 
   # END Helper functions for clean reporting
 
@@ -251,7 +332,8 @@ class Gene < ActiveRecord::Base
       :pretty_print_non_assigned_mi_plans,
       :pretty_print_assigned_mi_plans,
       :pretty_print_mi_attempts_in_progress,
-      :pretty_print_mi_attempts_genotype_confirmed
+      :pretty_print_mi_attempts_genotype_confirmed,
+      :pretty_print_aborted_mi_attempts
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + []
     return options
@@ -260,7 +342,7 @@ class Gene < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110802094958
+# Schema version: 20110915000000
 #
 # Table name: genes
 #

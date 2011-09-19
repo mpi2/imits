@@ -3,10 +3,18 @@
 <div class="grid_12">
   <h2><%= @tab %></h2>
 
+  <h3>Genes</h3>
+
+  <ul>
+    <li><%= link_to 'All Genes', url_for(:controller => :reports, :action => :genes_list, :format => :csv), { :class => 'csv_download' } %></li>
+  </ul>
+
+  <div class="clear" style="margin-top:15px"></div>
+
   <h3>Micro-Injection Planning</h3>
 
   <ul>
-    <li><%= link_to 'Planned Micro-injection Summary and Conflicts', url_for(:controller => :reports, :action => :planned_microinjection_summary_and_conflicts) %></li>
+    <li><%= link_to 'Planned Micro-Injection Summary and Conflicts', url_for(:controller => :reports, :action => :planned_microinjection_summary_and_conflicts) %></li>
     <li><%= link_to 'All Planned Micro-Injections', url_for(:controller => :reports, :action => :planned_microinjection_list) %></li>
   </ul>
 
@@ -15,9 +23,9 @@
   <h3>Micro-Injection Production</h3>
 
   <ul>
-    <li><%= link_to 'Gene Summary', url_for(:controller => :reports, :action => :gene_summary) %></li>
-    <li><%= link_to 'Month-by-Month Production Summary', url_for(:controller => :reports, :action => :production_summary) %></li>
-    <li><%= link_to 'All Micro-injections', url_for(:controller => :reports, :action => :microinjection_list) %></li>
+    <li><%= link_to 'Gene Summary', url_for(:controller => :reports, :action => :mi_attempts_by_gene) %></li>
+    <li><%= link_to 'Month-by-Month Summary', url_for(:controller => :reports, :action => :mi_attempts_monthly_production) %></li>
+    <li><%= link_to 'All Micro-Injection Attempts', url_for(:controller => :reports, :action => :mi_attempts_list) %></li>
   </ul>
 </div>
 

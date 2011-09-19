@@ -40,21 +40,20 @@ class MiAttempt < ActiveRecord::Base
 
   PRIVATE_ATTRIBUTES = [
     'created_at', 'updated_at', 'updated_by', 'updated_by_id',
-    'es_cell', 'es_cell_id',
-    'mi_attempt_status', 'mi_attempt_status_id', 'mi_plan_id'
+    'es_cell', 'es_cell_id', 'mi_plan_id'
   ]
 
   attr_protected *PRIVATE_ATTRIBUTES
 
   belongs_to :mi_plan
   belongs_to :es_cell
-  belongs_to :mi_attempt_status
   belongs_to :distribution_centre, :class_name => 'Centre'
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
   belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
   belongs_to :deposited_material
+  has_many :status_stamps, :order => 'created_at ASC'
 
   access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
@@ -71,7 +70,6 @@ class MiAttempt < ActiveRecord::Base
   validates :es_cell_name, :presence => true
   validates :production_centre_name, :presence => true
   validates :consortium_name, :presence => true
-  validates :mi_attempt_status, :presence => true
   validates :colony_name, :uniqueness => true, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
 
@@ -111,38 +109,34 @@ class MiAttempt < ActiveRecord::Base
   end
 
   before_validation :set_blank_strings_to_nil
-  before_validation :set_default_status
   before_validation :set_total_chimeras
   before_validation :set_default_deposited_material
   before_validation :set_es_cell_from_es_cell_name
   before_validation :set_default_distribution_centre
 
   before_save :generate_colony_name_if_blank
-  before_save :change_status
   before_save :make_unsuitable_for_emma_if_is_not_active
   before_save :set_mi_plan
+
+  after_save :change_status
 
   def self.active
     where(:is_active => true)
   end
 
   def self.genotype_confirmed
-    where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id, :is_active => true)
+    joins(:status_stamps).where(StatusStamp.table_name => {:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id}, :is_active => true)
   end
 
   def self.in_progress
-    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id, :is_active => true)
+    joins(:status_stamps).where(StatusStamp.table_name => {:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id}, :is_active => true)
   end
 
   def self.aborted
-    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id, :is_active => true)
+    joins(:status_stamps).where(StatusStamp.table_name => {:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id}, :is_active => true)
   end
 
   protected
-
-  def set_default_status
-    self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
-  end
 
   def set_total_chimeras
     self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
@@ -264,8 +258,14 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def status
-    return self.mi_attempt_status.try(:description)
+    return self.status_stamps.last.try(:description)
   end
+
+  def add_status_stamp(new_status)
+    self.status_stamps.create!(:mi_attempt_status => new_status)
+    self.status_stamps.reload
+  end
+  private :add_status_stamp
 
   def emma_status
     if is_suitable_for_emma?
@@ -327,8 +327,7 @@ class MiAttempt < ActiveRecord::Base
       'es_cell_marker_symbol'   => 'es_cell_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_gene_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
-      'production_centre_name'  => 'mi_plan_production_centre_name',
-      'status'                  => 'mi_attempt_status_description'
+      'production_centre_name'  => 'mi_plan_production_centre_name'
     }
 
     translations.each do |tr_from, tr_to|
@@ -379,14 +378,13 @@ class MiAttempt < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110802094958
+# Schema version: 20110915000000
 #
 # Table name: mi_attempts
 #
 #  id                                              :integer         not null, primary key
 #  es_cell_id                                      :integer         not null
 #  mi_date                                         :date
-#  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :string(125)
 #  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer

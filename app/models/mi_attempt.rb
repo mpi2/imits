@@ -138,10 +138,6 @@ class MiAttempt < ActiveRecord::Base
 
   protected
 
-  def set_default_status
-    self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
-  end
-
   def set_total_chimeras
     self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
   end

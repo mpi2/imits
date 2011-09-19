@@ -27,4 +27,5 @@ group :development, :test do
   gem 'simplecov', '>= 0.4.0', :require => false
   gem 'simplecov-rcov',        :require => false
   gem 'mocha'
+  gem 'ruby-debug19'
 end

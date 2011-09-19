@@ -23,10 +23,4 @@ module ApplicationHelper
     return html.html_safe
   end
 
-  # TODO Come up with a better solution than this
-  def javascript_include_imits_classes
-    files = Dir.chdir(Rails.root + 'public/javascripts') { Dir.glob('Imits/**/*.js') }
-    javascript_include_tag(*files, :cache => 'imits_all')
-  end
-
 end

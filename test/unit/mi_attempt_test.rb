@@ -72,7 +72,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'be ordered by created_at (soonest last)' do
           mi = default_mi_attempt
-          mi.status_stamps.clear
+          mi.status_stamps.destroy_all
 
           stamp1 = mi.status_stamps.create!(:created_at => 1.day.ago,
             :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
@@ -87,8 +87,12 @@ class MiAttemptTest < ActiveSupport::TestCase
       context '#status virtual attribute' do
         should 'be the status string of the latest status stamp when read' do
           mi = default_mi_attempt
-          mi.status_stamps.clear
+          mi.status_stamps.destroy_all
 
+          mi.status_stamps.create!(:created_at => 3.day.ago,
+            :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+          mi.status_stamps.create!(:created_at => 25.hours.ago,
+            :mi_attempt_status => MiAttemptStatus.micro_injection_aborted)
           mi.status_stamps.create!(:created_at => 1.day.ago,
             :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
           mi.status_stamps.create!(:created_at => 2.days.ago,
@@ -99,7 +103,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'be nil when actual status association is nil' do
-          default_mi_attempt.status_stamps.clear
+          default_mi_attempt.status_stamps.destroy_all
           assert_nil default_mi_attempt.status
         end
 
@@ -110,7 +114,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context '#add_status_stamp' do
         setup do
-          default_mi_attempt.status_stamps.clear
+          default_mi_attempt.status_stamps.destroy_all
           default_mi_attempt.send(:add_status_stamp, MiAttemptStatus.micro_injection_aborted)
         end
 

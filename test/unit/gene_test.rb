@@ -203,7 +203,7 @@ class GeneTest < ActiveSupport::TestCase
 
         Factory.create :mi_plan,
           :gene => gene,
-          :consortium => Consortium.find_by_name!('BaSH'), 
+          :consortium => Consortium.find_by_name!('BaSH'),
           :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
 
         Factory.create :mi_plan,
@@ -234,7 +234,7 @@ class GeneTest < ActiveSupport::TestCase
 
         Factory.create :mi_plan,
           :gene => gene,
-          :consortium => Consortium.find_by_name!('BaSH'), 
+          :consortium => Consortium.find_by_name!('BaSH'),
           :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
 
         Factory.create :mi_plan,
@@ -322,14 +322,22 @@ class GeneTest < ActiveSupport::TestCase
           :production_centre_name => 'MARC',
           :is_active => false
 
+        in_progress_mi = Factory.create :mi_attempt,
+          :es_cell => Factory.create(:es_cell, :gene => gene),
+          :consortium_name => 'EUCOMM-EUMODIC',
+          :production_centre_name => 'WTSI'
+
         assert gene
-        assert_equal 3, gene.mi_plans.count
-        assert_match '[MGP:WTSI:2]', gene.pretty_print_mi_attempts_genotype_confirmed
-        assert_match '[DTCC:UCD:3]', gene.pretty_print_mi_attempts_genotype_confirmed
-        assert_false gene.pretty_print_mi_attempts_genotype_confirmed.include?('[MARC:MARC:1]')
+        assert_equal 4, gene.mi_plans.count
+
+        result = gene.pretty_print_mi_attempts_genotype_confirmed
+        assert_match '[MGP:WTSI:2]', result
+        assert_match '[DTCC:UCD:3]', result
+        assert_false result.include?('[MARC:MARC:1]')
+        assert_false result.include?('[EUCOMM-EUMODIC:WTSI:1]')
       end
     end
-    
+
     context '#pretty_print_aborted_mi_attempts' do
       should 'work' do
         gene = Factory.create :gene,
@@ -359,11 +367,18 @@ class GeneTest < ActiveSupport::TestCase
           :production_centre_name => 'MARC',
           :is_active => false
 
+        in_progress_mi = Factory.create :mi_attempt,
+          :es_cell => Factory.create(:es_cell, :gene => gene),
+          :consortium_name => 'EUCOMM-EUMODIC',
+          :production_centre_name => 'WTSI'
+
         assert gene
-        assert_equal 3, gene.mi_plans.count
-        assert_match '[MGP:WTSI:2]', gene.pretty_print_aborted_mi_attempts
-        assert_match '[MARC:MARC:1]', gene.pretty_print_aborted_mi_attempts
-        assert_false gene.pretty_print_aborted_mi_attempts.include?('[DTCC:UCD:3]')
+        assert_equal 4, gene.mi_plans.count
+        result = result
+        assert_match '[MGP:WTSI:2]', result
+        assert_match '[MARC:MARC:1]', result
+        assert_false result.include?('[DTCC:UCD:3]')
+        assert_false result.include?('[EUCOMM-EUMODIC:WTSI:1]')
       end
     end
   end

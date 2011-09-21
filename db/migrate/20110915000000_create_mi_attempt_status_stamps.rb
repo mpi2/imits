@@ -1,6 +1,7 @@
 class CreateMiAttemptStatusStamps < ActiveRecord::Migration
   class MiAttempt < ActiveRecord::Base; end
   class MiAttempt::StatusStamp < ActiveRecord::Base; end
+  class MiAttemptStatus < ActiveRecord::Base; end
 
   def self.up
     create_table :mi_attempt_status_stamps do |table|

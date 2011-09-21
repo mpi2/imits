@@ -126,29 +126,29 @@ class Gene < ActiveRecord::Base
   private
 
   def self.pretty_print_mi_attempts_in_bulk_helper(active,status,gene_id=nil)
-    sql = <<-SQL
-      select
+    sql = <<-"SQL"
+      SELECT
         genes.marker_symbol,
-        consortia.name as consortium,
-        centres.name as production_centre,
-        count(mi_attempts.id) as count
-      from genes
-      join mi_plans on mi_plans.gene_id = genes.id
-      join consortia on mi_plans.consortium_id = consortia.id
-      join centres on mi_plans.production_centre_id = centres.id
-      join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
+        consortia.name AS consortium,
+        centres.name AS production_centre,
+        count(mi_attempts_with_latest_status.id) AS count
+      FROM genes
+      JOIN mi_plans ON mi_plans.gene_id = genes.id
+      JOIN consortia ON mi_plans.consortium_id = consortia.id
+      JOIN centres ON mi_plans.production_centre_id = centres.id
+      JOIN mi_attempts_with_latest_status ON mi_attempts_with_latest_status.mi_plan_id = mi_plans.id
     SQL
-    sql << "where mi_attempts.is_active = #{active} "
-    sql << "and genes.id = #{gene_id} " unless gene_id.nil?
-    sql << "group by genes.marker_symbol, consortia.name, centres.name"
+    sql << "WHERE mi_attempts_with_latest_status.is_active = #{active}\n"
+    if status
+      sql << "AND mi_attempts_with_latest_status.latest_mi_attempt_status_id = #{status.id}\n"
+    end
+    sql << "AND genes.id = #{gene_id}\n" unless gene_id.nil?
+    sql << "group by genes.marker_symbol, consortia.name, centres.name\n"
 
     genes = {}
     results = ActiveRecord::Base.connection.execute(sql)
 
     results.each do |result|
-      if status
-        raise 'Do not support status filtering yet - FIXME'
-      end
       string = "[#{result['consortium']}:#{result['production_centre']}:#{result['count']}]"
       genes[ result['marker_symbol'] ] ||= []
       genes[ result['marker_symbol'] ] << string
@@ -344,7 +344,7 @@ class Gene < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110915000000
+# Schema version: 20110921000000
 #
 # Table name: genes
 #

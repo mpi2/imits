@@ -271,6 +271,11 @@ class GeneTest < ActiveSupport::TestCase
             :is_active => true
         end
 
+        Factory.create :wtsi_mi_attempt_genotype_confirmed,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'MGP',
+                :production_centre_name => 'WTSI'
+
         3.times do
           Factory.create :mi_attempt,
             :es_cell => Factory.create(:es_cell, :gene => gene),
@@ -278,6 +283,11 @@ class GeneTest < ActiveSupport::TestCase
             :production_centre_name => 'UCD',
             :is_active => true
         end
+
+        Factory.create :mi_attempt_genotype_confirmed,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'DTCC',
+                :production_centre_name => 'UCD'
 
         Factory.create :mi_attempt,
           :es_cell => Factory.create(:es_cell, :gene => gene),
@@ -287,9 +297,10 @@ class GeneTest < ActiveSupport::TestCase
 
         assert gene
         assert_equal 3, gene.mi_plans.count
-        assert_match '[MGP:WTSI:2]', gene.pretty_print_mi_attempts_in_progress
-        assert_match '[DTCC:UCD:3]', gene.pretty_print_mi_attempts_in_progress
-        assert_false gene.pretty_print_mi_attempts_in_progress.include?('[MARC:MARC:1]')
+        result = gene.pretty_print_mi_attempts_in_progress
+        assert_match '[MGP:WTSI:2]', result
+        assert_match '[DTCC:UCD:3]', result
+        assert_false result.include?('[MARC:MARC:1]')
       end
     end
 
@@ -322,10 +333,13 @@ class GeneTest < ActiveSupport::TestCase
           :production_centre_name => 'MARC',
           :is_active => false
 
-        in_progress_mi = Factory.create :mi_attempt,
-          :es_cell => Factory.create(:es_cell, :gene => gene),
-          :consortium_name => 'EUCOMM-EUMODIC',
-          :production_centre_name => 'WTSI'
+        in_progress_mi = Factory.create :mi_attempt_genotype_confirmed,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'EUCOMM-EUMODIC',
+                :production_centre_name => 'WTSI'
+        in_progress_mi.number_of_het_offspring = 0
+        in_progress_mi.save!
+        assert_equal MiAttemptStatus.micro_injection_in_progress.description, in_progress_mi.status
 
         assert gene
         assert_equal 4, gene.mi_plans.count
@@ -367,14 +381,16 @@ class GeneTest < ActiveSupport::TestCase
           :production_centre_name => 'MARC',
           :is_active => false
 
-        in_progress_mi = Factory.create :mi_attempt,
-          :es_cell => Factory.create(:es_cell, :gene => gene),
-          :consortium_name => 'EUCOMM-EUMODIC',
-          :production_centre_name => 'WTSI'
+        in_progress_mi = Factory.create :mi_attempt_genotype_confirmed,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'EUCOMM-EUMODIC',
+                :production_centre_name => 'WTSI'
+        in_progress_mi.update_attributes!(:is_released_from_genotyping => false)
+        assert_equal MiAttemptStatus.micro_injection_in_progress.description, in_progress_mi.status
 
         assert gene
         assert_equal 4, gene.mi_plans.count
-        result = result
+        result = gene.pretty_print_aborted_mi_attempts
         assert_match '[MGP:WTSI:2]', result
         assert_match '[MARC:MARC:1]', result
         assert_false result.include?('[DTCC:UCD:3]')

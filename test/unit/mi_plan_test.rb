@@ -176,7 +176,7 @@ class MiPlanTest < ActiveSupport::TestCase
           :number_of_het_offspring  => 12
 
         assert_equal mi_plan, mi_attempt.mi_plan
-        assert_equal mi_attempt.mi_attempt_status_id, MiAttemptStatus.genotype_confirmed.id
+        assert_equal MiAttemptStatus.genotype_confirmed.description, mi_attempt.status
 
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)

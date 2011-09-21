@@ -10,8 +10,8 @@ class MiAttemptStatusTest < ActiveSupport::TestCase
     should validate_presence_of :description
     should validate_uniqueness_of :description
 
-    assert_should have_many :status_stamps
-    assert_should have_many(:mi_attempts).through(:status_stamps)
+    should have_many :status_stamps
+    should have_many(:mi_attempts).through(:status_stamps)
 
     context 'easy-access methods' do
       should 'include in_progress' do

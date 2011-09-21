@@ -27,35 +27,77 @@ class MiPlansControllerTest < ActionController::TestCase
         mip_attrs = Factory.attributes_for(:mi_plan)
         gene      = Factory.create(:gene)
 
-        assert_equal 3, MiPlan.count
-
-        post(
-          :create,
-          :mi_plan => {
-            :gene_id => gene.id,
-            :consortium_id => mip_attrs[:consortium][:id],
-            :mi_plan_priority_id => mip_attrs[:mi_plan_priority][:id],
-            :mi_plan_status_id => mip_attrs[:mi_plan_status][:id]
-          },
-          :format => :json
-        )
-
+        assert_difference('MiPlan.count',1) do
+          post(
+            :create,
+            :mi_plan => {
+              :gene_id => gene.id,
+              :consortium_id => mip_attrs[:consortium][:id],
+              :mi_plan_priority_id => mip_attrs[:mi_plan_priority][:id],
+              :mi_plan_status_id => mip_attrs[:mi_plan_status][:id]
+            },
+            :format => :json
+          )
+        end
         assert_response :success
-        assert_equal 4, MiPlan.count
 
-        post(
-          :create,
-          :mi_plan => {
-            :consortium_id => mip_attrs[:consortium][:id],
-            :mi_plan_priority_id => mip_attrs[:mi_plan_priority][:id],
-            :mi_plan_status_id => mip_attrs[:mi_plan_status][:id]
-          },
-          :format => :json
-        )
-
+        assert_no_difference('MiPlan.count') do
+          post(
+            :create,
+            :mi_plan => {
+              :consortium_id => mip_attrs[:consortium][:id],
+              :mi_plan_priority_id => mip_attrs[:mi_plan_priority][:id],
+              :mi_plan_status_id => mip_attrs[:mi_plan_status][:id]
+            },
+            :format => :json
+          )
+        end
         assert_response 400
         assert JSON.parse(response.body).has_key?('gene')
-        assert_equal 4, MiPlan.count
+      end
+
+      should 'allow machine access to the destroy function via json' do
+        mip = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
+        assert_difference('MiPlan.count', -1) do
+          delete( :destroy, :id => mip.id, :format => :json )
+        end
+
+        mip2 = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
+        assert_difference('MiPlan.count', -1) do
+          delete(
+            :destroy,
+            :marker_symbol => mip2.gene.marker_symbol,
+            :consortium => mip2.consortium.name,
+            :production_centre => mip2.production_centre.try(:name),
+            :format => :json
+          )
+        end
+
+        mip3 = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest')
+        assert_no_difference('MiPlan.count') do
+          delete(
+            :destroy,
+            :marker_symbol => 'Wibble',
+            :consortium => mip3.consortium.name,
+            :production_centre => mip2.production_centre.try(:name),
+            :format => :json
+          )
+        end
+        assert_response 422
+        assert JSON.parse(response.body).has_key?('mi_plan')
+
+        mip4 = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Assigned').id
+        assert_no_difference('MiPlan.count') do
+          delete(
+            :destroy,
+            :marker_symbol => mip4.gene.marker_symbol,
+            :consortium => mip4.consortium.name,
+            :production_centre => mip2.production_centre.try(:name),
+            :format => :json
+          )
+        end
+        assert_response 403
+        assert JSON.parse(response.body).has_key?('mi_plan')
       end
     end
   end

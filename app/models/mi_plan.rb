@@ -138,14 +138,13 @@ class MiPlan < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110921000000
+# Schema version: 20110921000001
 #
 # Table name: mi_plans
 #
 #  id                   :integer         not null, primary key
 #  gene_id              :integer         not null
 #  consortium_id        :integer         not null
-#  mi_plan_status_id    :integer         not null
 #  mi_plan_priority_id  :integer         not null
 #  production_centre_id :integer
 #  created_at           :datetime

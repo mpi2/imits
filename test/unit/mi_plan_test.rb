@@ -1,4 +1,4 @@
-# encoding: utf-8
+# encoding: utf-8l
 
 require 'test_helper'
 
@@ -28,6 +28,36 @@ class MiPlanTest < ActiveSupport::TestCase
       should validate_presence_of :consortium
       should validate_presence_of :mi_plan_status
       should validate_presence_of :mi_plan_priority
+
+      context '#status_stamps' do
+        should 'be a valid association'
+
+        should 'be initialized to "interest"'
+      end
+
+      context '#add_status_stamp' do
+        setup do
+          @mi_plan_status_1 = MiPlanStatus.find_by_name!('Declined')
+          @mi_plan_status_2 = MiPlanStatus.find_by_name!('Conflict')
+          @default_mi_plan.status_stamps.destroy_all
+          @default_mi_plan.add_status_stamp(@mi_plan_status_1)
+          @default_mi_plan.add_status_stamp(@mi_plan_status_2)
+        end
+
+        should 'add the stamp' do
+          assert_not_nil MiPlan::StatusStamp.where(
+            :mi_plan_id => @default_mi_plan.id,
+            :mi_plan_status_id => @mi_plan_status_1.id)
+          assert_not_nil MiPlan::StatusStamp.where(
+            :mi_plan_id => @default_mi_plan.id,
+            :mi_plan_status_id => @mi_plan_status_2.id)
+        end
+
+        should 'update the association afterwards' do
+          assert_equal [@mi_plan_status_1, @mi_plan_status_2],
+                  default_mi_attempt.status_stamps.map(&:mi_plan_status)
+        end
+      end
 
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
         mip = Factory.build :mi_plan
@@ -59,7 +89,7 @@ class MiPlanTest < ActiveSupport::TestCase
       setup do
         2.times { Factory.create :mi_attempt }
       end
-      
+
       def setup_for_set_one_to_assigned
         gene = Factory.create :gene_cbx1
         @only_interest_mi_plan = Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!('BaSH')

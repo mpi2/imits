@@ -8,7 +8,6 @@ class MiPlan < ActiveRecord::Base
 
   belongs_to :gene
   belongs_to :consortium
-  belongs_to :mi_plan_status
   belongs_to :mi_plan_priority
   belongs_to :production_centre, :class_name => 'Centre'
 
@@ -16,7 +15,6 @@ class MiPlan < ActiveRecord::Base
 
   validates :gene, :presence => true
   validates :consortium, :presence => true
-  validates :mi_plan_status, :presence => true
   validates :mi_plan_priority, :presence => true
 
   validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]

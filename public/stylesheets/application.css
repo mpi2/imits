@@ -114,6 +114,19 @@ a.back {
   background-image: url('../images/icons/control_rewind.png');
 }
 
+a.delete-mi-plan {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+  background: url('../images/icons/bullet_delete.png') no-repeat right -1px;
+  padding-right: 16px;
+  margin-bottom: 2px;
+}
+
+a.delete-mi-plan:hover {
+  color: #8f110b;
+}
+
 /* @end */
 
 /* @group Lists */
@@ -362,7 +375,7 @@ form fieldset.collapsible-content-hidden {
 
 /* @group Micro-Injection Create/Edit Form */
 
-#mi-attempt-box {
+#mi-attempt-new-top, #mi-attempt-new-bottom {
   box-sizing: content-box;
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;

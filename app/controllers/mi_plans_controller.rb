@@ -40,11 +40,18 @@ class MiPlansController < ApplicationController
     if !params[:id].blank?
       @mi_plan = MiPlan.find_by_id(params[:id])
     else
-      search_results = MiPlan.search(
-        :gene_marker_symbol_eq     => params[:marker_symbol],
-        :consortium_name_eq        => params[:consortium],
-        :production_centre_name_eq => params[:production_centre],
-      ).result
+      search_params = {
+        :gene_marker_symbol_eq => params[:marker_symbol],
+        :consortium_name_eq    => params[:consortium],
+      }
+
+      if params[:production_centre].blank?
+        search_params[:production_centre_id_null] = true
+      else
+        search_params[:production_centre_name_eq] = params[:production_centre]
+      end
+
+      search_results = MiPlan.search(search_params).result
       @mi_plan = search_results.first if search_results.size == 1
     end
 

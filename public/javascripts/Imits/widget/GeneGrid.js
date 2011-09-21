@@ -237,10 +237,7 @@ Ext.define('Imits.widget.GeneGrid', {
       gene_counter++;
       if ( ! (gene_counter < selected_genes.length) ) {
         if ( !Ext.isEmpty(failed_genes) ) {
-          var error_str = 'An error occured trying to register interest on the following genes: ';
-          error_str = error_str + failed_genes.join(', ');
-          error_str = error_str + '. Please try registering your interest again.'
-          alert(error_str);
+          alert('An error occured trying to register interest on the following genes: '+failed_genes.join(', ')+'. Please try again.');
         }
 
         grid.reloadStore();

@@ -250,27 +250,56 @@ div#messages {
 /* @group Homepage */
 
 .homepage-links {
-  background: url('../images/go-next.png') no-repeat left center;
+  background: url('../images/go-next.png') no-repeat left top;
   margin-bottom: 20px;
   padding-left: 37px;
 }
 
-.homepage-links h3 {
+.homepage-links h3, .homepage-links h4 {
   margin-bottom: 2px;
 }
 
-.homepage-links h3 a {
+.homepage-links h3 a, .homepage-links h4 a {
   text-decoration: none;
   color: inherit;
 }
 
-.homepage-links h3 a:hover {
+.homepage-links h3 a:hover,
+.homepage-links h4 a:hover {
   color: #8f110b;
 }
 
 .homepage-links p {
   font-style: italic;
   color: #999;
+}
+
+/* @end */
+
+/* @group Tables */
+
+table.full_width {
+  width: 100%;
+}
+
+table.report_table {
+  margin-bottom: 20px;
+}
+
+table.report_table th, .report table th {
+  border: 1px solid #999;
+  text-align: left;
+  padding: 3px 3px;
+  background-color: #ccc;
+}
+
+table.report_table td, .report table td {
+	border: 1px solid #999;
+	padding: 3px 3px;
+}
+
+table.report_table tr.odd td, .report table tr.odd td {
+	background: #f1f1f1;
 }
 
 /* @end */
@@ -456,22 +485,6 @@ div.report_control * {
 	margin-bottom: 10px;
 	margin-top: 10px;
 	font: bold medium Georgia, "Times New Roman", Times, serif;
-}
-
-.report table th {
-	border: 1px solid #999;
-	text-align: left;
-	padding: 3px 3px;
-	background-color: #ccc;
-}
-
-.report table td {
-	border: 1px solid #999;
-	padding: 3px 3px;
-}
-
-.report table tr.odd td {
-	background: #f1f1f1;
 }
 
 /* @end */

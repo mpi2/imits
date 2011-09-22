@@ -342,7 +342,7 @@ class Gene < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110802094958
+# Schema version: 20110922103626
 #
 # Table name: genes
 #

@@ -8,7 +8,7 @@
   <div class="clear" style="margin-top:15px"></div>
 </div>
 
-<div class="grid_12">
+<div class="grid_8">
   <div class="homepage-links">
     <h3><%= link_to('Gene Selection / Micro-Injection Planning', gene_selection_mi_plans_path) %></h3>
     <p>Register interest (on behalf of your consortium) in micro-injecting some genes</p>
@@ -27,6 +27,21 @@
   <div class="homepage-links">
     <h3><%= link_to('Reporting', reports_path) %></h3>
     <p>View reports on all data in iMits</p>
+  </div>
+</div>
+
+<div class="grid_4">
+  <div class="homepage-links">
+    <h4><%= link_to('Consortia', root_path) %></h4>
+    <p>
+      View a list of all consortia submitting data to iMits and the production centres
+      that are working as part of these consortia
+    </p>
+  </div>
+
+  <div class="homepage-links">
+    <h4><%= link_to('Users/Production Centres', users_by_production_centre_path) %></h4>
+    <p>View a list of all iMits users and the production centre that they belong to</p>
   </div>
 </div>
 

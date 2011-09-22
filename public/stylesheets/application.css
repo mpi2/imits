@@ -250,27 +250,53 @@ div#messages {
 /* @group Homepage */
 
 .homepage-links {
-  background: url('../images/go-next.png') no-repeat left center;
+  background: url('../images/go-next.png') no-repeat left top;
   margin-bottom: 20px;
   padding-left: 37px;
 }
 
-.homepage-links h3 {
+.homepage-links h3, .homepage-links h4 {
   margin-bottom: 2px;
 }
 
-.homepage-links h3 a {
+.homepage-links h3 a, .homepage-links h4 a {
   text-decoration: none;
   color: inherit;
 }
 
-.homepage-links h3 a:hover {
+.homepage-links h3 a:hover,
+.homepage-links h4 a:hover {
   color: #8f110b;
 }
 
 .homepage-links p {
   font-style: italic;
   color: #999;
+}
+
+/* @end */
+
+/* @group Users by Production Centre Page */
+
+table.users {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+table.users th {
+  border: 1px solid #999;
+  text-align: left;
+  padding: 3px 3px;
+  background-color: #ccc;
+}
+
+table.users td {
+	border: 1px solid #999;
+	padding: 3px 3px;
+}
+
+table.users tr.odd td {
+	background: #f1f1f1;
 }
 
 /* @end */

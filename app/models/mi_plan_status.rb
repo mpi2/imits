@@ -3,7 +3,6 @@
 class MiPlanStatus < ActiveRecord::Base
   acts_as_reportable
 
-  has_many :mi_plans
   validates :name, :presence => true, :uniqueness => true
 
   def self.[](name)

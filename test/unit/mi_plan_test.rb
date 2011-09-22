@@ -9,7 +9,11 @@ class MiPlanTest < ActiveSupport::TestCase
       @default_mi_plan = Factory.create :mi_plan
     end
 
-    context '(misc. tests):' do
+    should '@default_mi_plan should be in state Interest for the rest of the tests' do
+      assert_equal 'Interest', @default_mi_plan.mi_plan_status.name
+    end
+
+    context 'attribute tests:' do
       should belong_to :gene
       should belong_to :consortium
       should belong_to :production_centre
@@ -31,27 +35,29 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_should have_many :status_stamps
         end
 
-        should 'be start off with "Interest"' do
+        should 'be "Interest" by default' do
           mi_plan = Factory.create :mi_plan
-          assert_equal [MiPlanStatus[:Interest]], mi_plan.status_stamps
+          assert_equal [MiPlanStatus[:Interest]], mi_plan.status_stamps.map(&:mi_plan_status)
         end
 
         should 'be ordered by created_at asc' do
+          @default_mi_plan.status_stamps.destroy_all
           s1 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
             :mi_plan_status => MiPlanStatus[:Assigned], :created_at => 1.day.ago)
           s2 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
             :mi_plan_status => MiPlanStatus[:Conflict], :created_at => 1.hour.ago)
           s3 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
             :mi_plan_status => MiPlanStatus[:Interest], :created_at => 12.hours.ago)
-          assert_equal [s1, s3, s2], @default_mi_plan.status_stamps
+          @default_mi_plan.status_stamps.reload
+          assert_equal [s1, s3, s2].map(&:name), @default_mi_plan.status_stamps.map(&:name)
         end
       end
 
       context '#add_status_stamp' do
         setup do
           @default_mi_plan.status_stamps.destroy_all
-          @default_mi_plan.add_status_stamp(MiPlanStatus[:Assigned])
-          @default_mi_plan.add_status_stamp(MiPlanStatus[:Conflict])
+          @default_mi_plan.send(:add_status_stamp, MiPlanStatus[:Assigned])
+          @default_mi_plan.send(:add_status_stamp, MiPlanStatus[:Conflict])
         end
 
         should 'add the stamp' do
@@ -69,11 +75,50 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      should 'have #latest_mi_plan_status' do
-        @default_mi_plan.add_status_stamp MiPlanStatus[:Assigned]
-        @default_mi_plan.add_status_stamp MiPlanStatus[:Conflict]
+      context '#mi_plan_status virtual attribute' do
+        setup do
+          @default_mi_plan.status_stamps.destroy_all
+        end
 
-        assert_equal MiPlanStatus[:Conflict], @default_mi_plan.latest_mi_plan_status
+        should 'be nil on brand new untouched record' do
+          assert_nil MiPlan.new.mi_plan_status
+        end
+
+        should 'be the latest mi plan status initially' do
+          @default_mi_plan.send :add_status_stamp, MiPlanStatus[:Assigned]
+          @default_mi_plan.send :add_status_stamp, MiPlanStatus[:Conflict]
+
+          assert_equal MiPlanStatus[:Conflict], @default_mi_plan.mi_plan_status
+        end
+
+        should ', after being set but not saved, be the status that was just set' do
+          @default_mi_plan.mi_plan_status = MiPlanStatus[:Assigned]
+          assert_equal MiPlanStatus[:Assigned], @default_mi_plan.mi_plan_status
+        end
+
+        should ', after being set but not saved, not save the new status to the DB' do
+          @default_mi_plan.mi_plan_status = MiPlanStatus[:Assigned]
+          assert_not_equal MiPlanStatus[:Assigned], MiPlan.find(@default_mi_plan.id).mi_plan_status
+        end
+
+        should ', on save, store the set status as the latest one' do
+          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Assigned])
+          assert_equal MiPlanStatus[:Assigned], MiPlan.find(@default_mi_plan.id).mi_plan_status
+        end
+
+        should ', on save, not store duplicate statuses consecutively' do
+          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Assigned])
+          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Assigned])
+          assert_equal 1, MiPlan::StatusStamp.where(:mi_plan_id => @default_mi_plan.id,
+            :mi_plan_status_id => MiPlanStatus[:Assigned].id).size
+        end
+
+        should 'reset assigned-but-not-yet-saved status on #reload' do
+          mi_plan = Factory.create :mi_plan
+          mi_plan.mi_plan_status = MiPlanStatus[:Assigned]
+          mi_plan.reload
+          assert_equal 'Interest', mi_plan.mi_plan_status.name
+        end
       end
 
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do

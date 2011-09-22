@@ -20,12 +20,35 @@ class MiPlan < ActiveRecord::Base
 
   validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]
 
+  # BEGIN filters
+
+  after_save :save_mi_plan_status
+
+  private
+
+  def save_mi_plan_status
+    if @mi_plan_status and @mi_plan_status != self.status_stamps.last.try(:mi_plan_status)
+      add_status_stamp @mi_plan_status
+    elsif self.status_stamps.empty?
+      add_status_stamp MiPlanStatus[:Interest]
+    end
+  end
+
+  public
+
+  # END filters
+
   def add_status_stamp(status)
     self.status_stamps.create!(:mi_plan_status => status)
   end
+  private :add_status_stamp
 
-  def latest_mi_plan_status
-    self.status_stamps.last.mi_plan_status
+  def mi_plan_status
+    return @mi_plan_status || self.status_stamps.last.try(:mi_plan_status)
+  end
+
+  def mi_plan_status=(status)
+    @mi_plan_status = status
   end
 
   def self.with_mi_attempt
@@ -141,6 +164,11 @@ class MiPlan < ActiveRecord::Base
       nil
     end
     return reason_string
+  end
+
+  def reload(*args)
+    @mi_plan_status = nil
+    super(*args)
   end
 end
 

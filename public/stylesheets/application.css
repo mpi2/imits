@@ -247,6 +247,34 @@ div#messages {
 
 /* @end */
 
+/* @group Homepage */
+
+.homepage-links {
+  background: url('../images/go-next.png') no-repeat left center;
+  margin-bottom: 20px;
+  padding-left: 37px;
+}
+
+.homepage-links h3 {
+  margin-bottom: 2px;
+}
+
+.homepage-links h3 a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.homepage-links h3 a:hover {
+  color: #8f110b;
+}
+
+.homepage-links p {
+  font-style: italic;
+  color: #999;
+}
+
+/* @end */
+
 /* @group Forms */
 
 

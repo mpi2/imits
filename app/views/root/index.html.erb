@@ -1,0 +1,32 @@
+<% @tab = "Home" %>
+
+<div class="grid_12">
+  <h2>Welcome to iMits</h2>
+
+  <p>What would you like to do today?</p>
+
+  <div class="clear" style="margin-top:15px"></div>
+</div>
+
+<div class="grid_12">
+  <div class="homepage-links">
+    <h3><%= link_to('Gene Selection / Micro-Injection Planning', gene_selection_mi_plans_path) %></h3>
+    <p>Register interest (on behalf of your consortium) in micro-injecting some genes</p>
+  </div>
+
+  <div class="homepage-links">
+    <h3><%= link_to('Search & Edit Micro-Injection Attempts', mi_attempts_path('q[production_centre_name]' => current_user.production_centre.name)) %></h3>
+    <p>Search for an edit data existing micro-injection attempt records</p>
+  </div>
+
+  <div class="homepage-links">
+    <h3><%= link_to('Create Micro-Injection Attempts', new_mi_attempt_path) %></h3>
+    <p>Enter data on new micro-injection attempts</p>
+  </div>
+
+  <div class="homepage-links">
+    <h3><%= link_to('Reporting', reports_path) %></h3>
+    <p>View reports on all data in iMits</p>
+  </div>
+</div>
+

@@ -11,10 +11,24 @@ class RootControllerTest < ActionController::TestCase
     end
 
     context 'with valid user' do
-      should 'redirect to mi_attempts#index with production centre set to default user\'s one' do
+      setup do
+        create_common_test_objects
         sign_in default_user
+      end
+
+      should 'render the homepage' do
         get :index
-        assert_redirected_to mi_attempts_path('q[production_centre_name]' => default_user.production_centre.name)
+        assert_response :success
+      end
+
+      should 'render the users_by_production_centre page' do
+        get :users_by_production_centre
+        assert_response :success
+      end
+
+      should 'render the consortia page' do
+        get :consortia
+        assert_response :success
       end
     end
 

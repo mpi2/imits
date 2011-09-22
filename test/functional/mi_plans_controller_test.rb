@@ -57,6 +57,7 @@ class MiPlansControllerTest < ActionController::TestCase
       end
 
       should 'allow machine access to the destroy function via json' do
+        # Make sur acceptable deletes work
         mip = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
         assert_difference('MiPlan.count', -1) do
           delete( :destroy, :id => mip.id, :format => :json )
@@ -73,6 +74,7 @@ class MiPlansControllerTest < ActionController::TestCase
           )
         end
 
+        # Make sure we send the correct response if  we're sent nonsense
         mip3 = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest')
         assert_no_difference('MiPlan.count') do
           delete(
@@ -86,6 +88,7 @@ class MiPlansControllerTest < ActionController::TestCase
         assert_response 422
         assert JSON.parse(response.body).has_key?('mi_plan')
 
+        # Make sure we can't delete assigned mi_plans
         mip4 = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Assigned').id
         assert_no_difference('MiPlan.count') do
           delete(
@@ -98,6 +101,30 @@ class MiPlansControllerTest < ActionController::TestCase
         end
         assert_response 403
         assert JSON.parse(response.body).has_key?('mi_plan')
+
+        # Test to make sure we can disambiguate mi_plans
+        mip5 = Factory.create :mi_plan,
+          :mi_plan_status_id    => MiPlanStatus.find_by_name!('Interest').id,
+          :gene_id              => Gene.find_by_marker_symbol!('Myo1c').id,
+          :consortium_id        => Consortium.find_by_name!('MARC').id,
+          :production_centre_id => nil
+        mip6 = Factory.create :mi_plan,
+          :mi_plan_status_id    => MiPlanStatus.find_by_name!('Assigned').id,
+          :gene_id              => Gene.find_by_marker_symbol!('Myo1c').id,
+          :consortium_id        => Consortium.find_by_name!('MARC').id,
+          :production_centre_id => Centre.find_by_name!('DTCC').id
+
+        assert_difference('MiPlan.count',-1) do
+          delete(
+            :destroy,
+            :marer_symbol => 'Myo1c',
+            :consortium => 'MARC',
+            :production_centre => '',
+            :format => :json
+          )
+        end
+        assert_raise (ActiveRecord::RecordNotFound) { MiPlan.find_by_id!(mip5.id) }
+        assert_equal mip6, MiPlan.find_by_id!(mip6.id)
       end
     end
   end

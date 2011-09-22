@@ -13,4 +13,10 @@ class MiPlanStatusTest < ActiveSupport::TestCase
   should have_db_column(:description).with_options(:limit => 255)
 
   should have_db_column(:order_by)
+
+  should 'have ::[] lookup shortcut' do
+    assert_equal MiPlanStatus.find_by_name!('Interest'), MiPlanStatus['Interest']
+    assert_equal MiPlanStatus.find_by_name!('Assigned'), MiPlanStatus['Assigned']
+    assert_equal MiPlanStatus.find_by_name!('Conflict'), MiPlanStatus[:Conflict]
+  end
 end

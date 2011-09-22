@@ -276,26 +276,29 @@ div#messages {
 
 /* @end */
 
-/* @group Users by Production Centre Page */
+/* @group Tables */
 
-table.users {
+table.full_width {
   width: 100%;
+}
+
+table.report_table {
   margin-bottom: 20px;
 }
 
-table.users th {
+table.report_table th, .report table th {
   border: 1px solid #999;
   text-align: left;
   padding: 3px 3px;
   background-color: #ccc;
 }
 
-table.users td {
+table.report_table td, .report table td {
 	border: 1px solid #999;
 	padding: 3px 3px;
 }
 
-table.users tr.odd td {
+table.report_table tr.odd td, .report table tr.odd td {
 	background: #f1f1f1;
 }
 
@@ -482,22 +485,6 @@ div.report_control * {
 	margin-bottom: 10px;
 	margin-top: 10px;
 	font: bold medium Georgia, "Times New Roman", Times, serif;
-}
-
-.report table th {
-	border: 1px solid #999;
-	text-align: left;
-	padding: 3px 3px;
-	background-color: #ccc;
-}
-
-.report table td {
-	border: 1px solid #999;
-	padding: 3px 3px;
-}
-
-.report table tr.odd td {
-	background: #f1f1f1;
 }
 
 /* @end */

@@ -10,8 +10,8 @@
       .sort{ |a,b| @users_by_production_centre[a].size <=> @users_by_production_centre[b].size }
       .each do |production_centre|
   %>
-    <div class="grid_4 user_grid">
-      <table class="users">
+    <div class="grid_4">
+      <table class="full_width report_table">
         <thead>
           <tr>
             <th colspan="2"><%= production_centre %></th>

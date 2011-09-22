@@ -27,35 +27,104 @@ class MiPlansControllerTest < ActionController::TestCase
         mip_attrs = Factory.attributes_for(:mi_plan)
         gene      = Factory.create(:gene)
 
-        assert_equal 3, MiPlan.count
-
-        post(
-          :create,
-          :mi_plan => {
-            :gene_id => gene.id,
-            :consortium_id => mip_attrs[:consortium][:id],
-            :mi_plan_priority_id => mip_attrs[:mi_plan_priority][:id],
-            :mi_plan_status_id => mip_attrs[:mi_plan_status][:id]
-          },
-          :format => :json
-        )
-
+        assert_difference('MiPlan.count',1) do
+          post(
+            :create,
+            :mi_plan => {
+              :gene_id => gene.id,
+              :consortium_id => mip_attrs[:consortium][:id],
+              :mi_plan_priority_id => mip_attrs[:mi_plan_priority][:id],
+              :mi_plan_status_id => mip_attrs[:mi_plan_status][:id]
+            },
+            :format => :json
+          )
+        end
         assert_response :success
-        assert_equal 4, MiPlan.count
 
-        post(
-          :create,
-          :mi_plan => {
-            :consortium_id => mip_attrs[:consortium][:id],
-            :mi_plan_priority_id => mip_attrs[:mi_plan_priority][:id],
-            :mi_plan_status_id => mip_attrs[:mi_plan_status][:id]
-          },
-          :format => :json
-        )
-
+        assert_no_difference('MiPlan.count') do
+          post(
+            :create,
+            :mi_plan => {
+              :consortium_id => mip_attrs[:consortium][:id],
+              :mi_plan_priority_id => mip_attrs[:mi_plan_priority][:id],
+              :mi_plan_status_id => mip_attrs[:mi_plan_status][:id]
+            },
+            :format => :json
+          )
+        end
         assert_response 400
         assert JSON.parse(response.body).has_key?('gene')
-        assert_equal 4, MiPlan.count
+      end
+
+      should 'allow machine access to the destroy function via json' do
+        # Make sur acceptable deletes work
+        mip = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
+        assert_difference('MiPlan.count', -1) do
+          delete( :destroy, :id => mip.id, :format => :json )
+        end
+
+        mip2 = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
+        assert_difference('MiPlan.count', -1) do
+          delete(
+            :destroy,
+            :marker_symbol => mip2.gene.marker_symbol,
+            :consortium => mip2.consortium.name,
+            :production_centre => mip2.production_centre.try(:name),
+            :format => :json
+          )
+        end
+
+        # Make sure we send the correct response if  we're sent nonsense
+        mip3 = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest')
+        assert_no_difference('MiPlan.count') do
+          delete(
+            :destroy,
+            :marker_symbol => 'Wibble',
+            :consortium => mip3.consortium.name,
+            :production_centre => mip2.production_centre.try(:name),
+            :format => :json
+          )
+        end
+        assert_response 422
+        assert JSON.parse(response.body).has_key?('mi_plan')
+
+        # Make sure we can't delete assigned mi_plans
+        mip4 = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Assigned').id
+        assert_no_difference('MiPlan.count') do
+          delete(
+            :destroy,
+            :marker_symbol => mip4.gene.marker_symbol,
+            :consortium => mip4.consortium.name,
+            :production_centre => mip2.production_centre.try(:name),
+            :format => :json
+          )
+        end
+        assert_response 403
+        assert JSON.parse(response.body).has_key?('mi_plan')
+
+        # Test to make sure we can disambiguate mi_plans
+        mip5 = Factory.create :mi_plan,
+          :mi_plan_status_id    => MiPlanStatus.find_by_name!('Interest').id,
+          :gene_id              => Gene.find_by_marker_symbol!('Myo1c').id,
+          :consortium_id        => Consortium.find_by_name!('MARC').id,
+          :production_centre_id => nil
+        mip6 = Factory.create :mi_plan,
+          :mi_plan_status_id    => MiPlanStatus.find_by_name!('Assigned').id,
+          :gene_id              => Gene.find_by_marker_symbol!('Myo1c').id,
+          :consortium_id        => Consortium.find_by_name!('MARC').id,
+          :production_centre_id => Centre.find_by_name!('DTCC').id
+
+        assert_difference('MiPlan.count',-1) do
+          delete(
+            :destroy,
+            :marer_symbol => 'Myo1c',
+            :consortium => 'MARC',
+            :production_centre => '',
+            :format => :json
+          )
+        end
+        assert_raise (ActiveRecord::RecordNotFound) { MiPlan.find_by_id!(mip5.id) }
+        assert_equal mip6, MiPlan.find_by_id!(mip6.id)
       end
     end
   end

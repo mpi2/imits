@@ -1,4 +1,4 @@
-class CreateMiAttemptsWithLatestStatus < ActiveRecord::Migration
+class CreateMiAttemptsWithLatestStatusView < ActiveRecord::Migration
   def self.up
     execute <<-SQL
       CREATE VIEW mi_attempts_with_latest_status AS

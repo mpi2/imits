@@ -1,4 +1,4 @@
-<% @title = "Register Interest in Micro-Injecting Genes" %>
+<% @tab = 'Gene Selection' %>
 <% content_for :footer do %>
   <%
     gene_search_params = params[:q]
@@ -12,9 +12,9 @@
   <%= javascript_include_tag 'mi_plans/gene_selection' %>
 <% end %>
 
-<h2><%= @title %></h2>
+<h2>Register Interest in Micro-Injecting Genes</h2>
 
-<%= form_tag url_for('/mi_plans/gene_selection'), :method => :get, :id => 'gene-search-form'  do %>
+<%= form_tag gene_selection_mi_plans_path, :method => :get, :id => 'gene-search-form'  do %>
   <fieldset class="collapsible">
     <legend>Filter Genes</legend>
     <div>

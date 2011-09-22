@@ -5,7 +5,8 @@ class MiAttemptStatus < ActiveRecord::Base
 
   validates :description, :presence => true, :uniqueness => true
 
-  has_many :mi_attempts
+  has_many :status_stamps, :class_name => 'MiAttempt::StatusStamp'
+  has_many :mi_attempts, :through => :status_stamps
 
   def self.micro_injection_in_progress
     @@in_progress ||= self.find_by_description!('Micro-injection in progress').freeze
@@ -21,7 +22,7 @@ class MiAttemptStatus < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110915000000
+# Schema version: 20110921000001
 #
 # Table name: mi_attempt_statuses
 #

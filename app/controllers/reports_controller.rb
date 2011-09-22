@@ -334,7 +334,7 @@ class ReportsController < ApplicationController
       'gene.marker_symbol'                                          => 'Marker Symbol',
       'es_cell.allele_symbol'                                       => 'Clone Allele Name',
       'mi_attempts.mi_date'                                         => 'Injection Date',
-      'mi_attempt_status.description'                               => 'Status',
+      'mi_attempts.status'                                          => 'Status',
       'colony_background_strain.name'                               => 'Background Strain',
       'blast_strain.name'                                           => 'Blastocyst Strain',
       'mi_attempts.total_transferred'                               => '# Blastocysts Transferred',
@@ -369,7 +369,7 @@ class ReportsController < ApplicationController
         :consortium        => { :only => [:name] },
         :production_centre => { :only => [:name] },
         :gene              => { :only => [:marker_symbol,:mgi_accession_id] },
-        :mi_attempts       => {
+        :mi_attempts => {
           :only => [
             :mi_date,
             :total_transferred,
@@ -395,12 +395,12 @@ class ReportsController < ApplicationController
             :comments,
             :number_of_chimeras_with_glt_from_cct
           ],
+          :methods => [:status],
           :include => {
             :es_cell                  => { :only => [:name], :methods => [:allele_symbol], :include => { :pipeline => { :only => [:name] } } },
             :blast_strain             => { :only => [], :methods => [:name] },
             :colony_background_strain => { :only => [], :methods => [:name] },
-            :test_cross_strain        => { :only => [], :methods => [:name] },
-            :mi_attempt_status        => { :only => [:description] }
+            :test_cross_strain        => { :only => [], :methods => [:name] }
           }
         }
       }

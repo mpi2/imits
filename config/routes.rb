@@ -6,6 +6,7 @@ Kermits2::Application.routes.draw do
   resources :mi_plans, :only => [:create] do
     collection do
       get 'gene_selection'
+      delete 'destroy'
     end
   end
 

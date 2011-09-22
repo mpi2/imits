@@ -126,7 +126,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'update the association afterwards' do
           assert_equal [MiAttemptStatus.micro_injection_aborted],
-                  default_mi_attempt.status_stamps
+                  default_mi_attempt.status_stamps.map(&:mi_attempt_status)
         end
       end
 

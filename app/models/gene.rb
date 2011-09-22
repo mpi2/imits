@@ -51,10 +51,10 @@ class Gene < ActiveRecord::Base
         centres.name as production_centre,
         mi_plan_statuses.name as status
       from genes
-      join mi_plans on mi_plans.gene_id = genes.id
-      join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
-      join consortia on mi_plans.consortium_id = consortia.id
-      left join centres on mi_plans.production_centre_id = centres.id
+      join mi_plans_with_latest_status on mi_plans_with_latest_status.gene_id = genes.id
+      join mi_plan_statuses on mi_plans_with_latest_status.latest_mi_plan_status_id = mi_plan_statuses.id
+      join consortia on mi_plans_with_latest_status.consortium_id = consortia.id
+      left join centres on mi_plans_with_latest_status.production_centre_id = centres.id
       where mi_plan_statuses.name != 'Assigned'
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?
@@ -84,11 +84,11 @@ class Gene < ActiveRecord::Base
         consortia.name as consortium,
         centres.name as production_centre
       from genes
-      join mi_plans on mi_plans.gene_id = genes.id
-      join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
-      join consortia on mi_plans.consortium_id = consortia.id
-      left join centres on mi_plans.production_centre_id = centres.id
-      left join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
+      join mi_plans_with_latest_status on mi_plans_with_latest_status.gene_id = genes.id
+      join mi_plan_statuses on mi_plans_with_latest_status.latest_mi_plan_status_id = mi_plan_statuses.id
+      join consortia on mi_plans_with_latest_status.consortium_id = consortia.id
+      left join centres on mi_plans_with_latest_status.production_centre_id = centres.id
+      left join mi_attempts on mi_attempts.mi_plan_id = mi_plans_with_latest_status.id
       where mi_plan_statuses.name = 'Assigned'
       and mi_attempts.id is null
     SQL

@@ -12,12 +12,21 @@ class MiPlan < ActiveRecord::Base
   belongs_to :production_centre, :class_name => 'Centre'
 
   has_many :mi_attempts
+  has_many :status_stamps, :order => 'created_at ASC'
 
   validates :gene, :presence => true
   validates :consortium, :presence => true
   validates :mi_plan_priority, :presence => true
 
   validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]
+
+  def add_status_stamp(status)
+    self.status_stamps.create!(:mi_plan_status => status)
+  end
+
+  def latest_mi_plan_status
+    self.status_stamps.last.mi_plan_status
+  end
 
   def self.with_mi_attempt
     ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)

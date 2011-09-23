@@ -154,12 +154,6 @@ Ext.define('Imits.widget.GeneGrid', {
     });
   },
 
-  reloadStore: function() {
-    var store = this.getStore();
-    store.sync();
-    store.load();
-  },
-
   initComponent: function() {
     var grid = this;
     grid.callParent();

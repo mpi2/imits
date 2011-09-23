@@ -104,6 +104,3 @@ Ext.Loader.setConfig({
         'Ext.ux': window.basePath + '/extjs/examples/ux'
     }
 });
-
-// TODO Why?!?!
-Ext.require(['Imits.model.MiAttempt', 'Imits.model.Gene']);

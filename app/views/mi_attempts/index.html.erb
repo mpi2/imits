@@ -12,6 +12,7 @@
   <%= javascript_tag "MI_ATTEMPT_STATUS_OPTIONS = #{MiAttemptStatus.all.map(&:description).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_MOUSE_ALLELE_TYPE_OPTIONS = #{MiAttempt::MOUSE_ALLELE_OPTIONS.map{|k,v|[k, v]}.to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_SEARCH_PARAMS = #{params[:q].to_json}" %>
+  <%= javascript_tag "Ext.require('Imits.model.MiAttempt')" %>
   <%= javascript_include_tag 'mi_attempts/index' %>
 <% end %>
 

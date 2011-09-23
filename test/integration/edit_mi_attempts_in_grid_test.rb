@@ -14,7 +14,7 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
       @default_mi_attempt.save!
     end
 
-    def assert_mi_attempt_was_audited
+    def assert_mi_attempt_was_edited
       login(@user2.email)
       visit '/mi_attempts?search_terms=EPD0343_1_H06'
 
@@ -29,8 +29,8 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
       assert_equal @user2.email, @default_mi_attempt.updated_by.email
     end
 
-    should 'audit MiAttempt when emma status changes' do
-      assert_mi_attempt_was_audited do
+    should 'work for emma status changes' do
+      assert_mi_attempt_was_edited do
         find('.x-grid3-col-emma_status').click # The cell containing EMMA status
         find('.x-editor .x-form-trigger').click # The combo box down arrow
         find('.x-combo-list-item:nth-child(4)').click # 'Unsuitable for EMMA - STICKY'
@@ -38,8 +38,8 @@ class EditMiAttemptsInGridTest < ActionDispatch::IntegrationTest
       assert_equal 'unsuitable_sticky', @default_mi_attempt.emma_status
     end
 
-    should 'audit MiAttempt when simple numeric field changes' do
-      assert_mi_attempt_was_audited do
+    should 'work for simple numeric field changes' do
+      assert_mi_attempt_was_edited do
         visit '/mi_attempts?search_terms=EPD0343_1_H06'
         find('.x-grid3-col-total_pups_born').click # The cell containing 'Total Pups Born'
         sleep 1

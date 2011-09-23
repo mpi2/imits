@@ -110,6 +110,14 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'be in serialization' do
           assert_equal default_mi_attempt.status, default_mi_attempt.as_json['status']
         end
+
+        should 'be filtered on #public_search' do
+          default_mi_attempt.update_attributes!(:is_active => false)
+          mi_attempt_2 = Factory.create :mi_attempt_genotype_confirmed
+          mi_ids = MiAttempt.public_search(:status_ci_in => MiAttemptStatus.micro_injection_aborted.description).result.map(&:id)
+          assert_include mi_ids, default_mi_attempt.id
+          assert ! mi_ids.include?(mi_attempt_2.id)
+        end
       end
 
       context '#add_status_stamp' do
@@ -878,8 +886,8 @@ class MiAttemptTest < ActiveSupport::TestCase
                 MiAttempt.translate_search_param('production_centre_name_eq')
       end
 
-      should_eventually 'translate status' do
-        assert_equal 'mi_attempt_status_description_ci_in',
+      should 'translate status' do
+        assert_equal 'latest_mi_attempt_status_description_ci_in',
                 MiAttempt.translate_search_param('status_ci_in')
       end
 
@@ -891,8 +899,8 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     context '::public_search' do
       should 'pass on parameters not needing translation to ::search' do
-        assert_equal default_mi_attempt,
-                MiAttempt.public_search(:colony_name_eq => default_mi_attempt.colony_name).result.first
+        assert_equal default_mi_attempt.id,
+                MiAttempt.public_search(:colony_name_eq => default_mi_attempt.colony_name).result.first.id
       end
 
       should 'translate searching predicates' do

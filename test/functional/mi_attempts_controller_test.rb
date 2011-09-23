@@ -99,6 +99,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       context 'JSON extended_response' do
         should 'be included when parameter is passed' do
           mi = Factory.create :mi_attempt
+          mi = MiAttempt::AggregatedView.find(mi.id)
           get :index, :format => 'json', 'extended_response' => 'true'
           expected = {
             'mi_attempts' => [mi.as_json],

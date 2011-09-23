@@ -1,7 +1,7 @@
-class CreateMiAttemptsWithLatestStatusView < ActiveRecord::Migration
+class CreateAggregatedMiAttemptsView < ActiveRecord::Migration
   def self.up
     execute <<-SQL
-      CREATE VIEW mi_attempts_with_latest_status AS
+      CREATE VIEW aggregated_mi_attempts AS
       SELECT mi_attempts.*,
              (
                SELECT mi_attempt_status_stamps.mi_attempt_status_id
@@ -15,6 +15,6 @@ class CreateMiAttemptsWithLatestStatusView < ActiveRecord::Migration
   end
 
   def self.down
-    execute 'DROP VIEW mi_attempts_with_latest_status'
+    execute 'DROP VIEW aggregated_mi_attempts'
   end
 end

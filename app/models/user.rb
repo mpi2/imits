@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110922103626
+# Schema version: 20110922000000
 #
 # Table name: users
 #
@@ -23,7 +23,6 @@ end
 #  production_centre_id :integer         not null
 #  created_at           :datetime
 #  updated_at           :datetime
-#  name                 :string(255)
 #
 # Indexes
 #

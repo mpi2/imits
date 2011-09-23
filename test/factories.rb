@@ -34,7 +34,6 @@ end
 Factory.define :mi_plan do |mi_plan|
   mi_plan.association :gene
   mi_plan.consortium { Consortium.find_by_name!('EUCOMM-EUMODIC') }
-  mi_plan.mi_plan_status   { MiPlanStatus.find_by_name! 'Interest' }
   mi_plan.mi_plan_priority { MiPlanPriority.find_by_name! 'High' }
 end
 
@@ -46,6 +45,16 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :es_cell
   mi_attempt.consortium_name 'EUCOMM-EUMODIC'
   mi_attempt.production_centre_name 'WTSI'
+end
+
+Factory.define :mi_attempt_genotype_confirmed, :parent => :mi_attempt do |mi_attempt|
+  mi_attempt.production_centre_name 'ICS'
+  mi_attempt.number_of_het_offspring 1
+end
+
+Factory.define :wtsi_mi_attempt_genotype_confirmed, :parent => :mi_attempt do |mi_attempt|
+  mi_attempt.production_centre_name 'WTSI'
+  mi_attempt.is_released_from_genotyping true
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|
@@ -64,7 +73,6 @@ Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_att
   mi_attempt.distribution_centre { Centre.all.sample }
   mi_attempt.colony_background_strain { Strain::ColonyBackgroundStrain.all.sample }
   mi_attempt.colony_name { (1..4).to_a.map { ('A'..'Z').to_a.sample }.join }
-  mi_attempt.mi_attempt_status { MiAttemptStatus.all.sample }
 
   MiAttempt.columns.each do |column|
     next if ['id', 'created_at', 'updated_at'].include?(column.name.to_s)

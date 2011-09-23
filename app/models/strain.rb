@@ -3,7 +3,7 @@ class Strain < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110922000000
+# Schema version: 20110922103626
 #
 # Table name: strains
 #

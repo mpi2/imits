@@ -5,7 +5,7 @@ class Pipeline < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110922000000
+# Schema version: 20110922103626
 #
 # Table name: pipelines
 #

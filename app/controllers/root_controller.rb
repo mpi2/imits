@@ -17,10 +17,10 @@ class RootController < ApplicationController
   end
 
   def consortia
-    @consortia = Consortium.order('name').all
     @consortia_production_centres = {}
 
-    Consortium.select('consortia.name,centres.name').includes(:mi_plans => :production_centre).each do |cons|
+    Consortium.includes(:mi_plans => :production_centre).each do |cons|
+      ap cons
       production_centres = []
       cons.mi_plans.each do |mi_plan|
         production_centres.push(mi_plan.production_centre.try(:name))

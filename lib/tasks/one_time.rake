@@ -32,7 +32,7 @@ namespace :one_time do
   desc 'Back-fill User Names'
   task :back_fill_user_names => :environment do
     {
-      'a.mallon@har.mrc.ac.uk' => 'Ann-Marie Malon',
+      'a.mallon@har.mrc.ac.uk' => 'Ann-Marie Mallon',
       'abradley@sanger.ac.uk' => 'Alan Bradley',
       'aq2@sanger.ac.uk' => 'Asfand Qazi',
       'ayadi@igbmc.fr' => '',

@@ -200,7 +200,11 @@ class ReportsController < ApplicationController
       all_mi_plans.sort_rows_by!('Consortium', :order => :ascending)
 
       mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
+
       total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(:gene_id, :distinct => true)
+      if include_plans_with_active_attempts
+        total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true)
+      end
 
       ##
       ## Counts of mi_plans grouped by status

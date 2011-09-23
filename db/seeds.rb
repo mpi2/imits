@@ -44,7 +44,8 @@ end
   'MRC'             => ['MRC','MRC - Harwell'],
   'NorCOMM2'        => ['Genome Canada','NorCOMM2'],
   'Phenomin'        => ['Phenomin','ICS'],
-  'RIKEN BRC'       => ['Japanese government','RIKEN BRC']
+  'RIKEN BRC'       => ['Japanese government','RIKEN BRC'],
+  'JAX'             => ['KOMP2','The Jackson Laboratory']
 }.each do |name,details|
   cons = Consortium.find_or_create_by_name(:name => name)
   if cons.funding.blank?
@@ -68,7 +69,8 @@ end
   'RIKEN BRC',
   'TCP',
   'UCD',
-  'WTSI'
+  'WTSI',
+  'JAX'
 ].each do |name|
   Centre.find_or_create_by_name name
 end

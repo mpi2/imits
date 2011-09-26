@@ -20,7 +20,6 @@ class RootController < ApplicationController
     @consortia_production_centres = {}
 
     Consortium.includes(:mi_plans => :production_centre).each do |cons|
-      ap cons
       production_centres = []
       cons.mi_plans.each do |mi_plan|
         production_centres.push(mi_plan.production_centre.try(:name))

@@ -10,17 +10,16 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         @mi_attempt = Factory.create :mi_attempt,
                 :production_centre_name => 'WTSI',
                 :is_released_from_genotyping => false
-        assert_equal 1, @mi_attempt.status_stamps.size
       end
 
       should 'be Micro-injection in progress if is_released_from_genotyping is not set' do
-        assert_equal MiAttemptStatus.micro_injection_in_progress.description, @mi_attempt.status
+        assert_equal MiAttemptStatus.micro_injection_in_progress, @mi_attempt.mi_attempt_status
       end
 
       should 'transition MI status to Genotype confirmed if is_released_from_genotyping flag is set' do
         @mi_attempt.is_released_from_genotyping = true
         @mi_attempt.save!
-        assert_equal MiAttemptStatus.genotype_confirmed.description, @mi_attempt.status
+        assert_equal MiAttemptStatus.genotype_confirmed, @mi_attempt.mi_attempt_status
       end
 
       should 'not add the same status twice' do
@@ -37,30 +36,29 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
                 :production_centre_name => 'ICS',
                 :number_of_het_offspring => nil,
                 :number_of_chimeras_with_glt_from_genotyping => nil
-        assert_equal 1, @mi_attempt.status_stamps.size
       end
 
       should 'be Micro-injection in progress if the two fields are nil' do
-        assert_equal MiAttemptStatus.micro_injection_in_progress.description, @mi_attempt.status
+        assert_equal MiAttemptStatus.micro_injection_in_progress, @mi_attempt.mi_attempt_status
       end
 
       should 'be Micro-injection in progress if the two fields are 0' do
         @mi_attempt.number_of_het_offspring = 0
         @mi_attempt.number_of_chimeras_with_glt_from_genotyping = 0
         @mi_attempt.save!
-        assert_equal MiAttemptStatus.micro_injection_in_progress.description, @mi_attempt.status
+        assert_equal MiAttemptStatus.micro_injection_in_progress, @mi_attempt.mi_attempt_status
       end
 
       should 'transition MI status to Genotype confirmed if number_of_het_offspring is non-zero' do
         @mi_attempt.number_of_het_offspring = 1
         @mi_attempt.save!
-        assert_equal MiAttemptStatus.genotype_confirmed.description, @mi_attempt.status
+        assert_equal MiAttemptStatus.genotype_confirmed, @mi_attempt.mi_attempt_status
       end
 
       should 'transition MI status to Genotype confirmed if number_of_chimeras_with_glt_from_genotyping is non-zero' do
         @mi_attempt.number_of_chimeras_with_glt_from_genotyping = 1
         @mi_attempt.save!
-        assert_equal MiAttemptStatus.genotype_confirmed.description, @mi_attempt.status
+        assert_equal MiAttemptStatus.genotype_confirmed, @mi_attempt.mi_attempt_status
       end
 
       should 'ignore is_released_from_genotyping flag' do
@@ -68,7 +66,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         @mi_attempt.number_of_het_offspring = nil
         @mi_attempt.is_released_from_genotyping = true
         @mi_attempt.save!
-        assert_equal MiAttemptStatus.micro_injection_in_progress.description, @mi_attempt.status
+        assert_equal MiAttemptStatus.micro_injection_in_progress, @mi_attempt.mi_attempt_status
       end
 
       should 'not add the same status twice' do
@@ -88,7 +86,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
                     :is_released_from_genotyping => true,
                     :is_active => false
 
-            assert_equal MiAttemptStatus.micro_injection_aborted.description, mi.status
+            assert_equal MiAttemptStatus.micro_injection_aborted, mi.mi_attempt_status
           end
         end
 
@@ -99,7 +97,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
                     :number_of_het_offspring => 1,
                     :is_active => false
 
-            assert_equal MiAttemptStatus.micro_injection_aborted.description, mi.status
+            assert_equal MiAttemptStatus.micro_injection_aborted, mi.mi_attempt_status
           end
         end
       end
@@ -113,7 +111,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
           mi.is_active = true
           mi.save!
 
-          assert_equal MiAttemptStatus.micro_injection_in_progress.description, mi.status
+          assert_equal MiAttemptStatus.micro_injection_in_progress, mi.mi_attempt_status
         end
 
         should 're-evaluate status based on rules and set to confirmed' do
@@ -125,7 +123,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
           mi.is_active = true
           mi.save!
 
-          assert_equal MiAttemptStatus.genotype_confirmed.description, mi.status
+          assert_equal MiAttemptStatus.genotype_confirmed, mi.mi_attempt_status
         end
       end
     end
@@ -140,7 +138,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
               :is_active => false
       mi.update_attributes!(:is_active => true)
 
-      assert_equal MiAttemptStatus.micro_injection_aborted.description, mi.status_stamps[0].description
+      assert_equal MiAttemptStatus.micro_injection_aborted, mi.status_stamps[0].mi_attempt_status
     end
 
     should 'avoid adding the same status twice consecutively' do

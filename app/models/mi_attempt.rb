@@ -402,7 +402,6 @@ class MiAttempt < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110922103626
 #
 # Table name: mi_attempts
 #

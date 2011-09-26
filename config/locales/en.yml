@@ -2,3 +2,6 @@ en:
   errors:
     messages:
       blank: cannot be blank
+  time:
+    formats:
+      imits: "%d %b %Y"

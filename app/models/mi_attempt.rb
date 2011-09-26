@@ -130,15 +130,15 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def self.genotype_confirmed
-    where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id, :is_active => true)
+    where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id)
   end
 
   def self.in_progress
-    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id, :is_active => true)
+    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id)
   end
 
   def self.aborted
-    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id, :is_active => true)
+    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
   end
 
   # BEGIN Callbacks

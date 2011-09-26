@@ -100,15 +100,7 @@ Ext.Loader.setConfig({
     enabled: true,
     paths: {
         'Imits': window.basePath + '/javascripts/Imits',
-        'Imits.widget': window.basePath + '/javascripts/Imits/widget'
+        'Ext': window.basePath + '/extjs',
+        'Ext.ux': window.basePath + '/extjs/examples/ux'
     }
 });
-Ext.Loader.setPath('Ext', window.basePath + '/extjs');
-Ext.Loader.setPath('Ext.ux', window.basePath + '/extjs/examples/ux');
-
-// TODO Why?!?!
-Ext.require([
-  'Imits.model.MiAttempt',
-  'Imits.model.Gene'
-]);
-

@@ -51,10 +51,10 @@ class Gene < ActiveRecord::Base
         centres.name as production_centre,
         mi_plan_statuses.name as status
       from genes
-      join mi_plans on mi_plans.gene_id = genes.id
-      join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
-      join consortia on mi_plans.consortium_id = consortia.id
-      left join centres on mi_plans.production_centre_id = centres.id
+      join aggregated_mi_plans on aggregated_mi_plans.gene_id = genes.id
+      join mi_plan_statuses on aggregated_mi_plans.latest_mi_plan_status_id = mi_plan_statuses.id
+      join consortia on aggregated_mi_plans.consortium_id = consortia.id
+      left join centres on aggregated_mi_plans.production_centre_id = centres.id
       where mi_plan_statuses.name != 'Assigned'
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?
@@ -84,11 +84,11 @@ class Gene < ActiveRecord::Base
         consortia.name as consortium,
         centres.name as production_centre
       from genes
-      join mi_plans on mi_plans.gene_id = genes.id
-      join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
-      join consortia on mi_plans.consortium_id = consortia.id
-      left join centres on mi_plans.production_centre_id = centres.id
-      left join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
+      join aggregated_mi_plans on aggregated_mi_plans.gene_id = genes.id
+      join mi_plan_statuses on aggregated_mi_plans.latest_mi_plan_status_id = mi_plan_statuses.id
+      join consortia on aggregated_mi_plans.consortium_id = consortia.id
+      left join centres on aggregated_mi_plans.production_centre_id = centres.id
+      left join mi_attempts on mi_attempts.mi_plan_id = aggregated_mi_plans.id
       where mi_plan_statuses.name = 'Assigned'
       and mi_attempts.id is null
     SQL
@@ -112,44 +112,46 @@ class Gene < ActiveRecord::Base
   end
 
   def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_id=nil)
-    return pretty_print_mi_attempts_helper('true','Micro-injection in progress',gene_id)
+    return pretty_print_mi_attempts_in_bulk_helper(true, MiAttemptStatus.micro_injection_in_progress, gene_id)
   end
 
   def self.pretty_print_mi_attempts_genotype_confirmed_in_bulk(gene_id=nil)
-    return pretty_print_mi_attempts_helper('true','Genotype confirmed',gene_id)
+    return pretty_print_mi_attempts_in_bulk_helper(true, MiAttemptStatus.genotype_confirmed, gene_id)
   end
 
   def self.pretty_print_aborted_mi_attempts_in_bulk(gene_id=nil)
-    return pretty_print_mi_attempts_helper('false',nil,gene_id)
+    return pretty_print_mi_attempts_in_bulk_helper(false,nil,gene_id)
   end
 
   private
 
-  def self.pretty_print_mi_attempts_helper(active,status,gene_id=nil)
-    sql = <<-SQL
-      select
+  def self.pretty_print_mi_attempts_in_bulk_helper(active,status,gene_id=nil)
+    sql = <<-"SQL"
+      SELECT
         genes.marker_symbol,
-        consortia.name as consortium,
-        centres.name as production_centre,
-        count(mi_attempts.id) as count
-      from genes
-      join mi_plans on mi_plans.gene_id = genes.id
-      join consortia on mi_plans.consortium_id = consortia.id
-      join centres on mi_plans.production_centre_id = centres.id
-      join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
-      join mi_attempt_statuses on mi_attempt_statuses.id = mi_attempts.mi_attempt_status_id
+        consortia.name AS consortium,
+        centres.name AS production_centre,
+        count(aggregated_mi_attempts.id) AS count
+      FROM genes
+      JOIN mi_plans ON mi_plans.gene_id = genes.id
+      JOIN consortia ON mi_plans.consortium_id = consortia.id
+      JOIN centres ON mi_plans.production_centre_id = centres.id
+      JOIN aggregated_mi_attempts ON aggregated_mi_attempts.mi_plan_id = mi_plans.id
     SQL
-    sql << "where mi_attempts.is_active = #{active} "
-    sql << "and mi_attempt_statuses.description = '#{status}' " unless status.nil?
-    sql << "and genes.id = #{gene_id} " unless gene_id.nil?
-    sql << "group by genes.marker_symbol, consortia.name, centres.name"
+    sql << "WHERE aggregated_mi_attempts.is_active = #{active}\n"
+    if status
+      sql << "AND aggregated_mi_attempts.latest_mi_attempt_status_id = #{status.id}\n"
+    end
+    sql << "AND genes.id = #{gene_id}\n" unless gene_id.nil?
+    sql << "group by genes.marker_symbol, consortia.name, centres.name\n"
 
     genes = {}
     results = ActiveRecord::Base.connection.execute(sql)
-    results.each do |res|
-      string = "[#{res['consortium']}:#{res['production_centre']}:#{res['count']}]"
-      genes[ res['marker_symbol'] ] ||= []
-      genes[ res['marker_symbol'] ] << string
+
+    results.each do |result|
+      string = "[#{result['consortium']}:#{result['production_centre']}:#{result['count']}]"
+      genes[ result['marker_symbol'] ] ||= []
+      genes[ result['marker_symbol'] ] << string
     end
 
     genes.each { |marker_symbol,values| genes[marker_symbol] = values.join('</br>') }

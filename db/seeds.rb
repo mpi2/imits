@@ -37,10 +37,11 @@ end
   'DTCC-KOMP'       => ['KOMP','Davis-Toronto-Charles River-CHORI'],
   'EUCOMM-EUMODIC'  => ['EUCOMM / EUMODIC',nil],
   'Helmholtz GMC'   => ['Infrafrontier/BMBF','Helmholtz Muenchen'],
+  'JAX'             => ['KOMP2','The Jackson Laboratory'],
   'MARC'            => ['China','Model Animarl Research Centre, Nanjing University'],
-  'Monterotondo'    => ['European Union','Monterotondo Institute for Cell Biology (CNR)'],
   'MGP'             => ['Wellcome Trust','Mouse Genetics Project, WTSI'],
   'MGP-KOMP'        => ['KOMP / Wellcome Trust','Mouse Genetics Project, WTSI'],
+  'Monterotondo'    => ['European Union','Monterotondo Institute for Cell Biology (CNR)'],
   'MRC'             => ['MRC','MRC - Harwell'],
   'NorCOMM2'        => ['Genome Canada','NorCOMM2'],
   'Phenomin'        => ['Phenomin','ICS'],
@@ -68,7 +69,8 @@ end
   'RIKEN BRC',
   'TCP',
   'UCD',
-  'WTSI'
+  'WTSI',
+  'JAX'
 ].each do |name|
   Centre.find_or_create_by_name name
 end

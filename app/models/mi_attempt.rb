@@ -40,8 +40,8 @@ class MiAttempt < ActiveRecord::Base
 
   PRIVATE_ATTRIBUTES = [
     'created_at', 'updated_at', 'updated_by', 'updated_by_id',
-    'es_cell', 'es_cell_id',
-    'mi_attempt_status', 'mi_attempt_status_id', 'mi_plan_id'
+    'mi_attempt_status', 'mi_attempt_status_id',
+    'es_cell', 'es_cell_id', 'mi_plan_id'
   ]
 
   attr_protected *PRIVATE_ATTRIBUTES
@@ -55,6 +55,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
   belongs_to :deposited_material
+  has_many :status_stamps, :order => 'created_at ASC'
 
   access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
@@ -111,16 +112,18 @@ class MiAttempt < ActiveRecord::Base
   end
 
   before_validation :set_blank_strings_to_nil
-  before_validation :set_default_status
   before_validation :set_total_chimeras
   before_validation :set_default_deposited_material
   before_validation :set_es_cell_from_es_cell_name
   before_validation :set_default_distribution_centre
+  before_validation :change_status
 
   before_save :generate_colony_name_if_blank
-  before_save :change_status
   before_save :make_unsuitable_for_emma_if_is_not_active
   before_save :set_mi_plan
+  before_save :record_if_status_was_changed
+
+  after_save :create_status_stamp_if_status_was_changed
 
   def self.active
     where(:is_active => true)
@@ -138,11 +141,9 @@ class MiAttempt < ActiveRecord::Base
     where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id, :is_active => true)
   end
 
-  protected
+  # BEGIN Callbacks
 
-  def set_default_status
-    self.mi_attempt_status ||= MiAttemptStatus.micro_injection_in_progress
-  end
+  protected
 
   def set_total_chimeras
     self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
@@ -219,7 +220,23 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
+  def record_if_status_was_changed
+    if self.changed.include? 'mi_attempt_status_id'
+      @new_mi_attempt_status = self.mi_attempt_status
+    else
+      @new_mi_attempt_status = nil
+    end
+  end
+
+  def create_status_stamp_if_status_was_changed
+    if @new_mi_attempt_status
+      add_status_stamp @new_mi_attempt_status
+    end
+  end
+
   public
+
+  # END Callbacks
 
   def consortium_name
     if ! @consortium_name.blank?
@@ -266,6 +283,12 @@ class MiAttempt < ActiveRecord::Base
   def status
     return self.mi_attempt_status.try(:description)
   end
+
+  def add_status_stamp(new_status)
+    self.status_stamps.create!(:mi_attempt_status => new_status)
+    self.status_stamps.reload
+  end
+  private :add_status_stamp
 
   def emma_status
     if is_suitable_for_emma?

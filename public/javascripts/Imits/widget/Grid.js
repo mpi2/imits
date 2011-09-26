@@ -1,5 +1,6 @@
 Ext.define('Imits.widget.Grid', {
   extend: 'Ext.grid.Panel',
+
   manageResize: function() {
     var windowHeight = window.innerHeight - 30;
     if(!windowHeight) {
@@ -12,5 +13,11 @@ Ext.define('Imits.widget.Grid', {
     this.setHeight(newGridHeight);
     this.setWidth(this.getEl().up('div').getWidth());
     this.doLayout();
+  },
+
+  reloadStore: function() {
+    var store = this.getStore();
+    store.sync();
+    store.load();
   }
 });

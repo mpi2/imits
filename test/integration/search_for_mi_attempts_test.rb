@@ -30,7 +30,9 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         setup do
           visit '/mi_attempts'
           fill_in 'q[terms]', :with => 'EPD0343_1_H06'
-          click_button 'Search'
+          sleep 1
+         click_button 'Search'
+          sleep 1
         end
 
         should 'show all data for that es_cell' do
@@ -71,7 +73,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
 
       should 'work if whitespace around es_cell names' do
-        visit '/'
+        visit '/mi_attempts'
         fill_in 'q[terms]', :with => "  EPD0343_1_H06\t"
         click_button 'Search'
 
@@ -118,7 +120,7 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         @mi_attempt = Factory.create(:mi_attempt, :es_cell => @es_cell1,
           :production_centre_name => 'ICS')
 
-        visit '/'
+        visit '/mi_attempts'
         fill_in 'q[terms]', :with => "myo1c\n"
         select 'ICS', :from => 'q[production_centre_name]'
         click_button 'Search'
@@ -146,25 +148,26 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
         @es_cell2 = Factory.create :es_cell_EPD0127_4_E01
         @es_cell3 = Factory.create :es_cell_EPD0029_1_G04
 
-        @status = MiAttemptStatus.create!(:description => 'Nonsense')
+        @status = MiAttemptStatus.micro_injection_aborted.description
+        @mi_attempt = Factory.create(:mi_attempt, :es_cell => @es_cell2)
+        @mi_attempt.update_attributes!(:is_active => false)
+        assert_equal @status, @mi_attempt.status
 
-        @mi_attempt = Factory.create(:mi_attempt, :es_cell => @es_cell2,
-          :mi_attempt_status => @status)
-
-        mi_attempt_to_not_be_found = Factory.create(:mi_attempt, :es_cell => @es_cell1,
-          :mi_attempt_status => @status)
+        mi_attempt_to_not_be_found = Factory.create(:mi_attempt, :es_cell => @es_cell1)
+        mi_attempt_to_not_be_found.update_attributes!(:is_active => false)
+        assert_equal @status, mi_attempt_to_not_be_found.status
 
         sleep 3
-        visit '/'
+        visit '/mi_attempts'
         fill_in 'q[terms]', :with => "trafd1\n"
-        select 'Nonsense', :from => 'q[status]'
+        select @status, :from => 'q[status]'
         click_button 'Search'
         sleep 3
       end
 
       should 'show results that match the search terms and the filter' do
         assert page.has_css? 'div', :text => @mi_attempt.es_cell.name
-        assert page.has_css? 'div', :text => 'Nonsense'
+        assert page.has_css? 'div', :text => @status
       end
 
       should 'not show any non-matching mi attempts' do
@@ -172,18 +175,18 @@ class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
       end
 
       should 'have filtered status pre-selected in dropdown' do
-        assert page.has_css? 'select[@name="q[status]"] option[selected="selected"][value="Nonsense"]'
+        assert page.has_css? 'select[@name="q[status]"] option[selected="selected"][value="' + @status + '"]'
       end
     end
 
     should 'work for search with no terms' do
-      visit '/'
+      visit '/mi_attempts'
       click_button 'Search'
       assert ! page.has_content?('error')
     end
 
     should 'display test data warning' do
-      visit '/'
+      visit '/mi_attempts'
       assert page.has_content? 'DO NOT ENTER ANY PRODUCTION DATA'
     end
 

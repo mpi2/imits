@@ -46,6 +46,10 @@ class MiPlan < ActiveRecord::Base
   def mi_plan_status
     return @mi_plan_status || self.status_stamps.last.try(:mi_plan_status)
   end
+  
+  def status
+    self.mi_plan_status.name
+  end
 
   def mi_plan_status=(status)
     @mi_plan_status = status
@@ -54,29 +58,29 @@ class MiPlan < ActiveRecord::Base
   def self.with_mi_attempt
     ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)
     raise "Cannot run 'mi_plan.with_mi_attempt' when there are no mi_attempts" if ids.empty?
-    where('mi_plans.id in (?)',ids)
+    where("#{self.table_name}.id in (?)",ids)
   end
 
   def self.without_mi_attempt
     ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)
     raise "Cannot run 'mi_plan.without_mi_attempt' when there are no mi_attempts" if ids.empty?
-    where('mi_plans.id not in (?)',ids)
+    where("#{self.table_name}.id not in (?)",ids)
   end
 
   def self.with_active_mi_attempt
     ids = MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id)
     raise "Cannot run 'mi_plan.with_active_mi_attempt' when there are no active mi_attempts" if ids.empty?
-    where('mi_plans.id in (?)',ids)
+    where("#{self.table_name}.id in (?)",ids)
   end
 
   def self.without_active_mi_attempt
     ids = MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id)
     raise "Cannot run 'mi_plan.without_active_mi_attempt' when there are no active mi_attempts" if ids.empty?
-    where('mi_plans.id not in (?)',ids)
+    where("#{self.table_name}.id not in (?)",ids)
   end
 
   def self.with_genotype_confirmed_mouse
-    where('mi_plans.id in (?)', MiAttempt.genotype_confirmed.select('distinct(mi_plan_id)').map(&:mi_plan_id))
+    where("#{self.table_name}.id in (?)", MiAttempt.genotype_confirmed.select('distinct(mi_plan_id)').map(&:mi_plan_id))
   end
 
   def self.assign_genes_and_mark_conflicts

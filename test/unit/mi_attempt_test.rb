@@ -887,7 +887,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'translate status' do
-        assert_equal 'latest_mi_attempt_status_description_ci_in',
+        assert_equal 'mi_attempt_status_description_ci_in',
                 MiAttempt.translate_search_param('status_ci_in')
       end
 

@@ -328,7 +328,7 @@ class MiAttempt < ActiveRecord::Base
       'es_cell_allele_symbol'   => 'es_cell_gene_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
       'production_centre_name'  => 'mi_plan_production_centre_name',
-      'status'                  => 'latest_mi_attempt_status_description'
+      'status'                  => 'mi_attempt_status_description'
     }
 
     translations.each do |tr_from, tr_to|
@@ -346,7 +346,7 @@ class MiAttempt < ActiveRecord::Base
     params.stringify_keys.each do |name, value|
       translated_params[translate_search_param(name)] = value
     end
-    return AggregatedView.search(translated_params)
+    return self.search(translated_params)
   end
 
   def as_json(options = {})

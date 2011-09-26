@@ -131,16 +131,16 @@ class Gene < ActiveRecord::Base
         genes.marker_symbol,
         consortia.name AS consortium,
         centres.name AS production_centre,
-        count(aggregated_mi_attempts.id) AS count
+        count(mi_attempts.id) AS count
       FROM genes
       JOIN mi_plans ON mi_plans.gene_id = genes.id
       JOIN consortia ON mi_plans.consortium_id = consortia.id
       JOIN centres ON mi_plans.production_centre_id = centres.id
-      JOIN aggregated_mi_attempts ON aggregated_mi_attempts.mi_plan_id = mi_plans.id
+      JOIN mi_attempts ON mi_attempts.mi_plan_id = mi_plans.id
     SQL
-    sql << "WHERE aggregated_mi_attempts.is_active = #{active}\n"
+    sql << "WHERE mi_attempts.is_active = #{active}\n"
     if status
-      sql << "AND aggregated_mi_attempts.latest_mi_attempt_status_id = #{status.id}\n"
+      sql << "AND mi_attempts.mi_attempt_status_id = #{status.id}\n"
     end
     sql << "AND genes.id = #{gene_id}\n" unless gene_id.nil?
     sql << "group by genes.marker_symbol, consortia.name, centres.name\n"

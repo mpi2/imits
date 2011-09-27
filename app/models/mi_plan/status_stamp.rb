@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 class MiPlan::StatusStamp < ActiveRecord::Base
+  acts_as_reportable
+
   belongs_to :mi_plan
   belongs_to :mi_plan_status
 

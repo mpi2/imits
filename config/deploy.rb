@@ -11,6 +11,10 @@ set :use_sudo, false
 role :web, 'etch-dev64.internal.sanger.ac.uk'
 role :app, 'etch-dev64.internal.sanger.ac.uk'
 
+# role :web, 'localhost'
+# role :app, 'localhost'
+# set :ssh_options, { :port => 10027 }
+
 set :default_environment, {
   'PATH'      => '/software/team87/brave_new_world/bin:/software/perl-5.8.8/bin:/usr/bin:/bin',
   'PERL5LIB'  => '/software/team87/brave_new_world/lib/perl5:/software/team87/brave_new_world/lib/perl5/x86_64-linux-thread-multi'

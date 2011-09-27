@@ -62,6 +62,20 @@ class ActiveSupport::TestCase
     assert_rejects matcher, subject
   end
 
+  def set_mi_attempt_genotype_confirmed(mi_attempt)
+    mi_attempt.is_active = true
+
+    if mi_attempt.production_centre_name == 'WTSI'
+      mi_attempt.is_released_from_genotyping = true
+    else
+      if mi_attempt.number_of_het_offspring.to_i == 0
+        mi_attempt.number_of_het_offspring = 5
+      end
+    end
+
+    mi_attempt.save!
+  end
+
   fixtures :all
 end
 

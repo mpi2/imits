@@ -74,39 +74,27 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
     end
 
     should 'show status change history' do
-      # TODO move this to a factory if status stamp tests are more common?
-      mi = Factory.create :mi_attempt_genotype_confirmed
-      mi.status_stamps.first.update_attributes(:created_at => Time.parse('2011-07-07'))
+      mi = Factory.create :mi_attempt_with_status_history
 
-      mi.status_stamps.create!(
-        :mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted,
-        :created_at => Time.parse('2011-06-06'))
-      mi.status_stamps.create!(
-        :mi_attempt_status_id => MiAttemptStatus.genotype_confirmed,
-        :created_at => Time.parse('2011-05-05'))
-      mi.status_stamps.create!(
-        :mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress,
-        :created_at => Time.parse('2011-04-04'))
-
-      mi.mi_plan.status_stamps.first.update_attributes(:created_at => Time.parse('2011-03-03'))
-      mi.mi_plan.status_stamps.create!(
-        :mi_plan_status_id => MiPlanStatus[:Conflict],
-        :created_at => Time.parse('2011-02-02'))
-      mi.mi_plan.status_stamps.create!(
-        :mi_plan_status_id => MiPlanStatus[:Interest],
-        :created_at => Time.parse('2011-01-01'))
-
-      sleep 2
+      sleep 1
 
       visit "/mi_attempts/#{mi.id}"
+      sleep 3
 
-      assert page.has_css? 'li', :text => '01 Jan 2011 Interest'
-      assert page.has_css? 'li', :text => '02 Feb 2011 Conflict'
-      assert page.has_css? 'li', :text => '03 Mar 2011 Assigned'
-      assert page.has_css? 'li', :text => '04 Apr 2011 Micro-injection in progress'
-      assert page.has_css? 'li', :text => '05 May 2011 Genotype confirmed'
-      assert page.has_css? 'li', :text => '06 Jun 2011 Micro-injection aborted'
-      assert page.has_css? 'li', :text => '07 Jul 2011 Genotype confirmed'
+      [
+        ['01 Jan 2011', 'Interest'],
+        ['02 Feb 2011', 'Conflict'],
+        ['03 Mar 2011', 'Assigned'],
+        ['04 Apr 2011', 'Micro-injection in progress'],
+        ['05 May 2011', 'Genotype confirmed'],
+        ['06 Jun 2011', 'Micro-injection aborted'],
+        ['07 Jul 2011', 'Genotype confirmed']
+      ].each_with_index do |values, idx|
+        idx += 1 # damn nth-child starting index of 1
+        within("table tbody tr:nth-child(#{idx+1})") do # damn ExtJS putting an empty tr at the start of the table
+          values.each {|i| assert page.has_css?('td', :text => i), "#{i} not found in row #{idx}"}
+        end
+      end
     end
 
   end

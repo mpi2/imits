@@ -1,8 +1,28 @@
-<div>
-  <label>Status Change History</label>
-  <span>
-    <ul>
-      <li><%= localize mi_attempt.mi_plan.status_stamps[0].created_at, :format => :imits %> <%= mi_attempt.mi_plan.status_stamps[0].name %></li>
-    </ul>
-  </span>
-</div>
+<fieldset class="collapsible">
+  <legend>Status Change History</legend>
+  <div>
+    <table class="transformable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% mi_attempt.mi_plan.status_stamps.each do |status_stamp| %>
+          <tr>
+            <td><%= localize status_stamp.created_at, :format => :imits %></td>
+            <td><%= status_stamp.name %></td>
+          </tr>
+        <% end %>
+
+        <% mi_attempt.status_stamps.each do |status_stamp| %>
+          <tr>
+            <td><%= localize status_stamp.created_at, :format => :imits %></td>
+            <td><%= status_stamp.description %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</fieldset>

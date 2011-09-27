@@ -10,8 +10,6 @@
         <label>Status</label>
         <span><%= form.object.status %></span>
       </div>
-
-      <%= render 'status_change_history', :mi_attempt => form.object %>
     <% end %>
 
     <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
@@ -47,6 +45,8 @@
     </div>
   </div>
 </fieldset>
+
+<%= render 'status_change_history', :mi_attempt => form.object %>
 
 <fieldset class="collapsible">
   <legend>Transfer Details</legend>

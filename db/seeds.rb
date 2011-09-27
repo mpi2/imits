@@ -81,7 +81,8 @@ end
   'Declined - GLT Mouse'   => [30,'Declined - A GLT mouse is already recorded in iMits'],
   'Declined - MI Attempt'  => [40,'Declined - An active micro-injection attempt is already in progress'],
   'Declined - Conflict'    => [50,'Declined - This gene is already assigned in another planned micro-injection'],
-  'Assigned'               => [60,'Assigned - A single consortium has expressed an intrest in injecting this gene']
+  'Assigned'               => [60,'Assigned - A single consortium has expressed an intrest in injecting this gene'],
+  'Inactive'               => [70,'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up']
 }.each do |name,details|
   mi_plan_status = MiPlanStatus.find_or_create_by_name(:name => name)
   if mi_plan_status.description.blank?

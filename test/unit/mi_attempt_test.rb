@@ -91,7 +91,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'not be mass-assignable by id' do
           default_mi_attempt.attributes = {
             :mi_attempt_status    => MiAttemptStatus.genotype_confirmed,
-            :mi_attempt_status_id => MiAttemptStatus.genotype_confirmed
+            :mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id
           }
           assert_not_equal MiAttemptStatus.genotype_confirmed, default_mi_attempt.mi_attempt_status
         end

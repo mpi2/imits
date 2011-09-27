@@ -47,4 +47,13 @@ namespace :one_time do
     end
   end
 
+  desc 'Use imits audit trail to fill in missing MiAttempt status stamps'
+  task :back_fill_mi_attempt_status_stamps => :environment do
+    MiAttempt.all.each do |mi_attempt|
+      old_revision = mi_attempt.audits[0].revision
+      MiAttempt::StatusStamp.create!(:mi_attempt_status_id => old_revision.mi_attempt_status_id,
+        :mi_attempt => mi_attempt, :created_at => old_revision.created_at)
+    end
+  end
+
 end

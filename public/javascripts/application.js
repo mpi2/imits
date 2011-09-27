@@ -104,3 +104,8 @@ Ext.Loader.setConfig({
         'Ext.ux': window.basePath + '/extjs/examples/ux'
     }
 });
+
+Ext.require('Imits.data.Proxy');
+Ext.require('Imits.data.JsonWriter');
+Ext.require('Imits.model.MiAttempt');
+Ext.require('Imits.model.Gene');

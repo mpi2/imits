@@ -40,6 +40,7 @@ class MiAttempt < ActiveRecord::Base
 
   PRIVATE_ATTRIBUTES = [
     'created_at', 'updated_at', 'updated_by', 'updated_by_id',
+    'mi_attempt_status', 'mi_attempt_status_id',
     'es_cell', 'es_cell_id', 'mi_plan_id'
   ]
 
@@ -47,6 +48,7 @@ class MiAttempt < ActiveRecord::Base
 
   belongs_to :mi_plan
   belongs_to :es_cell
+  belongs_to :mi_attempt_status
   belongs_to :distribution_centre, :class_name => 'Centre'
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
@@ -70,6 +72,7 @@ class MiAttempt < ActiveRecord::Base
   validates :es_cell_name, :presence => true
   validates :production_centre_name, :presence => true
   validates :consortium_name, :presence => true
+  validates :mi_attempt_status, :presence => true
   validates :colony_name, :uniqueness => true, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
 
@@ -113,28 +116,32 @@ class MiAttempt < ActiveRecord::Base
   before_validation :set_default_deposited_material
   before_validation :set_es_cell_from_es_cell_name
   before_validation :set_default_distribution_centre
+  before_validation :change_status
 
   before_save :generate_colony_name_if_blank
   before_save :make_unsuitable_for_emma_if_is_not_active
   before_save :set_mi_plan
+  before_save :record_if_status_was_changed
 
-  after_save :change_status
+  after_save :create_status_stamp_if_status_was_changed
 
   def self.active
     where(:is_active => true)
   end
 
   def self.genotype_confirmed
-    joins(:status_stamps).where(StatusStamp.table_name => {:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id}, :is_active => true)
+    where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id)
   end
 
   def self.in_progress
-    joins(:status_stamps).where(StatusStamp.table_name => {:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id}, :is_active => true)
+    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id)
   end
 
   def self.aborted
-    joins(:status_stamps).where(StatusStamp.table_name => {:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id}, :is_active => true)
+    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
   end
+
+  # BEGIN Callbacks
 
   protected
 
@@ -213,7 +220,23 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
+  def record_if_status_was_changed
+    if self.changed.include? 'mi_attempt_status_id'
+      @new_mi_attempt_status = self.mi_attempt_status
+    else
+      @new_mi_attempt_status = nil
+    end
+  end
+
+  def create_status_stamp_if_status_was_changed
+    if @new_mi_attempt_status
+      add_status_stamp @new_mi_attempt_status
+    end
+  end
+
   public
+
+  # END Callbacks
 
   def consortium_name
     if ! @consortium_name.blank?
@@ -258,7 +281,7 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def status
-    return self.status_stamps.last.try(:description)
+    return self.mi_attempt_status.try(:description)
   end
 
   def add_status_stamp(new_status)
@@ -379,13 +402,13 @@ class MiAttempt < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110922103626
 #
 # Table name: mi_attempts
 #
 #  id                                              :integer         not null, primary key
 #  es_cell_id                                      :integer         not null
 #  mi_date                                         :date
+#  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :string(125)
 #  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer

@@ -8,6 +8,7 @@ class MiPlan < ActiveRecord::Base
 
   belongs_to :gene
   belongs_to :consortium
+  belongs_to :mi_plan_status
   belongs_to :mi_plan_priority
   belongs_to :production_centre, :class_name => 'Centre'
 
@@ -16,43 +17,49 @@ class MiPlan < ActiveRecord::Base
 
   validates :gene, :presence => true
   validates :consortium, :presence => true
+  validates :mi_plan_status, :presence => true
   validates :mi_plan_priority, :presence => true
 
   validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]
 
-  # BEGIN filters
+  # BEGIN Callbacks
 
-  after_save :save_mi_plan_status
+  before_save :set_default_mi_plan_status
+  before_save :record_if_status_was_changed
+
+  after_save :create_status_stamp_if_status_was_changed
 
   private
 
-  def save_mi_plan_status
-    if @mi_plan_status and @mi_plan_status != self.status_stamps.last.try(:mi_plan_status)
-      add_status_stamp @mi_plan_status
-    elsif self.status_stamps.empty?
-      add_status_stamp MiPlanStatus[:Interest]
-    end
+  def set_default_mi_plan_status
+    self.mi_plan_status ||= MiPlanStatus[:Interest]
   end
 
   public
 
-  # END filters
+  def record_if_status_was_changed
+    if self.changed.include? 'mi_plan_status_id'
+      @new_mi_plan_status = self.mi_plan_status
+    else
+      @new_mi_plan_status = nil
+    end
+  end
+
+  def create_status_stamp_if_status_was_changed
+    if @new_mi_plan_status
+      add_status_stamp @new_mi_plan_status
+    end
+  end
+
+  # END Callbacks
 
   def add_status_stamp(status)
     self.status_stamps.create!(:mi_plan_status => status)
   end
   private :add_status_stamp
 
-  def mi_plan_status
-    return @mi_plan_status || self.status_stamps.last.try(:mi_plan_status)
-  end
-  
   def status
     self.mi_plan_status.name
-  end
-
-  def mi_plan_status=(status)
-    @mi_plan_status = status
   end
 
   def self.with_mi_attempt
@@ -177,13 +184,13 @@ class MiPlan < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110922103626
 #
 # Table name: mi_plans
 #
 #  id                   :integer         not null, primary key
 #  gene_id              :integer         not null
 #  consortium_id        :integer         not null
+#  mi_plan_status_id    :integer         not null
 #  mi_plan_priority_id  :integer         not null
 #  production_centre_id :integer
 #  created_at           :datetime

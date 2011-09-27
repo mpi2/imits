@@ -4,11 +4,11 @@ module MiAttempt::StatusChanger
 
   def change_status
     status_to_set = nil
-    last_status = status_stamps.last.try(:mi_attempt_status)
+    last_status = self.mi_attempt_status
 
-    if status_stamps.empty?
+    if ! last_status
       status_to_set = MiAttemptStatus.micro_injection_in_progress
-    elsif last_status == MiAttemptStatus.micro_injection_aborted and is_active?
+    elsif last_status == MiAttemptStatus.micro_injection_aborted and self.is_active?
       status_to_set = MiAttemptStatus.micro_injection_in_progress
     end
 
@@ -27,7 +27,7 @@ module MiAttempt::StatusChanger
     end
 
     if status_to_set and status_to_set != last_status
-      add_status_stamp status_to_set
+      self.mi_attempt_status = status_to_set
     end
 
     return true

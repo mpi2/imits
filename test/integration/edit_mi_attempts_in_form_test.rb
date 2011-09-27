@@ -16,8 +16,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
         :emma_status => 'suitable_sticky',
         :test_cross_strain_name => '129P2'
       )
-      user = Factory.create :user, :email => 'editing@example.com'
-      login user.email
+      login
       visit mi_attempt_path(@mi_attempt)
     end
 
@@ -33,12 +32,6 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert_equal '02/06/2011', page.find('input[name="mi_attempt[date_chimeras_mated]"]').value
       assert_equal '12', page.find('input[name="mi_attempt[total_blasts_injected]"]').value
       assert_equal 'suitable_sticky', page.find('select[name="mi_attempt[emma_status]"] option[selected=selected]').value
-    end
-
-    should 'show the history page' do
-      visit history_mi_attempt_path(@mi_attempt)
-      assert_match /History of Changes/, page.find('h2').text
-      assert page.has_css? 'div.report table'
     end
 
     should 'edit mi successfully, set updated_by and redirect back to show page' do
@@ -61,14 +54,14 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert_equal 'C57BL/6N', @mi_attempt.test_cross_strain.name
       assert_equal 'pass', @mi_attempt.qc_southern_blot.description
       assert_equal true, @mi_attempt.report_to_public?
-      assert_equal 'editing@example.com', @mi_attempt.updated_by.email
+      assert_equal default_user.email, @mi_attempt.updated_by.email
 
       assert_match /\/mi_attempts\/#{@mi_attempt.id}$/, current_url
       assert_equal @mi_attempt.colony_name, page.find('input[name="mi_attempt[colony_name]"]').value
     end
 
     should 'handle validation errors' do
-      assert MiAttempt.find_by_colony_name('MBSS')
+      assert MiAttempt.find_by_colony_name!('MBSS')
       fill_in 'mi_attempt[colony_name]', :with => 'MBSS'
       assert_difference 'MiAttempt.count', 0 do
         click_button 'mi_attempt_submit'
@@ -78,6 +71,30 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       assert page.has_css? '.message.alert'
       assert page.has_css? '.field_with_errors'
       assert page.has_css? '.error-message'
+    end
+
+    should 'show status change history' do
+      mi = Factory.create :mi_attempt_with_status_history
+
+      sleep 1
+
+      visit "/mi_attempts/#{mi.id}"
+      sleep 3
+
+      [
+        ['01 Jan 2011', 'Interest'],
+        ['02 Feb 2011', 'Conflict'],
+        ['03 Mar 2011', 'Assigned'],
+        ['04 Apr 2011', 'Micro-injection in progress'],
+        ['05 May 2011', 'Genotype confirmed'],
+        ['06 Jun 2011', 'Micro-injection aborted'],
+        ['07 Jul 2011', 'Genotype confirmed']
+      ].each_with_index do |values, idx|
+        idx += 1 # damn nth-child starting index of 1
+        within("table tbody tr:nth-child(#{idx+1})") do # damn ExtJS putting an empty tr at the start of the table
+          values.each {|i| assert page.has_css?('td', :text => i), "#{i} not found in row #{idx}"}
+        end
+      end
     end
 
   end

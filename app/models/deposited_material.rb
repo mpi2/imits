@@ -5,7 +5,6 @@ class DepositedMaterial < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110922103626
 #
 # Table name: deposited_materials
 #

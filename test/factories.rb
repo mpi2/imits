@@ -34,6 +34,7 @@ end
 Factory.define :mi_plan do |mi_plan|
   mi_plan.association :gene
   mi_plan.consortium { Consortium.find_by_name!('EUCOMM-EUMODIC') }
+  mi_plan.mi_plan_status   { MiPlanStatus.find_by_name! 'Interest' }
   mi_plan.mi_plan_priority { MiPlanPriority.find_by_name! 'High' }
 end
 
@@ -55,6 +56,30 @@ end
 Factory.define :wtsi_mi_attempt_genotype_confirmed, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.production_centre_name 'WTSI'
   mi_attempt.is_released_from_genotyping true
+end
+
+Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_confirmed do |mi_attempt|
+  mi_attempt.after_create do |mi|
+    mi.status_stamps.first.update_attributes(:created_at => Time.parse('2011-07-07 12:00:00'))
+
+    mi.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.micro_injection_aborted,
+      :created_at => Time.parse('2011-06-06 12:00:00'))
+    mi.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :created_at => Time.parse('2011-05-05 12:00:00'))
+    mi.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+      :created_at => Time.parse('2011-04-04 12:00:00'))
+
+    mi.mi_plan.status_stamps.first.update_attributes(:created_at => Time.parse('2011-03-03 12:00:00'))
+    mi.mi_plan.status_stamps.create!(
+      :mi_plan_status => MiPlanStatus[:Conflict],
+      :created_at => Time.parse('2011-02-02 12:00:00'))
+    mi.mi_plan.status_stamps.create!(
+      :mi_plan_status => MiPlanStatus[:Interest],
+      :created_at => Time.parse('2011-01-01 12:00:00'))
+  end
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|

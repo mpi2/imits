@@ -53,11 +53,11 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
         should 'filter by status' do
           mi = Factory.create :mi_attempt
-          mi.update_attributes!(:is_active => true)
+          mi.update_attributes!(:is_active => false)
           get :index, :q => {'status_eq' => MiAttemptStatus.micro_injection_aborted.description}, :format => :json
           data = parse_json_from_response
           assert_equal 1, data.size
-          assert_equal mi.id, data.first['id'].to_s
+          assert_equal mi.id, data.first['id']
         end
       end
 
@@ -108,7 +108,6 @@ class MiAttemptsControllerTest < ActionController::TestCase
       context 'JSON extended_response' do
         should 'be included when parameter is passed' do
           mi = Factory.create :mi_attempt
-          mi = MiAttempt::AggregatedView.find(mi.id)
           get :index, :format => 'json', 'extended_response' => 'true'
           expected = {
             'mi_attempts' => [mi.as_json],

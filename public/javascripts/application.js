@@ -48,7 +48,7 @@ function toggleCollapsibleFieldsetLegend(legend) {
 }
 
 function setupCollapsibleFieldsets() {
-    var collapsibleLegends = Ext.select('fieldset.collapsible legend');
+    var collapsibleLegends = Ext.select('fieldset.collapsible > legend');
     collapsibleLegends.addCls('collapsible-control');
     collapsibleLegends.each(function(elm, comp, idx) {
         elm.addListener('click', function() {

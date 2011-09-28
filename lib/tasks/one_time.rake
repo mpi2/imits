@@ -50,9 +50,26 @@ namespace :one_time do
   desc 'Use imits audit trail to fill in missing MiAttempt status stamps'
   task :back_fill_mi_attempt_status_stamps => :environment do
     MiAttempt.all.each do |mi_attempt|
-      old_revision = mi_attempt.audits[0].revision
-      MiAttempt::StatusStamp.create!(:mi_attempt_status_id => old_revision.mi_attempt_status_id,
-        :mi_attempt => mi_attempt, :created_at => old_revision.created_at)
+      first_revision = mi_attempt.audits[0].revision
+
+      if first_revision.mi_date
+          MiAttempt::StatusStamp.create!(:mi_attempt_status_id => first_revision.mi_attempt_status_id,
+            :mi_attempt => mi_attempt, :created_at => first_revision.mi_date)
+      else
+          MiAttempt::StatusStamp.create!(:mi_attempt_status_id => first_revision.mi_attempt_status_id,
+            :mi_attempt => mi_attempt, :created_at => first_revision.created_at)
+      end
+
+      previous_old_revision = first_revision
+
+      mi_attempt.audits[1..-1].each do |audit|
+        old_revision = audit.revision
+        if previous_old_revision.mi_attempt_status_id != old_revision.mi_attempt_status_id
+          MiAttempt::StatusStamp.create!(:mi_attempt_status_id => old_revision.mi_attempt_status_id,
+            :mi_attempt => mi_attempt, :created_at => old_revision.created_at)
+        end
+        previous_old_revision = old_revision
+      end
     end
   end
 

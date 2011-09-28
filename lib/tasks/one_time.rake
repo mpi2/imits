@@ -70,8 +70,17 @@ namespace :one_time do
     end
 
     MiPlan.all.each do |mi_plan|
-      mi_date = MiAttempt.all.map(&:mi_date).compact.sort.first.to_time_in_current_zone
-      mi_plan.status_stamps.create!(:created_at => mi_date,
+      times = []
+
+      mi_plan.mi_attempts.each do |mi|
+        if mi.mi_date
+          times.push mi.mi_date.to_time_in_current_zone
+        end
+
+        times.push mi.created_at
+      end
+
+      mi_plan.status_stamps.create!(:created_at => times.sort.first,
         :mi_plan_status => MiPlanStatus[:Assigned])
     end
   end

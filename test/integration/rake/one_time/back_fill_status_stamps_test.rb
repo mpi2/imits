@@ -86,7 +86,44 @@ class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
     end
 
     should 'create Assigned status stamp for MiPlan set to earliest created_at of its attempts' do
-      flunk
+      gene = Factory.create :gene, :marker_symbol => 'Zz99'
+
+      mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
+              :production_centre => Centre.find_by_name!('WTSI'), :gene => gene
+
+      es_cell_1 = Factory.create :es_cell, :gene => gene, :name => 'EPD_9999_Z_01'
+      es_cell_2 = Factory.create :es_cell, :gene => gene, :name => 'EPD_9999_Z_02'
+
+      mi = Factory.create :mi_attempt, :mi_date => Time.parse('2011-07-22T12:00:01 UTC'),
+              :es_cell => es_cell_1, :production_centre_name => 'WTSI',
+              :consortium_name => 'BaSH'
+
+      mi = Factory.create :mi_attempt, :created_at => Time.parse('2011-05-22T12:00:01 UTC'),
+              :es_cell => es_cell_1, :production_centre_name => 'WTSI',
+              :consortium_name => 'BaSH'
+
+      Factory.create :mi_attempt, :mi_date => Time.parse('2011-08-13T12:00:01 UTC'),
+              :es_cell => es_cell_2, :production_centre_name => 'WTSI',
+              :consortium_name => 'BaSH'
+
+      Factory.create :mi_attempt, :mi_date => nil,
+              :es_cell => es_cell_2, :production_centre_name => 'WTSI',
+              :consortium_name => 'BaSH'
+
+      mi_plan.reload
+      assert_equal 4, mi_plan.mi_attempts.size
+
+      mi_plan.status_stamps.destroy_all
+
+      output = run_script "rake --trace one_time:back_fill_status_stamps"
+      assert !output.match('aborted'), output
+
+      mi.reload
+      mi_plan.reload
+
+      assert_equal 1, mi_plan.status_stamps.size
+      assert_equal MiPlanStatus[:Assigned], mi_plan.status_stamps[0].mi_plan_status
+      assert_equal mi.created_at.to_s, mi_plan.status_stamps[0].created_at.to_s
     end
 
   end

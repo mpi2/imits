@@ -1,3 +1,5 @@
+#encoding: utf-8
+
 namespace :one_time do
 
   desc 'Back-fill User Names'
@@ -47,18 +49,13 @@ namespace :one_time do
     end
   end
 
-  desc 'Use imits audit trail to fill in missing MiAttempt status stamps'
-  task :back_fill_mi_attempt_status_stamps => :environment do
+  desc 'Use imits audit trail to fill in missing MiAttempt and MiPlan status stamps'
+  task :back_fill_status_stamps => :environment do
     MiAttempt.all.each do |mi_attempt|
       first_revision = mi_attempt.audits[0].revision
 
-      if first_revision.mi_date
-          MiAttempt::StatusStamp.create!(:mi_attempt_status_id => first_revision.mi_attempt_status_id,
-            :mi_attempt => mi_attempt, :created_at => first_revision.mi_date)
-      else
-          MiAttempt::StatusStamp.create!(:mi_attempt_status_id => first_revision.mi_attempt_status_id,
-            :mi_attempt => mi_attempt, :created_at => first_revision.created_at)
-      end
+      MiAttempt::StatusStamp.create!(:mi_attempt_status_id => first_revision.mi_attempt_status_id,
+        :mi_attempt => mi_attempt, :created_at => first_revision.created_at)
 
       previous_old_revision = first_revision
 
@@ -70,6 +67,12 @@ namespace :one_time do
         end
         previous_old_revision = old_revision
       end
+    end
+
+    MiPlan.all.each do |mi_plan|
+      mi_date = MiAttempt.all.map(&:mi_date).compact.sort.first.to_time_in_current_zone
+      mi_plan.status_stamps.create!(:created_at => mi_date,
+        :mi_plan_status => MiPlanStatus[:Assigned])
     end
   end
 

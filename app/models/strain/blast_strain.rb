@@ -3,7 +3,6 @@ class Strain::BlastStrain < Strain::Base
 end
 
 # == Schema Information
-# Schema version: 20110922000000
 #
 # Table name: strain_blast_strains
 #

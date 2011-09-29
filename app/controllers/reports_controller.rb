@@ -200,7 +200,11 @@ class ReportsController < ApplicationController
       all_mi_plans.sort_rows_by!('Consortium', :order => :ascending)
 
       mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
+
       total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(:gene_id, :distinct => true)
+      if include_plans_with_active_attempts
+        total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true)
+      end
 
       ##
       ## Counts of mi_plans grouped by status
@@ -221,7 +225,15 @@ class ReportsController < ApplicationController
       gene_count_by_status =
         MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt
         .count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
+
+      if include_plans_with_active_attempts
+        gene_count_by_status =
+          MiPlan.where('consortium_id in (?)', impc_consortia_ids)
+          .count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
+      end
+
       @summary_by_status << totals = ['TOTAL BY STATUS'] + statuses.map { |status| gene_count_by_status[status] || 0 } + [total_number_of_planned_genes]
+
 
       ##
       ## Counts of mi_plans grouped by priority
@@ -243,6 +255,13 @@ class ReportsController < ApplicationController
       gene_count_by_priority =
         MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt
         .count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
+
+      if include_plans_with_active_attempts
+        gene_count_by_priority =
+          MiPlan.where('consortium_id in (?)', impc_consortia_ids)
+          .count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
+      end
+
       @summary_by_priority << ['TOTAL BY PRIORITY'] + priorities.map { |priority| gene_count_by_priority[priority] || 0 } + [total_number_of_planned_genes]
 
       ##

@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 class MiPlan::StatusStamp < ActiveRecord::Base
+  acts_as_reportable
+
   belongs_to :mi_plan
   belongs_to :mi_plan_status
 
@@ -8,7 +10,6 @@ class MiPlan::StatusStamp < ActiveRecord::Base
 end
 
 # == Schema Information
-# Schema version: 20110922000000
 #
 # Table name: mi_plan_status_stamps
 #

@@ -48,7 +48,7 @@ function toggleCollapsibleFieldsetLegend(legend) {
 }
 
 function setupCollapsibleFieldsets() {
-    var collapsibleLegends = Ext.select('fieldset.collapsible legend');
+    var collapsibleLegends = Ext.select('fieldset.collapsible > legend');
     collapsibleLegends.addCls('collapsible-control');
     collapsibleLegends.each(function(elm, comp, idx) {
         elm.addListener('click', function() {
@@ -104,3 +104,8 @@ Ext.Loader.setConfig({
         'Ext.ux': window.basePath + '/extjs/examples/ux'
     }
 });
+
+Ext.require('Imits.data.Proxy');
+Ext.require('Imits.data.JsonWriter');
+Ext.require('Imits.model.MiAttempt');
+Ext.require('Imits.model.Gene');

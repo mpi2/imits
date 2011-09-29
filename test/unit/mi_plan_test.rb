@@ -17,17 +17,20 @@ class MiPlanTest < ActiveSupport::TestCase
       should belong_to :gene
       should belong_to :consortium
       should belong_to :production_centre
+      should belong_to :mi_plan_status
       should belong_to :mi_plan_priority
 
       should have_db_column(:gene_id).with_options(:null => false)
       should have_db_column(:consortium_id).with_options(:null => false)
       should have_db_column(:production_centre_id)
+      should have_db_column(:mi_plan_status_id).with_options(:null => false)
       should have_db_column(:mi_plan_priority_id).with_options(:null => false)
 
       should have_many :mi_attempts
 
       should validate_presence_of :gene
       should validate_presence_of :consortium
+      should validate_presence_of :mi_plan_status
       should validate_presence_of :mi_plan_priority
 
       context '#status_stamps' do
@@ -75,49 +78,21 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      context '#mi_plan_status virtual attribute' do
-        setup do
-          @default_mi_plan.status_stamps.destroy_all
-        end
-
-        should 'be nil on brand new untouched record' do
-          assert_nil MiPlan.new.mi_plan_status
-        end
-
-        should 'be the latest mi plan status initially' do
-          @default_mi_plan.send :add_status_stamp, MiPlanStatus[:Assigned]
-          @default_mi_plan.send :add_status_stamp, MiPlanStatus[:Conflict]
-
-          assert_equal MiPlanStatus[:Conflict], @default_mi_plan.mi_plan_status
-        end
-
-        should ', after being set but not saved, be the status that was just set' do
-          @default_mi_plan.mi_plan_status = MiPlanStatus[:Assigned]
-          assert_equal MiPlanStatus[:Assigned], @default_mi_plan.mi_plan_status
-        end
-
-        should ', after being set but not saved, not save the new status to the DB' do
-          @default_mi_plan.mi_plan_status = MiPlanStatus[:Assigned]
-          assert_not_equal MiPlanStatus[:Assigned], MiPlan.find(@default_mi_plan.id).mi_plan_status
-        end
-
-        should ', on save, store the set status as the latest one' do
+      context '#mi_plan_status=' do
+        should 'create status stamps when status is changed' do
+          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Conflict])
           @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Assigned])
-          assert_equal MiPlanStatus[:Assigned], MiPlan.find(@default_mi_plan.id).mi_plan_status
+          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Interest])
+
+          expected = [MiPlanStatus[:Interest], MiPlanStatus[:Conflict], MiPlanStatus[:Assigned], MiPlanStatus[:Interest]]
+          assert_equal expected, @default_mi_plan.status_stamps.map(&:mi_plan_status)
         end
 
-        should ', on save, not store duplicate statuses consecutively' do
-          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Assigned])
-          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Assigned])
-          assert_equal 1, MiPlan::StatusStamp.where(:mi_plan_id => @default_mi_plan.id,
-            :mi_plan_status_id => MiPlanStatus[:Assigned].id).size
-        end
+        should 'not add the same status stamp consecutively' do
+          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Interest])
+          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Interest])
 
-        should 'reset assigned-but-not-yet-saved status on #reload' do
-          mi_plan = Factory.create :mi_plan
-          mi_plan.mi_plan_status = MiPlanStatus[:Assigned]
-          mi_plan.reload
-          assert_equal 'Interest', mi_plan.mi_plan_status.name
+          assert_equal [MiPlanStatus[:Interest]], @default_mi_plan.status_stamps.map(&:mi_plan_status)
         end
       end
 
@@ -256,16 +231,16 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'set all interested MiPlans to "Declined - GLT Mouse" if MiPlans with GLT Mice already exist' do
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create :mi_plan,
-          :gene              => gene,
-          :consortium        => Consortium.find_by_name!('BaSH'),
-          :mi_plan_status    => MiPlanStatus.find_by_name!('Assigned'),
-          :production_centre => Centre.find_by_name!('BCM')
+                :gene              => gene,
+                :consortium        => Consortium.find_by_name!('BaSH'),
+                :mi_plan_status    => MiPlanStatus.find_by_name!('Assigned'),
+                :production_centre => Centre.find_by_name!('BCM')
 
         mi_attempt = Factory.create :mi_attempt,
-          :es_cell                  => Factory.create(:es_cell, :gene => gene),
-          :consortium_name          => 'BaSH',
-          :production_centre_name   => 'BCM',
-          :number_of_het_offspring  => 12
+                :es_cell                  => Factory.create(:es_cell, :gene => gene),
+                :consortium_name          => 'BaSH',
+                :production_centre_name   => 'BCM',
+                :number_of_het_offspring  => 12
 
         assert_equal mi_plan, mi_attempt.mi_plan
         assert_equal MiAttemptStatus.genotype_confirmed.description, mi_attempt.status
@@ -362,9 +337,9 @@ class MiPlanTest < ActiveSupport::TestCase
         10.times { Factory.create :mi_attempt, :is_active => true }
         10.times do
           Factory.create :mi_attempt,
-            :number_of_het_offspring => 12,
-            :production_centre_name => 'ICS',
-            :is_active => true
+                  :number_of_het_offspring => 12,
+                  :production_centre_name => 'ICS',
+                  :is_active => true
         end
 
         assert MiPlan.count > MiPlan.with_genotype_confirmed_mouse.count

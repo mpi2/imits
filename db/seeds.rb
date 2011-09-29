@@ -37,10 +37,11 @@ end
   'DTCC-KOMP'       => ['KOMP','Davis-Toronto-Charles River-CHORI'],
   'EUCOMM-EUMODIC'  => ['EUCOMM / EUMODIC',nil],
   'Helmholtz GMC'   => ['Infrafrontier/BMBF','Helmholtz Muenchen'],
+  'JAX'             => ['KOMP2','The Jackson Laboratory'],
   'MARC'            => ['China','Model Animarl Research Centre, Nanjing University'],
-  'Monterotondo'    => ['European Union','Monterotondo Institute for Cell Biology (CNR)'],
   'MGP'             => ['Wellcome Trust','Mouse Genetics Project, WTSI'],
   'MGP-KOMP'        => ['KOMP / Wellcome Trust','Mouse Genetics Project, WTSI'],
+  'Monterotondo'    => ['European Union','Monterotondo Institute for Cell Biology (CNR)'],
   'MRC'             => ['MRC','MRC - Harwell'],
   'NorCOMM2'        => ['Genome Canada','NorCOMM2'],
   'Phenomin'        => ['Phenomin','ICS'],
@@ -68,7 +69,8 @@ end
   'RIKEN BRC',
   'TCP',
   'UCD',
-  'WTSI'
+  'WTSI',
+  'JAX'
 ].each do |name|
   Centre.find_or_create_by_name name
 end
@@ -79,7 +81,8 @@ end
   'Declined - GLT Mouse'   => [30,'Declined - A GLT mouse is already recorded in iMits'],
   'Declined - MI Attempt'  => [40,'Declined - An active micro-injection attempt is already in progress'],
   'Declined - Conflict'    => [50,'Declined - This gene is already assigned in another planned micro-injection'],
-  'Assigned'               => [60,'Assigned - A single consortium has expressed an intrest in injecting this gene']
+  'Assigned'               => [60,'Assigned - A single consortium has expressed an intrest in injecting this gene'],
+  'Inactive'               => [70,'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up']
 }.each do |name,details|
   mi_plan_status = MiPlanStatus.find_or_create_by_name(:name => name)
   if mi_plan_status.description.blank?

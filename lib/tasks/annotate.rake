@@ -25,7 +25,7 @@ namespace :annotate do
 
   desc "Add/update models with new annotation"
   task :models => [:remove] do
-    system("cd #{Rails.root}; bundle exec annotate -e tests,fixtures -m -i")
+    system("cd #{Rails.root}; bundle exec annotate -e tests,fixtures -i")
     delete_lines_at_end_of_files(Dir['test/fixtures/**/*.yml'])
   end
 end

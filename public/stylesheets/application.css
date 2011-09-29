@@ -334,7 +334,7 @@ form fieldset > div {
     margin-bottom: 1em;
 }
 
-form fieldset > div > div, form fieldset > table {
+form fieldset > div > div, form fieldset > table, form fieldset > div > table {
     margin-top: 1em;
 }
 

@@ -131,7 +131,7 @@ Ext.define('Imits.widget.MiGrid', {
                     setTimeout(intensiveOperation, 100);
                 }
             }
-        }
+        };
     },
 
     initComponent: function() {
@@ -267,12 +267,13 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'blast_strain_name',
             header: 'Blast Strain',
-            readOnly: true,
             sortable: false,
             renderer: 'safeTextRenderer',
+            width: 200,
             editor: {
                 xtype: 'simplecombo',
                 store: Ext.Array.merge([''], window.MI_ATTEMPT_BLAST_STRAIN_OPTIONS),
+                storeOptionsAreSpecial: true,
                 listConfig: {
                     minWidth: 200
                 }
@@ -363,9 +364,11 @@ Ext.define('Imits.widget.MiGrid', {
             readOnly: true,
             sortable: false,
             renderer: 'safeTextRenderer',
+            width: 200,
             editor: {
                 xtype: 'simplecombo',
                 store: Ext.Array.merge([''], window.MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS),
+                storeOptionsAreSpecial: true,
                 listConfig: {
                     minWidth: 200
                 }
@@ -377,9 +380,11 @@ Ext.define('Imits.widget.MiGrid', {
             readOnly: true,
             sortable: false,
             renderer: 'safeTextRenderer',
+            width: 200,
             editor: {
                 xtype: 'simplecombo',
                 store: Ext.Array.merge([''], window.MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS),
+                storeOptionsAreSpecial: true,
                 listConfig: {
                     minWidth: 200
                 }

@@ -82,15 +82,10 @@ function googleAnalytics() {
 }
 
 Ext.util.Format.safeTextRenderer = function(value) {
-    if (value === undefined || value === null) {
-        value = '';
-    }
-    else {
+    if(Ext.isEmpty(value)) {
+        value = '\u00A0';
+    } else {
         value = String(value);
-    }
-
-    if (!value) {
-        return '\u00A0';
     }
 
     return Ext.util.Format.htmlEncode(value);

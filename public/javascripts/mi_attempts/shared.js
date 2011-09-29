@@ -41,21 +41,3 @@ function initDateFields() {
 
 Ext.onReady(initNumberFields);
 Ext.onReady(initDateFields);
-
-Ext.onReady(function() {
-    Ext.select('table.transformable').each(function(table) {
-        var grid = Ext.create('Ext.ux.grid.TransformGrid', table, {
-            stripeRows: true,
-            width: 248,
-            columns: [
-            {
-                sortable: false
-            },
-            {
-                sortable: false
-            }
-            ]
-        });
-        grid.render();
-    });
-});

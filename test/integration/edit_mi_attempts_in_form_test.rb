@@ -91,7 +91,7 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
         ['07 Jul 2011', 'Genotype confirmed']
       ].each_with_index do |values, idx|
         idx += 1 # damn nth-child starting index of 1
-        within("table tbody tr:nth-child(#{idx+1})") do # damn ExtJS putting an empty tr at the start of the table
+        within("table tbody tr:nth-child(#{idx})") do
           values.each {|i| assert page.has_css?('td', :text => i), "#{i} not found in row #{idx}"}
         end
       end

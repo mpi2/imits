@@ -11,13 +11,13 @@ class CreateMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       fill_in 'marker_symbol-search-box', :with => marker_symbol
       click_button 'Search'
       sleep 5
-      find(:xpath, '//em[text()="' + es_cell_name + '"]').click
+      find(:xpath, '//td/div[text()="' + es_cell_name + '"]').click
     end
 
     setup do
       Factory.create(:mi_attempt, :colony_name => 'MABC')
       login default_user.email
-      click_link 'Create'
+      click_link 'Create MI Attempt'
     end
 
     should 'save MI and redirect back to show page when valid data' do

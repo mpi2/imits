@@ -82,15 +82,10 @@ function googleAnalytics() {
 }
 
 Ext.util.Format.safeTextRenderer = function(value) {
-    if (value === undefined || value === null) {
-        value = '';
-    }
-    else {
+    if(Ext.isEmpty(value)) {
+        value = '\u00A0';
+    } else {
         value = String(value);
-    }
-
-    if (!value) {
-        return '\u00A0';
     }
 
     return Ext.util.Format.htmlEncode(value);
@@ -104,3 +99,8 @@ Ext.Loader.setConfig({
         'Ext.ux': window.basePath + '/extjs/examples/ux'
     }
 });
+
+Ext.require('Imits.data.Proxy');
+Ext.require('Imits.data.JsonWriter');
+Ext.require('Imits.model.MiAttempt');
+Ext.require('Imits.model.Gene');

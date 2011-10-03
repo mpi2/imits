@@ -262,7 +262,7 @@ Ext.define('Imits.MiAttempts.New.SearchTab', {
         this.callParent();
 
         this.searchBox = Ext.create('Ext.form.field.Text', {
-            id: this.initialConfig.searchParam + '-search-box',
+            name: this.initialConfig.searchParam + '-search-box',
             selectOnFocus: true,
             listeners: {
                 specialkey: function(field, e) {

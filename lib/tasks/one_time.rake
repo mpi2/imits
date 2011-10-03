@@ -41,7 +41,7 @@ namespace :one_time do
       'skarnes@sanger.ac.uk' => 'Bill Skarnes',
       'vvi@sanger.ac.uk' => 'Vivek Iyer',
       'swakana@brc.riken.jp' => 'Shigeharu Wakana',
-      'yobata@rtc.riken.go.jp' => 'OBATA Yuichi',
+      'yobata@rtc.riken.go.jp' => 'Obata Yuichi',
       'hmasuya@brc.riken.jp' => 'Hiroshi Masuya',
       'dwest@chori.org' => 'David West',
       'Steve.Murray@jax.org' => 'Steve Murray',

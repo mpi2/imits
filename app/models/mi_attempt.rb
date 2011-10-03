@@ -6,6 +6,7 @@ class MiAttempt < ActiveRecord::Base
 
   extend AccessAssociationByAttribute
   include MiAttempt::StatusChanger
+  include MiAttempt::WarningGenerator
 
   EMMA_OPTIONS = {
     'unsuitable' => 'Unsuitable for EMMA',

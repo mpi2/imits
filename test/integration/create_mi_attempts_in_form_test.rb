@@ -17,7 +17,7 @@ class CreateMiAttemptsInFormTest < ActionDispatch::IntegrationTest
     setup do
       Factory.create(:mi_attempt, :colony_name => 'MABC')
       login default_user.email
-      click_link 'Create'
+      click_link 'Create MI Attempt'
     end
 
     should 'save MI and redirect back to show page when valid data' do

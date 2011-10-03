@@ -60,6 +60,7 @@ Ext.define('Imits.widget.MiGrid', {
                     }
                 });
                 if(!existing) {
+                    column.tdCls = 'column-' + column.dataIndex;
                     columns.push(column);
                 }
             });

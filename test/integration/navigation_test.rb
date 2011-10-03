@@ -17,35 +17,23 @@ class NavigationTest < ActionDispatch::IntegrationTest
     context 'when logged in' do
       setup { login }
 
-      should 'select Search & Edit tab when on root page' do
-        visit '/'
-        assert_current_link 'Search & Edit'
-      end
-
       should 'filter by user\'s production centre when Search & Edit is clicked' do
-        click_link 'Search & Edit'
-        assert_equal default_user.production_centre.id.to_s,
-                page.find("select[name=production_centre_id] option[selected=selected]").value
+        click_link 'Search & Edit MI Attempts'
+        assert_equal default_user.production_centre.name,
+                page.find('select[name="q[production_centre_name]"] option[selected=selected]').value
       end
-
-      should 'filter by user\'s production centre when visited via root path' do
-        visit '/'
-        assert_equal default_user.production_centre.id.to_s,
-                page.find("select[name=production_centre_id] option[selected=selected]").value
-      end
-
 
       should 'select Search & Edit tab when on Search & Edit page selected regardless of actual URL' do
-        click_link 'Search & Edit'
-        assert_current_link 'Search & Edit'
-        fill_in 'search_terms', :with => 'cbx1'
-        select 'WTSI', :from => 'production_centre_id'
-        assert_current_link 'Search & Edit'
+        click_link 'Search & Edit MI Attempts'
+        assert_current_link 'Search & Edit MI Attempts'
+        fill_in 'q[terms]', :with => 'cbx1'
+        select 'WTSI', :from => 'q[production_centre_name]'
+        assert_current_link 'Search & Edit MI Attempts'
       end
 
       should 'select Create tab when on Create page' do
-        click_link 'Create'
-        assert_current_link 'Create'
+        click_link 'Create MI Attempt'
+        assert_current_link 'Create MI Attempt'
       end
 
       should 'not select any tab when not on a tabbed page' do

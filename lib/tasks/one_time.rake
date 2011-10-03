@@ -39,7 +39,13 @@ namespace :one_time do
       's.wells@har.mrc.ac.uk' => 'Sara Wells',
       'selloum@igbmc.fr' => 'Mohammed Selloum',
       'skarnes@sanger.ac.uk' => 'Bill Skarnes',
-      'vvi@sanger.ac.uk' => 'Vivek Iyer'
+      'vvi@sanger.ac.uk' => 'Vivek Iyer',
+      'swakana@brc.riken.jp' => 'Shigeharu Wakana',
+      'yobata@rtc.riken.go.jp' => 'OBATA Yuichi',
+      'hmasuya@brc.riken.jp' => 'Hiroshi Masuya',
+      'dwest@chori.org' => 'David West',
+      'Steve.Murray@jax.org' => 'Steve Murray',
+      'Adrienne.McKenzie@anu.edu.au' => 'Adrienne McKenzie'
     }.each do |email,name|
       user = User.find_by_email!(email)
       unless name.blank?

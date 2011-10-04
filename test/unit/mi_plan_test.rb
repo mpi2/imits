@@ -257,6 +257,26 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal ['Declined - GLT Mouse', 'Declined - GLT Mouse'], mi_plans.map {|i| i.mi_plan_status.name }
       end
 
+      should 'ignore "Inactive" MiPlans when making decisions' do
+        gene              = Factory.create :gene_cbx1
+        mi_plan           = Factory.create :mi_plan,
+                              :gene => gene,
+                              :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC')
+        inactive_mi_plan  = Factory.create :mi_plan,
+                              :gene => gene,
+                              :consortium => Consortium.find_by_name!('JAX'),
+                              :production_centre => Centre.find_by_name!('JAX'),
+                              :mi_plan_status => MiPlanStatus['Inactive']
+
+        assert_equal 'Interest', mi_plan.status
+        assert_equal 'Inactive', inactive_mi_plan.status
+
+        MiPlan.assign_genes_and_mark_conflicts
+
+        assert_equal 'Assigned', mi_plan.reload.status
+        assert_equal 'Inactive', inactive_mi_plan.reload.status
+      end
+
     end # ::assign_genes_and_mark_conflicts
 
     context '::all_grouped_by_mgi_accession_id_then_by_status_name' do

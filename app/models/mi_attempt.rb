@@ -202,11 +202,7 @@ class MiAttempt < ActiveRecord::Base
 
   def set_mi_plan
     if ! self.mi_plan
-      mi_plan_params = {
-        :gene_id => self.gene.id,
-        :consortium_id => Consortium.find_by_name!(self.consortium_name).id,
-        :production_centre_id => Centre.find_by_name!(self.production_centre_name).id
-      }
+      mi_plan_params = self.mi_plan_lookup_conditions
 
       self.mi_plan = MiPlan.where(mi_plan_params).first
       if self.mi_plan
@@ -345,6 +341,14 @@ class MiAttempt < ActiveRecord::Base
 
   def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
   def es_cell_allele_symbol; es_cell.try(:allele_symbol); end
+
+  def mi_plan_lookup_conditions
+    return {
+        :gene_id => self.es_cell.gene.id,
+        :consortium_id => Consortium.find_by_name!(self.consortium_name).id,
+        :production_centre_id => Centre.find_by_name!(self.production_centre_name).id
+      }
+  end
 
   def self.translate_search_param(param)
     translations = {

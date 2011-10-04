@@ -43,33 +43,6 @@ function processRestOfForm() {
     restOfForm.esCellMarkerSymbol = esCellMarkerSymbolField.getValue();
     esCellMarkerSymbolField.remove();
 
-    var submitButton = Ext.get('mi_attempt_submit');
-    submitButton.addListener('click', function() {
-        submitButton.dom.disabled = 'disabled';
-        Ext.getBody().addCls('wait');
-
-        Ext.Ajax.request({
-            url: basePath + '/mi_attempts.json',
-            method: 'GET',
-            params: {
-                es_cell_marker_symbol_eq: restOfForm.esCellMarkerSymbol
-            },
-            success: function(response) {
-                var mis = Ext.JSON.decode(response.responseText);
-                if(!Ext.isEmpty(mis)) {
-                    if(!window.confirm("Gene " + restOfForm.esCellMarkerSymbol + " has already been micro-injected.\nAre you sure you want to create this?")) {
-                        Ext.getBody().removeCls('wait');
-                        submitButton.dom.disabled = undefined;
-                        return;
-                    }
-                }
-
-                var form = submitButton.up('form');
-                form.dom.submit();
-            }
-        });
-    });
-
     Imits.MiAttempts.New.restOfForm = restOfForm;
 }
 

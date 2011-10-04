@@ -21,11 +21,16 @@
     <div id="rest-of-form">
       <%= form.hidden_field 'es_cell_name' %>
       <%= form.hidden_field 'es_cell_marker_symbol' %>
+
+      <ul id="warnings">
+        <%= @mi_attempt.warnings.map { |w| content_tag 'li', w } %>
+      </ul>
+
       <%= render 'form_contents', :form => form %>
 
-        <div>
-          <button id="mi_attempt_submit">Create</button>
-        </div>
+      <div>
+        <button id="mi_attempt_submit">Create</button>
+      </div>
     </div>
   <% end %>
 </div>

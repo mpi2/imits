@@ -5,11 +5,11 @@ module ApplicationHelper
     end
   end
 
-  def render_message(message_type, message = nil, &block)
+  def render_message(message_type, message = nil, args = {}, &block)
     if message.nil?
       message = capture(&block)
     end
-    content_tag(:div, message, :class => ['message', message_type])
+    content_tag(:div, message, args.merge(:class => ['message', message_type]))
   end
 
   def extjs_tags

@@ -7,14 +7,20 @@ class CreateMiAttemptsInFormTest < ActionDispatch::IntegrationTest
 
     setup do
       Factory.create(:mi_attempt, :colony_name => 'MABC')
-      login default_user.email
+      login
       click_link 'Create MI Attempt'
     end
 
     should 'save MI and redirect back to show page when valid data' do
+      mi_plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),
+              :consortium => Consortium.find_by_name!('MGP'),
+              :mi_plan_status => MiPlanStatus[:Assigned],
+              :gene => Factory.create(:gene_cbx1)
+
       choose_es_cell_from_list
       fill_in 'mi_attempt[colony_name]', :with => 'MZSQ'
       select 'MGP', :from => 'mi_attempt[consortium_name]'
+      select 'WTSI', :from => 'mi_attempt[production_centre_name]'
       click_button 'mi_attempt_submit'
 
       sleep 3

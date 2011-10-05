@@ -8,28 +8,67 @@ class MiAttempt::WarningsTest < ActionDispatch::IntegrationTest
       login
     end
 
-    should 'not show them when rendering mi_attempts/new' do
-      visit new_mi_attempt_path
-      choose_es_cell_from_list
-      assert page.has_no_css?('#warnings')
-    end
+    context 'when creating MI' do
+      should 'not show them when rendering mi_attempts/new' do
+        visit new_mi_attempt_path
+        assert page.has_no_css?('#warnings')
+      end
 
-    should 'show them when there are warnings' do
-      Factory.create :es_cell_EPD0127_4_E01
+      should 'not show warnings when there are validation errors' do
+        es_cell = Factory.create :es_cell_EPD0127_4_E01
 
-      visit new_mi_attempt_path
-      choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
-      select 'BaSH', :from => 'mi_attempt[consortium_name]'
-      click_button 'mi_attempt_submit'
+        visit new_mi_attempt_path
+        choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
+        fill_in 'mi_attempt[colony_name]', :with => es_cell.mi_attempts.first.colony_name
+        click_button 'mi_attempt_submit'
+        assert page.has_content? 'ES Cell Details'
+        assert page.has_no_css?('#warnings')
+      end
 
-      assert_match %r{/mi_attempts/new}, current_url
+      should 'show them after posting form when there are warnings' do
+        es_cell = Factory.create :es_cell_EPD0127_4_E01
 
-      within('#warnings') do
-        assert page.has_css? 'li', :text => MiAttempt::WARNING_MESSAGES[:gene_already_micro_injected]
+        visit new_mi_attempt_path
+        choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
+        select 'BaSH', :from => 'mi_attempt[consortium_name]'
+
+        mis_count = es_cell.mi_attempts.count
+        click_button 'mi_attempt_submit'
+        sleep 3
+        es_cell.reload
+
+        assert_equal mis_count, es_cell.mi_attempts.count
+
+        assert page.has_content? 'ES Cell Details'
+        assert_current_link 'Create MI Attempt'
+
+        within('#warnings ul') do
+          assert page.has_css? 'li', :text => MiAttempt::WARNING_MESSAGES[:gene_already_micro_injected]
+        end
+      end
+
+      should 'let user ignore warnings and create anyway' do
+        visit new_mi_attempt_path
+        choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
+        select 'BaSH', :from => 'mi_attempt[consortium_name]'
+
+        click_button 'mi_attempt_submit'
+
+        assert_current_link 'Create MI Attempt'
+
+        page.find('#warnings button').click
+
+        assert_match %r{/mi_attempts/\d+}, current_url
+        assert page.has_content? 'ES Cell Details'
+        assert page.has_content? 'EPD0127_4_E01'
       end
     end
 
-    should 'not show them on edit page'
+    should 'not show them on edit page' do
+      mi = Factory.create :mi_attempt
+      visit mi_attempt_path(mi)
+      assert page.has_no_css?('#warnings')
+    end
 
   end
 end

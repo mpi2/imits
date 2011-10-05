@@ -6,6 +6,14 @@ Ext.onReady(function() {
     var panel = Ext.create('Imits.MiAttempts.New.EsCellSelectorForm', {
         renderTo: 'es-cell-selector'
     });
+
+    var ignoreWarningsButton = Ext.get('ignore-warnings');
+    if(ignoreWarningsButton) {
+        ignoreWarningsButton.addListener('click', function() {
+            Imits.MiAttempts.New.restOfForm.ignoreWarningsField.dom.value = true;
+            Imits.MiAttempts.New.restOfForm.submitButton.onClickHandler();
+        });
+    }
 });
 
 function processRestOfForm() {
@@ -39,17 +47,20 @@ function processRestOfForm() {
         restOfForm.hidden = false;
     }
 
+    restOfForm.ignoreWarningsField = restOfForm.child('input[name="ignore_warnings"]');
+
     var esCellMarkerSymbolField = restOfForm.child('input[name="mi_attempt[es_cell_marker_symbol]"]');
     restOfForm.esCellMarkerSymbol = esCellMarkerSymbolField.getValue();
     esCellMarkerSymbolField.remove();
 
-    var submitButton = Ext.get('mi_attempt_submit');
-    submitButton.addListener('click', function() {
-        submitButton.dom.disabled = 'disabled';
+    restOfForm.submitButton = Ext.get('mi_attempt_submit');
+    restOfForm.submitButton.onClickHandler = function() {
+        this.dom.disabled = 'disabled';
         Ext.getBody().addCls('wait');
-        var form = submitButton.up('form');
+        var form = this.up('form');
         form.dom.submit();
-    });
+    }
+    restOfForm.submitButton.addListener('click', restOfForm.submitButton.onClickHandler, restOfForm.submitButton);
 
     Imits.MiAttempts.New.restOfForm = restOfForm;
 }

@@ -17,7 +17,7 @@ module MiAttempt::WarningGenerator
     end
 
     potential_mi_plan = MiPlan.where(mi_plan_lookup_conditions).first
-    if potential_mi_plan and potential_mi_plan.mi_plan_status != MiPlanStatus[:Assigned]
+    if !potential_mi_plan or potential_mi_plan.mi_plan_status != MiPlanStatus[:Assigned]
         @warnings.push WARNING_MESSAGES[:micro_injecting_unassigned_gene]
     end
 

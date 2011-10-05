@@ -8,6 +8,8 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
     should 'not generate warnings when there are none' do
       Factory.create :mi_attempt
       mi = Factory.build :mi_attempt
+      Factory.create(:mi_plan, mi.mi_plan_lookup_conditions.merge(:mi_plan_status => MiPlanStatus[:Assigned]))
+
       assert_false mi.generate_warnings
       assert_equal nil, mi.warnings
     end
@@ -41,6 +43,14 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       mi = Factory.build :mi_attempt, :consortium_name => 'BaSH',
               :production_centre_name => 'WTSI',
               :es_cell => es_cell
+
+      assert_true mi.generate_warnings
+      assert_equal MiAttempt::WARNING_MESSAGES[:micro_injecting_unassigned_gene], mi.warnings.first
+    end
+
+    should 'generate warning if MiPlan for the MiAttempt has to be created' do
+      mi = Factory.build :mi_attempt
+      assert_equal 0, MiPlan.count
 
       assert_true mi.generate_warnings
       assert_equal MiAttempt::WARNING_MESSAGES[:micro_injecting_unassigned_gene], mi.warnings.first

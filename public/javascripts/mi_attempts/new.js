@@ -43,6 +43,14 @@ function processRestOfForm() {
     restOfForm.esCellMarkerSymbol = esCellMarkerSymbolField.getValue();
     esCellMarkerSymbolField.remove();
 
+    var submitButton = Ext.get('mi_attempt_submit');
+    submitButton.addListener('click', function() {
+        submitButton.dom.disabled = 'disabled';
+        Ext.getBody().addCls('wait');
+        var form = submitButton.up('form');
+        form.dom.submit();
+    });
+
     Imits.MiAttempts.New.restOfForm = restOfForm;
 }
 

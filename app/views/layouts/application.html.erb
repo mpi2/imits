@@ -48,18 +48,19 @@
 
     <div id="messages" class="container_12">
       <% if !Rails.env.production? %>
-        <div class="message non-production-warning">
+        <%= render_message :warning do %>
           PLEASE NOTE: This site is currently in 'development/testing' mode. This means that:
           <ul>
             <li>Performance will be reduced (as any form of caching is turned off)</li>
             <li>The data in the database is INCOMPLETE/INCORRECT - please do not trust the data in this instance (it is our development playground)</li>
           </ul>
           <strong>PLEASE DO NOT ENTER ANY PRODUCTION DATA INTO THIS SITE - IT WILL BE LOST...</strong>
-        </div>
+        <% end %>
       <% end %>
       <%= flash_message :notice %>
       <%= flash_message :error %>
       <%= flash_message :alert %>
+      <%= yield :messages %>
     </div>
     <div class="clear"></div>
 

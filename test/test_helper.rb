@@ -110,6 +110,10 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
     assert_match(%r{^http://[^/]+/users/login$}, current_url)
   end
 
+  def assert_current_link(text)
+    assert page.has_css? "#navigation li.current a", :text => text
+  end
+
   def selector_for_table_cell(table_row)
     ".x-grid-body tbody tr:nth-child(#{table_row+1}) .x-grid-cell-inner"
   end

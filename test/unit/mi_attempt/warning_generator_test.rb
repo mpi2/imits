@@ -6,9 +6,10 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
   context 'MiAttempt::WarningGenerator' do
 
     should 'not generate warnings when there are none' do
+      Factory.create :mi_attempt
       mi = Factory.build :mi_attempt
       assert_false mi.generate_warnings
-      assert_equal [], mi.warnings
+      assert_equal nil, mi.warnings
     end
 
     context 'when trying to create MI for already injected gene' do

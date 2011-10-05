@@ -12,7 +12,7 @@ module MiAttempt::WarningGenerator
 
     @warnings = []
 
-    if new_record? and MiAttempt.public_search(:gene_marker_symbol_eq => gene.marker_symbol).result.count != 0
+    if new_record? and MiAttempt.public_search(:es_cell_marker_symbol_eq => gene.marker_symbol).result.count != 0
       @warnings.push WARNING_MESSAGES[:gene_already_micro_injected]
     end
 
@@ -25,6 +25,10 @@ module MiAttempt::WarningGenerator
   end
 
   def warnings
-    return @warnings
+    if @warnings.blank?
+      return nil
+    else
+      return @warnings
+    end
   end
 end

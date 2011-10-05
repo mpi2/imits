@@ -41,6 +41,7 @@ GEM
       rails (>= 3.0.3)
     acts_as_reportable (1.1.1)
       ruport (>= 1.6.0)
+    addressable (2.2.6)
     annotate (2.4.0)
     archive-tar-minitar (0.5.2)
     arel (2.0.10)
@@ -56,6 +57,8 @@ GEM
       rack-test (>= 0.5.4)
       selenium-webdriver (~> 2.0)
       xpath (~> 0.1.4)
+    capybara-webkit (0.7.1)
+      capybara (>= 1.0.0, < 1.2)
     childprocess (0.2.2)
       ffi (~> 1.0.6)
     color (1.4.1)
@@ -83,6 +86,8 @@ GEM
     i18n (0.5.0)
     json_pure (1.5.4)
       spruz (~> 0.2.8)
+    launchy (2.0.5)
+      addressable (~> 2.2.6)
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
     mail (2.2.19)
@@ -172,11 +177,13 @@ DEPENDENCIES
   awesome_print
   biomart
   capybara
+  capybara-webkit
   database_cleaner
   devise
   factory_girl_rails
   foreigner
   hoptoad_notifier
+  launchy
   mocha
   pg
   rails (~> 3.0.9)

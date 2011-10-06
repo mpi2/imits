@@ -48,7 +48,7 @@ namespace :deploy do
   end
 
   desc "Generate CSS/JS assets with Jammit"
-  task :generate_assets, :roles => :web, do
+  task :generate_assets, :roles => :web do
     run "cd #{release_path} && #{bundle_cmd} exec jammit"
   end
 

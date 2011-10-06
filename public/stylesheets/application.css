@@ -450,7 +450,9 @@ form fieldset.collapsible-content-hidden {
 
 /* @group Micro-Injection Create/Edit Form */
 
-#mi-attempt-new-top, #mi-attempt-new-bottom {
+#mi-attempt-box,
+#mi-attempt-new-top,
+#mi-attempt-new-bottom {
   box-sizing: content-box;
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;

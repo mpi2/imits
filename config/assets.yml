@@ -9,9 +9,9 @@ stylesheets:
     - public/stylesheets/grid_ie.css
 
 # To get all of the ExtJS dependencies, you need to file up a dev application,
-# then go to '/mi_attempts' and run the following commands at the javascript
+# then go to the home page and run the following commands at the javascript
 # console:
-#   Ext.require("Imits.widget.GeneGrid")
+#   Ext.require(['Imits.widget.GeneGrid','Imits.widget.MiGrid'])
 #   Ext.Array.each( Ext.Loader.history, function(className) { console.log('public' + Ext.Loader.getPath(className)) })
 #
 # this will then print out all of the dependencies below 'public/extjs/ext-all.js'

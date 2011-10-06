@@ -63,5 +63,5 @@ end
 after "deploy:symlink", "deploy:fix_perms"
 after "deploy:update_code", "deploy:symlink_shared"
 after "deploy:symlink_shared", "deploy:extjs"
-after "deploy:symlink_shared", "deploy:generate_assets"
+after "deploy:extjs", "deploy:generate_assets"
 

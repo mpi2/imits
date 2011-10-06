@@ -4,6 +4,7 @@ stylesheets:
     - public/stylesheets/reset.css
     - public/extjs/resources/css/ext-all.css
     - public/stylesheets/grid.css
+    - public/extjs/examples/ux/css/CheckHeader.css
     - public/stylesheets/application.css
   ie:
     - public/stylesheets/grid_ie.css
@@ -16,8 +17,10 @@ stylesheets:
 #
 # this will then print out all of the dependencies below 'public/extjs/ext-all.js'
 javascripts:
-  extjs:
+  common:
     - public/extjs/ext-all.js
+    - public/javascripts/application.js
+
     - public/javascripts/Imits/data/JsonWriter.js
     - public/javascripts/Imits/data/Proxy.js
     - public/javascripts/Imits/model/MiAttempt.js
@@ -25,6 +28,7 @@ javascripts:
     - public/javascripts/Imits/widget/SimpleNumberField.js
     - public/javascripts/Imits/widget/SimpleCombo.js
     - public/javascripts/Imits/widget/QCCombo.js
+    - public/extjs/examples/ux/CheckColumn.js
     - public/javascripts/Imits/widget/grid/BoolGridColumn.js
     - public/extjs/examples/ux/grid/FiltersFeature.js
     - public/javascripts/Imits/widget/grid/SimpleDateColumn.js
@@ -42,5 +46,3 @@ javascripts:
     - public/javascripts/Imits/model/Gene.js
     - public/extjs/examples/ux/RowExpander.js
     - public/javascripts/Imits/widget/GeneGrid.js
-  common:
-    - public/javascripts/application.js

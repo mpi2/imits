@@ -136,8 +136,9 @@ Ext.define('Imits.widget.GeneGrid', {
   ],
 
   /** @private **/
-  createComboBox: function ( label, label_width, store_source ) {
+  createComboBox: function ( id, label, label_width, store_source ) {
     return Ext.create('Ext.form.ComboBox', {
+      id: id + '_combobox',
       fieldLabel: label,
       labelAlign: 'right',
       labelWidth: label_width,
@@ -163,9 +164,9 @@ Ext.define('Imits.widget.GeneGrid', {
     );
 
     // Add the top (gene selection) toolbar
-    var consortium_combo = grid.createComboBox('Consortium',65,window.CONSORTIUM_COMBO_OPTS);
-    var centre_combo     = grid.createComboBox('Production Centre',100,window.CENTRE_COMBO_OPTS);
-    var priority_combo   = grid.createComboBox('Priority',47,window.PRIORITY_COMBO_OPTS);
+    var consortium_combo = grid.createComboBox('consortium','Consortium',65,window.CONSORTIUM_COMBO_OPTS);
+    var centre_combo     = grid.createComboBox('production_centre','Production Centre',100,window.CENTRE_COMBO_OPTS);
+    var priority_combo   = grid.createComboBox('priority','Priority',47,window.PRIORITY_COMBO_OPTS);
     var selected_genes   = [];
     var failed_genes     = [];
     var gene_counter     = 0;
@@ -179,6 +180,7 @@ Ext.define('Imits.widget.GeneGrid', {
           priority_combo,
           '  ',
           {
+            id: 'register_interest_button',
             text: 'Register Interest',
             cls:'x-btn-text-icon',
             iconCls: 'icon-add',

@@ -3,23 +3,19 @@
 
   <head>
     <title>iMits - <%= @tab || @title %></title>
-    <%= stylesheet_link_tag 'reset' %>
 
-    <%= extjs_tags %>
-
-    <%= stylesheet_link_tag 'grid' %>
+    <%= include_stylesheets :common, :media => 'all' %>
     <!--[if IE]>
-    <%= stylesheet_link_tag 'grid_ie' %>
+    <%= include_stylesheets :ie, :media => 'all' %>
     <![endif]-->
-
-    <%= stylesheet_link_tag 'application' %>
 
     <%= csrf_meta_tag %>
 
     <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
     <%= javascript_tag "authenticityToken = '#{form_authenticity_token}';" %>
 
-    <%= javascript_include_tag 'application' %>
+    <%= include_javascripts :extjs %>
+    <%= include_javascripts :common %>
 
     <%= yield :head %>
 

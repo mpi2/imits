@@ -28,7 +28,7 @@ function split_mi_plan_string (mi_plan_string) {
 Ext.define('Imits.widget.GeneGrid', {
   extend: 'Imits.widget.Grid',
   requires: [
-    'Imits.widget.Grid',
+    'Imits.model.Gene',
     'Imits.widget.grid.RansackFiltersFeature',
     'Ext.ux.RowExpander',
     'Ext.selection.CheckboxModel'

@@ -1,0 +1,46 @@
+
+stylesheets:
+  common:
+    - public/stylesheets/reset.css
+    - public/extjs/resources/css/ext-all.css
+    - public/stylesheets/grid.css
+    - public/stylesheets/application.css
+  ie:
+    - public/stylesheets/grid_ie.css
+
+# To get all of the ExtJS dependencies, you need to file up a dev application,
+# then go to '/mi_attempts' and run the following commands at the javascript
+# console:
+#   Ext.require("Imits.widget.GeneGrid")
+#   Ext.Array.each( Ext.Loader.history, function(className) { console.log('public' + Ext.Loader.getPath(className)) })
+#
+# this will then print out all of the dependencies below 'public/extjs/ext-all.js'
+javascripts:
+  extjs:
+    - public/extjs/ext-all.js
+    - public/javascripts/Imits/data/JsonWriter.js
+    - public/javascripts/Imits/data/Proxy.js
+    - public/javascripts/Imits/model/MiAttempt.js
+    - public/javascripts/Imits/widget/Grid.js
+    - public/javascripts/Imits/widget/SimpleNumberField.js
+    - public/javascripts/Imits/widget/SimpleCombo.js
+    - public/javascripts/Imits/widget/QCCombo.js
+    - public/javascripts/Imits/widget/grid/BoolGridColumn.js
+    - public/extjs/examples/ux/grid/FiltersFeature.js
+    - public/javascripts/Imits/widget/grid/SimpleDateColumn.js
+    - public/javascripts/Imits/widget/grid/RansackFiltersFeature.js
+    - public/javascripts/Imits/widget/grid/MiAttemptRansackFiltersFeature.js
+    - public/javascripts/Imits/widget/MiGrid.js
+    - public/extjs/examples/ux/grid/menu/ListMenu.js
+    - public/extjs/examples/ux/grid/menu/RangeMenu.js
+    - public/extjs/examples/ux/grid/filter/Filter.js
+    - public/extjs/examples/ux/grid/filter/BooleanFilter.js
+    - public/extjs/examples/ux/grid/filter/DateFilter.js
+    - public/extjs/examples/ux/grid/filter/ListFilter.js
+    - public/extjs/examples/ux/grid/filter/NumericFilter.js
+    - public/extjs/examples/ux/grid/filter/StringFilter.js
+    - public/javascripts/Imits/model/Gene.js
+    - public/extjs/examples/ux/RowExpander.js
+    - public/javascripts/Imits/widget/GeneGrid.js
+  common:
+    - public/javascripts/application.js

@@ -2,12 +2,13 @@ Ext.define('Imits.widget.MiGrid', {
     extend: 'Imits.widget.Grid',
 
     requires: [
-    'Imits.widget.SimpleNumberField',
-    'Imits.widget.SimpleCombo',
-    'Imits.widget.QCCombo',
-    'Imits.widget.grid.BoolGridColumn',
-    'Imits.widget.grid.MiAttemptRansackFiltersFeature',
-    'Imits.widget.grid.SimpleDateColumn'
+      'Imits.model.MiAttempt',
+      'Imits.widget.SimpleNumberField',
+      'Imits.widget.SimpleCombo',
+      'Imits.widget.QCCombo',
+      'Imits.widget.grid.BoolGridColumn',
+      'Imits.widget.grid.MiAttemptRansackFiltersFeature',
+      'Imits.widget.grid.SimpleDateColumn'
     ],
 
     title: 'Micro-Injection Attempts',

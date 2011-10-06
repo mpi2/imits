@@ -32,10 +32,10 @@ Ext.define('Imits.widget.MiGrid', {
         }
     },
 
-    selType: 'rowmodel',
+    selType: 'cellmodel',
 
     plugins: [
-    Ext.create('Ext.grid.plugin.RowEditing', {
+    Ext.create('Ext.grid.plugin.CellEditing', {
         autoCancel: false,
         clicksToEdit: 1
     })

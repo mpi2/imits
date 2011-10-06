@@ -29,7 +29,11 @@
 
     <div>
       <%= form.label :production_centre_name, 'Production Centre' %>
-      <%= form.collection_select :production_centre_name, @centres, :name, :name %>
+      <% if mi_attempt.new_record? %>
+        <%= form.collection_select :production_centre_name, @centres, :name, :name %>
+      <% else %>
+        <span><%= mi_attempt.production_centre_name %></span>
+      <% end %>
     </div>
 
     <div>

@@ -97,5 +97,9 @@ class EditMiAttemptsInFormTest < ActionDispatch::IntegrationTest
       end
     end
 
+    should 'not let production centre be edited' do
+      assert page.has_no_css?('select[name="mi_attempt[production_centre_name]"]')
+    end
+
   end
 end

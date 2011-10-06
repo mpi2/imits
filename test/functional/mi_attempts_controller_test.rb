@@ -197,6 +197,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
       def valid_create_for_format(format)
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         assert_equal 0, MiAttempt.count
+        Factory.create(:mi_plan, :gene => es_cell.gene,
+          :production_centre => Centre.find_by_name!('WTSI'),
+          :consortium => Consortium.find_by_name!('MGP'),
+          :mi_plan_status => MiPlanStatus[:Assigned])
         post(:create, :mi_attempt => {
             'es_cell_name' => es_cell.name,
             :production_centre_name => 'WTSI',

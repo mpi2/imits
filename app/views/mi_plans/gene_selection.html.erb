@@ -1,15 +1,19 @@
 <% @tab = 'Gene Selection' %>
-<% content_for :footer do %>
-  <%
-    gene_search_params = params[:q]
-    gene_search_params = '' if gene_search_params.empty?
-  -%>
+
+<%
+  gene_search_params = params[:q]
+  gene_search_params = '' if gene_search_params.empty?
+-%>
+
+<% content_for :pre_js_footer do %>
   <%= javascript_tag "GENE_SEARCH_PARAMS = #{gene_search_params.to_json}" %>
   <%= javascript_tag "CENTRE_COMBO_OPTS = #{@centre_combo_options.to_json}" %>
   <%= javascript_tag "CONSORTIUM_COMBO_OPTS = #{@consortia_combo_options.to_json}" %>
   <%= javascript_tag "PRIORITY_COMBO_OPTS = #{@priority_combo_options.to_json}" %>
   <%= javascript_tag "INTEREST_STATUS_ID = #{@interest_status_id}" %>
-  <%= javascript_tag "Ext.require('Imits.model.Gene')" %>
+<% end %>
+
+<% content_for :post_js_footer do %>
   <%= javascript_include_tag 'mi_plans/gene_selection' %>
 <% end %>
 
@@ -28,22 +32,26 @@
         -%></textarea>
       </div>
       <div class="grid_6 omega">
-        <label for="q[mi_plans_consortium_id_in]">MIs for Consortium:</label>
-        <%=
-          select_tag(
-            'q[mi_plans_consortium_id_eq]',
-            options_from_collection_for_select(Consortium.all,'id','name',params[:q][:mi_plans_consortium_id_eq]),
-            { :include_blank => true }
-          )
-        %>
-        <label for="q[mi_plans_production_centre_id_eq]">MIs at Production Centre:</label>
-        <%=
-          select_tag(
-            'q[mi_plans_production_centre_id_eq]',
-            options_from_collection_for_select(Centre.all,'id','name',params[:q][:mi_plans_production_centre_id_eq]),
-            { :include_blank => true }
-          )
-        %>
+        <div style="display:inline-block;">
+          <label for="q[mi_plans_consortium_id_in]">MIs for Consortium:</label>
+          <%=
+            select_tag(
+              'q[mi_plans_consortium_id_in]',
+              options_from_collection_for_select(Consortium.all,'id','name',params[:q][:mi_plans_consortium_id_in]),
+              { :include_blank => true, :multiple => true, :size => 6 }
+            )
+          %>
+        </div>
+        <div style="display:inline-block;">
+          <label for="q[mi_plans_production_centre_id_in]">MIs at Production Centre:</label>
+          <%=
+            select_tag(
+              'q[mi_plans_production_centre_id_in]',
+              options_from_collection_for_select(Centre.all,'id','name',params[:q][:mi_plans_production_centre_id_in]),
+              { :include_blank => true, :multiple => true, :size => 6 }
+            )
+          %>
+        </div>
       </div>
       <div id="buttons" class="grid_12">
         <input id="submit" type="submit" value="Search" />

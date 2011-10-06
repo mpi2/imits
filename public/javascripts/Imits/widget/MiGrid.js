@@ -2,12 +2,13 @@ Ext.define('Imits.widget.MiGrid', {
     extend: 'Imits.widget.Grid',
 
     requires: [
-    'Imits.widget.SimpleNumberField',
-    'Imits.widget.SimpleCombo',
-    'Imits.widget.QCCombo',
-    'Imits.widget.grid.BoolGridColumn',
-    'Imits.widget.grid.MiAttemptRansackFiltersFeature',
-    'Imits.widget.grid.SimpleDateColumn'
+      'Imits.model.MiAttempt',
+      'Imits.widget.SimpleNumberField',
+      'Imits.widget.SimpleCombo',
+      'Imits.widget.QCCombo',
+      'Imits.widget.grid.BoolGridColumn',
+      'Imits.widget.grid.MiAttemptRansackFiltersFeature',
+      'Imits.widget.grid.SimpleDateColumn'
     ],
 
     title: 'Micro-Injection Attempts',
@@ -19,10 +20,10 @@ Ext.define('Imits.widget.MiGrid', {
         pageSize: 20
     },
 
-    selType: 'rowmodel',
+    selType: 'cellmodel',
 
     plugins: [
-    Ext.create('Ext.grid.plugin.RowEditing', {
+    Ext.create('Ext.grid.plugin.CellEditing', {
         autoCancel: false,
         clicksToEdit: 1
     })
@@ -48,6 +49,7 @@ Ext.define('Imits.widget.MiGrid', {
                     }
                 });
                 if(!existing) {
+                    column.tdCls = 'column-' + column.dataIndex;
                     columns.push(column);
                 }
             });
@@ -164,7 +166,8 @@ Ext.define('Imits.widget.MiGrid', {
         {
             dataIndex: 'id',
             header: 'ID',
-            readOnly: true
+            readOnly: true,
+            hidden: true
         },
         {
             header: 'Edit In Form',
@@ -176,9 +179,31 @@ Ext.define('Imits.widget.MiGrid', {
             sortable: false
         },
         {
+            dataIndex: 'consortium_name',
+            header: 'Consortium',
+            readOnly: true,
+            width: 115,
+            filter: {
+                type: 'list',
+                options: window.MI_ATTEMPT_CONSORTIUM_OPTIONS
+            },
+            sortable: false
+        },
+        {
+            dataIndex: 'production_centre_name',
+            header: 'Production Centre',
+            readOnly: true,
+            filter: {
+                type: 'list',
+                options: window.MI_ATTEMPT_CENTRE_OPTIONS
+            },
+            sortable: false
+        },
+        {
             dataIndex: 'es_cell_name',
             header: 'ES Cell',
             readOnly: true,
+            sortable: false,
             filter: {
                 type: 'string'
             }
@@ -221,24 +246,6 @@ Ext.define('Imits.widget.MiGrid', {
             editor: 'textfield',
             filter: {
                 type: 'string'
-            }
-        },
-        {
-            dataIndex: 'consortium_name',
-            header: 'Consortium',
-            readOnly: true,
-            filter: {
-                type: 'list',
-                options: window.MI_ATTEMPT_CONSORTIUM_OPTIONS
-            }
-        },
-        {
-            dataIndex: 'production_centre_name',
-            header: 'Production Centre',
-            readOnly: true,
-            filter: {
-                type: 'list',
-                options: window.MI_ATTEMPT_CENTRE_OPTIONS
             }
         },
         {

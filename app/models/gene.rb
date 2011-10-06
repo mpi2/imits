@@ -55,7 +55,7 @@ class Gene < ActiveRecord::Base
       join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
       join consortia on mi_plans.consortium_id = consortia.id
       left join centres on mi_plans.production_centre_id = centres.id
-      where mi_plan_statuses.name != 'Assigned'
+      where mi_plan_statuses.name not in ('Assigned','Inactive')
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?
 

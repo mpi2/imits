@@ -7,9 +7,9 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     def default_mi_attempt
       @default_mi_attempt ||= Factory.create( :mi_attempt,
-        :blast_strain             => Strain::BlastStrain.find_by_name('BALB/c'),
-        :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name('129P2/OlaHsd'),
-        :test_cross_strain        => Strain::TestCrossStrain.find_by_name('129P2/OlaHsd')
+        :blast_strain             => Strain::BlastStrain.find_by_name!('BALB/c'),
+        :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('129P2/OlaHsd'),
+        :test_cross_strain        => Strain::TestCrossStrain.find_by_name!('129P2/OlaHsd')
       )
     end
 
@@ -955,6 +955,29 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should_eventually 'translate sorting predicates' do
         flunk 'Dependent on ransack enabling sorting by associations fields'
+      end
+    end
+
+    context '#mi_plan_lookup_conditions' do
+      should 'return conditions for finding the MiPlan for this MiAttempt' do
+        gene = Factory.create :gene_cbx1
+        MiPlan.create :consortium => Consortium.find_by_name!('BaSH'),
+                :production_centre => Centre.find_by_name!('WTSI'),
+                :gene => gene
+        es_cell = Factory.create(:es_cell, :gene => gene)
+
+        mi = Factory.build :mi_attempt,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell => es_cell
+
+        expected = {
+          :gene_id => gene.id,
+          :consortium_id => Consortium.find_by_name!('BaSH').id,
+          :production_centre_id => Centre.find_by_name!('WTSI').id
+        }
+
+        assert_equal expected, mi.mi_plan_lookup_conditions
       end
     end
 

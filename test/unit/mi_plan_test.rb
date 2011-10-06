@@ -257,6 +257,26 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal ['Declined - GLT Mouse', 'Declined - GLT Mouse'], mi_plans.map {|i| i.mi_plan_status.name }
       end
 
+      should 'ignore "Inactive" MiPlans when making decisions' do
+        gene              = Factory.create :gene_cbx1
+        mi_plan           = Factory.create :mi_plan,
+                              :gene => gene,
+                              :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC')
+        inactive_mi_plan  = Factory.create :mi_plan,
+                              :gene => gene,
+                              :consortium => Consortium.find_by_name!('JAX'),
+                              :production_centre => Centre.find_by_name!('JAX'),
+                              :mi_plan_status => MiPlanStatus['Inactive']
+
+        assert_equal 'Interest', mi_plan.status
+        assert_equal 'Inactive', inactive_mi_plan.status
+
+        MiPlan.assign_genes_and_mark_conflicts
+
+        assert_equal 'Assigned', mi_plan.reload.status
+        assert_equal 'Inactive', inactive_mi_plan.reload.status
+      end
+
     end # ::assign_genes_and_mark_conflicts
 
     context '::all_grouped_by_mgi_accession_id_then_by_status_name' do
@@ -345,6 +365,75 @@ class MiPlanTest < ActiveSupport::TestCase
         assert MiPlan.count > MiPlan.with_genotype_confirmed_mouse.count
         assert_equal 31, MiPlan.count
         assert_equal 10, MiPlan.with_genotype_confirmed_mouse.count
+      end
+    end
+
+    context '::mark_old_plans_as_inactive' do
+      should 'work' do
+        cbx1 = Factory.create :gene_cbx1
+        es_cell = Factory.create :es_cell, :gene => cbx1
+
+        gc_mi_attempt = Factory.create :mi_attempt,
+          :es_cell => es_cell,
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'BCM',
+          :is_active => true,
+          :mi_date => 12.months.ago,
+          :mi_attempt_status => MiAttemptStatus.genotype_confirmed
+
+        in_prog_mi_attempt = Factory.create :mi_attempt,
+          :es_cell => es_cell,
+          :consortium_name => 'MARC',
+          :production_centre_name => 'MARC',
+          :is_active => true,
+          :mi_date => 4.weeks.ago,
+          :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress
+
+        Factory.create :mi_attempt,
+          :es_cell => es_cell,
+          :consortium_name => 'MARC',
+          :production_centre_name => 'MARC',
+          :is_active => false,
+          :mi_date => 7.months.ago,
+          :mi_attempt_status => MiAttemptStatus.micro_injection_aborted
+
+        old_failed_mi_attempt = Factory.create :mi_attempt,
+          :es_cell => es_cell,
+          :consortium_name => 'DTCC',
+          :production_centre_name => 'UCD',
+          :is_active => false,
+          :mi_date => 9.months.ago,
+          :mi_attempt_status => MiAttemptStatus.micro_injection_aborted
+
+        mi_plan_no_attempts = Factory.create :mi_plan,
+          :gene => cbx1,
+          :consortium => Consortium.find_by_name!('JAX'),
+          :production_centre => Centre.find_by_name!('JAX'),
+          :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+
+        assert_equal 'Assigned', gc_mi_attempt.mi_plan.status
+        assert_equal 'Assigned', in_prog_mi_attempt.mi_plan.status
+        assert_equal 'Assigned', old_failed_mi_attempt.mi_plan.status
+        assert_equal 'Assigned', mi_plan_no_attempts.status
+
+        MiPlan.mark_old_plans_as_inactive
+
+        assert_equal 'Assigned', gc_mi_attempt.mi_plan.reload.status
+        assert_equal 'Assigned', in_prog_mi_attempt.mi_plan.reload.status
+        assert_equal 'Inactive', old_failed_mi_attempt.mi_plan.reload.status
+        assert_equal 'Assigned', mi_plan_no_attempts.reload.status
+
+        # Now test what happens if a centre re-visits an inactive MiPlan...
+        new_mi_attempt = Factory.create :mi_attempt,
+          :es_cell => es_cell,
+          :consortium_name => 'DTCC',
+          :production_centre_name => 'UCD',
+          :is_active => true,
+          :mi_date => 2.weeks.ago,
+          :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress
+
+        assert_equal 'Assigned', old_failed_mi_attempt.mi_plan.reload.status
+        assert_equal 'Assigned', new_mi_attempt.mi_plan.reload.status
       end
     end
 

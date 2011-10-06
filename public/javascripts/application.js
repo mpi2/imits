@@ -100,7 +100,9 @@ Ext.Loader.setConfig({
     }
 });
 
-Ext.require('Imits.data.Proxy');
-Ext.require('Imits.data.JsonWriter');
-Ext.require('Imits.model.MiAttempt');
-Ext.require('Imits.model.Gene');
+if(Ext.isGecko) {
+    Ext.require('Imits.data.Proxy');
+    Ext.require('Imits.data.JsonWriter');
+    Ext.require('Imits.model.MiAttempt');
+    Ext.require('Imits.model.Gene');
+}

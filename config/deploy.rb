@@ -47,15 +47,21 @@ namespace :deploy do
     run "cd #{release_path} && #{bundle_cmd} exec rake extjs:install"
   end
 
+  desc "Generate CSS/JS assets with Jammit"
+  task :generate_assets, :roles => :web, do
+    run "cd #{release_path} && #{bundle_cmd} exec jammit"
+  end
+
   desc "Set the permissions of the filesystem so that others in the team can deploy, and the team87 user can do their stuff"
   task :fix_perms do
     run "chgrp -R team87 #{release_path}/tmp"
     run "chgrp -R team87 #{release_path}/public"
     run "chmod 02775 #{release_path}"
   end
-
 end
 
 after "deploy:symlink", "deploy:fix_perms"
 after "deploy:update_code", "deploy:symlink_shared"
 after "deploy:symlink_shared", "deploy:extjs"
+after "deploy:symlink_shared", "deploy:generate_assets"
+

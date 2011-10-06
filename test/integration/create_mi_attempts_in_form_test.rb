@@ -5,25 +5,22 @@ require 'test_helper'
 class CreateMiAttemptsInFormTest < ActionDispatch::IntegrationTest
   context 'When creating MI Attempt in form' do
 
-    def choose_es_cell_from_list
-      marker_symbol = 'Cbx1'
-      es_cell_name = 'EPD0027_2_A01'
-      fill_in 'marker_symbol-search-box', :with => marker_symbol
-      click_button 'Search'
-      sleep 5
-      find(:xpath, '//em[text()="' + es_cell_name + '"]').click
-    end
-
     setup do
       Factory.create(:mi_attempt, :colony_name => 'MABC')
-      login default_user.email
-      click_link 'Create'
+      login
+      click_link 'Create MI Attempt'
     end
 
     should 'save MI and redirect back to show page when valid data' do
+      mi_plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),
+              :consortium => Consortium.find_by_name!('MGP'),
+              :mi_plan_status => MiPlanStatus[:Assigned],
+              :gene => Factory.create(:gene_cbx1)
+
       choose_es_cell_from_list
       fill_in 'mi_attempt[colony_name]', :with => 'MZSQ'
       select 'MGP', :from => 'mi_attempt[consortium_name]'
+      select 'WTSI', :from => 'mi_attempt[production_centre_name]'
       click_button 'mi_attempt_submit'
 
       sleep 3

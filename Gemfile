@@ -3,6 +3,7 @@ source 'http://rubygems.org'
 gem 'rake', '0.8.7'
 gem 'rails', '~> 3.0.9'
 gem 'hoptoad_notifier'
+gem 'jammit'
 
 gem 'pg'
 gem 'foreigner'
@@ -20,6 +21,8 @@ group :development, :test do
   gem 'shoulda', :require => nil
   gem 'test-unit', :require => nil
   gem 'capybara', :require => nil
+  gem 'capybara-webkit', :require => nil
+  gem 'launchy'
   gem 'database_cleaner', :require => nil
   gem 'factory_girl_rails', :require => nil
   gem 'awesome_print'

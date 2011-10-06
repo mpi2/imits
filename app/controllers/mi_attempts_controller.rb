@@ -24,6 +24,7 @@ class MiAttemptsController < ApplicationController
   def data_for_serialized(format)
     super(format, 'id', MiAttempt, :public_search)
   end
+  protected :data_for_serialized
 
   def new
     set_centres_and_consortia
@@ -37,11 +38,17 @@ class MiAttemptsController < ApplicationController
     @mi_attempt = MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
     @mi_attempt.production_centre_name ||= current_user.production_centre.name
-    if @mi_attempt.save
-      flash[:notice] = 'Micro-injection attempt created'
-    else
+
+    if ! @mi_attempt.valid?
       flash.now[:alert] = 'Micro-injection could not be created - please check the values you entered'
       set_centres_and_consortia
+    elsif request.format == :html and params[:ignore_warnings] != 'true' and @mi_attempt.generate_warnings
+      set_centres_and_consortia
+      render :action => :new
+      return
+    else
+      @mi_attempt.save!
+      flash[:notice] = 'Micro-injection attempt created'
     end
 
     respond_with @mi_attempt

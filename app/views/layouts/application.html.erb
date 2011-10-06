@@ -3,23 +3,16 @@
 
   <head>
     <title>iMits - <%= @tab || @title %></title>
-    <%= stylesheet_link_tag 'reset' %>
 
-    <%= extjs_tags %>
-
-    <%= stylesheet_link_tag 'grid' %>
+    <%= include_stylesheets :common, :media => 'all' %>
     <!--[if IE]>
-    <%= stylesheet_link_tag 'grid_ie' %>
+    <%= include_stylesheets :ie, :media => 'all' %>
     <![endif]-->
-
-    <%= stylesheet_link_tag 'application' %>
 
     <%= csrf_meta_tag %>
 
     <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
     <%= javascript_tag "authenticityToken = '#{form_authenticity_token}';" %>
-
-    <%= javascript_include_tag 'application' %>
 
     <%= yield :head %>
 
@@ -48,18 +41,19 @@
 
     <div id="messages" class="container_12">
       <% if !Rails.env.production? %>
-        <div class="message non-production-warning">
+        <%= render_message :warning do %>
           PLEASE NOTE: This site is currently in 'development/testing' mode. This means that:
           <ul>
             <li>Performance will be reduced (as any form of caching is turned off)</li>
             <li>The data in the database is INCOMPLETE/INCORRECT - please do not trust the data in this instance (it is our development playground)</li>
           </ul>
           <strong>PLEASE DO NOT ENTER ANY PRODUCTION DATA INTO THIS SITE - IT WILL BE LOST...</strong>
-        </div>
+        <% end %>
       <% end %>
       <%= flash_message :notice %>
       <%= flash_message :error %>
       <%= flash_message :alert %>
+      <%= yield :messages %>
     </div>
     <div class="clear"></div>
 
@@ -72,6 +66,9 @@
       <% unless GIT_REVISION.blank? %><p>Git revision: <%= GIT_REVISION %></p><% end %>
     </div>
 
-    <%= yield :footer %>
+    <%= yield :pre_js_footer %>
+    <%= include_javascripts :extjs %>
+    <%= include_javascripts :common %>
+    <%= yield :post_js_footer %>
   </body>
 </html>

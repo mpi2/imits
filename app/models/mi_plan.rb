@@ -135,6 +135,27 @@ class MiPlan < ActiveRecord::Base
     end
   end
 
+  def self.mark_old_plans_as_inactive
+    self.where( :mi_plan_status_id => MiPlanStatus['Assigned'].id ).with_mi_attempt.each do |mi_plan|
+      all_inactive, all_over_six_months_old = true, true
+
+      mi_plan.mi_attempts.each do |mi_attempt|
+        if mi_attempt.mi_attempt_status != MiAttemptStatus.micro_injection_aborted or mi_attempt.is_active == true
+          all_inactive = false
+        end
+
+        if 6.months.ago < mi_attempt.mi_date.to_time_in_current_zone
+          all_over_six_months_old = false
+        end
+      end
+
+      if all_inactive && all_over_six_months_old
+        mi_plan.mi_plan_status = MiPlanStatus['Inactive']
+        mi_plan.save!
+      end
+    end
+  end
+
   def self.all_grouped_by_mgi_accession_id_then_by_status_name
     mi_plans = self.all.group_by {|i| i.gene.mgi_accession_id}
     mi_plans = mi_plans.each do |mgi_accession_id, all_for_gene|

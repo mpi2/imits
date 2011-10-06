@@ -1,14 +1,17 @@
 <% generator = MiAttemptFieldGenerator.new(form) %>
+<% mi_attempt = form.object %>
+
+<%= hidden_field_tag :ignore_warnings, params[:ignore_warnings] %>
 
 <fieldset class="collapsible">
   <legend>Universal Details</legend>
   <div>
     <%= generator.text_field :mi_date, :label => 'Micro-Injection Date', :class => 'date-field' %>
 
-    <% if ! form.object.status.blank? %>
+    <% if ! mi_attempt.status.blank? %>
       <div>
         <label>Status</label>
-        <span><%= form.object.status %></span>
+        <span><%= mi_attempt.status %></span>
       </div>
     <% end %>
 
@@ -26,7 +29,11 @@
 
     <div>
       <%= form.label :production_centre_name, 'Production Centre' %>
-      <%= form.collection_select :production_centre_name, @centres, :name, :name %>
+      <% if mi_attempt.new_record? %>
+        <%= form.collection_select :production_centre_name, @centres, :name, :name %>
+      <% else %>
+        <span><%= mi_attempt.production_centre_name %></span>
+      <% end %>
     </div>
 
     <div>
@@ -46,7 +53,9 @@
   </div>
 </fieldset>
 
-<%= render 'status_change_history', :mi_attempt => form.object %>
+<% if mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
+  <%= render 'status_change_history', :mi_attempt => mi_attempt %>
+<% end %>
 
 <fieldset class="collapsible">
   <legend>Transfer Details</legend>

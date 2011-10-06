@@ -24,6 +24,7 @@ class MiAttemptsController < ApplicationController
   def data_for_serialized(format)
     super(format, 'id', MiAttempt, :public_search)
   end
+  protected :data_for_serialized
 
   def new
     set_centres_and_consortia

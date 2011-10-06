@@ -10,38 +10,50 @@
 
 <div class="grid_8">
   <div class="homepage-links">
-    <h3><%= link_to('Gene Selection / Micro-Injection Planning', gene_selection_mi_plans_path) %></h3>
-    <p>Register interest (on behalf of your consortium) in micro-injecting some genes</p>
+    <a href="<%= gene_selection_mi_plans_path %>">
+      <h3>Gene Selection / Micro-Injection Planning</h3>
+      <p>Register interest (on behalf of your consortium) in micro-injecting some genes</p>
+    </a>
   </div>
 
   <div class="homepage-links">
-    <h3><%= link_to('Search For & Edit Micro-Injection Attempts', mi_attempts_path('q[production_centre_name]' => current_user.production_centre.name)) %></h3>
-    <p>Search for and edit data on existing micro-injection attempt records</p>
+    <a href="<%= mi_attempts_path('q[production_centre_name]' => current_user.production_centre.name) %>">
+      <h3>Search For & Edit Micro-Injection Attempts</h3>
+      <p>Search for and edit data on existing micro-injection attempt records</p>
+    </a>
   </div>
 
   <div class="homepage-links">
-    <h3><%= link_to('Create Micro-Injection Attempts', new_mi_attempt_path) %></h3>
-    <p>Enter data on new micro-injection attempts</p>
+    <a href="<%= new_mi_attempt_path %>">
+      <h3>Create Micro-Injection Attempts</h3>
+      <p>Enter data on new micro-injection attempts</p>
+    </a>
   </div>
 
   <div class="homepage-links">
-    <h3><%= link_to('Reporting', reports_path) %></h3>
-    <p>View reports on all data in iMits</p>
+    <a href="<%= reports_path %>">
+      <h3>Reporting</h3>
+      <p>View reports on all data in iMits</p>
+    </a>
   </div>
 </div>
 
 <div class="grid_4">
   <div class="homepage-links">
-    <h4><%= link_to('Consortia', consortia_path) %></h4>
-    <p>
-      View a list of all consortia submitting data to iMits and the production centres
-      that are working as part of these consortia
-    </p>
+    <a href="<%= consortia_path %>">
+      <h4>Consortia</h4>
+      <p>
+        View a list of all consortia submitting data to iMits and the production centres
+        that are working as part of these consortia
+      </p>
+    </a>
   </div>
 
   <div class="homepage-links">
-    <h4><%= link_to('Users/Production Centres', users_by_production_centre_path) %></h4>
-    <p>View a list of all iMits users and the production centre that they belong to</p>
+    <a href="<%= users_by_production_centre_path %>">
+      <h4>Users/Production Centres</h4>
+      <p>View a list of all iMits users and the production centre that they belong to</p>
+    </a>
   </div>
 </div>
 

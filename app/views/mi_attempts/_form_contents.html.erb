@@ -1,6 +1,8 @@
 <% generator = MiAttemptFieldGenerator.new(form) %>
 <% mi_attempt = form.object %>
 
+<%= hidden_field_tag :ignore_warnings, params[:ignore_warnings] %>
+
 <fieldset class="collapsible">
   <legend>Universal Details</legend>
   <div>

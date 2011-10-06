@@ -239,7 +239,7 @@ div#messages {
 	border: 2px solid #f06d65;
 }
 
-.message.non-production-warning {
+.message.warning {
     background-image: url('../images/icons/flag_yellow.png');
     background-color: #fbf7aa;
 	border: 2px solid #f0de7d;

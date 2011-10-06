@@ -5,6 +5,19 @@
   <%= javascript_include_tag('mi_attempts/new') %>
 <% end %>
 
+<% if !@mi_attempt.warnings.blank? %>
+  <% content_for :messages do %>
+    <%= render_message :warning, nil, :id => 'warnings' do %>
+      <p>WARNING</p>
+      <ul id="warnings">
+        <%= @mi_attempt.warnings.map { |w| content_tag 'li', w }.join("\n").html_safe %>
+      </ul>
+      <p>Do you wish to continue?</p>
+      <button id="ignore-warnings">Ignore and continue</button>
+    <% end %>
+  <% end %>
+<% end %>
+
 <div id="mi-attempt-new-top" class="grid_8 prefix_2 suffix_2">
   <%= form_tag nil do %>
     <fieldset class="collapsible">
@@ -21,11 +34,12 @@
     <div id="rest-of-form">
       <%= form.hidden_field 'es_cell_name' %>
       <%= form.hidden_field 'es_cell_marker_symbol' %>
+
       <%= render 'form_contents', :form => form %>
 
-        <div>
-          <button id="mi_attempt_submit">Create</button>
-        </div>
+      <div>
+        <button id="mi_attempt_submit">Create</button>
+      </div>
     </div>
   <% end %>
 </div>

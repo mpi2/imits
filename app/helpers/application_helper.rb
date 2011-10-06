@@ -5,7 +5,10 @@ module ApplicationHelper
     end
   end
 
-  def render_message(message_type, message)
-    content_tag(:div, message, :class => ['message', message_type])
+  def render_message(message_type, message = nil, args = {}, &block)
+    if message.nil?
+      message = capture(&block)
+    end
+    content_tag(:div, message, args.merge(:class => ['message', message_type]))
   end
 end

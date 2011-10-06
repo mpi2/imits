@@ -81,8 +81,9 @@ end
 
 require 'capybara/rails'
 require 'capybara/dsl'
+require 'capybara/webkit'
 
-Capybara.default_driver = :selenium
+Capybara.default_driver = :webkit
 
 class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
   include Capybara::DSL
@@ -109,10 +110,20 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
     assert_match(%r{^http://[^/]+/users/login$}, current_url)
   end
 
+  def assert_current_link(text)
+    assert page.has_css? "#navigation li.current a", :text => text
+  end
+
   def selector_for_table_cell(table_row)
     ".x-grid-body tbody tr:nth-child(#{table_row+1}) .x-grid-cell-inner"
   end
 
+  def choose_es_cell_from_list(marker_symbol = 'Cbx1', es_cell_name = 'EPD0027_2_A01')
+    fill_in 'marker_symbol-search-box', :with => marker_symbol
+    click_button 'Search'
+    sleep 5
+    find(:xpath, '//td/div[text()="' + es_cell_name + '"]').click
+  end
 end
 
 class ActionController::TestCase

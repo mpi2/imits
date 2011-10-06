@@ -5,10 +5,6 @@ require 'test_helper'
 class NavigationTest < ActionDispatch::IntegrationTest
   context 'Navigation' do
 
-    def assert_current_link(text)
-      assert page.has_css? "#navigation li.current a", :text => text
-    end
-
     should 'not be shown when not logged in' do
       visit '/'
       assert page.has_no_css? '#navigation'

@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require 'bundler'
+Bundler.setup(:default, :test) if defined?(Bundler)
+require "selenium-webdriver"
+require 'capybara/dsl'
+
+Capybara.default_driver = :selenium
+Capybara.default_selector = :css
+Capybara.default_wait_time = 5
+
+CapybaraApi = Object.new
+CapybaraApi.extend(Capybara::DSL)
+
+require 'irb'
+
+def IRB.start_capybara_console
+  IRB.setup(__FILE__)
+
+  irb = IRB::Irb.new(IRB::WorkSpace.new(CapybaraApi))
+
+  @CONF[:IRB_RC].call(irb.context) if @CONF[:IRB_RC]
+  @CONF[:MAIN_CONTEXT] = irb.context
+
+  trap("SIGINT") do
+    irb.signal_handle
+  end
+
+  begin
+    catch(:IRB_EXIT) do
+     irb.eval_input
+    end
+  ensure
+    irb_at_exit
+  end
+end
+
+IRB.start_capybara_console

@@ -1,6 +1,6 @@
 <% @tab = 'Search & Edit MI Attempts' %>
 
-<% content_for :head do %>
+<% content_for :pre_js_footer do %>
   <%= javascript_tag "MI_ATTEMPT_EMMA_OPTIONS = #{MiAttempt::EMMA_OPTIONS.to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_QC_OPTIONS = #{QcResult.all.map(&:description).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).to_json}" %>
@@ -12,7 +12,9 @@
   <%= javascript_tag "MI_ATTEMPT_STATUS_OPTIONS = #{MiAttemptStatus.all.map(&:description).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_MOUSE_ALLELE_TYPE_OPTIONS = #{MiAttempt::MOUSE_ALLELE_OPTIONS.map{|k,v|[k, v]}.to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_SEARCH_PARAMS = #{params[:q].to_json}" %>
-  <%= javascript_tag "Ext.require('Imits.model.MiAttempt')" %>
+<% end %>
+
+<% content_for :post_js_footer do %>
   <%= javascript_include_tag 'mi_attempts/index' %>
 <% end %>
 

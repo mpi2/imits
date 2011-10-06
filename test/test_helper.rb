@@ -83,7 +83,7 @@ require 'capybara/rails'
 require 'capybara/dsl'
 require 'capybara/webkit'
 
-Capybara.default_driver = :webkit
+Capybara.default_driver = :selenium
 
 class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
   include Capybara::DSL

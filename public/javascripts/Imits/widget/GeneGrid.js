@@ -75,12 +75,7 @@ Ext.define('Imits.widget.GeneGrid', {
       xtype: 'templatecolumn',
       tpl: new Ext.XTemplate(
         '<tpl for="this.processedMIPs(pretty_print_non_assigned_mi_plans)">',
-          '<tpl if="status == \'Interest\'">',
-            '<a class="delete-mi-plan" title="delete planned micro-injection" data-marker_symbol="{parent.marker_symbol}" data-consortium="{consortium}" data-production_centre="{production_centre}" data-original={original} href="#">{original}</a></br>',
-          '</tpl>',
-          '<tpl if="status != \'Interest\'">',
-            '{original}</br>',
-          '</tpl>',
+          '<a class="delete-mi-plan" title="delete planned micro-injection" data-marker_symbol="{parent.marker_symbol}" data-consortium="{consortium}" data-production_centre="{production_centre}" data-original="{original}" href="#">{original}</a></br>',
         '</tpl>',
         { processedMIPs: split_mi_plan_string }
       )

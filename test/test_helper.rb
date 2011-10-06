@@ -95,8 +95,10 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
     super
   end
 
-  def login(email = nil)
-    if email.nil?
+  def login(arg = nil)
+    if arg.kind_of? User
+      email = arg.email
+    elsif arg.nil?
       email = default_user.email
     end
     visit '/users/login'

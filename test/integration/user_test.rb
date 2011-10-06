@@ -1,14 +1,25 @@
+# encoding: utf-8
+
 require 'test_helper'
 
-class UserIntegrationTest < ActionDispatch::IntegrationTest
-  context 'When managing user sessions' do
+class UserTest < ActionDispatch::IntegrationTest
+
+  context 'User integration:' do
+
+    setup do
+      Capybara.current_driver = :rack_test
+    end
+
+    teardown do
+      Capybara.use_default_driver
+    end
 
     context 'Login page' do
       should 'work with valid user' do
         Factory.create :user, :email => 'test@example.com'
         sleep 10
         login 'test@example.com'
-        assert_match %r{^http://[^/]+/mi_attempts}, current_url
+        assert_match %r{^http://[^/]+/$}, current_url
         assert page.has_content? 'Logged in successfully'
       end
 
@@ -50,24 +61,24 @@ class UserIntegrationTest < ActionDispatch::IntegrationTest
       should 'work' do
         user = Factory.create :user
         login(user.email)
-        click_link 'Change password'
+        click_link 'Edit profile'
         fill_in 'user[current_password]', :with => 'password'
         fill_in 'user[password]', :with => 'new password'
         fill_in 'user[password_confirmation]', :with => 'new password'
         click_button 'user_submit'
-        assert_match %r{^http://[^/]+/mi_attempts}, current_url
+        assert_match %r{^http://[^/]+/$}, current_url
 
         visit '/users/logout'
         fill_in 'Email', :with => user.email
         fill_in 'Password', :with => 'new password'
         click_button 'Login'
-        assert_match %r{^http://[^/]+/mi_attempts}, current_url
+        assert_match %r{^http://[^/]+/$}, current_url
       end
 
       should 'validate' do
         user = Factory.create :user
         login(user.email)
-        click_link 'Change password'
+        click_link 'Edit profile'
         fill_in 'user[current_password]', :with => 'password'
         fill_in 'user[password]', :with => 'new password'
         fill_in 'user[password_confirmation]', :with => 'wrong password confirmation'

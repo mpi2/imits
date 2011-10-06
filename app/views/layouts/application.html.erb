@@ -14,9 +14,6 @@
     <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
     <%= javascript_tag "authenticityToken = '#{form_authenticity_token}';" %>
 
-    <%= include_javascripts :extjs %>
-    <%= include_javascripts :common %>
-
     <%= yield :head %>
 
     <%= javascript_tag 'googleAnalytics();' if Rails.env.production? %>
@@ -69,6 +66,9 @@
       <% unless GIT_REVISION.blank? %><p>Git revision: <%= GIT_REVISION %></p><% end %>
     </div>
 
-    <%= yield :footer %>
+    <%= yield :pre_js_footer %>
+    <%= include_javascripts :extjs %>
+    <%= include_javascripts :common %>
+    <%= yield :post_js_footer %>
   </body>
 </html>

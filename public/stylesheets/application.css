@@ -247,31 +247,49 @@ div#messages {
 
 /* @end */
 
-/* @group Homepage */
+/* @group Homepage and Report Index Page */
 
-.homepage-links {
+.homepage-links, .report-links {
   background: url('../images/go-next.png') no-repeat left top;
   margin-bottom: 20px;
   padding-left: 37px;
+  min-height: 32px;
 }
 
-.homepage-links h3, .homepage-links h4 {
+.report-links {
+  background-image: url('../images/x-office-spreadsheet.png');
+}
+
+.homepage-links h3, .homepage-links h4,
+.report-links h3, .report-links h4 {
   margin-bottom: 2px;
 }
 
-.homepage-links h3 a, .homepage-links h4 a {
+.homepage-links a, .report-links a {
   text-decoration: none;
-  color: inherit;
 }
 
-.homepage-links h3 a:hover,
-.homepage-links h4 a:hover {
+.homepage-links a:hover h3,
+.homepage-links a:hover h4,
+.report-links a:hover h3,
+.report-links a:hover h4 {
   color: #8f110b;
 }
 
-.homepage-links p {
+.homepage-links a p, .homepage-links a ul,
+.report-links a p, .report-links a ul {
   font-style: italic;
   color: #999;
+}
+
+.homepage-links a ul, .homepage-links a ul li,
+.report-links a ul, .report-links a ul li {
+  list-style-type: disc;
+  list-style-position: inside;
+}
+
+.homepage-links strong, .report-links strong {
+  font-style: italic;
 }
 
 /* @end */

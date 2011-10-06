@@ -321,7 +321,7 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def mouse_allele_symbol_superscript
-    if mouse_allele_type.nil?
+    if mouse_allele_type.nil? or es_cell.allele_symbol_superscript_template.nil?
       return nil
     else
       return es_cell.allele_symbol_superscript_template.sub(

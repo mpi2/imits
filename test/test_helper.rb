@@ -138,6 +138,10 @@ class Kermits2::JsIntegrationTest < ActionDispatch::IntegrationTest
     sleep 5
     find(:xpath, '//td/div[text()="' + es_cell_name + '"]').click
   end
+  
+  def make_form_element_usable(element_name)
+    page.execute_script("Ext.get(Ext.select('input[name=\"#{element_name}\"]').first().id).dom.readOnly = false;")
+  end
 
   def screenshot(filename = nil)
     filename ||= "#{Rails.root}/tmp/capybara_screenshot_#{Time.now.strftime('%F-%T')}.png"

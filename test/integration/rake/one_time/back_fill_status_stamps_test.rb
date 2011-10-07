@@ -65,7 +65,7 @@ class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
               :es_cell => es_cell_2, :production_centre_name => 'WTSI',
               :consortium_name => 'BaSH'
 
-      Factory.create :mi_attempt, :mi_date => nil,
+      Factory.create :mi_attempt,
               :es_cell => es_cell_2, :production_centre_name => 'WTSI',
               :consortium_name => 'BaSH'
 
@@ -106,7 +106,7 @@ class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
               :es_cell => es_cell_2, :production_centre_name => 'WTSI',
               :consortium_name => 'BaSH'
 
-      Factory.create :mi_attempt, :mi_date => nil,
+      Factory.create :mi_attempt,
               :es_cell => es_cell_2, :production_centre_name => 'WTSI',
               :consortium_name => 'BaSH'
 

@@ -12,6 +12,7 @@ class UserTest < ActiveSupport::TestCase
       assert_include User.accessible_attributes, :remember_me
       assert_include User.accessible_attributes, :production_centre
       assert_include User.accessible_attributes, :production_centre_id
+      assert_include User.accessible_attributes, :name
     end
 
     should 'have unique index on email' do

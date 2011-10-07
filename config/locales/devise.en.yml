@@ -8,10 +8,13 @@ en:
       already_confirmed: "was already confirmed, please try signing in"
       not_locked: "was not locked"
       not_saved:
-        one: "1 error prohibited this %{resource} from being saved:"
-        other: "%{count} errors prohibited this %{resource} from being saved:"
+        one: There was an error saving your changes, please check the values you entered
+        other: There were errors saving your changes, please check the values you entered
+      confirmation: "does not match confirmation"
 
   devise:
+    users:
+      updated: Your profile has been updated
     failure:
       already_authenticated: 'You are already logged in'
       unauthenticated: 'Please log in to continue'

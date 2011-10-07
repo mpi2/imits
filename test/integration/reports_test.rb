@@ -2,6 +2,7 @@ require 'test_helper'
 
 class ReportsTest < ActionDispatch::IntegrationTest
   context 'The reports pages' do
+
     should 'require the user to be logged in' do
       visit '/reports'
       assert_login_page
@@ -100,5 +101,6 @@ class ReportsTest < ActionDispatch::IntegrationTest
         click_button 'Generate Report'
       end
     end
+
   end
 end

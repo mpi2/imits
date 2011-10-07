@@ -76,6 +76,7 @@ class MiAttempt < ActiveRecord::Base
   validates :mi_attempt_status, :presence => true
   validates :colony_name, :uniqueness => true, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
+  validates :mi_date, :presence => true
 
   validates_each :es_cell_name do |record, attr, value|
     if !record.es_cell_name.blank? and record.es_cell.blank?
@@ -378,7 +379,9 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def as_json(options = {})
-    super(default_serializer_options(options))
+    json = super(default_serializer_options(options))
+    json['mi_date'] = self.mi_date.to_s
+    json
   end
 
   def to_xml(options = {})

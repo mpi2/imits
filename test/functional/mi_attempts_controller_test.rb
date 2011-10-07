@@ -201,12 +201,16 @@ class MiAttemptsControllerTest < ActionController::TestCase
           :production_centre => Centre.find_by_name!('WTSI'),
           :consortium => Consortium.find_by_name!('MGP'),
           :mi_plan_status => MiPlanStatus[:Assigned])
-        post(:create, :mi_attempt => {
+
+        post( :create,
+          :mi_attempt => {
             'es_cell_name' => es_cell.name,
             :production_centre_name => 'WTSI',
-            :consortium_name => 'MGP'
+            :consortium_name => 'MGP',
+            'mi_date' => Date.today.to_s
           },
-          :format => format)
+          :format => format
+        )
 
         mi_attempt = MiAttempt.first
 
@@ -229,7 +233,12 @@ class MiAttemptsControllerTest < ActionController::TestCase
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         mi_attempt = Factory.create :mi_attempt, :colony_name => 'MAAB'
         assert_equal 1, MiAttempt.count
-        post :create, :mi_attempt => {'es_cell_name' => 'EPD0127_4_E01', 'colony_name' => 'MAAB', 'consortium_name' => 'EUCOMM-EUMODIC'}
+        post :create, :mi_attempt => {
+          'es_cell_name' => 'EPD0127_4_E01',
+          'colony_name' => 'MAAB',
+          'consortium_name' => 'EUCOMM-EUMODIC',
+          'mi_date' => Date.today.to_s
+        }
         assert_equal 1, MiAttempt.count
 
         assert ! assigns[:mi_attempt].errors[:colony_name].blank?
@@ -269,7 +278,12 @@ class MiAttemptsControllerTest < ActionController::TestCase
         sign_in user
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         post :create,
-                :mi_attempt => {'es_cell_name' => es_cell.name, 'production_centre_name' => 'WTSI', 'consortium_name' => 'MGP' },
+                :mi_attempt => {
+                  'es_cell_name' => es_cell.name,
+                  'production_centre_name' => 'WTSI',
+                  'consortium_name' => 'MGP',
+                  'mi_date' => Date.today.to_s
+                },
                 :format => :json
         assert_response :success, response.body
 
@@ -283,7 +297,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         sign_in user
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         post :create,
-                :mi_attempt => {'es_cell_name' => es_cell.name, 'consortium_name' => 'EUCOMM-EUMODIC'},
+                :mi_attempt => {'es_cell_name' => es_cell.name, 'consortium_name' => 'EUCOMM-EUMODIC', 'mi_date' => Date.today.to_s},
                 :format => :json
         assert_response :success, response.body
 

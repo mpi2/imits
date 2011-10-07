@@ -19,6 +19,11 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should have_db_column(:es_cell_id).with_options(:null => false)
         assert_should belong_to(:es_cell)
       end
+      
+      should 'have an mi_date' do
+        assert_should have_db_column(:mi_date)
+        assert_should validate_presence_of :mi_date
+      end
 
       context 'centres tests:' do
         should 'exist' do

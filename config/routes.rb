@@ -18,9 +18,13 @@ Kermits2::Application.routes.draw do
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do
-    get 'users/edit', :to => 'devise/registrations#edit', :as => :edit_user_registration
-    put '/users', :to => 'devise/registrations#update', :as => :user_registration
+    get 'user', :to => 'users#show', :as => :user
+    put 'user', :to => 'users#update'
   end
+
+  get 'user/admin', :to => 'user/admin#index', :as => :user_admin
+  post 'user/admin/transform', :to => 'user/admin#transform', :as => :transform_admin
+  post 'user/admin/create_user', :to => 'user/admin#create_user', :as => :admin_create_user
 
   resources :es_cells, :only => [] do
     collection do

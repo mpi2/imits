@@ -4,13 +4,12 @@
   <%= form_for :user, :url => user_path, :html => { :method => :put } do |form| %>
 
     <fieldset>
-      <legend><%= 'Change Password' %></legend>
+      <legend><%= 'Current Password' %></legend>
 
       <table>
         <tr>
           <td>
-            <%= form.label :current_password, 'Current Password' %>
-            <label>(required for profile changes)</label>
+            <%= form.label :current_password, '(required for profile changes)' %>
             <%= form.password_field :current_password, :class => 'initial-focus' %>
           </td>
         </tr>
@@ -38,7 +37,7 @@
     </fieldset>
 
     <fieldset>
-      <legend><%= 'Update Password' %></legend>
+      <legend><%= 'Change Password' %></legend>
 
       <table>
         <tr>

@@ -33,7 +33,7 @@ class NavigationTest < ActionDispatch::IntegrationTest
       end
 
       should 'not select any tab when not on a tabbed page' do
-        click_link 'Change password'
+        click_link 'Edit profile'
         assert page.has_no_css? '#navigation a.current'
       end
     end

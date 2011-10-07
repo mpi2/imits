@@ -30,13 +30,13 @@
       <% if @conflict_report.size == 0 %>
         <p>No conflicts to report.</p>
       <% else %>
-        <%=raw @conflict_report.to_html %>
+        <%= render :partial => '/reports/report_with_counts', :locals => { :report => @conflict_report, :label => 'conflicting micro-injection plans' } %>
       <% end %>
     </div>
 
     <h3>Declined Micro-Injection Plans</h3>
     <div class="report">
-      <%=raw @declined_report.to_html %>
+      <%= render :partial => '/reports/report_with_counts', :locals => { :report => @declined_report, :label => 'declined micro-injection plans' } %>
     </div>
   </div>
 <% end %>

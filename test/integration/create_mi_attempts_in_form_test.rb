@@ -18,7 +18,10 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
               :gene => Factory.create(:gene_cbx1)
 
       choose_es_cell_from_list
+      make_form_element_usable('mi_attempt[mi_date]')
+
       fill_in 'mi_attempt[colony_name]', :with => 'MZSQ'
+      fill_in 'mi_attempt[mi_date]', :with => '07/10/2011'
       select 'MGP', :from => 'mi_attempt[consortium_name]'
       select 'WTSI', :from => 'mi_attempt[production_centre_name]'
       click_button 'mi_attempt_submit'

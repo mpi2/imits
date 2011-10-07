@@ -30,6 +30,8 @@ class MiAttempt::WarningsTest < Kermits2::JsIntegrationTest
 
         visit new_mi_attempt_path
         choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
+        make_form_element_usable('mi_attempt[mi_date]')
+        fill_in 'mi_attempt[mi_date]', :with => '07/10/2011'
         select 'BaSH', :from => 'mi_attempt[consortium_name]'
 
         mis_count = es_cell.mi_attempts.count
@@ -50,6 +52,8 @@ class MiAttempt::WarningsTest < Kermits2::JsIntegrationTest
       should 'let user ignore warnings and create anyway' do
         visit new_mi_attempt_path
         choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
+        make_form_element_usable('mi_attempt[mi_date]')
+        fill_in 'mi_attempt[mi_date]', :with => '07/10/2011'
         select 'BaSH', :from => 'mi_attempt[consortium_name]'
 
         click_button 'mi_attempt_submit'

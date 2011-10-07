@@ -46,6 +46,7 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :es_cell
   mi_attempt.consortium_name 'EUCOMM-EUMODIC'
   mi_attempt.production_centre_name 'WTSI'
+  mi_attempt.mi_date { Date.today }
 end
 
 Factory.define :mi_attempt_genotype_confirmed, :parent => :mi_attempt do |mi_attempt|

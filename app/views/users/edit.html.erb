@@ -1,6 +1,6 @@
 <% @title = 'Edit Profile' %>
 
-<div id="user-form" class="grid_4 prefix_4 suffix_4">
+<div class="user-form grid_4 prefix_4 suffix_4">
   <%= form_for :user, :url => user_path, :html => { :method => :put } do |form| %>
 
     <fieldset>
@@ -43,7 +43,7 @@
       </table>
     </fieldset>
 
-    <div id="user-form-submit">
+    <div class="submit">
       <%= form.submit 'Save Changes' %>
     </div>
 

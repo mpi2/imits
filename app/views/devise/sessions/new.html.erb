@@ -1,6 +1,6 @@
 <% @title = 'Log In' %>
 
-<div id="user-form" class="grid_4 prefix_4 suffix_4">
+<div class="user-form grid_4 prefix_4 suffix_4">
   <%= form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f| %>
     <%= devise_error_messages! %>
 
@@ -30,7 +30,7 @@
         </tr>
       </table>
 
-      <div id="user-form-submit">
+      <div class="submit">
         <%= f.submit "Login" %>
       </div>
     </fieldset>

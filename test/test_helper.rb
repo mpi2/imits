@@ -83,7 +83,7 @@ require 'capybara/rails'
 require 'capybara/dsl'
 require 'capybara/webkit'
 
-Capybara.default_driver = :selenium
+Capybara.default_driver = :rack_test
 
 class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
   include Capybara::DSL
@@ -115,6 +115,18 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
   def assert_current_link(text)
     assert page.has_css? "#navigation li.current a", :text => text
   end
+end
+
+class Kermits2::JsIntegrationTest < ActionDispatch::IntegrationTest
+  def setup
+    super
+    Capybara.current_driver = :selenium
+  end
+
+  def teardown
+    Capybara.use_default_driver
+    super
+  end
 
   def selector_for_table_cell(table_row)
     ".x-grid-body tbody tr:nth-child(#{table_row+1}) .x-grid-cell-inner"
@@ -125,6 +137,12 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
     click_button 'Search'
     sleep 5
     find(:xpath, '//td/div[text()="' + es_cell_name + '"]').click
+  end
+
+  def screenshot(filename = nil)
+    filename ||= "#{Rails.root}/tmp/capybara_screenshot_#{Time.now.strftime('%F-%T')}.png"
+    page.driver.render filename
+    Launchy.open(filename)
   end
 end
 

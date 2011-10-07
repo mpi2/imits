@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class MiAttempt::WarningsTest < ActionDispatch::IntegrationTest
+class MiAttempt::WarningsTest < Kermits2::JsIntegrationTest
   context 'Warnings for mi_attempts:' do
     setup do
       login

@@ -6,14 +6,6 @@ class UserSessionsTest < ActionDispatch::IntegrationTest
 
   context 'User sessions integration:' do
 
-    setup do
-      Capybara.current_driver = :rack_test
-    end
-
-    teardown do
-      Capybara.use_default_driver
-    end
-
     context 'Login page' do
       should 'work with valid user' do
         login

@@ -6,47 +6,55 @@ class UserTest < ActionDispatch::IntegrationTest
 
   context 'User integration:' do
 
-    setup do
-      Capybara.current_driver = :rack_test
-    end
-
-    teardown do
-      Capybara.use_default_driver
-    end
-
     context 'changing passwords' do
       should 'require login' do
-        visit '/users/edit'
+        visit user_path
         assert_login_page
       end
 
       should 'work' do
         user = Factory.create :user
-        login(user.email)
+        login user
         click_link 'Edit profile'
         fill_in 'user[current_password]', :with => 'password'
         fill_in 'user[password]', :with => 'new password'
         fill_in 'user[password_confirmation]', :with => 'new password'
         click_button 'user_submit'
-        assert_match %r{^http://[^/]+/$}, current_url
+        assert_match %r{^http://[^/]+/user$}, current_url
+        assert page.has_css? 'legend', :text => 'Change Password'
 
         visit '/users/logout'
         fill_in 'Email', :with => user.email
         fill_in 'Password', :with => 'new password'
         click_button 'Login'
-        assert_match %r{^http://[^/]+/$}, current_url
+        assert_current_link 'Home'
       end
 
       should 'validate' do
         user = Factory.create :user
-        login(user.email)
+        login user
         click_link 'Edit profile'
+        assert page.has_no_css? '.message.alert'
         fill_in 'user[current_password]', :with => 'password'
         fill_in 'user[password]', :with => 'new password'
         fill_in 'user[password_confirmation]', :with => 'wrong password confirmation'
         click_button 'user_submit'
+        assert page.has_css? '.message.alert'
         assert page.has_css? 'legend', :text => 'Change Password'
       end
+    end
+
+    should 'allow changing name' do
+      user = Factory.create :user
+      assert_blank user.name
+
+      login user
+      click_link 'Edit profile'
+      fill_in 'user[name]', :with => 'New Name Of User'
+      fill_in 'user[current_password]', :with => 'password'
+      click_button 'user_submit'
+      assert page.has_css? '.message.notice'
+      assert page.has_css?('input[name="user[name]"]', :value => 'New Name Of User')
     end
 
   end

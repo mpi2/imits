@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class SearchForMiAttemptsTest < ActionDispatch::IntegrationTest
+class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
 
   should 'need a valid logged in user' do
     visit '/users/logout'

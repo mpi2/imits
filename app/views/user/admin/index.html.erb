@@ -1,6 +1,6 @@
 <% @title = 'User Admin' %>
 
-<div class="grid_4 prefix_4 suffix_4">
+<div class="user-form grid_4 prefix_4 suffix_4">
   <%= form_tag transform_admin_path :html => { :method => :post } do |form| %>
     <fieldset>
       <legend><%= 'Transform into another user' %></legend>
@@ -12,13 +12,11 @@
             <%= select_tag 'user_email', options_for_select(User.all.map(&:email).sort) %>
           </td>
         </tr>
-
-        <tr>
-          <td>
-            <%= submit_tag 'Transform' %>
-          </td>
-        </tr>
       </table>
+
+      <div class="submit">
+        <%= submit_tag 'Transform' %>
+      </div>
     </fieldset>
   <% end %>
 
@@ -40,17 +38,12 @@
             <%= form.collection_select :production_centre_id, Centre.all.sort_by(&:name), :id, :name %>
           </td>
         </tr>
-
-        <tr>
-          <td>
-            <%= form.submit 'Create User' %>
-          </td>
-        </tr>
       </table>
-    </fieldset>
 
-    <div>
-    </div>
+      <div class="submit">
+        <%= form.submit 'Create User' %>
+      </div>
+    </fieldset>
 
   <% end %>
 </div>

@@ -411,24 +411,24 @@ form fieldset.collapsible-content-hidden {
 
 /* @group User Login / Password Change Form */
 
-#user-form table {
+div.user-form table {
     margin-left: auto;
     margin-right: auto;
 }
 
-#user-form table td {
+div.user-form table td {
     padding-bottom: 1em;
 }
 
-#user-form input {
+div.user-form input {
     width: 18em;
 }
 
-#user-form input[type=checkbox] {
+div.user-form input[type=checkbox] {
     width: auto;
 }
 
-#user-form-submit {
+div.user-form div.submit {
     text-align: center;
     padding-top: 1em;
     margin-bottom: 0;

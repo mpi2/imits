@@ -4,19 +4,6 @@
   <%= form_for :user, :url => user_path, :html => { :method => :put } do |form| %>
 
     <fieldset>
-      <legend><%= 'Current Password' %></legend>
-
-      <table>
-        <tr>
-          <td>
-            <%= form.label :current_password, '(required for profile changes)' %>
-            <%= form.password_field :current_password, :class => 'initial-focus' %>
-          </td>
-        </tr>
-      </table>
-    </fieldset>
-
-    <fieldset>
       <legend><%= 'Edit Details' %></legend>
 
       <table>

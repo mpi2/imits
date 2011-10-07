@@ -16,7 +16,6 @@ class UserTest < ActionDispatch::IntegrationTest
         user = Factory.create :user
         login user
         click_link 'Edit profile'
-        fill_in 'user[current_password]', :with => 'password'
         fill_in 'user[password]', :with => 'new password'
         fill_in 'user[password_confirmation]', :with => 'new password'
         click_button 'user_submit'
@@ -35,9 +34,8 @@ class UserTest < ActionDispatch::IntegrationTest
         login user
         click_link 'Edit profile'
         assert page.has_no_css? '.message.alert'
-        fill_in 'user[current_password]', :with => 'password'
+
         fill_in 'user[password]', :with => 'new password'
-        fill_in 'user[password_confirmation]', :with => 'wrong password confirmation'
         click_button 'user_submit'
         assert page.has_css? '.message.alert'
         assert page.has_css? 'legend', :text => 'Change Password'
@@ -51,7 +49,6 @@ class UserTest < ActionDispatch::IntegrationTest
       login user
       click_link 'Edit profile'
       fill_in 'user[name]', :with => 'New Name Of User'
-      fill_in 'user[current_password]', :with => 'password'
       click_button 'user_submit'
       assert page.has_css? '.message.notice'
       assert page.has_css?('input[name="user[name]"]', :value => 'New Name Of User')

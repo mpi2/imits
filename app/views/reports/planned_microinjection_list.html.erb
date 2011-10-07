@@ -10,7 +10,7 @@
 
 <% unless params[:commit].blank? %>
   <div class="report grid_12">
-    <%=raw @report.to_html %>
+    <%= render :partial => '/reports/report_with_counts', :locals => { :report => @report, :label => 'planned micro-injections' } %>
   </div>
 <% end %>
 

@@ -44,8 +44,8 @@ namespace :one_time do
       'yobata@rtc.riken.go.jp' => 'Obata Yuichi',
       'hmasuya@brc.riken.jp' => 'Hiroshi Masuya',
       'dwest@chori.org' => 'David West',
-      'Steve.Murray@jax.org' => 'Steve Murray',
-      'Adrienne.McKenzie@anu.edu.au' => 'Adrienne McKenzie'
+      'steve.murray@jax.org' => 'Steve Murray',
+      'adrienne.mckenzie@anu.edu.au' => 'Adrienne McKenzie'
     }.each do |email,name|
       user = User.find_by_email!(email)
       unless name.blank?

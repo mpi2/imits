@@ -76,8 +76,8 @@ class GeneSelectionTest < ActionDispatch::IntegrationTest
       should 'allow users to enter interest records (mi_plans)' do
         visit '/mi_plans/gene_selection'
 
-        fill_in find('#consortium_combobox input')[:id], :with => 'MARC'
-        fill_in find('#production_centre_combobox input')[:id], :with => 'MARC'
+        fill_in find('#consortium_combobox input')[:id], :with => 'Helmholtz GMC'
+        fill_in find('#production_centre_combobox input')[:id], :with => 'HMGU'
         fill_in find('#priority_combobox input')[:id], :with => 'High'
         find('.x-grid-row-checker:first').click
         find('#register_interest_button button').click
@@ -85,21 +85,37 @@ class GeneSelectionTest < ActionDispatch::IntegrationTest
         sleep 5
 
         assert_equal 1, all('a.delete-mi-plan').size
-        assert page.has_css?('a.delete-mi-plan', :text => '[MARC:MARC:Interest]')
+        assert page.has_css?('a.delete-mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
 
         mi_plans = MiPlan.where(
-          :consortium_id => Consortium.find_by_name!('MARC').id,
-          :production_centre_id => Centre.find_by_name!('MARC').id,
+          :consortium_id => Consortium.find_by_name!('Helmholtz GMC').id,
+          :production_centre_id => Centre.find_by_name!('HMGU').id,
           :mi_plan_status_id => MiPlanStatus['Interest'].id
         )
+        assert_equal 1, mi_plans.count
+
+        visit '/mi_plans/gene_selection'
+
+        fill_in find('#consortium_combobox input')[:id], :with => 'BaSH'
+        fill_in find('#production_centre_combobox input')[:id], :with => ''
+        fill_in find('#priority_combobox input')[:id], :with => 'Low'
+        find('.x-grid-row-checker:first').click
+        find('#register_interest_button button').click
+
+        sleep 5
+
+        assert_equal 2, all('a.delete-mi-plan').size
+        assert page.has_css?('a.delete-mi-plan', :text => '[BaSH:Interest]')
+
+        mi_plans = MiPlan.where( :consortium_id => Consortium.find_by_name!('BaSH').id )
         assert_equal 1, mi_plans.count
       end
 
       should 'allow users to delete non-assigned mi_plans' do
         mi_plan = Factory.create :mi_plan,
           :gene => Gene.find_by_marker_symbol!('Myo1c'),
-          :consortium => Consortium.find_by_name!('MARC'),
-          :production_centre => Centre.find_by_name!('MARC'),
+          :consortium => Consortium.find_by_name!('Helmholtz GMC'),
+          :production_centre => Centre.find_by_name!('HMGU'),
           :mi_plan_status => MiPlanStatus['Interest']
         mi_plan_id = mi_plan.id
 
@@ -108,9 +124,12 @@ class GeneSelectionTest < ActionDispatch::IntegrationTest
         sleep 5
 
         assert_equal 1, all('a.delete-mi-plan').size
-        assert page.has_css?('a.delete-mi-plan', :text => '[MARC:MARC:Interest]')
+        assert page.has_css?('a.delete-mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
 
         find('a.delete-mi-plan').click
+
+        assert page.driver.browser.switch_to.alert.text.include?('[Helmholtz GMC:HMGU:Interest]')
+
         page.driver.browser.switch_to.alert.accept
 
         assert_nil MiPlan.find_by_id(mi_plan_id)

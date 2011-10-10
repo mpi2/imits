@@ -45,15 +45,16 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
               :es_cell => es_cell
 
       assert_true mi.generate_warnings
-      assert_equal [MiAttempt::WARNING_MESSAGES[:micro_injecting_unassigned_gene]], mi.warnings
+      assert_equal 1, mi.warnings.size
+      assert_match 'has not been assigned to WTSI', mi.warnings.first
     end
 
     should 'generate warning if MiPlan for the MiAttempt has to be created' do
-      mi = Factory.build :mi_attempt
+      mi = Factory.build :mi_attempt, :production_centre_name => 'ICS'
       assert_equal 0, MiPlan.count
 
       assert_true mi.generate_warnings
-      assert_include mi.warnings, MiAttempt::WARNING_MESSAGES[:micro_injecting_unassigned_gene]
+      assert_match 'has not been assigned to ICS', mi.warnings.join
     end
 
     should 'be able to generate more than one warning' do

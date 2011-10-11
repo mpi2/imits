@@ -19,7 +19,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should have_db_column(:es_cell_id).with_options(:null => false)
         assert_should belong_to(:es_cell)
       end
-      
+
       should 'have an mi_date' do
         assert_should have_db_column(:mi_date)
         assert_should validate_presence_of :mi_date
@@ -555,65 +555,105 @@ class MiAttemptTest < ActiveSupport::TestCase
                   mi.errors['mi_plan']
         end
 
-        should 'on save be assigned to a matching MiPlan' do
-          cbx1 = Factory.create :gene_cbx1
-          mi_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1,
-                  :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+        context 'on save' do
+          should 'be set to a matching MiPlan' do
+            cbx1 = Factory.create :gene_cbx1
+            mi_plan = Factory.create :mi_plan, :gene => cbx1,
+                    :consortium => Consortium.find_by_name!('BaSH'),
+                    :production_centre => Centre.find_by_name!('WTSI'),
+                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
 
-          mi_attempt = Factory.build :mi_attempt,
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_plan => nil
-          mi_attempt.production_centre_name = mi_plan.production_centre.name
-          mi_attempt.consortium_name = mi_plan.consortium.name
+            Factory.create :mi_plan, :gene => cbx1,
+                    :consortium => Consortium.find_by_name!('BaSH'),
+                    :production_centre => nil,
+                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
 
-          assert_no_difference("MiPlan.count") do
-            mi_attempt.save!
+            mi_attempt = Factory.build :mi_attempt,
+                    :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                    :production_centre_name => mi_plan.production_centre.name,
+                    :consortium_name => mi_plan.consortium.name,
+                    :mi_plan => nil
+
+            assert_no_difference("MiPlan.count") do
+              mi_attempt.save!
+            end
+
+            assert_equal mi_plan, mi_attempt.mi_plan
           end
 
-          assert_equal mi_plan, mi_attempt.mi_plan
-        end
+          should ', when assigning a matching MiPlan, set its status to Assigned if it is otherwise' do
+            cbx1 = Factory.create :gene_cbx1
+            mi_plan = Factory.create :mi_plan, :gene => cbx1,
+                    :consortium => Consortium.find_by_name!('BaSH'),
+                    :production_centre => Centre.find_by_name!('WTSI'),
+                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
 
-        should 'on save, when assigning a matching MiPlan, set its status to Assigned if it is otherwise' do
-          cbx1 = Factory.create :gene_cbx1
-          mi_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1,
-                  :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+            mi_attempt = Factory.build :mi_attempt,
+                    :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                    :production_centre_name => mi_plan.production_centre.name,
+                    :consortium_name => mi_plan.consortium.name,
+                    :mi_plan => nil
 
-          mi_attempt = Factory.build :mi_attempt,
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_plan => nil
-          mi_attempt.production_centre_name = mi_plan.production_centre.name
-          mi_attempt.consortium_name = mi_plan.consortium.name
+            assert_no_difference("MiPlan.count") do
+              mi_attempt.save!
+            end
 
-          assert_no_difference("MiPlan.count") do
-            mi_attempt.save!
+            mi_plan.reload
+            assert_equal mi_plan, mi_attempt.mi_plan
+            assert_equal 'Assigned', mi_plan.mi_plan_status.name
           end
 
-          mi_plan.reload
-          assert_equal mi_plan, mi_attempt.mi_plan
-          assert_equal 'Assigned', mi_plan.mi_plan_status.name
-        end
+          should 'be created if none match gene, consortium and production centre' do
+            cbx1 = Factory.create :gene_cbx1
+            assert_blank MiPlan.search(:production_centre_name_eq => 'WTSI',
+              :consortium_name_eq => 'BaSH',
+              :es_cell_gene_marker_symbol_eq => 'Cbx1').result
 
-        should 'be created on save if none match gene, consortium and production centre' do
-          cbx1 = Factory.create :gene_cbx1
-          assert_blank MiPlan.search(:production_centre_name_eq => 'WTSI',
-            :consortium_name_eq => 'BaSH',
-            :es_cell_gene_marker_symbol_eq => 'Cbx1').result
+            mi_attempt = Factory.build :mi_attempt,
+                    :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                    :mi_plan => nil
+            mi_attempt.production_centre_name = 'WTSI'
+            mi_attempt.consortium_name = 'BaSH'
+            mi_attempt.save!
 
-          mi_attempt = Factory.build :mi_attempt,
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_plan => nil
-          mi_attempt.production_centre_name = 'WTSI'
-          mi_attempt.consortium_name = 'BaSH'
-          mi_attempt.save!
+            assert_equal 1, MiPlan.search(:production_centre_name_eq => 'WTSI',
+              :consortium_name_eq => 'BaSH',
+              :es_cell_gene_marker_symbol_eq => 'Cbx1').result.count
+            assert_equal 'Cbx1', mi_attempt.mi_plan.gene.marker_symbol
+            assert_equal 'WTSI', mi_attempt.mi_plan.production_centre.name
+            assert_equal 'BaSH', mi_attempt.mi_plan.consortium.name
+            assert_equal 'High', mi_attempt.mi_plan.mi_plan_priority.name
+            assert_equal 'Assigned', mi_attempt.mi_plan.mi_plan_status.name
+          end
 
-          assert_equal 1, MiPlan.search(:production_centre_name_eq => 'WTSI',
-            :consortium_name_eq => 'BaSH',
-            :es_cell_gene_marker_symbol_eq => 'Cbx1').result.count
-          assert_equal 'Cbx1', mi_attempt.mi_plan.gene.marker_symbol
-          assert_equal 'WTSI', mi_attempt.mi_plan.production_centre.name
-          assert_equal 'BaSH', mi_attempt.mi_plan.consortium.name
-          assert_equal 'High', mi_attempt.mi_plan.mi_plan_priority.name
-          assert_equal 'Assigned', mi_attempt.mi_plan.mi_plan_status.name
+          should 'be assigned the MiPlan with specified consortium and gene but no production centre if an MiPlan with all 3 attributes does not exist - should also set the MiPlan\'s production centre to the one specified and mi_plan_status to Assigned' do
+            assert_blank MiPlan.search(:production_centre_name_eq => 'WTSI',
+              :consortium_name_eq => 'BaSH',
+              :es_cell_gene_marker_symbol_eq => 'Cbx1').result
+
+            cbx1 = Factory.create :gene_cbx1
+
+            mi_plan = Factory.create :mi_plan, :gene => cbx1,
+                    :consortium => Consortium.find_by_name!('BaSH'),
+                    :production_centre => nil,
+                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+
+            mi_attempt = Factory.build :mi_attempt,
+                    :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                    :production_centre_name => 'WTSI',
+                    :consortium_name => mi_plan.consortium.name,
+                    :mi_plan => nil
+
+            assert_no_difference("MiPlan.count") do
+              mi_attempt.save!
+            end
+
+            mi_plan.reload
+            assert_equal mi_plan, mi_attempt.mi_plan
+            assert_equal 'WTSI', mi_plan.production_centre.name
+            assert_equal 'Assigned', mi_plan.mi_plan_status.name
+          end
+
         end
       end
 

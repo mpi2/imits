@@ -205,16 +205,22 @@ class MiAttempt < ActiveRecord::Base
     if ! self.mi_plan
       mi_plan_params = self.mi_plan_lookup_conditions
 
-      self.mi_plan = MiPlan.where(mi_plan_params).first
-      if self.mi_plan
-        self.mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus.find_by_name!('Assigned'))
-      else
-        create_params = mi_plan_params.merge(
-          :mi_plan_status => MiPlanStatus.find_by_name!('Assigned'),
-          :mi_plan_priority => MiPlanPriority.find_by_name!('High'))
-        self.mi_plan = MiPlan.create!(create_params)
+      mi_plan_to_set = MiPlan.where(mi_plan_params).first
+      if ! mi_plan_to_set
+        mi_plan_to_set = MiPlan.where(mi_plan_params.merge(:production_centre_id => nil)).first
+
+        if ! mi_plan_to_set
+          create_params = mi_plan_params.merge(
+            :mi_plan_priority => MiPlanPriority.find_by_name!('High'))
+          mi_plan_to_set = MiPlan.new(create_params)
+        end
       end
 
+      mi_plan_to_set.production_centre ||= Centre.find_by_name!(self.production_centre_name)
+      mi_plan_to_set.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
+      mi_plan_to_set.save!
+
+      self.mi_plan = mi_plan_to_set
     end
   end
 

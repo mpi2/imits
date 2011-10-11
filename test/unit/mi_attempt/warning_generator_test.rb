@@ -74,8 +74,9 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
                 :es_cell => es_cell
 
         assert_true mi.generate_warnings
-        expected_message = 'Continuing will assign the production centre to WTSI'
-        assert_match expected_message, mi.warnings.join
+        expected_message = 'Continuing will assign WTSI as the production centre micro-injecting the gene on behalf of BaSH'
+        assert_match expected_message, mi.warnings.first
+        assert_match 'BaSH is planning on micro-injecting', mi.warnings.first
       end
 
       should 'not generate warning if there are two MiPlans, one with the assigned and one without a production centre' do

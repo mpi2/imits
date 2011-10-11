@@ -5,7 +5,7 @@
     ['Search & Edit MI Attempts', mi_attempts_path('q[production_centre_name]' => current_user.production_centre.name)],
     ['Create MI Attempt', new_mi_attempt_path],
     ['Reports', reports_path],
-    ['Manual', 'manual.pdf']
+    ['Manual', request.env['SCRIPT_NAME']+'/manual.pdf']
   ]
 %>
 

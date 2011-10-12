@@ -18,7 +18,7 @@ class Gene < ActiveRecord::Base
     }.each do |method,type|
       html.push("#{self.send(method)} #{type}") unless self.send(method).nil?
     end
-    return html.join('</br>').html_safe
+    return html.join('<br/>').html_safe
   end
 
   def non_assigned_mi_plans
@@ -187,7 +187,7 @@ class Gene < ActiveRecord::Base
       genes[ result['marker_symbol'] ] << string
     end
 
-    genes.each { |marker_symbol,values| genes[marker_symbol] = values.join('</br>') }
+    genes.each { |marker_symbol,values| genes[marker_symbol] = values.join('<br/>') }
 
     return genes
   end

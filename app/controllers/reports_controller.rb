@@ -34,12 +34,12 @@ class ReportsController < ApplicationController
         'Marker Symbol'     => gene.marker_symbol,
         'MGI Accession ID'  => gene.mgi_accession_id,
         '# IKMC Projects'   => gene.ikmc_projects_count,
-        '# Clones'          => gene.pretty_print_types_of_cells_available.gsub('</br>',' '),
-        'Non-Assigned MIs'  => non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('</br>',' ') : nil,
-        'Assigned MIs'      => assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('</br>',' ') : nil,
-        'Aborted MIs'       => aborted_mis[gene.marker_symbol] ? aborted_mis[gene.marker_symbol].gsub('</br>',' ') : nil,
-        'MIs in Progress'   => mis_in_progress[gene.marker_symbol] ? mis_in_progress[gene.marker_symbol].gsub('</br>',' ') : nil,
-        'GLT Mice'          => glt_mice[gene.marker_symbol] ? glt_mice[gene.marker_symbol].gsub('</br>',' ') : nil
+        '# Clones'          => gene.pretty_print_types_of_cells_available.gsub('<br/>',' '),
+        'Non-Assigned MIs'  => non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+        'Assigned MIs'      => assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+        'Aborted MIs'       => aborted_mis[gene.marker_symbol] ? aborted_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+        'MIs in Progress'   => mis_in_progress[gene.marker_symbol] ? mis_in_progress[gene.marker_symbol].gsub('<br/>',' ') : nil,
+        'GLT Mice'          => glt_mice[gene.marker_symbol] ? glt_mice[gene.marker_symbol].gsub('<br/>',' ') : nil
       }
     end
 
@@ -171,7 +171,7 @@ class ReportsController < ApplicationController
       mis_by_gene.each do |title,store|
         @report.add_column(title) do |row|
           data = store[row.data['Marker Symbol']]
-          data.gsub!('</br>',' ') if request.format == :csv and !data.nil?
+          data.gsub!('<br/>',' ') if request.format == :csv and !data.nil?
           data
         end
       end

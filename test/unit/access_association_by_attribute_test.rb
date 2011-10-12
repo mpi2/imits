@@ -109,7 +109,7 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
       end
     end
 
-    context 'on saving with invalid assignment' do
+    context 'on saving with nonexistent parameter' do
       setup do
         Test::Pet.setup_access
         @pet.owner_name = 'Nonexistent'
@@ -123,6 +123,13 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
       should 'still return incorrect value that caused error (just like setting a real attribute incorrectly would)' do
         assert_equal 'Nonexistent', @pet.owner_name
       end
+    end
+
+    should 'cause validation errors on saving with non-String parameter' do
+      Test::Pet.setup_access
+      @pet.owner_name = 55
+      assert_false @pet.save
+      assert_equal "'55' is invalid", @pet.errors[:owner_name].first
     end
 
     context 'attribute alias' do

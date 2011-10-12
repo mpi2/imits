@@ -10,6 +10,10 @@
 
 <% unless params[:commit].blank? %>
   <div class="report grid_12">
-    <%=raw @report.to_html %>
+    <% if @report.nil? %>
+      <p><em>Sorry, no production data found</em></p>
+    <% else %>
+      <%=raw @report.to_html %>
+    <% end %>
   </div>
 <% end %>

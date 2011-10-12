@@ -100,6 +100,79 @@ class ReportsTest < ActionDispatch::IntegrationTest
         choose 'format_csv'
         click_button 'Generate Report'
       end
+
+      should 'allow users to get reports of all mi_plans in the system' do
+        15.times { Factory.create :mi_plan, :consortium_id => Consortium.find_by_name!('DTCC').id }
+        20.times { Factory.create :mi_attempt }
+
+        visit '/reports'
+        click_link 'All Planned Micro-Injections'
+
+        assert_match '/reports/planned_microinjection_list', current_url
+        assert page.has_css?('form')
+        assert page.has_css?('form select#grouping')
+
+        click_button 'Generate Report'
+        assert_match '/reports/planned_microinjection_list', current_url
+        assert page.has_css?('.report table')
+
+        select 'yes', :from => 'include_plans_with_active_attempts'
+        click_button 'Generate Report'
+        assert_match '/reports/planned_microinjection_list', current_url
+        assert page.has_css?('.report table')
+
+        choose 'format_csv'
+        click_button 'Generate Report'
+      end
+
+      should 'not blow up in the users face if they ask for silly data' do
+        visit '/reports'
+        click_link 'All Micro-Injection Attempts'
+
+        select 'JAX', :from => 'production_centre_id[]'
+        select 'MARC', :from => 'consortium_id[]'
+        click_button 'Generate Report'
+
+        assert_match '/reports/mi_attempts_list', current_url
+        assert_match 'production_centre_id', current_url
+        assert_match 'Sorry', page.body
+
+        visit '/reports'
+        click_link 'Month-by-Month Summary'
+
+        select 'JAX', :from => 'production_centre_id[]'
+        select 'MARC', :from => 'consortium_id[]'
+        click_button 'Generate Report'
+
+        assert_match '/reports/mi_attempts_monthly_production', current_url
+        assert_match 'production_centre_id', current_url
+        assert_match 'Sorry', page.body
+
+        visit '/reports'
+        click_link 'Gene Summary'
+
+        select 'JAX', :from => 'production_centre_id[]'
+        select 'MARC', :from => 'consortium_id[]'
+        click_button 'Generate Report'
+
+        assert_match '/reports/mi_attempts_by_gene', current_url
+        assert_match 'production_centre_id', current_url
+        assert_match 'Sorry', page.body
+
+        15.times { Factory.create :mi_plan, :consortium_id => Consortium.find_by_name!('DTCC').id }
+        20.times { Factory.create :mi_attempt }
+
+        visit '/reports'
+        click_link 'All Planned Micro-Injections'
+
+        select 'JAX', :from => 'production_centre_id[]'
+        select 'MARC', :from => 'consortium_id[]'
+        click_button 'Generate Report'
+
+        assert_match '/reports/planned_microinjection_list', current_url
+        assert_match 'production_centre_id', current_url
+        assert_match 'Sorry', page.body
+      end
     end
 
   end

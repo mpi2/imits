@@ -20,6 +20,7 @@ javascripts:
   common:
     - public/extjs/ext-all.js
     - public/javascripts/application.js
+    - public/javascripts/extjs_hacky_monkey_patches.js
 
     - public/javascripts/Imits/data/JsonWriter.js
     - public/javascripts/Imits/data/Proxy.js

@@ -56,14 +56,14 @@ class MiPlansController < ApplicationController
     end
 
     if !@mi_plan.nil?
-      if @mi_plan.mi_plan_status.name == 'Interest'
+      if !['Assigned','Inactive'].include?(@mi_plan.status)
         @mi_plan.destroy
         respond_to { |format| format.json { head :ok } }
       else
         respond_to do |format|
           format.json {
             render(
-              :json => { :mi_plan => 'We only allow the deletion of MiPlans in the "Interest" status.' },
+              :json => { :mi_plan => 'We only allow the deletion of MiPlans that are NOT in the "Assigned" or "Inactive" status.' },
               :status => 403
             )
           }

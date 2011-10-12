@@ -9,20 +9,12 @@ function split_mi_string (mi_string) {
   return mis;
 }
 
-function split_mi_plan_string (mi_plan_string) {
-  var mips = [];
-  var pattern_with_prod_cen = /^\[(.+)\:(.+)\:(.+)\]$/;
-  var pattern_without_prod_cen = /^\[(.+)\:(.+)\]$/;
-  Ext.Array.each( mi_plan_string.split('</br>'), function(mip) {
-    var match = pattern_with_prod_cen.exec(mip);
-    if ( match ) {
-      mips.push({ consortium: match[1], production_centre: match[2], status: match[3], original: mip });
-    } else {
-      match = pattern_without_prod_cen.exec(mip);
-      mips.push({ consortium: match[1], production_centre: null, status: match[2], original: mip });
-    }
-  });
-  return mips;
+function print_mi_plan_string (mi_plan) {
+  var str = '[' + mi_plan['consortium'];
+  if ( !Ext.isEmpty(mi_plan['production_centre']) ) { str = str + ':' + mi_plan['production_centre']; }
+  if ( !Ext.isEmpty(mi_plan['status']) ) { str = str + ':' + mi_plan['status']; }
+  str = str + ']';
+  return str;
 }
 
 Ext.define('Imits.widget.GeneGrid', {
@@ -67,26 +59,33 @@ Ext.define('Imits.widget.GeneGrid', {
     },
     {
       header: 'Non-Assigned MIs',
-      dataIndex: 'pretty_print_non_assigned_mi_plans',
+      dataIndex: 'non_assigned_mi_plans',
       readOnly: true,
       sortable: false,
       width: 250,
       flex: 1,
       xtype: 'templatecolumn',
       tpl: new Ext.XTemplate(
-        '<tpl for="this.processedMIPs(pretty_print_non_assigned_mi_plans)">',
-          '<a class="delete-mi-plan" title="delete planned micro-injection" data-marker_symbol="{parent.marker_symbol}" data-consortium="{consortium}" data-production_centre="{production_centre}" data-original="{original}" href="#">{original}</a></br>',
+        '<tpl for="non_assigned_mi_plans">',
+          '<a class="delete-mi-plan" title="delete planned micro-injection" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
         '</tpl>',
-        { processedMIPs: split_mi_plan_string }
+        { prettyPrintMiPlan: print_mi_plan_string }
       )
     },
     {
       header: 'Assigned MIs',
-      dataIndex: 'pretty_print_assigned_mi_plans',
+      dataIndex: 'assigned_mi_plans',
       readOnly: true,
       sortable: false,
       width: 200,
-      flex: 1
+      flex: 1,
+      xtype: 'templatecolumn',
+      tpl: new Ext.XTemplate(
+        '<tpl for="assigned_mi_plans">',
+          '{[this.prettyPrintMiPlan(values)]}<br/>',
+        '</tpl>',
+        { prettyPrintMiPlan: print_mi_plan_string }
+      )
     },
     {
       header: 'Aborted MIs',
@@ -239,24 +238,20 @@ Ext.define('Imits.widget.GeneGrid', {
 
     // Add listeners to the .delete-mi-plan buttons
     Ext.get(grid.renderTo).on('click', function(event,target) {
-        var marker_symbol     = target.getAttribute('data-marker_symbol');
-        var consortium        = target.getAttribute('data-consortium');
-        var production_centre = target.getAttribute('data-production_centre');
-        var original          = target.getAttribute('data-original');
+        var marker_symbol = target.getAttribute('data-marker_symbol');
+        var id            = target.getAttribute('data-id');
+        var string        = target.getAttribute('data-string');
 
         var confirmed = confirm(
           'Are you sure you want to delete the planned MI for ' +
-          marker_symbol + ' - ' + original + '?'
+          marker_symbol + ' - ' + string + '?'
         );
 
         if ( confirmed ) {
           Ext.Ajax.request({
             method: 'DELETE',
-            url: basePath + '/mi_plans.json',
+            url: basePath + '/mi_plans/' + id + '.json',
             params: {
-              marker_symbol: marker_symbol,
-              consortium: consortium,
-              production_centre: production_centre,
               authenticity_token: authenticityToken
             },
             callback: function(opt,success,response) {

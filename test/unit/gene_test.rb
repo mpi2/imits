@@ -22,20 +22,22 @@ class GeneTest < ActiveSupport::TestCase
       should validate_uniqueness_of :marker_symbol
 
       should 'no output private attributes in serialization' do
-        gene_json = Gene.first.to_json
-        assert_false gene_json.include? 'created_at'
-        assert_false gene_json.include? 'updated_at'
-        assert_false gene_json.include? 'updated_by'
+        gene_json = Gene.first.as_json.stringify_keys
+        
+        assert_false gene_json.keys.include? 'created_at'
+        assert_false gene_json.keys.include? 'updated_at'
+        assert_false gene_json.keys.include? 'updated_by'
       end
 
-      should 'include pretty_print methods in serialization' do
-        gene_json = Gene.first.to_json
-        assert gene_json.include? 'pretty_print_types_of_cells_available'
-        assert gene_json.include? 'pretty_print_non_assigned_mi_plans'
-        assert gene_json.include? 'pretty_print_assigned_mi_plans'
-        assert gene_json.include? 'pretty_print_mi_attempts_in_progress'
-        assert gene_json.include? 'pretty_print_mi_attempts_genotype_confirmed'
-        assert gene_json.include? 'pretty_print_aborted_mi_attempts'
+      should 'include pretty_print type methods in serialization' do
+        gene_json = Gene.first.as_json.stringify_keys
+        
+        assert gene_json.keys.include? 'pretty_print_types_of_cells_available'
+        assert gene_json.keys.include? 'non_assigned_mi_plans'
+        assert gene_json.keys.include? 'assigned_mi_plans'
+        assert gene_json.keys.include? 'pretty_print_mi_attempts_in_progress'
+        assert gene_json.keys.include? 'pretty_print_mi_attempts_genotype_confirmed'
+        assert gene_json.keys.include? 'pretty_print_aborted_mi_attempts'
       end
     end
 
@@ -195,6 +197,37 @@ class GeneTest < ActiveSupport::TestCase
       end
     end
 
+    context '#non_assigned_mi_plans' do
+      should 'work' do
+        gene = Factory.create :gene,
+          :marker_symbol => 'Moo1',
+          :mgi_accession_id => 'MGI:12345'
+
+        bash_plan = Factory.create :mi_plan,
+          :gene => gene,
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+
+        mgp_plan = Factory.create :mi_plan,
+          :gene => gene,
+          :consortium => Consortium.find_by_name!('MGP'),
+          :production_centre => Centre.find_by_name!('WTSI'),
+          :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+
+        marc_attempt = Factory.create :mi_attempt,
+          :es_cell => Factory.create(:es_cell, :gene => gene),
+          :consortium_name => 'MARC',
+          :production_centre_name => 'MARC',
+          :is_active => true
+
+        assert gene
+        assert_equal 3, gene.mi_plans.count
+        assert gene.non_assigned_mi_plans.include?({ :id => bash_plan.id, :consortium => 'BaSH', :production_centre => nil, :status => 'Interest' })
+        assert gene.non_assigned_mi_plans.include?({ :id => mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI', :status => 'Interest' })
+        assert_false gene.non_assigned_mi_plans.include?({ :id => marc_attempt.mi_plan.id, :consortium => 'MARC', :production_centre => 'MARC', :status => 'Assigned' })
+      end
+    end
+
     context '#pretty_print_non_assigned_mi_plans' do
       should 'work' do
         gene = Factory.create :gene,
@@ -223,6 +256,37 @@ class GeneTest < ActiveSupport::TestCase
         assert_match '[BaSH:Interest]', gene.pretty_print_non_assigned_mi_plans
         assert_match '[MGP:WTSI:Interest]', gene.pretty_print_non_assigned_mi_plans
         assert_false gene.pretty_print_non_assigned_mi_plans.include?('[MARC:MARC]')
+      end
+    end
+
+    context '#assigned_mi_plans' do
+      should 'work' do
+        gene = Factory.create :gene,
+          :marker_symbol => 'Moo1',
+          :mgi_accession_id => 'MGI:12345'
+
+        bash_plan = Factory.create :mi_plan,
+          :gene => gene,
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+
+        mgp_plan = Factory.create :mi_plan,
+          :gene => gene,
+          :consortium => Consortium.find_by_name!('MGP'),
+          :production_centre => Centre.find_by_name!('WTSI'),
+          :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+
+        marc_attempt = Factory.create :mi_attempt,
+          :es_cell => Factory.create(:es_cell, :gene => gene),
+          :consortium_name => 'MARC',
+          :production_centre_name => 'MARC',
+          :is_active => true
+
+        assert gene
+        assert_equal 3, gene.mi_plans.count
+        assert gene.assigned_mi_plans.include?({ :id => bash_plan.id, :consortium => 'BaSH', :production_centre => nil })
+        assert gene.assigned_mi_plans.include?({ :id => mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI' })
+        assert_false gene.assigned_mi_plans.include?({ :id => marc_attempt.mi_plan.id, :consortium => 'MARC', :production_centre => 'MARC' })
       end
     end
 

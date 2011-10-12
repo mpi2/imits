@@ -21,14 +21,20 @@ class Gene < ActiveRecord::Base
     return html.join('</br>').html_safe
   end
 
+  def non_assigned_mi_plans
+    Gene.non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+  end
+
   def pretty_print_non_assigned_mi_plans
-    html = Gene.pretty_print_non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
-    return html ? html.html_safe : nil
+    Gene.pretty_print_non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+  end
+
+  def assigned_mi_plans
+    Gene.assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
   end
 
   def pretty_print_assigned_mi_plans
-    html = Gene.pretty_print_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
-    return html ? html.html_safe : nil
+    Gene.pretty_print_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
   end
 
   def pretty_print_mi_attempts_in_progress
@@ -43,9 +49,10 @@ class Gene < ActiveRecord::Base
     return Gene.pretty_print_aborted_mi_attempts_in_bulk(self.id)[self.marker_symbol]
   end
 
-  def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil)
+  def self.non_assigned_mi_plans_in_bulk(gene_id=nil)
     sql = <<-SQL
       select distinct
+        mi_plans.id,
         genes.marker_symbol,
         consortia.name as consortium,
         centres.name as production_centre,
@@ -62,24 +69,38 @@ class Gene < ActiveRecord::Base
     genes = {}
     results = ActiveRecord::Base.connection.execute(sql)
     results.each do |res|
-      string = "[#{res['consortium']}"
-      string << ":#{res['production_centre']}" unless res['production_centre'].nil?
-      string << ":#{res['status']}"
-      string << "]"
       genes[ res['marker_symbol'] ] ||= []
-      genes[ res['marker_symbol'] ] << string
-    end
-
-    genes.each do |marker_symbol,values|
-      genes[marker_symbol] = values.join('</br>')
+      genes[ res['marker_symbol'] ] << {
+        :id => res['id'].to_i,
+        :consortium => res['consortium'],
+        :production_centre => res['production_centre'],
+        :status => res['status']
+      }
     end
 
     return genes
   end
 
-  def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil)
+  def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil)
+    data = Gene.non_assigned_mi_plans_in_bulk(gene_id)
+
+    data.each do |marker_symbol,mi_plans|
+      strings = mi_plans.map do |mip|
+        string = "[#{mip[:consortium]}"
+        string << ":#{mip[:production_centre]}" unless mip[:production_centre].nil?
+        string << ":#{mip[:status]}"
+        string << "]"
+      end
+      data[marker_symbol] = strings.join('<br/>').html_safe
+    end
+
+    return data
+  end
+
+  def self.assigned_mi_plans_in_bulk(gene_id=nil)
     sql = <<-SQL
       select distinct
+        mi_plans.id,
         genes.marker_symbol,
         consortia.name as consortium,
         centres.name as production_centre
@@ -97,18 +118,30 @@ class Gene < ActiveRecord::Base
     genes = {}
     results = ActiveRecord::Base.connection.execute(sql)
     results.each do |res|
-      string = "[#{res['consortium']}"
-      string << ":#{res['production_centre']}" unless res['production_centre'].nil?
-      string << "]"
       genes[ res['marker_symbol'] ] ||= []
-      genes[ res['marker_symbol'] ] << string
-    end
-
-    genes.each do |marker_symbol,values|
-      genes[marker_symbol] = values.join('</br>')
+      genes[ res['marker_symbol'] ] << {
+        :id => res['id'].to_i,
+        :consortium => res['consortium'],
+        :production_centre => res['production_centre']
+      }
     end
 
     return genes
+  end
+
+  def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil)
+    data = Gene.assigned_mi_plans_in_bulk(gene_id)
+
+    data.each do |marker_symbol,mi_plans|
+      strings = mi_plans.map do |mip|
+        string = "[#{mip[:consortium]}"
+        string << ":#{mip[:production_centre]}" unless mip[:production_centre].nil?
+        string << "]"
+      end
+      data[marker_symbol] = strings.join('<br/>').html_safe
+    end
+
+    return data
   end
 
   def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_id=nil)
@@ -331,8 +364,8 @@ class Gene < ActiveRecord::Base
     options.symbolize_keys!
     options[:methods] ||= [
       :pretty_print_types_of_cells_available,
-      :pretty_print_non_assigned_mi_plans,
-      :pretty_print_assigned_mi_plans,
+      :non_assigned_mi_plans,
+      :assigned_mi_plans,
       :pretty_print_mi_attempts_in_progress,
       :pretty_print_mi_attempts_genotype_confirmed,
       :pretty_print_aborted_mi_attempts

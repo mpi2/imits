@@ -20,6 +20,24 @@ module AccessAssociationByAttribute
 
     define_method "#{virtual_attribute}=" do |value|
       instance_variable_set("@#{virtual_attribute}", value)
+
+      if value.blank?
+        self.send("#{association_name}=", nil)
+        return
+      end
+
+      if !value.respond_to?(:to_str)
+        instance_variable_set("@#{virtual_attribute}_errors_", "'#{value}' is invalid")
+        return
+      end
+
+      new_object = association_class.send("find_by_#{attribute}", value)
+      if !new_object
+        instance_variable_set("@#{virtual_attribute}_errors_", "'#{value}' does not exist")
+        return
+      end
+
+      self.send("#{association_name}=", new_object)
     end
 
     if ! options[:attribute_alias].blank?
@@ -27,31 +45,14 @@ module AccessAssociationByAttribute
       alias_method "#{association_name}_#{options[:attribute_alias]}", "#{virtual_attribute}"
     end
 
-    define_method "#{virtual_attribute}_before_validation" do
-      return true unless instance_variable_defined?("@#{virtual_attribute}")
-
-      value = instance_variable_get("@#{virtual_attribute}")
-
-      new_object = association_class.send("find_by_#{attribute}", value)
-      if !value.blank? and !new_object
-        self.errors.add(virtual_attribute, "'#{value}' does not exist")
+    define_method "#{virtual_attribute}_validation" do
+      errors = instance_variable_get("@#{virtual_attribute}_errors_")
+      if errors
+        self.errors.add(virtual_attribute, errors)
       end
-
-      return true
     end
 
-    before_validation "#{virtual_attribute}_before_validation"
-
-    define_method "#{virtual_attribute}_before_save" do
-      return true unless instance_variable_defined?("@#{virtual_attribute}")
-
-      value = instance_variable_get("@#{virtual_attribute}")
-      new_object = association_class.send("find_by_#{attribute}", value)
-      self.send("#{association_name}=", new_object)
-      return true
-    end
-
-    before_validation "#{virtual_attribute}_before_save"
+    validate "#{virtual_attribute}_validation"
 
   end
 end

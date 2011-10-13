@@ -69,6 +69,8 @@ class MiAttemptsController < ApplicationController
     @mi_attempt.attributes = params[:mi_attempt]
     @mi_attempt.updated_by = current_user
 
+    return unless authorize_user_production_centre
+
     if @mi_attempt.save
       flash.now[:notice] = 'MI attempt updated successfully'
     end
@@ -103,7 +105,9 @@ class MiAttemptsController < ApplicationController
     return true unless request.format == :json
 
     if current_user.production_centre.name != @mi_attempt.production_centre_name
-      render :json => {'error' => 'Unauthorized access'}, :status => 401
+      render :json => {
+        'error' => 'Cannot create/update MI attempts for other production centres'
+      }, :status => 401
       return false
     end
 

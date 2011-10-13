@@ -273,26 +273,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_not_equal 0, doc.xpath('count(//error)')
       end
 
-      should 'set consortium from params instead of user if specified' do
-        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
-        sign_in user
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-        post :create,
-                :mi_attempt => {
-                  'es_cell_name' => es_cell.name,
-                  'consortium_name' => 'MGP',
-                  'mi_date' => Date.today.to_s
-                },
-                :format => :json
-        assert_response :success, response.body
-
-        mi_attempt = MiAttempt.first
-        assert_equal 'MGP', mi_attempt.consortium_name
-      end
-
       should 'set production centre to logged in user centre' do
-        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
-        sign_in user
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         post :create,
                 :mi_attempt => {'es_cell_name' => es_cell.name, 'consortium_name' => 'EUCOMM-EUMODIC', 'mi_date' => Date.today.to_s},
@@ -300,34 +281,34 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_response :success, response.body
 
         mi_attempt = MiAttempt.first
-        assert_equal 'ICS', mi_attempt.production_centre_name
+        assert_equal 'WTSI', mi_attempt.production_centre_name
         assert_equal 'EUCOMM-EUMODIC', mi_attempt.consortium_name
       end
 
-      should 'authorize the MI belongs to the user\'s production centre via REST' do
-        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
+      should 'authorize the MI belongs to the user\'s production centre for REST only' do
+        assert_equal 'WTSI', default_user.production_centre.name
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-        sign_in user
         post :create, :mi_attempt => {
           'es_cell_name' => es_cell.name,
           'consortium_name' => 'BaSH',
           'mi_date' => '2011-05-01',
-          :production_centre_name => 'WTSI'
+          :production_centre_name => 'ICS'
         }, :format => :json
         assert_response 401, response.status
-        assert_equal({'error' => 'Unauthorized access'}, JSON.parse(response.body))
+        expected = {
+          'error' => 'Cannot create/update MI attempts for other production centres'
+        }
+        assert_equal(expected, JSON.parse(response.body))
       end
 
       should 'not authorize the MI belongs to the user\'s production centre via HTML' do
-        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-        sign_in user
         post :create, :mi_attempt => {
           'es_cell_name' => es_cell.name,
           'consortium_name' => 'BaSH',
           'mi_date' => '2011-05-01',
-          :production_centre_name => 'WTSI'
-        }, :format => :json
+          :production_centre_name => 'ICS'
+        }, :format => :html
         assert_response :success, response.status
       end
     end
@@ -389,6 +370,21 @@ class MiAttemptsControllerTest < ActionController::TestCase
           'success' => true
         }
         assert_equal expected, got
+      end
+
+      should 'authorize the MI belongs to the user\'s production centre' do
+        assert_equal 'WTSI', default_user.production_centre.name
+        mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil,
+                :production_centre_name => 'ICS'
+
+        put :update, :id => mi_attempt.id,
+                :mi_attempt => {'total_blasts_injected' => 1},
+                :format => :json
+        assert_response 401, response.status
+        expected = {
+          'error' => 'Cannot create/update MI attempts for other production centres'
+        }
+        assert_equal(expected, JSON.parse(response.body))
       end
     end
 

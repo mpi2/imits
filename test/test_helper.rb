@@ -135,6 +135,7 @@ class Kermits2::JsIntegrationTest < ActionDispatch::IntegrationTest
   def choose_es_cell_from_list(marker_symbol = 'Cbx1', es_cell_name = 'EPD0027_2_A01')
     fill_in 'marker_symbol-search-box', :with => marker_symbol
     find(:xpath, '//button/span[text()="Search"]').click
+    sleep 5
     find(:xpath, '//td/div[text()="' + es_cell_name + '"]').click
   end
   

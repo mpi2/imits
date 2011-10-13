@@ -273,14 +273,13 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_not_equal 0, doc.xpath('count(//error)')
       end
 
-      should 'set production centre and consortium from params instead of user if specified' do
+      should 'set consortium from params instead of user if specified' do
         user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
         sign_in user
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
         post :create,
                 :mi_attempt => {
                   'es_cell_name' => es_cell.name,
-                  'production_centre_name' => 'WTSI',
                   'consortium_name' => 'MGP',
                   'mi_date' => Date.today.to_s
                 },
@@ -288,11 +287,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_response :success, response.body
 
         mi_attempt = MiAttempt.first
-        assert_equal 'WTSI', mi_attempt.production_centre_name
         assert_equal 'MGP', mi_attempt.consortium_name
       end
 
-      should 'set production centre to logged in user centre if not specified' do
+      should 'set production centre to logged in user centre' do
         user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
         sign_in user
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
@@ -304,6 +302,33 @@ class MiAttemptsControllerTest < ActionController::TestCase
         mi_attempt = MiAttempt.first
         assert_equal 'ICS', mi_attempt.production_centre_name
         assert_equal 'EUCOMM-EUMODIC', mi_attempt.consortium_name
+      end
+
+      should 'authorize the MI belongs to the user\'s production centre via REST' do
+        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        sign_in user
+        post :create, :mi_attempt => {
+          'es_cell_name' => es_cell.name,
+          'consortium_name' => 'BaSH',
+          'mi_date' => '2011-05-01',
+          :production_centre_name => 'WTSI'
+        }, :format => :json
+        assert_response 401, response.status
+        assert_equal({'error' => 'Unauthorized access'}, JSON.parse(response.body))
+      end
+
+      should 'not authorize the MI belongs to the user\'s production centre via HTML' do
+        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        sign_in user
+        post :create, :mi_attempt => {
+          'es_cell_name' => es_cell.name,
+          'consortium_name' => 'BaSH',
+          'mi_date' => '2011-05-01',
+          :production_centre_name => 'WTSI'
+        }, :format => :json
+        assert_response :success, response.status
       end
     end
 

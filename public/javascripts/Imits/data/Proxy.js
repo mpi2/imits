@@ -24,6 +24,21 @@ Ext.define('Imits.data.Proxy', {
                 writeAllFields: false
             }),
 
+            listeners: {
+                exception: function(proxy, response, operation){
+                    var errs = Ext.JSON.decode(response.responseText);
+                    Ext.MessageBox.show({
+                        title: 'REMOTE EXCEPTION',
+                        msg: Ext.Object.getValues(errs).join(', '),
+                        icon: Ext.MessageBox.ERROR,
+                        buttons: Ext.Msg.OK,
+                        fn: function(buttonid, text, opt) {
+                            console.log('TODO: Refresh the cell/row that was changed');
+                        }
+                    });
+                }
+            },
+
             encodeSorters: function(sorters) {
                 if(sorters.length == 0) {
                     return "";

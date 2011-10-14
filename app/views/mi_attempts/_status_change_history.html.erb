@@ -9,17 +9,12 @@
         </tr>
       </thead>
       <tbody>
-        <% mi_attempt.mi_plan.status_stamps.each do |status_stamp| %>
+        <% data = (mi_attempt.mi_plan.status_stamps.map {|i| [i.created_at, i.name]} +
+                   mi_attempt.status_stamps.map {|i| [i.created_at, i.description]}).sort_by(&:first) %>
+        <% data.each do |created_at, name| %>
           <tr>
-            <td><%= localize status_stamp.created_at, :format => :imits %></td>
-            <td><%= status_stamp.name %></td>
-          </tr>
-        <% end %>
-
-        <% mi_attempt.status_stamps.each do |status_stamp| %>
-          <tr>
-            <td><%= localize status_stamp.created_at, :format => :imits %></td>
-            <td><%= status_stamp.description %></td>
+            <td><%= localize created_at, :format => :imits %></td>
+            <td><%= name %></td>
           </tr>
         <% end %>
       </tbody>

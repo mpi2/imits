@@ -75,6 +75,9 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
 
     should 'show status change history' do
       mi = Factory.create :mi_attempt_with_status_history
+      tmp = mi.mi_plan.status_stamps.first.created_at
+      mi.mi_plan.status_stamps.first.update_attributes!(:created_at => mi.status_stamps.first.created_at)
+      mi.status_stamps.first.update_attributes!(:created_at => tmp)
 
       sleep 1
 
@@ -82,10 +85,10 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       sleep 3
 
       [
-        ['01 Jan 2011', 'Interest'],
+        ['01 Jan 2011', 'Micro-injection in progress'],
         ['02 Feb 2011', 'Conflict'],
         ['03 Mar 2011', 'Assigned'],
-        ['04 Apr 2011', 'Micro-injection in progress'],
+        ['04 Apr 2011', 'Interest'],
         ['05 May 2011', 'Genotype confirmed'],
         ['06 Jun 2011', 'Micro-injection aborted'],
         ['07 Jul 2011', 'Genotype confirmed']

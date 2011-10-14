@@ -13,7 +13,7 @@ class MiPlan < ActiveRecord::Base
   belongs_to :production_centre, :class_name => 'Centre'
 
   has_many :mi_attempts
-  has_many :status_stamps, :order => 'created_at ASC'
+  has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC"
 
   validates :gene, :presence => true
   validates :consortium, :presence => true

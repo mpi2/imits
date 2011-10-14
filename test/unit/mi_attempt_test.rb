@@ -125,16 +125,12 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'be ordered by created_at (soonest last)' do
-          mi = default_mi_attempt
-          mi.status_stamps.destroy_all
-
-          stamp1 = mi.status_stamps.create!(:created_at => 1.day.ago,
-            :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
-          stamp2 = mi.status_stamps.create!(:created_at => 2.days.ago,
-            :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
-          mi.reload
-
-          assert_equal [stamp2.description, stamp1.description], mi.status_stamps.map(&:description)
+          mi = Factory.create :mi_attempt_with_status_history
+          assert_equal [
+            MiAttemptStatus.micro_injection_in_progress,
+            MiAttemptStatus.genotype_confirmed,
+            MiAttemptStatus.micro_injection_aborted,
+            MiAttemptStatus.genotype_confirmed].map(&:description), mi.status_stamps.map(&:description)
         end
       end
 

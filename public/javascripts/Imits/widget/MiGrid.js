@@ -17,19 +17,7 @@ Ext.define('Imits.widget.MiGrid', {
         autoLoad: true,
         autoSync: true,
         remoteSort: true,
-        pageSize: 20,
-
-        // TODO Remove when dirty flag bug goes away
-        listeners: {
-            'update': {
-                fn: function(store, record) {
-                    // Inspired by "http://www.sencha.com/forum/showthread.php?133767-Store.sync()-does-not-update-dirty-flag&p=608485&viewfull=1#post608485"
-                    if (record.dirty) {
-                        record.commit();
-                    }
-                }
-            }
-        }
+        pageSize: 20
     },
 
     selType: 'cellmodel',

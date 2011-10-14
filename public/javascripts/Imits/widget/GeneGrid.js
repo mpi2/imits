@@ -250,7 +250,7 @@ Ext.define('Imits.widget.GeneGrid', {
         if ( confirmed ) {
           Ext.Ajax.request({
             method: 'DELETE',
-            url: basePath + '/mi_plans/' + id + '.json?authenticity_token=' + authenticityToken,
+            url: basePath + '/mi_plans/' + id + '.json?authenticity_token=' + encodeURIComponent(authenticityToken),
             callback: function(opt,success,response) {
               if (success) {
                 grid.reloadStore();

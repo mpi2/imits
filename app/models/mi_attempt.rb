@@ -421,7 +421,7 @@ end
 #
 #  id                                              :integer         not null, primary key
 #  es_cell_id                                      :integer         not null
-#  mi_date                                         :date
+#  mi_date                                         :date            not null
 #  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :string(125)
 #  distribution_centre_id                          :integer

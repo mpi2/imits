@@ -5,8 +5,9 @@ require 'test_helper'
 class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
   context 'rake one_time:back_fill_mi_attempt_status_stamps' do
 
-    should 'create all status stamps for MiAttempt, using created_at for first one' do
-      mi = Factory.create :mi_attempt                    # [0] in progress
+    should 'create all status stamps for MiAttempt, using mi_date for first one' do
+      mi = Factory.create :mi_attempt, :mi_date => Date.parse('2010-03-01')
+                                                         # [0] in progress
       sleep 1
       mi.update_attributes!(:total_female_chimeras => 4) # [1] no change
       sleep 1
@@ -29,7 +30,7 @@ class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
 
       mi.reload
 
-      assert_equal [mi.audits[0].revision.created_at.to_s, MiAttemptStatus.micro_injection_in_progress],
+      assert_equal [mi.audits[0].revision.mi_date.to_s, MiAttemptStatus.micro_injection_in_progress],
               [mi.status_stamps[0].created_at.to_s, mi.status_stamps[0].mi_attempt_status]
 
       assert_equal [mi.audits[2].revision.created_at.to_s, MiAttemptStatus.genotype_confirmed],
@@ -85,7 +86,7 @@ class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
       assert_equal Time.parse('2011-05-22T00:00:00 UTC').to_s, mi_plan.status_stamps[0].created_at.to_s
     end
 
-    should 'create Assigned status stamp for MiPlan set to earliest created_at of its attempts' do
+    should 'create Assigned status stamp for MiPlan set to earliest created_at of its attempts if no mi_date exists' do
       gene = Factory.create :gene, :marker_symbol => 'Zz99'
 
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),

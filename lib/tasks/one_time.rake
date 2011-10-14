@@ -9,7 +9,7 @@ namespace :one_time do
         first_revision = mi_attempt.audits[0].revision
 
         MiAttempt::StatusStamp.create!(:mi_attempt_status_id => first_revision.mi_attempt_status_id,
-          :mi_attempt => mi_attempt, :created_at => first_revision.created_at)
+          :mi_attempt => mi_attempt, :created_at => first_revision.mi_date)
 
         previous_old_revision = first_revision
 
@@ -27,10 +27,7 @@ namespace :one_time do
         times = []
 
         mi_plan.mi_attempts.each do |mi|
-          if mi.mi_date
-            times.push mi.mi_date.to_time_in_current_zone
-          end
-
+          times.push mi.mi_date.to_time_in_current_zone
           times.push mi.created_at
         end
 

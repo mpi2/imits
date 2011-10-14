@@ -30,7 +30,7 @@ class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
 
       mi.reload
 
-      assert_equal [mi.audits[0].revision.mi_date.to_s, MiAttemptStatus.micro_injection_in_progress],
+      assert_equal [mi.audits[0].revision.mi_date.to_time.utc.to_s, MiAttemptStatus.micro_injection_in_progress],
               [mi.status_stamps[0].created_at.to_s, mi.status_stamps[0].mi_attempt_status]
 
       assert_equal [mi.audits[2].revision.created_at.to_s, MiAttemptStatus.genotype_confirmed],
@@ -45,7 +45,7 @@ class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
       assert_equal 4, mi.status_stamps.size
     end
 
-    should 'create Assigned status stamp for MiPlan set to earliest mi_date of its attempts' do
+    should 'create Assigned status stamp for MiPlan set to earliest mi_date of its attempts if it is earlier than earliest created_at' do
       gene = Factory.create :gene, :marker_symbol => 'Zz99'
 
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
@@ -66,7 +66,7 @@ class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
               :es_cell => es_cell_2, :production_centre_name => 'WTSI',
               :consortium_name => 'BaSH'
 
-      Factory.create :mi_attempt,
+      Factory.create :mi_attempt, :mi_date => Time.now,
               :es_cell => es_cell_2, :production_centre_name => 'WTSI',
               :consortium_name => 'BaSH'
 
@@ -86,7 +86,7 @@ class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
       assert_equal Time.parse('2011-05-22T00:00:00 UTC').to_s, mi_plan.status_stamps[0].created_at.to_s
     end
 
-    should 'create Assigned status stamp for MiPlan set to earliest created_at of its attempts if no mi_date exists' do
+    should 'create Assigned status stamp for MiPlan set to earliest created_at of its attempts if it is earlier than earliest mi_date' do
       gene = Factory.create :gene, :marker_symbol => 'Zz99'
 
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
@@ -107,7 +107,7 @@ class BackFillMiAttemptStatusStampsTest < ExternalScriptTestCase
               :es_cell => es_cell_2, :production_centre_name => 'WTSI',
               :consortium_name => 'BaSH'
 
-      Factory.create :mi_attempt,
+      Factory.create :mi_attempt, :mi_date => Time.now,
               :es_cell => es_cell_2, :production_centre_name => 'WTSI',
               :consortium_name => 'BaSH'
 

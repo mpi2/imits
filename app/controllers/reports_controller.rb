@@ -137,7 +137,16 @@ class ReportsController < ApplicationController
         'Production Centre',
         '# Genes Injected'           => lambda { |group| count_unique_instances_of( group, 'Marker Symbol' ) },
         '# Genes Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) },
-        :order => [ 'Production Centre', '# Genes Injected', '# Genes Genotype Confirmed' ]
+        '# Genes For EMMA'           =>
+          lambda {
+            |group| count_unique_instances_of(
+              group,
+              'Marker Symbol',
+              lambda { |row| ((row.data['Status'] == 'Genotype confirmed') && (row.data['Suitable for EMMA?'])) ? true : false }
+            )
+          },
+        #'# Genes For EMMA' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| (row.data['Suitable for EMMA?'] == 'true'  && row.data['Status'] == true ? true : false } ) },
+        :order => [ 'Production Centre', '# Genes Injected', '# Genes Genotype Confirmed' , '# Genes For EMMA']
       )
 
       if request.format == :csv

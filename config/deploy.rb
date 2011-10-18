@@ -54,9 +54,7 @@ namespace :deploy do
 
   desc "Set the permissions of the filesystem so that others in the team can deploy, and the team87 user can do their stuff"
   task :fix_perms do
-    run "chgrp -R team87 #{release_path}/tmp"
-    run "chgrp -R team87 #{release_path}/public"
-    run "chmod 02775 #{release_path}"
+    run "find #{deploy_to}/ -user #{user}" + ' \! \( -perm -u+rw -a -perm -g+rw \) -exec chmod -v ug=rwX,o=rX {} \;'
   end
 end
 

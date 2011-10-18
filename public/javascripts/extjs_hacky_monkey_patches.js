@@ -49,6 +49,36 @@ Ext.onReady(function() {
 
             }
         });
+
+        Ext.override(Ext.data.Store, {
+            afterEdit : function(record) {
+                var me = this;
+
+                if (me.autoSync) {
+                    me.sync();
+                }
+
+                if (record.dirty) {
+                    record.commit();
+                }
+                me.fireEvent('update', me, record, Ext.data.Model.EDIT);
+            },
+
+            afterReject : function(record) {
+                if (record.dirty) {
+                    record.commit();
+                }
+                this.fireEvent('update', this, record, Ext.data.Model.REJECT);
+            },
+
+            afterCommit : function(record) {
+                if (record.dirty) {
+                    record.commit();
+                }
+                this.fireEvent('update', this, record, Ext.data.Model.COMMIT);
+            }
+
+        });
     }
 
     function patches_for_4_0_6() {

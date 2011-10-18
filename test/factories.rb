@@ -80,6 +80,9 @@ Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_
     mi.mi_plan.status_stamps.create!(
       :mi_plan_status => MiPlanStatus[:Interest],
       :created_at => Time.parse('2011-01-01 12:00:00'))
+
+    mi.mi_plan.status_stamps.reload
+    mi.status_stamps.reload
   end
 end
 

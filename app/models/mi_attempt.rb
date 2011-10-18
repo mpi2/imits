@@ -56,7 +56,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
   belongs_to :deposited_material
-  has_many :status_stamps, :order => 'created_at ASC'
+  has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
 
   access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
@@ -421,7 +421,7 @@ end
 #
 #  id                                              :integer         not null, primary key
 #  es_cell_id                                      :integer         not null
-#  mi_date                                         :date
+#  mi_date                                         :date            not null
 #  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :string(125)
 #  distribution_centre_id                          :integer

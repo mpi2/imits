@@ -39,10 +39,14 @@ class MiAttemptsController < ApplicationController
     @mi_attempt.updated_by = current_user
     @mi_attempt.production_centre_name ||= current_user.production_centre.name
 
+    return unless authorize_user_production_centre
+
     if ! @mi_attempt.valid?
       flash.now[:alert] = 'Micro-injection could not be created - please check the values you entered'
       set_centres_and_consortia
-    elsif request.format == :html and params[:ignore_warnings] != 'true' and @mi_attempt.generate_warnings
+    elsif request.format == :html and
+              params[:ignore_warnings] != 'true' and
+              @mi_attempt.generate_warnings
       set_centres_and_consortia
       render :action => :new
       return
@@ -64,6 +68,8 @@ class MiAttemptsController < ApplicationController
     @mi_attempt = MiAttempt.find(params[:id])
     @mi_attempt.attributes = params[:mi_attempt]
     @mi_attempt.updated_by = current_user
+
+    return unless authorize_user_production_centre
 
     if @mi_attempt.save
       flash.now[:notice] = 'MI attempt updated successfully'
@@ -93,6 +99,19 @@ class MiAttemptsController < ApplicationController
   def set_centres_and_consortia
     @centres = Centre.all
     @consortia = Consortium.all
+  end
+
+  def authorize_user_production_centre
+    return true unless request.format == :json
+
+    if current_user.production_centre.name != @mi_attempt.production_centre_name
+      render :json => {
+        'error' => 'Cannot create/update MI attempts for other production centres'
+      }, :status => 401
+      return false
+    end
+
+    return true
   end
 
 end

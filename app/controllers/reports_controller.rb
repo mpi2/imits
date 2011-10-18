@@ -53,6 +53,12 @@ class ReportsController < ApplicationController
   def mi_attempts_list
     unless params[:commit].blank?
       @report = generate_mi_list_report( params )
+
+      if @report.nil?
+        redirect_to cleaned_redirect_params( :mi_attempts_list, params ) if request.format == :csv
+        return
+      end
+
       @report.sort_rows_by!( 'Injection Date', :order => :descending )
       @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
 
@@ -69,6 +75,11 @@ class ReportsController < ApplicationController
   def mi_attempts_monthly_production
     unless params[:commit].blank?
       report = generate_mi_list_report( params )
+
+      if report.nil?
+        redirect_to cleaned_redirect_params( :mi_attempts_monthly_production, params ) if request.format == :csv
+        return
+      end
 
       report.add_column( 'Month Injected' ) do |row|
         "#{row.data['Injection Date'].year}-#{sprintf('%02d', row.data['Injection Date'].month)}" if row.data['Injection Date']
@@ -130,7 +141,13 @@ class ReportsController < ApplicationController
 
   def mi_attempts_by_gene
     unless params[:commit].blank?
-      report         = generate_mi_list_report( params )
+      report = generate_mi_list_report( params )
+
+      if report.nil?
+        redirect_to cleaned_redirect_params( :mi_attempts_by_gene, params ) if request.format == :csv
+        return
+      end
+
       grouped_report = Grouping( report, :by => [ 'Production Centre' ], :order => :name )
 
       @report  = grouped_report.summary(
@@ -163,9 +180,16 @@ class ReportsController < ApplicationController
     unless params[:commit].blank?
       include_plans_with_active_attempts = false
       include_plans_with_active_attempts = true if params[:include_plans_with_active_attempts] == 'yes'
-      params.delete(:include_plans_with_active_attempts)
 
-      @report = generate_planned_mi_list_report( params, include_plans_with_active_attempts )
+      dup_params = params.dup
+      dup_params.delete(:include_plans_with_active_attempts)
+      @report = generate_planned_mi_list_report( dup_params, include_plans_with_active_attempts )
+
+      if @report.nil?
+        redirect_to cleaned_redirect_params( :planned_microinjection_list, params ) if request.format == :csv
+        return
+      end
+
       @report.add_column('Reason for Decline/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_decline_conflict }
       @report.remove_columns(['ID'])
 
@@ -194,7 +218,6 @@ class ReportsController < ApplicationController
           :filename => 'planned_microinjection_list.csv'
         )
       end
-
     end
   end
 
@@ -340,16 +363,18 @@ class ReportsController < ApplicationController
       }
     }
 
-    all_mi_plans = case include_plans_with_active_attempts
+    report = case include_plans_with_active_attempts
     when true  then MiPlan.report_table( :all, report_options )
     when false then MiPlan.without_active_mi_attempt.report_table( :all, report_options )
     end
 
-    all_mi_plans.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
-    all_mi_plans.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
-    all_mi_plans.sort_rows_by!('Marker Symbol', :order => :ascending)
+    return nil if report.size == 0
 
-    return all_mi_plans
+    report.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
+    report.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
+    report.sort_rows_by!('Marker Symbol', :order => :ascending)
+
+    return report
   end
 
   def generate_mi_list_report( params={} )
@@ -434,6 +459,8 @@ class ReportsController < ApplicationController
       }
     )
 
+    return nil if report.size == 0
+
     report.add_column( '% Pups Born',                              :after => 'mi_attempts.total_pups_born' )                         { |row| calculate_percentage( row.data['mi_attempts.total_pups_born'], row.data['mi_attempts.total_transferred'] ) }
     report.add_column( '% Total Chimeras',                         :after => 'mi_attempts.total_chimeras' )                          { |row| calculate_percentage( row.data['mi_attempts.total_chimeras'], row.data['mi_attempts.total_pups_born'] ) }
     report.add_column( '% Male Chimeras',                          :after => 'mi_attempts.total_male_chimeras' )                     { |row| calculate_percentage( row.data['mi_attempts.total_male_chimeras'], row.data['mi_attempts.total_chimeras'] ) }
@@ -504,6 +531,19 @@ class ReportsController < ApplicationController
       end
     end
     array.uniq.size
+  end
+
+  def cleaned_redirect_params( action, params )
+    redirect_params = { :action => action, :commit => true }
+    [
+      :consortium_id,
+      :production_centre_id,
+      :grouping,
+      :include_plans_with_active_attempts
+    ].each do |parameter|
+      redirect_params[parameter] = params[parameter] unless params[parameter].blank?
+    end
+    return redirect_params
   end
 
 end

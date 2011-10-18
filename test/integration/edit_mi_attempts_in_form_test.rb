@@ -73,7 +73,7 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       assert page.has_css? '.error-message'
     end
 
-    should 'show status change history' do
+    should_eventually 'show status change history' do
       mi = Factory.create :mi_attempt_with_status_history
       tmp = mi.mi_plan.status_stamps.first.created_at
       mi.mi_plan.status_stamps.first.update_attributes!(:created_at => mi.status_stamps.first.created_at)
@@ -100,8 +100,9 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       end
     end
 
-    should 'not let production centre be edited' do
+    should 'not let production centre or consortium be edited' do
       assert page.has_no_css?('select[name="mi_attempt[production_centre_name]"]')
+      assert page.has_no_css?('select[name="mi_attempt[consortium_name]"]')
     end
 
   end

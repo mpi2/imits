@@ -1,6 +1,8 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
+  after_filter :log_json_response_parameters
+
   def params_cleaned_for_search(dirty_params)
     dirty_params = dirty_params.dup.stringify_keys
 
@@ -57,4 +59,10 @@ class ApplicationController < ActionController::Base
   end
   protected :data_for_serialized
 
+  def log_json_response_parameters
+    if request.format == :json
+      logger.info("  Response: #{response.body}")
+    end
+  end
+  protected :log_json_response_parameters
 end

@@ -42,7 +42,7 @@ class MiAttempt < ActiveRecord::Base
   PRIVATE_ATTRIBUTES = [
     'created_at', 'updated_at', 'updated_by', 'updated_by_id',
     'mi_attempt_status', 'mi_attempt_status_id',
-    'es_cell', 'es_cell_id', 'mi_plan_id'
+    'es_cell', 'es_cell_id', 'mi_plan_id', 'mi_plan'
   ]
 
   attr_protected *PRIVATE_ATTRIBUTES
@@ -202,8 +202,8 @@ class MiAttempt < ActiveRecord::Base
   end
 
   def set_mi_plan
-    if ! self.mi_plan
-      mi_plan_params = self.mi_plan_lookup_conditions
+    if new_record?
+      mi_plan_params = mi_plan_lookup_conditions
 
       mi_plan_to_set = MiPlan.where(mi_plan_params).first
       if ! mi_plan_to_set
@@ -216,11 +216,15 @@ class MiAttempt < ActiveRecord::Base
         end
       end
 
-      mi_plan_to_set.production_centre ||= Centre.find_by_name!(self.production_centre_name)
+      mi_plan_to_set.production_centre ||= Centre.find_by_name!(production_centre_name)
       mi_plan_to_set.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
       mi_plan_to_set.save!
 
       self.mi_plan = mi_plan_to_set
+    else
+      if is_active?
+        mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus.find_by_name!('Assigned'))
+      end
     end
   end
 

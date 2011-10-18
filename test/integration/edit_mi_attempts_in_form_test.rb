@@ -100,8 +100,9 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       end
     end
 
-    should 'not let production centre be edited' do
+    should 'not let production centre or consortium be edited' do
       assert page.has_no_css?('select[name="mi_attempt[production_centre_name]"]')
+      assert page.has_no_css?('select[name="mi_attempt[consortium_name]"]')
     end
 
   end

@@ -18,13 +18,12 @@
     <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
 
     <div>
-      <%=
-        generator.form_field(
-          :consortium_name,
-          'Consortium',
-          form.collection_select( :consortium_name, @consortia, :name, :name, { :include_blank => true } )
-        )
-      %>
+      <%= form.label :consortium_name, 'Consortium' %>
+      <% if mi_attempt.new_record? %>
+        <%= form.collection_select :consortium_name, @consortia, :name, :name, :include_blank => true %>
+      <% else %>
+        <span><%= mi_attempt.consortium_name %></span>
+      <% end %>
     </div>
 
     <div>

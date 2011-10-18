@@ -33,5 +33,10 @@ class UserTest < ActiveSupport::TestCase
       end
     end
 
+    should 'have admin users' do
+      assert_true Factory.create(:user, :email => 'vvi@sanger.ac.uk').admin?
+      assert_false Factory.create(:user).admin?
+    end
+
   end
 end

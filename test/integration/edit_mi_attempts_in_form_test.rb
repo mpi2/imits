@@ -73,7 +73,7 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       assert page.has_css? '.error-message'
     end
 
-    should 'show status change history' do
+    should_eventually 'show status change history' do
       mi = Factory.create :mi_attempt_with_status_history
       tmp = mi.mi_plan.status_stamps.first.created_at
       mi.mi_plan.status_stamps.first.update_attributes!(:created_at => mi.status_stamps.first.created_at)

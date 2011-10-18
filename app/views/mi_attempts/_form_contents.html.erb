@@ -52,7 +52,7 @@
   </div>
 </fieldset>
 
-<% if mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
+<% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>
   <%= render 'status_change_history', :mi_attempt => mi_attempt %>
 <% end %>
 

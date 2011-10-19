@@ -1,6 +1,14 @@
 # encoding: utf-8
 
 class MiPlan < ActiveRecord::Base
+  attr_accessible(
+    :gene_marker_symbol,
+    :consortium_name,
+    :production_centre_name,
+    :status,
+    :priority
+  )
+
   acts_as_audited
   acts_as_reportable
 

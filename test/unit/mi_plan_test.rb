@@ -96,6 +96,16 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      context '#marker_symbol' do
+        should 'work' do
+          gene = Factory.create :gene_cbx1
+          @default_mi_plan.marker_symbol = 'Cbx1'
+          assert_equal gene, @default_mi_plan.gene
+        end
+
+        should validate_presence_of :marker_symbol
+       end
+
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
         mip = Factory.build :mi_plan
         assert mip.save
@@ -119,6 +129,18 @@ class MiPlanTest < ActiveSupport::TestCase
         #       a gene and consortium then nil for production_centre, and a duplicate
         #       with the same gene and consortium BUT with a production_centre assigned.
         #       Really, the fist should be updated to become the second (i.e. not produce a duplicate).
+      end
+
+      should 'limit the public mass-assignment API' do
+        expected = [
+          'gene_marker_symbol',
+          'consortium_name',
+          'production_centre_name',
+          'status',
+          'priority'
+        ]
+        got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
+        assert_equal expected, got
       end
     end
 

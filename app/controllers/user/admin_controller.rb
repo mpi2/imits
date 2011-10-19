@@ -1,15 +1,9 @@
 class User::AdminController < ApplicationController
 
-  AUTHORIZED_USERS = [
-    'aq2@sanger.ac.uk',
-    'do2@sanger.ac.uk',
-    'vvi@sanger.ac.uk'
-  ]
-
   before_filter :authenticate_user!
 
   before_filter do
-    unless AUTHORIZED_USERS.include?(current_user.email)
+    unless current_user.admin?
       redirect_to root_url, :alert => 'Unauthorized access detected!  This incident will be reported'
       Rails.logger.info "Unauthorized access detected by #{current_user.inspect}"
     end

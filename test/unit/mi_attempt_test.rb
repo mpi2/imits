@@ -551,7 +551,7 @@ class MiAttemptTest < ActiveSupport::TestCase
                   mi.errors['mi_plan']
         end
 
-        context 'on save' do
+        context 'on create' do
           should 'be set to a matching MiPlan' do
             cbx1 = Factory.create :gene_cbx1
             mi_plan = Factory.create :mi_plan, :gene => cbx1,
@@ -651,6 +651,27 @@ class MiAttemptTest < ActiveSupport::TestCase
           end
 
         end
+
+        context 'on update' do
+          setup do
+            default_mi_attempt.mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Inactive])
+            default_mi_attempt.update_attributes!(:is_active => false)
+            default_mi_attempt.reload
+          end
+
+          should 'set its status to Assigned if MI attempt is becoming active again' do
+            default_mi_attempt.update_attributes!(:is_active => true)
+            default_mi_attempt.save!
+            default_mi_attempt.reload
+            assert_equal MiPlanStatus[:Assigned], default_mi_attempt.mi_plan.mi_plan_status
+          end
+
+          should 'not set its status to Assigned if MI attempt is not becoming active again' do
+            default_mi_attempt.save!
+            assert_equal MiPlanStatus[:Inactive], default_mi_attempt.mi_plan.mi_plan_status
+          end
+        end
+
       end
 
       should 'have #updated_by column' do
@@ -871,7 +892,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       setup do
         @protected_attributes = [
           'created_at', 'updated_at', 'updated_by', 'updated_by_id',
-          'es_cell', 'es_cell_id'
+          'es_cell', 'es_cell_id', 'mi_plan', 'mi_plan_id'
         ].sort
       end
 

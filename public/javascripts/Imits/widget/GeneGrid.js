@@ -4,15 +4,15 @@ function splitMiString(mi_string) {
   var pattern = /^\[(.+)\:(.+)\:(\d+)\]$/;
   Ext.Array.each( mi_string.split('</br>'), function(mi) {
     var match = pattern.exec(mi);
-    mis.push({ consortium: match[1], production_centre: match[2], count: match[3] });
+    mis.push({consortium: match[1], production_centre: match[2], count: match[3]});
   });
   return mis;
 }
 
 function printMiPlanString(mi_plan) {
   var str = '[' + mi_plan['consortium'];
-  if ( !Ext.isEmpty(mi_plan['production_centre']) ) { str = str + ':' + mi_plan['production_centre']; }
-  if ( !Ext.isEmpty(mi_plan['status']) ) { str = str + ':' + mi_plan['status']; }
+  if ( !Ext.isEmpty(mi_plan['production_centre']) ) {str = str + ':' + mi_plan['production_centre'];}
+  if ( !Ext.isEmpty(mi_plan['status']) ) {str = str + ':' + mi_plan['status'];}
   str = str + ']';
   return str;
 }
@@ -22,6 +22,7 @@ Ext.define('Imits.widget.GeneGrid', {
   requires: [
     'Imits.model.Gene',
     'Imits.widget.grid.RansackFiltersFeature',
+    'Imits.widget.SimpleCombo',
     'Ext.ux.RowExpander',
     'Ext.selection.CheckboxModel'
   ],
@@ -36,7 +37,7 @@ Ext.define('Imits.widget.GeneGrid', {
     pageSize: 20
   },
   selModel: Ext.create('Ext.selection.CheckboxModel'),
-  features: [{ ftype: 'ransack_filters', local: false }],
+  features: [{ftype: 'ransack_filters', local: false}],
   columns: [
     {
       header: 'Gene',
@@ -69,7 +70,7 @@ Ext.define('Imits.widget.GeneGrid', {
         '<tpl for="non_assigned_mi_plans">',
           '<a class="delete-mi-plan" title="delete planned micro-injection" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
         '</tpl>',
-        { prettyPrintMiPlan: printMiPlanString }
+        {prettyPrintMiPlan: printMiPlanString}
       )
     },
     {
@@ -84,7 +85,7 @@ Ext.define('Imits.widget.GeneGrid', {
         '<tpl for="assigned_mi_plans">',
           '{[this.prettyPrintMiPlan(values)]}<br/>',
         '</tpl>',
-        { prettyPrintMiPlan: printMiPlanString }
+        {prettyPrintMiPlan: printMiPlanString}
       )
     },
     {
@@ -99,7 +100,7 @@ Ext.define('Imits.widget.GeneGrid', {
         '<tpl for="this.processedMIs(pretty_print_aborted_mi_attempts)">',
           '<a href="'+window.basePath+'/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
         '</tpl>',
-        { processedMIs: splitMiString }
+        {processedMIs: splitMiString}
       )
     },
     {
@@ -114,7 +115,7 @@ Ext.define('Imits.widget.GeneGrid', {
         '<tpl for="this.processedMIs(pretty_print_mi_attempts_in_progress)">',
           '<a href="'+window.basePath+'/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
         '</tpl>',
-        { processedMIs: splitMiString }
+        {processedMIs: splitMiString}
       )
     },
     {
@@ -129,23 +130,24 @@ Ext.define('Imits.widget.GeneGrid', {
         '<tpl for="this.processedMIs(pretty_print_mi_attempts_genotype_confirmed)">',
           '<a href="'+window.basePath+'/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
         '</tpl>',
-        { processedMIs: splitMiString }
+        {processedMIs: splitMiString}
       )
     }
   ],
 
   /** @private **/
-  createComboBox: function ( id, label, label_width, store_source ) {
-    return Ext.create('Ext.form.ComboBox', {
+  createComboBox: function(id, label, labelWidth, storeSource, includeBlank) {
+    if(includeBlank) {
+      storeSource = Ext.Array.merge([{id: null, name: window.NO_BREAK_SPACE}], storeSource);
+    }
+    return Ext.create('Imits.widget.SimpleCombo', {
       id: id + '_combobox',
+      store: Ext.create('Ext.data.Store', {data: storeSource, fields: ['id', 'name']}),
+      displayField: 'name',
+      valueField: 'id',
       fieldLabel: label,
       labelAlign: 'right',
-      labelWidth: label_width,
-      store: Ext.create('Ext.data.Store', { data: store_source, fields: ['id','name'] }),
-      queryMode: 'local',
-      forceSelection: true,
-      displayField: 'name',
-      valueField: 'id'
+      labelWidth: labelWidth
     });
   },
 
@@ -163,9 +165,9 @@ Ext.define('Imits.widget.GeneGrid', {
     );
 
     // Add the top (gene selection) toolbar
-    var consortium_combo = grid.createComboBox('consortium','Consortium',65,window.CONSORTIUM_COMBO_OPTS);
-    var centre_combo     = grid.createComboBox('production_centre','Production Centre',100,window.CENTRE_COMBO_OPTS);
-    var priority_combo   = grid.createComboBox('priority','Priority',47,window.PRIORITY_COMBO_OPTS);
+    var consortium_combo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_COMBO_OPTS);
+    var centre_combo     = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_COMBO_OPTS, true);
+    var priority_combo   = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_COMBO_OPTS);
     var selected_genes   = [];
     var failed_genes     = [];
     var gene_counter     = 0;
@@ -191,9 +193,9 @@ Ext.define('Imits.widget.GeneGrid', {
               var centre_id      = centre_combo.getSubmitValue();
               var priority_id    = priority_combo.getSubmitValue();
 
-              if (selected_genes.length == 0) { alert('You must select some genes to register interest in'); return false; }
-              if (consortium_id == null)      { alert('You must select a consortium'); return false; }
-              if (priority_id == null)        { alert('You must selct a priority'); return false; }
+              if (selected_genes.length == 0) {alert('You must select some genes to register interest in');return false;}
+              if (consortium_id == null)      {alert('You must select a consortium');return false;}
+              if (priority_id == null)        {alert('You must selct a priority');return false;}
 
               grid.setLoading(true);
 
@@ -211,7 +213,7 @@ Ext.define('Imits.widget.GeneGrid', {
                     authenticity_token: authenticityToken
                   },
                   callback: function(opt,success,response) {
-                    if (!success || response.status == 0) { failed_genes.push(gene_row.raw['marker_symbol']); }
+                    if (!success || response.status == 0) {failed_genes.push(gene_row.raw['marker_symbol']);}
                     reportGeneSelectionErrors();
                   }
                 });
@@ -262,7 +264,7 @@ Ext.define('Imits.widget.GeneGrid', {
         }
       },
       this,
-      { delegate: 'a.delete-mi-plan' }
+      {delegate: 'a.delete-mi-plan'}
     );
 
 

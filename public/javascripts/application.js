@@ -1,3 +1,5 @@
+NO_BREAK_SPACE = '\u00A0';
+
 (function () {
     // Inspired by http://zetafleet.com/blog/javascript-dateparse-for-iso-8601
     var origParse = Date.parse;
@@ -68,7 +70,7 @@ Ext.onReady(hideDefaultCollapsibleFieldsets);
 
 Ext.util.Format.safeTextRenderer = function(value) {
     if(Ext.isEmpty(value)) {
-        value = '\u00A0';
+        value = window.NO_BREAK_SPACE;
     } else {
         value = String(value);
     }

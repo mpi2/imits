@@ -23,14 +23,8 @@ class MiPlansController < ApplicationController
   end
 
   def create
-    @mi_plan = MiPlan.new(params[:mi_plan])
-    respond_to do |format|
-      if @mi_plan.save
-        format.json { render :json => @mi_plan, :status => :created }
-      else
-        format.json { render :json => @mi_plan.errors, :status => 400 }
-      end
-    end
+    @mi_plan = MiPlan.create(params[:mi_plan])
+    respond_with @mi_plan
   end
 
   def destroy

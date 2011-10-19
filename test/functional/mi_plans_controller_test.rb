@@ -52,29 +52,28 @@ class MiPlansControllerTest < ActionController::TestCase
             :format => :json
           )
         end
-        assert_response 400
+        assert_response 422
         assert JSON.parse(response.body).has_key?('gene')
       end
 
       should 'allow machine access to the destroy function via json' do
-        # Make sur acceptable deletes work
         mip = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
         assert_difference('MiPlan.count', -1) do
           delete( :destroy, :id => mip.id, :format => :json )
         end
 
-        mip2 = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
+        mip2 = Factory.create :mi_plan_with_production_centre,
+                :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
         assert_difference('MiPlan.count', -1) do
           delete(
             :destroy,
             :marker_symbol => mip2.gene.marker_symbol,
             :consortium => mip2.consortium.name,
-            :production_centre => mip2.production_centre.try(:name),
+            :production_centre => mip2.production_centre.name,
             :format => :json
           )
         end
 
-        # Make sure we send the correct response if  we're sent nonsense
         mip3 = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest')
         assert_no_difference('MiPlan.count') do
           delete(

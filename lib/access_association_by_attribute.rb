@@ -5,8 +5,15 @@ module AccessAssociationByAttribute
   def access_association_by_attribute(association_name, attribute, options = {})
     options.symbolize_keys!
 
-    virtual_attribute = "#{association_name}_#{attribute}"
     association_class = self.reflections[association_name].class_name.constantize
+
+    if ! options[:full_alias].blank?
+      virtual_attribute = options[:full_alias]
+    elsif ! options[:attribute_alias].blank?
+      virtual_attribute = "#{association_name}_#{options[:attribute_alias]}"
+    else
+      virtual_attribute = "#{association_name}_#{attribute}"
+    end
 
     define_method virtual_attribute do
       if instance_variable_defined?("@#{virtual_attribute}")
@@ -38,11 +45,6 @@ module AccessAssociationByAttribute
       end
 
       self.send("#{association_name}=", new_object)
-    end
-
-    if ! options[:attribute_alias].blank?
-      alias_method "#{association_name}_#{options[:attribute_alias]}=", "#{virtual_attribute}="
-      alias_method "#{association_name}_#{options[:attribute_alias]}", "#{virtual_attribute}"
     end
 
     define_method "#{virtual_attribute}_validation" do

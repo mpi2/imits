@@ -139,9 +139,36 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
         end
       end
 
-      should 'when configured also allow access via alias' do
+      should 'allow access' do
         @pet.owner_full_name = @person2.name
         assert_equal @person2.name, @pet.owner_full_name
+      end
+
+      should 'be used in validation' do
+        @pet.owner_full_name = 'Nonexistent'
+        assert_false @pet.valid?
+        assert ! @pet.errors['owner_full_name'].empty?
+        assert @pet.errors['owner_name'].empty?
+      end
+    end
+
+    context 'full alias' do
+      setup do
+        class ::Test::Pet
+          access_association_by_attribute :owner, :name, :full_alias => :master
+        end
+      end
+
+      should 'allow access' do
+        @pet.master = @person2.name
+        assert_equal @person2.name, @pet.master
+      end
+
+      should 'be used in validation' do
+        @pet.master = 'Nonexistent'
+        assert_false @pet.valid?
+        assert ! @pet.errors['master'].empty?
+        assert @pet.errors['owner_name'].empty?
       end
     end
 

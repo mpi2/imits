@@ -64,7 +64,6 @@ class MiAttempt < ActiveRecord::Base
   access_association_by_attribute :test_cross_strain, :name
   access_association_by_attribute :deposited_material, :name
 
-  before_validation :set_blank_qc_fields_to_na # Needs to be here, before AABA
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
@@ -113,6 +112,7 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
+  before_validation :set_blank_qc_fields_to_na
   before_validation :set_blank_strings_to_nil
   before_validation :set_total_chimeras
   before_validation :set_default_deposited_material

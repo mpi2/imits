@@ -132,6 +132,13 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
       assert_equal "'55' is invalid", @pet.errors[:owner_name].first
     end
 
+    should 'not keep errors hanging around if assigned something invalid then valid again' do
+      Test::Pet.setup_access
+      @pet.owner_name = 'Nonexistent'
+      @pet.owner_name = @person2.name
+      assert @pet.valid?, @pet.errors.inspect
+    end
+
     context 'attribute alias' do
       setup do
         class ::Test::Pet

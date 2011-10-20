@@ -26,6 +26,7 @@ module AccessAssociationByAttribute
     end
 
     define_method "#{virtual_attribute}=" do |value|
+      instance_variable_set("@#{virtual_attribute}_errors_", nil)
       instance_variable_set("@#{virtual_attribute}", value)
 
       if value.blank?

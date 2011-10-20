@@ -2,7 +2,7 @@
 
 class MiPlan < ActiveRecord::Base
   attr_accessible(
-    :gene_marker_symbol,
+    :marker_symbol,
     :consortium_name,
     :production_centre_name,
     :status,
@@ -19,16 +19,19 @@ class MiPlan < ActiveRecord::Base
   belongs_to :mi_plan_status
   belongs_to :mi_plan_priority
   belongs_to :production_centre, :class_name => 'Centre'
-
   has_many :mi_attempts
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC"
 
-  validates :gene, :presence => true
-  validates :consortium, :presence => true
-  validates :mi_plan_status, :presence => true
-  validates :mi_plan_priority, :presence => true
+  access_association_by_attribute :gene, :marker_symbol, :full_alias => :marker_symbol
+  access_association_by_attribute :consortium, :name
+  access_association_by_attribute :production_centre, :name
+  access_association_by_attribute :mi_plan_priority, :name, :full_alias => :priority
 
-  validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]
+  validates :marker_symbol, :presence => true
+  validates :consortium_name, :presence => true
+  validates :production_centre_name, :presence => {:on => :update, :if => proc {|p| p.changed.include?('production_centre_name')}}
+  validates :priority, :presence => true
+  validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
 
   # BEGIN Callbacks
 

@@ -28,11 +28,6 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should have_many :mi_attempts
 
-      should validate_presence_of :gene
-      should validate_presence_of :consortium
-      should validate_presence_of :mi_plan_status
-      should validate_presence_of :mi_plan_priority
-
       context '#status_stamps' do
         should 'be a valid association' do
           assert_should have_many :status_stamps
@@ -97,30 +92,91 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       context '#marker_symbol' do
-        should 'work' do
+        should 'use AccessAssociationByAttribute' do
           gene = Factory.create :gene_cbx1
           @default_mi_plan.marker_symbol = 'Cbx1'
           assert_equal gene, @default_mi_plan.gene
         end
 
-        should validate_presence_of :marker_symbol
-       end
+        should 'be present' do
+          assert_should validate_presence_of :marker_symbol
+        end
+      end
+
+      context '#consortium_name' do
+        should 'use AccessAssociationByAttribute' do
+          consortium = Factory.create :consortium
+          @default_mi_plan.consortium_name = consortium.name
+          assert_equal consortium, @default_mi_plan.consortium
+        end
+
+        should 'be present' do
+          assert_should validate_presence_of :consortium_name
+        end
+      end
+
+      context '#production_centre_name' do
+        def centre
+          @centre ||= Factory.create(:centre)
+        end
+
+        should 'use AccessAssociationByAttribute' do
+          @default_mi_plan.production_centre_name = centre.name
+          assert_equal centre, @default_mi_plan.production_centre
+        end
+
+        should 'not allow setting back to nil once assigned to something' do
+          mi_plan = Factory.create :mi_plan, :production_centre_name => nil
+          mi_plan.production_centre_name = centre.name
+          assert mi_plan.save
+          mi_plan.production_centre_name = nil
+          assert ! mi_plan.valid?
+          assert_include mi_plan.errors[:production_centre_name], 'cannot be blank'
+        end
+
+        should 'can say unset if it was initially so' do
+          mip = Factory.build :mi_plan
+          assert mip.save
+          assert mip.valid?, mip.errors.inspect
+        end
+      end
+
+      context '#status' do
+        should 'be the most recent status name' do
+          @default_mi_plan.mi_plan_status = MiPlanStatus[:Conflict]
+          assert_equal 'Conflict', @default_mi_plan.status
+        end
+      end
+
+      context '#priority' do
+        should 'use AccessAssociationByAttribute' do
+          priority = MiPlanPriority.find_by_name!('Medium')
+          assert_not_equal priority,  @default_mi_plan.mi_plan_priority
+          @default_mi_plan.priority = 'Medium'
+          assert_equal priority, @default_mi_plan.mi_plan_priority
+        end
+
+        should 'be present' do
+          assert_should validate_presence_of :priority
+        end
+      end
 
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
         mip = Factory.build :mi_plan
         assert mip.save
-        assert mip.valid?
+        assert mip.valid?, mip.errors.inspect
 
-        mip2 = MiPlan.new( :gene => mip.gene, :consortium => mip.consortium )
+        mip2 = MiPlan.new(:marker_symbol => mip.gene.marker_symbol,
+          :consortium_name => mip.consortium.name)
         assert_false mip2.save
         assert_false mip2.valid?
         assert ! mip2.errors['gene_id'].blank?
 
-        mip.production_centre = Centre.find_by_name!('WTSI')
+        mip.production_centre_name = 'WTSI'
         assert mip.save
         assert mip.valid?
 
-        mip2.production_centre = mip.production_centre
+        mip2.production_centre_name = mip.production_centre_name
         assert_false mip2.save
         assert_false mip2.valid?
         assert ! mip2.errors['gene_id'].blank?
@@ -133,13 +189,24 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'limit the public mass-assignment API' do
         expected = [
-          'gene_marker_symbol',
+          'marker_symbol',
           'consortium_name',
           'production_centre_name',
-          'status',
           'priority'
         ]
         got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
+        assert_equal expected, got
+      end
+
+      should 'have defined attributes in JSON output' do
+        expected = [
+          'id',
+          'marker_symbol',
+          'consortium_name',
+          'production_centre_name',
+          'priority'
+        ]
+        got = MiPlan.as_json.keys
         assert_equal expected, got
       end
     end
@@ -282,13 +349,13 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'ignore "Inactive" MiPlans when making decisions' do
         gene              = Factory.create :gene_cbx1
         mi_plan           = Factory.create :mi_plan,
-                              :gene => gene,
-                              :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC')
+                :gene => gene,
+                :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC')
         inactive_mi_plan  = Factory.create :mi_plan,
-                              :gene => gene,
-                              :consortium => Consortium.find_by_name!('JAX'),
-                              :production_centre => Centre.find_by_name!('JAX'),
-                              :mi_plan_status => MiPlanStatus['Inactive']
+                :gene => gene,
+                :consortium => Consortium.find_by_name!('JAX'),
+                :production_centre => Centre.find_by_name!('JAX'),
+                :mi_plan_status => MiPlanStatus['Inactive']
 
         assert_equal 'Interest', mi_plan.status
         assert_equal 'Inactive', inactive_mi_plan.status
@@ -396,42 +463,42 @@ class MiPlanTest < ActiveSupport::TestCase
         es_cell = Factory.create :es_cell, :gene => cbx1
 
         gc_mi_attempt = Factory.create :mi_attempt,
-          :es_cell => es_cell,
-          :consortium_name => 'BaSH',
-          :production_centre_name => 'BCM',
-          :is_active => true,
-          :mi_date => 12.months.ago,
-          :mi_attempt_status => MiAttemptStatus.genotype_confirmed
+                :es_cell => es_cell,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'BCM',
+                :is_active => true,
+                :mi_date => 12.months.ago,
+                :mi_attempt_status => MiAttemptStatus.genotype_confirmed
 
         in_prog_mi_attempt = Factory.create :mi_attempt,
-          :es_cell => es_cell,
-          :consortium_name => 'MARC',
-          :production_centre_name => 'MARC',
-          :is_active => true,
-          :mi_date => 4.weeks.ago,
-          :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress
+                :es_cell => es_cell,
+                :consortium_name => 'MARC',
+                :production_centre_name => 'MARC',
+                :is_active => true,
+                :mi_date => 4.weeks.ago,
+                :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress
 
         Factory.create :mi_attempt,
-          :es_cell => es_cell,
-          :consortium_name => 'MARC',
-          :production_centre_name => 'MARC',
-          :is_active => false,
-          :mi_date => 7.months.ago,
-          :mi_attempt_status => MiAttemptStatus.micro_injection_aborted
+                :es_cell => es_cell,
+                :consortium_name => 'MARC',
+                :production_centre_name => 'MARC',
+                :is_active => false,
+                :mi_date => 7.months.ago,
+                :mi_attempt_status => MiAttemptStatus.micro_injection_aborted
 
         old_failed_mi_attempt = Factory.create :mi_attempt,
-          :es_cell => es_cell,
-          :consortium_name => 'DTCC',
-          :production_centre_name => 'UCD',
-          :is_active => false,
-          :mi_date => 9.months.ago,
-          :mi_attempt_status => MiAttemptStatus.micro_injection_aborted
+                :es_cell => es_cell,
+                :consortium_name => 'DTCC',
+                :production_centre_name => 'UCD',
+                :is_active => false,
+                :mi_date => 9.months.ago,
+                :mi_attempt_status => MiAttemptStatus.micro_injection_aborted
 
         mi_plan_no_attempts = Factory.create :mi_plan,
-          :gene => cbx1,
-          :consortium => Consortium.find_by_name!('JAX'),
-          :production_centre => Centre.find_by_name!('JAX'),
-          :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+                :gene => cbx1,
+                :consortium => Consortium.find_by_name!('JAX'),
+                :production_centre => Centre.find_by_name!('JAX'),
+                :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
 
         assert_equal 'Assigned', gc_mi_attempt.mi_plan.status
         assert_equal 'Assigned', in_prog_mi_attempt.mi_plan.status
@@ -447,12 +514,12 @@ class MiPlanTest < ActiveSupport::TestCase
 
         # Now test what happens if a centre re-visits an inactive MiPlan...
         new_mi_attempt = Factory.create :mi_attempt,
-          :es_cell => es_cell,
-          :consortium_name => 'DTCC',
-          :production_centre_name => 'UCD',
-          :is_active => true,
-          :mi_date => 2.weeks.ago,
-          :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress
+                :es_cell => es_cell,
+                :consortium_name => 'DTCC',
+                :production_centre_name => 'UCD',
+                :is_active => true,
+                :mi_date => 2.weeks.ago,
+                :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress
 
         assert_equal 'Assigned', old_failed_mi_attempt.mi_plan.reload.status
         assert_equal 'Assigned', new_mi_attempt.mi_plan.reload.status

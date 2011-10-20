@@ -179,5 +179,26 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
       end
     end
 
+    should 'reset all AABA attributes on reload' do
+      class ::Test::Pet
+        access_association_by_attribute :owner, :name
+        access_association_by_attribute :owner, :name, :full_alias => :master
+      end
+      @pet.save!
+      assert_equal @pet.owner.name, @pet.master
+      assert_equal @pet.owner.name, @pet.owner_name
+
+      @pet.master = 'Nonexistent'
+      @pet.owner_name = 'Nonexistent'
+
+      assert_false @pet.valid?
+
+      @pet.reload
+
+      assert_equal @pet.owner.name, @pet.master
+      assert_equal @pet.owner.name, @pet.owner_name
+      assert @pet.valid?, @pet.errors.inspect
+    end
+
   end
 end

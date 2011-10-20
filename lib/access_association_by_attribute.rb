@@ -15,8 +15,18 @@ module AccessAssociationByAttribute
       virtual_attribute = "#{association_name}_#{attribute}"
     end
 
+    if ! instance_methods.include?(:reload_without_aaba)
+      alias_method :reload_without_aaba, :reload
+
+      define_method :reload do |*args|
+        retval = reload_without_aaba(*args)
+        @aaba_what_changed = []
+        return retval
+      end
+    end
+
     define_method virtual_attribute do
-      if instance_variable_defined?("@#{virtual_attribute}")
+      if instance_variable_defined?("@#{virtual_attribute}") and @aaba_what_changed.include?(virtual_attribute)
         return instance_variable_get("@#{virtual_attribute}")
       else
         new_value = self.send(association_name).try(:send, attribute)
@@ -26,6 +36,9 @@ module AccessAssociationByAttribute
     end
 
     define_method "#{virtual_attribute}=" do |value|
+      @aaba_what_changed ||= []
+      @aaba_what_changed.push virtual_attribute
+
       instance_variable_set("@#{virtual_attribute}_errors_", nil)
       instance_variable_set("@#{virtual_attribute}", value)
 
@@ -50,7 +63,7 @@ module AccessAssociationByAttribute
 
     define_method "#{virtual_attribute}_validation" do
       errors = instance_variable_get("@#{virtual_attribute}_errors_")
-      if errors
+      if errors and @aaba_what_changed.include?(virtual_attribute)
         self.errors.add(virtual_attribute, errors)
       end
     end

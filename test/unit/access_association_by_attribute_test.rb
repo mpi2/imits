@@ -185,6 +185,8 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
         access_association_by_attribute :owner, :name, :full_alias => :master
       end
       @pet.save!
+      @pet.master; @pet.owner
+
       assert_equal @pet.owner.name, @pet.master
       assert_equal @pet.owner.name, @pet.owner_name
 

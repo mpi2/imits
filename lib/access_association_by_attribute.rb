@@ -26,6 +26,7 @@ module AccessAssociationByAttribute
     end
 
     define_method virtual_attribute do
+      @aaba_what_changed ||= []
       if instance_variable_defined?("@#{virtual_attribute}") and @aaba_what_changed.include?(virtual_attribute)
         return instance_variable_get("@#{virtual_attribute}")
       else
@@ -62,6 +63,7 @@ module AccessAssociationByAttribute
     end
 
     define_method "#{virtual_attribute}_validation" do
+      @aaba_what_changed ||= []
       errors = instance_variable_get("@#{virtual_attribute}_errors_")
       if errors and @aaba_what_changed.include?(virtual_attribute)
         self.errors.add(virtual_attribute, errors)

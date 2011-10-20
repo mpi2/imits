@@ -45,7 +45,7 @@ class MiPlan < ActiveRecord::Base
   private
 
   def set_default_mi_plan_status
-    self.status = 'Interest'
+    self.status ||= 'Interest'
   end
 
   public

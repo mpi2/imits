@@ -45,7 +45,7 @@ class MiPlan < ActiveRecord::Base
   private
 
   def set_default_mi_plan_status
-    self.mi_plan_status ||= MiPlanStatus[:Interest]
+    self.status = 'Interest'
   end
 
   public
@@ -138,7 +138,7 @@ class MiPlan < ActiveRecord::Base
           mi_plan.save!
         end
       else
-        interested.first.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
+        interested.first.mi_plan_status = MiPlanStatus[:Assigned]
         interested.first.save!
       end
     end

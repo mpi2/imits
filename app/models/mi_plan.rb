@@ -26,11 +26,13 @@ class MiPlan < ActiveRecord::Base
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
   access_association_by_attribute :mi_plan_priority, :name, :full_alias => :priority
+  access_association_by_attribute :mi_plan_status, :name, :full_alias => :status
 
   validates :marker_symbol, :presence => true
   validates :consortium_name, :presence => true
   validates :production_centre_name, :presence => {:on => :update, :if => proc {|p| p.changed.include?('production_centre_name')}}
   validates :priority, :presence => true
+  validates :status, :presence => true
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
 
   # BEGIN Callbacks
@@ -68,10 +70,6 @@ class MiPlan < ActiveRecord::Base
     self.status_stamps.create!(:mi_plan_status => status)
   end
   private :add_status_stamp
-
-  def status
-    self.mi_plan_status.name
-  end
 
   def self.with_mi_attempt
     ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)

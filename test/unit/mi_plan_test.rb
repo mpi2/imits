@@ -142,9 +142,15 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       context '#status' do
-        should 'be the most recent status name' do
-          @default_mi_plan.mi_plan_status = MiPlanStatus[:Conflict]
-          assert_equal 'Conflict', @default_mi_plan.status
+        should 'use AccessAssociationByAttribute' do
+          status = MiPlanStatus[:Conflict]
+          assert_not_equal status, @default_mi_plan.mi_plan_status
+          @default_mi_plan.status = 'Conflict'
+          assert_equal status, @default_mi_plan.mi_plan_status
+        end
+
+        should 'be present' do
+          assert_should validate_presence_of :status
         end
       end
 

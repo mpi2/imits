@@ -33,13 +33,13 @@ end
 
 Factory.define :mi_plan do |mi_plan|
   mi_plan.association :gene
-  mi_plan.consortium_name 'EUCOMM-EUMODIC'
-  mi_plan.mi_plan_status { MiPlanStatus.find_by_name! 'Interest' }
-  mi_plan.priority 'High'
+  mi_plan.consortium { Consortium.find_by_name!('EUCOMM-EUMODIC') }
+  mi_plan.mi_plan_status   { MiPlanStatus.find_by_name! 'Interest' }
+  mi_plan.mi_plan_priority { MiPlanPriority.find_by_name! 'High' }
 end
 
 Factory.define :mi_plan_with_production_centre, :parent => :mi_plan do |mi_plan|
-  mi_plan.production_centre_name 'WTSI'
+  mi_plan.association :production_centre, :factory => :centre
 end
 
 Factory.define :mi_attempt do |mi_attempt|

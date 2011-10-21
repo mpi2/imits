@@ -14,15 +14,6 @@ class MiPlansControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      should 'allow users access to the gene_selection interface' do
-        get :gene_selection
-        assert response.success?
-        assert assigns(:centre_combo_options)
-        assert assigns(:consortia_combo_options)
-        assert assigns(:priority_combo_options)
-        assert assigns(:interest_status_id)
-      end
-
       should 'create MiPlans with POST /mi_plans.json' do
         Factory.create(:gene_cbx1)
         assert_equal 0, MiPlan.count

@@ -10,7 +10,6 @@
   <%= javascript_tag "CENTRE_COMBO_OPTS = #{@centre_combo_options.to_json}" %>
   <%= javascript_tag "CONSORTIUM_COMBO_OPTS = #{@consortia_combo_options.to_json}" %>
   <%= javascript_tag "PRIORITY_COMBO_OPTS = #{@priority_combo_options.to_json}" %>
-  <%= javascript_tag "INTEREST_STATUS_ID = #{@interest_status_id}" %>
 <% end %>
 
 <% content_for :post_js_footer do %>
@@ -25,7 +24,7 @@
     <div>
       <div class="grid_6 alpha">
         <label for="q[marker_symbol_or_mgi_accession_id_ci_in]">Marker Symbol or MGI Accession ID:</label>
-        <textarea id="q_marker_symbol_or_mgi_accession_id_ci_in" name="q[marker_symbol_or_mgi_accession_id_ci_in]"><%=
+        <textarea col="40" rows="40" id="q_marker_symbol_or_mgi_accession_id_ci_in" name="q[marker_symbol_or_mgi_accession_id_ci_in]"><%=
             if !params[:q].blank? && !params[:q][:marker_symbol_or_mgi_accession_id_ci_in].blank?
               params[:q][:marker_symbol_or_mgi_accession_id_ci_in]
             end

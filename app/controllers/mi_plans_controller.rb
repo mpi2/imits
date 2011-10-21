@@ -16,10 +16,9 @@ class MiPlansController < ApplicationController
         .select{|i|!i.blank?}
         .join("\n")
 
-    @centre_combo_options    = Centre.order('name').all.map { |c| { :id => c.id, :name => c.name } }
-    @consortia_combo_options = Consortium.order('name').all.map { |c| { :id => c.id, :name => c.name } }
-    @priority_combo_options  = MiPlanPriority.all.map { |p| { :id => p.id, :name => p.name } }
-    @interest_status_id      = MiPlanStatus.find_by_name!('Interest').id
+    @centre_combo_options    = Centre.order('name').map(&:name)
+    @consortia_combo_options = Consortium.order('name').map(&:name)
+    @priority_combo_options  = MiPlanPriority.order('name').map(&:name)
   end
 
   def create

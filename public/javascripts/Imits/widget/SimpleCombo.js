@@ -10,7 +10,7 @@ Ext.define('Imits.widget.SimpleCombo', {
         if(config.storeOptionsAreSpecial == true) {
             var mapper = function(i) {
                 if(Ext.isEmpty(i)) {
-                    return[i, window.NO_BREAK_SPACE];
+                    return [i, window.NO_BREAK_SPACE];
                 } else {
                     return [i, Ext.String.htmlEncode(i)];
                 }

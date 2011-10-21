@@ -174,18 +174,18 @@ Ext.define('Imits.widget.GeneGrid', {
     },
 
     registerInterestHandler: function() {
-        var grid = this;
-        this.selectedGenes = grid.selModel.selected;
-        this.failedGenes = [];
+        var geneCounter = 0;
+        var selectedGenes = this.selModel.selected;
+        var failedGenes = [];
         var consortiumName  = this.consortiumCombo.getSubmitValue();
         var productionCentreName = this.centreCombo.getSubmitValue();
         var priority = this.priorityCombo.getSubmitValue();
 
-        if(this.selectedGenes.length == 0) {
+        if(selectedGenes.length == 0) {
             alert('You must select some genes to register interest in');
             return false;
         }
-        if(this.consortium_name == null) {
+        if(consortiumName == null) {
             alert('You must select a consortium');
             return false;
         }
@@ -194,9 +194,9 @@ Ext.define('Imits.widget.GeneGrid', {
             return false;
         }
 
-        grid.setLoading(true);
+        this.setLoading(true);
 
-        this.selectedGenes.each(function(geneRow) {
+        selectedGenes.each(function(geneRow) {
             var markerSymbol = geneRow.raw['marker_symbol']
             Ext.Ajax.request({
                 method: 'POST',
@@ -206,13 +206,21 @@ Ext.define('Imits.widget.GeneGrid', {
                     'mi_plan[consortium_name]': consortiumName,
                     'mi_plan[production_centre_name]': productionCentreName,
                     'mi_plan[priority]': priority,
-                    authenticity_token: window.authenticityToken
+                    'authenticity_token': window.authenticityToken
                 },
                 callback: function(opt, success, response) {
                     if(!success || response.status == 0) {
-                        this.failedGenes.push(geneRow.raw['marker_symbol']);
+                        failedGenes.push(markerSymbol);
                     }
-                    this.reportGeneSelectionErrors();
+                    geneCounter++;
+                    if( ! (geneCounter < selectedGenes.length) ) {
+                        if( !Ext.isEmpty(failedGenes) ) {
+                            alert('An error occured trying to register interest on the following genes: ' + failedGenes.join(', ') + '. Please try again.');
+                        }
+
+                        this.reloadStore();
+                        this.setLoading(false);
+                    }
                 }
             });
         });
@@ -234,20 +242,17 @@ Ext.define('Imits.widget.GeneGrid', {
             );
 
         // Add the top (gene selection) toolbar
-        var consortiumCombo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_COMBO_OPTS);
-        var centreCombo     = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_COMBO_OPTS, true);
-        var priorityCombo   = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_COMBO_OPTS);
-        var selectedGenes   = [];
-        var failedGenes     = [];
-        var geneCounter     = 0;
+        this.consortiumCombo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_COMBO_OPTS);
+        this.centreCombo     = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_COMBO_OPTS, true);
+        this.priorityCombo   = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_COMBO_OPTS);
 
         grid.addDocked(
             Ext.create('Ext.toolbar.Toolbar', {
                 dock: 'top',
                 items: [
-                consortiumCombo,
-                centreCombo,
-                priorityCombo,
+                this.consortiumCombo,
+                this.centreCombo,
+                this.priorityCombo,
                 '  ',
                 {
                     id: 'register_interest_button',
@@ -260,34 +265,22 @@ Ext.define('Imits.widget.GeneGrid', {
             })
             );
 
-        function reportGeneSelectionErrors() {
-            geneCounter++;
-            if ( ! (geneCounter < selectedGenes.length) ) {
-                if ( !Ext.isEmpty(failedGenes) ) {
-                    alert('An error occured trying to register interest on the following genes: '+failedGenes.join(', ')+'. Please try again.');
-                }
-
-                grid.reloadStore();
-                grid.setLoading(false);
-            }
-        }
-
         // Add listeners to the .delete-mi-plan buttons
         Ext.get(grid.renderTo).on('click', function(event,target) {
-            var marker_symbol = target.getAttribute('data-marker_symbol');
+            var markerSymbol = target.getAttribute('data-marker_symbol');
             var id            = target.getAttribute('data-id');
             var string        = target.getAttribute('data-string');
 
             var confirmed = confirm(
                 'Are you sure you want to delete the planned MI for ' +
-                marker_symbol + ' - ' + string + '?'
+                markerSymbol + ' - ' + string + '?'
                 );
 
             if ( confirmed ) {
                 Ext.Ajax.request({
                     method: 'DELETE',
-                    url: basePath + '/mi_plans/' + id + '.json?authenticity_token=' + encodeURIComponent(authenticityToken),
-                    callback: function(opt,success,response) {
+                    url: window.basePath + '/mi_plans/' + id + '.json?authenticity_token=' + encodeURIComponent(window.authenticityToken),
+                    callback: function(opt, success, response) {
                         if (success) {
                             grid.reloadStore();
                         } else {

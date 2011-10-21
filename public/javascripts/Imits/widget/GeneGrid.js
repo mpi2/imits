@@ -174,12 +174,13 @@ Ext.define('Imits.widget.GeneGrid', {
     },
 
     registerInterestHandler: function() {
+        var grid = this.grid;
         var geneCounter = 0;
-        var selectedGenes = this.selModel.selected;
+        var selectedGenes = grid.getSelectionModel().selected;
         var failedGenes = [];
-        var consortiumName  = this.consortiumCombo.getSubmitValue();
-        var productionCentreName = this.centreCombo.getSubmitValue();
-        var priority = this.priorityCombo.getSubmitValue();
+        var consortiumName  = grid.consortiumCombo.getSubmitValue();
+        var productionCentreName = grid.centreCombo.getSubmitValue();
+        var priority = grid.priorityCombo.getSubmitValue();
 
         if(selectedGenes.length == 0) {
             alert('You must select some genes to register interest in');
@@ -194,7 +195,7 @@ Ext.define('Imits.widget.GeneGrid', {
             return false;
         }
 
-        this.setLoading(true);
+        grid.setLoading(true);
 
         selectedGenes.each(function(geneRow) {
             var markerSymbol = geneRow.raw['marker_symbol']
@@ -218,8 +219,8 @@ Ext.define('Imits.widget.GeneGrid', {
                             alert('An error occured trying to register interest on the following genes: ' + failedGenes.join(', ') + '. Please try again.');
                         }
 
-                        this.reloadStore();
-                        this.setLoading(false);
+                        grid.reloadStore();
+                        grid.setLoading(false);
                     }
                 }
             });
@@ -259,6 +260,7 @@ Ext.define('Imits.widget.GeneGrid', {
                     text: 'Register Interest',
                     cls:'x-btn-text-icon',
                     iconCls: 'icon-add',
+                    grid: this,
                     handler: grid.registerInterestHandler
                 }
                 ]
@@ -266,7 +268,7 @@ Ext.define('Imits.widget.GeneGrid', {
             );
 
         // Add listeners to the .delete-mi-plan buttons
-        Ext.get(grid.renderTo).on('click', function(event,target) {
+        Ext.get(grid.renderTo).on('click', function(event, target) {
             var markerSymbol = target.getAttribute('data-marker_symbol');
             var id            = target.getAttribute('data-id');
             var string        = target.getAttribute('data-string');

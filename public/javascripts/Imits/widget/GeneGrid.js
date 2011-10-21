@@ -240,7 +240,7 @@ Ext.define('Imits.widget.GeneGrid', {
                 dock: 'bottom',
                 displayInfo: true
             })
-            );
+        );
 
         // Add the top (gene selection) toolbar
         grid.consortiumCombo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_COMBO_OPTS);
@@ -267,7 +267,7 @@ Ext.define('Imits.widget.GeneGrid', {
                 }
                 ]
             })
-            );
+        );
 
         // Add listeners to the .delete-mi-plan buttons
         Ext.get(grid.renderTo).on('click', function(event, target) {

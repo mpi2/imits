@@ -30,7 +30,7 @@ class MiPlan < ActiveRecord::Base
 
   validates :marker_symbol, :presence => true
   validates :consortium_name, :presence => true
-  validates :production_centre_name, :presence => {:on => :update, :if => proc {|p| p.changed.include?('production_centre_name')}}
+  validates :production_centre_name, :presence => {:on => :update, :if => proc {|p| p.changed.include?('production_centre_id')}}
   validates :priority, :presence => true
   validates :status, :presence => true
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
@@ -45,7 +45,7 @@ class MiPlan < ActiveRecord::Base
   private
 
   def set_default_mi_plan_status
-    self.status ||= 'Interest'
+    self.mi_plan_status ||= MiPlanStatus['Interest']
   end
 
   public
@@ -138,8 +138,9 @@ class MiPlan < ActiveRecord::Base
           mi_plan.save!
         end
       else
-        interested.first.mi_plan_status = MiPlanStatus[:Assigned]
-        interested.first.save!
+        assigned_mi_plan = interested.first
+        assigned_mi_plan.mi_plan_status = MiPlanStatus[:Assigned]
+        assigned_mi_plan.save!
       end
     end
   end

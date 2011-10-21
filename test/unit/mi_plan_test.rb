@@ -75,19 +75,19 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#mi_plan_status=' do
         should 'create status stamps when status is changed' do
-          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Conflict])
-          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Assigned])
-          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Interest])
+          @default_mi_plan.update_attributes!(:status => 'Conflict')
+          @default_mi_plan.update_attributes!(:status => 'Assigned')
+          @default_mi_plan.update_attributes!(:status => 'Interest')
 
-          expected = [MiPlanStatus[:Interest], MiPlanStatus[:Conflict], MiPlanStatus[:Assigned], MiPlanStatus[:Interest]]
-          assert_equal expected, @default_mi_plan.status_stamps.map(&:mi_plan_status)
+          expected = ['Interest', 'Conflict', 'Assigned', 'Interest']
+          assert_equal expected, @default_mi_plan.status_stamps.map{|i| i.mi_plan_status.name}
         end
 
         should 'not add the same status stamp consecutively' do
-          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Interest])
-          @default_mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Interest])
+          @default_mi_plan.update_attributes!(:status => 'Interest')
+          @default_mi_plan.update_attributes!(:status => 'Interest')
 
-          assert_equal [MiPlanStatus[:Interest]], @default_mi_plan.status_stamps.map(&:mi_plan_status)
+          assert_equal ['Interest'], @default_mi_plan.status_stamps.map{|i|i.mi_plan_status.name}
         end
       end
 
@@ -212,7 +212,7 @@ class MiPlanTest < ActiveSupport::TestCase
           'production_centre_name',
           'priority'
         ]
-        got = MiPlan.as_json.keys
+        got = @default_mi_plan.as_json.keys
         assert_equal expected, got
       end
     end
@@ -353,11 +353,11 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'ignore "Inactive" MiPlans when making decisions' do
-        gene              = Factory.create :gene_cbx1
-        mi_plan           = Factory.create :mi_plan,
+        gene    = Factory.create :gene_cbx1
+        mi_plan = Factory.create :mi_plan,
                 :gene => gene,
                 :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC')
-        inactive_mi_plan  = Factory.create :mi_plan,
+        inactive_mi_plan = Factory.create :mi_plan,
                 :gene => gene,
                 :consortium => Consortium.find_by_name!('JAX'),
                 :production_centre => Centre.find_by_name!('JAX'),
@@ -394,7 +394,11 @@ class MiPlanTest < ActiveSupport::TestCase
 
         result = MiPlan.all_grouped_by_mgi_accession_id_then_by_status_name
 
-        assert_equal [bash, consortium_x].sort, result[gene1.mgi_accession_id]['Interest'].sort
+        gene1_interest_results = result[gene1.mgi_accession_id]['Interest']
+        assert_include gene1_interest_results, bash
+        assert_include gene1_interest_results, consortium_x
+        assert_equal 2, gene1_interest_results.size
+
         assert_equal [mgp], result[gene1.mgi_accession_id]['Assigned']
         assert_equal [eucomm], result[gene2.mgi_accession_id]['Declined - Conflict']
       end

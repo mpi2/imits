@@ -174,7 +174,7 @@ Ext.define('Imits.widget.GeneGrid', {
     },
 
     registerInterestHandler: function() {
-        var grid = this.grid;
+        var grid = this;
         var geneCounter = 0;
         var selectedGenes = grid.getSelectionModel().selected;
         var failedGenes = [];
@@ -243,25 +243,27 @@ Ext.define('Imits.widget.GeneGrid', {
             );
 
         // Add the top (gene selection) toolbar
-        this.consortiumCombo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_COMBO_OPTS);
-        this.centreCombo     = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_COMBO_OPTS, true);
-        this.priorityCombo   = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_COMBO_OPTS);
+        grid.consortiumCombo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_COMBO_OPTS);
+        grid.centreCombo     = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_COMBO_OPTS, true);
+        grid.priorityCombo   = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_COMBO_OPTS);
 
         grid.addDocked(
             Ext.create('Ext.toolbar.Toolbar', {
                 dock: 'top',
                 items: [
-                this.consortiumCombo,
-                this.centreCombo,
-                this.priorityCombo,
+                grid.consortiumCombo,
+                grid.centreCombo,
+                grid.priorityCombo,
                 '  ',
                 {
                     id: 'register_interest_button',
                     text: 'Register Interest',
                     cls:'x-btn-text-icon',
                     iconCls: 'icon-add',
-                    grid: this,
-                    handler: grid.registerInterestHandler
+                    grid: grid,
+                    handler: function() {
+                        grid.registerInterestHandler();
+                    }
                 }
                 ]
             })
@@ -292,7 +294,7 @@ Ext.define('Imits.widget.GeneGrid', {
                 });
             }
         },
-        this,
+        grid,
         {
             delegate: 'a.delete-mi-plan'
         }

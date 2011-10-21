@@ -201,7 +201,7 @@ class MiPlanTest < ActiveSupport::TestCase
           'priority'
         ]
         got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
-        assert_equal expected, got
+        assert_equal expected.sort, got.sort
       end
 
       should 'have defined attributes in JSON output' do
@@ -213,7 +213,7 @@ class MiPlanTest < ActiveSupport::TestCase
           'priority'
         ]
         got = @default_mi_plan.as_json.keys
-        assert_equal expected, got
+        assert_equal expected.sort, got.sort
       end
     end
 

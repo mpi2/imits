@@ -261,13 +261,13 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'get and assign blast strain via AccessAssociationByAttribute' do
-          default_mi_attempt.update_attributes!(:blast_strain_name => 'Balb/Cam')
-          assert_equal 'Balb/Cam', default_mi_attempt.blast_strain_name
+          default_mi_attempt.update_attributes!(:blast_strain_name => 'BALB/cAm')
+          assert_equal 'BALB/cAm', default_mi_attempt.blast_strain_name
         end
 
         should 'get and assign colony background strain via AccessAssociationByAttribute' do
-          default_mi_attempt.update_attributes!(:colony_background_strain_name => 'B6JTyr<c-Brd>')
-          assert_equal 'B6JTyr<c-Brd>', default_mi_attempt.colony_background_strain_name
+          default_mi_attempt.update_attributes!(:colony_background_strain_name => 'C57BL/6J')
+          assert_equal 'C57BL/6J', default_mi_attempt.colony_background_strain_name
         end
 
         should 'get and assign test cross strain via AccessAssociationByAttribute' do

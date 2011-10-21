@@ -1,13 +1,13 @@
 # encoding: utf-8
 
 class MiPlan < ActiveRecord::Base
-  attr_accessible(
-    :marker_symbol,
-    :consortium_name,
-    :production_centre_name,
-    :status,
-    :priority
-  )
+  INTERFACE_ATTRIBUTES = [
+    'marker_symbol',
+    'consortium_name',
+    'production_centre_name',
+    'priority'
+  ]
+  attr_accessible(*INTERFACE_ATTRIBUTES)
 
   acts_as_audited
   acts_as_reportable
@@ -32,12 +32,12 @@ class MiPlan < ActiveRecord::Base
   validates :consortium_name, :presence => true
   validates :production_centre_name, :presence => {:on => :update, :if => proc {|p| p.changed.include?('production_centre_id')}}
   validates :priority, :presence => true
-  validates :status, :presence => true
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
 
   # BEGIN Callbacks
 
-  before_save :set_default_mi_plan_status
+  before_validation :set_default_mi_plan_status
+
   before_save :record_if_status_was_changed
 
   after_save :create_status_stamp_if_status_was_changed
@@ -178,29 +178,29 @@ class MiPlan < ActiveRecord::Base
     reason_string = case self.mi_plan_status.name
     when 'Declined - GLT Mouse'
       other_centres_consortia = MiPlan.scoped
-        .where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',{ :gene_id => self.gene_id, :id => self.id })
-        .with_genotype_confirmed_mouse
-        .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
+      .where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',{ :gene_id => self.gene_id, :id => self.id })
+      .with_genotype_confirmed_mouse
+      .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
       "GLT mouse produced at: #{other_centres_consortia.join(', ')}"
     when 'Declined - MI Attempt'
       other_centres_consortia = MiPlan.scoped
-        .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
-        .with_active_mi_attempt
-        .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
+      .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
+      .with_active_mi_attempt
+      .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
       "MI already in progress at: #{other_centres_consortia.join(', ')}"
     when 'Declined - Conflict'
       other_consortia = MiPlan
-        .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
-        .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Assigned').id )
-        .without_active_mi_attempt
-        .map{ |p| p.consortium.name }.uniq
+      .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
+      .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Assigned').id )
+      .without_active_mi_attempt
+      .map{ |p| p.consortium.name }.uniq
       "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
     when 'Conflict'
       other_consortia = MiPlan
-        .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
-        .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Conflict').id )
-        .without_active_mi_attempt
-        .map{ |p| p.consortium.name }.uniq
+      .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
+      .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Conflict').id )
+      .without_active_mi_attempt
+      .map{ |p| p.consortium.name }.uniq
       "Other MI plans for: #{other_consortia.join(', ')}"
     else
       nil
@@ -208,9 +208,12 @@ class MiPlan < ActiveRecord::Base
     return reason_string
   end
 
-  def reload(*args)
-    @mi_plan_status = nil
-    super(*args)
+  def as_json(options = {})
+    options.symbolize_keys!
+
+    options[:methods] = INTERFACE_ATTRIBUTES + ['status']
+    options[:only] = ['id'] + options[:methods]
+    return super(options)
   end
 end
 

@@ -91,6 +91,21 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      context '#status' do
+        should 'use AccessAssociationByAttribute' do
+          status = MiPlanStatus[:Conflict]
+          assert_not_equal status, @default_mi_plan.mi_plan_status
+          @default_mi_plan.status = 'Conflict'
+          assert_equal status, @default_mi_plan.mi_plan_status
+        end
+
+        should 'be Interest by default' do
+          plan = MiPlan.new
+          plan.valid?
+          assert_equal 'Interest', plan.status
+        end
+      end
+
       context '#marker_symbol' do
         should 'use AccessAssociationByAttribute' do
           gene = Factory.create :gene_cbx1
@@ -138,19 +153,6 @@ class MiPlanTest < ActiveSupport::TestCase
           mip = Factory.build :mi_plan
           assert mip.save
           assert mip.valid?, mip.errors.inspect
-        end
-      end
-
-      context '#status' do
-        should 'use AccessAssociationByAttribute' do
-          status = MiPlanStatus[:Conflict]
-          assert_not_equal status, @default_mi_plan.mi_plan_status
-          @default_mi_plan.status = 'Conflict'
-          assert_equal status, @default_mi_plan.mi_plan_status
-        end
-
-        should 'be present' do
-          assert_should validate_presence_of :status
         end
       end
 
@@ -210,7 +212,8 @@ class MiPlanTest < ActiveSupport::TestCase
           'marker_symbol',
           'consortium_name',
           'production_centre_name',
-          'priority'
+          'priority',
+          'status'
         ]
         got = @default_mi_plan.as_json.keys
         assert_equal expected.sort, got.sort

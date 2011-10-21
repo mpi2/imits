@@ -9,9 +9,8 @@ class MiPlansControllerTest < ActionController::TestCase
       assert_redirected_to new_user_session_path
     end
 
-    context 'when authorised' do
+    context 'when authenticated' do
       setup do
-        create_common_test_objects
         sign_in default_user
       end
 
@@ -24,37 +23,35 @@ class MiPlansControllerTest < ActionController::TestCase
         assert assigns(:interest_status_id)
       end
 
-      should 'allow machine access to the create function via json' do
-        mip_attrs = Factory.attributes_for(:mi_plan)
-        gene      = Factory.create(:gene)
+      should 'create MiPlans with POST /mi_plans.json' do
+        Factory.create(:gene_cbx1)
+        assert_equal 0, MiPlan.count
 
-        assert_difference('MiPlan.count',1) do
-          post(
-            :create,
-            :mi_plan => {
-              :gene_id => gene.id,
-              :consortium_id => mip_attrs[:consortium][:id],
-              :mi_plan_priority_id => mip_attrs[:mi_plan_priority][:id],
-              :mi_plan_status_id => mip_attrs[:mi_plan_status][:id]
-            },
-            :format => :json
-          )
-        end
-        assert_response :success
+        attributes = {
+          :marker_symbol => 'Cbx1',
+          :consortium_name => 'BaSH',
+          :priority => 'High'
+        }
+        post(:create, :mi_plan => attributes, :format => :json)
+        assert_response :success, response.body
 
+        plan = MiPlan.first
+        assert_equal plan.as_json, JSON.parse(response.body)
+      end
+
+      should 'return errors when creating MiPlans with POST /mi_plans.json' do
         assert_no_difference('MiPlan.count') do
           post(
             :create,
             :mi_plan => {
-              :consortium_id => mip_attrs[:consortium][:id],
-              :mi_plan_priority_id => mip_attrs[:mi_plan_priority][:id],
-              :mi_plan_status_id => mip_attrs[:mi_plan_status][:id]
+              :consortium_name => 'BaSH',
+              :priority => 'High'
             },
             :format => :json
           )
         end
         assert_response 422
-        assert JSON.parse(response.body).has_key?('gene')
+        assert_equal ['cannot be blank'], JSON.parse(response.body)['marker_symbol']
       end
 
       context 'when deleting via JSON' do
@@ -110,28 +107,29 @@ class MiPlansControllerTest < ActionController::TestCase
         end
 
         should 'delete the right MiPlan' do
+          gene = Factory.create :gene_cbx1
           mip5 = Factory.create :mi_plan,
-                  :mi_plan_status_id    => MiPlanStatus.find_by_name!('Interest').id,
-                  :gene_id              => Gene.find_by_marker_symbol!('Myo1c').id,
-                  :consortium_id        => Consortium.find_by_name!('MARC').id,
-                  :production_centre_id => nil
+                  :mi_plan_status    => MiPlanStatus[:Interest],
+                  :gene              => gene,
+                  :consortium        => Consortium.find_by_name!('MARC'),
+                  :production_centre => nil
           mip6 = Factory.create :mi_plan,
-                  :mi_plan_status_id    => MiPlanStatus.find_by_name!('Assigned').id,
-                  :gene_id              => Gene.find_by_marker_symbol!('Myo1c').id,
-                  :consortium_id        => Consortium.find_by_name!('MARC').id,
-                  :production_centre_id => Centre.find_by_name!('DTCC').id
+                  :mi_plan_status    => MiPlanStatus[:Assigned],
+                  :gene              => gene,
+                  :consortium        => Consortium.find_by_name!('MARC'),
+                  :production_centre => Centre.find_by_name!('DTCC')
 
           assert_difference('MiPlan.count',-1) do
             delete(
               :destroy,
-              :marer_symbol => 'Myo1c',
+              :marker_symbol => 'Cbx1',
               :consortium => 'MARC',
               :production_centre => '',
               :format => :json
             )
           end
           assert_nil MiPlan.find_by_id(mip5.id)
-          assert_equal mip6, MiPlan.find_by_id!(mip6.id)
+          assert_equal mip6, MiPlan.find_by_id(mip6.id)
         end
       end
     end

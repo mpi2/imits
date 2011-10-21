@@ -402,7 +402,6 @@ class MiAttempt < ActiveRecord::Base
   private
 
   def default_serializer_options(options = {})
-    options ||= {}
     options.symbolize_keys!
     options[:methods] ||= [
       'es_cell_name', 'emma_status', 'status',

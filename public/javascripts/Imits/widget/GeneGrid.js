@@ -2,7 +2,7 @@
 function splitMiString(mi_string) {
   var mis = [];
   var pattern = /^\[(.+)\:(.+)\:(\d+)\]$/;
-  Ext.Array.each( mi_string.split('</br>'), function(mi) {
+  Ext.Array.each( mi_string.split('<br/>'), function(mi) {
     var match = pattern.exec(mi);
     mis.push({consortium: match[1], production_centre: match[2], count: match[3]});
   });

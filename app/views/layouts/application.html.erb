@@ -73,6 +73,11 @@
     </div>
 
     <%= yield :pre_js_footer %>
+    <% if ['production', 'staging'].include?(Rails.env.to_s) %>
+      <%= include_javascripts :production %>
+    <% else %>
+      <%= include_javascripts :development %>
+    <% end %>
     <%= include_javascripts :common %>
     <%= yield :post_js_footer %>
   </body>

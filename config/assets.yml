@@ -17,8 +17,11 @@ stylesheets:
 #
 # this will then print out all of the dependencies below 'public/extjs/ext-all.js'
 javascripts:
-  common:
+  production:
     - public/extjs/ext-all.js
+  development:
+    - public/extjs/ext-all-debug.js
+  common:
     - public/javascripts/application.js
     - public/javascripts/extjs_hacky_monkey_patches.js
 

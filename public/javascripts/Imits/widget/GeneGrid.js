@@ -198,7 +198,7 @@ Ext.define('Imits.widget.GeneGrid', {
         grid.setLoading(true);
 
         selectedGenes.each(function(geneRow) {
-            var markerSymbol = geneRow.raw['marker_symbol']
+            var markerSymbol = geneRow.raw['marker_symbol'];
             Ext.Ajax.request({
                 method: 'POST',
                 url: window.basePath + '/mi_plans.json',
@@ -272,15 +272,15 @@ Ext.define('Imits.widget.GeneGrid', {
         // Add listeners to the .delete-mi-plan buttons
         Ext.get(grid.renderTo).on('click', function(event, target) {
             var markerSymbol = target.getAttribute('data-marker_symbol');
-            var id            = target.getAttribute('data-id');
-            var string        = target.getAttribute('data-string');
+            var id = target.getAttribute('data-id');
+            var string = target.getAttribute('data-string');
 
             var confirmed = confirm(
                 'Are you sure you want to delete the planned MI for ' +
                 markerSymbol + ' - ' + string + '?'
-                );
+            );
 
-            if ( confirmed ) {
+            if (confirmed) {
                 Ext.Ajax.request({
                     method: 'DELETE',
                     url: window.basePath + '/mi_plans/' + id + '.json?authenticity_token=' + encodeURIComponent(window.authenticityToken),

@@ -2,7 +2,7 @@
 
 class MiPlansController < ApplicationController
   respond_to :html, :only => [:gene_selection]
-  respond_to :json, :only => [:create,:destroy]
+  respond_to :json, :except => [:gene_selection]
   before_filter :authenticate_user!
 
   def gene_selection
@@ -19,6 +19,10 @@ class MiPlansController < ApplicationController
     @centre_combo_options    = Centre.order('name').map(&:name)
     @consortia_combo_options = Consortium.order('name').map(&:name)
     @priority_combo_options  = MiPlanPriority.order('name').map(&:name)
+  end
+
+  def show
+    respond_with MiPlan.find_by_id(params[:id])
   end
 
   def create

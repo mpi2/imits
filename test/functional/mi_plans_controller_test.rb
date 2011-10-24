@@ -123,6 +123,21 @@ class MiPlansControllerTest < ActionController::TestCase
           assert_equal mip6, MiPlan.find_by_id(mip6.id)
         end
       end
+
+      context 'GET show => /mi_plan/:id.json' do
+        should 'find valid one' do
+          mi_plan = Factory.create :mi_plan_with_production_centre,
+                  :mi_plan_status => MiPlanStatus[:Assigned]
+          get :show, :id => mi_plan.id, :format => :json
+          assert response.success?
+          assert_equal JSON.parse(response.body), mi_plan.as_json
+        end
+
+        should 'return error on non-valid one' do
+          get :show, :id => 33, :format => :json
+          ! assert response.success?
+        end
+      end
     end
 
   end

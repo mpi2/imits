@@ -234,6 +234,7 @@ Ext.define('Imits.widget.GeneGrid', {
             listeners: {
                 'hide': {
                     fn: function() {
+                        grid.reloadStore();
                         grid.setLoading(false);
                     }
                 }
@@ -241,39 +242,15 @@ Ext.define('Imits.widget.GeneGrid', {
         });
 
 
-        // Add listeners to the .delete-mi-plan buttons
         Ext.get(grid.renderTo).on('click', function(event, target) {
-            // var markerSymbol = target.getAttribute('data-marker_symbol');
             var id = target.getAttribute('data-id');
-            // var string = target.getAttribute('data-string');
-/*
-            var confirmed = confirm(
-                'Are you sure you want to delete the planned MI for ' +
-                markerSymbol + ' - ' + string + '?'
-            );
-
-            if (confirmed) {
-                Ext.Ajax.request({
-                    method: 'DELETE',
-                    url: window.basePath + '/mi_plans/' + id + '.json?authenticity_token=' + encodeURIComponent(window.authenticityToken),
-                    callback: function(opt, success, response) {
-                        if (success) {
-                            grid.reloadStore();
-                        } else {
-                            alert('There was an error deleting the MI plan. Please try again.');
-                        }
-                    }
-                });
-            }
-*/
-            grid.setLoading("Editing micro-injection plan....");
+            grid.setLoading("Editing expression of micro-injection interest....");
             grid.miPlanEditor.edit(id);
         },
         grid,
         {
             delegate: 'a.delete-mi-plan'
-        }
-        );
+        });
     },
 
     initComponent: function() {
@@ -281,40 +258,36 @@ Ext.define('Imits.widget.GeneGrid', {
         grid.callParent();
 
         // Add the bottom (pagination) toolbar
-        grid.addDocked(
-            Ext.create('Ext.toolbar.Paging', {
-                store: grid.getStore(),
-                dock: 'bottom',
-                displayInfo: true
-            })
-        );
+        grid.addDocked(Ext.create('Ext.toolbar.Paging', {
+            store: grid.getStore(),
+            dock: 'bottom',
+            displayInfo: true
+        }));
 
         // Add the top (gene selection) toolbar
         grid.consortiumCombo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_COMBO_OPTS);
         grid.centreCombo     = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_COMBO_OPTS, true);
         grid.priorityCombo   = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_COMBO_OPTS);
 
-        grid.addDocked(
-            Ext.create('Ext.toolbar.Toolbar', {
-                dock: 'top',
-                items: [
-                grid.consortiumCombo,
-                grid.centreCombo,
-                grid.priorityCombo,
-                '  ',
-                {
-                    id: 'register_interest_button',
-                    text: 'Register Interest',
-                    cls:'x-btn-text-icon',
-                    iconCls: 'icon-add',
-                    grid: grid,
-                    handler: function() {
-                        grid.registerInterestHandler();
-                    }
+        grid.addDocked(Ext.create('Ext.toolbar.Toolbar', {
+            dock: 'top',
+            items: [
+            grid.consortiumCombo,
+            grid.centreCombo,
+            grid.priorityCombo,
+            '  ',
+            {
+                id: 'register_interest_button',
+                text: 'Register Interest',
+                cls:'x-btn-text-icon',
+                iconCls: 'icon-add',
+                grid: grid,
+                handler: function() {
+                    grid.registerInterestHandler();
                 }
-                ]
-            })
-        );
+            }
+            ]
+        }));
 
         this.initMiPlanEditor();
     }

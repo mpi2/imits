@@ -5,7 +5,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
     'Imits.model.MiPlan'
     ],
 
-    title: 'Edit Plan for Micro-Injection',
+    title: 'Change Expression of Interest to Micro-Inject',
     resizable: false,
     layout: 'fit',
     closeAction: 'hide',
@@ -47,7 +47,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             items: [
             {
                 xtype: 'label',
-                text: 'Delete this plan for micro-injection?',
+                text: 'Delete this expression of interest to micro-inject?',
                 cls: 'x-form-item-label'
                 // border right
             },
@@ -55,8 +55,13 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 xtype: 'button',
                 text: 'Delete',
                 handler: function(button) {
-                    console.log('deleting....');
-                    editor.hide();
+                    editor.setLoading(true);
+                    editor.miPlan.destroy({
+                        success: function() {
+                            editor.setLoading(false);
+                            editor.hide();
+                        }
+                    });
                 }
             }
             ]
@@ -77,6 +82,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
         Imits.model.MiPlan.load(miPlanId, {
             success: function(miPlan) {
+                editor.miPlan = miPlan;
                 editor.form.getComponent('consortium_name').setValue(miPlan.get('consortium_name'));
                 editor.show();
             }

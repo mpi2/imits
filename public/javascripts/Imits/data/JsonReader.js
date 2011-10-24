@@ -7,5 +7,14 @@ Ext.define('Imits.data.JsonReader', {
             data = [data];
         }
         return this.callParent([data]);
+    },
+
+    getResponseData: function(response) {
+        if(response.request.options.method == 'DELETE' &&
+            response.status == 200) {
+            return {};
+        } else {
+            return this.callParent([response]);
+        }
     }
 });

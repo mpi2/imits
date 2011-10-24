@@ -116,10 +116,6 @@ a.back {
 
 a.delete-mi-plan {
   display: inline-block;
-  text-decoration: none;
-  color: inherit;
-  background: url('../images/icons/bullet_delete.png') no-repeat right -1px;
-  padding-right: 16px;
   margin-bottom: 2px;
 }
 

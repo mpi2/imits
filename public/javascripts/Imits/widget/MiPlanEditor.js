@@ -18,6 +18,11 @@ Ext.define('Imits.widget.MiPlanEditor', {
             ui: 'plain',
             // border below
 
+            layout: 'anchor',
+            defaults: {
+                anchor: '100%'
+            },
+
             items: [
             {
                 id: 'consortium_name',
@@ -25,6 +30,14 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 fieldLabel: 'Consortium',
                 name: 'consortium_name',
                 readOnly: true
+            },
+            {
+                id: 'production_centre_name',
+                xtype: 'simplecombo',
+                fieldLabel: 'Production Centre',
+                name: 'production_centre_name',
+                storeOptionsAreSpecial: true,
+                store: window.CENTRE_COMBO_OPTS
             }
             ],
 
@@ -47,9 +60,9 @@ Ext.define('Imits.widget.MiPlanEditor', {
             items: [
             {
                 xtype: 'label',
-                text: 'Delete this expression of interest to micro-inject?',
+                text: "Delete interest?",
                 cls: 'x-form-item-label'
-                // border right
+            // border right
             },
             {
                 xtype: 'button',

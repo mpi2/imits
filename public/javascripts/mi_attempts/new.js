@@ -158,7 +158,7 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
 });
 
 Ext.define('Imits.MiAttempts.New.EsCellSelectorWindow', {
-    extend: 'Ext.window.Window',
+    extend: 'Imits.widget.Window',
 
     title: 'Search for ES cells',
     resizable: false,
@@ -167,16 +167,6 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorWindow', {
     width: 550,
     height: 300,
     y: 175,
-    plain: true,
-
-    showLoadMask: function() {
-        this.loadMask = new Ext.LoadMask(this.tabPanel.getEl());
-        this.loadMask.show();
-    },
-
-    hideLoadMask: function() {
-        this.loadMask.hide();
-    },
 
     initComponent: function() {
         this.callParent();

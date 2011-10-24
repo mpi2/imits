@@ -28,7 +28,6 @@ class MiPlansController < ApplicationController
 
   def destroy
     @mi_plan = nil
-    errors = {}
 
     if !params[:id].blank?
       @mi_plan = MiPlan.find_by_id(params[:id])

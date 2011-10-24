@@ -31,6 +31,7 @@ Ext.define('Imits.widget.GeneGrid', {
     'Imits.model.Gene',
     'Imits.widget.grid.RansackFiltersFeature',
     'Imits.widget.SimpleCombo',
+    'Imits.widget.MiPlanEditor',
     'Ext.ux.RowExpander',
     'Ext.selection.CheckboxModel'
     ],
@@ -184,15 +185,15 @@ Ext.define('Imits.widget.GeneGrid', {
 
         if(selectedGenes.length == 0) {
             alert('You must select some genes to register interest in');
-            return false;
+            return;
         }
         if(consortiumName == null) {
             alert('You must select a consortium');
-            return false;
+            return;
         }
         if(priority == null) {
             alert('You must selct a priority');
-            return false;
+            return;
         }
 
         grid.setLoading(true);
@@ -225,8 +226,54 @@ Ext.define('Imits.widget.GeneGrid', {
                 }
             });
         });
+    },
 
-        return true;
+    initMiPlanEditor: function() {
+        var grid = this;
+        this.miPlanEditor = Ext.create('Imits.widget.MiPlanEditor', {
+            listeners: {
+                'hide': {
+                    fn: function() {
+                        grid.setLoading(false);
+                    }
+                }
+            }
+        });
+
+
+        // Add listeners to the .delete-mi-plan buttons
+        Ext.get(grid.renderTo).on('click', function(event, target) {
+            // var markerSymbol = target.getAttribute('data-marker_symbol');
+            var id = target.getAttribute('data-id');
+            // var string = target.getAttribute('data-string');
+/*
+            var confirmed = confirm(
+                'Are you sure you want to delete the planned MI for ' +
+                markerSymbol + ' - ' + string + '?'
+            );
+
+            if (confirmed) {
+                Ext.Ajax.request({
+                    method: 'DELETE',
+                    url: window.basePath + '/mi_plans/' + id + '.json?authenticity_token=' + encodeURIComponent(window.authenticityToken),
+                    callback: function(opt, success, response) {
+                        if (success) {
+                            grid.reloadStore();
+                        } else {
+                            alert('There was an error deleting the MI plan. Please try again.');
+                        }
+                    }
+                });
+            }
+*/
+            grid.setLoading("Editing micro-injection plan....");
+            grid.miPlanEditor.edit(id);
+        },
+        grid,
+        {
+            delegate: 'a.delete-mi-plan'
+        }
+        );
     },
 
     initComponent: function() {
@@ -269,37 +316,6 @@ Ext.define('Imits.widget.GeneGrid', {
             })
         );
 
-        // Add listeners to the .delete-mi-plan buttons
-        Ext.get(grid.renderTo).on('click', function(event, target) {
-            var markerSymbol = target.getAttribute('data-marker_symbol');
-            var id = target.getAttribute('data-id');
-            var string = target.getAttribute('data-string');
-
-            var confirmed = confirm(
-                'Are you sure you want to delete the planned MI for ' +
-                markerSymbol + ' - ' + string + '?'
-            );
-
-            if (confirmed) {
-                Ext.Ajax.request({
-                    method: 'DELETE',
-                    url: window.basePath + '/mi_plans/' + id + '.json?authenticity_token=' + encodeURIComponent(window.authenticityToken),
-                    callback: function(opt, success, response) {
-                        if (success) {
-                            grid.reloadStore();
-                        } else {
-                            alert('There was an error deleting the MI plan. Please try again.');
-                        }
-                    }
-                });
-            }
-        },
-        grid,
-        {
-            delegate: 'a.delete-mi-plan'
-        }
-        );
-
-
+        this.initMiPlanEditor();
     }
 });

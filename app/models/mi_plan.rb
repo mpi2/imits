@@ -215,6 +215,12 @@ class MiPlan < ActiveRecord::Base
     options[:only] = ['id'] + options[:methods]
     return super(options)
   end
+
+  def self.check_overlapping(params)
+    params = params.symbolize_keys
+    return self.search(:gene_marker_symbol_eq => params[:marker_symbol],
+      :consortium_name_eq => params[:consortium_name]).result.first
+  end
 end
 
 # == Schema Information

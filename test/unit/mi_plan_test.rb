@@ -539,5 +539,30 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '::check_overlapping' do
+      should 'return the one with the same marker symbol and consortium' do
+        gene = Factory.create :gene_cbx1
+        consortium = Consortium.find_by_name!('BaSH')
+        centre = Centre.find_by_name!('WTSI')
+        plan = Factory.create :mi_plan, :gene => gene, :consortium => consortium,
+                :production_centre => centre
+
+        got = MiPlan.check_overlapping(:marker_symbol => gene.marker_symbol,
+          :consortium_name => consortium.name)
+        assert_equal plan, got
+      end
+
+      should 'not return if no match' do
+        cbx1 = Factory.create :gene_cbx1
+        bash = Consortium.find_by_name!('BaSH')
+        Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),
+                :consortium => bash, :gene => cbx1
+
+        got = MiPlan.check_overlapping(:marker_symbol => cbx1.marker_symbol,
+          :consortium_name => 'DTCC')
+        assert_nil got
+      end
+    end
+
   end
 end

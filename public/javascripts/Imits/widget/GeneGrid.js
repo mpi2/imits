@@ -200,22 +200,22 @@ Ext.define('Imits.widget.GeneGrid', {
 
         selectedGenes.each(function(geneRow) {
             var markerSymbol = geneRow.raw['marker_symbol'];
-            Ext.Ajax.request({
-                method: 'POST',
-                url: window.basePath + '/mi_plans.json',
-                params: {
-                    'mi_plan[marker_symbol]': markerSymbol,
-                    'mi_plan[consortium_name]': consortiumName,
-                    'mi_plan[production_centre_name]': productionCentreName,
-                    'mi_plan[priority]': priority,
-                    'authenticity_token': window.authenticityToken
+            var miPlan = Ext.create('Imits.model.MiPlan', {
+                'marker_symbol': markerSymbol,
+                'consortium_name': consortiumName,
+                'production_centre_name': productionCentreName,
+                'priority': priority
+            });
+            miPlan.save({
+                success: function() {
+
                 },
-                callback: function(opt, success, response) {
-                    if(!success || response.status == 0) {
-                        failedGenes.push(markerSymbol);
-                    }
+                failure: function() {
+                    failedGenes.push(markerSymbol);
+                },
+                callback: function() {
                     geneCounter++;
-                    if( ! (geneCounter < selectedGenes.length) ) {
+                    if( geneCounter == selectedGenes.length ) {
                         if( !Ext.isEmpty(failedGenes) ) {
                             alert('An error occured trying to register interest on the following genes: ' + failedGenes.join(', ') + '. Please try again.');
                         }

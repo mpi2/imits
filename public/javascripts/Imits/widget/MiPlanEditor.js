@@ -64,7 +64,10 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
             buttons: [
             {
-                text: 'Update'
+                text: 'Update',
+                handler: function() {
+                    editor.updateAndHide();
+                }
             },
             {
                 text: 'Cancel',
@@ -78,6 +81,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         var deleteContainer = Ext.create('Ext.panel.Panel', {
             ui: 'plain',
             layout: 'hbox',
+            margin: '0 0 10 0',
             items: [
             {
                 xtype: 'label',
@@ -102,12 +106,23 @@ Ext.define('Imits.widget.MiPlanEditor', {
             ]
         });
 
-        this.add(Ext.create('Ext.panel.Panel', {
+        this.statusBar = Ext.create('Ext.panel.Panel', {
             ui: 'plain',
+            html: window.NO_BREAK_SPACE
+        });
+
+        this.add(Ext.create('Ext.panel.Panel', {
+            height: 280,
+            ui: 'plain',
+            layout: {
+                type: 'vbox',
+                align: 'stretchmax'
+            },
             padding: 15,
             items: [
             this.form,
-            deleteContainer
+            deleteContainer,
+            this.statusBar
             ]
         }));
     },
@@ -127,10 +142,29 @@ Ext.define('Imits.widget.MiPlanEditor', {
                     ], function(attr) {
                         var component = editor.form.getComponent(attr);
                         if(component) {
-                            component.setValue(miPlan.get(attr));
+                            component.setValue(editor.miPlan.get(attr));
                         }
                     });
                 editor.show();
+            }
+        });
+    },
+
+    updateAndHide: function() {
+        var editor = this;
+        Ext.each([
+            'production_centre_name',
+            'priority'
+            ], function(attr) {
+                var component = editor.form.getComponent(attr);
+                if(component) {
+                    editor.miPlan.set(attr, component.getValue());
+                }
+            });
+
+        editor.miPlan.save({
+            success: function() {
+                editor.hide();
             }
         });
     }

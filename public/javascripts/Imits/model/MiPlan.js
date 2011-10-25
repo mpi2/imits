@@ -9,24 +9,19 @@ Ext.define('Imits.model.MiPlan', {
         persist: false
     },
     {
-        name: 'marker_symbol',
-        persist: false
+        name: 'marker_symbol'
     },
     {
-        name: 'consortium_name',
-        persist: false
+        name: 'consortium_name'
     },
     {
-        name: 'production_centre_name',
-        persist: false
+        name: 'production_centre_name'
     },
     {
-        name: 'status',
-        persist: false
+        name: 'status'
     },
     {
-        name: 'priority',
-        persist: false
+        name: 'priority'
     }
     ],
 

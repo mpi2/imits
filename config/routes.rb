@@ -3,7 +3,7 @@ Kermits2::Application.routes.draw do
 
   resources :genes, :only => [:index]
 
-  resources :mi_plans, :only => [:show, :create, :destroy] do
+  resources :mi_plans, :only => [:show, :create, :update, :destroy] do
     collection do
       get 'gene_selection'
       delete 'destroy'

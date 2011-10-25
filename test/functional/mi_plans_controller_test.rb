@@ -14,38 +14,48 @@ class MiPlansControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      should 'create MiPlans with POST /mi_plans.json' do
-        Factory.create(:gene_cbx1)
-        assert_equal 0, MiPlan.count
+      context 'POST create' do
+        should 'create MiPlans' do
+          Factory.create(:gene_cbx1)
+          assert_equal 0, MiPlan.count
 
-        attributes = {
-          :marker_symbol => 'Cbx1',
-          :consortium_name => 'BaSH',
-          :priority => 'High'
-        }
-        post(:create, :mi_plan => attributes, :format => :json)
-        assert_response :success, response.body
+          attributes = {
+            :marker_symbol => 'Cbx1',
+            :consortium_name => 'BaSH',
+            :priority => 'High'
+          }
+          post(:create, :mi_plan => attributes, :format => :json)
+          assert_response :success, response.body
 
-        plan = MiPlan.first
-        assert_equal plan.as_json, JSON.parse(response.body)
-      end
-
-      should 'return errors when creating MiPlans with POST /mi_plans.json' do
-        assert_no_difference('MiPlan.count') do
-          post(
-            :create,
-            :mi_plan => {
-              :consortium_name => 'BaSH',
-              :priority => 'High'
-            },
-            :format => :json
-          )
+          plan = MiPlan.first
+          assert_equal plan.as_json, JSON.parse(response.body)
         end
-        assert_response 422
-        assert_equal ['cannot be blank'], JSON.parse(response.body)['marker_symbol']
+
+        should 'return errors when creating MiPlans' do
+          assert_no_difference('MiPlan.count') do
+            post(
+              :create,
+              :mi_plan => {
+                :consortium_name => 'BaSH',
+                :priority => 'High'
+              },
+              :format => :json
+            )
+          end
+          assert_response 422
+          assert_equal ['cannot be blank'], JSON.parse(response.body)['marker_symbol']
+        end
+
+        should 'return redirect with id of MiPlan to edit in body as JSON when trying to create duplicate-but-with-production-centre to existing one' do
+          mi_plan = Factory.create :mi_plan
+          assert_no_difference(proc{MiPlan.count}) do
+            put :update, :id => mi_plan.id, :mi_plan => {:priority => nil}
+          end
+          assert /^3\d\d$/, response.status
+        end
       end
 
-      context 'when deleting via JSON' do
+      context 'when deleting via JSON with DELETE destroy' do
         should 'work' do
           mip = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
           assert_difference('MiPlan.count', -1) do
@@ -124,7 +134,7 @@ class MiPlansControllerTest < ActionController::TestCase
         end
       end
 
-      context 'GET show => /mi_plan/:id.json' do
+      context 'GET show' do
         should 'find valid one' do
           mi_plan = Factory.create :mi_plan_with_production_centre,
                   :mi_plan_status => MiPlanStatus[:Assigned]
@@ -136,6 +146,36 @@ class MiPlansControllerTest < ActionController::TestCase
         should 'return error on non-valid one' do
           get :show, :id => 33, :format => :json
           ! assert response.success?
+        end
+      end
+
+      context 'PUT update' do
+        should 'update with valid params' do
+          mi_plan = Factory.create :mi_plan,
+                  :mi_plan_priority => MiPlanPriority.find_by_name!('High')
+          put :update, :id => mi_plan.id, :format => :json,
+                  :mi_plan => {:production_centre_name => 'WTSI', :priority => 'High'}
+          assert response.success?
+          mi_plan.reload
+          assert_equal ['WTSI', 'High'],
+                  [mi_plan.production_centre_name, mi_plan.priority]
+        end
+
+        should 'return errors with invalid update' do
+          mi_plan = Factory.create :mi_plan
+          assert_no_difference('MiPlan.count') do
+            put :update, :id => mi_plan.id, :mi_plan => {:priority => 'Nonexistent'},
+                    :format => :json
+          end
+          assert_match /^4\d\d$/, response.status.to_s
+        end
+
+        should 'return errors if id not found' do
+          assert_no_difference('MiPlan.count') do
+            put :update, :id => '99999', :mi_plan => {:priority => 'Nonexistent'},
+                    :format => :json
+          end
+          assert_match /^4\d\d$/, response.status.to_s
         end
       end
     end

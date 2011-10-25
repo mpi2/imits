@@ -30,6 +30,16 @@ class MiPlansController < ApplicationController
     respond_with @mi_plan
   end
 
+  def update
+    @mi_plan = MiPlan.find_by_id(params[:id])
+    if ! @mi_plan
+      render(:json => 'mi_plan not found', :status => 422)
+    else
+      @mi_plan.update_attributes params[:mi_plan]
+      respond_with @mi_plan
+    end
+  end
+
   def destroy
     @mi_plan = nil
 

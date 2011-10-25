@@ -9,7 +9,7 @@ Ext.define('Imits.model.MiPlan', {
         persist: false
     },
     {
-        name: 'es_cell_marker_symbol',
+        name: 'marker_symbol',
         persist: false
     },
     {

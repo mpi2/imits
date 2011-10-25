@@ -25,6 +25,13 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
             items: [
             {
+                id: 'marker_symbol',
+                xtype: 'textfield',
+                fieldLabel: 'Gene marker symbol',
+                name: 'marker_symbol',
+                readOnly: true
+            },
+            {
                 id: 'consortium_name',
                 xtype: 'textfield',
                 fieldLabel: 'Consortium',
@@ -38,6 +45,20 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 name: 'production_centre_name',
                 storeOptionsAreSpecial: true,
                 store: window.CENTRE_COMBO_OPTS
+            },
+            {
+                id: 'status',
+                xtype: 'textfield',
+                fieldLabel: 'Status',
+                name: 'status',
+                readOnly: true
+            },
+            {
+                id: 'priority',
+                xtype: 'simplecombo',
+                fieldLabel: 'Priority',
+                name: 'priority',
+                store: window.PRIORITY_COMBO_OPTS
             }
             ],
 
@@ -67,6 +88,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             {
                 xtype: 'button',
                 text: 'Delete',
+                width: 60,
                 handler: function(button) {
                     editor.setLoading(true);
                     editor.miPlan.destroy({
@@ -96,7 +118,18 @@ Ext.define('Imits.widget.MiPlanEditor', {
         Imits.model.MiPlan.load(miPlanId, {
             success: function(miPlan) {
                 editor.miPlan = miPlan;
-                editor.form.getComponent('consortium_name').setValue(miPlan.get('consortium_name'));
+                Ext.each([
+                    'marker_symbol',
+                    'consortium_name',
+                    'production_centre_name',
+                    'status',
+                    'priority'
+                    ], function(attr) {
+                        var component = editor.form.getComponent(attr);
+                        if(component) {
+                            component.setValue(miPlan.get(attr));
+                        }
+                    });
                 editor.show();
             }
         });

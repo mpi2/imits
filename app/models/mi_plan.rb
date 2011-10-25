@@ -2,8 +2,6 @@
 
 class MiPlan < ActiveRecord::Base
   INTERFACE_ATTRIBUTES = [
-    'marker_symbol',
-    'consortium_name',
     'production_centre_name',
     'priority'
   ]
@@ -211,7 +209,8 @@ class MiPlan < ActiveRecord::Base
   def as_json(options = {})
     options.symbolize_keys!
 
-    options[:methods] = INTERFACE_ATTRIBUTES + ['status']
+    options[:methods] =
+            INTERFACE_ATTRIBUTES + ['marker_symbol', 'consortium_name', 'status']
     options[:only] = ['id'] + options[:methods]
     return super(options)
   end

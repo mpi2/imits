@@ -16,7 +16,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
         this.form = Ext.create('Ext.form.Panel', {
             ui: 'plain',
-            // border below
+            margin: '0 0 10 0',
 
             layout: 'anchor',
             defaults: {
@@ -82,8 +82,8 @@ Ext.define('Imits.widget.MiPlanEditor', {
             {
                 xtype: 'label',
                 text: "Delete interest?",
-                cls: 'x-form-item-label'
-            // border right
+                cls: 'x-form-item-label',
+                margin: '0 5 0 0'
             },
             {
                 xtype: 'button',

@@ -26,8 +26,13 @@ class MiPlansController < ApplicationController
   end
 
   def create
-    @mi_plan = MiPlan.create(params[:mi_plan])
-    respond_with @mi_plan
+    overlapping = MiPlan.check_overlapping(params[:mi_plan])
+    if overlapping
+      render(:json => {:id => overlapping.id}, :status => 301)
+    else
+      @mi_plan = MiPlan.create(params[:mi_plan])
+      respond_with @mi_plan
+    end
   end
 
   def update

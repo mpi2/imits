@@ -47,11 +47,18 @@ class MiPlansControllerTest < ActionController::TestCase
         end
 
         should 'return redirect with id of MiPlan to edit in body as JSON when trying to create duplicate-but-with-production-centre to existing one' do
-          mi_plan = Factory.create :mi_plan
-          assert_no_difference(proc{MiPlan.count}) do
-            put :update, :id => mi_plan.id, :mi_plan => {:priority => nil}
+          cbx1 = Factory.create :gene_cbx1
+          mi_plan = Factory.create :mi_plan, :gene => cbx1, :consortium => Consortium.first, :production_centre => nil
+          assert_no_difference('MiPlan.count') do
+            post :create, :mi_plan => {
+              :marker_symbol => 'Cbx1',
+              :consortium_name => mi_plan.consortium_name,
+              :production_centre_name => Centre.first.name,
+              :priority => 'High'
+            }, :format => :json
           end
-          assert /^3\d\d$/, response.status
+          assert_response 301, response.body
+          assert_equal({'id' => mi_plan.id}, JSON.parse(response.body))
         end
       end
 

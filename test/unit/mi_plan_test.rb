@@ -197,6 +197,8 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'limit the public mass-assignment API' do
         expected = [
+          'marker_symbol',
+          'consortium_name',
           'production_centre_name',
           'priority'
         ]

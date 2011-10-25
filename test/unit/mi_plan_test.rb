@@ -539,27 +539,27 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
-    context '::check_overlapping' do
-      should 'return the one with the same marker symbol and consortium' do
+    context '::check_for_upgradeable' do
+      should 'return the one with the same marker symbol and consortium but no production centre' do
         gene = Factory.create :gene_cbx1
         consortium = Consortium.find_by_name!('BaSH')
-        centre = Centre.find_by_name!('WTSI')
         plan = Factory.create :mi_plan, :gene => gene, :consortium => consortium,
-                :production_centre => centre
+                :production_centre => nil
 
-        got = MiPlan.check_overlapping(:marker_symbol => gene.marker_symbol,
-          :consortium_name => consortium.name)
+        got = MiPlan.check_for_upgradeable(:marker_symbol => gene.marker_symbol,
+          :consortium_name => consortium.name, :production_centre_name => 'WTSI')
         assert_equal plan, got
       end
 
-      should 'not return if no match' do
+      should 'return nil if no match' do
         cbx1 = Factory.create :gene_cbx1
         bash = Consortium.find_by_name!('BaSH')
-        Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),
-                :consortium => bash, :gene => cbx1
+        wtsi = Centre.find_by_name!('WTSI')
+        Factory.create :mi_plan, :gene => cbx1, :consortium => bash,
+                :production_centre => wtsi
 
-        got = MiPlan.check_overlapping(:marker_symbol => cbx1.marker_symbol,
-          :consortium_name => 'DTCC')
+        got = MiPlan.check_for_upgradeable(:marker_symbol => cbx1.marker_symbol,
+          :consortium_name => bash, :production_centre_name => 'ICS')
         assert_nil got
       end
     end

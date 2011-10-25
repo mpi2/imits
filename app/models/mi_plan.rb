@@ -216,10 +216,11 @@ class MiPlan < ActiveRecord::Base
     return super(options)
   end
 
-  def self.check_overlapping(params)
+  def self.check_for_upgradeable(params)
     params = params.symbolize_keys
     return self.search(:gene_marker_symbol_eq => params[:marker_symbol],
-      :consortium_name_eq => params[:consortium_name]).result.first
+      :consortium_name_eq => params[:consortium_name],
+      :production_centre_null => true).result.first
   end
 end
 

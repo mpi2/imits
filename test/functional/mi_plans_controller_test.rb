@@ -166,6 +166,7 @@ class MiPlansControllerTest < ActionController::TestCase
           mi_plan.reload
           assert_equal ['WTSI', 'High'],
                   [mi_plan.production_centre_name, mi_plan.priority]
+          assert_equal mi_plan.as_json, JSON.parse(response.body)
         end
 
         should 'return errors with invalid update' do

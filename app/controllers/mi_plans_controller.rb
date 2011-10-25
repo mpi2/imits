@@ -41,7 +41,7 @@ class MiPlansController < ApplicationController
       render(:json => 'mi_plan not found', :status => 422)
     else
       @mi_plan.update_attributes params[:mi_plan]
-      respond_with @mi_plan
+      render :json => @mi_plan
     end
   end
 

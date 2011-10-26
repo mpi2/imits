@@ -76,9 +76,10 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
       should 'allow users to enter interest records (mi_plans)' do
         visit '/mi_plans/gene_selection'
 
-        fill_in find('#consortiumCombobox input')[:id], :with => 'Helmholtz GMC'
-        fill_in find('#productionCentreCombobox input')[:id], :with => 'HMGU'
-        fill_in find('#priorityCombobox input')[:id], :with => 'High'
+        page.execute_script("Ext.ComponentManager.get('consortiumCombobox').setValue('Helmholtz GMC')")
+        page.execute_script("Ext.ComponentManager.get('production_centreCombobox').setValue('HMGU')")
+        page.execute_script("Ext.ComponentManager.get('priorityCombobox').setValue('High')")
+
         find('.x-grid-row-checker:first').click
         find('#register_interest_button button').click
 
@@ -96,9 +97,9 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         visit '/mi_plans/gene_selection'
 
-        fill_in find('#consortium_combobox input')[:id], :with => 'BaSH'
-        fill_in find('#production_centre_combobox input')[:id], :with => ''
-        fill_in find('#priority_combobox input')[:id], :with => 'Low'
+        page.execute_script("Ext.ComponentManager.get('consortiumCombobox').setValue('BaSH')")
+        page.execute_script("Ext.ComponentManager.get('priorityCombobox').setValue('Low')")
+
         find('.x-grid-row-checker:first').click
         find('#register_interest_button button').click
 

@@ -169,6 +169,10 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      should 'have #es_cells_starting_qc' do
+        assert_should have_db_column(:es_cells_starting_qc).of_type(:integer)
+      end
+
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
         mip = Factory.build :mi_plan
         assert mip.save

@@ -236,6 +236,7 @@ end
 #  production_centre_id :integer
 #  created_at           :datetime
 #  updated_at           :datetime
+#  es_cells_starting_qc :integer
 #
 # Indexes
 #

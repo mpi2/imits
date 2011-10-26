@@ -177,6 +177,7 @@ class MiPlansControllerTest < ActionController::TestCase
             put :update, :id => mi_plan.id, :mi_plan => {:priority => 'Nonexistent'},
                     :format => :json
           end
+          assert_equal({'priority' => ["'Nonexistent' does not exist"]}, parse_json_from_response)
           assert_match /^4\d\d$/, response.status.to_s
         end
 

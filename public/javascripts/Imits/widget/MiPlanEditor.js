@@ -91,6 +91,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             },
             {
                 xtype: 'button',
+                id: 'delete-button',
                 text: 'Delete',
                 width: 60,
                 handler: function(button) {

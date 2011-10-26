@@ -84,8 +84,8 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         sleep 3
 
-        assert page.has_css?('a.delete-mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
-        assert_equal 1, all('a.delete-mi-plan').size
+        assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
+        assert_equal 1, all('a.mi-plan').size
 
         mi_plans = MiPlan.where(
           :consortium_id => Consortium.find_by_name!('Helmholtz GMC').id,
@@ -104,8 +104,8 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         sleep 5
 
-        assert_equal 2, all('a.delete-mi-plan').size
-        assert page.has_css?('a.delete-mi-plan', :text => '[BaSH:Interest]')
+        assert_equal 2, all('a.mi-plan').size
+        assert page.has_css?('a.mi-plan', :text => '[BaSH:Interest]')
 
         mi_plans = MiPlan.where( :consortium_id => Consortium.find_by_name!('BaSH').id )
         assert_equal 1, mi_plans.count
@@ -123,14 +123,11 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         sleep 3
 
-        assert page.has_css?('a.delete-mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
-        assert_equal 1, all('a.delete-mi-plan').size
+        assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
+        assert_equal 1, all('a.mi-plan').size
 
-        find('a.delete-mi-plan').click
-
-        assert page.driver.browser.switch_to.alert.text.include?('[Helmholtz GMC:HMGU:Interest]')
-
-        page.driver.browser.switch_to.alert.accept
+        find('a.mi-plan').click
+        find('#delete-button').click
 
         sleep 3
         assert_nil MiPlan.find_by_id(mi_plan_id)

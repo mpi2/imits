@@ -114,12 +114,12 @@ a.back {
   background-image: url('../images/icons/control_rewind.png');
 }
 
-a.delete-mi-plan {
+a.mi-plan {
   display: inline-block;
   margin-bottom: 2px;
 }
 
-a.delete-mi-plan:hover {
+a.mi-plan:hover {
   color: #8f110b;
 }
 

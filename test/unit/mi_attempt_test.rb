@@ -113,7 +113,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should ', when assigned the same as current status, not add a status stamp' do
-          default_mi_attempt.update_attributes!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
+          default_mi_attempt.mi_attempt_status = MiAttemptStatus.micro_injection_in_progress; default_mi_attempt.save!
           assert_equal [MiAttemptStatus.micro_injection_in_progress],
                   default_mi_attempt.status_stamps.map(&:mi_attempt_status)
         end
@@ -654,7 +654,8 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         context 'on update' do
           setup do
-            default_mi_attempt.mi_plan.update_attributes!(:status => 'Inactive')
+            default_mi_attempt.mi_plan.status = 'Inactive'
+            default_mi_attempt.mi_plan.save!
             default_mi_attempt.update_attributes!(:is_active => false)
             default_mi_attempt.reload
           end
@@ -663,12 +664,12 @@ class MiAttemptTest < ActiveSupport::TestCase
             default_mi_attempt.update_attributes!(:is_active => true)
             default_mi_attempt.save!
             default_mi_attempt.reload
-            assert_equal MiPlanStatus[:Assigned], default_mi_attempt.mi_plan.mi_plan_status
+            assert_equal 'Assigned', default_mi_attempt.mi_plan.status
           end
 
           should 'not set its status to Assigned if MI attempt is not becoming active again' do
             default_mi_attempt.save!
-            assert_equal 'Inactive', default_mi_attempt.mi_plan.mi_plan_status.name
+            assert_equal 'Inactive', default_mi_attempt.mi_plan.status
           end
         end
 

@@ -75,17 +75,17 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#mi_plan_status=' do
         should 'create status stamps when status is changed' do
-          @default_mi_plan.update_attributes!(:status => 'Conflict')
-          @default_mi_plan.update_attributes!(:status => 'Assigned')
-          @default_mi_plan.update_attributes!(:status => 'Interest')
+          @default_mi_plan.status = 'Conflict'; @default_mi_plan.save!
+          @default_mi_plan.status = 'Assigned'; @default_mi_plan.save!
+          @default_mi_plan.status = 'Interest'; @default_mi_plan.save!
 
           expected = ['Interest', 'Conflict', 'Assigned', 'Interest']
           assert_equal expected, @default_mi_plan.status_stamps.map{|i| i.mi_plan_status.name}
         end
 
         should 'not add the same status stamp consecutively' do
-          @default_mi_plan.update_attributes!(:status => 'Interest')
-          @default_mi_plan.update_attributes!(:status => 'Interest')
+          @default_mi_plan.status = 'Interest'; @default_mi_plan.save!
+          @default_mi_plan.status = 'Interest'; @default_mi_plan.save!
 
           assert_equal ['Interest'], @default_mi_plan.status_stamps.map{|i|i.mi_plan_status.name}
         end

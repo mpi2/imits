@@ -2,7 +2,7 @@
 function splitMiString(mi_string) {
     var mis = [];
     var pattern = /^\[(.+)\:(.+)\:(\d+)\]$/;
-    Ext.Array.each( mi_string.split('<br/>'), function(mi) {
+    Ext.Array.each(mi_string.split('<br/>'), function(mi) {
         var match = pattern.exec(mi);
         mis.push({
             consortium: match[1],
@@ -15,10 +15,10 @@ function splitMiString(mi_string) {
 
 function printMiPlanString(mi_plan) {
     var str = '[' + mi_plan['consortium'];
-    if ( !Ext.isEmpty(mi_plan['production_centre']) ) {
+    if (!Ext.isEmpty(mi_plan['production_centre'])) {
         str = str + ':' + mi_plan['production_centre'];
     }
-    if ( !Ext.isEmpty(mi_plan['status']) ) {
+    if (!Ext.isEmpty(mi_plan['status'])) {
         str = str + ':' + mi_plan['status'];
     }
     str = str + ']';
@@ -58,7 +58,7 @@ Ext.define('Imits.widget.GeneGrid', {
         dataIndex: 'marker_symbol',
         readOnly: true,
         renderer: function(symbol) {
-            return Ext.String.format('<a href="http://www.knockoutmouse.org/martsearch/search?query={0}" target="_blank">{0}</a>', symbol)
+            return Ext.String.format('<a href="http://www.knockoutmouse.org/martsearch/search?query={0}" target="_blank">{0}</a>', symbol);
         }
     },
     {

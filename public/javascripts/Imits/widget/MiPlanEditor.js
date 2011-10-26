@@ -10,6 +10,13 @@ Ext.define('Imits.widget.MiPlanEditor', {
     layout: 'fit',
     closeAction: 'hide',
 
+    constructor: function(config) {
+        if(Ext.isIE7 || Ext.isIE8) {
+            config.width = 300;
+        }
+        return this.callParent([config]);
+    },
+
     initComponent: function() {
         var editor = this;
         this.callParent();
@@ -74,7 +81,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 handler: function() {
                     editor.hide();
                 }
-            },
+            }
             ]
         });
 

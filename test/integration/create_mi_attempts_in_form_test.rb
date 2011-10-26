@@ -29,9 +29,9 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       sleep 3
 
       assert_match /\/mi_attempts\/\d+$/, current_url
-      mi_attempt = MiAttempt.find_by_colony_name('MZSQ')
+      mi_attempt = MiAttempt.find_by_colony_name!('MZSQ')
       assert_equal mi_attempt.colony_name, page.find('input[name="mi_attempt[colony_name]"]').value
-      assert_equal mi_attempt.consortium_name, page.find('select[name="mi_attempt[consortium_name]"]').value
+      assert page.has_content? mi_attempt.consortium_name
       assert_equal default_user.email, mi_attempt.updated_by.email
     end
 

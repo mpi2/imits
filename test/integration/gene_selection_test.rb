@@ -76,9 +76,9 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
       should 'allow users to enter interest records (mi_plans)' do
         visit '/mi_plans/gene_selection'
 
-        fill_in find('#consortium_combobox input')[:id], :with => 'Helmholtz GMC'
-        fill_in find('#production_centre_combobox input')[:id], :with => 'HMGU'
-        fill_in find('#priority_combobox input')[:id], :with => 'High'
+        fill_in find('#consortiumCombobox input')[:id], :with => 'Helmholtz GMC'
+        fill_in find('#productionCentreCombobox input')[:id], :with => 'HMGU'
+        fill_in find('#priorityCombobox input')[:id], :with => 'High'
         find('.x-grid-row-checker:first').click
         find('#register_interest_button button').click
 

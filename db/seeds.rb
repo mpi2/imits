@@ -32,20 +32,20 @@ end
 end
 
 {
-  'BaSH'            => ['KOMP2','Baylor, Sanger, Harwell'],
-  'DTCC'            => ['KOMP2','Davis-Toronto-Charles River-CHORI'],
-  'DTCC-KOMP'       => ['KOMP','Davis-Toronto-Charles River-CHORI'],
-  'EUCOMM-EUMODIC'  => ['EUCOMM / EUMODIC',nil],
-  'Helmholtz GMC'   => ['Infrafrontier/BMBF','Helmholtz Muenchen'],
-  'JAX'             => ['KOMP2','The Jackson Laboratory'],
-  'MARC'            => ['China','Model Animarl Research Centre, Nanjing University'],
-  'MGP'             => ['Wellcome Trust','Mouse Genetics Project, WTSI'],
-  'MGP-KOMP'        => ['KOMP / Wellcome Trust','Mouse Genetics Project, WTSI'],
-  'Monterotondo'    => ['European Union','Monterotondo Institute for Cell Biology (CNR)'],
-  'MRC'             => ['MRC','MRC - Harwell'],
-  'NorCOMM2'        => ['Genome Canada','NorCOMM2'],
-  'Phenomin'        => ['Phenomin','ICS'],
-  'RIKEN BRC'       => ['Japanese government','RIKEN BRC']
+  'BaSH'            => ['KOMP2', 'Baylor, Sanger, Harwell'],
+  'DTCC'            => ['KOMP2', 'Davis-Toronto-Charles River-CHORI'],
+  'DTCC-KOMP'       => ['KOMP', 'Davis-Toronto-Charles River-CHORI'],
+  'EUCOMM-EUMODIC'  => ['EUCOMM / EUMODIC', nil],
+  'Helmholtz GMC'   => ['Infrafrontier/BMBF', 'Helmholtz Muenchen'],
+  'JAX'             => ['KOMP2', 'The Jackson Laboratory'],
+  'MARC'            => ['China', 'Model Animarl Research Centre, Nanjing University'],
+  'MGP'             => ['Wellcome Trust', 'Mouse Genetics Project, WTSI'],
+  'MGP-KOMP'        => ['KOMP / Wellcome Trust', 'Mouse Genetics Project, WTSI'],
+  'Monterotondo'    => ['European Union', 'Monterotondo Institute for Cell Biology (CNR)'],
+  'MRC'             => ['MRC', 'MRC - Harwell'],
+  'NorCOMM2'        => ['Genome Canada', 'NorCOMM2'],
+  'Phenomin'        => ['Phenomin', 'ICS'],
+  'RIKEN BRC'       => ['Japanese government', 'RIKEN BRC']
 }.each do |name,details|
   cons = Consortium.find_or_create_by_name(:name => name)
   if cons.funding.blank?
@@ -76,20 +76,19 @@ end
 end
 
 {
-  'Interest'               => [10,'Interest - A consortium has expressed an intrest to micro-inject this gene'],
-  'Conflict'               => [20,'Conflict - More than one consortium has expressed an intrest in micro-injecting this gene'],
-  'Declined - GLT Mouse'   => [30,'Declined - A GLT mouse is already recorded in iMits'],
-  'Declined - MI Attempt'  => [40,'Declined - An active micro-injection attempt is already in progress'],
-  'Declined - Conflict'    => [50,'Declined - This gene is already assigned in another planned micro-injection'],
-  'Assigned'               => [60,'Assigned - A single consortium has expressed an intrest in injecting this gene'],
-  'Inactive'               => [70,'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up']
+  'Interest'               => [10, 'Interest - A consortium has expressed an interest to micro-inject this gene'],
+  'Conflict'               => [20, 'Conflict - More than one consortium has expressed an intrest in micro-injecting this gene'],
+  'Declined - GLT Mouse'   => [30, 'Declined - A GLT mouse is already recorded in iMits'],
+  'Declined - MI Attempt'  => [40, 'Declined - An active micro-injection attempt is already in progress'],
+  'Declined - Conflict'    => [50, 'Declined - This gene is already assigned in another planned micro-injection'],
+  'Assigned'               => [60, 'Assigned - A single consortium has expressed an intrest in injecting this gene'],
+  'ES QC in Progress'      => [70, 'ES QC in Progress - The ES cell is currently being QCed by the production centre'],
+  'Inactive'               => [90, 'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up']
 }.each do |name,details|
   mi_plan_status = MiPlanStatus.find_or_create_by_name(:name => name)
-  if mi_plan_status.description.blank?
-    mi_plan_status.description = details[1]
-    mi_plan_status.order_by = details[0]
-    mi_plan_status.save!
-  end
+  mi_plan_status.description = details[1]
+  mi_plan_status.order_by = details[0]
+  mi_plan_status.save! if mi_plan_status.changed?
 end
 
 

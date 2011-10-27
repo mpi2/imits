@@ -66,14 +66,21 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 fieldLabel: 'Priority',
                 name: 'priority',
                 store: window.PRIORITY_COMBO_OPTS
+            },
+            {
+                id: 'number_of_es_cells_starting_qc',
+                xtype: 'simplenumberfield',
+                fieldLabel: '# of ES Cells starting QC',
+                name: 'number_of_es_cells_starting_qc'
             }
             ],
 
             buttons: [
             {
                 text: 'Update',
-                handler: function() {
-                    editor.updateAndHide();
+                handler: function(button) {
+                    button.disable();
+                    editor.updateAndHide(function() {button.enable();});
                 }
             },
             {
@@ -120,7 +127,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         });
 
         this.add(Ext.create('Ext.panel.Panel', {
-            height: 280,
+            height: 300,
             ui: 'plain',
             layout: {
                 type: 'vbox',
@@ -146,7 +153,8 @@ Ext.define('Imits.widget.MiPlanEditor', {
                     'consortium_name',
                     'production_centre_name',
                     'status',
-                    'priority'
+                    'priority',
+                    'number_of_es_cells_starting_qc'
                     ], function(attr) {
                         var component = editor.form.getComponent(attr);
                         if(component) {
@@ -158,11 +166,12 @@ Ext.define('Imits.widget.MiPlanEditor', {
         });
     },
 
-    updateAndHide: function() {
+    updateAndHide: function(callbackOnceHidden) {
         var editor = this;
         Ext.each([
             'production_centre_name',
-            'priority'
+            'priority',
+            'number_of_es_cells_starting_qc'
             ], function(attr) {
                 var component = editor.form.getComponent(attr);
                 if(component) {
@@ -173,6 +182,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         editor.miPlan.save({
             success: function() {
                 editor.hide();
+                callback.call();
             }
         });
     }

@@ -94,7 +94,10 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
         var deleteContainer = Ext.create('Ext.panel.Panel', {
             ui: 'plain',
-            layout: 'hbox',
+            layout: {
+                type: 'hbox',
+                align: 'stretchmax'
+            },
             margin: '0 0 10 0',
             items: [
             {
@@ -121,11 +124,6 @@ Ext.define('Imits.widget.MiPlanEditor', {
             ]
         });
 
-        this.statusBar = Ext.create('Ext.panel.Panel', {
-            ui: 'plain',
-            html: window.NO_BREAK_SPACE
-        });
-
         this.add(Ext.create('Ext.panel.Panel', {
             height: 300,
             ui: 'plain',
@@ -136,8 +134,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             padding: 15,
             items: [
             this.form,
-            deleteContainer,
-            this.statusBar
+            deleteContainer
             ]
         }));
     },
@@ -182,7 +179,11 @@ Ext.define('Imits.widget.MiPlanEditor', {
         editor.miPlan.save({
             success: function() {
                 editor.hide();
-                callback.call();
+                callbackOnceHidden.call();
+            },
+
+            failure: function() {
+                callbackOnceHidden.call();
             }
         });
     }

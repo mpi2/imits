@@ -36,7 +36,7 @@ class MiPlan < ActiveRecord::Base
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
   validates :number_of_es_cells_starting_qc, :presence => {
     :on => :update,
-    :if => proc {|p| p.changed.include?('number_of_es_cells_starting_qc') },
+    :if => proc {|p| p.changed.include?('number_of_es_cells_starting_qc')},
     :message => 'cannot be unset after being set'
   }
 

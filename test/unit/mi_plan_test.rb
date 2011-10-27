@@ -169,8 +169,8 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      should 'have #es_cells_starting_qc' do
-        assert_should have_db_column(:es_cells_starting_qc).of_type(:integer)
+      should 'have #number_of_es_cells_starting_qc' do
+        assert_should have_db_column(:number_of_es_cells_starting_qc).of_type(:integer)
       end
 
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
@@ -204,7 +204,8 @@ class MiPlanTest < ActiveSupport::TestCase
           'marker_symbol',
           'consortium_name',
           'production_centre_name',
-          'priority'
+          'priority',
+          'number_of_es_cells_starting_qc'
         ]
         got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
         assert_equal expected.sort, got.sort
@@ -217,7 +218,8 @@ class MiPlanTest < ActiveSupport::TestCase
           'consortium_name',
           'production_centre_name',
           'priority',
-          'status'
+          'status',
+          'number_of_es_cells_starting_qc'
         ]
         got = @default_mi_plan.as_json.keys
         assert_equal expected.sort, got.sort

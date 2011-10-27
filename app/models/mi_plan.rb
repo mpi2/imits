@@ -5,7 +5,8 @@ class MiPlan < ActiveRecord::Base
     'marker_symbol',
     'consortium_name',
     'production_centre_name',
-    'priority'
+    'priority',
+    'number_of_es_cells_starting_qc'
   ]
   attr_accessible(*INTERFACE_ATTRIBUTES)
 
@@ -228,15 +229,15 @@ end
 #
 # Table name: mi_plans
 #
-#  id                   :integer         not null, primary key
-#  gene_id              :integer         not null
-#  consortium_id        :integer         not null
-#  mi_plan_status_id    :integer         not null
-#  mi_plan_priority_id  :integer         not null
-#  production_centre_id :integer
-#  created_at           :datetime
-#  updated_at           :datetime
-#  es_cells_starting_qc :integer
+#  id                             :integer         not null, primary key
+#  gene_id                        :integer         not null
+#  consortium_id                  :integer         not null
+#  mi_plan_status_id              :integer         not null
+#  mi_plan_priority_id            :integer         not null
+#  production_centre_id           :integer
+#  created_at                     :datetime
+#  updated_at                     :datetime
+#  number_of_es_cells_starting_qc :integer
 #
 # Indexes
 #

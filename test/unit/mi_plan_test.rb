@@ -169,8 +169,21 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      should 'have #number_of_es_cells_starting_qc' do
-        assert_should have_db_column(:number_of_es_cells_starting_qc).of_type(:integer)
+      context '#number_of_es_cells_starting_qc' do
+        should 'exist' do
+          assert_should have_db_column(:number_of_es_cells_starting_qc).of_type(:integer)
+        end
+
+        should 'validate non-blankness only it was previously set to a number' do
+          assert_equal nil, @default_mi_plan.number_of_es_cells_starting_qc
+          @default_mi_plan.number_of_es_cells_starting_qc = 5
+          @default_mi_plan.save!
+
+          @default_mi_plan.number_of_es_cells_starting_qc = nil
+          assert_false @default_mi_plan.save
+
+          assert ! @default_mi_plan.errors[:number_of_es_cells_starting_qc].blank?
+        end
       end
 
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do

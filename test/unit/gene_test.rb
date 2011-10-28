@@ -65,7 +65,6 @@ class GeneTest < ActiveSupport::TestCase
 
     context '::sync_with_remotes' do
       setup do
-        # Stub out the biomart calls
         dcc_gene_data = [
           {
             'mgi_accession_id' => 'MGI:11111',
@@ -87,7 +86,7 @@ class GeneTest < ActiveSupport::TestCase
           },
           {
             'mgi_accession_id' => 'MGI:33333',
-            'marker_symbol'    => 'FuBar',
+            'marker_symbol'    => 'GeneC',
             'ikmc_project'     => 'TIGM',
             'ikmc_project_id'  => 'weeeeeee'
           }
@@ -102,7 +101,7 @@ class GeneTest < ActiveSupport::TestCase
           }
         ]
 
-        dcc_gene_data_minus_one_gene = dcc_gene_data.reject{ |elm| elm['marker_symbol'] == 'FuBar' }
+        dcc_gene_data_minus_one_gene = dcc_gene_data.reject{ |elm| elm['marker_symbol'] == 'GeneC' }
 
         DCC_BIOMART.stubs(:search)
                .returns(dcc_gene_data)
@@ -142,18 +141,13 @@ class GeneTest < ActiveSupport::TestCase
         TARG_REP_BIOMART.stubs(:search).returns(targ_rep_clone_data)
       end
 
-      teardown do
-        DCC_BIOMART.unstub(:search)
-        TARG_REP_BIOMART.unstub(:search)
-      end
-
       should 'work' do
         assert_equal 0, Gene.all.count
 
         Gene.sync_with_remotes
         moo1   = Gene.find_by_marker_symbol('Moo1')
         quack2 = Gene.find_by_marker_symbol('Quack2')
-        fubar  = Gene.find_by_marker_symbol('FuBar')
+        gene_c  = Gene.find_by_marker_symbol('GeneC')
 
         assert_equal 3, Gene.all.count
         assert_equal 2, moo1.ikmc_projects_count
@@ -163,10 +157,10 @@ class GeneTest < ActiveSupport::TestCase
         assert_equal 1, quack2.deletion_es_cells_count
         assert_nil quack2.conditional_es_cells_count
         assert_nil quack2.non_conditional_es_cells_count
-        assert_nil fubar.ikmc_projects_count
-        assert_nil fubar.conditional_es_cells_count
-        assert_nil fubar.non_conditional_es_cells_count
-        assert_nil fubar.deletion_es_cells_count
+        assert_nil gene_c.ikmc_projects_count
+        assert_nil gene_c.conditional_es_cells_count
+        assert_nil gene_c.non_conditional_es_cells_count
+        assert_nil gene_c.deletion_es_cells_count
 
         Gene.sync_with_remotes
         moo1.reload
@@ -178,7 +172,7 @@ class GeneTest < ActiveSupport::TestCase
         moo1.reload
 
         assert_equal 2, Gene.all.count
-        assert_nil Gene.find_by_marker_symbol('FuBar')
+        assert_nil Gene.find_by_marker_symbol('GeneC')
         assert_equal 2, moo1.ikmc_projects_count
       end
     end

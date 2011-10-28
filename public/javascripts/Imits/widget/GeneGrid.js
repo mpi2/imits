@@ -99,7 +99,7 @@ Ext.define('Imits.widget.GeneGrid', {
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
             '<tpl for="assigned_mi_plans">',
-            '{[this.prettyPrintMiPlan(values)]}<br/>',
+            '<a class="mi-plan" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
             '</tpl>',
             {
                 prettyPrintMiPlan: printMiPlanString

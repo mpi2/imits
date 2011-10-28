@@ -78,6 +78,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
             buttons: [
             {
+                id: 'update-button',
                 text: '<strong>Update</strong>',
                 handler: function(button) {
                     button.disable();

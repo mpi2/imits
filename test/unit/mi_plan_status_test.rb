@@ -18,4 +18,16 @@ class MiPlanStatusTest < ActiveSupport::TestCase
     assert_equal MiPlanStatus.find_by_name!('Assigned'), MiPlanStatus['Assigned']
     assert_equal MiPlanStatus.find_by_name!('Conflict'), MiPlanStatus[:Conflict]
   end
+
+  should 'have ::all_non_assigned' do
+    expected = [
+      'Interest',
+      'Conflict',
+      'Declined - GLT Mouse',
+      'Declined - MI Attempt',
+      'Declined - Conflict',
+      'Inactive'
+    ].sort
+    assert_equal expected, MiPlanStatus.all_non_assigned.map(&:name).sort
+  end
 end

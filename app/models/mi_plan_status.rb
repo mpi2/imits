@@ -8,6 +8,17 @@ class MiPlanStatus < ActiveRecord::Base
   def self.[](name)
     return self.find_by_name!(name.to_s)
   end
+
+  def self.all_non_assigned
+    return [
+      MiPlanStatus['Inactive'],
+      MiPlanStatus['Interest'],
+      MiPlanStatus['Conflict'],
+      MiPlanStatus['Declined - GLT Mouse'],
+      MiPlanStatus['Declined - MI Attempt'],
+      MiPlanStatus['Declined - Conflict']
+    ]
+  end
 end
 
 # == Schema Information

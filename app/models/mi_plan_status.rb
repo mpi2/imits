@@ -18,6 +18,13 @@ class MiPlanStatus < ActiveRecord::Base
       MiPlanStatus['Declined - Conflict']
     ]
   end
+
+  def self.all_assigned
+    return [
+      MiPlanStatus['Assigned'],
+      MiPlanStatus['Assigned - ES Cell QC In Progress'],
+    ]
+  end
 end
 
 # == Schema Information

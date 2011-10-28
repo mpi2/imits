@@ -82,24 +82,22 @@ end
   'Declined - MI Attempt'  => [40, 'Declined - An active micro-injection attempt is already in progress'],
   'Declined - Conflict'    => [50, 'Declined - This gene is already assigned in another planned micro-injection'],
   'Assigned'               => [60, 'Assigned - A single consortium has expressed an intrest in injecting this gene'],
-  'ES QC in Progress'      => [70, 'ES QC in Progress - The ES cell is currently being QCed by the production centre'],
+  'Assigned - ES QC In Progress' => [70, 'Assigned - The ES cell is currently being QCed by the production centre'],
+  'Assigned - ES QC Complete'    => [80, 'Assigned - The ES cell is currently being QCed by the production centre'],
   'Inactive'               => [90, 'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up']
 }.each do |name,details|
-  mi_plan_status = MiPlanStatus.find_or_create_by_name(:name => name)
+  mi_plan_status = MiPlanStatus.find_or_create_by_name(name)
   mi_plan_status.description = details[1]
   mi_plan_status.order_by = details[0]
   mi_plan_status.save! if mi_plan_status.changed?
 end
 
-
 {
   'High'   => 'Estimated injection in the next 0-4 months',
   'Medium' => 'Estimated injection in the next 5-8 months',
   'Low'    => 'Estimated injection in the next 9-12 months'
-}.each do |priority, description|
-  mi_plan_priority = MiPlanPriority.find_or_create_by_name(:name => priority)
-  if mi_plan_priority.description.blank?
-    mi_plan_priority.description = description
-    mi_plan_priority.save!
-  end
+}.each do |name, description|
+  mi_plan_priority = MiPlanPriority.find_or_create_by_name(:name => name)
+  mi_plan_priority.description = description
+  mi_plan_priority.save! if mi_plan_priority.changed?
 end

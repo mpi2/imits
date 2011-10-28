@@ -12,7 +12,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
     constructor: function(config) {
         if(Ext.isIE7 || Ext.isIE8) {
-            config.width = 300;
+            config.width = 400;
         }
         return this.callParent([config]);
     },
@@ -24,6 +24,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         this.form = Ext.create('Ext.form.Panel', {
             ui: 'plain',
             margin: '0 0 10 0',
+            width: 350,
 
             layout: 'anchor',
             defaults: {
@@ -77,7 +78,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
             buttons: [
             {
-                text: 'Update',
+                text: '<strong>Update</strong>',
                 handler: function(button) {
                     button.disable();
                     editor.updateAndHide(function() {button.enable();});
@@ -112,6 +113,17 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 text: 'Delete',
                 width: 60,
                 handler: function(button) {
+                    button.hide();
+                    deleteContainer.getComponent('delete-confirmation-button').show();
+                }
+            },
+            {
+                xtype: 'button',
+                id: 'delete-confirmation-button',
+                text: 'Are you sure?',
+                width: 100,
+                hidden: true,
+                handler: function(button) {
                     editor.setLoading(true);
                     editor.miPlan.destroy({
                         success: function() {
@@ -119,6 +131,8 @@ Ext.define('Imits.widget.MiPlanEditor', {
                             editor.hide();
                         }
                     });
+                    button.hide();
+                    deleteContainer.getComponent('delete-button').show();
                 }
             }
             ]

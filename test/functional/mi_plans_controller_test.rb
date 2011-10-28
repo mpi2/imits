@@ -59,7 +59,7 @@ class MiPlansControllerTest < ActionController::TestCase
             }, :format => :json
           end
           assert_response 422, response.body
-          message = 'Cbx1 has already been selected to be injected on behalf of BaSH, please edit existing selection'
+          message = 'Cbx1 has already been selected by BaSH without a production centre, please add your production centre to that selection'
           assert_equal({'error' => message}, JSON.parse(response.body))
         end
       end

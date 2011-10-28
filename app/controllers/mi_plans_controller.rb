@@ -29,7 +29,7 @@ class MiPlansController < ApplicationController
     upgradeable = MiPlan.check_for_upgradeable(params[:mi_plan])
     if upgradeable
       message = "#{upgradeable.marker_symbol} has already been selected to be injected on behalf of #{upgradeable.consortium_name}, please edit existing selection"
-      render(:json => {:id => upgradeable.id, :message => message}, :status => 422)
+      render(:json => {'error' => message}, :status => 422)
     else
       @mi_plan = MiPlan.create(params[:mi_plan])
       respond_with @mi_plan

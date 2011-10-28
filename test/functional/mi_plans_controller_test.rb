@@ -60,7 +60,7 @@ class MiPlansControllerTest < ActionController::TestCase
           end
           assert_response 422, response.body
           message = 'Cbx1 has already been selected to be injected on behalf of BaSH, please edit existing selection'
-          assert_equal({'message' => message}, JSON.parse(response.body))
+          assert_equal({'error' => message}, JSON.parse(response.body))
         end
       end
 

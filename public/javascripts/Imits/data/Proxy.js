@@ -41,8 +41,9 @@ Ext.define('Imits.data.Proxy', {
                             } else if (Ext.isArray) {
                                 errorString += values.join(", ");
                             }
+                            errorStrings.push(errorString);
                         });
-                        return errorString;
+                        return errorStrings.join("<br/>");
                     };
                     Ext.MessageBox.show({
                         title: 'Error',

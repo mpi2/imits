@@ -25,8 +25,7 @@ class MiPlanStatusTest < ActiveSupport::TestCase
       'Conflict',
       'Declined - GLT Mouse',
       'Declined - MI Attempt',
-      'Declined - Conflict',
-      'Inactive'
+      'Declined - Conflict'
     ].sort
     assert_equal expected, MiPlanStatus.all_non_assigned.map(&:name).sort
   end

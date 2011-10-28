@@ -11,7 +11,6 @@ class MiPlanStatus < ActiveRecord::Base
 
   def self.all_non_assigned
     return [
-      MiPlanStatus['Inactive'],
       MiPlanStatus['Interest'],
       MiPlanStatus['Conflict'],
       MiPlanStatus['Declined - GLT Mouse'],

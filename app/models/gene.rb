@@ -95,7 +95,7 @@ class Gene < ActiveRecord::Base
   # == Assigned MiPlans
 
   def self.assigned_mi_plans_in_bulk(gene_id=nil)
-    sql = <<-SQL
+    sql = <<-"SQL"
       select distinct
         mi_plans.id,
         genes.marker_symbol,
@@ -107,7 +107,8 @@ class Gene < ActiveRecord::Base
       join consortia on mi_plans.consortium_id = consortia.id
       left join centres on mi_plans.production_centre_id = centres.id
       left join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
-      where mi_plan_statuses.name = 'Assigned'
+      where mi_plan_statuses.name in
+        (#{MiPlanStatus.all_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
       and mi_attempts.id is null
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?

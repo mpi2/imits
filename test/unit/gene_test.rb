@@ -256,65 +256,49 @@ class GeneTest < ActiveSupport::TestCase
       end
     end
 
+    def setup_for_assigned_mi_plans_tests
+      @gene = Factory.create :gene_cbx1
+
+      @bash_plan = Factory.create :mi_plan,
+              :gene => @gene,
+              :consortium => Consortium.find_by_name!('BaSH'),
+              :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+
+      @mgp_plan = Factory.create :mi_plan,
+              :gene => @gene,
+              :consortium => Consortium.find_by_name!('MGP'),
+              :production_centre => Centre.find_by_name!('WTSI'),
+              :number_of_es_cells_starting_qc => 5
+
+      @marc_attempt = Factory.create :mi_attempt,
+              :es_cell => Factory.create(:es_cell, :gene => @gene),
+              :consortium_name => 'MARC',
+              :production_centre_name => 'MARC',
+              :is_active => true
+    end
+
     context '#assigned_mi_plans' do
       should 'work' do
-        gene = Factory.create :gene,
-                :marker_symbol => 'Moo1',
-                :mgi_accession_id => 'MGI:12345'
+        setup_for_assigned_mi_plans_tests
 
-        bash_plan = Factory.create :mi_plan,
-                :gene => gene,
-                :consortium => Consortium.find_by_name!('BaSH'),
-                :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
-
-        mgp_plan = Factory.create :mi_plan,
-                :gene => gene,
-                :consortium => Consortium.find_by_name!('MGP'),
-                :production_centre => Centre.find_by_name!('WTSI'),
-                :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
-
-        marc_attempt = Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MARC',
-                :production_centre_name => 'MARC',
-                :is_active => true
-
-        assert gene
-        assert_equal 3, gene.mi_plans.count
-        assert gene.assigned_mi_plans.include?({ :id => bash_plan.id, :consortium => 'BaSH', :production_centre => nil })
-        assert gene.assigned_mi_plans.include?({ :id => mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI' })
-        assert_false gene.assigned_mi_plans.include?({ :id => marc_attempt.mi_plan.id, :consortium => 'MARC', :production_centre => 'MARC' })
+        assert @gene
+        assert_equal 3, @gene.mi_plans.count
+        result = @gene.assigned_mi_plans
+        assert_include result, { :id => @bash_plan.id, :consortium => 'BaSH', :production_centre => nil }
+        assert_include result, { :id => @mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI' }
+        assert_not_include result, { :id => @marc_attempt.mi_plan.id, :consortium => 'MARC', :production_centre => 'MARC' }
       end
     end
 
     context '#pretty_print_assigned_mi_plans' do
       should 'work' do
-        gene = Factory.create :gene,
-                :marker_symbol => 'Moo1',
-                :mgi_accession_id => 'MGI:12345'
+        setup_for_assigned_mi_plans_tests
 
-        Factory.create :mi_plan,
-                :gene => gene,
-                :consortium => Consortium.find_by_name!('BaSH'),
-                :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
-
-        Factory.create :mi_plan,
-                :gene => gene,
-                :consortium => Consortium.find_by_name!('MGP'),
-                :production_centre => Centre.find_by_name!('WTSI'),
-                :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
-
-        Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MARC',
-                :production_centre_name => 'MARC',
-                :is_active => true
-
-        assert gene
-        assert_equal 3, gene.mi_plans.count
-        assert_match '[BaSH]', gene.pretty_print_assigned_mi_plans
-        assert_match '[MGP:WTSI]', gene.pretty_print_assigned_mi_plans
-        assert_false gene.pretty_print_assigned_mi_plans.include?('[MARC:MARC]')
+        assert_equal 3, @gene.mi_plans.count
+        result = @gene.pretty_print_assigned_mi_plans
+        assert_include result, '[BaSH]'
+        assert_include result, '[MGP:WTSI]'
+        assert_not_include result, '[MARC:MARC]'
       end
     end
 

@@ -14,6 +14,7 @@ class MiPlan < ActiveRecord::Base
   acts_as_reportable
 
   extend AccessAssociationByAttribute
+  include MiPlan::StatusChanger
 
   belongs_to :gene
   belongs_to :consortium
@@ -43,6 +44,7 @@ class MiPlan < ActiveRecord::Base
   # BEGIN Callbacks
 
   before_validation :set_default_mi_plan_status
+  before_validation :change_status
 
   before_save :record_if_status_was_changed
 

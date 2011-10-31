@@ -152,6 +152,12 @@ Ext.define('Imits.widget.MiPlanEditor', {
             deleteContainer
             ]
         }));
+
+        this.fields = this.form.items.keys;
+        this.updateableFields = this.form.items.filterBy(function (i) {
+            return i.readOnly != true;
+        }).keys;
+        console.log([this.fields, this.updateableFields]);
     },
 
     edit: function(miPlanId) {
@@ -160,14 +166,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         Imits.model.MiPlan.load(miPlanId, {
             success: function(miPlan) {
                 editor.miPlan = miPlan;
-                Ext.each([
-                    'marker_symbol',
-                    'consortium_name',
-                    'production_centre_name',
-                    'status',
-                    'priority',
-                    'number_of_es_cells_starting_qc'
-                    ], function(attr) {
+                Ext.each(editor.fields, function(attr) {
                         var component = editor.form.getComponent(attr);
                         if(component) {
                             component.setValue(editor.miPlan.get(attr));
@@ -180,11 +179,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
     updateAndHide: function(callbackOnceHidden) {
         var editor = this;
-        Ext.each([
-            'production_centre_name',
-            'priority',
-            'number_of_es_cells_starting_qc'
-            ], function(attr) {
+        Ext.each(this.updateableFields, function(attr) {
                 var component = editor.form.getComponent(attr);
                 if(component) {
                     editor.miPlan.set(attr, component.getValue());

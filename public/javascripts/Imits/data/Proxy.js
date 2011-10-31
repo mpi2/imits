@@ -34,7 +34,7 @@ Ext.define('Imits.data.Proxy', {
                         var errorStrings = [];
                         Ext.Object.each(errors, function (key, values) {
                             var errorString =
-                                Ext.String.capitalize(key).replace("_", " ") +
+                                Ext.String.capitalize(key).replace(/_/g, " ") +
                                 ": ";
                             if (Ext.isString(values)) {
                                 errorString += values;

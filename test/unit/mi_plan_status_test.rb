@@ -33,7 +33,8 @@ class MiPlanStatusTest < ActiveSupport::TestCase
   should 'have :all_assigned' do
     expected = [
       'Assigned',
-      'Assigned - ES Cell QC In Progress'
+      'Assigned - ES Cell QC In Progress',
+      'Assigned - ES Cell QC Complete'
     ].sort
     assert_equal expected, MiPlanStatus.all_assigned.map(&:name).sort
   end

@@ -36,19 +36,43 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
 
     should 'generate warning if MiPlan that will be assigned does not have status already set to Assigned' do
       gene = Factory.create :gene_cbx1
-      Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
+      mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :gene => gene, :mi_plan_status => MiPlanStatus[:Interest]
       es_cell = Factory.create :es_cell, :gene => gene
 
-      mi = Factory.build :mi_attempt, :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI',
+      mi = Factory.build :mi_attempt, :consortium_name => mi_plan.consortium.name,
+              :production_centre_name => mi_plan.production_centre.name,
               :es_cell => es_cell
 
       assert_true mi.generate_warnings
       assert_equal 1, mi.warnings.size
       assert_match 'has not been assigned to WTSI', mi.warnings.first
       assert_match 'will assign it to WTSI', mi.warnings.first
+    end
+
+    should 'not generate warning if MiPlan that will be assigned already has an assigned status' do
+      gene = Factory.create :gene_cbx1
+      mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
+              :production_centre => Centre.find_by_name!('WTSI'),
+              :gene => gene
+      es_cell = Factory.create :es_cell, :gene => gene
+
+      mi_plan.mi_plan_status = MiPlanStatus['Assigned']
+      mi_plan.save!
+
+      mi = Factory.build :mi_attempt, :consortium_name => mi_plan.consortium.name,
+              :production_centre_name => mi_plan.production_centre.name,
+              :es_cell => es_cell
+      assert_false mi.generate_warnings
+
+      mi_plan.mi_plan_status = MiPlanStatus['Assigned - ES Cell QC In Progress']
+      mi_plan.save!
+
+      mi = Factory.build :mi_attempt, :consortium_name => mi_plan.consortium.name,
+              :production_centre_name => mi_plan.production_centre.name,
+              :es_cell => es_cell
+      assert_false mi.generate_warnings
     end
 
     should 'generate warning if MiPlan for the MiAttempt has to be created' do

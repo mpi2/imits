@@ -82,8 +82,8 @@ end
   'Declined - MI Attempt'  => [40, 'Declined - An active micro-injection attempt is already in progress'],
   'Declined - Conflict'    => [50, 'Declined - This gene is already assigned in another planned micro-injection'],
   'Assigned'               => [60, 'Assigned - A single consortium has expressed an intrest in injecting this gene'],
-  'Assigned - ES Cell QC In Progress' => [70, 'Assigned - The ES cell is currently being QCed by the production centre'],
-  'Assigned - ES Cell QC Complete'    => [80, 'Assigned - The ES cell is currently being QCed by the production centre'],
+  'Assigned - ES Cell QC In Progress' => [70, 'Assigned - The ES cells are currently being QCed by the production centre'],
+  'Assigned - ES Cell QC Complete'    => [80, 'Assigned - ES cells have passed the QC phase and are ready for micro-injection'],
   'Inactive'               => [90, 'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up']
 }.each do |name,details|
   mi_plan_status = MiPlanStatus.find_or_create_by_name(name)

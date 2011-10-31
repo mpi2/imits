@@ -230,6 +230,10 @@ class MiPlan < ActiveRecord::Base
       :consortium_name_eq => params[:consortium_name],
       :production_centre_null => true).result.first
   end
+
+  def assigned?
+    return MiPlanStatus.all_assigned.include?(mi_plan_status)
+  end
 end
 
 # == Schema Information

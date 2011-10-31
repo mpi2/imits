@@ -583,5 +583,25 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '#assigned?' do
+      should 'return true if status is assigned' do
+        plan = Factory.build :mi_plan_with_production_centre
+        plan.mi_plan_status = MiPlanStatus['Assigned']
+        assert plan.assigned?
+
+        plan.mi_plan_status = MiPlanStatus['Assigned - ES Cell QC In Progress']
+        assert plan.assigned?
+      end
+
+      should 'return false if status is not assigned' do
+        plan = Factory.build :mi_plan_with_production_centre
+        plan.mi_plan_status = MiPlanStatus['Inactive']
+        assert_false plan.assigned?
+
+        plan.mi_plan_status = MiPlanStatus['Conflict']
+        assert_false plan.assigned?
+      end
+    end
+
   end
 end

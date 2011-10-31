@@ -41,11 +41,18 @@ class MiPlan < ActiveRecord::Base
     :if => proc {|p| p.changed.include?('number_of_es_cells_starting_qc')},
     :message => 'cannot be unset after being set'
   }
-  validates :number_of_es_cells_passing_qc, :presence => {
-    :on => :update,
-    :if => proc {|p| p.changed.include?('number_of_es_cells_passing_qc')},
-    :message => 'cannot be unset after being set'
-  }
+  validate :number_of_es_cells_passing_qc do |mi_plan|
+    next if mi_plan.new_record?
+
+    changes = mi_plan.changes['number_of_es_cells_passing_qc']
+    if changes and changes[0] != nil
+      if mi_plan.number_of_es_cells_passing_qc.blank?
+        mi_plan.errors.add(:number_of_es_cells_passing_qc, 'cannot be unset after being set')
+      elsif mi_plan.number_of_es_cells_passing_qc == 0
+        mi_plan.errors.add(:number_of_es_cells_passing_qc, 'cannot be set to 0 after being set')
+      end
+    end
+  end
 
   # BEGIN Callbacks
 

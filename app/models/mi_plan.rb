@@ -101,9 +101,9 @@ class MiPlan < ActiveRecord::Base
 
   def self.assign_genes_and_mark_conflicts
     conflict_status                   = MiPlanStatus.find_by_name!('Conflict')
-    declined_due_to_conflict_status   = MiPlanStatus.find_by_name!('Declined - Conflict')
-    declined_due_to_mi_attempt_status = MiPlanStatus.find_by_name!('Declined - MI Attempt')
-    declined_due_to_glt_mouse_status  = MiPlanStatus.find_by_name!('Declined - GLT Mouse')
+    inspect_due_to_conflict_status   = MiPlanStatus.find_by_name!('Inspect - Conflict')
+    inspect_due_to_mi_attempt_status = MiPlanStatus.find_by_name!('Inspect - MI Attempt')
+    inspect_due_to_glt_mouse_status  = MiPlanStatus.find_by_name!('Inspect - GLT Mouse')
 
     self.all_grouped_by_mgi_accession_id_then_by_status_name.each do |mgi_accession_id, mi_plans_by_status|
       interested = mi_plans_by_status['Interest']
@@ -117,18 +117,18 @@ class MiPlan < ActiveRecord::Base
         if ! assigned_plans_with_mis.blank? or ! assigned_plans_with_glt_mice.blank?
           if ! assigned_plans_with_glt_mice.blank?
             interested.each do |mi_plan|
-              mi_plan.mi_plan_status = declined_due_to_glt_mouse_status
+              mi_plan.mi_plan_status = inspect_due_to_glt_mouse_status
               mi_plan.save!
             end
           else
             interested.each do |mi_plan|
-              mi_plan.mi_plan_status = declined_due_to_mi_attempt_status
+              mi_plan.mi_plan_status = inspect_due_to_mi_attempt_status
               mi_plan.save!
             end
           end
         else
           interested.each do |mi_plan|
-            mi_plan.mi_plan_status = declined_due_to_conflict_status
+            mi_plan.mi_plan_status = inspect_due_to_conflict_status
             mi_plan.save!
           end
         end
@@ -174,21 +174,21 @@ class MiPlan < ActiveRecord::Base
     return mi_plans
   end
 
-  def reason_for_decline_conflict
+  def reason_for_inspect_conflict
     reason_string = case self.mi_plan_status.name
-    when 'Declined - GLT Mouse'
+    when 'Inspect - GLT Mouse'
       other_centres_consortia = MiPlan.scoped
       .where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',{ :gene_id => self.gene_id, :id => self.id })
       .with_genotype_confirmed_mouse
       .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
       "GLT mouse produced at: #{other_centres_consortia.join(', ')}"
-    when 'Declined - MI Attempt'
+    when 'Inspect - MI Attempt'
       other_centres_consortia = MiPlan.scoped
       .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
       .with_active_mi_attempt
       .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
       "MI already in progress at: #{other_centres_consortia.join(', ')}"
-    when 'Declined - Conflict'
+    when 'Inspect - Conflict'
       other_consortia = MiPlan
       .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
       .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Assigned').id )

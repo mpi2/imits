@@ -189,7 +189,7 @@ class ReportsController < ApplicationController
         return
       end
 
-      @report.add_column('Reason for Decline/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_decline_conflict }
+      @report.add_column('Reason for Inspect/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_conflict }
       @report.remove_columns(['ID'])
 
       mis_by_gene = {
@@ -317,17 +317,17 @@ class ReportsController < ApplicationController
       )
 
       ##
-      ## Details on conflicting and declined mi_plans
+      ## Details on conflicting and inspect mi_plans
       ##
 
       @conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Conflict' }
-      @conflict_report.add_column('Reason for Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_decline_conflict }
+      @conflict_report.add_column('Reason for Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_conflict }
       @conflict_report.remove_columns(['ID','Status'])
 
-      @declined_report = all_mi_plans.sub_table { |row| row['Status'].include? 'Declined' }
-      @declined_report.add_column('Reason for Decline') { |row| MiPlan.find(row.data['ID']).reason_for_decline_conflict }
-      @declined_report.remove_columns(['ID'])
-      @declined_report = Grouping( @declined_report, :by => ['Status'], :order => lambda { |g| MiPlanStatus.find_by_name!(g.name).order_by } )
+      @inspect_report = all_mi_plans.sub_table { |row| row['Status'].include? 'Inspect' }
+      @inspect_report.add_column('Reason for Inspect') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_conflict }
+      @inspect_report.remove_columns(['ID'])
+      @inspect_report = Grouping( @inspect_report, :by => ['Status'], :order => lambda { |g| MiPlanStatus.find_by_name!(g.name).order_by } )
 
       if request.format == :csv
         response.headers['Content-Type'] = 'text/csv'

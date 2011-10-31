@@ -6,7 +6,8 @@ class MiPlan < ActiveRecord::Base
     'consortium_name',
     'production_centre_name',
     'priority',
-    'number_of_es_cells_starting_qc'
+    'number_of_es_cells_starting_qc',
+    'number_of_es_cells_passing_qc'
   ]
   attr_accessible(*INTERFACE_ATTRIBUTES)
 

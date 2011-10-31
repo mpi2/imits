@@ -248,7 +248,8 @@ class MiPlanTest < ActiveSupport::TestCase
           'consortium_name',
           'production_centre_name',
           'priority',
-          'number_of_es_cells_starting_qc'
+          'number_of_es_cells_starting_qc',
+          'number_of_es_cells_passing_qc'
         ]
         got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
         assert_equal expected.sort, got.sort
@@ -262,7 +263,8 @@ class MiPlanTest < ActiveSupport::TestCase
           'production_centre_name',
           'priority',
           'status',
-          'number_of_es_cells_starting_qc'
+          'number_of_es_cells_starting_qc',
+          'number_of_es_cells_passing_qc'
         ]
         got = @default_mi_plan.as_json.keys
         assert_equal expected.sort, got.sort

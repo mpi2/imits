@@ -40,10 +40,16 @@ class MiPlan < ActiveRecord::Base
     :if => proc {|p| p.changed.include?('number_of_es_cells_starting_qc')},
     :message => 'cannot be unset after being set'
   }
+  validates :number_of_es_cells_passing_qc, :presence => {
+    :on => :update,
+    :if => proc {|p| p.changed.include?('number_of_es_cells_passing_qc')},
+    :message => 'cannot be unset after being set'
+  }
 
   # BEGIN Callbacks
 
   before_validation :set_default_mi_plan_status
+  before_validation :set_default_number_of_es_cells_starting_qc
   before_validation :change_status
 
   before_save :record_if_status_was_changed
@@ -56,7 +62,11 @@ class MiPlan < ActiveRecord::Base
     self.mi_plan_status ||= MiPlanStatus['Interest']
   end
 
-  public
+  def set_default_number_of_es_cells_starting_qc
+    if number_of_es_cells_starting_qc.nil?
+      self.number_of_es_cells_starting_qc = number_of_es_cells_passing_qc
+    end
+  end
 
   def record_if_status_was_changed
     if self.changed.include? 'mi_plan_status_id'
@@ -71,6 +81,8 @@ class MiPlan < ActiveRecord::Base
       add_status_stamp @new_mi_plan_status
     end
   end
+
+  public
 
   # END Callbacks
 
@@ -249,6 +261,7 @@ end
 #  created_at                     :datetime
 #  updated_at                     :datetime
 #  number_of_es_cells_starting_qc :integer
+#  number_of_es_cells_passing_qc  :integer
 #
 # Indexes
 #

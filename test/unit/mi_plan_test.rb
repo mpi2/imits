@@ -623,6 +623,9 @@ class MiPlanTest < ActiveSupport::TestCase
 
         plan.mi_plan_status = MiPlanStatus['Assigned - ES Cell QC In Progress']
         assert plan.assigned?
+
+        plan.mi_plan_status = MiPlanStatus['Assigned - ES Cell QC Complete']
+        assert plan.assigned?
       end
 
       should 'return false if status is not assigned' do

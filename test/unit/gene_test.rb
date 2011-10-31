@@ -270,6 +270,12 @@ class GeneTest < ActiveSupport::TestCase
               :production_centre => Centre.find_by_name!('WTSI'),
               :number_of_es_cells_starting_qc => 5
 
+      @jax_plan = Factory.create :mi_plan,
+              :gene => @gene,
+              :consortium => Consortium.find_by_name!('JAX'),
+              :production_centre => Centre.find_by_name!('JAX'),
+              :number_of_es_cells_passing_qc => 7
+
       @marc_attempt = Factory.create :mi_attempt,
               :es_cell => Factory.create(:es_cell, :gene => @gene),
               :consortium_name => 'MARC',
@@ -282,10 +288,11 @@ class GeneTest < ActiveSupport::TestCase
         setup_for_assigned_mi_plans_tests
 
         assert @gene
-        assert_equal 3, @gene.mi_plans.count
+        assert_equal 4, @gene.mi_plans.count
         result = @gene.assigned_mi_plans
         assert_include result, { :id => @bash_plan.id, :consortium => 'BaSH', :production_centre => nil }
         assert_include result, { :id => @mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI' }
+        assert_include result, { :id => @jax_plan.id, :consortium => 'JAX', :production_centre => 'JAX' }
         assert_not_include result, { :id => @marc_attempt.mi_plan.id, :consortium => 'MARC', :production_centre => 'MARC' }
       end
     end
@@ -294,10 +301,11 @@ class GeneTest < ActiveSupport::TestCase
       should 'work' do
         setup_for_assigned_mi_plans_tests
 
-        assert_equal 3, @gene.mi_plans.count
+        assert_equal 4, @gene.mi_plans.count
         result = @gene.pretty_print_assigned_mi_plans
         assert_include result, '[BaSH]'
         assert_include result, '[MGP:WTSI]'
+        assert_include result, '[JAX:JAX]'
         assert_not_include result, '[MARC:MARC]'
       end
     end

@@ -28,7 +28,10 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
             layout: 'anchor',
             defaults: {
-                anchor: '100%'
+                anchor: '100%',
+                labelWidth: 150,
+                labelAlign: 'right',
+                labelPad: 10
             },
 
             items: [
@@ -71,8 +74,14 @@ Ext.define('Imits.widget.MiPlanEditor', {
             {
                 id: 'number_of_es_cells_starting_qc',
                 xtype: 'simplenumberfield',
-                fieldLabel: '# of ES Cells starting QC',
+                fieldLabel: '# of ES Cells <strong>starting</strong> QC',
                 name: 'number_of_es_cells_starting_qc'
+            },
+            {
+                id: 'number_of_es_cells_passing_qc',
+                xtype: 'simplenumberfield',
+                fieldLabel: '# of ES Cells <strong>passing</strong> QC',
+                name: 'number_of_es_cells_passing_qc'
             }
             ],
 
@@ -140,7 +149,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         });
 
         this.add(Ext.create('Ext.panel.Panel', {
-            height: 300,
+            height: 340,
             ui: 'plain',
             layout: {
                 type: 'vbox',
@@ -157,7 +166,6 @@ Ext.define('Imits.widget.MiPlanEditor', {
         this.updateableFields = this.form.items.filterBy(function (i) {
             return i.readOnly != true;
         }).keys;
-        console.log([this.fields, this.updateableFields]);
     },
 
     edit: function(miPlanId) {

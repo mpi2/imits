@@ -76,12 +76,12 @@ end
 end
 
 {
-  'Interest'               => [10,'Interest - A consortium has expressed an intrest to micro-inject this gene'],
-  'Conflict'               => [20,'Conflict - More than one consortium has expressed an intrest in micro-injecting this gene'],
-  'Declined - GLT Mouse'   => [30,'Declined - A GLT mouse is already recorded in iMits'],
-  'Declined - MI Attempt'  => [40,'Declined - An active micro-injection attempt is already in progress'],
-  'Declined - Conflict'    => [50,'Declined - This gene is already assigned in another planned micro-injection'],
-  'Assigned'               => [60,'Assigned - A single consortium has expressed an intrest in injecting this gene'],
+  'Interest'               => [10,'Interest - A consortium has expressed an interest to micro-inject this gene'],
+  'Conflict'               => [20,'Conflict - More than one consortium has expressed an interest in micro-injecting this gene'],
+  'Inspect - GLT Mouse'   => [30,'Inspect - A GLT mouse is already recorded in iMits'],
+  'Inspect - MI Attempt'  => [40,'Inspect - An active micro-injection attempt is already in progress'],
+  'Inspect - Conflict'    => [50,'Inspect - This gene is already assigned in another planned micro-injection'],
+  'Assigned'               => [60,'Assigned - A single consortium has expressed an interest in injecting this gene'],
   'Inactive'               => [70,'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up']
 }.each do |name,details|
   mi_plan_status = MiPlanStatus.find_or_create_by_name(:name => name)

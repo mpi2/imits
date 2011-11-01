@@ -64,7 +64,6 @@ class MiAttempt < ActiveRecord::Base
   access_association_by_attribute :test_cross_strain, :name
   access_association_by_attribute :deposited_material, :name
 
-  before_validation :set_blank_qc_fields_to_na # Needs to be here, before AABA
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
@@ -113,6 +112,7 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
+  before_validation :set_blank_qc_fields_to_na
   before_validation :set_blank_strings_to_nil
   before_validation :set_total_chimeras
   before_validation :set_default_deposited_material
@@ -210,9 +210,9 @@ class MiAttempt < ActiveRecord::Base
         mi_plan_to_set = MiPlan.where(mi_plan_params.merge(:production_centre_id => nil)).first
 
         if ! mi_plan_to_set
-          create_params = mi_plan_params.merge(
-            :mi_plan_priority => MiPlanPriority.find_by_name!('High'))
-          mi_plan_to_set = MiPlan.new(create_params)
+          mi_plan_to_set = MiPlan.new(:priority => 'High')
+          mi_plan_to_set.consortium_id = mi_plan_params[:consortium_id]
+          mi_plan_to_set.gene_id = mi_plan_params[:gene_id]
         end
       end
 
@@ -223,7 +223,8 @@ class MiAttempt < ActiveRecord::Base
       self.mi_plan = mi_plan_to_set
     else
       if is_active?
-        mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus.find_by_name!('Assigned'))
+        mi_plan.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
+        mi_plan.save!
       end
     end
   end

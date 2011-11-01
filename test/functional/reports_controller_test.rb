@@ -45,7 +45,7 @@ class ReportsControllerTest < ActionController::TestCase
 
           [
             :summary_by_status_and_priority,
-            :declined_report
+            :inspect_report
           ].each do |report|
             assert assigns(report), "@#{report} has not been assigned"
             assert assigns(report).is_a?( Ruport::Data::Grouping ), "@#{report} is not a Ruport::Data::Grouping object"

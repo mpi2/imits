@@ -5,11 +5,29 @@ module AccessAssociationByAttribute
   def access_association_by_attribute(association_name, attribute, options = {})
     options.symbolize_keys!
 
-    virtual_attribute = "#{association_name}_#{attribute}"
     association_class = self.reflections[association_name].class_name.constantize
 
+    if ! options[:full_alias].blank?
+      virtual_attribute = options[:full_alias]
+    elsif ! options[:attribute_alias].blank?
+      virtual_attribute = "#{association_name}_#{options[:attribute_alias]}"
+    else
+      virtual_attribute = "#{association_name}_#{attribute}"
+    end
+
+    if ! instance_methods.include?(:reload_without_aaba)
+      alias_method :reload_without_aaba, :reload
+
+      define_method :reload do |*args|
+        retval = reload_without_aaba(*args)
+        @aaba_what_changed = []
+        return retval
+      end
+    end
+
     define_method virtual_attribute do
-      if instance_variable_defined?("@#{virtual_attribute}")
+      @aaba_what_changed ||= []
+      if instance_variable_defined?("@#{virtual_attribute}") and @aaba_what_changed.include?(virtual_attribute)
         return instance_variable_get("@#{virtual_attribute}")
       else
         new_value = self.send(association_name).try(:send, attribute)
@@ -19,6 +37,10 @@ module AccessAssociationByAttribute
     end
 
     define_method "#{virtual_attribute}=" do |value|
+      @aaba_what_changed ||= []
+      @aaba_what_changed.push virtual_attribute
+
+      instance_variable_set("@#{virtual_attribute}_errors_", nil)
       instance_variable_set("@#{virtual_attribute}", value)
 
       if value.blank?
@@ -40,14 +62,10 @@ module AccessAssociationByAttribute
       self.send("#{association_name}=", new_object)
     end
 
-    if ! options[:attribute_alias].blank?
-      alias_method "#{association_name}_#{options[:attribute_alias]}=", "#{virtual_attribute}="
-      alias_method "#{association_name}_#{options[:attribute_alias]}", "#{virtual_attribute}"
-    end
-
     define_method "#{virtual_attribute}_validation" do
+      @aaba_what_changed ||= []
       errors = instance_variable_get("@#{virtual_attribute}_errors_")
-      if errors
+      if errors and @aaba_what_changed.include?(virtual_attribute)
         self.errors.add(virtual_attribute, errors)
       end
     end

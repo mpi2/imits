@@ -15,13 +15,6 @@ class GenesControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      should 'respond with XML' do
-        get :index, :marker_symbol_eq => 'Trafd1', :format => :xml
-        xml = parse_xml_from_response
-        assert_equal 1, xml.xpath('count(//gene)')
-        assert_equal 'Trafd1', xml.xpath('/genes/gene/marker-symbol').text
-      end
-
       should 'respond with JSON' do
         get :index, :marker_symbol_eq => 'Trafd1', :format => :json
         json = parse_json_from_response

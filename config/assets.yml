@@ -17,14 +17,21 @@ stylesheets:
 #
 # this will then print out all of the dependencies below 'public/extjs/ext-all.js'
 javascripts:
-  common:
+  production:
     - public/extjs/ext-all.js
+  development:
+    - public/extjs/ext-all-debug.js
+  common:
     - public/javascripts/application.js
     - public/javascripts/extjs_hacky_monkey_patches.js
 
     - public/javascripts/Imits/data/JsonWriter.js
+    - public/javascripts/Imits/data/JsonReader.js
     - public/javascripts/Imits/data/Proxy.js
+    - public/javascripts/Imits/model/MiPlan.js
     - public/javascripts/Imits/model/MiAttempt.js
+    - public/javascripts/Imits/model/Gene.js
+    - public/javascripts/Imits/widget/Window.js
     - public/javascripts/Imits/widget/Grid.js
     - public/javascripts/Imits/widget/SimpleNumberField.js
     - public/javascripts/Imits/widget/SimpleCombo.js
@@ -44,6 +51,6 @@ javascripts:
     - public/extjs/examples/ux/grid/filter/ListFilter.js
     - public/extjs/examples/ux/grid/filter/NumericFilter.js
     - public/extjs/examples/ux/grid/filter/StringFilter.js
-    - public/javascripts/Imits/model/Gene.js
     - public/extjs/examples/ux/RowExpander.js
+    - public/javascripts/Imits/widget/MiPlanEditor.js
     - public/javascripts/Imits/widget/GeneGrid.js

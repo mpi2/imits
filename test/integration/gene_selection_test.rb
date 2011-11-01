@@ -76,16 +76,17 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
       should 'allow users to enter interest records (mi_plans)' do
         visit '/mi_plans/gene_selection'
 
-        fill_in find('#consortium_combobox input')[:id], :with => 'Helmholtz GMC'
-        fill_in find('#production_centre_combobox input')[:id], :with => 'HMGU'
-        fill_in find('#priority_combobox input')[:id], :with => 'High'
+        page.execute_script("Ext.ComponentManager.get('consortiumCombobox').setValue('Helmholtz GMC')")
+        page.execute_script("Ext.ComponentManager.get('production_centreCombobox').setValue('HMGU')")
+        page.execute_script("Ext.ComponentManager.get('priorityCombobox').setValue('High')")
+
         find('.x-grid-row-checker:first').click
         find('#register_interest_button button').click
 
         sleep 3
 
-        assert page.has_css?('a.delete-mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
-        assert_equal 1, all('a.delete-mi-plan').size
+        assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
+        assert_equal 1, all('a.mi-plan').size
 
         mi_plans = MiPlan.where(
           :consortium_id => Consortium.find_by_name!('Helmholtz GMC').id,
@@ -96,16 +97,16 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         visit '/mi_plans/gene_selection'
 
-        fill_in find('#consortium_combobox input')[:id], :with => 'BaSH'
-        fill_in find('#production_centre_combobox input')[:id], :with => ''
-        fill_in find('#priority_combobox input')[:id], :with => 'Low'
+        page.execute_script("Ext.ComponentManager.get('consortiumCombobox').setValue('BaSH')")
+        page.execute_script("Ext.ComponentManager.get('priorityCombobox').setValue('Low')")
+
         find('.x-grid-row-checker:first').click
         find('#register_interest_button button').click
 
         sleep 5
 
-        assert_equal 2, all('a.delete-mi-plan').size
-        assert page.has_css?('a.delete-mi-plan', :text => '[BaSH:Interest]')
+        assert_equal 2, all('a.mi-plan').size
+        assert page.has_css?('a.mi-plan', :text => '[BaSH:Interest]')
 
         mi_plans = MiPlan.where( :consortium_id => Consortium.find_by_name!('BaSH').id )
         assert_equal 1, mi_plans.count
@@ -123,14 +124,11 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         sleep 3
 
-        assert page.has_css?('a.delete-mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
-        assert_equal 1, all('a.delete-mi-plan').size
+        assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
+        assert_equal 1, all('a.mi-plan').size
 
-        find('a.delete-mi-plan').click
-
-        assert page.driver.browser.switch_to.alert.text.include?('[Helmholtz GMC:HMGU:Interest]')
-
-        page.driver.browser.switch_to.alert.accept
+        find('a.mi-plan').click
+        find('#delete-button').click
 
         sleep 3
         assert_nil MiPlan.find_by_id(mi_plan_id)

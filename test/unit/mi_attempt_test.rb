@@ -57,7 +57,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'allow access to distribution centre via its name' do
           centre = Factory.create :centre, :name => 'New Centre'
-          default_mi_attempt.update_attributes(:distribution_centre_name => 'New Centre')
+          default_mi_attempt.update_attributes!(:distribution_centre_name => 'New Centre')
           assert_equal 'New Centre', default_mi_attempt.distribution_centre.name
         end
 
@@ -113,7 +113,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should ', when assigned the same as current status, not add a status stamp' do
-          default_mi_attempt.update_attributes!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
+          default_mi_attempt.mi_attempt_status = MiAttemptStatus.micro_injection_in_progress; default_mi_attempt.save!
           assert_equal [MiAttemptStatus.micro_injection_in_progress],
                   default_mi_attempt.status_stamps.map(&:mi_attempt_status)
         end
@@ -261,19 +261,19 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'get and assign blast strain via AccessAssociationByAttribute' do
-          default_mi_attempt.update_attributes(:blast_strain_name => 'Balb/Cam')
-          assert_equal 'Balb/Cam', default_mi_attempt.blast_strain_name
+          default_mi_attempt.update_attributes!(:blast_strain_name => 'BALB/cAm')
+          assert_equal 'BALB/cAm', default_mi_attempt.blast_strain_name
         end
 
         should 'get and assign colony background strain via AccessAssociationByAttribute' do
-          default_mi_attempt.update_attributes(:colony_background_strain_name => 'B6JTyr<c-Brd>')
-          assert_equal 'B6JTyr<c-Brd>', default_mi_attempt.colony_background_strain_name
+          default_mi_attempt.update_attributes!(:colony_background_strain_name => 'C57BL/6J')
+          assert_equal 'C57BL/6J', default_mi_attempt.colony_background_strain_name
         end
 
         should 'get and assign test cross strain via AccessAssociationByAttribute' do
-          default_mi_attempt.update_attributes(:test_cross_strain_name => 'C57BL/6NTacUSA')
+          default_mi_attempt.update_attributes!(:test_cross_strain_name => 'C57BL/6NTac/USA')
           default_mi_attempt.reload
-          assert_equal 'C57BL/6NTacUSA', default_mi_attempt.test_cross_strain_name
+          assert_equal 'C57BL/6NTac/USA', default_mi_attempt.test_cross_strain_name
         end
 
         should 'not allow setting a blast strain if it is not of the correct type' do
@@ -317,7 +317,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'allow setting blast strain to nil using blast_strain_name' do
-          default_mi_attempt.update_attributes(:blast_strain_name => '')
+          default_mi_attempt.update_attributes!(:blast_strain_name => '')
           assert_nil default_mi_attempt.blast_strain
         end
       end
@@ -463,7 +463,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context '#colony_name' do
         should 'be unique' do
-          default_mi_attempt.update_attributes(:colony_name => 'ABCD')
+          default_mi_attempt.update_attributes!(:colony_name => 'ABCD')
           assert_should have_db_index(:colony_name).unique(true)
           assert_should validate_uniqueness_of :colony_name
         end
@@ -654,7 +654,8 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         context 'on update' do
           setup do
-            default_mi_attempt.mi_plan.update_attributes!(:mi_plan_status => MiPlanStatus[:Inactive])
+            default_mi_attempt.mi_plan.status = 'Inactive'
+            default_mi_attempt.mi_plan.save!
             default_mi_attempt.update_attributes!(:is_active => false)
             default_mi_attempt.reload
           end
@@ -663,12 +664,12 @@ class MiAttemptTest < ActiveSupport::TestCase
             default_mi_attempt.update_attributes!(:is_active => true)
             default_mi_attempt.save!
             default_mi_attempt.reload
-            assert_equal MiPlanStatus[:Assigned], default_mi_attempt.mi_plan.mi_plan_status
+            assert_equal 'Assigned', default_mi_attempt.mi_plan.status
           end
 
           should 'not set its status to Assigned if MI attempt is not becoming active again' do
             default_mi_attempt.save!
-            assert_equal MiPlanStatus[:Inactive], default_mi_attempt.mi_plan.mi_plan_status
+            assert_equal 'Inactive', default_mi_attempt.mi_plan.status
           end
         end
 

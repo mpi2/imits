@@ -2,7 +2,7 @@
 
 class MiPlansController < ApplicationController
   respond_to :html, :only => [:gene_selection]
-  respond_to :json, :only => [:create,:destroy]
+  respond_to :json, :except => [:gene_selection]
   before_filter :authenticate_user!
 
   def gene_selection
@@ -16,26 +16,46 @@ class MiPlansController < ApplicationController
         .select{|i|!i.blank?}
         .join("\n")
 
-    @centre_combo_options    = Centre.order('name').all.map { |c| { :id => c.id, :name => c.name } }
-    @consortia_combo_options = Consortium.order('name').all.map { |c| { :id => c.id, :name => c.name } }
-    @priority_combo_options  = MiPlanPriority.all.map { |p| { :id => p.id, :name => p.name } }
-    @interest_status_id      = MiPlanStatus.find_by_name!('Interest').id
+    @centre_combo_options    = Centre.order('name').map(&:name)
+    @consortia_combo_options = Consortium.order('name').map(&:name)
+    @priority_combo_options  = MiPlanPriority.order('name').map(&:name)
+  end
+
+  def show
+    respond_with MiPlan.find_by_id(params[:id])
   end
 
   def create
-    @mi_plan = MiPlan.new(params[:mi_plan])
-    respond_to do |format|
-      if @mi_plan.save
-        format.json { render :json => @mi_plan, :status => :created }
+    upgradeable = MiPlan.check_for_upgradeable(params[:mi_plan])
+    if upgradeable
+      message = "#{upgradeable.marker_symbol} has already been selected to be injected on behalf of #{upgradeable.consortium_name}, please edit existing selection"
+      render(:json => {:id => upgradeable.id, :message => message}, :status => 301)
+    else
+      @mi_plan = MiPlan.create(params[:mi_plan])
+      respond_with @mi_plan
+    end
+  end
+
+  def update
+    @mi_plan = MiPlan.find_by_id(params[:id])
+    if ! @mi_plan
+      render(:json => 'mi_plan not found', :status => 422)
+    else
+      if @mi_plan.update_attributes params[:mi_plan]
+        render :json => @mi_plan
       else
-        format.json { render :json => @mi_plan.errors, :status => 400 }
+        render :json => @mi_plan.errors, :status => 422
       end
     end
   end
 
   def destroy
     @mi_plan = nil
-    errors = {}
+    if request.body.respond_to?(:string)
+        if ! request.body.string.empty?
+          raise "Body of DELETE request MUST be empty for overly-pedantic proxies to work!  Got:\n#{request.body.string}"
+        end
+    end
 
     if !params[:id].blank?
       @mi_plan = MiPlan.find_by_id(params[:id])

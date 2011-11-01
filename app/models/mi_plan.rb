@@ -1,6 +1,14 @@
 # encoding: utf-8
 
 class MiPlan < ActiveRecord::Base
+  INTERFACE_ATTRIBUTES = [
+    'marker_symbol',
+    'consortium_name',
+    'production_centre_name',
+    'priority'
+  ]
+  attr_accessible(*INTERFACE_ATTRIBUTES)
+
   acts_as_audited
   acts_as_reportable
 
@@ -11,20 +19,25 @@ class MiPlan < ActiveRecord::Base
   belongs_to :mi_plan_status
   belongs_to :mi_plan_priority
   belongs_to :production_centre, :class_name => 'Centre'
-
   has_many :mi_attempts
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC"
 
-  validates :gene, :presence => true
-  validates :consortium, :presence => true
-  validates :mi_plan_status, :presence => true
-  validates :mi_plan_priority, :presence => true
+  access_association_by_attribute :gene, :marker_symbol, :full_alias => :marker_symbol
+  access_association_by_attribute :consortium, :name
+  access_association_by_attribute :production_centre, :name
+  access_association_by_attribute :mi_plan_priority, :name, :full_alias => :priority
+  access_association_by_attribute :mi_plan_status, :name, :full_alias => :status
 
-  validates_uniqueness_of :gene_id, :scope => [:consortium_id, :production_centre_id]
+  validates :marker_symbol, :presence => true
+  validates :consortium_name, :presence => true
+  validates :production_centre_name, :presence => {:on => :update, :if => proc {|p| p.changed.include?('production_centre_id')}}
+  validates :priority, :presence => true
+  validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
 
   # BEGIN Callbacks
 
-  before_save :set_default_mi_plan_status
+  before_validation :set_default_mi_plan_status
+
   before_save :record_if_status_was_changed
 
   after_save :create_status_stamp_if_status_was_changed
@@ -32,7 +45,7 @@ class MiPlan < ActiveRecord::Base
   private
 
   def set_default_mi_plan_status
-    self.mi_plan_status ||= MiPlanStatus[:Interest]
+    self.mi_plan_status ||= MiPlanStatus['Interest']
   end
 
   public
@@ -57,10 +70,6 @@ class MiPlan < ActiveRecord::Base
     self.status_stamps.create!(:mi_plan_status => status)
   end
   private :add_status_stamp
-
-  def status
-    self.mi_plan_status.name
-  end
 
   def self.with_mi_attempt
     ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)
@@ -92,9 +101,9 @@ class MiPlan < ActiveRecord::Base
 
   def self.assign_genes_and_mark_conflicts
     conflict_status                   = MiPlanStatus.find_by_name!('Conflict')
-    declined_due_to_conflict_status   = MiPlanStatus.find_by_name!('Declined - Conflict')
-    declined_due_to_mi_attempt_status = MiPlanStatus.find_by_name!('Declined - MI Attempt')
-    declined_due_to_glt_mouse_status  = MiPlanStatus.find_by_name!('Declined - GLT Mouse')
+    inspect_due_to_conflict_status   = MiPlanStatus.find_by_name!('Inspect - Conflict')
+    inspect_due_to_mi_attempt_status = MiPlanStatus.find_by_name!('Inspect - MI Attempt')
+    inspect_due_to_glt_mouse_status  = MiPlanStatus.find_by_name!('Inspect - GLT Mouse')
 
     self.all_grouped_by_mgi_accession_id_then_by_status_name.each do |mgi_accession_id, mi_plans_by_status|
       interested = mi_plans_by_status['Interest']
@@ -108,18 +117,18 @@ class MiPlan < ActiveRecord::Base
         if ! assigned_plans_with_mis.blank? or ! assigned_plans_with_glt_mice.blank?
           if ! assigned_plans_with_glt_mice.blank?
             interested.each do |mi_plan|
-              mi_plan.mi_plan_status = declined_due_to_glt_mouse_status
+              mi_plan.mi_plan_status = inspect_due_to_glt_mouse_status
               mi_plan.save!
             end
           else
             interested.each do |mi_plan|
-              mi_plan.mi_plan_status = declined_due_to_mi_attempt_status
+              mi_plan.mi_plan_status = inspect_due_to_mi_attempt_status
               mi_plan.save!
             end
           end
         else
           interested.each do |mi_plan|
-            mi_plan.mi_plan_status = declined_due_to_conflict_status
+            mi_plan.mi_plan_status = inspect_due_to_conflict_status
             mi_plan.save!
           end
         end
@@ -129,8 +138,9 @@ class MiPlan < ActiveRecord::Base
           mi_plan.save!
         end
       else
-        interested.first.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
-        interested.first.save!
+        assigned_mi_plan = interested.first
+        assigned_mi_plan.mi_plan_status = MiPlanStatus[:Assigned]
+        assigned_mi_plan.save!
       end
     end
   end
@@ -164,33 +174,33 @@ class MiPlan < ActiveRecord::Base
     return mi_plans
   end
 
-  def reason_for_decline_conflict
+  def reason_for_inspect_conflict
     reason_string = case self.mi_plan_status.name
-    when 'Declined - GLT Mouse'
+    when 'Inspect - GLT Mouse'
       other_centres_consortia = MiPlan.scoped
-        .where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',{ :gene_id => self.gene_id, :id => self.id })
-        .with_genotype_confirmed_mouse
-        .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
+      .where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',{ :gene_id => self.gene_id, :id => self.id })
+      .with_genotype_confirmed_mouse
+      .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
       "GLT mouse produced at: #{other_centres_consortia.join(', ')}"
-    when 'Declined - MI Attempt'
+    when 'Inspect - MI Attempt'
       other_centres_consortia = MiPlan.scoped
-        .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
-        .with_active_mi_attempt
-        .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
+      .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
+      .with_active_mi_attempt
+      .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
       "MI already in progress at: #{other_centres_consortia.join(', ')}"
-    when 'Declined - Conflict'
+    when 'Inspect - Conflict'
       other_consortia = MiPlan
-        .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
-        .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Assigned').id )
-        .without_active_mi_attempt
-        .map{ |p| p.consortium.name }.uniq
+      .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
+      .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Assigned').id )
+      .without_active_mi_attempt
+      .map{ |p| p.consortium.name }.uniq
       "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
     when 'Conflict'
       other_consortia = MiPlan
-        .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
-        .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Conflict').id )
-        .without_active_mi_attempt
-        .map{ |p| p.consortium.name }.uniq
+      .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
+      .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Conflict').id )
+      .without_active_mi_attempt
+      .map{ |p| p.consortium.name }.uniq
       "Other MI plans for: #{other_consortia.join(', ')}"
     else
       nil
@@ -198,9 +208,19 @@ class MiPlan < ActiveRecord::Base
     return reason_string
   end
 
-  def reload(*args)
-    @mi_plan_status = nil
-    super(*args)
+  def as_json(options = {})
+    options.symbolize_keys!
+
+    options[:methods] = INTERFACE_ATTRIBUTES + ['status']
+    options[:only] = ['id'] + options[:methods]
+    return super(options)
+  end
+
+  def self.check_for_upgradeable(params)
+    params = params.symbolize_keys
+    return self.search(:gene_marker_symbol_eq => params[:marker_symbol],
+      :consortium_name_eq => params[:consortium_name],
+      :production_centre_null => true).result.first
   end
 end
 

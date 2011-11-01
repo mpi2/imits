@@ -114,16 +114,12 @@ a.back {
   background-image: url('../images/icons/control_rewind.png');
 }
 
-a.delete-mi-plan {
+a.mi-plan {
   display: inline-block;
-  text-decoration: none;
-  color: inherit;
-  background: url('../images/icons/bullet_delete.png') no-repeat right -1px;
-  padding-right: 16px;
   margin-bottom: 2px;
 }
 
-a.delete-mi-plan:hover {
+a.mi-plan:hover {
   color: #8f110b;
 }
 

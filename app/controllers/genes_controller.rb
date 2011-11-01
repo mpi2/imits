@@ -1,10 +1,9 @@
 class GenesController < ApplicationController
-  respond_to :json, :xml
+  respond_to :json
   before_filter :authenticate_user!
 
   def index
     respond_to do |format|
-      format.xml  { render :xml => data_for_serialized(:xml) }
       format.json { render :json => data_for_serialized(:json) }
     end
   end

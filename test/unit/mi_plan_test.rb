@@ -297,18 +297,18 @@ class MiPlanTest < ActiveSupport::TestCase
       def setup_for_set_one_to_assigned
         gene = Factory.create :gene_cbx1
         @only_interest_mi_plan = Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!('BaSH')
-        @declined_mi_plans = [
+        @inspect_mi_plans = [
           Factory.create(:mi_plan, :gene => gene,
             :consortium => Consortium.find_by_name!('MGP'),
-            :mi_plan_status => MiPlanStatus.find_by_name!('Declined - Conflict')),
+            :mi_plan_status => MiPlanStatus.find_by_name!('Inspect - Conflict')),
           Factory.create(:mi_plan, :gene => gene,
             :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-            :mi_plan_status => MiPlanStatus.find_by_name!('Declined - Conflict'))
+            :mi_plan_status => MiPlanStatus.find_by_name!('Inspect - Conflict'))
         ]
 
         MiPlan.assign_genes_and_mark_conflicts
         @only_interest_mi_plan.reload
-        @declined_mi_plans.each(&:reload)
+        @inspect_mi_plans.each(&:reload)
       end
 
       should 'set Interested MiPlan to Assigned status if no other Interested or Assigned MiPlan for the same gene exists' do
@@ -319,7 +319,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'not affect non-Interested MiPlans when setting Interested ones to Assigned' do
         setup_for_set_one_to_assigned
-        assert_equal ['Declined - Conflict', 'Declined - Conflict'], @declined_mi_plans.map{|i| i.mi_plan_status.name}
+        assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], @inspect_mi_plans.map{|i| i.mi_plan_status.name}
         MiPlan.assign_genes_and_mark_conflicts
       end
 
@@ -356,7 +356,7 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.assign_genes_and_mark_conflicts
       end
 
-      should 'set all interested MiPlans to "Declined - Conflict" if other MiPlans for the same gene are already Assigned' do
+      should 'set all interested MiPlans to "Inspect - Conflict" if other MiPlans for the same gene are already Assigned' do
         gene = Factory.create :gene_cbx1
         Factory.create :mi_plan, :gene => gene,
                 :consortium => Consortium.find_by_name!('BaSH'),
@@ -369,10 +369,10 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.assign_genes_and_mark_conflicts
         mi_plans.each(&:reload)
 
-        assert_equal ['Declined - Conflict', 'Declined - Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
+        assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
       end
 
-      should 'set all interested MiPlans to "Declined - MI Attempt" if MiPlans with active MiAttempts already exist' do
+      should 'set all interested MiPlans to "Inspect - MI Attempt" if MiPlans with active MiAttempts already exist' do
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create :mi_plan,
                 :gene              => gene,
@@ -392,10 +392,10 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.assign_genes_and_mark_conflicts
         mi_plans.each(&:reload)
 
-        assert_equal ['Declined - MI Attempt', 'Declined - MI Attempt'], mi_plans.map {|i| i.mi_plan_status.name }
+        assert_equal ['Inspect - MI Attempt', 'Inspect - MI Attempt'], mi_plans.map {|i| i.mi_plan_status.name }
       end
 
-      should 'set all interested MiPlans to "Declined - GLT Mouse" if MiPlans with GLT Mice already exist' do
+      should 'set all interested MiPlans to "Inspect - GLT Mouse" if MiPlans with GLT Mice already exist' do
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create :mi_plan,
                 :gene              => gene,
@@ -421,7 +421,7 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.assign_genes_and_mark_conflicts
         mi_plans.each(&:reload)
 
-        assert_equal ['Declined - GLT Mouse', 'Declined - GLT Mouse'], mi_plans.map {|i| i.mi_plan_status.name }
+        assert_equal ['Inspect - GLT Mouse', 'Inspect - GLT Mouse'], mi_plans.map {|i| i.mi_plan_status.name }
       end
 
       should 'ignore "Inactive" MiPlans when making decisions' do
@@ -462,7 +462,7 @@ class MiPlanTest < ActiveSupport::TestCase
                 :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
         eucomm = Factory.create :mi_plan, :gene => gene2,
                 :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-                :mi_plan_status => MiPlanStatus.find_by_name!('Declined - Conflict')
+                :mi_plan_status => MiPlanStatus.find_by_name!('Inspect - Conflict')
 
         result = MiPlan.all_grouped_by_mgi_accession_id_then_by_status_name
 
@@ -472,7 +472,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal 2, gene1_interest_results.size
 
         assert_equal [mgp], result[gene1.mgi_accession_id]['Assigned']
-        assert_equal [eucomm], result[gene2.mgi_accession_id]['Declined - Conflict']
+        assert_equal [eucomm], result[gene2.mgi_accession_id]['Inspect - Conflict']
       end
     end
 

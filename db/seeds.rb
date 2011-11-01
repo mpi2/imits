@@ -78,9 +78,9 @@ end
 {
   'Interest'               => [10, 'Interest - A consortium has expressed an interest to micro-inject this gene'],
   'Conflict'               => [20, 'Conflict - More than one consortium has expressed an intrest in micro-injecting this gene'],
-  'Declined - GLT Mouse'   => [30, 'Declined - A GLT mouse is already recorded in iMits'],
-  'Declined - MI Attempt'  => [40, 'Declined - An active micro-injection attempt is already in progress'],
-  'Declined - Conflict'    => [50, 'Declined - This gene is already assigned in another planned micro-injection'],
+  'Inspect - GLT Mouse'    => [30, 'Inspect - A GLT mouse is already recorded in iMits'],
+  'Inspect - MI Attempt'   => [40, 'Inspect - An active micro-injection attempt is already in progress'],
+  'Inspect - Conflict'     => [50, 'Inspect - This gene is already assigned in another planned micro-injection'],
   'Assigned'               => [60, 'Assigned - A single consortium has expressed an intrest in injecting this gene'],
   'Assigned - ES Cell QC In Progress' => [70, 'Assigned - The ES cells are currently being QCed by the production centre'],
   'Assigned - ES Cell QC Complete'    => [80, 'Assigned - ES cells have passed the QC phase and are ready for micro-injection'],

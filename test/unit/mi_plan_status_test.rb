@@ -23,9 +23,9 @@ class MiPlanStatusTest < ActiveSupport::TestCase
     expected = [
       'Interest',
       'Conflict',
-      'Declined - GLT Mouse',
-      'Declined - MI Attempt',
-      'Declined - Conflict'
+      'Inspect - GLT Mouse',
+      'Inspect - MI Attempt',
+      'Inspect - Conflict'
     ].sort
     assert_equal expected, MiPlanStatus.all_non_assigned.map(&:name).sort
   end

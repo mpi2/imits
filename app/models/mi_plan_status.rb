@@ -13,9 +13,9 @@ class MiPlanStatus < ActiveRecord::Base
     return [
       MiPlanStatus['Interest'],
       MiPlanStatus['Conflict'],
-      MiPlanStatus['Declined - GLT Mouse'],
-      MiPlanStatus['Declined - MI Attempt'],
-      MiPlanStatus['Declined - Conflict']
+      MiPlanStatus['Inspect - GLT Mouse'],
+      MiPlanStatus['Inspect - MI Attempt'],
+      MiPlanStatus['Inspect - Conflict']
     ]
   end
 

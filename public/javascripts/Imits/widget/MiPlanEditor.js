@@ -181,7 +181,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         });
 
         this.add(Ext.create('Ext.panel.Panel', {
-            height: 340,
+            height: 300,
             ui: 'plain',
             layout: {
                 type: 'vbox',

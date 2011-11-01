@@ -97,13 +97,13 @@ Ext.define('Imits.widget.MiPlanEditor', {
                     if(Ext.isEmpty(editor.miPlan.get('number_of_es_cells_passing_qc')) &&
                         !Ext.isEmpty(editor.form.getComponent('number_of_es_cells_passing_qc').getValue())) {
 
-                        message = 'Saving these changes will lock the status to "Assigned - ES Cell QC Complete"';
+                        message = 'Saving these changes will force the status to "Assigned - ES Cell QC Complete"';
 
                     } else if(Ext.isEmpty(editor.miPlan.get('number_of_es_cells_starting_qc')) &&
 
                         !Ext.isEmpty(editor.form.getComponent('number_of_es_cells_starting_qc').getValue())) {
 
-                        message = 'Saving these changes will lock the status to "Assigned - ES Cell QC In Progress"';
+                        message = 'Saving these changes will force the status to "Assigned - ES Cell QC In Progress"';
                     }
 
                     if(!Ext.isEmpty(message)) {

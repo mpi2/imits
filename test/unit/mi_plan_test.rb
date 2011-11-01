@@ -372,6 +372,23 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
       end
 
+      should 'set all interested MiPlans to "Inspect - Conflict" if other MiPlans for the same gene are already in an alternative Assigned state (like the ES Cell QC ones)' do
+        gene = Factory.create :gene_cbx1
+        plan = Factory.create :mi_plan, :gene => gene,
+                :consortium => Consortium.find_by_name!('BaSH'),
+                :number_of_es_cells_starting_qc => 5
+        assert_equal 'Assigned - ES Cell QC In Progress', plan.status
+
+        mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
+          Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
+        end
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plans.each(&:reload)
+
+        assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
+      end
+
       should 'set all interested MiPlans to "Inspect - MI Attempt" if MiPlans with active MiAttempts already exist' do
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create :mi_plan,

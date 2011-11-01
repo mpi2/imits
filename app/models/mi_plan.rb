@@ -136,23 +136,26 @@ class MiPlan < ActiveRecord::Base
     self.all_grouped_by_mgi_accession_id_then_by_status_name.each do |mgi_accession_id, mi_plans_by_status|
       interested = mi_plans_by_status['Interest']
 
+      assigned = []
+      MiPlanStatus.all_assigned.each do |assigned_status|
+        assigned += mi_plans_by_status[assigned_status.name].to_a
+      end
+
       next if interested.blank?
 
-      if ! mi_plans_by_status['Assigned'].blank?
-        assigned_plans_with_mis      = MiPlan.where('mi_plans.id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_active_mi_attempt
-        assigned_plans_with_glt_mice = MiPlan.where('mi_plans.id in (?)', mi_plans_by_status['Assigned'].map(&:id)).with_genotype_confirmed_mouse
+      if ! assigned.blank?
+        assigned_plans_with_mis      = MiPlan.where('mi_plans.id in (?)', assigned.map(&:id)).with_active_mi_attempt
+        assigned_plans_with_glt_mice = MiPlan.where('mi_plans.id in (?)', assigned.map(&:id)).with_genotype_confirmed_mouse
 
-        if ! assigned_plans_with_mis.blank? or ! assigned_plans_with_glt_mice.blank?
-          if ! assigned_plans_with_glt_mice.blank?
-            interested.each do |mi_plan|
-              mi_plan.mi_plan_status = inspect_due_to_glt_mouse_status
-              mi_plan.save!
-            end
-          else
-            interested.each do |mi_plan|
-              mi_plan.mi_plan_status = inspect_due_to_mi_attempt_status
-              mi_plan.save!
-            end
+        if ! assigned_plans_with_glt_mice.blank?
+          interested.each do |mi_plan|
+            mi_plan.mi_plan_status = inspect_due_to_glt_mouse_status
+            mi_plan.save!
+          end
+        elsif ! assigned_plans_with_mis.blank?
+          interested.each do |mi_plan|
+            mi_plan.mi_plan_status = inspect_due_to_mi_attempt_status
+            mi_plan.save!
           end
         else
           interested.each do |mi_plan|
@@ -160,6 +163,7 @@ class MiPlan < ActiveRecord::Base
             mi_plan.save!
           end
         end
+
       elsif ! mi_plans_by_status['Conflict'].blank? or interested.size != 1
         interested.each do |mi_plan|
           mi_plan.mi_plan_status = conflict_status

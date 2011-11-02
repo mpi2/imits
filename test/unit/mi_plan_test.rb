@@ -57,19 +57,6 @@ class MiPlanTest < ActiveSupport::TestCase
           stamps = plan.status_stamps.dup
           assert_equal 3, stamps.size
 
-      should 'delete related MiPlanStatusStamps as well' do
-        plan = Factory.create :mi_plan_with_production_centre
-        plan.mi_plan_status = MiPlanStatus['Conflict']; plan.save!
-        plan.number_of_es_cells_starting_qc = 5; plan.save!
-        stamps = plan.status_stamps.dup
-        assert_equal 3, stamps.size
-
-        plan.destroy
-
-        stamps = stamps.map {|s| MiPlan::StatusStamp.find_by_id s.id}
-        assert_equal [nil, nil, nil], stamps
-      end
-
           plan.destroy
 
           stamps = stamps.map {|s| MiPlan::StatusStamp.find_by_id s.id}

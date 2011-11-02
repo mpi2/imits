@@ -34,7 +34,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       end
     end
 
-    should 'generate warning if MiPlan that will be assigned does not have status already set to Assigned' do
+    should 'generate warning if MiPlan that will be assigned does not have an assigned status' do
       gene = Factory.create :gene_cbx1
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
@@ -55,16 +55,13 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       gene = Factory.create :gene_cbx1
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :gene => gene
+              :gene => gene, :mi_plan_status => MiPlanStatus['Assigned']
       es_cell = Factory.create :es_cell, :gene => gene
-
-      mi_plan.mi_plan_status = MiPlanStatus['Assigned']
-      mi_plan.save!
 
       mi = Factory.build :mi_attempt, :consortium_name => mi_plan.consortium.name,
               :production_centre_name => mi_plan.production_centre.name,
               :es_cell => es_cell
-      assert_false mi.generate_warnings
+      assert_false mi.generate_warnings, mi.warnings.inspect
 
       mi_plan.mi_plan_status = MiPlanStatus['Assigned - ES Cell QC In Progress']
       mi_plan.save!

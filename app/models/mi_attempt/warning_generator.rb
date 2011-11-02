@@ -32,7 +32,7 @@ module MiAttempt::WarningGenerator
       end
     end
 
-    if potential_mi_plan.assigned?
+    if ! potential_mi_plan.assigned?
       add_warning :micro_injecting_unassigned_gene
       return true
     end

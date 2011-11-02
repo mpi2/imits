@@ -1,8 +1,14 @@
 <% @title = 'Users by Production Centre' %>
 
+<!-- change this to alter the tick character that indicates user.is_contactable -->
+<% is_contactable = "&#x2714;".html_safe %>
+  
 <div class="grid_12">
   <h2><%= @title %></h2>
 </div>
+
+<!-- legend for tick char -->
+<p class="contactable-legend">(<%= is_contactable %> indicates willing to be contacted)</p>
 
 <div class="grid_12 alpha omega">
   <%
@@ -20,7 +26,9 @@
         <tbody>
           <% @users_by_production_centre[production_centre].each do |user| %>
             <tr>
-              <td><%= user.name %></td>
+              <td><%= user.name && user.name.length > 0 ? user.name : user.email %>
+                <%= is_contactable if user.is_contactable? %>
+              </td>
               <td><%= mail_to(user.email) %></td>
             </tr>
           <% end %>

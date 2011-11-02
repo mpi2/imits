@@ -2,13 +2,14 @@ class User < ActiveRecord::Base
   ADMIN_USERS = [
     'aq2@sanger.ac.uk',
     'do2@sanger.ac.uk',
-    'vvi@sanger.ac.uk'
+    'vvi@sanger.ac.uk',
+    're4@sanger.ac.uk'
   ]
 
   devise :database_authenticatable, :rememberable, :validatable
 
   attr_accessible :email, :password, :password_confirmation, :remember_me,
-          :production_centre, :production_centre_id, :name
+          :production_centre, :production_centre_id, :name, :is_contactable
 
   belongs_to :production_centre, :class_name => 'Centre'
 
@@ -33,6 +34,7 @@ end
 #  created_at           :datetime
 #  updated_at           :datetime
 #  name                 :string(255)
+#  is_contactable       :boolean         default(FALSE)
 #
 # Indexes
 #

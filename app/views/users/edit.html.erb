@@ -16,6 +16,12 @@
 
         <tr>
           <td>
+            <%= form.label :contactable %>
+            <%= form.check_box :is_contactable %>
+          </td>
+
+        <tr>
+          <td>
             <%= form.label :production_centre %>
             <span><%= resource.production_centre.name %></span>
           </td>

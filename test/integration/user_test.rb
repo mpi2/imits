@@ -54,5 +54,19 @@ class UserTest < ActionDispatch::IntegrationTest
       assert page.has_css?('input[name="user[name]"]', :value => 'New Name Of User')
     end
 
+    should 'allow contactable to be modified' do    
+      user = Factory.create :user
+      assert_false user.is_contactable?
+
+      login user
+      click_link 'Edit profile'
+      check 'user[is_contactable]'
+      click_button 'user_submit'
+
+      user.reload
+      
+      assert_true user.is_contactable?
+    end
+
   end
 end

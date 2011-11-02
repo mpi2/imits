@@ -616,8 +616,16 @@ class MiPlanTest < ActiveSupport::TestCase
                 :consortium_name => 'DTCC',
                 :production_centre_name => 'UCD',
                 :is_active => false,
-                :mi_date => 9.months.ago,
-                :mi_attempt_status => MiAttemptStatus.micro_injection_aborted
+                :mi_date => 9.months.ago
+
+        old_failed_mi_attempt_2 = Factory.create :mi_attempt,
+                :es_cell => es_cell,
+                :consortium_name => 'DTCC',
+                :production_centre_name => 'WTSI',
+                :is_active => false,
+                :mi_date => 9.months.ago
+        old_failed_mi_attempt_2.mi_plan.number_of_es_cells_starting_qc = 5
+        old_failed_mi_attempt_2.mi_plan.save!
 
         mi_plan_no_attempts = Factory.create :mi_plan,
                 :gene => cbx1,
@@ -625,17 +633,27 @@ class MiPlanTest < ActiveSupport::TestCase
                 :production_centre => Centre.find_by_name!('JAX'),
                 :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
 
+        es_qc_mi_plan_no_attempts = Factory.create :mi_plan,
+                :gene => cbx1,
+                :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
+                :production_centre => Centre.find_by_name!('JAX'),
+                :number_of_es_cells_starting_qc => 6
+
         assert_equal 'Assigned', gc_mi_attempt.mi_plan.status
         assert_equal 'Assigned', in_prog_mi_attempt.mi_plan.status
         assert_equal 'Assigned', old_failed_mi_attempt.mi_plan.status
+        assert_equal 'Assigned - ES Cell QC In Progress', old_failed_mi_attempt_2.mi_plan.status
         assert_equal 'Assigned', mi_plan_no_attempts.status
+        assert_equal 'Assigned - ES Cell QC In Progress', es_qc_mi_plan_no_attempts.status
 
         MiPlan.mark_old_plans_as_inactive
 
-        assert_equal 'Assigned', gc_mi_attempt.mi_plan.reload.status
-        assert_equal 'Assigned', in_prog_mi_attempt.mi_plan.reload.status
-        assert_equal 'Inactive', old_failed_mi_attempt.mi_plan.reload.status
+        assert_equal 'Assigned', gc_mi_attempt.reload.mi_plan.status
+        assert_equal 'Assigned', in_prog_mi_attempt.reload.mi_plan.status
+        assert_equal 'Inactive', old_failed_mi_attempt.reload.mi_plan.status
+        assert_equal 'Inactive', old_failed_mi_attempt_2.reload.mi_plan.status
         assert_equal 'Assigned', mi_plan_no_attempts.reload.status
+        assert_equal 'Assigned - ES Cell QC In Progress', es_qc_mi_plan_no_attempts.status
 
         # Now test what happens if a centre re-visits an inactive MiPlan...
         new_mi_attempt = Factory.create :mi_attempt,

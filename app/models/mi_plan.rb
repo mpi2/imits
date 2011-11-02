@@ -179,7 +179,7 @@ class MiPlan < ActiveRecord::Base
   end
 
   def self.mark_old_plans_as_inactive
-    self.where( :mi_plan_status_id => MiPlanStatus['Assigned'].id ).with_mi_attempt.each do |mi_plan|
+    self.where( :mi_plan_status_id => MiPlanStatus.all_assigned.map(&:id) ).with_mi_attempt.each do |mi_plan|
       all_inactive, all_over_six_months_old = true, true
 
       mi_plan.mi_attempts.each do |mi_attempt|

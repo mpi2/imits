@@ -100,22 +100,6 @@ class MiPlansControllerTest < ActionController::TestCase
           assert JSON.parse(response.body).has_key?('mi_plan')
         end
 
-        should 'return error if trying to delete assigned mi_plans' do
-          mip4 = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status_id => MiPlanStatus.find_by_name!('Assigned').id
-          assert_no_difference('MiPlan.count') do
-            delete(
-              :destroy,
-              :marker_symbol => mip4.gene.marker_symbol,
-              :consortium => mip4.consortium.name,
-              :production_centre => mip4.production_centre.name,
-              :format => :json
-            )
-          end
-          assert_response 403
-          assert JSON.parse(response.body).has_key?('mi_plan')
-        end
-
         should 'delete the right MiPlan' do
           gene = Factory.create :gene_cbx1
           mip5 = Factory.create :mi_plan,

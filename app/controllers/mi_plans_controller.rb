@@ -51,11 +51,6 @@ class MiPlansController < ApplicationController
 
   def destroy
     @mi_plan = nil
-    if request.body.respond_to?(:string)
-        if ! request.body.string.empty?
-          raise "Body of DELETE request MUST be empty for overly-pedantic proxies to work!  Got:\n#{request.body.string}"
-        end
-    end
 
     if !params[:id].blank?
       @mi_plan = MiPlan.find_by_id(params[:id])

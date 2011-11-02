@@ -717,5 +717,107 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '#reason_for_inspect_or_conflict' do
+      setup do
+        @gene = Factory.create :gene_cbx1
+        @eucomm_cons = Consortium.find_by_name!('EUCOMM-EUMODIC')
+        @bash_cons = Consortium.find_by_name!('BaSH')
+        @mgp_cons = Consortium.find_by_name!('MGP')
+        @ics_cent = Centre.find_by_name!('ICS')
+        @jax_cent = Centre.find_by_name!('JAX')
+        @cnb_cent = Centre.find_by_name!('CNB')
+      end
+
+      should 'correctly return for Inspect - GLT Mouse' do
+        mi_attempt = Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :consortium_name => @eucomm_cons.name,
+                :production_centre_name => @ics_cent.name
+        set_mi_attempt_genotype_confirmed(mi_attempt)
+
+        mi_attempt = Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :consortium_name => @bash_cons.name,
+                :production_centre_name => @jax_cent.name
+        set_mi_attempt_genotype_confirmed(mi_attempt)
+
+        mi_plan = Factory.create :mi_plan, :gene => @gene,
+                :consortium => @mgp_cons, :production_centre => @cnb_cent
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plan.reload; assert_equal 'Inspect - GLT Mouse', mi_plan.status
+
+        assert_equal "GLT mouse produced at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
+                mi_plan.reason_for_inspect_or_conflict
+      end
+
+      should 'correctly return for Inspect - MI Attempt' do
+        mi_attempt = Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :consortium_name => @eucomm_cons.name,
+                :production_centre_name => @ics_cent.name
+
+        mi_attempt = Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :consortium_name => @bash_cons.name,
+                :production_centre_name => @jax_cent.name,
+                :is_active => true
+
+        mi_plan = Factory.create :mi_plan, :gene => @gene,
+                :consortium => @mgp_cons, :production_centre => @cnb_cent
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plan.reload; assert_equal 'Inspect - MI Attempt', mi_plan.status
+
+        assert_equal "MI already in progress at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
+                mi_plan.reason_for_inspect_or_conflict
+      end
+
+      should 'correctly return for Inspect - Conflict' do
+        Factory.create :mi_attempt
+
+        Factory.create :mi_plan, :gene => @gene,
+                :consortium => @eucomm_cons, :production_centre => @ics_cent,
+                :mi_plan_status => MiPlanStatus[:Assigned]
+
+        Factory.create :mi_plan, :gene => @gene,
+                :consortium => @bash_cons, :production_centre => @jax_cent,
+                :number_of_es_cells_starting_qc => 5
+
+        mi_plan = Factory.create :mi_plan, :gene => @gene,
+                :consortium => @mgp_cons, :production_centre => @cnb_cent
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plan.reload; assert_equal 'Inspect - Conflict', mi_plan.status
+
+        assert_equal "Other 'Assigned' MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",
+                mi_plan.reason_for_inspect_or_conflict
+      end
+
+      should 'correctly return for Conflict' do
+        Factory.create :mi_attempt
+
+        Factory.create :mi_plan, :gene => @gene,
+                :consortium => @eucomm_cons, :production_centre => @ics_cent
+
+        Factory.create :mi_plan, :gene => @gene,
+                :consortium => @bash_cons, :production_centre => @jax_cent
+
+        mi_plan = Factory.create :mi_plan, :gene => @gene,
+                :consortium => @mgp_cons, :production_centre => @cnb_cent
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plan.reload; assert_equal 'Conflict', mi_plan.status
+
+        assert_equal "Other MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",
+                mi_plan.reason_for_inspect_or_conflict
+      end
+
+      should 'return nil if no conflict' do
+        mi_plan = Factory.create :mi_plan
+        assert_nil mi_plan.reason_for_inspect_or_conflict
+      end
+    end
+
   end
 end

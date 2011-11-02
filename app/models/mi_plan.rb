@@ -207,38 +207,37 @@ class MiPlan < ActiveRecord::Base
     return mi_plans
   end
 
-  def reason_for_inspect_conflict
-    reason_string = case self.mi_plan_status.name
+  def reason_for_inspect_or_conflict
+    case self.mi_plan_status.name
     when 'Inspect - GLT Mouse'
       other_centres_consortia = MiPlan.scoped
       .where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',{ :gene_id => self.gene_id, :id => self.id })
       .with_genotype_confirmed_mouse
       .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
-      "GLT mouse produced at: #{other_centres_consortia.join(', ')}"
+      return "GLT mouse produced at: #{other_centres_consortia.join(', ')}"
     when 'Inspect - MI Attempt'
       other_centres_consortia = MiPlan.scoped
       .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
       .with_active_mi_attempt
       .map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
-      "MI already in progress at: #{other_centres_consortia.join(', ')}"
+      return "MI already in progress at: #{other_centres_consortia.join(', ')}"
     when 'Inspect - Conflict'
       other_consortia = MiPlan
       .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
-      .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Assigned').id )
+      .where(:mi_plan_status_id => MiPlanStatus.all_assigned )
       .without_active_mi_attempt
       .map{ |p| p.consortium.name }.uniq
-      "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
+      return "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
     when 'Conflict'
       other_consortia = MiPlan
       .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
-      .where('mi_plan_status_id = ?', MiPlanStatus.find_by_name!('Conflict').id )
+      .where(:mi_plan_status_id => MiPlanStatus[:Conflict] )
       .without_active_mi_attempt
       .map{ |p| p.consortium.name }.uniq
-      "Other MI plans for: #{other_consortia.join(', ')}"
+      return "Other MI plans for: #{other_consortia.join(', ')}"
     else
-      nil
+      return nil
     end
-    return reason_string
   end
 
   def as_json(options = {})

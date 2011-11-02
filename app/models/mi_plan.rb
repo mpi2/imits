@@ -23,7 +23,8 @@ class MiPlan < ActiveRecord::Base
   belongs_to :mi_plan_priority
   belongs_to :production_centre, :class_name => 'Centre'
   has_many :mi_attempts
-  has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC"
+  has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
+          :dependent => :destroy
 
   access_association_by_attribute :gene, :marker_symbol, :full_alias => :marker_symbol
   access_association_by_attribute :consortium, :name

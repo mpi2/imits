@@ -49,6 +49,32 @@ class MiPlanTest < ActiveSupport::TestCase
           @default_mi_plan.status_stamps.reload
           assert_equal [s1, s3, s2].map(&:name), @default_mi_plan.status_stamps.map(&:name)
         end
+
+        should 'delete related MiPlanStatusStamps as well' do
+          plan = Factory.create :mi_plan_with_production_centre
+          plan.mi_plan_status = MiPlanStatus['Conflict']; plan.save!
+          plan.number_of_es_cells_starting_qc = 5; plan.save!
+          stamps = plan.status_stamps.dup
+          assert_equal 3, stamps.size
+
+      should 'delete related MiPlanStatusStamps as well' do
+        plan = Factory.create :mi_plan_with_production_centre
+        plan.mi_plan_status = MiPlanStatus['Conflict']; plan.save!
+        plan.number_of_es_cells_starting_qc = 5; plan.save!
+        stamps = plan.status_stamps.dup
+        assert_equal 3, stamps.size
+
+        plan.destroy
+
+        stamps = stamps.map {|s| MiPlan::StatusStamp.find_by_id s.id}
+        assert_equal [nil, nil, nil], stamps
+      end
+
+          plan.destroy
+
+          stamps = stamps.map {|s| MiPlan::StatusStamp.find_by_id s.id}
+          assert_equal [nil, nil, nil], stamps
+        end
       end
 
       context '#add_status_stamp' do

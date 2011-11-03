@@ -18,4 +18,24 @@ class MiPlanStatusTest < ActiveSupport::TestCase
     assert_equal MiPlanStatus.find_by_name!('Assigned'), MiPlanStatus['Assigned']
     assert_equal MiPlanStatus.find_by_name!('Conflict'), MiPlanStatus[:Conflict]
   end
+
+  should 'have ::all_non_assigned' do
+    expected = [
+      'Interest',
+      'Conflict',
+      'Inspect - GLT Mouse',
+      'Inspect - MI Attempt',
+      'Inspect - Conflict'
+    ].sort
+    assert_equal expected, MiPlanStatus.all_non_assigned.map(&:name).sort
+  end
+
+  should 'have :all_assigned' do
+    expected = [
+      'Assigned',
+      'Assigned - ES Cell QC In Progress',
+      'Assigned - ES Cell QC Complete'
+    ].sort
+    assert_equal expected, MiPlanStatus.all_assigned.map(&:name).sort
+  end
 end

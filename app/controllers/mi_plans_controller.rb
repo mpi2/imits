@@ -10,11 +10,8 @@ class MiPlansController < ApplicationController
 
     q[:marker_symbol_or_mgi_accession_id_ci_in] ||= ''
     q[:marker_symbol_or_mgi_accession_id_ci_in] =
-      q[:marker_symbol_or_mgi_accession_id_ci_in]
-        .lines
-        .map(&:strip)
-        .select{|i|!i.blank?}
-        .join("\n")
+            q[:marker_symbol_or_mgi_accession_id_ci_in].
+            lines.map(&:strip).select{|i|!i.blank?}.join("\n")
 
     @centre_combo_options    = Centre.order('name').map(&:name)
     @consortia_combo_options = Consortium.order('name').map(&:name)
@@ -28,8 +25,8 @@ class MiPlansController < ApplicationController
   def create
     upgradeable = MiPlan.check_for_upgradeable(params[:mi_plan])
     if upgradeable
-      message = "#{upgradeable.marker_symbol} has already been selected to be injected on behalf of #{upgradeable.consortium_name}, please edit existing selection"
-      render(:json => {:id => upgradeable.id, :message => message}, :status => 301)
+      message = "#{upgradeable.marker_symbol} has already been selected by #{upgradeable.consortium_name} without a production centre, please add your production centre to that selection"
+      render(:json => {'error' => message}, :status => 422)
     else
       @mi_plan = MiPlan.create(params[:mi_plan])
       respond_with @mi_plan
@@ -71,19 +68,8 @@ class MiPlansController < ApplicationController
     end
 
     if !@mi_plan.nil?
-      if !['Assigned','Inactive'].include?(@mi_plan.status)
-        @mi_plan.destroy
-        respond_to { |format| format.json { head :ok } }
-      else
-        respond_to do |format|
-          format.json {
-            render(
-              :json => { :mi_plan => 'We only allow the deletion of MiPlans that are NOT in the "Assigned" or "Inactive" status.' },
-              :status => 403
-            )
-          }
-        end
-      end
+      @mi_plan.destroy
+      respond_to { |format| format.json { head :ok } }
     else
       respond_to do |format|
         format.json {

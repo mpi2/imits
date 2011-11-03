@@ -46,7 +46,7 @@ class MiPlansControllerTest < ActionController::TestCase
           assert_equal ['cannot be blank'], JSON.parse(response.body)['marker_symbol']
         end
 
-        should 'return redirect with id of MiPlan to edit in body as JSON when trying to create duplicate-but-with-production-centre to existing one' do
+        should 'return errors when trying to create duplicate-but-with-production-centre to existing one' do
           cbx1 = Factory.create :gene_cbx1
           bash = Consortium.find_by_name!('BaSH')
           mi_plan = Factory.create :mi_plan, :gene => cbx1, :consortium => bash, :production_centre => nil
@@ -58,9 +58,9 @@ class MiPlansControllerTest < ActionController::TestCase
               :priority => 'High'
             }, :format => :json
           end
-          assert_response 301, response.body
-          message = 'Cbx1 has already been selected to be injected on behalf of BaSH, please edit existing selection'
-          assert_equal({'id' => mi_plan.id, 'message' => message}, JSON.parse(response.body))
+          assert_response 422, response.body
+          message = 'Cbx1 has already been selected by BaSH without a production centre, please add your production centre to that selection'
+          assert_equal({'error' => message}, JSON.parse(response.body))
         end
       end
 
@@ -97,22 +97,6 @@ class MiPlansControllerTest < ActionController::TestCase
             )
           end
           assert_response 422
-          assert JSON.parse(response.body).has_key?('mi_plan')
-        end
-
-        should 'return error if trying to delete assigned mi_plans' do
-          mip4 = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status_id => MiPlanStatus.find_by_name!('Assigned').id
-          assert_no_difference('MiPlan.count') do
-            delete(
-              :destroy,
-              :marker_symbol => mip4.gene.marker_symbol,
-              :consortium => mip4.consortium.name,
-              :production_centre => mip4.production_centre.name,
-              :format => :json
-            )
-          end
-          assert_response 403
           assert JSON.parse(response.body).has_key?('mi_plan')
         end
 

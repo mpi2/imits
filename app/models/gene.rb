@@ -21,22 +21,6 @@ class Gene < ActiveRecord::Base
     return html.join('<br/>').html_safe
   end
 
-  def non_assigned_mi_plans
-    Gene.non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
-  end
-
-  def pretty_print_non_assigned_mi_plans
-    Gene.pretty_print_non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
-  end
-
-  def assigned_mi_plans
-    Gene.assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
-  end
-
-  def pretty_print_assigned_mi_plans
-    Gene.pretty_print_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
-  end
-
   def pretty_print_mi_attempts_in_progress
     return Gene.pretty_print_mi_attempts_in_progress_in_bulk(self.id)[self.marker_symbol]
   end
@@ -49,8 +33,10 @@ class Gene < ActiveRecord::Base
     return Gene.pretty_print_aborted_mi_attempts_in_bulk(self.id)[self.marker_symbol]
   end
 
+  # == Non-Assigned MiPlans
+
   def self.non_assigned_mi_plans_in_bulk(gene_id=nil)
-    sql = <<-SQL
+    sql = <<-"SQL"
       select distinct
         mi_plans.id,
         genes.marker_symbol,
@@ -62,12 +48,13 @@ class Gene < ActiveRecord::Base
       join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
       join consortia on mi_plans.consortium_id = consortia.id
       left join centres on mi_plans.production_centre_id = centres.id
-      where mi_plan_statuses.name not in ('Assigned','Inactive')
+      where mi_plan_statuses.name in
+        (#{MiPlanStatus.all_non_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?
 
     genes = {}
-    results = ActiveRecord::Base.connection.execute(sql)
+    results = Gene.connection.execute(sql)
     results.each do |res|
       genes[ res['marker_symbol'] ] ||= []
       genes[ res['marker_symbol'] ] << {
@@ -79,6 +66,10 @@ class Gene < ActiveRecord::Base
     end
 
     return genes
+  end
+
+  def non_assigned_mi_plans
+    Gene.non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
   end
 
   def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil)
@@ -97,8 +88,14 @@ class Gene < ActiveRecord::Base
     return data
   end
 
+  def pretty_print_non_assigned_mi_plans
+    Gene.pretty_print_non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+  end
+
+  # == Assigned MiPlans
+
   def self.assigned_mi_plans_in_bulk(gene_id=nil)
-    sql = <<-SQL
+    sql = <<-"SQL"
       select distinct
         mi_plans.id,
         genes.marker_symbol,
@@ -110,7 +107,8 @@ class Gene < ActiveRecord::Base
       join consortia on mi_plans.consortium_id = consortia.id
       left join centres on mi_plans.production_centre_id = centres.id
       left join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
-      where mi_plan_statuses.name = 'Assigned'
+      where mi_plan_statuses.name in
+        (#{MiPlanStatus.all_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
       and mi_attempts.id is null
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?
@@ -129,6 +127,10 @@ class Gene < ActiveRecord::Base
     return genes
   end
 
+  def assigned_mi_plans
+    Gene.assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+  end
+
   def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil)
     data = Gene.assigned_mi_plans_in_bulk(gene_id)
 
@@ -143,6 +145,11 @@ class Gene < ActiveRecord::Base
 
     return data
   end
+
+  def pretty_print_assigned_mi_plans
+    Gene.pretty_print_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+  end
+
 
   def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_id=nil)
     return pretty_print_mi_attempts_in_bulk_helper(true, MiAttemptStatus.micro_injection_in_progress, gene_id)

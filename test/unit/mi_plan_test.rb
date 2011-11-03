@@ -49,6 +49,19 @@ class MiPlanTest < ActiveSupport::TestCase
           @default_mi_plan.status_stamps.reload
           assert_equal [s1, s3, s2].map(&:name), @default_mi_plan.status_stamps.map(&:name)
         end
+
+        should 'delete related MiPlanStatusStamps as well' do
+          plan = Factory.create :mi_plan_with_production_centre
+          plan.mi_plan_status = MiPlanStatus['Conflict']; plan.save!
+          plan.number_of_es_cells_starting_qc = 5; plan.save!
+          stamps = plan.status_stamps.dup
+          assert_equal 3, stamps.size
+
+          plan.destroy
+
+          stamps = stamps.map {|s| MiPlan::StatusStamp.find_by_id s.id}
+          assert_equal [nil, nil, nil], stamps
+        end
       end
 
       context '#add_status_stamp' do
@@ -169,6 +182,71 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      context '#number_of_es_cells_starting_qc' do
+        should 'exist' do
+          assert_should have_db_column(:number_of_es_cells_starting_qc).of_type(:integer)
+        end
+
+        should 'validate non-blankness only it was previously set to a number' do
+          assert_equal nil, @default_mi_plan.number_of_es_cells_starting_qc
+          @default_mi_plan.number_of_es_cells_starting_qc = 5
+          @default_mi_plan.save!
+
+          @default_mi_plan.number_of_es_cells_starting_qc = nil
+          assert_false @default_mi_plan.save
+
+          assert ! @default_mi_plan.errors[:number_of_es_cells_starting_qc].blank?
+        end
+
+        should 'be setsame value as number passing QC if it is null' do
+          assert_nil @default_mi_plan.number_of_es_cells_starting_qc
+          assert_nil @default_mi_plan.number_of_es_cells_passing_qc
+
+          @default_mi_plan.number_of_es_cells_passing_qc = 7
+          @default_mi_plan.valid?
+          assert_equal 7, @default_mi_plan.number_of_es_cells_starting_qc
+
+          @default_mi_plan.number_of_es_cells_passing_qc = 2
+          @default_mi_plan.valid?
+          assert_equal 7, @default_mi_plan.number_of_es_cells_starting_qc
+        end
+      end
+
+      context '#number_of_es_cells_passing_qc' do
+        should 'exist' do
+          assert_should have_db_column(:number_of_es_cells_passing_qc).of_type(:integer)
+        end
+
+        should 'validate non-blankness only it was previously set to a number' do
+          assert_equal nil, @default_mi_plan.number_of_es_cells_passing_qc
+          @default_mi_plan.number_of_es_cells_passing_qc = 5
+          @default_mi_plan.save!
+
+          @default_mi_plan.number_of_es_cells_passing_qc = nil
+          assert_false @default_mi_plan.save
+
+          assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+        end
+
+        should 'validate cannot be set to 0 if was previously non-zero' do
+          2.times do |i|
+            @default_mi_plan.number_of_es_cells_passing_qc = 0
+            @default_mi_plan.save!
+          end
+
+          @default_mi_plan.number_of_es_cells_passing_qc = 5
+          @default_mi_plan.save!
+
+          @default_mi_plan.number_of_es_cells_passing_qc = nil
+          assert_false @default_mi_plan.save
+          assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+
+          @default_mi_plan.number_of_es_cells_passing_qc = 0
+          assert_false @default_mi_plan.save
+          assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+        end
+      end
+
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
         mip = Factory.build :mi_plan
         assert mip.save
@@ -200,7 +278,9 @@ class MiPlanTest < ActiveSupport::TestCase
           'marker_symbol',
           'consortium_name',
           'production_centre_name',
-          'priority'
+          'priority',
+          'number_of_es_cells_starting_qc',
+          'number_of_es_cells_passing_qc'
         ]
         got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
         assert_equal expected.sort, got.sort
@@ -213,7 +293,9 @@ class MiPlanTest < ActiveSupport::TestCase
           'consortium_name',
           'production_centre_name',
           'priority',
-          'status'
+          'status',
+          'number_of_es_cells_starting_qc',
+          'number_of_es_cells_passing_qc'
         ]
         got = @default_mi_plan.as_json.keys
         assert_equal expected.sort, got.sort
@@ -292,6 +374,23 @@ class MiPlanTest < ActiveSupport::TestCase
         Factory.create :mi_plan, :gene => gene,
                 :consortium => Consortium.find_by_name!('BaSH'),
                 :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+
+        mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
+          Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
+        end
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plans.each(&:reload)
+
+        assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
+      end
+
+      should 'set all interested MiPlans to "Inspect - Conflict" if other MiPlans for the same gene are already in an alternative Assigned state (like the ES Cell QC ones)' do
+        gene = Factory.create :gene_cbx1
+        plan = Factory.create :mi_plan, :gene => gene,
+                :consortium => Consortium.find_by_name!('BaSH'),
+                :number_of_es_cells_starting_qc => 5
+        assert_equal 'Assigned - ES Cell QC In Progress', plan.status
 
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
@@ -504,8 +603,16 @@ class MiPlanTest < ActiveSupport::TestCase
                 :consortium_name => 'DTCC',
                 :production_centre_name => 'UCD',
                 :is_active => false,
-                :mi_date => 9.months.ago,
-                :mi_attempt_status => MiAttemptStatus.micro_injection_aborted
+                :mi_date => 9.months.ago
+
+        old_failed_mi_attempt_2 = Factory.create :mi_attempt,
+                :es_cell => es_cell,
+                :consortium_name => 'DTCC',
+                :production_centre_name => 'WTSI',
+                :is_active => false,
+                :mi_date => 9.months.ago
+        old_failed_mi_attempt_2.mi_plan.number_of_es_cells_starting_qc = 5
+        old_failed_mi_attempt_2.mi_plan.save!
 
         mi_plan_no_attempts = Factory.create :mi_plan,
                 :gene => cbx1,
@@ -513,17 +620,27 @@ class MiPlanTest < ActiveSupport::TestCase
                 :production_centre => Centre.find_by_name!('JAX'),
                 :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
 
+        es_qc_mi_plan_no_attempts = Factory.create :mi_plan,
+                :gene => cbx1,
+                :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
+                :production_centre => Centre.find_by_name!('JAX'),
+                :number_of_es_cells_starting_qc => 6
+
         assert_equal 'Assigned', gc_mi_attempt.mi_plan.status
         assert_equal 'Assigned', in_prog_mi_attempt.mi_plan.status
         assert_equal 'Assigned', old_failed_mi_attempt.mi_plan.status
+        assert_equal 'Assigned - ES Cell QC In Progress', old_failed_mi_attempt_2.mi_plan.status
         assert_equal 'Assigned', mi_plan_no_attempts.status
+        assert_equal 'Assigned - ES Cell QC In Progress', es_qc_mi_plan_no_attempts.status
 
         MiPlan.mark_old_plans_as_inactive
 
-        assert_equal 'Assigned', gc_mi_attempt.mi_plan.reload.status
-        assert_equal 'Assigned', in_prog_mi_attempt.mi_plan.reload.status
-        assert_equal 'Inactive', old_failed_mi_attempt.mi_plan.reload.status
+        assert_equal 'Assigned', gc_mi_attempt.reload.mi_plan.status
+        assert_equal 'Assigned', in_prog_mi_attempt.reload.mi_plan.status
+        assert_equal 'Inactive', old_failed_mi_attempt.reload.mi_plan.status
+        assert_equal 'Inactive', old_failed_mi_attempt_2.reload.mi_plan.status
         assert_equal 'Assigned', mi_plan_no_attempts.reload.status
+        assert_equal 'Assigned - ES Cell QC In Progress', es_qc_mi_plan_no_attempts.status
 
         # Now test what happens if a centre re-visits an inactive MiPlan...
         new_mi_attempt = Factory.create :mi_attempt,
@@ -559,8 +676,133 @@ class MiPlanTest < ActiveSupport::TestCase
                 :production_centre => wtsi
 
         got = MiPlan.check_for_upgradeable(:marker_symbol => cbx1.marker_symbol,
-          :consortium_name => bash, :production_centre_name => 'ICS')
+          :consortium_name => bash.name, :production_centre_name => 'ICS')
         assert_nil got
+      end
+    end
+
+    context '#assigned?' do
+      should 'return true if status is assigned' do
+        plan = Factory.build :mi_plan_with_production_centre
+        plan.mi_plan_status = MiPlanStatus['Assigned']
+        assert plan.assigned?
+
+        plan.mi_plan_status = MiPlanStatus['Assigned - ES Cell QC In Progress']
+        assert plan.assigned?
+
+        plan.mi_plan_status = MiPlanStatus['Assigned - ES Cell QC Complete']
+        assert plan.assigned?
+      end
+
+      should 'return false if status is not assigned' do
+        plan = Factory.build :mi_plan_with_production_centre
+        plan.mi_plan_status = MiPlanStatus['Inactive']
+        assert_false plan.assigned?
+
+        plan.mi_plan_status = MiPlanStatus['Conflict']
+        assert_false plan.assigned?
+      end
+    end
+
+    context '#reason_for_inspect_or_conflict' do
+      setup do
+        @gene = Factory.create :gene_cbx1
+        @eucomm_cons = Consortium.find_by_name!('EUCOMM-EUMODIC')
+        @bash_cons = Consortium.find_by_name!('BaSH')
+        @mgp_cons = Consortium.find_by_name!('MGP')
+        @ics_cent = Centre.find_by_name!('ICS')
+        @jax_cent = Centre.find_by_name!('JAX')
+        @cnb_cent = Centre.find_by_name!('CNB')
+      end
+
+      should 'correctly return for Inspect - GLT Mouse' do
+        mi_attempt = Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :consortium_name => @eucomm_cons.name,
+                :production_centre_name => @ics_cent.name
+        set_mi_attempt_genotype_confirmed(mi_attempt)
+
+        mi_attempt = Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :consortium_name => @bash_cons.name,
+                :production_centre_name => @jax_cent.name
+        set_mi_attempt_genotype_confirmed(mi_attempt)
+
+        mi_plan = Factory.create :mi_plan, :gene => @gene,
+                :consortium => @mgp_cons, :production_centre => @cnb_cent
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plan.reload; assert_equal 'Inspect - GLT Mouse', mi_plan.status
+
+        assert_equal "GLT mouse produced at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
+                mi_plan.reason_for_inspect_or_conflict
+      end
+
+      should 'correctly return for Inspect - MI Attempt' do
+        mi_attempt = Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :consortium_name => @eucomm_cons.name,
+                :production_centre_name => @ics_cent.name
+
+        mi_attempt = Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :consortium_name => @bash_cons.name,
+                :production_centre_name => @jax_cent.name,
+                :is_active => true
+
+        mi_plan = Factory.create :mi_plan, :gene => @gene,
+                :consortium => @mgp_cons, :production_centre => @cnb_cent
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plan.reload; assert_equal 'Inspect - MI Attempt', mi_plan.status
+
+        assert_equal "MI already in progress at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
+                mi_plan.reason_for_inspect_or_conflict
+      end
+
+      should 'correctly return for Inspect - Conflict' do
+        Factory.create :mi_attempt
+
+        Factory.create :mi_plan, :gene => @gene,
+                :consortium => @eucomm_cons, :production_centre => @ics_cent,
+                :mi_plan_status => MiPlanStatus[:Assigned]
+
+        Factory.create :mi_plan, :gene => @gene,
+                :consortium => @bash_cons, :production_centre => @jax_cent,
+                :number_of_es_cells_starting_qc => 5
+
+        mi_plan = Factory.create :mi_plan, :gene => @gene,
+                :consortium => @mgp_cons, :production_centre => @cnb_cent
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plan.reload; assert_equal 'Inspect - Conflict', mi_plan.status
+
+        assert_equal "Other 'Assigned' MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",
+                mi_plan.reason_for_inspect_or_conflict
+      end
+
+      should 'correctly return for Conflict' do
+        Factory.create :mi_attempt
+
+        Factory.create :mi_plan, :gene => @gene,
+                :consortium => @eucomm_cons, :production_centre => @ics_cent
+
+        Factory.create :mi_plan, :gene => @gene,
+                :consortium => @bash_cons, :production_centre => @jax_cent
+
+        mi_plan = Factory.create :mi_plan, :gene => @gene,
+                :consortium => @mgp_cons, :production_centre => @cnb_cent
+
+        MiPlan.assign_genes_and_mark_conflicts
+        mi_plan.reload; assert_equal 'Conflict', mi_plan.status
+
+        assert_equal "Other MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",
+                mi_plan.reason_for_inspect_or_conflict
+      end
+
+      should 'return nil if no conflict' do
+        mi_plan = Factory.create :mi_plan
+        assert_nil mi_plan.reason_for_inspect_or_conflict
       end
     end
 

@@ -112,12 +112,12 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         assert_equal 1, mi_plans.count
       end
 
-      should 'allow users to delete non-assigned mi_plans' do
+      should 'allow users to delete mi_plans' do
         mi_plan = Factory.create :mi_plan,
-          :gene => Gene.find_by_marker_symbol!('Myo1c'),
-          :consortium => Consortium.find_by_name!('Helmholtz GMC'),
-          :production_centre => Centre.find_by_name!('HMGU'),
-          :mi_plan_status => MiPlanStatus['Interest']
+                :gene => Gene.find_by_marker_symbol!('Myo1c'),
+                :consortium => Consortium.find_by_name!('Helmholtz GMC'),
+                :production_centre => Centre.find_by_name!('HMGU'),
+                :mi_plan_status => MiPlanStatus['Interest']
         mi_plan_id = mi_plan.id
 
         visit '/mi_plans/gene_selection'
@@ -129,11 +129,49 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         find('a.mi-plan').click
         find('#delete-button').click
+        find('#delete-confirmation-button').click
 
         sleep 3
         assert_nil MiPlan.find_by_id(mi_plan_id)
       end
-    end
+
+      should 'allow users to edit mi_plans' do
+        mi_plan = Factory.create :mi_plan,
+                :gene => Gene.find_by_marker_symbol!('Myo1c'),
+                :consortium => Consortium.find_by_name!('Helmholtz GMC'),
+                :production_centre => Centre.find_by_name!('HMGU'),
+                :mi_plan_status => MiPlanStatus['Interest']
+        mi_plan_id = mi_plan.id
+
+        visit '/mi_plans/gene_selection'
+
+        sleep 3
+
+        assert_equal 1, all('a.mi-plan').size
+
+        find('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]').click
+        page.execute_script(<<-JS)
+          Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('5');
+        JS
+        find('#update-button').click
+        all('.x-message-box button').detect {|b| b.text == 'Yes'}.click
+
+        sleep 1
+
+        find('a.mi-plan', :text => '[Helmholtz GMC:HMGU]').click
+        page.execute_script(<<-JS)
+          Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('10');
+        JS
+        find('#update-button').click
+
+        sleep 3
+
+        mi_plan.reload
+        assert_equal 10, mi_plan.number_of_es_cells_starting_qc
+        assert_equal 'Assigned - ES Cell QC In Progress', mi_plan.status
+      end
+    end # once logged in
+
   end
 end
 

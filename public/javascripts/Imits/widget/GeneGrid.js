@@ -82,7 +82,7 @@ Ext.define('Imits.widget.GeneGrid', {
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
             '<tpl for="non_assigned_mi_plans">',
-            '<a class="mi-plan" title="delete planned micro-injection" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
+            '<a class="mi-plan" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
             '</tpl>',
             {
                 prettyPrintMiPlan: printMiPlanString
@@ -99,7 +99,7 @@ Ext.define('Imits.widget.GeneGrid', {
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
             '<tpl for="assigned_mi_plans">',
-            '{[this.prettyPrintMiPlan(values)]}<br/>',
+            '<a class="mi-plan" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
             '</tpl>',
             {
                 prettyPrintMiPlan: printMiPlanString
@@ -207,9 +207,6 @@ Ext.define('Imits.widget.GeneGrid', {
                 'priority': priority
             });
             miPlan.save({
-                success: function() {
-
-                },
                 failure: function() {
                     failedGenes.push(markerSymbol);
                 },

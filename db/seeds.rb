@@ -32,20 +32,20 @@ end
 end
 
 {
-  'BaSH'            => ['KOMP2','Baylor, Sanger, Harwell'],
-  'DTCC'            => ['KOMP2','Davis-Toronto-Charles River-CHORI'],
-  'DTCC-KOMP'       => ['KOMP','Davis-Toronto-Charles River-CHORI'],
-  'EUCOMM-EUMODIC'  => ['EUCOMM / EUMODIC',nil],
-  'Helmholtz GMC'   => ['Infrafrontier/BMBF','Helmholtz Muenchen'],
-  'JAX'             => ['KOMP2','The Jackson Laboratory'],
-  'MARC'            => ['China','Model Animarl Research Centre, Nanjing University'],
-  'MGP'             => ['Wellcome Trust','Mouse Genetics Project, WTSI'],
-  'MGP-KOMP'        => ['KOMP / Wellcome Trust','Mouse Genetics Project, WTSI'],
-  'Monterotondo'    => ['European Union','Monterotondo Institute for Cell Biology (CNR)'],
-  'MRC'             => ['MRC','MRC - Harwell'],
-  'NorCOMM2'        => ['Genome Canada','NorCOMM2'],
-  'Phenomin'        => ['Phenomin','ICS'],
-  'RIKEN BRC'       => ['Japanese government','RIKEN BRC']
+  'BaSH'            => ['KOMP2', 'Baylor, Sanger, Harwell'],
+  'DTCC'            => ['KOMP2', 'Davis-Toronto-Charles River-CHORI'],
+  'DTCC-KOMP'       => ['KOMP', 'Davis-Toronto-Charles River-CHORI'],
+  'EUCOMM-EUMODIC'  => ['EUCOMM / EUMODIC', nil],
+  'Helmholtz GMC'   => ['Infrafrontier/BMBF', 'Helmholtz Muenchen'],
+  'JAX'             => ['KOMP2', 'The Jackson Laboratory'],
+  'MARC'            => ['China', 'Model Animarl Research Centre, Nanjing University'],
+  'MGP'             => ['Wellcome Trust', 'Mouse Genetics Project, WTSI'],
+  'MGP-KOMP'        => ['KOMP / Wellcome Trust', 'Mouse Genetics Project, WTSI'],
+  'Monterotondo'    => ['European Union', 'Monterotondo Institute for Cell Biology (CNR)'],
+  'MRC'             => ['MRC', 'MRC - Harwell'],
+  'NorCOMM2'        => ['Genome Canada', 'NorCOMM2'],
+  'Phenomin'        => ['Phenomin', 'ICS'],
+  'RIKEN BRC'       => ['Japanese government', 'RIKEN BRC']
 }.each do |name,details|
   cons = Consortium.find_or_create_by_name(:name => name)
   if cons.funding.blank?
@@ -76,31 +76,28 @@ end
 end
 
 {
-  'Interest'               => [10,'Interest - A consortium has expressed an interest to micro-inject this gene'],
-  'Conflict'               => [20,'Conflict - More than one consortium has expressed an interest in micro-injecting this gene'],
-  'Inspect - GLT Mouse'   => [30,'Inspect - A GLT mouse is already recorded in iMits'],
-  'Inspect - MI Attempt'  => [40,'Inspect - An active micro-injection attempt is already in progress'],
-  'Inspect - Conflict'    => [50,'Inspect - This gene is already assigned in another planned micro-injection'],
-  'Assigned'               => [60,'Assigned - A single consortium has expressed an interest in injecting this gene'],
-  'Inactive'               => [70,'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up']
+  'Interest'               => [10, 'Interest - A consortium has expressed an interest to micro-inject this gene'],
+  'Conflict'               => [20, 'Conflict - More than one consortium has expressed an intrest in micro-injecting this gene'],
+  'Inspect - GLT Mouse'    => [30, 'Inspect - A GLT mouse is already recorded in iMits'],
+  'Inspect - MI Attempt'   => [40, 'Inspect - An active micro-injection attempt is already in progress'],
+  'Inspect - Conflict'     => [50, 'Inspect - This gene is already assigned in another planned micro-injection'],
+  'Assigned'               => [60, 'Assigned - A single consortium has expressed an intrest in injecting this gene'],
+  'Assigned - ES Cell QC In Progress' => [70, 'Assigned - The ES cells are currently being QCed by the production centre'],
+  'Assigned - ES Cell QC Complete'    => [80, 'Assigned - ES cells have passed the QC phase and are ready for micro-injection'],
+  'Inactive'               => [90, 'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up']
 }.each do |name,details|
-  mi_plan_status = MiPlanStatus.find_or_create_by_name(:name => name)
-  if mi_plan_status.description.blank?
-    mi_plan_status.description = details[1]
-    mi_plan_status.order_by = details[0]
-    mi_plan_status.save!
-  end
+  mi_plan_status = MiPlanStatus.find_or_create_by_name(name)
+  mi_plan_status.description = details[1]
+  mi_plan_status.order_by = details[0]
+  mi_plan_status.save! if mi_plan_status.changed?
 end
-
 
 {
   'High'   => 'Estimated injection in the next 0-4 months',
   'Medium' => 'Estimated injection in the next 5-8 months',
   'Low'    => 'Estimated injection in the next 9-12 months'
-}.each do |priority, description|
-  mi_plan_priority = MiPlanPriority.find_or_create_by_name(:name => priority)
-  if mi_plan_priority.description.blank?
-    mi_plan_priority.description = description
-    mi_plan_priority.save!
-  end
+}.each do |name, description|
+  mi_plan_priority = MiPlanPriority.find_or_create_by_name(:name => name)
+  mi_plan_priority.description = description
+  mi_plan_priority.save! if mi_plan_priority.changed?
 end

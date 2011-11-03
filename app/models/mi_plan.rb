@@ -252,7 +252,7 @@ class MiPlan < ActiveRecord::Base
     params = params.symbolize_keys
     return self.search(:gene_marker_symbol_eq => params[:marker_symbol],
       :consortium_name_eq => params[:consortium_name],
-      :production_centre_null => true).result.first
+      :production_centre_id_null => true).result.first
   end
 
   def assigned?

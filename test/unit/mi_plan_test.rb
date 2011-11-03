@@ -676,7 +676,7 @@ class MiPlanTest < ActiveSupport::TestCase
                 :production_centre => wtsi
 
         got = MiPlan.check_for_upgradeable(:marker_symbol => cbx1.marker_symbol,
-          :consortium_name => bash, :production_centre_name => 'ICS')
+          :consortium_name => bash.name, :production_centre_name => 'ICS')
         assert_nil got
       end
     end

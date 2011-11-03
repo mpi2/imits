@@ -129,6 +129,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         find('a.mi-plan').click
         find('#delete-button').click
+        find('#delete-confirmation-button').click
 
         sleep 3
         assert_nil MiPlan.find_by_id(mi_plan_id)
@@ -153,6 +154,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
           Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('5');
         JS
         find('#update-button').click
+        all('.x-message-box button').detect {|b| b.text == 'Yes'}.click
 
         sleep 1
 

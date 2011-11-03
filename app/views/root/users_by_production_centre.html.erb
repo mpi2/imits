@@ -1,12 +1,13 @@
 <% @title = 'Users by Production Centre' %>
 
-<% is_contactable_symbol = "&#x2714;".html_safe %>
-  
 <div class="grid_12">
   <h2><%= @title %></h2>
 </div>
 
-<p class="contactable-legend">(<%= is_contactable_symbol %> indicates willing to be contacted)</p>
+<div class="grid_12">
+  <span class="contactable-legend">(willing to be contacted)</span>
+  <div class="clear" style="margin-bottom:10px"></div>
+</div>
 
 <div class="grid_12 alpha omega">
   <%
@@ -23,10 +24,8 @@
         </thead>
         <tbody>
           <% @users_by_production_centre[production_centre].each do |user| %>
-            <tr>
-              <td><%= user.name && user.name.length > 0 ? user.name : user.email %>
-                <%= is_contactable_symbol if user.is_contactable? %>
-              </td>
+            <tr  class="<%= user.is_contactable? ? 'contactable' : '' %>">
+              <td><%= user.name %></td>
               <td><%= mail_to(user.email) %></td>
             </tr>
           <% end %>

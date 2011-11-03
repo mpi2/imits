@@ -207,9 +207,6 @@ Ext.define('Imits.widget.GeneGrid', {
                 'priority': priority
             });
             miPlan.save({
-                success: function() {
-
-                },
                 failure: function() {
                     failedGenes.push(markerSymbol);
                 },

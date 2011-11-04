@@ -67,7 +67,7 @@ Ext.define('Imits.widget.MiGrid', {
 
         // First generate the groups from the groupedColumns
         Ext.Object.each(this.groupedColumns, function(viewName, viewColumnConfigs) {
-            if(viewName === 'common') {
+            if(viewName === 'common' || viewName === 'none') {
                 return;
             }
 
@@ -162,13 +162,15 @@ Ext.define('Imits.widget.MiGrid', {
     // BEGIN COLUMN DEFINITION
 
     groupedColumns: {
-        'common': [
+        'none': [
         {
             dataIndex: 'id',
             header: 'ID',
             readOnly: true,
             hidden: true
-        },
+        }
+        ],
+        'common': [
         {
             header: 'Edit In Form',
             dataIndex: 'edit_link',

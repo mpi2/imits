@@ -6,6 +6,8 @@ gem 'hoptoad_notifier'
 gem 'jammit'
 
 gem 'pg'
+gem 'ruby-oci8'
+gem 'activerecord-oracle_enhanced-adapter'
 gem 'foreigner'
 
 gem 'devise'

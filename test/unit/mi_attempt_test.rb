@@ -218,29 +218,28 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.mouse_allele_type = 'e'
           assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_symbol_superscript
         end
-
-        should 'be output in serialization' do
-          default_mi_attempt.mouse_allele_type = 'e'
-          assert_equal 'tm1e(EUCOMM)Wtsi', default_mi_attempt.as_json['mouse_allele_symbol_superscript']
-        end
       end
 
       context '#mouse_allele_symbol' do
         setup do
           es_cell = Factory.create :es_cell_EPD0343_1_H06
           @mi_attempt = Factory.build :mi_attempt, :es_cell => es_cell
+          @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
         end
 
         should 'be nil if mouse_allele_type is nil' do
-          @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           @mi_attempt.mouse_allele_type = nil
           assert_equal nil, @mi_attempt.mouse_allele_symbol
         end
 
         should 'work if mouse_allele_type is present' do
-          @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           @mi_attempt.mouse_allele_type = 'e'
           assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_symbol
+        end
+
+        should 'be output in serialization' do
+          @mi_attempt.mouse_allele_type = 'e'
+          assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.as_json['mouse_allele_symbol']
         end
       end
 

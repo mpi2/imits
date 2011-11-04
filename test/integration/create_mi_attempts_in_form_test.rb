@@ -67,7 +67,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       select 'WTSI', :from => 'mi_attempt[production_centre_name]'
       click_button 'mi_attempt_submit'
 
-      assert page.has_css? '.flash.message', :text => /ES cells failed QC/
+      assert page.has_css? '.alert.message', :text => /ES cells failed QC/
     end
 
   end

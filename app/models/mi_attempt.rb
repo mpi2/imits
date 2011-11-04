@@ -96,7 +96,7 @@ class MiAttempt < ActiveRecord::Base
 
     if matching_mi_plan and
               matching_mi_plan.mi_plan_status == MiPlanStatus['Aborted - ES Cell QC Failed']
-      error = 'Cannot create micro-injections - ES cells failed QC'
+      error = 'ES cells failed QC'
       mi.errors.add :base, error
     end
   end

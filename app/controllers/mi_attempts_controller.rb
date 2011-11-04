@@ -43,6 +43,9 @@ class MiAttemptsController < ApplicationController
 
     if ! @mi_attempt.valid?
       flash.now[:alert] = 'Micro-injection could not be created - please check the values you entered'
+      if ! @mi_attempt.errors[:base].blank?
+        flash.now[:alert] += '<br/>' + @mi_attempt.errors[:base].join('<br/>')
+      end
       set_centres_and_consortia
     elsif request.format == :html and
               params[:ignore_warnings] != 'true' and

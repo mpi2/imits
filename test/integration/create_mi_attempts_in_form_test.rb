@@ -61,6 +61,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       sleep 1.5
 
       choose_es_cell_from_list es_cell.marker_symbol, es_cell.name
+      make_form_element_usable('mi_attempt[mi_date]')
       fill_in 'mi_attempt[mi_date]', :with => '01/01/2011'
       select 'BaSH', :from => 'mi_attempt[consortium_name]'
       select 'WTSI', :from => 'mi_attempt[production_centre_name]'

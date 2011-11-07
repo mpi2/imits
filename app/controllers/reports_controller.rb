@@ -8,79 +8,53 @@ class ReportsController < ApplicationController
   def index
   end
   
-  def double_assigned_mi_plans
+  def double_assigned_mi_plans_1
+    double_assigned_mi_plans( 1 )
+  end  
+      
+  def double_assigned_mi_plans_2
+    double_assigned_mi_plans( 2 )
+  end  
+      
+  def double_assigned_mi_plans(version)
+
+    logger.info("LOG: INFO: version: " + version.inspect)
+      
+    sql = 'select 
+    marker_symbol as marker_symbol,
+    mi_plan_statuses.name as mi_plan_statuses_name, 
+    centres.name as centres_name,
+    consortia.name as consortia_name,
+    mi_attempts.mi_date as mi_attempts_mi_date,
+    es_cells.name as es_cells_name,
+    mi_attempts.is_active as mi_attempts_is_active, 
+    mi_attempts.is_suitable_for_emma,
+    mi_attempt_statuses.description as mi_attempt_statuses_description
+    from mi_plans join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
+    left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
+    left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
+    left outer join es_cells on mi_attempts.es_cell_id = es_cells.id 
+    join consortia on mi_plans.consortium_id = consortia.id
+    join centres on mi_plans.production_centre_id = centres.id
+    join genes on mi_plans.gene_id = genes.id
+    where mi_plans.gene_id in (
     
-sql = 'select 
-marker_symbol as marker_symbol,
-mi_plan_statuses.name as mi_plan_statuses_name, 
-centres.name as centres_name,
-consortia.name as consortia_name,
-mi_attempts.mi_date as mi_attempts_mi_date,
-es_cells.name as es_cells_name,
-mi_attempts.is_active as mi_attempts_is_active, 
-mi_attempts.is_suitable_for_emma,
-mi_attempt_statuses.description as mi_attempt_statuses_description
-from mi_plans join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
-left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
-left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
-left outer join es_cells on mi_attempts.es_cell_id = es_cells.id 
-join consortia on mi_plans.consortium_id = consortia.id
-join centres on mi_plans.production_centre_id = centres.id
-join genes on mi_plans.gene_id = genes.id
-where mi_plans.gene_id in (
+    select gene_id
+    from mi_plans
+    where mi_plan_status_id = 1
+    group by gene_id
+    having count(*) > 1
+    
+    ) and mi_plan_status_id =1 order by marker_symbol;'
 
-select gene_id
-from mi_plans
-where mi_plan_status_id = 1
-group by gene_id
-having count(*) > 1
-
-) and mi_plan_status_id =1 order by marker_symbol;'
-
-# TODO: needs to be modified for ES QC states
+    # TODO: needs to be modified for ES QC states
    
-    @report = Table(
-      [
-        'Marker Symbol',
-        'Plan Status',
-        'Centre',
-        'Consortium',
-        'Attempt Date',
-        'ES Cell Name',
-        'Attempt is Active',
-        'Suitable for EMMA',
-        'Attempt Status'
-      ]
-    )
-
     result = ActiveRecord::Base.connection.select_all( sql )
-    
-    result.each do |row|
-      @report << {       
-          'Marker Symbol'      => row['marker_symbol'],
-          'Plan Status'        => row['mi_plan_statuses_name'],
-          'Centre'             => row['centres_name'],
-          'Consortium'         => row['consortia_name'],
-          'Attempt Date'       => row['mi_attempts_mi_date'],
-          'ES Cell Name'       => row['es_cells_name'],
-          'Attempt is Active'  => row['mi_attempts_is_active'],
-          'Suitable for EMMA'  => row['is_suitable_for_emma'],
-          'Attempt Status'     => row['mi_attempt_statuses_description']
-      }
-    end
 
-    #send_data(
-    #  @report.to_csv,
-    #  :type     => 'text/csv; charset=utf-8; header=present',
-    #  :filename => 'genes_list1.csv'
-    #)  
-  
-  #    push @{$genes->{$marker_symbol}->{$cons}}, [$marker_symbol,$cons,$plan_status,$mi_status,$prod,$mi_date,$is_active,$is_suitable_for_emma];
-
-    myhash = {}  
+    genes = {}  
     result.each do |row|
-      myhash[row['marker_symbol']] ||= {}
-      myhash[row['marker_symbol']][row['consortia_name']] =
+      genes[row['marker_symbol']] ||= {}
+      genes[row['marker_symbol']][row['consortia_name']] =
         [
         row['marker_symbol'],
         row['consortia_name'],
@@ -93,101 +67,33 @@ having count(*) > 1
         ]
     end
  
-  funding = %w[
-    KOMP2
-    KOMP2
-    KOMP2
-    IMPC
-    IMPC
-    IMPC
-    IMPC
-    IMPC
-    IMPC
-    IMPC
-    IMPC
-    IKMC
-    IKMC
-    IKMC
-]    
+    funding = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
+    consortia = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
     
-consortia = %w[
-  BaSH
-  DTCC
-  JAX
-  Helmholtz-GMC
-  MARC
-  MGP
-  MRC
-  Monterotondo
-  NorCOMM2
-  Phenomin
-  RIKEN-BRC
-  EUCOMM-EUMODIC
-  MGP-KOMP
-  DTCC-KOMP
-]
-    
-
-# Step 2:
-# For each gene: there is an array of resultsetrows (each has a consortium id)
-# Make two independent loops through this array (ie a cross-product of entries)
-#   For each possible consortium in the array
-#      For each possible consortium in the array
-#         add an entry in the overlap table for this gene-symbol if consortium1 != consortium2
-#foreach my $marker_symbol (keys %$genes){
-#    foreach my $c1 (keys %{$genes->{$marker_symbol}}){
-#        foreach my $c2 (keys %{$genes->{$marker_symbol}}){
-#            unless ($c1 eq $c2){
-#                $cons_matrix->{$c1}->{$c2}->{$marker_symbol} = 1;
-#            }
-#        }
-#    }
-#}
-
-  cons_matrix = {}
-  
-  myhash.each_pair do |k1, v1|
-    myhash[k1].each_pair do |k2, v2|
-      myhash[k1].each_pair do |k3, v3|
-        cons_matrix[k2] ||= {}
-        cons_matrix[k2][k3] ||= {}
-        cons_matrix[k2][k3][k1] = 1 if k2 != k3;
+    cons_matrix = {}    
+    genes.each_pair do |k1, v1|
+      genes[k1].each_pair do |k2, v2|
+        genes[k1].each_pair do |k3, v3|
+          cons_matrix[k2] ||= {}
+          cons_matrix[k2][k3] ||= {}
+          cons_matrix[k2][k3][k1] = 1 if k2 != k3;
+        end
       end
     end
-  end
   
-#  logger.info("LOG: INFO: cons_matrix" + cons_matrix.inspect)
-  
-#print ",,";
-#print join ',',@funding;
-#print "\n";
-#print ",,";
-#print join ',',@consortia;
-#print "\n";
-#my $counter = 0;
-#
-## Output 1:
-## For each consortium x consortium combination:
-## Count the number of distinct genes in the overlap table (populated in step2)
-#foreach my $c1 (@consortia){
-#    print $funding[$counter].",$c1,";
-#    foreach my $c2 (@consortia){
-#        my @genes_in_overlap = keys %{$cons_matrix->{$c1}->{$c2}};
-#        print scalar(@genes_in_overlap) . ",";
-#    }
-#    print "\n";
-#    $counter++;
-#}
-   
     string = ',,' + funding.join(',') + "\n" + ',,' + consortia.join(',') + "\n"
     
     counter = 0
     
-    #TODO: blank out irrelevent cells
-
     consortia.each do |row1|
-      string += funding[counter] + ',' + row1
+      string += funding[counter] + ',' + row1 + ','
+      thiscounter = 0
       consortia.each do |row2|
+        if thiscounter <= counter  # skip duplicate rows
+          string += 'XXXXX,'
+          thiscounter += 1
+          next
+        end
         genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
         string += genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count.to_s() + ',' : ','
       end
@@ -195,102 +101,43 @@ consortia = %w[
       counter += 1
     end
 
-#    send_data(
-#      string,
-#      :type     => 'text/csv; charset=utf-8; header=present',
-#      :filename => 'genes_list2.csv'
-#    )  
+    if version.to_i == 1
+      send_data(
+        string,
+        :type     => 'text/csv; charset=utf-8; header=present',
+        :filename => 'double_assigned1.csv'
+      )
+      return
+    end    
 
-
-# Output 2:
-# Walk through each consortium in the literal list at the top;
-#   Now for every gene in our list:
-#     Does this gene have MI Plans with the input consortium (grep)?
-#     If so - print out ALL the MIs for ALL the consortia for this gene at this point.
-
-#foreach my $cons (@consortia){
-#    print "DOUBLE-ASSIGNMENTS FOR consortium: $cons\n\n";
-#    foreach my $marker (sort keys %{$genes}){
-#        my @consortia_for_gene = keys %{$genes->{$marker}};
-#        if(grep(/^$cons$/,@consortia_for_gene)){
-#            foreach my $found_consortium (keys %{$genes->{$marker}}){
-#                my $mi_array = $genes->{$marker}->{$found_consortium};
-#                foreach my $element (@{$mi_array}){
-#                    my @ea = @{$element};
-#                    my $mi_status = $ea[3];
-#                    next if ($mi_status eq 'Micro-injection aborted');
-#                    my $print_string = join(',',@ea);
-#                    print "$print_string\n";
-#                }
-#            }
-#        }
-#    }
-#    print "\n\n";
-#}
-
-#    string = 'gene name,consortium,plan status,MI status,production centre,mi date
-#    string = 'Marker Symbol,Plan Status,Centre,Consortium,Attempt Date,ES Cell Name,Attempt is Active,Suitable for EMMA,Attempt Status'
-
-#row['marker_symbol'], row['consortia_name'],
-#        row['mi_plan_statuses_name'], row['mi_attempt_statuses_description'], row['mi_attempt_statuses_description'],
-#        row['mi_attempts_mi_date'], row['mi_attempts_is_active'], row['is_suitable_for_emma']
- 
- #  #    push @{$genes->{$marker_symbol}->{$cons}}, [$marker_symbol,$cons,$plan_status,$mi_status,$prod,$mi_date,$is_active,$is_suitable_for_emma];
-
-     string = 'Marker Symbol,Consortium,Plan Status,MI Status,Production Centre,MI Date,Active,Suitable for EMMA'
-       
+    string = 'Marker Symbol,Consortium,Plan Status,MI Status,Production Centre,MI Date' #,Active,Suitable for EMMA'
+              
     consortia.each do |consortium|
       string += "\n\nDOUBLE-ASSIGNMENTS FOR consortium: #{consortium}\n\n";
-      
-      myhash.each_pair do |marker, value|
+      genes.each_pair do |marker, value|
         consortia_for_gene = value.keys
         array = consortia_for_gene.grep(/^#{consortium}$/)
         if array && array.size > 0
-          value.keys.each do |found_consortium|
-              mi_array = myhash[marker][found_consortium];
-              #mi_array.each do |element|
-                    mi_status = mi_array[3]
-                    next if mi_status == 'Micro-injection aborted'
-                    string += mi_array.join(',') + "\n"
-                   # break
-             # end
-            #break
+#          value.keys.each do |found_consortium|
+          keys = value.except('mi_attempts_is_active', 'is_suitable_for_emma').keys
+          keys.each do |found_consortium|
+            mi_array = genes[marker][found_consortium];
+            mi_status = mi_array[3]
+            next if mi_status == 'Micro-injection aborted'
+            string += mi_array[0..-3].join(',') + "\n"
           end
-    
-        end
-        
-
+        end        
       end
-      string += "\n"
-      
+      string += "\n"      
     end
     
     send_data(
       string,
       :type     => 'text/csv; charset=utf-8; header=present',
-      :filename => 'genes_list2.csv'
+      :filename => 'double_assigned2.csv'
     )  
 
   end  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   def genes_list
     @report = Table(

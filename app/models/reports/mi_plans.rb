@@ -38,10 +38,27 @@ class Reports::MiPlans
          
     result = ActiveRecord::Base.connection.select_all( SQL )
 
+    #genes = {}  
+    #result.each do |row|
+    #  genes[row['marker_symbol']] ||= {}
+    #  genes[row['marker_symbol']][row['consortia_name']] =
+    #    [
+    #      row['marker_symbol'],
+    #      row['consortia_name'],
+    #      row['mi_plan_statuses_name'],
+    #      row['mi_attempt_statuses_description'],
+    #      row['centres_name'],
+    #      row['mi_attempts_mi_date'],
+    #      row['mi_attempts_is_active'],
+    #      row['is_suitable_for_emma']
+    #    ]
+    #end
+
     genes = {}  
     result.each do |row|
       genes[row['marker_symbol']] ||= {}
-      genes[row['marker_symbol']][row['consortia_name']] =
+      genes[row['marker_symbol']][row['consortia_name']] ||= []
+      genes[row['marker_symbol']][row['consortia_name']].push(
         [
           row['marker_symbol'],
           row['consortia_name'],
@@ -52,6 +69,7 @@ class Reports::MiPlans
           row['mi_attempts_is_active'],
           row['is_suitable_for_emma']
         ]
+        )
     end
      
     cons_matrix = {}    
@@ -138,31 +156,127 @@ class Reports::MiPlans
     
   end
   
-  def get_double_assigned_mi_plans_str_2
+  #def get_double_assigned_mi_plans_str_2
+  #
+  #  genes, cons_matrix = get_double_assigned_mi_plans_common
+  #
+  #  string = 'Marker Symbol,Consortium,Plan Status,MI Status,Centre,MI Date'
+  #            
+  #  CONSORTIA.each do |consortium|
+  #    string += "\n\nDOUBLE-ASSIGNMENTS FOR consortium: #{consortium}\n\n";
+  #    genes.each_pair do |marker, value|
+  #      consortia_for_gene = value.keys
+  #      array = consortia_for_gene.grep(/^#{consortium}$/)
+  #      if array && array.size > 0
+  #        keys = value.except('mi_attempts_is_active', 'is_suitable_for_emma').keys
+  #        keys.each do |found_consortium|
+  #          mi_array = genes[marker][found_consortium];
+  #          mi_status = mi_array[3]
+  #          next if mi_status == 'Micro-injection aborted'
+  #          string += mi_array[0..-3].join(',') + "\n"  # drop final two columns
+  #        end
+  #      end        
+  #    end
+  #    string += "\n"      
+  #  end
+  #
+  #  return string
+  #
+  #end  
+
+  def get_double_assigned_mi_plans_data_2
 
     genes, cons_matrix = get_double_assigned_mi_plans_common
 
-    string = 'Marker Symbol,Consortium,Plan Status,MI Status,Centre,MI Date'
-              
+    hash = {}
+            
+    #CONSORTIA.each do |consortium|
+    #  hash[consortium] = []
+    #  genes.each_pair do |marker, value|
+    #    consortia_for_gene = value.keys
+    #    array = consortia_for_gene.grep(/^#{consortium}$/)
+    #    if array && array.size > 0
+    #      value.keys.each do |found_consortium|
+    #        mi_array = genes[marker][found_consortium];
+    #        mi_status = mi_array[3]
+    #        next if mi_status == 'Micro-injection aborted'
+    #        hash[consortium] ||= []
+    #        hash[consortium].push(mi_array)
+    #      end
+    #    end        
+    #  end
+    #end
+
+    #foreach my $cons (@consortia){
+    #    print "DOUBLE-ASSIGNMENTS FOR consortium: $cons\n\n";
+    #    foreach my $marker (sort keys %{$genes}){
+    #        my @consortia_for_gene = keys %{$genes->{$marker}};
+    #        if(grep(/^$cons$/,@consortia_for_gene)){
+    #            foreach my $found_consortium (keys %{$genes->{$marker}}){
+    #                my $mi_array = $genes->{$marker}->{$found_consortium};
+    #                foreach my $element (@{$mi_array}){
+    #                    my @ea = @{$element};
+    #                    my $mi_status = $ea[3];
+    #                    next if ($mi_status eq 'Micro-injection aborted');
+    #                    my $print_string = join(',',@ea);
+    #                    print "$print_string\n";
+    #                }
+    #            }
+    #        }
+    #    }
+    #    print "\n\n";
+    #}
+
     CONSORTIA.each do |consortium|
-      string += "\n\nDOUBLE-ASSIGNMENTS FOR consortium: #{consortium}\n\n";
+      hash[consortium] = []
       genes.each_pair do |marker, value|
         consortia_for_gene = value.keys
         array = consortia_for_gene.grep(/^#{consortium}$/)
         if array && array.size > 0
-          keys = value.except('mi_attempts_is_active', 'is_suitable_for_emma').keys
-          keys.each do |found_consortium|
+          value.keys.each do |found_consortium|
             mi_array = genes[marker][found_consortium];
-            mi_status = mi_array[3]
-            next if mi_status == 'Micro-injection aborted'
-            string += mi_array[0..-3].join(',') + "\n"  # drop final two columns
+            mi_array.each do |mi|
+              mi_status = mi[3]
+              next if mi_status == 'Micro-injection aborted'
+              hash[consortium] ||= []
+              hash[consortium].push(mi)
+            end
           end
         end        
       end
-      string += "\n"      
     end
 
-    return string
+    #row['marker_symbol'],
+    #row['consortia_name'],
+    #row['mi_plan_statuses_name'],
+    #row['mi_attempt_statuses_description'],
+    #row['centres_name'],
+    #row['mi_attempts_mi_date'],
+    #row['mi_attempts_is_active'],
+    #row['is_suitable_for_emma']
+
+    report = Table(
+      [
+        'Target Consortium',
+        'Marker Symbol',
+        'Consortium',
+        'Plan Status',
+        'MI Status',
+        'Centre',
+        'MI Date',
+        'Active',
+        'EMMA?'
+      ]
+    )
+    
+    hash.each_pair do |k, v|
+      v.each do |row|
+        row.unshift(k)
+        report << row
+      end
+    end   
+
+    return report
 
   end  
 

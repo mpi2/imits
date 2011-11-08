@@ -21,12 +21,12 @@ class ReportsController < ApplicationController
       
   def double_assigned_mi_plans_2
     plans = Reports::MiPlans.new
-    string = plans.get_double_assigned_mi_plans_str_2
+    report = plans.get_double_assigned_mi_plans_data_2
 
     send_data(
-      string,
+      report.to_csv,
       :type     => 'text/csv; charset=utf-8; header=present',
-      :filename => 'double_assigned2.csv'
+      :filename => 'double_assigned1.csv'
     )
   end  
 

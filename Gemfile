@@ -7,7 +7,7 @@ gem 'jammit'
 
 gem 'pg'
 gem 'ruby-oci8'
-gem 'activerecord-oracle_enhanced-adapter'
+gem 'activerecord-oracle_enhanced-adapter', '~> 1.3.2'
 gem 'foreigner'
 
 gem 'devise'

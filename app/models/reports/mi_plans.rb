@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-require 'matrix'
-
 class Reports::MiPlans
   
   FUNDING = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
@@ -76,7 +74,50 @@ class Reports::MiPlans
   
   end
 
-  def get_double_assigned_mi_plans_1
+  #def get_double_assigned_1_old
+  #      
+  #  genes = get_genes
+  #  cons_matrix = get_consortia_matrix(genes)
+  #
+  #  columns = []
+  #  columns.push('')
+  #
+  #  for i in (0..FUNDING.size-1)
+  #    columns.push(FUNDING[i] + '/' + CONSORTIA[i])
+  #  end    
+  # 
+  #  matrix = []
+  #    
+  #  rows = 0
+  #  CONSORTIA.each do |row1|
+  #    cols = 0
+  #    matrix[rows] ||= []
+  #    CONSORTIA.each do |row2|
+  #      if cols <= rows  # skip duplicate rows
+  #        matrix[rows][cols] = ''
+  #        cols += 1
+  #        next
+  #      end
+  #      genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : []
+  #      matrix[rows][cols] = genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
+  #      cols += 1
+  #    end
+  #    rows += 1
+  #  end
+  #
+  #  report = Table( columns )
+  #  
+  #  for i in (0..columns.size-2)
+  #    array = matrix[i]
+  #    array.unshift(columns[i+1])
+  #    report << array
+  #  end
+  #  
+  #  return report
+  #  
+  #end  
+  
+  def get_double_assigned_1
         
     genes = get_genes
     cons_matrix = get_consortia_matrix(genes)
@@ -88,31 +129,27 @@ class Reports::MiPlans
       columns.push(FUNDING[i] + '/' + CONSORTIA[i])
     end    
    
+    report = Table( columns )
     matrix = []
-      
+
+    columns.shift
+        
     rows = 0
     CONSORTIA.each do |row1|
       cols = 0
       matrix[rows] ||= []
+      matrix[rows][0] = columns[rows]
       CONSORTIA.each do |row2|
-        if cols <= rows  # skip duplicate rows
+        cols += 1
+        if cols-1 <= rows  # skip duplicate rows
           matrix[rows][cols] = ''
-          cols += 1
           next
         end
         genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : []
         matrix[rows][cols] = genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
-        cols += 1
       end
+      report << matrix[rows]
       rows += 1
-    end
-
-    report = Table( columns )
-    
-    for i in (0..columns.size-2)
-      array = matrix[i]
-      array.unshift(columns[i+1])
-      report << array
     end
     
     return report
@@ -156,32 +193,11 @@ class Reports::MiPlans
   #  return report
   #  
   #end
-  
-  def get_double_assigned_mi_plans_2
+
+  def get_double_assigned_2
 
     genes = get_genes
-
-    hash = {}
             
-    CONSORTIA.each do |consortium|
-      hash[consortium] = []
-      genes.each_pair do |marker, value|
-        consortia_for_gene = value.keys
-        array = consortia_for_gene.grep(/^#{consortium}$/)
-        if array && array.size > 0
-          value.keys.each do |found_consortium|
-            mi_array = genes[marker][found_consortium];
-            mi_array.each do |mi|
-              mi_status = mi[3]
-              next if mi_status == 'Micro-injection aborted'
-              hash[consortium] ||= []
-              hash[consortium].push(mi)
-            end
-          end
-        end        
-      end
-    end
-
     report = Table(
       [
         'Target Consortium',
@@ -194,20 +210,83 @@ class Reports::MiPlans
       ]
     )
     
-    hash.each_pair do |k, v|
-      blurb = "DOUBLE-ASSIGNMENTS FOR consortium: #{k}"
-      v.each do |r1|
-        r2 = r1.clone
-        r2.unshift(blurb)
-        report << r2[0..-3]
+    CONSORTIA.each do |consortium|
+      blurb = "DOUBLE-ASSIGNMENTS FOR consortium: #{consortium}"
+      genes.each_pair do |marker, value|
+        consortia_for_gene = value.keys
+        array = consortia_for_gene.grep(/^#{consortium}$/)
+        next if ! array || array.size < 1
+        value.keys.each do |found_consortium|
+          mi_array = genes[marker][found_consortium];
+          mi_array.each do |mi|
+            mi_status = mi[3]
+            next if mi_status == 'Micro-injection aborted'
+            mi2 = mi.clone
+            mi2.unshift(blurb)
+            report << mi2
+          end
+        end
       end
       report << [blurb, '', '', '', '', '', '', '', ''] # make blank lines between groups
-    end   
+    end
 
     report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )
 
     return report
 
   end  
+  
+  #def get_double_assigned_2_old
+  #
+  #  genes = get_genes
+  #
+  #  hash = {}
+  #          
+  #  CONSORTIA.each do |consortium|
+  #    hash[consortium] = []
+  #    genes.each_pair do |marker, value|
+  #      consortia_for_gene = value.keys
+  #      array = consortia_for_gene.grep(/^#{consortium}$/)
+  #      if array && array.size > 0
+  #        value.keys.each do |found_consortium|
+  #          mi_array = genes[marker][found_consortium];
+  #          mi_array.each do |mi|
+  #            mi_status = mi[3]
+  #            next if mi_status == 'Micro-injection aborted'
+  #            hash[consortium] ||= []
+  #            hash[consortium].push(mi)
+  #          end
+  #        end
+  #      end        
+  #    end
+  #  end
+  #
+  #  report = Table(
+  #    [
+  #      'Target Consortium',
+  #      'Marker Symbol',
+  #      'Consortium',
+  #      'Plan Status',
+  #      'MI Status',
+  #      'Centre',
+  #      'MI Date'
+  #    ]
+  #  )
+  #  
+  #  hash.each_pair do |k, v|
+  #    blurb = "DOUBLE-ASSIGNMENTS FOR consortium: #{k}"
+  #    v.each do |r1|
+  #      r2 = r1.clone
+  #      r2.unshift(blurb)
+  #      report << r2[0..-3]
+  #    end
+  #    report << [blurb, '', '', '', '', '', '', '', ''] # make blank lines between groups
+  #  end   
+  #
+  #  report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )
+  #
+  #  return report
+  #
+  #end  
 
 end

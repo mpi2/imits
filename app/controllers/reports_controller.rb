@@ -17,8 +17,6 @@ class ReportsController < ApplicationController
   end  
       
   def double_assigned_mi_plans(version)
-
-    logger.info("LOG: INFO: version: " + version.inspect)
       
     sql = 'select 
     marker_symbol as marker_symbol,
@@ -84,7 +82,6 @@ class ReportsController < ApplicationController
     string = ',,' + funding.join(',') + "\n" + ',,' + consortia.join(',') + "\n"
     
     counter = 0
-    
     consortia.each do |row1|
       string += funding[counter] + ',' + row1 + ','
       thiscounter = 0
@@ -101,6 +98,10 @@ class ReportsController < ApplicationController
       counter += 1
     end
 
+    #string += "\nKOMP2 consortia: BaSH; DTCC; JAX\n" +
+    #"Other IMPC consortia: Helmholtz MARC MGP MRC Monterotondo NorCOMM2 Phenomin Riken BRC\n" +
+    #"Legacy production for KOMP and EUCOMM: EUCOMM-EUMODIC; MGP-KOMP; DTCC-KOMP (This is UCD production which is _not_ KOMP2)\n"
+
     if version.to_i == 1
       send_data(
         string,
@@ -110,7 +111,7 @@ class ReportsController < ApplicationController
       return
     end    
 
-    string = 'Marker Symbol,Consortium,Plan Status,MI Status,Production Centre,MI Date' #,Active,Suitable for EMMA'
+    string = 'Marker Symbol,Consortium,Plan Status,MI Status,Centre,MI Date'
               
     consortia.each do |consortium|
       string += "\n\nDOUBLE-ASSIGNMENTS FOR consortium: #{consortium}\n\n";
@@ -118,19 +119,18 @@ class ReportsController < ApplicationController
         consortia_for_gene = value.keys
         array = consortia_for_gene.grep(/^#{consortium}$/)
         if array && array.size > 0
-#          value.keys.each do |found_consortium|
           keys = value.except('mi_attempts_is_active', 'is_suitable_for_emma').keys
           keys.each do |found_consortium|
             mi_array = genes[marker][found_consortium];
             mi_status = mi_array[3]
             next if mi_status == 'Micro-injection aborted'
-            string += mi_array[0..-3].join(',') + "\n"
+            string += mi_array[0..-3].join(',') + "\n"  # drop final two columns
           end
         end        
       end
       string += "\n"      
     end
-    
+
     send_data(
       string,
       :type     => 'text/csv; charset=utf-8; header=present',

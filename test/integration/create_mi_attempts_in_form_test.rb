@@ -49,5 +49,26 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       assert page.has_css? '.error-message'
     end
 
+    should 'show base errors' do
+      es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+      mi_plan = Factory.create :mi_plan,
+              :consortium => Consortium.find_by_name!('BaSH'),
+              :production_centre => Centre.find_by_name!('WTSI'),
+              :gene => es_cell.gene,
+              :number_of_es_cells_passing_qc => 0
+      assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status
+
+      sleep 1.5
+
+      choose_es_cell_from_list es_cell.marker_symbol, es_cell.name
+      make_form_element_usable('mi_attempt[mi_date]')
+      fill_in 'mi_attempt[mi_date]', :with => '01/01/2011'
+      select 'BaSH', :from => 'mi_attempt[consortium_name]'
+      select 'WTSI', :from => 'mi_attempt[production_centre_name]'
+      click_button 'mi_attempt_submit'
+
+      assert page.has_css? '.alert.message', :text => /ES cells failed QC/
+    end
+
   end
 end

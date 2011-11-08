@@ -6,11 +6,20 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
   context 'MiAttempt::WarningGenerator' do
 
     should 'not generate warnings when there are none' do
-      Factory.create :mi_attempt
-      mi = Factory.build :mi_attempt
-      Factory.create(:mi_plan, mi.mi_plan_lookup_conditions.merge(:mi_plan_status => MiPlanStatus[:Assigned]))
+      Factory.create :mi_attempt, :consortium_name => 'MGP'
+      gene = Factory.create :gene_cbx1
+      mi_plan = Factory.create(:mi_plan,
+        :gene => gene,
+        :consortium => Consortium.find_by_name!('BaSH'),
+        :production_centre => Centre.find_by_name!('WTSI'),
+        :mi_plan_status => MiPlanStatus[:Assigned])
 
-      assert_false mi.generate_warnings
+      mi = Factory.build :mi_attempt,
+              :es_cell => Factory.create(:es_cell, :gene => gene),
+              :consortium_name => 'BaSH',
+              :production_centre_name => 'WTSI'
+
+      assert_false mi.generate_warnings, mi.warnings
       assert_equal nil, mi.warnings
     end
 

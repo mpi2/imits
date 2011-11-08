@@ -673,6 +673,24 @@ class MiAttemptTest < ActiveSupport::TestCase
           end
         end
 
+        should 'not be allowed to be in state "Aborted - ES Cell QC Failed" for MiAttempt to be created against it' do
+          gene = Factory.create :gene_cbx1
+          mi_plan = Factory.create :mi_plan,
+                  :gene => gene,
+                  :consortium => Consortium.find_by_name!('BaSH'),
+                  :number_of_es_cells_starting_qc => 5,
+                  :number_of_es_cells_passing_qc => 0
+          assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status
+          es_cell = Factory.create :es_cell, :gene => gene
+
+          mi_attempt = Factory.build :mi_attempt, :es_cell => es_cell,
+                  :consortium_name => mi_plan.consortium.name,
+                  :production_centre_name => 'WTSI'
+
+          mi_attempt.valid?
+
+          assert_match 'ES cells failed QC', mi_attempt.errors[:base].join
+        end
       end
 
       should 'have #updated_by column' do
@@ -685,7 +703,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal user, default_mi_attempt.updated_by
       end
 
-    end # attribute tests
+    end # misc attribute tests
 
     context 'before filter' do
       context 'set_total_chimeras' do
@@ -1027,26 +1045,46 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    context '#mi_plan_lookup_conditions' do
-      should 'return conditions for finding the MiPlan for this MiAttempt' do
+    context '#find_matching_mi_plan' do
+      should 'return the MiPlan with production centre for this MiAttempt if it exists' do
         gene = Factory.create :gene_cbx1
-        MiPlan.create :consortium => Consortium.find_by_name!('BaSH'),
+        Factory.create :mi_plan,
+                :consortium => Consortium.find_by_name!('BaSH'),
+                :gene => gene
+        mi_plan = Factory.create :mi_plan,
+                :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => Centre.find_by_name!('WTSI'),
                 :gene => gene
         es_cell = Factory.create(:es_cell, :gene => gene)
 
-        mi = Factory.build :mi_attempt,
-                :consortium_name => 'BaSH',
+        mi = MiAttempt.new :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',
-                :es_cell => es_cell
+                :es_cell_name => es_cell.name
+        mi.valid? # does not matter if it passes or not, just want filters to fire
 
-        expected = {
-          :gene_id => gene.id,
-          :consortium_id => Consortium.find_by_name!('BaSH').id,
-          :production_centre_id => Centre.find_by_name!('WTSI').id
-        }
+        assert_nil mi.mi_plan
+        assert_equal mi_plan, mi.find_matching_mi_plan
+      end
 
-        assert_equal expected, mi.mi_plan_lookup_conditions
+      should 'return the MiPlan without production centre for this MiAttempt, if one with does not exist' do
+        gene = Factory.create :gene_cbx1
+        mi_plan = Factory.create :mi_plan,
+                :consortium => Consortium.find_by_name!('BaSH'),
+                :gene => gene
+        es_cell = Factory.create(:es_cell, :gene => gene)
+
+        mi = MiAttempt.new :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell_name => es_cell.name
+        mi.valid? # does not matter if it passes or not, just want filters to fire
+
+        assert_nil mi.mi_plan
+        assert_equal mi_plan, mi.find_matching_mi_plan
+      end
+
+      should 'return nil if gene is nil' do
+        mi = MiAttempt.new
+        assert_nil mi.find_matching_mi_plan
       end
     end
 

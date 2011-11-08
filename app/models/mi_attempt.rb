@@ -77,16 +77,27 @@ class MiAttempt < ActiveRecord::Base
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
 
-  validates_each :es_cell_name do |record, attr, value|
-    if !record.es_cell_name.blank? and record.es_cell.blank?
-      record.errors.add :es_cell_name, 'was not found in the marts'
+  validate do |mi|
+    if !mi.es_cell_name.blank? and mi.es_cell.blank?
+      mi.errors.add :es_cell_name, 'was not found in the marts'
     end
   end
 
-  validates_each :mi_plan do |mi, attr, value|
+  validate do |mi|
     next unless mi.mi_plan
+
     if mi.mi_plan.production_centre.blank?
       mi.errors.add :mi_plan, 'must have a production centre (INTERNAL ERROR)'
+    end
+  end
+
+  validate do |mi|
+    matching_mi_plan = find_matching_mi_plan
+
+    if matching_mi_plan and
+              matching_mi_plan.mi_plan_status == MiPlanStatus['Aborted - ES Cell QC Failed']
+      error = 'ES cells failed QC'
+      mi.errors.add :base, error
     end
   end
 
@@ -203,20 +214,14 @@ class MiAttempt < ActiveRecord::Base
 
   def set_mi_plan
     if new_record?
-      mi_plan_params = mi_plan_lookup_conditions
-
-      mi_plan_to_set = MiPlan.where(mi_plan_params).first
+      mi_plan_to_set = find_matching_mi_plan
       if ! mi_plan_to_set
-        mi_plan_to_set = MiPlan.where(mi_plan_params.merge(:production_centre_id => nil)).first
-
-        if ! mi_plan_to_set
-          mi_plan_to_set = MiPlan.new(:priority => 'High')
-          mi_plan_to_set.consortium_id = mi_plan_params[:consortium_id]
-          mi_plan_to_set.gene_id = mi_plan_params[:gene_id]
-        end
+        mi_plan_to_set = MiPlan.new(:priority => 'High')
+        mi_plan_to_set.consortium_name = consortium_name
+        mi_plan_to_set.gene = es_cell.gene
       end
 
-      mi_plan_to_set.production_centre ||= Centre.find_by_name!(production_centre_name)
+      mi_plan_to_set.production_centre_name = production_centre_name
       mi_plan_to_set.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
       mi_plan_to_set.save!
 
@@ -354,12 +359,22 @@ class MiAttempt < ActiveRecord::Base
   def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
   def es_cell_allele_symbol; es_cell.try(:allele_symbol); end
 
-  def mi_plan_lookup_conditions
-    return {
-        :gene_id => self.es_cell.gene.id,
-        :consortium_id => Consortium.find_by_name!(self.consortium_name).id,
-        :production_centre_id => Centre.find_by_name!(self.production_centre_name).id
-      }
+  def find_matching_mi_plan
+    consortium = Consortium.find_by_name(consortium_name)
+    production_centre = Centre.find_by_name(production_centre_name)
+    return unless es_cell and consortium and production_centre
+    lookup_conditions = {
+      :gene_id => es_cell.gene.id,
+      :consortium_id => consortium.id,
+      :production_centre_id => production_centre.id
+    }
+    mi_plan = MiPlan.where(lookup_conditions).first
+    if ! mi_plan
+      lookup_conditions[:production_centre_id] = nil
+      mi_plan = MiPlan.where(lookup_conditions).first
+    end
+
+    return mi_plan
   end
 
   def self.translate_search_param(param)

@@ -2,12 +2,12 @@
 
 class Reports::MiPlans
   
-  # TODO: fix @@funding etc. to be constants
+  # TODO: fix FUNDING etc. to be constants
 
-  @@funding = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
-  @@consortia = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
+  FUNDING = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
+  CONSORTIA = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
 
-  @@sql = 'select 
+  SQL = 'select 
     marker_symbol as marker_symbol,
     mi_plan_statuses.name as mi_plan_statuses_name, 
     centres.name as centres_name,
@@ -36,7 +36,7 @@ class Reports::MiPlans
 
   def get_double_assigned_mi_plans_common
          
-    result = ActiveRecord::Base.connection.select_all( @@sql )
+    result = ActiveRecord::Base.connection.select_all( SQL )
 
     genes = {}  
     result.each do |row|
@@ -69,140 +69,72 @@ class Reports::MiPlans
   
   end
   
-  def get_double_assigned_mi_plans_str_1
-        
-    genes, cons_matrix = get_double_assigned_mi_plans_common
-  
-    string = ',,' + @@funding.join(',') + "\n" + ',,' + @@consortia.join(',') + "\n"
-    
-    counter = 0
-    @@consortia.each do |row1|
-      string += @@funding[counter] + ',' + row1 + ','
-      thiscounter = 0
-      @@consortia.each do |row2|
-        if thiscounter <= counter  # skip duplicate rows
-          string += 'XXXXX,'
-          thiscounter += 1
-          next
-        end
-        genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
-        string += genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count.to_s() + ',' : ','
-      end
-      string += "\n"
-      counter += 1
-    end
-
-    #string += "\nKOMP2 @@consortia: BaSH; DTCC; JAX\n" +
-    #"Other IMPC @@consortia: Helmholtz MARC MGP MRC Monterotondo NorCOMM2 Phenomin Riken BRC\n" +
-    #"Legacy production for KOMP and EUCOMM: EUCOMM-EUMODIC; MGP-KOMP; DTCC-KOMP (This is UCD production which is _not_ KOMP2)\n"
-
-    #send_data(
-    #  string,
-    #  :type     => 'text/csv; charset=utf-8; header=present',
-    #  :filename => 'double_assigned1.csv'
-    #)
-    
-    return string
-    
-  end
+  #def get_double_assigned_mi_plans_str_1
+  #      
+  #  genes, cons_matrix = get_double_assigned_mi_plans_common
+  #
+  #  string = ',,' + FUNDING.join(',') + "\n" + ',,' + CONSORTIA.join(',') + "\n"
+  #  
+  #  counter = 0
+  #  CONSORTIA.each do |row1|
+  #    string += FUNDING[counter] + ',' + row1 + ','
+  #    thiscounter = 0
+  #    CONSORTIA.each do |row2|
+  #      if thiscounter <= counter  # skip duplicate rows
+  #        string += 'XXXXX,'
+  #        thiscounter += 1
+  #        next
+  #      end
+  #      genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
+  #      string += genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count.to_s() + ',' : ','
+  #    end
+  #    string += "\n"
+  #    counter += 1
+  #  end
+  #
+  #  return string
+  #  
+  #end
   
   def get_double_assigned_mi_plans_data_1
         
     genes, cons_matrix = get_double_assigned_mi_plans_common
 
     columns = []
-    columns.push('dummy')
+    columns.push('')
 
-    #@@funding.each do |funder|
-    #  @@consortia.each do |consortium|
-    #    columns.push(funder + '/' + consortium)
-    #  end    
-    #end    
-
-    for i in (0..@@funding.size-1)
-      columns.push(@@funding[i] + '/' + @@consortia[i])
+    for i in (0..FUNDING.size-1)
+      columns.push(FUNDING[i] + '/' + CONSORTIA[i])
     end    
 
-    @report = Table( columns )
-
-    #@report << {
-    #  'Marker Symbol'     => gene.marker_symbol,
-    #  'MGI Accession ID'  => gene.mgi_accession_id,
-    #  '# IKMC Projects'   => gene.ikmc_projects_count,
-    #  '# Clones'          => gene.pretty_print_types_of_cells_available.gsub('<br/>',' '),
-    #  'Non-Assigned MIs'  => non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
-    #  'Assigned MIs'      => assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
-    #  'Aborted MIs'       => aborted_mis[gene.marker_symbol] ? aborted_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
-    #  'MIs in Progress'   => mis_in_progress[gene.marker_symbol] ? mis_in_progress[gene.marker_symbol].gsub('<br/>',' ') : nil,
-    #  'GLT Mice'          => glt_mice[gene.marker_symbol] ? glt_mice[gene.marker_symbol].gsub('<br/>',' ') : nil
-    #}
+    report = Table( columns )
     
-    thismatrix = []
+    matrix = []
       
     rows = 0
-    @@consortia.each do |row1|
+    CONSORTIA.each do |row1|
       cols = 0
-      thismatrix[rows] ||= []
-      @@consortia.each do |row2|
+      matrix[rows] ||= []
+      CONSORTIA.each do |row2|
         if cols <= rows  # skip duplicate rows
-          thismatrix[rows][cols] = 0
+          matrix[rows][cols] = ''
           cols += 1
           next
         end
         genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
-        thismatrix[rows][cols] = genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : 0
+        matrix[rows][cols] = genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
         cols += 1
       end
       rows += 1
     end
     
-    #for i in (0..rows-1)
-    #    array = columns[i] + thismatrix[i]
-    #    @report << array
-    #end
-
-    #j = 0
-    #for i in (0..rows-1)
-    #    @report << { 'dummy' => columns[j] } #+ thismatrix[i]
-    #    j += 1
-    #end
-
-    #for i in (0..columns.size-1)
-    #    #array = columns[i] + thismatrix[i]
-    #   # @report << { 'dummy' => columns[i+1] }
-    #    
-    #    for j in (1..columns.size-2)
-    #        #@report << { columns[i+1] => thismatrix[i][j] }
-    #        puts("LOG: INFO: #{columns[i+1]}")
-    #    end
-    #    
-    #    #@report << array
-    #end
-
-
     for i in (0..columns.size-2)
-        #@report << { columns[i+1] => thismatrix[i][j] }
-     #   thismatrix[i].unshift(columns[i])
-        #@report << thismatrix[i]
-        array = thismatrix[i]
+        array = matrix[i]
         array.unshift(columns[i+1])
-        @report << array
-#        puts("LOG: INFO: #{columns[i+1]}")
+        report << array
     end
-        
-
     
-    #string += "\nKOMP2 @@consortia: BaSH; DTCC; JAX\n" +
-    #"Other IMPC @@consortia: Helmholtz MARC MGP MRC Monterotondo NorCOMM2 Phenomin Riken BRC\n" +
-    #"Legacy production for KOMP and EUCOMM: EUCOMM-EUMODIC; MGP-KOMP; DTCC-KOMP (This is UCD production which is _not_ KOMP2)\n"
-
-    #send_data(
-    #  string,
-    #  :type     => 'text/csv; charset=utf-8; header=present',
-    #  :filename => 'double_assigned1.csv'
-    #)
-    
-    return @report
+    return report
     
   end
   
@@ -212,7 +144,7 @@ class Reports::MiPlans
 
     string = 'Marker Symbol,Consortium,Plan Status,MI Status,Centre,MI Date'
               
-    @@consortia.each do |consortium|
+    CONSORTIA.each do |consortium|
       string += "\n\nDOUBLE-ASSIGNMENTS FOR consortium: #{consortium}\n\n";
       genes.each_pair do |marker, value|
         consortia_for_gene = value.keys
@@ -230,16 +162,8 @@ class Reports::MiPlans
       string += "\n"      
     end
 
-    #send_data(
-    #  string,
-    #  :type     => 'text/csv; charset=utf-8; header=present',
-    #  :filename => 'double_assigned2.csv'
-    #)  
-
     return string
 
   end  
-
-#  private :get_double_assigned_mi_plans_common
 
 end

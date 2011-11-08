@@ -151,9 +151,7 @@ class Reports::MiPlans
         'Plan Status',
         'MI Status',
         'Centre',
-        'MI Date',
-        'Active',
-        'EMMA?'
+        'MI Date'
       ]
     )
     
@@ -162,7 +160,7 @@ class Reports::MiPlans
       v.each do |r1|
         r2 = r1.clone
         r2.unshift(blurb)
-        report << r2 #[0..-3]
+        report << r2[0..-3]
       end
       report << [blurb, '', '', '', '', '', '', '', ''] # make blank lines between groups
     end   

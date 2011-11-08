@@ -1,5 +1,7 @@
 # encoding: utf-8
 
+require 'matrix'
+
 class Reports::MiPlans
   
   FUNDING = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
@@ -29,8 +31,6 @@ class Reports::MiPlans
       group by gene_id
       having count(*) > 1    
   ) and mi_plan_status_id =1 order by marker_symbol;'
-
-  # TODO: needs to be modified for ES QC states
 
   def get_genes
          
@@ -66,6 +66,7 @@ class Reports::MiPlans
         genes[k1].each_pair do |k3, v3|
           cons_matrix[k2] ||= {}
           cons_matrix[k2][k3] ||= {}
+          cons_matrix[k2][k3][k1] = 0;
           cons_matrix[k2][k3][k1] = 1 if k2 != k3;
         end
       end
@@ -74,8 +75,8 @@ class Reports::MiPlans
     return cons_matrix
   
   end
-  
-  def get_double_assigned_mi_plans_data_1
+
+  def get_double_assigned_mi_plans_1
         
     genes = get_genes
     cons_matrix = get_consortia_matrix(genes)
@@ -84,11 +85,9 @@ class Reports::MiPlans
     columns.push('')
 
     for i in (0..FUNDING.size-1)
-      columns.push(FUNDING[i] + ' / ' + CONSORTIA[i])
+      columns.push(FUNDING[i] + '/' + CONSORTIA[i])
     end    
-
-    report = Table( columns )
-    
+   
     matrix = []
       
     rows = 0
@@ -101,12 +100,14 @@ class Reports::MiPlans
           cols += 1
           next
         end
-        genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
+        genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : []
         matrix[rows][cols] = genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
         cols += 1
       end
       rows += 1
     end
+
+    report = Table( columns )
     
     for i in (0..columns.size-2)
       array = matrix[i]
@@ -116,9 +117,47 @@ class Reports::MiPlans
     
     return report
     
-  end
+  end  
   
-  def get_double_assigned_mi_plans_data_2
+  #def get_double_assigned_mi_plans_1
+  #      
+  #  genes = get_genes
+  #  cons_matrix = get_consortia_matrix(genes)
+  #
+  #  columns = []
+  #  columns.push('')
+  #
+  #  for i in (0..FUNDING.size-1)
+  #    columns.push(FUNDING[i] + ' / ' + CONSORTIA[i])
+  #  end    
+  # 
+  #  matrix = Matrix.build(CONSORTIA.size) { |row, col| '' }
+  #    
+  #  rows = 0
+  #  CONSORTIA.each do |row1|
+  #    cols = -1
+  #    CONSORTIA.each do |row2|
+  #      cols += 1
+  #      next if cols <= rows  # skip duplicate rows
+  #      genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
+  #      matrix[rows][cols] = genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
+  #    end
+  #    rows += 1
+  #  end
+  #
+  #  report = Table( columns )
+  #  
+  #  for i in (0..columns.size-2)
+  #    array = matrix[i]
+  #    array.unshift(columns[i+1])
+  #    report << array
+  #  end
+  #  
+  #  return report
+  #  
+  #end
+  
+  def get_double_assigned_mi_plans_2
 
     genes = get_genes
 

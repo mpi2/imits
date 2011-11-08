@@ -10,7 +10,7 @@ class ReportsController < ApplicationController
   
   def double_assigned_mi_plans_1
     plans = Reports::MiPlans.new
-    report = plans.get_double_assigned_mi_plans_data_1
+    report = plans.get_double_assigned_mi_plans_1
 
     send_data(
       report.to_csv,
@@ -21,7 +21,7 @@ class ReportsController < ApplicationController
       
   def double_assigned_mi_plans_2
     plans = Reports::MiPlans.new
-    report = plans.get_double_assigned_mi_plans_data_2
+    report = plans.get_double_assigned_mi_plans_2
 
     send_data(
       report.to_csv,

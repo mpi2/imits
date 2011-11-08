@@ -74,49 +74,6 @@ class Reports::MiPlans
     return cons_matrix
   
   end
-
-  #def get_double_assigned_mi_plans_common
-  #  genes = get_genes
-  #  cons_matrix = get_consortia_matrix(genes)
-  #  return genes, cons_matrix
-  #end
-  
-  #def get_double_assigned_mi_plans_common
-  #       
-  #  result = ActiveRecord::Base.connection.select_all( SQL )
-  #
-  #  genes = {}  
-  #  result.each do |row|
-  #    genes[row['marker_symbol']] ||= {}
-  #    genes[row['marker_symbol']][row['consortia_name']] ||= []
-  #    genes[row['marker_symbol']][row['consortia_name']].push(
-  #      [
-  #        row['marker_symbol'],
-  #        row['consortia_name'],
-  #        row['mi_plan_statuses_name'],
-  #        row['mi_attempt_statuses_description'],
-  #        row['centres_name'],
-  #        row['mi_attempts_mi_date'],
-  #        row['mi_attempts_is_active'],
-  #        row['is_suitable_for_emma']
-  #      ]
-  #      )
-  #  end
-  #   
-  #  cons_matrix = {}    
-  #  genes.each_pair do |k1, v1|
-  #    genes[k1].each_pair do |k2, v2|
-  #      genes[k1].each_pair do |k3, v3|
-  #        cons_matrix[k2] ||= {}
-  #        cons_matrix[k2][k3] ||= {}
-  #        cons_matrix[k2][k3][k1] = 1 if k2 != k3;
-  #      end
-  #    end
-  #  end
-  #  
-  #  return genes, cons_matrix
-  #
-  #end
   
   def get_double_assigned_mi_plans_data_1
         
@@ -201,14 +158,13 @@ class Reports::MiPlans
     )
     
     hash.each_pair do |k, v|
-      #next if k != 'MGP'
-      #blurb = "DOUBLE-ASSIGNMENTS FOR consortium: #{k}"
+      blurb = "DOUBLE-ASSIGNMENTS FOR consortium: #{k}"
       v.each do |r1|
         r2 = r1.clone
-        r2.unshift(k)
+        r2.unshift(blurb)
         report << r2 #[0..-3]
       end
-     # report << [k, '', '', '', '', '', '', '', ''] # make blank lines between groups
+      report << [blurb, '', '', '', '', '', '', '', ''] # make blank lines between groups
     end   
 
     report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )

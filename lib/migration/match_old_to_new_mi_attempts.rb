@@ -17,11 +17,23 @@ data_migration_map.each do |old_id, mappings|
   if ! new_mi
     deleted_audit = Audit.find_by_action_and_auditable_type_and_auditable_id 'destroy',
         'MiAttempt', new_id
+    # past = deleted_audit.ancestors
+    new_mi = deleted_audit.revision
 
     if ! deleted_audit
       stats[:not_found] << mappings
     end
+  else
+    if new_mi.colony_name != new_colony_name
+      stats[:colony_name_mismatch] << mappings
+    end
   end
 end
 
-puts "not found: #{stats[:not_found].join ', '}\n#{stats[:not_found].size}"
+stats.each_key do |stat_name|
+  puts "#{stat_name}: #{stats[stat_name].join ', '}"
+end
+
+stats.each_key do |stat_name|
+  puts "#{stats[stat_name].size}"
+end

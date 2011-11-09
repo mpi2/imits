@@ -6,53 +6,7 @@ class Reports::MiPlans
 
   FUNDING = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
   CONSORTIA = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
-
-  SQL_OLD = 'select 
-    marker_symbol as marker_symbol,
-    mi_plan_statuses.name as mi_plan_statuses_name, 
-    centres.name as centres_name,
-    consortia.name as consortia_name,
-    mi_attempts.mi_date as mi_attempts_mi_date,
-    es_cells.name as es_cells_name,
-    mi_attempts.is_active as mi_attempts_is_active, 
-    mi_attempts.is_suitable_for_emma,
-    mi_attempt_statuses.description as mi_attempt_statuses_description
-    from mi_plans join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
-    left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
-    left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
-    left outer join es_cells on mi_attempts.es_cell_id = es_cells.id 
-    join consortia on mi_plans.consortium_id = consortia.id
-    join centres on mi_plans.production_centre_id = centres.id
-    join genes on mi_plans.gene_id = genes.id
-    where mi_plans.gene_id in (    
-      select gene_id
-      from mi_plans
-      where mi_plan_status_id = 1
-      group by gene_id
-      having count(*) > 1    
-  ) and mi_plan_status_id = 1 order by marker_symbol;'
-  
-  SQL = 'select 
-    marker_symbol as marker_symbol,
-    mi_plan_statuses.name as mi_plan_statuses_name, 
-    centres.name as centres_name,
-    consortia.name as consortia_name,
-    mi_attempts.mi_date as mi_attempts_mi_date,
-    mi_attempt_statuses.description as mi_attempt_statuses_description
-    from mi_plans join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
-    left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
-    left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
-    join consortia on mi_plans.consortium_id = consortia.id
-    join centres on mi_plans.production_centre_id = centres.id
-    join genes on mi_plans.gene_id = genes.id
-    where mi_plans.gene_id in (    
-      select gene_id
-      from mi_plans
-      where mi_plan_status_id = 1
-      group by gene_id
-      having count(*) > 1    
-  ) and mi_plan_status_id = 1 order by marker_symbol;'
-  
+   
   # mi_plan_status_id = 1 is assigned
   
   # TODO: fix sql so it uses strings and not identifiers
@@ -63,7 +17,34 @@ class Reports::MiPlans
 
   def self.get_genes
 
-    result = ActiveRecord::Base.connection.select_all( SQL )
+    array = MiPlanStatus.all_assigned
+   # puts "ARRAY 1: " + array.inspect
+    newarray = []
+    array.map { |i| newarray.push(i.id) }
+  #  puts "ARRAY 2: " + newarray.inspect    
+    
+    sql = "select 
+      marker_symbol as marker_symbol,
+      mi_plan_statuses.name as mi_plan_statuses_name, 
+      centres.name as centres_name,
+      consortia.name as consortia_name,
+      mi_attempts.mi_date as mi_attempts_mi_date,
+      mi_attempt_statuses.description as mi_attempt_statuses_description
+      from mi_plans join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
+      left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
+      left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
+      join consortia on mi_plans.consortium_id = consortia.id
+      join centres on mi_plans.production_centre_id = centres.id
+      join genes on mi_plans.gene_id = genes.id
+      where mi_plans.gene_id in (    
+        select gene_id
+        from mi_plans
+        where mi_plan_status_id in (" + newarray.join(',').to_s + ") " +
+        "group by gene_id
+        having count(*) > 1    
+    ) and mi_plan_status_id in (" + newarray.join(',').to_s + ") " + "order by marker_symbol;"
+
+    result = ActiveRecord::Base.connection.select_all( sql )
 
     genes = {}  
     result.each do |row|

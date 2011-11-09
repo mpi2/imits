@@ -19,7 +19,7 @@ class ReportsController < ApplicationController
   end
       
   def get_double_assigned_mi_plans_list
-    report = Reports::MiPlans::DoubleAssignment.get_double_assigned_list
+    report = Reports::MiPlans::DoubleAssignment.get_list
 
     send_data(
       report.to_csv,

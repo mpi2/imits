@@ -8,6 +8,16 @@ class ReportsController < ApplicationController
   def index
   end
   
+  def get_double_assigned_results
+    report = Reports::MiPlans::DoubleAssignment.get_results
+
+    send_data(
+      report.to_csv,
+      :type     => 'text/csv; charset=utf-8; header=present',
+      :filename => 'double_assigned1.csv'
+    )
+  end
+      
   def get_double_assigned_matrix
     report = Reports::MiPlans::DoubleAssignment.get_matrix
 

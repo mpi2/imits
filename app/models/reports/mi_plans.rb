@@ -2,10 +2,12 @@
 
 class Reports::MiPlans
   
+  class DoubleAssignment
+
   FUNDING = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
   CONSORTIA = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
 
-  SQL = 'select 
+  SQL_OLD = 'select 
     marker_symbol as marker_symbol,
     mi_plan_statuses.name as mi_plan_statuses_name, 
     centres.name as centres_name,
@@ -28,10 +30,39 @@ class Reports::MiPlans
       where mi_plan_status_id = 1
       group by gene_id
       having count(*) > 1    
-  ) and mi_plan_status_id =1 order by marker_symbol;'
+  ) and mi_plan_status_id = 1 order by marker_symbol;'
+  
+  SQL = 'select 
+    marker_symbol as marker_symbol,
+    mi_plan_statuses.name as mi_plan_statuses_name, 
+    centres.name as centres_name,
+    consortia.name as consortia_name,
+    mi_attempts.mi_date as mi_attempts_mi_date,
+    mi_attempt_statuses.description as mi_attempt_statuses_description
+    from mi_plans join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
+    left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
+    left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
+    join consortia on mi_plans.consortium_id = consortia.id
+    join centres on mi_plans.production_centre_id = centres.id
+    join genes on mi_plans.gene_id = genes.id
+    where mi_plans.gene_id in (    
+      select gene_id
+      from mi_plans
+      where mi_plan_status_id = 1
+      group by gene_id
+      having count(*) > 1    
+  ) and mi_plan_status_id = 1 order by marker_symbol;'
+  
+  # mi_plan_status_id = 1 is assigned
+  
+  # TODO: fix sql so it uses strings and not identifiers
+  # TODO: use consortia in db to get consortia/funding mapping
+  # TODO: 
+  # TODO: 
+  # TODO: 
 
-  def get_genes
-         
+  def self.get_genes
+
     result = ActiveRecord::Base.connection.select_all( SQL )
 
     genes = {}  
@@ -45,19 +76,17 @@ class Reports::MiPlans
           row['mi_plan_statuses_name'],
           row['mi_attempt_statuses_description'],
           row['centres_name'],
-          row['mi_attempts_mi_date'],
-          row['mi_attempts_is_active'],
-          row['is_suitable_for_emma']
+          row['mi_attempts_mi_date']
         ]
         )
     end
 
     return genes
-  
+
   end
-  
-  def get_consortia_matrix(genes)
-     
+
+  def self.get_consortia_matrix(genes)
+
     cons_matrix = {}    
     genes.each_pair do |k1, v1|
       genes[k1].each_pair do |k2, v2|
@@ -69,71 +98,33 @@ class Reports::MiPlans
         end
       end
     end
-    
+
     return cons_matrix
-  
+
   end
 
-  #def get_double_assigned_1_old
-  #      
-  #  genes = get_genes
-  #  cons_matrix = get_consortia_matrix(genes)
-  #
-  #  columns = []
-  #  columns.push('')
-  #
-  #  for i in (0..FUNDING.size-1)
-  #    columns.push(FUNDING[i] + '/' + CONSORTIA[i])
-  #  end    
-  # 
-  #  matrix = []
-  #    
-  #  rows = 0
-  #  CONSORTIA.each do |row1|
-  #    cols = 0
-  #    matrix[rows] ||= []
-  #    CONSORTIA.each do |row2|
-  #      if cols <= rows  # skip duplicate rows
-  #        matrix[rows][cols] = ''
-  #        cols += 1
-  #        next
-  #      end
-  #      genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : []
-  #      matrix[rows][cols] = genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
-  #      cols += 1
-  #    end
-  #    rows += 1
-  #  end
-  #
-  #  report = Table( columns )
-  #  
-  #  for i in (0..columns.size-2)
-  #    array = matrix[i]
-  #    array.unshift(columns[i+1])
-  #    report << array
-  #  end
-  #  
-  #  return report
-  #  
-  #end  
-  
-  def get_double_assigned_1
-        
-    genes = get_genes
-    cons_matrix = get_consortia_matrix(genes)
-
+  def self.get_double_assigned_1_columns
     columns = []
-    columns.push('')
 
     for i in (0..FUNDING.size-1)
       columns.push(FUNDING[i] + '/' + CONSORTIA[i])
-    end    
-   
+    end
+    columns
+  end
+
+  def self.get_double_assigned_1
+
+    genes = get_genes
+    cons_matrix = get_consortia_matrix(genes)
+
+    columns = get_double_assigned_1_columns
+    columns.unshift('')
+
     report = Table( columns )
     matrix = []
 
     columns.shift
-        
+
     rows = 0
     CONSORTIA.each do |row1|
       cols = 0
@@ -151,54 +142,12 @@ class Reports::MiPlans
       report << matrix[rows]
       rows += 1
     end
-    
+
     return report
-    
+
   end  
-  
-  #def get_double_assigned_mi_plans_1
-  #      
-  #  genes = get_genes
-  #  cons_matrix = get_consortia_matrix(genes)
-  #
-  #  columns = []
-  #  columns.push('')
-  #
-  #  for i in (0..FUNDING.size-1)
-  #    columns.push(FUNDING[i] + ' / ' + CONSORTIA[i])
-  #  end    
-  # 
-  #  matrix = Matrix.build(CONSORTIA.size) { |row, col| '' }
-  #    
-  #  rows = 0
-  #  CONSORTIA.each do |row1|
-  #    cols = -1
-  #    CONSORTIA.each do |row2|
-  #      cols += 1
-  #      next if cols <= rows  # skip duplicate rows
-  #      genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
-  #      matrix[rows][cols] = genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
-  #    end
-  #    rows += 1
-  #  end
-  #
-  #  report = Table( columns )
-  #  
-  #  for i in (0..columns.size-2)
-  #    array = matrix[i]
-  #    array.unshift(columns[i+1])
-  #    report << array
-  #  end
-  #  
-  #  return report
-  #  
-  #end
 
-  def get_double_assigned_2
-
-    genes = get_genes
-            
-    report = Table(
+  def self.get_double_assigned_2_columns
       [
         'Target Consortium',
         'Marker Symbol',
@@ -208,10 +157,16 @@ class Reports::MiPlans
         'Centre',
         'MI Date'
       ]
-    )
-    
+  end
+  
+  def self.get_double_assigned_2
+
+    genes = get_genes
+
+    report = Table( get_double_assigned_2_columns )
+
     CONSORTIA.each do |consortium|
-      blurb = "DOUBLE-ASSIGNMENTS FOR consortium: #{consortium}"
+      group_heading = "DOUBLE-ASSIGNMENTS FOR consortium: #{consortium}"
       genes.each_pair do |marker, value|
         consortia_for_gene = value.keys
         array = consortia_for_gene.grep(/^#{consortium}$/)
@@ -222,71 +177,20 @@ class Reports::MiPlans
             mi_status = mi[3]
             next if mi_status == 'Micro-injection aborted'
             mi2 = mi.clone
-            mi2.unshift(blurb)
+            mi2.unshift(group_heading)
             report << mi2
           end
         end
       end
-      report << [blurb, '', '', '', '', '', '', '', ''] # make blank lines between groups
+      report << [group_heading, '', '', '', '', '', '', '', ''] # make blank lines between groups
     end
 
     report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )
 
     return report
 
-  end  
+  end
   
-  #def get_double_assigned_2_old
-  #
-  #  genes = get_genes
-  #
-  #  hash = {}
-  #          
-  #  CONSORTIA.each do |consortium|
-  #    hash[consortium] = []
-  #    genes.each_pair do |marker, value|
-  #      consortia_for_gene = value.keys
-  #      array = consortia_for_gene.grep(/^#{consortium}$/)
-  #      if array && array.size > 0
-  #        value.keys.each do |found_consortium|
-  #          mi_array = genes[marker][found_consortium];
-  #          mi_array.each do |mi|
-  #            mi_status = mi[3]
-  #            next if mi_status == 'Micro-injection aborted'
-  #            hash[consortium] ||= []
-  #            hash[consortium].push(mi)
-  #          end
-  #        end
-  #      end        
-  #    end
-  #  end
-  #
-  #  report = Table(
-  #    [
-  #      'Target Consortium',
-  #      'Marker Symbol',
-  #      'Consortium',
-  #      'Plan Status',
-  #      'MI Status',
-  #      'Centre',
-  #      'MI Date'
-  #    ]
-  #  )
-  #  
-  #  hash.each_pair do |k, v|
-  #    blurb = "DOUBLE-ASSIGNMENTS FOR consortium: #{k}"
-  #    v.each do |r1|
-  #      r2 = r1.clone
-  #      r2.unshift(blurb)
-  #      report << r2[0..-3]
-  #    end
-  #    report << [blurb, '', '', '', '', '', '', '', ''] # make blank lines between groups
-  #  end   
-  #
-  #  report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )
-  #
-  #  return report
-  #
-  #end  
+  end
 
 end

@@ -16,18 +16,7 @@
         <br/><strong>CSV download only</strong>
       </p>
     </a>
-  </div>
-  
- <!-- <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :double_assigned_mi_plans_1, :format => :csv) %>">
-      <h4>Double-assigned MI Plans</h4>
-      <p>
-        blah, blah, blah...
-        <br/><strong>CSV download only</strong>
-      </p>
-    </a>
-  </div>-->
-  
+  </div>  
 </div>
 
 <div class="grid_5">
@@ -53,7 +42,7 @@
   </div>
 
   <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :double_assigned_mi_plans_1) %>">
+    <a href="<%= url_for(:controller => :reports, :action => :get_double_assigned_matrix) %>">
       <h4>Double-assigned MI Plans I</h4>
       <p>Double-assigned MI Plans I.
         <br/><strong>CSV download only</strong>
@@ -61,7 +50,7 @@
     </a>
   </div>
   <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :double_assigned_mi_plans_2) %>">
+    <a href="<%= url_for(:controller => :reports, :action => :get_double_assigned_mi_plans_list) %>">
       <h4>Double-assigned MI Plans II</h4>
       <p>Double-assigned MI Plans II.
         <br/><strong>CSV download only</strong>
@@ -97,20 +86,6 @@
       <p>Lists details on all micro-injections attempts.</p>
     </a>
   </div>
-
- <!-- <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :double_assigned_mi_plans_1) %>">
-      <h4>Double-assigned MI Plans I</h4>
-      <p>Double-assigned MI Plans I.</p>
-    </a>
-  </div>
-  <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :double_assigned_mi_plans_2) %>">
-      <h4>Double-assigned MI Plans II</h4>
-      <p>Double-assigned MI Plans II.</p>
-    </a>
-  </div>-->
-  
 </div>
 
 

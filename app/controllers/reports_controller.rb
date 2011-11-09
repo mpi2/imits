@@ -8,8 +8,8 @@ class ReportsController < ApplicationController
   def index
   end
   
-  def double_assigned_mi_plans_1
-    report = Reports::MiPlans::DoubleAssignment.get_double_assigned_1
+  def get_double_assigned_matrix
+    report = Reports::MiPlans::DoubleAssignment.get_matrix
 
     send_data(
       report.to_csv,
@@ -18,8 +18,8 @@ class ReportsController < ApplicationController
     )
   end
       
-  def double_assigned_mi_plans_2
-    report = Reports::MiPlans::DoubleAssignment.get_double_assigned_2
+  def get_double_assigned_mi_plans_list
+    report = Reports::MiPlans::DoubleAssignment.get_double_assigned_list
 
     send_data(
       report.to_csv,

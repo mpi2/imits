@@ -18,10 +18,8 @@ class Reports::MiPlans
   def self.get_genes
 
     array = MiPlanStatus.all_assigned
-   # puts "ARRAY 1: " + array.inspect
     newarray = []
     array.map { |i| newarray.push(i.id) }
-  #  puts "ARRAY 2: " + newarray.inspect    
     
     sql = "select 
       marker_symbol as marker_symbol,
@@ -93,7 +91,7 @@ class Reports::MiPlans
     columns
   end
 
-  def self.get_double_assigned_1
+  def self.get_matrix
 
     genes = get_genes
     cons_matrix = get_consortia_matrix(genes)
@@ -140,7 +138,7 @@ class Reports::MiPlans
       ]
   end
   
-  def self.get_double_assigned_2
+  def self.get_double_assigned_list
 
     genes = get_genes
 

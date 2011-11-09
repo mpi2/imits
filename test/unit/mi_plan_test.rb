@@ -806,5 +806,11 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '#as_json' do
+      should 'take nil as param' do
+        assert_nothing_raised { @default_mi_plan.as_json(nil) }
+      end
+    end
+
   end
 end

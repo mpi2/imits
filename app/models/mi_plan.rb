@@ -241,6 +241,7 @@ class MiPlan < ActiveRecord::Base
   end
 
   def as_json(options = {})
+    options ||= {}
     options.symbolize_keys!
 
     options[:methods] = INTERFACE_ATTRIBUTES + ['status']

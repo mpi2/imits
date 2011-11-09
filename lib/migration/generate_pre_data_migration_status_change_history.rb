@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-{'ruby 1.9': true}
+{ruby19: true}
 
 data_migration_map = YAML.load_file('db/data_migration_map.yaml')
 

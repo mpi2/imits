@@ -5,14 +5,14 @@ class Reports::MiPlans
   class DoubleAssignment
 
     def self.get_funding
-      funders = Consortium.all.map { |i| i.funding }
-      #funders = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
+      #funders = Consortium.all.map { |i| i.funding }
+      funders = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
       return funders
     end
     
     def self.get_consortia
-      consortia = Consortium.all.map { |i| i.name }
-      #consortia = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
+      #consortia = Consortium.all.map { |i| i.name }
+      consortia = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
       return consortia
     end
     

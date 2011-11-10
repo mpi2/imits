@@ -7,39 +7,6 @@ class Reports::MiPlans
     FUNDING = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
     CONSORTIA = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
 
-    # temp routine to test sql
-    
-    def self.get_results
-      assigned_statuses = '(' + MiPlanStatus.all_assigned.map { |i| i.id }.join(',') + ')'
-
-      sql = "select
-        genes.marker_symbol as marker_symbol,
-        COALESCE(centres.name, 'NONE') as centres_name,
-        consortia.name as consortia_name
-      from mi_plans
-        left outer join centres on mi_plans.production_centre_id = centres.id
-        join consortia on mi_plans.consortium_id = consortia.id
-        join genes on mi_plans.gene_id = genes.id
-      where mi_plans.gene_id in (
-        select gene_id
-        from mi_plans
-        where mi_plan_status_id in #{assigned_statuses} 
-        group by gene_id
-        having count(*) > 1
-      ) and mi_plan_status_id in #{assigned_statuses} order by marker_symbol;"
-
-      result = ActiveRecord::Base.connection.select_all( sql )
-
-#      report = Table( ['marker_symbol', 'mi_plan_statuses_name', 'centres_name', 'consortia_name', 'mi_attempts_mi_date', 'mi_attempt_statuses_description'] )
-      report = Table( [ 'marker_symbol', 'centres_name', 'consortia_name' ] )
-      result.each do |row|
-        report << row
-      end
-
-      return report
-
-    end
-
     def self.get_genes_for_matrix
 
       assigned_statuses = '(' + MiPlanStatus.all_assigned.map { |i| i.id }.join(',') + ')'

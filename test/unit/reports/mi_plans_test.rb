@@ -185,7 +185,6 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         assert columns && columns.size > 0, "Could not get columns"
 
         puts report.to_s
-        #puts "LENGTH: " + report.to_s.length.to_s
         
         assert report.to_s.length == 0, "Expected report to be empty!"
         
@@ -270,18 +269,13 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
           :production_centre_name => 'WTSI',
           :consortium_name => 'BaSH'
 
-
-#BaSH DTCC
-
         Factory.create :mi_attempt,
           :es_cell => Factory.create(:es_cell, :gene => gene_trafd1),
           'mi_date' => '2011-10-05',
           :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
           :production_centre_name => 'WTSI',
           :consortium_name => 'DTCC'
-                  
-#puts "DATE: " + mi_attempt.mi_date.to_s                             
-                  
+                                    
         report = Reports::MiPlans::DoubleAssignment.get_list_raw
         assert report, "Could not get report"
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns

@@ -204,7 +204,6 @@ class Reports::MiPlans
             end
           end
         end
-#        report << [group_heading, '', '', '', '', '', '', '', ''] # make blank lines between groups
       end
 
       return report

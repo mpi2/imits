@@ -7,25 +7,31 @@ class ReportsController < ApplicationController
 
   def index
   end
-      
-  def get_double_assigned_matrix
-    report = Reports::MiPlans::DoubleAssignment.get_matrix
 
-    send_data(
-      report.to_csv,
-      :type     => 'text/csv; charset=utf-8; header=present',
-      :filename => 'double_assigned1.csv'
-    )
+  def double_assigned_mi_plans_matrix
+    @report = Reports::MiPlans::DoubleAssignment.get_matrix
+
+    if request.format == :csv
+      send_data(
+        @report.to_csv,
+        :type     => 'text/csv; charset=utf-8; header=present',
+        :filename => 'double_assigned_matrix.csv'
+      )
+    end
+      
   end
       
-  def get_double_assigned_mi_plans_list
-    report = Reports::MiPlans::DoubleAssignment.get_list
+  def double_assigned_mi_plans_list
+    @report = Reports::MiPlans::DoubleAssignment.get_list
 
-    send_data(
-      report.to_csv,
-      :type     => 'text/csv; charset=utf-8; header=present',
-      :filename => 'double_assigned1.csv'
-    )
+    if request.format == :csv
+      send_data(
+        @report.to_csv,
+        :type     => 'text/csv; charset=utf-8; header=present',
+        :filename => 'double_assigned_list.csv'
+      )
+    end
+    
   end  
 
   def genes_list

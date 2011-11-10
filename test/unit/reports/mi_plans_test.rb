@@ -4,6 +4,8 @@ require 'test_helper'
 
 class Reports::MiPlansTest < ActiveSupport::TestCase
   
+  VERBOSE = false
+  
   context 'Reports::MiPlans' do
 
     should 'display double-assignments between two consortia and production centres (matrix)' do
@@ -37,7 +39,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         
         assert report.column('KOMP2/JAX')[0] == 2, "Expected to find value 2"
           
-        puts report.to_s
+        puts report.to_s if VERBOSE
         
         columns.each do |column|
           values = report.column(column)
@@ -70,7 +72,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         
         assert report.column('KOMP2/JAX')[0] == 1, "Expected to find value 1"
           
-        puts report.to_s
+        puts report.to_s if VERBOSE
         
         columns.each do |column|
           values = report.column(column)
@@ -141,7 +143,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert columns && columns.size > 0, "Could not get columns"
 
-        puts report.to_s
+        puts report.to_s if VERBOSE
         
         assert report.column('Marker Symbol')[0] == 'Cbx1'
         assert report.column('Marker Symbol')[1] == 'Cbx1'
@@ -184,7 +186,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert columns && columns.size > 0, "Could not get columns"
 
-        puts report.to_s
+        puts report.to_s if VERBOSE
         
         assert report.to_s.length == 0, "Expected report to be empty!"
         
@@ -208,7 +210,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert columns && columns.size > 0, "Could not get columns"
 
-        puts report.to_s
+        puts report.to_s if VERBOSE
 
         assert report.to_s =~ /DOUBLE-ASSIGNMENTS FOR consortium: BaSH:/, "Cannot find BaSH"
         assert report.to_s =~ /DOUBLE-ASSIGNMENTS FOR consortium: JAX:/, "Cannot find JAX"
@@ -234,7 +236,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert columns && columns.size > 0, "Could not get columns"
 
-        puts report.to_s
+        puts report.to_s if VERBOSE
 
         assert report.column('Marker Symbol')[0] == 'Trafd1'
         assert report.column('Marker Symbol')[1] == 'Trafd1'
@@ -281,7 +283,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert columns && columns.size > 0, "Could not get columns"
 
-        puts report.to_s
+        puts report.to_s if VERBOSE
         
         assert report.column('Marker Symbol')[0] == 'Trafd1'
         assert report.column('Marker Symbol')[1] == 'Trafd1'

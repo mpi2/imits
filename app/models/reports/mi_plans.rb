@@ -4,6 +4,8 @@ class Reports::MiPlans
 
   class DoubleAssignment
 
+    private
+    
     def self.get_funding
       #funders = Consortium.all.map { |i| i.funding }
       funders = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
@@ -104,24 +106,8 @@ class Reports::MiPlans
 
     end
 
-    def self.get_consortia_matrix(genes)
-
-      cons_matrix = {}
-      genes.each_pair do |k1, v1|
-        genes[k1].each_pair do |k2, v2|
-          genes[k1].each_pair do |k3, v3|
-            cons_matrix[k2] ||= {}
-            cons_matrix[k2][k3] ||= {}
-            cons_matrix[k2][k3][k1] = 0;
-            cons_matrix[k2][k3][k1] = 1 if k2 != k3;
-          end
-        end
-      end
-
-      return cons_matrix
-
-    end
-
+    public
+    
     def self.get_matrix_columns
       columns = []
       
@@ -137,13 +123,23 @@ class Reports::MiPlans
     def self.get_matrix
 
       genes = get_genes_for_matrix
-      cons_matrix = get_consortia_matrix(genes)
+
+      cons_matrix = {}
+      genes.each_pair do |k1, v1|
+        genes[k1].each_pair do |k2, v2|
+          genes[k1].each_pair do |k3, v3|
+            cons_matrix[k2] ||= {}
+            cons_matrix[k2][k3] ||= {}
+            cons_matrix[k2][k3][k1] = 0;
+            cons_matrix[k2][k3][k1] = 1 if k2 != k3;
+          end
+        end
+      end
 
       columns = get_matrix_columns
       columns.unshift('')
 
       report = Table( columns )
-      matrix = []
 
       columns.shift
 
@@ -152,18 +148,18 @@ class Reports::MiPlans
       rows = 0
       consortia.each do |row1|
         cols = 0
-        matrix[rows] ||= []
-        matrix[rows][0] = columns[rows]
+        new_row = []
+        new_row.push columns[rows]
         consortia.each do |row2|
           cols += 1
           if cols-1 <= rows  # skip duplicate rows
-            matrix[rows][cols] = ''
+            new_row.push ''
             next
           end
           genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
-          matrix[rows][cols] = genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
+          new_row.push genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
         end
-        report << matrix[rows]
+        report << new_row
         rows += 1
       end
 
@@ -192,6 +188,8 @@ class Reports::MiPlans
       return report
 
     end
+    
+    # return the table before grouping so test can check it
 
     def self.get_list_raw
 
@@ -205,8 +203,8 @@ class Reports::MiPlans
         group_heading = "DOUBLE-ASSIGNMENTS FOR consortium: #{consortium}"
         genes.each_pair do |marker, value|
           consortia_for_gene = value.keys
-          array = consortia_for_gene.grep(/^#{consortium}$/)
-          next if ! array || array.size < 1
+          has_consortia = consortia_for_gene.grep(/^#{consortium}$/)
+          next if ! has_consortia || has_consortia.size < 1
           value.keys.each do |found_consortium|
             mi_array = genes[marker][found_consortium];
             mi_array.each do |mi|

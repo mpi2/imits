@@ -14,7 +14,7 @@ class Reports::MiPlans
     end
 
     def self.get_results
-      #    result = get_genes_old_1
+      #        result = get_genes_old_1
       result = get_genes_new_2
       report = Table( ['marker_symbol', 'mi_plan_statuses_name', 'centres_name', 'consortia_name', 'mi_attempts_mi_date', 'mi_attempt_statuses_description'] )
       result.each do |row|
@@ -53,7 +53,9 @@ class Reports::MiPlans
       ) and mi_plan_status_id in (" + newarray.join(',').to_s + ") " + "order by marker_symbol;"
 
       result = ActiveRecord::Base.connection.select_all( sql )
-      
+
+      result.sort_by { |i| i['marker_symbol'] }
+
       return result
 
     end
@@ -63,7 +65,6 @@ class Reports::MiPlans
       result = get_genes_old_1
 
       #puts "TEST COUNT 1: " + result.size.to_s
-
       #TEST COUNT 1: 438
 
       genes = {}
@@ -113,7 +114,7 @@ class Reports::MiPlans
       end
       columns
     end
-    #
+
     #def self.get_genes_new_2
     #
     #  newarray = []
@@ -168,8 +169,51 @@ class Reports::MiPlans
     #  return genes
     #
     #end
-    
+
+    #def self.get_genes_new_3
     #
+    #  newarray = []
+    #  MiPlanStatus.all_assigned.map { |i| newarray.push(i.id) }
+    #
+    #  genes = MiPlan.all(:select => 'gene_id',
+    #  :conditions => "mi_plans.mi_plan_status_id in (" + newarray.join(',').to_s + ")",
+    #  :group => "mi_plans.gene_id having count(*) > 1")
+    #
+    #  puts "PLAN COUNT 2: " + genes.size.to_s
+    #
+    #  result = []
+    #
+    #  genes.each do |gene_id|
+    #    gene = Gene.find(gene_id['gene_id'])
+    #
+    #    gene.mi_plans.each do |plan|
+    #
+    #      next if ! newarray.include? plan.mi_plan_status.id
+    #
+    #      attempts = plan.mi_attempts
+    #      mi_attempts_mi_date = '' if attempts.size == 0
+    #      mi_attempt_statuses_description = '' if attempts.size > 0
+    #      mi_attempts_mi_date = '' if attempts.size == 0
+    #      mi_attempt_statuses_description = '' if attempts.size > 0
+    #
+    #      plan.mi_attempts.each do |attempt|
+    #        hash = {
+    #          'marker_symbol' => gene.marker_symbol,
+    #          'mi_plan_statuses_name' => plan.mi_plan_status.name,
+    #          'centres_name' => plan.production_centre.name,
+    #          'consortia_name' => plan.consortium.name,
+    #          'mi_attempts_mi_date' => mi_attempts_mi_date,
+    #          'mi_attempt_statuses_description' => mi_attempt_statuses_description
+    #        }
+    #        result.push(hash)
+    #      end
+    #    end
+    #  end
+    #
+    #  return result
+    #
+    #end
+
     def self.get_genes_new_2
 
       newarray = []
@@ -187,9 +231,7 @@ class Reports::MiPlans
         gene = Gene.find(gene_id['gene_id'])
 
         gene.mi_plans.each do |plan|
-          
-          #>> ['Cat', 'Dog', 'Bird'].include? 'Dog'
-          
+
           next if ! newarray.include? plan.mi_plan_status.id
 
           if plan.mi_attempts.size == 0
@@ -208,58 +250,59 @@ class Reports::MiPlans
             hash = {
               'marker_symbol' => gene.marker_symbol,
               'mi_plan_statuses_name' => plan.mi_plan_status.name,
-              #          'centres_name' => plan.production_centre.name.length > 0 ? plan.production_centre.name : 'NONE',
               'centres_name' => plan.production_centre.name,
               'consortia_name' => plan.consortium.name,
               'mi_attempts_mi_date' => attempt.mi_date,
               'mi_attempt_statuses_description' => attempt.mi_attempt_status.description
             }
             result.push(hash)
-          end          
+          end
         end
       end
+
+      result.sort_by { |i| i['marker_symbol'] }
 
       return result
 
     end
 
-    def self.get_genes_new_1
-
-      newarray = []
-      MiPlanStatus.all_assigned.map { |i| newarray.push(i.id) }
-
-      genes = MiPlan.all(:select => 'gene_id',
-      :conditions => "mi_plans.mi_plan_status_id in (" + newarray.join(',').to_s + ")",
-      :group => "mi_plans.gene_id having count(*) > 1")
-
-      puts "PLAN COUNT 2: " + genes.size.to_s
-
-      result = []
-
-      genes.each do |gene_id|
-        gene = Gene.find(gene_id['gene_id'])
-
-        gene.mi_plans.each do |plan|
-          hash = {
-            'marker_symbol' => gene.marker_symbol,
-            'mi_plan_statuses_name' => plan.mi_plan_status.name,
-            #          'centres_name' => plan.production_centre.name.length > 0 ? plan.production_centre.name : 'NONE',
-            'centres_name' => plan.production_centre.name,
-            'consortia_name' => plan.consortium.name,
-            'mi_attempts_mi_date' => plan.mi_attempts.size > 0 ? plan.mi_attempts[plan.mi_attempts.size-1].mi_date : nil,
-            'mi_attempt_statuses_description' => plan.mi_attempts.size > 0 ? plan.mi_attempts[plan.mi_attempts.size-1].mi_attempt_status.description : nil
-          }
-          result.push(hash)
-        end
-      end
-
-      return result
-
-    end
+    #def self.get_genes_new_1
+    #
+    #  newarray = []
+    #  MiPlanStatus.all_assigned.map { |i| newarray.push(i.id) }
+    #
+    #  genes = MiPlan.all(:select => 'gene_id',
+    #  :conditions => "mi_plans.mi_plan_status_id in (" + newarray.join(',').to_s + ")",
+    #  :group => "mi_plans.gene_id having count(*) > 1")
+    #
+    #  puts "PLAN COUNT 2: " + genes.size.to_s
+    #
+    #  result = []
+    #
+    #  genes.each do |gene_id|
+    #    gene = Gene.find(gene_id['gene_id'])
+    #
+    #    gene.mi_plans.each do |plan|
+    #      hash = {
+    #        'marker_symbol' => gene.marker_symbol,
+    #        'mi_plan_statuses_name' => plan.mi_plan_status.name,
+    #        #          'centres_name' => plan.production_centre.name.length > 0 ? plan.production_centre.name : 'NONE',
+    #        'centres_name' => plan.production_centre.name,
+    #        'consortia_name' => plan.consortium.name,
+    #        'mi_attempts_mi_date' => plan.mi_attempts.size > 0 ? plan.mi_attempts[plan.mi_attempts.size-1].mi_date : nil,
+    #        'mi_attempt_statuses_description' => plan.mi_attempts.size > 0 ? plan.mi_attempts[plan.mi_attempts.size-1].mi_attempt_status.description : nil
+    #      }
+    #      result.push(hash)
+    #    end
+    #  end
+    #
+    #  return result
+    #
+    #end
 
     def self.get_genes_new
 
-      result = get_genes_new_1
+      result = get_genes_new_2
 
       genes = {}
       result.each do |row|

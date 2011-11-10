@@ -4,9 +4,18 @@ class Reports::MiPlans
 
   class DoubleAssignment
 
-    FUNDING = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
-    CONSORTIA = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
-
+    def self.get_funding
+      funders = Consortium.all.map { |i| i.funding }
+      #funders = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
+      return funders
+    end
+    
+    def self.get_consortia
+      consortia = Consortium.all.map { |i| i.name }
+      #consortia = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
+      return consortia
+    end
+    
     def self.get_genes_for_matrix
 
       assigned_statuses = '(' + MiPlanStatus.all_assigned.map { |i| i.id }.join(',') + ')'
@@ -115,9 +124,12 @@ class Reports::MiPlans
 
     def self.get_matrix_columns
       columns = []
+      
+      funders = get_funding
+      consortia = get_consortia
 
-      for i in (0..FUNDING.size-1)
-        columns.push(FUNDING[i] + '/' + CONSORTIA[i])
+      for i in (0..funders.size-1)
+        columns.push(funders[i] + '/' + consortia[i])
       end
       columns
     end
@@ -135,12 +147,14 @@ class Reports::MiPlans
 
       columns.shift
 
+      consortia = get_consortia
+
       rows = 0
-      CONSORTIA.each do |row1|
+      consortia.each do |row1|
         cols = 0
         matrix[rows] ||= []
         matrix[rows][0] = columns[rows]
-        CONSORTIA.each do |row2|
+        consortia.each do |row2|
           cols += 1
           if cols-1 <= rows  # skip duplicate rows
             matrix[rows][cols] = ''
@@ -171,8 +185,6 @@ class Reports::MiPlans
 
     def self.get_list
 
-      genes = get_genes_for_list
-
       report = get_list_raw
 
       report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )
@@ -185,9 +197,11 @@ class Reports::MiPlans
 
       genes = get_genes_for_list
 
+      consortia = get_consortia
+
       report = Table( get_list_columns )
 
-      CONSORTIA.each do |consortium|
+      consortia.each do |consortium|
         group_heading = "DOUBLE-ASSIGNMENTS FOR consortium: #{consortium}"
         genes.each_pair do |marker, value|
           consortia_for_gene = value.keys

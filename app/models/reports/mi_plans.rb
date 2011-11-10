@@ -4,14 +4,34 @@ class Reports::MiPlans
 
   class DoubleAssignment
 
-#      FUNDING = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC KOMP2 IMPC IKMC ]
- #     CONSORTIA = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP NONE NONE NONE ]
     FUNDING = %w[ KOMP2 KOMP2 KOMP2 IMPC IMPC IMPC IMPC IMPC IMPC IMPC IMPC IKMC IKMC IKMC ]
     CONSORTIA = %w[ BaSH DTCC JAX Helmholtz-GMC MARC MGP MRC Monterotondo NorCOMM2 Phenomin RIKEN-BRC EUCOMM-EUMODIC MGP-KOMP DTCC-KOMP ]
 
+    # temp routine to test sql
+    
     def self.get_results
-      result = get_genes_for_matrix
-      report = Table( ['marker_symbol', 'mi_plan_statuses_name', 'centres_name', 'consortia_name', 'mi_attempts_mi_date', 'mi_attempt_statuses_description'] )
+      assigned_statuses = '(' + MiPlanStatus.all_assigned.map { |i| i.id }.join(',') + ')'
+
+      sql = "select
+        genes.marker_symbol as marker_symbol,
+        COALESCE(centres.name, 'NONE') as centres_name,
+        consortia.name as consortia_name
+      from mi_plans
+        left outer join centres on mi_plans.production_centre_id = centres.id
+        join consortia on mi_plans.consortium_id = consortia.id
+        join genes on mi_plans.gene_id = genes.id
+      where mi_plans.gene_id in (
+        select gene_id
+        from mi_plans
+        where mi_plan_status_id in #{assigned_statuses} 
+        group by gene_id
+        having count(*) > 1
+      ) and mi_plan_status_id in #{assigned_statuses} order by marker_symbol;"
+
+      result = ActiveRecord::Base.connection.select_all( sql )
+
+#      report = Table( ['marker_symbol', 'mi_plan_statuses_name', 'centres_name', 'consortia_name', 'mi_attempts_mi_date', 'mi_attempt_statuses_description'] )
+      report = Table( [ 'marker_symbol', 'centres_name', 'consortia_name' ] )
       result.each do |row|
         report << row
       end
@@ -26,7 +46,7 @@ class Reports::MiPlans
 
       sql = "select
         genes.marker_symbol as marker_symbol,
-        centres.name as centres_name,
+        COALESCE(centres.name, 'NONE') as centres_name,
         consortia.name as consortia_name
       from mi_plans
         left outer join centres on mi_plans.production_centre_id = centres.id
@@ -35,8 +55,8 @@ class Reports::MiPlans
       where mi_plans.gene_id in (
         select gene_id
         from mi_plans
-        where mi_plan_status_id in #{assigned_statuses} " +
-        "group by gene_id
+        where mi_plan_status_id in #{assigned_statuses} 
+        group by gene_id
         having count(*) > 1
       ) and mi_plan_status_id in #{assigned_statuses} order by marker_symbol;"
 
@@ -51,7 +71,7 @@ class Reports::MiPlans
         [
           row['marker_symbol'],
           row['consortia_name'],
-          row['centres_name'] && row['centres_name'].length > 0 ? row['centres_name'] : 'NONE'
+          row['centres_name']
         ]
         )
       end
@@ -62,34 +82,31 @@ class Reports::MiPlans
 
     def self.get_genes_for_list
 
-      newarray = []
-      MiPlanStatus.all_assigned.map { |i| newarray.push(i.id) }
+      assigned_statuses = '(' + MiPlanStatus.all_assigned.map { |i| i.id }.join(',') + ')'
 
       sql = "select
-      marker_symbol as marker_symbol,
-      mi_plan_statuses.name as mi_plan_statuses_name,
-      centres.name as centres_name,
-      consortia.name as consortia_name,
-      mi_attempts.mi_date as mi_attempts_mi_date,
-      mi_attempt_statuses.description as mi_attempt_statuses_description
+        marker_symbol as marker_symbol,
+        mi_plan_statuses.name as mi_plan_statuses_name,
+        COALESCE(centres.name, 'NONE') as centres_name,
+        consortia.name as consortia_name,
+        mi_attempts.mi_date as mi_attempts_mi_date,
+        mi_attempt_statuses.description as mi_attempt_statuses_description
       from mi_plans
-      join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
-      left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
-      left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
-      join consortia on mi_plans.consortium_id = consortia.id
-      left outer join centres on mi_plans.production_centre_id = centres.id
-      join genes on mi_plans.gene_id = genes.id
+        join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
+        left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
+        left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
+        join consortia on mi_plans.consortium_id = consortia.id
+        left outer join centres on mi_plans.production_centre_id = centres.id
+        join genes on mi_plans.gene_id = genes.id
       where mi_plans.gene_id in (
-      select gene_id
-      from mi_plans
-      where mi_plan_status_id in (" + newarray.join(',').to_s + ") " +
-      "group by gene_id
-      having count(*) > 1
-      ) and mi_plan_status_id in (" + newarray.join(',').to_s + ") " + "order by marker_symbol;"
+        select gene_id
+        from mi_plans
+        where mi_plan_status_id in #{assigned_statuses}
+        group by gene_id
+        having count(*) > 1
+      ) and mi_plan_status_id in #{assigned_statuses} order by marker_symbol;"
 
       result = ActiveRecord::Base.connection.select_all( sql )
-
-      result.sort_by { |i| i['marker_symbol'] }
 
       genes = {}
       result.each do |row|
@@ -101,7 +118,6 @@ class Reports::MiPlans
           row['consortia_name'],
           row['mi_plan_statuses_name'],
           row['mi_attempt_statuses_description'],
-          #          row['centres_name'] && row['centres_name'].length > 0 ? row['centres_name'] : 'NONE',
           row['centres_name'],
           row['mi_attempts_mi_date']
         ]
@@ -159,10 +175,10 @@ class Reports::MiPlans
         matrix[rows][0] = columns[rows]
         CONSORTIA.each do |row2|
           cols += 1
-          #if cols-1 <= rows  # skip duplicate rows
-          #  matrix[rows][cols] = ''
-          #  next
-          #end
+          if cols-1 <= rows  # skip duplicate rows
+            matrix[rows][cols] = ''
+            next
+          end
           genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
           matrix[rows][cols] = genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
         end
@@ -190,6 +206,18 @@ class Reports::MiPlans
 
       genes = get_genes_for_list
 
+      report = get_list_raw
+
+      report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )
+
+      return report
+
+    end
+
+    def self.get_list_raw
+
+      genes = get_genes_for_list
+
       report = Table( get_list_columns )
 
       CONSORTIA.each do |consortium|
@@ -209,10 +237,8 @@ class Reports::MiPlans
             end
           end
         end
-        report << [group_heading, '', '', '', '', '', '', '', ''] # make blank lines between groups
+#        report << [group_heading, '', '', '', '', '', '', '', ''] # make blank lines between groups
       end
-
-      report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )
 
       return report
 

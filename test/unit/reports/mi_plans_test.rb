@@ -51,27 +51,6 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         end
       
     end
-    
-    #should 'get_rows' do
-    #
-    #array = MiPlanStatus.all_assigned
-    #puts "ARRAY 1: " + array.inspect
-    #newarray = []
-    #array.map { |i| newarray.push(i.id) }
-    #puts "ARRAY 2: " + newarray.inspect
-    #
-    #  #Recipe.find(:all, :conditions => "descr IN (select descr from Recipe group by descr having count(descr) > 1)")
-    #  
-    #  plans = MiPlan.all  #(:conditions => "mi_plan_status_id in (" + newarray.join(',').to_s + ") ")
-    #  
-    #  #assert plans.size > 0
-    #                      
-    #                      #,
-    #    #  :group => "gene_id
-    #     # having count(*) > 1")
-    #
-    #    puts plans.map {|i| i.to_json }
-    #end
 
     should 'display double-assignments between two consortia without production centres' do  
     

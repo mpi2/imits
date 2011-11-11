@@ -499,6 +499,19 @@ class MiPlanTest < ActiveSupport::TestCase
           plan.reload
           assert_equal 'Assigned', plan.status
         end
+
+        should "not Assign MiPlan in status #{status_name} if an Assigned one exists for that gene" do
+          gene = Factory.create :gene_cbx1
+          Factory.create :mi_plan_with_production_centre,
+                  :number_of_es_cells_passing_qc => 2,
+                  :gene => gene
+          plan = Factory.create :mi_plan_with_production_centre,
+                  :mi_plan_status => MiPlanStatus[status_name],
+                  :gene => gene
+          MiPlan.minor_conflict_resolution
+          plan.reload
+          assert_equal status_name, plan.status
+        end
       end
 
       [

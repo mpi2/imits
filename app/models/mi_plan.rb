@@ -182,9 +182,12 @@ class MiPlan < ActiveRecord::Base
     statuses = MiPlanStatus.all_non_assigned
     statuses.delete(MiPlanStatus['Interest'])
     grouped_mi_plans = MiPlan.where(:mi_plan_status_id => statuses.map(&:id)).
-            group_by(&:marker_symbol)
-    grouped_mi_plans.each do |marker_symbol, mi_plans|
-      if mi_plans.size == 1
+            group_by(&:gene_id)
+    grouped_mi_plans.each do |gene_id, mi_plans|
+      assigned_mi_plans = MiPlan.where(
+        :mi_plan_status_id => MiPlanStatus.all_assigned.map(&:id),
+        :gene_id => gene_id).all
+      if assigned_mi_plans.empty? and mi_plans.size == 1
         mi_plan = mi_plans.first
         mi_plan.mi_plan_status = MiPlanStatus['Assigned']
         mi_plan.save!

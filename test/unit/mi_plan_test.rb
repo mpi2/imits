@@ -488,44 +488,37 @@ class MiPlanTest < ActiveSupport::TestCase
 
       [
         'Inspect - Conflict',
-        'Inspect - MI Attempt',
-        'Interest'
+        'Inspect - MI Attempt'
       ].each do |status_name|
-        should "not change status of any #{status_name} MiPlans" do
+        should "Assign an MiPlan in status #{status_name} if it is the only one for a gene" do
           plan = Factory.create :mi_plan_with_production_centre,
                   :mi_plan_status => MiPlanStatus[status_name]
           MiPlan.minor_conflict_resolution
           plan.reload
-          assert_equal status_name, plan.status
+          assert_equal 'Assigned', plan.status
         end
       end
 
-      should 'not change status of multiple non-Conflict MiPlans' do
-        gene = Factory.create :gene_cbx1
-        plan1 = Factory.create :mi_plan_with_production_centre,
-                :mi_plan_status => MiPlanStatus['Inspect - MI Attempt'],
-                :gene => gene
-        plan2 = Factory.create :mi_plan_with_production_centre,
-                :mi_plan_status => MiPlanStatus['Interest'],
-                :gene => gene
-        MiPlan.minor_conflict_resolution
-        plan1.reload; plan2.reload
-        assert_equal 'Inspect - MI Attempt', plan1.status
-        assert_equal 'Interest', plan2.status
+      should 'not change the status of a Interest MiPlan even if it is the only one for a gene' do
+          plan = Factory.create :mi_plan_with_production_centre,
+                  :mi_plan_status => MiPlanStatus['Interest']
+          MiPlan.minor_conflict_resolution
+          plan.reload
+          assert_equal status_name, plan.status
       end
 
-      should 'not change status of Conflict MiPlans if there are more than one of them for a gene' do
+      should 'not change status of Inspect or Conflict MiPlans if there are more than one of them for a gene' do
         gene = Factory.create :gene_cbx1
         plan1 = Factory.create :mi_plan_with_production_centre,
                 :mi_plan_status => MiPlanStatus['Conflict'],
                 :gene => gene
         plan2 = Factory.create :mi_plan_with_production_centre,
-                :mi_plan_status => MiPlanStatus['Conflict'],
+                :mi_plan_status => MiPlanStatus['Inspect - MI Attempt'],
                 :gene => gene
         MiPlan.minor_conflict_resolution
         plan1.reload; plan2.reload
         assert_equal 'Conflict', plan1.status
-        assert_equal 'Conflict', plan2.status
+        assert_equal 'Inspect - MI Attempt', plan2.status
       end
 
       should 'change the status of a Conflct MiPlan if it is the only one for a gene' do

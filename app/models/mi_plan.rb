@@ -178,6 +178,18 @@ class MiPlan < ActiveRecord::Base
     end
   end
 
+  def self.minor_conflict_resolution
+    grouped_mi_plans = MiPlan.where(:mi_plan_status_id => MiPlanStatus['Conflict'].id).
+            group_by(&:marker_symbol)
+    grouped_mi_plans.each do |marker_symbol, mi_plans|
+      if mi_plans.size == 1
+        mi_plan = mi_plans.first
+        mi_plan.mi_plan_status = MiPlanStatus['Assigned']
+        mi_plan.save!
+      end
+    end
+  end
+
   def self.mark_old_plans_as_inactive
     self.where( :mi_plan_status_id => MiPlanStatus.all_assigned.map(&:id) ).with_mi_attempt.each do |mi_plan|
       all_inactive, all_over_six_months_old = true, true

@@ -4,7 +4,9 @@ require 'test_helper'
 
 class DoubleAssignedMiPlansTest < Kermits2::JsIntegrationTest #ActionDispatch::IntegrationTest
   
-    VERBOSE = false
+  #
+  
+    VERBOSE = true
     
   context 'The reports pages' do
 
@@ -45,8 +47,7 @@ class DoubleAssignedMiPlansTest < Kermits2::JsIntegrationTest #ActionDispatch::I
         visit '/reports'
         click_link 'Double-Assigned MI Plans List'
         assert_match '/reports/double_assigned_mi_plans_list', current_url
-      end
-    
+      end  
     
     
       should 'allow users to visit the double-assignment list page & see entries' do
@@ -62,22 +63,6 @@ class DoubleAssignedMiPlansTest < Kermits2::JsIntegrationTest #ActionDispatch::I
           :consortium => Consortium.find_by_name('JAX'),
           :production_centre => Centre.find_by_name('JAX'),
           :number_of_es_cells_starting_qc => 5
-
-      #  gene_trafd1 = Gene.find_by_marker_symbol('Trafd1')
-
-    #    puts Gene.all.inspect if VERBOSE
-      
-#        gene_adam8 = Factory.create :gene_adam8
-        
-        #Factory.create :mi_plan, :gene => gene_trafd1,
-        #  :consortium => Consortium.find_by_name('BaSH'),
-        #  :production_centre => Centre.find_by_name('WTSI'),
-        #  :mi_plan_status => MiPlanStatus['Assigned']
-        
-        #Factory.create :mi_plan, :gene => gene_trafd1,
-        #  :consortium => Consortium.find_by_name('JAX'),
-        #  :production_centre => Centre.find_by_name('JAX'),
-        #  :number_of_es_cells_starting_qc => 5
         
         puts Gene.all.inspect if VERBOSE
 
@@ -86,8 +71,6 @@ class DoubleAssignedMiPlansTest < Kermits2::JsIntegrationTest #ActionDispatch::I
                 
         assert_match 'DOUBLE-ASSIGNMENTS FOR consortium: BaSH', page.body
         assert_match 'DOUBLE-ASSIGNMENTS FOR consortium: JAX', page.body
-
-#        assert_match(/<th>Marker Symbol<\/th>\s+<th>Consortium<\/th>\s+/, page.body)
 
         assert_match(/<th>Marker Symbol<\/th>\s+<th>Consortium<\/th>\s+<th>Plan Status<\/th>\s+<th>MI Status<\/th>\s+<th>Centre<\/th>\s+<th>MI Date<\/th>/, page.body)
 
@@ -101,9 +84,6 @@ class DoubleAssignedMiPlansTest < Kermits2::JsIntegrationTest #ActionDispatch::I
 
         puts page.body.to_s if VERBOSE
                 
-       # puts "Sleeping..."
-      #  sleep(20.seconds)
-
       end
     
       should 'allow users to visit the double-assignment matrix page & see entries' do
@@ -127,9 +107,11 @@ class DoubleAssignedMiPlansTest < Kermits2::JsIntegrationTest #ActionDispatch::I
                 
         puts page.body.to_s if VERBOSE
 
-        #assert_match(/<th><\/th>\s+<th>KOMP2 - BaSH<\/th>\s+<th>KOMP2 - DTCC<\/th>\s+<th>KOMP - JAX<\/th>\s+<th>EUCOMM \/ EUMODIC - Helmholtz GMC<\/th>\s+<th>Infrafrontier\/BMBF - MARC<\/th>\s+<th>KOMP2 - MGP<\/th>\s+<th>China - Monterotondo<\/th>\s+<th>Wellcome Trust - MRC<\/th>\s+<th>KOMP \/ Wellcome Trust - NorCOMM2<\/th>\s+<th>European Union - Phenomin<\/th>\s+<th>MRC - RIKEN BRC<\/th>\s+<th>Genome Canada - DTCC-KOMP<\/th>\s+<th>Phenomin - EUCOMM-EUMODIC<\/th>\s+<th>Japanese government - MGP-KOMP<\/th>/, page.body)
+        assert_match(/<th><\/th>\s+<th>KOMP2 - BaSH<\/th>\s+<th>KOMP2 - DTCC<\/th>\s+<th>KOMP - JAX<\/th>\s+<th>EUCOMM \/ EUMODIC - Helmholtz GMC<\/th>\s+<th>Infrafrontier\/BMBF - MARC<\/th>\s+<th>KOMP2 - MGP<\/th>\s+<th>China - Monterotondo<\/th>\s+<th>Wellcome Trust - MRC<\/th>\s+<th>KOMP \/ Wellcome Trust - NorCOMM2<\/th>\s+<th>European Union - Phenomin<\/th>\s+<th>MRC - RIKEN BRC<\/th>\s+<th>Genome Canada - DTCC-KOMP<\/th>\s+<th>Phenomin - EUCOMM-EUMODIC<\/th>\s+<th>Japanese government - MGP-KOMP<\/th>/, page.body)
 
-        #assert_match(/<td>KOMP2 - BaSH<\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td>1<\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>/, page.body)
+        assert_match(/<td>KOMP2 - BaSH<\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td>1<\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>/, page.body)
+
+        #assert_match(/<td>&#160;<\/td>\s+<td>&#160;<\/td>\s+<td>1<\/td>\s+<td>&#160;<\/td>\s+<td>&#160;<\/td>\s+<td>&#160;<\/td>\s+<td>&#160;<\/td>\s+<td>&#160;<\/td>\s+<td>&#160;<\/td>\s+<td>&#160;<\/td>\s+<td>&#160;<\/td>\s+<td>&#160;<\/td>\s+<td>&#160;<\/td>/, page.body)
 
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
         assert columns && columns.size > 0, "Could not get columns"
@@ -139,9 +121,13 @@ class DoubleAssignedMiPlansTest < Kermits2::JsIntegrationTest #ActionDispatch::I
         #  regex = "<td>#{columns}<\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>\s+<td> <\/td>".to_regexp
         #  assert_match(regex, page.body)
         #end
-        #
-        #puts "Sleeping..."
-        #sleep(20.seconds)
+        
+       # puts "Sleeping..."
+       # sleep(20.seconds)
+       
+       #TODO: assert page.has_content?
+       
+       #TODO: row_headers = all('.row-header').map { |i| i.text }
 
       end
     

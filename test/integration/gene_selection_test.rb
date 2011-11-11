@@ -130,6 +130,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         find('a.mi-plan').click
         find('#delete-button').click
         find('#delete-confirmation-button').click
+        assert_equal 0, all('a.mi-plan').size
 
         sleep 3
         assert_nil MiPlan.find_by_id(mi_plan_id)
@@ -169,6 +170,30 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         mi_plan.reload
         assert_equal 10, mi_plan.number_of_es_cells_starting_qc
         assert_equal 'Assigned - ES Cell QC In Progress', mi_plan.status
+      end
+
+      should 'allow users to withdraw mi_plans' do
+        mi_plan = Factory.create :mi_plan,
+                :gene => Gene.find_by_marker_symbol!('Myo1c'),
+                :consortium => Consortium.find_by_name!('BaSH'),
+                :production_centre => Centre.find_by_name!('WTSI'),
+                :mi_plan_status => MiPlanStatus['Conflict']
+
+        visit '/mi_plans/gene_selection'
+
+        sleep 3
+
+        assert page.has_css?('a.mi-plan', :text => '[BaSH:WTSI:Conflict]')
+        assert_equal 1, all('a.mi-plan').size
+
+        find('a.mi-plan').click
+        find('#withdraw-button').click
+        find('#withdraw-confirmation-button').click
+        sleep 3
+        assert_equal 0, all('a.mi-plan').size
+
+        sleep 3
+        assert_equal 'Withdrawn', mi_plan.reload.status
       end
     end # once logged in
 

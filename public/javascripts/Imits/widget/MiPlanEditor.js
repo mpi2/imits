@@ -183,8 +183,53 @@ Ext.define('Imits.widget.MiPlanEditor', {
             ]
         });
 
+        var withdrawContainer = Ext.create('Ext.panel.Panel', {
+            ui: 'plain',
+            layout: {
+                type: 'hbox',
+                align: 'stretchmax'
+            },
+            margin: '0 0 10 0',
+            items: [
+            {
+                xtype: 'label',
+                text: "Withdraw interest?",
+                cls: 'x-form-item-label',
+                margin: '0 5 0 0'
+            },
+            {
+                xtype: 'button',
+                id: 'withdraw-button',
+                text: 'Withdraw',
+                width: 60,
+                handler: function (button) {
+                    button.hide();
+                    withdrawContainer.getComponent('withdraw-confirmation-button').show();
+                }
+            },
+            {
+                xtype: 'button',
+                id: 'withdraw-confirmation-button',
+                text: 'Are you sure?',
+                width: 100,
+                hidden: true,
+                handler: function (button) {
+                    editor.setLoading(true);
+                    editor.miPlan.destroy({
+                        success: function () {
+                            editor.setLoading(false);
+                            editor.hide();
+                        }
+                    });
+                    button.hide();
+                    withdrawContainer.getComponent('withdraw-button').show();
+                }
+            }
+            ]
+        });
+
         this.add(Ext.create('Ext.panel.Panel', {
-            height: 300,
+            height: 350,
             ui: 'plain',
             layout: {
                 type: 'vbox',
@@ -193,7 +238,8 @@ Ext.define('Imits.widget.MiPlanEditor', {
             padding: 15,
             items: [
             editor.form,
-            deleteContainer
+            deleteContainer,
+            withdrawContainer
             ]
         }));
 

@@ -2,9 +2,9 @@ namespace :cron do
   desc 'Clone production DB and reset passwords to "password"'
   task :clone_production_and_reset_passwords => ['db:production:clone', 'db:passwords:reset']
 
-  desc 'MiPlan - Run the gene assignment/conflict resolution logic'
-  task :assign_genes_and_mark_conflicts => [:environment] do
-    MiPlan.transaction { MiPlan.assign_genes_and_mark_conflicts }
+  desc 'MiPlan - Run major the gene assignment/conflict resolution logic'
+  task :major_conflict_resolution => [:environment] do
+    MiPlan.transaction { MiPlan.major_conflict_resolution }
   end
 
   desc 'MiPlan - Mark old unsuccessful MiPlans as "Inactive"'

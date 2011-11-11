@@ -128,7 +128,7 @@ class MiPlan < ActiveRecord::Base
     where("#{self.table_name}.id in (?)", MiAttempt.genotype_confirmed.select('distinct(mi_plan_id)').map(&:mi_plan_id))
   end
 
-  def self.assign_genes_and_mark_conflicts
+  def self.major_conflict_resolution
     conflict_status                   = MiPlanStatus.find_by_name!('Conflict')
     inspect_due_to_conflict_status   = MiPlanStatus.find_by_name!('Inspect - Conflict')
     inspect_due_to_mi_attempt_status = MiPlanStatus.find_by_name!('Inspect - MI Attempt')

@@ -302,7 +302,7 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
-    context '::assign_genes_and_mark_conflicts' do
+    context '::major_conflict_resolution' do
       setup do
         2.times { Factory.create :mi_attempt }
       end
@@ -319,7 +319,7 @@ class MiPlanTest < ActiveSupport::TestCase
             :mi_plan_status => MiPlanStatus.find_by_name!('Inspect - Conflict'))
         ]
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
         @only_interest_mi_plan.reload
         @inspect_mi_plans.each(&:reload)
       end
@@ -327,13 +327,13 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'set Interested MiPlan to Assigned status if no other Interested or Assigned MiPlan for the same gene exists' do
         setup_for_set_one_to_assigned
         assert_equal 'Assigned', @only_interest_mi_plan.mi_plan_status.name
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
       end
 
       should 'not affect non-Interested MiPlans when setting Interested ones to Assigned' do
         setup_for_set_one_to_assigned
         assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], @inspect_mi_plans.map{|i| i.mi_plan_status.name}
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
       end
 
       should 'set all Interested MiPlans that have the same gene to Conflict' do
@@ -342,12 +342,12 @@ class MiPlanTest < ActiveSupport::TestCase
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
 
         mi_plans.each(&:reload)
         assert_equal ['Conflict', 'Conflict', 'Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
       end
 
       should 'set all Interested MiPlans to Conflict if other MiPlans for the same gene are in Conflict' do
@@ -361,12 +361,12 @@ class MiPlanTest < ActiveSupport::TestCase
         interested_mi_plan = Factory.create :mi_plan,
                 :gene => gene, :consortium => Consortium.find_by_name!('BaSH')
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
         interested_mi_plan.reload
 
         assert_equal 'Conflict', interested_mi_plan.mi_plan_status.name
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
       end
 
       should 'set all interested MiPlans to "Inspect - Conflict" if other MiPlans for the same gene are already Assigned' do
@@ -379,7 +379,7 @@ class MiPlanTest < ActiveSupport::TestCase
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
         mi_plans.each(&:reload)
 
         assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
@@ -396,7 +396,7 @@ class MiPlanTest < ActiveSupport::TestCase
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
         mi_plans.each(&:reload)
 
         assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
@@ -419,7 +419,7 @@ class MiPlanTest < ActiveSupport::TestCase
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
         mi_plans.each(&:reload)
 
         assert_equal ['Inspect - MI Attempt', 'Inspect - MI Attempt'], mi_plans.map {|i| i.mi_plan_status.name }
@@ -448,7 +448,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
         mi_plans.each { |plan| assert_equal MiPlanStatus.find_by_name!('Interest'), plan.mi_plan_status }
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
         mi_plans.each(&:reload)
 
         assert_equal ['Inspect - GLT Mouse', 'Inspect - GLT Mouse'], mi_plans.map {|i| i.mi_plan_status.name }
@@ -468,13 +468,13 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal 'Interest', mi_plan.status
         assert_equal 'Inactive', inactive_mi_plan.status
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
 
         assert_equal 'Assigned', mi_plan.reload.status
         assert_equal 'Inactive', inactive_mi_plan.reload.status
       end
 
-    end # ::assign_genes_and_mark_conflicts
+    end # ::major_conflict_resolution
 
     context '::all_grouped_by_mgi_accession_id_then_by_status_name' do
       should 'work' do
@@ -731,7 +731,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
         mi_plan.reload; assert_equal 'Inspect - GLT Mouse', mi_plan.status
 
         assert_equal "GLT mouse produced at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
@@ -753,7 +753,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
         mi_plan.reload; assert_equal 'Inspect - MI Attempt', mi_plan.status
 
         assert_equal "MI already in progress at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
@@ -774,7 +774,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
         mi_plan.reload; assert_equal 'Inspect - Conflict', mi_plan.status
 
         assert_equal "Other 'Assigned' MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",
@@ -793,7 +793,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        MiPlan.assign_genes_and_mark_conflicts
+        MiPlan.major_conflict_resolution
         mi_plan.reload; assert_equal 'Conflict', mi_plan.status
 
         assert_equal "Other MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",

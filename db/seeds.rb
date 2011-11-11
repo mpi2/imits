@@ -85,7 +85,8 @@ end
   'Assigned - ES Cell QC In Progress' => [70, 'Assigned - The ES cells are currently being QCed by the production centre'],
   'Assigned - ES Cell QC Complete'    => [80, 'Assigned - ES cells have passed the QC phase and are ready for micro-injection'],
   'Aborted - ES Cell QC Failed'       => [85, 'Aborted - ES cells have failed the QC phase, and micro-injection cannot proceed'],
-  'Inactive'               => [90, 'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up']
+  'Inactive'               => [90, 'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up'],
+  'Withdrawn'              => [100, 'Withdrawn - Interest in micro-injecting this gene was withdrawn by the parties involved']
 }.each do |name,details|
   mi_plan_status = MiPlanStatus.find_or_create_by_name(name)
   mi_plan_status.description = details[1]

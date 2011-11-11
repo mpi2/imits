@@ -25,8 +25,7 @@ class MiPlanStatusTest < ActiveSupport::TestCase
       'Conflict',
       'Inspect - GLT Mouse',
       'Inspect - MI Attempt',
-      'Inspect - Conflict',
-      'Aborted - ES Cell QC Failed'
+      'Inspect - Conflict'
     ].sort
     assert_equal expected, MiPlanStatus.all_non_assigned.map(&:name).sort
   end

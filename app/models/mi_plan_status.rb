@@ -15,8 +15,7 @@ class MiPlanStatus < ActiveRecord::Base
       MiPlanStatus['Conflict'],
       MiPlanStatus['Inspect - GLT Mouse'],
       MiPlanStatus['Inspect - MI Attempt'],
-      MiPlanStatus['Inspect - Conflict'],
-      MiPlanStatus['Aborted - ES Cell QC Failed']
+      MiPlanStatus['Inspect - Conflict']
     ]
   end
 

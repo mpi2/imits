@@ -501,12 +501,17 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      should 'not change the status of a Interest MiPlan even if it is the only one for a gene' do
+      [
+        'Interest',
+        'Withdrawn'
+      ].each do |status_name|
+        should "not change the status of MiPlan with status #{status_name} even if it is the only one for a gene" do
           plan = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status => MiPlanStatus['Interest']
+                  :mi_plan_status => MiPlanStatus[status_name]
           MiPlan.minor_conflict_resolution
           plan.reload
-          assert_equal 'Interest', plan.status
+          assert_equal status_name, plan.status
+        end
       end
 
       should 'not change status of Inspect or Conflict MiPlans if there are more than one of them for a gene' do

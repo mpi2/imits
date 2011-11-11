@@ -487,8 +487,10 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       [
+        'Conflict',
         'Inspect - Conflict',
-        'Inspect - MI Attempt'
+        'Inspect - MI Attempt',
+        'Inspect - GLT Mouse'
       ].each do |status_name|
         should "Assign an MiPlan in status #{status_name} if it is the only one for a gene" do
           plan = Factory.create :mi_plan_with_production_centre,
@@ -504,7 +506,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :mi_plan_status => MiPlanStatus['Interest']
           MiPlan.minor_conflict_resolution
           plan.reload
-          assert_equal status_name, plan.status
+          assert_equal 'Interest', plan.status
       end
 
       should 'not change status of Inspect or Conflict MiPlans if there are more than one of them for a gene' do

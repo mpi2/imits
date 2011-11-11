@@ -4,7 +4,7 @@ require 'test_helper'
 
 class Reports::MiPlansTest < ActiveSupport::TestCase
   
-  VERBOSE = true
+  VERBOSE = false
   
   context 'Reports::MiPlans' do
 

@@ -48,7 +48,6 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
         counter = 0
         test_columns.each do |i|
-#          assert i == columns[counter]
           assert_equal i, columns[counter]      
           puts columns[counter] if VERBOSE
           counter += 1

@@ -215,7 +215,10 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 hidden: true,
                 handler: function (button) {
                     editor.setLoading(true);
-                    editor.miPlan.destroy({
+                    var miPlan = editor.miPlan;
+
+                    miPlan.set('withdrawn', true);
+                    editor.miPlan.save({
                         success: function () {
                             editor.setLoading(false);
                             editor.hide();
@@ -248,6 +251,8 @@ Ext.define('Imits.widget.MiPlanEditor', {
             editor.updateButton.enable();
         });
 
+        editor.withdrawButton = Ext.getCmp('withdraw-button');
+
         this.fields = this.form.items.keys;
         this.updateableFields = this.form.items.filterBy(function (i) {
             return i.readOnly != true;
@@ -267,6 +272,12 @@ Ext.define('Imits.widget.MiPlanEditor', {
                     }
                 });
                 editor.show();
+
+                if(Ext.Array.indexOf(window.WITHDRAWABLE_STATUSES, miPlan.get('status')) == -1) {
+                    editor.withdrawButton.disable();
+                } else {
+                    editor.withdrawButton.enable();
+                }
             }
         });
     },

@@ -271,9 +271,19 @@ class MiPlanTest < ActiveSupport::TestCase
           end
         end
 
-        should 'not be settable to false' do
-          assert_raise RuntimeError, 'withdrawal cannot be reversed' do
-            @default_mi_plan.withdrawn = false
+        context 'when being set to false' do
+          should 'not allow it if withdrawn' do
+            @default_mi_plan.mi_plan_status = MiPlanStatus['Conflict']
+            @default_mi_plan.withdrawn = true
+            assert_raise RuntimeError, 'withdrawal cannot be reversed' do
+              @default_mi_plan.withdrawn = false
+            end
+          end
+
+          should 'allow it if not already withdrawn' do
+            assert_nothing_raised do
+              @default_mi_plan.withdrawn = false
+            end
           end
         end
 
@@ -287,6 +297,13 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_equal false, @default_mi_plan.withdrawn
           @default_mi_plan.mi_plan_status = MiPlanStatus['Conflict']
           assert_equal false, @default_mi_plan.withdrawn
+        end
+
+        should 'be readable as #withdrawn?' do
+          assert_false @default_mi_plan.withdrawn?
+          @default_mi_plan.mi_plan_status = MiPlanStatus['Conflict']
+          @default_mi_plan.withdrawn = true
+          assert_true @default_mi_plan.withdrawn?
         end
       end
 
@@ -339,7 +356,8 @@ class MiPlanTest < ActiveSupport::TestCase
           'priority',
           'status',
           'number_of_es_cells_starting_qc',
-          'number_of_es_cells_passing_qc'
+          'number_of_es_cells_passing_qc',
+          'withdrawn'
         ]
         got = @default_mi_plan.as_json.keys
         assert_equal expected.sort, got.sort

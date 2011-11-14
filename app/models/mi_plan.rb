@@ -7,11 +7,11 @@ class MiPlan < ActiveRecord::Base
     'production_centre_name',
     'priority',
     'number_of_es_cells_starting_qc',
-    'number_of_es_cells_passing_qc'
+    'number_of_es_cells_passing_qc',
+    'withdrawn'
   ]
 
   WRITABLE_ATTRIBUTES = [
-    'withdrawn'
   ] + FULL_ACCESS_ATTRIBUTES
 
   READABLE_ATTRIBUTES = [
@@ -286,7 +286,15 @@ class MiPlan < ActiveRecord::Base
     return MiPlanStatus.all_assigned.include?(mi_plan_status)
   end
 
+  def withdrawn
+    return mi_plan_status == MiPlanStatus['Withdrawn']
+  end
+
+  alias_method(:withdrawn?, :withdrawn)
+
   def withdrawn=(boolarg)
+    return if boolarg == withdrawn?
+
     if ! MiPlanStatus.all_affected_by_minor_conflict_resolution.include?(mi_plan_status)
       raise RuntimeError, "cannot withdraw from status #{status}"
     end
@@ -298,9 +306,6 @@ class MiPlan < ActiveRecord::Base
     end
   end
 
-  def withdrawn
-    return mi_plan_status == MiPlanStatus['Withdrawn']
-  end
 end
 
 # == Schema Information

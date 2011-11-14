@@ -86,7 +86,8 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
                  
         puts report.to_s if VERBOSE
 
-        assert report.column('KOMP - JAX')[0] == 2, "Expected to find value 2"
+#        assert report.column('KOMP - JAX')[0] == 2, "Expected to find value 2"
+        assert_equal 2, report.column('KOMP - JAX')[0]
         
         columns.each do |column|
           values = report.column(column)
@@ -197,10 +198,15 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         assert report.column('Marker Symbol')[2] == 'Cbx1'
         assert report.column('Marker Symbol')[3] == 'Cbx1'
 
-        assert report.column('Consortium')[0] == 'JAX'
-        assert report.column('Consortium')[1] == 'BaSH'
-        assert report.column('Consortium')[2] == 'JAX'
-        assert report.column('Consortium')[3] == 'BaSH'
+        #assert report.column('Consortium')[0] == 'JAX'
+        #assert report.column('Consortium')[1] == 'BaSH'
+        #assert report.column('Consortium')[2] == 'JAX'
+        #assert report.column('Consortium')[3] == 'BaSH'
+
+        assert_equal "BaSH", report.column('Consortium')[0]
+        assert_equal "JAX", report.column('Consortium')[1]
+        assert_equal "BaSH", report.column('Consortium')[2]
+        assert_equal "JAX", report.column('Consortium')[3]
 
         assert report.column('Plan Status')[0] == 'Assigned'
         assert report.column('Plan Status')[1] == 'Assigned'
@@ -290,20 +296,30 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         assert report.column('Marker Symbol')[2] == 'Trafd1'
         assert report.column('Marker Symbol')[3] == 'Trafd1'
         
-        assert report.column('Consortium')[0] == 'JAX'
-        assert report.column('Consortium')[1] == 'BaSH'
-        assert report.column('Consortium')[2] == 'JAX'
-        assert report.column('Consortium')[3] == 'BaSH'
+        #assert report.column('Consortium')[0] == 'JAX'
+        #assert report.column('Consortium')[1] == 'BaSH'
+        #assert report.column('Consortium')[2] == 'JAX'
+        #assert report.column('Consortium')[3] == 'BaSH'
+
+        assert_equal "BaSH", report.column('Consortium')[0]
+        assert_equal "JAX", report.column('Consortium')[1]
+        assert_equal "BaSH", report.column('Consortium')[2]
+        assert_equal "JAX", report.column('Consortium')[3]
         
         assert report.column('Plan Status')[0] == 'Assigned'
         assert report.column('Plan Status')[1] == 'Assigned'
         assert report.column('Plan Status')[2] == 'Assigned'
         assert report.column('Plan Status')[3] == 'Assigned'
         
-        assert report.column('Centre')[0] == 'JAX'
-        assert report.column('Centre')[1] == 'WTSI'
-        assert report.column('Centre')[2] == 'JAX'
-        assert report.column('Centre')[3] == 'WTSI'
+        #assert report.column('Centre')[0] == 'JAX'
+        #assert report.column('Centre')[1] == 'WTSI'
+        #assert report.column('Centre')[2] == 'JAX'
+        #assert report.column('Centre')[3] == 'WTSI'
+
+        assert_equal "WTSI", report.column('Centre')[0]
+        assert_equal "JAX", report.column('Centre')[1]
+        assert_equal "WTSI", report.column('Centre')[2]
+        assert_equal "JAX", report.column('Centre')[3]
 
     end
 
@@ -337,10 +353,15 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         assert report.column('Marker Symbol')[2] == 'Trafd1'
         assert report.column('Marker Symbol')[3] == 'Trafd1'
         
-        assert report.column('Consortium')[0] == 'BaSH'
-        assert report.column('Consortium')[1] == 'DTCC'
-        assert report.column('Consortium')[2] == 'BaSH'
-        assert report.column('Consortium')[3] == 'DTCC'
+        #assert report.column('Consortium')[0] == 'BaSH'
+        #assert report.column('Consortium')[1] == 'DTCC'
+        #assert report.column('Consortium')[2] == 'BaSH'
+        #assert report.column('Consortium')[3] == 'DTCC'
+        
+        assert_equal "DTCC", report.column('Consortium')[0]
+        assert_equal "BaSH", report.column('Consortium')[1]
+        assert_equal "DTCC", report.column('Consortium')[2]
+        assert_equal "BaSH", report.column('Consortium')[3]       
         
         assert report.column('Plan Status')[0] == 'Assigned'
         assert report.column('Plan Status')[1] == 'Assigned'
@@ -357,10 +378,15 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         assert report.column('Centre')[2] == 'WTSI'
         assert report.column('Centre')[3] == 'WTSI'
 
-        assert report.column('MI Date')[0] == '2011-11-05'
-        assert report.column('MI Date')[1] == '2011-10-05'
-        assert report.column('MI Date')[2] == '2011-11-05'
-        assert report.column('MI Date')[3] == '2011-10-05'
+        #assert report.column('MI Date')[0] == '2011-11-05'
+        #assert report.column('MI Date')[1] == '2011-10-05'
+        #assert report.column('MI Date')[2] == '2011-11-05'
+        #assert report.column('MI Date')[3] == '2011-10-05'
+
+        assert_equal "2011-10-05", report.column('MI Date')[0]      
+        assert_equal "2011-11-05", report.column('MI Date')[1]      
+        assert_equal "2011-10-05", report.column('MI Date')[2]      
+        assert_equal "2011-11-05", report.column('MI Date')[3]      
 
     end
     

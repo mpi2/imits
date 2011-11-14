@@ -30,7 +30,7 @@ class MiPlanStatusTest < ActiveSupport::TestCase
     assert_equal expected, MiPlanStatus.all_non_assigned.map(&:name).sort
   end
 
-  should 'have :all_assigned' do
+  should 'have ::all_assigned' do
     expected = [
       'Assigned',
       'Assigned - ES Cell QC In Progress',

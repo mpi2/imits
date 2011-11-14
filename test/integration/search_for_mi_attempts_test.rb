@@ -31,11 +31,17 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
           visit '/mi_attempts'
           fill_in 'q[terms]', :with => 'EPD0343_1_H06'
           sleep 1
-         click_button 'Search'
+          click_button 'Search'
           sleep 1
         end
 
-        should 'show all data for that es_cell' do
+        should 'show all data for that MI attempt' do
+          mi_attempt = EsCell.find_by_name!('EPD0343_1_H06').mi_attempts.first
+          mi_attempt.mouse_allele_type = 'b'
+          mi_attempt.save!
+          sleep 3
+          click_button 'Search'
+          sleep 1
           [
             'EPD0343_1_H06',
             'Myo1c',
@@ -44,7 +50,8 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
             'MDCF',
             'WTSI',
             'Unsuitable for EMMA',
-            'Micro-injection in progress'
+            'Micro-injection in progress',
+            'Myo1ctm1b(EUCOMM)Wtsi'
           ].each do |text|
             assert(page.has_css?('div', :text => text),
               "Expected text '#{text}' in table cell 1, but did not find it")

@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 class MiPlan < ActiveRecord::Base
-  INTERFACE_ATTRIBUTES = [
+  FULL_ACCESS_ATTRIBUTES = [
     'marker_symbol',
     'consortium_name',
     'production_centre_name',
@@ -9,7 +9,17 @@ class MiPlan < ActiveRecord::Base
     'number_of_es_cells_starting_qc',
     'number_of_es_cells_passing_qc'
   ]
-  attr_accessible(*INTERFACE_ATTRIBUTES)
+
+  WRITABLE_ATTRIBUTES = [
+    'withdrawn'
+  ] + FULL_ACCESS_ATTRIBUTES
+
+  READABLE_ATTRIBUTES = [
+    'id',
+    'status'
+  ] + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
 
   acts_as_audited
   acts_as_reportable
@@ -260,8 +270,8 @@ class MiPlan < ActiveRecord::Base
     options ||= {}
     options.symbolize_keys!
 
-    options[:methods] = INTERFACE_ATTRIBUTES + ['status']
-    options[:only] = ['id'] + options[:methods]
+    options[:methods] = READABLE_ATTRIBUTES
+    options[:only] = options[:methods]
     return super(options)
   end
 
@@ -274,6 +284,22 @@ class MiPlan < ActiveRecord::Base
 
   def assigned?
     return MiPlanStatus.all_assigned.include?(mi_plan_status)
+  end
+
+  def withdrawn=(boolarg)
+    if ! MiPlanStatus.all_affected_by_minor_conflict_resolution.include?(mi_plan_status)
+      raise RuntimeError, "cannot withdraw from status #{status}"
+    end
+
+    if boolarg == false
+      raise RuntimeError, 'withdrawal cannot be reversed'
+    else
+      self.mi_plan_status = MiPlanStatus['Withdrawn']
+    end
+  end
+
+  def withdrawn
+    return mi_plan_status == MiPlanStatus['Withdrawn']
   end
 end
 

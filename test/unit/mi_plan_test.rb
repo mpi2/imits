@@ -247,6 +247,49 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      context '#withdrawn virtual attribute' do
+        context 'when being set to true' do
+          should 'set the status to Withdrawn if it at an allowed status' do
+            @default_mi_plan.mi_plan_status = MiPlanStatus['Conflict']
+            @default_mi_plan.withdrawn = true
+            assert_equal true, @default_mi_plan.withdrawn
+            assert_equal 'Withdrawn', @default_mi_plan.status
+
+            @default_mi_plan.mi_plan_status = MiPlanStatus['Inspect - Conflict']
+            @default_mi_plan.withdrawn = true
+            assert_equal true, @default_mi_plan.withdrawn
+            assert_equal 'Withdrawn', @default_mi_plan.status
+          end
+
+          should 'raise an error if not at an allowed status' do
+            @default_mi_plan.mi_plan_status = MiPlanStatus['Assigned']
+            assert_raise RuntimeError, 'cannot withdraw from status Assigned' do
+              @default_mi_plan.withdrawn = true
+            end
+            assert_equal false, @default_mi_plan.withdrawn
+            assert_equal 'Assigned', @default_mi_plan.status
+          end
+        end
+
+        should 'not be settable to false' do
+          assert_raise RuntimeError, 'withdrawal cannot be reversed' do
+            @default_mi_plan.withdrawn = false
+          end
+        end
+
+        should 'return true if status is Withdrawn' do
+          @default_mi_plan.mi_plan_status = MiPlanStatus['Withdrawn']
+          assert_equal true, @default_mi_plan.withdrawn
+        end
+
+        should 'return false if status is not Withdrawn' do
+          @default_mi_plan.mi_plan_status = MiPlanStatus['Assigned']
+          assert_equal false, @default_mi_plan.withdrawn
+          @default_mi_plan.mi_plan_status = MiPlanStatus['Conflict']
+          assert_equal false, @default_mi_plan.withdrawn
+        end
+      end
+
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
         mip = Factory.build :mi_plan
         assert mip.save
@@ -280,7 +323,8 @@ class MiPlanTest < ActiveSupport::TestCase
           'production_centre_name',
           'priority',
           'number_of_es_cells_starting_qc',
-          'number_of_es_cells_passing_qc'
+          'number_of_es_cells_passing_qc',
+          'withdrawn'
         ]
         got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
         assert_equal expected.sort, got.sort

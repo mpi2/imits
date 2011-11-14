@@ -179,8 +179,7 @@ class MiPlan < ActiveRecord::Base
   end
 
   def self.minor_conflict_resolution
-    statuses = MiPlanStatus.all_non_assigned
-    statuses.delete(MiPlanStatus['Interest'])
+    statuses = MiPlanStatus.all_affected_by_minor_conflict_resolution
     grouped_mi_plans = MiPlan.where(:mi_plan_status_id => statuses.map(&:id)).
             group_by(&:gene_id)
     grouped_mi_plans.each do |gene_id, mi_plans|

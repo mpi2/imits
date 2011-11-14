@@ -516,7 +516,8 @@ class MiPlanTest < ActiveSupport::TestCase
 
       [
         'Interest',
-        'Withdrawn'
+        'Withdrawn',
+        'Aborted - ES Cell QC Failed'
       ].each do |status_name|
         should "not change the status of MiPlan with status #{status_name} even if it is the only one for a gene" do
           plan = Factory.create :mi_plan_with_production_centre,

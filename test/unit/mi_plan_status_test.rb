@@ -51,4 +51,5 @@ class MiPlanStatusTest < ActiveSupport::TestCase
 
     assert_equal expected, MiPlanStatus.all_affected_by_minor_conflict_resolution.map(&:name).sort
   end
+
 end

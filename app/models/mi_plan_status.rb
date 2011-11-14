@@ -16,7 +16,8 @@ class MiPlanStatus < ActiveRecord::Base
       MiPlanStatus['Inspect - GLT Mouse'],
       MiPlanStatus['Inspect - MI Attempt'],
       MiPlanStatus['Inspect - Conflict'],
-      MiPlanStatus['Aborted - ES Cell QC Failed']
+      MiPlanStatus['Aborted - ES Cell QC Failed'],
+      MiPlanStatus['Withdrawn']
     ]
   end
 
@@ -25,6 +26,14 @@ class MiPlanStatus < ActiveRecord::Base
       MiPlanStatus['Assigned'],
       MiPlanStatus['Assigned - ES Cell QC In Progress'],
       MiPlanStatus['Assigned - ES Cell QC Complete']
+    ]
+  end
+
+  def self.all_affected_by_minor_conflict_resolution
+    return self.all_non_assigned - [
+      MiPlanStatus['Interest'],
+      MiPlanStatus['Aborted - ES Cell QC Failed'],
+      MiPlanStatus['Withdrawn']
     ]
   end
 end

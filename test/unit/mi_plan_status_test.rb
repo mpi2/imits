@@ -26,7 +26,8 @@ class MiPlanStatusTest < ActiveSupport::TestCase
       'Inspect - GLT Mouse',
       'Inspect - MI Attempt',
       'Inspect - Conflict',
-      'Aborted - ES Cell QC Failed'
+      'Aborted - ES Cell QC Failed',
+      'Withdrawn'
     ].sort
     assert_equal expected, MiPlanStatus.all_non_assigned.map(&:name).sort
   end
@@ -38,5 +39,16 @@ class MiPlanStatusTest < ActiveSupport::TestCase
       'Assigned - ES Cell QC Complete'
     ].sort
     assert_equal expected, MiPlanStatus.all_assigned.map(&:name).sort
+  end
+
+  should 'have ::all_affected_by_minor_conflict_resolution' do
+    expected = [
+      'Conflict',
+      'Inspect - GLT Mouse',
+      'Inspect - MI Attempt',
+      'Inspect - Conflict'
+    ].sort
+
+    assert_equal expected, MiPlanStatus.all_affected_by_minor_conflict_resolution.map(&:name).sort
   end
 end

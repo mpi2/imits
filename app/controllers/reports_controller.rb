@@ -222,7 +222,7 @@ class ReportsController < ApplicationController
 
   def planned_microinjection_summary_and_conflicts
     @include_plans_with_active_attempts = true
-    @include_plans_with_active_attempts = false if params[:include_plans_with_active_attempts] == false
+    @include_plans_with_active_attempts = false if params[:include_plans_with_active_attempts] == 'false'
 
     unless params[:commit].blank?
       impc_consortia_ids = Consortium.where('name not in (?)', ['EUCOMM-EUMODIC','MGP-KOMP','DTCC-KOMP']).map(&:id)

@@ -130,6 +130,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         find('a.mi-plan').click
         find('#delete-button').click
         find('#delete-confirmation-button').click
+        sleep 3
         assert_equal 0, all('a.mi-plan').size
 
         sleep 3
@@ -184,13 +185,10 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         sleep 3
 
         assert page.has_css?('a.mi-plan', :text => '[BaSH:WTSI:Conflict]')
-        assert_equal 1, all('a.mi-plan').size
 
         find('a.mi-plan').click
         find('#withdraw-button').click
         find('#withdraw-confirmation-button').click
-        sleep 3
-        assert_equal 0, all('a.mi-plan').size
 
         sleep 3
         assert_equal 'Withdrawn', mi_plan.reload.status

@@ -78,21 +78,13 @@ class ReportsTest < ActionDispatch::IntegrationTest
       end
 
       should 'confirm planned_microinjection_list include_plans_with_active_attempts defaults to yes' do
-
-        visit '/reports'
-        click_link 'All Planned Micro-Injections'
-
-        assert page.has_css?('select#include_plans_with_active_attempts option[value="yes"][selected="selected"]')
-
+        visit '/reports/planned_microinjection_list'
+        assert page.has_css?('select#include_plans_with_active_attempts option[value="true"][selected="selected"]')
       end
 
       should 'confirm planned_microinjection_summary_and_conflicts include_plans_with_active_attempts defaults to yes' do
-
-        visit '/reports'
-        click_link 'Planned Micro-Injection Summary and Conflicts'
-
-        assert page.has_css?('select#include_plans_with_active_attempts option[value="yes"][selected="selected"]')
-
+        visit '/reports/planned_microinjection_summary_and_conflicts'
+        assert page.has_css?('select#include_plans_with_active_attempts option[value="true"][selected="selected"]')
       end
 
       should 'allow users to get planned_microinjection_summary_and_conflicts reports' do

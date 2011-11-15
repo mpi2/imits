@@ -28,6 +28,10 @@ Ext.define('Imits.model.MiPlan', {
     },
     {
         name: 'number_of_es_cells_passing_qc'
+    },
+    {
+        name: 'withdrawn',
+        defaultValue: false
     }
     ],
 

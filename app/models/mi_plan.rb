@@ -1,15 +1,25 @@
 # encoding: utf-8
 
 class MiPlan < ActiveRecord::Base
-  INTERFACE_ATTRIBUTES = [
+  FULL_ACCESS_ATTRIBUTES = [
     'marker_symbol',
     'consortium_name',
     'production_centre_name',
     'priority',
     'number_of_es_cells_starting_qc',
-    'number_of_es_cells_passing_qc'
+    'number_of_es_cells_passing_qc',
+    'withdrawn'
   ]
-  attr_accessible(*INTERFACE_ATTRIBUTES)
+
+  WRITABLE_ATTRIBUTES = [
+  ] + FULL_ACCESS_ATTRIBUTES
+
+  READABLE_ATTRIBUTES = [
+    'id',
+    'status'
+  ] + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
 
   acts_as_audited
   acts_as_reportable
@@ -128,7 +138,7 @@ class MiPlan < ActiveRecord::Base
     where("#{self.table_name}.id in (?)", MiAttempt.genotype_confirmed.select('distinct(mi_plan_id)').map(&:mi_plan_id))
   end
 
-  def self.assign_genes_and_mark_conflicts
+  def self.major_conflict_resolution
     conflict_status                   = MiPlanStatus.find_by_name!('Conflict')
     inspect_due_to_conflict_status   = MiPlanStatus.find_by_name!('Inspect - Conflict')
     inspect_due_to_mi_attempt_status = MiPlanStatus.find_by_name!('Inspect - MI Attempt')
@@ -174,6 +184,22 @@ class MiPlan < ActiveRecord::Base
         assigned_mi_plan = interested.first
         assigned_mi_plan.mi_plan_status = MiPlanStatus[:Assigned]
         assigned_mi_plan.save!
+      end
+    end
+  end
+
+  def self.minor_conflict_resolution
+    statuses = MiPlanStatus.all_affected_by_minor_conflict_resolution
+    grouped_mi_plans = MiPlan.where(:mi_plan_status_id => statuses.map(&:id)).
+            group_by(&:gene_id)
+    grouped_mi_plans.each do |gene_id, mi_plans|
+      assigned_mi_plans = MiPlan.where(
+        :mi_plan_status_id => MiPlanStatus.all_assigned.map(&:id),
+        :gene_id => gene_id).all
+      if assigned_mi_plans.empty? and mi_plans.size == 1
+        mi_plan = mi_plans.first
+        mi_plan.mi_plan_status = MiPlanStatus['Assigned']
+        mi_plan.save!
       end
     end
   end
@@ -244,8 +270,8 @@ class MiPlan < ActiveRecord::Base
     options ||= {}
     options.symbolize_keys!
 
-    options[:methods] = INTERFACE_ATTRIBUTES + ['status']
-    options[:only] = ['id'] + options[:methods]
+    options[:methods] = READABLE_ATTRIBUTES
+    options[:only] = options[:methods]
     return super(options)
   end
 
@@ -259,6 +285,27 @@ class MiPlan < ActiveRecord::Base
   def assigned?
     return MiPlanStatus.all_assigned.include?(mi_plan_status)
   end
+
+  def withdrawn
+    return mi_plan_status == MiPlanStatus['Withdrawn']
+  end
+
+  alias_method(:withdrawn?, :withdrawn)
+
+  def withdrawn=(boolarg)
+    return if boolarg == withdrawn?
+
+    if ! MiPlanStatus.all_affected_by_minor_conflict_resolution.include?(mi_plan_status)
+      raise RuntimeError, "cannot withdraw from status #{status}"
+    end
+
+    if boolarg == false
+      raise RuntimeError, 'withdrawal cannot be reversed'
+    else
+      self.mi_plan_status = MiPlanStatus['Withdrawn']
+    end
+  end
+
 end
 
 # == Schema Information

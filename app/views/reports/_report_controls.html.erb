@@ -52,7 +52,7 @@
     <% if mi_plan_reports %>
       <fieldset>
         <legend>Include Plans with Active MI Attempts?</legend>
-        <%= select_tag( :include_plans_with_active_attempts, options_for_select( [['no'],['yes']], 'yes' ) ) %>
+        <%= select_tag( :include_plans_with_active_attempts, options_for_select( [['no'],['yes']], params[:include_plans_with_active_attempts] ) ) %>
       </fieldset>
     <% end %>
   </div>

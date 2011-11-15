@@ -19,6 +19,12 @@ Ext.onReady(function() {
 function processRestOfForm() {
     var restOfForm = Ext.get('rest-of-form');
 
+    restOfForm.getInputElement = function(name) {
+        return Ext.get(Ext.Array.filter(Ext.query('#rest-of-form input'), function(i) {
+            return i.name === name;
+        })[0]);
+    }
+
     restOfForm.showIfHidden = function() {
         if(this.hidden == true) {
             this.setVisible(true, true);
@@ -26,7 +32,7 @@ function processRestOfForm() {
         }
     }
 
-    restOfForm.esCellNameField = restOfForm.child('input[name="mi_attempt[es_cell_name]"]');
+    restOfForm.esCellNameField = restOfForm.getInputElement('mi_attempt[es_cell_name]');
 
     restOfForm.setEsCellDetails = function(esCellName, esCellMarkerSymbol) {
         this.esCellNameField.set({
@@ -47,9 +53,9 @@ function processRestOfForm() {
         restOfForm.hidden = false;
     }
 
-    restOfForm.ignoreWarningsField = restOfForm.child('input[name="ignore_warnings"]');
+    restOfForm.ignoreWarningsField = restOfForm.getInputElement("ignore_warnings");
 
-    var esCellMarkerSymbolField = restOfForm.child('input[name="mi_attempt[es_cell_marker_symbol]"]');
+    var esCellMarkerSymbolField = restOfForm.getInputElement("mi_attempt[es_cell_marker_symbol]");
     restOfForm.esCellMarkerSymbol = esCellMarkerSymbolField.getValue();
     esCellMarkerSymbolField.remove();
 

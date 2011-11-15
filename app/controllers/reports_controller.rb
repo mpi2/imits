@@ -176,13 +176,13 @@ class ReportsController < ApplicationController
   end
 
   def planned_microinjection_list
-    unless params[:commit].blank?
-      include_plans_with_active_attempts = false
-      include_plans_with_active_attempts = true if params[:include_plans_with_active_attempts] == 'yes'
+    @include_plans_with_active_attempts = true
+    @include_plans_with_active_attempts = false if params[:include_plans_with_active_attempts] == 'false'
 
+    unless params[:commit].blank?
       dup_params = params.dup
       dup_params.delete(:include_plans_with_active_attempts)
-      @report = generate_planned_mi_list_report( dup_params, include_plans_with_active_attempts )
+      @report = generate_planned_mi_list_report( dup_params, @include_plans_with_active_attempts )
 
       if @report.nil?
         redirect_to cleaned_redirect_params( :planned_microinjection_list, params ) if request.format == :csv
@@ -221,19 +221,19 @@ class ReportsController < ApplicationController
   end
 
   def planned_microinjection_summary_and_conflicts
-    unless params[:commit].blank?
-      include_plans_with_active_attempts = false
-      include_plans_with_active_attempts = true if params[:include_plans_with_active_attempts] == 'yes'
+    @include_plans_with_active_attempts = true
+    @include_plans_with_active_attempts = false if params[:include_plans_with_active_attempts] == 'false'
 
+    unless params[:commit].blank?
       impc_consortia_ids = Consortium.where('name not in (?)', ['EUCOMM-EUMODIC','MGP-KOMP','DTCC-KOMP']).map(&:id)
 
-      all_mi_plans = generate_planned_mi_list_report({ :consortium_id => impc_consortia_ids }, include_plans_with_active_attempts)
+      all_mi_plans = generate_planned_mi_list_report({ :consortium_id => impc_consortia_ids }, @include_plans_with_active_attempts)
       all_mi_plans.sort_rows_by!('Consortium', :order => :ascending)
 
       mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
 
       total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(:gene_id, :distinct => true)
-      if include_plans_with_active_attempts
+      if @include_plans_with_active_attempts
         total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true)
       end
 
@@ -257,7 +257,7 @@ class ReportsController < ApplicationController
         MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt
         .count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
 
-      if include_plans_with_active_attempts
+      if @include_plans_with_active_attempts
         gene_count_by_status =
           MiPlan.where('consortium_id in (?)', impc_consortia_ids)
           .count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
@@ -287,7 +287,7 @@ class ReportsController < ApplicationController
         MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt
         .count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
 
-      if include_plans_with_active_attempts
+      if @include_plans_with_active_attempts
         gene_count_by_priority =
           MiPlan.where('consortium_id in (?)', impc_consortia_ids)
           .count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)

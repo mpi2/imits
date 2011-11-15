@@ -111,7 +111,7 @@ Ext.define('Imits.widget.MiGrid', {
                     function intensiveOperation() {
                         var columnsToShow = grid.views[text];
                         Ext.each(grid.columns, function(column) {
-                            if(columnsToShow.indexOf(column.dataIndex) == -1) {
+                            if(Ext.Array.indexOf(columnsToShow, column.dataIndex) == -1) {
                                 column.setVisible(false);
                             } else {
                                 column.setVisible(true);

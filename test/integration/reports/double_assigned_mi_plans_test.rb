@@ -67,8 +67,8 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
         visit '/reports/double_assigned_mi_plans_list'
         assert_match '/reports/double_assigned_mi_plans_list', current_url
 
-        assert_match 'DOUBLE-ASSIGNMENTS FOR consortium: BaSH', page.body
-        assert_match 'DOUBLE-ASSIGNMENTS FOR consortium: JAX', page.body
+        assert_match 'Double-Assignments for Consortium: BaSH', page.body
+        assert_match 'Double-Assignments for Consortium: JAX', page.body
 
         assert page.has_content? "Marker Symbol Consortium Plan Status MI Status Centre MI Date"
         assert page.has_content? "Cbx1 BaSH Assigned"

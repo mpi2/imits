@@ -161,10 +161,10 @@ class Reports::MiPlans
           cols += 1
           if cols-1 <= rows  # skip duplicate rows
             new_row.push ''
-            next
+          else
+            genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
+            new_row.push genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
           end
-          genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
-          new_row.push genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
         end
         report << new_row
         rows += 1

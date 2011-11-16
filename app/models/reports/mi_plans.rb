@@ -3,27 +3,26 @@
 class Reports::MiPlans
 
   class DoubleAssignment
-    
-    @@consortia = nil
-    @@funders = nil
 
     LIST_COLUMNS = [ 'Target Consortium', 'Marker Symbol', 'Consortium', 'Plan Status', 'MI Status', 'Centre', 'MI Date' ]
   
     def self.get_funding
-      return @@funders if @@funders != nil
-      @@funders = Consortium.all.map { |i| i.funding }
-      return @@funders
+      consortia = self.get_consortia
+#      funders = Consortium.all.find_all { |item| item.funding == 'KOMP2' }.map(&:name).sort
+#      return consortia.map { |i| Consortium.all.find_by_name(i) }
+      funders = []
+      consortia.each do |row|
+        funders.push Consortium.find_by_name(row).funding
+      end
+      return funders
     end
 
     def self.get_consortia
-      return @@consortia if @@consortia != nil
-      
       all = Consortium.all.map(&:name).sort_by { |c| c.downcase }
       komp2 = Consortium.all.find_all { |item| item.funding == 'KOMP2' }.map(&:name).sort
       ikmc = ["EUCOMM-EUMODIC", "MGP-KOMP", "DTCC-KOMP"]
       others = all - komp2 - ikmc
-      @@consortia = komp2 + others + ikmc
-      return @@consortia
+      return komp2 + others + ikmc
     end
     
     def self.get_genes_for_matrix
@@ -153,17 +152,23 @@ class Reports::MiPlans
       consortia = get_consortia
 
       rows = 0
-      consortia.each do |row1|
+      consortia.each do |consortia1|
         cols = 0
         new_row = []
         new_row.push columns[rows]
-        consortia.each do |row2|
+        consortia.each do |consortia2|
           cols += 1
           if cols-1 <= rows  # skip duplicate rows
             new_row.push ''
           else
-            genes_in_overlap = cons_matrix[row1] && cons_matrix[row1][row2] ? cons_matrix[row1][row2] : {}
-            new_row.push genes_in_overlap && genes_in_overlap.count != 0 ? genes_in_overlap.count : ''
+            genes_in_overlap = {}
+            if cons_matrix[consortia1] && cons_matrix[consortia1][consortia2]
+              genes_in_overlap = cons_matrix[consortia1][consortia2]
+            end
+            
+            genes_in_overlap = genes_in_overlap.count > 0 ? genes_in_overlap.count : ''
+            
+            new_row.push genes_in_overlap
           end
         end
         report << new_row
@@ -181,13 +186,10 @@ class Reports::MiPlans
     end
 
     def self.get_list
-
       report = get_list_without_grouping
-
       report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )
-
+#      report = Grouping( report, :by => 'Target Consortium', :order => ['Marker Symbol', 'Consortium', 'Centre'] )     
       return report
-
     end
     
     # return the table before grouping so test can check it
@@ -210,10 +212,18 @@ class Reports::MiPlans
             mi_array = genes[marker][found_consortium];
             mi_array.each do |mi|
               mi_status = mi[3]
-              next if mi_status == 'Micro-injection aborted'
-              mi2 = mi.clone
-              mi2.unshift(group_heading)
-              report << mi2
+
+              #next if mi_status == 'Micro-injection aborted'
+              #mi2 = mi.clone
+              #mi2.unshift(group_heading)
+              #report << mi2
+
+              if mi_status != 'Micro-injection aborted'
+                mi2 = mi.clone
+                mi2.unshift(group_heading)
+                report << mi2
+              end
+
             end
           end
         end

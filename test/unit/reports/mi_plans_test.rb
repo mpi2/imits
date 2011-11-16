@@ -6,7 +6,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
     
   context 'Reports::MiPlans' do
     
-    VERBOSE = true
+    VERBOSE = false
 
     should 'return funding names' do
         test_columns = [ "KOMP2", "KOMP2", "KOMP2", "Infrafrontier/BMBF", "China", "Wellcome Trust", "European Union", "MRC", "Genome Canada", "Phenomin",
@@ -198,8 +198,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert !columns.blank?
 
-        assert_equal ["BaSH", "JAX", "BaSH", "JAX"], report.column('Consortium')
-#        assert_equal ["JAX", "BaSH", "JAX", "BaSH"], report.column('Consortium')
+        assert_equal ["BaSH", "JAX", "BaSH", "JAX"].sort, report.column('Consortium').sort
         
         for i in (0..3)
           assert_equal 'Cbx1', report.column('Marker Symbol')[i]
@@ -281,12 +280,8 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
         puts report.to_s if VERBOSE
 
-#        assert_equal ["BaSH", "JAX", "BaSH", "JAX"], report.column('Consortium').to_a
-#        assert_equal ["JAX", "BaSH", "JAX", "BaSH"], report.column('Consortium')
-        assert_equal ["BaSH", "JAX", "BaSH", "JAX"], report.column('Consortium')
-#        assert_equal ["JAX", "WTSI", "JAX", "WTSI"], report.column('Centre')
-        assert_equal ["WTSI", "JAX", "WTSI", "JAX"], report.column('Centre')
-#        assert_equal ["JAX", "WTSI", "JAX", "WTSI"], report.column('Centre')
+        assert_equal ["BaSH", "JAX", "BaSH", "JAX"].sort, report.column('Consortium').sort
+        assert_equal ["WTSI", "JAX", "WTSI", "JAX"].sort, report.column('Centre').sort
 
     end
 
@@ -317,9 +312,8 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         assert_equal ['Assigned','Assigned','Assigned','Assigned'], report.column('Plan Status')
         assert_equal ['Micro-injection in progress','Micro-injection in progress','Micro-injection in progress','Micro-injection in progress'], report.column('MI Status')
         assert_equal ['WTSI','WTSI','WTSI','WTSI'], report.column('Centre')
-        assert_equal ['DTCC','BaSH','DTCC','BaSH'], report.column('Consortium')
-#        assert_equal ['BaSH','DTCC','BaSH','DTCC'], report.column('Consortium')
-        assert_equal ['2011-10-05','2011-11-05','2011-10-05','2011-11-05'], report.column('MI Date')
+        assert_equal ['DTCC','BaSH','DTCC','BaSH'].sort, report.column('Consortium').sort
+        assert_equal ['2011-10-05','2011-11-05','2011-10-05','2011-11-05'].sort, report.column('MI Date').sort
 
     end
     

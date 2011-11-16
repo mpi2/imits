@@ -1,0 +1,12 @@
+<% @title = 'Double Assigned Micro-Injection Matrix' %>
+
+<h2><%= @title %></h2>
+
+<p><%= link_to "Download as CSV", :controller => :reports, :action => :double_assigned_plans_matrix, :format => :csv %></p>
+<br/>
+
+<div class="report grid_12">
+
+<%=raw @report.to_html %>
+
+</div>

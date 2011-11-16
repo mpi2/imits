@@ -1,12 +1,9 @@
 <% @tab = 'Reports' %>
-
 <div class="grid_12">
   <h2><%= @tab %></h2>
 </div>
-
 <div class="grid_3">
   <h3>Genes</h3>
-
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :genes_list, :format => :csv) %>">
       <h4>All Genes</h4>
@@ -18,10 +15,8 @@
     </a>
   </div>  
 </div>
-
 <div class="grid_5">
   <h3>Micro-Injection Planning</h3>
-
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :planned_microinjection_summary_and_conflicts) %>">
       <h4>Planned Micro-Injection Summary and Conflicts</h4>
@@ -33,33 +28,29 @@
       </ul>
     </a>
   </div>
-
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :planned_microinjection_list) %>">
       <h4>All Planned Micro-Injections</h4>
       <p>Lists details on all planned micro-injections.</p>
     </a>
   </div>
-
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :double_assigned_mi_plans_matrix) %>">
       <h4>Double-Assigned MI Plans Matrix</h4>
-      <p>Double-Assigned MI Plans Matrix.
+      <p>Matrix showing double-assigned plans for consortia and funding.
       </p>
     </a>
   </div>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :double_assigned_mi_plans_list) %>">
       <h4>Double-Assigned MI Plans List</h4>
-      <p>Double-Assigned MI Plans List.
+      <p>List showing double-assigned plans grouped by consortia.
       </p>
     </a>
   </div>  
 </div>
-
 <div class="grid_4">
   <h3>Micro-Injection Production</h3>
-
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :mi_attempts_by_gene) %>">
       <h4>Gene Summary</h4>
@@ -69,14 +60,12 @@
       </p>
     </a>
   </div>
-
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :mi_attempts_monthly_production) %>">
       <h4>Month-by-Month Summary</h4>
       <p>Summary report showing production statistics for each production centre on a month-by-month basis.</p>
     </a>
   </div>
-
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :mi_attempts_list) %>">
       <h4>All Micro-Injection Attempts</h4>

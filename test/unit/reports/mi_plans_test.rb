@@ -19,28 +19,28 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
         gene_cbx1 = Factory.create :gene_cbx1
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus['Assigned']
         
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('JAX'),
-          :production_centre => Centre.find_by_name('JAX'),
+          :consortium => Consortium.find_by_name!('JAX'),
+          :production_centre => Centre.find_by_name!('JAX'),
           :number_of_es_cells_starting_qc => 5
         
         gene_trafd1 = Factory.create :gene_trafd1
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus['Assigned']
         
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('JAX'),
-          :production_centre => Centre.find_by_name('JAX'),
+          :consortium => Consortium.find_by_name!('JAX'),
+          :production_centre => Centre.find_by_name!('JAX'),
           :number_of_es_cells_starting_qc => 5
           
         report = Reports::MiPlans::DoubleAssignment.get_matrix
-        assert report, "Could not get report"
+        assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
         assert !columns.blank?
          
@@ -60,28 +60,28 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
         gene_cbx1 = Factory.create :gene_cbx1
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus['Assigned']
 
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('JAX'),
-          :production_centre => Centre.find_by_name('JAX'),
+          :consortium => Consortium.find_by_name!('JAX'),
+          :production_centre => Centre.find_by_name!('JAX'),
           :number_of_es_cells_starting_qc => 5
 
         gene_trafd1 = Factory.create :gene_trafd1
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus['Assigned']
 
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('JAX'),
-          :production_centre => Centre.find_by_name('JAX'),
+          :consortium => Consortium.find_by_name!('JAX'),
+          :production_centre => Centre.find_by_name!('JAX'),
           :number_of_es_cells_starting_qc => 5
           
         report = Reports::MiPlans::DoubleAssignment.get_matrix
-        assert report, "Could not get report"
+        assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
         assert !columns.blank?
                  
@@ -104,19 +104,19 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
     
         gene_cbx1 = Factory.create :gene_cbx1
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('BaSH'),
+          :consortium => Consortium.find_by_name!('BaSH'),
           :mi_plan_status => MiPlanStatus['Assigned']
 
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('JAX'),
+          :consortium => Consortium.find_by_name!('JAX'),
           :mi_plan_status => MiPlanStatus['Assigned']
       
         report = Reports::MiPlans::DoubleAssignment.get_matrix
-        assert report, "Could not get report"
+        assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
         assert !columns.blank?
                   
-        assert report.column('KOMP - JAX')[0] == 1, "Expected to find value 1"
+        assert_equal 1, report.column('KOMP - JAX')[0]
         
         columns.each do |column|
           values = report.column(column)
@@ -135,28 +135,28 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       
         gene_cbx1 = Factory.create :gene_cbx1
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus['Assigned']
 
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('JAX'),
-          :production_centre => Centre.find_by_name('JAX'),
+          :consortium => Consortium.find_by_name!('JAX'),
+          :production_centre => Centre.find_by_name!('JAX'),
           :mi_plan_status => MiPlanStatus['Interest']
     
         gene_trafd1 = Factory.create :gene_trafd1
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus['Assigned']
     
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('ICS'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('ICS'),
           :mi_plan_status => MiPlanStatus['Interest']
     
         report = Reports::MiPlans::DoubleAssignment.get_matrix
-        assert report, "Could not get report"
+        assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
         assert !columns.blank?
         
@@ -175,23 +175,20 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         gene_cbx1 = Factory.create :gene_cbx1
         
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('BaSH'),
+          :consortium => Consortium.find_by_name!('BaSH'),
           :mi_plan_status => MiPlanStatus['Assigned']
 
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('JAX'),
+          :consortium => Consortium.find_by_name!('JAX'),
           :mi_plan_status => MiPlanStatus['Assigned']
       
         report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
-        assert report, "Could not get report"
+        assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert !columns.blank?
-        
-        assert_equal "JAX", report.column('Consortium')[0]
-        assert_equal "BaSH", report.column('Consortium')[1]
-        assert_equal "JAX", report.column('Consortium')[2]
-        assert_equal "BaSH", report.column('Consortium')[3]
 
+        assert_equal ["JAX", "BaSH", "JAX", "BaSH"], report.column('Consortium')
+        
         for i in (0..3)
           assert_equal 'Cbx1', report.column('Marker Symbol')[i]
           assert_equal 'Assigned', report.column('Plan Status')[i]
@@ -204,18 +201,18 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       
         gene_cbx1 = Factory.create :gene_cbx1
         Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus['Assigned']
    
         gene_trafd1 = Factory.create :gene_trafd1
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus['Assigned']
         
         report = Reports::MiPlans::DoubleAssignment.get_list
-        assert report, "Could not get report"
+        assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert !columns.blank?
         
@@ -227,17 +224,17 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       
         gene_trafd1 = Factory.create :gene_trafd1
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus['Assigned']
         
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('JAX'),
-          :production_centre => Centre.find_by_name('JAX'),
+          :consortium => Consortium.find_by_name!('JAX'),
+          :production_centre => Centre.find_by_name!('JAX'),
           :mi_plan_status => MiPlanStatus['Assigned']
         
         report = Reports::MiPlans::DoubleAssignment.get_list
-        assert report, "Could not get report"
+        assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert !columns.blank?
 
@@ -251,17 +248,17 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         gene_trafd1 = Factory.create :gene_trafd1
         
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :production_centre => Centre.find_by_name!('WTSI'),
           :mi_plan_status => MiPlanStatus['Assigned']
         
         Factory.create :mi_plan, :gene => gene_trafd1,
-          :consortium => Consortium.find_by_name('JAX'),
-          :production_centre => Centre.find_by_name('JAX'),
+          :consortium => Consortium.find_by_name!('JAX'),
+          :production_centre => Centre.find_by_name!('JAX'),
           :mi_plan_status => MiPlanStatus['Assigned']
         
         report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
-        assert report, "Could not get report"
+        assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert !columns.blank?
 
@@ -270,15 +267,8 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
           assert_equal 'Assigned', report.column('Plan Status')[i]
         end
 
-        for i in (0,2)
-          assert_equal 'JAX', report.column('Consortium')[i]
-          assert_equal 'JAX', report.column('Centre')[i]
-        end
-        
-        for i in (1,3)
-          assert_equal 'BaSH', report.column('Consortium')[i]
-          assert_equal 'WTSI', report.column('Centre')[i]
-        end
+        assert_equal ["JAX", "BaSH", "JAX", "BaSH"], report.column('Consortium')
+        assert_equal ["JAX", "WTSI", "JAX", "WTSI"], report.column('Centre')
 
     end
 
@@ -301,23 +291,21 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
           :consortium_name => 'DTCC'
                                     
         report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
-        assert report, "Could not get report"
+        assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert !columns.blank?
 
-        for i in (0..3)
-          assert_equal 'Trafd1', report.column('Marker Symbol')[i]
-          assert_equal 'Assigned', report.column('Plan Status')[i]
-          assert_equal 'Micro-injection in progress', report.column('MI Status')[i]
-          assert_equal 'WTSI', report.column('Centre')[i]
-        end
+        assert_equal ['Trafd1','Trafd1','Trafd1','Trafd1'], report.column('Marker Symbol')
+        assert_equal ['Assigned','Assigned','Assigned','Assigned'], report.column('Plan Status')
+        assert_equal ['Micro-injection in progress','Micro-injection in progress','Micro-injection in progress','Micro-injection in progress'], report.column('MI Status')
+        assert_equal ['WTSI','WTSI','WTSI','WTSI'], report.column('Centre')
 
-        for i in (0,2)
+        for i in ([0,2])
           assert_equal 'BaSH', report.column('Consortium')[i]
           assert_equal '2011-11-05', report.column('MI Date')[i]
         end
         
-        for i in (1,3)
+        for i in ([1,3])
           assert_equal 'DTCC', report.column('Consortium')[i]
           assert_equal '2011-10-05', report.column('MI Date')[i]
         end

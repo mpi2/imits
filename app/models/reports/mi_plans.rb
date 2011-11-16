@@ -5,15 +5,10 @@ class Reports::MiPlans
   class DoubleAssignment
 
     LIST_COLUMNS = [ 'Target Consortium', 'Marker Symbol', 'Consortium', 'Plan Status', 'MI Status', 'Centre', 'MI Date' ]
-  
+
     def self.get_funding
       consortia = self.get_consortia
-#      funders = Consortium.all.find_all { |item| item.funding == 'KOMP2' }.map(&:name).sort
-#      return consortia.map { |i| Consortium.all.find_by_name(i) }
-      funders = []
-      consortia.each do |row|
-        funders.push Consortium.find_by_name(row).funding
-      end
+      funders = consortia.map { |row| Consortium.find_by_name(row).funding }
       return funders
     end
 
@@ -152,18 +147,18 @@ class Reports::MiPlans
       consortia = get_consortia
 
       rows = 0
-      consortia.each do |consortia1|
+      consortia.each do |cons1|
         cols = 0
         new_row = []
         new_row.push columns[rows]
-        consortia.each do |consortia2|
+        consortia.each do |cons2|
           cols += 1
           if cols-1 <= rows  # skip duplicate rows
             new_row.push ''
           else
             genes_in_overlap = {}
-            if cons_matrix[consortia1] && cons_matrix[consortia1][consortia2]
-              genes_in_overlap = cons_matrix[consortia1][consortia2]
+            if cons_matrix[cons1] && cons_matrix[cons1][cons2]
+              genes_in_overlap = cons_matrix[cons1][cons2]
             end
             
             genes_in_overlap = genes_in_overlap.count > 0 ? genes_in_overlap.count : ''

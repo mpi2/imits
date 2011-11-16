@@ -197,6 +197,10 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
         assert !columns.blank?
+        
+        # notice the blag here: ruport didn't always return the column array in the same order
+        # perhaps some problem with running the unit & integration tests repeatedly, but
+        # we force the ordering here (and below) to avoid these ordering problems
 
         assert_equal ["BaSH", "JAX", "BaSH", "JAX"].sort, report.column('Consortium').sort
         

@@ -92,7 +92,7 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
         assert_match '/reports/double_assigned_plans_matrix', current_url
 
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
-        assert columns && columns.size > 0, "Could not get columns"
+        assert !columns.blank?
 
         size = all('tr').size
         assert_equal 15, all('tr').size

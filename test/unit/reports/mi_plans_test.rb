@@ -42,7 +42,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         report = Reports::MiPlans::DoubleAssignment.get_matrix
         assert report, "Could not get report"
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
-        assert columns && columns.size > 0, "Could not get columns"
+        assert !columns.blank?
          
         # any new consortia entries will be tagged to end & not explicitly tested
 
@@ -83,7 +83,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         report = Reports::MiPlans::DoubleAssignment.get_matrix
         assert report, "Could not get report"
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
-        assert columns && columns.size > 0, "Could not get columns"
+        assert !columns.blank?
                  
         assert_equal 2, report.column('KOMP - JAX')[0]
         
@@ -114,7 +114,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         report = Reports::MiPlans::DoubleAssignment.get_matrix
         assert report, "Could not get report"
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
-        assert columns && columns.size > 0, "Could not get columns"
+        assert !columns.blank?
                   
         assert report.column('KOMP - JAX')[0] == 1, "Expected to find value 1"
         
@@ -158,7 +158,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         report = Reports::MiPlans::DoubleAssignment.get_matrix
         assert report, "Could not get report"
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
-        assert columns && columns.size > 0, "Could not get columns"
+        assert !columns.blank?
         
         columns.each do |column|
           values = report.column(column)
@@ -185,28 +185,19 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
         assert report, "Could not get report"
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
-        assert columns && columns.size > 0, "Could not get columns"
+        assert !columns.blank?
         
-        assert report.column('Marker Symbol')[0] == 'Cbx1'
-        assert report.column('Marker Symbol')[1] == 'Cbx1'
-        assert report.column('Marker Symbol')[2] == 'Cbx1'
-        assert report.column('Marker Symbol')[3] == 'Cbx1'
-
         assert_equal "JAX", report.column('Consortium')[0]
         assert_equal "BaSH", report.column('Consortium')[1]
         assert_equal "JAX", report.column('Consortium')[2]
         assert_equal "BaSH", report.column('Consortium')[3]
 
-        assert report.column('Plan Status')[0] == 'Assigned'
-        assert report.column('Plan Status')[1] == 'Assigned'
-        assert report.column('Plan Status')[2] == 'Assigned'
-        assert report.column('Plan Status')[3] == 'Assigned'
-
-        assert report.column('Centre')[0] == 'NONE'
-        assert report.column('Centre')[1] == 'NONE'
-        assert report.column('Centre')[2] == 'NONE'
-        assert report.column('Centre')[3] == 'NONE'
-        
+        for i in (0..3)
+          assert_equal 'Cbx1', report.column('Marker Symbol')[i]
+          assert_equal 'Assigned', report.column('Plan Status')[i]
+          assert_equal 'NONE', report.column('Centre')[i]
+        end
+                
     end
 
     should 'not display a value when no double-assignment (list)' do
@@ -226,9 +217,9 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         report = Reports::MiPlans::DoubleAssignment.get_list
         assert report, "Could not get report"
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
-        assert columns && columns.size > 0, "Could not get columns"
+        assert !columns.blank?
         
-        assert report.to_s.length == 0, "Expected report to be empty!"
+        assert_equal "", report.to_s
         
     end    
 
@@ -248,7 +239,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         report = Reports::MiPlans::DoubleAssignment.get_list
         assert report, "Could not get report"
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
-        assert columns && columns.size > 0, "Could not get columns"
+        assert !columns.blank?
 
         assert report.to_s =~ /Double-Assignments for Consortium: BaSH:/, "Cannot find BaSH"
         assert report.to_s =~ /Double-Assignments for Consortium: JAX:/, "Cannot find JAX"
@@ -272,27 +263,22 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
         assert report, "Could not get report"
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
-        assert columns && columns.size > 0, "Could not get columns"
+        assert !columns.blank?
 
-        assert report.column('Marker Symbol')[0] == 'Trafd1'
-        assert report.column('Marker Symbol')[1] == 'Trafd1'
-        assert report.column('Marker Symbol')[2] == 'Trafd1'
-        assert report.column('Marker Symbol')[3] == 'Trafd1'
+        for i in (0..3)
+          assert_equal 'Trafd1', report.column('Marker Symbol')[i]
+          assert_equal 'Assigned', report.column('Plan Status')[i]
+        end
+
+        for i in (0,2)
+          assert_equal 'JAX', report.column('Consortium')[i]
+          assert_equal 'JAX', report.column('Centre')[i]
+        end
         
-        assert_equal "JAX", report.column('Consortium')[0]
-        assert_equal "BaSH", report.column('Consortium')[1]
-        assert_equal "JAX", report.column('Consortium')[2]
-        assert_equal "BaSH", report.column('Consortium')[3]
-        
-        assert report.column('Plan Status')[0] == 'Assigned'
-        assert report.column('Plan Status')[1] == 'Assigned'
-        assert report.column('Plan Status')[2] == 'Assigned'
-        assert report.column('Plan Status')[3] == 'Assigned'
-        
-        assert_equal "JAX", report.column('Centre')[0]
-        assert_equal "WTSI", report.column('Centre')[1]
-        assert_equal "JAX", report.column('Centre')[2]
-        assert_equal "WTSI", report.column('Centre')[3]
+        for i in (1,3)
+          assert_equal 'BaSH', report.column('Consortium')[i]
+          assert_equal 'WTSI', report.column('Centre')[i]
+        end
 
     end
 
@@ -317,37 +303,24 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
         assert report, "Could not get report"
         columns = Reports::MiPlans::DoubleAssignment.get_list_columns
-        assert columns && columns.size > 0, "Could not get columns"
-        
-        assert report.column('Marker Symbol')[0] == 'Trafd1'
-        assert report.column('Marker Symbol')[1] == 'Trafd1'
-        assert report.column('Marker Symbol')[2] == 'Trafd1'
-        assert report.column('Marker Symbol')[3] == 'Trafd1'
-                
-        assert_equal "BaSH", report.column('Consortium')[0]
-        assert_equal "DTCC", report.column('Consortium')[1]
-        assert_equal "BaSH", report.column('Consortium')[2]
-        assert_equal "DTCC", report.column('Consortium')[3]       
-        
-        assert report.column('Plan Status')[0] == 'Assigned'
-        assert report.column('Plan Status')[1] == 'Assigned'
-        assert report.column('Plan Status')[2] == 'Assigned'
-        assert report.column('Plan Status')[3] == 'Assigned'
+        assert !columns.blank?
 
-        assert report.column('MI Status')[0] == 'Micro-injection in progress'
-        assert report.column('MI Status')[1] == 'Micro-injection in progress'
-        assert report.column('MI Status')[2] == 'Micro-injection in progress'
-        assert report.column('MI Status')[3] == 'Micro-injection in progress'
-        
-        assert report.column('Centre')[0] == 'WTSI'
-        assert report.column('Centre')[1] == 'WTSI'
-        assert report.column('Centre')[2] == 'WTSI'
-        assert report.column('Centre')[3] == 'WTSI'
+        for i in (0..3)
+          assert_equal 'Trafd1', report.column('Marker Symbol')[i]
+          assert_equal 'Assigned', report.column('Plan Status')[i]
+          assert_equal 'Micro-injection in progress', report.column('MI Status')[i]
+          assert_equal 'WTSI', report.column('Centre')[i]
+        end
 
-        assert_equal "2011-11-05", report.column('MI Date')[0]      
-        assert_equal "2011-10-05", report.column('MI Date')[1]      
-        assert_equal "2011-11-05", report.column('MI Date')[2]      
-        assert_equal "2011-10-05", report.column('MI Date')[3]      
+        for i in (0,2)
+          assert_equal 'BaSH', report.column('Consortium')[i]
+          assert_equal '2011-11-05', report.column('MI Date')[i]
+        end
+        
+        for i in (1,3)
+          assert_equal 'DTCC', report.column('Consortium')[i]
+          assert_equal '2011-10-05', report.column('MI Date')[i]
+        end
 
     end
     

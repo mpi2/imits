@@ -13,7 +13,7 @@
                    mi_attempt.status_stamps.map {|i| [i.created_at, i.description]}).sort_by(&:first) %>
         <% data.each do |created_at, name| %>
           <tr>
-            <td><%= localize created_at, :format => :imits %></td>
+            <td><%= created_at.utc.to_s(:imits) %></td>
             <td><%= name %></td>
           </tr>
         <% end %>

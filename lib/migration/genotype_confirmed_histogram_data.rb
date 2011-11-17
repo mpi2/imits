@@ -3,6 +3,8 @@
 mi_delta_data = []
 
 MiAttempt.where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id).order('id asc').each do |mi|
+  next if mi.mi_date.to_time < 24.months.ago
+
   ip = mi.status_stamps.detect {|ss| ss.mi_attempt_status == MiAttemptStatus.micro_injection_in_progress}
 
   if ! ip

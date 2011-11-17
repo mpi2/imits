@@ -124,8 +124,8 @@ class Reports::MiPlans
       columns
     end
 
-    def self.get_matrix
-
+    def self.get_matrix_data
+    
       genes = get_genes_for_matrix
 
       cons_matrix = {}
@@ -139,6 +139,14 @@ class Reports::MiPlans
           end
         end
       end
+      
+      return cons_matrix
+      
+    end
+    
+    def self.get_matrix
+
+      cons_matrix = get_matrix_data
 
       columns = get_matrix_columns
 
@@ -153,7 +161,7 @@ class Reports::MiPlans
         new_row.push columns[rows]
         consortia.each do |cons2|
           cols += 1
-          if cols-1 <= rows  # skip duplicate rows
+          if cols-1 <= rows  # skip duplicate cells
             new_row.push ''
           else
             genes_in_overlap = {}
@@ -170,8 +178,6 @@ class Reports::MiPlans
         rows += 1
       end
       
-      #TODO: https://github.com/i-dcc/imits/pull/3/files#r229742
-
       return report
 
     end

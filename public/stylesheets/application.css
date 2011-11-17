@@ -43,7 +43,7 @@
 html, body, .x-body {
     font-size: 12px;
     line-height: 1.5em;
-    font-family: "Lucida Grande", Lucida, Verdana, sans-serif;
+    font-family: Verdana, sans-serif;
 }
 
 /* TODO BAD - Find out how to do this in a better, more theme-compatible way */
@@ -52,7 +52,7 @@ html, body, .x-body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: Georgia, "Times New Roman", Times, serif;
+	font-family: "Times New Roman", Times, serif;
 	font-weight: normal;
 	color: #111;
 }

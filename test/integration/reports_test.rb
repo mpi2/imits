@@ -77,6 +77,16 @@ class ReportsTest < ActionDispatch::IntegrationTest
         click_button 'Generate Report'
       end
 
+      should 'confirm planned_microinjection_list include_plans_with_active_attempts defaults to yes' do
+        visit '/reports/planned_microinjection_list'
+        assert page.has_css?('select#include_plans_with_active_attempts option[value="true"][selected="selected"]')
+      end
+
+      should 'confirm planned_microinjection_summary_and_conflicts include_plans_with_active_attempts defaults to yes' do
+        visit '/reports/planned_microinjection_summary_and_conflicts'
+        assert page.has_css?('select#include_plans_with_active_attempts option[value="true"][selected="selected"]')
+      end
+
       should 'allow users to get planned_microinjection_summary_and_conflicts reports' do
         15.times { Factory.create :mi_plan, :consortium_id => Consortium.find_by_name!('DTCC').id }
         20.times { Factory.create :mi_attempt }

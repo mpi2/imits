@@ -36,6 +36,8 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
           :consortium => Consortium.find_by_name('JAX'),
           :production_centre => Centre.find_by_name('JAX'),
           :number_of_es_cells_starting_qc => 5
+          
+        sleep 4
 
         visit '/reports/double_assigned_plans'
         assert_match '/reports/double_assigned_plans', current_url
@@ -50,7 +52,7 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
         assert page.has_content? "Cbx1 BaSH Assigned"
 
         assert page.has_css?('a', :text => 'Download List as CSV')
-       
+  
         tr_count = 3
 
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(1)", :text => 'Cbx1')        
@@ -69,17 +71,6 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(5)", :text => /WTSI/)
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(6)", :text => '')
 
-      end
-
-      should 'allow users to visit the double-assignment page' do
-        visit '/reports/double_assigned_plans'
-        assert_match '/reports/double_assigned_plans', current_url
-      end
-
-      should 'allow users to visit the double-assignment page by clicking' do
-        visit '/reports'
-        click_link 'Double-Assigned MI Plans'
-        assert_match '/reports/double_assigned_plans', current_url
       end
 
     end

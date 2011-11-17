@@ -182,10 +182,6 @@ class Reports::MiPlans
 
     end
 
-    def self.get_list_columns
-      return LIST_COLUMNS
-    end
-
     def self.get_list
       report = get_list_without_grouping
       report = Grouping( report, :by => 'Target Consortium', :order => ['Marker Symbol', 'Consortium', 'Centre'] )
@@ -198,7 +194,7 @@ class Reports::MiPlans
 
       consortia = get_consortia
 
-      report = Table( get_list_columns )
+      report = Table( LIST_COLUMNS )
 
       consortia.each do |consortium|
         group_heading = "Double-Assignments for Consortium: #{consortium}"
@@ -211,9 +207,7 @@ class Reports::MiPlans
             mi_array.each do |mi|
               mi_status = mi[3]
               if mi_status != 'Micro-injection aborted'
-                mi2 = mi.clone
-                mi2.unshift(group_heading)
-                report << mi2
+                report << [group_heading] + mi
               end
             end
           end

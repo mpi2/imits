@@ -191,7 +191,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       
         report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
         assert !report.blank?
-        columns = Reports::MiPlans::DoubleAssignment.get_list_columns
+        columns = Reports::MiPlans::DoubleAssignment::LIST_COLUMNS
         assert !columns.blank?
         
         # notice the blag here: ruport didn't always return the column array in the same order
@@ -224,7 +224,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         
         report = Reports::MiPlans::DoubleAssignment.get_list
         assert !report.blank?
-        columns = Reports::MiPlans::DoubleAssignment.get_list_columns
+        columns = Reports::MiPlans::DoubleAssignment::LIST_COLUMNS
         assert !columns.blank?
         
         assert_equal "", report.to_s
@@ -246,7 +246,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         
         report = Reports::MiPlans::DoubleAssignment.get_list
         assert !report.blank?
-        columns = Reports::MiPlans::DoubleAssignment.get_list_columns
+        columns = Reports::MiPlans::DoubleAssignment::LIST_COLUMNS
         assert !columns.blank?
 
         assert report.to_s =~ /Double-Assignments for Consortium: BaSH:/, "Cannot find BaSH"
@@ -270,7 +270,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         
         report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
         assert !report.blank?
-        columns = Reports::MiPlans::DoubleAssignment.get_list_columns
+        columns = Reports::MiPlans::DoubleAssignment::LIST_COLUMNS
         assert !columns.blank?
 
         for i in (0..3)
@@ -303,7 +303,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
                                     
         report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
         assert !report.blank?
-        columns = Reports::MiPlans::DoubleAssignment.get_list_columns
+        columns = Reports::MiPlans::DoubleAssignment::LIST_COLUMNS
         assert !columns.blank?
 
         assert_equal ['Trafd1','Trafd1','Trafd1','Trafd1'], report.column('Marker Symbol')

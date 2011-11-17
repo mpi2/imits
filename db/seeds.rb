@@ -1,15 +1,22 @@
 # encoding: utf-8
 
-[
-  'Micro-injection in progress',
-  'Genotype confirmed',
-  'Micro-injection aborted',
-].each do |description|
-  MiAttemptStatus.find_or_create_by_description description
-end
+module Seeds
+  def self.load_data(model_class, data)
+    data.each do |data|
+      data_id = data.delete(:id)
+      thing = model_class.find_by_id(data_id)
+      if thing
+        thing.attributes = data
+      else
+        thing = model_class.new(data)
+        thing.id = data_id
+      end
 
-Object.new.instance_eval do
-  def set_up_strains(strain_ids_class, filename)
+      thing.save! if thing.changed?
+    end
+  end
+
+  def self.set_up_strains(strain_ids_class, filename)
     strains_list = File.read(Rails.root + "config/strains/#{filename}.txt").split("\n")
     strains_list.each do |strain_name|
       next if strain_name.empty?
@@ -17,11 +24,17 @@ Object.new.instance_eval do
       strain_ids_class.find_or_create_by_id(strain.id)
     end
   end
-
-  set_up_strains Strain::BlastStrain, :blast_strains
-  set_up_strains Strain::ColonyBackgroundStrain, :colony_background_strains
-  set_up_strains Strain::TestCrossStrain, :test_cross_strains
 end
+
+Seeds.load_data MiAttemptStatus, [
+  {:id => 1, :description => 'Micro-injection in progress init'},
+  {:id => 2, :description => 'Genotype confirmed'},
+  {:id => 3, :description => 'Micro-injection aborted'}
+]
+
+Seeds.set_up_strains Strain::BlastStrain, :blast_strains
+Seeds.set_up_strains Strain::ColonyBackgroundStrain, :colony_background_strains
+Seeds.set_up_strains Strain::TestCrossStrain, :test_cross_strains
 
 ['na', 'fail', 'pass'].each do |desc|
   QcResult.find_or_create_by_description(desc)

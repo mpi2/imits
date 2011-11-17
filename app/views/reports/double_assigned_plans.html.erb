@@ -1,3 +1,4 @@
+<% @title = 'Double Assigned Micro-Injections' %>
 <% @title1 = 'Double Assigned Micro-Injection Matrix' %>
 <% @title2 = 'Double Assigned Micro-Injection List' %>
 
@@ -8,7 +9,7 @@
 
 <h2><%= @title1 %></h2>
 
-<div class="report grid_12">
+<div id="double-matrix" class="report grid_12">
 
 <%=raw @report1.to_html %>
 
@@ -16,7 +17,7 @@
 
 <h2><%= @title2 %></h2>
 
-<div class="report grid_12">
+<div id="double-list" class="report grid_12">
 
 <%=raw @report2.to_html %>
 

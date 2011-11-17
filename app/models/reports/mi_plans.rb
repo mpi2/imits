@@ -188,7 +188,7 @@ class Reports::MiPlans
 
     def self.get_list
       report = get_list_without_grouping
-      report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )
+      report = Grouping( report, :by => 'Target Consortium', :order => ['Marker Symbol', 'Consortium', 'Centre'] )
       return report
     end
     

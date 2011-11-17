@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 module Seeds
-  def self.load_data(model_class, data)
+  def self.load(model_class, data)
     data.each do |data|
       data_id = data.delete(:id)
       thing = model_class.find_by_id(data_id)
@@ -26,7 +26,7 @@ module Seeds
   end
 end
 
-Seeds.load_data MiAttemptStatus, [
+Seeds.load MiAttemptStatus, [
   {:id => 1, :description => 'Micro-injection in progress init'},
   {:id => 2, :description => 'Genotype confirmed'},
   {:id => 3, :description => 'Micro-injection aborted'}
@@ -36,19 +36,19 @@ Seeds.set_up_strains Strain::BlastStrain, :blast_strains
 Seeds.set_up_strains Strain::ColonyBackgroundStrain, :colony_background_strains
 Seeds.set_up_strains Strain::TestCrossStrain, :test_cross_strains
 
-Seeds.load_data QcResult, [
+Seeds.load QcResult, [
   {:id => 1, :description => 'na'},
   {:id => 2, :description => 'fail'},
   {:id => 3, :description => 'pass'},
 ]
 
-Seeds.load_data DepositedMaterial, [
+Seeds.load DepositedMaterial, [
   {:id => 1, :name => 'Frozen embryos'},
   {:id => 2, :name => 'Live mice'},
   {:id => 3, :name => 'Frozen sperm'}
 ]
 
-Seeds.load_data Consortium, [
+Seeds.load Consortium, [
   {:id => 1,  :name => 'EUCOMM-EUMODIC', :funding => 'EUCOMM / EUMODIC', :participants => nil},
   {:id => 2,  :name => 'DTCC-KOMP',      :funding => 'KOMP', :participants => 'Davis-Toronto-Charles River-CHORI'},
   {:id => 3,  :name => 'MGP-KOMP',       :funding => 'KOMP / Wellcome Trust', :participants => 'Mouse Genetics Project, WTSI'},
@@ -65,7 +65,7 @@ Seeds.load_data Consortium, [
   {:id => 14, :name => 'RIKEN BRC',      :funding => 'Japanese government', :participants => 'RIKEN BRC'}
 ]
 
-Seeds.load_data Centre, [
+Seeds.load Centre, [
   {:id => 1,  :name => 'WTSI'},
   {:id => 2,  :name => 'ICS'},
   {:id => 3,  :name => 'MRC - Harwell'},
@@ -83,31 +83,22 @@ Seeds.load_data Centre, [
   {:id => 15, :name => 'MARC'}
 ]
 
-{
-  'Interest'               => [10, 'Interest - A consortium has expressed an interest to micro-inject this gene'],
-  'Conflict'               => [20, 'Conflict - More than one consortium has expressed an intrest in micro-injecting this gene'],
-  'Inspect - GLT Mouse'    => [30, 'Inspect - A GLT mouse is already recorded in iMits'],
-  'Inspect - MI Attempt'   => [40, 'Inspect - An active micro-injection attempt is already in progress'],
-  'Inspect - Conflict'     => [50, 'Inspect - This gene is already assigned in another planned micro-injection'],
-  'Assigned'               => [60, 'Assigned - A single consortium has expressed an intrest in injecting this gene'],
-  'Assigned - ES Cell QC In Progress' => [70, 'Assigned - The ES cells are currently being QCed by the production centre'],
-  'Assigned - ES Cell QC Complete'    => [80, 'Assigned - ES cells have passed the QC phase and are ready for micro-injection'],
-  'Aborted - ES Cell QC Failed'       => [85, 'Aborted - ES cells have failed the QC phase, and micro-injection cannot proceed'],
-  'Inactive'               => [90, 'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up'],
-  'Withdrawn'              => [100, 'Withdrawn - Interest in micro-injecting this gene was withdrawn by the parties involved']
-}.each do |name,details|
-  mi_plan_status = MiPlanStatus.find_or_create_by_name(name)
-  mi_plan_status.description = details[1]
-  mi_plan_status.order_by = details[0]
-  mi_plan_status.save! if mi_plan_status.changed?
-end
+Seeds.load MiPlanStatus, [
+  {:order_by => 10,  :id => 2,  :name => 'Interest', :description => 'Interest - A consortium has expressed an interest to micro-inject this gene'},
+  {:order_by => 20,  :id => 3,  :name => 'Conflict', :description => 'Conflict - More than one consortium has expressed an interest in micro-injecting this gene'},
+  {:order_by => 30,  :id => 4,  :name => 'Inspect - GLT Mouse', :description => 'Inspect - A GLT mouse is already recorded in iMits'},
+  {:order_by => 40,  :id => 5,  :name => 'Inspect - MI Attempt', :description => 'Inspect - An active micro-injection attempt is already in progress'},
+  {:order_by => 50,  :id => 6,  :name => 'Inspect - Conflict', :description => 'Inspect - This gene is already assigned in another planned micro-injection'},
+  {:order_by => 60,  :id => 1,  :name => 'Assigned', :description => 'Assigned - A single consortium has expressed an interest in injecting this gene'},
+  {:order_by => 70,  :id => 8,  :name => 'Assigned - ES Cell QC In Progress', :description => 'Assigned - The ES cells are currently being QCed by the production centre'},
+  {:order_by => 80,  :id => 9,  :name => 'Assigned - ES Cell QC Complete', :description => 'Assigned - ES cells have passed the QC phase and are ready for micro-injection'},
+  {:order_by => 85,  :id => 10, :name => 'Aborted - ES Cell QC Failed', :description => 'Aborted - ES cells have failed the QC phase, and micro-injection cannot proceed'},
+  {:order_by => 90,  :id => 7,  :name => 'Inactive', :description => 'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up'},
+  {:order_by => 100, :id => 11, :name => 'Withdrawn', :description => 'Withdrawn - Interest in micro-injecting this gene was withdrawn by the parties involved'}
+]
 
-{
-  'High'   => 'Estimated injection in the next 0-4 months',
-  'Medium' => 'Estimated injection in the next 5-8 months',
-  'Low'    => 'Estimated injection in the next 9-12 months'
-}.each do |name, description|
-  mi_plan_priority = MiPlanPriority.find_or_create_by_name(:name => name)
-  mi_plan_priority.description = description
-  mi_plan_priority.save! if mi_plan_priority.changed?
-end
+Seeds.load MiPlanPriority, [
+  {:id => 1, :name => 'High', :description => 'Estimated injection in the next 0-4 months'},
+  {:id => 2, :name => 'Medium', :description => 'Estimated injection in the next 5-8 months'},
+  {:id => 3, :name => 'Low', :description => 'Estimated injection in the next 9-12 months'}
+]

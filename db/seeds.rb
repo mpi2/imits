@@ -36,57 +36,52 @@ Seeds.set_up_strains Strain::BlastStrain, :blast_strains
 Seeds.set_up_strains Strain::ColonyBackgroundStrain, :colony_background_strains
 Seeds.set_up_strains Strain::TestCrossStrain, :test_cross_strains
 
-['na', 'fail', 'pass'].each do |desc|
-  QcResult.find_or_create_by_description(desc)
-end
+Seeds.load_data QcResult, [
+  {:id => 1, :description => 'na'},
+  {:id => 2, :description => 'fail'},
+  {:id => 3, :description => 'pass'},
+]
 
-['Frozen embryos', 'Live mice', 'Frozen sperm'].each do |name|
-  DepositedMaterial.find_or_create_by_name name
-end
+Seeds.load_data DepositedMaterial, [
+  {:id => 1, :name => 'Frozen embryos'},
+  {:id => 2, :name => 'Live mice'},
+  {:id => 3, :name => 'Frozen sperm'}
+]
 
-{
-  'BaSH'            => ['KOMP2', 'Baylor, Sanger, Harwell'],
-  'DTCC'            => ['KOMP2', 'Davis-Toronto-Charles River-CHORI'],
-  'DTCC-KOMP'       => ['KOMP', 'Davis-Toronto-Charles River-CHORI'],
-  'EUCOMM-EUMODIC'  => ['EUCOMM / EUMODIC', nil],
-  'Helmholtz GMC'   => ['Infrafrontier/BMBF', 'Helmholtz Muenchen'],
-  'JAX'             => ['KOMP2', 'The Jackson Laboratory'],
-  'MARC'            => ['China', 'Model Animarl Research Centre, Nanjing University'],
-  'MGP'             => ['Wellcome Trust', 'Mouse Genetics Project, WTSI'],
-  'MGP-KOMP'        => ['KOMP / Wellcome Trust', 'Mouse Genetics Project, WTSI'],
-  'Monterotondo'    => ['European Union', 'Monterotondo Institute for Cell Biology (CNR)'],
-  'MRC'             => ['MRC', 'MRC - Harwell'],
-  'NorCOMM2'        => ['Genome Canada', 'NorCOMM2'],
-  'Phenomin'        => ['Phenomin', 'ICS'],
-  'RIKEN BRC'       => ['Japanese government', 'RIKEN BRC']
-}.each do |name,details|
-  cons = Consortium.find_or_create_by_name(:name => name)
-  if cons.funding.blank?
-    cons.funding = details[0]
-    cons.participants = details[1]
-    cons.save!
-  end
-end
+Seeds.load_data Consortium, [
+  {:id => 1,  :name => 'EUCOMM-EUMODIC', :funding => 'EUCOMM / EUMODIC', :participants => nil},
+  {:id => 2,  :name => 'DTCC-KOMP',      :funding => 'KOMP', :participants => 'Davis-Toronto-Charles River-CHORI'},
+  {:id => 3,  :name => 'MGP-KOMP',       :funding => 'KOMP / Wellcome Trust', :participants => 'Mouse Genetics Project, WTSI'},
+  {:id => 4,  :name => 'BaSH',           :funding => 'KOMP2', :participants => 'Baylor, Sanger, Harwell'},
+  {:id => 5,  :name => 'DTCC',           :funding => 'KOMP2', :participants => 'Davis-Toronto-Charles River-CHORI'},
+  {:id => 6,  :name => 'Helmholtz GMC',  :funding => 'Infrafrontier/BMBF', :participants => 'Helmholtz Muenchen'},
+  {:id => 7,  :name => 'JAX',            :funding => 'KOMP2', :participants => 'The Jackson Laboratory'},
+  {:id => 8,  :name => 'MARC',           :funding => 'China', :participants => 'Model Animal Research Centre, Nanjing University'},
+  {:id => 9,  :name => 'MGP',            :funding => 'Wellcome Trust', :participants => 'Mouse Genetics Project, WTSI'},
+  {:id => 10, :name => 'Monterotondo',   :funding => 'European Union', :participants => 'Monterotondo Institute for Cell Biology (CNR)'},
+  {:id => 11, :name => 'MRC',            :funding => 'MRC', :participants => 'MRC - Harwell'},
+  {:id => 12, :name => 'NorCOMM2',       :funding => 'Genome Canada', :participants => 'NorCOMM2'},
+  {:id => 13, :name => 'Phenomin',       :funding => 'Phenomin', :participants => 'ICS'},
+  {:id => 14, :name => 'RIKEN BRC',      :funding => 'Japanese government', :participants => 'RIKEN BRC'}
+]
 
-[
-  'APN',
-  'BCM',
-  'CNB',
-  'DTCC',
-  'HMGU',
-  'ICS',
-  'MARC',
-  'Monterotondo',
-  'MRC - Harwell',
-  'Oulu',
-  'RIKEN BRC',
-  'TCP',
-  'UCD',
-  'WTSI',
-  'JAX'
-].each do |name|
-  Centre.find_or_create_by_name name
-end
+Seeds.load_data Centre, [
+  {:id => 1,  :name => 'WTSI'},
+  {:id => 2,  :name => 'ICS'},
+  {:id => 3,  :name => 'MRC - Harwell'},
+  {:id => 4,  :name => 'Monterotondo'},
+  {:id => 5,  :name => 'UCD'},
+  {:id => 6,  :name => 'HMGU'},
+  {:id => 7,  :name => 'CNB'},
+  {:id => 8,  :name => 'APN'},
+  {:id => 9,  :name => 'BCM'},
+  {:id => 10, :name => 'Oulu'},
+  {:id => 11, :name => 'TCP'},
+  {:id => 12, :name => 'RIKEN BRC'},
+  {:id => 13, :name => 'DTCC'},
+  {:id => 14, :name => 'JAX'},
+  {:id => 15, :name => 'MARC'}
+]
 
 {
   'Interest'               => [10, 'Interest - A consortium has expressed an interest to micro-inject this gene'],

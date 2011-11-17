@@ -26,6 +26,11 @@ class ReportsController < ApplicationController
     send_data_csv('double_assigned_list.csv', @report) if request.format == :csv
   end  
 
+  def double_assigned_plans
+    @report1 = Reports::MiPlans::DoubleAssignment.get_matrix
+    @report2 = Reports::MiPlans::DoubleAssignment.get_list
+  end  
+
   def genes_list
     @report = Table(
       [

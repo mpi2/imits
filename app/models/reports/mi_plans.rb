@@ -183,12 +183,9 @@ class Reports::MiPlans
     def self.get_list
       report = get_list_without_grouping
       report = Grouping( report, :by => 'Target Consortium', :order => 'Marker Symbol' )
-#      report = Grouping( report, :by => 'Target Consortium', :order => ['Marker Symbol', 'Consortium', 'Centre'] )     
       return report
     end
     
-    # return the table before grouping so test can check it
-
     def self.get_list_without_grouping
 
       genes = get_genes_for_list
@@ -207,18 +204,11 @@ class Reports::MiPlans
             mi_array = genes[marker][found_consortium];
             mi_array.each do |mi|
               mi_status = mi[3]
-
-              #next if mi_status == 'Micro-injection aborted'
-              #mi2 = mi.clone
-              #mi2.unshift(group_heading)
-              #report << mi2
-
               if mi_status != 'Micro-injection aborted'
                 mi2 = mi.clone
                 mi2.unshift(group_heading)
                 report << mi2
               end
-
             end
           end
         end

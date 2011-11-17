@@ -5,6 +5,8 @@
 data_migration_map = YAML.load_file('db/data_migration_map.yaml')
 old_statuses_map = YAML.load_file('db/pre_data_migration_statuses.yaml')
 
+skipped = File.open("tmp/skip_fix_status_stamps_#{Time.now.strftime('%F-%H-%M-%S')}.txt", 'wb')
+
 MiAttempt.transaction do
   data_migration_map.each do |old_id, mappings|
     new_mi = MiAttempt.find_by_id(mappings['id'])
@@ -15,7 +17,8 @@ MiAttempt.transaction do
     old_statuses = old_statuses_map[new_mi.id]['statuses'].dup
 
     if new_mi.status_stamps.first.description != old_statuses.keys.last
-      output << "  !!!!!Examine!!!!!"
+      skipped.puts new_mi.colony_name
+      next
     else
       deleted_status_stamp = new_mi.status_stamps.first.destroy
       output << "  Deleted '#{deleted_status_stamp.description}'(#{deleted_status_stamp.created_at.to_s})"

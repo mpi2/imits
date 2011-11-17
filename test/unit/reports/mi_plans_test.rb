@@ -6,8 +6,6 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
     
   context 'Reports::MiPlans' do
     
-    VERBOSE = false
-
     should 'return funding names' do
         test_columns = [ "KOMP2", "KOMP2", "KOMP2", "Infrafrontier/BMBF", "China", "Wellcome Trust", "European Union", "MRC", "Genome Canada", "Phenomin",
           "Japanese government", "EUCOMM / EUMODIC", "KOMP / Wellcome Trust", "KOMP" ]
@@ -93,8 +91,6 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
         assert !report.blank?
         columns = Reports::MiPlans::DoubleAssignment.get_matrix_columns
         assert !columns.blank?
-
-        puts report.to_s if VERBOSE
                  
         assert_equal 2, report.column('KOMP2 - JAX')[0]
         
@@ -281,8 +277,6 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
           assert_equal 'Trafd1', report.column('Marker Symbol')[i]
           assert_equal 'Assigned', report.column('Plan Status')[i]
         end
-
-        puts report.to_s if VERBOSE
 
         assert_equal ["BaSH", "JAX", "BaSH", "JAX"].sort, report.column('Consortium').sort
         assert_equal ["WTSI", "JAX", "WTSI", "JAX"].sort, report.column('Centre').sort

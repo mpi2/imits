@@ -3,8 +3,6 @@
 require 'test_helper'
 
 class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
-  
-  #Kermits2::JsIntegrationTest #
 
   context 'The reports pages' do
 
@@ -42,20 +40,8 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
         visit '/reports/double_assigned_plans'
         assert_match '/reports/double_assigned_plans', current_url
 
-
-
         assert page.has_css?('div#double-matrix tr:nth-child(2) td:nth-child(4)', :text => '1')
         assert page.has_css?('a', :text => 'Download Matrix as CSV')
-        
-        ##size = all('tr').size
-        ##assert_equal 15, all('tr').size
-        #
-        #trs = all('tr')
-        #tds = trs[1].all('td')
-        #
-        #assert_equal "1", tds[3].text
-
-
 
         assert_match 'Double-Assignments for Consortium: BaSH', page.body
         assert_match 'Double-Assignments for Consortium: JAX', page.body
@@ -65,8 +51,6 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
 
         assert page.has_css?('a', :text => 'Download List as CSV')
        
-#        sleep 20
-
         tr_count = 3
 
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(1)", :text => 'Cbx1')        

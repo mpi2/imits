@@ -14,6 +14,18 @@ module Seeds
 
       thing.save! if thing.changed?
     end
+    update_db_sequence(model_class)
+  end
+
+  def self.update_db_sequence(model_class)
+    model_class.connection.execute(<<-"SQL")
+      select setval( '#{model_class.table_name}_id_seq',
+                     (select id from #{model_class.table_name}
+                                order by id desc
+                                limit 1
+                     )
+                   );
+    SQL
   end
 
   def self.set_up_strains(strain_ids_class, filename)
@@ -27,7 +39,7 @@ module Seeds
 end
 
 Seeds.load MiAttemptStatus, [
-  {:id => 1, :description => 'Micro-injection in progress init'},
+  {:id => 1, :description => 'Micro-injection in progress'},
   {:id => 2, :description => 'Genotype confirmed'},
   {:id => 3, :description => 'Micro-injection aborted'}
 ]
@@ -50,7 +62,7 @@ Seeds.load DepositedMaterial, [
 
 Seeds.load Consortium, [
   {:id => 1,  :name => 'EUCOMM-EUMODIC', :funding => 'EUCOMM / EUMODIC', :participants => nil},
-  {:id => 2,  :name => 'DTCC-KOMP',      :funding => 'KOMP', :participants => 'Davis-Toronto-Charles River-CHORI'},
+  {:id => 2,  :name => 'UCD-KOMP',       :funding => 'KOMP', :participants => 'Davis'},
   {:id => 3,  :name => 'MGP-KOMP',       :funding => 'KOMP / Wellcome Trust', :participants => 'Mouse Genetics Project, WTSI'},
   {:id => 4,  :name => 'BaSH',           :funding => 'KOMP2', :participants => 'Baylor, Sanger, Harwell'},
   {:id => 5,  :name => 'DTCC',           :funding => 'KOMP2', :participants => 'Davis-Toronto-Charles River-CHORI'},

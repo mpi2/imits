@@ -1,5 +1,6 @@
 
-if Rails.env.test? 
+if Rails.env.test?
+
   module Rack
     module Utils
       def escape(s)

@@ -225,7 +225,7 @@ class ReportsController < ApplicationController
     @include_plans_with_active_attempts = false if params[:include_plans_with_active_attempts] == 'false'
 
     unless params[:commit].blank?
-      impc_consortia_ids = Consortium.where('name not in (?)', ['EUCOMM-EUMODIC','MGP-KOMP','DTCC-KOMP']).map(&:id)
+      impc_consortia_ids = Consortium.where('name not in (?)', ['EUCOMM-EUMODIC','MGP-KOMP','UCD-KOMP']).map(&:id)
 
       all_mi_plans = generate_planned_mi_list_report({ :consortium_id => impc_consortia_ids }, @include_plans_with_active_attempts)
       all_mi_plans.sort_rows_by!('Consortium', :order => :ascending)

@@ -19,7 +19,7 @@ class Reports::MiPlans
       others = all - komp2 - ikmc
       return komp2 + others + ikmc
     end
-    
+
     def self.get_genes_for_matrix
 
       assigned_statuses = '(' + MiPlanStatus.all_assigned.map { |i| i.id }.join(',') + ')'
@@ -36,16 +36,17 @@ class Reports::MiPlans
         where mi_plans.gene_id in (
           select gene_id
           from mi_plans
-          where mi_plan_status_id in #{assigned_statuses} 
+          where mi_plan_status_id in #{assigned_statuses}
+
           group by gene_id
           having count(*) > 1
         ) and mi_plan_status_id in #{assigned_statuses} order by marker_symbol;
       SQL
-      
+
       result = ActiveRecord::Base.connection.select_all( sql )
 
       genes = {}
-      
+
       result.each do |row|
         genes[row['marker_symbol']] ||= {}
         genes[row['marker_symbol']][row['consortia_name']] ||= []
@@ -111,10 +112,10 @@ class Reports::MiPlans
       return genes
 
     end
-    
+
     def self.get_matrix_columns
       columns = []
-      
+
       funders = get_funding
       consortia = get_consortia
 
@@ -125,7 +126,7 @@ class Reports::MiPlans
     end
 
     def self.get_matrix_data
-    
+
       genes = get_genes_for_matrix
 
       cons_matrix = {}
@@ -139,11 +140,11 @@ class Reports::MiPlans
           end
         end
       end
-      
+
       return cons_matrix
-      
+
     end
-    
+
     def self.get_matrix
 
       cons_matrix = get_matrix_data
@@ -168,16 +169,16 @@ class Reports::MiPlans
             if cons_matrix[cons1] && cons_matrix[cons1][cons2]
               genes_in_overlap = cons_matrix[cons1][cons2]
             end
-            
+
             genes_in_overlap = genes_in_overlap.count > 0 ? genes_in_overlap.count : ''
-            
+
             new_row.push genes_in_overlap
           end
         end
         report << new_row
         rows += 1
       end
-      
+
       return report
 
     end
@@ -187,7 +188,7 @@ class Reports::MiPlans
       report = Grouping( report, :by => 'Target Consortium', :order => ['Marker Symbol', 'Consortium', 'Centre'] )
       return report
     end
-    
+
     def self.get_list_without_grouping
 
       genes = get_genes_for_list

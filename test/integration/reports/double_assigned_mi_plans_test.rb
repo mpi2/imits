@@ -36,7 +36,7 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
           :consortium => Consortium.find_by_name('JAX'),
           :production_centre => Centre.find_by_name('JAX'),
           :number_of_es_cells_starting_qc => 5
-          
+
         sleep 4
 
         visit '/reports/double_assigned_plans'
@@ -52,19 +52,21 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
         assert page.has_content? "Cbx1 BaSH Assigned"
 
         assert page.has_css?('a', :text => 'Download List as CSV')
-  
+
         tr_count = 3
 
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(1)", :text => 'Cbx1')        
+        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(1)", :text => 'Cbx1')
+
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(2)", :text => /JAX/)
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(3)", :text => /Assigned - ES Cell QC In Progress/)
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(4)", :text => '')
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(5)", :text => /JAX/)
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(6)", :text => '')
-        
+
         tr_count = 2
 
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(1)", :text => 'Cbx1')        
+        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(1)", :text => 'Cbx1')
+
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(2)", :text => /BaSH/)
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(3)", :text => /Assigned/)
         assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(4)", :text => '')

@@ -8,6 +8,29 @@ class ReportsController < ApplicationController
   def index
   end
 
+  def send_data_csv(filename, report)
+      send_data(
+        report.to_csv,
+        :type     => 'text/csv; charset=utf-8; header=present',
+        :filename => filename
+      )
+  end
+
+  def double_assigned_plans_matrix
+    @report = Reports::MiPlans::DoubleAssignment.get_matrix
+    send_data_csv('double_assigned_matrix.csv', @report) if request.format == :csv
+  end
+
+  def double_assigned_plans_list
+    @report = Reports::MiPlans::DoubleAssignment.get_list
+    send_data_csv('double_assigned_list.csv', @report) if request.format == :csv
+  end
+
+  def double_assigned_plans
+    @report1 = Reports::MiPlans::DoubleAssignment.get_matrix
+    @report2 = Reports::MiPlans::DoubleAssignment.get_list
+  end
+
   def genes_list
     @report = Table(
       [
@@ -264,7 +287,6 @@ class ReportsController < ApplicationController
       end
 
       @summary_by_status << totals = ['TOTAL BY STATUS'] + statuses.map { |status| gene_count_by_status[status] || 0 } + [total_number_of_planned_genes]
-
 
       ##
       ## Counts of mi_plans grouped by priority

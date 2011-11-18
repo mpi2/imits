@@ -17,7 +17,6 @@ gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
 
 group :development, :test do
-  gem 'escape_utils'
   gem 'sqlite3'
   gem 'shoulda', :require => nil
   gem 'test-unit', :require => nil

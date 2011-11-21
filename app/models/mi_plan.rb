@@ -27,6 +27,7 @@ class MiPlan < ActiveRecord::Base
   extend AccessAssociationByAttribute
   include MiPlan::StatusChanger
 
+  belongs_to :mi_plan_sub_project #, :foreign_key => :mi_plan_sub_project_id
   belongs_to :gene
   belongs_to :consortium
   belongs_to :mi_plan_status
@@ -41,6 +42,7 @@ class MiPlan < ActiveRecord::Base
   access_association_by_attribute :production_centre, :name
   access_association_by_attribute :mi_plan_priority, :name, :full_alias => :priority
   access_association_by_attribute :mi_plan_status, :name, :full_alias => :status
+#  access_association_by_attribute :mi_plan_sub_project, :name #, :full_alias => :sub_project
 
   validates :marker_symbol, :presence => true
   validates :consortium_name, :presence => true
@@ -322,6 +324,7 @@ end
 #  updated_at                     :datetime
 #  number_of_es_cells_starting_qc :integer
 #  number_of_es_cells_passing_qc  :integer
+#  mi_plan_sub_project_id         :integer
 #
 # Indexes
 #

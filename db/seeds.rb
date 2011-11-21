@@ -114,3 +114,12 @@ Seeds.load MiPlanPriority, [
   {:id => 2, :name => 'Medium', :description => 'Estimated injection in the next 5-8 months'},
   {:id => 3, :name => 'Low', :description => 'Estimated injection in the next 9-12 months'}
 ]
+
+Seeds.load MiPlan::SubProject, [
+  {:id => 1, :name => 'Viral'},
+  {:id => 2, :name => 'Bowel Cancer'},
+  {:id => 3, :name => 'IBD'},
+  {:id => 4, :name => 'Dougan lab'},
+  {:id => 5, :name => 'Human platelet'},
+  {:id => 6, :name => 'Modcom'}
+]

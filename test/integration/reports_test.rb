@@ -183,7 +183,22 @@ class ReportsTest < ActionDispatch::IntegrationTest
         assert_match 'production_centre_id', current_url
         assert_match 'Sorry', page.body
       end
-    end
+
+      context 'All Planned Micro-Injections' do
+        should 'allow grouping by production centre' do
+          Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH')
+          Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
+                  :production_centre => Centre.find_by_name!('WTSI')
+
+          visit '/reports/planned_microinjection_list'
+          select 'BaSH', :from => 'consortium_id[]'
+          select 'Production Centre', :from => 'grouping'
+          click_button 'Generate Report'
+          assert ! page.has_content?('Exception')
+        end
+      end
+
+    end # once logged in
 
   end
 end

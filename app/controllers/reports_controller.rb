@@ -231,7 +231,7 @@ class ReportsController < ApplicationController
         end
       end
 
-      @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
+      @report = Grouping( @report, :by => params[:grouping], :order => proc {|i| i.name.to_s} ) unless params[:grouping].blank?
 
       if request.format == :csv
         send_data(

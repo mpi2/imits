@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111121113854) do
+ActiveRecord::Schema.define(:version => 20111121113850) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -209,7 +209,7 @@ ActiveRecord::Schema.define(:version => 20111121113854) do
     t.datetime "updated_at"
     t.integer  "number_of_es_cells_starting_qc"
     t.integer  "number_of_es_cells_passing_qc"
-    t.integer  "mi_plan_sub_project_id"
+    t.integer  "sub_project_id"
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true
@@ -312,7 +312,7 @@ ActiveRecord::Schema.define(:version => 20111121113854) do
   add_foreign_key "mi_plans", "genes", :name => "mi_plans_gene_id_fk"
   add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk"
   add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk"
-  add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_mi_plan_sub_project_id_fk"
+  add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"
 
   add_foreign_key "strain_blast_strains", "strains", :name => "strain_blast_strains_id_fk", :column => "id"
 

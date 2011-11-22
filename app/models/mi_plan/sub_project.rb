@@ -6,9 +6,9 @@ class MiPlan::SubProject < ActiveRecord::Base
 
   validates :name, :uniqueness => true
 
-  def self.[](name)
-    return self.find_by_name!(name.to_s)
-  end
+  #def self.[](name)
+  #  return self.find_by_name!(name.to_s)
+  #end
   
 end
 

@@ -67,18 +67,54 @@ class MiPlan::SubProjectTest < ActiveSupport::TestCase
 #    end
 #
 
-    should 'check sub-project assignment' do
+#    should 'check sub-project assignment' do
+#      sub_project = MiPlan::SubProject.first
+#      puts sub_project.inspect if VERBOSE
+#      #sub_project.mi_plans
+#      #assert_equal sub_project.name, MiPlan::SubProject.new(:mi_plan_sub_project_id => sub_project.id).name
+##      gene_trafd1 = Factory.create :gene_trafd1
+##      plan = Factory.create :mi_plan, :gene => gene_trafd1
+#      #:mi_plan_status => MiPlanStatus['Assigned']#,
+#      #:mi_plan_sub_project => 2 #MiPlan::SubProject['Viral']
+#     #:mi_plan_sub_project => sub_project #SubProject['Viral']     
+# 
+#        gene_cbx1 = Factory.create :gene_cbx1
+#        plan = Factory.create :mi_plan, :gene => gene_cbx1,
+#          :consortium => Consortium.find_by_name!('BaSH'),
+#          :production_centre => Centre.find_by_name!('WTSI'),
+#          :mi_plan_status => MiPlanStatus['Assigned'] #,
+#          #:mi_plan_sub_project => MiPlan::SubProject['Viral']
+#
+#      puts plan.inspect if VERBOSE
+#
+#     # plan.mi_plan_sub_project = sub_project
+#
+#
+#    end
+
+    #should 'have indexing' do
+    #  sub_project = MiPlan::SubProject['Viral']          
+    #  assert_equal "Viral", sub_project.name
+    #end
+
+    should 'check has_many mi_plans' do
+
       sub_project = MiPlan::SubProject.first
+      
       puts sub_project.inspect if VERBOSE
-      #sub_project.mi_plans
-      #assert_equal sub_project.name, MiPlan::SubProject.new(:mi_plan_sub_project_id => sub_project.id).name
-      gene_trafd1 = Factory.create :gene_trafd1
-      plan = Factory.create :mi_plan, :gene => gene_trafd1,
-      #:mi_plan_status => MiPlanStatus['Assigned']#,
-      #:mi_plan_sub_project => 2 #MiPlan::SubProject['Viral']
-     :mi_plan_sub_project => sub_project #SubProject['Viral']     
+      
+      plan = Factory.build :mi_plan
       
       puts plan.inspect if VERBOSE
+      
+      #plan.sub_project = sub_project
+      
+      plan.sub_project.id = sub_project.id
+
+      assert_equal sub_project, plan.sub_project
+
+      puts plan.inspect if VERBOSE
+
     end
 
   end

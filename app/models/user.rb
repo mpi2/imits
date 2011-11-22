@@ -1,7 +1,6 @@
 class User < ActiveRecord::Base
   ADMIN_USERS = [
     'aq2@sanger.ac.uk',
-    'do2@sanger.ac.uk',
     'vvi@sanger.ac.uk',
     're4@sanger.ac.uk'
   ]

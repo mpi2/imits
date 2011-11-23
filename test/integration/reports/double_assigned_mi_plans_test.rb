@@ -41,26 +41,7 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
         
         assert page.has_css?('a', :text => 'Download List as CSV')
 
-        assert page.has_css?("div#double-matrix")
-        assert page.has_css?("div#double-list")
-        
-        assert page.has_css?("div#double-list tr:nth-child(2) td:nth-child(1)", :text => 'Cbx1')
-        assert page.has_css?("div#double-list tr:nth-child(3) td:nth-child(1)", :text => 'Cbx1')
-
-        assert page.has_css?("div#double-list tr:nth-child(2) td:nth-child(2)", :text => /BaSH|JAX/)
-        assert page.has_css?("div#double-list tr:nth-child(3) td:nth-child(2)", :text => /BaSH|JAX/)
-
-        assert page.has_css?("div#double-list tr:nth-child(2) td:nth-child(3)", :text => /Assigned|Assigned - ES Cell QC In Progress/)
-        assert page.has_css?("div#double-list tr:nth-child(3) td:nth-child(3)", :text => /Assigned|Assigned - ES Cell QC In Progress/)
-
-        assert page.has_css?("div#double-list tr:nth-child(2) td:nth-child(4)", :text => '')
-        assert page.has_css?("div#double-list tr:nth-child(3) td:nth-child(4)", :text => '')
-        
-        assert page.has_css?("div#double-list tr:nth-child(2) td:nth-child(5)", :text => /WTSI|JAX/)
-        assert page.has_css?("div#double-list tr:nth-child(3) td:nth-child(5)", :text => /WTSI|JAX/)
-
-        assert page.has_css?("div#double-list tr:nth-child(2) td:nth-child(6)", :text => '')
-        assert page.has_css?("div#double-list tr:nth-child(3) td:nth-child(6)", :text => '')
+        assert_equal 3, all('table').count
         
       end
 

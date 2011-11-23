@@ -4,23 +4,13 @@ require 'test_helper'
 
 class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
 
-  context 'The reports pages' do
-
-    should 'require the user to be logged in' do
-      visit '/reports'
-      assert_login_page
-    end
+  context 'Double-Assigned MI Plans test:' do
 
     context 'once logged in' do
       setup do
         create_common_test_objects
         visit '/users/logout'
         login
-      end
-
-      should 'allow users to visit the reports "home" page' do
-        visit '/reports'
-        assert_match reports_path, current_url
       end
 
       should 'allow users to visit the double-assignment page & see entries' do

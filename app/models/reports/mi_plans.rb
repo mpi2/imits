@@ -8,14 +8,14 @@ class Reports::MiPlans
 
     def self.get_funding
       consortia = self.get_consortia
-      funders = consortia.map { |row| Consortium.find_by_name(row).funding }
+      funders = consortia.map { |row| Consortium.find_by_name!(row).funding }
       return funders
     end
 
     def self.get_consortia
       all = Consortium.all.map(&:name).sort_by { |c| c.downcase }
       komp2 = Consortium.all.find_all { |item| item.funding == 'KOMP2' }.map(&:name).sort
-      ikmc = ["EUCOMM-EUMODIC", "MGP-KOMP", "DTCC-KOMP"]
+      ikmc = ["EUCOMM-EUMODIC", "MGP-KOMP", "UCD-KOMP"]
       others = all - komp2 - ikmc
       return komp2 + others + ikmc
     end

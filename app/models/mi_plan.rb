@@ -27,6 +27,7 @@ class MiPlan < ActiveRecord::Base
   extend AccessAssociationByAttribute
   include MiPlan::StatusChanger
 
+  belongs_to :sub_project
   belongs_to :gene
   belongs_to :consortium
   belongs_to :mi_plan_status
@@ -322,6 +323,7 @@ end
 #  updated_at                     :datetime
 #  number_of_es_cells_starting_qc :integer
 #  number_of_es_cells_passing_qc  :integer
+#  sub_project_id                 :integer
 #
 # Indexes
 #

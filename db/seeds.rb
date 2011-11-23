@@ -116,10 +116,11 @@ Seeds.load MiPlanPriority, [
 ]
 
 Seeds.load MiPlan::SubProject, [
-  {:id => 1, :name => 'Viral'},
-  {:id => 2, :name => 'Bowel Cancer'},
-  {:id => 3, :name => 'IBD'},
-  {:id => 4, :name => 'Dougan lab'},
-  {:id => 5, :name => 'Human platelet'},
-  {:id => 6, :name => 'Modcom'}
+  {:id => 1, :name => ''},
+  {:id => 2, :name => 'Viral'},
+  {:id => 3, :name => 'Bowel Cancer'},
+  {:id => 4, :name => 'IBD'},
+  {:id => 5, :name => 'Dougan lab'},
+  {:id => 6, :name => 'Human platelet'},
+  {:id => 7, :name => 'Modcom'}
 ]

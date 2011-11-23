@@ -80,7 +80,7 @@ class MiPlan < ActiveRecord::Base
   private
   
   def set_default_sub_project
-    self.sub_project_id ||= 1
+    self.sub_project = MiPlan::SubProject.find_by_name!('')
   end
 
   def set_default_mi_plan_status

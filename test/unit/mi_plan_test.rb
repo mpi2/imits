@@ -11,7 +11,6 @@ class MiPlanTest < ActiveSupport::TestCase
 
     should 'have default sub_project on new mi_plan' do
       mi_plan = Factory.create :mi_plan
-      puts mi_plan.inspect
       assert_equal 1, mi_plan.sub_project_id
       assert_equal '', mi_plan.sub_project.name
     end

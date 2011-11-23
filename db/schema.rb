@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111121113850) do
+ActiveRecord::Schema.define(:version => 20111123172943) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -209,7 +209,7 @@ ActiveRecord::Schema.define(:version => 20111121113850) do
     t.datetime "updated_at"
     t.integer  "number_of_es_cells_starting_qc"
     t.integer  "number_of_es_cells_passing_qc"
-    t.integer  "sub_project_id"
+    t.integer  "sub_project_id",                 :null => false
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true

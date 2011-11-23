@@ -328,7 +328,7 @@ end
 #  updated_at                     :datetime
 #  number_of_es_cells_starting_qc :integer
 #  number_of_es_cells_passing_qc  :integer
-#  sub_project_id                 :integer
+#  sub_project_id                 :integer         not null
 #
 # Indexes
 #

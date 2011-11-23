@@ -19,7 +19,7 @@ class MiPlanTest < ActiveSupport::TestCase
     end
 
     context 'attribute tests:' do
-      should have_db_column(:sub_project_id).with_options(:null => true)    
+      should have_db_column(:sub_project_id).with_options(:null => false)    
       should belong_to :sub_project
       should belong_to :gene
       should belong_to :consortium

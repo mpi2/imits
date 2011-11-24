@@ -78,7 +78,7 @@ class MiPlan < ActiveRecord::Base
   after_save :create_status_stamp_if_status_was_changed
 
   private
-  
+
   def set_default_sub_project
     self.sub_project = MiPlan::SubProject.find_by_name!('')
   end

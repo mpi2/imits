@@ -19,19 +19,19 @@ class MiPlanTest < ActiveSupport::TestCase
     end
 
     context 'attribute tests:' do
-      should have_db_column(:sub_project_id).with_options(:null => false)    
-      should belong_to :sub_project
       should belong_to :gene
       should belong_to :consortium
       should belong_to :production_centre
       should belong_to :mi_plan_status
       should belong_to :mi_plan_priority
+      should belong_to :sub_project
 
       should have_db_column(:gene_id).with_options(:null => false)
       should have_db_column(:consortium_id).with_options(:null => false)
       should have_db_column(:production_centre_id)
       should have_db_column(:mi_plan_status_id).with_options(:null => false)
       should have_db_column(:mi_plan_priority_id).with_options(:null => false)
+      should have_db_column(:sub_project_id).with_options(:null => false)
 
       should have_many :mi_attempts
 

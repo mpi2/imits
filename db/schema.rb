@@ -102,7 +102,7 @@ ActiveRecord::Schema.define(:version => 20111124110316) do
     t.string   "description", :limit => 50, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "order_by"
+    t.integer  "order_by",                  :null => false
   end
 
   add_index "mi_attempt_statuses", ["description"], :name => "index_mi_attempt_statuses_on_description", :unique => true

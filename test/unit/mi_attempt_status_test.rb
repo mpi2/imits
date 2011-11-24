@@ -6,8 +6,10 @@ class MiAttemptStatusTest < ActiveSupport::TestCase
   context 'MiAttemptStatus' do
 
     should have_db_column(:description).with_options(:null => false)
-    should have_db_column(:order_by)
     should have_db_index(:description).unique(true)
+
+    should have_db_column(:order_by)
+
     should validate_presence_of :description
     should validate_uniqueness_of :description
 

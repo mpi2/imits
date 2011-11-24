@@ -29,20 +29,20 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
 
         visit '/reports/double_assigned_plans'
         assert_match '/reports/double_assigned_plans', current_url
-        
+
         assert page.has_css?('div#double-matrix tr:nth-child(2) td:nth-child(4)', :text => '1')
         assert page.has_css?('a', :text => 'Download Matrix as CSV')
-        
+
         assert_match 'Double-Assignments for Consortium: BaSH', page.body
         assert_match 'Double-Assignments for Consortium: JAX', page.body
-        
+
         assert page.has_content? "Marker Symbol Consortium Plan Status MI Status Centre MI Date"
         assert page.has_content? "Cbx1 BaSH Assigned"
-        
+
         assert page.has_css?('a', :text => 'Download List as CSV')
 
         assert_equal 3, all('table').count
-        
+
       end
 
     end

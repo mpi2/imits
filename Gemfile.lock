@@ -80,7 +80,7 @@ GEM
     ffi (1.0.11)
     foreigner (1.0.3)
       activerecord (>= 3.0.0)
-    hoe (2.10.0)
+    hoe (2.12.3)
       rake (~> 0.8)
     hoptoad_notifier (2.4.11)
       activesupport

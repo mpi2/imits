@@ -20,14 +20,12 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
         'Consortium',
         'Production Centre',
         'Gene',
-        'Assigned date',
-        'ES Cells QC Complete date',
-        'Micro-injection in progress date',
-        'Genotype confirmed date',
-        'Micro-injection Aborted date'
+        #'Assigned date',
+        #'ES Cells QC Complete date',
+        #'Micro-injection in progress date',
+        #'Genotype confirmed date',
+        #'Micro-injection Aborted date'
       ]
-
-      y @report.to_csv
 
       assert_equal expected, @report.column_names
     end

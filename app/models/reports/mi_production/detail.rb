@@ -9,12 +9,11 @@ class Reports::MiProduction::Detail
     }
 
     report_columns.each do |column_spec, column_header|
+      report_options[:only] << column_spec
       if(column_spec.include? '.')
         association, attribute = column_spec.split('.').map(&:to_sym)
         report_options[:include][association] ||= {:only => []}
         report_options[:include][association][:only].push attribute
-      else
-        report_options[:only] << column_spec
       end
     end
 
@@ -25,10 +24,17 @@ class Reports::MiProduction::Detail
     report_columns = {
       'consortium.name' => 'Consortium',
       'production_centre.name' => 'Production Centre',
-      'gene.marker_symbol' => 'Gene'
+      'gene.marker_symbol' => 'Gene',
+      'earliest_assigned_date' => 'Assigned Date'
     }
 
     report_options = generate_report_options(report_columns)
+    report_options[:methods] = [:earliest_assigned_date]
+
+    transform = proc { |record|
+      record.data['earliest_assigned_date'] = record.data['earliest_assigned_date'].try(:to_s)
+    }
+    report_options[:transforms] = [transform]
 
     report = MiPlan.report_table(:all, report_options)
     report.rename_columns(report_columns)

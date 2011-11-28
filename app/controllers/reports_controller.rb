@@ -163,9 +163,9 @@ class ReportsController < ApplicationController
   end
 
   def mi_attempts_by_gene
- #   mi_attempts_by_gene_old
-    @report1 = nil
-#    @report1 = @report
+   mi_attempts_by_gene_old
+#    @report1 = nil
+    @report1 = @report
 #    @report2 = nil
     @report2 = Reports::MiAttempts::ReportByGene.get_list(params)
 #    send_data_csv('mi_attempts_by_gene.csv', @report2) if request.format == :csv

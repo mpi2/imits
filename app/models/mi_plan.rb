@@ -312,6 +312,11 @@ class MiPlan < ActiveRecord::Base
     end
   end
 
+  def earliest_assigned_date
+    stamp = status_stamps.where(:mi_plan_status_id => MiPlanStatus['Assigned'].id).first
+    return stamp.created_at.to_date if stamp
+  end
+
 end
 
 # == Schema Information

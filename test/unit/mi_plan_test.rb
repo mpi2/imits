@@ -314,6 +314,22 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      should 'have #earliest_assigned_date' do
+        plan = Factory.create :mi_plan,
+                :mi_plan_status => MiPlanStatus['Assigned']
+        stamp = plan.status_stamps.last
+        stamp.created_at = Time.parse('2011-11-05 23:59:59 UTC')
+        stamp.save!
+        plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Assigned'],
+          :created_at => Time.parse('2011-11-30 23:59:59 UTC'))
+        plan.reload
+
+        assert_equal '2011-11-05', plan.earliest_assigned_date.to_s
+
+        plan = Factory.create :mi_plan
+        assert_equal nil, plan.earliest_assigned_date
+      end
+
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
         mip = Factory.build :mi_plan
         assert mip.save
@@ -369,7 +385,7 @@ class MiPlanTest < ActiveSupport::TestCase
         got = @default_mi_plan.as_json.keys
         assert_equal expected.sort, got.sort
       end
-    end
+    end # attriubute tests
 
     context '::major_conflict_resolution' do
       setup do

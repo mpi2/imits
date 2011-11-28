@@ -27,6 +27,7 @@ class MiPlan < ActiveRecord::Base
   extend AccessAssociationByAttribute
   include MiPlan::StatusChanger
 
+  belongs_to :sub_project
   belongs_to :gene
   belongs_to :consortium
   belongs_to :mi_plan_status
@@ -67,6 +68,7 @@ class MiPlan < ActiveRecord::Base
 
   # BEGIN Callbacks
 
+  before_validation :set_default_sub_project
   before_validation :set_default_mi_plan_status
   before_validation :set_default_number_of_es_cells_starting_qc
   before_validation :change_status
@@ -76,6 +78,10 @@ class MiPlan < ActiveRecord::Base
   after_save :create_status_stamp_if_status_was_changed
 
   private
+
+  def set_default_sub_project
+    self.sub_project = MiPlan::SubProject.find_by_name!('')
+  end
 
   def set_default_mi_plan_status
     self.mi_plan_status ||= MiPlanStatus['Interest']
@@ -322,6 +328,7 @@ end
 #  updated_at                     :datetime
 #  number_of_es_cells_starting_qc :integer
 #  number_of_es_cells_passing_qc  :integer
+#  sub_project_id                 :integer         not null
 #
 # Indexes
 #

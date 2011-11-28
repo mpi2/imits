@@ -4,23 +4,13 @@ require 'test_helper'
 
 class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
 
-  context 'The reports pages' do
-
-    should 'require the user to be logged in' do
-      visit '/reports'
-      assert_login_page
-    end
+  context 'Double-Assigned MI Plans test:' do
 
     context 'once logged in' do
       setup do
         create_common_test_objects
         visit '/users/logout'
         login
-      end
-
-      should 'allow users to visit the reports "home" page' do
-        visit '/reports'
-        assert_match reports_path, current_url
       end
 
       should 'allow users to visit the double-assignment page & see entries' do
@@ -37,8 +27,6 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
           :production_centre => Centre.find_by_name('JAX'),
           :number_of_es_cells_starting_qc => 5
 
-        sleep 4
-
         visit '/reports/double_assigned_plans'
         assert_match '/reports/double_assigned_plans', current_url
 
@@ -53,25 +41,7 @@ class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
 
         assert page.has_css?('a', :text => 'Download List as CSV')
 
-        tr_count = 3
-
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(1)", :text => 'Cbx1')
-
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(2)", :text => /JAX/)
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(3)", :text => /Assigned - ES Cell QC In Progress/)
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(4)", :text => '')
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(5)", :text => /JAX/)
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(6)", :text => '')
-
-        tr_count = 2
-
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(1)", :text => 'Cbx1')
-
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(2)", :text => /BaSH/)
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(3)", :text => /Assigned/)
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(4)", :text => '')
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(5)", :text => /WTSI/)
-        assert page.has_css?("div#double-list tr:nth-child(#{tr_count}) td:nth-child(6)", :text => '')
+        assert_equal 3, all('table').count
 
       end
 

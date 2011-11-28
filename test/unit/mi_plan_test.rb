@@ -9,6 +9,11 @@ class MiPlanTest < ActiveSupport::TestCase
       @default_mi_plan = Factory.create :mi_plan
     end
 
+    should 'have default sub_project on new mi_plan' do
+      mi_plan = Factory.create :mi_plan
+      assert_equal '', mi_plan.sub_project.name
+    end
+
     should '@default_mi_plan should be in state Interest for the rest of the tests' do
       assert_equal 'Interest', @default_mi_plan.mi_plan_status.name
     end
@@ -19,12 +24,14 @@ class MiPlanTest < ActiveSupport::TestCase
       should belong_to :production_centre
       should belong_to :mi_plan_status
       should belong_to :mi_plan_priority
+      should belong_to :sub_project
 
       should have_db_column(:gene_id).with_options(:null => false)
       should have_db_column(:consortium_id).with_options(:null => false)
       should have_db_column(:production_centre_id)
       should have_db_column(:mi_plan_status_id).with_options(:null => false)
       should have_db_column(:mi_plan_priority_id).with_options(:null => false)
+      should have_db_column(:sub_project_id).with_options(:null => false)
 
       should have_many :mi_attempts
 

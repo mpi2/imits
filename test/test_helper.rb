@@ -81,7 +81,6 @@ end
 
 require 'capybara/rails'
 require 'capybara/dsl'
-require 'capybara/webkit'
 
 Capybara.default_driver = :rack_test
 

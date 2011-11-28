@@ -5,7 +5,7 @@
     <p><%= report.size %> <%= label %> found</p>
     <%=raw report.to_html %>
   <% else %>
-    <% report.each do |group_header,group_report| %>
+    <% report.each do |group_header, group_report| %>
       <p><%= group_header %> - <%= group_report.size %> <%= label %> found</p>
       <%=raw group_report.to_html.gsub("<p>#{group_header}</p>",'') %>
     <% end %>

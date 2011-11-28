@@ -30,4 +30,5 @@ group :development, :test do
   gem 'simplecov-rcov',        :require => false
   gem 'mocha'
   gem 'ruby-debug19'
+  gem 'thin'
 end

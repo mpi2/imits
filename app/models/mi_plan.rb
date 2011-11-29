@@ -68,20 +68,15 @@ class MiPlan < ActiveRecord::Base
 
   # BEGIN Callbacks
 
-  before_validation :set_default_sub_project
   before_validation :set_default_mi_plan_status
   before_validation :set_default_number_of_es_cells_starting_qc
+  before_validation :set_default_sub_project
   before_validation :change_status
 
   before_save :record_if_status_was_changed
-
   after_save :create_status_stamp_if_status_was_changed
 
   private
-
-  def set_default_sub_project
-    self.sub_project = MiPlan::SubProject.find_by_name!('')
-  end
 
   def set_default_mi_plan_status
     self.mi_plan_status ||= MiPlanStatus['Interest']
@@ -91,6 +86,10 @@ class MiPlan < ActiveRecord::Base
     if number_of_es_cells_starting_qc.nil?
       self.number_of_es_cells_starting_qc = number_of_es_cells_passing_qc
     end
+  end
+
+  def set_default_sub_project
+    self.sub_project ||= SubProject.find_by_name!('')
   end
 
   def record_if_status_was_changed

@@ -1,84 +1,8 @@
 # encoding: utf-8
 
-class Reports::MiProduction
+module Reports::Helper
 
-  class GeneSummary
-
-    def self.get_list(params)
-      #        puts "get_list 0"
-      #unless params[:commit].blank?
-      report = generate_mi_list_report( params )
-
-      #  puts "get_list 1"
-
-      if report.nil?
-        redirect_to cleaned_redirect_params( :mi_attempts_by_gene, params ) if request.format == :csv
-        return
-      end
-
-      #         puts "get_list 2"
-
-      @report = Table(
-        [
-          'Consortium',
-          'Production Centre',
-          '# Genes Injected',
-          '# Genes Genotype Confirmed',
-          '# Genes For EMMA'
-        ]
-      )
-
-      #         puts "get_list 3"
-
-      grouped_report = Grouping( report, :by => [ 'Consortium', 'Production Centre' ], :order => [:name]  )
-
-      grouped_report.each do |consortium|
-
-      #  puts "\nCONSORTIUM: " + consortium +"\n\n"
-
-        subgrouping = grouped_report.subgrouping(consortium)
-
-        summ = subgrouping.summary(
-          'Production Centre',
-          '# Genes Injected'           => lambda { |group| count_unique_instances_of( group, 'Marker Symbol' ) },
-          '# Genes Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) },
-          '# Genes For EMMA'           =>
-            lambda {
-            |group| count_unique_instances_of(
-              group,
-              'Marker Symbol',
-              lambda { |row| ((row.data['Status'] == 'Genotype confirmed') && (row.data['Suitable for EMMA?'])) ? true : false }
-            )
-          },
-          :order => [ 'Production Centre', '# Genes Injected', '# Genes Genotype Confirmed' , '# Genes For EMMA']
-        )
-
-     #   puts "summ:\n\n" + summ.inspect
-
-        summ.each do |row|
-          @report << {
-            'Consortium' => consortium,
-            'Production Centre' => row['Production Centre'],
-            '# Genes Injected' => row['# Genes Injected'],
-            '# Genes Genotype Confirmed' => row['# Genes Genotype Confirmed'],
-            '# Genes For EMMA' => row['# Genes For EMMA']
-          }
-        end
-
-      end
-
-      #        if request.format == :csv
-      #          send_data(
-      #            @report.to_csv,
-      #            :type     => 'text/csv; charset=utf-8; header=present',
-      #            :filename => 'mi_attempts_by_gene.csv'
-      #          )
-      #        end
-
-      return @report
-
-      #    end
-    end
+  class Common
 
     def self.generate_mi_list_report( params={} )
       report_column_order_and_names = {
@@ -234,6 +158,19 @@ class Reports::MiProduction
         end
       end
       array.uniq.size
+    end
+
+    def self.cleaned_redirect_params( action, params )
+      redirect_params = { :action => action, :commit => true }
+      [
+        :consortium_id,
+        :production_centre_id,
+        :grouping,
+        :include_plans_with_active_attempts
+      ].each do |parameter|
+        redirect_params[parameter] = params[parameter] unless params[parameter].blank?
+      end
+      return redirect_params
     end
 
   end

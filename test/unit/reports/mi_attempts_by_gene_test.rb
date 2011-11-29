@@ -2,9 +2,9 @@
 
 require 'test_helper'
 
-class Reports::MiProductionTest < ActiveSupport::TestCase
+class Reports::MiAttemptsByGeneTest < ActiveSupport::TestCase
 
-  context 'Reports::MiProduction::GeneSummary' do
+  context 'Reports::MiAttemptsByGene::GeneSummary' do
 
     should 'get table' do
 
@@ -60,9 +60,9 @@ class Reports::MiProductionTest < ActiveSupport::TestCase
       #      params = {"utf8"=>"✓", "format"=>"html", "commit"=>"true", "controller"=>"reports", "action"=>"mi_attempts_by_gene"}
       params = {"utf8"=>"✓", "format"=>"html", "controller"=>"reports", "action"=>"mi_attempts_by_gene"}
 
-      report = Reports::MiProduction::GeneSummary.get_list(params)
+      report = Reports::MiAttemptsByGene::GeneSummary.get_list(nil, params)
 
-      puts "\nREPORT:\n\n" + report.to_s
+      # puts "\nREPORT:\n\n" + report.to_s
 
       #      puts "\nREPORT:\n\n" + report[0].to_s
       #      puts "\nREPORT:\n\n" + report[1].to_s

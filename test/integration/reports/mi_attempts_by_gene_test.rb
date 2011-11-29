@@ -2,9 +2,9 @@
 
 require 'test_helper'
 
-class Reports::MiProductionTest < ActionDispatch::IntegrationTest
+class Reports::MiAttemptsByGeneTest < ActionDispatch::IntegrationTest
 
-  context 'Reports::MiProduction::GeneSummary' do
+  context 'Reports::MiAttemptsByGene::GeneSummary' do
 
     context 'once logged in' do
       setup do
@@ -44,7 +44,7 @@ class Reports::MiProductionTest < ActionDispatch::IntegrationTest
 
         click_button 'Generate Report'
 
-        save_and_open_page
+        # save_and_open_page
 
         #+-------------------------------------------------------------------------------------------------------+
         #|   Consortium   | Production Centre | # Genes Injected | # Genes Genotype Confirmed | # Genes For EMMA |

@@ -9,11 +9,6 @@ class MiPlanTest < ActiveSupport::TestCase
       @default_mi_plan = Factory.create :mi_plan
     end
 
-    should 'have default sub_project on new mi_plan' do
-      mi_plan = Factory.create :mi_plan
-      assert_equal '', mi_plan.sub_project.name
-    end
-
     should '@default_mi_plan should be in state Interest for the rest of the tests' do
       assert_equal 'Interest', @default_mi_plan.mi_plan_status.name
     end
@@ -254,6 +249,18 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      context '#sub_project' do
+        should 'be set to default when not set' do
+          mi_plan = Factory.create :mi_plan
+          assert_equal '', mi_plan.sub_project.name
+        end
+
+        should 'not be set to default when set' do
+          mi_plan = Factory.create :mi_plan, :sub_project_id => 3
+          assert_equal 3, mi_plan.sub_project.id
+        end
+      end
+
       context '#withdrawn virtual attribute' do
         context 'when being set to true' do
           should 'set the status to Withdrawn if it at an allowed status' do
@@ -369,7 +376,7 @@ class MiPlanTest < ActiveSupport::TestCase
         got = @default_mi_plan.as_json.keys
         assert_equal expected.sort, got.sort
       end
-    end
+    end # attribute tests
 
     context '::major_conflict_resolution' do
       setup do

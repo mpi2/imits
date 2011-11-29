@@ -1,147 +1,83 @@
 # encoding: utf-8
 
-class Reports::MiAttempts
+class Reports::MiProduction
 
-  class ReportByGene
-
-    public
-
-    #    def get_list_old
-    #      unless params[:commit].blank?
-    #        report = generate_mi_list_report( params )
-    #
-    #        if report.nil?
-    #          redirect_to cleaned_redirect_params( :mi_attempts_by_gene, params ) if request.format == :csv
-    #          return
-    #        end
-    #
-    #        @report = Table(
-    #          [
-    #            'Consortium',
-    #            'Production Centre',
-    #            '# Genes Injected',
-    #            '# Genes Genotype Confirmed',
-    #            '# Genes For EMMA'
-    #          ]
-    #        )
-    #
-    #        grouped_report = Grouping( report, :by => [ 'Consortium', 'Production Centre' ], :order => [:name]  )
-    #
-    #        grouped_report.each do |consortium|
-    #
-    #          puts "\nCONSORTIUM: " + consortium +"\n\n"
-    #
-    #          subgrouping = grouped_report.subgrouping(consortium)
-    #
-    #          summ = subgrouping.summary(
-    #            'Production Centre',
-    #            '# Genes Injected'           => lambda { |group| count_unique_instances_of( group, 'Marker Symbol' ) },
-    #            '# Genes Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) },
-    #            '# Genes For EMMA'           =>
-    #              lambda {
-    #              |group| count_unique_instances_of(
-    #                group,
-    #                'Marker Symbol',
-    #                lambda { |row| ((row.data['Status'] == 'Genotype confirmed') && (row.data['Suitable for EMMA?'])) ? true : false }
-    #              )
-    #            },
-    #            :order => [ 'Production Centre', '# Genes Injected', '# Genes Genotype Confirmed' , '# Genes For EMMA']
-    #          )
-    #
-    #          puts "summ:\n\n" + summ.inspect
-    #
-    #          summ.each do |row|
-    #            @report << {
-    #              'Consortium' => consortium,
-    #              'Production Centre' => row['Production Centre'],
-    #              '# Genes Injected' => row['# Genes Injected'],
-    #              '# Genes Genotype Confirmed' => row['# Genes Genotype Confirmed'],
-    #              '# Genes For EMMA' => row['# Genes For EMMA']
-    #            }
-    #          end
-    #
-    #        end
-    #
-    ##        if request.format == :csv
-    ##          send_data(
-    ##            @report.to_csv,
-    ##            :type     => 'text/csv; charset=utf-8; header=present',
-    ##            :filename => 'mi_attempts_by_gene.csv'
-    ##          )
-    ##        end
-    #
-    #        return @report
-    #
-    #      end
-    #    end
+  class GeneSummary
 
     def self.get_list(params)
-      unless params[:commit].blank?
-        report = generate_mi_list_report( params )
+      #        puts "get_list 0"
+      #unless params[:commit].blank?
+      report = generate_mi_list_report( params )
 
-        if report.nil?
-          redirect_to cleaned_redirect_params( :mi_attempts_by_gene, params ) if request.format == :csv
-          return
-        end
+      #  puts "get_list 1"
 
-        @report = Table(
-          [
-            'Consortium',
-            'Production Centre',
-            '# Genes Injected',
-            '# Genes Genotype Confirmed',
-            '# Genes For EMMA'
-          ]
+      if report.nil?
+        redirect_to cleaned_redirect_params( :mi_attempts_by_gene, params ) if request.format == :csv
+        return
+      end
+
+      #         puts "get_list 2"
+
+      @report = Table(
+        [
+          'Consortium',
+          'Production Centre',
+          '# Genes Injected',
+          '# Genes Genotype Confirmed',
+          '# Genes For EMMA'
+        ]
+      )
+
+      #         puts "get_list 3"
+
+      grouped_report = Grouping( report, :by => [ 'Consortium', 'Production Centre' ], :order => [:name]  )
+
+      grouped_report.each do |consortium|
+
+      #  puts "\nCONSORTIUM: " + consortium +"\n\n"
+
+        subgrouping = grouped_report.subgrouping(consortium)
+
+        summ = subgrouping.summary(
+          'Production Centre',
+          '# Genes Injected'           => lambda { |group| count_unique_instances_of( group, 'Marker Symbol' ) },
+          '# Genes Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) },
+          '# Genes For EMMA'           =>
+            lambda {
+            |group| count_unique_instances_of(
+              group,
+              'Marker Symbol',
+              lambda { |row| ((row.data['Status'] == 'Genotype confirmed') && (row.data['Suitable for EMMA?'])) ? true : false }
+            )
+          },
+          :order => [ 'Production Centre', '# Genes Injected', '# Genes Genotype Confirmed' , '# Genes For EMMA']
         )
 
-        grouped_report = Grouping( report, :by => [ 'Consortium', 'Production Centre' ], :order => [:name]  )
+     #   puts "summ:\n\n" + summ.inspect
 
-        grouped_report.each do |consortium|
-
-          puts "\nCONSORTIUM: " + consortium +"\n\n"
-
-          subgrouping = grouped_report.subgrouping(consortium)
-
-          summ = subgrouping.summary(
-            'Production Centre',
-            '# Genes Injected'           => lambda { |group| count_unique_instances_of( group, 'Marker Symbol' ) },
-            '# Genes Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) },
-            '# Genes For EMMA'           =>
-              lambda {
-              |group| count_unique_instances_of(
-                group,
-                'Marker Symbol',
-                lambda { |row| ((row.data['Status'] == 'Genotype confirmed') && (row.data['Suitable for EMMA?'])) ? true : false }
-              )
-            },
-            :order => [ 'Production Centre', '# Genes Injected', '# Genes Genotype Confirmed' , '# Genes For EMMA']
-          )
-
-          puts "summ:\n\n" + summ.inspect
-
-          summ.each do |row|
-            @report << {
-              'Consortium' => consortium,
-              'Production Centre' => row['Production Centre'],
-              '# Genes Injected' => row['# Genes Injected'],
-              '# Genes Genotype Confirmed' => row['# Genes Genotype Confirmed'],
-              '# Genes For EMMA' => row['# Genes For EMMA']
-            }
-          end
-
+        summ.each do |row|
+          @report << {
+            'Consortium' => consortium,
+            'Production Centre' => row['Production Centre'],
+            '# Genes Injected' => row['# Genes Injected'],
+            '# Genes Genotype Confirmed' => row['# Genes Genotype Confirmed'],
+            '# Genes For EMMA' => row['# Genes For EMMA']
+          }
         end
 
-        #        if request.format == :csv
-        #          send_data(
-        #            @report.to_csv,
-        #            :type     => 'text/csv; charset=utf-8; header=present',
-        #            :filename => 'mi_attempts_by_gene.csv'
-        #          )
-        #        end
-
-        return @report
-
       end
+
+      #        if request.format == :csv
+      #          send_data(
+      #            @report.to_csv,
+      #            :type     => 'text/csv; charset=utf-8; header=present',
+      #            :filename => 'mi_attempts_by_gene.csv'
+      #          )
+      #        end
+
+      return @report
+
+      #    end
     end
 
     def self.generate_mi_list_report( params={} )
@@ -279,26 +215,26 @@ class Reports::MiAttempts
       end
     end
 
-  def self.calculate_max_glt( row )
-    values = [
-      row.data['mi_attempts.number_of_chimeras_with_glt_from_genotyping'],
-      row.data['# Chimeras with Coat Colour Transmission']
-    ].compact.sort
+    def self.calculate_max_glt( row )
+      values = [
+        row.data['mi_attempts.number_of_chimeras_with_glt_from_genotyping'],
+        row.data['# Chimeras with Coat Colour Transmission']
+      ].compact.sort
 
-    return values.first unless values.empty?
-  end
-
-  def self.count_unique_instances_of( group, data_name, row_condition=nil )
-    array = []
-    group.each do |row|
-      if row_condition.nil?
-        array.push( row.data[data_name] )
-      else
-        array.push( row.data[data_name] ) if row_condition.call(row)
-      end
+      return values.first unless values.empty?
     end
-    array.uniq.size
-  end
+
+    def self.count_unique_instances_of( group, data_name, row_condition=nil )
+      array = []
+      group.each do |row|
+        if row_condition.nil?
+          array.push( row.data[data_name] )
+        else
+          array.push( row.data[data_name] ) if row_condition.call(row)
+        end
+      end
+      array.uniq.size
+    end
 
   end
 

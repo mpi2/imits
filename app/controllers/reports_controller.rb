@@ -163,47 +163,14 @@ class ReportsController < ApplicationController
   end
 
   def mi_attempts_by_gene
-   mi_attempts_by_gene_old
-#    @report1 = nil
-    @report1 = @report
-#    @report2 = nil
-    @report2 = Reports::MiAttempts::ReportByGene.get_list(params)
-#    send_data_csv('mi_attempts_by_gene.csv', @report2) if request.format == :csv
-  end
-
-  def mi_attempts_by_gene_old
     unless params[:commit].blank?
-      report = generate_mi_list_report( params )
+      puts "params:\n" + params.inspect
 
-      if report.nil?
-        redirect_to cleaned_redirect_params( :mi_attempts_by_gene, params ) if request.format == :csv
-        return
-      end
-
-      grouped_report = Grouping( report, :by => [ 'Production Centre' ], :order => :name )
-
-      @report  = grouped_report.summary(
-        'Production Centre',
-        '# Genes Injected'           => lambda { |group| count_unique_instances_of( group, 'Marker Symbol' ) },
-        '# Genes Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) },
-        '# Genes For EMMA'           =>
-          lambda {
-            |group| count_unique_instances_of(
-              group,
-              'Marker Symbol',
-              lambda { |row| ((row.data['Status'] == 'Genotype confirmed') && (row.data['Suitable for EMMA?'])) ? true : false }
-            )
-          },
-        :order => [ 'Production Centre', '# Genes Injected', '# Genes Genotype Confirmed' , '# Genes For EMMA']
-      )
-
-      if request.format == :csv
-        send_data(
-          @report.to_csv,
-          :type     => 'text/csv; charset=utf-8; header=present',
-          :filename => 'mi_attempts_by_gene.csv'
-        )
-      end
+      start=Time.now
+      @report = Reports::MiProduction::GeneSummary.get_list(params)
+      stop=Time.now
+      @time=stop-start
+      send_data_csv('mi_attempts_by_gene.csv', @report) if request.format == :csv
     end
   end
 
@@ -286,13 +253,12 @@ class ReportsController < ApplicationController
 
       # Add totals by status
       gene_count_by_status =
-        MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt
-        .count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
+        MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(
+          :gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
 
       if @include_plans_with_active_attempts
         gene_count_by_status =
-          MiPlan.where('consortium_id in (?)', impc_consortia_ids)
-          .count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
+          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
       end
 
       @summary_by_status << totals = ['TOTAL BY STATUS'] + statuses.map { |status| gene_count_by_status[status] || 0 } + [total_number_of_planned_genes]
@@ -315,13 +281,12 @@ class ReportsController < ApplicationController
 
       # Add totals by priority
       gene_count_by_priority =
-        MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt
-        .count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
+        MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(
+          :gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
 
       if @include_plans_with_active_attempts
         gene_count_by_priority =
-          MiPlan.where('consortium_id in (?)', impc_consortia_ids)
-          .count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
+          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
       end
 
       @summary_by_priority << ['TOTAL BY PRIORITY'] + priorities.map { |priority| gene_count_by_priority[priority] || 0 } + [total_number_of_planned_genes]

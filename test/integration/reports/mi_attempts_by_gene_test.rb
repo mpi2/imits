@@ -8,7 +8,6 @@ class Reports::MiAttemptsByGeneTest < ActionDispatch::IntegrationTest
 
     context 'once logged in' do
       setup do
-        #  create_common_test_objects
         visit '/users/logout'
         login
       end
@@ -24,12 +23,6 @@ class Reports::MiAttemptsByGeneTest < ActionDispatch::IntegrationTest
           :marker_symbol => 'Moo1',
           :mgi_accession_id => 'MGI:12345'
 
-        #        Factory.create :wtsi_mi_attempt_genotype_confirmed,
-        #          :es_cell => Factory.create(:es_cell, :gene => gene),
-        #          :consortium_name => 'MGP',
-        #          :is_active => true,
-        #          :is_suitable_for_emma => true
-
         Factory.create :wtsi_mi_attempt_genotype_confirmed,
           :es_cell => Factory.create(:es_cell, :gene => gene_moo1),
           :consortium_name => 'EUCOMM-EUMODIC',
@@ -43,23 +36,6 @@ class Reports::MiAttemptsByGeneTest < ActionDispatch::IntegrationTest
           :is_suitable_for_emma => true
 
         click_button 'Generate Report'
-
-        # save_and_open_page
-
-        #+-------------------------------------------------------------------------------------------------------+
-        #|   Consortium   | Production Centre | # Genes Injected | # Genes Genotype Confirmed | # Genes For EMMA |
-        #+-------------------------------------------------------------------------------------------------------+
-        #| EUCOMM-EUMODIC | WTSI              |                2 |                          2 |                2 |
-        #+-------------------------------------------------------------------------------------------------------+
-
-        #                 puts "\nREPORT :\n\n" + report.to_s
-
-        #   assert page.has_content? "Marker Symbol Consortium Plan Status MI Status Centre MI Date"
-        #   assert page.has_content? "Cbx1 BaSH Assigned"
-
-        #assert page.has_css?('div#double-matrix tr:nth-child(2) td:nth-child(4)', :text => '1')
-
-        #assert page.has_content? "Marker Symbol Consortium Plan Status MI Status Centre MI Date"
 
         assert page.has_content? "Consortium Production Centre # Genes Injected # Genes Genotype Confirmed # Genes For EMMA"
 

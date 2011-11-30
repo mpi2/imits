@@ -9,7 +9,7 @@ class Reports::MiProduction::Detail
     }
 
     report_columns.each do |column_spec, column_header|
-      report_options[:only] << column_spec
+      report_options[:only].push column_spec
       if(column_spec.include? '.')
         association, attribute = column_spec.split('.').map(&:to_sym)
         report_options[:include][association] ||= {:only => []}
@@ -23,17 +23,27 @@ class Reports::MiProduction::Detail
   def self.generate
     report_columns = {
       'consortium.name' => 'Consortium',
+      'sub_project.name' => 'Sub-Project',
       'production_centre.name' => 'Production Centre',
       'gene.marker_symbol' => 'Gene'
     }
 
     report_options = generate_report_options(report_columns)
     report_options[:methods] = ['status_stamps_with_latest_dates']
+    report_options[:include][:latest_relevant_mi_attempt] = {
+      :methods => [:status_stamps_with_latest_dates],
+      :only => []
+    }
 
     transform = proc { |record|
-      status_stamps = record['status_stamps_with_latest_dates']
-      status_stamps.each do |name, date|
+      plan_status_stamps = record['status_stamps_with_latest_dates']
+      plan_status_stamps.each do |name, date|
         record["#{name} Date"] = date.to_s
+      end
+
+      mi_status_stamps = record['latest_relevant_mi_attempt.status_stamps_with_latest_dates'] || []
+      mi_status_stamps.each do |description, date|
+        record["#{description} Date"] = date.to_s
       end
     }
     report_options[:transforms] = [transform]
@@ -42,7 +52,10 @@ class Reports::MiProduction::Detail
     report.rename_columns(report_columns)
     report.reorder(report_columns.values + [
         'Assigned Date',
-        'Assigned - ES Cell QC Complete Date'
+        'Assigned - ES Cell QC Complete Date',
+        'Micro-injection in progress Date',
+        'Genotype confirmed Date',
+        'Micro-injection aborted Date'
       ]
     )
 

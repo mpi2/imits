@@ -34,6 +34,8 @@ class MiPlan < ActiveRecord::Base
   belongs_to :mi_plan_priority
   belongs_to :production_centre, :class_name => 'Centre'
   has_many :mi_attempts
+  has_one :latest_relevant_mi_attempt, :class_name => 'MiAttempt',
+          :order => 'mi_attempts.is_active DESC, mi_attempts.mi_date ASC'
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
 
@@ -316,8 +318,6 @@ class MiPlan < ActiveRecord::Base
     return stamp.created_at.to_date if stamp
   end
 
-  has_one :latest_relevant_mi_attempt, :class_name => 'MiAttempt',
-          :order => 'mi_attempts.is_active DESC, mi_attempts.mi_date ASC'
 end
 
 # == Schema Information

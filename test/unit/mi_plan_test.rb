@@ -30,6 +30,62 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should have_many :mi_attempts
 
+      context '#latest_relevant_mi_attempt' do
+        should 'get latest active MI if one exists' do
+          cbx1 = Factory.create :gene_cbx1
+          inactive_mi = Factory.create :mi_attempt,
+                  :consortium_name => 'BaSH',
+                  :production_centre_name => 'WTSI',
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :mi_date => '2011-10-10',
+                  :is_active => false
+          older_mi = Factory.create :mi_attempt,
+                  :consortium_name => 'BaSH',
+                  :production_centre_name => 'WTSI',
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :mi_date => '2011-05-05',
+                  :is_active => true
+          latest_mi = Factory.create :mi_attempt,
+                  :consortium_name => 'BaSH',
+                  :production_centre_name => 'WTSI',
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :mi_date => '2011-02-02',
+                  :is_active => true
+          mi_plan = older_mi.mi_plan
+
+          assert older_mi.id < latest_mi.id, 'This is needed to test part of the association'
+          assert_equal inactive_mi.mi_plan, latest_mi.mi_plan
+          assert_equal latest_mi.mi_plan, older_mi.mi_plan
+          assert_equal latest_mi.mi_date, mi_plan.latest_relevant_mi_attempt.mi_date
+        end
+
+        should 'get latest inactive MI if no active ones exist' do
+          cbx1 = Factory.create :gene_cbx1
+          older_mi = Factory.create :mi_attempt,
+                  :consortium_name => 'BaSH',
+                  :production_centre_name => 'WTSI',
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :mi_date => '2011-05-05',
+                  :is_active => false
+          latest_mi = Factory.create :mi_attempt,
+                  :consortium_name => 'BaSH',
+                  :production_centre_name => 'WTSI',
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :mi_date => '2011-02-02',
+                  :is_active => false
+          mi_plan = older_mi.mi_plan
+
+          assert older_mi.id < latest_mi.id, 'This is needed to test part of the association'
+          assert_equal latest_mi.mi_plan, older_mi.mi_plan
+          assert_equal latest_mi.mi_date, mi_plan.latest_relevant_mi_attempt.mi_date
+        end
+
+        should 'return nil if none' do
+          mi_plan = Factory.create :mi_plan
+          assert_nil mi_plan.latest_relevant_mi_attempt
+        end
+      end
+
       context '#status_stamps' do
         should 'be a valid association' do
           assert_should have_many :status_stamps
@@ -335,62 +391,6 @@ class MiPlanTest < ActiveSupport::TestCase
 
         plan = Factory.create :mi_plan
         assert_equal nil, plan.earliest_assigned_date
-      end
-
-      context '#latest_relevant_mi_attempt' do
-        should 'get latest active MI if one exists' do
-          cbx1 = Factory.create :gene_cbx1
-          inactive_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-10-10',
-                  :is_active => false
-          older_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-05-05',
-                  :is_active => true
-          latest_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-02-02',
-                  :is_active => true
-          mi_plan = older_mi.mi_plan
-
-          assert older_mi.id < latest_mi.id, 'This is needed to test part of the association'
-          assert_equal inactive_mi.mi_plan, latest_mi.mi_plan
-          assert_equal latest_mi.mi_plan, older_mi.mi_plan
-          assert_equal latest_mi.mi_date, mi_plan.latest_relevant_mi_attempt.mi_date
-        end
-
-        should 'get latest inactive MI if no active ones exist' do
-          cbx1 = Factory.create :gene_cbx1
-          older_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-05-05',
-                  :is_active => false
-          latest_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-02-02',
-                  :is_active => false
-          mi_plan = older_mi.mi_plan
-
-          assert older_mi.id < latest_mi.id, 'This is needed to test part of the association'
-          assert_equal latest_mi.mi_plan, older_mi.mi_plan
-          assert_equal latest_mi.mi_date, mi_plan.latest_relevant_mi_attempt.mi_date
-        end
-
-        should 'return nil if none' do
-          mi_plan = Factory.create :mi_plan
-          assert_nil mi_plan.latest_relevant_mi_attempt
-        end
       end
 
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do

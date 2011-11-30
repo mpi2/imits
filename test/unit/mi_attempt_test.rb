@@ -177,6 +177,24 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
+      context '#status_stamps_with_latest_dates' do
+        should 'work' do
+          mi = Factory.create :mi_attempt
+          mi.status_stamps.first.update_attributes!(:created_at => '2011-01-01 00:00:00 UTC')
+          mi.status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+            :created_at => '2011-01-02 23:59:59')
+          mi.status_stamps.create!(:mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+            :created_at => '2011-02-02 23:59:59')
+
+          expected = {
+            'Micro-injection in progress' => Date.parse('2011-01-02'),
+            'Genotype confirmed' => Date.parse('2011-02-02')
+          }
+
+          assert_equal expected, mi.status_stamps_with_latest_dates
+        end
+      end
+
       context '#mouse_allele_type' do
         should 'have mouse allele type column' do
           assert_should have_db_column(:mouse_allele_type)

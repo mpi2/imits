@@ -304,6 +304,19 @@ class MiAttempt < ActiveRecord::Base
   end
   private :add_status_stamp
 
+  def status_stamps_with_latest_dates
+    retval = {}
+    status_stamps.each do |status_stamp|
+      status_stamp_date = status_stamp.created_at.utc.to_date
+      if !retval[status_stamp.description] or
+                status_stamp_date > retval[status_stamp.description]
+        retval[status_stamp.description] = status_stamp_date
+      end
+    end
+
+    return retval
+  end
+
   def emma_status
     if is_suitable_for_emma?
       if is_emma_sticky? then return 'suitable_sticky' else return 'suitable' end

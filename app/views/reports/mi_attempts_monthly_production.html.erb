@@ -9,23 +9,11 @@
 <% end %>
 
 <% unless params[:commit].blank? %>
-<h2>Original</h2>
   <div class="report grid_12">
-    <% if @report1.nil? %>
+    <% if @report.nil? %>
       <p><em>Sorry, no production data found</em></p>
     <% else %>
-      <%=raw @report1.to_html %>
+      <%=raw @report.to_html %>
     <% end %>
-  </div>
-<h2>New</h2>
-  <div class="report grid_12">
-    <% if @report2.nil? %>
-      <p><em>Sorry, no production data found</em></p>
-    <% else %>
-      <%=raw @report2.to_html %>
-    <% end %>
-  </div>
-  <div class="report">
-    <p><%= @delta %></p>
   </div>
 <% end %>

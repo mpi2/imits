@@ -99,12 +99,8 @@ class ReportsController < ApplicationController
 
   def mi_attempts_monthly_production    
     unless params[:commit].blank?
-      t1 = Time.now
-      @report1 = Reports::MiAttemptsMonthlyProduction::Summary.get_original(request, params)
-      @report2 = Reports::MiAttemptsMonthlyProduction::Summary.get(request, params)
-      t2 = Time.now
-      @delta = t2 - t1
-      send_data_csv('mi_attempts_monthly_production.csv', @report2) if request.format == :csv
+      @report = Reports::MiAttemptsMonthlyProduction::Summary.get(request, params)
+      send_data_csv('mi_attempts_monthly_production.csv', @report) if request.format == :csv
     end
   end
 

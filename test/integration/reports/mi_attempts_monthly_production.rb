@@ -29,12 +29,6 @@ class Reports::MiAttemptsMonthlyProductionTest < ActionDispatch::IntegrationTest
 
         click_button 'Generate Report'
 
-        #+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-        #| Consortium | Production Centre | Month Injected | # Clones Injected | # at Birth | % of Injected (at Birth) | # at Weaning | # Clones Genotype Confirmed | % Clones Genotype Confirmed |
-        #+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-        #| MGP        | WTSI              | 2011-11        |                 1 |          1 |                      100 |            1 |                           1 |                         100 |
-        #+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-
         assert page.has_content? "Consortium Production Centre Month Injected # Clones Injected # at Birth % of Injected (at Birth) # at Weaning # Clones Genotype Confirmed % Clones Genotype Confirmed"
         
         assert page.has_css?('div.grid_12 tr:nth-child(1) th:nth-child(1)', :text => 'Consortium')
@@ -57,8 +51,6 @@ class Reports::MiAttemptsMonthlyProductionTest < ActionDispatch::IntegrationTest
         assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(8)', :text => '1')
         assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(9)', :text => '100')
 
-       # save_and_open_page
-        
       end
 
     end

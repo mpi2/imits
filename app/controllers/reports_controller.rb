@@ -97,76 +97,20 @@ class ReportsController < ApplicationController
     end
   end
 
-  def mi_attempts_monthly_production
+  def mi_attempts_monthly_production    
     unless params[:commit].blank?
-      report = Common.generate_mi_list_report( params )
-
-      if report.nil?
-        redirect_to Common.cleaned_redirect_params( :mi_attempts_monthly_production, params ) if request.format == :csv
-        return
-      end
-
-      report.add_column( 'Month Injected' ) do |row|
-        "#{row.data['Injection Date'].year}-#{sprintf('%02d', row.data['Injection Date'].month)}" if row.data['Injection Date']
-      end
-
-      @report = Table(
-        [
-          'Production Centre',
-          'Month Injected',
-          '# Clones Injected',
-          '# at Birth',
-          '% of Injected (at Birth)',
-          '# at Weaning',
-          '# Clones Genotype Confirmed',
-          '% Clones Genotype Confirmed'
-        ]
-      )
-
-      grouped_report = Grouping( report, :by => [ 'Production Centre', 'Month Injected' ] )
-      grouped_report.each do |production_centre|
-        summary = grouped_report.subgrouping(production_centre).summary(
-          'Month Injected',
-          '# Clones Injected'           => lambda { |group| Common.count_unique_instances_of( group, 'Clone Name' ) },
-          '# at Birth'                  => lambda { |group| Common.count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Pups Born'].to_i > 0 ? true : false } ) },
-          '# at Weaning'                => lambda { |group| Common.count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Male Chimeras'].to_i > 0 ? true : false } ) },
-          '# Clones Genotype Confirmed' => lambda { |group| Common.count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) }
-        )
-
-        summary.add_column( '% of Injected (at Birth)',    :after => '# at Birth' )                  { |row| Common.calculate_percentage( row.data['# at Birth'], row.data['# Clones Injected'] ) }
-        summary.add_column( '% Clones Genotype Confirmed', :after => '# Clones Genotype Confirmed' ) { |row| Common.calculate_percentage( row.data['# Clones Genotype Confirmed'], row.data['# Clones Injected'] ) }
-
-        summary.each_entry do |row|
-          hash = row.to_hash
-          hash['Production Centre'] = production_centre
-          @report << hash
-        end
-      end
-
-      @report.sort_rows_by!( nil, :order => :descending ) do |row|
-        if row.data['Month Injected']
-          datestr = row.data['Month Injected'].split('-')
-          Date.new( datestr[0].to_i, datestr[1].to_i, 1 )
-        else
-          Date.new( 1966, 6, 30 )
-        end
-      end
-
-      @report = Grouping( @report, :by => [ 'Production Centre' ], :order => :name )
-
-      if request.format == :csv
-        send_data(
-          @report.to_csv,
-          :type     => 'text/csv; charset=utf-8; header=present',
-          :filename => 'mi_attempts_monthly_production.csv'
-        )
-      end
+      t1 = Time.now
+      @report1 = nil  #Reports::MiAttemptsMonthlyProduction::Summary.get_original(request, params)
+      @report2 = Reports::MiAttemptsMonthlyProduction::Summary.get(request, params)
+      t2 = Time.now
+      @delta = t2 - t1
+      send_data_csv('mi_attempts_monthly_production.csv', @report) if request.format == :csv
     end
   end
 
   def mi_attempts_by_gene
     unless params[:commit].blank?
-      @report = Reports::MiAttemptsByGene::GeneSummary.get_list(request, params)
+      @report = Reports::MiAttemptsByGene::GeneSummary.get(request, params)
       send_data_csv('mi_attempts_by_gene.csv', @report) if request.format == :csv
     end
   end

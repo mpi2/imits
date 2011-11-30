@@ -34,7 +34,7 @@ class Reports::MiAttemptsByGeneTest < ActiveSupport::TestCase
 
       params = {"utf8"=>"✓", "format"=>"html", "controller"=>"reports", "action"=>"mi_attempts_by_gene"}
 
-      report = Reports::MiAttemptsByGene::GeneSummary.get_list(nil, params)
+      report = Reports::MiAttemptsByGene::GeneSummary.get(nil, params)
 
       assert !report.blank?
 

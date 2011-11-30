@@ -6,11 +6,11 @@ class Reports::MiAttemptsByGene
 
     include Reports::Helper
 
-    def self.get_list(request, params)
+    def self.get(request, params)
       report = Common.generate_mi_list_report( params )
 
       if report.nil?
-        redirect_to report = Common.cleaned_redirect_params( :mi_attempts_by_gene, params ) if request && request.format == :csv
+        redirect_to Common.cleaned_redirect_params( :mi_attempts_by_gene, params ) if request && request.format == :csv
         return
       end
 

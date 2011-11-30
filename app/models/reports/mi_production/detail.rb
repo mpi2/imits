@@ -24,20 +24,27 @@ class Reports::MiProduction::Detail
     report_columns = {
       'consortium.name' => 'Consortium',
       'production_centre.name' => 'Production Centre',
-      'gene.marker_symbol' => 'Gene',
-      'earliest_assigned_date' => 'Assigned Date'
+      'gene.marker_symbol' => 'Gene'
     }
 
     report_options = generate_report_options(report_columns)
-    report_options[:methods] = [:earliest_assigned_date]
+    report_options[:methods] = ['latest_status_stamps_with_dates']
 
     transform = proc { |record|
-      record.data['earliest_assigned_date'] = record.data['earliest_assigned_date'].try(:to_s)
+      status_stamps = record['latest_status_stamps_with_dates']
+      status_stamps.each do |name, date|
+        record["#{name} Date"] = date.to_s
+      end
     }
     report_options[:transforms] = [transform]
 
     report = MiPlan.report_table(:all, report_options)
     report.rename_columns(report_columns)
+    report.reorder(report_columns.values + [
+        'Assigned Date',
+        'Assigned - ES Cell QC Complete Date'
+      ]
+    )
 
     return report
   end

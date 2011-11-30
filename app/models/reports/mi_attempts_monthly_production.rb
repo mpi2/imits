@@ -69,7 +69,6 @@ class Reports::MiAttemptsMonthlyProduction
       end
 
       report2.sort_rows_by!(['Month Injected'], :order => :descending)
-#      report2.sort_rows_by!(['Consortium', 'Production Centre', 'Month Injected'])
       report2.sort_rows_by!(['Consortium', 'Production Centre'])
 
       return report2

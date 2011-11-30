@@ -144,6 +144,36 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      context '#latest_status_stamps_with_dates' do
+        should 'work' do
+          plan = Factory.create :mi_plan_with_production_centre
+
+          plan.status_stamps.first.update_attributes!(:created_at => '2011-11-30 00:00:00')
+          plan.reload
+          plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Interest'],
+            :created_at => '2010-10-30 23:59:59')
+          plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Conflict'],
+            :created_at => '2010-11-24 23:59:59')
+          plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Conflict'],
+            :created_at => '2011-05-30 23:59:59')
+          plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Inspect - GLT Mouse'],
+            :created_at => '2011-11-03 12:33:15')
+          plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Inspect - GLT Mouse'],
+            :created_at => '2011-02-12 23:59:59')
+          plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Inactive'],
+            :created_at => '2011-10-24 23:59:59')
+
+          expected = {
+            'Interest' => Date.parse('2011-11-30'),
+            'Conflict' => Date.parse('2011-05-30'),
+            'Inspect - GLT Mouse' => Date.parse('2011-11-03'),
+            'Inactive' => Date.parse('2011-10-24')
+          }
+
+          assert_equal expected, plan.latest_status_stamps_with_dates
+        end
+      end
+
       context '#mi_plan_status=' do
         should 'create status stamps when status is changed' do
           @default_mi_plan.status = 'Conflict'; @default_mi_plan.save!
@@ -375,22 +405,6 @@ class MiPlanTest < ActiveSupport::TestCase
           @default_mi_plan.withdrawn = true
           assert_true @default_mi_plan.withdrawn?
         end
-      end
-
-      should 'have #earliest_assigned_date' do
-        plan = Factory.create :mi_plan,
-                :mi_plan_status => MiPlanStatus['Assigned']
-        stamp = plan.status_stamps.last
-        stamp.created_at = Time.parse('2011-11-05 23:59:59 UTC')
-        stamp.save!
-        plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Assigned'],
-          :created_at => Time.parse('2011-11-30 23:59:59 UTC'))
-        plan.reload
-
-        assert_equal '2011-11-05', plan.earliest_assigned_date.to_s
-
-        plan = Factory.create :mi_plan
-        assert_equal nil, plan.earliest_assigned_date
       end
 
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do

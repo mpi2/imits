@@ -117,6 +117,19 @@ class MiPlan < ActiveRecord::Base
   end
   private :add_status_stamp
 
+  def latest_status_stamps_with_dates
+    retval = {}
+    status_stamps.each do |status_stamp|
+      status_stamp_date = status_stamp.created_at.utc.to_date
+      if !retval[status_stamp.name] or
+                status_stamp_date > retval[status_stamp.name]
+        retval[status_stamp.name] = status_stamp_date
+      end
+    end
+
+    return retval
+  end
+
   def self.with_mi_attempt
     ids = MiAttempt.select('distinct(mi_plan_id)').map(&:mi_plan_id)
     raise "Cannot run 'mi_plan.with_mi_attempt' when there are no mi_attempts" if ids.empty?
@@ -311,11 +324,6 @@ class MiPlan < ActiveRecord::Base
     else
       self.mi_plan_status = MiPlanStatus['Withdrawn']
     end
-  end
-
-  def earliest_assigned_date
-    stamp = status_stamps.where(:mi_plan_status_id => MiPlanStatus['Assigned'].id).first
-    return stamp.created_at.to_date if stamp
   end
 
 end

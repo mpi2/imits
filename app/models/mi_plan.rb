@@ -316,6 +316,8 @@ class MiPlan < ActiveRecord::Base
     return stamp.created_at.to_date if stamp
   end
 
+  has_one :latest_relevant_mi_attempt, :class_name => 'MiAttempt',
+          :order => 'mi_attempts.is_active DESC, mi_attempts.mi_date ASC'
 end
 
 # == Schema Information

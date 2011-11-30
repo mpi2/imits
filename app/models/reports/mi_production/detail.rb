@@ -28,10 +28,10 @@ class Reports::MiProduction::Detail
     }
 
     report_options = generate_report_options(report_columns)
-    report_options[:methods] = ['latest_status_stamps_with_dates']
+    report_options[:methods] = ['status_stamps_with_latest_dates']
 
     transform = proc { |record|
-      status_stamps = record['latest_status_stamps_with_dates']
+      status_stamps = record['status_stamps_with_latest_dates']
       status_stamps.each do |name, date|
         record["#{name} Date"] = date.to_s
       end

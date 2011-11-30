@@ -144,7 +144,7 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      context '#latest_status_stamps_with_dates' do
+      context '#status_stamps_with_latest_dates' do
         should 'work' do
           plan = Factory.create :mi_plan_with_production_centre
 
@@ -170,7 +170,7 @@ class MiPlanTest < ActiveSupport::TestCase
             'Inactive' => Date.parse('2011-10-24')
           }
 
-          assert_equal expected, plan.latest_status_stamps_with_dates
+          assert_equal expected, plan.status_stamps_with_latest_dates
         end
       end
 

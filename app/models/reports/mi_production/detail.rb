@@ -55,16 +55,17 @@ class Reports::MiProduction::Detail
 
     report = MiPlan.report_table(:all, report_options)
     report.rename_columns(report_columns)
-    report.reorder(report_columns.values + [
-        'Assigned Date',
-        'Assigned - ES Cell QC In Progress Date',
-        'Assigned - ES Cell QC Complete Date',
-        'Micro-injection in progress Date',
-        'Genotype confirmed Date',
-        'Micro-injection aborted Date'
-      ]
-    )
-
+    column_names = report_columns.values + [
+      'Assigned Date',
+      'Assigned - ES Cell QC In Progress Date',
+      'Assigned - ES Cell QC Complete Date',
+      'Micro-injection in progress Date',
+      'Genotype confirmed Date',
+      'Micro-injection aborted Date'
+    ]
+    report.reorder(column_names)
+    y column_names
+    report.sort_rows_by!(column_names)
     return report
   end
 end

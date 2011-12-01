@@ -4,13 +4,13 @@ class Reports::MiAttemptsMonthlyProduction
 
   class Summary
 
-    include Reports::Helper
+    extend Reports::Helper
 
-    def self.get(request, params)
-      report = Common.generate_mi_list_report( params )
+    def self.generate(request, params)
+      report = generate_mi_list_report( params )
 
       if report.nil?
-        redirect_to Common.cleaned_redirect_params( :mi_attempts_monthly_production, params ) if request && request.format == :csv
+        redirect_to cleaned_redirect_params( :mi_attempts_monthly_production, params ) if request && request.format == :csv
         return
       end
 
@@ -40,14 +40,14 @@ class Reports::MiAttemptsMonthlyProduction
 
           summary = group_production_centre.summary(
             'Month Injected',
-            '# Clones Injected'           => lambda { |group| Common.count_unique_instances_of( group, 'Clone Name' ) },
-            '# at Birth'                  => lambda { |group| Common.count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Pups Born'].to_i > 0 ? true : false } ) },
-            '# at Weaning'                => lambda { |group| Common.count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Male Chimeras'].to_i > 0 ? true : false } ) },
-            '# Clones Genotype Confirmed' => lambda { |group| Common.count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) }
+            '# Clones Injected'           => lambda { |group| count_unique_instances_of( group, 'Clone Name' ) },
+            '# at Birth'                  => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Pups Born'].to_i > 0 ? true : false } ) },
+            '# at Weaning'                => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['# Male Chimeras'].to_i > 0 ? true : false } ) },
+            '# Clones Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Clone Name', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) }
           )
 
-          summary.add_column( '% of Injected (at Birth)',    :after => '# at Birth' )                  { |row| Common.calculate_percentage( row.data['# at Birth'], row.data['# Clones Injected'] ) }
-          summary.add_column( '% Clones Genotype Confirmed', :after => '# Clones Genotype Confirmed' ) { |row| Common.calculate_percentage( row.data['# Clones Genotype Confirmed'], row.data['# Clones Injected'] ) }
+          summary.add_column( '% of Injected (at Birth)',    :after => '# at Birth' )                  { |row| calculate_percentage( row.data['# at Birth'], row.data['# Clones Injected'] ) }
+          summary.add_column( '% Clones Genotype Confirmed', :after => '# Clones Genotype Confirmed' ) { |row| calculate_percentage( row.data['# Clones Genotype Confirmed'], row.data['# Clones Injected'] ) }
 
           summary.each_entry do |row|
             hash = row.to_hash

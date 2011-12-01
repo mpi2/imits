@@ -20,13 +20,12 @@ class Reports::MiAttemptsMonthlyProductionTest < ActiveSupport::TestCase
 
       params = {"utf8"=>"✓", "format"=>"html", "controller"=>"reports", "action"=>"mi_attempts_monthly_production"}
       
-      report = Reports::MiAttemptsMonthlyProduction::Summary.get(nil, params)
+      report = Reports::MiAttemptsMonthlyProduction::Summary.generate(nil, params)
       
       assert !report.blank?
       
       assert_equal 'MGP', report.column('Consortium')[0]
       assert_equal 'WTSI', report.column('Production Centre')[0]
-      assert_equal '2011-11', report.column('Month Injected')[0]
       assert_equal 1, report.column('# Clones Injected')[0]
       assert_equal 1, report.column('# at Birth')[0]
       assert_equal 100, report.column('% of Injected (at Birth)')[0]

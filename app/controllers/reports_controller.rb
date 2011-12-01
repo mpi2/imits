@@ -5,7 +5,7 @@ class ReportsController < ApplicationController
 
   before_filter :authenticate_user!
 
-  include Reports::Helper
+  extend Reports::Helper
 
   def index
   end
@@ -77,10 +77,10 @@ class ReportsController < ApplicationController
 
   def mi_attempts_list
     unless params[:commit].blank?
-      @report = Common.generate_mi_list_report( params )
+      @report = generate_mi_list_report( params )
 
       if @report.nil?
-        redirect_to Common.cleaned_redirect_params( :mi_attempts_list, params ) if request.format == :csv
+        redirect_to cleaned_redirect_params( :mi_attempts_list, params ) if request.format == :csv
         return
       end
 
@@ -97,16 +97,16 @@ class ReportsController < ApplicationController
     end
   end
 
-  def mi_attempts_monthly_production    
+  def mi_attempts_monthly_production
     unless params[:commit].blank?
-      @report = Reports::MiAttemptsMonthlyProduction::Summary.get(request, params)
+      @report = Reports::MiAttemptsMonthlyProduction::Summary.generate(request, params)
       send_data_csv('mi_attempts_monthly_production.csv', @report) if request.format == :csv
     end
   end
 
   def mi_attempts_by_gene
     unless params[:commit].blank?
-      @report = Reports::MiAttemptsByGene::GeneSummary.get(request, params)
+      @report = Reports::MiAttemptsByGene::GeneSummary.generate(request, params)
       send_data_csv('mi_attempts_by_gene.csv', @report) if request.format == :csv
     end
   end
@@ -121,7 +121,7 @@ class ReportsController < ApplicationController
       @report = generate_planned_mi_list_report( dup_params, @include_plans_with_active_attempts )
 
       if @report.nil?
-        redirect_to Common.cleaned_redirect_params( :planned_microinjection_list, params ) if request.format == :csv
+        redirect_to cleaned_redirect_params( :planned_microinjection_list, params ) if request.format == :csv
         return
       end
 
@@ -180,7 +180,7 @@ class ReportsController < ApplicationController
       statuses = MiPlanStatus.order('order_by asc').all.map { |s| s.name }
       summary_by_status_args = { :order => ['Consortium'] + statuses }
       statuses.each do |status|
-        summary_by_status_args[status] = lambda { |group| Common.count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == status } ) }
+        summary_by_status_args[status] = lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == status } ) }
       end
 
       @summary_by_status = mi_plans_grouped_by_consortia.summary( 'Consortium', summary_by_status_args )
@@ -208,7 +208,7 @@ class ReportsController < ApplicationController
       summary_by_priority_args = { :order => ['Consortium'] + priorities }
       priorities.each do |priority|
         summary_by_priority_args[priority] =
-          lambda { |group| Common.count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == priority } ) }
+          lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == priority } ) }
       end
 
       @summary_by_priority = mi_plans_grouped_by_consortia.summary( 'Consortium', summary_by_priority_args )
@@ -285,7 +285,7 @@ class ReportsController < ApplicationController
 
     report_options = {
       :only       => report_column_order_and_names.keys,
-      :conditions => Common.process_filter_params( params ),
+      :conditions => process_filter_params( params ),
       :include    => {
         :consortium         => { :only => [:name] },
         :production_centre  => { :only => [:name] },

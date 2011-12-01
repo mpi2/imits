@@ -2,9 +2,7 @@
 
 module Reports::Helper
 
-  class Common
-
-    def self.generate_mi_list_report( params={} )
+    def generate_mi_list_report( params={} )
       report_column_order_and_names = {
         'consortium.name'                                             => 'Consortium',
         'production_centre.name'                                      => 'Production Centre',
@@ -100,14 +98,14 @@ module Reports::Helper
       return report
     end
 
-    def self.process_filter_params( params={} )
+    def process_filter_params( params={} )
       return {
         :production_centre_id => process_filter_param(params[:production_centre_id]),
         :consortium_id        => process_filter_param(params[:consortium_id])
       }.delete_if { |key,value| value.nil? }
     end
 
-    def self.process_filter_param( param=[] )
+    def process_filter_param( param=[] )
       param ||= []
       param.delete_if { |elm| elm.blank? }
       if param.empty?
@@ -117,7 +115,7 @@ module Reports::Helper
       end
     end
 
-    def self.calculate_percentage( dividend, divisor )
+    def calculate_percentage( dividend, divisor )
       if dividend and ( divisor and divisor > 0 )
         ( ( dividend.to_f / divisor.to_f ) * 100.00 ).round
       else
@@ -125,7 +123,7 @@ module Reports::Helper
       end
     end
 
-    def self.calculate_num_chimeras_with_cct( row )
+    def calculate_num_chimeras_with_cct( row )
       if row.data['mi_attempts.number_of_chimeras_with_glt_from_cct']
         row.data['mi_attempts.number_of_chimeras_with_glt_from_cct']
       else
@@ -139,7 +137,7 @@ module Reports::Helper
       end
     end
 
-    def self.calculate_max_glt( row )
+    def calculate_max_glt( row )
       values = [
         row.data['mi_attempts.number_of_chimeras_with_glt_from_genotyping'],
         row.data['# Chimeras with Coat Colour Transmission']
@@ -148,7 +146,7 @@ module Reports::Helper
       return values.first unless values.empty?
     end
 
-    def self.count_unique_instances_of( group, data_name, row_condition=nil )
+    def count_unique_instances_of( group, data_name, row_condition=nil )
       array = []
       group.each do |row|
         if row_condition.nil?
@@ -160,7 +158,7 @@ module Reports::Helper
       array.uniq.size
     end
 
-    def self.cleaned_redirect_params( action, params )
+    def cleaned_redirect_params( action, params )
       redirect_params = { :action => action, :commit => true }
       [
         :consortium_id,
@@ -172,7 +170,5 @@ module Reports::Helper
       end
       return redirect_params
     end
-
-  end
 
 end

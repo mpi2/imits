@@ -43,7 +43,6 @@ class Reports::MiAttemptsMonthlyProductionTest < ActionDispatch::IntegrationTest
         
         assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(1)', :text => 'MGP')
         assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(2)', :text => 'WTSI')
-        assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(3)', :text => '2011-11')
         assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(4)', :text => '1')
         assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(5)', :text => '1')
         assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(6)', :text => '100')

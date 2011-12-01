@@ -4,7 +4,7 @@ require 'test_helper'
 
 class Reports::MonthlyProductionTest < ActionDispatch::IntegrationTest
 
-  context 'Reports::MonthlyProductionTest::Summary' do
+  context 'reports/mi_attempts_monthly_production' do
 
     context 'once logged in' do
       setup do

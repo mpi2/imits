@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111124110316) do
+ActiveRecord::Schema.define(:version => 20111123172943) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -102,7 +102,6 @@ ActiveRecord::Schema.define(:version => 20111124110316) do
     t.string   "description", :limit => 50, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "order_by"
   end
 
   add_index "mi_attempt_statuses", ["description"], :name => "index_mi_attempt_statuses_on_description", :unique => true

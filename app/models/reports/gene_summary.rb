@@ -4,7 +4,7 @@ class Reports::GeneSummary
 
   extend Reports::Helper
 
-  def self.generate(request, params)
+  def self.generate(request = nil, params = { :format => "html" })
     report = generate_mi_list_report( params )
 
     if report.nil?

@@ -17,10 +17,8 @@ class Reports::MonthlyProductionTest < ActiveSupport::TestCase
         :is_suitable_for_emma => true,
         :total_pups_born => 10,
         :total_male_chimeras => 10
-
-      params = {"format"=>"html"}
-      
-      report = Reports::MonthlyProduction.generate(nil, params)
+     
+      report = Reports::MonthlyProduction.generate()
       
       assert !report.blank?
       

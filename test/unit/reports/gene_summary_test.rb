@@ -32,9 +32,7 @@ class Reports::GeneSummaryTest < ActiveSupport::TestCase
         :is_active => true,
         :is_suitable_for_emma => true
 
-      params = {"format"=>"html"}
-
-      report = Reports::GeneSummary.generate(nil, params)
+      report = Reports::GeneSummary.generate()
 
       assert !report.blank?
 

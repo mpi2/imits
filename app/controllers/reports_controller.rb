@@ -359,6 +359,10 @@ class ReportsController < ApplicationController
     end
   end
 
+  def mi_production
+    @detailed_report = Reports::MiProduction::Detail.generate
+  end
+
   protected
 
   def generate_planned_mi_list_report( params={}, include_plans_with_active_attempts=false )

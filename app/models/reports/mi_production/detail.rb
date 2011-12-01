@@ -32,21 +32,23 @@ class Reports::MiProduction::Detail
     }
 
     report_options = generate_report_options(report_columns)
-    report_options[:methods] = ['status_stamps_with_latest_dates']
-    report_options[:include][:latest_relevant_mi_attempt] = {
-      :methods => [:status_stamps_with_latest_dates],
-      :only => []
-    }
+    report_options[:methods] = [
+      'reportable_statuses_with_latest_dates',
+      'latest_relevant_mi_attempt'
+    ]
 
     transform = proc { |record|
-      plan_status_stamps = record['status_stamps_with_latest_dates']
-      plan_status_stamps.each do |name, date|
+      mi_attempt = record['latest_relevant_mi_attempt']
+
+      plan_status_dates = record['reportable_statuses_with_latest_dates']
+      plan_status_dates.each do |name, date|
         record["#{name} Date"] = date.to_s
       end
-
-      mi_status_stamps = record['latest_relevant_mi_attempt.status_stamps_with_latest_dates'] || []
-      mi_status_stamps.each do |description, date|
-        record["#{description} Date"] = date.to_s
+      if mi_attempt
+        mi_status_dates = mi_attempt.reportable_statuses_with_latest_dates
+        mi_status_dates.each do |description, date|
+          record["#{description} Date"] = date.to_s
+        end
       end
     }
     report_options[:transforms] = [transform]
@@ -55,6 +57,7 @@ class Reports::MiProduction::Detail
     report.rename_columns(report_columns)
     report.reorder(report_columns.values + [
         'Assigned Date',
+        'Assigned - ES Cell QC In Progress Date',
         'Assigned - ES Cell QC Complete Date',
         'Micro-injection in progress Date',
         'Genotype confirmed Date',

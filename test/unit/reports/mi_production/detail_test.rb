@@ -21,18 +21,24 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
               :production_centre_name => 'WTSI'
       bash_wtsi_plan = bash_wtsi_attempt.mi_plan
 
-      bash_wtsi_plan.sub_project = MiPlan::SubProject.find_by_name!('Legacy EUCOMM')
-      bash_wtsi_plan.priority = 'Medium'
-      bash_wtsi_plan.save!
-
       bash_wtsi_plan.status_stamps.first.update_attributes!(
-        :created_at => '2011-11-02 23:59:59.999 UTC')
-      bash_wtsi_plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Assigned'],
-        :created_at => '2011-11-01 00:00:00 UTC')
+        :created_at => '2011-11-01 23:59:59.999 UTC')
       bash_wtsi_plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Interest'],
         :created_at => '2011-10-25 00:00:00 UTC')
-      bash_wtsi_plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Assigned - ES Cell QC Complete'],
-        :created_at => '2011-11-20 00:00:00 UTC')
+      bash_wtsi_plan.status_stamps.create!(:mi_plan_status => MiPlanStatus['Assigned'],
+        :created_at => '2011-11-02 00:00:00 UTC')
+
+      bash_wtsi_plan.sub_project = MiPlan::SubProject.find_by_name!('Legacy EUCOMM')
+      bash_wtsi_plan.priority = 'Medium'
+      bash_wtsi_plan.number_of_es_cells_starting_qc = 4
+      bash_wtsi_plan.save!
+      bash_wtsi_plan.status_stamps.last.update_attributes!(
+        :created_at => '2011-11-03 23:59:59.999 UTC')
+
+      bash_wtsi_plan.number_of_es_cells_passing_qc = 3
+      bash_wtsi_plan.save!
+      bash_wtsi_plan.status_stamps.last.update_attributes!(
+        :created_at => '2011-11-04 23:59:59.999 UTC')
 
       bash_wtsi_attempt.status_stamps.first.update_attributes!(
         :created_at => '2011-11-22 00:00:00 UTC')
@@ -40,8 +46,9 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
         :created_at => '2011-11-21 00:00:00 UTC')
       bash_wtsi_attempt.status_stamps.create!(:mi_attempt_status => MiAttemptStatus.genotype_confirmed,
         :created_at => '2011-11-23 00:00:00 UTC')
-      bash_wtsi_attempt.status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_aborted,
-        :created_at => '2011-11-25 00:00:00 UTC')
+      bash_wtsi_attempt.is_active = false; bash_wtsi_attempt.save!
+      bash_wtsi_attempt.status_stamps.last.update_attributes!(
+        :created_at => '2011-11-25 23:59:59.999 UTC')
 
       @report = Reports::MiProduction::Detail.generate
     end
@@ -54,6 +61,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
         'Production Centre',
         'Gene',
         'Assigned Date',
+        'Assigned - ES Cell QC In Progress Date',
         'Assigned - ES Cell QC Complete Date',
         'Micro-injection in progress Date',
         'Genotype confirmed Date',
@@ -72,7 +80,8 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
         'Production Centre' => 'WTSI',
         'Gene' => 'Cbx1',
         'Assigned Date' => '2011-11-02',
-        'Assigned - ES Cell QC Complete Date' => '2011-11-20',
+        'Assigned - ES Cell QC In Progress Date' => '2011-11-03',
+        'Assigned - ES Cell QC Complete Date' => '2011-11-04',
         'Micro-injection in progress Date' => '2011-11-22',
         'Genotype confirmed Date' => '2011-11-23',
         'Micro-injection aborted Date' => '2011-11-25'

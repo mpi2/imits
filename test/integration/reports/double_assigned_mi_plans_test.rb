@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
+class Reports::DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
 
   context 'Double-Assigned MI Plans test:' do
 

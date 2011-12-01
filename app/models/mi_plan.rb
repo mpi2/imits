@@ -34,8 +34,6 @@ class MiPlan < ActiveRecord::Base
   belongs_to :mi_plan_priority
   belongs_to :production_centre, :class_name => 'Centre'
   has_many :mi_attempts
-  has_one :latest_relevant_mi_attempt, :class_name => 'MiAttempt',
-          :order => 'mi_attempts.is_active DESC, mi_attempts.mi_date ASC'
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
 
@@ -111,6 +109,20 @@ class MiPlan < ActiveRecord::Base
   public
 
   # END Callbacks
+
+  def latest_relevant_mi_attempt
+    ordered_mis = mi_attempts.order('mi_attempts.is_active DESC, mi_attempts.mi_date DESC')
+    if ordered_mis.empty?
+      return nil
+    elsif !ordered_mis.first.is_active?
+      return ordered_mis.first
+    else
+      latest_mi_date = ordered_mis.first.mi_date
+      return_candidates = ordered_mis.select {|mi| mi.is_active? and mi.mi_date == latest_mi_date}
+      return_candidates = return_candidates.sort_by {|mi| [mi.mi_date, mi.status_stamps.last.created_at]}
+      return return_candidates.last
+    end
+  end
 
   def add_status_stamp(status)
     self.status_stamps.create!(:mi_plan_status => status)

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class Reports::MiProduction::Detail
 
   # TODO: unit-test it, share it somewhere for all reports, expand it so it

@@ -129,7 +129,7 @@ class MiPlan < ActiveRecord::Base
   end
   private :add_status_stamp
 
-  def status_stamps_with_latest_dates
+  def reportable_statuses_with_latest_dates
     retval = {}
     status_stamps.each do |status_stamp|
       status_stamp_date = status_stamp.created_at.utc.to_date

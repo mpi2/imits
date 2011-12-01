@@ -177,7 +177,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      context '#status_stamps_with_latest_dates' do
+      context '#reportable_statuses_with_latest_dates' do
         should 'work' do
           mi = Factory.create :mi_attempt
           mi.status_stamps.first.update_attributes!(:created_at => '2011-01-01 00:00:00 UTC')
@@ -191,7 +191,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             'Genotype confirmed' => Date.parse('2011-02-02')
           }
 
-          assert_equal expected, mi.status_stamps_with_latest_dates
+          assert_equal expected, mi.reportable_statuses_with_latest_dates
         end
       end
 

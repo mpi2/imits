@@ -31,24 +31,24 @@ class Reports::MonthlyProductionTest < ActionDispatch::IntegrationTest
 
         assert page.has_content? "Consortium Production Centre Month Injected # Clones Injected # at Birth % of Injected (at Birth) # at Weaning # Clones Genotype Confirmed % Clones Genotype Confirmed"
         
-        assert page.has_css?('div.grid_12 tr:nth-child(1) th:nth-child(1)', :text => 'Consortium')
-        assert page.has_css?('div.grid_12 tr:nth-child(1) th:nth-child(2)', :text => 'Production Centre')
-        assert page.has_css?('div.grid_12 tr:nth-child(1) th:nth-child(3)', :text => 'Month Injected')
-        assert page.has_css?('div.grid_12 tr:nth-child(1) th:nth-child(4)', :text => '# Clones Injected')
-        assert page.has_css?('div.grid_12 tr:nth-child(1) th:nth-child(5)', :text => '# at Birth')
-        assert page.has_css?('div.grid_12 tr:nth-child(1) th:nth-child(6)', :text => '% of Injected (at Birth)')
-        assert page.has_css?('div.grid_12 tr:nth-child(1) th:nth-child(7)', :text => '# at Weaning')
-        assert page.has_css?('div.grid_12 tr:nth-child(1) th:nth-child(8)', :text => '# Clones Genotype Confirmed')
-        assert page.has_css?('div.grid_12 tr:nth-child(1) th:nth-child(9)', :text => '% Clones Genotype Confirmed')
+        assert page.has_css?('div.report tr:nth-child(1) th:nth-child(1)', :text => 'Consortium')
+        assert page.has_css?('div.report tr:nth-child(1) th:nth-child(2)', :text => 'Production Centre')
+        assert page.has_css?('div.report tr:nth-child(1) th:nth-child(3)', :text => 'Month Injected')
+        assert page.has_css?('div.report tr:nth-child(1) th:nth-child(4)', :text => '# Clones Injected')
+        assert page.has_css?('div.report tr:nth-child(1) th:nth-child(5)', :text => '# at Birth')
+        assert page.has_css?('div.report tr:nth-child(1) th:nth-child(6)', :text => '% of Injected (at Birth)')
+        assert page.has_css?('div.report tr:nth-child(1) th:nth-child(7)', :text => '# at Weaning')
+        assert page.has_css?('div.report tr:nth-child(1) th:nth-child(8)', :text => '# Clones Genotype Confirmed')
+        assert page.has_css?('div.report tr:nth-child(1) th:nth-child(9)', :text => '% Clones Genotype Confirmed')
         
-        assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(1)', :text => 'MGP')
-        assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(2)', :text => 'WTSI')
-        assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(4)', :text => '1')
-        assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(5)', :text => '1')
-        assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(6)', :text => '100')
-        assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(7)', :text => '1')
-        assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(8)', :text => '1')
-        assert page.has_css?('div.grid_12 tr:nth-child(2) td:nth-child(9)', :text => '100')
+        assert page.has_css?('div.report tr:nth-child(2) td:nth-child(1)', :text => 'MGP')
+        assert page.has_css?('div.report tr:nth-child(2) td:nth-child(2)', :text => 'WTSI')
+        assert page.has_css?('div.report tr:nth-child(2) td:nth-child(4)', :text => '1')
+        assert page.has_css?('div.report tr:nth-child(2) td:nth-child(5)', :text => '1')
+        assert page.has_css?('div.report tr:nth-child(2) td:nth-child(6)', :text => '100')
+        assert page.has_css?('div.report tr:nth-child(2) td:nth-child(7)', :text => '1')
+        assert page.has_css?('div.report tr:nth-child(2) td:nth-child(8)', :text => '1')
+        assert page.has_css?('div.report tr:nth-child(2) td:nth-child(9)', :text => '100')
 
       end
 

@@ -99,14 +99,14 @@ class ReportsController < ApplicationController
 
   def mi_attempts_monthly_production
     unless params[:commit].blank?
-      @report = Reports::MiAttemptsMonthlyProduction::Summary.generate(request, params)
+      @report = Reports::MonthlyProduction.generate(request, params)
       send_data_csv('mi_attempts_monthly_production.csv', @report) if request.format == :csv
     end
   end
 
   def mi_attempts_by_gene
     unless params[:commit].blank?
-      @report = Reports::MiAttemptsByGene::GeneSummary.generate(request, params)
+      @report = Reports::GeneSummary.generate(request, params)
       send_data_csv('mi_attempts_by_gene.csv', @report) if request.format == :csv
     end
   end

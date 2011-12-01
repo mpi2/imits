@@ -18,7 +18,7 @@ class Reports::MonthlyProductionTest < ActiveSupport::TestCase
         :total_pups_born => 10,
         :total_male_chimeras => 10
 
-      params = {"utf8"=>"✓", "format"=>"html", "controller"=>"reports", "action"=>"mi_attempts_monthly_production"}
+      params = {"format"=>"html"}
       
       report = Reports::MonthlyProduction.generate(nil, params)
       

@@ -32,7 +32,7 @@ class Reports::GeneSummaryTest < ActiveSupport::TestCase
         :is_active => true,
         :is_suitable_for_emma => true
 
-      params = {"utf8"=>"✓", "format"=>"html", "controller"=>"reports", "action"=>"mi_attempts_by_gene"}
+      params = {"format"=>"html"}
 
       report = Reports::GeneSummary.generate(nil, params)
 

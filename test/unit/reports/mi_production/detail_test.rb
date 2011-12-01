@@ -21,7 +21,8 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
               :production_centre_name => 'WTSI'
       bash_wtsi_plan = bash_wtsi_attempt.mi_plan
 
-      bash_wtsi_plan.sub_project = MiPlan::SubProject.find_by_name!('Viral')
+      bash_wtsi_plan.sub_project = MiPlan::SubProject.find_by_name!('Legacy EUCOMM')
+      bash_wtsi_plan.priority = 'Medium'
       bash_wtsi_plan.save!
 
       bash_wtsi_plan.status_stamps.first.update_attributes!(
@@ -49,6 +50,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
       expected = [
         'Consortium',
         'Sub-Project',
+        'Priority',
         'Production Centre',
         'Gene',
         'Assigned Date',
@@ -65,7 +67,8 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
       bash_wtsi_row = @report.find {|r| r.data['Consortium'] == 'BaSH' && r.data['Production Centre'] == 'WTSI'}
       expected = {
         'Consortium' => 'BaSH',
-        'Sub-Project' => 'Viral',
+        'Sub-Project' => 'Legacy EUCOMM',
+        'Priority' => 'Medium',
         'Production Centre' => 'WTSI',
         'Gene' => 'Cbx1',
         'Assigned Date' => '2011-11-02',

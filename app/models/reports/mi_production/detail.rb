@@ -26,6 +26,7 @@ class Reports::MiProduction::Detail
     report_columns = {
       'consortium.name' => 'Consortium',
       'sub_project.name' => 'Sub-Project',
+      'mi_plan_priority.name' => 'Priority',
       'production_centre.name' => 'Production Centre',
       'gene.marker_symbol' => 'Gene'
     }

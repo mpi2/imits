@@ -181,14 +181,47 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'work' do
           mi = Factory.create :mi_attempt
           mi.status_stamps.first.update_attributes!(:created_at => '2011-01-01 00:00:00 UTC')
+          expected = {
+            'Micro-injection in progress' => Date.parse('2011-01-01')
+          }
+          assert_equal expected, mi.reportable_statuses_with_latest_dates
+
           mi.status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
             :created_at => '2011-01-02 23:59:59')
-          mi.status_stamps.create!(:mi_attempt_status => MiAttemptStatus.genotype_confirmed,
-            :created_at => '2011-02-02 23:59:59')
+          expected = {
+            'Micro-injection in progress' => Date.parse('2011-01-02')
+          }
+          assert_equal expected, mi.reportable_statuses_with_latest_dates
 
+          set_mi_attempt_genotype_confirmed(mi)
+          mi.status_stamps.last.update_attributes!(:created_at => '2011-02-02 23:59:59')
           expected = {
             'Micro-injection in progress' => Date.parse('2011-01-02'),
             'Genotype confirmed' => Date.parse('2011-02-02')
+          }
+          assert_equal expected, mi.reportable_statuses_with_latest_dates
+
+          mi.is_active = false; mi.save!
+          mi.status_stamps.last.update_attributes!(:created_at => '2011-03-02 00:00:00 UTC')
+          expected = {
+            'Micro-injection in progress' => Date.parse('2011-01-02'),
+            'Genotype confirmed' => Date.parse('2011-02-02'),
+            'Micro-injection aborted' => Date.parse('2011-03-02')
+          }
+          assert_equal expected, mi.reportable_statuses_with_latest_dates
+        end
+
+        should 'not include aborted status if latest status is GC' do
+          mi = Factory.create :mi_attempt
+          mi.status_stamps.first.update_attributes!(:created_at => '2011-01-01 00:00:00 UTC')
+          mi.is_active = false; mi.save!
+          mi.status_stamps.last.update_attributes!(:created_at => '2011-02-02 00:00:00 UTC')
+          set_mi_attempt_genotype_confirmed(mi)
+          mi.status_stamps.last.update_attributes!(:created_at => '2011-03-02 23:59:59')
+
+          expected = {
+            'Micro-injection in progress' => Date.parse('2011-01-01'),
+            'Genotype confirmed' => Date.parse('2011-03-02'),
           }
 
           assert_equal expected, mi.reportable_statuses_with_latest_dates

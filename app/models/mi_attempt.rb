@@ -314,6 +314,11 @@ class MiAttempt < ActiveRecord::Base
       end
     end
 
+    aborted = MiAttemptStatus.micro_injection_aborted.description
+    confirmed = MiAttemptStatus.genotype_confirmed.description
+    if retval[aborted] and retval[confirmed] and retval[aborted] < retval[confirmed]
+      retval.delete(aborted)
+    end
     return retval
   end
 

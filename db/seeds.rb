@@ -115,12 +115,17 @@ Seeds.load MiPlanPriority, [
   {:id => 3, :name => 'Low', :description => 'Estimated injection in the next 9-12 months'}
 ]
 
+
 Seeds.load MiPlan::SubProject, [
   {:id => 1, :name => ''},
-  {:id => 2, :name => 'Viral'},
-  {:id => 3, :name => 'Bowel Cancer'},
-  {:id => 4, :name => 'IBD'},
-  {:id => 5, :name => 'Dougan lab'},
-  {:id => 6, :name => 'Human platelet'},
-  {:id => 7, :name => 'Modcom'}
+  {:id => 2, :name => 'MGPinterest'},
+  {:id => 3, :name => 'WTSI_Blood_A'},
+  {:id => 4, :name => 'WTSI_Bowel_A'},
+  {:id => 5, :name => 'WTSI_Infection_A'},
+  {:id => 6, :name => 'WTSI_MGPinterest_A'},
+  {:id => 7, :name => 'WTSI_hear_A'},
+  {:id => 11, :name => 'WTSI_IBD_A'},
+  {:id => 8, :name => 'Legacy EUCOMM'},
+  {:id => 9, :name => 'Legacy KOMP'},
+  {:id => 10, :name => 'Legacy with new Interest'}
 ]

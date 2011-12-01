@@ -39,9 +39,9 @@ module Seeds
 end
 
 Seeds.load MiAttemptStatus, [
-  {:order_by => 10, :id => 1, :description => 'Micro-injection in progress'},
-  {:order_by => 20, :id => 2, :description => 'Genotype confirmed'},
-  {:order_by => 30, :id => 3, :description => 'Micro-injection aborted'}
+  {:id => 1, :description => 'Micro-injection in progress'},
+  {:id => 2, :description => 'Genotype confirmed'},
+  {:id => 3, :description => 'Micro-injection aborted'}
 ]
 
 Seeds.set_up_strains Strain::BlastStrain, :blast_strains

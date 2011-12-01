@@ -16,7 +16,7 @@ class Reports::MonthlyProduction
       "#{row.data['Injection Date'].year}-#{sprintf('%02d', row.data['Injection Date'].month)}" if row.data['Injection Date']
     end
 
-    report2 = Table(
+    reportTable = Table(
       [
         'Consortium',
         'Production Centre',
@@ -51,13 +51,13 @@ class Reports::MonthlyProduction
           hash = row.to_hash
           hash['Consortium'] = consortium
           hash['Production Centre'] = production_centre
-          report2 << hash
+          reportTable << hash
         end
 
       end
     end
 
-    report2.sort_rows_by!( nil, :order => :descending ) do |row|
+    reportTable.sort_rows_by!( nil, :order => :descending ) do |row|
       if row.data['Month Injected']
         datestr = row.data['Month Injected'].split('-')
         Date.new( datestr[0].to_i, datestr[1].to_i, 1 )
@@ -66,10 +66,10 @@ class Reports::MonthlyProduction
       end
     end
 
-    report2.sort_rows_by!(['Month Injected'], :order => :descending)
-    report2.sort_rows_by!(['Consortium', 'Production Centre'])
+    reportTable.sort_rows_by!(['Month Injected'], :order => :descending)
+    reportTable.sort_rows_by!(['Consortium', 'Production Centre'])
 
-    return report2
+    return reportTable
 
   end
 

@@ -80,4 +80,17 @@ class Reports::MiProduction::Detail
     report = report.sort_rows_by(column_names)
     return report
   end
+
+  def self.generate_and_cache
+    cache = ReportCache.find_by_name('mi_production_detail')
+    if cache
+      cache.csv_data = self.generate.to_csv
+      cache.save!
+    else
+      ReportCache.create!(
+        :name => 'mi_production_detail',
+        :csv_data => self.generate.to_csv
+      )
+    end
+  end
 end

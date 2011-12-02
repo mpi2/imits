@@ -150,6 +150,36 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
 
       assert_equal expected, got
     end
-  end
 
+    context '#generate_and_cache' do
+      setup do
+        3.times {Factory.create :mi_attempt}
+      end
+
+      should 'store generated CSV in reports cache table' do
+        assert_equal 0, ReportCache.count
+        Reports::MiProduction::Detail.generate_and_cache
+        assert_equal 1, ReportCache.count
+        cache = ReportCache.first
+        assert_equal 'mi_production_detail', cache.name
+        assert_equal Reports::MiProduction::Detail.generate.to_csv, cache.csv_data
+      end
+
+      should 'replace existing reports cache if that exists' do
+        Reports::MiProduction::Detail.generate_and_cache
+        old_cache = ReportCache.first
+
+        Factory.create :mi_plan
+        sleep 1
+        Reports::MiProduction::Detail.generate_and_cache
+        assert_equal 1, ReportCache.count
+        new_cache = ReportCache.first
+
+        assert_equal new_cache.name, old_cache.name
+        assert_operator new_cache.updated_at, :>, old_cache.updated_at
+        assert_equal Reports::MiProduction::Detail.generate.to_csv, new_cache.csv_data
+      end
+    end
+
+  end
 end

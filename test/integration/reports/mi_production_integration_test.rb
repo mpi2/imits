@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::MiProductionIntegrationTest < Kermits2::JsIntegrationTest
+class Reports::MiProductionIntegrationTest < ActionDispatch::IntegrationTest
   context 'MI production report' do
 
     setup do
@@ -10,16 +10,15 @@ class Reports::MiProductionIntegrationTest < Kermits2::JsIntegrationTest
     end
 
     context '(detailed version)' do
-      should 'render as HTML' do
-        10.times { Factory.create :mi_plan }
-        10.times { Factory.create :mi_attempt }
-        sleep 3
-        visit '/reports/mi_production'
-        assert_equal 21, page.all('.report tr').size
-        sleep 1
-      end
+      should 'have download link' do
+        Factory.create :mi_plan
+        Factory.create :mi_attempt
+        Reports::MiProduction::Detail.generate_and_cache
 
-      should 'be downloadable as CSV'
+        timestamp = '20110101120000'
+        visit '/reports/mi_production'
+        assert page.has_css? "a[href='/report_caches/mi_production_detail/#{timestamp}']"
+      end
     end
 
   end

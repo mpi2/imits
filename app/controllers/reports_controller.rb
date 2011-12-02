@@ -360,7 +360,6 @@ class ReportsController < ApplicationController
   end
 
   def mi_production
-    @detailed_report = Reports::MiProduction::Detail.generate
   end
 
   protected

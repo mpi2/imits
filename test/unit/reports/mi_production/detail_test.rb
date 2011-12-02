@@ -116,21 +116,21 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
     should 'sort by all the fields in order' do
       cbx2 = Factory.create :gene, :marker_symbol => 'Cbx2'
       Factory.create :mi_plan,
-              :consortium => Consortium.find_by_name!('JAX'),
-              :production_centre => Centre.find_by_name!('JAX'),
-              :gene => @cbx1
-      Factory.create :mi_plan,
-              :consortium => Consortium.find_by_name!('JAX'),
+              :consortium => Consortium.find_by_name!('MGP'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :gene => @cbx1
       Factory.create :mi_plan,
-              :consortium => Consortium.find_by_name!('MGP'),
+              :consortium => Consortium.find_by_name!('JAX'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :gene => @cbx1
       Factory.create :mi_plan,
               :consortium => Consortium.find_by_name!('JAX'),
               :production_centre => Centre.find_by_name!('JAX'),
               :gene => cbx2
+      Factory.create :mi_plan,
+              :consortium => Consortium.find_by_name!('JAX'),
+              :production_centre => Centre.find_by_name!('JAX'),
+              :gene => @cbx1
       expected = [
         ['JAX', '', 'High', 'JAX', 'Cbx1'],
         ['JAX', '', 'High', 'JAX', 'Cbx2'],

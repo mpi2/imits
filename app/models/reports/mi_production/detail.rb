@@ -64,8 +64,16 @@ class Reports::MiProduction::Detail
       'Micro-injection aborted Date'
     ]
     report.reorder(column_names)
-    y column_names
-    report.sort_rows_by!(column_names)
+
+    report.data.each do |record|
+      record.attributes.each do |attr|
+        if record[attr] == nil
+          record[attr] = ''
+        end
+      end
+    end
+
+    report = report.sort_rows_by(column_names)
     return report
   end
 end

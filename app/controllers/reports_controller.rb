@@ -5,7 +5,7 @@ class ReportsController < ApplicationController
 
   before_filter :authenticate_user!
 
-  extend Reports::Helper
+  include Reports::Helper
 
   def index
   end

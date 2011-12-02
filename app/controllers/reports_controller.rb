@@ -40,8 +40,8 @@ class ReportsController < ApplicationController
         'MGI Accession ID',
         '# IKMC Projects',
         '# Clones',
-        'Non-Assigned MIs',
-        'Assigned MIs',
+        'Non-Assigned Plans',
+        'Assigned Plans',
         'Aborted MIs',
         'MIs in Progress',
         'GLT Mice'
@@ -60,8 +60,8 @@ class ReportsController < ApplicationController
         'MGI Accession ID'  => gene.mgi_accession_id,
         '# IKMC Projects'   => gene.ikmc_projects_count,
         '# Clones'          => gene.pretty_print_types_of_cells_available.gsub('<br/>',' '),
-        'Non-Assigned MIs'  => non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
-        'Assigned MIs'      => assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+        'Non-Assigned Plans'  => non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+        'Assigned Plans'      => assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
         'Aborted MIs'       => aborted_mis[gene.marker_symbol] ? aborted_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
         'MIs in Progress'   => mis_in_progress[gene.marker_symbol] ? mis_in_progress[gene.marker_symbol].gsub('<br/>',' ') : nil,
         'GLT Mice'          => glt_mice[gene.marker_symbol] ? glt_mice[gene.marker_symbol].gsub('<br/>',' ') : nil
@@ -129,8 +129,8 @@ class ReportsController < ApplicationController
       @report.remove_columns(['ID'])
 
       mis_by_gene = {
-        'Non-Assigned MIs' => Gene.pretty_print_non_assigned_mi_plans_in_bulk,
-        'Assigned MIs'     => Gene.pretty_print_assigned_mi_plans_in_bulk,
+        'Non-Assigned Plans' => Gene.pretty_print_non_assigned_mi_plans_in_bulk,
+        'Assigned Plans'     => Gene.pretty_print_assigned_mi_plans_in_bulk,
         'Aborted MIs'      => Gene.pretty_print_aborted_mi_attempts_in_bulk,
         'MIs in Progress'  => Gene.pretty_print_mi_attempts_in_progress_in_bulk,
         'GLT Mice'         => Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk
@@ -276,6 +276,7 @@ class ReportsController < ApplicationController
     report_column_order_and_names = {
       'id'                      => 'ID',
       'consortium.name'         => 'Consortium',
+      'sub_project.name'        => 'SubProject',
       'production_centre.name'  => 'Production Centre',
       'gene.marker_symbol'      => 'Marker Symbol',
       'gene.mgi_accession_id'   => 'MGI Accession ID',
@@ -287,6 +288,7 @@ class ReportsController < ApplicationController
       :only       => report_column_order_and_names.keys,
       :conditions => process_filter_params( params ),
       :include    => {
+        :sub_project        => { :only => [:name] },
         :consortium         => { :only => [:name] },
         :production_centre  => { :only => [:name] },
         :gene               => { :only => [:marker_symbol,:mgi_accession_id] },

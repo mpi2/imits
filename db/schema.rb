@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111123172943) do
+ActiveRecord::Schema.define(:version => 20111201183938) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -69,6 +69,7 @@ ActiveRecord::Schema.define(:version => 20111123172943) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "gene_id",                                           :null => false
+    t.string   "parental_cell_line"
   end
 
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true

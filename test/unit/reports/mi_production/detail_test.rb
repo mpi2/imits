@@ -64,6 +64,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           'Priority',
           'Production Centre',
           'Gene',
+          'Status',
           'Assigned Date',
           'Assigned - ES Cell QC In Progress Date',
           'Assigned - ES Cell QC Complete Date',
@@ -83,6 +84,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           'Priority' => 'Medium',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
+          'Status' => 'Micro-injection aborted',
           'Assigned Date' => '2011-11-02',
           'Assigned - ES Cell QC In Progress Date' => '2011-11-03',
           'Assigned - ES Cell QC Complete Date' => '2011-11-04',
@@ -91,6 +93,11 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           'Micro-injection aborted Date' => '2011-11-25'
         }
         assert_equal expected, bash_wtsi_row.data
+      end
+
+      should 'show MiPlan status when there is no MI attempt' do
+        bash_ics_row = @report.find {|r| r.data['Consortium'] == 'BaSH' && r.data['Production Centre'] == 'ICS'}
+        assert_equal 'Interest', bash_ics_row.data['Status']
       end
 
       should 'not have values for empty columns' do
@@ -102,7 +109,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           'Genotype confirmed Date',
           'Micro-injection aborted Date'
         ].each do |column_name|
-          assert_nil bash_ics_row.data.fetch(column_name), "#{column_name} should be blank"
+          assert_equal '', bash_ics_row.data.fetch(column_name), "#{column_name} should be blank"
         end
       end
 

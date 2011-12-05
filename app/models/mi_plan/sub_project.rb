@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 class MiPlan::SubProject < ActiveRecord::Base
+  acts_as_reportable
   
   has_many :mi_plans
 

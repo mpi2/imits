@@ -5,4 +5,9 @@
 </div>
 
 <div class="report grid_12">
+  <% if @detail_cache %>
+    <%= link_to 'Download', "/report_caches/#{@detail_cache.name}.csv?#{@detail_cache.compact_timestamp}" %>
+  <% else %>
+    <p>No data available</p>
+  <% end %>
 </div>

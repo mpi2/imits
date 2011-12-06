@@ -271,6 +271,7 @@ class ReportsController < ApplicationController
   end
 
   def mi_production
+    @detail_cache = ReportCache.find_by_name('mi_production_detail')
   end
 
   protected

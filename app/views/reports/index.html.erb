@@ -46,6 +46,14 @@
 <div class="grid_4">
   <h3>Micro-Injection Production</h3>
   <div class="report-links">
+    <a href="<%= url_for(:controller => :reports, :action => :mi_production) %>">
+      <h4>Detailed Report</h4>
+      <p>
+        The detailed micro-injection production report
+      </p>
+    </a>
+  </div>
+  <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :mi_attempts_by_gene) %>">
       <h4>Gene Summary</h4>
       <p>

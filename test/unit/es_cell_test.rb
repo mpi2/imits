@@ -25,6 +25,7 @@ class EsCellTest < ActiveSupport::TestCase
 
       should have_db_column(:pipeline_id).with_options(:null => false)
       should validate_presence_of :pipeline
+      should have_db_column(:parental_cell_line).with_options(:null => true)
     end
 
     context '#allele_symbol_superscript_template' do
@@ -116,6 +117,7 @@ class EsCellTest < ActiveSupport::TestCase
       assert_equal 'C030046E11Rik', es_cell.gene.marker_symbol
       assert_equal 'tm1a(EUCOMM)Hmgu', es_cell.allele_symbol_superscript
       assert_equal 'EUCOMM', es_cell.pipeline.name
+      assert_equal 'JM8A1.N3', es_cell.parental_cell_line
     end
 
     context '::create_es_cell_from_mart_data' do
@@ -125,7 +127,8 @@ class EsCellTest < ActiveSupport::TestCase
           'marker_symbol' => 'C030046E11Rik',
           'allele_symbol_superscript' => 'tm1a(EUCOMM)Hmgu',
           'pipeline' => 'EUCOMM',
-          'mgi_accession_id' => 'MGI:1924893'
+          'mgi_accession_id' => 'MGI:1924893',
+          'parental_cell_line' => 'JM8A1.N3'
         )
       end
 
@@ -152,6 +155,7 @@ class EsCellTest < ActiveSupport::TestCase
 
     context '::find_or_create_from_marts_by_name' do
       should 'create es_cell from marts if it is not in the DB' do
+        assert_nil EsCell.find_by_name('HEPD0549_6_D02')
         es_cell = EsCell.find_or_create_from_marts_by_name('HEPD0549_6_D02')
         assert_HEPD0549_6_D02_attributes(es_cell)
       end
@@ -182,7 +186,8 @@ class EsCellTest < ActiveSupport::TestCase
           'mutation_subtype' => 'conditional_ready',
           'marker_symbol' => 'Trafd1',
           'allele_symbol_superscript' => 'tm1a(EUCOMM)Wtsi',
-          'mgi_accession_id' => 'MGI:1923551'
+          'mgi_accession_id' => 'MGI:1923551',
+          'parental_cell_line' => 'JM8.N4'
         }
 
         got = rows.find {|i| i['escell_clone'] == 'EPD0127_4_E01'}
@@ -237,7 +242,8 @@ class EsCellTest < ActiveSupport::TestCase
           'pipeline' => 'EUCOMM',
           'production_qc_loxp_screen' => 'pass',
           'mutation_subtype' => 'conditional_ready',
-          'marker_symbol' => 'Trafd1'
+          'marker_symbol' => 'Trafd1',
+          'parental_cell_line' => 'JM8.N4'
         }
 
         rows = EsCell.get_es_cells_from_marts_by_marker_symbol('Trafd1')

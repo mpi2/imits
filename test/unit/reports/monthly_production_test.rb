@@ -26,10 +26,10 @@ class Reports::MonthlyProductionTest < ActiveSupport::TestCase
       assert_equal 'WTSI', report.column('Production Centre')[0]
       assert_equal 1, report.column('# Clones Injected')[0]
       assert_equal 1, report.column('# at Birth')[0]
-      assert_equal 100, report.column('% of Injected (at Birth)')[0]
+      assert_equal 100, report.column('% at Birth')[0]
       assert_equal 1, report.column('# at Weaning')[0]
-      assert_equal 1, report.column('# Clones Genotype Confirmed')[0]
-      assert_equal 100, report.column('% Clones Genotype Confirmed')[0]
+      assert_equal 1, report.column('# Genotype Confirmed')[0]
+      assert_equal 100, report.column('% Genotype Confirmed')[0]
 
     end
 

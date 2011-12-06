@@ -117,6 +117,7 @@ class EsCellTest < ActiveSupport::TestCase
       assert_equal 'C030046E11Rik', es_cell.gene.marker_symbol
       assert_equal 'tm1a(EUCOMM)Hmgu', es_cell.allele_symbol_superscript
       assert_equal 'EUCOMM', es_cell.pipeline.name
+      assert_equal 'JM8A1.N3', es_cell.parental_cell_line
     end
 
     context '::create_es_cell_from_mart_data' do
@@ -127,7 +128,7 @@ class EsCellTest < ActiveSupport::TestCase
           'allele_symbol_superscript' => 'tm1a(EUCOMM)Hmgu',
           'pipeline' => 'EUCOMM',
           'mgi_accession_id' => 'MGI:1924893',
-          'parental_cell_line' => 'JM8.N4'
+          'parental_cell_line' => 'JM8A1.N3'
         )
       end
 
@@ -154,6 +155,7 @@ class EsCellTest < ActiveSupport::TestCase
 
     context '::find_or_create_from_marts_by_name' do
       should 'create es_cell from marts if it is not in the DB' do
+        assert_nil EsCell.find_by_name('HEPD0549_6_D02')
         es_cell = EsCell.find_or_create_from_marts_by_name('HEPD0549_6_D02')
         assert_HEPD0549_6_D02_attributes(es_cell)
       end

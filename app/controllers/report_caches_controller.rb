@@ -7,7 +7,8 @@ class ReportCachesController < ApplicationController
   def show
     cache = ReportCache.find_by_name(params[:id])
     if cache
-      response.headers['Content-Disposition'] = 
+      response.headers['Content-Disposition'] =
+
               "attachment; filename=#{cache.name}-#{cache.compact_timestamp}.csv"
       response.headers['Content-Length'] =
               cache.csv_data.size.to_s

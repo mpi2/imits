@@ -8,6 +8,7 @@ module Reports::Helper
         'production_centre.name'                                      => 'Production Centre',
         'pipeline.name'                                               => 'ES Cell Pipeline',
         'es_cell.name'                                                => 'Clone Name',
+        'es_cell.parental_cell_line'                                  => 'ES Cell Parental Cell Line',
         'gene.mgi_accession_id'                                       => 'MGI Accession ID',
         'gene.marker_symbol'                                          => 'Marker Symbol',
         'es_cell.allele_symbol'                                       => 'Clone Allele Name',
@@ -75,7 +76,7 @@ module Reports::Helper
             ],
             :methods => [:status],
             :include => {
-              :es_cell                  => { :only => [:name], :methods => [:allele_symbol], :include => { :pipeline => { :only => [:name] } } },
+              :es_cell                  => { :only => [:name, :parental_cell_line], :methods => [:allele_symbol], :include => { :pipeline => { :only => [:name] } } },
               :blast_strain             => { :only => [], :methods => [:name] },
               :colony_background_strain => { :only => [], :methods => [:name] },
               :test_cross_strain        => { :only => [], :methods => [:name] }

@@ -12,7 +12,7 @@ class Reports::GeneSummary
       return
     end
 
-    reportTable = Table(
+    report_table = Table(
       [
         'Consortium',
         'Production Centre',
@@ -39,7 +39,7 @@ class Reports::GeneSummary
           )
         }
       ).each do |row|
-        reportTable << {
+        report_table << {
           'Consortium' => consortium,
           'Production Centre' => row['Production Centre'],
           '# Genes Injected' => row['# Genes Injected'],
@@ -50,9 +50,9 @@ class Reports::GeneSummary
 
     end
     
-    reportTable.sort_rows_by!(['Consortium', 'Production Centre'])
+    report_table.sort_rows_by!(['Consortium', 'Production Centre'])
 
-    return reportTable
+    return report_table
 
   end
 

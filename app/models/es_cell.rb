@@ -83,7 +83,8 @@ class EsCell < ActiveRecord::Base
             'mgi_accession_id',
             'allele_symbol_superscript',
             'mutation_subtype',
-            'production_qc_loxp_screen'
+            'production_qc_loxp_screen',
+            'parental_cell_line'
           ],
         }
       ]
@@ -106,7 +107,8 @@ class EsCell < ActiveRecord::Base
     self.attributes = {
       :name => mart_data['escell_clone'],
       :allele_symbol_superscript => mart_data['allele_symbol_superscript'],
-      :pipeline => pipeline
+      :pipeline => pipeline,
+      :parental_cell_line => mart_data['parental_cell_line'],
     }
   end
 
@@ -132,7 +134,8 @@ class EsCell < ActiveRecord::Base
         'escell_clone',
         'pipeline',
         'production_qc_loxp_screen',
-        'mutation_subtype'
+        'mutation_subtype',
+        'parental_cell_line'
       ],
       :required_attributes => ['escell_clone'],
       :process_results => true,
@@ -180,6 +183,7 @@ end
 #  created_at                         :datetime
 #  updated_at                         :datetime
 #  gene_id                            :integer         not null
+#  parental_cell_line                 :string(255)
 #
 # Indexes
 #

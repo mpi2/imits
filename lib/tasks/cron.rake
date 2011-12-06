@@ -30,4 +30,11 @@ namespace :cron do
     audited_transaction { Gene.sync_with_remotes }
     audited_transaction { EsCell.sync_all_with_marts }
   end
+
+  desc 'Generate cached reports'
+  task :cache_reports => [:environment] do
+    audited_transaction do
+      Reports::MiProduction::Detail.generate_and_cache
+    end
+  end
 end

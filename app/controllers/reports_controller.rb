@@ -25,16 +25,6 @@ class ReportsController < ApplicationController
     #feed_test_production_centre
     #feed_test_consortium
     feed_test_both
-   # @report = feed_test_cleaner(@report)
-  end
-
-  def feed_test_cleaner(report)
-    report.column_names.each do |name|
-      report.column(name).each do |cell|
-        cell = '' if cell == 0
-      end
-    end
-    return report
   end
      
   def feed_test_consortium
@@ -93,11 +83,26 @@ class ReportsController < ApplicationController
       }
     end
    
-    @report = report_table
-    @report.sort_rows_by!( '# Genotype confirmed', :order => :descending )
+#    @report = report_table
+    report_table.sort_rows_by!( '# Genotype confirmed', :order => :descending )
+
+    column_names = [
+        '# Assigned - ES Cell QC In Progress',
+        '# Assigned - ES Cell QC Complete',
+        '# Micro-injection in progress',
+        '# Genotype confirmed',
+        '# Micro-injection aborted'
+      ]
+    
+    @report = Table(:data => report_table.data,
+                    :column_names => report_table.column_names,
+      :transforms => lambda {|r|
+        column_names.each do |name|
+          r[name] = '' if r[name] == 0
+        end
+      }
+    )
   end
-
-
 
   def feed_test_production_centre
     #get cached report
@@ -155,12 +160,26 @@ class ReportsController < ApplicationController
       }
     end
    
-    @report = report_table
-    @report.sort_rows_by!( '# Genotype confirmed', :order => :descending )
+#    @report = report_table
+    report_table.sort_rows_by!( '# Genotype confirmed', :order => :descending )
+
+    column_names = [
+        '# Assigned - ES Cell QC In Progress',
+        '# Assigned - ES Cell QC Complete',
+        '# Micro-injection in progress',
+        '# Genotype confirmed',
+        '# Micro-injection aborted'
+      ]
+    
+    @report = Table(:data => report_table.data,
+                    :column_names => report_table.column_names,
+      :transforms => lambda {|r|
+        column_names.each do |name|
+          r[name] = '' if r[name] == 0
+        end
+      }
+    )
   end
-
-
-
 
   def feed_test_both
     #get cached report
@@ -181,36 +200,6 @@ class ReportsController < ApplicationController
     #build ruport object
     table = Ruport::Data::Table.new :data => csv2, :column_names => header
     raise 'cannot build ruport instance from CSV' if ! table
-      
-    #set @report to it
-#    @report = Grouping( table, :by => ['Consortium', 'Production Centre'] )
-#    @report = Grouping( table, :by => ['Consortium'] )
-
-
-
-
-
-    #  column_names = [
-    #    '# Assigned - ES Cell QC In Progress',
-    #    '# Assigned - ES Cell QC Complete',
-    #    '# Micro-injection in progress',
-    #    '# Genotype confirmed',
-    #    '# Micro-injection aborted'
-    #  ]
-    #
-    #
-    #
-    #report_table = Table(
-    #  ['Consortium', 'Production Centre'] + column_names,
-    #  :transforms => lambda {|r|
-    #    r['# Assigned - ES Cell QC In Progress'] = '' if r['# Assigned - ES Cell QC In Progress'] == 0
-    #    #column_names.each do |name|
-    #    #  r[name] = '' if r[name] == 0
-    #    #end
-    #  }
-    #)
-
-
 
     report_table = Table(
       [
@@ -254,99 +243,27 @@ class ReportsController < ApplicationController
 
     end
     
-    @report = report_table
-    @report.sort_rows_by!( '# Genotype confirmed', :order => :descending )
+    report_table.sort_rows_by!( '# Genotype confirmed', :order => :descending )
+#    @report = report_table
 
-
-
-
-  end
-
-
-
-  def feed_test_2    
-    #get cached report
-    detail_cache = ReportCache.find_by_name('mi_production_detail')
-    raise 'cannot get cached report' if ! detail_cache
+    column_names = [
+        '# Assigned - ES Cell QC In Progress',
+        '# Assigned - ES Cell QC Complete',
+        '# Micro-injection in progress',
+        '# Genotype confirmed',
+        '# Micro-injection aborted'
+      ]
     
-    #get string representing csv
-    csv1 = detail_cache.csv_data
-    raise 'cannot get cached report CSV' if ! csv1
+    @report = Table(:data => report_table.data,
+                    :column_names => report_table.column_names,
+      :transforms => lambda {|r|
+        #r['# Assigned - ES Cell QC In Progress'] = '' if r['# Assigned - ES Cell QC In Progress'] == 0
+        column_names.each do |name|
+          r[name] = '' if r[name] == 0
+        end
+      }
+    )
 
-  #  t = Tempfile.new("imits-temp-filename-#{Time.now}.csv", :encoding => 'utf-8')
-  #  t.write(csv1)
-    
-    #build csv object
-    csv2 = CSV.parse(csv1)
-    raise 'cannot parse CSV' if ! csv2
-
-    puts csv2.inspect
-    
-    #build ruport object
-    #table = Ruport::Data::Table(csv2)
-    
-#      table = Ruport::Data::Table.new :data => [[1,2,3], [3,4,5]],
-#                    :column_names => %w[a b c]
-
-#      table = Ruport::Data::Table.new :data => csv2,
-#                    :column_names => csv2.pop
-
-#      table = Ruport::Data::Table.new :data => csv2
-
-      header = csv2.shift
- 
-      table = Ruport::Data::Table.new :data => csv2,
-                    :column_names => header
-    
- #   table = Ruport::Data::Table(t.path)
-    raise 'cannot build ruport instance from CSV' if ! table
-      
-    #set @report to it
-    @report = table
-  end
-
-
-  def feed_test_1
-    
-    #get cached report
-    detail_cache = ReportCache.find_by_name('mi_production_detail')
-    raise 'cannot get cached report' if ! detail_cache
-    
-    #get string representing csv
-    csv1 = detail_cache.csv_data
-    raise 'cannot get cached report CSV' if ! csv1
-    
-    #build ruport object
-#    csv2 = CSV.parse(csv1)
-#    raise 'cannot parse CSV' if ! csv2
-    
-    csv2 = []
-    count = 1
-    CSV.parse(csv1) do |row|
-      puts "#{count}" + "'" + row.inspect + "'"
-#      csv2.push(row.split(','))
-      csv2.push row
-    end
-
-#    puts csv2.inspect
-#    puts csv1
-    
-#    csv3 = []
-      
-#    table = Ruport::Data::Table.parse(csv1)
-    table = Ruport::Data::Table(csv2)
-#    table = Ruport::Data::Table(csv1.split('\n').split(','))
-#    table = Ruport::Data::Table(csv3)
-    raise 'cannot build ruport instance from CSV' if ! table
-      
-#    puts table.to_s
-      
-    #set @report to it
-    @report = table
-  end
-
-  def feed_test2
-    @report = Reports::MiPlans::DoubleAssignment.get_matrix
   end
 
   def double_assigned_plans_matrix

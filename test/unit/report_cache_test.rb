@@ -14,6 +14,8 @@ class ReportCacheTest < ActiveSupport::TestCase
         cache = ReportCache.create!(:name => 'test', :csv_data => '')
         cache.update_attributes!(:updated_at => '2011-11-24 04:22:02 UTC')
         assert_equal '20111124042202', cache.compact_timestamp
+        cache.update_attributes!(:csv_data => 'Test')
+        assert_not_equal '20111124042202', cache.compact_timestamp
       end
     end
 

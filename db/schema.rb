@@ -69,6 +69,7 @@ ActiveRecord::Schema.define(:version => 20111202105057) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "gene_id",                                           :null => false
+    t.string   "parental_cell_line"
   end
 
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true

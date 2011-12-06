@@ -9,5 +9,13 @@ class ReportCacheTest < ActiveSupport::TestCase
       assert_should have_db_column(:csv_data).with_options(:null => false)
     end
 
+    context '#compact_timestamp' do
+      should 'work' do
+        cache = ReportCache.create!(:name => 'test', :csv_data => '')
+        cache.update_attributes!(:updated_at => '2011-11-24 04:22:02 UTC')
+        assert_equal '20111124042202', cache.compact_timestamp
+      end
+    end
+
   end
 end

@@ -37,4 +37,6 @@ Kermits2::Application.routes.draw do
 
   match 'reports' => "reports#index", :as => :reports
   match 'reports/(:action(.:format))' => "reports#:action"
+
+  resources :report_caches, :only => [:show]
 end

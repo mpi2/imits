@@ -25,7 +25,8 @@ set :bundle_cmd, '/software/team87/brave_new_world/bin/htgt-env.pl --environment
 namespace :deploy do
   desc "Restart Passenger"
   task :restart, :roles => :app, :except => { :no_release => true } do
-    run "touch #{File.join(current_path,'tmp','restart.txt')} && chmod ugo+w #{File.join(current_path,'tmp','restart.txt')}"
+    restart_txt = File.join(current_path,'tmp','restart.txt')
+    run "rm #{restart_txt} && touch #{restart_txt} && chmod ugo+w #{restart_txt}"
   end
 
   desc "Symlink shared configs and directories on each release"

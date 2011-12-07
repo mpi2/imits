@@ -35,8 +35,17 @@ Kermits2::Application.routes.draw do
   match 'users_by_production_centre' => "root#users_by_production_centre", :as => :users_by_production_centre
   match 'consortia' => "root#consortia", :as => :consortia
 
+#  match 'reports/feeds_test2/pcentre/column' => "reports#feeds_test2"
+
   match 'reports' => "reports#index", :as => :reports
   match 'reports/(:action(.:format))' => "reports#:action"
 
   resources :report_caches, :only => [:show]
+
+#  resources :feeds, :only => [:show]
+
+#  match 'items/list/*specs', :controller => 'items', :action => 'list'
+
+  match 'feeds/list/*specs', :controller => 'reports', :action => 'subfeeds'
+
 end

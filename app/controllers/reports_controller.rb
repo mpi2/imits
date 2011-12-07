@@ -28,35 +28,31 @@ class ReportsController < ApplicationController
     centre = CGI.unescape array[0]
     column = CGI.unescape array[1]
     column = column.gsub(/^# /, "")
-#    raise "subfeeds: '#{specs}' (#{array.size})"
-#    raise "subfeeds: centre: '#{centre}' - column: '#{column}' (#{array.size})"
     raise "Invalid parameters (#{array.size})" if array.size != 2
-#    raise "subfeeds: centre: '#{centre}' - column: '#{column}' (#{array.size})"
     
     @title2 = "subfeeds: centre: '#{centre}' - column: '#{column}' (#{array.size})"
 
     @cached_report ||= feed_test_get_cached_report
-    
-    #genes = []
+
+#    grouped_report = Grouping( @cached_report, :by => [ 'Production Centre', 'Status'] )
+#    grouped_report = Grouping( @cached_report, :by => [ 'Production Centre', 'Status'], :order => [:name]  )
+    grouped_report = Grouping( @cached_report, :by => [ 'Production Centre'] )
+#    @report = @cached_report
+#    @report = @cached_report
+
+    grouped_report = grouped_report[centre]
+    grouped_report = Grouping( grouped_report, :by => [ 'Status'] )
+    @report = grouped_report[column]
+#    @report = grouped_report[centre].subgrouping(column)
+#    @report = grouped_report.subgrouping(centre).subgrouping(column)
+#    @report = grouped_report.subgrouping(centre).subgrouping('Assigned')
+
     #@report = Table(
     #  :data => @cached_report.data,
     #  :column_names => @cached_report.column_names,
     #  :filters => lambda {|r|
-    #    r['Production Centre'] && r['Production Centre'] == centre && r[column + ' Date'].length > 0 &&
-    #      (!genes.include?(r['Gene']) || genes.push(r['Gene'])) }
+    #    r['Production Centre'] && r['Production Centre'] == centre && r[column + ' Date'].length > 0 }
     #)
-
-
-    @report = Table(
-      :data => @cached_report.data,
-      :column_names => @cached_report.column_names,
-      :filters => lambda {|r|
-        r['Production Centre'] && r['Production Centre'] == centre && r[column + ' Date'].length > 0 }
-    )
-
-
-#    return report
-    #raise @report.to_html
     
     column_names = [
         'Assigned - ES Cell QC In Progress Date',
@@ -69,8 +65,6 @@ class ReportsController < ApplicationController
       column_names.each do |name|
         r1 = Regexp.new(column)
         next if r1.match(name)
-#        next if column.match(name)
-#        next if column =~ name
         @report.remove_column(name) 
       end
       
@@ -79,47 +73,90 @@ class ReportsController < ApplicationController
         @report.remove_column('Status') 
         @report.remove_column('Assigned Date')
       end
-      
+     
       @report.remove_column('Sub-Project') 
       @report.remove_column('Consortium') 
       @report.remove_column('Priority') 
-        
-        
-        
-        
-        
-        
-      @report.add_column('Counter', :before => 'Production Centre')
-      
-      counter = 1
-      @report.each do |row|
-        row['Counter'] = counter
-        counter += 1
-      end
-    
-    
-    # split it based on /
-    # confirm there are 2 elements in array
-    # first is centre
-    # second is status
-    
-    # recover list
-    # send list
+
+      if @@feed_use_counter  
+        @report.add_column('Counter', :before => 'Gene')
+        counter = 1
+        @report.each do |row|
+          row['Counter'] = counter
+          counter += 1
+        end
+      end      
     
   end
 
+  #
+  #def subfeeds_old
+  #  specs = params[:specs]
+  #  array = specs.split('/')
+  #  centre = CGI.unescape array[0]
+  #  column = CGI.unescape array[1]
+  #  column = column.gsub(/^# /, "")
+  #  raise "Invalid parameters (#{array.size})" if array.size != 2
+  #  
+  #  @title2 = "subfeeds: centre: '#{centre}' - column: '#{column}' (#{array.size})"
+  #
+  #  @cached_report ||= feed_test_get_cached_report
+  #
+  #  @report = Table(
+  #    :data => @cached_report.data,
+  #    :column_names => @cached_report.column_names,
+  #    :filters => lambda {|r|
+  #      r['Production Centre'] && r['Production Centre'] == centre && r[column + ' Date'].length > 0 }
+  #  )
+  #  
+  #  column_names = [
+  #      'Assigned - ES Cell QC In Progress Date',
+  #      'Assigned - ES Cell QC Complete Date',
+  #      'Micro-injection in progress Date',
+  #      'Genotype confirmed Date',
+  #      'Micro-injection aborted Date'
+  #    ]
+  #  
+  #    column_names.each do |name|
+  #      r1 = Regexp.new(column)
+  #      next if r1.match(name)
+  #      @report.remove_column(name) 
+  #    end
+  #    
+  #    if @@feed_test_lose_sub_details
+  #      @report.remove_column('Production Centre') 
+  #      @report.remove_column('Status') 
+  #      @report.remove_column('Assigned Date')
+  #    end
+  #    
+  #    @report.remove_column('Sub-Project') 
+  #    @report.remove_column('Consortium') 
+  #    @report.remove_column('Priority') 
+  #
+  #    @report.add_column('Counter', :before => 'Production Centre')
+  #    
+  #    counter = 1
+  #    @report.each do |row|
+  #      row['Counter'] = counter
+  #      counter += 1
+  #    end
+  #  
+  #end
+  
+  #
   def feed_test
     #@report2 = feed_test_consortium
     @report1 = feed_test_production_centre
     #@report3 = feed_test_both
   end
   
-  def feed_test2
-    @report = feed_test_consortium
-  end
+  #def feed_test2
+  #  @report = feed_test_consortium
+  #end
   
   @@feed_test_lose_aborts = false
   @@feed_test_lose_sub_details = false
+  @@feed_use_counter = true
 
   def feed_test_clean_table(table, filter=true)
     column_names = [

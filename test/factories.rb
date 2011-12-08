@@ -86,6 +86,10 @@ Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_
   end
 end
 
+Factory.define :phenotype_attempt do |phenotype_attempt|
+  phenotype_attempt.association :mi_attempt_genotype_confirmed
+end
+
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|
   gene.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
 end

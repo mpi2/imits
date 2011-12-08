@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111202105057) do
+ActiveRecord::Schema.define(:version => 20111208100113) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -214,6 +214,13 @@ ActiveRecord::Schema.define(:version => 20111202105057) do
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true
+
+  create_table "phenotype_attempts", :force => true do |t|
+    t.integer  "mi_attempt_id",                   :null => false
+    t.boolean  "is_active",     :default => true, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "pipelines", :force => true do |t|
     t.string   "name",        :limit => 50, :null => false

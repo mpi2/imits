@@ -1,9 +1,9 @@
 namespace :db do
-  # Generate schema.rb alongside development_structure.sql, so that
-  # editors/helpers/plugins that rely db/schema.rb can still use it,
-  # even though the app uses the :sql schema_format for setting up the
-  # test DB
-  task 'structure:dump' => ['db:schema:dump']
+  ['migrate', 'rollback', 'migrate:up', 'migrate:down'].each do |taskname|
+    task(taskname) do
+      Rake::Task['db:schema:dump'].invoke
+    end
+  end
 
   if Rails.env.development? and ENV['NO_ANNOTATE'].blank?
     task :migrate do

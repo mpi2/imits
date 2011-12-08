@@ -87,7 +87,7 @@ Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_
 end
 
 Factory.define :phenotype_attempt do |phenotype_attempt|
-  phenotype_attempt.association :mi_attempt_genotype_confirmed
+  phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|

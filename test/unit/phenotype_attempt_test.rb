@@ -11,5 +11,25 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       assert_should have_db_column(:is_active).with_options(:null => false, :default => true)
     end
 
+    context '#mi_attempt' do
+      should 'work' do
+        assert_should belong_to :mi_attempt
+      end
+
+      should 'be assignable to Genotype confirmed MiAttempt' do
+        new_mi = Factory.create :mi_attempt_genotype_confirmed
+        default_phenotype_attempt.mi_attempt = new_mi
+        default_phenotype_attempt.save!
+      end
+
+      should 'not be set to MiAttempt that is not Genotype confirmed' do
+        new_mi = Factory.create :mi_attempt
+        assert_equal MiAttemptStatus.micro_injection_in_progress, new_mi.mi_attempt_status
+        default_phenotype_attempt.mi_attempt = new_mi
+        default_phenotype_attempt.valid?
+        assert_match /must be genotype confirmed/i, default_phenotype_attempt.errors['mi_attempt'].first
+      end
+    end
+
   end
 end

@@ -1,4 +1,11 @@
 class PhenotypeAttempt < ActiveRecord::Base
+  belongs_to :mi_attempt
+
+  validate :mi_attempt do |myself|
+    if myself.mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
+      myself.errors.add(:mi_attempt, "status must be genotype confirmed (is currently '#{myself.mi_attempt.mi_attempt_status.description}')")
+    end
+  end
 end
 
 # == Schema Information

@@ -11,15 +11,12 @@ class MiPlan < ActiveRecord::Base
     'withdrawn'
   ]
 
-  WRITABLE_ATTRIBUTES = [
-  ] + FULL_ACCESS_ATTRIBUTES
-
   READABLE_ATTRIBUTES = [
     'id',
     'status'
   ] + FULL_ACCESS_ATTRIBUTES
 
-  attr_accessible(*WRITABLE_ATTRIBUTES)
+  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
 
   acts_as_audited
   acts_as_reportable

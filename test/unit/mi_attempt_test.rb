@@ -117,6 +117,15 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal [MiAttemptStatus.micro_injection_in_progress],
                   default_mi_attempt.status_stamps.map(&:mi_attempt_status)
         end
+
+        should 'not be set to non-genotype-confirmed if mi attempt has phenotype_attempts' do
+          set_mi_attempt_genotype_confirmed(default_mi_attempt)
+          Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
+          default_mi_attempt.reload
+          default_mi_attempt.is_active = false
+          default_mi_attempt.valid?
+          assert_match /cannot be changed/i, default_mi_attempt.errors[:mi_attempt_status].first
+        end
       end
 
       context '#status_stamps' do
@@ -751,6 +760,10 @@ class MiAttemptTest < ActiveSupport::TestCase
         user = Factory.create :user
         default_mi_attempt.updated_by_id = user.id
         assert_equal user, default_mi_attempt.updated_by
+      end
+
+      should 'have #phenotype_attempts' do
+        assert_should have_many :phenotype_attempts
       end
 
     end # misc attribute tests

@@ -57,6 +57,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
   belongs_to :deposited_material
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
+  has_many :phenotype_attempts
 
   access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
@@ -120,6 +121,13 @@ class MiAttempt < ActiveRecord::Base
     next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
     if(mi_attempt.es_cell.gene != mi_attempt.mi_plan.gene)
       mi_attempt.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{mi_attempt.es_cell.gene.marker_symbol} != #{mi_attempt.mi_plan.gene.marker_symbol})"
+    end
+  end
+
+  validate do |mi_attempt|
+    if !mi_attempt.phenotype_attempts.blank? and
+              mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
+      mi_attempt.errors.add(:mi_attempt_status, 'cannot be changed - phenotype attempts exist')
     end
   end
 

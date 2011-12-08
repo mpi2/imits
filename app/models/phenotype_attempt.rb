@@ -1,4 +1,6 @@
 class PhenotypeAttempt < ActiveRecord::Base
+  acts_as_audited
+
   belongs_to :mi_attempt
 
   validate :mi_attempt do |myself|

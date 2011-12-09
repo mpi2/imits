@@ -27,7 +27,7 @@ class ReportsController < ApplicationController
   end
 
   def hacky_subfeed_test
-    @title, @report = Reports::FeedSummary.subfeed(params)
+    @title2, @report = Reports::FeedSummary.subfeed(params)
   end
   
   def hacky_summary_test

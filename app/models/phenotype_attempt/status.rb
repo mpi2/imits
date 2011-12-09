@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class PhenotypeAttempt::Status < ActiveRecord::Base
   def self.[](name)
     return self.find_by_name!(name)

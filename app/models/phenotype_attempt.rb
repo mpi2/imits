@@ -1,5 +1,9 @@
+# encoding: utf-8
+
 class PhenotypeAttempt < ActiveRecord::Base
   acts_as_audited
+
+  include PhenotypeAttempt::StatusChanger
 
   belongs_to :mi_attempt
   belongs_to :status
@@ -10,9 +14,7 @@ class PhenotypeAttempt < ActiveRecord::Base
     end
   end
 
-  before_validation do |myself|
-    myself.status ||= Status['Registered']
-  end
+  before_validation :change_status
 
 end
 

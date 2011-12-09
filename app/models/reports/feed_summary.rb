@@ -6,7 +6,7 @@ class Reports::FeedSummary
 
   LOSE_ABORTS = false
   LOSE_SUB_DETAILS = false
-  USE_COUNTER = true
+  USE_COUNTER = false
  
   def self.subfeed(params)
     specs = params[:specs]
@@ -20,9 +20,9 @@ class Reports::FeedSummary
     
     @title2 = "subfeeds: centre: '#{centre}' - column: '#{column}' (#{array.size})"
 
-    @cached_report ||= get_cached_report
+    cached_report = get_cached_report('mi_production_detail')
 
-    grouped_report = Grouping( @cached_report, :by => [ 'Production Centre'] )
+    grouped_report = Grouping( cached_report, :by => [ 'Production Centre'] )
 
     grouped_report = grouped_report[centre]
     grouped_report = Grouping( grouped_report, :by => [ 'Status'] )
@@ -54,7 +54,7 @@ class Reports::FeedSummary
     @report.sort_rows_by!(["Gene"])
 
     if USE_COUNTER
-      @report.add_column('Counter', :before => 'Gene')
+      @report.add_column('Counter', :before => 'Consortium')
       counter = 1
       @report.each do |row|
         row['Counter'] = counter
@@ -110,7 +110,7 @@ class Reports::FeedSummary
   end
 
   def self.generate
-    @cached_report ||= get_cached_report
+    cached_report = get_cached_report('mi_production_detail')
       
     report_table = Table(
       [
@@ -123,7 +123,7 @@ class Reports::FeedSummary
       ]
     )
 
-    grouped_report = Grouping( @cached_report, :by => [ 'Production Centre' ], :order => [:name]  )
+    grouped_report = Grouping( cached_report, :by => [ 'Production Centre' ], :order => [:name]  )
 
     grouped_report.summary(
       'Production Centre',

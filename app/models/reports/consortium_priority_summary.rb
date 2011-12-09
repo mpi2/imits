@@ -9,7 +9,7 @@ class Reports::ConsortiumPrioritySummary
   ORDER_BY_MAP = { 'Low' => 1, 'Medium' => 2, 'High' => 3}
 
   def self.generate1
-    cached_report = get_cached_report
+    cached_report = get_cached_report('mi_production_detail')
 
     report_table = Table( [ 'Consortium', 'Priority', 'All', 'Activity', 'Mice in production', 'GLT Mice', 'order_by' ] )
 
@@ -67,7 +67,7 @@ class Reports::ConsortiumPrioritySummary
   end
 
   def self.generate2
-    cached_report = get_cached_report
+    cached_report = get_cached_report('mi_production_detail')
 
     report_table = Table( ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC finished', 'MI in progress', 'GLT Mice', 'order_by'] )
  

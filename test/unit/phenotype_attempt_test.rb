@@ -38,5 +38,24 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#status' do
+      should 'work' do
+        assert_should belong_to :status
+      end
+
+      should 'default to Registered' do
+        pt = PhenotypeAttempt.new
+        pt.valid?
+        assert_equal PhenotypeAttempt::Status['Registered'], pt.status
+      end
+
+      should 'not overwrite a set status with default' do
+        s = PhenotypeAttempt::Status.create!(:name => 'Nonexistent')
+        pt = PhenotypeAttempt.new(:status => s)
+        pt.valid?
+        assert_equal s, pt.status
+      end
+    end
+
   end
 end

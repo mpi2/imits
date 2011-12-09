@@ -131,3 +131,7 @@ Seeds.load MiPlan::SubProject, [
   {:id => 9, :name => 'Legacy KOMP'},
   {:id => 10, :name => 'Legacy with new Interest'}
 ]
+
+Seeds.load PhenotypeAttempt::Status, [
+  {:id =>  1, :name => 'Registered'}
+]

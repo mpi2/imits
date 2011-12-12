@@ -66,13 +66,13 @@ class MiPlansControllerTest < ActionController::TestCase
 
       context 'when deleting via JSON with DELETE destroy' do
         should 'work' do
-          mip = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
+          mip = Factory.create :mi_plan, :mi_plan_status_id => MiPlan::Status.find_by_name!('Interest').id
           assert_difference('MiPlan.count', -1) do
             delete( :destroy, :id => mip.id, :format => :json )
           end
 
           mip2 = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
+                  :mi_plan_status_id => MiPlan::Status.find_by_name!('Interest').id
           assert_difference('MiPlan.count', -1) do
             delete(
               :destroy,
@@ -86,7 +86,7 @@ class MiPlansControllerTest < ActionController::TestCase
 
         should 'return error if gene not found' do
           mip3 = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest')
+                  :mi_plan_status_id => MiPlan::Status.find_by_name!('Interest')
           assert_no_difference('MiPlan.count') do
             delete(
               :destroy,
@@ -103,12 +103,12 @@ class MiPlansControllerTest < ActionController::TestCase
         should 'delete the right MiPlan' do
           gene = Factory.create :gene_cbx1
           mip5 = Factory.create :mi_plan,
-                  :mi_plan_status    => MiPlanStatus[:Interest],
+                  :mi_plan_status    => MiPlan::Status[:Interest],
                   :gene              => gene,
                   :consortium        => Consortium.find_by_name!('MARC'),
                   :production_centre => nil
           mip6 = Factory.create :mi_plan,
-                  :mi_plan_status    => MiPlanStatus[:Assigned],
+                  :mi_plan_status    => MiPlan::Status[:Assigned],
                   :gene              => gene,
                   :consortium        => Consortium.find_by_name!('MARC'),
                   :production_centre => Centre.find_by_name!('DTCC')
@@ -130,7 +130,7 @@ class MiPlansControllerTest < ActionController::TestCase
       context 'GET show' do
         should 'find valid one' do
           mi_plan = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status => MiPlanStatus[:Assigned]
+                  :mi_plan_status => MiPlan::Status[:Assigned]
           get :show, :id => mi_plan.id, :format => :json
           assert response.success?
           assert_equal JSON.parse(response.body), mi_plan.as_json

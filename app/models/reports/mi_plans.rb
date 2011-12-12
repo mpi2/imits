@@ -22,7 +22,7 @@ class Reports::MiPlans
 
     def self.get_genes_for_matrix
 
-      assigned_statuses = '(' + MiPlanStatus.all_assigned.map { |i| i.id }.join(',') + ')'
+      assigned_statuses = '(' + MiPlan::Status.all_assigned.map { |i| i.id }.join(',') + ')'
 
       sql = <<-"SQL"
         select
@@ -65,7 +65,7 @@ class Reports::MiPlans
 
     def self.get_genes_for_list
 
-      assigned_statuses = '(' + MiPlanStatus.all_assigned.map { |i| i.id }.join(',') + ')'
+      assigned_statuses = '(' + MiPlan::Status.all_assigned.map { |i| i.id }.join(',') + ')'
 
       sql = <<-"SQL"
         select

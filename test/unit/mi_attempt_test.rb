@@ -616,12 +616,12 @@ class MiAttemptTest < ActiveSupport::TestCase
             mi_plan = Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => Centre.find_by_name!('WTSI'),
-                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+                    :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
 
             Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => nil,
-                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+                    :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
 
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),
@@ -641,7 +641,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             mi_plan = Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => Centre.find_by_name!('WTSI'),
-                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+                    :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
 
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),
@@ -691,7 +691,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             mi_plan = Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => nil,
-                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+                    :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
 
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),

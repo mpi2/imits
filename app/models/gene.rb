@@ -49,7 +49,7 @@ class Gene < ActiveRecord::Base
       join consortia on mi_plans.consortium_id = consortia.id
       left join centres on mi_plans.production_centre_id = centres.id
       where mi_plan_statuses.name in
-        (#{MiPlanStatus.all_non_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
+        (#{MiPlan::Status.all_non_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?
 
@@ -108,7 +108,7 @@ class Gene < ActiveRecord::Base
       left join centres on mi_plans.production_centre_id = centres.id
       left join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
       where mi_plan_statuses.name in
-        (#{MiPlanStatus.all_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
+        (#{MiPlan::Status.all_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
       and mi_attempts.id is null
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?

@@ -202,19 +202,19 @@ class GeneTest < ActiveSupport::TestCase
       @bash_plan = Factory.create :mi_plan,
               :gene => @gene,
               :consortium => Consortium.find_by_name!('BaSH'),
-              :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+              :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
 
       @mgp_plan = Factory.create :mi_plan,
               :gene => @gene,
               :consortium => Consortium.find_by_name!('MGP'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus.find_by_name!('Conflict')
+              :mi_plan_status => MiPlan::Status.find_by_name!('Conflict')
 
       Factory.create :mi_plan,
               :gene => @gene,
               :consortium => Consortium.find_by_name!('MRC'),
               :production_centre => Centre.find_by_name!('MRC - Harwell'),
-              :mi_plan_status => MiPlanStatus.find_by_name!('Inactive')
+              :mi_plan_status => MiPlan::Status.find_by_name!('Inactive')
 
       Factory.create :mi_plan,
               :gene => @gene,
@@ -267,7 +267,7 @@ class GeneTest < ActiveSupport::TestCase
       @bash_plan = Factory.create :mi_plan,
               :gene => @gene,
               :consortium => Consortium.find_by_name!('BaSH'),
-              :mi_plan_status => MiPlanStatus.find_by_name!('Assigned')
+              :mi_plan_status => MiPlan::Status.find_by_name!('Assigned')
 
       @mgp_plan = Factory.create :mi_plan,
               :gene => @gene,

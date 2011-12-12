@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class MiPlanStatus < ActiveRecord::Base
+class MiPlan::Status < ActiveRecord::Base
   acts_as_reportable
 
   validates :name, :presence => true, :uniqueness => true
@@ -11,29 +11,29 @@ class MiPlanStatus < ActiveRecord::Base
 
   def self.all_non_assigned
     return [
-      MiPlanStatus['Interest'],
-      MiPlanStatus['Conflict'],
-      MiPlanStatus['Inspect - GLT Mouse'],
-      MiPlanStatus['Inspect - MI Attempt'],
-      MiPlanStatus['Inspect - Conflict'],
-      MiPlanStatus['Aborted - ES Cell QC Failed'],
-      MiPlanStatus['Withdrawn']
+      MiPlan::Status['Interest'],
+      MiPlan::Status['Conflict'],
+      MiPlan::Status['Inspect - GLT Mouse'],
+      MiPlan::Status['Inspect - MI Attempt'],
+      MiPlan::Status['Inspect - Conflict'],
+      MiPlan::Status['Aborted - ES Cell QC Failed'],
+      MiPlan::Status['Withdrawn']
     ]
   end
 
   def self.all_assigned
     return [
-      MiPlanStatus['Assigned'],
-      MiPlanStatus['Assigned - ES Cell QC In Progress'],
-      MiPlanStatus['Assigned - ES Cell QC Complete']
+      MiPlan::Status['Assigned'],
+      MiPlan::Status['Assigned - ES Cell QC In Progress'],
+      MiPlan::Status['Assigned - ES Cell QC Complete']
     ]
   end
 
   def self.all_affected_by_minor_conflict_resolution
     return self.all_non_assigned - [
-      MiPlanStatus['Interest'],
-      MiPlanStatus['Aborted - ES Cell QC Failed'],
-      MiPlanStatus['Withdrawn']
+      MiPlan::Status['Interest'],
+      MiPlan::Status['Aborted - ES Cell QC Failed'],
+      MiPlan::Status['Withdrawn']
     ]
   end
 end

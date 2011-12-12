@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class MiPlanStatusTest < ActiveSupport::TestCase
+class MiPlan::StatusTest < ActiveSupport::TestCase
   should validate_presence_of :name
   should validate_uniqueness_of :name
 
@@ -14,9 +14,9 @@ class MiPlanStatusTest < ActiveSupport::TestCase
   should have_db_column(:order_by)
 
   should 'have ::[] lookup shortcut' do
-    assert_equal MiPlanStatus.find_by_name!('Interest'), MiPlanStatus['Interest']
-    assert_equal MiPlanStatus.find_by_name!('Assigned'), MiPlanStatus['Assigned']
-    assert_equal MiPlanStatus.find_by_name!('Conflict'), MiPlanStatus[:Conflict]
+    assert_equal MiPlan::Status.find_by_name!('Interest'), MiPlan::Status['Interest']
+    assert_equal MiPlan::Status.find_by_name!('Assigned'), MiPlan::Status['Assigned']
+    assert_equal MiPlan::Status.find_by_name!('Conflict'), MiPlan::Status[:Conflict]
   end
 
   should 'have ::all_non_assigned' do
@@ -29,7 +29,7 @@ class MiPlanStatusTest < ActiveSupport::TestCase
       'Aborted - ES Cell QC Failed',
       'Withdrawn'
     ].sort
-    assert_equal expected, MiPlanStatus.all_non_assigned.map(&:name).sort
+    assert_equal expected, MiPlan::Status.all_non_assigned.map(&:name).sort
   end
 
   should 'have ::all_assigned' do
@@ -38,7 +38,7 @@ class MiPlanStatusTest < ActiveSupport::TestCase
       'Assigned - ES Cell QC In Progress',
       'Assigned - ES Cell QC Complete'
     ].sort
-    assert_equal expected, MiPlanStatus.all_assigned.map(&:name).sort
+    assert_equal expected, MiPlan::Status.all_assigned.map(&:name).sort
   end
 
   should 'have ::all_affected_by_minor_conflict_resolution' do
@@ -49,7 +49,7 @@ class MiPlanStatusTest < ActiveSupport::TestCase
       'Inspect - Conflict'
     ].sort
 
-    assert_equal expected, MiPlanStatus.all_affected_by_minor_conflict_resolution.map(&:name).sort
+    assert_equal expected, MiPlan::Status.all_affected_by_minor_conflict_resolution.map(&:name).sort
   end
 
 end

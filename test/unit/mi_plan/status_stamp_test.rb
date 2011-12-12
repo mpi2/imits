@@ -10,7 +10,7 @@ class MiPlan::StatusStampTest < ActiveSupport::TestCase
     should belong_to :mi_plan_status
 
     should 'have #name proxy' do
-      mi_plan_status = MiPlanStatus.first
+      mi_plan_status = MiPlan::Status.first
       assert_equal mi_plan_status.name, MiPlan::StatusStamp.new(:mi_plan_status_id => mi_plan_status.id).name
     end
   end

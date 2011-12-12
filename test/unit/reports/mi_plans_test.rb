@@ -33,7 +33,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('JAX'),
@@ -44,7 +44,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('JAX'),
@@ -72,7 +72,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('JAX'),
@@ -83,7 +83,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('JAX'),
@@ -115,11 +115,11 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       gene_cbx1 = Factory.create :gene_cbx1
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('BaSH'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('JAX'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       report = Reports::MiPlans::DoubleAssignment.get_matrix
       assert !report.blank?
@@ -147,23 +147,23 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('JAX'),
               :production_centre => Centre.find_by_name!('JAX'),
-              :mi_plan_status => MiPlanStatus['Interest']
+              :mi_plan_status => MiPlan::Status['Interest']
 
       gene_trafd1 = Factory.create :gene_trafd1
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('ICS'),
-              :mi_plan_status => MiPlanStatus['Interest']
+              :mi_plan_status => MiPlan::Status['Interest']
 
       report = Reports::MiPlans::DoubleAssignment.get_matrix
       assert !report.blank?
@@ -186,11 +186,11 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('BaSH'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('JAX'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
       assert !report.blank?
@@ -217,13 +217,13 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       Factory.create :mi_plan, :gene => gene_cbx1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       gene_trafd1 = Factory.create :gene_trafd1
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       report = Reports::MiPlans::DoubleAssignment.get_list
       assert !report.blank?
@@ -240,12 +240,12 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('JAX'),
               :production_centre => Centre.find_by_name!('JAX'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       report = Reports::MiPlans::DoubleAssignment.get_list
       assert !report.blank?
@@ -264,12 +264,12 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       Factory.create :mi_plan, :gene => gene_trafd1,
               :consortium => Consortium.find_by_name!('JAX'),
               :production_centre => Centre.find_by_name!('JAX'),
-              :mi_plan_status => MiPlanStatus['Assigned']
+              :mi_plan_status => MiPlan::Status['Assigned']
 
       report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
       assert !report.blank?

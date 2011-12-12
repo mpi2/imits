@@ -178,7 +178,7 @@ class ReportsController < ApplicationController
       ## Counts of mi_plans grouped by status
       ##
 
-      statuses = MiPlanStatus.order('order_by asc').all.map { |s| s.name }
+      statuses = MiPlan::Status.order('order_by asc').all.map { |s| s.name }
       summary_by_status_args = { :order => ['Consortium'] + statuses }
       statuses.each do |status|
         summary_by_status_args[status] = lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == status } ) }
@@ -247,7 +247,7 @@ class ReportsController < ApplicationController
 
       @summary_by_status_and_priority = Grouping(
         @summary_by_status_and_priority,
-        :by => ['Status'], :order => lambda { |g| MiPlanStatus.find_by_name!(g.name).order_by }
+        :by => ['Status'], :order => lambda { |g| MiPlan::Status.find_by_name!(g.name).order_by }
       )
 
       ##
@@ -261,7 +261,7 @@ class ReportsController < ApplicationController
       @inspect_report = all_mi_plans.sub_table { |row| row['Status'].include? 'Inspect' }
       @inspect_report.add_column('Reason for Inspect') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_or_conflict }
       @inspect_report.remove_columns(['ID'])
-      @inspect_report = Grouping( @inspect_report, :by => ['Status'], :order => lambda { |g| MiPlanStatus.find_by_name!(g.name).order_by } )
+      @inspect_report = Grouping( @inspect_report, :by => ['Status'], :order => lambda { |g| MiPlan::Status.find_by_name!(g.name).order_by } )
 
       if request.format == :csv
         response.headers['Content-Type'] = 'text/csv'

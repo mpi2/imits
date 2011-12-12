@@ -96,7 +96,7 @@ class MiAttempt < ActiveRecord::Base
     matching_mi_plan = find_matching_mi_plan
 
     if matching_mi_plan and
-              matching_mi_plan.mi_plan_status == MiPlanStatus['Aborted - ES Cell QC Failed']
+              matching_mi_plan.mi_plan_status == MiPlan::Status['Aborted - ES Cell QC Failed']
       error = 'ES cells failed QC'
       mi.errors.add :base, error
     end
@@ -230,13 +230,13 @@ class MiAttempt < ActiveRecord::Base
       end
 
       mi_plan_to_set.production_centre_name = production_centre_name
-      mi_plan_to_set.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
+      mi_plan_to_set.mi_plan_status = MiPlan::Status.find_by_name!('Assigned')
       mi_plan_to_set.save!
 
       self.mi_plan = mi_plan_to_set
     else
       if is_active?
-        mi_plan.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
+        mi_plan.mi_plan_status = MiPlan::Status.find_by_name!('Assigned')
         mi_plan.save!
       end
     end

@@ -14,7 +14,7 @@ module Rake
 
         should 'work' do
 
-          MiPlanStatus.all(:order => 'id').each do |status|
+          MiPlan::Status.all(:order => 'id').each do |status|
             puts "BEFORE: #{status.id}: '#{status.name}': '#{status.description}'" if debug
           end
 
@@ -22,9 +22,9 @@ module Rake
          
           run_script "bundle exec rake one_time:update_mi_plan_status #{trace}"
           
-          MiPlanStatus.reset_column_information
+          MiPlan::Status.reset_column_information
           
-          MiPlanStatus.all(:order => 'id').each do |status|
+          MiPlan::Status.all(:order => 'id').each do |status|
             puts " AFTER: #{status.id}: '#{status.name}': '#{status.description}'" if debug
             assert ! status.name.match(/^Declined/), "Declined should be changed to Inspect in mi_plan_status.name!"
             assert ! status.description.match(/^Declined/), "Declined should be changed to Inspect in mi_plan_status.description!"

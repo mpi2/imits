@@ -97,7 +97,7 @@ Seeds.load Centre, [
   {:id => 17, :name => 'IMG'}
 ]
 
-Seeds.load MiPlanStatus, [
+Seeds.load MiPlan::Status, [
   {:order_by => 10,  :id => 2,  :name => 'Interest', :description => 'Interest - A consortium has expressed an interest to micro-inject this gene'},
   {:order_by => 20,  :id => 3,  :name => 'Conflict', :description => 'Conflict - More than one consortium has expressed an interest in micro-injecting this gene'},
   {:order_by => 30,  :id => 4,  :name => 'Inspect - GLT Mouse', :description => 'Inspect - A GLT mouse is already recorded in iMits'},

@@ -91,7 +91,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         mi_plans = MiPlan.where(
           :consortium_id => Consortium.find_by_name!('Helmholtz GMC').id,
           :production_centre_id => Centre.find_by_name!('HMGU').id,
-          :mi_plan_status_id => MiPlanStatus['Interest'].id
+          :mi_plan_status_id => MiPlan::Status['Interest'].id
         )
         assert_equal 1, mi_plans.count
 
@@ -117,7 +117,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
                 :gene => Gene.find_by_marker_symbol!('Myo1c'),
                 :consortium => Consortium.find_by_name!('Helmholtz GMC'),
                 :production_centre => Centre.find_by_name!('HMGU'),
-                :mi_plan_status => MiPlanStatus['Interest']
+                :mi_plan_status => MiPlan::Status['Interest']
         mi_plan_id = mi_plan.id
 
         visit '/mi_plans/gene_selection'
@@ -142,7 +142,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
                 :gene => Gene.find_by_marker_symbol!('Myo1c'),
                 :consortium => Consortium.find_by_name!('Helmholtz GMC'),
                 :production_centre => Centre.find_by_name!('HMGU'),
-                :mi_plan_status => MiPlanStatus['Interest']
+                :mi_plan_status => MiPlan::Status['Interest']
         mi_plan_id = mi_plan.id
 
         visit '/mi_plans/gene_selection'
@@ -178,7 +178,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
                 :gene => Gene.find_by_marker_symbol!('Myo1c'),
                 :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => Centre.find_by_name!('WTSI'),
-                :mi_plan_status => MiPlanStatus['Conflict']
+                :mi_plan_status => MiPlan::Status['Conflict']
 
         visit '/mi_plans/gene_selection'
 

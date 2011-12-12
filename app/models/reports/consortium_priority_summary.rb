@@ -23,6 +23,9 @@ class Reports::ConsortiumPrioritySummary
     'GLT Mice' => ['Genotype confirmed'],
     'Aborted' => ['Micro-injection aborted']
   }
+  USE_CACHE = false
+  CACHE_NAME1 = 'production_summary1'
+  CACHE_NAME2 = 'production_summary2'
 
   def self.subsummary1(params)
     specs = params[:specs]
@@ -61,6 +64,10 @@ class Reports::ConsortiumPrioritySummary
   end
   
   def self.generate1
+    
+    cache = USE_CACHE ? ReportCache.find_by_name(CACHE_NAME1) : false
+    return get_cached_report(CACHE_NAME1) if cache
+    
     cached_report = get_cached_report('mi_production_detail')
 
     report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production', 'Aborted', 'GLT Mice', 'Pipeline efficiency (%)' ] )
@@ -87,7 +94,7 @@ class Reports::ConsortiumPrioritySummary
 
       make_link = lambda {|key|
         row[key].to_s != '0' ?
-        "<a title='Click to see list of #{key}(s)' href='#{ROOT1}/consortium/#{row['Consortium']}/type/#{key}'>#{row[key]}</a>" :
+        "<a title='Click to see list of #{key}' href='#{ROOT1}/consortium/#{row['Consortium']}/type/#{key}'>#{row[key]}</a>" :
         ''
       }
 
@@ -103,10 +110,25 @@ class Reports::ConsortiumPrioritySummary
     end
    
     report_table.sort_rows_by!( ['Consortium'] )
+
+    save_to_cache(CACHE_NAME1, report_table)
     
     return report_table
   end
 
+  def self.save_to_cache(name, report)
+    cache = ReportCache.find_by_name(name)
+    if cache
+      cache.csv_data = report.to_csv
+      cache.save!
+    else
+      ReportCache.create!(
+        :name => name,
+        :csv_data => report.to_csv
+      )
+    end
+  end
+  
   def self.subsummary2(params)
     specs = params[:specs]
     array = specs.split('/')
@@ -148,6 +170,10 @@ class Reports::ConsortiumPrioritySummary
   end
   
   def self.generate2
+
+    cache = USE_CACHE ? ReportCache.find_by_name(CACHE_NAME2) : false
+    return get_cached_report(CACHE_NAME2) if cache
+
     cached_report = get_cached_report('mi_production_detail')
 
     report_table = Table( ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC finished', 'MI in progress', 'Aborted', 'GLT Mice', 'order_by'] )
@@ -212,6 +238,9 @@ class Reports::ConsortiumPrioritySummary
   
     report_table.sort_rows_by!( ['Consortium', 'order_by'] )    
     report_table.remove_column('order_by')
+    
+    save_to_cache(CACHE_NAME2, report_table)
+    
     return report_table
   end
 

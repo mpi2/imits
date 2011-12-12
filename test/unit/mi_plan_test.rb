@@ -19,7 +19,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should belong_to :consortium
         assert_should belong_to :production_centre
         assert_should belong_to :status
-        assert_should belong_to :priority
+        assert_should belong_to :mi_plan_priority
         assert_should belong_to :sub_project
 
         assert_should have_many :mi_attempts
@@ -394,12 +394,12 @@ class MiPlanTest < ActiveSupport::TestCase
             @default_mi_plan.status = MiPlan::Status['Conflict']
             @default_mi_plan.withdrawn = true
             assert_equal true, @default_mi_plan.withdrawn
-            assert_equal 'Withdrawn', @default_mi_plan.status
+            assert_equal 'Withdrawn', @default_mi_plan.status.name
 
             @default_mi_plan.status = MiPlan::Status['Inspect - Conflict']
             @default_mi_plan.withdrawn = true
             assert_equal true, @default_mi_plan.withdrawn
-            assert_equal 'Withdrawn', @default_mi_plan.status
+            assert_equal 'Withdrawn', @default_mi_plan.status.name
           end
 
           should 'raise an error if not at an allowed status' do
@@ -408,7 +408,7 @@ class MiPlanTest < ActiveSupport::TestCase
               @default_mi_plan.withdrawn = true
             end
             assert_equal false, @default_mi_plan.withdrawn
-            assert_equal 'Assigned', @default_mi_plan.status
+            assert_equal 'Assigned', @default_mi_plan.status.name
           end
         end
 
@@ -593,7 +593,7 @@ class MiPlanTest < ActiveSupport::TestCase
         plan = Factory.create :mi_plan, :gene => gene,
                 :consortium => Consortium.find_by_name!('BaSH'),
                 :number_of_es_cells_starting_qc => 5
-        assert_equal 'Assigned - ES Cell QC In Progress', plan.status
+        assert_equal 'Assigned - ES Cell QC In Progress', plan.status.name
 
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
@@ -649,7 +649,7 @@ class MiPlanTest < ActiveSupport::TestCase
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
 
-        mi_plans.each { |plan| assert_equal MiPlan::Status.find_by_name!('Interest'), plan.status }
+        mi_plans.each { |plan| assert_equal 'Interest', plan.status.name }
 
         MiPlan.major_conflict_resolution
         mi_plans.each(&:reload)
@@ -668,13 +668,13 @@ class MiPlanTest < ActiveSupport::TestCase
                 :production_centre => Centre.find_by_name!('JAX'),
                 :status => MiPlan::Status['Inactive']
 
-        assert_equal 'Interest', mi_plan.status
-        assert_equal 'Inactive', inactive_mi_plan.status
+        assert_equal 'Interest', mi_plan.status.name
+        assert_equal 'Inactive', inactive_mi_plan.status.name
 
         MiPlan.major_conflict_resolution
 
-        assert_equal 'Assigned', mi_plan.reload.status
-        assert_equal 'Inactive', inactive_mi_plan.reload.status
+        assert_equal 'Assigned', mi_plan.reload.status.name
+        assert_equal 'Inactive', inactive_mi_plan.reload.status.name
       end
 
     end # ::major_conflict_resolution
@@ -686,7 +686,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert plan.assigned?
         MiPlan.minor_conflict_resolution
         plan.reload
-        assert_equal 'Assigned - ES Cell QC In Progress', plan.status
+        assert_equal 'Assigned - ES Cell QC In Progress', plan.status.name
       end
 
       [
@@ -700,7 +700,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :status => MiPlan::Status[status_name]
           MiPlan.minor_conflict_resolution
           plan.reload
-          assert_equal 'Assigned', plan.status
+          assert_equal 'Assigned', plan.status.name
         end
 
         should "not Assign MiPlan in status #{status_name} if an Assigned one exists for that gene" do
@@ -713,7 +713,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :gene => gene
           MiPlan.minor_conflict_resolution
           plan.reload
-          assert_equal status_name, plan.status
+          assert_equal status_name, plan.status.name
         end
       end
 
@@ -727,7 +727,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :status => MiPlan::Status[status_name]
           MiPlan.minor_conflict_resolution
           plan.reload
-          assert_equal status_name, plan.status
+          assert_equal status_name, plan.status.name
         end
       end
 
@@ -741,8 +741,8 @@ class MiPlanTest < ActiveSupport::TestCase
                 :gene => gene
         MiPlan.minor_conflict_resolution
         plan1.reload; plan2.reload
-        assert_equal 'Conflict', plan1.status
-        assert_equal 'Inspect - MI Attempt', plan2.status
+        assert_equal 'Conflict', plan1.status.name
+        assert_equal 'Inspect - MI Attempt', plan2.status.name
       end
 
       should 'change the status of a Conflct MiPlan if it is the only one for a gene' do
@@ -754,7 +754,7 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.minor_conflict_resolution
 
         conflict_plan.reload
-        assert_equal 'Assigned', conflict_plan.status
+        assert_equal 'Assigned', conflict_plan.status.name
       end
     end # ::minor_conflict_resolution
 
@@ -908,21 +908,21 @@ class MiPlanTest < ActiveSupport::TestCase
                 :production_centre => Centre.find_by_name!('JAX'),
                 :number_of_es_cells_starting_qc => 6
 
-        assert_equal 'Assigned', gc_mi_attempt.mi_plan.status
-        assert_equal 'Assigned', in_prog_mi_attempt.mi_plan.status
-        assert_equal 'Assigned', old_failed_mi_attempt.mi_plan.status
-        assert_equal 'Assigned - ES Cell QC In Progress', old_failed_mi_attempt_2.mi_plan.status
-        assert_equal 'Assigned', mi_plan_no_attempts.status
-        assert_equal 'Assigned - ES Cell QC In Progress', es_qc_mi_plan_no_attempts.status
+        assert_equal 'Assigned', gc_mi_attempt.mi_plan.status.name
+        assert_equal 'Assigned', in_prog_mi_attempt.mi_plan.status.name
+        assert_equal 'Assigned', old_failed_mi_attempt.mi_plan.status.name
+        assert_equal 'Assigned - ES Cell QC In Progress', old_failed_mi_attempt_2.mi_plan.status.name
+        assert_equal 'Assigned', mi_plan_no_attempts.status.name
+        assert_equal 'Assigned - ES Cell QC In Progress', es_qc_mi_plan_no_attempts.status.name
 
         MiPlan.mark_old_plans_as_inactive
 
-        assert_equal 'Assigned', gc_mi_attempt.reload.mi_plan.status
-        assert_equal 'Assigned', in_prog_mi_attempt.reload.mi_plan.status
-        assert_equal 'Inactive', old_failed_mi_attempt.reload.mi_plan.status
-        assert_equal 'Inactive', old_failed_mi_attempt_2.reload.mi_plan.status
-        assert_equal 'Assigned', mi_plan_no_attempts.reload.status
-        assert_equal 'Assigned - ES Cell QC In Progress', es_qc_mi_plan_no_attempts.status
+        assert_equal 'Assigned', gc_mi_attempt.reload.mi_plan.status.name
+        assert_equal 'Assigned', in_prog_mi_attempt.reload.mi_plan.status.name
+        assert_equal 'Inactive', old_failed_mi_attempt.reload.mi_plan.status.name
+        assert_equal 'Inactive', old_failed_mi_attempt_2.reload.mi_plan.status.name
+        assert_equal 'Assigned', mi_plan_no_attempts.reload.status.name
+        assert_equal 'Assigned - ES Cell QC In Progress', es_qc_mi_plan_no_attempts.status.name
 
         # Now test what happens if a centre re-visits an inactive MiPlan...
         new_mi_attempt = Factory.create :mi_attempt,
@@ -933,8 +933,8 @@ class MiPlanTest < ActiveSupport::TestCase
                 :mi_date => 2.weeks.ago,
                 :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress
 
-        assert_equal 'Assigned', old_failed_mi_attempt.mi_plan.reload.status
-        assert_equal 'Assigned', new_mi_attempt.mi_plan.reload.status
+        assert_equal 'Assigned', old_failed_mi_attempt.mi_plan.reload.status.name
+        assert_equal 'Assigned', new_mi_attempt.mi_plan.reload.status.name
       end
     end
 
@@ -1014,7 +1014,7 @@ class MiPlanTest < ActiveSupport::TestCase
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
         MiPlan.major_conflict_resolution
-        mi_plan.reload; assert_equal 'Inspect - GLT Mouse', mi_plan.status
+        mi_plan.reload; assert_equal 'Inspect - GLT Mouse', mi_plan.status.name
 
         assert_equal "GLT mouse produced at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
                 mi_plan.reason_for_inspect_or_conflict
@@ -1036,7 +1036,7 @@ class MiPlanTest < ActiveSupport::TestCase
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
         MiPlan.major_conflict_resolution
-        mi_plan.reload; assert_equal 'Inspect - MI Attempt', mi_plan.status
+        mi_plan.reload; assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
         assert_equal "MI already in progress at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
                 mi_plan.reason_for_inspect_or_conflict
@@ -1057,7 +1057,7 @@ class MiPlanTest < ActiveSupport::TestCase
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
         MiPlan.major_conflict_resolution
-        mi_plan.reload; assert_equal 'Inspect - Conflict', mi_plan.status
+        mi_plan.reload; assert_equal 'Inspect - Conflict', mi_plan.status.name
 
         assert_equal "Other 'Assigned' MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",
                 mi_plan.reason_for_inspect_or_conflict
@@ -1076,7 +1076,7 @@ class MiPlanTest < ActiveSupport::TestCase
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
         MiPlan.major_conflict_resolution
-        mi_plan.reload; assert_equal 'Conflict', mi_plan.status
+        mi_plan.reload; assert_equal 'Conflict', mi_plan.status.name
 
         assert_equal "Other MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",
                 mi_plan.reason_for_inspect_or_conflict

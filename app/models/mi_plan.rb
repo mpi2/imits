@@ -312,11 +312,11 @@ class MiPlan < ActiveRecord::Base
   end
 
   def assigned?
-    return MiPlan::Status.all_assigned.include?(mi_plan_status)
+    return MiPlan::Status.all_assigned.include?(status)
   end
 
   def withdrawn
-    return mi_plan_status == MiPlan::Status['Withdrawn']
+    return status == MiPlan::Status['Withdrawn']
   end
 
   alias_method(:withdrawn?, :withdrawn)
@@ -324,7 +324,7 @@ class MiPlan < ActiveRecord::Base
   def withdrawn=(boolarg)
     return if boolarg == withdrawn?
 
-    if ! MiPlan::Status.all_affected_by_minor_conflict_resolution.include?(mi_plan_status)
+    if ! MiPlan::Status.all_affected_by_minor_conflict_resolution.include?(status)
       raise RuntimeError, "cannot withdraw from status #{status}"
     end
 

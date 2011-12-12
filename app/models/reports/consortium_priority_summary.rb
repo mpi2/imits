@@ -8,6 +8,7 @@ class Reports::ConsortiumPrioritySummary
   ADD_ALL_PRIORITIES = true
   CONSORTIA = [ 'BaSH', 'DTCC', 'Helmholtz GMC', 'JAX', 'MARC', 'MGP', 'Monterotondo', 'NorCOMM2', 'Phenomin', 'RIKEN BRC' ]
   ORDER_BY_MAP = { 'Low' => 1, 'Medium' => 2, 'High' => 3}
+  ROOT = '/reports/list'
 
   def self.subsummary1(params)
     specs = params[:specs]
@@ -21,12 +22,8 @@ class Reports::ConsortiumPrioritySummary
 
     cached_report = get_cached_report('mi_production_detail')
 
-#    raise "subsummary: consortium: '#{consortium}' - type: '#{column}' (#{array.size})"
-    
-#        if r['Consortium'] != consortium || column != 'all' || genes.include?(r['Gene'])
-
     genes = []
-    
+
     mapping = {
       'activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
       'mip' => ['Micro-injection in progress', 'Genotype confirmed'],
@@ -38,69 +35,21 @@ class Reports::ConsortiumPrioritySummary
     report = Table(:data => cached_report.data,
       :column_names => ['Count'] + cached_report.column_names,
       :filters => lambda {|r|
-        
-        #if r['Consortium'] == consortium && column == 'all'
-        #  if genes.include?(r['Gene'])
-        #    return false
-        #  else
-        #    genes.push r['Gene']
-        #    return true
-        #  end
-        #end
-
-#        if r['Consortium'] == consortium && column == 'activity' && mapping[column].include?(r.data['Status'])
         if r['Consortium'] == consortium && (column == 'all' || mapping[column].include?(r.data['Status']))
-          
-          #if genes.include?(r['Gene'])
-          #  return false
-          #else
-          #  genes.push r['Gene']
-          #  return true
-          #end
-
           return false if genes.include?(r['Gene'])
           genes.push r['Gene']
           return true
-
         end
-
-        #if r['Consortium'] == consortium && column == 'mip' && production.include?(r.data['Status'])
-        #  if genes.include?(r['Gene'])
-        #    return false
-        #  else
-        #    genes.push r['Gene']
-        #    return true
-        #  end
-        #end
-        #
-        #if r['Consortium'] == consortium && column == 'glt' && glt.include?(r.data['Status'])
-        #  if genes.include?(r['Gene'])
-        #    return false
-        #  else
-        #    genes.push r['Gene']
-        #    return true
-        #  end
-        #end
-        #
-        #if r['Consortium'] == consortium && column == 'aborted' && aborted.include?(r.data['Status'])
-        #  if genes.include?(r['Gene'])
-        #    return false
-        #  else
-        #    genes.push r['Gene']
-        #    return true
-        #  end
-        #end
-
-        },
+      },
       :transforms => lambda {|r|
         r['Count'] = counter
         counter += 1
-        }
+      }
     )
 
-    title2 = "subsummary: consortium: '#{consortium}' - type: '#{column}' (#{report.size})"
+    title = "subsummary1: consortium: '#{consortium}' - type: '#{column}' (#{report.size})"
     
-    return title2, report
+    return title, report
 
   end
   
@@ -109,43 +58,40 @@ class Reports::ConsortiumPrioritySummary
 
     report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production', 'Aborted', 'GLT Mice', 'Pipeline efficiency (%)' ] )
    
-    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )    
-    activity = ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed']    
-    production = ['Micro-injection in progress', 'Genotype confirmed']    
-    glt = ['Genotype confirmed']
-    aborted = ['Micro-injection aborted']
+    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
+    
+    mapping = {
+      'activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
+      'mip' => ['Micro-injection in progress', 'Genotype confirmed'],
+      'glt' => ['Genotype confirmed'],
+      'aborted' => ['Micro-injection aborted']
+    }
     
     grouped_report.summary(
       'Consortium',
       'All'                => lambda { |group| count_unique_instances_of( group, 'Gene' ) },
       'Activity'           => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| activity.include? row.data['Status'] } ) },
+          lambda { |row| mapping['activity'].include? row.data['Status'] } ) },
       'Mice in production' => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| production.include? row.data['Status'] } ) },
+          lambda { |row| mapping['mip'].include? row.data['Status'] } ) },
       'GLT Mice'           => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| glt.include? row.data['Status'] } ) },
+          lambda { |row| mapping['glt'].include? row.data['Status'] } ) },
       'Aborted'           => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| aborted.include? row.data['Status'] } ) }
+          lambda { |row| mapping['aborted'].include? row.data['Status'] } ) }
     ).each do |row|
 
       glt = Integer(row['GLT Mice'])
       total = Integer(row['GLT Mice']) + Integer(row['Aborted'])
-#      pc = total != 0 ? ((glt.to_f / total.to_f)).round * 100.0 : 0
       pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
       pc = "%.2f" % pc
-      
-      puts "glt: " + glt.to_s
-      puts "total: " + total.to_s
-      puts "%: " + (glt / total).to_s if total != 0
-      
+            
       report_table << {        
         'Consortium' => row['Consortium'],
-        'All' => row['All'].to_s != '0' ? "<a href='/reports/list/consortium/#{row['Consortium']}/type/all'>#{row['All']}</a>" : '',
-        'Activity' => row['Activity'].to_s != '0' ? "<a href='/reports/list/consortium/#{row['Consortium']}/type/activity'>#{row['Activity']}</a>" : '',
-        'Mice in production' => row['Mice in production'].to_s != '0' ? "<a href='/reports/list/consortium/#{row['Consortium']}/type/mip'>#{row['Mice in production']}</a>" : '',
-        'GLT Mice' => row['GLT Mice'].to_s != '0' ? "<a href='/reports/list/consortium/#{row['Consortium']}/type/glt'>#{row['GLT Mice']}</a>" : '',
-#        'Aborted' => row['Aborted'],
-        'Aborted' => row['Aborted'].to_s != '0' ? "<a href='/reports/list/consortium/#{row['Consortium']}/type/aborted'>#{row['Aborted']}</a>" : '',
+        'All' => row['All'].to_s != '0' ? "<a href='#{ROOT}/consortium/#{row['Consortium']}/type/all'>#{row['All']}</a>" : '',
+        'Activity' => row['Activity'].to_s != '0' ? "<a href='#{ROOT}/consortium/#{row['Consortium']}/type/activity'>#{row['Activity']}</a>" : '',
+        'Mice in production' => row['Mice in production'].to_s != '0' ? "<a href='#{ROOT}/consortium/#{row['Consortium']}/type/mip'>#{row['Mice in production']}</a>" : '',
+        'GLT Mice' => row['GLT Mice'].to_s != '0' ? "<a href='#{ROOT}/consortium/#{row['Consortium']}/type/glt'>#{row['GLT Mice']}</a>" : '',
+        'Aborted' => row['Aborted'].to_s != '0' ? "<a href='#{ROOT}/consortium/#{row['Consortium']}/type/aborted'>#{row['Aborted']}</a>" : '',
         'Pipeline efficiency (%)' => pc
       }
     end
@@ -162,27 +108,31 @@ class Reports::ConsortiumPrioritySummary
  
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
     
-    es_qc_started = ['Assigned - ES Cell QC In Progress']
-    es_qc_finished = ['Assigned - ES Cell QC Complete']
-    mi_in_progress = ['Micro-injection in progress']    
-    glt = ['Genotype confirmed']
-    aborted = ['Micro-injection aborted']
+    mapping = {
+      :es_qc_started => ['Assigned - ES Cell QC In Progress'],
+      :es_qc_finished => ['Assigned - ES Cell QC Complete'],
+      :mi_in_progress => ['Micro-injection in progress'],
+      :glt => ['Genotype confirmed'],
+      :aborted => ['Micro-injection aborted']
+    }
     
     grouped_report.each do |consortium|
+      
       next if LIMIT_CONSORTIA && ! CONSORTIA.include?(consortium)
+      
       summary = grouped_report.subgrouping(consortium).summary(
         'Priority',
         'All'            => lambda { |group| count_unique_instances_of( group, 'Gene' ) },
         'ES QC started'  => lambda { |group| count_unique_instances_of( group, 'Gene',
-            lambda { |row| es_qc_started.include? row.data['Status'] } ) },
+            lambda { |row| mapping[:es_qc_started].include? row.data['Status'] } ) },
         'ES QC finished' => lambda { |group| count_unique_instances_of( group, 'Gene',
-            lambda { |row| es_qc_finished.include? row.data['Status'] } ) },
+            lambda { |row| mapping[:es_qc_finished].include? row.data['Status'] } ) },
         'MI in progress' => lambda { |group| count_unique_instances_of( group, 'Gene',
-            lambda { |row| mi_in_progress.include? row.data['Status'] } ) },
+            lambda { |row| mapping[:mi_in_progress].include? row.data['Status'] } ) },
         'GLT Mice'       => lambda { |group| count_unique_instances_of( group, 'Gene',
-            lambda { |row| glt.include? row.data['Status'] } ) },
+            lambda { |row| mapping[:glt].include? row.data['Status'] } ) },
         'Aborted'       => lambda { |group| count_unique_instances_of( group, 'Gene',
-            lambda { |row| aborted.include? row.data['Status'] } ) }
+            lambda { |row| mapping[:aborted].include? row.data['Status'] } ) }
       )
       
       p_found = []
@@ -226,60 +176,60 @@ class Reports::ConsortiumPrioritySummary
     return report_table
   end
 
-  def self.generate20
-    cached_report = get_cached_report('mi_production_detail')
-
-    report_table = Table( ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC finished', 'MI in progress', 'Aborted', 'GLT Mice', 'order_by'] )
- 
-    #:breakdown => {
-    #       'All' => {'All'=>['Priority']},
-    #       'ES QC started' => {'Assigned - ES Cell QC In Progress' => ['Priority']},
-    #       'ES QC finished' => {'Assigned - ES Cell QC Complete' => ['Priority']},
-    #       'MI in progress' => {'Micro-injection in progress' => ['Priority']},
-    #       'GLT Mice' => {'Genotype confirmed' => ['Priority']}
-    #   }
-
-    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
-    
-    es_qc_started = ['Assigned - ES Cell QC In Progress']
-    es_qc_finished = ['Assigned - ES Cell QC Complete']
-    mi_in_progress = ['Micro-injection in progress']    
-    glt = ['Genotype confirmed']
-    aborted = ['Aborted - ES Cell QC Failed']
-    
-    grouped_report.each do |consortium|
-      next if LIMIT_CONSORTIA && ! CONSORTIA.include?(consortium)
-      grouped_report.subgrouping(consortium).summary(
-        'Priority',
-        'All'            => lambda { |group| count_unique_instances_of( group, 'Gene' ) },
-        'ES QC started'  => lambda { |group| count_unique_instances_of( group, 'Gene',
-            lambda { |row| es_qc_started.include? row.data['Status'] } ) },
-        'ES QC finished' => lambda { |group| count_unique_instances_of( group, 'Gene',
-            lambda { |row| es_qc_finished.include? row.data['Status'] } ) },
-        'MI in progress' => lambda { |group| count_unique_instances_of( group, 'Gene',
-            lambda { |row| mi_in_progress.include? row.data['Status'] } ) },
-        'GLT Mice'       => lambda { |group| count_unique_instances_of( group, 'Gene',
-            lambda { |row| glt.include? row.data['Status'] } ) },
-        'Aborted'       => lambda { |group| count_unique_instances_of( group, 'Gene',
-            lambda { |row| aborted.include? row.data['Status'] } ) }
-      ).each do |row|
-        report_table << {
-          'Consortium' => consortium,
-          'Priority' => row['Priority'],
-          'All' => row['All'],
-          'ES QC started' => row['ES QC started'],
-          'ES QC finished' => row['ES QC finished'],
-          'MI in progress' => row['MI in progress'],
-          'GLT Mice' => row['GLT Mice'],
-          'Aborted' => row['Aborted'],
-          'order_by' => ORDER_BY_MAP[row['Priority']]
-        }
-      end
-    end
-  
-    report_table.sort_rows_by!( ['Consortium', 'order_by'] )    
-    report_table.remove_column('order_by')
-    return report_table
-  end
-
+  #def self.generate20
+  #  cached_report = get_cached_report('mi_production_detail')
+  #
+  #  report_table = Table( ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC finished', 'MI in progress', 'Aborted', 'GLT Mice', 'order_by'] )
+  #
+  #  #:breakdown => {
+  #  #       'All' => {'All'=>['Priority']},
+  #  #       'ES QC started' => {'Assigned - ES Cell QC In Progress' => ['Priority']},
+  #  #       'ES QC finished' => {'Assigned - ES Cell QC Complete' => ['Priority']},
+  #  #       'MI in progress' => {'Micro-injection in progress' => ['Priority']},
+  #  #       'GLT Mice' => {'Genotype confirmed' => ['Priority']}
+  #  #   }
+  #
+  #  grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
+  #  
+  #  es_qc_started = ['Assigned - ES Cell QC In Progress']
+  #  es_qc_finished = ['Assigned - ES Cell QC Complete']
+  #  mi_in_progress = ['Micro-injection in progress']    
+  #  glt = ['Genotype confirmed']
+  #  aborted = ['Aborted - ES Cell QC Failed']
+  #  
+  #  grouped_report.each do |consortium|
+  #    next if LIMIT_CONSORTIA && ! CONSORTIA.include?(consortium)
+  #    grouped_report.subgrouping(consortium).summary(
+  #      'Priority',
+  #      'All'            => lambda { |group| count_unique_instances_of( group, 'Gene' ) },
+  #      'ES QC started'  => lambda { |group| count_unique_instances_of( group, 'Gene',
+  #          lambda { |row| es_qc_started.include? row.data['Status'] } ) },
+  #      'ES QC finished' => lambda { |group| count_unique_instances_of( group, 'Gene',
+  #          lambda { |row| es_qc_finished.include? row.data['Status'] } ) },
+  #      'MI in progress' => lambda { |group| count_unique_instances_of( group, 'Gene',
+  #          lambda { |row| mi_in_progress.include? row.data['Status'] } ) },
+  #      'GLT Mice'       => lambda { |group| count_unique_instances_of( group, 'Gene',
+  #          lambda { |row| glt.include? row.data['Status'] } ) },
+  #      'Aborted'       => lambda { |group| count_unique_instances_of( group, 'Gene',
+  #          lambda { |row| aborted.include? row.data['Status'] } ) }
+  #    ).each do |row|
+  #      report_table << {
+  #        'Consortium' => consortium,
+  #        'Priority' => row['Priority'],
+  #        'All' => row['All'],
+  #        'ES QC started' => row['ES QC started'],
+  #        'ES QC finished' => row['ES QC finished'],
+  #        'MI in progress' => row['MI in progress'],
+  #        'GLT Mice' => row['GLT Mice'],
+  #        'Aborted' => row['Aborted'],
+  #        'order_by' => ORDER_BY_MAP[row['Priority']]
+  #      }
+  #    end
+  #  end
+  #
+  #  report_table.sort_rows_by!( ['Consortium', 'order_by'] )    
+  #  report_table.remove_column('order_by')
+  #  return report_table
+  #end
+  #
 end

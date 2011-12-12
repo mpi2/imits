@@ -8,8 +8,10 @@ class Reports::ConsortiumPrioritySummary
   ADD_ALL_PRIORITIES = true
   CONSORTIA = [ 'BaSH', 'DTCC', 'Helmholtz GMC', 'JAX', 'MARC', 'MGP', 'Monterotondo', 'NorCOMM2', 'Phenomin', 'RIKEN BRC' ]
   ORDER_BY_MAP = { 'Low' => 1, 'Medium' => 2, 'High' => 3}
-  ROOT1 = '/reports/summary1'
-  ROOT2 = '/reports/summary2'
+  #ROOT1 = '/reports/summary1'
+  #ROOT2 = '/reports/summary2'
+  ROOT1 = '/labs/imits/reports/summary1'
+  ROOT2 = '/labs/imits/reports/summary2'
   MAPPING1 = {
     'Activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
     'Mice in production' => ['Micro-injection in progress', 'Genotype confirmed'],

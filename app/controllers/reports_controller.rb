@@ -286,7 +286,7 @@ class ReportsController < ApplicationController
       'gene.marker_symbol'      => 'Marker Symbol',
       'gene.mgi_accession_id'   => 'MGI Accession ID',
       'mi_plan_priority.name'   => 'Priority',
-      'mi_plan_status.name'     => 'Status'
+      'status.name'             => 'Status'
     }
 
     report_options = {
@@ -298,7 +298,7 @@ class ReportsController < ApplicationController
         :production_centre  => { :only => [:name] },
         :gene               => { :only => [:marker_symbol,:mgi_accession_id] },
         :mi_plan_priority   => { :only => [:name] },
-        :status     => { :only => [:name] }
+        :status             => { :only => [:name] }
       }
     }
 

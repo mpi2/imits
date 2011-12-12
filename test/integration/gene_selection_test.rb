@@ -83,7 +83,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         find('.x-grid-row-checker:first').click
         find('#register_interest_button button').click
 
-        sleep 3
+        sleep 5
 
         assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
         assert_equal 1, all('a.mi-plan').size

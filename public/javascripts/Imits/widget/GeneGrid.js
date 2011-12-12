@@ -18,8 +18,8 @@ function printMiPlanString(mi_plan) {
     if (!Ext.isEmpty(mi_plan['production_centre'])) {
         str = str + ':' + mi_plan['production_centre'];
     }
-    if (!Ext.isEmpty(mi_plan['status'])) {
-        str = str + ':' + mi_plan['status'];
+    if (!Ext.isEmpty(mi_plan['status_name'])) {
+        str = str + ':' + mi_plan['status_name'];
     }
     str = str + ']';
     return str;

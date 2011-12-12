@@ -215,7 +215,7 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      context '#status=' do
+      context '#status' do
         should 'create status stamps when status is changed' do
           @default_mi_plan.status = MiPlan::Status['Conflict']; @default_mi_plan.save!
           @default_mi_plan.status = MiPlan::Status['Assigned']; @default_mi_plan.save!
@@ -495,7 +495,7 @@ class MiPlanTest < ActiveSupport::TestCase
           'consortium_name',
           'production_centre_name',
           'priority',
-          'status',
+          'status_name',
           'number_of_es_cells_starting_qc',
           'number_of_es_cells_passing_qc',
           'withdrawn'

@@ -18,7 +18,7 @@ Ext.define('Imits.model.MiPlan', {
         name: 'production_centre_name'
     },
     {
-        name: 'status'
+        name: 'status_name'
     },
     {
         name: 'priority'

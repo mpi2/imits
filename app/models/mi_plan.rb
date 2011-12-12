@@ -13,7 +13,7 @@ class MiPlan < ActiveRecord::Base
 
   READABLE_ATTRIBUTES = [
     'id',
-#    'status'
+    'status_name'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)

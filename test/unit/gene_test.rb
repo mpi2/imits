@@ -236,10 +236,11 @@ class GeneTest < ActiveSupport::TestCase
         assert @gene
         assert_equal 5, @gene.mi_plans.count
         mi_plans = @gene.non_assigned_mi_plans
-        assert mi_plans.include?({ :id => @bash_plan.id, :consortium => 'BaSH', :production_centre => nil, :status => 'Interest' })
-        assert mi_plans.include?({ :id => @mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI', :status => 'Conflict' })
+        assert mi_plans.include?({ :id => @bash_plan.id, :consortium => 'BaSH', :production_centre => nil, :status_name => 'Interest' })
+        assert mi_plans.include?({ :id => @mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI', :status_name => 'Conflict' })
 
-        statuses = mi_plans.map {|p| p[:status]}
+        statuses = mi_plans.map {|p| p[:status_name]}
+        assert !statuses.blank?
         assert_not_include statuses, 'Assigned'
         assert_not_include statuses, 'Inactive'
         assert_not_include statuses, 'Assigned - ES Cell QC In Progress'

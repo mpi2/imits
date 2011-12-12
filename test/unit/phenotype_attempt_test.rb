@@ -46,5 +46,15 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#rederivation_started' do
+      should 'be in DB' do
+        assert_should have_db_column(:rederivation_started).with_options(:null => false)
+      end
+
+      should 'default to false' do
+        assert_equal false, default_phenotype_attempt.rederivation_started?
+      end
+    end
+
   end
 end

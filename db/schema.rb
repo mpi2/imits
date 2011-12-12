@@ -222,9 +222,10 @@ ActiveRecord::Schema.define(:version => 20111209084000) do
   end
 
   create_table "phenotype_attempts", :force => true do |t|
-    t.integer  "mi_attempt_id",                   :null => false
-    t.integer  "status_id",                       :null => false
-    t.boolean  "is_active",     :default => true, :null => false
+    t.integer  "mi_attempt_id",                           :null => false
+    t.integer  "status_id",                               :null => false
+    t.boolean  "is_active",            :default => true,  :null => false
+    t.boolean  "rederivation_started", :default => false, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

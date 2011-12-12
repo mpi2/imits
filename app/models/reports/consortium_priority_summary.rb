@@ -11,10 +11,10 @@ class Reports::ConsortiumPrioritySummary
   ROOT1 = '/reports/summary1'
   ROOT2 = '/reports/summary2'
   MAPPING1 = {
-    'activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
-    'mip' => ['Micro-injection in progress', 'Genotype confirmed'],
-    'glt' => ['Genotype confirmed'],
-    'aborted' => ['Micro-injection aborted']
+    'Activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
+    'Mice in production' => ['Micro-injection in progress', 'Genotype confirmed'],
+    'GLT Mice' => ['Genotype confirmed'],
+    'Aborted' => ['Micro-injection aborted']
   }
   MAPPING2 = {
     'ES QC started' => ['Assigned - ES Cell QC In Progress'],
@@ -42,7 +42,7 @@ class Reports::ConsortiumPrioritySummary
     report = Table(:data => cached_report.data,
       :column_names => ['Count'] + cached_report.column_names,
       :filters => lambda {|r|
-        if r['Consortium'] == consortium && (column == 'all' || MAPPING1[column].include?(r.data['Status']))
+        if r['Consortium'] == consortium && (column == 'All' || MAPPING1[column].include?(r.data['Status']))
           return false if genes.include?(r['Gene'])
           genes.push r['Gene']
           return true
@@ -71,27 +71,33 @@ class Reports::ConsortiumPrioritySummary
       'Consortium',
       'All'                => lambda { |group| count_unique_instances_of( group, 'Gene' ) },
       'Activity'           => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING1['activity'].include? row.data['Status'] } ) },
+          lambda { |row| MAPPING1['Activity'].include? row.data['Status'] } ) },
       'Mice in production' => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING1['mip'].include? row.data['Status'] } ) },
+          lambda { |row| MAPPING1['Mice in production'].include? row.data['Status'] } ) },
       'GLT Mice'           => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING1['glt'].include? row.data['Status'] } ) },
+          lambda { |row| MAPPING1['GLT Mice'].include? row.data['Status'] } ) },
       'Aborted'           => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING1['aborted'].include? row.data['Status'] } ) }
+          lambda { |row| MAPPING1['Aborted'].include? row.data['Status'] } ) }
     ).each do |row|
 
       glt = Integer(row['GLT Mice'])
       total = Integer(row['GLT Mice']) + Integer(row['Aborted'])
       pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
       pc = "%.2f" % pc
-            
+
+      make_link = lambda {|key|
+        row[key].to_s != '0' ?
+        "<a title='Click to see list of #{key}(s)' href='#{ROOT1}/consortium/#{row['Consortium']}/type/#{key}'>#{row[key]}</a>" :
+        ''
+      }
+
       report_table << {        
         'Consortium' => row['Consortium'],
-        'All' => row['All'].to_s != '0' ? "<a href='#{ROOT1}/consortium/#{row['Consortium']}/type/all'>#{row['All']}</a>" : '',
-        'Activity' => row['Activity'].to_s != '0' ? "<a href='#{ROOT1}/consortium/#{row['Consortium']}/type/activity'>#{row['Activity']}</a>" : '',
-        'Mice in production' => row['Mice in production'].to_s != '0' ? "<a href='#{ROOT1}/consortium/#{row['Consortium']}/type/mip'>#{row['Mice in production']}</a>" : '',
-        'GLT Mice' => row['GLT Mice'].to_s != '0' ? "<a href='#{ROOT1}/consortium/#{row['Consortium']}/type/glt'>#{row['GLT Mice']}</a>" : '',
-        'Aborted' => row['Aborted'].to_s != '0' ? "<a href='#{ROOT1}/consortium/#{row['Consortium']}/type/aborted'>#{row['Aborted']}</a>" : '',
+        'All' => make_link.call('All'),
+        'Activity' => make_link.call('Activity'),
+        'Mice in production' => make_link.call('Mice in production'),
+        'GLT Mice' => make_link.call('GLT Mice'),
+        'Aborted' => make_link.call('Aborted'),
         'Pipeline efficiency (%)' => pc
       }
     end

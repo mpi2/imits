@@ -28,7 +28,7 @@ class ReportsController < ApplicationController
   end
   
   def hacky_summary_test
-#    @report1 = Reports::ConsortiumPrioritySummary.generate1
+    @report1 = Reports::ConsortiumPrioritySummary.generate1
     @report2 = Reports::ConsortiumPrioritySummary.generate2
   end
 

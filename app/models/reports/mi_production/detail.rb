@@ -35,7 +35,7 @@ class Reports::MiProduction::Detail
     report_options[:methods] = [
       'reportable_statuses_with_latest_dates',
       'latest_relevant_mi_attempt',
-      'status'
+      'status_name'
     ]
 
     transform = proc { |record|
@@ -46,7 +46,7 @@ class Reports::MiProduction::Detail
         record["#{name} Date"] = date.to_s
       end
       if mi_attempt
-        record['status'] = mi_attempt.status
+        record['status_name'] = mi_attempt.status
 
         mi_status_dates = mi_attempt.reportable_statuses_with_latest_dates
         mi_status_dates.each do |description, date|
@@ -57,7 +57,7 @@ class Reports::MiProduction::Detail
     report_options[:transforms] = [transform]
 
     report = MiPlan.report_table(:all, report_options)
-    report.rename_columns(report_columns.merge('status' => 'Status'))
+    report.rename_columns(report_columns.merge('status_name' => 'Status'))
     column_names = report_columns.values + [
       'Status',
       'Assigned Date',

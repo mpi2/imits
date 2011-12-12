@@ -178,20 +178,23 @@ class Reports::ConsortiumPrioritySummary
       p_found = []
 
       summary.each do |row|
+
+        make_link = lambda {|key, value|
+          value.to_s != '0' ?
+          "<a href='#{ROOT2}/consortium/#{consortium}/type/#{key}/priority/#{row['Priority']}'>#{value}</a>" :
+          ''
+        }
+
         p_found.push row['Priority']
         report_table << {
           'Consortium' => consortium,
           'Priority' => row['Priority'],
-          'All' => row['All'].to_s != '0' ? "<a href='#{ROOT2}/consortium/#{consortium}/type/all/priority/#{row['Priority']}'>#{row['All']}</a>" : '',
-#          'ES QC started' => row['ES QC started'],
-          'ES QC started' => row['ES QC started'].to_s != '0' ? "<a href='#{ROOT2}/consortium/#{consortium}/type/es_qc_started/priority/#{row['Priority']}'>#{row['ES QC started']}</a>" : '',
-#          'ES QC finished' => row['ES QC finished'],
-          'ES QC finished' => row['ES QC finished'].to_s != '0' ? "<a href='#{ROOT2}/consortium/#{consortium}/type/es_qc_finished/priority/#{row['Priority']}'>#{row['ES QC finished']}</a>" : '',
-#          'MI in progress' => row['MI in progress'],
-          'MI in progress' => row['MI in progress'].to_s != '0' ? "<a href='#{ROOT2}/consortium/#{consortium}/type/mi_in_progress/priority/#{row['Priority']}'>#{row['MI in progress']}</a>" : '',
-#          'GLT Mice' => row['GLT Mice'],
-          'GLT Mice' => make_link2({:value=>row['GLT Mice'], :root=> ROOT2, :consortium=>consortium, :key=> 'glt', :priority=> row['Priority']}),
-          'Aborted' => make_link2({:value=>row['Aborted'], :root=> ROOT2, :consortium=>consortium, :key=> 'aborted', :priority=> row['Priority']}),
+          'All' => make_link.call('all', row['All']),
+          'ES QC started' => make_link.call('es_qc_started', row['ES QC started']),
+          'ES QC finished' => make_link.call('es_qc_finished', row['ES QC finished']),
+          'MI in progress' => make_link.call('mi_in_progress', row['MI in progress']),
+          'GLT Mice' => make_link.call('glt', row['GLT Mice']),
+          'Aborted' => make_link.call('aborted', row['Aborted']),
           'order_by' => ORDER_BY_MAP[row['Priority']]
         }
       end
@@ -203,12 +206,12 @@ class Reports::ConsortiumPrioritySummary
         report_table << {
           'Consortium' => consortium,
           'Priority' => priority,
-          'All' => '',
-          'ES QC started' => '',
-          'ES QC finished' => '',
-          'MI in progress' => '',
-          'GLT Mice' => '',
-          'Aborted' => '',
+          #'All' => '',
+          #'ES QC started' => '',
+          #'ES QC finished' => '',
+          #'MI in progress' => '',
+          #'GLT Mice' => '',
+          #'Aborted' => '',
           'order_by' => ORDER_BY_MAP[priority]
         }
       end

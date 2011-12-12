@@ -28,13 +28,16 @@ class ReportsController < ApplicationController
   end
   
   def hacky_summary_test
-    @report1 = Reports::ConsortiumPrioritySummary.generate1
-#    @report2 = Reports::ConsortiumPrioritySummary.generate2
+#    @report1 = Reports::ConsortiumPrioritySummary.generate1
+    @report2 = Reports::ConsortiumPrioritySummary.generate2
   end
 
-  def hacky_subsummary_test
+  def hacky_subsummary_test1
     @title2, @report = Reports::ConsortiumPrioritySummary.subsummary1(params)
-    #raise "found hacky_subsummary_test route"
+  end
+
+  def hacky_subsummary_test2
+    @title2, @report = Reports::ConsortiumPrioritySummary.subsummary2(params)
   end
 
   def double_assigned_plans_matrix

@@ -42,6 +42,7 @@ Kermits2::Application.routes.draw do
 
   match 'feeds/list/*specs', :controller => 'reports', :action => 'hacky_subfeed_test'
   
-  match 'reports/list/*specs', :controller => 'reports', :action => 'hacky_subsummary_test'
+  match 'reports/summary1/*specs', :controller => 'reports', :action => 'hacky_subsummary_test1'
+  match 'reports/summary2/*specs', :controller => 'reports', :action => 'hacky_subsummary_test2'
 
 end

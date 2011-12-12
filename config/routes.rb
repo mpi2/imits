@@ -41,5 +41,7 @@ Kermits2::Application.routes.draw do
   resources :report_caches, :only => [:show]
 
   match 'feeds/list/*specs', :controller => 'reports', :action => 'hacky_subfeed_test'
+  
+  match 'reports/list/*specs', :controller => 'reports', :action => 'hacky_subsummary_test'
 
 end

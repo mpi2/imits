@@ -215,19 +215,19 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      context '#mi_plan_status=' do
+      context '#status=' do
         should 'create status stamps when status is changed' do
-          @default_mi_plan.status = 'Conflict'; @default_mi_plan.save!
-          @default_mi_plan.status = 'Assigned'; @default_mi_plan.save!
-          @default_mi_plan.status = 'Interest'; @default_mi_plan.save!
+          @default_mi_plan.status = MiPlan::Status['Conflict']; @default_mi_plan.save!
+          @default_mi_plan.status = MiPlan::Status['Assigned']; @default_mi_plan.save!
+          @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
 
           expected = ['Interest', 'Conflict', 'Assigned', 'Interest']
           assert_equal expected, @default_mi_plan.status_stamps.map{|i| i.status.name}
         end
 
         should 'not add the same status stamp consecutively' do
-          @default_mi_plan.status = 'Interest'; @default_mi_plan.save!
-          @default_mi_plan.status = 'Interest'; @default_mi_plan.save!
+          @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
+          @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
 
           assert_equal ['Interest'], @default_mi_plan.status_stamps.map{|i|i.status.name}
         end
@@ -236,15 +236,15 @@ class MiPlanTest < ActiveSupport::TestCase
       context '#status_name' do
         should 'use AccessAssociationByAttribute' do
           status = MiPlan::Status[:Conflict]
-          assert_not_equal status, @default_mi_plan.status
-          @default_mi_plan.status = 'Conflict'
+          assert_not_equal status.name, @default_mi_plan.status_name
+          @default_mi_plan.status_name = 'Conflict'
           assert_equal status, @default_mi_plan.status
         end
 
         should 'be Interest by default' do
           plan = MiPlan.new
           plan.valid?
-          assert_equal 'Interest', plan.status
+          assert_equal 'Interest', plan.status_name
         end
       end
 

@@ -38,7 +38,7 @@ class MiPlan < ActiveRecord::Base
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
   access_association_by_attribute :mi_plan_priority, :name, :full_alias => :priority
-  #access_association_by_attribute :status, :name, :full_alias => :status
+  access_association_by_attribute :status, :name
 
   validates :marker_symbol, :presence => true
   validates :consortium_name, :presence => true
@@ -68,7 +68,7 @@ class MiPlan < ActiveRecord::Base
   before_validation :set_default_mi_plan_status
   before_validation :set_default_number_of_es_cells_starting_qc
   before_validation :set_default_sub_project
-  # before_validation :change_status
+  before_validation :change_status
 
   before_save :record_if_status_was_changed
   after_save :create_status_stamp_if_status_was_changed
@@ -90,7 +90,7 @@ class MiPlan < ActiveRecord::Base
   end
 
   def record_if_status_was_changed
-    if self.changed.include? 'mi_plan_status_id'
+    if self.changed.include? 'status_id'
       @new_mi_plan_status = self.status
     else
       @new_mi_plan_status = nil

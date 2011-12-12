@@ -36,11 +36,11 @@ class Reports::MiPlans
         where mi_plans.gene_id in (
           select gene_id
           from mi_plans
-          where mi_plan_status_id in #{assigned_statuses}
+          where mi_plans.status_id in #{assigned_statuses}
 
           group by gene_id
           having count(*) > 1
-        ) and mi_plan_status_id in #{assigned_statuses} order by marker_symbol;
+        ) and mi_plans.status_id in #{assigned_statuses} order by marker_symbol;
       SQL
 
       result = ActiveRecord::Base.connection.select_all( sql )
@@ -85,10 +85,10 @@ class Reports::MiPlans
         where mi_plans.gene_id in (
           select gene_id
           from mi_plans
-          where mi_plan_status_id in #{assigned_statuses}
+          where mi_plans.status_id in #{assigned_statuses}
           group by gene_id
           having count(*) > 1
-        ) and mi_plan_status_id in #{assigned_statuses} order by marker_symbol;
+        ) and mi_plans.status_id in #{assigned_statuses} order by marker_symbol;
       SQL
 
       result = ActiveRecord::Base.connection.select_all( sql )

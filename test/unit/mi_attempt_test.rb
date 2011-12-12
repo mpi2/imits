@@ -616,12 +616,12 @@ class MiAttemptTest < ActiveSupport::TestCase
             mi_plan = Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => Centre.find_by_name!('WTSI'),
-                    :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
+                    :status => MiPlan::Status.find_by_name!('Interest')
 
             Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => nil,
-                    :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
+                    :status => MiPlan::Status.find_by_name!('Interest')
 
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),
@@ -641,7 +641,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             mi_plan = Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => Centre.find_by_name!('WTSI'),
-                    :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
+                    :status => MiPlan::Status.find_by_name!('Interest')
 
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),
@@ -655,7 +655,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
             mi_plan.reload
             assert_equal mi_plan, mi_attempt.mi_plan
-            assert_equal 'Assigned', mi_plan.mi_plan_status.name
+            assert_equal 'Assigned', mi_plan.status.name
           end
 
           should 'be created if none match gene, consortium and production centre' do
@@ -678,7 +678,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 'WTSI', mi_attempt.mi_plan.production_centre.name
             assert_equal 'BaSH', mi_attempt.mi_plan.consortium.name
             assert_equal 'High', mi_attempt.mi_plan.mi_plan_priority.name
-            assert_equal 'Assigned', mi_attempt.mi_plan.mi_plan_status.name
+            assert_equal 'Assigned', mi_attempt.mi_plan.status.name
           end
 
           should 'be assigned the MiPlan with specified consortium and gene but no production centre if an MiPlan with all 3 attributes does not exist - should also set the MiPlan\'s production centre to the one specified and mi_plan_status to Assigned' do
@@ -691,7 +691,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             mi_plan = Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => nil,
-                    :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
+                    :status => MiPlan::Status.find_by_name!('Interest')
 
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),
@@ -706,7 +706,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             mi_plan.reload
             assert_equal mi_plan, mi_attempt.mi_plan
             assert_equal 'WTSI', mi_plan.production_centre.name
-            assert_equal 'Assigned', mi_plan.mi_plan_status.name
+            assert_equal 'Assigned', mi_plan.status.name
           end
 
         end

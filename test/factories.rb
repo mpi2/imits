@@ -34,7 +34,7 @@ end
 Factory.define :mi_plan do |mi_plan|
   mi_plan.association :gene
   mi_plan.consortium { Consortium.find_by_name!('EUCOMM-EUMODIC') }
-  mi_plan.mi_plan_status   { MiPlan::Status.find_by_name! 'Interest' }
+  mi_plan.status   { MiPlan::Status.find_by_name! 'Interest' }
   mi_plan.mi_plan_priority { MiPlanPriority.find_by_name! 'High' }
 end
 
@@ -75,10 +75,10 @@ Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_
 
     mi.mi_plan.status_stamps.first.update_attributes(:created_at => Time.parse('2011-03-03 12:00:00'))
     mi.mi_plan.status_stamps.create!(
-      :mi_plan_status => MiPlan::Status[:Conflict],
+      :status => MiPlan::Status[:Conflict],
       :created_at => Time.parse('2011-02-02 12:00:00'))
     mi.mi_plan.status_stamps.create!(
-      :mi_plan_status => MiPlan::Status[:Interest],
+      :status => MiPlan::Status[:Interest],
       :created_at => Time.parse('2011-01-01 12:00:00'))
 
     mi.mi_plan.status_stamps.reload

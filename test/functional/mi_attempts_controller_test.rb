@@ -200,7 +200,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         Factory.create(:mi_plan, :gene => es_cell.gene,
           :production_centre => Centre.find_by_name!('WTSI'),
           :consortium => Consortium.find_by_name!('MGP'),
-          :mi_plan_status => MiPlan::Status[:Assigned])
+          :status => MiPlan::Status[:Assigned])
 
         post( :create,
           :mi_attempt => {

@@ -192,11 +192,11 @@ class ReportsController < ApplicationController
       # Add totals by status
       gene_count_by_status =
         MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(
-        :gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
+        :gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :status)
 
       if @include_plans_with_active_attempts
         gene_count_by_status =
-          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
+          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :status)
       end
 
       @summary_by_status << totals = ['TOTAL BY STATUS'] + statuses.map { |status| gene_count_by_status[status] || 0 } + [total_number_of_planned_genes]
@@ -298,7 +298,7 @@ class ReportsController < ApplicationController
         :production_centre  => { :only => [:name] },
         :gene               => { :only => [:marker_symbol,:mgi_accession_id] },
         :mi_plan_priority   => { :only => [:name] },
-        :mi_plan_status     => { :only => [:name] }
+        :status     => { :only => [:name] }
       }
     }
 

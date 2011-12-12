@@ -10,7 +10,7 @@ class MiPlanTest < ActiveSupport::TestCase
     end
 
     should '@default_mi_plan should be in state Interest for the rest of the tests' do
-      assert_equal 'Interest', @default_mi_plan.mi_plan_status.name
+      assert_equal 'Interest', @default_mi_plan.status.name
     end
 
     context 'attribute tests:' do
@@ -29,7 +29,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:gene_id).with_options(:null => false)
         assert_should have_db_column(:consortium_id).with_options(:null => false)
         assert_should have_db_column(:production_centre_id)
-        assert_should have_db_column(:mi_plan_status_id).with_options(:null => false)
+        assert_should have_db_column(:status_id).with_options(:null => false)
         assert_should have_db_column(:mi_plan_priority_id).with_options(:null => false)
         assert_should have_db_column(:sub_project_id).with_options(:null => false)
       end
@@ -134,24 +134,24 @@ class MiPlanTest < ActiveSupport::TestCase
 
         should 'be "Interest" by default' do
           mi_plan = Factory.create :mi_plan
-          assert_equal [MiPlan::Status[:Interest]], mi_plan.status_stamps.map(&:mi_plan_status)
+          assert_equal [MiPlan::Status[:Interest]], mi_plan.status_stamps.map(&:status)
         end
 
         should 'be ordered by created_at asc' do
           @default_mi_plan.status_stamps.destroy_all
           s1 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
-            :mi_plan_status => MiPlan::Status[:Assigned], :created_at => 1.day.ago)
+            :status => MiPlan::Status[:Assigned], :created_at => 1.day.ago)
           s2 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
-            :mi_plan_status => MiPlan::Status[:Conflict], :created_at => 1.hour.ago)
+            :status => MiPlan::Status[:Conflict], :created_at => 1.hour.ago)
           s3 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
-            :mi_plan_status => MiPlan::Status[:Interest], :created_at => 12.hours.ago)
+            :status => MiPlan::Status[:Interest], :created_at => 12.hours.ago)
           @default_mi_plan.status_stamps.reload
           assert_equal [s1, s3, s2].map(&:name), @default_mi_plan.status_stamps.map(&:name)
         end
 
         should 'delete related MiPlan::StatusStamps as well' do
           plan = Factory.create :mi_plan_with_production_centre
-          plan.mi_plan_status = MiPlan::Status['Conflict']; plan.save!
+          plan.status = MiPlan::Status['Conflict']; plan.save!
           plan.number_of_es_cells_starting_qc = 5; plan.save!
           stamps = plan.status_stamps.dup
           assert_equal 3, stamps.size
@@ -173,15 +173,15 @@ class MiPlanTest < ActiveSupport::TestCase
         should 'add the stamp' do
           assert_not_equal [], MiPlan::StatusStamp.where(
             :mi_plan_id => @default_mi_plan.id,
-            :mi_plan_status_id => MiPlan::Status[:Assigned].id)
+            :status_id => MiPlan::Status[:Assigned].id)
           assert_not_equal [], MiPlan::StatusStamp.where(
             :mi_plan_id => @default_mi_plan.id,
-            :mi_plan_status_id => MiPlan::Status[:Conflict].id)
+            :status_id => MiPlan::Status[:Conflict].id)
         end
 
         should 'update the association afterwards' do
           assert_equal [MiPlan::Status[:Assigned], MiPlan::Status[:Conflict]],
-                  @default_mi_plan.status_stamps.map(&:mi_plan_status)
+                  @default_mi_plan.status_stamps.map(&:status)
         end
       end
 
@@ -191,17 +191,17 @@ class MiPlanTest < ActiveSupport::TestCase
 
           plan.status_stamps.first.update_attributes!(:created_at => '2011-11-30 00:00:00')
           plan.reload
-          plan.status_stamps.create!(:mi_plan_status => MiPlan::Status['Interest'],
+          plan.status_stamps.create!(:status => MiPlan::Status['Interest'],
             :created_at => '2010-10-30 23:59:59')
-          plan.status_stamps.create!(:mi_plan_status => MiPlan::Status['Conflict'],
+          plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
             :created_at => '2010-11-24 23:59:59')
-          plan.status_stamps.create!(:mi_plan_status => MiPlan::Status['Conflict'],
+          plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
             :created_at => '2011-05-30 23:59:59')
-          plan.status_stamps.create!(:mi_plan_status => MiPlan::Status['Inspect - GLT Mouse'],
+          plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
             :created_at => '2011-11-03 12:33:15')
-          plan.status_stamps.create!(:mi_plan_status => MiPlan::Status['Inspect - GLT Mouse'],
+          plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
             :created_at => '2011-02-12 23:59:59')
-          plan.status_stamps.create!(:mi_plan_status => MiPlan::Status['Inactive'],
+          plan.status_stamps.create!(:status => MiPlan::Status['Inactive'],
             :created_at => '2011-10-24 23:59:59')
 
           expected = {
@@ -222,23 +222,23 @@ class MiPlanTest < ActiveSupport::TestCase
           @default_mi_plan.status = 'Interest'; @default_mi_plan.save!
 
           expected = ['Interest', 'Conflict', 'Assigned', 'Interest']
-          assert_equal expected, @default_mi_plan.status_stamps.map{|i| i.mi_plan_status.name}
+          assert_equal expected, @default_mi_plan.status_stamps.map{|i| i.status.name}
         end
 
         should 'not add the same status stamp consecutively' do
           @default_mi_plan.status = 'Interest'; @default_mi_plan.save!
           @default_mi_plan.status = 'Interest'; @default_mi_plan.save!
 
-          assert_equal ['Interest'], @default_mi_plan.status_stamps.map{|i|i.mi_plan_status.name}
+          assert_equal ['Interest'], @default_mi_plan.status_stamps.map{|i|i.status.name}
         end
       end
 
       context '#status_name' do
         should 'use AccessAssociationByAttribute' do
           status = MiPlan::Status[:Conflict]
-          assert_not_equal status, @default_mi_plan.mi_plan_status
+          assert_not_equal status, @default_mi_plan.status
           @default_mi_plan.status = 'Conflict'
-          assert_equal status, @default_mi_plan.mi_plan_status
+          assert_equal status, @default_mi_plan.status
         end
 
         should 'be Interest by default' do
@@ -391,19 +391,19 @@ class MiPlanTest < ActiveSupport::TestCase
       context '#withdrawn virtual attribute' do
         context 'when being set to true' do
           should 'set the status to Withdrawn if it at an allowed status' do
-            @default_mi_plan.mi_plan_status = MiPlan::Status['Conflict']
+            @default_mi_plan.status = MiPlan::Status['Conflict']
             @default_mi_plan.withdrawn = true
             assert_equal true, @default_mi_plan.withdrawn
             assert_equal 'Withdrawn', @default_mi_plan.status
 
-            @default_mi_plan.mi_plan_status = MiPlan::Status['Inspect - Conflict']
+            @default_mi_plan.status = MiPlan::Status['Inspect - Conflict']
             @default_mi_plan.withdrawn = true
             assert_equal true, @default_mi_plan.withdrawn
             assert_equal 'Withdrawn', @default_mi_plan.status
           end
 
           should 'raise an error if not at an allowed status' do
-            @default_mi_plan.mi_plan_status = MiPlan::Status['Assigned']
+            @default_mi_plan.status = MiPlan::Status['Assigned']
             assert_raise RuntimeError, 'cannot withdraw from status Assigned' do
               @default_mi_plan.withdrawn = true
             end
@@ -414,7 +414,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
         context 'when being set to false' do
           should 'not allow it if withdrawn' do
-            @default_mi_plan.mi_plan_status = MiPlan::Status['Conflict']
+            @default_mi_plan.status = MiPlan::Status['Conflict']
             @default_mi_plan.withdrawn = true
             assert_raise RuntimeError, 'withdrawal cannot be reversed' do
               @default_mi_plan.withdrawn = false
@@ -429,20 +429,20 @@ class MiPlanTest < ActiveSupport::TestCase
         end
 
         should 'return true if status is Withdrawn' do
-          @default_mi_plan.mi_plan_status = MiPlan::Status['Withdrawn']
+          @default_mi_plan.status = MiPlan::Status['Withdrawn']
           assert_equal true, @default_mi_plan.withdrawn
         end
 
         should 'return false if status is not Withdrawn' do
-          @default_mi_plan.mi_plan_status = MiPlan::Status['Assigned']
+          @default_mi_plan.status = MiPlan::Status['Assigned']
           assert_equal false, @default_mi_plan.withdrawn
-          @default_mi_plan.mi_plan_status = MiPlan::Status['Conflict']
+          @default_mi_plan.status = MiPlan::Status['Conflict']
           assert_equal false, @default_mi_plan.withdrawn
         end
 
         should 'be readable as #withdrawn?' do
           assert_false @default_mi_plan.withdrawn?
-          @default_mi_plan.mi_plan_status = MiPlan::Status['Conflict']
+          @default_mi_plan.status = MiPlan::Status['Conflict']
           @default_mi_plan.withdrawn = true
           assert_true @default_mi_plan.withdrawn?
         end
@@ -516,10 +516,10 @@ class MiPlanTest < ActiveSupport::TestCase
         @inspect_mi_plans = [
           Factory.create(:mi_plan, :gene => gene,
             :consortium => Consortium.find_by_name!('MGP'),
-            :mi_plan_status => MiPlan::Status.find_by_name!('Inspect - Conflict')),
+            :status => MiPlan::Status.find_by_name!('Inspect - Conflict')),
           Factory.create(:mi_plan, :gene => gene,
             :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-            :mi_plan_status => MiPlan::Status.find_by_name!('Inspect - Conflict'))
+            :status => MiPlan::Status.find_by_name!('Inspect - Conflict'))
         ]
 
         MiPlan.major_conflict_resolution
@@ -529,13 +529,13 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'set Interested MiPlan to Assigned status if no other Interested or Assigned MiPlan for the same gene exists' do
         setup_for_set_one_to_assigned
-        assert_equal 'Assigned', @only_interest_mi_plan.mi_plan_status.name
+        assert_equal 'Assigned', @only_interest_mi_plan.status.name
         MiPlan.major_conflict_resolution
       end
 
       should 'not affect non-Interested MiPlans when setting Interested ones to Assigned' do
         setup_for_set_one_to_assigned
-        assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], @inspect_mi_plans.map{|i| i.mi_plan_status.name}
+        assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], @inspect_mi_plans.map{|i| i.status.name}
         MiPlan.major_conflict_resolution
       end
 
@@ -548,7 +548,7 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.major_conflict_resolution
 
         mi_plans.each(&:reload)
-        assert_equal ['Conflict', 'Conflict', 'Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
+        assert_equal ['Conflict', 'Conflict', 'Conflict'], mi_plans.map {|i| i.status.name }
 
         MiPlan.major_conflict_resolution
       end
@@ -558,7 +558,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene,
                   :consortium => Consortium.find_by_name!(consortium_name),
-                  :mi_plan_status => MiPlan::Status.find_by_name!('Conflict')
+                  :status => MiPlan::Status.find_by_name!('Conflict')
         end
 
         interested_mi_plan = Factory.create :mi_plan,
@@ -567,7 +567,7 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.major_conflict_resolution
         interested_mi_plan.reload
 
-        assert_equal 'Conflict', interested_mi_plan.mi_plan_status.name
+        assert_equal 'Conflict', interested_mi_plan.status.name
 
         MiPlan.major_conflict_resolution
       end
@@ -576,7 +576,7 @@ class MiPlanTest < ActiveSupport::TestCase
         gene = Factory.create :gene_cbx1
         Factory.create :mi_plan, :gene => gene,
                 :consortium => Consortium.find_by_name!('BaSH'),
-                :mi_plan_status => MiPlan::Status.find_by_name!('Assigned')
+                :status => MiPlan::Status.find_by_name!('Assigned')
 
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
@@ -585,7 +585,7 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.major_conflict_resolution
         mi_plans.each(&:reload)
 
-        assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
+        assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.status.name }
       end
 
       should 'set all interested MiPlans to "Inspect - Conflict" if other MiPlans for the same gene are already in an alternative Assigned state (like the ES Cell QC ones)' do
@@ -602,7 +602,7 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.major_conflict_resolution
         mi_plans.each(&:reload)
 
-        assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.mi_plan_status.name }
+        assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.status.name }
       end
 
       should 'set all interested MiPlans to "Inspect - MI Attempt" if MiPlans with active MiAttempts already exist' do
@@ -610,7 +610,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan,
                 :gene              => gene,
                 :consortium        => Consortium.find_by_name!('BaSH'),
-                :mi_plan_status    => MiPlan::Status.find_by_name!('Assigned'),
+                :status    => MiPlan::Status.find_by_name!('Assigned'),
                 :production_centre => Centre.find_by_name!('BCM')
 
         mi_attempt = Factory.create(:mi_attempt, :es_cell => Factory.create(:es_cell, :gene => gene),
@@ -625,7 +625,7 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.major_conflict_resolution
         mi_plans.each(&:reload)
 
-        assert_equal ['Inspect - MI Attempt', 'Inspect - MI Attempt'], mi_plans.map {|i| i.mi_plan_status.name }
+        assert_equal ['Inspect - MI Attempt', 'Inspect - MI Attempt'], mi_plans.map {|i| i.status.name }
       end
 
       should 'set all interested MiPlans to "Inspect - GLT Mouse" if MiPlans with GLT Mice already exist' do
@@ -633,7 +633,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan,
                 :gene              => gene,
                 :consortium        => Consortium.find_by_name!('BaSH'),
-                :mi_plan_status    => MiPlan::Status.find_by_name!('Assigned'),
+                :status    => MiPlan::Status.find_by_name!('Assigned'),
                 :production_centre => Centre.find_by_name!('BCM')
 
         mi_attempt = Factory.create :mi_attempt,
@@ -649,12 +649,12 @@ class MiPlanTest < ActiveSupport::TestCase
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
 
-        mi_plans.each { |plan| assert_equal MiPlan::Status.find_by_name!('Interest'), plan.mi_plan_status }
+        mi_plans.each { |plan| assert_equal MiPlan::Status.find_by_name!('Interest'), plan.status }
 
         MiPlan.major_conflict_resolution
         mi_plans.each(&:reload)
 
-        assert_equal ['Inspect - GLT Mouse', 'Inspect - GLT Mouse'], mi_plans.map {|i| i.mi_plan_status.name }
+        assert_equal ['Inspect - GLT Mouse', 'Inspect - GLT Mouse'], mi_plans.map {|i| i.status.name }
       end
 
       should 'ignore "Inactive" MiPlans when making decisions' do
@@ -666,7 +666,7 @@ class MiPlanTest < ActiveSupport::TestCase
                 :gene => gene,
                 :consortium => Consortium.find_by_name!('JAX'),
                 :production_centre => Centre.find_by_name!('JAX'),
-                :mi_plan_status => MiPlan::Status['Inactive']
+                :status => MiPlan::Status['Inactive']
 
         assert_equal 'Interest', mi_plan.status
         assert_equal 'Inactive', inactive_mi_plan.status
@@ -697,7 +697,7 @@ class MiPlanTest < ActiveSupport::TestCase
       ].each do |status_name|
         should "Assign an MiPlan in status #{status_name} if it is the only one for a gene" do
           plan = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status => MiPlan::Status[status_name]
+                  :status => MiPlan::Status[status_name]
           MiPlan.minor_conflict_resolution
           plan.reload
           assert_equal 'Assigned', plan.status
@@ -709,7 +709,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :number_of_es_cells_passing_qc => 2,
                   :gene => gene
           plan = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status => MiPlan::Status[status_name],
+                  :status => MiPlan::Status[status_name],
                   :gene => gene
           MiPlan.minor_conflict_resolution
           plan.reload
@@ -724,7 +724,7 @@ class MiPlanTest < ActiveSupport::TestCase
       ].each do |status_name|
         should "not change the status of MiPlan with status #{status_name} even if it is the only one for a gene" do
           plan = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status => MiPlan::Status[status_name]
+                  :status => MiPlan::Status[status_name]
           MiPlan.minor_conflict_resolution
           plan.reload
           assert_equal status_name, plan.status
@@ -734,10 +734,10 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'not change status of Inspect or Conflict MiPlans if there are more than one of them for a gene' do
         gene = Factory.create :gene_cbx1
         plan1 = Factory.create :mi_plan_with_production_centre,
-                :mi_plan_status => MiPlan::Status['Conflict'],
+                :status => MiPlan::Status['Conflict'],
                 :gene => gene
         plan2 = Factory.create :mi_plan_with_production_centre,
-                :mi_plan_status => MiPlan::Status['Inspect - MI Attempt'],
+                :status => MiPlan::Status['Inspect - MI Attempt'],
                 :gene => gene
         MiPlan.minor_conflict_resolution
         plan1.reload; plan2.reload
@@ -748,7 +748,7 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'change the status of a Conflct MiPlan if it is the only one for a gene' do
         gene = Factory.create :gene_cbx1
         conflict_plan = Factory.create :mi_plan_with_production_centre,
-                :mi_plan_status => MiPlan::Status['Conflict'],
+                :status => MiPlan::Status['Conflict'],
                 :gene => gene
 
         MiPlan.minor_conflict_resolution
@@ -765,16 +765,16 @@ class MiPlanTest < ActiveSupport::TestCase
         gene2 = Factory.create :gene_trafd1
         bash = Factory.create :mi_plan, :gene => gene1,
                 :consortium => Consortium.find_by_name!('BaSH'),
-                :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
+                :status => MiPlan::Status.find_by_name!('Interest')
         consortium_x = Factory.create :mi_plan, :gene => gene1,
                 :consortium => Consortium.find_by_name!('Consortium X'),
-                :mi_plan_status => MiPlan::Status.find_by_name!('Interest')
+                :status => MiPlan::Status.find_by_name!('Interest')
         mgp = Factory.create :mi_plan, :gene => gene1,
                 :consortium => Consortium.find_by_name!('MGP'),
-                :mi_plan_status => MiPlan::Status.find_by_name!('Assigned')
+                :status => MiPlan::Status.find_by_name!('Assigned')
         eucomm = Factory.create :mi_plan, :gene => gene2,
                 :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-                :mi_plan_status => MiPlan::Status.find_by_name!('Inspect - Conflict')
+                :status => MiPlan::Status.find_by_name!('Inspect - Conflict')
 
         result = MiPlan.all_grouped_by_mgi_accession_id_then_by_status_name
 
@@ -900,7 +900,7 @@ class MiPlanTest < ActiveSupport::TestCase
                 :gene => cbx1,
                 :consortium => Consortium.find_by_name!('JAX'),
                 :production_centre => Centre.find_by_name!('JAX'),
-                :mi_plan_status => MiPlan::Status.find_by_name!('Assigned')
+                :status => MiPlan::Status.find_by_name!('Assigned')
 
         es_qc_mi_plan_no_attempts = Factory.create :mi_plan,
                 :gene => cbx1,
@@ -966,22 +966,22 @@ class MiPlanTest < ActiveSupport::TestCase
     context '#assigned?' do
       should 'return true if status is assigned' do
         plan = Factory.build :mi_plan_with_production_centre
-        plan.mi_plan_status = MiPlan::Status['Assigned']
+        plan.status = MiPlan::Status['Assigned']
         assert plan.assigned?
 
-        plan.mi_plan_status = MiPlan::Status['Assigned - ES Cell QC In Progress']
+        plan.status = MiPlan::Status['Assigned - ES Cell QC In Progress']
         assert plan.assigned?
 
-        plan.mi_plan_status = MiPlan::Status['Assigned - ES Cell QC Complete']
+        plan.status = MiPlan::Status['Assigned - ES Cell QC Complete']
         assert plan.assigned?
       end
 
       should 'return false if status is not assigned' do
         plan = Factory.build :mi_plan_with_production_centre
-        plan.mi_plan_status = MiPlan::Status['Inactive']
+        plan.status = MiPlan::Status['Inactive']
         assert_false plan.assigned?
 
-        plan.mi_plan_status = MiPlan::Status['Conflict']
+        plan.status = MiPlan::Status['Conflict']
         assert_false plan.assigned?
       end
     end
@@ -1047,7 +1047,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
         Factory.create :mi_plan, :gene => @gene,
                 :consortium => @eucomm_cons, :production_centre => @ics_cent,
-                :mi_plan_status => MiPlan::Status[:Assigned]
+                :status => MiPlan::Status[:Assigned]
 
         Factory.create :mi_plan, :gene => @gene,
                 :consortium => @bash_cons, :production_centre => @jax_cent,

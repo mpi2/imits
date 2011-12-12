@@ -76,7 +76,7 @@ class Reports::MiPlans
           mi_attempts.mi_date as mi_attempts_mi_date,
           mi_attempt_statuses.description as mi_attempt_statuses_description
         from mi_plans
-          join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
+          join mi_plan_statuses on mi_plans.status_id = mi_plan_statuses.id
           left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
           left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
           join consortia on mi_plans.consortium_id = consortia.id

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111209084000) do
+ActiveRecord::Schema.define(:version => 20111212091708) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -178,8 +178,8 @@ ActiveRecord::Schema.define(:version => 20111209084000) do
   add_index "mi_plan_priorities", ["name"], :name => "index_mi_plan_priorities_on_name", :unique => true
 
   create_table "mi_plan_status_stamps", :force => true do |t|
-    t.integer  "mi_plan_id",        :null => false
-    t.integer  "mi_plan_status_id", :null => false
+    t.integer  "mi_plan_id", :null => false
+    t.integer  "status_id",  :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -203,7 +203,7 @@ ActiveRecord::Schema.define(:version => 20111209084000) do
   create_table "mi_plans", :force => true do |t|
     t.integer  "gene_id",                        :null => false
     t.integer  "consortium_id",                  :null => false
-    t.integer  "mi_plan_status_id",              :null => false
+    t.integer  "status_id",                      :null => false
     t.integer  "mi_plan_priority_id",            :null => false
     t.integer  "production_centre_id"
     t.datetime "created_at"
@@ -328,14 +328,14 @@ ActiveRecord::Schema.define(:version => 20111209084000) do
   add_foreign_key "mi_attempts", "strain_test_cross_strains", :name => "mi_attempts_test_cross_strain_id_fk", :column => "test_cross_strain_id"
   add_foreign_key "mi_attempts", "users", :name => "mi_attempts_updated_by_id_fk", :column => "updated_by_id"
 
-  add_foreign_key "mi_plan_status_stamps", "mi_plan_statuses", :name => "mi_plan_status_stamps_mi_plan_status_id_fk"
+  add_foreign_key "mi_plan_status_stamps", "mi_plan_statuses", :name => "mi_plan_status_stamps_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plan_status_stamps", "mi_plans", :name => "mi_plan_status_stamps_mi_plan_id_fk"
 
   add_foreign_key "mi_plans", "centres", :name => "mi_plans_production_centre_id_fk", :column => "production_centre_id"
   add_foreign_key "mi_plans", "consortia", :name => "mi_plans_consortium_id_fk"
   add_foreign_key "mi_plans", "genes", :name => "mi_plans_gene_id_fk"
   add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk"
-  add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk"
+  add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"
 
   add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"

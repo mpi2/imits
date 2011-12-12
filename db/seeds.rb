@@ -133,5 +133,6 @@ Seeds.load MiPlan::SubProject, [
 ]
 
 Seeds.load PhenotypeAttempt::Status, [
-  {:id =>  1, :name => 'Registered'}
+  {:id =>  1, :name => 'Registered'},
+  {:id =>  2, :name => 'Rederivation Started'}
 ]

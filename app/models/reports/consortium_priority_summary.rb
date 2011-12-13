@@ -3,11 +3,12 @@
 class Reports::ConsortiumPrioritySummary
 
   extend Reports::Helper
-  extend ActionView::Helpers::UrlHelper 
+  extend ActionView::Helpers::UrlHelper
   
+  CSV_LINKS = true  
   ADD_COUNTS = false
   LIMIT_CONSORTIA = false
-  ADD_ALL_PRIORITIES = true
+  ADD_ALL_PRIORITIES = false
   CONSORTIA = [ 'BaSH', 'DTCC', 'Helmholtz GMC', 'JAX', 'MARC', 'MGP', 'Monterotondo', 'NorCOMM2', 'Phenomin', 'RIKEN BRC' ]
   ORDER_BY_MAP = { 'Low' => 1, 'Medium' => 2, 'High' => 3}
   MAPPING1 = {
@@ -31,7 +32,7 @@ class Reports::ConsortiumPrioritySummary
     specs = params[:specs]
     array = specs.split('/')
     raise "Invalid parameters (#{array.size})" if array.size != 4
-
+  
     consortium = CGI.unescape array[1]
     column = CGI.unescape array[3]
     column = column.gsub(/^\#\s+/, "")
@@ -93,6 +94,7 @@ class Reports::ConsortiumPrioritySummary
       pc = pc != 0 ? "%.2f" % pc : ''
       
       make_link = lambda {|key|
+        return row[key] if request.format == :csv
         row[key].to_s != '0' ?
         "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary1/consortium/#{row['Consortium']}/type/#{key}'>#{row[key]}</a>" :
         ''
@@ -199,7 +201,9 @@ class Reports::ConsortiumPrioritySummary
       p_found = []
 
       summary.each do |row|
+        
         make_link = lambda {|key|
+          return row[key] if request.format == :csv
           row[key].to_s != '0' ?
           "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary2/consortium/#{consortium}/type/#{key}/priority/#{row['Priority']}'>#{row[key]}</a>" :
           ''

@@ -3,15 +3,17 @@
 class Reports::ConsortiumPrioritySummary
 
   extend Reports::Helper
+  extend ActionView::Helpers::UrlHelper 
   
+  ADD_COUNTS = false
   LIMIT_CONSORTIA = false
   ADD_ALL_PRIORITIES = true
   CONSORTIA = [ 'BaSH', 'DTCC', 'Helmholtz GMC', 'JAX', 'MARC', 'MGP', 'Monterotondo', 'NorCOMM2', 'Phenomin', 'RIKEN BRC' ]
   ORDER_BY_MAP = { 'Low' => 1, 'Medium' => 2, 'High' => 3}
-  #ROOT1 = '/reports/summary1'
-  #ROOT2 = '/reports/summary2'
-  ROOT1 = '/labs/imits/reports/summary1'
-  ROOT2 = '/labs/imits/reports/summary2'
+ # ROOT1 = '/reports/summary1'
+ # ROOT2 = '/reports/summary2'
+  #ROOT1 = '/labs/imits/reports/summary1'
+  #ROOT2 = '/labs/imits/reports/summary2'
   MAPPING1 = {
     'Activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
     'Mice in production' => ['Micro-injection in progress', 'Genotype confirmed'],
@@ -45,7 +47,7 @@ class Reports::ConsortiumPrioritySummary
 
     counter = 1
     report = Table(:data => cached_report.data,
-      :column_names => ['Count'] + cached_report.column_names,
+      :column_names => ADD_COUNTS ? ['Count'] + cached_report.column_names : cached_report.column_names,
       :filters => lambda {|r|
         if r['Consortium'] == consortium && (column == 'All' || MAPPING1[column].include?(r.data['Status']))
           return false if genes.include?(r['Gene'])
@@ -54,18 +56,19 @@ class Reports::ConsortiumPrioritySummary
         end
       },
       :transforms => lambda {|r|
+        return if ! ADD_COUNTS
         r['Count'] = counter
         counter += 1
       }
     )
 
-    title = "subsummary1: consortium: '#{consortium}' - type: '#{column}' (#{report.size})"
+    title = "Production Summary 1 Detail: Consortium: #{consortium} - Type: #{column} (#{report.size})"
     
     return title, report
 
   end
   
-  def self.generate1
+  def self.generate1(request)
     
     cache = USE_CACHE ? ReportCache.find_by_name(CACHE_NAME1) : false
     return get_cached_report(CACHE_NAME1) if cache
@@ -92,11 +95,13 @@ class Reports::ConsortiumPrioritySummary
       glt = Integer(row['GLT Mice'])
       total = Integer(row['GLT Mice']) + Integer(row['Aborted'])
       pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-      pc = "%.2f" % pc
+      pc = pc != 0 ? "%.2f" % pc : ''
+      
+      # FIXME: change from using explicit html
 
       make_link = lambda {|key|
         row[key].to_s != '0' ?
-        "<a title='Click to see list of #{key}' href='#{ROOT1}/consortium/#{row['Consortium']}/type/#{key}'>#{row[key]}</a>" :
+        "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary1/consortium/#{row['Consortium']}/type/#{key}'>#{row[key]}</a>" :
         ''
       }
 
@@ -151,27 +156,28 @@ class Reports::ConsortiumPrioritySummary
 
     counter = 1
     report = Table(:data => cached_report.data,
-      :column_names => ['Count'] + cached_report.column_names,
+      :column_names => ADD_COUNTS ? ['Count'] + cached_report.column_names : cached_report.column_names,
       :filters => lambda {|r|
-        if r['Consortium'] == consortium && r['Priority'] == priority && (column == 'all' || MAPPING2[column].include?(r.data['Status']))
+        if r['Consortium'] == consortium && r['Priority'] == priority && (column == 'All' || MAPPING2[column].include?(r.data['Status']))
           return false if genes.include?(r['Gene'])
           genes.push r['Gene']
           return true
         end
       },
       :transforms => lambda {|r|
+        return if ! ADD_COUNTS
         r['Count'] = counter
         counter += 1
       }
     )
 
-    title = "subsummary2: consortium: '#{consortium}' - type: '#{column}' - priority: '#{priority}' (#{report.size})"
+    title = "Production Summary Detail 2: Consortium: #{consortium} - Type: #{column} - Priority: #{priority} (#{report.size})"
     
     return title, report
 
   end
   
-  def self.generate2
+  def self.generate2(request)
 
     cache = USE_CACHE ? ReportCache.find_by_name(CACHE_NAME2) : false
     return get_cached_report(CACHE_NAME2) if cache
@@ -205,9 +211,11 @@ class Reports::ConsortiumPrioritySummary
 
       summary.each do |row|
 
+        # FIXME: change from using explicit html
+
         make_link = lambda {|key|
           row[key].to_s != '0' ?
-          "<a title='Click to see list of #{key}!' href='#{ROOT2}/consortium/#{consortium}/type/#{key}/priority/#{row['Priority']}'>#{row[key]}</a>" :
+          "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary2/consortium/#{consortium}/type/#{key}/priority/#{row['Priority']}'>#{row[key]}</a>" :
           ''
         }
 

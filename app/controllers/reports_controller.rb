@@ -27,16 +27,16 @@ class ReportsController < ApplicationController
     @title2, @report = Reports::FeedSummary.subfeed(params)
   end
   
-  def hacky_summary_test
-    @report1 = Reports::ConsortiumPrioritySummary.generate1
-    @report2 = Reports::ConsortiumPrioritySummary.generate2
+  def production_summary
+    @report1 = Reports::ConsortiumPrioritySummary.generate1(request)
+    @report2 = Reports::ConsortiumPrioritySummary.generate2(request)
   end
 
-  def hacky_subsummary_test1
+  def production_subsummary1
     @title2, @report = Reports::ConsortiumPrioritySummary.subsummary1(params)
   end
 
-  def hacky_subsummary_test2
+  def production_subsummary2
     @title2, @report = Reports::ConsortiumPrioritySummary.subsummary2(params)
   end
 

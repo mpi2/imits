@@ -20,5 +20,26 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       assert_equal 'Rederivation Started', phenotype_attempt.status.name
     end
 
+    context 'Rederivation Completed' do
+      should 'be set if both rederivation flags are set' do
+        phenotype_attempt.rederivation_started = true
+        phenotype_attempt.rederivation_completed = true
+        phenotype_attempt.valid?
+        assert_equal 'Rederivation Completed', phenotype_attempt.status.name
+      end
+
+      should 'not be set if both rederivation flags are not set' do
+        phenotype_attempt.rederivation_started = true
+        phenotype_attempt.rederivation_completed = false
+        phenotype_attempt.valid?
+        assert_not_equal 'Rederivation Completed', phenotype_attempt.status.name
+
+        phenotype_attempt.rederivation_started = false
+        phenotype_attempt.rederivation_completed = true
+        phenotype_attempt.valid?
+        assert_not_equal 'Rederivation Completed', phenotype_attempt.status.name
+      end
+    end
+
   end
 end

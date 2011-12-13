@@ -3,7 +3,11 @@
 module PhenotypeAttempt::StatusChanger
   def change_status
     if rederivation_started?
-      self.status = PhenotypeAttempt::Status['Rederivation Started']
+      if rederivation_completed?
+        self.status = PhenotypeAttempt::Status['Rederivation Completed']
+      else rederivation_started?
+        self.status = PhenotypeAttempt::Status['Rederivation Started']
+      end
     else
       self.status = PhenotypeAttempt::Status['Registered']
     end

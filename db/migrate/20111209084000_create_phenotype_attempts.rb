@@ -5,6 +5,7 @@ class CreatePhenotypeAttempts < ActiveRecord::Migration
       t.integer :status_id, :null => false
       t.boolean :is_active, :null => false, :default => true
       t.boolean :rederivation_started, :null => false, :default => false
+      t.boolean :rederivation_completed, :null => false, :default => false
 
       t.timestamps
     end

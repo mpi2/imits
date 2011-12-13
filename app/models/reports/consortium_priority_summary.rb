@@ -87,14 +87,11 @@ class Reports::ConsortiumPrioritySummary
       'Aborted'           => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING1['Aborted'].include? row.data['Status'] } ) }
     ).each do |row|
-
       glt = Integer(row['GLT Mice'])
       total = Integer(row['GLT Mice']) + Integer(row['Aborted'])
       pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
       pc = pc != 0 ? "%.2f" % pc : ''
       
-      # FIXME: change from using explicit html
-
       make_link = lambda {|key|
         row[key].to_s != '0' ?
         "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary1/consortium/#{row['Consortium']}/type/#{key}'>#{row[key]}</a>" :
@@ -146,10 +143,6 @@ class Reports::ConsortiumPrioritySummary
     cached_report = get_cached_report('mi_production_detail')
 
     genes = []
-    
-    puts "column: '#{column}'"
-    puts "map: " + MAPPING2.inspect
-
     counter = 1
     report = Table(:data => cached_report.data,
       :column_names => ADD_COUNTS ? ['Count'] + cached_report.column_names : cached_report.column_names,
@@ -206,9 +199,6 @@ class Reports::ConsortiumPrioritySummary
       p_found = []
 
       summary.each do |row|
-
-        # FIXME: change from using explicit html
-
         make_link = lambda {|key|
           row[key].to_s != '0' ?
           "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary2/consortium/#{consortium}/type/#{key}/priority/#{row['Priority']}'>#{row[key]}</a>" :

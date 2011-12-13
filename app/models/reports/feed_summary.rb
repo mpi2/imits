@@ -5,8 +5,16 @@ class Reports::FeedSummary
   extend Reports::Helper
 
   LOSE_ABORTS = false
-  LOSE_SUB_DETAILS = false
   ADD_COUNTS = false
+  GENE_DISTINCT = true
+  COMMON_COLUMNS = [
+    '# Assigned - ES Cell QC In Progress',
+    '# Assigned - ES Cell QC Complete',
+    '# Micro-injection in progress',
+    '# Genotype confirmed',
+    '# Micro-injection aborted'
+  ]
+  MAIN_COLUMNS = [ 'Production Centre' ] + COMMON_COLUMNS
  
   def self.subfeed(params)
     specs = params[:specs]
@@ -20,17 +28,14 @@ class Reports::FeedSummary
     
     cached_report = get_cached_report('mi_production_detail')
     
-    #grouped_report = Grouping( cached_report, :by => [ 'Production Centre'] )
-    #grouped_report = grouped_report[centre]
-    #grouped_report = Grouping( grouped_report, :by => [ 'Status'] )
-    #@report = grouped_report[column]
-    
     genes = []
+    counter = 1
 
     @report = Table(:data => cached_report.data,
       :column_names => ADD_COUNTS ? ['Count'] + cached_report.column_names : cached_report.column_names,
       :filters => lambda {|r|
         if r['Production Centre'] == centre && r['Status'] == column
+          return true if ! GENE_DISTINCT
           return false if genes.include?(r['Gene'])
           genes.push r['Gene']
           return true
@@ -42,44 +47,6 @@ class Reports::FeedSummary
         counter += 1
       }
     )
-    
-    column_names = [
-      'Assigned - ES Cell QC In Progress Date',
-      'Assigned - ES Cell QC Complete Date',
-      'Micro-injection in progress Date',
-      'Genotype confirmed Date',
-      'Micro-injection aborted Date'
-    ]
-    
-    if LOSE_SUB_DETAILS
-      column_names.each do |name|
-        r1 = Regexp.new(column)
-        next if r1.match(name)
-        @report.remove_column(name)
-      end
-      
-      @report.remove_column('Production Centre')
-      @report.remove_column('Status')
-      @report.remove_column('Assigned Date')
-      @report.remove_column('Sub-Project')
-      @report.remove_column('Consortium')
-      @report.remove_column('Priority')
-    end
-
- #   @report.sort_rows_by!(["Gene"])
-      
-    #genes = []
-    #@report = Table(
-    #  :data => @report.data,
-    #  :column_names => @report.column_names,
-    #  :filters => lambda {|r|
-    #    if genes.include?(r['Gene'].downcase)
-    #      return false
-    #    end
-    #    genes.push(r['Gene'].downcase)
-    #    return true
-    #  }
-    #)
 
     @title = "Simple Feed: Centre: #{centre} - Type: #{column} (#{@report.size})"
       
@@ -87,28 +54,14 @@ class Reports::FeedSummary
     
   end
 
-  def self.clean_table(table, filter=true)
-    column_names = [
-      '# Assigned - ES Cell QC In Progress',
-      '# Assigned - ES Cell QC Complete',
-      '# Micro-injection in progress',
-      '# Genotype confirmed',
-      '# Micro-injection aborted'
-    ]
-    
+  def self.clean_table(table, filter=true)    
     report = Table(:data => table.data,
       :column_names => table.column_names,
       :transforms => lambda {|r|
-        column_names.each do |name|
-          
-          if r[name] == 0
-            r[name] = ''
-          else
-            tname = CGI.escape(name)
-            cname = CGI.escape(r['Production Centre'])
-            r[name] ="<a href='/feeds/list/centre/#{cname}/status/#{tname}'>#{r[name]}</a>"
-          end
-          
+        COMMON_COLUMNS.each do |name|          
+          tname = CGI.escape(name)
+          cname = CGI.escape(r['Production Centre'])
+          r[name] = r[name] == 0 ? '' : "<a href='/feeds/list/centre/#{cname}/status/#{tname}'>#{r[name]}</a>"
         end
       },
       :filters => lambda {|r| ! filter || (r['Production Centre'] && r['Production Centre'].length > 0) }
@@ -120,16 +73,7 @@ class Reports::FeedSummary
   def self.generate
     cached_report = get_cached_report('mi_production_detail')
       
-    report_table = Table(
-      [
-        'Production Centre',
-        '# Assigned - ES Cell QC In Progress',
-        '# Assigned - ES Cell QC Complete',
-        '# Micro-injection in progress',
-        '# Genotype confirmed',
-        '# Micro-injection aborted'
-      ]
-    )
+    report_table = Table( MAIN_COLUMNS )
 
     grouped_report = Grouping( cached_report, :by => [ 'Production Centre' ], :order => [:name]  )
 
@@ -159,6 +103,7 @@ class Reports::FeedSummary
     report_table.sort_rows_by!( '# Genotype confirmed', :order => :descending )
 
     report = clean_table(report_table)
+    
     return report
   end
 

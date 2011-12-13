@@ -19,12 +19,16 @@ class ReportsController < ApplicationController
     )
   end
   
-  def hacky_feed_test
+  FEED_RAW = false
+  
+  def simple_feed_test
     @report = Reports::FeedSummary.generate
+    render :inline => "<%= @report.to_html %>" if FEED_RAW
   end
 
-  def hacky_subfeed_test
+  def simple_subfeed_test
     @title2, @report = Reports::FeedSummary.subfeed(params)
+    render :inline => "<%= @report.to_html %>" if FEED_RAW
   end
   
   def production_summary

@@ -6,7 +6,7 @@ class Reports::FeedSummary
 
   LOSE_ABORTS = false
   LOSE_SUB_DETAILS = false
-  USE_COUNTER = false
+  ADD_COUNTS = false
  
   def self.subfeed(params)
     specs = params[:specs]
@@ -18,15 +18,30 @@ class Reports::FeedSummary
     column = column.gsub(/^\#\s+/, "")
     raise "Invalid parameters: '#{array[0]}'" if array[0] != 'centre' || array[2] != 'status'
     
-    @title2 = "subfeeds: centre: '#{centre}' - column: '#{column}' (#{array.size})"
-
     cached_report = get_cached_report('mi_production_detail')
+    
+    #grouped_report = Grouping( cached_report, :by => [ 'Production Centre'] )
+    #grouped_report = grouped_report[centre]
+    #grouped_report = Grouping( grouped_report, :by => [ 'Status'] )
+    #@report = grouped_report[column]
+    
+    genes = []
 
-    grouped_report = Grouping( cached_report, :by => [ 'Production Centre'] )
-
-    grouped_report = grouped_report[centre]
-    grouped_report = Grouping( grouped_report, :by => [ 'Status'] )
-    @report = grouped_report[column]
+    @report = Table(:data => cached_report.data,
+      :column_names => ADD_COUNTS ? ['Count'] + cached_report.column_names : cached_report.column_names,
+      :filters => lambda {|r|
+        if r['Production Centre'] == centre && r['Status'] == column
+          return false if genes.include?(r['Gene'])
+          genes.push r['Gene']
+          return true
+        end
+      },
+      :transforms => lambda {|r|
+        return if ! ADD_COUNTS
+        r['Count'] = counter
+        counter += 1
+      }
+    )
     
     column_names = [
       'Assigned - ES Cell QC In Progress Date',
@@ -51,31 +66,24 @@ class Reports::FeedSummary
       @report.remove_column('Priority')
     end
 
-    @report.sort_rows_by!(["Gene"])
+ #   @report.sort_rows_by!(["Gene"])
+      
+    #genes = []
+    #@report = Table(
+    #  :data => @report.data,
+    #  :column_names => @report.column_names,
+    #  :filters => lambda {|r|
+    #    if genes.include?(r['Gene'].downcase)
+    #      return false
+    #    end
+    #    genes.push(r['Gene'].downcase)
+    #    return true
+    #  }
+    #)
 
-    if USE_COUNTER
-      @report.add_column('Counter', :before => 'Consortium')
-      counter = 1
-      @report.each do |row|
-        row['Counter'] = counter
-        counter += 1
-      end
-    end
+    @title = "Simple Feed: Centre: #{centre} - Type: #{column} (#{@report.size})"
       
-    genes = []
-    @report = Table(
-      :data => @report.data,
-      :column_names => @report.column_names,
-      :filters => lambda {|r|
-        if genes.include?(r['Gene'].downcase)
-          return false
-        end
-        genes.push(r['Gene'].downcase)
-        return true
-      }
-    )
-      
-    return @title2, @report
+    return @title, @report
     
   end
 

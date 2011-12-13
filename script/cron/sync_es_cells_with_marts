@@ -1,3 +1,0 @@
-#!/bin/bash
-
-exec `dirname $0`/../runner 'EsCell.sync_all_with_marts'

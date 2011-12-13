@@ -2,14 +2,22 @@
 
 module PhenotypeAttempt::StatusChanger
   def change_status
+    status_name = nil
+
     if rederivation_started?
-      if rederivation_completed?
-        self.status = PhenotypeAttempt::Status['Rederivation Completed']
-      else rederivation_started?
-        self.status = PhenotypeAttempt::Status['Rederivation Started']
+      if rederivation_complete?
+        if number_of_cre_matings_started > 0
+          status_name = 'Cre Excision Started'
+        else
+          status_name = 'Rederivation Complete'
+        end
+      else
+        status_name = 'Rederivation Started'
       end
     else
-      self.status = PhenotypeAttempt::Status['Registered']
+      status_name = 'Registered'
     end
+
+    self.status = PhenotypeAttempt::Status[status_name]
   end
 end

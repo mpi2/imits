@@ -6,6 +6,8 @@ class CreatePhenotypeAttempts < ActiveRecord::Migration
       t.boolean :is_active, :null => false, :default => true
       t.boolean :rederivation_started, :null => false, :default => false
       t.boolean :rederivation_complete, :null => false, :default => false
+      t.integer :number_of_cre_matings_started, :null => false, :default => 0
+      t.integer :number_of_cre_matings_successful, :null => false, :default => 0
 
       t.timestamps
     end

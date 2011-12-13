@@ -22,11 +22,15 @@ end
 #
 # Table name: phenotype_attempts
 #
-#  id            :integer         not null, primary key
-#  mi_attempt_id :integer         not null
-#  status_id     :integer         not null
-#  is_active     :boolean         default(TRUE), not null
-#  created_at    :datetime
-#  updated_at    :datetime
+#  id                               :integer         not null, primary key
+#  mi_attempt_id                    :integer         not null
+#  status_id                        :integer         not null
+#  is_active                        :boolean         default(TRUE), not null
+#  rederivation_started             :boolean         default(FALSE), not null
+#  rederivation_complete            :boolean         default(FALSE), not null
+#  number_of_cre_matings_started    :integer         default(0), not null
+#  number_of_cre_matings_successful :integer         default(0), not null
+#  created_at                       :datetime
+#  updated_at                       :datetime
 #
 

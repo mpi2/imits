@@ -66,5 +66,25 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#number_of_cre_matings_started' do
+      should 'be in DB' do
+        assert_should have_db_column(:number_of_cre_matings_started).with_options(:null => false)
+      end
+
+      should 'default to false' do
+        assert_equal 0, default_phenotype_attempt.number_of_cre_matings_started
+      end
+    end
+
+    context '#number_of_cre_matings_successful' do
+      should 'be in DB' do
+        assert_should have_db_column(:number_of_cre_matings_successful).with_options(:null => false)
+      end
+
+      should 'default to false' do
+        assert_equal 0, default_phenotype_attempt.number_of_cre_matings_successful
+      end
+    end
+
   end
 end

@@ -41,5 +41,50 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       end
     end
 
+    context 'Cre Excision Started' do
+      should 'be set if number_of_cre_matings_started is > 0 and Rederivation Complete conditions are met' do
+        phenotype_attempt.rederivation_started = true
+        phenotype_attempt.rederivation_complete = true
+        phenotype_attempt.number_of_cre_matings_started = 4
+        phenotype_attempt.valid?
+        assert_equal 'Cre Excision Started', phenotype_attempt.status.name
+      end
+
+      should 'not be set if number_of_cre_matings_started > 0 but Rederivation Complete conditions are NOT met' do
+        phenotype_attempt.rederivation_started = false
+        phenotype_attempt.rederivation_complete = true
+        phenotype_attempt.number_of_cre_matings_started = 4
+        phenotype_attempt.valid?
+        assert_not_equal 'Cre Excision Started', phenotype_attempt.status.name
+      end
+    end
+
+    context 'Cre Excision Complete' do
+      should 'be set if number_of_cre_matings_successful is > 0 and Cre Excision Started conditions are met' do
+        phenotype_attempt.rederivation_started = true
+        phenotype_attempt.rederivation_complete = true
+        phenotype_attempt.number_of_cre_matings_started = 4
+        phenotype_attempt.number_of_cre_matings_successful = 2
+        phenotype_attempt.valid?
+        assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
+      end
+
+      should 'not be set if number_of_cre_matings_successful is > 0 but Cre Excision Started conditions are NOT met' do
+        phenotype_attempt.rederivation_started = true
+        phenotype_attempt.rederivation_complete = false
+        phenotype_attempt.number_of_cre_matings_started = 4
+        phenotype_attempt.number_of_cre_matings_successful = 2
+        phenotype_attempt.valid?
+        assert_not_equal 'Cre Excision Complete', phenotype_attempt.status.name
+
+        phenotype_attempt.rederivation_started = true
+        phenotype_attempt.rederivation_complete = true
+        phenotype_attempt.number_of_cre_matings_started = 0
+        phenotype_attempt.number_of_cre_matings_successful = 2
+        phenotype_attempt.valid?
+        assert_not_equal 'Cre Excision Complete', phenotype_attempt.status.name
+      end
+    end
+
   end
 end

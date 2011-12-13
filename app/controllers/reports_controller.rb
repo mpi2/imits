@@ -22,7 +22,7 @@ class ReportsController < ApplicationController
   FEED_RAW = false
   
   def simple_feed_test
-    @report = Reports::FeedSummary.generate
+    @report = Reports::FeedSummary.generate(request)
     render :inline => "<%= @report.to_html %>" if FEED_RAW
   end
 

@@ -54,14 +54,14 @@ class Reports::FeedSummary
     
   end
 
-  def self.clean_table(table, filter=true)    
+  def self.clean_table(request, table, filter=true)    
     report = Table(:data => table.data,
       :column_names => table.column_names,
       :transforms => lambda {|r|
         COMMON_COLUMNS.each do |name|          
           tname = CGI.escape(name)
           cname = CGI.escape(r['Production Centre'])
-          r[name] = r[name] == 0 ? '' : "<a href='/feeds/list/centre/#{cname}/status/#{tname}'>#{r[name]}</a>"
+          r[name] = r[name] == 0 ? '' : "<a href='#{request.env['SCRIPT_NAME']}/feeds/list/centre/#{cname}/status/#{tname}'>#{r[name]}</a>"
         end
       },
       :filters => lambda {|r| ! filter || (r['Production Centre'] && r['Production Centre'].length > 0) }
@@ -70,7 +70,7 @@ class Reports::FeedSummary
     return report
   end
 
-  def self.generate
+  def self.generate(request)
     cached_report = get_cached_report('mi_production_detail')
       
     report_table = Table( MAIN_COLUMNS )
@@ -102,7 +102,7 @@ class Reports::FeedSummary
    
     report_table.sort_rows_by!( '# Genotype confirmed', :order => :descending )
 
-    report = clean_table(report_table)
+    report = clean_table(request, report_table)
     
     return report
   end

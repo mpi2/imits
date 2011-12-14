@@ -73,9 +73,7 @@ class Reports::ConsortiumPrioritySummary
     cached_report = get_cached_report('mi_production_detail')
 
     report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production',
-                           #'Aborted',
                            'GLT Mice'
-                           #, 'Pipeline efficiency (%)'
                            ] )
    
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
@@ -93,11 +91,6 @@ class Reports::ConsortiumPrioritySummary
           lambda { |row| MAPPING1['Aborted'].include? row.data['Status'] } ) }
     ).each do |row|
       
-      #glt = Integer(row['GLT Mice'])
-      #total = Integer(row['GLT Mice']) + Integer(row['Aborted'])
-      #pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-      #pc = pc != 0 ? "%.2f" % pc : ''
-      
       make_link = lambda {|key|
         return row[key] if request.format == :csv
         row[key].to_s != '0' ?
@@ -110,9 +103,7 @@ class Reports::ConsortiumPrioritySummary
         'All' => make_link.call('All'),
         'Activity' => make_link.call('Activity'),
         'Mice in production' => make_link.call('Mice in production'),
-        'GLT Mice' => make_link.call('GLT Mice')#,
-        #'Aborted' => make_link.call('Aborted')
-        #,'Pipeline efficiency (%)' => pc
+        'GLT Mice' => make_link.call('GLT Mice')
       }
     end
    

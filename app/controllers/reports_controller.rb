@@ -23,12 +23,15 @@ class ReportsController < ApplicationController
   
   def simple_feed_test
     @report = Reports::FeedSummary.generate(request)
-    render :inline => "<%= @report.to_html %>" if FEED_RAW
+#    render :inline => "<%= @report.to_html %>" if FEED_RAW
+#    render :inline => "<%= @report.to_html %>", :layout => false
+#    render @report.to_html, :layout => false
+#, :layout => 'special'
   end
 
   def simple_subfeed_test
     @title2, @report = Reports::FeedSummary.subfeed(params)
-    render :inline => "<%= @report.to_html %>" if FEED_RAW
+#    render :inline => "<%= @report.to_html %>" if FEED_RAW
   end
   
   def production_summary

@@ -117,7 +117,6 @@ Seeds.load MiPlanPriority, [
   {:id => 3, :name => 'Low', :description => 'Estimated injection in the next 9-12 months'}
 ]
 
-
 Seeds.load MiPlan::SubProject, [
   {:id => 1, :name => ''},
   {:id => 2, :name => 'MGPinterest'},

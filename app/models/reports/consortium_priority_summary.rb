@@ -72,7 +72,11 @@ class Reports::ConsortiumPrioritySummary
     
     cached_report = get_cached_report('mi_production_detail')
 
-    report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production', 'Aborted', 'GLT Mice', 'Pipeline efficiency (%)' ] )
+    report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production',
+                           #'Aborted',
+                           'GLT Mice'
+                           #, 'Pipeline efficiency (%)'
+                           ] )
    
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
         
@@ -88,10 +92,11 @@ class Reports::ConsortiumPrioritySummary
       'Aborted'           => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING1['Aborted'].include? row.data['Status'] } ) }
     ).each do |row|
-      glt = Integer(row['GLT Mice'])
-      total = Integer(row['GLT Mice']) + Integer(row['Aborted'])
-      pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-      pc = pc != 0 ? "%.2f" % pc : ''
+      
+      #glt = Integer(row['GLT Mice'])
+      #total = Integer(row['GLT Mice']) + Integer(row['Aborted'])
+      #pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
+      #pc = pc != 0 ? "%.2f" % pc : ''
       
       make_link = lambda {|key|
         return row[key] if request.format == :csv
@@ -105,9 +110,9 @@ class Reports::ConsortiumPrioritySummary
         'All' => make_link.call('All'),
         'Activity' => make_link.call('Activity'),
         'Mice in production' => make_link.call('Mice in production'),
-        'GLT Mice' => make_link.call('GLT Mice'),
-        'Aborted' => make_link.call('Aborted'),
-        'Pipeline efficiency (%)' => pc
+        'GLT Mice' => make_link.call('GLT Mice')#,
+        #'Aborted' => make_link.call('Aborted')
+        #,'Pipeline efficiency (%)' => pc
       }
     end
    
@@ -175,7 +180,7 @@ class Reports::ConsortiumPrioritySummary
 
     cached_report = get_cached_report('mi_production_detail')
 
-    report_table = Table( ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC finished', 'MI in progress', 'Aborted', 'GLT Mice', 'order_by'] )
+    report_table = Table( ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC finished', 'MI in progress', 'Aborted', 'GLT Mice', 'Pipeline efficiency (%)', 'order_by'] )
  
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
     
@@ -209,6 +214,11 @@ class Reports::ConsortiumPrioritySummary
           ''
         }
 
+        glt = Integer(row['GLT Mice'])
+        total = Integer(row['GLT Mice']) + Integer(row['Aborted'])
+        pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
+        pc = pc != 0 ? "%.2f" % pc : ''
+
         p_found.push row['Priority']
         report_table << {
           'Consortium' => consortium,
@@ -219,6 +229,7 @@ class Reports::ConsortiumPrioritySummary
           'MI in progress' => make_link.call('MI in progress'),
           'GLT Mice' => make_link.call('GLT Mice'),
           'Aborted' => make_link.call('Aborted'),
+          'Pipeline efficiency (%)' => pc,
           'order_by' => ORDER_BY_MAP[row['Priority']]
         }
       end

@@ -9,9 +9,9 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       @phenotype_attempt ||= Factory.build :phenotype_attempt
     end
 
-    should 'set default status to Registered' do
+    should 'set default status to Phenotype Registered' do
       phenotype_attempt.valid?
-      assert_equal 'Registered', phenotype_attempt.status.name
+      assert_equal 'Phenotype Registered', phenotype_attempt.status.name
     end
 
     should 'set status to Rederivation Started if its flag is set' do

@@ -39,7 +39,7 @@ module PhenotypeAttempt::StatusChanger
     end
   end
 
-  Config.add('Registered') { |pt| true }
+  Config.add('Phenotype Registered') { |pt| true }
 
   Config.add('Rederivation Started') do |pt|
     pt.rederivation_started?

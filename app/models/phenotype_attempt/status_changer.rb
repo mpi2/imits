@@ -7,10 +7,10 @@ module PhenotypeAttempt::StatusChanger
       @required = required
     end
 
-    def conditions_met_for?(phenotype_attempt)
-      conditions_met = @conditions.call(phenotype_attempt)
+    def conditions_met_for?(object)
+      conditions_met = @conditions.call(object)
       if @required
-        required_conditions_met = @required.conditions_met_for?(phenotype_attempt)
+        required_conditions_met = @required.conditions_met_for?(object)
       else
         required_conditions_met = true
       end

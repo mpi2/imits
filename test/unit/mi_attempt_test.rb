@@ -713,7 +713,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         context 'on update' do
           setup do
-            default_mi_attempt.mi_plan.status = 'Inactive'
+            default_mi_attempt.mi_plan.status_name = 'Inactive'
             default_mi_attempt.mi_plan.save!
             default_mi_attempt.update_attributes!(:is_active => false)
             default_mi_attempt.reload
@@ -723,12 +723,12 @@ class MiAttemptTest < ActiveSupport::TestCase
             default_mi_attempt.update_attributes!(:is_active => true)
             default_mi_attempt.save!
             default_mi_attempt.reload
-            assert_equal 'Assigned', default_mi_attempt.mi_plan.status
+            assert_equal 'Assigned', default_mi_attempt.mi_plan.status.name
           end
 
           should 'not set its status to Assigned if MI attempt is not becoming active again' do
             default_mi_attempt.save!
-            assert_equal 'Inactive', default_mi_attempt.mi_plan.status
+            assert_equal 'Inactive', default_mi_attempt.mi_plan.status.name
           end
         end
 
@@ -739,7 +739,7 @@ class MiAttemptTest < ActiveSupport::TestCase
                   :consortium => Consortium.find_by_name!('BaSH'),
                   :number_of_es_cells_starting_qc => 5,
                   :number_of_es_cells_passing_qc => 0
-          assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status
+          assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status.name
           es_cell = Factory.create :es_cell, :gene => gene
 
           mi_attempt = Factory.build :mi_attempt, :es_cell => es_cell,

@@ -46,6 +46,23 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.phenotype_started = true
       phenotype_attempt.valid?
       assert_equal 'Phenotype Started', phenotype_attempt.status.name
+
+      phenotype_attempt.phenotype_complete = true
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Complete', phenotype_attempt.status.name
+    end
+
+    should 'transition through Phenotype Registered -> Cre Excision Started -> Cre Excision Complete' do
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Registered', phenotype_attempt.status.name
+
+      phenotype_attempt.number_of_cre_matings_started = 4
+      phenotype_attempt.valid?
+      assert_equal 'Cre Excision Started', phenotype_attempt.status.name
+
+      phenotype_attempt.number_of_cre_matings_successful = 2
+      phenotype_attempt.valid?
+      assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
     end
 
   end

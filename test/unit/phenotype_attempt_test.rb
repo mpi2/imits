@@ -96,5 +96,15 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#phenotype_complete' do
+      should 'be in DB' do
+        assert_should have_db_column(:phenotype_complete).with_options(:null => false, :default => false)
+      end
+
+      should 'default to false' do
+        assert_equal false, default_phenotype_attempt.phenotype_complete?
+      end
+    end
+
   end
 end

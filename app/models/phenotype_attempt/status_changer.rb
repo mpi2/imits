@@ -61,6 +61,10 @@ module PhenotypeAttempt::StatusChanger
     pt.phenotype_started?
   end
 
+  Config.add('Phenotype Complete', 'Phenotype Started') do |pt|
+    pt.phenotype_complete?
+  end
+
   def change_status
     self.status = PhenotypeAttempt::Status[Config.get_status_for(self)]
   end

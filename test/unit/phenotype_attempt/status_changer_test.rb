@@ -20,7 +20,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       assert_equal 'Rederivation Started', phenotype_attempt.status.name
     end
 
-    context 'Rederivation Completed' do
+    context 'Rederivation Complete' do
       should 'be set if both rederivation flags are set' do
         phenotype_attempt.rederivation_started = true
         phenotype_attempt.rederivation_complete = true
@@ -49,14 +49,6 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
         phenotype_attempt.valid?
         assert_equal 'Cre Excision Started', phenotype_attempt.status.name
       end
-
-      should 'not be set if number_of_cre_matings_started > 0 but Rederivation Complete conditions are NOT met' do
-        phenotype_attempt.rederivation_started = false
-        phenotype_attempt.rederivation_complete = true
-        phenotype_attempt.number_of_cre_matings_started = 4
-        phenotype_attempt.valid?
-        assert_not_equal 'Cre Excision Started', phenotype_attempt.status.name
-      end
     end
 
     context 'Cre Excision Complete' do
@@ -70,13 +62,6 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       end
 
       should 'not be set if number_of_cre_matings_successful is > 0 but Cre Excision Started conditions are NOT met' do
-        phenotype_attempt.rederivation_started = true
-        phenotype_attempt.rederivation_complete = false
-        phenotype_attempt.number_of_cre_matings_started = 4
-        phenotype_attempt.number_of_cre_matings_successful = 2
-        phenotype_attempt.valid?
-        assert_not_equal 'Cre Excision Complete', phenotype_attempt.status.name
-
         phenotype_attempt.rederivation_started = true
         phenotype_attempt.rederivation_complete = true
         phenotype_attempt.number_of_cre_matings_started = 0

@@ -57,6 +57,10 @@ module PhenotypeAttempt::StatusChanger
     pt.number_of_cre_matings_successful > 0
   end
 
+  Config.add('Phenotype Started', 'Cre Excision Complete') do |pt|
+    pt.phenotype_started?
+  end
+
   def change_status
     self.status = PhenotypeAttempt::Status[Config.get_status_for(self)]
   end

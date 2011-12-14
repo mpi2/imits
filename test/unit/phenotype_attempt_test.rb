@@ -48,7 +48,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#rederivation_started' do
       should 'be in DB' do
-        assert_should have_db_column(:rederivation_started).with_options(:null => false)
+        assert_should have_db_column(:rederivation_started).with_options(:null => false, :default => false)
       end
 
       should 'default to false' do
@@ -58,7 +58,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#rederivation_complete' do
       should 'be in DB' do
-        assert_should have_db_column(:rederivation_complete).with_options(:null => false)
+        assert_should have_db_column(:rederivation_complete).with_options(:null => false, :default => false)
       end
 
       should 'default to false' do
@@ -83,6 +83,16 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
       should 'default to false' do
         assert_equal 0, default_phenotype_attempt.number_of_cre_matings_successful
+      end
+    end
+
+    context '#phenotype_started' do
+      should 'be in DB' do
+        assert_should have_db_column(:phenotype_started).with_options(:null => false, :default => false)
+      end
+
+      should 'default to false' do
+        assert_equal false, default_phenotype_attempt.phenotype_started?
       end
     end
 

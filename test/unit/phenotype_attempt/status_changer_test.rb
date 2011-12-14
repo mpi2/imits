@@ -9,66 +9,43 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       @phenotype_attempt ||= Factory.build :phenotype_attempt
     end
 
-    should 'set default status to Phenotype Registered' do
+    should 'not set a status if any of its required statuses conditions are not met as well' do
+      phenotype_attempt.number_of_cre_matings_started = 4
+      phenotype_attempt.number_of_cre_matings_successful = 2
+      phenotype_attempt.phenotype_started = true
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Started', phenotype_attempt.status.name
+
+      phenotype_attempt.number_of_cre_matings_started = 0
       phenotype_attempt.valid?
       assert_equal 'Phenotype Registered', phenotype_attempt.status.name
     end
 
-    should 'set status to Rederivation Started if its flag is set' do
+    should 'transition through Phenotype Registered -> Rederivation Started -> ' +
+            'Rederivation Complete -> Cre Excision Started -> ' +
+            'Cre Excision Complete -> Phenotype Started -> Phenotype Complete' do
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Registered', phenotype_attempt.status.name
+
       phenotype_attempt.rederivation_started = true
       phenotype_attempt.valid?
       assert_equal 'Rederivation Started', phenotype_attempt.status.name
-    end
 
-    context 'Rederivation Complete' do
-      should 'be set if both rederivation flags are set' do
-        phenotype_attempt.rederivation_started = true
-        phenotype_attempt.rederivation_complete = true
-        phenotype_attempt.valid?
-        assert_equal 'Rederivation Complete', phenotype_attempt.status.name
-      end
+      phenotype_attempt.rederivation_complete = true
+      phenotype_attempt.valid?
+      assert_equal 'Rederivation Complete', phenotype_attempt.status.name
 
-      should 'not be set if both rederivation flags are not set' do
-        phenotype_attempt.rederivation_started = true
-        phenotype_attempt.rederivation_complete = false
-        phenotype_attempt.valid?
-        assert_not_equal 'Rederivation Complete', phenotype_attempt.status.name
+      phenotype_attempt.number_of_cre_matings_started = 4
+      phenotype_attempt.valid?
+      assert_equal 'Cre Excision Started', phenotype_attempt.status.name
 
-        phenotype_attempt.rederivation_started = false
-        phenotype_attempt.rederivation_complete = true
-        phenotype_attempt.valid?
-        assert_not_equal 'Rederivation Complete', phenotype_attempt.status.name
-      end
-    end
+      phenotype_attempt.number_of_cre_matings_successful = 2
+      phenotype_attempt.valid?
+      assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
 
-    context 'Cre Excision Started' do
-      should 'be set if number_of_cre_matings_started is > 0 and Rederivation Complete conditions are met' do
-        phenotype_attempt.rederivation_started = true
-        phenotype_attempt.rederivation_complete = true
-        phenotype_attempt.number_of_cre_matings_started = 4
-        phenotype_attempt.valid?
-        assert_equal 'Cre Excision Started', phenotype_attempt.status.name
-      end
-    end
-
-    context 'Cre Excision Complete' do
-      should 'be set if number_of_cre_matings_successful is > 0 and Cre Excision Started conditions are met' do
-        phenotype_attempt.rederivation_started = true
-        phenotype_attempt.rederivation_complete = true
-        phenotype_attempt.number_of_cre_matings_started = 4
-        phenotype_attempt.number_of_cre_matings_successful = 2
-        phenotype_attempt.valid?
-        assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
-      end
-
-      should 'not be set if number_of_cre_matings_successful is > 0 but Cre Excision Started conditions are NOT met' do
-        phenotype_attempt.rederivation_started = true
-        phenotype_attempt.rederivation_complete = true
-        phenotype_attempt.number_of_cre_matings_started = 0
-        phenotype_attempt.number_of_cre_matings_successful = 2
-        phenotype_attempt.valid?
-        assert_not_equal 'Cre Excision Complete', phenotype_attempt.status.name
-      end
+      phenotype_attempt.phenotype_started = true
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Started', phenotype_attempt.status.name
     end
 
   end

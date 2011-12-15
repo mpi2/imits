@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111209084000) do
+ActiveRecord::Schema.define(:version => 20111215090406) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -215,6 +215,13 @@ ActiveRecord::Schema.define(:version => 20111209084000) do
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true
 
+  create_table "phenotype_attempt_status_stamps", :force => true do |t|
+    t.integer  "phenotype_attempt_id", :null => false
+    t.integer  "status_id",            :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "phenotype_attempt_statuses", :force => true do |t|
     t.string   "name",       :limit => 50, :null => false
     t.datetime "created_at"
@@ -343,6 +350,9 @@ ActiveRecord::Schema.define(:version => 20111209084000) do
   add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk"
   add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"
+
+  add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempt_statuses", :name => "phenotype_attempt_status_stamps_status_id_fk", :column => "status_id"
+  add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempts", :name => "phenotype_attempt_status_stamps_phenotype_attempt_id_fk"
 
   add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"
 

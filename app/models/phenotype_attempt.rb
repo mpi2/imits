@@ -7,6 +7,7 @@ class PhenotypeAttempt < ActiveRecord::Base
 
   belongs_to :mi_attempt
   belongs_to :status
+  has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
   validate :mi_attempt do |myself|
     if myself.mi_attempt and myself.mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
@@ -14,8 +15,27 @@ class PhenotypeAttempt < ActiveRecord::Base
     end
   end
 
+  # BEGIN Callbacks
   before_validation :change_status
 
+  before_save :record_if_status_was_changed
+  after_save :create_status_stamp_if_status_was_changed
+
+  def record_if_status_was_changed
+    if self.changed.include? 'status_id'
+      @new_status = self.status
+    else
+      @new_status = nil
+    end
+  end
+
+  def create_status_stamp_if_status_was_changed
+    if @new_status
+      status_stamps.create!(:status => @new_status)
+    end
+  end
+
+  # END Callbacks
 end
 
 # == Schema Information

@@ -34,9 +34,6 @@ class Reports::ConsortiumPrioritySummary
     'GLT Mice' => ['Genotype confirmed'],
     'Aborted' => ['Micro-injection aborted']
   }
-  USE_CACHE = false
-  CACHE_NAME1 = 'production_summary1'
-  CACHE_NAME2 = 'production_summary2'
 
   def self.subsummary1(params)
     consortium = params[:consortium]
@@ -69,7 +66,7 @@ class Reports::ConsortiumPrioritySummary
 
   end
   
-  def self.generate1(request = nil, params = { :feed => 'true' })
+  def self.generate1(request = nil, params = {})
 
     if params[:consortium]
       return subsummary1(params)

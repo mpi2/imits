@@ -45,7 +45,6 @@ class Reports::ConsortiumPrioritySummaryTest < ActiveSupport::TestCase
     should 'do feed generate' do
       title2, report = Reports::ConsortiumPrioritySummary.generate1()
       
-      #      puts title2
       puts report.to_s if DEBUG
       
       assert_equal 1, report.size
@@ -76,18 +75,10 @@ class Reports::ConsortiumPrioritySummaryTest < ActiveSupport::TestCase
         value = report.column(column_name)[0].scan( /\>(\d+)\</ ).last.first
         assert_equal expecteds2[column_name], value
       end
-    
-      #Consortium: BaSH
-      #All:
-      #Activity:
-      #Mice in production:
-      #GLT Mice:
-      
-      #      assert_equal 'BaSH', report.column('Consortium')[0]
+
     end
 
     should 'do feed generate detail' do
-      #consortium=BaSH&type=Activity'
       title2, report = Reports::ConsortiumPrioritySummary.subsummary1({ :consortium => 'BaSH', :type => 'All' })
       puts report.to_s if DEBUG
       assert_equal 10, report.size
@@ -106,35 +97,6 @@ class Reports::ConsortiumPrioritySummaryTest < ActiveSupport::TestCase
       title2, report = Reports::ConsortiumPrioritySummary.generate2()
       puts title2 if DEBUG
       puts report.to_s if DEBUG
-
-      #report.column_names.each do |column_name|
-      #  puts "#{column_name}: " + report.column(column_name)[0].to_s if DEBUG
-      #end
-      
-      #puts "DATA: " + report.data.inspect
-      #puts "DATA 2: " + report.data[0].inspect
-      #puts "DATA 3: " + report.data[0].attributes.inspect
-      #puts "DATA 4: " + report.data[0].data.inspect
-
-      #      puts "DATA 2: " + report.data[2].data.inspect
-
-      #Consortium: BaSH
-      #Priority: Low
-      #All: <a title='Click to see list of All' href='?consortium=BaSH&type=All&priority=Low'>1</a>
-      #ES QC started:
-      #ES QC finished:
-      #MI in progress:
-      #Aborted: <a title='Click to see list of Aborted' href='?consortium=BaSH&type=Aborted&priority=Low'>1</a>
-      #GLT Mice:
-      #Pipeline efficiency (%): 0
-
-      #expecteds99 = {
-      #  'BaSH' => {
-      #    'Low' => {
-      #      'All' => 1, 'ES QC started' => '', 'ES QC finished' => '', 'MI in progress' => '', 'Aborted' => '1', 'GLT Mice' => '', 'Pipeline efficiency (%)' =>''
-      #    }
-      #  }
-      #}
       
       expected = [{"Consortium"=>"BaSH", "Priority"=>"Low",
           "All"=>"<a title='Click to see list of All' href='?consortium=BaSH&type=All&priority=Low'>1</a>",
@@ -174,33 +136,6 @@ class Reports::ConsortiumPrioritySummaryTest < ActiveSupport::TestCase
       puts report.to_s if DEBUG
       assert_equal 1, report.size
     end
-
-    #should 'get table' do
-    #
-    #  gene_cbx1 = Factory.create :gene_cbx1
-    #
-    #  Factory.create :wtsi_mi_attempt_genotype_confirmed,
-    #    :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
-    #    :consortium_name => 'MGP',
-    #    :is_active => true,
-    #    :is_suitable_for_emma => true,
-    #    :total_pups_born => 10,
-    #    :total_male_chimeras => 10
-    # 
-    #  report = Reports::MonthlyProduction.generate()
-    #  
-    #  assert !report.blank?
-    #  
-    #  assert_equal 'MGP', report.column('Consortium')[0]
-    #  assert_equal 'WTSI', report.column('Production Centre')[0]
-    #  assert_equal 1, report.column('# Clones Injected')[0]
-    #  assert_equal 1, report.column('# at Birth')[0]
-    #  assert_equal 100, report.column('% at Birth')[0]
-    #  assert_equal 1, report.column('# at Weaning')[0]
-    #  assert_equal 1, report.column('# Genotype Confirmed')[0]
-    #  assert_equal 100, report.column('% Genotype Confirmed')[0]
-    #
-    #end
 
   end
 

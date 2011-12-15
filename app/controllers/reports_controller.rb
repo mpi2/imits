@@ -19,21 +19,12 @@ class ReportsController < ApplicationController
     )
   end
   
-  #  FEED_RAW = true
-  #
-  #def simple_feed_test
-  #    @report = Reports::FeedSummary.generate(request)
-  ##    render :inline => "<%= @report.to_html %>" if FEED_RAW
-  ##    render :inline => "<%= @report.to_html %>", :layout => false
-  ##    render @report.to_html, :layout => false
-  ##, :layout => 'special'
-  #  end
-
   def production_summary1
     feed = params[:feed] && params[:feed] == 'true'
-    puts "request: " + request.inspect
     @title2, @report = Reports::ConsortiumPrioritySummary.generate1(request, params)
-    render :inline => "<%= @report.to_html %>", :layout => false if feed
+#    render :inline => "<%= @report.to_html %>", :layout => false if feed
+    render :text => @report.to_html, :layout => false if feed
+#    render :text => @report.to_html if feed
   end
 
   def production_summary2

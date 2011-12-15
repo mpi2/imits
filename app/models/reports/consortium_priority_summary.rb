@@ -29,14 +29,8 @@ class Reports::ConsortiumPrioritySummary
   CACHE_NAME2 = 'production_summary2'
 
   def self.subsummary1(params)
-    specs = params[:specs]
-    array = specs.split('/')
-    raise "Invalid parameters (#{array.size})" if array.size != 4
-  
-    consortium = CGI.unescape array[1]
-    column = CGI.unescape array[3]
-    column = column.gsub(/^\#\s+/, "")
-    raise "Invalid parameters: '#{array[0]}'" if array[0] != 'consortium' || array[2] != 'type'
+    consortium = CGI.unescape params[:consortium]
+    column = CGI.unescape params[:type]
 
     cached_report = get_cached_report('mi_production_detail')
 
@@ -62,19 +56,23 @@ class Reports::ConsortiumPrioritySummary
     title = "Production Summary 1 Detail: Consortium: #{consortium} - Type: #{column} (#{report.size})"
     
     return title, report
+#    return report
 
   end
   
-  def self.generate1(request)
+  def self.generate1(request, params = {})
     
-    cache = USE_CACHE ? ReportCache.find_by_name(CACHE_NAME1) : false
-    return get_cached_report(CACHE_NAME1) if cache
+#    cache = USE_CACHE ? ReportCache.find_by_name(CACHE_NAME1) : false
+#    return get_cached_report(CACHE_NAME1) if cache
+    
+    # if sub report request ...
+    if params[:consortium]
+      return subsummary1(params)
+    end
     
     cached_report = get_cached_report('mi_production_detail')
 
-    report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production',
-                           'GLT Mice'
-                           ] )
+    report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production', 'GLT Mice' ] )
    
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
         
@@ -90,13 +88,15 @@ class Reports::ConsortiumPrioritySummary
       'Aborted'           => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING1['Aborted'].include? row.data['Status'] } ) }
     ).each do |row|
-      
+            
       make_link = lambda {|key|
         return row[key] if request.format == :csv
         row[key].to_s != '0' ?
-        "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary1/consortium/#{row['Consortium']}/type/#{key}'>#{row[key]}</a>" :
+        "<a title='Click to see list of #{key}' href='?consortium=#{row['Consortium']}&type=#{key}'>#{row[key]}</a>" :
         ''
       }
+
+#        "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary1/consortium/#{row['Consortium']}/type/#{key}'>#{row[key]}</a>" :
 
       report_table << {        
         'Consortium' => row['Consortium'],
@@ -109,34 +109,29 @@ class Reports::ConsortiumPrioritySummary
    
     report_table.sort_rows_by!( ['Consortium'] )
 
-    save_to_cache(CACHE_NAME1, report_table)
+#    save_to_cache(CACHE_NAME1, report_table)
     
-    return report_table
+    return 'Production Summary 1', report_table
   end
 
-  def self.save_to_cache(name, report)
-    cache = ReportCache.find_by_name(name)
-    if cache
-      cache.csv_data = report.to_csv
-      cache.save!
-    else
-      ReportCache.create!(
-        :name => name,
-        :csv_data => report.to_csv
-      )
-    end
-  end
+  #def self.save_to_cache(name, report)
+  #  cache = ReportCache.find_by_name(name)
+  #  if cache
+  #    cache.csv_data = report.to_csv
+  #    cache.save!
+  #  else
+  #    ReportCache.create!(
+  #      :name => name,
+  #      :csv_data => report.to_csv
+  #    )
+  #  end
+  #end
   
   def self.subsummary2(params)
-    specs = params[:specs]
-    array = specs.split('/')
-    raise "Invalid parameters (#{array.size})" if array.size != 6
-
-    consortium = CGI.unescape array[1]
-    column = CGI.unescape array[3]
+    consortium = CGI.unescape params[:consortium]
+    column = CGI.unescape params[:type]
     column = column.gsub(/^\#\s+/, "")
-    priority = CGI.unescape array[5]
-    raise "Invalid parameters: '#{array[0]}'" if array[0] != 'consortium' || array[2] != 'type' || array[4] != 'priority'
+    priority = CGI.unescape params[:priority]
 
     cached_report = get_cached_report('mi_production_detail')
 
@@ -164,10 +159,15 @@ class Reports::ConsortiumPrioritySummary
 
   end
   
-  def self.generate2(request)
+  def self.generate2(request, params={})
 
-    cache = USE_CACHE ? ReportCache.find_by_name(CACHE_NAME2) : false
-    return get_cached_report(CACHE_NAME2) if cache
+#    cache = USE_CACHE ? ReportCache.find_by_name(CACHE_NAME2) : false
+#    return get_cached_report(CACHE_NAME2) if cache
+
+    # if sub report request ...
+    if params[:consortium]
+      return subsummary2(params)
+    end
 
     cached_report = get_cached_report('mi_production_detail')
 
@@ -201,14 +201,16 @@ class Reports::ConsortiumPrioritySummary
         make_link = lambda {|key|
           return row[key] if request.format == :csv
           row[key].to_s != '0' ?
-          "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary2/consortium/#{consortium}/type/#{key}/priority/#{row['Priority']}'>#{row[key]}</a>" :
+          "<a title='Click to see list of #{key}' href='?consortium=#{consortium}&type=#{key}&priority=#{row['Priority']}'>#{row[key]}</a>" :
           ''
         }
+
+#          "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary2/consortium/#{consortium}/type/#{key}/priority/#{row['Priority']}'>#{row[key]}</a>" :
 
         glt = Integer(row['GLT Mice'])
         total = Integer(row['GLT Mice']) + Integer(row['Aborted'])
         pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-        pc = pc != 0 ? "%.2f" % pc : ''
+        pc = pc != 0 ? "%.2f" % pc : request.format != :csv ? '' : 0
 
         p_found.push row['Priority']
         report_table << {
@@ -241,9 +243,9 @@ class Reports::ConsortiumPrioritySummary
     report_table.sort_rows_by!( ['Consortium', 'order_by'] )    
     report_table.remove_column('order_by')
     
-    save_to_cache(CACHE_NAME2, report_table)
+  #  save_to_cache(CACHE_NAME2, report_table)
     
-    return report_table
+    return 'Production Summary 2', report_table
   end
 
 end

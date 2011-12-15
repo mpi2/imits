@@ -78,23 +78,39 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
       #http://www.example.com/reports/production_summary1?consortium=BaSH&type=Mice%20in%20production
 
 
-      #Consortium 	Sub-Project 	Priority 	Production Centre 	Gene 	Status 	Assigned Date
-      #Assigned - ES Cell QC In Progress Date 	Assigned - ES Cell QC Complete Date 	Micro-injection in progress Date 	Genotype confirmed Date 	Micro-injection aborted Date
-      #BaSH 	  	High 	BCM 	Prdm14 	Genotype confirmed 	2011-10-10 	2011-11-22 	  	2011-12-02 	2011-12-02
-      #BaSH 	  	High 	BCM 	Alg10b 	Micro-injection in progress 	2011-10-10 	  	  	2011-09-08
+      column_name = ['Consortium', 'Sub-Project', 'Priority', 'Production Centre', 'Gene', 'Status', 'Assigned Date',
+                     'Assigned - ES Cell QC In Progress Date', 'Assigned - ES Cell QC Complete Date', 'Micro-injection in progress Date',
+                     'Genotype confirmed Date', 'Micro-injection aborted Date']
+      
+      counter = 1
+      column_name.each do |name|
+        assert page.has_css?("div.report tr:nth-child(1) th:nth-child(#{counter})", :text => column_name[counter-1])
+        counter += 1
+      end
 
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(1)', :text => 'Consortium')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(2)', :text => 'Sub-Project')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(3)', :text => 'Priority')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(4)', :text => 'Production Centre')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(5)', :text => 'Gene')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(6)', :text => 'Status')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(7)', :text => 'Assigned Date')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(8)', :text => 'Assigned - ES Cell QC In Progress Date')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(9)', :text => 'Assigned - ES Cell QC Complete Date')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(10)', :text => 'Micro-injection in progress Date')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(11)', :text => 'Genotype confirmed Date')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(12)', :text => 'Micro-injection aborted Date')
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(1)', :text => column_name[0])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(2)', :text => column_name[1])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(3)', :text => column_name[2])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(4)', :text => column_name[3])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(5)', :text => column_name[4])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(6)', :text => column_name[5])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(7)', :text => column_name[6])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(8)', :text => column_name[7])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(9)', :text => column_name[8])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(10)', :text => column_name[9])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(11)', :text => column_name[10])
+      #assert page.has_css?('div.report tr:nth-child(1) th:nth-child(12)', :text => column_name[11])
+
+      column_name = ['BaSH', '', 'High', 'BCM', 'Prdm14', 'Genotype confirmed', '2011-10-10', '2011-11-22', '', '2011-12-02', '2011-12-02', '']
+
+      counter = 1
+      column_name.each do |name|
+#        puts "expected: #{column_name[counter-1]}"
+        assert page.has_css?("div.report tr:nth-child(2) td:nth-child(#{counter})", :text => column_name[counter-1])
+        counter += 1
+      end
+
+      #BaSH 	  	High 	BCM 	Alg10b 	Micro-injection in progress 	2011-10-10 	  	  	2011-09-08
     end
 
     should 'allow users to visit the feed demo url & see text (without login)' do

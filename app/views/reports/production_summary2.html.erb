@@ -3,11 +3,8 @@
 <h2><%= @title2 %></h2>
 
 <%
-  params = ''
   qpos = request.request_uri.index('?')
-  if qpos && qpos > -1
-    params = '?' + request.request_uri.scan( /\?(.+)/ ).last.first
-  end
+  params = qpos && qpos > -1 ? '?' + request.request_uri.scan( /\?(.+)/ ).last.first : ''
 %>
 
 <p><%= link_to('Download as CSV', url_for(:action => :production_summary2, :controller => :reports, :format => :csv) + params) if @csv %></p>

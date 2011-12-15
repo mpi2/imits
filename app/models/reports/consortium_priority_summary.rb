@@ -12,6 +12,16 @@ class Reports::ConsortiumPrioritySummary
   CONSORTIA = [ 'BaSH', 'DTCC', 'Helmholtz GMC', 'JAX', 'MARC', 'MGP', 'Monterotondo', 'NorCOMM2', 'Phenomin', 'RIKEN BRC' ]
   ORDER_BY_MAP = { 'Low' => 1, 'Medium' => 2, 'High' => 3}
   MAPPING1 = {
+    'All' => ['Interest',
+              'Assigned - ES Cell QC In Progress',
+              'Assigned - ES Cell QC Complete',
+              'Micro-injection in progress',
+              'Assigned',
+              'Inspect - MI Attempt',
+              'Conflict',
+              'Genotype confirmed',
+              'Inspect - Conflict',
+              'Inspect - GLT Mouse'],
     'Activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
     'Mice in production' => ['Micro-injection in progress', 'Genotype confirmed'],
     'GLT Mice' => ['Genotype confirmed'],
@@ -29,8 +39,8 @@ class Reports::ConsortiumPrioritySummary
   CACHE_NAME2 = 'production_summary2'
 
   def self.subsummary1(params)
-    consortium = CGI.unescape params[:consortium]
-    column = CGI.unescape params[:type]
+    consortium = params[:consortium]
+    status = params[:type]
 
     cached_report = get_cached_report('mi_production_detail')
 
@@ -40,7 +50,7 @@ class Reports::ConsortiumPrioritySummary
     report = Table(:data => cached_report.data,
       :column_names => ADD_COUNTS ? ['Count'] + cached_report.column_names : cached_report.column_names,
       :filters => lambda {|r|
-        if r['Consortium'] == consortium && (column == 'All' || MAPPING1[column].include?(r.data['Status']))
+        if r['Consortium'] == consortium && MAPPING1[status].include?(r.data['Status'])
           return false if genes.include?(r['Gene'])
           genes.push r['Gene']
           return true
@@ -53,23 +63,20 @@ class Reports::ConsortiumPrioritySummary
       }
     )
 
-    title = "Production Summary 1 Detail: Consortium: #{consortium} - Type: #{column} (#{report.size})"
+    title = "Production Summary 1 Detail: Consortium: #{consortium} - Type: #{status} (#{report.size})"
     
     return title, report
-#    return report
 
   end
   
-  def self.generate1(request, params = {})
-    
-#    cache = USE_CACHE ? ReportCache.find_by_name(CACHE_NAME1) : false
-#    return get_cached_report(CACHE_NAME1) if cache
-    
-    # if sub report request ...
+  def self.generate1(request = nil, params = { :feed => 'true' })
+
     if params[:consortium]
       return subsummary1(params)
     end
     
+    script_name = request ? request.env['REQUEST_URI'] : ''
+  
     cached_report = get_cached_report('mi_production_detail')
 
     report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production', 'GLT Mice' ] )
@@ -78,7 +85,8 @@ class Reports::ConsortiumPrioritySummary
         
     grouped_report.summary(
       'Consortium',
-      'All'                => lambda { |group| count_unique_instances_of( group, 'Gene' ) },
+      'All'                => lambda { |group| count_unique_instances_of( group, 'Gene',
+          lambda { |row| MAPPING1['All'].include? row.data['Status'] } ) },
       'Activity'           => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING1['Activity'].include? row.data['Status'] } ) },
       'Mice in production' => lambda { |group| count_unique_instances_of( group, 'Gene',
@@ -90,13 +98,12 @@ class Reports::ConsortiumPrioritySummary
     ).each do |row|
             
       make_link = lambda {|key|
-        return row[key] if request.format == :csv
+        consortium = CGI.escape row['Consortium']
+        type = CGI.escape key
         row[key].to_s != '0' ?
-        "<a title='Click to see list of #{key}' href='?consortium=#{row['Consortium']}&type=#{key}'>#{row[key]}</a>" :
+        "<a title='Click to see list of #{key}' href='#{script_name}?consortium=#{consortium}&type=#{type}'>#{row[key]}</a>" :
         ''
       }
-
-#        "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary1/consortium/#{row['Consortium']}/type/#{key}'>#{row[key]}</a>" :
 
       report_table << {        
         'Consortium' => row['Consortium'],
@@ -108,28 +115,13 @@ class Reports::ConsortiumPrioritySummary
     end
    
     report_table.sort_rows_by!( ['Consortium'] )
-
-#    save_to_cache(CACHE_NAME1, report_table)
     
-    return 'Production Summary 1', report_table
+    return 'Production Summary 1 (feed)', report_table
   end
-
-  #def self.save_to_cache(name, report)
-  #  cache = ReportCache.find_by_name(name)
-  #  if cache
-  #    cache.csv_data = report.to_csv
-  #    cache.save!
-  #  else
-  #    ReportCache.create!(
-  #      :name => name,
-  #      :csv_data => report.to_csv
-  #    )
-  #  end
-  #end
   
   def self.subsummary2(params)
-    consortium = CGI.unescape params[:consortium]
-    column = CGI.unescape params[:type]
+    consortium = params[:consortium]
+    column = params[:type]
     column = column.gsub(/^\#\s+/, "")
     priority = CGI.unescape params[:priority]
 
@@ -159,15 +151,13 @@ class Reports::ConsortiumPrioritySummary
 
   end
   
-  def self.generate2(request, params={})
+  def self.generate2(request = nil, params={})
 
-#    cache = USE_CACHE ? ReportCache.find_by_name(CACHE_NAME2) : false
-#    return get_cached_report(CACHE_NAME2) if cache
-
-    # if sub report request ...
     if params[:consortium]
       return subsummary2(params)
     end
+
+    script_name = request ? request.env['REQUEST_URI'] : ''
 
     cached_report = get_cached_report('mi_production_detail')
 
@@ -199,18 +189,19 @@ class Reports::ConsortiumPrioritySummary
       summary.each do |row|
         
         make_link = lambda {|key|
-          return row[key] if request.format == :csv
+          return row[key] if request && request.format == :csv
+          consort = CGI.escape consortium
+          type = CGI.escape key
+          priority = CGI.escape row['Priority']
           row[key].to_s != '0' ?
-          "<a title='Click to see list of #{key}' href='?consortium=#{consortium}&type=#{key}&priority=#{row['Priority']}'>#{row[key]}</a>" :
+          "<a title='Click to see list of #{key}' href='#{script_name}?consortium=#{consort}&type=#{key}&priority=#{priority}'>#{row[key]}</a>" :
           ''
         }
-
-#          "<a title='Click to see list of #{key}' href='#{request.env['SCRIPT_NAME']}/reports/summary2/consortium/#{consortium}/type/#{key}/priority/#{row['Priority']}'>#{row[key]}</a>" :
 
         glt = Integer(row['GLT Mice'])
         total = Integer(row['GLT Mice']) + Integer(row['Aborted'])
         pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-        pc = pc != 0 ? "%.2f" % pc : request.format != :csv ? '' : 0
+        pc = pc != 0 ? "%.2f" % pc : request && request.format != :csv ? '' : 0
 
         p_found.push row['Priority']
         report_table << {
@@ -242,9 +233,7 @@ class Reports::ConsortiumPrioritySummary
   
     report_table.sort_rows_by!( ['Consortium', 'order_by'] )    
     report_table.remove_column('order_by')
-    
-  #  save_to_cache(CACHE_NAME2, report_table)
-    
+        
     return 'Production Summary 2', report_table
   end
 

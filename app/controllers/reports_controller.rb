@@ -3,8 +3,7 @@
 class ReportsController < ApplicationController
   respond_to :html, :csv
 
-  before_filter :authenticate_user!,
-    :except => [:simple_feed_test, :simple_subfeed_test, :production_summary1]
+  before_filter :authenticate_user!, :except => [:simple_feed_test, :simple_subfeed_test, :production_summary1]
 
   extend Reports::Helper
   include Reports::Helper
@@ -20,30 +19,21 @@ class ReportsController < ApplicationController
     )
   end
   
-  FEED_RAW = false
-  
-#  def simple_feed_test
-#    @report = Reports::FeedSummary.generate(request)
-##    render :inline => "<%= @report.to_html %>" if FEED_RAW
-##    render :inline => "<%= @report.to_html %>", :layout => false
-##    render @report.to_html, :layout => false
-##, :layout => 'special'
-#  end
-#
-#  def simple_subfeed_test
-#    @report = Reports::FeedSummary.subfeed(params)
-##    render :inline => "<%= @report.to_html %>" if FEED_RAW
-#  end
-  
-#  def production_summary
-#    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
-#    @report1 = Reports::ConsortiumPrioritySummary.generate1(request, params)
-##    @report2 = Reports::ConsortiumPrioritySummary.generate2(request)
-#  end
+  #  FEED_RAW = true
+  #
+  #def simple_feed_test
+  #    @report = Reports::FeedSummary.generate(request)
+  ##    render :inline => "<%= @report.to_html %>" if FEED_RAW
+  ##    render :inline => "<%= @report.to_html %>", :layout => false
+  ##    render @report.to_html, :layout => false
+  ##, :layout => 'special'
+  #  end
 
   def production_summary1
+    feed = params[:feed] && params[:feed] == 'true'
+    puts "request: " + request.inspect
     @title2, @report = Reports::ConsortiumPrioritySummary.generate1(request, params)
-#    send_data_csv('production_summary1.csv', @report1) if request.format == :csv
+    render :inline => "<%= @report.to_html %>", :layout => false if feed
   end
 
   def production_summary2
@@ -51,18 +41,6 @@ class ReportsController < ApplicationController
     @title2, @report = Reports::ConsortiumPrioritySummary.generate2(request, params)
     send_data_csv('production_summary2.csv', @report) if request.format == :csv
   end
-
-  #def production_subsummary1
-  #  @title2, @report = Reports::ConsortiumPrioritySummary.subsummary1(params)
-  #  @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
-  #  send_data_csv('production_subsummary1.csv', @report) if request.format == :csv
-  #end
-  #
-  #def production_subsummary2
-  #  @title2, @report = Reports::ConsortiumPrioritySummary.subsummary2(params)
-  #  @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
-  #  send_data_csv('production_subsummary2.csv', @report) if request.format == :csv
-  #end
 
   def double_assigned_plans_matrix
     @report = Reports::MiPlans::DoubleAssignment.get_matrix

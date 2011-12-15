@@ -5,9 +5,6 @@ class ReportsController < ApplicationController
 
   before_filter :authenticate_user!,
     :except => [:simple_feed_test, :simple_subfeed_test, :production_summary1]
-    
-  #, :production_summary2]                
-  #, :production_summary1, :production_summary2]  
 
   extend Reports::Helper
   include Reports::Helper
@@ -25,18 +22,18 @@ class ReportsController < ApplicationController
   
   FEED_RAW = false
   
-  def simple_feed_test
-    @report = Reports::FeedSummary.generate(request)
-#    render :inline => "<%= @report.to_html %>" if FEED_RAW
-#    render :inline => "<%= @report.to_html %>", :layout => false
-#    render @report.to_html, :layout => false
-#, :layout => 'special'
-  end
-
-  def simple_subfeed_test
-    @report = Reports::FeedSummary.subfeed(params)
-#    render :inline => "<%= @report.to_html %>" if FEED_RAW
-  end
+#  def simple_feed_test
+#    @report = Reports::FeedSummary.generate(request)
+##    render :inline => "<%= @report.to_html %>" if FEED_RAW
+##    render :inline => "<%= @report.to_html %>", :layout => false
+##    render @report.to_html, :layout => false
+##, :layout => 'special'
+#  end
+#
+#  def simple_subfeed_test
+#    @report = Reports::FeedSummary.subfeed(params)
+##    render :inline => "<%= @report.to_html %>" if FEED_RAW
+#  end
   
 #  def production_summary
 #    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS

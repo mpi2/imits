@@ -41,11 +41,5 @@ Kermits2::Application.routes.draw do
   resources :report_caches, :only => [:show]
 
   match 'feeds/list/*specs', :controller => 'reports', :action => 'simple_subfeed_test'
-  
-#  match 'reports/summary1/*specs', :controller => 'reports', :action => 'production_subsummary1'
-#  match 'reports/summary2/*specs', :controller => 'reports', :action => 'production_subsummary2'
-
-#  match 'reports/summary1c/*specs', :controller => 'reports', :action => 'production_subsummary1', :defaults => { :format => 'csv' }
-#  match 'reports/summary2c/*specs', :controller => 'reports', :action => 'production_subsummary2', :defaults => { :format => 'csv' }
 
 end

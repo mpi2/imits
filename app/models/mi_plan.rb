@@ -43,7 +43,7 @@ class MiPlan < ActiveRecord::Base
   validates :marker_symbol, :presence => true
   validates :consortium_name, :presence => true
   validates :production_centre_name, :presence => {:on => :update, :if => proc {|p| p.changed.include?('production_centre_id')}}
-  validates :priority, :presence => true
+  validates :priority_name, :presence => true
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
   validates :number_of_es_cells_starting_qc, :presence => {
     :on => :update,

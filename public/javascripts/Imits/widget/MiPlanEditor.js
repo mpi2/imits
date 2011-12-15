@@ -65,10 +65,10 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 readOnly: true
             },
             {
-                id: 'priority',
+                id: 'priority_name',
                 xtype: 'simplecombo',
                 fieldLabel: 'Priority',
-                name: 'priority',
+                name: 'priority_name',
                 store: window.PRIORITY_COMBO_OPTS
             },
             {

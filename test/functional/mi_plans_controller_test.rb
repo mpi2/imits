@@ -173,7 +173,55 @@ class MiPlansControllerTest < ActionController::TestCase
           assert_match /^4\d\d$/, response.status.to_s
         end
       end
-    end
+
+      context 'GET index' do
+        setup do
+          @p1 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 4
+          @p2 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 12,
+                  :number_of_es_cells_passing_qc => 2
+          @p3 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 3,
+                  :number_of_es_cells_passing_qc => 1
+          @p4 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 2
+          @p5 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 7
+          @p6 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 1
+          @p7 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 5,
+                  :number_of_es_cells_passing_qc => 3
+        end
+
+        should 'allow filtering with Ransack' do
+          get :index, :format => :json, :number_of_es_cells_starting_qc_gt => 4,
+                  :number_of_es_cells_passing_qc_not_eq => 0
+          ids = JSON.parse(response.body).map{|i| i['id']}.sort
+          assert_equal [@p2.id, @p7.id].sort, ids
+        end
+
+        should 'translate search params'
+
+        should 'allow paginating' do
+          get :index, 'format' => 'json', 'per_page' => 3, 'page' => 2
+          assert_equal [@p4.id, @p5.id, @p6.id], parse_json_from_response.map {|i| i['id']}
+        end
+
+        should 'paginate by 20 by default' do
+          30.times { Factory.create :mi_plan }
+          get :index, 'format' => 'json'
+          assert_equal 20, parse_json_from_response.size
+        end
+
+        should 'sort by ID by default' do
+          get :index, :format => 'json'
+          data = parse_json_from_response
+          assert_equal [@p1.id, @p2.id], data.map {|i| i['id']}[0..1]
+        end
+
+        should 'allow sorting' do
+          get :index, :format => 'json', :sorts => 'number_of_es_cells_starting_qc'
+          data = parse_json_from_response
+          assert_equal [@p6.id, @p4.id], data.map {|i| i['id']}[0..1]
+        end
+      end
+
+    end # when authenticated
 
   end
 end

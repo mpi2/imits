@@ -33,7 +33,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           :created_at => '2011-11-02 00:00:00 UTC')
 
         bash_wtsi_plan.sub_project = MiPlan::SubProject.find_by_name!('Legacy EUCOMM')
-        bash_wtsi_plan.priority = 'Medium'
+        bash_wtsi_plan.priority = MiPlan::Priority.find_by_name!('Medium')
         bash_wtsi_plan.number_of_es_cells_starting_qc = 4
         bash_wtsi_plan.save!
         bash_wtsi_plan.status_stamps.last.update_attributes!(

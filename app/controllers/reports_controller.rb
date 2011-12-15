@@ -220,11 +220,11 @@ class ReportsController < ApplicationController
       # Add totals by priority
       gene_count_by_priority =
         MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(
-        :gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
+        :gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :priority)
 
       if @include_plans_with_active_attempts
         gene_count_by_priority =
-          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
+          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :priority)
       end
 
       @summary_by_priority << ['TOTAL BY PRIORITY'] + priorities.map { |priority| gene_count_by_priority[priority] || 0 } + [total_number_of_planned_genes]
@@ -285,7 +285,7 @@ class ReportsController < ApplicationController
       'production_centre.name'  => 'Production Centre',
       'gene.marker_symbol'      => 'Marker Symbol',
       'gene.mgi_accession_id'   => 'MGI Accession ID',
-      'mi_plan_priority.name'   => 'Priority',
+      'priority.name'           => 'Priority',
       'status.name'             => 'Status'
     }
 
@@ -297,7 +297,7 @@ class ReportsController < ApplicationController
         :consortium         => { :only => [:name] },
         :production_centre  => { :only => [:name] },
         :gene               => { :only => [:marker_symbol,:mgi_accession_id] },
-        :mi_plan_priority   => { :only => [:name] },
+        :priority           => { :only => [:name] },
         :status             => { :only => [:name] }
       }
     }

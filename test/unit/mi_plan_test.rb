@@ -19,7 +19,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should belong_to :consortium
         assert_should belong_to :production_centre
         assert_should belong_to :status
-        assert_should belong_to :mi_plan_priority
+        assert_should belong_to :priority
         assert_should belong_to :sub_project
 
         assert_should have_many :mi_attempts
@@ -30,7 +30,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:consortium_id).with_options(:null => false)
         assert_should have_db_column(:production_centre_id)
         assert_should have_db_column(:status_id).with_options(:null => false)
-        assert_should have_db_column(:mi_plan_priority_id).with_options(:null => false)
+        assert_should have_db_column(:priority_id).with_options(:null => false)
         assert_should have_db_column(:sub_project_id).with_options(:null => false)
       end
 
@@ -298,16 +298,16 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      context '#priority' do
+      context '#priority_name' do
         should 'use AccessAssociationByAttribute' do
           priority = MiPlan::Priority.find_by_name!('Medium')
-          assert_not_equal priority,  @default_mi_plan.mi_plan_priority
-          @default_mi_plan.priority = 'Medium'
-          assert_equal priority, @default_mi_plan.mi_plan_priority
+          assert_not_equal priority,  @default_mi_plan.priority
+          @default_mi_plan.priority_name = 'Medium'
+          assert_equal priority, @default_mi_plan.priority
         end
 
         should 'be present' do
-          assert_should validate_presence_of :priority
+          assert_should validate_presence_of :priority_name
         end
       end
 
@@ -479,7 +479,7 @@ class MiPlanTest < ActiveSupport::TestCase
           'marker_symbol',
           'consortium_name',
           'production_centre_name',
-          'priority',
+          'priority_name',
           'number_of_es_cells_starting_qc',
           'number_of_es_cells_passing_qc',
           'withdrawn'
@@ -494,7 +494,7 @@ class MiPlanTest < ActiveSupport::TestCase
           'marker_symbol',
           'consortium_name',
           'production_centre_name',
-          'priority',
+          'priority_name',
           'status_name',
           'number_of_es_cells_starting_qc',
           'number_of_es_cells_passing_qc',

@@ -224,7 +224,8 @@ class MiAttempt < ActiveRecord::Base
     if new_record?
       mi_plan_to_set = find_matching_mi_plan
       if ! mi_plan_to_set
-        mi_plan_to_set = MiPlan.new(:priority => 'High')
+        mi_plan_to_set = MiPlan.new
+        mi_plan_to_set.priority = MiPlan::Priority.find_by_name!('High')
         mi_plan_to_set.consortium_name = consortium_name
         mi_plan_to_set.gene = es_cell.gene
       end

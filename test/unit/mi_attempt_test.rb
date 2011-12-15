@@ -677,7 +677,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 'Cbx1', mi_attempt.mi_plan.gene.marker_symbol
             assert_equal 'WTSI', mi_attempt.mi_plan.production_centre.name
             assert_equal 'BaSH', mi_attempt.mi_plan.consortium.name
-            assert_equal 'High', mi_attempt.mi_plan.mi_plan_priority.name
+            assert_equal 'High', mi_attempt.mi_plan.priority.name
             assert_equal 'Assigned', mi_attempt.mi_plan.status.name
           end
 

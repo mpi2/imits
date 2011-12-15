@@ -5,7 +5,7 @@ class MiPlan < ActiveRecord::Base
     'marker_symbol',
     'consortium_name',
     'production_centre_name',
-    'priority',
+    'priority_name',
     'number_of_es_cells_starting_qc',
     'number_of_es_cells_passing_qc',
     'withdrawn'
@@ -28,7 +28,7 @@ class MiPlan < ActiveRecord::Base
   belongs_to :gene
   belongs_to :consortium
   belongs_to :status
-  belongs_to :mi_plan_priority
+  belongs_to :priority
   belongs_to :production_centre, :class_name => 'Centre'
   has_many :mi_attempts
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
@@ -37,7 +37,7 @@ class MiPlan < ActiveRecord::Base
   access_association_by_attribute :gene, :marker_symbol, :full_alias => :marker_symbol
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
-  access_association_by_attribute :mi_plan_priority, :name, :full_alias => :priority
+  access_association_by_attribute :priority, :name
   access_association_by_attribute :status, :name
 
   validates :marker_symbol, :presence => true
@@ -345,7 +345,7 @@ end
 #  gene_id                        :integer         not null
 #  consortium_id                  :integer         not null
 #  status_id                      :integer         not null
-#  mi_plan_priority_id            :integer         not null
+#  priority_id                    :integer         not null
 #  production_centre_id           :integer
 #  created_at                     :datetime
 #  updated_at                     :datetime

@@ -22,7 +22,7 @@ class MiPlansControllerTest < ActionController::TestCase
           attributes = {
             :marker_symbol => 'Cbx1',
             :consortium_name => 'BaSH',
-            :priority => 'High'
+            :priority_name => 'High'
           }
           post(:create, :mi_plan => attributes, :format => :json)
           assert_response :success, response.body
@@ -37,7 +37,7 @@ class MiPlansControllerTest < ActionController::TestCase
               :create,
               :mi_plan => {
                 :consortium_name => 'BaSH',
-                :priority => 'High'
+                :priority_name => 'High'
               },
               :format => :json
             )
@@ -55,7 +55,7 @@ class MiPlansControllerTest < ActionController::TestCase
               :marker_symbol => 'Cbx1',
               :consortium_name => 'BaSH',
               :production_centre_name => 'WTSI',
-              :priority => 'High'
+              :priority_name => 'High'
             }, :format => :json
           end
           assert_response 422, response.body
@@ -145,29 +145,29 @@ class MiPlansControllerTest < ActionController::TestCase
       context 'PUT update' do
         should 'update with valid params' do
           mi_plan = Factory.create :mi_plan,
-                  :mi_plan_priority => MiPlan::Priority.find_by_name!('High')
+                  :priority => MiPlan::Priority.find_by_name!('High')
           put :update, :id => mi_plan.id, :format => :json,
-                  :mi_plan => {:production_centre_name => 'WTSI', :priority => 'High'}
+                  :mi_plan => {:production_centre_name => 'WTSI', :priority_name => 'High'}
           assert response.success?
           mi_plan.reload
           assert_equal ['WTSI', 'High'],
-                  [mi_plan.production_centre_name, mi_plan.priority]
+                  [mi_plan.production_centre_name, mi_plan.priority.name]
           assert_equal mi_plan.as_json, JSON.parse(response.body)
         end
 
         should 'return errors with invalid update' do
           mi_plan = Factory.create :mi_plan
           assert_no_difference('MiPlan.count') do
-            put :update, :id => mi_plan.id, :mi_plan => {:priority => 'Nonexistent'},
+            put :update, :id => mi_plan.id, :mi_plan => {:priority_name => 'Nonexistent'},
                     :format => :json
           end
-          assert_equal({'priority' => ["'Nonexistent' does not exist"]}, parse_json_from_response)
+          assert_equal({'priority_name' => ["'Nonexistent' does not exist"]}, parse_json_from_response)
           assert_match /^4\d\d$/, response.status.to_s
         end
 
         should 'return errors if id not found' do
           assert_no_difference('MiPlan.count') do
-            put :update, :id => '99999', :mi_plan => {:priority => 'Nonexistent'},
+            put :update, :id => '99999', :mi_plan => {:priority_name => 'Nonexistent'},
                     :format => :json
           end
           assert_match /^4\d\d$/, response.status.to_s

@@ -145,7 +145,7 @@ class MiPlansControllerTest < ActionController::TestCase
       context 'PUT update' do
         should 'update with valid params' do
           mi_plan = Factory.create :mi_plan,
-                  :mi_plan_priority => MiPlanPriority.find_by_name!('High')
+                  :mi_plan_priority => MiPlan::Priority.find_by_name!('High')
           put :update, :id => mi_plan.id, :format => :json,
                   :mi_plan => {:production_centre_name => 'WTSI', :priority => 'High'}
           assert response.success?

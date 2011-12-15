@@ -204,7 +204,7 @@ ActiveRecord::Schema.define(:version => 20111215090406) do
     t.integer  "gene_id",                        :null => false
     t.integer  "consortium_id",                  :null => false
     t.integer  "status_id",                      :null => false
-    t.integer  "mi_plan_priority_id",            :null => false
+    t.integer  "priority_id",                    :null => false
     t.integer  "production_centre_id"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -347,7 +347,7 @@ ActiveRecord::Schema.define(:version => 20111215090406) do
   add_foreign_key "mi_plans", "centres", :name => "mi_plans_production_centre_id_fk", :column => "production_centre_id"
   add_foreign_key "mi_plans", "consortia", :name => "mi_plans_consortium_id_fk"
   add_foreign_key "mi_plans", "genes", :name => "mi_plans_gene_id_fk"
-  add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk"
+  add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk", :column => "priority_id"
   add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"
 

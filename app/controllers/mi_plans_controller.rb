@@ -15,7 +15,7 @@ class MiPlansController < ApplicationController
 
     @centre_combo_options    = Centre.order('name').map(&:name)
     @consortia_combo_options = Consortium.order('name').map(&:name)
-    @priority_combo_options  = MiPlanPriority.order('name').map(&:name)
+    @priority_combo_options  = MiPlan::Priority.order('name').map(&:name)
   end
 
   def show

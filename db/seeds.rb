@@ -111,7 +111,7 @@ Seeds.load MiPlan::Status, [
   {:order_by => 100, :id => 11, :name => 'Withdrawn', :description => 'Withdrawn - Interest in micro-injecting this gene was withdrawn by the parties involved'}
 ]
 
-Seeds.load MiPlanPriority, [
+Seeds.load MiPlan::Priority, [
   {:id => 1, :name => 'High', :description => 'Estimated injection in the next 0-4 months'},
   {:id => 2, :name => 'Medium', :description => 'Estimated injection in the next 5-8 months'},
   {:id => 3, :name => 'Low', :description => 'Estimated injection in the next 9-12 months'}

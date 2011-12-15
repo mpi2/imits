@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class MiPlanPriority < ActiveRecord::Base
+class MiPlan::Priority < ActiveRecord::Base
   acts_as_reportable
 
   has_many :mi_plans

@@ -300,7 +300,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#priority' do
         should 'use AccessAssociationByAttribute' do
-          priority = MiPlanPriority.find_by_name!('Medium')
+          priority = MiPlan::Priority.find_by_name!('Medium')
           assert_not_equal priority,  @default_mi_plan.mi_plan_priority
           @default_mi_plan.priority = 'Medium'
           assert_equal priority, @default_mi_plan.mi_plan_priority

@@ -65,5 +65,36 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
     end
 
+    should 'transition to Aborted if is_active is set, regardless of other statuses' do
+      phenotype_attempt.is_active = false
+
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+
+      phenotype_attempt.rederivation_started = true
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+
+      phenotype_attempt.rederivation_complete = true
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+
+      phenotype_attempt.number_of_cre_matings_started = 4
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+
+      phenotype_attempt.number_of_cre_matings_successful = 2
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+
+      phenotype_attempt.phenotype_started = true
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+
+      phenotype_attempt.phenotype_complete = true
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+    end
+
   end
 end

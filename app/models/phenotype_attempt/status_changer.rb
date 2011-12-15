@@ -65,6 +65,10 @@ module PhenotypeAttempt::StatusChanger
     pt.phenotype_complete?
   end
 
+  Config.add('Phenotype Aborted') do |pt|
+    ! pt.is_active?
+  end
+
   def change_status
     self.status = PhenotypeAttempt::Status[Config.get_status_for(self)]
   end

@@ -14,6 +14,7 @@ class CreatePhenotypeAttempts < ActiveRecord::Migration
       t.timestamps
     end
 
+    add_foreign_key :phenotype_attempts, :mi_attempts
     add_foreign_key :phenotype_attempts, :phenotype_attempt_statuses, :column => :status_id
   end
 

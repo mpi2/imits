@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class MiAttempt < ActiveRecord::Base
+class MiAttempt < ApplicationModel
   acts_as_audited
   acts_as_reportable
 

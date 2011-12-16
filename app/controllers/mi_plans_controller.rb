@@ -83,7 +83,7 @@ class MiPlansController < ApplicationController
   end
 
   def index
-    render :json => data_for_serialized(:json, 'id', MiPlan, :search)
+    render :json => data_for_serialized(:json, 'id', MiPlan, :public_search)
   end
 
 end

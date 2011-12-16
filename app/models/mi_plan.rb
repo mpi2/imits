@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class MiPlan < ActiveRecord::Base
+class MiPlan < ApplicationModel
   FULL_ACCESS_ATTRIBUTES = [
     'marker_symbol',
     'consortium_name',
@@ -333,6 +333,14 @@ class MiPlan < ActiveRecord::Base
     else
       self.status = MiPlan::Status['Withdrawn']
     end
+  end
+
+  def self.translate_search_param(param)
+    translations = {
+      'marker_symbol' => 'gene_marker_symbol'
+    }
+
+    return super(translations, param)
   end
 
 end

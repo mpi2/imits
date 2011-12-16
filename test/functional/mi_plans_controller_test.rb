@@ -176,7 +176,8 @@ class MiPlansControllerTest < ActionController::TestCase
 
       context 'GET index' do
         setup do
-          @p1 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 4
+          @p1 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 4,
+                  :gene => Factory.create(:gene_cbx1)
           @p2 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 12,
                   :number_of_es_cells_passing_qc => 2
           @p3 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 3,
@@ -195,7 +196,11 @@ class MiPlansControllerTest < ActionController::TestCase
           assert_equal [@p2.id, @p7.id].sort, ids
         end
 
-        should 'translate search params'
+        should 'translate search params' do
+          get :index, :format => :json, :marker_symbol_eq => 'Cbx1'
+          ids = JSON.parse(response.body).map{|i| i['id']}.sort
+          assert_equal [@p1.id].sort, ids
+        end
 
         should 'allow paginating' do
           get :index, 'format' => 'json', 'per_page' => 3, 'page' => 2

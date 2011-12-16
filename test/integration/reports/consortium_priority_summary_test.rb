@@ -28,6 +28,19 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
 
   context 'ConsortiumPrioritySummary:' do
 
+    COLUMN_NAMES_SUMMARY_PAGE_1 = ['Consortium', 'All', 'Activity', 'Mice in production', 'GLT Mice']
+    COLUMN_VALUES_SUMMARY_PAGE_1 = ['BaSH', '10', '4', '2', '1']
+    COLUMN_NAMES_SUMMARY_DETAIL_PAGE_1 = ['Consortium', 'Sub-Project', 'Priority', 'Production Centre', 'Gene', 'Status', 'Assigned Date',
+      'Assigned - ES Cell QC In Progress Date', 'Assigned - ES Cell QC Complete Date', 'Micro-injection in progress Date',
+      'Genotype confirmed Date', 'Micro-injection aborted Date']
+    COLUMN_VALUES_SUMMARY_DETAIL_PAGE_1 = ['BaSH', '', 'High', 'BCM', 'Prdm14', 'Genotype confirmed', '2011-10-10', '2011-11-22', '', '2011-12-02', '2011-12-02', '']
+
+    COLUMN_NAMES_SUMMARY_PAGE_2 = ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC finished', 'MI in progress', 'Aborted', 'GLT Mice', 'Pipeline efficiency (%)']
+    COLUMN_NAMES_SUMMARY_DETAIL_PAGE_2 = [
+      'Consortium', 'Sub-Project', 'Priority', 'Production Centre', 'Gene', 'Status', 'Assigned Date', 'Assigned - ES Cell QC In Progress Date',
+      'Assigned - ES Cell QC Complete Date', 'Micro-injection in progress Date', 'Genotype confirmed Date','Micro-injection aborted Date'
+    ]
+
     setup do
       assert ! ReportCache.find_by_name('mi_production_detail')
       ReportCache.create!(
@@ -35,8 +48,8 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
         :csv_data => TEST_CSV
       )
       assert ReportCache.find_by_name('mi_production_detail')
-      
       report = get_cached_report('mi_production_detail')    
+      assert report
     end
 
     should 'allow users to visit the feed demo page & see entries (without login)' do
@@ -44,18 +57,13 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
       assert_match '/reports/production_summary1', current_url
 
       assert_match 'Production Summary 1 (feed)', page.body
-
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(1)', :text => 'Consortium')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(2)', :text => 'All')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(3)', :text => 'Activity')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(4)', :text => 'Mice in production')
-      assert page.has_css?('div.report tr:nth-child(1) th:nth-child(5)', :text => 'GLT Mice')
-
-      assert page.has_css?('div.report tr:nth-child(2) td:nth-child(1)', :text => 'BaSH')
-      assert page.has_css?('div.report tr:nth-child(2) td:nth-child(2)', :text => '10')
-      assert page.has_css?('div.report tr:nth-child(2) td:nth-child(3)', :text => '4')
-      assert page.has_css?('div.report tr:nth-child(2) td:nth-child(4)', :text => '2')
-      assert page.has_css?('div.report tr:nth-child(2) td:nth-child(5)', :text => '1')
+      
+      counter = 1
+      COLUMN_NAMES_SUMMARY_PAGE_1.each do |name|
+        assert page.has_css?("div.report tr:nth-child(1) th:nth-child(#{counter})", :text => COLUMN_NAMES_SUMMARY_PAGE_1[counter-1])
+        assert page.has_css?("div.report tr:nth-child(2) td:nth-child(#{counter})", :text => COLUMN_VALUES_SUMMARY_PAGE_1[counter-1])
+        counter += 1
+      end
     end
     
     # gives just table using curl http://localhost:3000/reports/production_summary1?feed=true
@@ -64,23 +72,24 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
       visit '/reports/production_summary1?consortium=BaSH&type=Mice+in+production'
       assert_match '/reports/production_summary1?consortium=BaSH&type=Mice%20in%20production', current_url
 
-      column_name = ['Consortium', 'Sub-Project', 'Priority', 'Production Centre', 'Gene', 'Status', 'Assigned Date',
-        'Assigned - ES Cell QC In Progress Date', 'Assigned - ES Cell QC Complete Date', 'Micro-injection in progress Date',
-        'Genotype confirmed Date', 'Micro-injection aborted Date']
+      #column_name = ['Consortium', 'Sub-Project', 'Priority', 'Production Centre', 'Gene', 'Status', 'Assigned Date',
+      #  'Assigned - ES Cell QC In Progress Date', 'Assigned - ES Cell QC Complete Date', 'Micro-injection in progress Date',
+      #  'Genotype confirmed Date', 'Micro-injection aborted Date']
       
       counter = 1
-      column_name.each do |name|
-        assert page.has_css?("div.report tr:nth-child(1) th:nth-child(#{counter})", :text => column_name[counter-1])
+      COLUMN_NAMES_SUMMARY_DETAIL_PAGE_1.each do |name|
+        assert page.has_css?("div.report tr:nth-child(1) th:nth-child(#{counter})", :text => COLUMN_NAMES_SUMMARY_DETAIL_PAGE_1[counter-1])
+        assert page.has_css?("div.report tr:nth-child(2) td:nth-child(#{counter})", :text => COLUMN_VALUES_SUMMARY_DETAIL_PAGE_1[counter-1])
         counter += 1
       end
 
-      column_name = ['BaSH', '', 'High', 'BCM', 'Prdm14', 'Genotype confirmed', '2011-10-10', '2011-11-22', '', '2011-12-02', '2011-12-02', '']
+      #      column_name = ['BaSH', '', 'High', 'BCM', 'Prdm14', 'Genotype confirmed', '2011-10-10', '2011-11-22', '', '2011-12-02', '2011-12-02', '']
 
-      counter = 1
-      column_name.each do |name|
-        assert page.has_css?("div.report tr:nth-child(2) td:nth-child(#{counter})", :text => column_name[counter-1])
-        counter += 1
-      end
+      #counter = 1
+      #COLUMN_VALUES_SUMMARY_DETAIL_PAGE_1.each do |name|
+      #  assert page.has_css?("div.report tr:nth-child(2) td:nth-child(#{counter})", :text => COLUMN_VALUES_SUMMARY_DETAIL_PAGE_1[counter-1])
+      #  counter += 1
+      #end
     end
 
     should 'allow users to visit the feed demo url & see text (without login)' do
@@ -113,12 +122,13 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
         assert_match '/reports/production_summary2', current_url
   
         assert_match 'Production Summary 2', page.body
+        assert_match 'Download as CSV', page.body
         
-        column_name = ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC finished', 'MI in progress', 'Aborted', 'GLT Mice', 'Pipeline efficiency (%)']
+        #        column_name = ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC finished', 'MI in progress', 'Aborted', 'GLT Mice', 'Pipeline efficiency (%)']
 
         counter = 1
-        column_name.each do |name|
-          assert page.has_css?("div.report tr:nth-child(1) th:nth-child(#{counter})", :text => column_name[counter-1])
+        COLUMN_NAMES_SUMMARY_PAGE_2.each do |name|
+          assert page.has_css?("div.report tr:nth-child(1) th:nth-child(#{counter})", :text => COLUMN_NAMES_SUMMARY_PAGE_2[counter-1])
           counter += 1
         end
       end
@@ -130,28 +140,46 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
         visit url
         assert_match url2, current_url
   
-        save_and_open_page if DEBUG
-
         assert_match 'Production Summary Detail 2', page.body
+        assert_match 'Download as CSV', page.body
         
-        column_name = [
-          'Consortium',
-          'Sub-Project',
-          'Priority',
-          'Production Centre',
-          'Gene',
-          'Status',
-          'Assigned Date',
-          'Assigned - ES Cell QC In Progress Date',
-          'Assigned - ES Cell QC Complete Date',
-          'Micro-injection in progress Date',
-          'Genotype confirmed Date',
-          'Micro-injection aborted Date'
-        ]
+        #column_name = [
+        #  'Consortium',
+        #  'Sub-Project',
+        #  'Priority',
+        #  'Production Centre',
+        #  'Gene',
+        #  'Status',
+        #  'Assigned Date',
+        #  'Assigned - ES Cell QC In Progress Date',
+        #  'Assigned - ES Cell QC Complete Date',
+        #  'Micro-injection in progress Date',
+        #  'Genotype confirmed Date',
+        #  'Micro-injection aborted Date'
+        #]
 
         counter = 1
-        column_name.each do |name|
-          assert page.has_css?("div.report tr:nth-child(1) th:nth-child(#{counter})", :text => column_name[counter-1])
+        COLUMN_NAMES_SUMMARY_DETAIL_PAGE_2.each do |name|
+          assert page.has_css?("div.report tr:nth-child(1) th:nth-child(#{counter})", :text => COLUMN_NAMES_SUMMARY_DETAIL_PAGE_2[counter-1])
+          counter += 1
+        end
+      end
+      
+      should 'allow users to visit the prod summary 2 page & see entries & check clickability of cell' do
+        visit '/reports/production_summary2'
+        assert_match '/reports/production_summary2', current_url
+
+        assert_match 'Production Summary 2', page.body
+        assert_match 'Download as CSV', page.body
+        
+        click_link 'bash_all_low'
+        assert_match '/reports/production_summary2?consortium=BaSH&type=All&priority=Low', current_url
+
+        save_and_open_page if DEBUG
+        
+        counter = 1
+        COLUMN_NAMES_SUMMARY_DETAIL_PAGE_2.each do |name|
+          assert page.has_css?("div.report tr:nth-child(1) th:nth-child(#{counter})", :text => COLUMN_NAMES_SUMMARY_DETAIL_PAGE_2[counter-1])
           counter += 1
         end
       end

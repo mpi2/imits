@@ -34,12 +34,10 @@ class Reports::ConsortiumPrioritySummaryTest < ActiveSupport::TestCase
         :name => 'mi_production_detail',
         :csv_data => TEST_CSV
       )
-      assert ReportCache.find_by_name('mi_production_detail')
-      
+      assert ReportCache.find_by_name('mi_production_detail')      
       report = get_cached_report('mi_production_detail')
-      
       puts report.to_s if DEBUG
-    
+      assert report
     end
 
     should 'do feed generate' do
@@ -98,19 +96,40 @@ class Reports::ConsortiumPrioritySummaryTest < ActiveSupport::TestCase
       puts title2 if DEBUG
       puts report.to_s if DEBUG
       
-      expected = [{"Consortium"=>"BaSH", "Priority"=>"Low",
-          "All"=>"<a title='Click to see list of All' href='?consortium=BaSH&type=All&priority=Low'>1</a>",
-          "ES QC started"=>"", "ES QC finished"=>"", "MI in progress"=>"",
-          "Aborted"=>"<a title='Click to see list of Aborted' href='?consortium=BaSH&type=Aborted&priority=Low'>1</a>",
-          "GLT Mice"=>"", "Pipeline efficiency (%)"=>0},
-        {"Consortium"=>"BaSH", "Priority"=>"Medium", "All"=>"<a title='Click to see list of All' href='?consortium=BaSH&type=All&priority=Medium'>1</a>",
-          "ES QC started"=>"", "ES QC finished"=>"", "MI in progress"=>"", "Aborted"=>"", "GLT Mice"=>"", "Pipeline efficiency (%)"=>0},
-        {"Consortium"=>"BaSH", "Priority"=>"High", "All"=>"<a title='Click to see list of All' href='?consortium=BaSH&type=All&priority=High'>11</a>",
-          "ES QC started"=>"<a title='Click to see list of ES QC started' href='?consortium=BaSH&type=ES QC started&priority=High'>1</a>",
-          "ES QC finished"=>"<a title='Click to see list of ES QC finished' href='?consortium=BaSH&type=ES QC finished&priority=High'>1</a>",
-          "MI in progress"=>"<a title='Click to see list of MI in progress' href='?consortium=BaSH&type=MI in progress&priority=High'>1</a>",
-          "Aborted"=>"", "GLT Mice"=>"<a title='Click to see list of GLT Mice' href='?consortium=BaSH&type=GLT Mice&priority=High'>1</a>",
-          "Pipeline efficiency (%)"=>"100.00"}
+      expected = [
+        {"Aborted"=>
+            "<a title='Click to see list of Aborted' id='bash_aborted_low' href='?consortium=BaSH&type=Aborted&priority=Low'>1</a>",
+          "All"=> "<a title='Click to see list of All' id='bash_all_low' href='?consortium=BaSH&type=All&priority=Low'>1</a>",
+          "Consortium"=>"BaSH",
+          "ES QC finished"=>"",
+          "ES QC started"=>"",
+          "GLT Mice"=>"",
+          "MI in progress"=>"",
+          "Pipeline efficiency (%)"=>0,
+          "Priority"=>"Low"},
+        {"Aborted"=>"",
+          "All"=> "<a title='Click to see list of All' id='bash_all_medium' href='?consortium=BaSH&type=All&priority=Medium'>1</a>",
+          "Consortium"=>"BaSH",
+          "ES QC finished"=>"",
+          "ES QC started"=>"",
+          "GLT Mice"=>"",
+          "MI in progress"=>"",
+          "Pipeline efficiency (%)"=>0,
+          "Priority"=>"Medium"},
+        {"Aborted"=>"",
+          "All"=>
+            "<a title='Click to see list of All' id='bash_all_high' href='?consortium=BaSH&type=All&priority=High'>11</a>",
+          "Consortium"=>"BaSH",
+          "ES QC finished"=>
+            "<a title='Click to see list of ES QC finished' id='bash_es_qc_finished_high' href='?consortium=BaSH&type=ES QC finished&priority=High'>1</a>",
+          "ES QC started"=>
+            "<a title='Click to see list of ES QC started' id='bash_es_qc_started_high' href='?consortium=BaSH&type=ES QC started&priority=High'>1</a>",
+          "GLT Mice"=>
+            "<a title='Click to see list of GLT Mice' id='bash_glt_mice_high' href='?consortium=BaSH&type=GLT Mice&priority=High'>1</a>",
+          "MI in progress"=>
+            "<a title='Click to see list of MI in progress' id='bash_mi_in_progress_high' href='?consortium=BaSH&type=MI in progress&priority=High'>1</a>",
+          "Pipeline efficiency (%)"=>"100.00",
+          "Priority"=>"High"}
       ]
 
       assert_equal expected[0], report.data[0].data

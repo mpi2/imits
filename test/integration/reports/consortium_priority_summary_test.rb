@@ -7,7 +7,7 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
   extend Reports::Helper
   include Reports::Helper
   
-  DEBUG = true
+  DEBUG = false
 
   TEST_CSV = <<-"CSV"
 "Consortium","Sub-Project","Priority","Production Centre","Gene","Status","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date"
@@ -81,7 +81,6 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
         assert page.has_css?("div.report tr:nth-child(2) td:nth-child(#{counter})", :text => column_name[counter-1])
         counter += 1
       end
-      #      save_and_open_page if DEBUG
     end
 
     should 'allow users to visit the feed demo url & see text (without login)' do
@@ -90,9 +89,6 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
       assert page.body.length > 0
     end
     
-    #re4@deskpro101067:~/dev/imits$ curl http://localhost:3000/reports/production_summary1?feed=true&consortium=MGP-KOMP&type=GLT+Mice&
-    #http://www.example.com/reports/production_summary1?feed=true&consortium=MGP-KOMP&type=GLT%20Mice
-
     # gives just table using curl http://localhost:3000/reports/production_summary1?feed=true&consortium=BaSH&type=Mice+in+production
     
     should 'allow users to visit the feed detail demo url & see text (without login)' do
@@ -103,8 +99,6 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
       visit url
       assert_match url2, current_url
       assert page.body.length > 0
-      # puts 'URL: ' + current_url
-      #   puts page.body
     end
     
     context 'once logged in' do
@@ -118,8 +112,6 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
         visit '/reports/production_summary2'
         assert_match '/reports/production_summary2', current_url
   
-        #        save_and_open_page if DEBUG
-
         assert_match 'Production Summary 2', page.body
         
         column_name = ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC finished', 'MI in progress', 'Aborted', 'GLT Mice', 'Pipeline efficiency (%)']
@@ -132,7 +124,6 @@ class Reports::ConsortiumPrioritySummaryTest < ActionDispatch::IntegrationTest
       end
       
       should 'allow users to visit the prod summary 2 detail page & see entries' do
-        #http://localhost:3000/reports/production_summary2?consortium=MGP-KOMP&type=GLT%20Mice&priority=High
         url = '/reports/production_summary2?consortium=BaSH&type=GLT%20Mice&priority=High'
         url2 = '/reports/production_summary2?consortium=BaSH&type=GLT%20Mice&priority=High'
         

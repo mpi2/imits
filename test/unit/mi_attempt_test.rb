@@ -1155,5 +1155,36 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#latest_relevant_phenotype_attempt' do
+      setup do
+        set_mi_attempt_genotype_confirmed(default_mi_attempt)
+      end
+
+      should 'return nil if there are no phenotype attempts for this MI' do
+        assert_equal nil, default_mi_attempt.latest_relevant_phenotype_attempt
+      end
+
+      should 'return the latest created active one if there are any active phenotype attempts' do
+        default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC")
+        pt = default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC")
+        default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC")
+        default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-10 23:59:59 UTC",
+          :is_active => false)
+
+        assert_equal pt, default_mi_attempt.latest_relevant_phenotype_attempt
+      end
+
+      should 'return the latest created aborted one if all its phenotype attempts are aborted' do
+        default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC",
+          :is_active => false)
+        pt = default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC",
+          :is_active => false)
+        default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC",
+          :is_active => false)
+
+        assert_equal pt, default_mi_attempt.latest_relevant_phenotype_attempt
+      end
+    end
+
   end
 end

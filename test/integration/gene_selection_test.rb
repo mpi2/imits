@@ -78,7 +78,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         page.execute_script("Ext.ComponentManager.get('consortiumCombobox').setValue('Helmholtz GMC')")
         page.execute_script("Ext.ComponentManager.get('production_centreCombobox').setValue('HMGU')")
-        page.execute_script("Ext.ComponentManager.get('priorityCombobox').setValue('High')")
+        page.execute_script("Ext.ComponentManager.get('priorityCombobox').setValue('Medium')")
 
         find('.x-grid-row-checker:first').click
         find('#register_interest_button button').click
@@ -91,7 +91,8 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         mi_plans = MiPlan.where(
           :consortium_id => Consortium.find_by_name!('Helmholtz GMC').id,
           :production_centre_id => Centre.find_by_name!('HMGU').id,
-          :status_id => MiPlan::Status['Interest'].id
+          :status_id => MiPlan::Status['Interest'].id,
+          :priority_id => MiPlan::Priority.find_by_name!('Medium')
         )
         assert_equal 1, mi_plans.count
 
@@ -190,8 +191,8 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         find('#withdraw-button').click
         find('#withdraw-confirmation-button').click
 
-        sleep 3
-        assert_equal 'Withdrawn', mi_plan.reload.status
+        sleep 5
+        assert_equal 'Withdrawn', mi_plan.reload.status.name
       end
     end # once logged in
 

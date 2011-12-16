@@ -32,7 +32,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'not output private attributes in serialization' do
-          assert_equal false, default_mi_attempt.as_json.include?('mi_plan_id')
           assert_equal false, default_mi_attempt.as_json.include?('production_centre_id')
           assert_equal false, default_mi_attempt.as_json.include?('distribution_centre_id')
         end
@@ -610,6 +609,10 @@ class MiAttemptTest < ActiveSupport::TestCase
                   mi.errors['mi_plan']
         end
 
+        should 'expose #mi_plan_id in JSON' do
+          assert_include default_mi_attempt.as_json.keys, 'mi_plan_id'
+        end
+
         context 'on create' do
           should 'be set to a matching MiPlan' do
             cbx1 = Factory.create :gene_cbx1
@@ -986,6 +989,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'not be output in json serialization' do
         data = JSON.parse(default_mi_attempt.to_json)
+        @protected_attributes -= ['mi_plan_id']
         values_in_both = @protected_attributes & data.keys
         assert_empty values_in_both
       end

@@ -456,7 +456,7 @@ class MiAttempt < ApplicationModel
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
       'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
       'distribution_centre_id', 'deposited_material_id'
-    ]
+    ] - ['mi_plan_id']
     return options
   end
 

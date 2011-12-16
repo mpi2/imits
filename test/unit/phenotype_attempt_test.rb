@@ -136,6 +136,9 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       should 'work' do
         default_phenotype_attempt.status_stamps.last.update_attributes!(
           :created_at => '2011-11-30 23:59:59 UTC')
+        default_phenotype_attempt.status_stamps.create!(
+          :status => PhenotypeAttempt::Status['Phenotype Registered'],
+          :created_at => '2011-10-30 00:00:00 UTC')
 
         default_phenotype_attempt.number_of_cre_matings_started = 4
         default_phenotype_attempt.save!

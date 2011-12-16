@@ -236,8 +236,8 @@ ActiveRecord::Schema.define(:version => 20111215090406) do
     t.boolean  "rederivation_complete",            :default => false, :null => false
     t.integer  "number_of_cre_matings_started",    :default => 0,     :null => false
     t.integer  "number_of_cre_matings_successful", :default => 0,     :null => false
-    t.boolean  "phenotype_started",                :default => false, :null => false
-    t.boolean  "phenotype_complete",               :default => false, :null => false
+    t.boolean  "phenotyping_started",              :default => false, :null => false
+    t.boolean  "phenotyping_complete",             :default => false, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

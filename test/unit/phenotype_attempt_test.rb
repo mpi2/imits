@@ -86,23 +86,23 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    context '#phenotype_started' do
+    context '#phenotyping_started' do
       should 'be in DB' do
-        assert_should have_db_column(:phenotype_started).with_options(:null => false, :default => false)
+        assert_should have_db_column(:phenotyping_started).with_options(:null => false, :default => false)
       end
 
       should 'default to false' do
-        assert_equal false, default_phenotype_attempt.phenotype_started?
+        assert_equal false, default_phenotype_attempt.phenotyping_started?
       end
     end
 
-    context '#phenotype_complete' do
+    context '#phenotyping_complete' do
       should 'be in DB' do
-        assert_should have_db_column(:phenotype_complete).with_options(:null => false, :default => false)
+        assert_should have_db_column(:phenotyping_complete).with_options(:null => false, :default => false)
       end
 
       should 'default to false' do
-        assert_equal false, default_phenotype_attempt.phenotype_complete?
+        assert_equal false, default_phenotype_attempt.phenotyping_complete?
       end
     end
 
@@ -150,7 +150,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         default_phenotype_attempt.status_stamps.last.update_attributes!(
           :created_at => '2011-12-02 23:59:59 UTC')
 
-        default_phenotype_attempt.phenotype_started = true
+        default_phenotype_attempt.phenotyping_started = true
         default_phenotype_attempt.save!
         default_phenotype_attempt.status_stamps.last.update_attributes!(
           :created_at => '2011-12-03 23:59:59 UTC')

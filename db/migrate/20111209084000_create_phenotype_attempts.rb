@@ -8,8 +8,8 @@ class CreatePhenotypeAttempts < ActiveRecord::Migration
       t.boolean :rederivation_complete, :null => false, :default => false
       t.integer :number_of_cre_matings_started, :null => false, :default => 0
       t.integer :number_of_cre_matings_successful, :null => false, :default => 0
-      t.boolean :phenotype_started, :null => false, :default => false
-      t.boolean :phenotype_complete, :null => false, :default => false
+      t.boolean :phenotyping_started, :null => false, :default => false
+      t.boolean :phenotyping_complete, :null => false, :default => false
 
       t.timestamps
     end

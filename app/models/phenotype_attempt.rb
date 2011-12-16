@@ -63,8 +63,8 @@ end
 #  rederivation_complete            :boolean         default(FALSE), not null
 #  number_of_cre_matings_started    :integer         default(0), not null
 #  number_of_cre_matings_successful :integer         default(0), not null
-#  phenotype_started                :boolean         default(FALSE), not null
-#  phenotype_complete               :boolean         default(FALSE), not null
+#  phenotyping_started              :boolean         default(FALSE), not null
+#  phenotyping_complete             :boolean         default(FALSE), not null
 #  created_at                       :datetime
 #  updated_at                       :datetime
 #

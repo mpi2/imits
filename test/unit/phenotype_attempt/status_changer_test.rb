@@ -12,7 +12,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
     should 'not set a status if any of its required statuses conditions are not met as well' do
       phenotype_attempt.number_of_cre_matings_started = 4
       phenotype_attempt.number_of_cre_matings_successful = 2
-      phenotype_attempt.phenotype_started = true
+      phenotype_attempt.phenotyping_started = true
       phenotype_attempt.valid?
       assert_equal 'Phenotyping Started', phenotype_attempt.status.name
 
@@ -43,11 +43,11 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.valid?
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
 
-      phenotype_attempt.phenotype_started = true
+      phenotype_attempt.phenotyping_started = true
       phenotype_attempt.valid?
       assert_equal 'Phenotyping Started', phenotype_attempt.status.name
 
-      phenotype_attempt.phenotype_complete = true
+      phenotype_attempt.phenotyping_complete = true
       phenotype_attempt.valid?
       assert_equal 'Phenotyping Complete', phenotype_attempt.status.name
     end
@@ -87,11 +87,11 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.valid?
       assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
 
-      phenotype_attempt.phenotype_started = true
+      phenotype_attempt.phenotyping_started = true
       phenotype_attempt.valid?
       assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
 
-      phenotype_attempt.phenotype_complete = true
+      phenotype_attempt.phenotyping_complete = true
       phenotype_attempt.valid?
       assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
     end

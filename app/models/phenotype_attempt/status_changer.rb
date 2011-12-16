@@ -58,11 +58,11 @@ module PhenotypeAttempt::StatusChanger
   end
 
   Config.add('Phenotyping Started', 'Cre Excision Complete') do |pt|
-    pt.phenotype_started?
+    pt.phenotyping_started?
   end
 
   Config.add('Phenotyping Complete', 'Phenotyping Started') do |pt|
-    pt.phenotype_complete?
+    pt.phenotyping_complete?
   end
 
   Config.add('Phenotype Attempt Aborted') do |pt|

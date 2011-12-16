@@ -113,7 +113,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
       should 'be ordered by created_at asc' do
         default_phenotype_attempt.status_stamps.destroy_all
-        status = PhenotypeAttempt::Status['Phenotype Registered']
+        status = PhenotypeAttempt::Status['Phenotype Attempt Registered']
         s1 = default_phenotype_attempt.status_stamps.create!(
           :status => status, :created_at => '2011-12-01 12:00:00 UTC')
         s2 = default_phenotype_attempt.status_stamps.create!(
@@ -125,10 +125,10 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be added when status changes' do
-        assert_equal ['Phenotype Registered'], default_phenotype_attempt.status_stamps.map{|i| i.status.name}
+        assert_equal ['Phenotype Attempt Registered'], default_phenotype_attempt.status_stamps.map{|i| i.status.name}
         default_phenotype_attempt.rederivation_started = true
         default_phenotype_attempt.save!
-        assert_equal ['Phenotype Registered', 'Rederivation Started'], default_phenotype_attempt.status_stamps.map{|i| i.status.name}
+        assert_equal ['Phenotype Attempt Registered', 'Rederivation Started'], default_phenotype_attempt.status_stamps.map{|i| i.status.name}
       end
     end
 
@@ -137,7 +137,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         default_phenotype_attempt.status_stamps.last.update_attributes!(
           :created_at => '2011-11-30 23:59:59 UTC')
         default_phenotype_attempt.status_stamps.create!(
-          :status => PhenotypeAttempt::Status['Phenotype Registered'],
+          :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'],
           :created_at => '2011-10-30 00:00:00 UTC')
 
         default_phenotype_attempt.number_of_cre_matings_started = 4
@@ -156,10 +156,10 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
           :created_at => '2011-12-03 23:59:59 UTC')
 
         expected = {
-          'Phenotype Registered' => Date.parse('2011-11-30'),
+          'Phenotype Attempt Registered' => Date.parse('2011-11-30'),
           'Cre Excision Started' => Date.parse('2011-12-01'),
           'Cre Excision Complete' => Date.parse('2011-12-02'),
-          'Phenotype Started' => Date.parse('2011-12-03')
+          'Phenotyping Started' => Date.parse('2011-12-03')
         }
 
         assert_equal expected, default_phenotype_attempt.reportable_statuses_with_latest_dates

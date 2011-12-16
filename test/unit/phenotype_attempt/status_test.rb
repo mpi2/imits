@@ -10,8 +10,8 @@ class PhenotypeAttempt::StatusTest < ActiveSupport::TestCase
     end
 
     should 'have #[] shortcut' do
-      assert_equal PhenotypeAttempt::Status.find_by_name!('Phenotype Registered'),
-              PhenotypeAttempt::Status['Phenotype Registered']
+      assert_equal PhenotypeAttempt::Status.find_by_name!('Phenotype Attempt Registered'),
+              PhenotypeAttempt::Status['Phenotype Attempt Registered']
 
       s = PhenotypeAttempt::Status.create!(:name => 'Nonexistent')
       assert_equal s, PhenotypeAttempt::Status[:Nonexistent]

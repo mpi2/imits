@@ -132,12 +132,12 @@ Seeds.load MiPlan::SubProject, [
 ]
 
 Seeds.load PhenotypeAttempt::Status, [
-  {:id =>  1, :name => 'Phenotype Aborted'},
-  {:id =>  2, :name => 'Phenotype Registered'},
+  {:id =>  1, :name => 'Phenotype Attempt Aborted'},
+  {:id =>  2, :name => 'Phenotype Attempt Registered'},
   {:id =>  3, :name => 'Rederivation Started'},
   {:id =>  4, :name => 'Rederivation Complete'},
   {:id =>  5, :name => 'Cre Excision Started'},
   {:id =>  6, :name => 'Cre Excision Complete'},
-  {:id =>  7, :name => 'Phenotype Started'},
-  {:id =>  8, :name => 'Phenotype Complete'}
+  {:id =>  7, :name => 'Phenotyping Started'},
+  {:id =>  8, :name => 'Phenotyping Complete'}
 ]

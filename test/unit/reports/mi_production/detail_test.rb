@@ -66,9 +66,9 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           :created_at => '2011-12-04 00:00:00 UTC')
         pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Cre Excision Complete'],
           :created_at => '2011-12-05 00:00:00 UTC')
-        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Phenotype Started'],
+        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Phenotyping Started'],
           :created_at => '2011-12-06 00:00:00 UTC')
-        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Phenotype Complete'],
+        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Phenotyping Complete'],
           :created_at => '2011-12-07 00:00:00 UTC')
         pt.is_active = false; pt.save!
         pt.status_stamps.last.update_attributes!(
@@ -106,14 +106,14 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           'Micro-injection in progress Date',
           'Genotype confirmed Date',
           'Micro-injection aborted Date',
-          'Phenotype Registered Date',
+          'Phenotype Attempt Registered Date',
           'Rederivation Started Date',
           'Rederivation Complete Date',
           'Cre Excision Started Date',
           'Cre Excision Complete Date',
-          'Phenotype Started Date',
-          'Phenotype Complete Date',
-          'Phenotype Aborted Date'
+          'Phenotyping Started Date',
+          'Phenotyping Complete Date',
+          'Phenotype Attempt Aborted Date'
         ]
 
         assert_equal expected, @report.column_names
@@ -127,21 +127,21 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           'Priority' => 'Medium',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
-          'Status' => 'Phenotype Aborted',
+          'Status' => 'Phenotype Attempt Aborted',
           'Assigned Date' => '2011-11-02',
           'Assigned - ES Cell QC In Progress Date' => '2011-11-03',
           'Assigned - ES Cell QC Complete Date' => '2011-11-04',
           'Micro-injection in progress Date' => '2011-11-22',
           'Genotype confirmed Date' => '2011-11-23',
           'Micro-injection aborted Date' => '',
-          'Phenotype Registered Date' => '2011-12-01',
+          'Phenotype Attempt Registered Date' => '2011-12-01',
           'Rederivation Started Date' => '2011-12-02',
           'Rederivation Complete Date' => '2011-12-03',
           'Cre Excision Started Date' => '2011-12-04',
           'Cre Excision Complete Date' => '2011-12-05',
-          'Phenotype Started Date' => '2011-12-06',
-          'Phenotype Complete Date' => '2011-12-07',
-          'Phenotype Aborted Date' => '2011-12-08'
+          'Phenotyping Started Date' => '2011-12-06',
+          'Phenotyping Complete Date' => '2011-12-07',
+          'Phenotype Attempt Aborted Date' => '2011-12-08'
         }
         assert_equal expected, bash_wtsi_row.data
       end
@@ -161,14 +161,14 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           'Micro-injection in progress Date' => '2011-12-12',
           'Genotype confirmed Date' => '',
           'Micro-injection aborted Date' => '2011-12-13',
-          'Phenotype Registered Date' => '',
+          'Phenotype Attempt Registered Date' => '',
           'Rederivation Started Date' => '',
           'Rederivation Complete Date' => '',
           'Cre Excision Started Date' => '',
           'Cre Excision Complete Date' => '',
-          'Phenotype Started Date' => '',
-          'Phenotype Complete Date' => '',
-          'Phenotype Aborted Date' => ''
+          'Phenotyping Started Date' => '',
+          'Phenotyping Complete Date' => '',
+          'Phenotype Attempt Aborted Date' => ''
         }
         assert_equal expected, mgp_wtsi_row.data
       end

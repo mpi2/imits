@@ -14,18 +14,18 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.number_of_cre_matings_successful = 2
       phenotype_attempt.phenotype_started = true
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Started', phenotype_attempt.status.name
+      assert_equal 'Phenotyping Started', phenotype_attempt.status.name
 
       phenotype_attempt.number_of_cre_matings_started = 0
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Registered', phenotype_attempt.status.name
+      assert_equal 'Phenotype Attempt Registered', phenotype_attempt.status.name
     end
 
-    should 'transition through Phenotype Registered -> Rederivation Started -> ' +
+    should 'transition through Phenotype Attempt Registered -> Rederivation Started -> ' +
             'Rederivation Complete -> Cre Excision Started -> ' +
-            'Cre Excision Complete -> Phenotype Started -> Phenotype Complete' do
+            'Cre Excision Complete -> Phenotyping Started -> Phenotyping Complete' do
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Registered', phenotype_attempt.status.name
+      assert_equal 'Phenotype Attempt Registered', phenotype_attempt.status.name
 
       phenotype_attempt.rederivation_started = true
       phenotype_attempt.valid?
@@ -45,16 +45,16 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
 
       phenotype_attempt.phenotype_started = true
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Started', phenotype_attempt.status.name
+      assert_equal 'Phenotyping Started', phenotype_attempt.status.name
 
       phenotype_attempt.phenotype_complete = true
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Complete', phenotype_attempt.status.name
+      assert_equal 'Phenotyping Complete', phenotype_attempt.status.name
     end
 
-    should 'transition through Phenotype Registered -> Cre Excision Started -> Cre Excision Complete' do
+    should 'transition through Phenotype Attempt Registered -> Cre Excision Started -> Cre Excision Complete' do
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Registered', phenotype_attempt.status.name
+      assert_equal 'Phenotype Attempt Registered', phenotype_attempt.status.name
 
       phenotype_attempt.number_of_cre_matings_started = 4
       phenotype_attempt.valid?
@@ -69,31 +69,31 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.is_active = false
 
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+      assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
 
       phenotype_attempt.rederivation_started = true
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+      assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
 
       phenotype_attempt.rederivation_complete = true
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+      assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
 
       phenotype_attempt.number_of_cre_matings_started = 4
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+      assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
 
       phenotype_attempt.number_of_cre_matings_successful = 2
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+      assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
 
       phenotype_attempt.phenotype_started = true
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+      assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
 
       phenotype_attempt.phenotype_complete = true
       phenotype_attempt.valid?
-      assert_equal 'Phenotype Aborted', phenotype_attempt.status.name
+      assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
     end
 
   end

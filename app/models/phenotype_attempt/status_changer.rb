@@ -39,7 +39,7 @@ module PhenotypeAttempt::StatusChanger
     end
   end
 
-  Config.add('Phenotype Registered') { |pt| true }
+  Config.add('Phenotype Attempt Registered') { |pt| true }
 
   Config.add('Rederivation Started') do |pt|
     pt.rederivation_started?
@@ -57,15 +57,15 @@ module PhenotypeAttempt::StatusChanger
     pt.number_of_cre_matings_successful > 0
   end
 
-  Config.add('Phenotype Started', 'Cre Excision Complete') do |pt|
+  Config.add('Phenotyping Started', 'Cre Excision Complete') do |pt|
     pt.phenotype_started?
   end
 
-  Config.add('Phenotype Complete', 'Phenotype Started') do |pt|
+  Config.add('Phenotyping Complete', 'Phenotyping Started') do |pt|
     pt.phenotype_complete?
   end
 
-  Config.add('Phenotype Aborted') do |pt|
+  Config.add('Phenotype Attempt Aborted') do |pt|
     ! pt.is_active?
   end
 

@@ -77,14 +77,14 @@ class Reports::MiProduction::Detail
       'Micro-injection in progress Date',
       'Genotype confirmed Date',
       'Micro-injection aborted Date',
-      'Phenotype Registered Date',
+      'Phenotype Attempt Registered Date',
       'Rederivation Started Date',
       'Rederivation Complete Date',
       'Cre Excision Started Date',
       'Cre Excision Complete Date',
-      'Phenotype Started Date',
-      'Phenotype Complete Date',
-      'Phenotype Aborted Date'
+      'Phenotyping Started Date',
+      'Phenotyping Complete Date',
+      'Phenotype Attempt Aborted Date'
     ]
     report.reorder(column_names)
 

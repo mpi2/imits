@@ -132,5 +132,36 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#reportable_statuses_with_latest_dates' do
+      should 'work' do
+        default_phenotype_attempt.status_stamps.last.update_attributes!(
+          :created_at => '2011-11-30 23:59:59 UTC')
+
+        default_phenotype_attempt.number_of_cre_matings_started = 4
+        default_phenotype_attempt.save!
+        default_phenotype_attempt.status_stamps.last.update_attributes!(
+          :created_at => '2011-12-01 23:59:59 UTC')
+
+        default_phenotype_attempt.number_of_cre_matings_successful = 2
+        default_phenotype_attempt.save!
+        default_phenotype_attempt.status_stamps.last.update_attributes!(
+          :created_at => '2011-12-02 23:59:59 UTC')
+
+        default_phenotype_attempt.phenotype_started = true
+        default_phenotype_attempt.save!
+        default_phenotype_attempt.status_stamps.last.update_attributes!(
+          :created_at => '2011-12-03 23:59:59 UTC')
+
+        expected = {
+          'Phenotype Registered' => Date.parse('2011-11-30'),
+          'Cre Excision Started' => Date.parse('2011-12-01'),
+          'Cre Excision Complete' => Date.parse('2011-12-02'),
+          'Phenotype Started' => Date.parse('2011-12-03')
+        }
+
+        assert_equal expected, default_phenotype_attempt.reportable_statuses_with_latest_dates
+      end
+    end
+
   end
 end

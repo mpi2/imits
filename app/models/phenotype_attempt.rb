@@ -36,6 +36,19 @@ class PhenotypeAttempt < ActiveRecord::Base
   end
 
   # END Callbacks
+
+  def reportable_statuses_with_latest_dates
+    retval = {}
+    status_stamps.each do |status_stamp|
+      status_stamp_date = status_stamp.created_at.utc.to_date
+      if !retval[status_stamp.status.name] or
+                status_stamp_date > retval[status_stamp.status.name]
+        retval[status_stamp.status.name] = status_stamp_date
+      end
+    end
+    return retval
+  end
+
 end
 
 # == Schema Information

@@ -45,12 +45,23 @@ class Reports::MiProduction::Detail
       plan_status_dates.each do |name, date|
         record["#{name} Date"] = date.to_s
       end
+
       if mi_attempt
         record['status_name'] = mi_attempt.status
 
         mi_status_dates = mi_attempt.reportable_statuses_with_latest_dates
         mi_status_dates.each do |description, date|
           record["#{description} Date"] = date.to_s
+        end
+
+        phenotype_attempt = mi_attempt.latest_relevant_phenotype_attempt
+        if phenotype_attempt
+          record['status_name'] = phenotype_attempt.status.name
+
+          pt_status_names = phenotype_attempt.reportable_statuses_with_latest_dates
+          pt_status_names.each do |name, date|
+            record["#{name} Date"] = date.to_s
+          end
         end
       end
     }
@@ -65,7 +76,15 @@ class Reports::MiProduction::Detail
       'Assigned - ES Cell QC Complete Date',
       'Micro-injection in progress Date',
       'Genotype confirmed Date',
-      'Micro-injection aborted Date'
+      'Micro-injection aborted Date',
+      'Phenotype Registered Date',
+      'Rederivation Started Date',
+      'Rederivation Complete Date',
+      'Cre Excision Started Date',
+      'Cre Excision Complete Date',
+      'Phenotype Started Date',
+      'Phenotype Complete Date',
+      'Phenotype Aborted Date'
     ]
     report.reorder(column_names)
 

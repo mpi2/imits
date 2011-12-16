@@ -15,6 +15,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
                 :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => Centre.find_by_name!('ICS'),
                 :gene => @cbx1
+
         Factory.create :mi_plan,
                 :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
                 :production_centre => Centre.find_by_name!('WTSI')
@@ -48,11 +49,45 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           :created_at => '2011-11-22 00:00:00 UTC')
         bash_wtsi_attempt.status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
           :created_at => '2011-11-21 00:00:00 UTC')
-        bash_wtsi_attempt.status_stamps.create!(:mi_attempt_status => MiAttemptStatus.genotype_confirmed,
-          :created_at => '2011-11-23 00:00:00 UTC')
-        bash_wtsi_attempt.is_active = false; bash_wtsi_attempt.save!
+        set_mi_attempt_genotype_confirmed(bash_wtsi_attempt)
         bash_wtsi_attempt.status_stamps.last.update_attributes!(
-          :created_at => '2011-11-25 23:59:59.999 UTC')
+          :created_at => '2011-11-23 00:00:00 UTC')
+
+        bash_wtsi_attempt.phenotype_attempts.create!
+        pt = bash_wtsi_attempt.phenotype_attempts.last
+
+        pt.status_stamps.first.update_attributes!(
+          :created_at => '2011-12-01 23:59:59 UTC')
+        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Rederivation Started'],
+          :created_at => '2011-12-02 00:00:00 UTC')
+        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Rederivation Complete'],
+          :created_at => '2011-12-03 00:00:00 UTC')
+        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Cre Excision Started'],
+          :created_at => '2011-12-04 00:00:00 UTC')
+        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Cre Excision Complete'],
+          :created_at => '2011-12-05 00:00:00 UTC')
+        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Phenotype Started'],
+          :created_at => '2011-12-06 00:00:00 UTC')
+        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Phenotype Complete'],
+          :created_at => '2011-12-07 00:00:00 UTC')
+        pt.is_active = false; pt.save!
+        pt.status_stamps.last.update_attributes!(
+          :created_at => '2011-12-08 23:59:59 UTC')
+
+        mgp_wtsi_attempt = Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => @cbx1),
+                :consortium_name => 'MGP',
+                :production_centre_name => 'WTSI'
+        mgp_wtsi_plan = mgp_wtsi_attempt.mi_plan
+
+        mgp_wtsi_plan.status_stamps.first.update_attributes!(
+          :created_at => '2011-12-11 23:59:59.999 UTC')
+
+        mgp_wtsi_attempt.status_stamps.first.update_attributes!(
+          :created_at => '2011-12-12 00:00:00 UTC')
+        mgp_wtsi_attempt.is_active = false; mgp_wtsi_attempt.save!
+        mgp_wtsi_attempt.status_stamps.last.update_attributes!(
+          :created_at => '2011-12-13 00:00:00 UTC')
 
         @report = Reports::MiProduction::Detail.generate
       end
@@ -70,13 +105,21 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           'Assigned - ES Cell QC Complete Date',
           'Micro-injection in progress Date',
           'Genotype confirmed Date',
-          'Micro-injection aborted Date'
+          'Micro-injection aborted Date',
+          'Phenotype Registered Date',
+          'Rederivation Started Date',
+          'Rederivation Complete Date',
+          'Cre Excision Started Date',
+          'Cre Excision Complete Date',
+          'Phenotype Started Date',
+          'Phenotype Complete Date',
+          'Phenotype Aborted Date'
         ]
 
         assert_equal expected, @report.column_names
       end
 
-      should 'have correct values for fully-populated rows' do
+      should 'have correct values for each row when phenotype attempt is present' do
         bash_wtsi_row = @report.find {|r| r.data['Consortium'] == 'BaSH' && r.data['Production Centre'] == 'WTSI'}
         expected = {
           'Consortium' => 'BaSH',
@@ -84,15 +127,50 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           'Priority' => 'Medium',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
-          'Status' => 'Micro-injection aborted',
+          'Status' => 'Phenotype Aborted',
           'Assigned Date' => '2011-11-02',
           'Assigned - ES Cell QC In Progress Date' => '2011-11-03',
           'Assigned - ES Cell QC Complete Date' => '2011-11-04',
           'Micro-injection in progress Date' => '2011-11-22',
           'Genotype confirmed Date' => '2011-11-23',
-          'Micro-injection aborted Date' => '2011-11-25'
+          'Micro-injection aborted Date' => '',
+          'Phenotype Registered Date' => '2011-12-01',
+          'Rederivation Started Date' => '2011-12-02',
+          'Rederivation Complete Date' => '2011-12-03',
+          'Cre Excision Started Date' => '2011-12-04',
+          'Cre Excision Complete Date' => '2011-12-05',
+          'Phenotype Started Date' => '2011-12-06',
+          'Phenotype Complete Date' => '2011-12-07',
+          'Phenotype Aborted Date' => '2011-12-08'
         }
         assert_equal expected, bash_wtsi_row.data
+      end
+
+      should 'have correct values for each row when only mi attempt is present without phenotype attempt' do
+        mgp_wtsi_row = @report.find {|r| r.data['Consortium'] == 'MGP' && r.data['Production Centre'] == 'WTSI'}
+        expected = {
+          'Consortium' => 'MGP',
+          'Sub-Project' => '',
+          'Priority' => 'High',
+          'Production Centre' => 'WTSI',
+          'Gene' => 'Cbx1',
+          'Status' => 'Micro-injection aborted',
+          'Assigned Date' => '2011-12-11',
+          'Assigned - ES Cell QC In Progress Date' => '',
+          'Assigned - ES Cell QC Complete Date' => '',
+          'Micro-injection in progress Date' => '2011-12-12',
+          'Genotype confirmed Date' => '',
+          'Micro-injection aborted Date' => '2011-12-13',
+          'Phenotype Registered Date' => '',
+          'Rederivation Started Date' => '',
+          'Rederivation Complete Date' => '',
+          'Cre Excision Started Date' => '',
+          'Cre Excision Complete Date' => '',
+          'Phenotype Started Date' => '',
+          'Phenotype Complete Date' => '',
+          'Phenotype Aborted Date' => ''
+        }
+        assert_equal expected, mgp_wtsi_row.data
       end
 
       should 'show MiPlan status when there is no MI attempt' do

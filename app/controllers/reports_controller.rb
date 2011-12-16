@@ -22,9 +22,7 @@ class ReportsController < ApplicationController
   def production_summary1
     feed = params[:feed] && params[:feed] == 'true'
     @title2, @report = Reports::ConsortiumPrioritySummary.generate1(request, params)
-#    render :inline => "<%= @report.to_html %>", :layout => false if feed
     render :text => @report.to_html, :layout => false if feed
-#    render :text => @report.to_html if feed
   end
 
   def production_summary2

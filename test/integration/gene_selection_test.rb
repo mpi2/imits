@@ -170,7 +170,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         mi_plan.reload
         assert_equal 10, mi_plan.number_of_es_cells_starting_qc
-        assert_equal 'Assigned - ES Cell QC In Progress', mi_plan.status
+        assert_equal 'Assigned - ES Cell QC In Progress', mi_plan.status.name
       end
 
       should 'allow users to withdraw mi_plans' do

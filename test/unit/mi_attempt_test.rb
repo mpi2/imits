@@ -713,7 +713,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         context 'on update' do
           setup do
-            default_mi_attempt.mi_plan.status_name = 'Inactive'
+            default_mi_attempt.mi_plan.status.name = 'Inactive'
             default_mi_attempt.mi_plan.save!
             default_mi_attempt.update_attributes!(:is_active => false)
             default_mi_attempt.reload

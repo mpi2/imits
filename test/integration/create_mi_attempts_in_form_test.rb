@@ -56,9 +56,9 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
               :production_centre => Centre.find_by_name!('WTSI'),
               :gene => es_cell.gene,
               :number_of_es_cells_passing_qc => 0
-      assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status
+      assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status.name
 
-      sleep 1.5
+      sleep 3
 
       choose_es_cell_from_list es_cell.marker_symbol, es_cell.name
       make_form_element_usable('mi_attempt[mi_date]')

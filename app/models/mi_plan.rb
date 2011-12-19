@@ -63,6 +63,16 @@ class MiPlan < ApplicationModel
     end
   end
 
+  validate do |mi_plan|
+    if !mi_plan.new_record? and mi_plan.changes.has_key? 'consortium_id'
+      mi_plan.errors.add(:consortium_name, 'cannot be changed')
+    end
+
+    if !mi_plan.new_record? and mi_plan.changes.has_key? 'gene_id'
+      mi_plan.errors.add(:marker_symbol, 'cannot be changed')
+    end
+  end
+
   # BEGIN Callbacks
 
   before_validation :set_default_mi_plan_status

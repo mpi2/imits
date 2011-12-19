@@ -251,24 +251,41 @@ class MiPlanTest < ActiveSupport::TestCase
       context '#marker_symbol' do
         should 'use AccessAssociationByAttribute' do
           gene = Factory.create :gene_cbx1
-          @default_mi_plan.marker_symbol = 'Cbx1'
-          assert_equal gene, @default_mi_plan.gene
+          mi_plan = Factory.create :mi_plan
+          mi_plan.marker_symbol = 'Cbx1'
+          assert_equal gene, mi_plan.gene
         end
 
         should 'be present' do
           assert_should validate_presence_of :marker_symbol
+        end
+
+        should 'not be updateable' do
+          gene = Factory.create :gene_cbx1
+          assert_not_equal gene, @default_mi_plan.gene
+          @default_mi_plan.marker_symbol = 'Cbx1'
+          @default_mi_plan.valid?
+          assert_match /cannot be changed/, @default_mi_plan.errors[:marker_symbol].first
         end
       end
 
       context '#consortium_name' do
         should 'use AccessAssociationByAttribute' do
           consortium = Factory.create :consortium
-          @default_mi_plan.consortium_name = consortium.name
-          assert_equal consortium, @default_mi_plan.consortium
+          mi_plan = Factory.create :mi_plan
+          mi_plan.consortium_name = consortium.name
+          assert_equal consortium, mi_plan.consortium
         end
 
         should 'be present' do
           assert_should validate_presence_of :consortium_name
+        end
+
+        should 'not be updateable' do
+          assert_not_equal 'MGP', @default_mi_plan.consortium_name
+          @default_mi_plan.consortium_name = 'MGP'
+          @default_mi_plan.valid?
+          assert_match /cannot be changed/, @default_mi_plan.errors[:consortium_name].first
         end
       end
 

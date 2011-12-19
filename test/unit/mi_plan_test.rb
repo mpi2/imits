@@ -414,6 +414,22 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      context '#sub_project_name' do
+        should 'be accessible via the name attribute' do
+          sp = MiPlan::SubProject.create!(:name => 'Nonexistent')
+          @default_mi_plan.sub_project_name = 'Nonexistent'
+          @default_mi_plan.valid?
+          assert_equal sp, @default_mi_plan.sub_project
+        end
+
+        should 'be set to the sub-project with no name, not nil, when set to ""' do
+          @default_mi_plan.sub_project_name = ''
+          @default_mi_plan.valid?
+          assert_equal MiPlan::SubProject.find_by_name!(''),
+              @default_mi_plan.sub_project
+        end
+      end
+
       context '#withdrawn virtual attribute' do
         context 'when being set to true' do
           should 'set the status to Withdrawn if it at an allowed status' do
@@ -508,7 +524,8 @@ class MiPlanTest < ActiveSupport::TestCase
           'priority_name',
           'number_of_es_cells_starting_qc',
           'number_of_es_cells_passing_qc',
-          'withdrawn'
+          'withdrawn',
+          'sub_project_name'
         ]
         got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
         assert_equal expected.sort, got.sort
@@ -524,7 +541,8 @@ class MiPlanTest < ActiveSupport::TestCase
           'status_name',
           'number_of_es_cells_starting_qc',
           'number_of_es_cells_passing_qc',
-          'withdrawn'
+          'withdrawn',
+          'sub_project_name'
         ]
         got = @default_mi_plan.as_json.keys
         assert_equal expected.sort, got.sort

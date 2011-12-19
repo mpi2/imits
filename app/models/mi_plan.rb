@@ -8,7 +8,8 @@ class MiPlan < ApplicationModel
     'priority_name',
     'number_of_es_cells_starting_qc',
     'number_of_es_cells_passing_qc',
-    'withdrawn'
+    'withdrawn',
+    'sub_project_name'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -34,6 +35,7 @@ class MiPlan < ApplicationModel
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
 
+  access_association_by_attribute :sub_project, :name
   access_association_by_attribute :gene, :marker_symbol, :full_alias => :marker_symbol
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name

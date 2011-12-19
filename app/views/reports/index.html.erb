@@ -15,12 +15,18 @@
     </a>
   </div>
 </div>
-<div class="grid_5">
+
+
+
+
+
+<div class="grid_4">
   <h3>Micro-Injection Planning</h3>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :planned_microinjection_summary_and_conflicts) %>">
       <h4>Planned Micro-Injection Summary and Conflicts</h4>
-      <p>Summary report for planned micro-injections. Shows the following for all IMPC consortia:</p>
+      <p>Summary report for planned micro-injections.</p>
+      <p>Shows the following for all IMPC consortia:</p>
       <ul>
         <li>counts of <strong>unique genes</strong> in each planning status</li>
         <li>counts of <strong>unique genes</strong> grouped by status and priority</li>
@@ -37,22 +43,20 @@
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :double_assigned_plans) %>">
       <h4>Double-Assigned Planned Micro-Injections</h4>
-      <p>Matrix showing double-assigned planned micro-injections for consortia and funding.</p>
-      <p>List showing double-assigned planned micro-injections grouped by consortia.</p>
+      <p>Matrix showing double-assigned planned</p>
+      <p>micro-injections for consortia and funding.</p>
+      <p>List showing double-assigned planned</p>
+      <p>micro-injections grouped by consortia.</p>
     </a>
   </div>
 
 </div>
-<div class="grid_4">
+
+
+
+<div class="grid_3">
   <h3>Micro-Injection Production</h3>
-  <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :mi_production) %>">
-      <h4>Detailed Report</h4>
-      <p>
-        The detailed micro-injection production report
-      </p>
-    </a>
-  </div>
+
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :mi_attempts_by_gene) %>">
       <h4>Gene Summary</h4>
@@ -74,11 +78,55 @@
       <p>Lists details on all micro-injections attempts.</p>
     </a>
   </div>
+</div>
+
+
+
+
+
+<div class="grid_2">
+  <h3>Production Reports</h3>
+  <div class="report-links">
+    <a href="<%= url_for(:controller => :reports, :action => :mi_production) %>">
+      <h4>Detailed Report</h4>
+      <p>
+        The detailed micro-injection production report
+      </p>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => :reports, :action => :production_summary1) %>">
+      <h4>Feed Demo - Production Summary 1</h4>
+      <p>Feed Demo - Production Summary 1.</p>
+    </a>
+  </div>
 
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :production_summary2) %>">
-      <h4>Production Summary</h4>
-      <p>Production Summary.</p>
+      <h4>Production Summary 2</h4>
+      <p>Group by Consortium.</p>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => :reports, :action => :production_summary3) %>">
+      <h4>Production Summary 3</h4>
+      <p>Group by Consortium and Priority.</p>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => :reports, :action => :production_summary4) %>">
+      <h4>Production Summary 4</h4>
+      <p>Group by Consortium, Sub-project and priority.</p>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => :reports, :action => :production_summary_all) %>">
+      <h4>Production Summary All</h4>
+      <p>Production Summary All.</p>
     </a>
   </div>
 

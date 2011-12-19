@@ -31,6 +31,35 @@ class ReportsController < ApplicationController
     send_data_csv('production_summary2.csv', @report) if request.format == :csv
   end
 
+  def production_summary3
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    @title2, @report = Reports::ConsortiumPrioritySummary.generate3(request, params)
+    send_data_csv('production_summary2.csv', @report) if request.format == :csv
+  end
+
+  def production_summary4
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    @title2, @report = Reports::ConsortiumPrioritySummary.generate4(request, params)
+    send_data_csv('production_summary2.csv', @report) if request.format == :csv
+  end
+
+  def production_summary_all
+beginning_time = Time.now
+
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    @title2, @report2 = Reports::ConsortiumPrioritySummary.generate2(request, params)
+    @title2, @report3 = Reports::ConsortiumPrioritySummary.generate3(request, params)
+    @title2, @report4 = Reports::ConsortiumPrioritySummary.generate4(request, params)
+    
+    #arrays = Reports::ConsortiumPrioritySummary.generate_all(request, params)
+    #@report2 = arrays[0]
+    #@report3 = arrays[1]
+    #@report4 = arrays[2]
+
+end_time = Time.now
+puts "Time elapsed #{(end_time - beginning_time)*1000} milliseconds"
+  end
+
   def double_assigned_plans_matrix
     @report = Reports::MiPlans::DoubleAssignment.get_matrix
     send_data_csv('double_assigned_matrix.csv', @report) if request.format == :csv

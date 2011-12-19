@@ -1,0 +1,53 @@
+<% @title = 'Production Summaries' %>
+
+<%
+  qpos = request.fullpath.index('?')
+  params = qpos && qpos > -1 ? '?' + request.fullpath.scan( /\?(.+)/ ).last.first : ''
+%>
+
+<h2>Production Summary 2</h2>
+
+<p><%= link_to('Download as CSV', url_for(:action => :production_summary2, :controller => :reports, :format => :csv) + params) if @csv %></p>
+
+<% if @csv %><br/><% end %>
+
+<div class="report grid_12">
+
+<%= raw @report2.to_html if @report2 %>
+
+</div>
+
+
+
+
+
+
+<h2>Production Summary 3</h2>
+
+<p><%= link_to('Download as CSV', url_for(:action => :production_summary3, :controller => :reports, :format => :csv) + params) if @csv %></p>
+
+<% if @csv %><br/><% end %>
+
+<div class="report grid_12">
+
+<%= raw @report3.to_html if @report3 %>
+
+</div>
+
+
+
+
+
+
+
+<h2>Production Summary 4</h2>
+
+<p><%= link_to('Download as CSV', url_for(:action => :production_summary4, :controller => :reports, :format => :csv) + params) if @csv %></p>
+
+<% if @csv %><br/><% end %>
+
+<div class="report grid_12">
+
+<%= raw @report4.to_html if @report4 %>
+
+</div>

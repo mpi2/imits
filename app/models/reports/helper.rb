@@ -192,6 +192,8 @@ module Reports::Helper
     table = Ruport::Data::Table.new :data => csv2, :column_names => header
     raise 'cannot build ruport instance from CSV' if ! table
     
+    puts "CALL: get_cached_report ###########################"
+    
     return table
   end
 

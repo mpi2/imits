@@ -18,9 +18,7 @@ class Reports::ConsortiumPrioritySummary
   #Inspect - GLT Mouse
   #Withdrawn
   #Micro-injection aborted
-  
-#  @@cached_report = nil
-  
+    
   CSV_LINKS = true  
   ADD_COUNTS = false
   LIMIT_CONSORTIA = false
@@ -43,13 +41,6 @@ class Reports::ConsortiumPrioritySummary
     'GLT Mice' => ['Genotype confirmed'],
     'Aborted' => ['Micro-injection aborted']
   }
-  #MAPPING2 = {
-  #  'ES QC started' => ['Assigned - ES Cell QC In Progress'],
-  #  'ES QC finished' => ['Assigned - ES Cell QC Complete'],
-  #  'MI in progress' => ['Micro-injection in progress'],
-  #  'GLT Mice' => ['Genotype confirmed'],
-  #  'Aborted' => ['Micro-injection aborted']
-  #}
   MAPPING3 = {
     'All' => ['Interest',
       'Assigned - ES Cell QC In Progress',
@@ -148,106 +139,7 @@ class Reports::ConsortiumPrioritySummary
     
     return 'Production Summary 1 (feed)', report_table
   end
-  
-  #  def self.subsummary2(params)
-  #    consortium = params[:consortium]
-  #    column = params[:type]
-  #    column = column.gsub(/^\#\s+/, "")
-  #
-  #    @@cached_report ||= get_cached_report('mi_production_detail')
-  #
-  #    genes = []
-  #    counter = 1
-  #    report = Table(:data => @@cached_report.data,
-  #      :column_names => ADD_COUNTS ? ['Count'] + @@cached_report.column_names : @@cached_report.column_names,
-  #      :filters => lambda {|r|
-  ##        if r['Consortium'] == consortium && (column == 'All' || MAPPING2[column].include?(r.data['Status']))
-  #        if r['Consortium'] == consortium && MAPPING2[column].include?(r.data['Status'])
-  #          return false if genes.include?(r['Gene'])
-  #          genes.push r['Gene']
-  #          return true
-  #        end
-  #      },
-  #      :transforms => lambda {|r|
-  #        return if ! ADD_COUNTS
-  #        r['Count'] = counter
-  #        counter += 1
-  #      }
-  #    )
-  #
-  #    title = "Production Summary Detail 2: Consortium: #{consortium} - Type: #{column} - (#{report.size})"
-  #
-  #    return title, report
-  #  end
-  
-  #  def self.subsummary3(params)
-  #    consortium = params[:consortium]
-  #    column = params[:type]
-  #    column = column.gsub(/^\#\s+/, "")
-  #    priority = unescape params[:priority]
-  #
-  #    @@cached_report ||= get_cached_report('mi_production_detail')
-  #
-  #    genes = []
-  #    counter = 1
-  #    report = Table(:data => @@cached_report.data,
-  #      :column_names => ADD_COUNTS ? ['Count'] + @@cached_report.column_names : @@cached_report.column_names,
-  #      :filters => lambda {|r|
-  ##        if r['Consortium'] == consortium && r['Priority'] == priority && (column == 'All' || MAPPING2[column].include?(r.data['Status']))
-  #        if r['Consortium'] == consortium && r['Priority'] == priority && (column == 'All' || MAPPING2[column].include?(r.data['Status']))
-  #          return false if genes.include?(r['Gene'])
-  #          genes.push r['Gene']
-  #          return true
-  #        end
-  #      },
-  #      :transforms => lambda {|r|
-  #        return if ! ADD_COUNTS
-  #        r['Count'] = counter
-  #        counter += 1
-  #      }
-  #    )
-  #
-  #    title = "Production Summary Detail 3: Consortium: #{consortium} - Type: #{column} - Priority: #{priority} (#{report.size})"
-  #
-  #    return title, report
-  #  end
-
-  #def self.subsummary4(params)
-  #  consortium = params[:consortium]
-  #  type = params[:type]
-  #  type = type.gsub(/^\#\s+/, "")
-  #  priority = unescape params[:priority]
-  #  subproject = unescape params[:subproject]    
-  #  #priority = params[:priority]
-  #  #subproject = params[:subproject]    
-  #
-  #  @@cached_report ||= get_cached_report('mi_production_detail')
-  #
-  #  genes = []
-  #  counter = 1
-  #  report = Table(:data => @@cached_report.data,
-  #    :column_names => ADD_COUNTS ? ['Count'] + @@cached_report.column_names : @@cached_report.column_names,
-  #    :filters => lambda {|r|
-  #      if r['Consortium'] == consortium && r['Priority'] == priority && MAPPING3[type].include?(r.data['Status']) && r['Sub-Project'] == subproject
-  #        return false if genes.include?(r['Gene'])
-  #        genes.push r['Gene']
-  #        return true
-  #      end
-  #    },
-  #    :transforms => lambda {|r|
-  #      return if ! ADD_COUNTS
-  #      r['Count'] = counter
-  #      counter += 1
-  #    }
-  #  )
-  #
-  #  title = "Production Summary Detail 4: Consortium: #{consortium} - Sub-Project: #{subproject} - Type: #{type} - Priority: #{priority} (#{report.size})"
-  #  
-  #  return title, report
-  #end
-
-  # consortium (no priority)
-  
+ 
   def self.generate2(request = nil, params={})
 
     if params[:consortium]
@@ -538,17 +430,22 @@ class Reports::ConsortiumPrioritySummary
         counter += 1
       }
     )
+    
+    consortium = consortium ? "Consortium: #{consortium} - " : ''
+    subproject = subproject ? "Sub-Project: #{subproject} - " : ''
+    type = type ? "Type: #{type} - " : ''
+    priority = priority ? "Priority: #{priority} - " : ''
   
-    title = "Production Summary Detail: Consortium: #{consortium} - Sub-Project: #{subproject} - Type: #{type} - Priority: #{priority} (#{report.size})"
+    title = "Production Summary Detail: #{consortium}#{subproject}#{type}#{priority} (#{report.size})"
     
     return title, report
   end
 
-  def self.generate_all(request, params)
-    @title2, @report2 = Reports::ConsortiumPrioritySummary.generate2(request, params)
-    @title2, @report3 = Reports::ConsortiumPrioritySummary.generate3(request, params)
-    @title2, @report4 = Reports::ConsortiumPrioritySummary.generate4(request, params)
-    return [@report2, @report3, @report4]
-  end
+  #def self.generate_all(request, params)
+  #  @title2, @report2 = Reports::ConsortiumPrioritySummary.generate2(request, params)
+  #  @title2, @report3 = Reports::ConsortiumPrioritySummary.generate3(request, params)
+  #  @title2, @report4 = Reports::ConsortiumPrioritySummary.generate4(request, params)
+  #  return [@report2, @report3, @report4]
+  #end
   
 end

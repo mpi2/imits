@@ -3,7 +3,8 @@
 class ReportsController < ApplicationController
   respond_to :html, :csv
 
-  before_filter :authenticate_user!, :except => [:simple_feed_test, :simple_subfeed_test, :production_summary1]
+  before_filter :authenticate_user!, :except => [:simple_feed_test, :simple_subfeed_test,
+    :production_summary1, :production_summary2, :production_summary3, :production_summary4, :production_summary_all]
 
   extend Reports::Helper
   include Reports::Helper
@@ -44,20 +45,10 @@ class ReportsController < ApplicationController
   end
 
   def production_summary_all
-beginning_time = Time.now
-
     @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
     @title2, @report2 = Reports::ConsortiumPrioritySummary.generate2(request, params)
     @title2, @report3 = Reports::ConsortiumPrioritySummary.generate3(request, params)
     @title2, @report4 = Reports::ConsortiumPrioritySummary.generate4(request, params)
-    
-    #arrays = Reports::ConsortiumPrioritySummary.generate_all(request, params)
-    #@report2 = arrays[0]
-    #@report3 = arrays[1]
-    #@report4 = arrays[2]
-
-end_time = Time.now
-puts "Time elapsed #{(end_time - beginning_time)*1000} milliseconds"
   end
 
   def double_assigned_plans_matrix

@@ -71,6 +71,11 @@ class MiPlan < ApplicationModel
     if !mi_plan.new_record? and mi_plan.changes.has_key? 'gene_id'
       mi_plan.errors.add(:marker_symbol, 'cannot be changed')
     end
+
+    if mi_plan.changes.has_key? 'production_centre_id' and  ! mi_plan.mi_attempts.empty?
+      puts 'here'
+      mi_plan.errors.add(:production_centre_name, 'cannot be changed - gene has been micro-injected on behalf of production centre already')
+    end
   end
 
   # BEGIN Callbacks

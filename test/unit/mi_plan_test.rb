@@ -308,10 +308,19 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_include mi_plan.errors[:production_centre_name], 'cannot be blank'
         end
 
-        should 'can say unset if it was initially so' do
-          mip = Factory.build :mi_plan
-          assert mip.save
-          assert mip.valid?, mip.errors.inspect
+        should 'can be set to nil on create and can stay that way on update' do
+          plan = Factory.build :mi_plan
+          assert plan.save
+          assert plan.save
+          assert plan.valid?, plan.errors.inspect
+        end
+
+        should 'not be updateable if the MiPlan has any MiAttempts' do
+          mi = Factory.create :mi_attempt, :production_centre_name => 'WTSI'
+          plan = mi.mi_plan
+          plan.production_centre_name = 'ICS'
+          plan.valid?
+          assert_match /cannot be changed/, plan.errors[:production_centre_name].first
         end
       end
 

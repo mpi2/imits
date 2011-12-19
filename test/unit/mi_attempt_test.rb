@@ -639,6 +639,11 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal mi_plan, mi_attempt.mi_plan
           end
 
+          should 'be know about its new MiAttempt without having to be manually reloaded' do
+            mi = Factory.create :mi_attempt
+            assert_equal [mi], mi.mi_plan.mi_attempts
+          end
+
           should ', when assigning a matching MiPlan, set its status to Assigned if it is otherwise' do
             cbx1 = Factory.create :gene_cbx1
             mi_plan = Factory.create :mi_plan, :gene => cbx1,

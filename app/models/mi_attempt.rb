@@ -145,6 +145,7 @@ class MiAttempt < ApplicationModel
   before_save :record_if_status_was_changed
 
   after_save :create_status_stamp_if_status_was_changed
+  after_save :reload_mi_plan_mi_attempts
 
   def self.active
     where(:is_active => true)
@@ -255,6 +256,10 @@ class MiAttempt < ApplicationModel
     if @new_mi_attempt_status
       add_status_stamp @new_mi_attempt_status
     end
+  end
+
+  def reload_mi_plan_mi_attempts
+    mi_plan.mi_attempts.reload
   end
 
   public

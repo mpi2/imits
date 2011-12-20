@@ -53,6 +53,8 @@ class Reports::MiProduction::Intermediate
         record['Overall Status'] = record['MiAttempt Status']
         record['IKMC Project ID'] = mi_attempt.es_cell.ikmc_project_id.to_s
         record['Mutation Type'] = mi_attempt.es_cell.mutation_type
+        record['Allele Symbol'] = mi_attempt.allele_symbol
+        record['Genetic Background'] = mi_attempt.colony_background_strain.try(:name)
         mi_status_dates = mi_attempt.reportable_statuses_with_latest_dates
         mi_status_dates.each do |description, date|
           record["#{description} Date"] = date.to_s
@@ -82,6 +84,8 @@ class Reports::MiProduction::Intermediate
       'PhenotypeAttempt Status',
       'IKMC Project ID',
       'Mutation Type',
+      'Allele Symbol',
+      'Genetic Background',
       'Assigned Date',
       'Assigned - ES Cell QC In Progress Date',
       'Assigned - ES Cell QC Complete Date',

@@ -24,13 +24,16 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           :name => 'EPD0027_2_A01',
           :gene => @cbx1,
           :mutation_type => 'targeted_mutation',
-          :ikmc_project_id => 35505
+          :ikmc_project_id => 35505,
+          :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi'
         )
 
         bash_wtsi_attempt = Factory.create :mi_attempt,
                 :es_cell => es_cell,
                 :consortium_name => 'BaSH',
-                :production_centre_name => 'WTSI'
+                :production_centre_name => 'WTSI',
+                :mouse_allele_type => 'c',
+                :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('C57BL/6N')
         bash_wtsi_plan = bash_wtsi_attempt.mi_plan
 
         bash_wtsi_plan.status_stamps.first.update_attributes!(
@@ -112,6 +115,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'PhenotypeAttempt Status',
           'IKMC Project ID',
           'Mutation Type',
+          'Allele Symbol',
+          'Genetic Background',
           'Assigned Date',
           'Assigned - ES Cell QC In Progress Date',
           'Assigned - ES Cell QC Complete Date',
@@ -131,7 +136,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         assert_equal expected, @report.column_names
       end
 
-      should 'have correct values for each row when phenotype attempt is present' do
+      should 'have correct values for each row when phenotype attempt is present and all optional MiAttempt values are present' do
         bash_wtsi_row = @report.find {|r| r.data['Consortium'] == 'BaSH' && r.data['Production Centre'] == 'WTSI'}
         expected = {
           'Consortium' => 'BaSH',
@@ -145,6 +150,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'PhenotypeAttempt Status' => 'Phenotype Attempt Aborted',
           'IKMC Project ID' => '35505',
           'Mutation Type' => 'targeted_mutation',
+          'Allele Symbol' => 'Cbx1<sup>tm1c(EUCOMM)Wtsi</sup>',
+          'Genetic Background' => 'C57BL/6N',
           'Assigned Date' => '2011-11-02',
           'Assigned - ES Cell QC In Progress Date' => '2011-11-03',
           'Assigned - ES Cell QC Complete Date' => '2011-11-04',
@@ -163,7 +170,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         assert_equal expected, bash_wtsi_row.data
       end
 
-      should 'have correct values for each row when only aborted mi attempt is present without phenotype attempt' do
+      should 'have correct values for each row when only aborted MiAttempt is present and no PhenotypeAttempt' do
         mgp_wtsi_row = @report.find {|r| r.data['Consortium'] == 'MGP' && r.data['Production Centre'] == 'WTSI'}
         expected = {
           'Consortium' => 'MGP',
@@ -177,6 +184,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'PhenotypeAttempt Status' => '',
           'IKMC Project ID' => '35505',
           'Mutation Type' => 'targeted_mutation',
+          'Allele Symbol' => 'Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>',
+          'Genetic Background' => '',
           'Assigned Date' => '2011-12-11',
           'Assigned - ES Cell QC In Progress Date' => '',
           'Assigned - ES Cell QC Complete Date' => '',
@@ -203,6 +212,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         assert_equal '', bash_ics_row.data['PhenotypeAttempt Status']
         assert_equal '', bash_ics_row['IKMC Project ID']
         assert_equal '', bash_ics_row['Mutation Type']
+        assert_equal '', bash_ics_row['Allele Symbol']
+        assert_equal '', bash_ics_row['Genetic Background']
       end
 
       should 'not have values for empty columns' do

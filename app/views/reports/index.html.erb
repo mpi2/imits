@@ -94,6 +94,17 @@
       </p>
     </a>
   </div>
+  
+  <% if ['development', 'staging'].include?(Rails.env.to_s) %>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => :reports, :action => :mi_production2) %>">
+      <h4>Intermediate Report</h4>
+      <p>
+        The intermediate micro-injection production report
+      </p>
+    </a>
+  </div>
 
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :production_summary1) %>">
@@ -124,10 +135,23 @@
   </div>
 
   <div class="report-links">
+    <a href="<%= url_for(:controller => :reports, :action => :production_summary5) %>">
+      <h4>Production Summary 5</h4>
+      <p>MGP report.</p>
+    </a>
+  </div>
+
+  <% if ['rinky-dink'].include?(Rails.env.to_s) %>
+
+  <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :production_summary_all) %>">
       <h4>Production Summary All</h4>
       <p>Production Summary All.</p>
     </a>
   </div>
 
+  <% end %>
+  
+  <% end %>
+  
 </div>

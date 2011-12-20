@@ -36,13 +36,19 @@ class ReportsController < ApplicationController
   def production_summary3
     @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
     @title2, @report = Reports::ConsortiumPrioritySummary.generate3(request, params)
-    send_data_csv('production_summary2.csv', @report) if request.format == :csv
+    send_data_csv('production_summary3.csv', @report) if request.format == :csv
   end
 
   def production_summary4
     @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
     @title2, @report = Reports::ConsortiumPrioritySummary.generate4(request, params)
-    send_data_csv('production_summary2.csv', @report) if request.format == :csv
+    send_data_csv('production_summary4.csv', @report) if request.format == :csv
+  end
+
+  def production_summary5
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+#    @title2, @report = Reports::ConsortiumPrioritySummary.generate4(request, params)
+    send_data_csv('production_summary5.csv', @report) if request.format == :csv
   end
 
   def production_summary_all
@@ -306,6 +312,10 @@ class ReportsController < ApplicationController
 
   def mi_production
     @detail_cache = ReportCache.find_by_name('mi_production_detail')
+  end
+
+  def mi_production2
+    @detail_cache = ReportCache.find_by_name('mi_production_intermediate')
   end
 
   protected

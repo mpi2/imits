@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Reports::MiProduction::Detail
+class Reports::MiProduction::Intermediate
 
   # TODO: unit-test it, share it somewhere for all reports, expand it so it
   # handles deeply nested associations
@@ -38,7 +38,7 @@ class Reports::MiProduction::Detail
       'status_name'
     ]
 
-    transform = proc { |record|
+    transform = proc do |record|
       mi_attempt = record['latest_relevant_mi_attempt']
 
       plan_status_dates = record['reportable_statuses_with_latest_dates']
@@ -64,13 +64,16 @@ class Reports::MiProduction::Detail
           end
         end
       end
-    }
+    end
     report_options[:transforms] = [transform]
 
     report = MiPlan.report_table(:all, report_options)
+
     report.rename_columns(report_columns.merge('status_name' => 'Status'))
     column_names = report_columns.values + [
-      'Status',
+      'Overall Status',
+      'MiPlan Status',
+      'MiAttempt Status',
       'Assigned Date',
       'Assigned - ES Cell QC In Progress Date',
       'Assigned - ES Cell QC Complete Date',
@@ -85,6 +88,8 @@ class Reports::MiProduction::Detail
       'Phenotyping Started Date',
       'Phenotyping Complete Date',
       'Phenotype Attempt Aborted Date'
+      # Genetic Background
+      # Mouse Allele Name # if present, else original Allele Name
     ]
     report.reorder(column_names)
 
@@ -101,13 +106,13 @@ class Reports::MiProduction::Detail
   end
 
   def self.generate_and_cache
-    cache = ReportCache.find_by_name('mi_production_detail')
+    cache = ReportCache.find_by_name('mi_production_intermediate')
     if cache
       cache.csv_data = self.generate.to_csv
       cache.save!
     else
       ReportCache.create!(
-        :name => 'mi_production_detail',
+        :name => 'mi_production_intermediate',
         :csv_data => self.generate.to_csv
       )
     end

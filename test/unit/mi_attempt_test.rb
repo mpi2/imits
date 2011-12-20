@@ -281,8 +281,8 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context '#mouse_allele_symbol' do
         setup do
-          es_cell = Factory.create :es_cell_EPD0343_1_H06
-          @mi_attempt = Factory.build :mi_attempt, :es_cell => es_cell
+          @es_cell = Factory.create :es_cell_EPD0343_1_H06
+          @mi_attempt = Factory.build :mi_attempt, :es_cell => @es_cell
           @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
         end
 
@@ -296,9 +296,45 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_symbol
         end
 
+        should 'be nil if es_cell.allele_symbol_superscript is nil, even if mouse_allele_type is set' do
+          @es_cell.allele_symbol_superscript = nil
+          @es_cell.save!
+          @mi_attempt.es_cell.reload
+          @mi_attempt.mouse_allele_type = 'e'
+          assert_nil @mi_attempt.mouse_allele_symbol
+        end
+
         should 'be output in serialization' do
           @mi_attempt.mouse_allele_type = 'e'
           assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.as_json['mouse_allele_symbol']
+        end
+      end
+
+      context '#allele_symbol' do
+        setup do
+          @es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        end
+
+        should 'return the mouse_allele_symbol if mouse_allele_type is set' do
+          mi = Factory.build :mi_attempt, :mouse_allele_type => 'b',
+                  :es_cell => @es_cell
+          assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', mi.allele_symbol
+        end
+
+        should 'return the es_cell.allele_symbol if mouse_allele_type is not set' do
+          mi = Factory.build :mi_attempt, :mouse_allele_type => nil,
+                  :es_cell => @es_cell
+          assert_equal 'Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>', mi.allele_symbol
+        end
+
+        should 'return "" regardless if es_cell has no allele_symbol_superscript' do
+          es_cell = Factory.create :es_cell, :gene => Factory.create(:gene_cbx1),
+                  :allele_symbol_superscript => nil
+          assert_equal nil, es_cell.allele_symbol_superscript
+
+          mi = Factory.build :mi_attempt, :mouse_allele_type => 'c',
+                  :es_cell => es_cell
+          assert_equal nil, mi.allele_symbol
         end
       end
 

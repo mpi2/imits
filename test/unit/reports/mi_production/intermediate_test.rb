@@ -20,8 +20,15 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
                 :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
                 :production_centre => Centre.find_by_name!('WTSI')
 
+        es_cell = Factory.create(:es_cell,
+          :name => 'EPD0027_2_A01',
+          :gene => @cbx1,
+          :mutation_type => 'targeted_mutation',
+          :ikmc_project_id => 35505
+        )
+
         bash_wtsi_attempt = Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => @cbx1),
+                :es_cell => es_cell,
                 :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI'
         bash_wtsi_plan = bash_wtsi_attempt.mi_plan
@@ -75,7 +82,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           :created_at => '2011-12-08 23:59:59 UTC')
 
         mgp_wtsi_attempt = Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => @cbx1),
+                :es_cell => es_cell,
                 :consortium_name => 'MGP',
                 :production_centre_name => 'WTSI'
         mgp_wtsi_plan = mgp_wtsi_attempt.mi_plan
@@ -103,6 +110,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiPlan Status',
           'MiAttempt Status',
           'PhenotypeAttempt Status',
+          'IKMC Project ID',
+          'Mutation Type',
           'Assigned Date',
           'Assigned - ES Cell QC In Progress Date',
           'Assigned - ES Cell QC Complete Date',
@@ -134,6 +143,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiPlan Status' => 'Assigned - ES Cell QC Complete',
           'MiAttempt Status' => 'Genotype confirmed',
           'PhenotypeAttempt Status' => 'Phenotype Attempt Aborted',
+          'IKMC Project ID' => '35505',
+          'Mutation Type' => 'targeted_mutation',
           'Assigned Date' => '2011-11-02',
           'Assigned - ES Cell QC In Progress Date' => '2011-11-03',
           'Assigned - ES Cell QC Complete Date' => '2011-11-04',
@@ -164,6 +175,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiPlan Status' => 'Assigned',
           'MiAttempt Status' => 'Micro-injection aborted',
           'PhenotypeAttempt Status' => '',
+          'IKMC Project ID' => '35505',
+          'Mutation Type' => 'targeted_mutation',
           'Assigned Date' => '2011-12-11',
           'Assigned - ES Cell QC In Progress Date' => '',
           'Assigned - ES Cell QC Complete Date' => '',
@@ -188,6 +201,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         assert_equal 'Interest', bash_ics_row.data['MiPlan Status']
         assert_equal '', bash_ics_row.data['MiAttempt Status']
         assert_equal '', bash_ics_row.data['PhenotypeAttempt Status']
+        assert_equal '', bash_ics_row['IKMC Project ID']
+        assert_equal '', bash_ics_row['Mutation Type']
       end
 
       should 'not have values for empty columns' do

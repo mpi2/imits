@@ -129,7 +129,10 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Priority' => 'Medium',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
-          'Status' => 'Phenotype Attempt Aborted',
+          'Overall Status' => 'Phenotype Attempt Aborted',
+          'MiPlan Status' => 'Assigned - ES Cell QC Complete',
+          'MiAttempt Status' => 'Genotype confirmed',
+          'PhenotypeAttempt Status' => 'Phenotype Attempt Aborted',
           'Assigned Date' => '2011-11-02',
           'Assigned - ES Cell QC In Progress Date' => '2011-11-03',
           'Assigned - ES Cell QC Complete Date' => '2011-11-04',
@@ -156,7 +159,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Priority' => 'High',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
-          'Status' => 'Micro-injection aborted',
+          'Overall Status' => 'Micro-injection aborted',
+          'MiPlan Status' => '',
           'Assigned Date' => '2011-12-11',
           'Assigned - ES Cell QC In Progress Date' => '',
           'Assigned - ES Cell QC Complete Date' => '',
@@ -177,7 +181,10 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
 
       should 'show MiPlan status when there is no MI attempt' do
         bash_ics_row = @report.find {|r| r.data['Consortium'] == 'BaSH' && r.data['Production Centre'] == 'ICS'}
-        assert_equal 'Interest', bash_ics_row.data['Status']
+        assert_equal 'Interest', bash_ics_row.data['Overall Status']
+        assert_equal 'Interest', bash_ics_row.data['MiPlan Status']
+        assert_equal '', bash_ics_row.data['MiAttempt Status']
+        assert_equal '', bash_ics_row.data['PhenotypeAttempt Status']
       end
 
       should 'not have values for empty columns' do

@@ -28,14 +28,14 @@ class Reports::MiProduction::Intermediate
       'sub_project.name' => 'Sub-Project',
       'priority.name' => 'Priority',
       'production_centre.name' => 'Production Centre',
-      'gene.marker_symbol' => 'Gene'
+      'gene.marker_symbol' => 'Gene',
+      'status.name' => 'MiPlan Status'
     }
 
     report_options = generate_report_options(report_columns)
     report_options[:methods] = [
       'reportable_statuses_with_latest_dates',
-      'latest_relevant_mi_attempt',
-      'status_name'
+      'latest_relevant_mi_attempt'
     ]
 
     transform = proc do |record|
@@ -46,8 +46,11 @@ class Reports::MiProduction::Intermediate
         record["#{name} Date"] = date.to_s
       end
 
+      record['Overall Status'] = record['MiPlan Status']
+
       if mi_attempt
-        record['status_name'] = mi_attempt.status
+        record['MiAttempt Status'] = mi_attempt.mi_attempt_status.description
+        record['Overall Status'] = record['MiAttempt Status']
 
         mi_status_dates = mi_attempt.reportable_statuses_with_latest_dates
         mi_status_dates.each do |description, date|
@@ -56,7 +59,8 @@ class Reports::MiProduction::Intermediate
 
         phenotype_attempt = mi_attempt.latest_relevant_phenotype_attempt
         if phenotype_attempt
-          record['status_name'] = phenotype_attempt.status.name
+          record['PhenotypeAttempt Status'] = phenotype_attempt.status.name
+          record['Overall Status'] = record['PhenotypeAttempt Status']
 
           pt_status_names = phenotype_attempt.reportable_statuses_with_latest_dates
           pt_status_names.each do |name, date|
@@ -69,11 +73,12 @@ class Reports::MiProduction::Intermediate
 
     report = MiPlan.report_table(:all, report_options)
 
-    report.rename_columns(report_columns.merge('status_name' => 'Status'))
+    report.rename_columns(report_columns.merge('status_name' => 'Overall Status'))
     column_names = report_columns.values + [
       'Overall Status',
       'MiPlan Status',
       'MiAttempt Status',
+      'PhenotypeAttempt Status',
       'Assigned Date',
       'Assigned - ES Cell QC In Progress Date',
       'Assigned - ES Cell QC Complete Date',

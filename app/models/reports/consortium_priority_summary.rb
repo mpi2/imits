@@ -80,7 +80,7 @@ class Reports::ConsortiumPrioritySummary
   #Allele name (name of the mouse line, as stored in iMits)
   #Genetic background - as stored in iMits
 
-  def self.subsummary1(params)
+  def self.subsummary1(request, params)
     consortium = params[:consortium]
     status = params[:type]
 
@@ -101,14 +101,37 @@ class Reports::ConsortiumPrioritySummary
         counter += 1
       }
     ).each do |row|
+      
+      #width='30' height='30'
+      #style='margin: 0 auto;'
+      #style='text-align: center;' 
+
+      make_link = lambda {|value|
+        return value.to_s.length > 1 ? value : '' if request && request.format == :csv
+        #.strip!
+        value.to_s.length > 1 ?
+#        value > 0 ?
+          "<p style='margin: 0px; padding: 0px;text-align: center;'>" +
+          "<a title='Click through to IKMC (#{value})' href='http://www.knockoutmouse.org/martsearch/project/#{value}'>" +
+          "<img src='../images/ikmc-favicon.ico'></img></a></p>" :
+          ''
+      }
+      
+      mt = row['Mutation Type']
+      mt = mt ? mt.gsub(/_/, ' ') : ''
+      mt = mt.gsub(/\b\w/){$&.upcase}
+      
+      uknkown = '<strong style="color: red;">Unknown<strong>'
+      uknkown = '<strong>Unknown<strong>'
+
       report_table << {        
       'Consortium' => row['Consortium'],
       'Production Centre' => row['Production Centre'],
-      'Marker symbol' => 'Unknown',
-      'Order at IKMC' => 'Unknown',
-      'Mutation type' => 'Unknown',
-      'Allele name' => 'Unknown',
-      'Genetic background' => 'Unknown'
+      'Marker symbol' => uknkown,
+      'Order at IKMC' => make_link.call(row['IKMC Project ID']),
+      'Mutation type' => mt,
+      'Allele name' => uknkown,
+      'Genetic background' => uknkown
       }
     end
 
@@ -180,7 +203,7 @@ class Reports::ConsortiumPrioritySummary
   def self.generate1(request = nil, params = {})
 
     if params[:consortium]
-      return subsummary1(params)
+      return subsummary1(request, params)
     end
     
     script_name = request ? request.env['REQUEST_URI'] : ''

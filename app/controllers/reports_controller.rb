@@ -3,8 +3,7 @@
 class ReportsController < ApplicationController
   respond_to :html, :csv
 
-  before_filter :authenticate_user!, :except => [:simple_feed_test, :simple_subfeed_test,
-    :production_summary1, :production_summary2, :production_summary3, :production_summary4, :production_summary_all]
+  before_filter :authenticate_user!, :except => [ :production_summary1 ]
 
   extend Reports::Helper
   include Reports::Helper
@@ -21,8 +20,10 @@ class ReportsController < ApplicationController
   end
   
   def production_summary1
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
     feed = params[:feed] && params[:feed] == 'true'
     @title2, @report = Reports::ConsortiumPrioritySummary.generate1(request, params)
+    send_data_csv('production_summary1.csv', @report) if request.format == :csv
     render :text => @report.to_html, :layout => false if feed
   end
 

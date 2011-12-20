@@ -18,6 +18,8 @@ class Reports::ConsortiumPrioritySummary
   #Inspect - GLT Mouse
   #Withdrawn
   #Micro-injection aborted
+
+  #Confirm that 'All projects' excludes MIPlan Inactive, MI Plan Withdrawn.
     
   CSV_LINKS = true  
   ADD_COUNTS = false
@@ -42,16 +44,21 @@ class Reports::ConsortiumPrioritySummary
     'Aborted' => ['Micro-injection aborted']
   }
   MAPPING3 = {
-    'All' => ['Interest',
+    'All' => [
+      'Interest',
       'Assigned - ES Cell QC In Progress',
       'Assigned - ES Cell QC Complete',
       'Micro-injection in progress',
       'Assigned',
       'Inspect - MI Attempt',
+      'Aborted - ES Cell QC Failed',
       'Conflict',
       'Genotype confirmed',
       'Inspect - Conflict',
-      'Inspect - GLT Mouse'],
+      'Inspect - GLT Mouse',
+      'Withdrawn',
+      'Micro-injection aborted'
+    ],
     'ES QC started' => ['Assigned - ES Cell QC In Progress'],
     'ES QC finished' => ['Assigned - ES Cell QC Complete'],
     'MI in progress' => ['Micro-injection in progress'],
@@ -65,18 +72,21 @@ class Reports::ConsortiumPrioritySummary
 
     @@cached_report ||= get_cached_report('mi_production_detail')
 
-    genes = []
+  #  genes = []
 
     counter = 1
     report = Table(:data => @@cached_report.data,
       :column_names => ADD_COUNTS ? ['Count'] + @@cached_report.column_names : @@cached_report.column_names,
+      #:filters => lambda {|r|
+      #  if (!consortium || r['Consortium'] == consortium) &&
+      #      MAPPING1[status].include?(r.data['Status'])
+      #    return false if genes.include?(r['Gene'])
+      #    genes.push r['Gene']
+      #    return true
+      #  end
+      #},
       :filters => lambda {|r|
-        if (!consortium || r['Consortium'] == consortium) &&
-            MAPPING1[status].include?(r.data['Status'])
-          return false if genes.include?(r['Gene'])
-          genes.push r['Gene']
-          return true
-        end
+        return (!consortium || r['Consortium'] == consortium) && MAPPING1[status].include?(r.data['Status'])
       },
       :transforms => lambda {|r|
         return if ! ADD_COUNTS
@@ -177,16 +187,12 @@ class Reports::ConsortiumPrioritySummary
 
     summaries = { 'All' => 0, 'Activity' => 0, 'Mice in production' => 0, 'GLT Mice' => 0,
       'All_distinct' => 0, 'Activity_distinct' => 0, 'Mice in production_distinct' => 0, 'GLT Mice_distinct' => 0}
-    #    report_table.sigma('All') { |r|
     report_table.sum { |r|
       report_table.column_names.each do |name|
         next if name == 'Consortium'
-        #value = 10  #r[name] ? r[name].scan( /\>(\d+)\</ ).last.first : 0
-        #/(.)(.)(.)/.match("abc")
         match = 0
         match = /\>(\d+)\</.match(r[name].to_s) if r[name]
         match ||= /(\d+)/.match(r[name].to_s) if r[name]
-        #   summaries[name] ||= 0
         value = match && match[1] ? Integer(match[1]) : 0
         summaries[name] += Integer(value)
       end
@@ -197,20 +203,7 @@ class Reports::ConsortiumPrioritySummary
       return value if request && request.format == :csv
       return strong(value)
     }
-    
-    #report_table << {        
-    #  'Consortium' => make_sum.call('Total'),
-    #  'All' => make_sum.call(summaries['All']),
-    #  'Activity' => make_sum.call(summaries['Activity']),
-    #  'Mice in production' => make_sum.call(summaries['Mice in production']),
-    #  'GLT Mice' => make_sum.call(summaries['GLT Mice']),
-    #  
-    #  'All_distinct' => make_sum.call(summaries['All_distinct']),
-    #  'Activity_distinct' => make_sum.call(summaries['Activity_distinct']),
-    #  'Mice in production_distinct' => make_sum.call(summaries['Mice in production_distinct']),
-    #  'GLT Mice_distinct' => make_sum.call(summaries['GLT Mice_distinct'])
-    #}
-    
+        
     report_table << {        
       'Consortium' => make_sum.call('Total'),
       'All' => make_sum.call(summaries['All_distinct']),
@@ -219,16 +212,10 @@ class Reports::ConsortiumPrioritySummary
       'GLT Mice' => make_sum.call(summaries['GLT Mice_distinct'])
     }
     
-    #All Projects	Project started	Microinjection in progress	Mice available
-    
     report_table.rename_column("All","All Projects")
     report_table.rename_column("Activity","Project started")
     report_table.rename_column("Mice in production","Microinjection in progress")
     report_table.rename_column("GLT Mice","Mice available")
-    #Phenotyping in progress
-    #Phenotype data available
-
-    #  data.add_column 'new_col2', :before => 'new_column'
 
     report_table.add_column("Phenotype data available", :after => 'Mice available')
     report_table.add_column("Phenotyping in progress", :after => 'Mice available')
@@ -237,26 +224,7 @@ class Reports::ConsortiumPrioritySummary
     report_table.remove_column("Activity_distinct")
     report_table.remove_column("Mice in production_distinct")
     report_table.remove_column("GLT Mice_distinct")
-   
-    #    report_table << {
-    #      'Consortium' => strong('Total'),
-    ##      'All' => strong(summaries['All']),
-    #      'All' => "<a title='Click to see list All' href='#{script_name}?consortium=&type=All'>#{summaries['All']}</a>",
-    #      'Activity' => strong(summaries['Activity']),
-    #      'Mice in production' => strong(summaries['Mice in production']),
-    #      'GLT Mice' => strong(summaries['GLT Mice'])
-    #    }
-   
-    #report_table << {        
-    #  'Consortium' => '',
-    #  'All' => report_table.sigma('All'),
-    #  'Activity' => report_table.sigma('Activity'),
-    #  'Mice in production' => report_table.sigma('Mice in production'),
-    #  'GLT Mice' => report_table.sigma('GLT Mice')
-    #}
-   
-    #  report_table.sort_rows_by!( ['Consortium'] )
-    
+       
     return 'Production Summary 1 (feed)', report_table
   end
  

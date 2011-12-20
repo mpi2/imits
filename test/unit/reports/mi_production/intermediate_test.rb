@@ -2,8 +2,8 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
-  context 'Reports::MiProduction::Detail' do
+class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
+  context 'Reports::MiProduction::Intermediate' do
 
     setup do
       @cbx1 = Factory.create :gene_cbx1
@@ -89,7 +89,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
         mgp_wtsi_attempt.status_stamps.last.update_attributes!(
           :created_at => '2011-12-13 00:00:00 UTC')
 
-        @report = Reports::MiProduction::Detail.generate
+        @report = Reports::MiProduction::Intermediate.generate
       end
 
       should 'have columns in correct order' do
@@ -99,7 +99,9 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
           'Priority',
           'Production Centre',
           'Gene',
-          'Status',
+          'Overall Status',
+          'MiPlan Status',
+          'MiAttempt Status',
           'Assigned Date',
           'Assigned - ES Cell QC In Progress Date',
           'Assigned - ES Cell QC Complete Date',
@@ -146,7 +148,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
         assert_equal expected, bash_wtsi_row.data
       end
 
-      should 'have correct values for each row when only mi attempt is present without phenotype attempt' do
+      should 'have correct values for each row when only aborted mi attempt is present without phenotype attempt' do
         mgp_wtsi_row = @report.find {|r| r.data['Consortium'] == 'MGP' && r.data['Production Centre'] == 'WTSI'}
         expected = {
           'Consortium' => 'MGP',
@@ -223,7 +225,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
         ['MGP', '', 'High', 'WTSI', 'Cbx1']
       ]
 
-      report = Reports::MiProduction::Detail.generate
+      report = Reports::MiProduction::Intermediate.generate
       got = report.map {|r| r.data.values[0..4]}
 
       assert_equal expected, got
@@ -236,26 +238,26 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
 
       should 'store generated CSV in reports cache table' do
         assert_equal 0, ReportCache.count
-        Reports::MiProduction::Detail.generate_and_cache
+        Reports::MiProduction::Intermediate.generate_and_cache
         assert_equal 1, ReportCache.count
         cache = ReportCache.first
-        assert_equal 'mi_production_detail', cache.name
-        assert_equal Reports::MiProduction::Detail.generate.to_csv, cache.csv_data
+        assert_equal 'mi_production_intermediate', cache.name
+        assert_equal Reports::MiProduction::Intermediate.generate.to_csv, cache.csv_data
       end
 
       should 'replace existing reports cache if that exists' do
-        Reports::MiProduction::Detail.generate_and_cache
+        Reports::MiProduction::Intermediate.generate_and_cache
         old_cache = ReportCache.first
 
         Factory.create :mi_plan
         sleep 1
-        Reports::MiProduction::Detail.generate_and_cache
+        Reports::MiProduction::Intermediate.generate_and_cache
         assert_equal 1, ReportCache.count
         new_cache = ReportCache.first
 
         assert_equal new_cache.name, old_cache.name
         assert_operator new_cache.updated_at, :>, old_cache.updated_at
-        assert_equal Reports::MiProduction::Detail.generate.to_csv, new_cache.csv_data
+        assert_equal Reports::MiProduction::Intermediate.generate.to_csv, new_cache.csv_data
       end
     end
 

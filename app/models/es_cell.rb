@@ -79,9 +79,11 @@ class EsCell < ActiveRecord::Base
           :filters => { 'escell_clone' => names },
           :attributes => [
             'escell_clone',
+            'escell_ikmc_project_id',
             'pipeline',
             'mgi_accession_id',
             'allele_symbol_superscript',
+            'mutation_type',
             'mutation_subtype',
             'production_qc_loxp_screen',
             'parental_cell_line'
@@ -106,9 +108,11 @@ class EsCell < ActiveRecord::Base
     pipeline = Pipeline.find_or_create_by_name(mart_data['pipeline'])
     self.attributes = {
       :name => mart_data['escell_clone'],
+      :ikmc_project_id => mart_data['escell_ikmc_project_id'],
       :allele_symbol_superscript => mart_data['allele_symbol_superscript'],
       :pipeline => pipeline,
       :parental_cell_line => mart_data['parental_cell_line'],
+      :mutation_type => mart_data['mutation_type']
     }
   end
 
@@ -184,6 +188,8 @@ end
 #  updated_at                         :datetime
 #  gene_id                            :integer         not null
 #  parental_cell_line                 :string(255)
+#  ikmc_project_id                    :integer
+#  mutation_type                      :string(100)
 #
 # Indexes
 #

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111215090406) do
+ActiveRecord::Schema.define(:version => 20111220165606) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -33,13 +33,6 @@ ActiveRecord::Schema.define(:version => 20111215090406) do
   add_index "audits", ["auditable_id", "auditable_type"], :name => "auditable_index"
   add_index "audits", ["created_at"], :name => "index_audits_on_created_at"
   add_index "audits", ["user_id", "user_type"], :name => "user_index"
-
-  create_table "cached_reports", :force => true do |t|
-    t.string   "name",       :limit => 50, :null => false
-    t.text     "data"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "centres", :force => true do |t|
     t.string   "name",       :limit => 100, :null => false
@@ -77,6 +70,8 @@ ActiveRecord::Schema.define(:version => 20111215090406) do
     t.datetime "updated_at"
     t.integer  "gene_id",                                           :null => false
     t.string   "parental_cell_line"
+    t.integer  "ikmc_project_id"
+    t.string   "mutation_type",                      :limit => 100
   end
 
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true

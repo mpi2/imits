@@ -26,6 +26,7 @@ class EsCellTest < ActiveSupport::TestCase
       should have_db_column(:pipeline_id).with_options(:null => false)
       should validate_presence_of :pipeline
       should have_db_column(:parental_cell_line).with_options(:null => true)
+      should have_db_column(:mutation_type).of_type(:string).with_options(:limit => 100)
     end
 
     context '#allele_symbol_superscript_template' do
@@ -118,6 +119,8 @@ class EsCellTest < ActiveSupport::TestCase
       assert_equal 'tm1a(EUCOMM)Hmgu', es_cell.allele_symbol_superscript
       assert_equal 'EUCOMM', es_cell.pipeline.name
       assert_equal 'JM8A1.N3', es_cell.parental_cell_line
+      assert_equal 27671, es_cell.ikmc_project_id
+      assert_equal 'targeted_mutation', es_cell.mutation_type
     end
 
     context '::create_es_cell_from_mart_data' do
@@ -128,15 +131,16 @@ class EsCellTest < ActiveSupport::TestCase
           'allele_symbol_superscript' => 'tm1a(EUCOMM)Hmgu',
           'pipeline' => 'EUCOMM',
           'mgi_accession_id' => 'MGI:1924893',
-          'parental_cell_line' => 'JM8A1.N3'
+          'parental_cell_line' => 'JM8A1.N3',
+          'escell_ikmc_project_id' => 27671,
+          'mutation_type' => 'targeted_mutation'
         )
       end
 
       should 'work' do
         assert_nil Gene.find_by_marker_symbol 'C030046E11Rik'
         es_cell = create_test_es_cell
-        assert_equal ['C030046E11Rik', 'MGI:1924893'],
-                [es_cell.gene.marker_symbol, es_cell.gene.mgi_accession_id]
+        assert_HEPD0549_6_D02_attributes(es_cell)
       end
 
       should 'create pipelines if it needs to' do
@@ -181,8 +185,10 @@ class EsCellTest < ActiveSupport::TestCase
 
         expected_es_cell = {
           'escell_clone' => 'EPD0127_4_E01',
+          'escell_ikmc_project_id' => '25489',
           'pipeline' => 'EUCOMM',
           'production_qc_loxp_screen' => 'pass',
+          'mutation_type' => 'targeted_mutation',
           'mutation_subtype' => 'conditional_ready',
           'marker_symbol' => 'Trafd1',
           'allele_symbol_superscript' => 'tm1a(EUCOMM)Wtsi',

@@ -42,7 +42,6 @@ class Reports::ConsortiumPrioritySummary
     'Activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
     'Mice in production' => ['Micro-injection in progress', 'Genotype confirmed'],
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
-    'Aborted' => ['Micro-injection aborted'],
     'Phenotyping in progress' => ['Phenotyping Started Date'],
     'Phenotype data available' => ['Phenotyping Complete Date']
   }
@@ -340,7 +339,7 @@ class Reports::ConsortiumPrioritySummary
       'Genotype Confirmed Mice'       => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING3['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
       'MI Aborted'       => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING3['Aborted'].include? row.data['Overall Status'] } ) },
+          lambda { |row| MAPPING3['MI Aborted'].include? row.data['Overall Status'] } ) },
       'ES QC confirmed'       => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING3['ES QC confirmed'].include? row.data['Overall Status'] } ) },
       'ES QC failed'       => lambda { |group| count_unique_instances_of( group, 'Gene',
@@ -359,10 +358,7 @@ class Reports::ConsortiumPrioritySummary
           ''
       }
 
-      glt = Integer(row['Genotype Confirmed Mice'])
-      total = Integer(row['Genotype Confirmed Mice']) + Integer(row['MI Aborted'])
-      pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-      pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
+      pc = percentage(request, row)
 
       report_table << {
         'Consortium' => row['Consortium'],
@@ -371,7 +367,7 @@ class Reports::ConsortiumPrioritySummary
         'ES QC started' => make_link.call('ES QC started'),
         'MI in progress' => make_link.call('MI in progress'),
         'Genotype Confirmed Mice' => make_link.call('Genotype Confirmed Mice'),
-        'MI Aborted' => make_link.call('Aborted'),
+        'MI Aborted' => make_link.call('MI Aborted'),
         'Pipeline efficiency (%)' => pc,
         'ES QC confirmed' => make_link.call('ES QC confirmed'),
         'ES QC failed' => make_link.call('ES QC failed')
@@ -453,11 +449,8 @@ class Reports::ConsortiumPrioritySummary
             ''
         }
 
-        glt = Integer(row['Genotype Confirmed Mice'])
-        total = Integer(row['Genotype Confirmed Mice']) + Integer(row['MI Aborted'])
-        pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-        pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
-
+        pc = percentage(request, row)
+  
         p_found.push row['Priority']
         report_table << {
           'Consortium' => consortium,
@@ -493,6 +486,23 @@ class Reports::ConsortiumPrioritySummary
     return 'Production Summary 3', report_table
   end
 
+  #Column labels and notes:
+  #
+  #1) All - this must include the inactive etc cases
+  #
+  #2) Separate columns for
+  #ES QC started
+  #ES QC confirmed
+  #ES QC failed
+  #
+  #3) Aborted => MI Aborted.
+  #
+  #4) GLT Mice => Genotype Confirmed Mice
+  #
+  #5) Pipeline Efficiency now computed by:
+  #Number of genotype confirmed mice right now /
+  #(Number of active MI plans with non-aborted MIs more than 6 months old + number of genotype confirmed mice right now)
+
   def self.generate4(request = nil, params={})
 
     if params[:consortium]
@@ -504,7 +514,8 @@ class Reports::ConsortiumPrioritySummary
 
     @@cached_report ||= get_cached_report('mi_production_intermediate')
 
-    report_table = Table( ['Consortium', 'Sub-Project', 'Priority', 'All', 'ES QC started', 'ES QC confirmed', 'MI in progress', 'Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'order_by'] )
+    report_table = Table( ['Consortium', 'Sub-Project', 'Priority', 'All', 'ES QC started', 'ES QC failed', 'ES QC confirmed',
+      'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'order_by'] )
  
     grouped_report = Grouping( @@cached_report, :by => [ 'Consortium', 'Sub-Project', 'Priority' ] )
     
@@ -530,8 +541,10 @@ class Reports::ConsortiumPrioritySummary
               lambda { |row| MAPPING3['MI in progress'].include? row.data['Overall Status'] } ) },
           'Genotype Confirmed Mice'       => lambda { |group| count_unique_instances_of( group, 'Gene',
               lambda { |row| MAPPING3['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
-          'Aborted'       => lambda { |group| count_unique_instances_of( group, 'Gene',
-              lambda { |row| MAPPING3['Aborted'].include? row.data['Overall Status'] } ) }
+          'MI Aborted'       => lambda { |group| count_unique_instances_of( group, 'Gene',
+              lambda { |row| MAPPING3['MI Aborted'].include? row.data['Overall Status'] } ) },
+          'ES QC failed'   => lambda { |group| count_unique_instances_of( group, 'Gene',
+              lambda { |row| MAPPING3['ES QC failed'].include? row.data['Overall Status'] } ) }
         )
       
         p_found = []
@@ -550,10 +563,7 @@ class Reports::ConsortiumPrioritySummary
               ''
           }
 
-          glt = Integer(row['Genotype Confirmed Mice'])
-          total = Integer(row['Genotype Confirmed Mice']) + Integer(row['Aborted'])
-          pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-          pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
+          pc = percentage(request, row)
 
           p_found.push row['Priority']
           report_table << {
@@ -565,9 +575,10 @@ class Reports::ConsortiumPrioritySummary
             'ES QC confirmed' => make_link.call('ES QC confirmed'),
             'MI in progress' => make_link.call('MI in progress'),
             'Genotype Confirmed Mice' => make_link.call('Genotype Confirmed Mice'),
-            'Aborted' => make_link.call('Aborted'),
+            'MI Aborted' => make_link.call('MI Aborted'),
             'Pipeline efficiency (%)' => pc,
-            'order_by' => ORDER_BY_MAP[row['Priority']]
+            'order_by' => ORDER_BY_MAP[row['Priority']],
+            'ES QC failed' => make_link.call('ES QC failed')
           }
         end
       end
@@ -645,6 +656,18 @@ class Reports::ConsortiumPrioritySummary
     title = "Production Summary Detail: #{consortium}#{subproject}#{type}#{priority} (#{report.size})"
     
     return title, report
+  end
+  
+  #5) Pipeline Efficiency now computed by:
+  #Number of genotype confirmed mice right now /
+  #(Number of active MI plans with non-aborted MIs more than 6 months old + number of genotype confirmed mice right now)
+  
+  def self.percentage(request, row)
+    glt = Integer(row['Genotype Confirmed Mice'])
+    total = Integer(row['Genotype Confirmed Mice']) + Integer(row['MI Aborted'])
+    pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
+    pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
+    return pc
   end
   
 end

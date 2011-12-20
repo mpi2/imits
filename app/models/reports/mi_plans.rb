@@ -22,7 +22,7 @@ class Reports::MiPlans
 
     def self.get_genes_for_matrix
 
-      assigned_statuses = '(' + MiPlanStatus.all_assigned.map { |i| i.id }.join(',') + ')'
+      assigned_statuses = '(' + MiPlan::Status.all_assigned.map { |i| i.id }.join(',') + ')'
 
       sql = <<-"SQL"
         select
@@ -36,11 +36,11 @@ class Reports::MiPlans
         where mi_plans.gene_id in (
           select gene_id
           from mi_plans
-          where mi_plan_status_id in #{assigned_statuses}
+          where mi_plans.status_id in #{assigned_statuses}
 
           group by gene_id
           having count(*) > 1
-        ) and mi_plan_status_id in #{assigned_statuses} order by marker_symbol;
+        ) and mi_plans.status_id in #{assigned_statuses} order by marker_symbol;
       SQL
 
       result = ActiveRecord::Base.connection.select_all( sql )
@@ -65,7 +65,7 @@ class Reports::MiPlans
 
     def self.get_genes_for_list
 
-      assigned_statuses = '(' + MiPlanStatus.all_assigned.map { |i| i.id }.join(',') + ')'
+      assigned_statuses = '(' + MiPlan::Status.all_assigned.map { |i| i.id }.join(',') + ')'
 
       sql = <<-"SQL"
         select
@@ -76,7 +76,7 @@ class Reports::MiPlans
           mi_attempts.mi_date as mi_attempts_mi_date,
           mi_attempt_statuses.description as mi_attempt_statuses_description
         from mi_plans
-          join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
+          join mi_plan_statuses on mi_plans.status_id = mi_plan_statuses.id
           left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
           left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
           join consortia on mi_plans.consortium_id = consortia.id
@@ -85,10 +85,10 @@ class Reports::MiPlans
         where mi_plans.gene_id in (
           select gene_id
           from mi_plans
-          where mi_plan_status_id in #{assigned_statuses}
+          where mi_plans.status_id in #{assigned_statuses}
           group by gene_id
           having count(*) > 1
-        ) and mi_plan_status_id in #{assigned_statuses} order by marker_symbol;
+        ) and mi_plans.status_id in #{assigned_statuses} order by marker_symbol;
       SQL
 
       result = ActiveRecord::Base.connection.select_all( sql )

@@ -18,8 +18,8 @@ function printMiPlanString(mi_plan) {
     if (!Ext.isEmpty(mi_plan['production_centre'])) {
         str = str + ':' + mi_plan['production_centre'];
     }
-    if (!Ext.isEmpty(mi_plan['status'])) {
-        str = str + ':' + mi_plan['status'];
+    if (!Ext.isEmpty(mi_plan['status_name'])) {
+        str = str + ':' + mi_plan['status_name'];
     }
     str = str + ']';
     return str;
@@ -181,7 +181,7 @@ Ext.define('Imits.widget.GeneGrid', {
         var failedGenes = [];
         var consortiumName  = grid.consortiumCombo.getSubmitValue();
         var productionCentreName = grid.centreCombo.getSubmitValue();
-        var priority = grid.priorityCombo.getSubmitValue();
+        var priorityName = grid.priorityCombo.getSubmitValue();
 
         if(selectedGenes.length == 0) {
             alert('You must select some genes to register interest in');
@@ -191,7 +191,7 @@ Ext.define('Imits.widget.GeneGrid', {
             alert('You must select a consortium');
             return;
         }
-        if(priority == null) {
+        if(priorityName == null) {
             alert('You must selct a priority');
             return;
         }
@@ -204,7 +204,7 @@ Ext.define('Imits.widget.GeneGrid', {
                 'marker_symbol': markerSymbol,
                 'consortium_name': consortiumName,
                 'production_centre_name': productionCentreName,
-                'priority': priority
+                'priority_name': priorityName
             });
             miPlan.save({
                 failure: function() {

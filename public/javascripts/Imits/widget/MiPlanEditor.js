@@ -58,17 +58,17 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 store: window.CENTRE_COMBO_OPTS
             },
             {
-                id: 'status',
+                id: 'status_name',
                 xtype: 'textfield',
                 fieldLabel: 'Status',
-                name: 'status',
+                name: 'status_name',
                 readOnly: true
             },
             {
-                id: 'priority',
+                id: 'priority_name',
                 xtype: 'simplecombo',
                 fieldLabel: 'Priority',
-                name: 'priority',
+                name: 'priority_name',
                 store: window.PRIORITY_COMBO_OPTS
             },
             {
@@ -273,7 +273,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 });
                 editor.show();
 
-                if(Ext.Array.indexOf(window.WITHDRAWABLE_STATUSES, miPlan.get('status')) == -1) {
+                if(Ext.Array.indexOf(window.WITHDRAWABLE_STATUSES, miPlan.get('status_name')) == -1) {
                     editor.withdrawButton.disable();
                 } else {
                     editor.withdrawButton.enable();

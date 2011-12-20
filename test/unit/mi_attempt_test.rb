@@ -32,7 +32,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'not output private attributes in serialization' do
-          assert_equal false, default_mi_attempt.as_json.include?('mi_plan_id')
           assert_equal false, default_mi_attempt.as_json.include?('production_centre_id')
           assert_equal false, default_mi_attempt.as_json.include?('distribution_centre_id')
         end
@@ -116,6 +115,15 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.mi_attempt_status = MiAttemptStatus.micro_injection_in_progress; default_mi_attempt.save!
           assert_equal [MiAttemptStatus.micro_injection_in_progress],
                   default_mi_attempt.status_stamps.map(&:mi_attempt_status)
+        end
+
+        should 'not be set to non-genotype-confirmed if mi attempt has phenotype_attempts' do
+          set_mi_attempt_genotype_confirmed(default_mi_attempt)
+          Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
+          default_mi_attempt.reload
+          default_mi_attempt.is_active = false
+          default_mi_attempt.valid?
+          assert_match /cannot be changed/i, default_mi_attempt.errors[:mi_attempt_status].first
         end
       end
 
@@ -601,18 +609,22 @@ class MiAttemptTest < ActiveSupport::TestCase
                   mi.errors['mi_plan']
         end
 
+        should 'expose #mi_plan_id in JSON' do
+          assert_include default_mi_attempt.as_json.keys, 'mi_plan_id'
+        end
+
         context 'on create' do
           should 'be set to a matching MiPlan' do
             cbx1 = Factory.create :gene_cbx1
             mi_plan = Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => Centre.find_by_name!('WTSI'),
-                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+                    :status => MiPlan::Status.find_by_name!('Interest')
 
             Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => nil,
-                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+                    :status => MiPlan::Status.find_by_name!('Interest')
 
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),
@@ -627,12 +639,17 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal mi_plan, mi_attempt.mi_plan
           end
 
+          should 'be know about its new MiAttempt without having to be manually reloaded' do
+            mi = Factory.create :mi_attempt
+            assert_equal [mi], mi.mi_plan.mi_attempts
+          end
+
           should ', when assigning a matching MiPlan, set its status to Assigned if it is otherwise' do
             cbx1 = Factory.create :gene_cbx1
             mi_plan = Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => Centre.find_by_name!('WTSI'),
-                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+                    :status => MiPlan::Status.find_by_name!('Interest')
 
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),
@@ -646,7 +663,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
             mi_plan.reload
             assert_equal mi_plan, mi_attempt.mi_plan
-            assert_equal 'Assigned', mi_plan.mi_plan_status.name
+            assert_equal 'Assigned', mi_plan.status.name
           end
 
           should 'be created if none match gene, consortium and production centre' do
@@ -668,8 +685,8 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 'Cbx1', mi_attempt.mi_plan.gene.marker_symbol
             assert_equal 'WTSI', mi_attempt.mi_plan.production_centre.name
             assert_equal 'BaSH', mi_attempt.mi_plan.consortium.name
-            assert_equal 'High', mi_attempt.mi_plan.mi_plan_priority.name
-            assert_equal 'Assigned', mi_attempt.mi_plan.mi_plan_status.name
+            assert_equal 'High', mi_attempt.mi_plan.priority.name
+            assert_equal 'Assigned', mi_attempt.mi_plan.status.name
           end
 
           should 'be assigned the MiPlan with specified consortium and gene but no production centre if an MiPlan with all 3 attributes does not exist - should also set the MiPlan\'s production centre to the one specified and mi_plan_status to Assigned' do
@@ -682,7 +699,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             mi_plan = Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
                     :production_centre => nil,
-                    :mi_plan_status => MiPlanStatus.find_by_name!('Interest')
+                    :status => MiPlan::Status.find_by_name!('Interest')
 
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),
@@ -697,14 +714,14 @@ class MiAttemptTest < ActiveSupport::TestCase
             mi_plan.reload
             assert_equal mi_plan, mi_attempt.mi_plan
             assert_equal 'WTSI', mi_plan.production_centre.name
-            assert_equal 'Assigned', mi_plan.mi_plan_status.name
+            assert_equal 'Assigned', mi_plan.status.name
           end
 
         end
 
         context 'on update' do
           setup do
-            default_mi_attempt.mi_plan.status = 'Inactive'
+            default_mi_attempt.mi_plan.status = MiPlan::Status['Inactive']
             default_mi_attempt.mi_plan.save!
             default_mi_attempt.update_attributes!(:is_active => false)
             default_mi_attempt.reload
@@ -714,12 +731,12 @@ class MiAttemptTest < ActiveSupport::TestCase
             default_mi_attempt.update_attributes!(:is_active => true)
             default_mi_attempt.save!
             default_mi_attempt.reload
-            assert_equal 'Assigned', default_mi_attempt.mi_plan.status
+            assert_equal 'Assigned', default_mi_attempt.mi_plan.status.name
           end
 
           should 'not set its status to Assigned if MI attempt is not becoming active again' do
             default_mi_attempt.save!
-            assert_equal 'Inactive', default_mi_attempt.mi_plan.status
+            assert_equal 'Inactive', default_mi_attempt.mi_plan.status.name
           end
         end
 
@@ -730,7 +747,7 @@ class MiAttemptTest < ActiveSupport::TestCase
                   :consortium => Consortium.find_by_name!('BaSH'),
                   :number_of_es_cells_starting_qc => 5,
                   :number_of_es_cells_passing_qc => 0
-          assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status
+          assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status.name
           es_cell = Factory.create :es_cell, :gene => gene
 
           mi_attempt = Factory.build :mi_attempt, :es_cell => es_cell,
@@ -751,6 +768,10 @@ class MiAttemptTest < ActiveSupport::TestCase
         user = Factory.create :user
         default_mi_attempt.updated_by_id = user.id
         assert_equal user, default_mi_attempt.updated_by
+      end
+
+      should 'have #phenotype_attempts' do
+        assert_should have_many :phenotype_attempts
       end
 
     end # misc attribute tests
@@ -973,6 +994,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'not be output in json serialization' do
         data = JSON.parse(default_mi_attempt.to_json)
+        @protected_attributes -= ['mi_plan_id']
         values_in_both = @protected_attributes & data.keys
         assert_empty values_in_both
       end
@@ -1135,6 +1157,37 @@ class MiAttemptTest < ActiveSupport::TestCase
       should 'return nil if gene is nil' do
         mi = MiAttempt.new
         assert_nil mi.find_matching_mi_plan
+      end
+    end
+
+    context '#latest_relevant_phenotype_attempt' do
+      setup do
+        set_mi_attempt_genotype_confirmed(default_mi_attempt)
+      end
+
+      should 'return nil if there are no phenotype attempts for this MI' do
+        assert_equal nil, default_mi_attempt.latest_relevant_phenotype_attempt
+      end
+
+      should 'return the latest created active one if there are any active phenotype attempts' do
+        default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC")
+        pt = default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC")
+        default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC")
+        default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-10 23:59:59 UTC",
+          :is_active => false)
+
+        assert_equal pt, default_mi_attempt.latest_relevant_phenotype_attempt
+      end
+
+      should 'return the latest created aborted one if all its phenotype attempts are aborted' do
+        default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC",
+          :is_active => false)
+        pt = default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC",
+          :is_active => false)
+        default_mi_attempt.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC",
+          :is_active => false)
+
+        assert_equal pt, default_mi_attempt.latest_relevant_phenotype_attempt
       end
     end
 

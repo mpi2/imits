@@ -210,7 +210,7 @@ class ReportsController < ApplicationController
       ## Counts of mi_plans grouped by status
       ##
 
-      statuses = MiPlanStatus.order('order_by asc').all.map { |s| s.name }
+      statuses = MiPlan::Status.order('order_by asc').all.map { |s| s.name }
       summary_by_status_args = { :order => ['Consortium'] + statuses }
       statuses.each do |status|
         summary_by_status_args[status] = lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == status } ) }
@@ -224,11 +224,11 @@ class ReportsController < ApplicationController
       # Add totals by status
       gene_count_by_status =
         MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(
-        :gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
+        :gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :status)
 
       if @include_plans_with_active_attempts
         gene_count_by_status =
-          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :mi_plan_status)
+          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :status)
       end
 
       @summary_by_status << totals = ['TOTAL BY STATUS'] + statuses.map { |status| gene_count_by_status[status] || 0 } + [total_number_of_planned_genes]
@@ -252,11 +252,11 @@ class ReportsController < ApplicationController
       # Add totals by priority
       gene_count_by_priority =
         MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(
-        :gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
+        :gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :priority)
 
       if @include_plans_with_active_attempts
         gene_count_by_priority =
-          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :mi_plan_priority)
+          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :priority)
       end
 
       @summary_by_priority << ['TOTAL BY PRIORITY'] + priorities.map { |priority| gene_count_by_priority[priority] || 0 } + [total_number_of_planned_genes]
@@ -279,7 +279,7 @@ class ReportsController < ApplicationController
 
       @summary_by_status_and_priority = Grouping(
         @summary_by_status_and_priority,
-        :by => ['Status'], :order => lambda { |g| MiPlanStatus.find_by_name!(g.name).order_by }
+        :by => ['Status'], :order => lambda { |g| MiPlan::Status.find_by_name!(g.name).order_by }
       )
 
       ##
@@ -293,7 +293,7 @@ class ReportsController < ApplicationController
       @inspect_report = all_mi_plans.sub_table { |row| row['Status'].include? 'Inspect' }
       @inspect_report.add_column('Reason for Inspect') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_or_conflict }
       @inspect_report.remove_columns(['ID'])
-      @inspect_report = Grouping( @inspect_report, :by => ['Status'], :order => lambda { |g| MiPlanStatus.find_by_name!(g.name).order_by } )
+      @inspect_report = Grouping( @inspect_report, :by => ['Status'], :order => lambda { |g| MiPlan::Status.find_by_name!(g.name).order_by } )
 
       if request.format == :csv
         response.headers['Content-Type'] = 'text/csv'
@@ -317,8 +317,8 @@ class ReportsController < ApplicationController
       'production_centre.name'  => 'Production Centre',
       'gene.marker_symbol'      => 'Marker Symbol',
       'gene.mgi_accession_id'   => 'MGI Accession ID',
-      'mi_plan_priority.name'   => 'Priority',
-      'mi_plan_status.name'     => 'Status'
+      'priority.name'           => 'Priority',
+      'status.name'             => 'Status'
     }
 
     report_options = {
@@ -329,8 +329,8 @@ class ReportsController < ApplicationController
         :consortium         => { :only => [:name] },
         :production_centre  => { :only => [:name] },
         :gene               => { :only => [:marker_symbol,:mgi_accession_id] },
-        :mi_plan_priority   => { :only => [:name] },
-        :mi_plan_status     => { :only => [:name] }
+        :priority           => { :only => [:name] },
+        :status             => { :only => [:name] }
       }
     }
 

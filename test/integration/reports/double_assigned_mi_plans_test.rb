@@ -20,7 +20,7 @@ class Reports::DoubleAssignedMiPlansTest < ActionDispatch::IntegrationTest
         Factory.create :mi_plan, :gene => gene_cbx1,
           :consortium => Consortium.find_by_name('BaSH'),
           :production_centre => Centre.find_by_name('WTSI'),
-          :mi_plan_status => MiPlanStatus['Assigned']
+          :status => MiPlan::Status['Assigned']
 
         Factory.create :mi_plan, :gene => gene_cbx1,
           :consortium => Consortium.find_by_name('JAX'),

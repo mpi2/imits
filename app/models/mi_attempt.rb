@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class MiAttempt < ActiveRecord::Base
+class MiAttempt < ApplicationModel
   acts_as_audited
   acts_as_reportable
 
@@ -57,6 +57,7 @@ class MiAttempt < ActiveRecord::Base
   belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
   belongs_to :deposited_material
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
+  has_many :phenotype_attempts
 
   access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
@@ -95,7 +96,7 @@ class MiAttempt < ActiveRecord::Base
     matching_mi_plan = find_matching_mi_plan
 
     if matching_mi_plan and
-              matching_mi_plan.mi_plan_status == MiPlanStatus['Aborted - ES Cell QC Failed']
+              matching_mi_plan.status == MiPlan::Status['Aborted - ES Cell QC Failed']
       error = 'ES cells failed QC'
       mi.errors.add :base, error
     end
@@ -123,6 +124,13 @@ class MiAttempt < ActiveRecord::Base
     end
   end
 
+  validate do |mi_attempt|
+    if !mi_attempt.phenotype_attempts.blank? and
+              mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
+      mi_attempt.errors.add(:mi_attempt_status, 'cannot be changed - phenotype attempts exist')
+    end
+  end
+
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_blank_strings_to_nil
   before_validation :set_total_chimeras
@@ -137,6 +145,7 @@ class MiAttempt < ActiveRecord::Base
   before_save :record_if_status_was_changed
 
   after_save :create_status_stamp_if_status_was_changed
+  after_save :reload_mi_plan_mi_attempts
 
   def self.active
     where(:is_active => true)
@@ -216,19 +225,20 @@ class MiAttempt < ActiveRecord::Base
     if new_record?
       mi_plan_to_set = find_matching_mi_plan
       if ! mi_plan_to_set
-        mi_plan_to_set = MiPlan.new(:priority => 'High')
+        mi_plan_to_set = MiPlan.new
+        mi_plan_to_set.priority = MiPlan::Priority.find_by_name!('High')
         mi_plan_to_set.consortium_name = consortium_name
         mi_plan_to_set.gene = es_cell.gene
       end
 
       mi_plan_to_set.production_centre_name = production_centre_name
-      mi_plan_to_set.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
+      mi_plan_to_set.status = MiPlan::Status.find_by_name!('Assigned')
       mi_plan_to_set.save!
 
       self.mi_plan = mi_plan_to_set
     else
       if is_active?
-        mi_plan.mi_plan_status = MiPlanStatus.find_by_name!('Assigned')
+        mi_plan.status = MiPlan::Status.find_by_name!('Assigned')
         mi_plan.save!
       end
     end
@@ -246,6 +256,10 @@ class MiAttempt < ActiveRecord::Base
     if @new_mi_attempt_status
       add_status_stamp @new_mi_attempt_status
     end
+  end
+
+  def reload_mi_plan_mi_attempts
+    mi_plan.mi_attempts.reload
   end
 
   public
@@ -422,6 +436,10 @@ class MiAttempt < ActiveRecord::Base
     return self.search(translated_params)
   end
 
+  def latest_relevant_phenotype_attempt
+    return phenotype_attempts.order('is_active desc, created_at desc').first
+  end
+
   def as_json(options = {})
     json = super(default_serializer_options(options))
     json['mi_date'] = self.mi_date.to_s
@@ -447,7 +465,7 @@ class MiAttempt < ActiveRecord::Base
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
       'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
       'distribution_centre_id', 'deposited_material_id'
-    ]
+    ] - ['mi_plan_id']
     return options
   end
 

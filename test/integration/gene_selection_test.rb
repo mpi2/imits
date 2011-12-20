@@ -78,12 +78,12 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         page.execute_script("Ext.ComponentManager.get('consortiumCombobox').setValue('Helmholtz GMC')")
         page.execute_script("Ext.ComponentManager.get('production_centreCombobox').setValue('HMGU')")
-        page.execute_script("Ext.ComponentManager.get('priorityCombobox').setValue('High')")
+        page.execute_script("Ext.ComponentManager.get('priorityCombobox').setValue('Medium')")
 
         find('.x-grid-row-checker:first').click
         find('#register_interest_button button').click
 
-        sleep 3
+        sleep 5
 
         assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
         assert_equal 1, all('a.mi-plan').size
@@ -91,7 +91,8 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         mi_plans = MiPlan.where(
           :consortium_id => Consortium.find_by_name!('Helmholtz GMC').id,
           :production_centre_id => Centre.find_by_name!('HMGU').id,
-          :mi_plan_status_id => MiPlanStatus['Interest'].id
+          :status_id => MiPlan::Status['Interest'].id,
+          :priority_id => MiPlan::Priority.find_by_name!('Medium')
         )
         assert_equal 1, mi_plans.count
 
@@ -117,7 +118,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
                 :gene => Gene.find_by_marker_symbol!('Myo1c'),
                 :consortium => Consortium.find_by_name!('Helmholtz GMC'),
                 :production_centre => Centre.find_by_name!('HMGU'),
-                :mi_plan_status => MiPlanStatus['Interest']
+                :status => MiPlan::Status['Interest']
         mi_plan_id = mi_plan.id
 
         visit '/mi_plans/gene_selection'
@@ -142,7 +143,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
                 :gene => Gene.find_by_marker_symbol!('Myo1c'),
                 :consortium => Consortium.find_by_name!('Helmholtz GMC'),
                 :production_centre => Centre.find_by_name!('HMGU'),
-                :mi_plan_status => MiPlanStatus['Interest']
+                :status => MiPlan::Status['Interest']
         mi_plan_id = mi_plan.id
 
         visit '/mi_plans/gene_selection'
@@ -170,7 +171,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         mi_plan.reload
         assert_equal 10, mi_plan.number_of_es_cells_starting_qc
-        assert_equal 'Assigned - ES Cell QC In Progress', mi_plan.status
+        assert_equal 'Assigned - ES Cell QC In Progress', mi_plan.status.name
       end
 
       should 'allow users to withdraw mi_plans' do
@@ -178,7 +179,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
                 :gene => Gene.find_by_marker_symbol!('Myo1c'),
                 :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => Centre.find_by_name!('WTSI'),
-                :mi_plan_status => MiPlanStatus['Conflict']
+                :status => MiPlan::Status['Conflict']
 
         visit '/mi_plans/gene_selection'
 
@@ -190,8 +191,8 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         find('#withdraw-button').click
         find('#withdraw-confirmation-button').click
 
-        sleep 3
-        assert_equal 'Withdrawn', mi_plan.reload.status
+        sleep 5
+        assert_equal 'Withdrawn', mi_plan.reload.status.name
       end
     end # once logged in
 

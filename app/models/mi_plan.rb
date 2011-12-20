@@ -1,25 +1,23 @@
 # encoding: utf-8
 
-class MiPlan < ActiveRecord::Base
+class MiPlan < ApplicationModel
   FULL_ACCESS_ATTRIBUTES = [
     'marker_symbol',
     'consortium_name',
     'production_centre_name',
-    'priority',
+    'priority_name',
     'number_of_es_cells_starting_qc',
     'number_of_es_cells_passing_qc',
-    'withdrawn'
+    'withdrawn',
+    'sub_project_name'
   ]
-
-  WRITABLE_ATTRIBUTES = [
-  ] + FULL_ACCESS_ATTRIBUTES
 
   READABLE_ATTRIBUTES = [
     'id',
-    'status'
+    'status_name'
   ] + FULL_ACCESS_ATTRIBUTES
 
-  attr_accessible(*WRITABLE_ATTRIBUTES)
+  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
 
   acts_as_audited
   acts_as_reportable
@@ -30,23 +28,24 @@ class MiPlan < ActiveRecord::Base
   belongs_to :sub_project
   belongs_to :gene
   belongs_to :consortium
-  belongs_to :mi_plan_status
-  belongs_to :mi_plan_priority
+  belongs_to :status
+  belongs_to :priority
   belongs_to :production_centre, :class_name => 'Centre'
   has_many :mi_attempts
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
 
+  access_association_by_attribute :sub_project, :name
   access_association_by_attribute :gene, :marker_symbol, :full_alias => :marker_symbol
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
-  access_association_by_attribute :mi_plan_priority, :name, :full_alias => :priority
-  access_association_by_attribute :mi_plan_status, :name, :full_alias => :status
+  access_association_by_attribute :priority, :name
+  access_association_by_attribute :status, :name
 
   validates :marker_symbol, :presence => true
   validates :consortium_name, :presence => true
   validates :production_centre_name, :presence => {:on => :update, :if => proc {|p| p.changed.include?('production_centre_id')}}
-  validates :priority, :presence => true
+  validates :priority_name, :presence => true
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
   validates :number_of_es_cells_starting_qc, :presence => {
     :on => :update,
@@ -66,6 +65,21 @@ class MiPlan < ActiveRecord::Base
     end
   end
 
+  validate do |mi_plan|
+    if !mi_plan.new_record? and mi_plan.changes.has_key? 'consortium_id'
+      mi_plan.errors.add(:consortium_name, 'cannot be changed')
+    end
+
+    if !mi_plan.new_record? and mi_plan.changes.has_key? 'gene_id'
+      mi_plan.errors.add(:marker_symbol, 'cannot be changed')
+    end
+
+    if mi_plan.changes.has_key? 'production_centre_id' and  ! mi_plan.mi_attempts.empty?
+      puts 'here'
+      mi_plan.errors.add(:production_centre_name, 'cannot be changed - gene has been micro-injected on behalf of production centre already')
+    end
+  end
+
   # BEGIN Callbacks
 
   before_validation :set_default_mi_plan_status
@@ -79,7 +93,7 @@ class MiPlan < ActiveRecord::Base
   private
 
   def set_default_mi_plan_status
-    self.mi_plan_status ||= MiPlanStatus['Interest']
+    self.status ||= MiPlan::Status['Interest']
   end
 
   def set_default_number_of_es_cells_starting_qc
@@ -93,8 +107,8 @@ class MiPlan < ActiveRecord::Base
   end
 
   def record_if_status_was_changed
-    if self.changed.include? 'mi_plan_status_id'
-      @new_mi_plan_status = self.mi_plan_status
+    if self.changed.include? 'status_id'
+      @new_mi_plan_status = self.status
     else
       @new_mi_plan_status = nil
     end
@@ -124,8 +138,8 @@ class MiPlan < ActiveRecord::Base
     end
   end
 
-  def add_status_stamp(status)
-    self.status_stamps.create!(:mi_plan_status => status)
+  def add_status_stamp(status_to_add)
+    self.status_stamps.create!(:status => status_to_add)
   end
   private :add_status_stamp
 
@@ -171,16 +185,16 @@ class MiPlan < ActiveRecord::Base
   end
 
   def self.major_conflict_resolution
-    conflict_status                   = MiPlanStatus.find_by_name!('Conflict')
-    inspect_due_to_conflict_status   = MiPlanStatus.find_by_name!('Inspect - Conflict')
-    inspect_due_to_mi_attempt_status = MiPlanStatus.find_by_name!('Inspect - MI Attempt')
-    inspect_due_to_glt_mouse_status  = MiPlanStatus.find_by_name!('Inspect - GLT Mouse')
+    conflict_status                   = MiPlan::Status.find_by_name!('Conflict')
+    inspect_due_to_conflict_status   = MiPlan::Status.find_by_name!('Inspect - Conflict')
+    inspect_due_to_mi_attempt_status = MiPlan::Status.find_by_name!('Inspect - MI Attempt')
+    inspect_due_to_glt_mouse_status  = MiPlan::Status.find_by_name!('Inspect - GLT Mouse')
 
     self.all_grouped_by_mgi_accession_id_then_by_status_name.each do |mgi_accession_id, mi_plans_by_status|
       interested = mi_plans_by_status['Interest']
 
       assigned = []
-      MiPlanStatus.all_assigned.each do |assigned_status|
+      MiPlan::Status.all_assigned.each do |assigned_status|
         assigned += mi_plans_by_status[assigned_status.name].to_a
       end
 
@@ -192,52 +206,52 @@ class MiPlan < ActiveRecord::Base
 
         if ! assigned_plans_with_glt_mice.blank?
           interested.each do |mi_plan|
-            mi_plan.mi_plan_status = inspect_due_to_glt_mouse_status
+            mi_plan.status = inspect_due_to_glt_mouse_status
             mi_plan.save!
           end
         elsif ! assigned_plans_with_mis.blank?
           interested.each do |mi_plan|
-            mi_plan.mi_plan_status = inspect_due_to_mi_attempt_status
+            mi_plan.status = inspect_due_to_mi_attempt_status
             mi_plan.save!
           end
         else
           interested.each do |mi_plan|
-            mi_plan.mi_plan_status = inspect_due_to_conflict_status
+            mi_plan.status = inspect_due_to_conflict_status
             mi_plan.save!
           end
         end
 
       elsif ! mi_plans_by_status['Conflict'].blank? or interested.size != 1
         interested.each do |mi_plan|
-          mi_plan.mi_plan_status = conflict_status
+          mi_plan.status = conflict_status
           mi_plan.save!
         end
       else
         assigned_mi_plan = interested.first
-        assigned_mi_plan.mi_plan_status = MiPlanStatus[:Assigned]
+        assigned_mi_plan.status = MiPlan::Status[:Assigned]
         assigned_mi_plan.save!
       end
     end
   end
 
   def self.minor_conflict_resolution
-    statuses = MiPlanStatus.all_affected_by_minor_conflict_resolution
-    grouped_mi_plans = MiPlan.where(:mi_plan_status_id => statuses.map(&:id)).
+    statuses = MiPlan::Status.all_affected_by_minor_conflict_resolution
+    grouped_mi_plans = MiPlan.where(:status_id => statuses.map(&:id)).
             group_by(&:gene_id)
     grouped_mi_plans.each do |gene_id, mi_plans|
       assigned_mi_plans = MiPlan.where(
-        :mi_plan_status_id => MiPlanStatus.all_assigned.map(&:id),
+        :status_id => MiPlan::Status.all_assigned.map(&:id),
         :gene_id => gene_id).all
       if assigned_mi_plans.empty? and mi_plans.size == 1
         mi_plan = mi_plans.first
-        mi_plan.mi_plan_status = MiPlanStatus['Assigned']
+        mi_plan.status = MiPlan::Status['Assigned']
         mi_plan.save!
       end
     end
   end
 
   def self.mark_old_plans_as_inactive
-    self.where( :mi_plan_status_id => MiPlanStatus.all_assigned.map(&:id) ).with_mi_attempt.each do |mi_plan|
+    self.where( :status_id => MiPlan::Status.all_assigned.map(&:id) ).with_mi_attempt.each do |mi_plan|
       all_inactive, all_over_six_months_old = true, true
 
       mi_plan.mi_attempts.each do |mi_attempt|
@@ -251,7 +265,7 @@ class MiPlan < ActiveRecord::Base
       end
 
       if all_inactive && all_over_six_months_old
-        mi_plan.mi_plan_status = MiPlanStatus['Inactive']
+        mi_plan.status = MiPlan::Status['Inactive']
         mi_plan.save!
       end
     end
@@ -260,13 +274,13 @@ class MiPlan < ActiveRecord::Base
   def self.all_grouped_by_mgi_accession_id_then_by_status_name
     mi_plans = self.all.group_by {|i| i.gene.mgi_accession_id}
     mi_plans = mi_plans.each do |mgi_accession_id, all_for_gene|
-      mi_plans[mgi_accession_id] = all_for_gene.group_by {|i| i.mi_plan_status.name}
+      mi_plans[mgi_accession_id] = all_for_gene.group_by {|i| i.status.name}
     end
     return mi_plans
   end
 
   def reason_for_inspect_or_conflict
-    case self.mi_plan_status.name
+    case self.status.name
     when 'Inspect - GLT Mouse'
       other_centres_consortia = MiPlan.scoped
       .where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',{ :gene_id => self.gene_id, :id => self.id })
@@ -282,14 +296,14 @@ class MiPlan < ActiveRecord::Base
     when 'Inspect - Conflict'
       other_consortia = MiPlan
       .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
-      .where(:mi_plan_status_id => MiPlanStatus.all_assigned )
+      .where(:status_id => MiPlan::Status.all_assigned )
       .without_active_mi_attempt
       .map{ |p| p.consortium.name }.uniq
       return "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
     when 'Conflict'
       other_consortia = MiPlan
       .where('gene_id = :gene_id AND id != :id',{ :gene_id => self.gene_id, :id => self.id })
-      .where(:mi_plan_status_id => MiPlanStatus[:Conflict] )
+      .where(:status_id => MiPlan::Status[:Conflict] )
       .without_active_mi_attempt
       .map{ |p| p.consortium.name }.uniq
       return "Other MI plans for: #{other_consortia.join(', ')}"
@@ -315,11 +329,11 @@ class MiPlan < ActiveRecord::Base
   end
 
   def assigned?
-    return MiPlanStatus.all_assigned.include?(mi_plan_status)
+    return MiPlan::Status.all_assigned.include?(status)
   end
 
   def withdrawn
-    return mi_plan_status == MiPlanStatus['Withdrawn']
+    return status == MiPlan::Status['Withdrawn']
   end
 
   alias_method(:withdrawn?, :withdrawn)
@@ -327,15 +341,23 @@ class MiPlan < ActiveRecord::Base
   def withdrawn=(boolarg)
     return if boolarg == withdrawn?
 
-    if ! MiPlanStatus.all_affected_by_minor_conflict_resolution.include?(mi_plan_status)
+    if ! MiPlan::Status.all_affected_by_minor_conflict_resolution.include?(status)
       raise RuntimeError, "cannot withdraw from status #{status}"
     end
 
     if boolarg == false
       raise RuntimeError, 'withdrawal cannot be reversed'
     else
-      self.mi_plan_status = MiPlanStatus['Withdrawn']
+      self.status = MiPlan::Status['Withdrawn']
     end
+  end
+
+  def self.translate_search_param(param)
+    translations = {
+      'marker_symbol' => 'gene_marker_symbol'
+    }
+
+    return super(translations, param)
   end
 
 end
@@ -347,8 +369,8 @@ end
 #  id                             :integer         not null, primary key
 #  gene_id                        :integer         not null
 #  consortium_id                  :integer         not null
-#  mi_plan_status_id              :integer         not null
-#  mi_plan_priority_id            :integer         not null
+#  status_id                      :integer         not null
+#  priority_id                    :integer         not null
 #  production_centre_id           :integer
 #  created_at                     :datetime
 #  updated_at                     :datetime

@@ -12,7 +12,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         :gene => gene,
         :consortium => Consortium.find_by_name!('BaSH'),
         :production_centre => Centre.find_by_name!('WTSI'),
-        :mi_plan_status => MiPlanStatus[:Assigned])
+        :status => MiPlan::Status[:Assigned])
 
       mi = Factory.build :mi_attempt,
               :es_cell => Factory.create(:es_cell, :gene => gene),
@@ -47,7 +47,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       gene = Factory.create :gene_cbx1
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :gene => gene, :mi_plan_status => MiPlanStatus[:Interest]
+              :gene => gene, :status => MiPlan::Status[:Interest]
       es_cell = Factory.create :es_cell, :gene => gene
 
       mi = Factory.build :mi_attempt, :consortium_name => mi_plan.consortium.name,
@@ -64,7 +64,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       gene = Factory.create :gene_cbx1
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :gene => gene, :mi_plan_status => MiPlanStatus['Assigned']
+              :gene => gene, :status => MiPlan::Status['Assigned']
       es_cell = Factory.create :es_cell, :gene => gene
 
       mi = Factory.build :mi_attempt, :consortium_name => mi_plan.consortium.name,
@@ -72,7 +72,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
               :es_cell => es_cell
       assert_false mi.generate_warnings, mi.warnings.inspect
 
-      mi_plan.mi_plan_status = MiPlanStatus['Assigned - ES Cell QC In Progress']
+      mi_plan.status = MiPlan::Status['Assigned - ES Cell QC In Progress']
       mi_plan.save!
 
       mi = Factory.build :mi_attempt, :consortium_name => mi_plan.consortium.name,
@@ -96,7 +96,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         gene = Factory.create :gene_cbx1
         Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => nil,
-                :gene => gene, :mi_plan_status => MiPlanStatus[:Assigned]
+                :gene => gene, :status => MiPlan::Status[:Assigned]
         es_cell = Factory.create :es_cell, :gene => gene
 
         mi = Factory.build :mi_attempt, :consortium_name => 'BaSH',
@@ -113,10 +113,10 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         gene = Factory.create :gene_cbx1
         Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => nil,
-                :gene => gene, :mi_plan_status => MiPlanStatus[:Assigned]
+                :gene => gene, :status => MiPlan::Status[:Assigned]
         Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => Centre.find_by_name!('WTSI'),
-                :gene => gene, :mi_plan_status => MiPlanStatus[:Assigned]
+                :gene => gene, :status => MiPlan::Status[:Assigned]
         es_cell = Factory.create :es_cell, :gene => gene
 
         mi = Factory.build :mi_attempt, :consortium_name => 'BaSH',

@@ -22,7 +22,7 @@ class MiPlansControllerTest < ActionController::TestCase
           attributes = {
             :marker_symbol => 'Cbx1',
             :consortium_name => 'BaSH',
-            :priority => 'High'
+            :priority_name => 'High'
           }
           post(:create, :mi_plan => attributes, :format => :json)
           assert_response :success, response.body
@@ -37,7 +37,7 @@ class MiPlansControllerTest < ActionController::TestCase
               :create,
               :mi_plan => {
                 :consortium_name => 'BaSH',
-                :priority => 'High'
+                :priority_name => 'High'
               },
               :format => :json
             )
@@ -55,7 +55,7 @@ class MiPlansControllerTest < ActionController::TestCase
               :marker_symbol => 'Cbx1',
               :consortium_name => 'BaSH',
               :production_centre_name => 'WTSI',
-              :priority => 'High'
+              :priority_name => 'High'
             }, :format => :json
           end
           assert_response 422, response.body
@@ -66,13 +66,13 @@ class MiPlansControllerTest < ActionController::TestCase
 
       context 'when deleting via JSON with DELETE destroy' do
         should 'work' do
-          mip = Factory.create :mi_plan, :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
+          mip = Factory.create :mi_plan, :status_id => MiPlan::Status.find_by_name!('Interest').id
           assert_difference('MiPlan.count', -1) do
             delete( :destroy, :id => mip.id, :format => :json )
           end
 
           mip2 = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest').id
+                  :status_id => MiPlan::Status.find_by_name!('Interest').id
           assert_difference('MiPlan.count', -1) do
             delete(
               :destroy,
@@ -86,7 +86,7 @@ class MiPlansControllerTest < ActionController::TestCase
 
         should 'return error if gene not found' do
           mip3 = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status_id => MiPlanStatus.find_by_name!('Interest')
+                  :status_id => MiPlan::Status.find_by_name!('Interest')
           assert_no_difference('MiPlan.count') do
             delete(
               :destroy,
@@ -103,12 +103,12 @@ class MiPlansControllerTest < ActionController::TestCase
         should 'delete the right MiPlan' do
           gene = Factory.create :gene_cbx1
           mip5 = Factory.create :mi_plan,
-                  :mi_plan_status    => MiPlanStatus[:Interest],
+                  :status    => MiPlan::Status[:Interest],
                   :gene              => gene,
                   :consortium        => Consortium.find_by_name!('MARC'),
                   :production_centre => nil
           mip6 = Factory.create :mi_plan,
-                  :mi_plan_status    => MiPlanStatus[:Assigned],
+                  :status    => MiPlan::Status[:Assigned],
                   :gene              => gene,
                   :consortium        => Consortium.find_by_name!('MARC'),
                   :production_centre => Centre.find_by_name!('DTCC')
@@ -130,7 +130,7 @@ class MiPlansControllerTest < ActionController::TestCase
       context 'GET show' do
         should 'find valid one' do
           mi_plan = Factory.create :mi_plan_with_production_centre,
-                  :mi_plan_status => MiPlanStatus[:Assigned]
+                  :status => MiPlan::Status[:Assigned]
           get :show, :id => mi_plan.id, :format => :json
           assert response.success?
           assert_equal JSON.parse(response.body), mi_plan.as_json
@@ -145,35 +145,88 @@ class MiPlansControllerTest < ActionController::TestCase
       context 'PUT update' do
         should 'update with valid params' do
           mi_plan = Factory.create :mi_plan,
-                  :mi_plan_priority => MiPlanPriority.find_by_name!('High')
+                  :priority => MiPlan::Priority.find_by_name!('High')
           put :update, :id => mi_plan.id, :format => :json,
-                  :mi_plan => {:production_centre_name => 'WTSI', :priority => 'High'}
+                  :mi_plan => {:production_centre_name => 'WTSI', :priority_name => 'High'}
           assert response.success?
           mi_plan.reload
           assert_equal ['WTSI', 'High'],
-                  [mi_plan.production_centre_name, mi_plan.priority]
+                  [mi_plan.production_centre_name, mi_plan.priority.name]
           assert_equal mi_plan.as_json, JSON.parse(response.body)
         end
 
         should 'return errors with invalid update' do
           mi_plan = Factory.create :mi_plan
           assert_no_difference('MiPlan.count') do
-            put :update, :id => mi_plan.id, :mi_plan => {:priority => 'Nonexistent'},
+            put :update, :id => mi_plan.id, :mi_plan => {:priority_name => 'Nonexistent'},
                     :format => :json
           end
-          assert_equal({'priority' => ["'Nonexistent' does not exist"]}, parse_json_from_response)
+          assert_equal({'priority_name' => ["'Nonexistent' does not exist"]}, parse_json_from_response)
           assert_match /^4\d\d$/, response.status.to_s
         end
 
         should 'return errors if id not found' do
           assert_no_difference('MiPlan.count') do
-            put :update, :id => '99999', :mi_plan => {:priority => 'Nonexistent'},
+            put :update, :id => '99999', :mi_plan => {:priority_name => 'Nonexistent'},
                     :format => :json
           end
           assert_match /^4\d\d$/, response.status.to_s
         end
       end
-    end
+
+      context 'GET index' do
+        setup do
+          @p1 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 4,
+                  :gene => Factory.create(:gene_cbx1)
+          @p2 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 12,
+                  :number_of_es_cells_passing_qc => 2
+          @p3 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 3,
+                  :number_of_es_cells_passing_qc => 1
+          @p4 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 2
+          @p5 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 7
+          @p6 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 1
+          @p7 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 5,
+                  :number_of_es_cells_passing_qc => 3
+        end
+
+        should 'allow filtering with Ransack' do
+          get :index, :format => :json, :number_of_es_cells_starting_qc_gt => 4,
+                  :number_of_es_cells_passing_qc_not_eq => 0
+          ids = JSON.parse(response.body).map{|i| i['id']}.sort
+          assert_equal [@p2.id, @p7.id].sort, ids
+        end
+
+        should 'translate search params' do
+          get :index, :format => :json, :marker_symbol_eq => 'Cbx1'
+          ids = JSON.parse(response.body).map{|i| i['id']}.sort
+          assert_equal [@p1.id].sort, ids
+        end
+
+        should 'allow paginating' do
+          get :index, 'format' => 'json', 'per_page' => 3, 'page' => 2
+          assert_equal [@p4.id, @p5.id, @p6.id], parse_json_from_response.map {|i| i['id']}
+        end
+
+        should 'paginate by 20 by default' do
+          30.times { Factory.create :mi_plan }
+          get :index, 'format' => 'json'
+          assert_equal 20, parse_json_from_response.size
+        end
+
+        should 'sort by ID by default' do
+          get :index, :format => 'json'
+          data = parse_json_from_response
+          assert_equal [@p1.id, @p2.id], data.map {|i| i['id']}[0..1]
+        end
+
+        should 'allow sorting' do
+          get :index, :format => 'json', :sorts => 'number_of_es_cells_starting_qc'
+          data = parse_json_from_response
+          assert_equal [@p6.id, @p4.id], data.map {|i| i['id']}[0..1]
+        end
+      end
+
+    end # when authenticated
 
   end
 end

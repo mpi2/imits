@@ -34,8 +34,8 @@ end
 Factory.define :mi_plan do |mi_plan|
   mi_plan.association :gene
   mi_plan.consortium { Consortium.find_by_name!('EUCOMM-EUMODIC') }
-  mi_plan.mi_plan_status   { MiPlanStatus.find_by_name! 'Interest' }
-  mi_plan.mi_plan_priority { MiPlanPriority.find_by_name! 'High' }
+  mi_plan.status   { MiPlan::Status.find_by_name! 'Interest' }
+  mi_plan.priority { MiPlan::Priority.find_by_name! 'High' }
 end
 
 Factory.define :mi_plan_with_production_centre, :parent => :mi_plan do |mi_plan|
@@ -75,15 +75,19 @@ Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_
 
     mi.mi_plan.status_stamps.first.update_attributes(:created_at => Time.parse('2011-03-03 12:00:00'))
     mi.mi_plan.status_stamps.create!(
-      :mi_plan_status => MiPlanStatus[:Conflict],
+      :status => MiPlan::Status[:Conflict],
       :created_at => Time.parse('2011-02-02 12:00:00'))
     mi.mi_plan.status_stamps.create!(
-      :mi_plan_status => MiPlanStatus[:Interest],
+      :status => MiPlan::Status[:Interest],
       :created_at => Time.parse('2011-01-01 12:00:00'))
 
     mi.mi_plan.status_stamps.reload
     mi.status_stamps.reload
   end
+end
+
+Factory.define :phenotype_attempt do |phenotype_attempt|
+  phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|

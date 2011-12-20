@@ -97,7 +97,7 @@ Seeds.load Centre, [
   {:id => 17, :name => 'IMG'}
 ]
 
-Seeds.load MiPlanStatus, [
+Seeds.load MiPlan::Status, [
   {:order_by => 10,  :id => 2,  :name => 'Interest', :description => 'Interest - A consortium has expressed an interest to micro-inject this gene'},
   {:order_by => 20,  :id => 3,  :name => 'Conflict', :description => 'Conflict - More than one consortium has expressed an interest in micro-injecting this gene'},
   {:order_by => 30,  :id => 4,  :name => 'Inspect - GLT Mouse', :description => 'Inspect - A GLT mouse is already recorded in iMits'},
@@ -111,12 +111,11 @@ Seeds.load MiPlanStatus, [
   {:order_by => 100, :id => 11, :name => 'Withdrawn', :description => 'Withdrawn - Interest in micro-injecting this gene was withdrawn by the parties involved'}
 ]
 
-Seeds.load MiPlanPriority, [
+Seeds.load MiPlan::Priority, [
   {:id => 1, :name => 'High', :description => 'Estimated injection in the next 0-4 months'},
   {:id => 2, :name => 'Medium', :description => 'Estimated injection in the next 5-8 months'},
   {:id => 3, :name => 'Low', :description => 'Estimated injection in the next 9-12 months'}
 ]
-
 
 Seeds.load MiPlan::SubProject, [
   {:id => 1, :name => ''},
@@ -130,4 +129,15 @@ Seeds.load MiPlan::SubProject, [
   {:id => 8, :name => 'Legacy EUCOMM'},
   {:id => 9, :name => 'Legacy KOMP'},
   {:id => 10, :name => 'Legacy with new Interest'}
+]
+
+Seeds.load PhenotypeAttempt::Status, [
+  {:id =>  1, :name => 'Phenotype Attempt Aborted'},
+  {:id =>  2, :name => 'Phenotype Attempt Registered'},
+  {:id =>  3, :name => 'Rederivation Started'},
+  {:id =>  4, :name => 'Rederivation Complete'},
+  {:id =>  5, :name => 'Cre Excision Started'},
+  {:id =>  6, :name => 'Cre Excision Complete'},
+  {:id =>  7, :name => 'Phenotyping Started'},
+  {:id =>  8, :name => 'Phenotyping Complete'}
 ]

@@ -26,7 +26,7 @@ class Reports::MiProduction::Detail
     report_columns = {
       'consortium.name' => 'Consortium',
       'sub_project.name' => 'Sub-Project',
-      'mi_plan_priority.name' => 'Priority',
+      'priority.name' => 'Priority',
       'production_centre.name' => 'Production Centre',
       'gene.marker_symbol' => 'Gene'
     }
@@ -35,7 +35,7 @@ class Reports::MiProduction::Detail
     report_options[:methods] = [
       'reportable_statuses_with_latest_dates',
       'latest_relevant_mi_attempt',
-      'status'
+      'status_name'
     ]
 
     transform = proc { |record|
@@ -45,19 +45,30 @@ class Reports::MiProduction::Detail
       plan_status_dates.each do |name, date|
         record["#{name} Date"] = date.to_s
       end
+
       if mi_attempt
-        record['status'] = mi_attempt.status
+        record['status_name'] = mi_attempt.status
 
         mi_status_dates = mi_attempt.reportable_statuses_with_latest_dates
         mi_status_dates.each do |description, date|
           record["#{description} Date"] = date.to_s
+        end
+
+        phenotype_attempt = mi_attempt.latest_relevant_phenotype_attempt
+        if phenotype_attempt
+          record['status_name'] = phenotype_attempt.status.name
+
+          pt_status_names = phenotype_attempt.reportable_statuses_with_latest_dates
+          pt_status_names.each do |name, date|
+            record["#{name} Date"] = date.to_s
+          end
         end
       end
     }
     report_options[:transforms] = [transform]
 
     report = MiPlan.report_table(:all, report_options)
-    report.rename_columns(report_columns.merge('status' => 'Status'))
+    report.rename_columns(report_columns.merge('status_name' => 'Status'))
     column_names = report_columns.values + [
       'Status',
       'Assigned Date',
@@ -65,7 +76,15 @@ class Reports::MiProduction::Detail
       'Assigned - ES Cell QC Complete Date',
       'Micro-injection in progress Date',
       'Genotype confirmed Date',
-      'Micro-injection aborted Date'
+      'Micro-injection aborted Date',
+      'Phenotype Attempt Registered Date',
+      'Rederivation Started Date',
+      'Rederivation Complete Date',
+      'Cre Excision Started Date',
+      'Cre Excision Complete Date',
+      'Phenotyping Started Date',
+      'Phenotyping Complete Date',
+      'Phenotype Attempt Aborted Date'
     ]
     report.reorder(column_names)
 

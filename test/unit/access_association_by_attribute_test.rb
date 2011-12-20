@@ -202,5 +202,21 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
       assert @pet.valid?, @pet.errors.inspect
     end
 
+    should 'look up classes for associations within the current namespace' do
+      class ::Test::Pet::Master < ActiveRecord::Base
+        set_table_name 'test_people'
+      end
+
+      class ::Test::Pet
+        belongs_to :master, :foreign_key => 'person_id'
+        access_association_by_attribute :master, :name
+      end
+
+      master = ::Test::Pet::Master.create!(:name => 'Charles')
+      pet = ::Test::Pet.create!(:master => master)
+
+      assert_equal master, pet.master
+    end
+
   end
 end

@@ -18,10 +18,10 @@ Ext.define('Imits.model.MiPlan', {
         name: 'production_centre_name'
     },
     {
-        name: 'status'
+        name: 'status_name'
     },
     {
-        name: 'priority'
+        name: 'priority_name'
     },
     {
         name: 'number_of_es_cells_starting_qc'

@@ -42,14 +42,14 @@ class Gene < ActiveRecord::Base
         genes.marker_symbol,
         consortia.name as consortium,
         centres.name as production_centre,
-        mi_plan_statuses.name as status
+        mi_plan_statuses.name as status_name
       from genes
       join mi_plans on mi_plans.gene_id = genes.id
-      join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
+      join mi_plan_statuses on mi_plans.status_id = mi_plan_statuses.id
       join consortia on mi_plans.consortium_id = consortia.id
       left join centres on mi_plans.production_centre_id = centres.id
       where mi_plan_statuses.name in
-        (#{MiPlanStatus.all_non_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
+        (#{MiPlan::Status.all_non_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?
 
@@ -61,7 +61,7 @@ class Gene < ActiveRecord::Base
         :id => res['id'].to_i,
         :consortium => res['consortium'],
         :production_centre => res['production_centre'],
-        :status => res['status']
+        :status_name => res['status_name']
       }
     end
 
@@ -79,7 +79,7 @@ class Gene < ActiveRecord::Base
       strings = mi_plans.map do |mip|
         string = "[#{mip[:consortium]}"
         string << ":#{mip[:production_centre]}" unless mip[:production_centre].nil?
-        string << ":#{mip[:status]}"
+        string << ":#{mip[:status_name]}"
         string << "]"
       end
       data[marker_symbol] = strings.join('<br/>').html_safe
@@ -103,12 +103,12 @@ class Gene < ActiveRecord::Base
         centres.name as production_centre
       from genes
       join mi_plans on mi_plans.gene_id = genes.id
-      join mi_plan_statuses on mi_plans.mi_plan_status_id = mi_plan_statuses.id
+      join mi_plan_statuses on mi_plans.status_id = mi_plan_statuses.id
       join consortia on mi_plans.consortium_id = consortia.id
       left join centres on mi_plans.production_centre_id = centres.id
       left join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id
       where mi_plan_statuses.name in
-        (#{MiPlanStatus.all_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
+        (#{MiPlan::Status.all_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
       and mi_attempts.id is null
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?

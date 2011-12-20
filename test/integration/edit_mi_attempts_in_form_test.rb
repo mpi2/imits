@@ -26,6 +26,7 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'show default values' do
+      sleep 1
       assert_equal '129P2', page.find('select[name="mi_attempt[test_cross_strain_name]"] option[selected=selected]').text
       assert_equal 'MAAB', page.find('input[name="mi_attempt[colony_name]"]').value
       assert_equal '09/06/2011', page.find('input[name="mi_attempt[mi_date]"]').value

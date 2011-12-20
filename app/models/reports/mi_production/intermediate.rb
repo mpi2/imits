@@ -46,7 +46,7 @@ class Reports::MiProduction::Intermediate
         record["#{name} Date"] = date.to_s
       end
 
-      record['Overall Status'] = record['MiPlan Status']
+      record['Overall Status'] = record['status.name']
 
       if mi_attempt
         record['MiAttempt Status'] = mi_attempt.mi_attempt_status.description
@@ -73,8 +73,8 @@ class Reports::MiProduction::Intermediate
 
     report = MiPlan.report_table(:all, report_options)
 
-    report.rename_columns(report_columns.merge('status_name' => 'Overall Status'))
-    column_names = report_columns.values + [
+    report.rename_columns(report_columns)
+    column_names = report_columns.values - ['MiPlan Status'] + [
       'Overall Status',
       'MiPlan Status',
       'MiAttempt Status',

@@ -84,7 +84,6 @@ class Reports::ConsortiumPrioritySummary
       }
       
       mt = fix_mutation_type row['Mutation Type']
-      allele_name = strip_tags request, row['Allele Symbol']
 
       report_table << {        
         'Consortium' => row['Consortium'],
@@ -92,7 +91,7 @@ class Reports::ConsortiumPrioritySummary
         'Marker symbol' => row['Gene'],
         'Order at IKMC' => make_link.call(row['IKMC Project ID']),
         'Mutation type' => mt,
-        'Allele name' => allele_name,
+        'Allele name' => row['Allele Symbol'],
         'Genetic background' => row['Genetic Background']
       }
     end
@@ -485,14 +484,6 @@ class Reports::ConsortiumPrioritySummary
     return '<strong>' + param.to_s + '</strong>'
   end
   
-  # remove html from columns so they can be CSV'd
-  
-  def self.strip_tags(request, value)
-    return value
-    #return value if ! value
-    #request && request.format == :csv ? value.gsub(/\<.+?\>/, ' ') : value
-  end
-  
   def self.fix_mutation_type(mt)
     mt = mt ? mt.gsub(/_/, ' ') : ''
     mt = mt.gsub(/\b\w/){$&.upcase}
@@ -524,10 +515,6 @@ class Reports::ConsortiumPrioritySummary
             languishing(r)
         end
       }
-      #:transforms => lambda {|r|
-      #  r['Allele Symbol'] = strip_tags request, r['Allele Symbol']
-      #  r['Mutation Type'] = fix_mutation_type r['Mutation Type']
-      #}
     )
     
     exclude_columns = [

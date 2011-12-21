@@ -66,7 +66,8 @@ class Reports::ConsortiumPrioritySummary
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
     'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
-    'ES QC failed' => ['Aborted - ES Cell QC Failed']
+    'ES QC failed' => ['Aborted - ES Cell QC Failed'],
+    'Languishing' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress']
   }
   
   #Columns:
@@ -212,8 +213,12 @@ class Reports::ConsortiumPrioritySummary
         return row[key] if request && request.format == :csv
         consortium = escape row['Consortium']
         type = escape key
+        #separator = /\?/ =~ script_name ? '&' : '?'
+        separator = /\?/.match(script_name) ? '&' : '?'
+        puts "script_name: " + script_name
+        puts "separator: " + separator
         row[key].to_s != '0' ?
-          "<a title='Click to see list of #{key}' href='#{script_name}?consortium=#{consortium}&type=#{type}'>#{row[key]}</a>" :
+          "<a title='Click to see list of #{key}' href='#{script_name}#{separator}consortium=#{consortium}&type=#{type}'>#{row[key]}</a>" :
           ''
       }
 
@@ -311,26 +316,34 @@ class Reports::ConsortiumPrioritySummary
 
     @@cached_report ||= get_cached_report('mi_production_intermediate')
 
-    report_table = Table( ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed', 'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)'] )
+    report_table = Table( ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
+                           'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'Languishing'] )
  
     grouped_report = Grouping( @@cached_report, :by => [ 'Consortium' ] )
     
+    eff_chack = lambda { |group| count_unique_instances_of( group, 'Gene',
+          lambda { |row| MAPPING3['Activity'].include? row.data['Overall Status'] &&
+            1 #date null || date > 6months old
+            } ) }
+        
     summary = grouped_report.summary(
       'Consortium',
-      'All'            => lambda { |group| count_unique_instances_of( group, 'Gene',
+      'All'             => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING3['All'].include? row.data['Overall Status'] } ) },
-      'ES QC started'  => lambda { |group| count_unique_instances_of( group, 'Gene',
+      'ES QC started'   => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING3['ES QC started'].include? row.data['Overall Status'] } ) },
-      'MI in progress' => lambda { |group| count_unique_instances_of( group, 'Gene',
+      'MI in progress'  => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING3['MI in progress'].include? row.data['Overall Status'] } ) },
       'Genotype Confirmed Mice'       => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING3['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
-      'MI Aborted'       => lambda { |group| count_unique_instances_of( group, 'Gene',
+      'MI Aborted'      => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING3['MI Aborted'].include? row.data['Overall Status'] } ) },
-      'ES QC confirmed'       => lambda { |group| count_unique_instances_of( group, 'Gene',
+      'ES QC confirmed' => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING3['ES QC confirmed'].include? row.data['Overall Status'] } ) },
-      'ES QC failed'       => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING3['ES QC failed'].include? row.data['Overall Status'] } ) }      
+      'ES QC failed'    => lambda { |group| count_unique_instances_of( group, 'Gene',
+          lambda { |row| MAPPING3['ES QC failed'].include? row.data['Overall Status'] } ) },
+      'Languishing'        => lambda { |group| count_unique_instances_of( group, 'Gene',
+          lambda { |row| languishing(row) } ) }      
     )
 
     summary.each do |row|
@@ -357,7 +370,8 @@ class Reports::ConsortiumPrioritySummary
         'MI Aborted' => make_link.call('MI Aborted'),
         'Pipeline efficiency (%)' => pc,
         'ES QC confirmed' => make_link.call('ES QC confirmed'),
-        'ES QC failed' => make_link.call('ES QC failed')
+        'ES QC failed' => make_link.call('ES QC failed'),
+        'Languishing' => make_link.call('Languishing')
       }
       
     end
@@ -644,6 +658,7 @@ class Reports::ConsortiumPrioritySummary
       },
       :transforms => lambda {|r|
         r['Allele Symbol'] = strip_tags request, r['Allele Symbol']
+        r['Mutation Type'] = fix_mutation_type r['Mutation Type']
         return if ! ADD_COUNTS
         r['Count'] = counter
         counter += 1
@@ -704,12 +719,33 @@ class Reports::ConsortiumPrioritySummary
   #Number of genotype confirmed mice right now /
   #(Number of active MI plans with non-aborted MIs more than 6 months old + number of genotype confirmed mice right now)
   
+  # TODO: fix the way this works
+  
   def self.percentage(request, row)
     glt = Integer(row['Genotype Confirmed Mice'])
     total = Integer(row['Genotype Confirmed Mice']) + Integer(row['MI Aborted'])
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
+  end
+
+  def self.languishing(row)
+    
+    return false if ! MAPPING3['Languishing'].include? row.data['Overall Status']
+    
+    MAPPING3['Languishing'].each do |name|
+      today = Date.today
+      next if ! row[name + ' Date'] || row[name + ' Date'].length < 1
+#      puts "BEFORE 1: " + row[name + ' Date'].inspect
+      before = Date.parse(row[name + ' Date'])
+      return false if ! before
+#      puts "TODAY: " + today.inspect
+#      puts "BEFORE: " + before.inspect
+      distance = today - before
+      return true if distance && distance > 180
+    end
+    
+    return false
   end
 
   def self.get_cached_report(name)

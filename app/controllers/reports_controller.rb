@@ -12,12 +12,15 @@ class ReportsController < ApplicationController
   end
 
   def send_data_csv(filename, report)
+    csv_data = report.to_csv
+    response.headers['Content-Length'] = csv_data.size.to_s
     send_data(
       report.to_csv,
       :type     => 'text/csv; charset=utf-8; header=present',
       :filename => filename
     )
   end
+  protected :send_data_csv
   
   def production_summary1
     @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
@@ -310,12 +313,14 @@ class ReportsController < ApplicationController
     end
   end
 
-  def mi_production
-    @detail_cache = ReportCache.find_by_name('mi_production_detail')
+  def mi_production_detail
+    if request.format == :csv
+      send_data_csv('mi_production_detail.csv', Reports::MiProduction::Detail.generate)
+    end
   end
 
-  def mi_production2
-    @detail_cache = ReportCache.find_by_name('mi_production_intermediate')
+  def mi_production_intermediate
+    @report_cache = ReportCache.find_by_name('mi_production_intermediate')
   end
 
   protected

@@ -95,7 +95,7 @@
     </a>
   </div>
   
-  <% if ['development', 'staging'].include?(Rails.env.to_s) %>
+  <% if ['development'].include?(Rails.env.to_s) %>
 
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :mi_production2) %>">

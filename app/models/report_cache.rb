@@ -1,6 +1,16 @@
+# encoding: utf-8
+
 class ReportCache < ActiveRecord::Base
   def compact_timestamp
     return updated_at.strftime('%Y%m%d%H%M%S')
+  end
+
+  def to_table
+    parsed_data = CSV.parse(csv_data)
+    return Ruport::Data::Table.new(
+      :column_names => parsed_data[0],
+      :data => parsed_data[1..-1]
+    )
   end
 end
 

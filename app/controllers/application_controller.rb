@@ -65,4 +65,14 @@ class ApplicationController < ActionController::Base
     end
   end
   protected :log_json_response_parameters
+
+  def send_data_csv(filename, csv_data)
+    response.headers['Content-Length'] = csv_data.size.to_s
+    send_data(
+      csv_data,
+      :type     => 'text/csv; charset=utf-8; header=present',
+      :filename => filename
+    )
+  end
+  protected :send_data_csv
 end

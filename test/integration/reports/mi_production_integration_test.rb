@@ -13,7 +13,7 @@ class Reports::MiProductionIntegrationTest < ActionDispatch::IntegrationTest
       should 'have link to cached report' do
         visit '/reports'
         click_link 'Detailed Report'
-        assert page.has_css? "a[href='/reports/mi_production_detail.csv']"
+        assert page.has_css? "a[href='/reports/mi_production/detail.csv']"
       end
 
     end

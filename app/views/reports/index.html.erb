@@ -48,7 +48,7 @@
 <div class="grid_4">
   <h3>Micro-Injection Production</h3>
   <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :mi_production_detail) %>">
+    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :detail) %>">
       <h4>Detailed Report</h4>
       <p>
         The detailed micro-injection production report
@@ -82,10 +82,9 @@
   <h3>New Production Reports</h3>
 
   <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :mi_production2) %>">
-      <h4>Intermediate Report</h4>
+    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :intermediate, :format => :csv) %>">
+      <h4>(INTERNAL) Intermediate MI Production Report</h4>
       <p>
-        The intermediate micro-injection production report
       </p>
     </a>
   </div>

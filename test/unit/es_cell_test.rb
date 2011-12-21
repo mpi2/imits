@@ -9,24 +9,23 @@ class EsCellTest < ActiveSupport::TestCase
       @default_es_cell ||= Factory.create :es_cell
     end
 
-    context '(misc. tests)' do
-      setup do
-        assert_not_nil default_es_cell
-      end
+    should 'have DB columns and associations' do
+      assert_not_nil default_es_cell
 
-      should belong_to :pipeline
-      should have_many :mi_attempts
-      should belong_to :gene
+      assert_should belong_to :pipeline
+      assert_should have_many :mi_attempts
+      assert_should belong_to :gene
 
-      should have_db_column(:name).with_options(:null => false)
-      should have_db_index(:name).unique(true)
-      should validate_presence_of :name
-      should validate_uniqueness_of :name
+      assert_should have_db_column(:name).with_options(:null => false)
+      assert_should have_db_index(:name).unique(true)
+      assert_should validate_presence_of :name
+      assert_should validate_uniqueness_of :name
 
-      should have_db_column(:pipeline_id).with_options(:null => false)
-      should validate_presence_of :pipeline
-      should have_db_column(:parental_cell_line).with_options(:null => true)
-      should have_db_column(:mutation_type).of_type(:string).with_options(:limit => 100)
+      assert_should have_db_column(:pipeline_id).with_options(:null => false)
+      assert_should validate_presence_of :pipeline
+      assert_should have_db_column(:parental_cell_line).with_options(:null => true)
+      assert_should have_db_column(:mutation_type).of_type(:string).with_options(:limit => 100)
+      assert_should have_db_column(:ikmc_project_id).of_type(:string).with_options(:limit => 100)
     end
 
     context '#allele_symbol_superscript_template' do
@@ -119,7 +118,7 @@ class EsCellTest < ActiveSupport::TestCase
       assert_equal 'tm1a(EUCOMM)Hmgu', es_cell.allele_symbol_superscript
       assert_equal 'EUCOMM', es_cell.pipeline.name
       assert_equal 'JM8A1.N3', es_cell.parental_cell_line
-      assert_equal 27671, es_cell.ikmc_project_id
+      assert_equal '27671', es_cell.ikmc_project_id
       assert_equal 'targeted_mutation', es_cell.mutation_type
     end
 
@@ -132,7 +131,7 @@ class EsCellTest < ActiveSupport::TestCase
           'pipeline' => 'EUCOMM',
           'mgi_accession_id' => 'MGI:1924893',
           'parental_cell_line' => 'JM8A1.N3',
-          'escell_ikmc_project_id' => 27671,
+          'escell_ikmc_project_id' => '27671',
           'mutation_type' => 'targeted_mutation'
         )
       end

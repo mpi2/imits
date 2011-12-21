@@ -34,13 +34,6 @@ ActiveRecord::Schema.define(:version => 20111220165606) do
   add_index "audits", ["created_at"], :name => "index_audits_on_created_at"
   add_index "audits", ["user_id", "user_type"], :name => "user_index"
 
-  create_table "cached_reports", :force => true do |t|
-    t.string   "name",       :limit => 50, :null => false
-    t.text     "data"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
   create_table "centres", :force => true do |t|
     t.string   "name",       :limit => 100, :null => false
     t.datetime "created_at"
@@ -77,7 +70,7 @@ ActiveRecord::Schema.define(:version => 20111220165606) do
     t.datetime "updated_at"
     t.integer  "gene_id",                                           :null => false
     t.string   "parental_cell_line"
-    t.integer  "ikmc_project_id"
+    t.string   "ikmc_project_id",                    :limit => 100
     t.string   "mutation_type",                      :limit => 100
   end
 

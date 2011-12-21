@@ -188,7 +188,7 @@ end
 #  updated_at                         :datetime
 #  gene_id                            :integer         not null
 #  parental_cell_line                 :string(255)
-#  ikmc_project_id                    :integer
+#  ikmc_project_id                    :string(100)
 #  mutation_type                      :string(100)
 #
 # Indexes

@@ -1,0 +1,9 @@
+<% @title = 'MI Production Report' %>
+
+<div class="grid_12">
+  <h2><%= @title %></h2>
+</div>
+
+<div class="report grid_12">
+  <%= link_to('Download', url_for(:action => :mi_production_detail, :controller => :reports, :format => :csv)) %>
+</div>

@@ -1,0 +1,13 @@
+<% @title = '(INTERNAL) Intermediate MI Production Report' %>
+
+<div class="grid_12">
+  <h2><%= @title %></h2>
+</div>
+
+<div class="report grid_12">
+  <% if report_cache %>
+    <%= link_to('Download', url_for(:action => :show, :controller => :report_caches, :id => @report_cache.name, :format => :csv) + '?' + @report_cache.compact_timestamp) %>
+  <% else %>
+    <p>No data available</p>
+  <% end %>
+</div>

@@ -157,6 +157,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
           Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('5');
         JS
         find('#update-button').click
+        sleep 1
         all('.x-message-box button').detect {|b| b.text == 'Yes'}.click
 
         sleep 1
@@ -167,7 +168,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         JS
         find('#update-button').click
 
-        sleep 3
+        sleep 5
 
         mi_plan.reload
         assert_equal 10, mi_plan.number_of_es_cells_starting_qc

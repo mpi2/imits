@@ -302,10 +302,6 @@ class ReportsController < ApplicationController
     end
   end
 
-  def mi_production_intermediate
-    @report_cache = ReportCache.find_by_name('mi_production_intermediate')
-  end
-
   protected
 
   def generate_planned_mi_list_report( params={}, include_plans_with_active_attempts=false )

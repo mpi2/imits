@@ -72,7 +72,6 @@ class Reports::ConsortiumPrioritySummary
       }
     ).each do |row|
       
-      img = '../images/ikmc-favicon.ico'
       img = "#{script_name}../images/ikmc-favicon.ico"
       
       make_link = lambda {|value|
@@ -162,8 +161,8 @@ class Reports::ConsortiumPrioritySummary
             
       make_link = lambda {|key|
         return row[key] if request && request.format == :csv
-        consortium = escape row['Consortium']
-        type = escape key
+        consortium = CGI.escape row['Consortium']
+        type = CGI.escape key
         separator = /\?/.match(script_name) ? '&' : '?'
         puts "script_name: " + script_name
         puts "separator: " + separator
@@ -209,6 +208,7 @@ class Reports::ConsortiumPrioritySummary
 
     make_sum = lambda {|value|
       return value if request && request.format == :csv
+      return '' if value == 0
       return strong(value)
     }
         
@@ -274,11 +274,11 @@ class Reports::ConsortiumPrioritySummary
         
       make_link = lambda {|key|
         return row[key] if request && request.format == :csv
-        consort = escape row['Consortium']
-        type = escape key
+        consort = CGI.escape row['Consortium']
+        type = CGI.escape key
         id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
         row[key].to_s != '0' ?
-          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{key}'>#{row[key]}</a>" :
+          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{type}'>#{row[key]}</a>" :
           ''
       }
 
@@ -350,9 +350,9 @@ class Reports::ConsortiumPrioritySummary
         
         make_link = lambda {|key|
           return row[key] if request && request.format == :csv
-          consort = escape consortium
-          type = escape key
-          priority = escape row['Priority']
+          consort = CGI.escape consortium
+          type = CGI.escape key
+          priority = CGI.escape row['Priority']
           id = (consort + '_' + type + '_' + priority).gsub(/\-|\+|\s+/, "_").downcase
           row[key].to_s != '0' ?
             "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{key}&priority=#{priority}'>#{row[key]}</a>" :
@@ -438,10 +438,10 @@ class Reports::ConsortiumPrioritySummary
         
           make_link = lambda {|key|
             return row[key] if request && request.format == :csv
-            consort = escape consortium
-            type = escape key
-            priority = escape row['Priority']
-            subproject = escape subproject
+            consort = CGI.escape consortium
+            type = CGI.escape key
+            priority = CGI.escape row['Priority']
+            subproject = CGI.escape subproject
             id = (consort + '_' + type + '_' + priority).gsub(/\-|\+|\s+/, "_").downcase
             row[key].to_s != '0' ?
               "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{key}&priority=#{priority}&subproject=#{subproject}'>#{row[key]}</a>" :
@@ -479,29 +479,18 @@ class Reports::ConsortiumPrioritySummary
     return 'Production Summary 4', report_table
   end
   
-  # TODO: this needs fixing
-
-  def self.escape(param)
-    #    return CGI.escape param
-    return param
-  end
-  def self.unescape(param)
-    #    return CGI.unescape param
-    return param
-  end
-  
   # TODO: do this as a class and not directly
   
   def self.strong(param)
-    #    return CGI.unescape param
     return '<strong>' + param.to_s + '</strong>'
   end
   
   # remove html from columns so they can be CSV'd
   
   def self.strip_tags(request, value)
-    return value if ! value
-    request && request.format == :csv ? value.gsub(/\<.+?\>/, ' ') : value
+    return value
+    #return value if ! value
+    #request && request.format == :csv ? value.gsub(/\<.+?\>/, ' ') : value
   end
   
   def self.fix_mutation_type(mt)
@@ -514,8 +503,8 @@ class Reports::ConsortiumPrioritySummary
     consortium = params[:consortium]
     type = params[:type]
     type = type ? type.gsub(/^\#\s+/, "") : nil
-    priority = unescape params[:priority]
-    subproject = unescape params[:subproject]    
+    priority = params[:priority]
+    subproject = params[:subproject]    
   
     @@cached_report ||= get_cached_report('mi_production_intermediate')
       
@@ -534,11 +523,11 @@ class Reports::ConsortiumPrioritySummary
             (subproject.nil? || r['Sub-Project'] == subproject) &&
             languishing(r)
         end
-      },
-      :transforms => lambda {|r|
-        r['Allele Symbol'] = strip_tags request, r['Allele Symbol']
-        r['Mutation Type'] = fix_mutation_type r['Mutation Type']
       }
+      #:transforms => lambda {|r|
+      #  r['Allele Symbol'] = strip_tags request, r['Allele Symbol']
+      #  r['Mutation Type'] = fix_mutation_type r['Mutation Type']
+      #}
     )
     
     exclude_columns = [

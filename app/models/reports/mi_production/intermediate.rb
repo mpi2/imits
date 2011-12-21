@@ -100,8 +100,6 @@ class Reports::MiProduction::Intermediate
       'Phenotyping Started Date',
       'Phenotyping Complete Date',
       'Phenotype Attempt Aborted Date'
-      # Genetic Background
-      # Mouse Allele Name # if present, else original Allele Name
     ]
     report.reorder(column_names)
 

@@ -121,14 +121,17 @@ Seeds.load MiPlan::SubProject, [
   {:id => 1, :name => ''},
   {:id => 2, :name => 'MGPinterest'},
   {:id => 3, :name => 'WTSI_Blood_A'},
-  {:id => 4, :name => 'WTSI_Bowel_A'},
+  {:id => 4, :name => 'WTSI_Cancer_A'},
   {:id => 5, :name => 'WTSI_Infection_A'},
-  {:id => 6, :name => 'WTSI_MGPinterest_A'},
-  {:id => 7, :name => 'WTSI_hear_A'},
+  {:id => 6, :name => 'WTSI_MGPcollab_A'},
+  {:id => 7, :name => 'WTSI_Hear_A'},
   {:id => 11, :name => 'WTSI_IBD_A'},
-  {:id => 8, :name => 'Legacy EUCOMM'},
-  {:id => 9, :name => 'Legacy KOMP'},
-  {:id => 10, :name => 'Legacy with new Interest'}
+  {:id => 8, :name => 'Legacy EUCOMM'}, # I am moving everything from here to MGPInterest
+  {:id => 9, :name => 'Legacy KOMP'}, # I am moving everything from here to MGPInterest
+  {:id => 10, :name => 'Legacy with new Interest'},
+  {:id => 12, :name => 'WTSI_Bone_A'},
+  {:id => 13, :name => 'WTSI_Bespoke_A'},
+  {:id => 14, :name => 'MGP Legacy'}
 ]
 
 Seeds.load PhenotypeAttempt::Status, [

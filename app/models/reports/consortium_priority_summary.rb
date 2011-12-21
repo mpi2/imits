@@ -5,7 +5,7 @@ class Reports::ConsortiumPrioritySummary
   extend Reports::Helper
   extend ActionView::Helpers::UrlHelper
   
-  DEBUG = true
+  DEBUG = false
   
   #Interest
   #Assigned - ES Cell QC In Progress
@@ -24,9 +24,6 @@ class Reports::ConsortiumPrioritySummary
   #Confirm that 'All projects' excludes MIPlan Inactive, MI Plan Withdrawn.
     
   CSV_LINKS = true  
-  ADD_COUNTS = false
-  LIMIT_CONSORTIA = false
-  CONSORTIA = [ 'BaSH', 'DTCC', 'Helmholtz GMC', 'JAX', 'MARC', 'MGP', 'Monterotondo', 'NorCOMM2', 'Phenomin', 'RIKEN BRC' ]
   ORDER_BY_MAP = { 'Low' => 3, 'Medium' => 2, 'High' => 1}
   MAPPING1 = {
     'All' => ['Interest',
@@ -87,27 +84,32 @@ class Reports::ConsortiumPrioritySummary
     report_table = Table([ 'Consortium', 'Production Centre', 'Marker symbol', 'Order at IKMC', 'Mutation type', 'Allele name', 'Genetic background' ] )
 
     @@cached_report ||= get_cached_report('mi_production_intermediate')
+
+    script_name = request ? request.url : ''
+    
+    #    script_name = script_name.gsub(/production_summary1\?.+/, '')
+    script_name = script_name.gsub(/production_summary1\?.+/, '')
+    
+    #    raise script_name
     
     counter = 1
     report = Table(:data => @@cached_report.data,
-      :column_names => ADD_COUNTS ? ['Count'] + @@cached_report.column_names : @@cached_report.column_names,
+      :column_names => @@cached_report.column_names,
       :filters => lambda {|r|
         return (r['Consortium'] == consortium) &&
           (MAPPING1[status].include?(r.data['Overall Status']) || MAPPING1[status].include?(r.data['PhenotypeAttempt Status']))
-      },
-      :transforms => lambda {|r|
-        return if ! ADD_COUNTS
-        r['Count'] = counter
-        counter += 1
       }
     ).each do |row|
+      
+      img = '../images/ikmc-favicon.ico'
+      img = "#{script_name}../images/ikmc-favicon.ico"
       
       make_link = lambda {|value|
         return value.to_s.length > 1 ? value : '' if request && request.format == :csv
         value.to_s.length > 1 ?
-        "<p style='margin: 0px; padding: 0px;text-align: center;'>" +
+          "<p style='margin: 0px; padding: 0px;text-align: center;'>" +
           "<a target='_blank' title='Click through to IKMC (#{value})' href='http://www.knockoutmouse.org/martsearch/project/#{value}'>" +
-          "<img src='../images/ikmc-favicon.ico'></img></a></p>" :
+          "<img src='#{img}'></img></a></p>" :
           ''
       }
       
@@ -125,7 +127,8 @@ class Reports::ConsortiumPrioritySummary
       }
     end
 
-    title = "Production Summary 1 Detail: Consortium: #{consortium} - Type: #{status} (#{report_table.size})"
+    title = "Production Summary 1 Detail (feed)"
+    title = "Production Summary 1 Detail: Consortium: #{consortium} - Type: #{status} (#{report_table.size})" if DEBUG
     
     return title, report_table
   end
@@ -397,9 +400,7 @@ class Reports::ConsortiumPrioritySummary
     grouped_report = Grouping( @@cached_report, :by => [ 'Consortium', 'Priority' ] )
     
     grouped_report.each do |consortium|
-      
-      next if LIMIT_CONSORTIA && ! CONSORTIA.include?(consortium)
-      
+        
       summary = grouped_report.subgrouping(consortium).summary(
         'Priority',
         'All'            => lambda { |group| count_instances_of( group, 'Gene',
@@ -601,6 +602,47 @@ class Reports::ConsortiumPrioritySummary
     return mt
   end
 
+  #def self.subsummary_common(request, params)
+  #  consortium = params[:consortium]
+  #  type = params[:type]
+  #  type = type ? type.gsub(/^\#\s+/, "") : nil
+  #  priority = unescape params[:priority]
+  #  subproject = unescape params[:subproject]    
+  #
+  #  @@cached_report ||= get_cached_report('mi_production_intermediate')
+  #    
+  #  counter = 1
+  #  report = Table(:data => @@cached_report.data,
+  #    :column_names => @@cached_report.column_names,
+  #    :filters => lambda {|r|
+  #      if type != 'Languishing'
+  #        return r['Consortium'] == consortium &&
+  #          (priority.nil? || r['Priority'] == priority) &&
+  #          (type.nil? || MAPPING3[type].include?(r.data['Overall Status'])) &&
+  #          (subproject.nil? || r['Sub-Project'] == subproject)
+  #      else
+  #        return r['Consortium'] == consortium &&
+  #          (priority.nil? || r['Priority'] == priority) &&
+  #          (subproject.nil? || r['Sub-Project'] == subproject) &&
+  #          languishing(r)
+  #      end
+  #    },
+  #    :transforms => lambda {|r|
+  #      r['Allele Symbol'] = strip_tags request, r['Allele Symbol']
+  #      r['Mutation Type'] = fix_mutation_type r['Mutation Type']
+  #    }
+  #  )
+  #      
+  #  consortium = consortium ? "Consortium: #{consortium} - " : ''
+  #  subproject = subproject ? "Sub-Project: #{subproject} - " : ''
+  #  type = type ? "Type: #{type} - " : ''
+  #  priority = priority ? "Priority: #{priority} - " : ''
+  #
+  #  title = "Production Summary Detail: #{consortium}#{subproject}#{type}#{priority} (#{report.size})"
+  #  
+  #  return title, report
+  #end
+
   def self.subsummary_common(request, params)
     consortium = params[:consortium]
     type = params[:type]
@@ -614,7 +656,7 @@ class Reports::ConsortiumPrioritySummary
     
     counter = 1
     report = Table(:data => @@cached_report.data,
-      :column_names => ADD_COUNTS ? ['Count'] + @@cached_report.column_names : @@cached_report.column_names,
+      :column_names => @@cached_report.column_names,
       :filters => lambda {|r|
         if type != 'Languishing'
           return r['Consortium'] == consortium &&
@@ -631,9 +673,6 @@ class Reports::ConsortiumPrioritySummary
       :transforms => lambda {|r|
         r['Allele Symbol'] = strip_tags request, r['Allele Symbol']
         r['Mutation Type'] = fix_mutation_type r['Mutation Type']
-        return if ! ADD_COUNTS
-        r['Count'] = counter
-        counter += 1
       }
     )
     
@@ -675,8 +714,11 @@ class Reports::ConsortiumPrioritySummary
     subproject = subproject ? "Sub-Project: #{subproject} - " : ''
     type = type ? "Type: #{type} - " : ''
     priority = priority ? "Priority: #{priority} - " : ''
+    
+    report.rename_column 'Overall Status', 'Status'
   
-    title = "Production Summary Detail: #{consortium}#{subproject}#{type}#{priority} (#{report.size})"
+    title = "Production Summary Detail"
+    title = "Production Summary Detail: #{consortium}#{subproject}#{type}#{priority} (#{report.size})" if DEBUG
     
     return title, report
   end
@@ -689,7 +731,8 @@ class Reports::ConsortiumPrioritySummary
   
   def self.percentage(request, row)
     glt = Integer(row['Genotype Confirmed Mice'])
-    failures = row['Languishing'] ? Integer(row['Languishing']) : Integer(row['MI Aborted'])
+#    failures = row['Languishing'] ? Integer(row['Languishing']) : Integer(row['MI Aborted'])
+    failures = row['Languishing']
     total = Integer(row['Genotype Confirmed Mice']) + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
@@ -710,38 +753,50 @@ class Reports::ConsortiumPrioritySummary
   #Withdrawn
   #Inactive
   
-  LANGUISHING_MAPPING = {
-    'Languishing' => [
-      'Interest',
-      'Assigned - ES Cell QC In Progress',
-      'Assigned - ES Cell QC Complete',
-      'Assigned',
-      'Inspect - MI Attempt',
-      #      'Aborted - ES Cell QC Failed',
-      #      'Conflict',
-      #      'Inspect - Conflict',
-      #      'Inspect - GLT Mouse',
-      #      'Withdrawn',
-      #      'Inactive'
-    ]
-  }
+  #LANGUISHING_MAPPING = {
+  #  'Languishing' => [
+  #    'Interest',
+  #    'Assigned - ES Cell QC In Progress',
+  #    'Assigned - ES Cell QC Complete',
+  #    'Assigned',
+  #    'Inspect - MI Attempt',
+  #    #      'Aborted - ES Cell QC Failed',
+  #    #      'Conflict',
+  #    #      'Inspect - Conflict',
+  #    #      'Inspect - GLT Mouse',
+  #    #      'Withdrawn',
+  #    #      'Inactive'
+  #  ]
+  #}
 
   #5) Pipeline Efficiency now computed by:
   #Number of genotype confirmed mice right now /
   #(Number of active MI plans with non-aborted MIs more than 6 months old + number of genotype confirmed mice right now)
 
-  def self.languishing(row)    
-    return false if ! LANGUISHING_MAPPING['Languishing'].include? row.data['MiPlan Status']    
-    LANGUISHING_MAPPING['Languishing'].each do |name|
-      today = Date.today
-      next if ! row[name + ' Date'] || row[name + ' Date'].length < 1
-      before = Date.parse(row[name + ' Date'])
-      next if ! before
-      gap = today - before
-      return false if gap && gap < 180
-    end    
-    return true
+  def self.languishing(row)
+    label = 'Micro-injection in progress'
+    date = 'Micro-injection in progress Date'
+    return false if row.data['Overall Status'] != label
+    today = Date.today
+    return false if ! row[date] || row[date].length < 1
+    before = Date.parse(row[date])
+    return false if ! before
+    gap = today - before
+    return gap && gap > 180
   end
+
+  #def self.languishing(row)    
+  #  return false if ! LANGUISHING_MAPPING['Languishing'].include? row.data['MiPlan Status']    
+  #  LANGUISHING_MAPPING['Languishing'].each do |name|
+  #    today = Date.today
+  #    next if ! row[name + ' Date'] || row[name + ' Date'].length < 1
+  #    before = Date.parse(row[name + ' Date'])
+  #    next if ! before
+  #    gap = today - before
+  #    return false if gap && gap < 180
+  #  end    
+  #  return true
+  #end
   
   def self.get_cached_report(name)
     #get cached report

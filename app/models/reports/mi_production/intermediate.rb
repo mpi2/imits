@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Reports::MiProduction::Intermediate
+class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
 
   # TODO: unit-test it, share it somewhere for all reports, expand it so it
   # handles deeply nested associations
@@ -111,20 +111,8 @@ class Reports::MiProduction::Intermediate
       end
     end
 
-    report = report.sort_rows_by(column_names)
-    return report
+    return report.sort_rows_by(column_names)
   end
 
-  def self.generate_and_cache
-    cache = ReportCache.find_by_name('mi_production_intermediate')
-    if cache
-      cache.csv_data = self.generate.to_csv
-      cache.save!
-    else
-      ReportCache.create!(
-        :name => 'mi_production_intermediate',
-        :csv_data => self.generate.to_csv
-      )
-    end
-  end
+  def self.report_name; 'mi_production_intermediate'; end
 end

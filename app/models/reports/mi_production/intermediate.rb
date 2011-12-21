@@ -51,7 +51,7 @@ class Reports::MiProduction::Intermediate
       if mi_attempt
         record['MiAttempt Status'] = mi_attempt.mi_attempt_status.description
         record['Overall Status'] = record['MiAttempt Status']
-        record['IKMC Project ID'] = mi_attempt.es_cell.ikmc_project_id.to_s
+        record['IKMC Project ID'] = mi_attempt.es_cell.ikmc_project_id
         record['Mutation Type'] = mi_attempt.es_cell.mutation_type
         record['Allele Symbol'] = mi_attempt.allele_symbol
         record['Genetic Background'] = mi_attempt.colony_background_strain.try(:name)

@@ -26,9 +26,7 @@ class Reports::ConsortiumPrioritySummary
   CSV_LINKS = true  
   ADD_COUNTS = false
   LIMIT_CONSORTIA = false
-  #ADD_ALL_PRIORITIES = false
   CONSORTIA = [ 'BaSH', 'DTCC', 'Helmholtz GMC', 'JAX', 'MARC', 'MGP', 'Monterotondo', 'NorCOMM2', 'Phenomin', 'RIKEN BRC' ]
-  #  ORDER_BY_MAP = { 'Low' => 1, 'Medium' => 2, 'High' => 3}
   ORDER_BY_MAP = { 'Low' => 3, 'Medium' => 2, 'High' => 1}
   MAPPING1 = {
     'All' => ['Interest',
@@ -69,7 +67,6 @@ class Reports::ConsortiumPrioritySummary
     'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
     'ES QC failed' => ['Aborted - ES Cell QC Failed']
-    #    'Languishing' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress']
   }
   
   #Columns:
@@ -105,15 +102,9 @@ class Reports::ConsortiumPrioritySummary
       }
     ).each do |row|
       
-      #width='30' height='30'
-      #style='margin: 0 auto;'
-      #style='text-align: center;' 
-
       make_link = lambda {|value|
         return value.to_s.length > 1 ? value : '' if request && request.format == :csv
-        #.strip!
         value.to_s.length > 1 ?
-          #        value > 0 ?
         "<p style='margin: 0px; padding: 0px;text-align: center;'>" +
           "<a target='_blank' title='Click through to IKMC (#{value})' href='http://www.knockoutmouse.org/martsearch/project/#{value}'>" +
           "<img src='../images/ikmc-favicon.ico'></img></a></p>" :
@@ -121,9 +112,6 @@ class Reports::ConsortiumPrioritySummary
       }
       
       mt = fix_mutation_type row['Mutation Type']
-      
-      #      unknown = '<strong style="color: red;">Unknown<strong>'
-      #      unknown = request && request.format == :csv ? 'Unknown' : '<strong>Unknown<strong>'
       allele_name = strip_tags request, row['Allele Symbol']
 
       report_table << {        
@@ -173,11 +161,8 @@ class Reports::ConsortiumPrioritySummary
       return subsummary1(request, params)
     end
     
-    #    script_name = request ? request.env['REQUEST_URI'] : ''
     script_name = request ? request.url : ''
-    
-    #    raise "request.url: " + request.url
-      
+          
     @@cached_report ||= get_cached_report('mi_production_intermediate')
 
     report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production', 'Genotype Confirmed Mice', 'All_distinct',
@@ -218,7 +203,6 @@ class Reports::ConsortiumPrioritySummary
         return row[key] if request && request.format == :csv
         consortium = escape row['Consortium']
         type = escape key
-        #separator = /\?/ =~ script_name ? '&' : '?'
         separator = /\?/.match(script_name) ? '&' : '?'
         puts "script_name: " + script_name
         puts "separator: " + separator
@@ -282,9 +266,6 @@ class Reports::ConsortiumPrioritySummary
     report_table.rename_column("Mice in production","Microinjection in progress")
     report_table.rename_column("GLT Mice","Mice available")
 
-    #    report_table.add_column("Phenotype data available", :after => 'Mice available')
-    #    report_table.add_column("Phenotyping in progress", :after => 'Mice available')
-
     report_table.remove_column("All_distinct")
     report_table.remove_column("Activity_distinct")
     report_table.remove_column("Mice in production_distinct")
@@ -326,11 +307,6 @@ class Reports::ConsortiumPrioritySummary
  
     grouped_report = Grouping( @@cached_report, :by => [ 'Consortium' ] )
     
-    #eff_chack = lambda { |group| count_unique_instances_of( group, 'Gene',
-    #    lambda { |row| MAPPING3['Activity'].include? row.data['Overall Status'] &&
-    #        1 #date null || date > 6months old
-    #    } ) }
-        
     summary = grouped_report.summary(
       'Consortium',
       'All'             => lambda { |group| count_instances_of( group, 'Gene',
@@ -478,17 +454,6 @@ class Reports::ConsortiumPrioritySummary
         }
       end
       
-      #next if ! ADD_ALL_PRIORITIES
-      #
-      #p_remain = [ 'Low', 'Medium', 'High' ] - p_found
-      #p_remain.each do |priority|
-      #  report_table << {
-      #    'Consortium' => consortium,
-      #    'Priority' => priority,
-      #    'order_by' => ORDER_BY_MAP[priority]
-      #  }
-      #end
-      
     end
 
     report_table.remove_column 'Languishing' if ! DEBUG
@@ -534,8 +499,6 @@ class Reports::ConsortiumPrioritySummary
     
     grouped_report.each do |consortium|
       
-      #      next if LIMIT_CONSORTIA && ! CONSORTIA.include?(consortium)
-
       next if consortium != 'MGP'
       
       subgrouping = grouped_report.subgrouping(consortium)
@@ -598,18 +561,7 @@ class Reports::ConsortiumPrioritySummary
           }
         end
       end
-      
-      #next if ! ADD_ALL_PRIORITIES
-      #
-      #p_remain = [ 'Low', 'Medium', 'High' ] - p_found
-      #p_remain.each do |priority|
-      #  report_table << {
-      #    'Consortium' => consortium,
-      #    'Priority' => priority,
-      #    'order_by' => ORDER_BY_MAP[priority]
-      #  }
-      #end
-      
+  
     end
 
     report_table.remove_column 'Languishing' if ! DEBUG
@@ -663,16 +615,6 @@ class Reports::ConsortiumPrioritySummary
     counter = 1
     report = Table(:data => @@cached_report.data,
       :column_names => ADD_COUNTS ? ['Count'] + @@cached_report.column_names : @@cached_report.column_names,
-      #:filters => lambda {|r|
-      #  if r['Consortium'] == consortium &&
-      #      (priority.nil? || r['Priority'] == priority) &&
-      #      (type.nil? || MAPPING3[type].include?(r.data['Overall Status'])) &&
-      #      (subproject.nil? || r['Sub-Project'] == subproject)
-      #    return false if genes.include?(r['Gene'])
-      #    genes.push r['Gene']
-      #    return true
-      #  end
-      #},
       :filters => lambda {|r|
         if type != 'Languishing'
           return r['Consortium'] == consortium &&
@@ -695,45 +637,39 @@ class Reports::ConsortiumPrioritySummary
       }
     )
     
-    #report.remove_column 'MiPlan Status'
-    #report.remove_column 'MiAttempt Status'
-    #report.remove_column 'PhenotypeAttempt Status'
-
     exclude_columns = [
-      "Consortium",
-      "Sub-Project",
-      "Priority",
-      "Production Centre",
-      "Gene",
-      "Overall Status",
+      #"Consortium",
+      #"Sub-Project",
+      #"Priority",
+      #"Production Centre",
+      #"Gene",
+      #"Overall Status",
       "MiPlan Status",
       "MiAttempt Status",
       "PhenotypeAttempt Status",
-      "IKMC Project ID",
-      "Mutation Type",
-      "Allele Symbol",
-      "Genetic Background",
-      "Assigned Date",
-      "Assigned - ES Cell QC In Progress Date",
-      "Assigned - ES Cell QC Complete Date",
-      "Micro-injection in progress Date",
-      "Genotype confirmed Date",
-      "Micro-injection aborted Date",
-      "Phenotype Attempt Registered Date",
-      "Rederivation Started Date",
-      "Rederivation Complete Date",
-      "Cre Excision Started Date",
-      "Cre Excision Complete Date",
-      "Phenotyping Started Date",
-      "Phenotyping Complete Date",
-      "Phenotype Attempt Aborted Date"
+      #"IKMC Project ID",
+      #"Mutation Type",
+      #"Allele Symbol",
+      #"Genetic Background",
+      #"Assigned Date",
+      #"Assigned - ES Cell QC In Progress Date",
+      #"Assigned - ES Cell QC Complete Date",
+      #"Micro-injection in progress Date",
+      #"Genotype confirmed Date",
+      #"Micro-injection aborted Date",
+      #"Phenotype Attempt Registered Date",
+      #"Rederivation Started Date",
+      #"Rederivation Complete Date",
+      #"Cre Excision Started Date",
+      #"Cre Excision Complete Date",
+      #"Phenotyping Started Date",
+      #"Phenotyping Complete Date",
+      #"Phenotype Attempt Aborted Date"
     ]
     
-    #exclude_columns.each do |name|
-    #  report.remove_column name
-    #end
-
-    #    puts "ARRAY: " + report.column_names.inspect
+    exclude_columns.each do |name|
+      report.remove_column name
+    end
     
     consortium = consortium ? "Consortium: #{consortium} - " : ''
     subproject = subproject ? "Sub-Project: #{subproject} - " : ''
@@ -759,14 +695,6 @@ class Reports::ConsortiumPrioritySummary
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
   end
-
-  #def self.percentage(request, row)
-  #  glt = Integer(row['Genotype Confirmed Mice'])
-  #  total = Integer(row['Genotype Confirmed Mice']) + Integer(row['MI Aborted'])
-  #  pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-  #  pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
-  #  return pc
-  #end
 
   #MiPlan Status
   #=============
@@ -815,25 +743,6 @@ class Reports::ConsortiumPrioritySummary
     return true
   end
   
-  #  def self.languishing(row)
-  #
-  #    return false if ! MAPPING3['Languishing'].include? row.data['Overall Status']
-  #
-  #    MAPPING3['Languishing'].each do |name|
-  #      today = Date.today
-  #      next if ! row[name + ' Date'] || row[name + ' Date'].length < 1
-  ##      puts "BEFORE 1: " + row[name + ' Date'].inspect
-  #      before = Date.parse(row[name + ' Date'])
-  #      return false if ! before
-  ##      puts "TODAY: " + today.inspect
-  ##      puts "BEFORE: " + before.inspect
-  #      distance = today - before
-  #      return true if distance && distance > 180
-  #    end
-  #
-  #    return false
-  #  end
-
   def self.get_cached_report(name)
     #get cached report
     detail_cache = ReportCache.find_by_name(name)

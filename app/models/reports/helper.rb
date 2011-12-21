@@ -172,27 +172,4 @@ module Reports::Helper
       return redirect_params
     end
 
-  def get_cached_report(name)
-    #get cached report
-    detail_cache = ReportCache.find_by_name(name)
-    raise 'cannot get cached report' if ! detail_cache
-    
-    #get string representing csv
-    csv1 = detail_cache.csv_data
-    raise 'cannot get cached report CSV' if ! csv1
-
-    #build csv object
-    csv2 = CSV.parse(csv1)
-    raise 'cannot parse CSV' if ! csv2
-
-    header = csv2.shift
-    raise 'cannot get CSV header' if ! header
-
-    #build ruport object
-    table = Ruport::Data::Table.new :data => csv2, :column_names => header
-    raise 'cannot build ruport instance from CSV' if ! table
-    
-    return table
-  end
-
 end

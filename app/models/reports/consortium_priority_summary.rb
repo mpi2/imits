@@ -112,26 +112,25 @@ class Reports::ConsortiumPrioritySummary
         value.to_s.length > 1 ?
 #        value > 0 ?
           "<p style='margin: 0px; padding: 0px;text-align: center;'>" +
-          "<a title='Click through to IKMC (#{value})' href='http://www.knockoutmouse.org/martsearch/project/#{value}'>" +
+          "<a target='_blank' title='Click through to IKMC (#{value})' href='http://www.knockoutmouse.org/martsearch/project/#{value}'>" +
           "<img src='../images/ikmc-favicon.ico'></img></a></p>" :
           ''
       }
       
-      mt = row['Mutation Type']
-      mt = mt ? mt.gsub(/_/, ' ') : ''
-      mt = mt.gsub(/\b\w/){$&.upcase}
+      mt = fix_mutation_type row['Mutation Type']
       
-      uknkown = '<strong style="color: red;">Unknown<strong>'
-      uknkown = '<strong>Unknown<strong>'
+#      unknown = '<strong style="color: red;">Unknown<strong>'
+#      unknown = request && request.format == :csv ? 'Unknown' : '<strong>Unknown<strong>'
+      allele_name = strip_tags request, row['Allele Symbol']
 
       report_table << {        
       'Consortium' => row['Consortium'],
       'Production Centre' => row['Production Centre'],
-      'Marker symbol' => uknkown,
+      'Marker symbol' => row['Gene'],
       'Order at IKMC' => make_link.call(row['IKMC Project ID']),
       'Mutation type' => mt,
-      'Allele name' => uknkown,
-      'Genetic background' => uknkown
+      'Allele name' => allele_name,
+      'Genetic background' => row['Genetic Background']
       }
     end
 
@@ -139,41 +138,6 @@ class Reports::ConsortiumPrioritySummary
     
     return title, report_table
   end
-
-  #def self.subsummary1_old(params)
-  #  consortium = params[:consortium] && params[:consortium].length > 0 ? params[:consortium] : nil
-  #  status = params[:type]
-  #
-  #  @@cached_report ||= get_cached_report('mi_production_intermediate')
-  #
-  ##  genes = []
-  #
-  #  counter = 1
-  #  report = Table(:data => @@cached_report.data,
-  #    :column_names => ADD_COUNTS ? ['Count'] + @@cached_report.column_names : @@cached_report.column_names,
-  #    #:filters => lambda {|r|
-  #    #  if (!consortium || r['Consortium'] == consortium) &&
-  #    #      MAPPING1[status].include?(r.data['Overall Status'])
-  #    #    return false if genes.include?(r['Gene'])
-  #    #    genes.push r['Gene']
-  #    #    return true
-  #    #  end
-  #    #},
-  #    :filters => lambda {|r|
-  #      return (!consortium || r['Consortium'] == consortium) && MAPPING1[status].include?(r.data['Overall Status'])
-  #    },
-  #    :transforms => lambda {|r|
-  #      return if ! ADD_COUNTS
-  #      r['Count'] = counter
-  #      counter += 1
-  #    }
-  #  )
-  #
-  #  title = "Production Summary 1 Detail: Consortium: #{consortium} - Type: #{status} (#{report.size})"
-  #  
-  #  return title, report
-  #
-  #end
 
   def self.count_instances_of( group, data_name, row_condition=nil )
     array = []
@@ -339,7 +303,7 @@ class Reports::ConsortiumPrioritySummary
   def self.generate2(request = nil, params={})
 
     if params[:consortium]
-      return subsummary_common(params)
+      return subsummary_common(request, params)
     end
 
     script_name = request ? request.env['REQUEST_URI'] : ''
@@ -423,7 +387,7 @@ class Reports::ConsortiumPrioritySummary
   def self.generate3(request = nil, params={})
 
     if params[:consortium]
-      return subsummary_common(params)
+      return subsummary_common(request, params)
     end
 
     script_name = request ? request.env['REQUEST_URI'] : ''
@@ -529,7 +493,7 @@ class Reports::ConsortiumPrioritySummary
   def self.generate4(request = nil, params={})
 
     if params[:consortium]
-      return subsummary_common(params)
+      return subsummary_common(request, params)
     end
 
     script_name = request ? request.env['REQUEST_URI'] : ''
@@ -624,6 +588,8 @@ class Reports::ConsortiumPrioritySummary
         
     return 'Production Summary 4', report_table
   end
+  
+  # TODO: this needs fixing
 
   def self.escape(param)
     #    return CGI.escape param
@@ -634,14 +600,25 @@ class Reports::ConsortiumPrioritySummary
     return param
   end
   
-  # do this as a class
+  # TODO: do this as a class and not directly
   
   def self.strong(param)
     #    return CGI.unescape param
     return '<strong>' + param.to_s + '</strong>'
-  end  
+  end
+  
+  def self.strip_tags(request, value)
+    return value if ! value
+    request && request.format == :csv ? value.gsub(/\<.+?\>/, ' ') : value
+  end
+  
+  def self.fix_mutation_type(mt)
+      mt = mt ? mt.gsub(/_/, ' ') : ''
+      mt = mt.gsub(/\b\w/){$&.upcase}
+      return mt
+  end
 
-  def self.subsummary_common(params)
+  def self.subsummary_common(request, params)
     consortium = params[:consortium]
     type = params[:type]
     type = type ? type.gsub(/^\#\s+/, "") : nil
@@ -651,6 +628,7 @@ class Reports::ConsortiumPrioritySummary
     @@cached_report ||= get_cached_report('mi_production_intermediate')
   
     genes = []
+    
     counter = 1
     report = Table(:data => @@cached_report.data,
       :column_names => ADD_COUNTS ? ['Count'] + @@cached_report.column_names : @@cached_report.column_names,
@@ -665,11 +643,52 @@ class Reports::ConsortiumPrioritySummary
         end
       },
       :transforms => lambda {|r|
+        r['Allele Symbol'] = strip_tags request, r['Allele Symbol']
         return if ! ADD_COUNTS
         r['Count'] = counter
         counter += 1
       }
     )
+    
+    #report.remove_column 'MiPlan Status'
+    #report.remove_column 'MiAttempt Status'
+    #report.remove_column 'PhenotypeAttempt Status'
+
+    exclude_columns = [
+      "Consortium",
+      "Sub-Project",
+      "Priority",
+      "Production Centre",
+      "Gene",
+      "Overall Status",
+      "MiPlan Status",
+      "MiAttempt Status",
+      "PhenotypeAttempt Status",
+      "IKMC Project ID",
+      "Mutation Type",
+      "Allele Symbol",
+      "Genetic Background",
+      "Assigned Date",
+      "Assigned - ES Cell QC In Progress Date",
+      "Assigned - ES Cell QC Complete Date",
+      "Micro-injection in progress Date",
+      "Genotype confirmed Date",
+      "Micro-injection aborted Date",
+      "Phenotype Attempt Registered Date",
+      "Rederivation Started Date",
+      "Rederivation Complete Date",
+      "Cre Excision Started Date",
+      "Cre Excision Complete Date",
+      "Phenotyping Started Date",
+      "Phenotyping Complete Date",
+      "Phenotype Attempt Aborted Date"
+    ]
+    
+    #exclude_columns.each do |name|
+    #  report.remove_column name
+    #end
+
+#    puts "ARRAY: " + report.column_names.inspect
     
     consortium = consortium ? "Consortium: #{consortium} - " : ''
     subproject = subproject ? "Sub-Project: #{subproject} - " : ''
@@ -691,6 +710,29 @@ class Reports::ConsortiumPrioritySummary
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
+  end
+
+  def self.get_cached_report(name)
+    #get cached report
+    detail_cache = ReportCache.find_by_name(name)
+    raise 'cannot get cached report' if ! detail_cache
+    
+    #get string representing csv
+    csv1 = detail_cache.csv_data
+    raise 'cannot get cached report CSV' if ! csv1
+
+    #build csv object
+    csv2 = CSV.parse(csv1)
+    raise 'cannot parse CSV' if ! csv2
+
+    header = csv2.shift
+    raise 'cannot get CSV header' if ! header
+
+    #build ruport object
+    table = Ruport::Data::Table.new :data => csv2, :column_names => header
+    raise 'cannot build ruport instance from CSV' if ! table
+    
+    return table
   end
   
 end

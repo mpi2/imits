@@ -9,6 +9,7 @@ class Reports::MiProduction::Detail
       'Sub-Project',
       'Priority',
       'Production Centre',
+      'Gene',
       'Status',
       'Assigned Date',
       'Assigned - ES Cell QC In Progress Date',

@@ -11,6 +11,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
         'Sub-Project',
         'Priority',
         'Production Centre',
+        'Gene',
         'Status',
         'Assigned Date',
         'Assigned - ES Cell QC In Progress Date',
@@ -45,6 +46,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
       report = Reports::MiProduction::Detail.generate
       assert_equal 'BaSH', report.data[0]['Consortium']
       assert_equal 'WTSI', report.data[0]['Production Centre']
+      assert_equal 'Cbx1', report.data[0]['Gene']
       assert ! report.data[0]['Assigned - ES Cell QC Complete Date'].blank?
       assert ! report.data[0]['Micro-injection in progress Date'].blank?
       assert report.data[0]['Genotype confirmed Date'].blank?

@@ -6,52 +6,10 @@ class Reports::ConsortiumPrioritySummary
   extend ActionView::Helpers::UrlHelper
   
   DEBUG = true
-  
-  #overall status
-  
-  #Interest
-  #Assigned - ES Cell QC In Progress
-  #Assigned - ES Cell QC Complete
-  #Micro-injection in progress
-  #Assigned
-  #Inspect - MI Attempt
-  #Aborted - ES Cell QC Failed
-  #Conflict
-  #Genotype confirmed
-  #Inspect - Conflict
-  #Inspect - GLT Mouse
-  #Withdrawn
-  #Micro-injection aborted
-  
-  #MiPlan Status
-  
-  #Interest
-  #Assigned - ES Cell QC In Progress
-  #Assigned - ES Cell QC Complete
-  #Assigned
-  #Inspect - MI Attempt
-  #Aborted - ES Cell QC Failed
-  #Conflict
-  #Inspect - Conflict
-  #Inspect - GLT Mouse
-  #Withdrawn
-  #Inactive  
-  
-  #TODO: Confirm that 'All projects' excludes MIPlan Inactive, MI Plan Withdrawn.
-    
+      
   CSV_LINKS = true  
   ORDER_BY_MAP = { 'Low' => 3, 'Medium' => 2, 'High' => 1}
   MAPPING_FEED = {
-    #'All' => ['Interest',
-    #  'Assigned - ES Cell QC In Progress',
-    #  'Assigned - ES Cell QC Complete',
-    #  'Micro-injection in progress',
-    #  'Assigned',
-    #  'Inspect - MI Attempt',
-    #  'Conflict',
-    #  'Genotype confirmed',
-    #  'Inspect - Conflict',
-    #  'Inspect - GLT Mouse'],
     'All' => [
       'Inactive',
       'Withdrawn'
@@ -109,47 +67,6 @@ class Reports::ConsortiumPrioritySummary
       }
     ).each do |row|
       
-      #img = "#{script_name}../images/ikmc-favicon.ico"
-      
-      #make_link = lambda {|value|
-      #  return value.to_s.length > 1 ? value : '' if request && request.format == :csv
-      #  value.to_s.length > 1 ?
-      #    "<p style='margin: 0px; padding: 0px;text-align: center;'>" +
-      #    "<a target='_blank' title='Click through to IKMC (#{value})' href='http://www.knockoutmouse.org/martsearch/project/#{value}'>" +
-      #    "<img src='#{img}'></img></a></p>" :
-      #    ''
-      #}
-
-#      make_link = lambda {|value|
-#        return value.to_s.length > 1 ? value : '' if request && request.format == :csv
-#        status = row['Overall Status']
-#        return '' if (!row['IKMC Project ID'] || row['IKMC Project ID'].length < 1) && (!row['MGI Accession ID'] || row['MGI Accession ID'].length < 1)
-#        text = 'Details'
-#        href = "http://www.knockoutmouse.org/martsearch/search?query=#{row['MGI Accession ID']}"
-#        href = "http://www.knockoutmouse.org/martsearch/project/#{row['IKMC Project ID']}" if status == 'Genotype confirmed' && row['IKMC Project ID'] && row['IKMC Project ID'].length > 0
-#        text = 'Order' if status == 'Genotype confirmed'
-##        return "<p style='text-align: center;'><a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a></p>"
-#        return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
-#      }
-
-#      make_link = lambda {|value|
-##        return value.to_s.length > 1 ? value : '' if request && request.format == :csv
-#        status = row['Overall Status']
-#        project_id = row['IKMC Project ID']
-#        accession_id = row['Accession ID']
-#        gene = row['Gene']
-#        return '' if (!project_id || project_id.length < 1) && (!accession_id || accession_id.length < 1)
-#        href = "http://www.knockoutmouse.org/martsearch/search?query=#{gene}"
-#        href = "http://www.knockoutmouse.org/martsearch/search?query=#{accession_id}" if accession_id
-#        href = "http://www.knockoutmouse.org/martsearch/project/#{project_id}" if status == 'Genotype confirmed'
-#        text = 'Details'
-#        text = 'Order' if status == 'Genotype confirmed'
-#        return project_id if request && request.format == :csv && status == 'Genotype confirmed'
-#        return accession_id if request && request.format == :csv && accession_id
-#        return gene if request && request.format == :csv
-#        return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
-#      }
-
       make_link = lambda {|value|
         status = row['Overall Status']
         project_id = row['IKMC Project ID']
@@ -167,7 +84,6 @@ class Reports::ConsortiumPrioritySummary
         return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
       }
       
-#      mt = fix_mutation_type row['Mutation Type']
       mt = fix_mutation_type row['Mutation Sub-Type']
 
       report_table << {        
@@ -216,13 +132,8 @@ class Reports::ConsortiumPrioritySummary
         
     grouped_report.summary(
       'Consortium',
-      #'All'                => lambda { |group| count_instances_of( group, 'Gene',
-      #    lambda { |row| MAPPING_FEED['All'].include? row.data['Overall Status'] } ) },
       'All'                => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| (! MAPPING_FEED['All'].include?(row.data['MiPlan Status'])) } ) },
-      
-      #        return (row['Consortium'] == consortium && ! MAPPING_FEED['All'].include?(row.data['MiPlan Status'])) if status == 'All'
-      
       'Activity'           => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Activity'].include? row.data['Overall Status'] } ) },
       'Mice in production' => lambda { |group| count_instances_of( group, 'Gene',
@@ -234,11 +145,8 @@ class Reports::ConsortiumPrioritySummary
       'Phenotype data available'           => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Phenotype data available'].include? row.data['PhenotypeAttempt Status'] } ) },
 
-      #'All_distinct'                => lambda { |group| count_unique_instances_of( group, 'Gene',
-      #    lambda { |row| MAPPING_FEED['All'].include? row.data['Overall Status'] } ) },
       'All_distinct'                => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| (! MAPPING_FEED['All'].include?(row.data['MiPlan Status'])) } ) },
-
       'Activity_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Activity'].include? row.data['Overall Status'] } ) },
       'Mice in production_distinct' => lambda { |group| count_unique_instances_of( group, 'Gene',
@@ -632,13 +540,7 @@ class Reports::ConsortiumPrioritySummary
     
     return title, report
   end
-  
-  #5) Pipeline Efficiency now computed by:
-  #Number of genotype confirmed mice right now /
-  #(Number of active MI plans with non-aborted MIs more than 6 months old + number of genotype confirmed mice right now)
-  
-  # TODO: fix the way this works
-  
+   
   def self.efficiency(request, row)
     glt = Integer(row['Genotype Confirmed Mice'])
     failures = row['Languishing']

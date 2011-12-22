@@ -34,7 +34,7 @@ namespace :cron do
   desc 'Generate cached reports'
   task :cache_reports => [:environment] do
     audited_transaction do
-      Reports::MiProduction::Detail.generate_and_cache
+      Reports::MiProduction::Intermediate.generate_and_cache
     end
   end
 end

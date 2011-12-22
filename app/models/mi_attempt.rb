@@ -379,10 +379,18 @@ class MiAttempt < ApplicationModel
   end
 
   def mouse_allele_symbol
-    if mouse_allele_type.nil?
-      return nil
-    else
+    if mouse_allele_symbol_superscript
       return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
+    else
+      return nil
+    end
+  end
+
+  def allele_symbol
+    if mouse_allele_type
+      return mouse_allele_symbol
+    else
+      return es_cell.allele_symbol
     end
   end
 

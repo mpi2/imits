@@ -1,8 +1,9 @@
 <% @tab = 'Reports' %>
-<div class="grid_12">
+<div class="grid_4 prefix_4 suffix_4">
   <h2><%= @tab %></h2>
 </div>
-<div class="grid_3">
+
+<div class="grid_4">
   <h3>Genes</h3>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :genes_list, :format => :csv) %>">
@@ -15,7 +16,8 @@
     </a>
   </div>
 </div>
-<div class="grid_5">
+
+<div class="grid_4">
   <h3>Micro-Injection Planning</h3>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :planned_microinjection_summary_and_conflicts) %>">
@@ -41,12 +43,12 @@
       <p>List showing double-assigned planned micro-injections grouped by consortia.</p>
     </a>
   </div>
-
 </div>
+
 <div class="grid_4">
   <h3>Micro-Injection Production</h3>
   <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :mi_production) %>">
+    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :detail) %>">
       <h4>Detailed Report</h4>
       <p>
         The detailed micro-injection production report
@@ -74,4 +76,5 @@
       <p>Lists details on all micro-injections attempts.</p>
     </a>
   </div>
+
 </div>

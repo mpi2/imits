@@ -6,22 +6,14 @@ class Reports::ConsortiumPrioritySummary
   extend ActionView::Helpers::UrlHelper
   
   DEBUG = false
-  
-  #TODO: Confirm that 'All projects' excludes MIPlan Inactive, MI Plan Withdrawn.
-    
+      
   CSV_LINKS = true  
   ORDER_BY_MAP = { 'Low' => 3, 'Medium' => 2, 'High' => 1}
   MAPPING_FEED = {
-    'All' => ['Interest',
-      'Assigned - ES Cell QC In Progress',
-      'Assigned - ES Cell QC Complete',
-      'Micro-injection in progress',
-      'Assigned',
-      'Inspect - MI Attempt',
-      'Conflict',
-      'Genotype confirmed',
-      'Inspect - Conflict',
-      'Inspect - GLT Mouse'],
+    'All' => [
+      'Inactive',
+      'Withdrawn'
+      ],
     'Activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
     'Mice in production' => ['Micro-injection in progress', 'Genotype confirmed'],
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
@@ -56,9 +48,9 @@ class Reports::ConsortiumPrioritySummary
     consortium = params[:consortium]
     status = params[:type]
 
-    report_table = Table([ 'Consortium', 'Production Centre', 'Marker symbol', 'Order at IKMC', 'Mutation type', 'Allele name', 'Genetic background' ] )
+    report_table = Table([ 'Consortium', 'Production Centre', 'Marker symbol', 'Details at IKMC', 'Mutation type', 'Allele name', 'Genetic background' ] )
 
-    @@cached_report ||= get_cached_report('mi_production_intermediate')
+    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     script_name = request ? request.url : ''    
     script_name = script_name.gsub(/production_summary1\?.+/, '')
@@ -67,29 +59,38 @@ class Reports::ConsortiumPrioritySummary
     report = Table(:data => @@cached_report.data,
       :column_names => @@cached_report.column_names,
       :filters => lambda {|r|
+        
+        return (r['Consortium'] == consortium && ! MAPPING_FEED['All'].include?(r.data['MiPlan Status'])) if status == 'All'
+        
         return (r['Consortium'] == consortium) &&
           (MAPPING_FEED[status].include?(r.data['Overall Status']) || MAPPING_FEED[status].include?(r.data['PhenotypeAttempt Status']))
       }
     ).each do |row|
       
-      img = "#{script_name}../images/ikmc-favicon.ico"
-      
       make_link = lambda {|value|
-        return value.to_s.length > 1 ? value : '' if request && request.format == :csv
-        value.to_s.length > 1 ?
-          "<p style='margin: 0px; padding: 0px;text-align: center;'>" +
-          "<a target='_blank' title='Click through to IKMC (#{value})' href='http://www.knockoutmouse.org/martsearch/project/#{value}'>" +
-          "<img src='#{img}'></img></a></p>" :
-          ''
+        status = row['Overall Status']
+        project_id = row['IKMC Project ID']
+        accession_id = row['Accession ID']
+        gene = row['Gene']
+        return '' if (!project_id || project_id.length < 1) && (!accession_id || accession_id.length < 1) && (!gene || gene.length < 1)
+        href = "http://www.knockoutmouse.org/martsearch/search?query=#{gene}"
+        href = "http://www.knockoutmouse.org/martsearch/search?query=#{accession_id}" if accession_id
+        href = "http://www.knockoutmouse.org/martsearch/project/#{project_id}" if status == 'Genotype confirmed'
+        text = 'Details'
+        text = 'Order' if status == 'Genotype confirmed'
+        return project_id if request && request.format == :csv && status == 'Genotype confirmed'
+        return accession_id if request && request.format == :csv && accession_id
+        return gene if request && request.format == :csv
+        return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
       }
       
-      mt = fix_mutation_type row['Mutation Type']
+      mt = fix_mutation_type row['Mutation Sub-Type']
 
       report_table << {        
         'Consortium' => row['Consortium'],
         'Production Centre' => row['Production Centre'],
         'Marker symbol' => row['Gene'],
-        'Order at IKMC' => make_link.call(row['IKMC Project ID']),
+        'Details at IKMC' => make_link.call(row['IKMC Project ID']),
         'Mutation type' => mt,
         'Allele name' => row['Allele Symbol'],
         'Genetic background' => row['Genetic Background']
@@ -122,7 +123,7 @@ class Reports::ConsortiumPrioritySummary
     
     script_name = request ? request.url : ''
           
-    @@cached_report ||= get_cached_report('mi_production_intermediate')
+    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production', 'Genotype Confirmed Mice', 'All_distinct',
         'Activity_distinct', 'Mice in production_distinct', 'GLT Mice_distinct', 'Phenotyping in progress', 'Phenotype data available' ] )
@@ -132,7 +133,7 @@ class Reports::ConsortiumPrioritySummary
     grouped_report.summary(
       'Consortium',
       'All'                => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['All'].include? row.data['Overall Status'] } ) },
+          lambda { |row| (! MAPPING_FEED['All'].include?(row.data['MiPlan Status'])) } ) },
       'Activity'           => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Activity'].include? row.data['Overall Status'] } ) },
       'Mice in production' => lambda { |group| count_instances_of( group, 'Gene',
@@ -145,7 +146,7 @@ class Reports::ConsortiumPrioritySummary
           lambda { |row| MAPPING_FEED['Phenotype data available'].include? row.data['PhenotypeAttempt Status'] } ) },
 
       'All_distinct'                => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['All'].include? row.data['Overall Status'] } ) },
+          lambda { |row| (! MAPPING_FEED['All'].include?(row.data['MiPlan Status'])) } ) },
       'Activity_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Activity'].include? row.data['Overall Status'] } ) },
       'Mice in production_distinct' => lambda { |group| count_unique_instances_of( group, 'Gene',
@@ -242,7 +243,7 @@ class Reports::ConsortiumPrioritySummary
     script_name = request ? request.env['REQUEST_URI'] : ''
     script_name = script_name.gsub(/_all/, '2') # blag the url if we're called from _all
 
-    @@cached_report ||= get_cached_report('mi_production_intermediate')
+    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     report_table = Table( ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
         'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'Languishing'] )
@@ -315,7 +316,7 @@ class Reports::ConsortiumPrioritySummary
     script_name = request ? request.env['REQUEST_URI'] : ''
     script_name = script_name.gsub(/_all/, '3') # blag the url if we're called from _all
 
-    @@cached_report ||= get_cached_report('mi_production_intermediate')
+    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     report_table = Table( ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC failed', 'ES QC confirmed', 'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'order_by', 'Languishing'] )
  
@@ -396,7 +397,7 @@ class Reports::ConsortiumPrioritySummary
     script_name = request ? request.env['REQUEST_URI'] : ''
     script_name = script_name.gsub(/_all/, '4') # blag the url if we're called from _all
 
-    @@cached_report ||= get_cached_report('mi_production_intermediate')
+    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     report_table = Table( ['Consortium', 'Sub-Project', 'Priority', 'All', 'ES QC started', 'ES QC failed', 'ES QC confirmed',
         'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'order_by', 'Languishing'] )
@@ -440,10 +441,10 @@ class Reports::ConsortiumPrioritySummary
             consort = CGI.escape consortium
             type = CGI.escape key
             priority = CGI.escape row['Priority']
-            subproject = CGI.escape subproject
+            sp = CGI.escape subproject
             id = (consort + '_' + type + '_' + priority).gsub(/\-|\+|\s+/, "_").downcase
             row[key].to_s != '0' ?
-              "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{key}&priority=#{priority}&subproject=#{subproject}'>#{row[key]}</a>" :
+              "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{key}&priority=#{priority}&subproject=#{sp}'>#{row[key]}</a>" :
               ''
           }
 
@@ -497,7 +498,7 @@ class Reports::ConsortiumPrioritySummary
     priority = params[:priority]
     subproject = params[:subproject]    
   
-    @@cached_report ||= get_cached_report('mi_production_intermediate')
+    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
       
     counter = 1
     report = Table(:data => @@cached_report.data,
@@ -539,13 +540,7 @@ class Reports::ConsortiumPrioritySummary
     
     return title, report
   end
-  
-  #5) Pipeline Efficiency now computed by:
-  #Number of genotype confirmed mice right now /
-  #(Number of active MI plans with non-aborted MIs more than 6 months old + number of genotype confirmed mice right now)
-  
-  # TODO: fix the way this works
-  
+   
   def self.efficiency(request, row)
     glt = Integer(row['Genotype Confirmed Mice'])
     failures = row['Languishing']
@@ -566,26 +561,5 @@ class Reports::ConsortiumPrioritySummary
     gap = today - before
     return gap && gap > 180
   end
-  
-  #TODO: move to reports cache model
-  
-  def self.get_cached_report(name)
-    detail_cache = ReportCache.find_by_name(name)
-    raise 'cannot get cached report' if ! detail_cache
     
-    csv1 = detail_cache.csv_data
-    raise 'cannot get cached report CSV' if ! csv1
-
-    csv2 = CSV.parse(csv1)
-    raise 'cannot parse CSV' if ! csv2
-
-    header = csv2.shift
-    raise 'cannot get CSV header' if ! header
-
-    table = Ruport::Data::Table.new :data => csv2, :column_names => header
-    raise 'cannot build ruport instance from CSV' if ! table
-    
-    return table
-  end
-  
 end

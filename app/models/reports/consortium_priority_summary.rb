@@ -5,7 +5,7 @@ class Reports::ConsortiumPrioritySummary
   extend Reports::Helper
   extend ActionView::Helpers::UrlHelper
   
-  DEBUG = true
+  DEBUG = false
       
   CSV_LINKS = true  
   ORDER_BY_MAP = { 'Low' => 3, 'Medium' => 2, 'High' => 1}
@@ -47,9 +47,6 @@ class Reports::ConsortiumPrioritySummary
   def self.subsummary1(request, params)
     consortium = params[:consortium]
     status = params[:type]
-    
-    puts "subsummary1: consortium: '#{consortium}'"
-    puts "subsummary1: status: '#{status}'"
 
     script_name = request ? request.url : ''
     script_name = script_name.gsub(/production_summary1\?.+/, '')
@@ -181,18 +178,6 @@ class Reports::ConsortiumPrioritySummary
       'Phenotype data available_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Phenotype data available'].include? row.data['PhenotypeAttempt Status'] } ) }
     ).each do |row|
-            
-      #make_link = lambda {|key|
-      #  return row[key] if request && request.format == :csv
-      #  consortium = CGI.escape row['Consortium']
-      #  type = CGI.escape key
-      #  separator = /\?/.match(script_name) ? '&' : '?'
-      #  title = /_distinct/.match(key) ? 'Totals for unique Genes' : nil
-      #  title = title ? "title='#{title}'" : ''
-      #  row[key].to_s != '0' ?
-      #    "<a title='Click to see list of #{key}' title href='#{script_name}#{separator}consortium=#{consortium}&type=#{type}'>#{row[key]}</a>" :
-      #    ''
-      #}
 
       make_link = lambda {|key|
         return row[key] if request && request.format == :csv
@@ -221,6 +206,8 @@ class Reports::ConsortiumPrioritySummary
       }
 
     end
+    
+    #TODO: lose summaries initialization
 
     summaries = { 'All' => 0, 'Activity' => 0, 'Mice in production' => 0, 'Genotype Confirmed Mice' => 0,
       'All_distinct' => 0, 'Activity_distinct' => 0, 'Mice in production_distinct' => 0, 'Genotype Confirmed Mice_distinct' => 0,
@@ -234,20 +221,10 @@ class Reports::ConsortiumPrioritySummary
         match = /\>(\d+)\</.match(r[name].to_s) if r[name]
         match ||= /(\d+)/.match(r[name].to_s) if r[name]
         value = match && match[1] ? Integer(match[1]) : 0
-        puts "TRYING: " + name
-        #  summaries[name] ||= 0
         summaries[name] += Integer(value)
       end
       0
     }
-
-    #make_sum = lambda {|value|
-    #  return value if request && request.format == :csv
-    #  return '' if value == 0
-    #  #      return strong(value)
-    #  title = value != 'Total' ? "title='Total for Unique Genes'" : ''
-    #  return "<span #{title}>" + strong(value) + '</span>'
-    #}
 
     make_sum = lambda {|key|
       return summaries[key] if request && request.format == :csv

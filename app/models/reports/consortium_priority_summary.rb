@@ -47,6 +47,9 @@ class Reports::ConsortiumPrioritySummary
   def self.subsummary1(request, params)
     consortium = params[:consortium]
     status = params[:type]
+    
+    puts "subsummary1: consortium: '#{consortium}'"
+    puts "subsummary1: status: '#{status}'"
 
     report_table = Table([ 'Consortium', 'Production Centre', 'Status', 'Marker symbol', 'Details at IKMC', 'Mutation type', 'Allele name', 'Genetic background' ] )
 
@@ -56,9 +59,11 @@ class Reports::ConsortiumPrioritySummary
       :column_names => @@cached_report.column_names,
       :filters => lambda {|r|
         
-        return (r['Consortium'] == consortium && ! MAPPING_FEED['All'].include?(r.data['MiPlan Status'])) if status == 'All'
+        consortium_ok = consortium && consortium.length > 0
         
-        return (r['Consortium'] == consortium) &&
+        return (!consortium_ok || r['Consortium'] == consortium) && (! MAPPING_FEED['All'].include?(r.data['MiPlan Status'])) if status == 'All'
+        
+        return (!consortium_ok || r['Consortium'] == consortium) &&
           (MAPPING_FEED[status].include?(r.data['Overall Status']) || MAPPING_FEED[status].include?(r.data['PhenotypeAttempt Status']))
       }
     ).each do |row|
@@ -145,7 +150,7 @@ class Reports::ConsortiumPrioritySummary
     @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production', 'Genotype Confirmed Mice', 'All_distinct',
-        'Activity_distinct', 'Mice in production_distinct', 'GLT Mice_distinct', 'Phenotyping in progress', 'Phenotype data available' ] )
+        'Activity_distinct', 'Mice in production_distinct', 'Genotype Confirmed Mice_distinct', 'Phenotype data available' ] )
    
     grouped_report = Grouping( @@cached_report, :by => [ 'Consortium', 'Priority' ] )
         
@@ -170,7 +175,7 @@ class Reports::ConsortiumPrioritySummary
           lambda { |row| MAPPING_FEED['Activity'].include? row.data['Overall Status'] } ) },
       'Mice in production_distinct' => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Mice in production'].include? row.data['Overall Status'] } ) },
-      'GLT Mice_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
+      'Genotype Confirmed Mice_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
       'Phenotyping in progress_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Phenotyping in progress'].include? row.data['PhenotypeAttempt Status'] } ) },
@@ -211,7 +216,7 @@ class Reports::ConsortiumPrioritySummary
         'All_distinct' => row['All_distinct'],
         'Activity_distinct' => row['Activity_distinct'],
         'Mice in production_distinct' => row['Mice in production_distinct'],
-        'GLT Mice_distinct' => row['GLT Mice_distinct'],
+        'Genotype Confirmed Mice_distinct' => row['Genotype Confirmed Mice_distinct'],
         'Phenotyping in progress_distinct' => make_link.call('Phenotyping in progress_distinct'),
         'Phenotype data available_distinct' => make_link.call('Phenotype data available_distinct'),
       }
@@ -219,9 +224,10 @@ class Reports::ConsortiumPrioritySummary
     end
 
     summaries = { 'All' => 0, 'Activity' => 0, 'Mice in production' => 0, 'Genotype Confirmed Mice' => 0,
-      'All_distinct' => 0, 'Activity_distinct' => 0, 'Mice in production_distinct' => 0, 'GLT Mice_distinct' => 0,
+      'All_distinct' => 0, 'Activity_distinct' => 0, 'Mice in production_distinct' => 0, 'Genotype Confirmed Mice_distinct' => 0,
       'Phenotyping in progress' => 0, 'Phenotype data available' => 0, 'Phenotyping in progress_distinct' => 0,
       'Phenotype data available_distinct' =>  0 }
+    
     report_table.sum { |r|
       report_table.column_names.each do |name|
         next if name == 'Consortium'
@@ -229,27 +235,41 @@ class Reports::ConsortiumPrioritySummary
         match = /\>(\d+)\</.match(r[name].to_s) if r[name]
         match ||= /(\d+)/.match(r[name].to_s) if r[name]
         value = match && match[1] ? Integer(match[1]) : 0
+        puts "TRYING: " + name
+        #  summaries[name] ||= 0
         summaries[name] += Integer(value)
       end
       0
     }
 
-    make_sum = lambda {|value|
-      return value if request && request.format == :csv
-      return '' if value == 0
-      #      return strong(value)
-      title = value != 'Total' ? "title='Total for Unique Genes'" : ''
-      return "<span #{title}>" + strong(value) + '</span>'
+    #make_sum = lambda {|value|
+    #  return value if request && request.format == :csv
+    #  return '' if value == 0
+    #  #      return strong(value)
+    #  title = value != 'Total' ? "title='Total for Unique Genes'" : ''
+    #  return "<span #{title}>" + strong(value) + '</span>'
+    #}
+
+    make_sum = lambda {|key|
+      return summaries[key] if request && request.format == :csv
+      return '' if summaries[key] == 0
+      type = CGI.escape key
+      type = type.gsub(/_distinct/, '')
+      separator = /\?/.match(script_name) ? '&' : '?'
+      summaries[key].to_s != '0' ?
+        "<a title='Click to see list of #{type}' href='#{script_name}#{separator}consortium=&type=#{type}'>" +
+        strong(summaries[key]) + "</a>" :
+        ''
     }
         
     report_table << {        
-      'Consortium' => make_sum.call('Total'),
-      'All' => make_sum.call(summaries['All_distinct']),
-      'Activity' => make_sum.call(summaries['Activity_distinct']),
-      'Mice in production' => make_sum.call(summaries['Mice in production_distinct']),
-      'Genotype Confirmed Mice' => make_sum.call(summaries['GLT Mice_distinct']),
-      'Phenotyping in progress' => make_sum.call(summaries['Phenotyping in progress_distinct']),
-      'Phenotype data available' => make_sum.call(summaries['Phenotype data available_distinct'])
+      'Consortium' => strong('Total'),
+      'All' => make_sum.call('All_distinct'),
+      'Activity' => strong(summaries['Activity_distinct']),
+      'Mice in production' => strong(summaries['Mice in production_distinct']),
+      'Genotype Confirmed Mice' => strong(summaries['Genotype Confirmed Mice_distinct']),
+      'Phenotyping in progress' => !summaries['Phenotyping in progress_distinct'] || summaries['Phenotyping in progress_distinct'] == 0 ? '' : strong(summaries['Phenotyping in progress_distinct']),
+      'Phenotype data available' => !summaries['Phenotype data available_distinct'] || summaries['Phenotype data available_distinct'] == 0 ? '' : strong(summaries['Phenotype data available_distinct'])
     }
     
     report_table.rename_column("All","All Projects")
@@ -259,7 +279,7 @@ class Reports::ConsortiumPrioritySummary
     report_table.remove_column("All_distinct")
     report_table.remove_column("Activity_distinct")
     report_table.remove_column("Mice in production_distinct")
-    report_table.remove_column("GLT Mice_distinct")
+    report_table.remove_column("Genotype Confirmed Mice_distinct")
        
     return 'Production Summary 1 (feed)', report_table
   end

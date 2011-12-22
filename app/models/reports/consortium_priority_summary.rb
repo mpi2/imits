@@ -510,6 +510,7 @@ class Reports::ConsortiumPrioritySummary
   end
   
   def self.fix_mutation_type(mt)
+    return "Knockout First" if mt == 'conditional_ready'
     mt = mt ? mt.gsub(/_/, ' ') : ''
     mt = mt.gsub(/\b\w/){$&.upcase}
     return mt

@@ -13,7 +13,7 @@ class Reports::ConsortiumPrioritySummary
     'All' => [
       'Inactive',
       'Withdrawn'
-      ],
+    ],
     'Activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
     'Mice in production' => ['Micro-injection in progress', 'Genotype confirmed'],
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
@@ -48,15 +48,11 @@ class Reports::ConsortiumPrioritySummary
     consortium = params[:consortium]
     status = params[:type]
 
-    report_table = Table([ 'Consortium', 'Production Centre', 'Marker symbol', 'Details at IKMC', 'Mutation type', 'Allele name', 'Genetic background' ] )
+    report_table = Table([ 'Consortium', 'Production Centre', 'Status', 'Marker symbol', 'Details at IKMC', 'Mutation type', 'Allele name', 'Genetic background' ] )
 
     @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
-
-    script_name = request ? request.url : ''    
-    script_name = script_name.gsub(/production_summary1\?.+/, '')
-        
-    counter = 1
-    report = Table(:data => @@cached_report.data,
+  
+    Table(:data => @@cached_report.data,
       :column_names => @@cached_report.column_names,
       :filters => lambda {|r|
         
@@ -67,21 +63,43 @@ class Reports::ConsortiumPrioritySummary
       }
     ).each do |row|
       
+      #make_link = lambda {|value|
+      #  status = row['Overall Status']
+      #  project_id = row['IKMC Project ID']
+      #  accession_id = row['Accession ID']
+      #  gene = row['Gene']
+      #  return '' if (!project_id || project_id.length < 1) && (!accession_id || accession_id.length < 1) && (!gene || gene.length < 1)
+      #  href = "http://www.knockoutmouse.org/martsearch/search?query=#{gene}"
+      #  href = "http://www.knockoutmouse.org/martsearch/search?query=#{accession_id}" if accession_id
+      #  href = "http://www.knockoutmouse.org/martsearch/project/#{project_id}" if status == 'Genotype confirmed'
+      #  text = 'Details'
+      #  text = 'Order' if status == 'Genotype confirmed'
+      #  return project_id if request && request.format == :csv && status == 'Genotype confirmed'
+      #  return accession_id if request && request.format == :csv && accession_id
+      #  return gene if request && request.format == :csv
+      #  return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
+      #}
+
       make_link = lambda {|value|
         status = row['Overall Status']
         project_id = row['IKMC Project ID']
-        accession_id = row['Accession ID']
+        accession_id = row['MGI Accession ID']
         gene = row['Gene']
+        
         return '' if (!project_id || project_id.length < 1) && (!accession_id || accession_id.length < 1) && (!gene || gene.length < 1)
-        href = "http://www.knockoutmouse.org/martsearch/search?query=#{gene}"
-        href = "http://www.knockoutmouse.org/martsearch/search?query=#{accession_id}" if accession_id
-        href = "http://www.knockoutmouse.org/martsearch/project/#{project_id}" if status == 'Genotype confirmed'
-        text = 'Details'
-        text = 'Order' if status == 'Genotype confirmed'
+        
+        href1 = "http://www.knockoutmouse.org/martsearch/search?query=#{gene}"
+        href2 = "http://www.knockoutmouse.org/martsearch/search?query=#{accession_id}"
+        href3 = "http://www.knockoutmouse.org/martsearch/project/#{project_id}"
+            
         return project_id if request && request.format == :csv && status == 'Genotype confirmed'
         return accession_id if request && request.format == :csv && accession_id
         return gene if request && request.format == :csv
-        return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
+        
+        return "<a target='_blank' title='Click through to IKMC (PID:#{project_id})' href='#{href3}'>Order</a>" if status == 'Genotype confirmed' && project_id && project_id.length > 0
+        return "<a target='_blank' title='Click through to IKMC (AID:#{accession_id})' href='#{href2}'>Details</a>" if accession_id && accession_id.length > 0
+        return "<a target='_blank' title='Click through to IKMC (Gene:#{gene})' href='#{href1}'>Details</a>" if gene && gene.length > 0 && gene != '(no gene)'
+        return ''
       }
       
       mt = fix_mutation_type row['Mutation Sub-Type']
@@ -93,7 +111,8 @@ class Reports::ConsortiumPrioritySummary
         'Details at IKMC' => make_link.call(row['IKMC Project ID']),
         'Mutation type' => mt,
         'Allele name' => row['Allele Symbol'],
-        'Genetic background' => row['Genetic Background']
+        'Genetic background' => row['Genetic Background'],
+        'Status' => row['Overall Status']
       }
     end
 
@@ -159,18 +178,27 @@ class Reports::ConsortiumPrioritySummary
           lambda { |row| MAPPING_FEED['Phenotype data available'].include? row.data['PhenotypeAttempt Status'] } ) }
     ).each do |row|
             
+      #make_link = lambda {|key|
+      #  return row[key] if request && request.format == :csv
+      #  consortium = CGI.escape row['Consortium']
+      #  type = CGI.escape key
+      #  separator = /\?/.match(script_name) ? '&' : '?'
+      #  title = /_distinct/.match(key) ? 'Totals for unique Genes' : nil
+      #  title = title ? "title='#{title}'" : ''
+      #  row[key].to_s != '0' ?
+      #    "<a title='Click to see list of #{key}' title href='#{script_name}#{separator}consortium=#{consortium}&type=#{type}'>#{row[key]}</a>" :
+      #    ''
+      #}
+
       make_link = lambda {|key|
         return row[key] if request && request.format == :csv
         consortium = CGI.escape row['Consortium']
         type = CGI.escape key
         separator = /\?/.match(script_name) ? '&' : '?'
-        puts "script_name: " + script_name
-        puts "separator: " + separator
         row[key].to_s != '0' ?
           "<a title='Click to see list of #{key}' href='#{script_name}#{separator}consortium=#{consortium}&type=#{type}'>#{row[key]}</a>" :
           ''
       }
-
       report_table << {        
         'Consortium' => row['Consortium'],
         'All' => make_link.call('All'),
@@ -209,7 +237,9 @@ class Reports::ConsortiumPrioritySummary
     make_sum = lambda {|value|
       return value if request && request.format == :csv
       return '' if value == 0
-      return strong(value)
+      #      return strong(value)
+      title = value != 'Total' ? "title='Total for Unique Genes'" : ''
+      return "<span #{title}>" + strong(value) + '</span>'
     }
         
     report_table << {        
@@ -344,8 +374,6 @@ class Reports::ConsortiumPrioritySummary
             lambda { |row| languishing(row) } ) }
       )
       
-      p_found = []
-
       summary.each do |row|
         
         make_link = lambda {|key|
@@ -361,7 +389,6 @@ class Reports::ConsortiumPrioritySummary
 
         pc = efficiency(request, row)
   
-        p_found.push row['Priority']
         report_table << {
           'Consortium' => consortium,
           'Priority' => row['Priority'],
@@ -432,8 +459,6 @@ class Reports::ConsortiumPrioritySummary
               lambda { |row| languishing(row) } ) }
         )
       
-        p_found = []
-
         summary.each do |row|
         
           make_link = lambda {|key|
@@ -450,7 +475,6 @@ class Reports::ConsortiumPrioritySummary
 
           pc = efficiency(request, row)
 
-          p_found.push row['Priority']
           report_table << {
             'Consortium' => consortium,
             'Sub-Project' => subproject,

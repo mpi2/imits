@@ -5,7 +5,7 @@ class Reports::ConsortiumPrioritySummary
   extend Reports::Helper
   extend ActionView::Helpers::UrlHelper
   
-  DEBUG = false
+  DEBUG = true
       
   CSV_LINKS = true  
   ORDER_BY_MAP = { 'Low' => 3, 'Medium' => 2, 'High' => 1}
@@ -567,7 +567,7 @@ class Reports::ConsortiumPrioritySummary
    
   def self.efficiency(request, row)
     glt = Integer(row['Genotype Confirmed Mice'])
-    failures = row['Languishing']
+    failures = Integer(row['Languishing']) + Integer(row['MI Aborted'])
     total = Integer(row['Genotype Confirmed Mice']) + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0

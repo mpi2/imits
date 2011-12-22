@@ -90,7 +90,7 @@ class Reports::ConsortiumPrioritySummary
     consortium = params[:consortium]
     status = params[:type]
 
-    report_table = Table([ 'Consortium', 'Production Centre', 'Marker symbol', 'Order at IKMC', 'Mutation type', 'Allele name', 'Genetic background' ] )
+    report_table = Table([ 'Consortium', 'Production Centre', 'Marker symbol', 'Details at IKMC', 'Mutation type', 'Allele name', 'Genetic background' ] )
 
     @@cached_report ||= get_cached_report('mi_production_intermediate')
 
@@ -109,15 +109,45 @@ class Reports::ConsortiumPrioritySummary
       }
     ).each do |row|
       
-      img = "#{script_name}../images/ikmc-favicon.ico"
+      #img = "#{script_name}../images/ikmc-favicon.ico"
       
+      #make_link = lambda {|value|
+      #  return value.to_s.length > 1 ? value : '' if request && request.format == :csv
+      #  value.to_s.length > 1 ?
+      #    "<p style='margin: 0px; padding: 0px;text-align: center;'>" +
+      #    "<a target='_blank' title='Click through to IKMC (#{value})' href='http://www.knockoutmouse.org/martsearch/project/#{value}'>" +
+      #    "<img src='#{img}'></img></a></p>" :
+      #    ''
+      #}
+
+#      make_link = lambda {|value|
+#        return value.to_s.length > 1 ? value : '' if request && request.format == :csv
+#        status = row['Overall Status']
+#        return '' if (!row['IKMC Project ID'] || row['IKMC Project ID'].length < 1) && (!row['MGI Accession ID'] || row['MGI Accession ID'].length < 1)
+#        text = 'Details'
+#        href = "http://www.knockoutmouse.org/martsearch/search?query=#{row['MGI Accession ID']}"
+#        href = "http://www.knockoutmouse.org/martsearch/project/#{row['IKMC Project ID']}" if status == 'Genotype confirmed' && row['IKMC Project ID'] && row['IKMC Project ID'].length > 0
+#        text = 'Order' if status == 'Genotype confirmed'
+##        return "<p style='text-align: center;'><a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a></p>"
+#        return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
+#      }
+
       make_link = lambda {|value|
-        return value.to_s.length > 1 ? value : '' if request && request.format == :csv
-        value.to_s.length > 1 ?
-          "<p style='margin: 0px; padding: 0px;text-align: center;'>" +
-          "<a target='_blank' title='Click through to IKMC (#{value})' href='http://www.knockoutmouse.org/martsearch/project/#{value}'>" +
-          "<img src='#{img}'></img></a></p>" :
-          ''
+#        return value.to_s.length > 1 ? value : '' if request && request.format == :csv
+        status = row['Overall Status']
+        project_id = row['IKMC Project ID']
+        accession_id = row['Accession ID']
+        gene = row['Gene']
+        return '' if (!project_id || project_id.length < 1) && (!accession_id || accession_id.length < 1)
+        href = "http://www.knockoutmouse.org/martsearch/search?query=#{gene}"
+        href = "http://www.knockoutmouse.org/martsearch/search?query=#{accession_id}" if accession_id
+        href = "http://www.knockoutmouse.org/martsearch/project/#{project_id}" if status == 'Genotype confirmed'
+        text = 'Details'
+        text = 'Order' if status == 'Genotype confirmed'
+        return project_id if request && request.format == :csv && status == 'Genotype confirmed'
+        return accession_id if request && request.format == :csv && accession_id
+        return gene if request && request.format == :csv
+        return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
       }
       
       mt = fix_mutation_type row['Mutation Type']
@@ -126,7 +156,7 @@ class Reports::ConsortiumPrioritySummary
         'Consortium' => row['Consortium'],
         'Production Centre' => row['Production Centre'],
         'Marker symbol' => row['Gene'],
-        'Order at IKMC' => make_link.call(row['IKMC Project ID']),
+        'Details at IKMC' => make_link.call(row['IKMC Project ID']),
         'Mutation type' => mt,
         'Allele name' => row['Allele Symbol'],
         'Genetic background' => row['Genetic Background']

@@ -11,22 +11,37 @@ class ReportsController < ApplicationController
   def index
   end
 
-  def send_data_csv(filename, report)
-    send_data(
-      report.to_csv,
-      :type     => 'text/csv; charset=utf-8; header=present',
-      :filename => filename
-    )
+  def production_summary2
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    @title2, @report = Reports::ConsortiumPrioritySummary.generate2(request, params)
+    send_data_csv('production_summary2.csv', @report.to_csv) if request.format == :csv
+  end
+
+  def production_summary3
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    @title2, @report = Reports::ConsortiumPrioritySummary.generate3(request, params)
+    send_data_csv('production_summary3.csv', @report.to_csv) if request.format == :csv
+  end
+
+  def production_summary4
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    @title2, @report = Reports::ConsortiumPrioritySummary.generate4(request, params)
+    send_data_csv('production_summary4.csv', @report.to_csv) if request.format == :csv
+  end
+
+  def production_summary5
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    send_data_csv('production_summary5.csv', @report.to_csv) if request.format == :csv
   end
 
   def double_assigned_plans_matrix
     @report = Reports::MiPlans::DoubleAssignment.get_matrix
-    send_data_csv('double_assigned_matrix.csv', @report) if request.format == :csv
+    send_data_csv('double_assigned_matrix.csv', @report.to_csv) if request.format == :csv
   end
 
   def double_assigned_plans_list
     @report = Reports::MiPlans::DoubleAssignment.get_list
-    send_data_csv('double_assigned_list.csv', @report) if request.format == :csv
+    send_data_csv('double_assigned_list.csv', @report.to_csv) if request.format == :csv
   end
 
   def double_assigned_plans
@@ -101,14 +116,14 @@ class ReportsController < ApplicationController
   def mi_attempts_monthly_production
     unless params[:commit].blank?
       @report = Reports::MonthlyProduction.generate(request, params)
-      send_data_csv('mi_attempts_monthly_production.csv', @report) if request.format == :csv
+      send_data_csv('mi_attempts_monthly_production.csv', @report.to_csv) if request.format == :csv
     end
   end
 
   def mi_attempts_by_gene
     unless params[:commit].blank?
       @report = Reports::GeneSummary.generate(request, params)
-      send_data_csv('mi_attempts_by_gene.csv', @report) if request.format == :csv
+      send_data_csv('mi_attempts_by_gene.csv', @report.to_csv) if request.format == :csv
     end
   end
 
@@ -269,10 +284,6 @@ class ReportsController < ApplicationController
       end
 
     end
-  end
-
-  def mi_production
-    @detail_cache = ReportCache.find_by_name('mi_production_detail')
   end
 
   protected

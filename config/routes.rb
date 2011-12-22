@@ -36,7 +36,11 @@ Kermits2::Application.routes.draw do
   match 'consortia' => "root#consortia", :as => :consortia
 
   match 'reports' => "reports#index", :as => :reports
+  match 'reports/mi_production/(:action(.:format))' => "reports/mi_production#:action"
   match 'reports/(:action(.:format))' => "reports#:action"
 
   resources :report_caches, :only => [:show]
+
+  match 'feeds/list/*specs', :controller => 'reports', :action => 'simple_subfeed_test'
+
 end

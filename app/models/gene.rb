@@ -301,20 +301,6 @@ class Gene < ActiveRecord::Base
       :required_attributes => ['mgi_accession_id']
     ).map { |row| row['mgi_accession_id'] }
 
-    # create new genes
-    new_mgi_ids_to_create = all_remote_mgi_accession_ids - all_current_mgi_accession_ids
-    if new_mgi_ids_to_create.size > 0
-      logger.debug "[Gene.sync_with_remotes] Gathering data for #{new_mgi_ids_to_create.size} new gene(s)..."
-      new_genes_data = {}
-      new_mgi_ids_to_create.each_slice(1000) { |slice| new_genes_data.merge!( get_gene_data_from_remotes(slice) ) }
-      new_genes_data.each do |mgi_accession_id,gene_data|
-        logger.debug "[Gene.sync_with_remotes] Creating gene entry for #{mgi_accession_id}"
-        Gene.create!(gene_data)
-      end
-    else
-      logger.debug "[Gene.sync_with_remotes] No new genes need to be created..."
-    end
-
     # update existing genes
     logger.debug "[Gene.sync_with_remotes] Gathering data for existing genes to see if they need updating..."
     current_genes_data = {}
@@ -329,6 +315,20 @@ class Gene < ActiveRecord::Base
         logger.debug "[Gene.sync_with_remotes] Updating information for #{current_gene.mgi_accession_id}"
         current_gene.update_attributes!(gene_data)
       end
+    end
+
+    # create new genes
+    new_mgi_ids_to_create = all_remote_mgi_accession_ids - all_current_mgi_accession_ids
+    if new_mgi_ids_to_create.size > 0
+      logger.debug "[Gene.sync_with_remotes] Gathering data for #{new_mgi_ids_to_create.size} new gene(s)..."
+      new_genes_data = {}
+      new_mgi_ids_to_create.each_slice(1000) { |slice| new_genes_data.merge!( get_gene_data_from_remotes(slice) ) }
+      new_genes_data.each do |mgi_accession_id,gene_data|
+        logger.debug "[Gene.sync_with_remotes] Creating gene entry for #{mgi_accession_id}"
+        Gene.create!(gene_data)
+      end
+    else
+      logger.debug "[Gene.sync_with_remotes] No new genes need to be created..."
     end
 
     # remove old genes that are no longer in the DCC_BIOMART - as long as they

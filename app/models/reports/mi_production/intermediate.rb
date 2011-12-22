@@ -29,6 +29,7 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
       'priority.name' => 'Priority',
       'production_centre.name' => 'Production Centre',
       'gene.marker_symbol' => 'Gene',
+      'gene.mgi_accession_id' => 'MGI Accession ID',
       'status.name' => 'MiPlan Status'
     }
 

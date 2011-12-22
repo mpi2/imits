@@ -109,6 +109,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Priority',
           'Production Centre',
           'Gene',
+          'MGI Accession ID',
           'Overall Status',
           'MiPlan Status',
           'MiAttempt Status',
@@ -144,6 +145,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Priority' => 'Medium',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
+          'MGI Accession ID' => 'MGI:105369',
           'Overall Status' => 'Phenotype Attempt Aborted',
           'MiPlan Status' => 'Assigned - ES Cell QC Complete',
           'MiAttempt Status' => 'Genotype confirmed',
@@ -178,6 +180,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Priority' => 'High',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
+          'MGI Accession ID' => 'MGI:105369',
           'Overall Status' => 'Micro-injection aborted',
           'MiPlan Status' => 'Assigned',
           'MiAttempt Status' => 'Micro-injection aborted',
@@ -208,6 +211,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         bash_ics_row = @report.find {|r| r.data['Consortium'] == 'BaSH' && r.data['Production Centre'] == 'ICS'}
         assert_equal 'Interest', bash_ics_row.data['Overall Status']
         assert_equal 'Interest', bash_ics_row.data['MiPlan Status']
+        assert_equal 'MGI:105369', bash_ics_row.data['MGI Accession ID']
         assert_equal '', bash_ics_row.data['MiAttempt Status']
         assert_equal '', bash_ics_row.data['PhenotypeAttempt Status']
         assert_equal '', bash_ics_row['IKMC Project ID']

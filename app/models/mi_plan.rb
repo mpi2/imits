@@ -75,7 +75,6 @@ class MiPlan < ApplicationModel
     end
 
     if mi_plan.changes.has_key? 'production_centre_id' and  ! mi_plan.mi_attempts.empty?
-      puts 'here'
       mi_plan.errors.add(:production_centre_name, 'cannot be changed - gene has been micro-injected on behalf of production centre already')
     end
   end

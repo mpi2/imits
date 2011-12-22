@@ -7,9 +7,12 @@
   params = qpos && qpos > -1 ? '?' + request.fullpath.scan( /\?(.+)/ ).last.first : ''
 %>
 
-<p><%= link_to('Download as CSV', url_for(:action => :production_summary1, :controller => :reports, :format => :csv) + params) if @csv %></p>
+<% if @csv %>
+<p><%= url = url_for(:action => :summary_by_consortium_and_accumulated_status, :controller => '/reports/mi_production', :format => :csv) + params;
+       link_to('Download as CSV', url) %></p>
 
-<% if @csv %><br/><% end %>
+<br/>
+<% end %>
 
 <div class="report grid_12">
 

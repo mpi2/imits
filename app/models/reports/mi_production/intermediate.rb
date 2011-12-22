@@ -29,6 +29,7 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
       'priority.name' => 'Priority',
       'production_centre.name' => 'Production Centre',
       'gene.marker_symbol' => 'Gene',
+      'gene.mgi_accession_id' => 'MGI Accession ID',
       'status.name' => 'MiPlan Status'
     }
 
@@ -52,7 +53,7 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
         record['MiAttempt Status'] = mi_attempt.mi_attempt_status.description
         record['Overall Status'] = record['MiAttempt Status']
         record['IKMC Project ID'] = mi_attempt.es_cell.ikmc_project_id
-        record['Mutation Type'] = mi_attempt.es_cell.mutation_type
+        record['Mutation Sub-Type'] = mi_attempt.es_cell.mutation_subtype
         record['Allele Symbol'] = mi_attempt.allele_symbol
         record['Genetic Background'] = mi_attempt.colony_background_strain.try(:name)
         mi_status_dates = mi_attempt.reportable_statuses_with_latest_dates
@@ -83,7 +84,7 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
       'MiAttempt Status',
       'PhenotypeAttempt Status',
       'IKMC Project ID',
-      'Mutation Type',
+      'Mutation Sub-Type',
       'Allele Symbol',
       'Genetic Background',
       'Assigned Date',

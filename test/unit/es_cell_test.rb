@@ -24,7 +24,7 @@ class EsCellTest < ActiveSupport::TestCase
       assert_should have_db_column(:pipeline_id).with_options(:null => false)
       assert_should validate_presence_of :pipeline
       assert_should have_db_column(:parental_cell_line).with_options(:null => true)
-      assert_should have_db_column(:mutation_type).of_type(:string).with_options(:limit => 100)
+      assert_should have_db_column(:mutation_subtype).of_type(:string).with_options(:limit => 100)
       assert_should have_db_column(:ikmc_project_id).of_type(:string).with_options(:limit => 100)
     end
 
@@ -119,7 +119,7 @@ class EsCellTest < ActiveSupport::TestCase
       assert_equal 'EUCOMM', es_cell.pipeline.name
       assert_equal 'JM8A1.N3', es_cell.parental_cell_line
       assert_equal '27671', es_cell.ikmc_project_id
-      assert_equal 'targeted_mutation', es_cell.mutation_type
+      assert_equal 'conditional_ready', es_cell.mutation_subtype
     end
 
     context '::create_es_cell_from_mart_data' do
@@ -132,7 +132,7 @@ class EsCellTest < ActiveSupport::TestCase
           'mgi_accession_id' => 'MGI:1924893',
           'parental_cell_line' => 'JM8A1.N3',
           'escell_ikmc_project_id' => '27671',
-          'mutation_type' => 'targeted_mutation'
+          'mutation_subtype' => 'conditional_ready'
         )
       end
 
@@ -187,7 +187,6 @@ class EsCellTest < ActiveSupport::TestCase
           'escell_ikmc_project_id' => '25489',
           'pipeline' => 'EUCOMM',
           'production_qc_loxp_screen' => 'pass',
-          'mutation_type' => 'targeted_mutation',
           'mutation_subtype' => 'conditional_ready',
           'marker_symbol' => 'Trafd1',
           'allele_symbol_superscript' => 'tm1a(EUCOMM)Wtsi',

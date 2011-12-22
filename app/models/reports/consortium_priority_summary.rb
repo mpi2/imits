@@ -5,23 +5,57 @@ class Reports::ConsortiumPrioritySummary
   extend Reports::Helper
   extend ActionView::Helpers::UrlHelper
   
-  DEBUG = false
+  DEBUG = true
+  
+  #overall status
+  
+  #Interest
+  #Assigned - ES Cell QC In Progress
+  #Assigned - ES Cell QC Complete
+  #Micro-injection in progress
+  #Assigned
+  #Inspect - MI Attempt
+  #Aborted - ES Cell QC Failed
+  #Conflict
+  #Genotype confirmed
+  #Inspect - Conflict
+  #Inspect - GLT Mouse
+  #Withdrawn
+  #Micro-injection aborted
+  
+  #MiPlan Status
+  
+  #Interest
+  #Assigned - ES Cell QC In Progress
+  #Assigned - ES Cell QC Complete
+  #Assigned
+  #Inspect - MI Attempt
+  #Aborted - ES Cell QC Failed
+  #Conflict
+  #Inspect - Conflict
+  #Inspect - GLT Mouse
+  #Withdrawn
+  #Inactive  
   
   #TODO: Confirm that 'All projects' excludes MIPlan Inactive, MI Plan Withdrawn.
     
   CSV_LINKS = true  
   ORDER_BY_MAP = { 'Low' => 3, 'Medium' => 2, 'High' => 1}
   MAPPING_FEED = {
-    'All' => ['Interest',
-      'Assigned - ES Cell QC In Progress',
-      'Assigned - ES Cell QC Complete',
-      'Micro-injection in progress',
-      'Assigned',
-      'Inspect - MI Attempt',
-      'Conflict',
-      'Genotype confirmed',
-      'Inspect - Conflict',
-      'Inspect - GLT Mouse'],
+    #'All' => ['Interest',
+    #  'Assigned - ES Cell QC In Progress',
+    #  'Assigned - ES Cell QC Complete',
+    #  'Micro-injection in progress',
+    #  'Assigned',
+    #  'Inspect - MI Attempt',
+    #  'Conflict',
+    #  'Genotype confirmed',
+    #  'Inspect - Conflict',
+    #  'Inspect - GLT Mouse'],
+    'All' => [
+      'Inactive',
+      'Withdrawn'
+      ],
     'Activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
     'Mice in production' => ['Micro-injection in progress', 'Genotype confirmed'],
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
@@ -67,6 +101,9 @@ class Reports::ConsortiumPrioritySummary
     report = Table(:data => @@cached_report.data,
       :column_names => @@cached_report.column_names,
       :filters => lambda {|r|
+        
+        return (r['Consortium'] == consortium && ! MAPPING_FEED['All'].include?(r.data['MiPlan Status'])) if status == 'All'
+        
         return (r['Consortium'] == consortium) &&
           (MAPPING_FEED[status].include?(r.data['Overall Status']) || MAPPING_FEED[status].include?(r.data['PhenotypeAttempt Status']))
       }
@@ -131,8 +168,13 @@ class Reports::ConsortiumPrioritySummary
         
     grouped_report.summary(
       'Consortium',
+      #'All'                => lambda { |group| count_instances_of( group, 'Gene',
+      #    lambda { |row| MAPPING_FEED['All'].include? row.data['Overall Status'] } ) },
       'All'                => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['All'].include? row.data['Overall Status'] } ) },
+          lambda { |row| (! MAPPING_FEED['All'].include?(row.data['MiPlan Status'])) } ) },
+      
+      #        return (row['Consortium'] == consortium && ! MAPPING_FEED['All'].include?(row.data['MiPlan Status'])) if status == 'All'
+      
       'Activity'           => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Activity'].include? row.data['Overall Status'] } ) },
       'Mice in production' => lambda { |group| count_instances_of( group, 'Gene',
@@ -144,8 +186,11 @@ class Reports::ConsortiumPrioritySummary
       'Phenotype data available'           => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Phenotype data available'].include? row.data['PhenotypeAttempt Status'] } ) },
 
+      #'All_distinct'                => lambda { |group| count_unique_instances_of( group, 'Gene',
+      #    lambda { |row| MAPPING_FEED['All'].include? row.data['Overall Status'] } ) },
       'All_distinct'                => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['All'].include? row.data['Overall Status'] } ) },
+          lambda { |row| (! MAPPING_FEED['All'].include?(row.data['MiPlan Status'])) } ) },
+
       'Activity_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Activity'].include? row.data['Overall Status'] } ) },
       'Mice in production_distinct' => lambda { |group| count_unique_instances_of( group, 'Gene',
@@ -440,10 +485,10 @@ class Reports::ConsortiumPrioritySummary
             consort = CGI.escape consortium
             type = CGI.escape key
             priority = CGI.escape row['Priority']
-            subproject = CGI.escape subproject
+            sp = CGI.escape subproject
             id = (consort + '_' + type + '_' + priority).gsub(/\-|\+|\s+/, "_").downcase
             row[key].to_s != '0' ?
-              "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{key}&priority=#{priority}&subproject=#{subproject}'>#{row[key]}</a>" :
+              "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{key}&priority=#{priority}&subproject=#{sp}'>#{row[key]}</a>" :
               ''
           }
 

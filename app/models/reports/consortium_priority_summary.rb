@@ -5,7 +5,7 @@ class Reports::ConsortiumPrioritySummary
   extend Reports::Helper
   extend ActionView::Helpers::UrlHelper
   
-  DEBUG = true
+  DEBUG = false
       
   CSV_LINKS = true  
   ORDER_BY_MAP = { 'Low' => 3, 'Medium' => 2, 'High' => 1}

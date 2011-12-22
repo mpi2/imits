@@ -43,6 +43,7 @@ class Reports::ConsortiumPrioritySummary
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
     'ES QC failed' => ['Aborted - ES Cell QC Failed']
   }
+  CONSORTIA_SUMMARY4 = ['EUCOMM-EUMODIC', 'BaSH', 'MGP']
 
   def self.subsummary1(request, params)
     consortium = params[:consortium]
@@ -410,7 +411,7 @@ class Reports::ConsortiumPrioritySummary
         
     return 'Production Summary 3', report_table
   end
-
+  
   def self.generate4(request = nil, params={})
 
     if params[:consortium]
@@ -427,9 +428,11 @@ class Reports::ConsortiumPrioritySummary
  
     grouped_report = Grouping( @@cached_report, :by => [ 'Consortium', 'Sub-Project', 'Priority' ] )
     
+    #TODO: Production summary report 4 should include EUCOMM-EUMODIC and BaSH, not just the MGP
+    
     grouped_report.each do |consortium|
       
-      next if consortium != 'MGP'
+      next if ! CONSORTIA_SUMMARY4.include?(consortium)
       
       subgrouping = grouped_report.subgrouping(consortium)
       
@@ -536,7 +539,10 @@ class Reports::ConsortiumPrioritySummary
             (subproject.nil? || r['Sub-Project'] == subproject) &&
             languishing(r)
         end
-      }
+      },
+      :transforms => lambda {|r|
+          r['Mutation Sub-Type'] = fix_mutation_type r['Mutation Sub-Type']
+        }
     )
     
     exclude_columns = [
@@ -555,6 +561,7 @@ class Reports::ConsortiumPrioritySummary
     priority = priority ? "Priority: #{priority} - " : ''
     
     report.rename_column 'Overall Status', 'Status'
+    report.rename_column 'Mutation Sub-Type', 'Mutation Type'
   
     title = "Production Summary Detail"
     title = "Production Summary Detail: #{consortium}#{subproject}#{type}#{priority} (#{report.size})" if DEBUG

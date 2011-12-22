@@ -54,10 +54,10 @@ class Reports::ConsortiumPrioritySummary
     
     report_table = Table([ 'Consortium', 'Production Centre', 'Status', 'Marker symbol', 'Details at IKMC', 'Order', 'Mutation type', 'Allele name', 'Genetic background' ] )
 
-    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
   
-    Table(:data => @@cached_report.data,
-      :column_names => @@cached_report.column_names,
+    Table(:data => cached_report.data,
+      :column_names => cached_report.column_names,
       :filters => lambda {|r|
         
         consortium_ok = consortium && consortium.length > 0
@@ -144,12 +144,12 @@ class Reports::ConsortiumPrioritySummary
     
     script_name = request ? request.url : ''
           
-    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production', 'Genotype Confirmed Mice', 'All_distinct',
         'Activity_distinct', 'Mice in production_distinct', 'Genotype Confirmed Mice_distinct', 'Phenotype data available' ] )
    
-    grouped_report = Grouping( @@cached_report, :by => [ 'Consortium', 'Priority' ] )
+    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
         
     grouped_report.summary(
       'Consortium',
@@ -270,12 +270,12 @@ class Reports::ConsortiumPrioritySummary
     script_name = request ? request.env['REQUEST_URI'] : ''
     script_name = script_name.gsub(/_all/, '2') # blag the url if we're called from _all
 
-    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     report_table = Table( ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
         'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'Languishing'] )
  
-    grouped_report = Grouping( @@cached_report, :by => [ 'Consortium' ] )
+    grouped_report = Grouping( cached_report, :by => [ 'Consortium' ] )
     
     summary = grouped_report.summary(
       'Consortium',
@@ -343,11 +343,11 @@ class Reports::ConsortiumPrioritySummary
     script_name = request ? request.env['REQUEST_URI'] : ''
     script_name = script_name.gsub(/_all/, '3') # blag the url if we're called from _all
 
-    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     report_table = Table( ['Consortium', 'Priority', 'All', 'ES QC started', 'ES QC failed', 'ES QC confirmed', 'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'order_by', 'Languishing'] )
  
-    grouped_report = Grouping( @@cached_report, :by => [ 'Consortium', 'Priority' ] )
+    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
     
     grouped_report.each do |consortium|
         
@@ -421,12 +421,12 @@ class Reports::ConsortiumPrioritySummary
     script_name = request ? request.env['REQUEST_URI'] : ''
     script_name = script_name.gsub(/_all/, '4') # blag the url if we're called from _all
 
-    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     report_table = Table( ['Consortium', 'Sub-Project', 'Priority', 'All', 'ES QC started', 'ES QC failed', 'ES QC confirmed',
         'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'order_by', 'Languishing'] )
  
-    grouped_report = Grouping( @@cached_report, :by => [ 'Consortium', 'Sub-Project', 'Priority' ] )
+    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Sub-Project', 'Priority' ] )
     
     #TODO: Production summary report 4 should include EUCOMM-EUMODIC and BaSH, not just the MGP
     
@@ -522,11 +522,11 @@ class Reports::ConsortiumPrioritySummary
     priority = params[:priority]
     subproject = params[:subproject]    
   
-    @@cached_report ||= ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
       
     counter = 1
-    report = Table(:data => @@cached_report.data,
-      :column_names => @@cached_report.column_names,
+    report = Table(:data => cached_report.data,
+      :column_names => cached_report.column_names,
       :filters => lambda {|r|
         if type != 'Languishing'
           return r['Consortium'] == consortium &&

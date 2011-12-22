@@ -16,4 +16,7 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv("mi_production_intermediate-#{report.compact_timestamp}.csv", report.csv_data)
   end
 
+  def summaries
+  end
+
 end

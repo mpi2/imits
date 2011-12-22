@@ -1,0 +1,52 @@
+<% @title = 'MI Production Summaries' %>
+
+<div class="grid_4">&emsp;</div>
+<div class="grid_4">
+  <h2><%= @title %></h2>
+</div>
+
+<div class="clear"></div>
+
+<div class="grid_4">&emsp;</div>
+<div class="grid_4">
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :intermediate, :format => :csv) %>">
+      <h4>(INTERNAL) Intermediate MI Production Report</h4>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports', :action => :production_summary1) %>">
+      <h4>Feed Demo - Production Summary 1</h4>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports', :action => :production_summary2) %>">
+      <h4>Production Summary 2</h4>
+      <p>Group by Consortium.</p>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports', :action => :production_summary3) %>">
+      <h4>Production Summary 3</h4>
+      <p>Group by Consortium and Priority.</p>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports', :action => :production_summary4) %>">
+      <h4>Production Summary 4</h4>
+      <p>MGP Report. Group by Consortium, Sub-project and priority.</p>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports', :action => :production_summary5) %>">
+      <h4>Production Summary 5</h4>
+      <p>Best Status report.</p>
+    </a>
+  </div>
+
+</div>

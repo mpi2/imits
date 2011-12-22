@@ -23,7 +23,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         es_cell = Factory.create(:es_cell,
           :name => 'EPD0027_2_A01',
           :gene => @cbx1,
-          :mutation_type => 'targeted_mutation',
+          :mutation_subtype => 'conditional_ready',
           :ikmc_project_id => 35505,
           :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi'
         )
@@ -115,7 +115,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiAttempt Status',
           'PhenotypeAttempt Status',
           'IKMC Project ID',
-          'Mutation Type',
+          'Mutation Sub-Type',
           'Allele Symbol',
           'Genetic Background',
           'Assigned Date',
@@ -151,7 +151,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiAttempt Status' => 'Genotype confirmed',
           'PhenotypeAttempt Status' => 'Phenotype Attempt Aborted',
           'IKMC Project ID' => '35505',
-          'Mutation Type' => 'targeted_mutation',
+          'Mutation Sub-Type' => 'conditional_ready',
           'Allele Symbol' => 'Cbx1<sup>tm1c(EUCOMM)Wtsi</sup>',
           'Genetic Background' => 'C57BL/6N',
           'Assigned Date' => '2011-11-02',
@@ -186,7 +186,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiAttempt Status' => 'Micro-injection aborted',
           'PhenotypeAttempt Status' => '',
           'IKMC Project ID' => '35505',
-          'Mutation Type' => 'targeted_mutation',
+          'Mutation Sub-Type' => 'conditional_ready',
           'Allele Symbol' => 'Cbx1<sup>tm1a(EUCOMM)Wtsi</sup>',
           'Genetic Background' => '',
           'Assigned Date' => '2011-12-11',
@@ -215,7 +215,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         assert_equal '', bash_ics_row.data['MiAttempt Status']
         assert_equal '', bash_ics_row.data['PhenotypeAttempt Status']
         assert_equal '', bash_ics_row['IKMC Project ID']
-        assert_equal '', bash_ics_row['Mutation Type']
+        assert_equal '', bash_ics_row['Mutation Sub-Type']
         assert_equal '', bash_ics_row['Allele Symbol']
         assert_equal '', bash_ics_row['Genetic Background']
       end

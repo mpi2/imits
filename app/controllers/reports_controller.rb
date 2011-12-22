@@ -3,20 +3,12 @@
 class ReportsController < ApplicationController
   respond_to :html, :csv
 
-  before_filter :authenticate_user!, :except => [ :production_summary1 ]
+  before_filter :authenticate_user!
 
   extend Reports::Helper
   include Reports::Helper
 
   def index
-  end
-
-  def production_summary1
-    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
-    feed = params[:feed] && params[:feed] == 'true'
-    @title2, @report = Reports::ConsortiumPrioritySummary.generate1(request, params)
-    send_data_csv('production_summary1.csv', @report.to_csv) if request.format == :csv
-    render :text => @report.to_html, :layout => false if feed
   end
 
   def production_summary2

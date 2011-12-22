@@ -1,9 +1,10 @@
 # encoding: utf-8
 
 class Reports::MiProductionController < ApplicationController
+
   respond_to :html, :csv
 
-  before_filter :authenticate_user!
+  before_filter :authenticate_user!, :except => [:summary_by_consortium_and_accumulated_status]
 
   def detail
     if request.format == :csv
@@ -17,6 +18,14 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summaries
+  end
+
+  def summary_by_consortium_and_accumulated_status
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    feed = (params[:feed] == 'true')
+    @title2, @report = Reports::ConsortiumPrioritySummary.generate1(request, params)
+    send_data_csv('mi_production_summary_by_consortium_and_accumulated_status.csv', @report.to_csv) if request.format == :csv
+    render :text => @report.to_html, :layout => false if feed
   end
 
 end

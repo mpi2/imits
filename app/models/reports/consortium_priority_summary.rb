@@ -132,13 +132,30 @@ class Reports::ConsortiumPrioritySummary
 #        return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
 #      }
 
+#      make_link = lambda {|value|
+##        return value.to_s.length > 1 ? value : '' if request && request.format == :csv
+#        status = row['Overall Status']
+#        project_id = row['IKMC Project ID']
+#        accession_id = row['Accession ID']
+#        gene = row['Gene']
+#        return '' if (!project_id || project_id.length < 1) && (!accession_id || accession_id.length < 1)
+#        href = "http://www.knockoutmouse.org/martsearch/search?query=#{gene}"
+#        href = "http://www.knockoutmouse.org/martsearch/search?query=#{accession_id}" if accession_id
+#        href = "http://www.knockoutmouse.org/martsearch/project/#{project_id}" if status == 'Genotype confirmed'
+#        text = 'Details'
+#        text = 'Order' if status == 'Genotype confirmed'
+#        return project_id if request && request.format == :csv && status == 'Genotype confirmed'
+#        return accession_id if request && request.format == :csv && accession_id
+#        return gene if request && request.format == :csv
+#        return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
+#      }
+
       make_link = lambda {|value|
-#        return value.to_s.length > 1 ? value : '' if request && request.format == :csv
         status = row['Overall Status']
         project_id = row['IKMC Project ID']
         accession_id = row['Accession ID']
         gene = row['Gene']
-        return '' if (!project_id || project_id.length < 1) && (!accession_id || accession_id.length < 1)
+        return '' if (!project_id || project_id.length < 1) && (!accession_id || accession_id.length < 1) && (!gene || gene.length < 1)
         href = "http://www.knockoutmouse.org/martsearch/search?query=#{gene}"
         href = "http://www.knockoutmouse.org/martsearch/search?query=#{accession_id}" if accession_id
         href = "http://www.knockoutmouse.org/martsearch/project/#{project_id}" if status == 'Genotype confirmed'
@@ -150,7 +167,8 @@ class Reports::ConsortiumPrioritySummary
         return "<a target='_blank' title='Click through to IKMC (#{value})' href='#{href}'>#{text}</a>"
       }
       
-      mt = fix_mutation_type row['Mutation Type']
+#      mt = fix_mutation_type row['Mutation Type']
+      mt = fix_mutation_type row['Mutation Sub-Type']
 
       report_table << {        
         'Consortium' => row['Consortium'],

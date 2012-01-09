@@ -444,10 +444,6 @@ class MiAttempt < ApplicationModel
     return self.search(translated_params)
   end
 
-  def latest_relevant_phenotype_attempt
-    return phenotype_attempts.order('is_active desc, created_at desc').first
-  end
-
   def as_json(options = {})
     json = super(default_serializer_options(options))
     json['mi_date'] = self.mi_date.to_s

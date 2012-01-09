@@ -360,6 +360,10 @@ class MiPlan < ApplicationModel
     return super(translations, param)
   end
 
+  def latest_relevant_phenotype_attempt
+    return phenotype_attempts.order('is_active desc, created_at desc').first
+  end
+
 end
 
 # == Schema Information

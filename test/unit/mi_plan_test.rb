@@ -430,7 +430,7 @@ class MiPlanTest < ActiveSupport::TestCase
           @default_mi_plan.sub_project_name = ''
           @default_mi_plan.valid?
           assert_equal MiPlan::SubProject.find_by_name!(''),
-              @default_mi_plan.sub_project
+                  @default_mi_plan.sub_project
         end
       end
 
@@ -1168,6 +1168,39 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should_eventually 'translate sorting predicates' do
         flunk 'Dependent on ransack enabling sorting by associations fields'
+      end
+    end
+
+    context '#latest_relevant_phenotype_attempt' do
+      should 'return nil if there are no phenotype attempts for this MI' do
+        assert_equal nil, @default_mi_plan.latest_relevant_phenotype_attempt
+      end
+
+      should 'return the latest created active one if there are any active phenotype attempts' do
+        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC",
+          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
+        pt = @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC",
+          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
+        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC",
+          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
+        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-10 23:59:59 UTC",
+          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed), :is_active => false)
+
+        assert_equal pt, @default_mi_plan.latest_relevant_phenotype_attempt
+      end
+
+      should 'return the latest created aborted one if all its phenotype attempts are aborted' do
+        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC",
+          :is_active => false,
+          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
+        pt = @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC",
+          :is_active => false,
+          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
+        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC",
+          :is_active => false,
+          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
+
+        assert_equal pt, @default_mi_plan.latest_relevant_phenotype_attempt
       end
     end
 

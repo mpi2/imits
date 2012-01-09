@@ -90,9 +90,11 @@ class Reports::ConsortiumPrioritySummary
         return "<a target='_blank' title='Click through to IKMC (Gene:#{gene})' href='#{href1}'>Details</a>" if gene && gene.length > 0 && gene != '(no gene)'
         return ''
       }
-
-      img = "#{script_name}../images/ikmc-favicon.ico"
       
+      # use the script name to get path to icon
+
+      img = script_name.gsub(/\/reports\/.+$/, "/images/ikmc-favicon.ico")
+
       make_link2 = lambda {|row|
         return row['IKMC Project ID'].to_s.length > 1 ? row['IKMC Project ID'] : '' if request && request.format == :csv
         return '' if row['Overall Status'] != 'Genotype confirmed'
@@ -427,9 +429,7 @@ class Reports::ConsortiumPrioritySummary
         'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'order_by', 'Languishing'] )
  
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Sub-Project', 'Priority' ] )
-    
-    #TODO: Production summary report 4 should include EUCOMM-EUMODIC and BaSH, not just the MGP
-    
+   
     grouped_report.each do |consortium|
       
       next if ! CONSORTIA_SUMMARY4.include?(consortium)

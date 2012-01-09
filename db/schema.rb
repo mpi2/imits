@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111220165606) do
+ActiveRecord::Schema.define(:version => 20120109122259) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -242,6 +242,7 @@ ActiveRecord::Schema.define(:version => 20111220165606) do
     t.boolean  "phenotyping_complete",             :default => false, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "mi_plan_id",                                          :null => false
   end
 
   create_table "pipelines", :force => true do |t|

@@ -6,6 +6,7 @@ class PhenotypeAttempt < ActiveRecord::Base
   include PhenotypeAttempt::StatusChanger
 
   belongs_to :mi_attempt
+  belongs_to :mi_plan
   belongs_to :status
   has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
@@ -17,9 +18,13 @@ class PhenotypeAttempt < ActiveRecord::Base
 
   # BEGIN Callbacks
   before_validation :change_status
-
+  before_validation :set_default_mi_plan
   before_save :record_if_status_was_changed
   after_save :create_status_stamp_if_status_was_changed
+
+  def set_default_mi_plan
+    self.mi_plan ||= mi_attempt.mi_plan
+  end
 
   def record_if_status_was_changed
     if self.changed.include? 'status_id'
@@ -67,5 +72,6 @@ end
 #  phenotyping_complete             :boolean         default(FALSE), not null
 #  created_at                       :datetime
 #  updated_at                       :datetime
+#  mi_plan_id                       :integer         not null
 #
 

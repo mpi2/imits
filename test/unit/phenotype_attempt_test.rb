@@ -40,6 +40,30 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#mi_plan' do
+      should 'be in DB' do
+        assert_should have_db_column(:mi_plan_id).of_type(:integer).with_options(:null => false)
+      end
+
+      should 'work' do
+        assert_should belong_to(:mi_plan)
+      end
+
+      should 'default to mi_attempt.mi_plan' do
+        pt = Factory.build :phenotype_attempt, :mi_plan => nil
+        pt.valid?
+        assert_equal pt.mi_attempt.mi_plan, pt.mi_plan
+      end
+
+      should 'not be overritten by default value if it is explicitly set' do
+        plan = Factory.create :mi_plan
+        pt = Factory.build :phenotype_attempt, :mi_plan => plan
+        pt.valid?
+        assert_equal plan, pt.mi_plan
+        assert_not_equal pt.mi_attempt.mi_plan, pt.mi_plan
+      end
+    end
+
     context '#status' do
       should 'work' do
         assert_should belong_to :status

@@ -44,6 +44,7 @@ class Reports::ConsortiumPrioritySummary
     'ES QC failed' => ['Aborted - ES Cell QC Failed']
   }
   CONSORTIA_SUMMARY4 = ['EUCOMM-EUMODIC', 'BaSH', 'MGP']
+  CONSORTIA_SUMMARY5 = ['BaSH', 'DTCC', 'JAX']
 
   def self.subsummary1(request, params)
     consortium = params[:consortium]
@@ -263,7 +264,7 @@ class Reports::ConsortiumPrioritySummary
     return 'Production Summary 1 (feed)', report_table
   end
 
-  def self.generate2(request = nil, params={})
+  def self.generate2(request = nil, params={}, consortia = nil)
 
     if params[:consortium]
       return subsummary_common(request, params)
@@ -300,7 +301,9 @@ class Reports::ConsortiumPrioritySummary
     )
 
     summary.each do |row|
-        
+
+      next if consortia && ! consortia.include?(row['Consortium'])
+
       make_link = lambda {|key|
         return row[key] if request && request.format == :csv
         consort = CGI.escape row['Consortium']
@@ -500,6 +503,10 @@ class Reports::ConsortiumPrioritySummary
     report_table.remove_column('order_by')
         
     return 'Production Summary 4', report_table
+  end
+
+  def self.generate5(request = nil, params={})
+    return generate2(request, params, CONSORTIA_SUMMARY5)
   end
   
   # TODO: do this as a class and not directly

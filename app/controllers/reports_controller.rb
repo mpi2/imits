@@ -31,6 +31,7 @@ class ReportsController < ApplicationController
 
   def production_summary5
     @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    @title2, @report = Reports::ConsortiumPrioritySummary.generate5(request, params)
     send_data_csv('production_summary5.csv', @report.to_csv) if request.format == :csv
   end
 

@@ -185,6 +185,10 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      should 'have #phenotype_attempts' do
+        assert_should have_many :phenotype_attempts
+      end
+
       context '#reportable_statuses_with_latest_dates' do
         should 'work' do
           plan = Factory.create :mi_plan_with_production_centre

@@ -358,6 +358,7 @@ ActiveRecord::Schema.define(:version => 20120109122259) do
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempts", :name => "phenotype_attempt_status_stamps_phenotype_attempt_id_fk"
 
   add_foreign_key "phenotype_attempts", "mi_attempts", :name => "phenotype_attempts_mi_attempt_id_fk"
+  add_foreign_key "phenotype_attempts", "mi_plans", :name => "phenotype_attempts_mi_plan_id_fk"
   add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"
 
   add_foreign_key "strain_blast_strains", "strains", :name => "strain_blast_strains_id_fk", :column => "id"

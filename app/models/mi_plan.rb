@@ -34,6 +34,7 @@ class MiPlan < ApplicationModel
   has_many :mi_attempts
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
+  has_many :phenotype_attempts
 
   access_association_by_attribute :sub_project, :name
   access_association_by_attribute :gene, :marker_symbol, :full_alias => :marker_symbol

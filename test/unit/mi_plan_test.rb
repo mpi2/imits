@@ -13,541 +13,539 @@ class MiPlanTest < ActiveSupport::TestCase
       assert_equal 'Interest', @default_mi_plan.status.name
     end
 
-    context 'attribute tests:' do
-      should 'have associations' do
-        assert_should belong_to :gene
-        assert_should belong_to :consortium
-        assert_should belong_to :production_centre
-        assert_should belong_to :status
-        assert_should belong_to :priority
-        assert_should belong_to :sub_project
+    should 'have associations' do
+      assert_should belong_to :gene
+      assert_should belong_to :consortium
+      assert_should belong_to :production_centre
+      assert_should belong_to :status
+      assert_should belong_to :priority
+      assert_should belong_to :sub_project
 
-        assert_should have_many :mi_attempts
+      assert_should have_many :mi_attempts
+    end
+
+    should 'have db columns' do
+      assert_should have_db_column(:gene_id).with_options(:null => false)
+      assert_should have_db_column(:consortium_id).with_options(:null => false)
+      assert_should have_db_column(:production_centre_id)
+      assert_should have_db_column(:status_id).with_options(:null => false)
+      assert_should have_db_column(:priority_id).with_options(:null => false)
+      assert_should have_db_column(:sub_project_id).with_options(:null => false)
+    end
+
+    context '#latest_relevant_mi_attempt' do
+      should 'get latest active MI if one exists' do
+        cbx1 = Factory.create :gene_cbx1
+        inactive_mi = Factory.create :mi_attempt,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_date => '2011-10-10',
+                :is_active => false
+        older_mi_1 = Factory.create :mi_attempt,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_date => '2011-05-05',
+                :is_active => true
+        latest_mi = Factory.create :mi_attempt,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_date => '2011-11-02',
+                :is_active => true
+        mi_plan = older_mi_1.mi_plan
+
+        assert older_mi_1.id < latest_mi.id, 'This is needed to test part of the association'
+        assert_equal inactive_mi.mi_plan, latest_mi.mi_plan
+        assert_equal latest_mi.mi_plan, older_mi_1.mi_plan
+        assert_equal latest_mi.mi_date, mi_plan.latest_relevant_mi_attempt.mi_date
       end
 
-      should 'have db columns' do
-        assert_should have_db_column(:gene_id).with_options(:null => false)
-        assert_should have_db_column(:consortium_id).with_options(:null => false)
-        assert_should have_db_column(:production_centre_id)
-        assert_should have_db_column(:status_id).with_options(:null => false)
-        assert_should have_db_column(:priority_id).with_options(:null => false)
-        assert_should have_db_column(:sub_project_id).with_options(:null => false)
+      should 'get latest active MI with latest status stamp if more than one exist with latest MI date' do
+        cbx1 = Factory.create :gene_cbx1
+        inactive_mi = Factory.create :mi_attempt,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_date => '2011-05-05',
+                :is_active => false
+        older_mi_1 = Factory.create :mi_attempt,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_date => '2011-05-05',
+                :is_active => true
+        older_mi_1.status_stamps.first.update_attributes!(:created_at => '2011-05-05 00:00:00 UTC')
+        latest_mi = Factory.create :mi_attempt,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_date => '2011-05-05',
+                :is_active => true
+        set_mi_attempt_genotype_confirmed(latest_mi)
+        latest_mi.status_stamps.last.update_attributes!(:created_at => '2011-05-10 00:00:00 UTC')
+        older_mi_2 = Factory.create :mi_attempt,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_date => '2011-05-05',
+                :is_active => true
+        older_mi_2.status_stamps.first.update_attributes!(:created_at => '2011-05-05 00:00:00 UTC')
+
+        assert_equal [1, 2], [older_mi_1.status_stamps.size, latest_mi.status_stamps.size]
+        mi_plan = latest_mi.mi_plan
+
+        assert_equal latest_mi, mi_plan.latest_relevant_mi_attempt
       end
 
-      context '#latest_relevant_mi_attempt' do
-        should 'get latest active MI if one exists' do
-          cbx1 = Factory.create :gene_cbx1
-          inactive_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-10-10',
-                  :is_active => false
-          older_mi_1 = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-05-05',
-                  :is_active => true
-          latest_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-11-02',
-                  :is_active => true
-          mi_plan = older_mi_1.mi_plan
+      should 'get latest inactive MI if no active ones exist' do
+        cbx1 = Factory.create :gene_cbx1
+        older_mi = Factory.create :mi_attempt,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_date => '2011-05-05',
+                :is_active => false
+        latest_mi = Factory.create :mi_attempt,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_date => '2011-11-02',
+                :is_active => false
+        mi_plan = older_mi.mi_plan
 
-          assert older_mi_1.id < latest_mi.id, 'This is needed to test part of the association'
-          assert_equal inactive_mi.mi_plan, latest_mi.mi_plan
-          assert_equal latest_mi.mi_plan, older_mi_1.mi_plan
-          assert_equal latest_mi.mi_date, mi_plan.latest_relevant_mi_attempt.mi_date
-        end
-
-        should 'get latest active MI with latest status stamp if more than one exist with latest MI date' do
-          cbx1 = Factory.create :gene_cbx1
-          inactive_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-05-05',
-                  :is_active => false
-          older_mi_1 = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-05-05',
-                  :is_active => true
-          older_mi_1.status_stamps.first.update_attributes!(:created_at => '2011-05-05 00:00:00 UTC')
-          latest_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-05-05',
-                  :is_active => true
-          set_mi_attempt_genotype_confirmed(latest_mi)
-          latest_mi.status_stamps.last.update_attributes!(:created_at => '2011-05-10 00:00:00 UTC')
-          older_mi_2 = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-05-05',
-                  :is_active => true
-          older_mi_2.status_stamps.first.update_attributes!(:created_at => '2011-05-05 00:00:00 UTC')
-
-          assert_equal [1, 2], [older_mi_1.status_stamps.size, latest_mi.status_stamps.size]
-          mi_plan = latest_mi.mi_plan
-
-          assert_equal latest_mi, mi_plan.latest_relevant_mi_attempt
-        end
-
-        should 'get latest inactive MI if no active ones exist' do
-          cbx1 = Factory.create :gene_cbx1
-          older_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-05-05',
-                  :is_active => false
-          latest_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :mi_date => '2011-11-02',
-                  :is_active => false
-          mi_plan = older_mi.mi_plan
-
-          assert older_mi.id < latest_mi.id, 'This is needed to test part of the association'
-          assert_equal latest_mi.mi_plan, older_mi.mi_plan
-          assert_equal latest_mi.mi_date, mi_plan.latest_relevant_mi_attempt.mi_date
-        end
-
-        should 'return nil if none' do
-          mi_plan = Factory.create :mi_plan
-          assert_nil mi_plan.latest_relevant_mi_attempt
-        end
+        assert older_mi.id < latest_mi.id, 'This is needed to test part of the association'
+        assert_equal latest_mi.mi_plan, older_mi.mi_plan
+        assert_equal latest_mi.mi_date, mi_plan.latest_relevant_mi_attempt.mi_date
       end
 
-      context '#status_stamps' do
-        should 'be a valid association' do
-          assert_should have_many :status_stamps
-        end
+      should 'return nil if none' do
+        mi_plan = Factory.create :mi_plan
+        assert_nil mi_plan.latest_relevant_mi_attempt
+      end
+    end
 
-        should 'be "Interest" by default' do
-          mi_plan = Factory.create :mi_plan
-          assert_equal [MiPlan::Status[:Interest]], mi_plan.status_stamps.map(&:status)
-        end
-
-        should 'be ordered by created_at asc' do
-          @default_mi_plan.status_stamps.destroy_all
-          s1 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
-            :status => MiPlan::Status[:Assigned], :created_at => 1.day.ago)
-          s2 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
-            :status => MiPlan::Status[:Conflict], :created_at => 1.hour.ago)
-          s3 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
-            :status => MiPlan::Status[:Interest], :created_at => 12.hours.ago)
-          @default_mi_plan.status_stamps.reload
-          assert_equal [s1, s3, s2].map(&:name), @default_mi_plan.status_stamps.map(&:name)
-        end
-
-        should 'delete related MiPlan::StatusStamps as well' do
-          plan = Factory.create :mi_plan_with_production_centre
-          plan.status = MiPlan::Status['Conflict']; plan.save!
-          plan.number_of_es_cells_starting_qc = 5; plan.save!
-          stamps = plan.status_stamps.dup
-          assert_equal 3, stamps.size
-
-          plan.destroy
-
-          stamps = stamps.map {|s| MiPlan::StatusStamp.find_by_id s.id}
-          assert_equal [nil, nil, nil], stamps
-        end
+    context '#status_stamps' do
+      should 'be a valid association' do
+        assert_should have_many :status_stamps
       end
 
-      context '#add_status_stamp' do
-        setup do
-          @default_mi_plan.status_stamps.destroy_all
-          @default_mi_plan.send(:add_status_stamp, MiPlan::Status[:Assigned])
-          @default_mi_plan.send(:add_status_stamp, MiPlan::Status[:Conflict])
-        end
-
-        should 'add the stamp' do
-          assert_not_equal [], MiPlan::StatusStamp.where(
-            :mi_plan_id => @default_mi_plan.id,
-            :status_id => MiPlan::Status[:Assigned].id)
-          assert_not_equal [], MiPlan::StatusStamp.where(
-            :mi_plan_id => @default_mi_plan.id,
-            :status_id => MiPlan::Status[:Conflict].id)
-        end
-
-        should 'update the association afterwards' do
-          assert_equal [MiPlan::Status[:Assigned], MiPlan::Status[:Conflict]],
-                  @default_mi_plan.status_stamps.map(&:status)
-        end
+      should 'be "Interest" by default' do
+        mi_plan = Factory.create :mi_plan
+        assert_equal [MiPlan::Status[:Interest]], mi_plan.status_stamps.map(&:status)
       end
 
-      context '#reportable_statuses_with_latest_dates' do
-        should 'work' do
-          plan = Factory.create :mi_plan_with_production_centre
-
-          plan.status_stamps.first.update_attributes!(:created_at => '2011-11-30 00:00:00')
-          plan.reload
-          plan.status_stamps.create!(:status => MiPlan::Status['Interest'],
-            :created_at => '2010-10-30 23:59:59')
-          plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
-            :created_at => '2010-11-24 23:59:59')
-          plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
-            :created_at => '2011-05-30 23:59:59')
-          plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
-            :created_at => '2011-11-03 12:33:15')
-          plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
-            :created_at => '2011-02-12 23:59:59')
-          plan.status_stamps.create!(:status => MiPlan::Status['Inactive'],
-            :created_at => '2011-10-24 23:59:59')
-
-          expected = {
-            'Interest' => Date.parse('2011-11-30'),
-            'Conflict' => Date.parse('2011-05-30'),
-            'Inspect - GLT Mouse' => Date.parse('2011-11-03'),
-            'Inactive' => Date.parse('2011-10-24')
-          }
-
-          assert_equal expected, plan.reportable_statuses_with_latest_dates
-        end
+      should 'be ordered by created_at asc' do
+        @default_mi_plan.status_stamps.destroy_all
+        s1 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
+          :status => MiPlan::Status[:Assigned], :created_at => 1.day.ago)
+        s2 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
+          :status => MiPlan::Status[:Conflict], :created_at => 1.hour.ago)
+        s3 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
+          :status => MiPlan::Status[:Interest], :created_at => 12.hours.ago)
+        @default_mi_plan.status_stamps.reload
+        assert_equal [s1, s3, s2].map(&:name), @default_mi_plan.status_stamps.map(&:name)
       end
 
-      context '#status' do
-        should 'create status stamps when status is changed' do
-          @default_mi_plan.status = MiPlan::Status['Conflict']; @default_mi_plan.save!
-          @default_mi_plan.status = MiPlan::Status['Assigned']; @default_mi_plan.save!
-          @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
+      should 'delete related MiPlan::StatusStamps as well' do
+        plan = Factory.create :mi_plan_with_production_centre
+        plan.status = MiPlan::Status['Conflict']; plan.save!
+        plan.number_of_es_cells_starting_qc = 5; plan.save!
+        stamps = plan.status_stamps.dup
+        assert_equal 3, stamps.size
 
-          expected = ['Interest', 'Conflict', 'Assigned', 'Interest']
-          assert_equal expected, @default_mi_plan.status_stamps.map{|i| i.status.name}
-        end
+        plan.destroy
 
-        should 'not add the same status stamp consecutively' do
-          @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
-          @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
+        stamps = stamps.map {|s| MiPlan::StatusStamp.find_by_id s.id}
+        assert_equal [nil, nil, nil], stamps
+      end
+    end
 
-          assert_equal ['Interest'], @default_mi_plan.status_stamps.map{|i|i.status.name}
-        end
+    context '#add_status_stamp' do
+      setup do
+        @default_mi_plan.status_stamps.destroy_all
+        @default_mi_plan.send(:add_status_stamp, MiPlan::Status[:Assigned])
+        @default_mi_plan.send(:add_status_stamp, MiPlan::Status[:Conflict])
       end
 
-      context '#status_name' do
-        should 'use AccessAssociationByAttribute' do
-          status = MiPlan::Status[:Conflict]
-          assert_not_equal status.name, @default_mi_plan.status_name
-          @default_mi_plan.status_name = 'Conflict'
-          assert_equal status, @default_mi_plan.status
-        end
-
-        should 'be Interest by default' do
-          plan = MiPlan.new
-          plan.valid?
-          assert_equal 'Interest', plan.status_name
-        end
+      should 'add the stamp' do
+        assert_not_equal [], MiPlan::StatusStamp.where(
+          :mi_plan_id => @default_mi_plan.id,
+          :status_id => MiPlan::Status[:Assigned].id)
+        assert_not_equal [], MiPlan::StatusStamp.where(
+          :mi_plan_id => @default_mi_plan.id,
+          :status_id => MiPlan::Status[:Conflict].id)
       end
 
-      context '#marker_symbol' do
-        should 'use AccessAssociationByAttribute' do
-          gene = Factory.create :gene_cbx1
-          mi_plan = Factory.create :mi_plan
-          mi_plan.marker_symbol = 'Cbx1'
-          assert_equal gene, mi_plan.gene
-        end
+      should 'update the association afterwards' do
+        assert_equal [MiPlan::Status[:Assigned], MiPlan::Status[:Conflict]],
+                @default_mi_plan.status_stamps.map(&:status)
+      end
+    end
 
-        should 'be present' do
-          assert_should validate_presence_of :marker_symbol
-        end
+    context '#reportable_statuses_with_latest_dates' do
+      should 'work' do
+        plan = Factory.create :mi_plan_with_production_centre
 
-        should 'not be updateable' do
-          gene = Factory.create :gene_cbx1
-          assert_not_equal gene, @default_mi_plan.gene
-          @default_mi_plan.marker_symbol = 'Cbx1'
-          @default_mi_plan.valid?
-          assert_match /cannot be changed/, @default_mi_plan.errors[:marker_symbol].first
-        end
+        plan.status_stamps.first.update_attributes!(:created_at => '2011-11-30 00:00:00')
+        plan.reload
+        plan.status_stamps.create!(:status => MiPlan::Status['Interest'],
+          :created_at => '2010-10-30 23:59:59')
+        plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
+          :created_at => '2010-11-24 23:59:59')
+        plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
+          :created_at => '2011-05-30 23:59:59')
+        plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
+          :created_at => '2011-11-03 12:33:15')
+        plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
+          :created_at => '2011-02-12 23:59:59')
+        plan.status_stamps.create!(:status => MiPlan::Status['Inactive'],
+          :created_at => '2011-10-24 23:59:59')
+
+        expected = {
+          'Interest' => Date.parse('2011-11-30'),
+          'Conflict' => Date.parse('2011-05-30'),
+          'Inspect - GLT Mouse' => Date.parse('2011-11-03'),
+          'Inactive' => Date.parse('2011-10-24')
+        }
+
+        assert_equal expected, plan.reportable_statuses_with_latest_dates
+      end
+    end
+
+    context '#status' do
+      should 'create status stamps when status is changed' do
+        @default_mi_plan.status = MiPlan::Status['Conflict']; @default_mi_plan.save!
+        @default_mi_plan.status = MiPlan::Status['Assigned']; @default_mi_plan.save!
+        @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
+
+        expected = ['Interest', 'Conflict', 'Assigned', 'Interest']
+        assert_equal expected, @default_mi_plan.status_stamps.map{|i| i.status.name}
       end
 
-      context '#consortium_name' do
-        should 'use AccessAssociationByAttribute' do
-          consortium = Factory.create :consortium
-          mi_plan = Factory.create :mi_plan
-          mi_plan.consortium_name = consortium.name
-          assert_equal consortium, mi_plan.consortium
-        end
+      should 'not add the same status stamp consecutively' do
+        @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
+        @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
 
-        should 'be present' do
-          assert_should validate_presence_of :consortium_name
-        end
+        assert_equal ['Interest'], @default_mi_plan.status_stamps.map{|i|i.status.name}
+      end
+    end
 
-        should 'not be updateable' do
-          assert_not_equal 'MGP', @default_mi_plan.consortium_name
-          @default_mi_plan.consortium_name = 'MGP'
-          @default_mi_plan.valid?
-          assert_match /cannot be changed/, @default_mi_plan.errors[:consortium_name].first
-        end
+    context '#status_name' do
+      should 'use AccessAssociationByAttribute' do
+        status = MiPlan::Status[:Conflict]
+        assert_not_equal status.name, @default_mi_plan.status_name
+        @default_mi_plan.status_name = 'Conflict'
+        assert_equal status, @default_mi_plan.status
       end
 
-      context '#production_centre_name' do
-        def centre
-          @centre ||= Factory.create(:centre)
-        end
+      should 'be Interest by default' do
+        plan = MiPlan.new
+        plan.valid?
+        assert_equal 'Interest', plan.status_name
+      end
+    end
 
-        should 'use AccessAssociationByAttribute' do
-          @default_mi_plan.production_centre_name = centre.name
-          assert_equal centre, @default_mi_plan.production_centre
-        end
-
-        should 'not allow setting back to nil once assigned to something' do
-          mi_plan = Factory.create :mi_plan, :production_centre_name => nil
-          mi_plan.production_centre_name = centre.name
-          assert mi_plan.save
-          mi_plan.production_centre_name = nil
-          assert ! mi_plan.valid?
-          assert_include mi_plan.errors[:production_centre_name], 'cannot be blank'
-        end
-
-        should 'can be set to nil on create and can stay that way on update' do
-          plan = Factory.build :mi_plan
-          assert plan.save
-          assert plan.save
-          assert plan.valid?, plan.errors.inspect
-        end
-
-        should 'not be updateable if the MiPlan has any MiAttempts' do
-          mi = Factory.create :mi_attempt, :production_centre_name => 'WTSI'
-          plan = mi.mi_plan
-          plan.production_centre_name = 'ICS'
-          plan.valid?
-          assert_match /cannot be changed/, plan.errors[:production_centre_name].first
-        end
+    context '#marker_symbol' do
+      should 'use AccessAssociationByAttribute' do
+        gene = Factory.create :gene_cbx1
+        mi_plan = Factory.create :mi_plan
+        mi_plan.marker_symbol = 'Cbx1'
+        assert_equal gene, mi_plan.gene
       end
 
-      context '#priority_name' do
-        should 'use AccessAssociationByAttribute' do
-          priority = MiPlan::Priority.find_by_name!('Medium')
-          assert_not_equal priority,  @default_mi_plan.priority
-          @default_mi_plan.priority_name = 'Medium'
-          assert_equal priority, @default_mi_plan.priority
-        end
-
-        should 'be present' do
-          assert_should validate_presence_of :priority_name
-        end
+      should 'be present' do
+        assert_should validate_presence_of :marker_symbol
       end
 
-      context '#number_of_es_cells_starting_qc' do
-        should 'exist' do
-          assert_should have_db_column(:number_of_es_cells_starting_qc).of_type(:integer)
-        end
+      should 'not be updateable' do
+        gene = Factory.create :gene_cbx1
+        assert_not_equal gene, @default_mi_plan.gene
+        @default_mi_plan.marker_symbol = 'Cbx1'
+        @default_mi_plan.valid?
+        assert_match /cannot be changed/, @default_mi_plan.errors[:marker_symbol].first
+      end
+    end
 
-        should 'validate non-blankness only it was previously set to a number' do
-          assert_equal nil, @default_mi_plan.number_of_es_cells_starting_qc
-          @default_mi_plan.number_of_es_cells_starting_qc = 5
-          @default_mi_plan.save!
-
-          @default_mi_plan.number_of_es_cells_starting_qc = nil
-          assert_false @default_mi_plan.save
-
-          assert ! @default_mi_plan.errors[:number_of_es_cells_starting_qc].blank?
-        end
-
-        should 'be setsame value as number passing QC if it is null' do
-          assert_nil @default_mi_plan.number_of_es_cells_starting_qc
-          assert_nil @default_mi_plan.number_of_es_cells_passing_qc
-
-          @default_mi_plan.number_of_es_cells_passing_qc = 7
-          @default_mi_plan.valid?
-          assert_equal 7, @default_mi_plan.number_of_es_cells_starting_qc
-
-          @default_mi_plan.number_of_es_cells_passing_qc = 2
-          @default_mi_plan.valid?
-          assert_equal 7, @default_mi_plan.number_of_es_cells_starting_qc
-        end
+    context '#consortium_name' do
+      should 'use AccessAssociationByAttribute' do
+        consortium = Factory.create :consortium
+        mi_plan = Factory.create :mi_plan
+        mi_plan.consortium_name = consortium.name
+        assert_equal consortium, mi_plan.consortium
       end
 
-      context '#number_of_es_cells_passing_qc' do
-        should 'exist' do
-          assert_should have_db_column(:number_of_es_cells_passing_qc).of_type(:integer)
-        end
+      should 'be present' do
+        assert_should validate_presence_of :consortium_name
+      end
 
-        should 'validate non-blankness only it was previously set to a number' do
-          assert_equal nil, @default_mi_plan.number_of_es_cells_passing_qc
-          @default_mi_plan.number_of_es_cells_passing_qc = 5
-          @default_mi_plan.save!
+      should 'not be updateable' do
+        assert_not_equal 'MGP', @default_mi_plan.consortium_name
+        @default_mi_plan.consortium_name = 'MGP'
+        @default_mi_plan.valid?
+        assert_match /cannot be changed/, @default_mi_plan.errors[:consortium_name].first
+      end
+    end
 
-          @default_mi_plan.number_of_es_cells_passing_qc = nil
-          assert_false @default_mi_plan.save
+    context '#production_centre_name' do
+      def centre
+        @centre ||= Factory.create(:centre)
+      end
 
-          assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
-        end
+      should 'use AccessAssociationByAttribute' do
+        @default_mi_plan.production_centre_name = centre.name
+        assert_equal centre, @default_mi_plan.production_centre
+      end
 
-        should 'validate cannot be set to 0 if was previously non-zero' do
-          2.times do |i|
-            @default_mi_plan.number_of_es_cells_passing_qc = 0
-            @default_mi_plan.save!
-          end
+      should 'not allow setting back to nil once assigned to something' do
+        mi_plan = Factory.create :mi_plan, :production_centre_name => nil
+        mi_plan.production_centre_name = centre.name
+        assert mi_plan.save
+        mi_plan.production_centre_name = nil
+        assert ! mi_plan.valid?
+        assert_include mi_plan.errors[:production_centre_name], 'cannot be blank'
+      end
 
-          @default_mi_plan.number_of_es_cells_passing_qc = 5
-          @default_mi_plan.save!
+      should 'can be set to nil on create and can stay that way on update' do
+        plan = Factory.build :mi_plan
+        assert plan.save
+        assert plan.save
+        assert plan.valid?, plan.errors.inspect
+      end
 
-          @default_mi_plan.number_of_es_cells_passing_qc = nil
-          assert_false @default_mi_plan.save
-          assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+      should 'not be updateable if the MiPlan has any MiAttempts' do
+        mi = Factory.create :mi_attempt, :production_centre_name => 'WTSI'
+        plan = mi.mi_plan
+        plan.production_centre_name = 'ICS'
+        plan.valid?
+        assert_match /cannot be changed/, plan.errors[:production_centre_name].first
+      end
+    end
 
+    context '#priority_name' do
+      should 'use AccessAssociationByAttribute' do
+        priority = MiPlan::Priority.find_by_name!('Medium')
+        assert_not_equal priority,  @default_mi_plan.priority
+        @default_mi_plan.priority_name = 'Medium'
+        assert_equal priority, @default_mi_plan.priority
+      end
+
+      should 'be present' do
+        assert_should validate_presence_of :priority_name
+      end
+    end
+
+    context '#number_of_es_cells_starting_qc' do
+      should 'exist' do
+        assert_should have_db_column(:number_of_es_cells_starting_qc).of_type(:integer)
+      end
+
+      should 'validate non-blankness only it was previously set to a number' do
+        assert_equal nil, @default_mi_plan.number_of_es_cells_starting_qc
+        @default_mi_plan.number_of_es_cells_starting_qc = 5
+        @default_mi_plan.save!
+
+        @default_mi_plan.number_of_es_cells_starting_qc = nil
+        assert_false @default_mi_plan.save
+
+        assert ! @default_mi_plan.errors[:number_of_es_cells_starting_qc].blank?
+      end
+
+      should 'be setsame value as number passing QC if it is null' do
+        assert_nil @default_mi_plan.number_of_es_cells_starting_qc
+        assert_nil @default_mi_plan.number_of_es_cells_passing_qc
+
+        @default_mi_plan.number_of_es_cells_passing_qc = 7
+        @default_mi_plan.valid?
+        assert_equal 7, @default_mi_plan.number_of_es_cells_starting_qc
+
+        @default_mi_plan.number_of_es_cells_passing_qc = 2
+        @default_mi_plan.valid?
+        assert_equal 7, @default_mi_plan.number_of_es_cells_starting_qc
+      end
+    end
+
+    context '#number_of_es_cells_passing_qc' do
+      should 'exist' do
+        assert_should have_db_column(:number_of_es_cells_passing_qc).of_type(:integer)
+      end
+
+      should 'validate non-blankness only it was previously set to a number' do
+        assert_equal nil, @default_mi_plan.number_of_es_cells_passing_qc
+        @default_mi_plan.number_of_es_cells_passing_qc = 5
+        @default_mi_plan.save!
+
+        @default_mi_plan.number_of_es_cells_passing_qc = nil
+        assert_false @default_mi_plan.save
+
+        assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+      end
+
+      should 'validate cannot be set to 0 if was previously non-zero' do
+        2.times do |i|
           @default_mi_plan.number_of_es_cells_passing_qc = 0
-          assert_false @default_mi_plan.save
-          assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+          @default_mi_plan.save!
         end
+
+        @default_mi_plan.number_of_es_cells_passing_qc = 5
+        @default_mi_plan.save!
+
+        @default_mi_plan.number_of_es_cells_passing_qc = nil
+        assert_false @default_mi_plan.save
+        assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+
+        @default_mi_plan.number_of_es_cells_passing_qc = 0
+        assert_false @default_mi_plan.save
+        assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+      end
+    end
+
+    context '#sub_project' do
+      should 'be set to default when not set' do
+        mi_plan = Factory.create :mi_plan
+        assert_equal '', mi_plan.sub_project.name
       end
 
-      context '#sub_project' do
-        should 'be set to default when not set' do
-          mi_plan = Factory.create :mi_plan
-          assert_equal '', mi_plan.sub_project.name
-        end
+      should 'not be set to default when set' do
+        mi_plan = Factory.create :mi_plan, :sub_project_id => 3
+        assert_equal 3, mi_plan.sub_project.id
+      end
+    end
 
-        should 'not be set to default when set' do
-          mi_plan = Factory.create :mi_plan, :sub_project_id => 3
-          assert_equal 3, mi_plan.sub_project.id
-        end
+    context '#sub_project_name' do
+      should 'be accessible via the name attribute' do
+        sp = MiPlan::SubProject.create!(:name => 'Nonexistent')
+        @default_mi_plan.sub_project_name = 'Nonexistent'
+        @default_mi_plan.valid?
+        assert_equal sp, @default_mi_plan.sub_project
       end
 
-      context '#sub_project_name' do
-        should 'be accessible via the name attribute' do
-          sp = MiPlan::SubProject.create!(:name => 'Nonexistent')
-          @default_mi_plan.sub_project_name = 'Nonexistent'
-          @default_mi_plan.valid?
-          assert_equal sp, @default_mi_plan.sub_project
-        end
-
-        should 'be set to the sub-project with no name, not nil, when set to ""' do
-          @default_mi_plan.sub_project_name = ''
-          @default_mi_plan.valid?
-          assert_equal MiPlan::SubProject.find_by_name!(''),
-              @default_mi_plan.sub_project
-        end
+      should 'be set to the sub-project with no name, not nil, when set to ""' do
+        @default_mi_plan.sub_project_name = ''
+        @default_mi_plan.valid?
+        assert_equal MiPlan::SubProject.find_by_name!(''),
+                @default_mi_plan.sub_project
       end
+    end
 
-      context '#withdrawn virtual attribute' do
-        context 'when being set to true' do
-          should 'set the status to Withdrawn if it at an allowed status' do
-            @default_mi_plan.status = MiPlan::Status['Conflict']
-            @default_mi_plan.withdrawn = true
-            assert_equal true, @default_mi_plan.withdrawn
-            assert_equal 'Withdrawn', @default_mi_plan.status.name
-
-            @default_mi_plan.status = MiPlan::Status['Inspect - Conflict']
-            @default_mi_plan.withdrawn = true
-            assert_equal true, @default_mi_plan.withdrawn
-            assert_equal 'Withdrawn', @default_mi_plan.status.name
-          end
-
-          should 'raise an error if not at an allowed status' do
-            @default_mi_plan.status = MiPlan::Status['Assigned']
-            assert_raise RuntimeError, 'cannot withdraw from status Assigned' do
-              @default_mi_plan.withdrawn = true
-            end
-            assert_equal false, @default_mi_plan.withdrawn
-            assert_equal 'Assigned', @default_mi_plan.status.name
-          end
-        end
-
-        context 'when being set to false' do
-          should 'not allow it if withdrawn' do
-            @default_mi_plan.status = MiPlan::Status['Conflict']
-            @default_mi_plan.withdrawn = true
-            assert_raise RuntimeError, 'withdrawal cannot be reversed' do
-              @default_mi_plan.withdrawn = false
-            end
-          end
-
-          should 'allow it if not already withdrawn' do
-            assert_nothing_raised do
-              @default_mi_plan.withdrawn = false
-            end
-          end
-        end
-
-        should 'return true if status is Withdrawn' do
-          @default_mi_plan.status = MiPlan::Status['Withdrawn']
-          assert_equal true, @default_mi_plan.withdrawn
-        end
-
-        should 'return false if status is not Withdrawn' do
-          @default_mi_plan.status = MiPlan::Status['Assigned']
-          assert_equal false, @default_mi_plan.withdrawn
-          @default_mi_plan.status = MiPlan::Status['Conflict']
-          assert_equal false, @default_mi_plan.withdrawn
-        end
-
-        should 'be readable as #withdrawn?' do
-          assert_false @default_mi_plan.withdrawn?
+    context '#withdrawn virtual attribute' do
+      context 'when being set to true' do
+        should 'set the status to Withdrawn if it at an allowed status' do
           @default_mi_plan.status = MiPlan::Status['Conflict']
           @default_mi_plan.withdrawn = true
-          assert_true @default_mi_plan.withdrawn?
+          assert_equal true, @default_mi_plan.withdrawn
+          assert_equal 'Withdrawn', @default_mi_plan.status.name
+
+          @default_mi_plan.status = MiPlan::Status['Inspect - Conflict']
+          @default_mi_plan.withdrawn = true
+          assert_equal true, @default_mi_plan.withdrawn
+          assert_equal 'Withdrawn', @default_mi_plan.status.name
+        end
+
+        should 'raise an error if not at an allowed status' do
+          @default_mi_plan.status = MiPlan::Status['Assigned']
+          assert_raise RuntimeError, 'cannot withdraw from status Assigned' do
+            @default_mi_plan.withdrawn = true
+          end
+          assert_equal false, @default_mi_plan.withdrawn
+          assert_equal 'Assigned', @default_mi_plan.status.name
         end
       end
 
-      should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
-        mip = Factory.build :mi_plan
-        assert mip.save
-        assert mip.valid?, mip.errors.inspect
+      context 'when being set to false' do
+        should 'not allow it if withdrawn' do
+          @default_mi_plan.status = MiPlan::Status['Conflict']
+          @default_mi_plan.withdrawn = true
+          assert_raise RuntimeError, 'withdrawal cannot be reversed' do
+            @default_mi_plan.withdrawn = false
+          end
+        end
 
-        mip2 = MiPlan.new(:marker_symbol => mip.gene.marker_symbol,
-          :consortium_name => mip.consortium.name)
-        assert_false mip2.save
-        assert_false mip2.valid?
-        assert ! mip2.errors['gene_id'].blank?
-
-        mip.production_centre_name = 'WTSI'
-        assert mip.save
-        assert mip.valid?
-
-        mip2.production_centre_name = mip.production_centre_name
-        assert_false mip2.save
-        assert_false mip2.valid?
-        assert ! mip2.errors['gene_id'].blank?
-
-        # TODO: Need to account for the inevitable... we're gonna get MiP's that have
-        #       a gene and consortium then nil for production_centre, and a duplicate
-        #       with the same gene and consortium BUT with a production_centre assigned.
-        #       Really, the fist should be updated to become the second (i.e. not produce a duplicate).
+        should 'allow it if not already withdrawn' do
+          assert_nothing_raised do
+            @default_mi_plan.withdrawn = false
+          end
+        end
       end
 
-      should 'limit the public mass-assignment API' do
-        expected = [
-          'marker_symbol',
-          'consortium_name',
-          'production_centre_name',
-          'priority_name',
-          'number_of_es_cells_starting_qc',
-          'number_of_es_cells_passing_qc',
-          'withdrawn',
-          'sub_project_name'
-        ]
-        got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
-        assert_equal expected.sort, got.sort
+      should 'return true if status is Withdrawn' do
+        @default_mi_plan.status = MiPlan::Status['Withdrawn']
+        assert_equal true, @default_mi_plan.withdrawn
       end
 
-      should 'have defined attributes in JSON output' do
-        expected = [
-          'id',
-          'marker_symbol',
-          'consortium_name',
-          'production_centre_name',
-          'priority_name',
-          'status_name',
-          'number_of_es_cells_starting_qc',
-          'number_of_es_cells_passing_qc',
-          'withdrawn',
-          'sub_project_name'
-        ]
-        got = @default_mi_plan.as_json.keys
-        assert_equal expected.sort, got.sort
+      should 'return false if status is not Withdrawn' do
+        @default_mi_plan.status = MiPlan::Status['Assigned']
+        assert_equal false, @default_mi_plan.withdrawn
+        @default_mi_plan.status = MiPlan::Status['Conflict']
+        assert_equal false, @default_mi_plan.withdrawn
       end
-    end # attribute tests
+
+      should 'be readable as #withdrawn?' do
+        assert_false @default_mi_plan.withdrawn?
+        @default_mi_plan.status = MiPlan::Status['Conflict']
+        @default_mi_plan.withdrawn = true
+        assert_true @default_mi_plan.withdrawn?
+      end
+    end
+
+    should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
+      mip = Factory.build :mi_plan
+      assert mip.save
+      assert mip.valid?, mip.errors.inspect
+
+      mip2 = MiPlan.new(:marker_symbol => mip.gene.marker_symbol,
+        :consortium_name => mip.consortium.name)
+      assert_false mip2.save
+      assert_false mip2.valid?
+      assert ! mip2.errors['gene_id'].blank?
+
+      mip.production_centre_name = 'WTSI'
+      assert mip.save
+      assert mip.valid?
+
+      mip2.production_centre_name = mip.production_centre_name
+      assert_false mip2.save
+      assert_false mip2.valid?
+      assert ! mip2.errors['gene_id'].blank?
+
+      # TODO: Need to account for the inevitable... we're gonna get MiP's that have
+      #       a gene and consortium then nil for production_centre, and a duplicate
+      #       with the same gene and consortium BUT with a production_centre assigned.
+      #       Really, the fist should be updated to become the second (i.e. not produce a duplicate).
+    end
+
+    should 'limit the public mass-assignment API' do
+      expected = [
+        'marker_symbol',
+        'consortium_name',
+        'production_centre_name',
+        'priority_name',
+        'number_of_es_cells_starting_qc',
+        'number_of_es_cells_passing_qc',
+        'withdrawn',
+        'sub_project_name'
+      ]
+      got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
+      assert_equal expected.sort, got.sort
+    end
+
+    should 'have defined attributes in JSON output' do
+      expected = [
+        'id',
+        'marker_symbol',
+        'consortium_name',
+        'production_centre_name',
+        'priority_name',
+        'status_name',
+        'number_of_es_cells_starting_qc',
+        'number_of_es_cells_passing_qc',
+        'withdrawn',
+        'sub_project_name'
+      ]
+      got = @default_mi_plan.as_json.keys
+      assert_equal expected.sort, got.sort
+    end
 
     context '::major_conflict_resolution' do
       setup do

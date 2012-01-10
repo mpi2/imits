@@ -982,12 +982,6 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
-    context '#as_json' do
-      should 'take nil as param' do
-        assert_nothing_raised { @default_mi_plan.as_json(nil) }
-      end
-    end
-
     context '::translate_search_param' do
       should 'translate marker_symbol' do
         assert_equal 'gene_marker_symbol_eq',

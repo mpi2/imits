@@ -19,22 +19,22 @@ class MiPlansController < ApplicationController
   end
 
   def show
-    respond_with MiPlan.find_by_id(params[:id])
+    respond_with Public::MiPlan.find_by_id(params[:id])
   end
 
   def create
-    upgradeable = MiPlan.check_for_upgradeable(params[:mi_plan])
+    upgradeable = Public::MiPlan.check_for_upgradeable(params[:mi_plan])
     if upgradeable
       message = "#{upgradeable.marker_symbol} has already been selected by #{upgradeable.consortium_name} without a production centre, please add your production centre to that selection"
       render(:json => {'error' => message}, :status => 422)
     else
-      @mi_plan = MiPlan.create(params[:mi_plan])
+      @mi_plan = Public::MiPlan.create(params[:mi_plan])
       respond_with @mi_plan
     end
   end
 
   def update
-    @mi_plan = MiPlan.find_by_id(params[:id])
+    @mi_plan = Public::MiPlan.find_by_id(params[:id])
     if ! @mi_plan
       render(:json => 'mi_plan not found', :status => 422)
     else
@@ -50,7 +50,7 @@ class MiPlansController < ApplicationController
     @mi_plan = nil
 
     if !params[:id].blank?
-      @mi_plan = MiPlan.find_by_id(params[:id])
+      @mi_plan = Public::MiPlan.find_by_id(params[:id])
     else
       search_params = {
         :gene_marker_symbol_eq => params[:marker_symbol],
@@ -63,7 +63,7 @@ class MiPlansController < ApplicationController
         search_params[:production_centre_name_eq] = params[:production_centre]
       end
 
-      search_results = MiPlan.search(search_params).result
+      search_results = Public::MiPlan.search(search_params).result
       @mi_plan = search_results.first if search_results.size == 1
     end
 
@@ -83,7 +83,7 @@ class MiPlansController < ApplicationController
   end
 
   def index
-    render :json => data_for_serialized(:json, 'id', MiPlan, :public_search)
+    render :json => data_for_serialized(:json, 'id', Public::MiPlan, :public_search)
   end
 
 end

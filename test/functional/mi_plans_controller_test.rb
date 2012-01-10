@@ -31,6 +31,17 @@ class MiPlansControllerTest < ActionController::TestCase
           assert_equal plan.as_json, JSON.parse(response.body)
         end
 
+        should 'use Public::MiPlan, not MiPlan' do
+          gene = Factory.create :gene
+          attributes = {
+            :gene_id => 1,
+            :consortium_id => 1,
+            :priority_id => 1
+          }
+          post(:create, :mi_plan => attributes, :format => :json)
+          assert_response 422
+        end
+
         should 'return errors when creating MiPlans' do
           assert_no_difference('MiPlan.count') do
             post(
@@ -64,7 +75,7 @@ class MiPlansControllerTest < ActionController::TestCase
         end
       end
 
-      context 'when deleting via JSON with DELETE destroy' do
+      context 'DELETE destroy' do
         should 'work' do
           mip = Factory.create :mi_plan, :status_id => MiPlan::Status.find_by_name!('Interest').id
           assert_difference('MiPlan.count', -1) do
@@ -129,8 +140,8 @@ class MiPlansControllerTest < ActionController::TestCase
 
       context 'GET show' do
         should 'find valid one' do
-          mi_plan = Factory.create :mi_plan_with_production_centre,
-                  :status => MiPlan::Status[:Assigned]
+          mi_plan = Public::MiPlan.find(Factory.create(:mi_plan_with_production_centre,
+                  :status => MiPlan::Status[:Assigned]))
           get :show, :id => mi_plan.id, :format => :json
           assert response.success?
           assert_equal JSON.parse(response.body), mi_plan.as_json
@@ -172,6 +183,18 @@ class MiPlansControllerTest < ActionController::TestCase
           end
           assert_match /^4\d\d$/, response.status.to_s
         end
+
+        should 'use Public::MiPlan, not MiPlan' do
+          mi_plan = Public::MiPlan.find(Factory.create(:mi_plan,
+              :priority => MiPlan::Priority.find_by_name!('High')))
+          put :update, :id => mi_plan.id, :format => :json,
+                  :mi_plan => {:production_centre_id => Centre.find_by_name!('WTSI').id, :priority_id => MiPlan::Priority.find_by_name!('Low').id}
+          assert response.success?
+          mi_plan.reload
+          assert_not_equal 'WTSI', mi_plan.production_centre_name
+          assert_not_equal 'Low', mi_plan.priority.name
+        end
+
       end
 
       context 'GET index' do

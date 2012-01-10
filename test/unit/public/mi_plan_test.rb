@@ -157,5 +157,11 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       assert_equal expected.sort, got.sort
     end
 
+    context '#as_json' do
+      should 'take nil as param' do
+        assert_nothing_raised { @default_mi_plan.as_json(nil) }
+      end
+    end
+
   end
 end

@@ -32,7 +32,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
                 :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('C57BL/6N')
         bash_wtsi_plan = bash_wtsi_attempt.mi_plan
 
-        bash_wtsi_plan.status_stamps.first.update_attributes!(
+        bash_wtsi_plan.status_stamps.destroy_all
+        bash_wtsi_plan.status_stamps.create!(:status => MiPlan::Status['Assigned'],
           :created_at => '2011-11-01 23:59:59.999 UTC')
         bash_wtsi_plan.status_stamps.create!(:status => MiPlan::Status['Interest'],
           :created_at => '2011-10-25 00:00:00 UTC')

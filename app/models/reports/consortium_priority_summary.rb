@@ -41,7 +41,8 @@ class Reports::ConsortiumPrioritySummary
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
     'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
-    'ES QC failed' => ['Aborted - ES Cell QC Failed']
+    'ES QC failed' => ['Aborted - ES Cell QC Failed'],
+    'Registered for Phenotyping' => []
   }
   CONSORTIA_SUMMARY4 = ['EUCOMM-EUMODIC', 'BaSH', 'MGP']
   CONSORTIA_SUMMARY5 = ['BaSH', 'DTCC', 'JAX']
@@ -555,7 +556,8 @@ class Reports::ConsortiumPrioritySummary
             (pcentre.nil? || r['Production Centre'] == pcentre) &&
             (priority.nil? || r['Priority'] == priority) &&
 #            (type.nil? || MAPPING_SUMMARIES[type].include?(r.data['Overall Status'])) &&
-            (type.nil? || (type == 'All' && all(r)) || MAPPING_SUMMARIES[type].include?(r.data['Overall Status'])) &&
+#            (type.nil? || (type == 'All' && all(r)) || MAPPING_SUMMARIES[type].include?(r.data['Overall Status'])) &&
+            (type.nil? || (type == 'All' && all(r)) || (type == 'Registered for Phenotyping' && registered_for_phenotyping(r)) || MAPPING_SUMMARIES[type].include?(r.data['Overall Status'])) &&
             (subproject.nil? || r['Sub-Project'] == subproject)
         else
           return r['Consortium'] == consortium &&
@@ -875,15 +877,15 @@ class Reports::ConsortiumPrioritySummary
         table += "<td>#{make_link3.call(row2, 'Genotype Confirmed Mice')}</td>"
         table += "<td>#{pc}</td>"
         
-        rfp = row2['Registered for Phenotyping'] && row2['Registered for Phenotyping'].to_s.length > 0 ? #&& row2['Registered for Phenotyping'] != 0 ?
-        row2['Registered for Phenotyping'] : ''
+#        rfp = row2['Registered for Phenotyping'] && row2['Registered for Phenotyping'].to_s.length > 0 ? #&& row2['Registered for Phenotyping'] != 0 ?
+#        row2['Registered for Phenotyping'] : ''
+#        
+##        rfp = rfp == '0' ? '' : rfp
+#        rfp = rfp.to_s == '0' ? '' : rfp
+#        
+#        table += "<td>#{rfp}</td>"
         
-#        rfp = rfp == '0' ? '' : rfp
-        rfp = rfp.to_s == '0' ? '' : rfp
-        
-        table += "<td>#{rfp}</td>"
-        
-#        table += "<td>#{make_link3.call(row2, 'Registered for Phenotyping')}</td>"
+        table += "<td>#{make_link3.call(row2, 'Registered for Phenotyping')}</td>"
 
         table += "<td>#{make_link3.call(row2, 'Languishing')}</td>" if DEBUG
  
@@ -901,7 +903,7 @@ class Reports::ConsortiumPrioritySummary
   end
   
   def self.registered_for_phenotyping(row)
-    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].length > 1
+    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
   end
   
   def self.generate6csv(request = nil, params={})

@@ -554,7 +554,8 @@ class Reports::ConsortiumPrioritySummary
           return r['Consortium'] == consortium &&
             (pcentre.nil? || r['Production Centre'] == pcentre) &&
             (priority.nil? || r['Priority'] == priority) &&
-            (type.nil? || MAPPING_SUMMARIES[type].include?(r.data['Overall Status'])) &&
+#            (type.nil? || MAPPING_SUMMARIES[type].include?(r.data['Overall Status'])) &&
+            (type.nil? || (type == 'All' && all(r)) || MAPPING_SUMMARIES[type].include?(r.data['Overall Status'])) &&
             (subproject.nil? || r['Sub-Project'] == subproject)
         else
           return r['Consortium'] == consortium &&
@@ -762,6 +763,10 @@ class Reports::ConsortiumPrioritySummary
   
   end
   
+  def self.all(row)
+    return true
+  end
+  
   def self.generate6(request = nil, params={})
     
     #  thing = generate6short(request, params)
@@ -791,8 +796,10 @@ class Reports::ConsortiumPrioritySummary
     
     summary = grouped_report.summary(
       'Consortium',
+      #'All'             => lambda { |group| count_instances_of( group, 'Gene',
+      #    lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
       'All'             => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+            lambda { |row| all(row) } ) },
       'ES QC started'   => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
       'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',

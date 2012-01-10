@@ -834,7 +834,9 @@ class Reports::ConsortiumPrioritySummary
         'MI Aborted'      => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
         'Languishing'        => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| languishing(row) } ) }
+            lambda { |row| languishing(row) } ) },
+        'Registered for Phenotyping'        => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| registered_for_phenotyping(row) } ) }
       )
 
       make_link3 = lambda {|rowx, key|
@@ -872,7 +874,16 @@ class Reports::ConsortiumPrioritySummary
         table += "<td>#{make_link3.call(row2, 'MI Aborted')}</td>"
         table += "<td>#{make_link3.call(row2, 'Genotype Confirmed Mice')}</td>"
         table += "<td>#{pc}</td>"
-        table += "<td></td>"
+        
+        rfp = row2['Registered for Phenotyping'] && row2['Registered for Phenotyping'].to_s.length > 0 ? #&& row2['Registered for Phenotyping'] != 0 ?
+        row2['Registered for Phenotyping'] : ''
+        
+#        rfp = rfp == '0' ? '' : rfp
+        rfp = rfp.to_s == '0' ? '' : rfp
+        
+        table += "<td>#{rfp}</td>"
+        
+#        table += "<td>#{make_link3.call(row2, 'Registered for Phenotyping')}</td>"
 
         table += "<td>#{make_link3.call(row2, 'Languishing')}</td>" if DEBUG
  
@@ -887,6 +898,10 @@ class Reports::ConsortiumPrioritySummary
     table += '</table>'
 
     return 'Production Summary 6', table
+  end
+  
+  def self.registered_for_phenotyping(row)
+    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].length > 1
   end
   
   def self.generate6csv(request = nil, params={})

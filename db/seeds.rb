@@ -74,7 +74,8 @@ Seeds.load Consortium, [
   {:id => 11, :name => 'MRC',            :funding => 'MRC', :participants => 'MRC - Harwell'},
   {:id => 12, :name => 'NorCOMM2',       :funding => 'Genome Canada', :participants => 'NorCOMM2'},
   {:id => 13, :name => 'Phenomin',       :funding => 'Phenomin', :participants => 'ICS'},
-  {:id => 14, :name => 'RIKEN BRC',      :funding => 'Japanese government', :participants => 'RIKEN BRC'}
+  {:id => 14, :name => 'RIKEN BRC',      :funding => 'Japanese government', :participants => 'RIKEN BRC'},
+  {:id => 15,  :name => 'DTCC-Legacy',           :funding => 'KOMP312/KOMP', :participants => 'Davis-CHORI'},
 ]
 
 Seeds.load Centre, [

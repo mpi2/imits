@@ -810,7 +810,13 @@ class Reports::ConsortiumPrioritySummary
 
     table = '<table>'
     table += '<tr>'
-    heading.each { |item| table += "<th>#{item}</th>"}
+    heading.each { |item|
+      if item == 'All'
+        table += "<th>All Genes</th>"
+      else
+        table += "<th>#{item}</th>"
+      end      
+    }
     table += '</tr>'
     
     summary.each do |row|

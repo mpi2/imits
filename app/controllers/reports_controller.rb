@@ -31,7 +31,15 @@ class ReportsController < ApplicationController
 
   def production_summary5
     @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    @title2, @report = Reports::ConsortiumPrioritySummary.generate5(request, params)
     send_data_csv('production_summary5.csv', @report.to_csv) if request.format == :csv
+  end
+
+  def production_summary6
+    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    @title2, @report = Reports::ConsortiumPrioritySummary.generate6(request, params) if request.format != :csv
+    @title2, @report = Reports::ConsortiumPrioritySummary.generate6csv(request, params) if request.format == :csv
+    send_data_csv('production_summary6.csv', @report.to_csv) if request.format == :csv
   end
 
   def double_assigned_plans_matrix

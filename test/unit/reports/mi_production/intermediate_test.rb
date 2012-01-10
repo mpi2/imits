@@ -16,10 +16,6 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
                 :production_centre => Centre.find_by_name!('ICS'),
                 :gene => @cbx1
 
-        Factory.create :mi_plan,
-                :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-                :production_centre => Centre.find_by_name!('WTSI')
-
         es_cell = Factory.create(:es_cell,
           :name => 'EPD0027_2_A01',
           :gene => @cbx1,
@@ -98,6 +94,23 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         mgp_wtsi_attempt.is_active = false; mgp_wtsi_attempt.save!
         mgp_wtsi_attempt.status_stamps.last.update_attributes!(
           :created_at => '2011-12-13 00:00:00 UTC')
+
+
+        ee_wtsi_plan = Factory.create :mi_plan,
+                :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
+                :production_centre => Centre.find_by_name!('WTSI')
+
+        pt = ee_wtsi_plan.phenotype_attempts.create!(:mi_attempt => bash_wtsi_attempt,
+          :created_at => '2012-01-01 23:59:59 UTC')
+        pt.status_stamps.destroy_all
+        pt.status_stamps.create!(:created_at => '2012-01-01 23:59:59 UTC',
+          :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'])
+
+        pt = ee_wtsi_plan.phenotype_attempts.create!(:mi_attempt => bash_wtsi_attempt,
+          :created_at => '2012-01-01 23:59:59 UTC')
+        pt.status_stamps.destroy_all
+        pt.status_stamps.create!(:created_at => '2011-12-30 23:59:59 UTC',
+          :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'])
 
         @report = Reports::MiProduction::Intermediate.generate
       end
@@ -207,7 +220,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         assert_equal expected, mgp_wtsi_row.data
       end
 
-      should 'show MiPlan status when there is no MI attempt' do
+      should 'show MiPlan status when there is no MI attempt or PhenotypeAttempt' do
         bash_ics_row = @report.find {|r| r.data['Consortium'] == 'BaSH' && r.data['Production Centre'] == 'ICS'}
         assert_equal 'Interest', bash_ics_row.data['Overall Status']
         assert_equal 'Interest', bash_ics_row.data['MiPlan Status']
@@ -218,6 +231,15 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         assert_equal '', bash_ics_row['Mutation Sub-Type']
         assert_equal '', bash_ics_row['Allele Symbol']
         assert_equal '', bash_ics_row['Genetic Background']
+      end
+
+      should 'have correct values when there is a PhenotypeAttempt but no MI attempt' do
+        ee_wtsi_row = @report.find {|r| r.data['Consortium'] == 'EUCOMM-EUMODIC' && r.data['Production Centre'] == 'WTSI'}
+        assert_equal 'Phenotype Attempt Registered', ee_wtsi_row['Overall Status']
+        assert_equal '', ee_wtsi_row['MiAttempt Status']
+        assert_equal 'Phenotype Attempt Registered', ee_wtsi_row['PhenotypeAttempt Status']
+        assert_equal '', ee_wtsi_row['Micro-injection in progress Date']
+        assert_equal '2012-01-01', ee_wtsi_row['Phenotype Attempt Registered Date']
       end
 
       should 'not have values for empty columns' do

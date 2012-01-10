@@ -36,12 +36,11 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
     report_options = generate_report_options(report_columns)
     report_options[:methods] = [
       'reportable_statuses_with_latest_dates',
-      'latest_relevant_mi_attempt'
+      'latest_relevant_mi_attempt',
+      'latest_relevant_phenotype_attempt'
     ]
 
     transform = proc do |record|
-      mi_attempt = record['latest_relevant_mi_attempt']
-
       plan_status_dates = record['reportable_statuses_with_latest_dates']
       plan_status_dates.each do |name, date|
         record["#{name} Date"] = date.to_s
@@ -49,6 +48,7 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
 
       record['Overall Status'] = record['status.name']
 
+      mi_attempt = record['latest_relevant_mi_attempt']
       if mi_attempt
         record['MiAttempt Status'] = mi_attempt.mi_attempt_status.description
         record['Overall Status'] = record['MiAttempt Status']
@@ -60,16 +60,16 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
         mi_status_dates.each do |description, date|
           record["#{description} Date"] = date.to_s
         end
+      end
 
-        phenotype_attempt = mi_attempt.latest_relevant_phenotype_attempt
-        if phenotype_attempt
-          record['PhenotypeAttempt Status'] = phenotype_attempt.status.name
-          record['Overall Status'] = record['PhenotypeAttempt Status']
+      phenotype_attempt = record['latest_relevant_phenotype_attempt']
+      if phenotype_attempt
+        record['PhenotypeAttempt Status'] = phenotype_attempt.status.name
+        record['Overall Status'] = record['PhenotypeAttempt Status']
 
-          pt_status_names = phenotype_attempt.reportable_statuses_with_latest_dates
-          pt_status_names.each do |name, date|
-            record["#{name} Date"] = date.to_s
-          end
+        pt_status_names = phenotype_attempt.reportable_statuses_with_latest_dates
+        pt_status_names.each do |name, date|
+          record["#{name} Date"] = date.to_s
         end
       end
     end

@@ -237,110 +237,6 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      context '#status_name' do
-        should 'use AccessAssociationByAttribute' do
-          status = MiPlan::Status[:Conflict]
-          assert_not_equal status.name, @default_mi_plan.status_name
-          @default_mi_plan.status_name = 'Conflict'
-          assert_equal status, @default_mi_plan.status
-        end
-
-        should 'be Interest by default' do
-          plan = MiPlan.new
-          plan.valid?
-          assert_equal 'Interest', plan.status_name
-        end
-      end
-
-      context '#marker_symbol' do
-        should 'use AccessAssociationByAttribute' do
-          gene = Factory.create :gene_cbx1
-          mi_plan = Factory.create :mi_plan
-          mi_plan.marker_symbol = 'Cbx1'
-          assert_equal gene, mi_plan.gene
-        end
-
-        should 'be present' do
-          assert_should validate_presence_of :marker_symbol
-        end
-
-        should 'not be updateable' do
-          gene = Factory.create :gene_cbx1
-          assert_not_equal gene, @default_mi_plan.gene
-          @default_mi_plan.marker_symbol = 'Cbx1'
-          @default_mi_plan.valid?
-          assert_match /cannot be changed/, @default_mi_plan.errors[:marker_symbol].first
-        end
-      end
-
-      context '#consortium_name' do
-        should 'use AccessAssociationByAttribute' do
-          consortium = Factory.create :consortium
-          mi_plan = Factory.create :mi_plan
-          mi_plan.consortium_name = consortium.name
-          assert_equal consortium, mi_plan.consortium
-        end
-
-        should 'be present' do
-          assert_should validate_presence_of :consortium_name
-        end
-
-        should 'not be updateable' do
-          assert_not_equal 'MGP', @default_mi_plan.consortium_name
-          @default_mi_plan.consortium_name = 'MGP'
-          @default_mi_plan.valid?
-          assert_match /cannot be changed/, @default_mi_plan.errors[:consortium_name].first
-        end
-      end
-
-      context '#production_centre_name' do
-        def centre
-          @centre ||= Factory.create(:centre)
-        end
-
-        should 'use AccessAssociationByAttribute' do
-          @default_mi_plan.production_centre_name = centre.name
-          assert_equal centre, @default_mi_plan.production_centre
-        end
-
-        should 'not allow setting back to nil once assigned to something' do
-          mi_plan = Factory.create :mi_plan, :production_centre_name => nil
-          mi_plan.production_centre_name = centre.name
-          assert mi_plan.save
-          mi_plan.production_centre_name = nil
-          assert ! mi_plan.valid?
-          assert_include mi_plan.errors[:production_centre_name], 'cannot be blank'
-        end
-
-        should 'can be set to nil on create and can stay that way on update' do
-          plan = Factory.build :mi_plan
-          assert plan.save
-          assert plan.save
-          assert plan.valid?, plan.errors.inspect
-        end
-
-        should 'not be updateable if the MiPlan has any MiAttempts' do
-          mi = Factory.create :mi_attempt, :production_centre_name => 'WTSI'
-          plan = mi.mi_plan
-          plan.production_centre_name = 'ICS'
-          plan.valid?
-          assert_match /cannot be changed/, plan.errors[:production_centre_name].first
-        end
-      end
-
-      context '#priority_name' do
-        should 'use AccessAssociationByAttribute' do
-          priority = MiPlan::Priority.find_by_name!('Medium')
-          assert_not_equal priority,  @default_mi_plan.priority
-          @default_mi_plan.priority_name = 'Medium'
-          assert_equal priority, @default_mi_plan.priority
-        end
-
-        should 'be present' do
-          assert_should validate_presence_of :priority_name
-        end
-      end
-
       context '#number_of_es_cells_starting_qc' do
         should 'exist' do
           assert_should have_db_column(:number_of_es_cells_starting_qc).of_type(:integer)
@@ -418,22 +314,6 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      context '#sub_project_name' do
-        should 'be accessible via the name attribute' do
-          sp = MiPlan::SubProject.create!(:name => 'Nonexistent')
-          @default_mi_plan.sub_project_name = 'Nonexistent'
-          @default_mi_plan.valid?
-          assert_equal sp, @default_mi_plan.sub_project
-        end
-
-        should 'be set to the sub-project with no name, not nil, when set to ""' do
-          @default_mi_plan.sub_project_name = ''
-          @default_mi_plan.valid?
-          assert_equal MiPlan::SubProject.find_by_name!(''),
-                  @default_mi_plan.sub_project
-        end
-      end
-
       context '#withdrawn virtual attribute' do
         context 'when being set to true' do
           should 'set the status to Withdrawn if it at an allowed status' do
@@ -495,21 +375,19 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
-        mip = Factory.build :mi_plan
-        assert mip.save
-        assert mip.valid?, mip.errors.inspect
+        mip = Factory.create :mi_plan
 
-        mip2 = MiPlan.new(:marker_symbol => mip.gene.marker_symbol,
-          :consortium_name => mip.consortium.name)
+        mip2 = MiPlan.new(:gene => mip.gene,
+          :consortium => mip.consortium)
         assert_false mip2.save
         assert_false mip2.valid?
         assert ! mip2.errors['gene_id'].blank?
 
-        mip.production_centre_name = 'WTSI'
+        mip.production_centre = Centre.find_by_name!('WTSI')
         assert mip.save
         assert mip.valid?
 
-        mip2.production_centre_name = mip.production_centre_name
+        mip2.production_centre = mip.production_centre
         assert_false mip2.save
         assert_false mip2.valid?
         assert ! mip2.errors['gene_id'].blank?
@@ -518,38 +396,6 @@ class MiPlanTest < ActiveSupport::TestCase
         #       a gene and consortium then nil for production_centre, and a duplicate
         #       with the same gene and consortium BUT with a production_centre assigned.
         #       Really, the fist should be updated to become the second (i.e. not produce a duplicate).
-      end
-
-      should 'limit the public mass-assignment API' do
-        expected = [
-          'marker_symbol',
-          'consortium_name',
-          'production_centre_name',
-          'priority_name',
-          'number_of_es_cells_starting_qc',
-          'number_of_es_cells_passing_qc',
-          'withdrawn',
-          'sub_project_name'
-        ]
-        got = (MiPlan.accessible_attributes.to_a - ['audit_comment'])
-        assert_equal expected.sort, got.sort
-      end
-
-      should 'have defined attributes in JSON output' do
-        expected = [
-          'id',
-          'marker_symbol',
-          'consortium_name',
-          'production_centre_name',
-          'priority_name',
-          'status_name',
-          'number_of_es_cells_starting_qc',
-          'number_of_es_cells_passing_qc',
-          'withdrawn',
-          'sub_project_name'
-        ]
-        got = @default_mi_plan.as_json.keys
-        assert_equal expected.sort, got.sort
       end
     end # attribute tests
 

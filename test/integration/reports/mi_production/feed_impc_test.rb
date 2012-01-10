@@ -67,7 +67,7 @@ class Reports::MiProduction::FeedImpcTest <
       assert_match 'Download as CSV', page.body
       assert_match 'ikmc-favicon.ico', page.body      
       
-      #  save_and_open_page if DEBUG
+      # save_and_open_page if DEBUG
     
       sleep(10.seconds) if DEBUG
 
@@ -76,9 +76,8 @@ class Reports::MiProduction::FeedImpcTest <
     should 'allow users to visit the feed demo detail page & see entries - just table (without login)' do
       visit '/reports/mi_production/summary_by_consortium_and_accumulated_status&feed=true'
       assert_match '/reports/mi_production/summary_by_consortium_and_accumulated_status&feed=true', current_url
-
-      #assert_match 'Production Summary 1 (feed)', page.body
-      #assert_match 'Download as CSV', page.body
+     
+      assert page.body && page.body.length > 0
 
       puts page.body if DEBUG
       
@@ -97,9 +96,7 @@ class Reports::MiProduction::FeedImpcTest <
       
       puts page.body if DEBUG
   
-      #assert_match 'Production Summary 1 Detail (feed)', page.body
-      #assert_match 'Download as CSV', page.body
-      #assert_match 'ikmc-favicon.ico', page.body      
+      assert page.body && page.body.length > 0
       
       # save_and_open_page if DEBUG
     

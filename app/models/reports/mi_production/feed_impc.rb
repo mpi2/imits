@@ -79,7 +79,7 @@ class Reports::MiProduction::FeedImpc
         row['IKMC Project ID'].to_s.length > 1 ?
           "<p style='margin: 0px; padding: 0px;text-align: center;'>" +
           "<a target='_blank' title='Click through to IKMC (#{row['IKMC Project ID']})' href='http://www.knockoutmouse.org/martsearch/project/#{row['IKMC Project ID']}'>" +
-          "<img src='#{img}'></img></a></p>" :
+          "<img alt='Mouse Image' src='#{img}'></img></a></p>" :
           ''
       }
       

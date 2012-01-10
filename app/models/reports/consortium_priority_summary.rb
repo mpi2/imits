@@ -682,7 +682,7 @@ class Reports::ConsortiumPrioritySummary
   
         pc = efficiency(request, row2)
                 
-        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : 'Unspecified'
+        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : '&nbsp;'
       
         hash2 = {
           'Production Centre' => pcentre,
@@ -868,7 +868,7 @@ class Reports::ConsortiumPrioritySummary
   
         pcentres.push row2['Production Centre']
         
-        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : 'Unspecified'
+        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : '&nbsp;'
 
         table += "<td>#{pcentre}</td>"
         table += "<td>#{make_link3.call(row2, 'MI in progress')}</td>"

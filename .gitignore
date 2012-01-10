@@ -1,4 +1,6 @@
 config/old_database.yml
+config/database.production.yml
+config/database.staging.yml
 coverage/*
 public/javascripts/all.js
 sqlnet.log

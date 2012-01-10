@@ -9,7 +9,7 @@
 
 <% if @report %>
 
-<p><%= link_to('Download as CSV', url_for(:action => :production_summary5, :controller => :reports, :format => :csv) + params) if @csv %></p>
+<p><%= link_to('Download as CSV', url_for(:action => :production_summary6, :controller => :reports, :format => :csv) + params) if @csv %></p>
 
 <% if @csv %><br/><% end %>
 
@@ -20,7 +20,7 @@
 <% if @report.nil? %>
   <p><em>Sorry, no production data found</em></p>
 <% else %>
-  <%=raw @report.to_html %>
+  <%=raw @report %>
 <% end %>
 
 </div>

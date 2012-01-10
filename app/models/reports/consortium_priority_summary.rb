@@ -17,8 +17,8 @@ class Reports::ConsortiumPrioritySummary
     'Activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
     'Mice in production' => ['Micro-injection in progress', 'Genotype confirmed'],
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
-    'Phenotyping in progress' => ['Phenotyping Started Date'],
-    'Phenotype data available' => ['Phenotyping Complete Date']
+    'Phenotyping in progress' => ['Phenotyping Started'],
+    'Phenotype data available' => ['Phenotyping Complete']
   }
   MAPPING_SUMMARIES = {
     'All' => [
@@ -150,7 +150,9 @@ class Reports::ConsortiumPrioritySummary
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
 
     report_table = Table( [ 'Consortium', 'All', 'Activity', 'Mice in production', 'Genotype Confirmed Mice', 'All_distinct',
-        'Activity_distinct', 'Mice in production_distinct', 'Genotype Confirmed Mice_distinct', 'Phenotype data available' ] )
+        'Activity_distinct', 'Mice in production_distinct', 'Genotype Confirmed Mice_distinct', 'Phenotype data available',
+        'Phenotype data available_distinct'
+      ] )
    
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Priority' ] )
         
@@ -164,10 +166,10 @@ class Reports::ConsortiumPrioritySummary
           lambda { |row| MAPPING_FEED['Mice in production'].include? row.data['Overall Status'] } ) },
       'Genotype Confirmed Mice'           => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_FEED['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
-      'Phenotyping in progress'           => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Phenotyping in progress'].include? row.data['PhenotypeAttempt Status'] } ) },
+      #  'Phenotyping in progress'           => lambda { |group| count_instances_of( group, 'Gene',
+      #      lambda { |row| MAPPING_FEED['Phenotyping in progress'].include? row.data['PhenotypeAttempt Status'] } ) },
       'Phenotype data available'           => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Phenotype data available'].include? row.data['PhenotypeAttempt Status'] } ) },
+          lambda { |row| MAPPING_FEED['Phenotype data available'].include? row.data['Overall Status'] } ) },
 
       'All_distinct'                => lambda { |group| count_unique_instances_of( group, 'Gene',
           lambda { |row| (! MAPPING_FEED['All'].include?(row.data['MiPlan Status'])) } ) },
@@ -192,6 +194,7 @@ class Reports::ConsortiumPrioritySummary
           "<a title='Click to see list of #{key}' href='#{script_name}#{separator}consortium=#{consortium}&type=#{type}'>#{row[key]}</a>" :
           ''
       }
+      
       report_table << {        
         'Consortium' => row['Consortium'],
         'All' => make_link.call('All'),
@@ -205,7 +208,7 @@ class Reports::ConsortiumPrioritySummary
         'Activity_distinct' => row['Activity_distinct'],
         'Mice in production_distinct' => row['Mice in production_distinct'],
         'Genotype Confirmed Mice_distinct' => row['Genotype Confirmed Mice_distinct'],
-        'Phenotyping in progress_distinct' => make_link.call('Phenotyping in progress_distinct'),
+        #        'Phenotyping in progress_distinct' => make_link.call('Phenotyping in progress_distinct'),
         'Phenotype data available_distinct' => make_link.call('Phenotype data available_distinct'),
       }
 
@@ -215,7 +218,8 @@ class Reports::ConsortiumPrioritySummary
 
     summaries = { 'All' => 0, 'Activity' => 0, 'Mice in production' => 0, 'Genotype Confirmed Mice' => 0,
       'All_distinct' => 0, 'Activity_distinct' => 0, 'Mice in production_distinct' => 0, 'Genotype Confirmed Mice_distinct' => 0,
-      'Phenotyping in progress' => 0, 'Phenotype data available' => 0, 'Phenotyping in progress_distinct' => 0,
+      'Phenotyping in progress' => 0, 'Phenotype data available' => 0,
+      #'Phenotyping in progress_distinct' => 0,
       'Phenotype data available_distinct' =>  0 }
     
     report_table.sum { |r|
@@ -229,6 +233,15 @@ class Reports::ConsortiumPrioritySummary
       end
       0
     }
+    
+    #raise summaries.inspect
+    #
+    #{"All"=>4680, "Activity"=>2294,
+    #  "Mice in production"=>1868, "Genotype Confirmed Mice"=>1009,
+    #  "All_distinct"=>4654, "Activity_distinct"=>2292, "Mice in production_distinct"=>1866,
+    #  "Genotype Confirmed Mice_distinct"=>1009,
+    #  "Phenotyping in progress"=>0, "Phenotype data available"=>442,
+    #  "Phenotype data available_distinct"=>0}
 
     make_sum = lambda {|key|
       return summaries[key] if request && request.format == :csv
@@ -260,6 +273,7 @@ class Reports::ConsortiumPrioritySummary
     report_table.remove_column("Activity_distinct")
     report_table.remove_column("Mice in production_distinct")
     report_table.remove_column("Genotype Confirmed Mice_distinct")
+    report_table.remove_column("Phenotype data available_distinct")
        
     return 'Production Summary 1 (feed)', report_table
   end
@@ -508,7 +522,7 @@ class Reports::ConsortiumPrioritySummary
   def self.generate5(request = nil, params={})
     return generate2(request, params, CONSORTIA_SUMMARY5)
   end
-  
+
   # TODO: do this as a class and not directly
   
   def self.strong(param)
@@ -528,6 +542,7 @@ class Reports::ConsortiumPrioritySummary
     type = type ? type.gsub(/^\#\s+/, "") : nil
     priority = params[:priority]
     subproject = params[:subproject]    
+    pcentre = params[:pcentre]    
   
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
       
@@ -537,19 +552,21 @@ class Reports::ConsortiumPrioritySummary
       :filters => lambda {|r|
         if type != 'Languishing'
           return r['Consortium'] == consortium &&
+            (pcentre.nil? || r['Production Centre'] == pcentre) &&
             (priority.nil? || r['Priority'] == priority) &&
             (type.nil? || MAPPING_SUMMARIES[type].include?(r.data['Overall Status'])) &&
             (subproject.nil? || r['Sub-Project'] == subproject)
         else
           return r['Consortium'] == consortium &&
+            (pcentre.nil? || r['Production Centre'] == pcentre) &&
             (priority.nil? || r['Priority'] == priority) &&
             (subproject.nil? || r['Sub-Project'] == subproject) &&
             languishing(r)
         end
       },
       :transforms => lambda {|r|
-          r['Mutation Sub-Type'] = fix_mutation_type r['Mutation Sub-Type']
-        }
+        r['Mutation Sub-Type'] = fix_mutation_type r['Mutation Sub-Type']
+      }
     )
     
     exclude_columns = [
@@ -596,5 +613,571 @@ class Reports::ConsortiumPrioritySummary
     gap = today - before
     return gap && gap > 180
   end
+
+  def self.generate6short(request = nil, params={})
+  
+    script_name = request ? request.env['REQUEST_URI'] : ''
+  
+    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+      
+    #TODO: fix 'all' column
+     
+    array = []
+   
+    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
+      
+    summary = grouped_report.summary(
+      'Consortium',
+      'All'             => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+      'ES QC started'   => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
+      'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status'] } ) },
+      'ES QC failed'    => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) }
+    )
+      
+    summary.each do |row|
+  
+      next if ! CONSORTIA_SUMMARY5.include?(row['Consortium'])
+        
+      summary2 = grouped_report.subgrouping(row['Consortium']).summary(
+        'Production Centre',
+        'MI in progress'  => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status'] } ) },
+        'Genotype Confirmed Mice'       => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+        'MI Aborted'      => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
+        'Languishing'        => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| languishing(row) } ) }
+      )
+  
+      make_link3 = lambda {|rowx, key|
+        return rowx[key] if request && request.format == :csv
+        consort = CGI.escape row['Consortium']
+        pcentre = rowx['Production Centre'] ? CGI.escape(rowx['Production Centre']) : nil
+        pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
+        type = CGI.escape key
+        id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+        rowx[key].to_s != '0' ?
+          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
+          ''
+      }
+  
+      hash = {
+        'Consortium' => row['Consortium'],
+        'All' => make_link3.call(row, 'All'),
+        'ES QC started' => make_link3.call(row, 'ES QC started'),
+        'ES QC confirmed' => make_link3.call(row, 'ES QC confirmed'),
+        'ES QC failed' => make_link3.call(row, 'ES QC failed'),
+        'array' => []
+      }
+  
+      summary2.each do |row2|
+  
+        pc = efficiency(request, row2)
+                
+        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : 'Unspecified'
+      
+        hash2 = {
+          'Production Centre' => pcentre,
+          'MI in progress' => make_link3.call(row2, 'MI in progress'),
+          'Chimaeras' => '',
+          'MI Aborted' => make_link3.call(row2, 'MI Aborted'),
+          'Genotype Confirmed Mice' => make_link3.call(row2, 'Genotype Confirmed Mice'),
+          'Pipeline efficiency (%)' => pc,
+          'Registered for Phenotyping' => ''
+        }
+      
+        hash['array'].push hash2
+      
+        array.push hash
+       
+      end
+  
+    end
+  
+    return array
+  end
+
+  def self.generate6(request = nil, params={})
     
+    #  thing = generate6short(request, params)
+
+    #   raise thing.inspect
+
+    if params[:consortium]
+      title, report = subsummary_common(request, params)
+      return title, report.to_html
+    end
+
+    script_name = request ? request.env['REQUEST_URI'] : ''
+
+    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    
+    #TODO: fix 'all' column
+    
+    heading = ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
+      'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
+      'Registered for Phenotyping'
+    ]
+
+    heading.push 'Languishing' if DEBUG
+    
+    report_table = Table(heading)
+ 
+    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
+    
+    summary = grouped_report.summary(
+      'Consortium',
+      'All'             => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+      'ES QC started'   => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
+      'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status'] } ) },
+      'ES QC failed'    => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) }
+    )
+
+    table = '<table>'
+    table += '<tr>'
+    heading.each { |item| table += "<th>#{item}</th>"}
+    table += '</tr>'
+    
+    summary.each do |row|
+
+      next if ! CONSORTIA_SUMMARY5.include?(row['Consortium'])
+      
+      #  raise row['Consortium']
+
+      table += "<tr>"
+
+      summary2 = grouped_report.subgrouping(row['Consortium']).summary(
+        'Production Centre',
+        'MI in progress'  => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status'] } ) },
+        'Genotype Confirmed Mice'       => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+        'MI Aborted'      => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
+        'Languishing'        => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| languishing2(row) } ) }
+      )
+
+      #make_link = lambda {|rowx, key|
+      #  return rowx[key] if request && request.format == :csv
+      #  consort = CGI.escape row['Consortium']
+      #  type = CGI.escape key
+      #  id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+      #  rowx[key].to_s != '0' ?
+      #    "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{type}'>#{rowx[key]}</a>" :
+      #    ''
+      #}
+      #
+      #make_link2 = lambda {|rowx, key|
+      #  return rowx[key] if request && request.format == :csv
+      #  consort = CGI.escape row['Consortium']
+      #  pcentre = CGI.escape rowx['Production Centre']
+      #  type = CGI.escape key
+      #  id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+      #  rowx[key].to_s != '0' ?
+      #    "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?pcentre=#{pcentre}&consortium=#{consort}&type=#{type}'>#{rowx[key]}</a>" :
+      #    ''
+      #}
+
+      make_link3 = lambda {|rowx, key|
+        return rowx[key] if request && request.format == :csv
+        consort = CGI.escape row['Consortium']
+        pcentre = rowx['Production Centre'] ? CGI.escape(rowx['Production Centre']) : nil
+        pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
+        type = CGI.escape key
+        id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+        rowx[key].to_s != '0' ?
+          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
+          ''
+      }
+
+      table += '<tr>'
+      table += "<td rowspan='SWAPME'>#{row['Consortium']}</td>"
+      table += "<td rowspan='SWAPME'>#{make_link3.call(row, 'All')}</td>"
+      table += "<td rowspan='SWAPME'>#{make_link3.call(row, 'ES QC started')}</td>"
+      table += "<td rowspan='SWAPME'>#{make_link3.call(row, 'ES QC confirmed')}</td>"
+      table += "<td rowspan='SWAPME'>#{make_link3.call(row, 'ES QC failed')}</td>"
+
+      pcentres = []
+      # mips = []
+      #  gcm = []
+      #  mia = []
+      #  pe = []
+
+      summary2.each do |row2|
+
+        pc = efficiency(request, row2)
+  
+        #report_table << {
+        #  'Consortium' => row['Consortium'],
+        #  'Production Centre' => row2['Production Centre'],
+        #  'All' => make_link.call(row, 'All'),
+        #  'ES QC started' => make_link.call(row, 'ES QC started'),
+        #  'MI in progress' => make_link2.call(row2, 'MI in progress'),
+        #  'Genotype Confirmed Mice' => make_link2.call(row2, 'Genotype Confirmed Mice'),
+        #  'MI Aborted' => make_link2.call(row2, 'MI Aborted'),
+        #  'Pipeline efficiency (%)' => pc,
+        #  'ES QC confirmed' => make_link.call(row, 'ES QC confirmed'),
+        #  'ES QC failed' => make_link.call(row, 'ES QC failed'),
+        #  'Languishing' => make_link2.call(row2, 'Languishing')
+        #}
+
+        #pcentres.push 'Unknown'
+        #pcentres.push row2['Production Centre'] if row2['Production Centre']
+        
+        #        pcentres.push row2['Production Centre'] ? row2['Production Centre'] : 'Unknown'
+        pcentres.push row2['Production Centre']
+        
+        #mips.push make_link2.call(row2, 'MI in progress')
+        #gcm.push make_link2.call(row2, 'Genotype Confirmed Mice')
+        #mia.push make_link2.call(row2, 'MI Aborted')
+        #pe.push pc
+        
+        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : 'Unspecified'
+        #        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : '  '
+
+        table += "<td>#{pcentre}</td>"
+        table += "<td>#{make_link3.call(row2, 'MI in progress')}</td>"
+        table += "<td></td>"
+        table += "<td>#{make_link3.call(row2, 'MI Aborted')}</td>"
+        table += "<td>#{make_link3.call(row2, 'Genotype Confirmed Mice')}</td>"
+        table += "<td>#{pc}</td>"
+        table += "<td></td>"
+        #'Languishing'
+        table += "<td>#{make_link3.call(row2, 'Languishing')}</td>" if DEBUG
+ 
+        table += "</tr>"
+     
+      end
+
+      #heading = ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
+      #                       'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
+      #                       'Registered for Phenotyping'
+      #                       ]
+      #
+      
+      table = table.gsub(/SWAPME/, pcentres.size.to_s)    
+
+      #        table += "</tr>"
+
+      #   headings.each { |item| table += "<th>#{item}</th>"}
+     
+      #   break
+      
+    end
+
+    table += '</table>'
+
+    return 'Production Summary 6', table
+  end
+  
+  def self.generate6csv(request = nil, params={})
+
+    if params[:consortium]
+      return subsummary_common(request, params)
+    end
+
+    script_name = request ? request.env['REQUEST_URI'] : ''
+
+    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    
+    #TODO: fix 'all' column
+    
+    heading = ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
+      'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
+      'Registered for Phenotyping'
+    ]
+
+    report_table = Table(heading)
+ 
+    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
+    
+    summary = grouped_report.summary(
+      'Consortium',
+      'All'             => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+      'ES QC started'   => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
+      'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status'] } ) },
+      'ES QC failed'    => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) }
+    )
+
+    summary.each do |row|
+
+      next if ! CONSORTIA_SUMMARY5.include?(row['Consortium'])
+
+      summary2 = grouped_report.subgrouping(row['Consortium']).summary(
+        'Production Centre',
+        'MI in progress'  => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status'] } ) },
+        'Genotype Confirmed Mice'       => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+        'MI Aborted'      => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
+        'Languishing'        => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| languishing(row) } ) }
+      )
+
+      #      make_link = lambda {|rowx, key, pcentre=nil|
+      make_link = lambda {|rowx, key|
+        return rowx[key] if request && request.format == :csv
+        consort = CGI.escape row['Consortium']
+        type = CGI.escape key
+        id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+        rowx[key].to_s != '0' ?
+          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{type}'>#{rowx[key]}</a>" :
+          ''
+      }
+      
+      make_link2 = lambda {|rowx, key|
+        return rowx[key] if request && request.format == :csv
+        consort = CGI.escape row['Consortium']
+        pcentre = CGI.escape rowx['Production Centre']
+        type = CGI.escape key
+        id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+        rowx[key].to_s != '0' ?
+          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?pcentre=#{pcentre}&consortium=#{consort}&type=#{type}'>#{rowx[key]}</a>" :
+          ''
+      }
+
+      summary2.each do |row2|
+
+        pc = efficiency(request, row2)
+  
+        report_table << {
+          'Consortium' => row['Consortium'],
+          'Production Centre' => row2['Production Centre'],
+          'All' => make_link.call(row, 'All'),
+          'ES QC started' => make_link.call(row, 'ES QC started'),
+          'MI in progress' => make_link2.call(row2, 'MI in progress'),
+          'Genotype Confirmed Mice' => make_link2.call(row2, 'Genotype Confirmed Mice'),
+          'MI Aborted' => make_link2.call(row2, 'MI Aborted'),
+          'Pipeline efficiency (%)' => pc,
+          'ES QC confirmed' => make_link.call(row, 'ES QC confirmed'),
+          'ES QC failed' => make_link.call(row, 'ES QC failed'),
+          'Languishing' => make_link2.call(row2, 'Languishing')
+        }
+      
+      end
+      
+    end
+
+    return 'Production Summary 6', report_table
+  end
+  
+  # Pipeline Efficiency= #GLT / #GLT + MI aborted + MI in progress (>6 months)
+
+  def self.languishing2(row)
+    label = 'Micro-injection in progress'
+    date = 'Micro-injection in progress Date'
+    return false if row.data['Overall Status'] != label
+    today = Date.today
+    return false if ! row[date] || row[date].length < 1
+    before = Date.parse(row[date])
+    return false if ! before
+    gap = today - before
+    return gap && gap > 180
+  end
+  
+  #
+  #  def self.generate62(request = nil, params={})
+  #
+  #    if params[:consortium]
+  #      return subsummary_common(request, params)
+  #    end
+  #
+  #    script_name = request ? request.env['REQUEST_URI'] : ''
+  #
+  #    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+  #
+  #    #TODO: fix 'all' column
+  #
+  #    report_table = Table( ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
+  #                           'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
+  #                           'Registered for Phenotyping'
+  #                           ])
+  #
+  #    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
+  #
+  #    summary = grouped_report.summary(
+  #      'Consortium',
+  #      'All'             => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+  #      'ES QC started'   => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
+  #      'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status'] } ) },
+  #      'ES QC failed'    => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) }
+  #    )
+  #
+  #    summary.each do |row|
+  #
+  #      summary2 = grouped_report.subgrouping(row['Consortium']).summary(
+  #      'Production Centre',
+  #        'MI in progress'  => lambda { |group| count_instances_of( group, 'Gene',
+  #            lambda { |row| MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status'] } ) },
+  #        'Genotype Confirmed Mice'       => lambda { |group| count_instances_of( group, 'Gene',
+  #            lambda { |row| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+  #        'MI Aborted'      => lambda { |group| count_instances_of( group, 'Gene',
+  #            lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
+  #        'Languishing'        => lambda { |group| count_instances_of( group, 'Gene',
+  #            lambda { |row| languishing(row) } ) }
+  #      )
+  #
+  #      make_link = lambda {|rowx, key|
+  #        return rowx[key] if request && request.format == :csv
+  #        consort = CGI.escape row['Consortium']
+  #        type = CGI.escape key
+  #        id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+  #        rowx[key].to_s != '0' ?
+  #          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{type}'>#{rowx[key]}</a>" :
+  #          ''
+  #      }
+  #
+  #      make_link2 = lambda {|rowx, key|
+  #        return rowx[key] if request && request.format == :csv
+  #        consort = CGI.escape row['Consortium']
+  #        pcentre = CGI.escape rowx['Production Centre']
+  #        type = CGI.escape key
+  #        id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+  #        rowx[key].to_s != '0' ?
+  #          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?pcentre=#{pcentre}&consortium=#{consort}&type=#{type}'>#{rowx[key]}</a>" :
+  #          ''
+  #      }
+  #
+  #      summary2.each do |row2|
+  #
+  #        pc = efficiency(request, row2)
+  #
+  #        report_table << {
+  #          'Consortium' => row['Consortium'],
+  #          'Production Centre' => row2['Production Centre'],
+  #          'All' => make_link.call(row, 'All'),
+  #          'ES QC started' => make_link.call(row, 'ES QC started'),
+  #          'MI in progress' => make_link2.call(row2, 'MI in progress'),
+  #          'Genotype Confirmed Mice' => make_link2.call(row2, 'Genotype Confirmed Mice'),
+  #          'MI Aborted' => make_link2.call(row2, 'MI Aborted'),
+  #          'Pipeline efficiency (%)' => pc,
+  #          'ES QC confirmed' => make_link.call(row, 'ES QC confirmed'),
+  #          'ES QC failed' => make_link.call(row, 'ES QC failed'),
+  #          'Languishing' => make_link2.call(row2, 'Languishing')
+  #        }
+  #
+  #      end
+  #
+  #    end
+  #
+  #  #  report_table.sort_rows_by!( ['Consortium'] )
+  #
+  #    return 'Production Summary 6', report_table
+  #  end
+  #
+  #  def self.generate61(request = nil, params={})
+  #
+  #    if params[:consortium]
+  #      return subsummary_common(request, params)
+  #    end
+  #
+  #    script_name = request ? request.env['REQUEST_URI'] : ''
+  #    #script_name = script_name.gsub(/_all/, '2') # blag the url if we're called from _all
+  #
+  #    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+  #
+  #    #TODO: fix 'all' column
+  #
+  #    report_table = Table( ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
+  #                           'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
+  #                           'Registered for Phenotyping'
+  #                           ])
+  ##        'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'Languishing'] )
+  #
+  ##    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
+  ##    grouped_report = Grouping( cached_report, :by => [ 'Production Centre' ] )
+  #    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
+  #
+  #    summary = grouped_report.summary(
+  #      'Consortium',
+  #      'All'             => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+  #      'ES QC started'   => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
+  #     # 'MI in progress'  => lambda { |group| count_instances_of( group, 'Gene',
+  #      #    lambda { |row| MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status'] } ) },
+  #     # 'Genotype Confirmed Mice'       => lambda { |group| count_instances_of( group, 'Gene',
+  #     #     lambda { |row| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+  #    #  'MI Aborted'      => lambda { |group| count_instances_of( group, 'Gene',
+  #     #     lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
+  #      'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status'] } ) },
+  #      'ES QC failed'    => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) }
+  #    )
+  #
+  #    summary.each do |row|
+  #
+  #     # next if consortia && ! consortia.include?(row['Consortium'])
+  #
+  #      summary2 = grouped_report.subgrouping(row['Consortium']).summary(
+  #      'Production Centre',
+  #        'MI in progress'  => lambda { |group| count_instances_of( group, 'Gene',
+  #            lambda { |row| MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status'] } ) },
+  #        'Genotype Confirmed Mice'       => lambda { |group| count_instances_of( group, 'Gene',
+  #            lambda { |row| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+  #        'MI Aborted'      => lambda { |group| count_instances_of( group, 'Gene',
+  #            lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
+  #        'Languishing'        => lambda { |group| count_instances_of( group, 'Gene',
+  #            lambda { |row| languishing(row) } ) }
+  #      )
+  #
+  #      make_link = lambda {|rowx, key|
+  #        return rowx[key] if request && request.format == :csv
+  #        consort = CGI.escape row['Consortium']
+  #        type = CGI.escape key
+  #        id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+  #        rowx[key].to_s != '0' ?
+  #          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{type}'>#{rowx[key]}</a>" :
+  #          ''
+  #      }
+  #
+  #      summary2.each do |row2|
+  #
+  #        pc = efficiency(request, row2)
+  #
+  #        report_table << {
+  #          'Consortium' => row['Consortium'],
+  #          'Production Centre' => row2['Production Centre'],
+  #          'All' => make_link.call(row, 'All'),
+  #          'ES QC started' => make_link.call(row, 'ES QC started'),
+  #          'MI in progress' => make_link.call(row2, 'MI in progress'),
+  #          'Genotype Confirmed Mice' => make_link.call(row2, 'Genotype Confirmed Mice'),
+  #          'MI Aborted' => make_link.call(row2, 'MI Aborted'),
+  #          'Pipeline efficiency (%)' => pc,
+  #          'ES QC confirmed' => make_link.call(row, 'ES QC confirmed'),
+  #          'ES QC failed' => make_link.call(row, 'ES QC failed'),
+  #          'Languishing' => make_link.call(row2, 'Languishing')
+  #        }
+  #
+  #      end
+  #
+  #    end
+  #
+  #  #  report_table.remove_column 'Languishing' if ! DEBUG
+  #
+  #    report_table.sort_rows_by!( ['Consortium'] )
+  #
+  #    return 'Production Summary 6', report_table
+  #  end
+  #
 end

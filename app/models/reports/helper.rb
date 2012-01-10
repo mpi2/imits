@@ -172,4 +172,16 @@ module Reports::Helper
       return redirect_params
     end
 
+  def count_instances_of( group, data_name, row_condition=nil )
+    array = []
+    group.each do |row|
+      if row_condition.nil?
+        array.push( row.data[data_name] )
+      else
+        array.push( row.data[data_name] ) if row_condition.call(row)
+      end
+    end
+    array.size
+  end
+
 end

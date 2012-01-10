@@ -17,13 +17,13 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv("mi_production_intermediate-#{report.compact_timestamp}.csv", report.csv_data)
   end
 
-  def summaries
+  def index
   end
 
   def summary_by_consortium_and_accumulated_status
     @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
     feed = (params[:feed] == 'true')
-    @title2, @report = Reports::ConsortiumPrioritySummary.generate1(request, params)
+    @title2, @report = Reports::MiProduction::FeedImpc.generate(request, params)
     send_data_csv('mi_production_summary_by_consortium_and_accumulated_status.csv', @report.to_csv) if request.format == :csv
     render :text => @report.to_html, :layout => false if feed
   end

@@ -2,24 +2,13 @@
 
 module Reports::MiProduction::SummariesCommon
 
-  extend Reports::Helper
-  extend ActionView::Helpers::UrlHelper
-  extend Reports::MiProduction::Helper
+  include Reports::Helper
+  include ActionView::Helpers::UrlHelper
+  include Reports::MiProduction::Helper
   
   DEBUG = false      
   CSV_LINKS = true  
   ORDER_BY_MAP = { 'Low' => 3, 'Medium' => 2, 'High' => 1}
-  MAPPING_FEED = {
-    'All' => [
-      'Inactive',
-      'Withdrawn'
-    ],
-    'Activity' => ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Micro-injection in progress', 'Genotype confirmed'],
-    'Mice in production' => ['Micro-injection in progress', 'Genotype confirmed'],
-    'Genotype Confirmed Mice' => ['Genotype confirmed'],
-    'Phenotyping in progress' => ['Phenotyping Started'],
-    'Phenotype data available' => ['Phenotyping Complete']
-  }
   MAPPING_SUMMARIES = {
     'All' => [
       'Interest',
@@ -47,7 +36,7 @@ module Reports::MiProduction::SummariesCommon
   CONSORTIA_SUMMARY4 = ['EUCOMM-EUMODIC', 'BaSH', 'MGP']
   CONSORTIA_SUMMARY5 = ['BaSH', 'DTCC', 'JAX']
 
-  def self.subsummary_common(request, params)
+  def subsummary_common(request, params)
     consortium = params[:consortium]
     type = params[:type]
     type = type ? type.gsub(/^\#\s+/, "") : nil
@@ -104,7 +93,7 @@ module Reports::MiProduction::SummariesCommon
     return title, report
   end
    
-  def self.efficiency(request, row)
+  def efficiency(request, row)
     glt = Integer(row['Genotype Confirmed Mice'])
     failures = Integer(row['Languishing']) + Integer(row['MI Aborted'])
     total = Integer(row['Genotype Confirmed Mice']) + failures
@@ -113,7 +102,7 @@ module Reports::MiProduction::SummariesCommon
     return pc
   end
 
-  def self.languishing(row)
+  def languishing(row)
     label = 'Micro-injection in progress'
     date = 'Micro-injection in progress Date'
     return false if row.data['Overall Status'] != label
@@ -125,7 +114,7 @@ module Reports::MiProduction::SummariesCommon
     return gap && gap > 180
   end
 
-  def self.all(row)
+  def all(row)
     return true
   end
     

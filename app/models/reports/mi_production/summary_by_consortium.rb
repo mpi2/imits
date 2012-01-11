@@ -1,8 +1,12 @@
 # encoding: utf-8
 
-class Reports::SummaryByConsortium
+class Reports::MiProduction::SummaryByConsortium
 
   extend Reports::MiProduction::SummariesCommon
+
+  CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
+  DEBUG = Reports::MiProduction::SummariesCommon::DEBUG
+  MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
 
   def self.generate(request = nil, params={}, consortia = nil)
 

@@ -12,9 +12,9 @@ class ReportsController < ApplicationController
   end
 
   def production_summary2
-    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
-    @title2, @report = Reports::ConsortiumPrioritySummary.generate2(request, params)
-    send_data_csv('production_summary2.csv', @report.to_csv) if request.format == :csv
+    @csv = Reports::SummaryByConsortium::CSV_LINKS
+    @title2, @report = Reports::SummaryByConsortium.generate(request, params)
+    send_data_csv('summary_by_consortium.csv', @report.to_csv) if request.format == :csv
   end
 
   def production_summary3

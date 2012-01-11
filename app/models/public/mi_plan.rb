@@ -1,6 +1,12 @@
 # encoding: utf-8
 
 class Public::MiPlan < ::MiPlan
+  extend AccessAssociationByAttribute
+
+  Priority = ::MiPlan::Priority
+  SubProject = ::MiPlan::SubProject
+  Status = ::MiPlan::Status
+
   FULL_ACCESS_ATTRIBUTES = [
     'marker_symbol',
     'consortium_name',

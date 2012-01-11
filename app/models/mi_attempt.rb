@@ -227,11 +227,11 @@ class MiAttempt < ApplicationModel
       if ! mi_plan_to_set
         mi_plan_to_set = MiPlan.new
         mi_plan_to_set.priority = MiPlan::Priority.find_by_name!('High')
-        mi_plan_to_set.consortium_name = consortium_name
+        mi_plan_to_set.consortium = Consortium.find_by_name!(consortium_name)
         mi_plan_to_set.gene = es_cell.gene
       end
 
-      mi_plan_to_set.production_centre_name = production_centre_name
+      mi_plan_to_set.production_centre = Centre.find_by_name!(production_centre_name)
       mi_plan_to_set.status = MiPlan::Status.find_by_name!('Assigned')
       mi_plan_to_set.save!
 

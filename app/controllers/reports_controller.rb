@@ -37,8 +37,8 @@ class ReportsController < ApplicationController
 
   def production_summary6
     @csv = Reports::MiProduction::SummaryKomp2::CSV_LINKS
-    @title2, @report = Reports::MiProduction::SummaryKomp2.generate(request, params) if request.format != :csv
-    @title2, @report = Reports::MiProduction::SummaryKomp2.generate_csv(request, params) if request.format == :csv
+    @title2, @report = Reports::MiProduction::SummaryKomp2.generate(request, params)  # if request.format != :csv
+    #@title2, @report = Reports::MiProduction::SummaryKomp2.generate_csv(request, params) if request.format == :csv
     send_data_csv('production_summary_komp2.csv', @report) if request.format == :csv
   end
 

@@ -16,7 +16,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
         autoLoad: true,
         remoteSort: true,
         remoteFilter: true,
-        pageSize: 50
+        pageSize: 25
     },
 
     selType: 'rowmodel',
@@ -33,11 +33,29 @@ Ext.define('Imits.widget.MiPlansGrid', {
         var self = this;
 
         self.callParent();
+
         self.addDocked(Ext.create('Ext.toolbar.Paging', {
             store: self.getStore(),
             dock: 'bottom',
             displayInfo: true
         }));
+
+        self.miPlanEditor = Ext.create('Imits.widget.MiPlanEditor', {
+            listeners: {
+                'hide': {
+                    fn: function() {
+                        self.reloadStore();
+                        self.setLoading(false);
+                    }
+                }
+            }
+        });
+
+        self.addListener('itemclick', function(theView, record) {
+            var id = record.data['id'];
+            self.setLoading("Editing gene interest....");
+            self.miPlanEditor.edit(id);
+        });
     },
 
     columns: [

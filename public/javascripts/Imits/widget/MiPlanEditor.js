@@ -2,10 +2,11 @@ Ext.define('Imits.widget.MiPlanEditor', {
     extend: 'Imits.widget.Window',
 
     requires: [
-    'Imits.model.MiPlan'
+    'Imits.model.MiPlan',
+    'Imits.widget.SimpleCombo'
     ],
 
-    title: 'Change Expression of Interest to Micro-Inject',
+    title: 'Change Gene Interest',
     resizable: false,
     layout: 'fit',
     closeAction: 'hide',
@@ -55,7 +56,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 fieldLabel: 'Production Centre',
                 name: 'production_centre_name',
                 storeOptionsAreSpecial: true,
-                store: window.CENTRE_COMBO_OPTS
+                store: window.CENTRE_OPTIONS
             },
             {
                 id: 'status_name',
@@ -69,7 +70,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 xtype: 'simplecombo',
                 fieldLabel: 'Priority',
                 name: 'priority_name',
-                store: window.PRIORITY_COMBO_OPTS
+                store: window.PRIORITY_OPTIONS
             },
             {
                 id: 'number_of_es_cells_starting_qc',

@@ -12,10 +12,6 @@ class MiPlansController < ApplicationController
     q[:marker_symbol_or_mgi_accession_id_ci_in] =
             q[:marker_symbol_or_mgi_accession_id_ci_in].
             lines.map(&:strip).select{|i|!i.blank?}.join("\n")
-
-    @centre_combo_options    = Centre.order('name').map(&:name)
-    @consortia_combo_options = Consortium.order('name').map(&:name)
-    @priority_combo_options  = MiPlan::Priority.order('name').map(&:name)
   end
 
   def show

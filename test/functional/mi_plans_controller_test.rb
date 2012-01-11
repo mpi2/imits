@@ -27,7 +27,7 @@ class MiPlansControllerTest < ActionController::TestCase
           post(:create, :mi_plan => attributes, :format => :json)
           assert_response :success, response.body
 
-          plan = MiPlan.first
+          plan = Public::MiPlan.first
           assert_equal plan.as_json, JSON.parse(response.body)
         end
 
@@ -155,8 +155,8 @@ class MiPlansControllerTest < ActionController::TestCase
 
       context 'PUT update' do
         should 'update with valid params' do
-          mi_plan = Factory.create :mi_plan,
-                  :priority => MiPlan::Priority.find_by_name!('High')
+          mi_plan = Public::MiPlan.find(Factory.create(:mi_plan,
+                  :priority => MiPlan::Priority.find_by_name!('High')))
           put :update, :id => mi_plan.id, :format => :json,
                   :mi_plan => {:production_centre_name => 'WTSI', :priority_name => 'High'}
           assert response.success?
@@ -202,14 +202,20 @@ class MiPlansControllerTest < ActionController::TestCase
           @p1 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 4,
                   :gene => Factory.create(:gene_cbx1)
           @p2 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 12,
-                  :number_of_es_cells_passing_qc => 2
+                  :number_of_es_cells_passing_qc => 2,
+                  :gene => Factory.create(:gene, :marker_symbol => 'Xbnf1')
           @p3 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 3,
-                  :number_of_es_cells_passing_qc => 1
-          @p4 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 2
-          @p5 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 7
-          @p6 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 1
+                  :number_of_es_cells_passing_qc => 1,
+                  :gene => Factory.create(:gene, :marker_symbol => 'Ady3')
+          @p4 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 2,
+                  :gene => Factory.create(:gene, :marker_symbol => 'Ebs1')
+          @p5 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 7,
+                  :gene => Factory.create(:gene, :marker_symbol => 'Has2')
+          @p6 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 1,
+                  :gene => Factory.create(:gene, :marker_symbol => 'Ttgf1')
           @p7 = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 5,
-                  :number_of_es_cells_passing_qc => 3
+                  :number_of_es_cells_passing_qc => 3,
+                  :gene => Factory.create(:gene, :marker_symbol => 'Ide1')
         end
 
         should 'allow filtering with Ransack' do
@@ -236,10 +242,11 @@ class MiPlansControllerTest < ActionController::TestCase
           assert_equal 20, parse_json_from_response.size
         end
 
-        should 'sort by ID by default' do
+        should_eventually 'sort by marker_symbol by default' do
           get :index, :format => 'json'
           data = parse_json_from_response
-          assert_equal [@p1.id, @p2.id], data.map {|i| i['id']}[0..1]
+          sorted_markers = data.map {|i| i['marker_symbol']}
+          assert_equal sorted_markers.sort, sorted_markers
         end
 
         should 'allow sorting' do

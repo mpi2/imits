@@ -42,6 +42,7 @@ javascripts:
     - public/javascripts/Imits/widget/grid/SimpleDateColumn.js
     - public/javascripts/Imits/widget/grid/RansackFiltersFeature.js
     - public/javascripts/Imits/widget/grid/MiAttemptRansackFiltersFeature.js
+    - public/javascripts/Imits/widget/grid/MiPlanRansackFiltersFeature.js
     - public/javascripts/Imits/widget/MiGrid.js
     - public/extjs/examples/ux/grid/menu/ListMenu.js
     - public/extjs/examples/ux/grid/menu/RangeMenu.js
@@ -54,3 +55,4 @@ javascripts:
     - public/extjs/examples/ux/RowExpander.js
     - public/javascripts/Imits/widget/MiPlanEditor.js
     - public/javascripts/Imits/widget/GeneGrid.js
+    - public/javascripts/Imits/widget/MiPlansGrid.js

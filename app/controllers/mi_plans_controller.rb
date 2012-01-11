@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 class MiPlansController < ApplicationController
-  respond_to :html, :only => [:gene_selection]
+  respond_to :html, :only => [:gene_selection, :index]
   respond_to :json, :except => [:gene_selection]
   before_filter :authenticate_user!
 
@@ -21,6 +21,16 @@ class MiPlansController < ApplicationController
   def show
     respond_with Public::MiPlan.find_by_id(params[:id])
   end
+
+  def public_mi_plan_url(id)
+    mi_plan_url(id)
+  end
+  protected :public_mi_plan_url
+
+  def public_mi_plans_url
+    mi_plans_url
+  end
+  protected :mi_plans_url
 
   def create
     upgradeable = Public::MiPlan.check_for_upgradeable(params[:mi_plan])
@@ -83,7 +93,14 @@ class MiPlansController < ApplicationController
   end
 
   def index
-    render :json => data_for_serialized(:json, 'id', Public::MiPlan, :public_search)
+    respond_to do |format|
+      format.json do
+        render :json => data_for_serialized(:json, 'id', Public::MiPlan, :public_search)
+      end
+
+      format.html do
+      end
+    end
   end
 
 end

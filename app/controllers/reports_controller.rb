@@ -18,15 +18,15 @@ class ReportsController < ApplicationController
   end
 
   def production_summary3
-    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
-    @title2, @report = Reports::ConsortiumPrioritySummary.generate3(request, params)
+    @csv = Reports::MiProduction::SummaryByConsortiumPriority::CSV_LINKS
+    @title2, @report = Reports::MiProduction::SummaryByConsortiumPriority.generate(request, params)
     send_data_csv('production_summary3.csv', @report.to_csv) if request.format == :csv
   end
 
   def production_summary4
     @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
     @title2, @report = Reports::ConsortiumPrioritySummary.generate4(request, params)
-    send_data_csv('production_summary4.csv', @report.to_csv) if request.format == :csv
+    send_data_csv('summary_by_consortium_priority.csv', @report.to_csv) if request.format == :csv
   end
 
   def production_summary5

@@ -5,10 +5,11 @@ class Reports::MiProduction::SummaryByConsortium
   extend Reports::MiProduction::SummariesCommon
 
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
-  DEBUG = Reports::MiProduction::SummariesCommon::DEBUG
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
 
   def self.generate(request = nil, params={}, consortia = nil)
+
+    debug = params['debug'] && params['debug'].to_s.length > 0
 
     if params[:consortium]
       return subsummary_common(request, params)
@@ -26,7 +27,7 @@ class Reports::MiProduction::SummaryByConsortium
     summary = grouped_report.summary(
       'Consortium',
       'All'             => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+          lambda { |row| all(row) } ) },
       'ES QC started'   => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
       'MI in progress'  => lambda { |group| count_instances_of( group, 'Gene',
@@ -75,7 +76,7 @@ class Reports::MiProduction::SummaryByConsortium
       
     end
     
-    report_table.remove_column 'Languishing' if ! DEBUG
+    report_table.remove_column 'Languishing' if ! debug
   
     report_table.sort_rows_by!( ['Consortium'] )    
         

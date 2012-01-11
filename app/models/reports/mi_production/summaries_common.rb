@@ -5,26 +5,12 @@ module Reports::MiProduction::SummariesCommon
   include Reports::Helper
   include ActionView::Helpers::UrlHelper
   include Reports::MiProduction::Helper
-  
+    
   DEBUG = false      
   CSV_LINKS = true  
   ORDER_BY_MAP = { 'Low' => 3, 'Medium' => 2, 'High' => 1}
   MAPPING_SUMMARIES = {
-    'All' => [
-      'Interest',
-      'Assigned - ES Cell QC In Progress',
-      'Assigned - ES Cell QC Complete',
-      'Micro-injection in progress',
-      'Assigned',
-      'Inspect - MI Attempt',
-      'Aborted - ES Cell QC Failed',
-      'Conflict',
-      'Genotype confirmed',
-      'Inspect - Conflict',
-      'Inspect - GLT Mouse',
-      'Withdrawn',
-      'Micro-injection aborted'
-    ],
+    'All' => [],
     'ES QC started' => ['Assigned - ES Cell QC In Progress'],
     'MI in progress' => ['Micro-injection in progress'],
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
@@ -41,10 +27,10 @@ module Reports::MiProduction::SummariesCommon
     priority = params[:priority]
     subproject = params[:subproject]    
     pcentre = params[:pcentre]    
+    debug = params['debug'] && params['debug'].to_s.length > 0
   
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
       
-    counter = 1
     report = Table(:data => cached_report.data,
       :column_names => cached_report.column_names,
       :filters => lambda {|r|
@@ -86,7 +72,7 @@ module Reports::MiProduction::SummariesCommon
     report.rename_column 'Mutation Sub-Type', 'Mutation Type'
   
     title = "Production Summary Detail"
-    title = "Production Summary Detail: #{consortium}#{subproject}#{type}#{priority} (#{report.size})" if DEBUG
+    title = "Production Summary Detail: #{consortium}#{subproject}#{type}#{priority} (#{report.size})" if debug
     
     return title, report
   end
@@ -114,6 +100,21 @@ module Reports::MiProduction::SummariesCommon
 
   def all(row)
     return true
+  end
+  
+  # helper routine that just strips html from table entries
+  # probably should be in helper module
+    
+  def de_tag_table(table)
+    report = Table(:data => table.data,
+      :column_names => table.column_names,
+      :transforms => lambda {|r|
+        table.column_names.each do |name|
+          r[name] = r[name].to_s.gsub(/<\/?[^>]*>/, "")
+        end
+      }
+    )
+    return report
   end
     
 end

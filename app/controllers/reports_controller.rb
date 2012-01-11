@@ -20,11 +20,11 @@ class ReportsController < ApplicationController
   def production_summary3
     @csv = Reports::MiProduction::SummaryByConsortiumPriority::CSV_LINKS
     @title2, @report = Reports::MiProduction::SummaryByConsortiumPriority.generate(request, params)
-    send_data_csv('production_summary3.csv', @report.to_csv) if request.format == :csv
+    send_data_csv('Summary_by_consortium_priority.csv', @report.to_csv) if request.format == :csv
   end
 
   def production_summary4
-    @csv = Reports::MiProduction::SummaryMgp
+    @csv = Reports::MiProduction::SummaryMgp::CSV_LINKS
     @title2, @report = Reports::MiProduction::SummaryMgp.generate(request, params)
     send_data_csv('summary_mgp.csv', @report.to_csv) if request.format == :csv
   end
@@ -37,8 +37,7 @@ class ReportsController < ApplicationController
 
   def production_summary6
     @csv = Reports::MiProduction::SummaryKomp2::CSV_LINKS
-    @title2, @report = Reports::MiProduction::SummaryKomp2.generate(request, params)  # if request.format != :csv
-    #@title2, @report = Reports::MiProduction::SummaryKomp2.generate_csv(request, params) if request.format == :csv
+    @title2, @report = Reports::MiProduction::SummaryKomp2.generate(request, params)
     send_data_csv('production_summary_komp2.csv', @report) if request.format == :csv
   end
 

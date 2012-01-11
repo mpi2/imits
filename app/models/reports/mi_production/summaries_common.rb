@@ -33,8 +33,6 @@ module Reports::MiProduction::SummariesCommon
     'ES QC failed' => ['Aborted - ES Cell QC Failed'],
     'Registered for Phenotyping' => []
   }
-  CONSORTIA_SUMMARY4 = ['EUCOMM-EUMODIC', 'BaSH', 'MGP']
-  CONSORTIA_SUMMARY5 = ['BaSH', 'DTCC', 'JAX']
 
   def subsummary_common(request, params)
     consortium = params[:consortium]

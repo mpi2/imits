@@ -6,11 +6,10 @@ class Reports::MiProduction::FeedImpc
   extend ActionView::Helpers::UrlHelper
   extend Reports::MiProduction::Helper
   
-  DEBUG = false
-      
+  DEBUG = false      
   CSV_LINKS = true  
 
-  MAPPING_FEED = {
+  MAPPING = {
     'All Projects' => [
       'Inactive',
       'Withdrawn'
@@ -40,10 +39,10 @@ class Reports::MiProduction::FeedImpc
         
         consortium_ok = consortium && consortium.length > 0
         
-        return (!consortium_ok || r['Consortium'] == consortium) && (! MAPPING_FEED['All Projects'].include?(r.data['MiPlan Status'])) if status == 'All Projects'
+        return (!consortium_ok || r['Consortium'] == consortium) && (! MAPPING['All Projects'].include?(r.data['MiPlan Status'])) if status == 'All Projects'
         
         return (!consortium_ok || r['Consortium'] == consortium) &&
-          (MAPPING_FEED[status].include?(r.data['Overall Status']) || MAPPING_FEED[status].include?(r.data['PhenotypeAttempt Status']))
+          (MAPPING[status].include?(r.data['Overall Status']) || MAPPING[status].include?(r.data['PhenotypeAttempt Status']))
       }
     ).each do |row|
 
@@ -130,28 +129,28 @@ class Reports::MiProduction::FeedImpc
     grouped_report.summary(
       'Consortium',
       'All Projects'                => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| (! MAPPING_FEED['All Projects'].include?(row.data['MiPlan Status'])) } ) },
+          lambda { |row| (! MAPPING['All Projects'].include?(row.data['MiPlan Status'])) } ) },
       'Project started'           => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Project started'].include? row.data['Overall Status'] } ) },
+          lambda { |row| MAPPING['Project started'].include? row.data['Overall Status'] } ) },
       'Microinjection in progress' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Microinjection in progress'].include? row.data['Overall Status'] } ) },
+          lambda { |row| MAPPING['Microinjection in progress'].include? row.data['Overall Status'] } ) },
       'Genotype Confirmed Mice'           => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+          lambda { |row| MAPPING['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
       'Phenotype data available'           => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Phenotype data available'].include? row.data['Overall Status'] } ) },
+          lambda { |row| MAPPING['Phenotype data available'].include? row.data['Overall Status'] } ) },
 
       'All Projects_distinct'                => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| (! MAPPING_FEED['All Projects'].include?(row.data['MiPlan Status'])) } ) },
+          lambda { |row| (! MAPPING['All Projects'].include?(row.data['MiPlan Status'])) } ) },
       'Project started_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Project started'].include? row.data['Overall Status'] } ) },
+          lambda { |row| MAPPING['Project started'].include? row.data['Overall Status'] } ) },
       'Microinjection in progress_distinct' => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Microinjection in progress'].include? row.data['Overall Status'] } ) },
+          lambda { |row| MAPPING['Microinjection in progress'].include? row.data['Overall Status'] } ) },
       'Genotype Confirmed Mice_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+          lambda { |row| MAPPING['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
       'Phenotyping in progress_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Phenotyping in progress'].include? row.data['PhenotypeAttempt Status'] } ) },
+          lambda { |row| MAPPING['Phenotyping in progress'].include? row.data['PhenotypeAttempt Status'] } ) },
       'Phenotype data available_distinct'           => lambda { |group| count_unique_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_FEED['Phenotype data available'].include? row.data['PhenotypeAttempt Status'] } ) }
+          lambda { |row| MAPPING['Phenotype data available'].include? row.data['PhenotypeAttempt Status'] } ) }
     ).each do |row|
 
       make_link = lambda {|key|

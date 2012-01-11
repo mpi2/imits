@@ -8,8 +8,19 @@ class Reports::MiProduction::SummaryKomp2
   DEBUG = Reports::MiProduction::SummariesCommon::DEBUG
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
   ORDER_BY_MAP = Reports::MiProduction::SummariesCommon::ORDER_BY_MAP
-  CONSORTIA_SUMMARY5 = ['BaSH', 'DTCC', 'JAX']
+  CONSORTIA = ['BaSH', 'DTCC', 'JAX']
+  REPORT_TITLE = 'KOMP2 Report'
 
+  def self.generate(request = nil, params={})
+#    return generate_old(request, params)
+    return generate_new(request, params)
+  end
+
+  def self.generate_csv(request = nil, params={})
+    #return generate_csv_old(request, params)
+    return generate_csv_new(request, params)
+  end
+  
   def self.generate_short(request = nil, params={})
   
     script_name = request ? request.env['REQUEST_URI'] : ''
@@ -36,7 +47,7 @@ class Reports::MiProduction::SummaryKomp2
       
     summary.each do |row|
   
-      next if ! CONSORTIA_SUMMARY5.include?(row['Consortium'])
+      next if ! CONSORTIA.include?(row['Consortium'])
         
       summary2 = grouped_report.subgrouping(row['Consortium']).summary(
         'Production Centre',
@@ -47,20 +58,10 @@ class Reports::MiProduction::SummaryKomp2
         'MI Aborted'      => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
         'Languishing'        => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| languishing(row) } ) }
+            lambda { |row| languishing(row) } ) },
+        'Registered for Phenotyping'        => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| registered_for_phenotyping(row) } ) }
       )
-  
-      #make_link3 = lambda {|rowx, key|
-      #  return rowx[key] if request && request.format == :csv
-      #  consort = CGI.escape row['Consortium']
-      #  pcentre = rowx['Production Centre'] ? CGI.escape(rowx['Production Centre']) : nil
-      #  pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
-      #  type = CGI.escape key
-      #  id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
-      #  rowx[key].to_s != '0' ?
-      #    "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
-      #    ''
-      #}
   
       hash = {
         'Consortium' => row['Consortium'],
@@ -73,9 +74,8 @@ class Reports::MiProduction::SummaryKomp2
   
       summary2.each do |row2|
   
-        pc = efficiency(request, row2)
-                
-        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : '&nbsp;'
+        pc = efficiency(request, row2)                
+        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : ''
       
         hash2 = {
           'Production Centre' => pcentre,
@@ -84,14 +84,15 @@ class Reports::MiProduction::SummaryKomp2
           'MI Aborted' => row2['MI Aborted'],
           'Genotype Confirmed Mice' => row2['Genotype Confirmed Mice'],
           'Pipeline efficiency (%)' => pc,
-          'Registered for Phenotyping' => ''
+          'Registered for Phenotyping' => row2['Registered for Phenotyping'],
+          'Languishing' => row2['Languishing'],
         }
       
-        hash['array'].push hash2
-      
-        array.push hash
+        hash['array'].push hash2      
        
       end
+
+      array.push hash
   
     end
   
@@ -105,12 +106,31 @@ class Reports::MiProduction::SummaryKomp2
       return title, report.to_html
     end
 
-    report = generate6short(request, params)
+    report = generate_short(request, params)
 
+    script_name = request ? request.env['REQUEST_URI'] : ''
+    
+    #raise report.inspect
+    
+    #[{"Consortium"=>"BaSH", "All"=>521, "ES QC started"=>143, "ES QC confirmed"=>19, "ES QC failed"=>0,
+    #"array"=>[
+    #{"Production Centre"=>"&nbsp;", "MI in progress"=>0, "Chimaeras"=>"", "MI Aborted"=>0, "Genotype Confirmed Mice"=>0, "Pipeline efficiency (%)"=>"", "Registered for Phenotyping"=>""}, {"Production Centre"=>"BCM", "MI in progress"=>13, "Chimaeras"=>"", "MI Aborted"=>0, "Genotype Confirmed Mice"=>2, "Pipeline efficiency (%)"=>"50", "Registered for Phenotyping"=>""}, {"Production Centre"=>"MRC - Harwell", "MI in progress"=>23, "Chimaeras"=>"", "MI Aborted"=>0, "Genotype Confirmed Mice"=>1, "Pipeline efficiency (%)"=>"100", "Registered for Phenotyping"=>""}, {"Production Centre"=>"WTSI", "MI in progress"=>47, "Chimaeras"=>"", "MI Aborted"=>6, "Genotype Confirmed Mice"=>1, "Pipeline efficiency (%)"=>"14", "Registered for Phenotyping"=>""}]}, {"Consortium"=>"DTCC", "All"=>267, "ES QC started"=>0, "ES QC confirmed"=>1, "ES QC failed"=>0,
+    #"array"=>[{"Production Centre"=>"TCP", "MI in progress"=>8, "Chimaeras"=>"", "MI Aborted"=>0, "Genotype Confirmed Mice"=>0, "Pipeline efficiency (%)"=>"", "Registered for Phenotyping"=>""}, {"Production Centre"=>"UCD", "MI in progress"=>154, "Chimaeras"=>"", "MI Aborted"=>0, "Genotype Confirmed Mice"=>4, "Pipeline efficiency (%)"=>"6", "Registered for Phenotyping"=>""}]}, {"Consortium"=>"JAX", "All"=>286, "ES QC started"=>44, "ES QC confirmed"=>1, "ES QC failed"=>0,
+    #"array"=>[{"Production Centre"=>"JAX", "MI in progress"=>3, "Chimaeras"=>"", "MI Aborted"=>0, "Genotype Confirmed Mice"=>0, "Pipeline efficiency (%)"=>"", "Registered for Phenotyping"=>""}]}]
+    
     heading = ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
       'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
       'Registered for Phenotyping'
     ]
+    
+    heading.push 'Languishing' if DEBUG
+
+    table = '<table>'
+    table += '<tr>'
+    heading.each { |item| table += "<th>#{item}</th>"}
+    table += '</tr>'
+
+    report.each { |row| 
 
       make_link3 = lambda {|rowx, key|
         return rowx[key] if request && request.format == :csv
@@ -124,48 +144,43 @@ class Reports::MiProduction::SummaryKomp2
           ''
       }
 
-    table = '<table>'
-    table += '<tr>'
-    heading.each { |item| table += "<th>#{item}</th>"}
-    table += '</tr>'
-
-    report.each { |row| 
       table += '<tr>'
       table += "<td rowspan='SWAPME'>#{row['Consortium']}</td>"
       table += "<td rowspan='SWAPME'>#{make_link3.call(row, 'All')}</td>"
       table += "<td rowspan='SWAPME'>#{make_link3.call(row, 'ES QC started')}</td>"
       table += "<td rowspan='SWAPME'>#{make_link3.call(row, 'ES QC confirmed')}</td>"
       table += "<td rowspan='SWAPME'>#{make_link3.call(row, 'ES QC failed')}</td>"
-      report['array'].each { |row2|
+      
+      row['array'].each { |row2|
+
+        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : '&nbsp;'
+
         table += "<td>#{pcentre}</td>"
         table += "<td>#{make_link3.call(row2, 'MI in progress')}</td>"
         table += "<td></td>"
         table += "<td>#{make_link3.call(row2, 'MI Aborted')}</td>"
         table += "<td>#{make_link3.call(row2, 'Genotype Confirmed Mice')}</td>"
-        table += "<td>#{pc}</td>"
-        table += "<td></td>"
+        table += "<td>#{row2['Pipeline efficiency (%)']}</td>"
+        table += "<td>#{make_link3.call(row2, 'Registered for Phenotyping')}</td>"
 
         table += "<td>#{make_link3.call(row2, 'Languishing')}</td>" if DEBUG
  
         table += "</tr>"
       }
-      table = table.gsub(/SWAPME/, pcentres.size.to_s)    
+      table = table.gsub(/SWAPME/, row['array'].size.to_s)    
     }
 
     table += '</table>'
 
-    return 'Production Summary 6', table
+    return REPORT_TITLE, table
   
   end
   
   def self.all(row)
     return true
   end
-  
-  def self.generate(request = nil, params={})
-    
-    #  thing = generate6short(request, params)
-    #   raise thing.inspect
+
+  def self.generate_old(request = nil, params={})
 
     if params[:consortium]
       title, report = subsummary_common(request, params)
@@ -216,7 +231,7 @@ class Reports::MiProduction::SummaryKomp2
     
     summary.each do |row|
 
-      next if ! CONSORTIA_SUMMARY5.include?(row['Consortium'])
+      next if ! CONSORTIA.include?(row['Consortium'])
       
       table += "<tr>"
 
@@ -270,14 +285,6 @@ class Reports::MiProduction::SummaryKomp2
         table += "<td>#{make_link3.call(row2, 'Genotype Confirmed Mice')}</td>"
         table += "<td>#{pc}</td>"
         
-#        rfp = row2['Registered for Phenotyping'] && row2['Registered for Phenotyping'].to_s.length > 0 ? #&& row2['Registered for Phenotyping'] != 0 ?
-#        row2['Registered for Phenotyping'] : ''
-#        
-##        rfp = rfp == '0' ? '' : rfp
-#        rfp = rfp.to_s == '0' ? '' : rfp
-#        
-#        table += "<td>#{rfp}</td>"
-        
         table += "<td>#{make_link3.call(row2, 'Registered for Phenotyping')}</td>"
 
         table += "<td>#{make_link3.call(row2, 'Languishing')}</td>" if DEBUG
@@ -292,14 +299,14 @@ class Reports::MiProduction::SummaryKomp2
 
     table += '</table>'
 
-    return 'Production Summary 6', table
+    return REPORT_TITLE, table
   end
   
   def self.registered_for_phenotyping(row)
     row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
   end
   
-  def self.generate_csv(request = nil, params={})
+  def self.generate_csv_old(request = nil, params={})
 
     if params[:consortium]
       return subsummary_common(request, params)
@@ -334,7 +341,7 @@ class Reports::MiProduction::SummaryKomp2
 
     summary.each do |row|
 
-      next if ! CONSORTIA_SUMMARY5.include?(row['Consortium'])
+      next if ! CONSORTIA.include?(row['Consortium'])
 
       summary2 = grouped_report.subgrouping(row['Consortium']).summary(
         'Production Centre',
@@ -392,7 +399,58 @@ class Reports::MiProduction::SummaryKomp2
       
     end
 
-    return 'Production Summary 6', report_table
+    return REPORT_TITLE, report_table
+  end
+
+  def self.quote(string)
+    #string = string.gsub(/\"/, '\"')
+    return '"' + string.to_s + '"'
+  end
+  
+  def self.generate_csv_new(request = nil, params={})
+  
+    if params[:consortium]
+      title, report = subsummary_common(request, params)
+      return title, report.to_html
+    end
+
+    report = generate_short(request, params)
+   
+    heading = ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
+      'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
+      'Registered for Phenotyping'
+    ]
+
+    heading.push 'Languishing' if DEBUG
+
+    table = ''
+    heading.each { |item| table += quote(item) + ',' }
+    table += "\n"
+
+    report.each { |row| 
+      
+      row['array'].each { |row2|
+
+        table += quote(row['Consortium']) + ','
+        table += quote(row['All']) + ','
+        table += quote(row['ES QC started']) + ','
+        table += quote(row['ES QC confirmed']) + ','
+        table += quote(row['ES QC failed']) + ','
+
+        table += quote(row2['Production Centre']) + ','
+        table += quote(row2['MI in progress']) + ','
+        table += quote('') + ','
+        table += quote(row2['MI Aborted']) + ','
+        table += quote(row2['Genotype Confirmed Mice']) + ','
+        table += quote(row2['Pipeline efficiency (%)']) + ','
+        table += quote(row2['Registered for Phenotyping'])
+        table += ',' + quote(row2['Languishing']) if DEBUG 
+        table += "\n"
+      }
+    }
+
+    return REPORT_TITLE, table
+  
   end
 
 end

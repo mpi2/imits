@@ -102,19 +102,4 @@ module Reports::MiProduction::SummariesCommon
     return true
   end
   
-  # helper routine that just strips html from table entries
-  # probably should be in helper module
-    
-  def de_tag_table(table)
-    report = Table(:data => table.data,
-      :column_names => table.column_names,
-      :transforms => lambda {|r|
-        table.column_names.each do |name|
-          r[name] = r[name].to_s.gsub(/<\/?[^>]*>/, "")
-        end
-      }
-    )
-    return report
-  end
-    
 end

@@ -33,8 +33,8 @@ class Reports::MiProduction::SummaryByConsortiumPriorityTest < ProductionSummary
     end
 
     should 'allow users to visit the page & see entries' do
-      visit '/reports/production_summary3'
-      assert_match '/reports/production_summary3', current_url
+      visit '/reports/mi_production/summary_by_consortium_priority'
+      assert_match '/reports/mi_production/summary_by_consortium_priority', current_url
 
       assert_match 'Summary By Consortium', page.body
       assert_match 'Download as CSV', page.body
@@ -45,10 +45,10 @@ class Reports::MiProduction::SummaryByConsortiumPriorityTest < ProductionSummary
     end
     
     should 'allow users to visit the detail page & see entries' do
-      visit '/reports/production_summary3?consortium=BaSH&type=Genotype+Confirmed+Mice'
+      visit '/reports/mi_production/summary_by_consortium_priority?consortium=BaSH&type=Genotype+Confirmed+Mice'
       
-      one = "/reports/production_summary3?consortium=BaSH&type=Genotype%20Confirmed%20Mice"
-      other = "/reports/production_summary3?consortium=BaSH&type=Genotype+Confirmed+Mice"
+      one = "/reports/mi_production/summary_by_consortium_priority?consortium=BaSH&type=Genotype%20Confirmed%20Mice"
+      other = "/reports/mi_production/summary_by_consortium_priority?consortium=BaSH&type=Genotype+Confirmed+Mice"
       target = /\%20/.match(current_url) ? one : other
       assert_match target, current_url
       

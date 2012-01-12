@@ -28,4 +28,34 @@ class Reports::MiProductionController < ApplicationController
     render :text => @report.to_html, :layout => false if feed
   end
 
+  def summary_by_consortium
+    @csv = Reports::MiProduction::SummaryByConsortium::CSV_LINKS
+    @title2, @report = Reports::MiProduction::SummaryByConsortium.generate(request, params)
+    send_data_csv('summary_by_consortium.csv', @report.to_csv) if request.format == :csv
+  end
+
+  def summary_by_consortium_priority
+    @csv = Reports::MiProduction::SummaryByConsortiumPriority::CSV_LINKS
+    @title2, @report = Reports::MiProduction::SummaryByConsortiumPriority.generate(request, params)
+    send_data_csv('Summary_by_consortium_priority.csv', @report.to_csv) if request.format == :csv
+  end
+
+  def summary_mgp
+    @csv = Reports::MiProduction::SummaryMgp::CSV_LINKS
+    @title2, @report = Reports::MiProduction::SummaryMgp.generate(request, params)
+    send_data_csv('summary_mgp.csv', @report.to_csv) if request.format == :csv
+  end
+
+  def summary_komp2_brief
+    @csv = Reports::MiProduction::SummaryKomp2Brief::CSV_LINKS
+    @title2, @report = Reports::MiProduction::SummaryKomp2Brief.generate(request, params)
+    send_data_csv('production_summary_komp2_brief.csv', @report.to_csv) if request.format == :csv
+  end
+
+  def summary_komp2
+    @csv = Reports::MiProduction::SummaryKomp2::CSV_LINKS
+    @title2, @report = Reports::MiProduction::SummaryKomp2.generate(request, params)
+    send_data_csv('production_summary_komp2.csv', @report) if request.format == :csv
+  end
+
 end

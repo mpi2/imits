@@ -23,7 +23,7 @@ class Reports::MiProduction::SummaryByConsortiumPriorityPriorityTest < ActiveSup
     end
     
     should 'do generate' do
-      title2, report = Reports::MiProduction::SummaryByConsortiumPriority.generate(nil, {'debug'=>'true'}, nil)
+      title2, report = Reports::MiProduction::SummaryByConsortiumPriority.generate(nil, {'debug'=>'true'})
       
       puts 'do generate: ' + title2 if DEBUG
       puts report.to_s if DEBUG
@@ -37,7 +37,7 @@ class Reports::MiProduction::SummaryByConsortiumPriorityPriorityTest < ActiveSup
       assert_equal 1, report.size
       
       expecteds = ProductionSummaryHelper::get_expecteds 'summary by consortium priority'
-    
+      
       expecteds.each_pair do |k,v|
         puts "#{k} : #{v}" if DEBUG
         assert_equal v.to_s, report.column(k)[0]
@@ -52,6 +52,7 @@ class Reports::MiProduction::SummaryByConsortiumPriorityPriorityTest < ActiveSup
             
       expecteds.each_pair do |k,v|
         next if k == 'Pipeline efficiency (%)'
+        next if k == 'Priority'
         puts "#{k} : #{v}" if DEBUG
         title2, report = Reports::MiProduction::SummaryByConsortiumPriority.subsummary_common(nil, { :consortium => 'BaSH', :type => k })
         puts "report size: #{report.size}" if DEBUG

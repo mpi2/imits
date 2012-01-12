@@ -3,8 +3,6 @@
 require 'test_helper'
 
 class Reports::MiProduction::SummaryByConsortiumTest < ActiveSupport::TestCase
-  
-  #include ProductionSummaryHelper
 
   DEBUG = false
   

@@ -5,7 +5,6 @@ class Reports::MiProduction::SummaryByConsortiumPriority
   extend Reports::MiProduction::SummariesCommon
 
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
-  DEBUG = Reports::MiProduction::SummariesCommon::DEBUG
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
   ORDER_BY_MAP = Reports::MiProduction::SummariesCommon::ORDER_BY_MAP
 
@@ -16,6 +15,7 @@ class Reports::MiProduction::SummaryByConsortiumPriority
     end
 
     script_name = request ? request.env['REQUEST_URI'] : ''
+    debug = params['debug'] && params['debug'].to_s.length > 0
 
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
 
@@ -78,7 +78,7 @@ class Reports::MiProduction::SummaryByConsortiumPriority
       
     end
 
-    report_table.remove_column 'Languishing' if ! DEBUG
+    report_table.remove_column 'Languishing' if ! debug
   
     report_table.sort_rows_by!( ['Consortium', 'order_by'] )    
     report_table.remove_column('order_by')

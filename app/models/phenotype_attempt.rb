@@ -20,6 +20,7 @@ class PhenotypeAttempt < ActiveRecord::Base
   before_validation :change_status
   before_validation :set_default_mi_plan
   before_save :record_if_status_was_changed
+  before_save :generate_colony_name_if_blank
   after_save :create_status_stamp_if_status_was_changed
 
   def set_default_mi_plan
@@ -32,6 +33,16 @@ class PhenotypeAttempt < ActiveRecord::Base
     else
       @new_status = nil
     end
+  end
+
+  def generate_colony_name_if_blank
+    return unless self.colony_name.blank?
+
+    i = 0
+    begin
+      i += 1
+      self.colony_name = "#{self.mi_attempt.colony_name}-#{i}"
+    end until self.class.find_by_colony_name(self.colony_name).blank?
   end
 
   def create_status_stamp_if_status_was_changed
@@ -73,5 +84,10 @@ end
 #  created_at                       :datetime
 #  updated_at                       :datetime
 #  mi_plan_id                       :integer         not null
+#  colony_name                      :string(125)     not null
+#
+# Indexes
+#
+#  index_phenotype_attempts_on_colony_name  (colony_name) UNIQUE
 #
 

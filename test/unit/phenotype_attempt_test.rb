@@ -190,5 +190,30 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#colony_name' do
+      should 'exist and be not null' do
+        assert_should have_db_column(:colony_name).with_options(:limit => 125, :null => false)
+      end
+
+      should 'have unique index' do
+        assert_should have_db_index(:colony_name).unique(true)
+      end
+
+      should 'be auto-generated' do
+        mi = Factory.create :mi_attempt_genotype_confirmed, :colony_name => 'ABCD123'
+
+        pt = Factory.create :phenotype_attempt, :mi_attempt => mi
+        assert_equal 'ABCD123-1', pt.colony_name
+
+        pt = Factory.create :phenotype_attempt, :mi_attempt => mi
+        assert_equal 'ABCD123-2', pt.colony_name
+      end
+
+      should 'not be overwritten by auto-generation if set' do
+        pt = Factory.create :phenotype_attempt, :colony_name => 'XYZ789'
+        assert_equal 'XYZ789', pt.colony_name
+      end
+    end
+
   end
 end

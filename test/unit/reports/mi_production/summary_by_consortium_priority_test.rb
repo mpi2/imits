@@ -2,19 +2,17 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::SummaryByConsortiumTest < ActiveSupport::TestCase
+class Reports::MiProduction::SummaryByConsortiumPriorityPriorityTest < ActiveSupport::TestCase
   
-  #include ProductionSummaryHelper
-
   DEBUG = false
   
-  context 'Reports::MiProduction::SummaryByConsortium' do
+  context 'Reports::MiProduction::SummaryByConsortiumPriority' do
 
     setup do
       assert ! ReportCache.find_by_name('mi_production_intermediate')
       ReportCache.create!(
         :name => 'mi_production_intermediate',
-        :csv_data => ProductionSummaryHelper::get_csv('summary by consortium')
+        :csv_data => ProductionSummaryHelper::get_csv('summary by consortium priority')
       )
       assert ReportCache.find_by_name('mi_production_intermediate')      
       report = ReportCache.find_by_name!('mi_production_intermediate').to_table
@@ -25,7 +23,7 @@ class Reports::MiProduction::SummaryByConsortiumTest < ActiveSupport::TestCase
     end
     
     should 'do generate' do
-      title2, report = Reports::MiProduction::SummaryByConsortium.generate(nil, {'debug'=>'true'}, nil)
+      title2, report = Reports::MiProduction::SummaryByConsortiumPriority.generate(nil, {'debug'=>'true'}, nil)
       
       puts 'do generate: ' + title2 if DEBUG
       puts report.to_s if DEBUG
@@ -38,7 +36,7 @@ class Reports::MiProduction::SummaryByConsortiumTest < ActiveSupport::TestCase
       
       assert_equal 1, report.size
       
-      expecteds = ProductionSummaryHelper::get_expecteds 'summary by consortium'
+      expecteds = ProductionSummaryHelper::get_expecteds 'summary by consortium priority'
     
       expecteds.each_pair do |k,v|
         puts "#{k} : #{v}" if DEBUG
@@ -50,12 +48,12 @@ class Reports::MiProduction::SummaryByConsortiumTest < ActiveSupport::TestCase
     should 'do generate detail' do
       puts 'do generate detail:' if DEBUG
 
-      expecteds = ProductionSummaryHelper::get_expecteds 'summary by consortium'
+      expecteds = ProductionSummaryHelper::get_expecteds 'summary by consortium priority'
             
       expecteds.each_pair do |k,v|
         next if k == 'Pipeline efficiency (%)'
         puts "#{k} : #{v}" if DEBUG
-        title2, report = Reports::MiProduction::SummaryByConsortium.subsummary_common(nil, { :consortium => 'BaSH', :type => k })
+        title2, report = Reports::MiProduction::SummaryByConsortiumPriority.subsummary_common(nil, { :consortium => 'BaSH', :type => k })
         puts "report size: #{report.size}" if DEBUG
         puts report.to_s if DEBUG
         assert_equal v, report.size

@@ -2,9 +2,7 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::SummaryByConsortiumTest <
-    #Kermits2::JsIntegrationTest
-  ActionDispatch::IntegrationTest
+class Reports::MiProduction::SummaryByConsortiumTest < ProductionSummaryBase
   
   DEBUG = false
 

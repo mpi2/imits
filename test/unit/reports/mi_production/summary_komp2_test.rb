@@ -30,21 +30,6 @@ class Reports::MiProduction::SummaryKomp2Test < ActiveSupport::TestCase
       
       assert report.to_s.length > 0
 
-      #puts "report size: #{report.size}" if DEBUG
-      #puts "report column_names:" + report.column_names.inspect if DEBUG
-      #
-      #report = ProductionSummaryHelper::de_tag_table(report)
-      #puts report.to_s if DEBUG
-      #
-      #assert_equal 1, report.size
-      #
-      #expecteds = ProductionSummaryHelper::get_expecteds 'komp2 brief'
-      #
-      #expecteds.each_pair do |k,v|
-      #  puts "#{k} : #{v}" if DEBUG
-      #  assert_equal v.to_s, report.column(k)[0]
-      #end
-            
     end
     
     should 'do generate detail' do

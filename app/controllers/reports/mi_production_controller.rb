@@ -21,7 +21,7 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_by_consortium_and_accumulated_status
-    @csv = Reports::ConsortiumPrioritySummary::CSV_LINKS
+    @csv = Reports::MiProduction::FeedImpc::CSV_LINKS
     feed = (params[:feed] == 'true')
     @title2, @report = Reports::MiProduction::FeedImpc.generate(request, params)
     send_data_csv('mi_production_summary_by_consortium_and_accumulated_status.csv', @report.to_csv) if request.format == :csv

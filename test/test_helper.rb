@@ -246,7 +246,12 @@ class Test::Person < ActiveRecord::Base
 
   validates :name, :uniqueness => true
 end
- 
+
+class ProductionSummaryBase < 
+    #Kermits2::JsIntegrationTest
+  ActionDispatch::IntegrationTest
+end
+
 class ProductionSummaryHelper
 
   DEBUG = false

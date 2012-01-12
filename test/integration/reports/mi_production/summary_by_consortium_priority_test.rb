@@ -2,11 +2,9 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::SummaryByConsortiumPriorityTest <
-    #Kermits2::JsIntegrationTest
-  ActionDispatch::IntegrationTest
+class Reports::MiProduction::SummaryByConsortiumPriorityTest < ProductionSummaryBase
   
-  DEBUG = true
+  DEBUG = false
 
   context 'Reports::MiProduction::SummaryByConsortiumPriority' do
     should 'require the user to be logged in' do

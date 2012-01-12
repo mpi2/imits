@@ -254,8 +254,6 @@ end
 
 class ProductionSummaryHelper
 
-  DEBUG = false
-
   TEST_CSV_FEED_UNIT = <<-"CSV"
 "Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"
 "BaSH",,"High","BCM","1700093J21Rik","MGI:1921546","Assigned - ES Cell QC In Progress","Assigned - ES Cell QC In Progress",,,,,,,"2011-10-10","2011-11-16",,,,,,,,,,,,
@@ -284,8 +282,7 @@ class ProductionSummaryHelper
       'Microinjection in progress' => "<a title='Click to see list of Microinjection in progress' href='?consortium=BaSH&type=Microinjection+in+progress'>2</a>",
       'Genotype Confirmed Mice' => "<a title='Click to see list of Genotype Confirmed Mice' href='?consortium=BaSH&type=Genotype+Confirmed+Mice'>1</a>",
       'Phenotype data available' => "<a title='Click to see list of Phenotype data available' href='?consortium=BaSH&type=Phenotype+data+available'>1</a>"
-    }
-    
+    }    
     EXPECTEDS_FEED_UNIT_2 = {
       'Consortium' => "BaSH",
       'All Projects' => "4",
@@ -294,7 +291,6 @@ class ProductionSummaryHelper
       'Genotype Confirmed Mice' => "1",
       'Phenotype data available' => "1"
     }
-
   EXPECTEDS_FEED_UNIT_3 =
     [
         { :consortium => 'BaSH', :type => 'All Projects', :result => 4},
@@ -302,8 +298,7 @@ class ProductionSummaryHelper
         { :consortium => 'BaSH', :type => 'Microinjection in progress', :result => 2 },
         { :consortium => 'BaSH', :type => 'Genotype Confirmed Mice', :result => 1 },
         { :consortium => 'BaSH', :type => 'Phenotype data available', :result => 1 }
-    ]      
-    
+    ]          
   EXPECTEDS_SUMMARY_BY_CONSORTIUM = {
     'All' => 7,
     'ES QC started' => 1,
@@ -327,24 +322,25 @@ class ProductionSummaryHelper
     'Registered for Phenotyping' => 0
   }
 
-  HEADING = '"Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"'
-  ES_QC_STARTED  = '"BaSH",,"High","BCM","1700093J21Rik","MGI:1921546","Assigned - ES Cell QC In Progress","Assigned - ES Cell QC In Progress",,,,,,,"2011-10-10","2011-11-16",,,,,,,,,,,,'
-  ES_QC_CONFIRMED  = '"BaSH",,"High","BCM","Adsl","MGI:103202","Assigned - ES Cell QC Complete","Assigned - ES Cell QC Complete",,,,,,,"2011-10-10","2011-11-04","2011-11-25"'
-  ES_QC_FAILED = '"BaSH",,"High","BCM","Clvs2","MGI:2443223","Aborted - ES Cell QC Failed","Aborted - ES Cell QC Failed",,,,,,,"2011-10-10"'
-  MI_IN_PROGRESS = '"BaSH",,"High","BCM","Akt1s1","MGI:1914855","Micro-injection in progress","Assigned","Micro-injection in progress",,28913,"conditional_ready","Akt1s1<sup>tm1a(EUCOMM)Wtsi</sup>","C57BL/6N","2011-10-10",,,"2011-09-27",,,,,,,,,,'
-  MI_ABORTED = '"BaSH",,"High","BCM","Apc2","MGI:1346052","Micro-injection aborted","Assigned","Micro-injection aborted",,26234,"conditional_ready","Apc2<sup>tm1a(KOMP)Wtsi</sup>",,"2011-12-01",,,"2011-09-05",,"2011-12-02"'
-  GENOTYPE_CONFIRMED_MICE = '"BaSH",,"High","BCM","Alg10b","MGI:2146159","Genotype confirmed","Assigned","Genotype confirmed",,"VG10825","deletion","Alg10b<sup>tm1(KOMP)Vlcg</sup>","C57BL/6N","2011-10-10",,,"2011-09-08","2012-01-07",,,,,,,,,'
-  LANGUISHING = '"BaSH",,"High","BCM","Akt1s1","MGI:1914855","Micro-injection in progress","Assigned","Micro-injection in progress",,28913,"conditional_ready","Akt1s1<sup>tm1a(EUCOMM)Wtsi</sup>","C57BL/6N","2011-10-10",,,"2009-09-27"'
-  
+  CSV_LINES = {
+  'HEADING' => '"Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"',
+  'ES_QC_STARTED'  => '"BaSH",,"High","BCM","1700093J21Rik","MGI:1921546","Assigned - ES Cell QC In Progress","Assigned - ES Cell QC In Progress",,,,,,,"2011-10-10","2011-11-16",,,,,,,,,,,,',
+  'ES_QC_CONFIRMED'  => '"BaSH",,"High","BCM","Adsl","MGI:103202","Assigned - ES Cell QC Complete","Assigned - ES Cell QC Complete",,,,,,,"2011-10-10","2011-11-04","2011-11-25"',
+  'ES_QC_FAILED' => '"BaSH",,"High","BCM","Clvs2","MGI:2443223","Aborted - ES Cell QC Failed","Aborted - ES Cell QC Failed",,,,,,,"2011-10-10"',
+  'MI_IN_PROGRESS' => '"BaSH",,"High","BCM","Akt1s1","MGI:1914855","Micro-injection in progress","Assigned","Micro-injection in progress",,28913,"conditional_ready","Akt1s1<sup>tm1a(EUCOMM)Wtsi</sup>","C57BL/6N","2011-10-10",,,"2011-09-27",,,,,,,,,,',
+  'MI_ABORTED' => '"BaSH",,"High","BCM","Apc2","MGI:1346052","Micro-injection aborted","Assigned","Micro-injection aborted",,26234,"conditional_ready","Apc2<sup>tm1a(KOMP)Wtsi</sup>",,"2011-12-01",,,"2011-09-05",,"2011-12-02"',
+  'GENOTYPE_CONFIRMED_MICE' => '"BaSH",,"High","BCM","Alg10b","MGI:2146159","Genotype confirmed","Assigned","Genotype confirmed",,"VG10825","deletion","Alg10b<sup>tm1(KOMP)Vlcg</sup>","C57BL/6N","2011-10-10",,,"2011-09-08","2012-01-07",,,,,,,,,',
+  'LANGUISHING' => '"BaSH",,"High","BCM","Akt1s1","MGI:1914855","Micro-injection in progress","Assigned","Micro-injection in progress",,28913,"conditional_ready","Akt1s1<sup>tm1a(EUCOMM)Wtsi</sup>","C57BL/6N","2011-10-10",,,"2009-09-27"'
+  }  
   SUMMARY_BY_CONSORTIUM_CSV = [
-      HEADING,
-      ES_QC_STARTED,
-      ES_QC_CONFIRMED,
-      ES_QC_FAILED,
-      MI_IN_PROGRESS,
-      MI_ABORTED,
-      GENOTYPE_CONFIRMED_MICE,
-      LANGUISHING
+      CSV_LINES['HEADING'],
+      CSV_LINES['ES_QC_STARTED'],
+      CSV_LINES['ES_QC_CONFIRMED'],
+      CSV_LINES['ES_QC_FAILED'],
+      CSV_LINES['MI_IN_PROGRESS'],
+      CSV_LINES['MI_ABORTED'],
+      CSV_LINES['GENOTYPE_CONFIRMED_MICE'],
+      CSV_LINES['LANGUISHING']
     ].join("\n")
   
   def self.get_expecteds(type)

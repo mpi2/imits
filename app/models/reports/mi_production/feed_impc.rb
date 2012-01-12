@@ -3,8 +3,7 @@
 class Reports::MiProduction::FeedImpc
 
   extend Reports::Helper
-  extend ActionView::Helpers::UrlHelper
-  extend Reports::MiProduction::Helper
+  extend Reports::MiProduction::SummariesCommon
   
   DEBUG = false      
   CSV_LINKS = true  

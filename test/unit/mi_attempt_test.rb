@@ -1098,35 +1098,35 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal 10, MiAttempt.aborted.count
     end
 
-    context '::translate_search_param' do
+    context '::translate_public_param' do
       should 'translate marker_symbol' do
         assert_equal 'es_cell_gene_marker_symbol_eq',
-                MiAttempt.translate_search_param('es_cell_marker_symbol_eq')
+                MiAttempt.translate_public_param('es_cell_marker_symbol_eq')
       end
 
       should 'translate allele symbol' do
         assert_equal 'es_cell_gene_allele_symbol_in',
-                MiAttempt.translate_search_param('es_cell_allele_symbol_in')
+                MiAttempt.translate_public_param('es_cell_allele_symbol_in')
       end
 
       should 'translate consortium_name' do
         assert_equal 'mi_plan_consortium_name_ci_in',
-                MiAttempt.translate_search_param('consortium_name_ci_in')
+                MiAttempt.translate_public_param('consortium_name_ci_in')
       end
 
       should 'translate production_centre' do
         assert_equal 'mi_plan_production_centre_name_eq',
-                MiAttempt.translate_search_param('production_centre_name_eq')
+                MiAttempt.translate_public_param('production_centre_name_eq')
       end
 
       should 'translate status' do
         assert_equal 'mi_attempt_status_description_ci_in',
-                MiAttempt.translate_search_param('status_ci_in')
+                MiAttempt.translate_public_param('status_ci_in')
       end
 
       should 'leave other params untouched' do
         assert_equal 'colony_name_not_in',
-                MiAttempt.translate_search_param('colony_name_not_in')
+                MiAttempt.translate_public_param('colony_name_not_in')
       end
     end
 

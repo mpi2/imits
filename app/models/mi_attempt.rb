@@ -417,29 +417,20 @@ class MiAttempt < ApplicationModel
     return mi_plan
   end
 
-  def self.translate_search_param(param)
-    translations = {
+  def self.translations
+    return {
       'es_cell_marker_symbol'   => 'es_cell_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_gene_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
       'production_centre_name'  => 'mi_plan_production_centre_name',
       'status'                  => 'mi_attempt_status_description'
     }
-
-    translations.each do |tr_from, tr_to|
-      md = /^#{tr_from}_(.+)$/.match(param)
-      if md
-        return "#{tr_to}_#{md[1]}"
-      end
-    end
-
-    return param
   end
 
   def self.public_search(params)
     translated_params = {}
     params.stringify_keys.each do |name, value|
-      translated_params[translate_search_param(name)] = value
+      translated_params[translate_public_param(name)] = value
     end
     return self.search(translated_params)
   end

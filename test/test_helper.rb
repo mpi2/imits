@@ -298,19 +298,7 @@ class ProductionSummaryHelper
         { :consortium => 'BaSH', :type => 'Genotype Confirmed Mice', :result => 1 },
         { :consortium => 'BaSH', :type => 'Phenotype data available', :result => 1 }
     ]      
-  
-  #EXPECTEDS_SUMMARY_BY_CONSORTIUM_PRIORITY = {
-  #  'All' => 7,
-  #  'Priority' => 'High',
-  #  'ES QC started' => 1,
-  #  'ES QC confirmed' => 1,
-  #  'ES QC failed' => 1,
-  #  'MI in progress' => 2,
-  #  'MI Aborted' => 1,
-  #  'Genotype Confirmed Mice' => 1,
-  #  'Pipeline efficiency (%)' => 33
-  #}
-  
+    
   EXPECTEDS_SUMMARY_BY_CONSORTIUM = {
     'All' => 7,
     'ES QC started' => 1,
@@ -356,6 +344,7 @@ class ProductionSummaryHelper
     return TEST_CSV_FEED_INT if type == 'feed int'
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'summary by consortium'
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'summary by consortium priority'
+    return SUMMARY_BY_CONSORTIUM_CSV if type == 'summary mgp'
     return nil
   end
 
@@ -371,6 +360,4 @@ class ProductionSummaryHelper
     return report
   end
   
-  end
-
-#end
+end

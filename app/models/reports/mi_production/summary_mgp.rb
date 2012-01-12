@@ -17,7 +17,7 @@ class Reports::MiProduction::SummaryMgp
     end
 
     script_name = request ? request.env['REQUEST_URI'] : ''
-    script_name = script_name.gsub(/_all/, '4') # blag the url if we're called from _all
+    debug = params['debug'] && params['debug'].to_s.length > 0
 
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
 
@@ -61,7 +61,7 @@ class Reports::MiProduction::SummaryMgp
             consort = CGI.escape consortium
             type = CGI.escape key
             priority = CGI.escape row['Priority']
-            sp = CGI.escape subproject
+            sp = subproject ? CGI.escape(subproject) : ''
             id = (consort + '_' + type + '_' + priority).gsub(/\-|\+|\s+/, "_").downcase
             row[key].to_s != '0' ?
               "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{key}&priority=#{priority}&subproject=#{sp}'>#{row[key]}</a>" :

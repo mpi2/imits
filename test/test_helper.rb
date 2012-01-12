@@ -334,6 +334,7 @@ class ProductionSummaryHelper
     return EXPECTEDS_FEED_UNIT_1 if type == 'feed_unit_1'
     return EXPECTEDS_FEED_UNIT_2 if type == 'feed_unit_2'
     return EXPECTEDS_FEED_UNIT_3 if type == 'feed_unit_3'
+    return EXPECTEDS_SUMMARY_BY_CONSORTIUM if type == 'komp2 brief'
     return EXPECTEDS_SUMMARY_BY_CONSORTIUM if type == 'summary by consortium'
     return EXPECTEDS_SUMMARY_BY_CONSORTIUM if type == 'summary by consortium priority'
     return nil
@@ -345,6 +346,7 @@ class ProductionSummaryHelper
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'summary by consortium'
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'summary by consortium priority'
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'summary mgp'
+    return SUMMARY_BY_CONSORTIUM_CSV if type == 'komp2 brief'
     return nil
   end
 

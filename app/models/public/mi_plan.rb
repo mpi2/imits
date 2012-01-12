@@ -60,6 +60,11 @@ class Public::MiPlan < ::MiPlan
     return super(options)
   end
 
+  def self.translations
+    return {
+      'marker_symbol' => 'gene_marker_symbol'
+    }
+  end
 end
 
 # == Schema Information

@@ -14,9 +14,17 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     end
 
     context 'audits' do
-      should ', on create, still be created for MiPlan, not this public version'
+      should ', on create, still be created for MiPlan, not this public version' do
+        Factory.create :gene_cbx1
+        plan = Public::MiPlan.create!(:priority_name => 'Low', :marker_symbol => 'Cbx1',
+          :consortium_name => 'JAX')
+        assert_equal 'MiPlan', plan.audits.last.auditable_type
+      end
 
-      should ', on update, still be created for MiPlan, not this public version'
+      should ', on update, still be created for MiPlan, not this public version' do
+        default_mi_plan.update_attributes!(:number_of_es_cells_starting_qc => 6)
+        assert_equal 'MiPlan', default_mi_plan.audits.last.auditable_type
+      end
     end
 
     context '#sub_project_name' do
@@ -160,6 +168,49 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     context '#as_json' do
       should 'take nil as param' do
         assert_nothing_raised { @default_mi_plan.as_json(nil) }
+      end
+    end
+
+    context '::translate_public_param' do
+      should 'translate marker_symbol for search' do
+        assert_equal 'gene_marker_symbol_eq',
+                Public::MiPlan.translate_public_param('marker_symbol_eq')
+      end
+
+      should 'translate marker_symbol for sort' do
+        assert_equal 'gene_marker_symbol desc',
+                Public::MiPlan.translate_public_param('marker_symbol desc')
+        assert_equal 'gene_marker_symbol asc',
+                Public::MiPlan.translate_public_param('marker_symbol asc')
+      end
+
+      should 'leave other params untouched' do
+        assert_equal 'consortium_name_not_in',
+                Public::MiPlan.translate_public_param('consortium_name_not_in')
+        assert_equal 'production_centre_name asc',
+                Public::MiPlan.translate_public_param('production_centre_name asc')
+      end
+    end
+
+    context '::public_search' do
+      should 'pass on parameters not needing translation to ::search' do
+        assert_equal @default_mi_plan.id,
+                Public::MiPlan.public_search(:consortium_name_eq => @default_mi_plan.consortium.name).result.first.id
+      end
+
+      should 'translate searching predicates' do
+        plan = Public::MiPlan.find(Factory.create :mi_plan, :gene => Factory.create(:gene_cbx1))
+        result = Public::MiPlan.public_search(:marker_symbol_eq => 'Cbx1').result
+        assert_equal [plan], result
+      end
+
+      should 'translate sorting predicates' do
+        Factory.create :mi_plan, :gene => Factory.create(:gene, :marker_symbol => 'Def1')
+        Factory.create :mi_plan, :gene => Factory.create(:gene, :marker_symbol => 'Xyz3')
+        Factory.create :mi_plan, :gene => Factory.create(:gene, :marker_symbol => 'Abc2')
+
+        result = Public::MiPlan.public_search(:sorts => 'marker_symbol desc').result
+        assert_equal ['Xyz3', 'Def1', 'Abc2'], result.map(&:marker_symbol)
       end
     end
 

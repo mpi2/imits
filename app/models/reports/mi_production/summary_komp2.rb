@@ -5,13 +5,12 @@ class Reports::MiProduction::SummaryKomp2
   extend Reports::MiProduction::SummariesCommon
 
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
-  DEBUG = Reports::MiProduction::SummariesCommon::DEBUG
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
   ORDER_BY_MAP = Reports::MiProduction::SummariesCommon::ORDER_BY_MAP
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
   REPORT_TITLE = 'KOMP2 Report'
 
-  HEADINGS = ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
+  HEADINGS = ['Consortium', 'All Genes', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
     'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
     'Registered for Phenotyping'
   ]
@@ -19,18 +18,17 @@ class Reports::MiProduction::SummaryKomp2
   def self.generate_short(request = nil, params={})
   
     script_name = request ? request.env['REQUEST_URI'] : ''
+    debug = params['debug'] && params['debug'].to_s.length > 0
   
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
-      
-    #TODO: fix 'all' column
-     
+
     array = []
    
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
       
     summary = grouped_report.summary(
       'Consortium',
-      'All'             => lambda { |group| count_instances_of( group, 'Gene',
+      'All Genes'             => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| all(row) } ) },
       'ES QC started'   => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
@@ -60,7 +58,7 @@ class Reports::MiProduction::SummaryKomp2
   
       hash = {
         'Consortium' => row['Consortium'],
-        'All' => row['All'],
+        'All Genes' => row['All Genes'],
         'ES QC started' => row['ES QC started'],
         'ES QC confirmed' => row['ES QC confirmed'],
         'ES QC failed' => row['ES QC failed'],
@@ -101,8 +99,10 @@ class Reports::MiProduction::SummaryKomp2
       rv = request && request.format == :csv ? report.to_csv : report.to_html
       return title, rv
     end
+
+    debug = params['debug'] && params['debug'].to_s.length > 0
     
-    return generate_csv(request, params) if request.format == :csv    
+    return generate_csv(request, params) if request && request.format == :csv    
 
     report = generate_short(request, params)
 
@@ -110,7 +110,7 @@ class Reports::MiProduction::SummaryKomp2
     
     heading = HEADINGS
    
-    heading.push 'Languishing' if DEBUG
+    heading.push 'Languishing' if debug
 
     table = '<table>'
     table += '<tr>'
@@ -150,7 +150,7 @@ class Reports::MiProduction::SummaryKomp2
         table += "<td>#{row2['Pipeline efficiency (%)']}</td>"
         table += "<td>#{make_link3.call(row2, 'Registered for Phenotyping')}</td>"
 
-        table += "<td>#{make_link3.call(row2, 'Languishing')}</td>" if DEBUG
+        table += "<td>#{make_link3.call(row2, 'Languishing')}</td>" if debug
  
         table += "</tr>"
       }
@@ -161,10 +161,6 @@ class Reports::MiProduction::SummaryKomp2
 
     return REPORT_TITLE, table
   
-  end
-  
-  def self.all(row)
-    return true
   end
 
   def self.registered_for_phenotyping(row)
@@ -183,10 +179,12 @@ class Reports::MiProduction::SummaryKomp2
       return title, report.to_html
     end
 
+    debug = params['debug'] && params['debug'].to_s.length > 0
+
     report = generate_short(request, params)
    
     heading = HEADINGS
-    heading.push 'Languishing' if DEBUG
+    heading.push 'Languishing' if debug
 
     table = ''
     heading.each { |item| table += quote(item) + ',' }
@@ -197,7 +195,7 @@ class Reports::MiProduction::SummaryKomp2
       row['array'].each { |row2|
 
         table += quote(row['Consortium']) + ','
-        table += quote(row['All']) + ','
+        table += quote(row['All Genes']) + ','
         table += quote(row['ES QC started']) + ','
         table += quote(row['ES QC confirmed']) + ','
         table += quote(row['ES QC failed']) + ','
@@ -209,7 +207,7 @@ class Reports::MiProduction::SummaryKomp2
         table += quote(row2['Genotype Confirmed Mice']) + ','
         table += quote(row2['Pipeline efficiency (%)']) + ','
         table += quote(row2['Registered for Phenotyping'])
-        table += ',' + quote(row2['Languishing']) if DEBUG 
+        table += ',' + quote(row2['Languishing']) if debug 
         table += "\n"
       }
     }

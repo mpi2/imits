@@ -309,6 +309,18 @@ class ProductionSummaryHelper
     'Genotype Confirmed Mice' => 1,
     'Pipeline efficiency (%)' => 33
   }
+  EXPECTEDS_KOMP2 = {
+    'All' => 7,
+    'ES QC started' => 1,
+    'ES QC confirmed' => 1,
+    'ES QC failed' => 1,
+    'Production Centre' => 'BCM',
+    'MI in progress' => 2,
+    'MI Aborted' => 1,
+    'Genotype Confirmed Mice' => 1,
+    'Pipeline efficiency (%)' => 33,
+    'Registered for Phenotyping' => 0
+  }
 
   HEADING = '"Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"'
   ES_QC_STARTED  = '"BaSH",,"High","BCM","1700093J21Rik","MGI:1921546","Assigned - ES Cell QC In Progress","Assigned - ES Cell QC In Progress",,,,,,,"2011-10-10","2011-11-16",,,,,,,,,,,,'
@@ -337,6 +349,7 @@ class ProductionSummaryHelper
     return EXPECTEDS_SUMMARY_BY_CONSORTIUM if type == 'komp2 brief'
     return EXPECTEDS_SUMMARY_BY_CONSORTIUM if type == 'summary by consortium'
     return EXPECTEDS_SUMMARY_BY_CONSORTIUM if type == 'summary by consortium priority'
+    return EXPECTEDS_KOMP2 if type == 'komp2'
     return nil
   end
 
@@ -347,6 +360,7 @@ class ProductionSummaryHelper
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'summary by consortium priority'
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'summary mgp'
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'komp2 brief'
+    return SUMMARY_BY_CONSORTIUM_CSV if type == 'komp2'
     return nil
   end
 

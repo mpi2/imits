@@ -102,20 +102,7 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  validates_each :consortium_name, :production_centre_name do |mi, attr, value|
-    next if value.blank?
-    association_name = attr.to_s.gsub('_name', '')
-    klass = {:consortium_name => Consortium, :production_centre_name => Centre}[attr]
-
-    if mi.mi_plan and mi.mi_plan.send(association_name) and value != mi.mi_plan.send(association_name).name
-      mi.errors.add attr, 'cannot be modified'
-    else
-      associated = klass.find_by_name(value)
-      if associated.blank?
-        mi.errors.add attr, 'does not exist'
-      end
-    end
-  end
+  validate :consortium_name_and_production_centre_name_from_mi_plan_validation
 
   validate do |mi_attempt|
     next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene

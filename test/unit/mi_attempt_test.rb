@@ -929,7 +929,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'when set on update give validation error' do
           default_mi_attempt.consortium_name = 'Brand New Consortium'
           default_mi_attempt.valid?
-          assert_equal ['cannot be modified'], default_mi_attempt.errors['consortium_name']
+          assert_equal ['cannot be changed'], default_mi_attempt.errors['consortium_name']
         end
       end
 
@@ -962,7 +962,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'when set on update give validation error' do
           default_mi_attempt.production_centre_name = 'Brand New Centre'
           default_mi_attempt.valid?
-          assert_equal ['cannot be modified'], default_mi_attempt.errors['production_centre_name']
+          assert_equal ['cannot be changed'], default_mi_attempt.errors['production_centre_name']
         end
       end
 

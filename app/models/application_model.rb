@@ -29,4 +29,24 @@ class ApplicationModel < ActiveRecord::Base
     return self.search(translated_params.merge('sorts' => sorts))
   end
 
+  def consortium_name_and_production_centre_name_from_mi_plan_validation
+    {
+      :consortium_name => Consortium,
+      :production_centre_name => Centre
+    }.each do |attr, klass|
+      value = send(attr)
+      next if value.blank?
+      association_name = attr.to_s.gsub('_name', '')
+
+      if mi_plan and mi_plan.send(association_name) and value != mi_plan.send(association_name).name
+        errors.add attr, 'cannot be changed'
+      else
+        associated = klass.find_by_name(value)
+        if associated.blank?
+          errors.add attr, 'does not exist'
+        end
+      end
+    end
+  end
+
 end

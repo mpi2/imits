@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class PhenotypeAttempt < ActiveRecord::Base
+class PhenotypeAttempt < ApplicationModel
   acts_as_audited
 
   include PhenotypeAttempt::StatusChanger

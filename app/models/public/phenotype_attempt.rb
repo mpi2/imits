@@ -14,6 +14,25 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
       me.errors.add :mi_attempt_colony_name, 'cannot be changed'
     end
   end
+
+  validate :consortium_name_and_production_centre_name_from_mi_plan_validation
+
+  def consortium_name
+    @consortium_name
+  end
+
+  def consortium_name=(name)
+    return @consortium_name = name
+  end
+
+  def production_centre_name
+    @production_centre_name
+  end
+
+  def production_centre_name=(name)
+    return @production_centre_name = name
+  end
+
 end
 
 # == Schema Information

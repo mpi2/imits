@@ -114,5 +114,9 @@ module Reports::MiProduction::SummariesCommon
     mt = mt.gsub(/\b\w/){$&.upcase}
     return mt
   end
+
+  def registered_for_phenotyping(row)
+    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
+  end
   
 end

@@ -17,7 +17,6 @@ class Reports::MiProduction::SummaryKomp2
 
   def self.generate_csv(request = nil, params={})
   
-    script_name = request ? request.env['REQUEST_URI'] : ''
     debug = params['debug'] && params['debug'].to_s.length > 0
   
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
@@ -154,8 +153,9 @@ class Reports::MiProduction::SummaryKomp2
         pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
         type = CGI.escape key
         id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+        separator = /\?/.match(script_name) ? '&' : '?'
         rowx[key].to_s != '0' ?
-          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
+          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
           ''
       }
 

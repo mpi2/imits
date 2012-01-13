@@ -53,8 +53,9 @@ class Reports::MiProduction::SummaryByConsortiumPriority
           type = CGI.escape key
           priority = CGI.escape row['Priority']
           id = (consort + '_' + type + '_' + priority).gsub(/\-|\+|\s+/, "_").downcase
+          separator = /\?/.match(script_name) ? '&' : '?'
           row[key].to_s != '0' ?
-            "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{key}&priority=#{priority}'>#{row[key]}</a>" :
+            "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}#{separator}consortium=#{consort}&type=#{key}&priority=#{priority}'>#{row[key]}</a>" :
             ''
         }
 

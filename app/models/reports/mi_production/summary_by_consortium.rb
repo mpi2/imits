@@ -53,8 +53,9 @@ class Reports::MiProduction::SummaryByConsortium
         consort = CGI.escape row['Consortium']
         type = CGI.escape key
         id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+        separator = /\?/.match(script_name) ? '&' : '?'
         row[key].to_s != '0' ?
-          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}?consortium=#{consort}&type=#{type}'>#{row[key]}</a>" :
+          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}#{separator}consortium=#{consort}&type=#{type}'>#{row[key]}</a>" :
           ''
       }
 

@@ -16,9 +16,16 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal mi, default_phenotype_attempt.mi_attempt
       end
 
-      should 'validate present present'
+      should 'validate presence' do
+        assert_should validate_presence_of :mi_attempt_colony_name
+      end
 
-      should 'not be updateable'
+      should 'not be updateable' do
+        mi = Factory.create :mi_attempt
+        default_phenotype_attempt.mi_attempt_colony_name = mi.colony_name
+        default_phenotype_attempt.valid?
+        assert_match /cannot be changed/, default_phenotype_attempt.errors[:mi_attempt_colony_name].first
+      end
     end
 
   end

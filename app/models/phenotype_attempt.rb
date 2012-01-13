@@ -24,7 +24,7 @@ class PhenotypeAttempt < ActiveRecord::Base
   after_save :create_status_stamp_if_status_was_changed
 
   def set_default_mi_plan
-    self.mi_plan ||= mi_attempt.mi_plan
+    self.mi_plan ||= mi_attempt.try(:mi_plan)
   end
 
   def record_if_status_was_changed

@@ -6,6 +6,14 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   set_table_name 'phenotype_attempts'
 
   access_association_by_attribute :mi_attempt, :colony_name
+
+  validates :mi_attempt_colony_name, :presence => true
+
+  validate do |me|
+    if me.changed.include?('mi_attempt_id')
+      me.errors.add :mi_attempt_colony_name, 'cannot be changed'
+    end
+  end
 end
 
 # == Schema Information

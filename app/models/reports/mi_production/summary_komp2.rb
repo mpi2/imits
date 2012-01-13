@@ -190,10 +190,8 @@ class Reports::MiProduction::SummaryKomp2
     heading.each { |item| table += quote(item) + ',' }
     table += "\n"
 
-    report.each { |row| 
-      
-      row['array'].each { |row2|
-
+    report.each do |row|       
+      row['array'].each do |row2|
         table += quote(row['Consortium']) + ','
         table += quote(row['All Genes']) + ','
         table += quote(row['ES QC started']) + ','
@@ -209,8 +207,8 @@ class Reports::MiProduction::SummaryKomp2
         table += quote(row2['Registered for Phenotyping'])
         table += ',' + quote(row2['Languishing']) if debug 
         table += "\n"
-      }
-    }
+      end
+    end
 
     return REPORT_TITLE, table
   

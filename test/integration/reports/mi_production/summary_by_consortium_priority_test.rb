@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::SummaryByConsortiumPriorityTest < ProductionSummaryBase
+class Reports::MiProduction::SummaryByConsortiumPriorityTest < ActionDispatch::IntegrationTest
   
   DEBUG = false
 

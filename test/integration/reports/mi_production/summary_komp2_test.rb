@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::SummaryKomp2Test < ProductionSummaryBase
+class Reports::MiProduction::SummaryKomp2Test < ActionDispatch::IntegrationTest
   
   DEBUG = false
 

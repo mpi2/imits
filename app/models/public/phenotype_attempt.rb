@@ -10,7 +10,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   validates :mi_attempt_colony_name, :presence => true
 
   validate do |me|
-    if me.changed.include?('mi_attempt_id')
+    if me.changed.include?('mi_attempt_id') and ! me.new_record?
       me.errors.add :mi_attempt_colony_name, 'cannot be changed'
     end
   end

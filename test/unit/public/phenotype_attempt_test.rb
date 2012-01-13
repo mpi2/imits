@@ -26,6 +26,14 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         default_phenotype_attempt.valid?
         assert_match /cannot be changed/, default_phenotype_attempt.errors[:mi_attempt_colony_name].first
       end
+
+      should 'be able to be set on create' do
+        mi = Factory.create :mi_attempt
+        phenotype_attempt = Public::PhenotypeAttempt.new(
+          :mi_attempt_colony_name => mi.colony_name)
+        phenotype_attempt.valid?
+        assert phenotype_attempt.errors[:mi_attempt_colony_name].blank?
+      end
     end
 
   end

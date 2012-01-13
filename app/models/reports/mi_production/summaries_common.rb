@@ -4,7 +4,6 @@ module Reports::MiProduction::SummariesCommon
 
   include Reports::Helper
   include ActionView::Helpers::UrlHelper
-  #include Reports::MiProduction::Helper
     
   DEBUG = false      
   CSV_LINKS = true  

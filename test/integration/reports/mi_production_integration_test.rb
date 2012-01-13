@@ -20,8 +20,8 @@ class Reports::MiProductionIntegrationTest < ActionDispatch::IntegrationTest
 
     context 'summaries page' do
       should 'work' do
-        visit '/reports/mi_production/summaries'
-        assert page.has_css? 'h2', :text => 'MI Production Summaries'
+        visit '/reports/mi_production'
+        assert page.has_css? 'h2', :text => 'MI Production Reports'
         assert page.has_css? 'a'
       end
     end

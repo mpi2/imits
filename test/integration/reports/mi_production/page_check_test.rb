@@ -37,19 +37,14 @@ class Reports::MiProduction::PageCheckTest < ActionDispatch::IntegrationTest
       assert_match '/reports/mi_production/', current_url
       
       click_array = [
-        #'(INTERNAL) Intermediate MI Production Report',
         'mousephenotype.org feed',
-        'Production Summary 2',
-        'Production Summary 3',
-        'Production Summary 4',
-        'Production Summary 5',
-        'Production Summary 6',
+        'Summary Group by Consortium',
+        'Summary Group by Consortium and Priority',
+        'MGP Report',
+        'KOMP2 Report 1',
+        'KOMP2 Report 2'
       ]
-      
-      #click_link '(INTERNAL) Intermediate MI Production Report'
-      #click_link 'Cancel'
-      #sleep(10.seconds) if DEBUG
-      
+            
       click_array.each do |name|
         click_link name
         sleep(10.seconds) if DEBUG

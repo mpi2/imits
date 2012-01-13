@@ -7,7 +7,9 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
   context 'Reports::MiPlans::DoubleAssignment' do
 
     should 'return funding names' do
-      test_columns = [ "KOMP2", "KOMP2", "KOMP2", "Infrafrontier/BMBF", "China",
+      test_columns = [ "KOMP2", "KOMP2", "KOMP2",
+        "KOMP312/KOMP",
+        "Infrafrontier/BMBF", "China",
         "Wellcome Trust", "European Union", "MRC", "Genome Canada", "Phenomin",
         "Japanese government", "EUCOMM / EUMODIC", "KOMP / Wellcome Trust", "KOMP" ]
 
@@ -17,7 +19,9 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
     end
 
     should 'return consortia names' do
-      test_columns = ["BaSH", "DTCC", "JAX", "Helmholtz GMC", "MARC", "MGP",
+      test_columns = ["BaSH", "DTCC", "JAX",
+        "DTCC-Legacy",
+        "Helmholtz GMC", "MARC", "MGP",
         "Monterotondo", "MRC", "NorCOMM2", "Phenomin", "RIKEN BRC", "EUCOMM-EUMODIC", "MGP-KOMP", "UCD-KOMP"]
 
       Consortium.all.each { |i| test_columns.delete(i.funding) if ! test_columns.include?(i.name) }
@@ -58,7 +62,9 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
       # any new consortia entries will be tagged to end & not explicitly tested
 
-      expected_columns = ["KOMP2 - BaSH", "KOMP2 - DTCC", "KOMP2 - JAX", "Infrafrontier/BMBF - Helmholtz GMC", "China - MARC", "Wellcome Trust - MGP",
+      expected_columns = ["KOMP2 - BaSH", "KOMP2 - DTCC", "KOMP2 - JAX",
+        "KOMP312/KOMP - DTCC-Legacy",
+        "Infrafrontier/BMBF - Helmholtz GMC", "China - MARC", "Wellcome Trust - MGP",
         "European Union - Monterotondo", "MRC - MRC", "Genome Canada - NorCOMM2", "Phenomin - Phenomin", "Japanese government - RIKEN BRC",
         "EUCOMM / EUMODIC - EUCOMM-EUMODIC", "KOMP / Wellcome Trust - MGP-KOMP", "KOMP - UCD-KOMP"]
 

@@ -9,7 +9,7 @@
 
 <% if @report %>
 
-<p><%= link_to('Download as CSV', url_for(:action => :production_summary6, :controller => :reports, :format => :csv) + params) if @csv %></p>
+<p><%= link_to('Download as CSV', url_for(:action => :summary_komp2, :controller => '/reports/mi_production', :format => :csv) + params) if @csv %></p>
 
 <% if @csv %><br/><% end %>
 

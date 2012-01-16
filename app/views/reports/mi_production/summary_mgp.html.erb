@@ -7,7 +7,7 @@
   params = qpos && qpos > -1 ? '?' + request.fullpath.scan( /\?(.+)/ ).last.first : ''
 %>
 
-<p><%= link_to('Download as CSV', url_for(:action => :production_summary4, :controller => :reports, :format => :csv) + params) if @csv %></p>
+<p><%= link_to('Download as CSV', url_for(:action => :summary_mgp, :controller => '/reports/mi_production', :format => :csv) + params) if @csv %></p>
 
 <% if @csv %><br/><% end %>
 

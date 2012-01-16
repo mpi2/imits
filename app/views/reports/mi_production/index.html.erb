@@ -23,37 +23,32 @@
   </div>
 
   <div class="report-links">
-    <a href="<%= url_for(:controller => '/reports', :action => :production_summary2) %>">
-      <h4>Production Summary 2</h4>
-      <p>Group by Consortium.</p>
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_by_consortium) %>">
+      <h4>Summary Group by Consortium</h4>
     </a>
   </div>
 
   <div class="report-links">
-    <a href="<%= url_for(:controller => '/reports', :action => :production_summary3) %>">
-      <h4>Production Summary 3</h4>
-      <p>Group by Consortium and Priority.</p>
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_by_consortium_priority) %>">
+      <h4>Summary Group by Consortium and Priority</h4>
     </a>
   </div>
 
   <div class="report-links">
-    <a href="<%= url_for(:controller => '/reports', :action => :production_summary4) %>">
-      <h4>Production Summary 4</h4>
-      <p>MGP Report. Group by Consortium, Sub-project and priority.</p>
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_mgp) %>">
+      <h4>MGP Report</h4>
     </a>
   </div>
 
   <div class="report-links">
-    <a href="<%= url_for(:controller => '/reports', :action => :production_summary5) %>">
-      <h4>Production Summary 5</h4>
-      <p>KOMP2 Report.</p>
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp2_brief) %>">
+      <h4>KOMP2 Report 1</h4>
     </a>
   </div>
 
   <div class="report-links">
-    <a href="<%= url_for(:controller => '/reports', :action => :production_summary6) %>">
-      <h4>Production Summary 6</h4>
-      <p>KOMP2 Production Report.</p>
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp2) %>">
+      <h4>KOMP2 Report 2</h4>
     </a>
   </div>
 

@@ -61,3 +61,25 @@ class Public::MiPlan < ::MiPlan
   end
 
 end
+
+# == Schema Information
+#
+# Table name: mi_plans
+#
+#  id                             :integer         not null, primary key
+#  gene_id                        :integer         not null
+#  consortium_id                  :integer         not null
+#  status_id                      :integer         not null
+#  priority_id                    :integer         not null
+#  production_centre_id           :integer
+#  created_at                     :datetime
+#  updated_at                     :datetime
+#  number_of_es_cells_starting_qc :integer
+#  number_of_es_cells_passing_qc  :integer
+#  sub_project_id                 :integer         not null
+#
+# Indexes
+#
+#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id) UNIQUE
+#
+

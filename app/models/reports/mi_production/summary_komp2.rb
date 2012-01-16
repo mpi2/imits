@@ -12,6 +12,7 @@ class Reports::MiProduction::SummaryKomp2
 
   HEADINGS = ['Consortium', 'All Genes', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
     'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
+    'Pipeline efficiency (by clone)',
     'Registered for Phenotyping'
   ]
 
@@ -21,12 +22,10 @@ class Reports::MiProduction::SummaryKomp2
   
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
 
-    heading = ['Consortium', 'All Genes', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
-      'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
-      'Registered for Phenotyping'
-    ]
+    heading = HEADINGS
 
     heading.push 'Languishing' if debug
+    heading.push 'Languishing2' if debug
     
     report_table = Table(heading)
         
@@ -46,6 +45,8 @@ class Reports::MiProduction::SummaryKomp2
             lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| languishing(row) } ) },
+        'Languishing2' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| languishing2(row) } ) },
         'All Genes' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| all(row) } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
@@ -61,8 +62,9 @@ class Reports::MiProduction::SummaryKomp2
       summary2.each do |row2|
   
         pc = efficiency(request, row2)
+        pc2 = efficiency2(request, row2)
                 
-        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : 'Unspecified'
+        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : ''
 
         report_table << {
             'Consortium' => consortium,
@@ -71,12 +73,14 @@ class Reports::MiProduction::SummaryKomp2
             'Genotype Confirmed Mice' => row2['Genotype Confirmed Mice'],
             'MI Aborted' => row2['MI Aborted'],
             'Languishing' => row2['Languishing'],
+            'Languishing2' => row2['Languishing2'],
             'All Genes' => row2['All Genes'],
             'ES QC started' => row2['ES QC started'],
             'ES QC confirmed' => row2['ES QC confirmed'],
             'Registered for Phenotyping' => row2['Registered for Phenotyping'],
             'Pipeline efficiency (%)' => pc,
-            'ES QC failed' => row2['ES QC failed']
+            'ES QC failed' => row2['ES QC failed'],
+            'Pipeline efficiency (by clone)' => pc2
         }
       
       end
@@ -104,6 +108,7 @@ class Reports::MiProduction::SummaryKomp2
         
     heading = HEADINGS   
     heading.push 'Languishing' if debug
+    heading.push 'Languishing2' if debug
     
     report_table = Table(heading)
  
@@ -142,6 +147,8 @@ class Reports::MiProduction::SummaryKomp2
             lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| languishing(row) } ) },
+        'Languishing2' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| languishing2(row) } ) },
         'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| registered_for_phenotyping(row) } ) }
       )
@@ -171,6 +178,7 @@ class Reports::MiProduction::SummaryKomp2
       summary2.each do |row2|
 
         pc = efficiency(request, row2)
+        pc2 = efficiency2(request, row2)
   
         pcentres.push row2['Production Centre']
         
@@ -182,8 +190,10 @@ class Reports::MiProduction::SummaryKomp2
         table += "<td>#{make_link.call(row2, 'MI Aborted')}</td>"
         table += "<td>#{make_link.call(row2, 'Genotype Confirmed Mice')}</td>"
         table += "<td>#{pc}</td>"                
+        table += "<td>#{pc2}</td>"                
         table += "<td>#{make_link.call(row2, 'Registered for Phenotyping')}</td>"
         table += "<td>#{make_link.call(row2, 'Languishing')}</td>" if debug 
+        table += "<td>#{make_link.call(row2, 'Languishing2')}</td>" if debug 
         table += "</tr>"
      
       end

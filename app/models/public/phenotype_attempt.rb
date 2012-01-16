@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class Public::PhenotypeAttempt < ::PhenotypeAttempt
   Status = ::PhenotypeAttempt::Status
 
@@ -8,6 +10,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   access_association_by_attribute :mi_attempt, :colony_name
 
   validates :mi_attempt_colony_name, :presence => true
+  validates :mi_plan, :presence => {:message => 'cannot be found with supplied parameters.  Please either create it first or check consortium_name and/or production_centre_name supplied'}
 
   validate do |me|
     if me.changed.include?('mi_attempt_id') and ! me.new_record?
@@ -17,21 +20,31 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   validate :consortium_name_and_production_centre_name_from_mi_plan_validation
 
-  def consortium_name
-    @consortium_name
+  # BEGIN Callbacks
+
+  def set_mi_plan
+    if production_centre_name
+      centre = Centre.find_by_name(production_centre_name)
+    else
+      centre = mi_attempt.mi_plan.production_centre
+    end
+
+    if consortium_name
+      consortium = Consortium.find_by_name(consortium_name)
+    else
+      consortium = mi_attempt.mi_plan.consortium
+    end
+
+    self.mi_plan = MiPlan.where(
+      :gene_id => mi_attempt.gene.id,
+      :production_centre_id => centre.id,
+      :consortium_id => consortium.id
+    ).first
   end
 
-  def consortium_name=(name)
-    return @consortium_name = name
-  end
+  # END Callbacks
 
-  def production_centre_name
-    @production_centre_name
-  end
-
-  def production_centre_name=(name)
-    return @production_centre_name = name
-  end
+  attr_accessor :consortium_name, :production_centre_name
 
 end
 

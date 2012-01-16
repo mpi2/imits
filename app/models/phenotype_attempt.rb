@@ -18,12 +18,12 @@ class PhenotypeAttempt < ApplicationModel
 
   # BEGIN Callbacks
   before_validation :change_status
-  before_validation :set_default_mi_plan
+  before_validation :set_mi_plan
   before_save :record_if_status_was_changed
   before_save :generate_colony_name_if_blank
   after_save :create_status_stamp_if_status_was_changed
 
-  def set_default_mi_plan
+  def set_mi_plan
     self.mi_plan ||= mi_attempt.try(:mi_plan)
   end
 

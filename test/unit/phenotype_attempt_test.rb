@@ -50,15 +50,13 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'default to mi_attempt.mi_plan' do
-        pt = Factory.build :phenotype_attempt, :mi_plan => nil
-        pt.valid?
+        pt = Factory.create :phenotype_attempt, :mi_plan => nil
         assert_equal pt.mi_attempt.mi_plan, pt.mi_plan
       end
 
       should 'not be overritten by default value if it is explicitly set' do
         plan = Factory.create :mi_plan
-        pt = Factory.build :phenotype_attempt, :mi_plan => plan
-        pt.valid?
+        pt = Factory.create :phenotype_attempt, :mi_plan => plan
         assert_equal plan, pt.mi_plan
         assert_not_equal pt.mi_attempt.mi_plan, pt.mi_plan
       end

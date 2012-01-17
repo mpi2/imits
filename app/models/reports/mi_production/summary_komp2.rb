@@ -54,9 +54,7 @@ class Reports::MiProduction::SummaryKomp2
         'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) },
         'Registered for Phenotyping'        => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| registered_for_phenotyping(row) } ) },
-        'Distinct Genotype Confirmed ES Cells' => '',
-        'Distinct Old Non Genotype Confirmed ES Cells' => ''
+            lambda { |row| registered_for_phenotyping(row) } ) }
       )
 
       summary2.each do |row2|
@@ -81,8 +79,8 @@ class Reports::MiProduction::SummaryKomp2
           'Pipeline efficiency (%)' => pc,
           'ES QC failed' => row2['ES QC failed'],
           'Pipeline efficiency (by clone)' => pc2,
-          'Distinct Genotype Confirmed ES Cells' => '',
-          'Distinct Old Non Genotype Confirmed ES Cells' => ''
+          'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells(group) },
+          'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) }
         }
       
       end

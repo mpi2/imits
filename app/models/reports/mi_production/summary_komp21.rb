@@ -20,14 +20,10 @@ class Reports::MiProduction::SummaryKomp21
     
     if params[:consortium]
       title, report = subsummary_common(request, params)
-      rv = request && request.format == :csv ? report.to_csv : report.to_html
-      return title, rv
+      return title, report
     end
 
     debug = params['debug'] && params['debug'].to_s.length > 0
-    
-#    return generate_csv(request, params) if request && request.format == :csv    
-    raise "NYI!" if request && request.format == :csv    
 
     script_name = request ? request.env['REQUEST_URI'] : ''
 
@@ -35,6 +31,8 @@ class Reports::MiProduction::SummaryKomp21
         
     heading = HEADINGS   
     heading.push 'Languishing' if debug
+    heading.push 'Distinct Genotype Confirmed ES Cells' if debug
+    heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug
     
     report_table = Table(heading)
  
@@ -64,7 +62,9 @@ class Reports::MiProduction::SummaryKomp21
         'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| registered_for_phenotyping(row2) } ) },
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| languishing(row2) } ) }
+            lambda { |row2| languishing(row2) } ) },
+        'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells(group) },
+        'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) }
 
         ).each do |row|
 
@@ -79,7 +79,9 @@ class Reports::MiProduction::SummaryKomp21
             'Genotype Confirmed Mice' => row['Genotype Confirmed Mice'],
             'MI Aborted' => row['MI Aborted'],
             'Languishing' => row['Languishing'],
-            'Registered for Phenotyping' => row['Registered for Phenotyping']
+            'Registered for Phenotyping' => row['Registered for Phenotyping'],
+            'Distinct Genotype Confirmed ES Cells' => row['Distinct Genotype Confirmed ES Cells'],
+            'Distinct Old Non Genotype Confirmed ES Cells' => row['Distinct Old Non Genotype Confirmed ES Cells']
           }
         
         end

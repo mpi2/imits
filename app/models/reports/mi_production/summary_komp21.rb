@@ -4,16 +4,25 @@ class Reports::MiProduction::SummaryKomp21
 
   extend Reports::MiProduction::SummariesCommon
 
-  CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
-  MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
+  MAPPING_SUMMARIES = {
+    'All' => [],
+    'ES QC started' => ['Assigned - ES Cell QC In Progress', ''],
+    'MI in progress' => ['Micro-injection in progress'],
+    'Genotype Confirmed Mice' => ['Genotype confirmed'],
+    'MI Aborted' => ['Micro-injection aborted'],
+    'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
+    'ES QC failed' => ['Aborted - ES Cell QC Failed'],
+    'Registered for Phenotyping' => []
+  }
+  
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
   REPORT_TITLE = 'KOMP2 Report (1)'
 
   HEADINGS = ['Consortium', 'Production Centre', 'All', 'ES QC started', 'ES QC confirmed',
               'ES QC failed', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice',
-              'Pipeline efficiency (%)',
-              'Pipeline efficiency (by clone)',
-              'Registered for Phenotyping'
+              'Registered for Phenotyping',
+              #'Pipeline efficiency (%)',
+              #'Pipeline efficiency (by clone)'
             ]
   
   #TODO: fix efficiency names
@@ -98,3 +107,87 @@ class Reports::MiProduction::SummaryKomp21
   end
 
 end
+
+
+  #Accumulate all the numbers in cells to the 'right' towards the cells on
+  #the 'left'.
+  #
+  #1) ES QC started cell now contains:
+  #ES QC Confirmed +
+  #ES QC Failed +
+  #MI In progress +
+  #Chimeras +
+  #MI Aborted +
+  #Genotype Confirmed +
+  #Registered for phenotyping + 
+  #...
+  #and so on, for all cells (ie you accumulate the cells to the right)
+
+  #Overall Status
+  #Interest
+  #Inspect - MI Attempt
+  #Assigned - ES Cell QC In Progress
+  #Assigned - ES Cell QC Complete
+  #Micro-injection in progress
+  #Genotype confirmed
+  #Assigned
+  #Conflict
+  #Inspect - Conflict
+  #Inspect - GLT Mouse
+  #Withdrawn
+  #Micro-injection aborted
+  #Phenotype Attempt Registered
+  #Phenotyping Complete
+  #Aborted - ES Cell QC Failed
+
+  #CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
+  #MAPPING_SUMMARIES_ORIG = {
+  #  'All' => [],
+  #  'ES QC started' => ['Assigned - ES Cell QC In Progress'],
+  #  'MI in progress' => ['Micro-injection in progress'],
+  #  'Genotype Confirmed Mice' => ['Genotype confirmed'],
+  #  'MI Aborted' => ['Micro-injection aborted'],
+  #  'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
+  #  'ES QC failed' => ['Aborted - ES Cell QC Failed'],
+  #  'Registered for Phenotyping' => []
+  #}
+
+
+
+
+
+
+
+
+
+
+## MiAttemptStatus
+#
+#'Micro-injection in progress'},
+#'Genotype confirmed'},
+#'Micro-injection aborted'
+#
+## MiPlan::Status  
+#  
+#'Interest', 
+#'Conflict', 
+#'Inspect - GLT Mouse', 
+#'Inspect - MI Attempt', 
+#'Inspect - Conflict', 
+#'Assigned', 
+#'Assigned - ES Cell QC In Progress', 
+#'Assigned - ES Cell QC Complete', 
+#'Aborted - ES Cell QC Failed',
+#'Inactive',
+#'Withdrawn'
+#
+## PhenotypeAttempt::Status  
+#  
+#'Phenotype Attempt Aborted',
+#'Phenotype Attempt Registered',
+#'Rederivation Started',
+#'Rederivation Complete',
+#'Cre Excision Started',
+#'Cre Excision Complete',
+#'Phenotyping Started',
+#'Phenotyping Complete'

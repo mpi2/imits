@@ -25,8 +25,9 @@ class Reports::MiProduction::SummaryKomp2
     heading = HEADINGS
 
     heading.push 'Languishing' if debug
-    heading.push 'Languishing2' if debug
-    
+    heading.push 'Distinct Genotype Confirmed ES Cells' if debug
+    heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug
+      
     report_table = Table(heading)
         
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
@@ -45,8 +46,6 @@ class Reports::MiProduction::SummaryKomp2
             lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| languishing(row) } ) },
-        'Languishing2' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| languishing2(row) } ) },
         'All Genes' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| all(row) } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
@@ -56,7 +55,9 @@ class Reports::MiProduction::SummaryKomp2
         'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) },
         'Registered for Phenotyping'        => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| registered_for_phenotyping(row) } ) }
+            lambda { |row| registered_for_phenotyping(row) } ) },
+        'Distinct Genotype Confirmed ES Cells' => '',
+        'Distinct Old Non Genotype Confirmed ES Cells' => ''
       )
 
       summary2.each do |row2|
@@ -67,20 +68,22 @@ class Reports::MiProduction::SummaryKomp2
         pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : ''
 
         report_table << {
-            'Consortium' => consortium,
-            'Production Centre' => pcentre,
-            'MI in progress' => row2['MI in progress'],
-            'Genotype Confirmed Mice' => row2['Genotype Confirmed Mice'],
-            'MI Aborted' => row2['MI Aborted'],
-            'Languishing' => row2['Languishing'],
-            'Languishing2' => row2['Languishing2'],
-            'All Genes' => row2['All Genes'],
-            'ES QC started' => row2['ES QC started'],
-            'ES QC confirmed' => row2['ES QC confirmed'],
-            'Registered for Phenotyping' => row2['Registered for Phenotyping'],
-            'Pipeline efficiency (%)' => pc,
-            'ES QC failed' => row2['ES QC failed'],
-            'Pipeline efficiency (by clone)' => pc2
+          'Consortium' => consortium,
+          'Production Centre' => pcentre,
+          'MI in progress' => row2['MI in progress'],
+          'Genotype Confirmed Mice' => row2['Genotype Confirmed Mice'],
+          'MI Aborted' => row2['MI Aborted'],
+          'Languishing' => row2['Languishing'],
+          'Languishing2' => row2['Languishing2'],
+          'All Genes' => row2['All Genes'],
+          'ES QC started' => row2['ES QC started'],
+          'ES QC confirmed' => row2['ES QC confirmed'],
+          'Registered for Phenotyping' => row2['Registered for Phenotyping'],
+          'Pipeline efficiency (%)' => pc,
+          'ES QC failed' => row2['ES QC failed'],
+          'Pipeline efficiency (by clone)' => pc2,
+          'Distinct Genotype Confirmed ES Cells' => '',
+          'Distinct Old Non Genotype Confirmed ES Cells' => ''
         }
       
       end
@@ -108,7 +111,8 @@ class Reports::MiProduction::SummaryKomp2
         
     heading = HEADINGS   
     heading.push 'Languishing' if debug
-    heading.push 'Languishing2' if debug
+    heading.push 'Distinct Genotype Confirmed ES Cells' if debug
+    heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug
     
     report_table = Table(heading)
  
@@ -147,10 +151,10 @@ class Reports::MiProduction::SummaryKomp2
             lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| languishing(row) } ) },
-        'Languishing2' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| languishing2(row) } ) },
         'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| registered_for_phenotyping(row) } ) }
+            lambda { |row| registered_for_phenotyping(row) } ) },
+        'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells(group) },
+        'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) }
       )
 
       make_link = lambda {|rowx, key|
@@ -165,7 +169,16 @@ class Reports::MiProduction::SummaryKomp2
           "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
           ''
       }
-
+      make_efficiency1 = lambda {|rowx, pc|
+        return "<td>#{pc}</td>" if ! debug
+        return "<td title='Calculated: glt / (glt + languishing) - #{rowx['Genotype Confirmed Mice']} / (#{rowx['Genotype Confirmed Mice']} + #{rowx['Languishing']})'>#{pc}</td>"
+      }
+      make_efficiency2 = lambda {|rowx, pc|
+        return "<td>#{pc}</td>" if ! debug
+        return "<td title='Calculated: Distinct Genotype Confirmed ES Cells / (Distinct Genotype Confirmed ES Cells + Distinct Old Non Genotype Confirmed ES Cells)" +
+      " - #{rowx['Distinct Genotype Confirmed ES Cells']} / (#{rowx['Distinct Genotype Confirmed ES Cells']} + #{rowx['Distinct Old Non Genotype Confirmed ES Cells']})'>#{pc}</td>"
+      }
+      
       table += '<tr>'
       table += "<td rowspan='ROWSPANTARGET'>#{row['Consortium']}</td>"
       table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'All')}</td>"
@@ -189,11 +202,12 @@ class Reports::MiProduction::SummaryKomp2
         table += "<td></td>"
         table += "<td>#{make_link.call(row2, 'MI Aborted')}</td>"
         table += "<td>#{make_link.call(row2, 'Genotype Confirmed Mice')}</td>"
-        table += "<td>#{pc}</td>"                
-        table += "<td>#{pc2}</td>"                
+        table += make_efficiency1.call(row2, pc)
+        table += make_efficiency2.call(row2, pc2)
         table += "<td>#{make_link.call(row2, 'Registered for Phenotyping')}</td>"
         table += "<td>#{make_link.call(row2, 'Languishing')}</td>" if debug 
-        table += "<td>#{make_link.call(row2, 'Languishing2')}</td>" if debug 
+        table += "<td>#{make_link.call(row2, 'Distinct Genotype Confirmed ES Cells')}</td>" if debug 
+        table += "<td>#{make_link.call(row2, 'Distinct Old Non Genotype Confirmed ES Cells')}</td>" if debug 
         table += "</tr>"
      
       end

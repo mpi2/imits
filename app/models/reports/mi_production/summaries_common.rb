@@ -33,6 +33,9 @@ module Reports::MiProduction::SummariesCommon
     report = Table(:data => cached_report.data,
       :column_names => cached_report.column_names,
       :filters => lambda {|r|
+        
+        #TODO: fix this
+        
         if ! /Languishing/.match(type)
           return r['Consortium'] == consortium &&
             (pcentre.nil? || r['Production Centre'] == pcentre) &&
@@ -91,12 +94,13 @@ module Reports::MiProduction::SummariesCommon
   end
 
   def efficiency2(request, row)
-    glt = Integer(row['Genotype Confirmed Mice'])
-    failures = Integer(row['Languishing']) + Integer(row['MI Aborted'])
-    total = Integer(row['Genotype Confirmed Mice']) + failures
-    pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
+    a = Integer(row['Distinct Genotype Confirmed ES Cells'])
+    b = Integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+    pc =  a + b != 0 ? ((a.to_f / (a + b).to_f) * 100) : 0
+#    pc = pc != 0 ? "%i" % pc : ''
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
+    #return "a: #{a}; b: #{b}; pc: #{pc}; a + b: #{a+b}"
   end
 
   def languishing(row)
@@ -110,18 +114,34 @@ module Reports::MiProduction::SummariesCommon
     gap = today - before
     return gap && gap > 180
   end
-
-  def languishing2(row)
-    label = 'Micro-injection in progress'
-    date = 'Micro-injection in progress Date'
-    return false if row.data['Overall Status'] != label
-    today = Date.today
-    return false if ! row[date] || row[date].length < 1
-    before = Date.parse(row[date])
-    return false if ! before
-    gap = today - before
-    return gap && gap > 180
+  
+  def distinct_genotype_confirmed_es_cells(group)
+      total = 0
+      group.each do |row|
+        total += Integer(row['Distinct Genotype Confirmed ES Cells'])
+      end
+      return total
   end
+
+  def distinct_old_non_genotype_confirmed_es_cells(group)
+      total = 0
+      group.each do |row|
+        total += Integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+      end
+      return total
+  end
+
+  #def languishing2(row)
+  #  label = 'Micro-injection in progress'
+  #  date = 'Micro-injection in progress Date'
+  #  return false if row.data['Overall Status'] != label
+  #  today = Date.today
+  #  return false if ! row[date] || row[date].length < 1
+  #  before = Date.parse(row[date])
+  #  return false if ! before
+  #  gap = today - before
+  #  return gap && gap > 180
+  #end
 
   def all(row)
     return true

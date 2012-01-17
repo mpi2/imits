@@ -144,15 +144,15 @@ class Reports::MiProduction::SummaryKomp2
       summary2 = grouped_report.subgrouping(row['Consortium']).summary(
         'Production Centre',
         'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status'] } ) },
+            lambda { |row2| MAPPING_SUMMARIES['MI in progress'].include? row2.data['Overall Status'] } ) },
         'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+            lambda { |row2| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row2.data['Overall Status'] } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
+            lambda { |row2| MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status'] } ) },
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| languishing(row) } ) },
+            lambda { |row2| languishing(row2) } ) },
         'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| registered_for_phenotyping(row) } ) },
+            lambda { |row2| registered_for_phenotyping(row2) } ) },
         'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells(group) },
         'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) }
       )
@@ -186,6 +186,8 @@ class Reports::MiProduction::SummaryKomp2
       table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC confirmed')}</td>"
       table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC failed')}</td>"
 
+#TODO: lose pcentres
+
       pcentres = []
 
       summary2.each do |row2|
@@ -212,7 +214,8 @@ class Reports::MiProduction::SummaryKomp2
      
       end
      
-      table = table.gsub(/ROWSPANTARGET/, pcentres.size.to_s)
+#      table = table.gsub(/ROWSPANTARGET/, pcentres.size.to_s)
+      table = table.gsub(/ROWSPANTARGET/, summary2.size.to_s)
       
     end
 

@@ -11,10 +11,12 @@ class Reports::MiProduction::SummaryKomp21
 
   HEADINGS = ['Consortium', 'Production Centre', 'All', 'ES QC started', 'ES QC confirmed',
               'ES QC failed', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice',
-              #'Pipeline efficiency (%)',
-              #'Pipeline efficiency (by clone)',
+              'Pipeline efficiency (%)',
+              'Pipeline efficiency (by clone)',
               'Registered for Phenotyping'
             ]
+  
+  #TODO: fix efficiency names
 
   def self.generate(request = nil, params={})
     
@@ -68,6 +70,9 @@ class Reports::MiProduction::SummaryKomp21
 
         ).each do |row|
 
+          pc = efficiency(request, row2)
+          pc2 = efficiency2(request, row2)
+
           report_table << {
             'Consortium' => consortium,
             'Production Centre' => row['Production Centre'],
@@ -81,7 +86,9 @@ class Reports::MiProduction::SummaryKomp21
             'Languishing' => row['Languishing'],
             'Registered for Phenotyping' => row['Registered for Phenotyping'],
             'Distinct Genotype Confirmed ES Cells' => row['Distinct Genotype Confirmed ES Cells'],
-            'Distinct Old Non Genotype Confirmed ES Cells' => row['Distinct Old Non Genotype Confirmed ES Cells']
+            'Distinct Old Non Genotype Confirmed ES Cells' => row['Distinct Old Non Genotype Confirmed ES Cells'],
+            'Pipeline efficiency (%)' => pc,
+            'Pipeline efficiency (by clone)' => pc2
           }
         
         end

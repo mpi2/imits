@@ -364,6 +364,16 @@ class MiPlan < ApplicationModel
     return phenotype_attempts.order('is_active desc, created_at desc').first
   end
 
+  def distinct_genotype_confirmed_es_cells
+    mi_attempts.where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id).map { |mi| mi.es_cell.name }.sort.uniq.size
+  end
+
+  def distinct_old_non_genotype_confirmed_es_cells
+    mi_glt = mi_attempts.where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id).map { |mi| mi.es_cell.name }.sort.uniq
+    mi_old = mi_attempts.where('mi_attempts.mi_date < ?', 6.months.ago.to_date)
+    (mi_old - mi_glt).size
+  end
+  
 end
 
 # == Schema Information

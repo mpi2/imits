@@ -37,7 +37,9 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
     report_options[:methods] = [
       'reportable_statuses_with_latest_dates',
       'latest_relevant_mi_attempt',
-      'latest_relevant_phenotype_attempt'
+      'latest_relevant_phenotype_attempt',
+      'distinct_genotype_confirmed_es_cells',
+      'distinct_old_non_genotype_confirmed_es_cells'
     ]
 
     transform = proc do |record|
@@ -72,14 +74,17 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
           record["#{name} Date"] = date.to_s
         end
       end
-
-      mi_glt = mi_attempts.where(:mi_attempt_status_id =>
-        MiAttemptStatus.genotype_confirmed.id).map { |mi| mi.es_cell.name }.sort.uniq
       
-      mi_old = mi_attempts.where('mi_attempts.mi_date < ?', 6.months.ago.to_date)
+      record['Distinct Genotype Confirmed ES Cells'] = record['distinct_genotype_confirmed_es_cells']
+      record['Distinct Old Non Genotype Confirmed ES Cells'] = record['distinct_old_non_genotype_confirmed_es_cells']
 
-      record['Distinct Genotype Confirmed ES Cells'] = mi_glt.size
-      record['Distinct Old Non Genotype Confirmed ES Cells'] = (mi_old - mi_glt).size
+      #mi_glt = mi_attempt.where(:mi_attempt_status_id =>
+      #  MiAttemptStatus.genotype_confirmed.id).map { |mi| mi.es_cell.name }.sort.uniq
+      #
+      #mi_old = mi_attempt.where('mi_attempts.mi_date < ?', 6.months.ago.to_date)
+      #
+      #record['Distinct Genotype Confirmed ES Cells'] = mi_glt.size
+      #record['Distinct Old Non Genotype Confirmed ES Cells'] = (mi_old - mi_glt).size
       
     end
     report_options[:transforms] = [transform]
@@ -128,27 +133,3 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
 
   def self.report_name; 'mi_production_intermediate'; end
 end
-
-#  def distinct_genotype_confirmed_es_cells
-##    where("#{self.table_name}.id in (?)", MiAttempt.genotype_confirmed.select('distinct(mi_plan_id)').map(&:mi_plan_id))
-##    where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id)
-#
-#    mi_attempts.where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id).map { |mi| mi.es_cell.name }.sort.uniq.size
-#
-#  end
-
-#  def distinct_old_non_genotype_confirmed_es_cells
-#    #count = mi_attempts.where(:status => '').map(&:es_cell).sort.uniq
-#    #mi_attempts.where('#{self.table_name}.mi_date < current_date - 180').map(&:es_cell).sort.uniq
-#    #mi_attempts.where('mi_attempts.mi_date < current_date - 180').map(&:es_cell).size
-#    
-##    mi_glt = mi_attempts.where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id)
-#    #mi_old = mi_attempts.where('mi_attempts.mi_date < ?', 6.months.ago)
-#    mi_glt = mi_attempts.where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id).map { |mi| mi.es_cell.name }.sort.uniq
-#    mi_old = mi_attempts.where('mi_attempts.mi_date < ?', 6.months.ago.to_date)
-##    mi_old = mi_attempts.where(:mi_date => '< 6.months')
-#    
-#    (mi_old - mi_glt).size
-#    
-#  end
-

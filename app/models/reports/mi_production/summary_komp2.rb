@@ -6,7 +6,6 @@ class Reports::MiProduction::SummaryKomp2
 
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
-  ORDER_BY_MAP = Reports::MiProduction::SummariesCommon::ORDER_BY_MAP
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
   REPORT_TITLE = 'KOMP2 Report'
 

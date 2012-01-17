@@ -70,8 +70,8 @@ class Reports::MiProduction::SummaryKomp21
 
         ).each do |row|
 
-          pc = efficiency(request, row2)
-          pc2 = efficiency2(request, row2)
+          pc = efficiency(request, row)
+          pc2 = efficiency2(request, row)
 
           report_table << {
             'Consortium' => consortium,

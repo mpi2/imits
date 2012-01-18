@@ -204,21 +204,32 @@ class Reports::MiProduction::SummaryKomp21
 
     if DEBUG
     	report = ReportCache.find_by_name(CACHE_NAME)
-	return report.to_table if report
 
       heading = '"Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"'
   
       csv = heading + "\n"
+      
+      ignore = IGNORE -
+            [
+             'Phenotype Attempt Aborted',
+            'MI Aborted',
+            'ES QC failed'
+            ]
   
       (HEADINGS.size-1).downto(1).each do |i|
-        next if (['All'] + IGNORE).include? HEADINGS[i]
+        next if (['All'] + ignore).include? HEADINGS[i]
         csv += csv_line('abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
       end
-  
-      ReportCache.create!(
-        :name => CACHE_NAME,
-        :csv_data => csv
-      )
+      
+      if report
+        report.csv_data = csv
+        report.save!
+      else
+        ReportCache.create!(
+          :name => CACHE_NAME,
+          :csv_data => csv
+        )
+      end
     end
 
     report = ReportCache.find_by_name!(CACHE_NAME).to_table

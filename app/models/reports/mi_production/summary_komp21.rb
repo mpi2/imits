@@ -45,7 +45,7 @@ class Reports::MiProduction::SummaryKomp21
   MAPPING_SUMMARIES = {}
   
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
-  REPORT_TITLE = "KOMP2 Report'"
+  REPORT_TITLE = DEBUG ? "KOMP2 Report' (DEBUG)" : "KOMP2 Report'"
 
   HEADINGS = ['Consortium', 'Production Centre',
               'All',
@@ -199,9 +199,11 @@ class Reports::MiProduction::SummaryKomp21
     return REPORT_TITLE, report_table
   end
 
-  def self.csv_line(gene, status)
-      gene_status_template = '"BaSH",,"High","BCM","GENE-TARGET","MGI:1921546","STATUS-TARGET","Assigned - ES Cell QC In Progress",,,,,,,10/10/11,16/11/11,,,,,,,,,,,,,0,0'
+  def self.csv_line(consortium, centre, gene, status)
+      gene_status_template = '"CONSORTIUM-TARGET",,"High","CENTRE-TARGET","GENE-TARGET","MGI:1921546","STATUS-TARGET","Assigned - ES Cell QC In Progress",,,,,,,10/10/11,16/11/11,,,,,,,,,,,,,0,0'
       template = gene_status_template
+      template = template.gsub(/CONSORTIUM-TARGET/, consortium)
+      template = template.gsub(/CENTRE-TARGET/, centre)
       template = template.gsub(/GENE-TARGET/, gene)
       template = template.gsub(/STATUS-TARGET/, status)
       return template
@@ -234,7 +236,12 @@ class Reports::MiProduction::SummaryKomp21
   
       (HEADINGS.size-1).downto(1).each do |i|
         next if (['All'] + ignore).include? HEADINGS[i]
-        csv += csv_line('abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('BaSH', 'BCM', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('BaSH', 'MRC - Harwell', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('BaSH', 'WTSI', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('DTCC', 'TCP', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('DTCC', 'UCD', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('JAX', 'JAX', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
       end
       
       if report

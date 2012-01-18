@@ -112,10 +112,10 @@ class Reports::MiProduction::SummaryKomp21
 
 #  (MAPPING_SUMMARIES_ORIG.last).downto(MAPPING_SUMMARIES_ORIG.first).each do |item|
 
-  (MAPPING_SUMMARIES_ORIG.size-1).downto(1).each do |i|
-    MAPPING_SUMMARIES[i] = [] if IGNORE.include? MAPPING_SUMMARIES_ORIG[i]
-    next if IGNORE.include? MAPPING_SUMMARIES_ORIG[i]
-    MAPPING_SUMMARIES[i] = MAPPING_SUMMARIES_ORIG[i] + MAPPING_SUMMARIES[i+1]
+  (HEADINGS.size-1).downto(1).each do |i|
+    MAPPING_SUMMARIES[HEADINGS[i]] = [] if IGNORE.include? HEADINGS[i]
+    next if IGNORE.include? HEADINGS[i]
+    MAPPING_SUMMARIES[HEADINGS[i]] = MAPPING_SUMMARIES_ORIG[HEADINGS[i]] + MAPPING_SUMMARIES[HEADINGS[i+1]]
   end
 
   

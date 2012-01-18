@@ -16,7 +16,7 @@ module Reports::MiProduction::SummariesCommon
     'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
     'ES QC failed' => ['Aborted - ES Cell QC Failed'],
-    'Registered for Phenotyping' => []
+    'Registered for Phenotyping' => ['Phenotype Attempt Registered']
   }
 
   def subsummary_common(request, params)

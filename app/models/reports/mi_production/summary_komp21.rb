@@ -24,6 +24,7 @@ class Reports::MiProduction::SummaryKomp21
     'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
     'ES QC failed' => ['Aborted - ES Cell QC Failed'],
+    
     'Registered for Phenotyping' => ['Registered for Phenotyping'],
     'Phenotype Attempt Registered' => ['Phenotype Attempt Registered'],
     'Phenotyping Started' => ['Phenotyping Started'],
@@ -102,7 +103,26 @@ class Reports::MiProduction::SummaryKomp21
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| languishing(row2) } ) },
         'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells(group) },
-        'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) }
+        'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) },
+
+        'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| MAPPING_SUMMARIES['Registered for Phenotyping'].include? row2.data['Overall Status'] } ) },
+        'Phenotype Attempt Registered' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| MAPPING_SUMMARIES['Phenotype Attempt Registered'].include? row2.data['Overall Status'] } ) },
+        'Phenotyping Started' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| MAPPING_SUMMARIES['Phenotyping Started'].include? row2.data['Overall Status'] } ) },
+        'Rederivation Started' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| MAPPING_SUMMARIES['Rederivation Started'].include? row2.data['Overall Status'] } ) },
+        'Rederivation Complete' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| MAPPING_SUMMARIES['Rederivation Complete'].include? row2.data['Overall Status'] } ) },
+        'Cre Excision Started' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| MAPPING_SUMMARIES['Cre Excision Started'].include? row2.data['Overall Status'] } ) },
+        'Cre Excision Complete' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| MAPPING_SUMMARIES['Cre Excision Complete'].include? row2.data['Overall Status'] } ) },
+        'Phenotyping Complete' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| MAPPING_SUMMARIES['Phenotyping Complete'].include? row2.data['Overall Status'] } ) },
+        'Phenotype Attempt Aborted' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row2.data['Overall Status'] } ) },
 
         ).each do |row|
 
@@ -124,7 +144,17 @@ class Reports::MiProduction::SummaryKomp21
             'Distinct Genotype Confirmed ES Cells' => row['Distinct Genotype Confirmed ES Cells'],
             'Distinct Old Non Genotype Confirmed ES Cells' => row['Distinct Old Non Genotype Confirmed ES Cells'],
             'Pipeline efficiency (%)' => pc,
-            'Pipeline efficiency (by clone)' => pc2
+            'Pipeline efficiency (by clone)' => pc2,
+            
+            'Registered for Phenotyping' => row['Registered for Phenotyping'],
+            'Phenotype Attempt Registered' => row['Phenotype Attempt Registered'],
+            'Phenotyping Started' => row['Phenotyping Started'],
+            'Rederivation Started' => row['Rederivation Started'],
+            'Rederivation Complete' => row['Rederivation Complete'],
+            'Cre Excision Started' => row['Cre Excision Started'],
+            'Cre Excision Complete' => row['Cre Excision Complete'],
+            'Phenotyping Complete' => row['Phenotyping Complete'],
+            'Phenotype Attempt Aborted' => row['Phenotype Attempt Aborted']
           }
         
         end

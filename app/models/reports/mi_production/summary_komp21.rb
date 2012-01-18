@@ -24,15 +24,15 @@ class Reports::MiProduction::SummaryKomp21
     'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
     'ES QC failed' => ['Aborted - ES Cell QC Failed'],
-    'Registered for Phenotyping' => [],
-    'Phenotype Attempt Registered' => [],
-    'Phenotyping Started' => [],
-    'Rederivation Started' => [],
-    'Rederivation Complete' => [],
-    'Cre Excision Started' => [],
-    'Cre Excision Complete' => [],
-    'Phenotyping Complete' => [],
-    'Phenotype Attempt Aborted' => []
+    'Registered for Phenotyping' => ['Registered for Phenotyping'],
+    'Phenotype Attempt Registered' => ['Phenotype Attempt Registered'],
+    'Phenotyping Started' => ['Phenotyping Started'],
+    'Rederivation Started' => ['Rederivation Started'],
+    'Rederivation Complete' => ['Rederivation Complete'],
+    'Cre Excision Started' => ['Cre Excision Started'],
+    'Cre Excision Complete' => ['Cre Excision Complete'],
+    'Phenotyping Complete' => ['Phenotyping Complete'],
+    'Phenotype Attempt Aborted' => ['Phenotype Attempt Aborted']
   }
   
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']

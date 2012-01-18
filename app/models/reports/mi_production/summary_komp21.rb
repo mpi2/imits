@@ -22,7 +22,7 @@ class Reports::MiProduction::SummaryKomp21
 
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
   MAPPING_SUMMARIES_ORIG = {
-    'All' => ['Phenotype Attempt Aborted', 'MI Aborted', 'ES QC failed'],
+    'All' => ['Phenotype Attempt Aborted', 'Micro-injection aborted', 'Aborted - ES Cell QC Failed'],
     'ES QC started' => ['Assigned - ES Cell QC In Progress'],
     'MI in progress' => ['Micro-injection in progress'],
 #    'Chimaeras' => [],

@@ -27,7 +27,7 @@ class Reports::MiProduction::SummaryKomp21
     'ES QC failed' => ['Aborted - ES Cell QC Failed'],
     
     'Registered for Phenotyping' => ['Registered for Phenotyping'],
-    'Phenotype Attempt Registered' => ['Phenotype Attempt Registered'],
+    'Registered for Phenotyping' => ['Registered for Phenotyping'],
     'Phenotyping Started' => ['Phenotyping Started'],
     'Rederivation Started' => ['Rederivation Started'],
     'Rederivation Complete' => ['Rederivation Complete'],
@@ -46,8 +46,8 @@ class Reports::MiProduction::SummaryKomp21
   #  MAPPING_SUMMARIES['Rederivation Complete'] = MAPPING_SUMMARIES_ORIG['Rederivation Complete'] + MAPPING_SUMMARIES['Cre Excision Started']
   #  MAPPING_SUMMARIES['Rederivation Started'] = MAPPING_SUMMARIES_ORIG['Rederivation Started'] + MAPPING_SUMMARIES['Rederivation Complete']
   #  MAPPING_SUMMARIES['Phenotyping Started'] = MAPPING_SUMMARIES_ORIG['Phenotyping Started'] + MAPPING_SUMMARIES['Rederivation Started']
-  #  MAPPING_SUMMARIES['Phenotype Attempt Registered'] = MAPPING_SUMMARIES_ORIG['Phenotype Attempt Registered'] + MAPPING_SUMMARIES['Phenotyping Started']
-  #  MAPPING_SUMMARIES['Registered for Phenotyping'] = MAPPING_SUMMARIES_ORIG['Registered for Phenotyping'] + MAPPING_SUMMARIES['Phenotype Attempt Registered']
+  #  MAPPING_SUMMARIES['Registered for Phenotyping'] = MAPPING_SUMMARIES_ORIG['Registered for Phenotyping'] + MAPPING_SUMMARIES['Phenotyping Started']
+  #  MAPPING_SUMMARIES['Registered for Phenotyping'] = MAPPING_SUMMARIES_ORIG['Registered for Phenotyping'] + MAPPING_SUMMARIES['Registered for Phenotyping']
   #
   #  MAPPING_SUMMARIES['ES QC failed'] = MAPPING_SUMMARIES_ORIG['ES QC failed'],
   #  MAPPING_SUMMARIES['MI Aborted'] = MAPPING_SUMMARIES_ORIG['MI Aborted']
@@ -70,7 +70,7 @@ class Reports::MiProduction::SummaryKomp21
             'MI in progress',
             #'Chimaeras',
             'Genotype Confirmed Mice',
-            'Phenotype Attempt Registered',
+            'Registered for Phenotyping',
             'Phenotyping Started',
             'Rederivation Started',
             'Rederivation Complete',
@@ -83,6 +83,16 @@ class Reports::MiProduction::SummaryKomp21
             'MI Aborted',
             'ES QC failed',
             ]
+
+    #'Registered for Phenotyping' => ['Registered for Phenotyping'],
+    #'Registered for Phenotyping' => ['Registered for Phenotyping'],
+    #'Phenotyping Started' => ['Phenotyping Started'],
+    #'Rederivation Started' => ['Rederivation Started'],
+    #'Rederivation Complete' => ['Rederivation Complete'],
+    #'Cre Excision Started' => ['Cre Excision Started'],
+    #'Cre Excision Complete' => ['Cre Excision Complete'],
+    #'Phenotyping Complete' => ['Phenotyping Complete'],
+    #'Phenotype Attempt Aborted' => ['Phenotype Attempt Aborted']
 
   IGNORE = ['Consortium',
             'Production Centre',
@@ -177,8 +187,8 @@ class Reports::MiProduction::SummaryKomp21
 
         'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| MAPPING_SUMMARIES['Registered for Phenotyping'].include? row2.data['Overall Status'] } ) },
-        'Phenotype Attempt Registered' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['Phenotype Attempt Registered'].include? row2.data['Overall Status'] } ) },
+        'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| MAPPING_SUMMARIES['Registered for Phenotyping'].include? row2.data['Overall Status'] } ) },
         'Phenotyping Started' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| MAPPING_SUMMARIES['Phenotyping Started'].include? row2.data['Overall Status'] } ) },
         'Rederivation Started' => lambda { |group| count_instances_of( group, 'Gene',
@@ -217,7 +227,7 @@ class Reports::MiProduction::SummaryKomp21
             'Pipeline efficiency (by clone)' => pc2,
             
             'Registered for Phenotyping' => row['Registered for Phenotyping'],
-            'Phenotype Attempt Registered' => row['Phenotype Attempt Registered'],
+            'Registered for Phenotyping' => row['Registered for Phenotyping'],
             'Phenotyping Started' => row['Phenotyping Started'],
             'Rederivation Started' => row['Rederivation Started'],
             'Rederivation Complete' => row['Rederivation Complete'],
@@ -263,7 +273,7 @@ end
   #Inspect - GLT Mouse
   #Withdrawn
   #Micro-injection aborted
-  #Phenotype Attempt Registered
+  #Registered for Phenotyping
   #Phenotyping Complete
   #Aborted - ES Cell QC Failed
 
@@ -311,7 +321,7 @@ end
 ## PhenotypeAttempt::Status  
 #  
 #'Phenotype Attempt Aborted',
-#'Phenotype Attempt Registered',
+#'Registered for Phenotyping',
 #'Rederivation Started',
 #'Rederivation Complete',
 #'Cre Excision Started',

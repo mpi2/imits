@@ -157,7 +157,7 @@ class Reports::MiProduction::SummaryKomp21
           report_table << {
             'Consortium' => consortium,
             'Production Centre' => row['Production Centre'],
-#            'All' => row['All'],
+            'All' => row['All'],
             'ES QC started' => row['ES QC started'],
             'ES QC confirmed' => row['ES QC confirmed'],
             'ES QC failed' => row['ES QC failed'],

@@ -39,33 +39,34 @@ class Reports::MiProduction::SummaryKomp21
 
   MAPPING_SUMMARIES = {}
 
-  MAPPING_SUMMARIES['Phenotype Attempt Aborted'] = MAPPING_SUMMARIES_ORIG['Phenotype Attempt Aborted']
-  MAPPING_SUMMARIES['Phenotyping Complete'] = MAPPING_SUMMARIES_ORIG['Phenotyping Complete']
-  MAPPING_SUMMARIES['Cre Excision Complete'] = MAPPING_SUMMARIES_ORIG['Cre Excision Complete'] + MAPPING_SUMMARIES['Phenotyping Complete']
-  MAPPING_SUMMARIES['Cre Excision Started'] = MAPPING_SUMMARIES_ORIG['Cre Excision Started'] + MAPPING_SUMMARIES['Cre Excision Complete']
-  MAPPING_SUMMARIES['Rederivation Complete'] = MAPPING_SUMMARIES_ORIG['Rederivation Complete'] + MAPPING_SUMMARIES['Cre Excision Started']
-  MAPPING_SUMMARIES['Rederivation Started'] = MAPPING_SUMMARIES_ORIG['Rederivation Started'] + MAPPING_SUMMARIES['Rederivation Complete']
-  MAPPING_SUMMARIES['Phenotyping Started'] = MAPPING_SUMMARIES_ORIG['Phenotyping Started'] + MAPPING_SUMMARIES['Rederivation Started']
-  MAPPING_SUMMARIES['Phenotype Attempt Registered'] = MAPPING_SUMMARIES_ORIG['Phenotype Attempt Registered'] + MAPPING_SUMMARIES['Phenotyping Started']
-  MAPPING_SUMMARIES['Registered for Phenotyping'] = MAPPING_SUMMARIES_ORIG['Registered for Phenotyping'] + MAPPING_SUMMARIES['Phenotype Attempt Registered']
-
-  MAPPING_SUMMARIES['ES QC failed'] = MAPPING_SUMMARIES_ORIG['ES QC failed'],
-  MAPPING_SUMMARIES['MI Aborted'] = MAPPING_SUMMARIES_ORIG['MI Aborted']
-
-  MAPPING_SUMMARIES['ES QC confirmed'] = MAPPING_SUMMARIES_ORIG['ES QC confirmed'] + MAPPING_SUMMARIES['Registered for Phenotyping']
-  MAPPING_SUMMARIES['Genotype Confirmed Mice'] = MAPPING_SUMMARIES_ORIG['Genotype Confirmed Mice'] + MAPPING_SUMMARIES['ES QC confirmed']
-  MAPPING_SUMMARIES['MI in progress'] = MAPPING_SUMMARIES_ORIG['MI in progress'] + MAPPING_SUMMARIES['Genotype Confirmed Mice']
-#  MAPPING_SUMMARIES['Chimaeras'] = MAPPING_SUMMARIES_ORIG['Chimaeras'] + MAPPING_SUMMARIES['MI in progress']
-  MAPPING_SUMMARIES['ES QC started'] = MAPPING_SUMMARIES_ORIG['ES QC started'] + MAPPING_SUMMARIES['MI in progress']
-
-  MAPPING_SUMMARIES['All'] = MAPPING_SUMMARIES_ORIG['All'] + MAPPING_SUMMARIES['ES QC started']
+  #  MAPPING_SUMMARIES['Phenotype Attempt Aborted'] = MAPPING_SUMMARIES_ORIG['Phenotype Attempt Aborted']
+  #  MAPPING_SUMMARIES['Phenotyping Complete'] = MAPPING_SUMMARIES_ORIG['Phenotyping Complete']
+  #  MAPPING_SUMMARIES['Cre Excision Complete'] = MAPPING_SUMMARIES_ORIG['Cre Excision Complete'] + MAPPING_SUMMARIES['Phenotyping Complete']
+  #  MAPPING_SUMMARIES['Cre Excision Started'] = MAPPING_SUMMARIES_ORIG['Cre Excision Started'] + MAPPING_SUMMARIES['Cre Excision Complete']
+  #  MAPPING_SUMMARIES['Rederivation Complete'] = MAPPING_SUMMARIES_ORIG['Rederivation Complete'] + MAPPING_SUMMARIES['Cre Excision Started']
+  #  MAPPING_SUMMARIES['Rederivation Started'] = MAPPING_SUMMARIES_ORIG['Rederivation Started'] + MAPPING_SUMMARIES['Rederivation Complete']
+  #  MAPPING_SUMMARIES['Phenotyping Started'] = MAPPING_SUMMARIES_ORIG['Phenotyping Started'] + MAPPING_SUMMARIES['Rederivation Started']
+  #  MAPPING_SUMMARIES['Phenotype Attempt Registered'] = MAPPING_SUMMARIES_ORIG['Phenotype Attempt Registered'] + MAPPING_SUMMARIES['Phenotyping Started']
+  #  MAPPING_SUMMARIES['Registered for Phenotyping'] = MAPPING_SUMMARIES_ORIG['Registered for Phenotyping'] + MAPPING_SUMMARIES['Phenotype Attempt Registered']
+  #
+  #  MAPPING_SUMMARIES['ES QC failed'] = MAPPING_SUMMARIES_ORIG['ES QC failed'],
+  #  MAPPING_SUMMARIES['MI Aborted'] = MAPPING_SUMMARIES_ORIG['MI Aborted']
+  #
+  #  MAPPING_SUMMARIES['ES QC confirmed'] = MAPPING_SUMMARIES_ORIG['ES QC confirmed'] + MAPPING_SUMMARIES['Registered for Phenotyping']
+  #  MAPPING_SUMMARIES['Genotype Confirmed Mice'] = MAPPING_SUMMARIES_ORIG['Genotype Confirmed Mice'] + MAPPING_SUMMARIES['ES QC confirmed']
+  #  MAPPING_SUMMARIES['MI in progress'] = MAPPING_SUMMARIES_ORIG['MI in progress'] + MAPPING_SUMMARIES['Genotype Confirmed Mice']
+  ##  MAPPING_SUMMARIES['Chimaeras'] = MAPPING_SUMMARIES_ORIG['Chimaeras'] + MAPPING_SUMMARIES['MI in progress']
+  #  MAPPING_SUMMARIES['ES QC started'] = MAPPING_SUMMARIES_ORIG['ES QC started'] + MAPPING_SUMMARIES['MI in progress']
+  #
+  #  MAPPING_SUMMARIES['All'] = MAPPING_SUMMARIES_ORIG['All'] + MAPPING_SUMMARIES['ES QC started']
   
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
   REPORT_TITLE = "KOMP2 Report'"
 
   HEADINGS = ['Consortium', 'Production Centre',
               #'All',
-              'ES QC started', 'ES QC confirmed',
+              'ES QC started',
+              'ES QC confirmed',
             'MI in progress',
             #'Chimaeras',
             'Genotype Confirmed Mice',
@@ -82,6 +83,45 @@ class Reports::MiProduction::SummaryKomp21
             'MI Aborted',
             'ES QC failed',
             ]
+
+  IGNORE = ['Consortium',
+            'Production Centre',
+            'Phenotype Attempt Aborted',
+            'MI Aborted',
+            'ES QC failed',
+            'Pipeline efficiency (%)',
+            'Pipeline efficiency (by clone)'
+            ]
+  
+  
+  # do each reverse
+  # ignore IGNORE's
+  # add previous to current MAPPING_SUMMARIES
+  
+  #HEADINGS.reverse_each do |item|
+  #  next if IGNORE.include? item
+  #end
+
+#  size = MAPPING_SUMMARIES_ORIG.size-1
+#  #for i in (0..MAPPING_SUMMARIES_ORIG.size-1)
+#  size.downto(1).do |i|
+#    #next if IGNORE.include? MAPPING_SUMMARIES_ORIG[i]
+#end
+
+  #$ (r.first).downto(r.last).each { |i| puts i }
+
+#  (MAPPING_SUMMARIES_ORIG.last).downto(MAPPING_SUMMARIES_ORIG.first).each do |item|
+
+  (MAPPING_SUMMARIES_ORIG.size-2).downto(1).each do |i|
+    MAPPING_SUMMARIES[i] = [] if IGNORE.include? MAPPING_SUMMARIES_ORIG[i]
+    next if IGNORE.include? MAPPING_SUMMARIES_ORIG[i]
+    MAPPING_SUMMARIES[i] = MAPPING_SUMMARIES_ORIG[i] + MAPPING_SUMMARIES[i+1]
+  end
+
+  
+  
+  
+  
   
   #TODO: fix efficiency names
 

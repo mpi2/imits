@@ -154,8 +154,8 @@ class Reports::MiProduction::SummaryKomp21
       summary = grouped_report.subgrouping(consortium).summary(
 
         'Production Centre',
-        'All' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+        #'All' => lambda { |group| count_instances_of( group, 'Gene',
+        #    lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
         'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
@@ -202,7 +202,7 @@ class Reports::MiProduction::SummaryKomp21
           report_table << {
             'Consortium' => consortium,
             'Production Centre' => row['Production Centre'],
-            'All' => row['All'],
+#            'All' => row['All'],
             'ES QC started' => row['ES QC started'],
             'ES QC confirmed' => row['ES QC confirmed'],
             'ES QC failed' => row['ES QC failed'],

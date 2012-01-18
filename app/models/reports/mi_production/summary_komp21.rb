@@ -1,5 +1,16 @@
 # encoding: utf-8
 
+  #Yes: I am assuming the columns to the right will go:
+
+  #registered for pheno, rederivation start / finsihed ,
+  #cre start / finished pheno start / finished,
+  #THEN aborted. THEN the accumulation starts with pheno
+  #finished and continues left. The thing is that the
+  #aborted column must be accumulated onto the total
+  #at the far left, but no other column along the way
+
+  #TODO: fix new efficiency ticket
+
 class Reports::MiProduction::SummaryKomp21
 
   extend Reports::MiProduction::SummariesCommon
@@ -12,15 +23,30 @@ class Reports::MiProduction::SummaryKomp21
     'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
     'ES QC failed' => ['Aborted - ES Cell QC Failed'],
-    'Registered for Phenotyping' => []
+    'Registered for Phenotyping' => [],
+    'Phenotype Attempt Registered' => [],
+    'Phenotyping Started' => [],
+    'Rederivation Started' => [],
+    'Rederivation Complete' => [],
+    'Cre Excision Started' => [],
+    'Cre Excision Complete' => [],
+    'Phenotyping Complete' => [],
+    'Phenotype Attempt Aborted' => []
   }
   
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
-  REPORT_TITLE = 'KOMP2 Report (1)'
+  REPORT_TITLE = "KOMP2 Report'"
 
   HEADINGS = ['Consortium', 'Production Centre', 'All', 'ES QC started', 'ES QC confirmed',
-              'ES QC failed', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice',
-              'Registered for Phenotyping',
+            'ES QC failed', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice',
+            'Phenotype Attempt Registered',
+            'Phenotyping Started',
+            'Rederivation Started',
+            'Rederivation Complete',
+            'Cre Excision Started',
+            'Cre Excision Complete',
+            'Phenotyping Complete',
+            'Phenotype Attempt Aborted'
               #'Pipeline efficiency (%)',
               #'Pipeline efficiency (by clone)'
             ]

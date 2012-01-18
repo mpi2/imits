@@ -15,6 +15,7 @@ class Reports::MiProduction::SummaryKomp21
 
   extend Reports::MiProduction::SummariesCommon
 
+  CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
   MAPPING_SUMMARIES = {
     'All' => [],
     'ES QC started' => ['Assigned - ES Cell QC In Progress', ''],

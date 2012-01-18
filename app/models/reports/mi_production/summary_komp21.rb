@@ -208,13 +208,22 @@ class Reports::MiProduction::SummaryKomp21
       heading = '"Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"'
   
       csv = heading + "\n"
+
+      ignore = ['Consortium',
+                'Production Centre',
+                #'Phenotype Attempt Aborted',
+                #'MI Aborted',
+                #'ES QC failed',
+                'Pipeline efficiency (%)',
+                'Pipeline efficiency (by clone)'
+                ]
       
-      ignore = IGNORE -
-            [
-             'Phenotype Attempt Aborted',
-            'MI Aborted',
-            'ES QC failed'
-            ]
+      #ignore = IGNORE -
+      #      [
+      #      'Phenotype Attempt Aborted',
+      #      'MI Aborted',
+      #      'ES QC failed'
+      #      ]
   
       (HEADINGS.size-1).downto(1).each do |i|
         next if (['All'] + ignore).include? HEADINGS[i]

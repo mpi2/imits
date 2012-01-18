@@ -10,7 +10,6 @@
 #at the far left, but no other column along the way
 
 #TODO: fix new efficiency ticket
-#TODO: fix 'Registered for Phenotyping'
   
 class Reports::MiProduction::SummaryKomp21
   
@@ -20,7 +19,13 @@ class Reports::MiProduction::SummaryKomp21
   
   extend Reports::MiProduction::SummariesCommon
 
-  CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
+  CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
+  
+  # these are the 'Overall Status' column settings
+  # i.e. if a row in the csv file has this setting, it gets added to the count
+  # so for report column 'ES QC started' a row in the report with 'Overall Status' set to 
+  # 'Assigned - ES Cell QC In Progress' will be added
+  
   MAPPING_SUMMARIES_ORIG = {
     'All' => ['Phenotype Attempt Aborted', 'Micro-injection aborted', 'Aborted - ES Cell QC Failed'],
     'ES QC started' => ['Assigned - ES Cell QC In Progress'],
@@ -63,9 +68,9 @@ class Reports::MiProduction::SummaryKomp21
               'Phenotyping Complete',
               'Phenotype Attempt Aborted',
               'MI Aborted',
-              'ES QC failed',
-              'Pipeline efficiency (%)',
-              'Pipeline efficiency (by clone)'
+              'ES QC failed'
+#              'Pipeline efficiency (%)',
+#              'Pipeline efficiency (by clone)'
             ]
 
   IGNORE = ['Consortium',
@@ -226,6 +231,9 @@ class Reports::MiProduction::SummaryKomp21
                 'Pipeline efficiency (%)',
                 'Pipeline efficiency (by clone)'
                 ]
+
+#1 + rand(6)
+#times
 
       (HEADINGS.size-1).downto(1).each do |i|
         next if (['All'] + ignore).include? HEADINGS[i]

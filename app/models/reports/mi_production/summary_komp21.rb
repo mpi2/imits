@@ -63,10 +63,12 @@ class Reports::MiProduction::SummaryKomp21
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
   REPORT_TITLE = "KOMP2 Report'"
 
-  HEADINGS = ['Consortium', 'Production Centre', 'All', 'ES QC started', 'ES QC confirmed',
-            'ES QC failed', 'MI in progress',
+  HEADINGS = ['Consortium', 'Production Centre',
+              #'All',
+              'ES QC started', 'ES QC confirmed',
+            'MI in progress',
             #'Chimaeras',
-            'MI Aborted', 'Genotype Confirmed Mice',
+            'Genotype Confirmed Mice',
             'Phenotype Attempt Registered',
             'Phenotyping Started',
             'Rederivation Started',
@@ -74,9 +76,11 @@ class Reports::MiProduction::SummaryKomp21
             'Cre Excision Started',
             'Cre Excision Complete',
             'Phenotyping Complete',
-            'Phenotype Attempt Aborted'
+            'Phenotype Attempt Aborted',
               #'Pipeline efficiency (%)',
               #'Pipeline efficiency (by clone)'
+            'MI Aborted',
+            'ES QC failed',
             ]
   
   #TODO: fix efficiency names

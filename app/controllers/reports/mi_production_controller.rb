@@ -58,4 +58,8 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv('production_summary_komp2.csv', @report) if request.format == :csv
   end
 
+  def languishing
+    @report = Reports::MiProduction::Languishing.generate
+  end
+
 end

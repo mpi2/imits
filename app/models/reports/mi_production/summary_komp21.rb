@@ -27,9 +27,11 @@ class Reports::MiProduction::SummaryKomp21
     'MI in progress' => ['Micro-injection in progress'],
 #    'Chimaeras' => [],
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
-    'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
+    
     'ES QC failed' => ['Aborted - ES Cell QC Failed'],
+    'MI Aborted' => ['Micro-injection aborted'],
+    'Phenotype Attempt Aborted' => ['Phenotype Attempt Aborted'],
     
     'Registered for Phenotyping' => ['Phenotype Attempt Registered'],
     'Phenotyping Started' => ['Phenotyping Started'],
@@ -37,8 +39,7 @@ class Reports::MiProduction::SummaryKomp21
     'Rederivation Complete' => ['Rederivation Complete'],
     'Cre Excision Started' => ['Cre Excision Started'],
     'Cre Excision Complete' => ['Cre Excision Complete'],
-    'Phenotyping Complete' => ['Phenotyping Complete'],
-    'Phenotype Attempt Aborted' => ['Phenotype Attempt Aborted']
+    'Phenotyping Complete' => ['Phenotyping Complete']
   }
 
   MAPPING_SUMMARIES = {}
@@ -81,6 +82,12 @@ class Reports::MiProduction::SummaryKomp21
     next if IGNORE.include? HEADINGS[i]
     MAPPING_SUMMARIES[HEADINGS[i]] = MAPPING_SUMMARIES_ORIG[HEADINGS[i]] + MAPPING_SUMMARIES[HEADINGS[i+1]]
   end
+  
+  #TODO: just do MAPPING_SUMMARIES = MAPPING_SUMMARIES_ORIG ??
+  
+  MAPPING_SUMMARIES['Phenotype Attempt Aborted'] = MAPPING_SUMMARIES_ORIG['Phenotype Attempt Aborted']
+  MAPPING_SUMMARIES['MI Aborted'] = MAPPING_SUMMARIES_ORIG['MI Aborted']
+  MAPPING_SUMMARIES['ES QC failed'] = MAPPING_SUMMARIES_ORIG['ES QC failed']
   
   #TODO: fix efficiency names
 

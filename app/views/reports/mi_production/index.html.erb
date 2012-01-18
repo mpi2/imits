@@ -16,6 +16,12 @@
   </div>
 
   <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :test, :format => :csv) %>">
+      <h4>(INTERNAL) Dummy Test Report</h4>
+    </a>
+  </div>
+
+  <div class="report-links">
     <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_by_consortium_and_accumulated_status) %>">
       <h4>mousephenotype.org feed</h4>
       <p>Summary by consortium and accumulated status</p>

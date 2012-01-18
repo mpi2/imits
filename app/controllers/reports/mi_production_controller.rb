@@ -6,6 +6,13 @@ class Reports::MiProductionController < ApplicationController
 
   before_filter :authenticate_user!, :except => [:summary_by_consortium_and_accumulated_status]
 
+  def test
+    if request.format == :csv
+    	report = ReportCache.find_by_name!('mi_production_intermediate_test')
+      send_data_csv('test.csv', report.csv_data)
+    end
+  end
+
   def detail
     if request.format == :csv
       send_data_csv('mi_production_detail.csv', Reports::MiProduction::Detail.generate.to_csv)

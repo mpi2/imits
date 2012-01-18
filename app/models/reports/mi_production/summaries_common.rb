@@ -118,7 +118,8 @@ module Reports::MiProduction::SummariesCommon
   def distinct_genotype_confirmed_es_cells(group)
       total = 0
       group.each do |row|
-        total += Integer(row['Distinct Genotype Confirmed ES Cells'])
+        value = row['Distinct Genotype Confirmed ES Cells'] ? Integer(row['Distinct Genotype Confirmed ES Cells']) : 0
+        total += value
       end
       return total
   end
@@ -126,7 +127,8 @@ module Reports::MiProduction::SummariesCommon
   def distinct_old_non_genotype_confirmed_es_cells(group)
       total = 0
       group.each do |row|
-        total += Integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+        value = row['Distinct Old Non Genotype Confirmed ES Cells'] ? Integer(row['Distinct Old Non Genotype Confirmed ES Cells']) : 0
+        total += value
       end
       return total
   end

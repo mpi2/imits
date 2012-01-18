@@ -80,7 +80,8 @@ class ProductionSummaryHelper
   'MI_IN_PROGRESS' => '"BaSH",,"High","BCM","Akt1s1","MGI:1914855","Micro-injection in progress","Assigned","Micro-injection in progress",,28913,"conditional_ready","Akt1s1<sup>tm1a(EUCOMM)Wtsi</sup>","C57BL/6N","2011-10-10",,,"2011-09-27",,,,,,,,,,',
   'MI_ABORTED' => '"BaSH",,"High","BCM","Apc2","MGI:1346052","Micro-injection aborted","Assigned","Micro-injection aborted",,26234,"conditional_ready","Apc2<sup>tm1a(KOMP)Wtsi</sup>",,"2011-12-01",,,"2011-09-05",,"2011-12-02"',
   'GENOTYPE_CONFIRMED_MICE' => '"BaSH",,"High","BCM","Alg10b","MGI:2146159","Genotype confirmed","Assigned","Genotype confirmed",,"VG10825","deletion","Alg10b<sup>tm1(KOMP)Vlcg</sup>","C57BL/6N","2011-10-10",,,"2011-09-08","2012-01-07",,,,,,,,,',
-  'LANGUISHING' => '"BaSH",,"High","BCM","Akt1s1","MGI:1914855","Micro-injection in progress","Assigned","Micro-injection in progress",,28913,"conditional_ready","Akt1s1<sup>tm1a(EUCOMM)Wtsi</sup>","C57BL/6N","2011-10-10",,,"2009-09-27"'
+  'LANGUISHING' => '"BaSH",,"High","BCM","Akt1s1","MGI:1914855","Micro-injection in progress","Assigned","Micro-injection in progress",,28913,"conditional_ready","Akt1s1<sup>tm1a(EUCOMM)Wtsi</sup>","C57BL/6N","2011-10-10",,,"2009-09-27"',
+  'GENE_STATUS_TEMPLATE' => '"BaSH",,"High","BCM","GENE-TARGET","MGI:1921546","STATUS-TARGET","Assigned - ES Cell QC In Progress",,,,,,,10/10/11,16/11/11,,,,,,,,,,,,,0,0'
   }  
   SUMMARY_BY_CONSORTIUM_CSV = [
       CSV_LINES['HEADING'],
@@ -101,7 +102,11 @@ class ProductionSummaryHelper
     return EXPECTEDS_SUMMARY_BY_CONSORTIUM if type == 'summary by consortium'
     return EXPECTEDS_SUMMARY_BY_CONSORTIUM if type == 'summary by consortium priority'
     return EXPECTEDS_KOMP2 if type == 'komp2'
-    return nil
+	
+	if type == 'komp21'
+	end
+    
+	return nil
   end
 
   def self.get_csv(type)

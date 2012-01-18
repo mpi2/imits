@@ -1,27 +1,31 @@
 # encoding: utf-8
 
-  #Yes: I am assuming the columns to the right will go:
+#Yes: I am assuming the columns to the right will go:
 
-  #registered for pheno, rederivation start / finsihed ,
-  #cre start / finished pheno start / finished,
-  #THEN aborted. THEN the accumulation starts with pheno
-  #finished and continues left. The thing is that the
-  #aborted column must be accumulated onto the total
-  #at the far left, but no other column along the way
+#registered for pheno, rederivation start / finsihed ,
+#cre start / finished pheno start / finished,
+#THEN aborted. THEN the accumulation starts with pheno
+#finished and continues left. The thing is that the
+#aborted column must be accumulated onto the total
+#at the far left, but no other column along the way
 
-  #TODO: fix new efficiency ticket
-  #TODO: fix 'Registered for Phenotyping'
+#TODO: fix new efficiency ticket
+#TODO: fix 'Registered for Phenotyping'
   
 class Reports::MiProduction::SummaryKomp21
+  
+  DEBUG = false
 
+  CACHE_NAME = DEBUG ? 'mi_production_intermediate_test' : 'mi_production_intermediate'
+  
   extend Reports::MiProduction::SummariesCommon
 
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
   MAPPING_SUMMARIES_ORIG = {
     'All' => ['Phenotype Attempt Aborted', 'MI Aborted', 'ES QC failed'],
-    'ES QC started' => ['Assigned - ES Cell QC In Progress', ''],
+    'ES QC started' => ['Assigned - ES Cell QC In Progress'],
     'MI in progress' => ['Micro-injection in progress'],
-    'Chimaeras' => [],
+#    'Chimaeras' => [],
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
     'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
@@ -91,7 +95,7 @@ class Reports::MiProduction::SummaryKomp21
 
     script_name = request ? request.env['REQUEST_URI'] : ''
 
-    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = initialize
         
     heading = HEADINGS   
     heading.push 'Languishing' if debug
@@ -186,6 +190,37 @@ class Reports::MiProduction::SummaryKomp21
     end
 
     return REPORT_TITLE, report_table
+  end
+
+  def self.csv_line(gene, status)
+      gene_status_template = '"BaSH",,"High","BCM","GENE-TARGET","MGI:1921546","STATUS-TARGET","Assigned - ES Cell QC In Progress",,,,,,,10/10/11,16/11/11,,,,,,,,,,,,,0,0'
+      template = gene_status_template
+      template = template.gsub(/GENE-TARGET/, gene)
+      template = template.gsub(/STATUS-TARGET/, status)
+      return template
+  end
+  
+  def self.initialize
+
+    if DEBUG
+      heading = '"Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"'
+  
+      csv = heading + "\n"
+  
+      (HEADINGS.size-1).downto(1).each do |i|
+        next if (['All'] + IGNORE).include? HEADINGS[i]
+        heading += csv_line('abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+      end
+  
+      ReportCache.create!(
+        :name => CACHE_NAME,
+        :csv_data => csv
+      )
+    end
+
+    report = ReportCache.find_by_name!(CACHE_NAME).to_table
+    
+    return report.to_table
   end
 
 end

@@ -62,10 +62,10 @@ class Reports::MiProduction::SummaryKomp21
               'Cre Excision Complete',
               'Phenotyping Complete',
               'Phenotype Attempt Aborted',
-              #'Pipeline efficiency (%)',
-              #'Pipeline efficiency (by clone)'
               'MI Aborted',
               'ES QC failed',
+              'Pipeline efficiency (%)',
+              'Pipeline efficiency (by clone)'
             ]
 
   IGNORE = ['Consortium',
@@ -212,7 +212,7 @@ class Reports::MiProduction::SummaryKomp21
   def self.initialize
 
     if DEBUG
-    	report = ReportCache.find_by_name(CACHE_NAME)
+      report = ReportCache.find_by_name(CACHE_NAME)
 
       heading = '"Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"'
   
@@ -226,14 +226,7 @@ class Reports::MiProduction::SummaryKomp21
                 'Pipeline efficiency (%)',
                 'Pipeline efficiency (by clone)'
                 ]
-      
-      #ignore = IGNORE -
-      #      [
-      #      'Phenotype Attempt Aborted',
-      #      'MI Aborted',
-      #      'ES QC failed'
-      #      ]
-  
+
       (HEADINGS.size-1).downto(1).each do |i|
         next if (['All'] + ignore).include? HEADINGS[i]
         csv += csv_line('BaSH', 'BCM', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
@@ -243,7 +236,7 @@ class Reports::MiProduction::SummaryKomp21
         csv += csv_line('DTCC', 'UCD', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
         csv += csv_line('JAX', 'JAX', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
       end
-      
+
       if report
         report.csv_data = csv
         report.save!

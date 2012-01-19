@@ -188,11 +188,11 @@ class Reports::MiProduction::SummaryKomp22
   #  'Registered for Phenotyping' => ['Phenotype Attempt Registered']
   #}
 
-  def all(row)
+  def self.all(row)
     return true
   end
 
-  def generic(key)
+  def self.generic(key)
     first_day = Date.today << 1
     first_day = Time.new(first_day.year,first_day.month,1).to_date
     last_day = (Date.today << 1).end_of_month
@@ -212,34 +212,34 @@ class Reports::MiProduction::SummaryKomp22
     return false
   end
   
-  def es_qc_started
+  def self.es_qc_started
     return false if !MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
     #Assigned - ES Cell QC In Progress Date
     #array = MAPPING_SUMMARIES['ES QC started']
     return generic('ES QC started')
   end
 
-  def es_qc_confirmed
+  def self.es_qc_confirmed
     return false if ! MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
     return true
   end
-  def es_qc_failed
+  def self.es_qc_failed
     return false if ! MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
     return true
   end
-  def mi_in_progress
+  def self.mi_in_progress
     return false if ! MAPPING_SUMMARIES['MI in progress'].include? row2.data['Overall Status']
     return true
   end
-  def genotype_confirmed_mice
+  def self.genotype_confirmed_mice
     return false if ! MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row2.data['Overall Status']
     return true
   end
-  def mi_aborted
+  def self.mi_aborted
     return false if ! MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status']
     return true
   end
-  def registered_for_phenotyping
+  def self.registered_for_phenotyping
     row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
   end
 

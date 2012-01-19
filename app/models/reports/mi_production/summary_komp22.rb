@@ -185,7 +185,7 @@ class Reports::MiProduction::SummaryKomp22
       splits = row[item].to_s.split(/\-/)
       next if ! splits || splits.size < 3
       #raise splits.inspect
-      raise "SPLITS: " + splits.inspect + " ROW: " + row[item].inspect if splits.size < 3
+      #raise "SPLITS: " + splits.inspect + " ROW: " + row[item].inspect if splits.size < 3
       #begin
       day = Time.new(splits[0],splits[1],splits[2])
       day = day ? day.to_date : nil

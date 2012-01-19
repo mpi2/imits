@@ -72,9 +72,9 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_komp22
-    #@csv = Reports::MiProduction::SummaryKomp22::CSV_LINKS
-    #@title2, @report = Reports::MiProduction::SummaryKomp22.generate(request, params)
-    #send_data_csv('production_summary_komp21.csv', @report.to_csv) if request.format == :csv
+    @csv = Reports::MiProduction::SummaryKomp22::CSV_LINKS
+    @title2, @report = Reports::MiProduction::SummaryKomp22.generate(request, params)
+    send_data_csv('production_summary_komp22.csv', @report.to_csv) if request.format == :csv
   end
 
   def languishing

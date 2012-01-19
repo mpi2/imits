@@ -54,7 +54,9 @@ class Reports::MiProduction::SummaryKomp2
         'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) },
         'Registered for Phenotyping'        => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| registered_for_phenotyping(row) } ) }
+            lambda { |row| registered_for_phenotyping(row) } ) },
+        'Phenotyped Count'        => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| PHENOTYPE_STATUSES.include? row.data['Overall Status'] } ) }
       )
 
       summary2.each do |row2|

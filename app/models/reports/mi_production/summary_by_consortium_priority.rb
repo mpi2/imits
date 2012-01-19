@@ -42,7 +42,9 @@ class Reports::MiProduction::SummaryByConsortiumPriority
         'ES QC failed'       => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) },
         'Languishing'        => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| languishing(row) } ) }
+            lambda { |row| languishing(row) } ) },
+        'Phenotyped Count'        => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row| PHENOTYPE_STATUSES.include? row.data['Overall Status'] } ) }
       )
       
       summary.each do |row|

@@ -108,7 +108,7 @@ class Reports::MiProduction::SummaryKomp22
       'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| es_qc_confirmed(row) } ) },
       'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) }
+          lambda { |row| es_qc_failed(row) } ) }
     )
 
     table = '<table>'
@@ -125,11 +125,11 @@ class Reports::MiProduction::SummaryKomp22
       summary2 = grouped_report.subgrouping(row['Consortium']).summary(
         'Production Centre',
         'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['MI in progress'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| mi_in_progress(row2) } ) },
         'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| genotype_confirmed_mice(row2) } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| mi_aborted(row2) } ) },
         'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| registered_for_phenotyping(row2) } ) }
       )
@@ -177,17 +177,70 @@ class Reports::MiProduction::SummaryKomp22
     return REPORT_TITLE, table
   end
 
-  def all(row)
+  #MAPPING_SUMMARIES = {
+  #  'All' => [],
+  #  'ES QC started' => ['Assigned - ES Cell QC In Progress'],
+  #  'MI in progress' => ['Micro-injection in progress'],
+  #  'Genotype Confirmed Mice' => ['Genotype confirmed'],
+  #  'MI Aborted' => ['Micro-injection aborted'],
+  #  'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
+  #  'ES QC failed' => ['Aborted - ES Cell QC Failed'],
+  #  'Registered for Phenotyping' => ['Phenotype Attempt Registered']
+  #}
+
+  def self.all(row)
     return true
   end
 
-  def es_qc_started
+  def self.generic(key)
+    first_day = Date.today << 1
+    first_day = Time.new(first_day.year,first_day.month,1).to_date
+    last_day = (Date.today << 1).end_of_month
+    return false if !MAPPING_SUMMARIES[key].include? row.data['Overall Status']
+    #Assigned - ES Cell QC In Progress Date
+    array = MAPPING_SUMMARIES[key]
+    array.each do |item|
+      item += ' Date'
+      #day = row[item] ?
+      next if ! row[item]
+      splits = row[item].split(/\//)
+      next if ! splits
+      day = Time.new("20" + splits[2].to_s,splits[1],splits[0]).to_date
+      #day << 1
+      return true if day && day >= first_day && day <= last_day
+    end
+    return false
+  end
+  
+  def self.es_qc_started
     return false if !MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
-    return true
+    #Assigned - ES Cell QC In Progress Date
+    #array = MAPPING_SUMMARIES['ES QC started']
+    return generic('ES QC started')
   end
 
-  def es_qc_confirmed
+  def self.es_qc_confirmed
     return false if ! MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
+    return true
+  end
+  def self.es_qc_failed
+    return false if ! MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
+    return true
+  end
+  def self.mi_in_progress
+    return false if ! MAPPING_SUMMARIES['MI in progress'].include? row2.data['Overall Status']
+    return true
+  end
+  def self.genotype_confirmed_mice
+    return false if ! MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row2.data['Overall Status']
+    return true
+  end
+  def self.mi_aborted
+    return false if ! MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status']
+    return true
+  end
+  def self.registered_for_phenotyping
+    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
   end
 
 end

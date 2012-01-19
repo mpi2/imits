@@ -78,13 +78,34 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def languishing
-    @report = Reports::MiProduction::Languishing.generate(:consortia => params[:consortia])
+    @report = Reports::MiProduction::Languishing.generate(
+      :consortia => params[:consortia])
+    @report.each do |consortium, group|
+      group.each do |record|
+        Reports::MiProduction::Languishing::DELAY_BINS.each do |bin|
+          record[bin] = '<a href="' + url_for(:controller => '/reports/mi_production',
+            :action => 'languishing_detail',
+            :consortium => consortium,
+            :status => record[0],
+            :delay_bin => bin) + '">' + record[bin].to_s + '</a>'
+        end
+      end
+    end
+
     if params[:consortia].blank?
       name = 'languishing_production_report.csv'
     else
       name = "languishing_production_report-#{params[:consortia]}.csv"
     end
     send_data_csv(name, @report.to_csv) if request.format == :csv
+  end
+
+  def languishing_detail
+    @report = Reports::MiProduction::Languishing.generate_detail(
+      :consortium => params[:consortium],
+      :status => params[:status],
+      :delay_bin => params[:delay_bin])
+    send_data_csv('languishing_production_report_detail.csv', @report.to_csv) if request.format == :csv
   end
 
 end

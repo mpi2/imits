@@ -6,10 +6,10 @@
 -%>
 
 <% content_for :pre_js_footer do %>
+  <%= javascript_tag "CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).sort.to_json}" %>
+  <%= javascript_tag "CENTRE_OPTIONS = #{Centre.all.map(&:name).sort.to_json}" %>
+  <%= javascript_tag "PRIORITY_OPTIONS = #{MiPlan::Priority.all.map(&:name).to_json}" %>
   <%= javascript_tag "GENE_SEARCH_PARAMS = #{gene_search_params.to_json}" %>
-  <%= javascript_tag "CENTRE_COMBO_OPTS = #{@centre_combo_options.to_json}" %>
-  <%= javascript_tag "CONSORTIUM_COMBO_OPTS = #{@consortia_combo_options.to_json}" %>
-  <%= javascript_tag "PRIORITY_COMBO_OPTS = #{@priority_combo_options.to_json}" %>
   <%= javascript_tag "WITHDRAWABLE_STATUSES = #{MiPlan::Status.all_affected_by_minor_conflict_resolution.map(&:name).to_json}" %>
 <% end %>
 

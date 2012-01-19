@@ -1,8 +1,8 @@
 GIT
   remote: git://github.com/i-dcc/ransack.git
-  revision: 57dfec71789cfd8c1571d149bf01cf028df8aac6
+  revision: 8ef81fd1d44209d57f6b91701add93a10c06713e
   specs:
-    ransack (0.5.7)
+    ransack (0.5.8)
       actionpack (~> 3.0)
       activerecord (~> 3.0)
       polyamorous (~> 0.5.0)
@@ -109,7 +109,7 @@ GEM
     polyamorous (0.5.0)
       activerecord (~> 3.0)
     polyglot (0.3.3)
-    rack (1.2.4)
+    rack (1.2.5)
     rack-mount (0.6.14)
       rack (>= 1.0.0)
     rack-test (0.5.7)

@@ -1,6 +1,7 @@
 <%
   navigation_links = [
     ['Home', root_path],
+    # ['View & Edit Your Genes', mi_plans_path],
     ['Gene Selection', gene_selection_mi_plans_path],
     ['Search & Edit MI Attempts', mi_attempts_path('q[production_centre_name]' => current_user.production_centre.name)],
     ['Create MI Attempt', new_mi_attempt_path],

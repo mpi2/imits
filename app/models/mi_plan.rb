@@ -1,24 +1,6 @@
 # encoding: utf-8
 
 class MiPlan < ApplicationModel
-  FULL_ACCESS_ATTRIBUTES = [
-    'marker_symbol',
-    'consortium_name',
-    'production_centre_name',
-    'priority_name',
-    'number_of_es_cells_starting_qc',
-    'number_of_es_cells_passing_qc',
-    'withdrawn',
-    'sub_project_name'
-  ]
-
-  READABLE_ATTRIBUTES = [
-    'id',
-    'status_name'
-  ] + FULL_ACCESS_ATTRIBUTES
-
-  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
-
   acts_as_audited
   acts_as_reportable
 
@@ -36,17 +18,6 @@ class MiPlan < ApplicationModel
           :dependent => :destroy
   has_many :phenotype_attempts
 
-  access_association_by_attribute :sub_project, :name
-  access_association_by_attribute :gene, :marker_symbol, :full_alias => :marker_symbol
-  access_association_by_attribute :consortium, :name
-  access_association_by_attribute :production_centre, :name
-  access_association_by_attribute :priority, :name
-  access_association_by_attribute :status, :name
-
-  validates :marker_symbol, :presence => true
-  validates :consortium_name, :presence => true
-  validates :production_centre_name, :presence => {:on => :update, :if => proc {|p| p.changed.include?('production_centre_id')}}
-  validates :priority_name, :presence => true
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
   validates :number_of_es_cells_starting_qc, :presence => {
     :on => :update,
@@ -63,20 +34,6 @@ class MiPlan < ApplicationModel
       elsif mi_plan.number_of_es_cells_passing_qc == 0
         mi_plan.errors.add(:number_of_es_cells_passing_qc, 'cannot be set to 0 after being set')
       end
-    end
-  end
-
-  validate do |mi_plan|
-    if !mi_plan.new_record? and mi_plan.changes.has_key? 'consortium_id'
-      mi_plan.errors.add(:consortium_name, 'cannot be changed')
-    end
-
-    if !mi_plan.new_record? and mi_plan.changes.has_key? 'gene_id'
-      mi_plan.errors.add(:marker_symbol, 'cannot be changed')
-    end
-
-    if mi_plan.changes.has_key? 'production_centre_id' and  ! mi_plan.mi_attempts.empty?
-      mi_plan.errors.add(:production_centre_name, 'cannot be changed - gene has been micro-injected on behalf of production centre already')
     end
   end
 
@@ -310,15 +267,6 @@ class MiPlan < ApplicationModel
     else
       return nil
     end
-  end
-
-  def as_json(options = {})
-    options ||= {}
-    options.symbolize_keys!
-
-    options[:methods] = READABLE_ATTRIBUTES
-    options[:only] = options[:methods]
-    return super(options)
   end
 
   def self.check_for_upgradeable(params)

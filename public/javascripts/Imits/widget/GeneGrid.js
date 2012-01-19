@@ -238,10 +238,9 @@ Ext.define('Imits.widget.GeneGrid', {
             }
         });
 
-
         Ext.get(grid.renderTo).on('click', function(event, target) {
             var id = target.getAttribute('data-id');
-            grid.setLoading("Editing expression of micro-injection interest....");
+            grid.setLoading("Editing gene interest....");
             grid.miPlanEditor.edit(id);
         },
         grid,
@@ -262,9 +261,9 @@ Ext.define('Imits.widget.GeneGrid', {
         }));
 
         // Add the top (gene selection) toolbar
-        grid.consortiumCombo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_COMBO_OPTS);
-        grid.centreCombo     = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_COMBO_OPTS, true);
-        grid.priorityCombo   = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_COMBO_OPTS);
+        grid.consortiumCombo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_OPTIONS);
+        grid.centreCombo     = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_OPTIONS, true);
+        grid.priorityCombo   = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_OPTIONS);
 
         grid.addDocked(Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',

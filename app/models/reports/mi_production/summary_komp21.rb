@@ -54,18 +54,18 @@ class Reports::MiProduction::SummaryKomp21
 
   HEADINGS = ['Consortium', 'Production Centre',
               'All',
-              'ES QC started or better',
-              'ES QC confirmed or better',
-              'MI in progress or better',
-              #'Chimaeras or better',
-              'Genotype Confirmed Mice or better',
-              'Registered for Phenotyping or better',
-              'Phenotyping Started or better',
-              'Rederivation Started or better',
-              'Rederivation Complete or better',
-              'Cre Excision Started or better',
-              'Cre Excision Complete or better',
-              'Phenotyping Complete or better',
+              'ES QC started',
+              'ES QC confirmed',
+              'MI in progress',
+              #'Chimaeras',
+              'Genotype Confirmed Mice',
+              'Registered for Phenotyping',
+              'Phenotyping Started',
+              'Rederivation Started',
+              'Rederivation Complete',
+              'Cre Excision Started',
+              'Cre Excision Complete',
+              'Phenotyping Complete',
               'Phenotype Attempt Aborted',
               'MI Aborted',
               'ES QC failed'
@@ -83,11 +83,9 @@ class Reports::MiProduction::SummaryKomp21
             ]
   
   (HEADINGS.size-1).downto(1).each do |i|
-    heading = HEADINGS[i].gsub(/ or better/, '')
-    MAPPING_SUMMARIES[heading] = [] if IGNORE.include? heading
-    next if IGNORE.include? heading
-    heading2 = HEADINGS[i+1].gsub(/ or better/, '')
-    MAPPING_SUMMARIES[heading] = MAPPING_SUMMARIES_ORIG[heading] + MAPPING_SUMMARIES[heading2]
+    MAPPING_SUMMARIES[HEADINGS[i]] = [] if IGNORE.include? HEADINGS[i]
+    next if IGNORE.include? HEADINGS[i]
+    MAPPING_SUMMARIES[HEADINGS[i]] = MAPPING_SUMMARIES_ORIG[HEADINGS[i]] + MAPPING_SUMMARIES[HEADINGS[i+1]]
   end
   
   #TODO: just do MAPPING_SUMMARIES = MAPPING_SUMMARIES_ORIG ??
@@ -203,6 +201,29 @@ class Reports::MiProduction::SummaryKomp21
         end
     end
 
+  headings_new = ['Consortium', 'Production Centre',
+              'All',
+              'ES QC started or better',
+              'ES QC confirmed or better',
+              'MI in progress or better',
+              #'Chimaeras or better',
+              'Genotype Confirmed Mice or better',
+              'Registered for Phenotyping or better',
+              'Phenotyping Started or better',
+              'Rederivation Started or better',
+              'Rederivation Complete or better',
+              'Cre Excision Started or better',
+              'Cre Excision Complete or better',
+              'Phenotyping Complete or better',
+              'Phenotype Attempt Aborted',
+              'MI Aborted',
+              'ES QC failed'
+#              'Pipeline efficiency (%)',
+#              'Pipeline efficiency (by clone)'
+            ]
+  
+    report_table.rename_columns(headings_new)
+
     return REPORT_TITLE, report_table
   end
 
@@ -238,14 +259,13 @@ class Reports::MiProduction::SummaryKomp21
 #times
 
       (HEADINGS.size-1).downto(1).each do |i|
-        heading = HEADINGS[i].gsub(/ or better/, '')
-        next if (['All'] + ignore).include? heading
-        csv += csv_line('BaSH', 'BCM', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[heading][0]) + "\n"
-        csv += csv_line('BaSH', 'MRC - Harwell', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[heading][0]) + "\n"
-        csv += csv_line('BaSH', 'WTSI', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[heading][0]) + "\n"
-        csv += csv_line('DTCC', 'TCP', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[heading][0]) + "\n"
-        csv += csv_line('DTCC', 'UCD', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[heading][0]) + "\n"
-        csv += csv_line('JAX', 'JAX', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[heading][0]) + "\n"
+        next if (['All'] + ignore).include? HEADINGS[i]
+        csv += csv_line('BaSH', 'BCM', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('BaSH', 'MRC - Harwell', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('BaSH', 'WTSI', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('DTCC', 'TCP', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('DTCC', 'UCD', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('JAX', 'JAX', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
       end
 
       if report

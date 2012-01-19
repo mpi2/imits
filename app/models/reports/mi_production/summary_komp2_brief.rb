@@ -11,7 +11,7 @@ class Reports::MiProduction::SummaryKomp2Brief
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
 
   def self.generate(request = nil, params={})
-    return Reports::MiProduction::SummaryByConsortium.generate(request, params, CONSORTIA)
+    return Reports::MiProduction::SummaryByConsortium.generate(request, params, CONSORTIA, 'KOMP2 (brief)')
   end
 
 end

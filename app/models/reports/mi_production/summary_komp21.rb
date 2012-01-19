@@ -67,8 +67,8 @@ class Reports::MiProduction::SummaryKomp21
               'Cre Excision Complete',
               'Phenotyping Complete',
               'Phenotype Attempt Aborted',
-              'MI Aborted',
-              'ES QC failed'
+              'ES QC failed',
+              'MI Aborted'
 #              'Pipeline efficiency (%)',
 #              'Pipeline efficiency (by clone)'
             ]
@@ -166,6 +166,8 @@ class Reports::MiProduction::SummaryKomp21
             lambda { |row2| MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row2.data['Overall Status'] } ) },
 
         ).each do |row|
+        
+          next if row['Production Centre'].to_s.length < 1
 
           pc = efficiency(request, row)
           pc2 = efficiency2(request, row)

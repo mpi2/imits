@@ -8,6 +8,7 @@ class Reports::MiProduction::SummaryKomp2
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
   REPORT_TITLE = 'KOMP2 Report'
+  PHENOTYPE_STATUSES = Reports::MiProduction::SummariesCommon::PHENOTYPE_STATUSES
 
   HEADINGS = ['Consortium', 'All Genes', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
     'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',

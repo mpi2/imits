@@ -7,6 +7,7 @@ class Reports::MiProduction::SummaryByConsortiumPriority
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
   ORDER_BY_MAP = Reports::MiProduction::SummariesCommon::ORDER_BY_MAP
+  PHENOTYPE_STATUSES = Reports::MiProduction::SummariesCommon::PHENOTYPE_STATUSES
 
   def self.generate(request = nil, params={})
 

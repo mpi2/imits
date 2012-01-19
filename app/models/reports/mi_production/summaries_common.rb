@@ -30,7 +30,7 @@ module Reports::MiProduction::SummariesCommon
     'Phenotyping Complete'
   ]
 
-  def subsummary_common(request, params)
+  def subsummary_common(params)
     consortium = params[:consortium]
     type = params[:type]
     type = type ? type.gsub(/^\#\s+/, "") : nil

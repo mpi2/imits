@@ -96,7 +96,7 @@ class Reports::MiProduction::SummaryKomp2
   def self.generate(request = nil, params={})
     
     if params[:consortium]
-      title, report = subsummary_common(request, params)
+      title, report = subsummary_common(params)
       rv = request && request.format == :csv ? report.to_csv : report.to_html
       return title, rv
     end

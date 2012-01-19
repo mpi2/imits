@@ -15,7 +15,7 @@ class Reports::MiProduction::SummaryByConsortium
     debug = params['debug'] && params['debug'].to_s.length > 0
 
     if params[:consortium]
-      return subsummary_common(request, params)
+      return subsummary_common(params)
     end
 
     script_name = request ? request.env['REQUEST_URI'] : ''

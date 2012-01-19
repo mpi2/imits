@@ -55,7 +55,7 @@ class Reports::MiProduction::SummaryMgpTest < ActiveSupport::TestCase
         next if k == 'Priority'
         next if k == 'Sub-Project'        
         puts "#{k} : #{v}" if DEBUG
-        title2, report = Reports::MiProduction::SummaryMgp.subsummary_common(nil, { :consortium => 'BaSH', :type => k })
+        title2, report = Reports::MiProduction::SummaryMgp.subsummary_common(:consortium => 'BaSH', :type => k)
         puts "report size: #{report.size}" if DEBUG
         puts report.to_s if DEBUG
         assert_equal v, report.size

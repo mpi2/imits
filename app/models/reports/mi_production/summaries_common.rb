@@ -24,7 +24,8 @@ module Reports::MiProduction::SummariesCommon
       'Cre Excision Started',
       'Cre Excision Complete',
       'Phenotyping Started',
-      'Phenotyping Complete'
+      'Phenotyping Complete',
+      'Phenotype Attempt Registered'
     ]
   }
 
@@ -196,6 +197,12 @@ module Reports::MiProduction::SummariesCommon
 
   def registered_for_phenotyping(row)
     row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
+    #return MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']
+  end
+  
+  def glt(row)
+    (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
+      (row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1)
   end
   
 end

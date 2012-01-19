@@ -9,7 +9,7 @@
 #aborted column must be accumulated onto the total
 #at the far left, but no other column along the way
   
-class Reports::MiProduction::SummaryKomp21
+class Reports::MiProduction::SummaryKomp212
   
   DEBUG = false
 
@@ -177,7 +177,7 @@ class Reports::MiProduction::SummaryKomp21
           report_table << {
             'Consortium' => consortium,
             'Production Centre' => row['Production Centre'],
-            'All' => row['All'],       #.to_i + row['Registered for Phenotyping'].to_i,
+            'All' => row['All'],
             'ES QC started' => row['ES QC started'],
             'ES QC confirmed' => row['ES QC confirmed'],
             'ES QC failed' => row['ES QC failed'],

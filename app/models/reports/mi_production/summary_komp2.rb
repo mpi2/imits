@@ -41,7 +41,7 @@ class Reports::MiProduction::SummaryKomp2
         'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status'] } ) },
         'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+            lambda { |row| glt(row) } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
@@ -146,7 +146,7 @@ class Reports::MiProduction::SummaryKomp2
         'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| MAPPING_SUMMARIES['MI in progress'].include? row2.data['Overall Status'] } ) },
         'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row2.data['Overall Status'] } ) },
+            lambda { |row| glt(row) } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status'] } ) },
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
@@ -158,16 +158,19 @@ class Reports::MiProduction::SummaryKomp2
       )
 
       make_link = lambda {|rowx, key|
-        return rowx[key] if request && request.format == :csv
-        consort = CGI.escape row['Consortium']
-        pcentre = rowx['Production Centre'] ? CGI.escape(rowx['Production Centre']) : nil
-        pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
-        type = CGI.escape key
-        id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
-        separator = /\?/.match(script_name) ? '&' : '?'
-        rowx[key].to_s != '0' ?
-          "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
-          ''
+        return '' if rowx[key].to_s.length < 1
+        return '' if rowx[key] == 0
+        return rowx[key]
+        #return rowx[key] if request && request.format == :csv
+        #consort = CGI.escape row['Consortium']
+        #pcentre = rowx['Production Centre'] ? CGI.escape(rowx['Production Centre']) : nil
+        #pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
+        #type = CGI.escape key
+        #id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
+        #separator = /\?/.match(script_name) ? '&' : '?'
+        #rowx[key].to_s != '0' ?
+        #  "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
+        #  ''
       }
       make_efficiency1 = lambda {|rowx, pc|
         return "<td>#{pc}</td>" if ! debug
@@ -191,6 +194,8 @@ class Reports::MiProduction::SummaryKomp2
       pcentres = []
 
       summary2.each do |row2|
+
+        next if ! row2['Production Centre'] || row2['Production Centre'].length < 1
 
         pc = efficiency(request, row2)
         pc2 = efficiency2(request, row2)

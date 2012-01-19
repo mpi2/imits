@@ -97,7 +97,7 @@ class Reports::MiProduction::SummaryKomp21
   def self.generate(request = nil, params={})
     
     if params[:consortium]
-      title, report = subsummary_common(request, params)
+      title, report = subsummary_common(params)
       return title, report
     end
 

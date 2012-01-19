@@ -4,7 +4,7 @@ class Reports::MiProduction::SummaryKomp22
 
   extend Reports::MiProduction::SummariesCommon
 
-  CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
+  CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
   REPORT_TITLE = "KOMP2 Report''"
@@ -22,15 +22,15 @@ class Reports::MiProduction::SummaryKomp22
   #  cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
   #
   #  heading = HEADINGS
-  #    
+  #
   #  report_table = Table(heading)
-  #      
+  #
   #  grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
-  #    
+  #
   #  grouped_report.each do |consortium|
   #
   #    next if ! CONSORTIA.include?(consortium)
-  #      
+  #
   #    summary2 = grouped_report.subgrouping(consortium).summary(
   #      'Production Centre',
   #      'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
@@ -54,7 +54,7 @@ class Reports::MiProduction::SummaryKomp22
   #    )
   #
   #    summary2.each do |row2|
-  #                
+  #
   #      pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : ''
   #
   #      report_table << {
@@ -69,7 +69,7 @@ class Reports::MiProduction::SummaryKomp22
   #        'Registered for Phenotyping' => row2['Registered for Phenotyping'],
   #        'ES QC failed' => row2['ES QC failed']
   #      }
-  #    
+  #
   #    end
   #
   #  end
@@ -78,27 +78,27 @@ class Reports::MiProduction::SummaryKomp22
   #end
 
   def self.generate(request = nil, params={})
-    
+
     if params[:consortium]
-      title, report = subsummary_common(request, params)
+      title, report = subsummary_common(params)
       rv = request && request.format == :csv ? report.to_csv : report.to_html
       return title, rv
     end
 
     debug = params['debug'] && params['debug'].to_s.length > 0
-    
-    return generate_csv(request, params) if request && request.format == :csv    
+
+    return generate_csv(request, params) if request && request.format == :csv
 
     script_name = request ? request.env['REQUEST_URI'] : ''
 
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
-        
-    heading = HEADINGS   
-    
+
+    heading = HEADINGS
+
     report_table = Table(heading)
- 
+
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
-    
+
     summary = grouped_report.summary(
       'Consortium',
       'All' => lambda { |group| count_instances_of( group, 'Gene',
@@ -115,11 +115,11 @@ class Reports::MiProduction::SummaryKomp22
     table += '<tr>'
     heading.each { |item| table += "<th>#{item}</th>" }
     table += '</tr>'
-    
+
     summary.each do |row|
 
       next if ! CONSORTIA.include?(row['Consortium'])
-      
+
       table += "<tr>"
 
       summary2 = grouped_report.subgrouping(row['Consortium']).summary(
@@ -146,7 +146,7 @@ class Reports::MiProduction::SummaryKomp22
           "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
           ''
       }
-      
+
       table += '<tr>'
       table += "<td rowspan='ROWSPANTARGET'>#{row['Consortium']}</td>"
       table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'All')}</td>"
@@ -155,7 +155,7 @@ class Reports::MiProduction::SummaryKomp22
       table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC failed')}</td>"
 
       summary2.each do |row2|
-          
+
         pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : '&nbsp;'
 
         table += "<td>#{pcentre}</td>"
@@ -165,11 +165,11 @@ class Reports::MiProduction::SummaryKomp22
         table += "<td>#{make_link.call(row2, 'Genotype Confirmed Mice')}</td>"
         table += "<td>#{make_link.call(row2, 'Registered for Phenotyping')}</td>"
         table += "</tr>"
-     
+
       end
-     
+
       table = table.gsub(/ROWSPANTARGET/, summary2.size.to_s)
-      
+
     end
 
     table += '</table>'
@@ -218,6 +218,7 @@ class Reports::MiProduction::SummaryKomp22
     #array = MAPPING_SUMMARIES['ES QC started']
     return generic('ES QC started')
   end
+
   def es_qc_confirmed
     return false if ! MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
     return true
@@ -241,4 +242,5 @@ class Reports::MiProduction::SummaryKomp22
   def registered_for_phenotyping
     row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
   end
+
 end

@@ -62,7 +62,7 @@ class Reports::MiProductionController < ApplicationController
   def summary_komp2
     @csv = Reports::MiProduction::SummaryKomp2::CSV_LINKS
     @title2, @report = Reports::MiProduction::SummaryKomp2.generate(request, params)
-    send_data_csv('production_summary_komp2.csv', @report) if request.format == :csv
+    send_data_csv('production_summary_komp2.csv', @report.to_csv) if request.format == :csv
   end
 
   def summary_komp21
@@ -79,6 +79,12 @@ class Reports::MiProductionController < ApplicationController
 
   def languishing
     @report = Reports::MiProduction::Languishing.generate(:consortia => params[:consortia])
+    if params[:consortia].blank?
+      name = 'languishing_production_report.csv'
+    else
+      name = "languishing_production_report-#{params[:consortia]}.csv"
+    end
+    send_data_csv(name, @report.to_csv) if request.format == :csv
   end
 
 end

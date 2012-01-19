@@ -54,7 +54,7 @@ class Reports::MiProduction::SummaryByConsortiumPriorityPriorityTest < ActiveSup
         next if k == 'Pipeline efficiency (%)'
         next if k == 'Priority'
         puts "#{k} : #{v}" if DEBUG
-        title2, report = Reports::MiProduction::SummaryByConsortiumPriority.subsummary_common(nil, { :consortium => 'BaSH', :type => k })
+        title2, report = Reports::MiProduction::SummaryByConsortiumPriority.subsummary_common(:consortium => 'BaSH', :type => k)
         puts "report size: #{report.size}" if DEBUG
         puts report.to_s if DEBUG
         assert_equal v, report.size

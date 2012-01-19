@@ -16,7 +16,16 @@ module Reports::MiProduction::SummariesCommon
     'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
     'ES QC failed' => ['Aborted - ES Cell QC Failed'],
-    'Registered for Phenotyping' => ['Phenotype Attempt Registered']
+    'Registered for Phenotyping' => [
+      'Phenotype Attempt Aborted',
+      'Registered for Phenotyping',
+      'Rederivation Started',
+      'Rederivation Complete',
+      'Cre Excision Started',
+      'Cre Excision Complete',
+      'Phenotyping Started',
+      'Phenotyping Complete'
+    ]
   }
 
   PHENOTYPE_STATUSES = [

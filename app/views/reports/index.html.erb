@@ -3,7 +3,8 @@
   <h2><%= @tab %></h2>
 </div>
 
-<!--<div class="grid_4">
+<!--
+<div class="grid_4">
   <h3>Plans</h3>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :genes_list, :format => :csv) %>">
@@ -85,14 +86,14 @@
 <div class="grid_4">
   <h3>Languishing Projects</h3>
     <div class="report-links">
-      <!--<a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp2) %>">-->
-        <h4>KOMP2 Languishing Projects - coming soon</h4>
-      <!--</a>-->
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :languishing, :consortia => 'BaSH,DTCC,JAX') %>">
+        <h4>KOMP2 Languishing Projects</h4>
+      </a>
     </div>
     <div class="report-links">
-      <!--<a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp2) %>">-->
-        <h4>All IMPC Languishing Projects - coming soon</h4>
-      <!--</a>-->
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :languishing) %>">
+        <h4>All IMPC Languishing Projects</h4>
+      </a>
     </div>
   <h3>Production Summaries (Legacy)</h3>
   <div class="report-links">

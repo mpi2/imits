@@ -19,6 +19,17 @@ module Reports::MiProduction::SummariesCommon
     'Registered for Phenotyping' => ['Phenotype Attempt Registered']
   }
 
+  PHENOTYPE_STATUSES = [
+    'Phenotype Attempt Aborted',
+    'Registered for Phenotyping',
+    'Rederivation Started',
+    'Rederivation Complete',
+    'Cre Excision Started',
+    'Cre Excision Complete',
+    'Phenotyping Started',
+    'Phenotyping Complete'
+  ]
+
   def subsummary_common(request, params)
     consortium = params[:consortium]
     type = params[:type]
@@ -84,8 +95,19 @@ module Reports::MiProduction::SummariesCommon
     return title, report
   end
 
+  #def efficiency(request, row)
+  #  glt = Integer(row['Genotype Confirmed Mice'])
+  #  failures = Integer(row['Languishing']) + Integer(row['MI Aborted'])
+  #  total = Integer(row['Genotype Confirmed Mice']) + failures
+  #  pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
+  #  pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
+  #  return pc
+  #end
+
   def efficiency(request, row)
     glt = Integer(row['Genotype Confirmed Mice'])
+    glt2 = row['Phenotyped Count'] ? Integer(row['Phenotyped Count']) : 0
+    glt += glt2
     failures = Integer(row['Languishing']) + Integer(row['MI Aborted'])
     total = Integer(row['Genotype Confirmed Mice']) + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0

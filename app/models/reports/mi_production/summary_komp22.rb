@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Reports::MiProduction::SummaryKomp2
+class Reports::MiProduction::SummaryKomp22
 
   extend Reports::MiProduction::SummariesCommon
 
@@ -11,8 +11,7 @@ class Reports::MiProduction::SummaryKomp2
   PHENOTYPE_STATUSES = Reports::MiProduction::SummariesCommon::PHENOTYPE_STATUSES
 
   HEADINGS = ['Consortium', 'All Genes', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
-    'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)',
-    'Pipeline efficiency (by clone)',
+    'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice',
     'Registered for Phenotyping'
   ]
 
@@ -61,10 +60,7 @@ class Reports::MiProduction::SummaryKomp2
       )
 
       summary2.each do |row2|
-  
-        pc = efficiency(request, row2)
-        pc2 = efficiency2(request, row2)
-                
+                  
         pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : ''
 
         report_table << {
@@ -79,9 +75,7 @@ class Reports::MiProduction::SummaryKomp2
           'ES QC started' => row2['ES QC started'],
           'ES QC confirmed' => row2['ES QC confirmed'],
           'Registered for Phenotyping' => row2['Registered for Phenotyping'],
-          'Pipeline efficiency (%)' => pc,
           'ES QC failed' => row2['ES QC failed'],
-          'Pipeline efficiency (by clone)' => pc2,
           'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells(group) },
           'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) }
         }
@@ -169,15 +163,6 @@ class Reports::MiProduction::SummaryKomp2
           "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
           ''
       }
-      make_efficiency1 = lambda {|rowx, pc|
-        return "<td>#{pc}</td>" if ! debug
-        return "<td title='Calculated: glt / (glt + languishing) - #{rowx['Genotype Confirmed Mice']} / (#{rowx['Genotype Confirmed Mice']} + #{rowx['Languishing']})'>#{pc}</td>"
-      }
-      make_efficiency2 = lambda {|rowx, pc|
-        return "<td>#{pc}</td>" if ! debug
-        return "<td title='Calculated: Distinct Genotype Confirmed ES Cells / (Distinct Genotype Confirmed ES Cells + Distinct Old Non Genotype Confirmed ES Cells)" +
-      " - #{rowx['Distinct Genotype Confirmed ES Cells']} / (#{rowx['Distinct Genotype Confirmed ES Cells']} + #{rowx['Distinct Old Non Genotype Confirmed ES Cells']})'>#{pc}</td>"
-      }
       
       table += '<tr>'
       table += "<td rowspan='ROWSPANTARGET'>#{row['Consortium']}</td>"
@@ -186,17 +171,8 @@ class Reports::MiProduction::SummaryKomp2
       table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC confirmed')}</td>"
       table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC failed')}</td>"
 
-#TODO: lose pcentres
-
-      pcentres = []
-
       summary2.each do |row2|
-
-        pc = efficiency(request, row2)
-        pc2 = efficiency2(request, row2)
-  
-        pcentres.push row2['Production Centre']
-        
+          
         pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : '&nbsp;'
 
         table += "<td>#{pcentre}</td>"
@@ -204,8 +180,6 @@ class Reports::MiProduction::SummaryKomp2
         table += "<td></td>"
         table += "<td>#{make_link.call(row2, 'MI Aborted')}</td>"
         table += "<td>#{make_link.call(row2, 'Genotype Confirmed Mice')}</td>"
-        table += make_efficiency1.call(row2, pc)
-        table += make_efficiency2.call(row2, pc2)
         table += "<td>#{make_link.call(row2, 'Registered for Phenotyping')}</td>"
         table += "<td>#{make_link.call(row2, 'Languishing')}</td>" if debug 
         table += "<td>#{make_link.call(row2, 'Distinct Genotype Confirmed ES Cells')}</td>" if debug 
@@ -214,7 +188,6 @@ class Reports::MiProduction::SummaryKomp2
      
       end
      
-#      table = table.gsub(/ROWSPANTARGET/, pcentres.size.to_s)
       table = table.gsub(/ROWSPANTARGET/, summary2.size.to_s)
       
     end
@@ -222,11 +195,6 @@ class Reports::MiProduction::SummaryKomp2
     table += '</table>'
 
     return REPORT_TITLE, table
-  end
-
-  def self.quote(string)
-    string = string.to_s.gsub(/\"/, '\"')
-    return '"' + string.to_s + '"'
   end
   
 end

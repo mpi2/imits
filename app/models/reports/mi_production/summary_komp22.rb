@@ -104,11 +104,11 @@ class Reports::MiProduction::SummaryKomp22
       'All' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| all(row) } ) },
       'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| es_qc_started(row) } ) },
+          lambda { |row| generic(row, 'ES QC started') } ) },
       'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| es_qc_confirmed(row) } ) },
+          lambda { |row| generic(row, 'ES QC confirmed') } ) },
       'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| es_qc_failed(row) } ) }
+          lambda { |row| generic(row, 'ES QC failed') } ) }
     )
 
     table = '<table>'
@@ -125,7 +125,7 @@ class Reports::MiProduction::SummaryKomp22
       summary2 = grouped_report.subgrouping(row['Consortium']).summary(
         'Production Centre',
         'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| mi_in_progress(row2) } ) },
+            lambda { |row2| generic(row2, 'MI in progress') } ) },
         'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| genotype_confirmed_mice(row2) } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
@@ -192,54 +192,60 @@ class Reports::MiProduction::SummaryKomp22
     return true
   end
 
-  def self.generic(key)
+  def self.generic(row, key)
+    return false if !MAPPING_SUMMARIES[key].include? row.data[key]
+    return check_date(row, key)
+  end
+
+  def self.check_date(row, key)
     first_day = Date.today << 1
     first_day = Time.new(first_day.year,first_day.month,1).to_date
     last_day = (Date.today << 1).end_of_month
-    return false if !MAPPING_SUMMARIES[key].include? row.data['Overall Status']
+    #return false if !MAPPING_SUMMARIES[key].include? row.data['Overall Status']
     #Assigned - ES Cell QC In Progress Date
     array = MAPPING_SUMMARIES[key]
     array.each do |item|
       item += ' Date'
       #day = row[item] ?
       next if ! row[item]
-      splits = row[item].split(/\//)
+      splits = row[item].to_s.split(/\-/)
       next if ! splits
-      day = Time.new("20" + splits[2].to_s,splits[1],splits[0]).to_date
+#raise splits.inspect
+      day = Time.new(splits[0],splits[1],splits[2]).to_date
       #day << 1
       return true if day && day >= first_day && day <= last_day
     end
     return false
   end
   
-  def self.es_qc_started
+  def self.es_qc_started(row)
     return false if !MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
     #Assigned - ES Cell QC In Progress Date
     #array = MAPPING_SUMMARIES['ES QC started']
-    return generic('ES QC started')
+    return check_date(row, 'ES QC started')
   end
 
-  def self.es_qc_confirmed
+  def self.es_qc_confirmed(row)
     return false if ! MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
     return true
   end
-  def self.es_qc_failed
+  def self.es_qc_failed(row)
     return false if ! MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
     return true
   end
-  def self.mi_in_progress
-    return false if ! MAPPING_SUMMARIES['MI in progress'].include? row2.data['Overall Status']
+  def self.mi_in_progress(row)
+    return false if ! MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status']
     return true
   end
-  def self.genotype_confirmed_mice
-    return false if ! MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row2.data['Overall Status']
+  def self.genotype_confirmed_mice(row)
+    return false if ! MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status']
     return true
   end
-  def self.mi_aborted
-    return false if ! MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status']
+  def self.mi_aborted(row)
+    return false if ! MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status']
     return true
   end
-  def self.registered_for_phenotyping
+  def self.registered_for_phenotyping(row)
     row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
   end
 

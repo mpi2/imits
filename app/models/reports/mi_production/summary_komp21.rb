@@ -67,8 +67,8 @@ class Reports::MiProduction::SummaryKomp21
               'Cre Excision Complete',
               'Phenotyping Complete',
               'Phenotype Attempt Aborted',
-              'MI Aborted',
-              'ES QC failed'
+              'ES QC failed',
+              'MI Aborted'
 #              'Pipeline efficiency (%)',
 #              'Pipeline efficiency (by clone)'
             ]
@@ -166,6 +166,8 @@ class Reports::MiProduction::SummaryKomp21
             lambda { |row2| MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row2.data['Overall Status'] } ) },
 
         ).each do |row|
+        
+          next if row['Production Centre'].to_s.length < 1
 
           pc = efficiency(request, row)
           pc2 = efficiency2(request, row)
@@ -200,6 +202,29 @@ class Reports::MiProduction::SummaryKomp21
         
         end
     end
+
+  headings_new = ['Consortium', 'Production Centre',
+              'All',
+              'ES QC started or better',
+              'ES QC confirmed or better',
+              'MI in progress or better',
+              #'Chimaeras or better',
+              'Genotype Confirmed Mice or better',
+              'Registered for Phenotyping or better',
+              'Phenotyping Started or better',
+              'Rederivation Started or better',
+              'Rederivation Complete or better',
+              'Cre Excision Started or better',
+              'Cre Excision Complete or better',
+              'Phenotyping Complete',
+              'Phenotype Attempt Aborted',
+              'ES QC failed',
+              'MI Aborted'
+#              'Pipeline efficiency (%)',
+#              'Pipeline efficiency (by clone)'
+            ]
+  
+    report_table.rename_columns(HEADINGS, headings_new)
 
     return REPORT_TITLE, report_table
   end

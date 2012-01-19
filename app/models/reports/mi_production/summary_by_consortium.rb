@@ -8,7 +8,7 @@ class Reports::MiProduction::SummaryByConsortium
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
   PHENOTYPE_STATUSES = Reports::MiProduction::SummariesCommon::PHENOTYPE_STATUSES
   
-  def self.generate(request = nil, params={}, consortia = nil, title = nill)
+  def self.generate(request = nil, params={}, consortia = nil, title = nil)
     
     title = title ? title : 'Summary By Consortium'
 

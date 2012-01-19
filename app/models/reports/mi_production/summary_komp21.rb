@@ -214,7 +214,7 @@ class Reports::MiProduction::SummaryKomp21
               'Rederivation Complete or better',
               'Cre Excision Started or better',
               'Cre Excision Complete or better',
-              'Phenotyping Complete or better',
+              'Phenotyping Complete',
               'Phenotype Attempt Aborted',
               'MI Aborted',
               'ES QC failed'
@@ -222,7 +222,7 @@ class Reports::MiProduction::SummaryKomp21
 #              'Pipeline efficiency (by clone)'
             ]
   
-    report_table.rename_columns(headings_new)
+    report_table.rename_columns(HEADINGS, headings_new)
 
     return REPORT_TITLE, report_table
   end

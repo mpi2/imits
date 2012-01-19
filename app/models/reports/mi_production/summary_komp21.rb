@@ -218,8 +218,8 @@ class Reports::MiProduction::SummaryKomp21
               'Cre Excision Complete or better',
               'Phenotyping Complete',
               'Phenotype Attempt Aborted',
-              'MI Aborted',
-              'ES QC failed'
+              'ES QC failed',
+              'MI Aborted'
 #              'Pipeline efficiency (%)',
 #              'Pipeline efficiency (by clone)'
             ]

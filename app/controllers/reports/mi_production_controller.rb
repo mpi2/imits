@@ -72,7 +72,7 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def languishing
-    @report = Reports::MiProduction::Languishing.generate
+    @report = Reports::MiProduction::Languishing.generate(:consortia => params[:consortia])
   end
 
 end

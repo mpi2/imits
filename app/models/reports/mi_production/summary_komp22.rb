@@ -196,10 +196,11 @@ class Reports::MiProduction::SummaryKomp22
     return false if !MAPPING_SUMMARIES[key].include? row.data[key]
     return check_date(row, key)
   end
-
+  MONTHS_BACK = 5
   def self.check_date(row, key)
-    first_day = Date.today << 1
+    first_day = Date.today << MONTHS_BACK
     first_day = Time.new(first_day.year,first_day.month,1).to_date
+raise first_day.inspect
     last_day = (Date.today << 1).end_of_month
     #return false if !MAPPING_SUMMARIES[key].include? row.data['Overall Status']
     #Assigned - ES Cell QC In Progress Date
@@ -210,7 +211,7 @@ class Reports::MiProduction::SummaryKomp22
       next if ! row[item]
       splits = row[item].to_s.split(/\-/)
       next if ! splits
-#raise splits.inspect
+raise splits.inspect
       day = Time.new(splits[0],splits[1],splits[2]).to_date
       #day << 1
       return true if day && day >= first_day && day <= last_day

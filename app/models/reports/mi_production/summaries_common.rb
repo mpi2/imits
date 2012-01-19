@@ -106,7 +106,7 @@ module Reports::MiProduction::SummariesCommon
 
   def efficiency(request, row)
     glt = Integer(row['Genotype Confirmed Mice'])
-    glt2 = Integer(row['Phenotyped Count'])
+    glt2 = row['Phenotyped Count'] ? Integer(row['Phenotyped Count']) : 0
     glt += glt2
     failures = Integer(row['Languishing']) + Integer(row['MI Aborted'])
     total = Integer(row['Genotype Confirmed Mice']) + failures

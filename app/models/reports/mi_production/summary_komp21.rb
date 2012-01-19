@@ -8,12 +8,10 @@
 #finished and continues left. The thing is that the
 #aborted column must be accumulated onto the total
 #at the far left, but no other column along the way
-
-#TODO: fix new efficiency ticket
   
 class Reports::MiProduction::SummaryKomp21
   
-  DEBUG = true
+  DEBUG = false
 
   CACHE_NAME = DEBUG ? 'mi_production_intermediate_test' : 'mi_production_intermediate'
   

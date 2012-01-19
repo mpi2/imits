@@ -6,7 +6,8 @@ class Reports::MiProduction::SummaryByConsortium
 
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
-
+  PHENOTYPE_STATUSES = Reports::MiProduction::SummariesCommon::PHENOTYPE_STATUSES
+  
   def self.generate(request = nil, params={}, consortia = nil)
 
     debug = params['debug'] && params['debug'].to_s.length > 0
@@ -41,7 +42,9 @@ class Reports::MiProduction::SummaryByConsortium
       'ES QC failed'    => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) },
       'Languishing'        => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| languishing(row) } ) }      
+          lambda { |row| languishing(row) } ) },
+      'Phenotyped Count'        => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| PHENOTYPE_STATUSES.include? row.data['Overall Status'] } ) }
     )
 
     summary.each do |row|

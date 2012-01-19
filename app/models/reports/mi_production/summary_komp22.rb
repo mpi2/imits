@@ -7,7 +7,7 @@ class Reports::MiProduction::SummaryKomp22
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
-  REPORT_TITLE = 'KOMP2 Report'
+  REPORT_TITLE = "KOMP2 Report''"
   PHENOTYPE_STATUSES = Reports::MiProduction::SummariesCommon::PHENOTYPE_STATUSES
 
   HEADINGS = ['Consortium', 'All Genes', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
@@ -15,77 +15,67 @@ class Reports::MiProduction::SummaryKomp22
     'Registered for Phenotyping'
   ]
 
-  def self.generate_csv(request = nil, params={})
-  
-    debug = params['debug'] && params['debug'].to_s.length > 0
-  
-    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
-
-    heading = HEADINGS
-
-    heading.push 'Languishing' if debug
-    heading.push 'Distinct Genotype Confirmed ES Cells' if debug
-    heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug
-      
-    report_table = Table(heading)
-        
-    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
-      
-    grouped_report.each do |consortium|
-  
-      next if ! CONSORTIA.include?(consortium)
-        
-      summary2 = grouped_report.subgrouping(consortium).summary(
-        'Production Centre',
-        'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status'] } ) },
-        'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
-        'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
-        'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| languishing(row) } ) },
-        'All Genes' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| all(row) } ) },
-        'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
-        'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status'] } ) },
-        'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) },
-        'Registered for Phenotyping'        => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| registered_for_phenotyping(row) } ) },
-        'Phenotyped Count'        => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| PHENOTYPE_STATUSES.include? row.data['Overall Status'] } ) }
-      )
-
-      summary2.each do |row2|
-                  
-        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : ''
-
-        report_table << {
-          'Consortium' => consortium,
-          'Production Centre' => pcentre,
-          'MI in progress' => row2['MI in progress'],
-          'Genotype Confirmed Mice' => row2['Genotype Confirmed Mice'],
-          'MI Aborted' => row2['MI Aborted'],
-          'Languishing' => row2['Languishing'],
-          'Languishing2' => row2['Languishing2'],
-          'All Genes' => row2['All Genes'],
-          'ES QC started' => row2['ES QC started'],
-          'ES QC confirmed' => row2['ES QC confirmed'],
-          'Registered for Phenotyping' => row2['Registered for Phenotyping'],
-          'ES QC failed' => row2['ES QC failed'],
-          'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells(group) },
-          'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) }
-        }
-      
-      end
-  
-    end
-  
-    return REPORT_TITLE, report_table.to_csv
-  end
+  #def self.generate_csv(request = nil, params={})
+  #
+  #  debug = params['debug'] && params['debug'].to_s.length > 0
+  #
+  #  cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+  #
+  #  heading = HEADINGS
+  #    
+  #  report_table = Table(heading)
+  #      
+  #  grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
+  #    
+  #  grouped_report.each do |consortium|
+  #
+  #    next if ! CONSORTIA.include?(consortium)
+  #      
+  #    summary2 = grouped_report.subgrouping(consortium).summary(
+  #      'Production Centre',
+  #      'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status'] } ) },
+  #      'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row.data['Overall Status'] } ) },
+  #      'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status'] } ) },
+  #      'All Genes' => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| all(row) } ) },
+  #      'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
+  #      'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status'] } ) },
+  #      'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) },
+  #      'Registered for Phenotyping'        => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| registered_for_phenotyping(row) } ) },
+  #      'Phenotyped Count'        => lambda { |group| count_instances_of( group, 'Gene',
+  #          lambda { |row| PHENOTYPE_STATUSES.include? row.data['Overall Status'] } ) }
+  #    )
+  #
+  #    summary2.each do |row2|
+  #                
+  #      pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : ''
+  #
+  #      report_table << {
+  #        'Consortium' => consortium,
+  #        'Production Centre' => pcentre,
+  #        'MI in progress' => row2['MI in progress'],
+  #        'Genotype Confirmed Mice' => row2['Genotype Confirmed Mice'],
+  #        'MI Aborted' => row2['MI Aborted'],
+  #        'All Genes' => row2['All Genes'],
+  #        'ES QC started' => row2['ES QC started'],
+  #        'ES QC confirmed' => row2['ES QC confirmed'],
+  #        'Registered for Phenotyping' => row2['Registered for Phenotyping'],
+  #        'ES QC failed' => row2['ES QC failed']
+  #      }
+  #    
+  #    end
+  #
+  #  end
+  #
+  #  return REPORT_TITLE, report_table.to_csv
+  #end
 
   def self.generate(request = nil, params={})
     
@@ -104,9 +94,6 @@ class Reports::MiProduction::SummaryKomp22
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
         
     heading = HEADINGS   
-    heading.push 'Languishing' if debug
-    heading.push 'Distinct Genotype Confirmed ES Cells' if debug
-    heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug
     
     report_table = Table(heading)
  
@@ -117,9 +104,9 @@ class Reports::MiProduction::SummaryKomp22
       'All' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| all(row) } ) },
       'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
+          lambda { |row| es_qc_started(row) } ) },
       'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status'] } ) },
+          lambda { |row| es_qc_confirmed(row) } ) },
       'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) }
     )
@@ -143,12 +130,8 @@ class Reports::MiProduction::SummaryKomp22
             lambda { |row2| MAPPING_SUMMARIES['Genotype Confirmed Mice'].include? row2.data['Overall Status'] } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status'] } ) },
-        'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| languishing(row2) } ) },
         'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| registered_for_phenotyping(row2) } ) },
-        'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells(group) },
-        'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) }
+            lambda { |row2| registered_for_phenotyping(row2) } ) }
       )
 
       make_link = lambda {|rowx, key|
@@ -181,9 +164,6 @@ class Reports::MiProduction::SummaryKomp22
         table += "<td>#{make_link.call(row2, 'MI Aborted')}</td>"
         table += "<td>#{make_link.call(row2, 'Genotype Confirmed Mice')}</td>"
         table += "<td>#{make_link.call(row2, 'Registered for Phenotyping')}</td>"
-        table += "<td>#{make_link.call(row2, 'Languishing')}</td>" if debug 
-        table += "<td>#{make_link.call(row2, 'Distinct Genotype Confirmed ES Cells')}</td>" if debug 
-        table += "<td>#{make_link.call(row2, 'Distinct Old Non Genotype Confirmed ES Cells')}</td>" if debug 
         table += "</tr>"
      
       end
@@ -196,5 +176,19 @@ class Reports::MiProduction::SummaryKomp22
 
     return REPORT_TITLE, table
   end
+
+  def all(row)
+    return true
+  end
   
+  def es_qc_started
+    return false if !MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
+    return true
+  end
+  def es_qc_confirmed
+    return false if ! MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
+  end
+  def hhhhh
+              lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) }
+  end
 end

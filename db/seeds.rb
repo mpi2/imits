@@ -95,7 +95,8 @@ Seeds.load Centre, [
   {:id => 14, :name => 'JAX'},
   {:id => 15, :name => 'MARC'},
   {:id => 16, :name => 'VETMEDUNI'},
-  {:id => 17, :name => 'IMG'}
+  {:id => 17, :name => 'IMG'},
+  {:id => 18, :name => 'CNRS'}
 ]
 
 Seeds.load MiPlan::Status, [

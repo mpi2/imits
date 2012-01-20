@@ -200,10 +200,16 @@ module Reports::MiProduction::SummariesCommon
     #return MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']
   end
   
+  #def glt(row)
+  #  (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
+  #    (['Genotype confirmed'].include?(row.data['MiAttempt Status']))
+  #end
+  
   def glt(row)
-    (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) || (['Genotype confirmed'].include?(row.data['MiAttempt Status']))
-#||
-      #(row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1)
+    (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
+      ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
+#      (['Genotype confirmed'].include?(row.data['MiAttempt Status'])))
+      (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
   end
   
 end

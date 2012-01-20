@@ -201,8 +201,9 @@ module Reports::MiProduction::SummariesCommon
   end
   
   def glt(row)
-    (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
-      (row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1)
+    (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) || (['Genotype confirmed'].include?(row.data['MiAttempt Status']))
+#||
+      #(row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1)
   end
   
 end

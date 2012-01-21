@@ -128,7 +128,7 @@ class Reports::MiProduction::SummaryKomp21
 
         'Production Centre',
         'All' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { alln(row) } ) },
+            lambda { |row| all(row) } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
         'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
@@ -288,7 +288,8 @@ class Reports::MiProduction::SummaryKomp21
     return report
   end
 
-  def self.alln(row)
+  def self.all(row)
+#return true
     return MAPPING_SUMMARIES['All'].include?(row.data['Overall Status']) || registered_for_phenotyping(row)
   end
 

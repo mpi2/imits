@@ -63,13 +63,17 @@ class Reports::MiProduction::SummaryKomp22
       summary2 = grouped_report.subgrouping(row['Consortium']).summary(
         'Production Centre',
         'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| generic(params, row2, 'MI in progress') } ) },
+#            lambda { |row2| generic(params, row2, 'MI in progress') } ) },
+          lambda { |row2| generic(params, row, 'MI in progress') } ) },
         'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| generic(params, row2, 'Genotype Confirmed Mice') } ) },
+#            lambda { |row2| generic(params, row2, 'Genotype Confirmed Mice') } ) },
+          lambda { |row2| generic(params, row, 'Genotype Confirmed Mice') } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| generic(params, row2, 'MI Aborted') } ) },
+#            lambda { |row2| generic(params, row2, 'MI Aborted') } ) },
+          lambda { |row2| generic(params, row, 'MI Aborted') } ) },
         'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| generic(params, row2, 'Registered for Phenotyping') } ) }
+#          lambda { |row2| generic(params, row, 'Registered for Phenotyping') } ) }
       )
 
       make_link = lambda {|rowx, key|

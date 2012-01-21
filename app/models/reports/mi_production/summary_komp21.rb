@@ -289,7 +289,7 @@ class Reports::MiProduction::SummaryKomp21
   end
 
   def self.all(row)
-    MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] || registered_for_phenotyping(row)
+    MAPPING_SUMMARIES['All'].include?(row.data['Overall Status']) || registered_for_phenotyping(row)
   end
 
 end

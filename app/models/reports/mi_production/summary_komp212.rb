@@ -104,7 +104,7 @@ class Reports::MiProduction::SummaryKomp212
         'Production Centre',
         'All' => lambda { |group| count_instances_of( group, 'Gene',
 #            lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
-            lambda { |row| all(row2) } ) },
+            lambda { |row| all(row) } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
         'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',

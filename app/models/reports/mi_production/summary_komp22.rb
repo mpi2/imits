@@ -163,9 +163,9 @@ class Reports::MiProduction::SummaryKomp22
   end
 
   def self.to_date(string)
-    return false if ! string || string.to_s.length < 1 || ! /-/.match(string)
+    return nil if ! string || string.to_s.length < 1 || ! /-/.match(string)
     splits = string.to_s.split(/\-/)
-    next if ! splits || splits.size < 3
+     return nil if ! splits || splits.size < 3
     day = Time.new(splits[0],splits[1],splits[2])
     day = day ? day.to_date : nil
     return day

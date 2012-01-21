@@ -24,7 +24,7 @@ class Reports::MiProduction::SummaryKomp212
   # so for report column 'ES QC started' a row in the report with 'Overall Status' set to 
   # 'Assigned - ES Cell QC In Progress' will be added
   
-  MAPPING_SUMMARIES_ORIG = {
+  MAPPING_SUMMARIES = {
     'All' => ['Phenotype Attempt Aborted', 'Micro-injection aborted', 'Aborted - ES Cell QC Failed'],
     'ES QC started' => ['Assigned - ES Cell QC In Progress'],
     'MI in progress' => ['Micro-injection in progress'],
@@ -44,8 +44,6 @@ class Reports::MiProduction::SummaryKomp212
     'Cre Excision Complete' => ['Cre Excision Complete'],
     'Phenotyping Complete' => ['Phenotyping Complete']
   }
-
-  MAPPING_SUMMARIES = {}
   
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
   REPORT_TITLE = DEBUG ? "KOMP2 Report' (DEBUG)" : "KOMP2 Report'"
@@ -73,20 +71,20 @@ class Reports::MiProduction::SummaryKomp212
 #              'Pipeline efficiency (by clone)'
             ]
 
-  IGNORE = ['Consortium',
-            'Production Centre',
-            'Phenotype Attempt Aborted',
-            'MI Aborted',
-            'ES QC failed',
-            'Pipeline efficiency (%)',
-            'Pipeline efficiency (by clone)'
-            ]
-  
-  (HEADINGS.size-1).downto(1).each do |i|
-    MAPPING_SUMMARIES[HEADINGS[i]] = [] if IGNORE.include? HEADINGS[i]
-    next if IGNORE.include? HEADINGS[i]
-    MAPPING_SUMMARIES[HEADINGS[i]] = MAPPING_SUMMARIES_ORIG[HEADINGS[i]] + MAPPING_SUMMARIES[HEADINGS[i+1]]
-  end
+  #IGNORE = ['Consortium',
+  #          'Production Centre',
+  #          'Phenotype Attempt Aborted',
+  #          'MI Aborted',
+  #          'ES QC failed',
+  #          'Pipeline efficiency (%)',
+  #          'Pipeline efficiency (by clone)'
+  #          ]
+  #
+  #(HEADINGS.size-1).downto(1).each do |i|
+  #  MAPPING_SUMMARIES[HEADINGS[i]] = [] if IGNORE.include? HEADINGS[i]
+  #  next if IGNORE.include? HEADINGS[i]
+  #  MAPPING_SUMMARIES[HEADINGS[i]] = MAPPING_SUMMARIES_ORIG[HEADINGS[i]] + MAPPING_SUMMARIES[HEADINGS[i+1]]
+  #end
   
 #  raise MAPPING_SUMMARIES['All'].inspect
   
@@ -128,7 +126,8 @@ class Reports::MiProduction::SummaryKomp212
 
         'Production Centre',
         'All' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+#            lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+            lambda { |row| all(row2) } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
         'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
@@ -259,9 +258,6 @@ class Reports::MiProduction::SummaryKomp212
                 'Pipeline efficiency (by clone)'
                 ]
 
-#1 + rand(6)
-#times
-
       (HEADINGS.size-1).downto(1).each do |i|
         next if (['All'] + ignore).include? HEADINGS[i]
         csv += csv_line('BaSH', 'BCM', 'abc' + i.to_s, MAPPING_SUMMARIES_ORIG[HEADINGS[i]][0]) + "\n"
@@ -288,88 +284,9 @@ class Reports::MiProduction::SummaryKomp212
     return report
   end
 
+  def self.all(row)
+#return true
+    return MAPPING_SUMMARIES['All'].include?(row.data['Overall Status']) || registered_for_phenotyping(row)
+  end
+
 end
-
-
-  #Accumulate all the numbers in cells to the 'right' towards the cells on
-  #the 'left'.
-  #
-  #1) ES QC started cell now contains:
-  #ES QC Confirmed +
-  #ES QC Failed +
-  #MI In progress +
-  #Chimeras +
-  #MI Aborted +
-  #Genotype Confirmed +
-  #Registered for phenotyping + 
-  #...
-  #and so on, for all cells (ie you accumulate the cells to the right)
-
-  #Overall Status
-  #Interest
-  #Inspect - MI Attempt
-  #Assigned - ES Cell QC In Progress
-  #Assigned - ES Cell QC Complete
-  #Micro-injection in progress
-  #Genotype confirmed
-  #Assigned
-  #Conflict
-  #Inspect - Conflict
-  #Inspect - GLT Mouse
-  #Withdrawn
-  #Micro-injection aborted
-  #Registered for Phenotyping
-  #Phenotyping Complete
-  #Aborted - ES Cell QC Failed
-
-  #CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
-  #MAPPING_SUMMARIES_ORIG = {
-  #  'All' => [],
-  #  'ES QC started' => ['Assigned - ES Cell QC In Progress'],
-  #  'MI in progress' => ['Micro-injection in progress'],
-  #  'Genotype Confirmed Mice' => ['Genotype confirmed'],
-  #  'MI Aborted' => ['Micro-injection aborted'],
-  #  'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
-  #  'ES QC failed' => ['Aborted - ES Cell QC Failed'],
-  #  'Registered for Phenotyping' => []
-  #}
-
-
-
-
-
-
-
-
-
-
-## MiAttemptStatus
-#
-#'Micro-injection in progress'},
-#'Genotype confirmed'},
-#'Micro-injection aborted'
-#
-## MiPlan::Status  
-#  
-#'Interest', 
-#'Conflict', 
-#'Inspect - GLT Mouse', 
-#'Inspect - MI Attempt', 
-#'Inspect - Conflict', 
-#'Assigned', 
-#'Assigned - ES Cell QC In Progress', 
-#'Assigned - ES Cell QC Complete', 
-#'Aborted - ES Cell QC Failed',
-#'Inactive',
-#'Withdrawn'
-#
-## PhenotypeAttempt::Status  
-#  
-#'Phenotype Attempt Aborted',
-#'Registered for Phenotyping',
-#'Rederivation Started',
-#'Rederivation Complete',
-#'Cre Excision Started',
-#'Cre Excision Complete',
-#'Phenotyping Started',
-#'Phenotyping Complete'

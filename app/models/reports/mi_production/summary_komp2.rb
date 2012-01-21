@@ -146,7 +146,7 @@ class Reports::MiProduction::SummaryKomp2
         'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| MAPPING_SUMMARIES['MI in progress'].include? row2.data['Overall Status'] } ) },
         'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| glt(row) } ) },
+            lambda { |row2| glt(row2) } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status'] } ) },
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
@@ -227,11 +227,6 @@ class Reports::MiProduction::SummaryKomp2
     table += '</table>'
 
     return REPORT_TITLE, table
-  end
-
-  def self.quote(string)
-    string = string.to_s.gsub(/\"/, '\"')
-    return '"' + string.to_s + '"'
   end
   
 end

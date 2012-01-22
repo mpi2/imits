@@ -98,7 +98,7 @@ module Reports::MiProduction::SummaryKomp2Common
         'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| es_qc_failed(row) } ) },
         'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| mi_in_progress(row) } ) },
+            lambda { |row2| mi_in_progress(row2) } ) },
         'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| glt(row) } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
@@ -239,8 +239,8 @@ module Reports::MiProduction::SummaryKomp2Common
     return MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
   end
 
-  def mi_in_progress
-    return MAPPING_SUMMARIES['MI in progress'].include? row2.data['Overall Status']
+  def mi_in_progress(row)
+    return MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status']
   end
 
   def glt(row)
@@ -254,8 +254,7 @@ module Reports::MiProduction::SummaryKomp2Common
   end
 
   def registered_for_phenotyping(row)
-    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
-    #return MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']
+    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1 || MAPPING_SUMMARIES['Registered for Phenotyping'].include?(row.data['Overall Status'])
   end
   
   def phenotyping_started(row)

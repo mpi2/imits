@@ -1,14 +1,5 @@
 # encoding: utf-8
-
-#Yes: I am assuming the columns to the right will go:
-
-#registered for pheno, rederivation start / finsihed ,
-#cre start / finished pheno start / finished,
-#THEN aborted. THEN the accumulation starts with pheno
-#finished and continues left. The thing is that the
-#aborted column must be accumulated onto the total
-#at the far left, but no other column along the way
-  
+ 
 class Reports::MiProduction::SummaryKomp212
   
   DEBUG = false
@@ -18,12 +9,7 @@ class Reports::MiProduction::SummaryKomp212
   extend Reports::MiProduction::SummariesCommon
 
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
-  
-  # these are the 'Overall Status' column settings
-  # i.e. if a row in the csv file has this setting, it gets added to the count
-  # so for report column 'ES QC started' a row in the report with 'Overall Status' set to 
-  # 'Assigned - ES Cell QC In Progress' will be added
-  
+
   MAPPING_SUMMARIES = {
     'All' => ['Phenotype Attempt Aborted', 'Micro-injection aborted', 'Aborted - ES Cell QC Failed'],
     'ES QC started' => ['Assigned - ES Cell QC In Progress'],
@@ -46,7 +32,7 @@ class Reports::MiProduction::SummaryKomp212
   }
   
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
-  REPORT_TITLE = DEBUG ? "KOMP2 Report' (DEBUG)" : "KOMP2 Report'"
+  REPORT_TITLE = DEBUG ? "KOMP2 Report' - alternate (DEBUG)" : "KOMP2 Report' - alternate"
   
   # if you re-order this, do same to 'headings_new' below
 
@@ -71,6 +57,15 @@ class Reports::MiProduction::SummaryKomp212
 #              'Pipeline efficiency (by clone)'
             ]
 
+  IGNORE = ['Consortium',
+            'Production Centre',
+            'Phenotype Attempt Aborted',
+            'MI Aborted',
+            'ES QC failed',
+            'Pipeline efficiency (%)',
+            'Pipeline efficiency (by clone)'
+            ]
+
   #TODO: fix efficiency names
 
   def self.generate(request = nil, params={})
@@ -84,7 +79,8 @@ class Reports::MiProduction::SummaryKomp212
 
     script_name = request ? request.env['REQUEST_URI'] : ''
 
-    cached_report = ReportCache.find_by_name!(CACHE_NAME).to_table
+#    cached_report = ReportCache.find_by_name!(CACHE_NAME).to_table
+    cached_report = initialize
         
     heading = HEADINGS   
     heading.push 'Languishing' if debug
@@ -103,8 +99,8 @@ class Reports::MiProduction::SummaryKomp212
 
         'Production Centre',
         'All' => lambda { |group| count_instances_of( group, 'Gene',
-#            lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
-            lambda { |row| all(row) } ) },
+            lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+#            lambda { |row| all(row) } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
         'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
@@ -146,6 +142,14 @@ class Reports::MiProduction::SummaryKomp212
         ).each do |row|
         
           next if row['Production Centre'].to_s.length < 1
+          
+          counts = {}
+
+          (HEADINGS.size-1).downto(1).each do |i|
+            counts[HEADINGS[i]] = 0 if IGNORE.include? HEADINGS[i]
+            next if IGNORE.include? HEADINGS[i]
+            counts[HEADINGS[i]] += counts[HEADINGS[i+1]]
+          end
 
           pc = efficiency(request, row)
           pc2 = efficiency2(request, row)
@@ -210,6 +214,60 @@ class Reports::MiProduction::SummaryKomp212
   def self.all(row)
 #return true
     return MAPPING_SUMMARIES['All'].include?(row.data['Overall Status']) || registered_for_phenotyping(row)
+  end
+
+  def self.csv_line(consortium, centre, gene, status)
+      gene_status_template = '"CONSORTIUM-TARGET",,"High","CENTRE-TARGET","GENE-TARGET","MGI:1921546","STATUS-TARGET","Assigned - ES Cell QC In Progress",,,,,,,10/10/11,16/11/11,,,,,,,,,,,,,0,0'
+      template = gene_status_template
+      template = template.gsub(/CONSORTIUM-TARGET/, consortium)
+      template = template.gsub(/CENTRE-TARGET/, centre)
+      template = template.gsub(/GENE-TARGET/, gene)
+      template = template.gsub(/STATUS-TARGET/, status)
+      return template
+  end
+  
+  def self.initialize
+
+    if DEBUG
+      report = ReportCache.find_by_name(CACHE_NAME)
+
+      heading = '"Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"'
+  
+      csv = heading + "\n"
+
+      ignore = ['Consortium',
+                'Production Centre',
+                #'Phenotype Attempt Aborted',
+                #'MI Aborted',
+                #'ES QC failed',
+                'Pipeline efficiency (%)',
+                'Pipeline efficiency (by clone)'
+                ]
+
+      (HEADINGS.size-1).downto(1).each do |i|
+        next if (['All'] + ignore).include? HEADINGS[i]
+        csv += csv_line('BaSH', 'BCM', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('BaSH', 'MRC - Harwell', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('BaSH', 'WTSI', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('DTCC', 'TCP', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('DTCC', 'UCD', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
+        csv += csv_line('JAX', 'JAX', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
+      end
+
+      if report
+        report.csv_data = csv
+        report.save!
+      else
+        ReportCache.create!(
+          :name => CACHE_NAME,
+          :csv_data => csv
+        )
+      end
+    end
+
+    report = ReportCache.find_by_name!(CACHE_NAME).to_table
+    
+    return report
   end
 
 end

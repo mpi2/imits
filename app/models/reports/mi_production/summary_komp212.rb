@@ -48,7 +48,7 @@ class Reports::MiProduction::SummaryKomp212
       pc2 = efficiency2(request, row)
 
       report_table << {
-        'Consortium' => consortium,
+        'Consortium' => row['Consortium'],
         'Production Centre' => row['Production Centre'],
         'All' => row['All'],
         'ES QC started' => row['ES QC started'],

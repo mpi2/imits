@@ -25,6 +25,8 @@ class Reports::MiProduction::SummaryKomp212
       return title, report
     end
 
+    report_table = Table(heading)
+
     summary1 = generate_common(request, params)
 
     summary1.each do |row|

@@ -69,7 +69,7 @@ module Reports::MiProduction::SummaryKomp2Common
     'Phenotyping Complete'
   ]
 
-  def self.generate_common(request = nil, params={})
+  def generate_common(request = nil, params={})
 
     debug = params['debug'] && params['debug'].to_s.length > 0
 
@@ -134,7 +134,7 @@ module Reports::MiProduction::SummaryKomp2Common
     return summary
   end
 
-  def self.csv_line(consortium, centre, gene, status)
+  def csv_line(consortium, centre, gene, status)
     gene_status_template = '"CONSORTIUM-TARGET",,"High","CENTRE-TARGET","GENE-TARGET","MGI:1921546","STATUS-TARGET","Assigned - ES Cell QC In Progress",,,,,,,10/10/11,16/11/11,,,,,,,,,,,,,0,0'
     template = gene_status_template
     template = template.gsub(/CONSORTIUM-TARGET/, consortium)
@@ -144,7 +144,7 @@ module Reports::MiProduction::SummaryKomp2Common
     return template
   end
   
-  def self.initialize
+  def initialize
 
     if DEBUG
       report = ReportCache.find_by_name(CACHE_NAME)

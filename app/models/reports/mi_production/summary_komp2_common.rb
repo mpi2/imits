@@ -129,6 +129,10 @@ module Reports::MiProduction::SummaryKomp2Common
 
       )
 
+      summary.each do |row|
+        row['Consortium'] = consortium
+      end    
+
     end
 
     return summary

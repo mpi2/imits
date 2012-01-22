@@ -227,15 +227,15 @@ module Reports::MiProduction::SummaryKomp2Common
     return true
   end
   
-  def es_qc_started
+  def es_qc_started(row)
     return MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
   end
   
-  def es_qc_confirmed
+  def es_qc_confirmed(row)
     return MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
   end
   
-  def es_qc_failed
+  def es_qc_failed(row)
     return MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
   end
 
@@ -249,8 +249,8 @@ module Reports::MiProduction::SummaryKomp2Common
       (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
   end
   
-  def mi_aborted
-    return MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status']
+  def mi_aborted(row)
+    return MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status']
   end
 
   def registered_for_phenotyping(row)
@@ -258,32 +258,32 @@ module Reports::MiProduction::SummaryKomp2Common
     #return MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']
   end
   
-  def phenotyping_started
-    return MAPPING_SUMMARIES['Phenotyping Started'].include? row2.data['Overall Status']
+  def phenotyping_started(row)
+    return MAPPING_SUMMARIES['Phenotyping Started'].include? row.data['Overall Status']
   end
   
-  def rederivation_started
-    return MAPPING_SUMMARIES['Rederivation Started'].include? row2.data['Overall Status']
+  def rederivation_started(row)
+    return MAPPING_SUMMARIES['Rederivation Started'].include? row.data['Overall Status']
   end
   
-  def rederivation_complete
-    return MAPPING_SUMMARIES['Rederivation Complete'].include? row2.data['Overall Status']
+  def rederivation_complete(row)
+    return MAPPING_SUMMARIES['Rederivation Complete'].include? row.data['Overall Status']
   end
   
-  def cre_excision_started
-    return MAPPING_SUMMARIES['Cre Excision Started'].include? row2.data['Overall Status']
+  def cre_excision_started(row)
+    return MAPPING_SUMMARIES['Cre Excision Started'].include? row.data['Overall Status']
   end
   
-  def cre_excision_complete
-    return MAPPING_SUMMARIES['Cre Excision Complete'].include? row2.data['Overall Status']
+  def cre_excision_complete(row)
+    return MAPPING_SUMMARIES['Cre Excision Complete'].include? row.data['Overall Status']
   end
 
-  def phenotyping_complete
-    return MAPPING_SUMMARIES['Phenotyping Complete'].include? row2.data['Overall Status']
+  def phenotyping_complete(row)
+    return MAPPING_SUMMARIES['Phenotyping Complete'].include? row.data['Overall Status']
   end
   
-  def phenotype_attempt_aborted
-    return MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row2.data['Overall Status'] 
+  def phenotype_attempt_aborted(row)
+    return MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row.data['Overall Status'] 
   end
 end
 

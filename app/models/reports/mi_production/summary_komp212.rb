@@ -6,7 +6,7 @@ class Reports::MiProduction::SummaryKomp212
   extend Reports::MiProduction::SummaryKomp2Common
 
   DEBUG = false
-  ACCUMULATE = true
+  ACCUMULATE = false
   CACHE_NAME = DEBUG ? 'mi_production_intermediate_test' : 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   MAPPING_SUMMARIES = Reports::MiProduction::SummaryKomp2Common::MAPPING_SUMMARIES

@@ -79,7 +79,7 @@ module Reports::MiProduction::SummaryKomp2Common
     heading.push 'Languishing' if debug
     heading.push 'Distinct Genotype Confirmed ES Cells' if debug
     heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug
-    summary = nil
+    report_table = Table(heading)
 
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
     
@@ -87,7 +87,7 @@ module Reports::MiProduction::SummaryKomp2Common
 
       next if ! CONSORTIA.include?(consortium)
 
-      summary = grouped_report.subgrouping(consortium).summary(
+      grouped_report.subgrouping(consortium).summary(
 
         'Production Centre',
         'All' => lambda { |group| count_instances_of( group, 'Gene',
@@ -127,15 +127,43 @@ module Reports::MiProduction::SummaryKomp2Common
         'Phenotype Attempt Aborted' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row2.data['Overall Status'] } ) }
 
-      )
+        ).each do |row|
+        
+          next if row['Production Centre'].to_s.length < 1
 
-      summary.each do |row|
-        row['Consortium'] = consortium
-      end    
+          pc = efficiency(request, row)
+          pc2 = efficiency2(request, row)
 
+          report_table << {
+            'Consortium' => consortium,
+            'Production Centre' => row['Production Centre'],
+            'All' => row['All'],
+            'ES QC started' => row['ES QC started'],
+            'ES QC confirmed' => row['ES QC confirmed'],
+            'ES QC failed' => row['ES QC failed'],
+            'MI in progress' => row['MI in progress'],
+            'Genotype Confirmed Mice' => row['Genotype Confirmed Mice'],
+            'MI Aborted' => row['MI Aborted'],
+            'Languishing' => row['Languishing'],
+            'Registered for Phenotyping' => row['Registered for Phenotyping'],
+            'Distinct Genotype Confirmed ES Cells' => row['Distinct Genotype Confirmed ES Cells'],
+            'Distinct Old Non Genotype Confirmed ES Cells' => row['Distinct Old Non Genotype Confirmed ES Cells'],
+            'Pipeline efficiency (%)' => pc,
+            'Pipeline efficiency (by clone)' => pc2,
+            
+            'Phenotyping Started' => row['Phenotyping Started'],
+            'Rederivation Started' => row['Rederivation Started'],
+            'Rederivation Complete' => row['Rederivation Complete'],
+            'Cre Excision Started' => row['Cre Excision Started'],
+            'Cre Excision Complete' => row['Cre Excision Complete'],
+            'Phenotyping Complete' => row['Phenotyping Complete'],
+            'Phenotype Attempt Aborted' => row['Phenotype Attempt Aborted']
+          }
+        
+        end
     end
 
-    return summary
+    return report_table
   end
 
   def csv_line(consortium, centre, gene, status)

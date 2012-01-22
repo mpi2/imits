@@ -4,7 +4,7 @@
 
 module Reports::MiProduction::SummaryKomp2Common
   
-  DEBUG = true
+  DEBUG = false
 
   CACHE_NAME = DEBUG ? 'mi_production_intermediate_test' : 'mi_production_intermediate'
   

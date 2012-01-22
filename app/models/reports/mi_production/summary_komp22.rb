@@ -25,7 +25,7 @@ class Reports::MiProduction::SummaryKomp22
     month = get_month(months)
     report_title = REPORT_TITLE + " (#{month})"   # + " (#{months})"
 
-    return report_title, report
+    return report_title, report.to_html
   end
 
   def self.all(row)
@@ -41,7 +41,7 @@ class Reports::MiProduction::SummaryKomp22
     return check_date(row, key)
   end
   
-  def self.check_date(params, row, key)
+  def self.check_date(row, key)
     months = 1
     first_day, last_day = get_first_and_last_days_of_month(months)
 

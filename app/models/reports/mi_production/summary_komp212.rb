@@ -25,6 +25,7 @@ class Reports::MiProduction::SummaryKomp212
       return title, report
     end
 
+    heading = HEADINGS   
     report_table = Table(heading)
 
     summary1 = generate_common(request, params)

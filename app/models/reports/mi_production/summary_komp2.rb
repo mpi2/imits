@@ -7,6 +7,8 @@ class Reports::MiProduction::SummaryKomp2
 
   CSV_LINKS = Reports::MiProduction::SummaryKomp2Common::CSV_LINKS  
   REPORT_TITLE = 'KOMP2 Report'
+  
+  #TODO: fix return value so we dont do to_csv etc.
 
   def self.generate(request = nil, params={})
     
@@ -18,8 +20,7 @@ class Reports::MiProduction::SummaryKomp2
 
     report = generate_common(request, params)
     
-    return REPORT_TITLE, report.to_csv if request && request.format == :csv    
-    return REPORT_TITLE, report.to_html
+    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : report.to_html
   end
   
 end

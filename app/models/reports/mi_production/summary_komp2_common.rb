@@ -92,17 +92,17 @@ module Reports::MiProduction::SummaryKomp2Common
         'All' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| all(row) } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
+            lambda { |row| es_qc_started(row) } ) },
         'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status'] } ) },
+            lambda { |row| es_qc_confirmed(row) } ) },
         'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) },
+            lambda { |row| es_qc_failed(row) } ) },
         'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['MI in progress'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| mi_in_progress(row) } ) },
         'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| glt(row) } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| mi_aborted(row2) } ) },
         'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| registered_for_phenotyping(row2) } ) },
         
@@ -112,19 +112,19 @@ module Reports::MiProduction::SummaryKomp2Common
         'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) },
 
         'Phenotyping Started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['Phenotyping Started'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| phenotyping_started(row2) } ) },
         'Rederivation Started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['Rederivation Started'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| rederivation_started(row2) } ) },
         'Rederivation Complete' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['Rederivation Complete'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| rederivation_complete(row2) } ) },
         'Cre Excision Started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['Cre Excision Started'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| cre_excision_started(row2) } ) },
         'Cre Excision Complete' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['Cre Excision Complete'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| cre_excision_complete(row2) } ) },
         'Phenotyping Complete' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['Phenotyping Complete'].include? row2.data['Overall Status'] } ) },
+            lambda { |row2| phenotyping_complete(row2) } ) },
         'Phenotype Attempt Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row2.data['Overall Status'] } ) }
+            lambda { |row2| phenotype_attempt_aborted(row2) } ) }
 
         ).each do |row|
         
@@ -165,6 +165,12 @@ module Reports::MiProduction::SummaryKomp2Common
     return report_table
   end
 
+  
+  #def glt(row)
+  #  (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
+  #    (['Genotype confirmed'].include?(row.data['MiAttempt Status']))
+  #end
+    
   def csv_line(consortium, centre, gene, status)
     gene_status_template = '"CONSORTIUM-TARGET",,"High","CENTRE-TARGET","GENE-TARGET","MGI:1921546","STATUS-TARGET","Assigned - ES Cell QC In Progress",,,,,,,10/10/11,16/11/11,,,,,,,,,,,,,0,0'
     template = gene_status_template
@@ -217,4 +223,67 @@ module Reports::MiProduction::SummaryKomp2Common
     return report
   end
 
+  def all(row)
+    return true
+  end
+  
+  def es_qc_started
+    return MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
+  end
+  
+  def es_qc_confirmed
+    return MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
+  end
+  
+  def es_qc_failed
+    return MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
+  end
+
+  def mi_in_progress
+    return MAPPING_SUMMARIES['MI in progress'].include? row2.data['Overall Status']
+  end
+
+  def glt(row)
+    (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
+      ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
+      (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
+  end
+  
+  def mi_aborted
+    return MAPPING_SUMMARIES['MI Aborted'].include? row2.data['Overall Status']
+  end
+
+  def registered_for_phenotyping(row)
+    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
+    #return MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']
+  end
+  
+  def phenotyping_started
+    return MAPPING_SUMMARIES['Phenotyping Started'].include? row2.data['Overall Status']
+  end
+  
+  def rederivation_started
+    return MAPPING_SUMMARIES['Rederivation Started'].include? row2.data['Overall Status']
+  end
+  
+  def rederivation_complete
+    return MAPPING_SUMMARIES['Rederivation Complete'].include? row2.data['Overall Status']
+  end
+  
+  def cre_excision_started
+    return MAPPING_SUMMARIES['Cre Excision Started'].include? row2.data['Overall Status']
+  end
+  
+  def cre_excision_complete
+    return MAPPING_SUMMARIES['Cre Excision Complete'].include? row2.data['Overall Status']
+  end
+
+  def phenotyping_complete
+    return MAPPING_SUMMARIES['Phenotyping Complete'].include? row2.data['Overall Status']
+  end
+  
+  def phenotype_attempt_aborted
+    return MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row2.data['Overall Status'] 
+  end
 end
+

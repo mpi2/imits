@@ -23,125 +23,29 @@ class Reports::MiProduction::SummaryKomp22
       return title, rv
     end
 
-    debug = params['debug'] && params['debug'].to_s.length > 0
-
-    return generate_csv(request, params) if request && request.format == :csv
-
-    script_name = request ? request.env['REQUEST_URI'] : ''
-
-    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
-
-    heading = HEADINGS
-
-    report_table = Table(heading)
-
-    grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
-
-    summary = grouped_report.summary(
-      'Consortium',
-      'All' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| all(params, row) } ) },
-      'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| generic(params, row, 'ES QC started') } ) },
-      'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| generic(params, row, 'ES QC confirmed') } ) },
-      'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| generic(params, row, 'ES QC failed') } ) }
-    )
-
-    table = '<table>'
-    table += '<tr>'
-    heading.each { |item| table += "<th>#{item}</th>" }
-    table += '</tr>'
-
-    summary.each do |row|
-
-      next if ! CONSORTIA.include?(row['Consortium'])
-
-      table += "<tr>"
-
-      summary2 = grouped_report.subgrouping(row['Consortium']).summary(
-        'Production Centre',
-        'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
-#            lambda { |row2| generic(params, row2, 'MI in progress') } ) },
-          lambda { |row2| generic(params, row, 'MI in progress') } ) },
-        'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
-#            lambda { |row2| generic(params, row2, 'Genotype Confirmed Mice') } ) },
-          lambda { |row2| generic(params, row, 'Genotype Confirmed Mice') } ) },
-        'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-#            lambda { |row2| generic(params, row2, 'MI Aborted') } ) },
-          lambda { |row2| generic(params, row, 'MI Aborted') } ) },
-        'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| generic(params, row2, 'Registered for Phenotyping') } ) }
-#          lambda { |row2| generic(params, row, 'Registered for Phenotyping') } ) }
-      )
-
-      make_link = lambda {|rowx, key|
-        return '' if rowx[key].to_s.length < 1
-        return '' if rowx[key] == 0
-        return rowx[key]
-        #return rowx[key] if request && request.format == :csv
-        #consort = CGI.escape row['Consortium']
-        #pcentre = rowx['Production Centre'] ? CGI.escape(rowx['Production Centre']) : nil
-        #pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
-        #type = CGI.escape key
-        #id = (consort + '_' + type + '_').gsub(/\-|\+|\s+/, "_").downcase
-        #separator = /\?/.match(script_name) ? '&' : '?'
-        #rowx[key].to_s != '0' ?
-        #  "<a title='Click to see list of #{key}' id='#{id}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>" :
-        #  ''
-      }
-
-      table += '<tr>'
-      table += "<td rowspan='ROWSPANTARGET'>#{row['Consortium']}</td>"
-      table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'All')}</td>"
-      table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC started')}</td>"
-      table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC confirmed')}</td>"
-      table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC failed')}</td>"
-
-      summary2.each do |row2|
-        
-        next if ! row2['Production Centre'] || row2['Production Centre'].length < 1
-
-        pcentre = row2['Production Centre'] && row2['Production Centre'].length > 1 ? row2['Production Centre'] : '&nbsp;'
-
-        table += "<td>#{pcentre}</td>"
-        table += "<td>#{make_link.call(row2, 'MI in progress')}</td>"
-        table += "<td></td>"
-        table += "<td>#{make_link.call(row2, 'MI Aborted')}</td>"
-        table += "<td>#{make_link.call(row2, 'Genotype Confirmed Mice')}</td>"
-        table += "<td>#{make_link.call(row2, 'Registered for Phenotyping')}</td>"
-        table += "</tr>"
-
-      end
-
-      table = table.gsub(/ROWSPANTARGET/, summary2.size.to_s)
-
-    end
-
-    table += '</table>'
+    report = generate_common(request, params)
     
     months = params['months'] ? params['months'].to_i : 1
     month = get_month(months)
     report_title = REPORT_TITLE + " (#{month})"   # + " (#{months})"
 
-    return report_title, table
+    return report_title, report
   end
 
-  def self.all(params, row)
-    months = params['months'] ? params['months'].to_i : 1
+  def self.all(row)
+    months = 1
     day = to_date(row.data['Overall Status'] + ' Date')
     first_day, last_day = get_first_and_last_days_of_month(months)
     return date_between(day, first_day, last_day)
   end
 
-  def self.generic(params, row, key)
+  def self.generic(row, key)
     return false if !MAPPING_SUMMARIES[key].include? row.data['Overall Status']
-    return check_date(params, row, key)
+    return check_date(row, key)
   end
   
   def self.check_date(params, row, key)
-    months = params['months'] ? params['months'].to_i : 1
+    months = 1
     first_day, last_day = get_first_and_last_days_of_month(months)
 
     array = MAPPING_SUMMARIES[key]
@@ -169,7 +73,7 @@ class Reports::MiProduction::SummaryKomp22
   def self.to_date(string)
     return nil if ! string || string.to_s.length < 1 || ! /-/.match(string)
     splits = string.to_s.split(/\-/)
-     return nil if ! splits || splits.size < 3
+    return nil if ! splits || splits.size < 3
     day = Time.new(splits[0],splits[1],splits[2])
     day = day ? day.to_date : nil
     return day
@@ -178,6 +82,78 @@ class Reports::MiProduction::SummaryKomp22
   def self.date_between(target_date, start_date, end_date)
     return false if !target_date || !start_date || !end_date
     return target_date >= start_date && target_date <= end_date
+  end
+
+  def self.es_qc_started(row)
+    return generic(row, 'ES QC started')
+    #    return MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
+  end
+  
+  def self.es_qc_confirmed(row)
+    return generic(row, 'ES QC confirmed')
+    #    return MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
+  end
+  
+  def self.es_qc_failed(row)
+    return generic(row, 'ES QC failed')
+    #    return MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
+  end
+
+  def self.mi_in_progress(row)
+    return generic(row, 'MI in progress')
+    #    return MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status']
+  end
+
+  def self.genotype_confirmed_mice(row)
+    return generic(row, 'Genotype Confirmed Mice')
+    #(MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
+    #  ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
+    #  (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
+  end
+  
+  def self.mi_aborted(row)
+    return generic(row, 'MI Aborted')
+    #    return MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status']
+  end
+
+  def self.registered_for_phenotyping(row)
+    return generic(row, 'Registered for Phenotyping')
+    #    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1 || MAPPING_SUMMARIES['Registered for Phenotyping'].include?(row.data['Overall Status'])
+  end
+  
+  def self.phenotyping_started(row)
+    return generic(row, 'Phenotyping Started')
+    #    return MAPPING_SUMMARIES['Phenotyping Started'].include? row.data['Overall Status']
+  end
+  
+  def self.rederivation_started(row)
+    return generic(row, 'Rederivation Started')
+    #    return MAPPING_SUMMARIES['Rederivation Started'].include? row.data['Overall Status']
+  end
+  
+  def self.rederivation_complete(row)
+    return generic(row, 'Rederivation Complete')
+    #    return MAPPING_SUMMARIES['Rederivation Complete'].include? row.data['Overall Status']
+  end
+  
+  def self.cre_excision_started(row)
+    return generic(row, 'Cre Excision Started')
+    #    return MAPPING_SUMMARIES['Cre Excision Started'].include? row.data['Overall Status']
+  end
+  
+  def self.cre_excision_complete(row)
+    return generic(row, 'Cre Excision Complete')
+    #    return MAPPING_SUMMARIES['Cre Excision Complete'].include? row.data['Overall Status']
+  end
+
+  def self.phenotyping_complete(row)
+    return generic(row, 'Phenotyping Complete')
+    #    return MAPPING_SUMMARIES['Phenotyping Complete'].include? row.data['Overall Status']
+  end
+  
+  def self.phenotype_attempt_aborted(row)
+    return generic(row, 'Phenotype Attempt Aborted')
+    #    return MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row.data['Overall Status']
   end
   
 end

@@ -9,14 +9,14 @@ class Reports::MiProduction::SummaryKomp212
   ACCUMULATE = true
   CACHE_NAME = DEBUG ? 'mi_production_intermediate_test' : 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
-  MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
-  CONSORTIA = Reports::MiProduction::SummariesCommon::CONSORTIA
+  MAPPING_SUMMARIES = Reports::MiProduction::SummaryKomp2Common::MAPPING_SUMMARIES
+  CONSORTIA = Reports::MiProduction::SummaryKomp2Common::CONSORTIA
   REPORT_TITLE = DEBUG ? "KOMP2 Report' - alternate (DEBUG)" : "KOMP2 Report' - alternate"
   
   # if you re-order this, do same to 'headings_new' below
 
-  HEADINGS = Reports::MiProduction::SummariesCommon::HEADINGS
-  IGNORE = Reports::MiProduction::SummariesCommon::IGNORE
+  HEADINGS = Reports::MiProduction::SummaryKomp2Common::HEADINGS
+  IGNORE = Reports::MiProduction::SummaryKomp2Common::IGNORE
 
   def self.generate(request = nil, params={})
     

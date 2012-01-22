@@ -3,6 +3,7 @@
 class Reports::MiProduction::SummaryKomp212
   
   DEBUG = false
+  ACCUMULATE = true
 
   CACHE_NAME = DEBUG ? 'mi_production_intermediate_test' : 'mi_production_intermediate'
   
@@ -63,7 +64,9 @@ class Reports::MiProduction::SummaryKomp212
             'MI Aborted',
             'ES QC failed',
             'Pipeline efficiency (%)',
-            'Pipeline efficiency (by clone)'
+            'Pipeline efficiency (by clone)',
+             'All',
+            'Phenotyping Complete'
             ]
 
   #TODO: fix efficiency names
@@ -99,8 +102,8 @@ class Reports::MiProduction::SummaryKomp212
 
         'Production Centre',
         'All' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
-#            lambda { |row| all(row) } ) },
+           # lambda { |row| MAPPING_SUMMARIES['All'].include? row.data['Overall Status'] } ) },
+            lambda { |row| all(row) } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
         'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
@@ -143,13 +146,17 @@ class Reports::MiProduction::SummaryKomp212
         
           next if row['Production Centre'].to_s.length < 1
           
-          counts = {}
+          counts = row
 
           (HEADINGS.size-1).downto(1).each do |i|
-            counts[HEADINGS[i]] = 0 if IGNORE.include? HEADINGS[i]
+            #counts[HEADINGS[i]] = 0 if IGNORE.include? HEADINGS[i]
             next if IGNORE.include? HEADINGS[i]
+            #next if HEADINGS[i] == 'Phenotyping Complete'
+            counts[HEADINGS[i]] ||= 0
             counts[HEADINGS[i]] += counts[HEADINGS[i+1]]
           end
+
+	counts = ACCUMULATE ? counts : row
 
           pc = efficiency(request, row)
           pc2 = efficiency2(request, row)
@@ -212,8 +219,8 @@ class Reports::MiProduction::SummaryKomp212
   end
 
   def self.all(row)
-#return true
-    return MAPPING_SUMMARIES['All'].include?(row.data['Overall Status']) || registered_for_phenotyping(row)
+return true
+#    return MAPPING_SUMMARIES['All'].include?(row.data['Overall Status']) || registered_for_phenotyping(row)
   end
 
   def self.csv_line(consortium, centre, gene, status)

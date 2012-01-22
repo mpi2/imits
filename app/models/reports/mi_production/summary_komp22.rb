@@ -3,17 +3,13 @@
 class Reports::MiProduction::SummaryKomp22
 
   extend Reports::MiProduction::SummariesCommon
+  extend Reports::MiProduction::SummaryKomp2Common
 
-  CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
-  MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
-  CONSORTIA = ['BaSH', 'DTCC', 'JAX']
+  CSV_LINKS = Reports::MiProduction::SummaryKomp2Common::CSV_LINKS
+  MAPPING_SUMMARIES = Reports::MiProduction::SummaryKomp2Common::MAPPING_SUMMARIES
+  CONSORTIA = Reports::MiProduction::SummaryKomp2Common::CONSORTIA
+  HEADINGS = Reports::MiProduction::SummaryKomp2Common::HEADINGS
   REPORT_TITLE = "KOMP2 Report''"
-  PHENOTYPE_STATUSES = Reports::MiProduction::SummariesCommon::PHENOTYPE_STATUSES
-
-  HEADINGS = ['Consortium', 'All Genes', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
-    'Production Centre', 'MI in progress', 'Chimaeras', 'MI Aborted', 'Genotype Confirmed Mice',
-    'Registered for Phenotyping'
-  ]
 
   def self.generate(request = nil, params={})
 
@@ -25,7 +21,7 @@ class Reports::MiProduction::SummaryKomp22
 
     report = generate_common(request, params)
     
-    months = params['months'] ? params['months'].to_i : 1
+    months = 1
     month = get_month(months)
     report_title = REPORT_TITLE + " (#{month})"   # + " (#{months})"
 
@@ -33,6 +29,7 @@ class Reports::MiProduction::SummaryKomp22
   end
 
   def self.all(row)
+#    raise "correct all"
     months = 1
     day = to_date(row.data['Overall Status'] + ' Date')
     first_day, last_day = get_first_and_last_days_of_month(months)

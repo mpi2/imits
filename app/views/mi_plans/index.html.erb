@@ -3,6 +3,7 @@
 <%= render 'plan_editor_js_constants' %>
 
 <% content_for :pre_js_footer do %>
+  <%= javascript_tag "STATUS_OPTIONS = #{MiPlan::Status.all.map(&:name).to_json}" %>
   <%= javascript_tag "USER_PRODUCTION_CENTRE = #{current_user.production_centre.name.to_json}" %>
 <% end %>
 

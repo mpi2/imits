@@ -20,29 +20,6 @@ class Reports::MiProduction::SummaryKomp2
 
     report = generate_common(request, params)
 
-    #headings = Reports::MiProduction::SummaryKomp2Common::HEADINGS
-
-    #['Consortium', 'Production Centre',
-    #    'All',
-    #    'ES QC started',
-    #    'ES QC confirmed',
-    #    'MI in progress',
-    #    #              'Chimaeras',
-    #    'Genotype Confirmed Mice',
-    #    'Registered for Phenotyping',
-    #    'Phenotyping Started',
-    #    'Rederivation Started',
-    #    'Rederivation Complete',
-    #    'Cre Excision Started',
-    #    'Cre Excision Complete',
-    #    'Phenotyping Complete',
-    #    'ES QC failed',
-    #    'MI Aborted',
-    #    'Phenotype Attempt Aborted'
-    #    #              'Pipeline efficiency (%)',
-    #    #              'Pipeline efficiency (by clone)'
-    #  ]
-
     reordered = ['Consortium',
       'All',
       'ES QC started',

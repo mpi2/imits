@@ -115,19 +115,19 @@ module Reports::MiProduction::SummariesCommon
   #end
 
   def efficiency(request, row)
-    glt = Integer(row['Genotype Confirmed Mice'])
+    glt = Integer(row['Genotype Confirmed Mice'] && row['Genotype Confirmed Mice'].to_s.length > 0 ? row['Genotype Confirmed Mice'] : '0')
     glt2 = row['Phenotyped Count'] ? Integer(row['Phenotyped Count']) : 0
     glt += glt2
-    failures = Integer(row['Languishing']) + Integer(row['MI Aborted'])
-    total = Integer(row['Genotype Confirmed Mice']) + failures
+    failures = Integer(row['Languishing'] && row['Languishing'].to_s.length > 0 ? row['Languishing'] : '0') + Integer(row['MI Aborted'] && row['MI Aborted'].to_s.length > 0 ? row['MI Aborted'] : '0')
+    total = Integer(row['Genotype Confirmed Mice'] && row['Genotype Confirmed Mice'].to_s.length > 0 ? row['Genotype Confirmed Mice'] : '0') + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
   end
 
   def efficiency2(request, row)
-    a = Integer(row['Distinct Genotype Confirmed ES Cells'])
-    b = Integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+    a = Integer(row['Distinct Genotype Confirmed ES Cells'] && row['Distinct Genotype Confirmed ES Cells'].to_s.length > 0 ? row['Distinct Genotype Confirmed ES Cells'] : '0')
+    b = Integer(row['Distinct Old Non Genotype Confirmed ES Cells'] && row['Distinct Old Non Genotype Confirmed ES Cells'].to_s.length > 0 ? row['Distinct Old Non Genotype Confirmed ES Cells'] : 0)
     pc =  a + b != 0 ? ((a.to_f / (a + b).to_f) * 100) : 0
     #    pc = pc != 0 ? "%i" % pc : ''
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0

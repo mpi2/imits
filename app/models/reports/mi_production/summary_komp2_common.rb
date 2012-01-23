@@ -53,8 +53,8 @@ module Reports::MiProduction::SummaryKomp2Common
     'ES QC failed',
     'MI Aborted',
     'Phenotype Attempt Aborted',
-                  'Pipeline efficiency (%)',
-                  'Pipeline efficiency (by clone)'
+    'Pipeline efficiency (%)',
+    'Pipeline efficiency (by clone)'
   ]
 
   IGNORE = ['Consortium',
@@ -90,21 +90,21 @@ module Reports::MiProduction::SummaryKomp2Common
 
         'Production Centre',
         'All' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| all(row) } ) },
+            lambda { |row| process_row(row, 'All') } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| es_qc_started(row) } ) },
+            lambda { |row| process_row(row, 'ES QC started') } ) },
         'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| es_qc_confirmed(row) } ) },
+            lambda { |row| process_row(row, 'ES QC confirmed') } ) },
         'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| es_qc_failed(row) } ) },
+            lambda { |row| process_row(row, 'ES QC failed') } ) },
         'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| mi_in_progress(row2) } ) },
+            lambda { |row2| process_row(row2,'MI in progress') } ) },
         'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| glt(row) } ) },
+            lambda { |row| process_row(row, 'Genotype Confirmed Mice') } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| mi_aborted(row2) } ) },
+            lambda { |row2| process_row(row2, 'MI Aborted') } ) },
         'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| registered_for_phenotyping(row2) } ) },
+            lambda { |row2| process_row(row2, 'Registered for Phenotyping') } ) },
         
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| languishing(row2) } ) },
@@ -112,65 +112,65 @@ module Reports::MiProduction::SummaryKomp2Common
         'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) },
 
         'Phenotyping Started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| phenotyping_started(row2) } ) },
+            lambda { |row2| process_row(row2, 'Phenotyping Started') } ) },
         'Rederivation Started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| rederivation_started(row2) } ) },
+            lambda { |row2| process_row(row2, 'Rederivation Started') } ) },
         'Rederivation Complete' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| rederivation_complete(row2) } ) },
+            lambda { |row2| process_row(row2, 'Rederivation Complete') } ) },
         'Cre Excision Started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| cre_excision_started(row2) } ) },
+            lambda { |row2| process_row(row2, 'Cre Excision Started') } ) },
         'Cre Excision Complete' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| cre_excision_complete(row2) } ) },
+            lambda { |row2| process_row(row2, 'Cre Excision Complete') } ) },
         'Phenotyping Complete' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| phenotyping_complete(row2) } ) },
+            lambda { |row2| process_row(row2, 'Phenotyping Complete') } ) },
         'Phenotype Attempt Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| phenotype_attempt_aborted(row2) } ) }
+            lambda { |row2| process_row(row2, 'Phenotype Attempt Aborted') } ) }
 
-        ).each do |row|
+      ).each do |row|
         
-          next if row['Production Centre'].to_s.length < 1
+        next if row['Production Centre'].to_s.length < 1
 
-          pc = efficiency(request, row)
-          pc2 = efficiency2(request, row)
+        pc = efficiency(request, row)
+        pc2 = efficiency2(request, row)
 
-          report_table << {
-            'Consortium' => consortium,
-            'Production Centre' => row['Production Centre'],
-            'All' => clean_value(row['All']),
-            'ES QC started' => clean_value(row['ES QC started']),
-            'ES QC confirmed' => clean_value(row['ES QC confirmed']),
-            'ES QC failed' => clean_value(row['ES QC failed']),
-            'MI in progress' => clean_value(row['MI in progress']),
-            'Genotype Confirmed Mice' => clean_value(row['Genotype Confirmed Mice']),
-            'MI Aborted' => clean_value(row['MI Aborted']),
-            'Languishing' => clean_value(row['Languishing']),
-            'Registered for Phenotyping' => clean_value(row['Registered for Phenotyping']),
-            'Distinct Genotype Confirmed ES Cells' => clean_value(row['Distinct Genotype Confirmed ES Cells']),
-            'Distinct Old Non Genotype Confirmed ES Cells' => clean_value(row['Distinct Old Non Genotype Confirmed ES Cells']),
-            'Pipeline efficiency (%)' => clean_value(pc),
-            'Pipeline efficiency (by clone)' => clean_value(pc2),
+        clean_value = lambda {|value|
+          return value if request && request.format == :csv
+          return '' if ! value || value.to_s == "0"
+          return value
+        }
+      
+        report_table << {
+          'Consortium' => consortium,
+          'Production Centre' => row['Production Centre'],
+          'All' => clean_value.call(row['All']),
+          'ES QC started' => clean_value.call(row['ES QC started']),
+          'ES QC confirmed' => clean_value.call(row['ES QC confirmed']),
+          'ES QC failed' => clean_value.call(row['ES QC failed']),
+          'MI in progress' => clean_value.call(row['MI in progress']),
+          'Genotype Confirmed Mice' => clean_value.call(row['Genotype Confirmed Mice']),
+          'MI Aborted' => clean_value.call(row['MI Aborted']),
+          'Languishing' => clean_value.call(row['Languishing']),
+          'Registered for Phenotyping' => clean_value.call(row['Registered for Phenotyping']),
+          'Distinct Genotype Confirmed ES Cells' => clean_value.call(row['Distinct Genotype Confirmed ES Cells']),
+          'Distinct Old Non Genotype Confirmed ES Cells' => clean_value.call(row['Distinct Old Non Genotype Confirmed ES Cells']),
+          'Pipeline efficiency (%)' => clean_value.call(pc),
+          'Pipeline efficiency (by clone)' => clean_value.call(pc2),
             
-            'Phenotyping Started' => clean_value(row['Phenotyping Started']),
-            'Rederivation Started' => clean_value(row['Rederivation Started']),
-            'Rederivation Complete' => clean_value(row['Rederivation Complete']),
-            'Cre Excision Started' => clean_value(row['Cre Excision Started']),
-            'Cre Excision Complete' => clean_value(row['Cre Excision Complete']),
-            'Phenotyping Complete' => clean_value(row['Phenotyping Complete']),
-            'Phenotype Attempt Aborted' => clean_value(row['Phenotype Attempt Aborted'])
-          }
+          'Phenotyping Started' => clean_value.call(row['Phenotyping Started']),
+          'Rederivation Started' => clean_value.call(row['Rederivation Started']),
+          'Rederivation Complete' => clean_value.call(row['Rederivation Complete']),
+          'Cre Excision Started' => clean_value.call(row['Cre Excision Started']),
+          'Cre Excision Complete' => clean_value.call(row['Cre Excision Complete']),
+          'Phenotyping Complete' => clean_value.call(row['Phenotyping Complete']),
+          'Phenotype Attempt Aborted' => clean_value.call(row['Phenotype Attempt Aborted'])
+        }
         
-        end
+      end
     end
 
     return report_table
   end
 
-  
-  #def glt(row)
-  #  (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
-  #    (['Genotype confirmed'].include?(row.data['MiAttempt Status']))
-  #end
-    
   def csv_line(consortium, centre, gene, status)
     gene_status_template = '"CONSORTIUM-TARGET",,"High","CENTRE-TARGET","GENE-TARGET","MGI:1921546","STATUS-TARGET","Assigned - ES Cell QC In Progress",,,,,,,10/10/11,16/11/11,,,,,,,,,,,,,0,0'
     template = gene_status_template
@@ -181,10 +181,10 @@ module Reports::MiProduction::SummaryKomp2Common
     return template
   end
   
-  def clean_value(value)
-    return '' if ! value || value.to_s == "0"
-    return value
-  end
+  #def clean_value.call(value)
+  #  return '' if ! value || value.to_s == "0"
+  #  return value
+  #end
   
   def initialize
 
@@ -228,88 +228,94 @@ module Reports::MiProduction::SummaryKomp2Common
     return report
   end
 
-  def all(row)
-    return true
-  end
-  
-  def es_qc_started(row)
-    return MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
-  end
-  
-  def es_qc_confirmed(row)
-    return MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
-  end
-  
-  def es_qc_failed(row)
-    return MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
-  end
-
-  def mi_in_progress(row)
-    return MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status']
-  end
-
-  def glt(row)
-    (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
-      ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
-      (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
-  end
-  
-  def mi_aborted(row)
-    return MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status']
-  end
-
-  def registered_for_phenotyping(row)
-    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1 || MAPPING_SUMMARIES['Registered for Phenotyping'].include?(row.data['Overall Status'])
-  end
-  
-  def phenotyping_started(row)
-    return MAPPING_SUMMARIES['Phenotyping Started'].include? row.data['Overall Status']
-  end
-  
-  def rederivation_started(row)
-    return MAPPING_SUMMARIES['Rederivation Started'].include? row.data['Overall Status']
-  end
-  
-  def rederivation_complete(row)
-    return MAPPING_SUMMARIES['Rederivation Complete'].include? row.data['Overall Status']
-  end
-  
-  def cre_excision_started(row)
-    return MAPPING_SUMMARIES['Cre Excision Started'].include? row.data['Overall Status']
-  end
-  
-  def cre_excision_complete(row)
-    return MAPPING_SUMMARIES['Cre Excision Complete'].include? row.data['Overall Status']
-  end
-
-  def phenotyping_complete(row)
-    return MAPPING_SUMMARIES['Phenotyping Complete'].include? row.data['Overall Status']
-  end
-  
-  def phenotype_attempt_aborted(row)
-    return MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row.data['Overall Status'] 
-  end
+  #def all(row)
+  #  return true
+  #end
+  #
+  #def es_qc_started(row)
+  #  return MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
+  #end
+  #
+  #def es_qc_confirmed(row)
+  #  return MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
+  #end
+  #
+  #def es_qc_failed(row)
+  #  return MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
+  #end
+  #
+  #def mi_in_progress(row)
+  #  return MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status']
+  #end
+  #
+  #def glt(row)
+  #  (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
+  #    ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
+  #    (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
+  #end
+  #
+  #def mi_aborted(row)
+  #  return MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status']
+  #end
+  #
+  #def registered_for_phenotyping(row)
+  #  row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1 || MAPPING_SUMMARIES['Registered for Phenotyping'].include?(row.data['Overall Status'])
+  #end
+  #
+  #def phenotyping_started(row)
+  #  return MAPPING_SUMMARIES['Phenotyping Started'].include? row.data['Overall Status']
+  #end
+  #
+  #def rederivation_started(row)
+  #  return MAPPING_SUMMARIES['Rederivation Started'].include? row.data['Overall Status']
+  #end
+  #
+  #def rederivation_complete(row)
+  #  return MAPPING_SUMMARIES['Rederivation Complete'].include? row.data['Overall Status']
+  #end
+  #
+  #def cre_excision_started(row)
+  #  return MAPPING_SUMMARIES['Cre Excision Started'].include? row.data['Overall Status']
+  #end
+  #
+  #def cre_excision_complete(row)
+  #  return MAPPING_SUMMARIES['Cre Excision Complete'].include? row.data['Overall Status']
+  #end
+  #
+  #def phenotyping_complete(row)
+  #  return MAPPING_SUMMARIES['Phenotyping Complete'].include? row.data['Overall Status']
+  #end
+  #
+  #def phenotype_attempt_aborted(row)
+  #  return MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row.data['Overall Status'] 
+  #end
   
   def process_row(row, key)
     keys2 = [
-    'Phenotype Attempt Aborted',
-    'ES QC started',
-    'ES QC confirmed',
-    'ES QC failed',
-    'MI in progress',
-    'MI Aborted',
-    'Phenotyping Started',
-    'Rederivation Started',
-    'Rederivation Complete',
-    'Cre Excision Started',
-    'Cre Excision Complete',
-    'Phenotyping Complete',
-    'Phenotype Attempt Aborted'
-  ]
+      'Phenotype Attempt Aborted',
+      'ES QC started',
+      'ES QC confirmed',
+      'ES QC failed',
+      'MI in progress',
+      'MI Aborted',
+      'Phenotyping Started',
+      'Rederivation Started',
+      'Rederivation Complete',
+      'Cre Excision Started',
+      'Cre Excision Complete',
+      'Phenotyping Complete',
+      'Phenotype Attempt Aborted'
+    ]
 
     return MAPPING_SUMMARIES[key].include? row.data['Overall Status'] if keys2.include? key
     return true if key == 'All'
-    raise "Invalid key detected '#{key}'"
+    return     (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
+      ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
+        (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0)) if key == 'Genotype Confirmed Mice'
+
+    return (row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1 || MAPPING_SUMMARIES['Registered for Phenotyping'].include?(row.data['Overall Status'])) if key == 'Registered for Phenotyping'
+  
+    raise "process_row: invalid key detected '#{key}'"
   end
 
 end

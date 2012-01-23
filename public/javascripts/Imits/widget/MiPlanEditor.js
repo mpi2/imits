@@ -10,6 +10,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
     resizable: false,
     layout: 'fit',
     closeAction: 'hide',
+    cls: 'plan editor',
 
     constructor: function (config) {
         if(Ext.isIE7 || Ext.isIE8) {
@@ -21,6 +22,11 @@ Ext.define('Imits.widget.MiPlanEditor', {
     initComponent: function () {
         var editor = this;
         this.callParent();
+
+        var isSubProjectHidden = true;
+        if(window.CAN_SEE_SUB_PROJECT) {
+            isSubProjectHidden = false;
+        }
 
         this.form = Ext.create('Ext.form.Panel', {
             ui: 'plain',
@@ -71,6 +77,15 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 fieldLabel: 'Priority',
                 name: 'priority_name',
                 store: window.PRIORITY_OPTIONS
+            },
+            {
+                id: 'sub_project_name',
+                xtype: 'simplecombo',
+                fieldLabel: 'Sub-Project',
+                name: 'sub_project_name',
+                storeOptionsAreSpecial: true,
+                store: window.SUB_PROJECT_OPTIONS,
+                hidden: isSubProjectHidden
             },
             {
                 id: 'number_of_es_cells_starting_qc',
@@ -232,8 +247,13 @@ Ext.define('Imits.widget.MiPlanEditor', {
             ]
         });
 
+        var panelHeight = 350;
+        if(window.CAN_SEE_SUB_PROJECT) {
+            panelHeight = 370;
+        }
+
         this.add(Ext.create('Ext.panel.Panel', {
-            height: 350,
+            height: panelHeight,
             ui: 'plain',
             layout: {
                 type: 'vbox',

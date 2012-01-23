@@ -16,7 +16,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
         autoLoad: true,
         remoteSort: true,
         remoteFilter: true,
-        pageSize: 25
+        pageSize: 20
     },
 
     selType: 'rowmodel',
@@ -43,7 +43,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
         self.miPlanEditor = Ext.create('Imits.widget.MiPlanEditor', {
             listeners: {
                 'hide': {
-                    fn: function() {
+                    fn: function () {
                         self.reloadStore();
                         self.setLoading(false);
                     }
@@ -51,10 +51,19 @@ Ext.define('Imits.widget.MiPlansGrid', {
             }
         });
 
-        self.addListener('itemclick', function(theView, record) {
+        self.addListener('itemclick', function (theView, record) {
             var id = record.data['id'];
-            self.setLoading("Editing gene interest....");
+            self.setLoading("Editing gene plan....");
             self.miPlanEditor.edit(id);
+        });
+
+        self.addListener('afterrender', function () {
+            if(window.CAN_SEE_SUB_PROJECT) {
+                var subProjectColumn = Ext.Array.filter(self.columns, function (i) {
+                    return i.dataIndex === 'sub_project_name';
+                })[0];
+                subProjectColumn.setVisible(true);
+            }
         });
     },
 
@@ -83,6 +92,17 @@ Ext.define('Imits.widget.MiPlansGrid', {
             type: 'list',
             options: window.CONSORTIUM_OPTIONS
         }
+    },
+    {
+        dataIndex: 'sub_project_name',
+        header: 'Sub-Project',
+        readOnly: true,
+        width: 150,
+        filter: {
+            type: 'list',
+            options: window.SUB_PROJECT_OPTIONS
+        },
+        hidden: true
     },
     {
         dataIndex: 'production_centre_name',

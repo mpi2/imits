@@ -1,5 +1,9 @@
 # encoding: utf-8
 
+#TODO: delete *komp2_brief.*
+#TODO: delete *komp212.*
+#TODO: remove summary_komp2_brief metjod in controller
+
 class Reports::MiProduction::SummaryKomp22
 
   extend Reports::MiProduction::SummariesCommon
@@ -25,41 +29,12 @@ class Reports::MiProduction::SummaryKomp22
     month = get_month(months)
     report_title = REPORT_TITLE + " (#{month})"
 
-#  headings_new = ['Consortium', 'Production Centre',
-#              'All',
-#              'ES QC started or better',
-#              'ES QC confirmed or better',
-#              'MI in progress or better',
-#              #'Chimaeras or better',
-#              'Genotype Confirmed Mice or better',
-#              'Registered for Phenotyping or better',
-#              'Phenotyping Started or better',
-#              'Rederivation Started or better',
-#              'Rederivation Complete or better',
-#              'Cre Excision Started or better',
-#              'Cre Excision Complete or better',
-#              'Phenotyping Complete',
-#              'ES QC failed',
-#              'MI Aborted',
-#              'Phenotype Attempt Aborted',
-##              'Pipeline efficiency (%)',
-##              'Pipeline efficiency (by clone)'
-#            ]
-#
-#    report.rename_columns(HEADINGS, headings)
-
-    report.remove_columns('All', 'Pipeline efficiency (%)', 'Pipeline efficiency (by clone)')
+#    report.remove_columns('All', 'Pipeline efficiency (%)', 'Pipeline efficiency (by clone)')
+    report.remove_columns('Pipeline efficiency (%)', 'Pipeline efficiency (by clone)')
+    report.rename_column('All', 'All Genes')
 
     return report_title, report.to_html
   end
-
-#  def self.all(row)
-##    raise "correct all"
-#    months = 1
-#    day = to_date(row.data['Overall Status'] + ' Date')
-#    first_day, last_day = get_first_and_last_days_of_month(months)
-#    return date_between(day, first_day, last_day)
-#  end
 
   def self.generic(row, key)
     return false if !MAPPING_SUMMARIES[key].include? row.data['Overall Status']
@@ -106,79 +81,10 @@ class Reports::MiProduction::SummaryKomp22
     return target_date >= start_date && target_date <= end_date
   end
 
-  #def self.es_qc_started(row)
-  #  return generic(row, 'ES QC started')
-  #  #    return MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.es_qc_confirmed(row)
-  #  return generic(row, 'ES QC confirmed')
-  #  #    return MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.es_qc_failed(row)
-  #  return generic(row, 'ES QC failed')
-  #  #    return MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.mi_in_progress(row)
-  #  return generic(row, 'MI in progress')
-  #  #    return MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.genotype_confirmed_mice(row)
-  #  return generic(row, 'Genotype Confirmed Mice')
-  #  #(MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
-  #  #  ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
-  #  #  (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
-  #end
-  #
-  #def self.mi_aborted(row)
-  #  return generic(row, 'MI Aborted')
-  #  #    return MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.registered_for_phenotyping(row)
-  #  return generic(row, 'Registered for Phenotyping')
-  #  #    row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1 || MAPPING_SUMMARIES['Registered for Phenotyping'].include?(row.data['Overall Status'])
-  #end
-  #
-  #def self.phenotyping_started(row)
-  #  return generic(row, 'Phenotyping Started')
-  #  #    return MAPPING_SUMMARIES['Phenotyping Started'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.rederivation_started(row)
-  #  return generic(row, 'Rederivation Started')
-  #  #    return MAPPING_SUMMARIES['Rederivation Started'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.rederivation_complete(row)
-  #  return generic(row, 'Rederivation Complete')
-  #  #    return MAPPING_SUMMARIES['Rederivation Complete'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.cre_excision_started(row)
-  #  return generic(row, 'Cre Excision Started')
-  #  #    return MAPPING_SUMMARIES['Cre Excision Started'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.cre_excision_complete(row)
-  #  return generic(row, 'Cre Excision Complete')
-  #  #    return MAPPING_SUMMARIES['Cre Excision Complete'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.phenotyping_complete(row)
-  #  return generic(row, 'Phenotyping Complete')
-  #  #    return MAPPING_SUMMARIES['Phenotyping Complete'].include? row.data['Overall Status']
-  #end
-  #
-  #def self.phenotype_attempt_aborted(row)
-  #  return generic(row, 'Phenotype Attempt Aborted')
-  #  #    return MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row.data['Overall Status']
-  #end
-
   def self.process_row(row, key)
+    
+   # raise "correct process_row!"
+    
     keys2 = [
       'Phenotype Attempt Aborted',
       'ES QC started',
@@ -199,18 +105,51 @@ class Reports::MiProduction::SummaryKomp22
 
     return generic(row, key) if keys2.include? key
     
+    #TODO: this isn't working
+    
     if key == 'All'
+##    raise "correct process_row (all)!"
+#      columns = [
+#      'ES QC started',
+#      'ES QC confirmed',
+#      'MI in progress',
+#      'Genotype Confirmed Mice',
+#      'Registered for Phenotyping',
+#      'Phenotyping Started',
+#      'Rederivation Started',
+#      'Rederivation Complete',
+#      'Cre Excision Started',
+#      'Cre Excision Complete',
+#      'Phenotyping Complete',
+#      'ES QC failed',
+#      'MI Aborted',
+#      'Phenotype Attempt Aborted'
+#      ]
+#      months = 1
+##      puts "STATUS: '" + row.data['Overall Status'].to_s + "'"
+##      return false if ! MAPPING_SUMMARIES[]columns.include? row.data['Overall Status']
+#      ok = false
+#      MAPPING_SUMMARIES.each do |name|
+#        next if ! columns.include? name
+#        if MAPPING_SUMMARIES[name].include? row.data['Overall Status']
+#          ok = true
+#          break
+#        end
+#      end
+#      return false if ! ok
+
+      puts "STATUS: '" + row.data['Overall Status'].to_s + "'"
+      
+      #TODO: fix me!
+
+      return false if ['Assigned', 'Inspect - MI Attempt'].include? row.data['Overall Status']
+
       months = 1
-      day = to_date(row.data['Overall Status'] + ' Date')
+
+      day = to_date(row[row.data['Overall Status'] + ' Date'])
       first_day, last_day = get_first_and_last_days_of_month(months)
       return date_between(day, first_day, last_day)
     end
-    
-    #return (row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1 ||
-    #  MAPPING_SUMMARIES['Registered for Phenotyping'].include?(row.data['Overall Status'])) if key == 'Registered for Phenotyping'
-    
-    #if key == 'Registered for Phenotyping'
-    #end
   
     raise "process_row: invalid key detected '#{key}'"
   end

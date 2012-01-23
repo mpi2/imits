@@ -1,6 +1,12 @@
 # encoding: utf-8
 
+#TODO: do test for #5623
 #TODO: fix efficiency names
+#TODO: routine to prettify html
+#TODO: subsummary_common routine
+#TODO: apply links to cell counts
+#TODO: do unit tests
+#TODO: do integration tests
 
 module Reports::MiProduction::SummaryKomp2Common
   
@@ -181,11 +187,6 @@ module Reports::MiProduction::SummaryKomp2Common
     return template
   end
   
-  #def clean_value.call(value)
-  #  return '' if ! value || value.to_s == "0"
-  #  return value
-  #end
-  
   def initialize
 
     if DEBUG
@@ -228,68 +229,6 @@ module Reports::MiProduction::SummaryKomp2Common
     return report
   end
 
-  #def all(row)
-  #  return true
-  #end
-  #
-  #def es_qc_started(row)
-  #  return MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status']
-  #end
-  #
-  #def es_qc_confirmed(row)
-  #  return MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status']
-  #end
-  #
-  #def es_qc_failed(row)
-  #  return MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status']
-  #end
-  #
-  #def mi_in_progress(row)
-  #  return MAPPING_SUMMARIES['MI in progress'].include? row.data['Overall Status']
-  #end
-  #
-  #def glt(row)
-  #  (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
-  #    ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
-  #    (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
-  #end
-  #
-  #def mi_aborted(row)
-  #  return MAPPING_SUMMARIES['MI Aborted'].include? row.data['Overall Status']
-  #end
-  #
-  #def registered_for_phenotyping(row)
-  #  row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1 || MAPPING_SUMMARIES['Registered for Phenotyping'].include?(row.data['Overall Status'])
-  #end
-  #
-  #def phenotyping_started(row)
-  #  return MAPPING_SUMMARIES['Phenotyping Started'].include? row.data['Overall Status']
-  #end
-  #
-  #def rederivation_started(row)
-  #  return MAPPING_SUMMARIES['Rederivation Started'].include? row.data['Overall Status']
-  #end
-  #
-  #def rederivation_complete(row)
-  #  return MAPPING_SUMMARIES['Rederivation Complete'].include? row.data['Overall Status']
-  #end
-  #
-  #def cre_excision_started(row)
-  #  return MAPPING_SUMMARIES['Cre Excision Started'].include? row.data['Overall Status']
-  #end
-  #
-  #def cre_excision_complete(row)
-  #  return MAPPING_SUMMARIES['Cre Excision Complete'].include? row.data['Overall Status']
-  #end
-  #
-  #def phenotyping_complete(row)
-  #  return MAPPING_SUMMARIES['Phenotyping Complete'].include? row.data['Overall Status']
-  #end
-  #
-  #def phenotype_attempt_aborted(row)
-  #  return MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row.data['Overall Status'] 
-  #end
-  
   def process_row(row, key)
     keys2 = [
       'Phenotype Attempt Aborted',

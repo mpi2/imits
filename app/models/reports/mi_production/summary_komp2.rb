@@ -20,7 +20,8 @@ class Reports::MiProduction::SummaryKomp2
 
     report = generate_common(request, params)
 
-    reordered = ['Consortium',
+    reordered = [
+      'Consortium',
       'All',
       'ES QC started',
       'ES QC confirmed',
@@ -36,6 +37,7 @@ class Reports::MiProduction::SummaryKomp2
 
     report.remove_columns("Phenotyping Started", "Rederivation Started", "Rederivation Complete", "Cre Excision Started", "Cre Excision Complete", "Phenotyping Complete")
     report.reorder(reordered)
+    report.rename_column('All', 'All Genes')
   
     return REPORT_TITLE, request && request.format == :csv ? report.to_csv : report.to_html
   end

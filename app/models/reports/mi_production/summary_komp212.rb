@@ -12,9 +12,6 @@ class Reports::MiProduction::SummaryKomp212
   MAPPING_SUMMARIES = Reports::MiProduction::SummaryKomp2Common::MAPPING_SUMMARIES
   CONSORTIA = Reports::MiProduction::SummaryKomp2Common::CONSORTIA
   REPORT_TITLE = DEBUG ? "KOMP2 Report' - (DEBUG)" : "KOMP2 Report'"
-  
-  # if you re-order this, do same to 'headings_new' below
-
   HEADINGS = Reports::MiProduction::SummaryKomp2Common::HEADINGS
   IGNORE = Reports::MiProduction::SummaryKomp2Common::IGNORE
 
@@ -43,7 +40,6 @@ class Reports::MiProduction::SummaryKomp212
           puts "TRYING: '" + HEADINGS[i].to_s + "' 1: '#{counts[HEADINGS[i]]}' - 2: '#{counts[HEADINGS[i+1]]}'"
           counts[HEADINGS[i]] ||= 0
           counts[HEADINGS[i+1]] ||= 0
-#          counts[HEADINGS[i]] += counts[HEADINGS[i+1]].to_i
           counts[HEADINGS[i]] = counts[HEADINGS[i]].to_i + counts[HEADINGS[i+1]].to_i
         end
       end
@@ -86,29 +82,6 @@ class Reports::MiProduction::SummaryKomp212
       }
         
     end
-
-    #headings_new = ['Consortium', 'Production Centre',
-    #  'All',
-    #  'ES QC started or better',
-    #  'ES QC confirmed or better',
-    #  'MI in progress or better',
-    #  #'Chimaeras or better',
-    #  'Genotype Confirmed Mice or better',
-    #  'Registered for Phenotyping or better',
-    #  'Phenotyping Started or better',
-    #  'Rederivation Started or better',
-    #  'Rederivation Complete or better',
-    #  'Cre Excision Started or better',
-    #  'Cre Excision Complete or better',
-    #  'Phenotyping Complete',
-    #  'ES QC failed',
-    #  'MI Aborted',
-    #  'Phenotype Attempt Aborted',
-    #  #              'Pipeline efficiency (%)',
-    #  #              'Pipeline efficiency (by clone)'
-    #]
-    #
-    #report_table.rename_columns(HEADINGS, headings_new)
 
     report_table.remove_columns('Pipeline efficiency (%)', 'Pipeline efficiency (by clone)')
     

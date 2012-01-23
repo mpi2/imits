@@ -2,14 +2,9 @@
 
 <h2><%= @title2 %></h2>
 
-<%
-  qpos = request.fullpath.index('?')
-  params = qpos && qpos > -1 ? '?' + request.fullpath.scan( /\?(.+)/ ).last.first : ''
-%>
-
 <% if @report %>
 
-<p><%= link_to('Download as CSV', url_for(:action => :production_summary5, :controller => :reports, :format => :csv) + params) if @csv %></p>
+<p><%= link_to('Download as CSV', url_for({:action => :summary_komp2_brief, :controller => '/reports/mi_production', :format => :csv}.merge(params))) if @csv %></p>
 
 <% if @csv %><br/><% end %>
 

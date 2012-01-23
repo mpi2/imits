@@ -1,10 +1,11 @@
 <% @tab = 'Reports' %>
-<div class="grid_4 prefix_4 suffix_4">
+<div class="grid_4 suffix_8">
   <h2><%= @tab %></h2>
 </div>
 
+<!--
 <div class="grid_4">
-  <h3>Genes</h3>
+  <h3>Plans</h3>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :genes_list, :format => :csv) %>">
       <h4>All Genes</h4>
@@ -16,45 +17,85 @@
     </a>
   </div>
 </div>
+-->
 
 <div class="grid_4">
-  <h3>Micro-Injection Planning</h3>
+  <h3>Plans (Production, Phenotyping)</h3>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :planned_microinjection_summary_and_conflicts) %>">
-      <h4>Planned Micro-Injection Summary and Conflicts</h4>
-      <p>Summary report for planned micro-injections. Shows the following for all IMPC consortia:</p>
-      <ul>
-        <li>counts of <strong>unique genes</strong> in each planning status</li>
-        <li>counts of <strong>unique genes</strong> grouped by status and priority</li>
-        <li>lists of conflict and inspect micro-injection plans</li>
-      </ul>
+      <h4>Plans and Conflicts for All Consortia</h4>
+      <p>Summary counts of all Plans by Status and Priority, showing Conflicts</p>
     </a>
   </div>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :planned_microinjection_list) %>">
-      <h4>All Planned Micro-Injections</h4>
-      <p>Lists details on all planned micro-injections.</p>
+      <h4>All Planned Micro-Injections for a Specific Consortium</h4>
     </a>
   </div>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :double_assigned_plans) %>">
       <h4>Double-Assigned Planned Micro-Injections</h4>
-      <p>Matrix showing double-assigned planned micro-injections for consortia and funding.</p>
-      <p>List showing double-assigned planned micro-injections grouped by consortia.</p>
+      <p>Matrix showing plans assigned to two or more consortia (with possible production in both)</p>
     </a>
   </div>
 </div>
 
 <div class="grid_4">
-  <h3>Micro-Injection Production</h3>
+  <h3>Project Tracking Summaries</h3>
   <div class="report-links">
-    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :detail) %>">
-      <h4>Detailed Report</h4>
-      <p>
-        The detailed micro-injection production report
-      </p>
+    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium_and_accumulated_status) %>">
+      <h4>All Consortia - Key Statuses</h4>
+      <p>Cumulative Totals of All IMPC Consortia vs. a Small Number of Key Statuses</p>
     </a>
   </div>
+  <div class="report-links">
+    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium) %>">
+      <h4>All Consortia - All Statuses</h4>
+      <p>Current Totals of All IMPC Consortia vs. Detailed Statuses and Pipeline Efficiencies</p>
+    </a>
+  </div>
+  <div class="report-links">
+    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium_priority) %>">
+      <h4>All Consortia with Priorities - All Statuses</h4>
+      <p>Current Totals of All IMPC Consortia and Priorities vs. Detailed Statuses and Pipeline Efficiencies</p>
+    </a>
+  </div>
+  <div class="report-links">
+    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :detail) %>">
+      <h4>All Project Best Statuses and Status Dates For All Consortia</h4>
+    </a>
+  </div>
+  <h3>KOMP2 reports</h3>
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp2_brief) %>">
+        <h4>KOMP2 Consortia - All Statuses</h4>
+      </a>
+    </div>
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp2) %>">
+        <h4>KOMP2 Consortia and Production Centres - All Statuses</h4>
+      </a>
+    </div>
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp21) %>">
+        <h4>KOMP2 Cumulative Consortia and Production Centres - All Statuses</h4>
+      </a>
+    </div>
+</div>
+
+<div class="grid_4">
+  <h3>Languishing Projects</h3>
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :languishing, :consortia => 'BaSH,DTCC,JAX') %>">
+        <h4>KOMP2 Languishing Projects</h4>
+      </a>
+    </div>
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :languishing) %>">
+        <h4>All IMPC Languishing Projects</h4>
+      </a>
+    </div>
+  <h3>Production Summaries (Legacy)</h3>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :mi_attempts_by_gene) %>">
       <h4>Gene Summary</h4>

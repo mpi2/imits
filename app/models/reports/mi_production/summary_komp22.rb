@@ -33,7 +33,7 @@ class Reports::MiProduction::SummaryKomp22
     report.remove_columns('Pipeline efficiency (%)', 'Pipeline efficiency (by clone)')
     report.rename_column('All', 'All Genes')
 
-    return report_title, report.to_html
+    return report_title, request && request.format == :csv ? report.to_csv : report.to_html
   end
 
   def self.generic(row, key)

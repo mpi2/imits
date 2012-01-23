@@ -257,5 +257,75 @@ module Reports::MiProduction::SummaryKomp2Common
     raise "process_row: invalid key detected '#{key}'"
   end
 
+  def integer(value)
+    return Integer(value && value.to_s.length > 0 ? value : 0)
+  end
+  
+  def prettify_table(table)
+    centres = {}
+    sub_table = table.sub_table { |r|
+      centres[r["Consortium"]] ||= []
+      centres[r["Consortium"]].push r['Production Centre']
+    }
+
+    #grouped_report = Grouping( table, :by => [ 'Consortium', 'Production Centre' ] )
+    #
+    #summary = grouped_report.summary(
+    #  'Consortium',
+    #  'All' => lambda { |group| count_instances_of( group, 'Gene',
+    #        lambda { |row| all(row) } ) },
+    #  'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
+    #      lambda { |row| MAPPING_SUMMARIES['ES QC started'].include? row.data['Overall Status'] } ) },
+    #  'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
+    #      lambda { |row| MAPPING_SUMMARIES['ES QC confirmed'].include? row.data['Overall Status'] } ) },
+    #  'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
+    #      lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) }
+    #)
+    
+    summaries = {}
+      #
+      #table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'All')}</td>"
+      #table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC started')}</td>"
+      #table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC confirmed')}</td>"
+      #table += "<td rowspan='ROWSPANTARGET'>#{make_link.call(row, 'ES QC failed')}</td>"
+      #
+      
+    table.sum { |r|
+      CONSORTIA.each do |name|
+        summaries[name] ||= {}
+        summaries[name]['All'] ||= 0
+        summaries[name]['ES QC started'] ||= 0
+        summaries[name]['ES QC confirmed'] ||= 0
+        summaries[name]['ES QC failed'] ||= 0
+
+        summaries[name]['All'] += integer(r['All'])
+        summaries[name]['ES QC started'] += integer(r['ES QC started'])
+        summaries[name]['ES QC confirmed'] += integer(r['ES QC confirmed'])
+        summaries[name]['ES QC failed'] += integer(r['ES QC failed'])
+      end
+      0
+    }
+
+    array = []
+    array.push '<table>'
+    array.push '<tr>'
+    table.column_names.each do |name|
+      array.push "<th>#{name}</th>"
+    end
+    array.push '</tr>'
+
+    rows = table.column('Consortium').size - 1
+    for i in (0..rows)
+      array.push '<tr>'
+      table.column_names.each do |name|
+        array.push "<td>#{table.column(name)[i]}</td>"
+      end
+      array.push '</tr>'
+    end
+    
+    array.push '</table>'
+    return array.join("\n")
+  end
+
 end
 

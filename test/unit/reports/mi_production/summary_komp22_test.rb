@@ -2,11 +2,11 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::SummaryKomp21Test < ActiveSupport::TestCase
+class Reports::MiProduction::SummaryKomp22Test < ActiveSupport::TestCase
 
   DEBUG = false
   
-  context 'Reports::MiProduction::SummaryKomp21' do
+  context 'Reports::MiProduction::SummaryKomp22' do
 
     setup do
       assert ! ReportCache.find_by_name('mi_production_intermediate')
@@ -29,7 +29,7 @@ class Reports::MiProduction::SummaryKomp21Test < ActiveSupport::TestCase
     end
     
     should 'do generate' do
-      #title2, report = Reports::MiProduction::SummaryKomp21.generate(nil, {'debug'=>'true'})
+      #title2, report = Reports::MiProduction::SummaryKomp22.generate(nil, {'debug'=>'true'})
       #
       #puts 'do generate: ' + title2 if DEBUG
       #puts report.to_s if DEBUG
@@ -46,7 +46,7 @@ class Reports::MiProduction::SummaryKomp21Test < ActiveSupport::TestCase
       #  next if k == 'Pipeline efficiency (%)'
       #  next if k == 'Production Centre'
       #  puts "#{k} : #{v}" if DEBUG
-      #  title2, report = Reports::MiProduction::SummaryKomp21.subsummary_common(:consortium => 'BaSH', :type => k)
+      #  title2, report = Reports::MiProduction::SummaryKomp22.subsummary_common(:consortium => 'BaSH', :type => k)
       #  puts "report size: #{report.size}" if DEBUG
       #  puts report.to_s if DEBUG
       #  assert_equal v, report.size

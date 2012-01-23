@@ -105,34 +105,27 @@ module Reports::MiProduction::SummariesCommon
     return title, report
   end
 
-  #def efficiency(request, row)
-  #  glt = Integer(row['Genotype Confirmed Mice'])
-  #  failures = Integer(row['Languishing']) + Integer(row['MI Aborted'])
-  #  total = Integer(row['Genotype Confirmed Mice']) + failures
-  #  pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-  #  pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
-  #  return pc
-  #end
-
+  def integer(value)
+    return Integer(value && value.to_s.length > 0 ? value : 0)
+  end
+  
   def efficiency(request, row)
-    glt = Integer(row['Genotype Confirmed Mice'])
-    glt2 = row['Phenotyped Count'] ? Integer(row['Phenotyped Count']) : 0
+    glt = integer(row['Genotype Confirmed Mice'])
+    glt2 = integer(row['Phenotyped Count'])
     glt += glt2
-    failures = Integer(row['Languishing']) + Integer(row['MI Aborted'])
-    total = Integer(row['Genotype Confirmed Mice']) + failures
+    failures = integer(row['Languishing']) + integer(row['MI Aborted'])
+    total = integer(row['Genotype Confirmed Mice']) + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
   end
 
   def efficiency2(request, row)
-    a = Integer(row['Distinct Genotype Confirmed ES Cells'])
-    b = Integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+    a = integer(row['Distinct Genotype Confirmed ES Cells'])
+    b = integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
     pc =  a + b != 0 ? ((a.to_f / (a + b).to_f) * 100) : 0
-    #    pc = pc != 0 ? "%i" % pc : ''
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
-    #return "a: #{a}; b: #{b}; pc: #{pc}; a + b: #{a+b}"
   end
 
   def languishing(row)
@@ -150,7 +143,7 @@ module Reports::MiProduction::SummariesCommon
   def distinct_genotype_confirmed_es_cells(group)
     total = 0
     group.each do |row|
-      value = row['Distinct Genotype Confirmed ES Cells'] ? Integer(row['Distinct Genotype Confirmed ES Cells']) : 0
+      value = integer(row['Distinct Genotype Confirmed ES Cells'])
       total += value
     end
     return total
@@ -159,23 +152,11 @@ module Reports::MiProduction::SummariesCommon
   def distinct_old_non_genotype_confirmed_es_cells(group)
     total = 0
     group.each do |row|
-      value = row['Distinct Old Non Genotype Confirmed ES Cells'] ? Integer(row['Distinct Old Non Genotype Confirmed ES Cells']) : 0
+      value = integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
       total += value
     end
     return total
   end
-
-  #def languishing2(row)
-  #  label = 'Micro-injection in progress'
-  #  date = 'Micro-injection in progress Date'
-  #  return false if row.data['Overall Status'] != label
-  #  today = Date.today
-  #  return false if ! row[date] || row[date].length < 1
-  #  before = Date.parse(row[date])
-  #  return false if ! before
-  #  gap = today - before
-  #  return gap && gap > 180
-  #end
 
   def all(row)
     return true
@@ -197,18 +178,11 @@ module Reports::MiProduction::SummariesCommon
 
   def registered_for_phenotyping(row)
     row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
-    #return MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']
   end
-  
-  #def glt(row)
-  #  (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
-  #    (['Genotype confirmed'].include?(row.data['MiAttempt Status']))
-  #end
-  
+    
   def glt(row)
     (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
       ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
-        #      (['Genotype confirmed'].include?(row.data['MiAttempt Status'])))
       (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
   end
   

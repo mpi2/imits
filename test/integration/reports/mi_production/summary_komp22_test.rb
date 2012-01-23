@@ -2,11 +2,11 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::SummaryKomp2BriefTest < ActionDispatch::IntegrationTest
+class Reports::MiProduction::SummaryKomp22Test < ActionDispatch::IntegrationTest
   
   DEBUG = false
 
-  context 'Reports::MiProduction::SummaryKomp2Brief' do
+  context 'Reports::MiProduction::SummaryKomp22' do
     should 'require the user to be logged in' do
       visit '/reports/mi_production'
       assert_login_page
@@ -18,7 +18,7 @@ class Reports::MiProduction::SummaryKomp2BriefTest < ActionDispatch::Integration
       assert ! ReportCache.find_by_name('mi_production_intermediate')
       ReportCache.create!(
         :name => 'mi_production_intermediate',
-        :csv_data => ProductionSummaryHelper::get_csv('summary by consortium')
+        :csv_data => ProductionSummaryHelper::get_csv('komp2')
       )
       assert ReportCache.find_by_name('mi_production_intermediate')      
       report = ReportCache.find_by_name!('mi_production_intermediate').to_table
@@ -33,10 +33,10 @@ class Reports::MiProduction::SummaryKomp2BriefTest < ActionDispatch::Integration
     end
 
     should 'allow users to visit the page & see entries' do
-      #visit '/reports/mi_production/summary_komp2_brief'
-      #assert_match '/reports/mi_production/summary_komp2_brief', current_url
+      #visit '/reports/mi_production/summary_komp2'
+      #assert_match '/reports/mi_production/summary_komp2', current_url
       #
-      #assert_match 'Summary By Consortium', page.body
+      #assert_match 'KOMP2 Report', page.body
       #assert_match 'Download as CSV', page.body
       #
       ## save_and_open_page if DEBUG
@@ -45,10 +45,10 @@ class Reports::MiProduction::SummaryKomp2BriefTest < ActionDispatch::Integration
     end
     
     should 'allow users to visit the detail page & see entries' do
-      #visit '/reports/mi_production/summary_komp2_brief?consortium=BaSH&type=Genotype+Confirmed+Mice'
+      #visit '/reports/mi_production/summary_komp2?consortium=BaSH&type=Genotype+Confirmed+Mice'
       #
-      #one = "/reports/mi_production/summary_komp2_brief?consortium=BaSH&type=Genotype%20Confirmed%20Mice"
-      #other = "/reports/mi_production/summary_komp2_brief?consortium=BaSH&type=Genotype+Confirmed+Mice"
+      #one = "/reports/mi_production/summary_komp2?consortium=BaSH&type=Genotype%20Confirmed%20Mice"
+      #other = "/reports/mi_production/summary_komp2?consortium=BaSH&type=Genotype+Confirmed+Mice"
       #target = /\%20/.match(current_url) ? one : other
       #assert_match target, current_url
       #

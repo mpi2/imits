@@ -40,7 +40,7 @@ module Reports::MiProduction::SummaryKomp2Common
     'Phenotyping Complete' => ['Phenotyping Complete']
   }
   
-  CONSORTIA = ['BaSH', 'DTCC', 'JAX']
+  CONSORTIA = ['BaSH', 'DTCC', 'DTCC-Legacy', 'JAX']
   
   HEADINGS = ['Consortium', 'Production Centre',
     'All',

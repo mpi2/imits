@@ -11,14 +11,14 @@ Ext.define('Imits.widget.MiPlanEditor', {
     layout: 'fit',
     closeAction: 'hide',
 
-    constructor: function(config) {
+    constructor: function (config) {
         if(Ext.isIE7 || Ext.isIE8) {
             config.width = 400;
         }
         return this.callParent([config]);
     },
 
-    initComponent: function() {
+    initComponent: function () {
         var editor = this;
         this.callParent();
 
@@ -90,7 +90,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             {
                 id: 'update-button',
                 text: '<strong>Update</strong>',
-                handler: function(button) {
+                handler: function (button) {
                     button.disable();
 
                     var message = null;
@@ -117,7 +117,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                             buttons: Ext.Msg.YESNO,
                             icon: Ext.Msg.QUESTION,
                             closable: false,
-                            fn: function(clicked) {
+                            fn: function (clicked) {
                                 if(clicked === 'yes') {
                                     editor.updateAndHide();
                                 } else {
@@ -132,7 +132,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             },
             {
                 text: 'Cancel',
-                handler: function() {
+                handler: function () {
                     editor.hide();
                 }
             }
@@ -266,7 +266,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         Imits.model.MiPlan.load(miPlanId, {
             success: function (miPlan) {
                 editor.miPlan = miPlan;
-                Ext.each(editor.fields, function(attr) {
+                Ext.each(editor.fields, function (attr) {
                     var component = editor.form.getComponent(attr);
                     if(component) {
                         component.setValue(editor.miPlan.get(attr));

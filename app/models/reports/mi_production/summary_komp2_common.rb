@@ -52,9 +52,9 @@ module Reports::MiProduction::SummaryKomp2Common
     'Phenotyping Complete',
     'ES QC failed',
     'MI Aborted',
-    'Phenotype Attempt Aborted'
-    #              'Pipeline efficiency (%)',
-    #              'Pipeline efficiency (by clone)'
+    'Phenotype Attempt Aborted',
+                  'Pipeline efficiency (%)',
+                  'Pipeline efficiency (by clone)'
   ]
 
   IGNORE = ['Consortium',
@@ -136,27 +136,27 @@ module Reports::MiProduction::SummaryKomp2Common
           report_table << {
             'Consortium' => consortium,
             'Production Centre' => row['Production Centre'],
-            'All' => row['All'],
-            'ES QC started' => row['ES QC started'],
-            'ES QC confirmed' => row['ES QC confirmed'],
-            'ES QC failed' => row['ES QC failed'],
-            'MI in progress' => row['MI in progress'],
-            'Genotype Confirmed Mice' => row['Genotype Confirmed Mice'],
-            'MI Aborted' => row['MI Aborted'],
-            'Languishing' => row['Languishing'],
-            'Registered for Phenotyping' => row['Registered for Phenotyping'],
-            'Distinct Genotype Confirmed ES Cells' => row['Distinct Genotype Confirmed ES Cells'],
-            'Distinct Old Non Genotype Confirmed ES Cells' => row['Distinct Old Non Genotype Confirmed ES Cells'],
-            'Pipeline efficiency (%)' => pc,
-            'Pipeline efficiency (by clone)' => pc2,
+            'All' => clean_value(row['All']),
+            'ES QC started' => clean_value(row['ES QC started']),
+            'ES QC confirmed' => clean_value(row['ES QC confirmed']),
+            'ES QC failed' => clean_value(row['ES QC failed']),
+            'MI in progress' => clean_value(row['MI in progress']),
+            'Genotype Confirmed Mice' => clean_value(row['Genotype Confirmed Mice']),
+            'MI Aborted' => clean_value(row['MI Aborted']),
+            'Languishing' => clean_value(row['Languishing']),
+            'Registered for Phenotyping' => clean_value(row['Registered for Phenotyping']),
+            'Distinct Genotype Confirmed ES Cells' => clean_value(row['Distinct Genotype Confirmed ES Cells']),
+            'Distinct Old Non Genotype Confirmed ES Cells' => clean_value(row['Distinct Old Non Genotype Confirmed ES Cells']),
+            'Pipeline efficiency (%)' => clean_value(pc),
+            'Pipeline efficiency (by clone)' => clean_value(pc2),
             
-            'Phenotyping Started' => row['Phenotyping Started'],
-            'Rederivation Started' => row['Rederivation Started'],
-            'Rederivation Complete' => row['Rederivation Complete'],
-            'Cre Excision Started' => row['Cre Excision Started'],
-            'Cre Excision Complete' => row['Cre Excision Complete'],
-            'Phenotyping Complete' => row['Phenotyping Complete'],
-            'Phenotype Attempt Aborted' => row['Phenotype Attempt Aborted']
+            'Phenotyping Started' => clean_value(row['Phenotyping Started']),
+            'Rederivation Started' => clean_value(row['Rederivation Started']),
+            'Rederivation Complete' => clean_value(row['Rederivation Complete']),
+            'Cre Excision Started' => clean_value(row['Cre Excision Started']),
+            'Cre Excision Complete' => clean_value(row['Cre Excision Complete']),
+            'Phenotyping Complete' => clean_value(row['Phenotyping Complete']),
+            'Phenotype Attempt Aborted' => clean_value(row['Phenotype Attempt Aborted'])
           }
         
         end
@@ -179,6 +179,11 @@ module Reports::MiProduction::SummaryKomp2Common
     template = template.gsub(/GENE-TARGET/, gene)
     template = template.gsub(/STATUS-TARGET/, status)
     return template
+  end
+  
+  def clean_value(value)
+    return '' if ! value || value.to_s == "0"
+    return value
   end
   
   def initialize
@@ -284,5 +289,28 @@ module Reports::MiProduction::SummaryKomp2Common
   def phenotype_attempt_aborted(row)
     return MAPPING_SUMMARIES['Phenotype Attempt Aborted'].include? row.data['Overall Status'] 
   end
+  
+  def process_row(row, key)
+    keys2 = [
+    'Phenotype Attempt Aborted',
+    'ES QC started',
+    'ES QC confirmed',
+    'ES QC failed',
+    'MI in progress',
+    'MI Aborted',
+    'Phenotyping Started',
+    'Rederivation Started',
+    'Rederivation Complete',
+    'Cre Excision Started',
+    'Cre Excision Complete',
+    'Phenotyping Complete',
+    'Phenotype Attempt Aborted'
+  ]
+
+    return MAPPING_SUMMARIES[key].include? row.data['Overall Status'] if keys2.include? key
+    return true if key == 'All'
+    raise "Invalid key detected '#{key}'"
+  end
+
 end
 

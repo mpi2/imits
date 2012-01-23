@@ -23,7 +23,30 @@ class Reports::MiProduction::SummaryKomp22
     
     months = 1
     month = get_month(months)
-    report_title = REPORT_TITLE + " (#{month})"   # + " (#{months})"
+    report_title = REPORT_TITLE + " (#{month})"
+
+#  headings_new = ['Consortium', 'Production Centre',
+#              'All',
+#              'ES QC started or better',
+#              'ES QC confirmed or better',
+#              'MI in progress or better',
+#              #'Chimaeras or better',
+#              'Genotype Confirmed Mice or better',
+#              'Registered for Phenotyping or better',
+#              'Phenotyping Started or better',
+#              'Rederivation Started or better',
+#              'Rederivation Complete or better',
+#              'Cre Excision Started or better',
+#              'Cre Excision Complete or better',
+#              'Phenotyping Complete',
+#              'ES QC failed',
+#              'MI Aborted',
+#              'Phenotype Attempt Aborted',
+##              'Pipeline efficiency (%)',
+##              'Pipeline efficiency (by clone)'
+#            ]
+#
+#    report.rename_columns(HEADINGS, headings)
 
     return report_title, report.to_html
   end

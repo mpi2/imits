@@ -129,7 +129,7 @@ module Reports::MiProduction::SummariesCommon
     a = Integer(row['Distinct Genotype Confirmed ES Cells'])
     b = Integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
     pc =  a + b != 0 ? ((a.to_f / (a + b).to_f) * 100) : 0
-#    pc = pc != 0 ? "%i" % pc : ''
+    #    pc = pc != 0 ? "%i" % pc : ''
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
     #return "a: #{a}; b: #{b}; pc: #{pc}; a + b: #{a+b}"
@@ -148,21 +148,21 @@ module Reports::MiProduction::SummariesCommon
   end
   
   def distinct_genotype_confirmed_es_cells(group)
-      total = 0
-      group.each do |row|
-        value = row['Distinct Genotype Confirmed ES Cells'] ? Integer(row['Distinct Genotype Confirmed ES Cells']) : 0
-        total += value
-      end
-      return total
+    total = 0
+    group.each do |row|
+      value = row['Distinct Genotype Confirmed ES Cells'] ? Integer(row['Distinct Genotype Confirmed ES Cells']) : 0
+      total += value
+    end
+    return total
   end
 
   def distinct_old_non_genotype_confirmed_es_cells(group)
-      total = 0
-      group.each do |row|
-        value = row['Distinct Old Non Genotype Confirmed ES Cells'] ? Integer(row['Distinct Old Non Genotype Confirmed ES Cells']) : 0
-        total += value
-      end
-      return total
+    total = 0
+    group.each do |row|
+      value = row['Distinct Old Non Genotype Confirmed ES Cells'] ? Integer(row['Distinct Old Non Genotype Confirmed ES Cells']) : 0
+      total += value
+    end
+    return total
   end
 
   #def languishing2(row)
@@ -208,7 +208,7 @@ module Reports::MiProduction::SummariesCommon
   def glt(row)
     (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
       ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
-#      (['Genotype confirmed'].include?(row.data['MiAttempt Status'])))
+        #      (['Genotype confirmed'].include?(row.data['MiAttempt Status'])))
       (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
   end
   

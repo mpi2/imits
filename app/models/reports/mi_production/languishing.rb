@@ -85,7 +85,6 @@ class Reports::MiProduction::Languishing
     else
       consortia = options[:consortia].split(',')
     end
-    controller = options[:controller]
 
     report = Ruport::Data::Grouping.new
 

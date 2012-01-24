@@ -10,17 +10,23 @@ Ext.define('Imits.widget.MiPlanEditor', {
     resizable: false,
     layout: 'fit',
     closeAction: 'hide',
+    cls: 'plan editor',
 
-    constructor: function(config) {
+    constructor: function (config) {
         if(Ext.isIE7 || Ext.isIE8) {
             config.width = 400;
         }
         return this.callParent([config]);
     },
 
-    initComponent: function() {
+    initComponent: function () {
         var editor = this;
         this.callParent();
+
+        var isSubProjectHidden = true;
+        if(window.CAN_SEE_SUB_PROJECT) {
+            isSubProjectHidden = false;
+        }
 
         this.form = Ext.create('Ext.form.Panel', {
             ui: 'plain',
@@ -73,6 +79,15 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 store: window.PRIORITY_OPTIONS
             },
             {
+                id: 'sub_project_name',
+                xtype: 'simplecombo',
+                fieldLabel: 'Sub-Project',
+                name: 'sub_project_name',
+                storeOptionsAreSpecial: true,
+                store: window.SUB_PROJECT_OPTIONS,
+                hidden: isSubProjectHidden
+            },
+            {
                 id: 'number_of_es_cells_starting_qc',
                 xtype: 'simplenumberfield',
                 fieldLabel: '# of ES Cells starting QC',
@@ -90,7 +105,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             {
                 id: 'update-button',
                 text: '<strong>Update</strong>',
-                handler: function(button) {
+                handler: function (button) {
                     button.disable();
 
                     var message = null;
@@ -117,7 +132,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                             buttons: Ext.Msg.YESNO,
                             icon: Ext.Msg.QUESTION,
                             closable: false,
-                            fn: function(clicked) {
+                            fn: function (clicked) {
                                 if(clicked === 'yes') {
                                     editor.updateAndHide();
                                 } else {
@@ -132,7 +147,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             },
             {
                 text: 'Cancel',
-                handler: function() {
+                handler: function () {
                     editor.hide();
                 }
             }
@@ -232,8 +247,13 @@ Ext.define('Imits.widget.MiPlanEditor', {
             ]
         });
 
+        var panelHeight = 350;
+        if(window.CAN_SEE_SUB_PROJECT) {
+            panelHeight = 370;
+        }
+
         this.add(Ext.create('Ext.panel.Panel', {
-            height: 350,
+            height: panelHeight,
             ui: 'plain',
             layout: {
                 type: 'vbox',
@@ -266,7 +286,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         Imits.model.MiPlan.load(miPlanId, {
             success: function (miPlan) {
                 editor.miPlan = miPlan;
-                Ext.each(editor.fields, function(attr) {
+                Ext.each(editor.fields, function (attr) {
                     var component = editor.form.getComponent(attr);
                     if(component) {
                         component.setValue(editor.miPlan.get(attr));

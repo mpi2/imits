@@ -24,6 +24,9 @@ Ext.define('Imits.model.MiPlan', {
         name: 'priority_name'
     },
     {
+        name: 'sub_project_name'
+    },
+    {
         name: 'number_of_es_cells_starting_qc'
     },
     {

@@ -3,7 +3,7 @@
 require 'test_helper'
 
 class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
-  context 'View & Edit MiPlans in grid' do
+  context 'View & Edit MiPlans in grid tests:' do
 
     should 'display MiPlan data' do
       plan = Factory.create :mi_plan,
@@ -38,5 +38,32 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       sleep 2.5
       assert(page.has_no_css?('div', :text => 'Cbx1'))
     end
+
+    context 'sub-project editing' do
+      should 'work for WTSI users' do
+        user = Factory.create :user, :production_centre => Centre.find_by_name!('WTSI')
+        plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI')
+        login user
+        visit '/mi_plans'
+        assert page.has_no_css?('.plan.editor')
+        page.find('div.x-grid-cell-inner').click
+        assert page.has_css?('.plan.editor')
+        sleep 1
+        assert page.find('.plan.editor div#sub_project_name').visible?
+      end
+
+      should 'not work for non-WTSI users' do
+        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
+        plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('ICS')
+        login user
+        visit '/mi_plans'
+        assert page.has_no_css?('.plan.editor')
+        page.find('div.x-grid-cell-inner').click
+        assert page.has_css?('.plan.editor')
+        sleep 1
+        assert ! page.find('.plan.editor div#sub_project_name').visible?
+      end
+    end
+
   end
 end

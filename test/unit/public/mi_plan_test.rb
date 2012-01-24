@@ -133,6 +133,50 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '#number_of_es_cells_starting_qc' do
+      should 'validate non-blankness only it was previously set to a number' do
+        assert_equal nil, default_mi_plan.number_of_es_cells_starting_qc
+        default_mi_plan.number_of_es_cells_starting_qc = 5
+        default_mi_plan.save!
+
+        default_mi_plan.number_of_es_cells_starting_qc = nil
+        assert_false default_mi_plan.save
+
+        assert ! default_mi_plan.errors[:number_of_es_cells_starting_qc].blank?
+      end
+    end
+
+    context '#number_of_es_cells_passing_qc' do
+      should 'validate non-blankness only it was previously set to a number' do
+        assert_equal nil, default_mi_plan.number_of_es_cells_passing_qc
+        default_mi_plan.number_of_es_cells_passing_qc = 5
+        default_mi_plan.save!
+
+        default_mi_plan.number_of_es_cells_passing_qc = nil
+        assert_false default_mi_plan.save
+
+        assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+      end
+
+      should 'validate cannot be set to 0 if was previously non-zero' do
+        2.times do |i|
+          default_mi_plan.number_of_es_cells_passing_qc = 0
+          default_mi_plan.save!
+        end
+
+        default_mi_plan.number_of_es_cells_passing_qc = 5
+        default_mi_plan.save!
+
+        default_mi_plan.number_of_es_cells_passing_qc = nil
+        assert_false default_mi_plan.save
+        assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+
+        default_mi_plan.number_of_es_cells_passing_qc = 0
+        assert_false default_mi_plan.save
+        assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+      end
+    end
+
     should 'limit the public mass-assignment API' do
       expected = [
         'marker_symbol',

@@ -242,18 +242,7 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_should have_db_column(:number_of_es_cells_starting_qc).of_type(:integer)
         end
 
-        should 'validate non-blankness only it was previously set to a number' do
-          assert_equal nil, default_mi_plan.number_of_es_cells_starting_qc
-          default_mi_plan.number_of_es_cells_starting_qc = 5
-          default_mi_plan.save!
-
-          default_mi_plan.number_of_es_cells_starting_qc = nil
-          assert_false default_mi_plan.save
-
-          assert ! default_mi_plan.errors[:number_of_es_cells_starting_qc].blank?
-        end
-
-        should 'be setsame value as number passing QC if it is null' do
+        should 'be set same value as number passing QC if it is null' do
           assert_nil default_mi_plan.number_of_es_cells_starting_qc
           assert_nil default_mi_plan.number_of_es_cells_passing_qc
 
@@ -270,35 +259,6 @@ class MiPlanTest < ActiveSupport::TestCase
       context '#number_of_es_cells_passing_qc' do
         should 'exist' do
           assert_should have_db_column(:number_of_es_cells_passing_qc).of_type(:integer)
-        end
-
-        should 'validate non-blankness only it was previously set to a number' do
-          assert_equal nil, default_mi_plan.number_of_es_cells_passing_qc
-          default_mi_plan.number_of_es_cells_passing_qc = 5
-          default_mi_plan.save!
-
-          default_mi_plan.number_of_es_cells_passing_qc = nil
-          assert_false default_mi_plan.save
-
-          assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
-        end
-
-        should 'validate cannot be set to 0 if was previously non-zero' do
-          2.times do |i|
-            default_mi_plan.number_of_es_cells_passing_qc = 0
-            default_mi_plan.save!
-          end
-
-          default_mi_plan.number_of_es_cells_passing_qc = 5
-          default_mi_plan.save!
-
-          default_mi_plan.number_of_es_cells_passing_qc = nil
-          assert_false default_mi_plan.save
-          assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
-
-          default_mi_plan.number_of_es_cells_passing_qc = 0
-          assert_false default_mi_plan.save
-          assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
         end
       end
 

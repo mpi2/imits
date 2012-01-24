@@ -87,6 +87,9 @@ class Reports::MiProduction::SummaryKomp23
   def self.generate_common(request = nil, params={}, links = false)
 
     debug = params['debug'] && params['debug'].to_s.length > 0
+    pretty = params['pretty'] && params['pretty'].to_s.length > 0
+    
+    links = pretty ? false : links
 
     cached_report = ReportCache.find_by_name!(CACHE_NAME).to_table
     
@@ -321,7 +324,8 @@ class Reports::MiProduction::SummaryKomp23
       :column_names => cached_report.column_names,
       :filters => lambda {|r|
         
-        return false if (r['Consortium'] != consortium || r['Production Centre'] != pcentre)
+        return false if r['Consortium'] != consortium
+        return false if pcentre && pcentre.to_s.length > 0 && r['Production Centre'] != pcentre
 
         return languishing(r) if type == 'Languishing'
         
@@ -373,12 +377,14 @@ class Reports::MiProduction::SummaryKomp23
   
     #    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : report.to_html
 
-    html = pretty ? prettify_table(report) : report.to_html
+    html = pretty ? prettify_table(request, report) : report.to_html
     return REPORT_TITLE, request && request.format == :csv ? report.to_csv : html
   
   end
 
-  def self.prettify_table(table)
+  def self.prettify_table(request, table)
+
+    script_name = request ? request.env['REQUEST_URI'] : ''
 
     new_columns = ["Consortium", "All Genes",
       "ES QCs", "ES QC confirms",
@@ -404,30 +410,6 @@ class Reports::MiProduction::SummaryKomp23
       centres[r["Consortium"]] ||= []
       centres[r["Consortium"]].push r['Production Centre'] if ! centres[r["Consortium"]].include? r['Production Centre']
     }
-        
-    #summaries = {}
-    #table.sum { |r|
-    #  CONSORTIA.each do |name|
-    #    summaries[name] ||= {}
-    #    summaries[name]['All Genes'] ||= 0
-    #    summaries[name]['ES QCs'] ||= 0
-    #    summaries[name]['ES QC confirms'] ||= 0
-    #    summaries[name]['ES QC Failures'] ||= 0
-    #    
-    #    #TODO: get values from html links. ie. strip html
-    #
-    #    summaries[name]['All Genes'] += integer(r['All Genes'])
-    #    summaries[name]['ES QCs'] += integer(r['ES QCs'])
-    #    summaries[name]['ES QC confirms'] += integer(r['ES QC confirms'])
-    #    summaries[name]['ES QC Failures'] += integer(r['ES QC Failures'])
-    #  end
-    #  0
-    #}
-    #raise summaries.inspect
-
-    #grouped_report.subgrouping(consortium).summary('Production Centre', 
-    #  'All' => lambda { |group| count_instances_of( group, 'Gene',
-    #      lambda { |row| process_row(row, 'All') } ) },
 
     summaries = {}
     grouped_report = Grouping( table, :by => [ 'Consortium' ] )
@@ -435,13 +417,12 @@ class Reports::MiProduction::SummaryKomp23
               
     CONSORTIA.each do |consortium|
       summaries[consortium] = {}
-      labels.each { |item| summaries[consortium][item] = grouped_report[consortium].sigma(item) }
+      labels.each { |item|
+        summaries[consortium][item] = grouped_report[consortium].sigma(item)
+        summaries[consortium][item] = summaries[consortium][item] == 0 ? '' : summaries[consortium][item]
+      }
     end
-    
-    
-    
-    
-        
+
     array = []
     array.push '<table>'
     array.push '<tr>'
@@ -452,14 +433,39 @@ class Reports::MiProduction::SummaryKomp23
 
     other_columns = table.column_names - ["Consortium", "All Genes", "ES QCs", "ES QC confirms",  "ES QC Failures"]
     rows = table.data.size 
+
+    #make_link = lambda {|rowx, key|
+    #  return rowx[key] if request && request.format == :csv
+    #  return '' if rowx[key].to_s.length < 1
+    #  return '' if rowx[key] == 0
+    #  return rowx[key] if ! links
+    #
+    #  consort = CGI.escape consortium
+    #  pcentre = CGI.escape rowx['Production Centre']
+    #  pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
+    #  type = CGI.escape key
+    #  separator = /\?/.match(script_name) ? '&' : '?'
+    #  return "<a title='Click to see list of #{key}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>"
+    #}
+
+    make_link = lambda {|value, consortium, pcentre, type|
+      return '' if value.to_s.length < 1
+      return '' if value == 0
+    
+      consortium = CGI.escape consortium
+      pcentre = pcentre ? CGI.escape(pcentre) : ''
+      type = CGI.escape type
+      separator = /\?/.match(script_name) ? '&' : '?'
+      return "<a title='Click to see list of #{type}' href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
+    }
     
     CONSORTIA.each do |name1|
       array.push '</tr>'
       array.push "<td rowspan='#{centres[name1].size.to_s}'>#{name1}</td>"
-      array.push "<td rowspan='#{centres[name1].size.to_s}'>#{summaries[name1]['All Genes']}</td>"
-      array.push "<td rowspan='#{centres[name1].size.to_s}'>#{summaries[name1]['ES QCs']}</td>"
-      array.push "<td rowspan='#{centres[name1].size.to_s}'>#{summaries[name1]['ES QC confirms']}</td>"
-      array.push "<td rowspan='#{centres[name1].size.to_s}'>#{summaries[name1]['ES QC Failures']}</td>"
+      array.push "<td rowspan='#{centres[name1].size.to_s}'>" + make_link.call(summaries[name1]['All Genes'], name1, nil, 'All') + "</td>"
+      array.push "<td rowspan='#{centres[name1].size.to_s}'>" + make_link.call(summaries[name1]['ES QCs'], name1, nil, 'ES QCs') + "</td>"
+      array.push "<td rowspan='#{centres[name1].size.to_s}'>" + make_link.call(summaries[name1]['ES QC confirms'], name1, nil, 'ES QC confirms') + "</td>"
+      array.push "<td rowspan='#{centres[name1].size.to_s}'>" + make_link.call(summaries[name1]['ES QC Failures'], name1, nil, 'ES QC Failures') + "</td>"
 
       i=0
       while i < rows
@@ -468,9 +474,13 @@ class Reports::MiProduction::SummaryKomp23
           i+=1
           next
         end
-                
+        
+        ignore_columns = ['Production Centre', 'Pipeline efficiency (%)', 'Pipeline efficiency (by clone)']
+        
         other_columns.each do |name2|
-          array.push "<td>#{table.column(name2)[i]}</td>"
+          array.push "<td>#{table.column(name2)[i]}</td>" if ignore_columns.include? name2
+          next if ignore_columns.include? name2
+          array.push "<td>" + make_link.call(table.column(name2)[i], name1, table.column('Production Centre')[i], name2) + "</td>"
         end
 
         array.push '</tr>'

@@ -3,11 +3,15 @@
 class ApplicationModel < ActiveRecord::Base
   self.abstract_class = true
 
-  def self.translate_search_param(translations, param)
+  def self.translations
+    return {}
+  end
+
+  def self.translate_public_param(param)
     translations.each do |tr_from, tr_to|
-      md = /^#{tr_from}_(.+)$/.match(param)
+      md = /^#{tr_from}(_| )(.+)$/.match(param)
       if md
-        return "#{tr_to}_#{md[1]}"
+        return "#{tr_to}#{md[1]}#{md[2]}"
       end
     end
 
@@ -15,11 +19,14 @@ class ApplicationModel < ActiveRecord::Base
   end
 
   def self.public_search(params)
+    params = params.dup.stringify_keys
     translated_params = {}
-    params.stringify_keys.each do |name, value|
-      translated_params[translate_search_param(name)] = value
+
+    sorts = translate_public_param(params.delete('sorts')) unless params['sorts'].blank?
+    params.each do |name, value|
+      translated_params[translate_public_param(name)] = value
     end
-    return self.search(translated_params)
+    return self.search(translated_params.merge('sorts' => sorts))
   end
 
 end

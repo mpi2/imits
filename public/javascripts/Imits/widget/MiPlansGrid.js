@@ -72,7 +72,6 @@ Ext.define('Imits.widget.MiPlansGrid', {
         dataIndex: 'marker_symbol',
         header: 'Marker Symbol',
         readOnly: true,
-        sortable: false,
         filter: {
             type: 'string'
         }

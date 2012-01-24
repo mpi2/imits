@@ -982,35 +982,6 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
-    context '::translate_search_param' do
-      should 'translate marker_symbol' do
-        assert_equal 'gene_marker_symbol_eq',
-                MiPlan.translate_search_param('marker_symbol_eq')
-      end
-
-      should 'leave other params untouched' do
-        assert_equal 'consortium_name_not_in',
-                MiPlan.translate_search_param('consortium_name_not_in')
-      end
-    end
-
-    context '::public_search' do
-      should 'pass on parameters not needing translation to ::search' do
-        assert_equal @default_mi_plan.id,
-                MiPlan.public_search(:consortium_name_eq => @default_mi_plan.consortium.name).result.first.id
-      end
-
-      should 'translate searching predicates' do
-        plan = Factory.create :mi_plan, :gene => Factory.create(:gene_cbx1)
-        result = MiPlan.public_search(:marker_symbol_eq => 'Cbx1').result
-        assert_equal [plan], result
-      end
-
-      should_eventually 'translate sorting predicates' do
-        flunk 'Dependent on ransack enabling sorting by associations fields'
-      end
-    end
-
     context '#latest_relevant_phenotype_attempt' do
       should 'return nil if there are no phenotype attempts for this MI' do
         assert_equal nil, @default_mi_plan.latest_relevant_phenotype_attempt

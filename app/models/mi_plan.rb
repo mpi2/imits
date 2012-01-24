@@ -300,14 +300,6 @@ class MiPlan < ApplicationModel
     end
   end
 
-  def self.translate_search_param(param)
-    translations = {
-      'marker_symbol' => 'gene_marker_symbol'
-    }
-
-    return super(translations, param)
-  end
-
   def latest_relevant_phenotype_attempt
     return phenotype_attempts.order('is_active desc, created_at desc').first
   end

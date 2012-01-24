@@ -5,9 +5,10 @@ class Reports::MiProduction::SummaryKomp23
   extend Reports::MiProduction::SummariesCommon
 
   DEBUG = false
-  DEBUG_INTERMEDIATE = true
-  CACHE_NAME = DEBUG ? 'mi_production_intermediate_test' : 'mi_production_intermediate'
+  DEBUG_SUBSUMMARY = true
+  CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
+  REPORT_TITLE = 'KOMP2 Report 3'
   
   CONSORTIA = ['BaSH', 'DTCC', 'DTCC-Legacy', 'JAX']
   
@@ -31,17 +32,6 @@ class Reports::MiProduction::SummaryKomp23
     
     'Pipeline efficiency (%)',
     'Pipeline efficiency (by clone)'
-    
-    #'DUMMY',
-    #
-    #'ES QC started',
-    #'MI in progress',
-    #'Genotype Confirmed Mice',
-    #'Registered for Phenotyping',
-    #'Phenotyping Started',
-    #'Rederivation Started',
-    #'Rederivation Complete',
-    #'ES QC failed'
   ]
 
   def self.efficiency(request, row)
@@ -117,32 +107,16 @@ class Reports::MiProduction::SummaryKomp23
       grouped_report.subgrouping(consortium).summary('Production Centre', 
         'All' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| process_row(row, 'All') } ) },
-        'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| process_row(row, 'ES QC started') } ) },
         'ES QC confirmed' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| process_row(row, 'ES QC confirmed') } ) },
-        'ES QC failed' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| process_row(row, 'ES QC failed') } ) },
-        'MI in progress' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2,'MI in progress') } ) },
-        'Genotype Confirmed Mice' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| process_row(row, 'Genotype Confirmed Mice') } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| process_row(row2, 'MI Aborted') } ) },
-        'Registered for Phenotyping' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Registered for Phenotyping') } ) },
         
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| languishing(row2) } ) },
         'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells(group) },
         'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) },
 
-        'Phenotyping Started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Phenotyping Started') } ) },
-        'Rederivation Started' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Rederivation Started') } ) },
-#        'Rederivation Complete' => lambda { |group| count_instances_of( group, 'Gene',
-#            lambda { |row2| process_row(row2, 'Rederivation Complete') } ) },
         'Cre Excision Starts' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| process_row(row2, 'Cre Excision Starts') } ) },
         'Cre Excision Complete' => lambda { |group| count_instances_of( group, 'Gene',
@@ -196,38 +170,20 @@ class Reports::MiProduction::SummaryKomp23
           separator = /\?/.match(script_name) ? '&' : '?'
           return "<a title='Click to see list of #{key}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>"
         }
-
-        #make_efficiency1 = lambda {|rowx, pc|
-        #    return "#{pc}</td>" if ! debug
-        #    return " title='Calculated: glt / (glt + languishing) - #{rowx['Genotype Confirmed Mice']} / (#{rowx['Genotype Confirmed Mice']} + #{rowx['Languishing']})'>#{pc}</td>"
-        #  }
-        #  make_efficiency2 = lambda {|rowx, pc|
-        #    return "<td>#{pc}</td>" if ! debug
-        #    return "<td title='Calculated: Distinct Genotype Confirmed ES Cells / (Distinct Genotype Confirmed ES Cells + Distinct Old Non Genotype Confirmed ES Cells)" +
-        #  " - #{rowx['Distinct Genotype Confirmed ES Cells']} / (#{rowx['Distinct Genotype Confirmed ES Cells']} + #{rowx['Distinct Old Non Genotype Confirmed ES Cells']})'>#{pc}</td>"
-        #  }
       
         report_table << {
           'Consortium' => consortium,
           'Production Centre' => row['Production Centre'],
           'All' => make_link.call(row, 'All'),
-          'ES QC started' => make_link.call(row, 'ES QC started'),
           'ES QC confirmed' => make_link.call(row, 'ES QC confirmed'),
-          'ES QC failed' => make_link.call(row, 'ES QC failed'),
-          'MI in progress' => make_link.call(row, 'MI in progress'),
-          'Genotype Confirmed Mice' => make_link.call(row, 'Genotype Confirmed Mice'),
           'MI Aborted' => make_link.call(row, 'MI Aborted'),
           'Languishing' => make_link.call(row, 'Languishing'),
-          'Registered for Phenotyping' => make_link.call(row, 'Registered for Phenotyping'),
           
           'Distinct Genotype Confirmed ES Cells' => make_link.call(row, 'Distinct Genotype Confirmed ES Cells'),
           'Distinct Old Non Genotype Confirmed ES Cells' => make_link.call(row, 'Distinct Old Non Genotype Confirmed ES Cells'),
           'Pipeline efficiency (%)' => make_clean.call(pc),
           'Pipeline efficiency (by clone)' => make_clean.call(pc2),
             
-          'Phenotyping Started' => make_link.call(row, 'Phenotyping Started'),
-          'Rederivation Started' => make_link.call(row, 'Rederivation Started'),
-          'Rederivation Complete' => make_link.call(row, 'Rederivation Complete'),
           'Cre Excision Started' => make_link.call(row, 'Cre Excision Started'),
           'Cre Excision Complete' => make_link.call(row, 'Cre Excision Complete'),
           'Phenotyping Complete' => make_link.call(row, 'Phenotyping Complete'),
@@ -262,10 +218,6 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     if key == 'ES QCs'
-      #return (row['MiPlan Status'] == 'Assigned - ES Cell QC Complete' ||
-      #  row['MiPlan Status'] == 'Assigned - ES Cell QC Complete' ||
-      #  row['MiPlan Status'] == 'Aborted - ES Cell QC Failed')
-      #return true
       return ['Assigned - ES Cell QC Complete', 'Assigned - ES Cell QC Complete', 'Aborted - ES Cell QC Failed'].include? row['MiPlan Status']
     end
     
@@ -307,19 +259,6 @@ class Reports::MiProduction::SummaryKomp23
         row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping Complete' ||
         row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
     end
-
-    #imits_development=# select * from phenotype_attempt_statuses;
-    # id |             name             |         created_at         |         updated_at         
-    #----+------------------------------+----------------------------+----------------------------
-    #  1 | Phenotype Attempt Aborted    | 2011-12-19 13:38:41.161482 | 2011-12-19 13:38:41.161482
-    #  2 | Phenotype Attempt Registered | 2011-12-19 13:38:41.172022 | 2011-12-19 13:38:41.172022
-    #  3 | Rederivation Started         | 2011-12-19 13:38:41.176757 | 2011-12-19 13:38:41.176757
-    #  4 | Rederivation Complete        | 2011-12-19 13:38:41.181782 | 2011-12-19 13:38:41.181782
-    #  5 | Cre Excision Started         | 2011-12-19 13:38:41.186843 | 2011-12-19 13:38:41.186843
-    #  6 | Cre Excision Complete        | 2011-12-19 13:38:41.19204  | 2011-12-19 13:38:41.19204
-    #  7 | Phenotyping Started          | 2011-12-19 13:38:41.197146 | 2011-12-19 13:38:41.197146
-    #  8 | Phenotyping Complete         | 2011-12-19 13:38:41.201884 | 2011-12-19 13:38:41.201884
-    #(8 rows)
     
     valid_phenos2 = [
     'Rederivation Started',
@@ -349,22 +288,19 @@ class Reports::MiProduction::SummaryKomp23
     if key == 'Phenotype Registrations'
       return row['PhenotypeAttempt Status'] == 'Phenotype Attempt Registered'
     end
+  
+    if key == 'Distinct Genotype Confirmed ES Cells'
+      return row[key] && row[key].to_s.length > 0
+    end
     
-    
-    
+    if key == 'Distinct Old Non Genotype Confirmed ES Cells'
+      return row[key] && row[key].to_s.length > 0
+    end
+
+    return languishing(row) if key == 'Languishing'
+
     return false
   
-    #return     (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
-    #  ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
-    #    (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0)) if key == 'Genotype Confirmed Mice'
-    #
-    #return (row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1 || MAPPING_SUMMARIES['Registered for Phenotyping'].include?(row.data['Overall Status'])) if key == 'Registered for Phenotyping'
-    #
-    #return integer(row[key]) > 0 if key == 'Distinct Genotype Confirmed ES Cells'
-    #
-    #return integer(row[key]) > 0 if key == 'Distinct Old Non Genotype Confirmed ES Cells'
-    #
-    #raise "process_row: invalid key detected '#{key}'"
   end
 
   def self.integer(value)
@@ -386,59 +322,7 @@ class Reports::MiProduction::SummaryKomp23
       :column_names => cached_report.column_names,
       :filters => lambda {|r|
         
-        ##TODO: fix this
-        #
-        #if ! /Languishing/.match(type)
-        #  return r['Consortium'] == consortium &&
-        #    (pcentre.nil? || r['Production Centre'] == pcentre) &&
-        #    (priority.nil? || r['Priority'] == priority) &&
-        #    (type.nil? || (type == 'All' && all(r)) || (type == 'Registered for Phenotyping' && registered_for_phenotyping(r)) || MAPPING_SUMMARIES[type].include?(r.data['Overall Status'])) &&
-        #    (subproject.nil? || r['Sub-Project'] == subproject)
-        #else
-        #  return r['Consortium'] == consortium &&
-        #    (pcentre.nil? || r['Production Centre'] == pcentre) &&
-        #    (priority.nil? || r['Priority'] == priority) &&
-        #    (subproject.nil? || r['Sub-Project'] == subproject) &&
-        #    languishing(r) if type == 'Languishing'
-        #  return r['Consortium'] == consortium &&
-        #    (pcentre.nil? || r['Production Centre'] == pcentre) &&
-        #    (priority.nil? || r['Priority'] == priority) &&
-        #    (subproject.nil? || r['Sub-Project'] == subproject) &&
-        #    languishing2(r) if type == 'Languishing2'
-        #end
-
-        #keys2 = [
-        #  'Phenotype Attempt Aborted',
-        #  'ES QC started',
-        #  'ES QC confirmed',
-        #  'ES QC failed',
-        #  'MI in progress',
-        #  'MI Aborted',
-        #  'Phenotyping Started',
-        #  'Rederivation Started',
-        #  'Rederivation Complete',
-        #  'Cre Excision Started',
-        #  'Cre Excision Complete',
-        #  'Phenotyping Complete',
-        #  'Phenotype Attempt Aborted'
-        #]
-
         return false if (r['Consortium'] != consortium || r['Production Centre'] != pcentre)
-
-        #return MAPPING_SUMMARIES[type].include?(r.data['Overall Status']) if keys2.include? type
-        #
-        #return true if type == 'All'
-        #
-        #return     (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(r.data['Overall Status'])) ||
-        #  ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? r.data['Overall Status']) &&
-        #    (r.data['Genotype confirmed Date'] && r.data['Genotype confirmed Date'].to_s.length > 0)) if type == 'Genotype Confirmed Mice'
-        #
-        #return (r && r['PhenotypeAttempt Status'] && r['PhenotypeAttempt Status'].to_s.length > 1 ||
-        #  MAPPING_SUMMARIES['Registered for Phenotyping'].include?(r.data['Overall Status'])) if type == 'Registered for Phenotyping'
-        #
-        #return languishing(r) if type == 'Languishing'
-        #
-        #return false
 
         return languishing(r) if type == 'Languishing'
         
@@ -468,13 +352,10 @@ class Reports::MiProduction::SummaryKomp23
     report.rename_column 'Mutation Sub-Type', 'Mutation Type'
   
     title = "Production Summary Detail"
-    title = "Production Summary Detail: #{consortium}#{pcentre}#{type} (#{report.size})" if DEBUG_INTERMEDIATE
+    title = "Production Summary Detail: #{consortium}#{pcentre}#{type} (#{report.size})" if DEBUG_SUBSUMMARY
     
     return title, report
   end
-
-  CSV_LINKS = Reports::MiProduction::SummaryKomp2Common::CSV_LINKS  
-  REPORT_TITLE = 'KOMP2 Report 3'
   
   def self.generate(request = nil, params={})
     

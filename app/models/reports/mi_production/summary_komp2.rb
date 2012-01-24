@@ -39,8 +39,8 @@ class Reports::MiProduction::SummaryKomp2
 #    report.reorder(reordered)
     report.rename_column('All', 'All Genes')
   
-#    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : report.to_html
-    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : prettify_table(report)
+    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : report.to_html
+#    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : prettify_table(report)
   
   end
   

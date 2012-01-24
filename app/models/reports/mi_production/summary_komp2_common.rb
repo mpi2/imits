@@ -10,12 +10,11 @@
 
 module Reports::MiProduction::SummaryKomp2Common
   
-  DEBUG = false
-
-  CACHE_NAME = DEBUG ? 'mi_production_intermediate_test' : 'mi_production_intermediate'
-  
   extend Reports::MiProduction::SummariesCommon
 
+  DEBUG = false
+  DEBUG_INTERMEDIATE = true
+  CACHE_NAME = DEBUG ? 'mi_production_intermediate_test' : 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
 
   MAPPING_SUMMARIES = {
@@ -74,16 +73,17 @@ module Reports::MiProduction::SummaryKomp2Common
     'Phenotyping Complete'
   ]
 
-  def generate_common(request = nil, params={})
+  def generate_common(request = nil, params={}, links = false)
 
     debug = params['debug'] && params['debug'].to_s.length > 0
 
     cached_report = initialize
-        
+    script_name = request ? request.env['REQUEST_URI'] : ''
+
     heading = HEADINGS   
-    heading.push 'Languishing' if debug
-    heading.push 'Distinct Genotype Confirmed ES Cells' if debug
-    heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug
+    heading.push 'Languishing' if debug #&& ! heading.include? 'Languishing'
+    heading.push 'Distinct Genotype Confirmed ES Cells' if debug #&& ! heading.include? 'Distinct Genotype Confirmed ES Cells'
+    heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug #&& ! heading.include? 'Distinct Old Non Genotype Confirmed ES Cells'
     report_table = Table(heading)
 
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
@@ -139,42 +139,70 @@ module Reports::MiProduction::SummaryKomp2Common
         pc = efficiency(request, row)
         pc2 = efficiency2(request, row)
 
-        clean_value = lambda {|value|
+        make_clean = lambda {|value|
           return value if request && request.format == :csv
           return '' if ! value || value.to_s == "0"
           return value
         }
+        
+        make_link = lambda {|rowx, key|
+          return rowx[key] if request && request.format == :csv
+          return '' if rowx[key].to_s.length < 1
+          return '' if rowx[key] == 0
+          return rowx[key] if ! links
+
+          consort = CGI.escape consortium
+          pcentre = CGI.escape rowx['Production Centre']
+          pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
+          type = CGI.escape key
+          separator = /\?/.match(script_name) ? '&' : '?'
+          return "<a title='Click to see list of #{key}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>"
+        }
+
+        #make_efficiency1 = lambda {|rowx, pc|
+        #    return "#{pc}</td>" if ! debug
+        #    return " title='Calculated: glt / (glt + languishing) - #{rowx['Genotype Confirmed Mice']} / (#{rowx['Genotype Confirmed Mice']} + #{rowx['Languishing']})'>#{pc}</td>"
+        #  }
+        #  make_efficiency2 = lambda {|rowx, pc|
+        #    return "<td>#{pc}</td>" if ! debug
+        #    return "<td title='Calculated: Distinct Genotype Confirmed ES Cells / (Distinct Genotype Confirmed ES Cells + Distinct Old Non Genotype Confirmed ES Cells)" +
+        #  " - #{rowx['Distinct Genotype Confirmed ES Cells']} / (#{rowx['Distinct Genotype Confirmed ES Cells']} + #{rowx['Distinct Old Non Genotype Confirmed ES Cells']})'>#{pc}</td>"
+        #  }
       
         report_table << {
           'Consortium' => consortium,
           'Production Centre' => row['Production Centre'],
-          'All' => clean_value.call(row['All']),
-          'ES QC started' => clean_value.call(row['ES QC started']),
-          'ES QC confirmed' => clean_value.call(row['ES QC confirmed']),
-          'ES QC failed' => clean_value.call(row['ES QC failed']),
-          'MI in progress' => clean_value.call(row['MI in progress']),
-          'Genotype Confirmed Mice' => clean_value.call(row['Genotype Confirmed Mice']),
-          'MI Aborted' => clean_value.call(row['MI Aborted']),
-          'Languishing' => clean_value.call(row['Languishing']),
-          'Registered for Phenotyping' => clean_value.call(row['Registered for Phenotyping']),
-          'Distinct Genotype Confirmed ES Cells' => clean_value.call(row['Distinct Genotype Confirmed ES Cells']),
-          'Distinct Old Non Genotype Confirmed ES Cells' => clean_value.call(row['Distinct Old Non Genotype Confirmed ES Cells']),
-          'Pipeline efficiency (%)' => clean_value.call(pc),
-          'Pipeline efficiency (by clone)' => clean_value.call(pc2),
+          'All' => make_link.call(row, 'All'),
+          'ES QC started' => make_link.call(row, 'ES QC started'),
+          'ES QC confirmed' => make_link.call(row, 'ES QC confirmed'),
+          'ES QC failed' => make_link.call(row, 'ES QC failed'),
+          'MI in progress' => make_link.call(row, 'MI in progress'),
+          'Genotype Confirmed Mice' => make_link.call(row, 'Genotype Confirmed Mice'),
+          'MI Aborted' => make_link.call(row, 'MI Aborted'),
+          'Languishing' => make_link.call(row, 'Languishing'),
+          'Registered for Phenotyping' => make_link.call(row, 'Registered for Phenotyping'),
+          
+          'Distinct Genotype Confirmed ES Cells' => make_link.call(row, 'Distinct Genotype Confirmed ES Cells'),
+          'Distinct Old Non Genotype Confirmed ES Cells' => make_link.call(row, 'Distinct Old Non Genotype Confirmed ES Cells'),
+          'Pipeline efficiency (%)' => make_clean.call(pc),
+          'Pipeline efficiency (by clone)' => make_clean.call(pc2),
             
-          'Phenotyping Started' => clean_value.call(row['Phenotyping Started']),
-          'Rederivation Started' => clean_value.call(row['Rederivation Started']),
-          'Rederivation Complete' => clean_value.call(row['Rederivation Complete']),
-          'Cre Excision Started' => clean_value.call(row['Cre Excision Started']),
-          'Cre Excision Complete' => clean_value.call(row['Cre Excision Complete']),
-          'Phenotyping Complete' => clean_value.call(row['Phenotyping Complete']),
-          'Phenotype Attempt Aborted' => clean_value.call(row['Phenotype Attempt Aborted'])
+          'Phenotyping Started' => make_link.call(row, 'Phenotyping Started'),
+          'Rederivation Started' => make_link.call(row, 'Rederivation Started'),
+          'Rederivation Complete' => make_link.call(row, 'Rederivation Complete'),
+          'Cre Excision Started' => make_link.call(row, 'Cre Excision Started'),
+          'Cre Excision Complete' => make_link.call(row, 'Cre Excision Complete'),
+          'Phenotyping Complete' => make_link.call(row, 'Phenotyping Complete'),
+          'Phenotype Attempt Aborted' => make_link.call(row, 'Phenotype Attempt Aborted')
         }
         
       end
     end
 
     return report_table
+  end
+  
+  def anchor(hash, value)
   end
 
   def csv_line(consortium, centre, gene, status)
@@ -253,6 +281,10 @@ module Reports::MiProduction::SummaryKomp2Common
         (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0)) if key == 'Genotype Confirmed Mice'
 
     return (row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1 || MAPPING_SUMMARIES['Registered for Phenotyping'].include?(row.data['Overall Status'])) if key == 'Registered for Phenotyping'
+    
+    return integer(row[key]) > 0 if key == 'Distinct Genotype Confirmed ES Cells'
+
+    return integer(row[key]) > 0 if key == 'Distinct Old Non Genotype Confirmed ES Cells'
   
     raise "process_row: invalid key detected '#{key}'"
   end
@@ -325,6 +357,108 @@ module Reports::MiProduction::SummaryKomp2Common
     
     array.push '</table>'
     return array.join("\n")
+  end
+
+  def subsummary_common(params)
+    consortium = params[:consortium]
+    type = params[:type]
+    type = type ? type.gsub(/^\#\s+/, "") : nil
+    priority = params[:priority]
+    subproject = params[:subproject]    
+    pcentre = params[:pcentre]    
+#    debug = params['debug'] && params['debug'].to_s.length > 0
+  
+    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+      
+    report = Table(:data => cached_report.data,
+      :column_names => cached_report.column_names,
+      :filters => lambda {|r|
+        
+        ##TODO: fix this
+        #
+        #if ! /Languishing/.match(type)
+        #  return r['Consortium'] == consortium &&
+        #    (pcentre.nil? || r['Production Centre'] == pcentre) &&
+        #    (priority.nil? || r['Priority'] == priority) &&
+        #    (type.nil? || (type == 'All' && all(r)) || (type == 'Registered for Phenotyping' && registered_for_phenotyping(r)) || MAPPING_SUMMARIES[type].include?(r.data['Overall Status'])) &&
+        #    (subproject.nil? || r['Sub-Project'] == subproject)
+        #else
+        #  return r['Consortium'] == consortium &&
+        #    (pcentre.nil? || r['Production Centre'] == pcentre) &&
+        #    (priority.nil? || r['Priority'] == priority) &&
+        #    (subproject.nil? || r['Sub-Project'] == subproject) &&
+        #    languishing(r) if type == 'Languishing'
+        #  return r['Consortium'] == consortium &&
+        #    (pcentre.nil? || r['Production Centre'] == pcentre) &&
+        #    (priority.nil? || r['Priority'] == priority) &&
+        #    (subproject.nil? || r['Sub-Project'] == subproject) &&
+        #    languishing2(r) if type == 'Languishing2'
+        #end
+
+        keys2 = [
+          'Phenotype Attempt Aborted',
+          'ES QC started',
+          'ES QC confirmed',
+          'ES QC failed',
+          'MI in progress',
+          'MI Aborted',
+          'Phenotyping Started',
+          'Rederivation Started',
+          'Rederivation Complete',
+          'Cre Excision Started',
+          'Cre Excision Complete',
+          'Phenotyping Complete',
+          'Phenotype Attempt Aborted'
+        ]
+
+        return false if (r['Consortium'] != consortium || r['Production Centre'] != pcentre)
+
+        #return MAPPING_SUMMARIES[type].include?(r.data['Overall Status']) if keys2.include? type
+        #
+        #return true if type == 'All'
+        #
+        #return     (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(r.data['Overall Status'])) ||
+        #  ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? r.data['Overall Status']) &&
+        #    (r.data['Genotype confirmed Date'] && r.data['Genotype confirmed Date'].to_s.length > 0)) if type == 'Genotype Confirmed Mice'
+        #
+        #return (r && r['PhenotypeAttempt Status'] && r['PhenotypeAttempt Status'].to_s.length > 1 ||
+        #  MAPPING_SUMMARIES['Registered for Phenotyping'].include?(r.data['Overall Status'])) if type == 'Registered for Phenotyping'
+        #
+        #return languishing(r) if type == 'Languishing'
+        #
+        #return false
+
+        return languishing(r) if type == 'Languishing'
+        
+        return process_row(r, type)
+      
+      },
+      :transforms => lambda {|r|
+        r['Mutation Sub-Type'] = fix_mutation_type r['Mutation Sub-Type']
+      }
+    )
+    
+    exclude_columns = [
+      "MiPlan Status",
+      "MiAttempt Status",
+      "PhenotypeAttempt Status"
+    ]
+    
+    exclude_columns.each do |name|
+      report.remove_column name
+    end
+    
+    consortium = consortium ? "Consortium: '#{consortium}' - " : ''
+    pcentre = pcentre ? "Centre: '#{pcentre}' - " : ''
+    type = type ? "Type: '#{type}' - " : ''
+    
+    report.rename_column 'Overall Status', 'Status'
+    report.rename_column 'Mutation Sub-Type', 'Mutation Type'
+  
+    title = "Production Summary Detail"
+    title = "Production Summary Detail: #{consortium}#{pcentre}#{type} (#{report.size})" if DEBUG_INTERMEDIATE
+    
+    return title, report
   end
 
 end

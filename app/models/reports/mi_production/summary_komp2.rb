@@ -18,7 +18,7 @@ class Reports::MiProduction::SummaryKomp2
       return title, rv
     end
 
-    report = generate_common(request, params)
+    report = generate_common(request, params, true)
 
 #    reordered = [
 #      'Consortium',

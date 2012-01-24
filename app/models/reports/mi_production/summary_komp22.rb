@@ -29,7 +29,6 @@ class Reports::MiProduction::SummaryKomp22
     month = get_month(months)
     report_title = REPORT_TITLE + " (#{month})"
 
-#    report.remove_columns('All', 'Pipeline efficiency (%)', 'Pipeline efficiency (by clone)')
     report.remove_columns('Pipeline efficiency (%)', 'Pipeline efficiency (by clone)')
     report.rename_column('All', 'All Genes')
 
@@ -108,38 +107,7 @@ class Reports::MiProduction::SummaryKomp22
     #TODO: this isn't working
     
     if key == 'All'
-##    raise "correct process_row (all)!"
-#      columns = [
-#      'ES QC started',
-#      'ES QC confirmed',
-#      'MI in progress',
-#      'Genotype Confirmed Mice',
-#      'Registered for Phenotyping',
-#      'Phenotyping Started',
-#      'Rederivation Started',
-#      'Rederivation Complete',
-#      'Cre Excision Started',
-#      'Cre Excision Complete',
-#      'Phenotyping Complete',
-#      'ES QC failed',
-#      'MI Aborted',
-#      'Phenotype Attempt Aborted'
-#      ]
-#      months = 1
-##      puts "STATUS: '" + row.data['Overall Status'].to_s + "'"
-##      return false if ! MAPPING_SUMMARIES[]columns.include? row.data['Overall Status']
-#      ok = false
-#      MAPPING_SUMMARIES.each do |name|
-#        next if ! columns.include? name
-#        if MAPPING_SUMMARIES[name].include? row.data['Overall Status']
-#          ok = true
-#          break
-#        end
-#      end
-#      return false if ! ok
 
-      puts "STATUS: '" + row.data['Overall Status'].to_s + "'"
-      
       #TODO: fix me!
 
       return false if ['Assigned', 'Inspect - MI Attempt'].include? row.data['Overall Status']

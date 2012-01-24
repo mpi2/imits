@@ -313,4 +313,3 @@ module Reports::MiProduction::SummaryKomp2Common
   end
 
 end
-

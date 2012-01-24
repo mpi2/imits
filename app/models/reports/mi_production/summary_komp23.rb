@@ -8,47 +8,6 @@ class Reports::MiProduction::SummaryKomp23
   DEBUG_INTERMEDIATE = true
   CACHE_NAME = DEBUG ? 'mi_production_intermediate_test' : 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
-
-    #keys2 = [
-    #  'Phenotype Attempt Aborted',
-    #  'ES QC started',
-    #  'ES QC confirmed',
-    #  'ES QC failed',
-    #  'MI in progress',
-    #  'MI Aborted',
-    #  'Phenotyping Started',
-    #  'Rederivation Started',
-    #  'Rederivation Complete',
-    #  'Cre Excision Started',
-    #  'Cre Excision Complete',
-    #  'Phenotyping Complete',
-    #  'Phenotype Attempt Aborted'
-    #]
-
-#  MAPPING_SUMMARIES = {
-##    'All' => [],
-#    'ES QC started' => ['Assigned - ES Cell QC In Progress'],
-#    'MI in progress' => ['Micro-injection in progress'],
-#    
-##    'MIs' => ['Micro-injection in progress', '', ''],
-#
-#    'Chimaeras' => [],
-#    
-#    'Genotype Confirmed Mice' => ['Genotype confirmed'],
-#    'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
-#    
-#    'ES QC failed' => ['Aborted - ES Cell QC Failed'],
-#    'MI Aborted' => ['Micro-injection aborted'],
-#    'Phenotype Attempt Aborted' => ['Phenotype Attempt Aborted'],
-#    
-#    'Registered for Phenotyping' => ['Phenotype Attempt Registered'],
-#    'Phenotyping Started' => ['Phenotyping Started'],
-#    'Rederivation Started' => ['Rederivation Started'],
-#    'Rederivation Complete' => ['Rederivation Complete'],
-#    'Cre Excision Started' => ['Cre Excision Started'],
-#    'Cre Excision Complete' => ['Cre Excision Complete'],
-#    'Phenotyping Complete' => ['Phenotyping Complete']
-#  }
   
   CONSORTIA = ['BaSH', 'DTCC', 'DTCC-Legacy', 'JAX']
   
@@ -57,7 +16,11 @@ class Reports::MiProduction::SummaryKomp23
     'ES QC Failures',
     'ES QC confirmed',
     'ES QCs',
+    'Genotype Confirmed',
+    'MI Aborted',
+    'MIs',
     
+    'DUMMY',
     'ES QC started',
     'MI in progress',
     'Chimaeras',
@@ -70,7 +33,6 @@ class Reports::MiProduction::SummaryKomp23
     'Cre Excision Complete',
     'Phenotyping Complete',
     'ES QC failed',
-    'MI Aborted',
     'Phenotype Attempt Aborted',
     'Pipeline efficiency (%)',
     'Pipeline efficiency (by clone)'
@@ -94,10 +56,8 @@ class Reports::MiProduction::SummaryKomp23
     grouped_report.each do |consortium| 
 
       next if ! CONSORTIA.include?(consortium)
-
-      grouped_report.subgrouping(consortium).summary(
-
-        'Production Centre',
+      
+      grouped_report.subgrouping(consortium).summary('Production Centre', 
         'All' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row| process_row(row, 'All') } ) },
         'ES QC started' => lambda { |group| count_instances_of( group, 'Gene',
@@ -135,9 +95,17 @@ class Reports::MiProduction::SummaryKomp23
         'Phenotype Attempt Aborted' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| process_row(row2, 'Phenotype Attempt Aborted') } ) },
         'ES QC Failures' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'ES QC Failures') } ) }
-
-      ).each do |row|
+            lambda { |row2| process_row(row2, 'ES QC Failures') } ) },
+        'ES QCs' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| process_row(row2, 'ES QCs') } ) },
+        'Genotype Confirmed' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| process_row(row2, 'Genotype Confirmed') } ) },
+        'MIs' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| process_row(row2, 'MIs') } ) }
+        
+        #
+        
+        ).each do |row|
         
         next if row['Production Centre'].to_s.length < 1
 
@@ -198,7 +166,13 @@ class Reports::MiProduction::SummaryKomp23
           'Cre Excision Started' => make_link.call(row, 'Cre Excision Started'),
           'Cre Excision Complete' => make_link.call(row, 'Cre Excision Complete'),
           'Phenotyping Complete' => make_link.call(row, 'Phenotyping Complete'),
-          'Phenotype Attempt Aborted' => make_link.call(row, 'Phenotype Attempt Aborted')
+          'Phenotype Attempt Aborted' => make_link.call(row, 'Phenotype Attempt Aborted'),
+          
+          'ES QC Failures' => make_link.call(row, 'ES QC Failures'),
+          'ES QCs' => make_link.call(row, 'ES QCs'),
+          'Genotype Confirmed' => make_link.call(row, 'Genotype Confirmed'),
+          'MIs' => make_link.call(row, 'MIs')
+          
         }
         
       end
@@ -264,27 +238,6 @@ class Reports::MiProduction::SummaryKomp23
 
   def self.process_row(row, key)
     
-    #TODO: fix me!
-    #keys2 = [
-    #  'Phenotype Attempt Aborted',
-    #  'ES QC started',
-    #  'ES QC confirmed',
-    #  'ES QC failed',
-    #  'MI in progress',
-    #  'MI Aborted',
-    #  'Phenotyping Started',
-    #  'Rederivation Started',
-    #  'Rederivation Complete',
-    #  'Cre Excision Started',
-    #  'Cre Excision Complete',
-    #  'Phenotyping Complete',
-    #  'Phenotype Attempt Aborted'
-    #]
-    #
-    #return MAPPING_SUMMARIES[key].include? row.data['Overall Status'] if keys2.include? key
-    
-   # return MAPPING_SUMMARIES[key].include? row.data['Overall Status'] if MAPPING_SUMMARIES[key]
-
     return true if key == 'All'
     
     if key == 'ES QC Failures'
@@ -296,12 +249,29 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     if key == 'ES QCs'
-      return row['MiPlan Status'] == 'Assigned - ES Cell QC Complete' ||
-        row['MiPlan Status'] == 'Assigned - ES Cell QC Complete' ||
-        row['MiPlan Status'] == 'Aborted - ES Cell QC Failed'
+      #return (row['MiPlan Status'] == 'Assigned - ES Cell QC Complete' ||
+      #  row['MiPlan Status'] == 'Assigned - ES Cell QC Complete' ||
+      #  row['MiPlan Status'] == 'Aborted - ES Cell QC Failed')
+      #return true
+      return ['Assigned - ES Cell QC Complete', 'Assigned - ES Cell QC Complete', 'Aborted - ES Cell QC Failed'].include? row['MiPlan Status']
+    end
+    
+    if key == 'Genotype Confirmed'
+      #return true
+      return row['MiAttempt Status'] == 'Genotype confirmed'
+    end
+    
+    if key == 'MI Aborted'
+      return row['MiAttempt Status'] == 'Micro-injection aborted'
+    end
+    
+    if key == 'MIs'
+      return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
+        row['MiAttempt Status'] == 'Micro-injection aborted'
     end
     
     return false
+  
     #return     (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
     #  ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
     #    (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0)) if key == 'Genotype Confirmed Mice'
@@ -421,21 +391,21 @@ class Reports::MiProduction::SummaryKomp23
         #    languishing2(r) if type == 'Languishing2'
         #end
 
-        keys2 = [
-          'Phenotype Attempt Aborted',
-          'ES QC started',
-          'ES QC confirmed',
-          'ES QC failed',
-          'MI in progress',
-          'MI Aborted',
-          'Phenotyping Started',
-          'Rederivation Started',
-          'Rederivation Complete',
-          'Cre Excision Started',
-          'Cre Excision Complete',
-          'Phenotyping Complete',
-          'Phenotype Attempt Aborted'
-        ]
+        #keys2 = [
+        #  'Phenotype Attempt Aborted',
+        #  'ES QC started',
+        #  'ES QC confirmed',
+        #  'ES QC failed',
+        #  'MI in progress',
+        #  'MI Aborted',
+        #  'Phenotyping Started',
+        #  'Rederivation Started',
+        #  'Rederivation Complete',
+        #  'Cre Excision Started',
+        #  'Cre Excision Complete',
+        #  'Phenotyping Complete',
+        #  'Phenotype Attempt Aborted'
+        #]
 
         return false if (r['Consortium'] != consortium || r['Production Centre'] != pcentre)
 

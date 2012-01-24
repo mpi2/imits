@@ -12,7 +12,9 @@ class Reports::MiProduction::SummaryKomp23
   
   CONSORTIA = ['BaSH', 'DTCC', 'DTCC-Legacy', 'JAX']
   
-  HEADINGS = ['Consortium', 'Production Centre',
+  HEADINGS = [
+    'Consortium',
+    'Production Centre',
     'All',
     'ES QC Failures',
     'ES QC confirmed',
@@ -28,8 +30,7 @@ class Reports::MiProduction::SummaryKomp23
     'Cre Excision Starts',
     'Rederivation Starts',
     'Rederivation Completes',
-    'Phenotype Registrations',
-    
+    'Phenotype Registrations',    
     'Pipeline efficiency (%)',
     'Pipeline efficiency (by clone)'
   ]
@@ -87,7 +88,6 @@ class Reports::MiProduction::SummaryKomp23
 
     debug = params['debug'] && params['debug'].to_s.length > 0
 
-#    cached_report = initialize
     cached_report = ReportCache.find_by_name!(CACHE_NAME).to_table
     
     script_name = request ? request.env['REQUEST_URI'] : ''
@@ -144,7 +144,7 @@ class Reports::MiProduction::SummaryKomp23
         'Phenotype Registrations' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| process_row(row2, 'Phenotype Registrations') } ) }
                 
-        ).each do |row|
+      ).each do |row|
         
         next if row['Production Centre'].to_s.length < 1
 
@@ -222,7 +222,6 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     if key == 'Genotype Confirmed'
-      #return true
       return row['MiAttempt Status'] == 'Genotype confirmed'
     end
     
@@ -261,12 +260,12 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     valid_phenos2 = [
-    'Rederivation Started',
-    'Rederivation Complete',
-    'Cre Excision Started',
-    'Cre Excision Complete',
-    'Phenotyping Started',
-    'Phenotyping Complete'
+      'Rederivation Started',
+      'Rederivation Complete',
+      'Cre Excision Started',
+      'Cre Excision Complete',
+      'Phenotyping Started',
+      'Phenotyping Complete'
     ]
     
     if key == 'Rederivation Starts'
@@ -274,11 +273,11 @@ class Reports::MiProduction::SummaryKomp23
     end
 
     valid_phenos3 = [
-    'Rederivation Complete',
-    'Cre Excision Started',
-    'Cre Excision Complete',
-    'Phenotyping Started',
-    'Phenotyping Complete'
+      'Rederivation Complete',
+      'Cre Excision Started',
+      'Cre Excision Complete',
+      'Phenotyping Started',
+      'Phenotyping Complete'
     ]
     
     if key == 'Rederivation Completes'
@@ -314,7 +313,7 @@ class Reports::MiProduction::SummaryKomp23
     priority = params[:priority]
     subproject = params[:subproject]    
     pcentre = params[:pcentre]    
-#    debug = params['debug'] && params['debug'].to_s.length > 0
+    #    debug = params['debug'] && params['debug'].to_s.length > 0
   
     cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
       

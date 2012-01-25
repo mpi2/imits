@@ -1043,6 +1043,68 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal pt, @default_mi_plan.latest_relevant_phenotype_attempt
       end
     end
+    
+    context '#distinct_genotype_confirmed_es_cells' do
+
+      should 'just work' do
+
+          #        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-01-02 23:59:59 UTC",
+          #          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
+          
+          #     mi_plan = Factory.create :mi_plan
+          
+          #      @default_mi_plan = Factory.create :mi_plan
+          
+          #puts "CREATED: " + mi_attempt.inspect
+          
+          #        puts "RESULT: " + @default_mi_plan.distinct_genotype_confirmed_es_cells.inspect
+          
+          #assert_equal nil, @default_mi_plan.latest_relevant_phenotype_attempt
+
+        #results = mi_attempt.reportable_statuses_with_latest_dates        
+        #puts "RESULTS: " + results.inspect
+        
+          
+          
+          
+        
+        mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+                
+        puts "RESULTS: " + mi_attempt.mi_plan.inspect
+        
+        expected = [
+          ['Genotype confirmed', '2010-05-13 05:04:01 UTC']
+        ]
+
+        replace_status_stamps(mi_attempt, expected)
+        
+        results = mi_attempt.mi_plan.distinct_genotype_confirmed_es_cells
+
+        puts "RESULTS 2: " + results.inspect
+
+      end
+
+    end
+    
+    context '#distinct_old_non_genotype_confirmed_es_cells' do
+
+      should 'just work' do
+        mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
+                
+        puts "RESULTS: " + mi_attempt.mi_plan.inspect
+        
+        expected = [
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ]
+
+        replace_status_stamps(mi_attempt, expected)
+        
+        results = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells
+
+        puts "RESULTS 2: " + results.inspect
+      end
+      
+    end
 
   end
 end

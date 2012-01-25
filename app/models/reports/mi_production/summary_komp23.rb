@@ -104,7 +104,7 @@ class Reports::MiProduction::SummaryKomp23
     #    return gap && gap < 180
   end
 
-  def self.distinct_genotype_confirmed_es_cells(group)
+  def self.distinct_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
       value = integer(row['Distinct Genotype Confirmed ES Cells'])
@@ -113,7 +113,7 @@ class Reports::MiProduction::SummaryKomp23
     return total
   end
 
-  def self.distinct_old_non_genotype_confirmed_es_cells(group)
+  def self.distinct_old_non_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
       value = integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
@@ -155,8 +155,8 @@ class Reports::MiProduction::SummaryKomp23
         
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| languishing(row2) } ) },
-        'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells(group) },
-        'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) },
+        'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells_count(group) },
+        'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) },
 
         'Cre Excision Starts' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| count_row(row2, 'Cre Excision Starts') } ) },

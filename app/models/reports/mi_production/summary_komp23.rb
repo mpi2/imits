@@ -42,11 +42,6 @@ class Reports::MiProduction::SummaryKomp23
     #    'Pipeline efficiency (%)',
     'Pipeline efficiency (6 month)',
     'Pipeline efficiency (by clone)'
-    #,'Genotype Confirmed 6 months'
-    #'Languishing',
-    #'Distinct Genotype Confirmed ES Cells',
-    #'Distinct Old Non Genotype Confirmed ES Cells'
-    #  ] + (DEBUG_COLUMNS ? DEBUG_HEADINGS : [])
   ] + DEBUG_HEADINGS
 
   def self.efficiency0(request, row)
@@ -122,7 +117,7 @@ class Reports::MiProduction::SummaryKomp23
     return total
   end
 
-  def self.generate_common(request = nil, params={}, links = false)
+  def self.generate_common(request = nil, params={}, links = false, limit_consortia = true)
 
     debug = params['debug'] && params['debug'].to_s.length > 0
     pretty = params['pretty'] && params['pretty'].to_s.length > 0
@@ -134,16 +129,13 @@ class Reports::MiProduction::SummaryKomp23
     script_name = request ? request.env['REQUEST_URI'] : ''
 
     heading = HEADINGS   
-    #heading.push 'Languishing' if debug #&& ! heading.include? 'Languishing'
-    #heading.push 'Distinct Genotype Confirmed ES Cells' if debug #&& ! heading.include? 'Distinct Genotype Confirmed ES Cells'
-    #heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug #&& ! heading.include? 'Distinct Old Non Genotype Confirmed ES Cells'
     report_table = Table(heading)
 
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
     
     grouped_report.each do |consortium| 
 
-      next if ! CONSORTIA.include?(consortium)
+      next if limit_consortia && ! CONSORTIA.include?(consortium)
       
       grouped_report.subgrouping(consortium).summary('Production Centre', 
         'All' => lambda { |group| count_instances_of( group, 'Gene',
@@ -406,7 +398,7 @@ class Reports::MiProduction::SummaryKomp23
     return title, report
   end
   
-  def self.generate(request = nil, params={})
+  def self.generate(request = nil, params={}, limit_consortia = true)
     
     if params[:consortium]
       title, report = subsummary_common(params)
@@ -420,7 +412,7 @@ class Reports::MiProduction::SummaryKomp23
     pretty = true
 
     #    report = generate_common(request, params, true)
-    report = generate_common(request, params)
+    report = generate_common(request, params, false, limit_consortia)
 
     report.rename_column('All', 'All Genes')
   
@@ -448,16 +440,14 @@ class Reports::MiProduction::SummaryKomp23
       "Phenotype data starts",
       "Phenotyping Complete",
       "Phenotype Attempt Aborted",
-      #,'Genotype Confirmed 6 months'
-      #'Languishing',
-      #'Distinct Genotype Confirmed ES Cells',
-      #'Distinct Old Non Genotype Confirmed ES Cells'
     ] + (details ? DEBUG_HEADINGS : [])
 
     report.reorder(new_columns)
+    
+    title = limit_consortia ? REPORT_TITLE : 'Production for IMPC Consortia'
 
     html = pretty ? prettify_table(request, report) : report.to_html
-    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : html
+    return title, request && request.format == :csv ? report.to_csv : html
   
   end
 
@@ -475,7 +465,7 @@ class Reports::MiProduction::SummaryKomp23
     grouped_report = Grouping( table, :by => [ 'Consortium' ] )
     labels = ['All Genes', 'ES QCs', 'ES QC confirms', 'ES QC Failures']
               
-    CONSORTIA.each do |consortium|
+    grouped_report.each do |consortium|
       summaries[consortium] = {}
       labels.each { |item| summaries[consortium][item] = grouped_report[consortium].sigma(item) }
     end
@@ -502,7 +492,7 @@ class Reports::MiProduction::SummaryKomp23
       return "<a title='Click to see list of #{type}' href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
     }
     
-    CONSORTIA.each do |consortium_name1|
+    grouped_report.each do |consortium_name1|
       array.push '</tr>'
       array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>#{consortium_name1}</td>"
       array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['All Genes'], consortium_name1, nil, 'All') + "</td>"

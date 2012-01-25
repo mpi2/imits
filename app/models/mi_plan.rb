@@ -312,46 +312,35 @@ class MiPlan < ApplicationModel
     return phenotype_attempts.order('is_active desc, created_at desc').first
   end
 
-  def distinct_genotype_confirmed_es_cells
-    #mi_attempts.where('mi_attempts.mi_date < ? and mi_attempt_status_id = ?', 6.months.ago.to_date,
-    #  MiAttemptStatus.genotype_confirmed.id).map { |mi| mi.es_cell.name }.sort.uniq.size
+  def distinct_genotype_confirmed_es_cells_count
 
-    counter = 0
+    es_cells = []
     mi_attempts.each do |mi|
-      date = mi.reportable_statuses_with_latest_dates["Genotype confirmed"]
-      counter += 1 if date < 6.months.ago.to_date
+      dates = mi.reportable_statuses_with_latest_dates
+      gc_date = dates["Genotype confirmed"]  # mi in progress date
+      next if ! gc_date
+      mip_date = dates["Micro-injection in progress"]
+      next if ! mip_date
+      es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
     
-    return counter
+    return es_cells.sort.uniq.size
     
   end
 
-  def distinct_old_non_genotype_confirmed_es_cells
-    #mi_attempts.where('mi_attempts.mi_date < ? and mi_attempt_status_id <> ?', 6.months.ago.to_date,
-    #  MiAttemptStatus.genotype_confirmed.id).map { |mi| mi.es_cell.name }.sort.uniq.size
+  def distinct_old_non_genotype_confirmed_es_cells_count
 
-    counter = 0
+    es_cells = []
     mi_attempts.each do |mi|
-      mi.reportable_statuses_with_latest_dates.each_pair do |key, value|
-        next if key == "Genotype confirmed"
-        counter += 1 if value < 6.months.ago.to_date
-      end
+      dates = mi.reportable_statuses_with_latest_dates
+      gc_date = dates["Genotype confirmed"]
+      next if gc_date
+      mip_date = dates["Micro-injection in progress"]
+      next if ! mip_date
+      es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
     
-    return counter
-
-    #
-    #list = mi_attempts.reportable_statuses_with_latest_dates
-    #
-    #counter = 0
-    #list.each do |i|
-    #  i.each do |j|
-    #    next if j == "Genotype confirmed"
-    #    counter += 1 if i[j] < 6.months.ago.to_date
-    #  end
-    #end
-
-    #return counter
+    return es_cells.sort.uniq.size
 
   end
   

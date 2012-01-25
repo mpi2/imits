@@ -3,6 +3,9 @@
 require 'test_helper'
 
 class MiPlanTest < ActiveSupport::TestCase
+  
+  VERBOSE = true
+  
   context 'MiPlan' do
 
     setup do
@@ -1044,54 +1047,37 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
     
-    context '#distinct_genotype_confirmed_es_cells' do
+    context '#distinct_genotype_confirmed_es_cells_count' do
 
       should 'just work' do
 
-          #        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-01-02 23:59:59 UTC",
-          #          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-          
-          #     mi_plan = Factory.create :mi_plan
-          
-          #      @default_mi_plan = Factory.create :mi_plan
-          
-          #puts "CREATED: " + mi_attempt.inspect
-          
-          #        puts "RESULT: " + @default_mi_plan.distinct_genotype_confirmed_es_cells.inspect
-          
-          #assert_equal nil, @default_mi_plan.latest_relevant_phenotype_attempt
-
-        #results = mi_attempt.reportable_statuses_with_latest_dates        
-        #puts "RESULTS: " + results.inspect
-        
-          
-          
-          
-        
-        mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
+        mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
                 
-        puts "RESULTS: " + mi_attempt.mi_plan.inspect
+        puts "RESULTS: " + mi_attempt.mi_plan.inspect if VERBOSE
         
         expected = [
-          ['Genotype confirmed', '2010-05-13 05:04:01 UTC']
+          ["Micro-injection in progress", '2010-05-13 05:04:01 UTC']
         ]
 
         replace_status_stamps(mi_attempt, expected)
         
-        results = mi_attempt.mi_plan.distinct_genotype_confirmed_es_cells
+        results = mi_attempt.mi_plan.distinct_genotype_confirmed_es_cells_count
 
-        puts "RESULTS 2: " + results.inspect
+        puts "RESULTS 2: " + results.inspect if VERBOSE
+
+        assert_equal 1, results
 
       end
 
     end
     
-    context '#distinct_old_non_genotype_confirmed_es_cells' do
+    context '#distinct_old_non_genotype_confirmed_es_cells_count' do
 
       should 'just work' do
+        
         mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
                 
-        puts "RESULTS: " + mi_attempt.mi_plan.inspect
+        puts "RESULTS: " + mi_attempt.mi_plan.inspect if VERBOSE
         
         expected = [
           ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
@@ -1099,9 +1085,12 @@ class MiPlanTest < ActiveSupport::TestCase
 
         replace_status_stamps(mi_attempt, expected)
         
-        results = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells
+        results = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
 
-        puts "RESULTS 2: " + results.inspect
+        puts "RESULTS 2: " + results.inspect if VERBOSE
+
+        assert_equal 1, results
+
       end
       
     end

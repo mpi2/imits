@@ -1196,5 +1196,19 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#production_centre' do
+      should 'delegate to mi_plan' do
+        assert_equal default_mi_attempt.mi_plan.production_centre,
+                default_mi_attempt.production_centre
+      end
+    end
+
+    context '#consortium' do
+      should 'delegate to mi_plan' do
+        assert_equal default_mi_attempt.mi_plan.consortium,
+                default_mi_attempt.consortium
+      end
+    end
+
   end
 end

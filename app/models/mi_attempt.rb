@@ -386,6 +386,8 @@ class MiAttempt < ApplicationModel
   def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
   def es_cell_allele_symbol; es_cell.try(:allele_symbol); end
 
+  delegate :production_centre, :consortium, :to => :mi_plan
+
   def find_matching_mi_plan
     consortium = Consortium.find_by_name(consortium_name)
     production_centre = Centre.find_by_name(production_centre_name)

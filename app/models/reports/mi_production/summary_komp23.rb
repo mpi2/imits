@@ -10,7 +10,8 @@ class Reports::MiProduction::SummaryKomp23
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'KOMP2 Report 3'
   
-  CONSORTIA = ['BaSH', 'DTCC', 'DTCC-Legacy', 'JAX']
+  CONSORTIA = ['BaSH', 'DTCC', #'DTCC-Legacy',
+               'JAX']
   
   HEADINGS = [
     'Consortium',
@@ -221,7 +222,7 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     if key == 'ES QCs'
-      return ['Assigned - ES Cell QC Complete', 'Assigned - ES Cell QC Complete', 'Aborted - ES Cell QC Failed'].include? row['MiPlan Status']
+      return ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Aborted - ES Cell QC Failed'].include? row['MiPlan Status']
     end
     
     if key == 'Genotype Confirmed'
@@ -377,15 +378,6 @@ class Reports::MiProduction::SummaryKomp23
   
     #    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : report.to_html
 
-    html = pretty ? prettify_table(request, report) : report.to_html
-    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : html
-  
-  end
-
-  def self.prettify_table(request, table)
-
-    script_name = request ? request.env['REQUEST_URI'] : ''
-
     new_columns = [
       "Consortium",
       "All Genes",
@@ -409,7 +401,41 @@ class Reports::MiProduction::SummaryKomp23
       "Phenotype Attempt Aborted"
     ]
 
-    table.reorder(new_columns)
+    report.reorder(new_columns)
+
+    html = pretty ? prettify_table(request, report) : report.to_html
+    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : html
+  
+  end
+
+  def self.prettify_table(request, table)
+
+    script_name = request ? request.env['REQUEST_URI'] : ''
+
+    #new_columns = [
+    #  "Consortium",
+    #  "All Genes",
+    #  "ES QCs",
+    #  "ES QC confirms",
+    #  "ES QC Failures",
+    #  "Production Centre",
+    #  "MIs",
+    #  "Chimaeras",
+    #  "Genotype Confirmed",
+    #  "MI Aborted",
+    #  "Pipeline efficiency (%)",
+    #  "Pipeline efficiency (by clone)",
+    #  "Phenotype Registrations",
+    #  "Rederivation Starts",
+    #  "Rederivation Completes",
+    #  "Cre Excision Starts",
+    #  "Cre Excision Complete",
+    #  "Phenotype data starts",
+    #  "Phenotyping Complete",
+    #  "Phenotype Attempt Aborted"
+    #]
+    #
+    #table.reorder(new_columns)
 
     centres = {}
     sub_table = table.sub_table { |r|
@@ -425,7 +451,7 @@ class Reports::MiProduction::SummaryKomp23
       summaries[consortium] = {}
       labels.each { |item|
         summaries[consortium][item] = grouped_report[consortium].sigma(item)
-        summaries[consortium][item] = summaries[consortium][item] == 0 ? '' : summaries[consortium][item]
+#        summaries[consortium][item] = summaries[consortium][item] == 0 ? '' : summaries[consortium][item]
       }
     end
 
@@ -451,28 +477,28 @@ class Reports::MiProduction::SummaryKomp23
       return "<a title='Click to see list of #{type}' href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
     }
     
-    CONSORTIA.each do |name1|
+    CONSORTIA.each do |consortium_name1|
       array.push '</tr>'
-      array.push "<td rowspan='#{centres[name1].size.to_s}'>#{name1}</td>"
-      array.push "<td rowspan='#{centres[name1].size.to_s}'>" + make_link.call(summaries[name1]['All Genes'], name1, nil, 'All') + "</td>"
-      array.push "<td rowspan='#{centres[name1].size.to_s}'>" + make_link.call(summaries[name1]['ES QCs'], name1, nil, 'ES QCs') + "</td>"
-      array.push "<td rowspan='#{centres[name1].size.to_s}'>" + make_link.call(summaries[name1]['ES QC confirms'], name1, nil, 'ES QC confirms') + "</td>"
-      array.push "<td rowspan='#{centres[name1].size.to_s}'>" + make_link.call(summaries[name1]['ES QC Failures'], name1, nil, 'ES QC Failures') + "</td>"
+      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>#{consortium_name1}</td>"
+      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['All Genes'], consortium_name1, nil, 'All') + "</td>"
+      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES QCs'], consortium_name1, nil, 'ES QCs') + "</td>"
+      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES QC confirms'], consortium_name1, nil, 'ES QC confirms') + "</td>"
+      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES QC Failures'], consortium_name1, nil, 'ES QC Failures') + "</td>"
 
       i=0
       while i < rows
         
-        if table.column('Consortium')[i] != name1
+        if table.column('Consortium')[i] != consortium_name1
           i+=1
           next
         end
         
         ignore_columns = ['Production Centre', 'Pipeline efficiency (%)', 'Pipeline efficiency (by clone)']
         
-        other_columns.each do |name2|
-          array.push "<td>#{table.column(name2)[i]}</td>" if ignore_columns.include? name2
-          next if ignore_columns.include? name2
-          array.push "<td>" + make_link.call(table.column(name2)[i], name1, table.column('Production Centre')[i], name2) + "</td>"
+        other_columns.each do |consortium_name2|
+          array.push "<td>#{table.column(consortium_name2)[i]}</td>" if ignore_columns.include? consortium_name2
+          next if ignore_columns.include? consortium_name2
+          array.push "<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>"
         end
 
         array.push '</tr>'

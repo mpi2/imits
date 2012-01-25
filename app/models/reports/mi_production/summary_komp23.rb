@@ -5,14 +5,21 @@ class Reports::MiProduction::SummaryKomp23
   extend Reports::MiProduction::SummariesCommon
 
   DEBUG = false
+  DEBUG_COLUMNS = true
   DEBUG_SUBSUMMARY = false
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'KOMP2 Report 3'
   
-  CONSORTIA = ['BaSH', 'DTCC', #'DTCC-Legacy',
-               'JAX']
-  
+  CONSORTIA = ['BaSH', 'DTCC', 'JAX']
+
+  DEBUG_HEADINGS = [
+    'Genotype Confirmed 6 months',
+    'Languishing',
+    'Distinct Genotype Confirmed ES Cells',
+    'Distinct Old Non Genotype Confirmed ES Cells'
+  ]
+
   HEADINGS = [
     'Consortium',
     'Production Centre',
@@ -32,11 +39,15 @@ class Reports::MiProduction::SummaryKomp23
     'Rederivation Starts',
     'Rederivation Completes',
     'Phenotype Registrations',    
-    'Pipeline efficiency (%)',
+    #    'Pipeline efficiency (%)',
     'Pipeline efficiency (6 month)',
-    'Pipeline efficiency (by clone)',
-    'Genotype Confirmed 6'
-  ]
+    'Pipeline efficiency (by clone)'
+    #,'Genotype Confirmed 6 months'
+    #'Languishing',
+    #'Distinct Genotype Confirmed ES Cells',
+    #'Distinct Old Non Genotype Confirmed ES Cells'
+    #  ] + (DEBUG_COLUMNS ? DEBUG_HEADINGS : [])
+  ] + DEBUG_HEADINGS
 
   def self.efficiency0(request, row)
     glt = integer(row['Genotype Confirmed'])
@@ -50,7 +61,7 @@ class Reports::MiProduction::SummaryKomp23
   end
 
   def self.efficiency(request, row)
-    glt = integer(row['Genotype Confirmed 6'])
+    glt = integer(row['Genotype Confirmed 6 months'])
     #glt2 = integer(row['Phenotyped Count'])
     #glt += glt2
     failures = integer(row['Languishing']) + integer(row['MI Aborted'])
@@ -80,17 +91,17 @@ class Reports::MiProduction::SummaryKomp23
     return gap && gap > 180
   end
   
-  def self.glt6(row)
+  def self.glt6month(row)
     label = 'Genotype Confirmed'
     date = 'Genotype confirmed Date'
-#    return false if row.data['Overall Status'] != label
+    #    return false if row.data['Overall Status'] != label
     today = Date.today
     return false if ! row[date] || row[date].to_s.length < 1
     before = Date.parse(row[date])
     return false if ! before
     gap = today - before
     return gap && gap > 180
-#    return gap && gap < 180
+    #    return gap && gap < 180
   end
 
   def self.distinct_genotype_confirmed_es_cells(group)
@@ -123,9 +134,9 @@ class Reports::MiProduction::SummaryKomp23
     script_name = request ? request.env['REQUEST_URI'] : ''
 
     heading = HEADINGS   
-    heading.push 'Languishing' if debug #&& ! heading.include? 'Languishing'
-    heading.push 'Distinct Genotype Confirmed ES Cells' if debug #&& ! heading.include? 'Distinct Genotype Confirmed ES Cells'
-    heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug #&& ! heading.include? 'Distinct Old Non Genotype Confirmed ES Cells'
+    #heading.push 'Languishing' if debug #&& ! heading.include? 'Languishing'
+    #heading.push 'Distinct Genotype Confirmed ES Cells' if debug #&& ! heading.include? 'Distinct Genotype Confirmed ES Cells'
+    #heading.push 'Distinct Old Non Genotype Confirmed ES Cells' if debug #&& ! heading.include? 'Distinct Old Non Genotype Confirmed ES Cells'
     report_table = Table(heading)
 
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
@@ -136,11 +147,11 @@ class Reports::MiProduction::SummaryKomp23
       
       grouped_report.subgrouping(consortium).summary('Production Centre', 
         'All' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| process_row(row, 'All') } ) },
+            lambda { |row| count_row(row, 'All') } ) },
         'ES QC confirms' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row| process_row(row, 'ES QC confirms') } ) },
+            lambda { |row| count_row(row, 'ES QC confirms') } ) },
         'MI Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'MI Aborted') } ) },
+            lambda { |row2| count_row(row2, 'MI Aborted') } ) },
         
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| languishing(row2) } ) },
@@ -148,33 +159,33 @@ class Reports::MiProduction::SummaryKomp23
         'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells(group) },
 
         'Cre Excision Starts' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Cre Excision Starts') } ) },
+            lambda { |row2| count_row(row2, 'Cre Excision Starts') } ) },
         'Cre Excision Complete' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Cre Excision Complete') } ) },
+            lambda { |row2| count_row(row2, 'Cre Excision Complete') } ) },
         'Phenotyping Complete' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Phenotyping Complete') } ) },
+            lambda { |row2| count_row(row2, 'Phenotyping Complete') } ) },
         'Phenotype Attempt Aborted' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Phenotype Attempt Aborted') } ) },
+            lambda { |row2| count_row(row2, 'Phenotype Attempt Aborted') } ) },
         'ES QC Failures' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'ES QC Failures') } ) },
+            lambda { |row2| count_row(row2, 'ES QC Failures') } ) },
         'ES QCs' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'ES QCs') } ) },
+            lambda { |row2| count_row(row2, 'ES QCs') } ) },
         'Genotype Confirmed' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Genotype Confirmed') } ) },
+            lambda { |row2| count_row(row2, 'Genotype Confirmed') } ) },
         'MIs' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'MIs') } ) },
+            lambda { |row2| count_row(row2, 'MIs') } ) },
         'Phenotype data starts' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Phenotype data starts') } ) },
+            lambda { |row2| count_row(row2, 'Phenotype data starts') } ) },
         'Cre Excision Complete' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Cre Excision Complete') } ) },
+            lambda { |row2| count_row(row2, 'Cre Excision Complete') } ) },
         'Rederivation Starts' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Rederivation Starts') } ) },
+            lambda { |row2| count_row(row2, 'Rederivation Starts') } ) },
         'Rederivation Completes' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Rederivation Completes') } ) },
+            lambda { |row2| count_row(row2, 'Rederivation Completes') } ) },
         'Phenotype Registrations' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Phenotype Registrations') } ) },
-        'Genotype Confirmed 6' => lambda { |group| count_instances_of( group, 'Gene',
-            lambda { |row2| process_row(row2, 'Genotype Confirmed 6') } ) },
+            lambda { |row2| count_row(row2, 'Phenotype Registrations') } ) },
+        'Genotype Confirmed 6 months' => lambda { |group| count_instances_of( group, 'Gene',
+            lambda { |row2| count_row(row2, 'Genotype Confirmed 6 months') } ) }
                 
       ).each do |row|
         
@@ -216,7 +227,7 @@ class Reports::MiProduction::SummaryKomp23
           'Distinct Old Non Genotype Confirmed ES Cells' => make_link.call(row, 'Distinct Old Non Genotype Confirmed ES Cells'),
           'Pipeline efficiency (6 month)' => make_clean.call(pc),
           'Pipeline efficiency (by clone)' => make_clean.call(pc2),
-          'Pipeline efficiency (%)' => make_clean.call(pc0),
+          #          'Pipeline efficiency (%)' => make_clean.call(pc0),
             
           'Cre Excision Started' => make_link.call(row, 'Cre Excision Started'),
           'Cre Excision Complete' => make_link.call(row, 'Cre Excision Complete'),
@@ -239,7 +250,7 @@ class Reports::MiProduction::SummaryKomp23
     return report_table
   end
   
-  def self.process_row(row, key)
+  def self.count_row(row, key)
     
     return true if key == 'All'
     
@@ -259,8 +270,8 @@ class Reports::MiProduction::SummaryKomp23
       return row['MiAttempt Status'] == 'Genotype confirmed'
     end
     
-    if key == 'Genotype Confirmed 6'
-      return row['MiAttempt Status'] == 'Genotype confirmed' && glt6(row)
+    if key == 'Genotype Confirmed 6 months'
+      return row['MiAttempt Status'] == 'Genotype confirmed' && glt6month(row)
     end
     
     if key == 'MI Aborted'
@@ -364,7 +375,7 @@ class Reports::MiProduction::SummaryKomp23
 
         return languishing(r) if type == 'Languishing'
         
-        return process_row(r, type)
+        return count_row(r, type)
       
       },
       :transforms => lambda {|r|
@@ -403,7 +414,9 @@ class Reports::MiProduction::SummaryKomp23
       return title, rv
     end
 
-#    pretty = params['pretty'] && params['pretty'].to_s.length > 0
+    #    pretty = params['pretty'] && params['pretty'].to_s.length > 0
+    
+    details = params['details'] && params['details'].to_s.length > 0
     pretty = true
 
     #    report = generate_common(request, params, true)
@@ -424,7 +437,7 @@ class Reports::MiProduction::SummaryKomp23
       "Chimaeras",
       "Genotype Confirmed",
       "MI Aborted",
-      "Pipeline efficiency (%)",
+      #      "Pipeline efficiency (%)",
       "Pipeline efficiency (6 month)",
       "Pipeline efficiency (by clone)",
       "Phenotype Registrations",
@@ -435,8 +448,11 @@ class Reports::MiProduction::SummaryKomp23
       "Phenotype data starts",
       "Phenotyping Complete",
       "Phenotype Attempt Aborted",
-    #  'Genotype Confirmed 6'
-    ]
+      #,'Genotype Confirmed 6 months'
+      #'Languishing',
+      #'Distinct Genotype Confirmed ES Cells',
+      #'Distinct Old Non Genotype Confirmed ES Cells'
+    ] + (details ? DEBUG_HEADINGS : [])
 
     report.reorder(new_columns)
 
@@ -448,31 +464,6 @@ class Reports::MiProduction::SummaryKomp23
   def self.prettify_table(request, table)
 
     script_name = request ? request.env['REQUEST_URI'] : ''
-
-    #new_columns = [
-    #  "Consortium",
-    #  "All Genes",
-    #  "ES QCs",
-    #  "ES QC confirms",
-    #  "ES QC Failures",
-    #  "Production Centre",
-    #  "MIs",
-    #  "Chimaeras",
-    #  "Genotype Confirmed",
-    #  "MI Aborted",
-    #  "Pipeline efficiency (%)",
-    #  "Pipeline efficiency (by clone)",
-    #  "Phenotype Registrations",
-    #  "Rederivation Starts",
-    #  "Rederivation Completes",
-    #  "Cre Excision Starts",
-    #  "Cre Excision Complete",
-    #  "Phenotype data starts",
-    #  "Phenotyping Complete",
-    #  "Phenotype Attempt Aborted"
-    #]
-    #
-    #table.reorder(new_columns)
 
     centres = {}
     sub_table = table.sub_table { |r|
@@ -486,10 +477,7 @@ class Reports::MiProduction::SummaryKomp23
               
     CONSORTIA.each do |consortium|
       summaries[consortium] = {}
-      labels.each { |item|
-        summaries[consortium][item] = grouped_report[consortium].sigma(item)
-#        summaries[consortium][item] = summaries[consortium][item] == 0 ? '' : summaries[consortium][item]
-      }
+      labels.each { |item| summaries[consortium][item] = grouped_report[consortium].sigma(item) }
     end
 
     array = []

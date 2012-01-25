@@ -48,13 +48,12 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal ['does not exist'], pt.errors[:consortium_name]
       end
 
-      should 'validate the consortium cannot be changed if MiPlan is assigned' do
-        mi = Factory.create :mi_attempt_genotype_confirmed
-        Factory.create(:mi_plan, :consortium => Consortium.find_by_name!('JAX'),
-          :gene => mi.gene, :production_centre => mi.production_centre)
-        mi_plan = Factory.create(:mi_plan, :consortium => Consortium.find_by_name!('BaSH'))
-        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => mi.colony_name,
-          :mi_plan => mi_plan, :consortium_name => 'JAX')
+      should 'validate the consortium cannot be changed on update' do
+        assert default_phenotype_attempt
+        pt = Public::PhenotypeAttempt.find(default_phenotype_attempt.id)
+        assert_not_equal 'JAX', pt.consortium_name
+
+        pt.consortium_name = 'JAX'
         pt.valid?
         assert_equal ['cannot be changed'], pt.errors[:consortium_name], pt.errors.inspect
       end
@@ -72,13 +71,14 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal ['does not exist'], pt.errors[:production_centre_name]
       end
 
-      should 'validate the production_centre cannot be changed if MiPlan is assigned' do
-        mi = Factory.create :mi_attempt_genotype_confirmed
-        mi_plan = Factory.create(:mi_plan, :production_centre => Centre.find_by_name!('ICS'))
-        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => mi.colony_name,
-          :mi_plan => mi_plan, :production_centre_name => 'WTSI')
+      should 'validate the production_centre cannot be changed on update' do
+        assert default_phenotype_attempt
+        pt = Public::PhenotypeAttempt.find(default_phenotype_attempt.id)
+        assert_not_equal 'TCP', pt.production_centre_name
+
+        pt.production_centre_name = 'TCP'
         pt.valid?
-        assert_equal ['cannot be changed'], pt.errors[:production_centre_name]
+        assert_equal ['cannot be changed'], pt.errors[:production_centre_name], pt.errors.inspect
       end
     end
 
@@ -89,6 +89,11 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
           :es_cell => Factory.create(:es_cell, :gene => @cbx1),
           :consortium_name => 'BaSH',
           :production_centre_name => 'ICS')
+      end
+
+      should 'not raise error when being set by before filter if no mi_attempt is found' do
+        pt = Public::PhenotypeAttempt.new
+        assert_false pt.valid?
       end
 
       should 'be set to correct MiPlan if neither consortium_name nor production_centre_name are provided' do
@@ -136,6 +141,21 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
           :consortium_name => 'DTCC')
         pt.valid?
         assert_match /cannot be found with supplied parameters/i, pt.errors['mi_plan'].first
+      end
+
+      should 'not overwrite existing MiPlan that has been assigned' do
+        Factory.create :mi_plan, :consortium => Consortium.find_by_name!('DTCC'),
+                :production_centre => Centre.find_by_name!('TCP'),
+                :gene => @mi.gene
+
+        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
+          :consortium_name => 'DTCC', :production_centre_name => 'TCP')
+        plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('DTCC'),
+                :production_centre => Centre.find_by_name!('UCD'),
+                :gene => @mi.gene
+        pt.mi_plan = plan
+        pt.valid?
+        assert_equal plan, pt.mi_plan
       end
     end
 

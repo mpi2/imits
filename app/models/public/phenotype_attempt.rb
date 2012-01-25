@@ -23,6 +23,9 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   # BEGIN Callbacks
 
   def set_mi_plan
+    return if mi_plan
+    return if mi_attempt.nil?
+
     if production_centre_name
       centre = Centre.find_by_name(production_centre_name)
     else

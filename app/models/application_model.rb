@@ -22,11 +22,16 @@ class ApplicationModel < ActiveRecord::Base
     params = params.dup.stringify_keys
     translated_params = {}
 
-    sorts = translate_public_param(params.delete('sorts')) unless params['sorts'].blank?
+    sorts = params.delete('sorts')
+    unless sorts.blank?
+      translated_params['sorts'] = translate_public_param(sorts)
+    end
+
     params.each do |name, value|
       translated_params[translate_public_param(name)] = value
     end
-    return self.search(translated_params.merge('sorts' => sorts))
+
+    return self.search(translated_params)
   end
 
   def consortium_name_and_production_centre_name_from_mi_plan_validation

@@ -211,7 +211,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
     context '#as_json' do
       should 'take nil as param' do
-        assert_nothing_raised { @default_mi_plan.as_json(nil) }
+        assert_nothing_raised { default_mi_plan.as_json(nil) }
       end
     end
 
@@ -237,9 +237,13 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     end
 
     context '::public_search' do
+      should 'not need to pass "sorts" parameter' do
+        assert Public::MiPlan.public_search(:consortium_name_eq => default_mi_plan.consortium.name, :sorts => nil).result
+      end
+
       should 'pass on parameters not needing translation to ::search' do
-        assert_equal @default_mi_plan.id,
-                Public::MiPlan.public_search(:consortium_name_eq => @default_mi_plan.consortium.name).result.first.id
+        assert_equal default_mi_plan.id,
+                Public::MiPlan.public_search(:consortium_name_eq => default_mi_plan.consortium.name).result.first.id
       end
 
       should 'translate searching predicates' do

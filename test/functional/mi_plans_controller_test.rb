@@ -250,7 +250,7 @@ class MiPlansControllerTest < ActionController::TestCase
         end
 
         should 'allow sorting by marker_symbol' do
-          get :index, :format => 'json', :sorts => 'marker_symbol desc'
+          get :index, :format => 'json', :sorts => 'marker_symbol asc'
           data = parse_json_from_response
           sorted_markers = data.map {|i| i['marker_symbol']}
           assert_equal sorted_markers.sort, sorted_markers

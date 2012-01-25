@@ -386,10 +386,17 @@ class Reports::MiProduction::SummaryKomp23
 
     script_name = request ? request.env['REQUEST_URI'] : ''
 
-    new_columns = ["Consortium", "All Genes",
-      "ES QCs", "ES QC confirms",
-      "ES QC Failures", "Production Centre",
-      "MIs", "Genotype Confirmed", "MI Aborted",
+    new_columns = [
+      "Consortium",
+      "All Genes",
+      "ES QCs",
+      "ES QC confirms",
+      "ES QC Failures",
+      "Production Centre",
+      "MIs",
+      "Chimaeras",
+      "Genotype Confirmed",
+      "MI Aborted",
       "Pipeline efficiency (%)",
       "Pipeline efficiency (by clone)",
       "Phenotype Registrations",
@@ -399,7 +406,6 @@ class Reports::MiProduction::SummaryKomp23
       "Cre Excision Complete",
       "Phenotype data starts",
       "Phenotyping Complete",
-      #               "Chimaeras",
       "Phenotype Attempt Aborted"
     ]
 
@@ -433,20 +439,6 @@ class Reports::MiProduction::SummaryKomp23
 
     other_columns = table.column_names - ["Consortium", "All Genes", "ES QCs", "ES QC confirms",  "ES QC Failures"]
     rows = table.data.size 
-
-    #make_link = lambda {|rowx, key|
-    #  return rowx[key] if request && request.format == :csv
-    #  return '' if rowx[key].to_s.length < 1
-    #  return '' if rowx[key] == 0
-    #  return rowx[key] if ! links
-    #
-    #  consort = CGI.escape consortium
-    #  pcentre = CGI.escape rowx['Production Centre']
-    #  pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
-    #  type = CGI.escape key
-    #  separator = /\?/.match(script_name) ? '&' : '?'
-    #  return "<a title='Click to see list of #{key}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>"
-    #}
 
     make_link = lambda {|value, consortium, pcentre, type|
       return '' if value.to_s.length < 1

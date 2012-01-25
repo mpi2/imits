@@ -6,16 +6,6 @@
 <!--
 <div class="grid_4">
   <h3>Plans</h3>
-  <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :genes_list, :format => :csv) %>">
-      <h4>All Genes</h4>
-      <p>
-        Lists all mouse genes that iMits is aware of and also shows the availability of IKMC
-        alleles and any micro-injections that have been planned/performed for each gene.
-        <br/><strong>CSV download only</strong>
-      </p>
-    </a>
-  </div>
 </div>
 -->
 
@@ -38,48 +28,45 @@
       <p>Matrix showing plans assigned to two or more consortia (with possible production in both)</p>
     </a>
   </div>
+  <div class="report-links">
+    <a href="<%= url_for(:controller => :reports, :action => :genes_list, :format => :csv) %>">
+      <h4>All Genes</h4>
+      <p>
+        Lists all mouse genes that iMits is aware of and also shows the availability of IKMC
+        alleles and any micro-injections that have been planned/performed for each gene.
+        <br/><strong>CSV download only</strong>
+      </p>
+    </a>
+  </div>
 </div>
 
 <div class="grid_4">
-  <h3>Project Tracking Summaries</h3>
-  <div class="report-links">
-    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium_and_accumulated_status) %>">
-      <h4>All Consortia - Key Statuses</h4>
-      <p>Cumulative Totals of All IMPC Consortia vs. a Small Number of Key Statuses</p>
-    </a>
-  </div>
-  <div class="report-links">
-    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium) %>">
-      <h4>All Consortia - All Statuses</h4>
-      <p>Current Totals of All IMPC Consortia vs. Detailed Statuses and Pipeline Efficiencies</p>
-    </a>
-  </div>
-  <div class="report-links">
-    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium_priority) %>">
-      <h4>All Consortia with Priorities - All Statuses</h4>
-      <p>Current Totals of All IMPC Consortia and Priorities vs. Detailed Statuses and Pipeline Efficiencies</p>
-    </a>
-  </div>
-  <div class="report-links">
-    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :detail) %>">
-      <h4>All Project Best Statuses and Status Dates For All Consortia</h4>
-    </a>
-  </div>
-  <h3>KOMP2 reports</h3>
+  <h3>KOMP2 Production Reports</h3>
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp2_brief) %>">
-        <h4>KOMP2 Consortia - All Statuses</h4>
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp23) %>">
+        <h4>Production for KOMP2 Consortia</h4>
+      </a>
+    </div>
+    
+    <div class="report-links">
+      <h4><em>KOMP2 Month-by-month activity - Coming soon</em></h4>
+    </div>
+  
+  <h3>IMPC Production Reports</h3>
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium_and_accumulated_status) %>">
+        <h4>All Consortia - Key Statuses</h4>
+        <p>All IMPC Consortia for Key Statuses</p>
       </a>
     </div>
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp2) %>">
-        <h4>KOMP2 Consortia and Production Centres - All Statuses</h4>
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_impc23) %>">
+        <h4>Production for IMPC Consortia</h4>
       </a>
     </div>
+    
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp21) %>">
-        <h4>KOMP2 Cumulative Consortia and Production Centres - All Statuses</h4>
-      </a>
+      <h4><em>IMPC Month-by-month activity - Coming soon</em></h4>
     </div>
 </div>
 

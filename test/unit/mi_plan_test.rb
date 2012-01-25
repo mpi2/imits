@@ -4,8 +4,6 @@ require 'test_helper'
 
 class MiPlanTest < ActiveSupport::TestCase
   
-  VERBOSE = true
-  
   context 'MiPlan' do
 
     setup do
@@ -1051,19 +1049,16 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'just work' do
 
-        mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
-                
-        puts "RESULTS: " + mi_attempt.mi_plan.inspect if VERBOSE
-        
+        mi_attempt = Factory.create(:mi_attempt_genotype_confirmed)
+
         expected = [
+          ["Genotype confirmed", '2011-05-13 05:04:01 UTC'],
           ["Micro-injection in progress", '2010-05-13 05:04:01 UTC']
         ]
 
         replace_status_stamps(mi_attempt, expected)
         
         results = mi_attempt.mi_plan.distinct_genotype_confirmed_es_cells_count
-
-        puts "RESULTS 2: " + results.inspect if VERBOSE
 
         assert_equal 1, results
 
@@ -1074,20 +1069,17 @@ class MiPlanTest < ActiveSupport::TestCase
     context '#distinct_old_non_genotype_confirmed_es_cells_count' do
 
       should 'just work' do
-        
+
         mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
-                
-        puts "RESULTS: " + mi_attempt.mi_plan.inspect if VERBOSE
-        
+
         expected = [
+          ["Micro-injection aborted", '2011-05-13 05:04:01 UTC'],
           ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
         ]
 
         replace_status_stamps(mi_attempt, expected)
         
         results = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
-
-        puts "RESULTS 2: " + results.inspect if VERBOSE
 
         assert_equal 1, results
 

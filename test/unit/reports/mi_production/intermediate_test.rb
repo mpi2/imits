@@ -145,7 +145,9 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Cre Excision Complete Date',
           'Phenotyping Started Date',
           'Phenotyping Complete Date',
-          'Phenotype Attempt Aborted Date'
+          'Phenotype Attempt Aborted Date',
+          'Distinct Genotype Confirmed ES Cells',
+          'Distinct Old Non Genotype Confirmed ES Cells'
         ]
 
         assert_equal expected, @report.column_names
@@ -181,7 +183,9 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Cre Excision Complete Date' => '2011-12-05',
           'Phenotyping Started Date' => '2011-12-06',
           'Phenotyping Complete Date' => '2011-12-07',
-          'Phenotype Attempt Aborted Date' => '2011-12-08'
+          'Phenotype Attempt Aborted Date' => '2011-12-08',
+          'Distinct Genotype Confirmed ES Cells'=>1,
+          'Distinct Old Non Genotype Confirmed ES Cells'=>0,
         }
         assert_equal expected, bash_wtsi_row.data
       end
@@ -216,7 +220,9 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Cre Excision Complete Date' => '',
           'Phenotyping Started Date' => '',
           'Phenotyping Complete Date' => '',
-          'Phenotype Attempt Aborted Date' => ''
+          'Phenotype Attempt Aborted Date' => '',
+          'Distinct Genotype Confirmed ES Cells'=>0,
+          'Distinct Old Non Genotype Confirmed ES Cells'=>0,
         }
         assert_equal expected, mgp_wtsi_row.data
       end

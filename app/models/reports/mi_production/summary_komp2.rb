@@ -18,7 +18,7 @@ class Reports::MiProduction::SummaryKomp2
       return title, rv
     end
 
-    report = generate_common(request, params)
+    report = generate_common(request, params, true)
 
 #    reordered = [
 #      'Consortium',
@@ -40,6 +40,8 @@ class Reports::MiProduction::SummaryKomp2
     report.rename_column('All', 'All Genes')
   
     return REPORT_TITLE, request && request.format == :csv ? report.to_csv : report.to_html
+#    return REPORT_TITLE, request && request.format == :csv ? report.to_csv : prettify_table(report)
+  
   end
   
 end

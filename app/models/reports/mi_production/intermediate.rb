@@ -38,8 +38,8 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
       'reportable_statuses_with_latest_dates',
       'latest_relevant_mi_attempt',
       'latest_relevant_phenotype_attempt',
-      'distinct_genotype_confirmed_es_cells',
-      'distinct_old_non_genotype_confirmed_es_cells'
+      'distinct_genotype_confirmed_es_cells_count',
+      'distinct_old_non_genotype_confirmed_es_cells_count'
     ]
 
     transform = proc do |record|
@@ -75,8 +75,8 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
         end
       end
       
-      record['Distinct Genotype Confirmed ES Cells'] = record['distinct_genotype_confirmed_es_cells']
-      record['Distinct Old Non Genotype Confirmed ES Cells'] = record['distinct_old_non_genotype_confirmed_es_cells']
+      record['Distinct Genotype Confirmed ES Cells'] = record['distinct_genotype_confirmed_es_cells_count']
+      record['Distinct Old Non Genotype Confirmed ES Cells'] = record['distinct_old_non_genotype_confirmed_es_cells_count']
 
       #mi_glt = mi_attempt.where(:mi_attempt_status_id =>
       #  MiAttemptStatus.genotype_confirmed.id).map { |mi| mi.es_cell.name }.sort.uniq

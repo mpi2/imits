@@ -6,12 +6,12 @@ class Reports::MiProductionController < ApplicationController
 
   before_filter :authenticate_user!, :except => [:summary_by_consortium_and_accumulated_status]
 
-  def test
-    if request.format == :csv
-    	report = ReportCache.find_by_name!('mi_production_intermediate_test')
-      send_data_csv('test.csv', report.csv_data)
-    end
-  end
+  #def test
+  #  if request.format == :csv
+  #  	report = ReportCache.find_by_name!('mi_production_intermediate_test')
+  #    send_data_csv('test.csv', report.csv_data)
+  #  end
+  #end
 
   def detail
     if request.format == :csv
@@ -53,11 +53,11 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv('summary_mgp.csv', @report.to_csv) if request.format == :csv
   end
 
-  #def summary_komp2_brief
-  #  @csv = Reports::MiProduction::SummaryKomp2Brief::CSV_LINKS
-  #  @title2, @report = Reports::MiProduction::SummaryKomp2Brief.generate(request, params)
-  #  send_data_csv('production_summary_komp2_brief.csv', @report.to_csv) if request.format == :csv
-  #end
+  def summary_komp2_brief
+    @csv = Reports::MiProduction::SummaryKomp2Brief::CSV_LINKS
+    @title2, @report = Reports::MiProduction::SummaryKomp2Brief.generate(request, params)
+    send_data_csv('production_summary_komp2_brief.csv', @report.to_csv) if request.format == :csv
+  end
 
   def summary_komp2
     @csv = Reports::MiProduction::SummaryKomp2::CSV_LINKS
@@ -74,7 +74,19 @@ class Reports::MiProductionController < ApplicationController
   def summary_komp22
     @csv = Reports::MiProduction::SummaryKomp22::CSV_LINKS
     @title2, @report = Reports::MiProduction::SummaryKomp22.generate(request, params)
-    send_data_csv('production_summary_komp22.csv', @report.to_csv) if request.format == :csv
+    send_data_csv('production_summary_komp22.csv', @report) if request.format == :csv
+  end
+
+  def summary_komp23
+    @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
+    @title2, @report = Reports::MiProduction::SummaryKomp23.generate(request, params)
+    send_data_csv('production_summary_komp23.csv', @report) if request.format == :csv
+  end
+
+  def summary_impc23
+    @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
+    @title2, @report = Reports::MiProduction::SummaryKomp23.generate(request, params, false)
+    send_data_csv('summary_impc23.csv', @report) if request.format == :csv
   end
 
   def languishing

@@ -4,7 +4,7 @@
 
 <% if @report %>
 
-<p><%= link_to('Download as CSV', url_for({:action => :summary_komp22, :controller => '/reports/mi_production', :format => :csv}.merge(params))) if @csv %></p>
+<p><%= link_to('Download as CSV', url_for({:action => :summary_impc23, :controller => '/reports/mi_production', :format => :csv}.merge(params))) if @csv %></p>
 
 <% if @csv %><br/><% end %>
 

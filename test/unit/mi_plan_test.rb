@@ -3,6 +3,7 @@
 require 'test_helper'
 
 class MiPlanTest < ActiveSupport::TestCase
+  
   context 'MiPlan' do
 
     setup do
@@ -1013,6 +1014,48 @@ class MiPlanTest < ActiveSupport::TestCase
 
         assert_equal pt, @default_mi_plan.latest_relevant_phenotype_attempt
       end
+    end
+    
+    context '#distinct_genotype_confirmed_es_cells_count' do
+
+      should 'just work' do
+
+        mi_attempt = Factory.create(:mi_attempt_genotype_confirmed)
+
+        expected = [
+          ["Genotype confirmed", '2011-05-13 05:04:01 UTC'],
+          ["Micro-injection in progress", '2010-05-13 05:04:01 UTC']
+        ]
+
+        replace_status_stamps(mi_attempt, expected)
+        
+        results = mi_attempt.mi_plan.distinct_genotype_confirmed_es_cells_count
+
+        assert_equal 1, results
+
+      end
+
+    end
+    
+    context '#distinct_old_non_genotype_confirmed_es_cells_count' do
+
+      should 'just work' do
+
+        mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
+
+        expected = [
+          ["Micro-injection aborted", '2011-05-13 05:04:01 UTC'],
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ]
+
+        replace_status_stamps(mi_attempt, expected)
+        
+        results = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
+
+        assert_equal 1, results
+
+      end
+      
     end
 
   end

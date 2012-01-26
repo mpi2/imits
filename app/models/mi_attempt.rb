@@ -454,6 +454,14 @@ class MiAttempt < ApplicationModel
     super(default_serializer_options(options))
   end
 
+  def date_for_status(name)
+    if name.to_s == 'in_progress'
+      return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttemptStatus.micro_injection_in_progress.id}.created_at
+    else
+      raise 'Not implemented'
+    end
+  end
+
   private
 
   def default_serializer_options(options = {})

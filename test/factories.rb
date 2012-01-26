@@ -61,8 +61,11 @@ end
 
 Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_confirmed do |mi_attempt|
   mi_attempt.after_create do |mi|
-    mi.status_stamps.first.update_attributes(:created_at => Time.parse('2011-07-07 12:00:00'))
+    mi.status_stamps.destroy_all
 
+    mi.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :created_at => Time.parse('2011-07-07 12:00:00'))
     mi.status_stamps.create!(
       :mi_attempt_status => MiAttemptStatus.micro_injection_aborted,
       :created_at => Time.parse('2011-06-06 12:00:00'))

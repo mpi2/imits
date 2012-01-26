@@ -358,6 +358,9 @@ class Reports::MiProduction::SummaryKomp23
         
         return false if r['Consortium'] != consortium
         return false if pcentre && pcentre.to_s.length > 0 && r['Production Centre'] != pcentre
+        
+        # deliberately ignore anything without a production centre
+        return false if ! r['Production Centre'] || r['Production Centre'].to_s.length < 1
 
         return languishing(r) if type == 'Languishing'
 

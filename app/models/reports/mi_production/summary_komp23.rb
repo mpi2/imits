@@ -38,21 +38,9 @@ class Reports::MiProduction::SummaryKomp23
     'Rederivation Starts',
     'Rederivation Completes',
     'Phenotype Registrations',    
-    #    'Pipeline efficiency (%)',
-    'Pipeline efficiency (6 month)',
-    'Pipeline efficiency (by clone)'
+    'Gene Pipeline efficiency (%)',
+    'Clone Pipeline efficiency (%)'
   ] + DEBUG_HEADINGS
-
-  def self.efficiency_simple(request, row)
-    glt = integer(row['Genotype Confirmed'])
-    #glt2 = integer(row['Phenotyped Count'])
-    #glt += glt2
-    failures = integer(row['Languishing']) + integer(row['MI Aborted'])
-    total = integer(row['Genotype Confirmed']) + failures
-    pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-    pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
-    return pc
-  end
 
   def self.efficiency_6months(request, row)
     glt = integer(row['Genotype Confirmed 6 months'])
@@ -79,38 +67,15 @@ class Reports::MiProduction::SummaryKomp23
     return false if row[date].blank?
     before = Date.parse(row[date])
     return false if ! before
-    #   gap = today - before
-    #   return gap && gap > 180
     return before < 6.months.ago.to_date
   end
   
   def self.genotype_confirmed_6month(row)
-
-       
-    #    label = 'Genotype Confirmed'
     date = 'Genotype confirmed Date'
     today = Date.today
     return false if row[date].blank?
-    
-    
     date = 'Micro-injection in progress Date'
-    #    return false if ! row[date] || row[date].to_s.length < 1
-
-    before = Date.parse(row[date])
-    #    return false if ! row[date] || row[date].to_s.length < 1
-    
-    #    return false if ! before
-    #    gap = today - before
-    #    return gap && gap > 180
-    
-    
-    
-    #    STDERR.puts row.to_csv if row['Consortium'] == 'DTCC' && row['Production Cenre'] == 'UCD'
-    
-    #STDERR.puts 'genotype_confirmed_6month'
-    #STDERR.puts row.to_csv
-    
-    
+    before = Date.parse(row[date])    
     return before < 6.months.ago.to_date
   end
 
@@ -152,9 +117,6 @@ class Reports::MiProduction::SummaryKomp23
       'All', 
       'ES QC confirms', 
       'MI Aborted', 
-      #'Languishing', 
-      #'Distinct Genotype Confirmed ES Cells', 
-      #'Distinct Old Non Genotype Confirmed ES Cells', 
       'Cre Excision Starts', 
       'Cre Excision Complete', 
       'Phenotyping Complete', 
@@ -187,7 +149,6 @@ class Reports::MiProduction::SummaryKomp23
         
         next if row['Production Centre'].to_s.length < 1
 
-        pc0 = efficiency_simple(request, row)
         pc = efficiency_6months(request, row)
         pc2 = efficiency_clone(request, row)
 
@@ -212,16 +173,12 @@ class Reports::MiProduction::SummaryKomp23
         }
         
         list_heads = [
-          #          'Consortium',
-          #          'Production Centre',
           'All',
           'ES QC confirms',
           'MI Aborted',
           'Languishing',
           'Distinct Genotype Confirmed ES Cells',
           'Distinct Old Non Genotype Confirmed ES Cells',
-          #'Pipeline efficiency (6 month)',
-          #'Pipeline efficiency (by clone)',
           'Cre Excision Started',
           'Cre Excision Complete',
           'Phenotyping Complete',
@@ -239,9 +196,8 @@ class Reports::MiProduction::SummaryKomp23
         new_hash = {}
         new_hash['Consortium'] = consortium
         new_hash['Production Centre'] = row['Production Centre']
-        #new_hash['Pipeline efficiency (%)'] = make_clean.call(pc0)
-        new_hash['Pipeline efficiency (6 month)'] = make_clean.call(pc)
-        new_hash['Pipeline efficiency (by clone)'] = make_clean.call(pc2)
+        new_hash['Gene Pipeline efficiency (%)'] = make_clean.call(pc)
+        new_hash['Clone Pipeline efficiency (%)'] = make_clean.call(pc2)
         list_heads.each do |item|
           new_hash[item] = make_link.call(row, item)
         end
@@ -275,8 +231,7 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     if key == 'Genotype Confirmed 6 months'
-      #      return row['MiAttempt Status'] == 'Genotype confirmed' && genotype_confirmed_6month(row)
-      return genotype_confirmed_6month(row)
+      return row['MiAttempt Status'] == 'Genotype confirmed' && genotype_confirmed_6month(row)
     end
     
     if key == 'MI Aborted'
@@ -379,6 +334,7 @@ class Reports::MiProduction::SummaryKomp23
         return false if pcentre && pcentre.to_s.length > 0 && r['Production Centre'] != pcentre
         
         # deliberately ignore anything without a production centre
+        
         return false if ! r['Production Centre'] || r['Production Centre'].to_s.length < 1
 
         return languishing(r) if type == 'Languishing'
@@ -426,6 +382,7 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     details = params['details'] && params['details'].to_s.length > 0
+    do_table = params['table'] && params['table'].to_s.length > 0
     pretty = true
 
     report = generate_common(request, params, false, limit_consortia)
@@ -443,9 +400,8 @@ class Reports::MiProduction::SummaryKomp23
       "Chimaeras",
       "Genotype Confirmed",
       "MI Aborted",
-      #      "Pipeline efficiency (%)",
-      "Pipeline efficiency (6 month)",
-      "Pipeline efficiency (by clone)",
+      "Gene Pipeline efficiency (%)",
+      "Clone Pipeline efficiency (%)",
       "Phenotype Registrations",
       "Rederivation Starts",
       "Rederivation Completes",
@@ -459,6 +415,8 @@ class Reports::MiProduction::SummaryKomp23
     report.reorder(new_columns)
     
     title = limit_consortia ? REPORT_TITLE : 'Production for IMPC Consortia'
+    
+    return title, report if do_table
 
     html = pretty ? prettify_table(request, report) : report.to_html
     return title, request && request.format == :csv ? report.to_csv : html
@@ -505,6 +463,16 @@ class Reports::MiProduction::SummaryKomp23
       separator = /\?/.match(script_name) ? '&' : '?'
       return "<a title='Click to see list of #{type}' href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
     }
+
+    #make_efficiency1 = lambda {|rowx, pc|
+    #    return "<td>#{pc}</td>" if ! debug
+    #    return "<td title='Calculated: glt / (glt + languishing) - #{rowx['Genotype Confirmed Mice']} / (#{rowx['Genotype Confirmed Mice']} + #{rowx['Languishing']})'>#{pc}</td>"
+    #}
+    #make_efficiency2 = lambda {|rowx, pc|
+    #    return "<td>#{pc}</td>" if ! debug
+    #    return "<td title='Calculated: Distinct Genotype Confirmed ES Cells / (Distinct Genotype Confirmed ES Cells + Distinct Old Non Genotype Confirmed ES Cells)" +
+    #  " - #{rowx['Distinct Genotype Confirmed ES Cells']} / (#{rowx['Distinct Genotype Confirmed ES Cells']} + #{rowx['Distinct Old Non Genotype Confirmed ES Cells']})'>#{pc}</td>"
+    #}
     
     grouped_report.each do |consortium_name1|
       array.push '</tr>'
@@ -522,7 +490,7 @@ class Reports::MiProduction::SummaryKomp23
           next
         end
         
-        ignore_columns = ['Pipeline efficiency (%)', 'Production Centre', 'Pipeline efficiency (6 month)', 'Pipeline efficiency (by clone)']
+        ignore_columns = ['Production Centre', 'Gene Pipeline efficiency (%)', 'Clone Pipeline efficiency (%)']
         
         other_columns.each do |consortium_name2|
           array.push "<td>#{table.column(consortium_name2)[i]}</td>" if ignore_columns.include? consortium_name2

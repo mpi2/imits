@@ -341,8 +341,10 @@ class Reports::MiProduction::SummaryKomp23
 
         return languishing(r) if type == 'Languishing'
 
-        return r[type] && r[type].to_s.length > 0 && r[type].to_s != '0' if type == 'Distinct Genotype Confirmed ES Cells'
-        return r[type] && r[type].to_s.length > 0 && r[type].to_s != '0' if type == 'Distinct Old Non Genotype Confirmed ES Cells'
+        #return r[type] && r[type].to_s.length > 0 && r[type].to_s != '0' if type == 'Distinct Genotype Confirmed ES Cells'
+        #return r[type] && r[type].to_s.length > 0 && r[type].to_s != '0' if type == 'Distinct Old Non Genotype Confirmed ES Cells'
+        return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype Confirmed ES Cells'
+        return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype Confirmed ES Cells'
         
         return count_row(r, type)
       

@@ -317,7 +317,7 @@ class MiPlan < ApplicationModel
     es_cells = []
     mi_attempts.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
-      gc_date = dates["Genotype confirmed"]  # mi in progress date
+      gc_date = dates["Genotype confirmed"]
       next if ! gc_date
       mip_date = dates["Micro-injection in progress"]
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date

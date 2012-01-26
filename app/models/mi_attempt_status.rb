@@ -19,6 +19,16 @@ class MiAttemptStatus < ActiveRecord::Base
   def self.micro_injection_aborted
     @@aborted ||= self.find_by_description!('Micro-injection aborted').freeze
   end
+
+  def <=>(other)
+    @@priorities ||= {
+      self.class.micro_injection_in_progress => 1,
+      self.class.micro_injection_aborted => 2,
+      self.class.genotype_confirmed => 3
+    }
+
+    return @@priorities[self] <=> @@priorities[other]
+  end
 end
 
 # == Schema Information

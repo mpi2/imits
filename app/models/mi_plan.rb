@@ -320,7 +320,6 @@ class MiPlan < ApplicationModel
       gc_date = dates["Genotype confirmed"]  # mi in progress date
       next if ! gc_date
       mip_date = dates["Micro-injection in progress"]
-      next if ! mip_date
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
     
@@ -336,7 +335,6 @@ class MiPlan < ApplicationModel
       gc_date = dates["Genotype confirmed"]
       next if gc_date
       mip_date = dates["Micro-injection in progress"]
-      next if ! mip_date
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
     

@@ -455,7 +455,7 @@ class MiAttempt < ApplicationModel
   end
 
   def in_progress_date
-    return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttemptStatus.micro_injection_in_progress.id}.created_at
+    return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttemptStatus.micro_injection_in_progress.id}.created_at.to_date
   end
 
   private

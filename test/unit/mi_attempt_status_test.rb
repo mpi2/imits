@@ -31,5 +31,19 @@ class MiAttemptStatusTest < ActiveSupport::TestCase
       end
     end
 
+    context '#<=>' do
+      should 'work' do
+        assert_equal(0, MiAttemptStatus.genotype_confirmed <=> MiAttemptStatus.genotype_confirmed)
+        assert_equal(0, MiAttemptStatus.micro_injection_in_progress <=> MiAttemptStatus.micro_injection_in_progress)
+        assert_equal(0, MiAttemptStatus.micro_injection_aborted <=> MiAttemptStatus.micro_injection_aborted)
+
+        assert_equal(-1, MiAttemptStatus.micro_injection_in_progress <=> MiAttemptStatus.micro_injection_aborted)
+        assert_equal(1, MiAttemptStatus.micro_injection_aborted <=> MiAttemptStatus.micro_injection_in_progress)
+
+        assert_equal(-1, MiAttemptStatus.micro_injection_aborted <=> MiAttemptStatus.genotype_confirmed)
+        assert_equal(1, MiAttemptStatus.genotype_confirmed <=> MiAttemptStatus.micro_injection_aborted)
+      end
+    end
+
   end
 end

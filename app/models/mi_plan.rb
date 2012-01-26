@@ -82,15 +82,17 @@ class MiPlan < ApplicationModel
   # END Callbacks
 
   def latest_relevant_mi_attempt
-    ordered_mis = mi_attempts.order('mi_attempts.is_active DESC, mi_attempts.mi_date DESC')
+    ordered_mis = mi_attempts.all.sort do |mi1, mi2|
+      [mi2.mi_attempt_status, mi2.in_progress_date] <=> [mi1.mi_attempt_status, mi1.in_progress_date]
+    end
     if ordered_mis.empty?
       return nil
     elsif !ordered_mis.first.is_active?
       return ordered_mis.first
     else
-      latest_mi_date = ordered_mis.first.mi_date
-      return_candidates = ordered_mis.select {|mi| mi.is_active? and mi.mi_date == latest_mi_date}
-      return_candidates = return_candidates.sort_by {|mi| [mi.mi_date, mi.status_stamps.last.created_at]}
+      latest_mi_date = ordered_mis.first.in_progress_date
+      return_candidates = ordered_mis.find_all {|mi| mi.is_active? and mi.in_progress_date == latest_mi_date}
+      return_candidates = return_candidates.sort_by {|mi| [mi.in_progress_date, mi.status_stamps.last.created_at]}
       return return_candidates.last
     end
   end
@@ -309,10 +311,9 @@ class MiPlan < ApplicationModel
     es_cells = []
     mi_attempts.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
-      gc_date = dates["Genotype confirmed"]  # mi in progress date
+      gc_date = dates["Genotype confirmed"]
       next if ! gc_date
       mip_date = dates["Micro-injection in progress"]
-      next if ! mip_date
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
     
@@ -328,7 +329,6 @@ class MiPlan < ApplicationModel
       gc_date = dates["Genotype confirmed"]
       next if gc_date
       mip_date = dates["Micro-injection in progress"]
-      next if ! mip_date
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
     

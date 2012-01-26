@@ -78,14 +78,6 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
       record['Distinct Genotype Confirmed ES Cells'] = record['distinct_genotype_confirmed_es_cells_count']
       record['Distinct Old Non Genotype Confirmed ES Cells'] = record['distinct_old_non_genotype_confirmed_es_cells_count']
 
-      #mi_glt = mi_attempt.where(:mi_attempt_status_id =>
-      #  MiAttemptStatus.genotype_confirmed.id).map { |mi| mi.es_cell.name }.sort.uniq
-      #
-      #mi_old = mi_attempt.where('mi_attempts.mi_date < ?', 6.months.ago.to_date)
-      #
-      #record['Distinct Genotype Confirmed ES Cells'] = mi_glt.size
-      #record['Distinct Old Non Genotype Confirmed ES Cells'] = (mi_old - mi_glt).size
-      
     end
     report_options[:transforms] = [transform]
 

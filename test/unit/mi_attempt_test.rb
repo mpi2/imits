@@ -140,6 +140,14 @@ class MiAttemptTest < ActiveSupport::TestCase
             MiAttemptStatus.micro_injection_aborted,
             MiAttemptStatus.genotype_confirmed].map(&:description), mi.status_stamps.map(&:description)
         end
+
+        should 'always include a Micro-injection in progress status, even if MI is created in Genotype confirmed state' do
+          mi = Factory.create :mi_attempt_genotype_confirmed
+          gc_stamp = mi.status_stamps.last
+          stamp = mi.status_stamps.all.find {|ss| ss.mi_attempt_status == MiAttemptStatus.micro_injection_in_progress}
+          assert stamp
+          assert_equal [stamp, gc_stamp], mi.status_stamps
+        end
       end
 
       context '#status virtual attribute' do

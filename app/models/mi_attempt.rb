@@ -146,6 +146,7 @@ class MiAttempt < ApplicationModel
 
   after_save :create_status_stamp_if_status_was_changed
   after_save :reload_mi_plan_mi_attempts
+  after_save :ensure_in_progress_status_stamp
 
   def self.active
     where(:is_active => true)
@@ -260,6 +261,15 @@ class MiAttempt < ApplicationModel
 
   def reload_mi_plan_mi_attempts
     mi_plan.mi_attempts.reload
+  end
+
+  def ensure_in_progress_status_stamp
+    status_stamps.reload
+    if ! status_stamps.find_by_mi_attempt_status_id(MiAttemptStatus.micro_injection_in_progress)
+      status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+        :created_at => status_stamps.last.created_at - 1.second)
+      status_stamps.reload
+    end
   end
 
   public

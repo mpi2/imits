@@ -85,7 +85,6 @@ class MiPlan < ApplicationModel
     ordered_mis = mi_attempts.all.sort do |mi1, mi2|
       [mi2.mi_attempt_status, mi2.in_progress_date] <=> [mi1.mi_attempt_status, mi1.in_progress_date]
     end
-    puts ordered_mis.map {|i| [i.status, i.in_progress_date.to_s]}.inspect
     if ordered_mis.empty?
       return nil
     elsif !ordered_mis.first.is_active?

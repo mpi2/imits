@@ -1196,5 +1196,20 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#in_progress_date' do
+      should 'return earliest status stamp date for in progress status' do
+        mi = Factory.create :mi_attempt_genotype_confirmed
+        replace_status_stamps(mi,
+          [
+            [MiAttemptStatus.genotype_confirmed.description, '2011-11-12 00:00 UTC'],
+            [MiAttemptStatus.micro_injection_in_progress.description, '2011-12-24 00:00 UTC'],
+            [MiAttemptStatus.micro_injection_in_progress.description, '2011-06-12 00:00 UTC'],
+            [MiAttemptStatus.genotype_confirmed.description, '2011-01-24 00:00 UTC']
+          ]
+        )
+        assert_equal Date.parse('2011-06-12'), mi.in_progress_date
+      end
+    end
+
   end
 end

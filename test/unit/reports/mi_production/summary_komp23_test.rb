@@ -31,9 +31,6 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
       puts report.to_s if DEBUG
       puts report.data.inspect if DEBUG
 
-      #[#<Ruport::Data::Record:0xb66cb90
-      #@attributes=["Consortium", "All Genes", "ES QCs", "ES QC confirms", "ES QC Failures", "Production Centre", "MIs", "Chimaeras", "Genotype Confirmed", "MI Aborted", "Gene Pipeline efficiency (%)", "Clone Pipeline efficiency (%)", "Phenotype Registrations", "Rederivation Starts", "Rederivation Completes", "Cre Excision Starts", "Cre Excision Complete", "Phenotype data starts", "Phenotyping Complete", "Phenotype Attempt Aborted"],
-
       expected = {
         "Consortium"=>"BaSH",
         "All Genes"=>7,

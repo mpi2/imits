@@ -188,8 +188,8 @@ class Reports::MiProduction::SummaryKomp23
           'Genotype Confirmed',
           'MIs',
           'Phenotype data starts',
-      'Rederivation Starts', 
-      'Cre Excision Starts', 
+          'Rederivation Starts',
+          'Cre Excision Starts',
           'Rederivation Completes',
           'Phenotype Registrations',
           'Genotype Confirmed 6 months'
@@ -341,8 +341,6 @@ class Reports::MiProduction::SummaryKomp23
 
         return languishing(r) if type == 'Languishing'
 
-        #return r[type] && r[type].to_s.length > 0 && r[type].to_s != '0' if type == 'Distinct Genotype Confirmed ES Cells'
-        #return r[type] && r[type].to_s.length > 0 && r[type].to_s != '0' if type == 'Distinct Old Non Genotype Confirmed ES Cells'
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype Confirmed ES Cells'
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype Confirmed ES Cells'
         
@@ -463,9 +461,11 @@ class Reports::MiProduction::SummaryKomp23
     
       consortium = CGI.escape consortium
       pcentre = pcentre ? CGI.escape(pcentre) : ''
+      #      otype = type
       type = CGI.escape type
       separator = /\?/.match(script_name) ? '&' : '?'
-      return "<a title='Click to see list of #{type}' href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
+      #      return "<a title='Click to see list of #{otype}' href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
+      return "<a href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
     }
 
     #make_efficiency1 = lambda {|rowx, pc|

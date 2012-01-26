@@ -76,7 +76,7 @@ class Reports::MiProduction::SummaryKomp23
     date = 'Micro-injection in progress Date'
     return false if row.data['Overall Status'] != label
     today = Date.today
-    return false if ! row[date] || row[date].length < 1
+    return false if row[date].blank?
     before = Date.parse(row[date])
     return false if ! before
     #   gap = today - before
@@ -85,14 +85,32 @@ class Reports::MiProduction::SummaryKomp23
   end
   
   def self.genotype_confirmed_6month(row)
-    label = 'Genotype Confirmed'
+
+       
+    #    label = 'Genotype Confirmed'
     date = 'Genotype confirmed Date'
     today = Date.today
-    return false if ! row[date] || row[date].to_s.length < 1
+    return false if row[date].blank?
+    
+    
+    date = 'Micro-injection in progress Date'
+    #    return false if ! row[date] || row[date].to_s.length < 1
+
     before = Date.parse(row[date])
-    return false if ! before
+    #    return false if ! row[date] || row[date].to_s.length < 1
+    
+    #    return false if ! before
     #    gap = today - before
     #    return gap && gap > 180
+    
+    
+    
+    #    STDERR.puts row.to_csv if row['Consortium'] == 'DTCC' && row['Production Cenre'] == 'UCD'
+    
+    #STDERR.puts 'genotype_confirmed_6month'
+    #STDERR.puts row.to_csv
+    
+    
     return before < 6.months.ago.to_date
   end
 
@@ -257,7 +275,8 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     if key == 'Genotype Confirmed 6 months'
-      return row['MiAttempt Status'] == 'Genotype confirmed' && genotype_confirmed_6month(row)
+      #      return row['MiAttempt Status'] == 'Genotype confirmed' && genotype_confirmed_6month(row)
+      return genotype_confirmed_6month(row)
     end
     
     if key == 'MI Aborted'

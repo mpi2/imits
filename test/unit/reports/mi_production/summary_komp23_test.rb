@@ -10,7 +10,7 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
 
     setup do
       assert ! ReportCache.find_by_name('mi_production_intermediate')
-      data = ProductionSummaryHelper::get_csv('komp2')
+      data = ProductionSummaryHelper::get_csv('komp23')
       assert data
       ReportCache.create!(
         :name => 'mi_production_intermediate',
@@ -33,25 +33,25 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
 
       expected = {
         "Consortium"=>"BaSH",
-        "All Genes"=>7,
+        "All Genes"=>11,
         "ES QCs"=>3,
-        "ES QC confirms"=>1,
+        "ES QC confirms"=>2,
         "ES QC Failures"=>1,
         "Production Centre"=>"BCM",
-        "MIs"=>4,
+        "MIs"=>10,
         "Chimaeras"=>nil,
         "Genotype Confirmed"=>1,
         "MI Aborted"=>1,
-        "Gene Pipeline efficiency (%)"=>"",
-        "Clone Pipeline efficiency (%)"=>"",
-        "Phenotype Registrations"=>"",
-        "Rederivation Starts"=>nil,
-        "Rederivation Completes"=>"",
-        "Cre Excision Starts"=>nil,
-        "Cre Excision Complete"=>"",
-        "Phenotype data starts"=>"",
-        "Phenotyping Complete"=>"",
-        "Phenotype Attempt Aborted"=>""
+        "Gene Pipeline efficiency (%)"=>"50",
+        "Clone Pipeline efficiency (%)"=>"20",
+        "Phenotype Registrations"=>1,
+        "Rederivation Starts"=>1,
+        "Rederivation Completes"=>1,
+        "Cre Excision Starts"=>3,
+        "Cre Excision Complete"=>2,
+        "Phenotype data starts"=>1,
+        "Phenotyping Complete"=>1,
+        "Phenotype Attempt Aborted"=>1
       }
 
       report.column_names.each do |column_name|

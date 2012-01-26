@@ -188,6 +188,8 @@ class Reports::MiProduction::SummaryKomp23
           'Genotype Confirmed',
           'MIs',
           'Phenotype data starts',
+      'Rederivation Starts', 
+      'Cre Excision Starts', 
           'Rederivation Completes',
           'Phenotype Registrations',
           'Genotype Confirmed 6 months'
@@ -223,7 +225,7 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     if key == 'ES QCs'
-      return ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Aborted - ES Cell QC Failed'].include? row['MiPlan Status']
+      return ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Aborted - ES Cell QC Failed'].include?(row['MiPlan Status'])
     end
     
     if key == 'Genotype Confirmed'
@@ -278,7 +280,7 @@ class Reports::MiProduction::SummaryKomp23
     ]
     
     if key == 'Rederivation Starts'
-      return valid_phenos2.include? row['PhenotypeAttempt Status'] && row['Rederivation Started Date'].to_s.length > 0
+      return valid_phenos2.include?(row['PhenotypeAttempt Status']) && row['Rederivation Started Date'].to_s.length > 0
     end
 
     valid_phenos3 = [
@@ -290,7 +292,7 @@ class Reports::MiProduction::SummaryKomp23
     ]
     
     if key == 'Rederivation Completes'
-      return valid_phenos3.include? row['PhenotypeAttempt Status'] && row['Rederivation Complete Date'].to_s.length > 0
+      return valid_phenos3.include?(row['PhenotypeAttempt Status']) && row['Rederivation Complete Date'].to_s.length > 0
     end
     
     if key == 'Phenotype Registrations'
@@ -430,7 +432,7 @@ class Reports::MiProduction::SummaryKomp23
     centres = {}
     sub_table = table.sub_table { |r|
       centres[r["Consortium"]] ||= []
-      centres[r["Consortium"]].push r['Production Centre'] if ! centres[r["Consortium"]].include? r['Production Centre']
+      centres[r["Consortium"]].push r['Production Centre'] if ! centres[r["Consortium"]].include?(r['Production Centre'])
     }
 
     summaries = {}
@@ -493,8 +495,8 @@ class Reports::MiProduction::SummaryKomp23
         ignore_columns = ['Production Centre', 'Gene Pipeline efficiency (%)', 'Clone Pipeline efficiency (%)']
         
         other_columns.each do |consortium_name2|
-          array.push "<td>#{table.column(consortium_name2)[i]}</td>" if ignore_columns.include? consortium_name2
-          next if ignore_columns.include? consortium_name2
+          array.push "<td>#{table.column(consortium_name2)[i]}</td>" if ignore_columns.include?(consortium_name2)
+          next if ignore_columns.include?(consortium_name2)
           array.push "<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>"
         end
 

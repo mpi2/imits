@@ -8,7 +8,8 @@
 
 <% end %>
 
-  
+<% if false %>
+
 <div class="report grid_4">
 
 <h2>Report 1</h2>
@@ -29,6 +30,18 @@
   <p><em>Sorry, no production data found</em></p>
 <% else %>
   <%=raw @report2.to_html %>
+<% end %>
+
+<% end %>
+
+<h2>Report 3</h2>
+
+<div class="report grid_4">
+
+<% if @report3.nil? %>
+  <p><em>Sorry, no production data found</em></p>
+<% else %>
+  <%=raw @report3.to_html %>
 <% end %>
 
 </div>

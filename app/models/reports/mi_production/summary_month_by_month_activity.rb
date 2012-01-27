@@ -67,6 +67,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
     table = Table(['Year', 'Month', 'Consortium', 'All', 'es_qcs', 'es_confirms', 'es_fails'])
     table2 = Table(['Year', 'Month', 'Consortium', 'All', 'mis', 'gc', 'abort'])
+    table3 = Table(['Year', 'Month', 'Consortium', 'es_qcs', 'es_confirms', 'es_fails', 'mis', 'gc', 'abort'])
 
     MiPlan::StatusStamp.all.each do |stamp|
       year = stamp.created_at.year
@@ -162,6 +163,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           mis = status_hash[:mi].keys.size
           gc = status_hash[:gc].keys.size
           abort = status_hash[:abort].keys.size
+
+          es_qcs = status_hash[:es_qcs].keys.size
+          es_confirms = status_hash[:es_confirms].keys.size
+          es_fails = status_hash[:es_fails].keys.size
+
           puts "#{cons},#{all},#{mis},#{gc},#{abort}"
           table2 << {
             'Year' => year,
@@ -172,15 +178,26 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             'gc' => gc,
             'abort' => abort
           }
+          table3 << {
+            'Year' => year,
+            'Month' => Date::MONTHNAMES[month],
+            'Consortium' => cons,
+            #'All' => all,
+            'es_qcs' => es_qcs, 'es_confirms' => es_confirms, 'es_fails' => es_fails,
+            'mis' => mis,
+            'gc' => gc,
+            'abort' => abort
+          }
         end
       end
     end
 
     grouped_report = Grouping( table, :by => [ 'Year' ], :order => :name )
     grouped_report2 = Grouping( table2, :by => [ 'Year' ], :order => :name )
+    grouped_report3 = Grouping( table3, :by => [ 'Year' ], :order => :name )
     
     #    return table, table2
-    return grouped_report, grouped_report2
+    return grouped_report, grouped_report2, grouped_report3
   end
   
 end

@@ -1,7 +1,5 @@
 <% @title = 'Summary Month by Month' %>
 
-<h2>Report 1</h2>
-
 <% if false %>
 
 <p><%= link_to('Download as CSV', url_for({:action => :summary_month_by_month_activity, :controller => '/reports/mi_production', :format => :csv}.merge(params)))%></p>
@@ -12,6 +10,8 @@
 
   
 <div class="report grid_4">
+
+<h2>Report 1</h2>
 
 <% if @report1.nil? %>
   <p><em>Sorry, no production data found</em></p>

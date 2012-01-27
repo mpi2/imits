@@ -139,7 +139,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           es_fails = status_hash[:es_fails].keys.size
           puts "#{cons},#{all},#{es_qcs},#{es_confirms},#{es_fails}"
           table << {
-            'Year' => year, 'Month' => month, 'Consortium' => cons, 'All' => all, 'es_qcs' => es_qcs, 'es_confirms' => es_confirms, 'es_fails' => es_fails
+            'Year' => year,
+            'Month' => Date::MONTHNAMES[month],
+            'Consortium' => cons, 'All' => all, 'es_qcs' => es_qcs, 'es_confirms' => es_confirms, 'es_fails' => es_fails
           }
         end
       end
@@ -163,7 +165,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           puts "#{cons},#{all},#{mis},#{gc},#{abort}"
           table2 << {
             'Year' => year,
-            'Month' => month,
+            'Month' => Date::MONTHNAMES[month],
             'Consortium' => cons,
             'All' => all,
             'mis' => mis,

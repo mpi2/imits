@@ -14,6 +14,7 @@ class Reports::MiProduction::SummaryKomp23
 
   DEBUG_HEADINGS = [
     'Genotype Confirmed 6 months',
+    'MI Aborted 6 months',
     'Languishing',
     'Distinct Genotype Confirmed ES Cells',
     'Distinct Old Non Genotype Confirmed ES Cells'
@@ -42,9 +43,18 @@ class Reports::MiProduction::SummaryKomp23
     'Clone Pipeline efficiency (%)'
   ] + DEBUG_HEADINGS
 
+  #def self.efficiency_6months(request, row)
+  #  glt = integer(row['Genotype Confirmed 6 months'])
+  #  failures = integer(row['Languishing']) + integer(row['MI Aborted'])
+  #  total = glt + failures
+  #  pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
+  #  pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
+  #  return pc
+  #end
+  
   def self.efficiency_6months(request, row)
     glt = integer(row['Genotype Confirmed 6 months'])
-    failures = integer(row['Languishing']) + integer(row['MI Aborted'])
+    failures = integer(row['Languishing']) + integer(row['MI Aborted 6 months'])
     total = glt + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
@@ -130,7 +140,8 @@ class Reports::MiProduction::SummaryKomp23
       'Rederivation Starts', 
       'Rederivation Completes', 
       'Phenotype Registrations', 
-      'Genotype Confirmed 6 months'
+      'Genotype Confirmed 6 months',
+      'MI Aborted 6 months'
     ]
     
     hash = {}
@@ -192,7 +203,8 @@ class Reports::MiProduction::SummaryKomp23
           'Cre Excision Starts',
           'Rederivation Completes',
           'Phenotype Registrations',
-          'Genotype Confirmed 6 months'
+          'Genotype Confirmed 6 months',
+          'MI Aborted 6 months'
         ]
 
         new_hash = {}
@@ -239,6 +251,17 @@ class Reports::MiProduction::SummaryKomp23
     if key == 'MI Aborted'
       return row['MiAttempt Status'] == 'Micro-injection aborted'
     end
+    
+    if key == 'MI Aborted 6 months'
+      return row['MiAttempt Status'] == 'Micro-injection aborted' && Date.parse(row['Micro-injection aborted Date']) < 6.months.ago.to_date
+    end
+    
+    #today = Date.today
+    #return false if row[date].blank?
+    #before = Date.parse(row[date])
+    #return false if ! before
+    #return before < 6.months.ago.to_date
+    
     
     if key == 'MIs'
       return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||

@@ -42,19 +42,10 @@ class Reports::MiProduction::SummaryKomp23
     'Gene Pipeline efficiency (%)',
     'Clone Pipeline efficiency (%)'
   ] + DEBUG_HEADINGS
-
-  #def self.efficiency_6months(request, row)
-  #  glt = integer(row['Genotype Confirmed 6 months'])
-  #  failures = integer(row['Languishing']) + integer(row['MI Aborted'])
-  #  total = glt + failures
-  #  pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-  #  pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
-  #  return pc
-  #end
   
   def self.efficiency_6months(request, row)
-    glt = integer(row['Genotype Confirmed 6 months'])
-    failures = integer(row['Languishing']) + integer(row['MI Aborted 6 months'])
+    glt = row['Genotype Confirmed 6 months'].to_i
+    failures = row['Languishing'].to_i + row['MI Aborted 6 months'].to_i
     total = glt + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
@@ -62,22 +53,11 @@ class Reports::MiProduction::SummaryKomp23
   end
   
   def self.efficiency_clone(request, row)
-    a = integer(row['Distinct Genotype Confirmed ES Cells'])
-    b = integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+    a = row['Distinct Genotype Confirmed ES Cells'].to_i
+    b = row['Distinct Old Non Genotype Confirmed ES Cells'].to_i
     pc =  a + b != 0 ? ((a.to_f / (a + b).to_f) * 100) : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
-  end
-
-  def self.languishing(row)
-    label = 'Micro-injection in progress'
-    date = 'Micro-injection in progress Date'
-    return false if row.data['Overall Status'] != label
-    today = Date.today
-    return false if row[date].blank?
-    before = Date.parse(row[date])
-    return false if ! before
-    return before < 6.months.ago.to_date
   end
   
   def self.genotype_confirmed_6month(row)
@@ -92,7 +72,7 @@ class Reports::MiProduction::SummaryKomp23
   def self.distinct_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
-      value = integer(row['Distinct Genotype Confirmed ES Cells'])
+      value = row['Distinct Genotype Confirmed ES Cells'].to_i
       total += value
     end
     return total
@@ -101,7 +81,7 @@ class Reports::MiProduction::SummaryKomp23
   def self.distinct_old_non_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
-      value = integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+      value = row['Distinct Old Non Genotype Confirmed ES Cells'].to_i
       total += value
     end
     return total
@@ -141,11 +121,11 @@ class Reports::MiProduction::SummaryKomp23
       'Rederivation Completes', 
       'Phenotype Registrations', 
       'Genotype Confirmed 6 months',
-      'MI Aborted 6 months'
+      'MI Aborted 6 months',
+      'Languishing'
     ]
     
     hash = {}
-    hash['Languishing'] = lambda { |group| count_instances_of( group, 'Gene', lambda { |row2| languishing(row2) } ) }
     hash['Distinct Genotype Confirmed ES Cells'] = lambda { |group| distinct_genotype_confirmed_es_cells_count(group) }
     hash['Distinct Old Non Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }    
     list_heads.each do |item|
@@ -255,14 +235,7 @@ class Reports::MiProduction::SummaryKomp23
     if key == 'MI Aborted 6 months'
       return row['MiAttempt Status'] == 'Micro-injection aborted' && Date.parse(row['Micro-injection aborted Date']) < 6.months.ago.to_date
     end
-    
-    #today = Date.today
-    #return false if row[date].blank?
-    #before = Date.parse(row[date])
-    #return false if ! before
-    #return before < 6.months.ago.to_date
-    
-    
+        
     if key == 'MIs'
       return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
         row['MiAttempt Status'] == 'Micro-injection aborted'
@@ -329,15 +302,13 @@ class Reports::MiProduction::SummaryKomp23
     if key == 'Distinct Old Non Genotype Confirmed ES Cells'
       return row[key] && row[key].to_s.length > 0
     end
-
-    return languishing(row) if key == 'Languishing'
+   
+    if key == 'Languishing'
+      return row.data['Overall Status'] == 'Micro-injection in progress' && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
+    end
 
     return false
   
-  end
-
-  def self.integer(value)
-    return Integer(value && value.to_s.length > 0 ? value : 0)
   end
   
   def self.subsummary(params)
@@ -361,8 +332,6 @@ class Reports::MiProduction::SummaryKomp23
         # deliberately ignore anything without a production centre
         
         return false if ! r['Production Centre'] || r['Production Centre'].to_s.length < 1
-
-        return languishing(r) if type == 'Languishing'
 
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype Confirmed ES Cells'
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype Confirmed ES Cells'
@@ -484,22 +453,10 @@ class Reports::MiProduction::SummaryKomp23
     
       consortium = CGI.escape consortium
       pcentre = pcentre ? CGI.escape(pcentre) : ''
-      #      otype = type
       type = CGI.escape type
       separator = /\?/.match(script_name) ? '&' : '?'
-      #      return "<a title='Click to see list of #{otype}' href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
       return "<a href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
     }
-
-    #make_efficiency1 = lambda {|rowx, pc|
-    #    return "<td>#{pc}</td>" if ! debug
-    #    return "<td title='Calculated: glt / (glt + languishing) - #{rowx['Genotype Confirmed Mice']} / (#{rowx['Genotype Confirmed Mice']} + #{rowx['Languishing']})'>#{pc}</td>"
-    #}
-    #make_efficiency2 = lambda {|rowx, pc|
-    #    return "<td>#{pc}</td>" if ! debug
-    #    return "<td title='Calculated: Distinct Genotype Confirmed ES Cells / (Distinct Genotype Confirmed ES Cells + Distinct Old Non Genotype Confirmed ES Cells)" +
-    #  " - #{rowx['Distinct Genotype Confirmed ES Cells']} / (#{rowx['Distinct Genotype Confirmed ES Cells']} + #{rowx['Distinct Old Non Genotype Confirmed ES Cells']})'>#{pc}</td>"
-    #}
     
     grouped_report.each do |consortium_name1|
       array.push '</tr>'

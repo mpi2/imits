@@ -44,8 +44,8 @@ class Reports::MiProduction::SummaryKomp23
   ] + DEBUG_HEADINGS
   
   def self.efficiency_6months(request, row)
-    glt = integer(row['Genotype Confirmed 6 months'])
-    failures = integer(row['Languishing']) + integer(row['MI Aborted 6 months'])
+    glt = row['Genotype Confirmed 6 months'].to_i
+    failures = row['Languishing'].to_i + row['MI Aborted 6 months'].to_i
     total = glt + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
@@ -53,8 +53,8 @@ class Reports::MiProduction::SummaryKomp23
   end
   
   def self.efficiency_clone(request, row)
-    a = integer(row['Distinct Genotype Confirmed ES Cells'])
-    b = integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+    a = row['Distinct Genotype Confirmed ES Cells'].to_i
+    b = row['Distinct Old Non Genotype Confirmed ES Cells'].to_i
     pc =  a + b != 0 ? ((a.to_f / (a + b).to_f) * 100) : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
@@ -72,7 +72,7 @@ class Reports::MiProduction::SummaryKomp23
   def self.distinct_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
-      value = integer(row['Distinct Genotype Confirmed ES Cells'])
+      value = row['Distinct Genotype Confirmed ES Cells'].to_i
       total += value
     end
     return total
@@ -81,7 +81,7 @@ class Reports::MiProduction::SummaryKomp23
   def self.distinct_old_non_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
-      value = integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+      value = row['Distinct Old Non Genotype Confirmed ES Cells'].to_i
       total += value
     end
     return total
@@ -309,10 +309,6 @@ class Reports::MiProduction::SummaryKomp23
 
     return false
   
-  end
-
-  def self.integer(value)
-    return Integer(value && value.to_s.length > 0 ? value : 0)
   end
   
   def self.subsummary(params)

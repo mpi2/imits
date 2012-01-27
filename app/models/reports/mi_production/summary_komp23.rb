@@ -42,15 +42,6 @@ class Reports::MiProduction::SummaryKomp23
     'Gene Pipeline efficiency (%)',
     'Clone Pipeline efficiency (%)'
   ] + DEBUG_HEADINGS
-
-  #def self.efficiency_6months(request, row)
-  #  glt = integer(row['Genotype Confirmed 6 months'])
-  #  failures = integer(row['Languishing']) + integer(row['MI Aborted'])
-  #  total = glt + failures
-  #  pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-  #  pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
-  #  return pc
-  #end
   
   def self.efficiency_6months(request, row)
     glt = integer(row['Genotype Confirmed 6 months'])
@@ -68,17 +59,6 @@ class Reports::MiProduction::SummaryKomp23
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
   end
-
-  #def self.languishing(row)
-  #  label = 'Micro-injection in progress'
-  #  date = 'Micro-injection in progress Date'
-  #  return false if row.data['Overall Status'] != label
-  #  today = Date.today
-  #  return false if row[date].blank?
-  #  before = Date.parse(row[date])
-  #  return false if ! before
-  #  return before < 6.months.ago.to_date
-  #end
   
   def self.genotype_confirmed_6month(row)
     date = 'Genotype confirmed Date'
@@ -146,7 +126,6 @@ class Reports::MiProduction::SummaryKomp23
     ]
     
     hash = {}
-    #    hash['Languishing'] = lambda { |group| count_instances_of( group, 'Gene', lambda { |row2| languishing(row2) } ) }
     hash['Distinct Genotype Confirmed ES Cells'] = lambda { |group| distinct_genotype_confirmed_es_cells_count(group) }
     hash['Distinct Old Non Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }    
     list_heads.each do |item|
@@ -256,13 +235,7 @@ class Reports::MiProduction::SummaryKomp23
     if key == 'MI Aborted 6 months'
       return row['MiAttempt Status'] == 'Micro-injection aborted' && Date.parse(row['Micro-injection aborted Date']) < 6.months.ago.to_date
     end
-    
-    #today = Date.today
-    #return false if row[date].blank?
-    #before = Date.parse(row[date])
-    #return false if ! before
-    #return before < 6.months.ago.to_date    
-    
+        
     if key == 'MIs'
       return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
         row['MiAttempt Status'] == 'Micro-injection aborted'
@@ -329,23 +302,10 @@ class Reports::MiProduction::SummaryKomp23
     if key == 'Distinct Old Non Genotype Confirmed ES Cells'
       return row[key] && row[key].to_s.length > 0
     end
-
-    #    return languishing(row) if key == 'Languishing'
-    
+   
     if key == 'Languishing'
       return row.data['Overall Status'] == 'Micro-injection in progress' && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
     end
-
-    #      return row['MiAttempt Status'] == 'Micro-injection aborted' && Date.parse(row['Micro-injection aborted Date']) < 6.months.ago.to_date
-
-    #label = 'Micro-injection in progress'
-    #date = 'Micro-injection in progress Date'
-    #return false if row.data['Overall Status'] != label
-    #today = Date.today
-    #return false if row[date].blank?
-    #before = Date.parse(row[date])
-    #return false if ! before
-    #return before < 6.months.ago.to_date
 
     return false
   
@@ -376,8 +336,6 @@ class Reports::MiProduction::SummaryKomp23
         # deliberately ignore anything without a production centre
         
         return false if ! r['Production Centre'] || r['Production Centre'].to_s.length < 1
-
-        #        return languishing(r) if type == 'Languishing'
 
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype Confirmed ES Cells'
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype Confirmed ES Cells'

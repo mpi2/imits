@@ -69,16 +69,16 @@ class Reports::MiProduction::SummaryKomp23
     return pc
   end
 
-  def self.languishing(row)
-    label = 'Micro-injection in progress'
-    date = 'Micro-injection in progress Date'
-    return false if row.data['Overall Status'] != label
-    today = Date.today
-    return false if row[date].blank?
-    before = Date.parse(row[date])
-    return false if ! before
-    return before < 6.months.ago.to_date
-  end
+  #def self.languishing(row)
+  #  label = 'Micro-injection in progress'
+  #  date = 'Micro-injection in progress Date'
+  #  return false if row.data['Overall Status'] != label
+  #  today = Date.today
+  #  return false if row[date].blank?
+  #  before = Date.parse(row[date])
+  #  return false if ! before
+  #  return before < 6.months.ago.to_date
+  #end
   
   def self.genotype_confirmed_6month(row)
     date = 'Genotype confirmed Date'
@@ -141,11 +141,12 @@ class Reports::MiProduction::SummaryKomp23
       'Rederivation Completes', 
       'Phenotype Registrations', 
       'Genotype Confirmed 6 months',
-      'MI Aborted 6 months'
+      'MI Aborted 6 months',
+      'Languishing'
     ]
     
     hash = {}
-    hash['Languishing'] = lambda { |group| count_instances_of( group, 'Gene', lambda { |row2| languishing(row2) } ) }
+    #    hash['Languishing'] = lambda { |group| count_instances_of( group, 'Gene', lambda { |row2| languishing(row2) } ) }
     hash['Distinct Genotype Confirmed ES Cells'] = lambda { |group| distinct_genotype_confirmed_es_cells_count(group) }
     hash['Distinct Old Non Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }    
     list_heads.each do |item|
@@ -260,8 +261,7 @@ class Reports::MiProduction::SummaryKomp23
     #return false if row[date].blank?
     #before = Date.parse(row[date])
     #return false if ! before
-    #return before < 6.months.ago.to_date
-    
+    #return before < 6.months.ago.to_date    
     
     if key == 'MIs'
       return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
@@ -330,7 +330,22 @@ class Reports::MiProduction::SummaryKomp23
       return row[key] && row[key].to_s.length > 0
     end
 
-    return languishing(row) if key == 'Languishing'
+    #    return languishing(row) if key == 'Languishing'
+    
+    if key == 'Languishing'
+      return row.data['Overall Status'] == 'Micro-injection in progress' && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
+    end
+
+    #      return row['MiAttempt Status'] == 'Micro-injection aborted' && Date.parse(row['Micro-injection aborted Date']) < 6.months.ago.to_date
+
+    #label = 'Micro-injection in progress'
+    #date = 'Micro-injection in progress Date'
+    #return false if row.data['Overall Status'] != label
+    #today = Date.today
+    #return false if row[date].blank?
+    #before = Date.parse(row[date])
+    #return false if ! before
+    #return before < 6.months.ago.to_date
 
     return false
   
@@ -362,7 +377,7 @@ class Reports::MiProduction::SummaryKomp23
         
         return false if ! r['Production Centre'] || r['Production Centre'].to_s.length < 1
 
-        return languishing(r) if type == 'Languishing'
+        #        return languishing(r) if type == 'Languishing'
 
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype Confirmed ES Cells'
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype Confirmed ES Cells'
@@ -484,22 +499,10 @@ class Reports::MiProduction::SummaryKomp23
     
       consortium = CGI.escape consortium
       pcentre = pcentre ? CGI.escape(pcentre) : ''
-      #      otype = type
       type = CGI.escape type
       separator = /\?/.match(script_name) ? '&' : '?'
-      #      return "<a title='Click to see list of #{otype}' href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
       return "<a href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
     }
-
-    #make_efficiency1 = lambda {|rowx, pc|
-    #    return "<td>#{pc}</td>" if ! debug
-    #    return "<td title='Calculated: glt / (glt + languishing) - #{rowx['Genotype Confirmed Mice']} / (#{rowx['Genotype Confirmed Mice']} + #{rowx['Languishing']})'>#{pc}</td>"
-    #}
-    #make_efficiency2 = lambda {|rowx, pc|
-    #    return "<td>#{pc}</td>" if ! debug
-    #    return "<td title='Calculated: Distinct Genotype Confirmed ES Cells / (Distinct Genotype Confirmed ES Cells + Distinct Old Non Genotype Confirmed ES Cells)" +
-    #  " - #{rowx['Distinct Genotype Confirmed ES Cells']} / (#{rowx['Distinct Genotype Confirmed ES Cells']} + #{rowx['Distinct Old Non Genotype Confirmed ES Cells']})'>#{pc}</td>"
-    #}
     
     grouped_report.each do |consortium_name1|
       array.push '</tr>'

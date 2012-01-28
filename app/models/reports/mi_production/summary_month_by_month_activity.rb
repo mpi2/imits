@@ -209,25 +209,25 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     
     # try to create an object that has the same interface as a ruport object
     # i.e. to_html/to_csv
+    # we can then maintain same interface in controller/view
     
-    thing = Class.new do
+    wrapper = Class.new do
       @table = nil
+      def to_csv
+        raise "Not Yet Implemented!"
+      end
       def to_html
         @table.to_html
       end
       def set_table(new_table)
         @table = new_table
       end
-      #def get_table
-      #  return table
-      #end
     end
     
-    thing1 = new thing
-    thing1.set_table(table4)
+    proxy = wrapper.new
+    proxy.set_table(table4)
     
-    #    return table, table2
-    return [grouped_report, grouped_report2, grouped_report3, table4, table3, thing1]
+    return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
   end
   
 end

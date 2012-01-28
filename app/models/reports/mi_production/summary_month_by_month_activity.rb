@@ -5,12 +5,20 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   LIMIT = 10
 
   def self.generate(request = nil, params={})
-    #return generate_plans(request, params)
-    #return generate_attempts(request, params)
-    return generate_original
-    # return nil
+    table = params['table'].blank? ? 2 : params['table'].to_i
+    table1, table2, table3 = generate_original
+    array = [table1, table2, table3]
+    return table > -1 && table < array.size ? array[table] : nil
   end
-  
+
+ #def self.generate(request = nil, params={})
+ #   table = params['table'].blank? ? nil : params['table'].to_i
+ #   #return generate_plans(request, params)
+ #   #return generate_attempts(request, params)
+ #   return generate_original
+ #   # return nil
+ #end
+ 
   def self.generate_attempts(request = nil, params={})
     
     headings = ['Year', 'Month', 'Consortium', 'Gene id', 'Status']

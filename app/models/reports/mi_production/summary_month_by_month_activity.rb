@@ -207,6 +207,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     table4 = table3.pivot('Month', :group_by => "Year", :values => 'Consortium' )
     
+    # try to create an object that has the same interface as a ruport object
+    # i.e. to_html/to_csv
+    
     thing = Class.new do
       table = nil
       def to_html
@@ -220,10 +223,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       #end
     end
     
-    thing.set_table(table4)
+    thing1 = new thing
+    thing1.set_table(table4)
     
     #    return table, table2
-    return [grouped_report, grouped_report2, grouped_report3, table4, table3, thing]
+    return [grouped_report, grouped_report2, grouped_report3, table4, table3, thing1]
   end
   
 end

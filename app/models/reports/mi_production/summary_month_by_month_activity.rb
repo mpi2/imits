@@ -8,6 +8,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   def self.generate(request = nil, params={})
     table = params['table'].blank? ? 2 : params['table'].to_i
     tables = generate_original
+raise table.inspect
     return table > -1 && table < tables.size ? tables[table] : nil
   end
 
@@ -204,7 +205,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     grouped_report2 = Grouping( table2, :by => [ 'Year' ], :order => :name )
     grouped_report3 = Grouping( table3, :by => [ 'Year' ], :order => :name )
 
-    table4 = table3.pivot("Year", :group_by => "Year", :values => 'Month' )
+    table4 = table3.pivot('Month', :group_by => "Year", :values => 'Consortium' )
     
     #    return table, table2
     return [grouped_report, grouped_report2, grouped_report3, table4]

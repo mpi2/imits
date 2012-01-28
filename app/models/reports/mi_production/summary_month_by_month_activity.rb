@@ -207,8 +207,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     table4 = table3.pivot('Month', :group_by => "Year", :values => 'Consortium' )
     
+    thing = Class.new do
+      def to_html
+        table4.to_html
+      end
+    end
+    
     #    return table, table2
-    return [grouped_report, grouped_report2, grouped_report3, table4, table3]
+    return [grouped_report, grouped_report2, grouped_report3, table4, table3, thing]
   end
   
 end

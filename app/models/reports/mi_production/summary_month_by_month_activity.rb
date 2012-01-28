@@ -211,12 +211,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     # i.e. to_html/to_csv
     
     thing = Class.new do
-      table = nil
+      @table = nil
       def to_html
-        table.to_html
+        @table.to_html
       end
       def set_table(new_table)
-        table = new_table
+        @table = new_table
       end
       #def get_table
       #  return table

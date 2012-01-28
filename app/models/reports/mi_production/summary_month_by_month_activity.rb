@@ -3,12 +3,12 @@
 class Reports::MiProduction::SummaryMonthByMonthActivity
   
   LIMIT = 10
+  VERBOSE = false
 
   def self.generate(request = nil, params={})
     table = params['table'].blank? ? 2 : params['table'].to_i
-    table1, table2, table3 = generate_original
-    array = [table1, table2, table3]
-    return table > -1 && table < array.size ? array[table] : nil
+    tables = generate_original
+    return table > -1 && table < tables.size ? tables[table] : nil
   end
 
  #def self.generate(request = nil, params={})
@@ -104,7 +104,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       #puts "#{stamp.mi_plan.consortium.name}, #{stamp.status.name}, #{stamp.created_at.month}"
     end
     
-    puts "doing attempts"
+    puts "doing attempts" if VERBOSE
     
     MiAttempt::StatusStamp.all.each do |stamp|
       year = stamp.created_at.year
@@ -132,13 +132,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     end
     
     summary.keys.sort.reverse!.each do |year|
-      puts ""
-      puts ""
+      puts "" if VERBOSE
+      puts "" if VERBOSE
       puts year
       month_hash = summary[year]
       month_hash.keys.sort.reverse!.each do |month|
-        puts ""
-        puts month
+        puts "" if VERBOSE
+        puts month if VERBOSE
         cons_hash = month_hash[month]
         cons_hash.keys.sort.each do |cons|
           status_hash = cons_hash[cons]
@@ -146,7 +146,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           es_qcs = status_hash[:es_qcs].keys.size
           es_confirms = status_hash[:es_confirms].keys.size
           es_fails = status_hash[:es_fails].keys.size
-          puts "#{cons},#{all},#{es_qcs},#{es_confirms},#{es_fails}"
+          puts "#{cons},#{all},#{es_qcs},#{es_confirms},#{es_fails}" if VERBOSE
           table << {
             'Year' => year,
             'Month' => Date::MONTHNAMES[month],
@@ -157,13 +157,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     end
     
     summary.keys.sort.reverse!.each do |year|
-      puts ""
-      puts year
+      puts "" if VERBOSE
+      puts year if VERBOSE
       month_hash = summary[year]
       month_hash.keys.sort.reverse!.each do |month|
-        puts ""
-        puts ""
-        puts month
+        puts "" if VERBOSE
+        puts "" if VERBOSE
+        puts month if VERBOSE
         cons_hash = month_hash[month]
         cons_hash.keys.sort.each do |cons|
           status_hash = cons_hash[cons]
@@ -176,7 +176,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           es_confirms = status_hash[:es_confirms].keys.size
           es_fails = status_hash[:es_fails].keys.size
 
-          puts "#{cons},#{all},#{mis},#{gc},#{abort}"
+          puts "#{cons},#{all},#{mis},#{gc},#{abort}" if VERBOSE
           table2 << {
             'Year' => year,
             'Month' => Date::MONTHNAMES[month],
@@ -203,9 +203,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     grouped_report = Grouping( table, :by => [ 'Year' ], :order => :name )
     grouped_report2 = Grouping( table2, :by => [ 'Year' ], :order => :name )
     grouped_report3 = Grouping( table3, :by => [ 'Year' ], :order => :name )
+
+    table4 = table3.pivot("Year", :group_by => "Year", :values => 'Month' )
     
     #    return table, table2
-    return grouped_report, grouped_report2, grouped_report3
+    return [grouped_report, grouped_report2, grouped_report3, table4]
   end
   
 end

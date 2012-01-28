@@ -123,7 +123,7 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_month_by_month_activity
-    @report = Reports::MiProduction::SummaryMonthByMonthActivity.generate
+    @report = Reports::MiProduction::SummaryMonthByMonthActivity.generate(params)
     #send_data_csv('summary_month_by_month_activity.csv', @report.to_csv) if request.format == :csv
   end
 

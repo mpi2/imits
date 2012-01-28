@@ -8,7 +8,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   def self.generate(request = nil, params={})
     table = params['table'].blank? ? 2 : params['table'].to_i
     tables = generate_original
-raise table.inspect
+#raise table.inspect
     return table > -1 && table < tables.size ? tables[table] : nil
   end
 

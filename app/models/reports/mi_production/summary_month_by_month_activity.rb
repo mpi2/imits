@@ -251,11 +251,54 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
   end
   
+  #def self.prettify(table)
+  #  html_array = []
+  #  grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
+  #  
+  ##  return table
+  #
+  #  html_array.push '<table>'
+  #  html_array.push '<tr>'
+  #  table.column_names.each { |name| html_array.push "<th>#{name}</th>" }
+  #  html_array.push '</tr>'
+  #  
+  #  grouped_report.each do |year|
+  #
+  #    html_array.push '<tr>'
+  #    
+  #    month_group = grouped_report.subgrouping(year)
+  #    
+  #    month_group.subgrouping(year).each do |month|
+  #      
+  #      consortium_group = month_group.subgrouping(month)
+  #      
+  #      consortium_group.subgrouping(month).each do |consortium|
+  #
+  #        production_centre_group = consortium_group.subgrouping(consortium)
+  #
+  #        production_centre_group.subgrouping(consortium).each do |production_centre|
+  #        
+  #          html_array.push "<td>#{production_centre}</td>"
+  #        
+  #          html_array.push '</tr>'
+  #                  
+  #        end
+  #
+  #      end
+  #      
+  #    end
+  #    
+  #  end
+  #  
+  #  html_array.push '</table>'
+  #  return table
+  #end
+  #
+
+
   def self.prettify(table)
     html_array = []
     grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
-    
-  #  return table
 
     html_array.push '<table>'
     html_array.push '<tr>'
@@ -268,15 +311,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       
       month_group = grouped_report.subgrouping(year)
       
-      month_group.subgrouping(year).each do |month|
+      month_group.each do |month|
         
         consortium_group = month_group.subgrouping(month)
         
-        consortium_group.subgrouping(month).each do |consortium|
+        consortium_group.each do |consortium|
 
           production_centre_group = consortium_group.subgrouping(consortium)
 
-          production_centre_group.subgrouping(consortium).each do |production_centre|
+          production_centre_group.each do |production_centre|
           
             html_array.push "<td>#{production_centre}</td>"
           

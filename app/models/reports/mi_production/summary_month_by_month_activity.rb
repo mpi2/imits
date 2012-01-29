@@ -234,8 +234,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         raise "Not Yet Implemented!"
       end
       def to_html
-        @table.to_html
-        #@string
+        #@table.to_html
+        @string
       end
       def set_table(new_table)
         @table = new_table
@@ -246,7 +246,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     end
     
     proxy = wrapper.new
-    proxy.set_table(prettify(table3))
+    proxy.set_html(prettify(table3))
     
     return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
   end
@@ -323,8 +323,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           
             html_array.push "<td rowspan='#{production_centre_group[production_centre].size.to_s}'>#{production_centre}</td>"
          
-            production_centre_group[production_centre].each do |row|
-              html_array.push "<td>#{row}</td>"
+#raise production_centre_group[production_centre].inspect
+            production_centre_group[production_centre].column_names.each do |column_name|
+              html_array.push "<td>#{production_centre_group[production_centre].column(column_name)[0]}</td>"
             end
           
             html_array.push '</tr>'
@@ -338,7 +339,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     end
     
     html_array.push '</table>'
-    return table
+    #return table
+    return html_array.join("\n")
   end
   
 end

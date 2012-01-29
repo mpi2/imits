@@ -84,7 +84,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       consortium = stamp.mi_plan.consortium.name
       #raise stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.namw? .inspect
       pcentre = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : 'unknown'
-      next if pcentre.blank?
+      next if pcentre.blank? || pcentre.to_s.length < 1
       #= stamp.mi_plan.production_centre
       #pcentre = 'dummy'
       next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')

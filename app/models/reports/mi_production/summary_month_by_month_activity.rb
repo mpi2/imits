@@ -305,7 +305,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     table.column_names.each do |name|
 #      next if [ 'Year', 'Month', 'Consortium' ].include?(name)
 #      next if [ 'Year', 'Month' ].include?(name)
-      next if [ 'Year' ].include?(name)
+#      next if [ 'Year' ].include?(name)
       html_array.push "<th>#{name}</th>"
     end
     html_array.push '</tr>'

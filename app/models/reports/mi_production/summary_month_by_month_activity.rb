@@ -118,7 +118,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       plan = stamp.mi_attempt.mi_plan
       consortium = stamp.mi_attempt.mi_plan.consortium.name
       pcentre = stamp.mi_attempt.production_centre_name
-      next if pcentre.blank?
+      next if pcentre.blank? || pcentre.to_s.length < 1
       next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
       gene_id = plan.gene_id
       status = stamp.mi_attempt_status.description
@@ -160,7 +160,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             puts "#{cons},#{all},#{es_qcs},#{es_confirms},#{es_fails}" if VERBOSE
             table << {
               'Year' => year,
-#              'Month' => Date::MONTHNAMES[month],
+              #              'Month' => Date::MONTHNAMES[month],
               'Month' => month,
               'Consortium' => cons,
               'Production Centre' => centre,
@@ -263,9 +263,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     html_array.push '<table>'
     html_array.push '<tr>'
     table.column_names.each do |name|
-#      next if [ 'Year', 'Month', 'Consortium' ].include?(name)
-#      next if [ 'Year', 'Month' ].include?(name)
-#      next if [ 'Year' ].include?(name)
+      #      next if [ 'Year', 'Month', 'Consortium' ].include?(name)
+      #      next if [ 'Year', 'Month' ].include?(name)
+      #      next if [ 'Year' ].include?(name)
       html_array.push "<th>#{name}</th>"
     end
     html_array.push '</tr>'
@@ -298,7 +298,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           
           production_centre_group.each do |production_centre|
 
-            size = production_centre_group[production_centre].size.to_s
+            #size = production_centre_group[production_centre].size.to_s
             
             #html_array.push "<td rowspan='#{size}'>#{production_centre}</td>"
             #

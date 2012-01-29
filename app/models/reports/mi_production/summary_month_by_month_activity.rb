@@ -323,7 +323,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
           production_centre_group = consortium_group.subgrouping(consortium)
           
-          size = production_centre_group.size.to_s
+          size = production_centre_group.data.size.to_s
 
           html_array.push "<td rowspan='#{size}'>#{consortium}</td>"
           

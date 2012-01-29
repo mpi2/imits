@@ -302,7 +302,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     html_array.push '<table>'
     html_array.push '<tr>'
-    table.column_names.each { |name| html_array.push "<th>#{name}</th>" }
+    table.column_names.each do |name|
+      next if [ 'Year', 'Month', 'Consortium' ].include?(name)
+      html_array.push "<th>#{name}</th>"
+    end
     html_array.push '</tr>'
     
     grouped_report.each do |year|
@@ -323,7 +326,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           
             html_array.push "<td rowspan='#{production_centre_group[production_centre].size.to_s}'>#{production_centre}</td>"
          
-#raise production_centre_group[production_centre].inspect
+            #raise production_centre_group[production_centre].inspect
             production_centre_group[production_centre].column_names.each do |column_name|
               html_array.push "<td>#{production_centre_group[production_centre].column(column_name)[0]}</td>"
             end

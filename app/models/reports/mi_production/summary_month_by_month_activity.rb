@@ -137,19 +137,18 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       end
     end
     
-    #summary.keys.sort.reverse!.each do |year|
     summary.keys.each do |year|
       puts "" if VERBOSE
       puts "" if VERBOSE
       puts year
       month_hash = summary[year]
-      month_hash.keys.sort.reverse!.each do |month|
+      month_hash.keys.each do |month|
         puts "" if VERBOSE
         puts month if VERBOSE
         cons_hash = month_hash[month]
-        cons_hash.keys.sort.each do |cons|
+        cons_hash.keys.each do |cons|
           centre_hash = cons_hash[cons]
-          centre_hash.keys.sort.each do |centre|
+          centre_hash.keys.each do |centre|
             status_hash = centre_hash[centre]
             all = status_hash[:all].keys.size
             es_qcs = status_hash[:es_qcs].keys.size
@@ -168,12 +167,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       end
     end
     
-    #summary.keys.sort.reverse!.each do |year|
     summary.keys.each do |year|
       puts "" if VERBOSE
       puts year if VERBOSE
       month_hash = summary[year]
-      #month_hash.keys.sort.reverse!.each do |month|
+      #month_hash.keys.each do |month|
       month_hash.keys.each do |month|
         puts "" if VERBOSE
         puts "" if VERBOSE

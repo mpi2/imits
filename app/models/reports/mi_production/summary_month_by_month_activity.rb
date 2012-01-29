@@ -321,7 +321,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
           production_centre_group.each do |production_centre|
           
-            html_array.push "<td>#{production_centre}</td>"
+            html_array.push "<td rowspan='#{production_centre_group[production_centre].size.to_s}'>#{production_centre}</td>"
+         
+            production_centre_group[production_centre].each do |row|
+              html_array.push "<td>#{row}</td>"
+            end
           
             html_array.push '</tr>'
                     

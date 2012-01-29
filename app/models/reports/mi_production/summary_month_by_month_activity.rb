@@ -84,7 +84,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       consortium = stamp.mi_plan.consortium.name
       #raise stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.namw? .inspect
       pcentre = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : 'unknown'
-      next if pcentre.blank? || pcentre.to_s.length < 1
+      #next if pcentre.blank? || pcentre.to_s.length < 1
+      next if pcentre.blank? || pcentre.to_s == 'unknown'
       #= stamp.mi_plan.production_centre
       #pcentre = 'dummy'
       next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
@@ -251,12 +252,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     end
     
     proxy = wrapper.new
-    proxy.set_table(table3)
-    proxy.set_html(prettify(table3))
+    proxy.set_table(table)
+    proxy.set_html(prettify(table))
     
     return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
   end
   
+  # yeah, I know this is crap
+
   def self.prettify(table)
     html_array = []
     grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
@@ -287,6 +290,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         
         consortium_group = month_group.subgrouping(month)
         
+        #size = (1+consortium_group.data.size).to_s
         size = consortium_group.data.size.to_s
         
         html_array.push "<td rowspan='#{size}'>#{Date::MONTHNAMES[month]}</td>"
@@ -316,14 +320,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             end
             
             html_array.push '</tr>'
-            
+           #break 
           end
           
+           # html_array.push '</tr>'
         end
         
       end
       
-      break
+      #break
     
     end
     

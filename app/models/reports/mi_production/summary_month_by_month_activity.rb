@@ -255,7 +255,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     html_array = []
     grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
     
-    return table
+  #  return table
 
     html_array.push '<table>'
     html_array.push '<tr>'
@@ -274,7 +274,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         
         consortium_group.subgrouping(month).each do |consortium|
 
-          production_centre_group = month_group.subgrouping(consortium)
+          production_centre_group = consortium_group.subgrouping(consortium)
 
           production_centre_group.subgrouping(consortium).each do |production_centre|
           

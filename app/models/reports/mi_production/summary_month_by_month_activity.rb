@@ -82,7 +82,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       year = stamp.created_at.year
       month = stamp.created_at.month
       consortium = stamp.mi_plan.consortium.name
-      pcentre = stamp.mi_plan.centre.name
+      #raise stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.namw? .inspect
+      pcentre = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : 'unknown'
+      #= stamp.mi_plan.production_centre
+      #pcentre = 'dummy'
       next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
       gene_id = stamp.mi_plan.gene_id
       status = stamp.status.name
@@ -113,7 +116,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       month = stamp.created_at.month
       plan = stamp.mi_attempt.mi_plan
       consortium = stamp.mi_attempt.mi_plan.consortium.name
-      pcentre = stamp.mi_plan.centre.name
+      pcentre = stamp.mi_attempt.production_centre_name
       next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
       gene_id = plan.gene_id
       status = stamp.mi_attempt_status.description
@@ -168,14 +171,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       puts "" if VERBOSE
       puts year if VERBOSE
       month_hash = summary[year]
-      month_hash.keys.sort.reverse!.each do |month|
+      #month_hash.keys.sort.reverse!.each do |month|
+      month_hash.keys.each do |month|
         puts "" if VERBOSE
         puts "" if VERBOSE
         puts month if VERBOSE
         cons_hash = month_hash[month]
         cons_hash.keys.sort.each do |cons|
           centre_hash = cons_hash[cons]
-          centre_hash.keys.sort.each do |centre|
+          centre_hash.keys.each do |centre|
             status_hash = cons_hash[centre]
             all = status_hash[:all].keys.size
             mis = status_hash[:mi].keys.size
@@ -233,16 +237,16 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         @table.to_html
         #@string
       end
-      #def set_table(new_table)
-      #  @table = new_table
-      #end
+      def set_table(new_table)
+        @table = new_table
+      end
       def set_html(string)
         @string = string
       end
     end
     
     proxy = wrapper.new
-    proxy.set_html(prettify(table3))
+    proxy.set_table(prettify(table3))
     
     return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
   end
@@ -251,6 +255,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     html_array = []
     grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
     
+    return table
+
     html_array.push '<table>'
     html_array.push '<tr>'
     table.column_names.each { |name| html_array.push "<th>#{name}</th>" }

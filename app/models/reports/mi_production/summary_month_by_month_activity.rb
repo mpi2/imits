@@ -257,19 +257,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     
     return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
   end
-  
-  # yeah, I know this is crap
 
-  def self.prettify(table)
+  def self.prettify_old(table)
     html_array = []
     grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
-
+  
     html_array.push '<table>'
     html_array.push '<tr>'
     table.column_names.each do |name|
-      #      next if [ 'Year', 'Month', 'Consortium' ].include?(name)
-      #      next if [ 'Year', 'Month' ].include?(name)
-      #      next if [ 'Year' ].include?(name)
       html_array.push "<th>#{name}</th>"
     end
     html_array.push '</tr>'
@@ -290,7 +285,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         
         consortium_group = month_group.subgrouping(month)
         
-        #size = (1+consortium_group.data.size).to_s
         size = consortium_group.data.size.to_s
         
         html_array.push "<td rowspan='#{size}'>#{Date::MONTHNAMES[month]}</td>"
@@ -335,6 +329,81 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     html_array.push '</table>'
     #return table
     return html_array.join("\n")
+  end
+
+  # yeah, I know this is crap
+
+  def self.prettify(table)
+    html_array = []
+    size_array = []
+    grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
+
+    html_array.push '<table>'
+    html_array.push '<tr>'
+    table.column_names.each do |name|
+      html_array.push "<th>#{name}</th>"
+    end
+    html_array.push '</tr>'
+    
+    grouped_report.each do |year|
+      
+      next if year != 2011
+      
+      html_array.push '<tr>'
+      
+      month_group = grouped_report.subgrouping(year)
+      
+      size1 = month_group.data.size.to_s
+      
+      html_array.push "<td rowspan='YEAR_#{year}'>#{year}</td>"
+      
+      month_group.each do |month|
+        
+        consortium_group = month_group.subgrouping(month)
+        
+        size2 = consortium_group.data.size.to_s
+        
+        html_array.push "<td rowspan='MONTH_#{year}_#{month}'>#{Date::MONTHNAMES[month]}</td>"
+        
+        consortium_group.each do |consortium|
+          
+          production_centre_group = consortium_group.subgrouping(consortium)
+          
+          size3 = production_centre_group.data.size.to_s
+          
+          html_array.push "<td rowspan='CONSORTIUM_#{year}_#{month}_#{consortium}'>#{consortium}</td>"
+          
+          production_centre_group.each do |production_centre|
+            
+            html_array.push "<td>#{production_centre}</td>"
+            production_centre_group[production_centre].column_names.each do |column_name|
+              html_array.push "<td>#{production_centre_group[production_centre].column(column_name)[0]}</td>"
+            end
+            
+            html_array.push '</tr>'
+          end
+          
+          hash = {}
+          hash["YEAR_#{year}"] = size1 + size2 + size3
+          hash["MONTH_#{year}_#{month}"] = size2 + size3
+          hash["CONSORTIUM_#{year}_#{month}_#{consortium}"] = size3
+          size_array.push hash
+          
+        end
+        
+      end
+          
+    end
+    
+    html_array.push '</table>'
+    #return table
+    string = html_array.join("\n")
+    
+    size_array.each_pair do |k, v|
+      string = string.gsub(k, v.to_s)
+    end
+    
+    return string
   end
   
 end

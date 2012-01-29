@@ -84,6 +84,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       consortium = stamp.mi_plan.consortium.name
       #raise stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.namw? .inspect
       pcentre = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : 'unknown'
+      next if pcentre.blank?
       #= stamp.mi_plan.production_centre
       #pcentre = 'dummy'
       next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
@@ -117,6 +118,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       plan = stamp.mi_attempt.mi_plan
       consortium = stamp.mi_attempt.mi_plan.consortium.name
       pcentre = stamp.mi_attempt.production_centre_name
+      next if pcentre.blank?
       next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
       gene_id = plan.gene_id
       status = stamp.mi_attempt_status.description
@@ -298,9 +300,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
             size = production_centre_group[production_centre].size.to_s
             
-            html_array.push "<td rowspan='#{size}'>#{production_centre}</td>"
-           
-            #raise production_centre_group[production_centre].inspect
+            #html_array.push "<td rowspan='#{size}'>#{production_centre}</td>"
+            #
+            ##raise production_centre_group[production_centre].inspect
+            #production_centre_group[production_centre].column_names.each do |column_name|
+            #  html_array.push "<td>#{production_centre_group[production_centre].column(column_name)[0]}</td>"
+            #end
+            
+            html_array.push "<td>#{production_centre}</td>"
             production_centre_group[production_centre].column_names.each do |column_name|
               html_array.push "<td>#{production_centre_group[production_centre].column(column_name)[0]}</td>"
             end

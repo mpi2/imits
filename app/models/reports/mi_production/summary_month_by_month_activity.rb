@@ -236,7 +236,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       @table = nil
       @string = nil
       def to_csv
-        raise "Not Yet Implemented!"
+        @table.to_csv
       end
       def to_html
         #@table.to_html
@@ -251,6 +251,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     end
     
     proxy = wrapper.new
+    proxy.set_table(table3)
     proxy.set_html(prettify(table3))
     
     return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
@@ -271,33 +272,35 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     html_array.push '</tr>'
     
     grouped_report.each do |year|
-
+      
+      next if year != 2011
+      
       html_array.push '<tr>'
       
       month_group = grouped_report.subgrouping(year)
-
+      
       size = month_group.data.size.to_s
-
+      
       html_array.push "<td rowspan='#{size}'>#{year}</td>"
       
       month_group.each do |month|
         
         consortium_group = month_group.subgrouping(month)
-
+        
         size = consortium_group.data.size.to_s
-
+        
         html_array.push "<td rowspan='#{size}'>#{Date::MONTHNAMES[month]}</td>"
         
         consortium_group.each do |consortium|
-
+          
           production_centre_group = consortium_group.subgrouping(consortium)
           
           size = production_centre_group.data.size.to_s
-
+          
           html_array.push "<td rowspan='#{size}'>#{consortium}</td>"
           
           production_centre_group.each do |production_centre|
-
+            
             #size = production_centre_group[production_centre].size.to_s
             
             #html_array.push "<td rowspan='#{size}'>#{production_centre}</td>"
@@ -315,11 +318,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             html_array.push '</tr>'
             
           end
-
+          
         end
         
       end
       
+      break
+    
     end
     
     html_array.push '</table>'

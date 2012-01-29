@@ -328,8 +328,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           html_array.push "<td rowspan='#{size}'>#{consortium}</td>"
           
           production_centre_group.each do |production_centre|
+
+            size = production_centre_group[production_centre].size.to_s
             
-            html_array.push "<td rowspan='#{production_centre_group[production_centre].size.to_s}'>#{production_centre}</td>"
+            html_array.push "<td rowspan='#{size}'>#{production_centre}</td>"
            
             #raise production_centre_group[production_centre].inspect
             production_centre_group[production_centre].column_names.each do |column_name|

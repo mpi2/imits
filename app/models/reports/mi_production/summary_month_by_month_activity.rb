@@ -315,6 +315,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       html_array.push '<tr>'
       
       month_group = grouped_report.subgrouping(year)
+
+      size = month_group.data.size.to_s
+
+      html_array.push "<td rowspan='#{size}'>#{year}</td>"
       
       month_group.each do |month|
         

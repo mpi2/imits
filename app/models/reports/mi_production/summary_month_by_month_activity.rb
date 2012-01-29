@@ -149,6 +149,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         cons_hash.keys.each do |cons|
           centre_hash = cons_hash[cons]
           centre_hash.keys.each do |centre|
+            next if centre.blank?
             status_hash = centre_hash[centre]
             all = status_hash[:all].keys.size
             es_qcs = status_hash[:es_qcs].keys.size
@@ -157,7 +158,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             puts "#{cons},#{all},#{es_qcs},#{es_confirms},#{es_fails}" if VERBOSE
             table << {
               'Year' => year,
-              'Month' => Date::MONTHNAMES[month],
+#              'Month' => Date::MONTHNAMES[month],
+              'Month' => month,
               'Consortium' => cons,
               'Production Centre' => centre,
               'All' => all, 'es_qcs' => es_qcs, 'es_confirms' => es_confirms, 'es_fails' => es_fails
@@ -180,6 +182,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         cons_hash.keys.each do |cons|
           centre_hash = cons_hash[cons]
           centre_hash.keys.each do |centre|
+            next if centre.blank?
             status_hash = centre_hash[centre]
             all = status_hash[:all].keys.size
             mis = status_hash[:mi].keys.size
@@ -193,7 +196,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             puts "#{cons},#{all},#{mis},#{gc},#{abort}" if VERBOSE
             table2 << {
               'Year' => year,
-              'Month' => Date::MONTHNAMES[month],
+              'Month' => month,
               'Consortium' => cons,
               'Production Centre' => centre,
               'All' => all,
@@ -203,7 +206,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             }
             table3 << {
               'Year' => year,
-              'Month' => Date::MONTHNAMES[month],
+              'Month' => month,
               'Consortium' => cons,
               'Production Centre' => centre,
               #'All' => all,
@@ -251,51 +254,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
   end
   
-  #def self.prettify(table)
-  #  html_array = []
-  #  grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
-  #  
-  ##  return table
-  #
-  #  html_array.push '<table>'
-  #  html_array.push '<tr>'
-  #  table.column_names.each { |name| html_array.push "<th>#{name}</th>" }
-  #  html_array.push '</tr>'
-  #  
-  #  grouped_report.each do |year|
-  #
-  #    html_array.push '<tr>'
-  #    
-  #    month_group = grouped_report.subgrouping(year)
-  #    
-  #    month_group.subgrouping(year).each do |month|
-  #      
-  #      consortium_group = month_group.subgrouping(month)
-  #      
-  #      consortium_group.subgrouping(month).each do |consortium|
-  #
-  #        production_centre_group = consortium_group.subgrouping(consortium)
-  #
-  #        production_centre_group.subgrouping(consortium).each do |production_centre|
-  #        
-  #          html_array.push "<td>#{production_centre}</td>"
-  #        
-  #          html_array.push '</tr>'
-  #                  
-  #        end
-  #
-  #      end
-  #      
-  #    end
-  #    
-  #  end
-  #  
-  #  html_array.push '</table>'
-  #  return table
-  #end
-  #
-
-
   def self.prettify(table)
     html_array = []
     grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
@@ -326,7 +284,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
         size = consortium_group.data.size.to_s
 
-        html_array.push "<td rowspan='#{size}'>#{month}</td>"
+        html_array.push "<td rowspan='#{size}'>#{Date::MONTHNAMES[month]}</td>"
         
         consortium_group.each do |consortium|
 

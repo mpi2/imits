@@ -304,7 +304,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     html_array.push '<tr>'
     table.column_names.each do |name|
 #      next if [ 'Year', 'Month', 'Consortium' ].include?(name)
-      next if [ 'Year', 'Month' ].include?(name)
+#      next if [ 'Year', 'Month' ].include?(name)
+      next if [ 'Year' ].include?(name)
       html_array.push "<th>#{name}</th>"
     end
     html_array.push '</tr>'
@@ -318,6 +319,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       month_group.each do |month|
         
         consortium_group = month_group.subgrouping(month)
+
+        size = consortium_group.data.size.to_s
+
+        html_array.push "<td rowspan='#{size}'>#{month}</td>"
         
         consortium_group.each do |consortium|
 

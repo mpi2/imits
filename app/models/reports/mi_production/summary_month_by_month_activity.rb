@@ -3,9 +3,10 @@
 # TODO:unlimit consortia
 # TODO: make prettify core generic
 # TODO:phenotyping stamps
-# TODO:
 
 class Reports::MiProduction::SummaryMonthByMonthActivity
+  
+  PHENOTYPES = false
   
   def self.generate(request = nil, params={})
     table = params['table'].blank? ? 1 : params['table'].to_i
@@ -68,6 +69,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       end
     end
     
+    summary = get_phenotypes(summary) if PHENOTYPES
+    
     # try to create an object that has the same interface as a ruport Table class
     # i.e. to_html/to_csv
     # we can then maintain same interface in controller/view
@@ -103,8 +106,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     string += '<tr>'
 
     report_table = Table(['Year', 'Month', 'Consortium', 'Production Centre', 
-      'es_qcs', 'es_confirms', 'es_fails', 
-      'mis', 'gc', 'abort'
+        'es_qcs', 'es_confirms', 'es_fails',
+        'mis', 'gc', 'abort'
       ])
 
     report_table.column_names.each { |name| string += "<th>#{name}</th>" }
@@ -170,6 +173,39 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     end
     string += '</table>'
     return report_table, string
+  end
+
+  def self.get_phenotypes(summary)
+    statuses = [
+      'Phenotype Attempt Aborted',
+      'Phenotype Attempt Registered',
+      'Rederivation Started',
+      'Rederivation Complete',
+      'Cre Excision Started',
+      'Cre Excision Complete',
+      'Phenotyping Started',
+      'Phenotyping Complete'
+    ]
+
+    PhenotypeAttempt::StatusStamp.all.each do |stamp|
+      year = stamp.created_at.year
+      month = stamp.created_at.month
+	  
+      plan = stamp.mi_attempt.mi_plan
+      consortium = stamp.mi_attempt.mi_plan.consortium.name
+      pcentre = stamp.mi_attempt.production_centre_name
+      next if pcentre.blank? || pcentre.to_s.length < 1
+      next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
+      gene_id = plan.gene_id
+      status = stamp.phenotype_attempt.name
+
+      statuses.each do |name|
+        summary[year][month][consortium][pcentre][name][gene_id] = 1
+      end
+    
+    end
+	
+    return summary
   end
     
 end

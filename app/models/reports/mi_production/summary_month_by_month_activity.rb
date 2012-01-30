@@ -6,7 +6,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   VERBOSE = false
 
   def self.generate(request = nil, params={})
-    table = params['table'].blank? ? 5 : params['table'].to_i
+    table = params['table'].blank? ? 0 : params['table'].to_i
     tables = generate_original
     #raise table.inspect
     return table > -1 && table < tables.size ? tables[table] : nil
@@ -258,7 +258,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
   end
 
-  def self.prettify_old(table)
+  def self.prettify(table)
     html_array = []
     grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
   
@@ -277,7 +277,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       
       month_group = grouped_report.subgrouping(year)
       
-      size = month_group.data.size.to_s
+      size = 31 # month_group.data.size.to_s
       
       html_array.push "<td rowspan='#{size}'>#{year}</td>"
       
@@ -285,7 +285,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         
         consortium_group = month_group.subgrouping(month)
         
-        size = consortium_group.data.size.to_s
+        size = size.to_i-9	#consortium_group.data.size.to_s
         
         html_array.push "<td rowspan='#{size}'>#{Date::MONTHNAMES[month]}</td>"
         
@@ -333,7 +333,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
   # yeah, I know this is crap
 
-  def self.prettify(table)
+  def self.prettify_new(table)
     html_array = []
     size_array = []
     grouped_report = Grouping( table, :by => [ 'Year', 'Month', 'Consortium', 'Production Centre' ], :order => :name )
@@ -399,8 +399,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     #return table
     string = html_array.join("\n")
     
-    size_array.each_pair do |k, v|
-      string = string.gsub(k, v.to_s)
+    size_array.each do |item|
+    	item.each_pair { |k, v| string = string.gsub(k, v.to_s) }
     end
     
     return string

@@ -141,6 +141,21 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
           :consortium_name => 'DTCC')
         pt.valid?
         assert_match /cannot be found with supplied parameters/i, pt.errors['mi_plan'].first
+
+      end
+
+      should 'set MiPlan to Assigned status if not assigned already' do
+        plan = @mi.mi_plan.clone
+        plan.consortium = Consortium.find_by_name!('JAX')
+        plan.status = MiPlan::Status['Interest']
+        plan.save!
+        assert_equal 'Interest', plan.status.name
+
+        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
+          :consortium_name => 'JAX')
+        pt.save!
+        assert_equal plan, pt.mi_plan
+        plan.reload; assert_equal 'Assigned', plan.status.name
       end
 
       should 'not overwrite existing MiPlan that has been assigned' do

@@ -26,7 +26,8 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be assignable to Genotype confirmed MiAttempt' do
-        new_mi = Factory.create :mi_attempt_genotype_confirmed
+        new_mi = Factory.create :mi_attempt_genotype_confirmed,
+                :es_cell => default_phenotype_attempt.mi_attempt.es_cell
         default_phenotype_attempt.mi_attempt = new_mi
         default_phenotype_attempt.save!
       end
@@ -55,10 +56,48 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'not be overritten by default value if it is explicitly set' do
-        plan = Factory.create :mi_plan
-        pt = Factory.create :phenotype_attempt, :mi_plan => plan
+        mi_attempt = Factory.create :mi_attempt_genotype_confirmed
+        plan = Factory.create :mi_plan, :gene => mi_attempt.gene
+        pt = Factory.create :phenotype_attempt, :mi_attempt => mi_attempt, :mi_plan => plan
         assert_equal plan, pt.mi_plan
         assert_not_equal pt.mi_attempt.mi_plan, pt.mi_plan
+      end
+
+      should 'validate as having same gene as mi_attempt.es_cell' do
+        plan = Factory.create :mi_plan,
+                :consortium => default_phenotype_attempt.mi_plan.consortium,
+                :production_centre => default_phenotype_attempt.mi_plan.production_centre
+        assert_not_equal plan.gene, default_phenotype_attempt.mi_attempt.es_cell.gene
+
+        default_phenotype_attempt.mi_plan = plan
+        assert ! default_phenotype_attempt.valid?
+        assert_equal ['must have same gene as mi_attempt'], default_phenotype_attempt.errors[:mi_plan]
+      end
+
+      should 'get set to Assigned if not already in an assigned state' do
+        plan = Factory.create :mi_plan, :gene => default_phenotype_attempt.gene,
+                :status => MiPlan::Status['Assigned']
+        default_phenotype_attempt.mi_plan = plan
+        assert default_phenotype_attempt.save
+        plan.reload; assert_equal 'Assigned', plan.status.name
+
+        plan = Factory.create :mi_plan, :gene => default_phenotype_attempt.gene,
+                :number_of_es_cells_starting_qc => 5
+        default_phenotype_attempt.mi_plan = plan
+        assert default_phenotype_attempt.save
+        plan.reload; assert_equal 'Assigned - ES Cell QC In Progress', plan.status.name
+
+        plan = Factory.create :mi_plan, :gene => default_phenotype_attempt.gene,
+                :status => MiPlan::Status['Interest']
+        default_phenotype_attempt.mi_plan = plan
+        assert default_phenotype_attempt.save
+        plan.reload; assert_equal 'Assigned', plan.status.name
+
+        plan = Factory.create :mi_plan, :gene => default_phenotype_attempt.gene,
+                :status => MiPlan::Status['Conflict']
+        default_phenotype_attempt.mi_plan = plan
+        assert default_phenotype_attempt.save
+        plan.reload; assert_equal 'Assigned', plan.status.name
       end
     end
 

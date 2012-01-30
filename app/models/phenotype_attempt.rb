@@ -16,11 +16,18 @@ class PhenotypeAttempt < ApplicationModel
     end
   end
 
+  validate :mi_plan do |me|
+    if me.mi_attempt.gene != me.mi_plan.gene
+      me.errors.add(:mi_plan, 'must have same gene as mi_attempt')
+    end
+  end
+
   # BEGIN Callbacks
   before_validation :change_status
   before_validation :set_mi_plan
   before_save :record_if_status_was_changed
   before_save :generate_colony_name_if_blank
+  before_save :make_plan_assigned
   after_save :create_status_stamp_if_status_was_changed
 
   def set_mi_plan
@@ -43,6 +50,13 @@ class PhenotypeAttempt < ApplicationModel
       i += 1
       self.colony_name = "#{self.mi_attempt.colony_name}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
+  end
+
+  def make_plan_assigned
+    if ! mi_plan.assigned?
+      mi_plan.status = MiPlan::Status['Assigned']
+      mi_plan.save!
+    end
   end
 
   def create_status_stamp_if_status_was_changed

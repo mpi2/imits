@@ -42,6 +42,14 @@ namespace :cron do
   task :sync_mi_attempt_in_progress_dates => [:environment] do
     audited_transaction do
       log = "RAILS_ENV=#{Rails.env} rake cron:sync_mi_attempt_in_progress_dates\n"
+
+      bad_mis = MiAttempt.find_all_by_colony_name(%w{UCD-EPD0413_5_E10-1 UCD-DEPD00514_4_H02-1 ICS-EPD0177_1_E09-1})
+      bad_mis.each do |mi|
+          log += "Changing '#{mi.colony_name}' mi_date from #{mi.mi_date} to #{mi.in_progress_date}\n"
+        mi.mi_date = mi.in_progress_date
+        mi.save!
+      end
+
       MiAttempt.all.each do |mi|
         ip_ss = mi.status_stamps.all.find {|i| i.mi_attempt_status == MiAttemptStatus.micro_injection_in_progress}
         ip_date = ip_ss.created_at.utc.to_date

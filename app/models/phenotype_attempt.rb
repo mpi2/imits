@@ -53,6 +53,8 @@ class PhenotypeAttempt < ApplicationModel
 
   # END Callbacks
 
+  delegate :gene, :to => :mi_attempt
+
   def reportable_statuses_with_latest_dates
     retval = {}
     status_stamps.each do |status_stamp|

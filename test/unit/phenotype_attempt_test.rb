@@ -213,5 +213,12 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#gene' do
+      should 'be the mi_attempt\'s es_cell\'s gene' do
+        assert_equal default_phenotype_attempt.mi_attempt.gene,
+                default_phenotype_attempt.gene
+      end
+    end
+
   end
 end

@@ -6,7 +6,7 @@
 
 class Reports::MiProduction::SummaryMonthByMonthActivity
   
-  PHENOTYPES = false
+  PHENOTYPES = true
   
   def self.generate(request = nil, params={})
     table = params['table'].blank? ? 1 : params['table'].to_i
@@ -107,7 +107,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     report_table = Table(['Year', 'Month', 'Consortium', 'Production Centre', 
         'es_qcs', 'es_confirms', 'es_fails',
-        'mis', 'gc', 'abort'
+        'mis', 'gc', 'abort',
+      'Phenotype Attempt Aborted',
+      'Phenotype Attempt Registered',
+      'Rederivation Started',
+      'Rederivation Complete',
+      'Cre Excision Started',
+      'Cre Excision Complete',
+      'Phenotyping Started',
+      'Phenotyping Complete'
       ])
 
     report_table.column_names.each { |name| string += "<th>#{name}</th>" }
@@ -147,6 +155,24 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             string += "<td>#{gc}</td>"
             string += "<td>#{abort}</td>"
             
+            paa = status_hash['Phenotype Attempt Aborted'].keys.size
+            par = status_hash['Phenotype Attempt Registered'].keys.size
+            rs = status_hash['Rederivation Started'].keys.size
+            rc = status_hash['Rederivation Complete'].keys.size
+            ces = status_hash['Cre Excision Started'].keys.size
+            cec = status_hash['Cre Excision Complete'].keys.size
+            ps = status_hash['Phenotyping Started'].keys.size
+            pc = status_hash['Phenotyping Complete'].keys.size
+
+            string += "<td>#{paa}</td>"
+            string += "<td>#{par}</td>"
+            string += "<td>#{rs}</td>"
+            string += "<td>#{rc}</td>"
+            string += "<td>#{ces}</td>"
+            string += "<td>#{cec}</td>"
+            string += "<td>#{ps}</td>"
+            string += "<td>#{pc}</td>"
+
             string += "</tr>\n"
             year_count += 1
             month_count += 1
@@ -161,7 +187,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
               'es_fails' => es_fails,
               'mis' => mis,
               'gc' => gc,
-              'abort' => abort
+              'abort' => abort,
+      'Phenotype Attempt Aborted' => paa,
+      'Phenotype Attempt Registered' => par,
+      'Rederivation Started' => rs,
+      'Rederivation Complete' => rc,
+      'Cre Excision Started' => ces,
+      'Cre Excision Complete' => cec,
+      'Phenotyping Started' => ps,
+      'Phenotyping Complete' => pc
             }
 
           end
@@ -191,18 +225,21 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       year = stamp.created_at.year
       month = stamp.created_at.month
 	  
-      plan = stamp.mi_attempt.mi_plan
-      consortium = stamp.mi_attempt.mi_plan.consortium.name
-      pcentre = stamp.mi_attempt.production_centre_name
+      plan = stamp.phenotype_attempt.mi_plan
+      consortium = plan.consortium.name
+      pcentre = stamp.phenotype_attempt.mi_attempt.production_centre_name
       next if pcentre.blank? || pcentre.to_s.length < 1
       next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
       gene_id = plan.gene_id
-      status = stamp.phenotype_attempt.name
+      status = stamp.phenotype_attempt.status.name
 
       statuses.each do |name|
-        summary[year][month][consortium][pcentre][name][gene_id] = 1
+        #summary[year][month][consortium][pcentre][name][gene_id] = 1
+        summary[year][month][consortium][pcentre][name][gene_id] = 1 if name == status
       end
     
+      #raise summary[year][month][consortium][pcentre].inspect
+
     end
 	
     return summary

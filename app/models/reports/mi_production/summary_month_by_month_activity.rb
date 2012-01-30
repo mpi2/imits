@@ -2,19 +2,19 @@
 
 # TODO:reverse years/months
 # TODO:unlimit consortia
-# TODO:
-# TODO:
+# TODO: make prettify core generic
+# TODO:phenotyping stamps
 # TODO:
 
 class Reports::MiProduction::SummaryMonthByMonthActivity
   
   def self.generate(request = nil, params={})
     table = params['table'].blank? ? 0 : params['table'].to_i
-    tables = generate_original
+    tables = generate_summary
     return table > -1 && table < tables.size ? tables[table] : nil
   end
 
-  def self.generate_original
+  def self.generate_summary
     summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
 
     MiPlan::StatusStamp.all.each do |stamp|
@@ -69,7 +69,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       end
     end
     
-    # try to create an object that has the same interface as a ruport object
+    # try to create an object that has the same interface as a ruport Table class
     # i.e. to_html/to_csv
     # we can then maintain same interface in controller/view
     
@@ -90,12 +90,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       end
     end
    
-    proxy5 = wrapper.new
+    proxy = wrapper.new
     table, string = prettify(summary)
-    proxy5.set_table(table)
-    proxy5.set_html(string)
+    proxy.set_table(table)
+    proxy.set_html(string)
 
-    return [table, proxy5]
+    return [table, proxy]
   end
 
   def self.prettify(summary)
@@ -103,14 +103,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     string += '<table>'
     string += '<tr>'
 
-    table3 = Table(['Year', 'Month', 'Consortium', 'Production Centre', 'es_qcs', 'es_confirms', 'es_fails', 'mis', 'gc', 'abort'])
+    report_table = Table(['Year', 'Month', 'Consortium', 'Production Centre', 'es_qcs', 'es_confirms', 'es_fails', 'mis', 'gc', 'abort'])
 
-    table3.column_names.each do |name|
-      string += "<th>#{name}</th>"
-    end
-
-
-
+    report_table.column_names.each { |name| string += "<th>#{name}</th>" }
 
     summary.keys.sort.each do |year|      
       string += '</tr>'
@@ -151,7 +146,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             year_count += 1
             month_count += 1
 
-            table3 << {
+            report_table << {
               'Year' => year,
               'Month' => month,
               'Consortium' => cons,
@@ -172,7 +167,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       string = string.gsub(/YEAR_ROWSPAN/, year_count.to_s)
     end
     string += '</table>'
-    return table3, string
+    return report_table, string
   end
     
 end

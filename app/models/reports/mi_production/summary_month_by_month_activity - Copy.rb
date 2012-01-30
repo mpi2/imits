@@ -21,8 +21,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       year = stamp.created_at.year
       month = stamp.created_at.month
       consortium = stamp.mi_plan.consortium.name
-      pcentre = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : ''
-      next if pcentre.blank? || pcentre.to_s.length < 1
+      pcentre = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : 'unknown'
+      next if pcentre.blank? || pcentre.to_s == 'unknown'
       next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
       gene_id = stamp.mi_plan.gene_id
       status = stamp.status.name

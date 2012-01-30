@@ -259,7 +259,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     proxy2.set_table(table)
     proxy2.set_html(prettify_new(table))
     
-    return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
+    return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy, proxy2]
   end
 
   def self.prettify(table)
@@ -282,7 +282,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       month_group = grouped_report.subgrouping(year)
       
 #      size = 31 # month_group.data.size.to_s
-      size = month_group.data.size
+      size = month_group.data.size.to_s
+      #size = 44 #month_group.data.size
       
       html_array.push "<td rowspan='#{size}'>#{year}</td>"
       
@@ -290,7 +291,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         
         consortium_group = month_group.subgrouping(month)
         
-        size = size.to_i-9	#consortium_group.data.size.to_s
+        #size = size.to_i-9	#consortium_group.data.size.to_s
+        size = consortium_group.data.size.to_s
         
         html_array.push "<td rowspan='#{size}'>#{Date::MONTHNAMES[month]}</td>"
         
@@ -358,7 +360,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       
       month_group = grouped_report.subgrouping(year)
       
-      size1 = month_group.data.size.to_s
+      size1 = month_group.data.size
       
       html_array.push "<td rowspan='YEAR_#{year}'>#{year}</td>"
       
@@ -366,7 +368,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         
         consortium_group = month_group.subgrouping(month)
         
-        size2 = consortium_group.data.size.to_s
+        size2 = consortium_group.data.size
         
         html_array.push "<td rowspan='MONTH_#{year}_#{month}'>#{Date::MONTHNAMES[month]}</td>"
         
@@ -374,7 +376,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           
           production_centre_group = consortium_group.subgrouping(consortium)
           
-          size3 = production_centre_group.data.size.to_s
+          size3 = production_centre_group.data.size
           
           html_array.push "<td rowspan='CONSORTIUM_#{year}_#{month}_#{consortium}'>#{consortium}</td>"
           

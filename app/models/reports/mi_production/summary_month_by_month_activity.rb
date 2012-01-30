@@ -475,7 +475,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     string += '<table>'
     string += '<tr>'
 
-    column_names = ['Year', 'Month', 'Consortium', 'Production Centre', 'es_qcs', 'es_confirms', 'es_fails']
+    column_names = ['Year', 'Month', 'Consortium', 'Production Centre',
+                    'mi', 'gc', 'abort',
+                    'es_qcs', 'es_confirms', 'es_fails']
 
     column_names.each do |name|
       string += "<th>#{name}</th>"
@@ -488,7 +490,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       string += "<td rowspan='YEAR_ROWSPAN'>#{year}</td>"
       month_hash = summary[year]
       month_hash.keys.sort.each do |month|
-        string += "<td rowspan='MONTH_ROWSPAN'>#{month}</td>"
+        string += "<td rowspan='MONTH_ROWSPAN'>#{Date::MONTHNAMES[month]}</td>"
         cons_hash = month_hash[month]
         month_count = 0
         cons_hash.keys.each do |cons|
@@ -497,16 +499,25 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           centre_hash.keys.each do |centre|
             next if centre.blank?
             status_hash = centre_hash[centre]
-            #all = status_hash[:all].keys.size
+
             es_qcs = status_hash[:es_qcs].keys.size
             es_confirms = status_hash[:es_confirms].keys.size
             es_fails = status_hash[:es_fails].keys.size
 
+            mis = status_hash[:mi].keys.size
+            gc = status_hash[:gc].keys.size
+            abort = status_hash[:abort].keys.size
+
             string += "<td>#{centre}</td>"
-#            string += "<td>#{all}</td>"
+
+            string += "<td>#{mis}</td>"
+            string += "<td>#{gc}</td>"
+            string += "<td>#{abort}</td>"
+            
             string += "<td>#{es_qcs}</td>"
             string += "<td>#{es_confirms}</td>"
             string += "<td>#{es_fails}</td>"
+            
             string += "</tr>\n"
             year_count += 1
             month_count += 1

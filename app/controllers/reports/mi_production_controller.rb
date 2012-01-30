@@ -94,12 +94,14 @@ class Reports::MiProductionController < ApplicationController
       :consortia => params[:consortia])
     @report.each do |consortium, group|
       group.each do |record|
-        Reports::MiProduction::Languishing::DELAY_BINS.each do |bin|
-          record[bin] = '<a href="' + url_for(:controller => '/reports/mi_production',
+        Reports::MiProduction::Languishing::DELAY_BINS.each_with_index do |bin, idx|
+          link = '<a href="' + url_for(:controller => '/reports/mi_production',
             :action => 'languishing_detail',
             :consortium => consortium,
             :status => record[0],
             :delay_bin => bin) + '">' + record[bin].to_s + '</a>'
+          css_classes = [record[0].gsub(/[- ]+/, '_').downcase, "bin#{idx+1}"]
+          record[bin] = "<div class=\"#{css_classes.join ' '}\">#{link}</div>".html_safe
         end
       end
     end
@@ -118,6 +120,11 @@ class Reports::MiProductionController < ApplicationController
       :status => params[:status],
       :delay_bin => params[:delay_bin])
     send_data_csv('languishing_production_report_detail.csv', @report.to_csv) if request.format == :csv
+  end
+
+  def summary_month_by_month_activity
+    @report = Reports::MiProduction::SummaryMonthByMonthActivity.generate(request, params)
+    send_data_csv('summary_month_by_month_activity.csv', @report.to_csv) if request.format == :csv
   end
 
 end

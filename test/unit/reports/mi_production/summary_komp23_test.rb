@@ -42,7 +42,7 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
         "Chimaeras"=>nil,
         "Genotype Confirmed"=>1,
         "MI Aborted"=>1,
-        "Gene Pipeline efficiency (%)"=>"50",
+        "Gene Pipeline efficiency (%)"=>"100",
         "Clone Pipeline efficiency (%)"=>"20",
         "Phenotype Registrations"=>1,
         "Rederivation Starts"=>1,

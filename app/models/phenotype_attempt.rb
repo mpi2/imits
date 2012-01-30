@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class PhenotypeAttempt < ActiveRecord::Base
+class PhenotypeAttempt < ApplicationModel
   acts_as_audited
 
   include PhenotypeAttempt::StatusChanger
@@ -16,14 +16,22 @@ class PhenotypeAttempt < ActiveRecord::Base
     end
   end
 
+  validate :mi_plan do |me|
+    if me.mi_attempt.gene != me.mi_plan.gene
+      me.errors.add(:mi_plan, 'must have same gene as mi_attempt')
+    end
+  end
+
   # BEGIN Callbacks
   before_validation :change_status
-  before_validation :set_default_mi_plan
+  before_validation :set_mi_plan
   before_save :record_if_status_was_changed
+  before_save :generate_colony_name_if_blank
+  before_save :make_plan_assigned
   after_save :create_status_stamp_if_status_was_changed
 
-  def set_default_mi_plan
-    self.mi_plan ||= mi_attempt.mi_plan
+  def set_mi_plan
+    self.mi_plan ||= mi_attempt.try(:mi_plan)
   end
 
   def record_if_status_was_changed
@@ -34,6 +42,23 @@ class PhenotypeAttempt < ActiveRecord::Base
     end
   end
 
+  def generate_colony_name_if_blank
+    return unless self.colony_name.blank?
+
+    i = 0
+    begin
+      i += 1
+      self.colony_name = "#{self.mi_attempt.colony_name}-#{i}"
+    end until self.class.find_by_colony_name(self.colony_name).blank?
+  end
+
+  def make_plan_assigned
+    if ! mi_plan.assigned?
+      mi_plan.status = MiPlan::Status['Assigned']
+      mi_plan.save!
+    end
+  end
+
   def create_status_stamp_if_status_was_changed
     if @new_status
       status_stamps.create!(:status => @new_status)
@@ -41,6 +66,8 @@ class PhenotypeAttempt < ActiveRecord::Base
   end
 
   # END Callbacks
+
+  delegate :gene, :to => :mi_attempt
 
   def reportable_statuses_with_latest_dates
     retval = {}
@@ -73,5 +100,10 @@ end
 #  created_at                       :datetime
 #  updated_at                       :datetime
 #  mi_plan_id                       :integer         not null
+#  colony_name                      :string(125)     not null
+#
+# Indexes
+#
+#  index_phenotype_attempts_on_colony_name  (colony_name) UNIQUE
 #
 

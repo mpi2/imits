@@ -133,6 +133,50 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '#number_of_es_cells_starting_qc' do
+      should 'validate non-blankness only it was previously set to a number' do
+        assert_equal nil, default_mi_plan.number_of_es_cells_starting_qc
+        default_mi_plan.number_of_es_cells_starting_qc = 5
+        default_mi_plan.save!
+
+        default_mi_plan.number_of_es_cells_starting_qc = nil
+        assert_false default_mi_plan.save
+
+        assert ! default_mi_plan.errors[:number_of_es_cells_starting_qc].blank?
+      end
+    end
+
+    context '#number_of_es_cells_passing_qc' do
+      should 'validate non-blankness only it was previously set to a number' do
+        assert_equal nil, default_mi_plan.number_of_es_cells_passing_qc
+        default_mi_plan.number_of_es_cells_passing_qc = 5
+        default_mi_plan.save!
+
+        default_mi_plan.number_of_es_cells_passing_qc = nil
+        assert_false default_mi_plan.save
+
+        assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+      end
+
+      should 'validate cannot be set to 0 if was previously non-zero' do
+        2.times do |i|
+          default_mi_plan.number_of_es_cells_passing_qc = 0
+          default_mi_plan.save!
+        end
+
+        default_mi_plan.number_of_es_cells_passing_qc = 5
+        default_mi_plan.save!
+
+        default_mi_plan.number_of_es_cells_passing_qc = nil
+        assert_false default_mi_plan.save
+        assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+
+        default_mi_plan.number_of_es_cells_passing_qc = 0
+        assert_false default_mi_plan.save
+        assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
+      end
+    end
+
     should 'limit the public mass-assignment API' do
       expected = [
         'marker_symbol',
@@ -167,7 +211,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
     context '#as_json' do
       should 'take nil as param' do
-        assert_nothing_raised { @default_mi_plan.as_json(nil) }
+        assert_nothing_raised { default_mi_plan.as_json(nil) }
       end
     end
 
@@ -193,9 +237,13 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     end
 
     context '::public_search' do
+      should 'not need to pass "sorts" parameter' do
+        assert Public::MiPlan.public_search(:consortium_name_eq => default_mi_plan.consortium.name, :sorts => nil).result
+      end
+
       should 'pass on parameters not needing translation to ::search' do
-        assert_equal @default_mi_plan.id,
-                Public::MiPlan.public_search(:consortium_name_eq => @default_mi_plan.consortium.name).result.first.id
+        assert_equal default_mi_plan.id,
+                Public::MiPlan.public_search(:consortium_name_eq => default_mi_plan.consortium.name).result.first.id
       end
 
       should 'translate searching predicates' do

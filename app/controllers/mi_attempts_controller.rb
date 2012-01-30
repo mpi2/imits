@@ -22,7 +22,7 @@ class MiAttemptsController < ApplicationController
   end
 
   def data_for_serialized(format)
-    super(format, 'id', MiAttempt, :public_search)
+    super(format, 'id asc', MiAttempt, :public_search)
   end
   protected :data_for_serialized
 

@@ -22,11 +22,36 @@ class ApplicationModel < ActiveRecord::Base
     params = params.dup.stringify_keys
     translated_params = {}
 
-    sorts = translate_public_param(params.delete('sorts')) unless params['sorts'].blank?
+    sorts = params.delete('sorts')
+    unless sorts.blank?
+      translated_params['sorts'] = translate_public_param(sorts)
+    end
+
     params.each do |name, value|
       translated_params[translate_public_param(name)] = value
     end
-    return self.search(translated_params.merge('sorts' => sorts))
+
+    return self.search(translated_params)
+  end
+
+  def consortium_name_and_production_centre_name_from_mi_plan_validation
+    {
+      :consortium_name => Consortium,
+      :production_centre_name => Centre
+    }.each do |attr, klass|
+      value = send(attr)
+      next if value.blank?
+      association_name = attr.to_s.gsub('_name', '')
+
+      if mi_plan and mi_plan.send(association_name) and value != mi_plan.send(association_name).name
+        errors.add attr, 'cannot be changed'
+      else
+        associated = klass.find_by_name(value)
+        if associated.blank?
+          errors.add attr, 'does not exist'
+        end
+      end
+    end
   end
 
 end

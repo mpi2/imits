@@ -33,7 +33,7 @@ end
 
 Factory.define :mi_plan do |mi_plan|
   mi_plan.association :gene
-  mi_plan.consortium { Consortium.find_by_name!('EUCOMM-EUMODIC') }
+  mi_plan.association :consortium
   mi_plan.status   { MiPlan::Status.find_by_name! 'Interest' }
   mi_plan.priority { MiPlan::Priority.find_by_name! 'High' }
 end

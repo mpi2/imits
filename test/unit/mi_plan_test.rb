@@ -6,12 +6,12 @@ class MiPlanTest < ActiveSupport::TestCase
 
   context 'MiPlan' do
 
-    setup do
-      @default_mi_plan = Factory.create :mi_plan
+    def default_mi_plan
+      @default_mi_plan ||= Factory.create :mi_plan
     end
 
-    should '@default_mi_plan should be in state Interest for the rest of the tests' do
-      assert_equal 'Interest', @default_mi_plan.status.name
+    should 'default_mi_plan should be in state Interest for the rest of the tests' do
+      assert_equal 'Interest', default_mi_plan.status.name
     end
 
     context 'attribute tests:' do
@@ -232,15 +232,15 @@ class MiPlanTest < ActiveSupport::TestCase
         end
 
         should 'be ordered by created_at asc' do
-          @default_mi_plan.status_stamps.destroy_all
-          s1 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
+          default_mi_plan.status_stamps.destroy_all
+          s1 = MiPlan::StatusStamp.create!(:mi_plan => default_mi_plan,
             :status => MiPlan::Status[:Assigned], :created_at => 1.day.ago)
-          s2 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
+          s2 = MiPlan::StatusStamp.create!(:mi_plan => default_mi_plan,
             :status => MiPlan::Status[:Conflict], :created_at => 1.hour.ago)
-          s3 = MiPlan::StatusStamp.create!(:mi_plan => @default_mi_plan,
+          s3 = MiPlan::StatusStamp.create!(:mi_plan => default_mi_plan,
             :status => MiPlan::Status[:Interest], :created_at => 12.hours.ago)
-          @default_mi_plan.status_stamps.reload
-          assert_equal [s1, s3, s2].map(&:name), @default_mi_plan.status_stamps.map(&:name)
+          default_mi_plan.status_stamps.reload
+          assert_equal [s1, s3, s2].map(&:name), default_mi_plan.status_stamps.map(&:name)
         end
 
         should 'delete related MiPlan::StatusStamps as well' do
@@ -259,23 +259,23 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#add_status_stamp' do
         setup do
-          @default_mi_plan.status_stamps.destroy_all
-          @default_mi_plan.send(:add_status_stamp, MiPlan::Status[:Assigned])
-          @default_mi_plan.send(:add_status_stamp, MiPlan::Status[:Conflict])
+          default_mi_plan.status_stamps.destroy_all
+          default_mi_plan.send(:add_status_stamp, MiPlan::Status[:Assigned])
+          default_mi_plan.send(:add_status_stamp, MiPlan::Status[:Conflict])
         end
 
         should 'add the stamp' do
           assert_not_equal [], MiPlan::StatusStamp.where(
-            :mi_plan_id => @default_mi_plan.id,
+            :mi_plan_id => default_mi_plan.id,
             :status_id => MiPlan::Status[:Assigned].id)
           assert_not_equal [], MiPlan::StatusStamp.where(
-            :mi_plan_id => @default_mi_plan.id,
+            :mi_plan_id => default_mi_plan.id,
             :status_id => MiPlan::Status[:Conflict].id)
         end
 
         should 'update the association afterwards' do
           assert_equal [MiPlan::Status[:Assigned], MiPlan::Status[:Conflict]],
-                  @default_mi_plan.status_stamps.map(&:status)
+                  default_mi_plan.status_stamps.map(&:status)
         end
       end
 
@@ -315,19 +315,19 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#status' do
         should 'create status stamps when status is changed' do
-          @default_mi_plan.status = MiPlan::Status['Conflict']; @default_mi_plan.save!
-          @default_mi_plan.status = MiPlan::Status['Assigned']; @default_mi_plan.save!
-          @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
+          default_mi_plan.status = MiPlan::Status['Conflict']; default_mi_plan.save!
+          default_mi_plan.status = MiPlan::Status['Assigned']; default_mi_plan.save!
+          default_mi_plan.status = MiPlan::Status['Interest']; default_mi_plan.save!
 
           expected = ['Interest', 'Conflict', 'Assigned', 'Interest']
-          assert_equal expected, @default_mi_plan.status_stamps.map{|i| i.status.name}
+          assert_equal expected, default_mi_plan.status_stamps.map{|i| i.status.name}
         end
 
         should 'not add the same status stamp consecutively' do
-          @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
-          @default_mi_plan.status = MiPlan::Status['Interest']; @default_mi_plan.save!
+          default_mi_plan.status = MiPlan::Status['Interest']; default_mi_plan.save!
+          default_mi_plan.status = MiPlan::Status['Interest']; default_mi_plan.save!
 
-          assert_equal ['Interest'], @default_mi_plan.status_stamps.map{|i|i.status.name}
+          assert_equal ['Interest'], default_mi_plan.status_stamps.map{|i|i.status.name}
         end
       end
 
@@ -336,63 +336,23 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_should have_db_column(:number_of_es_cells_starting_qc).of_type(:integer)
         end
 
-        should 'validate non-blankness only it was previously set to a number' do
-          assert_equal nil, @default_mi_plan.number_of_es_cells_starting_qc
-          @default_mi_plan.number_of_es_cells_starting_qc = 5
-          @default_mi_plan.save!
+        should 'be set same value as number passing QC if it is null' do
+          assert_nil default_mi_plan.number_of_es_cells_starting_qc
+          assert_nil default_mi_plan.number_of_es_cells_passing_qc
 
-          @default_mi_plan.number_of_es_cells_starting_qc = nil
-          assert_false @default_mi_plan.save
+          default_mi_plan.number_of_es_cells_passing_qc = 7
+          default_mi_plan.valid?
+          assert_equal 7, default_mi_plan.number_of_es_cells_starting_qc
 
-          assert ! @default_mi_plan.errors[:number_of_es_cells_starting_qc].blank?
-        end
-
-        should 'be setsame value as number passing QC if it is null' do
-          assert_nil @default_mi_plan.number_of_es_cells_starting_qc
-          assert_nil @default_mi_plan.number_of_es_cells_passing_qc
-
-          @default_mi_plan.number_of_es_cells_passing_qc = 7
-          @default_mi_plan.valid?
-          assert_equal 7, @default_mi_plan.number_of_es_cells_starting_qc
-
-          @default_mi_plan.number_of_es_cells_passing_qc = 2
-          @default_mi_plan.valid?
-          assert_equal 7, @default_mi_plan.number_of_es_cells_starting_qc
+          default_mi_plan.number_of_es_cells_passing_qc = 2
+          default_mi_plan.valid?
+          assert_equal 7, default_mi_plan.number_of_es_cells_starting_qc
         end
       end
 
       context '#number_of_es_cells_passing_qc' do
         should 'exist' do
           assert_should have_db_column(:number_of_es_cells_passing_qc).of_type(:integer)
-        end
-
-        should 'validate non-blankness only it was previously set to a number' do
-          assert_equal nil, @default_mi_plan.number_of_es_cells_passing_qc
-          @default_mi_plan.number_of_es_cells_passing_qc = 5
-          @default_mi_plan.save!
-
-          @default_mi_plan.number_of_es_cells_passing_qc = nil
-          assert_false @default_mi_plan.save
-
-          assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
-        end
-
-        should 'validate cannot be set to 0 if was previously non-zero' do
-          2.times do |i|
-            @default_mi_plan.number_of_es_cells_passing_qc = 0
-            @default_mi_plan.save!
-          end
-
-          @default_mi_plan.number_of_es_cells_passing_qc = 5
-          @default_mi_plan.save!
-
-          @default_mi_plan.number_of_es_cells_passing_qc = nil
-          assert_false @default_mi_plan.save
-          assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
-
-          @default_mi_plan.number_of_es_cells_passing_qc = 0
-          assert_false @default_mi_plan.save
-          assert ! @default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
         end
       end
 
@@ -411,60 +371,60 @@ class MiPlanTest < ActiveSupport::TestCase
       context '#withdrawn virtual attribute' do
         context 'when being set to true' do
           should 'set the status to Withdrawn if it at an allowed status' do
-            @default_mi_plan.status = MiPlan::Status['Conflict']
-            @default_mi_plan.withdrawn = true
-            assert_equal true, @default_mi_plan.withdrawn
-            assert_equal 'Withdrawn', @default_mi_plan.status.name
+            default_mi_plan.status = MiPlan::Status['Conflict']
+            default_mi_plan.withdrawn = true
+            assert_equal true, default_mi_plan.withdrawn
+            assert_equal 'Withdrawn', default_mi_plan.status.name
 
-            @default_mi_plan.status = MiPlan::Status['Inspect - Conflict']
-            @default_mi_plan.withdrawn = true
-            assert_equal true, @default_mi_plan.withdrawn
-            assert_equal 'Withdrawn', @default_mi_plan.status.name
+            default_mi_plan.status = MiPlan::Status['Inspect - Conflict']
+            default_mi_plan.withdrawn = true
+            assert_equal true, default_mi_plan.withdrawn
+            assert_equal 'Withdrawn', default_mi_plan.status.name
           end
 
           should 'raise an error if not at an allowed status' do
-            @default_mi_plan.status = MiPlan::Status['Assigned']
+            default_mi_plan.status = MiPlan::Status['Assigned']
             assert_raise RuntimeError, 'cannot withdraw from status Assigned' do
-              @default_mi_plan.withdrawn = true
+              default_mi_plan.withdrawn = true
             end
-            assert_equal false, @default_mi_plan.withdrawn
-            assert_equal 'Assigned', @default_mi_plan.status.name
+            assert_equal false, default_mi_plan.withdrawn
+            assert_equal 'Assigned', default_mi_plan.status.name
           end
         end
 
         context 'when being set to false' do
           should 'not allow it if withdrawn' do
-            @default_mi_plan.status = MiPlan::Status['Conflict']
-            @default_mi_plan.withdrawn = true
+            default_mi_plan.status = MiPlan::Status['Conflict']
+            default_mi_plan.withdrawn = true
             assert_raise RuntimeError, 'withdrawal cannot be reversed' do
-              @default_mi_plan.withdrawn = false
+              default_mi_plan.withdrawn = false
             end
           end
 
           should 'allow it if not already withdrawn' do
             assert_nothing_raised do
-              @default_mi_plan.withdrawn = false
+              default_mi_plan.withdrawn = false
             end
           end
         end
 
         should 'return true if status is Withdrawn' do
-          @default_mi_plan.status = MiPlan::Status['Withdrawn']
-          assert_equal true, @default_mi_plan.withdrawn
+          default_mi_plan.status = MiPlan::Status['Withdrawn']
+          assert_equal true, default_mi_plan.withdrawn
         end
 
         should 'return false if status is not Withdrawn' do
-          @default_mi_plan.status = MiPlan::Status['Assigned']
-          assert_equal false, @default_mi_plan.withdrawn
-          @default_mi_plan.status = MiPlan::Status['Conflict']
-          assert_equal false, @default_mi_plan.withdrawn
+          default_mi_plan.status = MiPlan::Status['Assigned']
+          assert_equal false, default_mi_plan.withdrawn
+          default_mi_plan.status = MiPlan::Status['Conflict']
+          assert_equal false, default_mi_plan.withdrawn
         end
 
         should 'be readable as #withdrawn?' do
-          assert_false @default_mi_plan.withdrawn?
-          @default_mi_plan.status = MiPlan::Status['Conflict']
-          @default_mi_plan.withdrawn = true
-          assert_true @default_mi_plan.withdrawn?
+          assert_false default_mi_plan.withdrawn?
+          default_mi_plan.status = MiPlan::Status['Conflict']
+          default_mi_plan.withdrawn = true
+          assert_true default_mi_plan.withdrawn?
         end
       end
 
@@ -782,7 +742,7 @@ class MiPlanTest < ActiveSupport::TestCase
         10.times { Factory.create :mi_attempt }
 
         assert MiPlan.count > MiPlan.with_mi_attempt.count
-        assert_equal 21, MiPlan.count
+        assert_equal 20, MiPlan.count
         assert_equal 10, MiPlan.with_mi_attempt.count
       end
     end
@@ -794,7 +754,7 @@ class MiPlanTest < ActiveSupport::TestCase
         10.times { Factory.create :mi_attempt, :is_active => false }
 
         assert MiPlan.count > MiPlan.with_active_mi_attempt.count
-        assert_equal 31, MiPlan.count
+        assert_equal 30, MiPlan.count
         assert_equal 10, MiPlan.with_active_mi_attempt.count
       end
     end
@@ -805,8 +765,8 @@ class MiPlanTest < ActiveSupport::TestCase
         10.times { Factory.create :mi_attempt }
 
         assert MiPlan.count > MiPlan.without_mi_attempt.count
-        assert_equal 21, MiPlan.count
-        assert_equal 11, MiPlan.without_mi_attempt.count
+        assert_equal 20, MiPlan.count
+        assert_equal 10, MiPlan.without_mi_attempt.count
       end
     end
 
@@ -817,8 +777,8 @@ class MiPlanTest < ActiveSupport::TestCase
         10.times { Factory.create :mi_attempt, :is_active => false }
 
         assert MiPlan.count > MiPlan.without_active_mi_attempt.count
-        assert_equal 31, MiPlan.count
-        assert_equal 21, MiPlan.without_active_mi_attempt.count
+        assert_equal 30, MiPlan.count
+        assert_equal 20, MiPlan.without_active_mi_attempt.count
       end
     end
 
@@ -834,7 +794,7 @@ class MiPlanTest < ActiveSupport::TestCase
         end
 
         assert MiPlan.count > MiPlan.with_genotype_confirmed_mouse.count
-        assert_equal 31, MiPlan.count
+        assert_equal 30, MiPlan.count
         assert_equal 10, MiPlan.with_genotype_confirmed_mouse.count
       end
     end
@@ -1078,34 +1038,34 @@ class MiPlanTest < ActiveSupport::TestCase
 
     context '#latest_relevant_phenotype_attempt' do
       should 'return nil if there are no phenotype attempts for this MI' do
-        assert_equal nil, @default_mi_plan.latest_relevant_phenotype_attempt
+        assert_equal nil, default_mi_plan.latest_relevant_phenotype_attempt
       end
 
       should 'return the latest created active one if there are any active phenotype attempts' do
-        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC",
+        default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC",
           :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-        pt = @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC",
+        pt = default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC",
           :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC",
+        default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC",
           :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-10 23:59:59 UTC",
+        default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-10 23:59:59 UTC",
           :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed), :is_active => false)
 
-        assert_equal pt, @default_mi_plan.latest_relevant_phenotype_attempt
+        assert_equal pt, default_mi_plan.latest_relevant_phenotype_attempt
       end
 
       should 'return the latest created aborted one if all its phenotype attempts are aborted' do
-        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC",
+        default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC",
           :is_active => false,
           :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-        pt = @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC",
+        pt = default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC",
           :is_active => false,
           :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-        @default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC",
+        default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC",
           :is_active => false,
           :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
 
-        assert_equal pt, @default_mi_plan.latest_relevant_phenotype_attempt
+        assert_equal pt, default_mi_plan.latest_relevant_phenotype_attempt
       end
     end
 

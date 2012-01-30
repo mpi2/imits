@@ -1,20 +1,17 @@
 # encoding: utf-8
 
-# TODO:unlimit consortia
-# TODO: make prettify core generic
-# TODO:phenotyping stamps
+#TODO: rename columns
+#TODO: make core of prettify work
 
 class Reports::MiProduction::SummaryMonthByMonthActivity
-  
-  PHENOTYPES = true
-  
-  def self.generate(request = nil, params={})
+
+  def self.generate(request = nil, params={}, consortia = ['BaSH', 'DTCC', 'JAX'])
     table = params['table'].blank? ? 1 : params['table'].to_i
-    tables = generate_summary
+    tables = generate_summary(consortia)
     return table > -1 && table < tables.size ? tables[table] : nil
   end
 
-  def self.generate_summary
+  def self.generate_summary(consortia)
     summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
 
     MiPlan::StatusStamp.all.each do |stamp|
@@ -23,7 +20,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       consortium = stamp.mi_plan.consortium.name
       pcentre = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : ''
       next if pcentre.blank? || pcentre.to_s.length < 1
-      next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
+      next if consortia && ! consortia.include?(consortium)
       gene_id = stamp.mi_plan.gene_id
       status = stamp.status.name
       summary[year][month][consortium][pcentre][:all][gene_id] = 1
@@ -50,7 +47,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       consortium = stamp.mi_attempt.mi_plan.consortium.name
       pcentre = stamp.mi_attempt.production_centre_name
       next if pcentre.blank? || pcentre.to_s.length < 1
-      next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
+      next if consortia && ! consortia.include?(consortium)
       gene_id = plan.gene_id
       status = stamp.mi_attempt_status.description
     
@@ -69,7 +66,34 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       end
     end
     
-    summary = get_phenotypes(summary) if PHENOTYPES
+    statuses = [
+      'Phenotype Attempt Aborted',
+      'Phenotype Attempt Registered',
+      'Rederivation Started',
+      'Rederivation Complete',
+      'Cre Excision Started',
+      'Cre Excision Complete',
+      'Phenotyping Started',
+      'Phenotyping Complete'
+    ]
+
+    PhenotypeAttempt::StatusStamp.all.each do |stamp|
+      year = stamp.created_at.year
+      month = stamp.created_at.month
+	  
+      plan = stamp.phenotype_attempt.mi_plan
+      consortium = plan.consortium.name
+      pcentre = stamp.phenotype_attempt.mi_attempt.production_centre_name
+      next if pcentre.blank? || pcentre.to_s.length < 1
+      next if consortia && ! consortia.include?(consortium)
+      gene_id = plan.gene_id
+      status = stamp.phenotype_attempt.status.name
+
+      statuses.each do |name|
+        summary[year][month][consortium][pcentre][name][gene_id] = 1 if name == status
+      end
+    
+    end
     
     # try to create an object that has the same interface as a ruport Table class
     # i.e. to_html/to_csv
@@ -108,14 +132,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     report_table = Table(['Year', 'Month', 'Consortium', 'Production Centre', 
         'es_qcs', 'es_confirms', 'es_fails',
         'mis', 'gc', 'abort',
-      'Phenotype Attempt Aborted',
-      'Phenotype Attempt Registered',
-      'Rederivation Started',
-      'Rederivation Complete',
-      'Cre Excision Started',
-      'Cre Excision Complete',
-      'Phenotyping Started',
-      'Phenotyping Complete'
+        'Phenotype Attempt Aborted',
+        'Phenotype Attempt Registered',
+        'Rederivation Started',
+        'Rederivation Complete',
+        'Cre Excision Started',
+        'Cre Excision Complete',
+        'Phenotyping Started',
+        'Phenotyping Complete'
       ])
 
     report_table.column_names.each { |name| string += "<th>#{name}</th>" }
@@ -188,14 +212,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
               'mis' => mis,
               'gc' => gc,
               'abort' => abort,
-      'Phenotype Attempt Aborted' => paa,
-      'Phenotype Attempt Registered' => par,
-      'Rederivation Started' => rs,
-      'Rederivation Complete' => rc,
-      'Cre Excision Started' => ces,
-      'Cre Excision Complete' => cec,
-      'Phenotyping Started' => ps,
-      'Phenotyping Complete' => pc
+              'Phenotype Attempt Aborted' => paa,
+              'Phenotype Attempt Registered' => par,
+              'Rederivation Started' => rs,
+              'Rederivation Complete' => rc,
+              'Cre Excision Started' => ces,
+              'Cre Excision Complete' => cec,
+              'Phenotyping Started' => ps,
+              'Phenotyping Complete' => pc
             }
 
           end
@@ -207,42 +231,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     end
     string += '</table>'
     return report_table, string
-  end
-
-  def self.get_phenotypes(summary)
-    statuses = [
-      'Phenotype Attempt Aborted',
-      'Phenotype Attempt Registered',
-      'Rederivation Started',
-      'Rederivation Complete',
-      'Cre Excision Started',
-      'Cre Excision Complete',
-      'Phenotyping Started',
-      'Phenotyping Complete'
-    ]
-
-    PhenotypeAttempt::StatusStamp.all.each do |stamp|
-      year = stamp.created_at.year
-      month = stamp.created_at.month
-	  
-      plan = stamp.phenotype_attempt.mi_plan
-      consortium = plan.consortium.name
-      pcentre = stamp.phenotype_attempt.mi_attempt.production_centre_name
-      next if pcentre.blank? || pcentre.to_s.length < 1
-      next unless (consortium == 'BaSH' || consortium == 'DTCC' || consortium == 'JAX')
-      gene_id = plan.gene_id
-      status = stamp.phenotype_attempt.status.name
-
-      statuses.each do |name|
-        #summary[year][month][consortium][pcentre][name][gene_id] = 1
-        summary[year][month][consortium][pcentre][name][gene_id] = 1 if name == status
-      end
-    
-      #raise summary[year][month][consortium][pcentre].inspect
-
-    end
-	
-    return summary
   end
     
 end

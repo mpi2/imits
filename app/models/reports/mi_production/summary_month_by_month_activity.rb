@@ -20,45 +20,45 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   #   # return nil
   #end
  
-  def self.generate_attempts(request = nil, params={})
-    
-    headings = ['Year', 'Month', 'Consortium', 'Gene id', 'Status']
-    table = Table(headings)
-    
-    MiAttempt::StatusStamp.all.each do |stamp|
-      table << {
-        'Year' => stamp.created_at.year,
-        'Month' => stamp.created_at.month,
-        'Consortium' => stamp.mi_attempt.mi_plan.consortium.name,
-        'Gene id' => stamp.mi_attempt.mi_plan.gene_id,
-        'Status' => stamp.mi_attempt_status.description
-      }
-      #break if LIMIT && table.data.size > LIMIT
-    end
+  #def self.generate_attempts(request = nil, params={})
+  #  
+  #  headings = ['Year', 'Month', 'Consortium', 'Gene id', 'Status']
+  #  table = Table(headings)
+  #  
+  #  MiAttempt::StatusStamp.all.each do |stamp|
+  #    table << {
+  #      'Year' => stamp.created_at.year,
+  #      'Month' => stamp.created_at.month,
+  #      'Consortium' => stamp.mi_attempt.mi_plan.consortium.name,
+  #      'Gene id' => stamp.mi_attempt.mi_plan.gene_id,
+  #      'Status' => stamp.mi_attempt_status.description
+  #    }
+  #    #break if LIMIT && table.data.size > LIMIT
+  #  end
+  #
+  #  grouped_report = Grouping( table, :by => [ 'Year', 'Month' ], :order => :name )
+  #  
+  #  return grouped_report
+  #end
 
-    grouped_report = Grouping( table, :by => [ 'Year', 'Month' ], :order => :name )
-    
-    return grouped_report
-  end
-
-  def self.generate_plans(request = nil, params={})
-    
-    headings = ['Year', 'Month', 'Consortium', 'Gene id', 'Status']
-    table = Table(headings)
-    
-    MiPlan::StatusStamp.all.each do |stamp|
-      table << {
-        'Year' => stamp.created_at.year,
-        'Month' => stamp.created_at.month,
-        'Consortium' => stamp.mi_plan.consortium.name,
-        'Gene id' => stamp.mi_plan.gene_id,
-        'Status' => stamp.status.name
-      }
-      break if LIMIT && table.data.size > LIMIT
-    end
-    
-    return table
-  end
+  #def self.generate_plans(request = nil, params={})
+  #  
+  #  headings = ['Year', 'Month', 'Consortium', 'Gene id', 'Status']
+  #  table = Table(headings)
+  #  
+  #  MiPlan::StatusStamp.all.each do |stamp|
+  #    table << {
+  #      'Year' => stamp.created_at.year,
+  #      'Month' => stamp.created_at.month,
+  #      'Consortium' => stamp.mi_plan.consortium.name,
+  #      'Gene id' => stamp.mi_plan.gene_id,
+  #      'Status' => stamp.status.name
+  #    }
+  #    break if LIMIT && table.data.size > LIMIT
+  #  end
+  #  
+  #  return table
+  #end
 
   #def self.generate(request = nil, params={})
   #  report = MiPlan::StatusStamp.report_table( :all )
@@ -255,6 +255,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     proxy.set_table(table)
     proxy.set_html(prettify(table))
     
+    proxy2 = wrapper.new
+    proxy2.set_table(table)
+    proxy2.set_html(prettify_new(table))
+    
     return [grouped_report, grouped_report2, grouped_report3, table4, table3, proxy]
   end
 
@@ -277,7 +281,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       
       month_group = grouped_report.subgrouping(year)
       
-      size = 31 # month_group.data.size.to_s
+#      size = 31 # month_group.data.size.to_s
+      size = month_group.data.size
       
       html_array.push "<td rowspan='#{size}'>#{year}</td>"
       
@@ -314,10 +319,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             end
             
             html_array.push '</tr>'
-           #break 
+            #break
           end
           
-           # html_array.push '</tr>'
+          # html_array.push '</tr>'
         end
         
       end

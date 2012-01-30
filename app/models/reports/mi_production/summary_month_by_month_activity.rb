@@ -142,6 +142,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         'Phenotyping Complete'
       ])
 
+    make_clean = lambda do |value|
+      return '' if value.to_s.length < 1
+      return '' if value.to_i == 0
+      return value
+    end
+    
     report_table.column_names.each { |name| string += "<th>#{name}</th>" }
 
     summary.keys.sort.reverse!.each do |year|      
@@ -161,13 +167,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             next if centre.blank?
             status_hash = centre_hash[centre]
 
-            es_qcs = status_hash[:es_qcs].keys.size
-            es_confirms = status_hash[:es_confirms].keys.size
-            es_fails = status_hash[:es_fails].keys.size
+            es_qcs = make_clean.call status_hash[:es_qcs].keys.size
+            es_confirms = make_clean.call status_hash[:es_confirms].keys.size
+            es_fails = make_clean.call status_hash[:es_fails].keys.size
 
-            mis = status_hash[:mi].keys.size
-            gc = status_hash[:gc].keys.size
-            abort = status_hash[:abort].keys.size
+            mis = make_clean.call status_hash[:mi].keys.size
+            gc = make_clean.call status_hash[:gc].keys.size
+            abort = make_clean.call status_hash[:abort].keys.size
 
             string += "<td>#{centre}</td>"
 
@@ -179,14 +185,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             string += "<td>#{gc}</td>"
             string += "<td>#{abort}</td>"
             
-            paa = status_hash['Phenotype Attempt Aborted'].keys.size
-            par = status_hash['Phenotype Attempt Registered'].keys.size
-            rs = status_hash['Rederivation Started'].keys.size
-            rc = status_hash['Rederivation Complete'].keys.size
-            ces = status_hash['Cre Excision Started'].keys.size
-            cec = status_hash['Cre Excision Complete'].keys.size
-            ps = status_hash['Phenotyping Started'].keys.size
-            pc = status_hash['Phenotyping Complete'].keys.size
+            paa = make_clean.call status_hash['Phenotype Attempt Aborted'].keys.size
+            par = make_clean.call status_hash['Phenotype Attempt Registered'].keys.size
+            rs = make_clean.call status_hash['Rederivation Started'].keys.size
+            rc = make_clean.call status_hash['Rederivation Complete'].keys.size
+            ces = make_clean.call status_hash['Cre Excision Started'].keys.size
+            cec = make_clean.call status_hash['Cre Excision Complete'].keys.size
+            ps = make_clean.call status_hash['Phenotyping Started'].keys.size
+            pc = make_clean.call status_hash['Phenotyping Complete'].keys.size
 
             string += "<td>#{paa}</td>"
             string += "<td>#{par}</td>"

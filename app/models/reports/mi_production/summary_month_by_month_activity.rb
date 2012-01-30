@@ -109,6 +109,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       string += "<th>#{name}</th>"
     end
 
+
+
+
     summary.keys.sort.each do |year|      
       string += '</tr>'
       year_count = 0

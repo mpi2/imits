@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-# TODO:reverse years/months
 # TODO:unlimit consortia
 # TODO: make prettify core generic
 # TODO:phenotyping stamps
@@ -9,7 +8,7 @@
 class Reports::MiProduction::SummaryMonthByMonthActivity
   
   def self.generate(request = nil, params={})
-    table = params['table'].blank? ? 0 : params['table'].to_i
+    table = params['table'].blank? ? 1 : params['table'].to_i
     tables = generate_summary
     return table > -1 && table < tables.size ? tables[table] : nil
   end
@@ -103,17 +102,20 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     string += '<table>'
     string += '<tr>'
 
-    report_table = Table(['Year', 'Month', 'Consortium', 'Production Centre', 'es_qcs', 'es_confirms', 'es_fails', 'mis', 'gc', 'abort'])
+    report_table = Table(['Year', 'Month', 'Consortium', 'Production Centre', 
+      'es_qcs', 'es_confirms', 'es_fails', 
+      'mis', 'gc', 'abort'
+      ])
 
     report_table.column_names.each { |name| string += "<th>#{name}</th>" }
 
-    summary.keys.sort.each do |year|      
+    summary.keys.sort.reverse!.each do |year|      
       string += '</tr>'
       year_count = 0
       string += '<tr>'
       string += "<td rowspan='YEAR_ROWSPAN'>#{year}</td>"
       month_hash = summary[year]
-      month_hash.keys.sort.each do |month|
+      month_hash.keys.sort.reverse!.each do |month|
         string += "<td rowspan='MONTH_ROWSPAN'>#{Date::MONTHNAMES[month]}</td>"
         cons_hash = month_hash[month]
         month_count = 0
@@ -134,13 +136,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
             string += "<td>#{centre}</td>"
 
-            string += "<td>#{mis}</td>"
-            string += "<td>#{gc}</td>"
-            string += "<td>#{abort}</td>"
-            
             string += "<td>#{es_qcs}</td>"
             string += "<td>#{es_confirms}</td>"
             string += "<td>#{es_fails}</td>"
+            
+            string += "<td>#{mis}</td>"
+            string += "<td>#{gc}</td>"
+            string += "<td>#{abort}</td>"
             
             string += "</tr>\n"
             year_count += 1

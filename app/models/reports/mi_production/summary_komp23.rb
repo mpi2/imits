@@ -4,7 +4,6 @@ class Reports::MiProduction::SummaryKomp23
 
   extend Reports::MiProduction::SummariesCommon
 
-  DEBUG = false
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'KOMP2 Report 3'

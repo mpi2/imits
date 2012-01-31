@@ -1,4 +1,4 @@
-h2. Deprecated iMits location
+# Deprecated iMits location
 
 This is the old location for the iMits project.  The new location is:
 

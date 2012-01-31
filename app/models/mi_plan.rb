@@ -19,23 +19,6 @@ class MiPlan < ApplicationModel
   has_many :phenotype_attempts
 
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
-  validates :number_of_es_cells_starting_qc, :presence => {
-    :on => :update,
-    :if => proc {|p| p.changed.include?('number_of_es_cells_starting_qc')},
-    :message => 'cannot be unset after being set'
-  }
-  validate :number_of_es_cells_passing_qc do |mi_plan|
-    next if mi_plan.new_record?
-
-    changes = mi_plan.changes['number_of_es_cells_passing_qc']
-    if changes and changes[0] != nil
-      if mi_plan.number_of_es_cells_passing_qc.blank?
-        mi_plan.errors.add(:number_of_es_cells_passing_qc, 'cannot be unset after being set')
-      elsif mi_plan.number_of_es_cells_passing_qc == 0
-        mi_plan.errors.add(:number_of_es_cells_passing_qc, 'cannot be set to 0 after being set')
-      end
-    end
-  end
 
   # BEGIN Callbacks
 
@@ -82,18 +65,19 @@ class MiPlan < ApplicationModel
   # END Callbacks
 
   def latest_relevant_mi_attempt
+    @@status_sort_order ||= {
+      MiAttemptStatus.micro_injection_aborted => 1,
+      MiAttemptStatus.micro_injection_in_progress => 2,
+      MiAttemptStatus.genotype_confirmed => 3
+    }
     ordered_mis = mi_attempts.all.sort do |mi1, mi2|
-      [mi2.mi_attempt_status, mi2.in_progress_date] <=> [mi1.mi_attempt_status, mi1.in_progress_date]
+      [@@status_sort_order[mi1.mi_attempt_status], mi1.in_progress_date] <=>
+              [@@status_sort_order[mi2.mi_attempt_status], mi2.in_progress_date]
     end
     if ordered_mis.empty?
       return nil
-    elsif !ordered_mis.first.is_active?
-      return ordered_mis.first
     else
-      latest_mi_date = ordered_mis.first.in_progress_date
-      return_candidates = ordered_mis.find_all {|mi| mi.is_active? and mi.in_progress_date == latest_mi_date}
-      return_candidates = return_candidates.sort_by {|mi| [mi.in_progress_date, mi.status_stamps.last.created_at]}
-      return return_candidates.last
+      return ordered_mis.last
     end
   end
 
@@ -302,14 +286,6 @@ class MiPlan < ApplicationModel
     end
   end
 
-  def self.translate_search_param(param)
-    translations = {
-      'marker_symbol' => 'gene_marker_symbol'
-    }
-
-    return super(translations, param)
-  end
-
   def latest_relevant_phenotype_attempt
     return phenotype_attempts.order('is_active desc, created_at desc').first
   end
@@ -343,7 +319,7 @@ class MiPlan < ApplicationModel
     return es_cells.sort.uniq.size
 
   end
-  
+
 end
 
 # == Schema Information

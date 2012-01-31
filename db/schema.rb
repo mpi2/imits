@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120109122259) do
+ActiveRecord::Schema.define(:version => 20120112154903) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -231,19 +231,22 @@ ActiveRecord::Schema.define(:version => 20120109122259) do
   end
 
   create_table "phenotype_attempts", :force => true do |t|
-    t.integer  "mi_attempt_id",                                       :null => false
-    t.integer  "status_id",                                           :null => false
-    t.boolean  "is_active",                        :default => true,  :null => false
-    t.boolean  "rederivation_started",             :default => false, :null => false
-    t.boolean  "rederivation_complete",            :default => false, :null => false
-    t.integer  "number_of_cre_matings_started",    :default => 0,     :null => false
-    t.integer  "number_of_cre_matings_successful", :default => 0,     :null => false
-    t.boolean  "phenotyping_started",              :default => false, :null => false
-    t.boolean  "phenotyping_complete",             :default => false, :null => false
+    t.integer  "mi_attempt_id",                                                      :null => false
+    t.integer  "status_id",                                                          :null => false
+    t.boolean  "is_active",                                       :default => true,  :null => false
+    t.boolean  "rederivation_started",                            :default => false, :null => false
+    t.boolean  "rederivation_complete",                           :default => false, :null => false
+    t.integer  "number_of_cre_matings_started",                   :default => 0,     :null => false
+    t.integer  "number_of_cre_matings_successful",                :default => 0,     :null => false
+    t.boolean  "phenotyping_started",                             :default => false, :null => false
+    t.boolean  "phenotyping_complete",                            :default => false, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "mi_plan_id",                                          :null => false
+    t.integer  "mi_plan_id",                                                         :null => false
+    t.string   "colony_name",                      :limit => 125,                    :null => false
   end
+
+  add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true
 
   create_table "pipelines", :force => true do |t|
     t.string   "name",        :limit => 50, :null => false

@@ -78,7 +78,6 @@ class ActiveSupport::TestCase
 
   def replace_status_stamps(obj, stamps)
     status_lookup_attr = if obj.kind_of?(MiAttempt) then :description else :name end
-    ss_class = (obj.class.name + '::' + obj.class.reflections[:status_stamps].class_name).constantize
     status_field = if obj.kind_of?(MiAttempt) then :mi_attempt_status else :status end
     if obj.kind_of? MiAttempt
       status_class = MiAttemptStatus

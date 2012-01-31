@@ -92,16 +92,22 @@ class Reports::MiProductionController < ApplicationController
   def languishing
     @report = Reports::MiProduction::Languishing.generate(
       :consortia => params[:consortia])
-    @report.each do |consortium, group|
-      group.each do |record|
-        Reports::MiProduction::Languishing::DELAY_BINS.each_with_index do |bin, idx|
-          link = '<a href="' + url_for(:controller => '/reports/mi_production',
-            :action => 'languishing_detail',
-            :consortium => consortium,
-            :status => record[0],
-            :delay_bin => bin) + '">' + record[bin].to_s + '</a>'
-          css_classes = [record[0].gsub(/[- ]+/, '_').downcase, "bin#{idx+1}"]
-          record[bin] = "<div class=\"#{css_classes.join ' '}\">#{link}</div>".html_safe
+    if request.format == :html
+      @report.each do |consortium, group|
+        group.each do |record|
+          Reports::MiProduction::Languishing::DELAY_BINS.each_with_index do |bin, idx|
+            if record[bin] == 0
+              link = '&nbsp;'.html_safe
+            else
+              link = '<a href="' + url_for(:controller => '/reports/mi_production',
+                :action => 'languishing_detail',
+                :consortium => consortium,
+                :status => record[0],
+                :delay_bin => bin) + '">' + record[bin].to_s + '</a>'
+            end
+            css_classes = [record[0].gsub(/[- ]+/, '_').downcase, "bin#{idx}"]
+            record[bin] = "<div class=\"#{css_classes.join ' '}\">#{link}</div>".html_safe
+          end
         end
       end
     end

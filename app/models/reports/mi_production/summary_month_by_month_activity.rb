@@ -1,20 +1,14 @@
 # encoding: utf-8
 
-#TODO: rename columns
-#TODO: make core of prettify work
-
 class Reports::MiProduction::SummaryMonthByMonthActivity
 
   def self.generate(request = nil, params={}, consortia = ['BaSH', 'DTCC', 'JAX'])
-    table = params['table'].blank? ? 1 : params['table'].to_i
-    tables = generate_summary(consortia)
-    return table > -1 && table < tables.size ? tables[table] : nil
-  end
-
-  def self.generate_summary(consortia)
     summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
 
     MiPlan::StatusStamp.all.each do |stamp|
+      
+      next if stamp.created_at < 6.months.ago.to_date
+      
       year = stamp.created_at.year
       month = stamp.created_at.month
       consortium = stamp.mi_plan.consortium.name
@@ -41,6 +35,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     end
         
     MiAttempt::StatusStamp.all.each do |stamp|
+
+      next if stamp.created_at < 6.months.ago.to_date
+
       year = stamp.created_at.year
       month = stamp.created_at.month
       plan = stamp.mi_attempt.mi_plan
@@ -78,15 +75,20 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     ]
 
     PhenotypeAttempt::StatusStamp.all.each do |stamp|
+
+      next if stamp.created_at < 6.months.ago.to_date
+
       year = stamp.created_at.year
       month = stamp.created_at.month
 	  
-      plan = stamp.phenotype_attempt.mi_plan
-      consortium = plan.consortium.name
-      pcentre = stamp.phenotype_attempt.mi_attempt.production_centre_name
-      next if pcentre.blank? || pcentre.to_s.length < 1
+      consortium = stamp.phenotype_attempt.mi_plan.consortium.name
+      
+      pcentre = stamp.phenotype_attempt.mi_plan.production_centre && stamp.phenotype_attempt.mi_plan.production_centre.name ? 
+        stamp.phenotype_attempt.mi_plan.production_centre.name : ''
+      
+      next if pcentre.blank?
       next if consortia && ! consortia.include?(consortium)
-      gene_id = plan.gene_id
+      gene_id = stamp.phenotype_attempt.mi_plan.gene_id
       status = stamp.phenotype_attempt.status.name
 
       statuses.each do |name|
@@ -95,54 +97,67 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     
     end
     
-    # try to create an object that has the same interface as a ruport Table class
-    # i.e. to_html/to_csv
-    # we can then maintain same interface in controller/view
+    ## create an object that has the same interface as a ruport Table class
+    ## i.e. to_html/to_csv
+    ## we can then maintain same interface in controller/view
+    #
+    #wrapper = Class.new do
+    #  @table = nil
+    #  @string = nil
+    #  def to_csv
+    #    @table.to_csv
+    #  end
+    #  def to_html
+    #    @string
+    #  end
+    #  def set_table(new_table)
+    #    @table = new_table
+    #  end
+    #  def set_html(string)
+    #    @string = string
+    #  end
+    #end
+    #
+    #proxy = wrapper.new
     
-    wrapper = Class.new do
-      @table = nil
-      @string = nil
-      def to_csv
-        @table.to_csv
-      end
-      def to_html
-        @string
-      end
-      def set_table(new_table)
-        @table = new_table
-      end
-      def set_html(string)
-        @string = string
-      end
-    end
-   
-    proxy = wrapper.new
-    table, string = prettify(summary)
-    proxy.set_table(table)
-    proxy.set_html(string)
+    table, html_string = prettify(request, params, summary)
+    
+    #proxy.set_table(table)
+    #proxy.set_html(string)
+    #
+    #return proxy
 
-    return [table, proxy]
+    return { :csv => table.to_csv, :html => html_string}
   end
 
-  def self.prettify(summary)
+  def self.prettify(request, params, summary)
     string = ''
     string += '<table>'
     string += '<tr>'
 
-    report_table = Table(['Year', 'Month', 'Consortium', 'Production Centre', 
-        'es_qcs', 'es_confirms', 'es_fails',
-        'mis', 'gc', 'abort',
-        'Phenotype Attempt Aborted',
+    report_table = Table([
+        'Year',
+        'Month',
+        'Consortium',
+        'Production Centre', 
+        'ES Cell QC In Progress',
+        'ES Cell QC Complete',
+        'ES Cell QC Failed',
+        'Micro-injection in progress',
+        'Genotype confirmed',
+        'Micro-injection aborted',
         'Phenotype Attempt Registered',
         'Rederivation Started',
         'Rederivation Complete',
         'Cre Excision Started',
         'Cre Excision Complete',
         'Phenotyping Started',
-        'Phenotyping Complete'
-      ])
+        'Phenotyping Complete',
+        'Phenotype Attempt Aborted'
+    ])
 
     make_clean = lambda do |value|
+      return value if request && request.format == :csv
       return '' if value.to_s.length < 1
       return '' if value.to_i == 0
       return value
@@ -194,7 +209,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             ps = make_clean.call status_hash['Phenotyping Started'].keys.size
             pc = make_clean.call status_hash['Phenotyping Complete'].keys.size
 
-            string += "<td>#{paa}</td>"
             string += "<td>#{par}</td>"
             string += "<td>#{rs}</td>"
             string += "<td>#{rc}</td>"
@@ -202,6 +216,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             string += "<td>#{cec}</td>"
             string += "<td>#{ps}</td>"
             string += "<td>#{pc}</td>"
+            string += "<td>#{paa}</td>"
 
             string += "</tr>\n"
             year_count += 1
@@ -212,12 +227,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
               'Month' => month,
               'Consortium' => cons,
               'Production Centre' => centre,
-              'es_qcs' => es_qcs,
-              'es_confirms' => es_confirms,
-              'es_fails' => es_fails,
-              'mis' => mis,
-              'gc' => gc,
-              'abort' => abort,
+              'ES Cell QC In Progress' => es_qcs,
+              'ES Cell QC Complete' => es_confirms,
+              'ES Cell QC Failed' => es_fails,
+              'Micro-injection in progress' => mis,
+              'Genotype confirmed' => gc,
+              'Micro-injection aborted' => abort,
               'Phenotype Attempt Aborted' => paa,
               'Phenotype Attempt Registered' => par,
               'Rederivation Started' => rs,

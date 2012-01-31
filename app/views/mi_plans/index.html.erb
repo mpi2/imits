@@ -1,19 +1,16 @@
 <% @tab = 'View & Edit MI Your Genes' %>
 
+<%= render 'plan_editor_js_constants' %>
+
 <% content_for :pre_js_footer do %>
-  <%= javascript_tag "CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).sort.to_json}" %>
-  <%= javascript_tag "CENTRE_OPTIONS = #{Centre.all.map(&:name).sort.to_json}" %>
   <%= javascript_tag "STATUS_OPTIONS = #{MiPlan::Status.all.map(&:name).to_json}" %>
-  <%= javascript_tag "PRIORITY_OPTIONS = #{MiPlan::Priority.all.map(&:name).to_json}" %>
   <%= javascript_tag "USER_PRODUCTION_CENTRE = #{current_user.production_centre.name.to_json}" %>
-  <%= javascript_tag "WITHDRAWABLE_STATUSES = #{MiPlan::Status.all_affected_by_minor_conflict_resolution.map(&:name).to_json}" %>
 <% end %>
 
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag 'mi_plans/index' %>
 <% end %>
 
-
 <div class="clear"></div>
 
-<div id="mi-plans-grid" style="width: 650px; margin-left: auto; margin-right: auto"></div>
+<div id="mi-plans-grid" style="width: 750px; margin-left: auto; margin-right: auto"></div>

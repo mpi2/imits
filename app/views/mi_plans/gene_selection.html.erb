@@ -5,12 +5,10 @@
   gene_search_params = '' if gene_search_params.empty?
 -%>
 
+<%= render 'plan_editor_js_constants' %>
+
 <% content_for :pre_js_footer do %>
-  <%= javascript_tag "CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).sort.to_json}" %>
-  <%= javascript_tag "CENTRE_OPTIONS = #{Centre.all.map(&:name).sort.to_json}" %>
-  <%= javascript_tag "PRIORITY_OPTIONS = #{MiPlan::Priority.all.map(&:name).to_json}" %>
   <%= javascript_tag "GENE_SEARCH_PARAMS = #{gene_search_params.to_json}" %>
-  <%= javascript_tag "WITHDRAWABLE_STATUSES = #{MiPlan::Status.all_affected_by_minor_conflict_resolution.map(&:name).to_json}" %>
 <% end %>
 
 <% content_for :post_js_footer do %>

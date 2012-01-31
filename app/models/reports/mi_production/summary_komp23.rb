@@ -4,7 +4,6 @@ class Reports::MiProduction::SummaryKomp23
 
   extend Reports::MiProduction::SummariesCommon
 
-  DEBUG = false
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'KOMP2 Report 3'
@@ -60,7 +59,7 @@ class Reports::MiProduction::SummaryKomp23
   end
   
   def self.genotype_confirmed_6month(row)
-    date = 'Genotype confirmed mice Date'
+    date = 'Genotype confirmed Date'
     today = Date.today
     return false if row[date].blank?
     date = 'Micro-injection in progress Date'
@@ -221,11 +220,11 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     if key == 'Genotype confirmed mice'
-      return row['MiAttempt Status'] == 'Genotype confirmed mice'
+      return row['MiAttempt Status'] == 'Genotype confirmed'
     end
     
     if key == 'Genotype confirmed mice 6 months'
-      return row['MiAttempt Status'] == 'Genotype confirmed mice' && genotype_confirmed_6month(row)
+      return row['MiAttempt Status'] == 'Genotype confirmed' && genotype_confirmed_6month(row)
     end
     
     if key == 'Microinjection aborted'
@@ -237,7 +236,7 @@ class Reports::MiProduction::SummaryKomp23
     end
         
     if key == 'Microinjections'
-      return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed mice' ||
+      return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
         row['MiAttempt Status'] == 'Micro-injection aborted'
     end
     
@@ -436,9 +435,7 @@ class Reports::MiProduction::SummaryKomp23
     array.push '<table>'
     array.push '<tr>'
         
-    table.column_names.each do |name|
-      array.push "<th>#{name}</th>"
-    end
+    table.column_names.each { |name| array.push "<th style='width:80px'>#{name}</th>" }
 
     other_columns = table.column_names - ["Consortium", "All genes", "ES cell QC", "ES QC confirmed",  "ES QC failed"]
     rows = table.data.size 

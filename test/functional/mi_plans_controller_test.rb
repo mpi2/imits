@@ -233,7 +233,7 @@ class MiPlansControllerTest < ActionController::TestCase
 
         should 'allow paginating' do
           get :index, 'format' => 'json', 'per_page' => 3, 'page' => 2
-          assert_equal [@p4.id, @p5.id, @p6.id], parse_json_from_response.map {|i| i['id']}
+          assert_equal [@p5.id, @p7.id, @p6.id], parse_json_from_response.map {|i| i['id']}
         end
 
         should 'paginate by 20 by default' do

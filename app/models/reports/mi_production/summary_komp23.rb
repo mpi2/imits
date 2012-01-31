@@ -104,7 +104,7 @@ class Reports::MiProduction::SummaryKomp23
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
 
     list_heads = [
-      'All', 
+#      'All', 
       'ES QC confirms', 
       'MI Aborted', 
       'Cre Excision Starts', 
@@ -127,7 +127,9 @@ class Reports::MiProduction::SummaryKomp23
     
     hash = {}
     hash['Distinct Genotype Confirmed ES Cells'] = lambda { |group| distinct_genotype_confirmed_es_cells_count(group) }
-    hash['Distinct Old Non Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }    
+    hash['Distinct Old Non Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }
+    hash['All'] = lambda { |group| count_unique_instances_of( group, 'Gene', lambda { |row| count_row(row, 'All') } ) }
+
     list_heads.each do |item|
       hash[item] = lambda { |group| count_instances_of( group, 'Gene', lambda { |row| count_row(row, item) } ) }
     end
@@ -138,7 +140,9 @@ class Reports::MiProduction::SummaryKomp23
       
       grouped_report.subgrouping(consortium).summary('Production Centre', hash).each do |row|
         
-        next if row['Production Centre'].to_s.length < 1
+        #next if row['Production Centre'].to_s.length < 1
+        #row['Production Centre'] = "&nbsp;" if row['Production Centre'].to_s.length < 1
+        row['Production Centre'] = '' if row['Production Centre'].to_s.length < 1
 
         pc = efficiency_6months(request, row)
         pc2 = efficiency_clone(request, row)
@@ -421,11 +425,29 @@ class Reports::MiProduction::SummaryKomp23
 
     script_name = request ? request.env['REQUEST_URI'] : ''
 
+#    centres = {}
+#    sub_table = table.sub_table do |r|
+#      centres[r["Consortium"]] ||= []
+#      #next if r['Production Centre'].to_s.length < 1
+#      #if r['Production Centre'].to_s.length > 0
+#      centres[r["Consortium"]].push r['Production Centre'] if ! centres[r["Consortium"]].include?(r['Production Centre'])
+##      centres[r["Consortium"]].push(r['Production Centre']) if ! centres[r["Consortium"]].include?(r['Production Centre']) && r['Production Centre'].to_s.length > 0
+#      #end
+#    end
+
     centres = {}
-    sub_table = table.sub_table { |r|
+    sub_table = table.sub_table do |r|
       centres[r["Consortium"]] ||= []
-      centres[r["Consortium"]].push r['Production Centre'] if ! centres[r["Consortium"]].include?(r['Production Centre'])
-    }
+      if r['Production Centre'].to_s.length > 0 && ! centres[r["Consortium"]].include?(r['Production Centre'])
+        centres[r["Consortium"]].push r['Production Centre']
+      end
+    end
+    
+#    raise centres.inspect
+    
+    #tcentres = {}
+    #centres.each {|centre| tcentres[centre] if centre.to_s.length > 0}
+    #centres = tcentres
 
     summaries = {}
     grouped_report = Grouping( table, :by => [ 'Consortium' ] )
@@ -468,8 +490,10 @@ class Reports::MiProduction::SummaryKomp23
 
       i=0
       while i < rows
+                
+        # this is where we exclude Production Centres with empty names
         
-        if table.column('Consortium')[i] != consortium_name1
+        if table.column('Consortium')[i] != consortium_name1 || table.column('Production Centre')[i].to_s.length < 1
           i+=1
           next
         end
@@ -477,15 +501,23 @@ class Reports::MiProduction::SummaryKomp23
         ignore_columns = ['Production Centre', 'Gene Pipeline efficiency (%)', 'Clone Pipeline efficiency (%)']
         
         other_columns.each do |consortium_name2|
+#          next if table.column('Production Centre')[i].to_s.length < 1
           array.push "<td>#{table.column(consortium_name2)[i]}</td>" if ignore_columns.include?(consortium_name2)
           next if ignore_columns.include?(consortium_name2)
-          array.push "<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>"
+#          array.push "<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>"
+#          array.push("<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>") if table.column('Production Centre')[i] != '&nbsp;'
+#          array.push("<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>") if ! /nbsp/.match(table.column('Production Centre')[i])
+          #next if table.column('Production Centre')[i].match(/\&nbsp;/)
+#          next if table.column('Production Centre')[i].to_s.length < 1
+          array.push("<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>") 
+#          puts "PRODUCTION CENTRE: '#{table.column('Production Centre')[i].to_s}'"
+          #raise "FOUND!"
         end
-
+        
         array.push '</tr>'
         
         i+=1
-      
+        
       end
       
     end  

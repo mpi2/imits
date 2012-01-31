@@ -1042,28 +1042,36 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'return the latest created active one if there are any active phenotype attempts' do
-        default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC",
-          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-        pt = default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC",
-          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-        default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC",
-          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-        default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-10 23:59:59 UTC",
-          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed), :is_active => false)
+        mi_attempt = Factory.create :mi_attempt_genotype_confirmed,
+                :es_cell => Factory.create(:es_cell, :gene => default_mi_plan.gene)
+        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
+                :created_at => "2011-12-02 23:59:59 UTC",
+                :mi_attempt => mi_attempt
+        pt = Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
+                :created_at => "2011-12-03 23:59:59 UTC",
+                :mi_attempt => mi_attempt
+        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
+                :created_at => "2011-12-01 23:59:59 UTC",
+                :mi_attempt => mi_attempt
+        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
+                :created_at => "2011-12-10 23:59:59 UTC",
+                :mi_attempt => mi_attempt, :is_active => false
 
         assert_equal pt, default_mi_plan.latest_relevant_phenotype_attempt
       end
 
       should 'return the latest created aborted one if all its phenotype attempts are aborted' do
-        default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-02 23:59:59 UTC",
-          :is_active => false,
-          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-        pt = default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-03 23:59:59 UTC",
-          :is_active => false,
-          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
-        default_mi_plan.phenotype_attempts.create!(:created_at => "2011-12-01 23:59:59 UTC",
-          :is_active => false,
-          :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed))
+        mi_attempt = Factory.create :mi_attempt_genotype_confirmed,
+                :es_cell => Factory.create(:es_cell, :gene => default_mi_plan.gene)
+        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
+                :created_at => '2011-12-02 23:59:59 UTC',
+                :is_active => false, :mi_attempt => mi_attempt
+        pt = Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
+                :created_at => '2011-12-03 23:59:59 UTC',
+                :is_active => false, :mi_attempt => mi_attempt
+        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
+                :created_at => '2011-12-01 23:59:59 UTC',
+                :is_active => false, :mi_attempt => mi_attempt
 
         assert_equal pt, default_mi_plan.latest_relevant_phenotype_attempt
       end
@@ -1072,7 +1080,6 @@ class MiPlanTest < ActiveSupport::TestCase
     context '#distinct_genotype_confirmed_es_cells_count' do
 
       should 'just work' do
-
         mi_attempt = Factory.create(:mi_attempt_genotype_confirmed)
 
         expected = [
@@ -1085,15 +1092,11 @@ class MiPlanTest < ActiveSupport::TestCase
         results = mi_attempt.mi_plan.distinct_genotype_confirmed_es_cells_count
 
         assert_equal 1, results
-
       end
-
     end
 
     context '#distinct_old_non_genotype_confirmed_es_cells_count' do
-
       should 'just work' do
-
         mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
 
         expected = [
@@ -1106,9 +1109,7 @@ class MiPlanTest < ActiveSupport::TestCase
         results = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
 
         assert_equal 1, results
-
       end
-
     end
 
   end

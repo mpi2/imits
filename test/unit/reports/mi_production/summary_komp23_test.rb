@@ -33,25 +33,25 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
 
       expected = {
         "Consortium"=>"BaSH",
-        "All Genes"=>11,
-        "ES QCs"=>3,
-        "ES QC confirms"=>2,
-        "ES QC Failures"=>1,
+        "All genes"=>11,
+        "ES cell QC"=>3,
+        "ES QC confirmed"=>2,
+        "ES QC failed"=>1,
         "Production Centre"=>"BCM",
-        "MIs"=>10,
-        "Chimaeras"=>nil,
-        "Genotype Confirmed"=>1,
-        "MI Aborted"=>1,
-        "Gene Pipeline efficiency (%)"=>"100",
-        "Clone Pipeline efficiency (%)"=>"20",
-        "Phenotype Registrations"=>1,
-        "Rederivation Starts"=>1,
-        "Rederivation Completes"=>1,
-        "Cre Excision Starts"=>3,
-        "Cre Excision Complete"=>2,
-        "Phenotype data starts"=>1,
-        "Phenotyping Complete"=>1,
-        "Phenotype Attempt Aborted"=>1
+        "Microinjections"=>9,
+        "Chimaeras produced"=>nil,
+        "Genotype confirmed mice"=>"",
+        "Microinjection aborted"=>1,
+        "Gene Pipeline efficiency (%)"=>"",
+        "Clone Pipeline efficiency (%)"=>"",
+        "Registered for phenotyping"=>1,
+        "Rederivation started"=>1,
+        "Rederivation completed"=>1,
+        "Cre excision started"=>1,
+        "Cre excision completed"=>"",
+        "Phenotyping started"=>"",
+        "Phenotyping completed"=>"",
+        "Phenotyping aborted"=>""
       }
 
       report.column_names.each do |column_name|

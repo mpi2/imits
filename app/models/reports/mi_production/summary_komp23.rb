@@ -5,7 +5,6 @@ class Reports::MiProduction::SummaryKomp23
   extend Reports::MiProduction::SummariesCommon
 
   DEBUG = false
-  DEBUG_COLUMNS = true
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'KOMP2 Report 3'
@@ -139,8 +138,6 @@ class Reports::MiProduction::SummaryKomp23
       
       grouped_report.subgrouping(consortium).summary('Production Centre', hash).each do |row|
         
-        #next if row['Production Centre'].to_s.length < 1
-        #row['Production Centre'] = "&nbsp;" if row['Production Centre'].to_s.length < 1
         row['Production Centre'] = '' if row['Production Centre'].to_s.length < 1
 
         pc = efficiency_6months(request, row)
@@ -331,9 +328,6 @@ class Reports::MiProduction::SummaryKomp23
         
         return false if r['Consortium'] != consortium
         return false if pcentre && pcentre.to_s.length > 0 && r['Production Centre'] != pcentre
-        
-        # deliberately ignore anything without a production centre
-        #return false if ! r['Production Centre'] || r['Production Centre'].to_s.length < 1
 
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype confirmed mice ES Cells'
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype confirmed mice ES Cells'
@@ -406,29 +400,6 @@ class Reports::MiProduction::SummaryKomp23
       "Phenotyping aborted",
     ] + (details ? DEBUG_HEADINGS : [])
 
-    #NEW_COLUMNS_HASH = {
-    ##Consortium
-    #'All Genes' => 'All genes',
-    #'ES QCs' => 'ES cell QC',
-    #'ES QC confirms' => 'ES QC confirmed',
-    #'ES QC Failures' => 'ES QC failed',
-    ##Production centre
-    #'MIs' => 'Microinjections',
-    #'Chimaeras' => 'Chimaeras produced',
-    #'Genotype Confirmed' => 'Genotype confirmed mice',
-    #'MI Aborted' => 'Microinjection aborted',
-    ##Gene pipeline efficiency (%)
-    ##Clone pipeline efficiency (%)
-    #'Phenotype Registrations' => 'Registered for phenotyping',
-    #'Rederivation Starts' => 'Rederivation started',
-    #'Rederivation Completes' => 'Rederivation completed',
-    #'Cre Excision Starts' => 'Cre excision started',
-    #'Cre Excision Complete' => 'Cre excision completed',
-    #'Phenotype data starts' => 'Phenotyping started',
-    #'Phenotyping Complete' => 'Phenotyping completed',
-    #'Phenotype Attempt Aborted' => 'Phenotyping aborted'
-    #}
-
     report.reorder(new_columns)
     
     title = limit_consortia ? REPORT_TITLE : 'Production for IMPC Consortia'
@@ -485,11 +456,12 @@ class Reports::MiProduction::SummaryKomp23
     
     grouped_report.each do |consortium_name1|
       array.push '</tr>'
-      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>#{consortium_name1}</td>"
-      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['All genes'], consortium_name1, nil, 'All genes') + "</td>"
-      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES cell QC'], consortium_name1, nil, 'ES cell QC') + "</td>"
-      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES QC confirmed'], consortium_name1, nil, 'ES QC confirmed') + "</td>"
-      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES QC failed'], consortium_name1, nil, 'ES QC failed') + "</td>"
+      size = centres[consortium_name1].size.to_s
+      array.push "<td rowspan='#{size}'>#{consortium_name1}</td>"
+      array.push "<td rowspan='#{size}'>" + make_link.call(summaries[consortium_name1]['All genes'], consortium_name1, nil, 'All genes') + "</td>"
+      array.push "<td rowspan='#{size}'>" + make_link.call(summaries[consortium_name1]['ES cell QC'], consortium_name1, nil, 'ES cell QC') + "</td>"
+      array.push "<td rowspan='#{size}'>" + make_link.call(summaries[consortium_name1]['ES QC confirmed'], consortium_name1, nil, 'ES QC confirmed') + "</td>"
+      array.push "<td rowspan='#{size}'>" + make_link.call(summaries[consortium_name1]['ES QC failed'], consortium_name1, nil, 'ES QC failed') + "</td>"
 
       i=0
       while i < rows
@@ -504,17 +476,9 @@ class Reports::MiProduction::SummaryKomp23
         ignore_columns = ['Production Centre', 'Gene Pipeline efficiency (%)', 'Clone Pipeline efficiency (%)']
         
         other_columns.each do |consortium_name2|
-#          next if table.column('Production Centre')[i].to_s.length < 1
           array.push "<td>#{table.column(consortium_name2)[i]}</td>" if ignore_columns.include?(consortium_name2)
           next if ignore_columns.include?(consortium_name2)
-#          array.push "<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>"
-#          array.push("<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>") if table.column('Production Centre')[i] != '&nbsp;'
-#          array.push("<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>") if ! /nbsp/.match(table.column('Production Centre')[i])
-          #next if table.column('Production Centre')[i].match(/\&nbsp;/)
-#          next if table.column('Production Centre')[i].to_s.length < 1
           array.push("<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>") 
-#          puts "PRODUCTION CENTRE: '#{table.column('Production Centre')[i].to_s}'"
-          #raise "FOUND!"
         end
         
         array.push '</tr>'

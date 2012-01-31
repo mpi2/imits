@@ -59,7 +59,7 @@ class Reports::MiProduction::SummaryKomp23
   end
   
   def self.genotype_confirmed_6month(row)
-    date = 'Genotype confirmed mice Date'
+    date = 'Genotype confirmed Date'
     today = Date.today
     return false if row[date].blank?
     date = 'Micro-injection in progress Date'
@@ -220,11 +220,11 @@ class Reports::MiProduction::SummaryKomp23
     end
     
     if key == 'Genotype confirmed mice'
-      return row['MiAttempt Status'] == 'Genotype confirmed mice'
+      return row['MiAttempt Status'] == 'Genotype confirmed'
     end
     
     if key == 'Genotype confirmed mice 6 months'
-      return row['MiAttempt Status'] == 'Genotype confirmed mice' && genotype_confirmed_6month(row)
+      return row['MiAttempt Status'] == 'Genotype confirmed' && genotype_confirmed_6month(row)
     end
     
     if key == 'Microinjection aborted'
@@ -236,7 +236,7 @@ class Reports::MiProduction::SummaryKomp23
     end
         
     if key == 'Microinjections'
-      return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed mice' ||
+      return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
         row['MiAttempt Status'] == 'Micro-injection aborted'
     end
     

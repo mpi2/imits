@@ -11,7 +11,7 @@ gem 'foreigner'
 gem 'devise'
 gem 'biomart'
 gem 'acts_as_audited', '~>2.0.0.rc7'
-gem 'ransack', :git => 'git://github.com/i-dcc/ransack.git'
+gem 'ransack', :git => 'git://github.com/mpi2/ransack.git'
 
 gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'

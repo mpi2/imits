@@ -436,9 +436,7 @@ class Reports::MiProduction::SummaryKomp23
     array.push '<table>'
     array.push '<tr>'
         
-    table.column_names.each do |name|
-      array.push "<th>#{name}</th>"
-    end
+    table.column_names.each { |name| array.push "<th style='width:80px'>#{name}</th>" }
 
     other_columns = table.column_names - ["Consortium", "All genes", "ES cell QC", "ES QC confirmed",  "ES QC failed"]
     rows = table.data.size 

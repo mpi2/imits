@@ -13,39 +13,39 @@ class Reports::MiProduction::SummaryKomp23
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
 
   DEBUG_HEADINGS = [
-    'Genotype Confirmed 6 months',
-    'MI Aborted 6 months',
+    'Genotype confirmed mice 6 months',
+    'Microinjection aborted 6 months',
     'Languishing',
-    'Distinct Genotype Confirmed ES Cells',
-    'Distinct Old Non Genotype Confirmed ES Cells'
+    'Distinct Genotype confirmed mice ES Cells',
+    'Distinct Old Non Genotype confirmed mice ES Cells'
   ]
 
   HEADINGS = [
     'Consortium',
     'Production Centre',
-    'All',
-    'ES QC Failures',
-    'ES QC confirms',
-    'ES QCs',
-    'Genotype Confirmed',
-    'MI Aborted',
-    'MIs',
-    'Chimaeras',
-    'Phenotype Attempt Aborted',
-    'Phenotyping Complete',
-    'Phenotype data starts',
-    'Cre Excision Complete',
-    'Cre Excision Starts',
-    'Rederivation Starts',
-    'Rederivation Completes',
-    'Phenotype Registrations',    
+    'All genes',
+    'ES QC failed',
+    'ES QC confirmed',
+    'ES cell QC',
+    'Genotype confirmed mice',
+    'Microinjection aborted',
+    'Microinjections',
+    'Chimaeras produced',
+    'Phenotyping aborted',
+    'Phenotyping completed',
+    'Phenotyping started',
+    'Cre excision completed',
+    'Cre excision started',
+    'Rederivation started',
+    'Rederivation completed',
+    'Registered for phenotyping',    
     'Gene Pipeline efficiency (%)',
     'Clone Pipeline efficiency (%)'
   ] + DEBUG_HEADINGS
   
   def self.efficiency_6months(request, row)
-    glt = row['Genotype Confirmed 6 months'].to_i
-    failures = row['Languishing'].to_i + row['MI Aborted 6 months'].to_i
+    glt = row['Genotype confirmed mice 6 months'].to_i
+    failures = row['Languishing'].to_i + row['Microinjection aborted 6 months'].to_i
     total = glt + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
@@ -53,15 +53,15 @@ class Reports::MiProduction::SummaryKomp23
   end
   
   def self.efficiency_clone(request, row)
-    a = row['Distinct Genotype Confirmed ES Cells'].to_i
-    b = row['Distinct Old Non Genotype Confirmed ES Cells'].to_i
+    a = row['Distinct Genotype confirmed mice ES Cells'].to_i
+    b = row['Distinct Old Non Genotype confirmed mice ES Cells'].to_i
     pc =  a + b != 0 ? ((a.to_f / (a + b).to_f) * 100) : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
   end
   
   def self.genotype_confirmed_6month(row)
-    date = 'Genotype confirmed Date'
+    date = 'Genotype confirmed mice Date'
     today = Date.today
     return false if row[date].blank?
     date = 'Micro-injection in progress Date'
@@ -72,7 +72,7 @@ class Reports::MiProduction::SummaryKomp23
   def self.distinct_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
-      value = row['Distinct Genotype Confirmed ES Cells'].to_i
+      value = row['Distinct Genotype confirmed mice ES Cells'].to_i
       total += value
     end
     return total
@@ -81,7 +81,7 @@ class Reports::MiProduction::SummaryKomp23
   def self.distinct_old_non_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
-      value = row['Distinct Old Non Genotype Confirmed ES Cells'].to_i
+      value = row['Distinct Old Non Genotype confirmed mice ES Cells'].to_i
       total += value
     end
     return total
@@ -104,31 +104,30 @@ class Reports::MiProduction::SummaryKomp23
     grouped_report = Grouping( cached_report, :by => [ 'Consortium', 'Production Centre' ] )
 
     list_heads = [
-#      'All', 
-      'ES QC confirms', 
-      'MI Aborted', 
-      'Cre Excision Starts', 
-      'Cre Excision Complete', 
-      'Phenotyping Complete', 
-      'Phenotype Attempt Aborted', 
-      'ES QC Failures', 
-      'ES QCs', 
-      'Genotype Confirmed', 
-      'MIs', 
-      'Phenotype data starts', 
-      'Cre Excision Complete', 
-      'Rederivation Starts', 
-      'Rederivation Completes', 
-      'Phenotype Registrations', 
-      'Genotype Confirmed 6 months',
-      'MI Aborted 6 months',
+      'ES QC confirmed', 
+      'Microinjection aborted', 
+      'Cre excision started', 
+      'Cre excision completed', 
+      'Phenotyping completed', 
+      'Phenotyping aborted', 
+      'ES QC failed', 
+      'ES cell QC', 
+      'Genotype confirmed mice', 
+      'Microinjections', 
+      'Phenotyping started', 
+      'Cre excision completed', 
+      'Rederivation started', 
+      'Rederivation completed', 
+      'Registered for phenotyping', 
+      'Genotype confirmed mice 6 months',
+      'Microinjection aborted 6 months',
       'Languishing'
     ]
     
     hash = {}
-    hash['Distinct Genotype Confirmed ES Cells'] = lambda { |group| distinct_genotype_confirmed_es_cells_count(group) }
-    hash['Distinct Old Non Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }
-    hash['All'] = lambda { |group| count_unique_instances_of( group, 'Gene', lambda { |row| count_row(row, 'All') } ) }
+    hash['Distinct Genotype confirmed mice ES Cells'] = lambda { |group| distinct_genotype_confirmed_es_cells_count(group) }
+    hash['Distinct Old Non Genotype confirmed mice ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }
+    hash['All genes'] = lambda { |group| count_unique_instances_of( group, 'Gene', lambda { |row| count_row(row, 'All genes') } ) }
 
     list_heads.each do |item|
       hash[item] = lambda { |group| count_instances_of( group, 'Gene', lambda { |row| count_row(row, item) } ) }
@@ -168,27 +167,27 @@ class Reports::MiProduction::SummaryKomp23
         }
         
         list_heads = [
-          'All',
-          'ES QC confirms',
-          'MI Aborted',
+          'All genes',
+          'ES QC confirmed',
+          'Microinjection aborted',
           'Languishing',
-          'Distinct Genotype Confirmed ES Cells',
-          'Distinct Old Non Genotype Confirmed ES Cells',
+          'Distinct Genotype confirmed mice ES Cells',
+          'Distinct Old Non Genotype confirmed mice ES Cells',
           'Cre Excision Started',
-          'Cre Excision Complete',
-          'Phenotyping Complete',
-          'Phenotype Attempt Aborted',
-          'ES QC Failures',
-          'ES QCs',
-          'Genotype Confirmed',
-          'MIs',
-          'Phenotype data starts',
-          'Rederivation Starts',
-          'Cre Excision Starts',
-          'Rederivation Completes',
-          'Phenotype Registrations',
-          'Genotype Confirmed 6 months',
-          'MI Aborted 6 months'
+          'Cre excision completed',
+          'Phenotyping completed',
+          'Phenotyping aborted',
+          'ES QC failed',
+          'ES cell QC',
+          'Genotype confirmed mice',
+          'Microinjections',
+          'Phenotyping started',
+          'Rederivation started',
+          'Cre excision started',
+          'Rederivation completed',
+          'Registered for phenotyping',
+          'Genotype confirmed mice 6 months',
+          'Microinjection aborted 6 months'
         ]
 
         new_hash = {}
@@ -210,100 +209,100 @@ class Reports::MiProduction::SummaryKomp23
   
   def self.count_row(row, key)
     
-    return true if key == 'All'
+    return true if key == 'All genes'
     
-    if key == 'ES QC Failures'
+    if key == 'ES QC failed'
       return row['MiPlan Status'] == 'Aborted - ES Cell QC Failed'
     end
     
-    if key == 'ES QC confirms'
+    if key == 'ES QC confirmed'
       return row['MiPlan Status'] == 'Assigned - ES Cell QC Complete'
     end
     
-    if key == 'ES QCs'
+    if key == 'ES cell QC'
       return ['Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete', 'Aborted - ES Cell QC Failed'].include?(row['MiPlan Status'])
     end
     
-    if key == 'Genotype Confirmed'
-      return row['MiAttempt Status'] == 'Genotype confirmed'
+    if key == 'Genotype confirmed mice'
+      return row['MiAttempt Status'] == 'Genotype confirmed mice'
     end
     
-    if key == 'Genotype Confirmed 6 months'
-      return row['MiAttempt Status'] == 'Genotype confirmed' && genotype_confirmed_6month(row)
+    if key == 'Genotype confirmed mice 6 months'
+      return row['MiAttempt Status'] == 'Genotype confirmed mice' && genotype_confirmed_6month(row)
     end
     
-    if key == 'MI Aborted'
+    if key == 'Microinjection aborted'
       return row['MiAttempt Status'] == 'Micro-injection aborted'
     end
     
-    if key == 'MI Aborted 6 months'
+    if key == 'Microinjection aborted 6 months'
       return row['MiAttempt Status'] == 'Micro-injection aborted' && Date.parse(row['Micro-injection aborted Date']) < 6.months.ago.to_date
     end
         
-    if key == 'MIs'
-      return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
+    if key == 'Microinjections'
+      return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed mice' ||
         row['MiAttempt Status'] == 'Micro-injection aborted'
     end
     
-    if key == 'Phenotype Attempt Aborted'
-      return row['PhenotypeAttempt Status'] == 'Phenotype Attempt Aborted'
+    if key == 'Phenotyping aborted'
+      return row['PhenotypeAttempt Status'] == 'Phenotyping aborted'
     end
     
-    if key == 'Phenotyping Complete'
-      return row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
+    if key == 'Phenotyping completed'
+      return row['PhenotypeAttempt Status'] == 'Phenotyping completed'
     end
     
-    if key == 'Phenotype data starts'
-      return row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
+    if key == 'Phenotyping started'
+      return row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping completed'
     end
     
-    if key == 'Cre Excision Complete'
-      return row['PhenotypeAttempt Status'] == 'Cre Excision Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
+    if key == 'Cre excision completed'
+      return row['PhenotypeAttempt Status'] == 'Cre excision completed' ||
+        row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping completed' ||
+        row['PhenotypeAttempt Status'] == 'Phenotyping completed'
     end
     
-    if key == 'Cre Excision Starts'
+    if key == 'Cre excision started'
       return row['PhenotypeAttempt Status'] == 'Cre Excision Started' ||
-        row['PhenotypeAttempt Status'] == 'Cre Excision Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
+        row['PhenotypeAttempt Status'] == 'Cre excision completed' ||
+        row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping completed' ||
+        row['PhenotypeAttempt Status'] == 'Phenotyping completed'
     end
     
     valid_phenos2 = [
       'Rederivation Started',
       'Rederivation Complete',
       'Cre Excision Started',
-      'Cre Excision Complete',
+      'Cre excision completed',
       'Phenotyping Started',
-      'Phenotyping Complete'
+      'Phenotyping completed'
     ]
     
-    if key == 'Rederivation Starts'
+    if key == 'Rederivation started'
       return valid_phenos2.include?(row['PhenotypeAttempt Status']) && row['Rederivation Started Date'].to_s.length > 0
     end
 
     valid_phenos3 = [
       'Rederivation Complete',
       'Cre Excision Started',
-      'Cre Excision Complete',
+      'Cre excision completed',
       'Phenotyping Started',
-      'Phenotyping Complete'
+      'Phenotyping completed'
     ]
     
-    if key == 'Rederivation Completes'
+    if key == 'Rederivation completed'
       return valid_phenos3.include?(row['PhenotypeAttempt Status']) && row['Rederivation Complete Date'].to_s.length > 0
     end
     
-    if key == 'Phenotype Registrations'
+    if key == 'Registered for phenotyping'
       return row['PhenotypeAttempt Status'] == 'Phenotype Attempt Registered'
     end
   
-    if key == 'Distinct Genotype Confirmed ES Cells'
+    if key == 'Distinct Genotype confirmed mice ES Cells'
       return row[key] && row[key].to_s.length > 0
     end
     
-    if key == 'Distinct Old Non Genotype Confirmed ES Cells'
+    if key == 'Distinct Old Non Genotype confirmed mice ES Cells'
       return row[key] && row[key].to_s.length > 0
     end
    
@@ -334,11 +333,10 @@ class Reports::MiProduction::SummaryKomp23
         return false if pcentre && pcentre.to_s.length > 0 && r['Production Centre'] != pcentre
         
         # deliberately ignore anything without a production centre
-        
-        return false if ! r['Production Centre'] || r['Production Centre'].to_s.length < 1
+        #return false if ! r['Production Centre'] || r['Production Centre'].to_s.length < 1
 
-        return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype Confirmed ES Cells'
-        return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype Confirmed ES Cells'
+        return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype confirmed mice ES Cells'
+        return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype confirmed mice ES Cells'
         
         return count_row(r, type)
       
@@ -384,31 +382,52 @@ class Reports::MiProduction::SummaryKomp23
     pretty = true
 
     report = generate_common(request, params, false, limit_consortia)
-
-    report.rename_column('All', 'All Genes')
-  
+    
     new_columns = [
       "Consortium",
-      "All Genes",
-      "ES QCs",
-      "ES QC confirms",
-      "ES QC Failures",
+      "All genes",
+      "ES cell QC",
+      "ES QC confirmed",
+      "ES QC failed",
       "Production Centre",
-      "MIs",
-      "Chimaeras",
-      "Genotype Confirmed",
-      "MI Aborted",
+      "Microinjections",
+      "Chimaeras produced",
+      "Genotype confirmed mice",
+      "Microinjection aborted",
       "Gene Pipeline efficiency (%)",
       "Clone Pipeline efficiency (%)",
-      "Phenotype Registrations",
-      "Rederivation Starts",
-      "Rederivation Completes",
-      "Cre Excision Starts",
-      "Cre Excision Complete",
-      "Phenotype data starts",
-      "Phenotyping Complete",
-      "Phenotype Attempt Aborted",
+      "Registered for phenotyping",
+      "Rederivation started",
+      "Rederivation completed",
+      "Cre excision started",
+      "Cre excision completed",
+      "Phenotyping started",
+      "Phenotyping completed",
+      "Phenotyping aborted",
     ] + (details ? DEBUG_HEADINGS : [])
+
+    #NEW_COLUMNS_HASH = {
+    ##Consortium
+    #'All Genes' => 'All genes',
+    #'ES QCs' => 'ES cell QC',
+    #'ES QC confirms' => 'ES QC confirmed',
+    #'ES QC Failures' => 'ES QC failed',
+    ##Production centre
+    #'MIs' => 'Microinjections',
+    #'Chimaeras' => 'Chimaeras produced',
+    #'Genotype Confirmed' => 'Genotype confirmed mice',
+    #'MI Aborted' => 'Microinjection aborted',
+    ##Gene pipeline efficiency (%)
+    ##Clone pipeline efficiency (%)
+    #'Phenotype Registrations' => 'Registered for phenotyping',
+    #'Rederivation Starts' => 'Rederivation started',
+    #'Rederivation Completes' => 'Rederivation completed',
+    #'Cre Excision Starts' => 'Cre excision started',
+    #'Cre Excision Complete' => 'Cre excision completed',
+    #'Phenotype data starts' => 'Phenotyping started',
+    #'Phenotyping Complete' => 'Phenotyping completed',
+    #'Phenotype Attempt Aborted' => 'Phenotyping aborted'
+    #}
 
     report.reorder(new_columns)
     
@@ -425,16 +444,6 @@ class Reports::MiProduction::SummaryKomp23
 
     script_name = request ? request.env['REQUEST_URI'] : ''
 
-#    centres = {}
-#    sub_table = table.sub_table do |r|
-#      centres[r["Consortium"]] ||= []
-#      #next if r['Production Centre'].to_s.length < 1
-#      #if r['Production Centre'].to_s.length > 0
-#      centres[r["Consortium"]].push r['Production Centre'] if ! centres[r["Consortium"]].include?(r['Production Centre'])
-##      centres[r["Consortium"]].push(r['Production Centre']) if ! centres[r["Consortium"]].include?(r['Production Centre']) && r['Production Centre'].to_s.length > 0
-#      #end
-#    end
-
     centres = {}
     sub_table = table.sub_table do |r|
       centres[r["Consortium"]] ||= []
@@ -443,15 +452,9 @@ class Reports::MiProduction::SummaryKomp23
       end
     end
     
-#    raise centres.inspect
-    
-    #tcentres = {}
-    #centres.each {|centre| tcentres[centre] if centre.to_s.length > 0}
-    #centres = tcentres
-
     summaries = {}
     grouped_report = Grouping( table, :by => [ 'Consortium' ] )
-    labels = ['All Genes', 'ES QCs', 'ES QC confirms', 'ES QC Failures']
+    labels = ['All genes', 'ES cell QC', 'ES QC confirmed', 'ES QC failed']
               
     grouped_report.each do |consortium|
       summaries[consortium] = {}
@@ -466,7 +469,7 @@ class Reports::MiProduction::SummaryKomp23
       array.push "<th>#{name}</th>"
     end
 
-    other_columns = table.column_names - ["Consortium", "All Genes", "ES QCs", "ES QC confirms",  "ES QC Failures"]
+    other_columns = table.column_names - ["Consortium", "All genes", "ES cell QC", "ES QC confirmed",  "ES QC failed"]
     rows = table.data.size 
 
     make_link = lambda {|value, consortium, pcentre, type|
@@ -483,10 +486,10 @@ class Reports::MiProduction::SummaryKomp23
     grouped_report.each do |consortium_name1|
       array.push '</tr>'
       array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>#{consortium_name1}</td>"
-      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['All Genes'], consortium_name1, nil, 'All') + "</td>"
-      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES QCs'], consortium_name1, nil, 'ES QCs') + "</td>"
-      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES QC confirms'], consortium_name1, nil, 'ES QC confirms') + "</td>"
-      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES QC Failures'], consortium_name1, nil, 'ES QC Failures') + "</td>"
+      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['All genes'], consortium_name1, nil, 'All genes') + "</td>"
+      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES cell QC'], consortium_name1, nil, 'ES cell QC') + "</td>"
+      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES QC confirmed'], consortium_name1, nil, 'ES QC confirmed') + "</td>"
+      array.push "<td rowspan='#{centres[consortium_name1].size.to_s}'>" + make_link.call(summaries[consortium_name1]['ES QC failed'], consortium_name1, nil, 'ES QC failed') + "</td>"
 
       i=0
       while i < rows

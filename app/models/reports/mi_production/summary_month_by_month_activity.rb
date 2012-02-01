@@ -38,7 +38,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     MiPlan::StatusStamp.all.each do |stamp|
       
-      next if stamp.created_at < 6.months.ago.to_date
+      next if consortia && stamp.created_at < Date.parse('2011-08-01')
       
       year = stamp.created_at.year
       month = stamp.created_at.month
@@ -67,7 +67,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         
     MiAttempt::StatusStamp.all.each do |stamp|
 
-      next if stamp.created_at < 6.months.ago.to_date
+      next if consortia && stamp.created_at < Date.parse('2011-08-01')
 
       year = stamp.created_at.year
       month = stamp.created_at.month
@@ -96,7 +96,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     
     PhenotypeAttempt::StatusStamp.all.each do |stamp|
 
-      next if stamp.created_at < 6.months.ago.to_date
+      next if consortia && stamp.created_at < Date.parse('2011-08-01')
 
       year = stamp.created_at.year
       month = stamp.created_at.month

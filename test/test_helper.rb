@@ -264,3 +264,9 @@ class Test::Person < ActiveRecord::Base
 
   validates :name, :uniqueness => true
 end
+
+PhenotypeAttempt.class_eval do
+  def to_public
+    return Public::PhenotypeAttempt.find(self.id)
+  end
+end

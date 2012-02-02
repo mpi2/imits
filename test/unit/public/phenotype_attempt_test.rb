@@ -6,7 +6,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
   context 'Public::PhenotypeAttempt' do
 
     def default_phenotype_attempt
-      @default_phenotype_attempt ||= Public::PhenotypeAttempt.find(Factory.create :phenotype_attempt)
+      @default_phenotype_attempt ||= Factory.create(:phenotype_attempt).to_public
     end
 
     context '#mi_attempt_colony_name' do
@@ -170,6 +170,48 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt.mi_plan = plan
         pt.valid?
         assert_equal plan, pt.mi_plan
+      end
+    end
+
+    should 'limit the public mass-assignment API' do
+      expected = [
+        'consortium_name',
+        'production_centre_name',
+        'mi_attempt_colony_name',
+        'is_active',
+        'rederivation_started',
+        'rederivation_complete',
+        'number_of_cre_matings_started',
+        'number_of_cre_matings_successful',
+        'phenotyping_started',
+        'phenotyping_complete'
+
+      ]
+      got = (Public::PhenotypeAttempt.accessible_attributes.to_a - ['audit_comment'])
+      assert_equal expected.sort, got.sort
+    end
+
+    should 'have defined attributes in JSON output' do
+      expected = [
+        'id',
+        'consortium_name',
+        'production_centre_name',
+        'mi_attempt_colony_name',
+        'is_active',
+        'rederivation_started',
+        'rederivation_complete',
+        'number_of_cre_matings_started',
+        'number_of_cre_matings_successful',
+        'phenotyping_started',
+        'phenotyping_complete'
+      ]
+      got = default_phenotype_attempt.as_json.keys
+      assert_equal expected.sort, got.sort
+    end
+
+    context '#as_json' do
+      should 'take nil as param' do
+        assert_nothing_raised { default_phenotype_attempt.as_json(nil) }
       end
     end
 

@@ -4,7 +4,24 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   extend AccessAssociationByAttribute
 
-  set_table_name 'phenotype_attempts'
+  FULL_ACCESS_ATTRIBUTES = [
+    'consortium_name',
+    'production_centre_name',
+    'mi_attempt_colony_name',
+    'is_active',
+    'rederivation_started',
+    'rederivation_complete',
+    'number_of_cre_matings_started',
+    'number_of_cre_matings_successful',
+    'phenotyping_started',
+    'phenotyping_complete'
+  ]
+
+  READABLE_ATTRIBUTES = [
+    'id'
+  ] + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
 
   access_association_by_attribute :mi_attempt, :colony_name
 
@@ -47,6 +64,15 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   # END Callbacks
 
   attr_accessor :consortium_name, :production_centre_name
+
+  def as_json(options = {})
+    options ||= {}
+    options.symbolize_keys!
+
+    options[:methods] = READABLE_ATTRIBUTES
+    options[:only] = options[:methods]
+    return super(options)
+  end
 
 end
 

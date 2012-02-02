@@ -269,3 +269,9 @@ PhenotypeAttempt.class_eval do
     return Public::PhenotypeAttempt.find(self.id)
   end
 end
+
+MiPlan.class_eval do
+  def to_public
+    return Public::MiPlan.find(self.id)
+  end
+end

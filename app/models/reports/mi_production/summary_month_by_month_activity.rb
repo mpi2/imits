@@ -2,17 +2,17 @@
 
 # TODO: use proper names in summary hashes
 # TODO: what about empty centres?
-# TODO: get latest statuses
 # TODO: better rowspanning
+# TODO: iterator for test data
 
 class Reports::MiProduction::SummaryMonthByMonthActivity
   
   DEBUG = true
-  CSV_BLANKS = true
+  CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-08-01')
 
-  PLAN_STATUSES = ['es_qcs', 'es_confirms', 'es_fails']
-  ATTEMPT_STATUSES = ['mi', 'gc', 'abort']
+  PLAN_STATUSES = ['ES Cell QC In Progress', 'ES Cell QC Complete', 'ES Cell QC Failed']
+  ATTEMPT_STATUSES = ['Micro-injection in progress', 'Genotype confirmed', 'Micro-injection aborted']
   PHENOTYPE_STATUSES = [
     'Phenotype Attempt Aborted',
     'Phenotyping Complete',
@@ -110,12 +110,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             status_hash = centre_hash[centre]
             
             array = [
-              'es_qcs',
-              'es_confirms',
-              'es_fails',
-              'mi',
-              'gc',
-              'abort',
+              'ES Cell QC In Progress',
+              'ES Cell QC Complete',
+              'ES Cell QC Failed',
+              'Micro-injection in progress',
+              'Genotype confirmed',
+              'Micro-injection aborted',
               'Phenotype Attempt Registered',
               'Rederivation Started',
               'Rederivation Complete',
@@ -138,25 +138,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
               'Year' => year,
               'Month' => month,
               'Consortium' => cons,
-              'Production Centre' => centre,
-              'ES Cell QC In Progress' => make_clean.call(status_hash['es_qcs'].keys.size),
-              'ES Cell QC Complete' => make_clean.call(status_hash['es_confirms'].keys.size),
-              'ES Cell QC Failed' => make_clean.call(status_hash['es_fails'].keys.size),
-              'Micro-injection in progress' => make_clean.call(status_hash['mi'].keys.size),
-              'Genotype confirmed' => make_clean.call(status_hash['gc'].keys.size),
-              'Micro-injection aborted' => make_clean.call(status_hash['abort'].keys.size)
+              'Production Centre' => centre
             }
-
-            array = [
-              'Phenotype Attempt Registered',
-              'Rederivation Started',
-              'Rederivation Complete',
-              'Cre Excision Started',
-              'Cre Excision Complete',
-              'Phenotyping Started',
-              'Phenotyping Complete',
-              'Phenotype Attempt Aborted'
-            ]
 
             array.each { |name| hash[name] = make_clean.call(status_hash[name].keys.size) }
 
@@ -180,7 +163,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     pcentre = params[:pcentre]
     year = params[:year]
     month = params[:month]
-        
+
+  #  params[:script_name] = nil
+
     summary = get_summary(params)
     
     table = Table(["Date", "Marker Symbol", "Consortium", "Centre", "Status"])
@@ -194,7 +179,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         "Status" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:status]
       }
     end
-    
+
+    table.sort_rows_by!("Date", :order => :descending)
+  
     title = "Plan Details" if PLAN_STATUSES.include? type
     title = "Attempt Details" if ATTEMPT_STATUSES.include? type
     title = "Phenotype Details" if PHENOTYPE_STATUSES.include? type
@@ -221,7 +208,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         day = stamp.created_at.month
         consortium = stamp.mi_plan.consortium.name
         pcentre = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : ''
-        next if pcentre.blank? || pcentre.to_s.length < 1
+        pcentre = 'UNKNOWN' if pcentre.blank? || pcentre.to_s.length < 1
         next if consortia && ! consortia.include?(consortium)
         gene_id = stamp.mi_plan.gene_id
         status = stamp.status.name
@@ -230,17 +217,17 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         details_hash = { :symbol => marker_symbol, :status => status, :date => stamp.created_at }
 
         if(status == 'Assigned - ES Cell QC In Progress')
-          summary[year][month][consortium][pcentre]['es_qcs'][gene_id] = details_hash
+          summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
         end
     
         if(status == 'Assigned - ES Cell QC Complete')
-          summary[year][month][consortium][pcentre]['es_qcs'][gene_id] = details_hash
-          summary[year][month][consortium][pcentre]['es_confirms'][gene_id] = details_hash
+          summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
+          summary[year][month][consortium][pcentre]['ES Cell QC Complete'][gene_id] = details_hash
         end
     
         if(status == 'Aborted - ES Cell QC Failed')
-          summary[year][month][consortium][pcentre]['es_qcs'][gene_id] = details_hash
-          summary[year][month][consortium][pcentre]['es_fails'][gene_id] = details_hash
+          summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
+          summary[year][month][consortium][pcentre]['ES Cell QC Failed'][gene_id] = details_hash
         end
                
       end
@@ -260,7 +247,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         day = stamp.created_at.day
         consortium = stamp.mi_attempt.mi_plan.consortium.name
         pcentre = stamp.mi_attempt.production_centre_name
-        next if pcentre.blank? || pcentre.to_s.length < 1
+        pcentre = 'UNKNOWN' if pcentre.blank? || pcentre.to_s.length < 1
         next if consortia && ! consortia.include?(consortium)
         gene_id = stamp.mi_attempt.mi_plan.gene_id
         status = stamp.mi_attempt_status.description
@@ -273,17 +260,17 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         }
           
         if(status == 'Micro-injection in progress')
-          summary[year][month][consortium][pcentre]['mi'][gene_id] = details_hash
+          summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
         end
     
         if(status == 'Genotype confirmed')
-          summary[year][month][consortium][pcentre]['mi'][gene_id] = details_hash
-          summary[year][month][consortium][pcentre]['gc'][gene_id] = details_hash
+          summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
+          summary[year][month][consortium][pcentre]['Genotype confirmed'][gene_id] = details_hash
         end
     
         if(status == 'Micro-injection aborted')
-          summary[year][month][consortium][pcentre]['mi'][gene_id] = details_hash
-          summary[year][month][consortium][pcentre]['abort'][gene_id] = details_hash
+          summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
+          summary[year][month][consortium][pcentre]['Micro-injection aborted'][gene_id] = details_hash
         end
       
       end
@@ -307,28 +294,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         pcentre = stamp.phenotype_attempt.mi_plan.production_centre && stamp.phenotype_attempt.mi_plan.production_centre.name ?
           stamp.phenotype_attempt.mi_plan.production_centre.name : ''
       
-        next if pcentre.blank?
+        pcentre = 'UNKNOWN' if pcentre.blank?
         next if consortia && ! consortia.include?(consortium)
         gene_id = stamp.phenotype_attempt.mi_plan.gene_id
         status = stamp.phenotype_attempt.status.name
         marker_symbol = stamp.phenotype_attempt.mi_plan.gene.marker_symbol
 
         tstatus = stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.name
-        #raise tstatus.inspect
-
-##<PhenotypeAttempt id: 1,
-#mi_attempt_id: 4524,
-#status_id: 2, is_active: true,
-#rederivation_started: false,
-#rederivation_complete: false,
-#number_of_cre_matings_started: 0,
-#number_of_cre_matings_successful: 0,
-#phenotyping_started: false,
-#phenotyping_complete: false,
-#created_at: "2012-01-31 12:50:49",
-#updated_at: "2012-01-31 12:50:49",
-#mi_plan_id: 4854,
-#colony_name: "UCD-10032B-A9-2-1">
 
         details_hash = {
           :symbol => marker_symbol,

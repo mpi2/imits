@@ -65,18 +65,19 @@ class MiPlan < ApplicationModel
   # END Callbacks
 
   def latest_relevant_mi_attempt
+    @@status_sort_order ||= {
+      MiAttemptStatus.micro_injection_aborted => 1,
+      MiAttemptStatus.micro_injection_in_progress => 2,
+      MiAttemptStatus.genotype_confirmed => 3
+    }
     ordered_mis = mi_attempts.all.sort do |mi1, mi2|
-      [mi2.mi_attempt_status, mi2.in_progress_date] <=> [mi1.mi_attempt_status, mi1.in_progress_date]
+      [@@status_sort_order[mi1.mi_attempt_status], mi1.in_progress_date] <=>
+              [@@status_sort_order[mi2.mi_attempt_status], mi2.in_progress_date]
     end
     if ordered_mis.empty?
       return nil
-    elsif !ordered_mis.first.is_active?
-      return ordered_mis.first
     else
-      latest_mi_date = ordered_mis.first.in_progress_date
-      return_candidates = ordered_mis.find_all {|mi| mi.is_active? and mi.in_progress_date == latest_mi_date}
-      return_candidates = return_candidates.sort_by {|mi| [mi.in_progress_date, mi.status_stamps.last.created_at]}
-      return return_candidates.last
+      return ordered_mis.last
     end
   end
 

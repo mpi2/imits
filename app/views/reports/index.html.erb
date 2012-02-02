@@ -41,19 +41,26 @@
 </div>
 
 <div class="grid_4">
+  <h3>Detailed Status Date Report</h3>
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :detail) %>">
+        <h4>Gene-by-gene Status Change Dates for All IMPC Consortia</h4>
+      </a>
+    </div>
+
   <h3>KOMP2 Production Reports</h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp23) %>">
         <h4>Production for KOMP2 Consortia</h4>
       </a>
     </div>
-    
+
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity) %>">
-      <h4>KOMP2 Month-by-month activity <em>prototype</em></h4>
-      </a>
+      <!-- <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity) %>"> -->
+      <h4>KOMP2 Month-by-month activity - <em>Coming soon</em></h4>
+      <!-- </a> -->
     </div>
-  
+
   <h3>IMPC Production Reports</h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium_and_accumulated_status) %>">
@@ -66,9 +73,9 @@
         <h4>Production for IMPC Consortia</h4>
       </a>
     </div>
-    
+
     <div class="report-links">
-      <h4><em>IMPC Month-by-month activity - Coming soon</em></h4>
+      <h4>IMPC Month-by-month activity<em> - Coming soon</em></h4>
     </div>
 </div>
 

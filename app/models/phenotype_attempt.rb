@@ -10,19 +10,20 @@ class PhenotypeAttempt < ApplicationModel
   belongs_to :status
   has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
-  validate :mi_attempt do |myself|
-    if myself.mi_attempt and myself.mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
-      myself.errors.add(:mi_attempt, "status must be genotype confirmed (is currently '#{myself.mi_attempt.mi_attempt_status.description}')")
+  validate :mi_attempt do |me|
+    if me.mi_attempt and me.mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
+      me.errors.add(:mi_attempt, "status must be genotype confirmed (is currently '#{me.mi_attempt.mi_attempt_status.description}')")
     end
   end
 
   validate :mi_plan do |me|
-    if me.mi_attempt.gene != me.mi_plan.gene
+    if me.mi_attempt and me.mi_plan and me.mi_attempt.gene != me.mi_plan.gene
       me.errors.add(:mi_plan, 'must have same gene as mi_attempt')
     end
   end
 
   # BEGIN Callbacks
+
   before_validation :change_status
   before_validation :set_mi_plan
   before_save :record_if_status_was_changed

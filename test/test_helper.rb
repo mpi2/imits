@@ -36,7 +36,6 @@ class ActiveSupport::TestCase
   def setup
     DatabaseCleaner.strategy = self.database_strategy
     DatabaseCleaner.start
-    load Rails.root + 'db/seeds.rb'
     Test::Person.destroy_all
   end
 

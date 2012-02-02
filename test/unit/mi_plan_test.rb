@@ -40,7 +40,7 @@ class MiPlanTest < ActiveSupport::TestCase
         def gc; MiAttemptStatus.genotype_confirmed.description; end
         def abrt; MiAttemptStatus.micro_injection_aborted.description; end
 
-        should 'get latest active MI if one exists' do
+        should 'get active MI with latest in_progress_date if active one exists' do
           cbx1 = Factory.create :gene_cbx1
           inactive_mi = Factory.create :mi_attempt,
                   :colony_name => 'A',
@@ -92,44 +92,7 @@ class MiPlanTest < ActiveSupport::TestCase
           assert older_mi_1.id < latest_mi.id, 'This is needed to test part of the association'
           assert_equal inactive_mi.mi_plan, latest_mi.mi_plan
           assert_equal latest_mi.mi_plan, older_mi_1.mi_plan
-          assert_equal latest_mi.colony_name, mi_plan.latest_relevant_mi_attempt.colony_name
-        end
-
-        should 'get latest active MI with latest status stamp if more than one exist with latest MI date' do
-          cbx1 = Factory.create :gene_cbx1
-          inactive_mi = Factory.create :mi_attempt,
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :is_active => false
-          replace_status_stamps(inactive_mi,
-            ip => '2011-05-05 00:00 UTC',
-            abrt => '2011-06-05 00:00 UTC'
-          )
-
-          latest_mi = Factory.create :mi_attempt_genotype_confirmed,
-                  :colony_name => 'C',
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :is_active => true
-          replace_status_stamps(latest_mi,
-            ip => '2011-05-05 00:00 UTC',
-            gc => '2011-07-05 00:00 UTC'
-          )
-
-          older_mi_1 = Factory.create :mi_attempt_genotype_confirmed,
-                  :colony_name => 'B',
-                  :consortium_name => 'BaSH',
-                  :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                  :is_active => true
-          replace_status_stamps(older_mi_1,
-            ip => '2011-05-05 00:00 UTC',
-            gc => '2011-06-05 00:00 UTC'
-          )
-
-          mi_plan = latest_mi.mi_plan
+          mi_plan.reload
           assert_equal latest_mi.colony_name, mi_plan.latest_relevant_mi_attempt.colony_name
         end
 
@@ -211,7 +174,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :es_cell => Factory.create(:es_cell, :gene => cbx1),
                   :is_active => true
           replace_status_stamps(older_mi_1,
-            ip => '2011-05-05 00:00 UTC',
+            ip => '2011-04-05 00:00 UTC',
             gc => '2011-06-05 00:00 UTC'
           )
 

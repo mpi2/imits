@@ -15,6 +15,15 @@ class Reports::MiProductionControllerTest < ActionController::TestCase
       end
     end
 
+    context 'GET languishing' do
+      should 'not have HTML in csv report' do
+        Factory.create(:mi_plan, :consortium => Consortium.find_by_name!('BaSH'))
+        Reports::MiProduction::Intermediate.generate_and_cache
+        sign_in default_user
+        get :languishing, :format => :csv
+        assert ! /<div/.match(response.body)
+      end
+    end
 
   end
 end

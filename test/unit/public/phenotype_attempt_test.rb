@@ -141,7 +141,6 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
           :consortium_name => 'DTCC')
         pt.valid?
         assert_match /cannot be found with supplied parameters/i, pt.errors['mi_plan'].first
-
       end
 
       should 'set MiPlan to Assigned status if not assigned already' do

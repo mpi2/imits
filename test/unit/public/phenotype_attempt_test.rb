@@ -194,6 +194,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
     should 'have defined attributes in JSON output' do
       expected = [
         'id',
+        'status_name',
         'consortium_name',
         'production_centre_name',
         'mi_attempt_colony_name',
@@ -212,6 +213,15 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
     context '#as_json' do
       should 'take nil as param' do
         assert_nothing_raised { default_phenotype_attempt.as_json(nil) }
+      end
+    end
+
+    context '#status_name' do
+      should 'be the status name' do
+        default_phenotype_attempt.number_of_cre_matings_started = 4
+        default_phenotype_attempt.valid?
+        assert_equal 'Cre Excision Started', default_phenotype_attempt.status.name
+        assert_equal 'Cre Excision Started', default_phenotype_attempt.status_name
       end
     end
 

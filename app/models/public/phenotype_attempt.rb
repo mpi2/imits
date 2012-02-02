@@ -18,7 +18,8 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   ]
 
   READABLE_ATTRIBUTES = [
-    'id'
+    'id',
+    'status_name'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)
@@ -74,6 +75,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     return super(options)
   end
 
+  def status_name; status.name; end
 end
 
 # == Schema Information

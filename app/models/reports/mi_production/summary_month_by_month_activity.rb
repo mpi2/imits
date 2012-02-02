@@ -69,7 +69,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     script_name = params[:script_name]
 
-    report_table = Table(HEADINGS_CLEAN)
+    report_table = Table(HEADINGS)
 
     make_clean = lambda do |value|
       return value if params[:format] == :csv && ! CSV_BLANKS
@@ -313,9 +313,27 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         status = stamp.phenotype_attempt.status.name
         marker_symbol = stamp.phenotype_attempt.mi_plan.gene.marker_symbol
 
+        tstatus = stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.name
+        #raise tstatus.inspect
+
+##<PhenotypeAttempt id: 1,
+#mi_attempt_id: 4524,
+#status_id: 2, is_active: true,
+#rederivation_started: false,
+#rederivation_complete: false,
+#number_of_cre_matings_started: 0,
+#number_of_cre_matings_successful: 0,
+#phenotyping_started: false,
+#phenotyping_complete: false,
+#created_at: "2012-01-31 12:50:49",
+#updated_at: "2012-01-31 12:50:49",
+#mi_plan_id: 4854,
+#colony_name: "UCD-10032B-A9-2-1">
+
         details_hash = {
           :symbol => marker_symbol,
-          :status => status,
+          :status => tstatus,
+          #:status => stamp.phenotype_attempt.reportable_statuses_with_latest_dates,
           :date => stamp.created_at
         }
 

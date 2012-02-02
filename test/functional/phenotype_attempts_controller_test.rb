@@ -49,6 +49,26 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
         end
       end
 
+      context 'PUT update' do
+        should 'work for JSON' do
+          pt = Factory.create(:phenotype_attempt).to_public
+          assert pt.is_active?
+          put :update, :id => pt.id, :phenotype_attempt => {:is_active => false},
+                  :format => :json
+          assert_response :success
+
+          pt.reload; assert_equal false, pt.is_active?
+        end
+
+        should 'fail properly for JSON' do
+          pt = Factory.create(:phenotype_attempt).to_public
+          assert pt.is_active?
+          put :update, :id => pt.id, :phenotype_attempt => {:consortium_name => 'Nonexistent'},
+                  :format => :json
+          assert_response 422
+        end
+      end
+
     end # when authenticated
 
   end

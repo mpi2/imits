@@ -16,7 +16,14 @@ class PhenotypeAttemptsController < ApplicationController
     respond_with phenotype_attempt
   end
 
+  def update
+    phenotype_attempt = Public::PhenotypeAttempt.find_by_id(params[:id])
+    phenotype_attempt.update_attributes(params[:phenotype_attempt])
+    respond_with phenotype_attempt
+  end
+
   protected
+
   def public_phenotype_attempt_url(id)
     mi_plan_url(id)
   end

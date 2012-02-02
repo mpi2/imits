@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-# TODO: use proper names in summary hashes
 # TODO: what about empty centres?
 # TODO: better rowspanning
 # TODO: iterator for test data
@@ -50,7 +49,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     if params[:consortium]
       title, table = subsummary(params)
-      return { :csv => table.to_csv, :html => table.to_html, :title => title }
+      return { :csv => table.to_csv, :html => table.to_html, :title => title,
+        :table => table # for test
+      }
     end
     
     summary = get_summary(params)
@@ -59,7 +60,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     
     title = params[:komp2] ? 'KOMP2 Summary Month by Month' : 'All Consortia Summary Month by Month'
 
-    return { :csv => table.to_csv, :html => html_string, :title => title }
+    return { :csv => table.to_csv, :html => html_string, :title => title,
+      :table => table # for test
+    }
   end
 
   def self.prettify(params, summary)
@@ -164,7 +167,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     year = params[:year]
     month = params[:month]
 
-  #  params[:script_name] = nil
+    #params[:script_name] = nil
 
     summary = get_summary(params)
     
@@ -256,7 +259,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         details_hash = {
           :symbol => marker_symbol,
           :status => stamp.mi_attempt.mi_plan.latest_relevant_mi_attempt.mi_attempt_status.description,
-          :date => stamp.created_at
+          :date => stamp.mi_attempt.mi_plan.latest_relevant_mi_attempt.mi_attempt_status.created_at
         }
           
         if(status == 'Micro-injection in progress')
@@ -300,13 +303,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         status = stamp.phenotype_attempt.status.name
         marker_symbol = stamp.phenotype_attempt.mi_plan.gene.marker_symbol
 
-        tstatus = stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.name
-
         details_hash = {
           :symbol => marker_symbol,
-          :status => tstatus,
-          #:status => stamp.phenotype_attempt.reportable_statuses_with_latest_dates,
-          :date => stamp.created_at
+          :status => stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.name,
+          :date => stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.created_at
         }
 
         if status == 'Phenotype Attempt Aborted'
@@ -316,34 +316,42 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         if status == 'Phenotyping Complete'
           summary[year][month][consortium][pcentre]['Phenotyping Complete'][gene_id] = details_hash
         end
+        
+        phenotyping_started = [ 'Phenotyping Started', 'Phenotyping Complete' ]
     
-        if status == 'Phenotyping Started' || status == 'Phenotyping Complete'
+        if phenotyping_started.include?(status)
           summary[year][month][consortium][pcentre]['Phenotyping Started'][gene_id] = details_hash
         end
     
-        if status == 'Cre Excision Complete' || status == 'Phenotyping Started' || status == 'Phenotyping Complete'
+        cre_excision_complete = phenotyping_started + [ 'Cre Excision Complete' ]
+
+        if cre_excision_complete.include?(status)
           summary[year][month][consortium][pcentre]['Cre Excision Complete'][gene_id] = details_hash
         end
+        
+        cre_excision_started = cre_excision_complete + [ 'Cre Excision Started' ]
     
-        if status == 'Cre Excision Started' || status == 'Cre Excision Complete' || status == 'Phenotyping Started' || status == 'Phenotyping Complete'
+        if cre_excision_started.include?(status)
           summary[year][month][consortium][pcentre]['Cre Excision Started'][gene_id] = details_hash
         end
+        
+        rederivation_started = cre_excision_started + [ 'Rederivation Started' ]
     
-        if status == 'Rederivation Started' || status == 'Rederivation Complete' || status == 'Cre Excision Started' || status == 'Cre Excision Complete' ||
-            status == 'Phenotyping Started' || status == 'Phenotyping Complete'
+        if rederivation_started.include?(status)
           summary[year][month][consortium][pcentre]['Rederivation Started'][gene_id] = details_hash
           #TODO: check
         end
+
+        rederivation_complete = rederivation_started + [ 'Rederivation Complete' ]
     
-        if status == 'Rederivation Complete' || status == 'Cre Excision Started' || status == 'Cre Excision Complete' ||
-            status == 'Phenotyping Started' || status == 'Phenotyping Complete'
+        if rederivation_complete.include?(status)
           summary[year][month][consortium][pcentre]['Rederivation Complete'][gene_id] = details_hash
           #TODO: check
         end
+
+        phenotype_attempt_registered = rederivation_complete + [ 'Phenotype Attempt Registered' ]
     
-        if status == 'Phenotype Attempt Registered' || status == 'Cre Excision Started' || status == 'Cre Excision Complete' || status == 'Phenotyping Started' || status == 'Phenotyping Complete' ||
-            status == 'Rederivation Started' || status == 'Rederivation Complete' ||
-            status == 'Phenotype Attempt Aborted'
+        if phenotype_attempt_registered.include?(status)
           summary[year][month][consortium][pcentre]['Phenotype Attempt Registered'][gene_id] = details_hash
         end
 

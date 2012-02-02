@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 class Public::PhenotypeAttempt < ::PhenotypeAttempt
-  Status = ::PhenotypeAttempt::Status
 
   extend AccessAssociationByAttribute
 

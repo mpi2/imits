@@ -122,21 +122,22 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_month_by_month_activity
-    #params ||= {}
     params[:format] = request.format
-    params[:komp2] = true
+   # params[:komp2] = true
     params[:script_name] = request.env['REQUEST_URI']
     @report_renderer = Reports::MiProduction::SummaryMonthByMonthActivity.generate(params)
+    @title2 = @report_renderer[:title]
     send_data_csv('summary_month_by_month_activity.csv', @report_renderer[:csv]) if request.format == :csv
   end
 
-  def summary_month_by_month_activity_all
-    #params ||= {}
-    params[:format] = request.format
-    params[:komp2] = false
-    params[:script_name] = request.env['REQUEST_URI']
-    @report_renderer = Reports::MiProduction::SummaryMonthByMonthActivity.generate(params)
-    send_data_csv('summary_month_by_month_activity_all.csv', @report_renderer[:csv]) if request.format == :csv
-  end
+  #def summary_month_by_month_activity_all
+  #  #params ||= {}
+  #  params[:format] = request.format
+  #  params[:komp2] = false
+  #  params[:script_name] = request.env['REQUEST_URI']
+  #  @report_renderer = Reports::MiProduction::SummaryMonthByMonthActivity.generate(params)
+  #  @title2 = @report_renderer[:title]
+  #  send_data_csv('summary_month_by_month_activity_all.csv', @report_renderer[:csv]) if request.format == :csv
+  #end
 
 end

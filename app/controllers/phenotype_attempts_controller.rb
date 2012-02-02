@@ -11,4 +11,14 @@ class PhenotypeAttemptsController < ApplicationController
     respond_with phenotype_attempt
   end
 
+  def create
+    phenotype_attempt = Public::PhenotypeAttempt.create(params[:phenotype_attempt])
+    respond_with phenotype_attempt
+  end
+
+  protected
+  def public_phenotype_attempt_url(id)
+    mi_plan_url(id)
+  end
+
 end

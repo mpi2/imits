@@ -22,7 +22,34 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
           assert_equal pt.to_json, response.body
         end
       end
-    end
+
+      context 'POST create' do
+        should 'work for JSON' do
+          assert_equal 0, PhenotypeAttempt.count
+          mi = Factory.create :mi_attempt_genotype_confirmed
+
+          attributes = {
+            :mi_attempt_colony_name => mi.colony_name
+          }
+          post :create, :phenotype_attempt => attributes, :format => :json
+          assert_response :success, response.body
+
+          pt = PhenotypeAttempt.first.to_public
+          assert_equal pt.to_json, response.body
+        end
+
+        should 'fail properly for JSON' do
+          mi = Factory.create :mi_attempt
+
+          attributes = {
+            :mi_attempt_colony_name => mi.colony_name
+          }
+          post :create, :phenotype_attempt => attributes, :format => :json
+          assert_response 422, response.body
+        end
+      end
+
+    end # when authenticated
 
   end
 end

@@ -1,0 +1,124 @@
+---
+1:
+  id: 1
+  name: BALB/c
+2:
+  id: 2
+  name: BALB/cAm
+3:
+  id: 3
+  name: BALB/cAnNCrl
+4:
+  id: 4
+  name: BALB/cJ
+5:
+  id: 5
+  name: BALB/cN
+6:
+  id: 6
+  name: BALB/cWtsi;C57BL/6J-Tyr<c-Brd>
+7:
+  id: 7
+  name: C3HxBALB/c
+8:
+  id: 8
+  name: C57BL/6J
+9:
+  id: 9
+  name: C57BL/6J Albino
+10:
+  id: 10
+  name: C57BL/6J-A<W-J>/J
+11:
+  id: 11
+  name: C57BL/6J-Tyr<c-2J>
+12:
+  id: 12
+  name: C57BL/6J-Tyr<c-2J>/J
+13:
+  id: 13
+  name: C57BL/6J-Tyr<c-Brd>
+14:
+  id: 14
+  name: C57BL/6J-Tyr<c-Brd>;C57BL/6JIco
+15:
+  id: 15
+  name: C57BL/6J-Tyr<c-Brd>;C57BL/6N
+16:
+  id: 16
+  name: C57BL/6J-Tyr<c-Brd>;Stock
+17:
+  id: 17
+  name: C57BL/6JcBrd/cBrd
+18:
+  id: 18
+  name: C57BL/6N
+19:
+  id: 19
+  name: C57BL/6NCrl
+20:
+  id: 20
+  name: C57BL6/NCrl
+21:
+  id: 21
+  name: C57Bl/6J Albino
+22:
+  id: 22
+  name: CD1
+23:
+  id: 23
+  name: FVB
+24:
+  id: 24
+  name: Stock
+25:
+  id: 25
+  name: Swiss Webster
+26:
+  id: 26
+  name: b
+27:
+  id: 27
+  name: 129P2
+28:
+  id: 28
+  name: 129P2/OlaHsd
+29:
+  id: 29
+  name: 129S5/SvEvBrd/Wtsi
+30:
+  id: 30
+  name: 129S5/SvEvBrd/Wtsi or C57BL/6J-Tyr<c-Brd>
+31:
+  id: 31
+  name: C57BL/6J-Tyr<c-Brd> or C57BL/6NTac/Den
+32:
+  id: 32
+  name: C57BL/6J-Tyr<c-Brd> or C57BL/6NTac/Den or CBA/Wtsi
+33:
+  id: 33
+  name: C57BL/6J-Tyr<c-Brd> or C57BL/6NTac/USA
+34:
+  id: 34
+  name: C57BL/6JIco
+35:
+  id: 35
+  name: C57BL/6NTac
+36:
+  id: 36
+  name: C57BL/6NTac/Den
+37:
+  id: 37
+  name: C57BL/6NTac/Den or C57BL/6NTac/USA
+38:
+  id: 38
+  name: C57BL/6NTac/USA
+39:
+  id: 39
+  name: C57BL/6JIco;C57BL/6J-Tyr<c-Brd>
+40:
+  id: 40
+  name: Delete once confirmed its use
+41:
+  id: 41
+  name: c

@@ -1,9 +1,9 @@
 # encoding: utf-8
 
-class Reports::MiProduction::SummaryKomp23
+class Reports::MiProduction::SummaryKomp23 
 
   extend Reports::MiProduction::SummariesCommon
-
+  
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'KOMP2 Report 3'
@@ -488,6 +488,30 @@ class Reports::MiProduction::SummaryKomp23
     
     array.push '</table>'
     return array.join("\n")
+  end
+  
+  def self.generate_and_cache
+    cache = ReportCache.find_by_name('komp2_production_html_summary')
+    title, csv_data = self.generate
+    if cache
+      cache.csv_data = csv_data
+      cache.save!
+    else
+      ReportCache.create!(
+        :name => 'komp2_production_html_summary',
+        :csv_data => csv_data
+      )
+    end
+    #cache = ReportCache.find_by_name('komp2_production_csv_summary')
+    #if cache
+    #  cache.csv_data = self.generate
+    #  cache.save!
+    #else
+    #  ReportCache.create!(
+    #    :name => 'komp2_production_csv_summary',
+    #    :csv_data => #have to put the csv report in here
+    #  )
+    #end
   end
   
 end

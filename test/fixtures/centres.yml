@@ -1,0 +1,55 @@
+---
+1:
+  id: 1
+  name: WTSI
+2:
+  id: 2
+  name: ICS
+3:
+  id: 3
+  name: MRC - Harwell
+4:
+  id: 4
+  name: Monterotondo
+5:
+  id: 5
+  name: UCD
+6:
+  id: 6
+  name: HMGU
+7:
+  id: 7
+  name: CNB
+8:
+  id: 8
+  name: APN
+9:
+  id: 9
+  name: BCM
+10:
+  id: 10
+  name: Oulu
+11:
+  id: 11
+  name: TCP
+12:
+  id: 12
+  name: RIKEN BRC
+13:
+  id: 13
+  name: DTCC
+14:
+  id: 14
+  name: JAX
+15:
+  id: 15
+  name: MARC
+16:
+  id: 16
+  name: VETMEDUNI
+17:
+  id: 17
+  name: IMG
+18:
+  id: 18
+  name: CNRS

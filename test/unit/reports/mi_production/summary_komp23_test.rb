@@ -55,8 +55,7 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
       }
 
       report.column_names.each do |column_name|
-        puts "expected: KEY: '#{column_name}' - VALUE: '#{report.column(column_name)[0]}'" if DEBUG
-        assert_equal expected[column_name], report.column(column_name)[0]
+        assert_equal expected[column_name], report.column(column_name)[0], "for '#{column_name}'"
       end
       
       assert report.to_s.length > 0

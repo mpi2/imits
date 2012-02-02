@@ -1,0 +1,10 @@
+---
+1:
+  description: Micro-injection in progress
+  id: 1
+2:
+  description: Genotype confirmed
+  id: 2
+3:
+  description: Micro-injection aborted
+  id: 3

@@ -271,3 +271,9 @@ MiPlan.class_eval do
     return Public::MiPlan.find(self.id)
   end
 end
+
+MiAttempt.class_eval do
+  def to_public
+    return Public::MiAttempt.find(self.id)
+  end
+end

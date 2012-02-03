@@ -26,10 +26,4 @@ class PhenotypeAttemptsController < ApplicationController
     render :json => data_for_serialized(:json, 'id', PhenotypeAttempt, :public_search)
   end
 
-  protected
-
-  def public_phenotype_attempt_url(id)
-    mi_plan_url(id)
-  end
-
 end

@@ -76,6 +76,14 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   end
 
   def status_name; status.name; end
+
+  def self.translations
+    return {
+      'marker_symbol' => 'mi_plan_gene_marker_symbol',
+      'consortium' => 'mi_plan_consortium',
+      'production_centre' => 'mi_plan_production_centre'
+    }
+  end
 end
 
 # == Schema Information

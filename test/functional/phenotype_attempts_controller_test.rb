@@ -69,6 +69,55 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
         end
       end
 
+      context 'GET index' do
+        should 'allow filtering with Ransack' do
+          pt = Factory.create :phenotype_attempt, :number_of_cre_matings_started => 4,
+                  :colony_name => 'A'
+          Factory.create :phenotype_attempt, :number_of_cre_matings_started => 3,
+                  :colony_name => 'B'
+
+          get :index, :number_of_cre_matings_started_gt => 3, :format => :json
+          assert response.success?
+          assert_equal ['A'], JSON.parse(response.body).map {|i| i['colony_name'] }
+        end
+
+        should 'allow sorting' do
+          Factory.create :phenotype_attempt, :colony_name => 'C'
+          Factory.create :phenotype_attempt, :colony_name => 'A'
+          Factory.create :phenotype_attempt, :colony_name => 'B'
+          get :index, :format => :json, :sorts => 'colony_name asc'
+          assert_equal ['A', 'B', 'C'], JSON.parse(response.body).map{|i| i['colony_name']}
+        end
+
+        should 'translate search params' do
+          cbx1 = Factory.create :gene_cbx1
+          trafd1 = Factory.create :gene_trafd1
+          Factory.create :phenotype_attempt, :colony_name => 'Cbx1_A',
+                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => cbx1))
+          Factory.create :phenotype_attempt, :colony_name => 'Cbx1_B',
+                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => cbx1))
+          Factory.create :phenotype_attempt, :colony_name => 'Trafd1_A',
+                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => trafd1))
+          get :index, :format => :json, :marker_symbol_eq => 'Cbx1'
+          assert_equal ['Cbx1_A', 'Cbx1_B'], JSON.parse(response.body).map{|i| i['colony_name']}
+        end
+
+        should 'translate sort param'
+
+        should 'allow paginating' do
+          ('A'..'F').map { |i| Factory.create :phenotype_attempt, :colony_name => i }
+          get :index, 'format' => 'json', :per_page => 3, :page => 2
+          assert_equal ['D', 'E', 'F'], JSON.parse(response.body).map{|i| i['colony_name']}
+        end
+
+        should 'paginate by 20 by default' do
+          30.times { Factory.create :phenotype_attempt }
+          get :index, 'format' => 'json'
+          assert_equal 20, JSON.parse(response.body).size
+        end
+
+      end
+
     end # when authenticated
 
   end

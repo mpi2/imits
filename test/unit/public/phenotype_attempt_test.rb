@@ -225,5 +225,42 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '::translate_public_param' do
+      should 'translate marker_symbol for search' do
+        assert_equal 'mi_plan_gene_marker_symbol_eq',
+                Public::PhenotypeAttempt.translate_public_param('marker_symbol_eq')
+      end
+
+      should 'translate consortium_name for search' do
+        assert_equal 'mi_plan_consortium_name_in',
+                Public::PhenotypeAttempt.translate_public_param('consortium_name_in')
+      end
+
+      should 'translate production_centre_name for search' do
+        assert_equal 'mi_plan_production_centre_in',
+                Public::PhenotypeAttempt.translate_public_param('production_centre_in')
+      end
+
+      should_eventually 'translate sort params when we have any associated fields that can be searched on (thanks, Ransack)'
+
+      should 'leave other params untouched' do
+        assert_equal 'phenotyping_started_eq',
+                Public::PhenotypeAttempt.translate_public_param('phenotyping_started_eq')
+        assert_equal 'number_of_cre_matings_started asc',
+                Public::PhenotypeAttempt.translate_public_param('number_of_cre_matings_started asc')
+      end
+    end
+
+    context '::public_search' do
+      should 'not need to pass "sorts" parameter' do
+        assert Public::PhenotypeAttempt.public_search(:consortium_name_eq => default_phenotype_attempt.mi_plan.consortium.name, :sorts => nil).result
+      end
+
+      should 'translate searching predicates' do
+        result = Public::PhenotypeAttempt.public_search(:marker_symbol_eq => default_phenotype_attempt.gene.marker_symbol).result
+        assert_equal [default_phenotype_attempt], result
+      end
+    end
+
   end
 end

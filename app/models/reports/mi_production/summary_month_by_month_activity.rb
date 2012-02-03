@@ -3,6 +3,7 @@
 # TODO: what about empty centres?
 # TODO: better rowspanning
 # TODO: iterator for test data
+# TODO: add details flag
 
 class Reports::MiProduction::SummaryMonthByMonthActivity
   
@@ -45,7 +46,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   ]
   
   def self.generate(params)
-    summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
 
     if params[:consortium]
       title, table = subsummary(params)
@@ -166,8 +166,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     pcentre = params[:pcentre]
     year = params[:year]
     month = params[:month]
-
-    #params[:script_name] = nil
 
     summary = get_summary(params)
     
@@ -364,4 +362,71 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     return summary
   end
 
+  #class String
+  #  def each_word
+  #    self.split.each { |word| yield word }
+  #  end
+  #end
+  
+  #class PlanIterator
+  #  def self.get_plans_summary(summary = nil)
+  #    summary = summary ? summary : Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
+  #
+  #    MiPlan::StatusStamp.all.each do |stamp|
+  #    
+  #      next if consortia && stamp.created_at < CUT_OFF_DATE
+  #    
+  #      year = stamp.created_at.year
+  #      month = stamp.created_at.month
+  #      day = stamp.created_at.month
+  #      consortium = stamp.mi_plan.consortium.name
+  #      pcentre = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : ''
+  #      pcentre = 'UNKNOWN' if pcentre.blank? || pcentre.to_s.length < 1
+  #      next if consortia && ! consortia.include?(consortium)
+  #      gene_id = stamp.mi_plan.gene_id
+  #      status = stamp.status.name
+  #      marker_symbol = stamp.mi_plan.gene.marker_symbol
+  #    
+  #      details_hash = { :symbol => marker_symbol, :status => status, :date => stamp.created_at }
+  #
+  #      if(status == 'Assigned - ES Cell QC In Progress')
+  #        summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
+  #      end
+  #  
+  #      if(status == 'Assigned - ES Cell QC Complete')
+  #        summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
+  #        summary[year][month][consortium][pcentre]['ES Cell QC Complete'][gene_id] = details_hash
+  #      end
+  #  
+  #      if(status == 'Aborted - ES Cell QC Failed')
+  #        summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
+  #        summary[year][month][consortium][pcentre]['ES Cell QC Failed'][gene_id] = details_hash
+  #      end
+  #             
+  #    end
+  #  end
+  #  return summary
+  #end
+  #
+  #def self.each_plan
+  #  MiPlan::StatusStamp.all.each do |stamp|
+  #            
+  #    hash = {}
+  #    
+  #    hash[:year] = stamp.created_at.year
+  #    hash[:month] = stamp.created_at.month
+  #    hash[:day] = stamp.created_at.day
+  #    hash[:consortium] = stamp.mi_plan.consortium.name
+  #    hash[:pcentre] = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : 'UNKNOWN'
+  #    
+  #    gene_id = stamp.mi_plan.gene_id
+  #    hash[:status] = stamp.status.name
+  #    hash[:marker_symbol] = stamp.mi_plan.gene.marker_symbol
+  #    hash[:created_at] = stamp.created_at
+  #              
+  #    yield hash
+  #             
+  #  end
+  #end
+  #
 end

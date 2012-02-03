@@ -12,7 +12,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
     should 'limit the public mass-assignment API' do
       expected = [
       ]
-      got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
+      got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
     end
 
@@ -20,13 +20,13 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       expected = [
         'id',
       ]
-      got = default_mi_plan.as_json.keys
+      got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort
     end
 
     context '#as_json' do
       should 'take nil as param' do
-        assert_nothing_raised { default_mi_plan.as_json(nil) }
+        assert_nothing_raised { default_mi_attempt.as_json(nil) }
       end
     end
 

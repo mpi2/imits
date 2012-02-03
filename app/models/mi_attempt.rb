@@ -39,14 +39,6 @@ class MiAttempt < ApplicationModel
     'e' => 'e - Targeted Non-Conditional'
   }.freeze
 
-  PRIVATE_ATTRIBUTES = [
-    'created_at', 'updated_at', 'updated_by', 'updated_by_id',
-    'mi_attempt_status', 'mi_attempt_status_id',
-    'es_cell', 'es_cell_id', 'mi_plan_id', 'mi_plan'
-  ]
-
-  attr_protected *PRIVATE_ATTRIBUTES
-
   belongs_to :mi_plan
   belongs_to :es_cell
   belongs_to :mi_attempt_status

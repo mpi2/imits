@@ -1,5 +1,7 @@
 class Public::MiAttempt < ::MiAttempt
 
+  include Public::Serializable
+
   FULL_ACCESS_ATTRIBUTES = [
   ]
 

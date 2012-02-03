@@ -3,6 +3,7 @@
 class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   extend AccessAssociationByAttribute
+  include Public::Serializable
 
   FULL_ACCESS_ATTRIBUTES = [
     'consortium_name',
@@ -65,15 +66,6 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   # END Callbacks
 
   attr_accessor :consortium_name, :production_centre_name
-
-  def as_json(options = {})
-    options ||= {}
-    options.symbolize_keys!
-
-    options[:methods] = READABLE_ATTRIBUTES
-    options[:only] = options[:methods]
-    return super(options)
-  end
 
   def status_name; status.name; end
 

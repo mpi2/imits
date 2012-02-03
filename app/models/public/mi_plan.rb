@@ -2,6 +2,7 @@
 
 class Public::MiPlan < ::MiPlan
   extend AccessAssociationByAttribute
+  include Public::Serializable
 
   FULL_ACCESS_ATTRIBUTES = [
     'marker_symbol',
@@ -64,20 +65,12 @@ class Public::MiPlan < ::MiPlan
     end
   end
 
-  def as_json(options = {})
-    options ||= {}
-    options.symbolize_keys!
-
-    options[:methods] = READABLE_ATTRIBUTES
-    options[:only] = options[:methods]
-    return super(options)
-  end
-
   def self.translations
     return {
       'marker_symbol' => 'gene_marker_symbol'
     }
   end
+
 end
 
 # == Schema Information

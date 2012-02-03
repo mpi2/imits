@@ -7,11 +7,15 @@ class TestDummyTest < ActiveSupport::TestCase
       should 'set up associations' do
         Factory.create :gene_cbx1
         expected = [
-          'Assigned'
+          'Assigned',
+          'DTCC',
+          'UCD'
         ]
-        plan = TestDummy.create(:mi_plan, expected)
+        plan = TestDummy.create(:mi_plan, *expected)
         got = [
-          plan.status.name
+          plan.status.name,
+          plan.consortium.name,
+          plan.production_centre.name
         ]
         assert_equal expected, got
       end
@@ -21,7 +25,7 @@ class TestDummyTest < ActiveSupport::TestCase
         expected = [
           'Cbx1'
         ]
-        plan = TestDummy.create(:mi_plan, expected)
+        plan = TestDummy.create(:mi_plan, *expected)
         got = [
           plan.gene.marker_symbol
         ]
@@ -40,6 +44,14 @@ class TestDummyTest < ActiveSupport::TestCase
         assert_raise_kind_of(TestDummy::Error) do
           TestDummy.create(:mi_plan, 'NonexistentGene')
         end
+      end
+    end
+
+    context '::mi_plan' do
+      should 'be same as create(:mi_plan)' do
+        expected = ['BaSH', 'WTSI']
+        plan = TestDummy.mi_plan(*expected)
+        assert_equal expected, [plan.consortium.name, plan.production_centre.name]
       end
     end
 

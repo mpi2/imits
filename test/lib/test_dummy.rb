@@ -7,6 +7,10 @@ class TestDummy
     return self.new(type, *values).object
   end
 
+  def self.mi_plan(*values)
+    return create(:mi_plan, *values)
+  end
+
   def initialize(type, *values)
     if values.last.kind_of?(Hash)
       hashvalues = values.pop.symbolize_keys
@@ -29,7 +33,9 @@ class TestDummy
 
   ASSOCIATIONS = [
     :status,
-    :gene
+    :gene,
+    :consortium,
+    :production_centre
   ]
 
   def get_attr_and_associated(value)
@@ -49,7 +55,7 @@ class TestDummy
   def find_associated_by_value(association_class, value)
     attr_to_search = case association_class.name
     when 'Gene' then :marker_symbol
-    else           :name
+    else             :name
     end
     return association_class.send("find_by_#{attr_to_search}", value)
   end

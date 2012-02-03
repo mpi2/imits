@@ -43,15 +43,15 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
         "Genotype confirmed mice"=>1,
         "Microinjection aborted"=>1,
         "Gene Pipeline efficiency (%)"=>"100",
-        "Clone Pipeline efficiency (%)"=>"",
+        "Clone Pipeline efficiency (%)"=>"20",
         "Registered for phenotyping"=>1,
         "Rederivation started"=>1,
         "Rederivation completed"=>1,
-        "Cre excision started"=>1,
-        "Cre excision completed"=>"",
-        "Phenotyping started"=>"",
-        "Phenotyping completed"=>"",
-        "Phenotyping aborted"=>""
+        "Cre excision started"=>3,
+        "Cre excision completed"=>2,
+        "Phenotyping started"=>1,
+        "Phenotyping completed"=>1,
+        "Phenotyping aborted"=>1
       }
 
       report.column_names.each do |column_name|

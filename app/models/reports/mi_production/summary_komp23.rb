@@ -8,7 +8,7 @@ class Reports::MiProduction::SummaryKomp23
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'KOMP2 Report 3'  
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
-
+  
   DEBUG_HEADINGS = [
     'Genotype confirmed mice 6 months',
     'Microinjection aborted 6 months',
@@ -40,20 +40,20 @@ class Reports::MiProduction::SummaryKomp23
     'Clone Pipeline efficiency (%)'
   ] + DEBUG_HEADINGS
   
-  def self.efficiency_6months(request, row)
+  def self.efficiency_6months(params, row)
     glt = row['Genotype confirmed mice 6 months'].to_i
     failures = row['Languishing'].to_i + row['Microinjection aborted 6 months'].to_i
     total = glt + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
-    pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
+    pc = pc != 0 ? "%i" % pc : params[:format] != :csv ? '' : 0
     return pc
   end
   
-  def self.efficiency_clone(request, row)
+  def self.efficiency_clone(params, row)
     a = row['Distinct Genotype Confirmed ES Cells'].to_i
     b = row['Distinct Old Non Genotype Confirmed ES Cells'].to_i
     pc =  a + b != 0 ? ((a.to_f / (a + b).to_f) * 100) : 0
-    pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
+    pc = pc != 0 ? "%i" % pc : params[:format] != :csv ? '' : 0
     return pc
   end
   
@@ -74,7 +74,7 @@ class Reports::MiProduction::SummaryKomp23
     return total
   end
 
-  def self.generate_common(request = nil, params={}, links = false, limit_consortia = true)
+  def self.generate_common(params)
 
     debug = params['debug'] && params['debug'].to_s.length > 0
     pretty = params['pretty'] && params['pretty'].to_s.length > 0
@@ -83,7 +83,7 @@ class Reports::MiProduction::SummaryKomp23
 
     cached_report = ReportCache.find_by_name!(CACHE_NAME).to_table
     
-    script_name = request ? request.env['REQUEST_URI'] : ''
+    script_name = params[:script_name]
 
     heading = HEADINGS   
     report_table = Table(heading)
@@ -121,23 +121,23 @@ class Reports::MiProduction::SummaryKomp23
     
     grouped_report.each do |consortium| 
 
-      next if limit_consortia && ! CONSORTIA.include?(consortium)
+      next if params[:komp2] && ! CONSORTIA.include?(consortium)
       
       grouped_report.subgrouping(consortium).summary('Production Centre', hash).each do |row|
         
         row['Production Centre'] = '' if row['Production Centre'].to_s.length < 1
 
-        pc = efficiency_6months(request, row)
-        pc2 = efficiency_clone(request, row)
+        pc = efficiency_6months(params, row)
+        pc2 = efficiency_clone(params, row)
 
         make_clean = lambda {|value|
-          return value if request && request.format == :csv
+          return value if params[:format] == :csv
           return '' if ! value || value.to_s == "0"
           return value
         }
         
         make_link = lambda {|rowx, key|
-          return rowx[key] if request && request.format == :csv
+          return rowx[key] if params[:format] == :csv
           return '' if rowx[key].to_s.length < 1
           return '' if rowx[key] == 0
           return rowx[key] if ! links
@@ -350,19 +350,22 @@ class Reports::MiProduction::SummaryKomp23
     return title, report
   end
   
-  def self.generate(request = nil, params={}, limit_consortia = true)
+  def self.generate(params)
     
     if params[:consortium]
       title, report = subsummary(params)
-      rv = request && request.format == :csv ? report.to_csv : report.to_html
-      return title, rv
+      rv = params[:format] == :csv ? report.to_csv : report.to_html
+      #      return title, rv
+      return { :title => title, :csv => report.to_csv, :html => report.to_html,
+        :table => report  # for testing
+      }
     end
     
     details = params['details'] && params['details'].to_s.length > 0
     do_table = params['table'] && params['table'].to_s.length > 0
     pretty = true
 
-    report = generate_common(request, params, false, limit_consortia)
+    report = generate_common(params)
     
     new_columns = [
       "Consortium",
@@ -389,18 +392,21 @@ class Reports::MiProduction::SummaryKomp23
 
     report.reorder(new_columns)
     
-    title = limit_consortia ? REPORT_TITLE : 'Production for IMPC Consortia'
+    title = params[:komp2] ? REPORT_TITLE : 'Production for IMPC Consortia'
     
     return title, report if do_table
 
-    html = pretty ? prettify(request, report) : report.to_html
-    return title, request && request.format == :csv ? report.to_csv : html
+    html = pretty ? prettify(params, report) : report.to_html
+    #    return title, params[:format] == :csv ? report.to_csv : html
+    return { :title => title, :csv => report.to_csv, :html => html,
+      :table => report  # for testing
+    }
   
   end
 
-  def self.prettify(request, table)
+  def self.prettify(params, table)
 
-    script_name = request ? request.env['REQUEST_URI'] : ''
+    script_name = params[:script_name]
 
     centres = {}
     sub_table = table.sub_table do |r|

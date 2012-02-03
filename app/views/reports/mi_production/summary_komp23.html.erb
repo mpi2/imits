@@ -2,7 +2,7 @@
 
 <h2><%= @title2 %></h2>
 
-<% if @report %>
+<% if ! @report_renderer[:html].nil? %>
 
 <p><%= link_to('Download as CSV', url_for({:action => :summary_komp23, :controller => '/reports/mi_production', :format => :csv}.merge(params))) if @csv %></p>
 
@@ -12,10 +12,10 @@
 
 <div class="report grid_12">
 
-<% if @report.nil? %>
+<% if @report_renderer[:html].nil? %>
   <p><em>Sorry, no production data found</em></p>
 <% else %>
-  <%=raw @report %>
+  <%=raw @report_renderer[:html] %>
 <% end %>
 
 </div>

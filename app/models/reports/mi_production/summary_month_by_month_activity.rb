@@ -10,8 +10,29 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   DEBUG = true
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-08-01')
+  
+  plan_thing = {
+    :inspect_glt_mouse=>"Inspect - GLT Mouse",
+    :inspect_mi_attempt=>"Inspect - MI Attempt",
+    :inspect_conflict=>"Inspect - Conflict",
+    :interest=>"Interest",
+    :assigned_es_cell_qc_in_progress=>"Assigned - ES Cell QC In Progress",
+    :assigned_es_cell_qc_complete=>"Assigned - ES Cell QC Complete",
+    :inactive=>"Inactive",
+    :aborted_es_cell_qc_failed=>"Aborted - ES Cell QC Failed",
+    :withdrawn=>"Withdrawn",
+    :conflict=>"Conflict",
+    :assigned=>"Assigned"
+  }
 
-  PLAN_STATUSES = ['ES Cell QC In Progress', 'ES Cell QC Complete', 'ES Cell QC Failed']
+  PLAN_MAP = Hash.new do |hash,key| 
+    "PLAN_MAP: No value defined for key: #{ key }"
+  end
+  #PLAN_MAP = {}
+  #  PLAN_MAP.default
+  MiPlan::Status.all.each { |i| PLAN_MAP[i.name.downcase.parameterize.underscore.to_sym] = i.name }
+
+  PLAN_STATUSES = [PLAN_MAP[:assigned_es_cell_qc_in_progress], PLAN_MAP[:assigned_es_cell_qc_complete], PLAN_MAP[:aborted_es_cell_qc_failed]]
   ATTEMPT_STATUSES = ['Micro-injection in progress', 'Genotype confirmed', 'Micro-injection aborted']
   PHENOTYPE_STATUSES = [
     'Phenotype Attempt Aborted',
@@ -46,6 +67,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   ]
   
   def self.generate(params)
+
+    #puts PLAN_MAP[:hello]
+    #raise PLAN_MAP.inspect
 
     if params[:consortium]
       title, table = subsummary(params)
@@ -217,16 +241,16 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
         details_hash = { :symbol => marker_symbol, :status => status, :date => stamp.created_at }
 
-        if(status == 'Assigned - ES Cell QC In Progress')
+        if status == PLAN_MAP[:assigned_es_cell_qc_in_progress]
           summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
         end
     
-        if(status == 'Assigned - ES Cell QC Complete')
+        if status == PLAN_MAP[:assigned_es_cell_qc_complete]
           summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
           summary[year][month][consortium][pcentre]['ES Cell QC Complete'][gene_id] = details_hash
         end
     
-        if(status == 'Aborted - ES Cell QC Failed')
+        if status == PLAN_MAP[:aborted_es_cell_qc_failed]
           summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
           summary[year][month][consortium][pcentre]['ES Cell QC Failed'][gene_id] = details_hash
         end

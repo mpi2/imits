@@ -73,8 +73,12 @@ class Reports::MiProductionController < ApplicationController
   def summary_komp23
     if params[:live]
       @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
-      @title2, @report = Reports::MiProduction::SummaryKomp23.generate(request, params)
-      send_data_csv('production_summary_komp23.csv', @report) if request.format == :csv
+      params[:format] = request.format
+      params[:komp2] = true
+      params[:script_name] = request.env['REQUEST_URI']
+      @report_renderer = Reports::MiProduction::SummaryKomp23.generate(params)
+      @title2 = @report_renderer[:title]
+      send_data_csv('production_summary_komp23.csv', @report_renderer[:csv]) if request.format == :csv
       return
     end
     
@@ -92,7 +96,11 @@ class Reports::MiProductionController < ApplicationController
   
   def summary_impc23
     @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
-    @title2, @report = Reports::MiProduction::SummaryKomp23.generate(request, params, false)
+    params[:format] = request.format
+      params[:komp2] = false
+    params[:script_name] = request.env['REQUEST_URI']
+    @report_renderer = Reports::MiProduction::SummaryKomp23.generate(params)
+    @title2 = @report_renderer[:title]
     send_data_csv('summary_impc23.csv', @report) if request.format == :csv
   end
 

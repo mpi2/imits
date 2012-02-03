@@ -210,7 +210,7 @@ class MiAttempt < ApplicationModel
   end
 
   def set_mi_plan
-    if new_record?
+    #if new_record?
       mi_plan_to_set = find_matching_mi_plan
       if ! mi_plan_to_set
         mi_plan_to_set = MiPlan.new
@@ -224,12 +224,12 @@ class MiAttempt < ApplicationModel
       mi_plan_to_set.save!
 
       self.mi_plan = mi_plan_to_set
-    else
+    #else
       if is_active?
         mi_plan.status = MiPlan::Status.find_by_name!('Assigned')
         mi_plan.save!
       end
-    end
+    #end
   end
 
   def record_if_status_was_changed

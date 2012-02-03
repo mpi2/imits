@@ -172,10 +172,6 @@ class ActionController::TestCase
   def parse_xml_from_response
     return Nokogiri::XML(response.body)
   end
-
-  def parse_json_from_response
-    return JSON.parse(response.body)
-  end
 end
 
 class Kermits2::StrainsTestCase < ActiveSupport::TestCase

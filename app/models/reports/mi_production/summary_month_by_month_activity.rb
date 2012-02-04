@@ -11,19 +11,19 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-08-01')
   
-  plan_thing = {
-    :inspect_glt_mouse=>"Inspect - GLT Mouse",
-    :inspect_mi_attempt=>"Inspect - MI Attempt",
-    :inspect_conflict=>"Inspect - Conflict",
-    :interest=>"Interest",
-    :assigned_es_cell_qc_in_progress=>"Assigned - ES Cell QC In Progress",
-    :assigned_es_cell_qc_complete=>"Assigned - ES Cell QC Complete",
-    :inactive=>"Inactive",
-    :aborted_es_cell_qc_failed=>"Aborted - ES Cell QC Failed",
-    :withdrawn=>"Withdrawn",
-    :conflict=>"Conflict",
-    :assigned=>"Assigned"
-  }
+  #plan_thing = {
+  #  :inspect_glt_mouse=>"Inspect - GLT Mouse",
+  #  :inspect_mi_attempt=>"Inspect - MI Attempt",
+  #  :inspect_conflict=>"Inspect - Conflict",
+  #  :interest=>"Interest",
+  #  :assigned_es_cell_qc_in_progress=>"Assigned - ES Cell QC In Progress",
+  #  :assigned_es_cell_qc_complete=>"Assigned - ES Cell QC Complete",
+  #  :inactive=>"Inactive",
+  #  :aborted_es_cell_qc_failed=>"Aborted - ES Cell QC Failed",
+  #  :withdrawn=>"Withdrawn",
+  #  :conflict=>"Conflict",
+  #  :assigned=>"Assigned"
+  #}
 
   PLAN_MAP = Hash.new do |hash,key| 
     "PLAN_MAP: No value defined for key: #{ key }"

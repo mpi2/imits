@@ -95,33 +95,19 @@ class Reports::MiProduction::SummaryKomp23
 
     list_heads = [
       'ES QC confirmed',
-
       'Microinjection aborted',
-
       'Cre excision started',
-
       'Phenotyping completed',
-
       'Phenotyping aborted',
-
       'ES QC failed',
-
       'ES cell QC',
-
       'Genotype confirmed mice',
-
       'Microinjections',
-
       'Phenotyping started',
-
       'Cre excision completed',
-
       'Rederivation started',
-
       'Rederivation completed',
-
       'Registered for phenotyping',
-
       'Genotype confirmed mice 6 months',
       'Microinjection aborted 6 months',
       'Languishing'

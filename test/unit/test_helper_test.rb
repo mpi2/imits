@@ -47,6 +47,21 @@ class TestHelperTest < ActiveSupport::TestCase
         got = plan.status_stamps.map {|i| [i.name, i.created_at.to_s]}
         assert_equal expected, got
       end
+
+      should 'take only dates for status stamps' do
+        plan = Factory.create :mi_plan, :status => MiPlan::Status['Withdrawn']
+        replace_status_stamps(plan,
+          'Interest' => '2011-01-13',
+          'Assigned' => '2011-05-13',
+          'Withdrawn' => '2011-08-13')
+        expected = [
+          ['Interest', '2011-01-13 00:00:00 UTC'],
+          ['Assigned', '2011-05-13 00:00:00 UTC'],
+          ['Withdrawn', '2011-08-13 00:00:00 UTC']
+        ]
+        got = plan.status_stamps.map {|i| [i.name, i.created_at.to_s]}
+        assert_equal expected, got
+      end
     end
 
   end

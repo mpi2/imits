@@ -53,7 +53,7 @@ class Reports::MiProduction::SummaryKomp2BriefTest < ActiveSupport::TestCase
       expecteds.each_pair do |k,v|
         next if k == 'Pipeline efficiency (%)'
         puts "#{k} : #{v}" if DEBUG
-        title2, report = Reports::MiProduction::SummaryKomp2Brief.subsummary_common(nil, { :consortium => 'BaSH', :type => k })
+        title2, report = Reports::MiProduction::SummaryKomp2Brief.subsummary_common(:consortium => 'BaSH', :type => k)
         puts "report size: #{report.size}" if DEBUG
         puts report.to_s if DEBUG
         assert_equal v, report.size

@@ -19,6 +19,10 @@ class User < ActiveRecord::Base
   def admin?
     return ADMIN_USERS.include?(email)
   end
+
+  def can_see_sub_project?
+    return production_centre.name == 'WTSI'
+  end
 end
 
 # == Schema Information

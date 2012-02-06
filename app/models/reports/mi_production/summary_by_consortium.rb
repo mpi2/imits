@@ -6,13 +6,16 @@ class Reports::MiProduction::SummaryByConsortium
 
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS  
   MAPPING_SUMMARIES = Reports::MiProduction::SummariesCommon::MAPPING_SUMMARIES
-
-  def self.generate(request = nil, params={}, consortia = nil)
+  PHENOTYPE_STATUSES = Reports::MiProduction::SummariesCommon::PHENOTYPE_STATUSES
+  
+  def self.generate(request = nil, params={}, consortia = nil, title = nil)
+    
+    title = title ? title : 'Summary By Consortium'
 
     debug = params['debug'] && params['debug'].to_s.length > 0
 
     if params[:consortium]
-      return subsummary_common(request, params)
+      return subsummary_common(params)
     end
 
     script_name = request ? request.env['REQUEST_URI'] : ''
@@ -41,7 +44,9 @@ class Reports::MiProduction::SummaryByConsortium
       'ES QC failed'    => lambda { |group| count_instances_of( group, 'Gene',
           lambda { |row| MAPPING_SUMMARIES['ES QC failed'].include? row.data['Overall Status'] } ) },
       'Languishing'        => lambda { |group| count_instances_of( group, 'Gene',
-          lambda { |row| languishing(row) } ) }      
+          lambda { |row| languishing(row) } ) },
+      'Phenotyped Count'        => lambda { |group| count_instances_of( group, 'Gene',
+          lambda { |row| PHENOTYPE_STATUSES.include? row.data['Overall Status'] } ) }
     )
 
     summary.each do |row|
@@ -81,7 +86,7 @@ class Reports::MiProduction::SummaryByConsortium
   
     report_table.sort_rows_by!( ['Consortium'] )    
         
-    return 'Summary By Consortium', report_table
+    return title, report_table
   end
 
 end

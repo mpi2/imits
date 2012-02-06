@@ -76,6 +76,24 @@ class ActiveSupport::TestCase
     mi_attempt.save!
   end
 
+  def replace_status_stamps(obj, stamps)
+    status_lookup_attr = if obj.kind_of?(MiAttempt) then :description else :name end
+    status_field = if obj.kind_of?(MiAttempt) then :mi_attempt_status else :status end
+    if obj.kind_of? MiAttempt
+      status_class = MiAttemptStatus
+    else
+      status_class = (obj.class.name + '::' + obj.class.reflections[:status].class_name).constantize
+    end
+
+    obj.status_stamps.destroy_all
+    stamps.each do |status_name, time|
+      obj.status_stamps.create!(
+        :created_at => time,
+        status_field => status_class.where(status_lookup_attr => status_name).first
+      )
+    end
+  end
+
   fixtures :all
 end
 
@@ -137,7 +155,7 @@ class Kermits2::JsIntegrationTest < ActionDispatch::IntegrationTest
     sleep 5
     find(:xpath, '//td/div[text()="' + es_cell_name + '"]').click
   end
-  
+
   def make_form_element_usable(element_name)
     page.execute_script("Ext.get(Ext.select('input[name=\"#{element_name}\"]').first().id).dom.readOnly = false;")
   end

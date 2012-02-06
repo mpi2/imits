@@ -140,6 +140,14 @@ class MiAttemptTest < ActiveSupport::TestCase
             MiAttemptStatus.micro_injection_aborted,
             MiAttemptStatus.genotype_confirmed].map(&:description), mi.status_stamps.map(&:description)
         end
+
+        should 'always include a Micro-injection in progress status, even if MI is created in Genotype confirmed state' do
+          mi = Factory.create :mi_attempt_genotype_confirmed
+          gc_stamp = mi.status_stamps.last
+          stamp = mi.status_stamps.all.find {|ss| ss.mi_attempt_status == MiAttemptStatus.micro_injection_in_progress}
+          assert stamp
+          assert_equal [stamp, gc_stamp], mi.status_stamps
+        end
       end
 
       context '#status virtual attribute' do
@@ -929,7 +937,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'when set on update give validation error' do
           default_mi_attempt.consortium_name = 'Brand New Consortium'
           default_mi_attempt.valid?
-          assert_equal ['cannot be modified'], default_mi_attempt.errors['consortium_name']
+          assert_equal ['cannot be changed'], default_mi_attempt.errors['consortium_name']
         end
       end
 
@@ -962,7 +970,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'when set on update give validation error' do
           default_mi_attempt.production_centre_name = 'Brand New Centre'
           default_mi_attempt.valid?
-          assert_equal ['cannot be modified'], default_mi_attempt.errors['production_centre_name']
+          assert_equal ['cannot be changed'], default_mi_attempt.errors['production_centre_name']
         end
       end
 
@@ -1098,35 +1106,35 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal 10, MiAttempt.aborted.count
     end
 
-    context '::translate_search_param' do
+    context '::translate_public_param' do
       should 'translate marker_symbol' do
         assert_equal 'es_cell_gene_marker_symbol_eq',
-                MiAttempt.translate_search_param('es_cell_marker_symbol_eq')
+                MiAttempt.translate_public_param('es_cell_marker_symbol_eq')
       end
 
       should 'translate allele symbol' do
         assert_equal 'es_cell_gene_allele_symbol_in',
-                MiAttempt.translate_search_param('es_cell_allele_symbol_in')
+                MiAttempt.translate_public_param('es_cell_allele_symbol_in')
       end
 
       should 'translate consortium_name' do
         assert_equal 'mi_plan_consortium_name_ci_in',
-                MiAttempt.translate_search_param('consortium_name_ci_in')
+                MiAttempt.translate_public_param('consortium_name_ci_in')
       end
 
       should 'translate production_centre' do
         assert_equal 'mi_plan_production_centre_name_eq',
-                MiAttempt.translate_search_param('production_centre_name_eq')
+                MiAttempt.translate_public_param('production_centre_name_eq')
       end
 
       should 'translate status' do
         assert_equal 'mi_attempt_status_description_ci_in',
-                MiAttempt.translate_search_param('status_ci_in')
+                MiAttempt.translate_public_param('status_ci_in')
       end
 
       should 'leave other params untouched' do
         assert_equal 'colony_name_not_in',
-                MiAttempt.translate_search_param('colony_name_not_in')
+                MiAttempt.translate_public_param('colony_name_not_in')
       end
     end
 
@@ -1193,6 +1201,35 @@ class MiAttemptTest < ActiveSupport::TestCase
       should 'return nil if gene is nil' do
         mi = MiAttempt.new
         assert_nil mi.find_matching_mi_plan
+      end
+    end
+
+    context '#production_centre' do
+      should 'delegate to mi_plan' do
+        assert_equal default_mi_attempt.mi_plan.production_centre,
+                default_mi_attempt.production_centre
+      end
+    end
+
+    context '#consortium' do
+      should 'delegate to mi_plan' do
+        assert_equal default_mi_attempt.mi_plan.consortium,
+                default_mi_attempt.consortium
+      end
+    end
+
+    context '#in_progress_date' do
+      should 'return earliest status stamp date for in progress status' do
+        mi = Factory.create :mi_attempt_genotype_confirmed
+        replace_status_stamps(mi,
+          [
+            [MiAttemptStatus.genotype_confirmed.description, '2011-11-12 00:00 UTC'],
+            [MiAttemptStatus.micro_injection_in_progress.description, '2011-12-24 00:00 UTC'],
+            [MiAttemptStatus.micro_injection_in_progress.description, '2011-06-12 00:00 UTC'],
+            [MiAttemptStatus.genotype_confirmed.description, '2011-01-24 00:00 UTC']
+          ]
+        )
+        assert_equal Date.parse('2011-06-12'), mi.in_progress_date
       end
     end
 

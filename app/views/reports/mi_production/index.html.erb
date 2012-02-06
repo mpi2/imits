@@ -15,6 +15,16 @@
     </a>
   </div>
 
+<% if false %>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :test, :format => :csv) %>">
+      <h4>(INTERNAL) Dummy Test Report</h4>
+    </a>
+  </div>
+
+<% end %>
+
   <div class="report-links">
     <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_by_consortium_and_accumulated_status) %>">
       <h4>mousephenotype.org feed</h4>
@@ -42,13 +52,35 @@
 
   <div class="report-links">
     <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp2_brief) %>">
-      <h4>KOMP2 Report 1</h4>
+      <h4>KOMP2 Report (brief)</h4>
     </a>
   </div>
 
   <div class="report-links">
     <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp2) %>">
       <h4>KOMP2 Report 2</h4>
+      <p>With efficiency</p>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp21) %>">
+      <h4>KOMP2 Report 2'</h4>
+      <p>With status 'or better' counts</p>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp22) %>">
+      <h4>KOMP2 Report 2''</h4>
+      <p>Activity during previous month</p>
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp23) %>">
+      <h4>KOMP2 Report 2 New</h4>
+      <p>Accumulation report</p>
     </a>
   </div>
 

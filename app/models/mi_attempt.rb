@@ -102,20 +102,7 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  validates_each :consortium_name, :production_centre_name do |mi, attr, value|
-    next if value.blank?
-    association_name = attr.to_s.gsub('_name', '')
-    klass = {:consortium_name => Consortium, :production_centre_name => Centre}[attr]
-
-    if mi.mi_plan and mi.mi_plan.send(association_name) and value != mi.mi_plan.send(association_name).name
-      mi.errors.add attr, 'cannot be modified'
-    else
-      associated = klass.find_by_name(value)
-      if associated.blank?
-        mi.errors.add attr, 'does not exist'
-      end
-    end
-  end
+  validate :consortium_name_and_production_centre_name_from_mi_plan_validation
 
   validate do |mi_attempt|
     next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
@@ -146,6 +133,7 @@ class MiAttempt < ApplicationModel
 
   after_save :create_status_stamp_if_status_was_changed
   after_save :reload_mi_plan_mi_attempts
+  after_save :ensure_in_progress_status_stamp
 
   def self.active
     where(:is_active => true)
@@ -260,6 +248,15 @@ class MiAttempt < ApplicationModel
 
   def reload_mi_plan_mi_attempts
     mi_plan.mi_attempts.reload
+  end
+
+  def ensure_in_progress_status_stamp
+    status_stamps.reload
+    if ! status_stamps.find_by_mi_attempt_status_id(MiAttemptStatus.micro_injection_in_progress)
+      status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+        :created_at => status_stamps.last.created_at - 1.second)
+      status_stamps.reload
+    end
   end
 
   public
@@ -399,6 +396,8 @@ class MiAttempt < ApplicationModel
   def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
   def es_cell_allele_symbol; es_cell.try(:allele_symbol); end
 
+  delegate :production_centre, :consortium, :to => :mi_plan
+
   def find_matching_mi_plan
     consortium = Consortium.find_by_name(consortium_name)
     production_centre = Centre.find_by_name(production_centre_name)
@@ -417,29 +416,20 @@ class MiAttempt < ApplicationModel
     return mi_plan
   end
 
-  def self.translate_search_param(param)
-    translations = {
+  def self.translations
+    return {
       'es_cell_marker_symbol'   => 'es_cell_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_gene_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
       'production_centre_name'  => 'mi_plan_production_centre_name',
       'status'                  => 'mi_attempt_status_description'
     }
-
-    translations.each do |tr_from, tr_to|
-      md = /^#{tr_from}_(.+)$/.match(param)
-      if md
-        return "#{tr_to}_#{md[1]}"
-      end
-    end
-
-    return param
   end
 
   def self.public_search(params)
     translated_params = {}
     params.stringify_keys.each do |name, value|
-      translated_params[translate_search_param(name)] = value
+      translated_params[translate_public_param(name)] = value
     end
     return self.search(translated_params)
   end
@@ -452,6 +442,10 @@ class MiAttempt < ApplicationModel
 
   def to_xml(options = {})
     super(default_serializer_options(options))
+  end
+
+  def in_progress_date
+    return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttemptStatus.micro_injection_in_progress.id}.created_at.utc.to_date
   end
 
   private

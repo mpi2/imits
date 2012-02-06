@@ -1,0 +1,8 @@
+<% content_for :pre_js_footer do %>
+  <%= javascript_tag "CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).sort.to_json}" %>
+  <%= javascript_tag "CENTRE_OPTIONS = #{Centre.all.map(&:name).sort.to_json}" %>
+  <%= javascript_tag "PRIORITY_OPTIONS = #{MiPlan::Priority.all.map(&:name).to_json}" %>
+  <%= javascript_tag "SUB_PROJECT_OPTIONS = #{MiPlan::SubProject.all.map(&:name).to_json}" %>
+  <%= javascript_tag "CAN_SEE_SUB_PROJECT = #{current_user.can_see_sub_project?.to_json}" %>
+  <%= javascript_tag "WITHDRAWABLE_STATUSES = #{MiPlan::Status.all_affected_by_minor_conflict_resolution.map(&:name).to_json}" %>
+<% end %>

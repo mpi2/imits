@@ -131,16 +131,6 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
     # Only testing non-WTSI statuses since WTSI should eventually accept same
     # status changing rules
 
-    should 'not add an in-progress status if it is initially another status' do
-      mi = Factory.create :mi_attempt,
-              :production_centre_name => 'ICS',
-              :number_of_het_offspring => 1,
-              :is_active => false
-      mi.update_attributes!(:is_active => true)
-
-      assert_equal MiAttemptStatus.micro_injection_aborted, mi.status_stamps[0].mi_attempt_status
-    end
-
     should 'avoid adding the same status twice consecutively' do
       mi = Factory.create :mi_attempt,
               :production_centre_name => 'ICS'
@@ -158,5 +148,6 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
 
       assert_equal expected_statuses, mi.status_stamps.map(&:description)
     end
+
   end
 end

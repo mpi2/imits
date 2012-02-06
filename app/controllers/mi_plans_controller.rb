@@ -91,7 +91,7 @@ class MiPlansController < ApplicationController
   def index
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'id', Public::MiPlan, :public_search)
+        render :json => data_for_serialized(:json, 'marker_symbol asc', Public::MiPlan, :public_search)
       end
 
       format.html do

@@ -233,7 +233,7 @@ class MiPlansControllerTest < ActionController::TestCase
 
         should 'allow paginating' do
           get :index, 'format' => 'json', 'per_page' => 3, 'page' => 2
-          assert_equal [@p4.id, @p5.id, @p6.id], parse_json_from_response.map {|i| i['id']}
+          assert_equal [@p5.id, @p7.id, @p6.id], parse_json_from_response.map {|i| i['id']}
         end
 
         should 'paginate by 20 by default' do
@@ -242,14 +242,21 @@ class MiPlansControllerTest < ActionController::TestCase
           assert_equal 20, parse_json_from_response.size
         end
 
-        should_eventually 'sort by marker_symbol by default' do
+        should 'sort by marker_symbol by default' do
           get :index, :format => 'json'
           data = parse_json_from_response
           sorted_markers = data.map {|i| i['marker_symbol']}
           assert_equal sorted_markers.sort, sorted_markers
         end
 
-        should 'allow sorting' do
+        should 'allow sorting by marker_symbol' do
+          get :index, :format => 'json', :sorts => 'marker_symbol asc'
+          data = parse_json_from_response
+          sorted_markers = data.map {|i| i['marker_symbol']}
+          assert_equal sorted_markers.sort, sorted_markers
+        end
+
+        should 'allow sorting by a simple field' do
           get :index, :format => 'json', :sorts => 'number_of_es_cells_starting_qc'
           data = parse_json_from_response
           assert_equal [@p6.id, @p4.id], data.map {|i| i['id']}[0..1]

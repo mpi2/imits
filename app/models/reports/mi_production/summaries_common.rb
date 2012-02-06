@@ -16,10 +16,31 @@ module Reports::MiProduction::SummariesCommon
     'MI Aborted' => ['Micro-injection aborted'],
     'ES QC confirmed' => ['Assigned - ES Cell QC Complete'],
     'ES QC failed' => ['Aborted - ES Cell QC Failed'],
-    'Registered for Phenotyping' => []
+    'Registered for Phenotyping' => [
+      'Phenotype Attempt Aborted',
+      'Registered for Phenotyping',
+      'Rederivation Started',
+      'Rederivation Complete',
+      'Cre Excision Started',
+      'Cre Excision Complete',
+      'Phenotyping Started',
+      'Phenotyping Complete',
+      'Phenotype Attempt Registered'
+    ]
   }
 
-  def subsummary_common(request, params)
+  PHENOTYPE_STATUSES = [
+    'Phenotype Attempt Aborted',
+    'Registered for Phenotyping',
+    'Rederivation Started',
+    'Rederivation Complete',
+    'Cre Excision Started',
+    'Cre Excision Complete',
+    'Phenotyping Started',
+    'Phenotyping Complete'
+  ]
+
+  def subsummary_common(params)
     consortium = params[:consortium]
     type = params[:type]
     type = type ? type.gsub(/^\#\s+/, "") : nil
@@ -33,7 +54,10 @@ module Reports::MiProduction::SummariesCommon
     report = Table(:data => cached_report.data,
       :column_names => cached_report.column_names,
       :filters => lambda {|r|
-        if type != 'Languishing'
+        
+        #TODO: fix this
+        
+        if ! /Languishing/.match(type)
           return r['Consortium'] == consortium &&
             (pcentre.nil? || r['Production Centre'] == pcentre) &&
             (priority.nil? || r['Priority'] == priority) &&
@@ -44,7 +68,12 @@ module Reports::MiProduction::SummariesCommon
             (pcentre.nil? || r['Production Centre'] == pcentre) &&
             (priority.nil? || r['Priority'] == priority) &&
             (subproject.nil? || r['Sub-Project'] == subproject) &&
-            languishing(r)
+            languishing(r) if type == 'Languishing'
+          return r['Consortium'] == consortium &&
+            (pcentre.nil? || r['Production Centre'] == pcentre) &&
+            (priority.nil? || r['Priority'] == priority) &&
+            (subproject.nil? || r['Sub-Project'] == subproject) &&
+            languishing2(r) if type == 'Languishing2'
         end
       },
       :transforms => lambda {|r|
@@ -75,12 +104,26 @@ module Reports::MiProduction::SummariesCommon
     
     return title, report
   end
-   
+
+  def integer(value)
+    return Integer(value && value.to_s.length > 0 ? value : 0)
+  end
+  
   def efficiency(request, row)
-    glt = Integer(row['Genotype Confirmed Mice'])
-    failures = Integer(row['Languishing']) + Integer(row['MI Aborted'])
-    total = Integer(row['Genotype Confirmed Mice']) + failures
+    glt = integer(row['Genotype Confirmed Mice'])
+    glt2 = integer(row['Phenotyped Count'])
+    glt += glt2
+    failures = integer(row['Languishing']) + integer(row['MI Aborted'])
+    total = integer(row['Genotype Confirmed Mice']) + failures
     pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
+    pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
+    return pc
+  end
+
+  def efficiency2(request, row)
+    a = integer(row['Distinct Genotype Confirmed ES Cells'])
+    b = integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+    pc =  a + b != 0 ? ((a.to_f / (a + b).to_f) * 100) : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
   end
@@ -95,6 +138,24 @@ module Reports::MiProduction::SummariesCommon
     return false if ! before
     gap = today - before
     return gap && gap > 180
+  end
+  
+  def distinct_genotype_confirmed_es_cells_count(group)
+    total = 0
+    group.each do |row|
+      value = integer(row['Distinct Genotype Confirmed ES Cells'])
+      total += value
+    end
+    return total
+  end
+
+  def distinct_old_non_genotype_confirmed_es_cells_count(group)
+    total = 0
+    group.each do |row|
+      value = integer(row['Distinct Old Non Genotype Confirmed ES Cells'])
+      total += value
+    end
+    return total
   end
 
   def all(row)
@@ -117,6 +178,12 @@ module Reports::MiProduction::SummariesCommon
 
   def registered_for_phenotyping(row)
     row && row['PhenotypeAttempt Status'] && row['PhenotypeAttempt Status'].to_s.length > 1
+  end
+    
+  def glt(row)
+    (MAPPING_SUMMARIES['Genotype Confirmed Mice'].include?(row.data['Overall Status'])) ||
+      ((MAPPING_SUMMARIES['Registered for Phenotyping'].include? row.data['Overall Status']) &&
+      (row.data['Genotype confirmed Date'] && row.data['Genotype confirmed Date'].to_s.length > 0))
   end
   
 end

@@ -1,0 +1,18 @@
+<% @title = 'Summary Month by Month' %>
+
+<p><%= link_to('Download as CSV', url_for({:action => :summary_month_by_month_activity, :controller => '/reports/mi_production', :format => :csv}.merge(params)))%></p>
+
+<br/>
+
+<h2>Report</h2>
+
+<div class="report grid_4">
+
+<% if @report.nil? %>
+  <p><em>Sorry, no production data found</em></p>
+<% else %>
+  <%=raw @report.to_html %>
+<% end %>
+
+</div>
+

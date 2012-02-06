@@ -1,5 +1,5 @@
 set :application, 'imits'
-set :repository,  'git://github.com/i-dcc/imits.git'
+set :repository,  'git://github.com/mpi2/imits.git'
 set :branch, 'master'
 set :user, `whoami`.chomp
 

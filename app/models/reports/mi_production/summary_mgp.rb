@@ -13,7 +13,7 @@ class Reports::MiProduction::SummaryMgp
   def self.generate(request = nil, params={})
 
     if params[:consortium]
-      return subsummary_common(request, params)
+      return subsummary_common(params)
     end
 
     script_name = request ? request.env['REQUEST_URI'] : ''

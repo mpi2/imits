@@ -37,7 +37,9 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
     report_options[:methods] = [
       'reportable_statuses_with_latest_dates',
       'latest_relevant_mi_attempt',
-      'latest_relevant_phenotype_attempt'
+      'latest_relevant_phenotype_attempt',
+      'distinct_genotype_confirmed_es_cells_count',
+      'distinct_old_non_genotype_confirmed_es_cells_count'
     ]
 
     transform = proc do |record|
@@ -72,6 +74,10 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
           record["#{name} Date"] = date.to_s
         end
       end
+      
+      record['Distinct Genotype Confirmed ES Cells'] = record['distinct_genotype_confirmed_es_cells_count']
+      record['Distinct Old Non Genotype Confirmed ES Cells'] = record['distinct_old_non_genotype_confirmed_es_cells_count']
+
     end
     report_options[:transforms] = [transform]
 
@@ -100,7 +106,9 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
       'Cre Excision Complete Date',
       'Phenotyping Started Date',
       'Phenotyping Complete Date',
-      'Phenotype Attempt Aborted Date'
+      'Phenotype Attempt Aborted Date',
+      'Distinct Genotype Confirmed ES Cells',
+      'Distinct Old Non Genotype Confirmed ES Cells'
     ]
     report.reorder(column_names)
 

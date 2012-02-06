@@ -4,6 +4,21 @@ require 'test_helper'
 
 class ProductionSummaryHelper
 
+  TEST_CSV_KOMP23 = <<-"CSV"
+"Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date","Distinct Genotype Confirmed ES Cells","Distinct Old Non Genotype Confirmed ES Cells"
+"BaSH",,"High","BCM","Gpr116","MGI:2182928","Aborted - ES Cell QC Failed","Aborted - ES Cell QC Failed",,,,,,,"2011-10-10",,,,,,,,,,,,,,0,0
+"BaSH","WTSI_Infection_A","Medium","BCM","Irg1","MGI:103206","Micro-injection in progress","Assigned - ES Cell QC Complete","Micro-injection in progress",,44040,"conditional_ready","Irg1<sup>tm1a(KOMP)Wtsi</sup>",,,"2011-11-25","2012-01-20","2012-01-21",,,,,,,,,,,0,0
+"BaSH",,"High","BCM","Cbx7","MGI:1196439","Genotype confirmed","Assigned - ES Cell QC Complete","Genotype confirmed",,24338,"conditional_ready","Cbx7<sup>tm1a(KOMP)Wtsi</sup>","C57BL/6NTac/Den","2007-03-07",,"2012-01-24","2007-04-24","2007-12-06",,,,,,,,,,1,3
+"BaSH","Legacy EUCOMM","Low","BCM","Huwe1","MGI:1926884","Micro-injection aborted","Assigned","Micro-injection aborted",,78615,"conditional_ready","Huwe1<sup>tm1a(EUCOMM)Wtsi</sup>",,"2011-12-04",,,"2011-12-04",,"2012-01-04",,,,,,,,,0,1
+"BaSH",,"High","BCM","Tox3a","MGI:3039593","Micro-injection in progress","Assigned","Micro-injection in progress","Phenotype Attempt Aborted",69298,"conditional_ready","Tox3<sup>tm1a(KOMP)Mbp</sup>",,"2011-10-19",,,"2011-11-23","2011-12-20",,"2012-01-23",,,,,,,,0,0
+"BaSH",,"High","BCM","Tox3b","MGI:3039593","Micro-injection in progress","Assigned","Micro-injection in progress","Phenotyping Complete",69298,"conditional_ready","Tox3<sup>tm1a(KOMP)Mbp</sup>",,"2011-10-19",,,"2011-11-23","2011-12-20",,"2012-01-23",,,,,,,,0,0
+"BaSH",,"High","BCM","Tox3c","MGI:3039593","Micro-injection in progress","Assigned","Micro-injection in progress","Cre Excision Complete",69298,"conditional_ready","Tox3<sup>tm1a(KOMP)Mbp</sup>",,"2011-10-19",,,"2011-11-23","2011-12-20",,"2012-01-23",,,,,,,,0,0
+"BaSH",,"High","BCM","Tox3d","MGI:3039593","Micro-injection in progress","Assigned","Micro-injection in progress","Cre Excision Started",69298,"conditional_ready","Tox3<sup>tm1a(KOMP)Mbp</sup>",,"2011-10-19",,,"2011-11-23","2011-12-20",,"2012-01-23",,,,,,,,0,0
+"BaSH",,"High","BCM","Tox3e","MGI:3039593","Micro-injection in progress","Assigned","Micro-injection in progress","Rederivation Started",69298,"conditional_ready","Tox3<sup>tm1a(KOMP)Mbp</sup>",,"2011-10-19",,,"2011-11-23","2011-12-20",,"2012-01-23","2012-01-23",,,,,,,0,0
+"BaSH",,"High","BCM","Tox3f","MGI:3039593","Micro-injection in progress","Assigned","Micro-injection in progress","Rederivation Complete",69298,"conditional_ready","Tox3<sup>tm1a(KOMP)Mbp</sup>",,"2011-10-19",,,"2011-11-23","2011-12-20",,"2012-01-23",,"2012-01-23",,,,,,0,0
+"BaSH",,"High","BCM","Tox3g","MGI:3039593","Micro-injection in progress","Assigned","Micro-injection in progress","Phenotype Attempt Registered",69298,"conditional_ready","Tox3<sup>tm1a(KOMP)Mbp</sup>",,"2011-10-19",,,"2011-11-23","2011-12-20",,"2012-01-23",,,,,,,,0,0
+  CSV
+
   TEST_CSV_FEED_UNIT = <<-"CSV"
 "Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"
 "BaSH",,"High","BCM","1700093J21Rik","MGI:1921546","Assigned - ES Cell QC In Progress","Assigned - ES Cell QC In Progress",,,,,,,"2011-10-10","2011-11-16",,,,,,,,,,,,
@@ -80,7 +95,8 @@ class ProductionSummaryHelper
   'MI_IN_PROGRESS' => '"BaSH",,"High","BCM","Akt1s1","MGI:1914855","Micro-injection in progress","Assigned","Micro-injection in progress",,28913,"conditional_ready","Akt1s1<sup>tm1a(EUCOMM)Wtsi</sup>","C57BL/6N","2011-10-10",,,"2011-09-27",,,,,,,,,,',
   'MI_ABORTED' => '"BaSH",,"High","BCM","Apc2","MGI:1346052","Micro-injection aborted","Assigned","Micro-injection aborted",,26234,"conditional_ready","Apc2<sup>tm1a(KOMP)Wtsi</sup>",,"2011-12-01",,,"2011-09-05",,"2011-12-02"',
   'GENOTYPE_CONFIRMED_MICE' => '"BaSH",,"High","BCM","Alg10b","MGI:2146159","Genotype confirmed","Assigned","Genotype confirmed",,"VG10825","deletion","Alg10b<sup>tm1(KOMP)Vlcg</sup>","C57BL/6N","2011-10-10",,,"2011-09-08","2012-01-07",,,,,,,,,',
-  'LANGUISHING' => '"BaSH",,"High","BCM","Akt1s1","MGI:1914855","Micro-injection in progress","Assigned","Micro-injection in progress",,28913,"conditional_ready","Akt1s1<sup>tm1a(EUCOMM)Wtsi</sup>","C57BL/6N","2011-10-10",,,"2009-09-27"'
+  'LANGUISHING' => '"BaSH",,"High","BCM","Akt1s1","MGI:1914855","Micro-injection in progress","Assigned","Micro-injection in progress",,28913,"conditional_ready","Akt1s1<sup>tm1a(EUCOMM)Wtsi</sup>","C57BL/6N","2011-10-10",,,"2009-09-27"',
+  'GENE_STATUS_TEMPLATE' => '"BaSH",,"High","BCM","GENE-TARGET","MGI:1921546","STATUS-TARGET","Assigned - ES Cell QC In Progress",,,,,,,10/10/11,16/11/11,,,,,,,,,,,,,0,0'
   }  
   SUMMARY_BY_CONSORTIUM_CSV = [
       CSV_LINES['HEADING'],
@@ -101,7 +117,11 @@ class ProductionSummaryHelper
     return EXPECTEDS_SUMMARY_BY_CONSORTIUM if type == 'summary by consortium'
     return EXPECTEDS_SUMMARY_BY_CONSORTIUM if type == 'summary by consortium priority'
     return EXPECTEDS_KOMP2 if type == 'komp2'
-    return nil
+	
+	if type == 'komp21'
+	end
+    
+	return nil
   end
 
   def self.get_csv(type)
@@ -112,6 +132,7 @@ class ProductionSummaryHelper
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'summary mgp'
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'komp2 brief'
     return SUMMARY_BY_CONSORTIUM_CSV if type == 'komp2'
+    return TEST_CSV_KOMP23 if type == 'komp23'
     return nil
   end
 

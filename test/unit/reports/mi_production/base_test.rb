@@ -26,10 +26,6 @@ class Reports::MiProduction::BaseTest < ActiveSupport::TestCase
   context 'Reports::MiProduction::Base' do
 
     context '::generate_and_cache' do
-      setup do
-        3.times {Factory.create :mi_attempt}
-      end
-
       should 'store generated CSV in reports cache table' do
         assert_equal 0, ReportCache.count
         TestReport.generate_and_cache
@@ -37,6 +33,15 @@ class Reports::MiProduction::BaseTest < ActiveSupport::TestCase
         cache = ReportCache.first
         assert_equal 'test_report', cache.name
         assert_equal TestReport.generate.to_csv, cache.csv_data
+      end
+
+      should 'store generated HTML in reports cache table' do
+        assert_equal 0, ReportCache.count
+        TestReport.generate_and_cache
+        assert_equal 1, ReportCache.count
+        cache = ReportCache.first
+        assert_equal 'test_report', cache.name
+        assert_equal TestReport.generate.to_html, cache.html_data
       end
 
       should 'replace existing reports cache if that exists' do

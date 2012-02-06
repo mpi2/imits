@@ -172,10 +172,6 @@ class ActionController::TestCase
   def parse_xml_from_response
     return Nokogiri::XML(response.body)
   end
-
-  def parse_json_from_response
-    return JSON.parse(response.body)
-  end
 end
 
 class Kermits2::StrainsTestCase < ActiveSupport::TestCase
@@ -262,4 +258,16 @@ class Test::Person < ActiveRecord::Base
   set_table_name :test_people
 
   validates :name, :uniqueness => true
+end
+
+PhenotypeAttempt.class_eval do
+  def to_public
+    return Public::PhenotypeAttempt.find(self.id)
+  end
+end
+
+MiPlan.class_eval do
+  def to_public
+    return Public::MiPlan.find(self.id)
+  end
 end

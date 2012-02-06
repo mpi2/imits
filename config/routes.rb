@@ -16,6 +16,8 @@ Kermits2::Application.routes.draw do
     end
   end
 
+  resources :phenotype_attempts, :only => [:show, :create, :update, :index]
+
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do
     get 'user', :to => 'users#show', :as => :user

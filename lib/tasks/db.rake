@@ -44,4 +44,9 @@ namespace :db do
       user.update_attributes!(:password => 'password')
     end
   end
+
+  desc 'Flush caches'
+  task 'flush_caches' => :environment do
+    ReportCache.destroy_all
+  end
 end

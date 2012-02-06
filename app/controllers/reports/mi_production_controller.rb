@@ -81,7 +81,7 @@ class Reports::MiProductionController < ApplicationController
       send_data_csv('production_summary_komp23.csv', @report_renderer[:csv]) if request.format == :csv
       return
     end
-    
+
     if(request.format == :csv)
       raise "csv cache of komp23 not yet implemented"
       @report = ReportCache.find_by_name!('komp2_production_csv_summary').csv_data
@@ -93,7 +93,7 @@ class Reports::MiProductionController < ApplicationController
       end
     end
   end
-  
+
   def summary_impc23
     @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
     params[:format] = request.format

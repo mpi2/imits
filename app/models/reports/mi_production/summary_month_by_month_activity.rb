@@ -72,7 +72,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     'Phenotype Attempt Aborted'
   ]
 
-  def self.generate(params)
+  def self.generate(params = {})
 
     #puts PLAN_MAP[:hello]
     #raise PLAN_MAP.inspect

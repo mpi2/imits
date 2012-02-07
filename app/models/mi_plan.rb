@@ -276,7 +276,7 @@ class MiPlan < ApplicationModel
     return if boolarg == withdrawn?
 
     if ! MiPlan::Status.all_affected_by_minor_conflict_resolution.include?(status)
-      raise RuntimeError, "cannot withdraw from status #{status}"
+      raise RuntimeError, "cannot withdraw from status #{status.name}"
     end
 
     if boolarg == false

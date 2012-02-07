@@ -1,9 +1,9 @@
 # encoding: utf-8
 
-class Reports::MiProduction::SummaryKomp23
+class Reports::MiProduction::SummaryKomp23 
 
   extend Reports::MiProduction::SummariesCommon
-
+  
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'KOMP2 Report 3'
@@ -14,8 +14,8 @@ class Reports::MiProduction::SummaryKomp23
     'Genotype confirmed mice 6 months',
     'Microinjection aborted 6 months',
     'Languishing',
-    'Distinct Genotype confirmed mice ES Cells',
-    'Distinct Old Non Genotype confirmed mice ES Cells'
+    'Distinct Genotype Confirmed ES Cells',
+    'Distinct Old Non Genotype Confirmed ES Cells'
   ]
 
   HEADINGS = [
@@ -51,8 +51,8 @@ class Reports::MiProduction::SummaryKomp23
   end
   
   def self.efficiency_clone(request, row)
-    a = row['Distinct Genotype confirmed mice ES Cells'].to_i
-    b = row['Distinct Old Non Genotype confirmed mice ES Cells'].to_i
+    a = row['Distinct Genotype Confirmed ES Cells'].to_i
+    b = row['Distinct Old Non Genotype Confirmed ES Cells'].to_i
     pc =  a + b != 0 ? ((a.to_f / (a + b).to_f) * 100) : 0
     pc = pc != 0 ? "%i" % pc : request && request.format != :csv ? '' : 0
     return pc
@@ -66,11 +66,11 @@ class Reports::MiProduction::SummaryKomp23
     before = Date.parse(row[date])    
     return before < 6.months.ago.to_date
   end
-
+  
   def self.distinct_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
-      value = row['Distinct Genotype confirmed mice ES Cells'].to_i
+      value = row['Distinct Genotype Confirmed ES Cells'].to_i
       total += value
     end
     return total
@@ -79,7 +79,7 @@ class Reports::MiProduction::SummaryKomp23
   def self.distinct_old_non_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
-      value = row['Distinct Old Non Genotype confirmed mice ES Cells'].to_i
+      value = row['Distinct Old Non Genotype Confirmed ES Cells'].to_i
       total += value
     end
     return total
@@ -123,8 +123,8 @@ class Reports::MiProduction::SummaryKomp23
     ]
     
     hash = {}
-    hash['Distinct Genotype confirmed mice ES Cells'] = lambda { |group| distinct_genotype_confirmed_es_cells_count(group) }
-    hash['Distinct Old Non Genotype confirmed mice ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }
+    hash['Distinct Genotype Confirmed ES Cells'] = lambda { |group| distinct_genotype_confirmed_es_cells_count(group) }
+    hash['Distinct Old Non Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }
     hash['All genes'] = lambda { |group| count_unique_instances_of( group, 'Gene', lambda { |row| count_row(row, 'All genes') } ) }
 
     list_heads.each do |item|
@@ -167,9 +167,8 @@ class Reports::MiProduction::SummaryKomp23
           'ES QC confirmed',
           'Microinjection aborted',
           'Languishing',
-          'Distinct Genotype confirmed mice ES Cells',
-          'Distinct Old Non Genotype confirmed mice ES Cells',
-          'Cre Excision Started',
+          'Distinct Genotype Confirmed ES Cells',
+          'Distinct Old Non Genotype Confirmed ES Cells',
           'Cre excision completed',
           'Phenotyping completed',
           'Phenotyping aborted',
@@ -294,11 +293,11 @@ class Reports::MiProduction::SummaryKomp23
       return row['PhenotypeAttempt Status'] == 'Phenotype Attempt Registered'
     end
   
-    if key == 'Distinct Genotype confirmed mice ES Cells'
+    if key == 'Distinct Genotype Confirmed ES Cells'
       return row[key] && row[key].to_s.length > 0
     end
     
-    if key == 'Distinct Old Non Genotype confirmed mice ES Cells'
+    if key == 'Distinct Old Non Genotype Confirmed ES Cells'
       return row[key] && row[key].to_s.length > 0
     end
    
@@ -328,8 +327,8 @@ class Reports::MiProduction::SummaryKomp23
         return false if r['Consortium'] != consortium
         return false if pcentre && pcentre.to_s.length > 0 && r['Production Centre'] != pcentre
 
-        return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype confirmed mice ES Cells'
-        return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype confirmed mice ES Cells'
+        return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype Confirmed ES Cells'
+        return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype Confirmed ES Cells'
         
         return count_row(r, type)
       

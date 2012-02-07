@@ -45,30 +45,37 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
       assert_equal ['2011', '8', 'BaSH', 'WTSI', '2', ''], csv[1][0..5]
     end
 
-    should 'accumulate numbers for MiAttempts' do
-      mi = Factory.create :mi_attempt, :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
-      replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
-      mi = Factory.create :mi_attempt, :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
-      replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
+    should 'accumulate numbers for MiAttempts for distinct genes' do
+      2.times do
+        es_cell = Factory.create :es_cell
+        mi = Factory.create :mi_attempt, :es_cell => es_cell,
+                :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
+        replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
+        mi = Factory.create :mi_attempt, :es_cell => es_cell,
+                :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
+        replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
+      end
 
       csv = CSV.parse(generate[:csv])
       assert_equal 2, csv.size, csv.inspect
       assert_equal ['2011', '8', 'BaSH', 'WTSI', '', '', '', '2'], csv[1][0..7]
     end
 
-    should 'accumulate numbers of PhenotypeAttempts' do
-      mi = Factory.create :wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
-      replace_status_stamps(mi,
-        'Micro-injection in progress' => '2011-01-01',
-        'Genotype confirmed' => '2011-02-01')
-      pt = Factory.create :phenotype_attempt, :mi_attempt => mi
-      replace_status_stamps(pt, 'Phenotype Attempt Registered' => '2011-08-01')
-      pt = Factory.create :phenotype_attempt, :mi_attempt => mi
-      replace_status_stamps(pt, 'Phenotype Attempt Registered' => '2011-08-01')
+    should 'accumulate numbers of PhenotypeAttempts for distinct genes' do
+      2.times do
+        mi = Factory.create :wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
+        replace_status_stamps(mi,
+          'Micro-injection in progress' => '2011-01-01',
+          'Genotype confirmed' => '2011-02-01')
+        pt = Factory.create :phenotype_attempt, :mi_attempt => mi
+        replace_status_stamps(pt, 'Phenotype Attempt Registered' => '2011-08-01')
+        pt = Factory.create :phenotype_attempt, :mi_attempt => mi
+        replace_status_stamps(pt, 'Phenotype Attempt Registered' => '2011-08-01')
+      end
 
       csv = CSV.parse(generate[:csv])
-      assert_equal ['2011', '8', 'BaSH', 'WTSI', '', '', '', '', '', '', '2'], csv[1][0..10]
-      assert_equal 2, csv.size, csv.inspect
+      row = csv.find {|i| i[0..3] == ['2011', '8', 'BaSH', 'WTSI']}
+      assert_equal ['2011', '8', 'BaSH', 'WTSI', '', '', '', '', '', '', '2'], row[0..10]
     end
 
   end

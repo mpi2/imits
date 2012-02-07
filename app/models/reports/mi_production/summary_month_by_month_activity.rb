@@ -2,8 +2,6 @@
 
 # TODO: what about empty centres?
 # TODO: better rowspanning
-# TODO: iterator for test data
-# TODO: add details flag
 
 class Reports::MiProduction::SummaryMonthByMonthActivity
 
@@ -25,26 +23,30 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   #  :assigned=>"Assigned"
   #}
 
-  PLAN_MAP = Hash.new do |hash,key|
-
-    "PLAN_MAP: No value defined for key: #{ key }"
-  end
-  #PLAN_MAP = {}
-  #  PLAN_MAP.default
+  PLAN_MAP = Hash.new { |hash,key| "PLAN_MAP: No value defined for key: #{ key }" }
   MiPlan::Status.all.each { |i| PLAN_MAP[i.name.downcase.parameterize.underscore.to_sym] = i.name }
 
+  ATTEMPT_MAP = Hash.new { |hash,key| "ATTEMPT_MAP: No value defined for key: #{ key }" }
+  MiAttempt::Status.all.each { |i| ATTEMPT_MAP[i.name.downcase.parameterize.underscore.to_sym] = i.name }
+
+  PHENOTYPE_MAP = Hash.new { |hash,key| "PHENOTYPE_MAP: No value defined for key: #{ key }" }
+  PhenotypeAttempt::Status.all.each { |i| PHENOTYPE_MAP[i.name.downcase.parameterize.underscore.to_sym] = i.name }
+
   PLAN_STATUSES = [PLAN_MAP[:assigned_es_cell_qc_in_progress], PLAN_MAP[:assigned_es_cell_qc_complete], PLAN_MAP[:aborted_es_cell_qc_failed]]
-  ATTEMPT_STATUSES = ['Micro-injection in progress', 'Genotype confirmed', 'Micro-injection aborted']
-  PHENOTYPE_STATUSES = [
-    'Phenotype Attempt Aborted',
-    'Phenotyping Complete',
-    'Phenotyping Started',
-    'Cre Excision Complete',
-    'Cre Excision Started',
-    'Rederivation Started',
-    'Rederivation Complete',
-    'Phenotype Attempt Registered'
-  ]
+  ATTEMPT_STATUSES = [ATTEMPT_MAP[:micro_injection_in_progress], ATTEMPT_MAP[:genotype_confirmed],
+    ATTEMPT_MAP[:micro_injection_aborted]]
+  #PHENOTYPE_STATUSES = [
+  #  PHENOTYPE_MAP[:phenotype_attempt_aborted],
+  #  PHENOTYPE_MAP[:phenotyping_complete],
+  #  PHENOTYPE_MAP[:phenotyping_started],
+  #  PHENOTYPE_MAP[:cre_excision_complete],
+  #  PHENOTYPE_MAP[:cre_excision_started],
+  #  PHENOTYPE_MAP[:rederivation_started],
+  #  PHENOTYPE_MAP[:rederivation_complete],
+  #  PHENOTYPE_MAP[:phenotype_attempt_registered]
+  #]
+  PHENOTYPE_STATUSES = []
+  PHENOTYPE_MAP.keys.each { |name| PHENOTYPE_STATUSES.push([name]) }
 
   HEADINGS = [
     'Year',
@@ -55,9 +57,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     'ES Cell QC In Progress',
     'ES Cell QC Complete',
     'ES Cell QC Failed',
+
     'Micro-injection in progress',
     'Genotype confirmed',
     'Micro-injection aborted',
+
     'Phenotype Attempt Registered',
     'Rederivation Started',
     'Rederivation Complete',
@@ -92,8 +96,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   end
 
   def self.prettify(params, summary)
-    string = ''
-    string += '<table>'
+    string = '<table>'
     string += '<tr>'
 
     script_name = params[:script_name]
@@ -189,32 +192,50 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
   def self.subsummary(params)
 
+    year = params[:year]
+    month = params[:month]
     consortium = params[:consortium]
     type = params[:type]
     pcentre = params[:pcentre]
-    year = params[:year]
-    month = params[:month]
 
     summary = get_summary(params)
 
     table = Table(["Date", "Marker Symbol", "Consortium", "Centre", "Status"])
+    
+    if ! pcentre
+      summary[year.to_i][month.to_i][consortium].each do |centre|
+        summary[year.to_i][month.to_i][consortium][centre][type].keys.each do |gene|
+          table << {
+            "Date" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:date].strftime("%Y-%m-%d"),
+            "Consortium" => consortium,
+            "Centre" => pcentre,
+            "Marker Symbol" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:symbol],
+            "Status" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:status]
+          }
+        end
+      end
+    end
 
-    summary[year.to_i][month.to_i][consortium][pcentre][type].keys.each do |gene|
-      table << {
-        "Date" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:date].strftime("%Y-%m-%d"),
-        "Consortium"=> consortium,
-        "Centre"=>pcentre,
-        "Marker Symbol" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:symbol],
-        "Status" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:status]
-      }
+    if pcentre
+      summary[year.to_i][month.to_i][consortium][pcentre][type].keys.each do |gene|
+        table << {
+          "Date" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:date].strftime("%Y-%m-%d"),
+          "Consortium" => consortium,
+          "Centre" => pcentre,
+          "Marker Symbol" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:symbol],
+          "Status" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:status]
+        }
+      end
     end
 
     table.sort_rows_by!("Date", :order => :descending)
 
+    title = ''
     title = "Plan Details" if PLAN_STATUSES.include? type
     title = "Attempt Details" if ATTEMPT_STATUSES.include? type
     title = "Phenotype Details" if PHENOTYPE_STATUSES.include? type
-    title += " - YEAR: #{year} - MONTH: #{month} - CONSORTIUM: #{consortium} - CENTRE: #{pcentre} - TYPE: #{type} (#{table.data.size})" if DEBUG
+    size = table && table.data && table.data.size ? table.data.size : 0
+    title += " - YEAR: #{year} - MONTH: #{month} - CONSORTIUM: #{consortium} - CENTRE: #{pcentre} - TYPE: #{type} (#{size})" if DEBUG
 
     return title, table
   end
@@ -288,16 +309,16 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           :date => stamp.mi_attempt.mi_plan.latest_relevant_mi_attempt.mi_attempt_status.created_at
         }
 
-        if(status == 'Micro-injection in progress')
+        if(status == ATTEMPT_MAP[:micro_injection_in_progress])
           summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
         end
 
-        if(status == 'Genotype confirmed')
+        if(status == ATTEMPT_MAP[:genotype_confirmed])
           summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
           summary[year][month][consortium][pcentre]['Genotype confirmed'][gene_id] = details_hash
         end
 
-        if(status == 'Micro-injection aborted')
+        if(status == ATTEMPT_MAP[:micro_injection_aborted])
           summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
           summary[year][month][consortium][pcentre]['Micro-injection aborted'][gene_id] = details_hash
         end
@@ -335,47 +356,47 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           :date => stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.created_at
         }
 
-        if status == 'Phenotype Attempt Aborted'
+        if status == PHENOTYPE_MAP[:phenotype_attempt_aborted]
           summary[year][month][consortium][pcentre]['Phenotype Attempt Aborted'][gene_id] = details_hash
         end
 
-        if status == 'Phenotyping Complete'
+        if status == PHENOTYPE_MAP[:phenotyping_complete]
           summary[year][month][consortium][pcentre]['Phenotyping Complete'][gene_id] = details_hash
         end
 
-        phenotyping_started = [ 'Phenotyping Started', 'Phenotyping Complete' ]
+        phenotyping_started = [ PHENOTYPE_MAP[:phenotyping_started], PHENOTYPE_MAP[:phenotyping_complete] ]
 
         if phenotyping_started.include?(status)
           summary[year][month][consortium][pcentre]['Phenotyping Started'][gene_id] = details_hash
         end
 
-        cre_excision_complete = phenotyping_started + [ 'Cre Excision Complete' ]
+        cre_excision_complete = phenotyping_started + [ PHENOTYPE_MAP[:cre_excision_complete] ]
 
         if cre_excision_complete.include?(status)
           summary[year][month][consortium][pcentre]['Cre Excision Complete'][gene_id] = details_hash
         end
 
-        cre_excision_started = cre_excision_complete + [ 'Cre Excision Started' ]
+        cre_excision_started = cre_excision_complete + [ PHENOTYPE_MAP[:cre_excision_started] ]
 
         if cre_excision_started.include?(status)
           summary[year][month][consortium][pcentre]['Cre Excision Started'][gene_id] = details_hash
         end
 
-        rederivation_started = cre_excision_started + [ 'Rederivation Started' ]
+        rederivation_started = cre_excision_started + [ PHENOTYPE_MAP[:rederivation_started] ]
 
         if rederivation_started.include?(status)
           summary[year][month][consortium][pcentre]['Rederivation Started'][gene_id] = details_hash
           #TODO: check
         end
 
-        rederivation_complete = rederivation_started + [ 'Rederivation Complete' ]
+        rederivation_complete = rederivation_started + [ PHENOTYPE_MAP[:rederivation_complete] ]
 
         if rederivation_complete.include?(status)
           summary[year][month][consortium][pcentre]['Rederivation Complete'][gene_id] = details_hash
           #TODO: check
         end
 
-        phenotype_attempt_registered = rederivation_complete + [ 'Phenotype Attempt Registered' ]
+        phenotype_attempt_registered = rederivation_complete + [ PHENOTYPE_MAP[:phenotype_attempt_registered] ]
 
         if phenotype_attempt_registered.include?(status)
           summary[year][month][consortium][pcentre]['Phenotype Attempt Registered'][gene_id] = details_hash
@@ -390,4 +411,125 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     return summary
   end
 
+  def self.prettify2(params, summary)
+    string = '<table>'
+    string += '<tr>'
+
+    script_name = params[:script_name]
+
+    report_table = Table(HEADINGS)
+
+    make_clean = lambda do |value|
+      return value if params[:format] == :csv && ! CSV_BLANKS
+      return '' if value.to_s.length < 1
+      return '' if value.to_i == 0
+      return value
+    end
+
+    report_table.column_names.each { |name| string += "<th>#{name}</th>" }
+
+    summary.keys.sort.reverse!.each do |year|
+
+      string += '</tr>'
+      year_count = 0
+      string += '<tr>'
+      string += "<td rowspan='YEAR_ROWSPAN'>#{year}</td>"
+      month_hash = summary[year]
+      month_hash.keys.sort.reverse!.each do |month|
+        string += "<td rowspan='MONTH_ROWSPAN'>#{Date::MONTHNAMES[month]}</td>"
+        cons_hash = month_hash[month]
+        month_count = 0
+        cons_hash.keys.each do |cons|
+          centre_hash = cons_hash[cons]
+          string += "<td rowspan='CONS_ROWSPAN'>#{cons}</td>"
+          
+ 
+ 
+          # new bit to re-jig plan stuff
+          
+          make_link = lambda do |key, value|
+            return value if params[:format] == :csv
+            return '' if value.to_s.length < 1
+            consort = CGI.escape cons
+            type = CGI.escape key.to_s
+            separator = /\?/.match(script_name) ? '&' : '?'
+            return "<a href='#{script_name}#{separator}year=#{year}&month=#{month}&consortium=#{consort}&type=#{type}'>#{value}</a>"
+          end
+          
+          centre_hash.keys.each do |centre|
+            array2 = [ 'ES Cell QC In Progress', 'ES Cell QC Complete', 'ES Cell QC Failed' ]
+            summer = {'ES Cell QC In Progress'=> 0, 'ES Cell QC Complete' => 0, 'ES Cell QC Failed' => 0}
+            status_hash = centre_hash[centre]
+            array2.each { |name| summer[name] += status_hash[name] }
+          end          
+    
+          array2.each { |name| string += "<td rowspan='#{centre_hash.keys.size.to_s}'>#{make_link.call(name, status_hash[name])}</td>" }
+ 
+ 
+          
+          
+          centre_hash.keys.each do |centre|
+            next if centre.blank?
+
+            make_link = lambda do |key, frame|
+              return frame[key].keys.size if params[:format] == :csv
+              return '' if frame[key].keys.size.to_s.length < 1
+              return '' if frame[key].keys.size.to_i == 0
+
+              consort = CGI.escape cons
+              pcentre = CGI.escape centre
+              type = CGI.escape key.to_s
+              separator = /\?/.match(script_name) ? '&' : '?'
+              return "<a href='#{script_name}#{separator}year=#{year}&month=#{month}&consortium=#{consort}&pcentre=#{pcentre}&type=#{type}'>#{frame[key].keys.size}</a>"
+            end
+
+            status_hash = centre_hash[centre]
+
+            array = [
+              #'ES Cell QC In Progress',
+              #'ES Cell QC Complete',
+              #'ES Cell QC Failed',
+              'Micro-injection in progress',
+              'Genotype confirmed',
+              'Micro-injection aborted',
+              'Phenotype Attempt Registered',
+              'Rederivation Started',
+              'Rederivation Complete',
+              'Cre Excision Started',
+              'Cre Excision Complete',
+              'Phenotyping Started',
+              'Phenotyping Complete',
+              'Phenotype Attempt Aborted'
+            ]
+
+            string += "<td>#{centre}</td>"
+
+            array.each { |name| string += "<td>#{make_link.call(name, status_hash)}</td>" }
+
+            string += "</tr>\n"
+            year_count += 1
+            month_count += 1
+
+            hash = {
+              'Year' => year,
+              'Month' => month,
+              'Consortium' => cons,
+              'Production Centre' => centre
+            }
+
+            array.each { |name| hash[name] = make_clean.call(status_hash[name].keys.size) }
+
+            report_table << hash
+
+          end
+          string = string.gsub(/CONS_ROWSPAN/, centre_hash.keys.size.to_s)
+        end
+        string = string.gsub(/MONTH_ROWSPAN/, month_count.to_s)
+      end
+      string = string.gsub(/YEAR_ROWSPAN/, year_count.to_s)
+    end
+    string += '</table>'
+    return report_table, string
+  end
+  
 end

@@ -6,6 +6,8 @@ class Public::MiAttempt < ::MiAttempt
     es_cell_name
     mi_date
     colony_name
+    consortium_name
+    production_centre_name
     distribution_centre_name
     deposited_material_name
     blast_strain_name

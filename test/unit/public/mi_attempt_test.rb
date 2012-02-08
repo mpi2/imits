@@ -18,6 +18,8 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         es_cell_name
         mi_date
         colony_name
+        consortium_name
+        production_centre_name
         distribution_centre_name
         deposited_material_name
         blast_strain_name
@@ -82,6 +84,8 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         status
         status_name
         colony_name
+        consortium_name
+        production_centre_name
         distribution_centre_name
         deposited_material_name
         blast_strain_name
@@ -149,6 +153,11 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       should 'work the same as #as_json' do
         doc = Nokogiri::XML(default_mi_attempt.to_xml)
         assert_equal default_mi_attempt.mi_attempt_status.description, doc.css('status_name').text
+      end
+
+      should 'output each attribute only once' do
+        doc = Nokogiri::XML(default_mi_attempt.to_xml)
+        assert_equal 1, doc.xpath('count(//id)').to_i
       end
     end
 

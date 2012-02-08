@@ -23,7 +23,11 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def index
-    render :json => data_for_serialized(:json, 'id', PhenotypeAttempt, :public_search)
+    render :json => data_for_serialized(:json, 'id', Public::PhenotypeAttempt, :public_search)
   end
+
+  private
+
+  def public_phenotype_attempt_url(*args); phenotype_attempt_url(*args); end
 
 end

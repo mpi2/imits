@@ -102,7 +102,7 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
           assert_equal ['Cbx1_A', 'Cbx1_B'], JSON.parse(response.body).map{|i| i['colony_name']}
         end
 
-        should 'translate sort param'
+        should_eventually 'translate sort params when we have any associated fields that can be searched on (thanks, Ransack)'
 
         should 'allow paginating' do
           ('A'..'F').map { |i| Factory.create :phenotype_attempt, :colony_name => i }

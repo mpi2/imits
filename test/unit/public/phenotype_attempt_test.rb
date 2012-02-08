@@ -175,6 +175,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
     should 'limit the public mass-assignment API' do
       expected = [
+        'colony_name',
         'consortium_name',
         'production_centre_name',
         'mi_attempt_colony_name',
@@ -194,6 +195,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
     should 'have defined attributes in JSON output' do
       expected = [
         'id',
+        'colony_name',
         'status_name',
         'consortium_name',
         'production_centre_name',

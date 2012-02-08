@@ -6,6 +6,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   include Public::Serializable
 
   FULL_ACCESS_ATTRIBUTES = [
+    'colony_name',
     'consortium_name',
     'production_centre_name',
     'mi_attempt_colony_name',

@@ -24,8 +24,8 @@ class MiAttemptsControllerTest < ActionController::TestCase
         should 'work in XML format' do
           get :index, :colony_name_cont => 'MBS', :format => :xml
           doc = parse_xml_from_response
-          assert_equal 1, doc.xpath('count(//mi-attempt)')
-          assert_equal 'EPD0127_4_E01', doc.css('mi-attempt es-cell-name').text
+          assert_equal 1, doc.xpath('count(//mi_attempt)'), doc
+          assert_equal 'EPD0127_4_E01', doc.css('mi_attempt es_cell_name').text
         end
 
         should 'work in JSON format' do
@@ -71,7 +71,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'paginate by default for XML' do
         200.times {Factory.create :mi_attempt}
         get :index, :format => :xml
-        assert_equal 20, response.body.scan('<mi-attempt>').size
+        assert_equal 20, response.body.scan('<mi_attempt>').size
       end
 
       should 'allow pagination' do
@@ -107,7 +107,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
       context 'JSON extended_response' do
         should 'be included when parameter is passed' do
-          mi = Factory.create :mi_attempt
+          mi = Factory.create(:mi_attempt).to_public
           get :index, :format => 'json', 'extended_response' => 'true'
           expected = {
             'mi_attempts' => [mi.as_json],
@@ -120,7 +120,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
           assert_equal expected['mi_attempts'].size, got['mi_attempts'].size
           assert_equal expected['mi_attempts'][0].keys.sort, got['mi_attempts'][0].keys.sort
           expected['mi_attempts'][0].each do |key, value|
-            assert_equal value, got['mi_attempts'][0][key], "Attribute #{key} differed"
+            assert_equal value.try(:to_s), got['mi_attempts'][0][key].try(:to_s), "Attribute #{key} differed"
           end
         end
 
@@ -159,7 +159,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
     context 'GET show' do
       setup do
         sign_in default_user
-        @mi_attempt = Factory.create(:mi_attempt)
+        @mi_attempt = Factory.create(:mi_attempt).to_public
       end
 
       should 'get one mi attempt by ID as XML' do
@@ -167,7 +167,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert response.success?
 
         doc = parse_xml_from_response
-        assert_equal @mi_attempt.id, doc.css('mi-attempt id').text.to_i
+        assert_equal @mi_attempt.id, doc.css('mi_attempt id').text.to_i
       end
 
       should 'get one mi attempt by ID as JSON' do
@@ -180,7 +180,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
     context 'GET history' do
       setup do
         sign_in default_user
-        @mi_attempt = Factory.create(:mi_attempt)
+        @mi_attempt = Factory.create(:mi_attempt).to_public
       end
 
       should 'show the history page for a given mi_attempt' do
@@ -294,7 +294,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
           'mi_date' => '2011-05-01',
           :production_centre_name => 'ICS'
         }, :format => :json
-        assert_response 401, response.status
+        assert_response 401, response.body
         expected = {
           'error' => 'Cannot create/update MI attempts for other production centres'
         }
@@ -355,7 +355,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'take extended_response parameter into account for JSON' do
-        mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
+        mi_attempt = Factory.create(:mi_attempt, :total_blasts_injected => nil).to_public
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'total_blasts_injected' => 1},
@@ -366,9 +366,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
         mi_attempt.reload
         expected = {
           'total' => 1,
-          'mi_attempts' => [mi_attempt.as_json],
+          'mi_attempts' => [JSON.parse(mi_attempt.to_json)],
           'success' => true
         }
+        assert_equal expected['mi_attempts'].first, got['mi_attempts'].first
         assert_equal expected, got
       end
 

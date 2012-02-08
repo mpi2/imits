@@ -16,26 +16,26 @@ class MiAttemptsController < ApplicationController
         q[:terms] = q[:terms].lines.map(&:strip).select{|i|!i.blank?}.join("\n")
       end
 
-      format.xml { render :xml => data_for_serialized(:xml) }
+      format.xml { render :xml => data_for_serialized(:xml).to_xml(:root => 'mi_attempts', :dasherize => false) }
       format.json { render :json => data_for_serialized(:json) }
     end
   end
 
   def data_for_serialized(format)
-    super(format, 'id asc', MiAttempt, :public_search)
+    super(format, 'id asc', Public::MiAttempt, :public_search)
   end
   protected :data_for_serialized
 
   def new
     set_centres_and_consortia
-    @mi_attempt = MiAttempt.new(
+    @mi_attempt = Public::MiAttempt.new(
       :production_centre_name => current_user.production_centre.name,
       :distribution_centre_name => current_user.production_centre.name
     )
   end
 
   def create
-    @mi_attempt = MiAttempt.new(params[:mi_attempt])
+    @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
     @mi_attempt.production_centre_name ||= current_user.production_centre.name
 
@@ -63,12 +63,12 @@ class MiAttemptsController < ApplicationController
 
   def show
     set_centres_and_consortia
-    @mi_attempt = MiAttempt.find(params[:id])
+    @mi_attempt = Public::MiAttempt.find(params[:id])
     respond_with @mi_attempt
   end
 
   def update
-    @mi_attempt = MiAttempt.find(params[:id])
+    @mi_attempt = Public::MiAttempt.find(params[:id])
     @mi_attempt.attributes = params[:mi_attempt]
     @mi_attempt.updated_by = current_user
 
@@ -116,5 +116,8 @@ class MiAttemptsController < ApplicationController
 
     return true
   end
+
+  alias_method :public_mi_attempt_url, :mi_attempt_url
+  helper { def public_mi_attempts_path(*args); mi_attempts_path(*args); end }
 
 end

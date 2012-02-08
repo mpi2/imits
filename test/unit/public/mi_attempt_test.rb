@@ -145,5 +145,12 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#to_xml' do
+      should 'work the same as #as_json' do
+        doc = Nokogiri::XML(default_mi_attempt.to_xml)
+        assert_equal default_mi_attempt.mi_attempt_status.description, doc.css('status_name').text
+      end
+    end
+
   end
 end

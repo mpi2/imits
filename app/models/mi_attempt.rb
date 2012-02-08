@@ -426,31 +426,8 @@ class MiAttempt < ApplicationModel
     return self.search(translated_params)
   end
 
-  def to_xml(options = {})
-    super(default_serializer_options(options))
-  end
-
   def in_progress_date
     return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttemptStatus.micro_injection_in_progress.id}.created_at.utc.to_date
-  end
-
-  private
-
-  def default_serializer_options(options = {})
-    options ||= {}
-    options.symbolize_keys!
-    options[:methods] ||= [
-      'es_cell_name', 'emma_status', 'status',
-      'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
-      'distribution_centre_name', 'production_centre_name', 'consortium_name',
-      'mouse_allele_symbol', 'deposited_material_name',
-      'es_cell_marker_symbol', 'es_cell_allele_symbol'
-    ] + QC_FIELDS.map{|i| "#{i}_result"}
-    options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
-      'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
-      'distribution_centre_id', 'deposited_material_id'
-    ] - ['mi_plan_id']
-    return options
   end
 
 end

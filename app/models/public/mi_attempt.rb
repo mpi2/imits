@@ -2,14 +2,75 @@ class Public::MiAttempt < ::MiAttempt
 
   include Public::Serializable
 
-  FULL_ACCESS_ATTRIBUTES = [
-  ]
+  FULL_ACCESS_ATTRIBUTES = %w{
+    es_cell_name
+    mi_date
+    colony_name
+    distribution_centre_name
+    deposited_material_name
+    blast_strain_name
+    total_blasts_injected
+    total_transferred
+    number_surrogates_receiving
+    total_pups_born
+    total_female_chimeras
+    total_male_chimeras
+    total_chimeras
+    number_of_males_with_0_to_39_percent_chimerism
+    number_of_males_with_40_to_79_percent_chimerism
+    number_of_males_with_80_to_99_percent_chimerism
+    number_of_males_with_100_percent_chimerism
+    is_suitable_for_emma
+    is_emma_sticky
+    emma_status
+    colony_background_strain_name
+    test_cross_strain_name
+    date_chimeras_mated
+    number_of_chimera_matings_attempted
+    number_of_chimera_matings_successful
+    number_of_chimeras_with_glt_from_cct
+    number_of_chimeras_with_glt_from_genotyping
+    number_of_chimeras_with_0_to_9_percent_glt
+    number_of_chimeras_with_10_to_49_percent_glt
+    number_of_chimeras_with_50_to_99_percent_glt
+    number_of_chimeras_with_100_percent_glt
+    total_f1_mice_from_matings
+    number_of_cct_offspring
+    number_of_het_offspring
+    number_of_live_glt_offspring
+    mouse_allele_type
+    qc_southern_blot_result
+    qc_five_prime_lr_pcr_result
+    qc_five_prime_cassette_integrity_result
+    qc_tv_backbone_assay_result
+    qc_neo_count_qpcr_result
+    qc_neo_sr_pcr_result
+    qc_loa_qpcr_result
+    qc_homozygous_loa_sr_pcr_result
+    qc_lacz_sr_pcr_result
+    qc_mutant_specific_sr_pcr_result
+    qc_loxp_confirmation_result
+    qc_three_prime_lr_pcr_result
+    report_to_public
+    is_active
+    is_released_from_genotyping
+    comments
+  }
 
-  READABLE_ATTRIBUTES = [
-    'id'
-  ] + FULL_ACCESS_ATTRIBUTES
+  READABLE_ATTRIBUTES = %w{
+    id
+    es_cell_marker_symbol
+    es_cell_allele_symbol
+    status_name
+    status
+    mouse_allele_symbol_superscript
+    mouse_allele_symbol
+    mi_plan_id
+  } + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)
+
+  def status_name; mi_attempt_status.description; end
 end
 
 # == Schema Information

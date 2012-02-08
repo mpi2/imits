@@ -426,12 +426,6 @@ class MiAttempt < ApplicationModel
     return self.search(translated_params)
   end
 
-  def as_json(options = {})
-    json = super(default_serializer_options(options))
-    json['mi_date'] = self.mi_date.to_s
-    json
-  end
-
   def to_xml(options = {})
     super(default_serializer_options(options))
   end

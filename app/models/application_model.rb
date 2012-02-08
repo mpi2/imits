@@ -54,13 +54,4 @@ class ApplicationModel < ActiveRecord::Base
     end
   end
 
-  def as_json(options = {})
-    options ||= {}
-    options.symbolize_keys!
-
-    options[:methods] = READABLE_ATTRIBUTES
-    options[:only] = options[:methods]
-    return super(options)
-  end
-
 end

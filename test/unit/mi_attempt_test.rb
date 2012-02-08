@@ -31,11 +31,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_should belong_to(:distribution_centre)
         end
 
-        should 'not output private attributes in serialization' do
-          assert_equal false, default_mi_attempt.as_json.include?('production_centre_id')
-          assert_equal false, default_mi_attempt.as_json.include?('distribution_centre_id')
-        end
-
         should 'validate presence of production_centre_name' do
           assert_should validate_presence_of :production_centre_name
         end
@@ -58,14 +53,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           centre = Factory.create :centre, :name => 'New Centre'
           default_mi_attempt.update_attributes!(:distribution_centre_name => 'New Centre')
           assert_equal 'New Centre', default_mi_attempt.distribution_centre.name
-        end
-
-        should 'output *_centre_name fields in serialization' do
-          mi_attempt = Factory.create :mi_attempt,
-                  :production_centre_name => 'WTSI',
-                  :distribution_centre_name => 'ICS'
-          data = JSON.parse(mi_attempt.to_json)
-          assert_equal ['ICS', 'WTSI'], data.values_at('distribution_centre_name', 'production_centre_name')
         end
       end
 
@@ -90,19 +77,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           local_mi_attempt.save!
           local_mi_attempt = MiAttempt.find(local_mi_attempt.id)
           assert_equal 'Genotype confirmed', local_mi_attempt.mi_attempt_status.description
-        end
-
-        should 'not be mass-assignable by id' do
-          default_mi_attempt.attributes = {
-            :mi_attempt_status    => MiAttemptStatus.genotype_confirmed,
-            :mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id
-          }
-          assert_not_equal MiAttemptStatus.genotype_confirmed, default_mi_attempt.mi_attempt_status
-        end
-
-        should 'not expose id to serialization' do
-          data = JSON.parse(default_mi_attempt.to_json)
-          assert_false data.has_key?('mi_attempt_status_id')
         end
 
         should ', when changed, add a status stamp' do
@@ -160,10 +134,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'be nil when actual status association is nil' do
           default_mi_attempt.mi_attempt_status = nil
           assert_nil default_mi_attempt.status
-        end
-
-        should 'be in serialization' do
-          assert_equal default_mi_attempt.status, default_mi_attempt.as_json['status']
         end
 
         should 'be filtered on #public_search' do
@@ -311,11 +281,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           @mi_attempt.mouse_allele_type = 'e'
           assert_nil @mi_attempt.mouse_allele_symbol
         end
-
-        should 'be output in serialization' do
-          @mi_attempt.mouse_allele_type = 'e'
-          assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.as_json['mouse_allele_symbol']
-        end
       end
 
       context '#allele_symbol' do
@@ -397,25 +362,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           mi = Factory.build(:mi_attempt, :test_cross_strain_name => strain.name)
           assert_false mi.valid?
           assert ! mi.errors[:test_cross_strain_name].blank?
-        end
-
-        should 'expose *_strain_name virtual methods to JSON API' do
-          data = JSON.parse(default_mi_attempt.to_json)
-          assert_equal ['BALB/c', '129P2/OlaHsd', '129P2/OlaHsd'],
-                  data.values_at('blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name')
-        end
-
-        should 'not output strain IDs in serialized output' do
-          data = JSON.parse(default_mi_attempt.to_json)
-          assert ! data.has_key?('blast_strain_id')
-          assert ! data.has_key?('colony_background_strain_id')
-          assert ! data.has_key?('test_cross_strain_id')
-        end
-
-        should 'expose *_strain_name virtual methods to XML API' do
-          doc = Nokogiri::XML(default_mi_attempt.to_xml)
-          assert_equal ['BALB/c', '129P2/OlaHsd', '129P2/OlaHsd'],
-                  [doc.css('blast-strain-name').text, doc.css('colony-background-strain-name').text, doc.css('test-cross-strain-name').text]
         end
 
         should 'allow setting blast strain to nil using blast_strain_name' do
@@ -516,12 +462,6 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 'unsuitable_sticky', default_mi_attempt.emma_status
           end
         end
-
-        should 'be in serialized output' do
-          default_mi_attempt.emma_status = 'suitable_sticky'
-          data = JSON.parse(default_mi_attempt.to_json)
-          assert_equal 'suitable_sticky', data['emma_status']
-        end
       end
 
       context 'QC field tests:' do
@@ -536,10 +476,6 @@ class MiAttemptTest < ActiveSupport::TestCase
 
             default_mi_attempt.send("#{qc_field}_result=", 'na')
             assert_equal 'na', default_mi_attempt.send("#{qc_field}_result")
-          end
-
-          should "output #{qc_field} in serialization" do
-            assert default_mi_attempt.as_json.has_key? "#{qc_field}_result"
           end
 
           should 'default to "na" if assigned a blank' do
@@ -628,14 +564,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.save!
           assert_equal dm, default_mi_attempt.deposited_material
         end
-
-        should 'expose name in serialized output' do
-          assert_equal default_mi_attempt.deposited_material_name, default_mi_attempt.as_json['deposited_material_name']
-        end
-
-        should 'not expose _id in serialization' do
-          assert_false default_mi_attempt.as_json.has_key? 'deposited_material_id'
-        end
       end
 
       should 'have #comments' do
@@ -651,10 +579,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           mi.valid?
           assert_equal ['must have a production centre (INTERNAL ERROR)'],
                   mi.errors['mi_plan']
-        end
-
-        should 'expose #mi_plan_id in JSON' do
-          assert_include default_mi_attempt.as_json.keys, 'mi_plan_id'
         end
 
         context 'on create' do
@@ -912,14 +836,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_false mi_attempt.valid?
         assert ! mi_attempt.errors[:es_cell_name].blank?
       end
-
-      should 'be output in JSON serialization' do
-        assert_equal 'EPD0127_4_E01', JSON.parse(@mi_attempt.to_json)['es_cell_name']
-      end
-
-      should 'be output in XML serialization' do
-        assert_equal 'EPD0127_4_E01', Nokogiri::XML(@mi_attempt.to_xml).css('es-cell-name').text
-      end
     end
 
     should 'have #gene' do
@@ -998,19 +914,11 @@ class MiAttemptTest < ActiveSupport::TestCase
       should 'delegate to es_cell' do
         assert_equal default_mi_attempt.es_cell.marker_symbol, default_mi_attempt.es_cell_marker_symbol
       end
-
-      should 'be in serialization output' do
-        assert_equal default_mi_attempt.es_cell.marker_symbol, default_mi_attempt.as_json['es_cell_marker_symbol']
-      end
     end
 
     context '#es_cell_allele_symbol' do
       should 'delegate to es_cell' do
         assert_equal default_mi_attempt.es_cell.allele_symbol, default_mi_attempt.es_cell_allele_symbol
-      end
-
-      should 'be in serialization output' do
-        assert_equal default_mi_attempt.es_cell.allele_symbol, default_mi_attempt.as_json['es_cell_allele_symbol']
       end
     end
 
@@ -1020,46 +928,6 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       mi.valid?
       assert_match /gene mismatch/i, mi.errors[:base].join('; ')
-    end
-
-    context 'private attributes' do
-      setup do
-        @protected_attributes = [
-          'created_at', 'updated_at', 'updated_by', 'updated_by_id',
-          'es_cell', 'es_cell_id', 'mi_plan', 'mi_plan_id'
-        ].sort
-      end
-
-      should 'be protected from mass assignment' do
-        @protected_attributes.each do |attr|
-          assert_include MiAttempt.protected_attributes, attr
-        end
-      end
-
-      should 'not be output in json serialization' do
-        data = JSON.parse(default_mi_attempt.to_json)
-        @protected_attributes -= ['mi_plan_id']
-        values_in_both = @protected_attributes & data.keys
-        assert_empty values_in_both
-      end
-
-      should 'not be output in xml serialization' do
-        doc = Nokogiri::XML(default_mi_attempt.to_xml)
-        assert_blank doc.css('qc-loxp-confirmation-id')
-        assert_blank doc.css('created-at')
-      end
-    end
-
-    should 'not output QC foreign keys in serialized output' do
-      data = JSON.parse(default_mi_attempt.to_json)
-      assert ! data.has_key?('qc_southern_blot_id')
-    end
-
-    should 'process default options in #as_json just like #to_json' do
-      expected = JSON.parse(default_mi_attempt.to_json)
-      got = default_mi_attempt.as_json.stringify_keys
-
-      assert_equal expected, got, "diff: #{expected.diff(got)}"
     end
 
     context '::active' do

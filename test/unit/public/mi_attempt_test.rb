@@ -9,19 +9,134 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       @default_mi_attempt ||= Factory.create(:mi_attempt).to_public
     end
 
-    should 'limit the public mass-assignment API' do
-      expected = [
-      ]
-      got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
-      assert_equal expected.sort, got.sort
+    should 'have #status_name' do
+      assert_equal default_mi_attempt.status_name, default_mi_attempt.mi_attempt_status.description
     end
 
-    should 'have defined attributes in JSON output' do
-      expected = [
-        'id',
-      ]
+    should 'limit the public mass-assignment API' do
+      expected = %w{
+        es_cell_name
+        mi_date
+        colony_name
+        distribution_centre_name
+        deposited_material_name
+        blast_strain_name
+        total_blasts_injected
+        total_transferred
+        number_surrogates_receiving
+        total_pups_born
+        total_female_chimeras
+        total_male_chimeras
+        total_chimeras
+        number_of_males_with_0_to_39_percent_chimerism
+        number_of_males_with_40_to_79_percent_chimerism
+        number_of_males_with_80_to_99_percent_chimerism
+        number_of_males_with_100_percent_chimerism
+        is_suitable_for_emma
+        is_emma_sticky
+        emma_status
+        colony_background_strain_name
+        test_cross_strain_name
+        date_chimeras_mated
+        number_of_chimera_matings_attempted
+        number_of_chimera_matings_successful
+        number_of_chimeras_with_glt_from_cct
+        number_of_chimeras_with_glt_from_genotyping
+        number_of_chimeras_with_0_to_9_percent_glt
+        number_of_chimeras_with_10_to_49_percent_glt
+        number_of_chimeras_with_50_to_99_percent_glt
+        number_of_chimeras_with_100_percent_glt
+        total_f1_mice_from_matings
+        number_of_cct_offspring
+        number_of_het_offspring
+        number_of_live_glt_offspring
+        mouse_allele_type
+        qc_southern_blot_result
+        qc_five_prime_lr_pcr_result
+        qc_five_prime_cassette_integrity_result
+        qc_tv_backbone_assay_result
+        qc_neo_count_qpcr_result
+        qc_neo_sr_pcr_result
+        qc_loa_qpcr_result
+        qc_homozygous_loa_sr_pcr_result
+        qc_lacz_sr_pcr_result
+        qc_mutant_specific_sr_pcr_result
+        qc_loxp_confirmation_result
+        qc_three_prime_lr_pcr_result
+        report_to_public
+        is_active
+        is_released_from_genotyping
+        comments
+      }
+      got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
+      assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
+    end
+
+    should 'have defined attributes in serialized output' do
+      expected = %w{
+        id
+        es_cell_name
+        es_cell_marker_symbol
+        es_cell_allele_symbol
+        mi_date
+        status
+        status_name
+        colony_name
+        distribution_centre_name
+        deposited_material_name
+        blast_strain_name
+        total_blasts_injected
+        total_transferred
+        number_surrogates_receiving
+        total_pups_born
+        total_female_chimeras
+        total_male_chimeras
+        total_chimeras
+        number_of_males_with_0_to_39_percent_chimerism
+        number_of_males_with_40_to_79_percent_chimerism
+        number_of_males_with_80_to_99_percent_chimerism
+        number_of_males_with_100_percent_chimerism
+        is_suitable_for_emma
+        is_emma_sticky
+        emma_status
+        colony_background_strain_name
+        test_cross_strain_name
+        date_chimeras_mated
+        number_of_chimera_matings_attempted
+        number_of_chimera_matings_successful
+        number_of_chimeras_with_glt_from_cct
+        number_of_chimeras_with_glt_from_genotyping
+        number_of_chimeras_with_0_to_9_percent_glt
+        number_of_chimeras_with_10_to_49_percent_glt
+        number_of_chimeras_with_50_to_99_percent_glt
+        number_of_chimeras_with_100_percent_glt
+        total_f1_mice_from_matings
+        number_of_cct_offspring
+        number_of_het_offspring
+        number_of_live_glt_offspring
+        mouse_allele_type
+        mouse_allele_symbol_superscript
+        mouse_allele_symbol
+        qc_southern_blot_result
+        qc_five_prime_lr_pcr_result
+        qc_five_prime_cassette_integrity_result
+        qc_tv_backbone_assay_result
+        qc_neo_count_qpcr_result
+        qc_neo_sr_pcr_result
+        qc_loa_qpcr_result
+        qc_homozygous_loa_sr_pcr_result
+        qc_lacz_sr_pcr_result
+        qc_mutant_specific_sr_pcr_result
+        qc_loxp_confirmation_result
+        qc_three_prime_lr_pcr_result
+        report_to_public
+        is_active
+        is_released_from_genotyping
+        comments
+        mi_plan_id
+      }
       got = default_mi_attempt.as_json.keys
-      assert_equal expected.sort, got.sort
+      assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
     end
 
     context '#as_json' do

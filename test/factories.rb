@@ -224,3 +224,9 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
     )
   end
 end
+
+Factory.define :report_cache do |report_cache|
+  report_cache.sequence(:name) { |n| "Report Cache #{n}"}
+  report_cache.csv_data ''
+  report_cache.html_data '<div></div>'
+end

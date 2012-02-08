@@ -6,7 +6,7 @@ class Reports::MiProduction::Base
     if ! cache
       cache = ReportCache.new(
         :name => report_name,
-        :csv_data => self.generate.to_csv,
+        :csv_data => '',
         :html_data => '<div></div>'
       )
     end

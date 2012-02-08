@@ -14,7 +14,8 @@ class ReportCacheTest < ActiveSupport::TestCase
 
     context '#compact_timestamp' do
       should 'work' do
-        cache = ReportCache.create!(:name => 'test', :csv_data => '')
+        cache = ReportCache.create!(:name => 'test', :csv_data => '',
+          :html_data => '')
         cache.update_attributes!(:updated_at => '2011-11-24 04:22:02 UTC')
         assert_equal '20111124042202', cache.compact_timestamp
         cache.update_attributes!(:csv_data => 'Test')
@@ -24,7 +25,8 @@ class ReportCacheTest < ActiveSupport::TestCase
 
     context '#to_table' do
       should 'convert CSV report into a Ruport table' do
-        cache = ReportCache.create!(:name => 'test', :csv_data => "col1,col2\na,b\nd,e\n")
+        cache = ReportCache.create!(:name => 'test', :csv_data => "col1,col2\na,b\nd,e\n",
+          :html_data => '')
         expected = Ruport::Data::Table.new(
           :column_names => ['col1', 'col2'],
           :data => [

@@ -23,6 +23,7 @@ end
 #  csv_data   :text            not null
 #  created_at :datetime
 #  updated_at :datetime
+#  html_data  :text            not null
 #
 # Indexes
 #

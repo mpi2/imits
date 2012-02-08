@@ -9,6 +9,7 @@ class ReportCacheTest < ActiveSupport::TestCase
       assert_should have_db_column(:name).with_options(:null => false)
       assert_should have_db_index(:name).unique(true)
       assert_should have_db_column(:csv_data).with_options(:null => false)
+      assert_should have_db_column(:html_data).with_options(:null => false)
     end
 
     context '#compact_timestamp' do

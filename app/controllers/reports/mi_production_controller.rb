@@ -71,8 +71,11 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_komp23
-    if params[:live]
-      @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
+
+    @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
+    @title2 = Reports::MiProduction::SummaryKomp23::REPORT_TITLE    
+
+    if params[:live] || params[:consortium]
       params[:format] = request.format
       params[:komp2] = true
       params[:script_name] = request.env['REQUEST_URI']
@@ -81,17 +84,13 @@ class Reports::MiProductionController < ApplicationController
       send_data_csv('production_summary_komp23.csv', @report_renderer[:csv]) if request.format == :csv
       return
     end
+    
+    @report = ReportCache.find_by_name!('komp2_production_summary')
+    
+    @report_renderer = { :csv => @report.csv_data, :html => @report.html_data }
 
-    if(request.format == :csv)
-      raise "csv cache of komp23 not yet implemented"
-      @report = ReportCache.find_by_name!('komp2_production_csv_summary').csv_data
-    else
-      begin
-        @report = ReportCache.find_by_name!('komp2_production_html_summary').csv_data
-      rescue
-        raise "Report caching not yet implemented (#{$!})"
-      end
-    end
+    send_data_csv('production_summary_komp23.csv', @report_renderer[:csv]) if request.format == :csv
+
   end
 
   def summary_impc23

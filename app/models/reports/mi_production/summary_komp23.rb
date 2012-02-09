@@ -488,29 +488,21 @@ class Reports::MiProduction::SummaryKomp23
     array.push '</table>'
     return array.join("\n")
   end
-
+      
   def self.generate_and_cache
-    cache = ReportCache.find_by_name('komp2_production_html_summary')
-    title, csv_data = self.generate
+    cache = ReportCache.find_by_name('komp2_production_summary')
+    frame = self.generate(:komp2 => true)
     if cache
-      cache.csv_data = csv_data
+      cache.csv_data = frame[:csv]
+      cache.html_data = frame[:html]
       cache.save!
     else
       ReportCache.create!(
-        :name => 'komp2_production_html_summary',
-        :csv_data => csv_data
+        :name => 'komp2_production_summary',
+        :csv_data => frame[:csv],
+        :html_data => frame[:html]
       )
     end
-    #cache = ReportCache.find_by_name('komp2_production_csv_summary')
-    #if cache
-    #  cache.csv_data = self.generate
-    #  cache.save!
-    #else
-    #  ReportCache.create!(
-    #    :name => 'komp2_production_csv_summary',
-    #    :csv_data => #have to put the csv report in here
-    #  )
-    #end
   end
 
 end

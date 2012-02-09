@@ -292,6 +292,17 @@ class MiPlanTest < ActiveSupport::TestCase
 
           assert_equal ['Interest'], default_mi_plan.status_stamps.map{|i|i.status.name}
         end
+
+        should 'not be set to non-assigned if this has phenotype_attempts' do
+          pt = Factory.create :phenotype_attempt
+          plan = pt.mi_plan
+          plan.number_of_es_cells_starting_qc = 4
+          assert plan.save
+          plan.number_of_es_cells_starting_qc = nil
+          plan.status = MiPlan::Status['Conflict']
+          plan.valid?
+          assert_match /cannot be changed/, plan.errors[:status].first
+        end
       end
 
       context '#number_of_es_cells_starting_qc' do

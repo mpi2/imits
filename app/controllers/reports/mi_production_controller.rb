@@ -100,7 +100,7 @@ class Reports::MiProductionController < ApplicationController
     params[:script_name] = request.env['REQUEST_URI']
     @report_renderer = Reports::MiProduction::SummaryKomp23.generate(params)
     @title2 = @report_renderer[:title]
-    send_data_csv('summary_impc23.csv', @report) if request.format == :csv
+    send_data_csv('summary_impc23.csv', @report_renderer[:csv]) if request.format == :csv
   end
 
   def languishing

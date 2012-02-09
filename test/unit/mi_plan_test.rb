@@ -414,6 +414,12 @@ class MiPlanTest < ActiveSupport::TestCase
         #       with the same gene and consortium BUT with a production_centre assigned.
         #       Really, the fist should be updated to become the second (i.e. not produce a duplicate).
       end
+      
+      context '#is_active' do
+        should 'exist' do
+          assert_should have_db_column(:is_active).with_options(:null => false, :default => true)
+        end
+      end
     end # attribute tests
 
     context '::major_conflict_resolution' do

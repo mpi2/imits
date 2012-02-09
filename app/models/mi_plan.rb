@@ -337,6 +337,7 @@ end
 #  number_of_es_cells_starting_qc :integer
 #  number_of_es_cells_passing_qc  :integer
 #  sub_project_id                 :integer         not null
+#  is_active                      :boolean         default(TRUE), not null
 #
 # Indexes
 #

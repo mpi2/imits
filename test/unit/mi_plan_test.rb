@@ -298,9 +298,10 @@ class MiPlanTest < ActiveSupport::TestCase
           plan = pt.mi_plan
           plan.number_of_es_cells_starting_qc = 4
           assert plan.save
+          plan.number_of_es_cells_starting_qc = nil
           plan.status = MiPlan::Status['Conflict']
           plan.valid?
-          assert_match /cannot be changed.+phenotype attempts/, plan.errors[:staus].first
+          assert_match /cannot be changed/, plan.errors[:status].first
         end
       end
 

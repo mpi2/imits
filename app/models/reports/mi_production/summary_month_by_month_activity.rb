@@ -9,19 +9,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-08-01')
 
-  PLAN_MAP = Hash.new { |hash,key| "PLAN_MAP: No value defined for key: #{ key }" }
+  PLAN_MAP = Hash.new { |hash,key| raise("PLAN_MAP: No value defined for key: #{ key }") }
   MiPlan::Status.all.each { |i| PLAN_MAP[i.name.downcase.parameterize.underscore.to_sym] = i.name }
 
-  ATTEMPT_MAP = Hash.new { |hash,key| "ATTEMPT_MAP: No value defined for key: #{ key }" }
+  ATTEMPT_MAP = Hash.new { |hash,key| raise("ATTEMPT_MAP: No value defined for key: #{ key }") }
   MiAttemptStatus.all.each { |i| ATTEMPT_MAP[i.description.downcase.parameterize.underscore.to_sym] = i.description }
   
-  PHENOTYPE_MAP = Hash.new { |hash,key| "PHENOTYPE_MAP: No value defined for key: #{ key }" }
+  PHENOTYPE_MAP = Hash.new { |hash,key| raise("PHENOTYPE_MAP: No value defined for key: #{ key }") }
   PhenotypeAttempt::Status.all.each { |i| PHENOTYPE_MAP[i.name.downcase.parameterize.underscore.to_sym] = i.name }
-
-  PLAN_STATUSES = [PLAN_MAP[:assigned_es_cell_qc_in_progress], PLAN_MAP[:assigned_es_cell_qc_complete], PLAN_MAP[:aborted_es_cell_qc_failed]]
-  ATTEMPT_STATUSES = [ATTEMPT_MAP[:micro_injection_in_progress], ATTEMPT_MAP[:genotype_confirmed], ATTEMPT_MAP[:micro_injection_aborted]]
-  PHENOTYPE_STATUSES = []
-  PHENOTYPE_MAP.keys.each { |name| PHENOTYPE_STATUSES.push(PHENOTYPE_MAP[name]) }
   
   HEADINGS = [
     'Year',

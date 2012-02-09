@@ -46,6 +46,17 @@ class MiPlan::StatusChangerTest < ActiveSupport::TestCase
       mi_plan.valid?
       assert_equal 'Inactive', mi_plan.status.name
     end
-
+    
+    should 'set status to "Inactive" if is_active is set to false' do
+      mi_plan = Factory.create :mi_plan, :is_active => false
+      mi_plan.valid?
+      assert_equal 'Inactive', mi_plan.status.name
+    end
+    
+    should 'only allow "Inactive" status when is_active is set to false and no MiAttempts are active' do
+      mi_plan = Factory.create :mi_plan, :is_active => false, :number_of_es_cells_starting_qc => 5
+      mi_plan.valid?
+      assert_equal 'Inactive', mi_plan.status.name
+    end
   end
 end

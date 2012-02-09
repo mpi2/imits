@@ -35,6 +35,7 @@ namespace :cron do
   task :cache_reports => [:environment] do
     audited_transaction do
       Reports::MiProduction::Intermediate.generate_and_cache
+      Reports::MiProduction::SummaryKomp23.generate_and_cache
     end
   end
 

@@ -1,17 +1,27 @@
 <% @title = 'Summary Month by Month' %>
 
-<p><%= link_to('Download as CSV', url_for({:action => :summary_month_by_month_activity, :controller => '/reports/mi_production', :format => :csv}.merge(params)))%></p>
+<h2><%= @title2 %></h2>
+
+<% if ! @report_renderer.nil? %>
+
+<p><%=
+params.delete(:action)
+params.delete(:controller)
+params.delete(:script_name)
+params.delete(:format)
+link_to('Download as CSV', url_for({:action => :summary_month_by_month_activity, :controller => '/reports/mi_production', :format => :csv}.merge(params)))
+%></p>
 
 <br/>
 
-<h2>Report</h2>
+<% end %>
 
-<div class="report grid_4">
+<div class="report grid_12">
 
-<% if @report.nil? %>
+<% if @report_renderer.nil? %>
   <p><em>Sorry, no production data found</em></p>
 <% else %>
-  <%=raw @report.to_html %>
+  <%= raw @report_renderer[:html] %>
 <% end %>
 
 </div>

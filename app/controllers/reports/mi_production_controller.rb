@@ -6,13 +6,6 @@ class Reports::MiProductionController < ApplicationController
 
   before_filter :authenticate_user!, :except => [:summary_by_consortium_and_accumulated_status]
 
-  #def test
-  #  if request.format == :csv
-  #  	report = ReportCache.find_by_name!('mi_production_intermediate_test')
-  #    send_data_csv('test.csv', report.csv_data)
-  #  end
-  #end
-
   def detail
     if request.format == :csv
       send_data_csv('mi_production_detail.csv', Reports::MiProduction::Detail.generate.to_csv)
@@ -78,14 +71,36 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_komp23
-    @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
-    @title2, @report = Reports::MiProduction::SummaryKomp23.generate(request, params)
-    send_data_csv('production_summary_komp23.csv', @report) if request.format == :csv
+    if params[:live]
+      @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
+      params[:format] = request.format
+      params[:komp2] = true
+      params[:script_name] = request.env['REQUEST_URI']
+      @report_renderer = Reports::MiProduction::SummaryKomp23.generate(params)
+      @title2 = @report_renderer[:title]
+      send_data_csv('production_summary_komp23.csv', @report_renderer[:csv]) if request.format == :csv
+      return
+    end
+
+    if(request.format == :csv)
+      raise "csv cache of komp23 not yet implemented"
+      @report = ReportCache.find_by_name!('komp2_production_csv_summary').csv_data
+    else
+      begin
+        @report = ReportCache.find_by_name!('komp2_production_html_summary').csv_data
+      rescue
+        raise "Report caching not yet implemented (#{$!})"
+      end
+    end
   end
 
   def summary_impc23
     @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
-    @title2, @report = Reports::MiProduction::SummaryKomp23.generate(request, params, false)
+    params[:format] = request.format
+    params[:komp2] = false
+    params[:script_name] = request.env['REQUEST_URI']
+    @report_renderer = Reports::MiProduction::SummaryKomp23.generate(params)
+    @title2 = @report_renderer[:title]
     send_data_csv('summary_impc23.csv', @report) if request.format == :csv
   end
 
@@ -129,8 +144,12 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_month_by_month_activity
-    @report = Reports::MiProduction::SummaryMonthByMonthActivity.generate(request, params)
-    send_data_csv('summary_month_by_month_activity.csv', @report.to_csv) if request.format == :csv
+    params[:format] = request.format
+    params[:komp2] = true #TODO: remove me! set in view
+    params[:script_name] = request.env['REQUEST_URI']
+    @report_renderer = Reports::MiProduction::SummaryMonthByMonthActivity.generate(params)
+    @title2 = @report_renderer[:title]
+    send_data_csv('summary_month_by_month_activity.csv', @report_renderer[:csv]) if request.format == :csv
   end
 
 end

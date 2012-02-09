@@ -25,11 +25,11 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
     end
     
     should 'do generate' do
-      title2, report = Reports::MiProduction::SummaryKomp23.generate(nil, {'table' => 'true'}, false)
+      hash = Reports::MiProduction::SummaryKomp23.generate({:live => true})
       
-      puts 'do generate: ' + title2 if DEBUG
-      puts report.to_s if DEBUG
-      puts report.data.inspect if DEBUG
+      puts 'do generate: ' + hash[:title] if DEBUG
+      puts hash[:table].to_s if DEBUG
+      puts hash[:table].data.inspect if DEBUG
 
       expected = {
         "Consortium"=>"BaSH",
@@ -47,19 +47,18 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
         "Registered for phenotyping"=>1,
         "Rederivation started"=>1,
         "Rederivation completed"=>1,
-        "Cre excision started"=>1,
-        "Cre excision completed"=>"",
-        "Phenotyping started"=>"",
-        "Phenotyping completed"=>"",
-        "Phenotyping aborted"=>""
+        "Cre excision started"=>3,
+        "Cre excision completed"=>2,
+        "Phenotyping started"=>1,
+        "Phenotyping completed"=>1,
+        "Phenotyping aborted"=>1
       }
 
-      report.column_names.each do |column_name|
-        puts "expected: KEY: '#{column_name}' - VALUE: '#{report.column(column_name)[0]}'" if DEBUG
-        assert_equal expected[column_name], report.column(column_name)[0]
+      hash[:table].column_names.each do |column_name|
+        assert_equal expected[column_name], hash[:table].column(column_name)[0], "for '#{column_name}'"
       end
       
-      assert report.to_s.length > 0
+      assert hash[:table].to_s.length > 0
     end
     
     should 'do generate detail' do

@@ -97,7 +97,7 @@ class Reports::MiProductionController < ApplicationController
   def summary_impc23
     @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
     params[:format] = request.format
-      params[:komp2] = false
+    params[:komp2] = false
     params[:script_name] = request.env['REQUEST_URI']
     @report_renderer = Reports::MiProduction::SummaryKomp23.generate(params)
     @title2 = @report_renderer[:title]

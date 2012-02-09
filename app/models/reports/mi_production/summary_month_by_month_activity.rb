@@ -8,15 +8,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   DEBUG = false
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-08-01')
-
-  PLAN_MAP = Hash.new { |hash,key| raise("PLAN_MAP: No value defined for key: #{ key }") }
-  MiPlan::Status.all.each { |i| PLAN_MAP[i.name.downcase.parameterize.underscore.to_sym] = i.name }
-
-  ATTEMPT_MAP = Hash.new { |hash,key| raise("ATTEMPT_MAP: No value defined for key: #{ key }") }
-  MiAttemptStatus.all.each { |i| ATTEMPT_MAP[i.description.downcase.parameterize.underscore.to_sym] = i.description }
-  
-  PHENOTYPE_MAP = Hash.new { |hash,key| raise("PHENOTYPE_MAP: No value defined for key: #{ key }") }
-  PhenotypeAttempt::Status.all.each { |i| PHENOTYPE_MAP[i.name.downcase.parameterize.underscore.to_sym] = i.name }
   
   HEADINGS = [
     'Year',
@@ -116,6 +107,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   def self.get_summary(params)
     summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
 
+    plan_map = Hash.new { |hash,key| raise("plan_map: No value defined for key: #{ key }") }
+    MiPlan::Status.all.each { |i| plan_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
+  
+    attempt_map = Hash.new { |hash,key| raise("attempt_map: No value defined for key: #{ key }") }
+    MiAttemptStatus.all.each { |i| attempt_map[i.description.downcase.parameterize.underscore.to_sym] = i.description }
+    
+    phenotype_map = Hash.new { |hash,key| raise("phenotype_map: No value defined for key: #{ key }") }
+    PhenotypeAttempt::Status.all.each { |i| phenotype_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
+
     consortia = params && params[:komp2] ? ['BaSH', 'DTCC', 'JAX'] : nil
 
     MiPlan::StatusStamp.all.each do |stamp|
@@ -135,16 +135,16 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
       details_hash = { :symbol => marker_symbol, :status => status, :date => stamp.created_at }
 
-      if status == PLAN_MAP[:assigned_es_cell_qc_in_progress]
+      if status == plan_map[:assigned_es_cell_qc_in_progress]
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
       end
 
-      if status == PLAN_MAP[:assigned_es_cell_qc_complete]
+      if status == plan_map[:assigned_es_cell_qc_complete]
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['ES Cell QC Complete'][gene_id] = details_hash
       end
 
-      if status == PLAN_MAP[:aborted_es_cell_qc_failed]
+      if status == plan_map[:aborted_es_cell_qc_failed]
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['ES Cell QC Failed'][gene_id] = details_hash
       end
@@ -172,16 +172,16 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         :date => stamp.mi_attempt.mi_plan.latest_relevant_mi_attempt.mi_attempt_status.created_at
       }
       
-      if(status == ATTEMPT_MAP[:micro_injection_in_progress])
+      if(status == attempt_map[:micro_injection_in_progress])
         summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
       end
 
-      if(status == ATTEMPT_MAP[:genotype_confirmed])
+      if(status == attempt_map[:genotype_confirmed])
         summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['Genotype confirmed'][gene_id] = details_hash
       end
 
-      if(status == ATTEMPT_MAP[:micro_injection_aborted])
+      if(status == attempt_map[:micro_injection_aborted])
         summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['Micro-injection aborted'][gene_id] = details_hash
       end
@@ -213,47 +213,47 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         :date => stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.created_at
       }
 
-      if status == PHENOTYPE_MAP[:phenotype_attempt_aborted]
+      if status == phenotype_map[:phenotype_attempt_aborted]
         summary[year][month][consortium][pcentre]['Phenotype Attempt Aborted'][gene_id] = details_hash
       end
 
-      if status == PHENOTYPE_MAP[:phenotyping_complete]
+      if status == phenotype_map[:phenotyping_complete]
         summary[year][month][consortium][pcentre]['Phenotyping Complete'][gene_id] = details_hash
       end
 
-      phenotyping_started = [ PHENOTYPE_MAP[:phenotyping_started], PHENOTYPE_MAP[:phenotyping_complete] ]
+      phenotyping_started = [ phenotype_map[:phenotyping_started], phenotype_map[:phenotyping_complete] ]
 
       if phenotyping_started.include?(status)
         summary[year][month][consortium][pcentre]['Phenotyping Started'][gene_id] = details_hash
       end
 
-      cre_excision_complete = phenotyping_started + [ PHENOTYPE_MAP[:cre_excision_complete] ]
+      cre_excision_complete = phenotyping_started + [ phenotype_map[:cre_excision_complete] ]
 
       if cre_excision_complete.include?(status)
         summary[year][month][consortium][pcentre]['Cre Excision Complete'][gene_id] = details_hash
       end
 
-      cre_excision_started = cre_excision_complete + [ PHENOTYPE_MAP[:cre_excision_started] ]
+      cre_excision_started = cre_excision_complete + [ phenotype_map[:cre_excision_started] ]
 
       if cre_excision_started.include?(status)
         summary[year][month][consortium][pcentre]['Cre Excision Started'][gene_id] = details_hash
       end
 
-      rederivation_started = cre_excision_started + [ PHENOTYPE_MAP[:rederivation_started] ]
+      rederivation_started = cre_excision_started + [ phenotype_map[:rederivation_started] ]
 
       if rederivation_started.include?(status)
         summary[year][month][consortium][pcentre]['Rederivation Started'][gene_id] = details_hash
         #TODO: check
       end
 
-      rederivation_complete = rederivation_started + [ PHENOTYPE_MAP[:rederivation_complete] ]
+      rederivation_complete = rederivation_started + [ phenotype_map[:rederivation_complete] ]
 
       if rederivation_complete.include?(status)
         summary[year][month][consortium][pcentre]['Rederivation Complete'][gene_id] = details_hash
         #TODO: check
       end
 
-      phenotype_attempt_registered = rederivation_complete + [ PHENOTYPE_MAP[:phenotype_attempt_registered] ]
+      phenotype_attempt_registered = rederivation_complete + [ phenotype_map[:phenotype_attempt_registered] ]
 
       if phenotype_attempt_registered.include?(status)
         summary[year][month][consortium][pcentre]['Phenotype Attempt Registered'][gene_id] = details_hash

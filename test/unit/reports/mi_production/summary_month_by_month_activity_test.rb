@@ -7,7 +7,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
 
     def generate; @generated ||= Reports::MiProduction::SummaryMonthByMonthActivity.generate(:komp2 => true); end
 
-    should 'ensure non KOMP2 consortia are ignored' do
+    should 'ensure non KOMP2 consortia are ignored' do            
       plan1 = TestDummy.mi_plan('Monterotondo', 'Monterotondo')
       plan1.update_attributes!(:number_of_es_cells_starting_qc => 1)
       replace_status_stamps(plan1,

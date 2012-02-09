@@ -12,7 +12,7 @@ class Reports::MiProduction::SummaryKomp21Test < ActiveSupport::TestCase
       assert ! ReportCache.find_by_name('mi_production_intermediate')
       data = ProductionSummaryHelper::get_csv('komp2')
       assert data
-      ReportCache.create!(
+      Factory.create(:report_cache,
         :name => 'mi_production_intermediate',
         :csv_data => data
       )

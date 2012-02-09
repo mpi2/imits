@@ -20,6 +20,12 @@ class MiPlan < ApplicationModel
 
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
 
+  validate do |plan|
+    if ! plan.assigned? and plan.phenotype_attempts.count != 0
+      plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
+    end
+  end
+
   # BEGIN Callbacks
 
   before_validation :set_default_mi_plan_status

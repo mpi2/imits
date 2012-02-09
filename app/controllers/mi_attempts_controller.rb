@@ -118,6 +118,9 @@ class MiAttemptsController < ApplicationController
   end
 
   alias_method :public_mi_attempt_url, :mi_attempt_url
-  helper { def public_mi_attempts_path(*args); mi_attempts_path(*args); end }
+  helper do
+    def public_mi_attempts_path(*args); mi_attempts_path(*args); end
+    def public_mi_attempt_path(*args); mi_attempt_path(*args); end
+  end
 
 end

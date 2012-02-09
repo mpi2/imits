@@ -14,7 +14,8 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
       assert data
       ReportCache.create!(
         :name => 'mi_production_intermediate',
-        :csv_data => data
+        :csv_data => data,
+        :html_data => ''
       )
       assert ReportCache.find_by_name('mi_production_intermediate')      
       report = ReportCache.find_by_name!('mi_production_intermediate').to_table

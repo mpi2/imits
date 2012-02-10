@@ -1,5 +1,13 @@
 <% @title = 'Production Summaries' %>
 
+<% content_for :head do %>
+<style type="text/css">
+  .report th, .report td {
+    text-align: center
+  }
+</style>
+<% end %>
+
 <h2><%= @title2 %></h2>
 
 <% if @report %>
@@ -10,7 +18,7 @@
 
 <% end %>
 
-<div class="report grid_12">
+<div class="report">
 
 <% if @report.nil? %>
   <p><em>Sorry, no production data found</em></p>

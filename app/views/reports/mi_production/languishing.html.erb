@@ -1,17 +1,23 @@
 <% @title = 'Languishing Production Report' %>
 
-<style media="screen" type="text/css">
+<% content_for :head do %>
+<style type="text/css">
+  .center {
+    text-align: center
+  }
+
   .assigned_es_cell_qc_in_progress.bin2,
   .assigned_es_cell_qc_in_progress.bin3,
   .assigned_es_cell_qc_in_progress.bin4,
   .assigned_es_cell_qc_in_progress.bin5,
   .assigned_es_cell_qc_in_progress.bin6,
 
-  .micro_injection_in_progress.bin5,
-  .micro_injection_in_progress.bin6 {
+  .mouse_production_attempt.bin5,
+  .mouse_production_attempt.bin6 {
     background-color: #F0DE7D;
   }
 </style>
+<% end %>
 
 <h2><%= @title %></h2>
 

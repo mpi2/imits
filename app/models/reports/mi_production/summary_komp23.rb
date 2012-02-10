@@ -6,7 +6,7 @@ class Reports::MiProduction::SummaryKomp23
   
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
-  REPORT_TITLE = 'KOMP2 Report 3'
+  REPORT_TITLE = 'KOMP2 Production Summary'
   
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
 
@@ -434,7 +434,7 @@ class Reports::MiProduction::SummaryKomp23
     array.push '<table>'
     array.push '<tr>'
         
-    table.column_names.each { |name| array.push "<th style='width:80px'>#{name}</th>" }
+    table.column_names.each { |name| array.push "<th>#{name}</th>" }
 
     other_columns = table.column_names - ["Consortium", "All genes", "ES cell QC", "ES QC confirmed",  "ES QC failed"]
     rows = table.data.size 

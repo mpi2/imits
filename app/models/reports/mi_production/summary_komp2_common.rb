@@ -216,44 +216,7 @@ module Reports::MiProduction::SummaryKomp2Common
   end
   
   def initialize
-
-    if DEBUG
-      report = ReportCache.find_by_name(CACHE_NAME)
-
-      heading = '"Consortium","Sub-Project","Priority","Production Centre","Gene","MGI Accession ID","Overall Status","MiPlan Status","MiAttempt Status","PhenotypeAttempt Status","IKMC Project ID","Mutation Sub-Type","Allele Symbol","Genetic Background","Assigned Date","Assigned - ES Cell QC In Progress Date","Assigned - ES Cell QC Complete Date","Micro-injection in progress Date","Genotype confirmed Date","Micro-injection aborted Date","Phenotype Attempt Registered Date","Rederivation Started Date","Rederivation Complete Date","Cre Excision Started Date","Cre Excision Complete Date","Phenotyping Started Date","Phenotyping Complete Date","Phenotype Attempt Aborted Date"'
-  
-      csv = heading + "\n"
-
-      ignore = [
-        'Consortium',
-        'Production Centre',
-        'Pipeline efficiency (%)',
-        'Pipeline efficiency (by clone)'
-      ]
-
-      (HEADINGS.size-1).downto(1).each do |i|
-        next if (['All'] + ignore).include? HEADINGS[i]
-        csv += csv_line('BaSH', 'BCM', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
-        csv += csv_line('BaSH', 'MRC - Harwell', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
-        csv += csv_line('BaSH', 'WTSI', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
-        csv += csv_line('DTCC', 'TCP', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
-        csv += csv_line('DTCC', 'UCD', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
-        csv += csv_line('JAX', 'JAX', 'abc' + i.to_s, MAPPING_SUMMARIES[HEADINGS[i]][0]) + "\n"
-      end
-
-      if report
-        report.csv_data = csv
-        report.save!
-      else
-        ReportCache.create!(
-          :name => CACHE_NAME,
-          :csv_data => csv
-        )
-      end
-    end
-
     report = ReportCache.find_by_name!(CACHE_NAME).to_table
-    
     return report
   end
 

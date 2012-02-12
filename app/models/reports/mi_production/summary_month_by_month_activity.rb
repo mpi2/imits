@@ -6,24 +6,25 @@
 class Reports::MiProduction::SummaryMonthByMonthActivity
 
   DEBUG = false
+  RAILS_CACHE = true
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-08-01')
-  
+
   HEADINGS = [
     'Year',
     'Month',
     'Consortium',
-  
+
     'ES Cell QC In Progress',
     'ES Cell QC Complete',
     'ES Cell QC Failed',
-  
+
     'Production Centre',
-  
+
     'Micro-injection in progress',
     'Genotype confirmed',
     'Micro-injection aborted',
-  
+
     'Phenotype Attempt Registered',
     'Rederivation Started',
     'Rederivation Complete',
@@ -45,8 +46,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     summary = get_summary(params)
 
-    table, html_string = convert_to_html(params, summary)
-    
+    html_string = convert_to_html(params, summary)
+
     table = convert_to_csv(params, summary)
 
     title = params[:komp2] ? 'KOMP2 Summary Month by Month' : 'All Consortia Summary Month by Month'
@@ -67,13 +68,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     summary = get_summary(params)
 
     table = Table(["Date", "Marker Symbol", "Consortium", "Centre", "Status"])
-    
+
     if ! pcentre
       summary[year.to_i][month.to_i][consortium].keys.each do |centre|
         types = summary[year.to_i][month.to_i][consortium][centre]
         types[type].keys.each do |gene|
           table << {
-            "Date" => types[type][gene][:date].strftime("%Y-%m-%d"),
+            #"Date" => types[type][gene][:date].strftime("%Y-%m-%d"),
+            "Date" => types[type][gene][:date].to_date,
             "Consortium" => consortium,
             "Centre" => centre,
             "Marker Symbol" => types[type][gene][:symbol],
@@ -81,12 +83,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           }
         end
       end
-    end
-
-    if pcentre
+    else
       summary[year.to_i][month.to_i][consortium][pcentre][type].keys.each do |gene|
         table << {
-          "Date" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:date].strftime("%Y-%m-%d"),
+          #"Date" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:date].strftime("%Y-%m-%d"),
+          "Date" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:date].to_date,
           "Consortium" => consortium,
           "Centre" => pcentre,
           "Marker Symbol" => summary[year.to_i][month.to_i][consortium][pcentre][type][gene][:symbol],
@@ -105,14 +106,22 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   end
 
   def self.get_summary(params)
-    summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
+    return get_summary_proper(params) if ! RAILS_CACHE
+    Rails.cache.fetch('SummaryMonthByMonthActivity', :expires_in => 1.minute) do
+      get_summary_proper(params)
+    end
+  end
+
+  def self.get_summary_proper(params)
+    #    summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
+    summary = {}
 
     plan_map = Hash.new { |hash,key| raise("plan_map: No value defined for key: #{ key }") }
     MiPlan::Status.all.each { |i| plan_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
-  
+
     attempt_map = Hash.new { |hash,key| raise("attempt_map: No value defined for key: #{ key }") }
     MiAttemptStatus.all.each { |i| attempt_map[i.description.downcase.parameterize.underscore.to_sym] = i.description }
-    
+
     phenotype_map = Hash.new { |hash,key| raise("phenotype_map: No value defined for key: #{ key }") }
     PhenotypeAttempt::Status.all.each { |i| phenotype_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
 
@@ -121,19 +130,28 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     MiPlan::StatusStamp.all.each do |stamp|
 
       next if consortia && stamp.created_at < CUT_OFF_DATE
-      
+
       year = stamp.created_at.year
       month = stamp.created_at.month
       day = stamp.created_at.day
       consortium = stamp.mi_plan.consortium.name
       pcentre = stamp.mi_plan.production_centre && stamp.mi_plan.production_centre.name ? stamp.mi_plan.production_centre.name : 'UNKNOWN'
       pcentre = 'UNKNOWN' if pcentre.blank? || pcentre.to_s.length < 1
+      next if pcentre == 'UNKNOWN'
       next if consortia && ! consortia.include?(consortium)
       gene_id = stamp.mi_plan.gene_id
       status = stamp.status.name
       marker_symbol = stamp.mi_plan.gene.marker_symbol
 
-      details_hash = { :symbol => marker_symbol, :status => status, :date => stamp.created_at }
+      details_hash = { :symbol => marker_symbol, :status => stamp.mi_plan.latest_relevant_status[:status], :date => stamp.mi_plan.latest_relevant_status[:date] }
+
+      summary[year] ||= {}
+      summary[year][month] ||= {}
+      summary[year][month][consortium] ||= {}
+      summary[year][month][consortium][pcentre] ||= {}
+      summary[year][month][consortium][pcentre]['ES Cell QC In Progress'] ||= {}
+      summary[year][month][consortium][pcentre]['ES Cell QC Complete'] ||= {}
+      summary[year][month][consortium][pcentre]['ES Cell QC Failed'] ||= {}
 
       if status == plan_map[:assigned_es_cell_qc_in_progress]
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
@@ -161,17 +179,28 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       consortium = stamp.mi_attempt.mi_plan.consortium.name
       pcentre = stamp.mi_attempt.production_centre_name
       pcentre = 'UNKNOWN' if pcentre.blank? || pcentre.to_s.length < 1
+      next if pcentre == 'UNKNOWN'
       next if consortia && ! consortia.include?(consortium)
       gene_id = stamp.mi_attempt.mi_plan.gene_id
       status = stamp.mi_attempt_status.description
       marker_symbol = stamp.mi_attempt.mi_plan.gene.marker_symbol
 
-      details_hash = {
-        :symbol => marker_symbol,
-        :status => stamp.mi_attempt.mi_plan.latest_relevant_mi_attempt.mi_attempt_status.description,
-        :date => stamp.mi_attempt.mi_plan.latest_relevant_mi_attempt.mi_attempt_status.created_at
-      }
-      
+      #details_hash = {
+      #  :symbol => marker_symbol,
+      #  :status => stamp.mi_attempt.mi_plan.latest_relevant_mi_attempt.mi_attempt_status.description,
+      #  :date => stamp.mi_attempt.mi_plan.latest_relevant_mi_attempt.mi_attempt_status.created_at
+      #}
+
+      details_hash = { :symbol => marker_symbol, :status => stamp.mi_attempt.mi_plan.latest_relevant_status[:status], :date => stamp.mi_attempt.mi_plan.latest_relevant_status[:date] }
+
+      summary[year] ||= {}
+      summary[year][month] ||= {}
+      summary[year][month][consortium] ||= {}
+      summary[year][month][consortium][pcentre] ||= {}
+      summary[year][month][consortium][pcentre]['Micro-injection in progress'] ||= {}
+      summary[year][month][consortium][pcentre]['Genotype confirmed'] ||= {}
+      summary[year][month][consortium][pcentre]['Micro-injection aborted'] ||= {}
+
       if(status == attempt_map[:micro_injection_in_progress])
         summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
       end
@@ -202,16 +231,37 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         stamp.phenotype_attempt.mi_plan.production_centre.name : ''
 
       pcentre = 'UNKNOWN' if pcentre.blank?
+      next if pcentre == 'UNKNOWN'
       next if consortia && ! consortia.include?(consortium)
       gene_id = stamp.phenotype_attempt.mi_plan.gene_id
       status = stamp.phenotype_attempt.status.name
       marker_symbol = stamp.phenotype_attempt.mi_plan.gene.marker_symbol
 
-      details_hash = {
-        :symbol => marker_symbol,
-        :status => stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.name,
-        :date => stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.created_at
-      }
+      #details_hash = {
+      #  :symbol => marker_symbol,
+      #  :status => stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.name,
+      #  :date => stamp.phenotype_attempt.mi_plan.latest_relevant_phenotype_attempt.status.created_at
+      #}
+
+      details_hash = { :symbol => marker_symbol, :status => stamp.phenotype_attempt.mi_plan.latest_relevant_status[:status], :date => stamp.phenotype_attempt.mi_plan.latest_relevant_status[:date] }
+
+      summary[year] ||= {}
+      summary[year][month] ||= {}
+      summary[year][month][consortium] ||= {}
+      summary[year][month][consortium][pcentre] ||= {}
+
+      array = [
+        'Phenotype Attempt Registered',
+        'Rederivation Started',
+        'Rederivation Complete',
+        'Cre Excision Started',
+        'Cre Excision Complete',
+        'Phenotyping Started',
+        'Phenotyping Complete',
+        'Phenotype Attempt Aborted'
+      ]
+
+      array.each { |name| summary[year][month][consortium][pcentre][name] ||= {} }
 
       if status == phenotype_map[:phenotype_attempt_aborted]
         summary[year][month][consortium][pcentre]['Phenotype Attempt Aborted'][gene_id] = details_hash
@@ -261,6 +311,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     end
 
+    #  summary.default_proc = nil
+
     return summary
   end
 
@@ -270,8 +322,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     script_name = params[:script_name]
 
-    report_table = Table(HEADINGS)
-
     make_clean = lambda do |value|
       return value if params[:format] == :csv && ! CSV_BLANKS
       return '' if value.to_s.length < 1
@@ -279,7 +329,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       return value
     end
 
-    report_table.column_names.each { |name| string += "<th>#{name}</th>" }
+    HEADINGS.each { |name| string += "<th>#{name}</th>" }
 
     summary.keys.sort.reverse!.each do |year|
 
@@ -305,25 +355,28 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             separator = /\?/.match(script_name) ? '&' : '?'
             return "<a href='#{script_name}#{separator}year=#{year}&month=#{month}&consortium=#{consort}&type=#{type}'>#{value}</a>"
           end
-          
+
           summer = {'ES Cell QC In Progress'=> 0, 'ES Cell QC Complete' => 0, 'ES Cell QC Failed' => 0}
           array2 = [ 'ES Cell QC In Progress', 'ES Cell QC Complete', 'ES Cell QC Failed' ]
           centre_hash.keys.each do |centre|
             status_hash = centre_hash[centre]
             array2.each do |name|
+              next if ! status_hash[name]
               status_hash[name].each do |gene|
                 summer[name] += 1
               end
             end
           end
-            
+
           array2.each { |name| string += "<td rowspan='CONS_ROWSPAN'>#{make_link.call(name, summer[name])}</td>" }
-          
+
           centre_hash.keys.each do |centre|
             next if centre.blank?
 
             make_link = lambda do |key, frame|
+              return 0 if ! frame[key] && params[:format] == :csv
               return frame[key].keys.size if params[:format] == :csv
+              return '' if ! frame[key]
               return '' if frame[key].keys.size.to_s.length < 1
               return '' if frame[key].keys.size.to_i == 0
 
@@ -366,12 +419,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       string = string.gsub(/YEAR_ROWSPAN/, year_count.to_s)
     end
     string += '</table>'
-        
-    return report_table, string
+
+    return string
   end
 
   def self.convert_to_csv(params, summary)
-    
+
     array = [
       'ES Cell QC In Progress',
       'ES Cell QC Complete',
@@ -396,7 +449,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       month_hash.keys.sort.reverse!.each do |month|
         cons_hash = month_hash[month]
         cons_hash.keys.each do |cons|
-          centre_hash = cons_hash[cons]          
+          centre_hash = cons_hash[cons]
           centre_hash.keys.each do |centre|
             status_hash = centre_hash[centre]
 
@@ -407,7 +460,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
               'Production Centre' => centre
             }
 
-            array.each { |name| hash[name] = status_hash[name].keys.size }
+            array.each do |name|
+              hash[name] = status_hash[name] ? status_hash[name].keys.size : 0
+            end
 
             report_table << hash
 
@@ -418,5 +473,51 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     return report_table
   end
-    
+
+  def self.convert_to_csv_new(params, summary)
+
+    headings = [
+    #  'Year',
+    #  'Month',
+      'Consortium',
+      'Production Centre',
+      'Gene',
+      'Status',
+      'Status Date'
+    ]
+
+    report_table = Table(headings)
+
+    summary.keys.sort.reverse!.each do |year|
+      month_hash = summary[year]
+      month_hash.keys.sort.reverse!.each do |month|
+        cons_hash = month_hash[month]
+        cons_hash.keys.each do |cons|
+          centre_hash = cons_hash[cons]
+          centre_hash.keys.each do |centre|
+            status_hash = centre_hash[centre]
+            status_hash.keys.each do |status|
+              gene_hash = status_hash[status]
+              gene_hash.keys.each do |gene|
+
+                report_table << {
+               #   'Year' => year,
+               #   'Month' => month,
+                  'Consortium' => cons,
+                  'Production Centre' => centre,
+                  'Gene' => gene_hash[gene][:symbol],
+                  'Status' => gene_hash[gene][:status],
+                  'Status Date' => gene_hash[gene][:date]
+                }
+
+              end
+            end
+          end
+        end
+      end
+    end
+
+    return report_table
+  end
+
 end

@@ -1,9 +1,9 @@
 # encoding: utf-8
 
-class Reports::MiProduction::SummaryKomp23 
+class Reports::MiProduction::SummaryKomp23
 
   extend Reports::MiProduction::SummariesCommon
-  
+
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'KOMP2 Report 3'
@@ -63,7 +63,7 @@ class Reports::MiProduction::SummaryKomp23
     return false if row['Genotype confirmed Date'].blank?
     return Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
   end
-  
+
   def self.distinct_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each { |row| total += row['Distinct Genotype Confirmed ES Cells'].to_i }
@@ -179,6 +179,7 @@ class Reports::MiProduction::SummaryKomp23
 
         new_hash = {}
         new_hash['Consortium'] = consortium
+        next if ! row['Production Centre']
         new_hash['Production Centre'] = row['Production Centre']
         new_hash['Gene Pipeline efficiency (%)'] = make_clean.call(pc)
         new_hash['Clone Pipeline efficiency (%)'] = make_clean.call(pc2)
@@ -488,7 +489,7 @@ class Reports::MiProduction::SummaryKomp23
     array.push '</table>'
     return array.join("\n")
   end
-      
+
   def self.generate_and_cache
     cache = ReportCache.find_by_name('komp2_production_summary')
     frame = self.generate(:komp2 => true)

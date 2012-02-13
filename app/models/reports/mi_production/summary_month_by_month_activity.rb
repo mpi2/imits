@@ -5,7 +5,7 @@
 class Reports::MiProduction::SummaryMonthByMonthActivity
 
   DEBUG = false
-  RAILS_CACHE = false
+  RAILS_CACHE = true
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-08-01')
 
@@ -146,7 +146,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       status = stamp.status.name
       marker_symbol = stamp.mi_plan.gene.marker_symbol
 
-      details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_plan.id, :original_status => "PLAN: #{status}", :original_date => stamp.created_at }
+      details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_plan.id, :original_status => status, :original_date => stamp.created_at }
 
       if status == plan_map[:assigned_es_cell_qc_in_progress]
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
@@ -267,6 +267,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       end
 
     end
+
+    #clone = summary.clone
+    #clone.default = nil
 
     return summary
   end
@@ -435,8 +438,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       'Consortium',
       'Production Centre',
       'Gene',
-      'Status',
-      'Status Date'
+      'Original Status',
+      'Original Status Date',
+      'Current Status',
+      'Current Status Date'
     ]
 
     report_table = Table(headings)
@@ -453,12 +458,18 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
               gene_hash = status_hash[status]
               gene_hash.keys.each do |gene|
 
+                plan_id = gene_hash[gene][:plan_id]
+                plan = MiPlan.find(plan_id)
+                status_details = plan.latest_relevant_status
+
                 report_table << {
                   'Consortium' => cons,
                   'Production Centre' => centre,
                   'Gene' => gene_hash[gene][:symbol],
-                  'Status' => gene_hash[gene][:original_status],
-                  'Status Date' => gene_hash[gene][:original_date]
+                  'Original Status' => gene_hash[gene][:original_status],
+                  'Original Status Date' => gene_hash[gene][:original_date],
+                  'Current Status' => status_details[:status],
+                  'Current Status Date' => status_details[:date].to_date
                 }
 
               end

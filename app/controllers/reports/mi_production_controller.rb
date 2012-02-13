@@ -105,7 +105,7 @@ class Reports::MiProductionController < ApplicationController
                 :status => record[0],
                 :delay_bin => bin) + '">' + record[bin].to_s + '</a>'
             end
-            css_classes = [record[0].gsub(/[- ]+/, '_').downcase, "bin#{idx}"]
+            css_classes = ['center', record[0].gsub(/[- ]+/, '_').downcase, "bin#{idx}"]
             record[bin] = "<div class=\"#{css_classes.join ' '}\">#{link}</div>".html_safe
           end
         end

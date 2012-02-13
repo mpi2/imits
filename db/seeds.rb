@@ -81,7 +81,7 @@ Seeds.load Consortium, [
 Seeds.load Centre, [
   {:id => 1,  :name => 'WTSI'},
   {:id => 2,  :name => 'ICS'},
-  {:id => 3,  :name => 'MRC - Harwell'},
+  {:id => 3,  :name => 'Harwell'},
   {:id => 4,  :name => 'Monterotondo'},
   {:id => 5,  :name => 'UCD'},
   {:id => 6,  :name => 'HMGU'},

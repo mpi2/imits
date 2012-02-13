@@ -5,9 +5,9 @@ require 'test_helper'
 class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::TestCase
   context 'Reports::MiProduction::SummaryMonthByMonthActivity' do
 
-    def generate; @generated ||= Reports::MiProduction::SummaryMonthByMonthActivity.generate(:komp2 => true); end
+    def generate; @generated ||= Reports::MiProduction::SummaryMonthByMonthActivity.generate(:komp2 => true, :no_cache => true); end
 
-    should 'ensure non KOMP2 consortia are ignored' do            
+    should 'ensure non KOMP2 consortia are ignored' do
       plan1 = TestDummy.mi_plan('Monterotondo', 'Monterotondo')
       plan1.update_attributes!(:number_of_es_cells_starting_qc => 1)
       replace_status_stamps(plan1,
@@ -58,7 +58,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
       csv = CSV.parse(generate[:csv])
       assert_equal 2, csv.size, csv.inspect
       assert_equal ['2011','8', 'BaSH', '2', '0', '0', 'WTSI'], csv[1][0..6]
-      
+
     end
 
     should 'accumulate numbers for MiAttempts for distinct genes' do
@@ -71,6 +71,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
                 :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
         replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
       end
+
+      puts generate[:table].to_s
 
       csv = CSV.parse(generate[:csv])
       assert_equal 2, csv.size, csv.inspect

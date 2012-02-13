@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-# TODO: check CSV
-
 class Reports::MiProduction::SummaryMonthByMonthActivity
 
   DEBUG = false
@@ -107,13 +105,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
     return title, table
   end
-
-  #def self.get_summary(params)
-  #  return get_summary_proper(params) if params[:no_cache] || ! RAILS_CACHE
-  #  Rails.cache.fetch('SummaryMonthByMonthActivity' + (params[:komp2] ? '-komp2' : '-impc'), :expires_in => 1.hour) do
-  #    get_summary_proper(params)
-  #  end
-  #end
 
   def self.get_summary(params)
 
@@ -267,9 +258,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       end
 
     end
-
-    #clone = summary.clone
-    #clone.default = nil
 
     return summary
   end

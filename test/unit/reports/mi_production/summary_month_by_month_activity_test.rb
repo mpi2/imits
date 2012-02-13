@@ -95,21 +95,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
 
     end
 
-    #should 'ensure some plan statuses are ignored' do
-    #  plan1 = TestDummy.mi_plan('BaSH', 'WTSI')
-    #  plan1.update_attributes!(:number_of_es_cells_starting_qc => 1)
-    #  replace_status_stamps(plan1,
-    #    'Conflict' => '2011-08-01')
-    #
-    #  plan2 = TestDummy.mi_plan('BaSH', 'WTSI')
-    #  plan2.update_attributes!(:number_of_es_cells_starting_qc => 1)
-    #  replace_status_stamps(plan2,
-    #    'Conflict' => '2011-08-01')
-    #
-    #  csv = CSV.parse(generate[:csv])
-    #  assert_equal 1, csv.size, csv.inspect
-    #end
-
     should 'ensure some plan statuses are ignored' do
       array = [
         'Interest',
@@ -118,9 +103,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
         'Inspect - MI Attempt',
         'Inspect - Conflict',
         'Assigned',
-        #'Assigned - ES Cell QC In Progress',
-        #'Assigned - ES Cell QC Complete',
-        #'Aborted - ES Cell QC Failed',
         'Inactive',
         'Withdrawn'
       ]

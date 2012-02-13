@@ -1,5 +1,13 @@
 <% @title = 'Production Summaries' %>
 
+<% content_for :head do %>
+<style type="text/css">
+  .report th, .report td {
+    text-align: center
+  }
+</style>
+<% end %>
+
 <h2><%= @title2 %></h2>
 
 <% if ! @report_renderer[:csv].nil? %>
@@ -16,7 +24,7 @@ link_to('Download as CSV', url_for({:action => :summary_komp23, :controller => '
 
 <% end %>
 
-<div class="report grid_12">
+<div class="report">
 
 <% if @report_renderer[:html].nil? %>
   <p><em>Sorry, no production data found</em></p>

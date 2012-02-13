@@ -301,6 +301,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
       assert_equal expected, got
     end
 
+    should 'use MiPlan\'s production centre not PhenotypeAttempt production centre when MiPlan, MiAttempt and PhenotypeAttempt exists'
+
     should 'has ::report_name of mi_production_intermediate' do
       assert_equal 'mi_production_intermediate', Reports::MiProduction::Intermediate.report_name
     end

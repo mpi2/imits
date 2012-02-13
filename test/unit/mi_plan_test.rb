@@ -419,6 +419,16 @@ class MiPlanTest < ActiveSupport::TestCase
         should 'exist' do
           assert_should have_db_column(:is_active).with_options(:null => false, :default => true)
         end
+        
+        should 'be true if an active microinjection attempt found' do
+          active_mi = Factory.create :mi_attempt, :is_active => true
+          assert active_mi.mi_plan.is_active = true
+        end
+        
+        should 'be true valid if an active phenotype attempt found' do
+          active_pa = Factory.create :phenotype_attempt, :is_active => true
+          assert active_pa.mi_plan.is_active = true
+        end
       end
     end # attribute tests
 

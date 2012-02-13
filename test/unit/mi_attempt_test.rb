@@ -127,6 +127,16 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
+      context '#inactive_mi_attempt' do
+        should ', when reactivated, reactivate the associated mi_plan' do
+          mi_attempt = Factory.create :mi_attempt, :is_active => false
+          mi_attempt.mi_plan.is_active = false
+          mi_attempt.is_active = true
+          mi_attempt.save!
+          assert mi_attempt.mi_plan.is_active?
+        end
+      end
+
       context '#status_stamps' do
         should 'be an association' do
           assert_should have_many :status_stamps

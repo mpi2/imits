@@ -258,6 +258,18 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
                 default_phenotype_attempt.gene
       end
     end
+    
+    context '#inactive_phenotype_attempt' do
+      should ', when reactivated, reactivate associated mi plan' do
+        phenotype_attempt = Factory.create :phenotype_attempt, :is_active => false
+        plan = phenotype_attempt.mi_plan
+        plan.is_active = false
+        plan.save!
+        phenotype_attempt.is_active = true
+        phenotype_attempt.save!
+        assert phenotype_attempt.mi_plan.is_active?
+      end
+    end
 
   end
 end

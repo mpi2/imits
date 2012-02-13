@@ -224,8 +224,12 @@ class MiAttempt < ApplicationModel
       mi_plan_to_set.save!
 
       self.mi_plan = mi_plan_to_set
+      if is_active?
+        mi_plan.is_active = true
+      end
     else
       if is_active?
+        mi_plan.is_active = true
         mi_plan.status = MiPlan::Status.find_by_name!('Assigned')
         mi_plan.save!
       end

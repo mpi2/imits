@@ -33,6 +33,9 @@ class PhenotypeAttempt < ApplicationModel
 
   def set_mi_plan
     self.mi_plan ||= mi_attempt.try(:mi_plan)
+    if self.is_active?
+      self.mi_plan.is_active = true
+    end
   end
 
   def record_if_status_was_changed

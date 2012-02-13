@@ -20,6 +20,26 @@ class MiPlan < ApplicationModel
 
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
 
+  validate do |plan|
+    if self.is_active == false
+      self.mi_attempts.each do |mi_attempt|
+        if mi_attempt.status == "Active" 
+          self.errors.add :base, 'Active microinjection attempt found'
+        end
+      end
+    end
+  end
+  
+  validate do |plan|
+    if self.is_active == false
+      self.phenotype_attempts.each do |phenotype_attempt|
+        if phenotype_attempt.status == "Active" 
+          self.errors.add :base, 'Active phenotype attempt found'
+        end
+      end
+    end
+  end
+  
   # BEGIN Callbacks
 
   before_validation :set_default_mi_plan_status

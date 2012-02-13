@@ -132,6 +132,12 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         assert_equal status, default_mi_plan.status
       end
     end
+    
+    context '#is_active' do
+      should 'be present' do
+        assert validate_presence_of :is_active
+      end
+    end
 
     context '#number_of_es_cells_starting_qc' do
       should 'validate non-blankness only it was previously set to a number' do
@@ -186,7 +192,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'number_of_es_cells_starting_qc',
         'number_of_es_cells_passing_qc',
         'withdrawn',
-        'sub_project_name'
+        'sub_project_name',
+        'is_active'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -203,7 +210,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'number_of_es_cells_starting_qc',
         'number_of_es_cells_passing_qc',
         'withdrawn',
-        'sub_project_name'
+        'sub_project_name',
+        'is_active'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

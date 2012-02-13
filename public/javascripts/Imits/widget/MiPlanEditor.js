@@ -209,7 +209,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             items: [
             {
                 xtype: 'label',
-                text: "Withdraw interest?",
+                text: "Withdraw interest",
                 cls: 'x-form-item-label',
                 margin: '0 5 0 0'
             },
@@ -246,10 +246,57 @@ Ext.define('Imits.widget.MiPlanEditor', {
             }
             ]
         });
+        
+        var inactivateContainer = Ext.create('Ext.panel.Panel', {
+            ui: 'plain',
+            layout: {
+                type: 'hbox',
+                align: 'stretchmax'
+            },
+            margin: '0 0 10 0',
+            items: [
+            {
+                xtype: 'label',
+                text: "Inactivate plan?",
+                cls: 'x-form-item-label',
+                margin: '0 5 0 0'
+            },
+            {
+                xtype: 'button',
+                id: 'inactivate-button',
+                text: 'Inactivate',
+                width: 60,
+                handler: function (button) {
+                    button.hide();
+                    inactivateContainer.getComponent('inactivate-confirmation-button').show();
+                }
+            },
+            {
+                xtype: 'button',
+                id: 'inactivate-confirmation-button',
+                text: 'Are you sure?',
+                width: 100,
+                hidden: true,
+                handler: function (button) {
+                    editor.setLoading(true);
+                    var miPlan = editor.miPlan;
 
-        var panelHeight = 350;
+                    miPlan.set('is_active', false);
+                    editor.miPlan.save({
+                        success: function () {
+                            editor.setLoading(false);
+                            editor.hide();
+                        }
+                    });
+                    button.hide();
+                    inactivateContainer.getComponent('inactivate-button').show();
+                }
+            }
+            ]
+        });
+        var panelHeight = 400;
         if(window.CAN_SEE_SUB_PROJECT) {
-            panelHeight = 370;
+            panelHeight = 420;
         }
 
         this.add(Ext.create('Ext.panel.Panel', {
@@ -263,7 +310,8 @@ Ext.define('Imits.widget.MiPlanEditor', {
             items: [
             editor.form,
             deleteContainer,
-            withdrawContainer
+            withdrawContainer,
+            inactivateContainer
             ]
         }));
 
@@ -273,6 +321,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         });
 
         editor.withdrawButton = Ext.getCmp('withdraw-button');
+        editor.inactivateButton = Ext.getCmp('inactivate-button');
 
         this.fields = this.form.items.keys;
         this.updateableFields = this.form.items.filterBy(function (i) {

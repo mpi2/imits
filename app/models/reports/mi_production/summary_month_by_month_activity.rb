@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 # TODO: check CSV
-# TODO: suppress 'Other'
 
 class Reports::MiProduction::SummaryMonthByMonthActivity
 
@@ -18,7 +17,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     'ES Cell QC In Progress',
     'ES Cell QC Complete',
     'ES Cell QC Failed',
-    #'Other',
 
     'Production Centre',
 
@@ -110,12 +108,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
     return title, table
   end
 
-    #def self.get_summary(params)
-    #  return get_summary_proper(params) if params[:no_cache] || ! RAILS_CACHE
-    #  Rails.cache.fetch('SummaryMonthByMonthActivity' + (params[:komp2] ? '-komp2' : '-impc'), :expires_in => 1.hour) do
-    #    get_summary_proper(params)
-    #  end
-    #end
+  #def self.get_summary(params)
+  #  return get_summary_proper(params) if params[:no_cache] || ! RAILS_CACHE
+  #  Rails.cache.fetch('SummaryMonthByMonthActivity' + (params[:komp2] ? '-komp2' : '-impc'), :expires_in => 1.hour) do
+  #    get_summary_proper(params)
+  #  end
+  #end
 
   def self.get_summary(params)
 
@@ -150,14 +148,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_plan.id, :original_status => "PLAN: #{status}", :original_date => stamp.created_at }
 
-      #summary[year] ||= {}
-      #summary[year][month] ||= {}
-      #summary[year][month][consortium] ||= {}
-      #summary[year][month][consortium][pcentre] ||= {}
-      #summary[year][month][consortium][pcentre]['ES Cell QC In Progress'] ||= {}
-      #summary[year][month][consortium][pcentre]['ES Cell QC Complete'] ||= {}
-      #summary[year][month][consortium][pcentre]['ES Cell QC Failed'] ||= {}
-
       if status == plan_map[:assigned_es_cell_qc_in_progress]
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
       end
@@ -171,12 +161,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['ES Cell QC Failed'][gene_id] = details_hash
       end
-
-      #if status != plan_map[:assigned_es_cell_qc_in_progress] && status != plan_map[:assigned_es_cell_qc_complete] &&
-      #  status != plan_map[:aborted_es_cell_qc_failed]
-      #  summary[year][month][consortium][pcentre]['Other'][gene_id] = details_hash
-      #  #summary[year][month][consortium][pcentre][status][gene_id] = details_hash
-      #end
 
     end
 
@@ -197,14 +181,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       marker_symbol = stamp.mi_attempt.mi_plan.gene.marker_symbol
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }
-
-      #summary[year] ||= {}
-      #summary[year][month] ||= {}
-      #summary[year][month][consortium] ||= {}
-      #summary[year][month][consortium][pcentre] ||= {}
-      #summary[year][month][consortium][pcentre]['Micro-injection in progress'] ||= {}
-      #summary[year][month][consortium][pcentre]['Genotype confirmed'] ||= {}
-      #summary[year][month][consortium][pcentre]['Micro-injection aborted'] ||= {}
 
       if(status == attempt_map[:micro_injection_in_progress])
         summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
@@ -243,24 +219,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       marker_symbol = stamp.phenotype_attempt.mi_plan.gene.marker_symbol
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.phenotype_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }
-
-      #summary[year] ||= {}
-      #summary[year][month] ||= {}
-      #summary[year][month][consortium] ||= {}
-      #summary[year][month][consortium][pcentre] ||= {}
-      #
-      #array = [
-      #  'Phenotype Attempt Registered',
-      #  'Rederivation Started',
-      #  'Rederivation Complete',
-      #  'Cre Excision Started',
-      #  'Cre Excision Complete',
-      #  'Phenotyping Started',
-      #  'Phenotyping Complete',
-      #  'Phenotype Attempt Aborted'
-      #]
-      #
-      #array.each { |name| summary[year][month][consortium][pcentre][name] ||= {} }
 
       if status == phenotype_map[:phenotype_attempt_aborted]
         summary[year][month][consortium][pcentre]['Phenotype Attempt Aborted'][gene_id] = details_hash
@@ -353,8 +311,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             return "<a href='#{script_name}#{separator}year=#{year}&month=#{month}&consortium=#{consort}&type=#{type}'>#{value}</a>"
           end
 
-          summer = {'ES Cell QC In Progress'=> 0, 'ES Cell QC Complete' => 0, 'ES Cell QC Failed' => 0} #, 'Other' => 0}
-          array2 = [ 'ES Cell QC In Progress', 'ES Cell QC Complete', 'ES Cell QC Failed' ] #, 'Other' ]
+          summer = {'ES Cell QC In Progress'=> 0, 'ES Cell QC Complete' => 0, 'ES Cell QC Failed' => 0}
+          array2 = [ 'ES Cell QC In Progress', 'ES Cell QC Complete', 'ES Cell QC Failed' ]
           centre_hash.keys.each do |centre|
             status_hash = centre_hash[centre]
             array2.each do |name|
@@ -426,7 +384,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       'ES Cell QC In Progress',
       'ES Cell QC Complete',
       'ES Cell QC Failed',
-      #'Other',
       'Micro-injection in progress',
       'Genotype confirmed',
       'Micro-injection aborted',

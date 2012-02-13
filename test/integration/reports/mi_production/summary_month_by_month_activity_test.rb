@@ -4,7 +4,7 @@ require 'test_helper'
 
 class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActionDispatch::IntegrationTest
 
-  DEBUG = true
+  DEBUG = false
 
   context 'Reports::MiProduction::SummaryMonthByMonthActivity' do
     should 'require the user to be logged in' do

@@ -3,6 +3,13 @@
 class TestDummy
   class Error < RuntimeError; end
 
+  ASSOCIATIONS = [
+    :status,
+    :gene,
+    :consortium,
+    :production_centre
+  ].freeze
+
   def self.create(type, *values)
     return self.new(type, *values).object
   end
@@ -19,6 +26,7 @@ class TestDummy
     end
 
     @object = Factory.build type
+    @associations = ASSOCIATIONS.dup
     values.each do |value|
       attr, value = get_attr_and_associated(value)
       #if(attr)
@@ -33,20 +41,14 @@ class TestDummy
 
   private
 
-  ASSOCIATIONS = [
-    :status,
-    :gene,
-    :consortium,
-    :production_centre
-  ]
-
   def get_attr_and_associated(value)
-    ASSOCIATIONS.each do |association|
+    @associations.each do |association|
       reflection = @object.class.reflections[association]
       next unless reflection
 
       associated = find_associated_by_value(reflection.klass, value)
       if associated
+        @associations.delete(association)
         return association, associated
       end
     end

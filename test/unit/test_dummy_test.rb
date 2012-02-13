@@ -50,6 +50,19 @@ class TestDummyTest < ActiveSupport::TestCase
         plan = TestDummy.create(:mi_plan, 'BaSH', 'WTSI')
         assert plan.id
       end
+
+      should 'find two different associations if the same name is given twice' do
+        expected = [
+          'JAX',
+          'JAX'
+        ]
+        plan = TestDummy.create(:mi_plan, *expected)
+        got = [
+          plan.consortium.name,
+          plan.production_centre.try(:name)
+        ]
+        assert_equal expected, got
+      end
     end
 
     context '::mi_plan' do
@@ -57,6 +70,11 @@ class TestDummyTest < ActiveSupport::TestCase
         expected = ['BaSH', 'WTSI']
         plan = TestDummy.mi_plan(*expected)
         assert_equal expected, [plan.consortium.name, plan.production_centre.name]
+      end
+
+      should 'find a name in a consortium if the name could be consortium or centre' do
+        plan = TestDummy.mi_plan('JAX')
+        assert_equal ['JAX', nil], [plan.consortium.name, plan.production_centre.try(:name)]
       end
     end
 

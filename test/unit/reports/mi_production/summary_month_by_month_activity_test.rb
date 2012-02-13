@@ -72,8 +72,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
         replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
       end
 
-      puts generate[:table].to_s
-
       csv = CSV.parse(generate[:csv])
       assert_equal 2, csv.size, csv.inspect
       assert_equal ["2011", "8", "BaSH", '0', '0', '0', "WTSI", "2"], csv[1][0..7]
@@ -95,6 +93,47 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
       row = csv.find {|i| i[0..6] == ['2011', '8', 'BaSH', '0', '0', '0', 'WTSI']}
       assert_equal ["2011", "8", "BaSH", "0", "0", "0", "WTSI", "0", "0", "0", "2", "0"], row[0..11]
 
+    end
+
+    #should 'ensure some plan statuses are ignored' do
+    #  plan1 = TestDummy.mi_plan('BaSH', 'WTSI')
+    #  plan1.update_attributes!(:number_of_es_cells_starting_qc => 1)
+    #  replace_status_stamps(plan1,
+    #    'Conflict' => '2011-08-01')
+    #
+    #  plan2 = TestDummy.mi_plan('BaSH', 'WTSI')
+    #  plan2.update_attributes!(:number_of_es_cells_starting_qc => 1)
+    #  replace_status_stamps(plan2,
+    #    'Conflict' => '2011-08-01')
+    #
+    #  csv = CSV.parse(generate[:csv])
+    #  assert_equal 1, csv.size, csv.inspect
+    #end
+
+    should 'ensure some plan statuses are ignored' do
+      array = [
+        'Interest',
+        'Conflict',
+        'Inspect - GLT Mouse',
+        'Inspect - MI Attempt',
+        'Inspect - Conflict',
+        'Assigned',
+        #'Assigned - ES Cell QC In Progress',
+        #'Assigned - ES Cell QC Complete',
+        #'Aborted - ES Cell QC Failed',
+        'Inactive',
+        'Withdrawn'
+      ]
+
+      array.each do |status|
+        plan2 = TestDummy.mi_plan('BaSH', 'WTSI')
+        plan2.update_attributes!(:number_of_es_cells_starting_qc => 1)
+        replace_status_stamps(plan2,
+          status => '2011-08-01')
+      end
+
+      csv = CSV.parse(generate[:csv])
+      assert_equal 1, csv.size, csv.inspect
     end
 
   end

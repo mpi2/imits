@@ -45,6 +45,11 @@ class TestDummyTest < ActiveSupport::TestCase
           TestDummy.create(:mi_plan, 'NonexistentGene')
         end
       end
+
+      should 'should create the object in the database' do
+        plan = TestDummy.create(:mi_plan, 'BaSH', 'WTSI')
+        assert plan.id
+      end
     end
 
     context '::mi_plan' do

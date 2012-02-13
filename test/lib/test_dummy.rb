@@ -25,6 +25,8 @@ class TestDummy
         @object.send("#{attr}=", value)
       #end
     end
+
+    @object.save!
   end
 
   attr_reader :object

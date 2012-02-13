@@ -15,7 +15,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActionDispatch::I
     context 'once logged in' do
 
     setup do
-      create_common_test_objects
       visit '/users/logout'
       login
     end
@@ -35,18 +34,17 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActionDispatch::I
       visit '/reports/mi_production/summary_month_by_month_activity?komp2=true'
       assert_match '/reports/mi_production/summary_month_by_month_activity?komp2=true', current_url
 
-      assert_match 'KOMP2 Summary Month by Month', page.body
-      assert_match 'Download as CSV', page.body
+      assert page.has_content? 'KOMP2 Summary Month by Month'
+      assert page.has_content? 'Download as CSV'
 
       save_and_open_page if DEBUG
 
       click_link "2"
 
-      assert_match 'Details', page.body
-      assert_match 'Download as CSV', page.body
+      assert page.has_content? 'Details'
+      assert page.has_content? 'Download as CSV'
 
       save_and_open_page if DEBUG
-
       sleep(10.seconds) if DEBUG
     end
 

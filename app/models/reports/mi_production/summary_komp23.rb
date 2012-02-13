@@ -6,8 +6,8 @@ class Reports::MiProduction::SummaryKomp23
 
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
-  REPORT_TITLE = 'KOMP2 Report 3'
-
+  REPORT_TITLE = 'KOMP2 Production Summary'
+  
   CONSORTIA = ['BaSH', 'DTCC', 'JAX']
 
   DEBUG_HEADINGS = [
@@ -324,6 +324,7 @@ class Reports::MiProduction::SummaryKomp23
 
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Genotype Confirmed ES Cells'
         return r[type] && r[type].to_s.length > 0 && r[type].to_i != 0 if type == 'Distinct Old Non Genotype Confirmed ES Cells'
+
         return count_row(r, type)
 
       },
@@ -433,8 +434,8 @@ class Reports::MiProduction::SummaryKomp23
     array = []
     array.push '<table>'
     array.push '<tr>'
-
-    table.column_names.each { |name| array.push "<th style='width:80px'>#{name}</th>" }
+        
+    table.column_names.each { |name| array.push "<th>#{name}</th>" }
 
     other_columns = table.column_names - ["Consortium", "All genes", "ES cell QC", "ES QC confirmed",  "ES QC failed"]
     rows = table.data.size
@@ -486,8 +487,11 @@ class Reports::MiProduction::SummaryKomp23
 
     end
 
+    # HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
     array.push '</table>'
-    return array.join("\n")
+    retval = array.join("\n")
+    retval.gsub!(/Registered for phenotyping/i, 'Intent to phenotype')
+    return retval
   end
 
   def self.generate_and_cache

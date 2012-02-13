@@ -5,7 +5,9 @@ require 'test_helper'
 class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::TestCase
   context 'Reports::MiProduction::SummaryMonthByMonthActivity' do
 
-    def generate; @generated ||= Reports::MiProduction::SummaryMonthByMonthActivity.generate(:komp2 => true, :no_cache => true); end
+    def generate
+      @generated ||= Reports::MiProduction::SummaryMonthByMonthActivity.generate(:komp2 => true, :no_cache => true)
+    end
 
     should 'ensure non KOMP2 consortia are ignored' do
       plan1 = TestDummy.mi_plan('Monterotondo', 'Monterotondo')
@@ -96,6 +98,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
     end
 
     should 'ensure some plan statuses are ignored' do
+      # TODO Replace this with TestDummy.gene_line eventually, so it sets the
+      # MiPlan to the correct status rather than just setting the status stamp
       array = [
         'Interest',
         'Conflict',
@@ -108,9 +112,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
       ]
 
       array.each do |status|
-        plan2 = TestDummy.mi_plan('BaSH', 'WTSI')
-        plan2.update_attributes!(:number_of_es_cells_starting_qc => 1)
-        replace_status_stamps(plan2,
+        plan = TestDummy.mi_plan('BaSH', 'WTSI')
+        replace_status_stamps(plan,
           status => '2011-08-01')
       end
 

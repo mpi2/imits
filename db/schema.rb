@@ -273,7 +273,7 @@ ActiveRecord::Schema.define(:version => 20120214105538) do
     t.text     "format",     :null => false
   end
 
-  add_index "report_caches", ["name"], :name => "index_report_caches_on_name", :unique => true
+  add_index "report_caches", ["name", "format"], :name => "index_report_caches_on_name_and_format", :unique => true
 
   create_table "strain_blast_strains", :id => false, :force => true do |t|
     t.integer  "id",         :null => false

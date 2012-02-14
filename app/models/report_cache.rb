@@ -30,6 +30,6 @@ end
 #
 # Indexes
 #
-#  index_report_caches_on_name  (name) UNIQUE
+#  index_report_caches_on_name_and_format  (name,format) UNIQUE
 #
 

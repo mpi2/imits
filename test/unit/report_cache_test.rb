@@ -7,9 +7,12 @@ class ReportCacheTest < ActiveSupport::TestCase
 
     should 'have attributes' do
       assert_should have_db_column(:name).with_options(:null => false)
-      assert_should have_db_index(:name).unique(true)
       assert_should have_db_column(:data).with_options(:null => false)
       assert_should have_db_column(:format).with_options(:null => false)
+    end
+
+    should 'have unique index on name and format' do
+      assert_should have_db_index([:name, :format])
     end
 
     context '#compact_timestamp' do

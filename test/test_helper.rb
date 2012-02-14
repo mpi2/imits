@@ -251,7 +251,9 @@ class ExternalScriptTestCase < ActiveSupport::TestCase
   end
 end
 
-class Test::Person < ActiveRecord::Base
+class Test::Person < ApplicationModel
+  acts_as_audited
+
   self.connection.create_table :test_people, :force => true do |t|
     t.string :name
   end

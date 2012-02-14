@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
+class Reports::MiProduction::Intermediate < Reports::Base
 
   # TODO: unit-test it, share it somewhere for all reports, expand it so it
   # handles deeply nested associations

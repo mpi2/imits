@@ -6,7 +6,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
   RAILS_CACHE = true
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-08-01')
-  NEW_CODE = true
 
   HEADINGS = [
     'Year',
@@ -142,44 +141,25 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_plan.id, :original_status => status, :original_date => stamp.created_at }
 
-      #summary[year][month][consortium]['DUMMY']['ES Cell QC In Progress'] ||= {}
-      #summary[year][month][consortium]['DUMMY']['ES Cell QC Complete'] ||= {}
-      #summary[year][month][consortium]['DUMMY']['ES Cell QC Failed'] ||= {}
-
-      if NEW_CODE
-        consortia_list.each do |name|
-          summary[year][month][name]['DUMMY']['ES Cell QC In Progress'] ||= {}
-          summary[year][month][name]['DUMMY']['ES Cell QC Complete'] ||= {}
-          summary[year][month][name]['DUMMY']['ES Cell QC Failed'] ||= {}
-        end
+      consortia_list.each do |name|
+        summary[year][month][name]['DUMMY']['ES Cell QC In Progress'] ||= {}
+        summary[year][month][name]['DUMMY']['ES Cell QC Complete'] ||= {}
+        summary[year][month][name]['DUMMY']['ES Cell QC Failed'] ||= {}
       end
-
-      # if NEW_CODE
-      #   Consortium.all.each { |c| summary[year][month][c.name]['DUMMY']['ES Cell QC In Progress'] ||= {} } if ! consortia
-      # end
-
-      # wibble = nil
 
       if status == plan_map[:assigned_es_cell_qc_in_progress]
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
-        #  wibble = 'ES Cell QC In Progress'
       end
 
       if status == plan_map[:assigned_es_cell_qc_complete]
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['ES Cell QC Complete'][gene_id] = details_hash
-        #   wibble = 'ES Cell QC Complete'
       end
 
       if status == plan_map[:aborted_es_cell_qc_failed]
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['ES Cell QC Failed'][gene_id] = details_hash
-        #  wibble = 'ES Cell QC Failed'
       end
-
-      #consortia.each { |name| summary[year][month][name]['DUMMY'][wibble] ||= {} } if consortia && wibble
-      #Consortium.all.each { |c| summary[year][month][c.name]['DUMMY'][wibble] ||= {} } if ! consortia && wibble
-      #consortia_list.each { |c| summary[year][month][c]['DUMMY'][wibble] ||= {} }
 
     end
 
@@ -201,19 +181,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }
 
-      #summary[year][month][consortium]['DUMMY']['Micro-injection in progress'] ||= {}
-      #summary[year][month][consortium]['DUMMY']['Genotype confirmed'] ||= {}
-      #summary[year][month][consortium]['DUMMY']['Micro-injection aborted'] ||= {}
-
-      #consortia.each { |name| summary[year][month][name]['DUMMY']['ES Cell QC In Progress'] ||= {} } if consortia
-      #Consortium.all.each { |c| summary[year][month][c.name]['DUMMY']['ES Cell QC In Progress'] ||= {} } if ! consortia
-
-      if NEW_CODE
-        consortia_list.each do |name|
-          summary[year][month][name]['DUMMY']['Micro-injection in progress'] ||= {}
-          summary[year][month][name]['DUMMY']['Genotype confirmed'] ||= {}
-          summary[year][month][name]['DUMMY']['Micro-injection aborted'] ||= {}
-        end
+      consortia_list.each do |name|
+        summary[year][month][name]['DUMMY']['Micro-injection in progress'] ||= {}
+        summary[year][month][name]['DUMMY']['Genotype confirmed'] ||= {}
+        summary[year][month][name]['DUMMY']['Micro-injection aborted'] ||= {}
       end
 
       if(status == attempt_map[:micro_injection_in_progress])
@@ -254,15 +225,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.phenotype_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }
 
-      #summary[year][month][consortium]['DUMMY']['Phenotype Attempt Aborted'] ||= {}
-
-      # consortia.each { |name| summary[year][month][name]['DUMMY']['ES Cell QC In Progress'] ||= {} } if consortia
-      # Consortium.all.each { |c| summary[year][month][c.name]['DUMMY']['ES Cell QC In Progress'] ||= {} } if ! consortia
-
-      if NEW_CODE
-        consortia_list.each do |name|
-          summary[year][month][name]['DUMMY']['Phenotype Attempt Aborted'] ||= {}
-        end
+      consortia_list.each do |name|
+        summary[year][month][name]['DUMMY']['Phenotype Attempt Aborted'] ||= {}
       end
 
       if status == phenotype_map[:phenotype_attempt_aborted]
@@ -312,8 +276,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       end
 
     end
-
-    #puts summary.inspect
 
     return summary
   end
@@ -378,8 +340,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
           centre_hash.keys.each do |centre|
 
-            #string += "</tr>\n" if NEW_CODE && centre == 'DUMMY'
-            next if NEW_CODE && centre == 'DUMMY' && centre_hash.keys.size > 1
+            next if centre == 'DUMMY' && centre_hash.keys.size > 1
 
             centre_count += 1
 
@@ -413,7 +374,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
               'Phenotype Attempt Aborted'
             ]
 
-            c = NEW_CODE && centre == 'DUMMY' ? '' : centre
+            c = centre == 'DUMMY' ? '' : centre
 
             string += "<td class='report-cell-text'>#{c}</td>"
 

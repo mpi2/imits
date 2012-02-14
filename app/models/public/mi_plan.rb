@@ -38,6 +38,7 @@ class Public::MiPlan < ::MiPlan
   validates :consortium_name, :presence => true
   validates :production_centre_name, :presence => {:on => :update, :if => proc {|p| p.changed.include?('production_centre_id')}}
   validates :priority_name, :presence => true
+  validates :is_active, :presence => true
   validates :number_of_es_cells_starting_qc, :presence => {
     :on => :update,
     :if => proc {|p| p.changed.include?('number_of_es_cells_starting_qc')},

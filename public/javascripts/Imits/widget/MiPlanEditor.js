@@ -278,18 +278,8 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 width: 100,
                 hidden: true,
                 handler: function (button) {
-                    editor.setLoading(true);
-                    var miPlan = editor.miPlan;
-
-                    miPlan.set('is_active', false);
-                    editor.miPlan.save({
-                        success: function () {
-                            editor.setLoading(false);
-                            editor.hide();
-                        }
-                    });
-                    button.hide();
-                    inactivateContainer.getComponent('inactivate-button').show();
+                    var component = inactivateContainer.getComponent('inactivate-button');
+                    editor.sendUpdate(button, component, 'is_active', false); 
                 }
             }
             ]
@@ -370,5 +360,21 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 editor.updateButton.enable();
             }
         });
+    },
+    
+    sendUpdate: function(button, component, attr, value){
+      var editor = this;
+      editor.setLoading(true);
+      var miPlan = editor.miPlan;
+
+      miPlan.set(attr, value);
+      editor.miPlan.save({
+          success: function () {
+               editor.setLoading(false);
+               editor.hide();
+          }
+       });
+       button.hide();
+       component.show();
     }
 });

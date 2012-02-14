@@ -135,7 +135,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     
     context '#is_active' do
       should 'be present' do
-        assert validate_presence_of :is_active
+        assert_should validate_presence_of :is_active
       end
     end
 

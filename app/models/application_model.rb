@@ -54,4 +54,12 @@ class ApplicationModel < ActiveRecord::Base
     end
   end
 
+  def self.audited_transaction
+    ActiveRecord::Base.transaction do
+      Audit.as_user(User.find_by_email! 'htgt@sanger.ac.uk') do
+        yield
+      end
+    end
+  end
+
 end

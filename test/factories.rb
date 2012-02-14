@@ -227,6 +227,6 @@ end
 
 Factory.define :report_cache do |report_cache|
   report_cache.sequence(:name) { |n| "Report Cache #{n}"}
-  report_cache.csv_data ''
-  report_cache.html_data '<div></div>'
+  report_cache.data ''
+  report_cache.format 'csv'
 end

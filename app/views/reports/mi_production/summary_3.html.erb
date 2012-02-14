@@ -1,0 +1,24 @@
+<% @title = 'Production Summaries' %>
+
+<% content_for :head do %>
+<style type="text/css">
+  .report th, .report td {
+    text-align: center
+  }
+</style>
+<% end %>
+
+<h2><%= @title2 %></h2>
+
+<%
+link_params = params.dup
+link_params.delete(:action)
+link_params.delete(:controller)
+link_params.delete(:script_name)
+link_params.delete(:format)
+%>
+<p><%=  link_to('Download as CSV', url_for({:action => controller.action_name, :controller => '/reports/mi_production', :format => :csv}.merge(link_params))) %></p>
+
+<div class="report">
+<%= raw @report_data[:html] %>
+</div>

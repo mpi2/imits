@@ -237,13 +237,12 @@ class ExternalScriptTestCase < ActiveSupport::TestCase
     error_output = nil
     exit_status = nil
     output = nil
+
     Open3.popen3("cd #{Rails.root}; #{commands}") do |scriptin, scriptout, scripterr, wait_thr|
       error_output = scripterr.read
       exit_status = wait_thr.value.exitstatus
       output = scriptout.read
     end
-
-    sleep 3
 
     assert_blank error_output, "Script has output to STDERR:\n#{error_output}"
     assert_equal 0, exit_status, "Script exited with error code #{exit_status}"
@@ -251,7 +250,9 @@ class ExternalScriptTestCase < ActiveSupport::TestCase
   end
 end
 
-class Test::Person < ActiveRecord::Base
+class Test::Person < ApplicationModel
+  acts_as_audited
+
   self.connection.create_table :test_people, :force => true do |t|
     t.string :name
   end

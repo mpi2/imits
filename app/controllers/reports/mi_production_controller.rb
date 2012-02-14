@@ -13,8 +13,8 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def intermediate
-    report = ReportCache.find_by_name!('mi_production_intermediate')
-    send_data_csv("mi_production_intermediate-#{report.compact_timestamp}.csv", report.csv_data)
+    report = ReportCache.find_by_name_and_type!('mi_production_intermediate', 'csv')
+    send_data_csv("mi_production_intermediate-#{report.compact_timestamp}.csv", report.data)
   end
 
   def index
@@ -70,37 +70,41 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv('production_summary_komp22.csv', @report) if request.format == :csv
   end
 
-  def summary_komp23
+  def summary_3_helper(report_class)
+    @title2 = report_class.report_title
 
-    @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
-    @title2 = Reports::MiProduction::SummaryKomp23::REPORT_TITLE
-
-    if params[:live] || params[:consortium]
+    if params[:consortium]
       params[:format] = request.format
-      params[:komp2] = true
       params[:script_name] = request.env['REQUEST_URI']
-      @report_renderer = Reports::MiProduction::SummaryKomp23.generate(params)
-      @title2 = @report_renderer[:title]
-      send_data_csv('production_summary_komp23.csv', @report_renderer[:csv]) if request.format == :csv
+      @report_data = report_class.generate(params)
+      @title2 = @report_data[:title]
+
+      if request.format == :csv
+        send_data_csv("#{report_class.report_name}_detail.csv", @report_data[:csv])
+      else
+        render :action => 'summary_3'
+      end
       return
     end
 
-    @report = ReportCache.find_by_name!('komp2_production_summary')
+    query = ReportCache.where(:name => report_class.report_name)
 
-    @report_renderer = { :csv => @report.csv_data, :html => @report.html_data }
+    @report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data}
 
-    send_data_csv('production_summary_komp23.csv', @report_renderer[:csv]) if request.format == :csv
+    if request.format == :csv
+      send_data_csv("#{report_class.report_name}.csv", @report_data[:csv])
+    else
+      render :action => 'summary_3'
+    end
+  end
+  private :summary_3_helper
 
+  def summary_komp23
+    summary_3_helper(Reports::MiProduction::SummaryKomp23)
   end
 
-  def summary_impc23
-    @csv = Reports::MiProduction::SummaryKomp23::CSV_LINKS
-    params[:format] = request.format
-    params[:komp2] = false
-    params[:script_name] = request.env['REQUEST_URI']
-    @report_renderer = Reports::MiProduction::SummaryKomp23.generate(params)
-    @title2 = @report_renderer[:title]
-    send_data_csv('summary_impc23.csv', @report_renderer[:csv]) if request.format == :csv
+  def summary_impc3
+    summary_3_helper(Reports::MiProduction::SummaryImpc3)
   end
 
   def languishing

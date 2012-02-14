@@ -19,11 +19,4 @@ class Reports::Base
   def to(format)
     @report.send("to_#{format}")
   end
-
-  protected
-
-  def generate
-    raise 'override me'
-  end
-
 end

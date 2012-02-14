@@ -367,7 +367,6 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
 
     details = params['details'] && params['details'].to_s.length > 0
     do_table = params['table'] && params['table'].to_s.length > 0
-    pretty = true
 
     report = generate_common(params)
 
@@ -400,11 +399,8 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
 
     return title, report if do_table
 
-    html = pretty ? prettify(params, report) : report.to_html
-    #    return title, params[:format] == :csv ? report.to_csv : html
-    return { :title => title, :csv => report.to_csv, :html => html,
-      :table => report  # for testing
-    }
+    html = prettify(params, report)
+    return { :title => title, :csv => report.to_csv, :html => html, :table => report }
 
   end
 
@@ -501,9 +497,9 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
   end
 
   def to(format)
-    if format == :html
+    if format == 'html'
       return @html
-    else
+    elsif format == 'csv'
       return @csv
     end
   end

@@ -72,6 +72,18 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
       assert report.to_s.length > 0
     end
 
+    should '#cache' do
+      Factory.create :phenotype_attempt
+      generated = Reports::MiProduction::SummaryKomp23.generate
+      Reports::MiProduction::SummaryKomp23.new.cache
+      assert_equal generated[:csv], ReportCache.where(
+        :name => Reports::MiProduction::SummaryKomp23.report_name,
+        :format => :csv).first.data
+      assert_equal generated[:html], ReportCache.where(
+        :name => Reports::MiProduction::SummaryKomp23.report_name,
+        :format => :html).first.data
+    end
+
   end
 
 end

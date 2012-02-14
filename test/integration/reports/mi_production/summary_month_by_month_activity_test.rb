@@ -21,15 +21,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActionDispatch::I
 
     should 'allow users to visit the page & see entries & click cell' do
 
-      2.times do
-        es_cell = Factory.create :es_cell
-        mi = Factory.create :mi_attempt, :es_cell => es_cell,
-                :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
-        replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
-        mi = Factory.create :mi_attempt, :es_cell => es_cell,
-                :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
-        replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
-      end
+      plan1 = TestDummy.mi_plan('BaSH', 'WTSI')
+      plan1.update_attributes!(:number_of_es_cells_starting_qc => 1)
+      plan2 = TestDummy.mi_plan('BaSH', 'WTSI')
+      plan2.update_attributes!(:number_of_es_cells_starting_qc => 1)
 
       visit '/reports/mi_production/summary_month_by_month_activity?komp2=true'
       assert_match '/reports/mi_production/summary_month_by_month_activity?komp2=true', current_url

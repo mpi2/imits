@@ -3,10 +3,13 @@
 require 'test_helper'
 
 class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::TestCase
+
+  DEBUG = false
+
   context 'Reports::MiProduction::SummaryMonthByMonthActivity' do
 
     def generate
-      @generated ||= Reports::MiProduction::SummaryMonthByMonthActivity.generate(:komp2 => true, :no_cache => true)
+      @generated ||= Reports::MiProduction::SummaryMonthByMonthActivity.generate(:komp2 => true)
     end
 
     should 'ensure non KOMP2 consortia are ignored' do
@@ -57,9 +60,23 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
       replace_status_stamps(plan2,
         'Assigned - ES Cell QC In Progress' => '2011-08-01')
 
+      puts generate[:table].to_s if DEBUG
+
+      expected = [
+        ["Year", "Month", "Consortium", "ES Cell QC In Progress", "ES Cell QC Complete", "ES Cell QC Failed", "Production Centre", "Micro-injection in progress", "Genotype confirmed", "Micro-injection aborted", "Phenotype Attempt Registered", "Rederivation Started", "Rederivation Complete", "Cre Excision Started", "Cre Excision Complete", "Phenotyping Started", "Phenotyping Complete", "Phenotype Attempt Aborted"],
+        ["2011", "8", "BaSH", "2", "0", "0", "WTSI", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        ["2011", "8", "DTCC", "0", "0", "0", "", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        ["2011", "8", "JAX", "0", "0", "0", "", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
+      ]
+
       csv = CSV.parse(generate[:csv])
-      assert_equal 2, csv.size, csv.inspect
-      assert_equal ['2011','8', 'BaSH', '2', '0', '0', 'WTSI'], csv[1][0..6]
+      assert_equal 4, csv.size, csv.inspect
+#      assert_equal ['2011','8', 'BaSH', '2', '0', '0', 'WTSI'], csv[1][0..6]
+      i = 0
+      expected.each do |row|
+        assert_equal csv[i], row, row.inspect
+        i += 1
+      end
 
     end
 
@@ -74,9 +91,28 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
         replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
       end
 
+      puts generate[:table].to_s if DEBUG
+
+      expected = [
+        ["Year", "Month", "Consortium", "ES Cell QC In Progress", "ES Cell QC Complete", "ES Cell QC Failed", "Production Centre", "Micro-injection in progress", "Genotype confirmed", "Micro-injection aborted", "Phenotype Attempt Registered", "Rederivation Started", "Rederivation Complete", "Cre Excision Started", "Cre Excision Complete", "Phenotyping Started", "Phenotyping Complete", "Phenotype Attempt Aborted"],
+        ["2012", "2", "BaSH", "0", "0", "0", "", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        ["2012", "2", "DTCC", "0", "0", "0", "", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        ["2012", "2", "JAX", "0", "0", "0", "", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        ["2011", "8", "BaSH", "0", "0", "0", "WTSI", "2", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        ["2011", "8", "DTCC", "0", "0", "0", "", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        ["2011", "8", "JAX", "0", "0", "0", "", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
+      ]
+
       csv = CSV.parse(generate[:csv])
-      assert_equal 2, csv.size, csv.inspect
-      assert_equal ["2011", "8", "BaSH", '0', '0', '0', "WTSI", "2"], csv[1][0..7]
+
+      i = 0
+      expected.each do |row|
+        assert_equal csv[i], row, row.inspect
+        i += 1
+      end
+
+      assert_equal 7, csv.size, csv.inspect
+#      assert_equal ["2011", "8", "BaSH", '0', '0', '0', "WTSI", "2"], csv[1][0..7]
     end
 
     should 'accumulate numbers of PhenotypeAttempts for distinct genes' do
@@ -117,8 +153,33 @@ class Reports::MiProduction::SummaryMonthByMonthActivityTest < ActiveSupport::Te
           status => '2011-08-01')
       end
 
+      puts generate[:table].to_s if DEBUG
+
+      expected = [
+        ["Year", "Month", "Consortium", "ES Cell QC In Progress", "ES Cell QC Complete", "ES Cell QC Failed", "Production Centre", "Micro-injection in progress", "Genotype confirmed", "Micro-injection aborted", "Phenotype Attempt Registered", "Rederivation Started", "Rederivation Complete", "Cre Excision Started", "Cre Excision Complete", "Phenotyping Started", "Phenotyping Complete", "Phenotype Attempt Aborted"],
+        ["2011", "8", "BaSH", "0", "0", "0", "", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        ["2011", "8", "DTCC", "0", "0", "0", "", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"],
+        ["2011", "8", "JAX", "0", "0", "0", "", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
+      ]
+
       csv = CSV.parse(generate[:csv])
-      assert_equal 1, csv.size, csv.inspect
+      assert_equal 4, csv.size, csv.inspect
+
+      i = 0
+      expected.each do |row|
+        assert_equal csv[i], row, row.inspect
+        i += 1
+      end
+    end
+
+    should 'ensure all komp2 consortia are listed' do
+      plan1 = TestDummy.mi_plan('BaSH', 'WTSI')
+      plan1.update_attributes!(:number_of_es_cells_starting_qc => 1)
+
+      puts generate[:table].to_s if DEBUG
+
+      csv = CSV.parse(generate[:csv])
+      assert_equal 4, csv.size, csv.inspect
     end
 
   end

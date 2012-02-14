@@ -27,20 +27,20 @@ class Reports::BaseTest < ActiveSupport::TestCase
         assert_equal 0, ReportCache.count
         report = TestReport.new
         report.cache
-        assert_equal 1, ReportCache.count
-        cache = ReportCache.first
+        assert_equal 1, ReportCache.where(:format => 'csv').count
+        cache = ReportCache.where(:format => 'csv').first
         assert_equal 'test_report', cache.name
-        assert_equal report.to(:csv), cache.csv_data
+        assert_equal report.to(:csv), cache.data
       end
 
       should 'store generated HTML in reports cache table' do
         assert_equal 0, ReportCache.count
         report = TestReport.new
         report.cache
-        assert_equal 1, ReportCache.count
-        cache = ReportCache.first
+        assert_equal 1, ReportCache.where(:format => 'html').count
+        cache = ReportCache.where(:format => 'html').first
         assert_equal 'test_report', cache.name
-        assert_equal report.to(:html), cache.html_data
+        assert_equal report.to(:html), cache.data
       end
 
       should 'replace existing reports cache if that exists' do
@@ -50,12 +50,12 @@ class Reports::BaseTest < ActiveSupport::TestCase
         sleep 1
         new_report = TestReport.new
         new_report.cache
-        assert_equal 1, ReportCache.count
-        new_cache = ReportCache.first
+        assert_equal 1, ReportCache.where(:format => 'csv').count
+        new_cache = ReportCache.where(:format => 'csv').first
 
         assert_equal new_cache.name, old_cache.name
         assert_operator new_cache.updated_at, :>, old_cache.updated_at
-        assert_equal new_report.to(:csv), new_cache.csv_data
+        assert_equal new_report.to(:csv), new_cache.data
       end
     end
 

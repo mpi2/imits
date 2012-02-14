@@ -2,18 +2,21 @@ class Reports::Base
   def self.report_name; raise 'Override me!'; end
 
   def cache
-    cache = ReportCache.find_by_name(self.class.report_name)
-    if ! cache
-      cache = ReportCache.new(
-        :name => self.class.report_name,
-        :csv_data => '',
-        :html_data => '<div></div>'
-      )
-    end
+    ReportCache.transaction do
+      ['html', 'csv'].each do |format|
+        cache = ReportCache.find_by_name_and_format(self.class.report_name, format)
+        if ! cache
+          cache = ReportCache.new(
+            :name => self.class.report_name,
+            :data => '',
+            :format => format
+          )
+        end
 
-    cache.html_data = self.to(:html)
-    cache.csv_data = self.to(:csv)
-    cache.save!
+        cache.data = self.to(format)
+        cache.save!
+      end
+    end
   end
 
   def to(format)

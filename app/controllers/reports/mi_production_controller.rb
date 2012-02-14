@@ -146,13 +146,50 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv('languishing_production_report_detail.csv', @report.to_csv) if request.format == :csv
   end
 
-  def summary_month_by_month_activity
-    params[:format] = request.format
-    #params[:komp2] = true #TODO: remove me! set in view
-    params[:script_name] = request.env['REQUEST_URI']
-    @report_renderer = Reports::MiProduction::SummaryMonthByMonthActivity.generate(params)
-    @title2 = @report_renderer[:title]
-    send_data_csv('summary_month_by_month_activity.csv', @report_renderer[:csv]) if request.format == :csv
+  #def summary_month_by_month_activity
+  #  params[:format] = request.format
+  #  #params[:komp2] = true #TODO: remove me! set in view
+  #  params[:script_name] = request.env['REQUEST_URI']
+  #  @report_renderer = Reports::MiProduction::SummaryMonthByMonthActivity.generate(params)
+  #  @title2 = @report_renderer[:title]
+  #  send_data_csv('summary_month_by_month_activity.csv', @report_renderer[:csv]) if request.format == :csv
+  #end
+
+  def month_by_month_helper(report_class)
+    @title2 = report_class.report_title
+
+    if params[:consortium]
+      params[:format] = request.format
+      params[:script_name] = request.env['REQUEST_URI']
+      @report_data = report_class.generate(params)
+      @title2 = @report_data[:title]
+
+      if request.format == :csv
+        send_data_csv("#{report_class.report_name}_detail.csv", @report_data[:csv])
+      else
+        render :action => 'month_by_month'
+      end
+      return
+    end
+
+    query = ReportCache.where(:name => report_class.report_name)
+
+    @report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data}
+
+    if request.format == :csv
+      send_data_csv("#{report_class.report_name}.csv", @report_data[:csv])
+    else
+      render :action => 'month_by_month'
+    end
+  end
+  private :summary_3_helper
+
+  def summary_month_by_month_activity_impc
+    month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityImpc)
+  end
+
+  def summary_month_by_month_activity_komp2
+    month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityKomp2)
   end
 
 end

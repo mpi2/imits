@@ -114,7 +114,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         pt.status_stamps.create!(:created_at => '2011-12-30 23:59:59 UTC',
           :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'])
 
-        @report = Reports::MiProduction::Intermediate.generate
+        @report = Reports::MiProduction::Intermediate.new.report
       end
 
       should 'have columns in correct order' do
@@ -295,7 +295,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         ['MGP', '', 'High', 'WTSI', 'Cbx1']
       ]
 
-      report = Reports::MiProduction::Intermediate.generate
+      report = Reports::MiProduction::Intermediate.new.report
       got = report.map {|r| r.data.values[0..4]}
 
       assert_equal expected, got
@@ -307,10 +307,12 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
       assert_equal 'mi_production_intermediate', Reports::MiProduction::Intermediate.report_name
     end
 
-    should 'have ::generate_and_cache' do
+    should 'meet Reports::Base API' do
       Factory.create :mi_plan
-      Reports::MiProduction::Intermediate.generate_and_cache
-      assert ReportCache.find_by_name 'mi_production_intermediate'
+      report = Reports::MiProduction::Intermediate.new
+      report.cache
+      cache = ReportCache.where(:name => 'mi_production_intermediate', :format => :html).first
+      assert_equal report.report.to_html, cache.data
     end
 
   end

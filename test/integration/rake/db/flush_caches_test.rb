@@ -6,9 +6,8 @@ module Rake
       context 'rake db:flush_caches' do
 
         should 'flush report caches' do
-          ReportCache.create! :name => 'temp', :csv_data => 'a', :html_data => '<div>a</div>'
+          ReportCache.create! :name => 'temp', :data => 'a', :format => 'csv'
           run_script 'rake db:flush_caches'
-          sleep 3
           assert_equal 0, ReportCache.count
         end
 

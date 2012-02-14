@@ -1,5 +1,10 @@
 # encoding: utf-8
 
+# TODO: I'm looking at the monthly summary - one thing that jumps out is that the order of the consortium-rows for each
+# month is variable. Sometimes it's JAX/BaSH/DTCC, other times something else. The other thing is something Bill already
+# mentioned, I think - if a row for a consortium is missing, we all know it means "0" activity for that month.
+# How tricky is it to represent that "0"?
+
 class Reports::MiProduction::SummaryMonthByMonthActivity
 
   DEBUG = false
@@ -139,6 +144,18 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_plan.id, :original_status => status, :original_date => stamp.created_at }
 
+      summary[year][month][consortium]['DUMMY']['ES Cell QC In Progress'] ||= {}
+      summary[year][month][consortium]['DUMMY']['ES Cell QC Complete'] ||= {}
+      summary[year][month][consortium]['DUMMY']['ES Cell QC Failed'] ||= {}
+
+      #cons =
+
+      Consortium.all.each { |c| summary[year][month][c.name]['DUMMY']['ES Cell QC In Progress'] ||= {} } if ! consortia
+
+      #summary[year][month][consortium] ||= {}
+      #summary[year][month][consortium] ||= {}
+      #summary[year][month][consortium] ||= {}
+
       if status == plan_map[:assigned_es_cell_qc_in_progress]
         summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
       end
@@ -172,6 +189,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       marker_symbol = stamp.mi_attempt.mi_plan.gene.marker_symbol
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }
+
+      summary[year][month][consortium]['DUMMY']['Micro-injection in progress'] ||= {}
+      summary[year][month][consortium]['DUMMY']['Genotype confirmed'] ||= {}
+      summary[year][month][consortium]['DUMMY']['Micro-injection aborted'] ||= {}
 
       if(status == attempt_map[:micro_injection_in_progress])
         summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
@@ -210,6 +231,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       marker_symbol = stamp.phenotype_attempt.mi_plan.gene.marker_symbol
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.phenotype_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }
+
+      summary[year][month][consortium]['DUMMY']['Phenotype Attempt Aborted'] ||= {}
 
       if status == phenotype_map[:phenotype_attempt_aborted]
         summary[year][month][consortium][pcentre]['Phenotype Attempt Aborted'][gene_id] = details_hash
@@ -286,9 +309,17 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
       month_hash = summary[year]
       month_hash.keys.sort.reverse!.each do |month|
         string += "<td rowspan='MONTH_ROWSPAN'>#{Date::MONTHNAMES[month]}</td>"
-        cons_hash = month_hash[month]
+
         month_count = 0
-        cons_hash.keys.each do |cons|
+        cons_hash = month_hash[month]
+
+        #cons_hash = month_hash[month].clone
+        ##cons_hash = cons_hash.merge('BaSH' => cons_hash['BaSH'], 'DTCC' => cons_hash['DTCC'], 'JAX' => cons_hash['JAX']) if params[:komp2]
+        #cons_hash.fetch('BaSH', {}) if params[:komp2]
+        #cons_hash.fetch('DTCC', {}) if params[:komp2]
+        #cons_hash.fetch('JAX', {}) if params[:komp2]
+
+        cons_hash.keys.sort.each do |cons|
           centre_hash = cons_hash[cons]
           string += "<td rowspan='CONS_ROWSPAN'>#{cons}</td>"
 
@@ -316,8 +347,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
 
           array2.each { |name| string += "<td rowspan='CONS_ROWSPAN'>#{make_link.call(name, summer[name])}</td>" }
 
+          centre_count = 0
+
           centre_hash.keys.each do |centre|
-            next if centre.blank?
+            #next if centre.blank?
+
+            #string += "</tr>\n" if centre == 'DUMMY' && centre_hash.keys.size > 1
+            next if centre == 'DUMMY' && centre_hash.keys.size > 1
+
+            centre_count += 1
 
             make_link = lambda do |key, frame|
               return 0 if ! frame[key] && params[:format] == :csv
@@ -349,7 +387,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
               'Phenotype Attempt Aborted'
             ]
 
-            string += "<td>#{centre}</td>"
+            c = centre == 'DUMMY' ? '' : centre
+
+            string += "<td>#{c}</td>"
 
             array.each { |name| string += "<td>#{make_link.call(name, status_hash)}</td>" }
 
@@ -358,7 +398,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
             month_count += 1
 
           end
-          string = string.gsub(/CONS_ROWSPAN/, centre_hash.keys.size.to_s)
+          #string = string.gsub(/CONS_ROWSPAN/, centre_hash.keys.size.to_s)
+          string = string.gsub(/CONS_ROWSPAN/, centre_count.to_s)
         end
         string = string.gsub(/MONTH_ROWSPAN/, month_count.to_s)
       end
@@ -398,6 +439,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivity
           centre_hash = cons_hash[cons]
           centre_hash.keys.each do |centre|
             status_hash = centre_hash[centre]
+
+            next if centre == 'DUMMY'
 
             hash = {
               'Year' => year,

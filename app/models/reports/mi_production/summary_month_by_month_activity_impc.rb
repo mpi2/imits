@@ -509,10 +509,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
   #  end
   #end
 
-  #def cache
-  #  Rails.cache.fetch(self.report_name, :expires_in => 30.minute) do
-  #    get_summary_proper(params)
-  #  end
-  #end
+  def cache
+    super
+    return if ! RAILS_CACHE
+
+    Rails.cache.fetch(self.class.report_name, :expires_in => 1.hour) do
+      get_summary_proper(params)
+    end
+  end
 
 end

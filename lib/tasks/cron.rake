@@ -24,14 +24,6 @@ namespace :cron do
     ApplicationModel.audited_transaction { EsCell.sync_all_with_marts }
   end
 
-  desc 'Generate cached reports'
-  task :cache_reports => [:environment] do
-    ApplicationModel.audited_transaction do
-      Reports::MiProduction::Intermediate.generate_and_cache
-      Reports::MiProduction::SummaryKomp23.generate_and_cache
-    end
-  end
-
   desc 'Sync MI attempt in progress dates'
   task :sync_mi_attempt_in_progress_dates => [:environment] do
     ApplicationModel.audited_transaction do

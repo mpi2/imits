@@ -107,6 +107,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
     end
   end
 
+  # we need this (or something better) because we can't dump Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
+  # when using the rails cache
+
   def self.prepare_summary(summary)
     s = {}
     summary.keys.each do |year|

@@ -24,7 +24,7 @@ class MiPlan < ApplicationModel
     if self.is_active == false
       self.mi_attempts.each do |mi_attempt|
         if mi_attempt.is_active?
-          self.errors.add :is_active, 'cannot set is_active flag to false as there are current active microinjection attempts associated with this plan'
+          self.errors.add :is_active, 'cannot be set to false as there are current active microinjection attempts associated with this plan'
         end
       end
     end
@@ -34,7 +34,7 @@ class MiPlan < ApplicationModel
     if self.is_active == false
       self.phenotype_attempts.each do |phenotype_attempt|
         if phenotype_attempt.is_active? 
-          self.errors.add :is_active, 'cannot set is_active flag to false as there are current active phenotype attempts associated with this plan'
+          self.errors.add :is_active, 'cannot be set to false as there are current active phenotype attempts associated with this plan'
         end
       end
     end

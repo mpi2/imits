@@ -3,12 +3,6 @@
   <h2><%= @tab %></h2>
 </div>
 
-<!--
-<div class="grid_4">
-  <h3>Plans</h3>
-</div>
--->
-
 <div class="grid_4">
   <h3>Plans (Production, Phenotyping)</h3>
   <div class="report-links">
@@ -52,12 +46,14 @@
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp23) %>">
         <h4>Production for KOMP2 Consortia</h4>
+        <p><strong>Generated every 20 minutes</strong></p>
       </a>
     </div>
 
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_komp2) %>">
-      <h4>KOMP2 Month-by-month activity - <em>prototype</em></h4>
+      <h4>KOMP2 Month-by-month activity</h4>
+        <p><strong>Generated every 20 minutes</strong></p>
       </a>
     </div>
 
@@ -71,12 +67,14 @@
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_impc3) %>">
         <h4>Production for IMPC Consortia</h4>
+        <p><strong>Generated every 20 minutes</strong></p>
       </a>
     </div>
 
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_impc) %>">
-      <h4>IMPC Month-by-month activity<em> - prototype</em></h4>
+      <h4>IMPC Month-by-month activity</h4>
+      <p><strong>Generated every 20 minutes</strong></p>
       </a>
     </div>
 </div>

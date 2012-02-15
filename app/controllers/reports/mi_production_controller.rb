@@ -13,7 +13,7 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def intermediate
-    report = ReportCache.find_by_name_and_type!('mi_production_intermediate', 'csv')
+    report = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv')
     send_data_csv("mi_production_intermediate-#{report.compact_timestamp}.csv", report.data)
   end
 

@@ -133,7 +133,8 @@ Seeds.load MiPlan::SubProject, [
   {:id => 10, :name => 'Legacy with new Interest'},
   {:id => 12, :name => 'WTSI_Bone_A'},
   {:id => 13, :name => 'WTSI_Bespoke_A'},
-  {:id => 14, :name => 'MGP Legacy'}
+  {:id => 14, :name => 'MGP Legacy'},
+  {:id => 15, :name => 'WTSI_Sense_A'}
 ]
 
 Seeds.load PhenotypeAttempt::Status, [

@@ -18,7 +18,7 @@ class Reports::MiProduction::SummaryKomp2BriefTest < ActionDispatch::Integration
       assert ! ReportCache.find_by_name('mi_production_intermediate')
       Factory.create(:report_cache,
         :name => 'mi_production_intermediate',
-        :csv_data => ProductionSummaryHelper::get_csv('summary by consortium')
+        :data => ProductionSummaryHelper::get_csv('summary by consortium')
       )
       assert ReportCache.find_by_name('mi_production_intermediate')      
       report = ReportCache.find_by_name!('mi_production_intermediate').to_table

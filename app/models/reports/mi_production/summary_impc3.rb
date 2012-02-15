@@ -39,6 +39,7 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
   ] + DEBUG_HEADINGS
 
   def self.report_title; 'Production for IMPC Consortia'; end
+  def self.report_subsummary_title; 'Production Summary Detail'; end
   def self.consortia; @@all_consortia ||= Consortium.all.map(&:name); end
 
   def self.efficiency_6months(params, row)
@@ -349,7 +350,11 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     report.rename_column 'Overall Status', 'Status'
     report.rename_column 'Mutation Sub-Type', 'Mutation Type'
 
-    title = "Production Summary Detail: #{consortium}#{pcentre}#{type} (#{report.size})" if details
+    if details
+      title = "#{report_subsummary_title}: #{consortium}#{pcentre}#{type} (#{report.size})"
+    else
+      title = report_subsummary_title
+    end
 
     return title, report
   end

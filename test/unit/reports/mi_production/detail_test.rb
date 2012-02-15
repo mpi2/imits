@@ -27,7 +27,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
       ]
 
       Factory.create :mi_plan
-      Reports::MiProduction::Intermediate.generate_and_cache
+      Reports::MiProduction::Intermediate.new.cache
       report = Reports::MiProduction::Detail.generate
       assert_equal expected, report.column_names
     end
@@ -42,7 +42,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
       plan.number_of_es_cells_passing_qc = 5; plan.save!
 
       Factory.create :mi_plan
-      Reports::MiProduction::Intermediate.generate_and_cache
+      Reports::MiProduction::Intermediate.new.cache
       report = Reports::MiProduction::Detail.generate
       row = report.find {|r| r['Gene'] == 'Cbx1'}
       assert_equal 'BaSH', row['Consortium']

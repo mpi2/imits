@@ -7,7 +7,7 @@ class Reports::MiProductionControllerTest < ActionController::TestCase
       should 'download report as CSV' do
         sign_in default_user
         Factory.create :mi_plan
-        Reports::MiProduction::Intermediate.generate_and_cache
+        Reports::MiProduction::Intermediate.new.cache
         csv_data = Reports::MiProduction::Detail.generate.to_csv
         get :detail, :format => :csv
         assert_equal response.body, csv_data
@@ -18,7 +18,7 @@ class Reports::MiProductionControllerTest < ActionController::TestCase
     context 'GET languishing' do
       should 'not have HTML in csv report' do
         Factory.create(:mi_plan, :consortium => Consortium.find_by_name!('BaSH'))
-        Reports::MiProduction::Intermediate.generate_and_cache
+        Reports::MiProduction::Intermediate.new.cache
         sign_in default_user
         get :languishing, :format => :csv
         assert ! /<div/.match(response.body)

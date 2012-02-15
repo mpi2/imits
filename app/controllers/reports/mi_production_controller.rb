@@ -146,15 +146,6 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv('languishing_production_report_detail.csv', @report.to_csv) if request.format == :csv
   end
 
-  def summary_month_by_month_activity
-    params[:format] = request.format
-    #params[:komp2] = true #TODO: remove me! set in view
-    params[:script_name] = request.env['REQUEST_URI']
-    @report_renderer = Reports::MiProduction::SummaryMonthByMonthActivity.generate(params)
-    @title2 = @report_renderer[:title]
-    send_data_csv('summary_month_by_month_activity.csv', @report_renderer[:csv]) if request.format == :csv
-  end
-
   def month_by_month_helper(report_class)
     @title2 = report_class.report_title
 

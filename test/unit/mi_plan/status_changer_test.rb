@@ -39,7 +39,7 @@ class MiPlan::StatusChangerTest < ActiveSupport::TestCase
     end
 
     should 'not do any status changes if it is currently Inactive' do
-      mi_plan = Factory.create :mi_plan, :status => MiPlan::Status[:Inactive]
+      mi_plan = Factory.create :mi_plan, :is_active => false
       assert_equal 'Inactive', mi_plan.status.name
 
       mi_plan.number_of_es_cells_passing_qc = 6

@@ -5,7 +5,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
   DEBUG = false
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-08-01')
-  RAILS_CACHE = true
+  RAILS_CACHE = false
 
   HEADINGS = [
     'Year',

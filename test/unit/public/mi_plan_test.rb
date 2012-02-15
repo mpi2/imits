@@ -132,12 +132,6 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         assert_equal status, default_mi_plan.status
       end
     end
-    
-    context '#is_active' do
-      should 'be present' do
-        assert_should validate_presence_of :is_active
-      end
-    end
 
     context '#number_of_es_cells_starting_qc' do
       should 'validate non-blankness only it was previously set to a number' do

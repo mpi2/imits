@@ -23,7 +23,7 @@ class MiPlan < ApplicationModel
   validate do |plan|
     if self.is_active == false
       self.mi_attempts.each do |mi_attempt|
-        if mi_attempt.status == "Active" 
+        if mi_attempt.is_active?
           self.errors.add :is_active, 'cannot set is_active flag to false as there are current active microinjection attempts associated with this plan'
         end
       end
@@ -33,7 +33,7 @@ class MiPlan < ApplicationModel
   validate do |plan|
     if self.is_active == false
       self.phenotype_attempts.each do |phenotype_attempt|
-        if phenotype_attempt.status == "Active" 
+        if phenotype_attempt.is_active? 
           self.errors.add :is_active, 'cannot set is_active flag to false as there are current active phenotype attempts associated with this plan'
         end
       end

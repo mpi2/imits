@@ -99,7 +99,17 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert default_phenotype_attempt.save
         plan.reload; assert_equal 'Assigned', plan.status.name
       end
-    end
+      
+      should ', when reactivated, reactivate associated mi_plan' do
+        phenotype_attempt = Factory.create :phenotype_attempt, :is_active => false
+        plan = phenotype_attempt.mi_plan
+        plan.is_active = false
+        plan.save!
+        phenotype_attempt.is_active = true
+        phenotype_attempt.save!
+        assert plan.reload.is_active?
+      end
+    end #mi_plan
 
     context '#status' do
       should 'work' do
@@ -256,18 +266,6 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       should 'be the mi_attempt\'s es_cell\'s gene' do
         assert_equal default_phenotype_attempt.mi_attempt.gene,
                 default_phenotype_attempt.gene
-      end
-    end
-    
-    context '#inactive_phenotype_attempt' do
-      should ', when reactivated, reactivate associated mi plan' do
-        phenotype_attempt = Factory.create :phenotype_attempt, :is_active => false
-        plan = phenotype_attempt.mi_plan
-        plan.is_active = false
-        plan.save!
-        phenotype_attempt.is_active = true
-        phenotype_attempt.save!
-        assert phenotype_attempt.mi_plan.is_active?
       end
     end
 

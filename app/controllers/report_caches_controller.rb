@@ -5,12 +5,12 @@ class ReportCachesController < ApplicationController
   before_filter :authenticate_user!
 
   def show
-    cache = ReportCache.find_by_name(params[:id])
+    cache = ReportCache.find_by_name_and_format(params[:id], 'csv')
     if cache
       response.headers['Content-Disposition'] =
               "attachment; filename=#{cache.name}-#{cache.compact_timestamp}.csv"
-      response.headers['Content-Length'] = cache.csv_data.size.to_s
-      render :csv => cache.csv_data
+      response.headers['Content-Length'] = cache.data.size.to_s
+      render :csv => cache.data
     else
       render :csv => '', :status => 404
     end

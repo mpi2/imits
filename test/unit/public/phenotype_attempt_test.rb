@@ -6,7 +6,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
   context 'Public::PhenotypeAttempt' do
 
     def default_phenotype_attempt
-      @default_phenotype_attempt ||= Public::PhenotypeAttempt.find(Factory.create :phenotype_attempt)
+      @default_phenotype_attempt ||= Factory.create(:phenotype_attempt).to_public
     end
 
     context '#mi_attempt_colony_name' do
@@ -170,6 +170,97 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt.mi_plan = plan
         pt.valid?
         assert_equal plan, pt.mi_plan
+      end
+    end
+
+    should 'limit the public mass-assignment API' do
+      expected = [
+        'colony_name',
+        'consortium_name',
+        'production_centre_name',
+        'mi_attempt_colony_name',
+        'is_active',
+        'rederivation_started',
+        'rederivation_complete',
+        'number_of_cre_matings_started',
+        'number_of_cre_matings_successful',
+        'phenotyping_started',
+        'phenotyping_complete'
+
+      ]
+      got = (Public::PhenotypeAttempt.accessible_attributes.to_a - ['audit_comment'])
+      assert_equal expected.sort, got.sort
+    end
+
+    should 'have defined attributes in JSON output' do
+      expected = [
+        'id',
+        'colony_name',
+        'status_name',
+        'consortium_name',
+        'production_centre_name',
+        'mi_attempt_colony_name',
+        'is_active',
+        'rederivation_started',
+        'rederivation_complete',
+        'number_of_cre_matings_started',
+        'number_of_cre_matings_successful',
+        'phenotyping_started',
+        'phenotyping_complete'
+      ]
+      got = default_phenotype_attempt.as_json.keys
+      assert_equal expected.sort, got.sort
+    end
+
+    context '#as_json' do
+      should 'take nil as param' do
+        assert_nothing_raised { default_phenotype_attempt.as_json(nil) }
+      end
+    end
+
+    context '#status_name' do
+      should 'be the status name' do
+        default_phenotype_attempt.number_of_cre_matings_started = 4
+        default_phenotype_attempt.valid?
+        assert_equal 'Cre Excision Started', default_phenotype_attempt.status.name
+        assert_equal 'Cre Excision Started', default_phenotype_attempt.status_name
+      end
+    end
+
+    context '::translate_public_param' do
+      should 'translate marker_symbol for search' do
+        assert_equal 'mi_plan_gene_marker_symbol_eq',
+                Public::PhenotypeAttempt.translate_public_param('marker_symbol_eq')
+      end
+
+      should 'translate consortium_name for search' do
+        assert_equal 'mi_plan_consortium_name_in',
+                Public::PhenotypeAttempt.translate_public_param('consortium_name_in')
+      end
+
+      should 'translate production_centre_name for search' do
+        assert_equal 'mi_plan_production_centre_in',
+                Public::PhenotypeAttempt.translate_public_param('production_centre_in')
+      end
+
+      should_eventually 'translate sort params when we have any associated fields that can be searched on (thanks, Ransack)'
+
+      should 'leave other params untouched' do
+        assert_equal 'phenotyping_started_eq',
+                Public::PhenotypeAttempt.translate_public_param('phenotyping_started_eq')
+        assert_equal 'number_of_cre_matings_started asc',
+                Public::PhenotypeAttempt.translate_public_param('number_of_cre_matings_started asc')
+      end
+    end
+
+    context '::public_search' do
+      should 'not need to pass "sorts" parameter' do
+        assert Public::PhenotypeAttempt.public_search(:consortium_name_eq => default_phenotype_attempt.mi_plan.consortium.name, :sorts => nil).result
+      end
+
+      should 'translate searching predicates' do
+        result = Public::PhenotypeAttempt.public_search(:marker_symbol_eq => default_phenotype_attempt.gene.marker_symbol).result
+        assert_equal [default_phenotype_attempt], result
       end
     end
 

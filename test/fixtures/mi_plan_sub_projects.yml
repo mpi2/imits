@@ -1,0 +1,43 @@
+---
+1:
+  id: 1
+  name: ''
+2:
+  id: 2
+  name: MGPinterest
+3:
+  id: 3
+  name: WTSI_Blood_A
+4:
+  id: 4
+  name: WTSI_Cancer_A
+5:
+  id: 5
+  name: WTSI_Infection_A
+6:
+  id: 6
+  name: WTSI_MGPcollab_A
+7:
+  id: 7
+  name: WTSI_Hear_A
+8:
+  id: 8
+  name: Legacy EUCOMM
+9:
+  id: 9
+  name: Legacy KOMP
+10:
+  id: 10
+  name: Legacy with new Interest
+11:
+  id: 11
+  name: WTSI_IBD_A
+12:
+  id: 12
+  name: WTSI_Bone_A
+13:
+  id: 13
+  name: WTSI_Bespoke_A
+14:
+  id: 14
+  name: MGP Legacy

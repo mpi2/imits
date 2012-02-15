@@ -39,14 +39,6 @@ class MiAttempt < ApplicationModel
     'e' => 'e - Targeted Non-Conditional'
   }.freeze
 
-  PRIVATE_ATTRIBUTES = [
-    'created_at', 'updated_at', 'updated_by', 'updated_by_id',
-    'mi_attempt_status', 'mi_attempt_status_id',
-    'es_cell', 'es_cell_id', 'mi_plan_id', 'mi_plan'
-  ]
-
-  attr_protected *PRIVATE_ATTRIBUTES
-
   belongs_to :mi_plan
   belongs_to :es_cell
   belongs_to :mi_attempt_status
@@ -434,37 +426,8 @@ class MiAttempt < ApplicationModel
     return self.search(translated_params)
   end
 
-  def as_json(options = {})
-    json = super(default_serializer_options(options))
-    json['mi_date'] = self.mi_date.to_s
-    json
-  end
-
-  def to_xml(options = {})
-    super(default_serializer_options(options))
-  end
-
   def in_progress_date
     return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttemptStatus.micro_injection_in_progress.id}.created_at.utc.to_date
-  end
-
-  private
-
-  def default_serializer_options(options = {})
-    options ||= {}
-    options.symbolize_keys!
-    options[:methods] ||= [
-      'es_cell_name', 'emma_status', 'status',
-      'blast_strain_name', 'colony_background_strain_name', 'test_cross_strain_name',
-      'distribution_centre_name', 'production_centre_name', 'consortium_name',
-      'mouse_allele_symbol', 'deposited_material_name',
-      'es_cell_marker_symbol', 'es_cell_allele_symbol'
-    ] + QC_FIELDS.map{|i| "#{i}_result"}
-    options[:except] ||= PRIVATE_ATTRIBUTES.dup + QC_FIELDS.map{|i| "#{i}_id"} + [
-      'blast_strain_id', 'colony_background_strain_id', 'test_cross_strain_id',
-      'distribution_centre_id', 'deposited_material_id'
-    ] - ['mi_plan_id']
-    return options
   end
 
 end

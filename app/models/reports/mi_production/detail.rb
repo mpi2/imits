@@ -2,7 +2,7 @@
 
 class Reports::MiProduction::Detail
   def self.generate
-    report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    report = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
     report.rename_columns('Overall Status' => 'Status')
     wanted_columns = [
       'Consortium',

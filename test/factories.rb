@@ -49,6 +49,13 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.mi_date { Date.today }
 end
 
+Factory.define :public_mi_attempt, :class => Public::MiAttempt do |mi_attempt|
+  mi_attempt.es_cell_name { Factory.create(:es_cell).name }
+  mi_attempt.consortium_name 'EUCOMM-EUMODIC'
+  mi_attempt.production_centre_name 'WTSI'
+  mi_attempt.mi_date { Date.today }
+end
+
 Factory.define :mi_attempt_genotype_confirmed, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.production_centre_name 'ICS'
   mi_attempt.number_of_het_offspring 1
@@ -216,4 +223,10 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
       :distribution_centre_name => 'WTSI'
     )
   end
+end
+
+Factory.define :report_cache do |report_cache|
+  report_cache.sequence(:name) { |n| "Report Cache #{n}"}
+  report_cache.data ''
+  report_cache.format 'csv'
 end

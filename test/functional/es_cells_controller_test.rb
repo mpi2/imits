@@ -21,19 +21,19 @@ class EsCellsControllerTest < ActionController::TestCase
 
       should 'work with es_cell_name param' do
         get :mart_search, :es_cell_name => 'HEPD0549_6_D02', :format => :json
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         assert_equal 'HEPD0549_6_D02', data[0]['escell_clone']
       end
 
       should 'return empty array if passing in blank es_cell_name' do
         get :mart_search, :es_cell_name => nil, :format => :json
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         assert_equal 0, data.size
       end
 
       should 'work with marker_symbol param' do
         get :mart_search, :marker_symbol => 'Trafd1', :format => :json
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         expected = %w{
           EPD0127_4_B03
           EPD0127_4_F02
@@ -57,7 +57,7 @@ class EsCellsControllerTest < ActionController::TestCase
 
       should 'return empty array if passing in blank marker_symbol' do
         get :mart_search, :marker_symbol => nil, :format => :json
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         assert_equal 0, data.size
       end
     end

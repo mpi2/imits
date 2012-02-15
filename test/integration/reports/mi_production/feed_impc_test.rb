@@ -10,9 +10,9 @@ class Reports::MiProduction::FeedImpcTest < ActionDispatch::IntegrationTest
 
     setup do
       assert ! ReportCache.find_by_name('mi_production_intermediate')
-      ReportCache.create!(
+      Factory.create(:report_cache,
         :name => 'mi_production_intermediate',
-        :csv_data => ProductionSummaryHelper::get_csv('feed int')
+        :data => ProductionSummaryHelper::get_csv('feed int')
       )
       assert ReportCache.find_by_name('mi_production_intermediate')      
       report = ReportCache.find_by_name!('mi_production_intermediate').to_table

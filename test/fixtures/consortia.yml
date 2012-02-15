@@ -1,0 +1,91 @@
+---
+1:
+  contact: 
+  funding: EUCOMM / EUMODIC
+  id: 1
+  name: EUCOMM-EUMODIC
+  participants: 
+2:
+  contact: 
+  funding: KOMP
+  id: 2
+  name: UCD-KOMP
+  participants: Davis
+3:
+  contact: 
+  funding: KOMP / Wellcome Trust
+  id: 3
+  name: MGP-KOMP
+  participants: Mouse Genetics Project, WTSI
+4:
+  contact: 
+  funding: KOMP2
+  id: 4
+  name: BaSH
+  participants: Baylor, Sanger, Harwell
+5:
+  contact: 
+  funding: KOMP2
+  id: 5
+  name: DTCC
+  participants: Davis-Toronto-Charles River-CHORI
+6:
+  contact: 
+  funding: Infrafrontier/BMBF
+  id: 6
+  name: Helmholtz GMC
+  participants: Helmholtz Muenchen
+7:
+  contact: 
+  funding: KOMP2
+  id: 7
+  name: JAX
+  participants: The Jackson Laboratory
+8:
+  contact: 
+  funding: China
+  id: 8
+  name: MARC
+  participants: Model Animal Research Centre, Nanjing University
+9:
+  contact: 
+  funding: Wellcome Trust
+  id: 9
+  name: MGP
+  participants: Mouse Genetics Project, WTSI
+10:
+  contact: 
+  funding: European Union
+  id: 10
+  name: Monterotondo
+  participants: Monterotondo Institute for Cell Biology (CNR)
+11:
+  contact: 
+  funding: MRC
+  id: 11
+  name: MRC
+  participants: MRC - Harwell
+12:
+  contact: 
+  funding: Genome Canada
+  id: 12
+  name: NorCOMM2
+  participants: NorCOMM2
+13:
+  contact: 
+  funding: Phenomin
+  id: 13
+  name: Phenomin
+  participants: ICS
+14:
+  contact: 
+  funding: Japanese government
+  id: 14
+  name: RIKEN BRC
+  participants: RIKEN BRC
+15:
+  contact: 
+  funding: KOMP312/KOMP
+  id: 15
+  name: DTCC-Legacy
+  participants: Davis-CHORI

@@ -33,7 +33,7 @@ class Reports::MiProduction::LanguishingTest < ActiveSupport::TestCase
       replace_status_stamps bash_plan3,
               'Assigned' => 15.days.ago.utc
 
-      Reports::MiProduction::Intermediate.generate_and_cache
+      Reports::MiProduction::Intermediate.new.cache
       grouping = Reports::MiProduction::Languishing.generate(:consortia => 'BaSH')
       group = grouping['BaSH']
 

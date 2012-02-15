@@ -1,0 +1,13 @@
+---
+1:
+  description: Estimated injection in the next 0-4 months
+  id: 1
+  name: High
+2:
+  description: Estimated injection in the next 5-8 months
+  id: 2
+  name: Medium
+3:
+  description: Estimated injection in the next 9-12 months
+  id: 3
+  name: Low

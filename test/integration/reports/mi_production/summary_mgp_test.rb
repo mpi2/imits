@@ -16,9 +16,9 @@ class Reports::MiProduction::SummaryMgpTest < ActionDispatch::IntegrationTest
 
     setup do
       assert ! ReportCache.find_by_name('mi_production_intermediate')
-      ReportCache.create!(
+      Factory.create(:report_cache,
         :name => 'mi_production_intermediate',
-        :csv_data => ProductionSummaryHelper::get_csv('summary mgp')
+        :data => ProductionSummaryHelper::get_csv('summary mgp')
       )
       assert ReportCache.find_by_name('mi_production_intermediate')      
       report = ReportCache.find_by_name!('mi_production_intermediate').to_table

@@ -20,6 +20,12 @@ class MiPlan < ApplicationModel
 
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
 
+  validate do |plan|
+    if ! plan.assigned? and plan.phenotype_attempts.count != 0
+      plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
+    end
+  end
+
   # BEGIN Callbacks
 
   before_validation :set_default_mi_plan_status
@@ -276,7 +282,7 @@ class MiPlan < ApplicationModel
     return if boolarg == withdrawn?
 
     if ! MiPlan::Status.all_affected_by_minor_conflict_resolution.include?(status)
-      raise RuntimeError, "cannot withdraw from status #{status}"
+      raise RuntimeError, "cannot withdraw from status #{status.name}"
     end
 
     if boolarg == false
@@ -300,9 +306,9 @@ class MiPlan < ApplicationModel
       mip_date = dates["Micro-injection in progress"]
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
-    
+
     return es_cells.sort.uniq.size
-    
+
   end
 
   def distinct_old_non_genotype_confirmed_es_cells_count
@@ -315,9 +321,49 @@ class MiPlan < ApplicationModel
       mip_date = dates["Micro-injection in progress"]
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
-    
+
     return es_cells.sort.uniq.size
 
+  end
+
+  def latest_relevant_status
+    s = status.name
+
+    plan_status_list = {}
+    mi_dates = reportable_statuses_with_latest_dates
+    mi_dates.each do |description, date|
+      plan_status_list["#{description}"] = date.to_s
+    end
+
+    d = plan_status_list[s]
+
+    mi = latest_relevant_mi_attempt
+    s = mi ? mi.mi_attempt_status.description : s
+
+    if mi
+      mi_status_list = {}
+      mi_dates = mi.reportable_statuses_with_latest_dates
+      mi_dates.each do |description, date|
+        mi_status_list["#{description}"] = date.to_s
+      end
+    end
+
+    d = mi ? mi_status_list[s] : d
+
+    pt = latest_relevant_phenotype_attempt
+    s = pt ? pt.status.name : s
+
+    if pt
+      pheno_status_list = {}
+      mi_dates = pt.reportable_statuses_with_latest_dates
+      mi_dates.each do |description, date|
+        pheno_status_list["#{description}"] = date.to_s
+      end
+    end
+
+    d = pt ? pheno_status_list[s] : d
+
+    return { :status => s, :date => d }
   end
 
 end

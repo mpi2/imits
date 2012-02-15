@@ -1,10 +1,10 @@
 # encoding: utf-8
 
-class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
+class Reports::MiProduction::Intermediate < Reports::Base
 
   # TODO: unit-test it, share it somewhere for all reports, expand it so it
   # handles deeply nested associations
-  def self.generate_report_options(report_columns)
+  def generate_report_options(report_columns)
     report_options = {
       :only => [],
       :include => {}
@@ -22,7 +22,11 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
     return report_options
   end
 
-  def self.generate
+  def self.report_name; 'mi_production_intermediate'; end
+
+  attr_reader :report
+
+  def initialize
     report_columns = {
       'consortium.name' => 'Consortium',
       'sub_project.name' => 'Sub-Project',
@@ -74,7 +78,7 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
           record["#{name} Date"] = date.to_s
         end
       end
-      
+
       record['Distinct Genotype Confirmed ES Cells'] = record['distinct_genotype_confirmed_es_cells_count']
       record['Distinct Old Non Genotype Confirmed ES Cells'] = record['distinct_old_non_genotype_confirmed_es_cells_count']
 
@@ -120,8 +124,6 @@ class Reports::MiProduction::Intermediate < Reports::MiProduction::Base
       end
     end
 
-    return report.sort_rows_by(column_names)
+    @report = report.sort_rows_by(column_names)
   end
-
-  def self.report_name; 'mi_production_intermediate'; end
 end

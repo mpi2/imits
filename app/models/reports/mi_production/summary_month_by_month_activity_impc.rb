@@ -5,7 +5,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
   DEBUG = false
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-08-01')
-  RAILS_CACHE = false
 
   HEADINGS = [
     'Year',
@@ -101,47 +100,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
   end
 
   def self.get_summary(params)
-    return get_summary_proper(params) if ! RAILS_CACHE
-    Rails.cache.fetch(self.report_name, :expires_in => 1.hour) do
-      get_summary_proper(params)
-    end
-  end
-
-  # we need this (or something better) because we can't dump Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
-  # when using the rails cache
-  # see http://stackoverflow.com/questions/3818623/marshal-ruby-hash-with-default-proc-remove-the-default-proc
-  # for example
-
-  def self.prepare_summary(summary)
-    s = {}
-    summary.keys.each do |year|
-      s[year] ||= {}
-      month_hash = summary[year]
-      month_hash.keys.each do |month|
-        s[year][month] ||= {}
-        cons_hash = month_hash[month]
-        cons_hash.keys.each do |cons|
-          s[year][month][cons] ||= {}
-          centre_hash = cons_hash[cons]
-          centre_hash.keys.each do |centre|
-            s[year][month][cons][centre] ||= {}
-            status_hash = centre_hash[centre]
-            status_hash.keys.each do |status|
-              s[year][month][cons][centre][status] ||= {}
-              genes_hash = status_hash[status]
-              genes_hash.keys.each do |gene|
-                s[year][month][cons][centre][status][gene] ||= genes_hash[gene]
-              end
-            end
-
-          end
-        end
-      end
-    end
-    return s
-   end
-
-  def self.get_summary_proper(params)
 
     summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
 
@@ -183,12 +141,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
       end
 
       if status == plan_map[:assigned_es_cell_qc_complete]
-        summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['ES Cell QC Complete'][gene_id] = details_hash
       end
 
       if status == plan_map[:aborted_es_cell_qc_failed]
-        summary[year][month][consortium][pcentre]['ES Cell QC In Progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['ES Cell QC Failed'][gene_id] = details_hash
       end
 
@@ -223,12 +179,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
       end
 
       if(status == attempt_map[:genotype_confirmed])
-        summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['Genotype confirmed'][gene_id] = details_hash
       end
 
       if(status == attempt_map[:micro_injection_aborted])
-        summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
         summary[year][month][consortium][pcentre]['Micro-injection aborted'][gene_id] = details_hash
       end
 
@@ -268,47 +222,33 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
         summary[year][month][consortium][pcentre]['Phenotyping Complete'][gene_id] = details_hash
       end
 
-      phenotyping_started = [ phenotype_map[:phenotyping_started], phenotype_map[:phenotyping_complete] ]
-
-      if phenotyping_started.include?(status)
+      if status == phenotype_map[:phenotyping_started]
         summary[year][month][consortium][pcentre]['Phenotyping Started'][gene_id] = details_hash
       end
 
-      cre_excision_complete = phenotyping_started + [ phenotype_map[:cre_excision_complete] ]
-
-      if cre_excision_complete.include?(status)
+      if status == phenotype_map[:cre_excision_complete]
         summary[year][month][consortium][pcentre]['Cre Excision Complete'][gene_id] = details_hash
       end
 
-      cre_excision_started = cre_excision_complete + [ phenotype_map[:cre_excision_started] ]
-
-      if cre_excision_started.include?(status)
+      if status == phenotype_map[:cre_excision_started]
         summary[year][month][consortium][pcentre]['Cre Excision Started'][gene_id] = details_hash
       end
 
-      rederivation_started = cre_excision_started + [ phenotype_map[:rederivation_started] ]
-
-      if rederivation_started.include?(status)
+      if status == phenotype_map[:rederivation_started]
         summary[year][month][consortium][pcentre]['Rederivation Started'][gene_id] = details_hash
-        #TODO: check
       end
 
-      rederivation_complete = rederivation_started + [ phenotype_map[:rederivation_complete] ]
-
-      if rederivation_complete.include?(status)
+      if status == phenotype_map[:rederivation_complete]
         summary[year][month][consortium][pcentre]['Rederivation Complete'][gene_id] = details_hash
-        #TODO: check
       end
 
-      phenotype_attempt_registered = rederivation_complete + [ phenotype_map[:phenotype_attempt_registered] ]
-
-      if phenotype_attempt_registered.include?(status)
+      if status == phenotype_map[:phenotype_attempt_registered]
         summary[year][month][consortium][pcentre]['Phenotype Attempt Registered'][gene_id] = details_hash
       end
 
     end
 
-    return RAILS_CACHE ? prepare_summary(summary) : summary
+    return summary
   end
 
   def self.convert_to_html(params, summary)

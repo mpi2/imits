@@ -109,6 +109,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
 
   # we need this (or something better) because we can't dump Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
   # when using the rails cache
+  # see http://stackoverflow.com/questions/3818623/marshal-ruby-hash-with-default-proc-remove-the-default-proc
+  # for example
 
   def self.prepare_summary(summary)
     s = {}
@@ -154,7 +156,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
 
     MiPlan::StatusStamp.all.each do |stamp|
 
-      next if params[:komp2] && stamp.created_at < CUT_OFF_DATE
+      next if stamp.created_at < CUT_OFF_DATE
 
       year = stamp.created_at.year
       month = stamp.created_at.month
@@ -194,7 +196,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
 
     MiAttempt::StatusStamp.all.each do |stamp|
 
-      next if params[:komp2] && stamp.created_at < CUT_OFF_DATE
+      next if stamp.created_at < CUT_OFF_DATE
 
       year = stamp.created_at.year
       month = stamp.created_at.month
@@ -234,7 +236,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
 
     PhenotypeAttempt::StatusStamp.all.each do |stamp|
 
-      next if params[:komp2] && stamp.created_at < CUT_OFF_DATE
+      next if stamp.created_at < CUT_OFF_DATE
 
       year = stamp.created_at.year
       month = stamp.created_at.month
@@ -306,7 +308,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
 
     end
 
-    return prepare_summary(summary)
+    return RAILS_CACHE ? prepare_summary(summary) : summary
   end
 
   def self.convert_to_html(params, summary)
@@ -459,8 +461,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
           centre_hash.keys.each do |centre|
             status_hash = centre_hash[centre]
 
-            #next if centre == 'DUMMY'
-            #            next if centre == 'DUMMY' && ! cons_hash.fetch(cons) || cons_hash[cons]
             next if centre == 'DUMMY' && centre_hash.keys.size > 1
 
             c = centre == 'DUMMY' ? '' : centre
@@ -504,21 +504,5 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
 
   def self.report_title; 'IMPC Summary Month by Month'; end
   def self.consortia; Consortium.all.map(&:name); end
-
-  #def self.get_summary(params)
-  #  return get_summary_proper(params) if ! RAILS_CACHE
-  #  Rails.cache.fetch('SummaryMonthByMonthActivity', :expires_in => 1.minute) do
-  #    get_summary_proper(params)
-  #  end
-  #end
-
-  #def cache
-  #  super
-  #  return if ! RAILS_CACHE
-  #
-  #  Rails.cache.fetch(self.class.report_name, :expires_in => 1.hour) do
-  #    get_summary_proper(params)
-  #  end
-  #end
 
 end

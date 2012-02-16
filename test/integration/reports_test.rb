@@ -92,7 +92,7 @@ class ReportsTest < ActionDispatch::IntegrationTest
         20.times { Factory.create :mi_attempt }
 
         visit '/reports'
-        click_link 'Planned Micro-Injection Summary and Conflicts'
+        click_link 'Plans and Conflicts for All Consortia'
 
         assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url
         assert page.has_css?('form')

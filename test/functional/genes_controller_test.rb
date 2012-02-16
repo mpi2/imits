@@ -17,14 +17,14 @@ class GenesControllerTest < ActionController::TestCase
 
       should 'respond with JSON' do
         get :index, :marker_symbol_eq => 'Trafd1', :format => :json
-        json = parse_json_from_response
+        json = JSON.parse(response.body)
         assert_equal 1, json.size
         assert_equal 'Trafd1', json[0]['marker_symbol']
       end
 
       should 'respond with extended (ExtJS ready) JSON' do
         get :index, :extended_response => true, :format => :json
-        json = parse_json_from_response
+        json = JSON.parse(response.body)
 
         assert json.keys.include?('genes')
         assert json.keys.include?('success')
@@ -40,11 +40,11 @@ class GenesControllerTest < ActionController::TestCase
 
       should 'translate search parameters' do
         get :index, :q => { 'marker_symbol_ci_in' => ['myo1c','trafd1'] }, :format => :json
-        json = parse_json_from_response
+        json = JSON.parse(response.body)
         assert_equal 2, json.size
 
         get :index, :filter => [{ 'property' => 'marker_symbol_ci_in', 'value' => ['myo1c','trafd1'] }], :format => :json
-        json = parse_json_from_response
+        json = JSON.parse(response.body)
         assert_equal 2, json.size
       end
 
@@ -52,10 +52,10 @@ class GenesControllerTest < ActionController::TestCase
         200.times { Factory.create :gene }
 
         get :index, :format => :json
-        assert_equal 20, parse_json_from_response.size
+        assert_equal 20, JSON.parse(response.body).size
 
         get :index, :format => :json, :per_page => 50
-        assert_equal 50, parse_json_from_response.size
+        assert_equal 50, JSON.parse(response.body).size
       end
     end
 

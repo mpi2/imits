@@ -24,13 +24,13 @@ class MiAttemptsControllerTest < ActionController::TestCase
         should 'work in XML format' do
           get :index, :colony_name_cont => 'MBS', :format => :xml
           doc = parse_xml_from_response
-          assert_equal 1, doc.xpath('count(//mi-attempt)')
-          assert_equal 'EPD0127_4_E01', doc.css('mi-attempt es-cell-name').text
+          assert_equal 1, doc.xpath('count(//mi_attempt)'), doc
+          assert_equal 'EPD0127_4_E01', doc.css('mi_attempt es_cell_name').text
         end
 
         should 'work in JSON format' do
           get :index, :colony_name_cont => 'MB', :format => :json
-          data = parse_json_from_response
+          data = JSON.parse(response.body)
           assert_equal 2, data.size
           assert_equal 'MBSS', data.find {|i| i['es_cell_name'] == 'EPD0127_4_E01'}['colony_name']
           assert_equal 'MBFD', data.find {|i| i['es_cell_name'] == 'EPD0029_1_G04'}['colony_name']
@@ -38,14 +38,14 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
         should 'translate search params' do
           get :index, 'es_cell_marker_symbol_eq' => 'Trafd1', :format => :json
-          data = parse_json_from_response
+          data = JSON.parse(response.body)
           assert_equal 3, data.size
           assert_equal 3, data.select {|i| i['es_cell_name'] == 'EPD0127_4_E01'}.size
         end
 
         should 'work if embedded in q parameter' do
           get :index, :q => {'es_cell_name_ci_in' => ['epd0127_4_e01', 'epd0029_1_g04']}, :format => :json
-          data = parse_json_from_response
+          data = JSON.parse(response.body)
           assert_equal 4, data.size
           assert_equal 'MBFD', data.find {|i| i['es_cell_name'] == 'EPD0029_1_G04'}['colony_name']
           assert_equal 3, data.select {|i| i['es_cell_name'] == 'EPD0127_4_E01'}.size
@@ -55,7 +55,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
           mi = Factory.create :mi_attempt
           mi.update_attributes!(:is_active => false)
           get :index, :q => {'status_eq' => MiAttemptStatus.micro_injection_aborted.description}, :format => :json
-          data = parse_json_from_response
+          data = JSON.parse(response.body)
           assert_equal 1, data.size
           assert_equal mi.id, data.first['id']
         end
@@ -64,24 +64,24 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'paginate by default for JSON' do
         200.times {Factory.create :mi_attempt}
         get :index, :format => :json
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         assert_equal 20, data.size
       end
 
       should 'paginate by default for XML' do
         200.times {Factory.create :mi_attempt}
         get :index, :format => :xml
-        assert_equal 20, response.body.scan('<mi-attempt>').size
+        assert_equal 20, response.body.scan('<mi_attempt>').size
       end
 
       should 'allow pagination' do
         200.times {Factory.create :mi_attempt}
         get :index, :format => :json, :per_page => 50
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         assert_equal 50, data.size
 
         get :index, :format => :json, :per_page => 0
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         assert_equal 20, data.size
       end
 
@@ -91,7 +91,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         Factory.create :mi_attempt, :id => 200
 
         get :index, 'format' => 'json'
-        all_ids = parse_json_from_response.map {|i| i['id']}
+        all_ids = JSON.parse(response.body).map {|i| i['id']}
         assert_equal all_ids.sort, all_ids
       end
 
@@ -101,33 +101,33 @@ class MiAttemptsControllerTest < ActionController::TestCase
         Factory.create :mi_attempt, :id => 200, :colony_name => 'EPD_002'
         get :index, 'format' => 'json', 'sorts' => 'colony_name'
 
-        names = parse_json_from_response.map {|i| i['colony_name']}
+        names = JSON.parse(response.body).map {|i| i['colony_name']}
         assert_equal names.sort, names
       end
 
       context 'JSON extended_response' do
         should 'be included when parameter is passed' do
-          mi = Factory.create :mi_attempt
+          mi = Factory.create(:mi_attempt).to_public
           get :index, :format => 'json', 'extended_response' => 'true'
           expected = {
             'mi_attempts' => [mi.as_json],
             'success' => true,
             'total' => 1
           }
-          got = parse_json_from_response
+          got = JSON.parse(response.body)
           assert_equal expected['success'], got['success']
           assert_equal expected['total'], got['total']
           assert_equal expected['mi_attempts'].size, got['mi_attempts'].size
           assert_equal expected['mi_attempts'][0].keys.sort, got['mi_attempts'][0].keys.sort
           expected['mi_attempts'][0].each do |key, value|
-            assert_equal value, got['mi_attempts'][0][key], "Attribute #{key} differed"
+            assert_equal value.try(:to_s), got['mi_attempts'][0][key].try(:to_s), "Attribute #{key} differed"
           end
         end
 
         should 'include total MI attempts' do
           100.times { Factory.create :mi_attempt }
           get :index, :format => 'json', 'extended_response' => 'true', :per_page => 25
-          got = parse_json_from_response
+          got = JSON.parse(response.body)
           assert_equal true, got['success']
           assert_equal 25, got['mi_attempts'].size
           assert_equal 100, got['total']
@@ -147,7 +147,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
           ]
           Factory.create(:mi_attempt, :colony_name => 'DEF_1')
           get :index, :format => 'json', 'extended_response' => 'true', :per_page => 5, 'colony_name_cont' => 'ABC', 'sorts' => 'colony_name ASC'
-          got = parse_json_from_response
+          got = JSON.parse(response.body)
           assert_equal true, got['success']
           assert_equal 5, got['mi_attempts'].size
           assert_equal 9, got['total']
@@ -159,7 +159,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
     context 'GET show' do
       setup do
         sign_in default_user
-        @mi_attempt = Factory.create(:mi_attempt)
+        @mi_attempt = Factory.create(:mi_attempt).to_public
       end
 
       should 'get one mi attempt by ID as XML' do
@@ -167,12 +167,12 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert response.success?
 
         doc = parse_xml_from_response
-        assert_equal @mi_attempt.id, doc.css('mi-attempt id').text.to_i
+        assert_equal @mi_attempt.id, doc.css('mi_attempt id').text.to_i
       end
 
       should 'get one mi attempt by ID as JSON' do
         get :show, :id => @mi_attempt.id, :format => :json
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         assert_equal @mi_attempt.id, data['id']
       end
     end
@@ -180,7 +180,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
     context 'GET history' do
       setup do
         sign_in default_user
-        @mi_attempt = Factory.create(:mi_attempt)
+        @mi_attempt = Factory.create(:mi_attempt).to_public
       end
 
       should 'show the history page for a given mi_attempt' do
@@ -247,7 +247,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
       should 'work with valid params for JSON' do
         mi = valid_create_for_format(:json)
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         assert_equal mi.id, data['id']
       end
 
@@ -261,7 +261,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         post :create, :mi_attempt => {'production_centre_name' => 'WTSI'}, :format => :json
         assert_false response.success?
 
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         assert_include data['es_cell_name'], 'cannot be blank'
       end
 
@@ -294,7 +294,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
           'mi_date' => '2011-05-01',
           :production_centre_name => 'ICS'
         }, :format => :json
-        assert_response 401, response.status
+        assert_response 401, response.body
         expected = {
           'error' => 'Cannot create/update MI attempts for other production centres'
         }
@@ -344,7 +344,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
       should 'return errors with invalid params for JSON' do
         bad_update_for_format(:json)
-        data = parse_json_from_response
+        data = JSON.parse(response.body)
         assert_include data['colony_name'], 'has already been taken'
       end
 
@@ -355,20 +355,21 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'take extended_response parameter into account for JSON' do
-        mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
+        mi_attempt = Factory.create(:mi_attempt, :total_blasts_injected => nil).to_public
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'total_blasts_injected' => 1},
                 :format => 'json', 'extended_response' => true
         assert_response :success
 
-        got = parse_json_from_response
+        got = JSON.parse(response.body)
         mi_attempt.reload
         expected = {
           'total' => 1,
-          'mi_attempts' => [mi_attempt.as_json],
+          'mi_attempts' => [JSON.parse(mi_attempt.to_json)],
           'success' => true
         }
+        assert_equal expected['mi_attempts'].first, got['mi_attempts'].first
         assert_equal expected, got
       end
 

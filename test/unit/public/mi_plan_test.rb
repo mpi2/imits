@@ -6,11 +6,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
   context 'Public::MiPlan' do
 
     def default_mi_plan
-      if ! @default_mi_plan
-        mi_plan = Factory.create :mi_plan
-        @default_mi_plan = Public::MiPlan.find(mi_plan.id)
-      end
-      return @default_mi_plan
+      @default_mi_plan ||= Factory.create(:mi_plan).to_public
     end
 
     context 'audits' do

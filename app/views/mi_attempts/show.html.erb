@@ -5,7 +5,7 @@
 <% end %>
 
 <div id="mi-attempt-box" class="grid_8 prefix_2 suffix_2">
-  <%= form_for @mi_attempt, :html => {:class => 'edit show mi-attempt'} do |form| %>
+  <%= form_for @mi_attempt, :as => :mi_attempt, :html => {:class => 'edit show mi-attempt'} do |form| %>
     <fieldset class="collapsible">
       <legend>ES Cell Details</legend>
       <div>

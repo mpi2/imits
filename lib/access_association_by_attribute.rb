@@ -5,12 +5,7 @@ module AccessAssociationByAttribute
   def access_association_by_attribute(association_name, attribute, options = {})
     options.symbolize_keys!
 
-    association_class_name = reflections[association_name].class_name
-    if association_class_name.match('::')
-      association_class = association_class_name.constantize
-    else
-      association_class = const_get(association_class_name)
-    end
+    association_class = reflections[association_name].klass
 
     if ! options[:full_alias].blank?
       virtual_attribute = options[:full_alias]

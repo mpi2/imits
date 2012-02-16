@@ -19,7 +19,7 @@ class Reports::MiProduction::SummaryMgp
     script_name = request ? request.env['REQUEST_URI'] : ''
     debug = params['debug'] && params['debug'].to_s.length > 0
 
-    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
 
     report_table = Table( ['Consortium', 'Sub-Project', 'Priority', 'All', 'ES QC started', 'ES QC failed', 'ES QC confirmed',
         'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'order_by', 'Languishing'] )

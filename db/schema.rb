@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120209111757) do
+ActiveRecord::Schema.define(:version => 20120214105538) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -268,12 +268,13 @@ ActiveRecord::Schema.define(:version => 20120209111757) do
 
   create_table "report_caches", :force => true do |t|
     t.text     "name",       :null => false
-    t.text     "csv_data",   :null => false
+    t.text     "data",       :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "format",     :null => false
   end
 
-  add_index "report_caches", ["name"], :name => "index_report_caches_on_name", :unique => true
+  add_index "report_caches", ["name", "format"], :name => "index_report_caches_on_name_and_format", :unique => true
 
   create_table "strain_blast_strains", :id => false, :force => true do |t|
     t.integer  "id",         :null => false

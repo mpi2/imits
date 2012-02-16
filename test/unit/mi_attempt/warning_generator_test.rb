@@ -14,10 +14,10 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         :production_centre => Centre.find_by_name!('WTSI'),
         :status => MiPlan::Status[:Assigned])
 
-      mi = Factory.build :mi_attempt,
-              :es_cell => Factory.create(:es_cell, :gene => gene),
-              :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      mi = Factory.build(:public_mi_attempt,
+        :es_cell => Factory.create(:es_cell, :gene => gene),
+        :consortium_name => 'BaSH',
+        :production_centre_name => 'WTSI')
 
       assert_false mi.generate_warnings, mi.warnings
       assert_equal nil, mi.warnings
@@ -27,8 +27,8 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       setup do
         es_cell = Factory.create :es_cell_EPD0029_1_G04
         @existing_mi = es_cell.mi_attempts.first
-        @mi = Factory.build :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => @existing_mi.es_cell.gene)
+        @mi = Factory.build(:public_mi_attempt,
+          :es_cell => Factory.create(:es_cell, :gene => @existing_mi.es_cell.gene))
       end
 
       should 'generate warning for new record' do
@@ -50,9 +50,10 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
               :gene => gene, :status => MiPlan::Status[:Interest]
       es_cell = Factory.create :es_cell, :gene => gene
 
-      mi = Factory.build :mi_attempt, :consortium_name => mi_plan.consortium.name,
-              :production_centre_name => mi_plan.production_centre.name,
-              :es_cell => es_cell
+      mi = Factory.build(:public_mi_attempt, :consortium_name => mi_plan.consortium.name,
+        :production_centre_name => mi_plan.production_centre.name,
+        :es_cell => es_cell)
+      assert mi.valid?
 
       assert_true mi.generate_warnings
       assert_equal 1, mi.warnings.size
@@ -67,23 +68,27 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
               :gene => gene, :status => MiPlan::Status['Assigned']
       es_cell = Factory.create :es_cell, :gene => gene
 
-      mi = Factory.build :mi_attempt, :consortium_name => mi_plan.consortium.name,
+      mi = Factory.build(:public_mi_attempt, :consortium_name => mi_plan.consortium.name,
               :production_centre_name => mi_plan.production_centre.name,
-              :es_cell => es_cell
+              :es_cell => es_cell)
       assert_false mi.generate_warnings, mi.warnings.inspect
 
-      mi_plan.status = MiPlan::Status['Assigned - ES Cell QC In Progress']
       mi_plan.save!
 
-      mi = Factory.build :mi_attempt, :consortium_name => mi_plan.consortium.name,
+      mi = Factory.build :public_mi_attempt, :consortium_name => mi_plan.consortium.name,
               :production_centre_name => mi_plan.production_centre.name,
-              :es_cell => es_cell
-      assert_false mi.generate_warnings
+              :es_cell_name => es_cell.name
+      assert mi.valid?
+      assert_false mi.generate_warnings, mi.warnings
     end
 
     should 'generate warning if MiPlan for the MiAttempt has to be created' do
-      mi = Factory.build :mi_attempt, :production_centre_name => 'ICS'
+      mi = Public::MiAttempt.new :production_centre_name => 'ICS',
+              :consortium_name => 'BaSH',
+              :es_cell_name => Factory.create(:es_cell).name,
+              :mi_date => Date.today
       assert_equal 0, MiPlan.count
+      assert_equal true, mi.valid?, mi.errors
 
       assert_true mi.generate_warnings
       assert_equal 1, mi.warnings.size
@@ -99,9 +104,10 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
                 :gene => gene, :status => MiPlan::Status[:Assigned]
         es_cell = Factory.create :es_cell, :gene => gene
 
-        mi = Factory.build :mi_attempt, :consortium_name => 'BaSH',
+        mi = Factory.build :public_mi_attempt, :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',
-                :es_cell => es_cell
+                :es_cell_name => es_cell.name
+        assert mi.valid?
 
         assert_true mi.generate_warnings
         expected_message = 'Continuing will assign WTSI as the production centre micro-injecting the gene on behalf of BaSH'
@@ -119,7 +125,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
                 :gene => gene, :status => MiPlan::Status[:Assigned]
         es_cell = Factory.create :es_cell, :gene => gene
 
-        mi = Factory.build :mi_attempt, :consortium_name => 'BaSH',
+        mi = Factory.build :public_mi_attempt, :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',
                 :es_cell => es_cell
 
@@ -130,7 +136,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
     should_eventually 'be able to generate more than one warning (when we actually have conditions generating more than one)'
 
     should 'raise if trying to generate warnings while there are validation errors' do
-      mi = Factory.build :mi_attempt
+      mi = Factory.build :public_mi_attempt
       mi.consortium_name = nil
       assert_false mi.valid?
 

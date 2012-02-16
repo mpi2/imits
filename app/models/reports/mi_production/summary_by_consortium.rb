@@ -20,7 +20,7 @@ class Reports::MiProduction::SummaryByConsortium
 
     script_name = request ? request.env['REQUEST_URI'] : ''
 
-    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
 
     report_table = Table( ['Consortium', 'All', 'ES QC started', 'ES QC confirmed', 'ES QC failed',
         'MI in progress', 'MI Aborted', 'Genotype Confirmed Mice', 'Pipeline efficiency (%)', 'Languishing'] )

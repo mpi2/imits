@@ -30,7 +30,7 @@
 </div>
 
 <div id="mi-attempt-new-bottom" class="grid_8 prefix_2 suffix_2">
-  <%= form_for @mi_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
+  <%= form_for @mi_attempt, :as => :mi_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
     <div id="rest-of-form">
       <%= form.hidden_field 'es_cell_name' %>
       <%= form.hidden_field 'es_cell_marker_symbol' %>

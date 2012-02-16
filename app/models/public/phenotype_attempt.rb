@@ -1,11 +1,30 @@
 # encoding: utf-8
 
 class Public::PhenotypeAttempt < ::PhenotypeAttempt
-  Status = ::PhenotypeAttempt::Status
 
   extend AccessAssociationByAttribute
+  include Public::Serializable
 
-  set_table_name 'phenotype_attempts'
+  FULL_ACCESS_ATTRIBUTES = [
+    'colony_name',
+    'consortium_name',
+    'production_centre_name',
+    'mi_attempt_colony_name',
+    'is_active',
+    'rederivation_started',
+    'rederivation_complete',
+    'number_of_cre_matings_started',
+    'number_of_cre_matings_successful',
+    'phenotyping_started',
+    'phenotyping_complete'
+  ]
+
+  READABLE_ATTRIBUTES = [
+    'id',
+    'status_name'
+  ] + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
 
   access_association_by_attribute :mi_attempt, :colony_name
 
@@ -49,6 +68,15 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   attr_accessor :consortium_name, :production_centre_name
 
+  def status_name; status.name; end
+
+  def self.translations
+    return {
+      'marker_symbol' => 'mi_plan_gene_marker_symbol',
+      'consortium' => 'mi_plan_consortium',
+      'production_centre' => 'mi_plan_production_centre'
+    }
+  end
 end
 
 # == Schema Information

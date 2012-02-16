@@ -24,7 +24,7 @@ class MiPlan < ApplicationModel
     if self.is_active == false
       self.mi_attempts.each do |mi_attempt|
         if mi_attempt.is_active?
-          self.errors.add :is_active, 'cannot set is_active flag to false as there are current active microinjection attempts associated with this plan'
+          self.errors.add :is_active, 'cannot be set to false as there are current active microinjection attempts associated with this plan'
         end
       end
     end
@@ -34,7 +34,7 @@ class MiPlan < ApplicationModel
     if self.is_active == false
       self.phenotype_attempts.each do |phenotype_attempt|
         if phenotype_attempt.is_active? 
-          self.errors.add :is_active, 'cannot set is_active flag to false as there are current active phenotype attempts associated with this plan'
+          self.errors.add :is_active, 'cannot be set to false as there are current active phenotype attempts associated with this plan'
         end
       end
     end
@@ -208,27 +208,6 @@ class MiPlan < ApplicationModel
       if assigned_mi_plans.empty? and mi_plans.size == 1
         mi_plan = mi_plans.first
         mi_plan.status = MiPlan::Status['Assigned']
-        mi_plan.save!
-      end
-    end
-  end
-
-  def self.mark_old_plans_as_inactive
-    self.where( :status_id => MiPlan::Status.all_assigned.map(&:id) ).with_mi_attempt.each do |mi_plan|
-      all_inactive, all_over_six_months_old = true, true
-
-      mi_plan.mi_attempts.each do |mi_attempt|
-        if mi_attempt.mi_attempt_status != MiAttemptStatus.micro_injection_aborted or mi_attempt.is_active == true
-          all_inactive = false
-        end
-
-        if 6.months.ago < mi_attempt.mi_date.to_time_in_current_zone
-          all_over_six_months_old = false
-        end
-      end
-
-      if all_inactive && all_over_six_months_old
-        mi_plan.status = MiPlan::Status['Inactive']
         mi_plan.save!
       end
     end

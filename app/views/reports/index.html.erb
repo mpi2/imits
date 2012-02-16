@@ -1,4 +1,21 @@
 <% @tab = 'Reports' %>
+
+<% content_for :head do %>
+<style type="text/css">
+  .report-group-message {
+    font-size: 65%;
+    font-style: italic;
+    font-weight: bold;
+    font-family: Verdana, sans-serif;
+    display: block;
+    margin-top: 0.5em;
+    color: #999;
+  }
+</style>
+<% end %>
+
+<% @generated_message = '<span class="report-group-message">Generated every 20 minutes</span>'.html_safe %>
+
 <div class="grid_4 suffix_8">
   <h2><%= @tab %></h2>
 </div>
@@ -35,29 +52,27 @@
 </div>
 
 <div class="grid_4">
-  <h3>Detailed Status Date Report</h3>
+  <h3>Detailed Status Date Report <%= @generated_message %></h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :detail) %>">
         <h4>Gene-by-gene Status Change Dates for All IMPC Consortia</h4>
       </a>
     </div>
 
-  <h3>KOMP2 Production Reports</h3>
+  <h3>KOMP2 Production Reports <%= @generated_message %></h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp23) %>">
         <h4>Production for KOMP2 Consortia</h4>
-        <p><strong>Generated every 20 minutes</strong></p>
       </a>
     </div>
 
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_komp2) %>">
       <h4>KOMP2 Month-by-month activity</h4>
-        <p><strong>Generated every 20 minutes</strong></p>
       </a>
     </div>
 
-  <h3>IMPC Production Reports</h3>
+  <h3>IMPC Production Reports <%= @generated_message %></h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium_and_accumulated_status) %>">
         <h4>All Consortia - Key Statuses</h4>
@@ -67,20 +82,18 @@
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_impc3) %>">
         <h4>Production for IMPC Consortia</h4>
-        <p><strong>Generated every 20 minutes</strong></p>
       </a>
     </div>
 
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_impc) %>">
       <h4>IMPC Month-by-month activity</h4>
-      <p><strong>Generated every 20 minutes</strong></p>
       </a>
     </div>
 </div>
 
 <div class="grid_4">
-  <h3>Languishing Projects</h3>
+  <h3>Languishing Projects <%= @generated_message %></h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :languishing, :consortia => 'BaSH,DTCC,JAX') %>">
         <h4>KOMP2 Languishing Projects</h4>

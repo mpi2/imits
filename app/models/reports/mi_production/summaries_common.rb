@@ -49,7 +49,7 @@ module Reports::MiProduction::SummariesCommon
     pcentre = params[:pcentre]    
     debug = params['debug'] && params['debug'].to_s.length > 0
   
-    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
       
     report = Table(:data => cached_report.data,
       :column_names => cached_report.column_names,

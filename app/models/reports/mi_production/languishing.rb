@@ -49,7 +49,7 @@ class Reports::MiProduction::Languishing
   def self.generate_detail(options = {})
     consortium, status, delay_bin = options.values_at(:consortium, :status, :delay_bin)
 
-    intermediate = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    intermediate = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
 
     report = Ruport::Data::Table.new(
       :column_names => intermediate.column_names,
@@ -78,7 +78,7 @@ class Reports::MiProduction::Languishing
   end
 
   def self.generate(options = {})
-    intermediate = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    intermediate = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
 
     if options[:consortia].blank?
       consortia = Consortium.all.map(&:name)

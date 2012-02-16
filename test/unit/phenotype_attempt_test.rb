@@ -100,14 +100,14 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         plan.reload; assert_equal 'Assigned', plan.status.name
       end
       
-      should ', when reactivated, reactivate associated mi_plan' do
-        phenotype_attempt = Factory.create :phenotype_attempt, :is_active => false
-        plan = phenotype_attempt.mi_plan
-        plan.is_active = false
-        plan.save!
-        phenotype_attempt.is_active = true
-        phenotype_attempt.save!
-        assert plan.reload.is_active?
+      should 'not be inactive if the associated phenotype_attempt is active' do
+        gene = Factory.create :gene_cbx1
+        inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => false
+        active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)         
+        active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
+        active_pa.is_active = true
+        active_pa.save!
+        assert inactive_plan.reload.is_active?
       end
     end #mi_plan
 

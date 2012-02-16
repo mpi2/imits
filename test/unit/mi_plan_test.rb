@@ -429,12 +429,11 @@ class MiPlanTest < ActiveSupport::TestCase
         
         should 'not be false if an active phenotype attempt found' do
           gene = Factory.create :gene_cbx1
-          inactive_plan = Factory.create :mi_plan, :gene => gene
+          inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => false
           active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)         
           active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
-          active_pa.mi_plan.is_active = false
-          active_pa.mi_plan.valid?
-          assert_match /phenotype attempts associated/, active_pa.mi_plan.errors[:is_active].first
+          inactive_plan.reload
+          assert_match /phenotype attempts associated/, inactive_plan.errors[:is_active].first
         end
       end
     end # attribute tests

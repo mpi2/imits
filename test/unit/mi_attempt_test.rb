@@ -742,6 +742,10 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should have_many :phenotype_attempts
       end
 
+      should 'have column genotyping_comment' do
+        assert_should have_db_column(:genotyping_comment).of_type(:string).with_options(:null => true)
+      end
+
     end # misc attribute tests
 
     context 'before filter' do

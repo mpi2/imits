@@ -113,5 +113,13 @@
         <%= form.check_box field %>
       </div>
     <% end %>
+
+    <div>
+      <label>Genotyping Comment</label>
+      <!--<span><%= mi_attempt.genotyping_comment ? mi_attempt.genotyping_comment : 'none' %></span>-->
+      <!--<%= form.text_area :genotyping_comment, :disabled => true, :class => 'genotyping_comment_text_area' %>-->
+      <%= form.text_area :genotyping_comment, :disabled => true %>
+    </div>
+
   </div>
 </fieldset>

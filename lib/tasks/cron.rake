@@ -13,11 +13,6 @@ namespace :cron do
     ApplicationModel.audited_transaction { MiPlan.minor_conflict_resolution }
   end
 
-  desc 'MiPlan - Mark old unsuccessful MiPlans as "Inactive"'
-  task :mark_old_plans_as_inactive => [:environment] do
-    ApplicationModel.audited_transaction { MiPlan.mark_old_plans_as_inactive }
-  end
-
   desc 'Gene/EsCell - Sync data caches with BioMarts and remote data sources'
   task :sync_data_with_remotes => [:environment] do
     ApplicationModel.audited_transaction { Gene.sync_with_remotes }

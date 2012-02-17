@@ -23,7 +23,7 @@
 
 <p><%= link_to('Download as CSV', url_for({:action => :languishing, :format => :csv}.merge(params))) %></p>
 
-<div class="report grid_12">
+<div class="report">
 
 <%= @report.to_html.html_safe %>
 

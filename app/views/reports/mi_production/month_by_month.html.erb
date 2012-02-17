@@ -10,9 +10,7 @@ params.delete(:format)
 link_to('Download as CSV', url_for({:action => controller.action_name, :controller => '/reports/mi_production', :format => :csv}.merge(params)))
 %></p>
 
-<br/>
-
-<div class="report grid_12">
+<div class="report">
 
 <% if @report_data.nil? %>
   <p><em>Sorry, no production data found</em></p>

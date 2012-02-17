@@ -19,8 +19,6 @@ link_params.delete(:format)
 %>
 <p><%=  link_to('Download as CSV', url_for({:action => controller.action_name, :controller => '/reports/mi_production', :format => :csv}.merge(link_params))) %></p>
 
-<br>
-
 <div class="report">
 <%= raw @report_data[:html] %>
 </div>

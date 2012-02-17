@@ -28,7 +28,7 @@ class PhenotypeAttempt < ApplicationModel
   before_validation :set_mi_plan
   before_save :record_if_status_was_changed
   before_save :generate_colony_name_if_blank
-  before_save :make_plan_assigned
+  before_save :ensure_plan_is_valid
   after_save :create_status_stamp_if_status_was_changed
 
   def set_mi_plan
@@ -53,10 +53,14 @@ class PhenotypeAttempt < ApplicationModel
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
 
-  def make_plan_assigned
+  def ensure_plan_is_valid
     if ! mi_plan.assigned?
       mi_plan.status = MiPlan::Status['Assigned']
       mi_plan.save!
+    end
+    if self.is_active?
+      self.mi_plan.is_active = true
+      self.mi_plan.save!
     end
   end
 

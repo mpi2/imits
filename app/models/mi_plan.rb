@@ -21,28 +21,36 @@ class MiPlan < ApplicationModel
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
 
   validate do |plan|
-    if self.is_active == false
-      self.mi_attempts.each do |mi_attempt|
+    if plan.is_active == false
+      plan.mi_attempts.each do |mi_attempt|
         if mi_attempt.is_active?
-          self.errors.add :is_active, 'cannot be set to false as there are current active microinjection attempts associated with this plan'
+          plan.errors.add :is_active, "cannot be set to false as active microinjection attempt #{mi_attempt.id} is associated with this plan"
         end
       end
     end
   end
   
   validate do |plan|
-    if self.is_active == false
-      self.phenotype_attempts.each do |phenotype_attempt|
+    if plan.is_active == false
+      plan.phenotype_attempts.each do |phenotype_attempt|
         if phenotype_attempt.is_active? 
-          self.errors.add :is_active, 'cannot be set to false as there are current active phenotype attempts associated with this plan'
+          plan.errors.add :is_active, "cannot be set to false as active phenotype attempt #{phenotype_attempt.id} is associated with this plan"
         end
       end
     end
   end
   
   validate do |plan|
-    if ! plan.assigned? and plan.phenotype_attempts.count != 0
+    statuses = MiPlan::Status.pre_assigned
+    if statuses.include?(plan.status.name) and plan.phenotype_attempts.length != 0   
       plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
+    end
+  end
+  
+  validate do |plan| 
+    not_allowed_statuses = ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"]     
+    if not_allowed_statuses.include?(plan.status.name) and plan.mi_attempts.length != 0   
+      plan.errors.add(:status, 'cannot be changed - microinjection attempts exist')
     end
   end
 

@@ -292,16 +292,29 @@ class MiPlanTest < ActiveSupport::TestCase
 
           assert_equal ['Interest'], default_mi_plan.status_stamps.map{|i|i.status.name}
         end
-
-        should 'not be set to non-assigned if this has phenotype_attempts' do
+        
+        should 'not be one of the following if it has any phenotype attempts' do
           pt = Factory.create :phenotype_attempt
           plan = pt.mi_plan
-          plan.number_of_es_cells_starting_qc = 4
-          assert plan.save
-          plan.number_of_es_cells_starting_qc = nil
-          plan.status = MiPlan::Status['Conflict']
-          plan.valid?
-          assert_match /cannot be changed/, plan.errors[:status].first
+          plan.status = MiPlan::Status['Assigned']
+          plan.save!
+          ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"].each do |this_status|
+            plan.status = MiPlan::Status[this_status]
+            plan.valid?
+            assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"
+          end 
+        end
+        
+        should 'not be one of the following if it has any microinjection attempts' do
+          mi_attempt = Factory.create :mi_attempt
+          plan = mi_attempt.mi_plan
+          plan.status = MiPlan::Status['Assigned']
+          plan.save!
+          ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"].each do |this_status|
+            plan.status = MiPlan::Status[this_status]
+            plan.valid?
+            assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"
+          end
         end
       end
 
@@ -435,16 +448,17 @@ class MiPlanTest < ActiveSupport::TestCase
           active_mi = Factory.create :mi_attempt, :is_active => true
           active_mi.mi_plan.is_active = false
           active_mi.mi_plan.valid?
-          assert_match /microinjection attempts associated/, active_mi.mi_plan.errors[:is_active].first
+          assert_match /cannot be set to false as active microinjection attempt/, active_mi.mi_plan.errors[:is_active].first
         end
         
-        should 'not be false if an active phenotype attempt found' do
+        should 'be true if an active phenotype attempt found' do
           gene = Factory.create :gene_cbx1
-          inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => false
+          inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => true
           active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)         
           active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
-          inactive_plan.reload
-          assert_match /phenotype attempts associated/, inactive_plan.errors[:is_active].first
+          inactive_plan.is_active = false
+          inactive_plan.valid?
+          assert_contains inactive_plan.errors[:is_active], /cannot be set to false as active phenotype attempt/
         end
       end
     end # attribute tests

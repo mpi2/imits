@@ -36,6 +36,18 @@ class MiPlan::Status < ActiveRecord::Base
       MiPlan::Status['Withdrawn']
     ]
   end
+  
+  def self.pre_assigned
+    return [
+      MiPlan::Status['Interest'],
+      MiPlan::Status['Conflict'],
+      MiPlan::Status['Inspect - GLT Mouse'],
+      MiPlan::Status['Inspect - MI Attempt'],
+      MiPlan::Status['Inspect - Conflict'],
+      MiPlan::Status['Aborted - ES Cell QC Failed'],
+      MiPlan::Status['Withdrawn']
+    ]
+  end
 end
 
 # == Schema Information

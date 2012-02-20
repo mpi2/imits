@@ -12,7 +12,9 @@ class Public::MiPlan < ::MiPlan
     'number_of_es_cells_starting_qc',
     'number_of_es_cells_passing_qc',
     'withdrawn',
-    'sub_project_name'
+    'sub_project_name',
+    'is_active'
+    
   ]
 
   READABLE_ATTRIBUTES = [
@@ -88,6 +90,7 @@ end
 #  number_of_es_cells_starting_qc :integer
 #  number_of_es_cells_passing_qc  :integer
 #  sub_project_id                 :integer         not null
+#  is_active                      :boolean         default(TRUE), not null
 #
 # Indexes
 #

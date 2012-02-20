@@ -30,7 +30,7 @@ class Reports::MiProduction::FeedImpc
     report_table = Table([  'Consortium', 'Production Centre', 'Status', 'Marker symbol', 'Details at IKMC', 'Order', 'Mutation type',
         'Allele name', 'Genetic background' ] )
 
-    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
 
     Table(:data => cached_report.data,
       :column_names => cached_report.column_names,
@@ -111,7 +111,7 @@ class Reports::MiProduction::FeedImpc
 
     script_name = request ? request.url : ''
 
-    cached_report = ReportCache.find_by_name!('mi_production_intermediate').to_table
+    cached_report = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
 
     headings_main = [ 'Consortium', 'All Projects', 'Project started', 'Microinjection in progress', 'Genotype Confirmed Mice',
       'Phenotype data available']

@@ -581,6 +581,16 @@ class MiAttemptTest < ActiveSupport::TestCase
                   mi.errors['mi_plan']
         end
 
+        should ', be reactivated, when the associated mi_attempt is active' do
+            mi_attempt = Factory.create :mi_attempt, :is_active => false
+            mi_attempt.mi_plan.is_active = false
+            mi_attempt.mi_plan.save!
+            mi_attempt.is_active = true
+            mi_attempt.save!
+            mi_attempt.reload
+            assert_equal true, mi_attempt.mi_plan.is_active?
+        end
+
         context 'on create' do
           should 'be set to a matching MiPlan' do
             cbx1 = Factory.create :gene_cbx1
@@ -684,7 +694,6 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 'WTSI', mi_plan.production_centre.name
             assert_equal 'Assigned', mi_plan.status.name
           end
-
         end
 
         context 'on update' do

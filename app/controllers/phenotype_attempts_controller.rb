@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 class PhenotypeAttemptsController < ApplicationController
-
+  respond_to :html, :only => [:index]
   respond_to :json
 
   before_filter :authenticate_user!
@@ -23,7 +23,13 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def index
-    render :json => data_for_serialized(:json, 'id', Public::PhenotypeAttempt, :public_search)
+    respond_to do |format|
+      format.json do
+        render :json => data_for_serialized(:json, 'id', Public::PhenotypeAttempt, :public_search)
+      end
+      format.html do
+      end
+    end
   end
 
   private

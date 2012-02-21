@@ -181,6 +181,15 @@ Ext.define('Imits.widget.MiGrid', {
             sortable: false
         },
         {
+          header: 'Phenotype attempt',
+          dataIndex: 'phenotype_attempt_new_link',
+          renderer: function(value, metaData, record){
+            var miId = record.getId();
+            return Ext.String.format('<a href="{0}/mi_attempts/{1}">Create</a>', window.basePath, miId);
+          },
+          sortable: false
+        },
+        {
             dataIndex: 'consortium_name',
             header: 'Consortium',
             readOnly: true,

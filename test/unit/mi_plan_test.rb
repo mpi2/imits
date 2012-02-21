@@ -292,7 +292,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
           assert_equal ['Interest'], default_mi_plan.status_stamps.map{|i|i.status.name}
         end
-        
+
         should 'not be one of the following if it has any phenotype attempts' do
           pt = Factory.create :phenotype_attempt
           plan = pt.mi_plan
@@ -302,9 +302,9 @@ class MiPlanTest < ActiveSupport::TestCase
             plan.status = MiPlan::Status[this_status]
             plan.valid?
             assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"
-          end 
+          end
         end
-        
+
         should 'not be one of the following if it has any microinjection attempts' do
           mi_attempt = Factory.create :mi_attempt
           plan = mi_attempt.mi_plan
@@ -438,23 +438,23 @@ class MiPlanTest < ActiveSupport::TestCase
         #       with the same gene and consortium BUT with a production_centre assigned.
         #       Really, the fist should be updated to become the second (i.e. not produce a duplicate).
       end
-      
+
       context '#is_active' do
         should 'exist' do
           assert_should have_db_column(:is_active).with_options(:null => false, :default => true)
         end
-        
+
         should 'be true if an active microinjection attempt found' do
           active_mi = Factory.create :mi_attempt, :is_active => true
           active_mi.mi_plan.is_active = false
           active_mi.mi_plan.valid?
-          assert_match /cannot be set to false as active microinjection attempt/, active_mi.mi_plan.errors[:is_active].first
+          assert_match /cannot be set to false as active micro-injection attempt/, active_mi.mi_plan.errors[:is_active].first
         end
-        
+
         should 'be true if an active phenotype attempt found' do
           gene = Factory.create :gene_cbx1
           inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => true
-          active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)         
+          active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)
           active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
           inactive_plan.is_active = false
           inactive_plan.valid?

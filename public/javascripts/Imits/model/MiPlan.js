@@ -37,7 +37,8 @@ Ext.define('Imits.model.MiPlan', {
         defaultValue: false
     },
     {
-        name: 'is_active'
+        name: 'is_active',
+        defaultValue: true
     }
     ],
 

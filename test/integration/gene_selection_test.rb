@@ -92,7 +92,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
           :consortium_id => Consortium.find_by_name!('Helmholtz GMC').id,
           :production_centre_id => Centre.find_by_name!('HMGU').id,
           :status_id => MiPlan::Status['Interest'].id,
-          :priority_id => MiPlan::Priority.find_by_name!('Medium')
+          :priority_id => MiPlan::Priority.find_by_name!('Medium').id
         )
         assert_equal 1, mi_plans.count
 

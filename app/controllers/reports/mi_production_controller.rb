@@ -121,11 +121,20 @@ class Reports::MiProductionController < ApplicationController
                 :action => 'languishing_detail',
                 :consortium => consortium,
                 :status => record[0],
-                :delay_bin => bin) + '">' + record[bin].to_s + '</a>'
+                :delay_bin => bin,
+                :only_path => true) + '">' + record[bin].to_s + '</a>'
             end
             css_classes = ['center', record[0].gsub(/[- ]+/, '_').downcase, "bin#{idx}"]
             record[bin] = "<div class=\"#{css_classes.join ' '}\">#{link}</div>".html_safe
           end
+        end
+
+        {
+          'Micro-injection in progress' => 'Mouse production attempt',
+          'Phenotype Attempt Registered' => 'Intent to phenotype'
+        }.each do |from, to|
+          row = group.find {|r| r[0] == from}
+          row[0] = to
         end
       end
     end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120214105538) do
+ActiveRecord::Schema.define(:version => 20120215164706) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -166,6 +166,7 @@ ActiveRecord::Schema.define(:version => 20120214105538) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "mi_plan_id",                                                                        :null => false
+    t.string   "genotyping_comment",                              :limit => 512
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -203,16 +204,17 @@ ActiveRecord::Schema.define(:version => 20120214105538) do
   end
 
   create_table "mi_plans", :force => true do |t|
-    t.integer  "gene_id",                        :null => false
-    t.integer  "consortium_id",                  :null => false
-    t.integer  "status_id",                      :null => false
-    t.integer  "priority_id",                    :null => false
+    t.integer  "gene_id",                                          :null => false
+    t.integer  "consortium_id",                                    :null => false
+    t.integer  "status_id",                                        :null => false
+    t.integer  "priority_id",                                      :null => false
     t.integer  "production_centre_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "number_of_es_cells_starting_qc"
     t.integer  "number_of_es_cells_passing_qc"
-    t.integer  "sub_project_id",                 :null => false
+    t.integer  "sub_project_id",                                   :null => false
+    t.boolean  "is_active",                      :default => true, :null => false
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true

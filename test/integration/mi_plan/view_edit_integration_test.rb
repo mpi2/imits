@@ -65,5 +65,41 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       end
     end
 
+    should 'allow users to withdraw mi_plans' do
+      mi_plan = Factory.create :mi_plan,
+              :gene => Factory.create(:gene_cbx1),
+              :consortium => Consortium.find_by_name!('BaSH'),
+              :production_centre => Centre.find_by_name!('WTSI'),
+              :status => MiPlan::Status['Conflict']
+
+      login default_user
+      visit '/mi_plans'
+
+      find('.x-grid-cell').click
+      find('#withdraw-button').click
+      find('#withdraw-confirmation-button').click
+
+      sleep 3
+      assert_equal 'Withdrawn', mi_plan.reload.status.name
+    end
+
+    should 'allow users to inactivate mi_plans' do
+      mi_plan = Factory.create :mi_plan,
+              :gene => Factory.create(:gene_cbx1),
+              :consortium => Consortium.find_by_name!('BaSH'),
+              :production_centre => Centre.find_by_name!('WTSI'),
+              :status => MiPlan::Status['Assigned']
+
+      login default_user
+      visit '/mi_plans'
+
+      find('.x-grid-cell').click
+      find('#inactivate-button').click
+      find('#inactivate-confirmation-button').click
+
+      sleep 300
+      assert_equal 'Inactive', mi_plan.reload.status.name
+    end
+
   end
 end

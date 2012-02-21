@@ -12,8 +12,8 @@
   .assigned_es_cell_qc_in_progress.bin5,
   .assigned_es_cell_qc_in_progress.bin6,
 
-  .mouse_production_attempt.bin5,
-  .mouse_production_attempt.bin6 {
+  .micro_injection_in_progress.bin5,
+  .micro_injection_in_progress.bin6 {
     background-color: #F0DE7D;
   }
 </style>
@@ -23,7 +23,7 @@
 
 <p><%= link_to('Download as CSV', url_for({:action => :languishing, :format => :csv}.merge(params))) %></p>
 
-<div class="report grid_12">
+<div class="report">
 
 <%= @report.to_html.html_safe %>
 

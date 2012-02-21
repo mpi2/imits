@@ -113,16 +113,6 @@ class Reports::MiProduction::Languishing
       record[get_delay_bin_for(overall_status_date)] += 1
     end
 
-    report.each do |name, group|
-      {
-        'Micro-injection in progress' => 'Mouse production attempt',
-        'Phenotype Attempt Registered' => 'Intent to phenotype'
-      }.each do |from, to|
-        row = group.find {|r| r[0] == from}
-        row[0] = to
-      end
-    end
-
     return report
   end
 

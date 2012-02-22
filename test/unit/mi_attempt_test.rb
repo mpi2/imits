@@ -718,7 +718,6 @@ class MiAttemptTest < ActiveSupport::TestCase
 
           should 'create new MiPlan with that MiPlan logical key when consortium_name and production_centre_name changes' do
 
-            # paranoid check: confirm the plan isn't there to ensure we actually create it
             assert_blank MiPlan.search(:production_centre_name_eq => 'Harwell',
               :consortium_name_eq => 'Phenomin').result
 

@@ -95,10 +95,10 @@ class MiAttempt < ApplicationModel
   end
 
   validate do |mi_attempt|
-    if Consortium.find_by_name(mi_attempt.consortium_name).blank?
+    if ! Consortium.find_by_name(mi_attempt.consortium_name)
       mi_attempt.errors.add :consortium_name, 'does not exist'
     end
-    if Centre.find_by_name(mi_attempt.production_centre_name).blank?
+    if ! Centre.find_by_name(mi_attempt.production_centre_name)
       mi_attempt.errors.add :production_centre_name, 'does not exist'
     end
   end
@@ -505,4 +505,3 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

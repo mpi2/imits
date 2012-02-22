@@ -197,8 +197,11 @@ class Reports::MiProductionController < ApplicationController
     return_value = Reports::MiProduction::SummaryMgp23.generate('Sub-Project',request)
     #raise return_value[:table].inspect
     @report = return_value[:table]
-    send_data_csv('summary_mgp.csv', @report.to_csv) if request.format == :csv
-    render :action => 'mgp_summary'
+    if request.format == :csv
+      send_data_csv('summary_mgp.csv', @report.to_csv)
+    else
+      render :action => 'mgp_summary'
+    end
   end
 
   def mgp_summary_priority
@@ -206,8 +209,11 @@ class Reports::MiProductionController < ApplicationController
     return_value = Reports::MiProduction::SummaryMgp23.generate('Priority',request)
     #raise return_value[:table].inspect
     @report = return_value[:table]
-    send_data_csv('summary_mgp.csv', @report.to_csv) if request.format == :csv
-    render :action => 'mgp_summary'
+    if request.format == :csv
+      send_data_csv('summary_mgp.csv', @report.to_csv)
+    else
+      render :action => 'mgp_summary'
+    end
   end
   
   def mgp_detail
@@ -215,7 +221,9 @@ class Reports::MiProductionController < ApplicationController
     return_value = Reports::MiProduction::SummaryMgp23.generate_detail(request,params)
     #raise return_value[:table].inspect
     @report = return_value[:table]
-    send_data_csv('summary_mgp.csv', @report.to_csv) if request.format == :csv
+    if request.format == :csv
+      send_data_csv('summary_mgp.csv', @report.to_csv)
+    end
   end
   
   def languishing_mgp_priority
@@ -250,8 +258,12 @@ class Reports::MiProductionController < ApplicationController
     if params[:consortia].blank?
       name = 'languishing_production_mgp_report.csv'
     end
-    send_data_csv(name, @report.to_csv) if request.format == :csv
-    render :action => 'languishing_mgp'
+    
+    if request.format == :csv
+      send_data_csv(name, @report.to_csv)
+    else
+      render :action => 'languishing_mgp'
+    end
   end
   
   def languishing_mgp_sub_project
@@ -287,8 +299,12 @@ class Reports::MiProductionController < ApplicationController
     if params[:consortia].blank?
       name = 'languishing_production_mgp_report.csv'
     end
-    send_data_csv(name, @report.to_csv) if request.format == :csv
-    render :action => 'languishing_mgp'
+    
+    if request.format == :csv
+      send_data_csv(name, @report.to_csv) 
+    else
+      render :action => 'languishing_mgp'
+    end
   end
 
   def languishing_mgp_detail

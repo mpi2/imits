@@ -8,6 +8,7 @@ class Reports::MiProductionIntegrationTest < ActionDispatch::IntegrationTest
 
     setup do
       create_common_test_objects
+      Reports::MiProduction::Intermediate.new.cache
       visit '/users/logout'
       login
     end
@@ -16,6 +17,14 @@ class Reports::MiProductionIntegrationTest < ActionDispatch::IntegrationTest
       should 'have link to cached report' do
         visit '/reports/mi_production/detail'
         assert page.has_css? "a[href='/reports/mi_production/detail.csv']"
+      end
+    end
+
+    context '/reports/mi_production/mgp_summary_subproject' do
+      should 'have link to cached report' do
+        visit '/reports/mi_production/mgp_summary_subproject'
+	assert page.has_css? "#content"
+        assert page.has_css? "a[href='/reports/mi_production/mgp_summary_subproject.csv']"
       end
     end
 

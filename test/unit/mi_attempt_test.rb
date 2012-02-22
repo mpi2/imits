@@ -716,9 +716,6 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 'Inactive', default_mi_attempt.mi_plan.status.name
           end
 
-          #When consortium_name and production_centre_name changes, should create new MiPlan with that MiPlan logical key
-          #When consortium_name and production_centre_name changes, should grab existing MiPlan with that MiPlan logical key
-
           should 'create new MiPlan with that MiPlan logical key when consortium_name and production_centre_name changes' do
 
             # paranoid check: confirm the plan isn't there to ensure we actually create it

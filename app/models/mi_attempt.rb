@@ -208,18 +208,51 @@ class MiAttempt < ApplicationModel
     return true
   end
 
-  def set_mi_plan
+  def set_mi_plan_OLD
     mi_plan_to_set = find_matching_mi_plan
     if ! mi_plan_to_set
       mi_plan_to_set = MiPlan.new
       mi_plan_to_set.priority = MiPlan::Priority.find_by_name!('High')
       mi_plan_to_set.consortium = Consortium.find_by_name!(consortium_name)
       mi_plan_to_set.gene = es_cell.gene
+
+      mi_plan_to_set.production_centre = Centre.find_by_name!(production_centre_name)
+      mi_plan_to_set.status = MiPlan::Status.find_by_name!('Assigned')
+      mi_plan_to_set.save!
+      if is_active?
+        mi_plan_to_set.is_active = true
+      end
+      self.mi_plan = mi_plan_to_set
+    else
+      if is_active?
+        mi_plan.is_active = true
+        mi_plan.status = MiPlan::Status.find_by_name!('Assigned')
+        mi_plan.save!
+      end
+    end
+
+    mi_plan_to_set.save!
+
+    self.mi_plan = mi_plan_to_set
+  end
+
+  def set_mi_plan
+    #puts "set_mi_plan"
+    mi_plan_to_set = find_matching_mi_plan
+    #puts "set_mi_plan: FOUND!" if mi_plan_to_set
+    #puts "set_mi_plan: NOT FOUND!" if !mi_plan_to_set
+    if ! mi_plan_to_set
+      mi_plan_to_set = MiPlan.new
+      mi_plan_to_set.priority = MiPlan::Priority.find_by_name!('High')
+      mi_plan_to_set.consortium = Consortium.find_by_name!(consortium_name)
+      mi_plan_to_set.gene = es_cell.gene
+      mi_plan_to_set.status = MiPlan::Status.find_by_name!('Assigned')
     end
 
     mi_plan_to_set.production_centre = Centre.find_by_name!(production_centre_name)
 
     if is_active?
+      mi_plan_to_set.is_active = true
       mi_plan_to_set.status = MiPlan::Status.find_by_name!('Assigned')
     end
 
@@ -497,6 +530,7 @@ end
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
 #  mi_plan_id                                      :integer         not null
+#  genotyping_comment                              :string(512)
 #
 # Indexes
 #

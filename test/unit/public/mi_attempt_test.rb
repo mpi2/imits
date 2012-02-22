@@ -69,6 +69,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         is_active
         is_released_from_genotyping
         comments
+        genotyping_comment
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -138,6 +139,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         is_released_from_genotyping
         comments
         mi_plan_id
+        genotyping_comment
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

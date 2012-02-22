@@ -21,8 +21,36 @@ class MiPlan < ApplicationModel
   validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
 
   validate do |plan|
-    if ! plan.assigned? and plan.phenotype_attempts.count != 0
+    if plan.is_active == false
+      plan.mi_attempts.each do |mi_attempt|
+        if mi_attempt.is_active?
+          plan.errors.add :is_active, "cannot be set to false as active micro-injection attempt '#{mi_attempt.colony_name}' is associated with this plan"
+        end
+      end
+    end
+  end
+  
+  validate do |plan|
+    if plan.is_active == false
+      plan.phenotype_attempts.each do |phenotype_attempt|
+        if phenotype_attempt.is_active? 
+          plan.errors.add :is_active, "cannot be set to false as active phenotype attempt '#{phenotype_attempt.colony_name}' is associated with this plan"
+        end
+      end
+    end
+  end
+  
+  validate do |plan|
+    statuses = MiPlan::Status.pre_assigned
+    if statuses.include?(plan.status.name) and plan.phenotype_attempts.length != 0   
       plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
+    end
+  end
+  
+  validate do |plan| 
+    not_allowed_statuses = ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"]     
+    if not_allowed_statuses.include?(plan.status.name) and plan.mi_attempts.length != 0   
+      plan.errors.add(:status, 'cannot be changed - microinjection attempts exist')
     end
   end
 
@@ -199,27 +227,6 @@ class MiPlan < ApplicationModel
     end
   end
 
-  def self.mark_old_plans_as_inactive
-    self.where( :status_id => MiPlan::Status.all_assigned.map(&:id) ).with_mi_attempt.each do |mi_plan|
-      all_inactive, all_over_six_months_old = true, true
-
-      mi_plan.mi_attempts.each do |mi_attempt|
-        if mi_attempt.mi_attempt_status != MiAttemptStatus.micro_injection_aborted or mi_attempt.is_active == true
-          all_inactive = false
-        end
-
-        if 6.months.ago < mi_attempt.mi_date.to_time_in_current_zone
-          all_over_six_months_old = false
-        end
-      end
-
-      if all_inactive && all_over_six_months_old
-        mi_plan.status = MiPlan::Status['Inactive']
-        mi_plan.save!
-      end
-    end
-  end
-
   def self.all_grouped_by_mgi_accession_id_then_by_status_name
     mi_plans = self.all.group_by {|i| i.gene.mgi_accession_id}
     mi_plans = mi_plans.each do |mgi_accession_id, all_for_gene|
@@ -383,6 +390,7 @@ end
 #  number_of_es_cells_starting_qc :integer
 #  number_of_es_cells_passing_qc  :integer
 #  sub_project_id                 :integer         not null
+#  is_active                      :boolean         default(TRUE), not null
 #
 # Indexes
 #

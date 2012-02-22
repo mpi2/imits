@@ -309,7 +309,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
 
           centre_count = 0
 
-          centre_hash.keys.each do |centre|
+          centre_hash.keys.sort.each do |centre|
 
             next if centre == 'DUMMY' && centre_hash.keys.size > 1
 

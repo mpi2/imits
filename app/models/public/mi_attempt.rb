@@ -57,6 +57,7 @@ class Public::MiAttempt < ::MiAttempt
     is_active
     is_released_from_genotyping
     comments
+    genotyping_comment
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -136,9 +137,9 @@ end
 #  created_at                                      :datetime
 #  updated_at                                      :datetime
 #  mi_plan_id                                      :integer         not null
+#  genotyping_comment                              :string(512)
 #
 # Indexes
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

@@ -581,6 +581,16 @@ class MiAttemptTest < ActiveSupport::TestCase
                   mi.errors['mi_plan']
         end
 
+        should ', be reactivated, when the associated mi_attempt is active' do
+            mi_attempt = Factory.create :mi_attempt, :is_active => false
+            mi_attempt.mi_plan.is_active = false
+            mi_attempt.mi_plan.save!
+            mi_attempt.is_active = true
+            mi_attempt.save!
+            mi_attempt.reload
+            assert_equal true, mi_attempt.mi_plan.is_active?
+        end
+
         context 'on create' do
           should 'be set to a matching MiPlan' do
             cbx1 = Factory.create :gene_cbx1
@@ -680,11 +690,11 @@ class MiAttemptTest < ActiveSupport::TestCase
             end
 
             mi_plan.reload
+            #puts mi_plan.inspect
             assert_equal mi_plan, mi_attempt.mi_plan
             assert_equal 'WTSI', mi_plan.production_centre.name
             assert_equal 'Assigned', mi_plan.status.name
           end
-
         end
 
         context 'on update' do
@@ -713,14 +723,8 @@ class MiAttemptTest < ActiveSupport::TestCase
           should 'create new MiPlan with that MiPlan logical key when consortium_name and production_centre_name changes' do
 
             # paranoid check: confirm the plan isn't there to ensure we actually create it
-            if Consortium.find_by_name('Harwell') && Centre.find_by_name('Harwell')
-              lookup_conditions = {
-                :consortium_id => Consortium.find_by_name('Harwell').id,
-                :production_centre_id => Centre.find_by_name('Harwell').id
-              }
-              mi_plan = MiPlan.where(lookup_conditions).first
-              assert ! mi_plan
-            end
+            assert_blank MiPlan.search(:production_centre_name_eq => 'Harwell',
+              :consortium_name_eq => 'Phenomin').result
 
             centre = Factory.create :centre, :name => 'Harwell'
             mi_attempt = default_mi_attempt
@@ -798,6 +802,10 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'have #phenotype_attempts' do
         assert_should have_many :phenotype_attempts
+      end
+
+      should 'have column genotyping_comment' do
+        assert_should have_db_column(:genotyping_comment).of_type(:string).with_options(:null => true)
       end
 
     end # misc attribute tests

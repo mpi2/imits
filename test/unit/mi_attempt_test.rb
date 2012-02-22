@@ -690,7 +690,6 @@ class MiAttemptTest < ActiveSupport::TestCase
             end
 
             mi_plan.reload
-            #puts mi_plan.inspect
             assert_equal mi_plan, mi_attempt.mi_plan
             assert_equal 'WTSI', mi_plan.production_centre.name
             assert_equal 'Assigned', mi_plan.status.name
@@ -918,7 +917,6 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'when set on update NOT give validation error' do
           default_mi_attempt.consortium_name = Consortium.find_by_name!('MARC').name
-#          puts "ERROR: #{default_mi_attempt.errors['consortium_name']}"
           assert default_mi_attempt.valid?
         end
       end

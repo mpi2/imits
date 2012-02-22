@@ -97,7 +97,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.reload
           default_mi_attempt.is_active = false
           default_mi_attempt.valid?
-          assert_match /cannot be changed/i, default_mi_attempt.errors[:mi_attempt_status].first
+          assert_match(/cannot be changed/i, default_mi_attempt.errors[:mi_attempt_status].first)
         end
       end
 
@@ -706,6 +706,64 @@ class MiAttemptTest < ActiveSupport::TestCase
             default_mi_attempt.save!
             assert_equal 'Inactive', default_mi_attempt.mi_plan.status.name
           end
+
+          #When consortium_name and production_centre_name changes, should create new MiPlan with that MiPlan logical key
+          #When consortium_name and production_centre_name changes, should grab existing MiPlan with that MiPlan logical key
+
+          should 'create new MiPlan with that MiPlan logical key when consortium_name and production_centre_name changes' do
+
+            # paranoid check: confirm the plan isn't there to ensure we actually create it
+            if Consortium.find_by_name('Harwell') && Centre.find_by_name('Harwell')
+              lookup_conditions = {
+                :consortium_id => Consortium.find_by_name('Harwell').id,
+                :production_centre_id => Centre.find_by_name('Harwell').id
+              }
+              mi_plan = MiPlan.where(lookup_conditions).first
+              assert ! mi_plan
+            end
+
+            centre = Factory.create :centre, :name => 'Harwell'
+            mi_attempt = default_mi_attempt
+            id_old = mi_attempt.mi_plan.id
+            mi_attempt.production_centre_name = 'Harwell'
+            mi_attempt.consortium_name = 'Phenomin'
+            mi_attempt.save!
+            assert_not_equal id_old, mi_attempt.mi_plan.id
+            assert_equal 'Harwell', mi_attempt.mi_plan.production_centre.name
+            assert_equal 'Phenomin', mi_attempt.mi_plan.consortium.name
+          end
+
+          should 'grab existing MiPlan with that MiPlan logical key when consortium_name and production_centre_name changes' do
+            es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+            mi_plan = Factory.create :mi_plan, :gene => es_cell.gene,
+              :consortium => Consortium.find_by_name!('MARC'),
+              :production_centre => Centre.find_by_name!('VETMEDUNI'),
+              :status => MiPlan::Status.find_by_name!('Interest')
+
+            mi_plan2 = Factory.create :mi_plan, :gene => es_cell.gene,
+              :consortium => Consortium.find_by_name!('NorCOMM2'),
+              :production_centre => Centre.find_by_name!('CNRS'),
+              :status => MiPlan::Status.find_by_name!('Interest')
+
+            mi_attempt = MiAttempt.new(:es_cell => es_cell,
+              :production_centre_name => 'VETMEDUNI',
+              :consortium_name => 'MARC',
+              :mi_date => Date.today)
+
+            mi_attempt.save!
+
+            assert_equal mi_plan.id, mi_attempt.mi_plan.id
+
+            mi_attempt.production_centre_name = 'CNRS'
+            mi_attempt.consortium_name = 'NorCOMM2'
+
+            mi_attempt.save!
+
+            assert_equal mi_plan2.id, mi_attempt.mi_plan.id
+            assert_equal 'CNRS', mi_attempt.mi_plan.production_centre.name
+            assert_equal 'NorCOMM2', mi_attempt.mi_plan.consortium.name
+          end
+
         end
 
         should 'not be allowed to be in state "Aborted - ES Cell QC Failed" for MiAttempt to be created against it' do
@@ -850,10 +908,10 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal default_mi_attempt.mi_plan.consortium.name, default_mi_attempt.consortium_name
         end
 
-        should 'when set on update give validation error' do
-          default_mi_attempt.consortium_name = 'Brand New Consortium'
-          default_mi_attempt.valid?
-          assert_equal ['cannot be changed'], default_mi_attempt.errors['consortium_name']
+        should 'when set on update NOT give validation error' do
+          default_mi_attempt.consortium_name = Consortium.find_by_name!('MARC').name
+#          puts "ERROR: #{default_mi_attempt.errors['consortium_name']}"
+          assert default_mi_attempt.valid?
         end
       end
 
@@ -883,10 +941,9 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal default_mi_attempt.mi_plan.production_centre.name, default_mi_attempt.production_centre_name
         end
 
-        should 'when set on update give validation error' do
-          default_mi_attempt.production_centre_name = 'Brand New Centre'
-          default_mi_attempt.valid?
-          assert_equal ['cannot be changed'], default_mi_attempt.errors['production_centre_name']
+        should 'when set on update NOT give validation error' do
+          default_mi_attempt.production_centre_name = 'WTSI'
+          assert default_mi_attempt.valid?
         end
       end
 
@@ -927,7 +984,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       mi.mi_plan.gene = Factory.create :gene
 
       mi.valid?
-      assert_match /gene mismatch/i, mi.errors[:base].join('; ')
+      assert_match(/gene mismatch/i, mi.errors[:base].join('; '))
     end
 
     context '::active' do

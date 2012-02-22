@@ -1,0 +1,30 @@
+<% @title = 'Languishing MGP Production Report' %>
+
+<% content_for :head do %>
+<style type="text/css">
+  .center {
+    text-align: center
+  }
+
+  .assigned_es_cell_qc_in_progress.bin2,
+  .assigned_es_cell_qc_in_progress.bin3,
+  .assigned_es_cell_qc_in_progress.bin4,
+  .assigned_es_cell_qc_in_progress.bin5,
+  .assigned_es_cell_qc_in_progress.bin6,
+
+  .micro_injection_in_progress.bin5,
+  .micro_injection_in_progress.bin6 {
+    background-color: #F0DE7D;
+  }
+</style>
+<% end %>
+
+<h2><%= @title %></h2>
+
+<p><%= link_to('Download as CSV', url_for({:action => :languishing_mgp_sub_project, :format => :csv}.merge(params))) %></p>
+
+<div class="report grid_12">
+
+<%= @report.to_html.html_safe %>
+
+</div>

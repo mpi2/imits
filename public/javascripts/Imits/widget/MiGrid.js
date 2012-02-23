@@ -185,7 +185,12 @@ Ext.define('Imits.widget.MiGrid', {
           dataIndex: 'phenotype_attempt_new_link',
           renderer: function(value, metaData, record){
             var miId = record.getId();
-            return Ext.String.format('<a href="{0}/mi_attempts/{1}">Create</a>', window.basePath, miId);
+            var statusName = record.get('status');
+            if (statusName == "Genotype confirmed") {
+              return Ext.String.format('<a href="{0}/mi_attempts/{1}/phenotype_attempts/new">Create</a>', window.basePath, miId);
+            } else {
+              return Ext.String.format('', window.basePath, miId);
+            }
           },
           sortable: false
         },

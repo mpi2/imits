@@ -160,7 +160,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         sleep 2
         all('.x-message-box button').detect {|b| b.text == 'Yes'}.click
 
-        sleep 1
+        sleep 2
 
         find('a.mi-plan', :text => '[Helmholtz GMC:HMGU]').click
         page.execute_script(<<-JS)

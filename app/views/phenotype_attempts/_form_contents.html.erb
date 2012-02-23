@@ -1,0 +1,53 @@
+<% generator = PhenotypeAttemptFieldGenerator.new(form) %>
+<% phenotype_attempt = form.object %>
+
+<fieldset class="collapsible">
+  <legend>Universal Details</legend>
+  <div>
+  <% if @mi_attempt %>
+  <label>Mi Attempt Colony name</label>
+  <%= @mi_attempt.colony_name %>
+  <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
+  <% end %>
+  </div>
+   <div>
+     <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
+   </div>
+   <div>
+     <%= form.label :consortium_name, 'Consortium' %>
+     <%= form.collection_select :consortium_name, @consortia, :name, :name  %>
+   <div>
+     <%= form.label :production_centre_name, 'Production Centre' %>
+     <%= form.collection_select :production_centre_name, @centres, :name, :name %>
+   </div>
+   <div>
+     <%= form.label :is_active, :is_active.to_s.titlecase %>
+     <%= form.check_box :is_active %>
+   </div>
+</fieldset>
+<fieldset class="collapsible">
+  <legend>Rederivation</legend>
+   <% [:rederivation_started, :rederivation_complete].each do |field| %>
+      <div>
+        <%= form.label field, field.to_s.titlecase %>
+        <%= form.check_box field %>
+      </div>
+   <% end %>
+</fieldset>
+<fieldset class="collapsible">
+  <legend>Cre mating</legend>
+   <div>
+     <%= generator.number_field :number_of_cre_matings_started %>
+     <%= generator.number_field :number_of_cre_matings_successful %>
+   </div>
+</fieldset>
+<fieldset class="collapsible">
+  <legend>Phenotyping</legend>
+   <% [:phenotyping_started, :phenotyping_complete].each do |field| %>
+      <div>
+        <%= form.label field, field.to_s.titlecase %>
+        <%= form.check_box field %>
+      </div>
+   <% end %>
+  </div>
+</fieldset>

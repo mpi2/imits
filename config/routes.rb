@@ -11,12 +11,14 @@ Kermits2::Application.routes.draw do
   end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
+    resource :phenotype_attempts
     member do
       get 'history'
     end
   end
 
-  resources :phenotype_attempts, :only => [:show, :create, :update, :index]
+  resources :phenotype_attempts, :only => [:index, :new, :create, :show, :update]
+
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do

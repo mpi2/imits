@@ -231,7 +231,7 @@ class Kermits2::StrainsTestCase < ActiveSupport::TestCase
 
 end
 
-class ExternalScriptTestCase < ActiveSupport::TestCase
+class Kermits2::ExternalScriptTestCase < ActiveSupport::TestCase
   def database_strategy; :deletion; end
 
   def run_script(commands)

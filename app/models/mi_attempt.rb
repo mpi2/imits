@@ -66,7 +66,8 @@ class MiAttempt < ApplicationModel
   validates :production_centre_name, :presence => true
   validates :consortium_name, :presence => true
   validates :mi_attempt_status, :presence => true
-  validates :colony_name, :uniqueness => true, :allow_nil => true
+#  validates :colony_name, :uniqueness => true, :allow_nil => true
+  validates :colony_name, :uniqueness => {:case_sensitive => false}, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
 
@@ -502,4 +503,3 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

@@ -500,10 +500,65 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       context '#colony_name' do
+
         should 'be unique' do
           default_mi_attempt.update_attributes!(:colony_name => 'ABCD')
           assert_should have_db_index(:colony_name).unique(true)
           assert_should validate_uniqueness_of :colony_name
+        end
+
+        should 'be unique (case insensitive)' do
+          #puts default_mi_attempt.colony_name.inspect
+          #puts default_mi_attempt.colony_name.inspect.downcase
+          #default_mi_attempt.update_attributes!(:colony_name => default_mi_attempt.colony_name.downcase)
+          #assert default_mi_attempt.valid?
+
+          #es_cell = Factory.create :es_cell_EPD0343_1_H06
+          #mi_attempt = Factory.build :mi_attempt, :es_cell => es_cell, :colony_name => 'ABCD'
+          #mi_attempt2 = Factory.build :mi_attempt, :es_cell => es_cell, :colony_name => 'abcd'
+          #mi_attempt3 = Factory.build :mi_attempt, :es_cell => es_cell, :colony_name => 'ABCD'
+          #
+          #puts mi_attempt.colony_name.inspect
+          #puts mi_attempt2.colony_name.inspect
+          #puts mi_attempt3.colony_name.inspect
+
+          #mi_attempt = Factory.build :mi_attempt, :colony_name => 'ABCD'
+          #mi_attempt2 = Factory.build :mi_attempt, :colony_name => 'abcd'
+          #mi_attempt3 = Factory.build :mi_attempt, :colony_name => 'ABCD'
+          #
+          #puts mi_attempt.colony_name.inspect
+          #puts mi_attempt2.colony_name.inspect
+          #puts mi_attempt3.colony_name.inspect
+
+          #mi_plan = Factory.create(:mi_plan, :production_centre => Centre.first)
+          #mi_plan2 = Factory.create(:mi_plan, :production_centre => Centre.last)
+          #mi_attempt = MiAttempt.new(:colony_name => 'ABCD', :mi_plan => mi_plan, :es_cell_name => 'EPD0127_4_E01', :mi_date => Date.today)
+          #mi_attempt2 = MiAttempt.new(:colony_name => 'abcd', :mi_plan => mi_plan2, :es_cell_name => 'EPD0127_4_E02', :mi_date => Date.today)
+          #assert_false mi_attempt2.valid?
+          #
+          #puts mi_attempt2.errors.inspect
+
+          mi_attempt = Factory.create( :mi_attempt,
+            :blast_strain             => Strain::BlastStrain.find_by_name!('BALB/c'),
+            :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('129P2/OlaHsd'),
+            :test_cross_strain        => Strain::TestCrossStrain.find_by_name!('129P2/OlaHsd'),
+            :colony_name => 'ABCD'
+          )
+          mi_attempt2 = Factory.build( :mi_attempt,
+            :blast_strain             => Strain::BlastStrain.find_by_name!('BALB/c'),
+            :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('129P2/OlaHsd'),
+            :test_cross_strain        => Strain::TestCrossStrain.find_by_name!('129P2/OlaHsd'),
+            :colony_name => 'abcd'
+          )
+
+##          mi_attempt.save!
+##          puts mi_attempt.errors.inspect
+#          puts mi_attempt.inspect
+#          puts mi_attempt.colony_name.inspect
+#          puts mi_attempt.valid?.inspect
+
+          assert_false mi_attempt2.valid?, 'Expecting to catch non-unique colony_name'
+
         end
 
         should 'be auto-generated if not supplied' do

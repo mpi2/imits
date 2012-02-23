@@ -500,7 +500,6 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       context '#colony_name' do
-
         should 'be unique' do
           default_mi_attempt.update_attributes!(:colony_name => 'ABCD')
           assert_should have_db_index(:colony_name).unique(true)

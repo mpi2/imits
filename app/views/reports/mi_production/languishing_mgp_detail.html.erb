@@ -1,0 +1,11 @@
+<% @title = 'Languishing Production Report Details' %>
+
+<h2><%= @title %></h2>
+
+<p><%= link_to('Download as CSV', url_for({:action => :languishing_detail, :format => :csv}.merge(params))) %></p>
+
+<div class="report grid_12">
+
+<%= @report.to_html.html_safe %>
+
+</div>

@@ -36,11 +36,6 @@ namespace :deploy do
     # /tmp
     run "mkdir -m 777 -p #{var_run_path}/tmp"
     run "cd #{release_path} && rm -rf tmp && ln -nfs #{var_run_path}/tmp tmp"
-
-    # /public/javascripts - the server needs write access...
-    run "rm -rf #{var_run_path}/javascripts"
-    run "cd #{release_path}/public && mv javascripts #{var_run_path}/javascripts && ln -nfs #{var_run_path}/javascripts javascripts"
-    run "chgrp team87 #{var_run_path}/javascripts && chmod g+w #{var_run_path}/javascripts"
   end
 
   desc "Install extjs into shared and then symlink it to public/extjs"
@@ -63,4 +58,3 @@ after "deploy:symlink", "deploy:fix_perms"
 after "deploy:update_code", "deploy:symlink_shared"
 after "deploy:symlink_shared", "deploy:extjs"
 after "deploy:extjs", "deploy:generate_assets"
-

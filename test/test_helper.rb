@@ -102,7 +102,7 @@ require 'capybara/dsl'
 Capybara.default_driver = :rack_test
 Capybara.default_wait_time = 10
 
-class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
+class Kermits2::IntegrationTest < ActionDispatch::IntegrationTest
   include Capybara::DSL
 
   def database_strategy; :deletion; end
@@ -134,7 +134,7 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
   end
 end
 
-class Kermits2::JsIntegrationTest < ActionDispatch::IntegrationTest
+class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
   def setup
     super
     Capybara.current_driver = :selenium

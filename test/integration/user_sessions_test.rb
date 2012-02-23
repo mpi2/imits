@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class UserSessionsTest < ActionDispatch::IntegrationTest
+class UserSessionsTest < Kermits2::IntegrationTest
 
   context 'User sessions integration:' do
 

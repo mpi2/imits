@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::SummaryKomp2Test < ActionDispatch::IntegrationTest
+class Reports::MiProduction::SummaryKomp2Test < Kermits2::IntegrationTest
   
   DEBUG = false
 

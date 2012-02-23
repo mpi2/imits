@@ -100,6 +100,7 @@ require 'capybara/rails'
 require 'capybara/dsl'
 
 Capybara.default_driver = :rack_test
+Capybara.default_wait_time = 10
 
 class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
   include Capybara::DSL

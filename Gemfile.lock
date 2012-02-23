@@ -89,7 +89,7 @@ GEM
     jammit (0.6.3)
       yui-compressor (>= 0.9.3)
     json (1.6.1)
-    json_pure (1.6.1)
+    json_pure (1.6.5)
     launchy (2.0.5)
       addressable (~> 2.2.6)
     mail (2.2.19)

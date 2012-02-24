@@ -46,12 +46,6 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv('summary_mgp.csv', @report.to_csv) if request.format == :csv
   end
 
-  def summary_komp2_brief
-    @csv = Reports::MiProduction::SummaryKomp2Brief::CSV_LINKS
-    @title2, @report = Reports::MiProduction::SummaryKomp2Brief.generate(request, params)
-    send_data_csv('production_summary_komp2_brief.csv', @report.to_csv) if request.format == :csv
-  end
-
   def summary_3_helper(report_class)
     @title2 = report_class.report_title
 

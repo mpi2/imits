@@ -51,18 +51,25 @@
   </div>
 
   <div class="report-links">
-    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp2_brief) %>">
-      <h4>KOMP2 Report (brief)</h4>
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp2) %>">
+      <h4>KOMP2 Report 2</h4>
+      <p>With efficiency</p>
     </a>
   </div>
 
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp21) %>">
+      <h4>KOMP2 Report 2'</h4>
+      <p>With status 'or better' counts</p>
+    </a>
+  </div>
 
-
-
-
-
-
-
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp22) %>">
+      <h4>KOMP2 Report 2''</h4>
+      <p>Activity during previous month</p>
+    </a>
+  </div>
 
   <div class="report-links">
     <a href="<%= url_for(:controller => '/reports/mi_production', :action => :summary_komp23) %>">

@@ -64,12 +64,6 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv('production_summary_komp212.csv', @report.to_csv) if request.format == :csv
   end
 
-  def summary_komp22
-    @csv = Reports::MiProduction::SummaryKomp22::CSV_LINKS
-    @title2, @report = Reports::MiProduction::SummaryKomp22.generate(request, params)
-    send_data_csv('production_summary_komp22.csv', @report) if request.format == :csv
-  end
-
   def summary_3_helper(report_class)
     @title2 = report_class.report_title
 
@@ -215,7 +209,7 @@ class Reports::MiProductionController < ApplicationController
       render :action => 'mgp_summary'
     end
   end
-  
+
   def mgp_detail
     @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
     return_value = Reports::MiProduction::SummaryMgp23.generate_detail(request,params)
@@ -225,7 +219,7 @@ class Reports::MiProductionController < ApplicationController
       send_data_csv('summary_mgp.csv', @report.to_csv)
     end
   end
-  
+
   def languishing_mgp_priority
     @report = Reports::MiProduction::LanguishingMgp.generate('Priority')
     if request.format == :html
@@ -258,14 +252,14 @@ class Reports::MiProductionController < ApplicationController
     if params[:consortia].blank?
       name = 'languishing_production_mgp_report.csv'
     end
-    
+
     if request.format == :csv
       send_data_csv(name, @report.to_csv)
     else
       render :action => 'languishing_mgp'
     end
   end
-  
+
   def languishing_mgp_sub_project
     @report = Reports::MiProduction::LanguishingMgp.generate('Sub-Project')
     if request.format == :html
@@ -295,13 +289,13 @@ class Reports::MiProductionController < ApplicationController
       end
     end
 
-    
+
     if params[:consortia].blank?
       name = 'languishing_production_mgp_report.csv'
     end
-    
+
     if request.format == :csv
-      send_data_csv(name, @report.to_csv) 
+      send_data_csv(name, @report.to_csv)
     else
       render :action => 'languishing_mgp'
     end

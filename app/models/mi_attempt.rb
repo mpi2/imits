@@ -117,6 +117,8 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  # BEGIN Callbacks
+
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_blank_strings_to_nil
   before_validation :set_total_chimeras
@@ -129,28 +131,11 @@ class MiAttempt < ApplicationModel
   before_save :make_unsuitable_for_emma_if_is_not_active
   before_save :set_mi_plan
   before_save :record_if_status_was_changed
+  before_save :set_boolean_defaults
 
   after_save :create_status_stamp_if_status_was_changed
   after_save :reload_mi_plan_mi_attempts
   after_save :ensure_in_progress_status_stamp
-
-  def self.active
-    where(:is_active => true)
-  end
-
-  def self.genotype_confirmed
-    where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id)
-  end
-
-  def self.in_progress
-    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id)
-  end
-
-  def self.aborted
-    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
-  end
-
-  # BEGIN Callbacks
 
   protected
 
@@ -238,6 +223,12 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  def set_boolean_defaults
+    if is_suitable_for_emma == nil then self.is_suitable_for_emma = false end
+    if is_emma_sticky == nil then self.is_emma_sticky = false end
+    return true
+  end
+
   def create_status_stamp_if_status_was_changed
     if @new_mi_attempt_status
       add_status_stamp @new_mi_attempt_status
@@ -260,6 +251,22 @@ class MiAttempt < ApplicationModel
   public
 
   # END Callbacks
+
+  def self.active
+    where(:is_active => true)
+  end
+
+  def self.genotype_confirmed
+    where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id)
+  end
+
+  def self.in_progress
+    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id)
+  end
+
+  def self.aborted
+    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
+  end
 
   def consortium_name
     if ! @consortium_name.blank?

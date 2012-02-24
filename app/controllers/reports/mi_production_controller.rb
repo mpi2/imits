@@ -34,12 +34,6 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv('summary_by_consortium.csv', @report.to_csv) if request.format == :csv
   end
 
-  def summary_by_consortium_priority
-    @csv = Reports::MiProduction::SummaryByConsortiumPriority::CSV_LINKS
-    @title2, @report = Reports::MiProduction::SummaryByConsortiumPriority.generate(request, params)
-    send_data_csv('Summary_by_consortium_priority.csv', @report.to_csv) if request.format == :csv
-  end
-
   def summary_mgp
     @csv = Reports::MiProduction::SummaryMgp::CSV_LINKS
     @title2, @report = Reports::MiProduction::SummaryMgp.generate(request, params)

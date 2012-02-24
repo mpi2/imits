@@ -28,12 +28,6 @@ class Reports::MiProductionController < ApplicationController
     render :text => @report.to_html, :layout => false if feed
   end
 
-  def summary_by_consortium
-    @csv = Reports::MiProduction::SummaryByConsortium::CSV_LINKS
-    @title2, @report = Reports::MiProduction::SummaryByConsortium.generate(request, params)
-    send_data_csv('summary_by_consortium.csv', @report.to_csv) if request.format == :csv
-  end
-
   def summary_mgp
     @csv = Reports::MiProduction::SummaryMgp::CSV_LINKS
     @title2, @report = Reports::MiProduction::SummaryMgp.generate(request, params)

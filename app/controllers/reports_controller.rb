@@ -262,7 +262,16 @@ class ReportsController < ApplicationController
 
     end
   end
-
+  
+  def impc_gene_list
+    csv_content = Reports::ImpcGeneList.generate(:csv)
+    send_data(
+      csv_content,
+      :type     => 'text/csv; charset=utf-8; header=present',
+      :filename => 'impc_gene_list.csv'
+    )
+  end
+  
   protected
 
   def generate_planned_mi_list_report( params={}, include_plans_with_active_attempts=false )
@@ -303,5 +312,6 @@ class ReportsController < ApplicationController
 
     return report
   end
+  
 
 end

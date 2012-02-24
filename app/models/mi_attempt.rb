@@ -94,7 +94,14 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  validate :consortium_name_and_production_centre_name_from_mi_plan_validation
+  validate do |mi_attempt|
+    if ! Consortium.find_by_name(mi_attempt.consortium_name)
+      mi_attempt.errors.add :consortium_name, 'does not exist'
+    end
+    if ! Centre.find_by_name(mi_attempt.production_centre_name)
+      mi_attempt.errors.add :production_centre_name, 'does not exist'
+    end
+  end
 
   validate do |mi_attempt|
     next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
@@ -187,29 +194,25 @@ class MiAttempt < ApplicationModel
   end
 
   def set_mi_plan
-    if new_record?
-      mi_plan_to_set = find_matching_mi_plan
-      if ! mi_plan_to_set
-        mi_plan_to_set = MiPlan.new
-        mi_plan_to_set.priority = MiPlan::Priority.find_by_name!('High')
-        mi_plan_to_set.consortium = Consortium.find_by_name!(consortium_name)
-        mi_plan_to_set.gene = es_cell.gene
-      end
-
-      mi_plan_to_set.production_centre = Centre.find_by_name!(production_centre_name)
+    mi_plan_to_set = find_matching_mi_plan
+    if ! mi_plan_to_set
+      mi_plan_to_set = MiPlan.new
+      mi_plan_to_set.priority = MiPlan::Priority.find_by_name!('High')
+      mi_plan_to_set.consortium = Consortium.find_by_name!(consortium_name)
+      mi_plan_to_set.gene = es_cell.gene
       mi_plan_to_set.status = MiPlan::Status.find_by_name!('Assigned')
-      mi_plan_to_set.save!
-      if is_active?
-        mi_plan_to_set.is_active = true
-      end
-      self.mi_plan = mi_plan_to_set
-    else
-      if is_active?
-        mi_plan.is_active = true
-        mi_plan.status = MiPlan::Status.find_by_name!('Assigned')
-        mi_plan.save!
-      end
     end
+
+    mi_plan_to_set.production_centre = Centre.find_by_name!(production_centre_name)
+
+    if is_active?
+      mi_plan_to_set.is_active = true
+      mi_plan_to_set.status = MiPlan::Status.find_by_name!('Assigned')
+    end
+
+    mi_plan_to_set.save!
+
+    self.mi_plan = mi_plan_to_set
   end
 
   def record_if_status_was_changed
@@ -509,4 +512,3 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

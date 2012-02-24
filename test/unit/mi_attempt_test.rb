@@ -520,7 +520,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             :colony_name => 'abcd'
           )
 
-          assert_false mi_attempt2.valid?, 'Expecting to catch non-unique colony_name'
+          assert_false mi_attempt2.valid?
         end
 
         should 'be auto-generated if not supplied' do

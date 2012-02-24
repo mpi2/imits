@@ -9,7 +9,6 @@ class Reports::ImpcGeneListIntegrationTest < ActionDispatch::IntegrationTest
       create_common_test_objects
       Reports::MiProduction::Intermediate.new.cache
       visit '/users/logout'
-      login
     end
 
     context 'IMPC Gene List csv' do

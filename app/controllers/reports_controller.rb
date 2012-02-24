@@ -3,7 +3,7 @@
 class ReportsController < ApplicationController
   respond_to :html, :csv
 
-  before_filter :authenticate_user!
+  before_filter :authenticate_user! :except => [:impc_gene_list]
 
   extend Reports::Helper
   include Reports::Helper

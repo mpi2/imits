@@ -3,7 +3,7 @@
 require 'test_helper'
 
 class Reports::MiProduction::SummaryKomp21Test < ActionDispatch::IntegrationTest
-  
+
   DEBUG = false
 
   context 'Reports::MiProduction::SummaryKomp21' do
@@ -11,7 +11,7 @@ class Reports::MiProduction::SummaryKomp21Test < ActionDispatch::IntegrationTest
       visit '/reports/mi_production'
       assert_login_page
     end
-  
+
     context 'once logged in' do
 
     setup do
@@ -20,9 +20,9 @@ class Reports::MiProduction::SummaryKomp21Test < ActionDispatch::IntegrationTest
         :name => 'mi_production_intermediate',
         :data => ProductionSummaryHelper::get_csv('komp2')
       )
-      assert ReportCache.find_by_name('mi_production_intermediate')      
+      assert ReportCache.find_by_name('mi_production_intermediate')
       report = ReportCache.find_by_name!('mi_production_intermediate').to_table
-      
+
       puts 'SETUP:' if DEBUG
       puts report.to_s if DEBUG
       assert report
@@ -32,36 +32,8 @@ class Reports::MiProduction::SummaryKomp21Test < ActionDispatch::IntegrationTest
       login
     end
 
-    should 'allow users to visit the page & see entries' do
-      #visit '/reports/mi_production/summary_komp2'
-      #assert_match '/reports/mi_production/summary_komp2', current_url
-      #
-      #assert_match 'KOMP2 Report', page.body
-      #assert_match 'Download as CSV', page.body
-      #
-      ## save_and_open_page if DEBUG
-      #
-      #sleep(10.seconds) if DEBUG
-    end
-    
-    should 'allow users to visit the detail page & see entries' do
-      #visit '/reports/mi_production/summary_komp2?consortium=BaSH&type=Genotype+Confirmed+Mice'
-      #
-      #one = "/reports/mi_production/summary_komp2?consortium=BaSH&type=Genotype%20Confirmed%20Mice"
-      #other = "/reports/mi_production/summary_komp2?consortium=BaSH&type=Genotype+Confirmed+Mice"
-      #target = /\%20/.match(current_url) ? one : other
-      #assert_match target, current_url
-      #
-      #puts current_url if DEBUG
-      #
-      #assert_match 'Production Summary Detail', page.body
-      #assert_match 'Download as CSV', page.body
-      #
-      ## save_and_open_page if DEBUG
-      #
-      #sleep(10.seconds) if DEBUG
-    end
-
+    should 'allow users to visit the page & see entries'
+    should 'allow users to visit the detail page & see entries'
   end
 
   end

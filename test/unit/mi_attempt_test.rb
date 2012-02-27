@@ -525,19 +525,12 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'be unique (case insensitive)' do
           mi_attempt = Factory.create( :mi_attempt,
-            :blast_strain             => Strain::BlastStrain.find_by_name!('BALB/c'),
-            :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('129P2/OlaHsd'),
-            :test_cross_strain        => Strain::TestCrossStrain.find_by_name!('129P2/OlaHsd'),
-            :colony_name => 'ABCD'
-          )
+            :colony_name => 'ABCD')
           mi_attempt2 = Factory.build( :mi_attempt,
-            :blast_strain             => Strain::BlastStrain.find_by_name!('BALB/c'),
-            :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('129P2/OlaHsd'),
-            :test_cross_strain        => Strain::TestCrossStrain.find_by_name!('129P2/OlaHsd'),
-            :colony_name => 'abcd'
-          )
+            :colony_name => 'abcd')
 
-          assert_false mi_attempt2.valid?
+          mi_attempt2.valid?
+          assert ! mi_attempt2.errors[:colony_name].blank?
         end
 
         should 'be auto-generated if not supplied' do

@@ -89,8 +89,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         readOnly: true,
         width: 150,
         filter: {
-            type: 'string',
-            disabled: true
+            type: 'string'
         }
     },
     {

@@ -1,4 +1,4 @@
-//Ext.Loader.setPath('Ext.ux', '../ux');
+//Ext.Loader.setPath('Ext.ux', 'public/extjs/examples/ux');
 Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     extend: 'Imits.widget.Grid',
 
@@ -21,7 +21,6 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         model: 'Imits.model.PhenotypeAttempt',
         autoLoad: true,
         remoteSort: true,
-        //autoSync: true,
         pageSize: 20
     },
 
@@ -30,14 +29,11 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     features: [
     {
         ftype: 'phenotype_attempt_ransack_filters',
-                  //phenotype_attempt_ransack_filters
-//        ftype: 'ransack_filters',
         local: false
     }
     ],
 
     initComponent: function () {
-    //    Ext.QuickTips.init();
         var self = this;
 
         self.callParent();
@@ -50,9 +46,6 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
 
     },
 
-    //autoExpandColumn: 'phenotyping_complete',
-    //stripeRows: true,
-
     columns: [
     {
         dataIndex: 'id',
@@ -60,11 +53,8 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         readOnly: true,
         hidden: true,
         filter: {
-            //type: 'string'//,
-            type: 'numeric'//,
-            //disabled: true
+            type: 'numeric'
         }
-//        filterable: true
     },
     {
         dataIndex: 'colony_name',
@@ -73,7 +63,6 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         width: 150,
         filter: {
             type: 'string'
-           // disabled: true
         }
     },
     {
@@ -143,9 +132,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         width: 180,
         filter: {
             type: 'numeric'
-           // disabled: true
         }
-//        filterable: true
     },
     {
         dataIndex: 'number_of_cre_matings_successful',
@@ -155,9 +142,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         width: 200,
         filter: {
             type: 'numeric'
-          //  disabled: true
         }
-        //filterable: true
     },
     {
         dataIndex: 'phenotyping_started',
@@ -170,7 +155,6 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     },
     {
-        id: 'phenotyping_complete',
         dataIndex: 'phenotyping_complete',
         header: 'Phenotyping complete',
         readOnly: true,
@@ -181,6 +165,4 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     }
     ]
-    //autoExpandColumn: 'phenotyping_complete',
-    //stripeRows: true
 });

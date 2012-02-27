@@ -4,11 +4,8 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     requires: [
     'Imits.model.PhenotypeAttempt',
     'Imits.widget.SimpleNumberField',
-//    'Imits.widget.SimpleCombo',
-//    'Imits.widget.QCCombo',
     'Imits.widget.grid.BoolGridColumn',
     'Imits.widget.grid.PhenotypeAttemptRansackFiltersFeature'
-//    'Imits.widget.grid.SimpleDateColumn'
     ],
 
     title: "Phenotype attempts",
@@ -55,7 +52,6 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     },
     {
-//        id:'company',
         dataIndex: 'colony_name',
         header: 'Phenotype colony name',
         readOnly: true,
@@ -163,5 +159,4 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     }
     ]
-  //  autoExpandColumn: 'company'
 });

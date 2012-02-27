@@ -148,21 +148,20 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         visit '/mi_plans/gene_selection'
 
-        sleep 3
-
+        assert page.has_css?('.x-grid')
         assert_equal 1, all('a.mi-plan').size
 
         find('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]').click
+        assert page.has_css?('.plan.editor')
         page.execute_script(<<-JS)
           Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('5');
         JS
         find('#update-button').click
-        sleep 2
+        assert page.has_css?('.x-message-box button')
         all('.x-message-box button').detect {|b| b.text == 'Yes'}.click
 
-        sleep 2
-
         find('a.mi-plan', :text => '[Helmholtz GMC:HMGU]').click
+        assert page.has_css?('.plan.editor')
         page.execute_script(<<-JS)
           Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('10');
         JS

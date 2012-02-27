@@ -1,0 +1,42 @@
+<% @title = 'MGP Reports' %>
+
+<div class="grid_4">&emsp;</div>
+<div class="grid_4">
+  <h2><%= @title %></h2>
+</div>
+
+<div class="clear"></div>
+
+<div class="grid_4">&emsp;</div>
+
+<div class="grid_4">
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :mgp_summary_subproject) %>">
+      <h4><%=:mgp_summary_subproject.to_s.humanize.titleize %></h4>
+      <!--<p>mgp_summary_subproject</p>-->
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :mgp_summary_priority) %>">
+      <h4><%=:mgp_summary_priority.to_s.humanize.titleize %></h4>
+      <!--<p>mgp_summary_priority</p>-->
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :languishing_mgp_priority) %>">
+      <h4><%=:languishing_mgp_priority.to_s.humanize.titleize %></h4>
+      <!--<p>languishing_mgp_priority</p>-->
+    </a>
+  </div>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => '/reports/mi_production', :action => :languishing_mgp_sub_project) %>">
+      <h4><%=:languishing_mgp_sub_project.to_s.humanize.titleize %></h4>
+      <!--<p>languishing_mgp_sub_project</p>-->
+    </a>
+  </div>
+
+</div>

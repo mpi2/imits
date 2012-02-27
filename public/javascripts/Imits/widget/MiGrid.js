@@ -181,6 +181,20 @@ Ext.define('Imits.widget.MiGrid', {
             sortable: false
         },
         {
+          header: 'Phenotype',
+          dataIndex: 'phenotype_attempt_new_link',
+          renderer: function(value, metaData, record){
+            var miId = record.getId();
+            var statusName = record.get('status');
+            if (statusName == "Genotype confirmed") {
+              return Ext.String.format('<a href="{0}/mi_attempts/{1}/phenotype_attempts/new">Create</a>', window.basePath, miId);
+            } else {
+              return Ext.String.format('', window.basePath, miId);
+            }
+          },
+          sortable: false
+        },
+        {
             dataIndex: 'consortium_name',
             header: 'Consortium',
             readOnly: true,

@@ -37,6 +37,15 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
     end
 
     context '#consortium_name virtual attribute' do
+      setup do
+        @cbx1 = Factory.create(:gene_cbx1)
+        @default_mi_attempt = Factory.create( :mi_attempt,
+        :blast_strain             => Strain::BlastStrain.find_by_name!('BALB/c'),
+        :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('129P2/OlaHsd'),
+        :test_cross_strain        => Strain::TestCrossStrain.find_by_name!('129P2/OlaHsd')
+        )
+      end
+      
       should 'be writable with any value which should be returned on a read when no MiPlan is set' do
         pt = Public::PhenotypeAttempt.new :mi_plan => nil, :consortium_name => 'Foo'
         assert_equal 'Foo', pt.consortium_name
@@ -56,6 +65,12 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt.consortium_name = 'JAX'
         pt.valid?
         assert_equal ['cannot be changed'], pt.errors[:consortium_name], pt.errors.inspect
+      end
+      
+      should 'be equal to the associated mi_plan consortium name if it has not yet been set' do
+          pt = Factory.create(:phenotype_attempt).to_public
+          pt.save!
+          assert_equal pt.consortium_name, pt.mi_plan.consortium.name
       end
     end
 
@@ -79,6 +94,12 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt.production_centre_name = 'TCP'
         pt.valid?
         assert_equal ['cannot be changed'], pt.errors[:production_centre_name], pt.errors.inspect
+      end
+      
+      should 'be equal to the associated mi_plan production centre name' do
+          pt = Factory.create(:phenotype_attempt).to_public
+          pt.save!
+          assert_equal pt.production_centre_name, pt.mi_plan.production_centre.name
       end
     end
 

@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::MonthlyProductionTest < ActionDispatch::IntegrationTest
+class Reports::MonthlyProductionTest < Kermits2::IntegrationTest
 
   context 'reports/mi_attempts_monthly_production' do
 

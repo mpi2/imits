@@ -66,10 +66,36 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   # END Callbacks
 
-  attr_accessor :consortium_name, :production_centre_name
-
   def status_name; status.name; end
 
+  def consortium_name
+    if ! @consortium_name.blank?
+      return @consortium_name
+    else
+      if self.mi_plan
+        @consortium_name = self.mi_plan.consortium.try(:name)
+      end
+    end
+  end
+
+  def consortium_name=(arg)
+    @consortium_name = arg
+  end
+
+  def production_centre_name
+    if ! @production_centre_name.blank?
+      return @production_centre_name
+    else
+      if self.mi_plan
+        @production_centre_name = self.mi_plan.production_centre.try(:name)
+      end
+    end
+  end
+
+  def production_centre_name=(arg)
+    @production_centre_name = arg
+  end
+  
   def self.translations
     return {
       'marker_symbol' => 'mi_plan_gene_marker_symbol',

@@ -4,11 +4,11 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     requires: [
     'Imits.model.PhenotypeAttempt',
     'Imits.widget.SimpleNumberField',
-    'Imits.widget.SimpleCombo',
-    'Imits.widget.QCCombo',
+//    'Imits.widget.SimpleCombo',
+//    'Imits.widget.QCCombo',
     'Imits.widget.grid.BoolGridColumn',
-    'Imits.widget.grid.PhenotypeAttemptRansackFiltersFeature',
-    'Imits.widget.grid.SimpleDateColumn'
+    'Imits.widget.grid.PhenotypeAttemptRansackFiltersFeature'
+//    'Imits.widget.grid.SimpleDateColumn'
     ],
 
     title: "Phenotype attempts",
@@ -55,10 +55,11 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     },
     {
+//        id:'company',
         dataIndex: 'colony_name',
         header: 'Phenotype colony name',
         readOnly: true,
-        width: 150,
+        width: 180,
         filter: {
             type: 'string'
         }
@@ -87,7 +88,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         dataIndex: 'mi_attempt_colony_name',
         header: 'MI attempt colony name',
         readOnly: true,
-        width: 150,
+        width: 180,
         filter: {
             type: 'string'
         }
@@ -146,7 +147,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         header: 'Phenotyping started',
         readOnly: true,
         xtype: 'boolgridcolumn',
-        width: 180,
+        width: 150,
         filter: {
             type: 'boolean'
         }
@@ -156,10 +157,11 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         header: 'Phenotyping complete',
         readOnly: true,
         xtype: 'boolgridcolumn',
-        width: 220,
+        flex: 1,
         filter: {
             type: 'boolean'
         }
     }
     ]
+  //  autoExpandColumn: 'company'
 });

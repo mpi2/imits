@@ -67,7 +67,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal ['cannot be changed'], pt.errors[:consortium_name], pt.errors.inspect
       end
       
-      should 'be equal to the associated mi_plan consortium name' do
+      should 'be equal to the associated mi_plan consortium name if it has not yet been set' do
           pt = Factory.create(:phenotype_attempt).to_public
           pt.save!
           assert_equal pt.consortium_name, pt.mi_plan.consortium.name

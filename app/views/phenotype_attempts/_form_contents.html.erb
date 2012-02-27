@@ -18,7 +18,8 @@
      <%= form.collection_select :consortium_name, @consortia, :name, :name  %>
    <div>
      <%= form.label :production_centre_name, 'Production Centre' %>
-     <%= form.collection_select :production_centre_name, @centres, :name, :name %>
+     <%= phenotype_attempt.production_centre_name %>
+     <%= form.hidden_field 'production_centre_name', :value => phenotype_attempt.production_centre_name %>
    </div>
    <div>
      <%= form.label :is_active, :is_active.to_s.titlecase %>

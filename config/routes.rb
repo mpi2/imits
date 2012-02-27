@@ -11,13 +11,13 @@ Kermits2::Application.routes.draw do
   end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
-    resource :phenotype_attempts
+    resource :phenotype_attempts, :only => [:new]
     member do
       get 'history'
     end
   end
 
-  resources :phenotype_attempts, :only => [:index, :new, :create, :show, :update]
+  resources :phenotype_attempts, :only => [:index, :create, :show, :update]
 
 
   devise_for :users,

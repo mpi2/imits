@@ -2,7 +2,7 @@
 
 class PhenotypeAttemptsController < ApplicationController
   
-  respond_to :html, :json, :xml
+  respond_to :html, :json
 
   before_filter :authenticate_user!
 
@@ -21,9 +21,11 @@ class PhenotypeAttemptsController < ApplicationController
     @user = current_user
     @mi_attempt = MiAttempt.find_by_id(params[:mi_attempt_id])
     if @mi_attempt.status == "Genotype confirmed"
-        @phenotype_attempt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi_attempt.colony_name)
-        @phenotype_attempt.consortium_name = @mi_attempt.consortium_name
-        @phenotype_attempt.production_centre_name = @mi_attempt.production_centre_name
+        @phenotype_attempt = Public::PhenotypeAttempt.new(
+          :mi_attempt_colony_name => @mi_attempt.colony_name,
+          :consortium_name => @mi_attempt.consortium_name,
+          :production_centre_name => @mi_attempt.production_centre_name
+        )
     else
          flash.now[:alert] = "#{@mi_attempt.status} status"
     end
@@ -57,13 +59,13 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def update
-    phenotype_attempt = Public::PhenotypeAttempt.find_by_id(params[:id])
+    phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     phenotype_attempt.update_attributes(params[:phenotype_attempt])
     respond_with phenotype_attempt
   end
   
   def show
-    phenotype_attempt = Public::PhenotypeAttempt.find_by_id(params[:id])
+    phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     respond_with phenotype_attempt
   end
 

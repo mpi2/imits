@@ -181,7 +181,7 @@ Ext.define('Imits.widget.MiGrid', {
             sortable: false
         },
         {
-          header: 'Phenotype attempt',
+          header: 'Phenotype',
           dataIndex: 'phenotype_attempt_new_link',
           renderer: function(value, metaData, record){
             var miId = record.getId();

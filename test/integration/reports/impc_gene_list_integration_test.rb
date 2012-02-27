@@ -2,20 +2,19 @@
 
 require 'test_helper'
 
-class Reports::ImpcGeneListIntegrationTest < ActionDispatch::IntegrationTest
+class Reports::ImpcGeneListIntegrationTest < Kermits2::IntegrationTest
+  context '/reports/impc_gene_list' do
 
-  context 'IMPC Gene List:' do
     setup do
       create_common_test_objects
       Reports::MiProduction::Intermediate.new.cache
       visit '/users/logout'
     end
 
-    context 'IMPC Gene List csv' do
-      should 'have link to cached report' do
-        visit '/reports/impc_gene_list'
-        assert page.has_content? "Gene,MGI Accession ID,Overall Status,IKMC Project ID"
-      end
+    should 'be a cached report acessible without authentication' do
+      visit '/reports/impc_gene_list'
+      assert page.has_content? "Gene,MGI Accession ID,Overall Status,IKMC Project ID"
     end
+
   end
 end

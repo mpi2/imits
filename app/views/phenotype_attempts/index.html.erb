@@ -2,6 +2,8 @@
 
 <% content_for :pre_js_footer do %>
   <%= javascript_tag "USER_PRODUCTION_CENTRE = #{current_user.production_centre.name.to_json}" %>
+  <%= javascript_tag "PHENOTYPE_CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).to_json}" %>
+  <%= javascript_tag "PHENOTYPE_CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
 <% end %>
 
 <% content_for :post_js_footer do %>
@@ -10,4 +12,4 @@
 
 <div class="clear"></div>
 
-<div id="phenotype-attempts-grid" style="width: 750px; margin-left: auto; margin-right: auto"></div>
+<div id="phenotype-attempts-grid" style="width: auto; margin-left: auto; margin-right: auto"></div>

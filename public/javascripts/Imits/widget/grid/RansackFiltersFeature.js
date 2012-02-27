@@ -9,24 +9,35 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
      */
     encode: false,
 
+    buildQuerySingle: function(filter) {
+        var param = {};
+        switch (filter.data.type) {
+            case 'string':
+            case 'list':
+                param['q[' + filter.field + '_ci_in][]'] = filter.data.value;
+                break;
+
+            case 'boolean':
+                param['q[' + filter.field + '_eq]'] = filter.data.value;
+                break;
+
+            case 'date':
+                var dateParts = filter.data.value.split('/');
+                param['q[' + filter.field + '_' + filter.data.comparison + ']'] = [dateParts[2]+'-'+dateParts[0]+'-'+dateParts[1]];
+                break;
+        }
+        return param;
+    },
+
     buildQuery: function(filters) {
         var params = {};
 
+        var This = this;
+
         Ext.each(filters, function(filter) {
-            switch (filter.data.type) {
-                case 'string':
-                case 'list':
-                    params['q[' + filter.field + '_ci_in][]'] = filter.data.value;
-                    break;
-
-                case 'boolean':
-                    params['q[' + filter.field + '_eq]'] = filter.data.value;
-                    break;
-
-                case 'date':
-                    var dateParts = filter.data.value.split('/');
-                    params['q[' + filter.field + '_' + filter.data.comparison + ']'] = [dateParts[2]+'-'+dateParts[0]+'-'+dateParts[1]];
-                    break;
+            var p = This.buildQuerySingle(filter);
+            for (var i in p) {
+                params[i] = p[i];
             }
         });
 

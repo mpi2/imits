@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class HistoryForMiAttemptsTest < ActionDispatch::IntegrationTest
+class HistoryForMiAttemptsTest < Kermits2::IntegrationTest
   context 'MI attempts history page' do
     should 'work' do
       login

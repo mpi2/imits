@@ -2,7 +2,7 @@ require 'test_helper'
 
 module Rake
   module Db
-    class FlushCachesTest < ExternalScriptTestCase
+    class FlushCachesTest < Kermits2::ExternalScriptTestCase
       context 'rake db:flush_caches' do
 
         should 'flush report caches' do

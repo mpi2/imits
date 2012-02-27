@@ -2,8 +2,8 @@
 
 require 'test_helper'
 
-class ExternalScriptTestCaseTest < ExternalScriptTestCase
-  context 'ExternalScriptTestCase tests:' do
+class ExternalScriptTestCaseTest < Kermits2::ExternalScriptTestCase
+  context 'Kermits2::ExternalScriptTestCase tests:' do
 
     context '#run_script' do
       should 'run in test environment' do

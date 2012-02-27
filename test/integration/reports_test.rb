@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class ReportsTest < ActionDispatch::IntegrationTest
+class ReportsTest < Kermits2::IntegrationTest
   context 'The reports pages' do
 
     should 'require the user to be logged in' do

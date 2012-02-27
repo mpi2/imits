@@ -24,7 +24,7 @@ class Reports::MiProduction::SummaryKomp22
     end
 
     report = generate_common(request, params)
-    
+
     months = 1
     month = get_month(months)
     report_title = REPORT_TITLE + " (#{month})"
@@ -39,7 +39,7 @@ class Reports::MiProduction::SummaryKomp22
     return false if !MAPPING_SUMMARIES[key].include? row.data['Overall Status']
     return check_date(row, key)
   end
-  
+
   def self.check_date(row, key)
     months = 1
     first_day, last_day = get_first_and_last_days_of_month(months)
@@ -59,11 +59,11 @@ class Reports::MiProduction::SummaryKomp22
     last_day = (Date.today << month).end_of_month
     return first_day, last_day
   end
-  
+
   def self.get_month(month)
     return "Unknown" if ! month || month < 0
     day = Date.today << month
-    return Date::MONTHNAMES[day.month] 
+    return Date::MONTHNAMES[day.month]
   end
 
   def self.to_date(string)
@@ -74,16 +74,16 @@ class Reports::MiProduction::SummaryKomp22
     day = day ? day.to_date : nil
     return day
   end
-  
+
   def self.date_between(target_date, start_date, end_date)
     return false if !target_date || !start_date || !end_date
     return target_date >= start_date && target_date <= end_date
   end
 
   def self.process_row(row, key)
-    
+
    # raise "correct process_row!"
-    
+
     keys2 = [
       'Phenotype Attempt Aborted',
       'ES QC started',
@@ -103,9 +103,9 @@ class Reports::MiProduction::SummaryKomp22
     ]
 
     return generic(row, key) if keys2.include? key
-    
+
     #TODO: this isn't working
-    
+
     if key == 'All'
 
       #TODO: fix me!
@@ -118,8 +118,8 @@ class Reports::MiProduction::SummaryKomp22
       first_day, last_day = get_first_and_last_days_of_month(months)
       return date_between(day, first_day, last_day)
     end
-  
+
     raise "process_row: invalid key detected '#{key}'"
   end
-  
+
 end

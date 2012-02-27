@@ -523,6 +523,16 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_should validate_uniqueness_of :colony_name
         end
 
+        should 'be unique (case insensitive)' do
+          mi_attempt = Factory.create( :mi_attempt,
+            :colony_name => 'ABCD')
+          mi_attempt2 = Factory.build( :mi_attempt,
+            :colony_name => 'abcd')
+
+          mi_attempt2.valid?
+          assert ! mi_attempt2.errors[:colony_name].blank?
+        end
+
         should 'be auto-generated if not supplied' do
           es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
           attributes = {

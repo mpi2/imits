@@ -1,4 +1,3 @@
-//Ext.Loader.setPath('Ext.ux', 'public/extjs/examples/ux');
 Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     extend: 'Imits.widget.Grid',
 
@@ -10,7 +9,6 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     'Imits.widget.grid.BoolGridColumn',
     'Imits.widget.grid.PhenotypeAttemptRansackFiltersFeature',
     'Imits.widget.grid.SimpleDateColumn'
-//    'Ext.ux.grid.FiltersFeature'
     ],
 
     title: "Phenotype attempts",

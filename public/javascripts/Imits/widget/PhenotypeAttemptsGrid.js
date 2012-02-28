@@ -52,9 +52,9 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     },
     {
         dataIndex: 'colony_name',
-        header: 'Phenotype colony name',
+        header: 'Colony Name',
         readOnly: true,
-        width: 180,
+        width: 115,
         filter: {
             type: 'string'
         }
@@ -71,7 +71,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     },
     {
         dataIndex: 'production_centre_name',
-        header: 'Production centre name',
+        header: 'Production Centre',
         readOnly: true,
         width: 150,
         filter: {
@@ -81,9 +81,9 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     },
     {
         dataIndex: 'mi_attempt_colony_name',
-        header: 'MI attempt colony name',
+        header: 'MI Colony Name',
         readOnly: true,
-        width: 180,
+        width: 115,
         filter: {
             type: 'string'
         }
@@ -92,6 +92,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         dataIndex: 'is_active',
         header: 'Active?',
         readOnly: true,
+        width: 55,
         xtype: 'boolgridcolumn',
         filter: {
             type: 'boolean'
@@ -102,7 +103,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         header: 'Rederivation started',
         readOnly: true,
         xtype: 'boolgridcolumn',
-        width: 150,
+        width: 115,
         filter: {
             type: 'boolean'
         }
@@ -112,47 +113,41 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         header: 'Rederivation complete',
         readOnly: true,
         xtype: 'boolgridcolumn',
-        width: 150,
+        width: 120,
         filter: {
             type: 'boolean'
         }
     },
     {
         dataIndex: 'number_of_cre_matings_started',
-        header: 'Number of Cre matings started',
+        header: '# Cre Matings Started',
         readOnly: true,
         editor: 'simplenumberfield',
-        width: 180,
-        filter: {
-            type: 'numeric'
-        }
+        width: 115
     },
     {
         dataIndex: 'number_of_cre_matings_successful',
-        header: 'Number of Cre matings successful',
+        header: '# Cre Matings successful',
         readOnly: true,
         editor: 'simplenumberfield',
-        width: 200,
-        filter: {
-            type: 'numeric'
-        }
+        width: 140
     },
     {
         dataIndex: 'phenotyping_started',
-        header: 'Phenotyping started',
+        header: 'Phenotyping Started',
         readOnly: true,
         xtype: 'boolgridcolumn',
-        width: 150,
+        width: 115,
         filter: {
             type: 'boolean'
         }
     },
     {
         dataIndex: 'phenotyping_complete',
-        header: 'Phenotyping complete',
+        header: 'Phenotyping Complete',
         readOnly: true,
         xtype: 'boolgridcolumn',
-        flex: 1,
+        width: 120,
         filter: {
             type: 'boolean'
         }

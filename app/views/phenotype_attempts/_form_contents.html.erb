@@ -15,7 +15,8 @@
    </div>
    <div>
      <%= form.label :consortium_name, 'Consortium' %>
-     <%= form.collection_select :consortium_name, @consortia, :name, :name  %>
+     <%= phenotype_attempt.consortium_name %>
+     <%= form.hidden_field 'consortium_name', :value => phenotype_attempt.consortium_name %>
    <div>
      <%= form.label :production_centre_name, 'Production Centre' %>
      <%= phenotype_attempt.production_centre_name %>

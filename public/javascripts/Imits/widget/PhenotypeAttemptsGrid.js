@@ -52,6 +52,11 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         header: 'Colony Name',
         readOnly: true,
         width: 115,
+        renderer: function(value, metaData, record) {
+          var miId = record.getId();
+          var colonyName = record.get('colony_name');
+          return Ext.String.format('<a href="{0}/phenotype_attempts/{1}">{2}</a>', window.basePath, miId, colonyName);
+        },
         filter: {
             type: 'string'
         }

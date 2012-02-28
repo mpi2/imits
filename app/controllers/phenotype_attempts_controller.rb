@@ -65,8 +65,10 @@ class PhenotypeAttemptsController < ApplicationController
   end
   
   def show
-    phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
-    respond_with phenotype_attempt
+    set_centres_and_consortia
+    @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
+    @mi_attempt = @phenotype_attempt.mi_attempt
+    respond_with @phenotype_attempt
   end
 
   private

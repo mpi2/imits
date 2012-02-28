@@ -7,20 +7,20 @@
 
 <div id="phenotype-attempt-new-bottom" class="grid_8 prefix_2 suffix_2">
   <%= form_for @phenotype_attempt, :as => :phenotype_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
-    <fieldset class="collapsible">
-      <legend>ES Cell Details</legend>
-      <div>
-        <div class="marker-symbol">
-          <div class="label">Marker Symbol</div>
-          <div><%= @mi_attempt.es_cell.marker_symbol %></div>
-        </div>
+  <fieldset class="collapsible">
+    <legend>ES Cell Details</legend>
+    <div>
+      <div class="marker-symbol">
+        <div class="label">Marker Symbol</div>
+        <div><%= @mi_attempt.es_cell.marker_symbol %></div>
+      </div>
 
-        <div class="es-cell-name">
+      <div class="es-cell-name">
           <div class="label">ES Cell Name</div>
           <div><%= @mi_attempt.es_cell.name %></div>
-        </div>
       </div>
-    </fieldset>
+    </div>
+  </fieldset>
     <div id="rest-of-form">   
       <%= render 'form_contents', :form => form %>
       <div>

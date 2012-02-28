@@ -456,6 +456,18 @@ div.user-form div.submit {
   -ms-box-sizing: content-box;
 }
 
+/* @group Phenotype Attempt Create/Edit Form */
+
+#phenotype-attempt-box,
+#phenotype-attempt-new-top,
+#phenotype-attempt-new-bottom {
+  box-sizing: content-box;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  -o-box-sizing: content-box;
+  -ms-box-sizing: content-box;
+}
+
 /* @end */
 
 /* @group MiPlan/Gene Search Form */

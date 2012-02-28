@@ -100,6 +100,15 @@ Factory.define :phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
 end
 
+Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |phenotype_attempt|
+  phenotype_attempt.rederivation_started true
+  phenotype_attempt.rederivation_complete true
+  phenotype_attempt.number_of_cre_matings_started { rand(51..100)}
+  phenotype_attempt.number_of_cre_matings_successful { rand(10..50)}
+  phenotype_attempt.phenotyping_started true
+  phenotype_attempt.phenotyping_complete true
+end
+
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|
   gene.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
 end

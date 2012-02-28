@@ -45,10 +45,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         dataIndex: 'id',
         header: 'ID',
         readOnly: true,
-        hidden: true,
-        filter: {
-            type: 'string'
-        }
+        hidden: true
     },
     {
         dataIndex: 'colony_name',

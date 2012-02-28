@@ -6,7 +6,6 @@ stylesheets:
     - public/stylesheets/grid.css
     - public/extjs/examples/ux/css/CheckHeader.css
     - public/extjs/examples/ux/grid/css/GridFilters.css
-    - public/extjs/examples/ux/grid/css/RangeMenu.css
     - public/stylesheets/application.css
   ie:
     - public/stylesheets/grid_ie.css

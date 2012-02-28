@@ -9,7 +9,7 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
      */
     encode: false,
 
-    buildQuerySingle: function(filter) {
+    buildQuerySingle: function (filter) {
         var param = {};
         switch (filter.data.type) {
             case 'string':
@@ -29,13 +29,13 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
         return param;
     },
 
-    buildQuery: function(filters) {
+    buildQuery: function (filters) {
         var params = {};
 
-        var This = this;
+        var self = this;
 
-        Ext.each(filters, function(filter) {
-            var p = This.buildQuerySingle(filter);
+        Ext.each(filters, function (filter) {
+            var p = self.buildQuerySingle(filter);
             for (var i in p) {
                 params[i] = p[i];
             }
@@ -44,7 +44,7 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
         return params;
     },
 
-    cleanParams: function(params) {
+    cleanParams: function (params) {
         var regex, key;
         regex = new RegExp('^q\\[\\w+_ci_in\\]$');
         for (key in params) {

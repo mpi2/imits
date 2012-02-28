@@ -70,7 +70,6 @@ module Reports::ImpcGeneList
       ]
       output << output_line
     end
-    puts "size of output #{output.size}"
     return output
   end
   
@@ -86,11 +85,9 @@ module Reports::ImpcGeneList
       x = 0
       report_fields = {}
       while x < headers.length
-        #puts 'col position:' +x.to_s + "header at this pos: " + headers[x] + "is header overall stat? " + (headers[x] == 'Overall Status').to_s
         if headers[x] == 'Overall Status'
           new_status = status_rename_map[line[x]]
           sort_order = status_order[new_status] 
-          #puts "new status #{new_status}"
           if new_status.nil?
             raise "cant find status rename for status #{line[x]}"
           end

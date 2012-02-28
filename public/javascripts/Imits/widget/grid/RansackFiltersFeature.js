@@ -9,31 +9,42 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
      */
     encode: false,
 
-    buildQuery: function(filters) {
+    buildQuerySingle: function (filter) {
+        var param = {};
+        switch (filter.data.type) {
+            case 'string':
+            case 'list':
+                param['q[' + filter.field + '_ci_in][]'] = filter.data.value;
+                break;
+
+            case 'boolean':
+                param['q[' + filter.field + '_eq]'] = filter.data.value;
+                break;
+
+            case 'date':
+                var dateParts = filter.data.value.split('/');
+                param['q[' + filter.field + '_' + filter.data.comparison + ']'] = [dateParts[2]+'-'+dateParts[0]+'-'+dateParts[1]];
+                break;
+        }
+        return param;
+    },
+
+    buildQuery: function (filters) {
         var params = {};
 
-        Ext.each(filters, function(filter) {
-            switch (filter.data.type) {
-                case 'string':
-                case 'list':
-                    params['q[' + filter.field + '_ci_in][]'] = filter.data.value;
-                    break;
+        var self = this;
 
-                case 'boolean':
-                    params['q[' + filter.field + '_eq]'] = filter.data.value;
-                    break;
-
-                case 'date':
-                    var dateParts = filter.data.value.split('/');
-                    params['q[' + filter.field + '_' + filter.data.comparison + ']'] = [dateParts[2]+'-'+dateParts[0]+'-'+dateParts[1]];
-                    break;
+        Ext.each(filters, function (filter) {
+            var p = self.buildQuerySingle(filter);
+            for (var i in p) {
+                params[i] = p[i];
             }
         });
 
         return params;
     },
 
-    cleanParams: function(params) {
+    cleanParams: function (params) {
         var regex, key;
         regex = new RegExp('^q\\[\\w+_ci_in\\]$');
         for (key in params) {

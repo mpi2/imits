@@ -3,8 +3,8 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
 
     requires: [
     'Imits.model.PhenotypeAttempt',
-    'Imits.widget.grid.BoolGridColumn',
-    'Imits.widget.SimpleNumberField'
+    'Imits.widget.SimpleNumberField',
+    'Imits.widget.grid.BoolGridColumn'
     ],
 
     title: "Phenotype attempts",
@@ -15,11 +15,17 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         model: 'Imits.model.PhenotypeAttempt',
         autoLoad: true,
         remoteSort: true,
-        remoteFilter: true,
         pageSize: 20
     },
 
     selType: 'rowmodel',
+
+    features: [
+    {
+        ftype: 'ransack_filters',
+        local: false
+    }
+    ],
 
     initComponent: function () {
         var self = this;
@@ -36,75 +42,112 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
 
     columns: [
     {
-        dataIndex: 'colony_name',
-        header: 'Phenotype colony name',
-        readOnly: true
-    },
-    {
         dataIndex: 'id',
         header: 'ID',
         readOnly: true,
         hidden: true
     },
     {
+        dataIndex: 'colony_name',
+        header: 'Colony Name',
+        readOnly: true,
+        width: 115,
+        filter: {
+            type: 'string'
+        }
+    },
+    {
         dataIndex: 'consortium_name',
         header: 'Consortium',
         readOnly: true,
-        width: 115
+        width: 115,
+        filter: {
+            type: 'list',
+            options: window.PHENOTYPE_CONSORTIUM_OPTIONS
+        }
     },
     {
         dataIndex: 'production_centre_name',
-        header: 'Production centre name',
+        header: 'Production Centre',
         readOnly: true,
-        width: 150
+        width: 150,
+        filter: {
+            type: 'list',
+            options: window.PHENOTYPE_CENTRE_OPTIONS
+        }
     },
     {
         dataIndex: 'mi_attempt_colony_name',
-        header: 'MI attempt colony name',
+        header: 'MI Colony Name',
         readOnly: true,
-        width: 115
+        width: 115,
+        filter: {
+            type: 'string'
+        }
     },
     {
         dataIndex: 'is_active',
         header: 'Active?',
         readOnly: true,
-        xtype: 'boolgridcolumn'
+        width: 55,
+        xtype: 'boolgridcolumn',
+        filter: {
+            type: 'boolean'
+        }
     },
     {
         dataIndex: 'rederivation_started',
         header: 'Rederivation started',
         readOnly: true,
-        xtype: 'boolgridcolumn'
+        xtype: 'boolgridcolumn',
+        width: 115,
+        filter: {
+            type: 'boolean'
+        }
     },
     {
         dataIndex: 'rederivation_complete',
         header: 'Rederivation complete',
         readOnly: true,
-        xtype: 'boolgridcolumn'
+        xtype: 'boolgridcolumn',
+        width: 120,
+        filter: {
+            type: 'boolean'
+        }
     },
     {
         dataIndex: 'number_of_cre_matings_started',
-        header: 'Number of Cre matings started',
+        header: '# Cre Matings Started',
         readOnly: true,
-        editor: 'simplenumberfield'
+        editor: 'simplenumberfield',
+        width: 115
     },
     {
         dataIndex: 'number_of_cre_matings_successful',
-        header: 'Number of Cre matings successful',
+        header: '# Cre Matings successful',
         readOnly: true,
-        editor: 'simplenumberfield'
+        editor: 'simplenumberfield',
+        width: 140
     },
     {
         dataIndex: 'phenotyping_started',
-        header: 'Phenotyping started',
+        header: 'Phenotyping Started',
         readOnly: true,
-        xtype: 'boolgridcolumn'
+        xtype: 'boolgridcolumn',
+        width: 115,
+        filter: {
+            type: 'boolean'
+        }
     },
     {
         dataIndex: 'phenotyping_complete',
-        header: 'Phenotyping complete',
+        header: 'Phenotyping Complete',
         readOnly: true,
-        xtype: 'boolgridcolumn'
+        xtype: 'boolgridcolumn',
+        width: 120,
+        filter: {
+            type: 'boolean'
+        }
     }
     ]
 });

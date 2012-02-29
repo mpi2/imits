@@ -5,12 +5,12 @@
   <legend>Universal Details</legend>
   <div>
   <% if @mi_attempt %>
-  <label>Mi Attempt Colony name</label>
-  <%= @mi_attempt.colony_name %>
-  <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
+    <label>MI Attempt Colony Name</label>
+    <%= @mi_attempt.colony_name %>
+    <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
   <% end %>
   </div>
-   <div>
+  <div>
      <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
    </div>
    <div class="consortium-name">
@@ -46,7 +46,7 @@
    <% end %>
 </fieldset>
 <fieldset class="collapsible">
-  <legend>Cre mating</legend>
+  <legend>Cre Matings</legend>
    <div>
      <%= generator.number_field :number_of_cre_matings_started %>
      <%= generator.number_field :number_of_cre_matings_successful %>

@@ -1,5 +1,6 @@
 require 'test_helper'
-class ViewIntegrationTest < Kermits2::JsIntegrationTest
+
+class PhenotypeAttempt::ViewIntegrationTest < Kermits2::JsIntegrationTest
   context 'View PhenotypeAttempt in grid tests:' do
 
     should 'display PhenotypeAttempt data' do

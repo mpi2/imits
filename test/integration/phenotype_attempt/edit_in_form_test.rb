@@ -2,11 +2,10 @@
 
 require 'test_helper'
 
-class EditInFormTest < Kermits2::JsIntegrationTest
+class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
   context 'When editing Phenotype Attempt in form' do
 
     setup do
-      #create_common_test_objects
       @phenotype_attempt = Factory.create :populated_phenotype_attempt
       login
       visit phenotype_attempt_path(@phenotype_attempt)

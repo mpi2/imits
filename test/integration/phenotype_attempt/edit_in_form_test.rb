@@ -6,7 +6,7 @@ class EditInFormTest < Kermits2::JsIntegrationTest
   context 'When editing Phenotype Attempt in form' do
 
     setup do
-      create_common_test_objects
+      #create_common_test_objects
       @phenotype_attempt = Factory.create :populated_phenotype_attempt
       login
       visit phenotype_attempt_path(@phenotype_attempt)
@@ -35,18 +35,20 @@ class EditInFormTest < Kermits2::JsIntegrationTest
       fill_in 'phenotype_attempt[number_of_cre_matings_started]', :with => '99'
       fill_in 'phenotype_attempt[number_of_cre_matings_successful]', :with => '11'
       uncheck 'phenotype_attempt[phenotyping_complete]'
-            
-      test = find_button('Update').click
-      puts "TEST :: #{test.inspect}"
+      
+      find_button('Update').click
       sleep 3
       
-      assert_equal "ABCD", page.find('input[name="phenotype_attempt[mi_attempt_colony_name]"]').value
-      assert_equal "1", page.find('input[id="phenotype_attempt_rederivation_started"]').value
-      assert_equal "0", page.find('input[id="phenotype_attempt_rederivation_complete"]').value
+      @phenotype_attempt.reload
+      visit current_path
+      
+      assert_equal "ABCD", page.find('input[name="phenotype_attempt[colony_name]"]').value
+      assert_equal "true", page.find('input[id="phenotype_attempt_rederivation_started"]')["checked"]
+      assert_equal nil, page.find('input[id="phenotype_attempt_rederivation_complete"]')["checked"]
       assert_match "99", page.find('input[name="phenotype_attempt[number_of_cre_matings_started]"]').value
       assert_match "11", page.find('input[name="phenotype_attempt[number_of_cre_matings_successful]"]').value
-      assert_equal "1", page.find('input[id="phenotype_attempt_phenotyping_started"]').value
-      assert_equal "0", page.find('input[id="phenotype_attempt_phenotyping_complete"]').value
+      assert_equal "true", page.find('input[id="phenotype_attempt_phenotyping_started"]')["checked"]
+      assert_equal nil, page.find('input[id="phenotype_attempt_phenotyping_complete"]')["checked"]
       
       assert_match /\/phenotype_attempts\/#{@phenotype_attempt.id}$/, current_url
     end

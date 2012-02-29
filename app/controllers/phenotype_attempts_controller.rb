@@ -17,6 +17,7 @@ class PhenotypeAttemptsController < ApplicationController
   end
   
   def new
+    set_centres_and_consortia
     @user = current_user
     @mi_attempt = MiAttempt.find_by_id(params[:mi_attempt_id])
     if @mi_attempt.status == "Genotype confirmed"

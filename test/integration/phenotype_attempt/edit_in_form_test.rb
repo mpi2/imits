@@ -16,6 +16,14 @@ class EditInFormTest < Kermits2::JsIntegrationTest
       assert_match /Auto-generated Symbol/, page.find('.marker-symbol').text
       assert_match /Auto-generated ES Cell Name/, page.find('.es-cell-name').text
     end
+    
+    should 'show but not allow editing consortium or production centre' do
+      assert_match /EUCOMM-EUMODIC/, page.find('.consortium-name').text
+      assert_match /ICS/, page.find('.production-centre-name').text
+      assert page.has_no_css?('select[name="phenotype_attempt[production_centre_name]"]')
+      assert page.has_no_css?('select[name="phenotype_attempt[consortium_name]"]')
+    end
+    
 
     should 'show default values' do
       sleep 1

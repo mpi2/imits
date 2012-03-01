@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120215164706) do
+ActiveRecord::Schema.define(:version => 20120301123306) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -246,6 +246,7 @@ ActiveRecord::Schema.define(:version => 20120215164706) do
     t.datetime "updated_at"
     t.integer  "mi_plan_id",                                                         :null => false
     t.string   "colony_name",                      :limit => 125,                    :null => false
+    t.string   "mouse_allele_type",                :limit => 1
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true

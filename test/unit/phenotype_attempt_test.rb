@@ -267,6 +267,24 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal default_phenotype_attempt.mi_attempt.gene,
                 default_phenotype_attempt.gene
       end
+    end    
+    
+    context '#mouse_allele_type' do
+        should 'have mouse allele type column' do
+          assert_should have_db_column(:mouse_allele_type)
+        end
+
+        should 'allow valid types' do
+          [nil, 'a', 'b', 'c', 'd', 'e'].each do |i|
+            assert_should allow_value(i).for :mouse_allele_type
+          end
+        end
+
+        should 'not allow anything else' do
+          ['f', 'A', '1', 'abc'].each do |i|
+            assert_should_not allow_value(i).for :mouse_allele_type
+          end
+        end
     end
 
   end

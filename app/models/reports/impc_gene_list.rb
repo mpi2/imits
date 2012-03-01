@@ -110,4 +110,3 @@ module Reports::ImpcGeneList
     return cache_by_gene
   end
 end
-

@@ -123,6 +123,7 @@ end
 #  updated_at                       :datetime
 #  mi_plan_id                       :integer         not null
 #  colony_name                      :string(125)     not null
+#  mouse_allele_type                :string(1)
 #
 # Indexes
 #

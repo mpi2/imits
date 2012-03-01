@@ -73,7 +73,7 @@ Ext.define('Imits.widget.GeneGrid', {
         sortable: false
     },
     {
-        header: 'Non-Assigned MIs',
+        header: 'Non-Assigned Plans',
         dataIndex: 'non_assigned_mi_plans',
         readOnly: true,
         sortable: false,
@@ -90,7 +90,7 @@ Ext.define('Imits.widget.GeneGrid', {
             )
     },
     {
-        header: 'Assigned MIs',
+        header: 'Assigned Plans',
         dataIndex: 'assigned_mi_plans',
         readOnly: true,
         sortable: false,
@@ -141,7 +141,7 @@ Ext.define('Imits.widget.GeneGrid', {
             )
     },
     {
-        header: 'GLT Mice',
+        header: 'Genotype Confirmed MIs',
         dataIndex: 'pretty_print_mi_attempts_genotype_confirmed',
         readOnly: true,
         sortable: false,

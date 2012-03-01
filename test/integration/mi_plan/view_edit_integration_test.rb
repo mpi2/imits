@@ -14,8 +14,7 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
               :gene => Factory.create(:gene_cbx1)
       user = Factory.create :user, :production_centre => plan.production_centre
       login user
-      visit '/mi_plans'
-      sleep 2.5
+      click_link 'Plans'
       [
         'WTSI',
         'BaSH',
@@ -35,7 +34,6 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
       login user
       visit '/mi_plans'
-      sleep 2.5
       assert(page.has_no_css?('div', :text => 'Cbx1'))
     end
 
@@ -48,7 +46,6 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
         assert page.has_no_css?('.plan.editor')
         page.find('div.x-grid-cell-inner').click
         assert page.has_css?('.plan.editor')
-        sleep 1
         assert page.find('.plan.editor div#sub_project_name').visible?
       end
 

@@ -8,7 +8,8 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
     setup do
       @phenotype_attempt = Factory.create :populated_phenotype_attempt
       login
-      visit phenotype_attempt_path(@phenotype_attempt)
+      click_link 'Phenotyping'
+      within('.x-grid') { click_link 'Edit in Form' }
     end
 
     should 'show but not allow editing es_cell or gene' do

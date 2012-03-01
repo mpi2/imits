@@ -11,7 +11,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
               :consortium_name => 'BaSH',
               :production_centre_name => 'WTSI'
       login
-      click_link "Search & Edit MI Attempts"
+      click_link "Mouse Production"
       click_link "Create"
     end
     

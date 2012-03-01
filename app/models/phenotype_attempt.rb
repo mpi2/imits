@@ -5,11 +5,21 @@ class PhenotypeAttempt < ApplicationModel
 
   include PhenotypeAttempt::StatusChanger
 
+  MOUSE_ALLELE_OPTIONS = {
+    nil => '[none]',
+    'a' => 'a - Knockout-first - Reporter Tagged Insertion',
+    'b' => 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion',
+    'c' => 'c - Knockout-First, Post-Flp - Conditional',
+    'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
+    'e' => 'e - Targeted Non-Conditional'
+  }.freeze
+  
   belongs_to :mi_attempt
   belongs_to :mi_plan
   belongs_to :status
   has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
+  validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validate :mi_attempt do |me|
     if me.mi_attempt and me.mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
       me.errors.add(:mi_attempt, "status must be genotype confirmed (is currently '#{me.mi_attempt.mi_attempt_status.description}')")
@@ -71,6 +81,31 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   # END Callbacks
+  
+  def mouse_allele_symbol_superscript
+    if mouse_allele_type.nil? or self.mi_attempt.es_cell.allele_symbol_superscript_template.nil?
+      return nil
+    else
+      return self.mi_attempt.es_cell.allele_symbol_superscript_template.sub(
+        EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
+    end
+  end
+
+  def mouse_allele_symbol
+    if mouse_allele_symbol_superscript
+      return "#{self.mi_attempt.es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
+    else
+      return nil
+    end
+  end
+
+  def allele_symbol
+    if mouse_allele_type
+      return mouse_allele_symbol
+    elsif self.mi_attempt
+      return self.mi_attempt.allele_symbol
+    end
+  end
 
   delegate :gene, :to => :mi_attempt
 

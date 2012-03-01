@@ -27,6 +27,11 @@ class PhenotypeAttemptFieldGenerator
     return content_tag(:div, contents.html_safe, :class => element_classes.join(' ')).html_safe
   end
   
+  def mouse_allele_type_field
+    field_html = @form.select(:mouse_allele_type, PhenotypeAttempt::MOUSE_ALLELE_OPTIONS.invert)
+    form_field(:mouse_allele_type, nil, field_html)
+  end
+  
   private
 
   def tidy_label(old_label)

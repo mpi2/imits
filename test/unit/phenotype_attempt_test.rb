@@ -286,6 +286,91 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
           end
         end
     end
+    
+    context '#mouse_allele_symbol_superscript' do
+        should 'be nil if mouse_allele_type is nil' do
+          default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          default_phenotype_attempt.mouse_allele_type = nil
+          assert_equal nil, default_phenotype_attempt.mi_attempt.mouse_allele_symbol_superscript
+        end
+
+        should 'be nil if EsCell#allele_symbol_superscript_template and mouse_allele_type are nil' do
+          default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = nil
+          assert_equal nil, default_phenotype_attempt.mouse_allele_symbol_superscript
+        end
+
+        should 'be nil if EsCell#allele_symbol_superscript_template is nil and mouse_allele_type is not nil' do
+          default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = nil
+          default_phenotype_attempt.mouse_allele_type = 'e'
+          assert_equal nil, default_phenotype_attempt.mi_attempt.mouse_allele_symbol_superscript
+        end
+
+        should 'work if mouse_allele_type is present' do
+          default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          default_phenotype_attempt.mouse_allele_type = 'e'
+          assert_equal 'tm2e(KOMP)Wtsi', default_phenotype_attempt.mouse_allele_symbol_superscript
+        end
+    end
+
+    context '#mouse_allele_symbol' do
+        setup do
+          @es_cell = Factory.create :es_cell_EPD0343_1_H06
+          @mi_attempt = Factory.build :mi_attempt, :es_cell => @es_cell
+          @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          @phenotype_attempt = Factory.build :phenotype_attempt, :mi_attempt => @mi_attempt
+        end
+
+        should 'be nil if mouse_allele_type is nil' do
+          @phenotype_attempt.mouse_allele_type = nil
+          assert_equal nil, @phenotype_attempt.mouse_allele_symbol
+        end
+
+        should 'work if mouse_allele_type is present' do
+          @phenotype_attempt.mouse_allele_type = 'e'
+          assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @phenotype_attempt.mouse_allele_symbol
+        end
+
+        should 'be nil if es_cell.allele_symbol_superscript is nil, even if mouse_allele_type is set' do
+          @es_cell.allele_symbol_superscript = nil
+          @es_cell.save!
+          @phenotype_attempt.mi_attempt.es_cell.reload
+          @phenotype_attempt.mouse_allele_type = 'e'
+          assert_nil @phenotype_attempt.mouse_allele_symbol
+        end
+    end
+
+    context '#allele_symbol' do
+        setup do
+          @es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        end
+
+        should 'return the mouse_allele_symbol if mouse_allele_type is set' do
+          mi = Factory.build :mi_attempt, :mouse_allele_type => 'b',
+                  :es_cell => @es_cell
+          pt = Factory.build :phenotype_attempt, :mi_attempt => mi
+          assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', pt.allele_symbol
+        end
+
+        should 'return the es_cell.allele_symbol if mouse_allele_type is not set' do
+          mi = Factory.build :mi_attempt, :mouse_allele_type => nil,
+                  :es_cell => @es_cell
+          pt = Factory.build :phenotype_attempt, :mi_attempt => mi
+          assert_equal 'Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>', pt.allele_symbol
+        end
+
+        should 'return "" regardless if es_cell has no allele_symbol_superscript' do
+          es_cell = Factory.create :es_cell, :gene => Factory.create(:gene_cbx1),
+                  :allele_symbol_superscript => nil
+          assert_equal nil, es_cell.allele_symbol_superscript
+
+          mi = Factory.build :mi_attempt, :mouse_allele_type => 'c',
+                  :es_cell => es_cell
+          assert_equal nil, mi.allele_symbol
+          
+          pt = Factory.build :phenotype_attempt, :mi_attempt => mi
+          assert_equal nil, pt.allele_symbol
+        end
+    end
 
   end
 end

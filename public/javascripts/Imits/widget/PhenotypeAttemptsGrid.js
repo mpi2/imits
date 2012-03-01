@@ -85,15 +85,6 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     },
     {
-        dataIndex: 'mi_attempt_colony_name',
-        header: 'MI Colony Name',
-        readOnly: true,
-        width: 115,
-        filter: {
-            type: 'string'
-        }
-    },
-    {
         dataIndex: 'is_active',
         header: 'Active?',
         readOnly: true,

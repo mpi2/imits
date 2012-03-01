@@ -12,7 +12,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
               :production_centre_name => 'WTSI'
       login
       click_link "Mouse Production"
-      click_link "Create"
+      within('.x-grid') { click_link "Create" }
     end
 
     should 'allow editing consortium or production centre' do

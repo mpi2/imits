@@ -95,6 +95,13 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.valid?
       assert_equal 'Phenotype Attempt Aborted', phenotype_attempt.status.name
     end
+    
+    should 'transition to Cre Excision Complete if mouse_allele_type is set to "b"' do
+      phenotype_attempt.mouse_allele_type = "b"
+      phenotype_attempt.number_of_cre_matings_successful = 2
+      phenotype_attempt.valid?
+      assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
+    end
 
   end
 end

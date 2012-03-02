@@ -54,7 +54,7 @@ module PhenotypeAttempt::StatusChanger
   end
 
   Config.add('Cre Excision Complete', 'Cre Excision Started') do |pt|
-    pt.number_of_cre_matings_successful > 0 and pt.mouse_allele_type == "b"
+    pt.number_of_cre_matings_successful > 0
   end
 
   Config.add('Phenotyping Started', 'Cre Excision Complete') do |pt|

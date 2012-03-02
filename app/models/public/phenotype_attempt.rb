@@ -16,8 +16,8 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     'number_of_cre_matings_started',
     'number_of_cre_matings_successful',
     'phenotyping_started',
-    'phenotyping_complete',
-    'mouse_allele_type'
+    'mouse_allele_type',
+    'phenotyping_complete'  
   ]
 
   READABLE_ATTRIBUTES = [

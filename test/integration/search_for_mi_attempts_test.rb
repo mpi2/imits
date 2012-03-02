@@ -20,6 +20,12 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
       login
     end
 
+    should 'filter by user\'s production centre when Mouse Production page is clicked' do
+      click_link 'Mouse Production'
+      assert_equal default_user.production_centre.name,
+              page.find('select[name="q[production_centre_name]"] option[selected=selected]').value
+    end
+
     context 'searching for mi attempts by es_cell name' do
 
       setup do

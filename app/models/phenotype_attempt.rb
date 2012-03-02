@@ -121,6 +121,8 @@ class PhenotypeAttempt < ApplicationModel
     return retval
   end
 
+  delegate :consortium, :production_centre, :to => :mi_plan
+
 end
 
 # == Schema Information

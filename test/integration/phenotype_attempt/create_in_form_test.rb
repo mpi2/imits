@@ -11,16 +11,18 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
               :consortium_name => 'BaSH',
               :production_centre_name => 'WTSI'
       login
-      click_link "Search & Edit MI Attempts"
-      page.find('#mi-attempts-grid').click_link "Create"
+      
+      click_link "Mouse Production"
+      within('.x-grid') { click_link "Create" }
     end
-    
+
     should 'allow editing consortium or production centre' do
       assert page.has_css?('select[name="phenotype_attempt[production_centre_name]"]')
       assert page.has_css?('select[name="phenotype_attempt[consortium_name]"]')
     end
 
     should 'save Phenotype attempt and redirect back to show page when valid data' do
+      TestDummy.mi_plan('DTCC', 'UCD', @mi_attempt.gene.marker_symbol)
 
       fill_in 'phenotype_attempt_colony_name', :with => 'TEST'
 

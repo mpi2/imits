@@ -586,7 +586,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal ['Inspect - MI Attempt', 'Inspect - MI Attempt'], mi_plans.map {|i| i.status.name }
       end
 
-      should 'set all interested MiPlans to "Inspect - GLT Mouse" if MiPlans with GLT Mice already exist' do
+      should 'set all interested MiPlans to "Inspect - GLT Mouse" if MiPlans with Genotype Confirmed MIs already exist' do
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create :mi_plan,
                 :gene              => gene,

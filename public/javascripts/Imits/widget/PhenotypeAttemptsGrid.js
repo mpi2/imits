@@ -48,15 +48,18 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         hidden: true
     },
     {
+        header: 'Edit In Form',
+        dataIndex: 'edit_link',
+        renderer: function(value, metaData, record) {
+            var miId = record.getId();
+            return Ext.String.format('<a href="{0}/phenotype_attempts/{1}">Edit in Form</a>', window.basePath, miId);
+        },
+        sortable: false
+    },
+    {
         dataIndex: 'colony_name',
         header: 'Colony Name',
-        readOnly: true,
-        width: 115,
-        renderer: function(value, metaData, record) {
-          var miId = record.getId();
-          var colonyName = record.get('colony_name');
-          return Ext.String.format('<a href="{0}/phenotype_attempts/{1}">{2}</a>', window.basePath, miId, colonyName);
-        },
+        editor: 'textfield',
         filter: {
             type: 'string'
         }
@@ -79,15 +82,6 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         filter: {
             type: 'list',
             options: window.PHENOTYPE_CENTRE_OPTIONS
-        }
-    },
-    {
-        dataIndex: 'mi_attempt_colony_name',
-        header: 'MI Colony Name',
-        readOnly: true,
-        width: 115,
-        filter: {
-            type: 'string'
         }
     },
     {

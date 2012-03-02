@@ -372,5 +372,17 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         end
     end
 
+    context '#consortium' do
+      should 'delegate to mi_plan' do
+        assert_equal default_phenotype_attempt.consortium, default_phenotype_attempt.mi_plan.consortium
+      end
+    end
+
+    context '#production_centre' do
+      should 'delegate to mi_plan' do
+        assert_equal default_phenotype_attempt.production_centre, default_phenotype_attempt.mi_plan.production_centre
+      end
+    end
+
   end
 end

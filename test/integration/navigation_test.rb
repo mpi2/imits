@@ -13,18 +13,12 @@ class NavigationTest < Kermits2::IntegrationTest
     context 'when logged in' do
       setup { login }
 
-      should 'filter by user\'s production centre when Search & Edit is clicked' do
-        click_link 'Search & Edit MI Attempts'
-        assert_equal default_user.production_centre.name,
-                page.find('select[name="q[production_centre_name]"] option[selected=selected]').value
-      end
-
-      should 'select Search & Edit tab when on Search & Edit page selected regardless of actual URL' do
-        click_link 'Search & Edit MI Attempts'
-        assert_current_link 'Search & Edit MI Attempts'
+      should 'select Mouse Production tab when on Mouse Production page selected regardless of actual URL' do
+        click_link 'Mouse Production'
+        assert_current_link 'Mouse Production'
         fill_in 'q[terms]', :with => 'cbx1'
         select 'WTSI', :from => 'q[production_centre_name]'
-        assert_current_link 'Search & Edit MI Attempts'
+        assert_current_link 'Mouse Production'
       end
 
       should 'select Create tab when on Create page' do

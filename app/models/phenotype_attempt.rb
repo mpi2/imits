@@ -2,18 +2,10 @@
 
 class PhenotypeAttempt < ApplicationModel
   acts_as_audited
+  acts_as_reportable
 
   include PhenotypeAttempt::StatusChanger
 
-  MOUSE_ALLELE_OPTIONS = {
-    nil => '[none]',
-    'a' => 'a - Knockout-first - Reporter Tagged Insertion',
-    'b' => 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion',
-    'c' => 'c - Knockout-First, Post-Flp - Conditional',
-    'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
-    'e' => 'e - Targeted Non-Conditional'
-  }.freeze
-  
   belongs_to :mi_attempt
   belongs_to :mi_plan
   belongs_to :status
@@ -81,7 +73,7 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   # END Callbacks
-  
+
   def mouse_allele_symbol_superscript
     if mouse_allele_type.nil? or self.mi_attempt.es_cell.allele_symbol_superscript_template.nil?
       return nil

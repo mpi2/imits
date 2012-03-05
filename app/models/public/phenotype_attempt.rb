@@ -16,13 +16,14 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     'number_of_cre_matings_started',
     'number_of_cre_matings_successful',
     'phenotyping_started',
-    'mouse_allele_type',
-    'phenotyping_complete'  
+    'phenotyping_complete',
+    'mouse_allele_type'
   ]
 
   READABLE_ATTRIBUTES = [
     'id',
-    'status_name'
+    'status_name',
+    'marker_symbol'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)

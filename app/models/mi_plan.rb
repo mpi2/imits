@@ -98,6 +98,8 @@ class MiPlan < ApplicationModel
 
   # END Callbacks
 
+  delegate :marker_symbol, :to => :gene
+  
   def latest_relevant_mi_attempt
     @@status_sort_order ||= {
       MiAttemptStatus.micro_injection_aborted => 1,

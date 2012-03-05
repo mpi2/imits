@@ -100,6 +100,8 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   delegate :gene, :to => :mi_attempt
+  delegate :marker_symbol, :to => :mi_plan
+  delegate :consortium, :production_centre, :to => :mi_plan
 
   def reportable_statuses_with_latest_dates
     retval = {}
@@ -112,8 +114,6 @@ class PhenotypeAttempt < ApplicationModel
     end
     return retval
   end
-
-  delegate :consortium, :production_centre, :to => :mi_plan
 
 end
 

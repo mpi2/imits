@@ -85,6 +85,14 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     },
     {
+        dataIndex: 'marker_symbol',
+        header: 'Marker Symbol',
+        editor: 'textfield',
+        filter: {
+            type: 'string'
+        }
+    },
+    {
         dataIndex: 'is_active',
         header: 'Active?',
         readOnly: true,

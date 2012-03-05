@@ -217,6 +217,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
           :created_at => '2011-12-01 23:59:59 UTC')
 
         default_phenotype_attempt.number_of_cre_matings_successful = 2
+        default_phenotype_attempt.mouse_allele_type = 'b'
         default_phenotype_attempt.save!
         default_phenotype_attempt.status_stamps.last.update_attributes!(
           :created_at => '2011-12-02 23:59:59 UTC')
@@ -225,7 +226,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         default_phenotype_attempt.save!
         default_phenotype_attempt.status_stamps.last.update_attributes!(
           :created_at => '2011-12-03 23:59:59 UTC')
-
+        
         expected = {
           'Phenotype Attempt Registered' => Date.parse('2011-11-30'),
           'Cre Excision Started' => Date.parse('2011-12-01'),

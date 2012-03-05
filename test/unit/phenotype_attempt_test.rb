@@ -99,11 +99,12 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert default_phenotype_attempt.save
         plan.reload; assert_equal 'Assigned', plan.status.name
       end
-      
+
       should 'not be inactive if the associated phenotype_attempt is active' do
         gene = Factory.create :gene_cbx1
         inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => false
-        active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)         
+        active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)
+
         active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
         active_pa.is_active = true
         active_pa.save!
@@ -226,7 +227,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         default_phenotype_attempt.save!
         default_phenotype_attempt.status_stamps.last.update_attributes!(
           :created_at => '2011-12-03 23:59:59 UTC')
-        
+
         expected = {
           'Phenotype Attempt Registered' => Date.parse('2011-11-30'),
           'Cre Excision Started' => Date.parse('2011-12-01'),
@@ -268,8 +269,8 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal default_phenotype_attempt.mi_attempt.gene,
                 default_phenotype_attempt.gene
       end
-    end    
-    
+    end
+
     context '#mouse_allele_type' do
         should 'have mouse allele type column' do
           assert_should have_db_column(:mouse_allele_type)
@@ -287,7 +288,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
           end
         end
     end
-    
+
     context '#mouse_allele_symbol_superscript' do
         should 'be nil if mouse_allele_type is nil' do
           default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
@@ -367,7 +368,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
           mi = Factory.build :mi_attempt, :mouse_allele_type => 'c',
                   :es_cell => es_cell
           assert_equal nil, mi.allele_symbol
-          
+
           pt = Factory.build :phenotype_attempt, :mi_attempt => mi
           assert_equal nil, pt.allele_symbol
         end

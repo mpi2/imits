@@ -27,6 +27,9 @@ Ext.define('Imits.model.PhenotypeAttempt', {
         name: 'is_active'
     },
     {
+        name: 'status_name' 
+    },
+    {
         name: 'rederivation_started'
     },
     {

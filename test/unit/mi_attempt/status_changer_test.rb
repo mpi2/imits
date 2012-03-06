@@ -60,6 +60,13 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         @mi_attempt.save!
         assert_equal MiAttemptStatus.genotype_confirmed, @mi_attempt.mi_attempt_status
       end
+      
+      should 'transition MI status to Chimeras obtained if total_male_chimeras is greater than zero and MI is active' do
+        @mi_attempt.total_male_chimeras = 1
+        @mi_attempt.is_active = true
+        @mi_attempt.save!
+        assert_equal MiAttemptStatus.chimeras_obtained, @mi_attempt.mi_attempt_status
+      end
 
       should 'ignore is_released_from_genotyping flag' do
         @mi_attempt.number_of_chimeras_with_glt_from_genotyping = 0

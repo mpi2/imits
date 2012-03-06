@@ -67,6 +67,23 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         @mi_attempt.save!
         assert_equal MiAttemptStatus.chimeras_obtained, @mi_attempt.mi_attempt_status
       end
+      
+      should 'not transition MI status to Chimeras obtained if total_male_chimeras is greater than zero and MI is not active' do
+        @mi_attempt.total_male_chimeras = 1
+        @mi_attempt.is_active = false
+        @mi_attempt.save!
+        assert_not_equal MiAttemptStatus.chimeras_obtained, @mi_attempt.mi_attempt_status
+        assert_equal MiAttemptStatus.micro_injection_aborted, @mi_attempt.mi_attempt_status
+      end
+      
+      should 'not transition MI status to Chimera obtained from Genotype confirmed (Genotype confirmed has precedence)' do
+        @mi_attempt.total_male_chimeras = 1
+        @mi_attempt.is_active = true
+        @mi_attempt.number_of_chimeras_with_glt_from_genotyping = 1
+        @mi_attempt.save!
+        assert_not_equal MiAttemptStatus.chimeras_obtained, @mi_attempt.mi_attempt_status
+        assert_equal MiAttemptStatus.genotype_confirmed, @mi_attempt.mi_attempt_status
+      end
 
       should 'ignore is_released_from_genotyping flag' do
         @mi_attempt.number_of_chimeras_with_glt_from_genotyping = 0

@@ -148,7 +148,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         visit '/mi_plans/gene_selection'
 
-        assert page.has_css?('.x-grid')
+        assert page.has_css?('.x-grid-row')
         assert_equal 1, all('a.mi-plan').size
 
         find('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]').click

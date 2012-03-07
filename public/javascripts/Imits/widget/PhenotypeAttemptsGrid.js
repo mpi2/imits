@@ -85,6 +85,14 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     },
     {
+        dataIndex: 'marker_symbol',
+        header: 'Marker Symbol',
+        readOnly: true,
+        filter: {
+            type: 'string'
+        }
+    },
+    {
         dataIndex: 'is_active',
         header: 'Active?',
         readOnly: true,
@@ -92,6 +100,14 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         xtype: 'boolgridcolumn',
         filter: {
             type: 'boolean'
+        }
+    },
+    {
+        dataIndex: 'status_name',
+        header: 'Status',
+        readOnly: true,
+        filter: {
+            type: 'string'
         }
     },
     {

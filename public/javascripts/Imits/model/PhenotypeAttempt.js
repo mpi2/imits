@@ -21,7 +21,13 @@ Ext.define('Imits.model.PhenotypeAttempt', {
         name: 'mi_attempt_colony_name'
     },
     {
+        name: 'marker_symbol' 
+    },
+    {
         name: 'is_active'
+    },
+    {
+        name: 'status_name' 
     },
     {
         name: 'rederivation_started'

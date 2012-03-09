@@ -495,7 +495,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 'na', default_mi_attempt.send("#{qc_field}_result")
           end
 
-          should 'default to "na" if assigned a blank' do
+          should "default to 'na' if #{qc_field} is assigned a blank" do
             default_mi_attempt.send("#{qc_field}_result=", '')
             assert default_mi_attempt.valid?
             assert_equal 'na', default_mi_attempt.send("#{qc_field}_result")

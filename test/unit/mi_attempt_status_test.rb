@@ -29,6 +29,11 @@ class MiAttemptStatusTest < ActiveSupport::TestCase
         assert_equal 'Micro-injection aborted', MiAttemptStatus.micro_injection_aborted.description
         assert_true MiAttemptStatus.micro_injection_aborted.frozen?
       end
+
+      should 'include chimeras' do
+        assert_equal 'Chimeras obtained', MiAttemptStatus.chimeras_obtained.description
+        assert_true MiAttemptStatus.chimeras_obtained.frozen?
+      end
     end
 
   end

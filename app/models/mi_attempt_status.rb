@@ -21,7 +21,7 @@ class MiAttemptStatus < ActiveRecord::Base
   end
   
   def self.chimeras_obtained
-    @@chimeras_obtained ||= self.find_by_description!('Chimeras obtained')
+    @@chimeras_obtained ||= self.find_by_description!('Chimeras obtained').freeze
   end
 end
 

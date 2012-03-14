@@ -19,7 +19,6 @@ class ApplicationModel::StatusChangerMachine
 
   def initialize
     @items = {}
-    yield self
   end
 
   def add(status, required = nil, &conditions)

@@ -310,16 +310,6 @@ ActiveRecord::Schema.define(:version => 20120301123306) do
 
   add_index "strains", ["name"], :name => "index_strains_on_name", :unique => true
 
-  create_table "test_people", :force => true do |t|
-    t.string "name"
-  end
-
-  create_table "test_pets", :force => true do |t|
-    t.integer "owner_id"
-    t.text    "name"
-    t.text    "animal"
-  end
-
   create_table "users", :force => true do |t|
     t.string   "email",                               :default => "",    :null => false
     t.string   "encrypted_password",   :limit => 128, :default => "",    :null => false

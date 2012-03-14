@@ -85,6 +85,16 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         assert_equal MiAttemptStatus.genotype_confirmed, @mi_attempt.mi_attempt_status
       end
 
+      should 'transition back from Chimeras obtained to Micro-injection in progress is total_male_chimeras is set back to 0' do
+        @mi_attempt.total_male_chimeras = 1
+        @mi_attempt.save!
+        assert_equal MiAttemptStatus.chimeras_obtained, @mi_attempt.mi_attempt_status
+
+        @mi_attempt.total_male_chimeras = 0
+        @mi_attempt.save!
+        assert_equal MiAttemptStatus.micro_injection_in_progress, @mi_attempt.mi_attempt_status
+      end
+
       should 'ignore is_released_from_genotyping flag' do
         @mi_attempt.number_of_chimeras_with_glt_from_genotyping = 0
         @mi_attempt.number_of_het_offspring = nil

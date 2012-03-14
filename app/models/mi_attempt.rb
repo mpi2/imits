@@ -268,10 +268,6 @@ class MiAttempt < ApplicationModel
     where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
   end
   
-  def self.chimeras_obtained
-    where(:mi_attempt_status_id => MiAttemptStatus.chimeras_obtained.id)
-  end
-
   def consortium_name
     if ! @consortium_name.blank?
       return @consortium_name

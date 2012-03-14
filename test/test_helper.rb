@@ -63,6 +63,7 @@ class ActiveSupport::TestCase
 
   def set_mi_attempt_genotype_confirmed(mi_attempt)
     mi_attempt.is_active = true
+    mi_attempt.total_male_chimeras = 1
 
     if mi_attempt.production_centre_name == 'WTSI'
       mi_attempt.is_released_from_genotyping = true

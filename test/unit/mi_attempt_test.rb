@@ -66,19 +66,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt).mi_attempt_status.description
         end
 
-        should 'not be overwritten if it is set explicitly' do
-          mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
-          assert_equal 'Genotype confirmed', mi_attempt.mi_attempt_status.description
-        end
-
-        should 'not be reset to default if assigning id' do
-          local_mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.genotype_confirmed)
-          local_mi_attempt.mi_attempt_status_id = MiAttemptStatus.genotype_confirmed.id
-          local_mi_attempt.save!
-          local_mi_attempt = MiAttempt.find(local_mi_attempt.id)
-          assert_equal 'Genotype confirmed', local_mi_attempt.mi_attempt_status.description
-        end
-
         should ', when changed, add a status stamp' do
           default_mi_attempt.update_attributes!(:is_active => false)
           assert_equal [MiAttemptStatus.micro_injection_in_progress, MiAttemptStatus.micro_injection_aborted],
@@ -1029,10 +1016,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       the_status = MiAttemptStatus.genotype_confirmed
 
       10.times do
-        Factory.create :mi_attempt,
-                :number_of_het_offspring => 12,
-                :production_centre_name => 'ICS',
-                :is_active => true
+        Factory.create :mi_attempt_genotype_confirmed
       end
 
       assert_equal 10, MiAttempt.where(:mi_attempt_status_id => the_status.id).count

@@ -1,0 +1,44 @@
+<% generator = PhenotypeAttemptFieldGenerator.new(form) %>
+<% contact = form.object %>
+<% form_for(@contact) do |form| %>
+  <%= form.error_messages %>
+  <fieldset id="email_field">
+    <legend>Email</legend>
+      <div class="left_field">
+        <%= form.label :email %>
+      </div>
+      <div class="right_right">
+        <%= form.text_field :email %>
+      </div>
+  </fieldset>
+  <fieldset id="detail_fields">
+    <legend>Details</legend>
+      <div class="left_field">
+        <%= form.label :first_name %>
+      </div>
+      <div class="right_field">
+        <%= form.text_field :first_name %>
+      </div>
+      <div class="left_field">
+        <%= form.label :last_name %>
+      </div>
+      <div class="right_field">
+        <%= form.text_field :last_name %>
+      </div>
+      <div class="left_field">
+        <%= form.label :institution %>
+      </div>
+      <div class="right_field">
+        <%= form.text_field :institution %>
+      </div>
+      <div class="left_field">
+        <%= form.label :organisation %>
+      </div>
+      <div class="right_field">
+        <%= form.text_field :organisation %>
+      </div>
+  
+  </fieldset>
+
+
+<% end %>

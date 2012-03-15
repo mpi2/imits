@@ -1,0 +1,13 @@
+<%= @contact.inspect %>
+
+<div id="contact-new-bottom" class="grid_8 prefix_2 suffix_2">
+  <%= form_for @contact, :as => :contact, :html => {'onsubmit' => 'return false;'} do |form| %>
+    <div id="rest-of-form">
+      <%= render :partial => 'form' %>
+      <div>
+        <button id="contact_submit">Register</button>
+      </div>
+    </div>
+  <% end %>
+</div>
+

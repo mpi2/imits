@@ -4,6 +4,9 @@ class Gene < ActiveRecord::Base
   has_many :es_cells
   has_many :mi_plans
   has_many :mi_attempts, :through => :mi_plans
+  
+  has_many :notifications
+  has_many :contacts, :through => :notifications
 
   validates :marker_symbol, :presence => true, :uniqueness => true
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120301123306) do
+ActiveRecord::Schema.define(:version => 20120313171943) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -52,6 +52,18 @@ ActiveRecord::Schema.define(:version => 20120301123306) do
   end
 
   add_index "consortia", ["name"], :name => "index_consortia_on_name", :unique => true
+
+  create_table "contacts", :force => true do |t|
+    t.string   "email",        :null => false
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "institution"
+    t.string   "organisation"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "contacts", ["email"], :name => "index_contacts_on_email", :unique => true
 
   create_table "deposited_materials", :force => true do |t|
     t.string   "name",       :limit => 50, :null => false
@@ -219,6 +231,15 @@ ActiveRecord::Schema.define(:version => 20120301123306) do
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true
 
+  create_table "notifications", :force => true do |t|
+    t.date     "welcome_email_sent"
+    t.date     "last_email_sent"
+    t.integer  "gene_id"
+    t.integer  "contact_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "phenotype_attempt_status_stamps", :force => true do |t|
     t.integer  "phenotype_attempt_id", :null => false
     t.integer  "status_id",            :null => false
@@ -309,16 +330,6 @@ ActiveRecord::Schema.define(:version => 20120301123306) do
   end
 
   add_index "strains", ["name"], :name => "index_strains_on_name", :unique => true
-
-  create_table "test_people", :force => true do |t|
-    t.string "name"
-  end
-
-  create_table "test_pets", :force => true do |t|
-    t.integer "owner_id"
-    t.text    "name"
-    t.text    "animal"
-  end
 
   create_table "users", :force => true do |t|
     t.string   "email",                               :default => "",    :null => false

@@ -8,7 +8,7 @@ gem 'jammit'
 gem 'pg'
 gem 'foreigner'
 
-gem 'devise'
+gem 'devise', :git => 'git://github.com/plataformatec/devise.git', :branch => 'v1.4'
 gem 'biomart'
 gem 'acts_as_audited', '~>2.0.0.rc7'
 gem 'ransack', :git => 'git://github.com/mpi2/ransack.git'

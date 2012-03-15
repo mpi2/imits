@@ -1,0 +1,26 @@
+class Contact < ActiveRecord::Base
+  attr_accessible :email, :first_name, :last_name, :institution, :organisation
+  
+  has_many :notifications
+  has_many :genes, :through => :notifications
+  
+end
+
+# == Schema Information
+#
+# Table name: contacts
+#
+#  id           :integer         not null, primary key
+#  email        :string(255)     not null
+#  first_name   :string(255)
+#  last_name    :string(255)
+#  institution  :string(255)
+#  organisation :string(255)
+#  created_at   :datetime
+#  updated_at   :datetime
+#
+# Indexes
+#
+#  index_contacts_on_email  (email) UNIQUE
+#
+

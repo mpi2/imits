@@ -206,7 +206,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'number_of_cre_matings_started',
         'number_of_cre_matings_successful',
         'phenotyping_started',
-        'phenotyping_complete'
+        'phenotyping_complete',
+        'mouse_allele_type'
 
       ]
       got = (Public::PhenotypeAttempt.accessible_attributes.to_a - ['audit_comment'])
@@ -222,12 +223,14 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'production_centre_name',
         'mi_attempt_colony_name',
         'is_active',
+        'marker_symbol',
         'rederivation_started',
         'rederivation_complete',
         'number_of_cre_matings_started',
         'number_of_cre_matings_successful',
         'phenotyping_started',
-        'phenotyping_complete'
+        'phenotyping_complete',
+        'mouse_allele_type'
       ]
       got = default_phenotype_attempt.as_json.keys
       assert_equal expected.sort, got.sort

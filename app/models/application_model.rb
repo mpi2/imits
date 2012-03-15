@@ -3,6 +3,15 @@
 class ApplicationModel < ActiveRecord::Base
   self.abstract_class = true
 
+  MOUSE_ALLELE_OPTIONS = {
+    nil => '[none]',
+    'a' => 'a - Knockout-first - Reporter Tagged Insertion',
+    'b' => 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion',
+    'c' => 'c - Knockout-First, Post-Flp - Conditional',
+    'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
+    'e' => 'e - Targeted Non-Conditional'
+  }.freeze
+
   def self.translations
     return {}
   end

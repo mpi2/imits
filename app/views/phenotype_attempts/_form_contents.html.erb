@@ -1,4 +1,4 @@
-<% generator = PhenotypeAttemptFieldGenerator.new(form) %>
+<% generator = FieldGenerator.new(form) %>
 <% phenotype_attempt = form.object %>
 
 <fieldset class="collapsible">
@@ -51,6 +51,9 @@
      <%= generator.number_field :number_of_cre_matings_started %>
      <%= generator.number_field :number_of_cre_matings_successful %>
    </div>
+   <div>
+     <%= generator.mouse_allele_type_field %>
+   </div>
 </fieldset>
 <fieldset class="collapsible">
   <legend>Phenotyping</legend>
@@ -60,5 +63,4 @@
         <%= form.check_box field %>
       </div>
    <% end %>
-  </div>
 </fieldset>

@@ -99,11 +99,12 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert default_phenotype_attempt.save
         plan.reload; assert_equal 'Assigned', plan.status.name
       end
-      
+
       should 'not be inactive if the associated phenotype_attempt is active' do
         gene = Factory.create :gene_cbx1
         inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => false
-        active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)         
+        active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)
+
         active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
         active_pa.is_active = true
         active_pa.save!
@@ -217,6 +218,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
           :created_at => '2011-12-01 23:59:59 UTC')
 
         default_phenotype_attempt.number_of_cre_matings_successful = 2
+        default_phenotype_attempt.mouse_allele_type = 'b'
         default_phenotype_attempt.save!
         default_phenotype_attempt.status_stamps.last.update_attributes!(
           :created_at => '2011-12-02 23:59:59 UTC')
@@ -266,6 +268,121 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       should 'be the mi_attempt\'s es_cell\'s gene' do
         assert_equal default_phenotype_attempt.mi_attempt.gene,
                 default_phenotype_attempt.gene
+      end
+    end
+
+    context '#mouse_allele_type' do
+        should 'have mouse allele type column' do
+          assert_should have_db_column(:mouse_allele_type)
+        end
+
+        should 'allow valid types' do
+          [nil, 'a', 'b', 'c', 'd', 'e'].each do |i|
+            assert_should allow_value(i).for :mouse_allele_type
+          end
+        end
+
+        should 'not allow anything else' do
+          ['f', 'A', '1', 'abc'].each do |i|
+            assert_should_not allow_value(i).for :mouse_allele_type
+          end
+        end
+    end
+
+    context '#mouse_allele_symbol_superscript' do
+        should 'be nil if mouse_allele_type is nil' do
+          default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          default_phenotype_attempt.mouse_allele_type = nil
+          assert_equal nil, default_phenotype_attempt.mi_attempt.mouse_allele_symbol_superscript
+        end
+
+        should 'be nil if EsCell#allele_symbol_superscript_template and mouse_allele_type are nil' do
+          default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = nil
+          assert_equal nil, default_phenotype_attempt.mouse_allele_symbol_superscript
+        end
+
+        should 'be nil if EsCell#allele_symbol_superscript_template is nil and mouse_allele_type is not nil' do
+          default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = nil
+          default_phenotype_attempt.mouse_allele_type = 'e'
+          assert_equal nil, default_phenotype_attempt.mi_attempt.mouse_allele_symbol_superscript
+        end
+
+        should 'work if mouse_allele_type is present' do
+          default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          default_phenotype_attempt.mouse_allele_type = 'e'
+          assert_equal 'tm2e(KOMP)Wtsi', default_phenotype_attempt.mouse_allele_symbol_superscript
+        end
+    end
+
+    context '#mouse_allele_symbol' do
+        setup do
+          @es_cell = Factory.create :es_cell_EPD0343_1_H06
+          @mi_attempt = Factory.build :mi_attempt, :es_cell => @es_cell
+          @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          @phenotype_attempt = Factory.build :phenotype_attempt, :mi_attempt => @mi_attempt
+        end
+
+        should 'be nil if mouse_allele_type is nil' do
+          @phenotype_attempt.mouse_allele_type = nil
+          assert_equal nil, @phenotype_attempt.mouse_allele_symbol
+        end
+
+        should 'work if mouse_allele_type is present' do
+          @phenotype_attempt.mouse_allele_type = 'e'
+          assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @phenotype_attempt.mouse_allele_symbol
+        end
+
+        should 'be nil if es_cell.allele_symbol_superscript is nil, even if mouse_allele_type is set' do
+          @es_cell.allele_symbol_superscript = nil
+          @es_cell.save!
+          @phenotype_attempt.mi_attempt.es_cell.reload
+          @phenotype_attempt.mouse_allele_type = 'e'
+          assert_nil @phenotype_attempt.mouse_allele_symbol
+        end
+    end
+
+    context '#allele_symbol' do
+        setup do
+          @es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        end
+
+        should 'return the mouse_allele_symbol if mouse_allele_type is set' do
+          mi = Factory.build :mi_attempt, :mouse_allele_type => 'b',
+                  :es_cell => @es_cell
+          pt = Factory.build :phenotype_attempt, :mi_attempt => mi
+          assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', pt.allele_symbol
+        end
+
+        should 'return the es_cell.allele_symbol if mouse_allele_type is not set' do
+          mi = Factory.build :mi_attempt, :mouse_allele_type => nil,
+                  :es_cell => @es_cell
+          pt = Factory.build :phenotype_attempt, :mi_attempt => mi
+          assert_equal 'Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>', pt.allele_symbol
+        end
+
+        should 'return "" regardless if es_cell has no allele_symbol_superscript' do
+          es_cell = Factory.create :es_cell, :gene => Factory.create(:gene_cbx1),
+                  :allele_symbol_superscript => nil
+          assert_equal nil, es_cell.allele_symbol_superscript
+
+          mi = Factory.build :mi_attempt, :mouse_allele_type => 'c',
+                  :es_cell => es_cell
+          assert_equal nil, mi.allele_symbol
+
+          pt = Factory.build :phenotype_attempt, :mi_attempt => mi
+          assert_equal nil, pt.allele_symbol
+        end
+    end
+
+    context '#consortium' do
+      should 'delegate to mi_plan' do
+        assert_equal default_phenotype_attempt.consortium, default_phenotype_attempt.mi_plan.consortium
+      end
+    end
+
+    context '#production_centre' do
+      should 'delegate to mi_plan' do
+        assert_equal default_phenotype_attempt.production_centre, default_phenotype_attempt.mi_plan.production_centre
       end
     end
 

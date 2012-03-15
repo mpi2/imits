@@ -16,12 +16,14 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     'number_of_cre_matings_started',
     'number_of_cre_matings_successful',
     'phenotyping_started',
-    'phenotyping_complete'
+    'phenotyping_complete',
+    'mouse_allele_type'
   ]
 
   READABLE_ATTRIBUTES = [
     'id',
-    'status_name'
+    'status_name',
+    'marker_symbol'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)
@@ -46,21 +48,21 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     return if mi_attempt.nil?
 
     if production_centre_name
-      centre = Centre.find_by_name(production_centre_name)
+      centre_to_set = Centre.find_by_name(production_centre_name)
     else
-      centre = mi_attempt.mi_plan.production_centre
+      centre_to_set = mi_attempt.mi_plan.production_centre
     end
 
     if consortium_name
-      consortium = Consortium.find_by_name(consortium_name)
+      consortium_to_set = Consortium.find_by_name(consortium_name)
     else
-      consortium = mi_attempt.mi_plan.consortium
+      consortium_to_set = mi_attempt.mi_plan.consortium
     end
 
     self.mi_plan = MiPlan.where(
       :gene_id => gene.id,
-      :production_centre_id => centre.id,
-      :consortium_id => consortium.id
+      :production_centre_id => centre_to_set.id,
+      :consortium_id => consortium_to_set.id
     ).first
   end
 
@@ -73,7 +75,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
       return @consortium_name
     else
       if self.mi_plan
-        @consortium_name = self.mi_plan.consortium.try(:name)
+        @consortium_name = consortium.name
       end
     end
   end
@@ -87,7 +89,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
       return @production_centre_name
     else
       if self.mi_plan
-        @production_centre_name = self.mi_plan.production_centre.try(:name)
+        @production_centre_name = production_centre.try(:name)
       end
     end
   end
@@ -123,6 +125,7 @@ end
 #  updated_at                       :datetime
 #  mi_plan_id                       :integer         not null
 #  colony_name                      :string(125)     not null
+#  mouse_allele_type                :string(1)
 #
 # Indexes
 #

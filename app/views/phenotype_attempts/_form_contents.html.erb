@@ -1,4 +1,4 @@
-<% generator = PhenotypeAttemptFieldGenerator.new(form) %>
+<% generator = FieldGenerator.new(form) %>
 <% phenotype_attempt = form.object %>
 
 <fieldset class="collapsible">
@@ -63,5 +63,4 @@
         <%= form.check_box field %>
       </div>
    <% end %>
-  </div>
 </fieldset>

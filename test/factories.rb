@@ -16,6 +16,21 @@ Factory.define :gene do |gene|
   gene.sequence(:mgi_accession_id) { |n| "MGI:#{"%.10i" % n}" }
 end
 
+Factory.define :contact do |contact|
+  contact.sequence(:email) { |n| "contact#{n}@example.com"}
+  contact.first_name 'Another'
+  contact.last_name 'Test'
+  contact.institution 'Sanger'
+  contact.organisation 'IMITS' 
+end
+
+Factory.define :notification do |notification|
+  notification.association(:gene)
+  notification.association(:contact)
+  notification.welcome_email_sent Date.yesterday.to_time
+  notification.last_email_sent Time.now - 1.hour
+end
+
 Factory.define :es_cell do |es_cell|
   es_cell.sequence(:name) { |n| "Auto-generated ES Cell Name #{n}" }
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'

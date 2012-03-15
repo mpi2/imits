@@ -1,44 +1,24 @@
-<% generator = PhenotypeAttemptFieldGenerator.new(form) %>
+<% generator = FieldGenerator.new(form) %>
 <% contact = form.object %>
-<% form_for(@contact) do |form| %>
-  <%= form.error_messages %>
-  <fieldset id="email_field">
+  <fieldset id="email-field">
     <legend>Email</legend>
-      <div class="left_field">
-        <%= form.label :email %>
-      </div>
-      <div class="right_right">
-        <%= form.text_field :email %>
+      <div class="email">
+        <%= generator.text_field(:email, :class => 'x-form-text', :size => 20) %>
+      </div
       </div>
   </fieldset>
-  <fieldset id="detail_fields">
+  <fieldset id="detail-fields">
     <legend>Details</legend>
-      <div class="left_field">
-        <%= form.label :first_name %>
+      <div class="first-name">
+        <%= generator.text_field(:first_name, :class => 'x-form-text', :size => 20) %>
       </div>
-      <div class="right_field">
-        <%= form.text_field :first_name %>
+      <div class="last-name">
+        <%= generator.text_field(:last_name, :class => 'x-form-text', :size => 20) %>
       </div>
-      <div class="left_field">
-        <%= form.label :last_name %>
+      <div class="institution">
+        <%= generator.text_field(:institution, :class => 'x-form-text', :size => 20) %>
+      </div
+      <div class="organisation">
+        <%= generator.text_field(:organisation, :class => 'x-form-text', :size => 20) %>
       </div>
-      <div class="right_field">
-        <%= form.text_field :last_name %>
-      </div>
-      <div class="left_field">
-        <%= form.label :institution %>
-      </div>
-      <div class="right_field">
-        <%= form.text_field :institution %>
-      </div>
-      <div class="left_field">
-        <%= form.label :organisation %>
-      </div>
-      <div class="right_field">
-        <%= form.text_field :organisation %>
-      </div>
-  
   </fieldset>
-
-
-<% end %>

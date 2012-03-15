@@ -103,6 +103,15 @@ require 'capybara/dsl'
 Capybara.default_driver = :rack_test
 Capybara.default_wait_time = 10
 
+if ! ENV['CHROMIUM'].blank?
+  require 'selenium-webdriver'
+
+  Selenium::WebDriver::Chrome.path = "/usr/bin/chromium-browser"
+  Capybara.register_driver :selenium do |app|
+    Capybara::Selenium::Driver.new(app, :browser => :chrome)
+  end
+end
+
 class Kermits2::IntegrationTest < ActionDispatch::IntegrationTest
   include Capybara::DSL
 

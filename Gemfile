@@ -19,6 +19,7 @@ gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
 group :development, :test do
   gem 'shoulda', :require => nil
   gem 'test-unit', :require => nil
+  gem 'chromedriver-helper', :require => nil
   gem 'capybara', :require => nil
   gem 'launchy'
   gem 'database_cleaner', :require => nil

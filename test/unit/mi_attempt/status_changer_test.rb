@@ -18,12 +18,14 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
 
       should 'transition MI status to Genotype confirmed if is_released_from_genotyping flag is set' do
         @mi_attempt.is_released_from_genotyping = true
+        @mi_attempt.total_male_chimeras = 1
         @mi_attempt.save!
         assert_equal MiAttemptStatus.genotype_confirmed, @mi_attempt.mi_attempt_status
       end
 
       should 'not add the same status twice' do
         @mi_attempt.is_released_from_genotyping = true
+        @mi_attempt.total_male_chimeras = 1
         @mi_attempt.save!
         @mi_attempt.save!
         assert_equal 2, @mi_attempt.status_stamps.size
@@ -42,20 +44,31 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         assert_equal MiAttemptStatus.micro_injection_in_progress, @mi_attempt.mi_attempt_status
       end
 
-      should 'be Micro-injection in progress if the two fields are 0' do
+      should 'be Chimeras obtained if the two GC fields are 0' do
+        @mi_attempt.total_male_chimeras = 1
         @mi_attempt.number_of_het_offspring = 0
         @mi_attempt.number_of_chimeras_with_glt_from_genotyping = 0
         @mi_attempt.save!
-        assert_equal MiAttemptStatus.micro_injection_in_progress, @mi_attempt.mi_attempt_status
+        assert_equal MiAttemptStatus.chimeras_obtained, @mi_attempt.mi_attempt_status
+      end
+
+      should 'be Chimeras obtained if the two GC fields are nil' do
+        @mi_attempt.total_male_chimeras = 1
+        @mi_attempt.number_of_het_offspring = nil
+        @mi_attempt.number_of_chimeras_with_glt_from_genotyping = nil
+        @mi_attempt.save!
+        assert_equal MiAttemptStatus.chimeras_obtained, @mi_attempt.mi_attempt_status
       end
 
       should 'transition MI status to Genotype confirmed if number_of_het_offspring is non-zero' do
+        @mi_attempt.total_male_chimeras = 1
         @mi_attempt.number_of_het_offspring = 1
         @mi_attempt.save!
         assert_equal MiAttemptStatus.genotype_confirmed, @mi_attempt.mi_attempt_status
       end
 
       should 'transition MI status to Genotype confirmed if number_of_chimeras_with_glt_from_genotyping is non-zero' do
+        @mi_attempt.total_male_chimeras = 1
         @mi_attempt.number_of_chimeras_with_glt_from_genotyping = 1
         @mi_attempt.save!
         assert_equal MiAttemptStatus.genotype_confirmed, @mi_attempt.mi_attempt_status
@@ -76,32 +89,34 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         assert_equal MiAttemptStatus.micro_injection_aborted, @mi_attempt.mi_attempt_status
       end
       
-      should 'not transition MI status to Chimera obtained from Genotype confirmed (Genotype confirmed has precedence)' do
+      should 'transition back from Chimeras obtained to Micro-injection in progress is total_male_chimeras is set back to 0' do
         @mi_attempt.total_male_chimeras = 1
-        @mi_attempt.is_active = true
-        @mi_attempt.number_of_chimeras_with_glt_from_genotyping = 1
         @mi_attempt.save!
-        assert_not_equal MiAttemptStatus.chimeras_obtained, @mi_attempt.mi_attempt_status
-        assert_equal MiAttemptStatus.genotype_confirmed, @mi_attempt.mi_attempt_status
+        assert_equal MiAttemptStatus.chimeras_obtained, @mi_attempt.mi_attempt_status
+
+        @mi_attempt.total_male_chimeras = 0
+        @mi_attempt.save!
+        assert_equal MiAttemptStatus.micro_injection_in_progress, @mi_attempt.mi_attempt_status
       end
 
       should 'ignore is_released_from_genotyping flag' do
         @mi_attempt.number_of_chimeras_with_glt_from_genotyping = 0
         @mi_attempt.number_of_het_offspring = nil
+        @mi_attempt.total_male_chimeras = 1
         @mi_attempt.is_released_from_genotyping = true
         @mi_attempt.save!
-        assert_equal MiAttemptStatus.micro_injection_in_progress, @mi_attempt.mi_attempt_status
+        assert_equal MiAttemptStatus.chimeras_obtained, @mi_attempt.mi_attempt_status
       end
 
       should 'not add the same status twice' do
-        @mi_attempt.number_of_het_offspring = 1
+        @mi_attempt.total_male_chimeras = 1
         @mi_attempt.save!
         @mi_attempt.save!
         assert_equal 2, @mi_attempt.status_stamps.size
       end
     end
 
-    context 'active flag' do
+    context 'is_active flag' do
       context 'when set to false' do
         context 'when production centre is WTSI' do
           should 'set status to aborted, even if is_released_from_gentotyping is true' do
@@ -139,10 +154,9 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         end
 
         should 're-evaluate status based on rules and set to confirmed' do
-          mi = Factory.create :mi_attempt,
-                  :production_centre_name => 'WTSI',
-                  :is_released_from_genotyping => true,
+          mi = Factory.create :mi_attempt_genotype_confirmed,
                   :is_active => false
+          assert_equal MiAttemptStatus.micro_injection_aborted, mi.mi_attempt_status
 
           mi.is_active = true
           mi.save!
@@ -152,12 +166,11 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
       end
     end
 
-    # Only testing non-WTSI statuses since WTSI should eventually accept same
-    # status changing rules
-
     should 'avoid adding the same status twice consecutively' do
       mi = Factory.create :mi_attempt,
               :production_centre_name => 'ICS'
+      mi.save!
+      mi.update_attributes!(:total_male_chimeras => 1)
       mi.save!
       mi.update_attributes!(:number_of_het_offspring => 1)
       mi.save!
@@ -166,6 +179,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
 
       expected_statuses = [
         MiAttemptStatus.micro_injection_in_progress,
+        MiAttemptStatus.chimeras_obtained,
         MiAttemptStatus.genotype_confirmed,
         MiAttemptStatus.micro_injection_aborted
       ].map(&:description)

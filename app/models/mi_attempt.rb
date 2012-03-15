@@ -142,7 +142,7 @@ class MiAttempt < ApplicationModel
   def set_total_chimeras
     self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
   end
-  
+
   def set_blank_strings_to_nil
     self.attributes.each do |name, value|
       if self[name].respond_to?(:to_str) && self[name].blank?
@@ -266,10 +266,6 @@ class MiAttempt < ApplicationModel
 
   def self.aborted
     where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
-  end
-  
-  def self.chimeras_obtained
-    where(:mi_attempt_status_id => MiAttemptStatus.chimeras_obtained.id)
   end
 
   def consortium_name
@@ -516,4 +512,3 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

@@ -597,8 +597,8 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_attempt = Factory.create :mi_attempt,
                 :es_cell                  => Factory.create(:es_cell, :gene => gene),
                 :consortium_name          => 'BaSH',
-                :production_centre_name   => 'BCM',
-                :number_of_het_offspring  => 12
+                :production_centre_name   => 'BCM'
+        set_mi_attempt_genotype_confirmed(mi_attempt)
 
         assert_equal mi_plan, mi_attempt.mi_plan
         assert_equal MiAttemptStatus.genotype_confirmed.description, mi_attempt.status
@@ -797,10 +797,10 @@ class MiPlanTest < ActiveSupport::TestCase
         10.times { Factory.create :mi_plan }
         10.times { Factory.create :mi_attempt, :is_active => true }
         10.times do
-          Factory.create :mi_attempt,
-                  :number_of_het_offspring => 12,
+          mi = Factory.create :mi_attempt,
                   :production_centre_name => 'ICS',
                   :is_active => true
+          set_mi_attempt_genotype_confirmed(mi)
         end
 
         assert MiPlan.count > MiPlan.with_genotype_confirmed_mouse.count

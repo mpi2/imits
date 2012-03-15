@@ -102,7 +102,8 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
 
       should 'show search terms when results are shown' do
         visit "/mi_attempts?q[terms]=EPD0127_4_E01%0D%0AEPD0343_1_H06"
-        assert page.has_css? 'textarea[@name="q[terms]"]', :text => "EPD0127_4_E01 EPD0343_1_H06"
+        assert page.has_css? 'textarea[@name="q[terms]"]'
+        assert_match /EPD0127_4_E01\s+EPD0343_1_H06/, page.find('textarea[@name="q[terms]"]').text
       end
     end
 

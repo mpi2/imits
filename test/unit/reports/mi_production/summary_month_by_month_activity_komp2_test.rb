@@ -27,7 +27,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
       assert_equal 1, csv.size, csv.inspect
     end
 
-    should 'report for each month August 2011 and forward' do
+    should 'report for each month June 2011 and forward' do
       mi = Factory.create :wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH',
               :production_centre_name => 'WTSI'
       plan = mi.mi_plan
@@ -36,12 +36,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
 
       replace_status_stamps(plan,
         'Assigned' => '2011-01-01',
-        'Assigned - ES Cell QC In Progress' => '2011-07-31')
+        'Assigned - ES Cell QC In Progress' => '2011-05-31')
       replace_status_stamps(mi,
-        'Micro-injection in progress' => '2011-07-31',
-        'Genotype confirmed' => '2011-07-31')
+        'Micro-injection in progress' => '2011-05-31',
+        'Genotype confirmed' => '2011-05-31')
       replace_status_stamps(pt,
-        'Phenotype Attempt Registered' => '2011-07-31')
+        'Phenotype Attempt Registered' => '2011-05-31')
 
       csv = CSV.parse(generate[:csv])
       assert_equal plan, mi.mi_plan
@@ -171,21 +171,21 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
         p.update_attributes!(:number_of_es_cells_starting_qc => 1)
         replace_status_stamps(p,
           'Interest' => '2011-01-01',
-          'Assigned - ES Cell QC In Progress' => '2011-08-01'
+          'Assigned - ES Cell QC In Progress' => '2011-06-01'
         )
       end
       p = TestDummy.mi_plan('BaSH', 'WTSI')
       p.update_attributes!(:number_of_es_cells_passing_qc => 1)
       replace_status_stamps(p,
         'Interest' => '2011-01-01',
-        'Assigned - ES Cell QC In Progress' => '2011-07-01',
-        'Assigned - ES Cell QC Complete' => '2011-08-10'
+        'Assigned - ES Cell QC In Progress' => '2011-05-01',
+        'Assigned - ES Cell QC Complete' => '2011-06-10'
       )
 
       expected = [
-        ["2011", "8", "BaSH", "2", "1", "0"],
-        ["2011", "8", "DTCC", "0", "0", "0"],
-        ["2011", "8", "JAX", "0", "0", "0"]
+        ["2011", "6", "BaSH", "2", "1", "0"],
+        ["2011", "6", "DTCC", "0", "0", "0"],
+        ["2011", "6", "JAX", "0", "0", "0"]
       ]
 
       csv = CSV.parse(generate[:csv])

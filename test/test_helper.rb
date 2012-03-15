@@ -63,6 +63,7 @@ class ActiveSupport::TestCase
 
   def set_mi_attempt_genotype_confirmed(mi_attempt)
     mi_attempt.is_active = true
+    mi_attempt.total_male_chimeras = 1
 
     if mi_attempt.production_centre_name == 'WTSI'
       mi_attempt.is_released_from_genotyping = true
@@ -101,6 +102,15 @@ require 'capybara/dsl'
 
 Capybara.default_driver = :rack_test
 Capybara.default_wait_time = 10
+
+if ! ENV['CHROMIUM'].blank?
+  require 'selenium-webdriver'
+
+  Selenium::WebDriver::Chrome.path = "/usr/bin/chromium-browser"
+  Capybara.register_driver :selenium do |app|
+    Capybara::Selenium::Driver.new(app, :browser => :chrome)
+  end
+end
 
 class Kermits2::IntegrationTest < ActionDispatch::IntegrationTest
   include Capybara::DSL

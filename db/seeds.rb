@@ -41,7 +41,8 @@ end
 Seeds.load MiAttemptStatus, [
   {:id => 1, :description => 'Micro-injection in progress'},
   {:id => 2, :description => 'Genotype confirmed'},
-  {:id => 3, :description => 'Micro-injection aborted'}
+  {:id => 3, :description => 'Micro-injection aborted'},
+  {:id => 4, :description => 'Chimeras obtained'}
 ]
 
 Seeds.set_up_strains Strain::BlastStrain, :blast_strains

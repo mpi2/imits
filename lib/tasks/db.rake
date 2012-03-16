@@ -1,7 +1,9 @@
 namespace :db do
-  ['migrate', 'rollback', 'migrate:up', 'migrate:down'].each do |taskname|
-    task(taskname) do
-      Rake::Task['db:schema:dump'].invoke
+  if Rails.env.development?
+    ['migrate', 'rollback', 'migrate:up', 'migrate:down'].each do |taskname|
+      task(taskname) do
+        Rake::Task['db:schema:dump'].invoke
+      end
     end
   end
 

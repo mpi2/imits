@@ -17,6 +17,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
         'Assigned - ES Cell QC In Progress Date',
         'Assigned - ES Cell QC Complete Date',
         'Micro-injection in progress Date',
+        'Chimeras obtained Date',
         'Genotype confirmed Date',
         'Micro-injection aborted Date',
         'Phenotype Attempt Registered Date',

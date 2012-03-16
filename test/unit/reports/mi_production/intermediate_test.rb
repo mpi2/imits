@@ -24,21 +24,26 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi'
         )
 
-        bash_wtsi_attempt = Factory.create :mi_attempt,
+        bash_wtsi_attempt = Factory.create :wtsi_mi_attempt_genotype_confirmed,
                 :es_cell => es_cell,
                 :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',
                 :mouse_allele_type => 'c',
                 :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('C57BL/6N')
-        bash_wtsi_plan = bash_wtsi_attempt.mi_plan
+        replace_status_stamps(bash_wtsi_attempt,
+          'Micro-injection in progress' => '2011-11-22 00:00:00 UTC',
+          'Chimeras obtained' => '2011-11-22 23:59:59 UTC',
+          'Genotype confirmed' => '2011-11-23 00:00:00 UTC'
+        )
 
-        bash_wtsi_plan.status_stamps.destroy_all
-        bash_wtsi_plan.status_stamps.create!(:status => MiPlan::Status['Assigned'],
-          :created_at => '2011-11-01 23:59:59.999 UTC')
-        bash_wtsi_plan.status_stamps.create!(:status => MiPlan::Status['Interest'],
-          :created_at => '2011-10-25 00:00:00 UTC')
-        bash_wtsi_plan.status_stamps.create!(:status => MiPlan::Status['Assigned'],
-          :created_at => '2011-11-02 00:00:00 UTC')
+        bash_wtsi_plan = bash_wtsi_attempt.mi_plan
+        replace_status_stamps(bash_wtsi_plan,
+          [
+            ['Assigned', '2011-11-01 23:59:59.999 UTC'],
+            ['Interest', '2011-10-25 00:00:00 UTC'],
+            ['Assigned', '2011-11-02 00:00:00 UTC']
+          ]
+        )
 
         bash_wtsi_plan.sub_project = MiPlan::SubProject.find_by_name!('Legacy EUCOMM')
         bash_wtsi_plan.priority = MiPlan::Priority.find_by_name!('Medium')
@@ -51,14 +56,6 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         bash_wtsi_plan.save!
         bash_wtsi_plan.status_stamps.last.update_attributes!(
           :created_at => '2011-11-04 23:59:59.999 UTC')
-
-        bash_wtsi_attempt.status_stamps.first.update_attributes!(
-          :created_at => '2011-11-22 00:00:00 UTC')
-        bash_wtsi_attempt.status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
-          :created_at => '2011-11-21 00:00:00 UTC')
-        set_mi_attempt_genotype_confirmed(bash_wtsi_attempt)
-        bash_wtsi_attempt.status_stamps.last.update_attributes!(
-          :created_at => '2011-11-23 00:00:00 UTC')
 
         bash_wtsi_attempt.phenotype_attempts.create!
         pt = bash_wtsi_attempt.phenotype_attempts.last
@@ -137,6 +134,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Assigned - ES Cell QC In Progress Date',
           'Assigned - ES Cell QC Complete Date',
           'Micro-injection in progress Date',
+          'Chimeras obtained Date',
           'Genotype confirmed Date',
           'Micro-injection aborted Date',
           'Phenotype Attempt Registered Date',
@@ -175,6 +173,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Assigned - ES Cell QC In Progress Date' => '2011-11-03',
           'Assigned - ES Cell QC Complete Date' => '2011-11-04',
           'Micro-injection in progress Date' => '2011-11-22',
+          'Chimeras obtained Date' => '2011-11-22',
           'Genotype confirmed Date' => '2011-11-23',
           'Micro-injection aborted Date' => '',
           'Phenotype Attempt Registered Date' => '2011-12-01',
@@ -212,6 +211,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Assigned - ES Cell QC In Progress Date' => '',
           'Assigned - ES Cell QC Complete Date' => '',
           'Micro-injection in progress Date' => '2011-12-12',
+          'Chimeras obtained Date' => '',
           'Genotype confirmed Date' => '',
           'Micro-injection aborted Date' => '2011-12-13',
           'Phenotype Attempt Registered Date' => '',

@@ -103,6 +103,7 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
       'ES cell QC',
       'Genotype confirmed mice',
       'Microinjections',
+      'Chimaeras produced',
       'Phenotyping started',
       'Cre excision completed',
       'Rederivation started',
@@ -168,6 +169,7 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
           'ES cell QC',
           'Genotype confirmed mice',
           'Microinjections',
+          'Chimaeras produced',
           'Phenotyping started',
           'Rederivation started',
           'Cre excision started',
@@ -229,7 +231,11 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
 
     if key == 'Microinjections'
       return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
-        row['MiAttempt Status'] == 'Micro-injection aborted'
+        row['MiAttempt Status'] == 'Micro-injection aborted' || row['MiAttempt Status'] == 'Chimeras obtained'
+    end
+
+    if key == 'Chimaeras produced'
+      return row['MiAttempt Status'] == 'Chimeras obtained'
     end
 
     if key == 'Phenotyping aborted'

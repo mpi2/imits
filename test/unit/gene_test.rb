@@ -397,6 +397,7 @@ class GeneTest < ActiveSupport::TestCase
                 :consortium_name => 'EUCOMM-EUMODIC',
                 :production_centre_name => 'WTSI'
         in_progress_mi.number_of_het_offspring = 0
+        in_progress_mi.total_male_chimeras = 0
         in_progress_mi.save!
         assert_equal MiAttemptStatus.micro_injection_in_progress.description, in_progress_mi.status
 
@@ -440,12 +441,12 @@ class GeneTest < ActiveSupport::TestCase
                 :production_centre_name => 'MARC',
                 :is_active => false
 
-        in_progress_mi = Factory.create :mi_attempt_genotype_confirmed,
+        in_progress_mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'EUCOMM-EUMODIC',
-                :production_centre_name => 'WTSI'
-        in_progress_mi.update_attributes!(:is_released_from_genotyping => false)
-        assert_equal MiAttemptStatus.micro_injection_in_progress.description, in_progress_mi.status
+                :consortium_name => 'EUCOMM-EUMODIC'
+        in_progress_mi.update_attributes!(:is_released_from_genotyping => false,
+          :total_male_chimeras => 0)
+        assert_equal MiAttemptStatus.micro_injection_in_progress, in_progress_mi.mi_attempt_status
 
         assert gene
         assert_equal 4, gene.mi_plans.count

@@ -8,56 +8,93 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
 
   context 'Reports::MiProduction::SummaryKomp23' do
 
-    setup do
-      assert ! ReportCache.find_by_name('mi_production_intermediate')
-      data = ProductionSummaryHelper::get_csv('komp23')
-      assert data
-      Factory.create(:report_cache,
-        :name => 'mi_production_intermediate',
-        :format => 'csv',
-        :data => data
+    def new_gene_mi(factory, gene, attrs = {})
+      return Factory.create(factory, {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => TestDummy.create(:es_cell, gene)
+        }.merge(attrs)
       )
-      assert ReportCache.find_by_name('mi_production_intermediate')
-      report = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
-
-      puts 'SETUP:' if DEBUG
-      puts report.to_s if DEBUG
-      assert ! report.blank?
     end
 
-    should 'do generate' do
+    def new_non_wtsi_gene_gc_mi(gene, attrs = {})
+      return Factory.create(:mi_attempt_genotype_confirmed, {
+          :consortium_name => 'DTCC',
+          :production_centre_name => 'UCD',
+          :es_cell => TestDummy.create(:es_cell, gene)
+        }.merge(attrs)
+      )
+    end
+
+    setup do
+      (1..12).each {|i| Factory.create :gene, :marker_symbol => "Cbx#{i}"}
+
+      TestDummy.mi_plan 'BaSH', 'WTSI', 'Cbx1',
+              :number_of_es_cells_starting_qc => 2
+
+      TestDummy.mi_plan 'BaSH', 'WTSI', 'Cbx2',
+              :number_of_es_cells_starting_qc => 2,
+              :number_of_es_cells_passing_qc => 1
+
+      TestDummy.mi_plan 'BaSH', 'WTSI', 'Cbx3',
+              :number_of_es_cells_starting_qc => 3,
+              :number_of_es_cells_passing_qc => 2
+
+      TestDummy.mi_plan 'BaSH', 'WTSI', 'Cbx4',
+              :number_of_es_cells_starting_qc => 2,
+              :number_of_es_cells_passing_qc => 0
+
+      new_gene_mi(:mi_attempt, 'Cbx5')
+      new_gene_mi(:mi_attempt, 'Cbx6')
+      new_gene_mi(:mi_attempt_chimeras_obtained, 'Cbx7')
+      new_gene_mi(:wtsi_mi_attempt_genotype_confirmed, 'Cbx8')
+      new_gene_mi(:wtsi_mi_attempt_genotype_confirmed, 'Cbx9')
+      new_gene_mi(:mi_attempt, 'Cbx10', :is_active => false)
+
+      Factory.create :phenotype_attempt,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx11'),
+              :mi_attempt => new_non_wtsi_gene_gc_mi('Cbx11')
+
+      Factory.create :populated_phenotype_attempt,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx12'),
+              :mi_attempt => new_non_wtsi_gene_gc_mi('Cbx12')
+
+      Reports::MiProduction::Intermediate.new.cache
+    end
+
+    should 'generate' do
       hash = Reports::MiProduction::SummaryKomp23.generate
 
-      puts 'do generate: ' + hash[:title] if DEBUG
-      puts hash[:table].to_s if DEBUG
-      puts hash[:table].data.inspect if DEBUG
-
       expected = {
-        "Consortium"=>"BaSH",
-        "All genes"=>11,
-        "ES cell QC"=>3,
-        "ES QC confirmed"=>2,
-        "ES QC failed"=>1,
-        "Production Centre"=>"BCM",
-        "Microinjections"=>10,
-        "Chimaeras produced"=>nil,
-        "Genotype confirmed mice"=>1,
-        "Microinjection aborted"=>1,
-        "Gene Pipeline efficiency (%)"=>'100',
-        "Clone Pipeline efficiency (%)"=>"20",
-        "Registered for phenotyping"=>1,
-        "Rederivation started"=>1,
-        "Rederivation completed"=>1,
-        "Cre excision started"=>3,
-        "Cre excision completed"=>2,
-        "Phenotyping started"=>1,
-        "Phenotyping completed"=>1,
-        "Phenotyping aborted"=>1
+        "Consortium" => "BaSH",
+        "All genes" => 12,
+        "ES cell QC" => 4,
+        "ES QC confirmed" => 2,
+        "ES QC failed" => 1,
+        "Production Centre" => "WTSI",
+        "Microinjections" => 6,
+        "Chimaeras produced" => 1,
+        "Genotype confirmed mice" => 2,
+        "Microinjection aborted" => 1,
+        "Gene Pipeline efficiency (%)" => '',
+        "Clone Pipeline efficiency (%)" => '',
+        "Registered for phenotyping" => 1,
+        "Rederivation started" => '',
+        "Rederivation completed" => '',
+        "Cre excision started" => 1,
+        "Cre excision completed" => 1,
+        "Phenotyping started" => 1,
+        "Phenotyping completed" => 1,
+        "Phenotyping aborted" => ''
       }
 
+      got = {}
+
       hash[:table].column_names.each do |column_name|
-        assert_equal expected[column_name], hash[:table].column(column_name)[0], "for '#{column_name}'"
+        got[column_name] = hash[:table].column(column_name)[0]
       end
+
+      assert_equal expected, got
 
       assert hash[:table].to_s.length > 0
     end

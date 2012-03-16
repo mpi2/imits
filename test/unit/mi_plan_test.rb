@@ -37,6 +37,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#latest_relevant_mi_attempt' do
         def ip; MiAttemptStatus.micro_injection_in_progress.description; end
+        def co; MiAttemptStatus.chimeras_obtained.description; end
         def gc; MiAttemptStatus.genotype_confirmed.description; end
         def abrt; MiAttemptStatus.micro_injection_aborted.description; end
 
@@ -163,6 +164,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :is_active => true
           replace_status_stamps(latest_mi,
             ip => '2011-05-05 00:00 UTC',
+            co => '2011-06-05',
             gc => '2011-07-05 00:00 UTC'
           )
 
@@ -175,7 +177,63 @@ class MiPlanTest < ActiveSupport::TestCase
                   :is_active => true
           replace_status_stamps(older_mi_1,
             ip => '2011-04-05 00:00 UTC',
+            co => '2011-05-05',
             gc => '2011-06-05 00:00 UTC'
+          )
+
+          mi_plan = latest_mi.mi_plan
+          assert [latest_mi.mi_plan, ip_mi.mi_plan, older_mi_1.mi_plan].uniq.size == 1
+          assert_equal 'C', mi_plan.latest_relevant_mi_attempt.colony_name
+        end
+
+        should 'return CO MIs ahead of IP or aborted ones regardless of their date' do
+          cbx1 = Factory.create :gene_cbx1
+
+          abrt_mi = Factory.create :mi_attempt,
+                  :colony_name => 'Z',
+                  :consortium_name => 'BaSH',
+                  :production_centre_name => 'WTSI',
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :total_male_chimeras => 1,
+                  :is_active => false
+          replace_status_stamps(abrt_mi,
+            ip => '2012-02-02 00:00 UTC',
+            co => '2012-03-02',
+            abrt => '2012-04-02 00:00 UTC'
+          )
+
+          ip_mi = Factory.create :mi_attempt,
+                  :colony_name => 'D',
+                  :consortium_name => 'BaSH',
+                  :production_centre_name => 'WTSI',
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :is_active => true
+          replace_status_stamps(ip_mi,
+            ip => '2012-01-02 00:00 UTC'
+          )
+
+          latest_mi = Factory.create :mi_attempt,
+                  :colony_name => 'C',
+                  :consortium_name => 'BaSH',
+                  :production_centre_name => 'WTSI',
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :total_male_chimeras => 1,
+                  :is_active => true
+          replace_status_stamps(latest_mi,
+            ip => '2011-05-05 00:00 UTC',
+            co => '2011-07-05'
+          )
+
+          older_mi_1 = Factory.create :mi_attempt,
+                  :colony_name => 'B',
+                  :consortium_name => 'BaSH',
+                  :production_centre_name => 'WTSI',
+                  :total_male_chimeras => 1,
+                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :is_active => true
+          replace_status_stamps(older_mi_1,
+            ip => '2011-04-05 00:00 UTC',
+            co => '2011-06-05'
           )
 
           mi_plan = latest_mi.mi_plan
@@ -597,8 +655,8 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_attempt = Factory.create :mi_attempt,
                 :es_cell                  => Factory.create(:es_cell, :gene => gene),
                 :consortium_name          => 'BaSH',
-                :production_centre_name   => 'BCM',
-                :number_of_het_offspring  => 12
+                :production_centre_name   => 'BCM'
+        set_mi_attempt_genotype_confirmed(mi_attempt)
 
         assert_equal mi_plan, mi_attempt.mi_plan
         assert_equal MiAttemptStatus.genotype_confirmed.description, mi_attempt.status
@@ -797,10 +855,10 @@ class MiPlanTest < ActiveSupport::TestCase
         10.times { Factory.create :mi_plan }
         10.times { Factory.create :mi_attempt, :is_active => true }
         10.times do
-          Factory.create :mi_attempt,
-                  :number_of_het_offspring => 12,
+          mi = Factory.create :mi_attempt,
                   :production_centre_name => 'ICS',
                   :is_active => true
+          set_mi_attempt_genotype_confirmed(mi)
         end
 
         assert MiPlan.count > MiPlan.with_genotype_confirmed_mouse.count

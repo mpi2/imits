@@ -63,6 +63,14 @@ class TestDummyTest < ActiveSupport::TestCase
         ]
         assert_equal expected, got
       end
+
+      should 'initialize object with hash values passed in' do
+        plan = TestDummy.create(:mi_plan, 'BaSH', 'WTSI',
+          :number_of_es_cells_starting_qc => 10,
+          :number_of_es_cells_passing_qc => 5)
+        assert_equal 10, plan.number_of_es_cells_starting_qc
+        assert_equal 5, plan.number_of_es_cells_passing_qc
+      end
     end
 
     context '::mi_plan' do

@@ -18,6 +18,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
     'Production Centre',
 
     'Micro-injection in progress',
+    'Chimeras obtained',
     'Genotype confirmed',
     'Micro-injection aborted',
 
@@ -172,10 +173,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
         summary[year][month][name]['DUMMY']['Micro-injection in progress'] ||= {}
         summary[year][month][name]['DUMMY']['Genotype confirmed'] ||= {}
         summary[year][month][name]['DUMMY']['Micro-injection aborted'] ||= {}
+        summary[year][month][name]['DUMMY']['Chimeras obtained'] ||= {}
       end
 
       if(status == attempt_map[:micro_injection_in_progress])
         summary[year][month][consortium][pcentre]['Micro-injection in progress'][gene_id] = details_hash
+      end
+
+      if(status == attempt_map[:chimeras_obtained])
+        summary[year][month][consortium][pcentre]['Chimeras obtained'][gene_id] = details_hash
       end
 
       if(status == attempt_map[:genotype_confirmed])
@@ -333,6 +339,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
 
             array = [
               'Micro-injection in progress',
+              'Chimeras obtained',
               'Genotype confirmed',
               'Micro-injection aborted',
               'Phenotype Attempt Registered',
@@ -378,6 +385,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
       'ES Cell QC Complete',
       'ES Cell QC Failed',
       'Micro-injection in progress',
+      'Chimeras obtained',
       'Genotype confirmed',
       'Micro-injection aborted',
       'Phenotype Attempt Registered',

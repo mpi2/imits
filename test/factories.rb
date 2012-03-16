@@ -111,7 +111,7 @@ Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |p
   phenotype_attempt.number_of_cre_matings_successful { rand(10..50)}
   phenotype_attempt.phenotyping_started true
   phenotype_attempt.phenotyping_complete true
-  phenotype_attempt.mouse_allele_type 'a'
+  phenotype_attempt.mouse_allele_type 'b'
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|

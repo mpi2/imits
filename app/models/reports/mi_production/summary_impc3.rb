@@ -231,7 +231,7 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
 
     if key == 'Microinjections'
       return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
-        row['MiAttempt Status'] == 'Micro-injection aborted'
+        row['MiAttempt Status'] == 'Micro-injection aborted' || row['MiAttempt Status'] == 'Chimeras obtained'
     end
 
     if key == 'Chimaeras produced'

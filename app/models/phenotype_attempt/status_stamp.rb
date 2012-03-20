@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 class PhenotypeAttempt::StatusStamp < ActiveRecord::Base
+  acts_as_audited
+
   belongs_to :phenotype_attempt
   belongs_to :status
 end

@@ -330,6 +330,21 @@ input[type=checkbox] ~ label {
     display: inline;
 }
 
+fieldset.static {
+    border: 2px solid #a6c5ec;
+    padding: 20px;
+    padding-top: 0;
+    margin-bottom: 2em;
+    border-radius: 4px;
+}
+
+fieldset.static legend {
+	padding-left: 5px;
+	padding-right: 5px;
+	font: italic 1.4em Georgia, "Times New Roman", Times, serif;
+}
+
+
 form fieldset {
     border: 2px solid #a6c5ec;
     padding: 20px;

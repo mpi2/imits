@@ -19,7 +19,16 @@ Kermits2::Application.routes.draw do
 
   resources :phenotype_attempts, :only => [:index, :create, :show, :update]
   
-  resources :contacts
+  resources :contacts do
+    collection do
+      get 'check_email'
+      get 'search_email'
+    end
+  end
+  
+  match 'register_notification' => 'contacts#register_notification'
+  
+  resources :notifications, :only => [:new, :create, :show, :update, :index]
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do

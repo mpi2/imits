@@ -232,8 +232,8 @@ ActiveRecord::Schema.define(:version => 20120313171943) do
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "notifications", :force => true do |t|
-    t.date     "welcome_email_sent"
-    t.date     "last_email_sent"
+    t.datetime "welcome_email_sent"
+    t.datetime "last_email_sent"
     t.integer  "gene_id"
     t.integer  "contact_id"
     t.datetime "created_at"

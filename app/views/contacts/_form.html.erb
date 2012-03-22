@@ -1,10 +1,9 @@
 <% generator = FieldGenerator.new(form) %>
 <% contact = form.object %>
   <fieldset id="email-field">
-    <legend>Email</legend>
+    <legend>Contact</legend>
       <div class="email">
         <%= generator.text_field(:email, :class => 'x-form-text', :size => 20) %>
-      </div
       </div>
   </fieldset>
   <fieldset id="detail-fields">
@@ -22,3 +21,4 @@
         <%= generator.text_field(:organisation, :class => 'x-form-text', :size => 20) %>
       </div>
   </fieldset>
+

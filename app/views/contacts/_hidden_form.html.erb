@@ -1,0 +1,38 @@
+<% generator = FieldGenerator.new(form) %>
+<% contact = form.object %>
+  
+  <fieldset id="email-field">
+    <legend>Email</legend>
+      <div class="email">
+        <%= form.hidden_field :email %>
+        <%= contact.email %>
+      </div
+      <div id="loading_message">
+      </div>
+  </fieldset>
+  <div id="response_message">
+  </div>
+  <fieldset id="detail-fields">
+    <legend>Details</legend>
+      <div class="first-name">
+        <%= form.label :first_name %>
+        <%= form.hidden_field :first_name %>
+        <%= contact.first_name %>
+      </div>
+      <div class="last-name">
+        <%= form.label :last_name %>
+        <%= form.hidden_field :last_name %>
+        <%= contact.last_name %>
+      </div>
+      <div class="institution">
+        <%= form.label :institution %>
+        <%= form.hidden_field :institution %>
+        <%= contact.institution %>
+      </div>
+      <div class="organisation">
+        <%= form.label :organisation %>
+        <%= form.hidden_field :organisation %>
+        <%= contact.organisation %>
+      </div>
+  </fieldset>
+  

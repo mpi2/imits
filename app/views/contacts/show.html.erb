@@ -1,0 +1,10 @@
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('contacts/shared') %>
+<% end %>
+<div id="contact-show-bottom" class="grid_8 prefix_2 suffix_2">
+  <div>
+    <%= render 'genes/gene', :gene => @gene %>
+    <%= render 'contacts/contact', :contact => @contact %>
+  </div>
+    <%= link_to "Continue", new_notification_path(:mgi_accession_id => @gene.mgi_accession_id, :email => @contact.email) %>
+</div>

@@ -7,3 +7,4 @@ sqlnet.log
 db/dump.*.sql
 public/assets
 .bundle/config
+.DS_Store

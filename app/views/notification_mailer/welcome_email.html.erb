@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type" />
+  </head>
+  <body>
+    <h1>Welcome to IMITS, <%= @contact.first_name %> <%= @contact.last_name %></h1>
+    <p>
+    Thank you for registering for gene <%= @gene.marker_symbol %>
+    </p>
+    <p>
+    You are aware that for this gene IMPC have:
+    </p>
+    <ul>
+      <li>- <%= @gene.conditional_es_cells_count %> conditional ES cells</li>
+      <li>- <%= @gene.non_conditional_es_cells_count %> non-conditional ES cells</li>
+      <li>- <%= @gene.deletion_es_cells_count %> deletions</li>
+      <li>-  mouse production attempt(s) in progress</li>
+      <li>-  genotype confirmed mice</li>
+      <li>-  phenotyping attempts (TODO: split these out too)</li>
+    </ul>
+
+    <p>
+    Updates on gene status will be sent to <%= @contact.email %>.<br/>
+    </p>
+  </body>
+</html>
+
+

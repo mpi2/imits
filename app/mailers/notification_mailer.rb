@@ -1,9 +1,10 @@
 class NotificationMailer < ActionMailer::Base
-  default :from => 'htgt@sanger.ac.uk', :bcc => 'aq2@sanger.ac.uk'
+  default :from => 'htgt@sanger.ac.uk', :bcc => 'gj2@sanger.ac.uk'
 
-  def email(params)
-    params = params.symbolize_keys
-    @email_body = params[:body]
-    mail(:to => params[:user].email, :subject => params[:subject])
+  def registration_confirmation(notification)
+    @contact = Contact.find(notification.contact_id)
+    @gene = Gene.find(notification.gene_id)
+    mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered")
   end
+  
 end

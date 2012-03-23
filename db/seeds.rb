@@ -38,16 +38,11 @@ module Seeds
   end
 end
 
-#
-# 1: Micro-injection in progress: ORDER-BY =>  
-#
-#
-#
 Seeds.load MiAttemptStatus, [
-  {:id => 1, :description => 'Micro-injection in progress'},
-  {:id => 2, :description => 'Genotype confirmed'},
-  {:id => 3, :description => 'Micro-injection aborted'},
-  {:id => 4, :description => 'Chimeras obtained'}
+  {:id => 1, :description => 'Micro-injection in progress', :order_by => 220},
+  {:id => 2, :description => 'Genotype confirmed', :order_by => 240},
+  {:id => 3, :description => 'Micro-injection aborted', :order_by => 210},
+  {:id => 4, :description => 'Chimeras obtained', :order_by => 230}
 ]
 
 Seeds.set_up_strains Strain::BlastStrain, :blast_strains
@@ -145,12 +140,12 @@ Seeds.load MiPlan::SubProject, [
 ]
 
 Seeds.load PhenotypeAttempt::Status, [
-  {:id =>  1, :name => 'Phenotype Attempt Aborted'},
-  {:id =>  2, :name => 'Phenotype Attempt Registered'},
-  {:id =>  3, :name => 'Rederivation Started'},
-  {:id =>  4, :name => 'Rederivation Complete'},
-  {:id =>  5, :name => 'Cre Excision Started'},
-  {:id =>  6, :name => 'Cre Excision Complete'},
-  {:id =>  7, :name => 'Phenotyping Started'},
-  {:id =>  8, :name => 'Phenotyping Complete'}
+  {:id =>  1, :name => 'Phenotype Attempt Aborted', :order_by => 310},
+  {:id =>  2, :name => 'Phenotype Attempt Registered', :order_by => 320},
+  {:id =>  3, :name => 'Rederivation Started', :order_by => 330},
+  {:id =>  4, :name => 'Rederivation Complete', :order_by => 340},
+  {:id =>  5, :name => 'Cre Excision Started', :order_by => 350},
+  {:id =>  6, :name => 'Cre Excision Complete', :order_by => 360},
+  {:id =>  7, :name => 'Phenotyping Started', :order_by => 370},
+  {:id =>  8, :name => 'Phenotyping Complete', :order_by => 380}
 ]

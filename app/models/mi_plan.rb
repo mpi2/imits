@@ -104,7 +104,8 @@ class MiPlan < ApplicationModel
     @@status_sort_order ||= {
       MiAttemptStatus.micro_injection_aborted => 1,
       MiAttemptStatus.micro_injection_in_progress => 2,
-      MiAttemptStatus.genotype_confirmed => 3
+      MiAttemptStatus.chimeras_obtained => 3,
+      MiAttemptStatus.genotype_confirmed => 4
     }
     ordered_mis = mi_attempts.all.sort do |mi1, mi2|
       [@@status_sort_order[mi1.mi_attempt_status], mi1.in_progress_date] <=>

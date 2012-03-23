@@ -115,13 +115,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
       end
 
       expected = [
-        ["2011", "8", "BaSH", "0", "0", "0", "WTSI", "0", "0", "0", "2", "0"],
-        ["2011", "8", "DTCC", "0", "0", "0", "", "0", "0", "0", "0", "0"],
-        ["2011", "8", "JAX", "0", "0", "0", "", "0", "0", "0", "0", "0"]
+        ["2011", "8", "BaSH", "0", "0", "0", "WTSI", "0", "0",  "0", "0", "2", "0"],
+        ["2011", "8", "DTCC", "0", "0", "0", "", "0", "0", "0",  "0", "0", "0"],
+        ["2011", "8", "JAX", "0", "0", "0", "", "0", "0", "0",  "0", "0", "0"]
       ]
 
       csv = CSV.parse(generate[:csv])
-      got = csv[1..-1].map {|r| r[0..11]}
+      got = csv[1..-1].map {|r| r[0..12]}
       assert_equal expected, got
     end
 
@@ -214,13 +214,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
       )
 
       expected = [
-        ['2011', '8', 'BaSH', '0', '0', '0', 'WTSI', '1', '1'],
-        ['2011', '8', 'DTCC', '0', '0', '0', '', '0', '0'],
-        ['2011', '8', 'JAX', '0', '0', '0', '', '0', '0']
+        ['2011', '8', 'BaSH', '0', '0', '0', 'WTSI', '1', '0', '1'],
+        ['2011', '8', 'DTCC', '0', '0', '0', '', '0', '0', '0'],
+        ['2011', '8', 'JAX', '0', '0', '0', '', '0', '0', '0']
       ]
 
       csv = CSV.parse(generate[:csv])
-      got = csv[1..-1].map {|r| r[0..8]}
+      got = csv[1..-1].map {|r| r[0..9]}
       assert_equal expected, got
     end
   end

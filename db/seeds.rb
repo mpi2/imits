@@ -46,7 +46,8 @@ end
 Seeds.load MiAttemptStatus, [
   {:id => 1, :description => 'Micro-injection in progress'},
   {:id => 2, :description => 'Genotype confirmed'},
-  {:id => 3, :description => 'Micro-injection aborted'}
+  {:id => 3, :description => 'Micro-injection aborted'},
+  {:id => 4, :description => 'Chimeras obtained'}
 ]
 
 Seeds.set_up_strains Strain::BlastStrain, :blast_strains
@@ -139,7 +140,8 @@ Seeds.load MiPlan::SubProject, [
   {:id => 12, :name => 'WTSI_Bone_A'},
   {:id => 13, :name => 'WTSI_Bespoke_A'},
   {:id => 14, :name => 'MGP Legacy'},
-  {:id => 15, :name => 'WTSI_Sense_A'}
+  {:id => 15, :name => 'WTSI_Sense_A'},
+  {:id => 16, :name => 'WTSI_Metabolism_A'}
 ]
 
 Seeds.load PhenotypeAttempt::Status, [

@@ -20,12 +20,12 @@ class TestDummy
 
   def initialize(type, *values)
     if values.last.kind_of?(Hash)
-      hashvalues = values.pop.symbolize_keys
+      hash_values = values.pop.symbolize_keys
     else
-      hashvalues = {}
+      hash_values = {}
     end
 
-    @object = Factory.build type
+    @object = Factory.build type, hash_values
     @associations = ASSOCIATIONS.dup
     values.each do |value|
       attr, value = get_attr_and_associated(value)

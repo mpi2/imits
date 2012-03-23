@@ -49,6 +49,10 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.mi_date { Date.today }
 end
 
+Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_attempt|
+  mi_attempt.total_male_chimeras 1
+end
+
 Factory.define :public_mi_attempt, :class => Public::MiAttempt do |mi_attempt|
   mi_attempt.es_cell_name { Factory.create(:es_cell).name }
   mi_attempt.consortium_name 'EUCOMM-EUMODIC'
@@ -56,12 +60,12 @@ Factory.define :public_mi_attempt, :class => Public::MiAttempt do |mi_attempt|
   mi_attempt.mi_date { Date.today }
 end
 
-Factory.define :mi_attempt_genotype_confirmed, :parent => :mi_attempt do |mi_attempt|
+Factory.define :mi_attempt_genotype_confirmed, :parent => :mi_attempt_chimeras_obtained do |mi_attempt|
   mi_attempt.production_centre_name 'ICS'
   mi_attempt.number_of_het_offspring 1
 end
 
-Factory.define :wtsi_mi_attempt_genotype_confirmed, :parent => :mi_attempt do |mi_attempt|
+Factory.define :wtsi_mi_attempt_genotype_confirmed, :parent => :mi_attempt_chimeras_obtained do |mi_attempt|
   mi_attempt.production_centre_name 'WTSI'
   mi_attempt.is_released_from_genotyping true
 end
@@ -107,7 +111,7 @@ Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |p
   phenotype_attempt.number_of_cre_matings_successful { rand(10..50)}
   phenotype_attempt.phenotyping_started true
   phenotype_attempt.phenotyping_complete true
-  phenotype_attempt.mouse_allele_type 'a'
+  phenotype_attempt.mouse_allele_type 'b'
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|

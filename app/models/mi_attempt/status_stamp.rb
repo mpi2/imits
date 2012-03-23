@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 class MiAttempt::StatusStamp < ActiveRecord::Base
+  acts_as_audited
   acts_as_reportable
 
   belongs_to :mi_attempt

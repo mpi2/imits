@@ -1095,8 +1095,6 @@ class MiPlanTest < ActiveSupport::TestCase
 
     context '#latest_relevant_status' do
 
-     # date = Date.parse('2011-02-10')
-
       should 'find plan' do
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create(:mi_plan, :gene => gene,

@@ -117,6 +117,10 @@ class MiPlan < ApplicationModel
       return ordered_mis.last
     end
   end
+  
+  def latest_relevant_phenotype_attempt
+    return phenotype_attempts.order('is_active desc, created_at desc').first
+  end
 
   def add_status_stamp(status_to_add)
     self.status_stamps.create!(:status => status_to_add)
@@ -302,10 +306,6 @@ class MiPlan < ApplicationModel
     end
   end
 
-  def latest_relevant_phenotype_attempt
-    return phenotype_attempts.order('is_active desc, created_at desc').first
-  end
-
   def distinct_genotype_confirmed_es_cells_count
 
     es_cells = []
@@ -346,9 +346,8 @@ class MiPlan < ApplicationModel
     end
 
     d = plan_status_list[s]
-
+    
     mi = latest_relevant_mi_attempt
-    s = mi ? mi.mi_attempt_status.description : s
 
     if mi
       mi_status_list = {}
@@ -356,10 +355,11 @@ class MiPlan < ApplicationModel
       mi_dates.each do |description, date|
         mi_status_list["#{description}"] = date.to_s
       end
+
+      s = mi.mi_attempt_status.description
+      d = mi_status_list[s]
     end
-
-    d = mi ? mi_status_list[s] : d
-
+    
     pt = latest_relevant_phenotype_attempt
     s = pt ? pt.status.name : s
 
@@ -374,6 +374,42 @@ class MiPlan < ApplicationModel
     d = pt ? pheno_status_list[s] : d
 
     return { :status => s, :date => d }
+  end
+  
+  def relevant_status_stamp
+    if self.status_stamps
+      plan_stamp = self.status_stamps.find_by_status_id(self.status_id)
+      if plan_stamp
+        order_by = plan_stamp.status.order_by
+        date = plan_stamp.created_at
+        status = plan_stamp.status.description
+        stamp_type = plan_stamp.class.name
+        stamp_id = plan_stamp.id
+      end
+    end
+        
+    if mi = self.latest_relevant_mi_attempt
+      mi_stamp = mi.status_stamps.find_by_mi_attempt_status_id(mi.mi_attempt_status)
+      if plan_stamp
+        order_by = mi_stamp.status.order_by
+        date = mi_stamp.created_at
+        status = mi_stamp.status.description
+        stamp_type = mi_stamp.class.name
+        stamp_id = mi_stamp.id
+      end
+    end
+    
+    if pa = self.latest_relevant_phenotype_attempt
+      pa_stamp = pa.status_stamps.find_by_status_id(pa.status_id)
+      if plan_stamp
+        order_by = pa_stamp.status.order_by
+        date = pa_stamp.created_at
+        status = pa_stamp.status.description
+        stamp_type = pa_stamp.class.name
+        stamp_id = pa_stamp.id
+      end
+    end
+    return { :order_by => order_by, :date => date, :status => status, :stamp_type => stamp_type, :stamp_id => stamp_id }
   end
 
 end

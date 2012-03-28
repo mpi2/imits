@@ -32,7 +32,7 @@ class CreateIntermediateReports < ActiveRecord::Migration
       t.date :phenotype_attempt_aborted_date
       t.integer :distinct_genotype_confirmed_es_cells
       t.integer :distinct_old_non_genotype_confirmed_es_cells
-      t.integer :miplan_id
+      t.integer :miplan_id, :null => false
 
       t.timestamps
     end

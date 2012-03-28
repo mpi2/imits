@@ -51,7 +51,7 @@ end
 #  phenotype_attempt_aborted_date               :date
 #  distinct_genotype_confirmed_es_cells         :integer
 #  distinct_old_non_genotype_confirmed_es_cells :integer
-#  miplan_id                                    :integer
+#  miplan_id                                    :integer         not null
 #  created_at                                   :datetime
 #  updated_at                                   :datetime
 #

@@ -10,6 +10,8 @@ task 'cron:cache_reports' => [:environment] do
   end
 end
 
+# TODO: remove these after tests
+
 desc 'Generate cache table'
 task 'cron:cache_table' => [:environment] do
   ApplicationModel.audited_transaction do

@@ -1,25 +1,10 @@
 class IntermediateReport < ActiveRecord::Base
 
   def self.generate
-    # in txn
-    # delete table
-    # get the report table
-    # iterate over it to save
-
     IntermediateReport.transaction do
       IntermediateReport.delete_all
 
-      #cached_report = ReportCache.find_by_name_and_format!(Reports::MiProduction::Intermediate.report_name, 'csv').to_table
       cached_report = Reports::MiProduction::Intermediate.new.report
-
-      #puts "columns: " + cached_report.column_names.inspect
-      #cached_report.each do |row|
-      #  puts row.inspect
-      #  cached_report.column_names.each do |column_name|
-      #    puts "#{column_name}: #{row[column_name]}"
-      #  end
-      #  break
-      #end
 
       cached_report.each do |row|
         hash = {}

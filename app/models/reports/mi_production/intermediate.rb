@@ -127,12 +127,6 @@ class Reports::MiProduction::Intermediate < Reports::Base
       end
     end
 
-#    puts "symbolize_keys: " + column_names.symbolize_keys.inspect
-
-    #column_names.each do |column_name|
-    #  puts "#{column_name}: " + column_name.parameterize.underscore.to_sym.inspect
-    #end
-
     @report = report.sort_rows_by(column_names)
   end
 end

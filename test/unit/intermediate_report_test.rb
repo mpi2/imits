@@ -152,13 +152,9 @@ class IntermediateReportTest < ActiveSupport::TestCase
     end
 
     # we're only really testing that the IntermediateReport.generate writes to the new table, since it relies on functionality
-    # found in the intermediate routine
+    # found in the (previously existing) intermediate routine
     should 'do generate' do
       IntermediateReport.generate
-      #puts report.inspect
-      #flunk
-      #puts "COUNT: " + IntermediateReport.count.to_s
-
       assert_equal 4, IntermediateReport.count
     end
 

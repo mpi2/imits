@@ -165,7 +165,22 @@ class Gene < ActiveRecord::Base
   def self.pretty_print_aborted_mi_attempts_in_bulk(gene_id=nil)
     return pretty_print_mi_attempts_in_bulk_helper(false,nil,gene_id)
   end
+  
+  def relevant_status
+    @selected_status = Hash.new
 
+    self.mi_plans.each do |plan|
+      this_status = plan.relevant_status_stamp
+      if ! @select_status
+        @selected_status = this_status
+      elsif this_status[:order_by] > @selected_status[:order_by]
+        @selected_status = this_status
+      end
+    end
+
+    return @selected_status
+  end
+  
   private
 
   def self.pretty_print_mi_attempts_in_bulk_helper(active,status,gene_id=nil)

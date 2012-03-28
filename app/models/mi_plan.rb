@@ -391,9 +391,9 @@ class MiPlan < ApplicationModel
     if mi = self.latest_relevant_mi_attempt
       mi_stamp = mi.status_stamps.find_by_mi_attempt_status_id(mi.mi_attempt_status)
       if plan_stamp
-        order_by = mi_stamp.status.order_by
+        order_by = mi_stamp.mi_attempt_status.order_by
         date = mi_stamp.created_at
-        status = mi_stamp.status.description
+        status = mi_stamp.mi_attempt_status.description
         stamp_type = mi_stamp.class.name
         stamp_id = mi_stamp.id
       end

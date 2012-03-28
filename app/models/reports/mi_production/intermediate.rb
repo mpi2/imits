@@ -34,7 +34,8 @@ class Reports::MiProduction::Intermediate < Reports::Base
       'production_centre.name' => 'Production Centre',
       'gene.marker_symbol' => 'Gene',
       'gene.mgi_accession_id' => 'MGI Accession ID',
-      'status.name' => 'MiPlan Status'
+      'status.name' => 'MiPlan Status',
+      'id' => 'MiPlan ID'
     }
 
     report_options = generate_report_options(report_columns)
@@ -88,7 +89,7 @@ class Reports::MiProduction::Intermediate < Reports::Base
     report = MiPlan.report_table(:all, report_options)
 
     report.rename_columns(report_columns)
-    column_names = report_columns.values - ['MiPlan Status'] + [
+    column_names = report_columns.values - ['MiPlan ID'] - ['MiPlan Status'] + [
       'Overall Status',
       'MiPlan Status',
       'MiAttempt Status',
@@ -113,7 +114,8 @@ class Reports::MiProduction::Intermediate < Reports::Base
       'Phenotyping Complete Date',
       'Phenotype Attempt Aborted Date',
       'Distinct Genotype Confirmed ES Cells',
-      'Distinct Old Non Genotype Confirmed ES Cells'
+      'Distinct Old Non Genotype Confirmed ES Cells',
+      'MiPlan ID'
     ]
     report.reorder(column_names)
 
@@ -124,6 +126,12 @@ class Reports::MiProduction::Intermediate < Reports::Base
         end
       end
     end
+
+#    puts "symbolize_keys: " + column_names.symbolize_keys.inspect
+
+    #column_names.each do |column_name|
+    #  puts "#{column_name}: " + column_name.parameterize.underscore.to_sym.inspect
+    #end
 
     @report = report.sort_rows_by(column_names)
   end

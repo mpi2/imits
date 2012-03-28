@@ -9,7 +9,8 @@ class IntermediateReport < ActiveRecord::Base
     IntermediateReport.transaction do
       IntermediateReport.delete_all
 
-      cached_report = ReportCache.find_by_name_and_format!(Reports::MiProduction::Intermediate.report_name, 'csv').to_table
+      #cached_report = ReportCache.find_by_name_and_format!(Reports::MiProduction::Intermediate.report_name, 'csv').to_table
+      cached_report = Reports::MiProduction::Intermediate.new.report
 
       #puts "columns: " + cached_report.column_names.inspect
       #cached_report.each do |row|

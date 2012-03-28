@@ -2,24 +2,32 @@
 1:
   id: 1
   name: Phenotype Attempt Aborted
+  order_by: 310
 2:
   id: 2
   name: Phenotype Attempt Registered
+  order_by: 320
 3:
   id: 3
   name: Rederivation Started
+  order_by: 330
 4:
   id: 4
   name: Rederivation Complete
+  order_by: 340
 5:
   id: 5
   name: Cre Excision Started
+  order_by: 350
 6:
   id: 6
   name: Cre Excision Complete
+  order_by: 360
 7:
   id: 7
   name: Phenotyping Started
+  order_by: 370
 8:
   id: 8
   name: Phenotyping Complete
+  order_by: 380

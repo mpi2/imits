@@ -16,9 +16,7 @@ end
 desc 'Generate cache table'
 task 'cron:cache_table' => [:environment] do
   ApplicationModel.audited_transaction do
-    #report = Reports::MiProduction::Intermediate.new
-    report = nil
-    IntermediateReport.generate(report)
+    IntermediateReport.generate(nil)
   end
 end
 

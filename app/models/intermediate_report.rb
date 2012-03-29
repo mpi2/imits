@@ -7,16 +7,12 @@ class IntermediateReport < ActiveRecord::Base
     IntermediateReport.transaction do
       IntermediateReport.delete_all
 
-      #cached_report = Reports::MiProduction::Intermediate.new.report
-      #cached_report = cached_report.report
       cached_report = cached_report.nil? ? ReportCache.find_by_name_and_format!(Reports::MiProduction::Intermediate.report_name, 'csv').to_table : cached_report.report
 
       cached_report.each do |row|
         hash = {}
         cached_report.column_names.each { |column_name| hash[column_name.gsub(' - ', '_').gsub(' ', '_').underscore.to_sym] = row[column_name] }
-        #puts hash.inspect
         IntermediateReport.create hash
-        #break
       end
     end
   end

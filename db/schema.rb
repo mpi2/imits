@@ -102,9 +102,9 @@ ActiveRecord::Schema.define(:version => 20120328110402) do
     t.string   "gene",                                         :limit => 75,  :null => false
     t.string   "mgi_accession_id",                             :limit => 40
     t.string   "overall_status",                               :limit => 50
-    t.string   "miplan_status",                                :limit => 50
-    t.string   "miattempt_status",                             :limit => 50
-    t.string   "phenotypeattempt_status",                      :limit => 50
+    t.string   "mi_plan_status",                               :limit => 50
+    t.string   "mi_attempt_status",                            :limit => 50
+    t.string   "phenotype_attempt_status",                     :limit => 50
     t.integer  "ikmc_project_id"
     t.string   "mutation_sub_type",                            :limit => 100
     t.string   "allele_symbol",                                :limit => 75,  :null => false
@@ -126,7 +126,7 @@ ActiveRecord::Schema.define(:version => 20120328110402) do
     t.date     "phenotype_attempt_aborted_date"
     t.integer  "distinct_genotype_confirmed_es_cells"
     t.integer  "distinct_old_non_genotype_confirmed_es_cells"
-    t.integer  "miplan_id",                                                   :null => false
+    t.integer  "mi_plan_id",                                                  :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

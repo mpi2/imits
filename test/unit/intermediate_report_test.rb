@@ -107,7 +107,8 @@ class IntermediateReportTest < ActiveSupport::TestCase
       pt.status_stamps.create!(:created_at => '2011-12-30 23:59:59 UTC',
         :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'])
 
-      @report = Reports::MiProduction::Intermediate.new.report
+      report = Reports::MiProduction::Intermediate.new
+      report.cache
     end
 
     should 'have attributes' do
@@ -119,9 +120,9 @@ class IntermediateReportTest < ActiveSupport::TestCase
           :gene,
           :mgi_accession_id,
           :overall_status,
-          :miplan_status,
-          :miattempt_status,
-          :phenotypeattempt_status,
+          :mi_plan_status,
+          :mi_attempt_status,
+          :phenotype_attempt_status,
           :ikmc_project_id,
           :mutation_sub_type,
           :allele_symbol,
@@ -143,7 +144,7 @@ class IntermediateReportTest < ActiveSupport::TestCase
           :phenotype_attempt_aborted_date,
           :distinct_genotype_confirmed_es_cells,
           :distinct_old_non_genotype_confirmed_es_cells,
-          :miplan_id
+          :mi_plan_id
       ]
 
       attributes.each do |attribute|

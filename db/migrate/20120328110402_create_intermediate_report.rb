@@ -1,6 +1,6 @@
-class CreateIntermediateReports < ActiveRecord::Migration
+class CreateIntermediateReport < ActiveRecord::Migration
   def self.up
-    create_table :intermediate_reports do |t|
+    create_table :intermediate_report do |t|
       t.string :consortium, :null => false, :size => 15
       t.string :sub_project, :null => false
       t.string :priority, :size => 10
@@ -8,9 +8,9 @@ class CreateIntermediateReports < ActiveRecord::Migration
       t.string :gene, :null => false, :limit => 75
       t.string :mgi_accession_id, :limit => 40
       t.string :overall_status, :limit => 50
-      t.string :miplan_status, :limit => 50
-      t.string :miattempt_status, :limit => 50
-      t.string :phenotypeattempt_status, :limit => 50
+      t.string :mi_plan_status, :limit => 50
+      t.string :mi_attempt_status, :limit => 50
+      t.string :phenotype_attempt_status, :limit => 50
       t.integer :ikmc_project_id
       t.string :mutation_sub_type, :limit => 100
       t.string :allele_symbol, :null => false, :limit => 75
@@ -32,13 +32,13 @@ class CreateIntermediateReports < ActiveRecord::Migration
       t.date :phenotype_attempt_aborted_date
       t.integer :distinct_genotype_confirmed_es_cells
       t.integer :distinct_old_non_genotype_confirmed_es_cells
-      t.integer :miplan_id, :null => false
+      t.integer :mi_plan_id, :null => false
 
       t.timestamps
     end
   end
 
   def self.down
-    drop_table :intermediate_reports
+    drop_table :intermediate_report
   end
 end

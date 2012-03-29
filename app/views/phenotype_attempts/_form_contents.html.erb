@@ -55,12 +55,3 @@
      <%= generator.mouse_allele_type_field %>
    </div>
 </fieldset>
-<fieldset class="collapsible">
-  <legend>Phenotyping</legend>
-   <% [:phenotyping_started, :phenotyping_complete].each do |field| %>
-      <div>
-        <%= form.label field, field.to_s.titlecase %>
-        <%= form.check_box field %>
-      </div>
-   <% end %>
-</fieldset>

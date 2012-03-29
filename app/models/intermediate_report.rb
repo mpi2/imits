@@ -1,4 +1,7 @@
 class IntermediateReport < ActiveRecord::Base
+  set_table_name :intermediate_report
+
+  acts_as_reportable
 
   def self.generate
     IntermediateReport.transaction do
@@ -17,7 +20,7 @@ end
 
 # == Schema Information
 #
-# Table name: intermediate_reports
+# Table name: intermediate_report
 #
 #  id                                           :integer         not null, primary key
 #  consortium                                   :string(255)     not null
@@ -55,3 +58,4 @@ end
 #  created_at                                   :datetime
 #  updated_at                                   :datetime
 #
+

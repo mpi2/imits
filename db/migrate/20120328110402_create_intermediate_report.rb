@@ -1,6 +1,6 @@
-class CreateIntermediateReports < ActiveRecord::Migration
+class CreateIntermediateReport < ActiveRecord::Migration
   def self.up
-    create_table :intermediate_reports do |t|
+    create_table :intermediate_report do |t|
       t.string :consortium, :null => false, :size => 15
       t.string :sub_project, :null => false
       t.string :priority, :size => 10
@@ -39,6 +39,6 @@ class CreateIntermediateReports < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table :intermediate_reports
+    drop_table :intermediate_report
   end
 end

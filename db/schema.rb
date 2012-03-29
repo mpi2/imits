@@ -94,7 +94,7 @@ ActiveRecord::Schema.define(:version => 20120328110402) do
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
 
-  create_table "intermediate_reports", :force => true do |t|
+  create_table "intermediate_report", :force => true do |t|
     t.string   "consortium",                                                  :null => false
     t.string   "sub_project",                                                 :null => false
     t.string   "priority"

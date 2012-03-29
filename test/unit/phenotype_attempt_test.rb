@@ -262,6 +262,15 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         pt = Factory.create :phenotype_attempt, :colony_name => 'XYZ789'
         assert_equal 'XYZ789', pt.colony_name
       end
+
+      should 'validate uniqueness insensitively' do
+        default_phenotype_attempt.update_attributes!(:colony_name => 'ABCD')
+        pa = Factory.build :phenotype_attempt, :colony_name => 'ABCD'; pa.valid?
+        assert_match /taken/, pa.errors[:colony_name].first
+
+        pa.colony_name = 'abcd'; pa.valid?
+        assert_match /taken/, pa.errors[:colony_name].first
+      end
     end
 
     context '#gene' do

@@ -12,6 +12,8 @@ class PhenotypeAttempt < ApplicationModel
   has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
+  validates :colony_name, :uniqueness => {:case_sensitive => false}
+
   validate :mi_attempt do |me|
     if me.mi_attempt and me.mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
       me.errors.add(:mi_attempt, "status must be genotype confirmed (is currently '#{me.mi_attempt.mi_attempt_status.description}')")

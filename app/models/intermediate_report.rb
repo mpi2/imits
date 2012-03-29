@@ -3,7 +3,7 @@ class IntermediateReport < ActiveRecord::Base
 
   acts_as_reportable
 
-  def self.generate(cached_report)
+  def self.generate(cached_report = nil)
     IntermediateReport.transaction do
       IntermediateReport.delete_all
 

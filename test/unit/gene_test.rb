@@ -460,18 +460,26 @@ class GeneTest < ActiveSupport::TestCase
     
     context '#relevant_status' do
       should 'work' do
-        gene = Factory.create :gene
-        plan = Factory.create :mi_plan,
-              :gene => gene,
-              :status => MiPlan::Status.find_by_name!('Assigned')      
-        assert_equal MiPlan::Status.find_by_name!('Assigned').name, gene.relevant_status[:status]  
-        
-        mi = Factory.create :mi_attempt_genotype_confirmed,
-                  :es_cell => Factory.create(:es_cell, :gene => gene),
-                  :mi_plan => plan,
-                  :is_active => true
-        assert_equal MiAttemptStatus.genotype_confirmed.description, mi.status
-        assert_equal MiAttemptStatus.genotype_confirmed.description, gene.relevant_status[:status]
+       
+        mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI'
+        plan = mi.mi_plan
+        plan.update_attributes!(:number_of_es_cells_starting_qc => 1)
+        pt = Factory.create :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi
+        gene = plan.gene
+        replace_status_stamps(plan,
+        'Assigned' => '2011-01-01',
+        'Assigned - ES Cell QC In Progress' => '2011-05-31')
+        replace_status_stamps(mi,
+        'Micro-injection in progress' => '2011-05-31',
+        'Genotype confirmed' => '2011-05-31')
+        replace_status_stamps(pt,
+        'Phenotype Attempt Registered' => '2011-05-31')
+         
+        gene.reload
+        assert_equal PhenotypeAttempt::Status["Phenotype Attempt Registered"].name, gene.relevant_status[:status] 
+       
       end
       
     end

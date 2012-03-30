@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class IntermediateReportTest < ActiveSupport::TestCase
-
   context 'IntermediateReport' do
 
     setup do
@@ -152,13 +151,10 @@ class IntermediateReportTest < ActiveSupport::TestCase
       end
     end
 
-    # we're only really testing that the IntermediateReport.generate writes to the new table, since it relies on functionality
-    # found in the (previously existing) intermediate routine
-    should 'do generate' do
+    should '#generate' do
       IntermediateReport.generate
       assert_equal 4, IntermediateReport.count
     end
 
   end
-
 end

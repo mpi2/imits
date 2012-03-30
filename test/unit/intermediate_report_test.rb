@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class IntermediateReportTest < ActiveSupport::TestCase
-
   context 'IntermediateReport' do
 
     setup do
@@ -111,7 +110,7 @@ class IntermediateReportTest < ActiveSupport::TestCase
       report.cache
     end
 
-    should 'have attributes' do
+    should 'have correct attributes' do
       attributes = [
           :consortium,
           :sub_project,
@@ -152,13 +151,10 @@ class IntermediateReportTest < ActiveSupport::TestCase
       end
     end
 
-    # we're only really testing that the IntermediateReport.generate writes to the new table, since it relies on functionality
-    # found in the (previously existing) intermediate routine
-    should 'do generate' do
-      IntermediateReport.generate
+    should '#generate' do
+      IntermediateReport.generate(Reports::MiProduction::Intermediate.new.report)
       assert_equal 4, IntermediateReport.count
     end
 
   end
-
 end

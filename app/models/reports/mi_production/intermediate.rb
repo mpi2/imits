@@ -129,4 +129,9 @@ class Reports::MiProduction::Intermediate < Reports::Base
 
     @report = report.sort_rows_by(column_names)
   end
+
+  def cache
+    super
+    IntermediateReport.generate(@report)
+  end
 end

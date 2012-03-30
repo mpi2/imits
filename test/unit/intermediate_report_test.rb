@@ -110,7 +110,7 @@ class IntermediateReportTest < ActiveSupport::TestCase
       report.cache
     end
 
-    should 'have attributes' do
+    should 'have correct attributes' do
       attributes = [
           :consortium,
           :sub_project,

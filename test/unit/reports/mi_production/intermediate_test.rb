@@ -318,5 +318,16 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
       assert_equal report.report.to_html, cache.data
     end
 
+    should '#cache to IntermediateReport model as well as ReportCache' do
+      2.times { Factory.create :mi_plan }
+      assert_equal 0, ReportCache.count
+      assert_equal 0, IntermediateReport.count
+
+      Reports::MiProduction::Intermediate.new.cache
+
+      assert_equal 1, ReportCache.where(:format => :html).count
+      assert_equal 2, IntermediateReport.count
+    end
+
   end
 end

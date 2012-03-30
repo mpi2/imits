@@ -152,7 +152,7 @@ class IntermediateReportTest < ActiveSupport::TestCase
     end
 
     should '#generate' do
-      IntermediateReport.generate
+      IntermediateReport.generate(Reports::MiProduction::Intermediate.new.report)
       assert_equal 4, IntermediateReport.count
     end
 

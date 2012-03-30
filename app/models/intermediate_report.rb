@@ -3,15 +3,13 @@ class IntermediateReport < ActiveRecord::Base
 
   acts_as_reportable
 
-  def self.generate(cached_report = nil)
+  def self.generate(report)
     IntermediateReport.transaction do
-      IntermediateReport.delete_all
+      IntermediateReport.destroy_all
 
-      cached_report = cached_report.nil? ? ReportCache.find_by_name_and_format!(Reports::MiProduction::Intermediate.report_name, 'csv').to_table : cached_report.report
-
-      cached_report.each do |row|
+      report.each do |row|
         hash = {}
-        cached_report.column_names.each { |column_name| hash[column_name.gsub(' - ', '_').gsub(' ', '_').underscore.to_sym] = row[column_name] }
+        report.column_names.each { |column_name| hash[column_name.gsub(' - ', '_').gsub(' ', '_').underscore.to_sym] = row[column_name] }
         IntermediateReport.create hash
       end
     end

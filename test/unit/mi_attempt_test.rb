@@ -838,15 +838,16 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      context 'set_blank_strings_to_nil' do
+      context '#set_blank_strings_to_nil (before validation)' do
         should 'work' do
           default_mi_attempt.total_male_chimeras = 1
           default_mi_attempt.mouse_allele_type = ' '
+          default_mi_attempt.genotyping_comment = '  '
           default_mi_attempt.is_active = false
-          default_mi_attempt.save!
-          default_mi_attempt.reload
+          default_mi_attempt.valid?
           assert_equal 1, default_mi_attempt.total_male_chimeras
           assert_equal nil, default_mi_attempt.mouse_allele_type
+          assert_equal nil, default_mi_attempt.genotyping_comment
           assert_equal false, default_mi_attempt.is_active
         end
       end

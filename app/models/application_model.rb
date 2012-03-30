@@ -12,6 +12,25 @@ class ApplicationModel < ActiveRecord::Base
     'e' => 'e - Targeted Non-Conditional'
   }.freeze
 
+  # BEGIN Callbacks
+
+  before_validation :set_blank_strings_to_nil
+
+  protected
+
+  def set_blank_strings_to_nil
+    self.attributes.each do |name, value|
+      if self[name].respond_to?(:to_str) && self[name].blank?
+        self[name] = nil
+      end
+    end
+  end
+
+  public
+
+  # END Callbacks
+
+
   def self.translations
     return {}
   end

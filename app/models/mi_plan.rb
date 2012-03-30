@@ -383,7 +383,7 @@ class MiPlan < ApplicationModel
       if plan_stamp
         order_by = plan_stamp.status.order_by
         date = plan_stamp.created_at
-        status = plan_stamp.status.description
+        status = plan_stamp.status.name
         stamp_type = plan_stamp.class.name
         stamp_id = plan_stamp.id
       end
@@ -405,7 +405,7 @@ class MiPlan < ApplicationModel
       if plan_stamp
         order_by = pa_stamp.status.order_by
         date = pa_stamp.created_at
-        status = pa_stamp.status.description
+        status = pa_stamp.status.name
         stamp_type = pa_stamp.class.name
         stamp_id = pa_stamp.id
       end

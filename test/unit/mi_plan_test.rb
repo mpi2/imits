@@ -1136,6 +1136,50 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
     end
+    
+    context '#relevant_status_stamp' do
+
+      should 'find plan' do
+        gene = Factory.create :gene_cbx1
+        mi_plan = Factory.create(:mi_plan, :gene => gene,
+          :consortium => Consortium.find_by_name!('MGP'),
+          :status => MiPlan::Status.find_by_name!('Aborted - ES Cell QC Failed'))
+
+        results = mi_plan.relevant_status_stamp
+
+        assert_equal "Aborted - ES Cell QC Failed", results[:status]
+        assert_equal Date.today.to_date, results[:date].to_date
+      end
+
+      should 'find attempt' do
+        mi_attempt = Factory.create(:mi_attempt, :is_active => false)
+
+        results = mi_attempt.mi_plan.relevant_status_stamp
+
+        assert_equal "Micro-injection aborted", results[:status]
+        assert_equal Date.today.to_date, results[:date].to_date
+      end
+
+      should 'find phenotype with earliest date stamp' do
+        gene = Factory.create :gene_cbx1
+        mi_plan = Factory.create :mi_plan, :gene => gene
+        mi_attempt = Factory.create :mi_attempt_genotype_confirmed,
+          :es_cell => Factory.create(:es_cell, :gene => gene)
+        phenotype = Factory.create :phenotype_attempt, :mi_plan => mi_plan,
+          :created_at => "2011-12-02",
+          :mi_attempt => mi_attempt
+
+        phenotype.status_stamps.create!(
+          :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'],
+          :created_at => '2011-10-30')
+
+        results = mi_plan.relevant_status_stamp
+
+        assert_equal "Phenotype Attempt Registered", results[:status]
+        assert_equal Date.parse('2011-10-30').to_date, results[:date].to_date
+      end
+
+    end
 
   end
 end

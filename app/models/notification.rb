@@ -12,7 +12,9 @@ end
 #
 #  id                 :integer         not null, primary key
 #  welcome_email_sent :datetime
+#  welcome_email_text :text
 #  last_email_sent    :datetime
+#  last_email_text    :text
 #  gene_id            :integer
 #  contact_id         :integer
 #  created_at         :datetime

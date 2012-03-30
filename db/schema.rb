@@ -234,7 +234,9 @@ ActiveRecord::Schema.define(:version => 20120323162146) do
 
   create_table "notifications", :force => true do |t|
     t.datetime "welcome_email_sent"
+    t.text     "welcome_email_text"
     t.datetime "last_email_sent"
+    t.text     "last_email_text"
     t.integer  "gene_id"
     t.integer  "contact_id"
     t.datetime "created_at"

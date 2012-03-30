@@ -457,5 +457,23 @@ class GeneTest < ActiveSupport::TestCase
         assert_false result.include?('[EUCOMM-EUMODIC:WTSI:1]')
       end
     end
+    
+    context '#relevant_status' do
+      should 'work' do
+        gene = Factory.create :gene
+        plan = Factory.create :mi_plan,
+              :gene => gene,
+              :status => MiPlan::Status.find_by_name!('Assigned')      
+        assert_equal MiPlan::Status.find_by_name!('Assigned').name, gene.relevant_status[:status]  
+        
+        mi = Factory.create :mi_attempt_genotype_confirmed,
+                  :es_cell => Factory.create(:es_cell, :gene => gene),
+                  :mi_plan => plan,
+                  :is_active => true
+        assert_equal MiAttemptStatus.genotype_confirmed.description, mi.status
+        assert_equal MiAttemptStatus.genotype_confirmed.description, gene.relevant_status[:status]
+      end
+      
+    end
   end
 end

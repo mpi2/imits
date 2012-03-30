@@ -5,7 +5,17 @@ class NotificationsController < ApplicationController
   def new
     @contact = Contact.find_by_email(params[:email])
     @gene = Gene.find_by_mgi_accession_id(params[:mgi_accession_id])
-    @notification = Notification.new
+    notifications = Notification.where(:gene_id => @gene.id, :contact_id => @contact.id)
+    if notifications.length > 0
+      flash[:notice] = "You have previously registered interest in this gene. Resending notification email."
+      @notification = notifications.first
+      if NotificationMailer.registration_confirmation(@notification).deliver
+        @notification.update_attributes(:welcome_email_sent => Time.now)
+      end
+      redirect_to @notification
+    else
+      @notification = Notification.new
+    end
   end
   
   def create

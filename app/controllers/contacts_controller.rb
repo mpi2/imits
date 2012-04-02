@@ -54,12 +54,11 @@ class ContactsController < ApplicationController
 
     if @contact.save && @notification.save
       if NotificationMailer.registration_confirmation(@notification).deliver
-          @notification.welcome_email_sent = Time.now
-          @notification.save
-          flash[:notice] = "Successfully created contact and registered for email notification."
-          redirect_to notification_path(@notification, {:mgi_accession_id => @gene.mgi_accession_id, :email => @contact.email})
+        @notification.welcome_email_sent = Time.now.utc
+        @notification.save!
+        flash[:notice] = "Successfully created contact and registered for email notification."
+        redirect_to notification_path(@notification, {:mgi_accession_id => @gene.mgi_accession_id, :email => @contact.email})
       end
-
     end
   end
 

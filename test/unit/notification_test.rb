@@ -3,15 +3,15 @@
 require 'test_helper'
 
 class NotificationTest < ActiveSupport::TestCase
-  
+
   context 'Notification' do
-    
-    def default_notification 
+
+    def default_notification
       @default_notification ||= Factory.create :notification
     end
-    
+
     context 'attribute tests:' do
-      should 'have associations' do    
+      should 'have associations' do
         assert (default_notification.gene != nil)
         assert (default_notification.contact != nil)
       end
@@ -23,7 +23,7 @@ class NotificationTest < ActiveSupport::TestCase
         assert_should have_db_column(:last_email_sent)
       end
     end
-    
+
   end
-  
+
 end

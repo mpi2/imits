@@ -1,7 +1,7 @@
 function  checkEmail() {
   Ext.Ajax.on('beforerequest', this.showLoader);
   Ext.Ajax.on('requestcomplete', this.hideLoader);
- 
+
   Ext.Ajax.request({
     url: '/contact/check_email',
     method: 'GET',
@@ -15,13 +15,13 @@ function  checkEmail() {
       Ext.fly('response-message').update('Something went wrong...');
     }
   });
-}       
- 
+}
+
 function showLoader() {
   Ext.fly('response-message').update('');
   Ext.fly('loading-message').show();
-}   
- 
+}
+
 function hideLoader() {
   Ext.fly('loading-message').hide();
 }

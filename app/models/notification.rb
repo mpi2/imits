@@ -1,9 +1,9 @@
 class Notification < ActiveRecord::Base
   attr_accessible :last_email_sent, :welcome_email_sent
-  
+
   belongs_to :contact
   belongs_to :gene
-  
+
 end
 
 # == Schema Information

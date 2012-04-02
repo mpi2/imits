@@ -19,7 +19,11 @@ namespace :annotate do
 
   desc "Remove all annotation and clean up stray whitespace left by annoying annotate gem"
   task :remove do
-    system("cd #{Rails.root}; bundle exec annotate -d")
+    Dir['app/**/*.{rb}'].each do |model_filename|
+      contents = File.read(model_filename)
+      contents.gsub!(/[\n\t ]+# == Schema Information.*\Z/m, "\n")
+      File.open(model_filename, 'wb') {|f| f.write(contents)}
+    end
     delete_lines_at_end_of_files(Dir['test/fixtures/**/*.yml'] + Dir['app/models/**/*.rb'])
   end
 

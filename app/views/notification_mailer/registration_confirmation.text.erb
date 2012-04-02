@@ -3,7 +3,7 @@
     Thank you for registering for gene <%= @gene.marker_symbol %>
 
     <%= registration_text_selection(@relevant_status) %>
-    
+
     This gene currently <%= @modifier_string %> assigned for mouse production and phenotyping as part of the IMPC initiative.
 
     <% if @modifier_string == "is" %>
@@ -17,9 +17,7 @@
     Updates on gene status will be sent to <%= @contact.email %>.
 
     For further information / enquiries please write to  info@mousephenotype.org
- 
+
     Best Regards,
 
       The MPI2 (KOMP2) informatics consortium.
-    
-  

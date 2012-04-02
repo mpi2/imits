@@ -47,9 +47,9 @@ module NotificationMailerHelper
            render "notification_mailer/inactive.text.erb", :relevant_status => relevant_status
         end
        else
-         render "notification_mailer/inactive.text.erb", :relevant_status => relevant_status 
-         
+         render "notification_mailer/inactive.text.erb", :relevant_status => relevant_status
+
     end
-  
+
   end
 end

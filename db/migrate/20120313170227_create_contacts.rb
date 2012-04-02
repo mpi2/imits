@@ -9,7 +9,7 @@ class CreateContacts < ActiveRecord::Migration
       t.timestamps
     end
     add_index :contacts, :email, :unique => true
-    
+
   end
 
   def self.down

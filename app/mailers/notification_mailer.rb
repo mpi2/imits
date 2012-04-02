@@ -16,15 +16,14 @@ class NotificationMailer < ActionMailer::Base
       end
     end
 
-    
     mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
       format.text
     end
-    
+
     @notification = Notification.find(notification.id)
     @notification.welcome_email_text = mail.body
     @notification.save!
 
   end
-  
+
 end

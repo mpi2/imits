@@ -1,11 +1,11 @@
 class Contact < ActiveRecord::Base
   attr_accessible :email, :first_name, :last_name, :institution, :organisation
- 
+
   has_many :notifications
   has_many :genes, :through => :notifications
-  
+
   accepts_nested_attributes_for :notifications, :reject_if => :all_blank
-  
+
 end
 
 # == Schema Information

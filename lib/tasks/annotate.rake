@@ -25,6 +25,7 @@ namespace :annotate do
       File.open(model_filename, 'wb') {|f| f.write(contents)}
     end
     delete_lines_at_end_of_files(Dir['test/fixtures/**/*.yml'] + Dir['app/models/**/*.rb'])
+    puts 'Removing old annotations'
   end
 
   desc "Add/update models with new annotation"

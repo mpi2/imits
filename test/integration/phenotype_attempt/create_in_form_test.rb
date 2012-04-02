@@ -11,7 +11,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
               :consortium_name => 'BaSH',
               :production_centre_name => 'WTSI'
       login
-      
+
       click_link "Mouse Production"
       within('.x-grid') { click_link "Create" }
     end
@@ -46,6 +46,16 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       assert_equal 9, pt.number_of_cre_matings_successful
       assert_equal 'b', pt.mouse_allele_type
       assert_equal @mi_attempt.colony_name, pt.mi_attempt.colony_name
+    end
+
+    should 'be creatable with minimal values' do
+      assert_equal 0, PhenotypeAttempt.count
+      click_button 'phenotype_attempt_submit'
+      assert page.has_css?('.message.notice')
+      assert_equal 'Phenotype attempt created', page.find('.message.notice').text
+
+      sleep 5
+      assert_equal 1, PhenotypeAttempt.count
     end
 
   end

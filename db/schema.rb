@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120323162146) do
+ActiveRecord::Schema.define(:version => 20120328110402) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -105,6 +105,43 @@ ActiveRecord::Schema.define(:version => 20120323162146) do
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
+
+  create_table "intermediate_report", :force => true do |t|
+    t.string   "consortium",                                                  :null => false
+    t.string   "sub_project",                                                 :null => false
+    t.string   "priority"
+    t.string   "production_centre",                            :limit => 100, :null => false
+    t.string   "gene",                                         :limit => 75,  :null => false
+    t.string   "mgi_accession_id",                             :limit => 40
+    t.string   "overall_status",                               :limit => 50
+    t.string   "mi_plan_status",                               :limit => 50
+    t.string   "mi_attempt_status",                            :limit => 50
+    t.string   "phenotype_attempt_status",                     :limit => 50
+    t.integer  "ikmc_project_id"
+    t.string   "mutation_sub_type",                            :limit => 100
+    t.string   "allele_symbol",                                :limit => 75,  :null => false
+    t.string   "genetic_background",                           :limit => 50,  :null => false
+    t.date     "assigned_date"
+    t.date     "assigned_es_cell_qc_in_progress_date"
+    t.date     "assigned_es_cell_qc_complete_date"
+    t.date     "micro_injection_in_progress_date"
+    t.date     "chimeras_obtained_date"
+    t.date     "genotype_confirmed_date"
+    t.date     "micro_injection_aborted_date"
+    t.date     "phenotype_attempt_registered_date"
+    t.date     "rederivation_started_date"
+    t.date     "rederivation_complete_date"
+    t.date     "cre_excision_started_date"
+    t.date     "cre_excision_complete_date"
+    t.date     "phenotyping_started_date"
+    t.date     "phenotyping_complete_date"
+    t.date     "phenotype_attempt_aborted_date"
+    t.integer  "distinct_genotype_confirmed_es_cells"
+    t.integer  "distinct_old_non_genotype_confirmed_es_cells"
+    t.integer  "mi_plan_id",                                                  :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "mi_attempt_status_stamps", :force => true do |t|
     t.integer  "mi_attempt_id",        :null => false

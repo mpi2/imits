@@ -11,7 +11,7 @@
           <%= @gene.mgi_accession_id %>
         <% end %>
     </fieldset>
-  <% form_tag search_email_contacts_path, :method => :get, :remote => true do %>
+  <%= form_tag search_email_contacts_path, :method => :get, :remote => true do %>
     <fieldset id="search-email-field">
       <legend>Email</legend>
         <div class="email">

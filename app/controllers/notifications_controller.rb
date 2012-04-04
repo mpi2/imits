@@ -40,7 +40,10 @@ class NotificationsController < ApplicationController
   end
 
   def destroy
-
+    @notification = Notification.find(params[:id])
+    @notification.destroy
+    flash[:notice] = "Successfully destroyed notification."
+    respond_with(@notification)
   end
 
   def update

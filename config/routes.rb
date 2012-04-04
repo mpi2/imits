@@ -28,7 +28,7 @@ Kermits2::Application.routes.draw do
   
   match 'register_notification' => 'contacts#register_notification'
   
-  resources :notifications, :only => [:new, :create, :show, :update, :index]
+  resources :notifications
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do

@@ -28,7 +28,9 @@ Factory.define :notification do |notification|
   notification.association(:gene)
   notification.association(:contact)
   notification.welcome_email_sent Date.yesterday.to_time
+  notification.welcome_email_text 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
   notification.last_email_sent Time.now - 1.hour
+  notification.last_email_text 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
 end
 
 Factory.define :es_cell do |es_cell|

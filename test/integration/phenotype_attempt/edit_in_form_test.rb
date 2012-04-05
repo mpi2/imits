@@ -33,8 +33,6 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       assert_equal "1", page.find('input[id="phenotype_attempt_rederivation_complete"]').value
       assert_match /^\d\d/, page.find('input[name="phenotype_attempt[number_of_cre_matings_started]"]').value
       assert_match /^\d\d/, page.find('input[name="phenotype_attempt[number_of_cre_matings_successful]"]').value
-      assert_equal "1", page.find('input[id="phenotype_attempt_phenotyping_started"]').value
-      assert_equal "1", page.find('input[id="phenotype_attempt_phenotyping_complete"]').value
     end
 
     should 'edit phenotype successfully and redirect back to show page' do
@@ -42,7 +40,6 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       uncheck 'phenotype_attempt[rederivation_complete]'
       fill_in 'phenotype_attempt[number_of_cre_matings_started]', :with => '99'
       fill_in 'phenotype_attempt[number_of_cre_matings_successful]', :with => '11'
-      uncheck 'phenotype_attempt[phenotyping_complete]'
 
       find_button('Update').click
       sleep 3
@@ -55,8 +52,6 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       assert_equal nil, page.find('input[id="phenotype_attempt_rederivation_complete"]')["checked"]
       assert_match "99", page.find('input[name="phenotype_attempt[number_of_cre_matings_started]"]').value
       assert_match "11", page.find('input[name="phenotype_attempt[number_of_cre_matings_successful]"]').value
-      assert_equal "true", page.find('input[id="phenotype_attempt_phenotyping_started"]')["checked"]
-      assert_equal nil, page.find('input[id="phenotype_attempt_phenotyping_complete"]')["checked"]
 
       assert_match /\/phenotype_attempts\/#{@phenotype_attempt.id}$/, current_url
     end

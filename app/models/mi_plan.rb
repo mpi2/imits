@@ -29,27 +29,27 @@ class MiPlan < ApplicationModel
       end
     end
   end
-  
+
   validate do |plan|
     if plan.is_active == false
       plan.phenotype_attempts.each do |phenotype_attempt|
-        if phenotype_attempt.is_active? 
+        if phenotype_attempt.is_active?
           plan.errors.add :is_active, "cannot be set to false as active phenotype attempt '#{phenotype_attempt.colony_name}' is associated with this plan"
         end
       end
     end
   end
-  
+
   validate do |plan|
     statuses = MiPlan::Status.pre_assigned
-    if statuses.include?(plan.status.name) and plan.phenotype_attempts.length != 0   
+    if statuses.include?(plan.status.name) and plan.phenotype_attempts.length != 0
       plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
     end
   end
-  
-  validate do |plan| 
-    not_allowed_statuses = ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"]     
-    if not_allowed_statuses.include?(plan.status.name) and plan.mi_attempts.length != 0   
+
+  validate do |plan|
+    not_allowed_statuses = ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"]
+    if not_allowed_statuses.include?(plan.status.name) and plan.mi_attempts.length != 0
       plan.errors.add(:status, 'cannot be changed - microinjection attempts exist')
     end
   end
@@ -99,7 +99,7 @@ class MiPlan < ApplicationModel
   # END Callbacks
 
   delegate :marker_symbol, :to => :gene
-  
+
   def latest_relevant_mi_attempt
     @@status_sort_order ||= {
       MiAttemptStatus.micro_injection_aborted => 1,
@@ -348,7 +348,6 @@ class MiPlan < ApplicationModel
     d = plan_status_list[s]
 
     mi = latest_relevant_mi_attempt
-    s = mi ? mi.mi_attempt_status.description : s
 
     if mi
       mi_status_list = {}
@@ -356,9 +355,10 @@ class MiPlan < ApplicationModel
       mi_dates.each do |description, date|
         mi_status_list["#{description}"] = date.to_s
       end
-    end
 
-    d = mi ? mi_status_list[s] : d
+      s = mi.mi_attempt_status.description
+      d = mi_status_list[s]
+    end
 
     pt = latest_relevant_phenotype_attempt
     s = pt ? pt.status.name : s
@@ -369,9 +369,10 @@ class MiPlan < ApplicationModel
       mi_dates.each do |description, date|
         pheno_status_list["#{description}"] = date.to_s
       end
-    end
 
-    d = pt ? pheno_status_list[s] : d
+      s = pt.status.name
+      d = pheno_status_list[s]
+    end
 
     return { :status => s, :date => d }
   end

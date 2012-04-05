@@ -146,7 +146,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Phenotyping Complete Date',
           'Phenotype Attempt Aborted Date',
           'Distinct Genotype Confirmed ES Cells',
-          'Distinct Old Non Genotype Confirmed ES Cells'
+          'Distinct Old Non Genotype Confirmed ES Cells',
+          'MiPlan ID'
         ]
 
         assert_equal expected, @report.column_names
@@ -186,6 +187,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Phenotype Attempt Aborted Date' => '2011-12-08',
           'Distinct Genotype Confirmed ES Cells'=> 0,
           'Distinct Old Non Genotype Confirmed ES Cells'=> 0,
+          'MiPlan ID' => 2
         }
         assert_equal expected, bash_wtsi_row.data
       end
@@ -224,6 +226,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Phenotype Attempt Aborted Date' => '',
           'Distinct Genotype Confirmed ES Cells'=> 0,
           'Distinct Old Non Genotype Confirmed ES Cells'=> 0,
+          'MiPlan ID' => 3
         }
         assert_equal expected, mgp_wtsi_row.data
       end
@@ -313,6 +316,17 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
       report.cache
       cache = ReportCache.where(:name => 'mi_production_intermediate', :format => :html).first
       assert_equal report.report.to_html, cache.data
+    end
+
+    should '#cache to IntermediateReport model as well as ReportCache' do
+      2.times { Factory.create :mi_plan }
+      assert_equal 0, ReportCache.count
+      assert_equal 0, IntermediateReport.count
+
+      Reports::MiProduction::Intermediate.new.cache
+
+      assert_equal 1, ReportCache.where(:format => :html).count
+      assert_equal 2, IntermediateReport.count
     end
 
   end

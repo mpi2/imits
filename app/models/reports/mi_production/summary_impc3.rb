@@ -301,7 +301,8 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     end
 
     if key == 'Languishing'
-      return row.data['Overall Status'] == 'Micro-injection in progress' && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
+      return (row.data['Overall Status'] == 'Micro-injection in progress' || row.data['Overall Status'] == 'Chimeras obtained') &&
+        Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
     end
 
     return false

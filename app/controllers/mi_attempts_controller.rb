@@ -88,7 +88,13 @@ class MiAttemptsController < ApplicationController
       end
 
       if @mi_attempt.valid?
-        format.json { render :json => json_format_extended_response(@mi_attempt, 1) }
+        format.json do
+          if params[:extended_response].to_s == 'true'
+            render :json => json_format_extended_response(@mi_attempt, 1)
+          else
+            render :json => @mi_attempt
+          end
+        end
       end
     end
   end

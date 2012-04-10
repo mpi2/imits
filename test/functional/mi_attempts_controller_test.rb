@@ -318,18 +318,30 @@ class MiAttemptsControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      [:xml, :json].each do |format|
-        should "work with valid params for #{format.upcase}" do
-          mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
+      should "work with valid params for XML" do
+        mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
 
-          put :update, :id => mi_attempt.id,
-                  :mi_attempt => {'total_blasts_injected' => 1},
-                  :format => format
-          assert_response :success
+        put :update, :id => mi_attempt.id,
+                :mi_attempt => {'total_blasts_injected' => 1},
+                :format => :xml
+        assert_response :success
 
-          mi_attempt.reload
-          assert_equal 1, mi_attempt.total_blasts_injected
-        end
+        mi_attempt.reload
+        assert_equal 1, mi_attempt.total_blasts_injected
+      end
+
+      should "work with valid params for JSON" do
+        mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
+
+        put :update, :id => mi_attempt.id,
+                :mi_attempt => {'total_blasts_injected' => 1},
+                :format => :json
+        assert_response :success
+
+        mi_attempt.reload
+        assert_equal 1, mi_attempt.total_blasts_injected
+
+        assert_equal JSON.parse(mi_attempt.to_public.to_json), JSON.parse(response.body)
       end
 
       def bad_update_for_format(format)

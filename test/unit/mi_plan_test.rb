@@ -473,28 +473,22 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      should 'validate the uniqueness of gene_id scoped to consortium_id and production_centre_id' do
-        mip = Factory.create :mi_plan
+      should 'validate the uniqueness of gene for a consortium and production_centre' do
+        plan = Factory.create :mi_plan
 
-        mip2 = MiPlan.new(:gene => mip.gene,
-          :consortium => mip.consortium)
-        assert_false mip2.save
-        assert_false mip2.valid?
-        assert ! mip2.errors['gene_id'].blank?
+        plan2 = MiPlan.new(:gene => plan.gene, :consortium => plan.consortium)
+        assert_false plan2.save
+        assert_false plan2.valid?
+        assert_match /already has/, plan2.errors['gene'].first
 
-        mip.production_centre = Centre.find_by_name!('WTSI')
-        assert mip.save
-        assert mip.valid?
+        plan.production_centre = Centre.find_by_name!('WTSI')
+        assert plan.save
+        assert plan.valid?
 
-        mip2.production_centre = mip.production_centre
-        assert_false mip2.save
-        assert_false mip2.valid?
-        assert ! mip2.errors['gene_id'].blank?
-
-        # TODO: Need to account for the inevitable... we're gonna get MiP's that have
-        #       a gene and consortium then nil for production_centre, and a duplicate
-        #       with the same gene and consortium BUT with a production_centre assigned.
-        #       Really, the fist should be updated to become the second (i.e. not produce a duplicate).
+        plan2.production_centre = plan.production_centre
+        assert_false plan2.save
+        assert_false plan2.valid?
+        assert_match /already has/, plan2.errors['gene'].first
       end
 
       context '#is_active' do

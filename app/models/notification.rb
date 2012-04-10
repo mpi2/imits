@@ -1,4 +1,5 @@
 class Notification < ActiveRecord::Base
+  include Notifications::StatusChecker
   attr_accessible :last_email_sent, :welcome_email_sent
 
   belongs_to :contact

@@ -4,6 +4,7 @@ class Gene < ActiveRecord::Base
   has_many :es_cells
   has_many :mi_plans
   has_many :mi_attempts, :through => :mi_plans
+  has_many :phenotype_attempts, :through => :mi_plans
   
   has_many :notifications
   has_many :contacts, :through => :notifications

@@ -44,25 +44,6 @@ class ContactsController < ApplicationController
 
   end
 
-  def register_notification
-
-    @contact = Contact.find_by_email(params[:email])
-    @gene = Gene.find_by_mgi_accession_id(params[:mgi_accession_id])
-    @notification = Notification.new
-    @notification.gene = @gene
-    @notification.contact = @contact
-
-    if @contact.save && @notification.save
-      if NotificationMailer.registration_confirmation(@notification).deliver
-        @notification.welcome_email_sent = Time.now.utc
-        @notification.save!
-        flash[:notice] = "Successfully created contact and registered for email notification."
-        redirect_to notification_path(@notification, {:mgi_accession_id => @gene.mgi_accession_id, :email => @contact.email})
-      end
-
-    end
-  end
-
   def search_email
     
     @gene = Gene.find_by_mgi_accession_id!(params[:mgi_accession_id])

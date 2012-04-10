@@ -130,10 +130,9 @@ class Reports::MiProductionController < ApplicationController
       return
     end
 
-    @report_data = report_class.generate(params)
-    #query = ReportCache.where(:name => report_class.report_name)
-    #
-    #@report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data}
+    query = ReportCache.where(:name => report_class.report_name)
+    
+    @report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data}
 
     if request.format == :csv
       send_data_csv("#{report_class.report_name}.csv", @report_data[:csv])
@@ -142,6 +141,16 @@ class Reports::MiProductionController < ApplicationController
     end
   end
   
+  private :summary_3_helper
+
+  def summary_month_by_month_activity_impc
+    month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityImpc)
+  end
+
+  def summary_month_by_month_activity_komp2
+    month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityKomp2)
+  end
+
   def month_by_month_helper_no_cache(report_class)
     @title2 = report_class.report_title
 
@@ -153,16 +162,7 @@ class Reports::MiProductionController < ApplicationController
       render :action => 'month_by_month'
     end
   end
-  private :summary_3_helper
-
-  def summary_month_by_month_activity_impc
-    month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityImpc)
-  end
-
-  def summary_month_by_month_activity_komp2
-    month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityKomp2)
-  end
-
+  
   def summary_month_by_month_activity_all_centres_impc
     month_by_month_helper_no_cache(Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc)
   end

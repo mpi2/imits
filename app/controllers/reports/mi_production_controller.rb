@@ -130,10 +130,23 @@ class Reports::MiProductionController < ApplicationController
       return
     end
 
-    query = ReportCache.where(:name => report_class.report_name)
+    @report_data = report_class.generate(params)
+    #query = ReportCache.where(:name => report_class.report_name)
+    #
+    #@report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data}
 
-    @report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data}
+    if request.format == :csv
+      send_data_csv("#{report_class.report_name}.csv", @report_data[:csv])
+    else
+      render :action => 'month_by_month'
+    end
+  end
+  
+  def month_by_month_helper_no_cache(report_class)
+    @title2 = report_class.report_title
 
+    @report_data = report_class.generate(params)
+    
     if request.format == :csv
       send_data_csv("#{report_class.report_name}.csv", @report_data[:csv])
     else
@@ -150,13 +163,24 @@ class Reports::MiProductionController < ApplicationController
     month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityKomp2)
   end
 
+  def summary_month_by_month_activity_all_centres_impc
+    month_by_month_helper_no_cache(Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc)
+  end
+
+  def summary_month_by_month_activity_all_centres_komp2
+    month_by_month_helper_no_cache(Reports::MiProduction::SummaryMonthByMonthActivityAllCentresKomp2)
+  end
+  
   def mgp_summary_subproject
     @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
     return_value = Reports::MiProduction::SummaryMgp23.generate('Sub-Project',request)
     #raise return_value[:table].inspect
-    @report = return_value[:table]
+    @mouse_report = return_value[:mouse_table]
+    puts @mouse_report.to_s
+    @pheno_report = return_value[:pheno_table]
+    puts @pheno_report.to_s
     if request.format == :csv
-      send_data_csv('summary_mgp.csv', @report.to_csv)
+      send_data_csv('summary_mgp.csv', @mouse_report.to_csv)
     else
       render :action => 'mgp_summary'
     end

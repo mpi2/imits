@@ -197,12 +197,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
     'Phenotype Attempt Aborted'
   ]
   
-  def self.generate(params = {})
-
+  def self.generate_details_for_cell (params = {})
     if params[:consortium]
       title, table = subsummary(params)
       return { :csv => table.to_csv, :html => table.to_html, :title => title, :table => table }
     end
+  end
+  
+  def self.generate(params = {})
 
     summary = get_summary(params)
     
@@ -500,7 +502,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
                   pcentre = CGI.escape centre
                   type = CGI.escape key.to_s
                   separator = /\?/.match(script_name) ? '&' : '?'
-                  return "<a href='#{script_name}#{separator}year=#{year}&month=#{month}&consortium=#{consort}&pcentre=#{pcentre}&type=#{type}'>#{frame[key].keys.size}</a>"
+                  return "<a href='#{script_name}#{separator}year=#{year}&month=#{month}&consortium=#{consort}&type=#{type}'>#{frame[key].keys.size}</a>"
                 end
     
                 status_hash = centre_hash[centre]

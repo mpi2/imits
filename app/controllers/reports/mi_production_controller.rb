@@ -154,6 +154,8 @@ class Reports::MiProductionController < ApplicationController
   def month_by_month_helper_no_cache(report_class)
     @title2 = report_class.report_title
 
+    params[:script_name] = url_for(:action => 'summary_month_by_month_activity_impc')
+    #params[:script_name] = request.env['REQUEST_URI'].gsub(/all_centres_/, '')
     @report_data = report_class.generate(params)
     
     if request.format == :csv

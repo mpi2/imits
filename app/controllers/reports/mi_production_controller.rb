@@ -174,13 +174,9 @@ class Reports::MiProductionController < ApplicationController
   def mgp_summary_subproject
     @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
     return_value = Reports::MiProduction::SummaryMgp23.generate('Sub-Project',request)
-    #raise return_value[:table].inspect
-    @mouse_report = return_value[:mouse_table]
-    puts @mouse_report.to_s
-    @pheno_report = return_value[:pheno_table]
-    puts @pheno_report.to_s
+    @report = return_value[:table]
     if request.format == :csv
-      send_data_csv('summary_mgp.csv', @mouse_report.to_csv)
+      send_data_csv('summary_mgp.csv', @report.to_csv)
     else
       render :action => 'mgp_summary'
     end

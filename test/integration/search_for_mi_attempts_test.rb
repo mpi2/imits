@@ -174,7 +174,7 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
         sleep 3
         visit '/mi_attempts'
         fill_in 'q[terms]', :with => "trafd1\n"
-        select @status, :from => 'q[status]'
+        select @status, :from => 'q[status_name]'
         click_button 'Search'
         sleep 3
       end
@@ -189,7 +189,7 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
       end
 
       should 'have filtered status pre-selected in dropdown' do
-        assert page.has_css? 'select[@name="q[status]"] option[selected="selected"][value="' + @status + '"]'
+        assert page.has_css? 'select[@name="q[status_name]"] option[selected="selected"][value="' + @status + '"]'
       end
     end
 

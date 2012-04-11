@@ -5,11 +5,11 @@ Ext.define('Imits.widget.grid.MiAttemptRansackFiltersFeature', {
     encode: false,
 
     /** @private */
-    constructor : function(config) {
+    constructor : function (config) {
         this.callParent([config]);
 
         var production_centre_name = window.MI_ATTEMPT_SEARCH_PARAMS.production_centre_name;
-        var status = window.MI_ATTEMPT_SEARCH_PARAMS.status;
+        var statusName = window.MI_ATTEMPT_SEARCH_PARAMS.status_name;
 
         if(!Ext.isEmpty(production_centre_name)) {
             this.addFilter({
@@ -19,16 +19,16 @@ Ext.define('Imits.widget.grid.MiAttemptRansackFiltersFeature', {
             });
         }
 
-        if(!Ext.isEmpty(status)) {
+        if(!Ext.isEmpty(statusName)) {
             this.addFilter({
                 type: 'string',
-                dataIndex: 'status',
-                value: status
+                dataIndex: 'status_name',
+                value: statusName
             });
         }
     },
 
-    buildQuery: function(filters) {
+    buildQuery: function (filters) {
         var params = this.callParent([filters]);
         var terms = window.MI_ATTEMPT_SEARCH_PARAMS.terms;
 

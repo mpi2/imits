@@ -122,11 +122,13 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.mi_attempt_status = nil
           assert_nil default_mi_attempt.status
         end
+      end
 
+      context '#status_name' do
         should 'be filtered on #public_search' do
           default_mi_attempt.update_attributes!(:is_active => false)
           mi_attempt_2 = Factory.create :mi_attempt_genotype_confirmed
-          mi_ids = MiAttempt.public_search(:status_ci_in => MiAttemptStatus.micro_injection_aborted.description).result.map(&:id)
+          mi_ids = MiAttempt.public_search(:status_name_ci_in => MiAttemptStatus.micro_injection_aborted.description).result.map(&:id)
           assert_include mi_ids, default_mi_attempt.id
           assert ! mi_ids.include?(mi_attempt_2.id)
         end
@@ -1044,7 +1046,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'translate status' do
         assert_equal 'mi_attempt_status_description_ci_in',
-                MiAttempt.translate_public_param('status_ci_in')
+                MiAttempt.translate_public_param('status_name_ci_in')
       end
 
       should 'leave other params untouched' do

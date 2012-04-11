@@ -31,8 +31,8 @@
             <td><%= select_tag 'q[production_centre_name]', options_for_select(['']+@centres.map(&:name), params[:q][:production_centre_name]) %></td>
           </tr>
           <tr>
-            <td><label for="q[status]">Status:</label></td>
-            <td><%= select_tag 'q[status]', options_for_select(['']+MiAttemptStatus.all.map(&:description), params[:q][:status]) %></td>
+            <td><label for="q[status_name]">Status:</label></td>
+            <td><%= select_tag 'q[status_name]', options_for_select(['']+MiAttemptStatus.all.map(&:description), params[:q][:status_name]) %></td>
           </tr>
         </table>
       </div>

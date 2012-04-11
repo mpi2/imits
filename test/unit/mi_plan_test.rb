@@ -475,6 +475,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'validate the uniqueness of gene for a consortium and production_centre' do
         plan = Factory.create :mi_plan
+        plan.save!
 
         plan2 = MiPlan.new(:gene => plan.gene, :consortium => plan.consortium)
         assert_false plan2.save
@@ -482,11 +483,9 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_match /already has/, plan2.errors['gene'].first
 
         plan.production_centre = Centre.find_by_name!('WTSI')
-        assert plan.save
-        assert plan.valid?
+        plan.save!
 
         plan2.production_centre = plan.production_centre
-        assert_false plan2.save
         assert_false plan2.valid?
         assert_match /already has/, plan2.errors['gene'].first
       end

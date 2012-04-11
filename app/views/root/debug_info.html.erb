@@ -1,0 +1,19 @@
+<% @title = "Debug Info" %>
+
+<h2><%= @title %></h2>
+
+<div class="grid_12">
+  <h3>Request HTTP Headers</h3>
+  <table class="report_table">
+    <thead>
+      <th>Key</th>
+      <th>Value</th>
+    </thead>
+
+    <tbody>
+      <% request.headers.find_all {|k, v| k.match /^HTTP_/}.map {|k, v| [k.gsub(/^HTTP_/, ''), v]}.each do |key, value| %>
+        <tr><td><%= key %></td><td><%= value %></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -82,7 +82,6 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         es_cell_marker_symbol
         es_cell_allele_symbol
         mi_date
-        status
         status_name
         colony_name
         consortium_name

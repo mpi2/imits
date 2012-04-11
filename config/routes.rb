@@ -38,6 +38,7 @@ Kermits2::Application.routes.draw do
 
   match 'users_by_production_centre' => "root#users_by_production_centre", :as => :users_by_production_centre
   match 'consortia' => "root#consortia", :as => :consortia
+  match 'debug_info' => 'root#debug_info'
 
   match 'reports' => "reports#index", :as => :reports
   match 'reports/mi_production' => "reports/mi_production#index"

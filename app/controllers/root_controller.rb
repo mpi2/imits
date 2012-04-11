@@ -27,4 +27,8 @@ class RootController < ApplicationController
       @consortia_production_centres[cons.name] = production_centres.compact.uniq.sort
     end
   end
+
+  def debug_info
+  end
+
 end

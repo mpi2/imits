@@ -7,9 +7,9 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     def default_mi_attempt
       @default_mi_attempt ||= Factory.create( :mi_attempt,
-        :blast_strain             => Strain::BlastStrain.find_by_name!('BALB/c'),
-        :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('129P2/OlaHsd'),
-        :test_cross_strain        => Strain::TestCrossStrain.find_by_name!('129P2/OlaHsd')
+        :blast_strain             => Strain.find_by_name!('BALB/c'),
+        :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd'),
+        :test_cross_strain        => Strain.find_by_name!('129P2/OlaHsd')
       )
     end
 
@@ -300,17 +300,14 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context 'strain tests:' do
         should 'have a blast strain' do
-          assert_equal Strain::BlastStrain, default_mi_attempt.blast_strain.class
           assert_equal 'BALB/c', default_mi_attempt.blast_strain.name
         end
 
         should 'have a colony background strain' do
-          assert_equal Strain::ColonyBackgroundStrain, default_mi_attempt.colony_background_strain.class
           assert_equal '129P2/OlaHsd', default_mi_attempt.colony_background_strain.name
         end
 
         should 'have a test cross strain' do
-          assert_equal Strain::TestCrossStrain, default_mi_attempt.test_cross_strain.class
           assert_equal '129P2/OlaHsd', default_mi_attempt.test_cross_strain.name
         end
 
@@ -328,27 +325,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.update_attributes!(:test_cross_strain_name => 'C57BL/6NTac/USA')
           default_mi_attempt.reload
           assert_equal 'C57BL/6NTac/USA', default_mi_attempt.test_cross_strain_name
-        end
-
-        should 'not allow setting a blast strain if it is not of the correct type' do
-          strain = Strain.create!(:name => 'Nonexistent Strain')
-          mi = Factory.build(:mi_attempt, :blast_strain_name => strain.name)
-          assert_false mi.valid?
-          assert ! mi.errors[:blast_strain_name].blank?
-        end
-
-        should 'not allow setting a colony background strain if it is not of the correct type' do
-          strain = Strain.create!(:name => 'Nonexistent Strain')
-          mi = Factory.build(:mi_attempt, :colony_background_strain_name => strain.name)
-          assert_false mi.valid?
-          assert ! mi.errors[:colony_background_strain_name].blank?
-        end
-
-        should 'not allow setting a colony background strain if it is not of the correct type' do
-          strain = Strain.create!(:name => 'Nonexistent Strain')
-          mi = Factory.build(:mi_attempt, :test_cross_strain_name => strain.name)
-          assert_false mi.valid?
-          assert ! mi.errors[:test_cross_strain_name].blank?
         end
 
         should 'allow setting blast strain to nil using blast_strain_name' do

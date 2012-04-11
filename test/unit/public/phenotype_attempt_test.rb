@@ -37,15 +37,6 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
     end
 
     context '#consortium_name virtual attribute' do
-      setup do
-        @cbx1 = Factory.create(:gene_cbx1)
-        @default_mi_attempt = Factory.create( :mi_attempt,
-        :blast_strain             => Strain::BlastStrain.find_by_name!('BALB/c'),
-        :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('129P2/OlaHsd'),
-        :test_cross_strain        => Strain::TestCrossStrain.find_by_name!('129P2/OlaHsd')
-        )
-      end
-      
       should 'be writable with any value which should be returned on a read when no MiPlan is set' do
         pt = Public::PhenotypeAttempt.new :mi_plan => nil, :consortium_name => 'Foo'
         assert_equal 'Foo', pt.consortium_name

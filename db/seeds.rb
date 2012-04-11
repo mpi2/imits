@@ -27,15 +27,6 @@ module Seeds
                    );
     SQL
   end
-
-  def self.set_up_strains(strain_ids_class, filename)
-    strains_list = File.read(Rails.root + "config/strains/#{filename}.txt").split("\n")
-    strains_list.each do |strain_name|
-      next if strain_name.empty?
-      strain = Strain.find_by_name!(strain_name)
-      strain_ids_class.find_or_create_by_id(strain.id)
-    end
-  end
 end
 
 Seeds.load Strain, [
@@ -81,10 +72,6 @@ Seeds.load Strain, [
   {:id => 40, :name => "Delete once confirmed its use"},
   {:id => 41, :name => "c"}
 ]
-
-Seeds.set_up_strains Strain::BlastStrain, :blast_strains
-Seeds.set_up_strains Strain::ColonyBackgroundStrain, :colony_background_strains
-Seeds.set_up_strains Strain::TestCrossStrain, :test_cross_strains
 
 Seeds.load MiAttemptStatus, [
   {:id => 1, :description => 'Micro-injection in progress'},

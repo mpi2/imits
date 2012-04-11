@@ -7,13 +7,12 @@ class MiAttemptFieldGenerator < FieldGenerator
 
   def strains_field(name)
     name = name.to_s
-    strain_class = Strain.const_get(name.gsub(/_id$/, '').camelize)
-    field_html = @form.collection_select(name+'_name', strain_class.all, :name, :name, :include_blank => true)
+    field_html = @form.collection_select(name+'_name', Strain.all, :name, :name, :include_blank => true)
     form_field(name+'_name', nil, field_html)
   end
 
   def qc_fields
-    qc_statuses =  QcResult.all
+    qc_statuses = QcResult.all
     MiAttempt::QC_FIELDS.map do |qc_field|
       form_field("#{qc_field}_result", tidy_label(qc_field.to_s.gsub(/^qc_(.+)$/, '\1').titlecase),
           @form.collection_select("#{qc_field}_result", qc_statuses, :description, :description))

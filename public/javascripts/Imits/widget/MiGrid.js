@@ -295,7 +295,7 @@ Ext.define('Imits.widget.MiGrid', {
             width: 200,
             editor: {
                 xtype: 'simplecombo',
-                store: Ext.Array.merge([''], window.MI_ATTEMPT_BLAST_STRAIN_OPTIONS),
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_STRAIN_OPTIONS),
                 storeOptionsAreSpecial: true,
                 listConfig: {
                     minWidth: 200
@@ -390,7 +390,7 @@ Ext.define('Imits.widget.MiGrid', {
             width: 200,
             editor: {
                 xtype: 'simplecombo',
-                store: Ext.Array.merge([''], window.MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS),
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_STRAIN_OPTIONS),
                 storeOptionsAreSpecial: true,
                 listConfig: {
                     minWidth: 200
@@ -406,7 +406,7 @@ Ext.define('Imits.widget.MiGrid', {
             width: 200,
             editor: {
                 xtype: 'simplecombo',
-                store: Ext.Array.merge([''], window.MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS),
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_STRAIN_OPTIONS),
                 storeOptionsAreSpecial: true,
                 listConfig: {
                     minWidth: 200

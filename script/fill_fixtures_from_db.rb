@@ -8,10 +8,7 @@ MODELS = [
   MiPlan::Priority,
   MiPlan::SubProject,
   PhenotypeAttempt::Status,
-  Strain,
-  Strain::BlastStrain,
-  Strain::ColonyBackgroundStrain,
-  Strain::TestCrossStrain
+  Strain
 ]
 
 MODELS.each do |model|

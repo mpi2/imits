@@ -1,4 +1,5 @@
 class Strain < ActiveRecord::Base
+  acts_as_reportable
   validates :name, :uniqueness => true, :presence => true
 end
 

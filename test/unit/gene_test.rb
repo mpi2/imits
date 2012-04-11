@@ -8,7 +8,6 @@ class GeneTest < ActiveSupport::TestCase
 
     should 'have attibutes' do
       Factory.create :gene
-      p MiPlan.all.map(&:to_json)
       create_common_test_objects
 
       assert_should have_many :es_cells

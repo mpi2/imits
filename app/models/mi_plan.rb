@@ -53,10 +53,11 @@ class MiPlan < ApplicationModel
   end
 
   validate do |plan|
-    others = MiPlan.where(:gene_id => plan.gene_id,
+    other_ids = MiPlan.where(:gene_id => plan.gene_id,
       :consortium_id => plan.consortium_id,
-      :production_centre_id => plan.production_centre_id) - [plan]
-    if(others.count != 0)
+      :production_centre_id => plan.production_centre_id).map(&:id)
+    other_ids -= [plan.id]
+    if(other_ids.count != 0)
       plan.errors.add(:gene, 'already has a plan by that consortium/production centre')
     end
   end

@@ -473,12 +473,14 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      should 'validate the uniqueness of gene for a consortium and production_centre' do
+      should 'validate logical key - the uniqueness of gene for a consortium and production_centre' do
         plan = Factory.create :mi_plan
         plan.save!
 
-        plan2 = MiPlan.new(:gene => plan.gene, :consortium => plan.consortium)
+        plan2 = Factory.build(:mi_plan,
+          :gene => plan.gene, :consortium => plan.consortium)
         assert_false plan2.save
+
         assert_false plan2.valid?
         assert_match /already has/, plan2.errors['gene'].first
 

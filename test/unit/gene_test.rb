@@ -322,13 +322,17 @@ class GeneTest < ActiveSupport::TestCase
                 :marker_symbol => 'Moo1',
                 :mgi_accession_id => 'MGI:12345'
 
-        2.times do
-          Factory.create :mi_attempt,
-                  :es_cell => Factory.create(:es_cell, :gene => gene),
-                  :consortium_name => 'MGP',
-                  :production_centre_name => 'WTSI',
-                  :is_active => true
-        end
+        Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'MGP',
+                :production_centre_name => 'WTSI',
+                :is_active => true
+
+        Factory.create :mi_attempt_chimeras_obtained,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'MGP',
+                :production_centre_name => 'WTSI',
+                :is_active => true
 
         Factory.create :wtsi_mi_attempt_genotype_confirmed,
                 :es_cell => Factory.create(:es_cell, :gene => gene),

@@ -26,12 +26,7 @@ Kermits2::Application.routes.draw do
     end
   end
   
-  resources :notifications do
-    member do
-      post 'register_notification'
-      get 'unregister_notification'
-    end
-  end
+  resources :notifications
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do

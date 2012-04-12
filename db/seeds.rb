@@ -70,7 +70,9 @@ Seeds.load Strain, [
   {:id => 38, :name => "C57BL/6NTac/USA"},
   {:id => 39, :name => "C57BL/6JIco;C57BL/6J-Tyr<c-Brd>"},
   {:id => 40, :name => "Delete once confirmed its use"},
-  {:id => 41, :name => "c"}
+  {:id => 41, :name => "c"},
+  {:id => 42, :name => 'B6D2F1 x B6'},
+  {:id => 43, :name => 'C57BL6'}
 ]
 
 Seeds.load MiAttemptStatus, [

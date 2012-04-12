@@ -12,4 +12,16 @@ class Reports::Production::MgpController < ApplicationController
       render :action => 'summary'
     end
   end
-end
+
+  def summary_priority
+    @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
+    return_value = Reports::MiProduction::SummaryMgp23.generate('Priority', request)
+    @report = return_value[:table]
+    if request.format == :csv
+      send_data_csv('mgp_summary_subproject.csv', @report.to_csv)
+    else
+      render :action => 'summary'
+    end
+  end
+
+end # Reports::Production::MgpController

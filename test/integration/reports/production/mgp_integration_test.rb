@@ -26,6 +26,20 @@ class Reports::Production::MgpIntegrationTest < Kermits2::IntegrationTest
       end
     end
 
+    context '/reports/production/mgp/summary_priority' do
+      should 'work' do
+        visit '/reports/production/mgp'
+        assert page.has_css? "a[href='/reports/production/mgp/summary_priority']"
+        visit '/reports/production/mgp/summary_priority'
+	assert page.has_css? "#content"
+      end
+
+      should 'have link to cached report' do
+        visit '/reports/production/mgp/summary_priority'
+        assert page.has_css? "a[href='/reports/production/mgp/summary_priority.csv']"
+      end
+    end
+
 =begin
     context '/reports/mi_production/mgp_summary_priority' do
       should 'have link to cached report' do

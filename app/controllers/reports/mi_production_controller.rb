@@ -173,17 +173,6 @@ class Reports::MiProductionController < ApplicationController
     month_by_month_helper_no_cache(Reports::MiProduction::SummaryMonthByMonthActivityAllCentresKomp2)
   end
   
-  def mgp_summary_priority
-    @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
-    return_value = Reports::MiProduction::SummaryMgp23.generate('Priority', request)
-    @report = return_value[:table]
-    if request.format == :csv
-      send_data_csv('summary_mgp.csv', @report.to_csv)
-    else
-      render :action => 'mgp_summary'
-    end
-  end
-
   def mgp_detail
     @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
     return_value = Reports::MiProduction::SummaryMgp23.generate_detail(request,params)

@@ -11,7 +11,7 @@
 
 <div class="grid_4">
 
-  <% ['summary_subproject'].each do |report_action| %>
+  <% ['summary_subproject', 'summary_priority'].each do |report_action| %>
     <div class="report-links">
       <a href="<%= url_for(:action => report_action.to_sym) %>">
         <h4><%= report_action.to_s.humanize.titleize %></h4>

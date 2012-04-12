@@ -128,6 +128,7 @@ class Kermits2::IntegrationTest < ActionDispatch::IntegrationTest
     elsif arg.nil?
       email = default_user.email
     end
+    visit '/users/logout'
     visit '/users/login'
     fill_in 'Email', :with => email
     fill_in 'Password', :with => 'password'

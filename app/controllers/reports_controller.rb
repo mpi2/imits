@@ -313,7 +313,4 @@ class ReportsController < ApplicationController
     return report
   end
   
-  def mgp
-  end
-
 end

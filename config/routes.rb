@@ -41,8 +41,13 @@ Kermits2::Application.routes.draw do
   match 'debug_info' => 'root#debug_info'
 
   match 'reports' => "reports#index", :as => :reports
+
   match 'reports/mi_production' => "reports/mi_production#index"
   match 'reports/mi_production/(:action(.:format))' => "reports/mi_production#:action"
+
+  match 'reports/production/mgp' => "reports/production/mgp#index"
+  match 'reports/production/mgp/(:action(.:format))' => "reports/production/mgp#:action"
+
   match 'reports/(:action(.:format))' => "reports#:action"
 
   resources :report_caches, :only => [:show]

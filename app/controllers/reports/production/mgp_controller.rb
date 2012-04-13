@@ -1,4 +1,6 @@
 class Reports::Production::MgpController < ApplicationController
+  before_filter :authenticate_user_if_not_sanger
+
   def index
   end
 
@@ -74,6 +76,14 @@ class Reports::Production::MgpController < ApplicationController
 
     if request.format == :csv
       send_data_csv('languishing_production_report_mgp_detail.csv', @report.to_csv)
+    end
+  end
+
+  private
+
+  def authenticate_user_if_not_sanger
+    if ! /sanger/.match request.headers['HTTP_CLIENTREALM'].to_s
+      authenticate_user!
     end
   end
 

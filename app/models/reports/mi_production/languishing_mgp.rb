@@ -1,55 +1,9 @@
 # encoding: utf-8
 
-class Reports::MiProduction::LanguishingMgp
-  STATUSES = [
-    'Assigned',
-    'Assigned - ES Cell QC In Progress',
-    'Assigned - ES Cell QC Complete',
-    'Micro-injection in progress',
-    'Genotype confirmed',
-    'Micro-injection aborted',
-    'Phenotype Attempt Registered',
-    'Rederivation Started',
-    'Rederivation Complete',
-    'Cre Excision Started',
-    'Cre Excision Complete',
-    'Phenotyping Started',
-    'Phenotyping Complete',
-    'Phenotype Attempt Aborted'
-  ].freeze
-
-  DELAY_BINS = [
-    '0 months',
-    '1 month',
-    '2 months',
-    '3 months',
-    '4-6 months',
-    '7-9 months',
-    '> 9 months'
-  ].freeze
-
-  def self.latency_in_months(date)
-    date = Date.parse(date) unless date.kind_of?(Date)
-    today = Date.today
-    return ((today - date).to_i / 30)
-  end
-
-  def self.get_delay_bin_for(date)
-    case latency_in_months(date)
-    when 0         then return '0 months'
-    when 1         then return '1 month'
-    when 2         then return '2 months'
-    when 3         then return '3 months'
-    when 4, 5, 6   then return '4-6 months'
-    when 7, 8, 9   then return '7-9 months'
-    else                return '> 9 months'
-    end
-  end
+class Reports::MiProduction::LanguishingMgp < Reports::MiProduction::LanguishingBase
 
   def self.generate_detail(options = {})
     sub_project, status, delay_bin, priority = options.values_at(:sub_project, :status, :delay_bin, :priority)
-    
-    #raise "sub project #{sub_project} delay #{delay_bin} status #{status}"
 
     intermediate = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
 
@@ -85,7 +39,7 @@ class Reports::MiProduction::LanguishingMgp
 
     return report
   end
-  
+
   def self.make_empty_report_grouping(grouping_field)
 
     report = Ruport::Data::Grouping.new
@@ -97,7 +51,7 @@ class Reports::MiProduction::LanguishingMgp
     else
       raise "have to specify a grouping field of Sub-Project or Priority"
     end
-    
+
     names_to_exclude = {
       "" => 1,
       "WTSI_Blood_A" => 1,
@@ -105,7 +59,7 @@ class Reports::MiProduction::LanguishingMgp
       "Legacy KOMP" => 1,
       "Legacy with new Interest" => 1,
     }
-    
+
     group_objects.each do |object|
       group_name = object.name
       next unless (names_to_exclude[group_name].nil?)
@@ -120,8 +74,8 @@ class Reports::MiProduction::LanguishingMgp
 
       report.append group
     end
-    
-    #some MGP plans have no subproject - add a 'None' group for these 
+
+    #some MGP plans have no subproject - add a 'None' group for these
     #if(grouping_field == 'Sub-Project')
     #  group = Ruport::Data::Group.new(
     #    :name => 'None',
@@ -132,10 +86,10 @@ class Reports::MiProduction::LanguishingMgp
     #  end
     #  report.append group
     #end
-    
+
     return report
   end
-  
+
   def self.fill_in_report_with_intermediate_record_data(grouping_field, summary_report, intermediate)
     names_to_exclude = {
       "" => 1,
@@ -144,7 +98,7 @@ class Reports::MiProduction::LanguishingMgp
       "Legacy KOMP" => 1,
       "Legacy with new Interest" => 1,
     }
-    
+
     intermediate.each do |intermediate_record|
       next unless intermediate_record['Consortium'] == 'MGP'
       grouping_value = intermediate_record[grouping_field]
@@ -166,11 +120,11 @@ class Reports::MiProduction::LanguishingMgp
   end
 
   def self.generate(grouping_field)
-    
+
     intermediate = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
-    
+
     report = make_empty_report_grouping(grouping_field)
-    
+
     fill_in_report_with_intermediate_record_data(grouping_field, report, intermediate)
 
     #report.each do |name, group|

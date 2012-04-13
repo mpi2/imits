@@ -54,23 +54,19 @@ class Reports::Production::MgpIntegrationTest < Kermits2::IntegrationTest
       end
     end
 
-=begin
-    context '/reports/mi_production/languishing_mgp_sub_project' do
-      should 'have link to cached report' do
-        visit '/reports/mi_production/languishing_mgp_sub_project'
+    context '/reports/production/mgp/languishing_priority' do
+      should 'work' do
+        visit '/reports/production/mgp'
+        assert page.has_css? "a[href='/reports/production/mgp/languishing_priority']"
+        visit '/reports/production/mgp/languishing_priority'
 	assert page.has_css? "#content"
-        assert page.has_css? "a[href='/reports/mi_production/languishing_mgp_sub_project.csv']"
       end
-    end
 
-    context '/reports/mi_production/languishing_mgp_priority' do
       should 'have link to cached report' do
-        visit '/reports/mi_production/languishing_mgp_priority'
-	assert page.has_css? "#content"
-        assert page.has_css? "a[href='/reports/mi_production/languishing_mgp_priority.csv']"
+        visit '/reports/production/mgp/languishing_priority'
+        assert page.has_css? "a[href='/reports/production/mgp/languishing_priority.csv']"
       end
     end
-=end
 
   end
 end

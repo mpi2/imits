@@ -212,10 +212,10 @@ class Reports::MiProduction::SummaryMgp23
         else
           if(grouping_column == 'Sub-Project')
             sub_project = row['Sub-Project']
-            new_value = "<a href=\"mgp_detail?sub_project=#{sub_project}&column=#{col_name}\">#{old_value}</a>"
+            new_value = "<a href=\"detail?sub_project=#{sub_project}&column=#{col_name}\">#{old_value}</a>"
           elsif (grouping_column == 'Priority')
             priority = row['Priority']
-            new_value = "<a href=\"mgp_detail?priority=#{priority}&column=#{col_name}\">#{old_value}</a>"
+            new_value = "<a href=\"detail?priority=#{priority}&column=#{col_name}\">#{old_value}</a>"
           else
             raise "I don't know how to group by #{grouping_column}"
           end

@@ -75,4 +75,39 @@ class ApplicationController < ActionController::Base
     )
   end
   protected :send_data_csv
+
+  def format_languishing_report(report, params = {})
+    group_type = params.fetch(:group_type)
+    details_controller = params.fetch(:details_controller)
+    details_action = params.fetch(:details_action)
+
+    report.each do |group_name, group|
+      group.each do |record|
+        Reports::MiProduction::Languishing::DELAY_BINS.each_with_index do |bin, idx|
+          if record[bin] == 0
+            link = '&nbsp;'.html_safe
+          else
+            link = '<a href="' + url_for(:controller => details_controller,
+              :action => details_action,
+              group_type => group_name,
+              :status => record[0],
+              :delay_bin => bin,
+              :only_path => true) + '">' + record[bin].to_s + '</a>'
+          end
+          css_classes = ['center', record[0].gsub(/[- ]+/, '_').downcase, "bin#{idx}"]
+          record[bin] = "<div class=\"#{css_classes.join ' '}\">#{link}</div>".html_safe
+        end
+      end
+
+      {
+        'Micro-injection in progress' => 'Mouse production attempt',
+        'Phenotype Attempt Registered' => 'Intent to phenotype'
+      }.each do |from, to|
+        row = group.find {|r| r[0] == from}
+        row[0] = to
+      end
+    end
+  end
+  protected :format_languishing_report
+
 end

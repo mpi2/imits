@@ -212,8 +212,6 @@ MiAttempt.audited_transaction do
       next
     end
 
-    #puts "status stamp count: #{mi_attempt.status_stamps.length}".blue if DEBUG
-
     stamp_ids = mi_attempt.status_stamps.map(&:id)
 
     puts "status stamp count: #{stamp_ids.inspect}".blue if DEBUG
@@ -223,8 +221,6 @@ MiAttempt.audited_transaction do
     mi_attempt.status_stamps.destroy_all
 
     mi_attempt.destroy
-
-    #break
 
   end
 

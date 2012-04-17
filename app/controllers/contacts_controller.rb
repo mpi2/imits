@@ -2,6 +2,10 @@
 
 class ContactsController < ApplicationController
   respond_to :html, :only => [:new, :create, :show, :edit]
+  respond_to :json, :only => [:new, :create, :show, :edit]
+  
+  before_filter :authenticate_user!
+  
   def new
     @gene = Gene.find_by_mgi_accession_id(params[:mgi_accession_id])
     @contact = Contact.find_by_email(params[:email]) || Contact.new
@@ -42,24 +46,6 @@ class ContactsController < ApplicationController
 
   def index
 
-  end
-
-  def search_email
-    
-    @gene = Gene.find_by_mgi_accession_id!(params[:mgi_accession_id])
-    @contact = Contact.find_by_email(params[:email]) || Contact.new
-
-    if @contact.new_record?
-      @contact.email = params[:email]
-      render :action => "new"
-    else
-      redirect_to new_notification_path(:mgi_accession_id => @gene.mgi_accession_id, :email => @contact.email)
-    end
-  end
-
-  def check_email
-    
-    @gene = Gene.find_by_mgi_accession_id(params[:mgi_accession_id])
   end
 
 end

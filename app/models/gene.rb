@@ -172,10 +172,13 @@ class Gene < ActiveRecord::Base
 
     self.mi_plans.each do |plan|
       this_status = plan.relevant_status_stamp
-      if ! @select_status
+      
+      if @selected_status.empty?
         @selected_status = this_status
-      elsif this_status[:order_by] > @selected_status[:order_by]
+
+      elsif this_status[:order_by] > @selected_status[:order_by]   
         @selected_status = this_status
+
       end
     end
 

@@ -1,9 +1,13 @@
 class Notification < ActiveRecord::Base
-  include Notifications::StatusChecker
-  attr_accessible :last_email_sent, :welcome_email_sent
+  include Notification::StatusChecker
+  attr_accessor :relevant_statuses
+  attr_accessible :last_email_sent, :welcome_email_sent, :last_email_text, :welcome_email_text, :relevant_statuses
 
   belongs_to :contact
   belongs_to :gene
+
+  validates :contact, :presence => true
+  validates :gene, :presence => true
 
 end
 

@@ -2,9 +2,17 @@ class User < ActiveRecord::Base
   ADMIN_USERS = [
     'aq2@sanger.ac.uk',
     'vvi@sanger.ac.uk',
-    're4@sanger.ac.uk'
+    're4@sanger.ac.uk',
+    'gj2@sanger.ac.uk'
   ]
-
+  
+  REMOTE_ACCESS_USERS = [
+    'aq2@sanger.ac.uk',
+    'vvi@sanger.ac.uk',
+    're4@sanger.ac.uk',
+    'gj2@sanger.ac.uk'
+  ]
+  
   devise :database_authenticatable, :rememberable, :validatable
 
   attr_accessible :email, :password, :password_confirmation, :remember_me,
@@ -18,6 +26,10 @@ class User < ActiveRecord::Base
 
   def admin?
     return ADMIN_USERS.include?(email)
+  end
+  
+  def remote_access?
+    return REMOTE_ACCESS_USERS.include?(email)
   end
 
   def can_see_sub_project?

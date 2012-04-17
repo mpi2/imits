@@ -5,7 +5,9 @@ class Contact < ActiveRecord::Base
   has_many :genes, :through => :notifications
 
   accepts_nested_attributes_for :notifications, :reject_if => :all_blank
-
+  
+  validates :email, :presence => true, :email => true
+  
 end
 
 # == Schema Information

@@ -378,39 +378,44 @@ class MiPlan < ApplicationModel
   end
   
   def relevant_status_stamp
+    @status_stamp = Hash.new
     if self.status_stamps
       plan_stamp = self.status_stamps.find_by_status_id(self.status_id)
       if plan_stamp
-        order_by = plan_stamp.status.order_by
-        date = plan_stamp.created_at
-        status = plan_stamp.status.name
-        stamp_type = plan_stamp.class.name
-        stamp_id = plan_stamp.id
+        #overwrite hash if more relevant stamp found
+        @status_stamp = Hash.new
+        @status_stamp[:order_by] = plan_stamp.status.order_by
+        @status_stamp[:date] = plan_stamp.created_at
+        @status_stamp[:status] = plan_stamp.status.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
+        @status_stamp[:stamp_type] = plan_stamp.class.name
+        @status_stamp[:stamp_id] = plan_stamp.id
       end
     end
         
     if mi = self.latest_relevant_mi_attempt
       mi_stamp = mi.status_stamps.find_by_mi_attempt_status_id(mi.mi_attempt_status)
-      if plan_stamp
-        order_by = mi_stamp.mi_attempt_status.order_by
-        date = mi_stamp.created_at
-        status = mi_stamp.mi_attempt_status.description
-        stamp_type = mi_stamp.class.name
-        stamp_id = mi_stamp.id
+      if mi_stamp
+        @status_stamp = Hash.new
+        @status_stamp[:order_by] = mi_stamp.mi_attempt_status.order_by
+        @status_stamp[:date] = mi_stamp.created_at
+        @status_stamp[:status] = mi_stamp.mi_attempt_status.description.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
+        @status_stamp[:stamp_type] = mi_stamp.class.name
+        @status_stamp[:stamp_id] = mi_stamp.id
       end
     end
     
     if pa = self.latest_relevant_phenotype_attempt
       pa_stamp = pa.status_stamps.find_by_status_id(pa.status_id)
-      if plan_stamp
-        order_by = pa_stamp.status.order_by
-        date = pa_stamp.created_at
-        status = pa_stamp.status.name
-        stamp_type = pa_stamp.class.name
-        stamp_id = pa_stamp.id
+      if pa_stamp
+        @status_stamp = Hash.new
+        @status_stamp[:order_by] = pa_stamp.status.order_by
+        @status_stamp[:date] = pa_stamp.created_at
+        @status_stamp[:status] = pa_stamp.status.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
+        @status_stamp[:stamp_type] = pa_stamp.class.name
+        @status_stamp[:stamp_id] = pa_stamp.id
       end
     end
-    return { :order_by => order_by, :date => date, :status => status, :stamp_type => stamp_type, :stamp_id => stamp_id }
+    return @status_stamp
   end
 
 end

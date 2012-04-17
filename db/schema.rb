@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120328110402) do
+ActiveRecord::Schema.define(:version => 20120411132445) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -340,30 +340,6 @@ ActiveRecord::Schema.define(:version => 20120328110402) do
 
   add_index "report_caches", ["name", "format"], :name => "index_report_caches_on_name_and_format", :unique => true
 
-  create_table "strain_blast_strains", :id => false, :force => true do |t|
-    t.integer  "id",         :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "strain_blast_strains", ["id"], :name => "index_strain_blast_strains_on_id", :unique => true
-
-  create_table "strain_colony_background_strains", :id => false, :force => true do |t|
-    t.integer  "id",         :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "strain_colony_background_strains", ["id"], :name => "index_strain_colony_background_strains_on_id", :unique => true
-
-  create_table "strain_test_cross_strains", :id => false, :force => true do |t|
-    t.integer  "id",         :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "strain_test_cross_strains", ["id"], :name => "index_strain_test_cross_strains_on_id", :unique => true
-
   create_table "strains", :force => true do |t|
     t.string   "name",       :limit => 50, :null => false
     t.datetime "created_at"
@@ -408,9 +384,9 @@ ActiveRecord::Schema.define(:version => 20120328110402) do
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_southern_blot_id_fk", :column => "qc_southern_blot_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_three_prime_lr_pcr_id_fk", :column => "qc_three_prime_lr_pcr_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_tv_backbone_assay_id_fk", :column => "qc_tv_backbone_assay_id"
-  add_foreign_key "mi_attempts", "strain_blast_strains", :name => "mi_attempts_blast_strain_id_fk", :column => "blast_strain_id"
-  add_foreign_key "mi_attempts", "strain_colony_background_strains", :name => "mi_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
-  add_foreign_key "mi_attempts", "strain_test_cross_strains", :name => "mi_attempts_test_cross_strain_id_fk", :column => "test_cross_strain_id"
+  add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_blast_strain_id_fk", :column => "blast_strain_id"
+  add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
+  add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_test_cross_strain_id_fk", :column => "test_cross_strain_id"
   add_foreign_key "mi_attempts", "users", :name => "mi_attempts_updated_by_id_fk", :column => "updated_by_id"
 
   add_foreign_key "mi_plan_status_stamps", "mi_plan_statuses", :name => "mi_plan_status_stamps_mi_plan_status_id_fk", :column => "status_id"
@@ -429,11 +405,5 @@ ActiveRecord::Schema.define(:version => 20120328110402) do
   add_foreign_key "phenotype_attempts", "mi_attempts", :name => "phenotype_attempts_mi_attempt_id_fk"
   add_foreign_key "phenotype_attempts", "mi_plans", :name => "phenotype_attempts_mi_plan_id_fk"
   add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"
-
-  add_foreign_key "strain_blast_strains", "strains", :name => "strain_blast_strains_id_fk", :column => "id"
-
-  add_foreign_key "strain_colony_background_strains", "strains", :name => "strain_colony_background_strains_id_fk", :column => "id"
-
-  add_foreign_key "strain_test_cross_strains", "strains", :name => "strain_test_cross_strains_id_fk", :column => "id"
 
 end

@@ -1,0 +1,37 @@
+    Dear colleague,
+
+    Thank you for registering for gene <%= @gene.marker_symbol %>
+
+    This gene currently <%= @modifier_string %> assigned for mouse production and phenotyping as part of the IMPC initiative.
+    
+    <% if @relevant_status %>
+    <%= render :partial => "notification_mailer/welcome_email/#{@relevant_status[:status]}.text.erb" %>
+    <% end %>
+    
+    Further details of these alleles can be found here:
+    http://mousephenotype.org/gene-list?gene_symbol=<%= @gene.mgi_accession_id %>
+    
+    <% if @total_cell_count > 0 %>
+    Currently the IKMC has the following mutant ES Cells for this gene;
+      <% if @gene.conditional_es_cells_count && @gene.conditional_es_cells_count > 0 %>
+      <%= @gene.conditional_es_cells_count %> conditional ES cells
+      <% end %>
+      <% if @gene.non_conditional_es_cells_count && @gene.non_conditional_es_cells_count > 0 %>
+      <%= @gene.non_conditional_es_cells_count %> non-conditional ES cells
+      <% end %>
+      <% if @gene.deletion_es_cells_count && @gene.deletion_es_cells_count > 0 %>
+      <%= @gene.deletion_es_cells_count %> deletions
+      <% end %>
+    Further details of these alleles can be found here
+    www.knockoutmouse.org/search_results?criteria=<%= @gene.mgi_accession_id %>
+    <% end %>
+    
+ 
+    
+    Updates on gene status will be sent to <%= @contact.email %>.
+
+    For further information / enquiries please write to  info@mousephenotype.org
+
+    Best Regards,
+
+      The MPI2 (KOMP2) informatics consortium.

@@ -1,0 +1,17 @@
+Dear colleague,
+ You have registered interest in this gene via the IMPC (www.mousephenotype.org).
+ 
+ You are receiving this email because the IMPC production status of the gene has changed.
+ 
+ <% if @relevant_status %>
+ <%= render :partial => "notification_mailer/status_email/#{@relevant_status[:status]}.text.erb" %>
+ <% end %>
+ 
+ Further details of alleles for this gene can be found here: 
+ http://mousephenotype.org/gene-list?gene_symbol=<%= @gene.mgi_accession_id %>
+ 
+ You will be notified by email with any future changes in gene status.
+ For further information / enquiries please write to  info@mousephenotype.org
+ Best Wishes,
+ 
+ The MPI2 (KOMP2) informatics consortium.

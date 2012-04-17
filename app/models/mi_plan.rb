@@ -18,8 +18,6 @@ class MiPlan < ApplicationModel
           :dependent => :destroy
   has_many :phenotype_attempts
 
-  validates :gene_id, :uniqueness => {:scope => [:consortium_id, :production_centre_id]}
-
   validate do |plan|
     if plan.is_active == false
       plan.mi_attempts.each do |mi_attempt|
@@ -48,9 +46,19 @@ class MiPlan < ApplicationModel
   end
 
   validate do |plan|
-    not_allowed_statuses = ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"]
+    not_allowed_statuses = ["Interest", "Conflict", "Inspect - GLT Mouse", "Inspect - MI Attempt", "Inspect - Conflict", "Aborted - ES Cell QC Failed", "Withdrawn"]
     if not_allowed_statuses.include?(plan.status.name) and plan.mi_attempts.length != 0
       plan.errors.add(:status, 'cannot be changed - microinjection attempts exist')
+    end
+  end
+
+  validate do |plan|
+    other_ids = MiPlan.where(:gene_id => plan.gene_id,
+      :consortium_id => plan.consortium_id,
+      :production_centre_id => plan.production_centre_id).map(&:id)
+    other_ids -= [plan.id]
+    if(other_ids.count != 0)
+      plan.errors.add(:gene, 'already has a plan by that consortium/production centre')
     end
   end
 

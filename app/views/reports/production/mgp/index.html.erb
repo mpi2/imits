@@ -1,0 +1,23 @@
+<% @title = 'MGP Reports' %>
+
+<div class="grid_4">&emsp;</div>
+<div class="grid_4">
+  <h2><%= @title %></h2>
+</div>
+
+<div class="clear"></div>
+
+<div class="grid_4">&emsp;</div>
+
+<div class="grid_4">
+
+  <% ['summary_subproject', 'summary_priority',
+      'languishing_sub_project', 'languishing_priority'].each do |report_action| %>
+    <div class="report-links">
+      <a href="<%= url_for(:action => report_action.to_sym) %>">
+        <h4><%= report_action.to_s.humanize.titleize %></h4>
+      </a>
+    </div>
+  <% end %>
+
+</div>

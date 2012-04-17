@@ -24,7 +24,7 @@ class IntermediateReportTest < ActiveSupport::TestCase
               :consortium_name => 'BaSH',
               :production_centre_name => 'WTSI',
               :mouse_allele_type => 'c',
-              :colony_background_strain => Strain::ColonyBackgroundStrain.find_by_name!('C57BL/6N')
+              :colony_background_strain => Strain.find_by_name!('C57BL/6N')
       replace_status_stamps(bash_wtsi_attempt,
         'Micro-injection in progress' => '2011-11-22 00:00:00 UTC',
         'Chimeras obtained' => '2011-11-22 23:59:59 UTC',

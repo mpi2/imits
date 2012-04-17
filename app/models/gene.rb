@@ -155,16 +155,16 @@ class Gene < ActiveRecord::Base
   end
 
 
-  def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_id=nil)
-    return pretty_print_mi_attempts_in_bulk_helper(true, MiAttemptStatus.micro_injection_in_progress, gene_id)
+  def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_id = nil)
+    return pretty_print_mi_attempts_in_bulk_helper(true, [MiAttemptStatus.micro_injection_in_progress, MiAttemptStatus.chimeras_obtained], gene_id)
   end
 
-  def self.pretty_print_mi_attempts_genotype_confirmed_in_bulk(gene_id=nil)
-    return pretty_print_mi_attempts_in_bulk_helper(true, MiAttemptStatus.genotype_confirmed, gene_id)
+  def self.pretty_print_mi_attempts_genotype_confirmed_in_bulk(gene_id = nil)
+    return pretty_print_mi_attempts_in_bulk_helper(true, [MiAttemptStatus.genotype_confirmed], gene_id)
   end
 
   def self.pretty_print_aborted_mi_attempts_in_bulk(gene_id=nil)
-    return pretty_print_mi_attempts_in_bulk_helper(false,nil,gene_id)
+    return pretty_print_mi_attempts_in_bulk_helper(false, [], gene_id)
   end
   
   def relevant_status
@@ -187,7 +187,7 @@ class Gene < ActiveRecord::Base
   
   private
 
-  def self.pretty_print_mi_attempts_in_bulk_helper(active,status,gene_id=nil)
+  def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_id = nil)
     sql = <<-"SQL"
       SELECT
         genes.marker_symbol,
@@ -201,8 +201,9 @@ class Gene < ActiveRecord::Base
       JOIN mi_attempts ON mi_attempts.mi_plan_id = mi_plans.id
     SQL
     sql << "WHERE mi_attempts.is_active = #{active}\n"
-    if status
-      sql << "AND mi_attempts.mi_attempt_status_id = #{status.id}\n"
+    if ! statuses.empty?
+      status_ids_string = statuses.map(&:id).join(', ')
+      sql << "AND mi_attempts.mi_attempt_status_id IN (#{status_ids_string})\n"
     end
     sql << "AND genes.id = #{gene_id}\n" unless gene_id.nil?
     sql << "group by genes.marker_symbol, consortia.name, centres.name\n"

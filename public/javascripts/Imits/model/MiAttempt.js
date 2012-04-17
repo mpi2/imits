@@ -25,7 +25,7 @@ Ext.define('Imits.model.MiAttempt', {
         type: 'date'
     },
     {
-        name: 'status',
+        name: 'status_name',
         persist: false
     },
     'colony_name',

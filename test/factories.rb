@@ -142,10 +142,10 @@ Factory.define :randomly_populated_es_cell, :parent => :es_cell do |es_cell|
 end
 
 Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
-  mi_attempt.blast_strain { Strain::BlastStrain.all.sample }
-  mi_attempt.test_cross_strain { Strain::TestCrossStrain.all.sample }
+  mi_attempt.blast_strain { Strain.all.sample }
+  mi_attempt.test_cross_strain { Strain.all.sample }
   mi_attempt.distribution_centre { Centre.all.sample }
-  mi_attempt.colony_background_strain { Strain::ColonyBackgroundStrain.all.sample }
+  mi_attempt.colony_background_strain { Strain.all.sample }
   mi_attempt.colony_name { (1..4).to_a.map { ('A'..'Z').to_a.sample }.join }
 
   MiAttempt.columns.each do |column|

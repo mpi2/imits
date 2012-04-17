@@ -27,16 +27,53 @@ module Seeds
                    );
     SQL
   end
-
-  def self.set_up_strains(strain_ids_class, filename)
-    strains_list = File.read(Rails.root + "config/strains/#{filename}.txt").split("\n")
-    strains_list.each do |strain_name|
-      next if strain_name.empty?
-      strain = Strain.find_or_create_by_name(strain_name)
-      strain_ids_class.find_or_create_by_id(strain.id)
-    end
-  end
 end
+
+Seeds.load Strain, [
+  {:id =>  1, :name => "BALB/c"},
+  {:id =>  2, :name => "BALB/cAm"},
+  {:id =>  3, :name => "BALB/cAnNCrl"},
+  {:id =>  4, :name => "BALB/cJ"},
+  {:id =>  5, :name => "BALB/cN"},
+  {:id =>  6, :name => "BALB/cWtsi;C57BL/6J-Tyr<c-Brd>"},
+  {:id =>  7, :name => "C3HxBALB/c"},
+  {:id =>  8, :name => "C57BL/6J"},
+  {:id =>  9, :name => "C57BL/6J Albino"},
+  {:id => 10, :name => "C57BL/6J-A<W-J>/J"},
+  {:id => 11, :name => "C57BL/6J-Tyr<c-2J>"},
+  {:id => 12, :name => "C57BL/6J-Tyr<c-2J>/J"},
+  {:id => 13, :name => "C57BL/6J-Tyr<c-Brd>"},
+  {:id => 14, :name => "C57BL/6J-Tyr<c-Brd>;C57BL/6JIco"},
+  {:id => 15, :name => "C57BL/6J-Tyr<c-Brd>;C57BL/6N"},
+  {:id => 16, :name => "C57BL/6J-Tyr<c-Brd>;Stock"},
+  {:id => 17, :name => "C57BL/6JcBrd/cBrd"},
+  {:id => 18, :name => "C57BL/6N"},
+  {:id => 19, :name => "C57BL/6NCrl"},
+  {:id => 20, :name => "C57BL6/NCrl"},
+  {:id => 21, :name => "C57Bl/6J Albino"},
+  {:id => 22, :name => "CD1"},
+  {:id => 23, :name => "FVB"},
+  {:id => 24, :name => "Stock"},
+  {:id => 25, :name => "Swiss Webster"},
+  {:id => 26, :name => "b"},
+  {:id => 27, :name => "129P2"},
+  {:id => 28, :name => "129P2/OlaHsd"},
+  {:id => 29, :name => "129S5/SvEvBrd/Wtsi"},
+  {:id => 30, :name => "129S5/SvEvBrd/Wtsi or C57BL/6J-Tyr<c-Brd>"},
+  {:id => 31, :name => "C57BL/6J-Tyr<c-Brd> or C57BL/6NTac/Den"},
+  {:id => 32, :name => "C57BL/6J-Tyr<c-Brd> or C57BL/6NTac/Den or CBA/Wtsi"},
+  {:id => 33, :name => "C57BL/6J-Tyr<c-Brd> or C57BL/6NTac/USA"},
+  {:id => 34, :name => "C57BL/6JIco"},
+  {:id => 35, :name => "C57BL/6NTac"},
+  {:id => 36, :name => "C57BL/6NTac/Den"},
+  {:id => 37, :name => "C57BL/6NTac/Den or C57BL/6NTac/USA"},
+  {:id => 38, :name => "C57BL/6NTac/USA"},
+  {:id => 39, :name => "C57BL/6JIco;C57BL/6J-Tyr<c-Brd>"},
+  {:id => 40, :name => "Delete once confirmed its use"},
+  {:id => 41, :name => "c"},
+  {:id => 42, :name => 'B6D2F1 x B6'},
+  {:id => 43, :name => 'C57BL6'}
+]
 
 Seeds.load MiAttemptStatus, [
   {:id => 1, :description => 'Micro-injection in progress', :order_by => 220},
@@ -44,10 +81,6 @@ Seeds.load MiAttemptStatus, [
   {:id => 3, :description => 'Micro-injection aborted', :order_by => 210},
   {:id => 4, :description => 'Chimeras obtained', :order_by => 230}
 ]
-
-Seeds.set_up_strains Strain::BlastStrain, :blast_strains
-Seeds.set_up_strains Strain::ColonyBackgroundStrain, :colony_background_strains
-Seeds.set_up_strains Strain::TestCrossStrain, :test_cross_strains
 
 Seeds.load QcResult, [
   {:id => 1, :description => 'na'},

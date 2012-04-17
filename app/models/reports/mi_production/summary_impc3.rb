@@ -247,23 +247,26 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     end
 
     if key == 'Phenotyping started'
-      return row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
+      return row['PhenotypeAttempt Status'] == 'Phenotyping Started'
     end
 
     if key == 'Cre excision completed'
-      return row['PhenotypeAttempt Status'] == 'Cre Excision Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
+      return row['PhenotypeAttempt Status'] == 'Cre Excision Complete'
     end
 
     if key == 'Cre excision started'
-      return row['PhenotypeAttempt Status'] == 'Cre Excision Started' ||
-        row['PhenotypeAttempt Status'] == 'Cre Excision Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
+      return row['PhenotypeAttempt Status'] == 'Cre Excision Started'
     end
 
-    valid_phenos2 = [
+    if key == 'Rederivation started'
+      return row['PhenotypeAttempt Status'] == 'Rederivation started' && row['Rederivation Start Date'].to_s.length > 0
+    end
+    
+    if key == 'Rederivation completed'
+      return row['PhenotypeAttempt Status'] == 'Rederivation completed' && row['Rederivation Complete Date'].to_s.length > 0
+    end
+
+    valid_phenos = [
       'Rederivation Started',
       'Rederivation Complete',
       'Cre Excision Started',
@@ -272,24 +275,8 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
       'Phenotyping Complete'
     ]
 
-    if key == 'Rederivation started'
-      return valid_phenos2.include?(row['PhenotypeAttempt Status']) && row['Rederivation Started Date'].to_s.length > 0
-    end
-
-    valid_phenos3 = [
-      'Rederivation Complete',
-      'Cre Excision Started',
-      'Cre Excision Complete',
-      'Phenotyping Started',
-      'Phenotyping Complete'
-    ]
-
-    if key == 'Rederivation completed'
-      return valid_phenos3.include?(row['PhenotypeAttempt Status']) && row['Rederivation Complete Date'].to_s.length > 0
-    end
-
     if key == 'Registered for phenotyping'
-      return row['PhenotypeAttempt Status'] == 'Phenotype Attempt Registered'
+      return valid_phenos.include?(row['PhenotypeAttempt Status'])
     end
 
     if key == 'Distinct Genotype Confirmed ES Cells'
@@ -301,7 +288,8 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     end
 
     if key == 'Languishing'
-      return row.data['Overall Status'] == 'Micro-injection in progress' && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
+      return (row.data['Overall Status'] == 'Micro-injection in progress' || row.data['Overall Status'] == 'Chimeras obtained') &&
+        Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
     end
 
     return false

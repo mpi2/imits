@@ -212,10 +212,10 @@ class Reports::MiProduction::SummaryMgp23
         else
           if(grouping_column == 'Sub-Project')
             sub_project = row['Sub-Project']
-            new_value = "<a href=\"mgp_detail?sub_project=#{sub_project}&column=#{col_name}\">#{old_value}</a>"
+            new_value = "<a href=\"detail?sub_project=#{sub_project}&column=#{col_name}\">#{old_value}</a>"
           elsif (grouping_column == 'Priority')
             priority = row['Priority']
-            new_value = "<a href=\"mgp_detail?priority=#{priority}&column=#{col_name}\">#{old_value}</a>"
+            new_value = "<a href=\"detail?priority=#{priority}&column=#{col_name}\">#{old_value}</a>"
           else
             raise "I don't know how to group by #{grouping_column}"
           end
@@ -279,23 +279,26 @@ class Reports::MiProduction::SummaryMgp23
     end
 
     if key == 'Phenotyping started'
-      return row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
+      return row['PhenotypeAttempt Status'] == 'Phenotyping Started'
     end
 
     if key == 'Cre excision completed'
-      return row['PhenotypeAttempt Status'] == 'Cre Excision Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
+      return row['PhenotypeAttempt Status'] == 'Cre Excision Complete'
     end
 
     if key == 'Cre excision started'
-      return row['PhenotypeAttempt Status'] == 'Cre Excision Started' ||
-        row['PhenotypeAttempt Status'] == 'Cre Excision Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Started' || row['PhenotypeAttempt Status'] == 'Phenotyping Complete' ||
-        row['PhenotypeAttempt Status'] == 'Phenotyping Complete'
+      return row['PhenotypeAttempt Status'] == 'Cre Excision Started'
     end
 
-    valid_phenos2 = [
+    if key == 'Rederivation started'
+      return row['PhenotypeAttempt Status'] == 'Rederivation started' && row['Rederivation Start Date'].to_s.length > 0
+    end
+    
+    if key == 'Rederivation completed'
+      return row['PhenotypeAttempt Status'] == 'Rederivation completed' && row['Rederivation Complete Date'].to_s.length > 0
+    end
+
+    valid_phenos = [
       'Rederivation Started',
       'Rederivation Complete',
       'Cre Excision Started',
@@ -304,24 +307,8 @@ class Reports::MiProduction::SummaryMgp23
       'Phenotyping Complete'
     ]
 
-    if key == 'Rederivation started'
-      return valid_phenos2.include?(row['PhenotypeAttempt Status']) && row['Rederivation Started Date'].to_s.length > 0
-    end
-
-    valid_phenos3 = [
-      'Rederivation Complete',
-      'Cre Excision Started',
-      'Cre Excision Complete',
-      'Phenotyping Started',
-      'Phenotyping Complete'
-    ]
-
-    if key == 'Rederivation completed'
-      return valid_phenos3.include?(row['PhenotypeAttempt Status']) && row['Rederivation Complete Date'].to_s.length > 0
-    end
-
     if key == 'Registered for phenotyping'
-      return row['PhenotypeAttempt Status'] == 'Phenotype Attempt Registered'
+      return valid_phenos.include?(row['PhenotypeAttempt Status'])
     end
 
     if key == 'Distinct Genotype Confirmed ES Cells'

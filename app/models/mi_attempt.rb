@@ -44,9 +44,9 @@ class MiAttempt < ApplicationModel
   belongs_to :mi_attempt_status
   belongs_to :distribution_centre, :class_name => 'Centre'
   belongs_to :updated_by, :class_name => 'User'
-  belongs_to :blast_strain, :class_name => 'Strain::BlastStrain'
-  belongs_to :colony_background_strain, :class_name => 'Strain::ColonyBackgroundStrain'
-  belongs_to :test_cross_strain, :class_name => 'Strain::TestCrossStrain'
+  belongs_to :blast_strain, :class_name => 'Strain'
+  belongs_to :colony_background_strain, :class_name => 'Strain'
+  belongs_to :test_cross_strain, :class_name => 'Strain'
   belongs_to :deposited_material
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many :phenotype_attempts
@@ -418,7 +418,7 @@ class MiAttempt < ApplicationModel
       'es_cell_allele_symbol'   => 'es_cell_gene_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
       'production_centre_name'  => 'mi_plan_production_centre_name',
-      'status'                  => 'mi_attempt_status_description'
+      'status_name'             => 'mi_attempt_status_description'
     }
   end
 

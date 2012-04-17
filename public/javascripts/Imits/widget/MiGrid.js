@@ -185,7 +185,7 @@ Ext.define('Imits.widget.MiGrid', {
           dataIndex: 'phenotype_attempt_new_link',
           renderer: function(value, metaData, record){
             var miId = record.getId();
-            var statusName = record.get('status');
+            var statusName = record.get('status_name');
             if (statusName == "Genotype confirmed") {
               return Ext.String.format('<a href="{0}/mi_attempts/{1}/phenotype_attempts/new">Create</a>', window.basePath, miId);
             } else {
@@ -246,7 +246,7 @@ Ext.define('Imits.widget.MiGrid', {
             header: 'MI Date'
         },
         {
-            dataIndex: 'status',
+            dataIndex: 'status_name',
             header: 'Status',
             width: 150,
             readOnly: true,
@@ -295,7 +295,7 @@ Ext.define('Imits.widget.MiGrid', {
             width: 200,
             editor: {
                 xtype: 'simplecombo',
-                store: Ext.Array.merge([''], window.MI_ATTEMPT_BLAST_STRAIN_OPTIONS),
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_STRAIN_OPTIONS),
                 storeOptionsAreSpecial: true,
                 listConfig: {
                     minWidth: 200
@@ -390,7 +390,7 @@ Ext.define('Imits.widget.MiGrid', {
             width: 200,
             editor: {
                 xtype: 'simplecombo',
-                store: Ext.Array.merge([''], window.MI_ATTEMPT_TEST_CROSS_STRAIN_OPTIONS),
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_STRAIN_OPTIONS),
                 storeOptionsAreSpecial: true,
                 listConfig: {
                     minWidth: 200
@@ -406,7 +406,7 @@ Ext.define('Imits.widget.MiGrid', {
             width: 200,
             editor: {
                 xtype: 'simplecombo',
-                store: Ext.Array.merge([''], window.MI_ATTEMPT_COLONY_BACKGROUND_STRAIN_OPTIONS),
+                store: Ext.Array.merge([''], window.MI_ATTEMPT_STRAIN_OPTIONS),
                 storeOptionsAreSpecial: true,
                 listConfig: {
                     minWidth: 200

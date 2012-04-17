@@ -6,39 +6,39 @@ require 'mocha'
 class GeneTest < ActiveSupport::TestCase
   context 'Gene' do
 
-    context '(misc. tests)' do
-      setup do
-        Factory.create :gene
-        create_common_test_objects
-      end
+    should 'have attibutes' do
+      Factory.create :gene
+      create_common_test_objects
 
-      should have_many :es_cells
-      should have_many :mi_plans
+      assert_should have_many :es_cells
+      assert_should have_many :mi_plans
 
-      should have_db_column(:marker_symbol).of_type(:string).with_options(:null => false, :limit => 75)
-      should have_db_column(:mgi_accession_id).of_type(:string).with_options(:null => true, :limit => 40)
+      assert_should have_db_column(:marker_symbol).of_type(:string).with_options(:null => false, :limit => 75)
+      assert_should have_db_column(:mgi_accession_id).of_type(:string).with_options(:null => true, :limit => 40)
 
-      should validate_presence_of :marker_symbol
-      should validate_uniqueness_of :marker_symbol
+      assert_should validate_presence_of :marker_symbol
+      assert_should validate_uniqueness_of :marker_symbol
+    end
 
-      should 'no output private attributes in serialization' do
-        gene_json = Gene.first.as_json.stringify_keys
+    should 'not output private attributes in serialization' do
+      Factory.create :gene
+      gene_json = Gene.first.as_json.stringify_keys
 
-        assert_false gene_json.keys.include? 'created_at'
-        assert_false gene_json.keys.include? 'updated_at'
-        assert_false gene_json.keys.include? 'updated_by'
-      end
+      assert_false gene_json.keys.include? 'created_at'
+      assert_false gene_json.keys.include? 'updated_at'
+      assert_false gene_json.keys.include? 'updated_by'
+    end
 
-      should 'include pretty_print type methods in serialization' do
-        gene_json = Gene.first.as_json.stringify_keys
+    should 'include pretty_print type methods in serialization' do
+      Factory.create :gene
+      gene_json = Gene.first.as_json.stringify_keys
 
-        assert gene_json.keys.include? 'pretty_print_types_of_cells_available'
-        assert gene_json.keys.include? 'non_assigned_mi_plans'
-        assert gene_json.keys.include? 'assigned_mi_plans'
-        assert gene_json.keys.include? 'pretty_print_mi_attempts_in_progress'
-        assert gene_json.keys.include? 'pretty_print_mi_attempts_genotype_confirmed'
-        assert gene_json.keys.include? 'pretty_print_aborted_mi_attempts'
-      end
+      assert gene_json.keys.include? 'pretty_print_types_of_cells_available'
+      assert gene_json.keys.include? 'non_assigned_mi_plans'
+      assert gene_json.keys.include? 'assigned_mi_plans'
+      assert gene_json.keys.include? 'pretty_print_mi_attempts_in_progress'
+      assert gene_json.keys.include? 'pretty_print_mi_attempts_genotype_confirmed'
+      assert gene_json.keys.include? 'pretty_print_aborted_mi_attempts'
     end
 
     context '::find_or_create_from_marts_by_mgi_accession_id' do
@@ -104,12 +104,12 @@ class GeneTest < ActiveSupport::TestCase
         dcc_gene_data_minus_one_gene = dcc_gene_data.reject{ |elm| elm['marker_symbol'] == 'GeneC' }
 
         DCC_BIOMART.stubs(:search)
-               .returns(dcc_gene_data)
-          .then.returns(dcc_gene_data)
-          .then.returns(dcc_gene_data_plus_one_project)
-          .then.returns(dcc_gene_data_plus_one_project)
-          .then.returns(dcc_gene_data_minus_one_gene)
-          .then.returns(dcc_gene_data_minus_one_gene)
+        .returns(dcc_gene_data)
+        .then.returns(dcc_gene_data)
+        .then.returns(dcc_gene_data_plus_one_project)
+        .then.returns(dcc_gene_data_plus_one_project)
+        .then.returns(dcc_gene_data_minus_one_gene)
+        .then.returns(dcc_gene_data_minus_one_gene)
 
         targ_rep_clone_data = [
           {
@@ -322,13 +322,17 @@ class GeneTest < ActiveSupport::TestCase
                 :marker_symbol => 'Moo1',
                 :mgi_accession_id => 'MGI:12345'
 
-        2.times do
-          Factory.create :mi_attempt,
-                  :es_cell => Factory.create(:es_cell, :gene => gene),
-                  :consortium_name => 'MGP',
-                  :production_centre_name => 'WTSI',
-                  :is_active => true
-        end
+        Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'MGP',
+                :production_centre_name => 'WTSI',
+                :is_active => true
+
+        Factory.create :mi_attempt_chimeras_obtained,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'MGP',
+                :production_centre_name => 'WTSI',
+                :is_active => true
 
         Factory.create :wtsi_mi_attempt_genotype_confirmed,
                 :es_cell => Factory.create(:es_cell, :gene => gene),

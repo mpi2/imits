@@ -42,6 +42,11 @@ class RootControllerTest < Kermits2::IntegrationTest
           assert page.body.include?(consortium.name), "#{consortium.name} not found!"
         end
       end
+
+      should 'render /debug_info page' do
+        visit '/debug_info'
+        assert page.has_css? '#content'
+      end
     end
   end
 end

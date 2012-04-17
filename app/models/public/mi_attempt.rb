@@ -65,7 +65,6 @@ class Public::MiAttempt < ::MiAttempt
     es_cell_marker_symbol
     es_cell_allele_symbol
     status_name
-    status
     mouse_allele_symbol_superscript
     mouse_allele_symbol
     mi_plan_id

@@ -107,7 +107,8 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         header: 'Status',
         readOnly: true,
         filter: {
-            type: 'string'
+            type: 'list',
+            options: window.PHENOTYPE_STATUS_OPTIONS
         }
     },
     {

@@ -214,7 +214,7 @@ MiAttempt.audited_transaction do
 
     stamp_ids = mi_attempt.status_stamps.map(&:id)
 
-    puts "status stamp count: #{stamp_ids.inspect}".blue if DEBUG
+    puts "status stamps: #{stamp_ids.inspect}".blue if DEBUG
 
     # ok to blat
 

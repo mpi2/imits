@@ -13,9 +13,9 @@ class Reports::MiProduction::LanguishingMgp < Reports::MiProduction::Languishing
       :filters => lambda {
         |intermediate_record|
         if(sub_project)
-          return false unless intermediate_record['Sub-Project'] == sub_project
+          return false unless (intermediate_record['Sub-Project'] == sub_project) && (intermediate_record['Consortium'] == 'MGP')
         elsif(priority)
-          return false unless intermediate_record['Priority'] == priority
+          return false unless (intermediate_record['Priority'] == priority) && (intermediate_record['Consortium'] == 'MGP')
         else
           raise "Must specify one of sub_project or priority as a parameter to this detail method"
         end
@@ -40,7 +40,7 @@ class Reports::MiProduction::LanguishingMgp < Reports::MiProduction::Languishing
     return report
   end
 
-  def self.make_empty_report_grouping(grouping_field)
+  def self.make_empty_report_grouping(grouping_field, include_legacy)
 
     report = Ruport::Data::Grouping.new
 
@@ -52,13 +52,26 @@ class Reports::MiProduction::LanguishingMgp < Reports::MiProduction::Languishing
       raise "have to specify a grouping field of Sub-Project or Priority"
     end
 
-    names_to_exclude = {
-      "" => 1,
-      "WTSI_Blood_A" => 1,
-      "Legacy EUCOMM" => 1,
-      "Legacy KOMP" => 1,
-      "Legacy with new Interest" => 1,
-    }
+    names_to_exclude = {}
+    
+    if(include_legacy.nil?)
+      names_to_exclude = {
+        "" => 1,
+        "WTSI_Blood_A" => 1,
+        "Legacy EUCOMM" => 1,
+        "Legacy KOMP" => 1,
+        "Legacy with new Interest" => 1,
+        "MGP Legacy" => 1
+      }
+    else
+      names_to_exclude = {
+        "" => 1,
+        "WTSI_Blood_A" => 1,
+        "Legacy EUCOMM" => 1,
+        "Legacy KOMP" => 1,
+        "Legacy with new Interest" => 1,
+      }
+    end
 
     group_objects.each do |object|
       group_name = object.name
@@ -90,19 +103,33 @@ class Reports::MiProduction::LanguishingMgp < Reports::MiProduction::Languishing
     return report
   end
 
-  def self.fill_in_report_with_intermediate_record_data(grouping_field, summary_report, intermediate)
-    names_to_exclude = {
-      "" => 1,
-      "WTSI_Blood_A" => 1,
-      "Legacy EUCOMM" => 1,
-      "Legacy KOMP" => 1,
-      "Legacy with new Interest" => 1,
-    }
+  def self.fill_in_report_with_intermediate_record_data(grouping_field, summary_report, intermediate, include_legacy)
+    
+    names_to_exclude = {}
+    
+    if(include_legacy.nil?)
+      names_to_exclude = {
+        "" => 1,
+        "WTSI_Blood_A" => 1,
+        "Legacy EUCOMM" => 1,
+        "Legacy KOMP" => 1,
+        "Legacy with new Interest" => 1,
+        "MGP Legacy" => 1,
+      }
+    else
+      names_to_exclude = {
+        "" => 1,
+        "WTSI_Blood_A" => 1,
+        "Legacy EUCOMM" => 1,
+        "Legacy KOMP" => 1,
+        "Legacy with new Interest" => 1,
+      }
+    end
 
     intermediate.each do |intermediate_record|
       next unless intermediate_record['Consortium'] == 'MGP'
       grouping_value = intermediate_record[grouping_field]
-      next unless names_to_exclude[grouping_value].nil?
+      next unless names_to_exclude[intermediate_record['Sub-Project']].nil?
       #sub_project_name = intermediate_record['Sub-Project']
       #sometimes the Sub-Project can be empty - replace with 'None'
       if((grouping_value.eql?nil) || (grouping_value.length == 0))
@@ -119,13 +146,15 @@ class Reports::MiProduction::LanguishingMgp < Reports::MiProduction::Languishing
     end
   end
 
-  def self.generate(grouping_field)
+  def self.generate(grouping_field, params)
+    
+    include_legacy = params[:include_legacy]
 
     intermediate = ReportCache.find_by_name_and_format!('mi_production_intermediate', 'csv').to_table
 
-    report = make_empty_report_grouping(grouping_field)
+    report = make_empty_report_grouping(grouping_field, include_legacy)
 
-    fill_in_report_with_intermediate_record_data(grouping_field, report, intermediate)
+    fill_in_report_with_intermediate_record_data(grouping_field, report, intermediate, include_legacy)
 
     #report.each do |name, group|
     #  {

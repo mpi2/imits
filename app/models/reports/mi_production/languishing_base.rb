@@ -5,6 +5,7 @@ class Reports::MiProduction::LanguishingBase
     'Assigned - ES Cell QC In Progress',
     'Assigned - ES Cell QC Complete',
     'Micro-injection in progress',
+    'Chimeras obtained',
     'Genotype confirmed',
     'Micro-injection aborted',
     'Phenotype Attempt Registered',

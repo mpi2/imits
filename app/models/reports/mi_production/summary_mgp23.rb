@@ -80,12 +80,16 @@ class Reports::MiProduction::SummaryMgp23
     return total
   end
   
-  def self.filter_intermediate_report_for_mgp_rows (cached_report)
+  def self.filter_intermediate_report_for_mgp_rows (cached_report, include_legacy)
     filtered_report = Table(
       :data => cached_report.data,
       :column_names => cached_report.column_names,
       :filters => lambda {|r|
-        return r['Consortium'] == 'MGP'
+        if(include_legacy.nil?)
+          return (r['Consortium'] == 'MGP' && (r['Sub-Project'] != 'MGP Legacy'))
+        else
+          return (r['Consortium'] == 'MGP')
+        end
       }
     )
 
@@ -334,7 +338,8 @@ class Reports::MiProduction::SummaryMgp23
   def self.generate(grouping_column, params)
     cached_report = ReportCache.find_by_name_and_format!(Reports::MiProduction::Intermediate.report_name, 'csv').to_table
     
-    reduced_report = filter_intermediate_report_for_mgp_rows(cached_report)
+    include_legacy = params[:include_legacy]
+    reduced_report = filter_intermediate_report_for_mgp_rows(cached_report, include_legacy)
 
     summarised_report = summarise_by_grouping_column_and_set_column_order(grouping_column, reduced_report, params)
     

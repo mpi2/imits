@@ -118,6 +118,7 @@ class Reports::MiProduction::SummaryMgp23
       'ES cell QC',
       'Genotype confirmed mice',
       'Microinjections',
+      'Chimaeras produced',
       'Phenotyping started',
       'Cre excision completed',
       'Rederivation started',
@@ -267,7 +268,11 @@ class Reports::MiProduction::SummaryMgp23
 
     if key == 'Microinjections'
       return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
-        row['MiAttempt Status'] == 'Micro-injection aborted'
+        row['MiAttempt Status'] == 'Micro-injection aborted' || row['MiAttempt Status'] == 'Chimeras obtained'
+    end
+
+    if key == 'Chimaeras produced'
+      return row['MiAttempt Status'] == 'Chimeras obtained'
     end
 
     if key == 'Phenotyping aborted'
@@ -320,7 +325,7 @@ class Reports::MiProduction::SummaryMgp23
     end
 
     if key == 'Languishing'
-      return row.data['Overall Status'] == 'Micro-injection in progress' && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
+      return (row.data['Overall Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Chimeras obtained') && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
     end
 
     return false

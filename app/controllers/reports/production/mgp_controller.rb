@@ -28,7 +28,7 @@ class Reports::Production::MgpController < ApplicationController
 
   def detail
     @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
-    return_value = Reports::MiProduction::SummaryMgp23.generate_detail(request)
+    return_value = Reports::MiProduction::SummaryMgp23.generate_detail(params)
     @report = return_value[:table]
     if request.format == :csv
       send_data_csv('mgp_summary_detail.csv', @report.to_csv)

@@ -355,7 +355,7 @@ class Reports::MiProduction::SummaryMgp23
     }
   end
   
-  def self.generate_detail(request, params)
+  def self.generate_detail(params)
     # column = column header from report
     column = params[:column]
     subproject = params[:sub_project]

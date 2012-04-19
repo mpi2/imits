@@ -308,6 +308,7 @@ class Reports::MiProduction::SummaryMgp23
     end
 
     valid_phenos = [
+      'Phenotype Attempt Registered',
       'Rederivation Started',
       'Rederivation Complete',
       'Cre Excision Started',
@@ -315,7 +316,7 @@ class Reports::MiProduction::SummaryMgp23
       'Phenotyping Started',
       'Phenotyping Complete'
     ]
-
+    
     if key == 'Registered for phenotyping'
       return valid_phenos.include?(row['PhenotypeAttempt Status'])
     end

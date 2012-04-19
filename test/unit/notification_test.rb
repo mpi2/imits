@@ -20,7 +20,9 @@ class NotificationTest < ActiveSupport::TestCase
         assert_should have_db_column(:gene_id)
         assert_should have_db_column(:contact_id)
         assert_should have_db_column(:welcome_email_sent)
+        assert_should have_db_column(:welcome_email_text)
         assert_should have_db_column(:last_email_sent)
+        assert_should have_db_column(:last_email_text)
       end
     end
 

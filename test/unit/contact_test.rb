@@ -17,10 +17,6 @@ class ContactTest < ActiveSupport::TestCase
 
       should 'have db columns' do
         assert_should have_db_column(:email).with_options(:null => false)
-        assert_should have_db_column(:first_name)
-        assert_should have_db_column(:last_name)
-        assert_should have_db_column(:institution)
-        assert_should have_db_column(:organisation)
       end
     end
 

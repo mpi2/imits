@@ -18,10 +18,6 @@ end
 
 Factory.define :contact do |contact|
   contact.sequence(:email) { |n| "contact#{n}@example.com"}
-  contact.first_name 'Another'
-  contact.last_name 'Test'
-  contact.institution 'Sanger'
-  contact.organisation 'IMITS' 
 end
 
 Factory.define :notification do |notification|

@@ -1,5 +1,5 @@
 class Contact < ActiveRecord::Base
-  attr_accessible :email, :first_name, :last_name, :institution, :organisation
+  attr_accessible :email
 
   has_many :notifications
   has_many :genes, :through => :notifications

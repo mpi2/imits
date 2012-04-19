@@ -93,6 +93,8 @@ GEM
     json (1.6.5)
     launchy (2.0.5)
       addressable (~> 2.2.6)
+    letter_opener (0.0.2)
+      launchy
     mail (2.2.19)
       activesupport (>= 2.3.6)
       i18n (>= 0.4.0)
@@ -185,6 +187,7 @@ DEPENDENCIES
   hoptoad_notifier
   jammit
   launchy
+  letter_opener
   mocha
   pg
   rails (~> 3.0.9)

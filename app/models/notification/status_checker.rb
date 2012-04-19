@@ -14,7 +14,7 @@ module Notification::StatusChecker
             self.relevant_statuses.push(relevant_status)
           end
         elsif self.welcome_email_sent
-          if relevant_status[:date] > self.welcome_email_sent.beginning_of_day
+          if relevant_status[:date] > self.welcome_email_sent
             self.relevant_statuses.push(relevant_status)
           end 
         end

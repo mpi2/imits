@@ -10,7 +10,7 @@ module Notification::StatusChecker
         relevant_status = this_plan.relevant_status_stamp
         
         if self.last_email_sent
-          if relevant_status[:date] > self.last_email_sent.beginning_of_day
+          if relevant_status[:date] > self.last_email_sent
             self.relevant_statuses.push(relevant_status)
           end
         elsif self.welcome_email_sent

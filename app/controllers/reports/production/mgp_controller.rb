@@ -28,7 +28,7 @@ class Reports::Production::MgpController < ApplicationController
 
   def detail
     @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
-    return_value = Reports::MiProduction::SummaryMgp23.generate_detail(request, params)
+    return_value = Reports::MiProduction::SummaryMgp23.generate_detail(params)
     @report = return_value[:table]
     if request.format == :csv
       send_data_csv('mgp_summary_detail.csv', @report.to_csv)
@@ -36,7 +36,7 @@ class Reports::Production::MgpController < ApplicationController
   end
 
   def languishing_sub_project
-    @report = Reports::MiProduction::LanguishingMgp.generate('Sub-Project')
+    @report = Reports::MiProduction::LanguishingMgp.generate('Sub-Project', params)
     if request.format == :html
       format_languishing_report(@report,
         :group_type => :sub_project,
@@ -52,7 +52,7 @@ class Reports::Production::MgpController < ApplicationController
   end
 
   def languishing_priority
-    @report = Reports::MiProduction::LanguishingMgp.generate('Priority')
+    @report = Reports::MiProduction::LanguishingMgp.generate('Priority', params)
     if request.format == :html
       format_languishing_report(@report,
         :group_type => :priority,

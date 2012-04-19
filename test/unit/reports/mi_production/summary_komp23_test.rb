@@ -81,9 +81,9 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
         "Registered for phenotyping" => 1,
         "Rederivation started" => '',
         "Rederivation completed" => '',
-        "Cre excision started" => 1,
-        "Cre excision completed" => 1,
-        "Phenotyping started" => 1,
+        "Cre excision started" => '',
+        "Cre excision completed" => '',
+        "Phenotyping started" => '',
         "Phenotyping completed" => 1,
         "Phenotyping aborted" => ''
       }

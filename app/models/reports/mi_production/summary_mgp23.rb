@@ -80,12 +80,16 @@ class Reports::MiProduction::SummaryMgp23
     return total
   end
   
-  def self.filter_intermediate_report_for_mgp_rows (cached_report)
+  def self.filter_intermediate_report_for_mgp_rows (cached_report, include_legacy)
     filtered_report = Table(
       :data => cached_report.data,
       :column_names => cached_report.column_names,
       :filters => lambda {|r|
-        return r['Consortium'] == 'MGP'
+        if(include_legacy.nil?)
+          return (r['Consortium'] == 'MGP' && (r['Sub-Project'] != 'MGP Legacy'))
+        else
+          return (r['Consortium'] == 'MGP')
+        end
       }
     )
 
@@ -118,6 +122,7 @@ class Reports::MiProduction::SummaryMgp23
       'ES cell QC',
       'Genotype confirmed mice',
       'Microinjections',
+      'Chimaeras produced',
       'Phenotyping started',
       'Cre excision completed',
       'Rederivation started',
@@ -267,7 +272,11 @@ class Reports::MiProduction::SummaryMgp23
 
     if key == 'Microinjections'
       return row['MiAttempt Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Genotype confirmed' ||
-        row['MiAttempt Status'] == 'Micro-injection aborted'
+        row['MiAttempt Status'] == 'Micro-injection aborted' || row['MiAttempt Status'] == 'Chimeras obtained'
+    end
+
+    if key == 'Chimaeras produced'
+      return row['MiAttempt Status'] == 'Chimeras obtained'
     end
 
     if key == 'Phenotyping aborted'
@@ -299,6 +308,7 @@ class Reports::MiProduction::SummaryMgp23
     end
 
     valid_phenos = [
+      'Phenotype Attempt Registered',
       'Rederivation Started',
       'Rederivation Complete',
       'Cre Excision Started',
@@ -306,7 +316,7 @@ class Reports::MiProduction::SummaryMgp23
       'Phenotyping Started',
       'Phenotyping Complete'
     ]
-
+    
     if key == 'Registered for phenotyping'
       return valid_phenos.include?(row['PhenotypeAttempt Status'])
     end
@@ -320,7 +330,7 @@ class Reports::MiProduction::SummaryMgp23
     end
 
     if key == 'Languishing'
-      return row.data['Overall Status'] == 'Micro-injection in progress' && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
+      return (row.data['Overall Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Chimeras obtained') && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
     end
 
     return false
@@ -329,7 +339,8 @@ class Reports::MiProduction::SummaryMgp23
   def self.generate(grouping_column, params)
     cached_report = ReportCache.find_by_name_and_format!(Reports::MiProduction::Intermediate.report_name, 'csv').to_table
     
-    reduced_report = filter_intermediate_report_for_mgp_rows(cached_report)
+    include_legacy = params[:include_legacy]
+    reduced_report = filter_intermediate_report_for_mgp_rows(cached_report, include_legacy)
 
     summarised_report = summarise_by_grouping_column_and_set_column_order(grouping_column, reduced_report, params)
     
@@ -345,7 +356,7 @@ class Reports::MiProduction::SummaryMgp23
     }
   end
   
-  def self.generate_detail(request, params)
+  def self.generate_detail(params)
     # column = column header from report
     column = params[:column]
     subproject = params[:sub_project]

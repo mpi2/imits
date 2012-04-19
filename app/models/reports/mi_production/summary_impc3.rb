@@ -265,8 +265,9 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     if key == 'Rederivation completed'
       return row['PhenotypeAttempt Status'] == 'Rederivation completed' && row['Rederivation Complete Date'].to_s.length > 0
     end
-
+    
     valid_phenos = [
+      'Phenotype Attempt Registered',
       'Rederivation Started',
       'Rederivation Complete',
       'Cre Excision Started',

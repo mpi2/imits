@@ -3,7 +3,7 @@ Dear colleague,
  
  You are receiving this email because the IMPC production status of the gene has changed.
  
- <% if @relevant_status %>
+ <% if !@relevant_status.empty? %>
  <%= render :partial => "notification_mailer/status_email/#{@relevant_status[:status]}.text.erb" %>
  <% end %>
  

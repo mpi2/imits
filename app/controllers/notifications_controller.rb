@@ -40,8 +40,11 @@ class NotificationsController < ApplicationController
         flash[:notice] = "You have previously registered interest in this gene. Resending notification email."
         @notification = notifications.first
           
-        if NotificationMailer.welcome_email(@notification).deliver
-          @notification.update_attributes(:welcome_email_sent => Time.now.utc)
+        if mailer = NotificationMailer.welcome_email(@notification)
+          @notification.welcome_email_text = mailer.body
+          @notification.welcome_email_sent = Time.now.utc
+          @notification.save!
+          mailer.deliver
           respond_with @notification
         end
       else
@@ -51,8 +54,11 @@ class NotificationsController < ApplicationController
         
         
         if @notification.save!
-          if NotificationMailer.welcome_email(@notification).deliver
-            @notification.update_attributes(:welcome_email_sent => Time.now.utc)
+          if mailer = NotificationMailer.welcome_email(@notification)
+             @notification.welcome_email_text = mailer.body
+             @notification.welcome_email_sent = Time.now.utc
+             @notification.save!
+             mailer.deliver 
           end
             respond_with @notification
         end

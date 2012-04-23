@@ -1,5 +1,6 @@
 desc 'Generate status emails'
 task 'cron:status_emails' => [:environment] do
+  ApplicationModel.audited_transaction do
     notifications = Notification.all
     notifications.each do |this_notification|
       if !this_notification.check_statuses.empty?
@@ -10,4 +11,5 @@ task 'cron:status_emails' => [:environment] do
         mailer.deliver
       end
     end 
+  end
 end

@@ -4,7 +4,7 @@
 
     This gene currently <%= @modifier_string %> assigned for mouse production and phenotyping as part of the IMPC initiative.
     
-    <% if @relevant_status %>
+    <% if !@relevant_status.empty? %>
     <%= render :partial => "notification_mailer/welcome_email/#{@relevant_status[:status]}.text.erb" %>
     <% end %>
     

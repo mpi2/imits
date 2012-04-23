@@ -11,7 +11,7 @@ class User < ActiveRecord::Base
     'vvi@sanger.ac.uk',
     're4@sanger.ac.uk',
     'gj2@sanger.ac.uk',
-    'A.Blake@har.mrc.ac.uk'
+    'a.blake@har.mrc.ac.uk'
   ]
   
   devise :database_authenticatable, :rememberable, :validatable

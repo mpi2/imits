@@ -223,9 +223,7 @@ MiAttempt.audited_transaction do
     mi_attempt_id = mi_attempt.id
 
     if mi_plan.mi_attempts.length == 1
-      #puts mi_plan.mi_attempts.inspect if DEBUG
       raise "Illegal id detected - expected #{mi_attempt_id} - found: #{mi_plan.mi_attempts[0].id}".red if mi_plan.mi_attempts[0].id != mi_attempt_id
-      #puts "mi_plan.mi_attempts.length: #{mi_plan.mi_attempts.length.inspect}".blue if DEBUG
       mi_attempt.status_stamps.destroy_all if BLAT
       mi_attempt.destroy if BLAT
       mi_plan.status_stamps.destroy_all if BLAT
@@ -243,8 +241,6 @@ MiAttempt.audited_transaction do
   if count_start-count_end != RECORD_COUNT
     raise "Record count error: expected #{RECORD_COUNT} - found #{count_start-count_end}".red
   end
-
-  exit  #######################
 
 end
 

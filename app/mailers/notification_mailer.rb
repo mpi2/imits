@@ -1,5 +1,5 @@
 class NotificationMailer < ActionMailer::Base
-  default :from => 'htgt@sanger.ac.uk', :bcc => 'gj2@sanger.ac.uk'
+  default :from => 'team87@sanger.ac.uk', :bcc => 'gj2@sanger.ac.uk'
   def welcome_email(notification)
     @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)
@@ -31,7 +31,6 @@ class NotificationMailer < ActionMailer::Base
     
     if notification.relevant_statuses.length > 0
       @relevant_status = notification.relevant_statuses.sort_by {|this_status| this_status[:order_by] }.first
-      puts @relevant_status.inspect
       @modifier_string = "is not"
         if @gene.mi_plans
           @gene.mi_plans.each do |plan|

@@ -7,22 +7,6 @@ class NotificationsController < ApplicationController
   before_filter :authenticate_user!
   before_filter :remote_access_allowed
   
-  def new
-    @contact = Contact.find_by_email!(params[:email])
-    @gene = Gene.find_by_mgi_accession_id!(params[:mgi_accession_id])
-    notifications = Notification.where(:gene_id => @gene.id, :contact_id => @contact.id)
-    if notifications.length > 0
-      flash[:notice] = "You have previously registered interest in this gene. Resending notification email."
-      @notification = notifications.first
-      if NotificationMailer.registration_confirmation(@notification).deliver
-        @notification.update_attributes(:welcome_email_sent => Time.now)
-      end
-      redirect_to @notification
-    else
-      @notification = Notification.new
-    end
-  end
-
   def create
     
     @contact = Contact.where(:email => params[:contact][:email]).first
@@ -71,26 +55,35 @@ class NotificationsController < ApplicationController
       
     end    
   end
+  
+  def show
+    @notification = Notification.find(params[:id])
+    respond_to do |format|
+      format.json do
+        render @notification.to_json
+      end
+    end
+  end
 
+  def delete
+    @contact = Contact.where(:email => params[:contact][:email]).first
+    @gene = Gene.where(:mgi_accession_id => params[:gene][:mgi_accession_id]).first
+    
+    if @gene && @contact
+      notifications = Notification.where(:gene_id => @gene.id, :contact_id => @contact.id)
+      if notifications.length > 0
+        @notification = notifications.first
+        @notification.destroy
+        flash[:notice] = "Successfully destroyed notification."
+        respond_with @notification
+      end    
+    end
+  end
+  
   def destroy
     @notification = Notification.find(params[:id])
     @notification.destroy
     flash[:notice] = "Successfully destroyed notification."
-    respond_with(@notification)
-  end
-
-  def update
-
-  end
-
-  def show
-    @notification = Notification.find_by_id(params[:id])
-    @gene = Gene.find(@notification.gene_id)
-    @contact = Contact.find(@notification.contact_id)
-  end
-
-  def index
-
   end
 
   private

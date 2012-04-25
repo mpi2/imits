@@ -8,7 +8,6 @@ task 'cron:status_emails' => [:environment] do
         this_notification.last_email_text = mailer.body
         this_notification.last_email_sent = Time.now.utc
         this_notification.save!
-        puts mailer.inspect
         mailer.deliver
       end
     end 

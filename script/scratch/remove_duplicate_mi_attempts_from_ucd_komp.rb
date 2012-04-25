@@ -178,6 +178,8 @@ list = [
 #1) checked to have the appropriate ES-cell name, and they must be checked to belong to the UCD-KOMP consortium
 #2) Deleted (along with status stamps)
 
+#3) delete associated plan if it has only one entry
+
 DEBUG = true
 RECORD_COUNT = 156
 BLAT = true
@@ -188,6 +190,9 @@ if list.length != RECORD_COUNT
 end
 
 puts "Count: #{list.length}".green if DEBUG
+
+plan_count = 0
+attempt_count = 0
 
 MiAttempt.audited_transaction do
 
@@ -214,7 +219,6 @@ MiAttempt.audited_transaction do
     end
 
     stamp_ids = mi_attempt.status_stamps.map(&:id)
-
     puts "status stamps: #{stamp_ids.inspect}".blue if DEBUG
 
     # ok to blat
@@ -228,10 +232,13 @@ MiAttempt.audited_transaction do
       mi_attempt.destroy if BLAT
       mi_plan.status_stamps.destroy_all if BLAT
       mi_plan.destroy if BLAT
+      plan_count += 1
     else
       mi_attempt.status_stamps.destroy_all if BLAT
       mi_attempt.destroy if BLAT
     end
+
+    attempt_count += 1
 
   end
 
@@ -244,4 +251,4 @@ MiAttempt.audited_transaction do
 
 end
 
-puts "done!".green
+puts "done: plans: #{plan_count} - attempts: #{attempt_count}".green

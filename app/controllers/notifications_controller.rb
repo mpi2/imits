@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 class NotificationsController < ApplicationController
-  respond_to :html, :only => [:new, :create, :show, :edit]
-  respond_to :json, :only => [:new, :create, :show, :edit]
+  
+  respond_to :json, :only => [:create, :show]
   
   before_filter :authenticate_user!
   before_filter :remote_access_allowed

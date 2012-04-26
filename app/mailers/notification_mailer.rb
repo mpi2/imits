@@ -26,9 +26,10 @@ class NotificationMailer < ActionMailer::Base
     
     @contact = Contact.find(notification.contact_id) 
     @gene = Gene.find(notification.gene_id)
+    @relevant_status = ""
     
     notification.check_statuses
-    
+
     if notification.relevant_statuses.length > 0
       @relevant_status = notification.relevant_statuses.sort_by {|this_status| this_status[:order_by] }.first
       @modifier_string = "is not"

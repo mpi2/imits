@@ -10,35 +10,34 @@ class NotificationsControllerTest < ActionController::TestCase
     end
       
     context 'POST create' do 
+      
       should 'work' do
+        
         gene = Factory.create(:gene_cbx1)
         contact = Factory.create(:contact)
-        post(:create, {:mgi_accession_id => gene.mgi_accession_id, :email => contact.email} , :format => :json)
-        
-        notification = Notification.first
-        raise notification.inspect
-        assert_equal ActionMailer::Base.deliveries.last.to, contact.email
-      end
-    end
-    
-    context 'DELETE destroy' do
-      should 'work' do
-        notification = Factory.create :notification
-        assert_difference('Notification.count', -1) do
-          delete( :destroy, :id => notification.id, :format => :json )
+        assert_difference('Notification.count') do
+         post(:create, :gene => {:mgi_accession_id => gene.mgi_accession_id}, :contact =>{:email => contact.email}, :format => :json)
+         puts @response.inspect
         end
+        
+        notification = Notification.last
+        assert_equal notification.gene, gene
+        assert_equal notification.contact, contact
+        assert_equal ActionMailer::Base.deliveries.last.to.first, contact.email
       end
     end
     
-    context 'GET show' do
-      
-      should 'find valid one' do
-        notification = Notification.find(Factory.create(:notification))
-        get :show, :id => notification.id
+    context 'DELETE delete' do
+      should 'work' do
         
-        assert response.success?
+        gene = Factory.create(:gene_cbx1)
+        contact = Factory.create(:contact)
+        
+        notification = Factory.create :notification, {:gene => gene, :contact => contact}
+        assert_difference('Notification.count', -1) do
+          delete( :delete, :gene => {:mgi_accession_id => gene.mgi_accession_id}, :contact =>{:email => contact.email}, :format => :json )
+        end        
       end
-
     end
     
     

@@ -26,7 +26,9 @@ Kermits2::Application.routes.draw do
     end
   end
   
-  resources :notifications
+  resources :notifications, :only => [:create, :show] 
+  
+  match 'notifications' => 'notifications#delete', :via => :delete
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do

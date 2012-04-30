@@ -55,6 +55,18 @@ Factory.define :mi_plan_with_production_centre, :parent => :mi_plan do |mi_plan|
   mi_plan.association :production_centre, :factory => :centre
 end
 
+Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_plan|
+  mi_plan.after_create do |plan|
+    plan.status_stamps.destroy_all
+
+    plan.status_stamps.create!(
+      :status => MiPlan::Status[:Interest],
+      :created_at => (Time.now - 20.minute))
+
+    plan.status_stamps.reload
+  end
+end
+
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :es_cell
   mi_attempt.consortium_name 'EUCOMM-EUMODIC'
@@ -137,23 +149,6 @@ Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt_ge
   end
 end
 
-Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_plan|
-  mi_plan.after_create do |this_mi_plan|
-    this_mi_plan.status_stamps.destroy_all
-
-    this_mi_plan.status_stamps.first.update_attributes(:created_at => Time.now - 1.hour)
-    this_mi_plan.status_stamps.create!(
-      :status => MiPlan::Status[:Assigned],
-      :created_at => (Time.now - 10.minute))
-    this_mi_plan.status_stamps.create!(
-      :status => MiPlan::Status[:Interest],
-      :created_at => (Time.now - 20.minute))
-
-    this_mi_plan.status_stamps.reload
-  end
-end
-
-
 Factory.define :phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
 end
@@ -182,24 +177,24 @@ Factory.define :phenotype_attempt_with_recent_status_history, :parent => :popula
       )
     pa.status_stamps.reload
 
-    pa.mi_attempts.first.status_stamps.create!(
+    pa.mi_attempt.status_stamps.create!(
       :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
       :created_at => (Time.now - 1.hour))
-    pa.mi_attempts.first.status_stamps.create!(
+    pa.mi_attempt.status_stamps.create!(
       :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
       :created_at => (Time.now - 1.month))
 
-    pa.mi_attempts.first.status_stamps.reload!
-    pa.mi_plans.first.status_stamps.create!(
+
+    pa.mi_plan.status_stamps.create!(
       :status => MiPlan::Status["Assigned - ES Cell QC Complete"],
       :created_at => (Time.now - 10.day))
-    pa.mi_plans.first.status_stamps.create!(
+    pa.mi_plan.status_stamps.create!(
       :status => MiPlan::Status[:Assigned],
       :created_at => (Time.now - 10.month))
-    pa.mi_plans.first.status_stamps.create!(
+    pa.mi_plan.status_stamps.create!(
       :status => MiPlan::Status[:Interest],
       :created_at => (Time.now - 20.month))
-    pa.mi_plans.first.reload!
+
 
   end
 end

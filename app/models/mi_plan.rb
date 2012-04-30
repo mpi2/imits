@@ -367,9 +367,8 @@ class MiPlan < ApplicationModel
       s = mi.mi_attempt_status.description
       d = mi_status_list[s]
     end
-    
+
     pt = latest_relevant_phenotype_attempt
-    s = pt ? pt.status.name : s
 
     if pt
       pheno_status_list = {}

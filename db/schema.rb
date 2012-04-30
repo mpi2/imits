@@ -270,8 +270,8 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
     t.text     "welcome_email_text"
     t.datetime "last_email_sent"
     t.text     "last_email_text"
-    t.integer  "gene_id"
-    t.integer  "contact_id"
+    t.integer  "gene_id",            :null => false
+    t.integer  "contact_id",         :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -394,6 +394,9 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
   add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk", :column => "priority_id"
   add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"
+
+  add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
+  add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"
 
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempt_statuses", :name => "phenotype_attempt_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempts", :name => "phenotype_attempt_status_stamps_phenotype_attempt_id_fk"

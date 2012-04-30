@@ -14,14 +14,10 @@ end
 #
 # Table name: contacts
 #
-#  id           :integer         not null, primary key
-#  email        :string(255)     not null
-#  first_name   :string(255)
-#  last_name    :string(255)
-#  institution  :string(255)
-#  organisation :string(255)
-#  created_at   :datetime
-#  updated_at   :datetime
+#  id         :integer         not null, primary key
+#  email      :string(255)     not null
+#  created_at :datetime
+#  updated_at :datetime
 #
 # Indexes
 #

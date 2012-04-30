@@ -5,7 +5,7 @@ class Gene < ActiveRecord::Base
   has_many :mi_plans
   has_many :mi_attempts, :through => :mi_plans
   has_many :phenotype_attempts, :through => :mi_plans
-  
+
   has_many :notifications
   has_many :contacts, :through => :notifications
 
@@ -166,17 +166,17 @@ class Gene < ActiveRecord::Base
   def self.pretty_print_aborted_mi_attempts_in_bulk(gene_id=nil)
     return pretty_print_mi_attempts_in_bulk_helper(false, [], gene_id)
   end
-  
+
   def relevant_status
     @selected_status = Hash.new
 
     self.mi_plans.each do |plan|
       this_status = plan.relevant_status_stamp
-      
+
       if @selected_status.empty?
         @selected_status = this_status
 
-      elsif this_status[:order_by] > @selected_status[:order_by]   
+      elsif this_status[:order_by] > @selected_status[:order_by]
         @selected_status = this_status
 
       end
@@ -184,7 +184,7 @@ class Gene < ActiveRecord::Base
 
     return @selected_status
   end
-  
+
   private
 
   def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_id = nil)
@@ -372,6 +372,10 @@ class Gene < ActiveRecord::Base
   end
 
   # END Mart Operations
+
+  def es_cells_count
+    return conditional_es_cells_count.to_i + non_conditional_es_cells_count.to_i + deletion_es_cells_count.to_i
+  end
 
   def as_json(options = {})
     super(default_serializer_options(options))

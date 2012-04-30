@@ -461,26 +461,26 @@ class GeneTest < ActiveSupport::TestCase
         assert_false result.include?('[EUCOMM-EUMODIC:WTSI:1]')
       end
     end
-    
+
     context '#relevant_status' do
       should 'return correct status with only plan' do
         plan = Factory.create :mi_plan
         gene = plan.gene
         assert_equal MiPlan::Status["Interest"].name, gene.relevant_status[:status]
       end
-      
+
       should 'return correct status with plan and microinjection attempt' do
         mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
         :consortium_name => 'BaSH',
         :production_centre_name => 'WTSI'
         gene = mi.gene
         gene.reload
-        
+
         assert_equal MiAttemptStatus.genotype_confirmed.description, gene.relevant_status[:status]
       end
-      
+
       should 'return correct status with multiple stamps for plan, microinjection and phenotype attempt' do
-       
+
         mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI'
@@ -491,18 +491,28 @@ class GeneTest < ActiveSupport::TestCase
         replace_status_stamps(plan,
         'Assigned' => '2011-01-01',
         'Assigned - ES Cell QC In Progress' => '2011-05-31')
-        
+
         replace_status_stamps(mi,
         'Micro-injection in progress' => '2011-05-31',
         'Genotype confirmed' => '2011-05-31')
-        
+
         replace_status_stamps(pt,
         'Phenotype Attempt Registered' => '2011-05-31')
-         
+
         gene.reload
-        assert_equal PhenotypeAttempt::Status["Phenotype Attempt Registered"].name, gene.relevant_status[:status] 
+        assert_equal PhenotypeAttempt::Status["Phenotype Attempt Registered"].name, gene.relevant_status[:status]
       end
-      
+
+      should 'have #es_cells_count' do
+        gene = Factory.create :gene, :conditional_es_cells_count => 2,
+                :non_conditional_es_cells_count => 3,
+                :deletion_es_cells_count => 4
+        assert_equal 9, gene.es_cells_count
+
+        gene = Factory.create :gene
+        assert_equal 0, gene.es_cells_count
+      end
+
     end
   end
 end

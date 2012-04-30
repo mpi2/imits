@@ -119,18 +119,18 @@ Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt_ge
 
     mi.status_stamps.create!(
       :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
-      :created_at => Time.now - 1.hour)
+      :created_at => (Time.now - 1.hour))
     mi.status_stamps.create!(
       :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
-      :created_at => Time.now - 1.month)
+      :created_at => (Time.now - 1.month))
 
-    mi.mi_plan.status_stamps.first.update_attributes(:created_at => Time.now - 3.month)
+    mi.mi_plan.status_stamps.first.update_attributes(:created_at => (Time.now - 3.month))
     mi.mi_plan.status_stamps.create!(
       :status => MiPlan::Status[:Conflict],
-      :created_at => Time.now - 4.month)
+      :created_at => (Time.now - 4.month))
     mi.mi_plan.status_stamps.create!(
       :status => MiPlan::Status[:Interest],
-      :created_at => Time.now - 5.month)
+      :created_at => (Time.now - 5.month))
 
     mi.mi_plan.status_stamps.reload
     mi.status_stamps.reload
@@ -144,14 +144,15 @@ Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_p
     this_mi_plan.status_stamps.first.update_attributes(:created_at => Time.now - 1.hour)
     this_mi_plan.status_stamps.create!(
       :status => MiPlan::Status[:Assigned],
-      :created_at => Time.now - 10.minute)
+      :created_at => (Time.now - 10.minute))
     this_mi_plan.status_stamps.create!(
       :status => MiPlan::Status[:Interest],
-      :created_at => Time.now - 20.minute)
+      :created_at => (Time.now - 20.minute))
 
     this_mi_plan.status_stamps.reload
   end
 end
+
 
 Factory.define :phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
@@ -165,6 +166,42 @@ Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |p
   phenotype_attempt.phenotyping_started true
   phenotype_attempt.phenotyping_complete true
   phenotype_attempt.mouse_allele_type 'b'
+end
+
+Factory.define :phenotype_attempt_with_recent_status_history, :parent => :populated_phenotype_attempt do |phenotype_attempt|
+  phenotype_attempt.after_create do |pa|
+    pa.status_stamps.destroy_all
+
+    pa.status_stamps.create!(
+      :status => PhenotypeAttempt::Status["Phenotype Attempt Registered"],
+      :created_at => (Time.now - 1.hour)
+      )
+    pa.status_stamps.create!(
+      :status => PhenotypeAttempt::Status["Phenotyping Complete"],
+      :created_at => (Time.now - 30.minute)
+      )
+    pa.status_stamps.reload
+
+    pa.mi_attempts.first.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :created_at => (Time.now - 1.hour))
+    pa.mi_attempts.first.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+      :created_at => (Time.now - 1.month))
+
+    pa.mi_attempts.first.status_stamps.reload!
+    pa.mi_plans.first.status_stamps.create!(
+      :status => MiPlan::Status["Assigned - ES Cell QC Complete"],
+      :created_at => (Time.now - 10.day))
+    pa.mi_plans.first.status_stamps.create!(
+      :status => MiPlan::Status[:Assigned],
+      :created_at => (Time.now - 10.month))
+    pa.mi_plans.first.status_stamps.create!(
+      :status => MiPlan::Status[:Interest],
+      :created_at => (Time.now - 20.month))
+    pa.mi_plans.first.reload!
+
+  end
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|

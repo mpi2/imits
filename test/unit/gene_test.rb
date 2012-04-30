@@ -475,12 +475,7 @@ class GeneTest < ActiveSupport::TestCase
         :production_centre_name => 'WTSI'
         gene = mi.gene
         gene.reload
-
-<<<<<<< HEAD
         assert_equal MiAttemptStatus.genotype_confirmed.description.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
-=======
-        assert_equal MiAttemptStatus.genotype_confirmed.description, gene.relevant_status[:status]
->>>>>>> 0c4785ab435602d7c47fbc7b530007785a0855eb
       end
 
       should 'return correct status with multiple stamps for plan, microinjection and phenotype attempt' do
@@ -504,10 +499,7 @@ class GeneTest < ActiveSupport::TestCase
         'Phenotype Attempt Registered' => '2011-05-31')
 
         gene.reload
-<<<<<<< HEAD
         assert_equal PhenotypeAttempt::Status["Phenotype Attempt Registered"].name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
-=======
-        assert_equal PhenotypeAttempt::Status["Phenotype Attempt Registered"].name, gene.relevant_status[:status]
       end
 
       should 'have #es_cells_count' do
@@ -518,7 +510,6 @@ class GeneTest < ActiveSupport::TestCase
 
         gene = Factory.create :gene
         assert_equal 0, gene.es_cells_count
->>>>>>> 0c4785ab435602d7c47fbc7b530007785a0855eb
       end
 
     end

@@ -78,7 +78,7 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
         "Microinjection aborted" => 1,
         "Gene Pipeline efficiency (%)" => '',
         "Clone Pipeline efficiency (%)" => '',
-        "Registered for phenotyping" => 1,
+        "Registered for phenotyping" => 2,
         "Rederivation started" => '',
         "Rederivation completed" => '',
         "Cre excision started" => '',

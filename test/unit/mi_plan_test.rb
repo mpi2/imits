@@ -1131,7 +1131,7 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
     end
-    
+
     context '#relevant_status_stamp' do
 
       should 'find plan' do
@@ -1142,7 +1142,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
         results = mi_plan.relevant_status_stamp
 
-        assert_equal "Aborted - ES Cell QC Failed", results[:status]
+        assert_equal "aborted_es_cell_qc_failed", results[:status]
         assert_equal Date.today.to_date, results[:date].to_date
       end
 
@@ -1151,7 +1151,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
         results = mi_attempt.mi_plan.relevant_status_stamp
 
-        assert_equal "Micro-injection aborted", results[:status]
+        assert_equal "microinjection_aborted", results[:status]
         assert_equal Date.today.to_date, results[:date].to_date
       end
 
@@ -1170,7 +1170,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
         results = mi_plan.relevant_status_stamp
 
-        assert_equal "Phenotype Attempt Registered", results[:status]
+        assert_equal "phenotype_attempt_registered", results[:status]
         assert_equal Date.parse('2011-10-30').to_date, results[:date].to_date
       end
 

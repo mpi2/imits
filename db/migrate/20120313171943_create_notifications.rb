@@ -5,10 +5,13 @@ class CreateNotifications < ActiveRecord::Migration
       t.text :welcome_email_text
       t.timestamp :last_email_sent
       t.text :last_email_text
-      t.integer :gene_id
-      t.integer :contact_id
+      t.integer :gene_id, :null => false
+      t.integer :contact_id, :null => false
       t.timestamps
     end
+
+    add_foreign_key :notifications, :genes
+    add_foreign_key :notifications, :contacts
   end
 
   def self.down

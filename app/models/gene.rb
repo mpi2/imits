@@ -373,6 +373,10 @@ class Gene < ActiveRecord::Base
 
   # END Mart Operations
 
+  def es_cells_count
+    return conditional_es_cells_count.to_i + non_conditional_es_cells_count.to_i + deletion_es_cells_count.to_i
+  end
+
   def as_json(options = {})
     super(default_serializer_options(options))
   end

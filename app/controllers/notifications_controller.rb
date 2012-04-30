@@ -2,7 +2,7 @@
 
 class NotificationsController < ApplicationController
 
-  respond_to :json, :only => [:create, :show]
+  respond_to :json, :only => [:create, :delete]
 
   before_filter :authenticate_user!
   before_filter :remote_access_allowed
@@ -21,7 +21,6 @@ class NotificationsController < ApplicationController
       notifications = Notification.where(:gene_id => @gene.id, :contact_id => @contact.id)
       if notifications.length > 0
 
-        flash[:notice] = "You have previously registered interest in this gene. Resending notification email."
         @notification = notifications.first
 
         if mailer = NotificationMailer.welcome_email(@notification)
@@ -31,7 +30,7 @@ class NotificationsController < ApplicationController
           @notification.welcome_email_sent = Time.now.utc
           @notification.save!
           mailer.deliver
-          respond_with @notification
+          render :json => {}
         end
       else
         @notification = Notification.new
@@ -48,20 +47,11 @@ class NotificationsController < ApplicationController
              @notification.save!
              mailer.deliver
           end
-            respond_with @notification
+          render :json => {}
         end
 
       end
 
-    end
-  end
-
-  def show
-    @notification = Notification.find(params[:id])
-    respond_to do |format|
-      format.json do
-        render @notification.to_json
-      end
     end
   end
 
@@ -74,16 +64,10 @@ class NotificationsController < ApplicationController
       if notifications.length > 0
         @notification = notifications.first
         @notification.destroy
-        flash[:notice] = "Successfully destroyed notification."
-        respond_with @notification
+
+        render :json => {}
       end
     end
-  end
-
-  def destroy
-    @notification = Notification.find(params[:id])
-    @notification.destroy
-    flash[:notice] = "Successfully destroyed notification."
   end
 
   private

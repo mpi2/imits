@@ -26,7 +26,7 @@ Kermits2::Application.routes.draw do
     end
   end
   
-  resources :notifications, :only => [:create, :show] 
+  resources :notifications, :only => [:create]
   
   match 'notifications' => 'notifications#delete', :via => :delete
 

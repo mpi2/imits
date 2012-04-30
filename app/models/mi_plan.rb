@@ -125,7 +125,7 @@ class MiPlan < ApplicationModel
       return ordered_mis.last
     end
   end
-  
+
   def latest_relevant_phenotype_attempt
     return phenotype_attempts.order('is_active desc, created_at desc').first
   end
@@ -354,7 +354,7 @@ class MiPlan < ApplicationModel
     end
 
     d = plan_status_list[s]
-    
+
     mi = latest_relevant_mi_attempt
 
     if mi
@@ -383,46 +383,28 @@ class MiPlan < ApplicationModel
 
     return { :status => s, :date => d }
   end
-  
+
   def relevant_status_stamp
-    @status_stamp = Hash.new
-    if self.status_stamps
-      plan_stamp = self.status_stamps.find_by_status_id(self.status_id)
-      if plan_stamp
-        #overwrite hash if more relevant stamp found
-        @status_stamp = Hash.new
-        @status_stamp[:order_by] = plan_stamp.status.order_by
-        @status_stamp[:date] = plan_stamp.created_at
-        @status_stamp[:status] = plan_stamp.status.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
-        @status_stamp[:stamp_type] = plan_stamp.class.name
-        @status_stamp[:stamp_id] = plan_stamp.id
-      end
+    status_stamp = status_stamps.find_by_status_id!(status.id)
+
+    mi = latest_relevant_mi_attempt
+    if mi
+      status_stamp = mi.status_stamps.find_by_mi_attempt_status_id!(mi.mi_attempt_status.id)
     end
-        
-    if mi = self.latest_relevant_mi_attempt
-      mi_stamp = mi.status_stamps.find_by_mi_attempt_status_id(mi.mi_attempt_status)
-      if mi_stamp
-        @status_stamp = Hash.new
-        @status_stamp[:order_by] = mi_stamp.mi_attempt_status.order_by
-        @status_stamp[:date] = mi_stamp.created_at
-        @status_stamp[:status] = mi_stamp.mi_attempt_status.description.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
-        @status_stamp[:stamp_type] = mi_stamp.class.name
-        @status_stamp[:stamp_id] = mi_stamp.id
-      end
+
+    pa = latest_relevant_phenotype_attempt
+    if pa
+      status_stamp = pa.status_stamps.find_by_status_id!(pa.status.id)
     end
-    
-    if pa = self.latest_relevant_phenotype_attempt
-      pa_stamp = pa.status_stamps.find_by_status_id(pa.status_id)
-      if pa_stamp
-        @status_stamp = Hash.new
-        @status_stamp[:order_by] = pa_stamp.status.order_by
-        @status_stamp[:date] = pa_stamp.created_at
-        @status_stamp[:status] = pa_stamp.status.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
-        @status_stamp[:stamp_type] = pa_stamp.class.name
-        @status_stamp[:stamp_id] = pa_stamp.id
-      end
-    end
-    return @status_stamp
+
+    retval = {}
+    retval[:order_by] = status_stamp.status.order_by
+    retval[:date] = status_stamp.created_at
+    retval[:status] = status_stamp.status.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
+    retval[:stamp_type] = status_stamp.class.name
+    retval[:stamp_id] = status_stamp.id
+
+    return retval
   end
 
 end

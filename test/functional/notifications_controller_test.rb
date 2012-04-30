@@ -17,7 +17,6 @@ class NotificationsControllerTest < ActionController::TestCase
         contact = Factory.create(:contact)
         assert_difference('Notification.count') do
          post(:create, :gene => {:mgi_accession_id => gene.mgi_accession_id}, :contact =>{:email => contact.email}, :format => :json)
-         puts @response.inspect
         end
         
         notification = Notification.last

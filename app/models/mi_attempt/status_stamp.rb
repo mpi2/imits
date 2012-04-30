@@ -8,6 +8,8 @@ class MiAttempt::StatusStamp < ActiveRecord::Base
   belongs_to :mi_attempt_status
 
   delegate :description, :to => :mi_attempt_status
+
+  def status; mi_attempt_status; end
 end
 
 # == Schema Information

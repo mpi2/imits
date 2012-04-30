@@ -116,6 +116,10 @@ class PhenotypeAttempt < ApplicationModel
     end
     return retval
   end
+  
+  def earliest_relevant_status_stamp
+    self.status_stamps.find_by_status_id(self.status_id)
+  end
 
 end
 

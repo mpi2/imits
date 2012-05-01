@@ -16,6 +16,19 @@ Factory.define :gene do |gene|
   gene.sequence(:mgi_accession_id) { |n| "MGI:#{"%.10i" % n}" }
 end
 
+Factory.define :contact do |contact|
+  contact.sequence(:email) { |n| "contact#{n}@example.com"}
+end
+
+Factory.define :notification do |notification|
+  notification.association(:gene)
+  notification.association(:contact)
+  notification.welcome_email_sent Date.yesterday.to_time
+  notification.welcome_email_text 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+  notification.last_email_sent Time.now - 1.hour
+  notification.last_email_text 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+end
+
 Factory.define :es_cell do |es_cell|
   es_cell.sequence(:name) { |n| "Auto-generated ES Cell Name #{n}" }
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
@@ -40,6 +53,18 @@ end
 
 Factory.define :mi_plan_with_production_centre, :parent => :mi_plan do |mi_plan|
   mi_plan.association :production_centre, :factory => :centre
+end
+
+Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_plan|
+  mi_plan.after_create do |plan|
+    plan.status_stamps.destroy_all
+
+    plan.status_stamps.create!(
+      :status => MiPlan::Status[:Interest],
+      :created_at => (Time.now - 20.minute))
+
+    plan.status_stamps.reload
+  end
 end
 
 Factory.define :mi_attempt do |mi_attempt|
@@ -100,6 +125,30 @@ Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_
   end
 end
 
+Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt_genotype_confirmed do |mi_attempt|
+  mi_attempt.after_create do |mi|
+    mi.status_stamps.destroy_all
+
+    mi.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :created_at => (Time.now - 1.hour))
+    mi.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+      :created_at => (Time.now - 1.month))
+
+    mi.mi_plan.status_stamps.first.update_attributes(:created_at => (Time.now - 3.month))
+    mi.mi_plan.status_stamps.create!(
+      :status => MiPlan::Status[:Conflict],
+      :created_at => (Time.now - 4.month))
+    mi.mi_plan.status_stamps.create!(
+      :status => MiPlan::Status[:Interest],
+      :created_at => (Time.now - 5.month))
+
+    mi.mi_plan.status_stamps.reload
+    mi.status_stamps.reload
+  end
+end
+
 Factory.define :phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
 end
@@ -112,6 +161,42 @@ Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |p
   phenotype_attempt.phenotyping_started true
   phenotype_attempt.phenotyping_complete true
   phenotype_attempt.mouse_allele_type 'b'
+end
+
+Factory.define :phenotype_attempt_with_recent_status_history, :parent => :populated_phenotype_attempt do |phenotype_attempt|
+  phenotype_attempt.after_create do |pa|
+    pa.status_stamps.destroy_all
+
+    pa.status_stamps.create!(
+      :status => PhenotypeAttempt::Status["Phenotype Attempt Registered"],
+      :created_at => (Time.now - 1.hour)
+      )
+    pa.status_stamps.create!(
+      :status => PhenotypeAttempt::Status["Phenotyping Complete"],
+      :created_at => (Time.now - 30.minute)
+      )
+    pa.status_stamps.reload
+
+    pa.mi_attempt.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :created_at => (Time.now - 1.hour))
+    pa.mi_attempt.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+      :created_at => (Time.now - 1.month))
+
+
+    pa.mi_plan.status_stamps.create!(
+      :status => MiPlan::Status["Assigned - ES Cell QC Complete"],
+      :created_at => (Time.now - 10.day))
+    pa.mi_plan.status_stamps.create!(
+      :status => MiPlan::Status[:Assigned],
+      :created_at => (Time.now - 10.month))
+    pa.mi_plan.status_stamps.create!(
+      :status => MiPlan::Status[:Interest],
+      :created_at => (Time.now - 20.month))
+
+
+  end
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|

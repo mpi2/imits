@@ -17,61 +17,66 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   MI_GOALS = 
     {
       2012 => {
+        5 => {
+          'BaSH' => 384,
+          'DTCC' => 276,
+          'JAX' => 105,
+        },
         4 => {
           'BaSH' => 356,
-          'DTCC' => 0,
+          'DTCC' => 253,
           'JAX' => 75,
         },
         3 => {
           'BaSH' => 328,
-          'DTCC' => 0,
+          'DTCC' => 230,
           'JAX' => 45,
         },
         2 => {
           'BaSH' => 300,
-          'DTCC' => 0,
+          'DTCC' => 207,
           'JAX' => 15,
         },
         1 => {
           'BaSH' => 252,
-          'DTCC' => 0,
+          'DTCC' => 184,
           'JAX' => 6,
         }
       },
       2011 => {
         12 => {
           'BaSH' => 204,
-          'DTCC' => 0,
+          'DTCC' => 161,
           'JAX' => 0,
         },
         11 => {
           'BaSH' => 156,
-          'DTCC' => 0,
+          'DTCC' => 138,
           'JAX' => 0,
         },
         10 => {
           'BaSH' => 112,
-          'DTCC' => 0,
+          'DTCC' => 115,
           'JAX' => 0,
         },
         9 => {
           'BaSH' => 68,
-          'DTCC' => 0,
+          'DTCC' => 92,
           'JAX' => 0,
         },
         8 => {
           'BaSH' => 32,
-          'DTCC' => 0,
+          'DTCC' => 69,
           'JAX' => 0,
         },
         7 => {
           'BaSH' => 10,
-          'DTCC' => 0,
+          'DTCC' => 46,
           'JAX' => 0,
         },
         6 => {
           'BaSH' => 10,
-          'DTCC' => 0,
+          'DTCC' => 23,
           'JAX' => 0,
         }
       }
@@ -80,61 +85,66 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   GC_GOALS = 
     {
       2012 => {
+        5 => {
+          'BaSH' => 102,
+          'DTCC' => 168,
+          'JAX' => 14,
+        },
         4 => {
           'BaSH' => 78,
-          'DTCC' => 0,
+          'DTCC' => 154,
           'JAX' => 4,
         },
         3 => {
           'BaSH' => 56,
-          'DTCC' => 0,
+          'DTCC' => 140,
           'JAX' => 0,
         },
         2 => {
           'BaSH' => 34,
-          'DTCC' => 0,
+          'DTCC' => 126,
           'JAX' => 0,
         },
         1 => {
           'BaSH' => 16,
-          'DTCC' => 0,
+          'DTCC' => 112,
           'JAX' => 0,
         }
       },
       2011 => {
         12 => {
           'BaSH' => 0,
-          'DTCC' => 0,
+          'DTCC' => 98,
           'JAX' => 0,
         },
         11 => {
           'BaSH' => 0,
-          'DTCC' => 0,
+          'DTCC' => 84,
           'JAX' => 0,
         },
         10 => {
           'BaSH' => 0,
-          'DTCC' => 0,
+          'DTCC' => 70,
           'JAX' => 0,
         },
         9 => {
           'BaSH' => 0,
-          'DTCC' => 0,
+          'DTCC' => 56,
           'JAX' => 0,
         },
         8 => {
           'BaSH' => 0,
-          'DTCC' => 0,
+          'DTCC' => 42,
           'JAX' => 0,
         },
         7 => {
           'BaSH' => 0,
-          'DTCC' => 0,
+          'DTCC' => 28,
           'JAX' => 0,
         },
         6 => {
           'BaSH' => 0,
-          'DTCC' => 0,
+          'DTCC' => 14,
           'JAX' => 0,
         }
       }
@@ -281,6 +291,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       consortium = stamp.mi_plan.consortium.name
       pcentre = 'ALL'
       next if self.consortia && ! self.consortia.include?(consortium)
+      next if(consortium == 'MGP' && stamp.mi_plan.sub_project == 'MGP Legacy' )
       gene_id = stamp.mi_plan.gene_id
       status = stamp.status.name
       marker_symbol = stamp.mi_plan.gene.marker_symbol

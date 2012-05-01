@@ -22,16 +22,18 @@ namespace :db do
       end
       raise "Cannot find #{envname} database config" unless config
       if config['port'].blank?; config['port'] = '5432'; end
-      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --clean --no-privileges #{config['database']} > tmp/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
+      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --no-privileges #{config['database']} > tmp/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
     end
 
     desc "Load dump of #{envname} DB (produced with db:#{envname}:dump) into current envrionment DB"
     task "#{envname}:load" do
       raise "Production environment detected" if Rails.env.production?
-      raise "Cannot load into same environment" if envname == Rails.env
       config = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]
       if config['port'].blank?; config['port'] = '5432'; end
-      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' psql -U #{config['username']} -h #{config['host']} -p #{config['port']} #{config['database']} < tmp/dump.#{envname}.sql > /dev/null") or raise("Failed to load #{envname} dump of DB")
+      psql_cmd = "PGPASSWORD='#{config['password']}' psql -U #{config['username']} -h #{config['host']} -p #{config['port']} #{config['database']}"
+
+      system("cd #{Rails.root}; echo 'drop schema public cascade; create schema public' | #{psql_cmd}") or raise("Failed to drop public schema in environment #{envname}")
+      system("cd #{Rails.root}; #{psql_cmd} < tmp/dump.#{envname}.sql > /dev/null") or raise("Failed to load #{envname} dump of DB")
     end
 
     desc "Dump #{envname} DB into current environment DB"

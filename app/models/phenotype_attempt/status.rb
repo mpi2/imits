@@ -14,5 +14,6 @@ end
 #  name       :string(50)      not null
 #  created_at :datetime
 #  updated_at :datetime
+#  order_by   :integer
 #
 

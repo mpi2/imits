@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class RootControllerTest < Kermits2::IntegrationTest
+class RootControllerIntegrationTest < Kermits2::IntegrationTest
   context 'the root controller' do
     should 'require the user to be logged in' do
       visit '/mi_plans/gene_selection'

@@ -53,6 +53,14 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
 
   add_index "consortia", ["name"], :name => "index_consortia_on_name", :unique => true
 
+  create_table "contacts", :force => true do |t|
+    t.string   "email",      :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "contacts", ["email"], :name => "index_contacts_on_email", :unique => true
+
   create_table "deposited_materials", :force => true do |t|
     t.string   "name",       :limit => 50, :null => false
     t.datetime "created_at"
@@ -142,6 +150,7 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
     t.string   "description", :limit => 50, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "order_by"
   end
 
   add_index "mi_attempt_statuses", ["description"], :name => "index_mi_attempt_statuses_on_description", :unique => true
@@ -256,6 +265,17 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true
 
+  create_table "notifications", :force => true do |t|
+    t.datetime "welcome_email_sent"
+    t.text     "welcome_email_text"
+    t.datetime "last_email_sent"
+    t.text     "last_email_text"
+    t.integer  "gene_id",            :null => false
+    t.integer  "contact_id",         :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "phenotype_attempt_status_stamps", :force => true do |t|
     t.integer  "phenotype_attempt_id", :null => false
     t.integer  "status_id",            :null => false
@@ -267,6 +287,7 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
     t.string   "name",       :limit => 50, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "order_by"
   end
 
   create_table "phenotype_attempts", :force => true do |t|
@@ -373,6 +394,9 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
   add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk", :column => "priority_id"
   add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"
+
+  add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
+  add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"
 
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempt_statuses", :name => "phenotype_attempt_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempts", :name => "phenotype_attempt_status_stamps_phenotype_attempt_id_fk"

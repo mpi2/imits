@@ -18,7 +18,17 @@ Kermits2::Application.routes.draw do
   end
 
   resources :phenotype_attempts, :only => [:index, :create, :show, :update]
-
+  
+  resources :contacts do
+    collection do
+      get 'check_email'
+      get 'search_email'
+    end
+  end
+  
+  resources :notifications, :only => [:create]
+  
+  match 'notifications' => 'notifications#delete', :via => :delete
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do

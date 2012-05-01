@@ -36,7 +36,15 @@ Kermits2::Application.configure do
 
   # Disable delivery errors, bad email addresses will be ignored
   # config.action_mailer.raise_delivery_errors = false
-
+  
+  # sendmail on staging and production links through to exim4
+  # exim4 errors with default sendmail args of "-i -t"
+  # "-t" use headers for the destination email
+  # but since destination email is included on the cmd line exim4 suppresses both the cmd line and headers options
+  
+  config.action_mailer.delivery_method = :sendmail
+  config.action_mailer.sendmail_settings = {:arguments => '-i'}
+  
   # Enable threaded mode
   # config.threadsafe!
 

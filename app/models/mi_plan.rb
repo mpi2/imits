@@ -126,6 +126,10 @@ class MiPlan < ApplicationModel
     end
   end
 
+  def latest_relevant_phenotype_attempt
+    return phenotype_attempts.order('is_active desc, created_at desc').first
+  end
+
   def add_status_stamp(status_to_add)
     self.status_stamps.create!(:status => status_to_add)
   end
@@ -310,10 +314,6 @@ class MiPlan < ApplicationModel
     end
   end
 
-  def latest_relevant_phenotype_attempt
-    return phenotype_attempts.order('is_active desc, created_at desc').first
-  end
-
   def distinct_genotype_confirmed_es_cells_count
 
     es_cells = []
@@ -369,7 +369,6 @@ class MiPlan < ApplicationModel
     end
 
     pt = latest_relevant_phenotype_attempt
-    s = pt ? pt.status.name : s
 
     if pt
       pheno_status_list = {}
@@ -383,6 +382,29 @@ class MiPlan < ApplicationModel
     end
 
     return { :status => s, :date => d }
+  end
+
+  def relevant_status_stamp
+    status_stamp = status_stamps.find_by_status_id!(status.id)
+
+    mi = latest_relevant_mi_attempt
+    if mi
+      status_stamp = mi.status_stamps.find_by_mi_attempt_status_id!(mi.mi_attempt_status.id)
+    end
+
+    pa = latest_relevant_phenotype_attempt
+    if pa
+      status_stamp = pa.status_stamps.find_by_status_id!(pa.status.id)
+    end
+
+    retval = {}
+    retval[:order_by] = status_stamp.status.order_by
+    retval[:date] = status_stamp.created_at
+    retval[:status] = status_stamp.status.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
+    retval[:stamp_type] = status_stamp.class.name
+    retval[:stamp_id] = status_stamp.id
+
+    return retval
   end
 
 end

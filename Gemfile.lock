@@ -1,11 +1,7 @@
-GIT
-  remote: git://github.com/mpi2/ransack.git
-  revision: 8ef81fd1d44209d57f6b91701add93a10c06713e
+PATH
+  remote: vendor/gemfiles
   specs:
-    ransack (0.5.8)
-      actionpack (~> 3.0)
-      activerecord (~> 3.0)
-      polyamorous (~> 0.5.0)
+    ransack (0.6.0.1)
 
 GEM
   remote: http://rubygems.org/
@@ -108,8 +104,6 @@ GEM
       color (>= 1.4.0)
       transaction-simple (~> 1.3)
     pg (0.11.0)
-    polyamorous (0.5.0)
-      activerecord (~> 3.0)
     polyglot (0.3.3)
     rack (1.2.5)
     rack-mount (0.6.14)
@@ -189,7 +183,7 @@ DEPENDENCIES
   pg
   rails (~> 3.0.9)
   rake
-  ransack!
+  ransack (= 0.6.0.1)!
   shoulda
   simplecov (>= 0.4.0)
   simplecov-rcov

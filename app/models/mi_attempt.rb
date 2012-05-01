@@ -305,6 +305,14 @@ class MiAttempt < ApplicationModel
     return self.mi_attempt_status.try(:description)
   end
 
+  def create_phenotype_attempt_for_komp2
+    consortia_to_check = ["BaSH", "DTCC", "JAX"]
+    if self.status == "Genotype confirmed" && consortia_to_check.include?(self.consortium_name)
+      self.phenotype_attempts.create!
+      self.phenotype_attempts.reload
+    end
+  end
+
   def add_status_stamp(new_status)
     self.status_stamps.create!(:mi_attempt_status => new_status)
     self.status_stamps.reload

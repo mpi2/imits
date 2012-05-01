@@ -37,7 +37,7 @@ module PhenotypeAttempt::StatusChanger
   @@status_changer_machine = ss
 
   def change_status
-    self.status = PhenotypeAttempt::Status[@@status_changer_machine.get_status_for(self)]
+    self.status = ::PhenotypeAttempt::Status[@@status_changer_machine.get_status_for(self)]
   end
 
 end

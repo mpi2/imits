@@ -19,6 +19,11 @@ namespace :cron do
     ApplicationModel.audited_transaction { EsCell.sync_all_with_marts }
   end
 
+  desc 'Create phenotype attempt for KOMP2 micro-injections with Genotype confirmed status'
+  task :create_komp2_phenotype_attempts => [:environment] do
+    ApplicationModel.audited_transaction { MiAttempt.create_komp2_phenotype_attempts }
+  end
+
   desc 'Sync MI attempt in progress dates'
   task :sync_mi_attempt_in_progress_dates => [:environment] do
     ApplicationModel.audited_transaction do
@@ -37,5 +42,4 @@ namespace :cron do
       Rails.logger.info(log)
     end
   end
-
 end

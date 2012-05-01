@@ -226,7 +226,7 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     end
 
     if key == 'Microinjection aborted 6 months'
-      return row['MiAttempt Status'] == 'Micro-injection aborted' && Date.parse(row['Micro-injection aborted Date']) < 6.months.ago.to_date
+      return row['MiAttempt Status'] == 'Micro-injection aborted' && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
     end
 
     if key == 'Microinjections'

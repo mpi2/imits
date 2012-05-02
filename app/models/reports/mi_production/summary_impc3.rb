@@ -134,6 +134,13 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
         pc = efficiency_6months(params, row)
         pc2 = efficiency_clone(params, row)
 
+        # This is the (current) averaged calculation over all WTSI which overrides the
+        # actual calculation
+        if(row['Production Centre'] == 'WTSI' && consortium == 'BaSH')
+          pc = 42
+          pc2 = 41
+        end
+
         make_clean = lambda {|value|
           return value if params[:format] == :csv
           return '' if ! value || value.to_s == "0"
@@ -226,7 +233,7 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     end
 
     if key == 'Microinjection aborted 6 months'
-      return row['MiAttempt Status'] == 'Micro-injection aborted' && Date.parse(row['Micro-injection aborted Date']) < 6.months.ago.to_date
+      return row['MiAttempt Status'] == 'Micro-injection aborted' && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
     end
 
     if key == 'Microinjections'

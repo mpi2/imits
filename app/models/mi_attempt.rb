@@ -307,9 +307,10 @@ class MiAttempt < ApplicationModel
 
   def create_phenotype_attempt_for_komp2
     consortia_to_check = ["BaSH", "DTCC", "JAX"]
-    if self.status == "Genotype confirmed" && consortia_to_check.include?(self.consortium_name)
-      self.phenotype_attempts.create!
-      self.phenotype_attempts.reload
+    if self.status == "Genotype confirmed" && consortia_to_check.include?(self.consortium.name)
+      if self.phenotype_attempts.empty?
+        self.phenotype_attempts.create!
+      end
     end
   end
 

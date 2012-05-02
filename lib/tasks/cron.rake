@@ -19,10 +19,6 @@ namespace :cron do
     ApplicationModel.audited_transaction { EsCell.sync_all_with_marts }
   end
 
-  desc 'Create phenotype attempt for KOMP2 micro-injections with Genotype confirmed status'
-  task :create_komp2_phenotype_attempts => [:environment] do
-    ApplicationModel.audited_transaction { MiAttempt.create_komp2_phenotype_attempts }
-  end
 
   desc 'Sync MI attempt in progress dates'
   task :sync_mi_attempt_in_progress_dates => [:environment] do
@@ -37,6 +33,19 @@ namespace :cron do
           ip_ss.created_at = Time.parse(mi.mi_date.to_s + ' 00:00 UTC')
           ip_ss.save!
         end
+      end
+
+      Rails.logger.info(log)
+    end
+  end
+
+  desc 'Create phenotype attempt for KOMP2 micro-injections with Genotype confirmed status'
+  task :create_komp2_phenotype_attempts => [:environment] do
+    ApplicationModel.audited_transaction do
+      log = "RAILS_ENV=#{Rails.env} rake cron:create_komp2_phenotype_attempts\n"
+
+      MiAttempt.all.each do |mi|
+        mi.create_phenotype_attempt_for_komp2
       end
 
       Rails.logger.info(log)

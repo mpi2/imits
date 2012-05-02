@@ -24,8 +24,7 @@ class NotificationsController < ApplicationController
         @notification = notifications.first
 
         if mailer = NotificationMailer.welcome_email(@notification)
-          logger.debug "RESENDING WELCOME EMAIL - NOTIFICATION EXISTS"
-          logger.debug mailer.inspect
+
           @notification.welcome_email_text = mailer.body
           @notification.welcome_email_sent = Time.now.utc
           @notification.save!
@@ -40,8 +39,7 @@ class NotificationsController < ApplicationController
 
         if @notification.save!
           if mailer = NotificationMailer.welcome_email(@notification)
-            logger.debug "SENDING WELCOME EMAIL"
-            logger.debug mailer.inspect
+
              @notification.welcome_email_text = mailer.body
              @notification.welcome_email_sent = Time.now.utc
              @notification.save!

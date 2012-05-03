@@ -32,7 +32,7 @@ namespace :deploy do
   task :assets => [:ensure_clean_repo] do
     Dir.chdir Rails.root
     FileUtils.rm_rf 'public/assets'
-    system('jammit')
+    system('jammit') or raise 'Jammit failed'
     if git_modifications?
       system('git add public/assets; git commit -m "Re-generate assets"; git push -n')
     end

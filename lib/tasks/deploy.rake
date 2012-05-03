@@ -25,6 +25,7 @@ namespace :deploy do
     FileUtils.rm_rf 'public/assets'
     system('jammit') or raise 'Jammit failed'
     if git_modifications?
+      puts 'Re-generating assets'
       system('git add public/assets; git commit -m "Re-generate assets"; git push')
     end
   end

@@ -26,13 +26,13 @@ namespace :deploy do
     system('bundle exec jammit') or raise 'Jammit failed'
     if git_modifications?
       puts 'Re-generating assets'
-      system('git add public/assets; git commit -m "Re-generate assets"; git push')
+      system('git commit -m "Re-generate assets" public/assets; git push')
     end
   end
 
   desc "Create tag for deployment from what is committed and pushed on the current branch\n" +
      "exception: will generate, commit and push compressed assets if not already done"
-  task :tag => [:assets] do
+  task :tag => [:ensure_clean_repo, :assets] do
     Dir.chdir Rails.root
     tag = "v#{Time.now.strftime('%Y%m%d%H%M%S')}"
     system("git tag -a #{tag} -m '' && git push origin #{tag}") or raise 'Failed to tag'

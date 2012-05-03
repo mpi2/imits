@@ -442,8 +442,6 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
       ]
     )
     
-    puts mouse_report.class.to_s
-    puts mouse_report.to_s
     
     pheno_report = report.dup
     pheno_report.remove_columns(
@@ -472,8 +470,6 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
       ]      
     )
 
-    puts pheno_report.to_s
-    return title, report if do_table
 
     #html = prettify(params, report)
     #mouse_html = mouse_report.to_html
@@ -509,7 +505,6 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
     end
 
     summaries = {}
-    puts table.class.name
     grouped_report = Grouping( table, :by => [ 'Consortium' ] )
     labels = ['All genes', 'ES cell QC', 'ES QC confirmed', 'ES QC failed']
 

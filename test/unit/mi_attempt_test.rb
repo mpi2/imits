@@ -86,6 +86,23 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.valid?
           assert_match(/cannot be changed/i, default_mi_attempt.errors[:mi_attempt_status].first)
         end
+
+        should 'create a new phenotype attempt if status is genotype confirmed, attached to specific consortium and no current phenotype attempts' do
+          this_consortium = Consortium.where(:name => 'BaSH').first
+          set_mi_attempt_genotype_confirmed(default_mi_attempt)
+          default_mi_attempt.mi_plan.consortium = this_consortium
+          default_mi_attempt.create_phenotype_attempt_for_komp2
+          assert_equal 1, default_mi_attempt.phenotype_attempts.length
+        end
+
+        should 'not create a new phenotype attempt if status is genotype confirmed, attached to specific consortium and current phenotype attempts' do
+          this_consortium = Consortium.where(:name => 'BaSH').first
+          set_mi_attempt_genotype_confirmed(default_mi_attempt)
+          default_mi_attempt.mi_plan.consortium = this_consortium
+          default_mi_attempt.phenotype_attempts.create!
+          default_mi_attempt.create_phenotype_attempt_for_komp2
+          assert_equal 1, default_mi_attempt.phenotype_attempts.length
+        end
       end
 
       context '#status_stamps' do

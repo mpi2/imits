@@ -20,6 +20,15 @@ namespace :deploy do
 
   task :ensure_clean_repo => [:ensure_no_modifications, :ensure_no_unpushed]
 
+  task :assets => [:ensure_clean_repo] do
+    Dir.chdir Rails.root
+    FileUtils.rm_rf 'public/assets'
+    system('jammit') or raise 'Jammit failed'
+    if git_modifications?
+      system('git add public/assets; git commit -m "Re-generate assets"; git push')
+    end
+  end
+
   desc "Create tag for deployment from what is committed and pushed on the current branch\n" +
      "exception: will generate, commit and push compressed assets if not already done"
   task :tag => [:assets] do
@@ -27,14 +36,5 @@ namespace :deploy do
     tag = "v#{Time.now.strftime('%Y%m%d%H%M%S')}"
     system("git tag -a #{tag} -m '' && git push origin #{tag}") or raise 'Failed to tag'
     puts "URL: #{tag}"
-  end
-
-  task :assets => [:ensure_clean_repo] do
-    Dir.chdir Rails.root
-    FileUtils.rm_rf 'public/assets'
-    system('jammit') or raise 'Jammit failed'
-    if git_modifications?
-      system('git add public/assets; git commit -m "Re-generate assets"; git push -n')
-    end
   end
 end

@@ -7,7 +7,7 @@ require ::File.expand_path('../config/application',  __FILE__)
 logdir = Pathname.new('/opt/t87/local/logs/imits')
 Kermits2::Application.configure do
   config.paths.log = logdir + "#{Rails.env}.log"
-
+  config.paths.config.database = "/opt/t87/global/conf/imits/database.#{Rails.env}.yml"
 end
 
 Kermits2::Application.initialize!

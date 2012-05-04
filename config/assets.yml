@@ -38,6 +38,7 @@ javascripts:
     - public/javascripts/Imits/data/Proxy.js
     - public/javascripts/Imits/model/MiPlan.js
     - public/javascripts/Imits/model/MiAttempt.js
+    - public/javascripts/Imits/model/PhenotypeAttempt.js
     - public/javascripts/Imits/model/Gene.js
     - public/javascripts/Imits/widget/Window.js
     - public/javascripts/Imits/widget/Grid.js

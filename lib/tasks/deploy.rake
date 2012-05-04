@@ -1,6 +1,9 @@
-namespace :deploy do
+namespace :deploy2 do
   def git_modifications?
-    return ! system('git diff --quiet')
+    # Doing a git status first seems to be the only way to make git diff
+    # reliably return a status code reflecting whether or not changes have been
+    # made!
+    return ! system('git status &> /dev/null ; git diff --quiet')
   end
 
   task :ensure_no_modifications do

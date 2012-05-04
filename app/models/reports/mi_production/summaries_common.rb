@@ -140,7 +140,7 @@ module Reports::MiProduction::SummariesCommon
     return gap && gap > 180
   end
   
-  def distinct_genotype_confirmed_es_cells_count(group)
+  def distinct_old_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each do |row|
       value = integer(row['Distinct Genotype Confirmed ES Cells'])

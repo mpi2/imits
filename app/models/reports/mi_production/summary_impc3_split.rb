@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Reports::MiProduction::SummaryImpc3 < Reports::Base
+class Reports::MiProduction::SummaryImpc3Split < Reports::Base
 
   extend Reports::MiProduction::SummariesCommon
 
@@ -85,6 +85,14 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
 
     cached_report = ReportCache.find_by_name_and_format!(Reports::MiProduction::Intermediate.report_name, 'csv').to_table
 
+    #filtered_report = Table(
+    #  :data => cached_report.data,
+    #  :column_names => cached_report.column_names,
+    #  :filters => lambda {|r|
+    #    return (r['Consortium'] == 'BaSH')
+    #  }
+    #)
+    
     script_name = params[:script_name]
 
     heading = HEADINGS
@@ -126,78 +134,79 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     grouped_report.each do |consortium|
 
       next if ! consortia.include?(consortium)
+      
 
       grouped_report.subgrouping(consortium).summary('Production Centre', hash).each do |row|
 
-        row['Production Centre'] = '' if row['Production Centre'].to_s.length < 1
-
-        pc = efficiency_6months(params, row)
-        pc2 = efficiency_clone(params, row)
-
-        # This is the (current) averaged calculation over all WTSI which overrides the
-        # actual calculation
-        if(row['Production Centre'] == 'WTSI' && consortium == 'BaSH')
-          pc = 42
-          pc2 = 41
-        end
-
-        make_clean = lambda {|value|
-          return value if params[:format] == :csv
-          return '' if ! value || value.to_s == "0"
-          return value
-        }
-
-        make_link = lambda {|rowx, key|
-          return rowx[key] if params[:format] == :csv
-          return '' if rowx[key].to_s.length < 1
-          return '' if rowx[key] == 0
-          return rowx[key] if ! links
-
-          consort = CGI.escape consortium
-          pcentre = CGI.escape rowx['Production Centre']
-          pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
-          type = CGI.escape key
-          separator = /\?/.match(script_name) ? '&' : '?'
-          return "<a title='Click to see list of #{key}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>"
-        }
-
-        list_heads = [
-          'All genes',
-          'ES QC confirmed',
-          'Microinjection aborted',
-          'Languishing',
-          'Distinct Genotype Confirmed ES Cells',
-          'Distinct Old Non Genotype Confirmed ES Cells',
-          'Cre Excision Started',
-          'Cre excision completed',
-          'Phenotyping completed',
-          'Phenotyping aborted',
-          'ES QC failed',
-          'ES cell QC',
-          'Genotype confirmed mice',
-          'Microinjections',
-          'Chimaeras produced',
-          'Phenotyping started',
-          'Rederivation started',
-          'Cre excision started',
-          'Rederivation completed',
-          'Registered for phenotyping',
-          'Genotype confirmed mice 6 months',
-          'Microinjection aborted 6 months'
-        ]
-
-        new_hash = {}
-        new_hash['Consortium'] = consortium
-        next if ! row['Production Centre']
-        new_hash['Production Centre'] = row['Production Centre']
-        new_hash['Gene Pipeline efficiency (%)'] = make_clean.call(pc)
-        new_hash['Clone Pipeline efficiency (%)'] = make_clean.call(pc2)
-        list_heads.each do |item|
-          new_hash[item] = make_link.call(row, item)
-        end
-
-        report_table << new_hash
-
+          
+          row['Production Centre'] = '' if row['Production Centre'].to_s.length < 1
+  
+          pc = efficiency_6months(params, row)
+          pc2 = efficiency_clone(params, row)
+          
+          # This is the (current) averaged calculation over all WTSI which overrides the
+          # actual calculation
+          if(row['Production Centre'] == 'WTSI' && consortium == 'BaSH')
+            pc = 42
+            pc2 = 41
+          end
+  
+          make_clean = lambda {|value|
+            return value if params[:format] == :csv
+            return '' if ! value || value.to_s == "0"
+            return value
+          }
+  
+          make_link = lambda {|rowx, key|
+            return rowx[key] if params[:format] == :csv
+            return '' if rowx[key].to_s.length < 1
+            return '' if rowx[key] == 0
+            return rowx[key] if ! links
+  
+            consort = CGI.escape consortium
+            pcentre = CGI.escape rowx['Production Centre']
+            pcentre = pcentre ? "&pcentre=#{pcentre}" : ''
+            type = CGI.escape key
+            separator = /\?/.match(script_name) ? '&' : '?'
+            return "<a title='Click to see list of #{key}' href='#{script_name}#{separator}consortium=#{consort}#{pcentre}&type=#{type}'>#{rowx[key]}</a>"
+          }
+  
+          list_heads = [
+            'All genes',
+            'ES QC confirmed',
+            'Microinjection aborted',
+            'Languishing',
+            'Distinct Genotype Confirmed ES Cells',
+            'Distinct Old Non Genotype Confirmed ES Cells',
+            'Cre Excision Started',
+            'Cre excision completed',
+            'Phenotyping completed',
+            'Phenotyping aborted',
+            'ES QC failed',
+            'ES cell QC',
+            'Genotype confirmed mice',
+            'Microinjections',
+            'Chimaeras produced',
+            'Phenotyping started',
+            'Rederivation started',
+            'Cre excision started',
+            'Rederivation completed',
+            'Registered for phenotyping',
+            'Genotype confirmed mice 6 months',
+            'Microinjection aborted 6 months'
+          ]
+  
+          new_hash = {}
+          new_hash['Consortium'] = consortium
+          next if ! row['Production Centre']
+          new_hash['Production Centre'] = row['Production Centre']
+          new_hash['Gene Pipeline efficiency (%)'] = make_clean.call(pc)
+          new_hash['Clone Pipeline efficiency (%)'] = make_clean.call(pc2)
+          list_heads.each do |item|
+            new_hash[item] = make_link.call(row, item)
+          end
+        
+          report_table << new_hash
       end
     end
 
@@ -292,7 +301,7 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     end
 
     if key == 'Distinct Old Non Genotype Confirmed ES Cells'
-      return row[key] && row[key].to_s.length > 0
+      return row[key] && row[key].to_s.length > 0 
     end
 
     if key == 'Languishing'
@@ -403,11 +412,83 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     report.reorder(new_columns)
 
     title = report_title
+    
+    mouse_report = report.dup
+    mouse_report.remove_columns(
+      "Registered for phenotyping",
+      "Rederivation started",
+      "Rederivation completed",
+      "Cre excision started",
+      "Cre excision completed",
+      "Phenotyping started",
+      "Phenotyping completed",
+      "Phenotyping aborted"
+    )
+    
+    mouse_report.reorder(
+      [
+       "All genes",
+       "Consortium",
+        "ES cell QC",
+        "ES QC confirmed",
+        "ES QC failed",
+        "Production Centre",
+        "Microinjections",
+        "Chimaeras produced",
+        "Genotype confirmed mice",
+        "Microinjection aborted",
+        "Gene Pipeline efficiency (%)",
+        "Clone Pipeline efficiency (%)",
+      ]
+    )
+    
+    
+    pheno_report = report.dup
+    pheno_report.remove_columns(
+      "ES QC confirmed",
+      "ES QC failed",
+      "Microinjections",
+      "Chimaeras produced",
+      "Microinjection aborted",
+      "Gene Pipeline efficiency (%)",
+      "Clone Pipeline efficiency (%)"
+    )
+    pheno_report.reorder(
+      [
+        "All genes",
+        "Consortium",
+        "Production Centre",
+        "Genotype confirmed mice",
+        "Registered for phenotyping",
+        "Rederivation started",
+        "Rederivation completed",
+        "Cre excision started",
+        "Cre excision completed",
+        "Phenotyping started",
+        "Phenotyping completed",
+        "Phenotyping aborted"
+      ]      
+    )
 
-    return title, report if do_table
 
-    html = prettify(params, report)
-    return { :title => title, :csv => report.to_csv, :html => html, :table => report }
+    #html = prettify(params, report)
+    #mouse_html = mouse_report.to_html
+    mouse_html = prettify(params, mouse_report)
+    pheno_html = prettify2(params, pheno_report)
+    #return { :title => title, :csv => report.to_csv, :html => html, :table => report }
+  
+    return {
+      :title => title,
+      :csv => report.to_csv,
+      :html => report.to_html,
+      :table => report,
+      :mouse_csv => mouse_report.to_csv,
+      :mouse_html => mouse_html,
+      :mouse_table => mouse_report,
+      :pheno_csv => pheno_report.to_csv,
+      :pheno_html => pheno_html,
+      :pheno_table => pheno_report
+    }
 
   end
 
@@ -495,12 +576,95 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
     return retval
   end
 
+  def self.prettify2(params, table)
+
+    script_name = params[:script_name]
+
+    centres = {}
+    sub_table = table.sub_table do |r|
+      centres[r["Consortium"]] ||= []
+      if r['Production Centre'].to_s.length > 0 && ! centres[r["Consortium"]].include?(r['Production Centre'])
+        centres[r["Consortium"]].push r['Production Centre']
+      end
+    end
+
+    summaries = {}
+    grouped_report = Grouping( table, :by => [ 'Consortium' ] )
+    labels = ['All genes']
+
+    grouped_report.each do |consortium|
+      summaries[consortium] = {}
+      labels.each { |item| summaries[consortium][item] = grouped_report[consortium].sigma(item) }
+    end
+
+    array = []
+    array.push '<table>'
+    array.push '<tr>'
+
+    table.column_names.each { |name| array.push "<th>#{name}</th>" }
+
+    other_columns = table.column_names - ["Consortium", "All genes"]
+    rows = table.data.size
+
+    make_link = lambda {|value, consortium, pcentre, type|
+      return '' if value.to_s.length < 1
+      return '' if value == 0
+
+      consortium = CGI.escape consortium
+      pcentre = pcentre ? CGI.escape(pcentre) : ''
+      type = CGI.escape type
+      separator = /\?/.match(script_name) ? '&' : '?'
+      return "<a href='#{script_name}#{separator}consortium=#{consortium}&pcentre=#{pcentre}&type=#{type}'>#{value}</a>"
+    }
+
+    grouped_report.each do |consortium_name1|
+      array.push '</tr>'
+      size = centres[consortium_name1].size.to_s
+      array.push "<td rowspan='#{size}'>#{consortium_name1}</td>"
+      array.push "<td rowspan='#{size}'>" + make_link.call(summaries[consortium_name1]['All genes'], consortium_name1, nil, 'All genes') + "</td>"
+
+      i=0
+      while i < rows
+
+        # this is where we exclude Production Centres with empty names
+
+        if table.column('Consortium')[i] != consortium_name1 || table.column('Production Centre')[i].to_s.length < 1
+          i+=1
+          next
+        end
+
+        ignore_columns = ['Production Centre', 'Gene Pipeline efficiency (%)', 'Clone Pipeline efficiency (%)']
+
+        other_columns.each do |consortium_name2|
+          array.push "<td>#{table.column(consortium_name2)[i]}</td>" if ignore_columns.include?(consortium_name2)
+          next if ignore_columns.include?(consortium_name2)
+          array.push("<td>" + make_link.call(table.column(consortium_name2)[i], consortium_name1, table.column('Production Centre')[i], consortium_name2) + "</td>")
+
+        end
+
+        array.push '</tr>'
+
+        i+=1
+
+      end
+
+    end
+
+    # HACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACKHACK
+    array.push '</table>'
+    retval = array.join("\n")
+    retval.gsub!(/Registered for phenotyping/i, 'Intent to phenotype')
+    return retval
+  end
+  
   def self.report_name; 'production_summary_impc3'; end
 
   def initialize
     generated = self.class.generate
     @csv = generated[:csv]
     @html = generated[:html]
+    @mouse_html = generated[:mouse_html]
+    @pheno_html = generated[:pheno_html]
   end
 
   def to(format)
@@ -508,6 +672,28 @@ class Reports::MiProduction::SummaryImpc3 < Reports::Base
       return @html
     elsif format == 'csv'
       return @csv
+    elsif format == 'mouse_html'
+      return @mouse_html
+    elsif format == 'pheno_html'
+      return @pheno_html
+    end
+  end
+
+  def cache
+    ReportCache.transaction do
+      ['html', 'csv','mouse_html','pheno_html'].each do |format|
+        cache = ReportCache.find_by_name_and_format(self.class.report_name, format)
+        if ! cache
+          cache = ReportCache.new(
+            :name => self.class.report_name,
+            :data => '',
+            :format => format
+          )
+        end
+
+        cache.data = self.to(format)
+        cache.save!
+      end
     end
   end
 end

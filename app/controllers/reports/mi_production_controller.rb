@@ -58,7 +58,7 @@ class Reports::MiProductionController < ApplicationController
   private :summary_3_helper
 
   def summary_komp23
-    summary_3_helper(Reports::MiProduction::SummaryKomp23)
+    summary_3_split_helper(Reports::MiProduction::SummaryKomp23)
   end
 
   def summary_impc3
@@ -149,5 +149,36 @@ class Reports::MiProductionController < ApplicationController
   def summary_month_by_month_activity_all_centres_komp2
     month_by_month_helper_no_cache(Reports::MiProduction::SummaryMonthByMonthActivityAllCentresKomp2)
   end
+
+  def summary_3_split_helper(report_class)
+    @title2 = report_class.report_title
+
+    if params[:consortium]
+      params[:format] = request.format
+      params[:script_name] = request.env['REQUEST_URI']
+      @report_data = report_class.generate(params)
+      @title2 = @report_data[:title]
+
+      if request.format == :csv
+        send_data_csv("#{report_class.report_name}_detail.csv", @report_data[:csv])
+      else
+        render :action => 'summary_3'
+      end
+      return
+    end
+
+    query = ReportCache.where(:name => report_class.report_name)
+    #@pheno_html = return_value[:pheno_html]
+    @mouse_html = query.where(:format=>'mouse_html').first.data
+    @pheno_html = query.where(:format=>'pheno_html').first.data
+    csv = query.where(:format=>'csv').first.data
+
+    if request.format == :csv
+      send_data_csv("#{report_class.report_name}.csv", csv)
+    else
+      render :action => 'summary_3_split'
+    end
+  end
+  private :summary_3_split_helper
 
 end

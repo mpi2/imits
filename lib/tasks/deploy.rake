@@ -1,4 +1,4 @@
-namespace :deploy2 do
+namespace :deploy do
   def git_modifications?
     # Doing a git status first seems to be the only way to make git diff
     # reliably return a status code reflecting whether or not changes have been

@@ -64,7 +64,7 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
     return Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
   end
 
-  def self.distinct_genotype_confirmed_es_cells_count(group)
+  def self.distinct_old_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each { |row| total += row['Distinct Genotype Confirmed ES Cells'].to_i }
     return total
@@ -123,7 +123,7 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
     ]
 
     hash = {}
-    hash['Distinct Genotype Confirmed ES Cells'] = lambda { |group| distinct_genotype_confirmed_es_cells_count(group) }
+    hash['Distinct Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_genotype_confirmed_es_cells_count(group) }
     hash['Distinct Old Non Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }
     hash['All genes'] = lambda { |group| count_unique_instances_of( group, 'Gene', lambda { |row| count_row(row, 'All genes') } ) }
 

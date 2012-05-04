@@ -114,7 +114,7 @@ module Reports::MiProduction::SummaryKomp2Common
         
         'Languishing' => lambda { |group| count_instances_of( group, 'Gene',
             lambda { |row2| languishing(row2) } ) },
-        'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_genotype_confirmed_es_cells_count(group) },
+        'Distinct Genotype Confirmed ES Cells' => lambda { |group| distinct_old_genotype_confirmed_es_cells_count(group) },
         'Distinct Old Non Genotype Confirmed ES Cells' => lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) },
 
         'Phenotyping Started' => lambda { |group| count_instances_of( group, 'Gene',

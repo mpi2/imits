@@ -314,34 +314,26 @@ class MiPlan < ApplicationModel
     end
   end
 
-  def distinct_genotype_confirmed_es_cells_count
-
+  def distinct_old_genotype_confirmed_es_cells_count
     es_cells = []
-    mi_attempts.each do |mi|
+    mi_attempts.genotype_confirmed.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
-      gc_date = dates["Genotype confirmed"]
-      next if ! gc_date
       mip_date = dates["Micro-injection in progress"]
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
 
     return es_cells.sort.uniq.size
-
   end
 
   def distinct_old_non_genotype_confirmed_es_cells_count
-
     es_cells = []
-    mi_attempts.each do |mi|
+    mi_attempts.search(:mi_attempt_status_id_not_eq => MiAttemptStatus.genotype_confirmed.id).result.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
-      gc_date = dates["Genotype confirmed"]
-      next if gc_date
       mip_date = dates["Micro-injection in progress"]
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
 
     return es_cells.sort.uniq.size
-
   end
 
   def latest_relevant_status

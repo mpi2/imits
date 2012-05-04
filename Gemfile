@@ -3,6 +3,7 @@ source 'http://rubygems.org'
 gem 'rake'
 gem 'rails', '~> 3.0.9'
 gem 'hoptoad_notifier'
+gem 'jammit'
 
 gem 'pg'
 gem 'foreigner'
@@ -18,7 +19,6 @@ gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
 gem 'unicorn'
 
 group :development, :test do
-  gem 'jammit'
   gem 'shoulda', :require => nil
   gem 'test-unit', :require => nil
   gem 'chromedriver-helper', :require => nil

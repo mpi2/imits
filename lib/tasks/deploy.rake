@@ -1,6 +1,6 @@
 namespace :deploy do
   def git_modifications?
-    return ! system('git diff-index --quiet HEAD')
+    return ! system('git diff --quiet')
   end
 
   task :ensure_no_modifications do

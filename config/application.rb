@@ -56,8 +56,9 @@ module Kermits2
       # Override some locations when deployed to /opt/t87
       config.paths.log = "/opt/t87/local/logs/imits/#{Rails.env}.log"
       config.paths.config.database = "/opt/t87/global/conf/imits/database.#{Rails.env}.yml"
-      config.paths.tmp = "/tmp/imits/#{Rails.env}"
-      FileUtils.mkdir_p config.paths.tmp.to_s
+      tmppath = "/tmp/imits/#{Rails.env}"
+      config.paths.tmp = tmppath
+      FileUtils.mkdir_p tmppath
     end
 
   end

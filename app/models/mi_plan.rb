@@ -417,6 +417,7 @@ end
 #  number_of_es_cells_passing_qc  :integer
 #  sub_project_id                 :integer         not null
 #  is_active                      :boolean         default(TRUE), not null
+#  is_bespoke_allele              :boolean
 #
 # Indexes
 #

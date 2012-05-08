@@ -20,8 +20,8 @@ end
 #  welcome_email_text :text
 #  last_email_sent    :datetime
 #  last_email_text    :text
-#  gene_id            :integer         not null
-#  contact_id         :integer         not null
+#  gene_id            :integer
+#  contact_id         :integer
 #  created_at         :datetime
 #  updated_at         :datetime
 #

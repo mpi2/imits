@@ -84,9 +84,9 @@ MiPlan.transaction do
               Rails.logger.info"#{this_gene.marker_symbol} :: Gene has existing #{bash_mi_plans.length} BaSH Mi Plans :: Ids #{bash_mi_plans.map{ |b| b.id} } "
             else
               this_mi_plan.consortium = bash_consortium
-              #if this_mi_plan.save!
+              if this_mi_plan.save!
                 count = count + 1
-              #end
+              end
               Rails.logger.info "#{this_mi_plan.consortium.name}"
               Rails.logger.info "SAVE #{this_gene.marker_symbol} MI Plan #{this_mi_plan.id}"
 
@@ -95,6 +95,6 @@ MiPlan.transaction do
         end
       end
     end
-
+      puts count
   end#Audited
 end

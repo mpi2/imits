@@ -57,7 +57,7 @@ module Kermits2
       config.paths.log = "/opt/t87/local/logs/imits/#{Rails.env}.log"
       config.paths.config.database = "/opt/t87/global/conf/imits/database.#{Rails.env}.yml"
       config.paths.tmp = "/tmp/imits/#{Rails.env}"
-      FileUtils.mkdir_p config.paths.tmp
+      FileUtils.mkdir_p config.paths.tmp.to_s
     end
 
   end

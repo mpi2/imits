@@ -13,8 +13,8 @@ class Public::MiPlan < ::MiPlan
     'number_of_es_cells_passing_qc',
     'withdrawn',
     'sub_project_name',
-    'is_active'
-    
+    'is_active',
+    'is_bespoke_allele'
   ]
 
   READABLE_ATTRIBUTES = [

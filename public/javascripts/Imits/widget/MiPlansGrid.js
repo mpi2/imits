@@ -93,6 +93,12 @@ Ext.define('Imits.widget.MiPlansGrid', {
         }
     },
     {
+        dataIndex: 'is_bespoke_allele',
+        header: 'Bespoke allele?',
+        xtype: 'boolgridcolumn',
+        readOnly: true
+    },
+    {
         dataIndex: 'sub_project_name',
         header: 'Sub-Project',
         readOnly: true,

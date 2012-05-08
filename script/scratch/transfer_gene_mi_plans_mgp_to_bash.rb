@@ -95,6 +95,6 @@ MiPlan.transaction do
         end
       end
     end
-
+      puts count
   end#Audited
 end

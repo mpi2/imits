@@ -68,7 +68,7 @@ class Reports::MiProduction::SummaryMgp23
     return Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
   end
 
-  def self.distinct_genotype_confirmed_es_cells_count(group)
+  def self.distinct_old_genotype_confirmed_es_cells_count(group)
     total = 0
     group.each { |row| total += row['Distinct Genotype Confirmed ES Cells'].to_i }
     return total

@@ -43,7 +43,7 @@ class Reports::MiProduction::Intermediate < Reports::Base
       'reportable_statuses_with_latest_dates',
       'latest_relevant_mi_attempt',
       'latest_relevant_phenotype_attempt',
-      'distinct_genotype_confirmed_es_cells_count',
+      'distinct_old_genotype_confirmed_es_cells_count',
       'distinct_old_non_genotype_confirmed_es_cells_count'
     ]
 
@@ -80,7 +80,7 @@ class Reports::MiProduction::Intermediate < Reports::Base
         end
       end
 
-      record['Distinct Genotype Confirmed ES Cells'] = record['distinct_genotype_confirmed_es_cells_count']
+      record['Distinct Genotype Confirmed ES Cells'] = record['distinct_old_genotype_confirmed_es_cells_count']
       record['Distinct Old Non Genotype Confirmed ES Cells'] = record['distinct_old_non_genotype_confirmed_es_cells_count']
 
     end

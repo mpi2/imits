@@ -1053,38 +1053,128 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
-    context '#distinct_genotype_confirmed_es_cells_count' do
+    context '#distinct_old_genotype_confirmed_es_cells_count' do
+      should 'work' do
+        cbx1 = Factory.create :gene_cbx1
 
-      should 'just work' do
-        mi_attempt = Factory.create(:mi_attempt_genotype_confirmed)
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
 
-        expected = [
-          ["Genotype confirmed", '2011-05-13 05:04:01 UTC'],
-          ["Micro-injection in progress", '2010-05-13 05:04:01 UTC']
-        ]
+        mi_attempt1 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
+        replace_status_stamps(mi_attempt1, [
+          ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
 
-        replace_status_stamps(mi_attempt, expected)
+        mi_attempt2 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
+        replace_status_stamps(mi_attempt2, [
+          ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
 
-        results = mi_attempt.mi_plan.distinct_genotype_confirmed_es_cells_count
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_attempt3 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
+        replace_status_stamps(mi_attempt3, [
+          ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
 
-        assert_equal 1, results
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_attempt4 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt4, [
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
+
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        newer_mi_attempt = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
+
+        mi_plan = mi_attempt1.mi_plan.reload
+        result = mi_plan.distinct_old_genotype_confirmed_es_cells_count
+        assert_equal 2, result
+      end
+
+      should 'not treat aborted MIs with a GC status stamp as GC' do
+        cbx1 = Factory.create :gene_cbx1
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        mi_attempt = Factory.create(:mi_attempt, :is_active => false)
+        replace_status_stamps(mi_attempt,
+          'Micro-injection in progress' => '2010-05-13',
+          'Genotype confirmed' => '2010-11-12',
+          'Micro-injection aborted' => '2010-12-11'
+        )
+
+        result = mi_attempt.mi_plan.distinct_old_genotype_confirmed_es_cells_count
+        assert_equal 0, result
       end
     end
 
     context '#distinct_old_non_genotype_confirmed_es_cells_count' do
       should 'just work' do
-        mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
+        cbx1 = Factory.create :gene_cbx1
 
-        expected = [
-          ["Micro-injection aborted", '2011-05-13 05:04:01 UTC'],
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt1, [
           ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
-        ]
+        ])
 
-        replace_status_stamps(mi_attempt, expected)
+        mi_attempt2 = Factory.create(:mi_attempt, mi_plan_args.merge(:is_active => false))
+        replace_status_stamps(mi_attempt2, [
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC'],
+          ['Micro-injection aborted', '2010-05-13 05:04:01 UTC'],
+        ])
 
-        results = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_attempt3 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt3, [
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
 
-        assert_equal 1, results
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_attempt4 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
+        replace_status_stamps(mi_attempt4, [
+          ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
+
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        newer_mi_attempt = Factory.create(:mi_attempt, mi_plan_args)
+
+        mi_plan = mi_attempt1.mi_plan.reload
+        result = mi_attempt1.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
+        assert_equal 2, result
+      end
+
+      should 'not treat aborted MIs with a GC status stamp as GC' do
+        cbx1 = Factory.create :gene_cbx1
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        mi_attempt = Factory.create(:mi_attempt, :is_active => false)
+        replace_status_stamps(mi_attempt,
+          'Micro-injection in progress' => '2010-05-13',
+          'Genotype confirmed' => '2010-11-12',
+          'Micro-injection aborted' => '2010-12-11'
+        )
+
+        result = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
+        assert_equal 1, result
       end
     end
 

@@ -65,7 +65,13 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
     context 'bespoke allele editing' do
       should 'work' do
         user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
-        plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI')
+        plan = Factory.create :mi_plan,
+              :production_centre => Centre.find_by_name!('WTSI'),
+              :consortium => Consortium.find_by_name!('BaSH'),
+              :priority => MiPlan::Priority.find_by_name!('Medium'),
+              :status => MiPlan::Status['Assigned'],
+              :gene => Factory.create(:gene_cbx1),
+              :is_bespoke_allele => true
         login user
         visit '/mi_plans'
         assert page.has_no_css?('.plan.editor')

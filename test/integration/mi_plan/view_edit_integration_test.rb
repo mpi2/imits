@@ -41,6 +41,7 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       should 'work for WTSI users' do
         user = Factory.create :user, :production_centre => Centre.find_by_name!('WTSI')
         plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI')
+        sleep 3
         login user
         visit '/mi_plans'
         assert page.has_no_css?('.plan.editor')
@@ -52,6 +53,7 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       should 'not work for non-WTSI users' do
         user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
         plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('ICS')
+        sleep 3
         login user
         visit '/mi_plans'
         assert page.has_no_css?('.plan.editor')
@@ -64,7 +66,7 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
 
     context 'bespoke allele editing' do
       should 'work' do
-        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
+        user = Factory.create :user, :production_centre => Centre.find_by_name!('WTSI')
         plan = Factory.create :mi_plan,
               :production_centre => Centre.find_by_name!('WTSI'),
               :consortium => Consortium.find_by_name!('BaSH'),
@@ -72,6 +74,7 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
               :status => MiPlan::Status['Assigned'],
               :gene => Factory.create(:gene_cbx1),
               :is_bespoke_allele => true
+        sleep 3
         login user
         visit '/mi_plans'
         assert page.has_no_css?('.plan.editor')

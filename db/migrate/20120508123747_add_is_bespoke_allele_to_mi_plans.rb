@@ -1,6 +1,6 @@
 class AddIsBespokeAlleleToMiPlans < ActiveRecord::Migration
   def self.up
-    add_column :mi_plans, :is_bespoke_allele, :boolean
+    add_column :mi_plans, :is_bespoke_allele, :boolean, :default => false
   end
 
   def self.down

@@ -33,6 +33,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:status_id).with_options(:null => false)
         assert_should have_db_column(:priority_id).with_options(:null => false)
         assert_should have_db_column(:sub_project_id).with_options(:null => false)
+        assert_should have_db_column(:is_bespoke_allele)
       end
 
       context '#latest_relevant_mi_attempt' do

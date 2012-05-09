@@ -62,6 +62,20 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       end
     end
 
+    context 'bespoke allele editing' do
+      should 'work' do
+        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
+        plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI')
+        login user
+        visit '/mi_plans'
+        assert page.has_no_css?('.plan.editor')
+        sleep 1
+        page.find('div.x-grid-cell-inner').click
+        assert page.has_css?('.plan.editor')
+        assert page.find('.plan.editor div#is_bespoke_allele').visible?
+      end
+    end
+
     should 'allow users to withdraw mi_plans' do
       mi_plan = Factory.create :mi_plan,
               :gene => Factory.create(:gene_cbx1),

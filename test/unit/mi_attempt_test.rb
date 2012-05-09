@@ -86,23 +86,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.valid?
           assert_match(/cannot be changed/i, default_mi_attempt.errors[:mi_attempt_status].first)
         end
-
-        should 'create a new phenotype attempt if status is genotype confirmed, attached to specific consortium and no current phenotype attempts' do
-          this_consortium = Consortium.where(:name => 'BaSH').first
-          set_mi_attempt_genotype_confirmed(default_mi_attempt)
-          default_mi_attempt.mi_plan.consortium = this_consortium
-          default_mi_attempt.create_phenotype_attempt_for_komp2
-          assert_equal 1, default_mi_attempt.phenotype_attempts.length
-        end
-
-        should 'not create a new phenotype attempt if status is genotype confirmed, attached to specific consortium and current phenotype attempts' do
-          this_consortium = Consortium.where(:name => 'BaSH').first
-          set_mi_attempt_genotype_confirmed(default_mi_attempt)
-          default_mi_attempt.mi_plan.consortium = this_consortium
-          default_mi_attempt.phenotype_attempts.create!
-          default_mi_attempt.create_phenotype_attempt_for_komp2
-          assert_equal 1, default_mi_attempt.phenotype_attempts.length
-        end
       end
 
       context '#status_stamps' do
@@ -591,13 +574,13 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should ', be reactivated, when the associated mi_attempt is active' do
-            mi_attempt = Factory.create :mi_attempt, :is_active => false
-            mi_attempt.mi_plan.is_active = false
-            mi_attempt.mi_plan.save!
-            mi_attempt.is_active = true
-            mi_attempt.save!
-            mi_attempt.reload
-            assert_equal true, mi_attempt.mi_plan.is_active?
+          mi_attempt = Factory.create :mi_attempt, :is_active => false
+          mi_attempt.mi_plan.is_active = false
+          mi_attempt.mi_plan.save!
+          mi_attempt.is_active = true
+          mi_attempt.save!
+          mi_attempt.reload
+          assert_equal true, mi_attempt.mi_plan.is_active?
         end
 
         context 'on create' do
@@ -744,14 +727,14 @@ class MiAttemptTest < ActiveSupport::TestCase
           should 'grab existing MiPlan with that MiPlan logical key when consortium_name and production_centre_name changes' do
             es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
             mi_plan = Factory.create :mi_plan, :gene => es_cell.gene,
-              :consortium => Consortium.find_by_name!('MARC'),
-              :production_centre => Centre.find_by_name!('VETMEDUNI'),
-              :status => MiPlan::Status.find_by_name!('Interest')
+                    :consortium => Consortium.find_by_name!('MARC'),
+                    :production_centre => Centre.find_by_name!('VETMEDUNI'),
+                    :status => MiPlan::Status.find_by_name!('Interest')
 
             mi_plan2 = Factory.create :mi_plan, :gene => es_cell.gene,
-              :consortium => Consortium.find_by_name!('NorCOMM2'),
-              :production_centre => Centre.find_by_name!('CNRS'),
-              :status => MiPlan::Status.find_by_name!('Interest')
+                    :consortium => Consortium.find_by_name!('NorCOMM2'),
+                    :production_centre => Centre.find_by_name!('CNRS'),
+                    :status => MiPlan::Status.find_by_name!('Interest')
 
             mi_attempt = MiAttempt.new(:es_cell => es_cell,
               :production_centre_name => 'VETMEDUNI',
@@ -1164,6 +1147,25 @@ class MiAttemptTest < ActiveSupport::TestCase
           ]
         )
         assert_equal Date.parse('2011-06-12'), mi.in_progress_date
+      end
+    end
+
+    context '#create_phenotype_attempt_for_komp2' do
+      should 'create a new phenotype attempt if status is genotype confirmed, attached to specific consortium and no current phenotype attempts' do
+        this_consortium = Consortium.where(:name => 'BaSH').first
+        set_mi_attempt_genotype_confirmed(default_mi_attempt)
+        default_mi_attempt.mi_plan.consortium = this_consortium
+        default_mi_attempt.create_phenotype_attempt_for_komp2
+        assert_equal 1, default_mi_attempt.phenotype_attempts.length
+      end
+
+      should 'not create a new phenotype attempt if status is genotype confirmed, attached to specific consortium and current phenotype attempts' do
+        this_consortium = Consortium.where(:name => 'BaSH').first
+        set_mi_attempt_genotype_confirmed(default_mi_attempt)
+        default_mi_attempt.mi_plan.consortium = this_consortium
+        default_mi_attempt.phenotype_attempts.create!
+        default_mi_attempt.create_phenotype_attempt_for_komp2
+        assert_equal 1, default_mi_attempt.phenotype_attempts.length
       end
     end
 

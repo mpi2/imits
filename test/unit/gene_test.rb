@@ -39,6 +39,7 @@ class GeneTest < ActiveSupport::TestCase
       assert gene_json.keys.include? 'pretty_print_mi_attempts_in_progress'
       assert gene_json.keys.include? 'pretty_print_mi_attempts_genotype_confirmed'
       assert gene_json.keys.include? 'pretty_print_aborted_mi_attempts'
+      assert gene_json.keys.include? 'pretty_print_phenotype_attempts'
     end
 
     context '::find_or_create_from_marts_by_mgi_accession_id' do
@@ -459,6 +460,19 @@ class GeneTest < ActiveSupport::TestCase
         assert_match '[MARC:MARC:1]', result
         assert_false result.include?('[DTCC:UCD:3]')
         assert_false result.include?('[EUCOMM-EUMODIC:WTSI:1]')
+      end
+    end
+
+    context '#pretty_print_phenotype_attempts' do
+      should 'work' do
+        gene = Factory.create :gene,
+                :marker_symbol => 'Moo1',
+                :mgi_accession_id => 'MGI:12345'
+
+        2.times do
+          pa = Factory.create :populated_phenotype_attempt
+        end
+
       end
     end
 

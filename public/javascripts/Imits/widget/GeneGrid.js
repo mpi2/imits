@@ -35,7 +35,7 @@ Ext.define('Imits.widget.GeneGrid', {
     'Ext.ux.RowExpander',
     'Ext.selection.CheckboxModel'
     ],
-    title: 'Please Select the Genes You Would Like to Register Interest In',
+    title: 'Please Select the Genes You Would Like to Register Interest In*',
     iconCls: 'icon-grid',
     columnLines: true,
     store: {
@@ -94,7 +94,7 @@ Ext.define('Imits.widget.GeneGrid', {
         dataIndex: 'assigned_mi_plans',
         readOnly: true,
         sortable: false,
-        width: 200,
+        width: 180,
         flex: 1,
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
@@ -111,7 +111,7 @@ Ext.define('Imits.widget.GeneGrid', {
         dataIndex: 'pretty_print_aborted_mi_attempts',
         readOnly: true,
         sortable: false,
-        width: 200,
+        width: 180,
         flex: 1,
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
@@ -128,7 +128,7 @@ Ext.define('Imits.widget.GeneGrid', {
         dataIndex: 'pretty_print_mi_attempts_in_progress',
         readOnly: true,
         sortable: false,
-        width: 200,
+        width: 180,
         flex: 1,
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
@@ -145,11 +145,28 @@ Ext.define('Imits.widget.GeneGrid', {
         dataIndex: 'pretty_print_mi_attempts_genotype_confirmed',
         readOnly: true,
         sortable: false,
-        width: 200,
+        width: 180,
         flex: 1,
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
             '<tpl for="this.processedMIs(pretty_print_mi_attempts_genotype_confirmed)">',
+            '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
+            '</tpl>',
+            {
+                processedMIs: splitMiString
+            }
+            )
+    },
+    {
+        header: 'Phenotype Attempts*',
+        dataIndex: 'pretty_print_phenotype_attempts',
+        readOnly: true,
+        sortable: false,
+        width: 180,
+        flex: 1,
+        xtype: 'templatecolumn',
+        tpl: new Ext.XTemplate(
+            '<tpl for="pretty_print_phenotype_attempts">',
             '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
             '</tpl>',
             {

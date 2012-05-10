@@ -37,6 +37,10 @@ class Gene < ActiveRecord::Base
     return Gene.pretty_print_aborted_mi_attempts_in_bulk(self.id)[self.marker_symbol]
   end
 
+  def pretty_print_phenotype_attempts
+    return Gene.pretty_print_phenotype_attempts_in_bulk(self.id)
+  end
+
   # == Non-Assigned MiPlans
 
   def self.non_assigned_mi_plans_in_bulk(gene_id=nil)
@@ -167,6 +171,10 @@ class Gene < ActiveRecord::Base
     return pretty_print_mi_attempts_in_bulk_helper(false, [], gene_id)
   end
 
+  def self.pretty_print_phenotype_attempts_in_bulk(gene_id = nil)
+    return pretty_print_phenotype_attempts_in_bulk_helper(gene_id)
+  end
+
   def relevant_status
     @selected_status = Hash.new
 
@@ -220,6 +228,26 @@ class Gene < ActiveRecord::Base
     genes.each { |marker_symbol,values| genes[marker_symbol] = values.join('<br/>') }
 
     return genes
+  end
+
+  def self.pretty_print_phenotype_attempts_in_bulk_helper(gene_id = nil)
+    gene = Gene.find(gene_id)
+    formatted_string = ""
+    if gene.phenotype_attempts.length > 0
+        strings = Array.new
+      gene.mi_plans.each do |this_mi_plan|
+        if this_mi_plan.phenotype_attempts.length > 0
+          this_mi_plan.phenotype_attempts.each do |this_phenotype_attempt|
+            string = "[#{this_phenotype_attempt.consortium.name}"
+            string << ":#{this_phenotype_attempt.production_centre.name}" unless this_phenotype_attempt.production_centre.nil?
+            string << "]"
+            strings.push(string)
+          end
+        end
+        formatted_string = strings.join('<br/>').html_safe
+      end
+        return formatted_string
+    end
   end
 
   public

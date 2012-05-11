@@ -63,6 +63,10 @@ Ext.define('Imits.widget.MiPlansGrid', {
                     return i.dataIndex === 'sub_project_name';
                 })[0];
                 subProjectColumn.setVisible(true);
+                var isBespokeColumn = Ext.Array.filter(self.columns, function (i) {
+                    return i.dataIndex === 'is_bespoke_allele';
+                })[0];
+                isBespokeColumn.setVisible(true);
             }
         });
     },
@@ -96,7 +100,8 @@ Ext.define('Imits.widget.MiPlansGrid', {
         dataIndex: 'is_bespoke_allele',
         header: 'Bespoke allele?',
         xtype: 'boolgridcolumn',
-        readOnly: true
+        readOnly: true,
+        hidden: true
     },
     {
         dataIndex: 'sub_project_name',

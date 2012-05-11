@@ -65,7 +65,7 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
     end
 
     context 'bespoke allele editing' do
-      should 'work' do
+      should 'work for WTSI users' do
         user = Factory.create :user, :production_centre => Centre.find_by_name!('WTSI')
         plan = Factory.create :mi_plan,
               :production_centre => Centre.find_by_name!('WTSI'),
@@ -82,6 +82,25 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
         page.find('div.x-grid-cell-inner').click
         assert page.has_css?('.plan.editor')
         assert page.find('.plan.editor div#is_bespoke_allele').visible?
+      end
+
+      should 'not work for non-WTSI users' do
+        user = Factory.create :user, :production_centre => Centre.find_by_name!('ICS')
+        plan = Factory.create :mi_plan,
+              :production_centre => Centre.find_by_name!('ICS'),
+              :consortium => Consortium.find_by_name!('DTCC'),
+              :priority => MiPlan::Priority.find_by_name!('Medium'),
+              :status => MiPlan::Status['Assigned'],
+              :gene => Factory.create(:gene_cbx1),
+              :is_bespoke_allele => true
+        sleep 1
+        login user
+        visit '/mi_plans'
+        assert page.has_no_css?('.plan.editor')
+        sleep 1
+        page.find('div.x-grid-cell-inner').click
+        assert page.has_css?('.plan.editor')
+        assert ! page.find('.plan.editor div#is_bespoke_allele').visible?
       end
     end
 

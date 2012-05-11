@@ -158,7 +158,7 @@ Ext.define('Imits.widget.GeneGrid', {
             )
     },
     {
-        header: 'Phenotype Attempts*',
+      header: 'Phenotype Attempts*',
         dataIndex: 'pretty_print_phenotype_attempts',
         readOnly: true,
         sortable: false,
@@ -166,7 +166,7 @@ Ext.define('Imits.widget.GeneGrid', {
         flex: 1,
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
-            '<tpl for="pretty_print_phenotype_attempts">',
+            '<tpl for="this.processedMIs(pretty_print_phenotype_attempts)">',
             '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
             '</tpl>',
             {

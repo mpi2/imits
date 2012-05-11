@@ -38,7 +38,7 @@ class Gene < ActiveRecord::Base
   end
 
   def pretty_print_phenotype_attempts
-    return Gene.pretty_print_phenotype_attempts_in_bulk(self.id)
+    return Gene.pretty_print_phenotype_attempts_in_bulk(self.id)[self.marker_symbol]
   end
 
   # == Non-Assigned MiPlans
@@ -172,7 +172,7 @@ class Gene < ActiveRecord::Base
   end
 
   def self.pretty_print_phenotype_attempts_in_bulk(gene_id = nil)
-    return pretty_print_phenotype_attempts_in_bulk_helper(gene_id)
+    return pretty_print_phenotype_attempts_in_bulk_sql_helper(gene_id)
   end
 
   def relevant_status
@@ -213,6 +213,41 @@ class Gene < ActiveRecord::Base
       status_ids_string = statuses.map(&:id).join(', ')
       sql << "AND mi_attempts.mi_attempt_status_id IN (#{status_ids_string})\n"
     end
+    sql << "AND genes.id = #{gene_id}\n" unless gene_id.nil?
+    sql << "group by genes.marker_symbol, consortia.name, centres.name\n"
+
+    genes = {}
+    results = ActiveRecord::Base.connection.execute(sql)
+
+    results.each do |result|
+      string = "[#{result['consortium']}:#{result['production_centre']}:#{result['count']}]"
+      genes[ result['marker_symbol'] ] ||= []
+      genes[ result['marker_symbol'] ] << string
+    end
+
+    genes.each { |marker_symbol,values| genes[marker_symbol] = values.join('<br/>') }
+
+    return genes
+  end
+
+  def self.pretty_print_phenotype_attempts_in_bulk_sql_helper(gene_id = nil)
+    #Only interested in active mi_attempts, no specific status set for mi_attempts
+    #although they all should be genotype_confirmed
+
+    sql = <<-"SQL"
+      SELECT
+        genes.marker_symbol,
+        consortia.name AS consortium,
+        centres.name AS production_centre,
+        count(phenotype_attempts.id) AS count
+      FROM genes
+      JOIN mi_plans ON mi_plans.gene_id = genes.id
+      JOIN consortia ON mi_plans.consortium_id = consortia.id
+      JOIN centres ON mi_plans.production_centre_id = centres.id
+      JOIN mi_attempts ON mi_attempts.mi_plan_id = mi_plans.id
+      JOIN phenotype_attempts ON phenotype_attempts.mi_attempt_id = mi_attempts.id
+    SQL
+    sql << "WHERE mi_attempts.is_active = true\n"
     sql << "AND genes.id = #{gene_id}\n" unless gene_id.nil?
     sql << "group by genes.marker_symbol, consortia.name, centres.name\n"
 
@@ -430,7 +465,8 @@ class Gene < ActiveRecord::Base
       :assigned_mi_plans,
       :pretty_print_mi_attempts_in_progress,
       :pretty_print_mi_attempts_genotype_confirmed,
-      :pretty_print_aborted_mi_attempts
+      :pretty_print_aborted_mi_attempts,
+      :pretty_print_phenotype_attempts
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + []
     return options

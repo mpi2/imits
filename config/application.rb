@@ -59,7 +59,7 @@ module Kermits2
 
       tmppath = "/var/tmp/imits/#{Rails.env}"
       FileUtils.mkdir_p tmppath
-      FileUtils.chown 't87adm', 't87svc', tmppath
+      FileUtils.chown nil, 't87svc', tmppath
       FileUtils.chmod '2775', tmppath
       config.paths.tmp = tmppath
     end

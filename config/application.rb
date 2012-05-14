@@ -21,7 +21,7 @@ module Kermits2
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
     config.autoload_paths += %W(#{config.root}/lib)
-    
+
     if Rails.env.test?
       config.autoload_paths += %W(#{config.root}/test/lib)
     end
@@ -54,11 +54,14 @@ module Kermits2
 
     if T87VM
       # Override some locations when deployed to /opt/t87
-      config.paths.log = "/opt/t87/local/logs/imits/#{Rails.env}.log"
-      config.paths.config.database = "/opt/t87/global/conf/imits/database.#{Rails.env}.yml"
-      tmppath = "/tmp/imits/#{Rails.env}"
-      config.paths.tmp = tmppath
+      config.paths.log = "/opt/t87/local/logs/imits/#{Rails.env}/app.log"
+      config.paths.config.database = "/opt/t87/global/conf/imits/#{Rails.env}/database.yml"
+
+      tmppath = "/var/tmp/imits/#{Rails.env}"
       FileUtils.mkdir_p tmppath
+      FileUtils.chown 't87adm', 't87svc', tmppath
+      FileUtils.chmod '2775', tmppath
+      config.paths.tmp = tmppath
     end
 
   end

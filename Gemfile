@@ -31,4 +31,5 @@ group :development, :test do
   gem 'mocha'
   gem 'thin'
   gem 'letter_opener'
+  gem 'parallel_tests'
 end

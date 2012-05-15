@@ -87,9 +87,11 @@ class ActiveSupport::TestCase
 
     obj.status_stamps.destroy_all
     stamps.each do |status_name, time|
+      status_object = status_class.where(status_lookup_attr => status_name).first
+      raise "status object lookup failed for '#{status_name}'" unless status_object
       obj.status_stamps.create!(
         :created_at => time,
-        status_field => status_class.where(status_lookup_attr => status_name).first
+        status_field => status_object
       )
     end
   end

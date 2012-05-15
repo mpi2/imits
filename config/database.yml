@@ -14,7 +14,7 @@ development:
 test:
   adapter: postgresql
   encoding: unicode
-  database: imits_test
+  database: imits_test<%= ENV['TEST_ENV_NUMBER'] %>
   pool: 5
   username: imits
   password: imits

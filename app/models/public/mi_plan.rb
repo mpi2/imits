@@ -13,8 +13,8 @@ class Public::MiPlan < ::MiPlan
     'number_of_es_cells_passing_qc',
     'withdrawn',
     'sub_project_name',
-    'is_active'
-    
+    'is_active',
+    'status_dates'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -71,6 +71,14 @@ class Public::MiPlan < ::MiPlan
     return {
       'marker_symbol' => 'gene_marker_symbol'
     }
+  end
+
+  def status_dates
+    retval = reportable_statuses_with_latest_dates
+    retval.each do |status_name, date|
+      retval[status_name] = date.to_s
+    end
+    return retval
   end
 
 end

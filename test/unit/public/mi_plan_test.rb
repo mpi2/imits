@@ -202,7 +202,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'withdrawn',
         'sub_project_name',
         'is_active',
-        'status_dates'
+        'status_dates',
+        'mgi_accession_id'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort
@@ -218,6 +219,11 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       should 'translate marker_symbol for search' do
         assert_equal 'gene_marker_symbol_eq',
                 Public::MiPlan.translate_public_param('marker_symbol_eq')
+      end
+
+      should 'translate mgi_accession_id for search' do
+        assert_equal 'gene_mgi_accession_id_in',
+                Public::MiPlan.translate_public_param('mgi_accession_id_in')
       end
 
       should 'translate marker_symbol for sort' do
@@ -282,6 +288,13 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
         plan = plan.to_public
         assert_equal status_dates, plan.status_dates
+      end
+    end
+
+    context '#mgi_accession_id' do
+      should 'return gene mgi_accession_id' do
+        plan = Factory.create(:mi_plan).to_public
+        assert_equal plan.gene.mgi_accession_id, plan.mgi_accession_id
       end
     end
 

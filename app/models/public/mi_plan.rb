@@ -19,7 +19,8 @@ class Public::MiPlan < ::MiPlan
   READABLE_ATTRIBUTES = [
     'id',
     'status_name',
-    'status_dates'
+    'status_dates',
+    'mgi_accession_id'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)
@@ -69,7 +70,8 @@ class Public::MiPlan < ::MiPlan
 
   def self.translations
     return {
-      'marker_symbol' => 'gene_marker_symbol'
+      'marker_symbol' => 'gene_marker_symbol',
+      'mgi_accession_id' => 'gene_mgi_accession_id'
     }
   end
 
@@ -81,6 +83,7 @@ class Public::MiPlan < ::MiPlan
     return retval
   end
 
+  def mgi_accession_id; gene.mgi_accession_id; end
 end
 
 # == Schema Information

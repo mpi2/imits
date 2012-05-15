@@ -5,10 +5,35 @@
   <%= javascript_tag "PHENOTYPE_CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).to_json}" %>
   <%= javascript_tag "PHENOTYPE_CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
   <%= javascript_tag "PHENOTYPE_STATUS_OPTIONS = #{PhenotypeAttempt::Status.all.map(&:name).to_json}" %>
+  <%= javascript_tag "PHENOTYPE_ATTEMPT_SEARCH_PARAMS = #{params[:q].to_json}" %>
 <% end %>
 
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag 'phenotype_attempts/index' %>
+<% end %>
+
+<%= form_tag phenotype_attempts_path, :method => :get, :id => 'pa-search-form' do %>
+  <fieldset class="collapsible">
+    <legend>Search for Phenotype Attempts</legend>
+    <div>
+      <div class="grid_6 alpha">
+        <label for="q[terms]">ES Cell Name, Gene Symbol, or Colony Name:</label>
+        <textarea cols="10" rows="10" name="q[terms]" id="search-terms" class="initial-focus"><%= params[:q][:terms] %></textarea>
+      </div>
+      <div class="grid_6 omega">
+        <table>
+          <tr>
+            <td><label for="q[production_centre_name]">Production Centre:</label></td>
+            <td><%= select_tag 'q[production_centre_name]', options_for_select(['']+@centres.map(&:name), params[:q][:production_centre_name]) %></td>
+          </tr>
+        </table>
+      </div>
+      <div id="buttons" class="grid_12">
+        <input id="submit" type="submit" value="Search" />
+        &ensp;|&ensp;<a id="clear-search-terms-button">Clear</a>
+      </div>
+    </div>
+  </fieldset>
 <% end %>
 
 <div class="clear"></div>

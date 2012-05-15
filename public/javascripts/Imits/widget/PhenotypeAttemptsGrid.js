@@ -4,6 +4,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     requires: [
     'Imits.model.PhenotypeAttempt',
     'Imits.widget.SimpleNumberField',
+    'Imits.widget.grid.PhenotypeAttemptRansackFiltersFeature',
     'Imits.widget.grid.BoolGridColumn'
     ],
 
@@ -22,7 +23,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
 
     features: [
     {
-        ftype: 'ransack_filters',
+        ftype: 'phenotype_attempt_ransack_filters',
         local: false
     }
     ],

@@ -269,7 +269,7 @@ class Gene < ActiveRecord::Base
     gene = Gene.find(gene_id)
     formatted_string = ""
     if gene.phenotype_attempts.length > 0
-        strings = Array.new
+      strings = Array.new
       gene.mi_plans.each do |this_mi_plan|
         if this_mi_plan.phenotype_attempts.length > 0
           this_mi_plan.phenotype_attempts.each do |this_phenotype_attempt|

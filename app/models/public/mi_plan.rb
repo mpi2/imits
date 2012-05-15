@@ -13,13 +13,13 @@ class Public::MiPlan < ::MiPlan
     'number_of_es_cells_passing_qc',
     'withdrawn',
     'sub_project_name',
-    'is_active',
-    'status_dates'
+    'is_active'
   ]
 
   READABLE_ATTRIBUTES = [
     'id',
-    'status_name'
+    'status_name',
+    'status_dates'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)

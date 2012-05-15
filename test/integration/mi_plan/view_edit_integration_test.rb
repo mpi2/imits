@@ -81,6 +81,7 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
         sleep 1
         page.find('div.x-grid-cell-inner').click
         assert page.has_css?('.plan.editor')
+        assert page.has_css?('x-grid-row')
         assert page.find('.plan.editor div#is_bespoke_allele').visible?
       end
 
@@ -100,6 +101,7 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
         sleep 1
         page.find('div.x-grid-cell-inner').click
         assert page.has_css?('.plan.editor')
+        assert page.has_css?('x-grid-row')
         assert ! page.find('.plan.editor div#is_bespoke_allele').visible?
       end
     end

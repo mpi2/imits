@@ -35,6 +35,7 @@ javascripts:
     - public/javascripts/Imits/widget/Window.js
     - public/javascripts/Imits/widget/Grid.js
     - public/javascripts/Imits/widget/SimpleNumberField.js
+    - public/javascripts/Imits/widget/SimpleCheckbox.js
     - public/javascripts/Imits/widget/SimpleCombo.js
     - public/javascripts/Imits/widget/QCCombo.js
     - public/extjs/examples/ux/CheckColumn.js

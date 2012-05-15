@@ -3,7 +3,8 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
     requires: [
     'Imits.model.MiPlan',
-    'Imits.widget.SimpleCombo'
+    'Imits.widget.SimpleCombo',
+    'Imits.widget.SimpleCheckbox'
     ],
 
     title: 'Change Gene Interest',
@@ -77,6 +78,13 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 fieldLabel: 'Priority',
                 name: 'priority_name',
                 store: window.PRIORITY_OPTIONS
+            },
+            {
+                id: 'is_bespoke_allele',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Bespoke allele?',
+                name: 'is_bespoke_allele',
+                hidden: isSubProjectHidden
             },
             {
                 id: 'sub_project_name',
@@ -294,9 +302,9 @@ Ext.define('Imits.widget.MiPlanEditor', {
             }
             ]
         });
-        var panelHeight = 400;
+        var panelHeight = 420;
         if(window.CAN_SEE_SUB_PROJECT) {
-            panelHeight = 420;
+            panelHeight = 440;
         }
 
         this.add(Ext.create('Ext.panel.Panel', {

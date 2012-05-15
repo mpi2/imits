@@ -183,7 +183,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'number_of_es_cells_passing_qc',
         'withdrawn',
         'sub_project_name',
-        'is_active'
+        'is_active',
+        'is_bespoke_allele'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -201,7 +202,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'number_of_es_cells_passing_qc',
         'withdrawn',
         'sub_project_name',
-        'is_active'
+        'is_active',
+        'is_bespoke_allele'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

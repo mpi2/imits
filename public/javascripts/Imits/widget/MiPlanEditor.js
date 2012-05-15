@@ -83,7 +83,8 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 id: 'is_bespoke_allele',
                 xtype: 'simplecheckbox',
                 fieldLabel: 'Bespoke allele?',
-                name: 'is_bespoke_allele'
+                name: 'is_bespoke_allele',
+                hidden: isSubProjectHidden
             },
             {
                 id: 'sub_project_name',

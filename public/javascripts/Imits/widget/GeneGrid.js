@@ -1,5 +1,5 @@
 // Helper functions for cell templates - see in the grid below...
-function splitMiString(mi_string) {
+function splitResultString(mi_string) {
     var mis = [];
     var pattern = /^\[(.+)\:(.+)\:(\d+)\]$/;
     Ext.Array.each(mi_string.split('<br/>'), function(mi) {
@@ -119,7 +119,7 @@ Ext.define('Imits.widget.GeneGrid', {
             '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
             '</tpl>',
             {
-                processedMIs: splitMiString
+                processedMIs: splitResultString
             }
             )
     },
@@ -136,7 +136,7 @@ Ext.define('Imits.widget.GeneGrid', {
             '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
             '</tpl>',
             {
-                processedMIs: splitMiString
+                processedMIs: splitResultString
             }
             )
     },
@@ -153,12 +153,12 @@ Ext.define('Imits.widget.GeneGrid', {
             '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
             '</tpl>',
             {
-                processedMIs: splitMiString
+                processedMIs: splitResultString
             }
             )
     },
     {
-      header: 'Phenotype Attempts*',
+      header: 'Phenotype Attempts',
         dataIndex: 'pretty_print_phenotype_attempts',
         readOnly: true,
         sortable: false,
@@ -167,10 +167,10 @@ Ext.define('Imits.widget.GeneGrid', {
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
             '<tpl for="this.processedMIs(pretty_print_phenotype_attempts)">',
-            '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
+            '<a href="' + window.basePath + '/phenotype_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
             '</tpl>',
             {
-                processedMIs: splitMiString
+                processedMIs: splitResultString
             }
             )
     }

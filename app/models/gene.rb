@@ -172,7 +172,7 @@ class Gene < ActiveRecord::Base
   end
 
   def self.pretty_print_phenotype_attempts_in_bulk(gene_id = nil)
-    return pretty_print_phenotype_attempts_in_bulk_sql_helper(gene_id)
+    return pretty_print_phenotype_attempts_in_bulk_helper(gene_id)
   end
 
   def relevant_status
@@ -230,7 +230,7 @@ class Gene < ActiveRecord::Base
     return genes
   end
 
-  def self.pretty_print_phenotype_attempts_in_bulk_sql_helper(gene_id = nil)
+  def self.pretty_print_phenotype_attempts_in_bulk_helper(gene_id = nil)
     #Only interested in active mi_attempts, no specific status set for mi_attempts
     #although they all should be genotype_confirmed
 
@@ -263,26 +263,6 @@ class Gene < ActiveRecord::Base
     genes.each { |marker_symbol,values| genes[marker_symbol] = values.join('<br/>') }
 
     return genes
-  end
-
-  def self.pretty_print_phenotype_attempts_in_bulk_helper(gene_id = nil)
-    gene = Gene.find(gene_id)
-    formatted_string = ""
-    if gene.phenotype_attempts.length > 0
-      strings = Array.new
-      gene.mi_plans.each do |this_mi_plan|
-        if this_mi_plan.phenotype_attempts.length > 0
-          this_mi_plan.phenotype_attempts.each do |this_phenotype_attempt|
-            string = "[#{this_phenotype_attempt.consortium.name}"
-            string << ":#{this_phenotype_attempt.production_centre.name}" unless this_phenotype_attempt.production_centre.nil?
-            string << "]"
-            strings.push(string)
-          end
-        end
-        formatted_string = strings.join('<br/>').html_safe
-      end
-        return formatted_string
-    end
   end
 
   public

@@ -14,8 +14,6 @@ class PhenotypeAttemptsController < ApplicationController
 
         q[:terms] ||= ''
         q[:terms] = q[:terms].lines.map(&:strip).select{|i|!i.blank?}.join("\n")
-        Rails.logger.debug "---- terms so far ----"
-        Rails.logger.debug q.inspect
       end
 
       format.xml { render :xml => data_for_serialized(:xml).to_xml(:root => 'phenotype_attempts', :dasherize => false) }
@@ -24,8 +22,6 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def data_for_serialized(format)
-    Rails.logger.debug "\\\\ PARAMS PASSED TO DATA_FOR_SERIALIZED ////"
-    Rails.logger.debug self.inspect
     super(format, 'id asc', Public::PhenotypeAttempt, :public_search)
   end
   protected :data_for_serialized

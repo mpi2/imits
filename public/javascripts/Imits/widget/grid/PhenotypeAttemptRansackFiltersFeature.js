@@ -26,7 +26,7 @@ Ext.define('Imits.widget.grid.PhenotypeAttemptRansackFiltersFeature', {
 
         if(!Ext.isEmpty(terms)) {
             terms = terms.split("\n");
-            params['q[marker_symbol][]'] = terms;
+            params['q[marker_symbol_ci_in][]'] = terms;
         }
 
         return params;

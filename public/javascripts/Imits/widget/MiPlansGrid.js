@@ -7,7 +7,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
     'Imits.widget.MiPlanEditor'
     ],
 
-    title: "Your genes",
+    title: 'Your Plans',
     iconCls: 'icon-grid',
     columnLines: true,
 
@@ -53,7 +53,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
 
         self.addListener('itemclick', function (theView, record) {
             var id = record.data['id'];
-            self.setLoading("Editing gene plan....");
+            self.setLoading("Editing plan....");
             self.miPlanEditor.edit(id);
         });
 

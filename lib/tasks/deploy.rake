@@ -39,6 +39,6 @@ namespace :deploy do
     Dir.chdir Rails.root
     tag = "v#{Time.now.strftime('%Y%m%d%H%M%S')}"
     system("git tag -a #{tag} -m '' && git push origin #{tag}") or raise 'Failed to tag'
-    puts "URL: https://github.com/mpi2/imits/tarball/#{tag}"
+    puts "TAG: #{tag}"
   end
 end

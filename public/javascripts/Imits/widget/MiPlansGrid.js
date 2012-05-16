@@ -7,7 +7,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
     'Imits.widget.MiPlanEditor'
     ],
 
-    title: "Your genes",
+    title: 'Your Plans',
     iconCls: 'icon-grid',
     columnLines: true,
 
@@ -53,7 +53,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
 
         self.addListener('itemclick', function (theView, record) {
             var id = record.data['id'];
-            self.setLoading("Editing gene plan....");
+            self.setLoading("Editing plan....");
             self.miPlanEditor.edit(id);
         });
 
@@ -63,6 +63,10 @@ Ext.define('Imits.widget.MiPlansGrid', {
                     return i.dataIndex === 'sub_project_name';
                 })[0];
                 subProjectColumn.setVisible(true);
+                var isBespokeColumn = Ext.Array.filter(self.columns, function (i) {
+                    return i.dataIndex === 'is_bespoke_allele';
+                })[0];
+                isBespokeColumn.setVisible(true);
             }
         });
     },
@@ -91,6 +95,13 @@ Ext.define('Imits.widget.MiPlansGrid', {
             type: 'list',
             options: window.CONSORTIUM_OPTIONS
         }
+    },
+    {
+        dataIndex: 'is_bespoke_allele',
+        header: 'Bespoke allele?',
+        xtype: 'boolgridcolumn',
+        readOnly: true,
+        hidden: true
     },
     {
         dataIndex: 'sub_project_name',

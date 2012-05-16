@@ -32,4 +32,5 @@ group :development, :test do
   gem 'simplecov-rcov',        :require => false
   gem 'mocha'
   gem 'letter_opener'
+  gem 'parallel_tests'
 end

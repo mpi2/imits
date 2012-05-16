@@ -13,13 +13,15 @@ class Public::MiPlan < ::MiPlan
     'number_of_es_cells_passing_qc',
     'withdrawn',
     'sub_project_name',
-    'is_active'
-    
+    'is_active',
+    'is_bespoke_allele'
   ]
 
   READABLE_ATTRIBUTES = [
     'id',
-    'status_name'
+    'status_name',
+    'status_dates',
+    'mgi_accession_id'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)
@@ -69,10 +71,20 @@ class Public::MiPlan < ::MiPlan
 
   def self.translations
     return {
-      'marker_symbol' => 'gene_marker_symbol'
+      'marker_symbol' => 'gene_marker_symbol',
+      'mgi_accession_id' => 'gene_mgi_accession_id'
     }
   end
 
+  def status_dates
+    retval = reportable_statuses_with_latest_dates
+    retval.each do |status_name, date|
+      retval[status_name] = date.to_s
+    end
+    return retval
+  end
+
+  def mgi_accession_id; gene.mgi_accession_id; end
 end
 
 # == Schema Information
@@ -91,6 +103,7 @@ end
 #  number_of_es_cells_passing_qc  :integer
 #  sub_project_id                 :integer         not null
 #  is_active                      :boolean         default(TRUE), not null
+#  is_bespoke_allele              :boolean         default(FALSE), not null
 #
 # Indexes
 #

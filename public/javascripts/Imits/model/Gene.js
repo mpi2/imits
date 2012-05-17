@@ -12,6 +12,7 @@ Ext.define('Imits.model.Gene', {
       { name: 'assigned_mi_plans', readOnly: true },
       { name: 'pretty_print_aborted_mi_attempts', readOnly: true },
       { name: 'pretty_print_mi_attempts_in_progress', readOnly: true },
-      { name: 'pretty_print_mi_attempts_genotype_confirmed', readOnly: true }
+      { name: 'pretty_print_mi_attempts_genotype_confirmed', readOnly: true },
+      { name: 'pretty_print_phenotype_attempts', readOnly: true }
     ]
 });

@@ -3,35 +3,17 @@ gzip_assets: off
 allow_debugging: off
 stylesheets:
   common:
-    - public/stylesheets/reset.css
-    - public/extjs/resources/css/ext-all.css
     - public/stylesheets/grid.css
-    - public/extjs/examples/ux/css/CheckHeader.css
-    - public/extjs/examples/ux/grid/css/GridFilters.css
     - public/stylesheets/application.css
   ie:
     - public/stylesheets/grid_ie.css
 
 javascripts:
   production:
-    - public/extjs/ext-all.js
   development:
-    - public/extjs/ext-all-debug.js
   common:
     - public/javascripts/application.js
     - public/javascripts/extjs_hacky_monkey_patches.js
-
-    - public/extjs/examples/ux/CheckColumn.js
-    - public/extjs/examples/ux/grid/FiltersFeature.js
-    - public/extjs/examples/ux/grid/menu/ListMenu.js
-    - public/extjs/examples/ux/grid/menu/RangeMenu.js
-    - public/extjs/examples/ux/grid/filter/Filter.js
-    - public/extjs/examples/ux/grid/filter/BooleanFilter.js
-    - public/extjs/examples/ux/grid/filter/DateFilter.js
-    - public/extjs/examples/ux/grid/filter/ListFilter.js
-    - public/extjs/examples/ux/grid/filter/NumericFilter.js
-    - public/extjs/examples/ux/grid/filter/StringFilter.js
-    - public/extjs/examples/ux/RowExpander.js
 
     - public/javascripts/Imits/data/JsonWriter.js
     - public/javascripts/Imits/data/JsonReader.js

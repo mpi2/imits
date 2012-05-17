@@ -82,14 +82,6 @@ Ext.Loader.setConfig({
     enabled: true,
     paths: {
         'Imits': window.basePath + '/javascripts/Imits',
-        'Ext': window.basePath + '/extjs',
-        'Ext.ux': window.basePath + '/extjs/examples/ux'
+        'Ext.ux': window.basePath + 'http://extjs.cachefly.net/ext-4.0.7-gpl/examples/ux'
     }
 });
-
-if(Ext.isGecko) {
-    Ext.require('Imits.data.Proxy');
-    Ext.require('Imits.data.JsonWriter');
-    Ext.require('Imits.model.MiAttempt');
-    Ext.require('Imits.model.Gene');
-}

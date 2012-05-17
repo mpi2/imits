@@ -4,6 +4,8 @@
   <head>
     <title>iMits - <%= @tab || @title %></title>
 
+    <%= stylesheet_link_tag 'reset' %>
+    <%= stylesheet_link_tag(*EXTJS_CONFIG['css']) %>
     <%= include_stylesheets :common, :media => 'all' %>
     <!--[if IE]>
     <%= include_stylesheets :ie, :media => 'all' %>
@@ -73,6 +75,8 @@
         Supported by the European Union (Project number: 223592)
       </div>
     </div>
+
+    <%= javascript_include_tag(*EXTJS_CONFIG['javascript']) %>
 
     <%= yield :pre_js_footer %>
     <% if ['production', 'staging'].include?(Rails.env.to_s) %>

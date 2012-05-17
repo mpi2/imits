@@ -19,8 +19,6 @@ class ApplicationModel < ActiveRecord::Base
   protected
 
   def set_blank_strings_to_nil
-    Rails.logger.debug "%%%% set_blank_strings_to_nil %%%%"
-    Rails.logger.debug self.attributes.inspect
     self.attributes.each do |name, value|
       if self[name].respond_to?(:to_str) && self[name].blank?
         self[name] = nil
@@ -49,12 +47,8 @@ class ApplicationModel < ActiveRecord::Base
   end
 
   def self.public_search(params)
-    Rails.logger.debug "&&&& public search &&&&"
-    Rails.logger.debug params.inspect
     params = params.dup.stringify_keys
     translated_params = {}
-    Rails.logger.debug "@@@@ initial params @@@@"
-    Rails.logger.debug params.inspect
     sorts = params.delete('sorts')
     unless sorts.blank?
       translated_params['sorts'] = translate_public_param(sorts)
@@ -63,8 +57,7 @@ class ApplicationModel < ActiveRecord::Base
     params.each do |name, value|
       translated_params[translate_public_param(name)] = value
     end
-    Rails.logger.debug ":::: translated_params ::::"
-    Rails.logger.debug translated_params.inspect
+
     return self.search(translated_params)
   end
 

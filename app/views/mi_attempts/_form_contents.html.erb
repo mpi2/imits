@@ -36,20 +36,20 @@
     </div>
 
     <div>
-      <%= form.label :distribution_centre_name, 'Distribution Centre' %>
-      <%= form.collection_select :distribution_centre_name, @centres, :name, :name %>
-    </div>
-
-    <div>
-      <%= form.label :deposited_material_name %>
-      <%= form.collection_select :deposited_material_name, DepositedMaterial.all, :name, :name %>
-    </div>
-
-    <div>
       <%= form.label :comments %>
       <%= form.text_area :comments %>
     </div>
   </div>
+</fieldset>
+
+<fieldset class="collapsible">
+  <legend>Distribution Centres</legend>
+    <div>
+      <ul id="distribution_centre_list">
+        <%= render mi_attempt.distribution_centres %>
+      </ul>
+      <%= link_to "Add", "#add", :id => "add-distribution-centre" %>
+    </div>
 </fieldset>
 
 <% if current_user.admin? and mi_attempt.status_stamps and mi_attempt.mi_plan and mi_attempt.mi_plan.status_stamps %>

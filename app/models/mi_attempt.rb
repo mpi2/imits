@@ -42,20 +42,26 @@ class MiAttempt < ApplicationModel
   belongs_to :mi_plan
   belongs_to :es_cell
   belongs_to :mi_attempt_status
-  belongs_to :distribution_centre, :class_name => 'Centre'
+  #belongs_to :distribution_centre, :class_name => 'Centre'
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
-  belongs_to :deposited_material
+  #belongs_to :deposited_material
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many :phenotype_attempts
 
-  access_association_by_attribute :distribution_centre, :name
+  has_many :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
+  has_many :centres, :through => :distribution_centres
+  has_many :deposited_materials, :through => :distribution_centres
+
+  accepts_nested_attributes_for :distribution_centres
+
+  #access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :colony_background_strain, :name
   access_association_by_attribute :test_cross_strain, :name
-  access_association_by_attribute :deposited_material, :name
+  #access_association_by_attribute :deposited_material, :name
 
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
@@ -121,9 +127,9 @@ class MiAttempt < ApplicationModel
 
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_total_chimeras
-  before_validation :set_default_deposited_material
+  #before_validation :set_default_deposited_material
   before_validation :set_es_cell_from_es_cell_name
-  before_validation :set_default_distribution_centre
+  #before_validation :set_default_distribution_centre
   before_validation :change_status
 
   before_save :generate_colony_name_if_blank
@@ -135,6 +141,7 @@ class MiAttempt < ApplicationModel
   after_save :create_status_stamp_if_status_was_changed
   after_save :reload_mi_plan_mi_attempts
   after_save :ensure_in_progress_status_stamp
+  after_save :create_initial_distribution_centre
 
   protected
 
@@ -148,9 +155,9 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  def set_default_distribution_centre
-    self.distribution_centre ||= Centre.find_by_name(self.production_centre_name)
-  end
+  #def set_default_distribution_centre
+  #  self.distribution_centre ||= Centre.find_by_name(self.production_centre_name)
+  #end
 
   def set_blank_qc_fields_to_na
     QC_FIELDS.each do |qc_field|
@@ -170,12 +177,12 @@ class MiAttempt < ApplicationModel
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
 
-  def set_default_deposited_material
-    if self.deposited_material.nil?
-      self.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
-      self.deposited_material_name = self.deposited_material.name
-    end
-  end
+  #def set_default_deposited_material
+  #  if self.deposited_material.nil?
+  #    self.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
+  #    self.deposited_material_name = self.deposited_material.name
+  #  end
+  #end
 
   def make_unsuitable_for_emma_if_is_not_active
     if ! self.is_active?
@@ -236,6 +243,17 @@ class MiAttempt < ApplicationModel
       status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
         :created_at => status_stamps.last.created_at - 1.second)
       status_stamps.reload
+    end
+  end
+
+  def create_initial_distribution_centre
+    if self.distribution_centres.empty?
+      initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
+      initial_centre = Centre.find_by_name(self.production_centre_name)
+      initial_distribution_centre = DistributionCentre.new
+      initial_distribution_centre.centre = initial_centre
+      initial_distribution_centre.deposited_material = initial_deposited_material
+      self.distribution_centres.push(initial_distribution_centre)
     end
   end
 

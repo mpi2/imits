@@ -78,6 +78,17 @@ Ext.util.Format.safeTextRenderer = function(value) {
     return Ext.util.Format.htmlEncode(value);
 }
 
+$('a#add-distribution-centre').click(function() {
+    $('#distribution_centre_list li:first').clone().find('input').val('').end().appendTo('#distribution_centre_list');
+  });
+
+$('.delete-distribution-centre').live('click', function() {
+  if ($('#distribution_centre_list li').length > 1)
+    $(this).parent().parent().remove();
+  else
+    alert('No contact items listed.');
+  });
+
 Ext.Loader.setConfig({
     enabled: true,
     paths: {

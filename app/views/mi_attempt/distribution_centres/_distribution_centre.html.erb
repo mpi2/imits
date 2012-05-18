@@ -1,0 +1,16 @@
+<li>
+  <fieldset>
+  <% prefix = "mi_attempt[distribution_centres_attributes][]" %>
+  <%= fields_for prefix, distribution_centre do |distribution_centre_form| %>
+    <%= distribution_centre_form.label :centre_id %>
+    <%= distribution_centre_form.collection_select :centre_id, @centres, :id, :name %>
+    <%= distribution_centre_form.label :deposited_material_id %>
+    <%= distribution_centre_form.collection_select :deposited_material_id, DepositedMaterial.all, :id, :name %>
+    <%= distribution_centre_form.label :start_date %>
+    <%= distribution_centre_form.text_field :start_date, :label => 'Start Date', :class => 'date-field' %>
+    <%= distribution_centre_form.label :end_date %>
+    <%= distribution_centre_form.text_field :end_date, :label => 'End Date', :class => 'date-field' %>
+  <% end %>
+  <%= link_to("Remove", "#delete", :class => "delete-distribution-centre") %>
+  </fieldset>
+</li>

@@ -44,7 +44,9 @@ class Reports::MiProduction::Intermediate < Reports::Base
       'latest_relevant_mi_attempt',
       'latest_relevant_phenotype_attempt',
       'distinct_old_genotype_confirmed_es_cells_count',
-      'distinct_old_non_genotype_confirmed_es_cells_count'
+      'distinct_old_non_genotype_confirmed_es_cells_count',
+      'total_pipeline_efficiency_gene_count',
+      'gc_pipeline_efficiency_gene_count'
     ]
 
     transform = proc do |record|
@@ -83,6 +85,9 @@ class Reports::MiProduction::Intermediate < Reports::Base
       record['Distinct Genotype Confirmed ES Cells'] = record['distinct_old_genotype_confirmed_es_cells_count']
       record['Distinct Old Non Genotype Confirmed ES Cells'] = record['distinct_old_non_genotype_confirmed_es_cells_count']
 
+      record['Total Pipeline Efficiency Gene Count'] = record['total_pipeline_efficiency_gene_count']
+      record['GC Pipeline Efficiency Gene Count'] = record['gc_pipeline_efficiency_gene_count']
+
     end
     report_options[:transforms] = [transform]
 
@@ -115,7 +120,9 @@ class Reports::MiProduction::Intermediate < Reports::Base
       'Phenotype Attempt Aborted Date',
       'Distinct Genotype Confirmed ES Cells',
       'Distinct Old Non Genotype Confirmed ES Cells',
-      'MiPlan ID'
+      'MiPlan ID',
+      'Total Pipeline Efficiency Gene Count',
+      'GC Pipeline Efficiency Gene Count'
     ]
     report.reorder(column_names)
 

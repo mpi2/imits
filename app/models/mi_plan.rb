@@ -399,6 +399,26 @@ class MiPlan < ApplicationModel
     return retval
   end
 
+  def total_pipeline_efficiency_gene_count
+    mi_attempts.each do |mi|
+      dates = mi.reportable_statuses_with_latest_dates
+      mip_date = dates["Micro-injection in progress"]
+      next if ! mip_date
+      return 1 if mip_date < 6.months.ago.to_date
+    end
+    return 0
+  end
+
+  def gc_pipeline_efficiency_gene_count
+    mi_attempts.genotype_confirmed.each do |mi|
+      dates = mi.reportable_statuses_with_latest_dates
+      mip_date = dates["Micro-injection in progress"]
+      next if ! mip_date
+      return 1 if mip_date < 6.months.ago.to_date
+    end
+    return 0
+  end
+
 end
 
 # == Schema Information
@@ -422,4 +442,3 @@ end
 #
 #  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id) UNIQUE
 #
-

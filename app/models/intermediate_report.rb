@@ -55,5 +55,6 @@ end
 #  mi_plan_id                                   :integer         not null
 #  created_at                                   :datetime
 #  updated_at                                   :datetime
+#  total_pipeline_efficiency_gene_count         :integer
+#  gc_pipeline_efficiency_gene_count            :integer
 #
-

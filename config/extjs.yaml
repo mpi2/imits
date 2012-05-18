@@ -2,6 +2,17 @@
 base_path: http://extjs.cachefly.net/ext-4.0.7-gpl
 javascript:
 - <% if Rails.env.development? or Rails.env.test? %>ext-all-debug.js<% else %>ext-all.js<% end %>
+- examples/ux/grid/FiltersFeature.js
+- examples/ux/RowExpander.js
+- public/extjs/examples/ux/grid/menu/ListMenu.js
+- public/extjs/examples/ux/grid/menu/RangeMenu.js
+- public/extjs/examples/ux/grid/filter/Filter.js
+- public/extjs/examples/ux/grid/filter/BooleanFilter.js
+- public/extjs/examples/ux/grid/filter/DateFilter.js
+- public/extjs/examples/ux/grid/filter/ListFilter.js
+- public/extjs/examples/ux/grid/filter/NumericFilter.js
+- public/extjs/examples/ux/grid/filter/StringFilter.js
+- public/extjs/examples/ux/RowExpander.js
 css:
 - resources/css/ext-all.css
 - examples/ux/css/CheckHeader.css

@@ -81,7 +81,6 @@ Ext.util.Format.safeTextRenderer = function(value) {
 Ext.Loader.setConfig({
     enabled: true,
     paths: {
-        'Imits': window.basePath + '/javascripts/Imits',
-        'Ext.ux': window.basePath + 'http://extjs.cachefly.net/ext-4.0.7-gpl/examples/ux'
+        'Imits': window.basePath + '/javascripts/Imits'
     }
 });

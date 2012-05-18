@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   after_filter :log_json_response_parameters
 
   def params_cleaned_for_search(dirty_params)
+
     dirty_params = dirty_params.dup.stringify_keys
 
     if dirty_params['q']
@@ -27,6 +28,7 @@ class ApplicationController < ActionController::Base
     end
 
     new_params = dirty_params.delete_if {|k| ['controller', 'action', 'format', 'page', 'per_page', 'utf8', '_dc'].include? k }
+
     return new_params
   end
   protected :params_cleaned_for_search
@@ -45,6 +47,7 @@ class ApplicationController < ActionController::Base
   protected :json_format_extended_response
 
   def data_for_serialized(format, default_sort, model_class, search_method)
+
     params[:sorts] = default_sort if(params[:sorts].blank?)
     params.delete(:per_page) if params[:per_page].blank? or params[:per_page].to_i == 0
 

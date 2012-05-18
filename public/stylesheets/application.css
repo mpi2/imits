@@ -444,6 +444,18 @@ div.user-form div.submit {
 
 /* @end */
 
+/* @group Phenotype Attempts Search Form */
+
+#pa-search-form #search-terms { height: 8em; width: 100%; }
+#pa-search-form select { margin-left: 1em; }
+#pa-search-form table td { padding-bottom: 1em; }
+#pa-search-form #buttons { margin-bottom: 0; }
+#pa-search-form #buttons a { cursor: pointer; }
+#pa-search-form fieldset { padding-bottom: 10px; margin-bottom: 10px; }
+#pa-search-form fieldset > div { margin-bottom: 7px; }
+
+/* @end */
+
 /* @group Micro-Injection Create/Edit Form */
 
 #mi-attempt-box,

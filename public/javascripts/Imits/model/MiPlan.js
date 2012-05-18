@@ -39,6 +39,10 @@ Ext.define('Imits.model.MiPlan', {
     {
         name: 'is_active',
         defaultValue: true
+    },
+    {
+        name: 'is_bespoke_allele',
+        defaultValue: false
     }
     ],
 

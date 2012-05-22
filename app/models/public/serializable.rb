@@ -15,8 +15,6 @@ module Public::Serializable
     options.symbolize_keys!
     options[:methods] = self.class.const_get('READABLE_ATTRIBUTES') - attribute_names # get constant from class this is included into, not the module it is defined in
     options[:only] = attribute_names & self.class.const_get('READABLE_ATTRIBUTES')
-    Rails.logger.debug "++++ default_serializer_options ++++"
-    Rails.logger.debug options.inspect
     return options
   end
 

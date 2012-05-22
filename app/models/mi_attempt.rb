@@ -55,7 +55,7 @@ class MiAttempt < ApplicationModel
   has_many :centres, :through => :distribution_centres
   has_many :deposited_materials, :through => :distribution_centres
 
-  accepts_nested_attributes_for :distribution_centres
+  accepts_nested_attributes_for :distribution_centres, :reject_if => :all_blank, :allow_destroy => true
 
   #access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
@@ -247,7 +247,7 @@ class MiAttempt < ApplicationModel
   end
 
   def create_initial_distribution_centre
-    if self.distribution_centres.empty?
+    if self.distribution_centres.empty? && self.status == "Genotype confirmed"
       initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
       initial_centre = Centre.find_by_name(self.production_centre_name)
       initial_distribution_centre = DistributionCentre.new

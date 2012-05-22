@@ -45,10 +45,23 @@
 <fieldset class="collapsible">
   <legend>Distribution Centres</legend>
     <div>
-      <ul id="distribution_centre_list">
-        <%= render mi_attempt.distribution_centres %>
-      </ul>
-      <%= link_to "Add", "#add", :id => "add-distribution-centre" %>
+    <% if mi_attempt.distribution_centres.length > 0 %>
+    <table class="report_table">
+      <tr>
+        <th>Distribution centre</th>
+        <th>Deposited material</th>
+        <th>Start date</th>
+        <th>End date</th>
+        <th>Action</th>
+      </tr>
+      <%= form.fields_for :distribution_centres do |builder| %>
+        <%= render 'distribution_centre_fields', f: builder %>
+      <% end %>
+    </table>
+    <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
+    <% else %>
+    No Distribution Centres can be set until Status is Genotype confirmed.
+    <% end %>
     </div>
 </fieldset>
 

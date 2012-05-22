@@ -41,7 +41,7 @@ class Reports::MiProduction::LanguishingIntegrationTest < Kermits2::IntegrationT
         click_link '1'
         visit '/reports/mi_production/languishing_detail'
         click_link 'Download as CSV'
-        assert page.has_content? 'Consortium,Sub-Project,Priority'
+        assert page.has_content? 'Consortium,Sub-Project,Is Bespoke Allele,Priority'
       end
     end
 

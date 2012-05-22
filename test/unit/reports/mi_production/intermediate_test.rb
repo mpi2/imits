@@ -118,6 +118,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         expected = [
           'Consortium',
           'Sub-Project',
+          'Is Bespoke Allele',
           'Priority',
           'Production Centre',
           'Gene',
@@ -160,6 +161,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         expected = {
           'Consortium' => 'BaSH',
           'Sub-Project' => 'Legacy EUCOMM',
+          'Is Bespoke Allele' => 'No',
           'Priority' => 'Medium',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
@@ -201,6 +203,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         expected = {
           'Consortium' => 'MGP',
           'Sub-Project' => '',
+          'Is Bespoke Allele' => 'No',
           'Priority' => 'High',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
@@ -298,14 +301,14 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
               :production_centre => Centre.find_by_name!('JAX'),
               :gene => @cbx1
       expected = [
-        ['JAX', '', 'High', 'JAX', 'Cbx1'],
-        ['JAX', '', 'High', 'JAX', 'Cbx2'],
-        ['JAX', '', 'High', 'WTSI', 'Cbx1'],
-        ['MGP', '', 'High', 'WTSI', 'Cbx1']
+        ['JAX', '', 'No', 'High', 'JAX', 'Cbx1'],
+        ['JAX', '', 'No', 'High', 'JAX', 'Cbx2'],
+        ['JAX', '', 'No', 'High', 'WTSI', 'Cbx1'],
+        ['MGP', '', 'No', 'High', 'WTSI', 'Cbx1']
       ]
 
       report = Reports::MiProduction::Intermediate.new.report
-      got = report.map {|r| r.data.values[0..4]}
+      got = report.map {|r| r.data.values[0..5]}
 
       assert_equal expected, got
     end

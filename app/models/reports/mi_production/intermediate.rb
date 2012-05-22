@@ -30,6 +30,7 @@ class Reports::MiProduction::Intermediate < Reports::Base
     report_columns = {
       'consortium.name' => 'Consortium',
       'sub_project.name' => 'Sub-Project',
+      'is_bespoke_allele' => 'Is Bespoke Allele',
       'priority.name' => 'Priority',
       'production_centre.name' => 'Production Centre',
       'gene.marker_symbol' => 'Gene',
@@ -50,6 +51,9 @@ class Reports::MiProduction::Intermediate < Reports::Base
     ]
 
     transform = proc do |record|
+
+      record["is_bespoke_allele"] = record["is_bespoke_allele"] ? 'Yes' : 'No'
+
       plan_status_dates = record['reportable_statuses_with_latest_dates']
       plan_status_dates.each do |name, date|
         record["#{name} Date"] = date.to_s

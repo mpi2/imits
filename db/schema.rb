@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120515144152) do
+ActiveRecord::Schema.define(:version => 20120522123605) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -139,6 +139,7 @@ ActiveRecord::Schema.define(:version => 20120515144152) do
     t.datetime "updated_at"
     t.integer  "total_pipeline_efficiency_gene_count"
     t.integer  "gc_pipeline_efficiency_gene_count"
+    t.boolean  "is_bespoke_allele"
   end
 
   create_table "mi_attempt_status_stamps", :force => true do |t|

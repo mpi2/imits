@@ -69,7 +69,10 @@ class Public::MiAttempt < ::MiAttempt
     mi_plan_id
   } + FULL_ACCESS_ATTRIBUTES
 
-  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
 
   def status_name; mi_attempt_status.description; end
 end

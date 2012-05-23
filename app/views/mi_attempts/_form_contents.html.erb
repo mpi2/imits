@@ -44,19 +44,23 @@
 
 <fieldset class="collapsible">
   <legend>Distribution Centres</legend>
-    <div>
+    <div class="distribution_centres">
     <% if mi_attempt.distribution_centres.length > 0 %>
-    <table class="report_table">
-      <tr>
-        <th>Distribution centre</th>
-        <th>Deposited material</th>
-        <th>Start date</th>
-        <th>End date</th>
-        <th>Action</th>
-      </tr>
+    <table id="distribution_centres_table" class="report_table">
+      <thead class="title">
+        <tr>
+          <th>Distribution centre</th>
+          <th>Deposited material</th>
+          <th>Start date</th>
+          <th>End date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody class="distribution_centres">
       <%= form.fields_for :distribution_centres do |builder| %>
         <%= render 'distribution_centre_fields', f: builder %>
       <% end %>
+      </tbody>
     </table>
     <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
     <% else %>

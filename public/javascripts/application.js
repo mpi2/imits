@@ -85,10 +85,25 @@ $('form').on('click', '.remove_fields', function(event) {
 });
 
 $('form').on('click', '.add_fields', function(event) {
-  var time = new Date().getTime();
-  var regex = new RegExp($(this).data('id'), 'g');
- $(this).prev('table').find('tr').last().before($(this).data('tr').replace(regex, time));
   event.preventDefault();
+  var data = $(this).attr('data-fields');
+  $('#distribution_centres_table tr:last').after(data);
+
+  Ext.select('#distribution_centres_table tr:last .date-field').each(function(field) {
+        var name = field.dom.name;
+        var defaultValue = field.dom.value;
+        var renderDiv = new Ext.Element(Ext.core.DomHelper.createDom({tag: 'div'}));
+        renderDiv.replace(field);
+        new Ext.form.field.Date({
+            cls: 'date-field',
+            renderTo: renderDiv,
+            name: name,
+            value: defaultValue,
+            editable: false,
+            format: 'd/m/Y'
+        });
+  });
+
 });
 
 Ext.Loader.setConfig({

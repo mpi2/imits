@@ -49,7 +49,6 @@ class ApplicationModel < ActiveRecord::Base
   def self.public_search(params)
     params = params.dup.stringify_keys
     translated_params = {}
-
     sorts = params.delete('sorts')
     unless sorts.blank?
       translated_params['sorts'] = translate_public_param(sorts)

@@ -52,7 +52,13 @@ fields: [
     {
         name: 'pretty_print_mi_attempts_genotype_confirmed',
         readOnly: true
+    },
+
+    {
+        name: 'pretty_print_phenotype_attempts',
+        readOnly: true
     }
+
     ],
     proxy: Ext.create('Imits.data.Proxy', {
         resource: 'gene'

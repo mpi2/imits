@@ -324,6 +324,28 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   end
 end
 
+Factory.define :es_cell_EPD0011_1_G18, :parent => :es_cell do |es_cell|
+  es_cell.name 'EPD0011_1_G18'
+  es_cell.association :gene, :marker_symbol => 'Gatc'
+  es_cell.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
+  es_cell.pipeline { Pipeline.find_by_name! 'KOMP-CSD' }
+
+  es_cell.after_create do |es_cell|
+    mi_attempt = Factory.create(:mi_attempt,
+      :es_cell => es_cell,
+      :colony_name => 'MBFD',
+      :consortium_name => 'MGP',
+      :production_centre_name => 'WTSI',
+      :distribution_centre_name => 'WTSI'
+    )
+    mi_attempt_status = MiAttemptStatus.find_by_description('Genotype confirmed')
+    mi_attempt.mi_attempt_status = mi_attempt_status
+    phenotype_attempt = Factory.create :populated_phenotype_attempt, :mi_attempt => mi_attempt
+  end
+
+
+end
+
 Factory.define :report_cache do |report_cache|
   report_cache.sequence(:name) { |n| "Report Cache #{n}"}
   report_cache.data ''

@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::GeneSummaryTest < Kermits2::IntegrationTest
+class Reports::GeneSummaryIntegrationTest < Kermits2::IntegrationTest
 
   context 'reports/mi_attempts_by_gene' do
 
@@ -13,7 +13,7 @@ class Reports::GeneSummaryTest < Kermits2::IntegrationTest
       end
 
       should 'allow users to visit the correct page & see entries' do
-        
+
         visit '/reports/mi_attempts_by_gene'
         assert_match '/reports/mi_attempts_by_gene', current_url
 

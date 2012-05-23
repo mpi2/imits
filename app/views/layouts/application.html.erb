@@ -79,10 +79,10 @@
     <%= javascript_include_tag(*EXTJS_CONFIG['javascript']) %>
 
     <%= yield :pre_js_footer %>
-    <% if ['production', 'staging'].include?(Rails.env.to_s) %>
-      <%= include_javascripts :production %>
-    <% else %>
+    <% if ['development', 'test'].include?(Rails.env.to_s) %>
       <%= include_javascripts :development %>
+    <% else %>
+      <%= include_javascripts :production %>
     <% end %>
     <%= include_javascripts :common %>
     <%= yield :post_js_footer %>

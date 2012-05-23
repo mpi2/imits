@@ -9,8 +9,6 @@ stylesheets:
     - public/stylesheets/grid_ie.css
 
 javascripts:
-  production:
-  development:
   common:
     - public/javascripts/application.js
     - public/javascripts/extjs_hacky_monkey_patches.js

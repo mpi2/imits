@@ -5,7 +5,7 @@
     <title>iMits - <%= @tab || @title %></title>
 
     <%= stylesheet_link_tag 'reset' %>
-    <%= stylesheet_link_tag(*EXTJS_CONFIG['css']) %>
+    <%= stylesheet_link_tag(*Extjs.css) %>
     <%= include_stylesheets :common, :media => 'all' %>
     <!--[if IE]>
     <%= include_stylesheets :ie, :media => 'all' %>
@@ -15,6 +15,7 @@
 
     <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
     <%= javascript_tag "authenticityToken = '#{form_authenticity_token}';" %>
+    <%= javascript_tag "Rails = {env: '#{Rails.env}'};" %>
 
     <%= yield :head %>
 
@@ -76,14 +77,11 @@
       </div>
     </div>
 
-    <%= javascript_include_tag(*EXTJS_CONFIG['javascript']) %>
-
     <%= yield :pre_js_footer %>
-    <% if ['development', 'test'].include?(Rails.env.to_s) %>
-      <%= include_javascripts :development %>
-    <% else %>
-      <%= include_javascripts :production %>
-    <% end %>
+
+    <%= javascript_include_tag(Extjs.main_js) %>
+    <%= javascript_include_tag(*Extjs.ux_js) %>
+
     <%= include_javascripts :common %>
     <%= yield :post_js_footer %>
   </body>

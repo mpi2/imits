@@ -78,9 +78,12 @@ Ext.util.Format.safeTextRenderer = function(value) {
     return Ext.util.Format.htmlEncode(value);
 }
 
-Ext.Loader.setConfig({
-    enabled: true,
-    paths: {
-        'Imits': window.basePath + '/javascripts/Imits'
-    }
-});
+if(Rails.env === 'development' || Rails.env === 'test') {
+    Ext.Loader.setConfig({
+        enabled: true,
+        paths: {
+            'Imits': window.basePath + '/javascripts/Imits',
+            'Ext.ux': window.basePath + '/javascripts/extjs/examples/ux'
+        }
+    });
+}

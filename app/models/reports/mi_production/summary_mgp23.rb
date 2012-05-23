@@ -19,6 +19,7 @@ class Reports::MiProduction::SummaryMgp23
 
   HEADINGS = [
     'Sub-Project',
+    'Is Bespoke Allele',
     'All genes',
     'ES QC failed',
     'ES QC confirmed',
@@ -62,7 +63,7 @@ class Reports::MiProduction::SummaryMgp23
     return '' if ! value || value.to_s == "0"
     return value
   end
-        
+
   def self.genotype_confirmed_6month(row)
     return false if row['Genotype confirmed Date'].blank?
     return Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
@@ -79,7 +80,7 @@ class Reports::MiProduction::SummaryMgp23
     group.each { |row| total += row['Distinct Old Non Genotype Confirmed ES Cells'].to_i }
     return total
   end
-  
+
   def self.filter_intermediate_report_for_mgp_rows (cached_report, include_legacy)
     filtered_report = Table(
       :data => cached_report.data,
@@ -101,17 +102,17 @@ class Reports::MiProduction::SummaryMgp23
     exclude_columns.each do |name|
       filtered_report.remove_column name
     end
-    
+
     if(!cached_report)
       raise "cached report doesn't exist"
     end
-    
+
     return filtered_report
   end
-  
+
   def self.summarise_by_grouping_column_and_set_column_order(grouping_column, reduced_report, params)
     grouped_report = Grouping( reduced_report, :by => [ grouping_column ] )
-    
+
     list_heads = [
       'ES QC confirmed',
       'Microinjection aborted',
@@ -141,8 +142,8 @@ class Reports::MiProduction::SummaryMgp23
     end
 
     new_grouped_report = grouped_report.summary(grouping_column, hash)
-    
-    new_columns = 
+
+    new_columns =
       [
         grouping_column,
         "All genes",
@@ -168,25 +169,25 @@ class Reports::MiProduction::SummaryMgp23
         "Phenotyping completed",
         "Phenotyping aborted"
       ]
-    
+
     new_grouped_report.reorder(new_columns)
-    
+
     new_grouped_report.each do |row|
       pc = efficiency_6months(params, row)
       pc2 = efficiency_clone(params, row)
       #glt = row['Genotype confirmed mice 6 months'].to_i
       #failures = row['Languishing'].to_i + row['Microinjection aborted 6 months'].to_i
-      #total = glt + failures      
+      #total = glt + failures
       row['Gene Pipeline efficiency (%)'] = make_clean(pc, params)
       row['Clone Pipeline efficiency (%)'] = make_clean(pc2, params)
     end
-    
+
     return new_grouped_report
   end
-  
+
   def self.link_columns(grouping_column, report)
-    
-    columns_to_link = 
+
+    columns_to_link =
       [
         "All genes",
         "ES cell QC",
@@ -228,13 +229,13 @@ class Reports::MiProduction::SummaryMgp23
         row[col_name] = new_value
       end
     }
-    
+
     linked_report = Table(
       :data => report.data,
       :column_names => report.column_names,
       :transforms => make_link
     )
-    
+
     return linked_report
   end
 
@@ -302,7 +303,7 @@ class Reports::MiProduction::SummaryMgp23
     if key == 'Rederivation started'
       return row['PhenotypeAttempt Status'] == 'Rederivation started' && row['Rederivation Start Date'].to_s.length > 0
     end
-    
+
     if key == 'Rederivation completed'
       return row['PhenotypeAttempt Status'] == 'Rederivation completed' && row['Rederivation Complete Date'].to_s.length > 0
     end
@@ -316,7 +317,7 @@ class Reports::MiProduction::SummaryMgp23
       'Phenotyping Started',
       'Phenotyping Complete'
     ]
-    
+
     if key == 'Registered for phenotyping'
       return valid_phenos.include?(row['PhenotypeAttempt Status'])
     end
@@ -338,12 +339,12 @@ class Reports::MiProduction::SummaryMgp23
 
   def self.generate(grouping_column, params)
     cached_report = ReportCache.find_by_name_and_format!(Reports::MiProduction::Intermediate.report_name, 'csv').to_table
-    
+
     include_legacy = params[:include_legacy]
     reduced_report = filter_intermediate_report_for_mgp_rows(cached_report, include_legacy)
 
     summarised_report = summarise_by_grouping_column_and_set_column_order(grouping_column, reduced_report, params)
-    
+
     linked_report = link_columns(grouping_column, summarised_report )
 
     title = 'Production for MGP'
@@ -355,7 +356,7 @@ class Reports::MiProduction::SummaryMgp23
       :table => linked_report
     }
   end
-  
+
   def self.generate_detail(params)
     # column = column header from report
     column = params[:column]

@@ -7,6 +7,7 @@ class Reports::MiProduction::Detail
     wanted_columns = [
       'Consortium',
       'Sub-Project',
+      'Is Bespoke Allele',
       'Priority',
       'Production Centre',
       'Gene',

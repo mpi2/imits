@@ -27,33 +27,13 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context 'centres tests:' do
         should 'exist' do
-          assert_should have_db_column(:distribution_centre_id)
-          assert_should belong_to(:distribution_centre)
+          assert_should have_many(:distribution_centres)
         end
 
         should 'validate presence of production_centre_name' do
           assert_should validate_presence_of :production_centre_name
         end
 
-        should 'default distribution_centre to production_centre' do
-          centre = Factory.create :centre
-          mi = Factory.create :mi_attempt, :production_centre_name => centre.name
-          assert_equal centre.name, mi.distribution_centre.name
-        end
-
-        should 'not overwrite distribution_centre with production_centre if former has already been set' do
-          mi = Factory.create :mi_attempt,
-                  :production_centre_name => 'WTSI',
-                  :distribution_centre_name => 'ICS'
-          assert_equal 'ICS', mi.distribution_centre_name
-          assert_not_equal 'WTSI', mi.distribution_centre_name
-        end
-
-        should 'allow access to distribution centre via its name' do
-          centre = Factory.create :centre, :name => 'New Centre'
-          default_mi_attempt.update_attributes!(:distribution_centre_name => 'New Centre')
-          assert_equal 'New Centre', default_mi_attempt.distribution_centre.name
-        end
       end
 
       context '#mi_attempt_status' do
@@ -547,15 +527,9 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'be association to DepositedMaterial' do
-          assert_should belong_to :deposited_material
+          assert_should has_many :deposited_material
         end
 
-        should 'be setup for access_association_by_attribute' do
-          dm = DepositedMaterial.last
-          default_mi_attempt.deposited_material_name = dm.name
-          default_mi_attempt.save!
-          assert_equal dm, default_mi_attempt.deposited_material
-        end
       end
 
       should 'have #comments' do

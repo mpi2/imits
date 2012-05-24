@@ -42,12 +42,11 @@ class MiAttempt < ApplicationModel
   belongs_to :mi_plan
   belongs_to :es_cell
   belongs_to :mi_attempt_status
-  #belongs_to :distribution_centre, :class_name => 'Centre'
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
-  #belongs_to :deposited_material
+
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many :phenotype_attempts
 
@@ -127,9 +126,7 @@ class MiAttempt < ApplicationModel
 
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_total_chimeras
-  #before_validation :set_default_deposited_material
   before_validation :set_es_cell_from_es_cell_name
-  #before_validation :set_default_distribution_centre
   before_validation :change_status
 
   before_save :generate_colony_name_if_blank
@@ -155,10 +152,6 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  #def set_default_distribution_centre
-  #  self.distribution_centre ||= Centre.find_by_name(self.production_centre_name)
-  #end
-
   def set_blank_qc_fields_to_na
     QC_FIELDS.each do |qc_field|
       if self.send("#{qc_field}_result").blank?
@@ -176,13 +169,6 @@ class MiAttempt < ApplicationModel
       self.colony_name = "#{self.production_centre_name}-#{self.es_cell_name}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
-
-  #def set_default_deposited_material
-  #  if self.deposited_material.nil?
-  #    self.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
-  #    self.deposited_material_name = self.deposited_material.name
-  #  end
-  #end
 
   def make_unsuitable_for_emma_if_is_not_active
     if ! self.is_active?
@@ -472,9 +458,7 @@ end
 #  mi_date                                         :date            not null
 #  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :string(125)
-#  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer
-#  deposited_material_id                           :integer         not null
 #  blast_strain_id                                 :integer
 #  total_blasts_injected                           :integer
 #  total_transferred                               :integer

@@ -20,8 +20,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         colony_name
         consortium_name
         production_centre_name
-        distribution_centre_name
-        deposited_material_name
+        distribution_centres_attributes
         blast_strain_name
         total_blasts_injected
         total_transferred
@@ -86,8 +85,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         colony_name
         consortium_name
         production_centre_name
-        distribution_centre_name
-        deposited_material_name
+        distribution_centres_attributes
         blast_strain_name
         total_blasts_injected
         total_transferred

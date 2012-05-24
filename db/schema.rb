@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120517151408) do
+ActiveRecord::Schema.define(:version => 20120524111009) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -170,9 +170,7 @@ ActiveRecord::Schema.define(:version => 20120517151408) do
     t.date     "mi_date",                                                                           :null => false
     t.integer  "mi_attempt_status_id",                                                              :null => false
     t.string   "colony_name",                                     :limit => 125
-    t.integer  "distribution_centre_id"
     t.integer  "updated_by_id"
-    t.integer  "deposited_material_id",                                                             :null => false
     t.integer  "blast_strain_id"
     t.integer  "total_blasts_injected"
     t.integer  "total_transferred"
@@ -378,8 +376,6 @@ ActiveRecord::Schema.define(:version => 20120517151408) do
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk"
   add_foreign_key "mi_attempt_status_stamps", "mi_attempts", :name => "mi_attempt_status_stamps_mi_attempt_id_fk"
 
-  add_foreign_key "mi_attempts", "centres", :name => "mi_attempts_distribution_centre_id_fk", :column => "distribution_centre_id"
-  add_foreign_key "mi_attempts", "deposited_materials", :name => "mi_attempts_deposited_material_id_fk"
   add_foreign_key "mi_attempts", "es_cells", :name => "mi_attempts_es_cell_id_fk"
   add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk"
   add_foreign_key "mi_attempts", "mi_plans", :name => "mi_attempts_mi_plan_id_fk"

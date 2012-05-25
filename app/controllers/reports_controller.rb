@@ -262,7 +262,7 @@ class ReportsController < ApplicationController
 
     end
   end
-  
+
   def impc_gene_list
     csv_content = Reports::ImpcGeneList.generate(:csv)
     send_data(
@@ -271,7 +271,7 @@ class ReportsController < ApplicationController
       :filename => 'impc_gene_list.csv'
     )
   end
-  
+
   protected
 
   def generate_planned_mi_list_report( params={}, include_plans_with_active_attempts=false )
@@ -279,6 +279,7 @@ class ReportsController < ApplicationController
       'id'                      => 'ID',
       'consortium.name'         => 'Consortium',
       'sub_project.name'        => 'SubProject',
+      'is_bespoke_allele'       => 'Bespoke',
       'production_centre.name'  => 'Production Centre',
       'gene.marker_symbol'      => 'Marker Symbol',
       'gene.mgi_accession_id'   => 'MGI Accession ID',
@@ -296,7 +297,8 @@ class ReportsController < ApplicationController
         :gene               => { :only => [:marker_symbol,:mgi_accession_id] },
         :priority           => { :only => [:name] },
         :status             => { :only => [:name] }
-      }
+      },
+      :transforms => lambda {|r| r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No' }
     }
 
     report = case include_plans_with_active_attempts
@@ -312,5 +314,5 @@ class ReportsController < ApplicationController
 
     return report
   end
-  
+
 end

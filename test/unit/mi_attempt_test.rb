@@ -511,25 +511,50 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       context '#deposited_material' do
-        should 'be in DB' do
-          assert_should have_db_column(:deposited_material_id).with_options(:null => false)
+
+        should 'not exist if MiAttempt status is not Genotype confirmed' do
+          mi = Factory.create :mi_attempt
+          assert_equal 0, mi.deposited_materials.length
         end
 
-        should 'default to "Frozen embryos" if nil' do
-          mi = Factory.create :mi_attempt
-          assert_equal 'Frozen embryos', mi.deposited_material_name
+        should 'exist if MiAttempt status is Genotype confirmed' do
+          mi = Factory.create :mi_attempt_genotype_confirmed
+          assert_equal 1, mi.deposited_materials.length
         end
 
-        should 'default to "Frozen embryos" if blank' do
-          mi = Factory.create :mi_attempt
-          mi.update_attributes!(:deposited_material_name => '')
-          assert_equal 'Frozen embryos', mi.deposited_material_name
+        should 'default to Frozen embryos if MiAttempt status is Genotype confirmed' do
+          mi = Factory.create :mi_attempt_genotype_confirmed
+          assert_equal 'Frozen embryos', mi.deposited_materials.first.name
         end
 
         should 'be association to DepositedMaterial' do
-          assert_should has_many :deposited_material
+          assert_should have_many :deposited_materials
         end
 
+      end
+
+      context '#distribution_centres' do
+
+        should 'not exist if MiAttempt status is not Genotype confirmed' do
+          mi = Factory.create :mi_attempt
+          puts mi.distribution_centres.inspect
+          assert_equal 0, mi.distribution_centres.length
+        end
+
+        should 'exist if MiAttempt status is Genotype confirmed' do
+          mi = Factory.create :mi_attempt_genotype_confirmed
+          assert_equal 1, mi.distribution_centres.length
+        end
+
+        should 'default to the production centre of the MiAttempt' do
+          mi = Factory.create :mi_attempt_genotype_confirmed
+          assert_equal 'ICS', mi.distribution_centres.first.centre.name
+        end
+
+        should 'default to Frozen embryos if MiAttempt status is Genotype confirmed' do
+          mi = Factory.create :mi_attempt_genotype_confirmed
+          assert_equal 'Frozen embryos', mi.distribution_centres.first.deposited_material.name
+        end
       end
 
       should 'have #comments' do

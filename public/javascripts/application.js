@@ -78,10 +78,19 @@ Ext.util.Format.safeTextRenderer = function(value) {
     return Ext.util.Format.htmlEncode(value);
 }
 
+/*
 $('form').on('click', '.remove_fields', function(event) {
   $(this).prev('input[type=hidden]').val('1');
   $(this).closest('tr').hide();
   event.preventDefault();
+});
+*/
+
+Ext.select('form .remove_fields').addListener('click', {
+    preventDefault: true,
+    fn: function () {
+        this.next('input[type=hidden]').up('tr').hide();
+    }
 });
 
 $('form').on('click', '.add_fields', function(event) {

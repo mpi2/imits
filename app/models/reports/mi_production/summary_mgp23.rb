@@ -6,6 +6,7 @@ class Reports::MiProduction::SummaryMgp23
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'MGP Production Summary'
+  DEBUG = false
 
   CONSORTIA = ['MGP']
 
@@ -158,6 +159,9 @@ class Reports::MiProduction::SummaryMgp23
     hash['Total Pipeline Efficiency Gene Count'] = lambda { |group| total_pipeline_efficiency_gene_count(group) }
     hash['All genes'] = lambda { |group| count_unique_instances_of( group, 'Gene', lambda { |row| count_row(row, 'All genes') } ) }
 
+    hash['Distinct Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_genotype_confirmed_es_cells_count(group) }
+    hash['Distinct Old Non Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }
+
     list_heads.each do |item|
       hash[item] = lambda { |group| count_instances_of( group, 'Gene', lambda { |row| count_row(row, item) } ) }
     end
@@ -190,8 +194,10 @@ class Reports::MiProduction::SummaryMgp23
         "Phenotyping completed",
         "Phenotyping aborted",
         'GC Pipeline Efficiency Gene Count',
-        'Total Pipeline Efficiency Gene Count'
-      ]
+        'Total Pipeline Efficiency Gene Count',
+        'Distinct Genotype Confirmed ES Cells',
+        'Distinct Old Non Genotype Confirmed ES Cells'
+    ] + (DEBUG ? DEBUG_HEADINGS : [])
 
     new_grouped_report.reorder(new_columns)
 
@@ -203,6 +209,15 @@ class Reports::MiProduction::SummaryMgp23
       #total = glt + failures
       row['Gene Pipeline efficiency (%)'] = make_clean(pc, params)
       row['Clone Pipeline efficiency (%)'] = make_clean(pc2, params)
+    end
+
+    exclude_columns = [
+      'Distinct Genotype Confirmed ES Cells',
+      'Distinct Old Non Genotype Confirmed ES Cells'
+    ]
+
+    exclude_columns.each do |name|
+      new_grouped_report.remove_column name
     end
 
     return new_grouped_report

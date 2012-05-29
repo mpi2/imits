@@ -10,7 +10,6 @@
 #(2) Make an MGP MI plan with subproject MGPInterest and
 #(3) Move the MI to the new MI Plan.
 
-DEBUG = false
 VERBOSE = false
 EXPECTED_COUNT = 1059
 
@@ -42,14 +41,8 @@ MiPlan.audited_transaction do
         attempt.mi_plan.save!
 
         puts "Old plan: #{plan.id} - New plan: #{attempt.mi_plan.id} - Attempts count: #{plan.mi_attempts.size}"
-        puts "\nattempt: " + attempt.inspect if VERBOSE
-        puts "\nOld plan: " + plan.inspect if VERBOSE
-        puts "\nNew plan: " + attempt.mi_plan.inspect if VERBOSE
 
         raise "Cannot change subproject!" if attempt.mi_plan.sub_project_id != sub_project.id
-
-        exit if DEBUG
-
       end
 
     end

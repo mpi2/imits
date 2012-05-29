@@ -6,6 +6,7 @@ class Reports::MiProduction::SummaryMgp23
   CACHE_NAME = 'mi_production_intermediate'
   CSV_LINKS = Reports::MiProduction::SummariesCommon::CSV_LINKS
   REPORT_TITLE = 'MGP Production Summary'
+  DEBUG = false
 
   CONSORTIA = ['MGP']
 
@@ -14,7 +15,9 @@ class Reports::MiProduction::SummaryMgp23
     'Microinjection aborted 6 months',
     'Languishing',
     'Distinct Genotype Confirmed ES Cells',
-    'Distinct Old Non Genotype Confirmed ES Cells'
+    'Distinct Old Non Genotype Confirmed ES Cells',
+    'GC Pipeline Efficiency Gene Count',
+    'Total Pipeline Efficiency Gene Count'
   ]
 
   HEADINGS = [
@@ -41,13 +44,28 @@ class Reports::MiProduction::SummaryMgp23
     'Clone Pipeline efficiency (%)'
   ] + DEBUG_HEADINGS
 
-  def self.efficiency_6months(params, row)
-    glt = row['Genotype confirmed mice 6 months'].to_i
-    failures = row['Languishing'].to_i + row['Microinjection aborted 6 months'].to_i
-    total = glt + failures
-    pc = total != 0 ? (glt.to_f / total.to_f) * 100.0 : 0
+  def self.new_efficiency(params, row)
+    a = row['GC Pipeline Efficiency Gene Count'].to_i
+    b = row['Total Pipeline Efficiency Gene Count'].to_i
+    pc =  b.to_i != 0 ? ((a.to_f / b.to_f) * 100) : 0
     pc = pc != 0 ? "%i" % pc : params[:format] != :csv ? '' : 0
     return pc
+  end
+
+  def self.total_pipeline_efficiency_gene_count(group)
+    genes = []
+    group.each do |row|
+      genes.push row['Gene'] if row['Total Pipeline Efficiency Gene Count'].to_i == 1
+    end
+    return genes.sort.uniq.size
+  end
+
+  def self.gc_pipeline_efficiency_gene_count(group)
+    genes = []
+    group.each do |row|
+      genes.push row['Gene'] if row['GC Pipeline Efficiency Gene Count'].to_i == 1
+    end
+    return genes.sort.uniq.size
   end
 
   def self.efficiency_clone(params, row)
@@ -131,11 +149,18 @@ class Reports::MiProduction::SummaryMgp23
       'Registered for phenotyping',
       'Genotype confirmed mice 6 months',
       'Microinjection aborted 6 months',
-      'Languishing'
+      'Languishing',
+      'GC Pipeline Efficiency Gene Count',
+      'Total Pipeline Efficiency Gene Count'
     ]
 
     hash = {}
+    hash['GC Pipeline Efficiency Gene Count'] = lambda { |group| gc_pipeline_efficiency_gene_count(group) }
+    hash['Total Pipeline Efficiency Gene Count'] = lambda { |group| total_pipeline_efficiency_gene_count(group) }
     hash['All genes'] = lambda { |group| count_unique_instances_of( group, 'Gene', lambda { |row| count_row(row, 'All genes') } ) }
+
+    hash['Distinct Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_genotype_confirmed_es_cells_count(group) }
+    hash['Distinct Old Non Genotype Confirmed ES Cells'] = lambda { |group| distinct_old_non_genotype_confirmed_es_cells_count(group) }
 
     list_heads.each do |item|
       hash[item] = lambda { |group| count_instances_of( group, 'Gene', lambda { |row| count_row(row, item) } ) }
@@ -167,19 +192,32 @@ class Reports::MiProduction::SummaryMgp23
         "Cre excision completed",
         "Phenotyping started",
         "Phenotyping completed",
-        "Phenotyping aborted"
-      ]
+        "Phenotyping aborted",
+        'GC Pipeline Efficiency Gene Count',
+        'Total Pipeline Efficiency Gene Count',
+        'Distinct Genotype Confirmed ES Cells',
+        'Distinct Old Non Genotype Confirmed ES Cells'
+    ] + (DEBUG ? DEBUG_HEADINGS : [])
 
     new_grouped_report.reorder(new_columns)
 
     new_grouped_report.each do |row|
-      pc = efficiency_6months(params, row)
+      pc = new_efficiency(params, row)
       pc2 = efficiency_clone(params, row)
       #glt = row['Genotype confirmed mice 6 months'].to_i
       #failures = row['Languishing'].to_i + row['Microinjection aborted 6 months'].to_i
       #total = glt + failures
       row['Gene Pipeline efficiency (%)'] = make_clean(pc, params)
       row['Clone Pipeline efficiency (%)'] = make_clean(pc2, params)
+    end
+
+    exclude_columns = [
+      'Distinct Genotype Confirmed ES Cells',
+      'Distinct Old Non Genotype Confirmed ES Cells'
+    ]
+
+    exclude_columns.each do |name|
+      new_grouped_report.remove_column name
     end
 
     return new_grouped_report
@@ -332,6 +370,14 @@ class Reports::MiProduction::SummaryMgp23
 
     if key == 'Languishing'
       return (row.data['Overall Status'] == 'Micro-injection in progress' || row['MiAttempt Status'] == 'Chimeras obtained') && Date.parse(row['Micro-injection in progress Date']) < 6.months.ago.to_date
+    end
+
+    if key == 'GC Pipeline Efficiency Gene Count'
+      return row['GC Pipeline Efficiency Gene Count'].to_i > 0
+    end
+
+    if key == 'Total Pipeline Efficiency Gene Count'
+      return row['Total Pipeline Efficiency Gene Count'].to_i > 0
     end
 
     return false

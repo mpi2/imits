@@ -57,5 +57,6 @@ end
 #  updated_at                                   :datetime
 #  total_pipeline_efficiency_gene_count         :integer
 #  gc_pipeline_efficiency_gene_count            :integer
+#  is_bespoke_allele                            :boolean
 #
 

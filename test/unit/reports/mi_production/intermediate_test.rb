@@ -118,6 +118,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         expected = [
           'Consortium',
           'Sub-Project',
+          'Is Bespoke Allele',
           'Priority',
           'Production Centre',
           'Gene',
@@ -160,6 +161,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         expected = {
           'Consortium' => 'BaSH',
           'Sub-Project' => 'Legacy EUCOMM',
+          'Is Bespoke Allele' => 'No',
           'Priority' => 'Medium',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
@@ -187,11 +189,11 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Phenotyping Started Date' => '2011-12-06',
           'Phenotyping Complete Date' => '2011-12-07',
           'Phenotype Attempt Aborted Date' => '2011-12-08',
-          'Distinct Genotype Confirmed ES Cells'=> 0,
+          'Distinct Genotype Confirmed ES Cells'=> 1,	# changed since date makes it active!
           'Distinct Old Non Genotype Confirmed ES Cells'=> 0,
           'MiPlan ID' => 2,
-          'Total Pipeline Efficiency Gene Count' => 0,
-          'GC Pipeline Efficiency Gene Count' => 0
+          'Total Pipeline Efficiency Gene Count' => 1,	# changed since date makes it active!
+          'GC Pipeline Efficiency Gene Count' => 1	    # changed since date makes it active!
         }
         assert_equal expected, bash_wtsi_row.data
       end
@@ -201,6 +203,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         expected = {
           'Consortium' => 'MGP',
           'Sub-Project' => '',
+          'Is Bespoke Allele' => 'No',
           'Priority' => 'High',
           'Production Centre' => 'WTSI',
           'Gene' => 'Cbx1',
@@ -298,14 +301,14 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
               :production_centre => Centre.find_by_name!('JAX'),
               :gene => @cbx1
       expected = [
-        ['JAX', '', 'High', 'JAX', 'Cbx1'],
-        ['JAX', '', 'High', 'JAX', 'Cbx2'],
-        ['JAX', '', 'High', 'WTSI', 'Cbx1'],
-        ['MGP', '', 'High', 'WTSI', 'Cbx1']
+        ['JAX', '', 'No', 'High', 'JAX', 'Cbx1'],
+        ['JAX', '', 'No', 'High', 'JAX', 'Cbx2'],
+        ['JAX', '', 'No', 'High', 'WTSI', 'Cbx1'],
+        ['MGP', '', 'No', 'High', 'WTSI', 'Cbx1']
       ]
 
       report = Reports::MiProduction::Intermediate.new.report
-      got = report.map {|r| r.data.values[0..4]}
+      got = report.map {|r| r.data.values[0..5]}
 
       assert_equal expected, got
     end

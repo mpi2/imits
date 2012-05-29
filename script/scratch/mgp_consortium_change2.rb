@@ -10,6 +10,11 @@
 #(2) Make an MGP MI plan with subproject MGPInterest and
 #(3) Move the MI to the new MI Plan.
 
+#usage
+#bundle exec  rake db:production:clone
+#bundle exec rake db:migrate db:seed
+#/script/runner script/scratch/mgp_consortium_change2.rb > script/scratch/mgp_consortium_change2.log
+
 VERBOSE = false
 EXPECTED_COUNT = 1059
 
@@ -40,7 +45,7 @@ MiPlan.audited_transaction do
         attempt.mi_plan.sub_project = sub_project
         attempt.mi_plan.save!
 
-        puts "Old plan: #{plan.id} - New plan: #{attempt.mi_plan.id} - Attempts count: #{plan.mi_attempts.size}"
+        puts "Attempt: #{attempt.id} - Old plan: #{plan.id} - New plan: #{attempt.mi_plan.id} - Attempts count: #{plan.mi_attempts.size} - Date: #{attempt.mi_date.to_date.to_s}"
 
         raise "Cannot change subproject!" if attempt.mi_plan.sub_project_id != sub_project.id
       end

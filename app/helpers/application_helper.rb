@@ -13,11 +13,11 @@ module ApplicationHelper
   end
 
   def link_to_add_fields(name, f, association)
-    new_object = f.object.send(association).first.class.new
-    id = new_object.object_id
-    fields = f.fields_for(association, new_object, child_index: id) do |builder|
+    @new_object = f.object.send(association).first.class.new
+    id = @new_object.object_id
+    fields = f.fields_for(association, @new_object, child_index: id) do |builder|
       render(association.to_s.singularize + "_fields", f: builder)
     end
-    link_to(name, '#', class: "add_fields", :"data-fields" => fields.gsub("\n", ""))
+    link_to(name, '#', class: "add_row", :"data-fields" => fields.gsub("\n", ""), :"data-object-id" => @new_object.object_id)
   end
 end

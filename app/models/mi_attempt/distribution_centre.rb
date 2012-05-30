@@ -8,20 +8,22 @@ class MiAttempt::DistributionCentre < ActiveRecord::Base
 
   validates :mi_attempt_id, :presence => true
   validates :centre_id, :presence => true
-  #validates :deposited_material_id, :presence => true
+  validates :deposited_material_id, :presence => true
 end
 
 # == Schema Information
 #
 # Table name: mi_attempt_distribution_centres
 #
-#  id                    :integer         not null, primary key
-#  start_date            :date
-#  end_date              :date
-#  mi_attempt_id         :integer         not null
-#  deposited_material_id :integer         not null
-#  centre_id             :integer         not null
-#  created_at            :datetime
-#  updated_at            :datetime
+#  id                     :integer         not null, primary key
+#  start_date             :date
+#  end_date               :date
+#  mi_attempt_id          :integer         not null
+#  deposited_material_id  :integer         not null
+#  centre_id              :integer         not null
+#  is_distributed_by_emma :boolean         default(FALSE), not null
+#  boolean                :boolean         default(FALSE), not null
+#  created_at             :datetime
+#  updated_at             :datetime
 #
 

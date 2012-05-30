@@ -25,7 +25,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should validate_presence_of :mi_date
       end
 
-      context 'centres tests:' do
+      context 'distribution centre tests:' do
         should 'exist' do
           assert_should have_many(:distribution_centres)
         end
@@ -34,6 +34,10 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_should validate_presence_of :production_centre_name
         end
 
+        should "accept nested attributes for distribution_centres" do
+          assert  MiAttempt.instance_methods.include?(:distribution_centres_attributes=),
+          "MiAttempt does not accept nested attributes for distribution_centres"
+        end
       end
 
       context '#mi_attempt_status' do
@@ -315,117 +319,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      should 'have emma columns' do
-        assert_should have_db_column(:is_suitable_for_emma).of_type(:boolean).with_options(:null => false)
-        assert_should have_db_column(:is_emma_sticky).of_type(:boolean).with_options(:null => false)
-      end
-
-      should 'set is_suitable_for_emma to false by default' do
-        assert_equal false, default_mi_attempt.is_suitable_for_emma?
-      end
-
-      should 'set is_emma_sticky to false by default' do
-        assert_equal false, default_mi_attempt.is_emma_sticky?
-      end
-
-      context '#is_suitable_for_emma' do
-        should 'default to false if set to null' do
-          default_mi_attempt.is_suitable_for_emma = nil
-          default_mi_attempt.save!
-          assert_equal false, default_mi_attempt.is_suitable_for_emma?
-        end
-      end
-
-      context '#is_emma_sticky' do
-        should 'default to false if set to null' do
-          default_mi_attempt.is_emma_sticky = nil
-          default_mi_attempt.save!
-          assert_equal false, default_mi_attempt.is_emma_sticky?
-        end
-      end
-
-
-      should 'on save set is_suitable_for_emma to false if is_active is false' do
-        default_mi_attempt.is_active = false
-        default_mi_attempt.is_suitable_for_emma = true
-        default_mi_attempt.save!
-
-        assert_equal false, default_mi_attempt.is_suitable_for_emma
-      end
-
-      context '#emma_status' do
-        context 'on read' do
-          should 'be suitable if is_suitable_for_emma=true and is_emma_sticky=false' do
-            default_mi_attempt.is_suitable_for_emma = true
-            default_mi_attempt.is_emma_sticky = false
-            assert_equal 'suitable', default_mi_attempt.emma_status
-          end
-
-          should 'be unsuitable if is_suitable_for_emma=false and is_emma_sticky=false' do
-            default_mi_attempt.is_suitable_for_emma = false
-            default_mi_attempt.is_emma_sticky = false
-            assert_equal 'unsuitable', default_mi_attempt.emma_status
-          end
-
-          should 'be suitable_sticky if is_suitable_for_emma=true and is_emma_sticky=true' do
-            default_mi_attempt.is_suitable_for_emma = true
-            default_mi_attempt.is_emma_sticky = true
-            assert_equal 'suitable_sticky', default_mi_attempt.emma_status
-          end
-
-          should 'be unsuitable_sticky if is_suitable_for_emma=false and is_emma_sticky=true' do
-            default_mi_attempt.is_suitable_for_emma = false
-            default_mi_attempt.is_emma_sticky = true
-            assert_equal 'unsuitable_sticky', default_mi_attempt.emma_status
-          end
-        end
-
-        context 'on write' do
-          should 'work for suitable' do
-            default_mi_attempt.emma_status = 'suitable'
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-            assert_equal [true, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-          end
-
-          should 'work for unsuitable' do
-            default_mi_attempt.emma_status = 'unsuitable'
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-            assert_equal [false, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-          end
-
-          should 'work for suitable_sticky' do
-            default_mi_attempt.emma_status = 'suitable_sticky'
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-            assert_equal [true, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-          end
-
-          should 'work for unsuitable_sticky' do
-            default_mi_attempt.emma_status = 'unsuitable_sticky'
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-            assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-          end
-
-          should 'error for anything else' do
-            assert_raise(MiAttempt::EmmaStatusError) do
-              default_mi_attempt.emma_status = 'invalid'
-            end
-          end
-
-          should 'set cause #emma_status to return the right value after being saved' do
-            default_mi_attempt.emma_status = 'unsuitable_sticky'
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-
-            assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-            assert_equal 'unsuitable_sticky', default_mi_attempt.emma_status
-          end
-        end
-      end
-
       context 'QC field tests:' do
         MiAttempt::QC_FIELDS.each do |qc_field|
           should "include #{qc_field}" do
@@ -507,53 +400,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           mi_attempt = Factory.build :mi_attempt, :mi_plan => mi_plan, :colony_name => nil
           assert_false mi_attempt.save
           assert_nil mi_attempt.colony_name
-        end
-      end
-
-      context '#deposited_material' do
-
-        should 'not exist if MiAttempt status is not Genotype confirmed' do
-          mi = Factory.create :mi_attempt
-          assert_equal 0, mi.deposited_materials.length
-        end
-
-        should 'exist if MiAttempt status is Genotype confirmed' do
-          mi = Factory.create :mi_attempt_genotype_confirmed
-          assert_equal 1, mi.deposited_materials.length
-        end
-
-        should 'default to Frozen embryos if MiAttempt status is Genotype confirmed' do
-          mi = Factory.create :mi_attempt_genotype_confirmed
-          assert_equal 'Frozen embryos', mi.deposited_materials.first.name
-        end
-
-        should 'be association to DepositedMaterial' do
-          assert_should have_many :deposited_materials
-        end
-
-      end
-
-      context '#distribution_centres' do
-
-        should 'not exist if MiAttempt status is not Genotype confirmed' do
-          mi = Factory.create :mi_attempt
-          puts mi.distribution_centres.inspect
-          assert_equal 0, mi.distribution_centres.length
-        end
-
-        should 'exist if MiAttempt status is Genotype confirmed' do
-          mi = Factory.create :mi_attempt_genotype_confirmed
-          assert_equal 1, mi.distribution_centres.length
-        end
-
-        should 'default to the production centre of the MiAttempt' do
-          mi = Factory.create :mi_attempt_genotype_confirmed
-          assert_equal 'ICS', mi.distribution_centres.first.centre.name
-        end
-
-        should 'default to Frozen embryos if MiAttempt status is Genotype confirmed' do
-          mi = Factory.create :mi_attempt_genotype_confirmed
-          assert_equal 'Frozen embryos', mi.distribution_centres.first.deposited_material.name
         end
       end
 

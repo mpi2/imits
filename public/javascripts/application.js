@@ -78,22 +78,26 @@ Ext.util.Format.safeTextRenderer = function(value) {
     return Ext.util.Format.htmlEncode(value);
 }
 
-/*
-$('form').on('click', '.remove_fields', function(event) {
-  $(this).prev('input[type=hidden]').val('1');
-  $(this).closest('tr').hide();
-  event.preventDefault();
-});
-*/
 
-Ext.select('form .remove_fields').addListener('click', {
+/*Ext.select('form .remove_fields').addListener('click', {
     preventDefault: true,
     fn: function () {
         this.next('input[type=hidden]').up('tr').hide();
     }
+});*/
+
+$('form').on('click', '.hide_row', function(event) {
+   $(this).prev('input[type=hidden]').val('1');
+   $(this).closest('tr').hide();
+   event.preventDefault();
 });
 
-$('form').on('click', '.add_fields', function(event) {
+$('form').on('click', '.remove_row', function(event) {
+    $(this).closest('tr').remove();
+    event.preventDefault();
+});
+
+$('form').on('click', '.add_row', function(event) {
   event.preventDefault();
   var data = $(this).attr('data-fields');
   $('#distribution_centres_table tr:last').after(data);

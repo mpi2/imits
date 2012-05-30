@@ -40,16 +40,8 @@ Factory.define :centre do |centre|
   centre.sequence(:name) { |n| "Auto-generated Centre Name #{n}" }
 end
 
-Factory.define :default_centre do |centre|
-  centre.name "WTSI"
-end
-
 Factory.define :deposited_material do |deposited_material|
   deposited_material.sequence(:name) { |n| "Auto-generated Deposited Material #{n}"}
-end
-
-Factory.define :default_deposited_material do |deposited_material|
-  deposited_material.name 'Frozen embryos'
 end
 
 Factory.define :consortium do |consortium|
@@ -86,22 +78,13 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.mi_date { Date.today }
 end
 
-Factory.define :distribution_centre do |distribution_centre|
+Factory.define :distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
   distribution_centre.association :centre
   distribution_centre.association :deposited_material
   distribution_centre.association :mi_attempt
   distribution_centre.start_date (Date.today - 1.year).to_time.strftime('%Y-%m-%d')
   distribution_centre.end_date (Date.today).to_time.strftime('%Y-%m-%d')
 end
-
-Factory.define :default_wtsi_distribution_centre do |distribution_centre|
-  distribution_centre.association :default_centre
-  distribution_centre.association :default_deposited_material
-  distribution_centre.association :mi_attempt
-  distribution_centre.start_date (Date.today - 1.year).to_time.strftime('%Y-%m-%d')
-  distribution_centre.end_date (Date.today).to_time.strftime('%Y-%m-%d')
-end
-
 
 Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.total_male_chimeras 1
@@ -122,7 +105,6 @@ end
 Factory.define :wtsi_mi_attempt_genotype_confirmed, :parent => :mi_attempt_chimeras_obtained do |mi_attempt|
   mi_attempt.production_centre_name 'WTSI'
   mi_attempt.is_released_from_genotyping true
-  mi_attempt.association :distribution_centres, :factory => :default_wtsi_distribution_centre
 end
 
 Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_confirmed do |mi_attempt|
@@ -292,15 +274,13 @@ Factory.define :es_cell_EPD0127_4_E01, :parent => :es_cell_EPD0127_4_E01_without
     Factory.create(:mi_attempt,
       common_attrs.merge(
         :es_cell => es_cell,
-        :colony_name => 'MBSS',
-        :is_suitable_for_emma => true
+        :colony_name => 'MBSS'
       )
     )
 
     Factory.create(:mi_attempt,
       common_attrs.merge(
-        :es_cell => es_cell,
-        :emma_status => 'unsuitable_sticky'
+        :es_cell => es_cell
       )
     )
 

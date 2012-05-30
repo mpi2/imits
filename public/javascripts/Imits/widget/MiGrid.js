@@ -263,26 +263,6 @@ Ext.define('Imits.widget.MiGrid', {
             filter: {
                 type: 'string'
             }
-        },
-        {
-            dataIndex: 'distribution_centre_name',
-            header: 'Distribution Centre',
-            editor: {
-                xtype: 'simplecombo',
-                store: window.MI_ATTEMPT_CENTRE_OPTIONS
-            },
-            filter: {
-                type: 'list',
-                options: window.MI_ATTEMPT_CENTRE_OPTIONS
-            }
-        },
-        {
-            dataIndex: 'deposited_material_name',
-            header: 'Deposited Material',
-            editor: {
-                xtype: 'simplecombo',
-                store: window.MI_ATTEMPT_DEPOSITED_MATERIAL_OPTIONS
-            }
         }
         ],
 
@@ -361,26 +341,7 @@ Ext.define('Imits.widget.MiGrid', {
             editor: 'simplenumberfield'
         }
         ],
-
         'Chimera Mating Details': [
-        {
-            dataIndex: 'emma_status',
-            header: 'EMMA Status',
-            sortable: false,
-            width: 200,
-            renderer: function(data) {
-                return MI_ATTEMPT_EMMA_OPTIONS[data];
-            },
-            editor: {
-                xtype: 'simplecombo',
-                store: Ext.Array.map(Ext.Object.getKeys(window.MI_ATTEMPT_EMMA_OPTIONS), function(i) {
-                    return [ i, window.MI_ATTEMPT_EMMA_OPTIONS[i] ]
-                }),
-                listConfig: {
-                    minWidth: 200
-                }
-            }
-        },
         {
             dataIndex: 'test_cross_strain_name',
             header: 'Test Cross Strain',

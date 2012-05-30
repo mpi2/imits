@@ -45,24 +45,29 @@
 <fieldset class="collapsible">
   <legend>Distribution Centres</legend>
     <div class="distribution_centres">
-    <% if mi_attempt.distribution_centres.length > 0 %>
-    <table id="distribution_centres_table" class="report_table">
-      <thead class="title">
-        <tr>
-          <th>Distribution centre</th>
-          <th>Deposited material</th>
-          <th>Start date</th>
-          <th>End date</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody class="distribution_centres">
-      <%= form.fields_for :distribution_centres do |builder| %>
-        <%= render 'distribution_centre_fields', f: builder %>
-      <% end %>
-      </tbody>
-    </table>
-    <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
+    <% if mi_attempt.status == 'Genotype confirmed' %>
+      <table id="distribution_centres_table" class="report_table">
+        <thead class="title">
+          <tr>
+            <th>Distribution centre</th>
+            <th>EMMA status</th>
+            <th>Deposited material</th>
+            <th>Start date</th>
+            <th>End date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody class="distribution_centres">
+        <% if mi_attempt.distribution_centres.length > 0 %>
+          <%= form.fields_for :distribution_centres do |builder| %>
+            <% if !builder.object.new_record? %>
+            <%= render 'distribution_centre_fields', f: builder %>
+            <% end %>
+          <% end %>
+        <% end %>
+        </tbody>
+      </table>
+      <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
     <% else %>
     No Distribution Centres can be set until Status is Genotype confirmed.
     <% end %>
@@ -99,7 +104,6 @@
 <fieldset class="collapsible">
   <legend>Chimera Mating Details</legend>
   <div>
-    <%= generator.emma_status_field %>
     <%= generator.strains_field :colony_background_strain %>
     <%= generator.strains_field :test_cross_strain %>
     <%= generator.text_field :date_chimeras_mated, :class => 'date-field' %>

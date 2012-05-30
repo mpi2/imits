@@ -8,12 +8,12 @@ class MiAttempt < ApplicationModel
   include MiAttempt::StatusChanger
   include MiAttempt::WarningGenerator
 
-  EMMA_OPTIONS = {
-    'unsuitable' => 'Unsuitable for EMMA',
-    'suitable' => 'Suitable for EMMA',
-    'suitable_sticky' => 'Suitable for EMMA - STICKY',
-    'unsuitable_sticky' => 'Unsuitable for EMMA - STICKY',
-  }.freeze
+  #EMMA_OPTIONS = {
+  #  'unsuitable' => 'Unsuitable for EMMA',
+  #  'suitable' => 'Suitable for EMMA',
+  #  'suitable_sticky' => 'Suitable for EMMA - STICKY',
+  #  'unsuitable_sticky' => 'Unsuitable for EMMA - STICKY',
+  #}.freeze
 
   QC_FIELDS = [
     :qc_southern_blot,
@@ -130,15 +130,15 @@ class MiAttempt < ApplicationModel
   before_validation :change_status
 
   before_save :generate_colony_name_if_blank
-  before_save :make_unsuitable_for_emma_if_is_not_active
+  #before_save :make_unsuitable_for_emma_if_is_not_active
   before_save :set_mi_plan
   before_save :record_if_status_was_changed
-  before_save :set_boolean_defaults
+  #before_save :set_boolean_defaults
 
   after_save :create_status_stamp_if_status_was_changed
   after_save :reload_mi_plan_mi_attempts
   after_save :ensure_in_progress_status_stamp
-  after_save :create_initial_distribution_centre
+  #after_save :create_initial_distribution_centre
 
   protected
 
@@ -170,12 +170,12 @@ class MiAttempt < ApplicationModel
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
 
-  def make_unsuitable_for_emma_if_is_not_active
-    if ! self.is_active?
-      self.is_suitable_for_emma = false
-    end
-    return true
-  end
+ # def make_unsuitable_for_emma_if_is_not_active
+ #   if ! self.is_active?
+ #     self.is_suitable_for_emma = false
+ #   end
+ #   return true
+ # end
 
   def set_mi_plan
     mi_plan_to_set = find_matching_mi_plan
@@ -207,11 +207,11 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  def set_boolean_defaults
-    if is_suitable_for_emma == nil then self.is_suitable_for_emma = false end
-    if is_emma_sticky == nil then self.is_emma_sticky = false end
-    return true
-  end
+ # def set_boolean_defaults
+ #   if is_suitable_for_emma == nil then self.is_suitable_for_emma = false end
+ #   if is_emma_sticky == nil then self.is_emma_sticky = false end
+ #   return true
+ # end
 
   def create_status_stamp_if_status_was_changed
     if @new_mi_attempt_status
@@ -340,39 +340,6 @@ class MiAttempt < ApplicationModel
       retval.delete(aborted)
     end
     return retval
-  end
-
-  def emma_status
-    if is_suitable_for_emma?
-      if is_emma_sticky? then return 'suitable_sticky' else return 'suitable' end
-    else
-      if is_emma_sticky? then return 'unsuitable_sticky' else return 'unsuitable' end
-    end
-  end
-
-  class EmmaStatusError < RuntimeError; end
-
-  def emma_status=(status)
-    case status.to_s
-    when 'suitable' then
-      self.is_suitable_for_emma = true
-      self.is_emma_sticky = false
-
-    when 'unsuitable' then
-      self.is_suitable_for_emma = false
-      self.is_emma_sticky = false
-
-    when 'suitable_sticky' then
-      self.is_suitable_for_emma = true
-      self.is_emma_sticky = true
-
-    when 'unsuitable_sticky' then
-      self.is_suitable_for_emma = false
-      self.is_emma_sticky = true
-
-    else
-      raise EmmaStatusError, "Invalid status '#{status.inspect}'"
-    end
   end
 
   def mouse_allele_symbol_superscript

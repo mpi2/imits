@@ -33,9 +33,6 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         number_of_males_with_40_to_79_percent_chimerism
         number_of_males_with_80_to_99_percent_chimerism
         number_of_males_with_100_percent_chimerism
-        is_suitable_for_emma
-        is_emma_sticky
-        emma_status
         colony_background_strain_name
         test_cross_strain_name
         date_chimeras_mated
@@ -85,7 +82,6 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         colony_name
         consortium_name
         production_centre_name
-        distribution_centres_attributes
         blast_strain_name
         total_blasts_injected
         total_transferred
@@ -98,9 +94,6 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         number_of_males_with_40_to_79_percent_chimerism
         number_of_males_with_80_to_99_percent_chimerism
         number_of_males_with_100_percent_chimerism
-        is_suitable_for_emma
-        is_emma_sticky
-        emma_status
         colony_background_strain_name
         test_cross_strain_name
         date_chimeras_mated

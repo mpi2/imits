@@ -12,6 +12,7 @@ mi_attempts.each do |this_mi_attempt|
             if this_deposited_material
               new_distribution_centre.centre = this_centre
               new_distribution_centre.deposited_material = this_deposited_material
+              new_distribution_centre.is_distributed_by_emma = this_mi_attempt.is_suitable_for_emma
               this_mi_attempt.distribution_centres.push(new_distribution_centre)
               if this_mi_attempt.valid?
                 if this_mi_attempt.save!

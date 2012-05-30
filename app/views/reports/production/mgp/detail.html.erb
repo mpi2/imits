@@ -8,18 +8,10 @@
 </style>
 <% end %>
 
-<div class="report">
-<table class="descriptions">
-<tr><th width="200">Status</th><th>Description</th></tr>
-<tr><td><strong>Assigned</strong></td><td>Allele will be created by pipeline</td></tr>
-<tr><td><strong>Assigned - ES QC in progress</strong></td><td>Attempts are being made by ES Cell distribution centre to thaw and QC one or more ES Cell clones (up to a total of five clones).</td></tr>
-<tr><td><strong>Assigned - ES QC complete</strong></td><td>QC ES Cell clone(s) have been thawed and QC passed. Time to MI now depends on RSF schedule.</td></tr>
-<tr><td><strong>Aborted - ES QC Failed</strong></td><td>No more attempts will be made to thaw existing ES Cell clones. MGP needs to make a decision about possible retargeting into ES Cells.</td></tr>
-<tr><td><strong>Microinjection aborted</strong></td><td>Existing mouse production attempt has been abandoned (e.g. because of insufficient chimerism, possible genotype confirmed mice being failed etc). The project will continue (with new MI attempts) until decision is made by the MGP on whether to continue with this gene.</td></tr>
-<tr><td><strong>Mouse Genotype Confirmed</strong></td><td>F1 mice have been genotyped to show they contain the mutant allele. Cohorts will be generated for phenotyping. Mice will be made available for distribution as is feasible.</td></tr>
-</table>
-</div>
 
+<a href="#status_explanations">Status Explanations</a>
+<a href="#priority_explanations">Priority Explanations</a>
+<a href="#contacts">Contacts</a>
 
 <h2><%= @title2 %></h2>
 
@@ -33,4 +25,68 @@
 
 </div>
 
+<div class="report">
+<a name="status_explanations">Status Explanations and Contacts</a>
+<table class="descriptions">
+<tr><th width="250">Status</th><th>Description</th></tr>
+<tr><td><strong>Assigned</strong></td><td>Allele will be created by pipeline</td></tr>
+<tr>
+  <td><strong>Assigned - ES QC in progress</strong></td>
+  <td>Attempts are being made by ES Cell distribution centre to thaw and QC one or more ES Cell clones (up to a total of three clones).</td></tr>
+<tr><td><strong>Assigned - ES QC complete</strong></td><td>QC ES Cell clone(s) have been thawed and QC passed. Time to MI now depends on RSF schedule.</td></tr>
+<tr>
+  <td><strong>Aborted - ES QC Failed</strong></td>
+  <td>
+    No more attempts will be made to thaw existing ES Cell clones.
+    Please contact Aisling O'Dowd <mailto>ao4@sanger.ac.uk</mailto> to discuss options
+  </td>
+</tr>
+<tr>
+  <td><strong>Microinjection aborted</strong></td>
+  <td> Another MI will be attempted if less than the maximum for
+  the project's priority. Please contact Aisling O'Dowd <mailto>ao4@sanger.ac.uk</mailto>
+  if the maximum MI's have been attempted with no Genotype confirmation.</td>
+</tr>
+<tr>
+  <td><strong>Mouse Genotype Confirmed</strong></td>
+  <td>When putative het mice (qPCR) are observed all F1 go through a panel of QC
+  tests (see description <a href="">here</a>) before releasing for
+  expansion and cohort generation. High priority are the first issue after
+  colony stabilization, standard priority are provided to the community
+  beyond primary phenotyping requirements.</td>
+</tr>
+</table>
+
+<a name="priority_explanations">Priority Explanations</a>
+<table class="descriptions">
+<tr>
+  <td><strong>High Priority</strong></td>
+  <td>Up to five separate Microinjections attempts will be made to derive a genotype confirmed mutant mouse line</td>
+</tr>
+<tr>
+  <td><strong>Medium Priority</strong></td>
+  <td>Up to three separate Microinjections attempts will be made to derive a genotype confirmed mutant mouse line</td>
+</tr>
+<tr>
+  <td><strong>Low Priority</strong></td>
+  <td>One Microinjections attempt will be made to derive a genotype confirmed mutant mouse line</td>
+</tr>
+</table>
+
+<a name="contacts">Contacts</a>
+<table class="descriptions">
+<tr>
+  <td><strong>EsCell / Distribution enquiries</strong></td>
+  <td><mailto>Esc-requests@sanger.ac.uk</mailto></td>
+</tr>
+<tr>
+  <td><strong>Mouse production enquiries</strong></td>
+  <td><mailto>mouseinterest@sanger.ac.uk</mailto></td>
+</tr>
+<tr>
+  <td><strong>Bespoke Allele enquiries</strong></td>
+  <td><mailto>br1@sanger.ac.uk</mailto></td>
+</tr>
+</table>
+</div>
 

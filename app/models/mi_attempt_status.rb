@@ -19,10 +19,12 @@ class MiAttemptStatus < ActiveRecord::Base
   def self.micro_injection_aborted
     @@aborted ||= self.find_by_description!('Micro-injection aborted').freeze
   end
-  
+
   def self.chimeras_obtained
     @@chimeras_obtained ||= self.find_by_description!('Chimeras obtained').freeze
   end
+
+  def name; description; end
 end
 
 # == Schema Information

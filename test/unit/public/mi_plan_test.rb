@@ -183,7 +183,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'number_of_es_cells_passing_qc',
         'withdrawn',
         'sub_project_name',
-        'is_active'
+        'is_active',
+        'is_bespoke_allele'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -201,7 +202,10 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'number_of_es_cells_passing_qc',
         'withdrawn',
         'sub_project_name',
-        'is_active'
+        'is_active',
+        'is_bespoke_allele',
+        'status_dates',
+        'mgi_accession_id'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort
@@ -217,6 +221,11 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       should 'translate marker_symbol for search' do
         assert_equal 'gene_marker_symbol_eq',
                 Public::MiPlan.translate_public_param('marker_symbol_eq')
+      end
+
+      should 'translate mgi_accession_id for search' do
+        assert_equal 'gene_mgi_accession_id_in',
+                Public::MiPlan.translate_public_param('mgi_accession_id_in')
       end
 
       should 'translate marker_symbol for sort' do
@@ -245,7 +254,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'translate searching predicates' do
-        plan = Public::MiPlan.find(Factory.create :mi_plan, :gene => Factory.create(:gene_cbx1))
+        plan = Factory.create(:mi_plan, :gene => Factory.create(:gene_cbx1)).to_public
         result = Public::MiPlan.public_search(:marker_symbol_eq => 'Cbx1').result
         assert_equal [plan], result
       end
@@ -257,6 +266,37 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
         result = Public::MiPlan.public_search(:sorts => 'marker_symbol desc').result
         assert_equal ['Xyz3', 'Def1', 'Abc2'], result.map(&:marker_symbol)
+      end
+    end
+
+    context '#status_dates' do
+      should 'show status stamps and their dates' do
+        plan = Factory.create :mi_plan_with_production_centre
+        mi = Factory.create :mi_attempt, :consortium_name => plan.consortium.name,
+                :production_centre_name => plan.production_centre.name,
+                :es_cell => Factory.create(:es_cell, :gene => plan.gene)
+        assert_equal plan, mi.mi_plan
+
+        plan = mi.mi_plan
+        plan.number_of_es_cells_starting_qc = 4
+        plan.save!
+
+        status_dates = {
+          'Interest' => '2011-01-01',
+          'Assigned' => '2011-02-01',
+          'Assigned - ES Cell QC In Progress' => '2011-03-01'
+        }
+        replace_status_stamps(plan, status_dates)
+
+        plan = plan.to_public
+        assert_equal status_dates, plan.status_dates
+      end
+    end
+
+    context '#mgi_accession_id' do
+      should 'return gene mgi_accession_id' do
+        plan = Factory.create(:mi_plan).to_public
+        assert_equal plan.gene.mgi_accession_id, plan.mgi_accession_id
       end
     end
 

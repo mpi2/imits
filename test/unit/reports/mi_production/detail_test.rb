@@ -9,6 +9,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
       expected = [
         'Consortium',
         'Sub-Project',
+        'Is Bespoke Allele',
         'Priority',
         'Production Centre',
         'Gene',

@@ -39,6 +39,7 @@ class GeneTest < ActiveSupport::TestCase
       assert gene_json.keys.include? 'pretty_print_mi_attempts_in_progress'
       assert gene_json.keys.include? 'pretty_print_mi_attempts_genotype_confirmed'
       assert gene_json.keys.include? 'pretty_print_aborted_mi_attempts'
+      assert gene_json.keys.include? 'pretty_print_phenotype_attempts'
     end
 
     context '::find_or_create_from_marts_by_mgi_accession_id' do
@@ -461,26 +462,76 @@ class GeneTest < ActiveSupport::TestCase
         assert_false result.include?('[EUCOMM-EUMODIC:WTSI:1]')
       end
     end
-    
+
+    context '#pretty_print_phenotype_attempts' do
+      should 'work' do
+        gene = Factory.create :gene,
+                :marker_symbol => 'Moo1',
+                :mgi_accession_id => 'MGI:12345'
+
+        mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'MGP',
+                :is_active => true
+        pa = Factory.create :populated_phenotype_attempt, :mi_attempt => mi
+        assert_equal MiAttemptStatus.genotype_confirmed.description, mi.status
+
+        mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'MGP',
+                :is_active => true
+        assert_equal MiAttemptStatus.genotype_confirmed.description, mi.status
+
+        mi = Factory.create :mi_attempt_genotype_confirmed,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'DTCC',
+                :production_centre_name => 'UCD',
+                :is_active => true
+        pa = Factory.create :populated_phenotype_attempt, :mi_attempt => mi
+        assert_equal MiAttemptStatus.genotype_confirmed.description, mi.status
+
+        Factory.create :mi_attempt,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'MARC',
+                :production_centre_name => 'MARC',
+                :is_active => false
+
+        in_progress_mi = Factory.create :mi_attempt_genotype_confirmed,
+                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :consortium_name => 'EUCOMM-EUMODIC',
+                :production_centre_name => 'WTSI'
+        in_progress_mi.number_of_het_offspring = 0
+        in_progress_mi.total_male_chimeras = 0
+        in_progress_mi.save!
+        assert_equal MiAttemptStatus.micro_injection_in_progress.description, in_progress_mi.status
+
+        assert gene
+        assert_equal 4, gene.mi_plans.count
+        assert_equal 2, gene.phenotype_attempts.count
+        result = gene.pretty_print_phenotype_attempts
+        assert_match '[DTCC:UCD:1]', result
+        assert_match '[MGP:WTSI:1]', result
+      end
+    end
+
     context '#relevant_status' do
       should 'return correct status with only plan' do
         plan = Factory.create :mi_plan
         gene = plan.gene
-        assert_equal MiPlan::Status["Interest"].name, gene.relevant_status[:status]
+        assert_equal MiPlan::Status["Interest"].name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
       end
-      
+
       should 'return correct status with plan and microinjection attempt' do
         mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
         :consortium_name => 'BaSH',
         :production_centre_name => 'WTSI'
         gene = mi.gene
         gene.reload
-        
-        assert_equal MiAttemptStatus.genotype_confirmed.description, gene.relevant_status[:status]
+        assert_equal MiAttemptStatus.genotype_confirmed.description.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
       end
-      
+
       should 'return correct status with multiple stamps for plan, microinjection and phenotype attempt' do
-       
+
         mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI'
@@ -491,18 +542,28 @@ class GeneTest < ActiveSupport::TestCase
         replace_status_stamps(plan,
         'Assigned' => '2011-01-01',
         'Assigned - ES Cell QC In Progress' => '2011-05-31')
-        
+
         replace_status_stamps(mi,
         'Micro-injection in progress' => '2011-05-31',
         'Genotype confirmed' => '2011-05-31')
-        
+
         replace_status_stamps(pt,
         'Phenotype Attempt Registered' => '2011-05-31')
-         
+
         gene.reload
-        assert_equal PhenotypeAttempt::Status["Phenotype Attempt Registered"].name, gene.relevant_status[:status] 
+        assert_equal PhenotypeAttempt::Status["Phenotype Attempt Registered"].name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
       end
-      
+
+      should 'have #es_cells_count' do
+        gene = Factory.create :gene, :conditional_es_cells_count => 2,
+                :non_conditional_es_cells_count => 3,
+                :deletion_es_cells_count => 4
+        assert_equal 9, gene.es_cells_count
+
+        gene = Factory.create :gene
+        assert_equal 0, gene.es_cells_count
+      end
+
     end
   end
 end

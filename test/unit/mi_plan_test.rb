@@ -33,6 +33,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:status_id).with_options(:null => false)
         assert_should have_db_column(:priority_id).with_options(:null => false)
         assert_should have_db_column(:sub_project_id).with_options(:null => false)
+        assert_should have_db_column(:is_bespoke_allele).with_options(:null => false)
       end
 
       context '#latest_relevant_mi_attempt' do
@@ -482,14 +483,14 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_false plan2.save
 
         assert_false plan2.valid?
-        assert_match /already has/, plan2.errors['gene'].first
+        assert_match(/already has/, plan2.errors['gene'].first)
 
         plan.production_centre = Centre.find_by_name!('WTSI')
         plan.save!
 
         plan2.production_centre = plan.production_centre
         assert_false plan2.valid?
-        assert_match /already has/, plan2.errors['gene'].first
+        assert_match(/already has/, plan2.errors['gene'].first)
       end
 
       context '#is_active' do
@@ -501,7 +502,7 @@ class MiPlanTest < ActiveSupport::TestCase
           active_mi = Factory.create :mi_attempt, :is_active => true
           active_mi.mi_plan.is_active = false
           active_mi.mi_plan.valid?
-          assert_match /cannot be set to false as active micro-injection attempt/, active_mi.mi_plan.errors[:is_active].first
+          assert_match(/cannot be set to false as active micro-injection attempt/, active_mi.mi_plan.errors[:is_active].first)
         end
 
         should 'be true if an active phenotype attempt found' do
@@ -1053,38 +1054,128 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
-    context '#distinct_genotype_confirmed_es_cells_count' do
+    context '#distinct_old_genotype_confirmed_es_cells_count' do
+      should 'work' do
+        cbx1 = Factory.create :gene_cbx1
 
-      should 'just work' do
-        mi_attempt = Factory.create(:mi_attempt_genotype_confirmed)
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
 
-        expected = [
-          ["Genotype confirmed", '2011-05-13 05:04:01 UTC'],
-          ["Micro-injection in progress", '2010-05-13 05:04:01 UTC']
-        ]
+        mi_attempt1 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
+        replace_status_stamps(mi_attempt1, [
+          ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
 
-        replace_status_stamps(mi_attempt, expected)
+        mi_attempt2 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
+        replace_status_stamps(mi_attempt2, [
+          ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
 
-        results = mi_attempt.mi_plan.distinct_genotype_confirmed_es_cells_count
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_attempt3 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
+        replace_status_stamps(mi_attempt3, [
+          ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
 
-        assert_equal 1, results
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_attempt4 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt4, [
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
+
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        newer_mi_attempt = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
+
+        mi_plan = mi_attempt1.mi_plan.reload
+        result = mi_plan.distinct_old_genotype_confirmed_es_cells_count
+        assert_equal 2, result
+      end
+
+      should 'not treat aborted MIs with a GC status stamp as GC' do
+        cbx1 = Factory.create :gene_cbx1
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        mi_attempt = Factory.create(:mi_attempt, :is_active => false)
+        replace_status_stamps(mi_attempt,
+          'Micro-injection in progress' => '2010-05-13',
+          'Genotype confirmed' => '2010-11-12',
+          'Micro-injection aborted' => '2010-12-11'
+        )
+
+        result = mi_attempt.mi_plan.distinct_old_genotype_confirmed_es_cells_count
+        assert_equal 0, result
       end
     end
 
     context '#distinct_old_non_genotype_confirmed_es_cells_count' do
       should 'just work' do
-        mi_attempt = Factory.create(:mi_attempt, :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress)
+        cbx1 = Factory.create :gene_cbx1
 
-        expected = [
-          ["Micro-injection aborted", '2011-05-13 05:04:01 UTC'],
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt1, [
           ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
-        ]
+        ])
 
-        replace_status_stamps(mi_attempt, expected)
+        mi_attempt2 = Factory.create(:mi_attempt, mi_plan_args.merge(:is_active => false))
+        replace_status_stamps(mi_attempt2, [
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC'],
+          ['Micro-injection aborted', '2010-05-13 05:04:01 UTC'],
+        ])
 
-        results = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_attempt3 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt3, [
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
 
-        assert_equal 1, results
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_attempt4 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
+        replace_status_stamps(mi_attempt4, [
+          ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
+
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        newer_mi_attempt = Factory.create(:mi_attempt, mi_plan_args)
+
+        mi_plan = mi_attempt1.mi_plan.reload
+        result = mi_attempt1.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
+        assert_equal 2, result
+      end
+
+      should 'not treat aborted MIs with a GC status stamp as GC' do
+        cbx1 = Factory.create :gene_cbx1
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        mi_attempt = Factory.create(:mi_attempt, :is_active => false)
+        replace_status_stamps(mi_attempt,
+          'Micro-injection in progress' => '2010-05-13',
+          'Genotype confirmed' => '2010-11-12',
+          'Micro-injection aborted' => '2010-12-11'
+        )
+
+        result = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
+        assert_equal 1, result
       end
     end
 
@@ -1131,7 +1222,7 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
     end
-    
+
     context '#relevant_status_stamp' do
 
       should 'find plan' do
@@ -1142,7 +1233,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
         results = mi_plan.relevant_status_stamp
 
-        assert_equal "Aborted - ES Cell QC Failed", results[:status]
+        assert_equal "aborted_es_cell_qc_failed", results[:status]
         assert_equal Date.today.to_date, results[:date].to_date
       end
 
@@ -1151,7 +1242,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
         results = mi_attempt.mi_plan.relevant_status_stamp
 
-        assert_equal "Micro-injection aborted", results[:status]
+        assert_equal "microinjection_aborted", results[:status]
         assert_equal Date.today.to_date, results[:date].to_date
       end
 
@@ -1170,11 +1261,137 @@ class MiPlanTest < ActiveSupport::TestCase
 
         results = mi_plan.relevant_status_stamp
 
-        assert_equal "Phenotype Attempt Registered", results[:status]
+        assert_equal "phenotype_attempt_registered", results[:status]
         assert_equal Date.parse('2011-10-30').to_date, results[:date].to_date
       end
 
     end
 
+
+    context '#total_pipeline_efficiency_gene_count' do
+      should 'NOT find one with incorrect date' do
+        cbx1 = Factory.create :gene_cbx1
+
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        d = DateTime.now.to_date
+
+        mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt1, [
+          ['Micro-injection in progress', "#{d.year}-#{d.month}-13 05:04:01 UTC"]
+        ])
+
+        mi_plan = mi_attempt1.mi_plan.reload
+        result = mi_attempt1.mi_plan.total_pipeline_efficiency_gene_count
+        assert_equal 0, result
+      end
+
+      should 'NOT find one with wrong status' do
+        cbx1 = Factory.create :gene_cbx1
+
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        d = DateTime.now.to_date
+
+        mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt1, [
+          ['Micro-injection aborted', "#{d.year}-#{d.month}-13 05:04:01 UTC"]
+        ])
+
+        mi_plan = mi_attempt1.mi_plan.reload
+        result = mi_attempt1.mi_plan.total_pipeline_efficiency_gene_count
+        assert_equal 0, result
+      end
+
+      should 'find one beyond six months old' do
+        cbx1 = Factory.create :gene_cbx1
+
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt1, [
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
+
+        mi_plan = mi_attempt1.mi_plan.reload
+        result = mi_attempt1.mi_plan.total_pipeline_efficiency_gene_count
+        assert_equal 1, result
+      end
+    end
+
+    context '#total_pipeline_efficiency_gene_count' do
+      should 'NOT find one with incorrect date' do
+        cbx1 = Factory.create :gene_cbx1
+
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        d = DateTime.now.to_date
+
+        mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt1, [
+          ['Micro-injection in progress', "#{d.year}-#{d.month}-13 05:04:01 UTC"]
+        ])
+
+        mi_plan = mi_attempt1.mi_plan.reload
+        result = mi_attempt1.mi_plan.total_pipeline_efficiency_gene_count
+        assert_equal 0, result
+      end
+
+      should 'NOT find one with wrong status' do
+        cbx1 = Factory.create :gene_cbx1
+
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        d = DateTime.now.to_date
+
+        mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt1, [
+          ['Micro-injection aborted', "#{d.year}-#{d.month}-13 05:04:01 UTC"]
+        ])
+
+        mi_plan = mi_attempt1.mi_plan.reload
+        result = mi_attempt1.mi_plan.total_pipeline_efficiency_gene_count
+        assert_equal 0, result
+      end
+
+      should 'find one beyond six months old' do
+        cbx1 = Factory.create :gene_cbx1
+
+        mi_plan_args = {
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI',
+          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        }
+
+        mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
+        replace_status_stamps(mi_attempt1, [
+          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+        ])
+
+        mi_plan = mi_attempt1.mi_plan.reload
+        result = mi_attempt1.mi_plan.total_pipeline_efficiency_gene_count
+        assert_equal 1, result
+      end
+    end
   end
 end

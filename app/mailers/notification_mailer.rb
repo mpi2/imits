@@ -9,25 +9,24 @@ class NotificationMailer < ActionMailer::Base
       @gene.mi_plans.each do |plan|
         if plan.is_active?
           @modifier_string = "is"
-        else
-          @modifier_string ||= "is not"
         end
       end
     end
-    @total_cell_count = (@gene.conditional_es_cells_count || 0) + (@gene.non_conditional_es_cells_count || 0) + (@gene.deletion_es_cells_count || 0)
-    
+
+    @total_cell_count = @gene.es_cells_count
+
     mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
       format.text
     end
   end
-  
+
   def status_email(notification)
     # notification.check_status takes into account the timestamps for when the welcome or last email was sent
-    
-    @contact = Contact.find(notification.contact_id) 
+
+    @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)
     @relevant_status = ""
-    
+
     notification.check_statuses
 
     if notification.relevant_statuses.length > 0
@@ -37,13 +36,12 @@ class NotificationMailer < ActionMailer::Base
           @gene.mi_plans.each do |plan|
             if plan.is_active?
               @modifier_string = "is"
-            else
-              @modifier_string ||= "is not"
             end
           end
         end
-      @total_cell_count = (@gene.conditional_es_cells_count || 0) + (@gene.non_conditional_es_cells_count || 0) + (@gene.deletion_es_cells_count || 0)
-    
+
+      @total_cell_count = @gene.es_cells_count
+
       mail(:to => @contact.email, :subject => "Status update for #{@gene.marker_symbol}") do |format|
         format.text
       end

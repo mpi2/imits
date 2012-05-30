@@ -330,21 +330,6 @@ input[type=checkbox] ~ label {
     display: inline;
 }
 
-fieldset.static {
-    border: 2px solid #a6c5ec;
-    padding: 20px;
-    padding-top: 0;
-    margin-bottom: 2em;
-    border-radius: 4px;
-}
-
-fieldset.static legend {
-	padding-left: 5px;
-	padding-right: 5px;
-	font: italic 1.4em Georgia, "Times New Roman", Times, serif;
-}
-
-
 form fieldset {
     border: 2px solid #a6c5ec;
     padding: 20px;
@@ -456,6 +441,18 @@ div.user-form div.submit {
 #mi-search-form #buttons a { cursor: pointer; }
 #mi-search-form fieldset { padding-bottom: 10px; margin-bottom: 10px; }
 #mi-search-form fieldset > div { margin-bottom: 7px; }
+
+/* @end */
+
+/* @group Phenotype Attempts Search Form */
+
+#pa-search-form #search-terms { height: 8em; width: 100%; }
+#pa-search-form select { margin-left: 1em; }
+#pa-search-form table td { padding-bottom: 1em; }
+#pa-search-form #buttons { margin-bottom: 0; }
+#pa-search-form #buttons a { cursor: pointer; }
+#pa-search-form fieldset { padding-bottom: 10px; margin-bottom: 10px; }
+#pa-search-form fieldset > div { margin-bottom: 7px; }
 
 /* @end */
 

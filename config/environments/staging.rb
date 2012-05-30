@@ -6,11 +6,8 @@ Kermits2::Application.configure do
   config.cache_classes = true
 
   # Full error reports are disabled and caching is turned on
-  # config.consider_all_requests_local       = false
-  # config.action_controller.perform_caching = true
-  
-  config.consider_all_requests_local       = true
-  config.action_controller.perform_caching = false
+  config.consider_all_requests_local       = false
+  config.action_controller.perform_caching = true
 
   # Specifies the header that your server uses for sending files
   config.action_dispatch.x_sendfile_header = "X-Sendfile"
@@ -22,7 +19,8 @@ Kermits2::Application.configure do
   # just comment this out and Rails will serve the files
 
   # See everything in the log (default is :info)
-  config.log_level = :debug
+  # config.log_level = :debug
+  config.log_level = :info # default on non-production is debug
 
   # Use a different logger for distributed setups
   # config.logger = SyslogLogger.new
@@ -32,19 +30,19 @@ Kermits2::Application.configure do
 
   # Disable Rails's static asset server
   # In production, Apache or nginx will already do this
-  config.serve_static_assets = true
+  config.serve_static_assets = false
 
   # Enable serving of images, stylesheets, and javascripts from an asset server
   # config.action_controller.asset_host = "http://assets.example.com"
 
   # Disable delivery errors, bad email addresses will be ignored
-  config.action_mailer.raise_delivery_errors = true
-  
+  # config.action_mailer.raise_delivery_errors = false
+
   # sendmail on staging and production links through to exim4
   # exim4 errors with default sendmail args of "-i -t"
   # "-t" use headers for the destination email
   # but since destination email is included on the cmd line exim4 suppresses both the cmd line and headers options
-  
+
   config.action_mailer.delivery_method = :sendmail
   config.action_mailer.sendmail_settings = {:arguments => '-i'}
 

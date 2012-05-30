@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120411132445) do
+ActiveRecord::Schema.define(:version => 20120522123605) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -137,6 +137,9 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
     t.integer  "mi_plan_id",                                                  :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "total_pipeline_efficiency_gene_count"
+    t.integer  "gc_pipeline_efficiency_gene_count"
+    t.boolean  "is_bespoke_allele"
   end
 
   create_table "mi_attempt_status_stamps", :force => true do |t|
@@ -250,17 +253,18 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
   end
 
   create_table "mi_plans", :force => true do |t|
-    t.integer  "gene_id",                                          :null => false
-    t.integer  "consortium_id",                                    :null => false
-    t.integer  "status_id",                                        :null => false
-    t.integer  "priority_id",                                      :null => false
+    t.integer  "gene_id",                                           :null => false
+    t.integer  "consortium_id",                                     :null => false
+    t.integer  "status_id",                                         :null => false
+    t.integer  "priority_id",                                       :null => false
     t.integer  "production_centre_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "number_of_es_cells_starting_qc"
     t.integer  "number_of_es_cells_passing_qc"
-    t.integer  "sub_project_id",                                   :null => false
-    t.boolean  "is_active",                      :default => true, :null => false
+    t.integer  "sub_project_id",                                    :null => false
+    t.boolean  "is_active",                      :default => true,  :null => false
+    t.boolean  "is_bespoke_allele",              :default => false, :null => false
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true
@@ -270,8 +274,8 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
     t.text     "welcome_email_text"
     t.datetime "last_email_sent"
     t.text     "last_email_text"
-    t.integer  "gene_id"
-    t.integer  "contact_id"
+    t.integer  "gene_id",            :null => false
+    t.integer  "contact_id",         :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -394,6 +398,9 @@ ActiveRecord::Schema.define(:version => 20120411132445) do
   add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk", :column => "priority_id"
   add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"
+
+  add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
+  add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"
 
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempt_statuses", :name => "phenotype_attempt_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempts", :name => "phenotype_attempt_status_stamps_phenotype_attempt_id_fk"

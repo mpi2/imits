@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class UserTest < Kermits2::IntegrationTest
+class UserIntegrationTest < Kermits2::IntegrationTest
 
   context 'User integration:' do
 
@@ -54,7 +54,7 @@ class UserTest < Kermits2::IntegrationTest
       assert page.has_css?('input[name="user[name]"]', :value => 'New Name Of User')
     end
 
-    should 'allow contactable to be modified' do    
+    should 'allow contactable to be modified' do
       user = Factory.create :user
       assert_false user.is_contactable?
 
@@ -64,7 +64,7 @@ class UserTest < Kermits2::IntegrationTest
       click_button 'user_submit'
 
       user.reload
-      
+
       assert_true user.is_contactable?
     end
 

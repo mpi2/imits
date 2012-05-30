@@ -125,7 +125,7 @@ class MiPlan < ApplicationModel
       return ordered_mis.last
     end
   end
-  
+
   def latest_relevant_phenotype_attempt
     return phenotype_attempts.order('is_active desc, created_at desc').first
   end
@@ -314,34 +314,26 @@ class MiPlan < ApplicationModel
     end
   end
 
-  def distinct_genotype_confirmed_es_cells_count
-
+  def distinct_old_genotype_confirmed_es_cells_count
     es_cells = []
-    mi_attempts.each do |mi|
+    mi_attempts.genotype_confirmed.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
-      gc_date = dates["Genotype confirmed"]
-      next if ! gc_date
       mip_date = dates["Micro-injection in progress"]
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
 
     return es_cells.sort.uniq.size
-
   end
 
   def distinct_old_non_genotype_confirmed_es_cells_count
-
     es_cells = []
-    mi_attempts.each do |mi|
+    mi_attempts.search(:mi_attempt_status_id_not_eq => MiAttemptStatus.genotype_confirmed.id).result.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
-      gc_date = dates["Genotype confirmed"]
-      next if gc_date
       mip_date = dates["Micro-injection in progress"]
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
     end
 
     return es_cells.sort.uniq.size
-
   end
 
   def latest_relevant_status
@@ -354,7 +346,7 @@ class MiPlan < ApplicationModel
     end
 
     d = plan_status_list[s]
-    
+
     mi = latest_relevant_mi_attempt
 
     if mi
@@ -367,9 +359,8 @@ class MiPlan < ApplicationModel
       s = mi.mi_attempt_status.description
       d = mi_status_list[s]
     end
-    
+
     pt = latest_relevant_phenotype_attempt
-    s = pt ? pt.status.name : s
 
     if pt
       pheno_status_list = {}
@@ -384,46 +375,48 @@ class MiPlan < ApplicationModel
 
     return { :status => s, :date => d }
   end
-  
+
   def relevant_status_stamp
-    @status_stamp = Hash.new
-    if self.status_stamps
-      plan_stamp = self.status_stamps.find_by_status_id(self.status_id)
-      if plan_stamp
-        #overwrite hash if more relevant stamp found
-        @status_stamp = Hash.new
-        @status_stamp[:order_by] = plan_stamp.status.order_by
-        @status_stamp[:date] = plan_stamp.created_at
-        @status_stamp[:status] = plan_stamp.status.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
-        @status_stamp[:stamp_type] = plan_stamp.class.name
-        @status_stamp[:stamp_id] = plan_stamp.id
-      end
+    status_stamp = status_stamps.find_by_status_id!(status.id)
+
+    mi = latest_relevant_mi_attempt
+    if mi
+      status_stamp = mi.status_stamps.find_by_mi_attempt_status_id!(mi.mi_attempt_status.id)
     end
-        
-    if mi = self.latest_relevant_mi_attempt
-      mi_stamp = mi.status_stamps.find_by_mi_attempt_status_id(mi.mi_attempt_status)
-      if mi_stamp
-        @status_stamp = Hash.new
-        @status_stamp[:order_by] = mi_stamp.mi_attempt_status.order_by
-        @status_stamp[:date] = mi_stamp.created_at
-        @status_stamp[:status] = mi_stamp.mi_attempt_status.description.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
-        @status_stamp[:stamp_type] = mi_stamp.class.name
-        @status_stamp[:stamp_id] = mi_stamp.id
-      end
+
+    pa = latest_relevant_phenotype_attempt
+    if pa
+      status_stamp = pa.status_stamps.find_by_status_id!(pa.status.id)
     end
-    
-    if pa = self.latest_relevant_phenotype_attempt
-      pa_stamp = pa.status_stamps.find_by_status_id(pa.status_id)
-      if pa_stamp
-        @status_stamp = Hash.new
-        @status_stamp[:order_by] = pa_stamp.status.order_by
-        @status_stamp[:date] = pa_stamp.created_at
-        @status_stamp[:status] = pa_stamp.status.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
-        @status_stamp[:stamp_type] = pa_stamp.class.name
-        @status_stamp[:stamp_id] = pa_stamp.id
-      end
+
+    retval = {}
+    retval[:order_by] = status_stamp.status.order_by
+    retval[:date] = status_stamp.created_at
+    retval[:status] = status_stamp.status.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
+    retval[:stamp_type] = status_stamp.class.name
+    retval[:stamp_id] = status_stamp.id
+
+    return retval
+  end
+
+  def total_pipeline_efficiency_gene_count
+    mi_attempts.each do |mi|
+      dates = mi.reportable_statuses_with_latest_dates
+      mip_date = dates["Micro-injection in progress"]
+      next if ! mip_date
+      return 1 if mip_date < 6.months.ago.to_date
     end
-    return @status_stamp
+    return 0
+  end
+
+  def gc_pipeline_efficiency_gene_count
+    mi_attempts.genotype_confirmed.each do |mi|
+      dates = mi.reportable_statuses_with_latest_dates
+      mip_date = dates["Micro-injection in progress"]
+      next if ! mip_date
+      return 1 if mip_date < 6.months.ago.to_date
+    end
+    return 0
   end
 
 end
@@ -444,6 +437,7 @@ end
 #  number_of_es_cells_passing_qc  :integer
 #  sub_project_id                 :integer         not null
 #  is_active                      :boolean         default(TRUE), not null
+#  is_bespoke_allele              :boolean         default(FALSE), not null
 #
 # Indexes
 #

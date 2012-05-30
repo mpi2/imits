@@ -1,5 +1,5 @@
 // Helper functions for cell templates - see in the grid below...
-function splitMiString(mi_string) {
+function splitResultString(mi_string) {
     var mis = [];
     var pattern = /^\[(.+)\:(.+)\:(\d+)\]$/;
     Ext.Array.each(mi_string.split('<br/>'), function(mi) {
@@ -35,7 +35,7 @@ Ext.define('Imits.widget.GeneGrid', {
     'Ext.ux.RowExpander',
     'Ext.selection.CheckboxModel'
     ],
-    title: 'Please Select the Genes You Would Like to Register Interest In',
+    title: 'Please Select the Genes You Would Like to Register Interest In*',
     iconCls: 'icon-grid',
     columnLines: true,
     store: {
@@ -94,7 +94,7 @@ Ext.define('Imits.widget.GeneGrid', {
         dataIndex: 'assigned_mi_plans',
         readOnly: true,
         sortable: false,
-        width: 200,
+        width: 180,
         flex: 1,
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
@@ -111,7 +111,7 @@ Ext.define('Imits.widget.GeneGrid', {
         dataIndex: 'pretty_print_aborted_mi_attempts',
         readOnly: true,
         sortable: false,
-        width: 200,
+        width: 180,
         flex: 1,
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
@@ -119,7 +119,7 @@ Ext.define('Imits.widget.GeneGrid', {
             '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
             '</tpl>',
             {
-                processedMIs: splitMiString
+                processedMIs: splitResultString
             }
             )
     },
@@ -128,7 +128,7 @@ Ext.define('Imits.widget.GeneGrid', {
         dataIndex: 'pretty_print_mi_attempts_in_progress',
         readOnly: true,
         sortable: false,
-        width: 200,
+        width: 180,
         flex: 1,
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
@@ -136,7 +136,7 @@ Ext.define('Imits.widget.GeneGrid', {
             '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
             '</tpl>',
             {
-                processedMIs: splitMiString
+                processedMIs: splitResultString
             }
             )
     },
@@ -145,7 +145,7 @@ Ext.define('Imits.widget.GeneGrid', {
         dataIndex: 'pretty_print_mi_attempts_genotype_confirmed',
         readOnly: true,
         sortable: false,
-        width: 200,
+        width: 180,
         flex: 1,
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
@@ -153,7 +153,24 @@ Ext.define('Imits.widget.GeneGrid', {
             '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
             '</tpl>',
             {
-                processedMIs: splitMiString
+                processedMIs: splitResultString
+            }
+            )
+    },
+    {
+      header: 'Phenotype Attempts',
+        dataIndex: 'pretty_print_phenotype_attempts',
+        readOnly: true,
+        sortable: false,
+        width: 180,
+        flex: 1,
+        xtype: 'templatecolumn',
+        tpl: new Ext.XTemplate(
+            '<tpl for="this.processedMIs(pretty_print_phenotype_attempts)">',
+            '<a href="' + window.basePath + '/phenotype_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
+            '</tpl>',
+            {
+                processedMIs: splitResultString
             }
             )
     }

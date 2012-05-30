@@ -55,6 +55,18 @@ Factory.define :mi_plan_with_production_centre, :parent => :mi_plan do |mi_plan|
   mi_plan.association :production_centre, :factory => :centre
 end
 
+Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_plan|
+  mi_plan.after_create do |plan|
+    plan.status_stamps.destroy_all
+
+    plan.status_stamps.create!(
+      :status => MiPlan::Status[:Interest],
+      :created_at => (Time.now - 20.minute))
+
+    plan.status_stamps.reload
+  end
+end
+
 Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.association :es_cell
   mi_attempt.consortium_name 'EUCOMM-EUMODIC'
@@ -113,6 +125,30 @@ Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_
   end
 end
 
+Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt_genotype_confirmed do |mi_attempt|
+  mi_attempt.after_create do |mi|
+    mi.status_stamps.destroy_all
+
+    mi.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :created_at => (Time.now - 1.hour))
+    mi.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+      :created_at => (Time.now - 1.month))
+
+    mi.mi_plan.status_stamps.first.update_attributes(:created_at => (Time.now - 3.month))
+    mi.mi_plan.status_stamps.create!(
+      :status => MiPlan::Status[:Conflict],
+      :created_at => (Time.now - 4.month))
+    mi.mi_plan.status_stamps.create!(
+      :status => MiPlan::Status[:Interest],
+      :created_at => (Time.now - 5.month))
+
+    mi.mi_plan.status_stamps.reload
+    mi.status_stamps.reload
+  end
+end
+
 Factory.define :phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
 end
@@ -125,6 +161,42 @@ Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |p
   phenotype_attempt.phenotyping_started true
   phenotype_attempt.phenotyping_complete true
   phenotype_attempt.mouse_allele_type 'b'
+end
+
+Factory.define :phenotype_attempt_with_recent_status_history, :parent => :populated_phenotype_attempt do |phenotype_attempt|
+  phenotype_attempt.after_create do |pa|
+    pa.status_stamps.destroy_all
+
+    pa.status_stamps.create!(
+      :status => PhenotypeAttempt::Status["Phenotype Attempt Registered"],
+      :created_at => (Time.now - 1.hour)
+      )
+    pa.status_stamps.create!(
+      :status => PhenotypeAttempt::Status["Phenotyping Complete"],
+      :created_at => (Time.now - 30.minute)
+      )
+    pa.status_stamps.reload
+
+    pa.mi_attempt.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :created_at => (Time.now - 1.hour))
+    pa.mi_attempt.status_stamps.create!(
+      :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+      :created_at => (Time.now - 1.month))
+
+
+    pa.mi_plan.status_stamps.create!(
+      :status => MiPlan::Status["Assigned - ES Cell QC Complete"],
+      :created_at => (Time.now - 10.day))
+    pa.mi_plan.status_stamps.create!(
+      :status => MiPlan::Status[:Assigned],
+      :created_at => (Time.now - 10.month))
+    pa.mi_plan.status_stamps.create!(
+      :status => MiPlan::Status[:Interest],
+      :created_at => (Time.now - 20.month))
+
+
+  end
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|
@@ -250,6 +322,28 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
       :distribution_centre_name => 'WTSI'
     )
   end
+end
+
+Factory.define :es_cell_EPD0011_1_G18, :parent => :es_cell do |es_cell|
+  es_cell.name 'EPD0011_1_G18'
+  es_cell.association :gene, :marker_symbol => 'Gatc'
+  es_cell.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
+  es_cell.pipeline { Pipeline.find_by_name! 'KOMP-CSD' }
+
+  es_cell.after_create do |es_cell|
+    mi_attempt = Factory.create(:mi_attempt,
+      :es_cell => es_cell,
+      :colony_name => 'MBFD',
+      :consortium_name => 'MGP',
+      :production_centre_name => 'WTSI',
+      :distribution_centre_name => 'WTSI'
+    )
+    mi_attempt_status = MiAttemptStatus.find_by_description('Genotype confirmed')
+    mi_attempt.mi_attempt_status = mi_attempt_status
+    phenotype_attempt = Factory.create :populated_phenotype_attempt, :mi_attempt => mi_attempt
+  end
+
+
 end
 
 Factory.define :report_cache do |report_cache|

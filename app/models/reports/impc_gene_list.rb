@@ -13,6 +13,7 @@ module Reports::ImpcGeneList
     'Withdrawn' => 'Project Withdrawn',
     # mi attempts
     'Micro-injection in progress' => 'Mouse Production in Progress', 
+    'Chimeras obtained' => 'Mouse Production in Progress', 
     'Micro-injection aborted' => 'Mouse Production in Progress', 
     'Chimeras obtained' => 'Mouse Production in Progress',
     'Genotype confirmed' => 'Genotype Confirmed Mice',

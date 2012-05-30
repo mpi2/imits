@@ -36,5 +36,10 @@ class MiAttemptStatusTest < ActiveSupport::TestCase
       end
     end
 
+    should 'alias #name to #description' do
+      assert_equal 'Chimeras obtained', MiAttemptStatus.chimeras_obtained.name
+      assert_equal 'Micro-injection in progress', MiAttemptStatus.micro_injection_in_progress.name
+    end
+
   end
 end

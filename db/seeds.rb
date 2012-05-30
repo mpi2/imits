@@ -172,7 +172,7 @@ Seeds.load MiPlan::SubProject, [
   {:id => 15, :name => 'WTSI_Sense_A'},
   {:id => 16, :name => 'WTSI_Metabolism_A'},
   {:id => 17, :name => 'WTSI_Cre'},
-  {:id => 18, :name => 'WTSI_Malaria_A'}
+  {:id => 18, :name => 'WTSI_Malaria_A'},
   {:id => 19, :name => 'WTSI_Rarediseases_A'}
 ]
 

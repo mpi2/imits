@@ -111,6 +111,8 @@ Seeds.load Consortium, [
   {:id => 13, :name => 'Phenomin',       :funding => 'Phenomin', :participants => 'ICS'},
   {:id => 14, :name => 'RIKEN BRC',      :funding => 'Japanese government', :participants => 'RIKEN BRC'},
   {:id => 15,  :name => 'DTCC-Legacy',           :funding => 'KOMP312/KOMP', :participants => 'Davis-CHORI'},
+  {:id => 16,  :name => 'MGP Legacy',    :funding => 'Wellcome Trust', :participants => 'Mouse Genetics Project, WTSI'}
+
 ]
 
 Seeds.load Centre, [

@@ -72,7 +72,8 @@ Seeds.load Strain, [
   {:id => 40, :name => "Delete once confirmed its use"},
   {:id => 41, :name => "c"},
   {:id => 42, :name => 'B6D2F1 x B6'},
-  {:id => 43, :name => 'C57BL6'}
+  {:id => 43, :name => 'C57BL6'},
+  {:id => 43, :name => 'ICR/Jcl'}
 ]
 
 Seeds.load MiAttemptStatus, [
@@ -169,7 +170,8 @@ Seeds.load MiPlan::SubProject, [
   {:id => 13, :name => 'WTSI_Bespoke_A'},
   {:id => 14, :name => 'MGP Legacy'},
   {:id => 15, :name => 'WTSI_Sense_A'},
-  {:id => 16, :name => 'WTSI_Metabolism_A'}
+  {:id => 16, :name => 'WTSI_Metabolism_A'},
+  {:id => 17, :name => 'WTSI_Rarediseases_A'}
 ]
 
 Seeds.load PhenotypeAttempt::Status, [

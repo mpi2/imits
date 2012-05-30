@@ -1,5 +1,5 @@
-START: 2012-05-30T11:42:14+01:00
-Environment: staging
+START: 2012-05-30T12:51:08+01:00
+Environment: production
 Attempt: 3285 - Old plan: 112 - New plan: 8796 - Attempts count: 4 - Date: 2011-06-03
 Attempt: 4248 - Old plan: 2848 - New plan: 8797 - Attempts count: 1 - Date: 2011-09-21
 Attempt: 4112 - Old plan: 1721 - New plan: 8798 - Attempts count: 2 - Date: 2011-07-22
@@ -240,5 +240,5 @@ Attempt: 5715 - Old plan: 2726 - New plan: 9011 - Attempts count: 2 - Date: 2012
 Attempt: 3361 - Old plan: 2051 - New plan: 9012 - Attempts count: 4 - Date: 2011-06-20
 Attempt: 4289 - Old plan: 2058 - New plan: 9013 - Attempts count: 2 - Date: 2011-08-31
 Attempt: 4237 - Old plan: 2846 - New plan: 9014 - Attempts count: 1 - Date: 2011-09-08
-END: 2012-05-30T11:43:05+01:00
+END: 2012-05-30T12:51:52+01:00
 done!

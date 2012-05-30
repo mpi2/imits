@@ -13,7 +13,7 @@
 #usage
 #bundle exec  rake db:production:clone
 #bundle exec rake db:migrate db:seed
-#/script/runner script/scratch/mgp_consortium_change2.rb > script/scratch/mgp_consortium_change2.log
+#./script/runner script/scratch/mgp_consortium_change2.rb > script/scratch/mgp_consortium_change2.log
 
 VERBOSE = false
 EXPECTED_COUNT = 1059
@@ -28,7 +28,7 @@ plans = MiPlan.find(:all, :conditions => {
 
 raise "Expected #{EXPECTED_COUNT} rows - found #{plans.size} rows" if plans.size != EXPECTED_COUNT
 
-sub_project = MiPlan::SubProject.find_by_name!('MGP Interest')
+sub_project = MiPlan::SubProject.find_by_name!('MGPinterest')
 
 puts "\nsub_project: " + sub_project.inspect if VERBOSE
 

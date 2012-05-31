@@ -72,7 +72,8 @@ Seeds.load Strain, [
   {:id => 40, :name => "Delete once confirmed its use"},
   {:id => 41, :name => "c"},
   {:id => 42, :name => 'B6D2F1 x B6'},
-  {:id => 43, :name => 'C57BL6'}
+  {:id => 43, :name => 'C57BL6'},
+  {:id => 43, :name => 'ICR/Jcl'}
 ]
 
 Seeds.load MiAttemptStatus, [
@@ -172,7 +173,8 @@ Seeds.load MiPlan::SubProject, [
   {:id => 15, :name => 'WTSI_Sense_A'},
   {:id => 16, :name => 'WTSI_Metabolism_A'},
   {:id => 17, :name => 'WTSI_Cre'},
-  {:id => 18, :name => 'WTSI_Malaria_A'}
+  {:id => 18, :name => 'WTSI_Malaria_A'},
+  {:id => 19, :name => 'WTSI_Rarediseases_A'}
 ]
 
 Seeds.load PhenotypeAttempt::Status, [

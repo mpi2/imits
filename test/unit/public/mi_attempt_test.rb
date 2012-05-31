@@ -82,6 +82,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         colony_name
         consortium_name
         production_centre_name
+        pretty_print_distribution_centres
         blast_strain_name
         total_blasts_injected
         total_transferred

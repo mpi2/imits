@@ -3,9 +3,6 @@ Kermits2::Application.configure do
 
   ENV['RAILS_ASSET_ID'] = ''
 
-  ActiveRecord::Base.logger = Logger.new(STDOUT) if defined?
-  Rails::Console
-
   # In the development environment your application's code is reloaded on
   # every request.  This slows down response time but is perfect for development
   # since you don't have to restart the webserver when you make code changes.

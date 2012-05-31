@@ -38,6 +38,10 @@ Ext.define('Imits.model.MiAttempt', {
         persist: false
     },
     'distribution_centres_attributes',
+    {
+        name: 'pretty_print_distribution_centres',
+        readOnly: true
+    },
     'blast_strain_name',
     {
         name: 'total_blasts_injected',

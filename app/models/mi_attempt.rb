@@ -291,6 +291,27 @@ class MiAttempt < ApplicationModel
     @production_centre_name = arg
   end
 
+  def pretty_print_distribution_centres
+    @formatted_tags_array = Array.new
+    self.distribution_centres.each do |this_distribution_centre|
+      output_array = Array.new
+      centre = this_distribution_centre.centre.name || ''
+      deposited_material = this_distribution_centre.deposited_material.name || ''
+      if this_distribution_centre.is_distributed_by_emma
+        emma_status = 'EMMA'
+        output_array.push(emma_status, centre)
+      else
+        output_array.push(centre)
+      end
+      output_string = "["
+      output_string << output_array.join('::')
+      output_string << "]"
+      @formatted_tags_array.push(output_string)
+    end
+    @pretty_print_distribution_centres = @formatted_tags_array.join(', ')
+    return @pretty_print_distribution_centres
+  end
+
   def es_cell_name
     if(self.es_cell)
       return self.es_cell.name

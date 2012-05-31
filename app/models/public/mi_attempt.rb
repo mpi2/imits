@@ -58,6 +58,7 @@ class Public::MiAttempt < ::MiAttempt
 
   READABLE_ATTRIBUTES = %w{
     id
+    pretty_print_distribution_centres
     es_cell_marker_symbol
     es_cell_allele_symbol
     status_name

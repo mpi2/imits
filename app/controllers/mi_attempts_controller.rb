@@ -100,7 +100,8 @@ class MiAttemptsController < ApplicationController
   end
 
   def history
-    @mi_attempt = MiAttempt.find(params[:id])
+    @resource = MiAttempt.find(params[:id])
+    render :template => '/shared/history'
   end
 
   private

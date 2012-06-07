@@ -26,10 +26,13 @@
 </div>
 
 <div class="report">
-<a name="status_explanations">Status Explanations and Contacts</a>
+<a name="status_explanations">Status Explanations</a>
 <table class="descriptions">
+<thead>
 <tr><th width="250">Status</th><th>Description</th></tr>
-<tr><td><strong>Assigned</strong></td><td>Allele will be created by pipeline</td></tr>
+</thead>
+<tbody>
+<tr><td><strong>Assigned</strong></td><td>If the ES Cell Allele exists, ES Cell QC will be started, otherwise (for Bespoke projects) will be created by pipeline</td></tr>
 <tr>
   <td><strong>Assigned - ES QC in progress</strong></td>
   <td>Attempts are being made by ES Cell distribution centre to thaw and QC one or more ES Cell clones (up to a total of three clones).</td></tr>
@@ -42,6 +45,10 @@
   </td>
 </tr>
 <tr>
+  <td><strong>Chimeras</strong></td>
+  <td>Male chimeras >10% coat colour. The chimera breeding programme is initiated at ~8 weeks of age and standard breeding continues for up to 116 days to obtain GLT</td>
+</tr>
+<tr>
   <td><strong>Microinjection aborted</strong></td>
   <td> Another MI will be attempted if less than the maximum for
   the project's priority. Please contact Aisling O'Dowd <mailto>ao4@sanger.ac.uk</mailto>
@@ -49,17 +56,23 @@
 </tr>
 <tr>
   <td><strong>Mouse Genotype Confirmed</strong></td>
-  <td>When putative het mice (qPCR) are observed all F1 go through a panel of QC
-  tests (see description <a href="http://www.knockoutmouse.org/kb/entry/58/">here</a> as well as related articles in this FAQ) before releasing for
-  expansion and cohort generation. High priority are the first issue after
-  colony stabilization, standard priority are provided to the community
-  beyond primary phenotyping requirements.</td>
+  <td>
+    When putative het mice (qPCR) are observed all F1 go through a panel of QC
+    tests (see description <a href="http://www.knockoutmouse.org/kb/25/">here</a>
+    as well as related articles in this FAQ).
+  </td>
 </tr>
+</tbody>
 </table>
 <br/>
 
 <a name="priority_explanations">Priority Explanations</a>
 <table class="descriptions">
+<thead>
+<tr><th width="250">Priority</th><th>Description</th></tr>
+</thead>
+
+<tbody>
 <tr>
   <td><strong>High Priority</strong></td>
   <td>Up to five separate Microinjections attempts will be made to derive a genotype confirmed mutant mouse line</td>
@@ -72,17 +85,19 @@
   <td><strong>Low Priority</strong></td>
   <td>One Microinjections attempt will be made to derive a genotype confirmed mutant mouse line</td>
 </tr>
+</tbody>
 </table>
 
 <br/>
 <a name="contacts">Contacts</a>
 <table class="descriptions">
+<tr><th width="250">Nature</th><th>Contact</th></tr>
 <tr>
   <td><strong>EsCell / Distribution enquiries</strong></td>
   <td><mailto>Esc-requests@sanger.ac.uk</mailto></td>
 </tr>
 <tr>
-  <td><strong>Mouse production enquiries</strong></td>
+  <td><strong>Mouse production and distribution enquiries</strong></td>
   <td><mailto>mouseinterest@sanger.ac.uk</mailto></td>
 </tr>
 <tr>

@@ -17,6 +17,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   MI_GOALS = 
     {
       2012 => {
+        6 => {
+          'BaSH' => 412,
+          'DTCC' => 299,
+          'JAX' => 135,
+        },
         5 => {
           'BaSH' => 384,
           'DTCC' => 276,
@@ -85,6 +90,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   GC_GOALS = 
     {
       2012 => {
+        6 => {
+          'BaSH' => 126,
+          'DTCC' => 182,
+          'JAX' => 43,
+        },
         5 => {
           'BaSH' => 102,
           'DTCC' => 168,

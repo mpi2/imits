@@ -14,18 +14,6 @@
 
 <h2><%= @title2 %></h2>
 
-<div class="report">
-<table class="descriptions">
-<tr><th width="200">Status</th><th>Description</th></tr>
-<tr><td><strong>Assigned</strong></td><td>Allele will be created by pipeline</td></tr>
-<tr><td><strong>Assigned - ES QC in progress</strong></td><td>Attempts are being made by production centre to thaw and QC one or more ES Cell clones.</td></tr>
-<tr><td><strong>Assigned - ES QC complete</strong></td><td>QC ES Cell clone have been checked. Time to MI depends on production centre</td></tr>
-<tr><td><strong>Aborted - ES QC Failed</strong></td><td>No more attempts will be made to thaw existing ES Cell clones. Consortium needs to make a decision about possible retargeting.</td></tr>
-<tr><td><strong>Microinjection aborted</strong></td><td>Existing mouse production attempt has been abandoned (e.g. because of insufficient chimerism). The project continues (with new attempt) until decision is made by Consortium on whether to continue with this gene.</td></tr>
-<tr><td><strong>Mouse Genotype Confirmed</strong></td><td>F1 mice have been genotyped to show they contain the mutant allele. Cohorts will be generated for phenotyping. Mice will be made available for distribution to other users when that is feasible.</td></tr>
-</table>
-</div>
-
 <%
 link_params = params.dup
 link_params.delete(:action)

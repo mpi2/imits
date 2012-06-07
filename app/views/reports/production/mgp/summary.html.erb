@@ -1,8 +1,22 @@
 <% @title = 'Production Summaries' %>
 
+<% content_for :head do %>
+<style type="text/css">
+  .report th, .report td {
+    text-align: center
+  }
+  .descriptions th, .descriptions td {
+     text-align: left
+  }
+</style>
+<% end %>
+
+
 <h2><%= @title2 %></h2>
 
 <p><%= link_to('Download as CSV', url_for({:format => :csv}.merge(params))) if @csv %></p>
+<a href="#production_status_explanations">Status Explanations</a>
+<a href="#contacts">Contacts</a>
 
 <% if @csv %><br/><% end %>
 
@@ -10,4 +24,81 @@
 
 <%= raw @report.to_html if @report %>
 
+<br/>
+<a name="production_status_explanations">Status Explanations</a>
+<table class="descriptions">
+<thead>
+<tr><th width="250">Status</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>All Genes</strong></td><td>Unique genes targeted by Consortium</td></tr>
+<tr>
+  <td><strong>ES Cell QC</strong></td>
+  <td>Genes where we see <em>any</em> ES QC activity, in progess, successful or aborted</td></tr>
+<tr>
+  <td><strong>ES QC Confirmed</strong></td>
+  <td>Genes where QC ES Cell clone(s) have been thawed and QC passed.</td>
+</tr>
+<tr>
+  <td><strong>Aborted - ES QC Failed</strong></td>
+  <td>
+    Genes where <em>no</em> more attempts will be made to thaw existing ES Cell clones for this gene.
+  </td>
+</tr>
+<tr>
+  <td><strong>Microinjections</strong></td>
+  <td><strong>Cumulative!</strong> Number of Genes with any mouse production activity, In Progess, Chimeric, Genotype Confirmed or Aborted</td>
+</tr>
+<tr>
+  <td><strong>Chimeras</strong></td>
+  <td> Male chimeras >10% coat colour. The chimera breeding programme is initiated at ~8 weeks of age and standard breeding continues for up to 116 days to obtain GLT.</td>
+</tr>
+<tr>
+  <td><strong>Genotype Confirmed Mice</strong></td>
+  <td>
+    Number of Genes where Heterozygous G1 mice have  passed a panel of QC tests
+    (see description <a href="http://www.knockoutmouse.org/kb/25/">here</a>
+    as well as related articles in this FAQ.  
+  </td>
+</tr>
+<tr>
+  <td><strong>Gene Pipeline Efficiency</strong></td>
+  <td>(#Unique Genes for all Genotype Confirmed MI's > 6 months old) / (#Unique Genes for <em>all</em> MI's > 6 months old)</td>
+</tr>
+<tr>
+  <td><strong>Clone Pipeline Efficiency</strong></td>
+  <td>(#Unique Clones for all Genotype Confirmed MI's > 6 months old) / (#Unique Clones for <em>all</em> MI's > 6 months old)</td>
+</tr>
+<tr>
+  <td><strong>Intent to Phenotype</strong></td>
+  <td><strong>Cumulative!</strong> Number of Genes where Genotype Confirmed Mice have been Registered for Phenotyping by the MGP <br/>(Mice may be drawn from <em>other</em> consortia)</td>
+</tr>
+<tr>
+  <td><strong>Rederivation Started / Finished</strong></td>
+  <td>This step can be skipped</td>
+</tr>
+<tr>
+  <td><strong>Phenotype started / completed</strong></td>
+  <td>Phenotyping <strong>data</strong> has started / finished flowing to the MGP</td>
+</tr>
+</tbody>
+</table>
+
+<br/>
+<a name="contacts">Contacts</a>
+<table class="descriptions">
+<tr><th width="250">Nature</th><th>Contact</th></tr>
+<tr>
+  <td><strong>EsCell / Distribution enquiries</strong></td>
+  <td><mailto>Esc-requests@sanger.ac.uk</mailto></td>
+</tr>
+<tr>
+  <td><strong>Mouse production and distribution enquiries</strong></td>
+  <td><mailto>mouseinterest@sanger.ac.uk</mailto></td>
+</tr>
+<tr>
+  <td><strong>Bespoke Allele enquiries</strong></td>
+  <td><mailto>br1@sanger.ac.uk</mailto></td>
+</tr>
+</table>
 </div>

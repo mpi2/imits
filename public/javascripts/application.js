@@ -78,15 +78,15 @@ Ext.util.Format.safeTextRenderer = function(value) {
     return Ext.util.Format.htmlEncode(value);
 }
 
-Ext.select('.remove_row').on('click', function(e){
-    alert("!!!");
-    this.up('tr').remove();
-});
 
-Ext.select('.hide_row').on('click', function(e){
-    alert("$$");
-    this.next('input[type=hidden]').up('tr').hide();
-});
+function listenToHideRowLinks() {
+    Ext.select("#distribution_centres_table a.remove_row").on("click", function(e){
+        alert("!!!");
+        return false;
+    });
+}
+
+Ext.onReady(listenToHideRowLinks);
 
 /*
 $('form').on('click', '.hide_row', function(event) {
@@ -105,7 +105,7 @@ $('form').on('click', '.add_row', function(event) {
   event.preventDefault();
   var data = $(this).attr('data-fields');
   $('#distribution_centres_table tr:last').after(data);
-
+  listenToRemoveRowLinks();
   Ext.select('#distribution_centres_table tr:last .date-field').each(function(field) {
         var name = field.dom.name;
         var defaultValue = field.dom.value;

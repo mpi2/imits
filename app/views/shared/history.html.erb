@@ -1,11 +1,7 @@
-<% @title = "History of Changes for Micro-Injection Attempt #{@mi_attempt.id}" %>
+<% @title = "History of Changes for #{@resource.class.name.titleize} #{@resource.id}" %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>
-
-  <div style="margin-bottom:10px">
-    <%= link_to "back to the micro-injection attempt page", mi_attempt_path(@mi_attempt), { :class => 'button back' } %>
-  </div>
 
   <div class="report">
     <table>
@@ -18,7 +14,7 @@
         </tr>
       </thead>
       <tbody>
-        <% @mi_attempt.audits.each do |revision| %>
+        <% @resource.audits.each do |revision| %>
           <tr>
             <td><%= revision.version %></td>
             <td><%= revision.created_at.to_s(:long) %></td>

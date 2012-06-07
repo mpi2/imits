@@ -1,17 +1,17 @@
-    Dear colleague,
+Dear colleague,
 
-    Thank you for registering for gene <%= @gene.marker_symbol %>
+  Thank you for registering for gene <%= @gene.marker_symbol %>
 
-    This gene currently <%= @modifier_string %> assigned for mouse production and phenotyping as part of the IMPC initiative.
-    
-    <% if !@relevant_status.empty? %>
-    <%= render :partial => "notification_mailer/welcome_email/#{@relevant_status[:status]}.text.erb" %>
-    <% end %>
-    
-    Further details of these alleles can be found here:
-    http://mousephenotype.org/gene-list?gene_symbol=<%= @gene.marker_symbol %>
-    
-    <% if @total_cell_count > 0 %>
+  This gene currently <%= @modifier_string %> assigned for mouse production and phenotyping as part of the IMPC initiative.
+
+  <% if !@relevant_status.empty? %>
+  <%= render :partial => "notification_mailer/welcome_email/#{@relevant_status[:status]}.text.erb" %>
+  <% end %>
+
+  Further details of these alleles can be found here:
+  http://dev.mousephenotype.org/gene-details?gene_id=<%= @gene.marker_symbol %>
+
+  <% if @total_cell_count > 0 %>
     Currently the IKMC has the following mutant ES Cells for this gene;
       <% if @gene.conditional_es_cells_count && @gene.conditional_es_cells_count > 0 %>
       <%= @gene.conditional_es_cells_count %> conditional ES cells
@@ -24,13 +24,11 @@
       <% end %>
     Further details of these alleles can be found here
     www.knockoutmouse.org/search_results?criteria=<%= @gene.mgi_accession_id %>
-    <% end %>
-    
- 
-    
-    Updates on gene status will be sent to <%= @contact.email %>.
+  <% end %>
 
-    For further information / enquiries please write to  info@mousephenotype.org
+  Updates on gene status will be sent to <%= @contact.email %>.
+
+  For further information / enquiries please write to  info@mousephenotype.org
 
     Best Regards,
 

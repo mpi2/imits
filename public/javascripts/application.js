@@ -78,14 +78,17 @@ Ext.util.Format.safeTextRenderer = function(value) {
     return Ext.util.Format.htmlEncode(value);
 }
 
+Ext.select('.remove_row').on('click', function(e){
+    alert("!!!");
+    this.up('tr').remove();
+});
 
-/*Ext.select('form .remove_fields').addListener('click', {
-    preventDefault: true,
-    fn: function () {
-        this.next('input[type=hidden]').up('tr').hide();
-    }
-});*/
+Ext.select('.hide_row').on('click', function(e){
+    alert("$$");
+    this.next('input[type=hidden]').up('tr').hide();
+});
 
+/*
 $('form').on('click', '.hide_row', function(event) {
    $(this).prev('input[type=hidden]').val('1');
    $(this).closest('tr').hide();
@@ -96,6 +99,7 @@ $('form').on('click', '.remove_row', function(event) {
     $(this).closest('tr').remove();
     event.preventDefault();
 });
+*/
 
 $('form').on('click', '.add_row', function(event) {
   event.preventDefault();

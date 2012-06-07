@@ -80,6 +80,11 @@ class PhenotypeAttemptsController < ApplicationController
     respond_with @phenotype_attempt
   end
 
+  def history
+    @resource = PhenotypeAttempt.find(params[:id])
+    render :template => '/shared/history'
+  end
+
   private
 
   def set_centres_and_consortia

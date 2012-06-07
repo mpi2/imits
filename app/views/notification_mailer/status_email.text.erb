@@ -1,16 +1,17 @@
 Dear colleague,
- You have registered interest in this gene via the IMPC (www.mousephenotype.org).
 
- You are receiving this email because the IMPC production status of the gene has changed.
+  You have registered interest in this gene via the IMPC (www.mousephenotype.org).
 
- <% if !@relevant_status.empty? %>
- <%= render :partial => "notification_mailer/status_email/#{@relevant_status[:status]}.text.erb" %>
- <% end %>
+  You are receiving this email because the IMPC production status of the gene has changed.
 
- Further details of alleles for this gene can be found here:
- http://dev.mousephenotype.org/gene-details?gene_id=<%= @gene.marker_symbol %>
+  <% if !@relevant_status.empty? %>
+  <%= render :partial => "notification_mailer/status_email/#{@relevant_status[:status]}.text.erb" %>
+  <% end %>
 
- <% if @total_cell_count > 0 %>
+  Further details of alleles for this gene can be found here:
+  http://dev.mousephenotype.org/gene-details?gene_id=<%= @gene.marker_symbol %>
+
+  <% if @total_cell_count > 0 %>
     Currently the IKMC has the following mutant ES Cells for this gene;
       <% if @gene.conditional_es_cells_count && @gene.conditional_es_cells_count > 0 %>
       <%= @gene.conditional_es_cells_count %> conditional ES cells
@@ -23,10 +24,12 @@ Dear colleague,
       <% end %>
     Further details of these alleles can be found here
     www.knockoutmouse.org/search_results?criteria=<%= @gene.mgi_accession_id %>
- <% end %>
+  <% end %>
 
- You will be notified by email with any future changes in gene status.
- For further information / enquiries please write to  info@mousephenotype.org
- Best Wishes,
+  You will be notified by email with any future changes in gene status.
 
- The MPI2 (KOMP2) informatics consortium.
+  For further information / enquiries please write to  info@mousephenotype.org
+
+    Best Wishes,
+
+      The MPI2 (KOMP2) informatics consortium.

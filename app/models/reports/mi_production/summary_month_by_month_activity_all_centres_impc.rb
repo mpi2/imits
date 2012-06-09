@@ -385,6 +385,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       pcentre = 'ALL'
       next if self.consortia && ! self.consortia.include?(consortium)
       gene_id = stamp.phenotype_attempt.mi_plan.gene_id
+      status = stamp.status.name
       status = stamp.phenotype_attempt.status.name
       marker_symbol = stamp.phenotype_attempt.mi_plan.gene.marker_symbol
 

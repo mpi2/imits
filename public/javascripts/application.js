@@ -83,7 +83,7 @@ function addHideRowLinks() {
       link.on("click", function(e) {
           e.preventDefault();
           var inputField = Ext.get(this).up('tr').select('.destroy-field');
-          inputField.set({value:1});
+          inputField.set({value:true});
           Ext.get(this).up('tr').hide();
       })
     });
@@ -106,7 +106,13 @@ $('form').on('click', '.remove_row', function(event) {
 
 Ext.select('form .add_row').on("click", function(event){
   event.preventDefault();
+
   var data = Ext.get(this).getAttribute('data-fields');
+  var id = Ext.get(this).getAttribute('data-object-id');
+  var time = new Date().getTime();
+  regexp = new RegExp(id, 'g');
+
+  data = data.replace(regexp, time);
 
   Ext.select("#distribution_centres_table tr:last").insertSibling(data, 'after');
 

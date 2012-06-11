@@ -79,6 +79,7 @@ class MiAttemptsController < ApplicationController
     return unless authorize_user_production_centre
 
     if @mi_attempt.save
+      @mi_attempt.reload
       flash.now[:notice] = 'MI attempt updated successfully'
     end
 

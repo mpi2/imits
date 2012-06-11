@@ -78,15 +78,18 @@ Ext.util.Format.safeTextRenderer = function(value) {
     return Ext.util.Format.htmlEncode(value);
 }
 
-
-function listenToHideRowLinks() {
-    Ext.select("#distribution_centres_table a.remove_row").on("click", function(e){
-        alert("!!!");
-        return false;
+function addHideRowLinks() {
+    Ext.select('#distribution_centres_table tr a.hide_row').each(function(link) {
+      link.on("click", function(e) {
+          e.preventDefault();
+          var inputField = Ext.get(this).up('tr').select('.destroy-field');
+          inputField.set({value:1});
+          Ext.get(this).up('tr').hide();
+      })
     });
 }
 
-Ext.onReady(listenToHideRowLinks);
+Ext.onReady(addHideRowLinks);
 
 /*
 $('form').on('click', '.hide_row', function(event) {
@@ -101,11 +104,16 @@ $('form').on('click', '.remove_row', function(event) {
 });
 */
 
-$('form').on('click', '.add_row', function(event) {
+Ext.select('form .add_row').on("click", function(event){
   event.preventDefault();
-  var data = $(this).attr('data-fields');
-  $('#distribution_centres_table tr:last').after(data);
-  listenToRemoveRowLinks();
+  var data = Ext.get(this).getAttribute('data-fields');
+
+  Ext.select("#distribution_centres_table tr:last").insertSibling(data, 'after');
+
+  Ext.select("#distribution_centres_table tr:last a.remove_row").on("click", function(e){
+        e.preventDefault();
+        Ext.get(this).up('tr').remove();
+  });
   Ext.select('#distribution_centres_table tr:last .date-field').each(function(field) {
         var name = field.dom.name;
         var defaultValue = field.dom.value;
@@ -120,7 +128,6 @@ $('form').on('click', '.add_row', function(event) {
             format: 'd/m/Y'
         });
   });
-
 });
 
 Ext.Loader.setConfig({

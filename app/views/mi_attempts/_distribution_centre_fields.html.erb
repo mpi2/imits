@@ -1,0 +1,26 @@
+<tr>
+  <td>
+  <%= f.collection_select :centre_id, @centres, :id, :name, :include_blank => true %>
+  </td>
+  <td>
+  <%= f.check_box :is_distributed_by_emma %>
+  </td>
+  <td>
+  <%= f.collection_select :deposited_material_id, DepositedMaterial.all, :id, :name, :include_blank => true %>
+  </td>
+  <td>
+  <%= f.text_field :start_date, :label => 'Start Date', :class => 'date-field' %>
+  </td>
+  <td>
+  <%= f.text_field :end_date, :label => 'End Date', :class => 'date-field' %>
+  </td>
+  <td>
+  <% if @new_object != nil %>
+    <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+    <%= link_to "remove", '#', class: "remove_row" %>
+  <% else %>
+    <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
+    <%= link_to "remove", '#', class: "hide_row" %>
+  <% end %>
+  </td>
+</tr>

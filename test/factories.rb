@@ -40,6 +40,10 @@ Factory.define :centre do |centre|
   centre.sequence(:name) { |n| "Auto-generated Centre Name #{n}" }
 end
 
+Factory.define :deposited_material do |deposited_material|
+  deposited_material.sequence(:name) { |n| "Auto-generated Deposited Material #{n}"}
+end
+
 Factory.define :consortium do |consortium|
   consortium.sequence(:name) { |n| "Auto-generated Consortium Name #{n}" }
 end
@@ -72,6 +76,14 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.consortium_name 'EUCOMM-EUMODIC'
   mi_attempt.production_centre_name 'WTSI'
   mi_attempt.mi_date { Date.today }
+end
+
+Factory.define :distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
+  distribution_centre.association :centre
+  distribution_centre.association :deposited_material
+  distribution_centre.association :mi_attempt
+  distribution_centre.start_date (Date.today - 1.year).to_time.strftime('%Y-%m-%d')
+  distribution_centre.end_date (Date.today).to_time.strftime('%Y-%m-%d')
 end
 
 Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_attempt|
@@ -212,7 +224,6 @@ end
 Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.blast_strain { Strain.all.sample }
   mi_attempt.test_cross_strain { Strain.all.sample }
-  mi_attempt.distribution_centre { Centre.all.sample }
   mi_attempt.colony_background_strain { Strain.all.sample }
   mi_attempt.colony_name { (1..4).to_a.map { ('A'..'Z').to_a.sample }.join }
 
@@ -263,25 +274,20 @@ Factory.define :es_cell_EPD0127_4_E01, :parent => :es_cell_EPD0127_4_E01_without
     Factory.create(:mi_attempt,
       common_attrs.merge(
         :es_cell => es_cell,
-        :colony_name => 'MBSS',
-        :distribution_centre_name => 'ICS',
-        :is_suitable_for_emma => true
+        :colony_name => 'MBSS'
+      )
+    )
+
+    Factory.create(:mi_attempt,
+      common_attrs.merge(
+        :es_cell => es_cell
       )
     )
 
     Factory.create(:mi_attempt,
       common_attrs.merge(
         :es_cell => es_cell,
-        :distribution_centre_name => 'ICS',
-        :emma_status => 'unsuitable_sticky'
-      )
-    )
-
-    Factory.create(:mi_attempt,
-      common_attrs.merge(
-        :es_cell => es_cell,
-        :colony_name => 'WBAA',
-        :distribution_centre_name => 'ICS'
+        :colony_name => 'WBAA'
       )
     )
   end
@@ -296,11 +302,11 @@ end
 
 Factory.define :es_cell_EPD0343_1_H06, :parent => :es_cell_EPD0343_1_H06_without_mi_attempts do |es_cell|
   es_cell.after_create do |es_cell|
+
     Factory.create(:mi_attempt,
       :es_cell => es_cell,
       :colony_name => 'MDCF',
       :production_centre_name => 'WTSI',
-      :distribution_centre_name => 'WTSI',
       :mi_date => Date.parse('2010-09-13'),
       :consortium_name => 'EUCOMM-EUMODIC'
     )
@@ -318,8 +324,7 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
       :es_cell => es_cell,
       :colony_name => 'MBFD',
       :consortium_name => 'MGP',
-      :production_centre_name => 'WTSI',
-      :distribution_centre_name => 'WTSI'
+      :production_centre_name => 'WTSI'
     )
   end
 end
@@ -331,12 +336,12 @@ Factory.define :es_cell_EPD0011_1_G18, :parent => :es_cell do |es_cell|
   es_cell.pipeline { Pipeline.find_by_name! 'KOMP-CSD' }
 
   es_cell.after_create do |es_cell|
+
     mi_attempt = Factory.create(:mi_attempt,
       :es_cell => es_cell,
       :colony_name => 'MBFD',
       :consortium_name => 'MGP',
-      :production_centre_name => 'WTSI',
-      :distribution_centre_name => 'WTSI'
+      :production_centre_name => 'WTSI'
     )
     mi_attempt_status = MiAttemptStatus.find_by_description('Genotype confirmed')
     mi_attempt.mi_attempt_status = mi_attempt_status

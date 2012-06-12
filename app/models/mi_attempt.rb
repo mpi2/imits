@@ -8,12 +8,12 @@ class MiAttempt < ApplicationModel
   include MiAttempt::StatusChanger
   include MiAttempt::WarningGenerator
 
-  EMMA_OPTIONS = {
-    'unsuitable' => 'Unsuitable for EMMA',
-    'suitable' => 'Suitable for EMMA',
-    'suitable_sticky' => 'Suitable for EMMA - STICKY',
-    'unsuitable_sticky' => 'Unsuitable for EMMA - STICKY',
-  }.freeze
+  #EMMA_OPTIONS = {
+  #  'unsuitable' => 'Unsuitable for EMMA',
+  #  'suitable' => 'Suitable for EMMA',
+  #  'suitable_sticky' => 'Suitable for EMMA - STICKY',
+  #  'unsuitable_sticky' => 'Unsuitable for EMMA - STICKY',
+  #}.freeze
 
   QC_FIELDS = [
     :qc_southern_blot,
@@ -42,20 +42,25 @@ class MiAttempt < ApplicationModel
   belongs_to :mi_plan
   belongs_to :es_cell
   belongs_to :mi_attempt_status
-  belongs_to :distribution_centre, :class_name => 'Centre'
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
-  belongs_to :deposited_material
+
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many :phenotype_attempts
 
-  access_association_by_attribute :distribution_centre, :name
+  has_many :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
+  has_many :centres, :through => :distribution_centres
+  has_many :deposited_materials, :through => :distribution_centres
+
+  accepts_nested_attributes_for :distribution_centres, :allow_destroy => true, :reject_if => proc { |attrs| (attrs['centre_id'].blank? && attrs['deposited_material_id'].blank?)&& !(attrs[:_destroy] == "true" || attrs[:_destroy] == "1") }
+
+  #access_association_by_attribute :distribution_centre, :name
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :colony_background_strain, :name
   access_association_by_attribute :test_cross_strain, :name
-  access_association_by_attribute :deposited_material, :name
+  #access_association_by_attribute :deposited_material, :name
 
   QC_FIELDS.each do |qc_field|
     belongs_to qc_field, :class_name => 'QcResult'
@@ -121,20 +126,19 @@ class MiAttempt < ApplicationModel
 
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_total_chimeras
-  before_validation :set_default_deposited_material
   before_validation :set_es_cell_from_es_cell_name
-  before_validation :set_default_distribution_centre
   before_validation :change_status
 
   before_save :generate_colony_name_if_blank
-  before_save :make_unsuitable_for_emma_if_is_not_active
+  #before_save :make_unsuitable_for_emma_if_is_not_active
   before_save :set_mi_plan
   before_save :record_if_status_was_changed
-  before_save :set_boolean_defaults
+  #before_save :set_boolean_defaults
 
   after_save :create_status_stamp_if_status_was_changed
   after_save :reload_mi_plan_mi_attempts
   after_save :ensure_in_progress_status_stamp
+  #after_save :create_initial_distribution_centre
 
   protected
 
@@ -146,10 +150,6 @@ class MiAttempt < ApplicationModel
     if ! self.es_cell
       self.es_cell = EsCell.find_or_create_from_marts_by_name(self.es_cell_name)
     end
-  end
-
-  def set_default_distribution_centre
-    self.distribution_centre ||= Centre.find_by_name(self.production_centre_name)
   end
 
   def set_blank_qc_fields_to_na
@@ -170,19 +170,12 @@ class MiAttempt < ApplicationModel
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
 
-  def set_default_deposited_material
-    if self.deposited_material.nil?
-      self.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
-      self.deposited_material_name = self.deposited_material.name
-    end
-  end
-
-  def make_unsuitable_for_emma_if_is_not_active
-    if ! self.is_active?
-      self.is_suitable_for_emma = false
-    end
-    return true
-  end
+ # def make_unsuitable_for_emma_if_is_not_active
+ #   if ! self.is_active?
+ #     self.is_suitable_for_emma = false
+ #   end
+ #   return true
+ # end
 
   def set_mi_plan
     mi_plan_to_set = find_matching_mi_plan
@@ -214,11 +207,11 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  def set_boolean_defaults
-    if is_suitable_for_emma == nil then self.is_suitable_for_emma = false end
-    if is_emma_sticky == nil then self.is_emma_sticky = false end
-    return true
-  end
+ # def set_boolean_defaults
+ #   if is_suitable_for_emma == nil then self.is_suitable_for_emma = false end
+ #   if is_emma_sticky == nil then self.is_emma_sticky = false end
+ #   return true
+ # end
 
   def create_status_stamp_if_status_was_changed
     if @new_mi_attempt_status
@@ -236,6 +229,17 @@ class MiAttempt < ApplicationModel
       status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
         :created_at => status_stamps.last.created_at - 1.second)
       status_stamps.reload
+    end
+  end
+
+  def create_initial_distribution_centre
+    if self.distribution_centres.empty? && self.status == "Genotype confirmed"
+      initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
+      initial_centre = Centre.find_by_name(self.production_centre_name)
+      initial_distribution_centre = DistributionCentre.new
+      initial_distribution_centre.centre = initial_centre
+      initial_distribution_centre.deposited_material = initial_deposited_material
+      self.distribution_centres.push(initial_distribution_centre)
     end
   end
 
@@ -287,6 +291,27 @@ class MiAttempt < ApplicationModel
     @production_centre_name = arg
   end
 
+  def pretty_print_distribution_centres
+    @formatted_tags_array = Array.new
+    self.distribution_centres.each do |this_distribution_centre|
+      output_array = Array.new
+      centre = this_distribution_centre.centre.name || ''
+      deposited_material = this_distribution_centre.deposited_material.name || ''
+      if this_distribution_centre.is_distributed_by_emma
+        emma_status = 'EMMA'
+        output_array.push(emma_status, centre)
+      else
+        output_array.push(centre)
+      end
+      output_string = "["
+      output_string << output_array.join('::')
+      output_string << "]"
+      @formatted_tags_array.push(output_string)
+    end
+    @pretty_print_distribution_centres = @formatted_tags_array.join(', ')
+    return @pretty_print_distribution_centres
+  end
+
   def es_cell_name
     if(self.es_cell)
       return self.es_cell.name
@@ -336,39 +361,6 @@ class MiAttempt < ApplicationModel
       retval.delete(aborted)
     end
     return retval
-  end
-
-  def emma_status
-    if is_suitable_for_emma?
-      if is_emma_sticky? then return 'suitable_sticky' else return 'suitable' end
-    else
-      if is_emma_sticky? then return 'unsuitable_sticky' else return 'unsuitable' end
-    end
-  end
-
-  class EmmaStatusError < RuntimeError; end
-
-  def emma_status=(status)
-    case status.to_s
-    when 'suitable' then
-      self.is_suitable_for_emma = true
-      self.is_emma_sticky = false
-
-    when 'unsuitable' then
-      self.is_suitable_for_emma = false
-      self.is_emma_sticky = false
-
-    when 'suitable_sticky' then
-      self.is_suitable_for_emma = true
-      self.is_emma_sticky = true
-
-    when 'unsuitable_sticky' then
-      self.is_suitable_for_emma = false
-      self.is_emma_sticky = true
-
-    else
-      raise EmmaStatusError, "Invalid status '#{status.inspect}'"
-    end
   end
 
   def mouse_allele_symbol_superscript

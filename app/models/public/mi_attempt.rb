@@ -8,8 +8,7 @@ class Public::MiAttempt < ::MiAttempt
     colony_name
     consortium_name
     production_centre_name
-    distribution_centre_name
-    deposited_material_name
+    distribution_centres_attributes
     blast_strain_name
     total_blasts_injected
     total_transferred
@@ -22,9 +21,6 @@ class Public::MiAttempt < ::MiAttempt
     number_of_males_with_40_to_79_percent_chimerism
     number_of_males_with_80_to_99_percent_chimerism
     number_of_males_with_100_percent_chimerism
-    is_suitable_for_emma
-    is_emma_sticky
-    emma_status
     colony_background_strain_name
     test_cross_strain_name
     date_chimeras_mated
@@ -62,6 +58,7 @@ class Public::MiAttempt < ::MiAttempt
 
   READABLE_ATTRIBUTES = %w{
     id
+    pretty_print_distribution_centres
     es_cell_marker_symbol
     es_cell_allele_symbol
     status_name
@@ -70,7 +67,10 @@ class Public::MiAttempt < ::MiAttempt
     mi_plan_id
   } + FULL_ACCESS_ATTRIBUTES
 
-  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
 
   def status_name; mi_attempt_status.description; end
 end

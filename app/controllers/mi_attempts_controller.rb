@@ -28,9 +28,9 @@ class MiAttemptsController < ApplicationController
 
   def new
     set_centres_and_consortia
+
     @mi_attempt = Public::MiAttempt.new(
-      :production_centre_name => current_user.production_centre.name,
-      :distribution_centre_name => current_user.production_centre.name
+      :production_centre_name => current_user.production_centre.name
     )
   end
 
@@ -64,6 +64,10 @@ class MiAttemptsController < ApplicationController
   def show
     set_centres_and_consortia
     @mi_attempt = Public::MiAttempt.find(params[:id])
+    if @mi_attempt.status == 'Genotype confirmed' && @mi_attempt.distribution_centres.length == 0
+      @mi_attempt.distribution_centres.build
+    end
+
     respond_with @mi_attempt
   end
 
@@ -75,6 +79,7 @@ class MiAttemptsController < ApplicationController
     return unless authorize_user_production_centre
 
     if @mi_attempt.save
+      @mi_attempt.reload
       flash.now[:notice] = 'MI attempt updated successfully'
     end
 

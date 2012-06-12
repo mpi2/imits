@@ -142,6 +142,18 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
     t.boolean  "is_bespoke_allele"
   end
 
+  create_table "mi_attempt_distribution_centres", :force => true do |t|
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "mi_attempt_id",                             :null => false
+    t.integer  "deposited_material_id",                     :null => false
+    t.integer  "centre_id",                                 :null => false
+    t.boolean  "is_distributed_by_emma", :default => false, :null => false
+    t.boolean  "boolean",                :default => false, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "mi_attempt_status_stamps", :force => true do |t|
     t.integer  "mi_attempt_id",        :null => false
     t.integer  "mi_attempt_status_id", :null => false
@@ -363,6 +375,10 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
 
   add_foreign_key "es_cells", "genes", :name => "es_cells_gene_id_fk"
   add_foreign_key "es_cells", "pipelines", :name => "es_cells_pipeline_id_fk"
+
+  add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
+  add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"
+  add_foreign_key "mi_attempt_distribution_centres", "mi_attempts", :name => "mi_attempt_distribution_centres_mi_attempt_id_fk"
 
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk"
   add_foreign_key "mi_attempt_status_stamps", "mi_attempts", :name => "mi_attempt_status_stamps_mi_attempt_id_fk"

@@ -65,4 +65,14 @@ module Kermits2
     end
 
   end
+
+  def self.git_revision
+    if ! Kermits2.const_defined?('GIT_REVISION')
+      return `git rev-parse HEAD`[0..7]
+    else
+      # At deploy time, a file gets created in config/initializers
+      # with this constant defined
+      return Kermits2::GIT_REVISION
+    end
+  end
 end

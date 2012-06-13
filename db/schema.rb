@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120522123605) do
+ActiveRecord::Schema.define(:version => 20120612153941) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -175,9 +175,7 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
     t.date     "mi_date",                                                                           :null => false
     t.integer  "mi_attempt_status_id",                                                              :null => false
     t.string   "colony_name",                                     :limit => 125
-    t.integer  "distribution_centre_id"
     t.integer  "updated_by_id"
-    t.integer  "deposited_material_id",                                                             :null => false
     t.integer  "blast_strain_id"
     t.integer  "total_blasts_injected"
     t.integer  "total_transferred"
@@ -292,6 +290,17 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
     t.datetime "updated_at"
   end
 
+  create_table "phenotype_attempt_distribution_centres", :force => true do |t|
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "phenotype_attempt_id",                      :null => false
+    t.integer  "deposited_material_id",                     :null => false
+    t.integer  "centre_id",                                 :null => false
+    t.boolean  "is_distributed_by_emma", :default => false, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "phenotype_attempt_status_stamps", :force => true do |t|
     t.integer  "phenotype_attempt_id", :null => false
     t.integer  "status_id",            :null => false
@@ -383,8 +392,6 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk"
   add_foreign_key "mi_attempt_status_stamps", "mi_attempts", :name => "mi_attempt_status_stamps_mi_attempt_id_fk"
 
-  add_foreign_key "mi_attempts", "centres", :name => "mi_attempts_distribution_centre_id_fk", :column => "distribution_centre_id"
-  add_foreign_key "mi_attempts", "deposited_materials", :name => "mi_attempts_deposited_material_id_fk"
   add_foreign_key "mi_attempts", "es_cells", :name => "mi_attempts_es_cell_id_fk"
   add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk"
   add_foreign_key "mi_attempts", "mi_plans", :name => "mi_attempts_mi_plan_id_fk"
@@ -417,6 +424,10 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
 
   add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
   add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"
+
+  add_foreign_key "phenotype_attempt_distribution_centres", "centres", :name => "phenotype_attempt_distribution_centres_centre_id_fk"
+  add_foreign_key "phenotype_attempt_distribution_centres", "deposited_materials", :name => "phenotype_attempt_distribution_centres_deposited_material_id_fk"
+  add_foreign_key "phenotype_attempt_distribution_centres", "phenotype_attempts", :name => "phenotype_attempt_distribution_centres_phenotype_attempt_id_fk"
 
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempt_statuses", :name => "phenotype_attempt_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempts", :name => "phenotype_attempt_status_stamps_phenotype_attempt_id_fk"

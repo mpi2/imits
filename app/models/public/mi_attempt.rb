@@ -84,9 +84,7 @@ end
 #  mi_date                                         :date            not null
 #  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :string(125)
-#  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer
-#  deposited_material_id                           :integer         not null
 #  blast_strain_id                                 :integer
 #  total_blasts_injected                           :integer
 #  total_transferred                               :integer

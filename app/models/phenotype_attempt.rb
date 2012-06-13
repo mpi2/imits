@@ -11,6 +11,12 @@ class PhenotypeAttempt < ApplicationModel
   belongs_to :status
   has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
+  has_many :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
+  has_many :centres, :through => :distribution_centres
+  has_many :deposited_materials, :through => :distribution_centres
+
+  accepts_nested_attributes_for :distribution_centres, :allow_destroy => true, :reject_if => proc { |attrs| (attrs['centre_id'].blank? && attrs['deposited_material_id'].blank?)&& !(attrs[:_destroy] == "true" || attrs[:_destroy] == "1") }
+
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
 
@@ -116,7 +122,7 @@ class PhenotypeAttempt < ApplicationModel
     end
     return retval
   end
-  
+
   def earliest_relevant_status_stamp
     self.status_stamps.find_by_status_id(self.status_id)
   end

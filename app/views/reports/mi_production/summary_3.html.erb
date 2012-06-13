@@ -5,6 +5,10 @@
   .report th, .report td {
     text-align: center
   }
+
+  .descriptions th, .descriptions td {
+     text-align: left
+  }
 </style>
 <% end %>
 
@@ -22,3 +26,4 @@ link_params.delete(:format)
 <div class="report">
 <%= raw @report_data[:html] %>
 </div>
+

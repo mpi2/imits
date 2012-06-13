@@ -17,6 +17,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   MI_GOALS = 
     {
       2012 => {
+        6 => {
+          'BaSH' => 412,
+          'DTCC' => 299,
+          'JAX' => 135,
+        },
         5 => {
           'BaSH' => 384,
           'DTCC' => 276,
@@ -85,6 +90,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   GC_GOALS = 
     {
       2012 => {
+        6 => {
+          'BaSH' => 126,
+          'DTCC' => 182,
+          'JAX' => 43,
+        },
         5 => {
           'BaSH' => 102,
           'DTCC' => 168,
@@ -317,7 +327,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       end
 
     end
-
+    
     MiAttempt::StatusStamp.all.each do |stamp|
 
       next if stamp.created_at < CUT_OFF_DATE
@@ -358,7 +368,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       end
 
     end
-
+    
     PhenotypeAttempt::StatusStamp.all.each do |stamp|
 
       next if stamp.created_at < CUT_OFF_DATE
@@ -375,7 +385,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       pcentre = 'ALL'
       next if self.consortia && ! self.consortia.include?(consortium)
       gene_id = stamp.phenotype_attempt.mi_plan.gene_id
-      status = stamp.phenotype_attempt.status.name
+      status = stamp.status.name
       marker_symbol = stamp.phenotype_attempt.mi_plan.gene.marker_symbol
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.phenotype_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }

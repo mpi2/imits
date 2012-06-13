@@ -72,7 +72,8 @@ Seeds.load Strain, [
   {:id => 40, :name => "Delete once confirmed its use"},
   {:id => 41, :name => "c"},
   {:id => 42, :name => 'B6D2F1 x B6'},
-  {:id => 43, :name => 'C57BL6'}
+  {:id => 43, :name => 'C57BL6'},
+  {:id => 43, :name => 'ICR/Jcl'}
 ]
 
 Seeds.load MiAttemptStatus, [
@@ -109,7 +110,8 @@ Seeds.load Consortium, [
   {:id => 12, :name => 'NorCOMM2',       :funding => 'Genome Canada', :participants => 'NorCOMM2'},
   {:id => 13, :name => 'Phenomin',       :funding => 'Phenomin', :participants => 'ICS'},
   {:id => 14, :name => 'RIKEN BRC',      :funding => 'Japanese government', :participants => 'RIKEN BRC'},
-  {:id => 15,  :name => 'DTCC-Legacy',           :funding => 'KOMP312/KOMP', :participants => 'Davis-CHORI'},
+  {:id => 15,  :name => 'DTCC-Legacy',   :funding => 'KOMP312/KOMP', :participants => 'Davis-CHORI'},
+  {:id => 16,  :name => 'MGP Legacy',    :funding => 'Wellcome Trust', :participants => 'Mouse Genetics Project, WTSI'}
 ]
 
 Seeds.load Centre, [
@@ -171,7 +173,8 @@ Seeds.load MiPlan::SubProject, [
   {:id => 15, :name => 'WTSI_Sense_A'},
   {:id => 16, :name => 'WTSI_Metabolism_A'},
   {:id => 17, :name => 'WTSI_Cre'},
-  {:id => 18, :name => 'WTSI_Malaria_A'}
+  {:id => 18, :name => 'WTSI_Malaria_A'},
+  {:id => 19, :name => 'WTSI_Rarediseases_A'}
 ]
 
 Seeds.load PhenotypeAttempt::Status, [

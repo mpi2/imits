@@ -73,6 +73,42 @@ class MiPlansControllerTest < ActionController::TestCase
           message = 'Cbx1 has already been selected by BaSH without a production centre, please add your production centre to that selection'
           assert_equal({'error' => message}, JSON.parse(response.body))
         end
+
+        should 'return errors when trying to create duplicate plan with same consortium, production centre and gene' do
+          cbx1 = Factory.create :gene_cbx1
+          bash = Consortium.find_by_name!('BaSH')
+          centre = Centre.find_by_name!('UCD')
+          mi_plan = Factory.create :mi_plan, :gene => cbx1, :consortium => bash, :production_centre => centre
+          assert_no_difference('MiPlan.count') do
+            post :create, :mi_plan => {
+              :marker_symbol => 'Cbx1',
+              :consortium_name => 'BaSH',
+              :production_centre_name => 'UCD',
+              :priority_name => 'High'
+            }, :format => :json
+          end
+          assert_response 422, response_body
+        end
+
+        should 'return allow multiple plans for same consortium, production centre and gene but different subproject' do
+          cbx1 = Factory.create :gene_cbx1
+          consortium = Consortium.find_by_name!('MGP')
+          centre = Centre.find_by_name!('WTSI')
+          sub_project = MiPlan::SubProject.find_by_name!('WTSI_Bone_A')
+
+          mi_plan_1 = Factory.create :mi_plan, :gene => cbx1, :consortium => consortium, :production_centre => centre, :sub_project => sub_project
+          assert_no_difference('MiPlan.count') do
+            post :create, :mi_plan => {
+              :marker_symbol => 'Cbx1',
+              :consortium_name => 'MGP',
+              :production_centre_name => 'WTSI',
+              :sub_project_name => 'WTSI_Hear_A',
+              :priority_name => 'High'
+            }, :format => :json
+          end
+          second_plan = Public::MiPlan.last
+          assert_equal second_plan.as_json, JSON.parse(response.body)
+        end
       end
 
       context 'DELETE destroy' do

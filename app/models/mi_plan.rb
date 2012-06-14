@@ -55,7 +55,8 @@ class MiPlan < ApplicationModel
   validate do |plan|
     other_ids = MiPlan.where(:gene_id => plan.gene_id,
       :consortium_id => plan.consortium_id,
-      :production_centre_id => plan.production_centre_id).map(&:id)
+      :production_centre_id => plan.production_centre_id,
+      :sub_project_id => plan.sub_project_id).map(&:id)
     other_ids -= [plan.id]
     if(other_ids.count != 0)
       plan.errors.add(:gene, 'already has a plan by that consortium/production centre')
@@ -85,7 +86,11 @@ class MiPlan < ApplicationModel
   end
 
   def set_default_sub_project
-    self.sub_project ||= SubProject.find_by_name!('')
+    if self.consortium && self.consortium.name == 'MGP'
+      self.sub_project ||= SubProject.find_by_name!('MGPinterest')
+    else
+      self.sub_project ||= SubProject.find_by_name!('')
+    end
   end
 
   def record_if_status_was_changed
@@ -441,6 +446,6 @@ end
 #
 # Indexes
 #
-#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id) UNIQUE
+#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
 #
 

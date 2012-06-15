@@ -97,8 +97,6 @@ end
 #  number_of_males_with_40_to_79_percent_chimerism :integer
 #  number_of_males_with_80_to_99_percent_chimerism :integer
 #  number_of_males_with_100_percent_chimerism      :integer
-#  is_suitable_for_emma                            :boolean         default(FALSE), not null
-#  is_emma_sticky                                  :boolean         default(FALSE), not null
 #  colony_background_strain_id                     :integer
 #  test_cross_strain_id                            :integer
 #  date_chimeras_mated                             :date

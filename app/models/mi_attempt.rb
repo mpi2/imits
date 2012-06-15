@@ -446,9 +446,7 @@ end
 #  mi_date                                         :date            not null
 #  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :string(125)
-#  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer
-#  deposited_material_id                           :integer         not null
 #  blast_strain_id                                 :integer
 #  total_blasts_injected                           :integer
 #  total_transferred                               :integer
@@ -461,8 +459,6 @@ end
 #  number_of_males_with_40_to_79_percent_chimerism :integer
 #  number_of_males_with_80_to_99_percent_chimerism :integer
 #  number_of_males_with_100_percent_chimerism      :integer
-#  is_suitable_for_emma                            :boolean         default(FALSE), not null
-#  is_emma_sticky                                  :boolean         default(FALSE), not null
 #  colony_background_strain_id                     :integer
 #  test_cross_strain_id                            :integer
 #  date_chimeras_mated                             :date

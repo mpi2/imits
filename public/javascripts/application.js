@@ -1,5 +1,14 @@
 NO_BREAK_SPACE = '\u00A0';
 
+function getMethods(obj)
+{
+  var bar
+  for (bar in obj)
+  {
+    console.log("Object has property " + bar);
+  }
+}
+
 (function () {
     // Inspired by http://zetafleet.com/blog/javascript-dateparse-for-iso-8601
     var origParse = Date.parse;
@@ -79,12 +88,15 @@ Ext.util.Format.safeTextRenderer = function(value) {
 }
 
 function addHideRowLinks() {
-    Ext.select('#distribution_centres_table tr a.hide_row').each(function(link) {
+    Ext.select('#distribution_centres_table tr a.hide-row').each(function(link) {
       link.on("click", function(e) {
           e.preventDefault();
-          var inputField = Ext.get(this).up('tr').select('.destroy-field');
+          alert(Ext.get(this).parent().id);
+          alert(getMethods(Ext.get(this).parent()));
+
+          var inputField = Ext.get(this).parent().parent().select('.destroy-field');
           inputField.set({value:true});
-          Ext.get(this).up('tr').hide();
+          Ext.get(this).parent().parent().hide();
       })
     });
 }
@@ -104,7 +116,7 @@ $('form').on('click', '.remove_row', function(event) {
 });
 */
 
-Ext.select('form .add_row').on("click", function(event){
+Ext.select('form .add-row').on("click", function(event){
   event.preventDefault();
 
   var data = Ext.get(this).getAttribute('data-fields');
@@ -116,7 +128,7 @@ Ext.select('form .add_row').on("click", function(event){
 
   Ext.select("#distribution_centres_table tr:last").insertSibling(data, 'after');
 
-  Ext.select("#distribution_centres_table tr:last a.remove_row").on("click", function(e){
+  Ext.select("#distribution_centres_table tr:last a.remove-row").on("click", function(e){
         e.preventDefault();
         Ext.get(this).up('tr').remove();
   });

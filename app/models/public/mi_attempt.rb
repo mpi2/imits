@@ -8,7 +8,6 @@ class Public::MiAttempt < ::MiAttempt
     colony_name
     consortium_name
     production_centre_name
-    distribution_centres_attributes
     blast_strain_name
     total_blasts_injected
     total_transferred
@@ -68,6 +67,7 @@ class Public::MiAttempt < ::MiAttempt
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
+    distribution_centres_attributes
   } + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*WRITABLE_ATTRIBUTES)

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120612153941) do
+ActiveRecord::Schema.define(:version => 20120615105954) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -149,7 +149,6 @@ ActiveRecord::Schema.define(:version => 20120612153941) do
     t.integer  "deposited_material_id",                     :null => false
     t.integer  "centre_id",                                 :null => false
     t.boolean  "is_distributed_by_emma", :default => false, :null => false
-    t.boolean  "boolean",                :default => false, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -188,8 +187,6 @@ ActiveRecord::Schema.define(:version => 20120612153941) do
     t.integer  "number_of_males_with_40_to_79_percent_chimerism"
     t.integer  "number_of_males_with_80_to_99_percent_chimerism"
     t.integer  "number_of_males_with_100_percent_chimerism"
-    t.boolean  "is_suitable_for_emma",                                           :default => false, :null => false
-    t.boolean  "is_emma_sticky",                                                 :default => false, :null => false
     t.integer  "colony_background_strain_id"
     t.integer  "test_cross_strain_id"
     t.date     "date_chimeras_mated"

@@ -22,7 +22,6 @@ end
 #  deposited_material_id  :integer         not null
 #  centre_id              :integer         not null
 #  is_distributed_by_emma :boolean         default(FALSE), not null
-#  boolean                :boolean         default(FALSE), not null
 #  created_at             :datetime
 #  updated_at             :datetime
 #

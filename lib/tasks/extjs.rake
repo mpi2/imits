@@ -6,7 +6,11 @@ namespace :extjs do
     extjs_version = Extjs::CONFIG['version']
     if ! File.directory?(Rails.root + "public/#{extjs_version}")
       file = Rails.root + "tmp/#{extjs_version}.zip"
-      raise "Cannot find zip file at #{file}" if ! File.file?(file)
+      if ! File.file?(file)
+        if ! system("cd '#{Rails.root}/tmp' && wget #{Extjs::CONFIG['cdn_host']}#{Extjs::CONFIG['version']}.zip")
+          raise "Could not download ExtJS version '#{Extjs::CONFIG['version']}' - check your internet settings and try again (this step is only required once)"
+        end
+      end
       if ! system("cd #{Rails.root}/public && unzip -q -o #{file}")
         raise "unzip failed!"
       end

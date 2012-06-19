@@ -17,10 +17,10 @@
   <td>
   <% if @new_object != nil %>
     <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-    <%= link_to "remove", '#', class: "remove_row" %>
+    <%= link_to "remove", '#', class: "remove-row" %>
   <% else %>
     <%= f.hidden_field :_destroy, :class => 'destroy-field' %>
-    <%= link_to "remove", '#', class: "hide_row" %>
+    <%= link_to "remove", '#', class: "hide-row" %>
   <% end %>
   </td>
 </tr>

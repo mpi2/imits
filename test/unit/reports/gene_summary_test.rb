@@ -17,8 +17,7 @@ class Reports::GeneSummaryTest < ActiveSupport::TestCase
       Factory.create :wtsi_mi_attempt_genotype_confirmed,
         :es_cell => Factory.create(:es_cell, :gene => gene),
         :consortium_name => 'MGP',
-        :is_active => true,
-        :is_suitable_for_emma => true
+        :is_active => true
 
       Factory.create :wtsi_mi_attempt_genotype_confirmed,
         :es_cell => Factory.create(:es_cell, :gene => gene),

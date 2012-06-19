@@ -984,7 +984,7 @@ class MiPlanTest < ActiveSupport::TestCase
         MiPlan.major_conflict_resolution
         mi_plan.reload; assert_equal 'Inspect - Conflict', mi_plan.status.name
 
-        assert_equal "Other 'Assigned' MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",
+        assert_equal "Other 'Assigned' MI plans for: #{@bash_cons.name}, #{@eucomm_cons.name}",
                 mi_plan.reason_for_inspect_or_conflict
       end
 

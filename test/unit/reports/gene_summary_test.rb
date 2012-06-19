@@ -22,14 +22,12 @@ class Reports::GeneSummaryTest < ActiveSupport::TestCase
       Factory.create :wtsi_mi_attempt_genotype_confirmed,
         :es_cell => Factory.create(:es_cell, :gene => gene),
         :consortium_name => 'EUCOMM-EUMODIC',
-        :is_active => true,
-        :is_suitable_for_emma => true
+        :is_active => true
 
       Factory.create :wtsi_mi_attempt_genotype_confirmed,
         :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
         :consortium_name => 'EUCOMM-EUMODIC',
-        :is_active => true,
-        :is_suitable_for_emma => true
+        :is_active => true
 
       report = Reports::GeneSummary.generate()
 
@@ -39,13 +37,11 @@ class Reports::GeneSummaryTest < ActiveSupport::TestCase
       assert_equal 'WTSI', report.column('Production Centre')[1]
       assert_equal 1, report.column('# Genes Injected')[1]
       assert_equal 1, report.column('# Genes Genotype Confirmed')[1]
-      assert_equal 1, report.column('# Genes For EMMA')[1]
 
       assert_equal 'EUCOMM-EUMODIC', report.column('Consortium')[0]
       assert_equal 'WTSI', report.column('Production Centre')[0]
       assert_equal 2, report.column('# Genes Injected')[0]
       assert_equal 2, report.column('# Genes Genotype Confirmed')[0]
-      assert_equal 2, report.column('# Genes For EMMA')[0]
 
     end
 

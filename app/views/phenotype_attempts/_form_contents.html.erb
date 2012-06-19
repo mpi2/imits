@@ -3,20 +3,22 @@
 
 <fieldset class="collapsible">
   <legend>Universal Details</legend>
-  <div>
-  <% if @mi_attempt %>
-    <label>MI Attempt Colony Name</label>
-    <%= @mi_attempt.colony_name %>
-    <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
-  <% end %>
-  </div>
-  <div>
+   <div>
+   <% if @mi_attempt %>
+     <label>MI Attempt Colony Name</label>
+     <%= @mi_attempt.colony_name %>
+     <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
+   <% end %>
+   </div>
+   <div>
      <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
    </div>
    <div>
-     <label>Status</label>
-     <%= @phenotype_attempt.status_name %>
-     <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name %>
+     <% if ! @phenotype_attempt.status_id.nil? %>
+       <label>Status</label>
+       <%= @phenotype_attempt.status_name%>
+       <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name || 'p' %>
+     <% end %>
    </div>
    <div class="consortium-name">
      <% consortium_field = capture do %>

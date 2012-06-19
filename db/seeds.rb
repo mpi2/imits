@@ -187,3 +187,7 @@ Seeds.load PhenotypeAttempt::Status, [
   {:id =>  7, :name => 'Phenotyping Started', :order_by => 370},
   {:id =>  8, :name => 'Phenotyping Complete', :order_by => 380}
 ]
+
+Seeds.load DeleterStrain, [
+  {:id => 1, :name => 'MGI:3046308: Hprt<tm1(CMV-cre)Brd>'}
+]

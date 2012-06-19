@@ -13,6 +13,11 @@
   <div>
      <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
    </div>
+   <div>
+     <label>Status</label>
+     <%= @phenotype_attempt.status_name %>
+     <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name %>
+   </div>
    <div class="consortium-name">
      <% consortium_field = capture do %>
       <% if phenotype_attempt.new_record? %>
@@ -38,17 +43,22 @@
 </fieldset>
 <fieldset class="collapsible">
   <legend>Rederivation</legend>
-   <% [:rederivation_started, :rederivation_complete].each do |field| %>
-      <div>
-        <%= form.label field, field.to_s.titlecase %>
-        <%= form.check_box field %>
-      </div>
-   <% end %>
+  <% [:rederivation_started, :rederivation_complete].each do |field| %>
+    <div>
+      <%= form.label field, field.to_s.titlecase %>
+      <%= form.check_box field %>
+    </div>
+  <% end %>
 </fieldset>
 <fieldset class="collapsible">
   <legend>Cre Matings</legend>
    <div>
-     <%= generator.number_field :number_of_cre_matings_started %>
+     <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
+   </div>
+   <div>
+     <%= form.collection_select :deleter_strain_name, @deleter_strain,:name, :name, :include_blank => true %>
+   </div>
+   <div>
      <%= generator.number_field :number_of_cre_matings_successful %>
    </div>
    <div>

@@ -88,18 +88,17 @@ Ext.util.Format.safeTextRenderer = function(value) {
 }
 
 function addHideRowLinks() {
-    Ext.select('#distribution_centres_table tr a.hide-row').each(function(link) {
-      link.on("click", function(e) {
-          e.preventDefault();
-          alert(Ext.get(this).parent().id);
-          alert(getMethods(Ext.get(this).parent()));
-
-          var inputField = Ext.get(this).parent().parent().select('.destroy-field');
-          inputField.set({value:true});
-          Ext.get(this).parent().parent().hide();
-      })
+    var parentEl = Ext.fly('distribution_centres_table');
+    parentEl.on('click', function(event, target, options) {
+       event.preventDefault();
+       var inputField = Ext.get(target).prev('.destroy-field');
+       inputField.set({value:true});
+       Ext.get(target).parent().parent().hide();
+    }, this, {
+      delegate: 'a'
     });
 }
+
 
 Ext.onReady(addHideRowLinks);
 

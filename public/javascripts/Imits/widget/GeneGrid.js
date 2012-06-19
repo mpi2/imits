@@ -177,7 +177,7 @@ Ext.define('Imits.widget.GeneGrid', {
     ],
 
     /** @private **/
-    createComboBox: function(id, label, labelWidth, store, includeBlank) {
+    createComboBox: function(id, label, labelWidth, store, includeBlank, isHidden) {
         if(includeBlank) {
             store = Ext.Array.merge([null], store);
         }
@@ -187,7 +187,8 @@ Ext.define('Imits.widget.GeneGrid', {
             fieldLabel: label,
             labelAlign: 'right',
             labelWidth: labelWidth,
-            storeOptionsAreSpecial: true
+            storeOptionsAreSpecial: true,
+            hidden: isHidden
         });
     },
 
@@ -198,6 +199,7 @@ Ext.define('Imits.widget.GeneGrid', {
         var failedGenes = [];
         var consortiumName  = grid.consortiumCombo.getSubmitValue();
         var productionCentreName = grid.centreCombo.getSubmitValue();
+        var subProjectName = grid.subprojectCombo.getSubmitValue();
         var priorityName = grid.priorityCombo.getSubmitValue();
 
         if(selectedGenes.length == 0) {
@@ -221,6 +223,7 @@ Ext.define('Imits.widget.GeneGrid', {
                 'marker_symbol': markerSymbol,
                 'consortium_name': consortiumName,
                 'production_centre_name': productionCentreName,
+                'sub_project_name': subProjectName,
                 'priority_name': priorityName
             });
             miPlan.save({
@@ -277,16 +280,23 @@ Ext.define('Imits.widget.GeneGrid', {
             displayInfo: true
         }));
 
+        var isSubProjectHidden = true;
+        if(window.CAN_SEE_SUB_PROJECT) {
+            isSubProjectHidden = false;
+        }
+
         // Add the top (gene selection) toolbar
-        grid.consortiumCombo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_OPTIONS);
-        grid.centreCombo     = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_OPTIONS, true);
-        grid.priorityCombo   = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_OPTIONS);
+        grid.consortiumCombo = grid.createComboBox('consortium', 'Consortium', 65, window.CONSORTIUM_OPTIONS, false, false);
+        grid.centreCombo     = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_OPTIONS, true, false);
+        grid.subprojectCombo = grid.createComboBox('sub_project', 'Sub Project', 65, window.SUB_PROJECT_OPTIONS, false, isSubProjectHidden);
+        grid.priorityCombo   = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_OPTIONS, false, false);
 
         grid.addDocked(Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',
             items: [
             grid.consortiumCombo,
             grid.centreCombo,
+            grid.subprojectCombo,
             grid.priorityCombo,
             '  ',
             {

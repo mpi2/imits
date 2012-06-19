@@ -202,7 +202,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         mgp_wtsi_row = @report.find {|r| r.data['Consortium'] == 'MGP' && r.data['Production Centre'] == 'WTSI'}
         expected = {
           'Consortium' => 'MGP',
-          'Sub-Project' => '',
+          'Sub-Project' => 'MGPinterest',
           'Is Bespoke Allele' => 'No',
           'Priority' => 'High',
           'Production Centre' => 'WTSI',
@@ -304,7 +304,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         ['JAX', '', 'No', 'High', 'JAX', 'Cbx1'],
         ['JAX', '', 'No', 'High', 'JAX', 'Cbx2'],
         ['JAX', '', 'No', 'High', 'WTSI', 'Cbx1'],
-        ['MGP', '', 'No', 'High', 'WTSI', 'Cbx1']
+        ['MGP', 'MGPinterest', 'No', 'High', 'WTSI', 'Cbx1']
       ]
 
       report = Reports::MiProduction::Intermediate.new.report

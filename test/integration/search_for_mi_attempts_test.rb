@@ -47,7 +47,6 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
           mi_attempt.save!
           sleep 3
           click_button 'Search'
-          sleep 1
           [
             'EPD0343_1_H06',
             'Myo1c',
@@ -58,7 +57,7 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
             'Micro-injection in progress',
             'Myo1ctm1b(EUCOMM)Wtsi'
           ].each do |text|
-            assert(page.has_css?('div', :text => text),
+            assert(page.has_css?('div.x-grid-cell-inner', :text => text),
               "Expected text '#{text}' in table cell 1, but did not find it")
           end
         end

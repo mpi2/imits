@@ -474,12 +474,12 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      should 'validate logical key - the uniqueness of gene for a consortium and production_centre' do
+      should 'validate logical key - the uniqueness of gene for a consortium, production_centre and sub project' do
         plan = Factory.create :mi_plan
         plan.save!
 
         plan2 = Factory.build(:mi_plan,
-          :gene => plan.gene, :consortium => plan.consortium)
+          :gene => plan.gene, :consortium => plan.consortium, :sub_project => plan.sub_project)
         assert_false plan2.save
 
         assert_false plan2.valid?
@@ -983,9 +983,9 @@ class MiPlanTest < ActiveSupport::TestCase
 
         MiPlan.major_conflict_resolution
         mi_plan.reload; assert_equal 'Inspect - Conflict', mi_plan.status.name
+        assert_match /#{@bash_cons.name}/, mi_plan.reason_for_inspect_or_conflict
+        assert_match /#{@eucomm_cons.name}/, mi_plan.reason_for_inspect_or_conflict
 
-        assert_equal "Other 'Assigned' MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",
-                mi_plan.reason_for_inspect_or_conflict
       end
 
       should 'correctly return for Conflict' do

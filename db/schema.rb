@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120522123605) do
+ActiveRecord::Schema.define(:version => 20120615105954) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -142,6 +142,17 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
     t.boolean  "is_bespoke_allele"
   end
 
+  create_table "mi_attempt_distribution_centres", :force => true do |t|
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "mi_attempt_id",                             :null => false
+    t.integer  "deposited_material_id",                     :null => false
+    t.integer  "centre_id",                                 :null => false
+    t.boolean  "is_distributed_by_emma", :default => false, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "mi_attempt_status_stamps", :force => true do |t|
     t.integer  "mi_attempt_id",        :null => false
     t.integer  "mi_attempt_status_id", :null => false
@@ -163,9 +174,7 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
     t.date     "mi_date",                                                                           :null => false
     t.integer  "mi_attempt_status_id",                                                              :null => false
     t.string   "colony_name",                                     :limit => 125
-    t.integer  "distribution_centre_id"
     t.integer  "updated_by_id"
-    t.integer  "deposited_material_id",                                                             :null => false
     t.integer  "blast_strain_id"
     t.integer  "total_blasts_injected"
     t.integer  "total_transferred"
@@ -178,8 +187,6 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
     t.integer  "number_of_males_with_40_to_79_percent_chimerism"
     t.integer  "number_of_males_with_80_to_99_percent_chimerism"
     t.integer  "number_of_males_with_100_percent_chimerism"
-    t.boolean  "is_suitable_for_emma",                                           :default => false, :null => false
-    t.boolean  "is_emma_sticky",                                                 :default => false, :null => false
     t.integer  "colony_background_strain_id"
     t.integer  "test_cross_strain_id"
     t.date     "date_chimeras_mated"
@@ -267,7 +274,7 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
     t.boolean  "is_bespoke_allele",              :default => false, :null => false
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "notifications", :force => true do |t|
     t.datetime "welcome_email_sent"
@@ -364,11 +371,13 @@ ActiveRecord::Schema.define(:version => 20120522123605) do
   add_foreign_key "es_cells", "genes", :name => "es_cells_gene_id_fk"
   add_foreign_key "es_cells", "pipelines", :name => "es_cells_pipeline_id_fk"
 
+  add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
+  add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"
+  add_foreign_key "mi_attempt_distribution_centres", "mi_attempts", :name => "mi_attempt_distribution_centres_mi_attempt_id_fk"
+
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk"
   add_foreign_key "mi_attempt_status_stamps", "mi_attempts", :name => "mi_attempt_status_stamps_mi_attempt_id_fk"
 
-  add_foreign_key "mi_attempts", "centres", :name => "mi_attempts_distribution_centre_id_fk", :column => "distribution_centre_id"
-  add_foreign_key "mi_attempts", "deposited_materials", :name => "mi_attempts_deposited_material_id_fk"
   add_foreign_key "mi_attempts", "es_cells", :name => "mi_attempts_es_cell_id_fk"
   add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk"
   add_foreign_key "mi_attempts", "mi_plans", :name => "mi_attempts_mi_plan_id_fk"

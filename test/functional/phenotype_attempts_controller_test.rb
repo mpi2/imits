@@ -71,12 +71,12 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
 
       context 'GET index' do
         should 'allow filtering with Ransack' do
-          pt = Factory.create :phenotype_attempt, :deleter_strain => DeleterStrain.first,
+          pt = Factory.create :phenotype_attempt, :deleter_strain_id => DeleterStrain.first,
                   :colony_name => 'A'
-          Factory.create :phenotype_attempt, :deleter_strain => DeleterStrain.first,
+          Factory.create :phenotype_attempt, :deleter_strain_id => nil,
                   :colony_name => 'B'
 
-          get :index, :deleter_strain => DeleterStrain.first, :format => :json
+          get :index, :deleter_strain_name_eq => DeleterStrain.first.name, :format => :json
           assert response.success?
           assert_equal ['A'], JSON.parse(response.body).map {|i| i['colony_name'] }
         end

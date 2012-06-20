@@ -140,8 +140,9 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#deleter_strain' do
       should 'be in DB' do
-        assert_should have_db_column(:deleter_strain).with_options(:null => true)
+        assert_should have_db_column(:deleter_strain_id) #.with_options(:null => true)
       end
+    end
 
     context '#number_of_cre_matings_successful' do
       should 'be in DB' do

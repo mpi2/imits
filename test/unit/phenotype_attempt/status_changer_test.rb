@@ -17,7 +17,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.valid?
       assert_equal 'Phenotyping Started', phenotype_attempt.status.name
 
-      ! phenotype_attempt.deleter_strain.blank?
+      phenotype_attempt.deleter_strain = nil
       phenotype_attempt.valid?
       assert_equal 'Phenotype Attempt Registered', phenotype_attempt.status.name
     end

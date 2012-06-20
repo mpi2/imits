@@ -39,8 +39,19 @@ class PhenotypeAttempt < ApplicationModel
   before_save :record_if_status_was_changed
   before_save :generate_colony_name_if_blank
   before_save :ensure_plan_is_valid
+  before_save :create_initial_distribution_centre
   after_save :create_status_stamp_if_status_was_changed
 
+  def create_initial_distribution_centre
+    if self.distribution_centres.empty? && self.status == "Cre excision complete"
+      initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
+      initial_centre = Centre.find_by_name(self.production_centre_name)
+      initial_distribution_centre = PhenotypeAttempt::DistributionCentre.new
+      initial_distribution_centre.centre = initial_centre
+      initial_distribution_centre.deposited_material = initial_deposited_material
+      self.distribution_centres.push(initial_distribution_centre)
+    end
+  end
   def set_mi_plan
     self.mi_plan ||= mi_attempt.try(:mi_plan)
   end

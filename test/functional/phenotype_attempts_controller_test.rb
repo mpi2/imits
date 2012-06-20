@@ -6,7 +6,7 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
     should 'require authentication' do
       pt = Factory.create :phenotype_attempt
       get :show, :id => pt.id, :format => :json
-      assert_false response.success?
+      assert ! response.success?
     end
 
     context 'when authenticated' do

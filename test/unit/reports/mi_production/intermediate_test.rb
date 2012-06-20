@@ -232,9 +232,9 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Phenotyping Complete Date' => '',
           'Phenotype Attempt Aborted Date' => '',
           'Distinct Genotype Confirmed ES Cells'=> 0,
-          'Distinct Old Non Genotype Confirmed ES Cells'=> 0,
+          'Distinct Old Non Genotype Confirmed ES Cells'=> 1,
           'MiPlan ID' => 3,
-          'Total Pipeline Efficiency Gene Count' => 0,
+          'Total Pipeline Efficiency Gene Count' => 1,
           'GC Pipeline Efficiency Gene Count' => 0
         }
         assert_equal expected, mgp_wtsi_row.data

@@ -87,7 +87,7 @@ class MiPlansControllerTest < ActionController::TestCase
               :priority_name => 'High'
             }, :format => :json
           end
-          assert_response 422, response_body
+          assert_response 422, response.body
         end
 
         should 'return allow multiple plans for same consortium, production centre and gene but different subproject' do
@@ -97,15 +97,18 @@ class MiPlansControllerTest < ActionController::TestCase
           sub_project = MiPlan::SubProject.find_by_name!('WTSI_Bone_A')
 
           mi_plan_1 = Factory.create :mi_plan, :gene => cbx1, :consortium => consortium, :production_centre => centre, :sub_project => sub_project
-          assert_no_difference('MiPlan.count') do
-            post :create, :mi_plan => {
+
+          post :create, :mi_plan => {
               :marker_symbol => 'Cbx1',
               :consortium_name => 'MGP',
               :production_centre_name => 'WTSI',
               :sub_project_name => 'WTSI_Hear_A',
               :priority_name => 'High'
-            }, :format => :json
-          end
+          }, :format => :json
+
+          mi_plans = Public::MiPlan.where(:gene_id => cbx1.id, :consortium_id => consortium.id, :production_centre_id => centre.id)
+          assert_equal mi_plans.count, 2
+
           second_plan = Public::MiPlan.last
           assert_equal second_plan.as_json, JSON.parse(response.body)
         end

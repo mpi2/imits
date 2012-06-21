@@ -45,7 +45,7 @@ class PhenotypeAttempt < ApplicationModel
   def create_initial_distribution_centre
     if self.distribution_centres.empty? && self.status.name == "Cre Excision Complete"
       initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
-      initial_centre = Centre.find_by_name(self.production_centre_name)
+      initial_centre = Centre.find_by_name(self.production_centre.name)
       initial_distribution_centre = PhenotypeAttempt::DistributionCentre.new
       initial_distribution_centre.centre = initial_centre
       initial_distribution_centre.deposited_material = initial_deposited_material

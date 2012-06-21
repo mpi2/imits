@@ -190,5 +190,6 @@ Seeds.load PhenotypeAttempt::Status, [
 ]
 
 Seeds.load DeleterStrain, [
-  {:id => 1, :name => 'MGI:3046308: Hprt<tm1(CMV-cre)Brd>'}
+  {:id => 1, :name => 'MGI:3046308: Hprt<tm1(CMV-cre)Brd>'},
+  {:id => 2, :name => 'MGI:2176052: Tg(Zp3-cre)3Mrt>'}
 ]

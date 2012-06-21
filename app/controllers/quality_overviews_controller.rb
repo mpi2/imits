@@ -12,13 +12,14 @@ class QualityOverviewsController < ApplicationController
       count += 1
       next if count == 1 or row.join.blank?
         quality_overview = QualityOverview.build_from_csv(row)
-        quality_overview.populate_mi_attempt_ids
+        quality_overview.populate_mi_attempt_id
         @quality_overviews.push(quality_overview)
     end
+
   end
 
   def index
-     import
+    import
 
   end
 

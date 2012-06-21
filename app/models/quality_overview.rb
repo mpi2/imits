@@ -12,7 +12,9 @@ class QualityOverview
   attr_accessor :confirm_downstream_lox_p_site, :confirm_no_additional_vector_insertions, :es_dist_qc
   attr_accessor :es_user_qc, :mouse_qc
 
-  attr_accessor :mi_attempt_ids
+  attr_accessor :mi_attempt_id
+
+  attr_accessor :mi_plan_consortium, :mi_plan_production_centre
 
   def self.build_from_csv(row)
     quality_overview = QualityOverview.new
@@ -35,10 +37,20 @@ class QualityOverview
     return quality_overview
   end
 
-  def populate_mi_attempt_ids
+  def populate_mi_attempt_id
     if self.marker_symbol
-      mi_attempts = MiAttempt.find_all_by_colony_name(self.colony_prefix)
-      self.mi_attempt_ids = mi_attempts.map(&:id)
+      mi_attempt = MiAttempt.find_by_colony_name(self.colony_prefix)
+      self.mi_attempt_id = mi_attempt_id
+    end
+  end
+
+  def populate_mi_plan_attributes
+    if self.mi_attempt_id
+      mi_attempt = MiAttempt.find!(self.mi_attempt_id)
+      if mi_attempt
+        self.mi_plan_consortium = mi_attempt.mi_plan.consortium.name
+        self.mi_plan_production_centre = mi_attempt.mi_plan.production_centre.name
+      end
     end
   end
 

@@ -78,7 +78,7 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.mi_date { Date.today }
 end
 
-Factory.define :distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
+Factory.define :mi_attempt_distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
   distribution_centre.association :centre
   distribution_centre.association :deposited_material
   distribution_centre.association :mi_attempt

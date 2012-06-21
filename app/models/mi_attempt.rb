@@ -207,17 +207,6 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  def create_initial_distribution_centre
-    if self.distribution_centres.empty? && self.status == "Genotype confirmed"
-      initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
-      initial_centre = Centre.find_by_name(self.production_centre_name)
-      initial_distribution_centre = DistributionCentre.new
-      initial_distribution_centre.centre = initial_centre
-      initial_distribution_centre.deposited_material = initial_deposited_material
-      self.distribution_centres.push(initial_distribution_centre)
-    end
-  end
-
   public
 
   # END Callbacks

@@ -287,6 +287,17 @@ ActiveRecord::Schema.define(:version => 20120615105954) do
     t.datetime "updated_at"
   end
 
+  create_table "phenotype_attempt_distribution_centres", :force => true do |t|
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "phenotype_attempt_id",                      :null => false
+    t.integer  "deposited_material_id",                     :null => false
+    t.integer  "centre_id",                                 :null => false
+    t.boolean  "is_distributed_by_emma", :default => false, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "phenotype_attempt_status_stamps", :force => true do |t|
     t.integer  "phenotype_attempt_id", :null => false
     t.integer  "status_id",            :null => false
@@ -410,6 +421,10 @@ ActiveRecord::Schema.define(:version => 20120615105954) do
 
   add_foreign_key "notifications", "contacts", :name => "notifications_contact_id_fk"
   add_foreign_key "notifications", "genes", :name => "notifications_gene_id_fk"
+
+  add_foreign_key "phenotype_attempt_distribution_centres", "centres", :name => "phenotype_attempt_distribution_centres_centre_id_fk"
+  add_foreign_key "phenotype_attempt_distribution_centres", "deposited_materials", :name => "phenotype_attempt_distribution_centres_deposited_material_id_fk"
+  add_foreign_key "phenotype_attempt_distribution_centres", "phenotype_attempts", :name => "phenotype_attempt_distribution_centres_phenotype_attempt_id_fk"
 
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempt_statuses", :name => "phenotype_attempt_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempts", :name => "phenotype_attempt_status_stamps_phenotype_attempt_id_fk"

@@ -17,17 +17,22 @@ Ext.define('Imits.model.PhenotypeAttempt', {
     {
         name: 'production_centre_name'
     },
+    'distribution_centres_attributes',
+    {
+        name: 'pretty_print_distribution_centres',
+        readOnly: true
+    },
     {
         name: 'mi_attempt_colony_name'
     },
     {
-        name: 'marker_symbol' 
+        name: 'marker_symbol'
     },
     {
         name: 'is_active'
     },
     {
-        name: 'status_name' 
+        name: 'status_name'
     },
     {
         name: 'rederivation_started'
@@ -42,10 +47,10 @@ Ext.define('Imits.model.PhenotypeAttempt', {
         name: 'number_of_cre_matings_successful'
     },
     {
-        name: 'phenotyping_started' 
+        name: 'phenotyping_started'
     },
     {
-        name: 'phenotyping_complete' 
+        name: 'phenotyping_complete'
     }
     ],
 

@@ -9,6 +9,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     'colony_name',
     'consortium_name',
     'production_centre_name',
+    'distribution_centres_attributes',
     'mi_attempt_colony_name',
     'is_active',
     'rederivation_started',
@@ -22,6 +23,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   READABLE_ATTRIBUTES = [
     'id',
+    'pretty_print_distribution_centres',
     'status_name',
     'marker_symbol'
   ] + FULL_ACCESS_ATTRIBUTES
@@ -97,7 +99,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   def production_centre_name=(arg)
     @production_centre_name = arg
   end
-  
+
   def self.translations
     return {
       'marker_symbol' => 'mi_plan_gene_marker_symbol',

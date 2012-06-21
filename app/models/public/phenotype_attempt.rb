@@ -23,6 +23,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   READABLE_ATTRIBUTES = [
     'id',
+    'pretty_print_distribution_centres',
     'status_name',
     'marker_symbol'
   ] + FULL_ACCESS_ATTRIBUTES

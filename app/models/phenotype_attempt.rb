@@ -43,7 +43,7 @@ class PhenotypeAttempt < ApplicationModel
   after_save :create_status_stamp_if_status_was_changed
 
   def create_initial_distribution_centre
-    if self.distribution_centres.empty? && self.status == "Cre excision complete"
+    if self.distribution_centres.empty? && self.status.name == "Cre Excision Complete"
       initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
       initial_centre = Centre.find_by_name(self.production_centre_name)
       initial_distribution_centre = PhenotypeAttempt::DistributionCentre.new
@@ -92,6 +92,27 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   # END Callbacks
+
+  def pretty_print_distribution_centres
+    @formatted_tags_array = Array.new
+    self.distribution_centres.each do |this_distribution_centre|
+      output_array = Array.new
+      centre = this_distribution_centre.centre.name || ''
+      deposited_material = this_distribution_centre.deposited_material.name || ''
+      if this_distribution_centre.is_distributed_by_emma
+        emma_status = 'EMMA'
+        output_array.push(emma_status, centre)
+      else
+        output_array.push(centre)
+      end
+      output_string = "["
+      output_string << output_array.join('::')
+      output_string << "]"
+      @formatted_tags_array.push(output_string)
+    end
+    @pretty_print_distribution_centres = @formatted_tags_array.join(', ')
+    return @pretty_print_distribution_centres
+  end
 
   def mouse_allele_symbol_superscript
     if mouse_allele_type.nil? or self.mi_attempt.es_cell.allele_symbol_superscript_template.nil?

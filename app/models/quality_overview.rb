@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 class QualityOverview
-  require 'csv'
 
   include ActiveModel::Validations
   include ActiveModel::Conversion
@@ -37,7 +36,10 @@ class QualityOverview
   end
 
   def populate_mi_attempt_ids
-
+    if self.marker_symbol
+      mi_attempts = MiAttempt.find_all_by_colony_name(self.colony_prefix)
+      self.mi_attempt_ids = mi_attempts.map(&:id)
+    end
   end
 
   def initialize(attributes = {})

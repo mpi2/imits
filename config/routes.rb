@@ -43,6 +43,7 @@ Kermits2::Application.routes.draw do
     end
   end
 
+  match 'quality_overviews' => "quality_overviews#index"
   match 'users_by_production_centre' => "root#users_by_production_centre", :as => :users_by_production_centre
   match 'consortia' => "root#consortia", :as => :consortia
   match 'debug_info' => 'root#debug_info'

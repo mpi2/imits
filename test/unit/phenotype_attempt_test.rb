@@ -141,6 +141,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
     context '#deleter_strain' do
       should 'be in DB' do
         assert_should have_db_column(:deleter_strain_id) #.with_options(:null => true)
+        assert_should belong_to(:deleter_strain)
       end
     end
 

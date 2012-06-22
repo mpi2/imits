@@ -1,8 +1,8 @@
 GIT
   remote: git://github.com/mpi2/ransack.git
-  revision: 8ef81fd1d44209d57f6b91701add93a10c06713e
+  revision: afdd357fae80be0180ee1581895a31790f7d9299
   specs:
-    ransack (0.5.8)
+    ransack (0.6.0)
       actionpack (~> 3.0)
       activerecord (~> 3.0)
       polyamorous (~> 0.5.0)
@@ -163,7 +163,7 @@ GEM
     treetop (1.4.10)
       polyglot
       polyglot (>= 0.3.1)
-    tzinfo (0.3.32)
+    tzinfo (0.3.33)
     warden (1.0.6)
       rack (>= 1.0)
     will_paginate (3.0.pre2)

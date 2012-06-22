@@ -9,6 +9,7 @@ class Reports::ImpcGeneListIntegrationTest < Kermits2::IntegrationTest
       create_common_test_objects
       Factory.create :mi_attempt_chimeras_obtained
       Reports::MiProduction::Intermediate.new.cache
+      Reports::ImpcGeneList.new.cache
       visit '/users/logout'
     end
 

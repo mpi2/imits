@@ -6,14 +6,14 @@ class Reports::ImpcGeneList < Reports::Base
 
   def cache
     ReportCache.transaction do
-        cache = ReportCache.find_by_name_and_format(self.class.report_name, 'csv')
-        if ! cache
-          cache = ReportCache.new(
-            :name => self.class.report_name,
-            :data => '',
-            :format => format
-          )
-        end
+      cache = ReportCache.find_by_name_and_format(self.class.report_name, 'csv')      
+      if ! cache
+        cache = ReportCache.new(
+          :name => self.class.report_name,
+          :data => '',
+          :format => format
+        )
+      end
 
       cache.data = self.to_csv()
       cache.save!

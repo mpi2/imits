@@ -25,7 +25,16 @@ class QualityOverviewsController < ApplicationController
 
       else
         grouping_centre_store = Hash.new
-        grouping_centre_store
+        if quality_overview.mi_plan_production_centre
+          quality_overview_array = Array.new
+          quality_overview_array.push(quality_overview)
+          grouping_centre_store[quality_overview.mi_plan_production_centre] = quality_overview_array
+
+          @grouping_consortium_store[quality_overview.mi_plan_consortium] = grouping_centre_store
+        else
+          logger.error("Missing quality overview mi_plan production centre name")
+          logger.error(quality_overview.inspect)
+        end
       end
     end
   end

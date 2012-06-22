@@ -57,7 +57,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt.valid?
         assert_equal ['cannot be changed'], pt.errors[:consortium_name], pt.errors.inspect
       end
-      
+
       should 'be equal to the associated mi_plan consortium name if it has not yet been set' do
           pt = Factory.create(:phenotype_attempt).to_public
           pt.save!
@@ -86,7 +86,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt.valid?
         assert_equal ['cannot be changed'], pt.errors[:production_centre_name], pt.errors.inspect
       end
-      
+
       should 'be equal to the associated mi_plan production centre name' do
           pt = Factory.create(:phenotype_attempt).to_public
           pt.save!
@@ -190,6 +190,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'colony_name',
         'consortium_name',
         'production_centre_name',
+        'distribution_centres_attributes',
         'mi_attempt_colony_name',
         'is_active',
         'rederivation_started',
@@ -212,6 +213,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'status_name',
         'consortium_name',
         'production_centre_name',
+        'pretty_print_distribution_centres',
         'mi_attempt_colony_name',
         'is_active',
         'marker_symbol',

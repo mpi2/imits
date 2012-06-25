@@ -99,4 +99,9 @@ class MiPlansController < ApplicationController
     end
   end
 
+  def history
+    @resource = MiPlan.find(params[:id])
+    render :template => '/shared/history'
+  end
+
 end

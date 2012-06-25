@@ -12,22 +12,19 @@ Kermits2::Application.routes.draw do
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
     resource :phenotype_attempts, :only => [:new]
-    member do
-      get 'history'
-    end
   end
 
   resources :phenotype_attempts, :only => [:index, :create, :show, :update]
-  
+
   resources :contacts do
     collection do
       get 'check_email'
       get 'search_email'
     end
   end
-  
+
   resources :notifications, :only => [:create]
-  
+
   match 'notifications' => 'notifications#delete', :via => :delete
 
   devise_for :users,
@@ -62,4 +59,5 @@ Kermits2::Application.routes.draw do
 
   resources :report_caches, :only => [:show]
 
+  match ':controller/:id/history' => ':controller#history'
 end

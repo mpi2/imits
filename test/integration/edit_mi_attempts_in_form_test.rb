@@ -13,7 +13,6 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
         :date_chimeras_mated => '2011-06-02',
         :colony_name => 'MAAB',
         :total_blasts_injected => 12,
-        :emma_status => 'suitable_sticky',
         :test_cross_strain_name => '129P2'
       )
       login
@@ -32,13 +31,11 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       assert_equal '09/06/2011', page.find('input[name="mi_attempt[mi_date]"]').value
       assert_equal '02/06/2011', page.find('input[name="mi_attempt[date_chimeras_mated]"]').value
       assert_equal '12', page.find('input[name="mi_attempt[total_blasts_injected]"]').value
-      assert_equal 'suitable_sticky', page.find('select[name="mi_attempt[emma_status]"] option[selected=selected]').value
     end
 
     should 'edit mi successfully, set updated_by and redirect back to show page' do
       fill_in 'mi_attempt[colony_name]', :with => 'ABCD'
       fill_in 'mi_attempt[total_blasts_injected]', :with => 22
-      select 'Suitable for EMMA - STICKY', :from => 'mi_attempt[emma_status]'
       select 'C57BL/6N', :from => 'mi_attempt[test_cross_strain_name]'
       select 'pass', :from => 'mi_attempt[qc_southern_blot_result]'
       check 'mi_attempt[report_to_public]'
@@ -51,7 +48,6 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       @mi_attempt.reload
       assert_equal 'ABCD', @mi_attempt.colony_name
       assert_equal 22, @mi_attempt.total_blasts_injected
-      assert_equal 'suitable_sticky', @mi_attempt.emma_status
       assert_equal 'C57BL/6N', @mi_attempt.test_cross_strain.name
       assert_equal 'pass', @mi_attempt.qc_southern_blot.description
       assert_equal true, @mi_attempt.report_to_public?

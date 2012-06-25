@@ -395,6 +395,17 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#distribution_centres' do
+      should 'exist' do
+        assert_should have_many(:distribution_centres)
+      end
+
+      should "accept nested attributes for distribution_centres" do
+        assert  MiAttempt.instance_methods.include?(:distribution_centres_attributes=),
+          "MiAttempt does not accept nested attributes for distribution_centres"
+      end
+    end
+
     context 'before filter' do
       context '#set_blank_strings_to_nil (before validation)' do
         should 'work' do

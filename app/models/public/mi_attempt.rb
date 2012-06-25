@@ -8,8 +8,6 @@ class Public::MiAttempt < ::MiAttempt
     colony_name
     consortium_name
     production_centre_name
-    distribution_centre_name
-    deposited_material_name
     blast_strain_name
     total_blasts_injected
     total_transferred
@@ -22,9 +20,6 @@ class Public::MiAttempt < ::MiAttempt
     number_of_males_with_40_to_79_percent_chimerism
     number_of_males_with_80_to_99_percent_chimerism
     number_of_males_with_100_percent_chimerism
-    is_suitable_for_emma
-    is_emma_sticky
-    emma_status
     colony_background_strain_name
     test_cross_strain_name
     date_chimeras_mated
@@ -62,6 +57,7 @@ class Public::MiAttempt < ::MiAttempt
 
   READABLE_ATTRIBUTES = %w{
     id
+    pretty_print_distribution_centres
     es_cell_marker_symbol
     es_cell_allele_symbol
     status_name
@@ -70,7 +66,11 @@ class Public::MiAttempt < ::MiAttempt
     mi_plan_id
   } + FULL_ACCESS_ATTRIBUTES
 
-  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
+  WRITABLE_ATTRIBUTES = %w{
+    distribution_centres_attributes
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
 
   def status_name; mi_attempt_status.description; end
 end
@@ -84,9 +84,7 @@ end
 #  mi_date                                         :date            not null
 #  mi_attempt_status_id                            :integer         not null
 #  colony_name                                     :string(125)
-#  distribution_centre_id                          :integer
 #  updated_by_id                                   :integer
-#  deposited_material_id                           :integer         not null
 #  blast_strain_id                                 :integer
 #  total_blasts_injected                           :integer
 #  total_transferred                               :integer
@@ -99,8 +97,6 @@ end
 #  number_of_males_with_40_to_79_percent_chimerism :integer
 #  number_of_males_with_80_to_99_percent_chimerism :integer
 #  number_of_males_with_100_percent_chimerism      :integer
-#  is_suitable_for_emma                            :boolean         default(FALSE), not null
-#  is_emma_sticky                                  :boolean         default(FALSE), not null
 #  colony_background_strain_id                     :integer
 #  test_cross_strain_id                            :integer
 #  date_chimeras_mated                             :date

@@ -36,6 +36,39 @@
      <%= form.check_box :is_active %>
    </div>
 </fieldset>
+
+<fieldset class="collapsible" id="distribution_centres">
+  <legend>Distribution Centres</legend>
+    <div class="distribution_centres">
+    <% if phenotype_attempt.status && phenotype_attempt.status.name == 'Cre Excision Complete' %>
+      <table id="distribution_centres_table" class="report_table">
+        <thead class="title">
+          <tr>
+            <th>Distribution centre</th>
+            <th>EMMA</th>
+            <th>Deposited material</th>
+            <th>Start date</th>
+            <th>End date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody class="distribution_centres">
+        <% if phenotype_attempt.distribution_centres.length > 0 %>
+          <%= form.fields_for :distribution_centres do |builder| %>
+            <% if !builder.object.new_record? %>
+            <%= render 'distribution_centre_fields', f: builder %>
+            <% end %>
+          <% end %>
+        <% end %>
+        </tbody>
+      </table>
+      <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
+    <% else %>
+    No Distribution Centres can be set until Status is Cre Excision Complete.
+    <% end %>
+    </div>
+</fieldset>
+
 <fieldset class="collapsible">
   <legend>Rederivation</legend>
    <% [:rederivation_started, :rederivation_complete].each do |field| %>

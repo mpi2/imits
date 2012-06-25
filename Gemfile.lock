@@ -1,8 +1,8 @@
 GIT
   remote: git://github.com/mpi2/ransack.git
-  revision: 8ef81fd1d44209d57f6b91701add93a10c06713e
+  revision: afdd357fae80be0180ee1581895a31790f7d9299
   specs:
-    ransack (0.5.8)
+    ransack (0.6.0)
       actionpack (~> 3.0)
       activerecord (~> 3.0)
       polyamorous (~> 0.5.0)
@@ -102,7 +102,7 @@ GEM
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    mime-types (1.18)
+    mime-types (1.19)
     mocha (0.9.12)
     multi_json (1.3.6)
     nokogiri (1.5.4)
@@ -140,6 +140,7 @@ GEM
     rake (0.9.2.2)
     rdoc (3.12)
       json (~> 1.4)
+<<<<<<< HEAD
     rubyzip (0.9.8)
     ruport (1.6.3)
       fastercsv
@@ -147,6 +148,14 @@ GEM
     selenium-webdriver (2.22.2)
       childprocess (>= 0.2.5)
       ffi (~> 1.0)
+=======
+    rubyzip (0.9.9)
+    ruport (1.6.3)
+      fastercsv
+      pdf-writer (= 1.1.8)
+    selenium-webdriver (2.24.0)
+      childprocess (>= 0.2.5)
+>>>>>>> origin/master
       libwebsocket (~> 0.1.3)
       multi_json (~> 1.0)
       rubyzip
@@ -166,7 +175,7 @@ GEM
     treetop (1.4.10)
       polyglot
       polyglot (>= 0.3.1)
-    tzinfo (0.3.32)
+    tzinfo (0.3.33)
     warden (1.0.6)
       rack (>= 1.0)
     will_paginate (3.0.pre2)

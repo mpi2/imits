@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-#ApplicationModel.audited_transaction do
+ApplicationModel.audited_transaction do
   puts 'Total number of phenotype attempts'
   puts PhenotypeAttempt.count
   puts ''
@@ -62,4 +62,4 @@
 
 #  raise 'rollback'
 
-#end
+end

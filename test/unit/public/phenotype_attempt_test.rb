@@ -195,11 +195,11 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'is_active',
         'rederivation_started',
         'rederivation_complete',
-        'number_of_cre_matings_started',
         'number_of_cre_matings_successful',
         'phenotyping_started',
         'phenotyping_complete',
-        'mouse_allele_type'
+        'mouse_allele_type',
+        'deleter_strain_name'
 
       ]
       got = (Public::PhenotypeAttempt.accessible_attributes.to_a - ['audit_comment'])
@@ -219,11 +219,11 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'marker_symbol',
         'rederivation_started',
         'rederivation_complete',
-        'number_of_cre_matings_started',
         'number_of_cre_matings_successful',
         'phenotyping_started',
         'phenotyping_complete',
-        'mouse_allele_type'
+        'mouse_allele_type',
+        'deleter_strain_name'
       ]
       got = default_phenotype_attempt.as_json.keys
       assert_equal expected.sort, got.sort
@@ -237,7 +237,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#status_name' do
       should 'be the status name' do
-        default_phenotype_attempt.number_of_cre_matings_started = 4
+        default_phenotype_attempt.deleter_strain = DeleterStrain.first
         default_phenotype_attempt.valid?
         assert_equal 'Cre Excision Started', default_phenotype_attempt.status.name
         assert_equal 'Cre Excision Started', default_phenotype_attempt.status_name
@@ -265,8 +265,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       should 'leave other params untouched' do
         assert_equal 'phenotyping_started_eq',
                 Public::PhenotypeAttempt.translate_public_param('phenotyping_started_eq')
-        assert_equal 'number_of_cre_matings_started asc',
-                Public::PhenotypeAttempt.translate_public_param('number_of_cre_matings_started asc')
+        assert_equal 'deleter_strain_name asc',
+                Public::PhenotypeAttempt.translate_public_param('deleter_strain_name asc')
       end
     end
 

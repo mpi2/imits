@@ -25,12 +25,9 @@ ApplicationModel.audited_transaction do
   puts PhenotypeAttempt.search(:mi_plan_production_centre_name_eq => 'WTSI', :number_of_cre_matings_successful_not_eq => 0, :deleter_strain_id_eq => 1).result.count
 
 
-
-<<<<<<< HEAD
   puts 'DTCC'
 =======
   # 'DTCC'
->>>>>>> Monthly_activity_report
   puts 'DTCC and others centres breakdown'
   puts PhenotypeAttempt.search(:mi_plan_production_centre_name_eq => 'DTCC').result.count
   puts PhenotypeAttempt.search(:mi_plan_production_centre_name_not_eq => 'DTCC').result.count
@@ -40,10 +37,8 @@ ApplicationModel.audited_transaction do
   puts PhenotypeAttempt.search(:mi_plan_production_centre_name_eq => 'DTCC', :number_of_cre_matings_successful_not_eq => 0, :deleter_strain_id_null => 1).result.count
   puts PhenotypeAttempt.search(:mi_plan_production_centre_name_eq => 'DTCC', :number_of_cre_matings_successful_not_eq => 0, :deleter_strain_id_eq => 1).result.count
 
-<<<<<<< HEAD
-  'DTCC'
+  puts  'DTCC'
 =======
->>>>>>> Monthly_activity_report
   a = PhenotypeAttempt.search(:mi_plan_production_centre_name_eq => 'DTCC', :number_of_cre_matings_successful_not_eq => 0).result.all
   a.each {|rec| PhenotypeAttempt.find_by_id(rec.id).update_attributes(:deleter_strain_id => 1)}
 
@@ -52,7 +47,6 @@ ApplicationModel.audited_transaction do
   puts PhenotypeAttempt.search(:mi_plan_production_centre_name_eq => 'DTCC', :number_of_cre_matings_successful_not_eq => 0, :deleter_strain_id_eq => 1).result.count
 
 
-<<<<<<< HEAD
 =======
 
     # 'JAX'
@@ -74,8 +68,6 @@ ApplicationModel.audited_transaction do
 
 
 
-
->>>>>>> Monthly_activity_report
 
   raise 'rollback'
 

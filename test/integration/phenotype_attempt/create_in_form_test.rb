@@ -17,6 +17,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'allow editing consortium or production centre' do
+      sleep 5
       assert page.has_css?('select[name="phenotype_attempt[production_centre_name]"]')
       assert page.has_css?('select[name="phenotype_attempt[consortium_name]"]')
     end

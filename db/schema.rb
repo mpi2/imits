@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120524111009) do
+ActiveRecord::Schema.define(:version => 20120613132955) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -277,7 +277,7 @@ ActiveRecord::Schema.define(:version => 20120524111009) do
     t.boolean  "is_bespoke_allele",              :default => false, :null => false
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "notifications", :force => true do |t|
     t.datetime "welcome_email_sent"

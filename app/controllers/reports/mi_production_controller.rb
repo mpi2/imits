@@ -129,6 +129,10 @@ class Reports::MiProductionController < ApplicationController
     month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityKomp2)
   end
 
+  def summary_month_by_month_activity_komp2_compressed
+    month_by_month_helper_no_cache(Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed)
+  end
+
   def month_by_month_helper_no_cache(report_class)
     @title2 = report_class.report_title
 

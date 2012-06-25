@@ -28,7 +28,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       fill_in 'phenotype_attempt_colony_name', :with => 'TEST'
 
       check('phenotype_attempt[rederivation_started]')
-      fill_in 'phenotype_attempt[deleter_strain', :with => 'MGI:3046308: Hprt'
+      select 'MGI:3046308: Hprt', :from => 'phenotype_attempt[deleter_strain_name]'
       fill_in 'phenotype_attempt[number_of_cre_matings_successful]', :with => '9'
       select 'b', :from => 'phenotype_attempt[mouse_allele_type]'
       click_button 'phenotype_attempt_submit'

@@ -14,7 +14,7 @@ class QualityOverview
 
   attr_accessor :mi_attempt_id
 
-  attr_accessor :mi_plan_consortium, :mi_plan_production_centre
+  attr_accessor :mi_plan_consortium, :mi_plan_production_centre, :mi_attempt_status
 
   def self.build_from_csv(row)
     quality_overview = QualityOverview.new
@@ -37,22 +37,16 @@ class QualityOverview
     return quality_overview
   end
 
-  def populate_mi_attempt_id
+  def populate_related_data
     if self.marker_symbol
       mi_attempt = MiAttempt.find_by_colony_name(self.colony_prefix)
-      self.mi_attempt_id = mi_attempt_id
+      self.mi_attempt_id = mi_attempt.id
+      self.mi_plan_consortium = mi_attempt.mi_plan.consortium.name
+      self.mi_plan_production_centre = mi_attempt.mi_plan.production_centre.name
+      self.mi_attempt_status = mi_attempt.status
     end
   end
 
-  def populate_mi_plan_attributes
-    if self.mi_attempt_id
-      mi_attempt = MiAttempt.find!(self.mi_attempt_id)
-      if mi_attempt
-        self.mi_plan_consortium = mi_attempt.mi_plan.consortium.name
-        self.mi_plan_production_centre = mi_attempt.mi_plan.production_centre.name
-      end
-    end
-  end
 
   def initialize(attributes = {})
     attributes.each do |name, value|

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class QualityOverviewsController < ApplicationController
+class QualityOverviewGroupingsController < ApplicationController
   require 'csv'
 
   def import

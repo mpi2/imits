@@ -14,7 +14,7 @@ class PhenotypeAttempt::ViewIntegrationTest < Kermits2::JsIntegrationTest
         'EUCOMM-EUMODIC',
         'ICS',
         '12',
-        '34'
+        'MGI:3046308: Hprt'
       ].each do |text|
         assert(page.has_css?('div', :text => text),
           "Expected text '#{text}' in grid, but did not find it")

@@ -6,7 +6,7 @@
   <%= javascript_tag "PHENOTYPE_CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
   <%= javascript_tag "PHENOTYPE_STATUS_OPTIONS = #{PhenotypeAttempt::Status.all.map(&:name).to_json}" %>
   <%= javascript_tag "PHENOTYPE_ATTEMPT_SEARCH_PARAMS = #{params[:q].to_json}" %>
-  <%= javascript_tag "PHENOTYPE_DELETER_STRAIN_OPTIONS = #{PhenotypeAttempt::DeleterStrain.all.map(&:name).to_json}" %>
+  <%= javascript_tag "PHENOTYPE_DELETER_STRAIN_OPTIONS = #{DeleterStrain.all.map(&:name).to_json}" %>
 <% end %>
 
 <% content_for :post_js_footer do %>

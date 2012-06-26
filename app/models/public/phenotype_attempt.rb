@@ -13,11 +13,11 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     'is_active',
     'rederivation_started',
     'rederivation_complete',
-    'number_of_cre_matings_started',
     'number_of_cre_matings_successful',
     'phenotyping_started',
     'phenotyping_complete',
-    'mouse_allele_type'
+    'mouse_allele_type',
+    'deleter_strain_name'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -29,6 +29,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)
 
   access_association_by_attribute :mi_attempt, :colony_name
+  access_association_by_attribute :deleter_strain, :name
 
   validates :mi_attempt_colony_name, :presence => true
   validates :mi_plan, :presence => {:message => 'cannot be found with supplied parameters.  Please either create it first or check consortium_name and/or production_centre_name supplied'}
@@ -97,7 +98,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   def production_centre_name=(arg)
     @production_centre_name = arg
   end
-  
+
   def self.translations
     return {
       'marker_symbol' => 'mi_plan_gene_marker_symbol',
@@ -126,6 +127,7 @@ end
 #  mi_plan_id                       :integer         not null
 #  colony_name                      :string(125)     not null
 #  mouse_allele_type                :string(1)
+#  deleter_strain_id                :integer
 #
 # Indexes
 #

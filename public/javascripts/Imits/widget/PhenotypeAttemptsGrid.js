@@ -133,11 +133,13 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     },
     {
-        dataIndex: 'number_of_cre_matings_started',
-        header: '# Cre Matings Started',
+        dataIndex: 'deleter_strain_name',
+        header: 'Cre-deleter strain',
         readOnly: true,
-        editor: 'simplenumberfield',
-        width: 115
+        filter: {
+            type: 'list',
+            options: window.PHENOTYPE_DELETER_STRAIN_OPTIONS
+        }
     },
     {
         dataIndex: 'number_of_cre_matings_successful',

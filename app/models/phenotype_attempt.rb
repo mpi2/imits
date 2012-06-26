@@ -9,7 +9,9 @@ class PhenotypeAttempt < ApplicationModel
   belongs_to :mi_attempt
   belongs_to :mi_plan
   belongs_to :status
+  belongs_to :deleter_strain
   has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
+
 
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
@@ -116,7 +118,7 @@ class PhenotypeAttempt < ApplicationModel
     end
     return retval
   end
-  
+
   def earliest_relevant_status_stamp
     self.status_stamps.find_by_status_id(self.status_id)
   end
@@ -142,6 +144,7 @@ end
 #  mi_plan_id                       :integer         not null
 #  colony_name                      :string(125)     not null
 #  mouse_allele_type                :string(1)
+#  deleter_strain_id                :integer
 #
 # Indexes
 #

@@ -21,28 +21,31 @@ class QualityOverviewGroupingsController < ApplicationController
 
   def group_by_consortium_and_centre(quality_overviews)
     @grouping_consortium_store = Hash.new
+    @eucomm_store = Array.new
     quality_overviews.each do |quality_overview|
       if @grouping_consortium_store.keys.include?(quality_overview.mi_plan_consortium)
 
-        grouping_centre_store = @grouping_consortium_store[quality_overview.mi_plan_consortium]
+        grouping_centre_store = @grouping_consortium_store.fetch(quality_overview.mi_plan_consortium)
         if grouping_centre_store.keys.include?(quality_overview.mi_plan_production_centre)
-          quality_overview_array = grouping_centre_store[quality_overview.mi_plan_production_centre]
+          quality_overview_array = grouping_centre_store.fetch(quality_overview.mi_plan_production_centre)
+
           quality_overview_array.push(quality_overview)
 
-          grouping_centre_store[quality_overview.mi_plan_production_centre] = quality_overview_array
+          grouping_centre_store.store(quality_overview.mi_plan_production_centre, quality_overview_array)
 
-          @grouping_consortium_store[quality_overview.mi_plan_consortium] = grouping_centre_store
+          @grouping_consortium_store.store(quality_overview.mi_plan_consortium, grouping_centre_store)
         else
+          grouping_centre_store = Hash.new
+
           quality_overview_array = Array.new
           quality_overview_array.push(quality_overview)
+          grouping_centre_store = @grouping_consortium_store.fetch(quality_overview.mi_plan_consortium)
+          grouping_centre_store.store(quality_overview.mi_plan_production_centre, quality_overview_array)
 
-          grouping_centre_store = Hash.new
-          grouping_centre_store[quality_overview.mi_plan_production_centre] = quality_overview_array
-
-          @grouping_consortium_store[quality_overview.mi_plan_consortium] = grouping_centre_store
+          @grouping_consortium_store.store(quality_overview.mi_plan_consortium, grouping_centre_store)
         end
       else
-        grouping_centre_store = Hash.new
+          grouping_centre_store = Hash.new
 
           quality_overview_array = Array.new
           quality_overview_array.push(quality_overview)

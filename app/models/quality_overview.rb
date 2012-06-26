@@ -39,7 +39,7 @@ class QualityOverview
 
   def populate_related_data
     if self.marker_symbol
-      mi_attempt = MiAttempt.find_by_colony_name(self.colony_prefix)
+      mi_attempt = MiAttempt.find_by_colony_name!(self.colony_prefix)
       self.mi_attempt_id = mi_attempt.id
       self.mi_plan_consortium = mi_attempt.mi_plan.consortium.name
       self.mi_plan_production_centre = mi_attempt.mi_plan.production_centre.name

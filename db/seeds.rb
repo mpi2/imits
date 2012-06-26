@@ -190,7 +190,8 @@ Seeds.load PhenotypeAttempt::Status, [
 ]
 
 Seeds.load DeleterStrain, [
-  {:id => 1, :name => 'MGI:3046308: Hprt<tm1(CMV-cre)Brd>'},
-  {:id => 2, :name => 'B6N.Cg-Tg(Sox2-cre)1Amc/J'},
-  {:id => 3, :name => 'MGI:2176052: Tg(Zp3-cre)3Mrt>'}
+  {:id => 1, :name => 'MGI:2176052: Tg(Zp3-cre)3Mrt'},
+  {:id => 2, :name => 'MGI:3046308: Hprt<tm1(CMV-cre)Brd>'},
+  {:id => 3, :name => 'B6N.Cg-Tg(Sox2-cre)1Amc/J'},
+  {:id => 4, :name => 'Gt(ROSA)26Sor<tm16(cre)Arte>'}
 ]

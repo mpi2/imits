@@ -102,8 +102,7 @@ ApplicationModel.audited_transaction do
   mgi_id.each do |id|
     next if exclude_mgi_id.include? id
 
-    gene = Gene.find_by_mgi_accession_id id
-    raise "Cannot find #{id}!" if ! gene
+    gene = Gene.find_by_mgi_accession_id! id
 
     mi_plan = MiPlan.create!(
       :gene 		  => gene,

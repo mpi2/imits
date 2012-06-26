@@ -8,6 +8,7 @@ module PhenotypeAttempt::StatusChanger
 
   ss.add('Rederivation Started') do |pt|
     pt.rederivation_started?
+
   end
 
   ss.add('Rederivation Complete', 'Rederivation Started') do |pt|
@@ -15,7 +16,7 @@ module PhenotypeAttempt::StatusChanger
   end
 
   ss.add('Cre Excision Started') do |pt|
-    pt.number_of_cre_matings_started > 0
+    ! pt.deleter_strain.blank?
   end
 
   ss.add('Cre Excision Complete', 'Cre Excision Started') do |pt|

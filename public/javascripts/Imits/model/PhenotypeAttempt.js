@@ -41,7 +41,7 @@ Ext.define('Imits.model.PhenotypeAttempt', {
         name: 'rederivation_complete'
     },
     {
-        name: 'number_of_cre_matings_started'
+        name: 'deleter_strain_name'
     },
     {
         name: 'number_of_cre_matings_successful'

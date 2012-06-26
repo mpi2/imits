@@ -78,7 +78,7 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.mi_date { Date.today }
 end
 
-Factory.define :distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
+Factory.define :mi_attempt_distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
   distribution_centre.association :centre
   distribution_centre.association :deposited_material
   distribution_centre.association :mi_attempt
@@ -168,7 +168,7 @@ end
 Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.rederivation_started true
   phenotype_attempt.rederivation_complete true
-  phenotype_attempt.number_of_cre_matings_started { rand(51..100)}
+  phenotype_attempt.deleter_strain {DeleterStrain.first}
   phenotype_attempt.number_of_cre_matings_successful { rand(10..50)}
   phenotype_attempt.phenotyping_started true
   phenotype_attempt.phenotyping_complete true

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120615105954) do
+ActiveRecord::Schema.define(:version => 20120618150335) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -60,6 +60,12 @@ ActiveRecord::Schema.define(:version => 20120615105954) do
   end
 
   add_index "contacts", ["email"], :name => "index_contacts_on_email", :unique => true
+
+  create_table "deleter_strains", :force => true do |t|
+    t.string   "name",       :limit => 100, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "deposited_materials", :force => true do |t|
     t.string   "name",       :limit => 50, :null => false
@@ -327,6 +333,7 @@ ActiveRecord::Schema.define(:version => 20120615105954) do
     t.integer  "mi_plan_id",                                                         :null => false
     t.string   "colony_name",                      :limit => 125,                    :null => false
     t.string   "mouse_allele_type",                :limit => 1
+    t.integer  "deleter_strain_id"
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true

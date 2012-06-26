@@ -174,7 +174,8 @@ Seeds.load MiPlan::SubProject, [
   {:id => 16, :name => 'WTSI_Metabolism_A'},
   {:id => 17, :name => 'WTSI_Cre'},
   {:id => 18, :name => 'WTSI_Malaria_A'},
-  {:id => 19, :name => 'WTSI_Rarediseases_A'}
+  {:id => 19, :name => 'WTSI_Rarediseases_A'},
+  {:id => 20, :name => 'WTSI_Fat_A'}
 ]
 
 Seeds.load PhenotypeAttempt::Status, [
@@ -186,4 +187,10 @@ Seeds.load PhenotypeAttempt::Status, [
   {:id =>  6, :name => 'Cre Excision Complete', :order_by => 360},
   {:id =>  7, :name => 'Phenotyping Started', :order_by => 370},
   {:id =>  8, :name => 'Phenotyping Complete', :order_by => 380}
+]
+
+Seeds.load DeleterStrain, [
+  {:id => 1, :name => 'MGI:3046308: Hprt<tm1(CMV-cre)Brd>'},
+  {:id => 2, :name => 'B6N.Cg-Tg(Sox2-cre)1Amc/J'},
+  {:id => 3, :name => 'MGI:2176052: Tg(Zp3-cre)3Mrt>'}
 ]

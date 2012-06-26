@@ -6,5 +6,6 @@ task 'cron:cache_reports' => [:environment] do
     Reports::MiProduction::Intermediate.new.cache
     Reports::MiProduction::SummaryKomp23.new.cache
     Reports::MiProduction::SummaryImpc3.new.cache
+    Reports::ImpcGeneList.new.cache
   end
 end

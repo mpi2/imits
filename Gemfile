@@ -17,6 +17,7 @@ gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
 
 group :development, :test do
+  gem 'selenium-webdriver', '2.22.0.rc1'
   gem 'shoulda', :require => nil
   gem 'test-unit', :require => nil
   gem 'chromedriver-helper', :require => nil

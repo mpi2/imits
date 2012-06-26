@@ -264,9 +264,9 @@ class ReportsController < ApplicationController
   end
 
   def impc_gene_list
-    csv_content = Reports::ImpcGeneList.generate(:csv)
+    cache = ReportCache.find_by_name_and_format('impc_gene_list', 'csv')
     send_data(
-      csv_content,
+      cache && cache.data ? cache.data : '',
       :type     => 'text/csv; charset=utf-8; header=present',
       :filename => 'impc_gene_list.csv'
     )

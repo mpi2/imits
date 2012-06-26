@@ -62,7 +62,7 @@ ActiveRecord::Schema.define(:version => 20120618150335) do
   add_index "contacts", ["email"], :name => "index_contacts_on_email", :unique => true
 
   create_table "deleter_strains", :force => true do |t|
-    t.string   "name"
+    t.string   "name",       :limit => 100, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

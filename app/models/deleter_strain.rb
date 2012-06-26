@@ -11,8 +11,7 @@ end
 # Table name: deleter_strains
 #
 #  id         :integer         not null, primary key
-#  name       :string(255)
+#  name       :string(100)     not null
 #  created_at :datetime
 #  updated_at :datetime
 #
-

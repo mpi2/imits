@@ -9,7 +9,7 @@ Dear colleague,
   <% end %>
 
   Further details of alleles for this gene can be found here:
-  http://dev.mousephenotype.org/gene-details?gene_id=<%= @gene.marker_symbol %>
+  http://dev.mousephenotype.org/gene-details?gene_id=<%= @gene.mgi_accession_id %>
 
   <% if @total_cell_count > 0 %>
     Currently the IKMC has the following mutant ES Cells for this gene;

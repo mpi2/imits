@@ -1,0 +1,6 @@
+<% if report.nil? %>
+  <p><em>Sorry, no <%= label %> found</em></p>
+<% else %>
+    <p><%= report.size %> <%= label %> found</p>
+    <%= raw report.to_html %>
+<% end %>

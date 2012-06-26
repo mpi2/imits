@@ -9,6 +9,8 @@
 #Priority - Low
 #Subproject - MGP Interest
 
+DRY_RUN = false
+
 exclude_mgi_id = %w(
 MGI:2686516
 MGI:3045311
@@ -847,6 +849,12 @@ Rails.logger.info  "create_new_mgp_plans.rb: START"
 
 ApplicationModel.audited_transaction do
 
+  consortium 		= Consortium.find_by_name!('MGP')
+  production_centre 	= Centre.find_by_name!('WTSI')
+  status 		= MiPlan::Status.find_by_name!('Assigned')
+  priority          	= MiPlan::Priority.find_by_name!('Low')
+  sub_project           = MiPlan::SubProject.find_by_name!('MGPinterest')
+
   mgi_id.each do |id|
     next if exclude_mgi_id.include? id
 
@@ -854,17 +862,14 @@ ApplicationModel.audited_transaction do
     raise "Cannot find #{id}!" if ! gene
 
     mi_plan = MiPlan.create!(
-      :gene 			=> gene,
-      :consortium 		=> Consortium.find_by_name!('MGP'),
-      :production_centre 	=> Centre.find_by_name!('WTSI'),
-      :status 		        => MiPlan::Status.find_by_name!('Assigned'),
-      :priority          	=> MiPlan::Priority.find_by_name!('Low'),
-      :sub_project              => MiPlan::SubProject.find_by_name!('MGPinterest')
+      :gene 		  => gene,
+      :consortium 	  => consortium,
+      :production_centre  => production_centre,
+      :status 		  => status,
+      :priority           => priority,
+      :sub_project        => sub_project
     )
 
-    raise "Cannot create plan!" if ! mi_plan
-
-    Rails.logger.info  "create_new_mgp_plans.rb: Create new plan: id: #{mi_plan.id}"
     Rails.logger.info  "create_new_mgp_plans.rb: New plan: #{mi_plan.inspect}"
   end
 
@@ -872,7 +877,7 @@ ApplicationModel.audited_transaction do
 
   raise "expected to find #{after_count_expected} - actually found #{after_count}" if after_count != after_count_expected
 
-  raise "don't save!"
+  raise "don't save!" if DRY_RUN
 end
 
 Rails.logger.info  "create_new_mgp_plans.rb: END"

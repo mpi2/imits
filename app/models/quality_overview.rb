@@ -47,6 +47,13 @@ class QualityOverview
     end
   end
 
+  def overall_pass
+    if self.confirm_locus_targeted.nil? && self.confirm_structure_targeted_allele.nil? && self.confirm_downstream_lox_p_site.nil? && self.confirm_no_additional_vector_insertions.nil?
+      return true
+    else
+      return false
+    end
+  end
 
   def initialize(attributes = {})
     attributes.each do |name, value|

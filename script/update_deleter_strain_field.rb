@@ -60,6 +60,26 @@ ApplicationModel.audited_transaction do
   puts PhenotypeAttempt.search(:mi_plan_consortium_name_eq => 'JAX', :number_of_cre_matings_started_not_eq => 0, :deleter_strain_id_null => 1).result.count
   puts PhenotypeAttempt.search(:mi_plan_production_consortium_name_eq => 'JAX', :number_of_cre_matings_started_not_eq => 0, :deleter_strain_id_eq => 2).result.count
 
+
+  puts 'Helmholtz GMC'
+  # 'Helmholtz GMC'
+  puts 'DTCC and others centres breakdown'
+  puts PhenotypeAttempt.search(:mi_plan_consortium_name_eq => 'Helmholtz GMC').result.count
+  puts PhenotypeAttempt.search(:mi_plan_consortium_name_not_eq => 'Helmholtz GMC').result.count
+  puts 'No of records that should have a deleter_strain set to 1'
+  puts PhenotypeAttempt.search(:mi_plan_consortium_name_eq => 'Helmholtz GMC', :number_of_cre_matings_started_not_eq => 0).result.count
+  puts 'No of records to change / No of records that do not need to be changed'
+  puts PhenotypeAttempt.search(:mi_plan_consortium_name_eq => 'Helmholtz GMC', :number_of_cre_matings_started_not_eq => 0, :deleter_strain_id_null => 1).result.count
+  puts PhenotypeAttempt.search(:mi_plan_consortium_name_eq => 'Helmholtz GMC', :number_of_cre_matings_started_not_eq => 0, :deleter_strain_id_eq => 1).result.count
+
+  puts  'Helmholtz GMC'
+  a = PhenotypeAttempt.search(:mi_plan_consortium_name_eq => 'Helmholtz GMC', :number_of_cre_matings_started_not_eq => 0).result.all
+  a.each {|rec| PhenotypeAttempt.find_by_id!(rec.id).update_attributes(:deleter_strain_id => 1)}
+
+  puts 'should be 0 / = to No of records that should have a deleter_strain set to 1'
+  puts PhenotypeAttempt.search(:mi_plan_consortium_name_eq => 'Helmholtz GMC', :number_of_cre_matings_started_not_eq => 0, :deleter_strain_id_null => 1).result.count
+  puts PhenotypeAttempt.search(:mi_plan_consortium_name_eq => 'Helmholtz GMC', :number_of_cre_matings_started_not_eq => 0, :deleter_strain_id_eq => 1).result.count
+
 #  raise 'rollback'
 
 end

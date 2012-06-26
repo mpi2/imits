@@ -4,7 +4,7 @@ class AddDeleterStrain < ActiveRecord::Migration
     add_column :phenotype_attempts, :deleter_strain_id, :integer
 
     create_table :deleter_strains do |t|
-      t.string :name
+      t.string :name, :null => false, :limit => 100
 
       t.timestamps
     end

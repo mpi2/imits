@@ -1,25 +1,24 @@
 require 'test_helper'
 
-class QualityOverviewGroupingsControllerTest < ActionController::TestCase
+class QualityOverviewsControllerTest < ActionController::TestCase
 
-  context 'QualityOverviewGroupingsController' do
+  context 'QualityOverviewsController' do
 
     should 'require authentication' do
-      get :summary
+      get :index
       assert_false response.success?
       assert_redirected_to new_user_session_path
     end
 
-    context 'GET summary' do
+    context 'GET index' do
       setup do
         sign_in default_user
       end
 
       should 'work in XML format' do
-        get :summary, :format => :xml
+        get :index, :format => :xml
       end
     end
-
   end
 
 end

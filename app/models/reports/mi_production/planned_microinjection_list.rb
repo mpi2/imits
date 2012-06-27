@@ -2,7 +2,6 @@
 
 class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
 
-#  def self.report_name; 'planned_microinjection_list'; end
   def _report_name; @report_name_str; end
 
   def initialize(consortium='')
@@ -35,7 +34,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
     mis_by_gene.each do |title,store|
       report.add_column(title) do |row|
         data = store[row.data['Marker Symbol']]
-#        data.gsub!('<br/>',' ') if request.format == :csv and !data.nil?
+        #        data.gsub!('<br/>',' ') if request.format == :csv and !data.nil?
         data.gsub!('<br/>',' ') if !data.nil?
         data
       end
@@ -59,7 +58,6 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
 
     report_options = {
       :only       => report_column_order_and_names.keys,
-#      :conditions => process_filter_params( params ),
       :conditions => params && params[:consortium_id] ? {:consortium_id => params[:consortium_id]} : nil,
       :include    => {
         :sub_project        => { :only => [:name] },
@@ -97,42 +95,21 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
         cache = ReportCache.find_by_name_and_format(_report_name, format)
         if ! cache
           cache = ReportCache.new(
-            :name => _report_name,
-            :data => '',
-            :format => format
+          :name => _report_name,
+          :data => '',
+          :format => format
           )
         end
-
-        #puts @report.data.size.inspect
-        puts "Report name: #{_report_name}"
-        puts "\t#{@report.data.size.inspect}" if @report && @report.data && @report.data.size > 0
 
         next if ! self.respond_to?('to_html')
         next if ! self.respond_to?('to_csv')
 
-        #cache.data = self.to(format)
         cache.data = self.to_csv if format == 'csv'
         cache.data = self.to_html if format == 'html'
         cache.save!
       end
     end
   end
-
-  #def process_filter_params( params={} )
-  #  return {
-  #    :consortium_id        => process_filter_param(params[:consortium_id])
-  #  }.delete_if { |key,value| value.nil? }
-  #end
-  #
-  #def process_filter_param( param=[] )
-  #  param ||= []
-  #  param.delete_if { |elm| elm.blank? }
-  #  if param.empty?
-  #    return nil
-  #  else
-  #    return param
-  #  end
-  #end
 
   def self.cache_full
     Consortium.all.each do |consortium|

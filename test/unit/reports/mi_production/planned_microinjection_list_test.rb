@@ -21,6 +21,18 @@ class Reports::MiProduction::PlannedMicroinjectionListTest < ActiveSupport::Test
               :status => MiPlan::Status['Assigned']
       assert_equal 'Assigned', bash_plan1.status.name
 
+      report = Reports::MiProduction::PlannedMicroinjectionList.new 'BaSH'
+
+      array = report.to_csv.lines.first 2
+
+      puts "report: " + report.to_csv
+      puts "0: " + array[0].to_s
+      puts "1: " + array[1].to_s
+
+      assert_match "Consortium,SubProject,Bespoke,Production Centre,Marker Symbol,MGI Accession ID,Priority,Status,Reason for Inspect/Conflict,Non-Assigned Plans,Assigned Plans,Aborted MIs,MIs in Progress,GLT Mice", array[0]
+#      assert_match(/BaSH,\"\",No,,Auto-generated Symbol 1,MGI\:0000000001,High,Assigned,,,[BaSH],,,\n/, array[1])
+      assert_match 'BaSH,"",No,,Auto-generated Symbol 1,MGI:0000000001,High,Assigned,,,[BaSH],,,', array[1]
+
     end
   end
 

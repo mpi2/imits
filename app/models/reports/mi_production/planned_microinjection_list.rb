@@ -34,7 +34,6 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
     mis_by_gene.each do |title,store|
       report.add_column(title) do |row|
         data = store[row.data['Marker Symbol']]
-        #        data.gsub!('<br/>',' ') if request.format == :csv and !data.nil?
         data.gsub!('<br/>',' ') if !data.nil?
         data
       end
@@ -111,10 +110,11 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
     end
   end
 
-  def self.cache_full
+  def self.cache_all
     Consortium.all.each do |consortium|
       Reports::MiProduction::PlannedMicroinjectionList.new(consortium.name).cache
     end
+    # do 'All'
     Reports::MiProduction::PlannedMicroinjectionList.new.cache
   end
 

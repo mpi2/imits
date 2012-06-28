@@ -14,5 +14,6 @@ desc 'Test cached reports'
 task 'cron:cache_report_quick' => [:environment] do
   ApplicationModel.audited_transaction do
     Reports::MiProduction::PlannedMicroinjectionList.cache_full
+    Reports::ImpcGeneList.new.cache
   end
 end

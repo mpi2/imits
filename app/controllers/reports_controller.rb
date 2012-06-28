@@ -110,10 +110,28 @@ class ReportsController < ApplicationController
       consortium = Consortium.find_by_id(params[:consortium_id])
       consortium_name = consortium.name
     end
-    @report = ReportCache.find_by_name_and_format!("planned_microinjection_list_#{consortium_name}", 'csv').to_table
+    query = ReportCache.where(:name => "planned_microinjection_list_#{consortium_name}")
+
+    puts "query: " + query.inspect
+
+    @report_data = { :csv => nil, :html => nil }
+    @report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data} if ! query.blank?
+
+    @consortium = consortium_name.blank? ? 'All' : consortium_name
+    @count = @report_data[:csv].blank? ? 0 : @report_data[:csv].lines.count-1
+
     filename = "planned_microinjection_list_" + consortium_name.gsub(/[\s-]/, "_").downcase + ".csv"
     puts "filename: #{filename}"
-    send_data_csv(filename, @report.to_csv) if request.format == :csv
+    if request.format == :csv
+      data = @report_data[:csv] ? @report_data[:csv] : ''
+      send_data_csv(filename, data)
+    end
+
+    #params: {"utf8"=>"✓", "format"=>"html", "commit"=>"true", "controller"=>"reports", "action"=>"planned_microinjection_list"}
+    #params: {"utf8"=>"✓", "consortium_id"=>["2"], "format"=>"csv", "commit"=>"true", "controller"=>"reports", "action"=>"planned_microinjection_list"}
+#    params['format'] = 'html'
+    #params = {"utf8"=>"✓", "format"=>"html", "commit"=>"true", "controller"=>"reports", "action"=>"planned_microinjection_list"} if request.format == :csv && ! @report_data[:csv]
+    #puts "params: " + params.inspect
   end
 
   def planned_microinjection_summary_and_conflicts

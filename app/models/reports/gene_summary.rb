@@ -17,8 +17,7 @@ class Reports::GeneSummary
         'Consortium',
         'Production Centre',
         '# Genes Injected',
-        '# Genes Genotype Confirmed',
-        '# Genes For EMMA'
+        '# Genes Genotype Confirmed'
       ]
     )
 
@@ -29,27 +28,18 @@ class Reports::GeneSummary
       grouped_report.subgrouping(consortium).summary(
         'Production Centre',
         '# Genes Injected'           => lambda { |group| count_unique_instances_of( group, 'Marker Symbol' ) },
-        '# Genes Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) },
-        '# Genes For EMMA'           =>
-          lambda {
-          |group| count_unique_instances_of(
-            group,
-            'Marker Symbol',
-            lambda { |row| ((row.data['Status'] == 'Genotype confirmed') && (row.data['Suitable for EMMA?'])) ? true : false }
-          )
-        }
+        '# Genes Genotype Confirmed' => lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == 'Genotype confirmed' ? true : false } ) }
       ).each do |row|
         report_table << {
           'Consortium' => consortium,
           'Production Centre' => row['Production Centre'],
           '# Genes Injected' => row['# Genes Injected'],
-          '# Genes Genotype Confirmed' => row['# Genes Genotype Confirmed'],
-          '# Genes For EMMA' => row['# Genes For EMMA']
+          '# Genes Genotype Confirmed' => row['# Genes Genotype Confirmed']
         }
       end
 
     end
-    
+
     report_table.sort_rows_by!(['Consortium', 'Production Centre'])
 
     return report_table

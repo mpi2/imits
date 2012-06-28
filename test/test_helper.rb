@@ -29,6 +29,7 @@ class ActiveRecord::Base
 end
 
 class ActiveSupport::TestCase
+
   self.use_transactional_fixtures = false
 
   def database_strategy; :transaction; end

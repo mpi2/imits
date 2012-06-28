@@ -6,7 +6,7 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
     should 'require authentication' do
       pt = Factory.create :phenotype_attempt
       get :show, :id => pt.id, :format => :json
-      assert_false response.success?
+      assert ! response.success?
     end
 
     context 'when authenticated' do
@@ -71,12 +71,12 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
 
       context 'GET index' do
         should 'allow filtering with Ransack' do
-          pt = Factory.create :phenotype_attempt, :number_of_cre_matings_started => 4,
+          pt = Factory.create :phenotype_attempt, :deleter_strain_id => DeleterStrain.first,
                   :colony_name => 'A'
-          Factory.create :phenotype_attempt, :number_of_cre_matings_started => 3,
+          Factory.create :phenotype_attempt, :deleter_strain_id => nil,
                   :colony_name => 'B'
 
-          get :index, :number_of_cre_matings_started_gt => 3, :format => :json
+          get :index, :deleter_strain_name_eq => DeleterStrain.first.name, :format => :json
           assert response.success?
           assert_equal ['A'], JSON.parse(response.body).map {|i| i['colony_name'] }
         end

@@ -1,0 +1,16 @@
+<%= render :partial => "navigation" %>
+<table class="report_table">
+  <tr>
+    <th>Consortium</th>
+    <th>Production Centre</th>
+    <th>Genotype confirmed colonies</th>
+    <th>Colonies with overall pass</th>
+    <th>% Overall Pass colonies</th>
+    <th>Locus targeted fails</th>
+    <th>Structure targeted allele fails</th>
+    <th>Downstream loxP site fails</th>
+    <th>No additional vector insertions fails</th>
+  </tr>
+  <%= render @quality_overview_groupings %>
+</table>
+

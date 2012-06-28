@@ -2,16 +2,17 @@
 
 class QualityOverviewGroupingsController < ApplicationController
   require 'csv'
+  require 'open-uri'
 
-  def summary
-    quality_overviews = import('db/allele_overall_pass.csv')
+  def index
+    quality_overviews = import(ALLELE_OVERALL_PASS_PATH)
     grouping_consortium_store = group_by_consortium_and_centre(quality_overviews)
     @quality_overview_groupings = construct_quality_review_groupings(grouping_consortium_store)
   end
 
   def import(file_path)
 
-    infile = File.open(file_path)
+    infile = open(file_path)
     count = 0
     quality_overviews = Array.new
     CSV.parse(infile) do |row|

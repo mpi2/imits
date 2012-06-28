@@ -49,7 +49,7 @@ class QualityOverview
   end
 
   def overall_pass
-    if self.confirm_locus_targeted.nil? && self.confirm_structure_targeted_allele.nil? && self.confirm_downstream_lox_p_site.nil? && self.confirm_no_additional_vector_insertions.nil?
+    if self.indicator == "allpass"
       return true
     else
       return false

@@ -2,14 +2,17 @@
 
 class QualityOverviewsController < ApplicationController
   require 'csv'
+  require 'open-uri'
+
+  respond_to :html, :csv
 
   def index
-    @quality_overviews = import('db/allele_overall_pass.csv')
+    @quality_overviews = import(ALLELE_OVERALL_PASS_PATH)
   end
 
   def import(file_path)
 
-    infile = File.open(file_path)
+    infile = open(file_path)
     count = 0
     quality_overviews = Array.new
     CSV.parse(infile) do |row|
@@ -23,5 +26,14 @@ class QualityOverviewsController < ApplicationController
     return quality_overviews
   end
   protected :import
+
+  def export_to_csv
+
+    @quality_overviews = import(ALLELE_OVERALL_PASS_PATH)
+
+    respond_to do |format|
+      format.csv { render :csv => @quality_overviews }
+    end
+  end
 
 end

@@ -118,7 +118,6 @@ class ReportsTest < Kermits2::IntegrationTest
 
         click_button 'Generate Report'
         assert_match '/reports/planned_microinjection_list', current_url
-#        assert page.has_css?('.report table')
 
         click_button 'Generate Report'
         assert_match '/reports/planned_microinjection_list', current_url

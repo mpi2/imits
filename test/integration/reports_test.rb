@@ -191,7 +191,7 @@ class ReportsTest < Kermits2::IntegrationTest
           headings = ['Consortium', 'SubProject', 'Bespoke', 'Production Centre','Marker Symbol','MGI Accession ID','Priority','Status','Reason for Inspect/Conflict','Non-Assigned Plans','Assigned Plans','Aborted MIs','MIs in Progress','GLT Mice']
           headings.each { |heading| assert page.has_content?(heading) }
 
-          contents = ['BaSH','No','Auto-generated Symbol 1','MGI:0000000003','High','Assigned']
+          contents = ['BaSH','No','Auto-generated Symbol','High','Assigned']
           contents.each { |content| assert page.has_content?(content) }
 
         end

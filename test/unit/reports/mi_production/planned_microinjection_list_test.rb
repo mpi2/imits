@@ -7,8 +7,7 @@ class Reports::MiProduction::PlannedMicroinjectionListTest < ActiveSupport::Test
   context 'Reports::MiProduction::PlannedMicroinjectionList' do
     should 'create BaSH report' do
 
-      bash_plan1 = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'), :status => MiPlan::Status['Assigned']
-      assert_equal 'Assigned', bash_plan1.status.name
+      bash_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'), :status => MiPlan::Status['Assigned']
 
       report = Reports::MiProduction::PlannedMicroinjectionList.new 'BaSH'
 
@@ -16,6 +15,7 @@ class Reports::MiProduction::PlannedMicroinjectionListTest < ActiveSupport::Test
 
       assert_match "Consortium,SubProject,Bespoke,Production Centre,Marker Symbol,MGI Accession ID,Priority,Status,Reason for Inspect/Conflict,Non-Assigned Plans,Assigned Plans,Aborted MIs,MIs in Progress,GLT Mice", array[0]
       assert_match 'BaSH,"",No,,Auto-generated Symbol 1,MGI:0000000001,High,Assigned,,,[BaSH],,,', array[1]
+
     end
   end
 

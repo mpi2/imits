@@ -77,11 +77,6 @@ class ReportsTest < Kermits2::IntegrationTest
         click_button 'Generate Report'
       end
 
-      should 'confirm planned_microinjection_list include_plans_with_active_attempts defaults to yes' do
-        visit '/reports/planned_microinjection_list'
-        assert page.has_css?('select#include_plans_with_active_attempts option[value="true"][selected="selected"]')
-      end
-
       should 'confirm planned_microinjection_summary_and_conflicts include_plans_with_active_attempts defaults to yes' do
         visit '/reports/planned_microinjection_summary_and_conflicts'
         assert page.has_css?('select#include_plans_with_active_attempts option[value="true"][selected="selected"]')
@@ -120,16 +115,13 @@ class ReportsTest < Kermits2::IntegrationTest
 
         assert_match '/reports/planned_microinjection_list', current_url
         assert page.has_css?('form')
-        assert page.has_css?('form select#grouping')
 
         click_button 'Generate Report'
         assert_match '/reports/planned_microinjection_list', current_url
-        assert page.has_css?('.report table')
+#        assert page.has_css?('.report table')
 
-        select 'yes', :from => 'include_plans_with_active_attempts'
         click_button 'Generate Report'
         assert_match '/reports/planned_microinjection_list', current_url
-        assert page.has_css?('.report table')
 
         choose 'format_csv'
         click_button 'Generate Report'
@@ -175,27 +167,35 @@ class ReportsTest < Kermits2::IntegrationTest
         visit '/reports'
         click_link 'All Planned Micro-Injections'
 
-        select 'JAX', :from => 'production_centre_id[]'
         select 'MARC', :from => 'consortium_id[]'
         click_button 'Generate Report'
 
         assert_match '/reports/planned_microinjection_list', current_url
-        assert_match 'production_centre_id', current_url
         assert_match 'Sorry', page.body
       end
 
       context 'All Planned Micro-Injections' do
-        should 'allow grouping by production centre' do
-          Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH')
-          Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
-                  :production_centre => Centre.find_by_name!('WTSI')
 
+        should 'return valid results for BaSH' do
+          bash_plan1 = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'), :status => MiPlan::Status['Assigned']
+          assert_equal 'Assigned', bash_plan1.status.name
+          report = Reports::MiProduction::PlannedMicroinjectionList.new 'BaSH'
+          report.cache
           visit '/reports/planned_microinjection_list'
           select 'BaSH', :from => 'consortium_id[]'
-          select 'Production Centre', :from => 'grouping'
           click_button 'Generate Report'
+
           assert ! page.has_content?('Exception')
+          assert page.has_content?('1 planned micro-injections found for BaSH')
+
+          headings = ['Consortium', 'SubProject', 'Bespoke', 'Production Centre','Marker Symbol','MGI Accession ID','Priority','Status','Reason for Inspect/Conflict','Non-Assigned Plans','Assigned Plans','Aborted MIs','MIs in Progress','GLT Mice']
+          headings.each { |heading| assert page.has_content?(heading) }
+
+          contents = ['BaSH','No','Auto-generated Symbol 1','MGI:0000000003','High','Assigned']
+          contents.each { |content| assert page.has_content?(content) }
+
         end
+
       end
 
     end # once logged in

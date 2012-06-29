@@ -11,10 +11,9 @@ class Reports::MiProduction::PlannedMicroinjectionListTest < ActiveSupport::Test
 
       report = Reports::MiProduction::PlannedMicroinjectionList.new 'BaSH'
 
-      array = report.to_csv.lines.first 2
+      line1 = report.to_csv.lines.first
 
-      assert_match "Consortium,SubProject,Bespoke,Production Centre,Marker Symbol,MGI Accession ID,Priority,Status,Reason for Inspect/Conflict,Non-Assigned Plans,Assigned Plans,Aborted MIs,MIs in Progress,GLT Mice", array[0]
-      assert_match 'BaSH,"",No,,Auto-generated Symbol 1,MGI:0000000001,High,Assigned,,,[BaSH],,,', array[1]
+      assert_match "Consortium,SubProject,Bespoke,Production Centre,Marker Symbol,MGI Accession ID,Priority,Status,Reason for Inspect/Conflict,Non-Assigned Plans,Assigned Plans,Aborted MIs,MIs in Progress,GLT Mice", line1
 
     end
   end

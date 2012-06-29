@@ -18,7 +18,7 @@ class ReportsControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      [:mi_attempts_list, :mi_attempts_monthly_production, :mi_attempts_by_gene, :planned_microinjection_list].each do |report|
+      [:mi_attempts_list, :mi_attempts_monthly_production, :mi_attempts_by_gene].each do |report|
         context "the /#{report} report" do
           should 'be blank without parameters' do
             get report
@@ -31,6 +31,24 @@ class ReportsControllerTest < ActionController::TestCase
             assert response.success?
             assert assigns(:report), "/#{report} has not assigned @report"
             assert assigns(:report).is_a?( Ruport::Data::Table ) || assigns(:report).is_a?( Ruport::Data::Grouping )
+          end
+        end
+      end
+
+      [:planned_microinjection_list].each do |report|
+        context "the /#{report} report" do
+          should 'be blank without parameters' do
+            get report
+            assert response.success?
+            assert_nil assigns(:report)
+          end
+
+          should 'generate a full report with parameters' do
+            get report, 'commit' => 'true'
+            assert response.success?
+            assert assigns(:report_data), "/#{report} has not assigned @report_data"
+            #puts "report_data: " + :report_data.inspect
+            #assert assigns(:report).is_a?( String )
           end
         end
       end

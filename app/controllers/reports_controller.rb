@@ -105,47 +105,24 @@ class ReportsController < ApplicationController
   end
 
   def planned_microinjection_list
-    @include_plans_with_active_attempts = true
-    @include_plans_with_active_attempts = false if params[:include_plans_with_active_attempts] == 'false'
+    consortium_name = ''
+    if params && params[:consortium_id] && ! params[:consortium_id][0].blank? &&
+      consortium = Consortium.find_by_id(params[:consortium_id])
+      consortium_name = consortium.name
+    end
+    query = ReportCache.where(:name => "planned_microinjection_list_#{consortium_name}")
 
-    unless params[:commit].blank?
-      dup_params = params.dup
-      dup_params.delete(:include_plans_with_active_attempts)
-      @report = generate_planned_mi_list_report( dup_params, @include_plans_with_active_attempts )
+    @report_data = { :csv => nil, :html => nil }
+    @report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data} if ! query.blank?
 
-      if @report.nil?
-        redirect_to cleaned_redirect_params( :planned_microinjection_list, params ) if request.format == :csv
-        return
-      end
+    @consortium = consortium_name.blank? ? 'All' : consortium_name
+    @count = @report_data[:csv].blank? ? 0 : @report_data[:csv].lines.count-1
 
-      @report.add_column('Reason for Inspect/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_or_conflict }
-      @report.remove_columns(['ID'])
+    filename = "planned_microinjection_list_" + consortium_name.gsub(/[\s-]/, "_").downcase + ".csv"
 
-      mis_by_gene = {
-        'Non-Assigned Plans' => Gene.pretty_print_non_assigned_mi_plans_in_bulk,
-        'Assigned Plans'     => Gene.pretty_print_assigned_mi_plans_in_bulk,
-        'Aborted MIs'      => Gene.pretty_print_aborted_mi_attempts_in_bulk,
-        'MIs in Progress'  => Gene.pretty_print_mi_attempts_in_progress_in_bulk,
-        'GLT Mice'         => Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk
-      }
-
-      mis_by_gene.each do |title,store|
-        @report.add_column(title) do |row|
-          data = store[row.data['Marker Symbol']]
-          data.gsub!('<br/>',' ') if request.format == :csv and !data.nil?
-          data
-        end
-      end
-
-      @report = Grouping( @report, :by => params[:grouping], :order => proc {|i| i.name.to_s} ) unless params[:grouping].blank?
-
-      if request.format == :csv
-        send_data(
-          @report.to_csv,
-          :type     => 'text/csv; charset=utf-8; header=present',
-          :filename => 'planned_microinjection_list.csv'
-        )
-      end
+    if request.format == :csv
+      data = @report_data[:csv] ? @report_data[:csv] : ''
+      send_data_csv(filename, data)
     end
   end
 

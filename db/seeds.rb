@@ -75,7 +75,8 @@ Seeds.load Strain, [
   {:id => 43, :name => 'C57BL6'},
   {:id => 43, :name => 'ICR/Jcl'},
   {:id => 44, :name => 'C57BL/6Dnk'},
-  {:id => 45, :name => 'C57BL/6Brd-Tyr<c-Brd>;Stock'}
+  {:id => 45, :name => 'C57BL/6Brd-Tyr<c-Brd>;Stock'},
+  {:id => 46, :name => 'C57BL/6Brd-Tyr<c-Brd>;C57BL/6JIco'}
 ]
 
 Seeds.load MiAttemptStatus, [

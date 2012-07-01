@@ -19,3 +19,24 @@ test:
   username: imits
   password: imits
   host: localhost
+
+staging:
+  adapter: postgresql
+  encoding: unicode
+  database: imits_test
+  pool: 5
+  username: imits
+  password: imits
+  host: imits-db
+  port: 5434
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: imits_live
+  pool: 5
+  username: imits
+  password: "xei:x&ahCh4c"
+  host: imits-db
+  port: 5433
+

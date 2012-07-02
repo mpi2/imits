@@ -1,0 +1,6 @@
+<% if @report_data[:html].nil? %>
+  <p><em>Sorry, no <%= label %> found</em></p>
+<% else %>
+    <p><%= @count %> <%= label %> found for <%= @consortium %> </p>
+    <%= raw @report_data[:html] %>
+<% end %>

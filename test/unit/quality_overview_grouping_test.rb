@@ -95,8 +95,21 @@ class QualityOverviewTest < ActiveSupport::TestCase
 
   end
 
-  should 'accept quality overviews' do
+  should 'initialise with correct default values' do
+    quality_overview_grouping = QualityOverviewGrouping.new
+    assert_equal '0', quality_overview_grouping.confirm_locus_targeted_total
+    assert_equal '0', quality_overview_grouping.confirm_structure_targeted_allele_total
+    assert_equal '0', quality_overview_grouping.confirm_downstream_lox_p_site_total
+    assert_equal '0', quality_overview_grouping.confirm_no_additional_vector_insertions_total
+    assert_equal '0', quality_overview_grouping.colonies_with_overall_pass
+    assert_equal '0', quality_overview_grouping.percentage_pass
+  end
 
+  should '#calculate_percentage_pass' do
+    quality_overview_grouping = QualityOverviewGrouping.new
+    quality_overview_grouping.colonies_with_overall_pass = 4
+    quality_overview_grouping.number_of_genotype_confirmed_colonies = 9
+    assert_equal '44.44', quality_overview_grouping.calculate_percentage_pass
   end
 
 end

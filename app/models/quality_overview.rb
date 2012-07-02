@@ -48,19 +48,20 @@ class QualityOverview
     end
   end
 
-  def column_names
-    self.instance_values.each_pair do |key, value|
-      column_names = []
-      column_names << key
-    end
-  end
-
   def overall_pass
     if self.indicator == "allpass"
       return true
     else
       return false
     end
+  end
+
+  def column_names
+    self.instance_values.keys
+  end
+
+  def to_csv
+    self.instance_values.values
   end
 
   def initialize(attributes = {})

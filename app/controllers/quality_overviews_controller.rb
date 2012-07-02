@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 class QualityOverviewsController < ApplicationController
-  require 'csv'
+
   require 'open-uri'
 
   respond_to :html, :csv
@@ -28,12 +28,22 @@ class QualityOverviewsController < ApplicationController
   protected :import
 
   def export_to_csv
-
+    require 'csv'
     @quality_overviews = import(ALLELE_OVERALL_PASS_PATH)
 
-    respond_to do |format|
-      format.csv { render :csv => @quality_overviews }
+    first_row = @quality_overviews.first.column_names
+
+    csv = CSV.generate(:force_quotes => true) do |line|
+      line << first_row
+      @quality_overviews.each do |quality_overview|
+        line << quality_overview.to_csv.flatten
+      end
     end
+
+    send_data csv,
+      :type => 'text/csv; charset=iso-8859-1; header=present',
+      :disposition => "attachment; filename=quality-overviews-#{Time.now.strftime('%d-%m-%y--%H-%M')}.csv"
+
   end
 
 end

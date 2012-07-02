@@ -72,16 +72,16 @@ class QualityOverviewTest < ActiveSupport::TestCase
     quality_overview_grouping.confirm_downstream_lox_p_site_total = '0'
     quality_overview_grouping.confirm_no_additional_vector_insertions_total = '1'
 
-    assert quality_overview.instance_variables.include?(:@consortium)
-    assert quality_overview.instance_variables.include?(:@production_centre)
-    assert quality_overview.instance_variables.include?(:@quality_overviews)
-    assert quality_overview.instance_variables.include?(:@number_of_genotype_confirmed_colonies)
-    assert quality_overview.instance_variables.include?(:@colonies_with_overall_pass)
-    assert quality_overview.instance_variables.include?(:@percentage_pass)
-    assert quality_overview.instance_variables.include?(:@confirm_locus_targeted_total)
-    assert quality_overview.instance_variables.include?(:@confirm_structure_targeted_allele_total)
-    assert quality_overview.instance_variables.include?(:@confirm_downstream_lox_p_site_total)
-    assert quality_overview.instance_variables.include?(:@confirm_no_additional_vector_insertions_total)
+    assert quality_overview_grouping.instance_variables.include?(:@consortium)
+    assert quality_overview_grouping.instance_variables.include?(:@production_centre)
+    assert quality_overview_grouping.instance_variables.include?(:@quality_overviews)
+    assert quality_overview_grouping.instance_variables.include?(:@number_of_genotype_confirmed_colonies)
+    assert quality_overview_grouping.instance_variables.include?(:@colonies_with_overall_pass)
+    assert quality_overview_grouping.instance_variables.include?(:@percentage_pass)
+    assert quality_overview_grouping.instance_variables.include?(:@confirm_locus_targeted_total)
+    assert quality_overview_grouping.instance_variables.include?(:@confirm_structure_targeted_allele_total)
+    assert quality_overview_grouping.instance_variables.include?(:@confirm_downstream_lox_p_site_total)
+    assert quality_overview_grouping.instance_variables.include?(:@confirm_no_additional_vector_insertions_total)
 
     assert_equal 'EUCOMM-EUMODIC', quality_overview_grouping.consortium
     assert_equal 'UCD', quality_overview_grouping.production_centre
@@ -91,25 +91,25 @@ class QualityOverviewTest < ActiveSupport::TestCase
     assert_equal '0', quality_overview_grouping.confirm_locus_targeted_total
     assert_equal '1', quality_overview_grouping.confirm_structure_targeted_allele_total
     assert_equal '0', quality_overview_grouping.confirm_downstream_lox_p_site_total
-    assert_equal '1', quality_overview_grouping.confirm_no_additional_vectore_insertions_total
+    assert_equal '1', quality_overview_grouping.confirm_no_additional_vector_insertions_total
 
   end
 
   should 'initialise with correct default values' do
     quality_overview_grouping = QualityOverviewGrouping.new
-    assert_equal '0', quality_overview_grouping.confirm_locus_targeted_total
-    assert_equal '0', quality_overview_grouping.confirm_structure_targeted_allele_total
-    assert_equal '0', quality_overview_grouping.confirm_downstream_lox_p_site_total
-    assert_equal '0', quality_overview_grouping.confirm_no_additional_vector_insertions_total
-    assert_equal '0', quality_overview_grouping.colonies_with_overall_pass
-    assert_equal '0', quality_overview_grouping.percentage_pass
+    assert_equal 0, quality_overview_grouping.confirm_locus_targeted_total
+    assert_equal 0, quality_overview_grouping.confirm_structure_targeted_allele_total
+    assert_equal 0, quality_overview_grouping.confirm_downstream_lox_p_site_total
+    assert_equal 0, quality_overview_grouping.confirm_no_additional_vector_insertions_total
+    assert_equal 0, quality_overview_grouping.colonies_with_overall_pass
+    assert_equal 0, quality_overview_grouping.percentage_pass
   end
 
   should '#calculate_percentage_pass' do
     quality_overview_grouping = QualityOverviewGrouping.new
     quality_overview_grouping.colonies_with_overall_pass = 4
     quality_overview_grouping.number_of_genotype_confirmed_colonies = 9
-    assert_equal '44.44', quality_overview_grouping.calculate_percentage_pass
+    assert_equal 44.44, quality_overview_grouping.calculate_percentage_pass
   end
 
 end

@@ -6,6 +6,14 @@ task 'cron:cache_reports' => [:environment] do
     Reports::MiProduction::Intermediate.new.cache
     Reports::MiProduction::SummaryKomp23.new.cache
     Reports::MiProduction::SummaryImpc3.new.cache
+    Reports::MiProduction::PlannedMicroinjectionList.cache_all
+  end
+end
+
+desc 'Test cached reports'
+task 'cron:cache_report_quick' => [:environment] do
+  ApplicationModel.audited_transaction do
+    Reports::MiProduction::PlannedMicroinjectionList.cache_all
     Reports::ImpcGeneList.new.cache
   end
 end

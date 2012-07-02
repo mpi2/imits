@@ -9,8 +9,8 @@ class QualityOverview
   attr_accessor :indicator, :colony_prefix, :pipeline, :emma
   attr_accessor :production_centre, :microinjection_date, :marker_symbol
   attr_accessor :es_cell_clone, :confirm_locus_targeted, :confirm_structure_targeted_allele
-  attr_accessor :confirm_downstream_lox_p_site, :confirm_no_additional_vector_insertions, :es_dist_qc
-  attr_accessor :es_user_qc, :mouse_qc
+  attr_accessor :confirm_downstream_lox_p_site, :confirm_no_additional_vector_insertions
+  attr_accessor :es_dist_qc, :es_user_qc, :mouse_qc
 
   attr_accessor :mi_attempt_id
 
@@ -45,6 +45,13 @@ class QualityOverview
       self.mi_plan_production_centre = mi_attempt.mi_plan.production_centre.name
       self.mi_attempt_distribution_centres = mi_attempt.pretty_print_distribution_centres
       self.mi_attempt_status = mi_attempt.status
+    end
+  end
+
+  def column_names
+    self.instance_values.each_pair do |key, value|
+      column_names = []
+      column_names << key
     end
   end
 

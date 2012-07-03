@@ -37,6 +37,24 @@ class QualityOverview
     return quality_overview
   end
 
+  def self.import(file_path)
+
+    infile = open(file_path)
+    count = 0
+    quality_overviews = Array.new
+    CSV.parse(infile) do |row|
+      count += 1
+      next if count == 1 or row.join.blank?
+        quality_overview = QualityOverview.build_from_csv(row)
+        quality_overview.populate_related_data
+
+        quality_overviews.push(quality_overview)
+    end
+
+    quality_overviews.sort!{|qa,qb| [qa.mi_plan_consortium, qa.production_centre, qa.marker_symbol] <=> [qb.mi_plan_consortium, qb.production_centre, qb.marker_symbol]}
+    return quality_overviews
+  end
+
   def populate_related_data
     if self.colony_prefix
       mi_attempt = MiAttempt.find_by_colony_name!(self.colony_prefix)
@@ -56,12 +74,20 @@ class QualityOverview
     end
   end
 
-  def column_names
-    self.instance_values.keys
+  def available_attributes
+    instance_values_hash = self.instance_values
+    instance_values_hash.delete('mi_attempt_id')
+    return instance_values_hash
   end
 
-  def to_csv
-    self.instance_values.values
+  def column_names
+    instance_values_hash = self.available_attributes
+    instance_values_hash.keys.map!{|key| key.humanize}
+  end
+
+  def column_values
+    instance_values_hash = self.available_attributes
+    instance_values_hash.values
   end
 
   def initialize(attributes = {})

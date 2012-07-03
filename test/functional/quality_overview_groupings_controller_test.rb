@@ -69,9 +69,6 @@ class QualityOverviewGroupingsControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      should 'work in XML format' do
-        get :index, :format => :xml
-      end
     end
 
   end

@@ -44,8 +44,8 @@ Kermits2::Application.routes.draw do
   end
 
   match 'quality_overviews' => "quality_overviews#index"
-  match 'quality_overviews_summary' => "quality_overview_groupings#index"
-  match 'quality_overviews_export' => "quality_overviews#export_to_csv"
+  match 'quality_overview_groupings' => "quality_overview_groupings#index"
+  match 'quality_overviews/export_to_csv' => "quality_overviews#export_to_csv"
   match 'users_by_production_centre' => "root#users_by_production_centre", :as => :users_by_production_centre
   match 'consortia' => "root#consortia", :as => :consortia
   match 'debug_info' => 'root#debug_info'

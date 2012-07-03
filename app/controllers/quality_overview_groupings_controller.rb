@@ -4,6 +4,10 @@ class QualityOverviewGroupingsController < ApplicationController
   require 'csv'
   require 'open-uri'
 
+  respond_to :html
+
+  before_filter :authenticate_user!
+
   def index
     quality_overviews = import(ALLELE_OVERALL_PASS_PATH)
     grouping_consortium_store = group_by_consortium_and_centre(quality_overviews)

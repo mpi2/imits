@@ -51,6 +51,10 @@ class QualityOverview
         quality_overviews.push(quality_overview)
     end
 
+    return quality_overviews
+  end
+
+  def self.sort(quality_overviews)
     quality_overviews.sort!{|qa,qb| [qa.mi_plan_consortium, qa.production_centre, qa.marker_symbol] <=> [qb.mi_plan_consortium, qb.production_centre, qb.marker_symbol]}
     return quality_overviews
   end

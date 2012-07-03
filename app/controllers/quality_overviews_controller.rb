@@ -9,15 +9,16 @@ class QualityOverviewsController < ApplicationController
   before_filter :authenticate_user!
 
   def index
-    @quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)
+    quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)
+    @quality_overviews = QualityOverview.sort(quality_overviews)
   end
 
   protected :import
 
   def export_to_csv
     require 'csv'
-    @quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)
-
+    quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)
+    @quality_overviews = QualityOverview.sort(quality_overviews)
     header_row = @quality_overviews.first.column_names
 
     csv = CSV.generate(:force_quotes => true) do |line|

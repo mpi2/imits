@@ -86,9 +86,8 @@ class QualityOverviewsControllerTest < ActionController::TestCase
         end
       end
 
-      get :index, :format => :csv
+      get :export_to_csv, :format => :csv
       assert_equal response.body, csv
-      assert_equal csv.size.to_s, response.headers['Content-Length']
 
     end
 

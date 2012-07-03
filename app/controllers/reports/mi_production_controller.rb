@@ -130,7 +130,13 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_month_by_month_activity_komp2_compressed
-    month_by_month_helper_no_cache(Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed)
+    @report_data = Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed.new
+    if request.format == :csv
+      send_data_csv("#{@report.report_name}.csv", @report.csv)
+    else
+    render :action => 'summary_month_by_month_activity_komp2_compressed'
+    end
+
   end
 
   def month_by_month_helper_no_cache(report_class)

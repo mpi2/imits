@@ -1,0 +1,137 @@
+summary_month_by_month:
+  BaSH:
+    2012:
+      6:
+        mi_goals: 412
+        gc_goals: 126
+      5:
+        mi_goals: 384
+        gc_goals: 102
+      4:
+        mi_goals: 356
+        gc_goals: 78
+      3:
+        mi_goals: 328
+        gc_goals: 56
+      2:
+        mi_goals: 300
+        gc_goals: 34
+      1:
+        mi_goals: 252
+        gc_goals: 16
+
+    2011:
+      12:
+        mi_goals: 204
+        gc_goals: 0
+      11:
+        mi_goals: 156
+        gc_goals: 0
+      10:
+        mi_goals: 112
+        gc_goals: 0
+      9:
+        mi_goals: 68
+        gc_goals: 0
+      8:
+        mi_goals: 32
+        gc_goals: 0
+      7:
+        mi_goals: 10
+        gc_goals: 0
+      6:
+        mi_goals: 10
+        gc_goals: 0
+
+
+  DTCC:
+    2012:
+      6:
+        mi_goals: 299
+        gc_goals: 182
+      5:
+        mi_goals: 276
+        gc_goals: 168
+      4:
+        mi_goals: 253
+        gc_goals: 154
+      3:
+        mi_goals: 230
+        gc_goals: 140
+      2:
+        mi_goals: 207
+        gc_goals: 126
+      1:
+        mi_goals: 184
+        gc_goals: 112
+
+    2011:
+      12:
+        mi_goals: 161
+        gc_goals: 98
+      11:
+        mi_goals: 138
+        gc_goals: 84
+      10:
+        mi_goals: 115
+        gc_goals: 70
+      9:
+        mi_goals: 92
+        gc_goals: 56
+      8:
+        mi_goals: 69
+        gc_goals: 42
+      7:
+        mi_goals: 46
+        gc_goals: 28
+      6:
+        mi_goals: 23
+        gc_goals: 14
+
+
+  JAX:
+    2012:
+      6:
+        mi_goals: 135
+        gc_goals: 43
+      5:
+        mi_goals: 105
+        gc_goals: 14
+      4:
+        mi_goals: 75
+        gc_goals: 4
+      3:
+        mi_goals: 45
+        gc_goals: 0
+      2:
+        mi_goals: 15
+        gc_goals: 0
+      1:
+        mi_goals: 6
+        gc_goals: 0
+
+    2011:
+      12:
+        mi_goals: 0
+        gc_goals: 0
+      11:
+        mi_goals: 0
+        gc_goals: 0
+      10:
+        mi_goals: 0
+        gc_goals: 0
+      9:
+        mi_goals: 0
+        gc_goals: 0
+      8:
+        mi_goals: 0
+        gc_goals: 0
+      7:
+        mi_goals: 0
+        gc_goals: 0
+      6:
+        mi_goals: 0
+        gc_goals: 0
+
+
+

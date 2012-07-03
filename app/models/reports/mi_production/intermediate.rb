@@ -126,7 +126,8 @@ class Reports::MiProduction::Intermediate < Reports::Base
       'Distinct Old Non Genotype Confirmed ES Cells',
       'MiPlan ID',
       'Total Pipeline Efficiency Gene Count',
-      'GC Pipeline Efficiency Gene Count'
+      'GC Pipeline Efficiency Gene Count',
+      'Aborted - ES Cell QC Failed Date'
     ]
     report.reorder(column_names)
 

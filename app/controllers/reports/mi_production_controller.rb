@@ -132,7 +132,7 @@ class Reports::MiProductionController < ApplicationController
   def summary_month_by_month_activity_komp2_compressed
     @report_data = Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed.new
     if request.format == :csv
-      send_data_csv("#{@report.report_name}.csv", @report.csv)
+      send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv)
     else
     render :action => 'summary_month_by_month_activity_komp2_compressed'
     end

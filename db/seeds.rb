@@ -73,7 +73,18 @@ Seeds.load Strain, [
   {:id => 41, :name => "c"},
   {:id => 42, :name => 'B6D2F1 x B6'},
   {:id => 43, :name => 'C57BL6'},
-  {:id => 43, :name => 'ICR/Jcl'}
+  {:id => 43, :name => 'ICR/Jcl'},
+  {:id => 44, :name => 'C57BL/6Dnk'},
+  {:id => 45, :name => 'C57BL/6Brd-Tyr<c-Brd>;Stock'},
+  {:id => 46, :name => 'C57BL/6Brd-Tyr<c-Brd>;C57BL/6JIco'},
+  {:id => 47, :name => 'C57BL/6Dnk or C57BL/6NTac'},
+  {:id => 48, :name => 'C57BL/6Brd-Tyr<c-Brd> or C57BL/6NTac'},
+  {:id => 49, :name => 'C57BL/6Brd-Tyr<c-Brd>'},
+  {:id => 50, :name => 'C57BL/6Brd-Tyr<c-Brd> or C57BL/6Dnk or CBA/Wtsi'},
+  {:id => 51, :name => 'C57BL/6Brd-Tyr<c-Brd> or C57BL/6Dnk'},
+  {:id => 52, :name => '129S5/SvEvBrd/Wtsi or C57BL/6Brd-Tyr<c-Brd>'},
+  {:id => 53, :name => 'C57BL/6Brd-Tyr<c-Brd>;C57BL/6N'},
+  {:id => 54, :name => 'BALB/cWtsi;C57BL/6Brd-Tyr<c-Brd>'}
 ]
 
 Seeds.load MiAttemptStatus, [
@@ -187,4 +198,11 @@ Seeds.load PhenotypeAttempt::Status, [
   {:id =>  6, :name => 'Cre Excision Complete', :order_by => 360},
   {:id =>  7, :name => 'Phenotyping Started', :order_by => 370},
   {:id =>  8, :name => 'Phenotyping Complete', :order_by => 380}
+]
+
+Seeds.load DeleterStrain, [
+  {:id => 1, :name => 'MGI:2176052: Tg(Zp3-cre)3Mrt'},
+  {:id => 2, :name => 'MGI:3046308: Hprt<tm1(CMV-cre)Brd>'},
+  {:id => 3, :name => 'B6N.Cg-Tg(Sox2-cre)1Amc/J'},
+  {:id => 4, :name => 'Gt(ROSA)26Sor<tm16(cre)Arte>'}
 ]

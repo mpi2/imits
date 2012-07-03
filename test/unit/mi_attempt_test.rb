@@ -25,34 +25,18 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should validate_presence_of :mi_date
       end
 
-      context 'centres tests:' do
+      context 'distribution centre tests:' do
         should 'exist' do
-          assert_should have_db_column(:distribution_centre_id)
-          assert_should belong_to(:distribution_centre)
+          assert_should have_many(:distribution_centres)
         end
 
         should 'validate presence of production_centre_name' do
           assert_should validate_presence_of :production_centre_name
         end
 
-        should 'default distribution_centre to production_centre' do
-          centre = Factory.create :centre
-          mi = Factory.create :mi_attempt, :production_centre_name => centre.name
-          assert_equal centre.name, mi.distribution_centre.name
-        end
-
-        should 'not overwrite distribution_centre with production_centre if former has already been set' do
-          mi = Factory.create :mi_attempt,
-                  :production_centre_name => 'WTSI',
-                  :distribution_centre_name => 'ICS'
-          assert_equal 'ICS', mi.distribution_centre_name
-          assert_not_equal 'WTSI', mi.distribution_centre_name
-        end
-
-        should 'allow access to distribution centre via its name' do
-          centre = Factory.create :centre, :name => 'New Centre'
-          default_mi_attempt.update_attributes!(:distribution_centre_name => 'New Centre')
-          assert_equal 'New Centre', default_mi_attempt.distribution_centre.name
+        should "accept nested attributes for distribution_centres" do
+          assert  MiAttempt.instance_methods.include?(:distribution_centres_attributes=),
+          "MiAttempt does not accept nested attributes for distribution_centres"
         end
       end
 
@@ -335,117 +319,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      should 'have emma columns' do
-        assert_should have_db_column(:is_suitable_for_emma).of_type(:boolean).with_options(:null => false)
-        assert_should have_db_column(:is_emma_sticky).of_type(:boolean).with_options(:null => false)
-      end
-
-      should 'set is_suitable_for_emma to false by default' do
-        assert_equal false, default_mi_attempt.is_suitable_for_emma?
-      end
-
-      should 'set is_emma_sticky to false by default' do
-        assert_equal false, default_mi_attempt.is_emma_sticky?
-      end
-
-      context '#is_suitable_for_emma' do
-        should 'default to false if set to null' do
-          default_mi_attempt.is_suitable_for_emma = nil
-          default_mi_attempt.save!
-          assert_equal false, default_mi_attempt.is_suitable_for_emma?
-        end
-      end
-
-      context '#is_emma_sticky' do
-        should 'default to false if set to null' do
-          default_mi_attempt.is_emma_sticky = nil
-          default_mi_attempt.save!
-          assert_equal false, default_mi_attempt.is_emma_sticky?
-        end
-      end
-
-
-      should 'on save set is_suitable_for_emma to false if is_active is false' do
-        default_mi_attempt.is_active = false
-        default_mi_attempt.is_suitable_for_emma = true
-        default_mi_attempt.save!
-
-        assert_equal false, default_mi_attempt.is_suitable_for_emma
-      end
-
-      context '#emma_status' do
-        context 'on read' do
-          should 'be suitable if is_suitable_for_emma=true and is_emma_sticky=false' do
-            default_mi_attempt.is_suitable_for_emma = true
-            default_mi_attempt.is_emma_sticky = false
-            assert_equal 'suitable', default_mi_attempt.emma_status
-          end
-
-          should 'be unsuitable if is_suitable_for_emma=false and is_emma_sticky=false' do
-            default_mi_attempt.is_suitable_for_emma = false
-            default_mi_attempt.is_emma_sticky = false
-            assert_equal 'unsuitable', default_mi_attempt.emma_status
-          end
-
-          should 'be suitable_sticky if is_suitable_for_emma=true and is_emma_sticky=true' do
-            default_mi_attempt.is_suitable_for_emma = true
-            default_mi_attempt.is_emma_sticky = true
-            assert_equal 'suitable_sticky', default_mi_attempt.emma_status
-          end
-
-          should 'be unsuitable_sticky if is_suitable_for_emma=false and is_emma_sticky=true' do
-            default_mi_attempt.is_suitable_for_emma = false
-            default_mi_attempt.is_emma_sticky = true
-            assert_equal 'unsuitable_sticky', default_mi_attempt.emma_status
-          end
-        end
-
-        context 'on write' do
-          should 'work for suitable' do
-            default_mi_attempt.emma_status = 'suitable'
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-            assert_equal [true, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-          end
-
-          should 'work for unsuitable' do
-            default_mi_attempt.emma_status = 'unsuitable'
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-            assert_equal [false, false], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-          end
-
-          should 'work for suitable_sticky' do
-            default_mi_attempt.emma_status = 'suitable_sticky'
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-            assert_equal [true, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-          end
-
-          should 'work for unsuitable_sticky' do
-            default_mi_attempt.emma_status = 'unsuitable_sticky'
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-            assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-          end
-
-          should 'error for anything else' do
-            assert_raise(MiAttempt::EmmaStatusError) do
-              default_mi_attempt.emma_status = 'invalid'
-            end
-          end
-
-          should 'set cause #emma_status to return the right value after being saved' do
-            default_mi_attempt.emma_status = 'unsuitable_sticky'
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-
-            assert_equal [false, true], [default_mi_attempt.is_suitable_for_emma?, default_mi_attempt.is_emma_sticky?]
-            assert_equal 'unsuitable_sticky', default_mi_attempt.emma_status
-          end
-        end
-      end
-
       context 'QC field tests:' do
         MiAttempt::QC_FIELDS.each do |qc_field|
           should "include #{qc_field}" do
@@ -527,34 +400,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           mi_attempt = Factory.build :mi_attempt, :mi_plan => mi_plan, :colony_name => nil
           assert_false mi_attempt.save
           assert_nil mi_attempt.colony_name
-        end
-      end
-
-      context '#deposited_material' do
-        should 'be in DB' do
-          assert_should have_db_column(:deposited_material_id).with_options(:null => false)
-        end
-
-        should 'default to "Frozen embryos" if nil' do
-          mi = Factory.create :mi_attempt
-          assert_equal 'Frozen embryos', mi.deposited_material_name
-        end
-
-        should 'default to "Frozen embryos" if blank' do
-          mi = Factory.create :mi_attempt
-          mi.update_attributes!(:deposited_material_name => '')
-          assert_equal 'Frozen embryos', mi.deposited_material_name
-        end
-
-        should 'be association to DepositedMaterial' do
-          assert_should belong_to :deposited_material
-        end
-
-        should 'be setup for access_association_by_attribute' do
-          dm = DepositedMaterial.last
-          default_mi_attempt.deposited_material_name = dm.name
-          default_mi_attempt.save!
-          assert_equal dm, default_mi_attempt.deposited_material
         end
       end
 

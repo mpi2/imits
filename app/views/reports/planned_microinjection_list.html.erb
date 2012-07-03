@@ -5,12 +5,11 @@
 </div>
 
 <%= form_tag( { :controller => :reports, :action => :planned_microinjection_list }, :method => :get, :class => 'report-form' ) do |form| %>
-  <%= render 'report_controls', :grouping => true, :mi_plan_reports => true %>
+  <%= render 'report_controls2', :grouping => true, :mi_plan_reports => true %>
 <% end %>
 
 <% unless params[:commit].blank? %>
   <div class="report grid_12">
-    <%= render :partial => '/reports/report_with_counts', :locals => { :report => @report, :label => 'planned micro-injections' } %>
+    <%= render :partial => '/reports/report_with_counts2', :locals => { :report => @report, :label => 'planned micro-injections' } %>
   </div>
 <% end %>
-

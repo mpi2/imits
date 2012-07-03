@@ -3,15 +3,22 @@
 
 <fieldset class="collapsible">
   <legend>Universal Details</legend>
-  <div>
-  <% if @mi_attempt %>
-    <label>MI Attempt Colony Name</label>
-    <%= @mi_attempt.colony_name %>
-    <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
-  <% end %>
-  </div>
-  <div>
+   <div>
+   <% if @mi_attempt %>
+     <label>MI Attempt Colony Name</label>
+     <%= @mi_attempt.colony_name %>
+     <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
+   <% end %>
+   </div>
+   <div>
      <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
+   </div>
+   <div>
+     <% if ! @phenotype_attempt.status_id.nil? %>
+       <label>Status</label>
+       <%= @phenotype_attempt.status_name%>
+       <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name || 'p' %>
+     <% end %>
    </div>
    <div class="consortium-name">
      <% consortium_field = capture do %>
@@ -36,19 +43,57 @@
      <%= form.check_box :is_active %>
    </div>
 </fieldset>
+
+<fieldset class="collapsible" id="distribution_centres">
+  <legend>Distribution Centres</legend>
+    <div class="distribution_centres">
+    <% if phenotype_attempt.status && phenotype_attempt.status.name == 'Cre Excision Complete' %>
+      <table id="distribution_centres_table" class="report_table">
+        <thead class="title">
+          <tr>
+            <th>Distribution centre</th>
+            <th>EMMA</th>
+            <th>Deposited material</th>
+            <th>Start date</th>
+            <th>End date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody class="distribution_centres">
+        <% if phenotype_attempt.distribution_centres.length > 0 %>
+          <%= form.fields_for :distribution_centres do |builder| %>
+            <% if !builder.object.new_record? %>
+            <%= render 'distribution_centre_fields', f: builder %>
+            <% end %>
+          <% end %>
+        <% end %>
+        </tbody>
+      </table>
+      <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
+    <% else %>
+    No Distribution Centres can be set until Status is Cre Excision Complete.
+    <% end %>
+    </div>
+</fieldset>
+
 <fieldset class="collapsible">
   <legend>Rederivation</legend>
-   <% [:rederivation_started, :rederivation_complete].each do |field| %>
-      <div>
-        <%= form.label field, field.to_s.titlecase %>
-        <%= form.check_box field %>
-      </div>
-   <% end %>
+  <% [:rederivation_started, :rederivation_complete].each do |field| %>
+    <div>
+      <%= form.label field, field.to_s.titlecase %>
+      <%= form.check_box field %>
+    </div>
+  <% end %>
 </fieldset>
 <fieldset class="collapsible">
   <legend>Cre Matings</legend>
    <div>
-     <%= generator.number_field :number_of_cre_matings_started %>
+     <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
+   </div>
+   <div>
+     <%= form.collection_select :deleter_strain_name, @deleter_strain,:name, :name, :include_blank => true %>
+   </div>
+   <div>
      <%= generator.number_field :number_of_cre_matings_successful %>
    </div>
    <div>

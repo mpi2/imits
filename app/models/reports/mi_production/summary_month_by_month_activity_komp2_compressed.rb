@@ -12,11 +12,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed < Report
   def initialize
     generated = self.class.generate
     @data = self.class.format(generated)
-   # @csv = self.to_csv(@data)
+    @csv = to_csv
   end
 
   def data
     return @data
+  end
+
+  def csv
+    return @csv
   end
 
   def self.generate
@@ -53,10 +57,47 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed < Report
     [year,month,day]
   end
 
+  def to_csv
+    csv_headers = ['Date','Year','Month', 'Consortium', 'Cumulative ES Starts', 'ES Cell QC In Progress', 'ES Cell QC Complete', 'ES Cell QC Failed', 'Micro-Injection In Progress', 'Cumulative MIs', 'MI Goal', 'Chimeras obtained' , 'Genotype confirmed', 'Cumulative Genotype Confirmed', 'GC Goal','Micro-injection aborted', 'Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+    require 'csv'
+    csv_string = csv_headers.to_csv
+    @data.each do |consortium, consdata|
+      (0...consdata['mi_attempt_data'].count).to_a.each do |rowno|
+        data = consdata['mi_attempt_data'][rowno]
+        data.update(consdata['phenotype_data'][rowno])
+        rowdata = []
+        rowdata << "#{Date::MONTHNAMES[data['month']]}-#{data['year']}"
+        rowdata << data['year']
+        rowdata << data['month']
+        rowdata << data['consortium']
+        rowdata << data['cumulative_es_starts']
+        rowdata << data['es_cell_qc_in_progress']
+        rowdata << data['es_cell_qc_failed']
+        rowdata << data['micro_injection_in_progress']
+        rowdata << data['cumulative_mis']
+        rowdata << data['mi_goal']
+        rowdata << data['chimeras_obtained']
+        rowdata << data['genotype_confirmed']
+        rowdata << data['cumulative_genotype_confirmed']
+        rowdata << data['gc_goal']
+        rowdata << data['micro_injection_aborted']
+        rowdata << data['phenotype_attempt_registered']
+        rowdata << data['rederivation_started']
+        rowdata << data['rederivation_complete']
+        rowdata << data['cre_excision_started']
+        rowdata << data['cre_excision_complete']
+        rowdata << data['phenotyping_started']
+        rowdata << data['phenotyping_complete']
+        rowdata << data['phenotype_attempt_aborted']
+        csv_string += rowdata.to_csv
+      end
+    end
+    return csv_string
+  end
+
   def self.format(summary)
     require 'yaml'
     goal_data = YAML.load_file('config/report_production_goals.yml')
-    print goal_data
     dataset ={}
     summary.each do |consortiumindex, convalue|
       dataset[consortiumindex]={}

@@ -17,6 +17,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   MI_GOALS = 
     {
       2012 => {
+        7 => {
+          'BaSH' => 440,
+          'DTCC' => 322,
+          'JAX' => 165,
+        },
         6 => {
           'BaSH' => 412,
           'DTCC' => 299,
@@ -90,6 +95,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   GC_GOALS = 
     {
       2012 => {
+        7 => {
+          'BaSH' => 150,
+          'DTCC' => 202,
+          'JAX' => 92,
+        },
         6 => {
           'BaSH' => 126,
           'DTCC' => 182,
@@ -386,7 +396,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       next if self.consortia && ! self.consortia.include?(consortium)
       gene_id = stamp.phenotype_attempt.mi_plan.gene_id
       status = stamp.phenotype_attempt.status.name
-      mi_grid_distribution_centres
       marker_symbol = stamp.phenotype_attempt.mi_plan.gene.marker_symbol
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.phenotype_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }

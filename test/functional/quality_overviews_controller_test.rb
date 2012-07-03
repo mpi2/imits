@@ -75,8 +75,8 @@ class QualityOverviewsControllerTest < ActionController::TestCase
 
       sign_in default_user
 
-      @quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)
-
+      quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)
+      @quality_overviews = QualityOverview.sort(quality_overviews)
       header_row = @quality_overviews.first.column_names
 
       csv = CSV.generate(:force_quotes => true) do |line|

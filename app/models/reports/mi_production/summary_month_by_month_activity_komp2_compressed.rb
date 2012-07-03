@@ -72,6 +72,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed < Report
         rowdata << data['consortium']
         rowdata << data['cumulative_es_starts']
         rowdata << data['es_cell_qc_in_progress']
+        rowdata << data['es_cell_qc_complete']
         rowdata << data['es_cell_qc_failed']
         rowdata << data['micro_injection_in_progress']
         rowdata << data['cumulative_mis']

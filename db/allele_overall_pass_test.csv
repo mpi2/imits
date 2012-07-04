@@ -1,0 +1,2 @@
+indicator,colony_prefix,pipeline,emma,production_centre,microinjection_date,marker_symbol,es_cell_clone,confirm_locus_targeted,confirm_structure_targeted_allele,confirm_downstream_lox_p_site,confirm_no_additional_vector_insertions,es_dist_qc,es_user_qc,mouse_qc
+allpass,MCFC,EUCOMM,1,WTSI,2008-10-23,Tpi1,EPD0183_4_A09,1,1,1,1,,,qc_lacz_sr_pcr qc_loa_qpcr qc_loxp_confirmation qc_mutant_specific_sr_pcr qc_neo_count_qpcr qc_tv_backbone_assay

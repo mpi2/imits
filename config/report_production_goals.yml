@@ -1,8 +1,26 @@
 summary_month_by_month:
   BaSH:
     2012:
+      12:
+        mi_goals: 588
+        gc_goals: 221
+      11:
+        mi_goals: 560
+        gc_goals: 207
+      10:
+        mi_goals: 532
+        gc_goals: 192
+      9:
+        mi_goals: 502
+        gc_goals: 178
+      8:
+        mi_goals: 474
+        gc_goals: 164
+      7:
+        mi_goals: 442
+        gc_goals: 150
       6:
-        mi_goals: 412
+        mi_goals: 414
         gc_goals: 126
       5:
         mi_goals: 384
@@ -46,6 +64,24 @@ summary_month_by_month:
 
   DTCC:
     2012:
+      12:
+        mi_goals: 337
+        gc_goals: 266
+      11:
+        mi_goals: 314
+        gc_goals: 252
+      10:
+        mi_goals: 391
+        gc_goals: 238
+      9:
+        mi_goals: 368
+        gc_goals: 224
+      8:
+        mi_goals: 345
+        gc_goals: 210
+      7:
+        mi_goals: 322
+        gc_goals: 196
       6:
         mi_goals: 299
         gc_goals: 182
@@ -91,6 +127,24 @@ summary_month_by_month:
 
   JAX:
     2012:
+      12:
+        mi_goals: 315
+        gc_goals: 628
+      11:
+        mi_goals: 285
+        gc_goals: 482
+      10:
+        mi_goals: 255
+        gc_goals: 355
+      9:
+        mi_goals: 225
+        gc_goals: 248
+      8:
+        mi_goals: 195
+        gc_goals: 160
+      7:
+        mi_goals: 165
+        gc_goals: 92
       6:
         mi_goals: 135
         gc_goals: 43

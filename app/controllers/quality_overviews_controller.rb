@@ -1,8 +1,7 @@
 # encoding: utf-8
+require 'csv'
 
 class QualityOverviewsController < ApplicationController
-
-  require 'open-uri'
 
   respond_to :html, :csv
 
@@ -16,7 +15,7 @@ class QualityOverviewsController < ApplicationController
   protected :import
 
   def export_to_csv
-    require 'csv'
+
     quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)
     @quality_overviews = QualityOverview.sort(quality_overviews)
     header_row = @quality_overviews.first.column_names

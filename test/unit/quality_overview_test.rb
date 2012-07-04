@@ -61,8 +61,4 @@ class QualityOverviewTest < ActiveSupport::TestCase
 
   end
 
-  should 'populate related data' do
-
-  end
-
 end

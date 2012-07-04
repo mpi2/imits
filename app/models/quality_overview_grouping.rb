@@ -1,4 +1,6 @@
 # encoding: utf-8
+require 'csv'
+require 'open-uri'
 
 class QualityOverviewGrouping
 

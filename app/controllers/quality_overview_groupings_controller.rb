@@ -1,8 +1,6 @@
 # encoding: utf-8
 
 class QualityOverviewGroupingsController < ApplicationController
-  require 'csv'
-  require 'open-uri'
 
   respond_to :html
 

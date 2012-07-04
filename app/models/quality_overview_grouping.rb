@@ -41,24 +41,27 @@ class QualityOverviewGrouping
     self.number_of_genotype_confirmed_colonies = self.quality_overviews.length
 
     self.quality_overviews.each do |quality_overview|
-        overall_pass = true
+      pass_locus = false
+      pass_structure = false
+      pass_downstream = false
+      pass_vector = false
       if quality_overview.confirm_locus_targeted != nil || !quality_overview.confirm_locus_targeted.blank?
         self.confirm_locus_targeted_total = self.confirm_locus_targeted_total + 1
-        overall_pass = false
+        pass_locus = true
       end
       if quality_overview.confirm_structure_targeted_allele != nil || !quality_overview.confirm_structure_targeted_allele.blank?
         self.confirm_structure_targeted_allele_total = self.confirm_structure_targeted_allele_total + 1
-        overall_pass = false
+        pass_structure = true
       end
       if quality_overview.confirm_downstream_lox_p_site != nil || !quality_overview.confirm_downstream_lox_p_site.blank?
         self.confirm_downstream_lox_p_site_total = self.confirm_downstream_lox_p_site_total + 1
-        overall_pass = false
+        pass_downstream = true
       end
       if quality_overview.confirm_no_additional_vector_insertions != nil || !quality_overview.confirm_no_additional_vector_insertions.blank?
         self.confirm_no_additional_vector_insertions_total = self.confirm_no_additional_vector_insertions_total + 1
-        overall_pass = false
+        pass_vector = true
       end
-      if overall_pass
+      if pass_locus && pass_structure && pass_downstream && pass_vector
         self.colonies_with_overall_pass = self.colonies_with_overall_pass + 1
       end
     end

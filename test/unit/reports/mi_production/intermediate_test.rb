@@ -150,7 +150,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Distinct Old Non Genotype Confirmed ES Cells',
           'MiPlan ID',
           'Total Pipeline Efficiency Gene Count',
-          'GC Pipeline Efficiency Gene Count'
+          'GC Pipeline Efficiency Gene Count',
+          'Aborted - ES Cell QC Failed Date'
         ]
 
         assert_equal expected, @report.column_names
@@ -193,8 +194,9 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Distinct Old Non Genotype Confirmed ES Cells'=> 0,
           'MiPlan ID' => 2,
           'Total Pipeline Efficiency Gene Count' => 1,	# changed since date makes it active!
-          'GC Pipeline Efficiency Gene Count' => 1	    # changed since date makes it active!
-        }
+          'GC Pipeline Efficiency Gene Count' => 1,	    # changed since date makes it active!
+          'Aborted - ES Cell QC Failed Date' => ''
+          }
         assert_equal expected, bash_wtsi_row.data
       end
 
@@ -235,8 +237,9 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Distinct Old Non Genotype Confirmed ES Cells'=> 1,
           'MiPlan ID' => 3,
           'Total Pipeline Efficiency Gene Count' => 1,
-          'GC Pipeline Efficiency Gene Count' => 0
-        }
+          'GC Pipeline Efficiency Gene Count' => 0,
+          'Aborted - ES Cell QC Failed Date' => ''
+          }
         assert_equal expected, mgp_wtsi_row.data
       end
 

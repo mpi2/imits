@@ -67,14 +67,20 @@
     </div>
 
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_all_centres_komp2) %>">
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_komp2_compressed) %>">
       <h4>KOMP2 Month-by-month activity (all centres collapsed together)</h4>
       </a>
     </div>
-    
+
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_komp2) %>">
       <h4>KOMP2 Month-by-month activity</h4>
+      </a>
+    </div>
+
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_all_centres_komp2) %>">
+      <h7>KOMP2 Month-by-month activity (Legacy- all monthly attempts)</h7>
       </a>
     </div>
 

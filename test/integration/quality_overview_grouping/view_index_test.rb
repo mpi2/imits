@@ -86,20 +86,20 @@ class QualityOverviewGroupingTest < Kermits2::IntegrationTest
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(3)', :text => '2')
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(4)', :text => '0')
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(5)', :text => '0.0')
-        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(6)', :text => '0')
-        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(7)', :text => '1')
-        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(8)', :text => '0')
-        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(9)', :text => '1')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(6)', :text => '1')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(7)', :text => '0')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(8)', :text => '1')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(9)', :text => '0')
 
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(1)', :text => 'EUCOMM-EUMODIC')
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(2)', :text => 'WTSI')
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(3)', :text => '1')
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(4)', :text => '1')
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(5)', :text => '100.0')
-        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(6)', :text => '1')
-        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(7)', :text => '1')
-        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(8)', :text => '1')
-        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(9)', :text => '1')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(6)', :text => '0')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(7)', :text => '0')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(8)', :text => '0')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(9)', :text => '0')
 
       end
 

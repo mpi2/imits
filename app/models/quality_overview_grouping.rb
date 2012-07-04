@@ -46,20 +46,24 @@ class QualityOverviewGrouping
       pass_downstream = false
       pass_vector = false
       if quality_overview.confirm_locus_targeted != nil || !quality_overview.confirm_locus_targeted.blank?
-        self.confirm_locus_targeted_total = self.confirm_locus_targeted_total + 1
         pass_locus = true
+      else
+        self.confirm_locus_targeted_total = self.confirm_locus_targeted_total + 1
       end
       if quality_overview.confirm_structure_targeted_allele != nil || !quality_overview.confirm_structure_targeted_allele.blank?
-        self.confirm_structure_targeted_allele_total = self.confirm_structure_targeted_allele_total + 1
         pass_structure = true
+      else
+        self.confirm_structure_targeted_allele_total = self.confirm_structure_targeted_allele_total + 1
       end
       if quality_overview.confirm_downstream_lox_p_site != nil || !quality_overview.confirm_downstream_lox_p_site.blank?
-        self.confirm_downstream_lox_p_site_total = self.confirm_downstream_lox_p_site_total + 1
         pass_downstream = true
+      else
+        self.confirm_downstream_lox_p_site_total = self.confirm_downstream_lox_p_site_total + 1
       end
       if quality_overview.confirm_no_additional_vector_insertions != nil || !quality_overview.confirm_no_additional_vector_insertions.blank?
-        self.confirm_no_additional_vector_insertions_total = self.confirm_no_additional_vector_insertions_total + 1
         pass_vector = true
+      else
+        self.confirm_no_additional_vector_insertions_total = self.confirm_no_additional_vector_insertions_total + 1
       end
       if pass_locus && pass_structure && pass_downstream && pass_vector
         self.colonies_with_overall_pass = self.colonies_with_overall_pass + 1

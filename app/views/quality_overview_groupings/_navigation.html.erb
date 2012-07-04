@@ -1,0 +1,11 @@
+<div id="sub-navigation">
+<ul>
+  <li>
+    <%= link_to 'View all genotype confirmed lines', :quality_overviews %>
+  </li>
+  <li>
+    <%= link_to 'Export all genotype confirmed lines as CSV', :controller => :quality_overviews, :action => :export_to_csv, :format => :csv %>
+  </li>
+</ul>
+</div>
+

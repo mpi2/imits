@@ -51,7 +51,7 @@ html, body, .x-body {
     line-height: 12px;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, h7 {
 	font-family: "Times New Roman", Times, serif;
 	font-weight: normal;
 	color: #111;
@@ -63,6 +63,7 @@ h3 { font-size: 1.5em; line-height: 1; margin-bottom: 1em; }
 h4 { font-size: 1.2em; line-height:1.25; margin-bottom: 1.25em; }
 h5 { font-size: 1em; font-weight:bold; margin-bottom: 1.5em; }
 h6 { font-size: 1em; font-weight:bold; }
+h7 { font-size: 1em}
 
 sup { vertical-align: super; font-size: 80%; }
 em { font-style: italic; }

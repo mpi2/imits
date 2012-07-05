@@ -192,3 +192,15 @@ class Reports::MiProductionController < ApplicationController
   private :summary_3_split_helper
 
 end
+
+  def impc_graph_report_display
+#    @report_data = Reports::MiProduction::ImpcGraphReportDisplay.new
+
+#    if request.format == :csv
+#      send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv)
+#    elsif request.format == :graph
+#    else
+      render :action => 'impc_graph_report_display'
+#    end
+
+  end

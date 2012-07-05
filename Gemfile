@@ -16,6 +16,7 @@ gem 'ransack', :git => 'git://github.com/mpi2/ransack.git'
 gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
 
+gem 'rmagick'
 gem 'gruff'
 
 group :development, :test do

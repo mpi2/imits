@@ -8,9 +8,6 @@ You are receiving this email because the IMPC production status of the gene has 
 <%= render :partial => "notification_mailer/status_email/#{@relevant_status[:status]}.text.erb" %>
 <% end %>
 
-Further details of alleles for this gene can be found here:
-http://dev.mousephenotype.org/gene-details?gene_id=<%= @gene.mgi_accession_id %>
-
 <% if @total_cell_count > 0 %>
 Currently the IKMC has the following mutant ES Cells for this gene;
 <% if @gene.conditional_es_cells_count && @gene.conditional_es_cells_count > 0 %>
@@ -22,7 +19,16 @@ Currently the IKMC has the following mutant ES Cells for this gene;
 <% if @gene.deletion_es_cells_count && @gene.deletion_es_cells_count > 0 %>
 <%= @gene.deletion_es_cells_count %> deletions
 <% end %>
-Further details of these alleles can be found here
+<% else %>
+The IKMC has not produced any targeted mutant ES Cells for this gene.
+This gene will be considered by the EUCOMMTools program for production of targeted mutant ES Cells
+<% end %>
+
+<% if @modifier_string == "is" %>
+Details of mutant ES Cells, Mouse Production and Phenotyping for this gene can be found here:
+http://dev.mousephenotype.org/gene-details?gene_id=<%= @gene.mgi_accession_id %>
+<% elsif @total_cell_count > 0 %>
+Details of targeted mutant ES Cells for this gene can be found here:
 www.knockoutmouse.org/search_results?criteria=<%= @gene.mgi_accession_id %>
 <% end %>
 

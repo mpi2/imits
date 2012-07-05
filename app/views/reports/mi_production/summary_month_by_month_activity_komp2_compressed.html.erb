@@ -14,6 +14,9 @@ link_to('Download as CSV', url_for({:action => controller.action_name, :controll
 <% else %>
   <% @report_data.data.each do |key,data| %>
     <h2><%= key %></h2>
+
+    <p>
+    <h3>Mouse Production</h3>
     <table width=100%>
       <tr>
         <th>Year</th>
@@ -53,6 +56,9 @@ link_to('Download as CSV', url_for({:action => controller.action_name, :controll
         </tr>
       <% end %>
     </table>
+    </p>
+    <p>
+    <h3>Phenotyping</h3>
 
     <table width=70.5%>
       <tr>
@@ -85,7 +91,7 @@ link_to('Download as CSV', url_for({:action => controller.action_name, :controll
         </tr>
       <% end %>
     </table>
-  </br>
+  </br></br></br></p>
   <% end %>
 
 <% end %>

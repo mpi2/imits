@@ -4,4 +4,45 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
   def self.report_title; 'IMPC Graph Report Display'; end
   def self.consortia; ['BaSH', 'DTCC', 'JAX']; end
 
+
+  def initialize
+    generated = self.class.generate
+    @data = self.class.format(generated)
+    @graph = create_graph
+    draw_graph
+  end
+
+  def draw_graph
+    format = 'jpg'
+    require 'scruffy'
+    graph.each do |consortium, graph_data|
+      x_data_lables = graph_data['graph']['x_data']
+      diff_data = graph_data['graph']['mi_diff_data']
+      goals_data = graph_data['graph']['mi_goal_data']
+      live_data = graph_data['graph']['mi_data']
+
+      mi_graph = Scruffy::Graph.new
+      mi_graph.title = "#{consortium} MI Performance"
+      mi_graph.theme = Scruffy::Themes::RubyBlog.new
+      mi_graph.add :area, 'diff', diff_data
+      mi_graph.add :line, 'MI Cumulative', live_data
+      mi_graph.add :line, 'MI Goals', goals_data
+      mi_graph.point_markers = x_data_lables
+      mi_graph.render(:width => 800, :to => "public/images/reports/charts/#{consortium}_mi_performance.#{format}", :as => "#{format}")
+
+      goals_data = graph_data['graph']['gc_goal_data']
+      live_data = graph_data['graph']['gc_data']
+      diff_data = graph_data['graph']['gc_diff_data']
+
+      gc_graph = Scruffy::Graph.new
+      gc_graph.title = "#{consortium} GC Performance"
+      gc_graph.theme = Scruffy::Themes::RubyBlog.new
+      gc_graph.add :area, 'diff', diff_data
+      gc_graph.add :line, 'GC Cumulative', live_data
+      gc_graph.add :line, 'GC Goals', goals_data
+      gc_graph.point_markers = x_data_lables
+      gc_graph.render(:width => 800, :to => "public/images/reports/charts/#{consortium}_gc_performance.#{format}", :as => "#{format}")
+    end
+  end
+
 end

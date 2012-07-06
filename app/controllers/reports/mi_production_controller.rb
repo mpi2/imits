@@ -194,7 +194,7 @@ class Reports::MiProductionController < ApplicationController
 end
 
   def impc_graph_report_display
-#    @report_data = Reports::MiProduction::ImpcGraphReportDisplay.new
+    @report_data = Reports::MiProduction::ImpcGraphReportDisplay.new
 
 #    if request.format == :csv
 #      send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv)

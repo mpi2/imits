@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed < Reports::Base
+class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Reports::Base
 
   CUT_OFF_DATE = Date.parse('2011-06-01')
 
@@ -13,7 +13,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed < Report
     generated = self.class.generate
     @data = self.class.format(generated)
     @csv = to_csv
-   # @graph = create_graph
   end
 
   def data
@@ -149,19 +148,26 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed < Report
 
   def create_graph
 
-    year, month, day = convert_date(Time.now.prev_month)
+    year, month, day = self.class.convert_date(Time.now.prev_month)
     dataset = {}
     data.each do |consortium, consdata|
       (0...consdata['mi_attempt_data'].count).to_a.each do |rowno|
         all_data = consdata['mi_attempt_data'][rowno]
         all_data.update(consdata['phenotype_data'][rowno])
 
-        if (all_data[rowno]['year'].to_s + all_data[rowno]['month'].to_s).to_i == (year.to_s + month.to_s).to_i
+        if (all_data['year'].to_s + all_data['month'].to_s).to_i == (year.to_s + month.to_s).to_i
           dataset[consortium] = {}
           dataset[consortium]['tabulate'] = []
-          dataset[consortium]['graphdata'] = []
+          dataset[consortium]['graph'] = {}
+          dataset[consortium]['graph']['mi_goal_data'] = []
+          dataset[consortium]['graph']['mi_data'] = []
+          dataset[consortium]['graph']['mi_diff_data'] = []
+          dataset[consortium]['graph']['gc_goal_data'] = []
+          dataset[consortium]['graph']['gc_data'] = []
+          dataset[consortium]['graph']['gc_diff_data'] = []
+          dataset[consortium]['graph']['x_data'] = []
           tabulate_data = {}
-#          tabulate_data['assigned_genes'] = all_data['']
+          tabulate_data['assigned_genes'] = 0 # all_data['']
           tabulate_data['es_qc'] = all_data['cumulative_es_starts']
           tabulate_data['es_qc_confirmed'] = all_data['cumulative_es_complete']
           tabulate_data['es_qc_failed'] = all_data['cumulative_es_failed']
@@ -171,7 +177,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed < Report
           tabulate_data['cre_excision_complete'] = all_data['cumulative_cre_excision_complete']
           tabulate_data['phenotyping_complete'] = all_data['cumulative_phenotyping_complete']
           dataset[consortium]['tabulate'] << tabulate_data
-#          tabulate_data['assigned_genes'] = all_data['']
+          tabulate_data['assigned_genes'] = 0 # all_data['']
           tabulate_data['es_qc'] = all_data['es_cell_qc_in_progress']
           tabulate_data['es_qc_confirmed'] = all_data['es_cell_qc_complete']
           tabulate_data['es_qc_failed'] = all_data['es_cell_qc_failed']
@@ -182,16 +188,17 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed < Report
           tabulate_data['phenotyping_complete'] = all_data['phenotyping_complete']
           dataset[consortium]['tabulate'] << tabulate_data
         end
-        if (all_data[rowno]['year'].to_s + all_data[rowno]['month'].to_s).to_i <= (year.to_s + month.to_s).to_i
-          graph_data = {}
-          graph_data['micro_injection_in_progress'] = all_data['cumulative_mis']
-          graph_data['mi_goal'] = all_data['mi_goal']
-          graph_data['mi_diff'] = all_data['mi_goal'] - all_data['cumulative_mis']
-          graph_data['genotype_confirmed'] = all_data['cumulative_genotype_confirmed']
-          graph_data['gc_goal'] = all_data['gc_goal']
-          graph_data['gc_diff'] = all_data['gc_goal'] - all_data['cumulative_genotype_confirmed']
-          dataset[consortium]['graphdata'] << graph_data
+
+        if (all_data['year'].to_s + all_data['month'].to_s).to_i <= (year.to_s + month.to_s).to_i
+          dataset[consortium]['graph']['mi_goal_data'].insert(0,  all_data['mi_goal'])
+          dataset[consortium]['graph']['mi_data'].insert(0,  all_data['cumulative_mis'])
+          dataset[consortium]['graph']['mi_diff_data'].insert(0,  all_data['mi_goal'] - all_data['cumulative_mis'])
+          dataset[consortium]['graph']['gc_goal_data'].insert(0,  all_data['gc_goal'])
+          dataset[consortium]['graph']['gc_data'].insert(0, all_data['cumulative_genotype_confirmed'])
+          dataset[consortium]['graph']['gc_diff_data'].insert(0, all_data['gc_goal'] - all_data['cumulative_genotype_confirmed'])
+          dataset[consortium]['graph']['x_data'].insert(0, "#{all_data['month']}\n#{all_data['year']}")
         end
+      end
     end
   return dataset
   end

@@ -17,7 +17,7 @@ gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
 
 gem 'rmagick'
-gem 'gruff'
+gem 'scruffy'
 
 group :development, :test do
   gem 'selenium-webdriver', '2.21'

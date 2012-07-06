@@ -82,7 +82,6 @@ GEM
     ffi (1.0.11)
     foreigner (1.0.3)
       activerecord (>= 3.0.0)
-    gruff (0.3.6)
     hoe (2.12.3)
       rake (~> 0.8)
     hoptoad_notifier (2.4.11)
@@ -146,6 +145,7 @@ GEM
     ruport (1.6.3)
       fastercsv
       pdf-writer (= 1.1.8)
+    scruffy (0.2.6)
     selenium-webdriver (2.21.0)
       childprocess (>= 0.2.5)
       ffi (~> 1.0)
@@ -192,7 +192,6 @@ DEPENDENCIES
   devise
   factory_girl_rails
   foreigner
-  gruff
   hoptoad_notifier
   jammit
   launchy
@@ -204,6 +203,7 @@ DEPENDENCIES
   rake
   ransack!
   rmagick
+  scruffy
   selenium-webdriver (= 2.21)
   shoulda
   simplecov (>= 0.4.0)

@@ -191,8 +191,6 @@ class Reports::MiProductionController < ApplicationController
   end
   private :summary_3_split_helper
 
-end
-
   def impc_graph_report_display
     @report_data = Reports::MiProduction::ImpcGraphReportDisplay.new
 
@@ -204,3 +202,4 @@ end
 #    end
 
   end
+end

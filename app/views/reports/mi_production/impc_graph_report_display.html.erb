@@ -1,10 +1,12 @@
-
-
+<h1><%= @report_data.class.report_title%></h1></br></br>
+<% @report_data.graph.each do |consortium, data| %>
+<h1><%= consortium%></h1>
 <table>
   <tr>
-    <td rowspan = 2>
+    <td width = "550">
       <div class="report">
-      <table >
+      <dl>
+      <dt><table height = "670" width = "450">
         <tr>
           <th>State</th>
           <th>Current</th>
@@ -12,59 +14,60 @@
         </tr>
         <tr>
           <td>Assigned genes</td>
-          <td></td>
-          <td></td>
+          <td><%= data['tabulate'][0]['assigned_genes']%></td>
+          <td><%= data['tabulate'][1]['assigned_genes']%></td>
         </tr>
         <tr>
           <td>ES QC</td>
-          <td></td>
-          <td></td>
+          <td><%= data['tabulate'][0]['es_qc']%></td>
+          <td><%= data['tabulate'][1]['es_qc']%></td>
         </tr>
         <tr>
           <td>ES QC Confirmed</td>
-          <td></td>
-          <td></td>
+          <td><%= data['tabulate'][0]['es_qc_confirmed']%></td>
+          <td><%= data['tabulate'][1]['es_qc_confirmed']%></td>
         </tr>
         <tr>
           <td>ES QC Failed</td>
-          <td></td>
-          <td></td>
+          <td><%= data['tabulate'][0]['es_qc_failed']%></td>
+          <td><%= data['tabulate'][1]['es_qc_failed']%></td>
         </tr>
         <tr>
           <td>Mouse Production</td>
-          <td></td>
-          <td></td>
+          <td><%= data['tabulate'][0]['mouse_production']%></td>
+          <td><%= data['tabulate'][1]['mouse_production']%></td>
         </tr>
         <tr>
           <td>Confirmed Mice</td>
-          <td></td>
-          <td></td>
+          <td><%= data['tabulate'][0]['confirmaed_mice']%></td>
+          <td><%= data['tabulate'][1]['confirmaed_mice']%></td>
         </tr>
         <tr>
           <td>Indent to Phenotype</td>
-          <td></td>
-          <td></td>
+          <td><%= data['tabulate'][0]['intent_to_phenotype']%></td>
+          <td><%= data['tabulate'][1]['intent_to_phenotype']%></td>
         </tr>
         <tr>
           <td>Cre Excision Complete</td>
-          <td></td>
-          <td></td>
+          <td><%= data['tabulate'][0]['cre_excision_complete']%></td>
+          <td><%= data['tabulate'][1]['cre_excision_complete']%></td>
         </tr>
         <tr>
           <td>Phenotyping Complete</td>
-          <td></td>
-          <td></td>
+          <td><%= data['tabulate'][0]['phenotyping_complete']%></td>
+          <td><%= data['tabulate'][1]['phenotyping_complete']%></td>
         </tr>
-      </table></div>
+      </table></dt></dl></div>
     </td>
-    <td>
-      Mi Goal GRAPH
-    </td>
-  </tr>
-  <tr>
-    <td>
-      Genotype Goal GRAPH
+    <td width = "20"><pre>                 </pre></td>
+    <td width = "550"></br>
+      <dl>
+        <dt><%= image_tag("/images/reports/charts/#{consortium}_mi_performance.jpg", :height => '320', :width => '600') %></dt>
+        </br>
+        <dt><%= image_tag("/images/reports/charts/#{consortium}_gc_performance.jpg", :height => '320', :width => '600') %></dt>
+      </dl>
     </td>
   </tr>
 </table>
-
+</br></br></br>
+<% end %>

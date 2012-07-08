@@ -196,7 +196,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
           dataset[consortium]['graph']['gc_goal_data'].insert(0,  all_data['gc_goal'])
           dataset[consortium]['graph']['gc_data'].insert(0, all_data['cumulative_genotype_confirmed'])
           dataset[consortium]['graph']['gc_diff_data'].insert(0, all_data['gc_goal'] - all_data['cumulative_genotype_confirmed'])
-          dataset[consortium]['graph']['x_data'].insert(0, "#{all_data['month']}\n#{all_data['year']}")
+          dataset[consortium]['graph']['x_data'].insert(0, "#{Date::ABBR_MONTHNAMES[all_data['month']]}")
         end
       end
     end

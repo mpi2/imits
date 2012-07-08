@@ -21,14 +21,20 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
       goals_data = graph_data['graph']['mi_goal_data']
       live_data = graph_data['graph']['mi_data']
 
-      mi_graph = Scruffy::Graph.new
-      mi_graph.title = "#{consortium} MI Performance"
-      mi_graph.theme = Scruffy::Themes::RubyBlog.new
+      options = {
+        :title => "#{consortium} MI Performance",
+        :point_markers => x_data_lables
+    #    :theme => {:background => [:black, '#4A465A']}
+        }
+      mi_graph = Scruffy::Graph.new(options)
+ #     mi_graph.title = "#{consortium} MI Performance"
+      mi_graph.theme = Scruffy::Themes::Base.new({:background => [:white, :white], :colors => [:red, :yellow, :green], :marker => :black})
+#      mi_graph.theme =  :colors => [:red => 'red', :yellow => 'yellow', :green => 'green']
       mi_graph.add :area, 'diff', diff_data
       mi_graph.add :line, 'MI Cumulative', live_data
       mi_graph.add :line, 'MI Goals', goals_data
-      mi_graph.point_markers = x_data_lables
-      mi_graph.render(:width => 800, :to => "public/images/reports/charts/#{consortium}_mi_performance.#{format}", :as => "#{format}")
+  #    mi_graph.point_markers = x_data_lables
+      mi_graph.render(:width => 800, :min_value => 0, :padded => true, :to => "public/images/reports/charts/#{consortium}_mi_performance.#{format}", :as => "#{format}")
 
       goals_data = graph_data['graph']['gc_goal_data']
       live_data = graph_data['graph']['gc_data']
@@ -36,7 +42,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
 
       gc_graph = Scruffy::Graph.new
       gc_graph.title = "#{consortium} GC Performance"
-      gc_graph.theme = Scruffy::Themes::RubyBlog.new
+      gc_graph.theme = Scruffy::Themes::Keynote.new
       gc_graph.add :area, 'diff', diff_data
       gc_graph.add :line, 'GC Cumulative', live_data
       gc_graph.add :line, 'GC Goals', goals_data

@@ -1,0 +1,99 @@
+<h1><%= @report_data.class.report_title%></h1>
+
+<p><%=
+params.delete(:action)
+params.delete(:controller)
+params.delete(:script_name)
+params.delete(:format)
+link_to('Download as CSV', url_for({:action => controller.action_name, :controller => '/reports/mi_production', :format => :csv}.merge(params)))
+%></p>
+<div class="report">
+
+<% if @report_data.data.nil? %>
+  <p><em>Sorry, no production data found</em></p>
+<% else %>
+  <% @report_data.data.each do |key,data| %>
+    <h2><%= key %></h2>
+
+    <p>
+    <h3>Mouse Production</h3>
+    <table width=100%>
+      <tr>
+        <th>Year</th>
+        <th>Month</th>
+        <th>Consortium</th>
+        <th>Cumulative ES Starts</th>
+        <th>ES Cell QC In Progress</th>
+        <th>ES Cell QC Complete</th>
+        <th>ES Cell QC Failed</th>
+        <th>Micro-Injection In Progress</th>
+        <th>Cumulative MIs</th>
+        <th>MI Goal</th>
+        <th>Chimeras obtained</th>
+        <th>Genotype confirmed</th>
+        <th>Cumulative Genotype Confirmed</th>
+        <th>GC Goal</th>
+        <th>Micro-injection aborted</th>
+      </tr>
+
+      <% data['mi_attempt_data'].each do |mi_data| %>
+        <tr>
+          <%= (mi_data['firstrow'] == true ? "<td class='report-cell-integer' width=3% rowspan =#{mi_data['yearspan']}> #{mi_data['year']} </td>".html_safe : '') %>
+          <td  class='report-cell-text' width=4%><%= Date::MONTHNAMES[mi_data['month']] %></td>
+          <td class='report-cell-text' width=3%><%= mi_data['consortium'] %></td>
+          <td class='report-cell-integer' width=7.5%><%= mi_data['cumulative_es_starts']%></td>
+          <td class='report-cell-integer' width=7.5%><%= link_to(mi_data['es_cell_qc_in_progress'], "summary_month_by_month_activity_impc?year=#{mi_data['year']}&month=#{mi_data['month']}&consortium=#{mi_data['consortium']}&type=ES+Cell+QC+In+Progress") if mi_data['es_cell_qc_in_progress'] !=0%></td>
+          <td class='report-cell-integer' width=7.5%><%= link_to(mi_data['es_cell_qc_complete'], "summary_month_by_month_activity_impc?year=#{mi_data['year']}&month=#{mi_data['month']}&consortium=#{mi_data['consortium']}&type=ES+Cell+QC+Complete") if mi_data['es_cell_qc_complete'] !=0%></td>
+          <td class='report-cell-integer' width=7.5%><%= link_to(mi_data['es_cell_qc_failed'], "summary_month_by_month_activity_impc?year=#{mi_data['year']}&month=#{mi_data['month']}&consortium=#{mi_data['consortium']}&type=ES+Cell+QC+Failed") if mi_data['es_cell_qc_failed'] !=0%></td>
+          <td class='report-cell-integer' width=7.5%><%= link_to(mi_data['micro_injection_in_progress'], "summary_month_by_month_activity_impc?year=#{mi_data['year']}&month=#{mi_data['month']}&consortium=#{mi_data['consortium']}&type=Micro-injection+in+progress") if mi_data['micro_injection_in_progress'] !=0%></td>
+          <td class='report-cell-integer' width=7.5%><%= mi_data['cumulative_mis'] %></td>
+          <td class='report-cell-integer' width=7.5%><%= mi_data['mi_goal'] %></td>
+          <td class='report-cell-integer' width=7.5%><%= link_to(mi_data['chimeras_obtained'], "summary_month_by_month_activity_impc?year=#{mi_data['year']}&month=#{mi_data['month']}&consortium=#{mi_data['consortium']}&type=Chimeras+obtained") if mi_data['chimeras_obtained'] !=0%></td>
+          <td class='report-cell-integer' width=7.5%><%= link_to(mi_data['genotype_confirmed'], "summary_month_by_month_activity_impc?year=#{mi_data['year']}&month=#{mi_data['month']}&consortium=#{mi_data['consortium']}&type=Genotype+confirmed") if mi_data['genotype_confirmed'] !=0%></td>
+          <td class='report-cell-integer' width=7.5%><%= mi_data['cumulative_genotype_confirmed'] if mi_data['cumulative_genotype_confirmed'] !=0 %></td>
+          <td class='report-cell-integer' width=7.5%><%= mi_data['gc_goal'] %></td>
+          <td class='report-cell-integer' width=7.5%><%= link_to(mi_data['micro_injection_aborted'], "summary_month_by_month_activity_impc?year=#{mi_data['year']}&month=#{mi_data['month']}&consortium=#{mi_data['consortium']}&type=Micro-injection+aborted") if mi_data['micro_injection_aborted'] !=0%></td>
+        </tr>
+      <% end %>
+    </table>
+    </p>
+    <p>
+    <h3>Phenotyping</h3>
+
+    <table width=70.5%>
+      <tr>
+        <th>Year</th>
+        <th>Month</th>
+        <th>Consortium</th>
+        <th>Phenotype Attempt Registered</th>
+        <th>Rederivation Started</th>
+        <th>Rederivation Complete</th>
+        <th>Cre Excision Started</th>
+        <th>Cre Excision Complete</th>
+        <th>Phenotyping Started</th>
+        <th>Phenotyping Complete</th>
+        <th>Phenotype Attempt Aborted</th>
+      </tr>
+
+      <% data['phenotype_data'].each do |phenotype_data| %>
+        <tr>
+          <%= (phenotype_data['firstrow'] == true ? "<td class='report-cell-integer' width=4.3% rowspan =#{phenotype_data['yearspan']}> #{phenotype_data['year']} </td>".html_safe : '') %>
+          <td class='report-cell-text' width=5.7%><%= Date::MONTHNAMES[phenotype_data['month']] %></td>
+          <td class='report-cell-text' width=4.3%><%= phenotype_data['consortium'] %></td>
+          <td class='report-cell-integer' width=10.7%><%= link_to(phenotype_data['phenotype_attempt_registered'], "summary_month_by_month_activity_impc?year=#{phenotype_data['year']}&month=#{phenotype_data['month']}&consortium=#{phenotype_data['consortium']}&type=Phenotype+Attempt+Registered") if phenotype_data['phenotype_attempt_registered'] !=0%></td>
+          <td class='report-cell-integer' width=10.7%><%= link_to(phenotype_data['rederivation_started'], "summary_month_by_month_activity_impc?year=#{phenotype_data['year']}&month=#{phenotype_data['month']}&consortium=#{phenotype_data['consortium']}&type=Rederivation+Started") if phenotype_data['rederivation_started'] !=0%></td>
+          <td class='report-cell-integer' width=10.7%><%= link_to(phenotype_data['rederivation_complete'], "summary_month_by_month_activity_impc?year=#{phenotype_data['year']}&month=#{phenotype_data['month']}&consortium=#{phenotype_data['consortium']}&type=Rederivation+Complete") if phenotype_data['rederivation_complete'] !=0%></td>
+          <td class='report-cell-integer' width=10.7%><%= link_to(phenotype_data['cre_excision_started'], "summary_month_by_month_activity_impc?year=#{phenotype_data['year']}&month=#{phenotype_data['month']}&consortium=#{phenotype_data['consortium']}&type=Cre+Excision+Started") if phenotype_data['cre_excision_started'] !=0%></td>
+          <td class='report-cell-integer' width=10.7%><%= link_to(phenotype_data['cre_excision_complete'], "summary_month_by_month_activity_impc?year=#{phenotype_data['year']}&month=#{phenotype_data['month']}&consortium=#{phenotype_data['consortium']}&type=Cre+Excision+Complete") if phenotype_data['cre_excision_complete'] !=0%></td>
+          <td class='report-cell-integer' width=10.7%><%= link_to(phenotype_data['phenotyping_started'], "summary_month_by_month_activity_impc?year=#{phenotype_data['year']}&month=#{phenotype_data['month']}&consortium=#{phenotype_data['consortium']}&type=Phenotyping+Started") if phenotype_data['phenotyping_started'] !=0%></td>
+          <td class='report-cell-integer' width=10.7%><%= link_to(phenotype_data['phenotyping_complete'], "summary_month_by_month_activity_impc?year=#{phenotype_data['year']}&month=#{phenotype_data['month']}&consortium=#{phenotype_data['consortium']}&type=Phenotyping+Completed") if phenotype_data['phenotyping_complete'] !=0%></td>
+          <td class='report-cell-integer' width=10.7%><%= link_to(phenotype_data['phenotype_attempt_aborted'], "summary_month_by_month_activity_impc?year=#{phenotype_data['year']}&month=#{phenotype_data['month']}&consortium=#{phenotype_data['consortium']}&type=Phenotype+Attempt+Aborted") if phenotype_data['phenotype_attempt_aborted'] !=0%></td>
+        </tr>
+      <% end %>
+    </table>
+  </br></br></br></p>
+  <% end %>
+
+<% end %>
+
+</div>

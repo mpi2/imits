@@ -1,5 +1,14 @@
 NO_BREAK_SPACE = '\u00A0';
 
+function getMethods(obj)
+{
+  var bar
+  for (bar in obj)
+  {
+    console.log("Object has property " + bar);
+  }
+}
+
 (function () {
     // Inspired by http://zetafleet.com/blog/javascript-dateparse-for-iso-8601
     var origParse = Date.parse;

@@ -1,10 +1,12 @@
 class NotificationMailer < ActionMailer::Base
-  default :from => 'team87@sanger.ac.uk', :bcc => 'gj2@sanger.ac.uk'
+  default :from => 'info@mousephenotype.org'
   def welcome_email(notification)
     @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)
     @relevant_status = @gene.relevant_status
     @modifier_string = "is not"
+    @total_cell_count = @gene.es_cells_count
+
     if @gene.mi_plans
       @gene.mi_plans.each do |plan|
         if plan.is_active?
@@ -12,8 +14,6 @@ class NotificationMailer < ActionMailer::Base
         end
       end
     end
-
-    @total_cell_count = @gene.es_cells_count
 
     mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
       format.text
@@ -26,12 +26,14 @@ class NotificationMailer < ActionMailer::Base
     @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)
     @relevant_status = ""
+    @modifier_string = "is not"
+    @total_cell_count = @gene.es_cells_count
 
     notification.check_statuses
 
     if notification.relevant_statuses.length > 0
       @relevant_status = notification.relevant_statuses.sort_by {|this_status| this_status[:order_by] }.first
-      @modifier_string = "is not"
+
         if @gene.mi_plans
           @gene.mi_plans.each do |plan|
             if plan.is_active?
@@ -39,8 +41,6 @@ class NotificationMailer < ActionMailer::Base
             end
           end
         end
-
-      @total_cell_count = @gene.es_cells_count
 
       mail(:to => @contact.email, :subject => "Status update for #{@gene.marker_symbol}") do |format|
         format.text

@@ -19,6 +19,7 @@ gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
 gem 'unicorn'
 
 group :development, :test do
+  gem 'selenium-webdriver', '2.21'
   gem 'shoulda', :require => nil
   gem 'test-unit', :require => nil
   gem 'chromedriver-helper', :require => nil

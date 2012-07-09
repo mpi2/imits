@@ -17,7 +17,7 @@ class NotificationMailerTest < ActionMailer::TestCase
 
       email = ActionMailer::Base.deliveries.first
 
-      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'team87@sanger.ac.uk', notification_mail.subject]
+      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
 
     end
 
@@ -36,7 +36,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal 1, ActionMailer::Base.deliveries.size
 
       email = ActionMailer::Base.deliveries.first
-      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'team87@sanger.ac.uk', notification_mail.subject]
+      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
     end
 
     should '#SEND status_email with mi_attempt statuses' do
@@ -54,7 +54,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal 1, ActionMailer::Base.deliveries.size
 
       email = ActionMailer::Base.deliveries.first
-      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'team87@sanger.ac.uk', notification_mail.subject]
+      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
     end
 
 
@@ -73,7 +73,29 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal 1, ActionMailer::Base.deliveries.size
 
       email = ActionMailer::Base.deliveries.first
-      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'team87@sanger.ac.uk', notification_mail.subject]
+      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
+    end
+
+    should '#NOT SEND status_email with gene.relevant_status[:status] that is in excluded_statuses' do
+       mi_attempt_with_recent_history = Factory.create :mi_attempt_with_recent_status_history
+       mi_attempt_with_recent_history.is_active = false
+       mi_attempt_with_recent_history.save!
+
+       contact = Factory.create(:contact)
+       notification = Factory.create :notification, {:gene => mi_attempt_with_recent_history.gene, :contact => contact}
+       excluded_statuses = ['aborted_es_cell_qc_failed', 'microinjection_aborted', 'phenotype_attempt_aborted']
+
+       assert_equal 0, ActionMailer::Base.deliveries.size
+       if !notification.check_statuses.empty?
+         if !excluded_statuses.any? {|status| notification.gene.relevant_status[:status].include? status}
+           notification_mail = NotificationMailer.status_email(notification)
+
+           notification_mail.deliver
+         end
+       end
+       email = ActionMailer::Base.deliveries.first
+
+       assert_equal 0, ActionMailer::Base.deliveries.size
     end
   end
 end

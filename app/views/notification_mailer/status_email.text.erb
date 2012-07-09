@@ -1,17 +1,41 @@
 Dear colleague,
- You have registered interest in this gene via the IMPC (www.mousephenotype.org).
- 
- You are receiving this email because the IMPC production status of the gene has changed.
- 
- <% if !@relevant_status.empty? %>
- <%= render :partial => "notification_mailer/status_email/#{@relevant_status[:status]}.text.erb" %>
- <% end %>
- 
- Further details of alleles for this gene can be found here: 
- http://mousephenotype.org/gene-list?gene_symbol=<%= @gene.marker_symbol %>
- 
- You will be notified by email with any future changes in gene status.
- For further information / enquiries please write to  info@mousephenotype.org
- Best Wishes,
- 
- The MPI2 (KOMP2) informatics consortium.
+
+You have registered interest in this gene via the IMPC (www.mousephenotype.org).
+
+You are receiving this email because the IMPC production status of the gene has changed.
+
+<% if !@relevant_status.empty? %>
+<%= render :partial => "notification_mailer/status_email/#{@relevant_status[:status]}.text.erb" %>
+<% end %>
+
+<% if @total_cell_count > 0 %>
+Currently the IKMC has the following mutant ES Cells for this gene;
+<% if @gene.conditional_es_cells_count && @gene.conditional_es_cells_count > 0 %>
+<%= @gene.conditional_es_cells_count %> conditional ES cells
+<% end %>
+<% if @gene.non_conditional_es_cells_count && @gene.non_conditional_es_cells_count > 0 %>
+<%= @gene.non_conditional_es_cells_count %> non-conditional ES cells
+<% end %>
+<% if @gene.deletion_es_cells_count && @gene.deletion_es_cells_count > 0 %>
+<%= @gene.deletion_es_cells_count %> deletions
+<% end %>
+<% else %>
+The IKMC has not produced any targeted mutant ES Cells for this gene.
+This gene will be considered by the EUCOMMTools program for production of targeted mutant ES Cells
+<% end %>
+
+<% if @modifier_string == "is" %>
+Details of mutant ES Cells, Mouse Production and Phenotyping for this gene can be found here:
+http://beta.mousephenotype.org/gene-details?gene_id=<%= @gene.mgi_accession_id %>
+<% elsif @total_cell_count > 0 %>
+Details of targeted mutant ES Cells for this gene can be found here:
+www.knockoutmouse.org/search_results?criteria=<%= @gene.mgi_accession_id %>
+<% end %>
+
+You will be notified by email with any future changes in gene status.
+
+For further information / enquiries please write to  info@mousephenotype.org
+
+Best Wishes,
+
+The MPI2 (KOMP2) informatics consortium.

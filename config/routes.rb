@@ -12,22 +12,19 @@ Kermits2::Application.routes.draw do
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
     resource :phenotype_attempts, :only => [:new]
-    member do
-      get 'history'
-    end
   end
 
   resources :phenotype_attempts, :only => [:index, :create, :show, :update]
-  
+
   resources :contacts do
     collection do
       get 'check_email'
       get 'search_email'
     end
   end
-  
+
   resources :notifications, :only => [:create]
-  
+
   match 'notifications' => 'notifications#delete', :via => :delete
 
   devise_for :users,
@@ -46,6 +43,9 @@ Kermits2::Application.routes.draw do
     end
   end
 
+  match 'quality_overviews' => "quality_overviews#index"
+  match 'quality_overview_groupings' => "quality_overview_groupings#index"
+  match 'quality_overviews/export_to_csv' => "quality_overviews#export_to_csv"
   match 'users_by_production_centre' => "root#users_by_production_centre", :as => :users_by_production_centre
   match 'consortia' => "root#consortia", :as => :consortia
   match 'debug_info' => 'root#debug_info'
@@ -62,4 +62,5 @@ Kermits2::Application.routes.draw do
 
   resources :report_caches, :only => [:show]
 
+  match ':controller/:id/history' => ':controller#history'
 end

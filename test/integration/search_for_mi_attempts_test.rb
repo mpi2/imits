@@ -47,7 +47,6 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
           mi_attempt.save!
           sleep 3
           click_button 'Search'
-          sleep 1
           [
             'EPD0343_1_H06',
             'Myo1c',
@@ -55,11 +54,10 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
             '13-09-2010',
             'MDCF',
             'WTSI',
-            'Unsuitable for EMMA',
             'Micro-injection in progress',
             'Myo1ctm1b(EUCOMM)Wtsi'
           ].each do |text|
-            assert(page.has_css?('div', :text => text),
+            assert(page.has_css?('div.x-grid-cell-inner', :text => text),
               "Expected text '#{text}' in table cell 1, but did not find it")
           end
         end
@@ -91,13 +89,6 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
         click_button 'Search'
 
         assert page.has_css? 'div', :text => 'EPD0343_1_H06'
-      end
-
-      should 'show emma statuses' do
-        visit '/mi_attempts?q[terms]=EPD0127_4_E01'
-
-        assert page.has_css? 'div', :text => 'Suitable for EMMA'
-        assert page.has_css? 'div', :text => 'Unsuitable for EMMA'
       end
 
       should 'show search terms when results are shown' do

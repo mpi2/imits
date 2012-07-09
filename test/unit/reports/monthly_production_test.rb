@@ -14,14 +14,13 @@ class Reports::MonthlyProductionTest < ActiveSupport::TestCase
         :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
         :consortium_name => 'MGP',
         :is_active => true,
-        :is_suitable_for_emma => true,
         :total_pups_born => 10,
         :total_male_chimeras => 10
-     
+
       report = Reports::MonthlyProduction.generate()
-      
+
       assert !report.blank?
-      
+
       assert_equal 'MGP', report.column('Consortium')[0]
       assert_equal 'WTSI', report.column('Production Centre')[0]
       assert_equal 1, report.column('# Clones Injected')[0]

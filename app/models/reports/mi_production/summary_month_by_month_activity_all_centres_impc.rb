@@ -5,7 +5,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   DEBUG = false
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-06-01')
-  
+
 #  328	56
 #300	34
 #252	16
@@ -14,9 +14,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
 #112	0
 #68	0
 #32	0
-  MI_GOALS = 
+  MI_GOALS =
     {
       2012 => {
+        7 => {
+          'BaSH' => 440,
+          'DTCC' => 322,
+          'JAX' => 165,
+        },
         6 => {
           'BaSH' => 412,
           'DTCC' => 299,
@@ -86,10 +91,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
         }
       }
     }
-  
-  GC_GOALS = 
+
+  GC_GOALS =
     {
       2012 => {
+        7 => {
+          'BaSH' => 150,
+          'DTCC' => 202,
+          'JAX' => 92,
+        },
         6 => {
           'BaSH' => 126,
           'DTCC' => 182,
@@ -159,7 +169,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
         }
       }
     }
-    
+
   HEADINGS_HTML = [
     'Year',
     'Month',
@@ -216,18 +226,18 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
     'Phenotyping Complete',
     'Phenotype Attempt Aborted'
   ]
-  
+
   def self.generate_details_for_cell(params = {})
     if params[:consortium]
       title, table = subsummary(params)
       return { :csv => table.to_csv, :html => table.to_html, :title => title, :table => table }
     end
   end
-  
+
   def self.generate(params = {})
 
     summary = get_summary(params)
-    
+
     html_string = convert_to_html(params, summary)
 
     table = convert_to_csv(params, summary)
@@ -242,35 +252,35 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       current_totals_per_consortium[consortium.name][:mi_attempts] = 0
       current_totals_per_consortium[consortium.name][:gc_mice] = 0
     end
-    
+
     summary.keys.sort.each do |year|
       month_hash = summary[year]
       month_hash.keys.sort.each do |month|
         cons_hash = month_hash[month]
         cons_hash.keys.sort.each do |consortium|
-          
+
           total_es_starts =
-            summary[year][month][consortium]['ALL']['ES Cell QC In Progress'].keys.size + 
+            summary[year][month][consortium]['ALL']['ES Cell QC In Progress'].keys.size +
             current_totals_per_consortium[consortium][:es_starts]
-          
+
           current_totals_per_consortium[consortium][:es_starts] = total_es_starts
-            
-          total_mi_attempts = 
-            summary[year][month][consortium]['ALL']['Micro-injection in progress'].keys.size + 
+
+          total_mi_attempts =
+            summary[year][month][consortium]['ALL']['Micro-injection in progress'].keys.size +
             current_totals_per_consortium[consortium][:mi_attempts]
-          
+
           current_totals_per_consortium[consortium][:mi_attempts] = total_mi_attempts
-          
-          total_gc_mice = 
-            summary[year][month][consortium]['ALL']['Genotype confirmed'].keys.size + 
+
+          total_gc_mice =
+            summary[year][month][consortium]['ALL']['Genotype confirmed'].keys.size +
             current_totals_per_consortium[consortium][:gc_mice]
-          
+
           current_totals_per_consortium[consortium][:gc_mice] = total_gc_mice
-            
+
           summary[year][month][consortium]['ALL']['Cumulative ES Starts'] = total_es_starts
           summary[year][month][consortium]['ALL']['Cumulative MIs'] = total_mi_attempts
           summary[year][month][consortium]['ALL']['Cumulative Genotype Confirmed'] = total_gc_mice
-          
+
           summary[year][month][consortium]['ALL']['MI Goal'] = MI_GOALS[year][month][consortium]
           summary[year][month][consortium]['ALL']['GC Goal'] = GC_GOALS[year][month][consortium]
         end
@@ -327,7 +337,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       end
 
     end
-    
+
     MiAttempt::StatusStamp.all.each do |stamp|
 
       next if stamp.created_at < CUT_OFF_DATE
@@ -368,7 +378,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       end
 
     end
-    
+
     PhenotypeAttempt::StatusStamp.all.each do |stamp|
 
       next if stamp.created_at < CUT_OFF_DATE
@@ -427,18 +437,18 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       end
 
     end
-    
+
     self.add_cumulated_counts_and_monthly_goals(summary)
-    
+
     return summary
   end
 
 
-  
+
   def self.convert_to_html(params, summary)
 
     script_name = params[:script_name]
-    
+
     string = ''
     consortia_to_consider = []
     Consortium.all.each do |consortium|
@@ -450,13 +460,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
         consortia_to_consider << consortium.name
       end
     end
-    
+
     consortia_to_consider.each do |particular_consortium|
       string += '<table>'
       string += '<tr>'
       HEADINGS_HTML.each { |name| string += "<th>#{name}</th>" }
       summary.keys.sort.reverse!.each do |year|
-  
+
         string += '</tr>'
         year_count = 0
         string += '<tr>'
@@ -464,15 +474,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
         month_hash = summary[year]
         month_hash.keys.sort.reverse!.each do |month|
           string += "<td class='report-cell-text' rowspan='MONTH_ROWSPAN'>#{Date::MONTHNAMES[month]}</td>"
-          
+
           month_count = 0
           cons_hash = month_hash[month]
-  
+
           cons_hash.keys.sort.each do |cons|
             if(particular_consortium == cons)
               centre_hash = cons_hash[cons]
               string += "<td class='report-cell-text' rowspan='CONS_ROWSPAN'>#{cons}</td>"
-    
+
               make_link = lambda do |key, value|
                 return value if params[:format] == :csv
                 return '' if value.to_s.length < 1
@@ -482,7 +492,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
                 separator = /\?/.match(script_name) ? '&' : '?'
                 return "<a href='#{script_name}#{separator}year=#{year}&month=#{month}&consortium=#{consort}&type=#{type}'>#{value}</a>"
               end
-    
+
               summer = {'ES Cell QC In Progress'=> 0, 'ES Cell QC Complete' => 0, 'ES Cell QC Failed' => 0}
               array2 = [ 'ES Cell QC In Progress', 'ES Cell QC Complete', 'ES Cell QC Failed' ]
               centre_hash.keys.each do |centre|
@@ -494,21 +504,21 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
                   end
                 end
               end
-    
-                
+
+
               string += "<td class='report-cell-integer' rowspan='CONS_ROWSPAN'>#{centre_hash['ALL']["Cumulative ES Starts"]}</td>"
               array2.each { |name|
                 string += "<td class='report-cell-integer' rowspan='CONS_ROWSPAN'>#{make_link.call(name, summer[name])}</td>"
               }
-    
+
               centre_count = 0
-    
+
               centre_hash.keys.sort.each do |centre|
-    
+
                 next if centre == 'ALL' && centre_hash.keys.size > 1
-    
+
                 centre_count += 1
-    
+
                 make_link = lambda do |key, frame|
                   return '' if ! frame[key]
                   return 0 if ! frame[key] && params[:format] == :csv
@@ -518,16 +528,16 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
                   return frame[key].keys.size if params[:format] == :csv
                   return '' if frame[key].keys.size.to_s.length < 1
                   return '' if frame[key].keys.size.to_i == 0
-    
+
                   consort = CGI.escape cons
                   pcentre = CGI.escape centre
                   type = CGI.escape key.to_s
                   separator = /\?/.match(script_name) ? '&' : '?'
                   return "<a href='#{script_name}#{separator}year=#{year}&month=#{month}&consortium=#{consort}&type=#{type}'>#{frame[key].keys.size}</a>"
                 end
-    
+
                 status_hash = centre_hash[centre]
-    
+
                 array = [
                   'Micro-injection in progress',
                   'Cumulative MIs',
@@ -546,19 +556,19 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
                   'Phenotyping Complete',
                   'Phenotype Attempt Aborted'
                 ]
-    
+
                 c = centre == 'ALL' ? '' : centre
-    
+
                 #string += "<td class='report-cell-text'>#{c}</td>"
-    
+
                 array.each { |name| string += "<td class='report-cell-integer'>#{make_link.call(name, status_hash)}</td>" }
-    
+
                 string += '</tr>' # this sometimes inserts empty rows
                 string += '<tr>'
-    
+
                 year_count += 1
                 month_count += 1
-    
+
               end
               string = string.gsub(/CONS_ROWSPAN/, centre_count.to_s)
             end
@@ -568,7 +578,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
         string = string.gsub(/YEAR_ROWSPAN/, year_count.to_s)
       end
       string += '</table>'
-  
+
       string = string.gsub(/\<tr\>\<\/tr\>/, '')
     end
 
@@ -576,7 +586,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   end
 
   def self.convert_to_csv(params, summary)
-    
+
     column_names = [
       'Cumulative ES Starts',
       'ES Cell QC In Progress',
@@ -623,12 +633,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
               centre_hash = cons_hash[cons]
               centre_hash.keys.each do |centre|
                 status_hash = centre_hash[centre]
-    
+
                 next if centre == 'ALL' && centre_hash.keys.size > 1
-    
+
                 #c = centre == 'ALL' ? '' : centre
                 month_name = Date::MONTHNAMES[month]
-    
+
                 hash = {
                   #'Year' => year,
                   #'Month' => month,
@@ -636,7 +646,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
                   'Consortium' => cons,
                   'Production Centre' => centre
                 }
-    
+
                 column_names.each do |name|
                   if status_hash
                     if status_hash[name].class.name == "Hash"
@@ -648,7 +658,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
                     hash[name] = 0
                   end
                 end
-    
+
                 report_table << hash
               end
             end

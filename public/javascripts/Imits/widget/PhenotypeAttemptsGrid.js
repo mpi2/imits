@@ -1,3 +1,14 @@
+function splitString(prettyPrintDistributionCentres) {
+    var distributionCentres = [];
+    Ext.Array.each(prettyPrintDistributionCentres.split(', '), function(dc) {
+        distributionCentres.push({
+            distributionCentre: dc
+        });
+    });
+
+    return distributionCentres;
+}
+
 Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     extend: 'Imits.widget.Grid',
 
@@ -86,6 +97,21 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     },
     {
+        dataIndex: 'pretty_print_distribution_centres',
+        header: 'Distribution Centres',
+        readOnly: true,
+        width: 180,
+        xtype: 'templatecolumn',
+        tpl: new Ext.XTemplate(
+                '<tpl for="this.processedDistributionCentres(pretty_print_distribution_centres)">',
+                '<a href="' + window.basePath + '/phenotype_attempts/{parent.id}#distribution_centres" target="_blank">{distributionCentre}</a></br>',
+                '</tpl>',
+                {
+                    processedDistributionCentres: splitString
+                }
+        )
+    },
+    {
         dataIndex: 'marker_symbol',
         header: 'Marker Symbol',
         readOnly: true,
@@ -133,11 +159,13 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     },
     {
-        dataIndex: 'number_of_cre_matings_started',
-        header: '# Cre Matings Started',
+        dataIndex: 'deleter_strain_name',
+        header: 'Cre-deleter strain',
         readOnly: true,
-        editor: 'simplenumberfield',
-        width: 115
+        filter: {
+            type: 'list',
+            options: window.PHENOTYPE_DELETER_STRAIN_OPTIONS
+        }
     },
     {
         dataIndex: 'number_of_cre_matings_successful',

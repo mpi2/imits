@@ -23,17 +23,23 @@ module Extjs
     end
   end
 
-  def self.ux_js
+  def self.find_all_classes
     Dir.chdir(Rails.root + 'public/javascripts') do
-      ext_ux_classes = Set.new
+      classes = Set.new
 
       Dir['**/*.js'].each do |jsfile|
         next unless File.file?(jsfile)
-        matches = File.read(jsfile).scan(/('|")(Ext\.ux\.[A-Za-z0-9\._]+)('|")/).map {|i| i[1]}
-        ext_ux_classes.merge(matches)
+        matches = File.read(jsfile).scan(/('|")((Ext\.ux|Imits)\.[A-Za-z0-9\._]+)('|")/).map {|i| i[1]}
+        classes.merge(matches)
       end
 
-      return ext_ux_classes.map {|class_name| base_path + '/examples/' + class_name.gsub(/^Ext\./, '').gsub('.', '/') + '.js'}
+      return classes.map do |class_name|
+        if class_name.match /^Imits/
+          '/javascripts/' + class_name.gsub('.', '/') + '.js'
+        else
+          CONFIG['local_base_path'] + '/examples/' + class_name.gsub(/^Ext\./, '').gsub('.', '/') + '.js'
+        end
+      end
     end
   end
 

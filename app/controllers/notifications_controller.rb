@@ -38,6 +38,8 @@ class NotificationsController < ApplicationController
 
       end
 
+    else
+      render json: {success: false, errors: ["Notification creation failed"]}, status: :not_acceptable
     end
   end
 
@@ -62,6 +64,7 @@ class NotificationsController < ApplicationController
     if current_user.remote_access?
       return true
     else
+      render json: {success: false, errors: ["Login Failed"]}, status: :unauthorized
       return false
     end
   end

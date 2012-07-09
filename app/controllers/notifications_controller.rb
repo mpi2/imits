@@ -36,6 +36,8 @@ class NotificationsController < ApplicationController
           render :json => {}
         end
 
+      else
+        render json: {success: false, errors: ["Already registered for this contact and gene"]}, status: :not_acceptable
       end
 
     end

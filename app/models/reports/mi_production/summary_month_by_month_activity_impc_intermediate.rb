@@ -7,7 +7,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
   def self.report_name; 'summary_month_by_month_activity_komp2_compressed'; end
   def self.report_title; 'KOMP2 Summary Month by Month Compressed'; end
   def self.consortia; ['BaSH', 'DTCC', 'JAX']; end
-  def self.states; [['ES Cell QC In Progress','assigned_es_cell_qc_in_progress_date'],['ES Cell QC Complete', 'assigned_es_cell_qc_complete_date'], ['ES Cell QC Failed', 'aborted_es_cell_qc_failed_date'],['Micro-injection in progress', 'micro_injection_in_progress_date'],['Chimeras obtained', 'chimeras_obtained_date'],['Genotype confirmed', 'genotype_confirmed_date'],['Micro-injection aborted','micro_injection_aborted_date'],['Phenotype Attempt Registered','phenotype_attempt_registered_date'],['Rederivation Started','rederivation_started_date'],['Rederivation Complete', 'rederivation_complete_date'],['Cre Excision Started','cre_excision_started_date'],['Cre Excision Complete','cre_excision_complete_date'],['Phenotyping Started','phenotyping_started_date'],['Phenotyping Complete','phenotyping_complete_date'],['Phenotype Attempt Aborted','phenotype_attempt_aborted_date']]; end
+  def self.states; [['Assigned Date','assigned_date'],['ES Cell QC In Progress','assigned_es_cell_qc_in_progress_date'],['ES Cell QC Complete', 'assigned_es_cell_qc_complete_date'], ['ES Cell QC Failed', 'aborted_es_cell_qc_failed_date'],['Micro-injection in progress', 'micro_injection_in_progress_date'],['Chimeras obtained', 'chimeras_obtained_date'],['Genotype confirmed', 'genotype_confirmed_date'],['Micro-injection aborted','micro_injection_aborted_date'],['Phenotype Attempt Registered','phenotype_attempt_registered_date'],['Rederivation Started','rederivation_started_date'],['Rederivation Complete', 'rederivation_complete_date'],['Cre Excision Started','cre_excision_started_date'],['Cre Excision Complete','cre_excision_complete_date'],['Phenotyping Started','phenotyping_started_date'],['Phenotyping Complete','phenotyping_complete_date'],['Phenotype Attempt Aborted','phenotype_attempt_aborted_date']]; end
 
   def initialize
     generated = self.class.generate
@@ -39,13 +39,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
       end
       time = time.next_month
     end
-
     data = IntermediateReport.all
     data.each do |miplanrec|
       next if !self.consortia.include?(miplanrec.consortium)
       self.states.each do |state|
         date = miplanrec[state[1]]
-        next if date == nil
+        next if date == nil or date <= CUT_OFF_DATE
         year, month = convert_date(date)
         consortium = miplanrec.consortium
         summary [consortium][year][month][consortium][state[0]] += 1
@@ -70,6 +69,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
       dataset[consortiumindex]={}
       dataset[consortiumindex]['mi_attempt_data']=[]
       dataset[consortiumindex]['phenotype_data']=[]
+      assigned_date_sum = 0
       es_starts_sum = 0
       es_complete_sum = 0
       es_failed_sum = 0
@@ -97,6 +97,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
             record['firstrow'] = (monthcount == span  ? true : false)
             record['month'] = month
             record['consortium'] = consortium
+            record['assigned_date'] = data['Assigned Date']
             record['es_cell_qc_in_progress'] = data['ES Cell QC In Progress']
             record['es_cell_qc_complete'] = data['ES Cell QC Complete']
             record['es_cell_qc_failed'] = data['ES Cell QC Failed']
@@ -105,6 +106,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
             record['genotype_confirmed'] = data['Genotype confirmed']
             record['micro_injection_aborted'] = data['Micro-injection aborted']
 
+            record['cummulative_assigned_date'] = assigned_date_sum += data['Assigned Date']
             record['cumulative_es_starts'] = es_starts_sum += data['ES Cell QC In Progress']
             record['cumulative_es_complete'] = es_complete_sum += data['ES Cell QC Complete']
             record['cumulative_es_failed'] = es_failed_sum += data['ES Cell QC Failed']
@@ -167,7 +169,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
           dataset[consortium]['graph']['gc_diff_data'] = []
           dataset[consortium]['graph']['x_data'] = []
           tabulate_data = {}
-          tabulate_data['assigned_genes'] = 0 # all_data['']
+          tabulate_data['assigned_genes'] = all_data['cummulative_assigned_date']
           tabulate_data['es_qc'] = all_data['cumulative_es_starts']
           tabulate_data['es_qc_confirmed'] = all_data['cumulative_es_complete']
           tabulate_data['es_qc_failed'] = all_data['cumulative_es_failed']
@@ -177,7 +179,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
           tabulate_data['cre_excision_complete'] = all_data['cumulative_cre_excision_complete']
           tabulate_data['phenotyping_complete'] = all_data['cumulative_phenotyping_complete']
           dataset[consortium]['tabulate'] << tabulate_data
-          tabulate_data['assigned_genes'] = 0 # all_data['']
+          tabulate_data = {}
+          tabulate_data['assigned_genes'] = all_data['assigned_date']
           tabulate_data['es_qc'] = all_data['es_cell_qc_in_progress']
           tabulate_data['es_qc_confirmed'] = all_data['es_cell_qc_complete']
           tabulate_data['es_qc_failed'] = all_data['es_cell_qc_failed']
@@ -196,7 +199,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
           dataset[consortium]['graph']['gc_goal_data'].insert(0,  all_data['gc_goal'])
           dataset[consortium]['graph']['gc_data'].insert(0, all_data['cumulative_genotype_confirmed'])
           dataset[consortium]['graph']['gc_diff_data'].insert(0, all_data['gc_goal'] - all_data['cumulative_genotype_confirmed'])
-          dataset[consortium]['graph']['x_data'].insert(0, "#{Date::ABBR_MONTHNAMES[all_data['month']]}")
+          dataset[consortium]['graph']['x_data'].insert(0, "#{Date::ABBR_MONTHNAMES[all_data['month']]}#{all_data['year'].to_s[2..3]}")
         end
       end
     end

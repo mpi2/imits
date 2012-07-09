@@ -64,6 +64,16 @@ class NotificationsController < ApplicationController
         @notification.destroy
 
         render :json => {}
+      else
+        render json: {success: false, errors: ["Notification not found"]}, status: :unprocessable_entity
+      end
+    else
+      if @gene.nil?
+        render json: {success: false, errors: ["Gene not found :: Gene is nil"]}, status: :unprocessable_entity
+      elsif @contact.nil?
+        render json: {success: false, errors: ["Contact not found :: Contact is nil"]}, status: :unprocessable_entity
+      elsif @gene.nil? && @contact.nil?
+        render json: {success: false, errors: ["No parameters provided :: Both Gene and Contact are nil"]}, status: :not_acceptable
       end
     end
   end

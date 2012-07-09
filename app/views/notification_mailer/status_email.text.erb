@@ -26,7 +26,7 @@ This gene will be considered by the EUCOMMTools program for production of target
 
 <% if @modifier_string == "is" %>
 Details of mutant ES Cells, Mouse Production and Phenotyping for this gene can be found here:
-http://dev.mousephenotype.org/gene-details?gene_id=<%= @gene.mgi_accession_id %>
+http://beta.mousephenotype.org/gene-details?gene_id=<%= @gene.mgi_accession_id %>
 <% elsif @total_cell_count > 0 %>
 Details of targeted mutant ES Cells for this gene can be found here:
 www.knockoutmouse.org/search_results?criteria=<%= @gene.mgi_accession_id %>

@@ -5,7 +5,7 @@ class NotificationsController < ApplicationController
   respond_to :json, :only => [:create, :delete]
 
   before_filter :authenticate_user!
-  before_filter :remote_access_allowed
+  before_filter :remote_access_allowed!
 
   def create
 
@@ -34,6 +34,8 @@ class NotificationsController < ApplicationController
              mailer.deliver
           end
           render :json => {}
+        else
+          render json: {success: false, errors: ["Notification could not be created"]}, status: :unprocessable_entity
         end
 
       else
@@ -41,7 +43,13 @@ class NotificationsController < ApplicationController
       end
 
     else
-      render json: {success: false, errors: ["Notification creation failed"]}, status: :not_acceptable
+      if @gene.nil?
+        render json: {success: false, errors: ["Gene not found :: Gene is nil"]}, status: :unprocessable_entity
+      elsif @contact.nil?
+        render json: {success: false, errors: ["Contact not found or could not be created :: Contact is nil"]}, status: :unprocessable_entity
+      elsif @gene.nil? && @contact.nil?
+        render json: {success: false, errors: ["No parameters provided :: Both Gene and Contact are nil"]}, status: :not_acceptable
+      end
     end
   end
 
@@ -62,11 +70,11 @@ class NotificationsController < ApplicationController
 
   private
 
-  def remote_access_allowed
+  def remote_access_allowed!
     if current_user.remote_access?
       return true
     else
-      render json: {success: false, errors: ["Login Failed"]}, status: :unauthorized
+      render json: {success: false, errors: ["Login Failed :: Remote access denied for user"]}, status: :unauthorized
       return false
     end
   end

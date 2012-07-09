@@ -6,7 +6,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
 
   def self.report_name; 'summary_month_by_month_activity_komp2_compressed'; end
   def self.report_title; 'KOMP2 Summary Month by Month Compressed'; end
-  def self.consortia; ['BaSH', 'DTCC', 'JAX']; end
+  def self.consortia
+    cons = []
+    Consortium.all.each do |consortium|
+      cons << consortium['name']
+    end
+    return cons
+  end
   def self.states; [['ES Cell QC In Progress','assigned_es_cell_qc_in_progress_date'],['ES Cell QC Complete', 'assigned_es_cell_qc_complete_date'], ['ES Cell QC Failed', 'aborted_es_cell_qc_failed_date'],['Micro-injection in progress', 'micro_injection_in_progress_date'],['Chimeras obtained', 'chimeras_obtained_date'],['Genotype confirmed', 'genotype_confirmed_date'],['Micro-injection aborted','micro_injection_aborted_date'],['Phenotype Attempt Registered','phenotype_attempt_registered_date'],['Rederivation Started','rederivation_started_date'],['Rederivation Complete', 'rederivation_complete_date'],['Cre Excision Started','cre_excision_started_date'],['Cre Excision Complete','cre_excision_complete_date'],['Phenotyping Started','phenotyping_started_date'],['Phenotyping Complete','phenotyping_complete_date'],['Phenotype Attempt Aborted','phenotype_attempt_aborted_date']]; end
 
   def initialize
@@ -30,22 +36,22 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
   def self.generate
     summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
     time = CUT_OFF_DATE
+    cons = self.consortia.dup
     while time <= Time.now.to_date
       year, month = convert_date(time)
-      self.consortia.each do |consortium|
+      cons.each do |consortium|
         self.states.each do |state|
           summary [consortium][year][month][consortium][state[0]] = 0
         end
       end
       time = time.next_month
     end
-
     data = IntermediateReport.all
     data.each do |miplanrec|
-      next if !self.consortia.include?(miplanrec.consortium)
+      next if !cons.include?(miplanrec.consortium)
       self.states.each do |state|
         date = miplanrec[state[1]]
-        next if date == nil
+        next if date == nil or date < CUT_OFF_DATE
         year, month = convert_date(date)
         consortium = miplanrec.consortium
         summary [consortium][year][month][consortium][state[0]] += 1
@@ -111,9 +117,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
             record['cumulative_mis'] = mis_sum += data['Micro-injection in progress']
             record['cumulative_genotype_confirmed'] = genotype_confirm_sum += data['Genotype confirmed']
 
-            record['mi_goal'] = (goal_data['summary_month_by_month'][consortium][year].has_key?(month) ? goal_data['summary_month_by_month'][consortium][year][month]['mi_goals'] : 0)
-            record['gc_goal'] = (goal_data['summary_month_by_month'][consortium][year].has_key?(month) ? goal_data['summary_month_by_month'][consortium][year][month]['gc_goals'] : 0)
-
+            if goal_data['summary_month_by_month'].has_key?(consortium)
+              record['mi_goal'] = (goal_data['summary_month_by_month'][consortium][year].has_key?(month) ? goal_data['summary_month_by_month'][consortium][year][month]['mi_goals'] : 0)
+              record['gc_goal'] = (goal_data['summary_month_by_month'][consortium][year].has_key?(month) ? goal_data['summary_month_by_month'][consortium][year][month]['gc_goals'] : 0)
+            else
+              record['mi_goal'] = 0
+              record['gc_goal'] = 0
+            end
             dataset[consortiumindex]['mi_attempt_data'] << record
 
             record = {}

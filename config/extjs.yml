@@ -3,5 +3,3 @@ version: ext-4.0.7-gpl
 cdn_host: http://cdn.sencha.io/
 css:
 - resources/css/ext-all.css
-- examples/ux/css/CheckHeader.css
-- examples/ux/grid/css/GridFilters.css

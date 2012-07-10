@@ -1,13 +1,13 @@
 module Extjs
-  CONFIG = YAML.load( ERB.new(File.read(Rails.root + 'config/extjs.yml')).result(binding) )
-  CONFIG['local_base_path'] = '/extjs'
-  CONFIG['cdn_base_path'] = CONFIG['cdn_host'] + CONFIG['version']
+  CONFIG = YAML.load_file(Rails.root + 'config/extjs.yml')
+  LOCAL_BASE_PATH = '/extjs'
+  CDN_BASE_PATH = CONFIG['cdn_host'] + CONFIG['version']
 
   def self.base_path
     if development?
-      return CONFIG['local_base_path']
+      return LOCAL_BASE_PATH
     else
-      return CONFIG['cdn_base_path']
+      return CDN_BASE_PATH
     end
   end
 
@@ -17,9 +17,9 @@ module Extjs
 
   def self.main_js
     if development?
-      return CONFIG['local_base_path'] + '/' + 'ext-all-debug.js'
+      return LOCAL_BASE_PATH + '/' + 'ext-all-debug.js'
     else
-      return CONFIG['cdn_base_path'] + '/' + 'ext-all.js'
+      return CDN_BASE_PATH + '/' + 'ext-all.js'
     end
   end
 

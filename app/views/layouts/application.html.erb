@@ -79,7 +79,6 @@
     <%= yield :pre_js_footer %>
 
     <%= javascript_include_tag(Extjs.main_js) %>
-    <%= javascript_include_tag(*Extjs.find_all_classes) %>
 
     <%= include_javascripts :common %>
     <%= yield :post_js_footer %>

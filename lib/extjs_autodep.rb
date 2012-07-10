@@ -5,7 +5,7 @@ class ExtjsAutodep
     Dir.chdir('public/javascripts') do
       classes = Set.new
 
-      Dir['**/*.js'].each do |jsfile|
+      Dir['Imits/**/*.js'].each do |jsfile|
         next unless File.file?(jsfile)
         matches = File.read(jsfile).scan(/('|")((Ext\.ux|Imits)\.[A-Za-z0-9\._]+)('|")/).map {|i| i[1]}
         classes.merge(matches)

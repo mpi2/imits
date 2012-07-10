@@ -1,6 +1,7 @@
 ---
 gzip_assets: off
-allow_debugging: on
+allow_debugging: off
+compress_assets: false
 stylesheets:
   common:
     - public/stylesheets/grid.css

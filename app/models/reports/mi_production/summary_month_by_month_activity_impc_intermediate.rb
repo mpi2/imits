@@ -5,7 +5,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
   CUT_OFF_DATE = Date.parse('2011-06-01')
 
   def self.report_name; 'summary_month_by_month_activity_komp2_compressed'; end
-  def self.report_title; 'KOMP2 Summary Month by Month Compressed'; end
+  def self.report_title; 'KOMP2 Summary Month by Month'; end
   def self.consortia
     cons = []
     Consortium.all.each do |consortium|
@@ -40,8 +40,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
     while time <= Time.now.to_date
       year, month = convert_date(time)
       cons.each do |consortium|
+        summary [consortium]['empty']= true
         self.states.each do |state|
-          summary [consortium][year][month][consortium][state[0]] = 0
+          summary [consortium]['data'][year][month][consortium][state[0]] = 0
         end
       end
       time = time.next_month
@@ -54,7 +55,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
         next if date == nil or date < CUT_OFF_DATE
         year, month = convert_date(date)
         consortium = miplanrec.consortium
-        summary [consortium][year][month][consortium][state[0]] += 1
+        summary [consortium]['data'][year][month][consortium][state[0]] += 1
+        summary [consortium]['empty'] = false
       end
     end
     return summary
@@ -72,7 +74,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
     require 'yaml'
     goal_data = YAML.load_file('config/report_production_goals.yml')
     dataset ={}
-    summary.each do |consortiumindex, convalue|
+    summary.each do |consortiumindex, condata|
+      next if condata['empty']
+      convalue = condata['data']
       dataset[consortiumindex]={}
       dataset[consortiumindex]['mi_attempt_data']=[]
       dataset[consortiumindex]['phenotype_data']=[]

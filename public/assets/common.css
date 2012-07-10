@@ -1098,6 +1098,19 @@ div.report_control * {
     padding: 0.5em;
 }
 
+.x-view-selector {
+    position: absolute;
+    border: 1px dotted #3399BB;
+}
+.ux-layout-center-item {
+    margin:0 auto;
+    text-align:left;
+}
+.ux-layout-center .x-panel-body,   
+body.ux-layout-center {            
+    text-align:center;
+}
+
 .x-grid-checkheader {
     height: 14px;
     background-image: url(../extjs/examples/ux/css/images/unchecked.gif?1319135043);
@@ -1114,6 +1127,170 @@ div.report_control * {
     text-align: center;
 }
 
+/* Main GroupTabPanel style */
+.x-grouptabpanel {
+    background-color: #99BBE8;
+    border: solid 15px #99BBE8;
+}
+/* End of GroupTabPanel style */
+
+/* Card Layout container */
+.x-grouptabcontainer {
+    background-color: white;
+    border-top: 1px solid #d9d9d9 !important;    
+    border-bottom: 1px solid #d9d9d9 !important;
+    border-right: 1px solid #d9d9d9 !important;
+}
+/* End of Card Layout container */
+
+/* TreePanel overrides */
+.x-grouptabbar .x-grouptab {
+    height: 24px;
+    line-height: 24px;
+}
+
+.x-grouptabbar .x-tree-elbow-line, 
+.x-grouptabbar .x-tree-elbow-empty {
+    width: 0;
+}
+
+.x-grouptabbar .x-tree-icon {
+    margin-top: 2px;
+}
+
+.x-grouptabbar .x-grouptab-first {
+    background-image: url(../extjs/examples/ux/css/images/tab-collapsed.gif?1319135043) !important;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+}
+
+.x-grouptabbar .x-active-tab .x-grid-cell-inner {
+    text-decoration: underline !important;
+}
+
+.x-grouptabbar .x-grid-tree-node-expanded  .x-grouptab-first {
+    background-image: url(../extjs/examples/ux/css/images/tab-first.gif?1319135043) !important;
+
+}
+
+.x-grouptabbar .x-grouptab-last {
+    background-image: url(../extjs/examples/ux/css/images/tab-last.gif?1319135043) !important;
+    background-repeat: no-repeat;
+}
+
+.x-grouptabbar .x-grouptab-center {
+    border-left: 1px solid #d9d9d9 !important;
+    background-image: none;
+    border-right: 1px solid white;
+    background-color: #fff !important;
+}
+
+.x-grouptabbar .x-grid-row-selected .x-grid-cell {
+    background-color: transparent !important;
+}
+
+.x-grouptabbar .x-grid-row-selected .x-grouptab-center  {
+    background-color: #fff !important;
+}
+
+.x-grouptabbar .x-tree-panel .x-grid-cell {
+    overflow: visible;
+}
+
+.x-grouptabbar .x-tree-panel .x-grid-row .x-grid-cell-inner {
+    margin-left: 7px;
+    overflow: visible !important;
+    line-height: 24px;
+    height: 24px; 
+}
+
+.x-grouptabbar .x-scroller {
+    display: none;
+}
+
+.x-grouptabbar .x-panel-body  {
+    overflow: visible !important;
+    background: url(../extjs/examples/ux/css/images/border.gif?1319135043) repeat-y top right;
+}
+
+.x-grouptabbar {
+    top: 0 !important;
+    margin-top: -1px !important;
+}
+
+.x-strict .x-ie7 .x-grouptabbar, .x-strict .x-ie6 .x-grouptabbar {
+    margin-top: -2px !important;
+}
+
+.x-grouptabbar .x-grid-view {
+    overflow: visible !important;
+}
+
+.x-grouptabbar table {
+     width:150px !important;
+}
+/* End of TreePanel overrides */
+/* Styles used by Ext.ux.form.ItemSelector */
+
+.x-form-multiselect-body .x-boundlist .x-mask {
+    background: none;
+}
+
+.x-form-itemselector-body .x-form-item {
+    margin: 0;
+}
+
+.x-form-itemselector-top {
+    background-image: url(../extjs/examples/ux/css/images/top2.gif?1319135043);
+}
+.x-form-itemselector-up {
+    background-image: url(../extjs/examples/ux/css/images/up2.gif?1319135043);
+}
+.x-form-itemselector-add {
+    background-image: url(../extjs/examples/ux/css/images/right2.gif?1319135043);
+}
+.x-form-itemselector-remove {
+    background-image: url(../extjs/examples/ux/css/images/left2.gif?1319135043);
+}
+.x-form-itemselector-down {
+    background-image: url(../extjs/examples/ux/css/images/down2.gif?1319135043);
+}
+.x-form-itemselector-bottom {
+    background-image: url(../extjs/examples/ux/css/images/bottom2.gif?1319135043);
+}
+
+.x-livesearch-match {
+    font-weight: bold;
+    background-color: yellow;
+}
+
+.x-toolbar .x-form-cb-wrap {
+    line-height: 22px;
+}
+.x-toolbar .x-form-checkbox {
+    vertical-align: 0;
+}
+
+.x-tab-tabmenu-right {
+    background: transparent url(../extjs/examples/ux/css/images/tab-scroller-menu.gif?1319135043) no-repeat 0 0;
+    width:18px;
+    height: 20px;
+    cursor:pointer;
+    zoom: 1;
+    z-index: 6;
+    float: right;
+}
+.x-tab-tabmenu-over {
+    background-position: -18px 0;
+}
+.x-tab-tabmenu-disabled {
+    background-position: 0 0;
+    opacity:.5;
+    -moz-opacity:.5;
+    filter:alpha(opacity=50);
+    cursor:default;
+}
+
 /**
  * GridFilters Styles
  */
@@ -1125,4 +1302,141 @@ div.report_control * {
 
 .ux-gridfilter-text-icon {
     background-image: url(../extjs/examples/ux/grid/images/find.png?1319135043) !important;
+}
+
+/**
+ * RangeMenu Styles
+ **/
+
+.ux-rangemenu-icon {
+    margin-top: 0;
+}
+
+.ux-rangemenu-gt {
+    background-image: url(../extjs/examples/ux/grid/images/greater_than.png?1319135043) !important;
+}
+
+.ux-rangemenu-lt {
+    background-image: url(../extjs/examples/ux/grid/images/less_than.png?1319135043) !important;
+}
+
+.ux-rangemenu-eq {
+    background-image: url(../extjs/examples/ux/grid/images/equals.png?1319135043) !important;
+}
+
+/* StatusBar - structure */
+.x-statusbar .x-status-text {
+    cursor: default;
+/*
+    height: 21px;
+    line-height: 21px;
+    padding: 0 4px;
+*/
+}
+.x-statusbar .x-status-busy {
+    padding-left: 25px !important;
+    background: transparent no-repeat 3px 0;
+}
+
+.x-toolbar div.xtb-text
+
+.x-statusbar .x-status-text-panel {
+    border-top: 1px solid;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+    padding: 2px 8px 2px 5px;
+}
+
+/* StatusBar word processor example styles */
+
+#word-status .x-status-text-panel .spacer {
+    width: 60px;
+    font-size:0;
+    line-height:0;
+}
+#word-status .x-status-busy {
+    padding-left: 25px !important;
+    background: transparent no-repeat 3px 0;
+}
+#word-status .x-status-saved {
+    padding-left: 25px !important;
+    background: transparent no-repeat 3px 0;
+}
+
+/* StatusBar form validation example styles */
+
+.x-statusbar .x-status-error {
+    cursor: pointer;
+    padding-left: 25px !important;
+    background: transparent no-repeat 3px 0;
+}
+.x-statusbar .x-status-valid {
+    padding-left: 25px !important;
+    background: transparent no-repeat 3px 0;
+}
+.x-status-error-list {
+    font: 11px tahoma,arial,verdana,sans-serif;
+    position: absolute;
+    z-index: 9999;
+    border-top: 1px solid;
+    border-right: 1px solid;
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+    padding: 5px 10px;
+}
+.x-status-error-list li {
+    cursor: pointer;
+    list-style: disc;
+    margin-left: 10px;
+}
+.x-status-error-list li a {
+    text-decoration: none;
+}
+.x-status-error-list li a:hover {
+    text-decoration: underline;
+}
+
+
+/* *********************************************************** */
+/* *********************************************************** */
+/* *********************************************************** */
+
+
+/* StatusBar - visual */
+
+.x-statusbar .x-status-busy {
+    background-image: url(../extjs/examples/ux/statusbar/images/loading.gif?1319135043);
+}
+.x-statusbar .x-status-text-panel {
+    border-color: #99bbe8 #fff #fff #99bbe8;
+}
+
+/* StatusBar word processor example styles */
+
+#word-status .x-status-text {
+    color: #777;
+}
+#word-status .x-status-busy {
+    background-image: url(../extjs/examples/ux/statusbar/images/saving.gif?1319135043);
+}
+#word-status .x-status-saved {
+    background-image: url(../extjs/examples/ux/statusbar/images/saved.png?1319135043);
+}
+
+/* StatusBar form validation example styles */
+
+.x-statusbar .x-status-error {
+    color: #C33;
+    background-image: url(../extjs/examples/ux/statusbar/images/exclamation.gif?1319135043);
+}
+.x-statusbar .x-status-valid {
+    background-image: url(../extjs/examples/ux/statusbar/images/accept.png?1319135043);
+}
+.x-status-error-list {
+    border-color: #C33;
+    background: white;
+}
+.x-status-error-list li a {
+    color: #15428B;
 }

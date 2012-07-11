@@ -7,12 +7,6 @@ require 'rails/all'
 Bundler.require(:default, Rails.env) if defined?(Bundler)
 
 module Kermits2
-  if File.dirname(File.expand_path(__FILE__)).match %r{^/opt/t87/global}
-    T87VM = true
-  else
-    T87VM = false
-  end
-
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
@@ -51,19 +45,6 @@ module Kermits2
 
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
-
-    if T87VM
-      # Override some locations when deployed to /opt/t87
-      config.paths.log = "/opt/t87/local/logs/imits/#{Rails.env}/app.log"
-      config.paths.config.database = "/opt/t87/global/conf/imits/#{Rails.env}/database.yml"
-
-      tmppath = "/var/tmp/imits/#{Rails.env}"
-      FileUtils.mkdir_p tmppath
-      FileUtils.chown nil, 't87svc', tmppath
-      FileUtils.chmod 2775, tmppath
-      config.paths.tmp = tmppath
-    end
-
   end
 
   def self.git_revision

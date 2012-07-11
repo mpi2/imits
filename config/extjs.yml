@@ -1,5 +1,8 @@
 ---
 version: ext-4.0.7-gpl
 cdn_host: http://cdn.sencha.io/
-css:
+files:
+- ext-all-debug.js
 - resources/css/ext-all.css
+- resources/themes/images/default
+- examples/ux

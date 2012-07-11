@@ -1,18 +1,21 @@
 <% require './lib/extjs_autodep' %>
 ---
 gzip_assets: off
-allow_debugging: off
-compress_assets: false
+allow_debugging: on
+compress_assets: true
 stylesheets:
   common:
+    - public/stylesheets/reset.css
+    - public/extjs/resources/css/ext-all.css
     - public/stylesheets/grid.css
-    - public/stylesheets/application.css
     - public/extjs/examples/ux/**/*.css
+    - public/stylesheets/application.css
   ie:
     - public/stylesheets/grid_ie.css
 
 javascripts:
   common:
+    - public/extjs/ext-all-debug.js
     - public/javascripts/application.js
     - public/javascripts/extjs_hacky_monkey_patches.js
   extjs_autodep: <%= ExtjsAutodep.as_yaml %>

@@ -8,12 +8,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
   def self.report_title; 'KOMP2 Summary Month by Month'; end
   def self.consortia
     cons = []
-    Consortium.all.each do |consortium|
+    Consortium.order("name").each do |consortium|
       cons << consortium['name']
     end
     return cons
   end
-  def self.states; [['ES Cell QC In Progress','assigned_es_cell_qc_in_progress_date'],['ES Cell QC Complete', 'assigned_es_cell_qc_complete_date'], ['ES Cell QC Failed', 'aborted_es_cell_qc_failed_date'],['Micro-injection in progress', 'micro_injection_in_progress_date'],['Chimeras obtained', 'chimeras_obtained_date'],['Genotype confirmed', 'genotype_confirmed_date'],['Micro-injection aborted','micro_injection_aborted_date'],['Phenotype Attempt Registered','phenotype_attempt_registered_date'],['Rederivation Started','rederivation_started_date'],['Rederivation Complete', 'rederivation_complete_date'],['Cre Excision Started','cre_excision_started_date'],['Cre Excision Complete','cre_excision_complete_date'],['Phenotyping Started','phenotyping_started_date'],['Phenotyping Complete','phenotyping_complete_date'],['Phenotype Attempt Aborted','phenotype_attempt_aborted_date']]; end
+  def self.states; [['Assigned Date','assigned_date'],['ES Cell QC In Progress','assigned_es_cell_qc_in_progress_date'],['ES Cell QC Complete', 'assigned_es_cell_qc_complete_date'], ['ES Cell QC Failed', 'aborted_es_cell_qc_failed_date'],['Micro-injection in progress', 'micro_injection_in_progress_date'],['Chimeras obtained', 'chimeras_obtained_date'],['Genotype confirmed', 'genotype_confirmed_date'],['Micro-injection aborted','micro_injection_aborted_date'],['Phenotype Attempt Registered','phenotype_attempt_registered_date'],['Rederivation Started','rederivation_started_date'],['Rederivation Complete', 'rederivation_complete_date'],['Cre Excision Started','cre_excision_started_date'],['Cre Excision Complete','cre_excision_complete_date'],['Phenotyping Started','phenotyping_started_date'],['Phenotyping Complete','phenotyping_complete_date'],['Phenotype Attempt Aborted','phenotype_attempt_aborted_date']]; end
 
   def initialize
     generated = self.class.generate
@@ -96,7 +96,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
           month = monthindex
           monthvalue.each do |consortium2index, data|
             monthcount += 1
-
             consortium = consortium2index
             record = {}
             record['year'] = year
@@ -112,14 +111,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
             record['chimeras_obtained'] = data['Chimeras obtained']
             record['genotype_confirmed'] = data['Genotype confirmed']
             record['micro_injection_aborted'] = data['Micro-injection aborted']
-
             record['cummulative_assigned_date'] = assigned_date_sum += data['Assigned Date']
             record['cumulative_es_starts'] = es_starts_sum += data['ES Cell QC In Progress']
             record['cumulative_es_complete'] = es_complete_sum += data['ES Cell QC Complete']
             record['cumulative_es_failed'] = es_failed_sum += data['ES Cell QC Failed']
             record['cumulative_mis'] = mis_sum += data['Micro-injection in progress']
             record['cumulative_genotype_confirmed'] = genotype_confirm_sum += data['Genotype confirmed']
-
             if goal_data['summary_month_by_month'].has_key?(consortium)
               record['mi_goal'] = (goal_data['summary_month_by_month'][consortium][year].has_key?(month) ? goal_data['summary_month_by_month'][consortium][year][month]['mi_goals'] : 0)
               record['gc_goal'] = (goal_data['summary_month_by_month'][consortium][year].has_key?(month) ? goal_data['summary_month_by_month'][consortium][year][month]['gc_goals'] : 0)
@@ -147,7 +144,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
             record['cumulative_phenotype_registered'] = phenotype_reg_sum += data['Phenotype Attempt Registered']
             record['cumulative_cre_excision_complete'] = cre_excision_completed_sum += data['Cre Excision Complete']
             record['cumulative_phenotyping_complete'] = phenotype_complete_sum += data['Phenotyping Complete']
-
             dataset[consortiumindex]['phenotype_data'] << record
 
           end

@@ -17,7 +17,7 @@ gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
 
 gem 'rmagick'
-gem 'scruffy'
+gem 'scruffy', :git => 'git@github.com:mpi2/scruffy.git'
 
 group :development, :test do
   gem 'selenium-webdriver', '2.21'

@@ -23,10 +23,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
     return @csv
   end
 
-  def graph
-    return @graph
-  end
-
   def self.generate
     summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
     time = CUT_OFF_DATE
@@ -133,9 +129,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
             record['phenotyping_complete'] = data['Phenotyping Complete']
             record['phenotype_attempt_aborted'] = data['Phenotype Attempt Aborted']
 
-            record['cumulative_phenotype_registered'] = phenotype_reg_sum =+ data['Phenotype Attempt Registered']
-            record['cumulative_cre_excision_complete'] = cre_excision_completed_sum =+ data['Cre Excision Complete']
-            record['cumulative_phenotyping_complete'] = phenotype_complete_sum =+ data['Phenotyping Complete']
+            record['cumulative_phenotype_registered'] = phenotype_reg_sum += data['Phenotype Attempt Registered']
+            record['cumulative_cre_excision_complete'] = cre_excision_completed_sum += data['Cre Excision Complete']
+            record['cumulative_phenotyping_complete'] = phenotype_complete_sum += data['Phenotyping Complete']
 
             dataset[consortiumindex]['phenotype_data'] << record
 
@@ -147,65 +143,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
     end
   return dataset
   end
-
-  def create_graph
-
-    year, month, day = self.class.convert_date(Time.now.prev_month)
-    dataset = {}
-    data.each do |consortium, consdata|
-      (0...consdata['mi_attempt_data'].count).to_a.each do |rowno|
-        all_data = consdata['mi_attempt_data'][rowno]
-        all_data.update(consdata['phenotype_data'][rowno])
-
-        if (all_data['year'].to_s + all_data['month'].to_s).to_i == (year.to_s + month.to_s).to_i
-          dataset[consortium] = {}
-          dataset[consortium]['tabulate'] = []
-          dataset[consortium]['graph'] = {}
-          dataset[consortium]['graph']['mi_goal_data'] = []
-          dataset[consortium]['graph']['mi_data'] = []
-          dataset[consortium]['graph']['mi_diff_data'] = []
-          dataset[consortium]['graph']['gc_goal_data'] = []
-          dataset[consortium]['graph']['gc_data'] = []
-          dataset[consortium]['graph']['gc_diff_data'] = []
-          dataset[consortium]['graph']['x_data'] = []
-          tabulate_data = {}
-          tabulate_data['assigned_genes'] = all_data['cummulative_assigned_date']
-          tabulate_data['es_qc'] = all_data['cumulative_es_starts']
-          tabulate_data['es_qc_confirmed'] = all_data['cumulative_es_complete']
-          tabulate_data['es_qc_failed'] = all_data['cumulative_es_failed']
-          tabulate_data['mouse_production'] = all_data['cumulative_mis']
-          tabulate_data['confirmaed_mice'] = all_data['cumulative_genotype_confirmed']
-          tabulate_data['intent_to_phenotype'] = all_data['cumulative_phenotype_registered']
-          tabulate_data['cre_excision_complete'] = all_data['cumulative_cre_excision_complete']
-          tabulate_data['phenotyping_complete'] = all_data['cumulative_phenotyping_complete']
-          dataset[consortium]['tabulate'] << tabulate_data
-          tabulate_data = {}
-          tabulate_data['assigned_genes'] = all_data['assigned_date']
-          tabulate_data['es_qc'] = all_data['es_cell_qc_in_progress']
-          tabulate_data['es_qc_confirmed'] = all_data['es_cell_qc_complete']
-          tabulate_data['es_qc_failed'] = all_data['es_cell_qc_failed']
-          tabulate_data['mouse_production'] = all_data['micro_injection_in_progress']
-          tabulate_data['confirmaed_mice'] = all_data['genotype_confirmed']
-          tabulate_data['intent_to_phenotype'] = all_data['phenotype_attempt_registered']
-          tabulate_data['cre_excision_complete'] = all_data['cre_excision_complete']
-          tabulate_data['phenotyping_complete'] = all_data['phenotyping_complete']
-          dataset[consortium]['tabulate'] << tabulate_data
-        end
-
-        if (all_data['year'].to_s + all_data['month'].to_s).to_i <= (year.to_s + month.to_s).to_i
-          dataset[consortium]['graph']['mi_goal_data'].insert(0,  all_data['mi_goal'])
-          dataset[consortium]['graph']['mi_data'].insert(0,  all_data['cumulative_mis'])
-          dataset[consortium]['graph']['mi_diff_data'].insert(0,  all_data['mi_goal'] - all_data['cumulative_mis'])
-          dataset[consortium]['graph']['gc_goal_data'].insert(0,  all_data['gc_goal'])
-          dataset[consortium]['graph']['gc_data'].insert(0, all_data['cumulative_genotype_confirmed'])
-          dataset[consortium]['graph']['gc_diff_data'].insert(0, all_data['gc_goal'] - all_data['cumulative_genotype_confirmed'])
-          dataset[consortium]['graph']['x_data'].insert(0, "#{Date::ABBR_MONTHNAMES[all_data['month']]}#{all_data['year'].to_s[2..3]}")
-        end
-      end
-    end
-  return dataset
-  end
-
 
   def to_csv
     csv_headers = ['Date','Year','Month', 'Consortium', 'Cumulative ES Starts', 'ES Cell QC In Progress', 'ES Cell QC Complete', 'ES Cell QC Failed', 'Micro-Injection In Progress', 'Cumulative MIs', 'MI Goal', 'Chimeras obtained' , 'Genotype confirmed', 'Cumulative Genotype Confirmed', 'GC Goal','Micro-injection aborted', 'Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']

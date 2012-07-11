@@ -1,10 +1,11 @@
 <h1><%= @report_data.class.report_title%></h1></br></br>
+<% n = 0 %>
 <% @report_data.graph.each do |consortium, data| %>
 <h1><%= consortium%></h1>
 <table>
   <tr>
     <td width = "550">
-      <div class="report">
+      <div class="report_chunky">
       <dl>
       <dt><table height = "670" width = "450">
         <tr>
@@ -43,7 +44,7 @@
           <td><%= data['tabulate'][1]['confirmaed_mice']%></td>
         </tr>
         <tr>
-          <td>Indent to Phenotype</td>
+          <td>Intent to Phenotype</td>
           <td><%= data['tabulate'][0]['intent_to_phenotype']%></td>
           <td><%= data['tabulate'][1]['intent_to_phenotype']%></td>
         </tr>
@@ -62,12 +63,13 @@
     <td width = "20"><pre>                 </pre></td>
     <td width = "2000"></br>
       <dl>
-        <dt><%= image_tag("/images/reports/charts/#{consortium}_mi_performance.jpg", :height => '320', :width => '600') %></dt>
+        <dt><%= image_tag("/images/reports/charts/#{consortium}_mi_performance.jpg", :height => '320', :width => @report_data.size[n]) %></dt>
         </br>
-        <dt><%= image_tag("/images/reports/charts/#{consortium}_gc_performance.jpg", :height => '320', :width => '600') %></dt>
+        <dt><%= image_tag("/images/reports/charts/#{consortium}_gc_performance.jpg", :height => '320', :width => @report_data.size[n]) %></dt>
       </dl>
     </td>
   </tr>
 </table>
 </br></br></br>
+<% n += 1%>
 <% end %>

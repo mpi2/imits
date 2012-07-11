@@ -362,6 +362,19 @@ table.report_table tr.odd td, .report table tr.odd td {
 	background: #f1f1f1;
 }
 
+
+table.report_table th, .report_chunky table th {
+  border: 1px solid #999;
+  text-align: left;
+  padding: 0px 15px;
+  background-color: #ccc;
+}
+
+table.report_table td, .report_chunky table td {
+        border: 1px solid #999;
+        padding: 0px 15px;
+        font-size:15px;
+}
 /* @end */
 
 /* @group Forms */

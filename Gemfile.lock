@@ -7,6 +7,13 @@ GIT
       activerecord (~> 3.0)
       polyamorous (~> 0.5.0)
 
+GIT
+  remote: git@github.com:mpi2/scruffy.git
+  revision: 1004eef804834cf7d19f79ed58efc1ee40e2b077
+  specs:
+    scruffy (0.2.15)
+      builder (>= 2.0.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -145,7 +152,6 @@ GEM
     ruport (1.6.3)
       fastercsv
       pdf-writer (= 1.1.8)
-    scruffy (0.2.6)
     selenium-webdriver (2.21.0)
       childprocess (>= 0.2.5)
       ffi (~> 1.0)
@@ -203,7 +209,7 @@ DEPENDENCIES
   rake
   ransack!
   rmagick
-  scruffy
+  scruffy!
   selenium-webdriver (= 2.21)
   shoulda
   simplecov (>= 0.4.0)

@@ -1,5 +1,7 @@
 class Notification < ActiveRecord::Base
   include Notification::StatusChecker
+  acts_as_audited
+
   attr_accessor :relevant_statuses
   attr_accessible :last_email_sent, :welcome_email_sent, :last_email_text, :welcome_email_text, :relevant_statuses
 

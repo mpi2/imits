@@ -19,23 +19,11 @@ class NotificationsController < ApplicationController
 
     if @gene && @contact
       notifications = Notification.where(:gene_id => @gene.id, :contact_id => @contact.id)
-      if notifications.length > 0
+      if notifications.length == 0
 
-        @notification = notifications.first
-
-        if mailer = NotificationMailer.welcome_email(@notification)
-
-          @notification.welcome_email_text = mailer.body
-          @notification.welcome_email_sent = Time.now.utc
-          @notification.save!
-          mailer.deliver
-          render :json => {}
-        end
-      else
         @notification = Notification.new
         @notification.gene = @gene
         @notification.contact = @contact
-
 
         if @notification.save!
           if mailer = NotificationMailer.welcome_email(@notification)
@@ -48,6 +36,8 @@ class NotificationsController < ApplicationController
           render :json => {}
         end
 
+      else
+        render json: {success: false, errors: ["Already registered for this contact and gene"]}, status: :not_acceptable
       end
 
     end

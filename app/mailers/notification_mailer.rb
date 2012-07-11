@@ -1,5 +1,5 @@
 class NotificationMailer < ActionMailer::Base
-  default :from => 'team87@sanger.ac.uk', :bcc => 'gj2@sanger.ac.uk'
+  default :from => 'info@mousephenotype.org'
   def welcome_email(notification)
     @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)

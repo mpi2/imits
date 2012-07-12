@@ -1,8 +1,7 @@
 # Custom rackup script that prefixes application with a path and sends
 # logs to VM-standard location
 
-path = ENV['APP_RELATIVE_URL_ROOT']
-ENV['RAILS_RELATIVE_URL_ROOT'] = path
+ENV['RAILS_RELATIVE_URL_ROOT'] = ENV['APP_RELATIVE_URL_ROOT']
 
 require ::File.expand_path('../config/application',  __FILE__)
 
@@ -29,5 +28,5 @@ end
 Kermits2::Application.initialize!
 
 run Rack::URLMap.new(
-  path => Rails.application
+  ENV['APP_RELATIVE_URL_ROOT'] => Rails.application
 )

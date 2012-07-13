@@ -3,7 +3,7 @@
 
 ENV['RAILS_RELATIVE_URL_ROOT'] = ENV['APP_RELATIVE_URL_ROOT']
 
-require ::File.expand_path('../config/application',  __FILE__)
+require ::File.expand_path('../config/application', __FILE__)
 
 if File.dirname(File.expand_path(__FILE__)).match %r{^/opt/t87/global}
   T87VM = true
@@ -13,15 +13,12 @@ end
 
 if T87VM
   Kermits2::Application.configure do
-  # Override some locations when deployed to /opt/t87
-  config.paths.log = "/opt/t87/local/logs/imits/#{Rails.env}/app.log"
-  config.paths.config.database = "/opt/t87/global/conf/imits/#{Rails.env}/database.yml"
+    # Override some locations when deployed to /opt/t87
+    config.paths.log = "/opt/t87/local/logs/imits/#{Rails.env}/app.log"
+    config.paths.config.database = "/opt/t87/global/conf/imits/#{Rails.env}/database.yml"
 
-  tmppath = "/var/tmp/imits/#{Rails.env}"
-  FileUtils.mkdir_p tmppath
-  FileUtils.chown nil, 't87svc', tmppath
-  FileUtils.chmod 2775, tmppath
-  config.paths.tmp = tmppath
+    tmppath = "/var/tmp/imits/#{Rails.env}"
+    config.paths.tmp = tmppath
   end
 end
 

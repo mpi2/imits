@@ -2,8 +2,6 @@
 
 class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Reports::Base
 
-  CUT_OFF_DATE = Date.parse('2011-06-01')
-
   def self.report_name; 'summary_month_by_month_activity_komp2_compressed'; end
   def self.report_title; 'KOMP2 Summary Month by Month'; end
   def self.consortia
@@ -67,10 +65,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
 
 
   def self.format(summary)
-    require 'yaml'
     goal_data = YAML.load_file('config/report_production_goals.yml')
     dataset ={}
     summary.each do |consortiumindex, condata|
+      if condata['empty']
+        puts consortiumindex
+      end
       next if condata['empty']
       convalue = condata['data']
       dataset[consortiumindex]={}
@@ -193,5 +193,4 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
     end
     return csv_string
   end
-
 end

@@ -199,8 +199,8 @@ class Reports::MiProductionController < ApplicationController
   end
   private :summary_3_split_helper
 
-  def impc_graph_report_display_download_image
-    send_file "#{RAILS_ROOT}/public/images/reports/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpg", :type => 'image/jpeg'
+  def impc_graph_report_display_image
+    send_file "#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpeg", :type => 'image/jpeg'
   end
 
   def impc_graph_report_display

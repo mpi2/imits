@@ -21,10 +21,6 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
     return @size
   end
 
-  def images
-    return @images
-  end
-
   def to_csv
     csv_by_consortium = {}
     @graph.each do |consortium, data|
@@ -104,21 +100,18 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
   return dataset
   end
 
+
   def draw_all_graphs
-    format = 'jpg'
+    format = 'jpeg'
     one_width = []
     index = 0
-    @images = {}
     graph.each do |consortium, graph_data|
-      @images[consortium] = {}
       x_data_lables = graph_data['graph']['x_data']
       mi_max = (([graph_data['graph']['mi_data'].max, graph_data['graph']['mi_goal_data'].max].max / 40) + 1) * 40
       gc_max = (([graph_data['graph']['gc_data'].max, graph_data['graph']['gc_goal_data'].max].max / 40) + 1) * 40
       one_width << [(graph_data['graph']['mi_data'].count + 2) * 40 , 600].max
       draw_graph({:title => 'mi', :pointer_marker => x_data_lables, :live_data => graph_data['graph']['mi_data'], :goals_data => graph_data['graph']['mi_goal_data'], :diff_data => graph_data['graph']['mi_diff_data']},{:width => one_width[index], :height => 320, :min_value => 0, :max_value => mi_max, :consortium => consortium})
-      @images[consortium]['mi'] = "public/images/reports/charts/#{consortium}_#{graph[:title]}_performance.jpg"
       draw_graph({:title => 'gc', :pointer_marker => x_data_lables, :live_data => graph_data['graph']['gc_data'], :goals_data => graph_data['graph']['gc_goal_data'], :diff_data => graph_data['graph']['gc_diff_data']},{:width => one_width[index], :height =>320, :min_value => 0, :max_value => gc_max, :consortium => consortium})
-      @images[consortium]['gc'] = "public/images/reports/charts/#{consortium}_#{graph[:title]}_performance.jpg"
       index += 1
     end
     return one_width
@@ -127,7 +120,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
 
   def draw_graph(graph = {:title => '', :pointer_marker => [], :live_data => [], :goals_data => [], :diff_data => []}, render = {:width => 600, :min_value => 0, :max_value => 500, :consortium => ''})
 
-    format = 'jpg'
+    format = 'jpeg'
     diff_data = []
     neg_diff_data = []
     graph[:diff_data].each do |split|
@@ -154,8 +147,6 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
       graph << Scruffy::Components::Graphs.new(:graphs, :position => [12, 0], :size => [92, 85])
     end
     mi_graph.renderer.components << Scruffy::Components::Legend.new(:legend, :position => [5, 13], :size => [90, 6])
-    mi_graph.render(:size => [render[:width],render[:height]], :min_value => render[:min_value], :max_value => render[:max_value], :to => "public/images/reports/charts/#{render[:consortium]}_#{graph[:title]}_performance.#{format}", :as => "#{format}")
-
+    mi_graph.render(:size => [render[:width],render[:height]], :min_value => render[:min_value], :max_value => render[:max_value], :to => "#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{render[:consortium].downcase}_#{graph[:title]}_performance.#{format}", :as => "#{format}")
   end
-
 end

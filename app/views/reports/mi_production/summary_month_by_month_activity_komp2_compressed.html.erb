@@ -18,7 +18,7 @@ link_to('Download as CSV', url_for({:action => controller.action_name, :controll
     <% if data['mi_attempt_data'][0]['gc_goal'] == 0; suppress_gc_goal = true; else; suppress_mi_goal = false; end%>
     <p>
     <h3>Mouse Production</h3>
-    <table width=100%>
+    <table>
       <tr>
         <th>Year</th>
         <th>Month</th>
@@ -75,7 +75,7 @@ link_to('Download as CSV', url_for({:action => controller.action_name, :controll
     <p>
     <h3>Phenotyping</h3>
 
-    <table width=100%>
+    <table>
       <tr>
         <th>Year</th>
         <th>Month</th>
@@ -116,7 +116,5 @@ link_to('Download as CSV', url_for({:action => controller.action_name, :controll
     </table>
   </br></br></br></p>
   <% end %>
-
 <% end %>
-
 </div>

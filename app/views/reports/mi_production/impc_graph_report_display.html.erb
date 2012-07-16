@@ -1,12 +1,19 @@
 <h1><%= @report_data.class.report_title%></h1></br></br>
 <% n = 0 %>
 <% @report_data.graph.each do |consortium, data| %>
+<%params.delete(:action)
+  params.delete(:controller)
+  params.delete(:script_name)
+  params.delete(:format) %>
 <h1><%= consortium%></h1>
 <table>
   <tr>
     <td width = "550">
       <div class="report_chunky">
       <dl>
+      <p><%=
+      link_to('Download as CSV', url_for({:action => controller.action_name, :controller => '/reports/mi_production', :format => :csv, :consortium => consortium}.merge(params)))
+      %></p>
       <dt><table height = "670" width = "450">
         <tr>
           <th>State</th>
@@ -63,8 +70,13 @@
     <td width = "20"><pre>                 </pre></td>
     <td width = "2000"></br>
       <dl>
+        <p style = "padding-left: 50px"><%=
+        link_to('Download MI image', url_for({:action => 'impc_graph_report_display_download_image', :controller => '/reports/mi_production', :consortium => consortium, :goal => 'mi'}.merge(params))) %></br>
+        <%= link_to('Download GC image', url_for({:action => 'impc_graph_report_display_download_image', :controller => '/reports/mi_production', :consortium => consortium, :goal => 'gc'}.merge(params)))
+        %></p>
         <dt><%= image_tag("/images/reports/charts/#{consortium}_mi_performance.jpg", :height => '320', :width => @report_data.size[n]) %></dt>
         </br>
+
         <dt><%= image_tag("/images/reports/charts/#{consortium}_gc_performance.jpg", :height => '320', :width => @report_data.size[n]) %></dt>
       </dl>
     </td>

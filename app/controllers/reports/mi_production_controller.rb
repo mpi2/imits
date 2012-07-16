@@ -199,15 +199,16 @@ class Reports::MiProductionController < ApplicationController
   end
   private :summary_3_split_helper
 
+  def impc_graph_report_display_download_image
+    send_file "#{RAILS_ROOT}/public/images/reports/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpg", :type => 'image/jpeg'
+  end
+
   def impc_graph_report_display
     @report_data = Reports::MiProduction::ImpcGraphReportDisplay.new
-
-#    if request.format == :csv
-#      send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv)
-#    elsif request.format == :graph
-#    else
+    if request.format == :csv
+      send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv[params[:consortium]])
+    else
       render :action => 'impc_graph_report_display'
-#    end
-
+    end
   end
 end

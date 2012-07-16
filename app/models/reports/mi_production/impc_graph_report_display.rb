@@ -10,6 +10,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
     @data = self.class.format(generated)
     @graph = create_graph
     @size = draw_all_graphs
+    @csv = to_csv
   end
 
   def graph
@@ -19,6 +20,30 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
   def size
     return @size
   end
+
+  def images
+    return @images
+  end
+
+  def to_csv
+    csv_by_consortium = {}
+    @graph.each do |consortium, data|
+      headers = ['State', 'Current', 'Last Month']
+      csv_string = headers.to_csv
+      csv_string += ['Assigned genes', data['tabulate'][0]['assigned_genes'], data['tabulate'][1]['assigned_genes']].to_csv
+      csv_string += ['ES QC', data['tabulate'][0]['es_qc'], data['tabulate'][1]['es_qc']].to_csv
+      csv_string += ['ES QC Confirmed', data['tabulate'][0]['es_qc_confirmed'], data['tabulate'][1]['es_qc_confirmed']].to_csv
+      csv_string += ['ES QC Failed', data['tabulate'][0]['es_qc_failed'], data['tabulate'][1]['es_qc_failed']].to_csv
+      csv_string += ['Mouse Production', data['tabulate'][0]['mouse_production'], data['tabulate'][1]['mouse_production']].to_csv
+      csv_string += ['Confirmed Mice', data['tabulate'][0]['confirmaed_mice'], data['tabulate'][1]['confirmaed_mice']].to_csv
+      csv_string += ['Intent to Phenotype', data['tabulate'][0]['intent_to_phenotype'], data['tabulate'][1]['intent_to_phenotype']].to_csv
+      csv_string += ['Cre Excision Complete', data['tabulate'][0]['cre_excision_complete'], data['tabulate'][1]['cre_excision_complete']].to_csv
+      csv_string += ['Phenotyping Complete', data['tabulate'][0]['phenotyping_complete'], data['tabulate'][1]['phenotyping_complete']].to_csv
+      csv_by_consortium[consortium] = csv_string
+    end
+    return csv_by_consortium
+  end
+
 
   def create_graph
 
@@ -83,13 +108,17 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
     format = 'jpg'
     one_width = []
     index = 0
+    @images = {}
     graph.each do |consortium, graph_data|
+      @images[consortium] = {}
       x_data_lables = graph_data['graph']['x_data']
       mi_max = (([graph_data['graph']['mi_data'].max, graph_data['graph']['mi_goal_data'].max].max / 40) + 1) * 40
       gc_max = (([graph_data['graph']['gc_data'].max, graph_data['graph']['gc_goal_data'].max].max / 40) + 1) * 40
       one_width << [(graph_data['graph']['mi_data'].count + 2) * 40 , 600].max
       draw_graph({:title => 'mi', :pointer_marker => x_data_lables, :live_data => graph_data['graph']['mi_data'], :goals_data => graph_data['graph']['mi_goal_data'], :diff_data => graph_data['graph']['mi_diff_data']},{:width => one_width[index], :height => 320, :min_value => 0, :max_value => mi_max, :consortium => consortium})
+      @images[consortium]['mi'] = "public/images/reports/charts/#{consortium}_#{graph[:title]}_performance.jpg"
       draw_graph({:title => 'gc', :pointer_marker => x_data_lables, :live_data => graph_data['graph']['gc_data'], :goals_data => graph_data['graph']['gc_goal_data'], :diff_data => graph_data['graph']['gc_diff_data']},{:width => one_width[index], :height =>320, :min_value => 0, :max_value => gc_max, :consortium => consortium})
+      @images[consortium]['gc'] = "public/images/reports/charts/#{consortium}_#{graph[:title]}_performance.jpg"
       index += 1
     end
     return one_width

@@ -15,7 +15,7 @@ module Kermits2
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
     config.autoload_paths += %W(#{config.root}/lib)
-    
+
     if Rails.env.test?
       config.autoload_paths += %W(#{config.root}/test/lib)
     end
@@ -45,5 +45,19 @@ module Kermits2
 
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
+
+    if File.dirname(File.expand_path(__FILE__)).match %r{^/opt/t87/global}
+      require('/opt/t87/global/lib/config_rails_app'); VM.config_rails_app(config)
+    end
+  end
+
+  def self.git_revision
+    if ! Object.const_defined?('GIT_REVISION')
+      return `git rev-parse HEAD`[0..7]
+    else
+      # At deploy time, a file gets created in config/initializers
+      # with this constant defined
+      return GIT_REVISION
+    end
   end
 end

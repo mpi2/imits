@@ -42,6 +42,7 @@ class PhenotypeAttempt < ApplicationModel
   before_save :ensure_plan_is_valid
   before_save :create_initial_distribution_centre
   after_save :create_status_stamp_if_status_was_changed
+  after_save :update_mi_attempts_phenotype_count
 
   def create_initial_distribution_centre
     if self.distribution_centres.empty? && self.status.name == "Cre Excision Complete"
@@ -158,6 +159,12 @@ class PhenotypeAttempt < ApplicationModel
 
   def earliest_relevant_status_stamp
     self.status_stamps.find_by_status_id(self.status_id)
+  end
+
+
+  def update_mi_attempts_phenotype_count
+    count = PhenotypeAttempt.find_by_mi_attempt_id(self.mi_attempt_id).count
+    MiAttempt.find_by_id(self.mi_attempt_id).update_attributes!(:phenotype_count => count)
   end
 
 end

@@ -8,5 +8,5 @@ db/dump.*.sql
 public/assets
 .bundle/config
 .DS_Store
-public/images/reports/charts/*
+
 

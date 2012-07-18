@@ -163,7 +163,7 @@ class PhenotypeAttempt < ApplicationModel
 
 
   def update_mi_attempts_phenotype_count
-    count = PhenotypeAttempt.search(:status_name_not_eq => 'Phenotype Attempt Aborted', :id_eq => self.mi_attempt_id).result.all.count
+    count = PhenotypeAttempt.search(:status_name_not_eq => 'Phenotype Attempt Aborted', :mi_attempt_id_eq => self.mi_attempt_id).result.all.count
     MiAttempt.find_by_id(self.mi_attempt_id).update_attributes!(:phenotype_count => count)
   end
 

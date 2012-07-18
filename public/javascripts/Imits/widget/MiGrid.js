@@ -208,17 +208,17 @@ Ext.define('Imits.widget.MiGrid', {
         {
             header: 'No. Active Phenotype',
             dataIndex: 'phenotype_count',
-            readOnly: true
- //         renderer: function(value, metaData, record){
- //           var miId = record.getId();
- //           var statusName = record.get('status_name');
- //           if (statusName == "Genotype confirmed") {
- //             return Ext.String.format('<a href="{0}/mi_attempts/{1}/phenotype_attempts/new">Create</a>', window.basePath, miId);
- //           } else {
- //             return Ext.String.format('', window.basePath, miId);
- //          }
- //         },
-          sortable: false
+            readOnly: true,
+            renderer: function(value, metaData, record){
+              var miId = record.getId();
+              var PhenotypeCount = record.get('phenotype_count');
+              var GeneSymbol = record.get('es_cell_marker_symbol')
+              if (PhenotypeCount != 0) {
+              return Ext.String.format('<a href="{0}/phenotype_attempts?utf8=✓&q%5Bterms%5D={1}&q%5Bproduction_centre_name%5D=">{2}</a>', window.basePath, GeneSymbol ,PhenotypeCount);
+              } else {
+                return Ext.String.format('0', window.basePath, miId);
+             }
+            },
         },
         {
             dataIndex: 'consortium_name',

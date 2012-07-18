@@ -184,6 +184,9 @@ Ext.define('Imits.model.MiAttempt', {
     {
         name: 'is_released_from_genotyping',
         type: 'boolean'
+    },
+    {   name: 'phenotype_count',
+        type: 'int'
     }
     ],
 

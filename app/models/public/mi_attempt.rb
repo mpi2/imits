@@ -64,6 +64,7 @@ class Public::MiAttempt < ::MiAttempt
     mouse_allele_symbol_superscript
     mouse_allele_symbol
     mi_plan_id
+    phenotype_count
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -133,6 +134,7 @@ end
 #  updated_at                                      :datetime
 #  mi_plan_id                                      :integer         not null
 #  genotyping_comment                              :string(512)
+#  phenotype_count                                 :integer         default(0)
 #
 # Indexes
 #

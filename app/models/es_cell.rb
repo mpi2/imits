@@ -181,7 +181,7 @@ end
 #  id                                 :integer         not null, primary key
 #  name                               :string(100)     not null
 #  allele_symbol_superscript_template :string(75)
-#  allele_type                        :string(1)
+#  allele_type                        :string(2)
 #  pipeline_id                        :integer         not null
 #  created_at                         :datetime
 #  updated_at                         :datetime

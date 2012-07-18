@@ -288,6 +288,22 @@ class EsCellTest < ActiveSupport::TestCase
         es_cell_copy = EsCell.find_by_id!(es_cell.id)
         assert_equal es_cell, es_cell_copy
       end
+
+      should 'raise error if an es cell has its gene changed and there are MiAttempts hanging off it' do
+        mart_data = EsCell.get_es_cells_from_marts_by_names(['HEPD0549_6_D02'])[0]
+        assert_equal 'C030046E11Rik', mart_data['marker_symbol']
+
+        es_cell = Factory.create :es_cell, :name => 'HEPD0549_6_D02',
+                :gene => Factory.create(:gene_cbx1)
+        mi = Factory.create(:mi_attempt, :es_cell => es_cell)
+
+        assert_raise(EsCell::SyncError) do
+          EsCell.sync_all_with_marts
+        end
+        
+        mi.reload
+        assert_equal 'Cbx1', mi.es_cell.gene.marker_symbol
+      end
     end
 
   end

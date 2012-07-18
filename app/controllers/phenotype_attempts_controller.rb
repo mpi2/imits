@@ -42,7 +42,7 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def create
-    #set_centres_consortia_and_strains
+    set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
     @mi_attempt = MiAttempt.find_by_colony_name(@phenotype_attempt.mi_attempt_colony_name)
 

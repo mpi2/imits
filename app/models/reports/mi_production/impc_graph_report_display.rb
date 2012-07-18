@@ -3,7 +3,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
   def self.report_name; 'impc_graph_report_display'; end
   def self.report_title; 'IMPC Graph Report Display'; end
   def self.consortia; ['BaSH', 'DTCC', 'JAX']; end
-
+  def self.states; {'Assigned Date'=>'assigned_date', 'ES Cell QC In Progress'=>'assigned_es_cell_qc_in_progress_date', 'ES Cell QC Complete'=> 'assigned_es_cell_qc_complete_date', 'ES Cell QC Failed'=> 'aborted_es_cell_qc_failed_date', 'Micro-injection in progress'=> 'micro_injection_in_progress_date', 'Chimeras obtained'=> 'chimeras_obtained_date', 'Genotype confirmed'=> 'genotype_confirmed_date', 'Micro-injection aborted'=>'micro_injection_aborted_date', 'Phenotype Attempt Registered'=>'phenotype_attempt_registered_date', 'Rederivation Started'=>'rederivation_started_date', 'Rederivation Complete'=> 'rederivation_complete_date', 'Cre Excision Started'=>'cre_excision_started_date', 'Cre Excision Complete'=>'cre_excision_complete_date', 'Phenotyping Started'=>'phenotyping_started_date', 'Phenotyping Complete'=>'phenotyping_complete_date', 'Phenotype Attempt Aborted'=>'phenotype_attempt_aborted_date'}; end
 
   def initialize
     generated = self.class.generate

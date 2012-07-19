@@ -54,7 +54,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       assert_equal 'Phenotyping Complete', phenotype_attempt.status.name
     end
 
-    should 'transition through Phenotype Attempt Registered -> Cre Excision Started -> Cre Excision Complete' do
+    should 'transition through Phenotype Attempt Registered -> Cre Excision Started -> Cre Excision Complete with mouse_allele_type of "b"' do
       phenotype_attempt.valid?
       assert_equal 'Phenotype Attempt Registered', phenotype_attempt.status.name
 
@@ -64,6 +64,20 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
 
       phenotype_attempt.number_of_cre_matings_successful = 2
       phenotype_attempt.mouse_allele_type = 'b'
+      phenotype_attempt.valid?
+      assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
+    end
+
+    should 'transition through Phenotype Attempt Registered -> Cre Excision Started -> Cre Excision Complete with mouse_allele_type of ".1"' do
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Attempt Registered', phenotype_attempt.status.name
+
+      phenotype_attempt.deleter_strain = DeleterStrain.first
+      phenotype_attempt.valid?
+      assert_equal 'Cre Excision Started', phenotype_attempt.status.name
+
+      phenotype_attempt.number_of_cre_matings_successful = 2
+      phenotype_attempt.mouse_allele_type = '.1'
       phenotype_attempt.valid?
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
     end
@@ -106,6 +120,15 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.valid?
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
     end
+
+    should 'transition to Cre Excision Complete if mouse_allele_type is set to ".1"' do
+      phenotype_attempt.mouse_allele_type = '.1'
+      phenotype_attempt.deleter_strain = DeleterStrain.first
+      phenotype_attempt.number_of_cre_matings_successful = 2
+      phenotype_attempt.valid?
+      assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
+    end
+
 
   end
 end

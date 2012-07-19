@@ -1,4 +1,4 @@
-<h1><%= @report_data.class.report_title%></h1></br></br>
+<h1><%= @title = @report_data.class.report_title%></h1></br></br>
 <% n = 0 %>
 <% @report_data.graph.each do |consortium, data| %>
 <%params.delete(:action)

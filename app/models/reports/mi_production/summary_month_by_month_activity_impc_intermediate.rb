@@ -3,7 +3,7 @@
 class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Reports::Base
 
   def self.report_name; 'summary_month_by_month_activity_komp2_compressed'; end
-  def self.report_title; 'KOMP2 Summary Month by Month'; end
+  def self.report_title; 'IMPC Summary Month by Month'; end
   def self.consortia
     cons = []
     Consortium.order("name").each do |consortium|

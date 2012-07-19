@@ -147,6 +147,8 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
       graph << Scruffy::Components::Graphs.new(:graphs, :position => [12, 0], :size => [92, 85])
     end
     mi_graph.renderer.components << Scruffy::Components::Legend.new(:legend, :position => [5, 13], :size => [90, 6])
-    mi_graph.render(:size => [render[:width],render[:height]], :min_value => render[:min_value], :max_value => render[:max_value], :to => "#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{render[:consortium].downcase}_#{graph[:title]}_performance.#{format}", :as => "#{format}")
+    file = "#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{render[:consortium].downcase}_#{graph[:title]}_performance.#{format}"
+    FileUtils.mkdir_p File.dirname(file)
+    mi_graph.render(:size => [render[:width],render[:height]], :min_value => render[:min_value], :max_value => render[:max_value], :to => file, :as => "#{format}")
   end
 end

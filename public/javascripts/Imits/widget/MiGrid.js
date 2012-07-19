@@ -209,16 +209,18 @@ Ext.define('Imits.widget.MiGrid', {
             header: 'No. Active Phenotype',
             dataIndex: 'phenotype_count',
             readOnly: true,
+            sortable: false,
+            width: 115,
             renderer: function(value, metaData, record){
               var miId = record.getId();
               var PhenotypeCount = record.get('phenotype_count');
               var GeneSymbol = record.get('es_cell_marker_symbol')
               if (PhenotypeCount != 0) {
-              return Ext.String.format('<a href="{0}/phenotype_attempts?utf8=✓&q%5Bterms%5D={1}&q%5Bproduction_centre_name%5D=">{2}</a>', window.basePath, GeneSymbol ,PhenotypeCount);
+                return Ext.String.format('<a href="{0}/phenotype_attempts?utf8=✓&q%5Bterms%5D={1}&q%5Bproduction_centre_name%5D=">{2}</a>', window.basePath, GeneSymbol ,PhenotypeCount);
               } else {
-                return Ext.String.format('0', window.basePath, miId);
+                return Ext.String.format('{0}', PhenotypeCount);
              }
-            },
+            }
         },
         {
             dataIndex: 'consortium_name',

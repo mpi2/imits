@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120615105954) do
+ActiveRecord::Schema.define(:version => 20120716095723) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -61,6 +61,12 @@ ActiveRecord::Schema.define(:version => 20120615105954) do
 
   add_index "contacts", ["email"], :name => "index_contacts_on_email", :unique => true
 
+  create_table "deleter_strains", :force => true do |t|
+    t.string   "name",       :limit => 100, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "deposited_materials", :force => true do |t|
     t.string   "name",       :limit => 50, :null => false
     t.datetime "created_at"
@@ -72,7 +78,7 @@ ActiveRecord::Schema.define(:version => 20120615105954) do
   create_table "es_cells", :force => true do |t|
     t.string   "name",                               :limit => 100, :null => false
     t.string   "allele_symbol_superscript_template", :limit => 75
-    t.string   "allele_type",                        :limit => 1
+    t.string   "allele_type",                        :limit => 2
     t.integer  "pipeline_id",                                       :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -140,6 +146,7 @@ ActiveRecord::Schema.define(:version => 20120615105954) do
     t.integer  "total_pipeline_efficiency_gene_count"
     t.integer  "gc_pipeline_efficiency_gene_count"
     t.boolean  "is_bespoke_allele"
+    t.date     "aborted_es_cell_qc_failed_date"
   end
 
   create_table "mi_attempt_distribution_centres", :force => true do |t|
@@ -202,7 +209,7 @@ ActiveRecord::Schema.define(:version => 20120615105954) do
     t.integer  "number_of_cct_offspring"
     t.integer  "number_of_het_offspring"
     t.integer  "number_of_live_glt_offspring"
-    t.string   "mouse_allele_type",                               :limit => 1
+    t.string   "mouse_allele_type",                               :limit => 2
     t.integer  "qc_southern_blot_id"
     t.integer  "qc_five_prime_lr_pcr_id"
     t.integer  "qc_five_prime_cassette_integrity_id"
@@ -326,7 +333,8 @@ ActiveRecord::Schema.define(:version => 20120615105954) do
     t.datetime "updated_at"
     t.integer  "mi_plan_id",                                                         :null => false
     t.string   "colony_name",                      :limit => 125,                    :null => false
-    t.string   "mouse_allele_type",                :limit => 1
+    t.string   "mouse_allele_type",                :limit => 2
+    t.integer  "deleter_strain_id"
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true

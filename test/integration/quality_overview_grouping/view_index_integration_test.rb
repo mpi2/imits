@@ -2,12 +2,18 @@
 
 require 'test_helper'
 
-class QualityOverviewTest < Kermits2::IntegrationTest
+class QualityOverviewGrouping::ViewIndexIntegrationTest < Kermits2::IntegrationTest
 
-  context 'QualityOverview' do
+  context 'QualityOverviewGrouping view index' do
 
     context 'once logged in' do
       setup do
+        visit '/users/logout'
+        login
+      end
+
+      should 'allow users to visit the correct page & see entries' do
+
         #row 1
         gene_tpi1 = Factory.create :gene, :marker_symbol => 'Tpi1', :mgi_accession_id => 'MGI:98797', :ikmc_projects_count => 3, :conditional_es_cells_count => 11,
         :non_conditional_es_cells_count => 8, :deletion_es_cells_count => 6, :other_targeted_mice_count => nil, :other_condtional_mice_count => nil, :mutation_published_as_lethal_count => nil,
@@ -60,49 +66,40 @@ class QualityOverviewTest < Kermits2::IntegrationTest
         mi_attempt_lgi2.distribution_centres.push(mi_attempt_distribution_centre)
         mi_attempt_lgi2.save!
 
+        visit '/quality_overview_groupings'
+        assert_match '/quality_overview_groupings', current_url
 
-        visit '/users/logout'
-        login
-      end
+        assert page.has_css?('div.quality-overviews-summary')
 
-      should 'allow users to visit the correct page & see entries' do
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(1) th:nth-child(1)', :text => 'Consortium')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(1) th:nth-child(2)', :text => 'Production centre')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(1) th:nth-child(3)', :text => 'Genotype confirmed colonies')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(1) th:nth-child(4)', :text => 'Colonies with overall pass')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(1) th:nth-child(5)', :text => '% Overall Pass colonies')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(1) th:nth-child(6)', :text => 'Locus targeted fails')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(1) th:nth-child(7)', :text => 'Structure targeted allele fails')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(1) th:nth-child(8)', :text => 'Downstream loxP site fails')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(1) th:nth-child(9)', :text => 'No additional vector insertions fails')
 
-        visit '/quality_overviews'
-        assert_match '/quality_overviews', current_url
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(1)', :text => 'EUCOMM-EUMODIC')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(2)', :text => 'UCD')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(3)', :text => '2')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(4)', :text => '0')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(5)', :text => '0.0')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(6)', :text => '2')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(7)', :text => '1')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(8)', :text => '2')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(2) td:nth-child(9)', :text => '1')
 
-        assert page.has_css?('div.quality-overviews')
-
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(1)', :text => 'Consortium')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(2)', :text => 'Production centre')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(3)', :text => 'Distribution centres')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(4)', :text => 'Marker symbol')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(5)', :text => 'ES cell clone')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(6)', :text => 'Colony')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(7)', :text => 'Status')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(8)', :text => 'Overall pass')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(9)', :text => 'Locus targeted')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(10)', :text => 'Structure targeted')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(11)', :text => 'Downstream LoxP site')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(12)', :text => 'No additional vector insertions')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(13)', :text => 'ES-dist-qc')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(14)', :text => 'ES-user-qc')
-        assert page.has_css?('div.quality-overviews tr:nth-child(1) th:nth-child(15)', :text => 'Mouse-qc')
-
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(1)', :text => 'EUCOMM-EUMODIC')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(2)', :text => 'UCD')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(3)')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(4)', :text => 'Celsr3')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(5)', :text => '10009A-F9')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(6)', :text => 'UCD-10009A-F9-1')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(7)', :text => 'Genotype confirmed')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(8)', :text => 'false')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(9)', :text => '')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(10)', :text => '')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(11)', :text => '')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(12)', :text => '')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(13)', :text => '')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(14)', :text => '')
-        assert page.has_css?('div.quality-overviews tr:nth-child(2) td:nth-child(15)', :text => '')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(1)', :text => 'EUCOMM-EUMODIC')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(2)', :text => 'WTSI')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(3)', :text => '1')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(4)', :text => '1')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(5)', :text => '100.0')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(6)', :text => '0')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(7)', :text => '0')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(8)', :text => '0')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(9)', :text => '0')
 
       end
 

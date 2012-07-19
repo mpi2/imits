@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
     're4@sanger.ac.uk',
     'gj2@sanger.ac.uk'
   ]
-  
+
   REMOTE_ACCESS_USERS = [
     'aq2@sanger.ac.uk',
     'vvi@sanger.ac.uk',
@@ -13,7 +13,7 @@ class User < ActiveRecord::Base
     'gj2@sanger.ac.uk',
     'a.blake@har.mrc.ac.uk'
   ]
-  
+
   devise :database_authenticatable, :rememberable, :validatable
 
   attr_accessible :email, :password, :password_confirmation, :remember_me,
@@ -28,7 +28,7 @@ class User < ActiveRecord::Base
   def admin?
     return ADMIN_USERS.include?(email)
   end
-  
+
   def remote_access?
     return REMOTE_ACCESS_USERS.include?(email)
   end

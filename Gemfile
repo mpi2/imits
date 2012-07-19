@@ -1,4 +1,5 @@
 source 'http://rubygems.org'
+source 'http://www.i-dcc.org/rubygems'
 
 gem 'rake'
 gem 'rails', '~> 3.0.9'
@@ -11,10 +12,12 @@ gem 'foreigner'
 gem 'devise'
 gem 'biomart'
 gem 'acts_as_audited', '~>2.0.0.rc7'
-gem 'ransack', :git => 'git://github.com/mpi2/ransack.git'
+gem 'ransack', '0.6.0.1'
 
 gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
+
+gem 'unicorn'
 
 group :development, :test do
   gem 'selenium-webdriver', '2.21'
@@ -30,7 +33,6 @@ group :development, :test do
   gem 'simplecov', '>= 0.4.0', :require => false
   gem 'simplecov-rcov',        :require => false
   gem 'mocha'
-  gem 'thin'
   gem 'letter_opener'
   gem 'parallel_tests'
 end

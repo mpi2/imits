@@ -5,7 +5,6 @@ coverage/*
 public/javascripts/all.js
 sqlnet.log
 db/dump.*.sql
-public/assets
 .bundle/config
 .DS_Store
 

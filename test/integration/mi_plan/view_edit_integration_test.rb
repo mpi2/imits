@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
+class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
   context 'View & Edit MiPlans in grid tests:' do
 
     should 'display MiPlan data' do
@@ -46,7 +46,8 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
         visit '/mi_plans'
         assert page.has_no_css?('.plan.editor')
         page.find('div.x-grid-cell-inner').click
-        assert page.has_css?('.plan.editor')
+        assert page.has_css?('.plan.editor', :visible => true)
+
         assert page.find('.plan.editor div#sub_project_name').visible?
       end
 
@@ -56,10 +57,10 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
         sleep 1
         login user
         visit '/mi_plans'
-        assert page.has_no_css?('.plan.editor')
+        assert page.has_no_css?('.plan.editor', :visible => true)
         page.find('div.x-grid-cell-inner').click
-        assert page.has_css?('.plan.editor')
-        sleep 1
+        assert page.has_css?('.plan.editor', :visible => true)
+
         assert ! page.find('.plan.editor div#sub_project_name').visible?
       end
     end
@@ -77,10 +78,10 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
         sleep 1
         login user
         visit '/mi_plans'
-        assert page.has_no_css?('.plan.editor')
-        sleep 1
+        assert page.has_no_css?('.plan.editor', :visible => true)
+        assert page.has_no_css?('.x-mask', :visible => true)
         page.find('div.x-grid-cell-inner').click
-        assert page.has_css?('.plan.editor')
+        assert page.has_css?('.plan.editor', :visible => true)
         assert page.find('.plan.editor div#is_bespoke_allele').visible?
       end
 
@@ -97,9 +98,8 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
         login user
         visit '/mi_plans'
         assert page.has_no_css?('.plan.editor')
-        sleep 1
         page.find('div.x-grid-cell-inner').click
-        assert page.has_css?('.plan.editor')
+        assert page.has_css?('.plan.editor', :visible => true)
         assert ! page.find('.plan.editor div#is_bespoke_allele').visible?
       end
     end
@@ -118,7 +118,7 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       find('#withdraw-button').click
       find('#withdraw-confirmation-button').click
 
-      sleep 3
+      assert page.has_no_css?('.x-mask', :visible => true)
       assert_equal 'Withdrawn', mi_plan.reload.status.name
     end
 
@@ -136,7 +136,7 @@ class ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       find('#inactivate-button').click
       find('#inactivate-confirmation-button').click
 
-      sleep 300
+      assert page.has_no_css?('.x-mask', :visible => true)
       assert_equal 'Inactive', mi_plan.reload.status.name
     end
 

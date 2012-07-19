@@ -186,7 +186,6 @@ class Reports::MiProductionController < ApplicationController
     end
 
     query = ReportCache.where(:name => report_class.report_name)
-    #@pheno_html = return_value[:pheno_html]
     @mouse_html = query.where(:format=>'mouse_html').first.data
     @pheno_html = query.where(:format=>'pheno_html').first.data
     csv = query.where(:format=>'csv').first.data
@@ -200,7 +199,11 @@ class Reports::MiProductionController < ApplicationController
   private :summary_3_split_helper
 
   def impc_graph_report_display_image
-    send_file "#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpeg", :type => 'image/jpeg'
+    data = File.read("#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpeg")
+    send_data data,
+            :filename => "#{params[:consortium]}_#{params[:goal]}_performance.jpeg?#{Time.now.strftime "%d%m%Y%H%M%S"}",
+            :type => 'image/jpeg',
+            :disposition => 'inline'
   end
 
   def impc_graph_report_display

@@ -178,4 +178,3 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
   end
 end
-

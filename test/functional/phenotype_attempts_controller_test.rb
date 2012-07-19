@@ -54,11 +54,12 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
           attributes = {
             :mi_attempt_colony_name => mi.colony_name,
             :consortium_name => 'BaSH',
-            :production_centre_name => 'JAX'
+            :production_centre_name => 'WTSI'
           }
           post :create, :phenotype_attempt => attributes, :format => :json
           assert_equal 0, PhenotypeAttempt.count
 
+          assert_response 422
           assert ! flash[:alert].blank?
         end
       end

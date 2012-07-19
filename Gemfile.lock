@@ -1,12 +1,6 @@
-GIT
-  remote: git@github.com:mpi2/scruffy.git
-  revision: d1ad116846aab63c12a9b96d18ab9d2becf85e7a
-  specs:
-    scruffy_Sanger (0.2.6.1)
-      builder (>= 2.0.0)
-
 GEM
   remote: http://rubygems.org/
+  remote: http://www.i-dcc.org/rubygems/
   specs:
     POpen4 (0.1.4)
       Platform (>= 0.4.0)
@@ -147,6 +141,8 @@ GEM
     ruport (1.6.3)
       fastercsv
       pdf-writer (= 1.1.8)
+    scruffy_Sanger (0.2.6.1)
+      builder (>= 2.0.0)
     selenium-webdriver (2.21.0)
       childprocess (>= 0.2.5)
       ffi (~> 1.0)
@@ -204,7 +200,7 @@ DEPENDENCIES
   rake
   ransack (= 0.6.0.1)
   rmagick
-  scruffy_Sanger!
+  scruffy_Sanger (= 0.2.6.1)
   selenium-webdriver (= 2.21)
   shoulda
   simplecov (>= 0.4.0)

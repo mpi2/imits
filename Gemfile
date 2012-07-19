@@ -1,4 +1,5 @@
 source 'http://rubygems.org'
+source 'http://www.i-dcc.org/rubygems'
 
 gem 'rake'
 gem 'rails', '~> 3.0.9'
@@ -17,8 +18,8 @@ gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
 
 gem 'rmagick'
-#gem 'scruffy', :git => 'git@github.com:mpi2/scruffy.git'
-gem 'scruffy_Sanger', :git => 'git@github.com:mpi2/scruffy.git', :require => 'scruffy'
+gem 'scruffy_Sanger','0.2.6.1', :require => 'scruffy'
+
 gem 'unicorn'
 
 group :development, :test do

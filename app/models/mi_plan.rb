@@ -166,11 +166,9 @@ class MiPlan < ApplicationModel
     where("#{self.table_name}.id not in (?)",ids)
   end
 
-# can we do this?
   def self.with_active_mi_attempt
     ids = MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id)
-    #raise "Cannot run 'mi_plan.with_active_mi_attempt' when there are no active mi_attempts" if ids.empty?
-    return nil if ids.empty?
+    return [] if ids.empty?
     where("#{self.table_name}.id in (?)",ids)
   end
 

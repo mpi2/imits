@@ -125,8 +125,6 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         sleep 3
 
-        #wait_until { assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Inspect - MI Attempt]') }
-
         assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Inspect - MI Attempt]')
         assert_equal 1, all('a.mi-plan').size
 

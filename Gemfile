@@ -1,4 +1,5 @@
 source 'http://rubygems.org'
+source 'http://www.i-dcc.org/rubygems'
 
 gem 'rake'
 gem 'rails', '~> 3.0.9'

@@ -152,7 +152,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
           :consortium_name => 'DTCC')
         pt.valid?
-        assert_match /cannot be found with supplied parameters/i, pt.errors['mi_plan'].first
+        assert_match(/cannot be found with supplied parameters/i, pt.errors['mi_plan'].first)
       end
 
       should 'set MiPlan to Assigned status if not assigned already' do
@@ -160,7 +160,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         plan.consortium = Consortium.find_by_name!('JAX')
         plan.status = MiPlan::Status['Interest']
         plan.save!
-        assert_equal 'Interest', plan.status.name
+        #BODGE - does this make sense?
+        assert_equal 'Inspect - GLT Mouse', plan.status.name
 
         pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
           :consortium_name => 'JAX')

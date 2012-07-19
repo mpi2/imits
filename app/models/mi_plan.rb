@@ -70,6 +70,7 @@ class MiPlan < ApplicationModel
   before_validation :set_default_sub_project
   before_validation :change_status
 
+  before_save :major_conflict_resolution_immediate
   before_save :record_if_status_was_changed
   after_save :create_status_stamp_if_status_was_changed
 
@@ -165,9 +166,11 @@ class MiPlan < ApplicationModel
     where("#{self.table_name}.id not in (?)",ids)
   end
 
+# can we do this?
   def self.with_active_mi_attempt
     ids = MiAttempt.active.select('distinct(mi_plan_id)').map(&:mi_plan_id)
-    raise "Cannot run 'mi_plan.with_active_mi_attempt' when there are no active mi_attempts" if ids.empty?
+    #raise "Cannot run 'mi_plan.with_active_mi_attempt' when there are no active mi_attempts" if ids.empty?
+    return nil if ids.empty?
     where("#{self.table_name}.id in (?)",ids)
   end
 
@@ -253,6 +256,59 @@ class MiPlan < ApplicationModel
       mi_plans[mgi_accession_id] = all_for_gene.group_by {|i| i.status.name}
     end
     return mi_plans
+  end
+
+  def major_conflict_resolution_immediate
+    interest_status                  = MiPlan::Status.find_by_name!('Interest')
+    inactive_status                  = MiPlan::Status.find_by_name!('Inactive')
+    assigned_status                  = MiPlan::Status.find_by_name!('Assigned')
+    conflict_status                  = MiPlan::Status.find_by_name!('Conflict')
+    inspect_due_to_conflict_status   = MiPlan::Status.find_by_name!('Inspect - Conflict')
+    inspect_due_to_mi_attempt_status = MiPlan::Status.find_by_name!('Inspect - MI Attempt')
+    inspect_due_to_glt_mouse_status  = MiPlan::Status.find_by_name!('Inspect - GLT Mouse')
+
+    return if self.status != interest_status
+
+    self.status = assigned_status
+
+    all_grouped_by_mgi_accession_id_then_by_status_name_immediate(gene.mgi_accession_id).each do |mgi_accession_id, mi_plans_by_status|
+
+      interested = mi_plans_by_status['Interest'] || []
+
+      assigned = []
+      MiPlan::Status.all_assigned.each do |assigned_status|
+        assigned += mi_plans_by_status[assigned_status.name].to_a
+      end
+
+      if ! assigned.blank?
+        assigned_plans_with_mis      = MiPlan.where('mi_plans.id in (?)', assigned.map(&:id)).with_active_mi_attempt
+        assigned_plans_with_glt_mice = MiPlan.where('mi_plans.id in (?)', assigned.map(&:id)).with_genotype_confirmed_mouse
+
+        if ! assigned_plans_with_glt_mice.blank?
+          self.status = inspect_due_to_glt_mouse_status
+        elsif ! assigned_plans_with_mis.blank?
+          self.status = inspect_due_to_mi_attempt_status
+        else
+          self.status = inspect_due_to_conflict_status
+        end
+
+      elsif ! mi_plans_by_status['Conflict'].blank? or interested.size != 1
+        self.status = conflict_status
+      else
+        self.status = assigned_status
+      end
+    end
+  end
+
+  def all_grouped_by_mgi_accession_id_then_by_status_name_immediate(mgi_acc_id)
+    gene = Gene.find_by_mgi_accession_id!(mgi_acc_id)
+    mi_plans = MiPlan.where('gene_id = ? and id != ?', gene.id, id).group_by {|i| i.gene.mgi_accession_id} if id
+    mi_plans = MiPlan.where('gene_id = ?', gene.id).group_by {|i| i.gene.mgi_accession_id} if ! id
+    mi_plans_new = {}
+    mi_plans.each do |mgi_accession_id, all_for_gene|
+      mi_plans_new[mgi_accession_id] = all_for_gene.group_by {|i| i.status.name}
+    end
+    return mi_plans_new
   end
 
   def reason_for_inspect_or_conflict
@@ -448,4 +504,3 @@ end
 #
 #  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
 #
-

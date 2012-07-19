@@ -35,7 +35,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
 
       assert page.has_css?('.message.notice')
       assert_equal 'Phenotype attempt created', page.find('.message.notice').text
-      assert_match /\/phenotype_attempts\/\d+$/, current_url
+      assert_match(/\/phenotype_attempts\/\d+$/, current_url)
 
       sleep 5
 

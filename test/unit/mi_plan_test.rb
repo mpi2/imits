@@ -10,7 +10,7 @@ class MiPlanTest < ActiveSupport::TestCase
       @default_mi_plan ||= Factory.create :mi_plan
     end
 
-    should 'default_mi_plan should be in state Interest for the rest of the tests' do
+    should 'default_mi_plan should be in state Assigned for the rest of the tests' do
       assert_equal 'Assigned', default_mi_plan.status.name
     end
 
@@ -311,8 +311,6 @@ class MiPlanTest < ActiveSupport::TestCase
 
           plan.status_stamps.destroy_all
 
-          #plan.status_stamps.first.update_attributes!(:created_at => '2011-11-30 00:00:00')
-          #plan.reload
           plan.status_stamps.create!(:status => MiPlan::Status['Interest'],
             :created_at => '2010-10-30 23:59:59')
           plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
@@ -908,8 +906,6 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        #MiPlan.major_conflict_resolution
-        #mi_plan.reload;
         assert_equal 'Inspect - GLT Mouse', mi_plan.status.name
 
         assert_equal "GLT mouse produced at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
@@ -931,8 +927,6 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        #MiPlan.major_conflict_resolution
-        #mi_plan.reload;
         assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
         assert_equal "MI already in progress at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
@@ -953,8 +947,6 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        #MiPlan.major_conflict_resolution
-        #mi_plan.reload;
         assert_equal 'Inspect - Conflict', mi_plan.status.name
         assert_match(/#{@bash_cons.name}/, mi_plan.reason_for_inspect_or_conflict)
         assert_match(/#{@eucomm_cons.name}/, mi_plan.reason_for_inspect_or_conflict)
@@ -973,8 +965,6 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        #MiPlan.major_conflict_resolution
-        #mi_plan.reload;
         assert_equal 'Inspect - Conflict', mi_plan.status.name
 
         assert_equal "Other 'Assigned' MI plans for: #{@eucomm_cons.name}",

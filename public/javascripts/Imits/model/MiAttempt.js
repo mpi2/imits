@@ -186,7 +186,9 @@ Ext.define('Imits.model.MiAttempt', {
         type: 'boolean'
     },
     {   name: 'phenotype_count',
-        type: 'int'
+        type: 'int',
+        readOnly: true,
+        persist: false
     }
     ],
 

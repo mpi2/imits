@@ -1,14 +1,5 @@
 NO_BREAK_SPACE = '\u00A0';
 
-function getMethods(obj)
-{
-  var bar
-  for (bar in obj)
-  {
-    console.log("Object has property " + bar);
-  }
-}
-
 (function () {
     // Inspired by http://zetafleet.com/blog/javascript-dateparse-for-iso-8601
     var origParse = Date.parse;
@@ -85,20 +76,4 @@ Ext.util.Format.safeTextRenderer = function(value) {
     }
 
     return Ext.util.Format.htmlEncode(value);
-}
-
-Ext.Loader.setConfig({
-    enabled: true,
-    paths: {
-        'Imits': window.basePath + '/javascripts/Imits',
-        'Ext': window.basePath + '/extjs',
-        'Ext.ux': window.basePath + '/extjs/examples/ux'
-    }
-});
-
-if(Ext.isGecko) {
-    Ext.require('Imits.data.Proxy');
-    Ext.require('Imits.data.JsonWriter');
-    Ext.require('Imits.model.MiAttempt');
-    Ext.require('Imits.model.Gene');
 }

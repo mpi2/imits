@@ -31,14 +31,14 @@ end
 #
 # Table name: mi_attempt_statuses
 #
-#  id          :integer         not null, primary key
-#  description :string(50)      not null
-#  created_at  :datetime
-#  updated_at  :datetime
-#  order_by    :integer
+#  id         :integer         not null, primary key
+#  name       :string(50)      not null
+#  created_at :datetime
+#  updated_at :datetime
+#  order_by   :integer
 #
 # Indexes
 #
-#  index_mi_attempt_statuses_on_description  (description) UNIQUE
+#  index_mi_attempt_statuses_on_name  (name) UNIQUE
 #
 

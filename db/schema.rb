@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120627135453) do
+ActiveRecord::Schema.define(:version => 20120720150932) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -168,13 +168,13 @@ ActiveRecord::Schema.define(:version => 20120627135453) do
   end
 
   create_table "mi_attempt_statuses", :force => true do |t|
-    t.string   "description", :limit => 50, :null => false
+    t.string   "name",       :limit => 50, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "order_by"
   end
 
-  add_index "mi_attempt_statuses", ["description"], :name => "index_mi_attempt_statuses_on_description", :unique => true
+  add_index "mi_attempt_statuses", ["name"], :name => "index_mi_attempt_statuses_on_name", :unique => true
 
   create_table "mi_attempts", :force => true do |t|
     t.integer  "es_cell_id",                                                                        :null => false

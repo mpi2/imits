@@ -17,7 +17,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'allow editing consortium or production centre' do
-      sleep 5
+      sleep 2
       assert page.has_css?('select[name="phenotype_attempt[production_centre_name]"]')
       assert page.has_css?('select[name="phenotype_attempt[consortium_name]"]')
     end
@@ -37,7 +37,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       assert_equal 'Phenotype attempt created', page.find('.message.notice').text
       assert_match /\/phenotype_attempts\/\d+$/, current_url
 
-      sleep 5
+      sleep 2
 
       assert_equal 1, PhenotypeAttempt.count
       phenotype_attempt = PhenotypeAttempt.find_by_colony_name!('TEST')
@@ -74,7 +74,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       assert_equal 'Plan cannot be found with supplied parameters. Please either create it first or check consortium_name and/or production_centre_name supplied', page.find('.message.alert').text
       assert_match /\/phenotype_attempts/, current_url
 
-      sleep 5
+      sleep 2
 
       assert_equal 0, PhenotypeAttempt.count
 
@@ -93,7 +93,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       assert page.has_css?('.message.notice')
       assert_equal 'Phenotype attempt created', page.find('.message.notice').text
 
-      sleep 5
+      sleep 2
       assert_equal 1, PhenotypeAttempt.count
     end
 

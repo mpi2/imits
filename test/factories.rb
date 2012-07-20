@@ -78,14 +78,6 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.mi_date { Date.today }
 end
 
-Factory.define :distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
-  distribution_centre.association :centre
-  distribution_centre.association :deposited_material
-  distribution_centre.association :mi_attempt
-  distribution_centre.start_date (Date.today - 1.year).to_time.strftime('%Y-%m-%d')
-  distribution_centre.end_date (Date.today).to_time.strftime('%Y-%m-%d')
-end
-
 Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.total_male_chimeras 1
 end
@@ -243,6 +235,22 @@ Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_att
   MiAttempt::QC_FIELDS.each do |column_name|
     mi_attempt.send(column_name) { QcResult.all.sample }
   end
+end
+
+Factory.define :mi_attempt_distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
+  distribution_centre.association :centre
+  distribution_centre.association :deposited_material
+  distribution_centre.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
+  distribution_centre.start_date (Date.today - 1.year).to_time.strftime('%Y-%m-%d')
+  distribution_centre.end_date (Date.today).to_time.strftime('%Y-%m-%d')
+end
+
+Factory.define :phenotype_attempt_distribution_centre, :class => PhenotypeAttempt::DistributionCentre do |distribution_centre|
+  distribution_centre.association :centre
+  distribution_centre.association :deposited_material
+  distribution_centre.association :phenotype_attempt, :factory => :populated_phenotype_attempt
+  distribution_centre.start_date (Date.today - 1.year).to_time.strftime('%Y-%m-%d')
+  distribution_centre.end_date (Date.today).to_time.strftime('%Y-%m-%d')
 end
 
 #Specifics

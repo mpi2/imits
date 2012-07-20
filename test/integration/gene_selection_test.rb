@@ -153,27 +153,26 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         find('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Inspect - MI Attempt]').click
         assert page.has_css?('.plan.editor')
-        page.execute_script(<<-JS)
-          Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('5');
-        JS
+
+        fill_in 'number_of_es_cells_starting_qc', :with => '5'
+
         find('#update-button').click
         assert page.has_css?('.x-message-box button')
         all('.x-message-box button').detect {|b| b.text == 'Yes'}.click
 
         find('a.mi-plan', :text => '[Helmholtz GMC:HMGU]').click
         assert page.has_css?('.plan.editor')
-        page.execute_script(<<-JS)
-          Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('10');
-        JS
 
-        sleep 10
+        fill_in 'number_of_es_cells_starting_qc', :with => '10'
 
         find('#update-button').click
 
         assert page.has_no_css?('.x-mask', :visible => true)
 
         mi_plan.reload
-        assert_equal 10, mi_plan.number_of_es_cells_starting_qc
+
+        wait_until { 10 == mi_plan.number_of_es_cells_starting_qc }
+
         assert_equal 'Assigned - ES Cell QC In Progress', mi_plan.status.name
       end
 

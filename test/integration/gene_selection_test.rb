@@ -165,6 +165,9 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         page.execute_script(<<-JS)
           Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('10');
         JS
+
+        sleep 10
+
         find('#update-button').click
 
         assert page.has_no_css?('.x-mask', :visible => true)

@@ -160,7 +160,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         plan.consortium = Consortium.find_by_name!('JAX')
         plan.status = MiPlan::Status['Interest']
         plan.save!
-        #BODGE - does this make sense?
+        # it already exists - moved into appropriate status on plan.save
         assert_equal 'Inspect - GLT Mouse', plan.status.name
 
         pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,

@@ -10,9 +10,9 @@
     <![endif]-->
 
     <%= csrf_meta_tag %>
-    <%= javascript_include_tag 'jquery.min.js', :cache => true %>
     <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
     <%= javascript_tag "authenticityToken = '#{form_authenticity_token}';" %>
+    <%= javascript_tag "Rails = {env: '#{Rails.env}'};" %>
 
     <%= yield :head %>
 
@@ -64,7 +64,7 @@
 
     <div id="footer" class="container_12">
       <div class="grid_2">
-        <% unless GIT_REVISION.blank? %><p>Revision: <%= GIT_REVISION %></p><% end %>
+        <p>Revision: <%= Kermits2.git_revision %></p>
       </div>
       <div class="grid_10" style="text-align:right;">
         This resource is developed and maintained by the <a href="http://www.mousephenotype.org/">MPI2 consortium</a><br/>
@@ -75,12 +75,9 @@
     </div>
 
     <%= yield :pre_js_footer %>
-    <% if ['production', 'staging'].include?(Rails.env.to_s) %>
-      <%= include_javascripts :production %>
-    <% else %>
-      <%= include_javascripts :development %>
-    <% end %>
+
     <%= include_javascripts :common %>
+    <%= include_javascripts :extjs_autodep %>
     <%= yield :post_js_footer %>
   </body>
 </html>

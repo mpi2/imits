@@ -211,7 +211,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
       next if pcentre == 'UNKNOWN'
       next if self.consortia && ! self.consortia.include?(consortium)
       gene_id = stamp.phenotype_attempt.mi_plan.gene_id
-      status = stamp.phenotype_attempt.status.name
+      status = stamp.status.name
       marker_symbol = stamp.phenotype_attempt.mi_plan.gene.marker_symbol
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.phenotype_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }

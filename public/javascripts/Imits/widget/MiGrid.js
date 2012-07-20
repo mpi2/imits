@@ -1,3 +1,14 @@
+function splitString(prettyPrintDistributionCentres) {
+    var distributionCentres = [];
+    Ext.Array.each(prettyPrintDistributionCentres.split(', '), function(dc) {
+        distributionCentres.push({
+            distributionCentre: dc
+        });
+    });
+
+    return distributionCentres;
+}
+
 Ext.define('Imits.widget.MiGrid', {
     extend: 'Imits.widget.Grid',
 
@@ -263,6 +274,21 @@ Ext.define('Imits.widget.MiGrid', {
             filter: {
                 type: 'string'
             }
+        },
+        {
+            dataIndex: 'pretty_print_distribution_centres',
+            header: 'Distribution Centres',
+            readOnly: true,
+            width: 180,
+            xtype: 'templatecolumn',
+            tpl: new Ext.XTemplate(
+                '<tpl for="this.processedDistributionCentres(pretty_print_distribution_centres)">',
+                '<a href="' + window.basePath + '/mi_attempts/{parent.id}#distribution_centres" target="_blank">{distributionCentre}</a></br>',
+                '</tpl>',
+                {
+                    processedDistributionCentres: splitString
+                }
+            )
         }
         ],
 

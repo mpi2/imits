@@ -1,13 +1,15 @@
 class Contact < ActiveRecord::Base
+  acts_as_audited
+
   attr_accessible :email
 
   has_many :notifications
   has_many :genes, :through => :notifications
 
   accepts_nested_attributes_for :notifications, :reject_if => :all_blank
-  
+
   validates :email, :presence => true, :email => true
-  
+
 end
 
 # == Schema Information

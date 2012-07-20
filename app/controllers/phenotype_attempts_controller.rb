@@ -30,6 +30,7 @@ class PhenotypeAttemptsController < ApplicationController
     set_centres_and_consortia
     @user = current_user
     @mi_attempt = MiAttempt.find_by_id(params[:mi_attempt_id])
+    @deleter_strain = DeleterStrain.all
     if @mi_attempt.status == "Genotype confirmed"
         @phenotype_attempt = Public::PhenotypeAttempt.new(
           :mi_attempt_colony_name => @mi_attempt.colony_name,
@@ -44,6 +45,7 @@ class PhenotypeAttemptsController < ApplicationController
   def create
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
     @mi_attempt = MiAttempt.find_by_colony_name(@phenotype_attempt.mi_attempt_colony_name)
+
     @phenotype_attempt.production_centre_name ||= current_user.production_centre.name
 
     return unless authorize_user_production_centre
@@ -75,8 +77,10 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def show
+    set_centres_and_consortia
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     @mi_attempt = @phenotype_attempt.mi_attempt
+    @deleter_strain = DeleterStrain.all
     respond_with @phenotype_attempt
   end
 

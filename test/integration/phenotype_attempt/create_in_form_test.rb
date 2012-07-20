@@ -17,6 +17,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'allow editing consortium or production centre' do
+      sleep 5
       assert page.has_css?('select[name="phenotype_attempt[production_centre_name]"]')
       assert page.has_css?('select[name="phenotype_attempt[consortium_name]"]')
     end
@@ -27,7 +28,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       fill_in 'phenotype_attempt_colony_name', :with => 'TEST'
 
       check('phenotype_attempt[rederivation_started]')
-      fill_in 'phenotype_attempt[number_of_cre_matings_started]', :with => '99'
+      select 'MGI:3046308: Hprt', :from => 'phenotype_attempt[deleter_strain_name]'
       fill_in 'phenotype_attempt[number_of_cre_matings_successful]', :with => '9'
       select 'b', :from => 'phenotype_attempt[mouse_allele_type]'
       click_button 'phenotype_attempt_submit'
@@ -42,7 +43,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       pt = Public::PhenotypeAttempt.first
       assert_equal 'BaSH', pt.consortium_name
       assert_equal 'WTSI', pt.production_centre_name
-      assert_equal 99, pt.number_of_cre_matings_started
+      assert_equal DeleterStrain.first, pt.deleter_strain
       assert_equal 9, pt.number_of_cre_matings_successful
       assert_equal 'b', pt.mouse_allele_type
       assert_equal @mi_attempt.colony_name, pt.mi_attempt.colony_name

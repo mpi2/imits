@@ -51,7 +51,7 @@ html, body, .x-body {
     line-height: 12px;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, h7 {
 	font-family: "Times New Roman", Times, serif;
 	font-weight: normal;
 	color: #111;
@@ -63,6 +63,7 @@ h3 { font-size: 1.5em; line-height: 1; margin-bottom: 1em; }
 h4 { font-size: 1.2em; line-height:1.25; margin-bottom: 1.25em; }
 h5 { font-size: 1em; font-weight:bold; margin-bottom: 1.5em; }
 h6 { font-size: 1em; font-weight:bold; }
+h7 { font-size: 1em}
 
 sup { vertical-align: super; font-size: 80%; }
 em { font-style: italic; }
@@ -177,6 +178,51 @@ ul[class*=x-tab] { list-style: none; }
 
 #navigation li.current a,
 #navigation li a:hover {
+	font-weight: bold;
+	color: #8f110b;
+}
+
+/* @end */
+
+/* @group Sub-Navigation */
+
+/* CSS gradients from http://www.colorzilla.com/gradient-editor/ */
+#sub-navigation ul {
+	margin: 0px;
+	padding: 0px;
+	line-height: 29px;
+	white-space: nowrap;
+	border-radius: 4px;
+	background: #d1e0fe; /* Old browsers */
+	background: -moz-linear-gradient(top, #d1e0fe 15%, #a6c5ec 80%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(15%,#d1e0fe), color-stop(80%,#a6c5ec)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #d1e0fe 15%,#a6c5ec 80%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #d1e0fe 15%,#a6c5ec 80%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #d1e0fe 15%,#a6c5ec 80%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d1e0fe', endColorstr='#a6c5ec',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #d1e0fe 15%,#a6c5ec 80%); /* W3C */
+}
+
+#sub-navigation li {
+	list-style-type: none;
+	display: inline;
+	border-left: 1px solid #c0c0c0;
+}
+
+#sub-navigation li:first-child {
+	border: none;
+	margin-left: 10px;
+}
+
+#sub-navigation li a {
+	font-weight: bold;
+	text-decoration: none;
+	padding: 7px 10px 7px 10px;
+	color: #333;
+}
+
+#sub-navigation li.current a,
+#sub-navigation li a:hover {
 	font-weight: bold;
 	color: #8f110b;
 }

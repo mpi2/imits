@@ -30,6 +30,7 @@ class PhenotypeAttempt::DistributionCentre < ActiveRecord::Base
   def as_json(options={})
     super(:only => [:start_date, :end_date, :is_distributed_by_emma], :methods => [:deposited_material_name, :centre_name])
   end
+
 end
 
 # == Schema Information

@@ -3,6 +3,9 @@
 class EsCell < ActiveRecord::Base
   acts_as_reportable
 
+  class Error < RuntimeError; end
+  class SyncError < Error; end
+
   TEMPLATE_CHARACTER = '@'
 
   belongs_to :pipeline
@@ -166,7 +169,16 @@ class EsCell < ActiveRecord::Base
         :marker_symbol => es_cell_data['marker_symbol'],
         :mgi_accession_id => es_cell_data['mgi_accession_id']
       )
-      es_cell.save!
+      EsCell.transaction do
+        es_cell.save!
+        es_cell.mi_attempts.each do |mi|
+          mi.reload
+          if ! mi.valid?
+            raise SyncError, "ES Cell #{es_cell.name} update problem: one of its MIs failed validation with errors: '#{mi.errors.full_messages}'"
+          end
+        end
+
+      end
     end
   end
 

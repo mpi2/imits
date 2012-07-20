@@ -6,7 +6,7 @@ class CreateMiAttemptDistributionCentres < ActiveRecord::Migration
       table.integer :mi_attempt_id, :null => false
       table.integer :deposited_material_id, :null => false
       table.integer :centre_id, :null => false
-      table.boolean :is_distributed_by_emma, :boolean, :null => false, :default => false
+      table.boolean :is_distributed_by_emma, :null => false, :default => false
 
       table.timestamps
     end

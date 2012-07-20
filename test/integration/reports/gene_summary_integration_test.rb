@@ -26,30 +26,26 @@ class Reports::GeneSummaryIntegrationTest < Kermits2::IntegrationTest
         Factory.create :wtsi_mi_attempt_genotype_confirmed,
           :es_cell => Factory.create(:es_cell, :gene => gene_moo1),
           :consortium_name => 'EUCOMM-EUMODIC',
-          :is_active => true,
-          :is_suitable_for_emma => true
+          :is_active => true
 
         Factory.create :wtsi_mi_attempt_genotype_confirmed,
           :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
           :consortium_name => 'EUCOMM-EUMODIC',
-          :is_active => true,
-          :is_suitable_for_emma => true
+          :is_active => true
 
         click_button 'Generate Report'
 
-        assert page.has_content? "Consortium Production Centre # Genes Injected # Genes Genotype Confirmed # Genes For EMMA"
+        assert page.has_content? "Consortium Production Centre # Genes Injected # Genes Genotype Confirmed"
 
         assert page.has_css?('div.report tr:nth-child(1) th:nth-child(1)', :text => 'Consortium')
         assert page.has_css?('div.report tr:nth-child(1) th:nth-child(2)', :text => 'Production Centre')
         assert page.has_css?('div.report tr:nth-child(1) th:nth-child(3)', :text => '# Genes Injected')
         assert page.has_css?('div.report tr:nth-child(1) th:nth-child(4)', :text => '# Genes Genotype Confirmed')
-        assert page.has_css?('div.report tr:nth-child(1) th:nth-child(5)', :text => '# Genes For EMMA')
 
         assert page.has_css?('div.report tr:nth-child(2) td:nth-child(1)', :text => 'EUCOMM-EUMODIC')
         assert page.has_css?('div.report tr:nth-child(2) td:nth-child(2)', :text => 'WTSI')
         assert page.has_css?('div.report tr:nth-child(2) td:nth-child(3)', :text => '2')
         assert page.has_css?('div.report tr:nth-child(2) td:nth-child(4)', :text => '2')
-        assert page.has_css?('div.report tr:nth-child(2) td:nth-child(5)', :text => '2')
 
       end
 

@@ -37,7 +37,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal MiAttemptStatus.micro_injection_in_progress, new_mi.mi_attempt_status
         default_phenotype_attempt.mi_attempt = new_mi
         default_phenotype_attempt.valid?
-        assert_match /must be genotype confirmed/i, default_phenotype_attempt.errors['mi_attempt'].first
+        assert_match /must be 'Genotype confirmed'/i, default_phenotype_attempt.errors['mi_attempt'].first
       end
     end
 

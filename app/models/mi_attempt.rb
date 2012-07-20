@@ -291,7 +291,7 @@ class MiAttempt < ApplicationModel
   end
 
   def status
-    return self.mi_attempt_status.try(:description)
+    return self.mi_attempt_status.try(:name)
   end
 
   def create_phenotype_attempt_for_komp2
@@ -313,14 +313,14 @@ class MiAttempt < ApplicationModel
     retval = {}
     status_stamps.each do |status_stamp|
       status_stamp_date = status_stamp.created_at.utc.to_date
-      if !retval[status_stamp.description] or
-                status_stamp_date > retval[status_stamp.description]
-        retval[status_stamp.description] = status_stamp_date
+      if !retval[status_stamp.name] or
+                status_stamp_date > retval[status_stamp.name]
+        retval[status_stamp.name] = status_stamp_date
       end
     end
 
-    aborted = MiAttemptStatus.micro_injection_aborted.description
-    confirmed = MiAttemptStatus.genotype_confirmed.description
+    aborted = MiAttemptStatus.micro_injection_aborted.name
+    confirmed = MiAttemptStatus.genotype_confirmed.name
     if retval[aborted] and retval[confirmed] and retval[aborted] < retval[confirmed]
       retval.delete(aborted)
     end

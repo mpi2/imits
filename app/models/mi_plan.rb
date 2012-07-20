@@ -346,8 +346,8 @@ class MiPlan < ApplicationModel
 
     plan_status_list = {}
     mi_dates = reportable_statuses_with_latest_dates
-    mi_dates.each do |description, date|
-      plan_status_list["#{description}"] = date.to_s
+    mi_dates.each do |name, date|
+      plan_status_list["#{name}"] = date.to_s
     end
 
     d = plan_status_list[s]
@@ -357,11 +357,11 @@ class MiPlan < ApplicationModel
     if mi
       mi_status_list = {}
       mi_dates = mi.reportable_statuses_with_latest_dates
-      mi_dates.each do |description, date|
-        mi_status_list["#{description}"] = date.to_s
+      mi_dates.each do |name, date|
+        mi_status_list["#{name}"] = date.to_s
       end
 
-      s = mi.mi_attempt_status.description
+      s = mi.mi_attempt_status.name
       d = mi_status_list[s]
     end
 
@@ -370,8 +370,8 @@ class MiPlan < ApplicationModel
     if pt
       pheno_status_list = {}
       mi_dates = pt.reportable_statuses_with_latest_dates
-      mi_dates.each do |description, date|
-        pheno_status_list["#{description}"] = date.to_s
+      mi_dates.each do |name, date|
+        pheno_status_list["#{name}"] = date.to_s
       end
 
       s = pt.status.name

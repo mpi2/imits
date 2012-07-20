@@ -343,7 +343,7 @@ Factory.define :es_cell_EPD0011_1_G18, :parent => :es_cell do |es_cell|
       :consortium_name => 'MGP',
       :production_centre_name => 'WTSI'
     )
-    mi_attempt_status = MiAttemptStatus.find_by_description('Genotype confirmed')
+    mi_attempt_status = MiAttemptStatus.find_by_name!('Genotype confirmed')
     mi_attempt.mi_attempt_status = mi_attempt_status
     phenotype_attempt = Factory.create :populated_phenotype_attempt, :mi_attempt => mi_attempt
   end

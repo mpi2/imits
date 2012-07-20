@@ -78,7 +78,6 @@ class ActiveSupport::TestCase
   end
 
   def replace_status_stamps(obj, stamps)
-    status_lookup_attr = if obj.kind_of?(MiAttempt) then :description else :name end
     status_field = if obj.kind_of?(MiAttempt) then :mi_attempt_status else :status end
     if obj.kind_of? MiAttempt
       status_class = MiAttemptStatus
@@ -88,7 +87,7 @@ class ActiveSupport::TestCase
 
     obj.status_stamps.destroy_all
     stamps.each do |status_name, time|
-      status_object = status_class.where(status_lookup_attr => status_name).first
+      status_object = status_class.where(:name => status_name).first
       raise "status object lookup failed for '#{status_name}'" unless status_object
       obj.status_stamps.create!(
         :created_at => time,

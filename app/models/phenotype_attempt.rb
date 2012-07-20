@@ -23,7 +23,7 @@ class PhenotypeAttempt < ApplicationModel
 
   validate :mi_attempt do |me|
     if me.mi_attempt and me.mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
-      me.errors.add(:mi_attempt, "status must be genotype confirmed (is currently '#{me.mi_attempt.mi_attempt_status.description}')")
+      me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.mi_attempt_status.name}')")
     end
   end
 

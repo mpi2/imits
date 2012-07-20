@@ -54,7 +54,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         should 'filter by status' do
           mi = Factory.create :mi_attempt
           mi.update_attributes!(:is_active => false)
-          get :index, :q => {'status_name_eq' => MiAttemptStatus.micro_injection_aborted.description}, :format => :json
+          get :index, :q => {'status_name_eq' => MiAttemptStatus.micro_injection_aborted.name}, :format => :json
           data = JSON.parse(response.body)
           assert_equal 1, data.size
           assert_equal mi.id, data.first['id']

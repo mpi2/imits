@@ -3,28 +3,26 @@
 class MiAttemptStatus < ActiveRecord::Base
   acts_as_reportable
 
-  validates :description, :presence => true, :uniqueness => true
+  validates :name, :presence => true, :uniqueness => true
 
   has_many :status_stamps, :class_name => 'MiAttempt::StatusStamp'
   has_many :mi_attempts, :through => :status_stamps
 
   def self.micro_injection_in_progress
-    @@in_progress ||= self.find_by_description!('Micro-injection in progress').freeze
+    @@in_progress ||= self.find_by_name!('Micro-injection in progress').freeze
   end
 
   def self.genotype_confirmed
-    @@good ||= self.find_by_description!('Genotype confirmed').freeze
+    @@good ||= self.find_by_name!('Genotype confirmed').freeze
   end
 
   def self.micro_injection_aborted
-    @@aborted ||= self.find_by_description!('Micro-injection aborted').freeze
+    @@aborted ||= self.find_by_name!('Micro-injection aborted').freeze
   end
 
   def self.chimeras_obtained
-    @@chimeras_obtained ||= self.find_by_description!('Chimeras obtained').freeze
+    @@chimeras_obtained ||= self.find_by_name!('Chimeras obtained').freeze
   end
-
-  def name; description; end
 end
 
 # == Schema Information

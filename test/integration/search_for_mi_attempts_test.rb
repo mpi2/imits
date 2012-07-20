@@ -153,7 +153,7 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
         @es_cell2 = Factory.create :es_cell_EPD0127_4_E01
         @es_cell3 = Factory.create :es_cell_EPD0029_1_G04
 
-        @status = MiAttemptStatus.micro_injection_aborted.description
+        @status = MiAttemptStatus.micro_injection_aborted.name
         @mi_attempt = Factory.create(:mi_attempt, :es_cell => @es_cell2)
         @mi_attempt.update_attributes!(:is_active => false)
         assert_equal @status, @mi_attempt.status

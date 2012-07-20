@@ -47,7 +47,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'be set to "Micro-injection in progress" by default' do
-          assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt).mi_attempt_status.description
+          assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt).mi_attempt_status.name
         end
 
         should ', when changed, add a status stamp' do
@@ -83,7 +83,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             MiAttemptStatus.micro_injection_in_progress,
             MiAttemptStatus.genotype_confirmed,
             MiAttemptStatus.micro_injection_aborted,
-            MiAttemptStatus.genotype_confirmed].map(&:description), mi.status_stamps.map(&:description)
+            MiAttemptStatus.genotype_confirmed].map(&:name), mi.status_stamps.map(&:name)
         end
 
         should 'always include a Micro-injection in progress status, even if MI is created in Genotype confirmed state' do
@@ -96,7 +96,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       context '#status virtual attribute' do
-        should 'be the description of the status of the MI' do
+        should 'be the name of the status of the MI' do
           mi = default_mi_attempt
           mi.mi_attempt_status = MiAttemptStatus.genotype_confirmed
           assert_equal 'Genotype confirmed', mi.status
@@ -112,7 +112,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'be filtered on #public_search' do
           default_mi_attempt.update_attributes!(:is_active => false)
           mi_attempt_2 = Factory.create :mi_attempt_genotype_confirmed
-          mi_ids = MiAttempt.public_search(:status_name_ci_in => MiAttemptStatus.micro_injection_aborted.description).result.map(&:id)
+          mi_ids = MiAttempt.public_search(:status_name_ci_in => MiAttemptStatus.micro_injection_aborted.name).result.map(&:id)
           assert_include mi_ids, default_mi_attempt.id
           assert ! mi_ids.include?(mi_attempt_2.id)
         end
@@ -890,7 +890,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'translate status' do
-        assert_equal 'mi_attempt_status_description_ci_in',
+        assert_equal 'mi_attempt_status_name_ci_in',
                 MiAttempt.translate_public_param('status_name_ci_in')
       end
 
@@ -985,10 +985,10 @@ class MiAttemptTest < ActiveSupport::TestCase
         mi = Factory.create :mi_attempt_genotype_confirmed
         replace_status_stamps(mi,
           [
-            [MiAttemptStatus.genotype_confirmed.description, '2011-11-12 00:00 UTC'],
-            [MiAttemptStatus.micro_injection_in_progress.description, '2011-12-24 00:00 UTC'],
-            [MiAttemptStatus.micro_injection_in_progress.description, '2011-06-12 00:00 UTC'],
-            [MiAttemptStatus.genotype_confirmed.description, '2011-01-24 00:00 UTC']
+            [MiAttemptStatus.genotype_confirmed.name, '2011-11-12 00:00 UTC'],
+            [MiAttemptStatus.micro_injection_in_progress.name, '2011-12-24 00:00 UTC'],
+            [MiAttemptStatus.micro_injection_in_progress.name, '2011-06-12 00:00 UTC'],
+            [MiAttemptStatus.genotype_confirmed.name, '2011-01-24 00:00 UTC']
           ]
         )
         assert_equal Date.parse('2011-06-12'), mi.in_progress_date

@@ -182,9 +182,9 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         MiAttemptStatus.chimeras_obtained,
         MiAttemptStatus.genotype_confirmed,
         MiAttemptStatus.micro_injection_aborted
-      ].map(&:description)
+      ].map(&:name)
 
-      assert_equal expected_statuses, mi.status_stamps.map(&:description)
+      assert_equal expected_statuses, mi.status_stamps.map(&:name)
     end
 
   end

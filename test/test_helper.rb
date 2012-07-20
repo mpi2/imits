@@ -178,6 +178,11 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
     page.driver.render filename
     Launchy.open(filename)
   end
+
+  def wait_until_grid_loaded
+    assert page.has_css?('.x-grid', :visible => true)
+    assert page.has_no_css?('.x-mask', :visible => true)
+  end
 end
 
 class ActionController::TestCase

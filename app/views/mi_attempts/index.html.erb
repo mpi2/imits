@@ -6,7 +6,7 @@
   <%= javascript_tag "MI_ATTEMPT_CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_DEPOSITED_MATERIAL_OPTIONS = #{DepositedMaterial.all.map(&:name).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_STRAIN_OPTIONS = #{Strain.all.map(&:name).to_json}" %>
-  <%= javascript_tag "MI_ATTEMPT_STATUS_OPTIONS = #{MiAttemptStatus.all.map(&:description).to_json}" %>
+  <%= javascript_tag "MI_ATTEMPT_STATUS_OPTIONS = #{MiAttemptStatus.all.map(&:name).to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_MOUSE_ALLELE_TYPE_OPTIONS = #{MiAttempt::MOUSE_ALLELE_OPTIONS.map{|k,v|[k, v]}.to_json}" %>
   <%= javascript_tag "MI_ATTEMPT_SEARCH_PARAMS = #{params[:q].to_json}" %>
 <% end %>
@@ -31,7 +31,7 @@
           </tr>
           <tr>
             <td><label for="q[status_name]">Status:</label></td>
-            <td><%= select_tag 'q[status_name]', options_for_select(['']+MiAttemptStatus.all.map(&:description), params[:q][:status_name]) %></td>
+            <td><%= select_tag 'q[status_name]', options_for_select(['']+MiAttemptStatus.all.map(&:name), params[:q][:status_name]) %></td>
           </tr>
         </table>
       </div>

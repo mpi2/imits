@@ -21,7 +21,7 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
         mi_attempt_distribution_centre.centre_id = nil
 
         mi_attempt_distribution_centre.valid?
-        assert_not_equal mi_attempt_distribution_centre.centre_id, distribution_centre_id
+        assert_equal mi_attempt_distribution_centre.centre_id, distribution_centre_id
       end
     end
 
@@ -32,7 +32,7 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
         mi_attempt_distribution_centre.deposited_material_id = nil
 
         mi_attempt_distribution_centre.valid?
-        assert_not_equal mi_attempt_distribution_centre.deposited_material_id, deposited_material_id
+        assert_equal mi_attempt_distribution_centre.deposited_material_id, deposited_material_id
       end
     end
 

@@ -245,8 +245,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
 
       should 'show MiPlan status when there is no MI attempt or PhenotypeAttempt' do
         bash_ics_row = @report.find {|r| r.data['Consortium'] == 'BaSH' && r.data['Production Centre'] == 'ICS'}
-        assert_equal 'Interest', bash_ics_row.data['Overall Status']
-        assert_equal 'Interest', bash_ics_row.data['MiPlan Status']
+        assert_equal 'Assigned', bash_ics_row.data['Overall Status']
+        assert_equal 'Assigned', bash_ics_row.data['MiPlan Status']
         assert_equal 'MGI:105369', bash_ics_row.data['MGI Accession ID']
         assert_equal '', bash_ics_row.data['MiAttempt Status']
         assert_equal '', bash_ics_row.data['PhenotypeAttempt Status']
@@ -268,7 +268,6 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
       should 'not have values for empty columns' do
         bash_ics_row = @report.find {|r| r.data['Consortium'] == 'BaSH' && r.data['Production Centre'] == 'ICS'}
         [
-          'Assigned Date',
           'Assigned - ES Cell QC Complete Date',
           'Micro-injection in progress Date',
           'Genotype confirmed Date',

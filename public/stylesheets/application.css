@@ -373,12 +373,12 @@ table.report_table tr.odd td, .report table tr.odd td {
 }
 
 
-table.report_table th, .report_chunky table th {
+table .report_chunky table th {
   padding: 0px 15px;
   font-size:15px;
 }
 
-table.report_table td, .report_chunky table td {
+table .report_chunky table td {
         padding: 0px 15px;
         font-size:15px;
 }

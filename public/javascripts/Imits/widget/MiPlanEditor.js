@@ -87,6 +87,30 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 hidden: isSubProjectHidden
             },
             {
+                id: 'is_conditional_allele',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Conditional allele?',
+                name: 'is_conditional_allele'
+            },
+            {
+                id: 'is_deletion_allele',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Deletion allele?',
+                name: 'is_deletion_allele'
+            },
+            {
+                id: 'is_cre_knock_in_allele',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Cre knock-in allele?',
+                name: 'is_cre_knock_in_allele'
+            },
+            {
+                id: 'is_cre_bac_allele',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Cre BAC allele?',
+                name: 'is_cre_bac_allele'
+            },
+            {
                 id: 'sub_project_name',
                 xtype: 'simplecombo',
                 fieldLabel: 'Sub-Project',

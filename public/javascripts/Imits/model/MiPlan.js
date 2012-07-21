@@ -43,7 +43,31 @@ Ext.define('Imits.model.MiPlan', {
     {
         name: 'is_bespoke_allele',
         defaultValue: false
+    },
+    {
+        name: 'is_conditional_allele',
+        defaultValue: false
+    },
+    {
+        name: 'is_deletion_allele',
+        defaultValue: false
+    },
+    {
+        name: 'is_cre_knock_in_allele',
+        defaultValue: false
+    },
+    {
+        name: 'is_cre_bac_allele',
+        defaultValue: false
+    },
+    {
+        name: 'is_conditional_allele',
+        defaultValue: false
+    },
+    {
+        name: 'comment'
     }
+
     ],
 
     proxy: Ext.create('Imits.data.Proxy', {

@@ -1,7 +1,8 @@
 <% @title = 'Edit' %>
 
 <% content_for :post_js_footer do %>
-  <%= javascript_include_tag('mi_attempts/shared') %>
+  <%= javascript_include_tag('phenotype_attempts/shared') %>
+  <%= javascript_include_tag('phenotype_attempts/show') %>
 <% end %>
 
 <div id="phenotype-attempt-box" class="grid_8 prefix_2 suffix_2">
@@ -20,7 +21,7 @@
         </div>
       </div>
     </fieldset>
-      <div id="rest-of-form">  
+      <div id="rest-of-form">
         <%= render 'form_contents', :form => form %>
 
         <div>

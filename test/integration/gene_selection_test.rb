@@ -18,7 +18,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
       should 'allow users to visit the gene_selection page' do
         visit '/mi_plans/gene_selection'
-        assert_match /gene_selection/, current_url
+        assert_match(/gene_selection/, current_url)
 
         # check we have some data in the grid
         assert page.has_css?('.x-grid-row')
@@ -85,13 +85,13 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         sleep 5
 
-        assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
+        assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Inspect - MI Attempt]')
         assert_equal 1, all('a.mi-plan').size
 
         mi_plans = MiPlan.where(
           :consortium_id => Consortium.find_by_name!('Helmholtz GMC').id,
           :production_centre_id => Centre.find_by_name!('HMGU').id,
-          :status_id => MiPlan::Status['Interest'].id,
+          :status_id => MiPlan::Status['Inspect - MI Attempt'].id,
           :priority_id => MiPlan::Priority.find_by_name!('Medium').id
         )
         assert_equal 1, mi_plans.count
@@ -107,7 +107,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         sleep 5
 
         assert_equal 2, all('a.mi-plan').size
-        assert page.has_css?('a.mi-plan', :text => '[BaSH:Interest]')
+        assert page.has_css?('a.mi-plan', :text => '[BaSH:Inspect - MI Attempt]')
 
         mi_plans = MiPlan.where( :consortium_id => Consortium.find_by_name!('BaSH').id )
         assert_equal 1, mi_plans.count
@@ -125,7 +125,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         sleep 3
 
-        assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]')
+        assert page.has_css?('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Inspect - MI Attempt]')
         assert_equal 1, all('a.mi-plan').size
 
         find('a.mi-plan').click
@@ -151,26 +151,28 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         assert page.has_css?('.x-grid-row')
         assert_equal 1, all('a.mi-plan').size
 
-        find('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Interest]').click
+        find('a.mi-plan', :text => '[Helmholtz GMC:HMGU:Inspect - MI Attempt]').click
         assert page.has_css?('.plan.editor')
-        page.execute_script(<<-JS)
-          Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('5');
-        JS
+
+        fill_in 'number_of_es_cells_starting_qc', :with => '5'
+
         find('#update-button').click
         assert page.has_css?('.x-message-box button')
         all('.x-message-box button').detect {|b| b.text == 'Yes'}.click
 
         find('a.mi-plan', :text => '[Helmholtz GMC:HMGU]').click
         assert page.has_css?('.plan.editor')
-        page.execute_script(<<-JS)
-          Ext.ComponentManager.get('number_of_es_cells_starting_qc').setValue('10');
-        JS
+
+        fill_in 'number_of_es_cells_starting_qc', :with => '10'
+
         find('#update-button').click
 
         assert page.has_no_css?('.x-mask', :visible => true)
 
         mi_plan.reload
-        assert_equal 10, mi_plan.number_of_es_cells_starting_qc
+
+        wait_until { 10 == mi_plan.number_of_es_cells_starting_qc }
+
         assert_equal 'Assigned - ES Cell QC In Progress', mi_plan.status.name
       end
 
@@ -178,4 +180,3 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
   end
 end
-

@@ -90,7 +90,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
         dataIndex: 'consortium_name',
         header: 'Consortium',
         readOnly: true,
-        width: 115,
+        width: 100,
         filter: {
             type: 'list',
             options: window.CONSORTIUM_OPTIONS
@@ -98,16 +98,45 @@ Ext.define('Imits.widget.MiPlansGrid', {
     },
     {
         dataIndex: 'is_bespoke_allele',
-        header: 'Bespoke allele?',
+        header: 'Bespoke',
         xtype: 'boolgridcolumn',
+        width: 60,
         readOnly: true,
         hidden: true
+    },
+    {
+        dataIndex: 'is_conditional_allele',
+        header: 'Conditional',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true
+    },
+    {
+        dataIndex: 'is_deletion_allele',
+        header: 'Deletion',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true
+    },
+    {
+        dataIndex: 'is_cre_knock_in_allele',
+        header: 'Cre Knock-in',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true
+    },
+    {
+        dataIndex: 'is_cre_bac_allele',
+        header: 'Cre BAC',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true
     },
     {
         dataIndex: 'sub_project_name',
         header: 'Sub-Project',
         readOnly: true,
-        width: 150,
+        width: 120,
         filter: {
             type: 'list',
             options: window.SUB_PROJECT_OPTIONS
@@ -128,6 +157,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
         dataIndex: 'priority_name',
         header: 'Priority',
         readOnly: true,
+        width: 80,
         filter: {
             type: 'list',
             options: window.PRIORITY_OPTIONS

@@ -31,6 +31,24 @@ class MiPlansControllerTest < ActionController::TestCase
           assert_equal plan.as_json, JSON.parse(response.body)
         end
 
+        should 'create MiPlan with optional attributes' do
+          Factory.create(:gene_cbx1)
+          assert_equal 0, MiPlan.count
+
+          attributes = {
+            :marker_symbol => 'Cbx1',
+            :consortium_name => 'BaSH',
+            :priority_name => 'High',
+            :is_conditional_allele => true,
+            :comment => "TEST TEXT"
+          }
+          post(:create, :mi_plan => attributes, :format => :json)
+          assert_response :success, response.body
+
+          plan = Public::MiPlan.first
+          assert_equal plan.as_json, JSON.parse(response.body)
+        end
+
         should 'use Public::MiPlan, not MiPlan' do
           gene = Factory.create :gene
           attributes = {

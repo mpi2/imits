@@ -77,7 +77,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.reload
           default_mi_attempt.is_active = false
           count = default_mi_attempt.phenotype_count
-          assert_match(count, 1)
+          assert_equal count, 1
         end
       end
 

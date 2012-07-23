@@ -346,22 +346,42 @@ table.report_table {
   margin-bottom: 20px;
 }
 
-table.report_table th, .report table th {
+table.report_table th, .report table th, .report_chunky table th   {
   border: 1px solid #999;
   text-align: left;
-  padding: 3px 3px;
   background-color: #ccc;
 }
 
-table.report_table td, .report table td {
+table .report_chunky table tr:nth-child(odd)   {
+  background-color: #e6e6e6;
+}
+
+table.report_table td, .report table td, .report_chunky table td  {
 	border: 1px solid #999;
-	padding: 3px 3px;
+}
+
+table.report_table th, .report table th,  {
+  padding: 3px 3px;
+}
+
+table.report_table td, .report table td {
+        padding: 3px 3px;
 }
 
 table.report_table tr.odd td, .report table tr.odd td {
 	background: #f1f1f1;
 }
 
+
+table .report_chunky table th {
+  padding: 0px 15px;
+  font-size:15px;
+}
+
+table .report_chunky table td {
+        padding: 0px 15px;
+        font-size:15px;
+}
 /* @end */
 
 /* @group Forms */

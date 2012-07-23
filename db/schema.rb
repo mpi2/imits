@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120720150932) do
+ActiveRecord::Schema.define(:version => 20120723110726) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -161,8 +161,8 @@ ActiveRecord::Schema.define(:version => 20120720150932) do
   end
 
   create_table "mi_attempt_status_stamps", :force => true do |t|
-    t.integer  "mi_attempt_id",        :null => false
-    t.integer  "mi_attempt_status_id", :null => false
+    t.integer  "mi_attempt_id", :null => false
+    t.integer  "status_id",     :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -179,7 +179,7 @@ ActiveRecord::Schema.define(:version => 20120720150932) do
   create_table "mi_attempts", :force => true do |t|
     t.integer  "es_cell_id",                                                                        :null => false
     t.date     "mi_date",                                                                           :null => false
-    t.integer  "mi_attempt_status_id",                                                              :null => false
+    t.integer  "status_id",                                                                         :null => false
     t.string   "colony_name",                                     :limit => 125
     t.integer  "updated_by_id"
     t.integer  "blast_strain_id"
@@ -394,11 +394,11 @@ ActiveRecord::Schema.define(:version => 20120720150932) do
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "mi_attempts", :name => "mi_attempt_distribution_centres_mi_attempt_id_fk"
 
-  add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk"
+  add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk", :column => "status_id"
   add_foreign_key "mi_attempt_status_stamps", "mi_attempts", :name => "mi_attempt_status_stamps_mi_attempt_id_fk"
 
   add_foreign_key "mi_attempts", "es_cells", :name => "mi_attempts_es_cell_id_fk"
-  add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk"
+  add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk", :column => "status_id"
   add_foreign_key "mi_attempts", "mi_plans", :name => "mi_attempts_mi_plan_id_fk"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_five_prime_cassette_integrity_id_fk", :column => "qc_five_prime_cassette_integrity_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_five_prime_lr_pcr_id_fk", :column => "qc_five_prime_lr_pcr_id"

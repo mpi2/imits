@@ -184,7 +184,12 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'withdrawn',
         'sub_project_name',
         'is_active',
-        'is_bespoke_allele'
+        'is_bespoke_allele',
+        'is_conditional_allele',
+        'is_deletion_allele',
+        'is_cre_knock_in_allele',
+        'is_cre_bac_allele',
+        'comment'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -204,6 +209,11 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'sub_project_name',
         'is_active',
         'is_bespoke_allele',
+        'is_conditional_allele',
+        'is_deletion_allele',
+        'is_cre_knock_in_allele',
+        'is_cre_bac_allele',
+        'comment',
         'status_dates',
         'mgi_accession_id'
       ]

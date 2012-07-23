@@ -206,7 +206,7 @@ Ext.define('Imits.widget.MiGrid', {
           sortable: false
         },
         {
-            header: 'No. Active Phenotype',
+            header: 'Active Phenotype',
             dataIndex: 'phenotype_count',
             readOnly: true,
             sortable: false,

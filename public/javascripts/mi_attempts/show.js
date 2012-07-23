@@ -1,30 +1,20 @@
 function addHideRowLinks() {
     var parentEl = Ext.fly('distribution_centres_table');
-    parentEl.on('click', function(event, target, options) {
-       event.preventDefault();
-       var inputField = Ext.get(target).prev('.destroy-field');
-       inputField.set({value:true});
-       Ext.get(target).parent().parent().hide();
-    }, this, {
-      delegate: 'a'
-    });
+    if (parentEl) {
+        parentEl.on('click', function(event, target, options) {
+            event.preventDefault();
+            var inputField = Ext.get(target).prev('.destroy-field');
+            inputField.set({
+                value:true
+            });
+            Ext.get(target).parent().parent().hide();
+        }, this, {
+            delegate: 'a'
+        });
+    }
 }
 
-
 Ext.onReady(addHideRowLinks);
-
-/*
-$('form').on('click', '.hide_row', function(event) {
-   $(this).prev('input[type=hidden]').val('1');
-   $(this).closest('tr').hide();
-   event.preventDefault();
-});
-
-$('form').on('click', '.remove_row', function(event) {
-    $(this).closest('tr').remove();
-    event.preventDefault();
-});
-*/
 
 Ext.select('form .add-row').on("click", function(event){
   event.preventDefault();

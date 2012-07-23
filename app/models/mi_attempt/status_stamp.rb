@@ -5,7 +5,7 @@ class MiAttempt::StatusStamp < ActiveRecord::Base
   acts_as_reportable
 
   belongs_to :mi_attempt
-  belongs_to :mi_attempt_status
+  belongs_to :mi_attempt_status, :class_name => 'MiAttempt::Status'
 
   delegate :name, :to => :mi_attempt_status
 

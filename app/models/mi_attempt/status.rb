@@ -1,11 +1,11 @@
 # encoding: utf-8
 
-class MiAttemptStatus < ActiveRecord::Base
+class MiAttempt::Status < ActiveRecord::Base
   acts_as_reportable
 
   validates :name, :presence => true, :uniqueness => true
 
-  has_many :status_stamps, :class_name => 'MiAttempt::StatusStamp'
+  has_many :status_stamps, :class_name => 'MiAttempt::StatusStamp', :foreign_key => 'mi_attempt_status_id'
   has_many :mi_attempts, :through => :status_stamps
 
   def self.micro_injection_in_progress

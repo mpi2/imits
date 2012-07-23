@@ -88,7 +88,7 @@ Seeds.load Strain, [
   {:id => 55, :name => 'C57BL/6Dnk or C57BL/6JIco or C57BL/6NTac'}
 ]
 
-Seeds.load MiAttemptStatus, [
+Seeds.load MiAttempt::Status, [
   {:id => 1, :name => 'Micro-injection in progress', :order_by => 220},
   {:id => 2, :name => 'Genotype confirmed', :order_by => 240},
   {:id => 3, :name => 'Micro-injection aborted', :order_by => 210},

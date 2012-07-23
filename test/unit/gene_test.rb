@@ -237,7 +237,6 @@ class GeneTest < ActiveSupport::TestCase
         assert @gene
         assert_equal 5, @gene.mi_plans.count
         mi_plans = @gene.non_assigned_mi_plans
-        assert mi_plans.include?({ :id => @bash_plan.id, :consortium => 'BaSH', :production_centre => nil, :status_name => 'Interest' })
         assert mi_plans.include?({ :id => @mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI', :status_name => 'Conflict' })
 
         statuses = mi_plans.map {|p| p[:status_name]}
@@ -255,7 +254,7 @@ class GeneTest < ActiveSupport::TestCase
         assert @gene
         assert_equal 5, @gene.mi_plans.count
         result = @gene.pretty_print_non_assigned_mi_plans
-        assert_include result, '[BaSH:Interest]'
+        assert_not_include result, '[BaSH:Interest]'
         assert_include result, '[MGP:WTSI:Conflict]'
         assert_not_include result, '[MGP:WTSI:Inactive]'
         assert_not_include result, '[MARC:MARC:Assigned]'
@@ -518,7 +517,7 @@ class GeneTest < ActiveSupport::TestCase
       should 'return correct status with only plan' do
         plan = Factory.create :mi_plan
         gene = plan.gene
-        assert_equal MiPlan::Status["Interest"].name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
+        assert_equal MiPlan::Status["Assigned"].name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
       end
 
       should 'return correct status with plan and microinjection attempt' do

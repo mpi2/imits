@@ -38,16 +38,6 @@ namespace :deploy do
     run "cd #{release_path} && rm -rf tmp && ln -nfs #{var_run_path}/tmp tmp"
   end
 
-  desc "Install extjs into shared and then symlink it to public/extjs"
-  task :extjs do
-    run "cd #{release_path} && #{bundle_cmd} exec rake extjs:install"
-  end
-
-  desc "Generate CSS/JS assets with Jammit"
-  task :generate_assets, :roles => :web do
-    run "cd #{release_path} && #{bundle_cmd} exec jammit"
-  end
-
   desc "Set the permissions of the filesystem so that others in the team can deploy, and the team87 user can do their stuff"
   task :fix_perms do
     run "find #{deploy_to}/ -user #{user}" + ' \! \( -perm -u+rw -a -perm -g+rw \) -exec chmod -v ug=rwX,o=rX {} \;'
@@ -56,5 +46,3 @@ end
 
 after "deploy:symlink", "deploy:fix_perms"
 after "deploy:update_code", "deploy:symlink_shared"
-after "deploy:symlink_shared", "deploy:extjs"
-after "deploy:extjs", "deploy:generate_assets"

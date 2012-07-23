@@ -398,6 +398,11 @@ class MiAttempt < ApplicationModel
     return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttemptStatus.micro_injection_in_progress.id}.created_at.utc.to_date
   end
 
+  def phenotype_count
+    count = self.phenotype_attempts.count
+    return count
+  end
+
 end
 
 # == Schema Information

@@ -1,7 +1,7 @@
 class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate
 
-  def self.report_name; 'impc_graph_report_display'; end
-  def self.report_title; 'IMPC Graph Report Display'; end
+  def self.report_name; 'komp2_production_summaries'; end
+  def self.report_title; 'KOMP2 Production Summaries'; end
   def self.consortia; ['BaSH', 'DTCC', 'JAX']; end
   def self.states; {'Assigned Date'=>'assigned_date', 'ES Cell QC In Progress'=>'assigned_es_cell_qc_in_progress_date', 'ES Cell QC Complete'=> 'assigned_es_cell_qc_complete_date', 'ES Cell QC Failed'=> 'aborted_es_cell_qc_failed_date', 'Micro-injection in progress'=> 'micro_injection_in_progress_date', 'Chimeras obtained'=> 'chimeras_obtained_date', 'Genotype confirmed'=> 'genotype_confirmed_date', 'Micro-injection aborted'=>'micro_injection_aborted_date', 'Phenotype Attempt Registered'=>'phenotype_attempt_registered_date', 'Rederivation Started'=>'rederivation_started_date', 'Rederivation Complete'=> 'rederivation_complete_date', 'Cre Excision Started'=>'cre_excision_started_date', 'Cre Excision Complete'=>'cre_excision_complete_date', 'Phenotyping Started'=>'phenotyping_started_date', 'Phenotyping Complete'=>'phenotyping_complete_date', 'Phenotype Attempt Aborted'=>'phenotype_attempt_aborted_date'}; end
 
@@ -110,15 +110,15 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
       mi_max = (([graph_data['graph']['mi_data'].max, graph_data['graph']['mi_goal_data'].max].max / 40) + 1) * 40
       gc_max = (([graph_data['graph']['gc_data'].max, graph_data['graph']['gc_goal_data'].max].max / 40) + 1) * 40
       one_width << [(graph_data['graph']['mi_data'].count + 2) * 40 , 600].max
-      draw_graph({:title => 'mi', :pointer_marker => x_data_lables, :live_data => graph_data['graph']['mi_data'], :goals_data => graph_data['graph']['mi_goal_data'], :diff_data => graph_data['graph']['mi_diff_data']},{:width => one_width[index], :height => 320, :min_value => 0, :max_value => mi_max, :consortium => consortium})
-      draw_graph({:title => 'gc', :pointer_marker => x_data_lables, :live_data => graph_data['graph']['gc_data'], :goals_data => graph_data['graph']['gc_goal_data'], :diff_data => graph_data['graph']['gc_diff_data']},{:width => one_width[index], :height =>320, :min_value => 0, :max_value => gc_max, :consortium => consortium})
+      draw_graph({:title => "#{consortium} Total Mouse Production", :legend => ['Total Mouse Production (Genes)','Mouse Production Goals (Genes)'], :pointer_marker => x_data_lables, :live_data => graph_data['graph']['mi_data'], :goals_data => graph_data['graph']['mi_goal_data'], :diff_data => graph_data['graph']['mi_diff_data']},{:name => 'mi', :width => one_width[index], :height => 380, :min_value => 0, :max_value => mi_max, :consortium => consortium})
+      draw_graph({:title => "#{consortium} Genotype Confirmed Mouse Production", :legend => ['Total Genotype Confirmed Mice (Genes)','Genotype Confirmed Goals (Genes)'], :pointer_marker => x_data_lables, :live_data => graph_data['graph']['gc_data'], :goals_data => graph_data['graph']['gc_goal_data'], :diff_data => graph_data['graph']['gc_diff_data']},{:name => 'gc', :width => one_width[index], :height =>380, :min_value => 0, :max_value => gc_max, :consortium => consortium})
       index += 1
     end
     return one_width
   end
 
 
-  def draw_graph(graph = {:title => '', :pointer_marker => [], :live_data => [], :goals_data => [], :diff_data => []}, render = {:width => 600, :min_value => 0, :max_value => 500, :consortium => ''})
+  def draw_graph(graph = {:title => '', :legend => ['',''], :pointer_marker => [], :live_data => [], :goals_data => [], :diff_data => []}, render = {:name => '', :width => 600, :min_value => 0, :max_value => 500, :consortium => ''})
 
     format = 'jpeg'
     diff_data = []
@@ -132,22 +132,24 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
         neg_diff_data << 0
       end
     end
-    mi_graph = Scruffy::Graph.new(:title => "#{render[:consortium]} #{graph[:title].upcase} Performance", :point_markers => graph[:pointer_marker], :point_markers_rotation => 90)
+
+
+    mi_graph = Scruffy::Graph.new(:title => graph[:title], :point_markers => graph[:pointer_marker], :point_markers_rotation => 90)
     mi_graph.theme = Scruffy::Themes::Base.new({:background => [:white, :white], :colors => ['#009966', '#6886B4', '#FFCC00', '#000DCC'], :marker => :black})
-    layer1 = mi_graph.add :line, "#{graph[:title]} Cumulative", graph[:live_data], :stroke_width => 4, :dots => true
-    layer2 = mi_graph.add :line, "#{graph[:title]} Goals", graph[:goals_data], :stroke_width => 4, :dots => true
+    layer1 = mi_graph.add :line, "#{graph[:legend][0]}", graph[:live_data], :stroke_width => 4, :dots => true
+    layer2 = mi_graph.add :line, "#{graph[:legend][1]}", graph[:goals_data], :stroke_width => 4, :dots => true
     layer3 = mi_graph.add :area, 'Below', diff_data
     layer4 = mi_graph.add :area, 'Above', neg_diff_data
     mi_graph.renderer = Scruffy::Renderers::Base.new
-    mi_graph.renderer.components << Scruffy::Components::Title.new(:title, :position => [5, 2], :size => [90, 7])
+    mi_graph.renderer.components << Scruffy::Components::Title.new(:title, :position => [5, 0], :size => [90, 7])
     mi_graph.renderer.components << Scruffy::Components::Viewport.new(:view, :position => [2, 26], :size => [89, 66], :layers => [layer4, layer3, layer2, layer1]) do |graph|
-      graph << Scruffy::Components::ValueMarkers.new(:values, :position => [0, 2], :size => [10, 85])
-      graph << Scruffy::Components::Grid.new(:grid, :position => [12, 0], :size => [92, 85], :stroke_width => 1, :markers => 5)
+      graph << Scruffy::Components::ValueMarkers.new(:values, :position => [0, 12], :size => [10, 75])
+      graph << Scruffy::Components::Grid.new(:grid, :position => [12, 10], :size => [92, 75], :stroke_width => 1, :markers => 5)
       graph << Scruffy::Components::DataMarkers.new(:labels, :position => [12, 92], :size => [92, 8])
-      graph << Scruffy::Components::Graphs.new(:graphs, :position => [12, 0], :size => [92, 85])
+      graph << Scruffy::Components::Graphs.new(:graphs, :position => [12, 10], :size => [92, 75])
     end
-    mi_graph.renderer.components << Scruffy::Components::Legend.new(:legend, :position => [5, 13], :size => [90, 6])
-    file = "#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{render[:consortium].downcase}_#{graph[:title]}_performance.#{format}"
+    mi_graph.renderer.components << Scruffy::Components::Legend.new(:legend, :position => [12, 10], :size => [70, 70], :vertical_legend => true)
+    file = "#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{render[:consortium].downcase}_#{render[:name]}_performance.#{format}"
     FileUtils.mkdir_p File.dirname(file)
     mi_graph.render(:size => [render[:width],render[:height]], :min_value => render[:min_value], :max_value => render[:max_value], :to => file, :as => "#{format}")
   end

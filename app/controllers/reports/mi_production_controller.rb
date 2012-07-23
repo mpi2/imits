@@ -198,6 +198,13 @@ class Reports::MiProductionController < ApplicationController
   end
   private :summary_3_split_helper
 
+  def impc_graph_report_download_image
+    data = File.read("#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpeg")
+    send_data data,
+            :filename => "#{params[:consortium]}_#{params[:goal]}_performance.jpeg?#{Time.now.strftime "%d%m%Y%H%M%S"}",
+            :type => 'image/jpeg'
+  end
+
   def impc_graph_report_display_image
     data = File.read("#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpeg")
     send_data data,

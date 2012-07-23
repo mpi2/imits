@@ -67,14 +67,14 @@
     </div>
 
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_komp2_compressed) %>">
-      <h4>KOMP2 Month-by-month activity (all centres collapsed together)</h4>
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :impc_graph_report_display) %>">
+      <h4>Production for KOMP2 Consortia (summary and graphs)</h4>
       </a>
     </div>
 
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :impc_graph_report_display) %>">
-      <h4>IMPC Consortia Graph Display</h4>
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_komp2_compressed) %>">
+      <h4>Production for KOMP2 Consortia (tables only)</h4>
       </a>
     </div>
 
@@ -102,16 +102,19 @@
         <h4>Production for IMPC Consortia</h4>
       </a>
     </div>
-    <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_impc) %>">
-      <h4>IMPC Month-by-month activity</h4>
-      </a>
-    </div>
+
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_impc_intermediate) %>">
-      <h4>IMPC activity - monthly breakdown</h4>
+      <h4>Production for IMPC Consortia</h4>
       </a>
     </div>
+
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_impc) %>">
+      <h7>IMPC Month-by-month activity (Legacy- all monthly attempts)</h7>
+      </a>
+    </div>
+
 
 </div>
 

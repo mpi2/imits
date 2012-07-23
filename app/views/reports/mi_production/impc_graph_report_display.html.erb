@@ -1,32 +1,84 @@
-<h1><%= @title = @report_data.class.report_title%></h1></br></br>
+<h1><%= @title = @report_data.class.report_title%></h1></br>
+<table class="descriptions">
+<thead>
+<tr><th width="250">Status</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>All Genes</strong></td><td>Unique genes targeted by Consortium</td></tr>
+<tr>
+  <td><strong>ES Cell QC</strong></td>
+  <td><strong>Cumulative!</strong>Genes where we see <em>any</em> ES QC activity, in progess, successful or aborted</td></tr>
+<tr>
+  <td><strong>ES QC Confirmed</strong></td>
+  <td>Genes where QC ES Cell clone(s) have been thawed and QC passed.</td>
+</tr>
+<tr>
+  <td><strong>ES QC Failed</strong></td>
+  <td>
+    Genes where <em>no</em> more attempts will be made to thaw existing ES Cell clones for this gene.
+  </td>
+</tr>
+<tr>
+  <td><strong>Microinjections</strong></td>
+  <td><strong>Cumulative!</strong> Number of Genes with any mouse production activity, In Progess, Chimeric, Genotype Confirmed or Aborted</td>
+</tr>
+<tr>
+  <td><strong>Genotype Confirmed Mice</strong></td>
+  <td>Number of Genes where iMits has at least one 'Chimera with GC offspring' or 'Het offspring' recorded.</td>
+</tr>
+</tbody>
+</table>
+</br>
+
+<table class="descriptions">
+<thead>
+<tr><th width="250">Status</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td  VALIGN="top"><strong>Intent to Phenotype</strong></td>
+  <td><strong>Cumulative!</strong> Number of Genes where Genotype Confirmed Mice have been Registered for Phenotyping by <em>this</em> Consortium / Production Centre <br/>(Mice may be drawn from <em>other</em> consortia)</td>
+</tr>
+<tr>
+  <td><strong>Cre excision complete</strong></td>
+  <td>Genes where exposure to Cre recombinase has been successful</td>
+</tr>
+<tr>
+  <td><strong>Phenotype complete</strong></td>
+  <td>Phenotyping <strong>data</strong> has finished flowing to the KOMP2 DCC (MPI2) - currently accessible via machine interface only</td>
+</tr>
+</tbody>
+</table>
+</br></br>
+
 <% n = 0 %>
 <% @report_data.graph.each do |consortium, data| %>
 <%params.delete(:action)
   params.delete(:controller)
   params.delete(:script_name)
   params.delete(:format) %>
-<h1><%= consortium%></h1>
 <table>
   <tr>
     <td width = "550">
       <div class="report_chunky">
       <dl>
-      <p><%=
-      link_to('Download as CSV', url_for({:action => controller.action_name, :controller => '/reports/mi_production', :format => :csv, :consortium => consortium}.merge(params)))
-      %></p>
+      <h1><%= consortium%></h1></br>
+      <pre><%=
+      link_to('Download as CSV', url_for({:action => controller.action_name, :controller => '/reports/mi_production', :format => :csv, :consortium => consortium}.merge(params)))%>    <%=link_to('Download MI image', url_for({:action => 'impc_graph_report_download_image', :controller => '/reports/mi_production', :consortium => consortium.downcase, :goal => 'mi'}.merge(params))) %>    <%= link_to('Download GC image', url_for({:action => 'impc_graph_report_download_image', :controller => '/reports/mi_production', :consortium => consortium.downcase, :goal => 'gc'}.merge(params)))
+      %></pre>
       <dt><table height = "670" width = "450">
         <tr>
-          <th>State</th>
-          <th>Current</th>
-          <th>Last Month</th>
+          <th>Status</th>
+          <th>Total Current</th>
+          <th>Last Complete Month</th>
         </tr>
         <tr>
-          <td>Assigned genes</td>
+          <td>All genes</td>
           <td><%= data['tabulate'][0]['assigned_genes']%></td>
           <td><%= data['tabulate'][1]['assigned_genes']%></td>
         </tr>
         <tr>
-          <td>ES QC</td>
+          <td>ES Cell QC</td>
           <td><%= data['tabulate'][0]['es_qc']%></td>
           <td><%= data['tabulate'][1]['es_qc']%></td>
         </tr>
@@ -41,12 +93,12 @@
           <td><%= data['tabulate'][1]['es_qc_failed']%></td>
         </tr>
         <tr>
-          <td>Mouse Production</td>
+          <td>Microinjections</td>
           <td><%= data['tabulate'][0]['mouse_production']%></td>
           <td><%= data['tabulate'][1]['mouse_production']%></td>
         </tr>
         <tr>
-          <td>Confirmed Mice</td>
+          <td>Genotype Confirmed Mice</td>
           <td><%= data['tabulate'][0]['confirmaed_mice']%></td>
           <td><%= data['tabulate'][1]['confirmaed_mice']%></td>
         </tr>
@@ -70,17 +122,13 @@
     <td width = "20"><pre>                 </pre></td>
     <td width = "2000"></br>
       <dl>
-        <p style = "padding-left: 50px"><%=
-        link_to('Download MI image', url_for({:action => 'impc_graph_report_display_image', :controller => '/reports/mi_production', :consortium => consortium.downcase, :goal => 'mi'}.merge(params))) %></br>
-        <%= link_to('Download GC image', url_for({:action => 'impc_graph_report_display_image', :controller => '/reports/mi_production', :consortium => consortium.downcase, :goal => 'gc'}.merge(params)))
-        %></p>
-        <dt><%= image_tag( url_for({:action => 'impc_graph_report_display_image', :controller => '/reports/mi_production', :consortium => consortium.downcase, :goal => 'mi'}.merge(params)), :height => '320', :width => @report_data.size[n])%></dt>
+        <dt><%= image_tag( url_for({:action => 'impc_graph_report_display_image', :controller => '/reports/mi_production', :consortium => consortium.downcase, :goal => 'mi'}.merge(params)), :height => '380', :width => @report_data.size[n])%></dt>
         </br>
-        <dt><%= image_tag( url_for({:action => 'impc_graph_report_display_image', :controller => '/reports/mi_production', :consortium => consortium.downcase, :goal => 'gc'}.merge(params)), :height => '320', :width => @report_data.size[n]) %></dt>
+        <dt><%= image_tag( url_for({:action => 'impc_graph_report_display_image', :controller => '/reports/mi_production', :consortium => consortium.downcase, :goal => 'gc'}.merge(params)), :height => '380', :width => @report_data.size[n]) %></dt>
       </dl>
     </td>
   </tr>
 </table>
-</br></br></br>
+</br></br></br></br>
 <% n += 1%>
 <% end %>

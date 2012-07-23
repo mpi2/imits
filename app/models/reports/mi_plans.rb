@@ -74,7 +74,7 @@ class Reports::MiPlans
           COALESCE(centres.name, 'NONE') as centres_name,
           consortia.name as consortia_name,
           mi_attempts.mi_date as mi_attempts_mi_date,
-          statuses.name as mi_attempt_statuses_name
+          mi_attempt_statuses.name as mi_attempt_statuses_name
         from mi_plans
           join mi_plan_statuses on mi_plans.status_id = mi_plan_statuses.id
           left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id

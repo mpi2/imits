@@ -349,7 +349,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       pcentre = 'ALL'
       next if self.consortia && ! self.consortia.include?(consortium)
       gene_id = stamp.mi_attempt.mi_plan.gene_id
-      status = stamp.mi_attempt_status.name
+      status = stamp.status.name
       marker_symbol = stamp.mi_attempt.mi_plan.gene.marker_symbol
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }

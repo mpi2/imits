@@ -211,7 +211,7 @@ class Gene < ActiveRecord::Base
     sql << "WHERE mi_attempts.is_active = #{active}\n"
     if ! statuses.empty?
       status_ids_string = statuses.map(&:id).join(', ')
-      sql << "AND mi_attempts.mi_attempt_status_id IN (#{status_ids_string})\n"
+      sql << "AND mi_attempts.status_id IN (#{status_ids_string})\n"
     end
     sql << "AND genes.id = #{gene_id}\n" unless gene_id.nil?
     sql << "group by genes.marker_symbol, consortia.name, centres.name\n"

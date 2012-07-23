@@ -64,7 +64,7 @@ class MiAttemptsController < ApplicationController
   def show
     set_centres_and_consortia
     @mi_attempt = Public::MiAttempt.find(params[:id])
-    if @mi_attempt.mi_attempt_status.name == 'Genotype confirmed' && @mi_attempt.distribution_centres.length == 0
+    if @mi_attempt.status.name == 'Genotype confirmed' && @mi_attempt.distribution_centres.length == 0
       @mi_attempt.distribution_centres.build
     end
 

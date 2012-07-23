@@ -451,7 +451,7 @@ class GeneTest < ActiveSupport::TestCase
                 :consortium_name => 'EUCOMM-EUMODIC'
         in_progress_mi.update_attributes!(:is_released_from_genotyping => false,
           :total_male_chimeras => 0)
-        assert_equal MiAttempt::Status.micro_injection_in_progress, in_progress_mi.mi_attempt_status
+        assert_equal MiAttempt::Status.micro_injection_in_progress, in_progress_mi.status
 
         assert gene
         assert_equal 4, gene.mi_plans.count

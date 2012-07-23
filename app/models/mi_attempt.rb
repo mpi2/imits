@@ -34,7 +34,7 @@ class MiAttempt < ApplicationModel
 
   belongs_to :mi_plan
   belongs_to :es_cell
-  belongs_to :mi_attempt_status
+  belongs_to :status
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :colony_background_strain, :class_name => 'Strain'
@@ -61,7 +61,7 @@ class MiAttempt < ApplicationModel
   validates :es_cell_name, :presence => true
   validates :production_centre_name, :presence => true
   validates :consortium_name, :presence => true
-  validates :mi_attempt_status, :presence => true
+  validates :status, :presence => true
   validates :colony_name, :uniqueness => {:case_sensitive => false}, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
@@ -108,8 +108,8 @@ class MiAttempt < ApplicationModel
 
   validate do |mi_attempt|
     if !mi_attempt.phenotype_attempts.blank? and
-              mi_attempt.mi_attempt_status != MiAttempt::Status.genotype_confirmed
-      mi_attempt.errors.add(:mi_attempt_status, 'cannot be changed - phenotype attempts exist')
+              mi_attempt.status != MiAttempt::Status.genotype_confirmed
+      mi_attempt.errors.add(:status, 'cannot be changed - phenotype attempts exist')
     end
   end
 
@@ -181,16 +181,16 @@ class MiAttempt < ApplicationModel
   end
 
   def record_if_status_was_changed
-    if self.changed.include? 'mi_attempt_status_id'
-      @new_mi_attempt_status = self.mi_attempt_status
+    if self.changed.include? 'status_id'
+      @new_status = self.status
     else
-      @new_mi_attempt_status = nil
+      @new_status = nil
     end
   end
 
   def create_status_stamp_if_status_was_changed
-    if @new_mi_attempt_status
-      add_status_stamp @new_mi_attempt_status
+    if @new_status
+      add_status_stamp @new_status
     end
   end
 
@@ -200,8 +200,8 @@ class MiAttempt < ApplicationModel
 
   def ensure_in_progress_status_stamp
     status_stamps.reload
-    if ! status_stamps.find_by_mi_attempt_status_id(MiAttempt::Status.micro_injection_in_progress)
-      status_stamps.create!(:mi_attempt_status => MiAttempt::Status.micro_injection_in_progress,
+    if ! status_stamps.find_by_status_id(MiAttempt::Status.micro_injection_in_progress)
+      status_stamps.create!(:status => MiAttempt::Status.micro_injection_in_progress,
         :created_at => status_stamps.last.created_at - 1.second)
       status_stamps.reload
     end
@@ -216,15 +216,15 @@ class MiAttempt < ApplicationModel
   end
 
   def self.genotype_confirmed
-    where(:mi_attempt_status_id => MiAttempt::Status.genotype_confirmed.id)
+    where(:status_id => MiAttempt::Status.genotype_confirmed.id)
   end
 
   def self.in_progress
-    where(:mi_attempt_status_id => MiAttempt::Status.micro_injection_in_progress.id)
+    where(:status_id => MiAttempt::Status.micro_injection_in_progress.id)
   end
 
   def self.aborted
-    where(:mi_attempt_status_id => MiAttempt::Status.micro_injection_aborted.id)
+    where(:status_id => MiAttempt::Status.micro_injection_aborted.id)
   end
 
   def consortium_name
@@ -290,13 +290,9 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  def status
-    return self.mi_attempt_status.try(:name)
-  end
-
   def create_phenotype_attempt_for_komp2
     consortia_to_check = ["BaSH", "DTCC", "JAX"]
-    if self.status == "Genotype confirmed" && consortia_to_check.include?(self.consortium.name)
+    if self.status.name == "Genotype confirmed" && consortia_to_check.include?(self.consortium.name)
       if self.phenotype_attempts.empty?
         self.phenotype_attempts.create!
       end
@@ -304,7 +300,7 @@ class MiAttempt < ApplicationModel
   end
 
   def add_status_stamp(new_status)
-    self.status_stamps.create!(:mi_attempt_status => new_status)
+    self.status_stamps.create!(:status => new_status)
     self.status_stamps.reload
   end
   private :add_status_stamp
@@ -382,8 +378,7 @@ class MiAttempt < ApplicationModel
       'es_cell_marker_symbol'   => 'es_cell_gene_marker_symbol',
       'es_cell_allele_symbol'   => 'es_cell_gene_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
-      'production_centre_name'  => 'mi_plan_production_centre_name',
-      'status_name'             => 'mi_attempt_status_name'
+      'production_centre_name'  => 'mi_plan_production_centre_name'
     }
   end
 
@@ -396,7 +391,7 @@ class MiAttempt < ApplicationModel
   end
 
   def in_progress_date
-    return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttempt::Status.micro_injection_in_progress.id}.created_at.utc.to_date
+    return status_stamps.all.find {|ss| ss.status_id == MiAttempt::Status.micro_injection_in_progress.id}.created_at.utc.to_date
   end
 
 end

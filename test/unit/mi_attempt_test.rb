@@ -40,26 +40,26 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
       end
 
-      context '#mi_attempt_status' do
+      context '#status' do
         should 'exist' do
-          assert_should have_db_column(:mi_attempt_status_id).with_options(:null => false)
-          assert_should belong_to(:mi_attempt_status)
+          assert_should have_db_column(:status_id).with_options(:null => false)
+          assert_should belong_to(:status)
         end
 
         should 'be set to "Micro-injection in progress" by default' do
-          assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt).mi_attempt_status.name
+          assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt).status.name
         end
 
         should ', when changed, add a status stamp' do
           default_mi_attempt.update_attributes!(:is_active => false)
           assert_equal [MiAttempt::Status.micro_injection_in_progress, MiAttempt::Status.micro_injection_aborted],
-                  default_mi_attempt.status_stamps.map(&:mi_attempt_status)
+                  default_mi_attempt.status_stamps.map(&:status)
         end
 
         should ', when assigned the same as current status, not add a status stamp' do
-          default_mi_attempt.mi_attempt_status = MiAttempt::Status.micro_injection_in_progress; default_mi_attempt.save!
+          default_mi_attempt.status = MiAttempt::Status.micro_injection_in_progress; default_mi_attempt.save!
           assert_equal [MiAttempt::Status.micro_injection_in_progress],
-                  default_mi_attempt.status_stamps.map(&:mi_attempt_status)
+                  default_mi_attempt.status_stamps.map(&:status)
         end
 
         should 'not be set to non-genotype-confirmed if mi attempt has phenotype_attempts' do
@@ -68,7 +68,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.reload
           default_mi_attempt.is_active = false
           default_mi_attempt.valid?
-          assert_match(/cannot be changed/i, default_mi_attempt.errors[:mi_attempt_status].first)
+          assert_match(/cannot be changed/i, default_mi_attempt.errors[:status].first)
         end
       end
 
@@ -89,22 +89,9 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'always include a Micro-injection in progress status, even if MI is created in Genotype confirmed state' do
           mi = Factory.create :mi_attempt_genotype_confirmed
           gc_stamp = mi.status_stamps.last
-          stamp = mi.status_stamps.all.find {|ss| ss.mi_attempt_status == MiAttempt::Status.micro_injection_in_progress}
+          stamp = mi.status_stamps.all.find {|ss| ss.status == MiAttempt::Status.micro_injection_in_progress}
           assert stamp
           assert_equal [stamp, gc_stamp], mi.status_stamps
-        end
-      end
-
-      context '#status virtual attribute' do
-        should 'be the name of the status of the MI' do
-          mi = default_mi_attempt
-          mi.mi_attempt_status = MiAttempt::Status.genotype_confirmed
-          assert_equal 'Genotype confirmed', mi.status
-        end
-
-        should 'be nil when actual status association is nil' do
-          default_mi_attempt.mi_attempt_status = nil
-          assert_nil default_mi_attempt.status
         end
       end
 
@@ -127,12 +114,12 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'add the stamp' do
           assert_not_nil MiAttempt::StatusStamp.where(
             :mi_attempt_id => default_mi_attempt.id,
-            :mi_attempt_status_id => MiAttempt::Status.micro_injection_aborted.id)
+            :status_id => MiAttempt::Status.micro_injection_aborted.id)
         end
 
         should 'update the association afterwards' do
           assert_equal [MiAttempt::Status.micro_injection_aborted],
-                  default_mi_attempt.status_stamps.map(&:mi_attempt_status)
+                  default_mi_attempt.status_stamps.map(&:status)
         end
       end
 
@@ -145,7 +132,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           }
           assert_equal expected, mi.reportable_statuses_with_latest_dates
 
-          mi.status_stamps.create!(:mi_attempt_status => MiAttempt::Status.micro_injection_in_progress,
+          mi.status_stamps.create!(:status => MiAttempt::Status.micro_injection_in_progress,
             :created_at => '2011-01-02 23:59:59')
           expected = {
             'Micro-injection in progress' => Date.parse('2011-01-02')
@@ -843,7 +830,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         Factory.create :mi_attempt_genotype_confirmed
       end
 
-      assert_equal 10, MiAttempt.where(:mi_attempt_status_id => the_status.id).count
+      assert_equal 10, MiAttempt.where(:status_id => the_status.id).count
       assert_equal 10, MiAttempt.genotype_confirmed.count
     end
 
@@ -852,7 +839,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       10.times { Factory.create :mi_attempt }
 
-      assert_equal 10, MiAttempt.where(:mi_attempt_status_id => the_status.id).count
+      assert_equal 10, MiAttempt.where(:status_id => the_status.id).count
       assert_equal 10, MiAttempt.in_progress.count
     end
 
@@ -864,7 +851,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         mi.update_attributes!(:is_active => false)
       end
 
-      assert_equal 10, MiAttempt.where(:mi_attempt_status_id => the_status.id).count
+      assert_equal 10, MiAttempt.where(:status_id => the_status.id).count
       assert_equal 10, MiAttempt.aborted.count
     end
 
@@ -887,11 +874,6 @@ class MiAttemptTest < ActiveSupport::TestCase
       should 'translate production_centre' do
         assert_equal 'mi_plan_production_centre_name_eq',
                 MiAttempt.translate_public_param('production_centre_name_eq')
-      end
-
-      should 'translate status' do
-        assert_equal 'mi_attempt_status_name_ci_in',
-                MiAttempt.translate_public_param('status_name_ci_in')
       end
 
       should 'leave other params untouched' do
@@ -997,7 +979,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     context '#create_phenotype_attempt_for_komp2' do
       should 'create a new phenotype attempt if status is genotype confirmed, attached to specific consortium and no current phenotype attempts' do
-        this_consortium = Consortium.where(:name => 'BaSH').first
+        this_consortium = Consortium.find_by_name!('BaSH')
         set_mi_attempt_genotype_confirmed(default_mi_attempt)
         default_mi_attempt.mi_plan.consortium = this_consortium
         default_mi_attempt.create_phenotype_attempt_for_komp2
@@ -1005,7 +987,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'not create a new phenotype attempt if status is genotype confirmed, attached to specific consortium and current phenotype attempts' do
-        this_consortium = Consortium.where(:name => 'BaSH').first
+        this_consortium = Consortium.find_by_name!('BaSH')
         set_mi_attempt_genotype_confirmed(default_mi_attempt)
         default_mi_attempt.mi_plan.consortium = this_consortium
         default_mi_attempt.phenotype_attempts.create!

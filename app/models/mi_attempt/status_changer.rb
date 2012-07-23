@@ -25,7 +25,7 @@ module MiAttempt::StatusChanger
   @@status_changer_machine = ss
 
   def change_status
-    self.mi_attempt_status = MiAttempt::Status.find_by_name!(@@status_changer_machine.get_status_for(self))
+    self.status = MiAttempt::Status.find_by_name!(@@status_changer_machine.get_status_for(self))
   end
 
 end

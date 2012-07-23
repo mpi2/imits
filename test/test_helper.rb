@@ -78,7 +78,6 @@ class ActiveSupport::TestCase
   end
 
   def replace_status_stamps(obj, stamps)
-    status_field = if obj.kind_of?(MiAttempt) then :mi_attempt_status else :status end
     status_class = (obj.class.name + '::' + obj.class.reflections[:status].class_name).constantize
 
     obj.status_stamps.destroy_all
@@ -87,7 +86,7 @@ class ActiveSupport::TestCase
       raise "status object lookup failed for '#{status_name}'" unless status_object
       obj.status_stamps.create!(
         :created_at => time,
-        status_field => status_object
+        :status => status_object
       )
     end
   end

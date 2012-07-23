@@ -71,8 +71,6 @@ class Public::MiAttempt < ::MiAttempt
   } + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
-
-  def status_name; mi_attempt_status.name; end
 end
 
 # == Schema Information

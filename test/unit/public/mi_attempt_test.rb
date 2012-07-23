@@ -10,7 +10,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have #status_name' do
-      assert_equal default_mi_attempt.status_name, default_mi_attempt.mi_attempt_status.name
+      assert_equal default_mi_attempt.status_name, default_mi_attempt.status.name
     end
 
     should 'limit the public mass-assignment API' do
@@ -145,7 +145,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
     context '#to_xml' do
       should 'work the same as #as_json' do
         doc = Nokogiri::XML(default_mi_attempt.to_xml)
-        assert_equal default_mi_attempt.mi_attempt_status.name, doc.css('status_name').text
+        assert_equal default_mi_attempt.status.name, doc.css('status_name').text
       end
 
       should 'output each attribute only once' do

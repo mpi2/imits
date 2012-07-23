@@ -261,7 +261,6 @@ class MiAttempt < ApplicationModel
     self.distribution_centres.each do |this_distribution_centre|
       output_array = Array.new
       centre = this_distribution_centre.centre.name || ''
-      deposited_material = this_distribution_centre.deposited_material.name || ''
       if this_distribution_centre.is_distributed_by_emma
         emma_status = 'EMMA'
         output_array.push(emma_status, centre)
@@ -465,4 +464,3 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

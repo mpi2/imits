@@ -122,8 +122,8 @@ class MiPlan < ApplicationModel
       MiAttempt::Status.genotype_confirmed => 4
     }
     ordered_mis = mi_attempts.all.sort do |mi1, mi2|
-      [@@status_sort_order[mi1.mi_attempt_status], mi1.in_progress_date] <=>
-              [@@status_sort_order[mi2.mi_attempt_status], mi2.in_progress_date]
+      [@@status_sort_order[mi1.status], mi1.in_progress_date] <=>
+              [@@status_sort_order[mi2.status], mi2.in_progress_date]
     end
     if ordered_mis.empty?
       return nil
@@ -326,7 +326,7 @@ class MiPlan < ApplicationModel
 
   def distinct_old_non_genotype_confirmed_es_cells_count
     es_cells = []
-    mi_attempts.search(:mi_attempt_status_id_not_eq => MiAttempt::Status.genotype_confirmed.id).result.each do |mi|
+    mi_attempts.search(:status_id_not_eq => MiAttempt::Status.genotype_confirmed.id).result.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
       mip_date = dates["Micro-injection in progress"]
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
@@ -355,7 +355,7 @@ class MiPlan < ApplicationModel
         mi_status_list["#{name}"] = date.to_s
       end
 
-      s = mi.mi_attempt_status.name
+      s = mi.status.name
       d = mi_status_list[s]
     end
 
@@ -380,7 +380,7 @@ class MiPlan < ApplicationModel
 
     mi = latest_relevant_mi_attempt
     if mi
-      status_stamp = mi.status_stamps.find_by_mi_attempt_status_id!(mi.mi_attempt_status.id)
+      status_stamp = mi.status_stamps.find_by_status_id!(mi.status.id)
     end
 
     pa = latest_relevant_phenotype_attempt

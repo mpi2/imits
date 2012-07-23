@@ -630,7 +630,7 @@ class MiPlanTest < ActiveSupport::TestCase
         set_mi_attempt_genotype_confirmed(mi_attempt)
 
         assert_equal mi_plan, mi_attempt.mi_plan
-        assert_equal MiAttempt::Status.genotype_confirmed.name, mi_attempt.mi_attempt_status.name
+        assert_equal MiAttempt::Status.genotype_confirmed.name, mi_attempt.status.name
 
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)

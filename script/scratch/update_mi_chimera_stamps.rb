@@ -54,9 +54,9 @@ end
 #@mi_attempts = MiAttempt.find(:all, :conditions => ["distribution_centre_id = ?", 2])
 @storage = Hash.new
 
-@genotype_complete_status = MiAttemptStatus.find_by_description('Genotype confirmed')
-@micro_injection_status = MiAttemptStatus.find_by_description('Micro-injection in progress')
-@micro_injection_aborted_status = MiAttemptStatus.find_by_description('Micro-injection aborted')
+@genotype_complete_status = MiAttempt::Status.find_by_description('Genotype confirmed')
+@micro_injection_status = MiAttempt::Status.find_by_description('Micro-injection in progress')
+@micro_injection_aborted_status = MiAttempt::Status.find_by_description('Micro-injection aborted')
 
 @audit_log = File.open("tmp/audit_log.txt", "w")
 mi_attempts_start_time = Time.now
@@ -137,7 +137,7 @@ input = gets.chomp.downcase
 
 if (input == 'y')
   puts "Creating stamps"
-  @chimera_status = MiAttemptStatus.find_by_description('Chimeras obtained')
+  @chimera_status = MiAttempt::Status.find_by_description('Chimeras obtained')
   @successful_save = 0
   
   if @chimera_status
@@ -166,7 +166,7 @@ if (input == 'y')
     
     end
   else
-    puts "Chimera obtained MI Attempt status not found : check that the MiAttemptStatus is available"
+    puts "Chimera obtained MI Attempt status not found : check that the MiAttempt::Status is available"
   end
   
   puts "Stamps finished"

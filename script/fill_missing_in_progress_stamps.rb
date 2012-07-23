@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-ip_status = MiAttemptStatus.micro_injection_in_progress
-gc_status = MiAttemptStatus.genotype_confirmed
+ip_status = MiAttempt::Status.micro_injection_in_progress
+gc_status = MiAttempt::Status.genotype_confirmed
 
 MiAttempt.transaction do
   broken = MiAttempt.all.find_all do |mi|

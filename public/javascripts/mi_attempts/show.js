@@ -4,13 +4,9 @@ function addHideRowLinks() {
         parentEl.on('click', function(event, target, options) {
             event.preventDefault();
             var inputField = Ext.get(target).prev('.destroy-field');
-            inputField.set({
-                value:true
-            });
+            inputField.set({value: true});
             Ext.get(target).parent().parent().hide();
-        }, this, {
-            delegate: 'a'
-        });
+        }, this, {delegate: 'a'});
     }
 }
 

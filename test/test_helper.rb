@@ -79,11 +79,7 @@ class ActiveSupport::TestCase
 
   def replace_status_stamps(obj, stamps)
     status_field = if obj.kind_of?(MiAttempt) then :mi_attempt_status else :status end
-    if obj.kind_of? MiAttempt
-      status_class = MiAttemptStatus
-    else
-      status_class = (obj.class.name + '::' + obj.class.reflections[:status].class_name).constantize
-    end
+    status_class = (obj.class.name + '::' + obj.class.reflections[:status].class_name).constantize
 
     obj.status_stamps.destroy_all
     stamps.each do |status_name, time|

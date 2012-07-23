@@ -108,7 +108,7 @@ class MiAttempt < ApplicationModel
 
   validate do |mi_attempt|
     if !mi_attempt.phenotype_attempts.blank? and
-              mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
+              mi_attempt.mi_attempt_status != MiAttempt::Status.genotype_confirmed
       mi_attempt.errors.add(:mi_attempt_status, 'cannot be changed - phenotype attempts exist')
     end
   end
@@ -200,8 +200,8 @@ class MiAttempt < ApplicationModel
 
   def ensure_in_progress_status_stamp
     status_stamps.reload
-    if ! status_stamps.find_by_mi_attempt_status_id(MiAttemptStatus.micro_injection_in_progress)
-      status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+    if ! status_stamps.find_by_mi_attempt_status_id(MiAttempt::Status.micro_injection_in_progress)
+      status_stamps.create!(:mi_attempt_status => MiAttempt::Status.micro_injection_in_progress,
         :created_at => status_stamps.last.created_at - 1.second)
       status_stamps.reload
     end
@@ -216,15 +216,15 @@ class MiAttempt < ApplicationModel
   end
 
   def self.genotype_confirmed
-    where(:mi_attempt_status_id => MiAttemptStatus.genotype_confirmed.id)
+    where(:mi_attempt_status_id => MiAttempt::Status.genotype_confirmed.id)
   end
 
   def self.in_progress
-    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_in_progress.id)
+    where(:mi_attempt_status_id => MiAttempt::Status.micro_injection_in_progress.id)
   end
 
   def self.aborted
-    where(:mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
+    where(:mi_attempt_status_id => MiAttempt::Status.micro_injection_aborted.id)
   end
 
   def consortium_name
@@ -319,8 +319,8 @@ class MiAttempt < ApplicationModel
       end
     end
 
-    aborted = MiAttemptStatus.micro_injection_aborted.name
-    confirmed = MiAttemptStatus.genotype_confirmed.name
+    aborted = MiAttempt::Status.micro_injection_aborted.name
+    confirmed = MiAttempt::Status.genotype_confirmed.name
     if retval[aborted] and retval[confirmed] and retval[aborted] < retval[confirmed]
       retval.delete(aborted)
     end
@@ -396,7 +396,7 @@ class MiAttempt < ApplicationModel
   end
 
   def in_progress_date
-    return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttemptStatus.micro_injection_in_progress.id}.created_at.utc.to_date
+    return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttempt::Status.micro_injection_in_progress.id}.created_at.utc.to_date
   end
 
 end

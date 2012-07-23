@@ -160,11 +160,11 @@ class Gene < ActiveRecord::Base
 
 
   def self.pretty_print_mi_attempts_in_progress_in_bulk(gene_id = nil)
-    return pretty_print_mi_attempts_in_bulk_helper(true, [MiAttemptStatus.micro_injection_in_progress, MiAttemptStatus.chimeras_obtained], gene_id)
+    return pretty_print_mi_attempts_in_bulk_helper(true, [MiAttempt::Status.micro_injection_in_progress, MiAttempt::Status.chimeras_obtained], gene_id)
   end
 
   def self.pretty_print_mi_attempts_genotype_confirmed_in_bulk(gene_id = nil)
-    return pretty_print_mi_attempts_in_bulk_helper(true, [MiAttemptStatus.genotype_confirmed], gene_id)
+    return pretty_print_mi_attempts_in_bulk_helper(true, [MiAttempt::Status.genotype_confirmed], gene_id)
   end
 
   def self.pretty_print_aborted_mi_attempts_in_bulk(gene_id=nil)

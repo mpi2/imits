@@ -37,10 +37,10 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       context '#latest_relevant_mi_attempt' do
-        def ip; MiAttemptStatus.micro_injection_in_progress.name; end
-        def co; MiAttemptStatus.chimeras_obtained.name; end
-        def gc; MiAttemptStatus.genotype_confirmed.name; end
-        def abrt; MiAttemptStatus.micro_injection_aborted.name; end
+        def ip; MiAttempt::Status.micro_injection_in_progress.name; end
+        def co; MiAttempt::Status.chimeras_obtained.name; end
+        def gc; MiAttempt::Status.genotype_confirmed.name; end
+        def abrt; MiAttempt::Status.micro_injection_aborted.name; end
 
         should 'get active MI with latest in_progress_date if active one exists' do
           cbx1 = Factory.create :gene_cbx1
@@ -655,7 +655,7 @@ class MiPlanTest < ActiveSupport::TestCase
         set_mi_attempt_genotype_confirmed(mi_attempt)
 
         assert_equal mi_plan, mi_attempt.mi_plan
-        assert_equal MiAttemptStatus.genotype_confirmed.name, mi_attempt.mi_attempt_status.name
+        assert_equal MiAttempt::Status.genotype_confirmed.name, mi_attempt.mi_attempt_status.name
 
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)

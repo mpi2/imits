@@ -11,13 +11,13 @@ class MiAttempt::StatusStampTest < ActiveSupport::TestCase
     should belong_to :mi_attempt_status
 
     should 'have #name proxy' do
-      stamp = MiAttempt::StatusStamp.new(:mi_attempt_status => MiAttemptStatus.micro_injection_aborted)
-      assert_equal MiAttemptStatus.micro_injection_aborted.name, stamp.name
+      stamp = MiAttempt::StatusStamp.new(:mi_attempt_status => MiAttempt::Status.micro_injection_aborted)
+      assert_equal MiAttempt::Status.micro_injection_aborted.name, stamp.name
     end
 
     should 'have #status proxy' do
-      stamp = MiAttempt::StatusStamp.new(:mi_attempt_status => MiAttemptStatus.micro_injection_aborted)
-      assert_equal MiAttemptStatus.micro_injection_aborted, stamp.status
+      stamp = MiAttempt::StatusStamp.new(:mi_attempt_status => MiAttempt::Status.micro_injection_aborted)
+      assert_equal MiAttempt::Status.micro_injection_aborted, stamp.status
     end
   end
 end

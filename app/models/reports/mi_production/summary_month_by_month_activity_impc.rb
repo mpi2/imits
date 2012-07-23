@@ -108,7 +108,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
     MiPlan::Status.all.each { |i| plan_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
 
     attempt_map = Hash.new { |hash,key| raise("attempt_map: No value defined for key: #{ key }") }
-    MiAttemptStatus.all.each { |i| attempt_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
+    MiAttempt::Status.all.each { |i| attempt_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
 
     phenotype_map = Hash.new { |hash,key| raise("phenotype_map: No value defined for key: #{ key }") }
     PhenotypeAttempt::Status.all.each { |i| phenotype_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }

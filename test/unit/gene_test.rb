@@ -379,7 +379,7 @@ class GeneTest < ActiveSupport::TestCase
                   :es_cell => Factory.create(:es_cell, :gene => gene),
                   :consortium_name => 'MGP',
                   :is_active => true
-          assert_equal MiAttemptStatus.genotype_confirmed.name, mi.status
+          assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status
         end
 
         3.times do
@@ -388,7 +388,7 @@ class GeneTest < ActiveSupport::TestCase
                   :consortium_name => 'DTCC',
                   :production_centre_name => 'UCD',
                   :is_active => true
-          assert_equal MiAttemptStatus.genotype_confirmed.name, mi.status
+          assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status
         end
 
         Factory.create :mi_attempt,
@@ -404,7 +404,7 @@ class GeneTest < ActiveSupport::TestCase
         in_progress_mi.number_of_het_offspring = 0
         in_progress_mi.total_male_chimeras = 0
         in_progress_mi.save!
-        assert_equal MiAttemptStatus.micro_injection_in_progress.name, in_progress_mi.status
+        assert_equal MiAttempt::Status.micro_injection_in_progress.name, in_progress_mi.status
 
         assert gene
         assert_equal 4, gene.mi_plans.count
@@ -429,7 +429,7 @@ class GeneTest < ActiveSupport::TestCase
                   :consortium_name => 'DTCC',
                   :production_centre_name => 'UCD',
                   :is_active => true
-          assert_equal MiAttemptStatus.genotype_confirmed.name, mi.status
+          assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status
         end
 
         2.times do
@@ -451,7 +451,7 @@ class GeneTest < ActiveSupport::TestCase
                 :consortium_name => 'EUCOMM-EUMODIC'
         in_progress_mi.update_attributes!(:is_released_from_genotyping => false,
           :total_male_chimeras => 0)
-        assert_equal MiAttemptStatus.micro_injection_in_progress, in_progress_mi.mi_attempt_status
+        assert_equal MiAttempt::Status.micro_injection_in_progress, in_progress_mi.mi_attempt_status
 
         assert gene
         assert_equal 4, gene.mi_plans.count
@@ -474,13 +474,13 @@ class GeneTest < ActiveSupport::TestCase
                 :consortium_name => 'MGP',
                 :is_active => true
         pa = Factory.create :populated_phenotype_attempt, :mi_attempt => mi
-        assert_equal MiAttemptStatus.genotype_confirmed.name, mi.status
+        assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status
 
         mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
                 :consortium_name => 'MGP',
                 :is_active => true
-        assert_equal MiAttemptStatus.genotype_confirmed.name, mi.status
+        assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status
 
         mi = Factory.create :mi_attempt_genotype_confirmed,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
@@ -488,7 +488,7 @@ class GeneTest < ActiveSupport::TestCase
                 :production_centre_name => 'UCD',
                 :is_active => true
         pa = Factory.create :populated_phenotype_attempt, :mi_attempt => mi
-        assert_equal MiAttemptStatus.genotype_confirmed.name, mi.status
+        assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status
 
         Factory.create :mi_attempt,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
@@ -503,7 +503,7 @@ class GeneTest < ActiveSupport::TestCase
         in_progress_mi.number_of_het_offspring = 0
         in_progress_mi.total_male_chimeras = 0
         in_progress_mi.save!
-        assert_equal MiAttemptStatus.micro_injection_in_progress.name, in_progress_mi.status
+        assert_equal MiAttempt::Status.micro_injection_in_progress.name, in_progress_mi.status
 
         assert gene
         assert_equal 4, gene.mi_plans.count
@@ -527,7 +527,7 @@ class GeneTest < ActiveSupport::TestCase
         :production_centre_name => 'WTSI'
         gene = mi.gene
         gene.reload
-        assert_equal MiAttemptStatus.genotype_confirmed.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
+        assert_equal MiAttempt::Status.genotype_confirmed.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
       end
 
       should 'return correct status with multiple stamps for plan, microinjection and phenotype attempt' do

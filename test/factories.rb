@@ -112,16 +112,16 @@ Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_
     mi.status_stamps.destroy_all
 
     mi.status_stamps.create!(
-      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :mi_attempt_status => MiAttempt::Status.genotype_confirmed,
       :created_at => Time.parse('2011-07-07 12:00:00'))
     mi.status_stamps.create!(
-      :mi_attempt_status => MiAttemptStatus.micro_injection_aborted,
+      :mi_attempt_status => MiAttempt::Status.micro_injection_aborted,
       :created_at => Time.parse('2011-06-06 12:00:00'))
     mi.status_stamps.create!(
-      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :mi_attempt_status => MiAttempt::Status.genotype_confirmed,
       :created_at => Time.parse('2011-05-05 12:00:00'))
     mi.status_stamps.create!(
-      :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+      :mi_attempt_status => MiAttempt::Status.micro_injection_in_progress,
       :created_at => Time.parse('2011-04-04 12:00:00'))
 
     mi.mi_plan.status_stamps.first.update_attributes(:created_at => Time.parse('2011-03-03 12:00:00'))
@@ -142,10 +142,10 @@ Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt_ge
     mi.status_stamps.destroy_all
 
     mi.status_stamps.create!(
-      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :mi_attempt_status => MiAttempt::Status.genotype_confirmed,
       :created_at => (Time.now - 1.hour))
     mi.status_stamps.create!(
-      :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+      :mi_attempt_status => MiAttempt::Status.micro_injection_in_progress,
       :created_at => (Time.now - 1.month))
 
     mi.mi_plan.status_stamps.first.update_attributes(:created_at => (Time.now - 3.month))
@@ -190,10 +190,10 @@ Factory.define :phenotype_attempt_with_recent_status_history, :parent => :popula
     pa.status_stamps.reload
 
     pa.mi_attempt.status_stamps.create!(
-      :mi_attempt_status => MiAttemptStatus.genotype_confirmed,
+      :mi_attempt_status => MiAttempt::Status.genotype_confirmed,
       :created_at => (Time.now - 1.hour))
     pa.mi_attempt.status_stamps.create!(
-      :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+      :mi_attempt_status => MiAttempt::Status.micro_injection_in_progress,
       :created_at => (Time.now - 1.month))
 
 
@@ -343,7 +343,7 @@ Factory.define :es_cell_EPD0011_1_G18, :parent => :es_cell do |es_cell|
       :consortium_name => 'MGP',
       :production_centre_name => 'WTSI'
     )
-    mi_attempt_status = MiAttemptStatus.find_by_name!('Genotype confirmed')
+    mi_attempt_status = MiAttempt::Status.find_by_name!('Genotype confirmed')
     mi_attempt.mi_attempt_status = mi_attempt_status
     phenotype_attempt = Factory.create :populated_phenotype_attempt, :mi_attempt => mi_attempt
   end

@@ -52,13 +52,13 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should ', when changed, add a status stamp' do
           default_mi_attempt.update_attributes!(:is_active => false)
-          assert_equal [MiAttemptStatus.micro_injection_in_progress, MiAttemptStatus.micro_injection_aborted],
+          assert_equal [MiAttempt::Status.micro_injection_in_progress, MiAttempt::Status.micro_injection_aborted],
                   default_mi_attempt.status_stamps.map(&:mi_attempt_status)
         end
 
         should ', when assigned the same as current status, not add a status stamp' do
-          default_mi_attempt.mi_attempt_status = MiAttemptStatus.micro_injection_in_progress; default_mi_attempt.save!
-          assert_equal [MiAttemptStatus.micro_injection_in_progress],
+          default_mi_attempt.mi_attempt_status = MiAttempt::Status.micro_injection_in_progress; default_mi_attempt.save!
+          assert_equal [MiAttempt::Status.micro_injection_in_progress],
                   default_mi_attempt.status_stamps.map(&:mi_attempt_status)
         end
 
@@ -80,16 +80,16 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'be ordered by created_at (soonest last)' do
           mi = Factory.create :mi_attempt_with_status_history
           assert_equal [
-            MiAttemptStatus.micro_injection_in_progress,
-            MiAttemptStatus.genotype_confirmed,
-            MiAttemptStatus.micro_injection_aborted,
-            MiAttemptStatus.genotype_confirmed].map(&:name), mi.status_stamps.map(&:name)
+            MiAttempt::Status.micro_injection_in_progress,
+            MiAttempt::Status.genotype_confirmed,
+            MiAttempt::Status.micro_injection_aborted,
+            MiAttempt::Status.genotype_confirmed].map(&:name), mi.status_stamps.map(&:name)
         end
 
         should 'always include a Micro-injection in progress status, even if MI is created in Genotype confirmed state' do
           mi = Factory.create :mi_attempt_genotype_confirmed
           gc_stamp = mi.status_stamps.last
-          stamp = mi.status_stamps.all.find {|ss| ss.mi_attempt_status == MiAttemptStatus.micro_injection_in_progress}
+          stamp = mi.status_stamps.all.find {|ss| ss.mi_attempt_status == MiAttempt::Status.micro_injection_in_progress}
           assert stamp
           assert_equal [stamp, gc_stamp], mi.status_stamps
         end
@@ -98,7 +98,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       context '#status virtual attribute' do
         should 'be the name of the status of the MI' do
           mi = default_mi_attempt
-          mi.mi_attempt_status = MiAttemptStatus.genotype_confirmed
+          mi.mi_attempt_status = MiAttempt::Status.genotype_confirmed
           assert_equal 'Genotype confirmed', mi.status
         end
 
@@ -112,7 +112,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'be filtered on #public_search' do
           default_mi_attempt.update_attributes!(:is_active => false)
           mi_attempt_2 = Factory.create :mi_attempt_genotype_confirmed
-          mi_ids = MiAttempt.public_search(:status_name_ci_in => MiAttemptStatus.micro_injection_aborted.name).result.map(&:id)
+          mi_ids = MiAttempt.public_search(:status_name_ci_in => MiAttempt::Status.micro_injection_aborted.name).result.map(&:id)
           assert_include mi_ids, default_mi_attempt.id
           assert ! mi_ids.include?(mi_attempt_2.id)
         end
@@ -121,17 +121,17 @@ class MiAttemptTest < ActiveSupport::TestCase
       context '#add_status_stamp' do
         setup do
           default_mi_attempt.status_stamps.destroy_all
-          default_mi_attempt.send(:add_status_stamp, MiAttemptStatus.micro_injection_aborted)
+          default_mi_attempt.send(:add_status_stamp, MiAttempt::Status.micro_injection_aborted)
         end
 
         should 'add the stamp' do
           assert_not_nil MiAttempt::StatusStamp.where(
             :mi_attempt_id => default_mi_attempt.id,
-            :mi_attempt_status_id => MiAttemptStatus.micro_injection_aborted.id)
+            :mi_attempt_status_id => MiAttempt::Status.micro_injection_aborted.id)
         end
 
         should 'update the association afterwards' do
-          assert_equal [MiAttemptStatus.micro_injection_aborted],
+          assert_equal [MiAttempt::Status.micro_injection_aborted],
                   default_mi_attempt.status_stamps.map(&:mi_attempt_status)
         end
       end
@@ -145,7 +145,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           }
           assert_equal expected, mi.reportable_statuses_with_latest_dates
 
-          mi.status_stamps.create!(:mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+          mi.status_stamps.create!(:mi_attempt_status => MiAttempt::Status.micro_injection_in_progress,
             :created_at => '2011-01-02 23:59:59')
           expected = {
             'Micro-injection in progress' => Date.parse('2011-01-02')
@@ -837,7 +837,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have ::genotype_confirmed' do
-      the_status = MiAttemptStatus.genotype_confirmed
+      the_status = MiAttempt::Status.genotype_confirmed
 
       10.times do
         Factory.create :mi_attempt_genotype_confirmed
@@ -848,7 +848,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have ::in_progress' do
-      the_status = MiAttemptStatus.micro_injection_in_progress
+      the_status = MiAttempt::Status.micro_injection_in_progress
 
       10.times { Factory.create :mi_attempt }
 
@@ -857,7 +857,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have ::aborted' do
-      the_status = MiAttemptStatus.micro_injection_aborted
+      the_status = MiAttempt::Status.micro_injection_aborted
 
       10.times do
         mi = Factory.create :mi_attempt
@@ -985,10 +985,10 @@ class MiAttemptTest < ActiveSupport::TestCase
         mi = Factory.create :mi_attempt_genotype_confirmed
         replace_status_stamps(mi,
           [
-            [MiAttemptStatus.genotype_confirmed.name, '2011-11-12 00:00 UTC'],
-            [MiAttemptStatus.micro_injection_in_progress.name, '2011-12-24 00:00 UTC'],
-            [MiAttemptStatus.micro_injection_in_progress.name, '2011-06-12 00:00 UTC'],
-            [MiAttemptStatus.genotype_confirmed.name, '2011-01-24 00:00 UTC']
+            [MiAttempt::Status.genotype_confirmed.name, '2011-11-12 00:00 UTC'],
+            [MiAttempt::Status.micro_injection_in_progress.name, '2011-12-24 00:00 UTC'],
+            [MiAttempt::Status.micro_injection_in_progress.name, '2011-06-12 00:00 UTC'],
+            [MiAttempt::Status.genotype_confirmed.name, '2011-01-24 00:00 UTC']
           ]
         )
         assert_equal Date.parse('2011-06-12'), mi.in_progress_date

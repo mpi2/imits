@@ -115,10 +115,10 @@ class MiPlan < ApplicationModel
 
   def latest_relevant_mi_attempt
     @@status_sort_order ||= {
-      MiAttemptStatus.micro_injection_aborted => 1,
-      MiAttemptStatus.micro_injection_in_progress => 2,
-      MiAttemptStatus.chimeras_obtained => 3,
-      MiAttemptStatus.genotype_confirmed => 4
+      MiAttempt::Status.micro_injection_aborted => 1,
+      MiAttempt::Status.micro_injection_in_progress => 2,
+      MiAttempt::Status.chimeras_obtained => 3,
+      MiAttempt::Status.genotype_confirmed => 4
     }
     ordered_mis = mi_attempts.all.sort do |mi1, mi2|
       [@@status_sort_order[mi1.mi_attempt_status], mi1.in_progress_date] <=>
@@ -332,7 +332,7 @@ class MiPlan < ApplicationModel
 
   def distinct_old_non_genotype_confirmed_es_cells_count
     es_cells = []
-    mi_attempts.search(:mi_attempt_status_id_not_eq => MiAttemptStatus.genotype_confirmed.id).result.each do |mi|
+    mi_attempts.search(:mi_attempt_status_id_not_eq => MiAttempt::Status.genotype_confirmed.id).result.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
       mip_date = dates["Micro-injection in progress"]
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date

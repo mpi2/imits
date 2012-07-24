@@ -56,10 +56,6 @@ class Public::MiPlan < ::MiPlan
   end
 
   validate do |plan|
-    if !plan.new_record? and plan.changes.has_key? 'consortium_id'
-      plan.errors.add(:consortium_name, 'cannot be changed')
-    end
-
     if !plan.new_record? and plan.changes.has_key? 'gene_id'
       plan.errors.add(:marker_symbol, 'cannot be changed')
     end
@@ -109,4 +105,3 @@ end
 #
 #  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
 #
-

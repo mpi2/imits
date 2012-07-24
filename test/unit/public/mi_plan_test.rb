@@ -49,7 +49,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         assert_not_equal gene, default_mi_plan.gene
         default_mi_plan.marker_symbol = 'Cbx1'
         default_mi_plan.valid?
-        assert_match /cannot be changed/, default_mi_plan.errors[:marker_symbol].first
+        assert_match(/cannot be changed/, default_mi_plan.errors[:marker_symbol].first)
       end
     end
 
@@ -64,11 +64,18 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         assert_should validate_presence_of :consortium_name
       end
 
-      should 'not be updateable' do
+      should 'be updateable' do
         assert_not_equal 'MGP', default_mi_plan.consortium_name
         default_mi_plan.consortium_name = 'MGP'
-        default_mi_plan.valid?
-        assert_match /cannot be changed/, default_mi_plan.errors[:consortium_name].first
+        assert default_mi_plan.valid?
+      end
+
+      should 'be NOT updateable if mi_attempts exist' do
+        mi_attempt = Factory.create(:mi_attempt).to_public
+        assert_not_equal mi_attempt.mi_plan.consortium, Consortium.find_by_name('MGP')
+        mi_attempt.mi_plan.consortium = Consortium.find_by_name('MGP')
+        mi_attempt.mi_plan.valid?
+        assert_match(/cannot be changed \(has mi attempts\)/, mi_attempt.mi_plan.errors[:consortium_name].first)
       end
     end
 
@@ -103,7 +110,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         plan = Public::MiPlan.find(mi.mi_plan.id)
         plan.production_centre_name = 'ICS'
         plan.valid?
-        assert_match /cannot be changed/, plan.errors[:production_centre_name].first
+        assert_match(/cannot be changed/, plan.errors[:production_centre_name].first)
       end
     end
 

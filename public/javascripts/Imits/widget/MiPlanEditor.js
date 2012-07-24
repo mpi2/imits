@@ -52,10 +52,12 @@ Ext.define('Imits.widget.MiPlanEditor', {
             },
             {
                 id: 'consortium_name',
-                xtype: 'textfield',
+                xtype: 'simplecombo',
                 fieldLabel: 'Consortium',
                 name: 'consortium_name',
-                readOnly: true
+                storeOptionsAreSpecial: true,
+                store: window.CONSORTIUM_OPTIONS,
+                readOnly: window.HAS_MI_ATTEMPTS
             },
             {
                 id: 'production_centre_name',

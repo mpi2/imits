@@ -929,8 +929,9 @@ class MiPlanTest < ActiveSupport::TestCase
 
         assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
-        assert_equal "MI already in progress at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
-                mi_plan.reason_for_inspect_or_conflict
+        assert_match(/MI already in progress at:/, mi_plan.reason_for_inspect_or_conflict)
+        assert_match(/#{@ics_cent.name} \(#{@eucomm_cons.name}\)/, mi_plan.reason_for_inspect_or_conflict)
+        assert_match(/#{@jax_cent.name} \(#{@bash_cons.name}\)/, mi_plan.reason_for_inspect_or_conflict)
       end
 
       should 'correctly return for Inspect - Conflict' do
@@ -1356,6 +1357,16 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = mi_attempt1.mi_plan.reload
         result = mi_attempt1.mi_plan.total_pipeline_efficiency_gene_count
         assert_equal 1, result
+      end
+    end
+
+    context 'check consortium' do
+      should 'be NOT updateable if mi_attempts exist' do
+        mi_attempt = Factory.create(:mi_attempt)
+        assert_not_equal mi_attempt.mi_plan.consortium, Consortium.find_by_name('MGP')
+        mi_attempt.mi_plan.consortium = Consortium.find_by_name('MGP')
+        mi_attempt.mi_plan.valid?
+        assert_match(/cannot be changed \(has mi attempts\)/, mi_attempt.mi_plan.errors[:consortium_name].first)
       end
     end
   end

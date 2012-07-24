@@ -21,7 +21,7 @@ namespace :cron do
       log = "RAILS_ENV=#{Rails.env} rake cron:sync_mi_attempt_in_progress_dates\n"
 
       MiAttempt.all.each do |mi|
-        ip_ss = mi.status_stamps.all.find {|i| i.mi_attempt_status == MiAttempt::Status.micro_injection_in_progress}
+        ip_ss = mi.status_stamps.all.find {|ss| ss.status == MiAttempt::Status.micro_injection_in_progress}
         ip_date = ip_ss.created_at.utc.to_date
         if ip_date != mi.mi_date
           log += "Changing '#{mi.colony_name}' in_progress_date from #{ip_date} to #{mi.mi_date}\n"

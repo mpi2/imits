@@ -156,11 +156,11 @@ class SearchForMiAttemptsTest < Kermits2::JsIntegrationTest
         @status = MiAttempt::Status.micro_injection_aborted.name
         @mi_attempt = Factory.create(:mi_attempt, :es_cell => @es_cell2)
         @mi_attempt.update_attributes!(:is_active => false)
-        assert_equal @status, @mi_attempt.status
+        assert_equal @status, @mi_attempt.status.name
 
         mi_attempt_to_not_be_found = Factory.create(:mi_attempt, :es_cell => @es_cell1)
         mi_attempt_to_not_be_found.update_attributes!(:is_active => false)
-        assert_equal @status, mi_attempt_to_not_be_found.status
+        assert_equal @status, mi_attempt_to_not_be_found.status.name
 
         sleep 3
         visit '/mi_attempts'

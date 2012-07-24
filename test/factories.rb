@@ -61,13 +61,8 @@ end
 
 Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_plan|
   mi_plan.after_create do |plan|
-    plan.status_stamps.destroy_all
-
-    plan.status_stamps.create!(
-      :status => MiPlan::Status[:Interest],
-      :created_at => (Time.now - 20.minute))
-
-    plan.status_stamps.reload
+    plan.status = MiPlan::Status["Assigned - ES Cell QC Complete"]
+    plan.save!
   end
 end
 

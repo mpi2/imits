@@ -47,7 +47,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       gene = Factory.create :gene_cbx1
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :gene => gene, :status => MiPlan::Status[:Interest]
+              :gene => gene, :status => MiPlan::Status[:Withdrawn]
       es_cell = Factory.create :es_cell, :gene => gene
 
       mi = Factory.build(:public_mi_attempt, :consortium_name => mi_plan.consortium.name,

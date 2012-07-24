@@ -414,66 +414,6 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      context '#withdrawn virtual attribute' do
-        context 'when being set to true' do
-          should 'set the status to Withdrawn if it at an allowed status' do
-            default_mi_plan.status = MiPlan::Status['Conflict']
-            default_mi_plan.withdrawn = true
-            assert_equal true, default_mi_plan.withdrawn
-            assert_equal 'Withdrawn', default_mi_plan.status.name
-
-            default_mi_plan.status = MiPlan::Status['Inspect - Conflict']
-            default_mi_plan.withdrawn = true
-            assert_equal true, default_mi_plan.withdrawn
-            assert_equal 'Withdrawn', default_mi_plan.status.name
-          end
-
-          should 'raise an error if not at an allowed status' do
-            default_mi_plan.status = MiPlan::Status['Assigned']
-            assert_raise RuntimeError, 'cannot withdraw from status Assigned' do
-              default_mi_plan.withdrawn = true
-            end
-            assert_equal false, default_mi_plan.withdrawn
-            assert_equal 'Assigned', default_mi_plan.status.name
-          end
-        end
-
-        context 'when being set to false' do
-          should 'not allow it if withdrawn' do
-            default_mi_plan.status = MiPlan::Status['Conflict']
-            default_mi_plan.withdrawn = true
-            assert_raise RuntimeError, 'withdrawal cannot be reversed' do
-              default_mi_plan.withdrawn = false
-            end
-          end
-
-          should 'allow it if not already withdrawn' do
-            assert_nothing_raised do
-              default_mi_plan.withdrawn = false
-            end
-          end
-        end
-
-        should 'return true if status is Withdrawn' do
-          default_mi_plan.status = MiPlan::Status['Withdrawn']
-          assert_equal true, default_mi_plan.withdrawn
-        end
-
-        should 'return false if status is not Withdrawn' do
-          default_mi_plan.status = MiPlan::Status['Assigned']
-          assert_equal false, default_mi_plan.withdrawn
-          default_mi_plan.status = MiPlan::Status['Conflict']
-          assert_equal false, default_mi_plan.withdrawn
-        end
-
-        should 'be readable as #withdrawn?' do
-          assert_false default_mi_plan.withdrawn?
-          default_mi_plan.status = MiPlan::Status['Conflict']
-          default_mi_plan.withdrawn = true
-          assert_true default_mi_plan.withdrawn?
-        end
-      end
-
       should 'validate logical key - the uniqueness of gene for a consortium, production_centre and sub project' do
         plan = Factory.create :mi_plan
         plan.save!

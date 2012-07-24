@@ -293,26 +293,6 @@ class MiPlan < ApplicationModel
     return MiPlan::Status.all_assigned.include?(status)
   end
 
-  def withdrawn
-    return status == MiPlan::Status['Withdrawn']
-  end
-
-  alias_method(:withdrawn?, :withdrawn)
-
-  def withdrawn=(boolarg)
-    return if boolarg == withdrawn?
-
-    if ! MiPlan::Status.all_affected_by_minor_conflict_resolution.include?(status)
-      raise RuntimeError, "cannot withdraw from status #{status.name}"
-    end
-
-    if boolarg == false
-      raise RuntimeError, 'withdrawal cannot be reversed'
-    else
-      self.status = MiPlan::Status['Withdrawn']
-    end
-  end
-
   def distinct_old_genotype_confirmed_es_cells_count
     es_cells = []
     mi_attempts.genotype_confirmed.each do |mi|
@@ -437,8 +417,10 @@ end
 #  sub_project_id                 :integer         not null
 #  is_active                      :boolean         default(TRUE), not null
 #  is_bespoke_allele              :boolean         default(FALSE), not null
+#  withdrawn                      :boolean         default(FALSE), not null
 #
 # Indexes
 #
 #  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
 #
+

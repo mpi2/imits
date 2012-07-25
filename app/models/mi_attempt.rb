@@ -29,7 +29,8 @@ class MiAttempt < ApplicationModel
     'b' => 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion',
     'c' => 'c - Knockout-First, Post-Flp - Conditional',
     'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
-    'e' => 'e - Targeted Non-Conditional'
+    'e' => 'e - Targeted Non-Conditional',
+    '.1' => '.1 - Promoter excision from Deletion'
   }.freeze
 
   belongs_to :mi_plan
@@ -260,7 +261,6 @@ class MiAttempt < ApplicationModel
     self.distribution_centres.each do |this_distribution_centre|
       output_array = Array.new
       centre = this_distribution_centre.centre.name || ''
-      deposited_material = this_distribution_centre.deposited_material.name || ''
       if this_distribution_centre.is_distributed_by_emma
         emma_status = 'EMMA'
         output_array.push(emma_status, centre)
@@ -397,6 +397,11 @@ class MiAttempt < ApplicationModel
 
   def in_progress_date
     return status_stamps.all.find {|ss| ss.mi_attempt_status_id == MiAttemptStatus.micro_injection_in_progress.id}.created_at.utc.to_date
+  end
+
+  def phenotype_count
+    count = self.phenotype_attempts.count
+    return count
   end
 
 end

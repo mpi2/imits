@@ -10,8 +10,8 @@ class MiPlanTest < ActiveSupport::TestCase
       @default_mi_plan ||= Factory.create :mi_plan
     end
 
-    should 'default_mi_plan should be in state Interest for the rest of the tests' do
-      assert_equal 'Interest', default_mi_plan.status.name
+    should 'default_mi_plan should be in state Assigned for the rest of the tests' do
+      assert_equal 'Assigned', default_mi_plan.status.name
     end
 
     context 'attribute tests:' do
@@ -253,9 +253,9 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_should have_many :status_stamps
         end
 
-        should 'be "Interest" by default' do
+        should 'be "Assigned" by default' do
           mi_plan = Factory.create :mi_plan
-          assert_equal [MiPlan::Status[:Interest]], mi_plan.status_stamps.map(&:status)
+          assert_equal [MiPlan::Status[:Assigned]], mi_plan.status_stamps.map(&:status)
         end
 
         should 'be ordered by created_at asc' do
@@ -314,8 +314,8 @@ class MiPlanTest < ActiveSupport::TestCase
         should 'work' do
           plan = Factory.create :mi_plan_with_production_centre
 
-          plan.status_stamps.first.update_attributes!(:created_at => '2011-11-30 00:00:00')
-          plan.reload
+          plan.status_stamps.destroy_all
+
           plan.status_stamps.create!(:status => MiPlan::Status['Interest'],
             :created_at => '2010-10-30 23:59:59')
           plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
@@ -330,7 +330,7 @@ class MiPlanTest < ActiveSupport::TestCase
             :created_at => '2011-10-24 23:59:59')
 
           expected = {
-            'Interest' => Date.parse('2011-11-30'),
+            'Interest' => Date.parse('2010-10-30'),
             'Conflict' => Date.parse('2011-05-30'),
             'Inspect - GLT Mouse' => Date.parse('2011-11-03'),
             'Inactive' => Date.parse('2011-10-24')
@@ -342,19 +342,19 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#status' do
         should 'create status stamps when status is changed' do
-          default_mi_plan.status = MiPlan::Status['Conflict']; default_mi_plan.save!
           default_mi_plan.status = MiPlan::Status['Assigned']; default_mi_plan.save!
-          default_mi_plan.status = MiPlan::Status['Interest']; default_mi_plan.save!
+          default_mi_plan.status = MiPlan::Status['Inactive']; default_mi_plan.save!
+          default_mi_plan.status = MiPlan::Status['Withdrawn']; default_mi_plan.save!
 
-          expected = ['Interest', 'Conflict', 'Assigned', 'Interest']
+          expected = ["Assigned", "Inactive", "Withdrawn"]
           assert_equal expected, default_mi_plan.status_stamps.map{|i| i.status.name}
         end
 
         should 'not add the same status stamp consecutively' do
-          default_mi_plan.status = MiPlan::Status['Interest']; default_mi_plan.save!
-          default_mi_plan.status = MiPlan::Status['Interest']; default_mi_plan.save!
+          default_mi_plan.status = MiPlan::Status['Conflict']; default_mi_plan.save!
+          default_mi_plan.status = MiPlan::Status['Conflict']; default_mi_plan.save!
 
-          assert_equal ['Interest'], default_mi_plan.status_stamps.map{|i|i.status.name}
+          assert_equal ["Assigned", "Conflict"], default_mi_plan.status_stamps.map{|i|i.status.name}
         end
 
         should 'not be one of the following if it has any phenotype attempts' do
@@ -538,22 +538,16 @@ class MiPlanTest < ActiveSupport::TestCase
             :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
             :status => MiPlan::Status.find_by_name!('Inspect - Conflict'))
         ]
-
-        MiPlan.major_conflict_resolution
-        @only_interest_mi_plan.reload
-        @inspect_mi_plans.each(&:reload)
       end
 
       should 'set Interested MiPlan to Assigned status if no other Interested or Assigned MiPlan for the same gene exists' do
         setup_for_set_one_to_assigned
         assert_equal 'Assigned', @only_interest_mi_plan.status.name
-        MiPlan.major_conflict_resolution
       end
 
       should 'not affect non-Interested MiPlans when setting Interested ones to Assigned' do
         setup_for_set_one_to_assigned
         assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], @inspect_mi_plans.map{|i| i.status.name}
-        MiPlan.major_conflict_resolution
       end
 
       should 'set all Interested MiPlans that have the same gene to Conflict' do
@@ -562,12 +556,7 @@ class MiPlanTest < ActiveSupport::TestCase
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
 
-        MiPlan.major_conflict_resolution
-
-        mi_plans.each(&:reload)
-        assert_equal ['Conflict', 'Conflict', 'Conflict'], mi_plans.map {|i| i.status.name }
-
-        MiPlan.major_conflict_resolution
+        assert_equal ["Assigned", "Inspect - Conflict", "Inspect - Conflict"], mi_plans.map {|i| i.status.name }
       end
 
       should 'set all Interested MiPlans to Conflict if other MiPlans for the same gene are in Conflict' do
@@ -581,12 +570,7 @@ class MiPlanTest < ActiveSupport::TestCase
         interested_mi_plan = Factory.create :mi_plan,
                 :gene => gene, :consortium => Consortium.find_by_name!('BaSH')
 
-        MiPlan.major_conflict_resolution
-        interested_mi_plan.reload
-
         assert_equal 'Conflict', interested_mi_plan.status.name
-
-        MiPlan.major_conflict_resolution
       end
 
       should 'set all interested MiPlans to "Inspect - Conflict" if other MiPlans for the same gene are already Assigned' do
@@ -598,9 +582,6 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
-
-        MiPlan.major_conflict_resolution
-        mi_plans.each(&:reload)
 
         assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.status.name }
       end
@@ -615,9 +596,6 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
-
-        MiPlan.major_conflict_resolution
-        mi_plans.each(&:reload)
 
         assert_equal ['Inspect - Conflict', 'Inspect - Conflict'], mi_plans.map {|i| i.status.name }
       end
@@ -638,9 +616,6 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
-
-        MiPlan.major_conflict_resolution
-        mi_plans.each(&:reload)
 
         assert_equal ['Inspect - MI Attempt', 'Inspect - MI Attempt'], mi_plans.map {|i| i.status.name }
       end
@@ -666,12 +641,7 @@ class MiPlanTest < ActiveSupport::TestCase
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
         end
 
-        mi_plans.each { |plan| assert_equal 'Interest', plan.status.name }
-
-        MiPlan.major_conflict_resolution
-        mi_plans.each(&:reload)
-
-        assert_equal ['Inspect - GLT Mouse', 'Inspect - GLT Mouse'], mi_plans.map {|i| i.status.name }
+        mi_plans.each { |plan| assert_equal 'Inspect - GLT Mouse', plan.status.name }
       end
 
       should 'ignore "Inactive" MiPlans when making decisions' do
@@ -684,11 +654,6 @@ class MiPlanTest < ActiveSupport::TestCase
                 :consortium => Consortium.find_by_name!('JAX'),
                 :production_centre => Centre.find_by_name!('JAX'),
                 :status => MiPlan::Status['Inactive']
-
-        assert_equal 'Interest', mi_plan.status.name
-        assert_equal 'Inactive', inactive_mi_plan.status.name
-
-        MiPlan.major_conflict_resolution
 
         assert_equal 'Assigned', mi_plan.reload.status.name
         assert_equal 'Inactive', inactive_mi_plan.reload.status.name
@@ -735,7 +700,7 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       [
-        'Interest',
+        'Assigned',
         'Withdrawn',
         'Aborted - ES Cell QC Failed'
       ].each do |status_name|
@@ -795,12 +760,15 @@ class MiPlanTest < ActiveSupport::TestCase
 
         result = MiPlan.all_grouped_by_mgi_accession_id_then_by_status_name
 
-        gene1_interest_results = result[gene1.mgi_accession_id]['Interest']
-        assert_include gene1_interest_results, bash
-        assert_include gene1_interest_results, consortium_x
-        assert_equal 2, gene1_interest_results.size
+        gene1_assigned_results = result[gene1.mgi_accession_id]['Assigned']
+        gene1_inspect_conflict_results = result[gene1.mgi_accession_id]['Inspect - Conflict']
 
-        assert_equal [mgp], result[gene1.mgi_accession_id]['Assigned']
+        assert_include gene1_assigned_results, bash
+        assert_include gene1_inspect_conflict_results, consortium_x
+        assert_equal 2, gene1_assigned_results.size
+        assert_equal 1, gene1_inspect_conflict_results.size
+
+        assert_equal [bash, mgp], result[gene1.mgi_accession_id]['Assigned']
         assert_equal [eucomm], result[gene2.mgi_accession_id]['Inspect - Conflict']
       end
     end
@@ -943,8 +911,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        MiPlan.major_conflict_resolution
-        mi_plan.reload; assert_equal 'Inspect - GLT Mouse', mi_plan.status.name
+        assert_equal 'Inspect - GLT Mouse', mi_plan.status.name
 
         assert_equal "GLT mouse produced at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
                 mi_plan.reason_for_inspect_or_conflict
@@ -965,8 +932,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        MiPlan.major_conflict_resolution
-        mi_plan.reload; assert_equal 'Inspect - MI Attempt', mi_plan.status.name
+        assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
         assert_equal "MI already in progress at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
                 mi_plan.reason_for_inspect_or_conflict
@@ -986,10 +952,9 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        MiPlan.major_conflict_resolution
-        mi_plan.reload; assert_equal 'Inspect - Conflict', mi_plan.status.name
-        assert_match /#{@bash_cons.name}/, mi_plan.reason_for_inspect_or_conflict
-        assert_match /#{@eucomm_cons.name}/, mi_plan.reason_for_inspect_or_conflict
+        assert_equal 'Inspect - Conflict', mi_plan.status.name
+        assert_match(/#{@bash_cons.name}/, mi_plan.reason_for_inspect_or_conflict)
+        assert_match(/#{@eucomm_cons.name}/, mi_plan.reason_for_inspect_or_conflict)
 
       end
 
@@ -1005,10 +970,9 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan = Factory.create :mi_plan, :gene => @gene,
                 :consortium => @mgp_cons, :production_centre => @cnb_cent
 
-        MiPlan.major_conflict_resolution
-        mi_plan.reload; assert_equal 'Conflict', mi_plan.status.name
+        assert_equal 'Inspect - Conflict', mi_plan.status.name
 
-        assert_equal "Other MI plans for: #{@eucomm_cons.name}, #{@bash_cons.name}",
+        assert_equal "Other 'Assigned' MI plans for: #{@eucomm_cons.name}",
                 mi_plan.reason_for_inspect_or_conflict
       end
 
@@ -1189,8 +1153,9 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'find plan' do
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create(:mi_plan, :gene => gene,
-          :consortium => Consortium.find_by_name!('MGP'),
-          :status => MiPlan::Status.find_by_name!('Aborted - ES Cell QC Failed'))
+          :consortium => Consortium.find_by_name!('MGP'))
+        mi_plan.status = MiPlan::Status.find_by_name!('Aborted - ES Cell QC Failed')
+        mi_plan.save!
 
         results = mi_plan.latest_relevant_status
 

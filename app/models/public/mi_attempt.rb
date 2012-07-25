@@ -64,6 +64,7 @@ class Public::MiAttempt < ::MiAttempt
     mouse_allele_symbol_superscript
     mouse_allele_symbol
     mi_plan_id
+    phenotype_count
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{

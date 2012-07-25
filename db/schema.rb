@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120723110726) do
+ActiveRecord::Schema.define(:version => 20120725145204) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -172,6 +172,7 @@ ActiveRecord::Schema.define(:version => 20120723110726) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "order_by"
+    t.string   "code",       :limit => 10, :null => false
   end
 
   add_index "mi_attempt_statuses", ["name"], :name => "index_mi_attempt_statuses_on_name", :unique => true
@@ -256,6 +257,7 @@ ActiveRecord::Schema.define(:version => 20120723110726) do
     t.integer  "order_by"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "code",        :limit => 10, :null => false
   end
 
   add_index "mi_plan_statuses", ["name"], :name => "index_mi_plan_statuses_on_name", :unique => true
@@ -279,6 +281,7 @@ ActiveRecord::Schema.define(:version => 20120723110726) do
     t.integer  "sub_project_id",                                    :null => false
     t.boolean  "is_active",                      :default => true,  :null => false
     t.boolean  "is_bespoke_allele",              :default => false, :null => false
+    t.boolean  "withdrawn",                      :default => false, :null => false
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
@@ -317,6 +320,7 @@ ActiveRecord::Schema.define(:version => 20120723110726) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "order_by"
+    t.string   "code",       :limit => 10, :null => false
   end
 
   create_table "phenotype_attempts", :force => true do |t|

@@ -78,7 +78,7 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
   create_table "es_cells", :force => true do |t|
     t.string   "name",                               :limit => 100, :null => false
     t.string   "allele_symbol_superscript_template", :limit => 75
-    t.string   "allele_type",                        :limit => 1
+    t.string   "allele_type",                        :limit => 2
     t.integer  "pipeline_id",                                       :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -210,7 +210,7 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
     t.integer  "number_of_cct_offspring"
     t.integer  "number_of_het_offspring"
     t.integer  "number_of_live_glt_offspring"
-    t.string   "mouse_allele_type",                               :limit => 1
+    t.string   "mouse_allele_type",                               :limit => 2
     t.integer  "qc_southern_blot_id"
     t.integer  "qc_five_prime_lr_pcr_id"
     t.integer  "qc_five_prime_cassette_integrity_id"
@@ -337,7 +337,7 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
     t.datetime "updated_at"
     t.integer  "mi_plan_id",                                                         :null => false
     t.string   "colony_name",                      :limit => 125,                    :null => false
-    t.string   "mouse_allele_type",                :limit => 1
+    t.string   "mouse_allele_type",                :limit => 2
     t.integer  "deleter_strain_id"
   end
 

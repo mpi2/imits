@@ -9,7 +9,7 @@ class PhenotypeAttemptsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
-        set_centres_and_consortia
+        set_centres_consortia_and_strains
         q = params[:q] ||= {}
 
         q[:terms] ||= ''
@@ -27,10 +27,9 @@ class PhenotypeAttemptsController < ApplicationController
   protected :data_for_serialized
 
   def new
-    set_centres_and_consortia
+    set_centres_consortia_and_strains
     @user = current_user
     @mi_attempt = MiAttempt.find_by_id(params[:mi_attempt_id])
-    @deleter_strain = DeleterStrain.all
     if @mi_attempt.status.name == "Genotype confirmed"
         @phenotype_attempt = Public::PhenotypeAttempt.new(
           :mi_attempt_colony_name => @mi_attempt.colony_name,
@@ -43,6 +42,7 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def create
+    set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
     @mi_attempt = MiAttempt.find_by_colony_name(@phenotype_attempt.mi_attempt_colony_name)
 
@@ -61,7 +61,7 @@ class PhenotypeAttemptsController < ApplicationController
       if ! @phenotype_attempt.errors[:base].blank?
         flash.now[:alert] += '<br/>' + @phenotype_attempt.errors[:base].join('<br/>')
       end
-      set_centres_and_consortia
+
     else
       @phenotype_attempt.save!
       flash[:notice] = 'Phenotype attempt created'
@@ -77,10 +77,9 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def show
-    set_centres_and_consortia
+    set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     @mi_attempt = @phenotype_attempt.mi_attempt
-    @deleter_strain = DeleterStrain.all
     respond_with @phenotype_attempt
   end
 
@@ -91,9 +90,10 @@ class PhenotypeAttemptsController < ApplicationController
 
   private
 
-  def set_centres_and_consortia
+  def set_centres_consortia_and_strains
     @centres = Centre.all
     @consortia = Consortium.all
+    @deleter_strain = DeleterStrain.all
   end
 
   def authorize_user_production_centre

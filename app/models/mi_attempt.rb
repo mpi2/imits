@@ -29,7 +29,8 @@ class MiAttempt < ApplicationModel
     'b' => 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion',
     'c' => 'c - Knockout-First, Post-Flp - Conditional',
     'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
-    'e' => 'e - Targeted Non-Conditional'
+    'e' => 'e - Targeted Non-Conditional',
+    '.1' => '.1 - Promoter excision from Deletion'
   }.freeze
 
   belongs_to :mi_plan
@@ -393,6 +394,11 @@ class MiAttempt < ApplicationModel
     return status_stamps.all.find {|ss| ss.status_id == MiAttempt::Status.micro_injection_in_progress.id}.created_at.utc.to_date
   end
 
+  def phenotype_count
+    count = self.phenotype_attempts.count
+    return count
+  end
+
 end
 
 # == Schema Information
@@ -432,7 +438,7 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
-#  mouse_allele_type                               :string(1)
+#  mouse_allele_type                               :string(2)
 #  qc_southern_blot_id                             :integer
 #  qc_five_prime_lr_pcr_id                         :integer
 #  qc_five_prime_cassette_integrity_id             :integer

@@ -136,7 +136,15 @@ class Reports::MiProductionController < ApplicationController
     else
     render :action => 'summary_month_by_month_activity_komp2_compressed'
     end
+  end
 
+  def summary_month_by_month_activity_impc_intermediate
+    @report_data = Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate.new
+    if request.format == :csv
+      send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv)
+    else
+    render :action => 'summary_month_by_month_activity_komp2_compressed'
+    end
   end
 
   def month_by_month_helper_no_cache(report_class)
@@ -178,7 +186,6 @@ class Reports::MiProductionController < ApplicationController
     end
 
     query = ReportCache.where(:name => report_class.report_name)
-    #@pheno_html = return_value[:pheno_html]
     @mouse_html = query.where(:format=>'mouse_html').first.data
     @pheno_html = query.where(:format=>'pheno_html').first.data
     csv = query.where(:format=>'csv').first.data
@@ -191,4 +198,27 @@ class Reports::MiProductionController < ApplicationController
   end
   private :summary_3_split_helper
 
+  def impc_graph_report_download_image
+    data = File.read("#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpeg")
+    send_data data,
+            :filename => "#{params[:consortium]}_#{params[:goal]}_performance.jpeg?#{Time.now.strftime "%d%m%Y%H%M%S"}",
+            :type => 'image/jpeg'
+  end
+
+  def impc_graph_report_display_image
+    data = File.read("#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpeg")
+    send_data data,
+            :filename => "#{params[:consortium]}_#{params[:goal]}_performance.jpeg?#{Time.now.strftime "%d%m%Y%H%M%S"}",
+            :type => 'image/jpeg',
+            :disposition => 'inline'
+  end
+
+  def impc_graph_report_display
+    @report_data = Reports::MiProduction::ImpcGraphReportDisplay.new
+    if request.format == :csv
+      send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv[params[:consortium]])
+    else
+      render :action => 'impc_graph_report_display'
+    end
+  end
 end

@@ -353,11 +353,14 @@ class MiPlanTest < ActiveSupport::TestCase
         end
 
         should 'not be one of the following if it has any phenotype attempts' do
-          pt = Factory.create :phenotype_attempt
-          plan = pt.mi_plan
-          plan.status = MiPlan::Status['Assigned']
-          plan.save!
-          ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"].each do |this_status|
+          mi = Factory.create :mi_attempt_genotype_confirmed, :consortium_name => 'DTCC'
+          plan = TestDummy.mi_plan('BaSH', 'WTSI', mi.gene.marker_symbol)
+          pt = Factory.create :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi
+          plan.reload
+          assert_equal 0, plan.mi_attempts.count
+          assert_equal 1, plan.phenotype_attempts.count
+
+          ["Interest", "Conflict", "Inspect - GLT Mouse", "Inspect - MI Attempt", "Inspect - Conflict", "Aborted - ES Cell QC Failed", "Withdrawn"].each do |this_status|
             plan.status = MiPlan::Status[this_status]
             plan.valid?
             assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"
@@ -369,7 +372,7 @@ class MiPlanTest < ActiveSupport::TestCase
           plan = mi_attempt.mi_plan
           plan.status = MiPlan::Status['Assigned']
           plan.save!
-          ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"].each do |this_status|
+          ["Interest", "Conflict", "Inspect - GLT Mouse", "Inspect - MI Attempt", "Inspect - Conflict", "Aborted - ES Cell QC Failed", "Withdrawn"].each do |this_status|
             plan.status = MiPlan::Status[this_status]
             plan.valid?
             assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"

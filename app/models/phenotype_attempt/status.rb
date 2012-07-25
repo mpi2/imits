@@ -15,5 +15,6 @@ end
 #  created_at :datetime
 #  updated_at :datetime
 #  order_by   :integer
+#  code       :string(10)      not null
 #
 

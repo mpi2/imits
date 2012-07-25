@@ -60,6 +60,7 @@ end
 #  order_by    :integer
 #  created_at  :datetime
 #  updated_at  :datetime
+#  code        :string(10)      not null
 #
 # Indexes
 #

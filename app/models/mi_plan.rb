@@ -63,6 +63,15 @@ class MiPlan < ApplicationModel
     end
   end
 
+  validate do |plan|
+    if plan.changes.has_key?('status_id') and plan.withdrawn == true
+      withdrawable_ids = MiPlan::Status.all_affected_by_minor_conflict_resolution.map(&:id)
+      if ! withdrawable_ids.include?(plan.changes[0])
+        plan.errors.add(:withdrawn, 'cannot be set - not currently in a withdrawable state')
+      end
+    end
+  end
+
   # BEGIN Callbacks
 
   before_validation :set_default_mi_plan_status

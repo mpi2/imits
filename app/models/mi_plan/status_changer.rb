@@ -2,10 +2,14 @@
 
 module MiPlan::StatusChanger
 
-  def change_status  
+  def change_status
     if self.is_active == false
       self.status = MiPlan::Status['Inactive']
       return
+    end
+
+    if self.withdrawn? == true
+      self.status = MiPlan::Status['Withdrawn']
     end
 
     if number_of_es_cells_passing_qc != nil

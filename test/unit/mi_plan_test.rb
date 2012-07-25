@@ -414,6 +414,17 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
+      context '#withdrawn' do
+        should 'not be settable if currently not in an allowed status' do
+          default_mi_plan.status = MiPlan::Status['Assigned']
+          default_mi_plan.save!
+
+          default_mi_plan.withdrawn = true
+          assert_false default_mi_plan.valid?
+          assert_match /cannot be set/, default_mi_plan.errors[:withdrawn].first
+        end
+      end
+
       should 'validate logical key - the uniqueness of gene for a consortium, production_centre and sub project' do
         plan = Factory.create :mi_plan
         plan.save!

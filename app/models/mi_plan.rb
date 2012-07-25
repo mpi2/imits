@@ -40,7 +40,7 @@ class MiPlan < ApplicationModel
 
   validate do |plan|
     statuses = MiPlan::Status.pre_assigned
-    if statuses.include?(plan.status.name) and plan.phenotype_attempts.length != 0
+    if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0
       plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
     end
   end

@@ -69,7 +69,7 @@ class Public::MiPlan < ::MiPlan
   validate do |plan|
     if !plan.new_record? and plan.changes.has_key? 'consortium_id'
       if plan.mi_attempts.size > 0
-        plan.errors.add(:consortium_name, 'cannot be changed (has Micro Injection Attempts)')
+        plan.errors.add(:consortium_name, 'cannot be changed (has micro-injection attempts)')
       end
     end
   end

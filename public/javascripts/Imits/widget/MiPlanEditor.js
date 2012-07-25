@@ -352,7 +352,6 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 });
                 editor.show();
 
-				// disable consortium change if there are mi_attempts
                 var component = editor.form.getComponent('consortium_name');
                 if(component && miPlan.get('mi_attempts_count') > 0) {
                     component.setReadOnly(true);

@@ -64,19 +64,19 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         assert_should validate_presence_of :consortium_name
       end
 
-      should 'be updateable' do
+      should 'should be updateable if the MiPlan has no MiAttempts' do
         assert_not_equal 'MGP', default_mi_plan.consortium_name
         default_mi_plan.consortium_name = 'MGP'
         assert default_mi_plan.valid?
       end
 
-      should 'be NOT updateable if mi_attempts exist' do
+      should 'should NOT be updateable if the MiPlan has MiAttempts' do
         mi_attempt = Factory.create(:mi_attempt).to_public
         mi_plan = mi_attempt.mi_plan.to_public
         assert_not_equal mi_plan.consortium, Consortium.find_by_name('MGP')
         mi_plan.consortium = Consortium.find_by_name('MGP')
         mi_plan.valid?
-        assert_match(/cannot be changed \(has Micro Injection Attempts\)/, mi_plan.errors[:consortium_name].first)
+        assert_match(/cannot be changed \(has micro-injection attempts\)/, mi_plan.errors[:consortium_name].first)
       end
     end
 

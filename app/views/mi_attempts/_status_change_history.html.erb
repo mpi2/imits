@@ -10,7 +10,7 @@
       </thead>
       <tbody>
         <% data = (mi_attempt.mi_plan.status_stamps.map {|i| [i.created_at, i.name]} +
-                   mi_attempt.status_stamps.map {|i| [i.created_at, i.description]}).sort_by(&:first) %>
+                   mi_attempt.status_stamps.map {|i| [i.created_at, i.name]}).sort_by(&:first) %>
         <% data.each do |created_at, name| %>
           <tr>
             <td><%= created_at.utc.to_s(:imits) %></td>

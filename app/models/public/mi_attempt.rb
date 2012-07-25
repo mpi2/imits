@@ -72,7 +72,7 @@ class Public::MiAttempt < ::MiAttempt
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
-  def status_name; mi_attempt_status.description; end
+  def status_name; status.name; end
 end
 
 # == Schema Information
@@ -82,7 +82,7 @@ end
 #  id                                              :integer         not null, primary key
 #  es_cell_id                                      :integer         not null
 #  mi_date                                         :date            not null
-#  mi_attempt_status_id                            :integer         not null
+#  status_id                                       :integer         not null
 #  colony_name                                     :string(125)
 #  updated_by_id                                   :integer
 #  blast_strain_id                                 :integer

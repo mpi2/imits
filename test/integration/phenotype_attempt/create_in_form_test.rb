@@ -13,6 +13,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       login
 
       click_link "Mouse Production"
+      wait_until_grid_loaded
       within('.x-grid') { click_link "Create" }
     end
 
@@ -39,14 +40,16 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
 
       sleep 5
 
-      assert_equal 1, PhenotypeAttempt.count
-      pt = Public::PhenotypeAttempt.first
-      assert_equal 'BaSH', pt.consortium_name
-      assert_equal 'WTSI', pt.production_centre_name
-      assert_equal DeleterStrain.first, pt.deleter_strain
-      assert_equal 9, pt.number_of_cre_matings_successful
-      assert_equal 'b', pt.mouse_allele_type
-      assert_equal @mi_attempt.colony_name, pt.mi_attempt.colony_name
+      ApplicationModel.uncached do
+        assert_equal 1, PhenotypeAttempt.count
+        pt = Public::PhenotypeAttempt.first
+        assert_equal 'BaSH', pt.consortium_name
+        assert_equal 'WTSI', pt.production_centre_name
+        assert_equal DeleterStrain.first, pt.deleter_strain
+        assert_equal 9, pt.number_of_cre_matings_successful
+        assert_equal 'b', pt.mouse_allele_type
+        assert_equal @mi_attempt.colony_name, pt.mi_attempt.colony_name
+      end
     end
 
     should 'be creatable with minimal values' do
@@ -54,9 +57,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       click_button 'phenotype_attempt_submit'
       assert page.has_css?('.message.notice')
       assert_equal 'Phenotype attempt created', page.find('.message.notice').text
-
-      sleep 5
-      assert_equal 1, PhenotypeAttempt.count
+      ApplicationModel.uncached { assert_equal 1, PhenotypeAttempt.count }
     end
 
   end

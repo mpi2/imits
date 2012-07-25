@@ -1,17 +1,17 @@
 ---
 1:
-  description: Micro-injection in progress
+  name: Micro-injection in progress
   id: 1
   order_by: 220
 2:
-  description: Genotype confirmed
+  name: Genotype confirmed
   id: 2
   order_by: 240
 3:
-  description: Micro-injection aborted
+  name: Micro-injection aborted
   id: 3
   order_by: 210
 4:
-  description: Chimeras obtained
+  name: Chimeras obtained
   id: 4
   order_by: 230

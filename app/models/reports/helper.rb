@@ -13,7 +13,7 @@ module Reports::Helper
         'gene.marker_symbol'                                          => 'Marker Symbol',
         'es_cell.allele_symbol'                                       => 'Clone Allele Name',
         'mi_attempts.mi_date'                                         => 'Injection Date',
-        'mi_attempts.status'                                          => 'Status',
+        'status.name'                                                 => 'Status',
         'colony_background_strain.name'                               => 'Background Strain',
         'blast_strain.name'                                           => 'Blastocyst Strain',
         'mi_attempts.total_transferred'                               => '# Blastocysts Transferred',
@@ -74,8 +74,8 @@ module Reports::Helper
               :comments,
               :number_of_chimeras_with_glt_from_cct
             ],
-            :methods => [:status],
             :include => {
+              :status                   => { :only => [:name] },
               :es_cell                  => { :only => [:name, :parental_cell_line], :methods => [:allele_symbol], :include => { :pipeline => { :only => [:name] } } },
               :blast_strain             => { :only => [], :methods => [:name] },
               :colony_background_strain => { :only => [], :methods => [:name] },

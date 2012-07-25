@@ -63,14 +63,6 @@ class MiPlan < ApplicationModel
     end
   end
 
-  validate do |plan|
-    if !plan.new_record? and plan.changes.has_key? 'consortium_id'
-      if plan.mi_attempts.size > 0
-        plan.errors.add(:consortium_name, 'cannot be changed (has mi attempts)')
-      end
-    end
-  end
-
   # BEGIN Callbacks
 
   before_validation :set_default_mi_plan_status

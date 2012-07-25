@@ -72,10 +72,11 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
       should 'be NOT updateable if mi_attempts exist' do
         mi_attempt = Factory.create(:mi_attempt).to_public
-        assert_not_equal mi_attempt.mi_plan.consortium, Consortium.find_by_name('MGP')
-        mi_attempt.mi_plan.consortium = Consortium.find_by_name('MGP')
-        mi_attempt.mi_plan.valid?
-        assert_match(/cannot be changed \(has mi attempts\)/, mi_attempt.mi_plan.errors[:consortium_name].first)
+        mi_plan = mi_attempt.mi_plan.to_public
+        assert_not_equal mi_plan.consortium, Consortium.find_by_name('MGP')
+        mi_plan.consortium = Consortium.find_by_name('MGP')
+        mi_plan.valid?
+        assert_match(/cannot be changed \(has Micro Injection Attempts\)/, mi_plan.errors[:consortium_name].first)
       end
     end
 
@@ -212,7 +213,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'is_active',
         'is_bespoke_allele',
         'status_dates',
-        'mgi_accession_id'
+        'mgi_accession_id',
+        'mi_attempts_count'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

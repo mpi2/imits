@@ -1359,15 +1359,5 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal 1, result
       end
     end
-
-    context 'check consortium' do
-      should 'be NOT updateable if mi_attempts exist' do
-        mi_attempt = Factory.create(:mi_attempt)
-        assert_not_equal mi_attempt.mi_plan.consortium, Consortium.find_by_name('MGP')
-        mi_attempt.mi_plan.consortium = Consortium.find_by_name('MGP')
-        mi_attempt.mi_plan.valid?
-        assert_match(/cannot be changed \(has mi attempts\)/, mi_attempt.mi_plan.errors[:consortium_name].first)
-      end
-    end
   end
 end

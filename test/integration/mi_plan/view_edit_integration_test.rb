@@ -140,5 +140,41 @@ class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       assert_equal 'Inactive', mi_plan.reload.status.name
     end
 
+    should 'allow users to change consortium on mi_plans' do
+      mi_plan = Factory.create :mi_plan,
+              :gene => Factory.create(:gene_cbx1),
+              :consortium => Consortium.find_by_name!('BaSH'),
+              :production_centre => Centre.find_by_name!('WTSI'),
+              :status => MiPlan::Status['Assigned']
+
+      login default_user
+      visit '/mi_plans'
+
+      find('.x-grid-cell').click
+
+      page.execute_script("Ext.ComponentManager.get('consortium_name').setValue('Helmholtz GMC')")
+
+      find('#update-button').click
+
+      wait_until { mi_plan.reload; mi_plan.consortium == Consortium.find_by_name!('Helmholtz GMC') }
+    end
+
+    should 'prevent users from changing consortium on mi_plans with mi_attempts' do
+      mi_attempt = Factory.create :mi_attempt
+      consortium = mi_attempt.mi_plan.consortium
+
+      login default_user
+      visit '/mi_plans'
+
+      find('.x-grid-cell').click
+
+      # yes, I know this can't happen, but it triggers the error
+
+      page.execute_script("Ext.ComponentManager.get('consortium_name').setValue('Helmholtz GMC')")
+
+      find('#update-button').click
+
+      assert_match(/cannot be changed \(has Micro Injection Attempts\)/, page.text)
+    end
   end
 end

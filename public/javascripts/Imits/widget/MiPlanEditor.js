@@ -56,8 +56,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 fieldLabel: 'Consortium',
                 name: 'consortium_name',
                 storeOptionsAreSpecial: true,
-                store: window.CONSORTIUM_OPTIONS,
-                readOnly: window.HAS_MI_ATTEMPTS
+                store: window.CONSORTIUM_OPTIONS
             },
             {
                 id: 'production_centre_name',
@@ -352,6 +351,12 @@ Ext.define('Imits.widget.MiPlanEditor', {
                     }
                 });
                 editor.show();
+
+				// disable consortium change if there are mi_attempts
+                var component = editor.form.getComponent('consortium_name');
+                if(component && miPlan.get('mi_attempts_count') > 0) {
+                    component.setReadOnly(true);
+                }
 
                 if(Ext.Array.indexOf(window.WITHDRAWABLE_STATUSES, miPlan.get('status_name')) == -1) {
                     editor.withdrawButton.disable();

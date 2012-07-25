@@ -5,5 +5,4 @@
   <%= javascript_tag "SUB_PROJECT_OPTIONS = #{MiPlan::SubProject.all.map(&:name).to_json}" %>
   <%= javascript_tag "CAN_SEE_SUB_PROJECT = #{current_user.can_see_sub_project?.to_json}" %>
   <%= javascript_tag "WITHDRAWABLE_STATUSES = #{MiPlan::Status.all_affected_by_minor_conflict_resolution.map(&:name).to_json}" %>
-  <%= javascript_tag "HAS_MI_ATTEMPTS = #{(!params[:id].blank? && MiPlan.find(params[:id]).mi_attempts.size > 0) ? 'true' : 'false'}" %>
 <% end %>

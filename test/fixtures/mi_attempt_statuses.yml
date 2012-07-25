@@ -1,17 +1,21 @@
 ---
 1:
-  name: Micro-injection in progress
+  code: mip
   id: 1
+  name: Micro-injection in progress
   order_by: 220
 2:
-  name: Genotype confirmed
+  code: gtc
   id: 2
+  name: Genotype confirmed
   order_by: 240
 3:
-  name: Micro-injection aborted
+  code: abt
   id: 3
+  name: Micro-injection aborted
   order_by: 210
 4:
-  name: Chimeras obtained
+  code: chr
   id: 4
+  name: Chimeras obtained
   order_by: 230

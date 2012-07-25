@@ -38,8 +38,6 @@ class PhenotypeAttempt::CreateInFormIntegrationTest < Kermits2::JsIntegrationTes
       assert_equal 'Phenotype attempt created', page.find('.message.notice').text
       assert_match(/\/phenotype_attempts\/\d+$/, current_url)
 
-      sleep 5
-
       ApplicationModel.uncached do
         assert_equal 1, PhenotypeAttempt.count
         pt = Public::PhenotypeAttempt.first

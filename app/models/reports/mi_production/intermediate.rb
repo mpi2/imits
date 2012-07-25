@@ -92,14 +92,6 @@ class Reports::MiProduction::Intermediate < Reports::Base
       record['Total Pipeline Efficiency Gene Count'] = record['total_pipeline_efficiency_gene_count']
       record['GC Pipeline Efficiency Gene Count'] = record['gc_pipeline_efficiency_gene_count']
 
-
-      if record['Assigned - ES Cell QC In Progress Date'].to_s.empty?
-        if !record['Assigned - ES Cell QC Complete Date'].to_s.empty?
-          record['Assigned - ES Cell QC In Progress Date'] = record['Assigned - ES Cell QC Complete Date']
-        elsif !record['Aborted - ES Cell QC Failed Date'].to_s.empty?
-          record['Assigned - ES Cell QC In Progress Date'] = record['Aborted - ES Cell QC Failed Date']
-        end
-      end
     end
     report_options[:transforms] = [transform]
 

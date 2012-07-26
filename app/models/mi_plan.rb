@@ -429,6 +429,7 @@ end
 #  sub_project_id                 :integer         not null
 #  is_active                      :boolean         default(TRUE), not null
 #  is_bespoke_allele              :boolean         default(FALSE), not null
+#  withdrawn                      :boolean         default(FALSE), not null
 #
 # Indexes
 #

@@ -2,10 +2,18 @@
 
 class MiPlan::SubProject < ActiveRecord::Base
   acts_as_reportable
-  
+
   has_many :mi_plans
 
   validates :name, :uniqueness => true
+
+  def miplan?
+    if MiPlan.find_all_by_sub_project_id(self.id).count > 0
+      return true
+    else
+      return false
+    end
+  end
 
 end
 

@@ -207,6 +207,7 @@ class MiPlan < ApplicationModel
     end
   end
 
+  # TODO tidy up
   def self.all_grouped_by_mgi_accession_id_then_by_status_name
     mi_plans = self.all.group_by {|i| i.gene.mgi_accession_id}
     mi_plans = mi_plans.each do |mgi_accession_id, all_for_gene|
@@ -215,6 +216,7 @@ class MiPlan < ApplicationModel
     return mi_plans
   end
 
+  # TODO tidy up
   def major_conflict_resolution
     interest_status                  = MiPlan::Status.find_by_name!('Interest')
     inactive_status                  = MiPlan::Status.find_by_name!('Inactive')
@@ -257,6 +259,7 @@ class MiPlan < ApplicationModel
     end
   end
 
+  # TODO tidy up
   def all_grouped_by_mgi_accession_id_then_by_status_name(mgi_acc_id)
     gene = Gene.find_by_mgi_accession_id!(mgi_acc_id)
     mi_plans = MiPlan.where('gene_id = ? and id != ?', gene.id, id).group_by {|i| i.gene.mgi_accession_id} if id

@@ -59,14 +59,13 @@ class MiPlan::StatusChangerTest < ActiveSupport::TestCase
     end
 
     should 'set "Withdrawn" status when #withdrawn is set to true' do
-      default_mi_plan.status = MiPlan::Status['Conflict']
-      default_mi_plan.save!
-      assert_equal 'Conflict', default_mi_plan.status.name
+      same_gene_plan = TestDummy.mi_plan default_mi_plan.marker_symbol
+      assert_equal 'Inspect - Conflict', same_gene_plan.status.name
 
-      default_mi_plan.withdrawn = true
-      assert default_mi_plan.valid?
-      assert_equal true, default_mi_plan.withdrawn?
-      assert_equal 'Withdrawn', default_mi_plan.status.name
+      same_gene_plan.withdrawn = true
+      assert same_gene_plan.valid?
+      assert_equal true, same_gene_plan.withdrawn?
+      assert_equal 'Withdrawn', same_gene_plan.status.name
     end
 
   end

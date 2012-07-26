@@ -9,8 +9,6 @@ begin
     namespace :reports do
 
       task :part1 => [:environment] do
-        puts "part1..."
-        STDOUT.flush
         ApplicationModel.audited_transaction do
           Reports::MiProduction::SummaryMonthByMonthActivityImpc.new.cache
         end

@@ -472,6 +472,8 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end # attribute tests
 
+=begin
+    # TODO
     context '::major_conflict_resolution' do
       setup do
         2.times { Factory.create :mi_attempt }
@@ -722,6 +724,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal [eucomm], result[gene2.mgi_accession_id]['Inspect - Conflict']
       end
     end
+=end
 
     context '::with_mi_attempt' do
       should 'work' do

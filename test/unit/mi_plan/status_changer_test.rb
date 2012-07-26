@@ -9,6 +9,10 @@ class MiPlan::StatusChangerTest < ActiveSupport::TestCase
       @default_mi_plan ||= Factory.create :mi_plan
     end
 
+    should 'set status to Assigned by default' do
+      assert_equal 'Assigned', default_mi_plan.status.name
+    end
+
     should 'set status to "Assigned - ES Cells QC In Progress" if number_of_es_cells_starting_qc is set to not null and passing_qc is null' do
       assert_equal 'Assigned', default_mi_plan.status.name
 
@@ -57,6 +61,8 @@ class MiPlan::StatusChangerTest < ActiveSupport::TestCase
     should 'set "Withdrawn" status when #withdrawn is set to true' do
       default_mi_plan.status = MiPlan::Status['Conflict']
       default_mi_plan.save!
+      assert_equal 'Conflict', default_mi_plan.status.name
+
       default_mi_plan.withdrawn = true
       assert default_mi_plan.valid?
       assert_equal true, default_mi_plan.withdrawn?

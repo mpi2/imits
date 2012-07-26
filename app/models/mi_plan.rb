@@ -77,9 +77,9 @@ class MiPlan < ApplicationModel
   before_validation :set_default_mi_plan_status
   before_validation :set_default_number_of_es_cells_starting_qc
   before_validation :set_default_sub_project
+
   before_validation :change_status
 
-  before_save :major_conflict_resolution
   before_save :record_if_status_was_changed
   after_save :create_status_stamp_if_status_was_changed
 

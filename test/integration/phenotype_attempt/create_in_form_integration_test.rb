@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
+class PhenotypeAttempt::CreateInFormIntegrationTest < Kermits2::JsIntegrationTest
   context 'When creating Phenotype Attempt in form' do
 
     setup do
@@ -18,7 +18,6 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'allow editing consortium or production centre' do
-      sleep 5
       assert page.has_css?('select[name="phenotype_attempt[production_centre_name]"]')
       assert page.has_css?('select[name="phenotype_attempt[consortium_name]"]')
     end
@@ -37,8 +36,6 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       assert page.has_css?('.message.notice')
       assert_equal 'Phenotype attempt created', page.find('.message.notice').text
       assert_match(/\/phenotype_attempts\/\d+$/, current_url)
-
-      sleep 5
 
       ApplicationModel.uncached do
         assert_equal 1, PhenotypeAttempt.count

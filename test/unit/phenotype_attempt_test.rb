@@ -283,7 +283,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'allow valid types' do
-        [nil, 'a', 'b', 'c', 'd', 'e'].each do |i|
+        [nil, 'a', 'b', 'c', 'd', 'e', '.1'].each do |i|
           assert_should allow_value(i).for :mouse_allele_type
         end
       end

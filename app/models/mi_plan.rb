@@ -383,6 +383,9 @@ class MiPlan < ApplicationModel
     retval[:status] = status_stamp.status.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase
     retval[:stamp_type] = status_stamp.class.name
     retval[:stamp_id] = status_stamp.id
+    retval[:mi_plan_id] = self.id
+    retval[:mi_attempt_id] = mi ? mi.id : nil
+    retval[:phenotype_attempt_id] = pa ? pa.id : nil
 
     return retval
   end

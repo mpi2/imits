@@ -508,14 +508,15 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_match(/cannot be set to false as active micro-injection attempt/, active_mi.mi_plan.errors[:is_active].first)
         end
 
-        should 'be true if an active phenotype attempt found' do
+        should 'cannot be set to false if an active phenotype attempt found' do
           gene = Factory.create :gene_cbx1
-          inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => true
+          plan = Factory.create :mi_plan, :gene => gene, :is_active => true
           active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)
-          active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
-          inactive_plan.is_active = false
-          inactive_plan.valid?
-          assert_contains inactive_plan.errors[:is_active], /cannot be set to false as active phenotype attempt/
+          active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => plan
+          plan.reload
+          plan.is_active = false
+          assert_false plan.valid?
+          assert_contains plan.errors[:is_active], /cannot be set to false as active phenotype attempt/
         end
       end
     end # attribute tests

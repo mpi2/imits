@@ -15,7 +15,11 @@ namespace :deploy do
 
   task :ensure_no_unpushed do
     Dir.chdir Rails.root
-    branchname = `git describe --contains --all HEAD`.strip
+    symbolic_ref = `git symbolic-ref HEAD`.strip
+    if ! symbolic_ref.match %r{^refs/heads/}
+      raise 'Not on a branch!'
+    end
+    branchname = symbolic_ref.gsub(%r{^refs/heads/}, '')
     if ! system("git diff-tree --quiet origin/#{branchname} #{branchname}")
       raise 'Please push your changes first'
     end

@@ -108,7 +108,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
     MiPlan::Status.all.each { |i| plan_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
 
     attempt_map = Hash.new { |hash,key| raise("attempt_map: No value defined for key: #{ key }") }
-    MiAttemptStatus.all.each { |i| attempt_map[i.description.downcase.parameterize.underscore.to_sym] = i.description }
+    MiAttempt::Status.all.each { |i| attempt_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
 
     phenotype_map = Hash.new { |hash,key| raise("phenotype_map: No value defined for key: #{ key }") }
     PhenotypeAttempt::Status.all.each { |i| phenotype_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
@@ -164,7 +164,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
       next if pcentre == 'UNKNOWN'
       next if self.consortia && ! self.consortia.include?(consortium)
       gene_id = stamp.mi_attempt.mi_plan.gene_id
-      status = stamp.mi_attempt_status.description
+      status = stamp.status.name
       marker_symbol = stamp.mi_attempt.mi_plan.gene.marker_symbol
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }

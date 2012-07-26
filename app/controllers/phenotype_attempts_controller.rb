@@ -30,14 +30,14 @@ class PhenotypeAttemptsController < ApplicationController
     set_centres_consortia_and_strains
     @user = current_user
     @mi_attempt = MiAttempt.find_by_id(params[:mi_attempt_id])
-    if @mi_attempt.status == "Genotype confirmed"
+    if @mi_attempt.status.name == "Genotype confirmed"
         @phenotype_attempt = Public::PhenotypeAttempt.new(
           :mi_attempt_colony_name => @mi_attempt.colony_name,
           :consortium_name => @mi_attempt.consortium_name,
           :production_centre_name => @mi_attempt.production_centre_name
         )
     else
-         flash.now[:alert] = "#{@mi_attempt.status} status"
+         flash.now[:alert] = "#{@mi_attempt.status.name} status"
     end
   end
 

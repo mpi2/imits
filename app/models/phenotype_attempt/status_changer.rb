@@ -8,7 +8,6 @@ module PhenotypeAttempt::StatusChanger
 
   ss.add('Rederivation Started') do |pt|
     pt.rederivation_started?
-
   end
 
   ss.add('Rederivation Complete', 'Rederivation Started') do |pt|

@@ -31,7 +31,7 @@ class TestHelperTest < ActiveSupport::TestCase
         ]
         replace_status_stamps(mi, expected)
 
-        got = mi.status_stamps.map {|i| [i.description, i.created_at.to_s]}
+        got = mi.status_stamps.map {|i| [i.name, i.created_at.to_s]}
         assert_equal expected, got
       end
 

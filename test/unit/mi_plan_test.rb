@@ -37,10 +37,10 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       context '#latest_relevant_mi_attempt' do
-        def ip; MiAttemptStatus.micro_injection_in_progress.description; end
-        def co; MiAttemptStatus.chimeras_obtained.description; end
-        def gc; MiAttemptStatus.genotype_confirmed.description; end
-        def abrt; MiAttemptStatus.micro_injection_aborted.description; end
+        def ip; MiAttempt::Status.micro_injection_in_progress.name; end
+        def co; MiAttempt::Status.chimeras_obtained.name; end
+        def gc; MiAttempt::Status.genotype_confirmed.name; end
+        def abrt; MiAttempt::Status.micro_injection_aborted.name; end
 
         should 'get active MI with latest in_progress_date if active one exists' do
           cbx1 = Factory.create :gene_cbx1
@@ -353,11 +353,14 @@ class MiPlanTest < ActiveSupport::TestCase
         end
 
         should 'not be one of the following if it has any phenotype attempts' do
-          pt = Factory.create :phenotype_attempt
-          plan = pt.mi_plan
-          plan.status = MiPlan::Status['Assigned']
-          plan.save!
-          ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"].each do |this_status|
+          mi = Factory.create :mi_attempt_genotype_confirmed, :consortium_name => 'DTCC'
+          plan = TestDummy.mi_plan('BaSH', 'WTSI', mi.gene.marker_symbol)
+          pt = Factory.create :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi
+          plan.reload
+          assert_equal 0, plan.mi_attempts.count
+          assert_equal 1, plan.phenotype_attempts.count
+
+          ["Interest", "Conflict", "Inspect - GLT Mouse", "Inspect - MI Attempt", "Inspect - Conflict", "Aborted - ES Cell QC Failed", "Withdrawn"].each do |this_status|
             plan.status = MiPlan::Status[this_status]
             plan.valid?
             assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"
@@ -369,7 +372,7 @@ class MiPlanTest < ActiveSupport::TestCase
           plan = mi_attempt.mi_plan
           plan.status = MiPlan::Status['Assigned']
           plan.save!
-          ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"].each do |this_status|
+          ["Interest", "Conflict", "Inspect - GLT Mouse", "Inspect - MI Attempt", "Inspect - Conflict", "Aborted - ES Cell QC Failed", "Withdrawn"].each do |this_status|
             plan.status = MiPlan::Status[this_status]
             plan.valid?
             assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"
@@ -505,14 +508,15 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_match(/cannot be set to false as active micro-injection attempt/, active_mi.mi_plan.errors[:is_active].first)
         end
 
-        should 'be true if an active phenotype attempt found' do
+        should 'cannot be set to false if an active phenotype attempt found' do
           gene = Factory.create :gene_cbx1
-          inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => true
+          plan = Factory.create :mi_plan, :gene => gene, :is_active => true
           active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)
-          active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
-          inactive_plan.is_active = false
-          inactive_plan.valid?
-          assert_contains inactive_plan.errors[:is_active], /cannot be set to false as active phenotype attempt/
+          active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => plan
+          plan.reload
+          plan.is_active = false
+          assert_false plan.valid?
+          assert_contains plan.errors[:is_active], /cannot be set to false as active phenotype attempt/
         end
       end
     end # attribute tests
@@ -630,7 +634,7 @@ class MiPlanTest < ActiveSupport::TestCase
         set_mi_attempt_genotype_confirmed(mi_attempt)
 
         assert_equal mi_plan, mi_attempt.mi_plan
-        assert_equal MiAttemptStatus.genotype_confirmed.description, mi_attempt.status
+        assert_equal MiAttempt::Status.genotype_confirmed.name, mi_attempt.status.name
 
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)

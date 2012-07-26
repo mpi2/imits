@@ -1,5 +1,5 @@
 MODELS = [
-  MiAttemptStatus,
+  MiAttempt::Status,
   QcResult,
   DepositedMaterial,
   Consortium,

@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
-ip_status = MiAttemptStatus.micro_injection_in_progress
-gc_status = MiAttemptStatus.genotype_confirmed
+ip_status = MiAttempt::Status.micro_injection_in_progress
+gc_status = MiAttempt::Status.genotype_confirmed
 
 MiAttempt.transaction do
   broken = MiAttempt.all.find_all do |mi|
-    !mi.status_stamps.map(&:description).include?('Micro-injection in progress')
+    !mi.status_stamps.map(&:name).include?('Micro-injection in progress')
   end
 
   broken.each do |mi|
@@ -24,7 +24,7 @@ MiAttempt.transaction do
   end
 
   still_broken = MiAttempt.all.find_all do |mi|
-    !mi.status_stamps.map(&:description).include?('Micro-injection in progress')
+    !mi.status_stamps.map(&:name).include?('Micro-injection in progress')
   end
 
   mi = MiAttempt.find_by_colony_name!('E227')
@@ -47,7 +47,7 @@ MiAttempt.transaction do
   still_broken.each do |mi|
     mi.reload
     puts "#{mi.colony_name} now looks like:\n"
-    puts "#{mi.status_stamps.map {|ss| ss.description + ": " + ss.created_at.to_s}.join("\n")}"
+    puts "#{mi.status_stamps.map {|ss| ss.name + ": " + ss.created_at.to_s}.join("\n")}"
     puts
   end
 end

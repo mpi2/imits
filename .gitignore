@@ -7,5 +7,3 @@ sqlnet.log
 db/dump.*.sql
 .bundle/config
 .DS_Store
-
-

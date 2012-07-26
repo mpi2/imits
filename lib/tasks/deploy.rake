@@ -41,8 +41,11 @@ namespace :deploy do
      "exception: will generate, commit and push compressed assets if not already done"
   task :tag => [:ensure_clean_repo, :generate_assets] do
     Dir.chdir Rails.root
-    tag = "v#{Time.now.strftime('%Y%m%d%H%M%S')}"
-    system("git tag -a #{tag} -m '' && git push origin #{tag}") or raise 'Failed to tag'
+    tag = `git describe --exact-match --tags`.strip
+    if tag.empty?
+      tag = "v#{Time.now.strftime('%Y%m%d%H%M%S')}"
+      system("git tag -a #{tag} -m '' && git push origin #{tag}") or raise 'Failed to tag'
+    end
     puts "TAG: #{tag}"
   end
 end

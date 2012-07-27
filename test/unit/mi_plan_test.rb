@@ -367,7 +367,7 @@ class MiPlanTest < ActiveSupport::TestCase
           end
         end
 
-        should 'not be one of the following if it has any microinjection attempts' do
+        should 'not be one of the following if it has any micro-injection attempts' do
           mi_attempt = Factory.create :mi_attempt
           plan = mi_attempt.mi_plan
           plan.status = MiPlan::Status['Assigned']
@@ -452,7 +452,7 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_should have_db_column(:is_active).with_options(:null => false, :default => true)
         end
 
-        should 'be true if an active microinjection attempt found' do
+        should 'be true if an active micro-injection attempt found' do
           active_mi = Factory.create :mi_attempt, :is_active => true
           active_mi.mi_plan.is_active = false
           active_mi.mi_plan.valid?

@@ -39,16 +39,13 @@ class MiPlan < ApplicationModel
   end
 
   validate do |plan|
-    statuses = MiPlan::Status.pre_assigned
+    statuses = MiPlan::Status.all_non_assigned
     if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0
       plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
     end
-  end
 
-  validate do |plan|
-    not_allowed_statuses = ["Interest", "Conflict", "Inspect - GLT Mouse", "Inspect - MI Attempt", "Inspect - Conflict", "Aborted - ES Cell QC Failed", "Withdrawn"]
-    if not_allowed_statuses.include?(plan.status.name) and plan.mi_attempts.length != 0
-      plan.errors.add(:status, 'cannot be changed - microinjection attempts exist')
+    if statuses.include?(plan.status) and plan.mi_attempts.length != 0
+      plan.errors.add(:status, 'cannot be changed - micro-injection attempts exist')
     end
   end
 
@@ -65,7 +62,7 @@ class MiPlan < ApplicationModel
 
   validate do |plan|
     if plan.changes.has_key?('status_id') and plan.withdrawn == true
-      withdrawable_ids = MiPlan::Status.all_affected_by_minor_conflict_resolution.map(&:id)
+      withdrawable_ids = MiPlan::Status.all_pre_assignment.map(&:id)
       if ! withdrawable_ids.include?(plan.changes[0])
         plan.errors.add(:withdrawn, 'cannot be set - not currently in a withdrawable state')
       end
@@ -192,7 +189,7 @@ class MiPlan < ApplicationModel
   end
 
   def self.minor_conflict_resolution
-    statuses = MiPlan::Status.all_affected_by_minor_conflict_resolution
+    statuses = MiPlan::Status.all_pre_assignment
     grouped_mi_plans = MiPlan.where(:status_id => statuses.map(&:id)).
             group_by(&:gene_id)
     grouped_mi_plans.each do |gene_id, mi_plans|

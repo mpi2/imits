@@ -91,6 +91,8 @@ class ActiveSupport::TestCase
     end
   end
 
+  def cbx1; @cbx1 ||= Factory.create(:gene_cbx1); end
+
   fixtures :all
 end
 

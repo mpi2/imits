@@ -63,7 +63,7 @@ class MiPlan < ApplicationModel
   validate do |plan|
     if plan.changes.has_key?('status_id') and plan.withdrawn == true
       withdrawable_ids = MiPlan::Status.all_pre_assignment.map(&:id)
-      if ! withdrawable_ids.include?(plan.changes[0])
+      if ! withdrawable_ids.include?(plan.changes['status_id'][0])
         plan.errors.add(:withdrawn, 'cannot be set - not currently in a withdrawable state')
       end
     end
@@ -409,7 +409,6 @@ class MiPlan < ApplicationModel
     end
     return 0
   end
-
 end
 
 # == Schema Information

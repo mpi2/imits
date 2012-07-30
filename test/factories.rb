@@ -59,6 +59,7 @@ Factory.define :mi_plan_with_production_centre, :parent => :mi_plan do |mi_plan|
   mi_plan.association :production_centre, :factory => :centre
 end
 
+# TODO Remove this factory, it is only used in 1 place
 Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_plan|
   mi_plan.after_create do |plan|
     plan.number_of_es_cells_passing_qc = 2

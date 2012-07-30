@@ -13,6 +13,18 @@ class MiPlan::SubProjectTest < ActiveSupport::TestCase
       assert_equal sub_project, plan.sub_project
     end
 
+    should 'check test if sub-project has any mi_plans' do
+      sub_project = MiPlan::SubProject.new(:name => 'TESTUNIT')
+      sub_project.save!
+      before_plan_added = sub_project.miplan?
+      plan = Factory.build :mi_plan
+      plan.sub_project_id = sub_project.id
+      plan.save!
+      after_plan_added = sub_project.miplan?
+      assert_equal before_plan_added, false
+      assert_equal after_plan_added, true
+    end
+
   end
 
 end

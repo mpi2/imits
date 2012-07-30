@@ -1,30 +1,40 @@
+<%= content_for :head do %>
 <style type="text/css">
-
-table.bottomBorder td, th {
+div.adjust-alot {padding-left: 75px;}
+div.adjust {padding-left: 50px;}
+div.adjust-a-little {padding-left: 25px;}
+table.bottom-border td, th {
  border-bottom:1px dotted black;
  padding: 5px;
 }
 </style>
+<% end %>
 
-<h1>Sub Projects</h1>
+<div class = "adjust-a-little"><h1>Sub Projects</h1></div>
 </br>
-<% form_for @sub_project_new, :url => { :action => "create" } do |f| %>
-  <%= f.label :name, 'Enter new Sub-Project name'%>
-  <%= f.text_field :name%>
-  <%= f.submit%>
-<% end %></br>
-
-<h2><u>Current sub-projects</u></h2>
-<table class="bottomBorder">
-  <% @sub_project.each do |project| %>
-    <% if !project.name.blank? %>
-      <tr><td><%= project.name %></td>
-      <% if !project.miplan?%>
-        <td width=100 align="right"><%= button_to '  Delete  ', {:action => "destroy", :id => project.id}, :confirm => "Are you sure you want to delete '#{project.name}'", :method => :delete %></td>
-      <% else %>
-        <td></td>
-      </tr>
+<div class="adjust">
+  <h2>Create New Sub Project</h2>
+</div>
+<div class="adjust-alot">
+  <%= form_for @sub_project_new, :url => { :action => "create" } do |f| %>
+    <%= f.label :name, 'Enter name'%>
+    <%= f.text_field :name%>
+    <%= f.submit%>
+  <% end %></br></br>
+</div>
+<div class="adjust"><h2>Current sub-projects</h2></div>
+<div  class="adjust-alot">
+  <table class="bottom-border">
+    <% @sub_project.each do |project| %>
+      <% if !project.name.blank? %>
+        <tr><td><%= project.name %></td>
+        <% if !project.miplan?%>
+          <td width=100 align="right"><%= button_to '  Delete  ', {:action => "destroy", :id => project.id}, :id => "#{project.name}_button", :confirm => "Are you sure you want to delete '#{project.name}'", :method => :delete %></td>
+        <% else %>
+          <td></td>
+        </tr>
+        <% end %>
       <% end %>
     <% end %>
-  <% end %>
-</table></br>
+  </table>
+</div>

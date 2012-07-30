@@ -7,7 +7,7 @@ class MiPlan::StatusChangerTest < ActiveSupport::TestCase
 
     context 'for attribute-based statuses' do
       def default_mi_plan
-        @default_mi_plan ||= Factory.create :mi_plan
+        @default_mi_plan ||= Factory.create :mi_plan, :gene => cbx1
       end
 
       should 'set status to Assigned by default' do
@@ -74,41 +74,58 @@ class MiPlan::StatusChangerTest < ActiveSupport::TestCase
       end
     end
 
-    context 'for pre-assignment statuses' do
-      should 'set a pre-assignment status if it is a new record and conditions are met' do
+    def create_another_assigned_plan
+      assert_equal 'Assigned', default_mi_plan.status.name
+      return TestDummy.mi_plan default_mi_plan.marker_symbol, :force_assignment => true
+    end
+
+    context 'for pre-assignment statuses when a new record' do
+      should 'set status to "Inspect - Conflict" if only other plans for gene are Assigned or pre-assignment' do
         assert_equal 'Assigned', default_mi_plan.status.name
         same_gene_plan = TestDummy.mi_plan default_mi_plan.marker_symbol
         assert_equal 'Inspect - Conflict', same_gene_plan.status.name
       end
 
-      def create_another_assigned_plan
-        assert_equal 'Assigned', default_mi_plan.status.name
-        return TestDummy.mi_plan default_mi_plan.marker_symbol, :force_assignment => true
+      should 'set status to "Inspect - MI Attempt" if only other plans for gene are Assigned or pre-assignment and there are MIs as far as "in progress" for the gene' do
+        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => default_mi_plan.gene)
+        same_gene_plan = TestDummy.mi_plan default_mi_plan.marker_symbol
+        assert_equal 'Inspect - MI Attempt', same_gene_plan.status.name
       end
 
-      should 'NOT set a pre-assignment status if it is a new record and conditions are met but the force_assignment virtual attribute is passed through' do
-        same_gene_plan = create_another_assigned_plan
+      should 'NOT set "Inspect - MI Attempt" by counting aborted MI as in progress' do
+        mi = Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => cbx1), :is_active => false
+        mi.mi_plan.update_attributes!(:is_active => false)
+        same_gene_plan = TestDummy.mi_plan cbx1.marker_symbol
         assert_equal 'Assigned', same_gene_plan.status.name
       end
 
-      should 'NOT set a pre-assignment status if it is NOT a new record even though conditions are met' do
-        assigned_plan = create_another_assigned_plan
-        assigned_plan.force_assignment = false
-        assigned_plan.save!
-        assert_equal 'Assigned', assigned_plan.status.name
+      should 'set status to "Inspect - GLT Mouse" if only other plans for the gene are Assigned or pre-assignment and there are MIs as far as "genotype confirmed" for the gene' do
+        Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => default_mi_plan.gene)
+        same_gene_plan = TestDummy.mi_plan default_mi_plan.marker_symbol
+        assert_equal 'Inspect - GLT Mouse', same_gene_plan.status.name
       end
+    end
 
-      should 'set status to "Conflict" if only other plans for gene are pre-assignment but nothing else for that gene'
+    context 'when affecting statuses of OTHER plans' do
+      should ', if an Assigned plan goes away for a gene and several plans remain, they should go from "Inspect - Conflict" to "Conflict"'
 
-      should 'set status to "Inspect - Conflict" if only other plans for gene are Assigned or pre-assignment'
+      should ', if an Assigned plan goes away for a gene, and only 1 plan remains, it should go from "Inspect - Conflict" to "Assigned"'
+    end
 
-      should 'set status to "Inspect - MI Attempt" if only other plans for gene are Assigned or pre-assignment and there are MIs as far as "in progress" for the gene'
+    should 'NOT set a pre-assignment status if conditions are met but the force_assignment virtual attribute is passed through' do
+      same_gene_plan = TestDummy.mi_plan default_mi_plan.marker_symbol
+      assert_equal 'Inspect - Conflict', same_gene_plan.status.name
+      same_gene_plan.save!
+      assert_equal 'Inspect - Conflict', same_gene_plan.status.name
+      same_gene_plan.update_attributes!(:force_assignment => true)
+      assert_equal 'Assigned', same_gene_plan.status.name
+    end
 
-      should 'set status to "Inspect - GLT Mouse" if only other plans for the gene are Assigned or pre-assignment and there are MIs as far as "genotype confirmed" for the gene'
-
-      should 'set the status of other pre-assignment plans for the gene if current plan is set to a post-assigned status'
-
-      should 'set the status of other pre-assignment plans for the gene if current plan is set to a pre-assignment status'
+    should 'NOT set a pre-assignment status from a post-assignment status if it is NOT a new record even though conditions are met' do
+      assigned_plan = create_another_assigned_plan
+      assigned_plan.force_assignment = false
+      assigned_plan.save!
+      assert_equal 'Assigned', assigned_plan.status.name
     end
 
   end

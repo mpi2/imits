@@ -456,25 +456,28 @@ class MiAttemptTest < ActiveSupport::TestCase
           end
 
           should ', when assigning a matching MiPlan, set its status to Assigned if it is otherwise' do
-            cbx1 = Factory.create :gene_cbx1
-            mi_plan = Factory.create :mi_plan, :gene => cbx1,
+            original_mi_plan = Factory.create :mi_plan, :gene => cbx1,
+                    :consortium => Consortium.find_by_name!('DTCC'),
+                    :production_centre => Centre.find_by_name!('UCD')
+
+            conflict_mi_plan = Factory.create :mi_plan, :gene => cbx1,
                     :consortium => Consortium.find_by_name!('BaSH'),
-                    :production_centre => Centre.find_by_name!('WTSI'),
-                    :status => MiPlan::Status.find_by_name!('Interest')
+                    :production_centre => Centre.find_by_name!('WTSI')
+            assert_equal 'Inspect - Conflict', conflict_mi_plan.status.name
 
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                    :production_centre_name => mi_plan.production_centre.name,
-                    :consortium_name => mi_plan.consortium.name,
+                    :production_centre_name => conflict_mi_plan.production_centre.name,
+                    :consortium_name => conflict_mi_plan.consortium.name,
                     :mi_plan => nil
 
             assert_no_difference("MiPlan.count") do
               mi_attempt.save!
             end
 
-            mi_plan.reload
-            assert_equal mi_plan, mi_attempt.mi_plan
-            assert_equal 'Assigned', mi_plan.status.name
+            conflict_mi_plan.reload
+            assert_equal conflict_mi_plan, mi_attempt.mi_plan
+            assert_equal 'Assigned', conflict_mi_plan.status.name
           end
 
           should 'be created if none match gene, consortium and production centre' do

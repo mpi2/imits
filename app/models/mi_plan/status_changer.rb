@@ -8,16 +8,27 @@ module MiPlan::StatusChanger
       plans = gene.mi_plans
       plans.each {|p| p.conflict_resolver = self}
       partitioned = plans.partition { |p| MiPlan::Status.all_pre_assignment.include? p.status }
-      @all_pre_assignment = partitioned[0]
-      all_post_assignment = partitioned[1]
+      all_pre_assignment_plans = partitioned[0]
+      all_post_assignment_plans = partitioned[1]
 
-      @all_assigned = all_post_assignment.find_all {|p| MiPlan::Status.all_assigned.include?(p.status) }
+      @all_gtc_mi_attempts = gene.mi_attempts.search(:status_code_eq => 'gtc').result
+      @all_non_gtc_active_mi_attempts = gene.mi_attempts.search(:status_code_not_in => ['gtc', 'abt']).result
+      @all_assigned_plans = all_post_assignment_plans.find_all {|p| MiPlan::Status.all_assigned.include?(p.status) }
     end
 
     def get_status_for(plan)
       # TODO cannot be invoked recursively; set/unset a recursive lock variable
       # around here
-      if( @all_assigned.size != 0 )
+
+      if ! plan.new_record? and ! MiPlan::Status.all_pre_assignment.include?(plan.status)
+        return nil
+      elsif plan.force_assignment == true
+        return nil
+      elsif( @all_gtc_mi_attempts.size != 0 )
+        return MiPlan::Status['Inspect - GLT Mouse']
+      elsif( @all_non_gtc_active_mi_attempts.size != 0 )
+        return MiPlan::Status['Inspect - MI Attempt']
+      elsif( @all_assigned_plans.size != 0 )
         return MiPlan::Status['Inspect - Conflict']
       end
 
@@ -34,6 +45,14 @@ module MiPlan::StatusChanger
 
   ss.add('Inspect - Conflict') do |plan|
     plan.conflict_resolver.get_status_for(plan).try(:name) == 'Inspect - Conflict'
+  end
+
+  ss.add('Inspect - MI Attempt') do |plan|
+    plan.conflict_resolver.get_status_for(plan).try(:name) == 'Inspect - MI Attempt'
+  end
+
+  ss.add('Inspect - GLT Mouse') do |plan|
+    plan.conflict_resolver.get_status_for(plan).try(:name) == 'Inspect - GLT Mouse'
   end
 
   ss.add('Assigned - ES Cell QC In Progress') do |plan|

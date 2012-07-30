@@ -34,7 +34,7 @@ class SubProjectsController < ApplicationController
   end
 
   def index
-    @sub_project = MiPlan::SubProject.all
+    @sub_project = MiPlan::SubProject.find(:all, :order => "name")
     @sub_project_new = MiPlan::SubProject.new
     respond_to do |format|
       format.html

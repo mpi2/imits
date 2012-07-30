@@ -167,28 +167,6 @@ Seeds.load MiPlan::Priority, [
   {:id => 3, :name => 'Low', :description => 'Estimated injection in the next 9-12 months'}
 ]
 
-Seeds.load MiPlan::SubProject, [
-  {:id => 1, :name => ''},
-  {:id => 2, :name => 'MGPinterest'},
-  {:id => 3, :name => 'WTSI_Blood_A'},
-  {:id => 4, :name => 'WTSI_Cancer_A'},
-  {:id => 5, :name => 'WTSI_Infection_A'},
-  {:id => 6, :name => 'WTSI_MGPcollab_A'},
-  {:id => 7, :name => 'WTSI_Hear_A'},
-  {:id => 11, :name => 'WTSI_IBD_A'},
-  {:id => 8, :name => 'Legacy EUCOMM'},
-  {:id => 9, :name => 'Legacy KOMP'},
-  {:id => 10, :name => 'Legacy with new Interest'},
-  {:id => 12, :name => 'WTSI_Bone_A'},
-  {:id => 13, :name => 'WTSI_Bespoke_A'},
-  {:id => 14, :name => 'MGP Legacy'},
-  {:id => 15, :name => 'WTSI_Sense_A'},
-  {:id => 16, :name => 'WTSI_Metabolism_A'},
-  {:id => 17, :name => 'WTSI_Cre'},
-  {:id => 18, :name => 'WTSI_Malaria_A'},
-  {:id => 19, :name => 'WTSI_Rarediseases_A'},
-  {:id => 20, :name => 'WTSI_Fat_A'}
-]
 
 Seeds.load PhenotypeAttempt::Status, [
   {:id =>  1, :name => 'Phenotype Attempt Aborted', :order_by => 310},

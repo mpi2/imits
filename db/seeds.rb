@@ -88,11 +88,11 @@ Seeds.load Strain, [
   {:id => 55, :name => 'C57BL/6Dnk or C57BL/6JIco or C57BL/6NTac'}
 ]
 
-Seeds.load MiAttemptStatus, [
-  {:id => 1, :description => 'Micro-injection in progress', :order_by => 220},
-  {:id => 2, :description => 'Genotype confirmed', :order_by => 240},
-  {:id => 3, :description => 'Micro-injection aborted', :order_by => 210},
-  {:id => 4, :description => 'Chimeras obtained', :order_by => 230}
+Seeds.load MiAttempt::Status, [
+  {:code => 'mip', :id => 1, :name => 'Micro-injection in progress', :order_by => 220},
+  {:code => 'gtc', :id => 2, :name => 'Genotype confirmed', :order_by => 240},
+  {:code => 'abt', :id => 3, :name => 'Micro-injection aborted', :order_by => 210},
+  {:code => 'chr', :id => 4, :name => 'Chimeras obtained', :order_by => 230}
 ]
 
 Seeds.load QcResult, [
@@ -148,17 +148,17 @@ Seeds.load Centre, [
 ]
 
 Seeds.load MiPlan::Status, [
-  {:order_by => 110,  :id => 8,  :name => 'Assigned - ES Cell QC In Progress', :description => 'Assigned - The ES cells are currently being QCed by the production centre'},
-  {:order_by => 100,  :id => 9,  :name => 'Assigned - ES Cell QC Complete', :description => 'Assigned - ES cells have passed the QC phase and are ready for micro-injection'},
-  {:order_by => 90,  :id => 10, :name => 'Aborted - ES Cell QC Failed', :description => 'Aborted - ES cells have failed the QC phase, and micro-injection cannot proceed'},
-  {:order_by => 80,  :id => 1,  :name => 'Assigned', :description => 'Assigned - A single consortium has expressed an interest in injecting this gene'},
-  {:order_by => 70,  :id => 4,  :name => 'Inspect - GLT Mouse', :description => 'Inspect - A GLT mouse is already recorded in iMits'},
-  {:order_by => 60,  :id => 5,  :name => 'Inspect - MI Attempt', :description => 'Inspect - An active micro-injection attempt is already in progress'},
-  {:order_by => 50,  :id => 6,  :name => 'Inspect - Conflict', :description => 'Inspect - This gene is already assigned in another planned micro-injection'},
-  {:order_by => 40,  :id => 3,  :name => 'Conflict', :description => 'Conflict - More than one consortium has expressed an interest in micro-injecting this gene'},
-  {:order_by => 30,  :id => 2,  :name => 'Interest', :description => 'Interest - A consortium has expressed an interest to micro-inject this gene'},
-  {:order_by => 20,  :id => 7,  :name => 'Inactive', :description => 'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up'},
-  {:order_by => 10, :id => 11, :name => 'Withdrawn', :description => 'Withdrawn - Interest in micro-injecting this gene was withdrawn by the parties involved'}
+  {:code => 'asg-esp', :order_by => 110,  :id => 8,  :name => 'Assigned - ES Cell QC In Progress', :description => 'Assigned - The ES cells are currently being QCed by the production centre'},
+  {:code => 'asg-esc', :order_by => 100,  :id => 9,  :name => 'Assigned - ES Cell QC Complete', :description => 'Assigned - ES cells have passed the QC phase and are ready for micro-injection'},
+  {:code => 'abt-esf', :order_by => 90,   :id => 10, :name => 'Aborted - ES Cell QC Failed', :description => 'Aborted - ES cells have failed the QC phase, and micro-injection cannot proceed'},
+  {:code => 'asg',     :order_by => 80,   :id => 1,  :name => 'Assigned', :description => 'Assigned - A single consortium has expressed an interest in injecting this gene'},
+  {:code => 'ins-glt', :order_by => 70,   :id => 4,  :name => 'Inspect - GLT Mouse', :description => 'Inspect - A GLT mouse is already recorded in iMits'},
+  {:code => 'ins-mia', :order_by => 60,   :id => 5,  :name => 'Inspect - MI Attempt', :description => 'Inspect - An active micro-injection attempt is already in progress'},
+  {:code => 'ins-con', :order_by => 50,   :id => 6,  :name => 'Inspect - Conflict', :description => 'Inspect - This gene is already assigned in another planned micro-injection'},
+  {:code => 'con',     :order_by => 40,   :id => 3,  :name => 'Conflict', :description => 'Conflict - More than one consortium has expressed an interest in micro-injecting this gene'},
+  {:code => 'int',     :order_by => 30,   :id => 2,  :name => 'Interest', :description => 'Interest - A consortium has expressed an interest to micro-inject this gene'},
+  {:code => 'ina',     :order_by => 20,   :id => 7,  :name => 'Inactive', :description => 'Inactive - A consortium/production centre has failed micro-injections on this gene dated over 6 months ago - they have given up'},
+  {:code => 'wit',     :order_by => 10,   :id => 11, :name => 'Withdrawn', :description => 'Withdrawn - Interest in micro-injecting this gene was withdrawn by the parties involved'}
 ]
 
 Seeds.load MiPlan::Priority, [
@@ -169,14 +169,14 @@ Seeds.load MiPlan::Priority, [
 
 
 Seeds.load PhenotypeAttempt::Status, [
-  {:id =>  1, :name => 'Phenotype Attempt Aborted', :order_by => 310},
-  {:id =>  2, :name => 'Phenotype Attempt Registered', :order_by => 320},
-  {:id =>  3, :name => 'Rederivation Started', :order_by => 330},
-  {:id =>  4, :name => 'Rederivation Complete', :order_by => 340},
-  {:id =>  5, :name => 'Cre Excision Started', :order_by => 350},
-  {:id =>  6, :name => 'Cre Excision Complete', :order_by => 360},
-  {:id =>  7, :name => 'Phenotyping Started', :order_by => 370},
-  {:id =>  8, :name => 'Phenotyping Complete', :order_by => 380}
+  {:code => 'pab', :id =>  1, :name => 'Phenotype Attempt Aborted', :order_by => 310},
+  {:code => 'par', :id =>  2, :name => 'Phenotype Attempt Registered', :order_by => 320},
+  {:code => 'res', :id =>  3, :name => 'Rederivation Started', :order_by => 330},
+  {:code => 'rec', :id =>  4, :name => 'Rederivation Complete', :order_by => 340},
+  {:code => 'ces', :id =>  5, :name => 'Cre Excision Started', :order_by => 350},
+  {:code => 'cec', :id =>  6, :name => 'Cre Excision Complete', :order_by => 360},
+  {:code => 'pds', :id =>  7, :name => 'Phenotyping Started', :order_by => 370},
+  {:code => 'pdc', :id =>  8, :name => 'Phenotyping Complete', :order_by => 380}
 ]
 
 Seeds.load DeleterStrain, [

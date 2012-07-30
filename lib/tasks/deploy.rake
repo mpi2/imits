@@ -15,7 +15,11 @@ namespace :deploy do
 
   task :ensure_no_unpushed do
     Dir.chdir Rails.root
-    branchname = `git describe --contains --all HEAD`.strip
+    symbolic_ref = `git symbolic-ref HEAD`.strip
+    if ! symbolic_ref.match %r{^refs/heads/}
+      raise 'Not on a branch!'
+    end
+    branchname = symbolic_ref.gsub(%r{^refs/heads/}, '')
     if ! system("git diff-tree --quiet origin/#{branchname} #{branchname}")
       raise 'Please push your changes first'
     end
@@ -37,8 +41,11 @@ namespace :deploy do
      "exception: will generate, commit and push compressed assets if not already done"
   task :tag => [:ensure_clean_repo, :generate_assets] do
     Dir.chdir Rails.root
-    tag = "v#{Time.now.strftime('%Y%m%d%H%M%S')}"
-    system("git tag -a #{tag} -m '' && git push origin #{tag}") or raise 'Failed to tag'
+    tag = `git describe  --match 'v*' --exact-match --always 2> /dev/null`.strip
+    if tag.empty?
+      tag = "v#{Time.now.strftime('%Y%m%d%H%M%S')}"
+      system("git tag -a #{tag} -m '' && git push origin #{tag}") or raise 'Failed to tag'
+    end
     puts "TAG: #{tag}"
   end
 end

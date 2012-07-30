@@ -74,11 +74,11 @@ class Reports::MiPlans
           COALESCE(centres.name, 'NONE') as centres_name,
           consortia.name as consortia_name,
           mi_attempts.mi_date as mi_attempts_mi_date,
-          mi_attempt_statuses.description as mi_attempt_statuses_description
+          mi_attempt_statuses.name as mi_attempt_statuses_name
         from mi_plans
           join mi_plan_statuses on mi_plans.status_id = mi_plan_statuses.id
           left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
-          left outer join mi_attempt_statuses on mi_attempts.mi_attempt_status_id = mi_attempt_statuses.id
+          left outer join mi_attempt_statuses on mi_attempts.status_id = mi_attempt_statuses.id
           join consortia on mi_plans.consortium_id = consortia.id
           left outer join centres on mi_plans.production_centre_id = centres.id
           join genes on mi_plans.gene_id = genes.id
@@ -102,7 +102,7 @@ class Reports::MiPlans
           row['marker_symbol'],
           row['consortia_name'],
           row['mi_plan_statuses_name'],
-          row['mi_attempt_statuses_description'],
+          row['mi_attempt_statuses_name'],
           row['centres_name'],
           row['mi_attempts_mi_date']
         ]

@@ -298,14 +298,14 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       Factory.create :mi_attempt,
               :es_cell => Factory.create(:es_cell, :gene => gene_trafd1),
               'mi_date' => '2011-11-05',
-              :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+              :status => MiAttempt::Status.micro_injection_in_progress,
               :production_centre_name => 'WTSI',
               :consortium_name => 'BaSH'
 
       Factory.create :mi_attempt,
               :es_cell => Factory.create(:es_cell, :gene => gene_trafd1),
               'mi_date' => '2011-10-05',
-              :mi_attempt_status => MiAttemptStatus.micro_injection_in_progress,
+              :status => MiAttempt::Status.micro_injection_in_progress,
               :production_centre_name => 'WTSI',
               :consortium_name => 'DTCC'
 

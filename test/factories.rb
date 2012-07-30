@@ -61,7 +61,7 @@ end
 
 Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_plan|
   mi_plan.after_create do |plan|
-    plan.status = MiPlan::Status["Assigned - ES Cell QC Complete"]
+    plan.number_of_es_cells_passing_qc = 2
     plan.save!
   end
 end

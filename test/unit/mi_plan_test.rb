@@ -337,19 +337,20 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#status' do
         should 'create status stamps when status is changed' do
-          default_mi_plan.status = MiPlan::Status['Assigned']; default_mi_plan.save!
-          default_mi_plan.status = MiPlan::Status['Inactive']; default_mi_plan.save!
-          default_mi_plan.status = MiPlan::Status['Withdrawn']; default_mi_plan.save!
+          replace_status_stamps(default_mi_plan,
+            :Assigned => '2012-01-01',
+            :Inactive => '2012-01-02',
+            :Withdrawn => '2012-01-03')
 
           expected = ["Assigned", "Inactive", "Withdrawn"]
           assert_equal expected, default_mi_plan.status_stamps.map{|i| i.status.name}
         end
 
         should 'not add the same status stamp consecutively' do
-          default_mi_plan.status = MiPlan::Status['Conflict']; default_mi_plan.save!
-          default_mi_plan.status = MiPlan::Status['Conflict']; default_mi_plan.save!
+          default_mi_plan.update_attributes!(:number_of_es_cells_starting_qc => 2)
+          default_mi_plan.save!
 
-          assert_equal ["Assigned", "Conflict"], default_mi_plan.status_stamps.map{|i|i.status.name}
+          assert_equal ['asg', 'asg-esp'], default_mi_plan.status_stamps.map{|i|i.status.code}
         end
 
         should 'not be one of the following if it has any phenotype attempts' do
@@ -360,23 +361,16 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_equal 0, plan.mi_attempts.count
           assert_equal 1, plan.phenotype_attempts.count
 
-          ["Interest", "Conflict", "Inspect - GLT Mouse", "Inspect - MI Attempt", "Inspect - Conflict", "Aborted - ES Cell QC Failed", "Withdrawn"].each do |this_status|
-            plan.status = MiPlan::Status[this_status]
-            plan.valid?
-            assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"
-          end
+          plan.withdrawn = true; plan.valid?
+          assert_contains plan.errors[:status], /cannot be changed/
         end
 
-        should 'not be one of the following if it has any micro-injection attempts' do
+        should 'not be a non-assigned status if it has any micro-injection attempts' do
           mi_attempt = Factory.create :mi_attempt
           plan = mi_attempt.mi_plan
-          plan.status = MiPlan::Status['Assigned']
-          plan.save!
-          ["Interest", "Conflict", "Inspect - GLT Mouse", "Inspect - MI Attempt", "Inspect - Conflict", "Aborted - ES Cell QC Failed", "Withdrawn"].each do |this_status|
-            plan.status = MiPlan::Status[this_status]
-            plan.valid?
-            assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"
-          end
+
+          plan.withdrawn = true; plan.valid?
+          assert_contains plan.errors[:status], /cannot be changed/
         end
       end
 
@@ -1107,7 +1101,7 @@ class MiPlanTest < ActiveSupport::TestCase
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create(:mi_plan, :gene => gene,
           :consortium => Consortium.find_by_name!('MGP'))
-        mi_plan.status = MiPlan::Status.find_by_name!('Aborted - ES Cell QC Failed')
+        mi_plan.number_of_es_cells_passing_qc = 0
         mi_plan.save!
 
         results = mi_plan.latest_relevant_status
@@ -1152,7 +1146,7 @@ class MiPlanTest < ActiveSupport::TestCase
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create(:mi_plan, :gene => gene,
           :consortium => Consortium.find_by_name!('MGP'),
-          :status => MiPlan::Status.find_by_name!('Aborted - ES Cell QC Failed'))
+          :number_of_es_cells_passing_qc => 0)
 
         results = mi_plan.relevant_status_stamp
 

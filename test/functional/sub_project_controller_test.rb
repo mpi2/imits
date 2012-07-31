@@ -18,7 +18,7 @@ class SubProjectsControllerTest < ActionController::TestCase
         sub_project = MiPlan::SubProject.new(:name => 'FUNCTIONALTEST')
         sub_project.save!
         post :create, :mi_plan_sub_project=>{:name => 'FUNCTIONALTEST'}
-        assert_equal "Sub-project 'FUNCTIONALTEST' already exists", flash[:alert]
+        assert_equal "has already been taken", flash[:alert]
       end
     end
 

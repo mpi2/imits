@@ -7,7 +7,7 @@ class MiPlan::SubProject < ActiveRecord::Base
 
   validates :name, :uniqueness => {:case_sensitive => false}
 
-  def miplan?
+  def has_mi_plan?
     if MiPlan.find_all_by_sub_project_id(self.id).count > 0
       return true
     else

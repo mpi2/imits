@@ -23,7 +23,7 @@ class MiPlan::SubProject::CreateInFormIntegrationTest < Kermits2::IntegrationTes
       fill_in :name, :with => 'INTEGRATIONTEST'
       click_button 'mi_plan_sub_project_submit'
       assert page.has_css?('.message.alert')
-      assert_equal "Sub-project 'INTEGRATIONTEST' already exists", page.find('.message.alert').text
+      assert_equal "has already been taken", page.find('.message.alert').text
     end
 
     should 'delete sub-project and redirect back to index page with notice message' do

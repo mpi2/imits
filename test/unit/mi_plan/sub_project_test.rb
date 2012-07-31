@@ -14,7 +14,7 @@ class MiPlan::SubProjectTest < ActiveSupport::TestCase
     end
   end
 
-  context '' do
+  context '#has_mi_plans?' do
 
     should 'check test if sub-project has any mi_plans' do
       sub_project = MiPlan::SubProject.new(:name => 'TESTUNIT')

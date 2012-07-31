@@ -59,6 +59,8 @@ class MiAttempt < ApplicationModel
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
 
+  protected :status=
+
   validates :es_cell_name, :presence => true
   validates :production_centre_name, :presence => true
   validates :consortium_name, :presence => true

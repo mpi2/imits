@@ -18,6 +18,8 @@ class MiPlan < ApplicationModel
           :dependent => :destroy
   has_many :phenotype_attempts
 
+  protected :status=
+
   validate do |plan|
     if plan.is_active == false
       plan.mi_attempts.each do |mi_attempt|

@@ -18,6 +18,8 @@ class PhenotypeAttempt < ApplicationModel
 
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true, :reject_if => proc { |attrs| (attrs['centre_id'].blank? && attrs['deposited_material_id'].blank?)&& !(attrs[:_destroy] == "true" || attrs[:_destroy] == "1") }
 
+  protected :status=
+
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
 

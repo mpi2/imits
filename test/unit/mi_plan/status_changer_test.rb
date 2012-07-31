@@ -107,9 +107,33 @@ class MiPlan::StatusChangerTest < ActiveSupport::TestCase
     end
 
     context 'when affecting statuses of OTHER plans' do
-      should ', if an Assigned plan goes away for a gene and several plans remain, they should go from "Inspect - Conflict" to "Conflict"'
+      should ', if an Assigned plan is inactivated for a gene and several plans remain, they should go from "Inspect - Conflict" to "Conflict"' do
+        assert_equal 'Assigned', default_mi_plan.status.name
+        other1 = TestDummy.mi_plan default_mi_plan.marker_symbol
+        other2 = TestDummy.mi_plan default_mi_plan.marker_symbol
+        assert_equal 'Inspect - Conflict', other1.status.name
+        assert_equal 'Inspect - Conflict', other2.status.name
 
-      should ', if an Assigned plan goes away for a gene, and only 1 plan remains, it should go from "Inspect - Conflict" to "Assigned"'
+        default_mi_plan.is_active = false; default_mi_plan.save!
+        other1.reload; assert_equal 'Conflict', other1.status.name
+        other2.reload; assert_equal 'Conflict', other2.status.name
+      end
+
+      should ', if an Assigned plan is inactivated for a gene, and only 1 plan remains, it should go from "Inspect - Conflict" to "Assigned"' do
+        assert_equal 'Assigned', default_mi_plan.status.name
+        other = TestDummy.mi_plan default_mi_plan.marker_symbol
+        assert_equal 'Inspect - Conflict', other.status.name
+        default_mi_plan.is_active = false; default_mi_plan.save!
+        other.reload; assert_equal 'Assigned', other.status.name
+      end
+
+      should ', if an Assigned plan is deleted for for a gene, and only 1 plan remains, it should go from "Inspect - Conflict" to "Assigned"' do
+        assert_equal 'Assigned', default_mi_plan.status.name
+        other = TestDummy.mi_plan default_mi_plan.marker_symbol
+        assert_equal 'Inspect - Conflict', other.status.name
+        default_mi_plan.destroy
+        other.reload; assert_equal 'Assigned', other.status.name
+      end
     end
 
     should 'NOT set a pre-assignment status if conditions are met but the force_assignment virtual attribute is passed through' do

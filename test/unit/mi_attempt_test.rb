@@ -534,10 +534,10 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         context 'on update' do
           setup do
-            default_mi_attempt.mi_plan.status = MiPlan::Status['Inactive']
-            default_mi_attempt.mi_plan.save!
             default_mi_attempt.update_attributes!(:is_active => false)
             default_mi_attempt.reload
+            default_mi_attempt.mi_plan.update_attributes!(:is_active => false)
+            default_mi_attempt.mi_plan.save!
           end
 
           should 'set its status to Assigned if MI attempt is becoming active again' do

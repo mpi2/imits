@@ -77,7 +77,7 @@ class PhenotypeAttempt < ApplicationModel
 
   def ensure_plan_is_valid
     if ! mi_plan.assigned?
-      mi_plan.status = MiPlan::Status['Assigned']
+      mi_plan.force_assignment = true
       mi_plan.save!
     end
     if self.is_active?

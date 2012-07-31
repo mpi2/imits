@@ -78,21 +78,15 @@ class ActiveSupport::TestCase
   end
 
   def replace_status_stamps(obj, stamps)
-    status_lookup_attr = if obj.kind_of?(MiAttempt) then :description else :name end
-    status_field = if obj.kind_of?(MiAttempt) then :mi_attempt_status else :status end
-    if obj.kind_of? MiAttempt
-      status_class = MiAttemptStatus
-    else
-      status_class = (obj.class.name + '::' + obj.class.reflections[:status].class_name).constantize
-    end
+    status_class = (obj.class.name + '::' + obj.class.reflections[:status].class_name).constantize
 
     obj.status_stamps.destroy_all
     stamps.each do |status_name, time|
-      status_object = status_class.where(status_lookup_attr => status_name).first
+      status_object = status_class.where(:name => status_name).first
       raise "status object lookup failed for '#{status_name}'" unless status_object
       obj.status_stamps.create!(
         :created_at => time,
-        status_field => status_object
+        :status => status_object
       )
     end
   end
@@ -178,6 +172,11 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
     filename ||= "#{Rails.root}/tmp/capybara_screenshot_#{Time.now.strftime('%F-%T')}.png"
     page.driver.render filename
     Launchy.open(filename)
+  end
+
+  def wait_until_grid_loaded
+    assert page.has_css?('.x-grid', :visible => true)
+    assert page.has_no_css?('.x-mask', :visible => true)
   end
 end
 

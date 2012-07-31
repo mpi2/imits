@@ -11,7 +11,7 @@
     <% if ! mi_attempt.status.blank? %>
       <div>
         <label>Status</label>
-        <span><%= mi_attempt.status %></span>
+        <span><%= mi_attempt.status.name %></span>
       </div>
     <% end %>
 
@@ -45,7 +45,7 @@
 <fieldset class="collapsible" id="distribution_centres">
   <legend>Distribution Centres</legend>
     <div class="distribution_centres">
-    <% if mi_attempt.status == 'Genotype confirmed' %>
+    <% if mi_attempt.status.try(:name) == 'Genotype confirmed' %>
       <table id="distribution_centres_table" class="report_table">
         <thead class="title">
           <tr>

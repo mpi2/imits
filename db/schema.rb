@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120721093257) do
+ActiveRecord::Schema.define(:version => 20120725145204) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -161,25 +161,26 @@ ActiveRecord::Schema.define(:version => 20120721093257) do
   end
 
   create_table "mi_attempt_status_stamps", :force => true do |t|
-    t.integer  "mi_attempt_id",        :null => false
-    t.integer  "mi_attempt_status_id", :null => false
+    t.integer  "mi_attempt_id", :null => false
+    t.integer  "status_id",     :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
   create_table "mi_attempt_statuses", :force => true do |t|
-    t.string   "description", :limit => 50, :null => false
+    t.string   "name",       :limit => 50, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "order_by"
+    t.string   "code",       :limit => 10, :null => false
   end
 
-  add_index "mi_attempt_statuses", ["description"], :name => "index_mi_attempt_statuses_on_description", :unique => true
+  add_index "mi_attempt_statuses", ["name"], :name => "index_mi_attempt_statuses_on_name", :unique => true
 
   create_table "mi_attempts", :force => true do |t|
     t.integer  "es_cell_id",                                                                        :null => false
     t.date     "mi_date",                                                                           :null => false
-    t.integer  "mi_attempt_status_id",                                                              :null => false
+    t.integer  "status_id",                                                                         :null => false
     t.string   "colony_name",                                     :limit => 125
     t.integer  "updated_by_id"
     t.integer  "blast_strain_id"
@@ -256,6 +257,7 @@ ActiveRecord::Schema.define(:version => 20120721093257) do
     t.integer  "order_by"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "code",        :limit => 10, :null => false
   end
 
   add_index "mi_plan_statuses", ["name"], :name => "index_mi_plan_statuses_on_name", :unique => true
@@ -279,6 +281,7 @@ ActiveRecord::Schema.define(:version => 20120721093257) do
     t.integer  "sub_project_id",                                    :null => false
     t.boolean  "is_active",                      :default => true,  :null => false
     t.boolean  "is_bespoke_allele",              :default => false, :null => false
+    t.boolean  "withdrawn",                      :default => false, :null => false
     t.boolean  "is_conditional_allele",          :default => false, :null => false
     t.boolean  "is_deletion_allele",             :default => false, :null => false
     t.boolean  "is_cre_knock_in_allele",         :default => false, :null => false
@@ -322,6 +325,7 @@ ActiveRecord::Schema.define(:version => 20120721093257) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "order_by"
+    t.string   "code",       :limit => 10, :null => false
   end
 
   create_table "phenotype_attempts", :force => true do |t|
@@ -399,11 +403,11 @@ ActiveRecord::Schema.define(:version => 20120721093257) do
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "mi_attempts", :name => "mi_attempt_distribution_centres_mi_attempt_id_fk"
 
-  add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk"
+  add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk", :column => "status_id"
   add_foreign_key "mi_attempt_status_stamps", "mi_attempts", :name => "mi_attempt_status_stamps_mi_attempt_id_fk"
 
   add_foreign_key "mi_attempts", "es_cells", :name => "mi_attempts_es_cell_id_fk"
-  add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk"
+  add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk", :column => "status_id"
   add_foreign_key "mi_attempts", "mi_plans", :name => "mi_attempts_mi_plan_id_fk"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_five_prime_cassette_integrity_id_fk", :column => "qc_five_prime_cassette_integrity_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_five_prime_lr_pcr_id_fk", :column => "qc_five_prime_lr_pcr_id"

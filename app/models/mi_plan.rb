@@ -40,7 +40,7 @@ class MiPlan < ApplicationModel
 
   validate do |plan|
     statuses = MiPlan::Status.pre_assigned
-    if statuses.include?(plan.status.name) and plan.phenotype_attempts.length != 0
+    if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0
       plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
     end
   end
@@ -70,7 +70,7 @@ class MiPlan < ApplicationModel
   before_validation :set_default_sub_project
   before_validation :change_status
 
-  before_save :major_conflict_resolution_immediate
+  before_save :major_conflict_resolution
   before_save :record_if_status_was_changed
   after_save :create_status_stamp_if_status_was_changed
 
@@ -116,14 +116,14 @@ class MiPlan < ApplicationModel
 
   def latest_relevant_mi_attempt
     @@status_sort_order ||= {
-      MiAttemptStatus.micro_injection_aborted => 1,
-      MiAttemptStatus.micro_injection_in_progress => 2,
-      MiAttemptStatus.chimeras_obtained => 3,
-      MiAttemptStatus.genotype_confirmed => 4
+      MiAttempt::Status.micro_injection_aborted => 1,
+      MiAttempt::Status.micro_injection_in_progress => 2,
+      MiAttempt::Status.chimeras_obtained => 3,
+      MiAttempt::Status.genotype_confirmed => 4
     }
     ordered_mis = mi_attempts.all.sort do |mi1, mi2|
-      [@@status_sort_order[mi1.mi_attempt_status], mi1.in_progress_date] <=>
-              [@@status_sort_order[mi2.mi_attempt_status], mi2.in_progress_date]
+      [@@status_sort_order[mi1.status], mi1.in_progress_date] <=>
+              [@@status_sort_order[mi2.status], mi2.in_progress_date]
     end
     if ordered_mis.empty?
       return nil
@@ -182,56 +182,6 @@ class MiPlan < ApplicationModel
     where("#{self.table_name}.id in (?)", MiAttempt.genotype_confirmed.select('distinct(mi_plan_id)').map(&:mi_plan_id))
   end
 
-  def self.major_conflict_resolution
-    conflict_status                   = MiPlan::Status.find_by_name!('Conflict')
-    inspect_due_to_conflict_status   = MiPlan::Status.find_by_name!('Inspect - Conflict')
-    inspect_due_to_mi_attempt_status = MiPlan::Status.find_by_name!('Inspect - MI Attempt')
-    inspect_due_to_glt_mouse_status  = MiPlan::Status.find_by_name!('Inspect - GLT Mouse')
-
-    self.all_grouped_by_mgi_accession_id_then_by_status_name.each do |mgi_accession_id, mi_plans_by_status|
-      interested = mi_plans_by_status['Interest']
-
-      assigned = []
-      MiPlan::Status.all_assigned.each do |assigned_status|
-        assigned += mi_plans_by_status[assigned_status.name].to_a
-      end
-
-      next if interested.blank?
-
-      if ! assigned.blank?
-        assigned_plans_with_mis      = MiPlan.where('mi_plans.id in (?)', assigned.map(&:id)).with_active_mi_attempt
-        assigned_plans_with_glt_mice = MiPlan.where('mi_plans.id in (?)', assigned.map(&:id)).with_genotype_confirmed_mouse
-
-        if ! assigned_plans_with_glt_mice.blank?
-          interested.each do |mi_plan|
-            mi_plan.status = inspect_due_to_glt_mouse_status
-            mi_plan.save!
-          end
-        elsif ! assigned_plans_with_mis.blank?
-          interested.each do |mi_plan|
-            mi_plan.status = inspect_due_to_mi_attempt_status
-            mi_plan.save!
-          end
-        else
-          interested.each do |mi_plan|
-            mi_plan.status = inspect_due_to_conflict_status
-            mi_plan.save!
-          end
-        end
-
-      elsif ! mi_plans_by_status['Conflict'].blank? or interested.size != 1
-        interested.each do |mi_plan|
-          mi_plan.status = conflict_status
-          mi_plan.save!
-        end
-      else
-        assigned_mi_plan = interested.first
-        assigned_mi_plan.status = MiPlan::Status[:Assigned]
-        assigned_mi_plan.save!
-      end
-    end
-  end
-
   def self.minor_conflict_resolution
     statuses = MiPlan::Status.all_affected_by_minor_conflict_resolution
     grouped_mi_plans = MiPlan.where(:status_id => statuses.map(&:id)).
@@ -256,7 +206,7 @@ class MiPlan < ApplicationModel
     return mi_plans
   end
 
-  def major_conflict_resolution_immediate
+  def major_conflict_resolution
     interest_status                  = MiPlan::Status.find_by_name!('Interest')
     inactive_status                  = MiPlan::Status.find_by_name!('Inactive')
     assigned_status                  = MiPlan::Status.find_by_name!('Assigned')
@@ -269,7 +219,7 @@ class MiPlan < ApplicationModel
 
     self.status = assigned_status
 
-    all_grouped_by_mgi_accession_id_then_by_status_name_immediate(gene.mgi_accession_id).each do |mgi_accession_id, mi_plans_by_status|
+    all_grouped_by_mgi_accession_id_then_by_status_name(gene.mgi_accession_id).each do |mgi_accession_id, mi_plans_by_status|
 
       interested = mi_plans_by_status['Interest'] || []
 
@@ -298,7 +248,7 @@ class MiPlan < ApplicationModel
     end
   end
 
-  def all_grouped_by_mgi_accession_id_then_by_status_name_immediate(mgi_acc_id)
+  def all_grouped_by_mgi_accession_id_then_by_status_name(mgi_acc_id)
     gene = Gene.find_by_mgi_accession_id!(mgi_acc_id)
     mi_plans = MiPlan.where('gene_id = ? and id != ?', gene.id, id).group_by {|i| i.gene.mgi_accession_id} if id
     mi_plans = MiPlan.where('gene_id = ?', gene.id).group_by {|i| i.gene.mgi_accession_id} if ! id
@@ -376,7 +326,7 @@ class MiPlan < ApplicationModel
 
   def distinct_old_non_genotype_confirmed_es_cells_count
     es_cells = []
-    mi_attempts.search(:mi_attempt_status_id_not_eq => MiAttemptStatus.genotype_confirmed.id).result.each do |mi|
+    mi_attempts.search(:status_id_not_eq => MiAttempt::Status.genotype_confirmed.id).result.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
       mip_date = dates["Micro-injection in progress"]
       es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
@@ -390,8 +340,8 @@ class MiPlan < ApplicationModel
 
     plan_status_list = {}
     mi_dates = reportable_statuses_with_latest_dates
-    mi_dates.each do |description, date|
-      plan_status_list["#{description}"] = date.to_s
+    mi_dates.each do |name, date|
+      plan_status_list["#{name}"] = date.to_s
     end
 
     d = plan_status_list[s]
@@ -401,11 +351,11 @@ class MiPlan < ApplicationModel
     if mi
       mi_status_list = {}
       mi_dates = mi.reportable_statuses_with_latest_dates
-      mi_dates.each do |description, date|
-        mi_status_list["#{description}"] = date.to_s
+      mi_dates.each do |name, date|
+        mi_status_list["#{name}"] = date.to_s
       end
 
-      s = mi.mi_attempt_status.description
+      s = mi.status.name
       d = mi_status_list[s]
     end
 
@@ -414,8 +364,8 @@ class MiPlan < ApplicationModel
     if pt
       pheno_status_list = {}
       mi_dates = pt.reportable_statuses_with_latest_dates
-      mi_dates.each do |description, date|
-        pheno_status_list["#{description}"] = date.to_s
+      mi_dates.each do |name, date|
+        pheno_status_list["#{name}"] = date.to_s
       end
 
       s = pt.status.name
@@ -430,7 +380,7 @@ class MiPlan < ApplicationModel
 
     mi = latest_relevant_mi_attempt
     if mi
-      status_stamp = mi.status_stamps.find_by_mi_attempt_status_id!(mi.mi_attempt_status.id)
+      status_stamp = mi.status_stamps.find_by_status_id!(mi.status.id)
     end
 
     pa = latest_relevant_phenotype_attempt
@@ -490,6 +440,7 @@ end
 #  sub_project_id                 :integer         not null
 #  is_active                      :boolean         default(TRUE), not null
 #  is_bespoke_allele              :boolean         default(FALSE), not null
+#  withdrawn                      :boolean         default(FALSE), not null
 #  is_conditional_allele          :boolean         default(FALSE), not null
 #  is_deletion_allele             :boolean         default(FALSE), not null
 #  is_cre_knock_in_allele         :boolean         default(FALSE), not null

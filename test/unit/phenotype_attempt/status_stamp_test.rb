@@ -13,7 +13,7 @@ class PhenotypeAttempt::StatusStampTest < ActiveSupport::TestCase
     should 'have db foreign keys' do
       pt = Factory.create :phenotype_attempt
       PhenotypeAttempt::StatusStamp.where(:phenotype_attempt_id => pt.id).each(&:destroy)
-      status = PhenotypeAttempt::Status.create!(:name => 'Nonexistent')
+      status = PhenotypeAttempt::Status.create!(:name => 'Nonexistent', :code => 'nex')
       ss = PhenotypeAttempt::StatusStamp.create!(:phenotype_attempt => pt,
         :status => status)
       assert_raise(ActiveRecord::InvalidForeignKey) { status.destroy }

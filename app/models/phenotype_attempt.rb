@@ -22,8 +22,8 @@ class PhenotypeAttempt < ApplicationModel
   validates :colony_name, :uniqueness => {:case_sensitive => false}
 
   validate :mi_attempt do |me|
-    if me.mi_attempt and me.mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
-      me.errors.add(:mi_attempt, "status must be genotype confirmed (is currently '#{me.mi_attempt.mi_attempt_status.description}')")
+    if me.mi_attempt and me.mi_attempt.status != MiAttempt::Status.genotype_confirmed
+      me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.status.name}')")
     end
   end
 

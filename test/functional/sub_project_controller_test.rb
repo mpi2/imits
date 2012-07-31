@@ -25,7 +25,7 @@ class SubProjectsControllerTest < ActionController::TestCase
     context 'GET index' do
 
       should 'show all sub projects' do
-        sp = MiPlan::SubProject.all
+        sp = MiPlan::SubProject.find(:all, :order=>"name")
         get :index, :format => :json
         assert_equal sp.to_json, response.body
       end

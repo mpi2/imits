@@ -32,6 +32,15 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '#es_qc_comment_name' do
+      should 'be accessible via the name attribute' do
+        eqc = MiPlan::EsQcComment.create!(:name => 'Nonexistent')
+        default_mi_plan.es_qc_comment_name = 'Nonexistent'
+        default_mi_plan.valid?
+        assert_equal eqc, default_mi_plan.es_qc_comment
+      end
+    end
+
     context '#marker_symbol' do
       should 'use AccessAssociationByAttribute' do
         gene = Factory.create :gene_cbx1
@@ -184,7 +193,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'withdrawn',
         'sub_project_name',
         'is_active',
-        'is_bespoke_allele'
+        'is_bespoke_allele',
+        'es_qc_comment_name'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -205,7 +215,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'is_active',
         'is_bespoke_allele',
         'status_dates',
-        'mgi_accession_id'
+        'mgi_accession_id',
+        'es_qc_comment_name'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

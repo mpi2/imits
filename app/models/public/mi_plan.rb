@@ -14,7 +14,8 @@ class Public::MiPlan < ::MiPlan
     'withdrawn',
     'sub_project_name',
     'is_active',
-    'is_bespoke_allele'
+    'is_bespoke_allele',
+    'es_qc_comment_name'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -32,6 +33,7 @@ class Public::MiPlan < ::MiPlan
   access_association_by_attribute :production_centre, :name
   access_association_by_attribute :priority, :name
   access_association_by_attribute :status, :name
+  access_association_by_attribute :es_qc_comment, :name
 
   validates :marker_symbol, :presence => true
   validates :consortium_name, :presence => true

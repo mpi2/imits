@@ -210,3 +210,24 @@ Seeds.load DeleterStrain, [
 
 
 ]
+
+#Task #8410
+#
+#Description
+#
+#Users should be able to specify a (controlled) comment when they give up on ES QC (ie mark ES-QC failed for
+#
+#MI plan QC Comment should be drawn from this allowed list:
+#
+#"No Assay available" - the LOA assays the lab uses to check alleles weren't available for these alleles because the region is too repetitive (for instance)
+#
+#"All valid available clones failed" - there were 2 or 3 clones, all available clones failed in TC's hands.
+#
+#"Enough clones failed" - the number here that WTSI tries is five clones (then TC at WTSI gives up). I'm struggling to find a generic phrase for this case ...
+
+Seeds.load MiPlan::EsQcComment, [
+  {:id => 1, :name => ''},
+  {:id => 2, :name => 'No assay available'},
+  {:id => 3, :name => 'All valid available clones failed'},
+  {:id => 4, :name => 'Enough clones failed'}
+]

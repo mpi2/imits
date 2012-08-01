@@ -43,6 +43,9 @@ Ext.define('Imits.model.MiPlan', {
     {
         name: 'is_bespoke_allele',
         defaultValue: false
+    },
+    {
+        name: 'es_qc_comment_name'
     }
     ],
 

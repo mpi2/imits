@@ -106,6 +106,14 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 xtype: 'simplenumberfield',
                 fieldLabel: '# of ES Cells passing QC',
                 name: 'number_of_es_cells_passing_qc'
+            },
+            {
+                id: 'es_qc_comment_name',
+                xtype: 'simplecombo',
+                fieldLabel: 'ES QC Comment',
+                name: 'es_qc_comment_name',
+                storeOptionsAreSpecial: true,
+                store: window.ES_QC_COMMENT_NAMES
             }
             ],
 

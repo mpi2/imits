@@ -13,6 +13,8 @@ class MiPlan < ApplicationModel
   belongs_to :status
   belongs_to :priority
   belongs_to :production_centre, :class_name => 'Centre'
+  belongs_to :es_qc_comment
+
   has_many :mi_attempts
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
@@ -69,6 +71,7 @@ class MiPlan < ApplicationModel
   before_validation :set_default_number_of_es_cells_starting_qc
   before_validation :set_default_sub_project
   before_validation :change_status
+  before_validation :set_default_es_qc_comment
 
   before_save :major_conflict_resolution
   before_save :record_if_status_was_changed
@@ -92,6 +95,10 @@ class MiPlan < ApplicationModel
     else
       self.sub_project ||= SubProject.find_by_name!('')
     end
+  end
+
+  def set_default_es_qc_comment
+    self.es_qc_comment ||= EsQcComment.find_by_name!('')
   end
 
   def record_if_status_was_changed

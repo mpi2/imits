@@ -56,13 +56,7 @@ class MiAttemptTest < ActiveSupport::TestCase
                   default_mi_attempt.status_stamps.map(&:status)
         end
 
-        should ', when assigned the same as current status, not add a status stamp' do
-          default_mi_attempt.status = MiAttempt::Status.micro_injection_in_progress; default_mi_attempt.save!
-          assert_equal [MiAttempt::Status.micro_injection_in_progress],
-                  default_mi_attempt.status_stamps.map(&:status)
-        end
-
-        should 'not be set to non-genotype-confirmed if mi attempt has phenotype_attempts' do
+        should 'not be settable to non-genotype-confirmed if mi attempt has phenotype_attempts' do
           set_mi_attempt_genotype_confirmed(default_mi_attempt)
           Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
           default_mi_attempt.reload

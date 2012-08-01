@@ -824,11 +824,14 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'return false if status is not assigned' do
-        plan = Factory.build :mi_plan_with_production_centre
-        plan.status = MiPlan::Status['Inactive']
+        plan = Factory.build :mi_plan_with_production_centre, :gene => cbx1
+        plan.is_active = false; plan.valid?
         assert_false plan.assigned?
 
-        plan.status = MiPlan::Status['Conflict']
+        Factory.create :mi_plan, :gene => cbx1
+
+        plan.is_active = true; plan.valid?
+        assert_equal 'Inspect - Conflict', plan.status.name
         assert_false plan.assigned?
       end
     end

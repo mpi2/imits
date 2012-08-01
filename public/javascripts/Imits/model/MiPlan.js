@@ -45,7 +45,9 @@ Ext.define('Imits.model.MiPlan', {
         defaultValue: false
     },
     {
-        name: 'mi_attempts_count'
+        name: 'mi_attempts_count',
+        readOnly: true,
+        persist: false
     }
     ],
 

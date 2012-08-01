@@ -26,7 +26,8 @@ class Public::MiPlan < ::MiPlan
     'id',
     'status_name',
     'status_dates',
-    'mgi_accession_id'
+    'mgi_accession_id',
+    'mi_attempts_count'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)
@@ -61,16 +62,23 @@ class Public::MiPlan < ::MiPlan
   end
 
   validate do |plan|
-    if !plan.new_record? and plan.changes.has_key? 'consortium_id'
-      plan.errors.add(:consortium_name, 'cannot be changed')
-    end
-
     if !plan.new_record? and plan.changes.has_key? 'gene_id'
       plan.errors.add(:marker_symbol, 'cannot be changed')
     end
 
     if plan.changes.has_key? 'production_centre_id' and ! plan.mi_attempts.empty?
       plan.errors.add(:production_centre_name, 'cannot be changed - gene has been micro-injected on behalf of production centre already')
+    end
+  end
+
+  validate do |plan|
+    if !plan.new_record? and plan.changes.has_key? 'consortium_id'
+      if plan.mi_attempts.size > 0
+        plan.errors.add(:consortium_name, 'cannot be changed (has micro-injection attempts)')
+      end
+      if plan.phenotype_attempts.size > 0
+        plan.errors.add(:consortium_name, 'cannot be changed (has phenotype attempts)')
+      end
     end
   end
 
@@ -90,6 +98,10 @@ class Public::MiPlan < ::MiPlan
   end
 
   def mgi_accession_id; gene.mgi_accession_id; end
+
+  def mi_attempts_count
+    mi_attempts.size
+  end
 end
 
 # == Schema Information
@@ -119,4 +131,3 @@ end
 #
 #  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
 #
-

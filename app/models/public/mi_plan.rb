@@ -71,6 +71,9 @@ class Public::MiPlan < ::MiPlan
       if plan.mi_attempts.size > 0
         plan.errors.add(:consortium_name, 'cannot be changed (has micro-injection attempts)')
       end
+      if plan.phenotype_attempts.size > 0
+        plan.errors.add(:consortium_name, 'cannot be changed (has phenotype attempts)')
+      end
     end
   end
 

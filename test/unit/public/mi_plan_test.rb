@@ -78,6 +78,19 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         mi_plan.valid?
         assert_match(/cannot be changed \(has micro-injection attempts\)/, mi_plan.errors[:consortium_name].first)
       end
+
+      should 'should NOT be updateable if the MiPlan has phenotype attempts' do
+        gene = Factory.create :gene_cbx1
+        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+
+        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1').to_public
+        pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
+        plan.reload
+
+        plan.consortium = Consortium.find_by_name!('DTCC')
+        plan.valid?
+        assert_match(/cannot be changed \(has phenotype attempts\)/, plan.errors[:consortium_name].first)
+      end
     end
 
     context '#production_centre_name' do

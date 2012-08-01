@@ -34,6 +34,12 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:priority_id).with_options(:null => false)
         assert_should have_db_column(:sub_project_id).with_options(:null => false)
         assert_should have_db_column(:is_bespoke_allele).with_options(:null => false)
+        assert_should have_db_column(:is_conditional_allele).with_options(:null => false)
+        assert_should have_db_column(:is_deletion_allele).with_options(:null => false)
+        assert_should have_db_column(:is_cre_knock_in_allele).with_options(:null => false)
+        assert_should have_db_column(:is_cre_bac_allele).with_options(:null => false)
+        assert_should have_db_column(:comment)
+        assert_should have_db_column(:es_qc_comment_id)
       end
 
       context '#latest_relevant_mi_attempt' do
@@ -933,8 +939,9 @@ class MiPlanTest < ActiveSupport::TestCase
 
         assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
-        assert_equal "MI already in progress at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
-                mi_plan.reason_for_inspect_or_conflict
+        assert_match(/MI already in progress at:/, mi_plan.reason_for_inspect_or_conflict)
+        assert_match(/#{@ics_cent.name} \(#{@eucomm_cons.name}\)/, mi_plan.reason_for_inspect_or_conflict)
+        assert_match(/#{@jax_cent.name} \(#{@bash_cons.name}\)/, mi_plan.reason_for_inspect_or_conflict)
       end
 
       should 'correctly return for Inspect - Conflict' do

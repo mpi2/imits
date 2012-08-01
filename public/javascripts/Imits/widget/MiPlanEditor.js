@@ -27,7 +27,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
         var isSubProjectHidden = true;
         if(window.CAN_SEE_SUB_PROJECT) {
             isSubProjectHidden = false;
-        }
+        };
 
         this.form = Ext.create('Ext.form.Panel', {
             ui: 'plain',
@@ -52,10 +52,11 @@ Ext.define('Imits.widget.MiPlanEditor', {
             },
             {
                 id: 'consortium_name',
-                xtype: 'textfield',
+                xtype: 'simplecombo',
                 fieldLabel: 'Consortium',
                 name: 'consortium_name',
-                readOnly: true
+                storeOptionsAreSpecial: true,
+                store: window.CONSORTIUM_OPTIONS
             },
             {
                 id: 'production_centre_name',
@@ -80,11 +81,41 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 store: window.PRIORITY_OPTIONS
             },
             {
+                id: 'is_conditional_allele',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Conditional allele?',
+                name: 'is_conditional_allele'
+            },
+            {
+                id: 'is_deletion_allele',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Deletion allele?',
+                name: 'is_deletion_allele'
+            },
+            {
+                id: 'is_cre_knock_in_allele',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Cre knock-in allele?',
+                name: 'is_cre_knock_in_allele'
+            },
+            {
+                id: 'is_cre_bac_allele',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Cre BAC allele?',
+                name: 'is_cre_bac_allele'
+            },
+            {
                 id: 'is_bespoke_allele',
                 xtype: 'simplecheckbox',
                 fieldLabel: 'Bespoke allele?',
                 name: 'is_bespoke_allele',
                 hidden: isSubProjectHidden
+            },
+            {
+                id: 'comment',
+                xtype: 'textfield',
+                fieldLabel: 'Comment',
+                name: 'comment'
             },
             {
                 id: 'sub_project_name',
@@ -176,7 +207,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 type: 'hbox',
                 align: 'stretchmax'
             },
-            margin: '0 0 10 0',
+            margin: '0 0 5 0',
             items: [
             {
                 xtype: 'label',
@@ -221,7 +252,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 type: 'hbox',
                 align: 'stretchmax'
             },
-            margin: '0 0 10 0',
+            margin: '0 0 5 0',
             items: [
             {
                 xtype: 'label',
@@ -269,7 +300,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 type: 'hbox',
                 align: 'stretchmax'
             },
-            margin: '0 0 10 0',
+            margin: '0 0 5 0',
             items: [
             {
                 xtype: 'label',
@@ -310,9 +341,9 @@ Ext.define('Imits.widget.MiPlanEditor', {
             }
             ]
         });
-        var panelHeight = 420;
+        var panelHeight = 520;
         if(window.CAN_SEE_SUB_PROJECT) {
-            panelHeight = 440;
+            panelHeight = 540;
         }
 
         this.add(Ext.create('Ext.panel.Panel', {
@@ -322,7 +353,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 type: 'vbox',
                 align: 'stretchmax'
             },
-            padding: 15,
+            padding: 5,
             items: [
             editor.form,
             deleteContainer,
@@ -358,6 +389,11 @@ Ext.define('Imits.widget.MiPlanEditor', {
                     }
                 });
                 editor.show();
+
+                var component = editor.form.getComponent('consortium_name');
+                if(component && miPlan.get('mi_attempts_count') > 0) {
+                    component.setReadOnly(true);
+                }
 
                 if(Ext.Array.indexOf(window.WITHDRAWABLE_STATUSES, miPlan.get('status_name')) == -1) {
                     editor.withdrawButton.disable();

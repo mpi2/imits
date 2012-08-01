@@ -287,6 +287,12 @@ ActiveRecord::Schema.define(:version => 20120731091856) do
     t.integer  "sub_project_id",                                    :null => false
     t.boolean  "is_active",                      :default => true,  :null => false
     t.boolean  "is_bespoke_allele",              :default => false, :null => false
+    t.boolean  "is_conditional_allele",          :default => false, :null => false
+    t.boolean  "is_deletion_allele",             :default => false, :null => false
+    t.boolean  "is_cre_knock_in_allele",         :default => false, :null => false
+    t.boolean  "is_cre_bac_allele",              :default => false, :null => false
+    t.text     "comment"
+    t.integer  "es_qc_comment_id"
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
@@ -432,6 +438,7 @@ ActiveRecord::Schema.define(:version => 20120731091856) do
   add_foreign_key "mi_plans", "centres", :name => "mi_plans_production_centre_id_fk", :column => "production_centre_id"
   add_foreign_key "mi_plans", "consortia", :name => "mi_plans_consortium_id_fk"
   add_foreign_key "mi_plans", "genes", :name => "mi_plans_gene_id_fk"
+  add_foreign_key "mi_plans", "mi_plan_es_qc_comments", :name => "mi_plans_es_qc_comment_id_fk", :column => "es_qc_comment_id"
   add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk", :column => "priority_id"
   add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"

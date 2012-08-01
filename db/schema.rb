@@ -282,6 +282,11 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
     t.boolean  "is_active",                      :default => true,  :null => false
     t.boolean  "is_bespoke_allele",              :default => false, :null => false
     t.boolean  "withdrawn",                      :default => false, :null => false
+    t.boolean  "is_conditional_allele",          :default => false, :null => false
+    t.boolean  "is_deletion_allele",             :default => false, :null => false
+    t.boolean  "is_cre_knock_in_allele",         :default => false, :null => false
+    t.boolean  "is_cre_bac_allele",              :default => false, :null => false
+    t.text     "comment"
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true

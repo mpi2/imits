@@ -49,7 +49,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         assert_not_equal gene, default_mi_plan.gene
         default_mi_plan.marker_symbol = 'Cbx1'
         default_mi_plan.valid?
-        assert_match /cannot be changed/, default_mi_plan.errors[:marker_symbol].first
+        assert_match(/cannot be changed/, default_mi_plan.errors[:marker_symbol].first)
       end
     end
 
@@ -64,11 +64,32 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         assert_should validate_presence_of :consortium_name
       end
 
-      should 'not be updateable' do
+      should 'should be updateable if the MiPlan has no MiAttempts' do
         assert_not_equal 'MGP', default_mi_plan.consortium_name
         default_mi_plan.consortium_name = 'MGP'
-        default_mi_plan.valid?
-        assert_match /cannot be changed/, default_mi_plan.errors[:consortium_name].first
+        assert default_mi_plan.valid?
+      end
+
+      should 'should NOT be updateable if the MiPlan has MiAttempts' do
+        mi_attempt = Factory.create(:mi_attempt).to_public
+        mi_plan = mi_attempt.mi_plan.to_public
+        assert_not_equal mi_plan.consortium, Consortium.find_by_name('MGP')
+        mi_plan.consortium = Consortium.find_by_name('MGP')
+        mi_plan.valid?
+        assert_match(/cannot be changed \(has micro-injection attempts\)/, mi_plan.errors[:consortium_name].first)
+      end
+
+      should 'should NOT be updateable if the MiPlan has phenotype attempts' do
+        gene = Factory.create :gene_cbx1
+        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+
+        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1').to_public
+        pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
+        plan.reload
+
+        plan.consortium = Consortium.find_by_name!('DTCC')
+        plan.valid?
+        assert_match(/cannot be changed \(has phenotype attempts\)/, plan.errors[:consortium_name].first)
       end
     end
 
@@ -103,7 +124,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         plan = Public::MiPlan.find(mi.mi_plan.id)
         plan.production_centre_name = 'ICS'
         plan.valid?
-        assert_match /cannot be changed/, plan.errors[:production_centre_name].first
+        assert_match(/cannot be changed/, plan.errors[:production_centre_name].first)
       end
     end
 
@@ -184,7 +205,12 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'withdrawn',
         'sub_project_name',
         'is_active',
-        'is_bespoke_allele'
+        'is_bespoke_allele',
+        'is_conditional_allele',
+        'is_deletion_allele',
+        'is_cre_knock_in_allele',
+        'is_cre_bac_allele',
+        'comment'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -204,8 +230,14 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'sub_project_name',
         'is_active',
         'is_bespoke_allele',
+        'is_conditional_allele',
+        'is_deletion_allele',
+        'is_cre_knock_in_allele',
+        'is_cre_bac_allele',
+        'comment',
         'status_dates',
-        'mgi_accession_id'
+        'mgi_accession_id',
+        'mi_attempts_count'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

@@ -933,8 +933,9 @@ class MiPlanTest < ActiveSupport::TestCase
 
         assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
-        assert_equal "MI already in progress at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
-                mi_plan.reason_for_inspect_or_conflict
+        assert_match(/MI already in progress at:/, mi_plan.reason_for_inspect_or_conflict)
+        assert_match(/#{@ics_cent.name} \(#{@eucomm_cons.name}\)/, mi_plan.reason_for_inspect_or_conflict)
+        assert_match(/#{@jax_cent.name} \(#{@bash_cons.name}\)/, mi_plan.reason_for_inspect_or_conflict)
       end
 
       should 'correctly return for Inspect - Conflict' do

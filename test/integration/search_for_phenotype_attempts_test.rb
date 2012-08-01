@@ -20,9 +20,25 @@ class SearchForPhenotypeAttemptsTest < Kermits2::JsIntegrationTest
       login
     end
 
+    def create_es_cell_EPD0011_1_G18
+      es_cell = Factory.create :es_cell, :name => 'EPD0011_1_G18',
+              :gene => Factory.create(:gene, :marker_symbol => 'Gatc'),
+              :allele_symbol_superscript => 'tm1a(KOMP)Wtsi',
+              :pipeline => Pipeline.find_by_name!('KOMP-CSD')
+      mi_attempt = Factory.create(:wtsi_mi_attempt_genotype_confirmed,
+        :es_cell => es_cell,
+        :colony_name => 'MBFD',
+        :consortium_name => 'MGP',
+        :production_centre_name => 'WTSI'
+      )
+      Factory.create :populated_phenotype_attempt, :mi_attempt => mi_attempt
+
+      return es_cell
+    end
+
     context 'searching for phenotyping attempts by marker symbol' do
       setup do
-        @es_cell1 = Factory.create :es_cell_EPD0011_1_G18
+        create_es_cell_EPD0011_1_G18
         visit '/phenotype_attempts'
         fill_in 'q[terms]', :with => 'Gatc'
         click_button 'Search'
@@ -40,7 +56,7 @@ class SearchForPhenotypeAttemptsTest < Kermits2::JsIntegrationTest
 
     context 'searching by a term and filtering by production centre' do
       setup do
-        @es_cell1 = Factory.create :es_cell_EPD0011_1_G18
+        @es_cell = create_es_cell_EPD0011_1_G18
         visit '/phenotype_attempts'
         fill_in 'q[terms]', :with => "Gatc\n"
         select 'WTSI', :from => 'q[production_centre_name]'
@@ -49,7 +65,7 @@ class SearchForPhenotypeAttemptsTest < Kermits2::JsIntegrationTest
       end
 
       should 'show results that match the search terms and the filter' do
-        assert page.has_css?('div', :text => @es_cell1.gene.marker_symbol)
+        assert page.has_css?('div', :text => @es_cell.gene.marker_symbol)
       end
 
       should 'have filtered production centre pre-selected in dropdown' do

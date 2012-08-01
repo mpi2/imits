@@ -265,17 +265,19 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_equal [s1, s3, s2].map(&:name), default_mi_plan.status_stamps.map(&:name)
         end
 
-        should 'delete related MiPlan::StatusStamps as well' do
-          plan = Factory.create :mi_plan_with_production_centre
-          plan.status = MiPlan::Status['Conflict']; plan.save!
+        should 'be deleted when MiPlan is deleted' do
+          Factory.create :mi_plan, :gene => cbx1
+
+          plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+          assert_equal 'Inspect - Conflict', plan.status.name
           plan.number_of_es_cells_starting_qc = 5; plan.save!
           stamps = plan.status_stamps.dup
-          assert_equal 3, stamps.size
+          assert_equal 2, stamps.size
 
           plan.destroy
 
           stamps = stamps.map {|s| MiPlan::StatusStamp.find_by_id s.id}
-          assert_equal [nil, nil, nil], stamps
+          assert_equal [nil, nil], stamps
         end
       end
 
@@ -812,14 +814,13 @@ class MiPlanTest < ActiveSupport::TestCase
 
     context '#assigned?' do
       should 'return true if status is assigned' do
-        plan = Factory.build :mi_plan_with_production_centre
-        plan.status = MiPlan::Status['Assigned']
+        plan = Factory.create :mi_plan_with_production_centre
         assert plan.assigned?
 
-        plan.status = MiPlan::Status['Assigned - ES Cell QC In Progress']
+        plan.update_attributes!(:number_of_es_cells_starting_qc => 1)
         assert plan.assigned?
 
-        plan.status = MiPlan::Status['Assigned - ES Cell QC Complete']
+        plan.update_attributes!(:number_of_es_cells_passing_qc => 1)
         assert plan.assigned?
       end
 

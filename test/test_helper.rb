@@ -180,6 +180,10 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
     assert page.has_css?('.x-grid', :visible => true)
     assert page.has_no_css?('.x-mask', :visible => true)
   end
+
+  def wait_until_no_mask
+    assert page.has_no_css?('.x-mask', :visible => true)
+  end
 end
 
 class ActionController::TestCase

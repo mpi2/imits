@@ -73,18 +73,18 @@ Ext.define('Imits.widget.MiPlansGrid', {
 
     columns: [
     {
+        dataIndex: 'id',
+        header: 'ID',
+        readOnly: true,
+        hidden: true
+    },
+    {
         dataIndex: 'marker_symbol',
         header: 'Marker Symbol',
         readOnly: true,
         filter: {
             type: 'string'
         }
-    },
-    {
-        dataIndex: 'id',
-        header: 'ID',
-        readOnly: true,
-        hidden: true
     },
     {
         dataIndex: 'consortium_name',
@@ -97,12 +97,34 @@ Ext.define('Imits.widget.MiPlansGrid', {
         }
     },
     {
-        dataIndex: 'is_bespoke_allele',
-        header: 'Bespoke',
-        xtype: 'boolgridcolumn',
-        width: 60,
+        dataIndex: 'production_centre_name',
+        header: 'Production Centre',
         readOnly: true,
-        hidden: true
+        width: 115,
+        filter: {
+            type: 'list',
+            options: window.CENTRE_OPTIONS
+        }
+    },
+    {
+        dataIndex: 'status_name',
+        header: 'Status',
+        readOnly: true,
+        flex: 1,
+        filter: {
+            type: 'list',
+            options: window.STATUS_OPTIONS
+        }
+    },
+    {
+        dataIndex: 'priority_name',
+        header: 'Priority',
+        readOnly: true,
+        width: 80,
+        filter: {
+            type: 'list',
+            options: window.PRIORITY_OPTIONS
+        }
     },
     {
         dataIndex: 'is_conditional_allele',
@@ -133,6 +155,14 @@ Ext.define('Imits.widget.MiPlansGrid', {
         readOnly: true
     },
     {
+        dataIndex: 'is_bespoke_allele',
+        header: 'Bespoke',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true,
+        hidden: true
+    },
+    {
         dataIndex: 'sub_project_name',
         header: 'Sub-Project',
         readOnly: true,
@@ -142,36 +172,6 @@ Ext.define('Imits.widget.MiPlansGrid', {
             options: window.SUB_PROJECT_OPTIONS
         },
         hidden: true
-    },
-    {
-        dataIndex: 'production_centre_name',
-        header: 'Production Centre',
-        readOnly: true,
-        width: 115,
-        filter: {
-            type: 'list',
-            options: window.CENTRE_OPTIONS
-        }
-    },
-    {
-        dataIndex: 'priority_name',
-        header: 'Priority',
-        readOnly: true,
-        width: 80,
-        filter: {
-            type: 'list',
-            options: window.PRIORITY_OPTIONS
-        }
-    },
-    {
-        dataIndex: 'status_name',
-        header: 'Status',
-        readOnly: true,
-        flex: 1,
-        filter: {
-            type: 'list',
-            options: window.STATUS_OPTIONS
-        }
     }
     ]
 });

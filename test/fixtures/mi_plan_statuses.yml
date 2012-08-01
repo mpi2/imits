@@ -27,7 +27,7 @@
   name: Inspect - GLT Mouse
   order_by: 70
 5:
-  code: ins-mia
+  code: ins-mip
   description: Inspect - An active micro-injection attempt is already in progress
   id: 5
   name: Inspect - MI Attempt

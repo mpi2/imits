@@ -129,6 +129,7 @@ end
 #  is_cre_bac_allele              :boolean         default(FALSE), not null
 #  comment                        :text
 #  es_qc_comment_id               :integer
+#  withdrawn                      :boolean         default(FALSE), not null
 #
 # Indexes
 #

@@ -156,11 +156,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'set MiPlan to Assigned status if not assigned already' do
-        plan = @mi.mi_plan.clone
-        plan.consortium = Consortium.find_by_name!('JAX')
-        plan.status = MiPlan::Status['Interest']
-        plan.save!
-        # it already exists - moved into appropriate status on plan.save
+        plan = TestDummy.mi_plan(@mi.mi_plan.marker_symbol,
+                'JAX', @mi.mi_plan.production_centre.name)
         assert_equal 'Inspect - GLT Mouse', plan.status.name
 
         pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,

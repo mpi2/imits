@@ -65,9 +65,10 @@ Factory.define :mi_plan_with_production_centre, :parent => :mi_plan do |mi_plan|
   mi_plan.association :production_centre, :factory => :centre
 end
 
+# TODO Remove this factory, it is only used in 1 place
 Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_plan|
   mi_plan.after_create do |plan|
-    plan.status = MiPlan::Status["Assigned - ES Cell QC Complete"]
+    plan.number_of_es_cells_passing_qc = 2
     plan.save!
   end
 end
@@ -328,28 +329,6 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
       :production_centre_name => 'WTSI'
     )
   end
-end
-
-Factory.define :es_cell_EPD0011_1_G18, :parent => :es_cell do |es_cell|
-  es_cell.name 'EPD0011_1_G18'
-  es_cell.association :gene, :marker_symbol => 'Gatc'
-  es_cell.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
-  es_cell.pipeline { Pipeline.find_by_name! 'KOMP-CSD' }
-
-  es_cell.after_create do |es_cell|
-
-    mi_attempt = Factory.create(:mi_attempt,
-      :es_cell => es_cell,
-      :colony_name => 'MBFD',
-      :consortium_name => 'MGP',
-      :production_centre_name => 'WTSI'
-    )
-    status = MiAttempt::Status.find_by_name!('Genotype confirmed')
-    mi_attempt.status = status
-    phenotype_attempt = Factory.create :populated_phenotype_attempt, :mi_attempt => mi_attempt
-  end
-
-
 end
 
 Factory.define :report_cache do |report_cache|

@@ -293,6 +293,7 @@ ActiveRecord::Schema.define(:version => 20120731091856) do
     t.boolean  "is_cre_bac_allele",              :default => false, :null => false
     t.text     "comment"
     t.integer  "es_qc_comment_id"
+    t.boolean  "withdrawn",                      :default => false, :null => false
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true

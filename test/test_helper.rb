@@ -91,6 +91,8 @@ class ActiveSupport::TestCase
     end
   end
 
+  def cbx1; @cbx1 ||= Factory.create(:gene_cbx1); end
+
   fixtures :all
 end
 
@@ -176,6 +178,10 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
 
   def wait_until_grid_loaded
     assert page.has_css?('.x-grid', :visible => true)
+    assert page.has_no_css?('.x-mask', :visible => true)
+  end
+
+  def wait_until_no_mask
     assert page.has_no_css?('.x-mask', :visible => true)
   end
 end

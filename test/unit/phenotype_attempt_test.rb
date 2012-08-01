@@ -34,10 +34,10 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
       should 'not be set to MiAttempt that is not Genotype confirmed' do
         new_mi = Factory.create :mi_attempt
-        assert_equal MiAttemptStatus.micro_injection_in_progress, new_mi.mi_attempt_status
+        assert_equal MiAttempt::Status.micro_injection_in_progress, new_mi.status
         default_phenotype_attempt.mi_attempt = new_mi
         default_phenotype_attempt.valid?
-        assert_match /must be genotype confirmed/i, default_phenotype_attempt.errors['mi_attempt'].first
+        assert_match /must be 'Genotype confirmed'/i, default_phenotype_attempt.errors['mi_attempt'].first
       end
     end
 
@@ -283,7 +283,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'allow valid types' do
-        [nil, 'a', 'b', 'c', 'd', 'e'].each do |i|
+        [nil, 'a', 'b', 'c', 'd', 'e', '.1'].each do |i|
           assert_should allow_value(i).for :mouse_allele_type
         end
       end

@@ -10,7 +10,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have #status_name' do
-      assert_equal default_mi_attempt.status_name, default_mi_attempt.mi_attempt_status.description
+      assert_equal default_mi_attempt.status_name, default_mi_attempt.status.name
     end
 
     should 'limit the public mass-assignment API' do
@@ -131,6 +131,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         comments
         mi_plan_id
         genotyping_comment
+        phenotype_count
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -145,7 +146,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
     context '#to_xml' do
       should 'work the same as #as_json' do
         doc = Nokogiri::XML(default_mi_attempt.to_xml)
-        assert_equal default_mi_attempt.mi_attempt_status.description, doc.css('status_name').text
+        assert_equal default_mi_attempt.status.name, doc.css('status_name').text
       end
 
       should 'output each attribute only once' do

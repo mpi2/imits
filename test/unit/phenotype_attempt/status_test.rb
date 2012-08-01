@@ -13,7 +13,7 @@ class PhenotypeAttempt::StatusTest < ActiveSupport::TestCase
       assert_equal PhenotypeAttempt::Status.find_by_name!('Phenotype Attempt Registered'),
               PhenotypeAttempt::Status['Phenotype Attempt Registered']
 
-      s = PhenotypeAttempt::Status.create!(:name => 'Nonexistent')
+      s = PhenotypeAttempt::Status.create!(:name => 'Nonexistent', :code => 'nex')
       assert_equal s, PhenotypeAttempt::Status[:Nonexistent]
     end
 

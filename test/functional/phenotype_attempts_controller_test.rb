@@ -47,6 +47,21 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
           post :create, :phenotype_attempt => attributes, :format => :json
           assert_response 422, response.body
         end
+
+        should 'return errors when trying to create a phenotype with no corresponding plan' do
+          mi = Factory.create :wtsi_mi_attempt_genotype_confirmed
+          assert_equal 0, PhenotypeAttempt.count
+          attributes = {
+            :mi_attempt_colony_name => mi.colony_name,
+            :consortium_name => 'BaSH',
+            :production_centre_name => 'WTSI'
+          }
+          post :create, :phenotype_attempt => attributes, :format => :json
+          assert_equal 0, PhenotypeAttempt.count
+
+          assert_response 422
+          assert ! flash[:alert].blank?
+        end
       end
 
       context 'PUT update' do

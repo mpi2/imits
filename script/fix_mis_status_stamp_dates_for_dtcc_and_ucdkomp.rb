@@ -7,7 +7,7 @@ end
 
 MiAttempt.transaction do
 
-  ip_status = MiAttemptStatus.micro_injection_in_progress
+  ip_status = MiAttempt::Status.micro_injection_in_progress
   mis = MiAttempt.search(:mi_plan_consortium_name_in => ['DTCC', 'UCD-KOMP'],
     :sorts => 'colony_name').result
 

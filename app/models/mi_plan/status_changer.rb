@@ -5,12 +5,20 @@ module MiPlan::StatusChanger
 
   class ConflictResolver
     def initialize(gene)
-      plans = gene.mi_plans
+      if gene
+        plans = gene.mi_plans
+        mi_attempts = gene.mi_attempts
 
-      @all_gtc_mi_attempts = gene.mi_attempts.search(:status_code_eq => 'gtc').result.all.dup
-      @all_non_gtc_active_mi_attempts = gene.mi_attempts.search(:status_code_not_in => ['gtc', 'abt']).result.all.dup
-      @all_assigned_plans = plans.where(:status_id => MiPlan::Status.all_assigned.map(&:id)).all
-      @all_pre_assignment_plans = plans.where(:status_id => MiPlan::Status.all_pre_assignment.map(&:id)).all
+        @all_gtc_mi_attempts = mi_attempts.search(:status_code_eq => 'gtc').result.all.dup
+        @all_non_gtc_active_mi_attempts = mi_attempts.search(:status_code_not_in => ['gtc', 'abt']).result.all.dup
+        @all_assigned_plans = plans.where(:status_id => MiPlan::Status.all_assigned.map(&:id)).all
+        @all_pre_assignment_plans = plans.where(:status_id => MiPlan::Status.all_pre_assignment.map(&:id)).all
+      else
+        @all_gtc_mi_attempts = []
+        @all_non_gtc_active_mi_attempts = []
+        @all_assigned_plans = []
+        @all_pre_assignment_plans = []
+      end
     end
 
     def get_pre_assigned_status(plan)

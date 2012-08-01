@@ -413,12 +413,14 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#withdrawn' do
         should 'not be settable if currently not in an allowed status' do
-          default_mi_plan.status = MiPlan::Status['Assigned']
-          default_mi_plan.save!
-
           default_mi_plan.withdrawn = true
           assert_false default_mi_plan.valid?
           assert_match /cannot be set/, default_mi_plan.errors[:withdrawn].first
+        end
+
+        should 'be settable on a new record' do
+          plan = Factory.create :mi_plan, :withdrawn => true
+          assert_equal 'Withdrawn', plan.status.name
         end
       end
 

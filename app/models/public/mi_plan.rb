@@ -14,7 +14,12 @@ class Public::MiPlan < ::MiPlan
     'withdrawn',
     'sub_project_name',
     'is_active',
-    'is_bespoke_allele'
+    'is_bespoke_allele',
+    'is_conditional_allele',
+    'is_deletion_allele',
+    'is_cre_knock_in_allele',
+    'is_cre_bac_allele',
+    'comment'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -104,6 +109,11 @@ end
 #  sub_project_id                 :integer         not null
 #  is_active                      :boolean         default(TRUE), not null
 #  is_bespoke_allele              :boolean         default(FALSE), not null
+#  is_conditional_allele          :boolean         default(FALSE), not null
+#  is_deletion_allele             :boolean         default(FALSE), not null
+#  is_cre_knock_in_allele         :boolean         default(FALSE), not null
+#  is_cre_bac_allele              :boolean         default(FALSE), not null
+#  comment                        :text
 #
 # Indexes
 #

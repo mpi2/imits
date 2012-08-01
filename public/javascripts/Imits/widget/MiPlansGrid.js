@@ -73,6 +73,12 @@ Ext.define('Imits.widget.MiPlansGrid', {
 
     columns: [
     {
+        dataIndex: 'id',
+        header: 'ID',
+        readOnly: true,
+        hidden: true
+    },
+    {
         dataIndex: 'marker_symbol',
         header: 'Marker Symbol',
         readOnly: true,
@@ -81,38 +87,14 @@ Ext.define('Imits.widget.MiPlansGrid', {
         }
     },
     {
-        dataIndex: 'id',
-        header: 'ID',
-        readOnly: true,
-        hidden: true
-    },
-    {
         dataIndex: 'consortium_name',
         header: 'Consortium',
         readOnly: true,
-        width: 115,
+        width: 100,
         filter: {
             type: 'list',
             options: window.CONSORTIUM_OPTIONS
         }
-    },
-    {
-        dataIndex: 'is_bespoke_allele',
-        header: 'Bespoke allele?',
-        xtype: 'boolgridcolumn',
-        readOnly: true,
-        hidden: true
-    },
-    {
-        dataIndex: 'sub_project_name',
-        header: 'Sub-Project',
-        readOnly: true,
-        width: 150,
-        filter: {
-            type: 'list',
-            options: window.SUB_PROJECT_OPTIONS
-        },
-        hidden: true
     },
     {
         dataIndex: 'production_centre_name',
@@ -125,15 +107,6 @@ Ext.define('Imits.widget.MiPlansGrid', {
         }
     },
     {
-        dataIndex: 'priority_name',
-        header: 'Priority',
-        readOnly: true,
-        filter: {
-            type: 'list',
-            options: window.PRIORITY_OPTIONS
-        }
-    },
-    {
         dataIndex: 'status_name',
         header: 'Status',
         readOnly: true,
@@ -142,6 +115,63 @@ Ext.define('Imits.widget.MiPlansGrid', {
             type: 'list',
             options: window.STATUS_OPTIONS
         }
+    },
+    {
+        dataIndex: 'priority_name',
+        header: 'Priority',
+        readOnly: true,
+        width: 80,
+        filter: {
+            type: 'list',
+            options: window.PRIORITY_OPTIONS
+        }
+    },
+    {
+        dataIndex: 'is_conditional_allele',
+        header: 'Conditional',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true
+    },
+    {
+        dataIndex: 'is_deletion_allele',
+        header: 'Deletion',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true
+    },
+    {
+        dataIndex: 'is_cre_knock_in_allele',
+        header: 'Cre Knock-in',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true
+    },
+    {
+        dataIndex: 'is_cre_bac_allele',
+        header: 'Cre BAC',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true
+    },
+    {
+        dataIndex: 'is_bespoke_allele',
+        header: 'Bespoke',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true,
+        hidden: true
+    },
+    {
+        dataIndex: 'sub_project_name',
+        header: 'Sub-Project',
+        readOnly: true,
+        width: 120,
+        filter: {
+            type: 'list',
+            options: window.SUB_PROJECT_OPTIONS
+        },
+        hidden: true
     }
     ]
 });

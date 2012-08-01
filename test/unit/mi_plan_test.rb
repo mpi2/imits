@@ -34,6 +34,11 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:priority_id).with_options(:null => false)
         assert_should have_db_column(:sub_project_id).with_options(:null => false)
         assert_should have_db_column(:is_bespoke_allele).with_options(:null => false)
+        assert_should have_db_column(:is_conditional_allele).with_options(:null => false)
+        assert_should have_db_column(:is_deletion_allele).with_options(:null => false)
+        assert_should have_db_column(:is_cre_knock_in_allele).with_options(:null => false)
+        assert_should have_db_column(:is_cre_bac_allele).with_options(:null => false)
+        assert_should have_db_column(:comment)
       end
 
       context '#latest_relevant_mi_attempt' do

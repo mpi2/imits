@@ -5,7 +5,7 @@ class MiPlan::EsQcComment < ActiveRecord::Base
 
   has_many :mi_plans
 
-  validates :name, :uniqueness => true
+  validates :name, :uniqueness => true, :presence => true
 end
 
 # == Schema Information
@@ -13,8 +13,11 @@ end
 # Table name: mi_plan_es_qc_comments
 #
 #  id         :integer         not null, primary key
-#  name       :string(255)
+#  name       :string(255)     not null
 #  created_at :datetime
 #  updated_at :datetime
 #
-
+# Indexes
+#
+#  index_mi_plan_es_qc_comments_on_name  (name) UNIQUE
+#

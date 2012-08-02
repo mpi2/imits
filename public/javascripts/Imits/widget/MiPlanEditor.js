@@ -114,7 +114,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             {
                 id: 'comment',
                 xtype: 'textfield',
-                fieldLabel: 'Comment',
+                fieldLabel: 'Allele Type Comment',
                 name: 'comment'
             },
             {

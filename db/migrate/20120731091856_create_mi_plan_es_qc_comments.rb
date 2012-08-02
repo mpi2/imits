@@ -1,10 +1,12 @@
 class CreateMiPlanEsQcComments < ActiveRecord::Migration
   def self.up
     create_table :mi_plan_es_qc_comments do |t|
-      t.string :name
+      t.string :name, :null => false
 
       t.timestamps
     end
+
+    add_index :mi_plan_es_qc_comments, :name, :unique => true
 
     add_column :mi_plans, :es_qc_comment_id, :integer
 

@@ -59,6 +59,8 @@ class MiAttempt < ApplicationModel
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
 
+  protected :status=
+
   validates :es_cell_name, :presence => true
   validates :production_centre_name, :presence => true
   validates :consortium_name, :presence => true
@@ -166,14 +168,14 @@ class MiAttempt < ApplicationModel
       mi_plan_to_set.priority = MiPlan::Priority.find_by_name!('High')
       mi_plan_to_set.consortium = Consortium.find_by_name!(consortium_name)
       mi_plan_to_set.gene = es_cell.gene
-      mi_plan_to_set.status = MiPlan::Status.find_by_name!('Assigned')
+      mi_plan_to_set.force_assignment = true
     end
 
     mi_plan_to_set.production_centre = Centre.find_by_name!(production_centre_name)
 
     if is_active?
       mi_plan_to_set.is_active = true
-      mi_plan_to_set.status = MiPlan::Status.find_by_name!('Assigned')
+      mi_plan_to_set.force_assignment = true
     end
 
     mi_plan_to_set.save!

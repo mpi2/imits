@@ -18,6 +18,8 @@ class MiPlan < ApplicationModel
           :dependent => :destroy
   has_many :phenotype_attempts
 
+  protected :status=
+
   validate do |plan|
     if plan.is_active == false
       plan.mi_attempts.each do |mi_attempt|
@@ -39,16 +41,13 @@ class MiPlan < ApplicationModel
   end
 
   validate do |plan|
-    statuses = MiPlan::Status.pre_assigned
+    statuses = MiPlan::Status.all_non_assigned
     if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0
       plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
     end
-  end
 
-  validate do |plan|
-    not_allowed_statuses = ["Interest", "Conflict", "Inspect - GLT Mouse", "Inspect - MI Attempt", "Inspect - Conflict", "Aborted - ES Cell QC Failed", "Withdrawn"]
-    if not_allowed_statuses.include?(plan.status.name) and plan.mi_attempts.length != 0
-      plan.errors.add(:status, 'cannot be changed - microinjection attempts exist')
+    if statuses.include?(plan.status) and plan.mi_attempts.length != 0
+      plan.errors.add(:status, 'cannot be changed - micro-injection attempts exist')
     end
   end
 
@@ -63,16 +62,29 @@ class MiPlan < ApplicationModel
     end
   end
 
+  validate do |plan|
+    if ! plan.new_record? and plan.changes.has_key?('status_id') and plan.withdrawn == true
+      withdrawable_ids = MiPlan::Status.all_pre_assignment.map(&:id)
+      if ! withdrawable_ids.include?(plan.changes['status_id'][0])
+        plan.errors.add(:withdrawn, 'cannot be set - not currently in a withdrawable state')
+      end
+    end
+  end
+
   # BEGIN Callbacks
 
   before_validation :set_default_mi_plan_status
   before_validation :set_default_number_of_es_cells_starting_qc
   before_validation :set_default_sub_project
+
   before_validation :change_status
 
-  before_save :major_conflict_resolution
   before_save :record_if_status_was_changed
   after_save :create_status_stamp_if_status_was_changed
+
+  after_save :conflict_resolve_others
+
+  after_destroy :conflict_resolve_others
 
   private
 
@@ -182,83 +194,6 @@ class MiPlan < ApplicationModel
     where("#{self.table_name}.id in (?)", MiAttempt.genotype_confirmed.select('distinct(mi_plan_id)').map(&:mi_plan_id))
   end
 
-  def self.minor_conflict_resolution
-    statuses = MiPlan::Status.all_affected_by_minor_conflict_resolution
-    grouped_mi_plans = MiPlan.where(:status_id => statuses.map(&:id)).
-            group_by(&:gene_id)
-    grouped_mi_plans.each do |gene_id, mi_plans|
-      assigned_mi_plans = MiPlan.where(
-        :status_id => MiPlan::Status.all_assigned.map(&:id),
-        :gene_id => gene_id).all
-      if assigned_mi_plans.empty? and mi_plans.size == 1
-        mi_plan = mi_plans.first
-        mi_plan.status = MiPlan::Status['Assigned']
-        mi_plan.save!
-      end
-    end
-  end
-
-  def self.all_grouped_by_mgi_accession_id_then_by_status_name
-    mi_plans = self.all.group_by {|i| i.gene.mgi_accession_id}
-    mi_plans = mi_plans.each do |mgi_accession_id, all_for_gene|
-      mi_plans[mgi_accession_id] = all_for_gene.group_by {|i| i.status.name}
-    end
-    return mi_plans
-  end
-
-  def major_conflict_resolution
-    interest_status                  = MiPlan::Status.find_by_name!('Interest')
-    inactive_status                  = MiPlan::Status.find_by_name!('Inactive')
-    assigned_status                  = MiPlan::Status.find_by_name!('Assigned')
-    conflict_status                  = MiPlan::Status.find_by_name!('Conflict')
-    inspect_due_to_conflict_status   = MiPlan::Status.find_by_name!('Inspect - Conflict')
-    inspect_due_to_mi_attempt_status = MiPlan::Status.find_by_name!('Inspect - MI Attempt')
-    inspect_due_to_glt_mouse_status  = MiPlan::Status.find_by_name!('Inspect - GLT Mouse')
-
-    return if self.status != interest_status
-
-    self.status = assigned_status
-
-    all_grouped_by_mgi_accession_id_then_by_status_name(gene.mgi_accession_id).each do |mgi_accession_id, mi_plans_by_status|
-
-      interested = mi_plans_by_status['Interest'] || []
-
-      assigned = []
-      MiPlan::Status.all_assigned.each do |assigned_status|
-        assigned += mi_plans_by_status[assigned_status.name].to_a
-      end
-
-      if ! assigned.blank?
-        assigned_plans_with_mis      = MiPlan.where('mi_plans.id in (?)', assigned.map(&:id)).with_active_mi_attempt
-        assigned_plans_with_glt_mice = MiPlan.where('mi_plans.id in (?)', assigned.map(&:id)).with_genotype_confirmed_mouse
-
-        if ! assigned_plans_with_glt_mice.blank?
-          self.status = inspect_due_to_glt_mouse_status
-        elsif ! assigned_plans_with_mis.blank?
-          self.status = inspect_due_to_mi_attempt_status
-        else
-          self.status = inspect_due_to_conflict_status
-        end
-
-      elsif ! mi_plans_by_status['Conflict'].blank? or interested.size != 1
-        self.status = conflict_status
-      else
-        self.status = assigned_status
-      end
-    end
-  end
-
-  def all_grouped_by_mgi_accession_id_then_by_status_name(mgi_acc_id)
-    gene = Gene.find_by_mgi_accession_id!(mgi_acc_id)
-    mi_plans = MiPlan.where('gene_id = ? and id != ?', gene.id, id).group_by {|i| i.gene.mgi_accession_id} if id
-    mi_plans = MiPlan.where('gene_id = ?', gene.id).group_by {|i| i.gene.mgi_accession_id} if ! id
-    mi_plans_new = {}
-    mi_plans.each do |mgi_accession_id, all_for_gene|
-      mi_plans_new[mgi_accession_id] = all_for_gene.group_by {|i| i.status.name}
-    end
-    return mi_plans_new
-  end
-
   def reason_for_inspect_or_conflict
     case self.status.name
     when 'Inspect - GLT Mouse'
@@ -291,26 +226,6 @@ class MiPlan < ApplicationModel
 
   def assigned?
     return MiPlan::Status.all_assigned.include?(status)
-  end
-
-  def withdrawn
-    return status == MiPlan::Status['Withdrawn']
-  end
-
-  alias_method(:withdrawn?, :withdrawn)
-
-  def withdrawn=(boolarg)
-    return if boolarg == withdrawn?
-
-    if ! MiPlan::Status.all_affected_by_minor_conflict_resolution.include?(status)
-      raise RuntimeError, "cannot withdraw from status #{status.name}"
-    end
-
-    if boolarg == false
-      raise RuntimeError, 'withdrawal cannot be reversed'
-    else
-      self.status = MiPlan::Status['Withdrawn']
-    end
   end
 
   def distinct_old_genotype_confirmed_es_cells_count
@@ -420,7 +335,6 @@ class MiPlan < ApplicationModel
     end
     return 0
   end
-
 end
 
 # == Schema Information
@@ -440,6 +354,12 @@ end
 #  sub_project_id                 :integer         not null
 #  is_active                      :boolean         default(TRUE), not null
 #  is_bespoke_allele              :boolean         default(FALSE), not null
+#  withdrawn                      :boolean         default(FALSE), not null
+#  is_conditional_allele          :boolean         default(FALSE), not null
+#  is_deletion_allele             :boolean         default(FALSE), not null
+#  is_cre_knock_in_allele         :boolean         default(FALSE), not null
+#  is_cre_bac_allele              :boolean         default(FALSE), not null
+#  comment                        :text
 #
 # Indexes
 #

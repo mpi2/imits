@@ -10,7 +10,7 @@ class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
               :production_centre => Centre.find_by_name!('WTSI'),
               :consortium => Consortium.find_by_name!('BaSH'),
               :priority => MiPlan::Priority.find_by_name!('Medium'),
-              :status => MiPlan::Status['Assigned'],
+              :force_assignment => true,
               :gene => Factory.create(:gene_cbx1)
       user = Factory.create :user, :production_centre => plan.production_centre
       login user
@@ -72,7 +72,7 @@ class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
               :production_centre => Centre.find_by_name!('WTSI'),
               :consortium => Consortium.find_by_name!('BaSH'),
               :priority => MiPlan::Priority.find_by_name!('Medium'),
-              :status => MiPlan::Status['Assigned'],
+              :force_assignment => true,
               :gene => Factory.create(:gene_cbx1),
               :is_bespoke_allele => true
         sleep 1
@@ -91,7 +91,7 @@ class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
               :production_centre => Centre.find_by_name!('ICS'),
               :consortium => Consortium.find_by_name!('DTCC'),
               :priority => MiPlan::Priority.find_by_name!('Medium'),
-              :status => MiPlan::Status['Assigned'],
+              :force_assignment => true,
               :gene => Factory.create(:gene_cbx1),
               :is_bespoke_allele => true
         sleep 1
@@ -105,20 +105,22 @@ class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
     end
 
     should 'allow users to withdraw mi_plans' do
+      Factory.create :mi_attempt, :consortium_name => 'DTCC', :es_cell => Factory.create(:es_cell, :gene => cbx1)
+
       mi_plan = Factory.create :mi_plan,
-              :gene => Factory.create(:gene_cbx1),
+              :gene => cbx1,
               :consortium => Consortium.find_by_name!('BaSH'),
-              :production_centre => Centre.find_by_name!('WTSI'),
-              :status => MiPlan::Status['Conflict']
+              :production_centre => Centre.find_by_name!('WTSI')
+      assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
       login default_user
       visit '/mi_plans'
 
-      find('.x-grid-cell').click
+      find('.x-grid-cell-inner', :text => 'BaSH').click
       find('#withdraw-button').click
       find('#withdraw-confirmation-button').click
 
-      assert page.has_no_css?('.x-mask', :visible => true)
+      wait_until_no_mask
       assert_equal 'Withdrawn', mi_plan.reload.status.name
     end
 
@@ -127,7 +129,7 @@ class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
               :gene => Factory.create(:gene_cbx1),
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
-              :status => MiPlan::Status['Assigned']
+              :force_assignment => true
 
       login default_user
       visit '/mi_plans'
@@ -140,5 +142,23 @@ class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       assert_equal 'Inactive', mi_plan.reload.status.name
     end
 
+    should 'allow users to change consortium on mi_plans' do
+      mi_plan = Factory.create :mi_plan,
+              :gene => Factory.create(:gene_cbx1),
+              :consortium => Consortium.find_by_name!('BaSH'),
+              :production_centre => Centre.find_by_name!('WTSI'),
+              :status => MiPlan::Status['Assigned']
+
+      login default_user
+      visit '/mi_plans'
+
+      find('.x-grid-cell').click
+
+      page.execute_script("Ext.ComponentManager.get('consortium_name').setValue('Helmholtz GMC')")
+
+      find('#update-button').click
+
+      wait_until { mi_plan.reload; mi_plan.consortium == Consortium.find_by_name!('Helmholtz GMC') }
+    end
   end
 end

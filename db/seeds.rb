@@ -153,7 +153,7 @@ Seeds.load MiPlan::Status, [
   {:code => 'abt-esf', :order_by => 90,   :id => 10, :name => 'Aborted - ES Cell QC Failed', :description => 'Aborted - ES cells have failed the QC phase, and micro-injection cannot proceed'},
   {:code => 'asg',     :order_by => 80,   :id => 1,  :name => 'Assigned', :description => 'Assigned - A single consortium has expressed an interest in injecting this gene'},
   {:code => 'ins-glt', :order_by => 70,   :id => 4,  :name => 'Inspect - GLT Mouse', :description => 'Inspect - A GLT mouse is already recorded in iMits'},
-  {:code => 'ins-mia', :order_by => 60,   :id => 5,  :name => 'Inspect - MI Attempt', :description => 'Inspect - An active micro-injection attempt is already in progress'},
+  {:code => 'ins-mip', :order_by => 60,   :id => 5,  :name => 'Inspect - MI Attempt', :description => 'Inspect - An active micro-injection attempt is already in progress'},
   {:code => 'ins-con', :order_by => 50,   :id => 6,  :name => 'Inspect - Conflict', :description => 'Inspect - This gene is already assigned in another planned micro-injection'},
   {:code => 'con',     :order_by => 40,   :id => 3,  :name => 'Conflict', :description => 'Conflict - More than one consortium has expressed an interest in micro-injecting this gene'},
   {:code => 'int',     :order_by => 30,   :id => 2,  :name => 'Interest', :description => 'Interest - A consortium has expressed an interest to micro-inject this gene'},

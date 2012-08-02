@@ -41,15 +41,4 @@ class MiPlan::StatusTest < ActiveSupport::TestCase
     assert_equal expected, MiPlan::Status.all_assigned.map(&:name).sort
   end
 
-  should 'have ::all_affected_by_minor_conflict_resolution' do
-    expected = [
-      'Conflict',
-      'Inspect - GLT Mouse',
-      'Inspect - MI Attempt',
-      'Inspect - Conflict'
-    ].sort
-
-    assert_equal expected, MiPlan::Status.all_affected_by_minor_conflict_resolution.map(&:name).sort
-  end
-
 end

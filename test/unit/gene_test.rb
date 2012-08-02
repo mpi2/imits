@@ -200,22 +200,19 @@ class GeneTest < ActiveSupport::TestCase
     def setup_for_non_assigned_mi_plans_tests
       @gene = Factory.create :gene_cbx1
 
-      @bash_plan = Factory.create :mi_plan,
-              :gene => @gene,
-              :consortium => Consortium.find_by_name!('BaSH'),
-              :status => MiPlan::Status.find_by_name!('Interest')
+      Factory.create :mi_plan, :gene => @gene
 
       @mgp_plan = Factory.create :mi_plan,
               :gene => @gene,
               :consortium => Consortium.find_by_name!('MGP'),
-              :production_centre => Centre.find_by_name!('WTSI'),
-              :status => MiPlan::Status.find_by_name!('Conflict')
+              :production_centre => Centre.find_by_name!('WTSI')
+      assert_equal 'Inspect - Conflict', @mgp_plan.status.name
 
       Factory.create :mi_plan,
               :gene => @gene,
               :consortium => Consortium.find_by_name!('MRC'),
               :production_centre => Centre.find_by_name!('MRC - Harwell'),
-              :status => MiPlan::Status.find_by_name!('Inactive')
+              :is_active => false
 
       Factory.create :mi_plan,
               :gene => @gene,
@@ -237,7 +234,7 @@ class GeneTest < ActiveSupport::TestCase
         assert @gene
         assert_equal 5, @gene.mi_plans.count
         mi_plans = @gene.non_assigned_mi_plans
-        assert mi_plans.include?({ :id => @mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI', :status_name => 'Conflict' })
+        assert mi_plans.include?({ :id => @mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI', :status_name => 'Inspect - Conflict' })
 
         statuses = mi_plans.map {|p| p[:status_name]}
         assert !statuses.blank?
@@ -254,9 +251,8 @@ class GeneTest < ActiveSupport::TestCase
         assert @gene
         assert_equal 5, @gene.mi_plans.count
         result = @gene.pretty_print_non_assigned_mi_plans
-        assert_not_include result, '[BaSH:Interest]'
-        assert_include result, '[MGP:WTSI:Conflict]'
-        assert_not_include result, '[MGP:WTSI:Inactive]'
+        assert_include result, '[MGP:WTSI:Inspect - Conflict]'
+        assert_not_include result, '[MRC:MRC - Harwell:Inactive]'
         assert_not_include result, '[MARC:MARC:Assigned]'
         assert_not_include result, '[EUCOMM-EUMODIC:WTSI:Assigned - ES Cell QC In Progress]'
       end

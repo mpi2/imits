@@ -48,16 +48,11 @@ Factory.define :consortium do |consortium|
   consortium.sequence(:name) { |n| "Auto-generated Consortium Name #{n}" }
 end
 
-Factory.define :es_qc_comment do |comment|
-  comment.sequence(:name) { |n| "Auto-generated es_qc_comment Name #{n}" }
-end
-
 Factory.define :mi_plan do |mi_plan|
   mi_plan.association :gene
   mi_plan.association :consortium
   mi_plan.status   { MiPlan::Status.find_by_name! 'Interest' }
   mi_plan.priority { MiPlan::Priority.find_by_name! 'High' }
-#  mi_plan.es_qc_comment :es_qc_comment
   mi_plan.es_qc_comment { MiPlan::EsQcComment.find_by_name! '' }
 end
 

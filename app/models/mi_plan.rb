@@ -80,7 +80,6 @@ class MiPlan < ApplicationModel
   before_validation :set_default_sub_project
 
   before_validation :change_status
-  before_validation :set_default_es_qc_comment
 
   before_save :record_if_status_was_changed
   after_save :create_status_stamp_if_status_was_changed
@@ -107,10 +106,6 @@ class MiPlan < ApplicationModel
     else
       self.sub_project ||= SubProject.find_by_name!('')
     end
-  end
-
-  def set_default_es_qc_comment
-    self.es_qc_comment ||= EsQcComment.find_by_name!('')
   end
 
   def record_if_status_was_changed
@@ -373,4 +368,3 @@ end
 #
 #  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
 #
-

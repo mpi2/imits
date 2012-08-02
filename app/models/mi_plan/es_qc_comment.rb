@@ -6,6 +6,10 @@ class MiPlan::EsQcComment < ActiveRecord::Base
   has_many :mi_plans
 
   validates :name, :uniqueness => true, :presence => true
+
+  def self.all_names
+    [''] + self.all.map(&:name)
+  end
 end
 
 # == Schema Information
@@ -21,3 +25,4 @@ end
 #
 #  index_mi_plan_es_qc_comments_on_name  (name) UNIQUE
 #
+

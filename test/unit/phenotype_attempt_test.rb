@@ -380,7 +380,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should "return mouse_allele_symbol if phenotype staus is not Cre Complete Phenotype Started or Phenotype complete" do
-        mi = Factory.create :mi_attempt, :mouse_allele_type => 'e', :es_cell => @es_cell
+        mi = Factory.create :mi_attempt_genotype_confirmed, :mouse_allele_type => 'e', :es_cell => @es_cell
         pt = PhenotypeAttempt.new
         pt.mi_attempt_id = mi.id
         pt.mouse_allele_type = 'b'
@@ -389,7 +389,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should "return phenotype_allele_symbol if phenotype staus is one of 'Cre Complete', 'Phenotype Started', or 'Phenotype complete'" do
-        mi = Factory.create :mi_attempt, :mouse_allele_type => 'e', :es_cell => @es_cell
+        mi = Factory.create :mi_attempt_genotype_confirmed, :mouse_allele_type => 'e', :es_cell => @es_cell
         pt = PhenotypeAttempt.new
         pt.mi_attempt_id = mi.id
         pt.deleter_strain = DeleterStrain.first

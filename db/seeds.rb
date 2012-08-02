@@ -188,7 +188,7 @@ Seeds.load DeleterStrain, [
 ]
 
 Seeds.load MiPlan::EsQcComment, [
-  {:id => 2, :name => 'No assay available'},
-  {:id => 3, :name => 'All valid available clones failed'},
-  {:id => 4, :name => 'Enough clones failed'}
+  {:id => 1, :name => 'No assay available'},
+  {:id => 2, :name => 'All valid available clones failed'},
+  {:id => 3, :name => 'Enough clones failed'}
 ]

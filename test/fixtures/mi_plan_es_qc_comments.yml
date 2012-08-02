@@ -1,13 +1,10 @@
 ---
 1:
-  name: ''
+  name: No assay available
   id: 1
 2:
-  name: No assay available
+  name: All valid available clones failed
   id: 2
 3:
-  name: All valid available clones failed
-  id: 3
-4:
   name: 'Enough clones failed'
-  id: 4
+  id: 3

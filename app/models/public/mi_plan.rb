@@ -38,7 +38,6 @@ class Public::MiPlan < ::MiPlan
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
   access_association_by_attribute :priority, :name
-  access_association_by_attribute :status, :name
   access_association_by_attribute :es_qc_comment, :name
 
   validates :marker_symbol, :presence => true
@@ -139,4 +138,3 @@ end
 #
 #  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
 #
-

@@ -104,6 +104,10 @@ class Public::MiPlan < ::MiPlan
   def mi_attempts_count
     mi_attempts.size
   end
+
+  def status_name
+    return status.name
+  end
 end
 
 # == Schema Information

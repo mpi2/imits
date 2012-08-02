@@ -151,11 +151,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     end
 
     context '#status_name' do
-      should 'use AccessAssociationByAttribute' do
-        status = MiPlan::Status[:Conflict]
-        assert_not_equal status.name, default_mi_plan.status_name
-        default_mi_plan.status_name = 'Conflict'
-        assert_equal status, default_mi_plan.status
+      should 'work' do
+        assert_equal 'Assigned', default_mi_plan.status_name
       end
     end
 

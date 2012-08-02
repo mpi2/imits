@@ -37,7 +37,6 @@ class Public::MiPlan < ::MiPlan
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
   access_association_by_attribute :priority, :name
-  access_association_by_attribute :status, :name
 
   validates :marker_symbol, :presence => true
   validates :consortium_name, :presence => true
@@ -101,6 +100,10 @@ class Public::MiPlan < ::MiPlan
 
   def mi_attempts_count
     mi_attempts.size
+  end
+
+  def status_name
+    return status.name
   end
 end
 

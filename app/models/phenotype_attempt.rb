@@ -135,7 +135,7 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   def allele_symbol
-    if mouse_allele_type and ['Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete'].include?(status.name)
+    if mouse_allele_type and Status.post_cre_excision_complete.include?(status)
       return mouse_allele_symbol
     elsif self.mi_attempt
       return self.mi_attempt.allele_symbol

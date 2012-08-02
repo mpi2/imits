@@ -380,12 +380,11 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should "return mouse_allele_symbol if phenotype staus is not Cre Complete Phenotype Started or Phenotype complete" do
-        mi = Factory.create :mi_attempt, :mouse_allele_type => 'e',
-            :es_cell => @es_cell
+        mi = Factory.create :mi_attempt, :mouse_allele_type => 'e', :es_cell => @es_cell
         pt = PhenotypeAttempt.new
         pt.mi_attempt_id = mi.id
         pt.mouse_allele_type = 'b'
-        pt.save
+        pt.save!
         assert_equal 'Trafd1<sup>tm1e(EUCOMM)Wtsi</sup>', pt.allele_symbol
       end
 
@@ -396,13 +395,13 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         pt.deleter_strain = DeleterStrain.first
         pt.number_of_cre_matings_successful = 10
         pt.mouse_allele_type = 'b'
-        pt.save
+        pt.save!
         assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', pt.allele_symbol
         pt.phenotyping_started = true
-        pt.save
-      assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', pt.allele_symbol
+        pt.save!
+        assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', pt.allele_symbol
         pt.phenotyping_complete = true
-        pt.save
+        pt.save!
         assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', pt.allele_symbol
       end
     end

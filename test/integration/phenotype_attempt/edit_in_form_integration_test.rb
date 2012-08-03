@@ -32,7 +32,7 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       assert_equal "1", page.find('input[id="phenotype_attempt_rederivation_started"]').value
       assert_equal "1", page.find('input[id="phenotype_attempt_rederivation_complete"]').value
       assert_match "", page.find('select[name="phenotype_attempt[deleter_strain_name]"]').value
-      assert_match /^\d\d/, page.find('input[name="phenotype_attempt[number_of_cre_matings_successful]"]').value
+      assert_equal '1', page.find('input[name="phenotype_attempt[number_of_cre_matings_successful]"]').value
     end
 
     should 'edit phenotype successfully and redirect back to show page' do

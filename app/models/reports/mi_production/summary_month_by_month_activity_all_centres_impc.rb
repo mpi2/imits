@@ -17,6 +17,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   MI_GOALS =
     {
       2012 => {
+        8 => {
+          'BaSH' => 474,
+          'DTCC' => 345,
+          'JAX' => 195,
+        },
         7 => {
           'BaSH' => 440,
           'DTCC' => 322,
@@ -95,6 +100,11 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   GC_GOALS =
     {
       2012 => {
+        8 => {
+          'BaSH' => 164,
+          'DTCC' => 224,
+          'JAX' => 160,
+        },
         7 => {
           'BaSH' => 150,
           'DTCC' => 202,
@@ -296,7 +306,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
     MiPlan::Status.all.each { |i| plan_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
 
     attempt_map = Hash.new { |hash,key| raise("attempt_map: No value defined for key: #{ key }") }
-    MiAttemptStatus.all.each { |i| attempt_map[i.description.downcase.parameterize.underscore.to_sym] = i.description }
+    MiAttempt::Status.all.each { |i| attempt_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
 
     phenotype_map = Hash.new { |hash,key| raise("phenotype_map: No value defined for key: #{ key }") }
     PhenotypeAttempt::Status.all.each { |i| phenotype_map[i.name.downcase.parameterize.underscore.to_sym] = i.name }
@@ -349,7 +359,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       pcentre = 'ALL'
       next if self.consortia && ! self.consortia.include?(consortium)
       gene_id = stamp.mi_attempt.mi_plan.gene_id
-      status = stamp.mi_attempt_status.description
+      status = stamp.status.name
       marker_symbol = stamp.mi_attempt.mi_plan.gene.marker_symbol
 
       details_hash = { :symbol => marker_symbol, :plan_id => stamp.mi_attempt.mi_plan.id, :original_status => status, :original_date => stamp.created_at }

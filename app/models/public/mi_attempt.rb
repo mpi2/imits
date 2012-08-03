@@ -64,6 +64,7 @@ class Public::MiAttempt < ::MiAttempt
     mouse_allele_symbol_superscript
     mouse_allele_symbol
     mi_plan_id
+    phenotype_count
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -72,7 +73,7 @@ class Public::MiAttempt < ::MiAttempt
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
-  def status_name; mi_attempt_status.description; end
+  def status_name; status.name; end
 end
 
 # == Schema Information
@@ -82,7 +83,7 @@ end
 #  id                                              :integer         not null, primary key
 #  es_cell_id                                      :integer         not null
 #  mi_date                                         :date            not null
-#  mi_attempt_status_id                            :integer         not null
+#  status_id                                       :integer         not null
 #  colony_name                                     :string(125)
 #  updated_by_id                                   :integer
 #  blast_strain_id                                 :integer
@@ -112,7 +113,7 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
-#  mouse_allele_type                               :string(1)
+#  mouse_allele_type                               :string(2)
 #  qc_southern_blot_id                             :integer
 #  qc_five_prime_lr_pcr_id                         :integer
 #  qc_five_prime_cassette_integrity_id             :integer

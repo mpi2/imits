@@ -67,7 +67,7 @@ class QualityOverview
       self.mi_plan_consortium = mi_attempt.mi_plan.consortium.name
       self.mi_plan_production_centre = mi_attempt.mi_plan.production_centre.name
       self.mi_attempt_distribution_centres = mi_attempt.pretty_print_distribution_centres
-      self.mi_attempt_status = mi_attempt.status
+      self.mi_attempt_status = mi_attempt.status.name
     end
   end
 

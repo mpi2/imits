@@ -63,15 +63,15 @@ class Reports::MiProduction::Intermediate < Reports::Base
 
       mi_attempt = record['latest_relevant_mi_attempt']
       if mi_attempt
-        record['MiAttempt Status'] = mi_attempt.mi_attempt_status.description
+        record['MiAttempt Status'] = mi_attempt.status.name
         record['Overall Status'] = record['MiAttempt Status']
         record['IKMC Project ID'] = mi_attempt.es_cell.ikmc_project_id
         record['Mutation Sub-Type'] = mi_attempt.es_cell.mutation_subtype
         record['Allele Symbol'] = mi_attempt.allele_symbol
         record['Genetic Background'] = mi_attempt.colony_background_strain.try(:name)
         mi_status_dates = mi_attempt.reportable_statuses_with_latest_dates
-        mi_status_dates.each do |description, date|
-          record["#{description} Date"] = date.to_s
+        mi_status_dates.each do |name, date|
+          record["#{name} Date"] = date.to_s
         end
       end
 

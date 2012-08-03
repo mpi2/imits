@@ -34,13 +34,18 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:priority_id).with_options(:null => false)
         assert_should have_db_column(:sub_project_id).with_options(:null => false)
         assert_should have_db_column(:is_bespoke_allele).with_options(:null => false)
+        assert_should have_db_column(:is_conditional_allele).with_options(:null => false)
+        assert_should have_db_column(:is_deletion_allele).with_options(:null => false)
+        assert_should have_db_column(:is_cre_knock_in_allele).with_options(:null => false)
+        assert_should have_db_column(:is_cre_bac_allele).with_options(:null => false)
+        assert_should have_db_column(:comment)
       end
 
       context '#latest_relevant_mi_attempt' do
-        def ip; MiAttemptStatus.micro_injection_in_progress.description; end
-        def co; MiAttemptStatus.chimeras_obtained.description; end
-        def gc; MiAttemptStatus.genotype_confirmed.description; end
-        def abrt; MiAttemptStatus.micro_injection_aborted.description; end
+        def ip; MiAttempt::Status.micro_injection_in_progress.name; end
+        def co; MiAttempt::Status.chimeras_obtained.name; end
+        def gc; MiAttempt::Status.genotype_confirmed.name; end
+        def abrt; MiAttempt::Status.micro_injection_aborted.name; end
 
         should 'get active MI with latest in_progress_date if active one exists' do
           cbx1 = Factory.create :gene_cbx1
@@ -265,17 +270,19 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_equal [s1, s3, s2].map(&:name), default_mi_plan.status_stamps.map(&:name)
         end
 
-        should 'delete related MiPlan::StatusStamps as well' do
-          plan = Factory.create :mi_plan_with_production_centre
-          plan.status = MiPlan::Status['Conflict']; plan.save!
+        should 'be deleted when MiPlan is deleted' do
+          Factory.create :mi_plan, :gene => cbx1
+
+          plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+          assert_equal 'Inspect - Conflict', plan.status.name
           plan.number_of_es_cells_starting_qc = 5; plan.save!
           stamps = plan.status_stamps.dup
-          assert_equal 3, stamps.size
+          assert_equal 2, stamps.size
 
           plan.destroy
 
           stamps = stamps.map {|s| MiPlan::StatusStamp.find_by_id s.id}
-          assert_equal [nil, nil, nil], stamps
+          assert_equal [nil, nil], stamps
         end
       end
 
@@ -337,43 +344,40 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#status' do
         should 'create status stamps when status is changed' do
-          default_mi_plan.status = MiPlan::Status['Assigned']; default_mi_plan.save!
-          default_mi_plan.status = MiPlan::Status['Inactive']; default_mi_plan.save!
-          default_mi_plan.status = MiPlan::Status['Withdrawn']; default_mi_plan.save!
+          replace_status_stamps(default_mi_plan,
+            :Assigned => '2012-01-01',
+            :Inactive => '2012-01-02',
+            :Withdrawn => '2012-01-03')
 
           expected = ["Assigned", "Inactive", "Withdrawn"]
           assert_equal expected, default_mi_plan.status_stamps.map{|i| i.status.name}
         end
 
         should 'not add the same status stamp consecutively' do
-          default_mi_plan.status = MiPlan::Status['Conflict']; default_mi_plan.save!
-          default_mi_plan.status = MiPlan::Status['Conflict']; default_mi_plan.save!
+          default_mi_plan.update_attributes!(:number_of_es_cells_starting_qc => 2)
+          default_mi_plan.save!
 
-          assert_equal ["Assigned", "Conflict"], default_mi_plan.status_stamps.map{|i|i.status.name}
+          assert_equal ['asg', 'asg-esp'], default_mi_plan.status_stamps.map{|i|i.status.code}
         end
 
         should 'not be one of the following if it has any phenotype attempts' do
-          pt = Factory.create :phenotype_attempt
-          plan = pt.mi_plan
-          plan.status = MiPlan::Status['Assigned']
-          plan.save!
-          ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"].each do |this_status|
-            plan.status = MiPlan::Status[this_status]
-            plan.valid?
-            assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"
-          end
+          mi = Factory.create :mi_attempt_genotype_confirmed, :consortium_name => 'DTCC'
+          plan = TestDummy.mi_plan('BaSH', 'WTSI', mi.gene.marker_symbol)
+          pt = Factory.create :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi
+          plan.reload
+          assert_equal 0, plan.mi_attempts.count
+          assert_equal 1, plan.phenotype_attempts.count
+
+          plan.withdrawn = true; plan.valid?
+          assert_contains plan.errors[:status], /cannot be changed/
         end
 
-        should 'not be one of the following if it has any microinjection attempts' do
+        should 'not be a non-assigned status if it has any micro-injection attempts' do
           mi_attempt = Factory.create :mi_attempt
           plan = mi_attempt.mi_plan
-          plan.status = MiPlan::Status['Assigned']
-          plan.save!
-          ["Interest","Conflict","Inspect - GLT Mouse","Inspect - MI Attempt","Inspect - Conflict","Aborted - ES Cell QC Failed","Withdrawn"].each do |this_status|
-            plan.status = MiPlan::Status[this_status]
-            plan.valid?
-            assert_contains plan.errors[:status], /cannot be changed/, "for Status :: #{this_status}"
-          end
+
+          plan.withdrawn = true; plan.valid?
+          assert_contains plan.errors[:status], /cannot be changed/
         end
       end
 
@@ -414,63 +418,16 @@ class MiPlanTest < ActiveSupport::TestCase
         end
       end
 
-      context '#withdrawn virtual attribute' do
-        context 'when being set to true' do
-          should 'set the status to Withdrawn if it at an allowed status' do
-            default_mi_plan.status = MiPlan::Status['Conflict']
-            default_mi_plan.withdrawn = true
-            assert_equal true, default_mi_plan.withdrawn
-            assert_equal 'Withdrawn', default_mi_plan.status.name
-
-            default_mi_plan.status = MiPlan::Status['Inspect - Conflict']
-            default_mi_plan.withdrawn = true
-            assert_equal true, default_mi_plan.withdrawn
-            assert_equal 'Withdrawn', default_mi_plan.status.name
-          end
-
-          should 'raise an error if not at an allowed status' do
-            default_mi_plan.status = MiPlan::Status['Assigned']
-            assert_raise RuntimeError, 'cannot withdraw from status Assigned' do
-              default_mi_plan.withdrawn = true
-            end
-            assert_equal false, default_mi_plan.withdrawn
-            assert_equal 'Assigned', default_mi_plan.status.name
-          end
-        end
-
-        context 'when being set to false' do
-          should 'not allow it if withdrawn' do
-            default_mi_plan.status = MiPlan::Status['Conflict']
-            default_mi_plan.withdrawn = true
-            assert_raise RuntimeError, 'withdrawal cannot be reversed' do
-              default_mi_plan.withdrawn = false
-            end
-          end
-
-          should 'allow it if not already withdrawn' do
-            assert_nothing_raised do
-              default_mi_plan.withdrawn = false
-            end
-          end
-        end
-
-        should 'return true if status is Withdrawn' do
-          default_mi_plan.status = MiPlan::Status['Withdrawn']
-          assert_equal true, default_mi_plan.withdrawn
-        end
-
-        should 'return false if status is not Withdrawn' do
-          default_mi_plan.status = MiPlan::Status['Assigned']
-          assert_equal false, default_mi_plan.withdrawn
-          default_mi_plan.status = MiPlan::Status['Conflict']
-          assert_equal false, default_mi_plan.withdrawn
-        end
-
-        should 'be readable as #withdrawn?' do
-          assert_false default_mi_plan.withdrawn?
-          default_mi_plan.status = MiPlan::Status['Conflict']
+      context '#withdrawn' do
+        should 'not be settable if currently not in an allowed status' do
           default_mi_plan.withdrawn = true
-          assert_true default_mi_plan.withdrawn?
+          assert_false default_mi_plan.valid?
+          assert_match /cannot be set/, default_mi_plan.errors[:withdrawn].first
+        end
+
+        should 'be settable on a new record' do
+          plan = Factory.create :mi_plan, :withdrawn => true
+          assert_equal 'Withdrawn', plan.status.name
         end
       end
 
@@ -498,25 +455,28 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_should have_db_column(:is_active).with_options(:null => false, :default => true)
         end
 
-        should 'be true if an active microinjection attempt found' do
+        should 'be true if an active micro-injection attempt found' do
           active_mi = Factory.create :mi_attempt, :is_active => true
           active_mi.mi_plan.is_active = false
           active_mi.mi_plan.valid?
           assert_match(/cannot be set to false as active micro-injection attempt/, active_mi.mi_plan.errors[:is_active].first)
         end
 
-        should 'be true if an active phenotype attempt found' do
+        should 'cannot be set to false if an active phenotype attempt found' do
           gene = Factory.create :gene_cbx1
-          inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => true
+          plan = Factory.create :mi_plan, :gene => gene, :is_active => true
           active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)
-          active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
-          inactive_plan.is_active = false
-          inactive_plan.valid?
-          assert_contains inactive_plan.errors[:is_active], /cannot be set to false as active phenotype attempt/
+          active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => plan
+          plan.reload
+          plan.is_active = false
+          assert_false plan.valid?
+          assert_contains plan.errors[:is_active], /cannot be set to false as active phenotype attempt/
         end
       end
     end # attribute tests
 
+=begin
+    # TODO
     context '::major_conflict_resolution' do
       setup do
         2.times { Factory.create :mi_attempt }
@@ -630,7 +590,7 @@ class MiPlanTest < ActiveSupport::TestCase
         set_mi_attempt_genotype_confirmed(mi_attempt)
 
         assert_equal mi_plan, mi_attempt.mi_plan
-        assert_equal MiAttemptStatus.genotype_confirmed.description, mi_attempt.status
+        assert_equal MiAttempt::Status.genotype_confirmed.name, mi_attempt.status.name
 
         mi_plans = ['MGP', 'EUCOMM-EUMODIC'].map do |consortium_name|
           Factory.create :mi_plan, :gene => gene, :consortium => Consortium.find_by_name!(consortium_name)
@@ -767,6 +727,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal [eucomm], result[gene2.mgi_accession_id]['Inspect - Conflict']
       end
     end
+=end
 
     context '::with_mi_attempt' do
       should 'work' do
@@ -858,23 +819,25 @@ class MiPlanTest < ActiveSupport::TestCase
 
     context '#assigned?' do
       should 'return true if status is assigned' do
-        plan = Factory.build :mi_plan_with_production_centre
-        plan.status = MiPlan::Status['Assigned']
+        plan = Factory.create :mi_plan_with_production_centre
         assert plan.assigned?
 
-        plan.status = MiPlan::Status['Assigned - ES Cell QC In Progress']
+        plan.update_attributes!(:number_of_es_cells_starting_qc => 1)
         assert plan.assigned?
 
-        plan.status = MiPlan::Status['Assigned - ES Cell QC Complete']
+        plan.update_attributes!(:number_of_es_cells_passing_qc => 1)
         assert plan.assigned?
       end
 
       should 'return false if status is not assigned' do
-        plan = Factory.build :mi_plan_with_production_centre
-        plan.status = MiPlan::Status['Inactive']
+        plan = Factory.build :mi_plan_with_production_centre, :gene => cbx1
+        plan.is_active = false; plan.valid?
         assert_false plan.assigned?
 
-        plan.status = MiPlan::Status['Conflict']
+        Factory.create :mi_plan, :gene => cbx1
+
+        plan.is_active = true; plan.valid?
+        assert_equal 'Inspect - Conflict', plan.status.name
         assert_false plan.assigned?
       end
     end
@@ -929,8 +892,9 @@ class MiPlanTest < ActiveSupport::TestCase
 
         assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
-        assert_equal "MI already in progress at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
-                mi_plan.reason_for_inspect_or_conflict
+        assert_match(/MI already in progress at:/, mi_plan.reason_for_inspect_or_conflict)
+        assert_match(/#{@ics_cent.name} \(#{@eucomm_cons.name}\)/, mi_plan.reason_for_inspect_or_conflict)
+        assert_match(/#{@jax_cent.name} \(#{@bash_cons.name}\)/, mi_plan.reason_for_inspect_or_conflict)
       end
 
       should 'correctly return for Inspect - Conflict' do
@@ -1149,7 +1113,7 @@ class MiPlanTest < ActiveSupport::TestCase
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create(:mi_plan, :gene => gene,
           :consortium => Consortium.find_by_name!('MGP'))
-        mi_plan.status = MiPlan::Status.find_by_name!('Aborted - ES Cell QC Failed')
+        mi_plan.number_of_es_cells_passing_qc = 0
         mi_plan.save!
 
         results = mi_plan.latest_relevant_status
@@ -1194,7 +1158,7 @@ class MiPlanTest < ActiveSupport::TestCase
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create(:mi_plan, :gene => gene,
           :consortium => Consortium.find_by_name!('MGP'),
-          :status => MiPlan::Status.find_by_name!('Aborted - ES Cell QC Failed'))
+          :number_of_es_cells_passing_qc => 0)
 
         results = mi_plan.relevant_status_stamp
 

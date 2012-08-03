@@ -4,7 +4,6 @@ class TestDummy
   class Error < RuntimeError; end
 
   ASSOCIATIONS = [
-    :status,
     :gene,
     :consortium,
     :production_centre

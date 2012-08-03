@@ -1,63 +1,74 @@
 ---
 1:
+  code: asg
   description: Assigned - A single consortium has expressed an interest in injecting
     this gene
   id: 1
   name: Assigned
-  order_by: 60
+  order_by: 80
 2:
+  code: int
   description: Interest - A consortium has expressed an interest to micro-inject this
     gene
   id: 2
   name: Interest
-  order_by: 10
+  order_by: 30
 3:
+  code: con
   description: Conflict - More than one consortium has expressed an interest in micro-injecting
     this gene
   id: 3
   name: Conflict
-  order_by: 20
+  order_by: 40
 4:
+  code: ins-glt
   description: Inspect - A GLT mouse is already recorded in iMits
   id: 4
   name: Inspect - GLT Mouse
-  order_by: 30
+  order_by: 70
 5:
+  code: ins-mip
   description: Inspect - An active micro-injection attempt is already in progress
   id: 5
   name: Inspect - MI Attempt
-  order_by: 40
+  order_by: 60
 6:
+  code: ins-con
   description: Inspect - This gene is already assigned in another planned micro-injection
   id: 6
   name: Inspect - Conflict
   order_by: 50
 7:
+  code: ina
   description: Inactive - A consortium/production centre has failed micro-injections
     on this gene dated over 6 months ago - they have given up
   id: 7
   name: Inactive
-  order_by: 90
+  order_by: 20
 8:
+  code: asg-esp
   description: Assigned - The ES cells are currently being QCed by the production
     centre
   id: 8
   name: Assigned - ES Cell QC In Progress
-  order_by: 70
+  order_by: 110
 9:
+  code: asg-esc
   description: Assigned - ES cells have passed the QC phase and are ready for micro-injection
   id: 9
   name: Assigned - ES Cell QC Complete
-  order_by: 80
+  order_by: 100
 10:
+  code: abt-esf
   description: Aborted - ES cells have failed the QC phase, and micro-injection cannot
     proceed
   id: 10
   name: Aborted - ES Cell QC Failed
-  order_by: 85
+  order_by: 90
 11:
+  code: wit
   description: Withdrawn - Interest in micro-injecting this gene was withdrawn by
     the parties involved
   id: 11
   name: Withdrawn
-  order_by: 100
+  order_by: 10

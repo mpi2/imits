@@ -18,12 +18,14 @@ class PhenotypeAttempt < ApplicationModel
 
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true, :reject_if => proc { |attrs| (attrs['centre_id'].blank? && attrs['deposited_material_id'].blank?)&& !(attrs[:_destroy] == "true" || attrs[:_destroy] == "1") }
 
+  protected :status=
+
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
 
   validate :mi_attempt do |me|
-    if me.mi_attempt and me.mi_attempt.mi_attempt_status != MiAttemptStatus.genotype_confirmed
-      me.errors.add(:mi_attempt, "status must be genotype confirmed (is currently '#{me.mi_attempt.mi_attempt_status.description}')")
+    if me.mi_attempt and me.mi_attempt.status != MiAttempt::Status.genotype_confirmed
+      me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.status.name}')")
     end
   end
 
@@ -77,7 +79,7 @@ class PhenotypeAttempt < ApplicationModel
 
   def ensure_plan_is_valid
     if ! mi_plan.assigned?
-      mi_plan.status = MiPlan::Status['Assigned']
+      mi_plan.force_assignment = true
       mi_plan.save!
     end
     if self.is_active?
@@ -180,7 +182,7 @@ end
 #  updated_at                       :datetime
 #  mi_plan_id                       :integer         not null
 #  colony_name                      :string(125)     not null
-#  mouse_allele_type                :string(1)
+#  mouse_allele_type                :string(2)
 #  deleter_strain_id                :integer
 #
 # Indexes

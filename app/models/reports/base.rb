@@ -1,6 +1,6 @@
 class Reports::Base
+  CUT_OFF_DATE = Date.parse('2011-06-01')
   def self.report_name; raise 'Override me!'; end
-
   def cache
     ReportCache.transaction do
       ['html', 'csv'].each do |format|

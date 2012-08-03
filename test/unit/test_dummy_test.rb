@@ -7,13 +7,11 @@ class TestDummyTest < ActiveSupport::TestCase
       should 'set up associations' do
         Factory.create :gene_cbx1
         expected = [
-          'Assigned',
           'DTCC',
           'UCD'
         ]
         plan = TestDummy.create(:mi_plan, *expected)
         got = [
-          plan.status.name,
           plan.consortium.name,
           plan.production_centre.name
         ]

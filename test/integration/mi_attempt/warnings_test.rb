@@ -62,9 +62,9 @@ class MiAttempt::WarningsTest < Kermits2::JsIntegrationTest
 
         page.find('#warnings button').click
 
-        assert_match %r{/mi_attempts/\d+}, current_url
         assert page.has_content? 'ES Cell Details'
         assert page.has_content? 'EPD0127_4_E01'
+        assert_match %r{/mi_attempts/\d+}, current_url
       end
     end
 

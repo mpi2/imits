@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
+class PhenotypeAttempt::CreateInFormIntegrationTest < Kermits2::JsIntegrationTest
   context 'When creating Phenotype Attempt in form' do
 
     setup do
@@ -13,11 +13,11 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       login
 
       click_link "Mouse Production"
+      wait_until_grid_loaded
       within('.x-grid') { click_link "Create" }
     end
 
     should 'allow editing consortium or production centre' do
-      sleep 5
       assert page.has_css?('select[name="phenotype_attempt[production_centre_name]"]')
       assert page.has_css?('select[name="phenotype_attempt[consortium_name]"]')
     end
@@ -37,16 +37,16 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       assert_equal 'Phenotype attempt created', page.find('.message.notice').text
       assert_match(/\/phenotype_attempts\/\d+$/, current_url)
 
-      sleep 5
-
-      assert_equal 1, PhenotypeAttempt.count
-      pt = Public::PhenotypeAttempt.first
-      assert_equal 'BaSH', pt.consortium_name
-      assert_equal 'WTSI', pt.production_centre_name
-      assert_equal DeleterStrain.first, pt.deleter_strain
-      assert_equal 9, pt.number_of_cre_matings_successful
-      assert_equal 'b', pt.mouse_allele_type
-      assert_equal @mi_attempt.colony_name, pt.mi_attempt.colony_name
+      ApplicationModel.uncached do
+        assert_equal 1, PhenotypeAttempt.count
+        pt = Public::PhenotypeAttempt.first
+        assert_equal 'BaSH', pt.consortium_name
+        assert_equal 'WTSI', pt.production_centre_name
+        assert_equal DeleterStrain.first, pt.deleter_strain
+        assert_equal 9, pt.number_of_cre_matings_successful
+        assert_equal 'b', pt.mouse_allele_type
+        assert_equal @mi_attempt.colony_name, pt.mi_attempt.colony_name
+      end
     end
 
     should 'be creatable with minimal values' do
@@ -54,9 +54,7 @@ class PhenotypeAttempt::CreateInFormTest < Kermits2::JsIntegrationTest
       click_button 'phenotype_attempt_submit'
       assert page.has_css?('.message.notice')
       assert_equal 'Phenotype attempt created', page.find('.message.notice').text
-
-      sleep 5
-      assert_equal 1, PhenotypeAttempt.count
+      ApplicationModel.uncached { assert_equal 1, PhenotypeAttempt.count }
     end
 
   end

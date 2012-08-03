@@ -9,7 +9,8 @@ class ApplicationModel < ActiveRecord::Base
     'b' => 'b - Knockout-First, Post-Cre - Reporter Tagged Deletion',
     'c' => 'c - Knockout-First, Post-Flp - Conditional',
     'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
-    'e' => 'e - Targeted Non-Conditional'
+    'e' => 'e - Targeted Non-Conditional',
+    '.1' => '.1 - Promoter excision from Deletion'
   }.freeze
 
   # BEGIN Callbacks

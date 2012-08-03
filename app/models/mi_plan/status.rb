@@ -29,23 +29,12 @@ class MiPlan::Status < ActiveRecord::Base
     ]
   end
 
-  def self.all_affected_by_minor_conflict_resolution
-    return self.all_non_assigned - [
-      MiPlan::Status['Interest'],
-      MiPlan::Status['Aborted - ES Cell QC Failed'],
-      MiPlan::Status['Withdrawn']
-    ]
-  end
-  
-  def self.pre_assigned
+  def self.all_pre_assignment
     return [
-      MiPlan::Status['Interest'],
       MiPlan::Status['Conflict'],
       MiPlan::Status['Inspect - GLT Mouse'],
       MiPlan::Status['Inspect - MI Attempt'],
-      MiPlan::Status['Inspect - Conflict'],
-      MiPlan::Status['Aborted - ES Cell QC Failed'],
-      MiPlan::Status['Withdrawn']
+      MiPlan::Status['Inspect - Conflict']
     ]
   end
 end
@@ -60,6 +49,7 @@ end
 #  order_by    :integer
 #  created_at  :datetime
 #  updated_at  :datetime
+#  code        :string(10)      not null
 #
 # Indexes
 #

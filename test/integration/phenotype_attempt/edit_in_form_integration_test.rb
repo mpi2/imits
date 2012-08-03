@@ -56,5 +56,9 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       assert_match /\/phenotype_attempts\/#{@phenotype_attempt.id}$/, current_url
     end
 
+    should_eventually 'render deposited material errors' do
+      click_link 'Add Distribution Centre'
+    end
+
   end
 end

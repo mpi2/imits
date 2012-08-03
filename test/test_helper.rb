@@ -225,20 +225,12 @@ class Test::Person < ApplicationModel
   validates :name, :uniqueness => true
 end
 
-PhenotypeAttempt.class_eval do
-  def to_public
-    return Public::PhenotypeAttempt.find(self.id)
+ApplicationModel.class_eval do
+  def self.to_public_class
+    return "Public::#{self.name}".constantize
   end
-end
 
-MiPlan.class_eval do
   def to_public
-    return Public::MiPlan.find(self.id)
-  end
-end
-
-MiAttempt.class_eval do
-  def to_public
-    return Public::MiAttempt.find(self.id)
+    return self.class.to_public_class.find(self.id)
   end
 end

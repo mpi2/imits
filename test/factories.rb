@@ -157,12 +157,13 @@ Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |p
   phenotype_attempt.rederivation_started true
   phenotype_attempt.rederivation_complete true
   phenotype_attempt.deleter_strain {DeleterStrain.first}
-  phenotype_attempt.number_of_cre_matings_successful { rand(10..50)}
+  phenotype_attempt.mouse_allele_type 'b'
+  phenotype_attempt.number_of_cre_matings_successful 1
   phenotype_attempt.phenotyping_started true
   phenotype_attempt.phenotyping_complete true
-  phenotype_attempt.mouse_allele_type 'b'
 end
 
+#TODO remove this, move to test that uses it
 Factory.define :phenotype_attempt_with_recent_status_history, :parent => :populated_phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.after_create do |pa|
     pa.status_stamps.destroy_all

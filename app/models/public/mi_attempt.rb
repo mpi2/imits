@@ -53,6 +53,7 @@ class Public::MiAttempt < ::MiAttempt
     is_released_from_genotyping
     comments
     genotyping_comment
+    distribution_centres_attributes
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -68,7 +69,6 @@ class Public::MiAttempt < ::MiAttempt
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
-    distribution_centres_attributes
   } + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*WRITABLE_ATTRIBUTES)

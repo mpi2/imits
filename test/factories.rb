@@ -237,16 +237,12 @@ Factory.define :mi_attempt_distribution_centre, :class => MiAttempt::Distributio
   distribution_centre.association :centre
   distribution_centre.association :deposited_material
   distribution_centre.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
-  distribution_centre.start_date (Date.today - 1.year).to_time.strftime('%Y-%m-%d')
-  distribution_centre.end_date (Date.today).to_time.strftime('%Y-%m-%d')
 end
 
 Factory.define :phenotype_attempt_distribution_centre, :class => PhenotypeAttempt::DistributionCentre do |distribution_centre|
   distribution_centre.association :centre
   distribution_centre.association :deposited_material
   distribution_centre.association :phenotype_attempt, :factory => :populated_phenotype_attempt
-  distribution_centre.start_date (Date.today - 1.year).to_time.strftime('%Y-%m-%d')
-  distribution_centre.end_date (Date.today).to_time.strftime('%Y-%m-%d')
 end
 
 #Specifics

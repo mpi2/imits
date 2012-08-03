@@ -82,6 +82,7 @@ class PhenotypeAttemptsController < ApplicationController
           flash.now[:notice] = 'Phenotype attempt updated successfully'
         end
         set_centres_consortia_and_strains
+        @phenotype_attempt.reload
         @mi_attempt = @phenotype_attempt.mi_attempt
         render :action => :show
       end

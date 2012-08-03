@@ -48,7 +48,8 @@ class PhenotypeAttempt::DistributionCentreTest < ActiveSupport::TestCase
         'deposited_material_name' => 'Live mice',
         'is_distributed_by_emma' => true,
         'start_date' => '2012-01-01',
-        'end_date' => '2012-01-02'
+        'end_date' => '2012-01-02',
+        '_destroy' => false
       }
 
       assert_equal expected, JSON.parse(dc.to_json)

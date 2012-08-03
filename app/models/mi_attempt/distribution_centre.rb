@@ -14,21 +14,12 @@ class MiAttempt::DistributionCentre < ActiveRecord::Base
   access_association_by_attribute :deposited_material, :name
   access_association_by_attribute :centre, :name
 
-  before_validation :assign_centre_id
-  before_validation :assign_deposited_material_id
-
-  def assign_centre_id
-    centre = Centre.find_by_name!(self.centre_name)
-    self.centre_id = @centre_id || centre.id
-  end
-
-  def assign_deposited_material_id
-    deposited_material = DepositedMaterial.find_by_name!(self.deposited_material_name)
-    self.deposited_material_id = @deposited_material_id || deposited_material.id
-  end
-
-  def as_json(options={})
-    super(:only => [:start_date, :end_date, :is_distributed_by_emma], :methods => [:deposited_material_name, :centre_name])
+  def as_json(options = {})
+    options.merge(
+      :only => [:start_date, :end_date, :is_distributed_by_emma],
+      :methods => [:deposited_material_name, :centre_name]
+    )
+    super(options)
   end
 end
 

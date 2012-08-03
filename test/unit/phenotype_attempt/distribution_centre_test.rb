@@ -15,24 +15,20 @@ class PhenotypeAttempt::DistributionCentreTest < ActiveSupport::TestCase
     should belong_to :deposited_material
 
     context '#centre_name virtual attribute' do
-      should 'populate centre_id before validation' do
-        phenotype_attempt_distribution_centre = Factory.create :phenotype_attempt_distribution_centre
-        distribution_centre_id = phenotype_attempt_distribution_centre.centre_id
-        phenotype_attempt_distribution_centre.centre_id = nil
-
-        phenotype_attempt_distribution_centre.valid?
-        assert_equal phenotype_attempt_distribution_centre.centre_id, distribution_centre_id
+      should 'access association by attribute' do
+        dc = PhenotypeAttempt::DistributionCentre.new
+        dc.centre_name = 'WTSI'
+        assert_equal 'WTSI', dc.centre_name
+        assert_equal Centre.find_by_name!('WTSI').id, dc.centre.id
       end
     end
 
     context '#deposited_material_name virtual attribute' do
-      should 'populate deposited_material_id before validation' do
-        phenotype_attempt_distribution_centre = Factory.create :phenotype_attempt_distribution_centre
-        deposited_material_id = phenotype_attempt_distribution_centre.deposited_material_id
-        phenotype_attempt_distribution_centre.deposited_material_id = nil
-
-        phenotype_attempt_distribution_centre.valid?
-        assert_equal phenotype_attempt_distribution_centre.deposited_material_id, deposited_material_id
+      should 'access association by attribute' do
+        dc = PhenotypeAttempt::DistributionCentre.new
+        dc.deposited_material_name = 'Frozen embryos'
+        assert_equal 'Frozen embryos', dc.deposited_material_name
+        assert_equal DepositedMaterial.find_by_name!('Frozen embryos').id, dc.deposited_material.id
       end
     end
 

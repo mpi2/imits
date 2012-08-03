@@ -287,8 +287,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
           :end_date => '2012-02-02', :phenotype_attempt => pt)
 
         expected = [
-            ds1.to_public.as_json,
-            ds2.to_public.as_json
+            ds1.as_json,
+            ds2.as_json
         ]
 
         pt = pt.reload.to_public

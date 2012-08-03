@@ -1,7 +1,28 @@
 # encoding: utf-8
 
-class MiAttempt::DistributionCentre < ActiveRecord::Base
+class MiAttempt::DistributionCentre < ApplicationModel
   extend AccessAssociationByAttribute
+  include Public::Serializable
+
+  acts_as_audited
+
+  FULL_ACCESS_ATTRIBUTES = %w{
+    start_date
+    end_date
+    deposited_material_name
+    centre_name
+    is_distributed_by_emma
+    _destroy
+  }
+
+  READABLE_ATTRIBUTES = %w{
+    id
+  } + FULL_ACCESS_ATTRIBUTES
+
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
 
   belongs_to :mi_attempt
   belongs_to :centre
@@ -13,14 +34,6 @@ class MiAttempt::DistributionCentre < ActiveRecord::Base
 
   access_association_by_attribute :deposited_material, :name
   access_association_by_attribute :centre, :name
-
-  def as_json(options = {})
-    options.merge(
-      :only => [:start_date, :end_date, :is_distributed_by_emma],
-      :methods => [:deposited_material_name, :centre_name]
-    )
-    super(options)
-  end
 end
 
 # == Schema Information

@@ -32,5 +32,28 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
       end
     end
 
+    should 'serialize correctly' do
+      mi = Factory.create :mi_attempt_genotype_confirmed
+      dc = TestDummy.create :mi_attempt_distribution_centre,
+              'WTSI',
+              'Live mice',
+              :start_date => '2012-01-01',
+              :end_date => '2012-01-02',
+              :is_distributed_by_emma => true,
+              :mi_attempt => mi
+
+      expected = {
+        'id' => dc.id,
+        'centre_name' => 'WTSI',
+        'deposited_material_name' => 'Live mice',
+        'is_distributed_by_emma' => true,
+        'start_date' => '2012-01-01',
+        'end_date' => '2012-01-02',
+        '_destroy' => false
+      }
+
+      assert_equal expected, JSON.parse(dc.to_json)
+    end
+
   end
 end

@@ -5,6 +5,8 @@ class PhenotypeAttempt::StatusStamp < ActiveRecord::Base
 
   belongs_to :phenotype_attempt
   belongs_to :status
+
+  delegate :name, :code, :to => :status
 end
 
 # == Schema Information

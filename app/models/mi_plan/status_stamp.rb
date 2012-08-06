@@ -7,7 +7,7 @@ class MiPlan::StatusStamp < ActiveRecord::Base
   belongs_to :mi_plan
   belongs_to :status
 
-  delegate :name, :to => :status
+  delegate :name, :code, :to => :status
 end
 
 # == Schema Information

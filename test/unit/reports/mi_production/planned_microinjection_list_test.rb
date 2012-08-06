@@ -13,7 +13,7 @@ class Reports::MiProduction::PlannedMicroinjectionListTest < ActiveSupport::Test
 
       line1 = report.to_csv.lines.first
 
-      assert_match "Consortium,SubProject,Bespoke,Production Centre,Marker Symbol,MGI Accession ID,Priority,Status,Reason for Inspect/Conflict,Non-Assigned Plans,Assigned Plans,Aborted MIs,MIs in Progress,GLT Mice", line1
+      assert_match "Consortium,<supress>SubProject</supress>,Bespoke,Production Centre,Marker Symbol,MGI Accession ID,Priority,Status,Reason for Inspect/Conflict,Non-Assigned Plans,Assigned Plans,Aborted MIs,MIs in Progress,GLT Mice", line1
 
     end
   end

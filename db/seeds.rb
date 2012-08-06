@@ -169,7 +169,7 @@ Seeds.load MiPlan::Priority, [
 
 
 Seeds.load PhenotypeAttempt::Status, [
-  {:code => 'pab', :id =>  1, :name => 'Phenotype Attempt Aborted', :order_by => 310},
+  {:code => 'abt', :id =>  1, :name => 'Phenotype Attempt Aborted', :order_by => 310},
   {:code => 'par', :id =>  2, :name => 'Phenotype Attempt Registered', :order_by => 320},
   {:code => 'res', :id =>  3, :name => 'Rederivation Started', :order_by => 330},
   {:code => 'rec', :id =>  4, :name => 'Rederivation Complete', :order_by => 340},

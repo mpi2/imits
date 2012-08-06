@@ -113,8 +113,11 @@ class ReportsController < ApplicationController
     query = ReportCache.where(:name => "planned_microinjection_list_#{consortium_name}")
 
     @report_data = { :csv => nil, :html => nil }
-    @report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data} if ! query.blank?
-
+    if current_user.can_see_sub_project?
+      @report_data = { :csv => query.where(:format => 'csv').first.data.to_s.gsub('<supress>', '').gsub('</supress>' , ''), :html => query.where(:format => 'html').first.data.to_s.gsub('<supress>', '').gsub('</supress>', '')} if ! query.blank?
+    else
+      @report_data = { :csv => query.where(:format => 'csv').first.data.to_s.gsub(/<supress>.*?<\/supress>,/ , ''), :html => query.where(:format => 'html').first.data.to_s.gsub(/<t[dh]><supress>.*?<\/supress><\/t[dh]>/ , '')} if ! query.blank?
+    end
     @consortium = consortium_name.blank? ? 'All' : consortium_name
     @count = @report_data[:csv].blank? ? 0 : @report_data[:csv].lines.count-1
 

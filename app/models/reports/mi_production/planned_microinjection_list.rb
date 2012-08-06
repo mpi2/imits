@@ -46,7 +46,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
     report_column_order_and_names = {
       'id'                      => 'ID',
       'consortium.name'         => 'Consortium',
-      'sub_project.name'        => 'SubProject',
+      'sub_project.name'        => '<supress>SubProject</supress>',
       'is_bespoke_allele'       => 'Bespoke',
       'production_centre.name'  => 'Production Centre',
       'gene.marker_symbol'      => 'Marker Symbol',
@@ -66,7 +66,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
         :priority           => { :only => [:name] },
         :status             => { :only => [:name] }
       },
-      :transforms => lambda {|r| r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No' }
+      :transforms => lambda {|r| r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No'; r["sub_project.name"] = '<supress>' + r["sub_project.name"] + '</supress>' }
     }
 
     report = MiPlan.report_table( :all, report_options )

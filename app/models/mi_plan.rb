@@ -78,6 +78,7 @@ class MiPlan < ApplicationModel
 
   before_validation :change_status
 
+  after_save :manage_status_stamps
   after_save :conflict_resolve_others
 
   after_destroy :conflict_resolve_others

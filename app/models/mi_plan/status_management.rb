@@ -86,6 +86,10 @@ module MiPlan::StatusManagement
     return true
   end
 
+  def manage_status_stamps
+    @@status_manager.manage_status_stamps_for(self)
+  end
+
   def conflict_resolve_others
     unless is_resolving_others
       plans = gene.mi_plans.search(:status_id_in => MiPlan::Status.all_pre_assignment.map(&:id),

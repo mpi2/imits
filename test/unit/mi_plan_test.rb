@@ -360,7 +360,7 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_equal ['asg', 'asg-esp'], default_mi_plan.status_stamps.map{|i|i.status.code}
         end
 
-        should 'not be one of the following if it has any phenotype attempts' do
+        should 'not be a non-assigned status if it has any phenotype attempts' do
           mi = Factory.create :mi_attempt_genotype_confirmed, :consortium_name => 'DTCC'
           plan = TestDummy.mi_plan('BaSH', 'WTSI', mi.gene.marker_symbol)
           pt = Factory.create :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi

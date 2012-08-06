@@ -271,10 +271,7 @@ class MiPlanTest < ActiveSupport::TestCase
         end
 
         should 'be deleted when MiPlan is deleted' do
-          Factory.create :mi_plan, :gene => cbx1
-
-          plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
-          assert_equal 'Inspect - Conflict', plan.status.name
+          plan = Factory.create :mi_plan
           plan.number_of_es_cells_starting_qc = 5; plan.save!
           stamps = plan.status_stamps.dup
           assert_equal 2, stamps.size

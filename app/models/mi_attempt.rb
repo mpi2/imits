@@ -115,11 +115,9 @@ class MiAttempt < ApplicationModel
 
   before_save :generate_colony_name_if_blank
   before_save :set_mi_plan
-  before_save :record_if_status_was_changed
 
-  after_save :create_status_stamp_if_status_was_changed
+  after_save :manage_status_stamps
   after_save :reload_mi_plan_mi_attempts
-  after_save :ensure_in_progress_status_stamp
 
   protected
 
@@ -173,31 +171,8 @@ class MiAttempt < ApplicationModel
     self.mi_plan = mi_plan_to_set
   end
 
-  def record_if_status_was_changed
-    if self.changed.include? 'status_id'
-      @new_status = self.status
-    else
-      @new_status = nil
-    end
-  end
-
-  def create_status_stamp_if_status_was_changed
-    if @new_status
-      add_status_stamp @new_status
-    end
-  end
-
   def reload_mi_plan_mi_attempts
     mi_plan.mi_attempts.reload
-  end
-
-  def ensure_in_progress_status_stamp
-    status_stamps.reload
-    if ! status_stamps.find_by_status_id(MiAttempt::Status.micro_injection_in_progress)
-      status_stamps.create!(:status => MiAttempt::Status.micro_injection_in_progress,
-        :created_at => status_stamps.last.created_at - 1.second)
-      status_stamps.reload
-    end
   end
 
   public

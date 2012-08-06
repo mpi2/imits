@@ -2,10 +2,10 @@
 
 require 'test_helper'
 
-class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
-  context 'MiAttempt::StatusChanger' do
+class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
+  context 'MiAttempt::StatusManagement' do
 
-    context 'when production centre is WTSI' do
+    context 'status, when production centre is WTSI' do
       setup do
         @mi_attempt = Factory.create :mi_attempt,
                 :production_centre_name => 'WTSI',
@@ -32,7 +32,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
       end
     end
 
-    context 'when production centre is not WTSI' do
+    context 'status, when production centre is not WTSI' do
       setup do
         @mi_attempt = Factory.create :mi_attempt,
                 :production_centre_name => 'ICS',
@@ -73,14 +73,14 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         @mi_attempt.save!
         assert_equal MiAttempt::Status.genotype_confirmed, @mi_attempt.status
       end
-      
+
       should 'transition MI status to Chimeras obtained if total_male_chimeras is greater than zero and MI is active' do
         @mi_attempt.total_male_chimeras = 1
         @mi_attempt.is_active = true
         @mi_attempt.save!
         assert_equal MiAttempt::Status.chimeras_obtained, @mi_attempt.status
       end
-      
+
       should 'not transition MI status to Chimeras obtained if total_male_chimeras is greater than zero and MI is not active' do
         @mi_attempt.total_male_chimeras = 1
         @mi_attempt.is_active = false
@@ -88,7 +88,7 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
         assert_not_equal MiAttempt::Status.chimeras_obtained, @mi_attempt.status
         assert_equal MiAttempt::Status.micro_injection_aborted, @mi_attempt.status
       end
-      
+
       should 'transition back from Chimeras obtained to Micro-injection in progress is total_male_chimeras is set back to 0' do
         @mi_attempt.total_male_chimeras = 1
         @mi_attempt.save!
@@ -185,6 +185,25 @@ class MiAttempt::StatusChangerTest < ActiveSupport::TestCase
       ].map(&:name)
 
       assert_equal expected_statuses, mi.status_stamps.map(&:name)
+    end
+
+    context 'status stamps' do
+      should 'be created if conditions for a status are met' do
+        mi = Factory.create :mi_attempt
+        assert_equal 1, mi.status_stamps.count
+
+        set_mi_attempt_genotype_confirmed(mi)
+        assert_equal 3, mi.status_stamps.count
+        assert_equal 'gtc', mi.status_stamps.last.status.code
+      end
+
+      should 'be deleted if conditions for a status are not met' do
+        mi = Factory.create :mi_attempt, :is_active => false
+        assert_equal 'abt', mi.status_stamps.last.status.code
+        mi.update_attributes!(:is_active => true)
+        assert_equal 'mip', mi.status_stamps.last.status.code
+        assert_equal 1, mi.status_stamps.count
+      end
     end
 
   end

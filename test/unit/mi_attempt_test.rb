@@ -152,16 +152,19 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'not include aborted status if latest status is GC' do
-          mi = Factory.create :mi_attempt
-          mi.status_stamps.first.update_attributes!(:created_at => '2011-01-01 00:00:00 UTC')
-          mi.is_active = false; mi.save!
-          mi.status_stamps.last.update_attributes!(:created_at => '2011-02-02 00:00:00 UTC')
+          mi = Factory.create :mi_attempt, :is_active => false
+          mi.is_active = true
           set_mi_attempt_genotype_confirmed(mi)
-          mi.status_stamps.last.update_attributes!(:created_at => '2011-03-02 23:59:59')
+          replace_status_stamps(mi,
+            :mip => '2011-01-01',
+            :chr => '2011-03-01',
+            :gtc => '2011-03-02'
+          )
 
           expected = {
             'Micro-injection in progress' => Date.parse('2011-01-01'),
-            'Genotype confirmed' => Date.parse('2011-03-02'),
+            'Chimeras obtained' => Date.parse('2011-03-01'),
+            'Genotype confirmed' => Date.parse('2011-03-02')
           }
 
           assert_equal expected, mi.reportable_statuses_with_latest_dates

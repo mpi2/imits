@@ -5,7 +5,7 @@ class MiAttempt < ApplicationModel
   acts_as_reportable
 
   extend AccessAssociationByAttribute
-  include MiAttempt::StatusChanger
+  include MiAttempt::StatusManagement
   include MiAttempt::WarningGenerator
 
   QC_FIELDS = [

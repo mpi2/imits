@@ -5,7 +5,7 @@ class MiPlan < ApplicationModel
   acts_as_reportable
 
   extend AccessAssociationByAttribute
-  include MiPlan::StatusChanger
+  include MiPlan::StatusManagement
 
   belongs_to :sub_project
   belongs_to :gene

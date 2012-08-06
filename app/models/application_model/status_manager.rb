@@ -1,4 +1,4 @@
-class ApplicationModel::StatusChangerMachine
+class ApplicationModel::StatusManager
 
   class Item
     def initialize(required, &conditions)

@@ -4,7 +4,7 @@ class PhenotypeAttempt < ApplicationModel
   acts_as_audited
   acts_as_reportable
 
-  include PhenotypeAttempt::StatusChanger
+  include PhenotypeAttempt::StatusManagement
 
   belongs_to :mi_attempt
   belongs_to :mi_plan

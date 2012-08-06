@@ -1,8 +1,8 @@
 # encoding: utf-8
 
-module MiAttempt::StatusChanger
+module MiAttempt::StatusManagement
 
-  ss = ApplicationModel::StatusChangerMachine.new
+  ss = ApplicationModel::StatusManager.new
 
   ss.add('Micro-injection in progress') { |mi| true }
 
@@ -22,10 +22,10 @@ module MiAttempt::StatusChanger
     ! mi.is_active?
   end
 
-  @@status_changer_machine = ss
+  @@status_manager = ss
 
   def change_status
-    self.status = MiAttempt::Status.find_by_name!(@@status_changer_machine.get_status_for(self))
+    self.status = MiAttempt::Status.find_by_name!(@@status_manager.get_status_for(self))
   end
 
 end

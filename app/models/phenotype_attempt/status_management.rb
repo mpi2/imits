@@ -1,8 +1,8 @@
 # encoding: utf-8
 
-module PhenotypeAttempt::StatusChanger
+module PhenotypeAttempt::StatusManagement
 
-  ss = ApplicationModel::StatusChangerMachine.new
+  ss = ApplicationModel::StatusManager.new
 
   ss.add('Phenotype Attempt Registered') { |pt| true }
 
@@ -34,10 +34,10 @@ module PhenotypeAttempt::StatusChanger
     ! pt.is_active?
   end
 
-  @@status_changer_machine = ss
+  @@status_manager = ss
 
   def change_status
-    self.status = ::PhenotypeAttempt::Status[@@status_changer_machine.get_status_for(self)]
+    self.status = ::PhenotypeAttempt::Status[@@status_manager.get_status_for(self)]
   end
 
 end

@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-module MiPlan::StatusChanger
+module MiPlan::StatusManagement
   extend ActiveSupport::Concern
 
   class ConflictResolver
@@ -40,7 +40,7 @@ module MiPlan::StatusChanger
     end
   end
 
-  ss = ApplicationModel::StatusChangerMachine.new
+  ss = ApplicationModel::StatusManager.new
 
   ss.add('Assigned') {true}
 
@@ -78,11 +78,11 @@ module MiPlan::StatusChanger
 
   ss.add('Inactive') { |plan| ! plan.is_active? }
 
-  @@status_changer_machine = ss
+  @@status_manager = ss
 
   def change_status
     self.conflict_resolver = ConflictResolver.new(gene)
-    self.status = MiPlan::Status.find_by_name!(@@status_changer_machine.get_status_for(self))
+    self.status = MiPlan::Status.find_by_name!(@@status_manager.get_status_for(self))
     return true
   end
 

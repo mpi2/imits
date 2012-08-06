@@ -54,21 +54,18 @@ class QualityOverviewsControllerTest < ActionController::TestCase
 
       mi_attempt_lgi2.distribution_centres.push(mi_attempt_distribution_centre)
       mi_attempt_lgi2.save!
+
+      consortium = Consortium.new
+      consortium.name = 'MGP Legacy'
+      consortium.save!
   end
 
   context 'QualityOverviewsController' do
 
     should 'require authentication' do
       get :index
-      assert_false response.success?
+      assert !response.success?
       assert_redirected_to new_user_session_path
-    end
-
-    context 'GET index' do
-      setup do
-        sign_in default_user
-      end
-
     end
 
     should 'GET quality overviews as CSV' do
@@ -76,16 +73,17 @@ class QualityOverviewsControllerTest < ActionController::TestCase
       sign_in default_user
 
       quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)
-      @quality_overviews = QualityOverview.sort(quality_overviews)
-      header_row = @quality_overviews.first.column_names
+      grouping_consortium_store = QualityOverviewGrouping.group_by_consortium_and_centre(quality_overviews)
+      quality_overview_groupings = QualityOverviewGrouping.construct_quality_review_groupings(grouping_consortium_store)
+      @quality_overview_groupings = QualityOverviewGrouping.sort(quality_overview_groupings)
+      header_row = @quality_overview_groupings.first.column_names
 
       csv = CSV.generate(:force_quotes => true) do |line|
         line << header_row
-        @quality_overviews.each do |quality_overview|
+        @quality_overview_groupings.each do |quality_overview|
           line << quality_overview.column_values.flatten
         end
       end
-
       get :export_to_csv, :format => :csv
       assert_equal response.body, csv
 
@@ -94,3 +92,4 @@ class QualityOverviewsControllerTest < ActionController::TestCase
   end
 
 end
+

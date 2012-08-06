@@ -2,9 +2,7 @@ require 'test_helper'
 
 class QualityOverviewGroupingsControllerTest < ActionController::TestCase
 
-  context 'QualityOverviewGroupingsController' do
-
-    setup do
+  setup do
     #row 1
       gene_tpi1 = Factory.create :gene, :marker_symbol => 'Tpi1', :mgi_accession_id => 'MGI:98797', :ikmc_projects_count => 3, :conditional_es_cells_count => 11,
       :non_conditional_es_cells_count => 8, :deletion_es_cells_count => 6, :other_targeted_mice_count => nil, :other_condtional_mice_count => nil, :mutation_published_as_lethal_count => nil,
@@ -56,21 +54,19 @@ class QualityOverviewGroupingsControllerTest < ActionController::TestCase
 
       mi_attempt_lgi2.distribution_centres.push(mi_attempt_distribution_centre)
       mi_attempt_lgi2.save!
+
+      consortium = Consortium.new
+      consortium.name = 'MGP Legacy'
+      consortium.save!
     end
 
+
+  context 'QualityOverviewGroupingsController' do
     should 'require authentication' do
       get :index
-      assert_false response.success?
+      assert !response.success?
       assert_redirected_to new_user_session_path
     end
-
-    context 'GET quality_overviews_summary' do
-      setup do
-        sign_in default_user
-      end
-
-    end
-
   end
 
 end

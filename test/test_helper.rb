@@ -82,7 +82,13 @@ class ActiveSupport::TestCase
 
     obj.status_stamps.destroy_all
     stamps.each do |status_name, time|
-      status_object = status_class.where(:name => status_name).first
+      status_object = status_class.find_by_name(status_name)
+      if ! status_object
+        status_object = status_class.find_by_code(status_name)
+        if ! status_object
+          raise "#{status_name} status not found"
+        end
+      end
       raise "status object lookup failed for '#{status_name}'" unless status_object
       obj.status_stamps.create!(
         :created_at => time,
@@ -225,20 +231,12 @@ class Test::Person < ApplicationModel
   validates :name, :uniqueness => true
 end
 
-PhenotypeAttempt.class_eval do
-  def to_public
-    return Public::PhenotypeAttempt.find(self.id)
+ApplicationModel.class_eval do
+  def self.to_public_class
+    return "Public::#{self.name}".constantize
   end
-end
 
-MiPlan.class_eval do
   def to_public
-    return Public::MiPlan.find(self.id)
-  end
-end
-
-MiAttempt.class_eval do
-  def to_public
-    return Public::MiAttempt.find(self.id)
+    return self.class.to_public_class.find(self.id)
   end
 end

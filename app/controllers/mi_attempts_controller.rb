@@ -89,6 +89,7 @@ class MiAttemptsController < ApplicationController
           flash.now[:alert] = 'Micro-injection could not be updated - please check the values you entered'
         end
         set_centres_and_consortia
+        @mi_attempt.reload
         render :action => :show
       end
 

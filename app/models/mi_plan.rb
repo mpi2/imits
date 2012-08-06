@@ -73,24 +73,16 @@ class MiPlan < ApplicationModel
 
   # BEGIN Callbacks
 
-  before_validation :set_default_mi_plan_status
   before_validation :set_default_number_of_es_cells_starting_qc
   before_validation :set_default_sub_project
 
   before_validation :change_status
-
-  before_save :record_if_status_was_changed
-  after_save :create_status_stamp_if_status_was_changed
 
   after_save :conflict_resolve_others
 
   after_destroy :conflict_resolve_others
 
   private
-
-  def set_default_mi_plan_status
-    self.status ||= MiPlan::Status['Interest']
-  end
 
   def set_default_number_of_es_cells_starting_qc
     if number_of_es_cells_starting_qc.nil?
@@ -103,20 +95,6 @@ class MiPlan < ApplicationModel
       self.sub_project ||= SubProject.find_by_name!('MGPinterest')
     else
       self.sub_project ||= SubProject.find_by_name!('')
-    end
-  end
-
-  def record_if_status_was_changed
-    if self.changed.include? 'status_id'
-      @new_mi_plan_status = self.status
-    else
-      @new_mi_plan_status = nil
-    end
-  end
-
-  def create_status_stamp_if_status_was_changed
-    if @new_mi_plan_status
-      add_status_stamp @new_mi_plan_status
     end
   end
 

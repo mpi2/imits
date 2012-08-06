@@ -25,19 +25,12 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should validate_presence_of :mi_date
       end
 
-      context 'distribution centre tests:' do
-        should 'exist' do
-          assert_should have_many(:distribution_centres)
-        end
+      should 'have distribution centres' do
+        assert_should have_many(:distribution_centres)
+      end
 
-        should 'validate presence of production_centre_name' do
-          assert_should validate_presence_of :production_centre_name
-        end
-
-        should "accept nested attributes for distribution_centres" do
-          assert  MiAttempt.instance_methods.include?(:distribution_centres_attributes=),
-                  "MiAttempt does not accept nested attributes for distribution_centres"
-        end
+      should 'validate presence of production_centre_name' do
+        assert_should validate_presence_of :production_centre_name
       end
 
       context '#status' do

@@ -82,6 +82,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         colony_name
         consortium_name
         production_centre_name
+        distribution_centres_attributes
         pretty_print_distribution_centres
         blast_strain_name
         total_blasts_injected
@@ -152,6 +153,43 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       should 'output each attribute only once' do
         doc = Nokogiri::XML(default_mi_attempt.to_xml)
         assert_equal 1, doc.xpath('count(//id)').to_i
+      end
+    end
+
+    context '#distribution_centres_attributes' do
+      should 'be output correctly' do
+        mi = Factory.create(:mi_attempt_genotype_confirmed)
+        ds1 = Factory.create(:mi_attempt_distribution_centre,
+          :start_date => '2012-01-02', :mi_attempt => mi)
+        ds2 = Factory.create(:mi_attempt_distribution_centre,
+          :end_date => '2012-02-02', :mi_attempt => mi)
+
+        expected = [
+            ds1.as_json,
+            ds2.as_json
+        ]
+
+        mi = mi.reload.to_public
+        assert_equal expected, mi.distribution_centres_attributes
+      end
+
+      should 'can be updated and destroyed' do
+        mi = Factory.create(:mi_attempt_genotype_confirmed).to_public
+        ds1 = Factory.create(:mi_attempt_distribution_centre,
+          :centre => Centre.find_by_name!('WTSI'),
+          :start_date => '2012-01-02', :mi_attempt => mi)
+        ds2 = Factory.create(:mi_attempt_distribution_centre,
+          :end_date => '2012-02-02', :mi_attempt => mi)
+
+        mi = mi.reload
+        attrs = mi.distribution_centres_attributes
+        attrs[0]['centre_name'] = 'ICS'
+        attrs[1][:_destroy] = true
+        mi.update_attributes!(:distribution_centres_attributes => attrs)
+
+        assert_nil MiAttempt::DistributionCentre.find_by_id(ds2.id)
+        ds1.reload
+        assert_equal 'ICS', ds1.centre_name
       end
     end
 

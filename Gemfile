@@ -38,4 +38,5 @@ group :development, :test do
   gem 'mocha'
   gem 'letter_opener'
   gem 'parallel_tests'
+  gem 'thin', :require => nil
 end

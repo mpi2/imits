@@ -129,6 +129,27 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
     end
 
+    context 'status stamps' do
+      should 'be created if conditions for a status are met' do
+        pa = Factory.create :phenotype_attempt
+        assert_equal 1, pa.status_stamps.count
+
+        pa.update_attributes!(:rederivation_started => true, :rederivation_complete => true)
+        assert_equal 3, pa.status_stamps.count
+        assert_equal 'rec', pa.status_stamps.last.code
+      end
+
+      should 'be deleted if conditions for a status are not met' do
+        mi = Factory.create :phenotype_attempt
+        mi.update_attributes!(:is_active => false)
+        assert_equal 'abt', mi.status_stamps.last.code
+        assert_equal 2, mi.status_stamps.count
+
+        mi.update_attributes!(:is_active => true)
+        assert_equal 'par', mi.status_stamps.last.code
+        assert_equal 1, mi.status_stamps.count
+      end
+    end
 
   end
 end

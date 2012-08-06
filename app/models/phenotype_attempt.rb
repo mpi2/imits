@@ -37,11 +37,12 @@ class PhenotypeAttempt < ApplicationModel
 
   before_validation :change_status
   before_validation :set_mi_plan
-  before_save :record_if_status_was_changed
+
   before_save :generate_colony_name_if_blank
   before_save :ensure_plan_is_valid
   before_save :create_initial_distribution_centre
-  after_save :create_status_stamp_if_status_was_changed
+
+  after_save :manage_status_stamps
 
   def create_initial_distribution_centre
     if self.distribution_centres.empty? && self.status.name == "Cre Excision Complete"
@@ -53,16 +54,9 @@ class PhenotypeAttempt < ApplicationModel
       self.distribution_centres.push(initial_distribution_centre)
     end
   end
+
   def set_mi_plan
     self.mi_plan ||= mi_attempt.try(:mi_plan)
-  end
-
-  def record_if_status_was_changed
-    if self.changed.include? 'status_id'
-      @new_status = self.status
-    else
-      @new_status = nil
-    end
   end
 
   def generate_colony_name_if_blank
@@ -83,12 +77,6 @@ class PhenotypeAttempt < ApplicationModel
     if self.is_active?
       self.mi_plan.is_active = true
       self.mi_plan.save!
-    end
-  end
-
-  def create_status_stamp_if_status_was_changed
-    if @new_status
-      status_stamps.create!(:status => @new_status)
     end
   end
 

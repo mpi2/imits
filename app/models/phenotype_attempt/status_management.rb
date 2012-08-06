@@ -40,4 +40,8 @@ module PhenotypeAttempt::StatusManagement
     self.status = ::PhenotypeAttempt::Status[@@status_manager.get_status_for(self)]
   end
 
+  def manage_status_stamps
+    @@status_manager.manage_status_stamps_for(self)
+  end
+
 end

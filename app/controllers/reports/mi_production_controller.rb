@@ -8,7 +8,7 @@ class Reports::MiProductionController < ApplicationController
 
   def detail
     if request.format == :csv
-      send_data_csv('mi_production_detail.csv', Reports::MiProduction::Detail.generate.to_csv)
+      send_data_csv('mi_production_detail.csv', Reports::MiProduction::Detail.generate(current_user).to_csv)
     end
   end
 

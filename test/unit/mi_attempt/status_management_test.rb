@@ -28,7 +28,7 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
         @mi_attempt.total_male_chimeras = 1
         @mi_attempt.save!
         @mi_attempt.save!
-        assert_equal 2, @mi_attempt.status_stamps.size
+        assert_equal 3, @mi_attempt.status_stamps.size
       end
     end
 

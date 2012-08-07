@@ -60,11 +60,6 @@ class QualityOverview::ViewIndexIntegrationTest < Kermits2::IntegrationTest
         mi_attempt_lgi2.distribution_centres.push(mi_attempt_distribution_centre)
         mi_attempt_lgi2.save!
 
-        consortium = Consortium.new
-        consortium.name = 'MGP Legacy'
-        consortium.save!
-
-
         visit '/users/logout'
         login
       end

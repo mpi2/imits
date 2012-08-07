@@ -1,9 +1,9 @@
 require 'test_helper'
 
 class QualityOverviewsControllerTest < ActionController::TestCase
-
-  setup do
-    #row 1
+  context 'QualityOverviewsController' do
+    setup do
+      #row 1
       gene_tpi1 = Factory.create :gene, :marker_symbol => 'Tpi1', :mgi_accession_id => 'MGI:98797', :ikmc_projects_count => 3, :conditional_es_cells_count => 11,
       :non_conditional_es_cells_count => 8, :deletion_es_cells_count => 6, :other_targeted_mice_count => nil, :other_condtional_mice_count => nil, :mutation_published_as_lethal_count => nil,
       :publications_for_gene_count => nil, :go_annotations_for_gene_count => nil
@@ -20,7 +20,7 @@ class QualityOverviewsControllerTest < ActionController::TestCase
       mi_attempt_tpi1.distribution_centres.push(mi_attempt_distribution_centre)
       mi_attempt_tpi1.save!
 
-    #row 2
+      #row 2
       gene_celsr3 = Factory.create :gene, :marker_symbol => 'Celsr3', :mgi_accession_id => 'MGI:1858236', :ikmc_projects_count => 2, :conditional_es_cells_count => nil,
       :non_conditional_es_cells_count => nil, :deletion_es_cells_count => 2, :other_targeted_mice_count => nil, :other_condtional_mice_count => nil, :mutation_published_as_lethal_count => nil,
       :publications_for_gene_count => nil, :go_annotations_for_gene_count => nil
@@ -38,7 +38,7 @@ class QualityOverviewsControllerTest < ActionController::TestCase
       mi_attempt_celsr3.distribution_centres.push(mi_attempt_distribution_centre)
       mi_attempt_celsr3.save!
 
-    #row 3
+      #row 3
       gene_lgi2 = Factory.create :gene, :marker_symbol => 'Lgi2', :mgi_accession_id => 'MGI:2180196', :ikmc_projects_count => 2, :conditional_es_cells_count => 12,
       :non_conditional_es_cells_count => 4, :deletion_es_cells_count => 5, :other_targeted_mice_count => nil, :other_condtional_mice_count => nil, :mutation_published_as_lethal_count => nil,
       :publications_for_gene_count => nil, :go_annotations_for_gene_count => nil
@@ -55,12 +55,7 @@ class QualityOverviewsControllerTest < ActionController::TestCase
       mi_attempt_lgi2.distribution_centres.push(mi_attempt_distribution_centre)
       mi_attempt_lgi2.save!
 
-      consortium = Consortium.new
-      consortium.name = 'MGP Legacy'
-      consortium.save!
-  end
-
-  context 'QualityOverviewsController' do
+    end
 
     should 'require authentication' do
       get :index
@@ -73,14 +68,12 @@ class QualityOverviewsControllerTest < ActionController::TestCase
       sign_in default_user
 
       quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)
-      grouping_consortium_store = QualityOverviewGrouping.group_by_consortium_and_centre(quality_overviews)
-      quality_overview_groupings = QualityOverviewGrouping.construct_quality_review_groupings(grouping_consortium_store)
-      @quality_overview_groupings = QualityOverviewGrouping.sort(quality_overview_groupings)
-      header_row = @quality_overview_groupings.first.column_names
+      @quality_overviews = QualityOverview.sort(quality_overviews)
+      header_row = @quality_overviews.first.column_names
 
       csv = CSV.generate(:force_quotes => true) do |line|
         line << header_row
-        @quality_overview_groupings.each do |quality_overview|
+        @quality_overviews.each do |quality_overview|
           line << quality_overview.column_values.flatten
         end
       end
@@ -90,6 +83,5 @@ class QualityOverviewsControllerTest < ActionController::TestCase
     end
 
   end
-
 end
 

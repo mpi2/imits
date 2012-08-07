@@ -42,7 +42,9 @@ module MiPlan::StatusManagement
 
   ss = ApplicationModel::StatusManager.new
 
-  ss.add('Assigned') {true}
+  ss.add('Assigned') do |plan|
+    plan.conflict_resolver.get_pre_assigned_status(plan) == nil
+  end
 
   ss.add('Inspect - Conflict') do |plan|
     plan.conflict_resolver.get_pre_assigned_status(plan).try(:name) == 'Inspect - Conflict'

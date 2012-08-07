@@ -170,6 +170,14 @@ class MiPlan::StatusManagementTest < ActiveSupport::TestCase
         assert_equal 1, plan.status_stamps.size
         assert_equal 'Assigned', plan.status_stamps.last.name
       end
+
+      should 'not have Assigned added if in pre-assignment state' do
+        Factory.create :mi_plan, :gene => cbx1
+
+        plan = Factory.create :mi_plan, :gene => cbx1
+        assert_equal 'ins-con', plan.status.code
+        assert ! plan.status_stamps.map(&:name).include?('Assigned')
+      end
     end
 
   end

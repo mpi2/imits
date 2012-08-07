@@ -39,7 +39,7 @@ class ApplicationModel::StatusManager
 
   def manage_status_stamps_for(object)
     status_stamp_names = object.status_stamps.all.map(&:name)
-    status_class = (object.class.name + '::Status').constantize
+    status_class = object.class.const_get(:Status)
 
     @items.each do |status_name, item|
       if item.conditions_met_for?(object)

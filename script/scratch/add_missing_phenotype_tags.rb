@@ -128,7 +128,7 @@ ApplicationModel.audited_transaction do
   end
   puts "... #{a.count} Assigned - ES Cell QC In Progress status added"
 
-  #Selects all mi attempt ids that have Es cell in progress but missing the Assigned status
+  #Selects all mi plan ids that have Es cell in progress but missing the Assigned status
   sql = "SELECT mi_plan_status_stamps.id, mi_plan_status_stamps.mi_plan_id, mi_plan_status_stamps.status_id, mi_plan_status_stamps.created_at, mi_plan_status_stamps.updated_at FROM mi_plan_status_stamps INNER JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plan_status_stamps.status_id LEFT OUTER JOIN (SELECT mi_plan_status_stamps.mi_plan_id AS id FROM (mi_plan_status_stamps INNER JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plan_status_stamps.status_id) WHERE mi_plan_statuses.name = 'Assigned') a ON a.id = mi_plan_status_stamps.mi_plan_id WHERE a.id IS NULL AND mi_plan_statuses.name = 'Assigned - ES Cell QC In Progress'"
   a=MiPlan::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Assigned status missing ..."
@@ -141,7 +141,22 @@ ApplicationModel.audited_transaction do
   #Selects all mi plan ids that have Es cell Aborted but missing the Assigned status
   sql = "SELECT mi_plan_status_stamps.id, mi_plan_status_stamps.mi_plan_id, mi_plan_status_stamps.status_id, mi_plan_status_stamps.created_at, mi_plan_status_stamps.updated_at FROM mi_plan_status_stamps INNER JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plan_status_stamps.status_id LEFT OUTER JOIN (SELECT mi_plan_status_stamps.mi_plan_id AS id FROM (mi_plan_status_stamps INNER JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plan_status_stamps.status_id) WHERE mi_plan_statuses.name = 'Assigned') a ON a.id = mi_plan_status_stamps.mi_plan_id WHERE a.id IS NULL AND mi_plan_statuses.name = 'Aborted - ES Cell QC Failed'"
   a=MiPlan::StatusStamp.find_by_sql(sql)
-  puts "#{a.count} Assigned status missing ..."
+  puts "#{a.count} Assigned status missing but Aborted - ES Cell QC Failed status stamp found ..."
+  a.each do |record|
+    rec = MiPlan::StatusStamp.new(:mi_plan_id=> record.mi_plan_id, :created_at => record.created_at, :status_id=> MiPlan::Status.find_by_name!("Assigned").id)
+    rec.save!
+  end
+  puts "... #{a.count} Assigned status added"
+
+  #Selects all mi plan ids that have Inactive but missing the Assigned status
+  sql = "SELECT mi_plan_status_stamps.id, mi_plan_status_stamps.mi_plan_id, mi_plan_status_stamps.status_id, mi_plan_status_stamps.created_at, mi_plan_status_stamps.updated_at " +
+          "FROM mi_plan_status_stamps " +
+          "INNER JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plan_status_stamps.status_id " +
+          "LEFT OUTER JOIN (SELECT mi_plan_status_stamps.mi_plan_id AS id FROM (mi_plan_status_stamps INNER JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plan_status_stamps.status_id) WHERE mi_plan_statuses.name = 'Assigned') a ON a.id = mi_plan_status_stamps.mi_plan_id " +
+          "WHERE a.id IS NULL AND mi_plan_statuses.name = 'Inactive'"
+
+  a=MiPlan::StatusStamp.find_by_sql(sql)
+  puts "#{a.count} Assigned status missing but Inactive status stamp found  ..."
   a.each do |record|
     rec = MiPlan::StatusStamp.new(:mi_plan_id=> record.mi_plan_id, :created_at => record.created_at, :status_id=> MiPlan::Status.find_by_name!("Assigned").id)
     rec.save!

@@ -170,15 +170,6 @@ class MiPlan::StatusManagementTest < ActiveSupport::TestCase
         assert_equal 1, plan.status_stamps.size
         assert_equal 'Assigned', plan.status_stamps.last.name
       end
-
-      should 'not be created if conditions for an "unimportant" status are met but it is not the current status' do
-        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => cbx1)
-
-        plan = Factory.create :mi_plan, :gene => cbx1
-        assert_equal 'Inspect - MI Attempt', plan.status_stamps.last.name
-        assert_equal false, plan.status_stamps.all.map(&:name).find {|s| s == 'Inspect - Conflict'}
-        assert_equal 1, plan.status_stamps.count
-      end
     end
 
   end

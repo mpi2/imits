@@ -110,21 +110,17 @@ class ReportsController < ApplicationController
       consortium = Consortium.find_by_id(params[:consortium_id])
       consortium_name = consortium.name
     end
-    query = ReportCache.where(:name => "planned_microinjection_list_#{consortium_name}")
-
-    @report_data = { :csv => nil, :html => nil }
-    if current_user.can_see_sub_project?
-      @report_data = { :csv => query.where(:format => 'csv').first.data.to_s.gsub('<supress>', '').gsub('</supress>' , ''), :html => query.where(:format => 'html').first.data.to_s.gsub('<supress>', '').gsub('</supress>', '')} if ! query.blank?
-    else
-      @report_data = { :csv => query.where(:format => 'csv').first.data.to_s.gsub(/<supress>.*?<\/supress>,/ , ''), :html => query.where(:format => 'html').first.data.to_s.gsub(/<t[dh]><supress>.*?<\/supress><\/t[dh]>/ , '')} if ! query.blank?
+    report = ReportCache.find_by_name_and_format!("planned_microinjection_list_#{consortium_name}", 'csv').to_table
+    if !current_user.can_see_sub_project?
+      report.remove_column('SubProject')
     end
+    @report_data = report.to_html
     @consortium = consortium_name.blank? ? 'All' : consortium_name
-    @count = @report_data[:csv].blank? ? 0 : @report_data[:csv].lines.count-1
-
-    filename = "planned_microinjection_list_" + consortium_name.gsub(/[\s-]/, "_").downcase + ".csv"
+    @count = report.blank? ? 0 : report.length-1
 
     if request.format == :csv
-      data = @report_data[:csv] ? @report_data[:csv] : ''
+      filename = "planned_microinjection_list_" + consortium_name.gsub(/[\s-]/, "_").downcase + ".csv"
+      data = report.to_csv
       send_data_csv(filename, data)
     end
   end

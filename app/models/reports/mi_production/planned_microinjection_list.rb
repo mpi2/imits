@@ -46,7 +46,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
     report_column_order_and_names = {
       'id'                      => 'ID',
       'consortium.name'         => 'Consortium',
-      'sub_project.name'        => '<supress>SubProject</supress>',
+      'sub_project.name'        => 'SubProject',
       'is_bespoke_allele'       => 'Bespoke',
       'production_centre.name'  => 'Production Centre',
       'gene.marker_symbol'      => 'Marker Symbol',
@@ -66,7 +66,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
         :priority           => { :only => [:name] },
         :status             => { :only => [:name] }
       },
-      :transforms => lambda {|r| r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No'; r["sub_project.name"] = '<supress>' + r["sub_project.name"] + '</supress>' }
+      :transforms => lambda {|r| r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No'}
     }
 
     report = MiPlan.report_table( :all, report_options )
@@ -84,29 +84,21 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
     @report && @report.data && @report.data.size > 0 ? @report.to_csv : ''
   end
 
-  def to_html
-    @report && @report.data && @report.data.size > 0 ? @report.to_html : ''
-  end
-
   def cache
     ReportCache.transaction do
-      ['html', 'csv'].each do |format|
-        cache = ReportCache.find_by_name_and_format(_report_name, format)
-        if ! cache
-          cache = ReportCache.new(
+      cache = ReportCache.find_by_name_and_format(_report_name, 'csv')
+      if ! cache
+        cache = ReportCache.new(
           :name => _report_name,
           :data => '',
-          :format => format
+          :format => 'csv'
           )
-        end
-
-        next if ! self.respond_to?('to_html')
-        next if ! self.respond_to?('to_csv')
-
-        cache.data = self.to_csv if format == 'csv'
-        cache.data = self.to_html if format == 'html'
-        cache.save!
       end
+
+      next if ! self.respond_to?('to_csv')
+
+      cache.data = self.to_csv
+      cache.save!
     end
   end
 

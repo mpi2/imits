@@ -31,39 +31,11 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
       Factory.create :mi_plan
       user = Factory.build(:user)
       Reports::MiProduction::Intermediate.new.cache
-      report = Reports::MiProduction::Detail.generate(user)
+      report = Reports::MiProduction::Detail.generate
       assert_equal expected, report.column_names
     end
 
-    should 'have correct columns excluding sub_project' do
-      expected = [
-        'Consortium',
-        'Is Bespoke Allele',
-        'Priority',
-        'Production Centre',
-        'Gene',
-        'Status',
-        'Assigned Date',
-        'Assigned - ES Cell QC In Progress Date',
-        'Assigned - ES Cell QC Complete Date',
-        'Micro-injection in progress Date',
-        'Chimeras obtained Date',
-        'Genotype confirmed Date',
-        'Micro-injection aborted Date',
-        'Phenotype Attempt Registered Date',
-        'Cre Excision Started Date',
-        'Cre Excision Complete Date',
-        'Phenotyping Complete Date',
-        'Phenotype Attempt Aborted Date'
-      ]
 
-      Factory.create :mi_plan
-      user = Factory.build(:user)
-      user.production_centre = Centre.find_by_name!('DTCC')
-      Reports::MiProduction::Intermediate.new.cache
-      report = Reports::MiProduction::Detail.generate(user)
-      assert_equal expected, report.column_names
-    end
     should 'be generated off the intermediate production report minus some columns' do
       cbx1 = Factory.create(:gene_cbx1)
 
@@ -76,7 +48,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
       user = Factory.build(:user)
       Factory.create :mi_plan
       Reports::MiProduction::Intermediate.new.cache
-      report = Reports::MiProduction::Detail.generate(user)
+      report = Reports::MiProduction::Detail.generate
       row = report.find {|r| r['Gene'] == 'Cbx1'}
       assert_equal 'BaSH', row['Consortium']
       assert_equal 'WTSI', row['Production Centre']

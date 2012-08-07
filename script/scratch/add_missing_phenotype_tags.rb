@@ -7,8 +7,8 @@ ApplicationModel.audited_transaction do
   a=PhenotypeAttempt::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Phenotype started status missing ..."
   a.each do |record|
-      rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Phenotyping Started").id)
-      rec.save!
+    rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Phenotyping Started").id)
+    rec.save!
   end
   puts "... #{a.count} Phenotype started status added"
 
@@ -17,8 +17,8 @@ ApplicationModel.audited_transaction do
   a=PhenotypeAttempt::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Cre completed status missing ..."
   a.each do |record|
-      rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Cre Excision Complete").id)
-      rec.save!
+    rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Cre Excision Complete").id)
+    rec.save!
   end
   puts "... #{a.count} Cre completed status added"
 
@@ -27,8 +27,8 @@ ApplicationModel.audited_transaction do
   a=PhenotypeAttempt::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Cre started status missing ..."
   a.each do |record|
-      rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Cre Excision Started").id)
-      rec.save!
+    rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Cre Excision Started").id)
+    rec.save!
   end
   puts "... #{a.count} Cre started status added"
 
@@ -37,8 +37,8 @@ ApplicationModel.audited_transaction do
   a=PhenotypeAttempt::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Redeivation Started status missing ..."
   a.each do |record|
-      rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Rederivation Started").id)
-      rec.save!
+    rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Rederivation Started").id)
+    rec.save!
   end
   puts "... #{a.count} Redeivation Started status added"
 
@@ -47,8 +47,8 @@ ApplicationModel.audited_transaction do
   a=PhenotypeAttempt::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Phenotype Attempt Registered status missing ..."
   a.each do |record|
-      rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Phenotype Attempt Registered").id)
-      rec.save!
+    rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Phenotype Attempt Registered").id)
+    rec.save!
   end
   puts "... #{a.count} Phenotype Registered status added"
 
@@ -57,8 +57,8 @@ ApplicationModel.audited_transaction do
   a=PhenotypeAttempt::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Phenotype Attempt Registered status missing ..."
   a.each do |record|
-      rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Phenotype Attempt Registered").id)
-      rec.save!
+    rec = PhenotypeAttempt::StatusStamp.new(:phenotype_attempt_id=> record.phenotype_attempt_id, :created_at => record.created_at, :status_id=>PhenotypeAttempt::Status.find_by_name!("Phenotype Attempt Registered").id)
+    rec.save!
   end
   puts "... #{a.count} Phenotype Registered status added"
 
@@ -68,12 +68,12 @@ ApplicationModel.audited_transaction do
   a=PhenotypeAttempt::StatusStamp.find_by_sql(sql)
   puts "#{a.count} incorrect Aborted status ..."
   a.each do |record|
-      rec = PhenotypeAttempt::StatusStamp.find_by_id!(record.id).destroy
+    rec = PhenotypeAttempt::StatusStamp.find_by_id!(record.id).destroy
   end
   puts "... #{a.count} Aborted status deleted"
 
 
-"SELECT mi_plan_status_stamps.id, s1.name FROM ((mi_plan_status_stamps INNER JOIN mi_plan_statuses s1 ON mi_plan_status_stamps.status_id = s1.id) INNER JOIN mi_plans ON mi_plan_status_stamps.mi_plan_id = mi_plans.id) INNER JOIN  mi_plan_statuses s2 ON mi_plans.status_id = s2.id WHERE s1.name = 'Aborted - ES Cell QC Failed' AND s2.name != 'Aborted - ES Cell QC Failed'"
+  "SELECT mi_plan_status_stamps.id, s1.name FROM ((mi_plan_status_stamps INNER JOIN mi_plan_statuses s1 ON mi_plan_status_stamps.status_id = s1.id) INNER JOIN mi_plans ON mi_plan_status_stamps.mi_plan_id = mi_plans.id) INNER JOIN  mi_plan_statuses s2 ON mi_plans.status_id = s2.id WHERE s1.name = 'Aborted - ES Cell QC Failed' AND s2.name != 'Aborted - ES Cell QC Failed'"
 
 
 
@@ -81,31 +81,31 @@ ApplicationModel.audited_transaction do
 
 
   #Selects all mi attempt ids that have Genotype confirmed but missing the chimeras obtained status
-  sql = "SELECT mi_attempt_status_stamps.id ,mi_attempt_status_stamps.mi_attempt_id, mi_attempt_status_stamps.mi_attempt_status_id, mi_attempt_status_stamps.created_at, mi_attempt_status_stamps.updated_at FROM mi_attempt_status_stamps INNER JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempt_status_stamps.mi_attempt_status_id LEFT OUTER JOIN (SELECT mi_attempt_status_stamps.mi_attempt_id AS id FROM (mi_attempt_status_stamps INNER JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempt_status_stamps.mi_attempt_status_id) WHERE mi_attempt_statuses.description= 'Chimeras obtained') a ON a.id = mi_attempt_status_stamps.mi_attempt_id WHERE a.id IS NULL AND mi_attempt_statuses.description = 'Genotype confirmed'"
+  sql = "SELECT mi_attempt_status_stamps.id ,mi_attempt_status_stamps.mi_attempt_id, mi_attempt_status_stamps.status_id, mi_attempt_status_stamps.created_at, mi_attempt_status_stamps.updated_at FROM mi_attempt_status_stamps INNER JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempt_status_stamps.status_id LEFT OUTER JOIN (SELECT mi_attempt_status_stamps.mi_attempt_id AS id FROM (mi_attempt_status_stamps INNER JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempt_status_stamps.status_id) WHERE mi_attempt_statuses.name= 'Chimeras obtained') a ON a.id = mi_attempt_status_stamps.mi_attempt_id WHERE a.id IS NULL AND mi_attempt_statuses.name = 'Genotype confirmed'"
   a=MiAttempt::StatusStamp.find_by_sql(sql)
   puts "#{a.count} chimeras obtained status missing ..."
   a.each do |record|
-      rec = MiAttempt::StatusStamp.new(:mi_attempt_id=> record.mi_attempt_id, :created_at => record.created_at, :mi_attempt_status_id=> MiAttemptStatus.find_by_description!("Chimeras obtained").id)
-      rec.save!
+    rec = MiAttempt::StatusStamp.new(:mi_attempt_id=> record.mi_attempt_id, :created_at => record.created_at, :status_id=> MiAttemptStatus.find_by_name!("Chimeras obtained").id)
+    rec.save!
   end
   puts "... #{a.count} chimeras obtained status added"
 
   #Selects all mi attempt ids that have Genotype confirmed but missing the Micro_injection in progress status
-  sql = "SELECT mi_attempt_status_stamps.id ,mi_attempt_status_stamps.mi_attempt_id, mi_attempt_status_stamps.mi_attempt_status_id, mi_attempt_status_stamps.created_at, mi_attempt_status_stamps.updated_at FROM mi_attempt_status_stamps INNER JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempt_status_stamps.mi_attempt_status_id LEFT OUTER JOIN (SELECT mi_attempt_status_stamps.mi_attempt_id AS id FROM (mi_attempt_status_stamps INNER JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempt_status_stamps.mi_attempt_status_id) WHERE mi_attempt_statuses.description= 'Micro-injection in progress') a ON a.id = mi_attempt_status_stamps.mi_attempt_id WHERE a.id IS NULL AND mi_attempt_statuses.description = 'Genotype confirmed'"
+  sql = "SELECT mi_attempt_status_stamps.id ,mi_attempt_status_stamps.mi_attempt_id, mi_attempt_status_stamps.status_id, mi_attempt_status_stamps.created_at, mi_attempt_status_stamps.updated_at FROM mi_attempt_status_stamps INNER JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempt_status_stamps.status_id LEFT OUTER JOIN (SELECT mi_attempt_status_stamps.mi_attempt_id AS id FROM (mi_attempt_status_stamps INNER JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempt_status_stamps.status_id) WHERE mi_attempt_statuses.name= 'Micro-injection in progress') a ON a.id = mi_attempt_status_stamps.mi_attempt_id WHERE a.id IS NULL AND mi_attempt_statuses.name = 'Genotype confirmed'"
   a=MiAttempt::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Micro_injection in progress status missing ..."
   a.each do |record|
-      rec = MiAttempt::StatusStamp.new(:mi_attempt_id=> record.mi_attempt_id, :created_at => record.created_at, :mi_attempt_status_id=> MiAttemptStatus.find_by_description!("Micro-injection in progress").id)
-      rec.save!
+    rec = MiAttempt::StatusStamp.new(:mi_attempt_id=> record.mi_attempt_id, :created_at => record.created_at, :status_id=> MiAttemptStatus.find_by_name!("Micro-injection in progress").id)
+    rec.save!
   end
   puts "... #{a.count} Micro_injection in progress status added"
 
   #Selects all miPlan ids that are aborted and have a status that is older than the aborted date
-  sql = "SELECT DISTINCT mi_attempt_status_stamps.id FROM ((mi_attempt_status_stamps INNER JOIN mi_attempt_statuses s1 ON mi_attempt_status_stamps.mi_attempt_status_id = s1.id) INNER JOIN mi_attempts ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id) INNER JOIN  mi_attempt_statuses s2 ON mi_attempts.mi_attempt_status_id = s2.id WHERE s1.description = 'Micro-injection aborted' AND s2.description != 'Micro-injection aborted'"
+  sql = "SELECT DISTINCT mi_attempt_status_stamps.id FROM ((mi_attempt_status_stamps INNER JOIN mi_attempt_statuses s1 ON mi_attempt_status_stamps.status_id = s1.id) INNER JOIN mi_attempts ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id) INNER JOIN  mi_attempt_statuses s2 ON mi_attempts.status_id = s2.id WHERE s1.name = 'Micro-injection aborted' AND s2.name != 'Micro-injection aborted'"
   a=MiAttempt::StatusStamp.find_by_sql(sql)
   puts "#{a.count} incorrect Aborted status ..."
   a.each do |record|
-      rec = MiAttempt::StatusStamp.find_by_id!(record.id).destroy
+    rec = MiAttempt::StatusStamp.find_by_id!(record.id).destroy
   end
   puts "... #{a.count} Aborted status deleted"
 
@@ -123,8 +123,8 @@ ApplicationModel.audited_transaction do
   a=MiPlan::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Assigned - ES Cell QC In Progress status missing ..."
   a.each do |record|
-      rec = MiPlan::StatusStamp.new(:mi_plan_id=> record.mi_plan_id, :created_at => record.created_at, :status_id=> MiPlan::Status.find_by_name!("Assigned - ES Cell QC In Progress").id)
-      rec.save!
+    rec = MiPlan::StatusStamp.new(:mi_plan_id=> record.mi_plan_id, :created_at => record.created_at, :status_id=> MiPlan::Status.find_by_name!("Assigned - ES Cell QC In Progress").id)
+    rec.save!
   end
   puts "... #{a.count} Assigned - ES Cell QC In Progress status added"
 
@@ -133,18 +133,18 @@ ApplicationModel.audited_transaction do
   a=MiPlan::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Assigned status missing ..."
   a.each do |record|
-      rec = MiPlan::StatusStamp.new(:mi_plan_id=> record.mi_plan_id, :created_at => record.created_at, :status_id=> MiPlan::Status.find_by_name!("Assigned").id)
-      rec.save!
+    rec = MiPlan::StatusStamp.new(:mi_plan_id=> record.mi_plan_id, :created_at => record.created_at, :status_id=> MiPlan::Status.find_by_name!("Assigned").id)
+    rec.save!
   end
   puts "... #{a.count} Assigned status added"
 
-  #Selects all mi attempt ids that have Es cell Aborted but missing the Assigned status
+  #Selects all mi plan ids that have Es cell Aborted but missing the Assigned status
   sql = "SELECT mi_plan_status_stamps.id, mi_plan_status_stamps.mi_plan_id, mi_plan_status_stamps.status_id, mi_plan_status_stamps.created_at, mi_plan_status_stamps.updated_at FROM mi_plan_status_stamps INNER JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plan_status_stamps.status_id LEFT OUTER JOIN (SELECT mi_plan_status_stamps.mi_plan_id AS id FROM (mi_plan_status_stamps INNER JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plan_status_stamps.status_id) WHERE mi_plan_statuses.name = 'Assigned') a ON a.id = mi_plan_status_stamps.mi_plan_id WHERE a.id IS NULL AND mi_plan_statuses.name = 'Aborted - ES Cell QC Failed'"
   a=MiPlan::StatusStamp.find_by_sql(sql)
   puts "#{a.count} Assigned status missing ..."
   a.each do |record|
-      rec = MiPlan::StatusStamp.new(:mi_plan_id=> record.mi_plan_id, :created_at => record.created_at, :status_id=> MiPlan::Status.find_by_name!("Assigned").id)
-      rec.save!
+    rec = MiPlan::StatusStamp.new(:mi_plan_id=> record.mi_plan_id, :created_at => record.created_at, :status_id=> MiPlan::Status.find_by_name!("Assigned").id)
+    rec.save!
   end
   puts "... #{a.count} Assigned status added"
 
@@ -155,16 +155,9 @@ ApplicationModel.audited_transaction do
   a=MiPlan::StatusStamp.find_by_sql(sql)
   puts "#{a.count} incorrect Aborted status ..."
   a.each do |record|
-      rec = MiPlan::StatusStamp.find_by_id!(record.id).destroy
+    rec = MiPlan::StatusStamp.find_by_id!(record.id).destroy
   end
   puts "... #{a.count} Aborted status deleted"
 
-#raise 'TEST'
+  raise 'ROLLBACK'
 end
-
-
-
-
-
-
-

@@ -21,7 +21,7 @@
   name: Conflict
   order_by: 40
 4:
-  code: ins-glt
+  code: ins-gtc
   description: Inspect - A GLT mouse is already recorded in iMits
   id: 4
   name: Inspect - GLT Mouse

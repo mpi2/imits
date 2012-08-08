@@ -8,6 +8,11 @@ class GenesController < ApplicationController
     end
   end
 
+  def draw_network_graph
+    gene = Genes.find_by_id(params[:id])
+    network_graph = gene.draw_network_graph
+    send_data network_graph, :type => 'svg', :filename => 'network_graph', :disposition => 'inline'
+  end
   private
 
   def data_for_serialized(format)

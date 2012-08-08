@@ -452,6 +452,13 @@ class Gene < ActiveRecord::Base
     return options
   end
 
+  def draw_network_graph
+    dot_file = ''
+
+    network_graph = ''
+    return netork_graph
+  end
+
 end
 
 # == Schema Information

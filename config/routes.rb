@@ -62,6 +62,8 @@ Kermits2::Application.routes.draw do
 
   match 'reports/(:action(.:format))' => "reports#:action"
 
+  match 'mi_plans/gene_selection/:id/network_graph' => 'genes/:id/#draw_network_graph'
+
   resources :report_caches, :only => [:show]
 
   match ':controller/:id/history' => ':controller#history'

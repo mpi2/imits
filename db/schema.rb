@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120725145204) do
+ActiveRecord::Schema.define(:version => 20120807115108) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -167,6 +167,8 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
     t.datetime "updated_at"
   end
 
+  add_index "mi_attempt_status_stamps", ["status_id", "mi_attempt_id"], :name => "index_one_status_stamp_per_status_and_mi_attempt", :unique => true
+
   create_table "mi_attempt_statuses", :force => true do |t|
     t.string   "name",       :limit => 50, :null => false
     t.datetime "created_at"
@@ -251,6 +253,8 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
     t.datetime "updated_at"
   end
 
+  add_index "mi_plan_status_stamps", ["status_id", "mi_plan_id"], :name => "index_one_status_stamp_per_status_and_mi_plan", :unique => true
+
   create_table "mi_plan_statuses", :force => true do |t|
     t.string   "name",        :limit => 50, :null => false
     t.string   "description"
@@ -281,12 +285,12 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
     t.integer  "sub_project_id",                                    :null => false
     t.boolean  "is_active",                      :default => true,  :null => false
     t.boolean  "is_bespoke_allele",              :default => false, :null => false
-    t.boolean  "withdrawn",                      :default => false, :null => false
     t.boolean  "is_conditional_allele",          :default => false, :null => false
     t.boolean  "is_deletion_allele",             :default => false, :null => false
     t.boolean  "is_cre_knock_in_allele",         :default => false, :null => false
     t.boolean  "is_cre_bac_allele",              :default => false, :null => false
     t.text     "comment"
+    t.boolean  "withdrawn",                      :default => false, :null => false
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
@@ -319,6 +323,8 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "phenotype_attempt_status_stamps", ["status_id", "phenotype_attempt_id"], :name => "index_one_status_stamp_per_status_and_phenotype_attempt", :unique => true
 
   create_table "phenotype_attempt_statuses", :force => true do |t|
     t.string   "name",       :limit => 50, :null => false

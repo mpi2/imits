@@ -19,4 +19,8 @@ end
 #  created_at           :datetime
 #  updated_at           :datetime
 #
+# Indexes
+#
+#  index_one_status_stamp_per_status_and_phenotype_attempt  (status_id,phenotype_attempt_id) UNIQUE
+#
 

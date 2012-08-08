@@ -20,4 +20,8 @@ end
 #  created_at :datetime
 #  updated_at :datetime
 #
+# Indexes
+#
+#  index_one_status_stamp_per_status_and_mi_plan  (status_id,mi_plan_id) UNIQUE
+#
 

@@ -124,12 +124,12 @@ end
 #  sub_project_id                 :integer         not null
 #  is_active                      :boolean         default(TRUE), not null
 #  is_bespoke_allele              :boolean         default(FALSE), not null
-#  withdrawn                      :boolean         default(FALSE), not null
 #  is_conditional_allele          :boolean         default(FALSE), not null
 #  is_deletion_allele             :boolean         default(FALSE), not null
 #  is_cre_knock_in_allele         :boolean         default(FALSE), not null
 #  is_cre_bac_allele              :boolean         default(FALSE), not null
 #  comment                        :text
+#  withdrawn                      :boolean         default(FALSE), not null
 #
 # Indexes
 #

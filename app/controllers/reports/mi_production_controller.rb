@@ -205,16 +205,24 @@ class Reports::MiProductionController < ApplicationController
   private :summary_3_split_helper
 
   def impc_graph_report_download_image
-    data = File.read("#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpeg")
-    send_data data,
-            :filename => "#{params[:consortium]}_#{params[:goal]}_performance.jpeg?#{Time.now.strftime "%d%m%Y%H%M%S"}",
+    filename = params[:chart_file_name].split('/')[-1]
+    if File.exists?("#{params[:chart_file_name]}")
+      data = File.read("#{params[:chart_file_name]}")
+      send_data data,
+            :filename => "#{filename}?#{Time.now.strftime "%d%m%Y%H%M%S"}",
             :type => 'image/jpeg'
+    else
+      flash[:alert] = "Page expired! Please try again"
+      redirect_to :action => 'impc_graph_report_display'
+
+    end
   end
 
   def impc_graph_report_display_image
-    data = File.read("#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{params[:consortium]}_#{params[:goal]}_performance.jpeg")
+    filename = params[:chart_file_name].split('/')[-1]
+    data = File.read("#{params[:chart_file_name]}")
     send_data data,
-            :filename => "#{params[:consortium]}_#{params[:goal]}_performance.jpeg?#{Time.now.strftime "%d%m%Y%H%M%S"}",
+            :filename => "#{filename}?#{Time.now.strftime "%d%m%Y%H%M%S"}",
             :type => 'image/jpeg',
             :disposition => 'inline'
   end

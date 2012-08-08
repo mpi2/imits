@@ -106,15 +106,19 @@ class ReportsController < ApplicationController
 
   def planned_microinjection_list
     consortium_name = ''
-    if params && params[:consortium_id] && ! params[:consortium_id][0].blank? &&
+    if params && params[:consortium_id] && ! params[:consortium_id][0].blank?
       consortium = Consortium.find_by_id(params[:consortium_id])
       consortium_name = consortium.name
     end
-    report = ReportCache.find_by_name_and_format!("planned_microinjection_list_#{consortium_name}", 'csv').to_table
-    if !current_user.can_see_sub_project?
-      report.remove_column('SubProject')
+    report = nil
+    report_cache = ReportCache.find_by_name_and_format("planned_microinjection_list_#{consortium_name}", 'csv')
+    if report_cache
+      report = report_cache.to_table
+      if !current_user.can_see_sub_project?
+        report.remove_column('SubProject')
+      end
+      @report_data = report.to_html
     end
-    @report_data = report.to_html
     @consortium = consortium_name.blank? ? 'All' : consortium_name
     @count = report.blank? ? 0 : report.length-1
 

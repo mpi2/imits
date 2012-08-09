@@ -58,8 +58,8 @@ class MiPlanTest < ActiveSupport::TestCase
                   :mi_date => '2011-12-12',
                   :is_active => false
           replace_status_stamps(inactive_mi,
-            ip => '2011-10-10 00:00 UTC',
-            abrt => Time.now
+            'mip' => '2011-10-10 00:00 UTC',
+            'abt' => Time.now
           )
 
           older_mi_1 = Factory.create :mi_attempt,
@@ -70,7 +70,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :mi_date => '2011-12-12',
                   :is_active => true
           replace_status_stamps(older_mi_1,
-            ip => '2011-03-02 00:00 UTC'
+            'mip' => '2011-03-02 00:00 UTC'
           )
 
           latest_mi = Factory.create :mi_attempt,
@@ -81,7 +81,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :mi_date => '2011-12-12',
                   :is_active => true
           replace_status_stamps(latest_mi,
-            ip => '2011-11-02 00:00 UTC'
+            'mip' => '2011-11-02 00:00 UTC'
           )
 
           older_mi_2 = Factory.create :mi_attempt,
@@ -92,7 +92,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :mi_date => '2011-12-13',
                   :is_active => true
           replace_status_stamps(older_mi_2,
-            ip => '2011-09-02 00:00 UTC'
+            'mip' => '2011-09-02 00:00 UTC'
           )
 
           mi_plan = older_mi_1.mi_plan

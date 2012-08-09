@@ -110,7 +110,7 @@ class ReportsController < ApplicationController
       consortium = Consortium.find_by_id(params[:consortium_id])
       consortium_name = consortium.name
     end
-    report = nil
+    report = ''
     report_cache = ReportCache.find_by_name_and_format("planned_microinjection_list_#{consortium_name}", 'csv')
     if report_cache
       report = report_cache.to_table
@@ -120,11 +120,11 @@ class ReportsController < ApplicationController
       @report_data = report.to_html
     end
     @consortium = consortium_name.blank? ? 'All' : consortium_name
-    @count = report.blank? ? 0 : report.length-1
+    @count = report.blank? ? 0 : report.length
 
     if request.format == :csv
       filename = "planned_microinjection_list_" + consortium_name.gsub(/[\s-]/, "_").downcase + ".csv"
-      data = report.to_csv
+      data = report.blank? ? '' : report.to_csv
       send_data_csv(filename, data)
     end
   end

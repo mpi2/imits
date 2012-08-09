@@ -28,7 +28,8 @@ class Public::MiPlan < ::MiPlan
     'status_name',
     'status_dates',
     'mgi_accession_id',
-    'mi_attempts_count'
+    'mi_attempts_count',
+    'phenotypes_count'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)
@@ -106,6 +107,17 @@ class Public::MiPlan < ::MiPlan
 
   def status_name
     return status.name
+  end
+
+  # unsure how to do this as phenotypes are attached to both plans and attempts
+
+  def phenotypes_count
+    count = 0
+    mi_attempts.each do |attempt|
+      count += attempt.phenotype_attempts.size
+    end
+
+    count > 0 ? count : phenotype_attempts.size
   end
 end
 

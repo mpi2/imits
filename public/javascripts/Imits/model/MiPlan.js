@@ -74,6 +74,11 @@ Ext.define('Imits.model.MiPlan', {
         name: 'mi_attempts_count',
         readOnly: true,
         persist: false
+    },
+    {
+        name: 'phenotypes_count',
+        readOnly: true,
+        persist: false
     }
 
     ],

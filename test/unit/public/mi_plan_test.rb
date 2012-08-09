@@ -23,6 +23,28 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '#mi_attempts_count' do
+      should 'be readable' do
+        gene = Factory.create :gene_cbx1
+        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+        pa = Factory.create(:phenotype_attempt, :mi_plan => nil, :mi_attempt => mi).to_public
+        plan = pa.mi_attempt.mi_plan.to_public
+        plan.reload
+        assert_equal 1, plan.phenotypes_count
+      end
+    end
+
+    context '#phenotypes_count' do
+      should 'be readable' do
+        gene = Factory.create :gene_cbx1
+        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1').to_public
+        pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
+        plan.reload
+        assert_equal 1, plan.phenotypes_count
+      end
+    end
+
     context '#sub_project_name' do
       should 'be accessible via the name attribute' do
         sp = MiPlan::SubProject.create!(:name => 'Nonexistent')
@@ -245,7 +267,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'status_dates',
         'mgi_accession_id',
         'es_qc_comment_name',
-        'mi_attempts_count'
+        'mi_attempts_count',
+        'phenotypes_count'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

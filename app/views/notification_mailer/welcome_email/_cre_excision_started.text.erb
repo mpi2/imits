@@ -1,5 +1,5 @@
 <% if !@allele_symbol.empty? %>
-Modification of the allele with Cre recombinase to generate the <%= @allele_symbol %> allele has begun at <%= @relevant_production_centre %> on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
+Modification of the <%= @allele_symbol %> allele with Cre recombinase has begun at <%= @relevant_production_centre %> on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
 <% else %>
 Modification of the allele with Cre recombinase to generate Cre-excised allele has begun at <%= @relevant_production_centre %> on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
 <% end %>

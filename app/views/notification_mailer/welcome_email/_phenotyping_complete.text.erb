@@ -1,5 +1,5 @@
 <% if !@allele_symbol.empty? %>
-Phenotype data for mice with the <%= @allele_symbol %> allele was completed on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %> and is available on the IMPC portal.
+Phenotype data collection for mice with the <%= @allele_symbol %> allele was completed on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %> and is available on the IMPC portal.
 <% else %>
 Phenotype data collection for mice with the Cre-excised allele was completed on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %> and is available on the IMPC portal.
 <% end %>

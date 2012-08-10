@@ -74,14 +74,6 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.mi_date { Date.today }
 end
 
-Factory.define :mi_attempt_distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
-  distribution_centre.association :centre
-  distribution_centre.association :deposited_material
-  distribution_centre.association :mi_attempt
-  distribution_centre.start_date (Date.today - 1.year).to_time.strftime('%Y-%m-%d')
-  distribution_centre.end_date (Date.today).to_time.strftime('%Y-%m-%d')
-end
-
 Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.total_male_chimeras 1
 end
@@ -165,12 +157,13 @@ Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |p
   phenotype_attempt.rederivation_started true
   phenotype_attempt.rederivation_complete true
   phenotype_attempt.deleter_strain {DeleterStrain.first}
-  phenotype_attempt.number_of_cre_matings_successful { rand(10..50)}
+  phenotype_attempt.mouse_allele_type 'b'
+  phenotype_attempt.number_of_cre_matings_successful 1
   phenotype_attempt.phenotyping_started true
   phenotype_attempt.phenotyping_complete true
-  phenotype_attempt.mouse_allele_type 'b'
 end
 
+#TODO remove this, move to test that uses it
 Factory.define :phenotype_attempt_with_recent_status_history, :parent => :populated_phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.after_create do |pa|
     pa.status_stamps.destroy_all
@@ -239,6 +232,18 @@ Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_att
   MiAttempt::QC_FIELDS.each do |column_name|
     mi_attempt.send(column_name) { QcResult.all.sample }
   end
+end
+
+Factory.define :mi_attempt_distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
+  distribution_centre.association :centre
+  distribution_centre.association :deposited_material
+  distribution_centre.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
+end
+
+Factory.define :phenotype_attempt_distribution_centre, :class => PhenotypeAttempt::DistributionCentre do |distribution_centre|
+  distribution_centre.association :centre
+  distribution_centre.association :deposited_material
+  distribution_centre.association :phenotype_attempt, :factory => :populated_phenotype_attempt
 end
 
 #Specifics

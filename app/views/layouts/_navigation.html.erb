@@ -5,6 +5,7 @@
     ['Plans', mi_plans_path],
     ['Create MI Attempt', new_mi_attempt_path],
     ['Mouse Production', mi_attempts_path('q[production_centre_name]' => current_user.production_centre.name)],
+    ['Genotype Verification', quality_overview_groupings_path],
     ['Phenotyping', phenotype_attempts_path],
     ['Reports', reports_path],
     ['Manual', request.env['SCRIPT_NAME'].to_s+'/manual.pdf']

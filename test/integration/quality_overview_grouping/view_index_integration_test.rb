@@ -66,10 +66,6 @@ class QualityOverviewGrouping::ViewIndexIntegrationTest < Kermits2::IntegrationT
         mi_attempt_lgi2.distribution_centres.push(mi_attempt_distribution_centre)
         mi_attempt_lgi2.save!
 
-        consortium = Consortium.new
-        consortium.name = 'MGP Legacy'
-        consortium.save!
-
         visit '/quality_overview_groupings'
         assert_match '/quality_overview_groupings', current_url
 

@@ -61,7 +61,7 @@
         <% if mi_attempt.distribution_centres.length > 0 %>
           <%= form.fields_for :distribution_centres do |builder| %>
             <% if !builder.object.new_record? %>
-            <%= render 'distribution_centre_fields', f: builder %>
+            <%= render '/shared/distribution_centre_fields', f: builder %>
             <% end %>
           <% end %>
         <% end %>

@@ -4,31 +4,37 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   extend AccessAssociationByAttribute
   include Public::Serializable
+  include Public::DistributionCentresAttributes
 
-  FULL_ACCESS_ATTRIBUTES = [
-    'colony_name',
-    'consortium_name',
-    'production_centre_name',
-    'distribution_centres_attributes',
-    'mi_attempt_colony_name',
-    'is_active',
-    'rederivation_started',
-    'rederivation_complete',
-    'number_of_cre_matings_successful',
-    'phenotyping_started',
-    'phenotyping_complete',
-    'mouse_allele_type',
-    'deleter_strain_name'
-  ]
+  FULL_ACCESS_ATTRIBUTES = %w{
+    colony_name
+    consortium_name
+    production_centre_name
+    mi_attempt_colony_name
+    is_active
+    rederivation_started
+    rederivation_complete
+    number_of_cre_matings_successful
+    phenotyping_started
+    phenotyping_complete
+    mouse_allele_type
+    deleter_strain_name
+    distribution_centres_attributes
+  }
 
-  READABLE_ATTRIBUTES = [
-    'id',
-    'pretty_print_distribution_centres',
-    'status_name',
-    'marker_symbol'
-  ] + FULL_ACCESS_ATTRIBUTES
+  READABLE_ATTRIBUTES = %w{
+    id
+    pretty_print_distribution_centres
+    status_name
+    marker_symbol
+  } + FULL_ACCESS_ATTRIBUTES
 
-  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
+
+  accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
 
   access_association_by_attribute :mi_attempt, :colony_name
   access_association_by_attribute :deleter_strain, :name

@@ -57,6 +57,7 @@ GEM
     chromedriver-helper (0.0.2)
       nokogiri
     color (1.4.1)
+    daemons (1.1.8)
     database_cleaner (0.6.7)
     devise (1.4.7)
       bcrypt-ruby (~> 3.0)
@@ -64,6 +65,7 @@ GEM
       warden (~> 1.0.3)
     erubis (2.6.6)
       abstract (>= 1.0.0)
+    eventmachine (0.12.10)
     factory_girl (2.0.1)
     factory_girl_rails (1.1.0)
       factory_girl (~> 2.0.0)
@@ -155,6 +157,10 @@ GEM
     simplecov-html (0.4.5)
     simplecov-rcov (0.2.0)
     test-unit (2.4.7)
+    thin (1.4.1)
+      daemons (>= 1.0.9)
+      eventmachine (>= 0.12.6)
+      rack (>= 1.0.0)
     thor (0.14.6)
     transaction-simple (1.4.0)
       hoe (>= 1.1.7)
@@ -206,5 +212,6 @@ DEPENDENCIES
   simplecov (>= 0.4.0)
   simplecov-rcov
   test-unit
+  thin
   unicorn
   will_paginate (~> 3.0.pre2)

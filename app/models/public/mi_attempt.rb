@@ -1,6 +1,7 @@
 class Public::MiAttempt < ::MiAttempt
 
   include Public::Serializable
+  include Public::DistributionCentresAttributes
 
   FULL_ACCESS_ATTRIBUTES = %w{
     es_cell_name
@@ -53,6 +54,7 @@ class Public::MiAttempt < ::MiAttempt
     is_released_from_genotyping
     comments
     genotyping_comment
+    distribution_centres_attributes
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -68,10 +70,11 @@ class Public::MiAttempt < ::MiAttempt
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
-    distribution_centres_attributes
   } + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*WRITABLE_ATTRIBUTES)
+
+  accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
 
   def status_name; status.name; end
 end

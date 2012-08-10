@@ -211,6 +211,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'status_name',
         'consortium_name',
         'production_centre_name',
+        'distribution_centres_attributes',
         'pretty_print_distribution_centres',
         'mi_attempt_colony_name',
         'is_active',
@@ -258,8 +259,6 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
                 Public::PhenotypeAttempt.translate_public_param('production_centre_in')
       end
 
-      should_eventually 'translate sort params when we have any associated fields that can be searched on (thanks, Ransack)'
-
       should 'leave other params untouched' do
         assert_equal 'phenotyping_started_eq',
                 Public::PhenotypeAttempt.translate_public_param('phenotyping_started_eq')
@@ -276,6 +275,43 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       should 'translate searching predicates' do
         result = Public::PhenotypeAttempt.public_search(:marker_symbol_eq => default_phenotype_attempt.gene.marker_symbol).result
         assert_equal [default_phenotype_attempt], result
+      end
+    end
+
+    context '#distribution_centres_attributes' do
+      should 'be output correctly' do
+        pt = Factory.create(:populated_phenotype_attempt)
+        ds1 = Factory.create(:phenotype_attempt_distribution_centre,
+          :start_date => '2012-01-02', :phenotype_attempt => pt)
+        ds2 = Factory.create(:phenotype_attempt_distribution_centre,
+          :end_date => '2012-02-02', :phenotype_attempt => pt)
+
+        expected = [
+            ds1.as_json,
+            ds2.as_json
+        ]
+
+        pt = pt.reload.to_public
+        assert_equal expected, pt.distribution_centres_attributes
+      end
+
+      should 'can be updated and destroyed' do
+        pt = Factory.create(:populated_phenotype_attempt).to_public
+        ds1 = Factory.create(:phenotype_attempt_distribution_centre,
+          :centre => Centre.find_by_name!('WTSI'),
+          :start_date => '2012-01-02', :phenotype_attempt => pt)
+        ds2 = Factory.create(:phenotype_attempt_distribution_centre,
+          :end_date => '2012-02-02', :phenotype_attempt => pt)
+
+        pt = pt.reload
+        attrs = pt.distribution_centres_attributes
+        attrs[0]['centre_name'] = 'ICS'
+        attrs[1][:_destroy] = true
+        pt.update_attributes!(:distribution_centres_attributes => attrs)
+
+        assert_nil PhenotypeAttempt::DistributionCentre.find_by_id(ds2.id)
+        ds1.reload
+        assert_equal 'ICS', ds1.centre_name
       end
     end
 

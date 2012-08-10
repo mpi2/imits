@@ -71,9 +71,22 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def update
-    phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
-    phenotype_attempt.update_attributes(params[:phenotype_attempt])
-    respond_with phenotype_attempt
+    @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
+    @phenotype_attempt.update_attributes(params[:phenotype_attempt])
+
+    respond_with @phenotype_attempt do |format|
+      format.html do
+        if ! @phenotype_attempt.valid?
+          flash.now[:alert] = 'Phenotype attempt could not be updated - please check the values you entered'
+        else
+          flash.now[:notice] = 'Phenotype attempt updated successfully'
+        end
+        set_centres_consortia_and_strains
+        @phenotype_attempt.reload
+        @mi_attempt = @phenotype_attempt.mi_attempt
+        render :action => :show
+      end
+    end
   end
 
   def show

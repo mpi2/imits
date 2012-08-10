@@ -16,7 +16,7 @@ module ApplicationHelper
     @new_object = f.object.send(association).new
     id = @new_object.object_id
     fields = f.fields_for(association, @new_object, child_index: id) do |builder|
-      render(association.to_s.singularize + "_fields", f: builder)
+      render('/shared/' + association.to_s.singularize + "_fields", f: builder)
     end
     link_to(name, '#', class: "add-row", :"data-fields" => fields.gsub("\n", ""), :"data-object-id" => @new_object.object_id)
   end

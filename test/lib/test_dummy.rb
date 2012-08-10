@@ -6,7 +6,9 @@ class TestDummy
   ASSOCIATIONS = [
     :gene,
     :consortium,
-    :production_centre
+    :production_centre,
+    :centre,
+    :deposited_material
   ].freeze
 
   def self.create(type, *values)

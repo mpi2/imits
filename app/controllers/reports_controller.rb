@@ -111,8 +111,8 @@ class ReportsController < ApplicationController
       consortium_name = consortium.name
     end
     report = ''
-    report_cache = ReportCache.find_by_name_and_format!("planned_microinjection_list_#{consortium_name}", 'csv')
-    if report_cache
+    report_cache = ReportCache.find_by_name_and_format("planned_microinjection_list_#{consortium_name}", 'csv')
+    if ! report_cache.blank?
       report = report_cache.to_table
       if !current_user.can_see_sub_project?
         report.remove_column('SubProject')

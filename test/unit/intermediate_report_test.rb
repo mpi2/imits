@@ -94,7 +94,8 @@ class IntermediateReportTest < ActiveSupport::TestCase
       ee_wtsi_plan = Factory.create :mi_plan,
       :gene => @cbx1,
       :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-      :production_centre => Centre.find_by_name!('WTSI')
+      :production_centre => Centre.find_by_name!('WTSI'),
+      :is_bespoke_allele => false
 
       pt = ee_wtsi_plan.phenotype_attempts.create!(:mi_attempt => bash_wtsi_attempt,
       :created_at => '2012-01-01 23:59:59 UTC')
@@ -158,68 +159,11 @@ class IntermediateReportTest < ActiveSupport::TestCase
       assert_equal 4, IntermediateReport.count
     end
 
-    should 'contain correct values when copied to table' do
-      expected = {
-        "aborted_es_cell_qc_failed_date" => nil,
-        "allele_symbol" => "",
-        "assigned_es_cell_qc_complete_date" => nil,
-        "assigned_es_cell_qc_in_progress_date" => nil,
-        "chimeras_obtained_date" => nil,
-        "consortium" => "BaSH",
-        "cre_excision_complete_date" => nil,
-        "cre_excision_started_date" => nil,
-        "distinct_genotype_confirmed_es_cells" => 0,
-        "distinct_old_non_genotype_confirmed_es_cells" => 0,
-        "gc_pipeline_efficiency_gene_count" => 0,
-        "gene" => "Cbx1",
-        "genetic_background" => "",
-        "genotype_confirmed_date" => nil,
-        "ikmc_project_id" => nil,
-        "is_bespoke_allele" => true,
-        "mgi_accession_id" => "MGI:105369",
-        "mi_attempt_status" => "",
-        "mi_plan_id" => 1,
-        "mi_plan_status" => "Assigned",
-        "micro_injection_aborted_date" => nil,
-        "micro_injection_in_progress_date" => nil,
-        "mutation_sub_type" => "",
-        "overall_status" => "Assigned",
-        "phenotype_attempt_aborted_date" => nil,
-        "phenotype_attempt_registered_date" => nil,
-        "phenotype_attempt_status" => "",
-        "phenotyping_complete_date" => nil,
-        "phenotyping_started_date" => nil,
-        "priority" => "High",
-        "production_centre" => "ICS",
-        "rederivation_complete_date" => nil,
-        "rederivation_started_date" => nil,
-        "sub_project" => "",
-        "total_pipeline_efficiency_gene_count" => 0
-      }
-
+    should 'handle is_bespoke_allele correctly' do
       IntermediateReport.generate(Reports::MiProduction::Intermediate.new.report)
       assert_equal 4, IntermediateReport.count
-
-      #IntermediateReport.all.each do |row|
-      #  #assert_equal expected, row.attributes
-      #
-      #  expected.keys.each do |key|
-      #    #assert_equal expected[key], row.attributes[key]
-      #    puts "DIFF: #{key} : #{expected[key]} : #{row.attributes[key]}" if expected[key] != row.attributes[key]
-      #  end
-      #
-      #  exit
-      #
-      # # pp row.attributes
-      #end
-
-      #assert_equal expected, IntermediateReport.all[0].attributes
-
-      expected.keys.each do |key|
-        assert_equal expected[key], IntermediateReport.all[0].attributes[key]
-        #puts "DIFF: #{key} : #{expected[key]} : #{IntermediateReport.all[0].attributes[key]}" if expected[key] != IntermediateReport.all[0].attributes[key]
-      end
-
+      assert_equal true, IntermediateReport.all[0].attributes["is_bespoke_allele"]
+      assert_equal false, IntermediateReport.all[3].attributes["is_bespoke_allele"]
     end
   end
 end

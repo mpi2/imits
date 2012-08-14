@@ -112,12 +112,7 @@ class Public::MiPlan < ::MiPlan
   # unsure how to do this as phenotypes are attached to both plans and attempts
 
   def phenotypes_count
-    count = 0
-    mi_attempts.each do |attempt|
-      count += attempt.phenotype_attempts.size
-    end
-
-    count > 0 ? count : phenotype_attempts.size
+    phenotype_attempts.size
   end
 end
 

@@ -12,7 +12,6 @@ class GenesController < ApplicationController
     gene = Gene.find_by_id(params[:id])
     if !gene.nil?
       dot_file = NetworkGraph.new(gene.id).dot_file
-      puts dot_file
       gv=IO.popen("dot -q -Tsvg","w+")
       gv.puts dot_file
       gv.close_write

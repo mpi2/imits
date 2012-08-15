@@ -6,7 +6,7 @@ class NetworkGraph::MiPlanNode < NetworkGraph::NodeWithStates
   end
 
   def label_html
-    html = "<<table> " +
+    html = "<<table>" +
              "<tr><td colspan=\"2\">Mi Plan</td></tr>" +
              "<tr><td>Consortium:</td><td>#{CGI.escapeHTML(@consortium)}</td></tr>" +
              "<tr><td>Centre:</td><td>#{CGI.escapeHTML(@centre)}</td></tr>"

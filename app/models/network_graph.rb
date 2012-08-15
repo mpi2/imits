@@ -7,8 +7,6 @@ class NetworkGraph
     @ranks = {'source' => [], "2" => [], "3" => [], "4" => []}
     setup
     @dot_file = create_dot_file
- #   puts ''
- #   puts @dot_file
   end
 
   def setup
@@ -31,7 +29,6 @@ class NetworkGraph
           end
           @relations<<[@nodes[['MA',mi_attempt.id]], @nodes[['PA',phenotype_attempt.id]]]
         end #end phenotype attempts associated with mi_attempt
-
       end  #end mi Attempts
       phenotype_attempts = mi_plan.phenotype_attempts
       if ! phenotype_attempts.nil?

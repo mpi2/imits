@@ -22,7 +22,6 @@ class GenesController < ApplicationController
             :disposition => 'inline'
     end
   end
-
   private
 
   def data_for_serialized(format)

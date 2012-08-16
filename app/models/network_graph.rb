@@ -14,15 +14,15 @@ class NetworkGraph
     plan_no = 0
     mi_no = 0
     phen_no = 0
-    @gene.mi_plans.each do |mi_plan|
+    @gene.mi_plans(:order => "created_at, id").each do |mi_plan|
       plan_no += 1
       @nodes[['MP', mi_plan.id]] = NetworkGraph::MiPlanNode.new(params={:symbol => "P#{plan_no}", :id => mi_plan.id, :consortium=> mi_plan.consortium.name, :centre=>mi_plan.production_centre.name, :url=>''})
       @relations << [@nodes[['G',@gene.id]], @nodes[['MP',mi_plan.id]]]
-      mi_plan.mi_attempts.each do |mi_attempt|
+      mi_plan.mi_attempts(:order => "created_at, id").each do |mi_attempt|
         mi_no += 1
         @nodes[['MA', mi_attempt.id]] = NetworkGraph::MiAttemptNode.new(params = {:symbol => "MA#{mi_no}", :id => mi_attempt.id, :consortium=> mi_plan.consortium.name, :centre=>mi_plan.production_centre.name, :url=>"", :colony_background_strain => (!mi_attempt.colony_background_strain.nil? ? mi_attempt.colony_background_strain.name : ''), :test_cross_strain => (! mi_attempt.test_cross_strain.nil? ? mi_attempt.test_cross_strain.name : '')})
         @relations<<[@nodes[['MP',mi_plan.id]], @nodes[['MA',mi_attempt.id]]]
-        mi_attempt.phenotype_attempts.each do |phenotype_attempt|
+        mi_attempt.phenotype_attempts(:order => "created_at, id").each do |phenotype_attempt|
           if ! @nodes.include?(['PA',phenotype_attempt.id])
             phen_no += 1
             @nodes[['PA',phenotype_attempt.id]] = NetworkGraph::PhenotypeAttemptNode.new(params = {:symbol => "PA#{phen_no}", :id => phenotype_attempt.id, :cre_deleter_strain => (phenotype_attempt.deleter_strain.nil? ? '' : phenotype_attempt.deleter_strain.name), :consortium=> phenotype_attempt.mi_plan.consortium.name, :centre=>phenotype_attempt.mi_plan.production_centre.name, :url=>""})
@@ -30,7 +30,7 @@ class NetworkGraph
           @relations<<[@nodes[['MA',mi_attempt.id]], @nodes[['PA',phenotype_attempt.id]]]
         end #end phenotype attempts associated with mi_attempt
       end  #end mi Attempts
-      phenotype_attempts = mi_plan.phenotype_attempts
+      phenotype_attempts = mi_plan.phenotype_attempts(:order => "created_at, id")
       if ! phenotype_attempts.nil?
         phenotype_attempts.each do |phenotype_attempt|
           if ! @nodes.include?(['PA',phenotype_attempt.id])

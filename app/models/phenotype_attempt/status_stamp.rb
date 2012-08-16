@@ -5,6 +5,12 @@ class PhenotypeAttempt::StatusStamp < ActiveRecord::Base
 
   belongs_to :phenotype_attempt
   belongs_to :status
+
+  after_save :create_initial_distribution_centre
+
+  def create_initial_distribution_centre
+    self.phenotype_attempt.create_initial_distribution_centre
+  end
 end
 
 # == Schema Information

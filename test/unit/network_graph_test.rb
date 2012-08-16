@@ -88,13 +88,13 @@ class NetworkGraphTest < ActiveSupport::TestCase
       end
     end
     should 'produce dot file' do
-      gene = Factory.create :gene
-      es_cell = Factory.create :es_cell, :gene => Gene.find_by_id(gene.id)
+      gene = Factory.create :gene, :marker_symbol => 'blogs'
+      es_cell = Factory.create :es_cell, :gene => Gene.find_by_id(gene.id), :name => 'blogs'
       mi_plan = Factory.create :mi_plan, :gene => Gene.find_by_id(gene.id), :consortium => Consortium.find_by_name('BaSH'), :production_centre => Centre.find_by_name('WTSI')
       mi_attempt = Factory.create :wtsi_mi_attempt_genotype_confirmed, :mi_plan => mi_plan, :es_cell => es_cell
       phenotype_attempt = Factory.create :phenotype_attempt, :mi_plan => mi_plan, :mi_attempt => mi_attempt
       expected = "digraph \"Production Graph\"{rankdir=\"LR\";\n" +
-                 "\"G1\" [shape=none, margin=0, fontsize=10, label=<<table><tr><td colspan=\"2\">Gene</td></tr><tr><td>Marker Symbol:</td><td>Auto-generated Symbol 4</td></tr></table>>];\n" +
+                 "\"G1\" [shape=none, margin=0, fontsize=10, label=<<table><tr><td colspan=\"2\">Gene</td></tr><tr><td>Marker Symbol:</td><td>blogs</td></tr></table>>];\n" +
                  "\"P1\" [shape=none, margin=0, fontsize=10, label=<<table><tr><td colspan=\"2\">Mi Plan</td></tr><tr><td>Consortium:</td><td>EUCOMM-EUMODIC</td></tr><tr><td>Centre:</td><td>WTSI</td></tr><tr><td>Assigned:</td><td></td></tr></table>>];\n" +
                  "\"MA1\" [shape=none, margin=0, fontsize=10, label=<<table><tr><td colspan=\"2\">Mi Attempt</td></tr><tr><td>Consortium:</td><td>EUCOMM-EUMODIC</td></tr><tr><td>Centre:</td><td>WTSI</td></tr><tr><td>Micro-injection in progress:</td><td></td></tr><tr><td>Genotype confirmed:</td><td></td></tr><tr><td>Colony background strain:</td><td></td></tr><tr><td>Test cross strain:</td><td></td></tr></table>>];\n" +
                  "\"PA1\" [shape=none, margin=0, fontsize=10, label=<<table><tr><td colspan=\"2\">Phenotype Attempt</td></tr><tr><td>Consortium:</td><td>BaSH</td></tr><tr><td>Centre:</td><td>WTSI</td></tr><tr><td>Cre Deleter Strain:</td><td></td></tr><tr><td>Phenotype Attempt Registered:</td><td></td></tr></table>>];\n" +

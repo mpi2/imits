@@ -43,7 +43,7 @@ class PhenotypeAttempt < ApplicationModel
   after_save :create_status_stamp_if_status_was_changed
 
   def create_initial_distribution_centre
-    if self.distribution_centres.empty? && ['Cre Excision Complete','Phenotyping Started','Phenotyping Complete'].includes?(self.status.name)
+    if self.distribution_centres.empty? && ['Cre Excision Complete','Phenotyping Started','Phenotyping Complete'].include?(self.status.name)
       initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
       initial_centre = Centre.find_by_name(self.production_centre.name)
       initial_distribution_centre = PhenotypeAttempt::DistributionCentre.new

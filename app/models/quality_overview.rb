@@ -15,7 +15,7 @@ class QualityOverview
 
   attr_accessor :mi_attempt_id
 
-  attr_accessor :mi_plan_consortium, :mi_plan_production_centre, :mi_attempt_distribution_centres, :mi_attempt_status
+  attr_accessor :mi_plan_consortia_grouping_order, :mi_plan_consortia_grouping, :mi_plan_consortium, :mi_plan_production_centre, :mi_attempt_distribution_centres, :mi_attempt_status
 
   def self.build_from_csv(row)
     quality_overview = QualityOverview.new
@@ -56,7 +56,7 @@ class QualityOverview
   end
 
   def self.sort(quality_overviews)
-    quality_overviews.sort!{|qa,qb| [qa.mi_plan_consortium, qa.production_centre, qa.marker_symbol] <=> [qb.mi_plan_consortium, qb.production_centre, qb.marker_symbol]}
+    quality_overviews.sort!{|qa,qb| [qa.mi_plan_consortia_grouping_order ,qa.mi_plan_consortium, qa.production_centre, qa.marker_symbol] <=> [qb.mi_plan_consortia_grouping_order, qb.mi_plan_consortium, qb.production_centre, qb.marker_symbol]}
     return quality_overviews
   end
 
@@ -65,6 +65,7 @@ class QualityOverview
       mi_attempt = MiAttempt.find_by_colony_name!(self.colony_prefix)
       self.mi_attempt_id = mi_attempt.id
       self.mi_plan_consortium = mi_attempt.mi_plan.consortium.name
+      self.mi_plan_consortia_grouping, self.mi_plan_consortia_grouping_order = Consortium[self.mi_plan_consortium].consortia_group_and_order
       self.mi_plan_production_centre = mi_attempt.mi_plan.production_centre.name
       self.mi_attempt_distribution_centres = mi_attempt.pretty_print_distribution_centres
       self.mi_attempt_status = mi_attempt.status.name

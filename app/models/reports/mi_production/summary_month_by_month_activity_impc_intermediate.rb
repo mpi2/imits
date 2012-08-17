@@ -68,9 +68,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
     goal_data = YAML.load_file('config/report_production_goals.yml')
     dataset ={}
     summary.each do |consortiumindex, condata|
-      if condata['empty']
-        puts consortiumindex
-      end
       next if condata['empty']
       convalue = condata['data']
       dataset[consortiumindex]={}
@@ -124,27 +121,27 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
               record['mi_goal'] = 0
               record['gc_goal'] = 0
             end
-            dataset[consortiumindex]['mi_attempt_data'] << record
+            dataset[consortiumindex]['mi_attempt_data'] << record.dup
 
-            record = {}
-            record['year'] = year
-            record['yearspan'] = span
-            record['firstrow'] = (monthcount == span  ? true : false)
-            record['month'] = month
-            record['consortium'] = consortium
-            state.has_key?('Phenotype Attempt Registered') ? record['phenotype_attempt_registered'] = data['Phenotype Attempt Registered'] : 0
-            state.has_key?('Rederivation Started') ? record['rederivation_started'] = data['Rederivation Started'] : 0
-            state.has_key?('Rederivation Complete') ? record['rederivation_complete'] = data['Rederivation Complete'] : 0
-            state.has_key?('Cre Excision Started') ? record['cre_excision_started'] = data['Cre Excision Started'] : 0
-            state.has_key?('Cre Excision Complete') ? record['cre_excision_complete'] = data['Cre Excision Complete'] : 0
-            state.has_key?('Phenotyping Started') ? record['phenotyping_started'] = data['Phenotyping Started'] : 0
-            state.has_key?('Phenotyping Complete') ? record['phenotyping_complete'] = data['Phenotyping Complete'] : 0
-            state.has_key?('Phenotype Attempt Aborted') ? record['phenotype_attempt_aborted'] = data['Phenotype Attempt Aborted'] : 0
+            record2 = {}
+            record2['year'] = year
+            record2['yearspan'] = span
+            record2['firstrow'] = (monthcount == span  ? true : false)
+            record2['month'] = month
+            record2['consortium'] = consortium
+            state.has_key?('Phenotype Attempt Registered') ? record2['phenotype_attempt_registered'] = data['Phenotype Attempt Registered'] : 0
+            state.has_key?('Rederivation Started') ? record2['rederivation_started'] = data['Rederivation Started'] : 0
+            state.has_key?('Rederivation Complete') ? record2['rederivation_complete'] = data['Rederivation Complete'] : 0
+            state.has_key?('Cre Excision Started') ? record2['cre_excision_started'] = data['Cre Excision Started'] : 0
+            state.has_key?('Cre Excision Complete') ? record2['cre_excision_complete'] = data['Cre Excision Complete'] : 0
+            state.has_key?('Phenotyping Started') ? record2['phenotyping_started'] = data['Phenotyping Started'] : 0
+            state.has_key?('Phenotyping Complete') ? record2['phenotyping_complete'] = data['Phenotyping Complete'] : 0
+            state.has_key?('Phenotype Attempt Aborted') ? record2['phenotype_attempt_aborted'] = data['Phenotype Attempt Aborted'] : 0
 
-            state.has_key?('Phenotype Attempt Registered') ? record['cumulative_phenotype_registered'] = phenotype_reg_sum += data['Phenotype Attempt Registered'] : 0
-            state.has_key?('Cre Excision Complete') ? record['cumulative_cre_excision_complete'] = cre_excision_completed_sum += data['Cre Excision Complete'] : 0
-            state.has_key?('Phenotyping Complete') ? record['cumulative_phenotyping_complete'] = phenotype_complete_sum += data['Phenotyping Complete'] : 0
-            dataset[consortiumindex]['phenotype_data'] << record
+            state.has_key?('Phenotype Attempt Registered') ? record2['cumulative_phenotype_registered'] = phenotype_reg_sum += data['Phenotype Attempt Registered'] : 0
+            state.has_key?('Cre Excision Complete') ? record2['cumulative_cre_excision_complete'] = cre_excision_completed_sum += data['Cre Excision Complete'] : 0
+            state.has_key?('Phenotyping Complete') ? record2['cumulative_phenotyping_complete'] = phenotype_complete_sum += data['Phenotyping Complete'] : 0
+            dataset[consortiumindex]['phenotype_data'] << record2.dup
 
           end
         end
@@ -161,8 +158,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
     csv_string = csv_headers.to_csv
     @data.each do |consortium, consdata|
       (0...consdata['mi_attempt_data'].count).to_a.each do |rowno|
-        data = consdata['mi_attempt_data'][rowno]
-        data.update(consdata['phenotype_data'][rowno])
+        data = consdata['mi_attempt_data'][rowno].dup
+        data.update(consdata['phenotype_data'][rowno].dup)
         rowdata = []
         rowdata << "#{Date::MONTHNAMES[data['month']]}-#{data['year']}"
         rowdata << data['year']

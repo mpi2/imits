@@ -8,7 +8,7 @@ class QualityOverviewGrouping
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
-  attr_accessor :consortium, :production_centre
+  attr_accessor :consortia_grouping_order, :consortia_grouping, :consortium, :production_centre
   attr_accessor :quality_overviews
 
   attr_accessor :number_of_genotype_confirmed_colonies, :colonies_with_overall_pass, :percentage_pass
@@ -118,6 +118,7 @@ class QualityOverviewGrouping
 
       centre_group.each_pair do |centre_name, quality_overview_array|
         quality_overview_grouping = QualityOverviewGrouping.new
+        quality_overview_grouping.consortia_grouping, quality_overview_grouping.consortia_grouping_order = Consortium[consortium_name].consortia_group_and_order
         quality_overview_grouping.consortium = consortium_name
         quality_overview_grouping.production_centre = centre_name
 
@@ -131,7 +132,7 @@ class QualityOverviewGrouping
   end
 
   def self.sort(quality_overview_groupings)
-    quality_overview_groupings.sort!{|qga,qgb| [qga.consortium, qga.production_centre] <=> [qgb.consortium, qgb.production_centre]}
+    quality_overview_groupings.sort!{|qga,qgb| [qga.consortia_grouping_order, qga.consortium, qga.production_centre] <=> [qgb.consortia_grouping_order, qgb.consortium, qgb.production_centre]}
     return quality_overview_groupings
   end
 

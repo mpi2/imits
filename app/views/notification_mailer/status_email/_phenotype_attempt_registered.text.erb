@@ -1,1 +1,5 @@
-Genotype confirmed mice with the <%= @allele_name_prefix %>[<%= @allele_name_suffix %>] have been assigned to <%= @relevant_production_centre %> for phenotyping on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
+<% if !@allele_symbol.empty? %>
+Genotype confirmed mice with the <%= @allele_symbol %> allele have been assigned to <%= @relevant_production_centre %> for phenotyping on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
+<% else %>
+Genotype confirmed mice have been assigned to <%= @relevant_production_centre %> for phenotyping on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
+<% end %>

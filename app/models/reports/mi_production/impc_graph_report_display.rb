@@ -8,6 +8,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
   def initialize
     generated = self.class.generate
     @data = self.class.format(generated)
+    @chart_file_names = {}
     @graph = create_graph
     @size = draw_all_graphs
     @csv = to_csv
@@ -21,10 +22,18 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
     return @size
   end
 
+  def month
+    return @month
+  end
+
+  def chart_file_names
+    return @chart_file_names
+  end
+
   def to_csv
     csv_by_consortium = {}
     @graph.each do |consortium, data|
-      headers = ['State', 'Current', 'Last Month']
+      headers = ['Status', "Current Total (#{@month})", "Last Complete Month (#{@month})"]
       csv_string = headers.to_csv
       csv_string += ['Assigned genes', data['tabulate'][0]['assigned_genes'], data['tabulate'][1]['assigned_genes']].to_csv
       csv_string += ['ES QC', data['tabulate'][0]['es_qc'], data['tabulate'][1]['es_qc']].to_csv
@@ -44,6 +53,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
   def create_graph
 
     year, month, day = self.class.convert_date(Time.now.prev_month)
+    @month = Date::MONTHNAMES[month]
     dataset = {}
     data.each do |consortium, consdata|
       total = consdata['mi_attempt_data'].count
@@ -119,7 +129,6 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
 
 
   def draw_graph(graph = {:title => '', :legend => ['',''], :pointer_marker => [], :live_data => [], :goals_data => [], :diff_data => []}, render = {:name => '', :width => 600, :min_value => 0, :max_value => 500, :consortium => ''})
-
     format = 'jpeg'
     diff_data = []
     neg_diff_data = []
@@ -149,8 +158,24 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
       graph << Scruffy::Components::Graphs.new(:graphs, :position => [12, 10], :size => [92, 75])
     end
     mi_graph.renderer.components << Scruffy::Components::Legend.new(:legend, :position => [12, 10], :size => [70, 70], :vertical_legend => true)
-    file = "#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{render[:consortium].downcase}_#{render[:name]}_performance.#{format}"
+    file = "#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{render[:consortium].downcase}_#{render[:name]}_performance#{Time.now.strftime "%Y%m%d%H%M%S"}-#{rand(100)}.#{format}"
     FileUtils.mkdir_p File.dirname(file)
     mi_graph.render(:size => [render[:width],render[:height]], :min_value => render[:min_value], :max_value => render[:max_value], :to => file, :as => "#{format}")
+
+    if !@chart_file_names.has_key?(render[:consortium].downcase)
+      @chart_file_names[render[:consortium].downcase] = {}
+    end
+    @chart_file_names[render[:consortium].downcase][render[:name]] = file
   end
+
+  def self.clear_charts_in_tmp_folder
+    Dir.glob("#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/*.jpeg") do |file|
+      if File.file?(file)
+        if File.atime(file) < (Time.now - 30.minutes)
+          File.delete(file)
+        end
+      end
+    end
+  end
+
 end

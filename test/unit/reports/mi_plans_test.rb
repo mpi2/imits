@@ -21,7 +21,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
     should 'return consortia names' do
       test_columns = ["BaSH", "DTCC", "JAX",
         "DTCC-Legacy",
-        "Helmholtz GMC", "MARC", "MGP", "MPG Legacy"
+        "Helmholtz GMC", "MARC", "MGP", "MGP Legacy",
         "Monterotondo", "MRC", "NorCOMM2", "Phenomin", "RIKEN BRC", "EUCOMM-EUMODIC", "MGP-KOMP", "UCD-KOMP"]
 
       Consortium.all.each { |i| test_columns.delete(i.funding) if ! test_columns.include?(i.name) }

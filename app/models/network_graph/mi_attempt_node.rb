@@ -10,7 +10,7 @@ class NetworkGraph::MiAttemptNode < NetworkGraph::NodeWithStates
 
   def label_html
     html = "<<table>" +
-             "<tr><td colspan=\"2\">Mi Attempt</td></tr>" +
+             "<tr><td colspan=\"2\">Mouse Production</td></tr>" +
              "<tr><td>Consortium:</td><td>#{CGI.escapeHTML(@consortium)}</td></tr>" +
              "<tr><td>Centre:</td><td>#{CGI.escapeHTML(@centre)}</td></tr>"
     ['Micro-injection in progress', 'Chimeras obtained', 'Genotype confirmed', 'Micro-injection aborted'].each do |status|

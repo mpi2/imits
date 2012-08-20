@@ -5,8 +5,15 @@ def delete_stamp_duplicates(obj)
   grouped = obj.status_stamps.group_by(&:code)
   grouped.each do |code, stamps|
     if stamps.size != 1
+
       stamps = stamps.sort_by(&:created_at)
-      keeper = stamps.pop
+
+      if ['asg', 'asg-esp', 'asg-esc', 'mip'].include?(code)
+        keeper = stamps.shift
+      else
+        keeper = stamps.pop
+      end
+
       logline = "#{code.rjust(7)}: KEEP(#{keeper.created_at.strftime('%F')}) DELETE(#{stamps.map {|i| i.created_at.strftime('%F')}.join(', ')})"
       log << logline
       stamps.each(&:destroy)

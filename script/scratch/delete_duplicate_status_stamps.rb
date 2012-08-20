@@ -6,7 +6,7 @@ def delete_stamp_duplicates(obj)
   grouped.each do |code, stamps|
     if stamps.size != 1
       stamps = stamps.sort_by(&:created_at)
-      keeper = stamps.shift
+      keeper = stamps.pop
       logline = "#{code.rjust(7)}: KEEP(#{keeper.created_at.strftime('%F')}) DELETE(#{stamps.map {|i| i.created_at.strftime('%F')}.join(', ')})"
       log << logline
       stamps.each(&:destroy)

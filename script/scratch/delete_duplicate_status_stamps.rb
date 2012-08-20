@@ -8,11 +8,7 @@ def delete_stamp_duplicates(obj)
 
       stamps = stamps.sort_by(&:created_at)
 
-      if ['asg', 'asg-esp', 'asg-esc', 'mip'].include?(code)
-        keeper = stamps.shift
-      else
-        keeper = stamps.pop
-      end
+      keeper = stamps.shift
 
       logline = "#{code.rjust(7)}: KEEP(#{keeper.created_at.strftime('%F')}) DELETE(#{stamps.map {|i| i.created_at.strftime('%F')}.join(', ')})"
       log << logline

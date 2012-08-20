@@ -302,9 +302,9 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
           :end_date => '2012-02-02', :phenotype_attempt => pt)
 
         pt = pt.reload
-        attrs = pt.distribution_centres_attributes
-        attrs[1]['centre_name'] = 'ICS'
-        attrs[2][:_destroy] = true
+        attrs = pt.distribution_centres
+        attrs[0]['centre_name'] = 'ICS'
+        attrs[1][:_destroy] = true
         pt.update_attributes!(:distribution_centres_attributes => attrs)
 
         assert_nil PhenotypeAttempt::DistributionCentre.find_by_id(ds2.id)

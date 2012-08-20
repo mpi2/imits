@@ -53,7 +53,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
           test_cross_strain = "blogs"
           node = NetworkGraph::MiAttemptNode.new(:symbol => symbol, :id => id, :consortium => consortium, :centre => centre, :test_cross_strain => test_cross_strain, :colony_background_strain => colony_background_strain , :url => "")
           expected = "<<table>" +
-                     "<tr><td colspan=\"2\">Mi Attempt</td></tr>" +
+                     "<tr><td colspan=\"2\">Mouse Production</td></tr>" +
                      "<tr><td>Consortium:</td><td>#{consortium}</td></tr>" +
                      "<tr><td>Centre:</td><td>#{centre}</td></tr>" +
                      "<tr><td>#{status.name}:</td><td>#{status.created_at}</td></tr>" +
@@ -97,9 +97,9 @@ class NetworkGraphTest < ActiveSupport::TestCase
                  "\"P1\" [shape=none, margin=0, fontsize=10, label=<<table><tr><td colspan=\"2\">Mi Plan</td></tr><tr><td>Consortium:</td><td>BaSH</td></tr><tr><td>Centre:</td><td>WTSI</td></tr><tr><td>Assigned:</td><td></td></tr></table>>];\n"+
                  "\"PA1\" [shape=none, margin=0, fontsize=10, label=<<table><tr><td colspan=\"2\">Phenotype Attempt</td></tr><tr><td>Consortium:</td><td>BaSH</td></tr><tr><td>Centre:</td><td>WTSI</td></tr><tr><td>Cre Deleter Strain:</td><td></td></tr><tr><td>Phenotype Attempt Registered:</td><td></td></tr></table>>];\n"+
                  "\"P2\" [shape=none, margin=0, fontsize=10, label=<<table><tr><td colspan=\"2\">Mi Plan</td></tr><tr><td>Consortium:</td><td>EUCOMM-EUMODIC</td></tr><tr><td>Centre:</td><td>WTSI</td></tr><tr><td>Assigned:</td><td></td></tr></table>>];\n"+
-                 "\"MA1\" [shape=none, margin=0, fontsize=10, label=<<table><tr><td colspan=\"2\">Mi Attempt</td></tr><tr><td>Consortium:</td><td>EUCOMM-EUMODIC</td></tr><tr><td>Centre:</td><td>WTSI</td></tr><tr><td>Micro-injection in progress:</td><td></td></tr><tr><td>Genotype confirmed:</td><td></td></tr><tr><td>Colony background strain:</td><td></td></tr><tr><td>Test cross strain:</td><td></td></tr></table>>];\n"+
-                 "\"G1\" -> \"P1\";\n\"P1\" -> \"PA1\";\n\"G1\" -> \"P2\";\n\"P2\" -> \"MA1\";\n\"MA1\" -> \"PA1\";\n{node [shape=\"plaintext\", fontsize=16];\n \"Gene\" -> \"Mi Plans\" -> \"Mi Attempts\" -> \"Phenotype Attempts\";}\n"+
-                 "{rank=same;\"Gene\";\"G1\"}\n{rank=same;\"Mi Plans\";\"P1\";\"P2\"}\n{rank=same;\"Mi Attempts\";\"MA1\"}\n{rank=same;\"Phenotype Attempts\";\"PA1\"}\n}\n"
+                 "\"MA1\" [shape=none, margin=0, fontsize=10, label=<<table><tr><td colspan=\"2\">Mouse Production</td></tr><tr><td>Consortium:</td><td>EUCOMM-EUMODIC</td></tr><tr><td>Centre:</td><td>WTSI</td></tr><tr><td>Micro-injection in progress:</td><td></td></tr><tr><td>Genotype confirmed:</td><td></td></tr><tr><td>Colony background strain:</td><td></td></tr><tr><td>Test cross strain:</td><td></td></tr></table>>];\n"+
+                 "\"G1\" -> \"P1\";\n\"P1\" -> \"PA1\";\n\"G1\" -> \"P2\";\n\"P2\" -> \"MA1\";\n\"MA1\" -> \"PA1\";\n{node [shape=\"plaintext\", fontsize=16];\n \"Gene\" -> \"Mi Plans\" -> \"Mouse Production\" -> \"Phenotype Attempts\";}\n"+
+                 "{rank=same;\"Gene\";\"G1\"}\n{rank=same;\"Mi Plans\";\"P1\";\"P2\"}\n{rank=same;\"Mouse Production\";\"MA1\"}\n{rank=same;\"Phenotype Attempts\";\"PA1\"}\n}\n"
       got = NetworkGraph.new(gene.id).dot_file
       assert_equal expected, got
     end

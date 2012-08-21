@@ -7,6 +7,9 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
 
     setup do
       @phenotype_attempt = Factory.create :populated_phenotype_attempt
+      @phenotype_attempt.mi_plan.consortium = Consortium.find_by_name('BaSH')
+      @phenotype_attempt.mi_plan.production_centre = Centre.find_by_name('WTSI')
+      @phenotype_attempt.save!
       login
       click_link 'Phenotyping'
       within('.x-grid') { click_link 'Edit in Form' }
@@ -18,8 +21,8 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'show but not allow editing consortium or production centre' do
-      assert_match /EUCOMM-EUMODIC/, page.find('.consortium-name').text
-      assert_match /ICS/, page.find('.production-centre-name').text
+      assert_match /BaSH/, page.find('.consortium-name').text
+      assert_match /WTSI/, page.find('.production-centre-name').text
       assert page.has_no_css?('select[name="phenotype_attempt[production_centre_name]"]')
       assert page.has_no_css?('select[name="phenotype_attempt[consortium_name]"]')
     end

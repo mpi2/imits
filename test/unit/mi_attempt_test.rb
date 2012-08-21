@@ -63,7 +63,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
           default_mi_attempt.reload
           default_mi_attempt.is_active = false
-          count = default_mi_attempt.phenotype_count
+          count = default_mi_attempt.phenotype_attempt_count
           assert_equal count, 1
         end
       end

@@ -5,7 +5,7 @@ require 'test_helper'
 class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
   context 'Reports::MiProduction::Detail' do
 
-    should 'have correct columns' do
+    should 'have correct columns including sub_project' do
       expected = [
         'Consortium',
         'Sub-Project',
@@ -29,10 +29,12 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
       ]
 
       Factory.create :mi_plan
+      user = Factory.build(:user)
       Reports::MiProduction::Intermediate.new.cache
       report = Reports::MiProduction::Detail.generate
       assert_equal expected, report.column_names
     end
+
 
     should 'be generated off the intermediate production report minus some columns' do
       cbx1 = Factory.create(:gene_cbx1)
@@ -43,6 +45,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
       plan = mi.mi_plan
       plan.number_of_es_cells_passing_qc = 5; plan.save!
 
+      user = Factory.build(:user)
       Factory.create :mi_plan
       Reports::MiProduction::Intermediate.new.cache
       report = Reports::MiProduction::Detail.generate

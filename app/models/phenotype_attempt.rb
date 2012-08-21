@@ -34,17 +34,16 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   # BEGIN Callbacks
-
   before_validation :change_status
   before_validation :set_mi_plan
   before_save :record_if_status_was_changed
   before_save :generate_colony_name_if_blank
   before_save :ensure_plan_is_valid
-  before_save :create_initial_distribution_centre
+#  before_save :create_initial_distribution_centre
   after_save :create_status_stamp_if_status_was_changed
 
   def create_initial_distribution_centre
-    if self.distribution_centres.empty? && self.status.name == "Cre Excision Complete"
+    if self.distribution_centres.empty? && !self.status_stamps.find_by_status_id(PhenotypeAttempt::Status.find_by_name('Cre Excision Complete').id).nil?
       initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
       initial_centre = Centre.find_by_name(self.production_centre.name)
       initial_distribution_centre = PhenotypeAttempt::DistributionCentre.new
@@ -62,6 +61,7 @@ class PhenotypeAttempt < ApplicationModel
       @new_status = self.status
     else
       @new_status = nil
+      self.create_initial_distribution_centre
     end
   end
 
@@ -133,7 +133,7 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   def allele_symbol
-    if mouse_allele_type
+    if mouse_allele_type and Status.post_cre_excision_complete.include?(status)
       return mouse_allele_symbol
     elsif self.mi_attempt
       return self.mi_attempt.allele_symbol

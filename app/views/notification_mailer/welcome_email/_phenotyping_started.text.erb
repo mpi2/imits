@@ -1,1 +1,5 @@
+<% if !@allele_symbol.empty? %>
+Mice with the <%= @allele_symbol %> allele have entered the phenotyping pipeline on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
+<% else %>
 Phenotype data collection for mice with the Cre-excised allele has started on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
+<% end %>

@@ -1,1 +1,5 @@
-Genotype confirmed mice for the Cre-excised allele were produced on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
+<% if !@allele_symbol.empty? %>
+Genotype confirmed mice with the <%= @allele_symbol %> allele were produced at <%= @relevant_production_centre %> on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
+<% else %>
+Genotype confirmed mice for the Cre-excised allele were produced at <%= @relevant_production_centre %> on <%= @relevant_status[:date].to_formatted_s(:long_ordinal) %>.
+<% end %>

@@ -6,10 +6,12 @@ class IntermediateReport < ActiveRecord::Base
   def self.generate(report)
     IntermediateReport.transaction do
       IntermediateReport.destroy_all
-
       report.each do |row|
         hash = {}
-        report.column_names.each { |column_name| hash[column_name.gsub(' - ', '_').gsub(' ', '_').underscore.to_sym] = row[column_name] }
+        report.column_names.each do |column_name|
+          hash[column_name.gsub(' - ', '_').gsub(' ', '_').underscore.to_sym] = row[column_name]
+          hash[column_name.gsub(' - ', '_').gsub(' ', '_').underscore.to_sym] = row[column_name] == 'Yes' if column_name == 'Is Bespoke Allele'
+        end
         IntermediateReport.create hash
       end
     end
@@ -60,4 +62,3 @@ end
 #  is_bespoke_allele                            :boolean
 #  aborted_es_cell_qc_failed_date               :date
 #
-

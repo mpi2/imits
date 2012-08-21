@@ -32,7 +32,7 @@ class User < ActiveRecord::Base
   end
 
   def can_see_sub_project?
-    return production_centre.name == 'WTSI'
+    return ['WTSI','JAX'].include?(production_centre.name)
   end
 end
 

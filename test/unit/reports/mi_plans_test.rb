@@ -10,7 +10,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       test_columns = [ "KOMP2", "KOMP2", "KOMP2",
         "KOMP312/KOMP",
         "Infrafrontier/BMBF", "China",
-        "Wellcome Trust", "European Union", "MRC", "Genome Canada", "Phenomin",
+        "Wellcome Trust", "Wellcome Trust", "European Union", "MRC", "Genome Canada", "Phenomin",
         "Japanese government", "EUCOMM / EUMODIC", "KOMP / Wellcome Trust", "KOMP" ]
 
       columns = Reports::MiPlans::DoubleAssignment.get_funding
@@ -21,7 +21,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
     should 'return consortia names' do
       test_columns = ["BaSH", "DTCC", "JAX",
         "DTCC-Legacy",
-        "Helmholtz GMC", "MARC", "MGP",
+        "Helmholtz GMC", "MARC", "MGP", "MGP Legacy",
         "Monterotondo", "MRC", "NorCOMM2", "Phenomin", "RIKEN BRC", "EUCOMM-EUMODIC", "MGP-KOMP", "UCD-KOMP"]
 
       Consortium.all.each { |i| test_columns.delete(i.funding) if ! test_columns.include?(i.name) }
@@ -62,7 +62,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
       expected_columns = ["KOMP2 - BaSH", "KOMP2 - DTCC", "KOMP2 - JAX",
         "KOMP312/KOMP - DTCC-Legacy",
-        "Infrafrontier/BMBF - Helmholtz GMC", "China - MARC", "Wellcome Trust - MGP",
+        "Infrafrontier/BMBF - Helmholtz GMC", "China - MARC", "Wellcome Trust - MGP", "Wellcome Trust - MGP Legacy",
         "European Union - Monterotondo", "MRC - MRC", "Genome Canada - NorCOMM2", "Phenomin - Phenomin", "Japanese government - RIKEN BRC",
         "EUCOMM / EUMODIC - EUCOMM-EUMODIC", "KOMP / Wellcome Trust - MGP-KOMP", "KOMP - UCD-KOMP"]
 

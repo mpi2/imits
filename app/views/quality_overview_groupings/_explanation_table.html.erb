@@ -1,0 +1,46 @@
+<%= content_for :head do %>
+<style type="text/css">
+li.disc {list-style-type:disc;}
+</style>
+<% end %>
+
+<div>
+  <h1><br />Explanation of pass categories.</h1>
+  <h3>Any of following assays listed for each category need to be seen to pass - either in the ES Cell used for microinjection or in the mouse line itself - before the category itself can be declared as passing. All four categories need to have passed before a mouse production attempt will be declared an 'overall pass'.</h3>
+</div>
+<div>
+  <h3><em>Categories and constituent assays (either in ES Cells or Mice made from those cells):</em></h3>
+</div>
+<ul>
+  <li class="disc"><h3><span style="color:red">Locus Targeted.</span> ANY of:</h3></li>
+    <ul>
+      <li>- Southern blot</li>
+      <li>- Loss of WT Allele QPCR</li>
+      <li>- Five or Three LRPCR</li>
+      <li>- Homozygous LOA SRPCR</li>
+    </ul>
+  <h3><strong>AND</strong></h3>
+  <li class="disc"><h3><span style="color:red">Structure of Targeted Allele.</span> ANY of:</h3></li>
+    <ul class="circle">
+      <li>- Southern blot</li>
+      <li>- NEO Count QPC</li>
+      <li>- Neo SRPCR</li>
+      <li>- LacZ SRPCR</li>
+      <li>- Mutant Specific SRPCR</li>
+      <li>- vector backbone SRPCR</li>
+      <li>- Five prime SRPCR</li>
+      <li>- Three prime SRPCR</li>
+    </ul>
+  <h3><strong>AND</strong></h3>
+  <li class="disc"><h3><span style="color:red">Downstream LoxP Site.</span> ANY of:</h3></li>
+    <ul class="circle">
+      <li>- Three prime SRPCR</li>
+      <li>- LoxP confirmation</li>
+    </ul>
+  <h3><strong>AND</strong></h3>
+  <li class="disc"><h3><span style="color:red">No aliitional vector insertions.</span> ANY of:</h3></li>
+    <ul class="circle">
+      <li>- southern blot</li>
+      <li>- NEO Count QPCR</li>
+    </ul>
+</ul>

@@ -29,7 +29,7 @@ class Public::MiPlan < ::MiPlan
     'status_dates',
     'mgi_accession_id',
     'mi_attempts_count',
-    'phenotypes_count'
+    'phenotype_attempts_count'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)
@@ -111,7 +111,7 @@ class Public::MiPlan < ::MiPlan
 
   # unsure how to do this as phenotypes are attached to both plans and attempts
 
-  def phenotypes_count
+  def phenotype_attempts_count
     phenotype_attempts.size
   end
 end

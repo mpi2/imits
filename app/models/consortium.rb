@@ -5,6 +5,49 @@ class Consortium < ActiveRecord::Base
 
   has_many :users
   has_many :mi_plans
+
+  def self.[](name)
+    return self.find_by_name!(name.to_s)
+  end
+
+  def self.komp2
+    return [
+     Consortium['BaSH'],
+     Consortium['DTCC'],
+     Consortium['JAX']
+      ]
+  end
+
+  def self.impc
+    return [
+     Consortium['Helmholtz GMC'],
+     Consortium['MGP'],
+     Consortium['MRC'],
+     Consortium['NorCOMM2'],
+     Consortium['Phenomin']
+      ]
+  end
+
+  def self.legacy
+    return [
+     Consortium['DTCC-Legacy'],
+     Consortium['EUCOMM-EUMODIC'],
+     Consortium['MGP Legacy'],
+     Consortium['UCD-KOMP'],
+      ]
+  end
+
+  def consortia_group_and_order
+    if self.class.komp2.include?(self)
+      return ['KOMP2',1]
+    elsif self.class.impc.include?(self)
+      return ['IMPC',2]
+    elsif self.class.legacy.include?(self)
+      return ['Legacy',3]
+    else
+      return ['Other',4]
+    end
+  end
 end
 
 # == Schema Information

@@ -244,8 +244,8 @@ class Gene < ActiveRecord::Base
       JOIN mi_plans ON mi_plans.gene_id = genes.id
       JOIN consortia ON mi_plans.consortium_id = consortia.id
       JOIN centres ON mi_plans.production_centre_id = centres.id
-      JOIN mi_attempts ON mi_attempts.mi_plan_id = mi_plans.id
-      JOIN phenotype_attempts ON phenotype_attempts.mi_attempt_id = mi_attempts.id
+      JOIN phenotype_attempts ON phenotype_attempts.mi_plan_id = mi_plans.id
+      JOIN mi_attempts ON mi_attempts.id = phenotype_attempts.mi_attempt_id
     SQL
     sql << "WHERE mi_attempts.is_active = true\n"
     sql << "AND genes.id = #{gene_id}\n" unless gene_id.nil?

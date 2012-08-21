@@ -45,7 +45,7 @@ class ReportsTest < Kermits2::IntegrationTest
 
         assert_match '/reports/mi_attempts_monthly_production', current_url
         assert page.has_css?('form')
-        assert_false page.has_css?('form select#grouping')
+        assert_equal page.has_css?('form select#grouping'), false
 
         select 'WTSI', :from => 'production_centre_id[]'
         click_button 'Generate Report'
@@ -64,7 +64,7 @@ class ReportsTest < Kermits2::IntegrationTest
 
         assert_match '/reports/mi_attempts_by_gene', current_url
         assert page.has_css?('form')
-        assert_false page.has_css?('form select#grouping')
+        assert_equal page.has_css?('form select#grouping'), false
 
         select 'WTSI', :from => 'production_centre_id[]'
         click_button 'Generate Report'
@@ -91,7 +91,7 @@ class ReportsTest < Kermits2::IntegrationTest
 
         assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url
         assert page.has_css?('form')
-        assert_false page.has_css?('form select#grouping')
+        assert_equal page.has_css?('form select#grouping'), false
 
         click_button 'Generate Report'
         assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url

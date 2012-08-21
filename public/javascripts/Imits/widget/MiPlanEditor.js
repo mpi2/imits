@@ -391,7 +391,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 editor.show();
 
                 var component = editor.form.getComponent('consortium_name');
-                if(component && (miPlan.get('mi_attempts_count') > 0 || miPlan.get('phenotypes_count') > 0)) {
+                if(component && (miPlan.get('mi_attempts_count') > 0 || miPlan.get('phenotype_attempts_count') > 0)) {
                     component.setReadOnly(true);
                 }
 

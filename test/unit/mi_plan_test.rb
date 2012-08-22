@@ -1122,17 +1122,15 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_attempt = Factory.create :mi_attempt_genotype_confirmed,
           :es_cell => Factory.create(:es_cell, :gene => gene)
         phenotype = Factory.create :phenotype_attempt, :mi_plan => mi_plan,
-          :created_at => "2011-12-02",
           :mi_attempt => mi_attempt
 
-        phenotype.status_stamps.create!(
-          :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'],
-          :created_at => '2011-10-30')
+        replace_status_stamps(phenotype,
+          'Phenotype Attempt Registered' => '2011-10-30')
 
         results = mi_plan.latest_relevant_status
 
         assert_equal "Phenotype Attempt Registered", results[:status]
-        assert_equal Date.today.to_date, results[:date].to_date
+        assert_equal '2011-10-30', results[:date]
       end
 
     end

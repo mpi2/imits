@@ -114,7 +114,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             {
                 id: 'comment',
                 xtype: 'textfield',
-                fieldLabel: 'Comment',
+                fieldLabel: 'Allele Type Comment',
                 name: 'comment'
             },
             {
@@ -137,6 +137,14 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 xtype: 'simplenumberfield',
                 fieldLabel: '# of ES Cells passing QC',
                 name: 'number_of_es_cells_passing_qc'
+            },
+            {
+                id: 'es_qc_comment_name',
+                xtype: 'simplecombo',
+                fieldLabel: 'ES QC Comment',
+                name: 'es_qc_comment_name',
+                storeOptionsAreSpecial: true,
+                store: window.ES_QC_COMMENT_NAMES
             }
             ],
 
@@ -383,7 +391,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 editor.show();
 
                 var component = editor.form.getComponent('consortium_name');
-                if(component && miPlan.get('mi_attempts_count') > 0) {
+                if(component && (miPlan.get('mi_attempts_count') > 0 || miPlan.get('phenotype_attempts_count') > 0)) {
                     component.setReadOnly(true);
                 }
 

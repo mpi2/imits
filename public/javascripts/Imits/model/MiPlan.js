@@ -45,6 +45,9 @@ Ext.define('Imits.model.MiPlan', {
         defaultValue: false
     },
     {
+        name: 'es_qc_comment_name'
+    },
+    {
         name: 'is_conditional_allele',
         defaultValue: false
     },
@@ -69,6 +72,11 @@ Ext.define('Imits.model.MiPlan', {
     },
     {
         name: 'mi_attempts_count',
+        readOnly: true,
+        persist: false
+    },
+    {
+        name: 'phenotype_attempts_count',
         readOnly: true,
         persist: false
     }

@@ -142,7 +142,7 @@ class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       assert_equal 'Inactive', mi_plan.reload.status.name
     end
 
-    should 'allow users to change consortium on mi_plans' do
+    should_eventually 'allow users to change consortium on mi_plans' do
       mi_plan = Factory.create :mi_plan,
               :gene => Factory.create(:gene_cbx1),
               :consortium => Consortium.find_by_name!('BaSH'),

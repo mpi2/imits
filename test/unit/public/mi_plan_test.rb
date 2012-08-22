@@ -23,12 +23,43 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '#mi_attempts_count' do
+      should 'be readable' do
+        gene = Factory.create :gene_cbx1
+        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+        pa = Factory.create(:phenotype_attempt, :mi_plan => nil, :mi_attempt => mi).to_public
+        plan = pa.mi_attempt.mi_plan.to_public
+        plan.reload
+        assert_equal 1, plan.phenotype_attempts_count
+      end
+    end
+
+    context '#phenotype_attempts_count' do
+      should 'be readable' do
+        gene = Factory.create :gene_cbx1
+        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1').to_public
+        pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
+        plan.reload
+        assert_equal 1, plan.phenotype_attempts_count
+      end
+    end
+
     context '#sub_project_name' do
       should 'be accessible via the name attribute' do
         sp = MiPlan::SubProject.create!(:name => 'Nonexistent')
         default_mi_plan.sub_project_name = 'Nonexistent'
         default_mi_plan.valid?
         assert_equal sp, default_mi_plan.sub_project
+      end
+    end
+
+    context '#es_qc_comment_name' do
+      should 'be accessible via the name attribute' do
+        eqc = MiPlan::EsQcComment.create!(:name => 'Nonexistent')
+        default_mi_plan.es_qc_comment_name = 'Nonexistent'
+        default_mi_plan.valid?
+        assert_equal eqc, default_mi_plan.es_qc_comment
       end
     end
 
@@ -203,6 +234,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'sub_project_name',
         'is_active',
         'is_bespoke_allele',
+        'es_qc_comment_name',
         'is_conditional_allele',
         'is_deletion_allele',
         'is_cre_knock_in_allele',
@@ -234,7 +266,9 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'comment',
         'status_dates',
         'mgi_accession_id',
-        'mi_attempts_count'
+        'es_qc_comment_name',
+        'mi_attempts_count',
+        'phenotype_attempts_count'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

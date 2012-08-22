@@ -15,6 +15,7 @@ class Public::MiPlan < ::MiPlan
     'sub_project_name',
     'is_active',
     'is_bespoke_allele',
+    'es_qc_comment_name',
     'is_conditional_allele',
     'is_deletion_allele',
     'is_cre_knock_in_allele',
@@ -27,7 +28,8 @@ class Public::MiPlan < ::MiPlan
     'status_name',
     'status_dates',
     'mgi_accession_id',
-    'mi_attempts_count'
+    'mi_attempts_count',
+    'phenotype_attempts_count'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)
@@ -37,6 +39,7 @@ class Public::MiPlan < ::MiPlan
   access_association_by_attribute :consortium, :name
   access_association_by_attribute :production_centre, :name
   access_association_by_attribute :priority, :name
+  access_association_by_attribute :es_qc_comment, :name
 
   validates :marker_symbol, :presence => true
   validates :consortium_name, :presence => true
@@ -105,6 +108,12 @@ class Public::MiPlan < ::MiPlan
   def status_name
     return status.name
   end
+
+  # unsure how to do this as phenotypes are attached to both plans and attempts
+
+  def phenotype_attempts_count
+    phenotype_attempts.size
+  end
 end
 
 # == Schema Information
@@ -130,9 +139,9 @@ end
 #  is_cre_bac_allele              :boolean         default(FALSE), not null
 #  comment                        :text
 #  withdrawn                      :boolean         default(FALSE), not null
+#  es_qc_comment_id               :integer
 #
 # Indexes
 #
 #  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
 #
-

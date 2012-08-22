@@ -39,6 +39,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:is_cre_knock_in_allele).with_options(:null => false)
         assert_should have_db_column(:is_cre_bac_allele).with_options(:null => false)
         assert_should have_db_column(:comment)
+        assert_should have_db_column(:es_qc_comment_id)
       end
 
       context '#latest_relevant_mi_attempt' do

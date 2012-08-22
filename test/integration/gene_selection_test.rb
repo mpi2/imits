@@ -102,7 +102,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         assert_nil MiPlan.find_by_id(mi_plan_id)
       end
 
-      should 'allow users to edit mi_plans' do
+      should_eventually 'allow users to edit mi_plans' do
         Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => cbx1)
 
         mi_plan = Factory.create :mi_plan,

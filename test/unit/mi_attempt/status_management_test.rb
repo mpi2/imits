@@ -206,5 +206,16 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
       end
     end
 
+    should 'define order that status stamps are returned in' do
+      mi = Factory.create :mi_attempt_genotype_confirmed
+      replace_status_stamps(mi,
+        :gtc => '2011-01-01',
+        :mip => '2011-01-02',
+        :chr => '2011-01-03'
+      )
+      mi.reload
+      assert_equal ['mip', 'chr', 'gtc'], mi.status_stamps.all.map(&:code)
+    end
+
   end
 end

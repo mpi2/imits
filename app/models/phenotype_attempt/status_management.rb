@@ -2,7 +2,7 @@
 
 module PhenotypeAttempt::StatusManagement
 
-  ss = ApplicationModel::StatusManager.new
+  ss = ApplicationModel::StatusManager.new(PhenotypeAttempt)
 
   ss.add('Phenotype Attempt Registered') { |pt| true }
 

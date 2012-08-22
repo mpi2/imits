@@ -95,6 +95,8 @@ Factory.define :wtsi_mi_attempt_genotype_confirmed, :parent => :mi_attempt_chime
   mi_attempt.is_released_from_genotyping true
 end
 
+# TODO Remove this, move the set up of this test data to the one test where the
+# test data is used
 Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_confirmed do |mi_attempt|
   mi_attempt.after_create do |mi|
     mi.status_stamps.destroy_all

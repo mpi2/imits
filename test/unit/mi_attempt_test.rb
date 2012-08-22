@@ -73,15 +73,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_should have_many :status_stamps
         end
 
-        should 'be ordered by created_at (soonest last)' do
-          mi = Factory.create :mi_attempt_with_status_history
-          assert_equal [
-            MiAttempt::Status.micro_injection_in_progress,
-            MiAttempt::Status.genotype_confirmed,
-            MiAttempt::Status.micro_injection_aborted,
-            MiAttempt::Status.genotype_confirmed].map(&:name), mi.status_stamps.map(&:name)
-        end
-
         should 'always include a Micro-injection in progress status, even if MI is created in Genotype confirmed state' do
           mi = Factory.create :mi_attempt_genotype_confirmed
           assert_equal ['mip', 'chr', 'gtc'], mi.status_stamps.map {|i| i.status.code}
@@ -955,12 +946,11 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     context '#in_progress_date' do
-      should 'return earliest status stamp date for in progress status' do
+      should 'return status stamp date for in progress status' do
         mi = Factory.create :mi_attempt_genotype_confirmed
         replace_status_stamps(mi,
           [
-            [MiAttempt::Status.genotype_confirmed.name, '2011-11-12 00:00 UTC'],
-            [MiAttempt::Status.micro_injection_in_progress.name, '2011-12-24 00:00 UTC'],
+            [MiAttempt::Status.chimeras_obtained.name, '2011-11-12 00:00 UTC'],
             [MiAttempt::Status.micro_injection_in_progress.name, '2011-06-12 00:00 UTC'],
             [MiAttempt::Status.genotype_confirmed.name, '2011-01-24 00:00 UTC']
           ]

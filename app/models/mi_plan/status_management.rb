@@ -40,7 +40,7 @@ module MiPlan::StatusManagement
     end
   end
 
-  ss = ApplicationModel::StatusManager.new
+  ss = ApplicationModel::StatusManager.new(MiPlan)
 
   ss.add('Assigned') do |plan|
     plan.conflict_resolver.get_pre_assigned_status(plan) == nil

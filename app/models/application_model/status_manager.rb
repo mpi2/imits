@@ -17,8 +17,10 @@ class ApplicationModel::StatusManager
     end
   end
 
-  def initialize
+  def initialize(klass)
     @items = {}
+    @klass = klass
+    @status_class = @klass.const_get(:Status)
   end
 
   def add(status, required = nil, &conditions)
@@ -39,12 +41,11 @@ class ApplicationModel::StatusManager
 
   def manage_status_stamps_for(object)
     status_stamp_names = object.status_stamps.all.map(&:name)
-    status_class = object.class.const_get(:Status)
 
     @items.each do |status_name, item|
       if item.conditions_met_for?(object)
         if ! status_stamp_names.include?(status_name)
-          object.status_stamps.create!(:status => status_class.find_by_name!(status_name))
+          object.status_stamps.create!(:status => @status_class.find_by_name!(status_name))
         end
       else
         if status_stamp_names.include?(status_name)
@@ -52,6 +53,18 @@ class ApplicationModel::StatusManager
         end
       end
     end
+  end
+
+  def status_stamps_order_sql
+    status_stamp_class = @klass.const_get(:StatusStamp)
+
+    ordered_statuses = @items.keys.map {|i| @status_class.find_by_name!(i)}
+
+    order_by_str = ordered_statuses.map do |status|
+      "#{status_stamp_class.table_name}.status_id=#{status.id}"
+    end
+
+    return order_by_str.reverse.join ', '
   end
 
 end

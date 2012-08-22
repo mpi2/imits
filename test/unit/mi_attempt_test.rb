@@ -601,13 +601,12 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should have_db_column(:genotyping_comment).of_type(:string).with_options(:null => true)
       end
 
-      should 'have #phenotype_count' do
+      should 'have #phenotype_attempt_count' do
         set_mi_attempt_genotype_confirmed(default_mi_attempt)
         Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
+        Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
         default_mi_attempt.reload
-        default_mi_attempt.is_active = false
-        count = default_mi_attempt.phenotype_count
-        assert_equal count, 1
+        assert_equal 2, default_mi_attempt.phenotype_attempt_count
       end
 
     end # misc attribute tests

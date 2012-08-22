@@ -180,19 +180,6 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_should have_many :status_stamps
       end
 
-      should 'be ordered by created_at asc' do
-        default_phenotype_attempt.status_stamps.destroy_all
-        status = PhenotypeAttempt::Status['Phenotype Attempt Registered']
-        s1 = default_phenotype_attempt.status_stamps.create!(
-          :status => status, :created_at => '2011-12-01 12:00:00 UTC')
-        s2 = default_phenotype_attempt.status_stamps.create!(
-          :status => status, :created_at => '2011-12-01 14:00:00 UTC')
-        s3 = default_phenotype_attempt.status_stamps.create!(
-          :status => status, :created_at => '2011-12-01 13:00:00 UTC')
-        default_phenotype_attempt.reload
-        assert_equal [s1, s3, s2].map(&:created_at), default_phenotype_attempt.status_stamps.map(&:created_at)
-      end
-
       should 'be added when status changes' do
         assert_equal ['Phenotype Attempt Registered'], default_phenotype_attempt.status_stamps.map{|i| i.status.name}
         default_phenotype_attempt.rederivation_started = true

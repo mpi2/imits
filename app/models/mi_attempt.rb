@@ -35,8 +35,6 @@ class MiAttempt < ApplicationModel
   has_many :phenotype_attempts
 
   has_many :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'
-  has_many :centres, :through => :distribution_centres
-  has_many :deposited_materials, :through => :distribution_centres
 
   access_association_by_attribute :blast_strain, :name
   access_association_by_attribute :colony_background_strain, :name

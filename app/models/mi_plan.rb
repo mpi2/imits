@@ -13,6 +13,8 @@ class MiPlan < ApplicationModel
   belongs_to :status
   belongs_to :priority
   belongs_to :production_centre, :class_name => 'Centre'
+  belongs_to :es_qc_comment
+
   has_many :mi_attempts
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
@@ -360,6 +362,7 @@ end
 #  is_cre_bac_allele              :boolean         default(FALSE), not null
 #  comment                        :text
 #  withdrawn                      :boolean         default(FALSE), not null
+#  es_qc_comment_id               :integer
 #
 # Indexes
 #

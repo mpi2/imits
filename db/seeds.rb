@@ -185,6 +185,10 @@ Seeds.load DeleterStrain, [
   {:id => 3, :name => 'B6N.Cg-Tg(Sox2-cre)1Amc/J'},
   {:id => 4, :name => 'Gt(ROSA)26Sor<tm16(cre)Arte>'},
   {:id => 5, :name => 'C57BL/6NTac-Tg(ACTB-cre)3Mrt/H'}
+]
 
-
+Seeds.load MiPlan::EsQcComment, [
+  {:id => 1, :name => 'No assay available'},
+  {:id => 2, :name => 'All valid available clones failed'},
+  {:id => 3, :name => 'Enough clones failed'}
 ]

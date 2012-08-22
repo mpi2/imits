@@ -14,6 +14,7 @@ class PhenotypeAttempt::Status < ActiveRecord::Base
   end
 
 end
+
 # == Schema Information
 #
 # Table name: phenotype_attempt_statuses

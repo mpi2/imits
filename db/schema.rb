@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120725145204) do
+ActiveRecord::Schema.define(:version => 20120731091856) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -235,6 +235,14 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
 
+  create_table "mi_plan_es_qc_comments", :force => true do |t|
+    t.string   "name",       :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "mi_plan_es_qc_comments", ["name"], :name => "index_mi_plan_es_qc_comments_on_name", :unique => true
+
   create_table "mi_plan_priorities", :force => true do |t|
     t.string   "name",        :limit => 10,  :null => false
     t.string   "description", :limit => 100
@@ -287,6 +295,7 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
     t.boolean  "is_cre_bac_allele",              :default => false, :null => false
     t.text     "comment"
     t.boolean  "withdrawn",                      :default => false, :null => false
+    t.integer  "es_qc_comment_id"
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
@@ -432,6 +441,7 @@ ActiveRecord::Schema.define(:version => 20120725145204) do
   add_foreign_key "mi_plans", "centres", :name => "mi_plans_production_centre_id_fk", :column => "production_centre_id"
   add_foreign_key "mi_plans", "consortia", :name => "mi_plans_consortium_id_fk"
   add_foreign_key "mi_plans", "genes", :name => "mi_plans_gene_id_fk"
+  add_foreign_key "mi_plans", "mi_plan_es_qc_comments", :name => "mi_plans_es_qc_comment_id_fk", :column => "es_qc_comment_id"
   add_foreign_key "mi_plans", "mi_plan_priorities", :name => "mi_plans_mi_plan_priority_id_fk", :column => "priority_id"
   add_foreign_key "mi_plans", "mi_plan_statuses", :name => "mi_plans_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plans", "mi_plan_sub_projects", :name => "mi_plans_sub_project_id_fk", :column => "sub_project_id"

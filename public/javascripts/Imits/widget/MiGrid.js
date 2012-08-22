@@ -192,18 +192,18 @@ Ext.define('Imits.widget.MiGrid', {
             sortable: false
         },
         {
-          header: 'Phenotype',
-          dataIndex: 'phenotype_attempt_new_link',
-          renderer: function(value, metaData, record){
-            var miId = record.getId();
-            var statusName = record.get('status_name');
-            if (statusName == "Genotype confirmed") {
-              return Ext.String.format('<a href="{0}/mi_attempts/{1}/phenotype_attempts/new">Create</a>', window.basePath, miId);
-            } else {
-              return Ext.String.format('', window.basePath, miId);
-            }
-          },
-          sortable: false
+            header: 'Phenotype',
+            dataIndex: 'phenotype_attempt_new_link',
+            renderer: function(value, metaData, record){
+                var miId = record.getId();
+                var statusName = record.get('status_name');
+                if (statusName == "Genotype confirmed") {
+                    return Ext.String.format('<a href="{0}/mi_attempts/{1}/phenotype_attempts/new">Create</a>', window.basePath, miId);
+                } else {
+                    return Ext.String.format('', window.basePath, miId);
+                }
+            },
+            sortable: false
         },
         {
             header: 'Active Phenotype',
@@ -212,13 +212,13 @@ Ext.define('Imits.widget.MiGrid', {
             sortable: false,
             width: 115,
             renderer: function(value, metaData, record){
-              var miId = record.getId();
-              var phenotypeCount = record.get('phenotype_attempts_count');
-              var geneSymbol = record.get('es_cell_marker_symbol')
-              if (PhenotypeCount != 0) {
-                return Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={1}&q[production_centre_name]={2}"></a>', window.basePath, geneSymbol, phenotypeCount);
-              } else {
-                return Ext.String.format('{0}', phenotypeCount);
+                var miId = record.getId();
+                var phenotypeCount = record.get('phenotype_attempts_count');
+                var geneSymbol = record.get('es_cell_marker_symbol')
+                if (PhenotypeCount != 0) {
+                    return Ext.String.format('<a href="{0}/phenotype_attempts?q[terms]={1}&q[production_centre_name]={2}"></a>', window.basePath, geneSymbol, phenotypeCount);
+                } else {
+                    return Ext.String.format('{0}', phenotypeCount);
                 }
             }
         },
@@ -305,7 +305,7 @@ Ext.define('Imits.widget.MiGrid', {
                 {
                     processedDistributionCentres: splitString
                 }
-            )
+                )
         }
         ],
 

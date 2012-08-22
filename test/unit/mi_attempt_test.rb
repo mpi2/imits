@@ -61,10 +61,10 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'count the number of phenotype_attempts' do
           set_mi_attempt_genotype_confirmed(default_mi_attempt)
           Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
+          Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
           default_mi_attempt.reload
-          default_mi_attempt.is_active = false
           count = default_mi_attempt.phenotype_attempt_count
-          assert_equal count, 1
+          assert_equal count, 2
         end
       end
 

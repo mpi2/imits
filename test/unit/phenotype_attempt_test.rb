@@ -422,6 +422,19 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       should 'exist' do
         assert_should have_many(:distribution_centres)
       end
+
+      should 'have 1 created by default if it goes past the Cre Excision Complete status' do
+        pa = Factory.create :phenotype_attempt
+        assert_equal 0, pa.distribution_centres.count
+
+        pa = Factory.create :populated_phenotype_attempt
+        pa.distribution_centres.destroy_all
+        pa.save!.reload
+        assert_equal 1, pa.distribution_centres.count
+        dc = pa.distribution_centres.first
+        assert_equal 'Frozen embryos', dc.deposited_material.name
+        assert_equal pa.production_centre.name, dc.centre.name
+      end
     end
 
     context 'before filter' do

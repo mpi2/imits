@@ -43,17 +43,6 @@ class PhenotypeAttempt < ApplicationModel
 
   after_save :manage_status_stamps
 
-  def create_initial_distribution_centre
-    if self.distribution_centres.empty? && !self.status_stamps.find_by_status_id(PhenotypeAttempt::Status.find_by_name('Cre Excision Complete').id).nil?
-      initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
-      initial_centre = Centre.find_by_name(self.production_centre.name)
-      initial_distribution_centre = PhenotypeAttempt::DistributionCentre.new
-      initial_distribution_centre.centre = initial_centre
-      initial_distribution_centre.deposited_material = initial_deposited_material
-      self.distribution_centres.push(initial_distribution_centre)
-    end
-  end
-
   def set_mi_plan
     self.mi_plan ||= mi_attempt.try(:mi_plan)
   end
@@ -76,6 +65,15 @@ class PhenotypeAttempt < ApplicationModel
     if self.is_active?
       self.mi_plan.is_active = true
       self.mi_plan.save!
+    end
+  end
+
+  def create_initial_distribution_centre
+    if self.distribution_centres.empty? and status_stamps.where(:status_id => 'cec'.status.id).count != 0
+      dc = self.distribution_centres.new
+      dc.centre = self.production_centre
+      dc.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
+      dc.save!
     end
   end
 

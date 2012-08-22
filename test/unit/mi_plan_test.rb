@@ -258,18 +258,6 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_equal [MiPlan::Status[:Assigned]], mi_plan.status_stamps.map(&:status)
         end
 
-        should 'be ordered by created_at asc' do
-          default_mi_plan.status_stamps.destroy_all
-          s1 = MiPlan::StatusStamp.create!(:mi_plan => default_mi_plan,
-            :status => MiPlan::Status[:Assigned], :created_at => 1.day.ago)
-          s2 = MiPlan::StatusStamp.create!(:mi_plan => default_mi_plan,
-            :status => MiPlan::Status[:Conflict], :created_at => 1.hour.ago)
-          s3 = MiPlan::StatusStamp.create!(:mi_plan => default_mi_plan,
-            :status => MiPlan::Status[:Interest], :created_at => 12.hours.ago)
-          default_mi_plan.status_stamps.reload
-          assert_equal [s1, s3, s2].map(&:name), default_mi_plan.status_stamps.map(&:name)
-        end
-
         should 'be deleted when MiPlan is deleted' do
           plan = Factory.create :mi_plan
           plan.number_of_es_cells_starting_qc = 5; plan.save!

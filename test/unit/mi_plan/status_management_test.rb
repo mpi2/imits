@@ -178,6 +178,18 @@ class MiPlan::StatusManagementTest < ActiveSupport::TestCase
         assert_equal 'ins-con', plan.status.code
         assert ! plan.status_stamps.map(&:name).include?('Assigned')
       end
+
+      should 'have return order defined by StatusManager' do
+        p = Factory.create :mi_plan, :number_of_es_cells_passing_qc => 4
+        replace_status_stamps(p,
+          'asg-esc' => '2011-01-01',
+          'asg' => '2011-01-02',
+          'asg-esp' => '2011-01-03'
+        )
+        p.reload
+        assert_equal ['asg', 'asg-esp', 'asg-esc'], p.status_stamps.all.map(&:code)
+      end
+
     end
 
   end

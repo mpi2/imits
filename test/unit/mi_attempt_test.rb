@@ -75,7 +75,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'always include a Micro-injection in progress status, even if MI is created in Genotype confirmed state' do
           mi = Factory.create :mi_attempt_genotype_confirmed
-          assert_equal ['mip', 'chr', 'gtc'], mi.status_stamps.map {|i| i.status.code}
+          assert_include mi.status_stamps.map {|i| i.status.code}, 'mip'
         end
       end
 

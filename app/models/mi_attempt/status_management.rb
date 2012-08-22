@@ -28,18 +28,18 @@ module MiAttempt::StatusManagement
     cattr_reader :status_manager
   end
 
-  def change_status
-    self.status = MiAttempt::Status.find_by_name!(self.class.status_manager.get_status_for(self))
-  end
-
-  def manage_status_stamps
-    self.class.status_manager.manage_status_stamps_for(self)
-  end
-
   module ClassMethods
     def status_stamps_order_sql
       status_manager.status_stamps_order_sql
     end
+  end
+
+  def change_status
+    self.status = MiAttempt::Status.find_by_name!(status_manager.get_status_for(self))
+  end
+
+  def manage_status_stamps
+    status_manager.manage_status_stamps_for(self)
   end
 
 end

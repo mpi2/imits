@@ -14,7 +14,7 @@ class MiPlan < ApplicationModel
   belongs_to :priority
   belongs_to :production_centre, :class_name => 'Centre'
   has_many :mi_attempts
-  has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
+  has_many :status_stamps, :order => "#{status_stamps_order_sql}",
           :dependent => :destroy
   has_many :phenotype_attempts
 

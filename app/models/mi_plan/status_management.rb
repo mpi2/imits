@@ -80,16 +80,29 @@ module MiPlan::StatusManagement
 
   ss.add('Inactive') { |plan| ! plan.is_active? }
 
-  @@status_manager = ss
+  included do
+    @@status_manager = ss
+    cattr_reader :status_manager
+
+    attr_accessor :force_assignment
+    attr_accessor :conflict_resolver
+    attr_accessor :is_resolving_others
+  end
+
+  module ClassMethods
+    def status_stamps_order_sql
+      status_manager.status_stamps_order_sql
+    end
+  end
 
   def change_status
     self.conflict_resolver = ConflictResolver.new(gene)
-    self.status = MiPlan::Status.find_by_name!(@@status_manager.get_status_for(self))
+    self.status = MiPlan::Status.find_by_name!(status_manager.get_status_for(self))
     return true
   end
 
   def manage_status_stamps
-    @@status_manager.manage_status_stamps_for(self)
+    status_manager.manage_status_stamps_for(self)
   end
 
   def conflict_resolve_others
@@ -99,12 +112,6 @@ module MiPlan::StatusManagement
       plans.each {|p| p.is_resolving_others = true; p.save!}
     end
     return true
-  end
-
-  included do
-    attr_accessor :force_assignment
-    attr_accessor :conflict_resolver
-    attr_accessor :is_resolving_others
   end
 
 end

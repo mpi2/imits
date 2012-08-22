@@ -53,6 +53,8 @@ class ApplicationModel::StatusManager
         end
       end
     end
+
+    object.status_stamps.reload
   end
 
   def status_stamps_order_sql

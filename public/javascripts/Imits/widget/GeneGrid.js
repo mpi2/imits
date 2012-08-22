@@ -62,6 +62,15 @@ Ext.define('Imits.widget.GeneGrid', {
         }
     },
     {
+        header: 'Production History',
+        dataIndex: 'production_history_link',
+        renderer: function(value, metaData, record) {
+            var geneId = record.getId();
+            return Ext.String.format('<a href="{0}/gene/{1}/network_graph">Production Graph</a>', window.basePath, geneId);
+        },
+        sortable: false
+    },
+    {
         header: '# IKMC Projects',
         dataIndex: 'ikmc_projects_count',
         readOnly: true

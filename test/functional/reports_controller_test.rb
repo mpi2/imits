@@ -5,7 +5,7 @@ class ReportsControllerTest < ActionController::TestCase
 
     should 'require authentication' do
       get :index
-      assert_false response.success?
+      assert !response.success?
       assert_redirected_to new_user_session_path
     end
 
@@ -46,9 +46,6 @@ class ReportsControllerTest < ActionController::TestCase
           should 'generate a full report with parameters' do
             get report, 'commit' => 'true'
             assert response.success?
-            assert assigns(:report_data), "/#{report} has not assigned @report_data"
-            #puts "report_data: " + :report_data.inspect
-            #assert assigns(:report).is_a?( String )
           end
         end
       end

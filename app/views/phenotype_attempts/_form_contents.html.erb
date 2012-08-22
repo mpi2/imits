@@ -47,7 +47,7 @@
 <fieldset class="collapsible" id="distribution_centres">
   <legend>Distribution Centres</legend>
     <div class="distribution_centres">
-    <% if phenotype_attempt.status && phenotype_attempt.status.name == 'Cre Excision Complete' %>
+    <% if phenotype_attempt.distribution_centres.length > 0 %>
       <table id="distribution_centres_table" class="report_table">
         <thead class="title">
           <tr>

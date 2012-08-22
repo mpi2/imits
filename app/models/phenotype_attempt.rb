@@ -61,7 +61,6 @@ class PhenotypeAttempt < ApplicationModel
       @new_status = self.status
     else
       @new_status = nil
-      self.create_initial_distribution_centre
     end
   end
 
@@ -89,6 +88,8 @@ class PhenotypeAttempt < ApplicationModel
   def create_status_stamp_if_status_was_changed
     if @new_status
       status_stamps.create!(:status => @new_status)
+    else
+      self.create_initial_distribution_centre
     end
   end
 

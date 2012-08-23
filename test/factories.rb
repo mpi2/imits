@@ -165,43 +165,6 @@ Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |p
   phenotype_attempt.phenotyping_complete true
 end
 
-#TODO remove this, move to test that uses it
-Factory.define :phenotype_attempt_with_recent_status_history, :parent => :populated_phenotype_attempt do |phenotype_attempt|
-  phenotype_attempt.after_create do |pa|
-    pa.status_stamps.destroy_all
-
-    pa.status_stamps.create!(
-      :status => PhenotypeAttempt::Status["Phenotype Attempt Registered"],
-      :created_at => (Time.now - 1.hour)
-      )
-    pa.status_stamps.create!(
-      :status => PhenotypeAttempt::Status["Phenotyping Complete"],
-      :created_at => (Time.now - 30.minute)
-      )
-    pa.status_stamps.reload
-
-    pa.mi_attempt.status_stamps.create!(
-      :status => MiAttempt::Status.genotype_confirmed,
-      :created_at => (Time.now - 1.hour))
-    pa.mi_attempt.status_stamps.create!(
-      :status => MiAttempt::Status.micro_injection_in_progress,
-      :created_at => (Time.now - 1.month))
-
-
-    pa.mi_plan.status_stamps.create!(
-      :status => MiPlan::Status["Assigned - ES Cell QC Complete"],
-      :created_at => (Time.now - 10.day))
-    pa.mi_plan.status_stamps.create!(
-      :status => MiPlan::Status[:Assigned],
-      :created_at => (Time.now - 10.month))
-    pa.mi_plan.status_stamps.create!(
-      :status => MiPlan::Status[:Interest],
-      :created_at => (Time.now - 20.month))
-
-
-  end
-end
-
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|
   gene.marker_symbol { (1..4).map { ('a'..'z').to_a.sample }.push((1..9).to_a.sample).join.capitalize }
 end

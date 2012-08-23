@@ -307,13 +307,9 @@ class MiPlanTest < ActiveSupport::TestCase
           plan.status_stamps.create!(:status => MiPlan::Status['Interest'],
             :created_at => '2010-10-30 23:59:59')
           plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
-            :created_at => '2010-11-24 23:59:59')
-          plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
             :created_at => '2011-05-30 23:59:59')
           plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
-            :created_at => '2011-11-03 12:33:15')
-          plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
-            :created_at => '2011-02-12 23:59:59')
+            :created_at => '2011-11-03 00:00:00 UTC')
           plan.status_stamps.create!(:status => MiPlan::Status['Inactive'],
             :created_at => '2011-10-24 23:59:59')
 
@@ -1168,9 +1164,8 @@ class MiPlanTest < ActiveSupport::TestCase
           :created_at => "2011-12-02",
           :mi_attempt => mi_attempt
 
-        phenotype.status_stamps.create!(
-          :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'],
-          :created_at => '2011-10-30')
+        replace_status_stamps(phenotype,
+        'Phenotype Attempt Registered' => '2011-10-30')
 
         results = mi_plan.relevant_status_stamp
 

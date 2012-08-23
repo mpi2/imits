@@ -132,7 +132,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         comments
         mi_plan_id
         genotyping_comment
-        phenotype_attempt_count
+        phenotype_attempts_count
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

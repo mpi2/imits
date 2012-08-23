@@ -57,15 +57,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.valid?
           assert_match(/cannot be changed/i, default_mi_attempt.errors[:status].first)
         end
-
-        should 'count the number of phenotype_attempts' do
-          set_mi_attempt_genotype_confirmed(default_mi_attempt)
-          Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
-          Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
-          default_mi_attempt.reload
-          count = default_mi_attempt.phenotype_attempt_count
-          assert_equal count, 2
-        end
       end
 
       context '#status_stamps' do

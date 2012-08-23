@@ -55,7 +55,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediateTest < A
       Reports::MiProduction::Intermediate.new.cache
     end
 
-    should 'should generate (test column values)' do
+    should 'generate test column values' do
       report = Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate.new
       mi_hash = report.data['BaSH']['mi_attempt_data'][0]
       pa_hash = report.data['BaSH']['phenotype_data'][0]
@@ -66,14 +66,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediateTest < A
         "firstrow"=>true,
         "month"=>Time.now.month,
         "consortium"=>"BaSH",
-        "es_cell_qc_in_progress"=>1,
+        "es_cell_qc_in_progress"=>4,
         "es_cell_qc_complete"=>2,
         "es_cell_qc_failed"=>1,
         "micro_injection_in_progress"=>8,
-        "chimeras_obtained"=>1,
+        "chimeras_obtained"=>5,
         "genotype_confirmed"=>4,
         "micro_injection_aborted"=>1,
-        "cumulative_es_starts"=>1,
+        "cumulative_es_starts"=>4,
         "cumulative_es_complete"=>2,
         "cumulative_es_failed"=>1,
         "cumulative_mis"=>8,
@@ -87,16 +87,16 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediateTest < A
         "firstrow"=>true,
         "month"=>Time.now.month,
         "consortium"=>"BaSH",
-        "phenotype_attempt_registered"=>1,
-        "rederivation_started"=>0,
-        "rederivation_complete"=>0,
-        "cre_excision_started"=>0,
-        "cre_excision_complete"=>0,
-        "phenotyping_started"=>0,
+        "phenotype_attempt_registered"=>2,
+        "rederivation_started"=>1,
+        "rederivation_complete"=>1,
+        "cre_excision_started"=>1,
+        "cre_excision_complete"=>1,
+        "phenotyping_started"=>1,
         "phenotyping_complete"=>1,
         "phenotype_attempt_aborted"=>0,
-        "cumulative_phenotype_registered"=>1,
-        "cumulative_cre_excision_complete"=>0,
+        "cumulative_phenotype_registered"=>2,
+        "cumulative_cre_excision_complete"=>1,
         "cumulative_phenotyping_complete"=>1}
 
 

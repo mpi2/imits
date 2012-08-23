@@ -864,10 +864,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         colony_names = es_cell.mi_attempts.map(&:colony_name)
         assert_equal colony_names.sort, results.map(&:colony_name).sort
       end
-
-      should_eventually 'translate sorting predicates' do
-        flunk 'Dependent on ransack enabling sorting by associations fields'
-      end
     end
 
     context '#find_matching_mi_plan' do
@@ -901,7 +897,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         mi = MiAttempt.new :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',
                 :es_cell_name => es_cell.name
-        mi.valid? # does not matter if it passes or not, just want filters to fire
+        mi.valid?
 
         assert_nil mi.mi_plan
         assert_equal mi_plan, mi.find_matching_mi_plan

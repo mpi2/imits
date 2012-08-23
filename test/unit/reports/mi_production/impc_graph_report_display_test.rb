@@ -82,14 +82,14 @@ class Reports::MiProduction::ImpcGraphReportDisplayTest < ActiveSupport::TestCas
       report = Reports::MiProduction::ImpcGraphReportDisplay.new
       hash = report.graph['BaSH']['tabulate'][0]
       expected = {
-        "assigned_genes" => 8,
-        "es_qc" => 1,
+        "assigned_genes" => 12,
+        "es_qc" => 4,
         "es_qc_confirmed" => 2,
         "es_qc_failed" => 1,
         "mouse_production" => 8,
         "confirmed_mice" => 4,
-        "intent_to_phenotype" => 1,
-        "cre_excision_complete" => 0,
+        "intent_to_phenotype" => 2,
+        "cre_excision_complete" => 1,
         "phenotyping_complete" => 1}
       got = {}
 
@@ -100,7 +100,6 @@ class Reports::MiProduction::ImpcGraphReportDisplayTest < ActiveSupport::TestCas
       assert_equal expected.keys, got.keys
       assert_equal expected, got
     end
-
 
     should 'show only komp2 consortia' do
       report = Reports::MiProduction::ImpcGraphReportDisplay.new

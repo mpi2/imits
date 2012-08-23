@@ -2,6 +2,8 @@
 
 <div class="quality-overviews">
 <table class="report_table">
+<% @quality_overviews.each do |key, quality_overviews| %>
+  <tr height = '20'></tr>
   <tr>
     <th>Consortia Group</th>
     <th>Consortium</th>
@@ -20,6 +22,9 @@
     <th>ES-user-qc</th>
     <th>Mouse-qc</th>
   </tr>
-  <%= render @quality_overviews %>
+  <%quality_overviews.each do |quality_overview|%>
+    <%= render :partial => quality_overview , :quality_overview => quality_overview %>
+  <% end %>
+<% end %>
 </table>
 </div>

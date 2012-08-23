@@ -9,7 +9,8 @@ class QualityOverviewsController < ApplicationController
 
   def index
     quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)
-    @quality_overviews = QualityOverview.sort(quality_overviews)
+    quality_overviews_sorted = QualityOverview.sort(quality_overviews)
+    @quality_overviews = QualityOverview.group(quality_overviews_sorted)
   end
 
   protected :import

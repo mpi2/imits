@@ -136,4 +136,17 @@ class QualityOverviewGrouping
     return quality_overview_groupings
   end
 
+  def self.group(quality_overview_groupings)
+    quality_overview_grouped = {}
+    current_group = ''
+    quality_overview_groupings.each do |rec|
+      if rec.consortia_grouping != current_group
+        current_group = rec.consortia_grouping
+        quality_overview_grouped[current_group] = []
+      end
+      quality_overview_grouped[current_group] << rec
+    end
+    return quality_overview_grouped
+  end
+
 end

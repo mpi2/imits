@@ -16,7 +16,7 @@ class MiPlan < ApplicationModel
   belongs_to :es_qc_comment
 
   has_many :mi_attempts
-  has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC}",
+  has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
   has_many :phenotype_attempts
 

@@ -31,7 +31,7 @@ class MiAttempt < ApplicationModel
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
 
-  has_many :status_stamps, :order => "#{status_stamps_order_sql}"
+  has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many :phenotype_attempts
 
   has_many :distribution_centres, :class_name => 'MiAttempt::DistributionCentre'

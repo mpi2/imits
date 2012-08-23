@@ -150,7 +150,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
         assert_equal 'par', mi.status_stamps.last.code
       end
 
-      should 'have return order defined by StatusManager' do
+      should_eventually 'have return order defined by StatusManager' do
         p = Factory.create :phenotype_attempt, :rederivation_started => true,
                 :rederivation_complete => true, :deleter_strain => DeleterStrain.first
         replace_status_stamps(p,

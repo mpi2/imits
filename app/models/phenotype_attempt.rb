@@ -10,7 +10,7 @@ class PhenotypeAttempt < ApplicationModel
   belongs_to :mi_plan
   belongs_to :status
   belongs_to :deleter_strain
-  has_many :status_stamps, :order => "#{status_stamps_order_sql}"
+  has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
   has_many :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
 

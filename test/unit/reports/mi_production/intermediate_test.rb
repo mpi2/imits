@@ -39,7 +39,6 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         bash_wtsi_plan = bash_wtsi_attempt.mi_plan
         replace_status_stamps(bash_wtsi_plan,
           [
-            ['Assigned', '2011-11-01 23:59:59.999 UTC'],
             ['Interest', '2011-10-25 00:00:00 UTC'],
             ['Assigned', '2011-11-02 00:00:00 UTC']
           ]

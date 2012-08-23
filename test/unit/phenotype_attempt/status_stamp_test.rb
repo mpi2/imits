@@ -29,9 +29,7 @@ class PhenotypeAttempt::StatusStampTest < ActiveSupport::TestCase
 
       pt = Factory.create :phenotype_attempt
       status = PhenotypeAttempt::Status['Phenotype Attempt Registered']
-      ss = PhenotypeAttempt::StatusStamp.create!(:phenotype_attempt => pt,
-        :status => status)
-      pt.reload
+      ss = pt.status_stamps.first
       assert_equal status, ss.status
     end
 

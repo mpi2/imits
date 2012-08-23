@@ -26,7 +26,6 @@ class TestHelperTest < ActiveSupport::TestCase
         mi = Factory.create :mi_attempt_genotype_confirmed
         expected = [
           ['Micro-injection in progress', '2010-03-11 07:12:03 UTC'],
-          ['Genotype confirmed', '2011-01-12 20:12:44 UTC'],
           ['Genotype confirmed', '2012-05-13 05:04:01 UTC']
         ]
         replace_status_stamps(mi, expected)

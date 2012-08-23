@@ -55,7 +55,7 @@ class Reports::MiProduction::ImpcGraphReportDisplayTest < ActiveSupport::TestCas
       mi_plan.each do |plan|
         status = plan.status_stamps
         status.each do |stamp|
-          stamp.update_attributes(:created_at => Time.now.prev_month)
+          stamp.update_attributes(:created_at => 1.month.ago)
         end
       end
 
@@ -63,7 +63,7 @@ class Reports::MiProduction::ImpcGraphReportDisplayTest < ActiveSupport::TestCas
       mi_attempt.each do |mi|
         status = mi.status_stamps
         status.each do |stamp|
-          stamp.update_attributes(:created_at => Time.now.prev_month)
+          stamp.update_attributes(:created_at => 1.month.ago)
         end
       end
 
@@ -71,7 +71,7 @@ class Reports::MiProduction::ImpcGraphReportDisplayTest < ActiveSupport::TestCas
       phenotype_attempt.each do |phen|
         status = phen.status_stamps
         status.each do |stamp|
-          stamp.update_attributes(:created_at => Time.now.prev_month)
+          stamp.update_attributes(:created_at => 1.month.ago)
         end
       end
 
@@ -87,7 +87,7 @@ class Reports::MiProduction::ImpcGraphReportDisplayTest < ActiveSupport::TestCas
         "es_qc_confirmed" => 2,
         "es_qc_failed" => 1,
         "mouse_production" => 8,
-        "confirmaed_mice" => 4,
+        "confirmed_mice" => 4,
         "intent_to_phenotype" => 1,
         "cre_excision_complete" => 0,
         "phenotyping_complete" => 1}

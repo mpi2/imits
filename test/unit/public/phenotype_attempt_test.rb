@@ -287,7 +287,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         Factory.create(:phenotype_attempt_distribution_centre,
           :end_date => '2012-02-02', :phenotype_attempt => pt)
         ds = pt.distribution_centres
-        expected = ds.as_json
+        expected = pt.distribution_centres.all.map(&:as_json)
 
         pt = pt.reload.to_public
         assert_equal expected, pt.distribution_centres_attributes

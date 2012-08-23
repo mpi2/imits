@@ -21,7 +21,6 @@ module Rake
                   :mi_date => '2011-11-02'
           replace_status_stamps(mi2,
             [
-              ['Micro-injection in progress', '2011-12-01 00:00 UTC'],
               ['Genotype confirmed', '2011-12-02 00:00 UTC'],
               ['Micro-injection in progress', '2011-12-03 00:00 UTC'],
               ['Micro-injection aborted', '2011-12-04 00:00 UTC']

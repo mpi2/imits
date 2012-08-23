@@ -190,27 +190,12 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#reportable_statuses_with_latest_dates' do
       should 'work' do
-        default_phenotype_attempt.status_stamps.last.update_attributes!(
-          :created_at => '2011-11-30 23:59:59 UTC')
-        default_phenotype_attempt.status_stamps.create!(
-          :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'],
-          :created_at => '2011-10-30 00:00:00 UTC')
-
         default_phenotype_attempt.deleter_strain = DeleterStrain.first
         default_phenotype_attempt.save!
-        default_phenotype_attempt.status_stamps.last.update_attributes!(
-          :created_at => '2011-12-01 23:59:59 UTC')
-
         default_phenotype_attempt.number_of_cre_matings_successful = 2
         default_phenotype_attempt.mouse_allele_type = 'b'
-        default_phenotype_attempt.save!
-        default_phenotype_attempt.status_stamps.last.update_attributes!(
-          :created_at => '2011-12-02 23:59:59 UTC')
-
         default_phenotype_attempt.phenotyping_started = true
         default_phenotype_attempt.save!
-        default_phenotype_attempt.status_stamps.last.update_attributes!(
-          :created_at => '2011-12-03 23:59:59 UTC')
 
         expected = {
           'Phenotype Attempt Registered' => Date.parse('2011-11-30'),
@@ -218,6 +203,8 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
           'Cre Excision Complete' => Date.parse('2011-12-02'),
           'Phenotyping Started' => Date.parse('2011-12-03')
         }
+
+        replace_status_stamps(default_phenotype_attempt, expected)
 
         assert_equal expected, default_phenotype_attempt.reportable_statuses_with_latest_dates
       end
@@ -416,7 +403,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
         pa = Factory.create :populated_phenotype_attempt
         pa.distribution_centres.destroy_all
-        pa.save!.reload
+        pa.save!; pa.reload
         assert_equal 1, pa.distribution_centres.count
         dc = pa.distribution_centres.first
         assert_equal 'Frozen embryos', dc.deposited_material.name

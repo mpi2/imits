@@ -80,7 +80,6 @@ class ActiveSupport::TestCase
   def replace_status_stamps(obj, stamps)
     status_class = (obj.class.name + '::' + obj.class.reflections[:status].class_name).constantize
 
-    obj.status_stamps.destroy_all
     stamps.each do |status_name, time|
       status_object = status_class.find_by_name(status_name)
       if ! status_object
@@ -89,12 +88,14 @@ class ActiveSupport::TestCase
           raise "#{status_name} status not found"
         end
       end
-      raise "status object lookup failed for '#{status_name}'" unless status_object
-      obj.status_stamps.create!(
-        :created_at => time,
-        :status => status_object
-      )
+      raise "Status lookup failed for '#{status_name}'" unless status_object
+
+      status_stamp = obj.status_stamps.find_by_status_id(status_object.id)
+      raise "Cannot find status stamp for '#{status_name}'" unless status_stamp
+
+      status_stamp.update_attributes!(:created_at => time)
     end
+    obj.status_stamps.reload
   end
 
   def cbx1; @cbx1 ||= Factory.create(:gene_cbx1); end

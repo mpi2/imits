@@ -132,7 +132,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         comments
         mi_plan_id
         genotyping_comment
-        phenotype_attempt_count
+        phenotype_attempts_count
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -165,8 +165,8 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
           :end_date => '2012-02-02', :mi_attempt => mi)
 
         expected = [
-            ds1.as_json,
-            ds2.as_json
+          ds1.as_json,
+          ds2.as_json
         ]
 
         mi = mi.reload.to_public
@@ -191,6 +191,14 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         ds1.reload
         assert_equal 'ICS', ds1.centre_name
       end
+    end
+
+    should 'have #phenotype_attempts_count' do
+      set_mi_attempt_genotype_confirmed(default_mi_attempt)
+      Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
+      Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
+      default_mi_attempt.reload
+      assert_equal 2, default_mi_attempt.phenotype_attempts_count
     end
 
   end

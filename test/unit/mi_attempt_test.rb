@@ -57,15 +57,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.valid?
           assert_match(/cannot be changed/i, default_mi_attempt.errors[:status].first)
         end
-
-        should 'count the number of phenotype_attempts' do
-          set_mi_attempt_genotype_confirmed(default_mi_attempt)
-          Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
-          default_mi_attempt.reload
-          default_mi_attempt.is_active = false
-          count = default_mi_attempt.phenotype_attempt_count
-          assert_equal count, 1
-        end
       end
 
       context '#status_stamps' do
@@ -73,21 +64,9 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_should have_many :status_stamps
         end
 
-        should 'be ordered by created_at (soonest last)' do
-          mi = Factory.create :mi_attempt_with_status_history
-          assert_equal [
-            MiAttempt::Status.micro_injection_in_progress,
-            MiAttempt::Status.genotype_confirmed,
-            MiAttempt::Status.micro_injection_aborted,
-            MiAttempt::Status.genotype_confirmed].map(&:name), mi.status_stamps.map(&:name)
-        end
-
         should 'always include a Micro-injection in progress status, even if MI is created in Genotype confirmed state' do
           mi = Factory.create :mi_attempt_genotype_confirmed
-          gc_stamp = mi.status_stamps.last
-          stamp = mi.status_stamps.all.find {|ss| ss.status == MiAttempt::Status.micro_injection_in_progress}
-          assert stamp
-          assert_equal [stamp, gc_stamp], mi.status_stamps
+          assert_include mi.status_stamps.map {|i| i.status.code}, 'mip'
         end
       end
 
@@ -122,48 +101,35 @@ class MiAttemptTest < ActiveSupport::TestCase
       context '#reportable_statuses_with_latest_dates' do
         should 'work' do
           mi = Factory.create :mi_attempt
-          mi.status_stamps.first.update_attributes!(:created_at => '2011-01-01 00:00:00 UTC')
-          expected = {
-            'Micro-injection in progress' => Date.parse('2011-01-01')
-          }
-          assert_equal expected, mi.reportable_statuses_with_latest_dates
-
-          mi.status_stamps.create!(:status => MiAttempt::Status.micro_injection_in_progress,
-            :created_at => '2011-01-02 23:59:59')
-          expected = {
-            'Micro-injection in progress' => Date.parse('2011-01-02')
-          }
-          assert_equal expected, mi.reportable_statuses_with_latest_dates
 
           set_mi_attempt_genotype_confirmed(mi)
-          mi.status_stamps.last.update_attributes!(:created_at => '2011-02-02 23:59:59')
+          replace_status_stamps(mi,
+            :mip => '2011-01-01',
+            :chr => '2011-01-02',
+            :gtc => '2011-01-03'
+          )
           expected = {
-            'Micro-injection in progress' => Date.parse('2011-01-02'),
-            'Genotype confirmed' => Date.parse('2011-02-02')
-          }
-          assert_equal expected, mi.reportable_statuses_with_latest_dates
-
-          mi.is_active = false; mi.save!
-          mi.status_stamps.last.update_attributes!(:created_at => '2011-03-02 00:00:00 UTC')
-          expected = {
-            'Micro-injection in progress' => Date.parse('2011-01-02'),
-            'Genotype confirmed' => Date.parse('2011-02-02'),
-            'Micro-injection aborted' => Date.parse('2011-03-02')
+            'Micro-injection in progress' => Date.parse('2011-01-01'),
+            'Chimeras obtained' => Date.parse('2011-01-02'),
+            'Genotype confirmed' => Date.parse('2011-01-03')
           }
           assert_equal expected, mi.reportable_statuses_with_latest_dates
         end
 
         should 'not include aborted status if latest status is GC' do
-          mi = Factory.create :mi_attempt
-          mi.status_stamps.first.update_attributes!(:created_at => '2011-01-01 00:00:00 UTC')
-          mi.is_active = false; mi.save!
-          mi.status_stamps.last.update_attributes!(:created_at => '2011-02-02 00:00:00 UTC')
+          mi = Factory.create :mi_attempt, :is_active => false
+          mi.is_active = true
           set_mi_attempt_genotype_confirmed(mi)
-          mi.status_stamps.last.update_attributes!(:created_at => '2011-03-02 23:59:59')
+          replace_status_stamps(mi,
+            :mip => '2011-01-01',
+            :chr => '2011-03-01',
+            :gtc => '2011-03-02'
+          )
 
           expected = {
             'Micro-injection in progress' => Date.parse('2011-01-01'),
-            'Genotype confirmed' => Date.parse('2011-03-02'),
+            'Chimeras obtained' => Date.parse('2011-03-01'),
+            'Genotype confirmed' => Date.parse('2011-03-02')
           }
 
           assert_equal expected, mi.reportable_statuses_with_latest_dates
@@ -962,12 +928,11 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     context '#in_progress_date' do
-      should 'return earliest status stamp date for in progress status' do
+      should 'return status stamp date for in progress status' do
         mi = Factory.create :mi_attempt_genotype_confirmed
         replace_status_stamps(mi,
           [
-            [MiAttempt::Status.genotype_confirmed.name, '2011-11-12 00:00 UTC'],
-            [MiAttempt::Status.micro_injection_in_progress.name, '2011-12-24 00:00 UTC'],
+            [MiAttempt::Status.chimeras_obtained.name, '2011-11-12 00:00 UTC'],
             [MiAttempt::Status.micro_injection_in_progress.name, '2011-06-12 00:00 UTC'],
             [MiAttempt::Status.genotype_confirmed.name, '2011-01-24 00:00 UTC']
           ]

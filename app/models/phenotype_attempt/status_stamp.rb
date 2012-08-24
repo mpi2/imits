@@ -6,11 +6,7 @@ class PhenotypeAttempt::StatusStamp < ActiveRecord::Base
   belongs_to :phenotype_attempt
   belongs_to :status
 
-  after_save :create_initial_distribution_centre
-
-  def create_initial_distribution_centre
-    self.phenotype_attempt.create_initial_distribution_centre
-  end
+  delegate :name, :code, :to => :status
 end
 
 # == Schema Information
@@ -22,5 +18,9 @@ end
 #  status_id            :integer         not null
 #  created_at           :datetime
 #  updated_at           :datetime
+#
+# Indexes
+#
+#  index_one_status_stamp_per_status_and_phenotype_attempt  (status_id,phenotype_attempt_id) UNIQUE
 #
 

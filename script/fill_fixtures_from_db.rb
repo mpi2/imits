@@ -1,14 +1,7 @@
 MODELS = [
   MiAttempt::Status,
-  QcResult,
-  DepositedMaterial,
-  Consortium,
-  Centre,
   MiPlan::Status,
-  MiPlan::Priority,
-  MiPlan::SubProject,
-  PhenotypeAttempt::Status,
-  Strain
+  PhenotypeAttempt::Status
 ]
 
 MODELS.each do |model|

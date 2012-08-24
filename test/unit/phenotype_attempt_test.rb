@@ -180,19 +180,6 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_should have_many :status_stamps
       end
 
-      should 'be ordered by created_at asc' do
-        default_phenotype_attempt.status_stamps.destroy_all
-        status = PhenotypeAttempt::Status['Phenotype Attempt Registered']
-        s1 = default_phenotype_attempt.status_stamps.create!(
-          :status => status, :created_at => '2011-12-01 12:00:00 UTC')
-        s2 = default_phenotype_attempt.status_stamps.create!(
-          :status => status, :created_at => '2011-12-01 14:00:00 UTC')
-        s3 = default_phenotype_attempt.status_stamps.create!(
-          :status => status, :created_at => '2011-12-01 13:00:00 UTC')
-        default_phenotype_attempt.reload
-        assert_equal [s1, s3, s2].map(&:created_at), default_phenotype_attempt.status_stamps.map(&:created_at)
-      end
-
       should 'be added when status changes' do
         assert_equal ['Phenotype Attempt Registered'], default_phenotype_attempt.status_stamps.map{|i| i.status.name}
         default_phenotype_attempt.rederivation_started = true
@@ -203,27 +190,12 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#reportable_statuses_with_latest_dates' do
       should 'work' do
-        default_phenotype_attempt.status_stamps.last.update_attributes!(
-          :created_at => '2011-11-30 23:59:59 UTC')
-        default_phenotype_attempt.status_stamps.create!(
-          :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'],
-          :created_at => '2011-10-30 00:00:00 UTC')
-
         default_phenotype_attempt.deleter_strain = DeleterStrain.first
         default_phenotype_attempt.save!
-        default_phenotype_attempt.status_stamps.last.update_attributes!(
-          :created_at => '2011-12-01 23:59:59 UTC')
-
         default_phenotype_attempt.number_of_cre_matings_successful = 2
         default_phenotype_attempt.mouse_allele_type = 'b'
-        default_phenotype_attempt.save!
-        default_phenotype_attempt.status_stamps.last.update_attributes!(
-          :created_at => '2011-12-02 23:59:59 UTC')
-
         default_phenotype_attempt.phenotyping_started = true
         default_phenotype_attempt.save!
-        default_phenotype_attempt.status_stamps.last.update_attributes!(
-          :created_at => '2011-12-03 23:59:59 UTC')
 
         expected = {
           'Phenotype Attempt Registered' => Date.parse('2011-11-30'),
@@ -231,6 +203,8 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
           'Cre Excision Complete' => Date.parse('2011-12-02'),
           'Phenotyping Started' => Date.parse('2011-12-03')
         }
+
+        replace_status_stamps(default_phenotype_attempt, expected)
 
         assert_equal expected, default_phenotype_attempt.reportable_statuses_with_latest_dates
       end
@@ -421,6 +395,19 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
     context '#distribution_centres' do
       should 'exist' do
         assert_should have_many(:distribution_centres)
+      end
+
+      should 'have 1 created by default if it goes past the Cre Excision Complete status' do
+        pa = Factory.create :phenotype_attempt
+        assert_equal 0, pa.distribution_centres.count
+
+        pa = Factory.create :populated_phenotype_attempt
+        pa.distribution_centres.destroy_all
+        pa.save!; pa.reload
+        assert_equal 1, pa.distribution_centres.count
+        dc = pa.distribution_centres.first
+        assert_equal 'Frozen embryos', dc.deposited_material.name
+        assert_equal pa.production_centre.name, dc.centre.name
       end
     end
 

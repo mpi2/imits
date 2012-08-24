@@ -1,8 +1,9 @@
 # encoding: utf-8
 
-module PhenotypeAttempt::StatusChanger
+module PhenotypeAttempt::StatusManagement
+  extend ActiveSupport::Concern
 
-  ss = ApplicationModel::StatusChangerMachine.new
+  ss = ApplicationModel::StatusManager.new(PhenotypeAttempt)
 
   ss.add('Phenotype Attempt Registered') { |pt| true }
 
@@ -34,10 +35,23 @@ module PhenotypeAttempt::StatusChanger
     ! pt.is_active?
   end
 
-  @@status_changer_machine = ss
+  included do
+    @@status_manager = ss
+    cattr_reader :status_manager
+  end
+
+  module ClassMethods
+    def status_stamps_order_sql
+      status_manager.status_stamps_order_sql
+    end
+  end
 
   def change_status
-    self.status = ::PhenotypeAttempt::Status[@@status_changer_machine.get_status_for(self)]
+    self.status = PhenotypeAttempt::Status.find_by_name!(status_manager.get_status_for(self))
+  end
+
+  def manage_status_stamps
+    status_manager.manage_status_stamps_for(self)
   end
 
 end

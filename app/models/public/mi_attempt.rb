@@ -66,7 +66,7 @@ class Public::MiAttempt < ::MiAttempt
     mouse_allele_symbol_superscript
     mouse_allele_symbol
     mi_plan_id
-    phenotype_attempt_count
+    phenotype_attempts_count
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -77,6 +77,10 @@ class Public::MiAttempt < ::MiAttempt
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
 
   def status_name; status.name; end
+
+  def phenotype_attempts_count
+    return self.phenotype_attempts.count
+  end
 end
 
 # == Schema Information

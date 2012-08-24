@@ -2,10 +2,10 @@
 
 require 'test_helper'
 
-class MiPlan::StatusChangerTest < ActiveSupport::TestCase
-  context 'MiPlan::StatusChanger' do
+class MiPlan::StatusManagementTest < ActiveSupport::TestCase
+  context 'MiPlan::StatusManagement' do
 
-    context 'for attribute-based statuses' do
+    context 'when setting status based on attributes' do
       def default_mi_plan
         @default_mi_plan ||= Factory.create :mi_plan, :gene => cbx1
       end
@@ -79,7 +79,7 @@ class MiPlan::StatusChangerTest < ActiveSupport::TestCase
       return TestDummy.mi_plan default_mi_plan.marker_symbol, :force_assignment => true
     end
 
-    context 'for pre-assignment statuses when a new record' do
+    context 'when setting pre-assignment statuses when a new record' do
       should 'set status to "Inspect - Conflict" if only other plans for gene are Assigned or pre-assignment' do
         assert_equal 'Assigned', default_mi_plan.status.name
         same_gene_plan = TestDummy.mi_plan default_mi_plan.marker_symbol
@@ -150,6 +150,46 @@ class MiPlan::StatusChangerTest < ActiveSupport::TestCase
       assigned_plan.force_assignment = false
       assigned_plan.save!
       assert_equal 'Assigned', assigned_plan.status.name
+    end
+
+    context 'status stamps' do
+      should 'be created if conditions for a status are met' do
+        plan = Factory.create :mi_plan
+        assert_equal 'Assigned', plan.status_stamps.last.name
+        plan.update_attributes!(:is_active => false)
+        assert_equal 2, plan.status_stamps.count
+        assert_equal 'Inactive', plan.status_stamps.last.name
+      end
+
+      should 'be deleted if conditions for a status are not met' do
+        plan = Factory.create :mi_plan
+        plan.update_attributes!(:is_active => false)
+        assert_equal 2, plan.status_stamps.size
+
+        plan.update_attributes!(:is_active => true)
+        assert_equal 1, plan.status_stamps.size
+        assert_equal 'Assigned', plan.status_stamps.last.name
+      end
+
+      should 'not have Assigned added if in pre-assignment state' do
+        Factory.create :mi_plan, :gene => cbx1
+
+        plan = Factory.create :mi_plan, :gene => cbx1
+        assert_equal 'ins-con', plan.status.code
+        assert ! plan.status_stamps.map(&:name).include?('Assigned')
+      end
+
+      should_eventually 'have return order defined by StatusManager' do
+        p = Factory.create :mi_plan, :number_of_es_cells_passing_qc => 4
+        replace_status_stamps(p,
+          'asg-esc' => '2011-01-01',
+          'asg' => '2011-01-02',
+          'asg-esp' => '2011-01-03'
+        )
+        p.reload
+        assert_equal ['asg', 'asg-esp', 'asg-esc'], p.status_stamps.all.map(&:code)
+      end
+
     end
 
   end

@@ -3,11 +3,6 @@ namespace :cron do
   desc 'Clone production DB and reset passwords to "password"'
   task :clone_production_and_reset_passwords => ['db:production:clone', 'db:passwords:reset']
 
-  desc 'MiPlan - Run minor conflict resolution logic'
-  task :minor_conflict_resolution => [:environment] do
-    ApplicationModel.audited_transaction { MiPlan.minor_conflict_resolution }
-  end
-
   desc 'Gene/EsCell - Sync data caches with BioMarts and remote data sources'
   task :sync_data_with_remotes => [:environment] do
     ApplicationModel.audited_transaction { Gene.sync_with_remotes }

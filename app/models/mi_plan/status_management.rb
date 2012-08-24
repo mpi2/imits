@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-module MiPlan::StatusChanger
+module MiPlan::StatusManagement
   extend ActiveSupport::Concern
 
   class ConflictResolver
@@ -40,9 +40,11 @@ module MiPlan::StatusChanger
     end
   end
 
-  ss = ApplicationModel::StatusChangerMachine.new
+  ss = ApplicationModel::StatusManager.new(MiPlan)
 
-  ss.add('Assigned') {true}
+  ss.add('Assigned') do |plan|
+    plan.conflict_resolver.get_pre_assigned_status(plan) == nil
+  end
 
   ss.add('Inspect - Conflict') do |plan|
     plan.conflict_resolver.get_pre_assigned_status(plan).try(:name) == 'Inspect - Conflict'
@@ -78,12 +80,29 @@ module MiPlan::StatusChanger
 
   ss.add('Inactive') { |plan| ! plan.is_active? }
 
-  @@status_changer_machine = ss
+  included do
+    @@status_manager = ss
+    cattr_reader :status_manager
+
+    attr_accessor :force_assignment
+    attr_accessor :conflict_resolver
+    attr_accessor :is_resolving_others
+  end
+
+  module ClassMethods
+    def status_stamps_order_sql
+      status_manager.status_stamps_order_sql
+    end
+  end
 
   def change_status
     self.conflict_resolver = ConflictResolver.new(gene)
-    self.status = MiPlan::Status.find_by_name!(@@status_changer_machine.get_status_for(self))
+    self.status = MiPlan::Status.find_by_name!(status_manager.get_status_for(self))
     return true
+  end
+
+  def manage_status_stamps
+    status_manager.manage_status_stamps_for(self)
   end
 
   def conflict_resolve_others
@@ -93,12 +112,6 @@ module MiPlan::StatusChanger
       plans.each {|p| p.is_resolving_others = true; p.save!}
     end
     return true
-  end
-
-  included do
-    attr_accessor :force_assignment
-    attr_accessor :conflict_resolver
-    attr_accessor :is_resolving_others
   end
 
 end

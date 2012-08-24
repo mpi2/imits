@@ -69,7 +69,9 @@
         <% end %>
         </tbody>
       </table>
-      <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
+      <% if @phenotype_attempt.status_stamps.where(:status_id => 'cec'.status.id).count != 0 %>
+        <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
+      <% end %>
     <% else %>
     No Distribution Centres can be set until Status is Cre Excision Complete.
     <% end %>

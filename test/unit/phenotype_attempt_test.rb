@@ -403,7 +403,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
         pa = Factory.create :populated_phenotype_attempt
         pa.distribution_centres.destroy_all
-        pa.save!; pa.reload
+        pa.reload
         assert_equal 1, pa.distribution_centres.count
         dc = pa.distribution_centres.first
         assert_equal 'Frozen embryos', dc.deposited_material.name

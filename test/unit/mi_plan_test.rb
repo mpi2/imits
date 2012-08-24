@@ -259,23 +259,8 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_equal [MiPlan::Status[:Assigned]], mi_plan.status_stamps.map(&:status)
         end
 
-        should 'be ordered by created_at asc' do
-          default_mi_plan.status_stamps.destroy_all
-          s1 = MiPlan::StatusStamp.create!(:mi_plan => default_mi_plan,
-            :status => MiPlan::Status[:Assigned], :created_at => 1.day.ago)
-          s2 = MiPlan::StatusStamp.create!(:mi_plan => default_mi_plan,
-            :status => MiPlan::Status[:Conflict], :created_at => 1.hour.ago)
-          s3 = MiPlan::StatusStamp.create!(:mi_plan => default_mi_plan,
-            :status => MiPlan::Status[:Interest], :created_at => 12.hours.ago)
-          default_mi_plan.status_stamps.reload
-          assert_equal [s1, s3, s2].map(&:name), default_mi_plan.status_stamps.map(&:name)
-        end
-
         should 'be deleted when MiPlan is deleted' do
-          Factory.create :mi_plan, :gene => cbx1
-
-          plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
-          assert_equal 'Inspect - Conflict', plan.status.name
+          plan = Factory.create :mi_plan
           plan.number_of_es_cells_starting_qc = 5; plan.save!
           stamps = plan.status_stamps.dup
           assert_equal 2, stamps.size
@@ -322,13 +307,9 @@ class MiPlanTest < ActiveSupport::TestCase
           plan.status_stamps.create!(:status => MiPlan::Status['Interest'],
             :created_at => '2010-10-30 23:59:59')
           plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
-            :created_at => '2010-11-24 23:59:59')
-          plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
             :created_at => '2011-05-30 23:59:59')
           plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
-            :created_at => '2011-11-03 12:33:15')
-          plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
-            :created_at => '2011-02-12 23:59:59')
+            :created_at => '2011-11-03 00:00:00 UTC')
           plan.status_stamps.create!(:status => MiPlan::Status['Inactive'],
             :created_at => '2011-10-24 23:59:59')
 
@@ -361,7 +342,7 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_equal ['asg', 'asg-esp'], default_mi_plan.status_stamps.map{|i|i.status.code}
         end
 
-        should 'not be one of the following if it has any phenotype attempts' do
+        should 'not be a non-assigned status if it has any phenotype attempts' do
           mi = Factory.create :mi_attempt_genotype_confirmed, :consortium_name => 'DTCC'
           plan = TestDummy.mi_plan('BaSH', 'WTSI', mi.gene.marker_symbol)
           pt = Factory.create :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi
@@ -1138,17 +1119,15 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_attempt = Factory.create :mi_attempt_genotype_confirmed,
           :es_cell => Factory.create(:es_cell, :gene => gene)
         phenotype = Factory.create :phenotype_attempt, :mi_plan => mi_plan,
-          :created_at => "2011-12-02",
           :mi_attempt => mi_attempt
 
-        phenotype.status_stamps.create!(
-          :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'],
-          :created_at => '2011-10-30')
+        replace_status_stamps(phenotype,
+          'Phenotype Attempt Registered' => '2011-10-30')
 
         results = mi_plan.latest_relevant_status
 
         assert_equal "Phenotype Attempt Registered", results[:status]
-        assert_equal Date.today.to_date, results[:date].to_date
+        assert_equal '2011-10-30', results[:date]
       end
 
     end
@@ -1185,9 +1164,8 @@ class MiPlanTest < ActiveSupport::TestCase
           :created_at => "2011-12-02",
           :mi_attempt => mi_attempt
 
-        phenotype.status_stamps.create!(
-          :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'],
-          :created_at => '2011-10-30')
+        replace_status_stamps(phenotype,
+        'Phenotype Attempt Registered' => '2011-10-30')
 
         results = mi_plan.relevant_status_stamp
 

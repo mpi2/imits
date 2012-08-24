@@ -4,7 +4,7 @@ class PhenotypeAttempt < ApplicationModel
   acts_as_audited
   acts_as_reportable
 
-  include PhenotypeAttempt::StatusChanger
+  include PhenotypeAttempt::StatusManagement
 
   belongs_to :mi_attempt
   belongs_to :mi_plan
@@ -13,8 +13,6 @@ class PhenotypeAttempt < ApplicationModel
   has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
   has_many :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
-  has_many :centres, :through => :distribution_centres
-  has_many :deposited_materials, :through => :distribution_centres
 
   protected :status=
 
@@ -36,33 +34,15 @@ class PhenotypeAttempt < ApplicationModel
   # BEGIN Callbacks
   before_validation :change_status
   before_validation :set_mi_plan
-  before_save :record_if_status_was_changed
+
   before_save :generate_colony_name_if_blank
   before_save :ensure_plan_is_valid
-#  before_save :create_initial_distribution_centre
-  after_save :create_status_stamp_if_status_was_changed
+  before_save :create_initial_distribution_centre
 
-  def create_initial_distribution_centre
-    if self.distribution_centres.empty? && !self.status_stamps.find_by_status_id(PhenotypeAttempt::Status.find_by_name('Cre Excision Complete').id).nil?
-      initial_deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
-      initial_centre = Centre.find_by_name(self.production_centre.name)
-      initial_distribution_centre = PhenotypeAttempt::DistributionCentre.new
-      initial_distribution_centre.centre = initial_centre
-      initial_distribution_centre.deposited_material = initial_deposited_material
-      self.distribution_centres.push(initial_distribution_centre)
-    end
-  end
+  after_save :manage_status_stamps
+
   def set_mi_plan
     self.mi_plan ||= mi_attempt.try(:mi_plan)
-  end
-
-  def record_if_status_was_changed
-    if self.changed.include? 'status_id'
-      @new_status = self.status
-    else
-      @new_status = nil
-      self.create_initial_distribution_centre
-    end
   end
 
   def generate_colony_name_if_blank
@@ -86,9 +66,12 @@ class PhenotypeAttempt < ApplicationModel
     end
   end
 
-  def create_status_stamp_if_status_was_changed
-    if @new_status
-      status_stamps.create!(:status => @new_status)
+  def create_initial_distribution_centre
+    if self.distribution_centres.empty? and status_stamps.where(:status_id => 'cec'.status.id).count != 0
+      dc = self.distribution_centres.new
+      dc.centre = self.production_centre
+      dc.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
+      dc.save!
     end
   end
 

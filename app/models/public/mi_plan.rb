@@ -109,8 +109,6 @@ class Public::MiPlan < ::MiPlan
     return status.name
   end
 
-  # unsure how to do this as phenotypes are attached to both plans and attempts
-
   def phenotype_attempts_count
     phenotype_attempts.size
   end

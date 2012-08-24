@@ -152,7 +152,7 @@ Seeds.load MiPlan::Status, [
   {:code => 'asg-esc', :order_by => 100,  :id => 9,  :name => 'Assigned - ES Cell QC Complete', :description => 'Assigned - ES cells have passed the QC phase and are ready for micro-injection'},
   {:code => 'abt-esf', :order_by => 90,   :id => 10, :name => 'Aborted - ES Cell QC Failed', :description => 'Aborted - ES cells have failed the QC phase, and micro-injection cannot proceed'},
   {:code => 'asg',     :order_by => 80,   :id => 1,  :name => 'Assigned', :description => 'Assigned - A single consortium has expressed an interest in injecting this gene'},
-  {:code => 'ins-glt', :order_by => 70,   :id => 4,  :name => 'Inspect - GLT Mouse', :description => 'Inspect - A GLT mouse is already recorded in iMits'},
+  {:code => 'ins-gtc', :order_by => 70,   :id => 4,  :name => 'Inspect - GLT Mouse', :description => 'Inspect - A GLT mouse is already recorded in iMits'},
   {:code => 'ins-mip', :order_by => 60,   :id => 5,  :name => 'Inspect - MI Attempt', :description => 'Inspect - An active micro-injection attempt is already in progress'},
   {:code => 'ins-con', :order_by => 50,   :id => 6,  :name => 'Inspect - Conflict', :description => 'Inspect - This gene is already assigned in another planned micro-injection'},
   {:code => 'con',     :order_by => 40,   :id => 3,  :name => 'Conflict', :description => 'Conflict - More than one consortium has expressed an interest in micro-injecting this gene'},
@@ -169,7 +169,7 @@ Seeds.load MiPlan::Priority, [
 
 
 Seeds.load PhenotypeAttempt::Status, [
-  {:code => 'pab', :id =>  1, :name => 'Phenotype Attempt Aborted', :order_by => 310},
+  {:code => 'abt', :id =>  1, :name => 'Phenotype Attempt Aborted', :order_by => 310},
   {:code => 'par', :id =>  2, :name => 'Phenotype Attempt Registered', :order_by => 320},
   {:code => 'res', :id =>  3, :name => 'Rederivation Started', :order_by => 330},
   {:code => 'rec', :id =>  4, :name => 'Rederivation Complete', :order_by => 340},

@@ -59,10 +59,27 @@ class NotificationMailerTest < ActionMailer::TestCase
 
 
     should '#SEND status_email with phenotype_attempt statuses' do
-      phenotype_attempt_with_recent_history = Factory.create :phenotype_attempt_with_recent_status_history
+      pa = Factory.create :populated_phenotype_attempt
+
+      pa.status_stamps.find_by_status_id!(:par.status.id).update_attributes!(:created_at => (Time.now - 1.hour))
+      pa.status_stamps.find_by_status_id!(:pdc.status.id).update_attributes!(:created_at => (Time.now - 30.minute))
+      pa.status_stamps.reload
+
+      replace_status_stamps(pa.mi_attempt,
+        :gtc => (Time.now - 1.hour),
+        :chr => (Time.now - 2.weeks),
+        :mip => (Time.now - 1.month)
+      )
+
+      replace_status_stamps(pa.mi_plan,
+        'int' => (Time.now - 20.months),
+        'asg' => (Time.now - 10.months),
+        'asg-esp' => (Time.now - 20.days),
+        'asg-esc' => (Time.now - 10.days)
+      )
 
       contact = Factory.create(:contact)
-      notification = Factory.create :notification, {:gene => phenotype_attempt_with_recent_history.gene, :contact => contact}
+      notification = Factory.create :notification, {:gene => pa.gene, :contact => contact}
 
       assert_equal 0, ActionMailer::Base.deliveries.size
       if !notification.check_statuses.empty?
@@ -77,25 +94,25 @@ class NotificationMailerTest < ActionMailer::TestCase
     end
 
     should '#NOT SEND status_email with gene.relevant_status[:status] that is in excluded_statuses' do
-       mi_attempt_with_recent_history = Factory.create :mi_attempt_with_recent_status_history
-       mi_attempt_with_recent_history.is_active = false
-       mi_attempt_with_recent_history.save!
+      mi_attempt_with_recent_history = Factory.create :mi_attempt_with_recent_status_history
+      mi_attempt_with_recent_history.is_active = false
+      mi_attempt_with_recent_history.save!
 
-       contact = Factory.create(:contact)
-       notification = Factory.create :notification, {:gene => mi_attempt_with_recent_history.gene, :contact => contact}
-       excluded_statuses = ['aborted_es_cell_qc_failed', 'microinjection_aborted', 'phenotype_attempt_aborted']
+      contact = Factory.create(:contact)
+      notification = Factory.create :notification, {:gene => mi_attempt_with_recent_history.gene, :contact => contact}
+      excluded_statuses = ['aborted_es_cell_qc_failed', 'microinjection_aborted', 'phenotype_attempt_aborted']
 
-       assert_equal 0, ActionMailer::Base.deliveries.size
-       if !notification.check_statuses.empty?
-         if !excluded_statuses.any? {|status| notification.gene.relevant_status[:status].include? status}
-           notification_mail = NotificationMailer.status_email(notification)
+      assert_equal 0, ActionMailer::Base.deliveries.size
+      if !notification.check_statuses.empty?
+        if !excluded_statuses.any? {|status| notification.gene.relevant_status[:status].include? status}
+          notification_mail = NotificationMailer.status_email(notification)
 
-           notification_mail.deliver
-         end
-       end
-       email = ActionMailer::Base.deliveries.first
+          notification_mail.deliver
+        end
+      end
+      email = ActionMailer::Base.deliveries.first
 
-       assert_equal 0, ActionMailer::Base.deliveries.size
+      assert_equal 0, ActionMailer::Base.deliveries.size
     end
   end
 end

@@ -40,7 +40,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
       csv_string += ['ES QC Confirmed', data['tabulate'][0]['es_qc_confirmed'], data['tabulate'][1]['es_qc_confirmed']].to_csv
       csv_string += ['ES QC Failed', data['tabulate'][0]['es_qc_failed'], data['tabulate'][1]['es_qc_failed']].to_csv
       csv_string += ['Mouse Production', data['tabulate'][0]['mouse_production'], data['tabulate'][1]['mouse_production']].to_csv
-      csv_string += ['Confirmed Mice', data['tabulate'][0]['confirmaed_mice'], data['tabulate'][1]['confirmaed_mice']].to_csv
+      csv_string += ['Confirmed Mice', data['tabulate'][0]['confirmed_mice'], data['tabulate'][1]['confirmed_mice']].to_csv
       csv_string += ['Intent to Phenotype', data['tabulate'][0]['intent_to_phenotype'], data['tabulate'][1]['intent_to_phenotype']].to_csv
       csv_string += ['Cre Excision Complete', data['tabulate'][0]['cre_excision_complete'], data['tabulate'][1]['cre_excision_complete']].to_csv
       csv_string += ['Phenotyping Complete', data['tabulate'][0]['phenotyping_complete'], data['tabulate'][1]['phenotyping_complete']].to_csv
@@ -78,7 +78,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
           tabulate_data['es_qc_confirmed'] = all_data['cumulative_es_complete']
           tabulate_data['es_qc_failed'] = all_data['cumulative_es_failed']
           tabulate_data['mouse_production'] = all_data['cumulative_mis']
-          tabulate_data['confirmaed_mice'] = all_data['cumulative_genotype_confirmed']
+          tabulate_data['confirmed_mice'] = all_data['cumulative_genotype_confirmed']
           tabulate_data['intent_to_phenotype'] = all_data['cumulative_phenotype_registered']
           tabulate_data['cre_excision_complete'] = all_data['cumulative_cre_excision_complete']
           tabulate_data['phenotyping_complete'] = all_data['cumulative_phenotyping_complete']
@@ -89,7 +89,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
           tabulate_data['es_qc_confirmed'] = all_data['es_cell_qc_complete']
           tabulate_data['es_qc_failed'] = all_data['es_cell_qc_failed']
           tabulate_data['mouse_production'] = all_data['micro_injection_in_progress']
-          tabulate_data['confirmaed_mice'] = all_data['genotype_confirmed']
+          tabulate_data['confirmed_mice'] = all_data['genotype_confirmed']
           tabulate_data['intent_to_phenotype'] = all_data['phenotype_attempt_registered']
           tabulate_data['cre_excision_complete'] = all_data['cre_excision_complete']
           tabulate_data['phenotyping_complete'] = all_data['phenotyping_complete']

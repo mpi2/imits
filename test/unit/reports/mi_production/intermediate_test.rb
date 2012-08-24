@@ -39,7 +39,6 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         bash_wtsi_plan = bash_wtsi_attempt.mi_plan
         replace_status_stamps(bash_wtsi_plan,
           [
-            ['Assigned', '2011-11-01 23:59:59.999 UTC'],
             ['Interest', '2011-10-25 00:00:00 UTC'],
             ['Assigned', '2011-11-02 00:00:00 UTC']
           ]
@@ -57,26 +56,20 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         bash_wtsi_plan.status_stamps.last.update_attributes!(
           :created_at => '2011-11-04 23:59:59.999 UTC')
 
-        bash_wtsi_attempt.phenotype_attempts.create!
-        pt = bash_wtsi_attempt.phenotype_attempts.last
-
-        pt.status_stamps.first.update_attributes!(
-          :created_at => '2011-12-01 23:59:59 UTC')
-        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Rederivation Started'],
-          :created_at => '2011-12-02 00:00:00 UTC')
-        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Rederivation Complete'],
-          :created_at => '2011-12-03 00:00:00 UTC')
-        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Cre Excision Started'],
-          :created_at => '2011-12-04 00:00:00 UTC')
-        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Cre Excision Complete'],
-          :created_at => '2011-12-05 00:00:00 UTC')
-        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Phenotyping Started'],
-          :created_at => '2011-12-06 00:00:00 UTC')
-        pt.status_stamps.create!(:status => PhenotypeAttempt::Status['Phenotyping Complete'],
-          :created_at => '2011-12-07 00:00:00 UTC')
+        pt = Factory.create :populated_phenotype_attempt,
+                :mi_attempt => bash_wtsi_attempt
         pt.is_active = false; pt.save!
-        pt.status_stamps.last.update_attributes!(
-          :created_at => '2011-12-08 23:59:59 UTC')
+
+        replace_status_stamps(pt,
+          'Phenotype Attempt Registered' => '2011-12-01 23:59:59 UTC',
+          'Rederivation Started' => '2011-12-02 00:00:00 UTC',
+          'Rederivation Complete' => '2011-12-03 00:00:00 UTC',
+          'Cre Excision Started' => '2011-12-04 00:00:00 UTC',
+          'Cre Excision Complete' => '2011-12-05 00:00:00 UTC',
+          'Phenotyping Started' => '2011-12-06 00:00:00 UTC',
+          'Phenotyping Complete' => '2011-12-07 00:00:00 UTC',
+          'Phenotype Attempt Aborted' => '2011-12-08 23:59:59 UTC'
+        )
 
         mgp_wtsi_attempt = Factory.create :mi_attempt,
                 :es_cell => es_cell,
@@ -190,13 +183,13 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Phenotyping Started Date' => '2011-12-06',
           'Phenotyping Complete Date' => '2011-12-07',
           'Phenotype Attempt Aborted Date' => '2011-12-08',
-          'Distinct Genotype Confirmed ES Cells'=> 1,	# changed since date makes it active!
+          'Distinct Genotype Confirmed ES Cells'=> 1,
           'Distinct Old Non Genotype Confirmed ES Cells'=> 0,
           'MiPlan ID' => 2,
-          'Total Pipeline Efficiency Gene Count' => 1,	# changed since date makes it active!
-          'GC Pipeline Efficiency Gene Count' => 1,	    # changed since date makes it active!
+          'Total Pipeline Efficiency Gene Count' => 1,
+          'GC Pipeline Efficiency Gene Count' => 1,
           'Aborted - ES Cell QC Failed Date' => ''
-          }
+        }
         assert_equal expected, bash_wtsi_row.data
       end
 

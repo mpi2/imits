@@ -272,17 +272,9 @@ class MiAttempt < ApplicationModel
     retval = {}
     status_stamps.each do |status_stamp|
       status_stamp_date = status_stamp.created_at.utc.to_date
-      if !retval[status_stamp.name] or
-                status_stamp_date > retval[status_stamp.name]
-        retval[status_stamp.name] = status_stamp_date
-      end
+      retval[status_stamp.name] = status_stamp_date
     end
 
-    aborted = MiAttempt::Status.micro_injection_aborted.name
-    confirmed = MiAttempt::Status.genotype_confirmed.name
-    if retval[aborted] and retval[confirmed] and retval[aborted] < retval[confirmed]
-      retval.delete(aborted)
-    end
     return retval
   end
 

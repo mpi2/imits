@@ -115,25 +115,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           }
           assert_equal expected, mi.reportable_statuses_with_latest_dates
         end
-
-        should 'not include aborted status if latest status is GC' do
-          mi = Factory.create :mi_attempt, :is_active => false
-          mi.is_active = true
-          set_mi_attempt_genotype_confirmed(mi)
-          replace_status_stamps(mi,
-            :mip => '2011-01-01',
-            :chr => '2011-03-01',
-            :gtc => '2011-03-02'
-          )
-
-          expected = {
-            'Micro-injection in progress' => Date.parse('2011-01-01'),
-            'Chimeras obtained' => Date.parse('2011-03-01'),
-            'Genotype confirmed' => Date.parse('2011-03-02')
-          }
-
-          assert_equal expected, mi.reportable_statuses_with_latest_dates
-        end
       end
 
       context '#mouse_allele_type' do
@@ -864,10 +845,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         colony_names = es_cell.mi_attempts.map(&:colony_name)
         assert_equal colony_names.sort, results.map(&:colony_name).sort
       end
-
-      should_eventually 'translate sorting predicates' do
-        flunk 'Dependent on ransack enabling sorting by associations fields'
-      end
     end
 
     context '#find_matching_mi_plan' do
@@ -901,7 +878,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         mi = MiAttempt.new :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',
                 :es_cell_name => es_cell.name
-        mi.valid? # does not matter if it passes or not, just want filters to fire
+        mi.valid?
 
         assert_nil mi.mi_plan
         assert_equal mi_plan, mi.find_matching_mi_plan

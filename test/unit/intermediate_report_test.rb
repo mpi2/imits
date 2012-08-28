@@ -34,12 +34,7 @@ class IntermediateReportTest < ActiveSupport::TestCase
       )
 
       bash_wtsi_plan = bash_wtsi_attempt.mi_plan
-      replace_status_stamps(bash_wtsi_plan,
-      [
-        ['Interest', '2011-10-25 00:00:00 UTC'],
-        ['Assigned', '2011-11-02 00:00:00 UTC']
-      ]
-      )
+      replace_status_stamps(bash_wtsi_plan, :asg => '2011-11-02')
 
       bash_wtsi_plan.sub_project = MiPlan::SubProject.find_by_name!('Legacy EUCOMM')
       bash_wtsi_plan.priority = MiPlan::Priority.find_by_name!('Medium')

@@ -345,7 +345,6 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         plan.save!
 
         status_dates = {
-          'Interest' => '2011-01-01',
           'Assigned' => '2011-02-01',
           'Assigned - ES Cell QC In Progress' => '2011-03-01'
         }

@@ -71,8 +71,8 @@ class NotificationMailerTest < ActionMailer::TestCase
         :mip => (Time.now - 1.month)
       )
 
+      pa.mi_plan.update_attributes!(:number_of_es_cells_passing_qc => 1)
       replace_status_stamps(pa.mi_plan,
-        'int' => (Time.now - 20.months),
         'asg' => (Time.now - 10.months),
         'asg-esp' => (Time.now - 20.days),
         'asg-esc' => (Time.now - 10.days)

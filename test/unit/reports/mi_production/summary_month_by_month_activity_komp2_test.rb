@@ -39,6 +39,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
         'Assigned - ES Cell QC In Progress' => '2011-05-31')
       replace_status_stamps(mi,
         'Micro-injection in progress' => '2011-05-31',
+        :chr => '2011-05-31',
         'Genotype confirmed' => '2011-05-31')
       replace_status_stamps(pt,
         'Phenotype Attempt Registered' => '2011-05-31')
@@ -53,11 +54,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
       plan1 = TestDummy.mi_plan('BaSH', 'WTSI')
       plan1.update_attributes!(:number_of_es_cells_starting_qc => 1)
       replace_status_stamps(plan1,
+        'Assigned' => '2011-08-01',
         'Assigned - ES Cell QC In Progress' => '2011-08-01')
 
       plan2 = TestDummy.mi_plan('BaSH', 'WTSI')
       plan2.update_attributes!(:number_of_es_cells_starting_qc => 1)
       replace_status_stamps(plan2,
+        'Assigned' => '2011-08-01',
         'Assigned - ES Cell QC In Progress' => '2011-08-01')
 
       puts generate[:table].to_s if DEBUG
@@ -107,6 +110,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
         )
         replace_status_stamps(mi,
           'Micro-injection in progress' => '2011-01-01',
+          :chr => '2011-02-01',
           'Genotype confirmed' => '2011-02-01')
         pt = Factory.create :phenotype_attempt, :mi_attempt => mi
         replace_status_stamps(pt, 'Phenotype Attempt Registered' => '2011-08-01')
@@ -126,23 +130,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
     end
 
     should 'ensure some plan statuses are ignored' do
-      # TODO Replace this with TestDummy.gene_line eventually, so it sets the
-      # MiPlan to the correct status rather than just setting the status stamp
-      array = [
-        'Interest',
-        'Conflict',
-        'Inspect - GLT Mouse',
-        'Inspect - MI Attempt',
-        'Inspect - Conflict',
-        'Assigned',
-        'Inactive',
-        'Withdrawn'
-      ]
+      assigned_plan = TestDummy.mi_plan(:gene => cbx1)
+      bash_wtsi_conflict_plan = TestDummy.mi_plan('BaSH', 'WTSI', :gene => cbx1)
+      other_conflict_plan = TestDummy.mi_plan(:gene => cbx1)
+      assigned_plan.destroy # put others into Conflict
 
-      array.each do |status|
-        plan = TestDummy.mi_plan('BaSH', 'WTSI')
+      [bash_wtsi_conflict_plan, other_conflict_plan].each do |plan|
         replace_status_stamps(plan,
-          status => '2011-08-01')
+          :con => '2011-08-01')
       end
 
       expected = [
@@ -170,14 +165,14 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
         p = TestDummy.mi_plan('BaSH', 'WTSI')
         p.update_attributes!(:number_of_es_cells_starting_qc => 1)
         replace_status_stamps(p,
-          'Interest' => '2011-01-01',
+          'Assigned' => '2011-06-01',
           'Assigned - ES Cell QC In Progress' => '2011-06-01'
         )
       end
       p = TestDummy.mi_plan('BaSH', 'WTSI')
       p.update_attributes!(:number_of_es_cells_passing_qc => 1)
       replace_status_stamps(p,
-        'Interest' => '2011-01-01',
+        'Assigned' => '2011-05-01',
         'Assigned - ES Cell QC In Progress' => '2011-05-01',
         'Assigned - ES Cell QC Complete' => '2011-06-10'
       )
@@ -210,6 +205,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
       )
       replace_status_stamps(mi2,
         'Micro-injection in progress' => '2011-01-01',
+        :chr => '2011-01-01',
         'Genotype confirmed' => '2011-08-01'
       )
 

@@ -47,7 +47,7 @@
 <fieldset class="collapsible" id="distribution_centres">
   <legend>Distribution Centres</legend>
     <div class="distribution_centres">
-    <% if phenotype_attempt.status && phenotype_attempt.status.name == 'Cre Excision Complete' %>
+    <% if phenotype_attempt.distribution_centres.length > 0 %>
       <table id="distribution_centres_table" class="report_table">
         <thead class="title">
           <tr>
@@ -69,7 +69,9 @@
         <% end %>
         </tbody>
       </table>
-      <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
+      <% if @phenotype_attempt.status_stamps.where(:status_id => 'cec'.status.id).count != 0 %>
+        <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
+      <% end %>
     <% else %>
     No Distribution Centres can be set until Status is Cre Excision Complete.
     <% end %>

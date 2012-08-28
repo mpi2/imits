@@ -402,13 +402,29 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal 0, pa.distribution_centres.count
 
         pa = Factory.create :populated_phenotype_attempt
-        pa.distribution_centres.destroy_all
+        dc = PhenotypeAttempt::DistributionCentre.find_all_by_phenotype_attempt_id(pa.id)
+        dc.first.destroy
+        pa.save!
         pa.reload
         assert_equal 1, pa.distribution_centres.count
         dc = pa.distribution_centres.first
         assert_equal 'Frozen embryos', dc.deposited_material.name
         assert_equal pa.production_centre.name, dc.centre.name
       end
+
+      should 'not create an initial distribution centre. (use to because it used the status of the phenotype before it was saved)' do
+        pa = Factory.create :populated_phenotype_attempt
+        dc = PhenotypeAttempt::DistributionCentre.find_all_by_phenotype_attempt_id(pa.id)
+        dc.first.destroy
+
+        pa.number_of_cre_matings_successful = 0
+        pa.phenotyping_started = false
+        pa.phenotyping_complete = false
+        pa.save!
+        pa.reload
+        assert_equal 0, pa.distribution_centres.count
+      end
+
     end
 
     context 'before filter' do

@@ -17,7 +17,7 @@ module Rake
             ]
           )
 
-          mi2 = Factory.create :mi_attempt, :is_active => false,
+          mi2 = Factory.create :mi_attempt_genotype_confirmed, :is_active => false,
                   :mi_date => '2011-11-02'
           replace_status_stamps(mi2,
             [

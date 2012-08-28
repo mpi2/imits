@@ -326,12 +326,14 @@ class MiPlanTest < ActiveSupport::TestCase
 
       context '#status' do
         should 'create status stamps when status is changed' do
+          default_mi_plan.is_active = false
+          default_mi_plan.save!
+
           replace_status_stamps(default_mi_plan,
             :Assigned => '2012-01-01',
-            :Inactive => '2012-01-02',
-            :Withdrawn => '2012-01-03')
+            :Inactive => '2012-01-02')
 
-          expected = ["Assigned", "Inactive", "Withdrawn"]
+          expected = ["Assigned", "Inactive"]
           assert_equal expected, default_mi_plan.status_stamps.map{|i| i.status.name}
         end
 
@@ -1015,7 +1017,7 @@ class MiPlanTest < ActiveSupport::TestCase
           :es_cell => Factory.create(:es_cell, :gene => cbx1)
         }
 
-        mi_attempt = Factory.create(:mi_attempt, :is_active => false)
+        mi_attempt = Factory.create(:mi_attempt_genotype_confirmed, :is_active => false)
         replace_status_stamps(mi_attempt,
           'Micro-injection in progress' => '2010-05-13',
           'Genotype confirmed' => '2010-11-12',
@@ -1077,7 +1079,7 @@ class MiPlanTest < ActiveSupport::TestCase
           :es_cell => Factory.create(:es_cell, :gene => cbx1)
         }
 
-        mi_attempt = Factory.create(:mi_attempt, :is_active => false)
+        mi_attempt = Factory.create(:mi_attempt_genotype_confirmed, :is_active => false)
         replace_status_stamps(mi_attempt,
           'Micro-injection in progress' => '2010-05-13',
           'Genotype confirmed' => '2010-11-12',
@@ -1272,7 +1274,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
         d = DateTime.now.to_date
 
-        mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
+        mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args.merge(:is_active => false))
         replace_status_stamps(mi_attempt1, [
           ['Micro-injection aborted', "#{d.year}-#{d.month}-13 05:04:01 UTC"]
         ])

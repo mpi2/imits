@@ -115,25 +115,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           }
           assert_equal expected, mi.reportable_statuses_with_latest_dates
         end
-
-        should 'not include aborted status if latest status is GC' do
-          mi = Factory.create :mi_attempt, :is_active => false
-          mi.is_active = true
-          set_mi_attempt_genotype_confirmed(mi)
-          replace_status_stamps(mi,
-            :mip => '2011-01-01',
-            :chr => '2011-03-01',
-            :gtc => '2011-03-02'
-          )
-
-          expected = {
-            'Micro-injection in progress' => Date.parse('2011-01-01'),
-            'Chimeras obtained' => Date.parse('2011-03-01'),
-            'Genotype confirmed' => Date.parse('2011-03-02')
-          }
-
-          assert_equal expected, mi.reportable_statuses_with_latest_dates
-        end
       end
 
       context '#mouse_allele_type' do

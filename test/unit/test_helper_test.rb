@@ -26,6 +26,7 @@ class TestHelperTest < ActiveSupport::TestCase
         mi = Factory.create :mi_attempt_genotype_confirmed
         expected = [
           ['Micro-injection in progress', '2010-03-11 07:12:03 UTC'],
+          ['Chimeras obtained', '2010-03-12 07:43:03 UTC'],
           ['Genotype confirmed', '2012-05-13 05:04:01 UTC']
         ]
         replace_status_stamps(mi, expected)
@@ -35,10 +36,8 @@ class TestHelperTest < ActiveSupport::TestCase
       end
 
       should 'work for other' do
-        plan = Factory.create :mi_plan, :status => MiPlan::Status['Assigned']
+        plan = Factory.create :mi_plan
         expected = [
-          ['Interest', '2011-03-11 01:01:01 UTC'],
-          ['Conflict', '2011-04-12 02:02:02 UTC'],
           ['Assigned', '2011-05-13 03:03:03 UTC']
         ]
         replace_status_stamps(plan, expected)
@@ -48,15 +47,13 @@ class TestHelperTest < ActiveSupport::TestCase
       end
 
       should 'take only dates for status stamps' do
-        plan = Factory.create :mi_plan, :status => MiPlan::Status['Withdrawn']
+        plan = Factory.create :mi_plan, :number_of_es_cells_starting_qc => 1
         replace_status_stamps(plan,
-          'Interest' => '2011-01-13',
-          'Assigned' => '2011-05-13',
-          'Withdrawn' => '2011-08-13')
+           'Assigned' => '2011-05-13',
+           'Assigned - ES Cell QC In Progress' => '2011-08-13')
         expected = [
-          ['Interest', '2011-01-13 00:00:00 UTC'],
           ['Assigned', '2011-05-13 00:00:00 UTC'],
-          ['Withdrawn', '2011-08-13 00:00:00 UTC']
+          ['Assigned - ES Cell QC In Progress', '2011-08-13 00:00:00 UTC']
         ]
         got = plan.status_stamps.map {|i| [i.name, i.created_at.to_s]}
         assert_equal expected, got

@@ -54,6 +54,15 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       assert_equal 'Phenotyping Complete', phenotype_attempt.status.name
     end
 
+    should 'not crash when checking for Cre Excision Complete if number_of_cre_matings_successful us nil' do
+      phenotype_attempt.rederivation_started = true
+      phenotype_attempt.rederivation_complete = true
+      phenotype_attempt.deleter_strain = DeleterStrain.first
+      phenotype_attempt.number_of_cre_matings_successful = nil
+      phenotype_attempt.mouse_allele_type = 'b'
+      assert_nothing_raised { phenotype_attempt.valid? }
+    end
+
     should 'transition through Phenotype Attempt Registered -> Cre Excision Started -> Cre Excision Complete with mouse_allele_type of "b"' do
       phenotype_attempt.valid?
       assert_equal 'Phenotype Attempt Registered', phenotype_attempt.status.name

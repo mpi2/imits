@@ -72,6 +72,7 @@ class PhenotypeAttempt < ApplicationModel
       dc.centre = self.production_centre
       dc.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
       dc.save!
+      distribution_centres.reload
     end
   end
 

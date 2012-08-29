@@ -46,7 +46,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
       next if !cons.include?(miplanrec.consortium)
       self.states.each do |state, name|
         date = miplanrec[name]
-        next if date == nil or date < CUT_OFF_DATE
+        next if date == nil or date < CUT_OFF_DATE or date > Time.now.to_date
         year, month = convert_date(date)
         consortium = miplanrec.consortium
         summary [consortium]['data'][year][month][consortium][state] += 1

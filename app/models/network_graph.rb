@@ -35,7 +35,7 @@ class NetworkGraph
         phenotype_attempts.each do |phenotype_attempt|
           if ! @nodes.include?(['PA',phenotype_attempt.id])
             phen_no += 1
-            @nodes[['PA',phenotype_attempt.id]] = NetworkGraph::PhenotypeAttemptNode.new(params = {:symbol => "PA#{phen_no}", :id => phenotype_attempt.id, :cre_deleter_strain => phenotype_attempt.deleter_strain.try(:name).to_s, :consortium=> phenotype_attempt.consortium.name, :centre=> phenotype_attempt.production_centre.production_centre.try(:name).to_s, :url=>""})
+            @nodes[['PA',phenotype_attempt.id]] = NetworkGraph::PhenotypeAttemptNode.new(params = {:symbol => "PA#{phen_no}", :id => phenotype_attempt.id, :cre_deleter_strain => phenotype_attempt.deleter_strain.try(:name).to_s, :consortium=> phenotype_attempt.consortium.name, :centre=> phenotype_attempt.production_centre.try(:name).to_s, :url=>""})
           end
           if phenotype_attempt.mi_plan_id != phenotype_attempt.mi_attempt.mi_plan_id
             @relations<<[@nodes[['MP',mi_plan.id]], @nodes[['PA',phenotype_attempt.id]]]

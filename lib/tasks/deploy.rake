@@ -44,8 +44,9 @@ namespace :deploy do
     tag = `git describe  --match 'v*' --exact-match --always 2> /dev/null`.strip
     if tag.empty?
       tag = "v#{Time.now.strftime('%Y%m%d%H%M%S')}"
-      system("git tag -a #{tag} -m '' && git push origin #{tag}") or raise 'Failed to tag'
+      system("git tag -a #{tag} -m ''") or raise 'Failed to create tag'
     end
+    system("git push origin refs/tags/#{tag}") or raise 'Failed to push tag'
     puts "TAG: #{tag}"
   end
 end

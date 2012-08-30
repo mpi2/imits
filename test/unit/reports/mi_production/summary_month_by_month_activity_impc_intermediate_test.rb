@@ -144,6 +144,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediateTest < A
       assert_equal report.data['RIKEN BRC'].nil?, true
     end
 
+    should 'not fall over if there exists a status stamp with a date set in the future.' do
+      mi_attempt = MiAttempt.first
+      status_stamp = mi_attempt.status_stamps.first
+      status_stamp.created_at = Time.now.next_month
+      status_stamp.save!
+      Reports::MiProduction::Intermediate.new.cache
+      report = Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed
+      assert_nothing_raised {report.generate}
+    end
 
   end
 end

@@ -1,21 +1,25 @@
 <% @tab = 'Genotype Verification' %>
-
 <%= render :partial => "navigation" %>
 <div class='quality-overviews-summary'>
 <table class="report_table">
-  <tr>
-    <th>Consortia Group</th>
-    <th>Consortium</th>
-    <th>Production centre</th>
-    <th>Genotype confirmed colonies</th>
-    <th>Colonies with overall pass</th>
-    <th>% Overall Pass colonies</th>
-    <th>Locus targeted fails</th>
-    <th>Structure targeted allele fails</th>
-    <th>Downstream loxP site fails</th>
-    <th>No additional vector insertions fails</th>
-  </tr>
-  <%= render @quality_overview_groupings %>
+<% @quality_overview_groupings.each do |key, quality_overview_groupings| %>
+    <tr height = '20'></tr>
+    <tr>
+      <th>Consortia Group</th>
+      <th>Consortium</th>
+      <th>Production centre</th>
+      <th>Genotype confirmed colonies</th>
+      <th>Colonies with overall pass</th>
+      <th>% Overall Pass colonies</th>
+      <th>Locus targeted fails</th>
+      <th>Structure targeted allele fails</th>
+      <th>Downstream loxP site fails</th>
+      <th>No additional vector insertions fails</th>
+    </tr>
+    <%quality_overview_groupings.each do |quality_overview_grouping|%>
+      <%= render :partial => quality_overview_grouping , :quality_overview_grouping => quality_overview_grouping %>
+    <% end %>
+<% end %>
 </table>
 </div>
 <div>

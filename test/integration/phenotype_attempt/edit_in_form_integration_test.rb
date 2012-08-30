@@ -63,5 +63,16 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       click_link 'Add Distribution Centre'
     end
 
+    should 'always show distribution centre if one exists' do
+      @phenotype_attempt.number_of_cre_matings_successful = 0
+      @phenotype_attempt.phenotyping_started = false
+      @phenotype_attempt.phenotyping_complete = false
+      @phenotype_attempt.save!
+      @phenotype_attempt.reload
+      visit current_path
+
+      assert page.find('table[id="distribution_centres_table"]')
+    end
+
   end
 end

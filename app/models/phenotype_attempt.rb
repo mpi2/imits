@@ -37,9 +37,9 @@ class PhenotypeAttempt < ApplicationModel
 
   before_save :generate_colony_name_if_blank
   before_save :ensure_plan_is_valid
-  before_save :create_initial_distribution_centre
 
   after_save :manage_status_stamps
+  after_save :create_initial_distribution_centre
 
   def set_mi_plan
     self.mi_plan ||= mi_attempt.try(:mi_plan)
@@ -72,6 +72,7 @@ class PhenotypeAttempt < ApplicationModel
       dc.centre = self.production_centre
       dc.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
       dc.save!
+      distribution_centres.reload
     end
   end
 

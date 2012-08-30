@@ -6,180 +6,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   CSV_BLANKS = false
   CUT_OFF_DATE = Date.parse('2011-06-01')
 
-#  328	56
-#300	34
-#252	16
-#204	0
-#156	0
-#112	0
-#68	0
-#32	0
-  MI_GOALS =
-    {
-      2012 => {
-        8 => {
-          'BaSH' => 474,
-          'DTCC' => 345,
-          'JAX' => 195,
-        },
-        7 => {
-          'BaSH' => 440,
-          'DTCC' => 322,
-          'JAX' => 165,
-        },
-        6 => {
-          'BaSH' => 412,
-          'DTCC' => 299,
-          'JAX' => 135,
-        },
-        5 => {
-          'BaSH' => 384,
-          'DTCC' => 276,
-          'JAX' => 105,
-        },
-        4 => {
-          'BaSH' => 356,
-          'DTCC' => 253,
-          'JAX' => 75,
-        },
-        3 => {
-          'BaSH' => 328,
-          'DTCC' => 230,
-          'JAX' => 45,
-        },
-        2 => {
-          'BaSH' => 300,
-          'DTCC' => 207,
-          'JAX' => 15,
-        },
-        1 => {
-          'BaSH' => 252,
-          'DTCC' => 184,
-          'JAX' => 6,
-        }
-      },
-      2011 => {
-        12 => {
-          'BaSH' => 204,
-          'DTCC' => 161,
-          'JAX' => 0,
-        },
-        11 => {
-          'BaSH' => 156,
-          'DTCC' => 138,
-          'JAX' => 0,
-        },
-        10 => {
-          'BaSH' => 112,
-          'DTCC' => 115,
-          'JAX' => 0,
-        },
-        9 => {
-          'BaSH' => 68,
-          'DTCC' => 92,
-          'JAX' => 0,
-        },
-        8 => {
-          'BaSH' => 32,
-          'DTCC' => 69,
-          'JAX' => 0,
-        },
-        7 => {
-          'BaSH' => 10,
-          'DTCC' => 46,
-          'JAX' => 0,
-        },
-        6 => {
-          'BaSH' => 10,
-          'DTCC' => 23,
-          'JAX' => 0,
-        }
-      }
-    }
-
-  GC_GOALS =
-    {
-      2012 => {
-        8 => {
-          'BaSH' => 164,
-          'DTCC' => 224,
-          'JAX' => 160,
-        },
-        7 => {
-          'BaSH' => 150,
-          'DTCC' => 202,
-          'JAX' => 92,
-        },
-        6 => {
-          'BaSH' => 126,
-          'DTCC' => 182,
-          'JAX' => 43,
-        },
-        5 => {
-          'BaSH' => 102,
-          'DTCC' => 168,
-          'JAX' => 14,
-        },
-        4 => {
-          'BaSH' => 78,
-          'DTCC' => 154,
-          'JAX' => 4,
-        },
-        3 => {
-          'BaSH' => 56,
-          'DTCC' => 140,
-          'JAX' => 0,
-        },
-        2 => {
-          'BaSH' => 34,
-          'DTCC' => 126,
-          'JAX' => 0,
-        },
-        1 => {
-          'BaSH' => 16,
-          'DTCC' => 112,
-          'JAX' => 0,
-        }
-      },
-      2011 => {
-        12 => {
-          'BaSH' => 0,
-          'DTCC' => 98,
-          'JAX' => 0,
-        },
-        11 => {
-          'BaSH' => 0,
-          'DTCC' => 84,
-          'JAX' => 0,
-        },
-        10 => {
-          'BaSH' => 0,
-          'DTCC' => 70,
-          'JAX' => 0,
-        },
-        9 => {
-          'BaSH' => 0,
-          'DTCC' => 56,
-          'JAX' => 0,
-        },
-        8 => {
-          'BaSH' => 0,
-          'DTCC' => 42,
-          'JAX' => 0,
-        },
-        7 => {
-          'BaSH' => 0,
-          'DTCC' => 28,
-          'JAX' => 0,
-        },
-        6 => {
-          'BaSH' => 0,
-          'DTCC' => 14,
-          'JAX' => 0,
-        }
-      }
-    }
-
   HEADINGS_HTML = [
     'Year',
     'Month',
@@ -256,6 +82,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   end
 
   def self.add_cumulated_counts_and_monthly_goals(summary)
+    goal_data = YAML.load_file('config/report_production_goals.yml')
     current_totals_per_consortium = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
     Consortium.all.each do |consortium|
       current_totals_per_consortium[consortium.name][:es_starts] = 0
@@ -291,8 +118,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
           summary[year][month][consortium]['ALL']['Cumulative MIs'] = total_mi_attempts
           summary[year][month][consortium]['ALL']['Cumulative Genotype Confirmed'] = total_gc_mice
 
-          summary[year][month][consortium]['ALL']['MI Goal'] = MI_GOALS[year][month][consortium]
-          summary[year][month][consortium]['ALL']['GC Goal'] = GC_GOALS[year][month][consortium]
+          summary[year][month][consortium]['ALL']['MI Goal'] = goal_data['summary_month_by_month'][consortium][year][month]['mi_goals']
+          summary[year][month][consortium]['ALL']['GC Goal'] = goal_data['summary_month_by_month'][consortium][year][month]['gc_goals']
         end
       end
     end

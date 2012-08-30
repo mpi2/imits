@@ -16,16 +16,16 @@ class NetworkGraph
     phen_no = 0
     @gene.mi_plans(:order => "created_at, id").each do |mi_plan|
       plan_no += 1
-      @nodes[['MP', mi_plan.id]] = NetworkGraph::MiPlanNode.new(params={:symbol => "P#{plan_no}", :id => mi_plan.id, :consortium=> mi_plan.consortium.name, :centre=>mi_plan.production_centre.name, :url=>''})
+      @nodes[['MP', mi_plan.id]] = NetworkGraph::MiPlanNode.new(params={:symbol => "P#{plan_no}", :id => mi_plan.id, :consortium=> mi_plan.consortium.name, :centre=>mi_plan.production_centre.try(:name).to_s, :url=>''})
       @relations << [@nodes[['G',@gene.id]], @nodes[['MP',mi_plan.id]]]
       mi_plan.mi_attempts(:order => "created_at, id").each do |mi_attempt|
         mi_no += 1
-        @nodes[['MA', mi_attempt.id]] = NetworkGraph::MiAttemptNode.new(params = {:symbol => "MA#{mi_no}", :id => mi_attempt.id, :consortium=> mi_plan.consortium.name, :centre=>mi_plan.production_centre.name, :url=>"", :colony_background_strain => (!mi_attempt.colony_background_strain.nil? ? mi_attempt.colony_background_strain.name : ''), :test_cross_strain => (! mi_attempt.test_cross_strain.nil? ? mi_attempt.test_cross_strain.name : '')})
+        @nodes[['MA', mi_attempt.id]] = NetworkGraph::MiAttemptNode.new(params = {:symbol => "MA#{mi_no}", :id => mi_attempt.id, :consortium=> mi_plan.consortium.name, :centre=>mi_plan.production_centre.try(:name).to_s, :url=>"", :colony_background_strain => mi_attempt.colony_background_strain.try(:name).to_s, :test_cross_strain => mi_attempt.test_cross_strain.try(:name).to_s})
         @relations<<[@nodes[['MP',mi_plan.id]], @nodes[['MA',mi_attempt.id]]]
         mi_attempt.phenotype_attempts(:order => "created_at, id").each do |phenotype_attempt|
           if ! @nodes.include?(['PA',phenotype_attempt.id])
             phen_no += 1
-            @nodes[['PA',phenotype_attempt.id]] = NetworkGraph::PhenotypeAttemptNode.new(params = {:symbol => "PA#{phen_no}", :id => phenotype_attempt.id, :cre_deleter_strain => (phenotype_attempt.deleter_strain.nil? ? '' : phenotype_attempt.deleter_strain.name), :consortium=> phenotype_attempt.mi_plan.consortium.name, :centre=>phenotype_attempt.mi_plan.production_centre.name, :url=>""})
+            @nodes[['PA',phenotype_attempt.id]] = NetworkGraph::PhenotypeAttemptNode.new(params = {:symbol => "PA#{phen_no}", :id => phenotype_attempt.id, :cre_deleter_strain => phenotype_attempt.deleter_strain.try(:name).to_s, :consortium=> phenotype_attempt.consortium.name, :centre=>phenotype_attempt.production_centre.try(:name).to_s, :url=>""})
           end
           @relations<<[@nodes[['MA',mi_attempt.id]], @nodes[['PA',phenotype_attempt.id]]]
         end #end phenotype attempts associated with mi_attempt
@@ -35,7 +35,7 @@ class NetworkGraph
         phenotype_attempts.each do |phenotype_attempt|
           if ! @nodes.include?(['PA',phenotype_attempt.id])
             phen_no += 1
-            @nodes[['PA',phenotype_attempt.id]] = NetworkGraph::PhenotypeAttemptNode.new(params = {:symbol => "PA#{phen_no}", :id => phenotype_attempt.id, :cre_deleter_strain => (phenotype_attempt.deleter_strain.nil? ? '' : phenotype_attempt.deleter_strain.name), :consortium=> phenotype_attempt.mi_plan.consortium.name, :centre=>phenotype_attempt.mi_plan.production_centre.name, :url=>""})
+            @nodes[['PA',phenotype_attempt.id]] = NetworkGraph::PhenotypeAttemptNode.new(params = {:symbol => "PA#{phen_no}", :id => phenotype_attempt.id, :cre_deleter_strain => phenotype_attempt.deleter_strain.try(:name).to_s, :consortium=> phenotype_attempt.consortium.name, :centre=> phenotype_attempt.production_centre.try(:name).to_s, :url=>""})
           end
           if phenotype_attempt.mi_plan_id != phenotype_attempt.mi_attempt.mi_plan_id
             @relations<<[@nodes[['MP',mi_plan.id]], @nodes[['PA',phenotype_attempt.id]]]

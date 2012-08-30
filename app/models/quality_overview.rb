@@ -60,6 +60,19 @@ class QualityOverview
     return quality_overviews
   end
 
+  def self.group(quality_overview_groupings)
+    quality_overview_grouped = {}
+    current_group = ''
+    quality_overview_groupings.each do |rec|
+      if rec.mi_plan_consortia_grouping != current_group
+        current_group = rec.mi_plan_consortia_grouping
+        quality_overview_grouped[current_group] = []
+      end
+      quality_overview_grouped[current_group] << rec
+    end
+    return quality_overview_grouped
+  end
+
   def populate_related_data
     if self.colony_prefix
       mi_attempt = MiAttempt.find_by_colony_name!(self.colony_prefix)

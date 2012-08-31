@@ -78,25 +78,20 @@ class PhenotypeAttempt < ApplicationModel
 
   # END Callbacks
 
-  def pretty_print_distribution_centres
-    @formatted_tags_array = Array.new
-    self.distribution_centres.each do |this_distribution_centre|
-      output_array = Array.new
-      centre = this_distribution_centre.centre.name || ''
-      deposited_material = this_distribution_centre.deposited_material.name || ''
-      if this_distribution_centre.is_distributed_by_emma
-        emma_status = 'EMMA'
-        output_array.push(emma_status, centre)
-      else
-        output_array.push(centre)
+  def distribution_centres_formatted_display
+    output_string = ''
+    self.distribution_centres.each do |distribution_centre|
+      output_array = []
+      if distribution_centre.is_distributed_by_emma
+        output_array << 'EMMA'
       end
-      output_string = "["
-      output_string << output_array.join('::')
-      output_string << "]"
-      @formatted_tags_array.push(output_string)
+      output_array << distribution_centre.centre.name
+      if !distribution_centre.deposited_material.name.nil?
+        output_array << distribution_centre.deposited_material.name
+      end
+      output_string << "[#{output_array.join(', ')}] "
     end
-    @pretty_print_distribution_centres = @formatted_tags_array.join(', ')
-    return @pretty_print_distribution_centres
+    return output_string.strip()
   end
 
   def mouse_allele_symbol_superscript

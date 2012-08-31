@@ -24,7 +24,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   READABLE_ATTRIBUTES = %w{
     id
-    pretty_print_distribution_centres
+    distribution_centres_formatted_display
     status_name
     marker_symbol
   } + FULL_ACCESS_ATTRIBUTES

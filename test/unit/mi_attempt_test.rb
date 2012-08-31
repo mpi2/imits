@@ -937,5 +937,19 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#distribution_centres_formatted_display' do
+      should 'output a string of distribution centre and deposited material' do
+        mi = Factory.create :mi_attempt_genotype_confirmed
+        dc = TestDummy.create :mi_attempt_distribution_centre,
+              'WTSI',
+              'Live mice',
+              :start_date => '2012-01-01',
+              :end_date => '2012-01-02',
+              :is_distributed_by_emma => true,
+              :mi_attempt => mi
+        assert_equal "[EMMA, WTSI, Live mice]", mi.distribution_centres_formatted_display
+      end
+    end
+
   end
 end

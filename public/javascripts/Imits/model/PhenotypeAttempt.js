@@ -17,9 +17,8 @@ Ext.define('Imits.model.PhenotypeAttempt', {
     {
         name: 'production_centre_name'
     },
-    'distribution_centres_attributes',
     {
-        name: 'pretty_print_distribution_centres',
+        name: 'distribution_centres_formatted_display',
         readOnly: true
     },
     {

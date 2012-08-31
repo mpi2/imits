@@ -212,7 +212,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'consortium_name',
         'production_centre_name',
         'distribution_centres_attributes',
-        'pretty_print_distribution_centres',
+        'distribution_centres_formatted_display',
         'mi_attempt_colony_name',
         'is_active',
         'marker_symbol',

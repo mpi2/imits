@@ -443,5 +443,12 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#distribution_centres_formatted_display' do
+      should 'output a string of distribution centre and deposited material' do
+        pa = Factory.create :populated_phenotype_attempt
+        assert_equal "[ICS, Frozen embryos]", pa.distribution_centres_formatted_display
+      end
+    end
+
   end
 end

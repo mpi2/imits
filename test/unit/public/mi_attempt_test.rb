@@ -83,7 +83,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         consortium_name
         production_centre_name
         distribution_centres_attributes
-        pretty_print_distribution_centres
+        distribution_centres_formatted_display
         blast_strain_name
         total_blasts_injected
         total_transferred

@@ -27,5 +27,5 @@ ApplicationModel.audited_transaction do
     mi_attempt.save!
   end
 
- # raise 'TEST'
+  raise 'TEST'
 end

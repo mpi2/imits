@@ -12,6 +12,7 @@ ApplicationModel.audited_transaction do
     plan = mi_attempt.mi_plan
     if !MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id(plan.gene_id, consortium_id, centre_id).nil?
       newplan = MiPlan.find_by_gene_id_and_consortium_id_and_production_centre_id(plan.gene_id, consortium_id, centre_id)
+      puts "use existing plan: #{newplan.mi_attempts.count}"
     else
       newplan = MiPlan.new({
                         :gene_id => plan.gene_id,
@@ -43,10 +44,11 @@ ApplicationModel.audited_transaction do
       end
     end
     puts 'attached mi_attempt to new MGP Legacy plan'
-    mi_attempt.mi_plan_id = newplan.id
+    mi_attempt.mi_plan = newplan
     if mi_attempt.valid?
       puts "#{mi_attempt.id}"
       mi_attempt.save!
+      puts MiAttempt.find_by_id(mi_attempt.id).consortium_name
       puts '    reassigned mi_plan'
     else
       puts '     unsuccessful re asignment of mi_plan'

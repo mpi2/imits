@@ -159,9 +159,8 @@ class MiAttempt < ApplicationModel
 
     if is_active?
       mi_plan_to_set.is_active = true
-      mi_plan_to_set.force_assignment = true
     end
-
+    mi_plan_to_set.force_assignment = true
     mi_plan_to_set.save!
 
     self.mi_plan = mi_plan_to_set

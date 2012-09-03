@@ -384,6 +384,34 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal mi_plan, mi_attempt.mi_plan
           end
 
+          should 'not throw error when mi_attempt consortium_name is changed' do
+            cbx1 = Factory.create :gene_cbx1
+            mi_plan = Factory.create :mi_plan, :gene => cbx1,
+                    :consortium => Consortium.find_by_name!('BaSH'),
+                    :production_centre => Centre.find_by_name!('WTSI'),
+                    :status => MiPlan::Status.find_by_name!('Assigned - ES Cell QC In Progress')
+
+            mi_attempt = Factory.build :mi_attempt_genotype_confirmed,
+                    :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                    :mi_plan => mi_plan
+
+            mi_plan_2 =  Factory.create :mi_plan, :gene => cbx1,
+                    :consortium => Consortium.find_by_name!('DTCC'),
+                    :production_centre => Centre.find_by_name!('WTSI'),
+                    :status => MiPlan::Status.find_by_name!('Assigned - ES Cell QC In Progress')
+
+            Factory.build :mi_attempt_genotype_confirmed,
+                    :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                    :mi_plan => mi_plan_2
+
+            mi_plan_2.reload
+            mi_plan.reload
+            mi_attempt.reload
+            mi_attempt.consortium_name = 'DTCC'
+            mi_attempt.save!
+            assert_nothing_raised mi_attempt.save!
+          end
+
           should 'be know about its new MiAttempt without having to be manually reloaded' do
             mi = Factory.create :mi_attempt
             assert_equal [mi], mi.mi_plan.mi_attempts

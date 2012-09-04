@@ -152,16 +152,15 @@ class MiAttempt < ApplicationModel
       mi_plan_to_set.priority = MiPlan::Priority.find_by_name!('High')
       mi_plan_to_set.consortium = Consortium.find_by_name!(consortium_name)
       mi_plan_to_set.gene = es_cell.gene
-      mi_plan_to_set.force_assignment = true
     end
 
     mi_plan_to_set.production_centre = Centre.find_by_name!(production_centre_name)
 
     if is_active?
       mi_plan_to_set.is_active = true
-      mi_plan_to_set.force_assignment = true
     end
 
+    mi_plan_to_set.force_assignment = true
     mi_plan_to_set.save!
 
     self.mi_plan = mi_plan_to_set

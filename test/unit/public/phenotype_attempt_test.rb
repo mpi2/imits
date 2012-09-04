@@ -163,8 +163,9 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
           :consortium_name => 'JAX')
         pt.save!
+        plan.reload
         assert_equal plan, pt.mi_plan
-        plan.reload; assert_equal 'Assigned', plan.status.name
+        assert_equal 'Assigned', plan.status.name
       end
 
       should 'not overwrite existing MiPlan that has been assigned' do

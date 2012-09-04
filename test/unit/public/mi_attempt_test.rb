@@ -207,7 +207,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
       Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
       default_mi_attempt.reload
-      assert_equal 'Auto-generated Pipeline Name 7', default_mi_attempt.pipeline_name
+      assert_match(/Auto-generated Pipeline Name/, default_mi_attempt.pipeline_name)
     end
 
   end

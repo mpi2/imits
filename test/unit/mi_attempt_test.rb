@@ -402,8 +402,7 @@ class MiAttemptTest < ActiveSupport::TestCase
             mi_attempt = Factory.build :mi_attempt,
                     :es_cell => Factory.create(:es_cell, :gene => cbx1),
                     :production_centre_name => conflict_mi_plan.production_centre.name,
-                    :consortium_name => conflict_mi_plan.consortium.name,
-                    :mi_plan => nil
+                    :consortium_name => conflict_mi_plan.consortium.name
 
             assert_no_difference("MiPlan.count") do
               mi_attempt.save!

@@ -59,13 +59,13 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     if production_centre_name
       centre_to_set = Centre.find_by_name(production_centre_name)
     else
-      centre_to_set = mi_attempt.mi_plan.production_centre
+      centre_to_set = mi_attempt.production_centre
     end
 
     if consortium_name
       consortium_to_set = Consortium.find_by_name(consortium_name)
     else
-      consortium_to_set = mi_attempt.mi_plan.consortium
+      consortium_to_set = mi_attempt.consortium
     end
 
     self.mi_plan = MiPlan.where(

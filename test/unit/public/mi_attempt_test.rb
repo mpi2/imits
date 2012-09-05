@@ -203,10 +203,6 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have #pipeline_name' do
-      set_mi_attempt_genotype_confirmed(default_mi_attempt)
-      Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
-      Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
-      default_mi_attempt.reload
       assert_match(/Auto-generated Pipeline Name/, default_mi_attempt.pipeline_name)
     end
 

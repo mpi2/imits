@@ -76,7 +76,6 @@ class NetworkGraph
   end
 
   def dot_file
-    pp @dot_file
     return @dot_file
   end
 end

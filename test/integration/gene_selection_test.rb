@@ -141,7 +141,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         assert_equal 'Assigned - ES Cell QC In Progress', mi_plan.status.name
       end
 
-      should 'production graph link should display graph' do
+      should_eventually 'production graph link should display graph' do
         Factory.create :gene, :marker_symbol => 'cbx1'
         Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => cbx1)
 

@@ -56,7 +56,24 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 fieldLabel: 'Consortium',
                 name: 'consortium_name',
                 storeOptionsAreSpecial: true,
-                store: window.CONSORTIUM_OPTIONS
+                store: window.CONSORTIUM_OPTIONS,
+                listeners : {
+                  change : function() {
+                       Ext.Msg.show({
+                            title:'Notice',
+                            msg: "This change also affects the 4 mi_attempts and 4 phenotype attempts associated with this plan  - Do you want to continue?",
+                            buttons: Ext.Msg.YESNO,
+                            icon: Ext.Msg.QUESTION,
+                            closable: false,
+                            fn: function (clicked) {
+                                if(clicked === 'yes') {
+                                    editor.updateAndHide();
+                                } else {
+                                    button.enable();
+                                }
+                            }
+                        });
+                  }}
             },
             {
                 id: 'production_centre_name',
@@ -390,10 +407,10 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 });
                 editor.show();
 
-                var component = editor.form.getComponent('consortium_name');
-                if(component && (miPlan.get('mi_attempts_count') > 0 || miPlan.get('phenotype_attempts_count') > 0)) {
-                    component.setReadOnly(true);
-                }
+   //             var component = editor.form.getComponent('consortium_name');
+   //             if(component && (miPlan.get('mi_attempts_count') > 0 || miPlan.get('phenotype_attempts_count') > 0)) {
+     //               component.setReadOnly(true);
+       //         }
 
                 if(Ext.Array.indexOf(window.WITHDRAWABLE_STATUSES, miPlan.get('status_name')) == -1) {
                     editor.withdrawButton.disable();

@@ -58,15 +58,23 @@ class QualityOverviewGrouping
       if quality_overview.confirm_downstream_lox_p_site != nil || !quality_overview.confirm_downstream_lox_p_site.blank?
         pass_downstream = true
       else
-        self.confirm_downstream_lox_p_site_total = self.confirm_downstream_lox_p_site_total + 1
+        if quality_overview.mutation_subtype == 'conditional_ready'
+          self.confirm_downstream_lox_p_site_total = self.confirm_downstream_lox_p_site_total + 1
+        end
       end
       if quality_overview.confirm_no_additional_vector_insertions != nil || !quality_overview.confirm_no_additional_vector_insertions.blank?
         pass_vector = true
       else
         self.confirm_no_additional_vector_insertions_total = self.confirm_no_additional_vector_insertions_total + 1
       end
-      if pass_locus && pass_structure && pass_downstream && pass_vector
-        self.colonies_with_overall_pass = self.colonies_with_overall_pass + 1
+      if quality_overview.mutation_subtype == 'conditional_ready'
+        if pass_locus && pass_structure && pass_downstream && pass_vector
+          self.colonies_with_overall_pass = self.colonies_with_overall_pass + 1
+        end
+      else
+        if pass_locus && pass_structure && pass_vector
+          self.colonies_with_overall_pass = self.colonies_with_overall_pass + 1
+        end
       end
     end
 

@@ -53,7 +53,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
           test_cross_strain = "blogs"
           node = NetworkGraph::MiAttemptNode.new(:symbol => symbol, :id => id, :consortium => consortium, :centre => centre, :test_cross_strain => test_cross_strain, :colony_background_strain => colony_background_strain , :url => "")
           expected = "<<table>" +
-                     "<tr><td colspan=\"2\">Microinjections</td></tr>" +
+                     "<tr><td colspan=\"2\">Mouse Production</td></tr>" +
                      "<tr><td>Consortium:</td><td>#{consortium}</td></tr>" +
                      "<tr><td>Centre:</td><td>#{centre}</td></tr>" +
                      "<tr><td>#{status.name}:</td><td>#{status.created_at}</td></tr>" +
@@ -101,7 +101,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
       assert_match(/"P\d".*Mi Plan/, got)
       assert_match(/"PA1".*Phenotype Attempt/, got)
       assert_match(/"P2".*Mi Plan/, got)
-      assert_match(/"MA1".*Microinjections/, got)
+      assert_match(/"MA1".*Mouse Production/, got)
 
       assert_match(/"G1" -> "P1"/, got)
       assert_match(/"P(1|2)" -> "PA1"/, got)
@@ -113,7 +113,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
       expected = <<-EOL
 {rank=same;"Gene";"G1"}
 {rank=same;"Mi Plans";"P1";"P2"}
-{rank=same;"Microinjections";"MA1"}
+{rank=same;"Mouse Production";"MA1"}
 {rank=same;"Phenotype Attempts";"PA1"}
       EOL
 

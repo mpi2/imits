@@ -90,7 +90,7 @@ class QualityOverviewGrouping::ViewIndexIntegrationTest < Kermits2::IntegrationT
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(6)', :text => '0.0')
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(7)', :text => '2')
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(8)', :text => '1')
-        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(9)', :text => '2')
+        assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(9)', :text => '0')
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(3) td:nth-child(10)', :text => '1')
 
         assert page.has_css?('div.quality-overviews-summary tr:nth-child(4) td:nth-child(1)', :text => 'Legacy')

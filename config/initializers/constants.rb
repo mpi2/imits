@@ -13,6 +13,6 @@ when 'test' then
   'test/db/allele_overall_pass.csv'
 else
   # 'test/db/allele_overall_pass.csv'
-  # 'test/db/full_allele_overall_pass_download.csv'
-  'http://www.sanger.ac.uk/htgt/report/allele_overall_pass?view=csvdl'
+  'test/db/full_allele_overall_pass_download.csv'
+  # 'http://www.sanger.ac.uk/htgt/report/allele_overall_pass?view=csvdl'
 end

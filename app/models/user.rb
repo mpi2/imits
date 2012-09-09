@@ -2,7 +2,9 @@ class User < ActiveRecord::Base
   ADMIN_USERS = [
     'aq2@sanger.ac.uk',
     'vvi@sanger.ac.uk',
-    're4@sanger.ac.uk'
+    're4@sanger.ac.uk',
+    'pen1adm@sanger.ac.uk',
+    'pen2adm@sanger.ac.uk'
   ]
 
   REMOTE_ACCESS_USERS = [
@@ -54,4 +56,3 @@ end
 #
 #  index_users_on_email  (email) UNIQUE
 #
-

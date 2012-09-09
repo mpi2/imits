@@ -97,17 +97,17 @@ class NetworkGraphTest < ActiveSupport::TestCase
 
       got = NetworkGraph.new(gene.id).dot_file
 
-      assert_match /"G\d".*Gene.*blogs/, got
-      assert_match /"P\d".*Mi Plan/, got
-      assert_match /"PA1".*Phenotype Attempt/, got
-      assert_match /"P2".*Mi Plan/, got
-      assert_match /"MA1".*Mouse Production/, got
+      assert_match(/"G\d".*Gene.*blogs/, got)
+      assert_match(/"P\d".*Mi Plan/, got)
+      assert_match(/"PA1".*Phenotype Attempt/, got)
+      assert_match(/"P2".*Mi Plan/, got)
+      assert_match(/"MA1".*Mouse Production/, got)
 
-      assert_match /"G1" -> "P1"/, got
-      assert_match /"P(1|2)" -> "PA1"/, got
-      assert_match /"G1" -> "P2"/, got
-      assert_match /"P(1|2)" -> "MA1"/, got
-      assert_match /"MA1" -> "PA1"/, got
+      assert_match(/"G1" -> "P1"/, got)
+      assert_match(/"P(1|2)" -> "PA1"/, got)
+      assert_match(/"G1" -> "P2"/, got)
+      assert_match(/"P(1|2)" -> "MA1"/, got)
+      assert_match(/"MA1" -> "PA1"/, got)
 
 
       expected = <<-EOL

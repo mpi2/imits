@@ -59,17 +59,37 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 store: window.CONSORTIUM_OPTIONS,
                 listeners : {
                   change : function() {
+                       var no_mi_attempts = editor.miPlan.get('mi_attempts_count')
+                       var no_phenotype_attempts = editor.miPlan.get('phenotype_attempts_count')
+                       if (no_mi_attempts != 0 || no_phenotype_attempts != 0){
+                         message = "This will also affect "
+                         if (no_mi_attempts != 0 ) {
+                           message = message + no_mi_attempts + " Mouse Injection attempt ";
+                           if (no_phenotype_attempts != 0) {
+                             message = message + "and ";
+                           }
+                         }
+                         if (no_phenotype_attempts != 0) {
+                           message = message + no_phenotype_attempts + " Phenotype attempts ";
+                         }
+                         message = message + "- Do you want to continue?";
+                       } else {
+                         message = "This will change the consortium for this plan,  - Do you want to continue?";
+                       }
                        Ext.Msg.show({
-                            title:'Notice',
-                            msg: "This change also affects the 4 mi_attempts and 4 phenotype attempts associated with this plan  - Do you want to continue?",
+                            title:'Consortium Change',
+                            msg: message,
                             buttons: Ext.Msg.YESNO,
                             icon: Ext.Msg.QUESTION,
                             closable: false,
                             fn: function (clicked) {
-                                if(clicked === 'yes') {
-                                    editor.updateAndHide();
-                                } else {
-                                    button.enable();
+                                if(clicked === 'no') {
+                                    component = editor.form.getComponent('consortium_name');
+                                    editor.form.getComponent('consortium_name').suspendEvents();
+                                    component.setValue(editor.miPlan.get('consortium_name'));
+                                    editor.form.getComponent('consortium_name').resumeEvents();
+
+
                                 }
                             }
                         });
@@ -395,7 +415,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
     edit: function (miPlanId) {
         var editor = this;
-
+        editor.form.getComponent('consortium_name').suspendEvents()
         Imits.model.MiPlan.load(miPlanId, {
             success: function (miPlan) {
                 editor.miPlan = miPlan;
@@ -405,6 +425,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                         component.setValue(editor.miPlan.get(attr));
                     }
                 });
+                editor.form.getComponent('consortium_name').resumeEvents()
                 editor.show();
 
    //             var component = editor.form.getComponent('consortium_name');

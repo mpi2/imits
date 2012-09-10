@@ -73,16 +73,16 @@ class Public::MiPlan < ::MiPlan
     end
   end
 
-  validate do |plan|
-    if !plan.new_record? and plan.changes.has_key? 'consortium_id'
-      if plan.mi_attempts.size > 0
-        plan.errors.add(:consortium_name, 'cannot be changed (has micro-injection attempts)')
-      end
-      if plan.phenotype_attempts.size > 0
-        plan.errors.add(:consortium_name, 'cannot be changed (has phenotype attempts)')
-      end
-    end
-  end
+#  validate do |plan|
+#    if !plan.new_record? and plan.changes.has_key? 'consortium_id'
+#      if plan.mi_attempts.size > 0
+#        plan.errors.add(:consortium_name, 'cannot be changed (has micro-injection attempts)')
+#      end
+#      if plan.phenotype_attempts.size > 0
+#        plan.errors.add(:consortium_name, 'cannot be changed (has phenotype attempts)')
+#      end
+#    end
+#  end
 
   def self.translations
     return {

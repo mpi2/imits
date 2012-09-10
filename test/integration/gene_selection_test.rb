@@ -140,7 +140,6 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         assert_equal 'Assigned - ES Cell QC In Progress', mi_plan.status.name
       end
-
     end # once logged in
 
   end

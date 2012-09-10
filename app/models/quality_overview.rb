@@ -7,8 +7,8 @@ class QualityOverview
   include ActiveModel::Conversion
   extend ActiveModel::Naming
 
-  attr_accessor :indicator, :colony_prefix, :pipeline, :emma
-  attr_accessor :production_centre, :microinjection_date, :marker_symbol
+  attr_accessor :indicator, :colony_prefix, :pipeline, :consortium
+  attr_accessor :production_centre, :microinjection_date, :mutation_subtype, :marker_symbol
   attr_accessor :es_cell_clone, :confirm_locus_targeted, :confirm_structure_targeted_allele
   attr_accessor :confirm_downstream_lox_p_site, :confirm_no_additional_vector_insertions
   attr_accessor :es_dist_qc, :es_user_qc, :mouse_qc
@@ -22,18 +22,19 @@ class QualityOverview
     quality_overview.indicator = row[0]
     quality_overview.colony_prefix = row[1]
     quality_overview.pipeline = row[2]
-    quality_overview.emma = row[3]
+    quality_overview.consortium = row[3]
     quality_overview.production_centre = row[4]
     quality_overview.microinjection_date = row[5]
     quality_overview.marker_symbol = row[6]
-    quality_overview.es_cell_clone = row[7]
-    quality_overview.confirm_locus_targeted = row[8]
-    quality_overview.confirm_structure_targeted_allele = row[9]
-    quality_overview.confirm_downstream_lox_p_site = row[10]
-    quality_overview.confirm_no_additional_vector_insertions = row[11]
-    quality_overview.es_dist_qc = row[12]
-    quality_overview.es_user_qc = row[13]
-    quality_overview.mouse_qc = row[14]
+    quality_overview.mutation_subtype = row[7]
+    quality_overview.es_cell_clone = row[8]
+    quality_overview.confirm_locus_targeted = row[9]
+    quality_overview.confirm_structure_targeted_allele = row[10]
+    quality_overview.confirm_downstream_lox_p_site = row[11]
+    quality_overview.confirm_no_additional_vector_insertions = row[12]
+    quality_overview.es_dist_qc = row[13]
+    quality_overview.es_user_qc = row[14]
+    quality_overview.mouse_qc = row[15]
 
     return quality_overview
   end
@@ -80,7 +81,7 @@ class QualityOverview
       self.mi_plan_consortium = mi_attempt.mi_plan.consortium.name
       self.mi_plan_consortia_grouping, self.mi_plan_consortia_grouping_order = Consortium[self.mi_plan_consortium].consortia_group_and_order
       self.mi_plan_production_centre = mi_attempt.mi_plan.production_centre.name
-      self.mi_attempt_distribution_centres = mi_attempt.pretty_print_distribution_centres
+      self.mi_attempt_distribution_centres = mi_attempt.distribution_centres_formatted_display
       self.mi_attempt_status = mi_attempt.status.name
     end
   end

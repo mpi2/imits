@@ -24,7 +24,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
       context 'mi_plans and' do
         should 'have a html label' do
           mi_plan = Factory.create :mi_plan
-          status = mi_plan.status_stamps.first.status
+          status = mi_plan.status_stamps.first
           id = mi_plan.id
           symbol = "PA1"
           consortium = "BaSH"
@@ -34,7 +34,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
                      "<tr><td colspan=\"2\">Mi Plan</td></tr>" +
                      "<tr><td>Consortium:</td><td>#{consortium}</td></tr>" +
                      "<tr><td>Centre:</td><td>#{centre}</td></tr>" +
-                     "<tr><td>#{status.name}:</td><td>#{status.created_at}</td></tr>" +
+                     "<tr><td>#{status.status.name}:</td><td>#{status.created_at.strftime "%d/%m/%Y"}</td></tr>" +
                      "</table>>"
           got = node.label_html
           assert_equal expected, got
@@ -44,7 +44,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
       context 'mi_attempts and' do
         should 'have a html label' do
           mi_attempt = Factory.create :mi_attempt
-          status = mi_attempt.status_stamps.first.status
+          status = mi_attempt.status_stamps.first
           id = mi_attempt.id
           symbol = "PA1"
           consortium = "BaSH"
@@ -56,7 +56,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
                      "<tr><td colspan=\"2\">Mouse Production</td></tr>" +
                      "<tr><td>Consortium:</td><td>#{consortium}</td></tr>" +
                      "<tr><td>Centre:</td><td>#{centre}</td></tr>" +
-                     "<tr><td>#{status.name}:</td><td>#{status.created_at}</td></tr>" +
+                     "<tr><td>#{status.status.name}:</td><td>#{status.created_at.strftime "%d/%m/%Y"}</td></tr>" +
                      "<tr><td>Colony background strain:</td><td>#{colony_background_strain}</td></tr>" +
                      "<tr><td>Test cross strain:</td><td>#{test_cross_strain}</td></tr>" +
                      "</table>>"
@@ -68,7 +68,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
       context 'phenotypes and' do
         should 'have a html label' do
           phenotype_attempt = Factory.create :phenotype_attempt
-          status = phenotype_attempt.status_stamps.first.status
+          status = phenotype_attempt.status_stamps.first
           id = phenotype_attempt.id
           symbol = "PA1"
           consortium = "BaSH"
@@ -80,7 +80,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
                    "<tr><td>Consortium:</td><td>#{consortium}</td></tr>" +
                    "<tr><td>Centre:</td><td>#{centre}</td></tr>" +
                    "<tr><td>Cre Deleter Strain:</td><td>#{cre_deleter_strain}</td></tr>" +
-                   "<tr><td>#{status.name}:</td><td>#{status.created_at}</td></tr>" +
+                   "<tr><td>#{status.status.name}:</td><td>#{status.created_at.strftime "%d/%m/%Y"}</td></tr>" +
                    "</table>>"
             got = node.label_html
             assert_equal expected, got
@@ -97,17 +97,17 @@ class NetworkGraphTest < ActiveSupport::TestCase
 
       got = NetworkGraph.new(gene.id).dot_file
 
-      assert_match /"G\d".*Gene.*blogs/, got
-      assert_match /"P\d".*Mi Plan/, got
-      assert_match /"PA1".*Phenotype Attempt/, got
-      assert_match /"P2".*Mi Plan/, got
-      assert_match /"MA1".*Mouse Production/, got
+      assert_match(/"G\d".*Gene.*blogs/, got)
+      assert_match(/"P\d".*Mi Plan/, got)
+      assert_match(/"PA1".*Phenotype Attempt/, got)
+      assert_match(/"P2".*Mi Plan/, got)
+      assert_match(/"MA1".*Mouse Production/, got)
 
-      assert_match /"G1" -> "P1"/, got
-      assert_match /"P(1|2)" -> "PA1"/, got
-      assert_match /"G1" -> "P2"/, got
-      assert_match /"P(1|2)" -> "MA1"/, got
-      assert_match /"MA1" -> "PA1"/, got
+      assert_match(/"G1" -> "P1"/, got)
+      assert_match(/"P(1|2)" -> "PA1"/, got)
+      assert_match(/"G1" -> "P2"/, got)
+      assert_match(/"P(1|2)" -> "MA1"/, got)
+      assert_match(/"MA1" -> "PA1"/, got)
 
 
       expected = <<-EOL

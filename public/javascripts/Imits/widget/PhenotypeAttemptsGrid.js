@@ -97,19 +97,20 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         }
     },
     {
-        dataIndex: 'pretty_print_distribution_centres',
         header: 'Distribution Centres',
+        dataIndex: 'distribution_centres_formatted_display',
         readOnly: true,
-        width: 180,
-        xtype: 'templatecolumn',
-        tpl: new Ext.XTemplate(
-                '<tpl for="this.processedDistributionCentres(pretty_print_distribution_centres)">',
-                '<a href="' + window.basePath + '/phenotype_attempts/{parent.id}#distribution_centres" target="_blank">{distributionCentre}</a></br>',
-                '</tpl>',
-                {
-                    processedDistributionCentres: splitString
-                }
-        )
+        sortable: false,
+        width: 225,
+        renderer: function(value, metaData, record){
+          var paId = record.getId();
+          var distribution_centres = record.get('distribution_centres_formatted_display');
+          if (distribution_centres != '') {
+            return Ext.String.format('<a href="{0}/phenotype_attempts/{1}#distribution_centres" target="_blank">{2}</a>', window.basePath, paId, distribution_centres);
+            } else {
+                return Ext.String.format('{0}', distribution_centres);
+              }
+          }
     },
     {
         dataIndex: 'marker_symbol',

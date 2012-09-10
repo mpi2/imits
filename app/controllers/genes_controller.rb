@@ -12,16 +12,17 @@ class GenesController < ApplicationController
     gene = Gene.find_by_id(params[:id])
     if !gene.nil?
       dot_file = NetworkGraph.new(gene.id).dot_file
-      gv=IO.popen("dot -q -Tsvg","w+")
+      gv=IO.popen("dot -q -Tpng","w+")
       gv.puts dot_file
       gv.close_write
       data = gv.read
       send_data data,
-            :filename => "#{gene.marker_symbol}network_graph.svg?#{Time.now.strftime "%d%m%Y%H%M%S"}",
-            :type => 'image/svg+xml',
-            :disposition => 'inline'
+        :filename => "#{gene.marker_symbol}network_graph.png?#{Time.now.strftime "%d%m%Y%H%M%S"}",
+        :type => 'image/png',
+        :disposition => 'inline'
     end
   end
+
   private
 
   def data_for_serialized(format)

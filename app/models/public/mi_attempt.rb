@@ -59,7 +59,7 @@ class Public::MiAttempt < ::MiAttempt
 
   READABLE_ATTRIBUTES = %w{
     id
-    pretty_print_distribution_centres
+    distribution_centres_formatted_display
     es_cell_marker_symbol
     es_cell_allele_symbol
     status_name
@@ -67,6 +67,7 @@ class Public::MiAttempt < ::MiAttempt
     mouse_allele_symbol
     mi_plan_id
     phenotype_attempts_count
+    pipeline_name
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -79,7 +80,11 @@ class Public::MiAttempt < ::MiAttempt
   def status_name; status.name; end
 
   def phenotype_attempts_count
-    return self.phenotype_attempts.count
+    self.phenotype_attempts.count
+  end
+
+  def pipeline_name
+    self.es_cell && self.es_cell.pipeline && self.es_cell.pipeline.name ? self.es_cell.pipeline.name : nil
   end
 end
 
@@ -146,4 +151,3 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

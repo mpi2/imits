@@ -83,7 +83,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         consortium_name
         production_centre_name
         distribution_centres_attributes
-        pretty_print_distribution_centres
+        distribution_centres_formatted_display
         blast_strain_name
         total_blasts_injected
         total_transferred
@@ -133,6 +133,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         mi_plan_id
         genotyping_comment
         phenotype_attempts_count
+        pipeline_name
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -199,6 +200,10 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       Factory.create :phenotype_attempt, :mi_attempt => default_mi_attempt
       default_mi_attempt.reload
       assert_equal 2, default_mi_attempt.phenotype_attempts_count
+    end
+
+    should 'have #pipeline_name' do
+      assert_match(/Auto-generated Pipeline Name/, default_mi_attempt.pipeline_name)
     end
 
   end

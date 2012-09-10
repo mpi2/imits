@@ -71,6 +71,8 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       @phenotype_attempt.reload
       visit current_path
 
+      sleep 5
+
       assert page.find('table[id="distribution_centres_table"]')
     end
 

@@ -276,6 +276,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                             editor.hide();
                         }
                     });
+                    editor.setLoading(false);
                     button.hide();
                     deleteContainer.getComponent('delete-button').show();
                 }
@@ -324,6 +325,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                             editor.hide();
                         }
                     });
+                    editor.setLoading(false);
                     button.hide();
                     withdrawContainer.getComponent('withdraw-button').show();
                 }
@@ -341,7 +343,9 @@ Ext.define('Imits.widget.MiPlanEditor', {
             items: [
             {
                 xtype: 'label',
+                id: 'inactive-plan',
                 text: "Inactivate plan?",
+                hidden: true,
                 cls: 'x-form-item-label',
                 margin: '0 5 0 0'
             },
@@ -349,6 +353,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 xtype: 'button',
                 id: 'inactivate-button',
                 text: 'Inactivate',
+                hidden: true,
                 width: 60,
                 handler: function (button) {
                     button.hide();
@@ -372,7 +377,54 @@ Ext.define('Imits.widget.MiPlanEditor', {
                             editor.hide();
                         }
                     });
+                    editor.setLoading(false);
                     button.hide();
+                    inactivateContainer.getComponent('inactive-plan').hide();
+                    inactivateContainer.getComponent('active-plan').show();
+                    inactivateContainer.getComponent('activate-button').show();
+                }
+            },
+            {
+                xtype: 'label',
+                id: 'active-plan',
+                text: "Activate plan?",
+                hidden: true,
+                cls: 'x-form-item-label',
+                margin: '0 5 0 0'
+            },
+            {
+                xtype: 'button',
+                id: 'activate-button',
+                text: 'Activate',
+                hidden: true,
+                width: 60,
+                handler: function (button) {
+                    button.hide();
+                    inactivateContainer.getComponent('activate-confirmation-button').show();
+                }
+            },
+            {
+                xtype: 'button',
+                id: 'activate-confirmation-button',
+                text: 'Are you sure?',
+                hidden: true,
+                width: 100,
+                hidden: true,
+                handler: function (button) {
+                    editor.setLoading(true);
+                    var miPlan = editor.miPlan;
+
+                    miPlan.set('is_active', true);
+                    editor.miPlan.save({
+                        success: function () {
+                            editor.setLoading(false);
+                            editor.hide();
+                        }
+                    });
+                    editor.setLoading(false);
+                    button.hide();
+                    inactivateContainer.getComponent('active-plan').hide();
+                    inactivateContainer.getComponent('inactive-plan').show();
                     inactivateContainer.getComponent('inactivate-button').show();
                 }
             }
@@ -406,6 +458,8 @@ Ext.define('Imits.widget.MiPlanEditor', {
 
         editor.withdrawButton = Ext.getCmp('withdraw-button');
         editor.inactivateButton = Ext.getCmp('inactivate-button');
+        editor.activateButton = Ext.getCmp('activate-button');
+        editor.deleteButton = Ext.getCmp('delete-button');
 
         this.fields = this.form.items.keys;
         this.updateableFields = this.form.items.filterBy(function (i) {
@@ -425,7 +479,26 @@ Ext.define('Imits.widget.MiPlanEditor', {
                         component.setValue(editor.miPlan.get(attr));
                     }
                 });
-                editor.form.getComponent('consortium_name').resumeEvents()
+                editor.form.getComponent('consortium_name').resumeEvents();
+
+                //reset buttons between loads/ hide and show
+                Ext.getCmp('delete-confirmation-button').hide();
+                editor.deleteButton.show();
+                Ext.getCmp('withdraw-confirmation-button').hide();
+                editor.withdrawButton.show();
+                if (editor.miPlan.get('is_active')) {
+                  Ext.getCmp('active-plan').hide();
+                  editor.activateButton.hide();
+                  Ext.getCmp('inactive-plan').show();
+                  editor.inactivateButton.show();
+                } else {
+                  Ext.getCmp('inactive-plan').hide();
+                  editor.inactivateButton.hide();
+                  Ext.getCmp('active-plan').show();
+                  editor.activateButton.show();
+                }
+                Ext.getCmp('inactivate-confirmation-button').hide();
+                Ext.getCmp('activate-confirmation-button').hide();
                 editor.show();
 
    //             var component = editor.form.getComponent('consortium_name');
@@ -437,6 +510,18 @@ Ext.define('Imits.widget.MiPlanEditor', {
                     editor.withdrawButton.disable();
                 } else {
                     editor.withdrawButton.enable();
+                }
+                if (editor.miPlan.get('mi_attempts_count') == 0 && editor.miPlan.get('phenotype_attempts_count') == 0) {
+                  editor.deleteButton.enable();
+                } else {
+                  editor.deleteButton.disable();
+                }
+                if (editor.miPlan.get('has_active_mi_attempts?') || editor.miPlan.get('has_active_phenotype_attempts?')) {
+                  editor.inactivateButton.disable();
+                  editor.activateButton.disable();
+                } else {
+                  editor.inactivateButton.enable();
+                  editor.activateButton.ensable();
                 }
             }
         });

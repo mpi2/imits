@@ -29,7 +29,9 @@ class Public::MiPlan < ::MiPlan
     'status_dates',
     'mgi_accession_id',
     'mi_attempts_count',
-    'phenotype_attempts_count'
+    'has_active_mi_attempts?',
+    'phenotype_attempts_count',
+    'has_active_phenotype_attempts?'
   ] + FULL_ACCESS_ATTRIBUTES
 
   attr_accessible(*FULL_ACCESS_ATTRIBUTES)

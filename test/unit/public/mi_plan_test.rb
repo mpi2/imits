@@ -268,7 +268,9 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'mgi_accession_id',
         'es_qc_comment_name',
         'mi_attempts_count',
-        'phenotype_attempts_count'
+        'phenotype_attempts_count',
+        'has_active_mi_attempts?',
+        'has_active_phenotype_attempts?'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

@@ -24,7 +24,8 @@ class Consortium < ActiveRecord::Base
      Consortium['MGP'],
      Consortium['MRC'],
      Consortium['NorCOMM2'],
-     Consortium['Phenomin']
+     Consortium['Phenomin'],
+     Consortium['MARC']
       ]
   end
 
@@ -66,4 +67,3 @@ end
 #
 #  index_consortia_on_name  (name) UNIQUE
 #
-

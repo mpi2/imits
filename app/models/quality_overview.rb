@@ -48,6 +48,7 @@ class QualityOverview
       count += 1
       next if count == 1 or row.join.blank?
         quality_overview = QualityOverview.build_from_csv(row)
+
         next if ! quality_overview.populate_related_data
 
         quality_overviews.push(quality_overview)
@@ -75,10 +76,11 @@ class QualityOverview
   end
 
   def populate_related_data
+    return false if ! self.colony_prefix
     if self.colony_prefix
       mi_attempt = MiAttempt.find_by_colony_name(self.colony_prefix)
+      puts "#### populate_related_data: cannot find '#{self.colony_prefix}'" if ! mi_attempt
       return false if ! mi_attempt
-
       self.mi_attempt_id = mi_attempt.id
       self.mi_plan_consortium = mi_attempt.mi_plan.consortium.name
       self.mi_plan_consortia_grouping, self.mi_plan_consortia_grouping_order = Consortium[self.mi_plan_consortium].consortia_group_and_order
@@ -86,6 +88,7 @@ class QualityOverview
       self.mi_attempt_distribution_centres = mi_attempt.distribution_centres_formatted_display
       self.mi_attempt_status = mi_attempt.status.name
     end
+
     return true
   end
 

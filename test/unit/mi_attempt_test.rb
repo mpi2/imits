@@ -331,6 +331,21 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_false mi_attempt.save
           assert_nil mi_attempt.colony_name
         end
+
+        should 'manage trimming and spacing' do
+          colony_names = [
+                          { :old => "a_dummy_colony_name_with_no_spaces", :new => "a_dummy_colony_name_with_no_spaces" },
+                          { :old => "a dummy colony name with no dodgy spaces", :new => "a dummy colony name with no dodgy spaces" },
+                          { :old => " a \t dummy   colony name with  dodgy  \t\t  spaces ", :new => "a dummy colony name with dodgy spaces" }
+                        ]
+
+          colony_names.each do |item|
+            mi_attempt = Factory.create( :mi_attempt, :colony_name => item[:old])
+            assert_true mi_attempt.save
+            assert_equal item[:new], mi_attempt.colony_name
+          end
+        end
+
       end
 
       should 'have #comments' do

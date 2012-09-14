@@ -109,6 +109,13 @@ class MiAttempt < ApplicationModel
   before_validation :set_es_cell_from_es_cell_name
   before_validation :change_status
 
+  before_validation do |mi|
+    if ! mi.colony_name.nil?
+      mi.colony_name = mi.colony_name.to_s.strip || mi.colony_name
+      mi.colony_name = mi.colony_name.to_s.gsub(/\s+/, ' ')
+    end
+  end
+
   before_save :generate_colony_name_if_blank
   before_save :set_mi_plan
 
@@ -413,4 +420,3 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

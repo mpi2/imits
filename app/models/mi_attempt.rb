@@ -56,13 +56,6 @@ class MiAttempt < ApplicationModel
   validates :mi_date, :presence => true
 
   validate do |mi|
-    if ! mi.colony_name.nil?
-      mi.colony_name = mi.colony_name.to_s.strip || mi.colony_name
-      mi.colony_name = mi.colony_name.to_s.gsub(/\s+/, ' ')
-    end
-  end
-
-  validate do |mi|
     if !mi.es_cell_name.blank? and mi.es_cell.blank?
       mi.errors.add :es_cell_name, 'was not found in the marts'
     end
@@ -115,6 +108,13 @@ class MiAttempt < ApplicationModel
   before_validation :set_total_chimeras
   before_validation :set_es_cell_from_es_cell_name
   before_validation :change_status
+
+  before_validation do |mi|
+    if ! mi.colony_name.nil?
+      mi.colony_name = mi.colony_name.to_s.strip || mi.colony_name
+      mi.colony_name = mi.colony_name.to_s.gsub(/\s+/, ' ')
+    end
+  end
 
   before_save :generate_colony_name_if_blank
   before_save :set_mi_plan

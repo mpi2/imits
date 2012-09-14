@@ -140,6 +140,7 @@ Seeds.load Centre, [
   {:id => 10, :name => 'Oulu'},
   {:id => 11, :name => 'TCP'},
   {:id => 12, :name => 'RIKEN BRC'},
+  #use id number 13, it's not unlucky {:id => 13, :name => ''},
   {:id => 14, :name => 'JAX'},
   {:id => 15, :name => 'MARC'},
   {:id => 16, :name => 'VETMEDUNI'},

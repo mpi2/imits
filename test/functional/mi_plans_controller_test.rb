@@ -179,7 +179,7 @@ class MiPlansControllerTest < ActionController::TestCase
                   :status    => MiPlan::Status[:Assigned],
                   :gene              => gene,
                   :consortium        => Consortium.find_by_name!('MARC'),
-                  :production_centre => Centre.find_by_name!('DTCC')
+                  :production_centre => Centre.find_by_name!('UCD')
 
           assert_difference('MiPlan.count',-1) do
             delete(

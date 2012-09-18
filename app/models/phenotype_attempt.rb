@@ -4,20 +4,30 @@ class PhenotypeAttempt < ApplicationModel
   acts_as_audited
   acts_as_reportable
 
+  extend AccessAssociationByAttribute
   include PhenotypeAttempt::StatusManagement
 
   belongs_to :mi_attempt
   belongs_to :mi_plan
   belongs_to :status
   belongs_to :deleter_strain
+  belongs_to :colony_background_strain, :class_name => 'Strain'
   has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
   has_many :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
+
+  access_association_by_attribute :colony_background_strain, :name
 
   protected :status=
 
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
+
+  before_validation do |pa|
+    if Status.post_cre_excision_complete.include?(status) && colony_background_strain_name.blank?
+      pa.errors.add(:colony_background_strain, "Colony background strain must be supplied when cre excision complete")
+    end
+  end
 
   validate :mi_attempt do |me|
     if me.mi_attempt and me.mi_attempt.status != MiAttempt::Status.genotype_confirmed
@@ -161,9 +171,9 @@ end
 #  colony_name                      :string(125)     not null
 #  mouse_allele_type                :string(2)
 #  deleter_strain_id                :integer
+#  colony_background_strain_id      :integer
 #
 # Indexes
 #
 #  index_phenotype_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

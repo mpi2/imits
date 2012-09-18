@@ -37,7 +37,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal MiAttempt::Status.micro_injection_in_progress, new_mi.status
         default_phenotype_attempt.mi_attempt = new_mi
         default_phenotype_attempt.valid?
-        assert_match /must be 'Genotype confirmed'/i, default_phenotype_attempt.errors['mi_attempt'].first
+        assert_match(/must be 'Genotype confirmed'/i, default_phenotype_attempt.errors['mi_attempt'].first)
       end
     end
 
@@ -237,10 +237,10 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       should 'validate uniqueness insensitively' do
         default_phenotype_attempt.update_attributes!(:colony_name => 'ABCD')
         pa = Factory.build :phenotype_attempt, :colony_name => 'ABCD'; pa.valid?
-        assert_match /taken/, pa.errors[:colony_name].first
+        assert_match(/taken/, pa.errors[:colony_name].first)
 
         pa.colony_name = 'abcd'; pa.valid?
-        assert_match /taken/, pa.errors[:colony_name].first
+        assert_match(/taken/, pa.errors[:colony_name].first)
       end
     end
 
@@ -367,6 +367,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         pt = PhenotypeAttempt.new
         pt.mi_attempt_id = mi.id
         pt.deleter_strain = DeleterStrain.first
+        pt.colony_background_strain = Strain.first
         pt.number_of_cre_matings_successful = 10
         pt.mouse_allele_type = 'b'
         pt.save!
@@ -416,6 +417,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         pa.number_of_cre_matings_successful = 0
         pa.phenotyping_started = false
         pa.phenotyping_complete = false
+        pa.colony_background_strain = Strain.first
         pa.save!
         pa.reload
         pa.distribution_centres.reload
@@ -447,6 +449,32 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       should 'output a string of distribution centre and deposited material' do
         pa = Factory.create :populated_phenotype_attempt
         assert_equal "[ICS, Frozen embryos]", pa.distribution_centres_formatted_display
+      end
+    end
+
+    context '#colony_background_strain' do
+      should 'have correct definition' do
+        assert_should belong_to(:colony_background_strain)
+        assert_should have_db_column(:colony_background_strain_id)
+      end
+
+      should 'just work' do
+        pa = Factory.create :populated_phenotype_attempt
+        pa.colony_background_strain = Strain.first
+
+        assert_true pa.valid?
+        assert_true pa.save!
+
+        pa.reload
+        assert_equal pa.colony_background_strain, Strain.first
+      end
+
+      should 'demand colony_background_strain when cre excision is complete' do
+        pa = Factory.create :populated_phenotype_attempt
+        pa.number_of_cre_matings_successful = 10
+
+        assert_false pa.valid?
+        assert_match(/Colony background strain must be supplied when cre excision complete/i, pa.errors[:colony_background_strain].first)
       end
     end
 

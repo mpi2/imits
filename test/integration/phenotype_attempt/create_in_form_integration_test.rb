@@ -31,6 +31,7 @@ class PhenotypeAttempt::CreateInFormIntegrationTest < Kermits2::JsIntegrationTes
       select 'MGI:3046308: Hprt', :from => 'phenotype_attempt[deleter_strain_name]'
       fill_in 'phenotype_attempt[number_of_cre_matings_successful]', :with => '9'
       select 'b', :from => 'phenotype_attempt[mouse_allele_type]'
+      select 'C57BL/6N', :from => 'phenotype_attempt[colony_background_strain_name]'
       click_button 'phenotype_attempt_submit'
 
       assert page.has_css?('.message.notice')

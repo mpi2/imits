@@ -20,6 +20,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     mouse_allele_type
     deleter_strain_name
     distribution_centres_attributes
+    colony_background_strain_name
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -136,9 +137,9 @@ end
 #  colony_name                      :string(125)     not null
 #  mouse_allele_type                :string(2)
 #  deleter_strain_id                :integer
+#  colony_background_strain_id      :integer
 #
 # Indexes
 #
 #  index_phenotype_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

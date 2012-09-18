@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120807115108) do
+ActiveRecord::Schema.define(:version => 20120917153914) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -359,6 +359,7 @@ ActiveRecord::Schema.define(:version => 20120807115108) do
     t.string   "colony_name",                      :limit => 125,                    :null => false
     t.string   "mouse_allele_type",                :limit => 2
     t.integer  "deleter_strain_id"
+    t.integer  "colony_background_strain_id"
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true
@@ -465,5 +466,6 @@ ActiveRecord::Schema.define(:version => 20120807115108) do
   add_foreign_key "phenotype_attempts", "mi_attempts", :name => "phenotype_attempts_mi_attempt_id_fk"
   add_foreign_key "phenotype_attempts", "mi_plans", :name => "phenotype_attempts_mi_plan_id_fk"
   add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"
+  add_foreign_key "phenotype_attempts", "strains", :name => "phenotype_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
 
 end

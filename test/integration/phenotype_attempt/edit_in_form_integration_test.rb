@@ -6,7 +6,7 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
   context 'When editing Phenotype Attempt in form' do
 
     setup do
-      @phenotype_attempt = Factory.create :populated_phenotype_attempt
+      @phenotype_attempt = Factory.create :populated_phenotype_attempt, :colony_background_strain => Strain.find_by_name!('C57BL/6N')
       @phenotype_attempt.mi_plan.consortium = Consortium.find_by_name('BaSH')
       @phenotype_attempt.mi_plan.production_centre = Centre.find_by_name('WTSI')
       @phenotype_attempt.save!

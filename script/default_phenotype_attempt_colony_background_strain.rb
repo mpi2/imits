@@ -17,7 +17,7 @@ PhenotypeAttempt.transaction do
     missing = []
     PhenotypeAttempt.all.each do |pa|
       if PhenotypeAttempt::Status.post_cre_excision_complete.include?(pa.status) &&
-        pa.mi_attempt.colony_background_strain_name.blank?
+                pa.mi_attempt.colony_background_strain_name.blank?
         missing.push pa.id
       end
     end
@@ -25,6 +25,9 @@ PhenotypeAttempt.transaction do
     raise "Found following PAs without defaultable colony_background_strain_name #{missing.inspect}" if missing.size > 0
   end
 
+  needs_updating = PhenotypeAttempt.where(:status_id => PhenotypeAttempt::Status.post_cre_excision_complete.map(&:id)).map(&:id)
+
+  updated = []
   count = 0
   PhenotypeAttempt.all.each do |pa|
     if PhenotypeAttempt::Status.post_cre_excision_complete.include?(pa.status)
@@ -39,6 +42,7 @@ PhenotypeAttempt.transaction do
     end
   end
 
+  raise "Difference in phenotype attempts that will be updated!" if needs_updating != updated
   puts "COUNT: #{count}"
 
   raise "rollback!" if DEBUG

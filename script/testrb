@@ -1,7 +1,16 @@
-#!/bin/bash
+#!/usr/bin/env ruby
 
-set -e
+require 'test/unit'
 
-rails_root=`dirname $0`/..
+rails_root = File.expand_path(File.dirname(__FILE__) + '/..')
 
-testrb -I "${rails_root}:${rails_root}/test" "$@"
+ARGV.replace(['-I', "#{rails_root}:#{rails_root}/test"] + ARGV)
+
+puts ARGV.join "|"
+
+runner = Test::Unit::AutoRunner.new(true)
+if ! runner.process_args(ARGV)
+  abort runner.options.banner + ' tests...'
+end
+
+exit runner.run

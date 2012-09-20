@@ -132,7 +132,7 @@ GEM
       thor (~> 0.14.4)
     raindrops (0.8.0)
     rake (0.9.2.2)
-    ransack (0.6.0.1)
+    ransack (0.7.0)
       actionpack (~> 3.0)
       activerecord (~> 3.0)
       polyamorous (~> 0.5.0)
@@ -204,7 +204,7 @@ DEPENDENCIES
   pg
   rails (~> 3.0.9)
   rake
-  ransack (= 0.6.0.1)
+  ransack (= 0.7)
   rmagick
   scruffy_Sanger (= 0.2.6.1)
   selenium-webdriver (= 2.21)

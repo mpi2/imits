@@ -6,8 +6,6 @@ rails_root = File.expand_path(File.dirname(__FILE__) + '/..')
 
 ARGV.replace(['-I', "#{rails_root}:#{rails_root}/test"] + ARGV)
 
-puts ARGV.join "|"
-
 runner = Test::Unit::AutoRunner.new(true)
 if ! runner.process_args(ARGV)
   abort runner.options.banner + ' tests...'

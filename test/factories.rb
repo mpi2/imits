@@ -163,6 +163,7 @@ Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |p
   phenotype_attempt.number_of_cre_matings_successful 1
   phenotype_attempt.phenotyping_started true
   phenotype_attempt.phenotyping_complete true
+  phenotype_attempt.colony_background_strain {Strain.first}
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|

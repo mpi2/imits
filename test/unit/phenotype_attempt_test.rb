@@ -90,7 +90,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         plan = Factory.create :mi_plan, :gene => default_phenotype_attempt.gene,
                 :status => MiPlan::Status['Interest']
         default_phenotype_attempt.mi_plan = plan
-        assert default_phenotype_attempt.save
+        default_phenotype_attempt.save!
         plan.reload; assert_equal 'Assigned', plan.status.name
 
         plan = Factory.create :mi_plan, :gene => default_phenotype_attempt.gene,
@@ -195,6 +195,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         default_phenotype_attempt.number_of_cre_matings_successful = 2
         default_phenotype_attempt.mouse_allele_type = 'b'
         default_phenotype_attempt.phenotyping_started = true
+        default_phenotype_attempt.colony_background_strain = Strain.first
         default_phenotype_attempt.save!
 
         expected = {
@@ -417,7 +418,6 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         pa.number_of_cre_matings_successful = 0
         pa.phenotyping_started = false
         pa.phenotyping_complete = false
-        pa.colony_background_strain = Strain.first
         pa.save!
         pa.reload
         pa.distribution_centres.reload
@@ -428,6 +428,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         pa = Factory.create :phenotype_attempt
         assert_equal [], pa.distribution_centres.all
         pa.deleter_strain = DeleterStrain.first
+        pa.colony_background_strain = Strain.first
         pa.number_of_cre_matings_successful = 1
         pa.mouse_allele_type = 'b'
         pa.save!
@@ -460,7 +461,6 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
       should 'just work' do
         pa = Factory.create :populated_phenotype_attempt
-        pa.colony_background_strain = Strain.first
 
         assert_true pa.valid?
         assert_true pa.save!
@@ -469,12 +469,21 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal pa.colony_background_strain, Strain.first
       end
 
-      should 'demand colony_background_strain when cre excision is complete' do
-        pa = Factory.create :populated_phenotype_attempt
-        pa.number_of_cre_matings_successful = 10
+      should 'expect colony_background_strain when cre excision is complete' do
+        pa = Factory.create :phenotype_attempt
 
-        assert_false pa.valid?
-        assert_match(/Colony background strain must be supplied when cre excision complete/i, pa.errors[:colony_background_strain].first)
+        pa.number_of_cre_matings_successful = 10
+        pa.deleter_strain = DeleterStrain.first
+        pa.mouse_allele_type = 'b'
+        pa.rederivation_started = true
+        pa.rederivation_complete = true
+
+        assert_true pa.valid?
+        assert_equal 'Cre Excision Started', pa.status.name
+
+        pa.colony_background_strain = Strain.first
+        assert_true pa.valid?
+        assert_equal 'Cre Excision Complete', pa.status.name
       end
     end
 

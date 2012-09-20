@@ -23,12 +23,6 @@ class PhenotypeAttempt < ApplicationModel
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
 
-  before_validation do |pa|
-    if Status.post_cre_excision_complete.include?(status) && colony_background_strain_name.blank?
-      pa.errors.add(:colony_background_strain, "Colony background strain must be supplied when cre excision complete")
-    end
-  end
-
   validate :mi_attempt do |me|
     if me.mi_attempt and me.mi_attempt.status != MiAttempt::Status.genotype_confirmed
       me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.status.name}')")

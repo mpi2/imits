@@ -14,6 +14,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.number_of_cre_matings_successful = 2
       phenotype_attempt.mouse_allele_type = 'b'
       phenotype_attempt.phenotyping_started = true
+      phenotype_attempt.colony_background_strain = Strain.first
       phenotype_attempt.valid?
       assert_equal 'Phenotyping Started', phenotype_attempt.status.name
 
@@ -42,6 +43,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
 
       phenotype_attempt.number_of_cre_matings_successful = 2
       phenotype_attempt.mouse_allele_type = 'b'
+      phenotype_attempt.colony_background_strain = Strain.first
       phenotype_attempt.valid?
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
 
@@ -73,6 +75,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
 
       phenotype_attempt.number_of_cre_matings_successful = 2
       phenotype_attempt.mouse_allele_type = 'b'
+      phenotype_attempt.colony_background_strain = Strain.first
       phenotype_attempt.valid?
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
     end
@@ -87,6 +90,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
 
       phenotype_attempt.number_of_cre_matings_successful = 2
       phenotype_attempt.mouse_allele_type = '.1'
+      phenotype_attempt.colony_background_strain = Strain.first
       phenotype_attempt.valid?
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
     end
@@ -126,6 +130,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.mouse_allele_type = 'b'
       phenotype_attempt.deleter_strain = DeleterStrain.first
       phenotype_attempt.number_of_cre_matings_successful = 2
+      phenotype_attempt.colony_background_strain = Strain.first
       phenotype_attempt.valid?
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
     end
@@ -134,6 +139,7 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       phenotype_attempt.mouse_allele_type = '.1'
       phenotype_attempt.deleter_strain = DeleterStrain.first
       phenotype_attempt.number_of_cre_matings_successful = 2
+      phenotype_attempt.colony_background_strain = Strain.first
       phenotype_attempt.valid?
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
     end

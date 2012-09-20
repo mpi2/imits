@@ -198,7 +198,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'phenotyping_started',
         'phenotyping_complete',
         'mouse_allele_type',
-        'deleter_strain_name'
+        'deleter_strain_name',
+        'colony_background_strain_name'
 
       ]
       got = (Public::PhenotypeAttempt.accessible_attributes.to_a - ['audit_comment'])
@@ -223,7 +224,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'phenotyping_started',
         'phenotyping_complete',
         'mouse_allele_type',
-        'deleter_strain_name'
+        'deleter_strain_name',
+        'colony_background_strain_name'
       ]
       got = default_phenotype_attempt.as_json.keys
       assert_equal expected.sort, got.sort

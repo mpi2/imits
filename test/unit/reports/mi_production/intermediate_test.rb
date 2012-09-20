@@ -56,7 +56,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           :created_at => '2011-11-04 23:59:59.999 UTC')
 
         pt = Factory.create :populated_phenotype_attempt,
-                :mi_attempt => bash_wtsi_attempt
+                :mi_attempt => bash_wtsi_attempt, :colony_background_strain => Strain.find_by_name!('C57BL/6N')
         pt.is_active = false; pt.save!
 
         replace_status_stamps(pt,

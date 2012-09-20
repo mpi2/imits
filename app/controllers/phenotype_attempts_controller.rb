@@ -107,6 +107,7 @@ class PhenotypeAttemptsController < ApplicationController
     @centres = Centre.all
     @consortia = Consortium.all
     @deleter_strain = DeleterStrain.all
+    @colony_background_strain = Strain.all
   end
 
   def authorize_user_production_centre

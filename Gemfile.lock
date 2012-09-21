@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/mpi2/mpi2_solr_update.git
+  revision: 3fc575752b7a1c2fcb5f15621ca3999764d78e1e
+  specs:
+    mpi2_solr_update (1.0.0)
+      activesupport
+      json_pure
+
 GEM
   remote: http://rubygems.org/
   remote: http://www.i-dcc.org/rubygems/
@@ -83,6 +91,7 @@ GEM
     jammit (0.6.5)
       yui-compressor (>= 0.9.3)
     json (1.6.5)
+    json_pure (1.7.5)
     kgio (2.7.4)
     launchy (2.0.5)
       addressable (~> 2.2.6)
@@ -200,6 +209,7 @@ DEPENDENCIES
   launchy
   letter_opener
   mocha
+  mpi2_solr_update!
   parallel_tests
   pg
   rails (~> 3.0.9)

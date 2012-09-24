@@ -51,7 +51,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 
       SolrUpdate::Queue.run
 
-      fetched_docs = @allele_index_proxy.search(:q => 'type:allele')
+      fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
       fetched_docs.each {|d| d.delete('score')}
       assert_equal 1, fetched_docs.size
 

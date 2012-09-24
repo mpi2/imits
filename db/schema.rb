@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120917153914) do
+ActiveRecord::Schema.define(:version => 20120924160841) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -390,6 +390,16 @@ ActiveRecord::Schema.define(:version => 20120917153914) do
   end
 
   add_index "report_caches", ["name", "format"], :name => "index_report_caches_on_name_and_format", :unique => true
+
+  create_table "solr_update_queue_items", :force => true do |t|
+    t.integer  "mi_attempt_id"
+    t.integer  "phenotype_attempt_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "solr_update_queue_items", ["mi_attempt_id"], :name => "index_solr_update_queue_items_on_mi_attempt_id", :unique => true
+  add_index "solr_update_queue_items", ["phenotype_attempt_id"], :name => "index_solr_update_queue_items_on_phenotype_attempt_id", :unique => true
 
   create_table "strains", :force => true do |t|
     t.string   "name",       :limit => 50, :null => false

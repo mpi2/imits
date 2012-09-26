@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120924160841) do
+ActiveRecord::Schema.define(:version => 20120926124146) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -86,6 +86,7 @@ ActiveRecord::Schema.define(:version => 20120924160841) do
     t.string   "parental_cell_line"
     t.string   "ikmc_project_id",                    :limit => 100
     t.string   "mutation_subtype",                   :limit => 100
+    t.integer  "allele_id",                                         :null => false
   end
 
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true

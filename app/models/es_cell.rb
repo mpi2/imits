@@ -88,7 +88,8 @@ class EsCell < ActiveRecord::Base
             'allele_symbol_superscript',
             'mutation_subtype',
             'production_qc_loxp_screen',
-            'parental_cell_line'
+            'parental_cell_line',
+            'allele_id'
           ],
         }
       ]
@@ -114,7 +115,8 @@ class EsCell < ActiveRecord::Base
       :allele_symbol_superscript => mart_data['allele_symbol_superscript'],
       :pipeline => pipeline,
       :parental_cell_line => mart_data['parental_cell_line'],
-      :mutation_subtype => mart_data['mutation_subtype']
+      :mutation_subtype => mart_data['mutation_subtype'],
+      :allele_id => mart_data['allele_id']
     }
   end
 
@@ -201,6 +203,7 @@ end
 #  parental_cell_line                 :string(255)
 #  ikmc_project_id                    :string(100)
 #  mutation_subtype                   :string(100)
+#  allele_id                          :integer         not null
 #
 # Indexes
 #

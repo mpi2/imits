@@ -1,14 +1,12 @@
 #!/usr/bin/env ruby
 
-require 'test/unit'
+gem 'test-unit'
 
 rails_root = File.expand_path(File.dirname(__FILE__) + '/..')
+test_root = rails_root + '/test'
 
-ARGV.replace(['-I', "#{rails_root}:#{rails_root}/test"] + ARGV)
+$LOAD_PATH << rails_root << test_root
 
-runner = Test::Unit::AutoRunner.new(true)
-if ! runner.process_args(ARGV)
-  abort runner.options.banner + ' tests...'
-end
+require 'test/unit'
 
-exit runner.run
+exit Test::Unit::AutoRunner.run(true, rails_root)

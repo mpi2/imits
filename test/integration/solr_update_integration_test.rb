@@ -57,14 +57,12 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 
       fetched_doc = fetched_docs.first
 
-      doc.keys.each do |key|
-        assert_equal doc[key], fetched_doc[key], "#{key} expected to be #{doc[key]}, but was #{fetched_doc[key]}"
-      end
-
       assert_equal doc, fetched_doc
     end
 
-    should 'delete SOLR docs in index for mi_attempts that are deleted from the DB'
+    should 'delete SOLR docs in index for mi_attempts that are deleted from the DB' do
+      flunk
+    end
 
   end
 end

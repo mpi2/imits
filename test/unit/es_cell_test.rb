@@ -120,6 +120,7 @@ class EsCellTest < ActiveSupport::TestCase
       assert_equal 'JM8A1.N3', es_cell.parental_cell_line
       assert_equal '27671', es_cell.ikmc_project_id
       assert_equal 'conditional_ready', es_cell.mutation_subtype
+      assert_equal 10561, es_cell.allele_id
     end
 
     context '::create_es_cell_from_mart_data' do
@@ -132,7 +133,8 @@ class EsCellTest < ActiveSupport::TestCase
           'mgi_accession_id' => 'MGI:1924893',
           'parental_cell_line' => 'JM8A1.N3',
           'escell_ikmc_project_id' => '27671',
-          'mutation_subtype' => 'conditional_ready'
+          'mutation_subtype' => 'conditional_ready',
+          'allele_id' => 10561
         )
       end
 
@@ -191,7 +193,8 @@ class EsCellTest < ActiveSupport::TestCase
           'marker_symbol' => 'Trafd1',
           'allele_symbol_superscript' => 'tm1a(EUCOMM)Wtsi',
           'mgi_accession_id' => 'MGI:1923551',
-          'parental_cell_line' => 'JM8.N4'
+          'parental_cell_line' => 'JM8.N4',
+          'allele_id' => '10164'
         }
 
         got = rows.find {|i| i['escell_clone'] == 'EPD0127_4_E01'}

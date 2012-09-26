@@ -34,6 +34,7 @@ Factory.define :es_cell do |es_cell|
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.association(:pipeline) { Pipeline.find_by_name! 'EUCOMM' }
   es_cell.association(:gene)
+  es_cell.allele_id { rand 99999 }
 end
 
 Factory.define :centre do |centre|

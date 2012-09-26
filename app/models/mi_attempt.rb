@@ -355,6 +355,10 @@ class MiAttempt < ApplicationModel
     return status_stamps.all.find {|ss| ss.status_id == MiAttempt::Status.micro_injection_in_progress.id}.created_at.utc.to_date
   end
 
+  def allele_id
+    es_cell.allele_id
+  end
+
 end
 
 # == Schema Information

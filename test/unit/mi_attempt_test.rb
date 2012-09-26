@@ -965,5 +965,11 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#allele_id' do
+      should 'return es_cell allele_id' do
+        assert_equal default_mi_attempt.es_cell.allele_id, default_mi_attempt.allele_id
+      end
+    end
+
   end
 end

@@ -1,7 +1,10 @@
 class SolrUpdate::DocFactory
+  extend SolrUpdate::Util
+
   def self.create_for_mi_attempt(mi_attempt)
     solr_doc = {
       'id' => mi_attempt.id,
+      'product_type' => 'Mouse',
       'type' => 'mi_attempt'
     }
 
@@ -18,6 +21,10 @@ class SolrUpdate::DocFactory
     end
 
     solr_doc['allele_name'] = mi_attempt.allele_symbol
+
+    solr_doc['allele_image_url'] = allele_image_url(mi_attempt.allele_id)
+
+    solr_doc['genbank_file_url'] = genbank_file_url(mi_attempt.allele_id)
 
     return solr_doc
   end

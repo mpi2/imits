@@ -12,8 +12,12 @@ class SolrUpdate::DocFactory
       solr_doc['mgi_accession_id'] = mi_attempt.gene.mgi_accession_id
     end
 
-    if mi_attempt.es_cell.mutation_subtype
-      solr_doc['allele_type'] = mi_attempt.es_cell.mutation_subtype.titleize
+    if mi_attempt.mouse_allele_type == 'e'
+      solr_doc['allele_type'] = 'Targeted Non Conditional'
+    else
+      if mi_attempt.es_cell.mutation_subtype
+        solr_doc['allele_type'] = mi_attempt.es_cell.mutation_subtype.titleize
+      end
     end
 
     if mi_attempt.colony_background_strain

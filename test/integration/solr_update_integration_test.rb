@@ -6,8 +6,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
     setup do
       @allele_index_proxy = SolrUpdate::IndexProxy::Allele.new
 
-      # TODO Make this with a 'CommandFactory' or something
-      commands = ActiveSupport::OrderedHash.new
+      commands = {}
       commands['delete'] = {'query' => '*:*'}
       commands['commit'] = {}
       commands_json = commands.to_json
@@ -25,9 +24,11 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         :name => 'EPD0027_2_A02',
         :mutation_subtype => 'conditional_ready',
         :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi',
+        :allele_id => 902,
         :ikmc_project_id => '35505')
 
       mi = Factory.create(:mi_attempt,
+        :consortium_name => 'BaSH',
         :colony_background_strain => old_strain,
         :es_cell => es_cell)
 
@@ -61,7 +62,15 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
     end
 
     should 'delete SOLR docs in index for mi_attempts that are deleted from the DB' do
-      flunk
+      mi = Factory.create :mi_attempt
+      SolrUpdate::Queue.run
+      assert_equal 1, @allele_index_proxy.search(:q => 'type:mi_attempt').size
+
+      mi.status_stamps.destroy_all
+      mi.destroy
+      SolrUpdate::Queue.run
+      fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
+      assert_equal [], fetched_docs
     end
 
   end

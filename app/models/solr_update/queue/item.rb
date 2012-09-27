@@ -4,34 +4,40 @@ class SolrUpdate::Queue::Item < ActiveRecord::Base
   belongs_to :mi_attempt
   belongs_to :phenotype_attempt
 
-  def self.add(object_id, command_type)
-    if object_id.kind_of?(ApplicationModel)
-      add_model(object_id, command_type)
-    else
-      fkey = object_id['type'] + '_id'
-      self.create!(fkey => object_id['id'], :command_type => command_type)
+  def self.add(reference, command_type)
+    if reference.kind_of?(ApplicationModel)
+      reference = {'type' => get_model_type(reference), 'id' => reference.id}
     end
+
+    fkey = reference['type'] + '_id'
+
+    existing = self.where(fkey => reference['id']).all.first
+    if ! existing.blank?
+      existing.destroy
+    end
+
+    self.create!(fkey => reference['id'], :command_type => command_type)
   end
 
-  def self.add_model(model, command_type)
+  def self.get_model_type(model)
     if model.kind_of? MiAttempt
-      self.create!(:mi_attempt_id => model.id, :command_type => command_type)
+      return 'mi_attempt'
     elsif model.kind_of? PhenotypeAttempt
-      self.create!(:phenotype_attempt_id => model.id, :command_type => command_type)
+      return 'phenotype_attempt'
     else
       raise 'unknown model type'
     end
   end
-  private_class_method :add_model
+  private_class_method :get_model_type
 
   def self.process_in_order
     self.order('created_at asc').all.each do |item|
       if item.mi_attempt_id
-        object_id = {'type' => 'mi_attempt', 'id' => item.mi_attempt_id}
+        reference = {'type' => 'mi_attempt', 'id' => item.mi_attempt_id}
       elsif item.phenotype_attempt_id
-        object_id = {'type' => 'phenotype_attempt', 'id' => item.phenotype_attempt_id}
+        reference = {'type' => 'phenotype_attempt', 'id' => item.phenotype_attempt_id}
       end
-      yield([object_id, item.command_type])
+      yield([reference, item.command_type])
       item.destroy
     end
   end

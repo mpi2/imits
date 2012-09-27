@@ -82,5 +82,12 @@ class SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
       assert_not_nil SolrUpdate::Queue::Item.find_by_id(@item2.id)
     end
 
+    should 'add only one command per item, removing any that are already present' do
+      setup_for_process
+      SolrUpdate::Queue::Item.add({'type' => 'mi_attempt', 'id' => 1}, 'delete')
+      assert_nil SolrUpdate::Queue::Item.find_by_id(@item2.id)
+      assert_not_nil SolrUpdate::Queue::Item.find_by_mi_attempt_id_and_command_type(1, 'delete')
+    end
+
   end
 end

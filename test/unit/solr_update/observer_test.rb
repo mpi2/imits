@@ -19,7 +19,17 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
       o.after_destroy(mi)
     end
 
-    should 'not enqueue update or deletion if MiAttempt gene does not have mgi_accession_id'
+    should 'not enqueue update or deletion if MiAttempt gene does not have mgi_accession_id' do
+      flunk
+    end
+
+    should 'not enqueue update when a non-GC mouse is changed' do
+      flunk
+    end
+
+    should 'enqueue a deletion for a MI that leaves the GC status' do
+      flunk
+    end
   end
 
   context 'SolrUpdate::Observer::PhenotypeAttempt' do

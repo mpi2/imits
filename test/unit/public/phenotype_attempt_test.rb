@@ -29,7 +29,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
       should 'be able to be set on create' do
         mi = Factory.create :mi_attempt
-        phenotype_attempt = Public::PhenotypeAttempt.new(
+        phenotype_attempt = Factory.create!(:public_phenotype_attempt,
           :mi_attempt_colony_name => mi.colony_name)
         phenotype_attempt.valid?
         assert phenotype_attempt.errors[:mi_attempt_colony_name].blank?
@@ -38,13 +38,12 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#consortium_name virtual attribute' do
       should 'be writable with any value which should be returned on a read when no MiPlan is set' do
-        pt = Public::PhenotypeAttempt.new :mi_plan => nil, :consortium_name => 'Foo'
+        pt = Factory.build :public_phenotype_attempt, :mi_plan => nil, :consortium_name => 'Foo'
         assert_equal 'Foo', pt.consortium_name
       end
 
       should 'validate the consortium exists for a new record' do
-        pt = Public::PhenotypeAttempt.new(:consortium_name => 'Foo')
-        pt.valid?
+        pt = Factory.create(:public_phenotype_attempt, :consortium_name => 'Foo')
         assert_equal ['does not exist'], pt.errors[:consortium_name]
       end
 
@@ -67,12 +66,13 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#production_centre_name virtual attribute' do
       should 'be writable with any value which should be returned on a read when no MiPlan is set' do
-        pt = Public::PhenotypeAttempt.new :mi_plan => nil, :production_centre_name => 'Foo'
+        pt = Factory.build :public_phenotype_attempt, :mi_plan => nil, :production_centre_name => 'Foo'
         assert_equal 'Foo', pt.production_centre_name
       end
 
       should 'validate the production_centre exists for a new record' do
-        pt = Public::PhenotypeAttempt.new(:production_centre_name => 'Foo')
+        pt = Factory.build(:public_phenotype_attempt, :production_centre_name => 'Foo')
+        p pt.mi_attempt
         pt.valid?
         assert_equal ['does not exist'], pt.errors[:production_centre_name]
       end
@@ -109,7 +109,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be set to correct MiPlan if neither consortium_name nor production_centre_name are provided' do
-        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name)
+        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name)
         pt.save!
         assert_equal @mi.mi_plan, pt.mi_plan
       end
@@ -118,7 +118,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         plan = Factory.create(:mi_plan, :gene => @cbx1,
           :consortium => Consortium.find_by_name!('BaSH'),
           :production_centre => Centre.find_by_name!('UCD'))
-        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
+        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
           :production_centre_name => 'UCD')
         pt.save!
         assert_equal plan, pt.mi_plan
@@ -128,7 +128,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         plan = Factory.create(:mi_plan, :gene => @cbx1,
           :consortium => Consortium.find_by_name!('DTCC'),
           :production_centre => Centre.find_by_name!('ICS'))
-        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
+        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
           :consortium_name => 'DTCC')
         pt.save!
         assert_equal plan, pt.mi_plan
@@ -142,14 +142,14 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         plan = Factory.create(:mi_plan, :gene => @cbx1,
           :consortium => Consortium.find_by_name!('DTCC'),
           :production_centre => Centre.find_by_name!('UCD'))
-        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
+        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
           :production_centre_name => 'UCD', :consortium_name => 'DTCC')
         pt.save!
         assert_equal plan, pt.mi_plan
       end
 
       should 'cause validation error if MiPlan matching supplied parameters does not exist' do
-        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
+        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
           :consortium_name => 'DTCC')
         pt.valid?
         assert_match(/cannot be found with supplied parameters/i, pt.errors['mi_plan'].first)
@@ -160,7 +160,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
                 'JAX', @mi.mi_plan.production_centre.name)
         assert_equal 'Inspect - GLT Mouse', plan.status.name
 
-        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
+        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
           :consortium_name => 'JAX')
         pt.save!
         plan.reload
@@ -173,7 +173,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
                 :production_centre => Centre.find_by_name!('TCP'),
                 :gene => @mi.gene
 
-        pt = Public::PhenotypeAttempt.new(:mi_attempt_colony_name => @mi.colony_name,
+        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
           :consortium_name => 'DTCC', :production_centre_name => 'TCP')
         plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('DTCC'),
                 :production_centre => Centre.find_by_name!('UCD'),

@@ -156,6 +156,10 @@ Factory.define :phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
 end
 
+Factory.define :public_phenotype_attempt, :class => Public::PhenotypeAttempt do |phenotype_attempt|
+  phenotype_attempt.mi_attempt_colony_name { Factory.create(:mi_attempt_genotype_confirmed).colony_name }
+end
+
 Factory.define :phenotype_attempt_status_cec, :parent => :phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.rederivation_started true
   phenotype_attempt.rederivation_complete true

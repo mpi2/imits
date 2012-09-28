@@ -103,30 +103,30 @@ class PhenotypeAttempt < ApplicationModel
     if mouse_allele_type.nil? or self.mi_attempt.es_cell.allele_symbol_superscript_template.nil?
       return nil
     else
-      return self.mi_attempt.es_cell.allele_symbol_superscript_template.sub(
+      return self.es_cell.allele_symbol_superscript_template.sub(
         EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
     end
   end
 
   def mouse_allele_symbol
     if mouse_allele_symbol_superscript
-      return "#{self.mi_attempt.es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
+      return "#{self.gene.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
     else
       return nil
     end
   end
 
   def allele_symbol
-    if mouse_allele_type and Status.post_cre_excision_complete.include?(status)
+    if has_status?(:cec.status)
       return mouse_allele_symbol
-    elsif self.mi_attempt
+    else
       return self.mi_attempt.allele_symbol
     end
   end
 
-  delegate :gene, :to => :mi_attempt
-  delegate :marker_symbol, :to => :mi_plan
-  delegate :consortium, :production_centre, :to => :mi_plan
+  delegate :gene, :consortium, :production_centre, :to => :mi_plan
+  delegate :marker_symbol, :to => :gene
+  delegate :es_cell, :to => :mi_attempt
 
   def reportable_statuses_with_latest_dates
     retval = {}

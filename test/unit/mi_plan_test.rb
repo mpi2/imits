@@ -1303,5 +1303,10 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal 1, result
       end
     end
+
+    should 'include HasStatusStamps' do
+      assert_include default_mi_plan.class.ancestors, ApplicationModel::HasStatusStamps
+    end
+
   end
 end

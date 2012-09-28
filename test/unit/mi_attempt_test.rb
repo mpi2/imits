@@ -971,5 +971,9 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    should 'include HasStatusStamps' do
+      assert_include default_mi_attempt.class.ancestors, ApplicationModel::HasStatusStamps
+    end
+
   end
 end

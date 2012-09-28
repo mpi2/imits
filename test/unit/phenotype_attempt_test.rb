@@ -246,9 +246,16 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
     end
 
     context '#gene' do
-      should 'be the mi_attempt\'s es_cell\'s gene' do
-        assert_equal default_phenotype_attempt.mi_attempt.gene,
+      should 'be the mi_plan\'s gene' do
+        assert_equal default_phenotype_attempt.mi_plan.gene,
                 default_phenotype_attempt.gene
+      end
+    end
+
+    context '#es_cell' do
+      should 'be the mi_attempt\'s es_cell' do
+        assert_equal default_phenotype_attempt.mi_attempt.es_cell,
+                default_phenotype_attempt.es_cell
       end
     end
 
@@ -327,58 +334,18 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         @es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
       end
 
-      should 'return the mouse_allele_symbol if mouse_allele_type is set' do
-        mi = Factory.build :mi_attempt, :mouse_allele_type => 'b',
-                :es_cell => @es_cell
-        pt = Factory.build :phenotype_attempt, :mi_attempt => mi
-        assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', pt.allele_symbol
+      should 'return the mouse_allele_symbol if mouse_allele_type is at or after Cre Excision Complete' do
+        pt = Factory.create :populated_phenotype_attempt
+        pt.mi_attempt.stubs(:allele_symbol => 'MI ATTEMPT ALLELE SYMBOL')
+
+        assert_equal pt.mouse_allele_symbol, pt.allele_symbol
       end
 
-      should 'return the es_cell.allele_symbol if mouse_allele_type is not set' do
-        mi = Factory.build :mi_attempt, :mouse_allele_type => nil,
-                :es_cell => @es_cell
-        pt = Factory.build :phenotype_attempt, :mi_attempt => mi
-        assert_equal 'Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>', pt.allele_symbol
-      end
+      should 'return the mi attempt\'s allele_symbol if mouse_allele_type is not set' do
+        pt = Factory.create :phenotype_attempt, :mouse_allele_type => 'b'
+        pt.mi_attempt.stubs(:allele_symbol => 'MI ATTEMPT ALLELE SYMBOL')
 
-      should 'return "" regardless if es_cell has no allele_symbol_superscript' do
-        es_cell = Factory.create :es_cell, :gene => Factory.create(:gene_cbx1),
-                :allele_symbol_superscript => nil
-        assert_equal nil, es_cell.allele_symbol_superscript
-
-        mi = Factory.build :mi_attempt, :mouse_allele_type => 'c',
-                :es_cell => es_cell
-        assert_equal nil, mi.allele_symbol
-
-        pt = Factory.build :phenotype_attempt, :mi_attempt => mi
-        assert_equal nil, pt.allele_symbol
-      end
-
-      should "return mouse_allele_symbol if phenotype staus is not Cre Complete Phenotype Started or Phenotype complete" do
-        mi = Factory.create :mi_attempt_genotype_confirmed, :mouse_allele_type => 'e', :es_cell => @es_cell
-        pt = PhenotypeAttempt.new
-        pt.mi_attempt_id = mi.id
-        pt.mouse_allele_type = 'b'
-        pt.save!
-        assert_equal 'Trafd1<sup>tm1e(EUCOMM)Wtsi</sup>', pt.allele_symbol
-      end
-
-      should "return phenotype_allele_symbol if phenotype staus is one of 'Cre Complete', 'Phenotype Started', or 'Phenotype complete'" do
-        mi = Factory.create :mi_attempt_genotype_confirmed, :mouse_allele_type => 'e', :es_cell => @es_cell
-        pt = PhenotypeAttempt.new
-        pt.mi_attempt_id = mi.id
-        pt.deleter_strain = DeleterStrain.first
-        pt.colony_background_strain = Strain.first
-        pt.number_of_cre_matings_successful = 10
-        pt.mouse_allele_type = 'b'
-        pt.save!
-        assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', pt.allele_symbol
-        pt.phenotyping_started = true
-        pt.save!
-        assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', pt.allele_symbol
-        pt.phenotyping_complete = true
-        pt.save!
-        assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', pt.allele_symbol
+        assert_equal 'MI ATTEMPT ALLELE SYMBOL', pt.allele_symbol
       end
     end
 
@@ -485,6 +452,10 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_true pa.valid?
         assert_equal 'Cre Excision Complete', pa.status.name
       end
+    end
+
+    should 'include HasStatusStamps' do
+      assert_include default_phenotype_attempt.class.ancestors, ApplicationModel::HasStatusStamps
     end
 
   end

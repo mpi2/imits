@@ -44,7 +44,7 @@ class Reports::MiProduction::ImpcGraphReportDisplayTest < ActiveSupport::TestCas
               :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx11'),
               :mi_attempt => new_gene_mi(:wtsi_mi_attempt_genotype_confirmed, 'Cbx11', 'BaSH', 'WTSI')
 
-      Factory.create :populated_phenotype_attempt,
+      Factory.create :phenotype_attempt_status_pdc,
               :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx12'),
               :mi_attempt => new_gene_mi(:wtsi_mi_attempt_genotype_confirmed, 'Cbx12', 'BaSH', 'WTSI')
 

@@ -31,7 +31,7 @@ class SearchForPhenotypeAttemptsTest < Kermits2::JsIntegrationTest
         :consortium_name => 'MGP',
         :production_centre_name => 'WTSI'
       )
-      Factory.create :populated_phenotype_attempt, :mi_attempt => mi_attempt
+      Factory.create :phenotype_attempt_status_pdc, :mi_attempt => mi_attempt
 
       return es_cell
     end

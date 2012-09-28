@@ -33,7 +33,7 @@ class PhenotypeAttempt::DistributionCentreTest < ActiveSupport::TestCase
     end
 
     should 'serialize correctly' do
-      pt = Factory.create :populated_phenotype_attempt
+      pt = Factory.create :phenotype_attempt_status_pdc
       dc = TestDummy.create :phenotype_attempt_distribution_centre,
               'WTSI',
               'Live mice',

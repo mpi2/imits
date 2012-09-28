@@ -468,7 +468,7 @@ class GeneTest < ActiveSupport::TestCase
                 :es_cell => Factory.create(:es_cell, :gene => gene),
                 :consortium_name => 'MGP',
                 :is_active => true
-        pa = Factory.create :populated_phenotype_attempt, :mi_attempt => mi
+        pa = Factory.create :phenotype_attempt_status_pdc, :mi_attempt => mi
         assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
 
         mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
@@ -482,7 +482,7 @@ class GeneTest < ActiveSupport::TestCase
                 :consortium_name => 'DTCC',
                 :production_centre_name => 'UCD',
                 :is_active => true
-        pa = Factory.create :populated_phenotype_attempt, :mi_attempt => mi
+        pa = Factory.create :phenotype_attempt_status_pdc, :mi_attempt => mi
         assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
 
         Factory.create :mi_attempt,

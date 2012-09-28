@@ -55,7 +55,7 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
               :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx11'),
               :mi_attempt => new_non_wtsi_gene_gc_mi('Cbx11')
 
-      Factory.create :populated_phenotype_attempt,
+      Factory.create :phenotype_attempt_status_pdc,
               :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx12'),
               :mi_attempt => new_non_wtsi_gene_gc_mi('Cbx12')
 

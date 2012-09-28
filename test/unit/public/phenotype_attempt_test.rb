@@ -283,7 +283,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#distribution_centres_attributes' do
       should 'be output correctly' do
-        pt = Factory.create(:populated_phenotype_attempt)
+        pt = Factory.create(:phenotype_attempt_status_pdc)
 
         Factory.create(:phenotype_attempt_distribution_centre,
           :start_date => '2012-01-02', :phenotype_attempt => pt)

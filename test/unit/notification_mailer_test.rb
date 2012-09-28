@@ -59,7 +59,7 @@ class NotificationMailerTest < ActionMailer::TestCase
 
 
     should '#SEND status_email with phenotype_attempt statuses' do
-      pa = Factory.create :populated_phenotype_attempt
+      pa = Factory.create :phenotype_attempt_status_pdc
 
       pa.status_stamps.find_by_status_id!(:par.status.id).update_attributes!(:created_at => (Time.now - 1.hour))
       pa.status_stamps.find_by_status_id!(:pdc.status.id).update_attributes!(:created_at => (Time.now - 30.minute))

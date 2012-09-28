@@ -156,15 +156,18 @@ Factory.define :phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
 end
 
-Factory.define :populated_phenotype_attempt, :parent => :phenotype_attempt do |phenotype_attempt|
+Factory.define :phenotype_attempt_status_cec, :parent => :phenotype_attempt do |phenotype_attempt|
   phenotype_attempt.rederivation_started true
   phenotype_attempt.rederivation_complete true
   phenotype_attempt.deleter_strain {DeleterStrain.first}
-  phenotype_attempt.mouse_allele_type 'b'
   phenotype_attempt.number_of_cre_matings_successful 1
+  phenotype_attempt.mouse_allele_type 'b'
+  phenotype_attempt.colony_background_strain {Strain.first}
+end
+
+Factory.define :phenotype_attempt_status_pdc, :parent => :phenotype_attempt_status_cec do |phenotype_attempt|
   phenotype_attempt.phenotyping_started true
   phenotype_attempt.phenotyping_complete true
-  phenotype_attempt.colony_background_strain {Strain.first}
 end
 
 Factory.define :randomly_populated_gene, :parent => :gene do |gene|
@@ -210,7 +213,7 @@ end
 Factory.define :phenotype_attempt_distribution_centre, :class => PhenotypeAttempt::DistributionCentre do |distribution_centre|
   distribution_centre.association :centre
   distribution_centre.association :deposited_material
-  distribution_centre.association :phenotype_attempt, :factory => :populated_phenotype_attempt
+  distribution_centre.association :phenotype_attempt, :factory => :phenotype_attempt_status_cec
 end
 
 #Specifics

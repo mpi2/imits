@@ -335,7 +335,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'return the mouse_allele_symbol if mouse_allele_type is at or after Cre Excision Complete' do
-        pt = Factory.create :populated_phenotype_attempt
+        pt = Factory.create :phenotype_attempt_status_pdc
         pt.mi_attempt.stubs(:allele_symbol => 'MI ATTEMPT ALLELE SYMBOL')
 
         assert_equal pt.mouse_allele_symbol, pt.allele_symbol
@@ -370,7 +370,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         pa = Factory.create :phenotype_attempt
         assert_equal 0, pa.distribution_centres.count
 
-        pa = Factory.create :populated_phenotype_attempt
+        pa = Factory.create :phenotype_attempt_status_pdc
         assert_equal 1, pa.distribution_centres.count
         dc = pa.distribution_centres.first
         assert_equal 'Frozen embryos', dc.deposited_material.name
@@ -378,7 +378,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'test that if a status is changed, distribution centre creation logic is triggered on the new value, not the old value' do
-        pa = Factory.create :populated_phenotype_attempt
+        pa = Factory.create :phenotype_attempt_status_pdc
         dc = PhenotypeAttempt::DistributionCentre.find_all_by_phenotype_attempt_id(pa.id)
         dc.first.destroy
 
@@ -415,7 +415,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#distribution_centres_formatted_display' do
       should 'output a string of distribution centre and deposited material' do
-        pa = Factory.create :populated_phenotype_attempt
+        pa = Factory.create :phenotype_attempt_status_pdc
         assert_equal "[ICS, Frozen embryos]", pa.distribution_centres_formatted_display
       end
     end
@@ -427,7 +427,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'just work' do
-        pa = Factory.create :populated_phenotype_attempt
+        pa = Factory.create :phenotype_attempt_status_pdc
 
         assert_true pa.valid?
         assert_true pa.save!

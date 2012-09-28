@@ -21,7 +21,7 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
   end
 
   context 'SolrUpdate::Observer::PhenotypeAttempt' do
-    should 'enqueue update when a PhenotypeAttempt is changed' do
+    should 'enqueue update when a cre-excised PhenotypeAttempt is changed' do
       pa = stub('phenotype_attempt', :id => 74)
       SolrUpdate::Queue.expects(:enqueue_for_update).with(pa)
 
@@ -29,12 +29,20 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
       o.after_save(pa)
     end
 
-    should 'enqueue deletion when a PhenotypeAttempt is deleted' do
+    should 'enqueue deletion when a cre-excised PhenotypeAttempt is deleted ' do
       pa = stub('phenotype_attempt', :id => 74)
       SolrUpdate::Queue.expects(:enqueue_for_delete).with(pa)
 
       o = SolrUpdate::Observer::PhenotypeAttempt.new
       o.after_destroy(pa)
+    end
+
+    should 'not enqueue update when a non-cre-excised PhenotypeAttempt is changed' do
+      flunk
+    end
+
+    should 'enqueue a deletion when a cre-excised PhenotypeAttempt becomes non-cre-excised' do
+      flunk
     end
   end
 

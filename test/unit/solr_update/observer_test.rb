@@ -18,6 +18,8 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
       o = SolrUpdate::Observer::MiAttempt.new
       o.after_destroy(mi)
     end
+
+    should 'not enqueue update or deletion if MiAttempt gene does not have mgi_accession_id'
   end
 
   context 'SolrUpdate::Observer::PhenotypeAttempt' do
@@ -42,6 +44,10 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
     end
 
     should 'enqueue a deletion when a cre-excised PhenotypeAttempt becomes non-cre-excised' do
+      flunk
+    end
+
+    should 'not enqueue update or deletion if PhenotypeAttempt gene does not have mgi_accession_id, even if PhenotypeAttempt is cre excised' do
       flunk
     end
   end

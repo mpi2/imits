@@ -126,7 +126,7 @@ class PhenotypeAttempt < ApplicationModel
 
   delegate :gene, :consortium, :production_centre, :to => :mi_plan
   delegate :marker_symbol, :to => :gene
-  delegate :es_cell, :to => :mi_attempt
+  delegate :es_cell, :allele_id, :to => :mi_attempt
 
   def reportable_statuses_with_latest_dates
     retval = {}

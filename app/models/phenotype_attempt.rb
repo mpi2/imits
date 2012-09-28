@@ -6,6 +6,7 @@ class PhenotypeAttempt < ApplicationModel
 
   extend AccessAssociationByAttribute
   include PhenotypeAttempt::StatusManagement
+  include ApplicationModel::HasStatusStamps
 
   belongs_to :mi_attempt
   belongs_to :mi_plan

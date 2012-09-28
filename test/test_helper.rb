@@ -222,12 +222,39 @@ class Kermits2::ExternalScriptTestCase < ActiveSupport::TestCase
 end
 
 class Test::Person < ApplicationModel
+
+  class Status < ApplicationModel
+    self.connection.create_table :test_person_statuses, :force => true do |t|
+      t.string :name, :null => false
+      t.string :code, :null => false
+    end
+    set_table_name :test_person_statuses
+
+    ALIVE = self.create!(:name => 'Alive', :code => 'alive')
+    DEAD = self.create!(:name => 'Dead', :code => 'dead')
+    BURIED = self.create!(:name => 'Buried', :code => 'buried')
+  end
+
+  class StatusStamp < ApplicationModel
+    self.connection.create_table :test_person_status_stamps, :force => true do |t|
+      t.integer :status_id, :null => false
+      t.integer :person_id, :null => false
+    end
+    set_table_name :test_person_status_stamps
+
+    belongs_to :status
+  end
+
+  include HasStatusStamps
+
   acts_as_audited
 
   self.connection.create_table :test_people, :force => true do |t|
     t.string :name
   end
   set_table_name :test_people
+
+  has_many :status_stamps
 
   validates :name, :uniqueness => true
 end

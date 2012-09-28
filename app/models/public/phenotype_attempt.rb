@@ -70,7 +70,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     end
 
     self.mi_plan = MiPlan.where(
-      :gene_id => gene.id,
+      :gene_id => mi_attempt.gene.id,
       :production_centre_id => centre_to_set.id,
       :consortium_id => consortium_to_set.id
     ).first

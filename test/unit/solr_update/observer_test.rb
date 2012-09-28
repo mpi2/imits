@@ -3,6 +3,11 @@ require 'test_helper'
 class SolrUpdate::ObserverTest < ActiveSupport::TestCase
 
   context 'SolrUpdate::Observer::MiAttempt' do
+    teardown do
+      SolrUpdate::Queue.unstub(:enqueue_for_update)
+      SolrUpdate::Queue.unstub(:enqueue_for_delete)
+    end
+
     should 'enqueue update when an MiAttempt is changed' do
       mi = stub('mi_attempt', :id => 55)
       SolrUpdate::Queue.expects(:enqueue_for_update).with(mi)
@@ -33,6 +38,11 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
   end
 
   context 'SolrUpdate::Observer::PhenotypeAttempt' do
+    teardown do
+      SolrUpdate::Queue.unstub(:enqueue_for_update)
+      SolrUpdate::Queue.unstub(:enqueue_for_delete)
+    end
+
     should 'enqueue update when a cre-excised PhenotypeAttempt is changed' do
       pa = stub('phenotype_attempt', :id => 74)
       SolrUpdate::Queue.expects(:enqueue_for_update).with(pa)

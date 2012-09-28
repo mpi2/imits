@@ -10,6 +10,9 @@ require 'database_cleaner'
 require 'shoulda'
 require 'factory_girl_rails'
 require 'open3'
+require 'test/unit'
+require 'shoulda'
+require 'mocha'
 
 unless ENV['COVERAGE'].to_s.empty?
   require 'simplecov-rcov'

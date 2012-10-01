@@ -4,7 +4,7 @@ class SolrUpdate::Queue::Item < ActiveRecord::Base
   belongs_to :mi_attempt
   belongs_to :phenotype_attempt
 
-  def self.add(reference, command_type)
+  def self.add(reference, action)
     if reference.kind_of?(ApplicationModel)
       reference = {'type' => get_model_type(reference), 'id' => reference.id}
     end
@@ -16,7 +16,7 @@ class SolrUpdate::Queue::Item < ActiveRecord::Base
       existing.destroy
     end
 
-    self.create!(fkey => reference['id'], :command_type => command_type)
+    self.create!(fkey => reference['id'], :action => action)
   end
 
   def self.get_model_type(model)
@@ -37,7 +37,7 @@ class SolrUpdate::Queue::Item < ActiveRecord::Base
       elsif item.phenotype_attempt_id
         reference = {'type' => 'phenotype_attempt', 'id' => item.phenotype_attempt_id}
       end
-      yield([reference, item.command_type])
+      yield([reference, item.action])
       item.destroy
     end
   end
@@ -51,7 +51,7 @@ end
 #  id                   :integer         not null, primary key
 #  mi_attempt_id        :integer
 #  phenotype_attempt_id :integer
-#  command_type         :text
+#  action               :text
 #  created_at           :datetime
 #  updated_at           :datetime
 #

@@ -395,7 +395,7 @@ ActiveRecord::Schema.define(:version => 20120926124146) do
   create_table "solr_update_queue_items", :force => true do |t|
     t.integer  "mi_attempt_id"
     t.integer  "phenotype_attempt_id"
-    t.text     "command_type"
+    t.text     "action"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

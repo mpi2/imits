@@ -87,11 +87,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
   context 'SolrUpdate::DocFactory' do
 
-    teardown do
-      SolrUpdate::DocFactory.unstub(:create_for_mi_attempt)
-      SolrUpdate::DocFactory.unstub(:create_for_phenotype_attempt)
-    end
-
     context '#create' do
       should 'work when reference type is mi_attempt' do
         mi = Factory.create :mi_attempt

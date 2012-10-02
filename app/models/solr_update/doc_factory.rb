@@ -81,13 +81,17 @@ class SolrUpdate::DocFactory
 
   def self.set_order_from_details(object, solr_doc)
     if Consortium.komp2.include? object.consortium
-      project_id = object.es_cell.ikmc_project_id
-      if ! project_id.match(/^VG/)
-        project_id = 'CSD' + project_id
-      end
-
       solr_doc['order_from_name'] = 'KOMP'
-      solr_doc['order_from_url'] = "http://www.komp.org/geneinfo.php?project=#{project_id}"
+      project_id = object.es_cell.ikmc_project_id
+      if project_id.nil?
+        solr_doc['order_from_url'] = "http://www.komp.org/"
+      else
+        if ! project_id.match(/^VG/)
+          project_id = 'CSD' + project_id
+        end
+
+        solr_doc['order_from_url'] = "http://www.komp.org/geneinfo.php?project=#{project_id}"
+      end
 
     elsif ['Phenomin', 'Helmholtz GMC', 'Monterotondo', 'MRC'].include? object.consortium.name
       solr_doc['order_from_name'] = 'EMMA'

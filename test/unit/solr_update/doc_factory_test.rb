@@ -34,7 +34,13 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         end
 
         should 'be set correctly if ikmc_project_id does NOT exist' do
-          flunk
+          ['JAX', 'DTCC', 'BaSH'].each do |consortium_name|
+            @test_object.mi_plan.consortium = Consortium.find_by_name!(consortium_name)
+            @test_object.es_cell.ikmc_project_id = nil
+            doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
+            assert_equal 'KOMP', doc['order_from_name']
+            assert_equal 'http://www.komp.org/', doc['order_from_url']
+          end
         end
       end
 

@@ -70,7 +70,9 @@ class SolrUpdate::DocFactory
 
     solr_doc['allele_id'] = phenotype_attempt.allele_id
 
-    solr_doc['strain'] = phenotype_attempt.colony_background_strain.name
+    if phenotype_attempt.colony_background_strain
+      solr_doc['strain'] = phenotype_attempt.colony_background_strain.name
+    end
 
     solr_doc['allele_name'] = phenotype_attempt.allele_symbol
 

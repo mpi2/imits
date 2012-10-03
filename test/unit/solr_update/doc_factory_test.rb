@@ -175,6 +175,13 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert_equal 'TEST STRAIN', @doc['strain']
       end
 
+      should 'work with mi_attempts without a colony background strain' do
+        @mi_attempt.colony_background_strain = nil
+
+        doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
+        assert_false doc.has_key?('strain')
+      end
+
       should 'set allele_name' do
         assert_equal 'TEST ALLELE SYMBOL', @doc['allele_name']
       end
@@ -248,6 +255,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
       should 'set strain of origin' do
         assert_equal 'TEST STRAIN', @doc['strain']
+      end
+
+      should 'work with mi_attempts without a colony background strain' do
+        @phenotype_attempt.colony_background_strain = nil
+        doc = SolrUpdate::DocFactory.create_for_phenotype_attempt(@phenotype_attempt).first
+        assert_false doc.has_key?('strain')
       end
 
       should 'set allele_name' do

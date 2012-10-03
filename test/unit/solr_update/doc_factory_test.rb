@@ -167,6 +167,10 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
       end
 
+      should 'set allele_id' do
+        assert_equal 663, @doc['allele_id']
+      end
+
       should 'set strain of origin' do
         assert_equal 'TEST STRAIN', @doc['strain']
       end
@@ -236,6 +240,10 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           doc = SolrUpdate::DocFactory.create_for_phenotype_attempt(@phenotype_attempt).first
           assert_equal 'Cre Excised Deletion', doc['allele_type']
         end
+      end
+
+      should 'set allele_id' do
+        assert_equal 8563, @doc['allele_id']
       end
 
       should 'set strain of origin' do

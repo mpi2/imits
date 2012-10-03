@@ -54,6 +54,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'type' => 'mi_attempt',
           'product_type' => 'Mouse',
           'allele_type' => 'Conditional Ready',
+          'allele_id' => 902,
           'mgi_accession_id' => cbx1.mgi_accession_id,
           'strain' => @new_strain.name,
           'allele_name' => @es_cell.allele_symbol,

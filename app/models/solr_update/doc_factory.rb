@@ -26,6 +26,8 @@ class SolrUpdate::DocFactory
       solr_doc['mgi_accession_id'] = mi_attempt.gene.mgi_accession_id
     end
 
+    solr_doc['allele_id'] = mi_attempt.allele_id
+
     if mi_attempt.mouse_allele_type == 'e'
       solr_doc['allele_type'] = 'Targeted Non Conditional'
     else
@@ -65,6 +67,8 @@ class SolrUpdate::DocFactory
     elsif phenotype_attempt.mouse_allele_type == '.1'
       solr_doc['allele_type'] = 'Cre Excised Deletion'
     end
+
+    solr_doc['allele_id'] = phenotype_attempt.allele_id
 
     solr_doc['strain'] = phenotype_attempt.colony_background_strain.name
 

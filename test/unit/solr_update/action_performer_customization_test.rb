@@ -17,15 +17,14 @@ class SolrUpdate::ActionPerformerCustomizationTest < ActiveSupport::TestCase
         {'id' => 66, 'type' => 'phenotype_attempt'}
       ]
 
-      SolrUpdate::ActionPerformer.expects(:do).with(phenotype_attempt_refs[0], 'update')
-      SolrUpdate::ActionPerformer.expects(:do).with(phenotype_attempt_refs[1], 'update')
+      @testobj.expects(:do).with(phenotype_attempt_refs[0], 'update')
+      @testobj.expects(:do).with(phenotype_attempt_refs[1], 'update')
 
       @testobj.after_update({'id' => 44, 'type' => 'mi_attempt'})
     end
 
     should 'do nothing if phenotype attempt is passed in' do
-      SolrUpdate::ActionPerformer.after_delete({'id' => 44, 'type' => 'mi_attempt'})
-      SolrUpdate::ActionPerformer.expects(:do).never
+      @testobj.expects(:do).never
 
       @testobj.after_update({'id' => 44, 'type' => 'phenotype_attempt'})
     end

@@ -1,7 +1,7 @@
 require 'test_helper'
 
-class ApplicationModel::HasStatusStampsTest < ActiveSupport::TestCase
-  context 'ApplicationModel::HasStatusStamps' do
+class ApplicationModel::HasStatusesTest < ActiveSupport::TestCase
+  context 'ApplicationModel::HasStatuses' do
 
     context '#has_status?' do
       setup do

@@ -7,7 +7,7 @@ class MiAttempt < ApplicationModel
   extend AccessAssociationByAttribute
   include MiAttempt::StatusManagement
   include MiAttempt::WarningGenerator
-  include ApplicationModel::HasStatusStamps
+  include ApplicationModel::HasStatuses
 
   QC_FIELDS = [
     :qc_southern_blot,

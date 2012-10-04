@@ -80,6 +80,18 @@ class ActiveSupport::TestCase
     mi_attempt.save!
   end
 
+  def unset_mi_attempt_genotype_confirmed(mi_attempt)
+    raise 'MiAttempt must be in state Genotype confirmed' unless mi_attempt.has_status? :gtc.status
+    if mi_attempt.production_centre_name == 'WTSI'
+      mi_attempt.update_attributes!(:is_released_from_genotyping => false)
+    else
+      mi_attempt.update_attributes!(
+        :number_of_het_offspring => 0,
+        :number_of_chimeras_with_glt_from_genotyping => 0
+      )
+    end
+  end
+
   def replace_status_stamps(obj, stamps)
     status_class = (obj.class.name + '::' + obj.class.reflections[:status].class_name).constantize
 
@@ -227,11 +239,13 @@ end
 class Test::Person < ApplicationModel
 
   class Status < ApplicationModel
-    self.connection.create_table :test_person_statuses, :force => true do |t|
+    self.connection.create_table :test_person_statuses, :temporary => true do |t|
       t.string :name, :null => false
       t.string :code, :null => false
     end
     set_table_name :test_person_statuses
+
+    has_many :test_people, :dependent => :destroy
 
     ALIVE = self.create!(:name => 'Alive', :code => 'alive')
     DEAD = self.create!(:name => 'Dead', :code => 'dead')
@@ -239,7 +253,7 @@ class Test::Person < ApplicationModel
   end
 
   class StatusStamp < ApplicationModel
-    self.connection.create_table :test_person_status_stamps, :force => true do |t|
+    self.connection.create_table :test_person_status_stamps, :temporary => true do |t|
       t.integer :status_id, :null => false
       t.integer :person_id, :null => false
     end
@@ -248,16 +262,19 @@ class Test::Person < ApplicationModel
     belongs_to :status
   end
 
-  include HasStatusStamps
+  include HasStatuses
 
   acts_as_audited
 
-  self.connection.create_table :test_people, :force => true do |t|
+  self.connection.create_table :test_people, :temporary => true do |t|
     t.string :name
+    t.integer :status_id
   end
+  self.connection.add_foreign_key :test_people, :test_person_statuses, :column => :status_id
   set_table_name :test_people
 
   has_many :status_stamps
+  belongs_to :status
 
   validates :name, :uniqueness => true
 end

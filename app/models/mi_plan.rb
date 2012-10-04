@@ -6,7 +6,7 @@ class MiPlan < ApplicationModel
 
   extend AccessAssociationByAttribute
   include MiPlan::StatusManagement
-  include ApplicationModel::HasStatusStamps
+  include ApplicationModel::HasStatuses
 
   belongs_to :sub_project
   belongs_to :gene

@@ -454,8 +454,8 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    should 'include HasStatusStamps' do
-      assert_include default_phenotype_attempt.class.ancestors, ApplicationModel::HasStatusStamps
+    should 'include HasStatuses' do
+      assert_include default_phenotype_attempt.class.ancestors, ApplicationModel::HasStatuses
     end
 
     should 'have #allele_id' do

@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/mpi2/mpi2_solr_update.git
-  revision: b3922596194b9f6bf1d04af7b4b652e27fd10687
+  revision: fb740226faaafeb2ce4442cef03ae54e6c77fd26
   specs:
     mpi2_solr_update (1.0.0)
       activesupport

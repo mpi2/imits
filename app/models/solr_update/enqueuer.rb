@@ -1,0 +1,2 @@
+class SolrUpdate::Enqueuer
+end

@@ -2,12 +2,16 @@ module SolrUpdate::Observer
   class MiAttempt < ActiveRecord::Observer
     observe :mi_attempt
 
+    def initialize
+      @enqueuer = SolrUpdate::Enqueuer.new
+    end
+
     def after_save(mi)
-      SolrUpdate::Queue.enqueue_for_update(mi)
+      @enqueuer.mi_attempt_updated(mi)
     end
 
     def after_destroy(mi)
-      SolrUpdate::Queue.enqueue_for_delete(mi)
+      @enqueuer.mi_attempt_destroyed(mi)
     end
 
     public_class_method :new
@@ -16,12 +20,16 @@ module SolrUpdate::Observer
   class PhenotypeAttempt < ActiveRecord::Observer
     observe :phenotype_attempt
 
+    def initialize
+      @enqueuer = SolrUpdate::Enqueuer.new
+    end
+
     def after_save(pa)
-      SolrUpdate::Queue.enqueue_for_update(pa)
+      @enqueuer.phenotype_attempt_updated(pa)
     end
 
     def after_destroy(pa)
-      SolrUpdate::Queue.enqueue_for_delete(pa)
+      @enqueuer.phenotype_attempt_destroyed(pa)
     end
 
     public_class_method :new

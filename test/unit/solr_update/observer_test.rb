@@ -3,22 +3,17 @@ require 'test_helper'
 class SolrUpdate::ObserverTest < ActiveSupport::TestCase
 
   context 'SolrUpdate::Observer::MiAttempt' do
-    teardown do
-      SolrUpdate::Queue.unstub(:enqueue_for_update)
-      SolrUpdate::Queue.unstub(:enqueue_for_delete)
-    end
-
-    should 'enqueue update when an MiAttempt is changed' do
-      mi = stub('mi_attempt', :id => 55)
-      SolrUpdate::Queue.expects(:enqueue_for_update).with(mi)
+    should 'tell the enqueuer that a MiAttempt is changed' do
+      mi = stub('mi_attempt')
+      SolrUpdate::Enqueuer.any_instance.expects(:mi_attempt_updated).with(mi)
 
       o = SolrUpdate::Observer::MiAttempt.new
       o.after_save(mi)
     end
 
-    should 'enqueue deletion when an MiAttempt is deleted' do
-      mi = stub('mi_attempt', :id => 55)
-      SolrUpdate::Queue.expects(:enqueue_for_delete).with(mi)
+    should 'tell the enqueuer that a MiAttempt is deleted' do
+      mi = stub('mi_attempt')
+      SolrUpdate::Enqueuer.any_instance.expects(:mi_attempt_destroyed).with(mi)
 
       o = SolrUpdate::Observer::MiAttempt.new
       o.after_destroy(mi)
@@ -26,22 +21,17 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
   end
 
   context 'SolrUpdate::Observer::PhenotypeAttempt' do
-    teardown do
-      SolrUpdate::Queue.unstub(:enqueue_for_update)
-      SolrUpdate::Queue.unstub(:enqueue_for_delete)
-    end
-
-    should 'enqueue update when PhenotypeAttempt is changed' do
-      pa = stub('phenotype_attempt', :id => 74)
-      SolrUpdate::Queue.expects(:enqueue_for_update).with(pa)
+    should 'tell the enqueuer that a PhenotypeAttempt is changed' do
+      pa = stub('phenotype_attempt')
+      SolrUpdate::Enqueuer.any_instance.expects(:phenotype_attempt_updated).with(pa)
 
       o = SolrUpdate::Observer::PhenotypeAttempt.new
       o.after_save(pa)
     end
 
-    should 'enqueue deletion when PhenotypeAttempt is deleted ' do
-      pa = stub('phenotype_attempt', :id => 74)
-      SolrUpdate::Queue.expects(:enqueue_for_delete).with(pa)
+    should 'tell the enqueuer that a PhenotypeAttempt is deleted' do
+      pa = stub('phenotype_attempt')
+      SolrUpdate::Enqueuer.any_instance.expects(:phenotype_attempt_destroyed).with(pa)
 
       o = SolrUpdate::Observer::PhenotypeAttempt.new
       o.after_destroy(pa)

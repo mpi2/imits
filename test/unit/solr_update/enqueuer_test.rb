@@ -42,9 +42,12 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
 
       should 'tell itself the mi_attempt\'s phenotype attempts have changed too' do
         mi = Factory.create :mi_attempt_genotype_confirmed, :id => 67
+        assert_equal 0, mi.phenotype_attempts.all.size
+
         pa1 = Factory.create :phenotype_attempt, :mi_attempt => mi, :id => 675
         pa2 = Factory.create :phenotype_attempt, :mi_attempt => mi, :id => 1475
-        mi.reload
+
+        assert_equal [], mi.phenotype_attempts, 'The phenotype_attempts association is cached on the mi_attempt side BEFORE it\'s phenotype attempts are created, and we test that this behaviour does not mess up our enqueuer'
 
         SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => mi.id})
         SolrUpdate::Enqueuer.any_instance.expects(:phenotype_attempt_updated).with(pa1)

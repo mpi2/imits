@@ -14,37 +14,40 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
       assert fetched_docs.blank?, 'docs were not destroyed!'
+
+      old_strain = Strain.first
+      new_strain = Strain.offset(1).first
+      es_cell = Factory.create(:es_cell,
+        :gene => cbx1,
+        :name => 'EPD0027_2_A02',
+        :mutation_subtype => 'conditional_ready',
+        :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi',
+        :allele_id => 902,
+        :ikmc_project_id => '35505')
+
+      mi = Factory.create(:mi_attempt_genotype_confirmed,
+        :consortium_name => 'BaSH',
+        :colony_background_strain => old_strain,
+        :es_cell => es_cell)
+
+      pa1 = Factory.create(:phenotype_attempt_status_cec,
+        :mi_attempt => mi,
+        :colony_background_strain => old_strain)
+      pa2 = Factory.create(:phenotype_attempt_status_cec,
+        :mi_attempt => mi,
+        :colony_background_strain => old_strain)
+
+      SolrUpdate::Queue::Item.destroy_all
+
+      @mi_attempt = mi
+      @phenotype_attempts = [pa1, pa2]
+      @new_strain = new_strain
+      @es_cell = es_cell
     end
 
     context 'when an MI attempt is modified' do
       setup do
-        old_strain = Strain.first
-        new_strain = Strain.offset(1).first
-        es_cell = Factory.create(:es_cell,
-          :gene => cbx1,
-          :name => 'EPD0027_2_A02',
-          :mutation_subtype => 'conditional_ready',
-          :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi',
-          :allele_id => 902,
-          :ikmc_project_id => '35505')
-
-        mi = Factory.create(:mi_attempt_genotype_confirmed,
-          :consortium_name => 'BaSH',
-          :colony_background_strain => old_strain,
-          :es_cell => es_cell)
-
-        pa1 = Factory.create(:phenotype_attempt_status_cec, :mi_attempt => mi)
-        pa2 = Factory.create(:phenotype_attempt_status_cec, :mi_attempt => mi)
-
-        SolrUpdate::Queue::Item.destroy_all
-
-        mi.update_attributes!(:colony_background_strain => new_strain)
-
-        @mi_attempt = mi
-        @phenotype_attempts = [pa1, pa2]
-        @new_strain = new_strain
-        @es_cell = es_cell
-
+        @mi_attempt.update_attributes!(:colony_background_strain => @new_strain)
         SolrUpdate::Queue.run
       end
 
@@ -57,7 +60,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'allele_id' => 902,
           'mgi_accession_id' => cbx1.mgi_accession_id,
           'strain' => @new_strain.name,
-          'allele_name' => @es_cell.allele_symbol,
+          'allele_name' => @mi_attempt.allele_symbol,
           'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image",
           'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-genbank-file",
           'order_from_url' => "http://www.komp.org/geneinfo.php?project=CSD35505",
@@ -81,7 +84,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
     end
 
     should 'delete SOLR docs in index for mi_attempts that are deleted from the DB' do
-      mi = Factory.create :mi_attempt
+      mi = Factory.create :mi_attempt_genotype_confirmed
       SolrUpdate::Queue.run
       assert_equal 1, @allele_index_proxy.search(:q => 'type:mi_attempt').size
 
@@ -89,6 +92,50 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       mi.destroy
       SolrUpdate::Queue.run
       fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
+      assert_equal [], fetched_docs
+    end
+
+    should 'update a modified phenotype_attempt doc in the SOLR index' do
+      phenotype_attempt = @phenotype_attempts.first
+
+      phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)
+      SolrUpdate::Queue.run
+
+      pa_doc = {
+        'id' => phenotype_attempt.id,
+        'type' => 'phenotype_attempt',
+        'product_type' => 'Mouse',
+        'allele_type' => 'Cre Excised Conditional Ready',
+        'allele_id' => 902,
+        'mgi_accession_id' => cbx1.mgi_accession_id,
+        'strain' => @new_strain.name,
+        'allele_name' => phenotype_attempt.allele_symbol,
+        'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image-cre",
+        'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-cre-genbank-file",
+        'order_from_url' => "http://www.komp.org/geneinfo.php?project=CSD35505",
+        'order_from_name' => 'KOMP'
+      }
+
+      fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')
+      fetched_docs.each {|d| d.delete('score')}
+      assert_equal 1, fetched_docs.size
+
+      fetched_pa_doc = fetched_docs.first
+
+      assert_equal pa_doc, fetched_pa_doc
+    end
+
+    should 'delete a deleted phenotype_attempt from the SOLR index' do
+      phenotype_attempt = @phenotype_attempts.first
+      phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)
+      SolrUpdate::Queue.run
+      assert_equal 1, @allele_index_proxy.search(:q => 'type:phenotype_attempt').size
+
+      phenotype_attempt.status_stamps.destroy_all
+      phenotype_attempt.distribution_centres.destroy_all
+      phenotype_attempt.destroy
+      SolrUpdate::Queue.run
+      fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')
       assert_equal [], fetched_docs
     end
 

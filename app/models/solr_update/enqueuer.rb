@@ -10,7 +10,7 @@ class SolrUpdate::Enqueuer
       SolrUpdate::Queue.enqueue_for_delete(reference)
     end
 
-    mi.phenotype_attempts.each do |pa|
+    mi.phenotype_attempts.reload.each do |pa|
       self.phenotype_attempt_updated(pa)
     end
 

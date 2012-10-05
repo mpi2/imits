@@ -3,6 +3,7 @@ module SolrUpdate::Observer
     observe :mi_attempt
 
     def initialize
+      super
       @enqueuer = SolrUpdate::Enqueuer.new
     end
 
@@ -21,6 +22,7 @@ module SolrUpdate::Observer
     observe :phenotype_attempt
 
     def initialize
+      super
       @enqueuer = SolrUpdate::Enqueuer.new
     end
 

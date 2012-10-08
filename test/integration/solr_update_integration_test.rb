@@ -51,7 +51,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         SolrUpdate::Queue.run
       end
 
-      should 'update the MI document in SOLR index' do
+      should_if_solr 'update the MI document in SOLR index' do
         mi_doc = {
           'id' => @mi_attempt.id,
           'type' => 'mi_attempt',
@@ -76,14 +76,14 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         assert_equal mi_doc, fetched_mi_doc
       end
 
-      should 'update all of the MI\'s phenotype attempt docs in the SOLR index' do
+      should_if_solr 'update all of the MI\'s phenotype attempt docs in the SOLR index' do
         fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')
         ids = fetched_docs.map {|i| i['id']}
         assert_equal @phenotype_attempts.map(&:id).sort, ids.sort
       end
     end
 
-    should 'delete SOLR docs in index for mi_attempts that are deleted from the DB' do
+    should_if_solr 'delete SOLR docs in index for mi_attempts that are deleted from the DB' do
       mi = Factory.create :mi_attempt_genotype_confirmed
       SolrUpdate::Queue.run
       assert_equal 1, @allele_index_proxy.search(:q => 'type:mi_attempt').size
@@ -95,7 +95,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       assert_equal [], fetched_docs
     end
 
-    should 'update a modified phenotype_attempt doc in the SOLR index' do
+    should_if_solr 'update a modified phenotype_attempt doc in the SOLR index' do
       phenotype_attempt = @phenotype_attempts.first
 
       phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)
@@ -125,7 +125,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       assert_equal pa_doc, fetched_pa_doc
     end
 
-    should 'delete a deleted phenotype_attempt from the SOLR index' do
+    should_if_solr 'delete a deleted phenotype_attempt from the SOLR index' do
       phenotype_attempt = @phenotype_attempts.first
       phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)
       SolrUpdate::Queue.run

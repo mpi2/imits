@@ -69,11 +69,13 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
       consortium_to_set = mi_attempt.consortium
     end
 
-    self.mi_plan = MiPlan.where(
-      :gene_id => mi_attempt.gene.id,
-      :production_centre_id => centre_to_set.id,
-      :consortium_id => consortium_to_set.id
-    ).first
+    if centre_to_set and consortium_to_set and mi_attempt.gene
+      self.mi_plan = MiPlan.where(
+        :gene_id => mi_attempt.gene.id,
+        :production_centre_id => centre_to_set.id,
+        :consortium_id => consortium_to_set.id
+      ).first
+    end
   end
 
   # END Callbacks

@@ -6,10 +6,12 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
   context 'When editing Phenotype Attempt in form' do
 
     setup do
-      @phenotype_attempt = Factory.create :phenotype_attempt_status_pdc, :colony_background_strain => Strain.find_by_name!('C57BL/6N')
-      @phenotype_attempt.mi_plan.consortium = Consortium.find_by_name('BaSH')
-      @phenotype_attempt.mi_plan.production_centre = Centre.find_by_name('WTSI')
-      @phenotype_attempt.save!
+      ApplicationModel.uncached do
+        @phenotype_attempt = Factory.create :phenotype_attempt_status_pdc, :colony_background_strain => Strain.find_by_name!('C57BL/6N')
+        @phenotype_attempt.mi_plan.consortium = Consortium.find_by_name('BaSH')
+        @phenotype_attempt.mi_plan.production_centre = Centre.find_by_name('WTSI')
+        @phenotype_attempt.save!
+      end
       login
       click_link 'Phenotyping'
       within('.x-grid') { click_link 'Edit in Form' }
@@ -64,16 +66,17 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'always show distribution centre if one exists' do
-      @phenotype_attempt.number_of_cre_matings_successful = 0
-      @phenotype_attempt.phenotyping_started = false
-      @phenotype_attempt.phenotyping_complete = false
-      @phenotype_attempt.save!
-      @phenotype_attempt.reload
+      ApplicationModel.uncached do
+        @phenotype_attempt.number_of_cre_matings_successful = 0
+        @phenotype_attempt.phenotyping_started = false
+        @phenotype_attempt.phenotyping_complete = false
+        @phenotype_attempt.save!
+        @phenotype_attempt.reload
+      end
+
       visit current_path
 
-      sleep 5
-
-      assert page.find('table[id="distribution_centres_table"]')
+      assert page.has_css? 'table[id="distribution_centres_table"]'
     end
 
   end

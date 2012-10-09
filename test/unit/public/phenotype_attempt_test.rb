@@ -28,8 +28,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be able to be set on create' do
-        mi = Factory.create :mi_attempt
-        phenotype_attempt = Factory.create!(:public_phenotype_attempt,
+        mi = Factory.create :mi_attempt_genotype_confirmed
+        phenotype_attempt = Factory.create(:public_phenotype_attempt,
           :mi_attempt_colony_name => mi.colony_name)
         phenotype_attempt.valid?
         assert phenotype_attempt.errors[:mi_attempt_colony_name].blank?
@@ -43,7 +43,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'validate the consortium exists for a new record' do
-        pt = Factory.create(:public_phenotype_attempt, :consortium_name => 'Foo')
+        pt = Factory.build(:public_phenotype_attempt, :consortium_name => 'Foo')
+        assert_false pt.valid?
         assert_equal ['does not exist'], pt.errors[:consortium_name]
       end
 
@@ -72,7 +73,6 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
       should 'validate the production_centre exists for a new record' do
         pt = Factory.build(:public_phenotype_attempt, :production_centre_name => 'Foo')
-        p pt.mi_attempt
         pt.valid?
         assert_equal ['does not exist'], pt.errors[:production_centre_name]
       end

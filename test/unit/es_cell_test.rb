@@ -125,7 +125,7 @@ class EsCellTest < ActiveSupport::TestCase
 
     context '::create_es_cell_from_mart_data' do
       def create_test_es_cell
-         EsCell.create_es_cell_from_mart_data(
+        EsCell.create_es_cell_from_mart_data(
           'escell_clone' => 'HEPD0549_6_D02',
           'marker_symbol' => 'C030046E11Rik',
           'allele_symbol_superscript' => 'tm1a(EUCOMM)Hmgu',
@@ -267,8 +267,8 @@ class EsCellTest < ActiveSupport::TestCase
         assert_equal 0, Gene.count
 
         gene = Factory.create :gene,
-          :marker_symbol => 'IAmWrong',
-          :mgi_accession_id => 'MGI:WRONG'
+                :marker_symbol => 'IAmWrong',
+                :mgi_accession_id => 'MGI:WRONG'
         es_cell_HEPD0549_6_D02 = Factory.create :es_cell,
                 :name => 'HEPD0549_6_D02',
                 :allele_symbol_superscript => 'tm1(WRONG)Wrong',
@@ -303,9 +303,20 @@ class EsCellTest < ActiveSupport::TestCase
         assert_raise(EsCell::SyncError) do
           EsCell.sync_all_with_marts
         end
-        
+
         mi.reload
         assert_equal 'Cbx1', mi.es_cell.gene.marker_symbol
+      end
+
+      should 'only save an es_cell if it has changes' do
+        es_cell_HEPD0549_6_D02 = Factory.create :es_cell,
+                :name => 'HEPD0549_6_D02'
+        EsCell.sync_all_with_marts
+
+        EsCell.any_instance.expects(:save!).never
+        EsCell.any_instance.expects(:update_attributes!).never
+
+        EsCell.sync_all_with_marts
       end
     end
 

@@ -172,15 +172,19 @@ class EsCell < ActiveRecord::Base
         :mgi_accession_id => es_cell_data['mgi_accession_id']
       )
       EsCell.transaction do
-        es_cell.save!
-        es_cell.mi_attempts.each do |mi|
-          mi.reload
-          if ! mi.valid?
-            raise SyncError, "ES Cell #{es_cell.name} update problem: one of its MIs failed validation with errors: '#{mi.errors.full_messages}'"
+
+        if es_cell.changes.present?
+          es_cell.save!
+          es_cell.mi_attempts.each do |mi|
+            mi.reload
+            if ! mi.valid?
+              raise SyncError, "ES Cell #{es_cell.name} update problem: one of its MIs failed validation with errors: '#{mi.errors.full_messages}'"
+            end
           end
         end
 
       end
+
     end
   end
 

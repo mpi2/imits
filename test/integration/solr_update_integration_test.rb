@@ -95,7 +95,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       assert_equal [], fetched_docs
     end
 
-    should_if_solr 'update a modified phenotype_attempt doc in the SOLR index' do
+    should 'update a modified phenotype_attempt doc in the SOLR index' do
       phenotype_attempt = @phenotype_attempts.first
 
       phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)
@@ -128,6 +128,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
     should_if_solr 'delete a deleted phenotype_attempt from the SOLR index' do
       phenotype_attempt = @phenotype_attempts.first
       phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)
+
       SolrUpdate::Queue.run
       assert_equal 1, @allele_index_proxy.search(:q => 'type:phenotype_attempt').size
 
@@ -141,7 +142,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 
     should_if_solr 'update an mi_plan`s mi_attempt solr docs if the mi_plan changes' do
       plan = @mi_attempt.mi_plan
-      plan.save!
+      plan.update_attributes!(:number_of_es_cells_starting_qc => 4)
       SolrUpdate::Queue.run
       fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
       assert_equal [@mi_attempt.id], fetched_docs.map{|i| i['id']}
@@ -149,7 +150,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 
     should_if_solr 'update a gene`s mi_attempt solr docs if the gene changes' do
       gene = @mi_attempt.gene
-      gene.save!
+      gene.update_attributes!(:ikmc_projects_count => gene.ikmc_projects_count.to_i + 1)
       SolrUpdate::Queue.run
       fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
       assert_equal [@mi_attempt.id], fetched_docs.map{|i| i['id']}
@@ -157,7 +158,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 
     should_if_solr 'update an es_cell`s mi_attempt solr docs if the es_cell changes' do
       es_cell = @mi_attempt.es_cell
-      es_cell.save!
+      es_cell.update_attributes!(:parental_cell_line => 'Foo/1')
       SolrUpdate::Queue.run
       fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
       assert_equal [@mi_attempt.id], fetched_docs.map{|i| i['id']}

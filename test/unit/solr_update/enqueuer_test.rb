@@ -81,12 +81,24 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
       should 'tell itself that each of the changed object`s mi_attempts have been updated' do
         mi1 = stub('mi1'); mi2 = stub('mi2')
         mi_attempts = stub('mi_attempts')
-        has_mi_attempts = stub('has_mi_attempts')
+        has_mi_attempts = stub('has_mi_attempts', :changes => {'key' => ['old', 'new']})
 
         has_mi_attempts.expects(:mi_attempts).returns(mi_attempts)
         mi_attempts.expects(:reload).returns([mi1, mi2])
         @enqueuer.expects(:mi_attempt_updated).with(mi1)
         @enqueuer.expects(:mi_attempt_updated).with(mi2)
+
+        @enqueuer.any_with_mi_attempts_updated(has_mi_attempts)
+      end
+
+      should 'not tell itself to enqueue the object`s mi_attempts if it was not actually changed' do
+        mi1 = stub('mi1'); mi2 = stub('mi2')
+        mi_attempts = stub('mi_attempts')
+        has_mi_attempts = stub('has_mi_attempts', :changes => {})
+
+        has_mi_attempts.stubs(:mi_attempts).returns(mi_attempts)
+        mi_attempts.stubs(:reload).returns([mi1, mi2])
+        @enqueuer.expects(:mi_attempt_updated).never
 
         @enqueuer.any_with_mi_attempts_updated(has_mi_attempts)
       end

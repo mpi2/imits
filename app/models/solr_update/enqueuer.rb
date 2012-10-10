@@ -35,6 +35,8 @@ class SolrUpdate::Enqueuer
   end
 
   def any_with_mi_attempts_updated(object)
-    object.mi_attempts.reload.each {|mi| mi_attempt_updated(mi) }
+    if object.changes.present?
+      object.mi_attempts.reload.each {|mi| mi_attempt_updated(mi) }
+    end
   end
 end

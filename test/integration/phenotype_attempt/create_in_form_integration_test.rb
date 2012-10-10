@@ -51,7 +51,7 @@ class PhenotypeAttempt::CreateInFormIntegrationTest < Kermits2::JsIntegrationTes
     end
 
     should 'be creatable with minimal values' do
-      assert_equal 0, PhenotypeAttempt.count
+      ApplicationModel.uncached { assert_equal 0, PhenotypeAttempt.count }
       click_button 'phenotype_attempt_submit'
       assert page.has_css?('.message.notice')
       assert_equal 'Phenotype attempt created', page.find('.message.notice').text

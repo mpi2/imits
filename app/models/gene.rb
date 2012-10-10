@@ -374,9 +374,11 @@ class Gene < ActiveRecord::Base
     current_genes_data.each do |mgi_accession_id, gene_data|
       current_gene = Gene.find_by_mgi_accession_id(mgi_accession_id)
 
+      current_gene.attributes = gene_data
+
       if current_gene.changes.present?
         logger.debug "[Gene.sync_with_remotes] Updating information for #{current_gene.mgi_accession_id}"
-        current_gene.update_attributes!(gene_data)
+        current_gene.save!
       end
     end
 

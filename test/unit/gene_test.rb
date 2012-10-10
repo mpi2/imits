@@ -181,11 +181,8 @@ class GeneTest < ActiveSupport::TestCase
       end
 
       should 'not update a gene whose data has not changed' do
-        orig_time = Time.parse('2012-01-01 00:00:00 UTC')
         Factory.create :gene, :mgi_accession_id => 'MGI:99999999991',
-                'marker_symbol' => 'Test1',
-                :created_at => orig_time,
-                :updated_at => orig_time
+                :marker_symbol => 'Test1'
 
         DCC_BIOMART.stubs(:search).returns(
           [
@@ -211,9 +208,10 @@ class GeneTest < ActiveSupport::TestCase
 
         Gene.sync_with_remotes
 
-        test1 = Gene.find_by_marker_symbol('Test1')
+        Gene.any_instance.expects(:update_attributes!).never
+        Gene.any_instance.expects(:save!).never
 
-        assert_equal orig_time, test1.updated_at
+        Gene.sync_with_remotes
       end
     end
 

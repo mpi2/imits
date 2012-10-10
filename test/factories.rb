@@ -75,6 +75,12 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.mi_date { Date.today }
 end
 
+Factory.define :mi_attempt2, :class => MiAttempt do |mi_attempt|
+  mi_attempt.association :mi_plan
+  mi_attempt.es_cell { |mi| Factory.create(:es_cell, :gene => mi.mi_plan.gene) }
+  mi_attempt.mi_date { Date.today }
+end
+
 Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.total_male_chimeras 1
 end

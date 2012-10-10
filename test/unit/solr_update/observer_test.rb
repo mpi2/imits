@@ -38,12 +38,12 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
     end
   end
 
-  context 'SolrUpdate::Observer::MiPlan' do
-    should 'tell the enqueuer that a MiPlan has changed' do
-      plan = stub('plan')
-      SolrUpdate::Enqueuer.any_instance.expects(:mi_plan_updated).with(plan)
-      o = SolrUpdate::Observer::MiPlan.new
-      o.after_save(plan)
+  context 'SolrUpdate::Observer::AnyWithMiAttempts' do
+    should 'tell the enqueuer that something that has mi_attempts has changed' do
+      object = stub('object')
+      SolrUpdate::Enqueuer.any_instance.expects(:any_with_mi_attempts_updated).with(object)
+      o = SolrUpdate::Observer::AnyWithMiAttempts.new
+      o.after_save(object)
     end
   end
 

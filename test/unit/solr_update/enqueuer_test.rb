@@ -77,17 +77,15 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
 
     end
 
-    context 'when a mi_plan changes' do
-      should 'tell itself that each of the mi_plan`s mi_attempts have been updated' do
-        plan = Factory.create :mi_plan_with_production_centre, :id => 546
-        mi1 = Factory.create :mi_attempt2, :mi_plan => plan, :id => 5723
-        mi2 = Factory.create :mi_attempt2, :mi_plan => plan, :id => 5875
-        plan.reload
+    context 'when anything with mi_attempts changes' do
+      should 'tell itself that each of the changed object`s mi_attempts have been updated' do
+        mi1 = stub('mi1'); mi2 = stub('mi2')
+        has_mi_attempts = stub('has_mi_attempts', :mi_attempts => [mi1, mi2])
 
         @enqueuer.expects(:mi_attempt_updated).with(mi1)
         @enqueuer.expects(:mi_attempt_updated).with(mi2)
 
-        @enqueuer.mi_plan_updated(plan)
+        @enqueuer.any_with_mi_attempts_updated(has_mi_attempts)
       end
     end
 

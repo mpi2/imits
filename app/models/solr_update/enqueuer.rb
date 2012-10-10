@@ -34,7 +34,7 @@ class SolrUpdate::Enqueuer
     SolrUpdate::Queue.enqueue_for_delete({'type' => 'phenotype_attempt', 'id' => pa.id})
   end
 
-  def mi_plan_updated(plan)
-    plan.mi_attempts.each {|mi| mi_attempt_updated(mi) }
+  def any_with_mi_attempts_updated(object)
+    object.mi_attempts.reload.each {|mi| mi_attempt_updated(mi) }
   end
 end

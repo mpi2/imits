@@ -37,16 +37,16 @@ module SolrUpdate::Observer
     public_class_method :new
   end
 
-  class MiPlan < ActiveRecord::Observer
-    observe :mi_plan
+  class AnyWithMiAttempts < ActiveRecord::Observer
+    observe :mi_plan, :es_cell, :gene
 
     def initialize
       super
       @enqueuer = SolrUpdate::Enqueuer.new
     end
 
-    def after_save(pa)
-      @enqueuer.mi_plan_updated(pa)
+    def after_save(object)
+      @enqueuer.any_with_mi_attempts_updated(object)
     end
 
     public_class_method :new

@@ -27,7 +27,7 @@ module Kermits2
     # Activate observers that should always be running.
     # config.active_record.observers = :cacher, :garbage_collector, :forum_observer
     config.active_record.observers = [
-      'SolrUpdate::Observer::MiPlan',
+      'SolrUpdate::Observer::AnyWithMiAttempts',
       'SolrUpdate::Observer::MiAttempt',
       'SolrUpdate::Observer::PhenotypeAttempt'
     ]

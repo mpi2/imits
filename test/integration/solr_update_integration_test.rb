@@ -139,12 +139,29 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       assert_equal [], fetched_docs
     end
 
-    should_if_solr 'update an mi_plan\'s mi_attempt solr docs if the mi_plan changes' do
+    should_if_solr 'update an mi_plan`s mi_attempt solr docs if the mi_plan changes' do
       plan = @mi_attempt.mi_plan
       plan.save!
       SolrUpdate::Queue.run
       fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
       assert_equal [@mi_attempt.id], fetched_docs.map{|i| i['id']}
     end
+
+    should_if_solr 'update a gene`s mi_attempt solr docs if the gene changes' do
+      gene = @mi_attempt.gene
+      gene.save!
+      SolrUpdate::Queue.run
+      fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
+      assert_equal [@mi_attempt.id], fetched_docs.map{|i| i['id']}
+    end
+
+    should_if_solr 'update an es_cell`s mi_attempt solr docs if the es_cell changes' do
+      es_cell = @mi_attempt.es_cell
+      es_cell.save!
+      SolrUpdate::Queue.run
+      fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
+      assert_equal [@mi_attempt.id], fetched_docs.map{|i| i['id']}
+    end
+
   end
 end

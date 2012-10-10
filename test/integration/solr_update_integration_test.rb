@@ -95,7 +95,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       assert_equal [], fetched_docs
     end
 
-    should 'update a modified phenotype_attempt doc in the SOLR index' do
+    should_if_solr 'update a modified phenotype_attempt doc in the SOLR index' do
       phenotype_attempt = @phenotype_attempts.first
 
       phenotype_attempt.update_attributes!(:colony_background_strain => @new_strain)

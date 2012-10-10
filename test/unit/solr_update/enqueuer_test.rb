@@ -80,8 +80,11 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
     context 'when anything with mi_attempts changes' do
       should 'tell itself that each of the changed object`s mi_attempts have been updated' do
         mi1 = stub('mi1'); mi2 = stub('mi2')
-        has_mi_attempts = stub('has_mi_attempts', :mi_attempts => [mi1, mi2])
+        mi_attempts = stub('mi_attempts')
+        has_mi_attempts = stub('has_mi_attempts')
 
+        has_mi_attempts.expects(:mi_attempts).returns(mi_attempts)
+        mi_attempts.expects(:reload).returns([mi1, mi2])
         @enqueuer.expects(:mi_attempt_updated).with(mi1)
         @enqueuer.expects(:mi_attempt_updated).with(mi2)
 

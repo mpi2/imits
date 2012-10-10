@@ -856,6 +856,8 @@ class MiAttemptTest < ActiveSupport::TestCase
         results = MiAttempt.public_search(:es_cell_marker_symbol_eq => 'Trafd1',
           :production_centre_name_eq => 'ICS').result
 
+        es_cell.reload
+
         colony_names = es_cell.mi_attempts.map(&:colony_name)
         assert_equal colony_names.sort, results.map(&:colony_name).sort
       end

@@ -271,6 +271,8 @@ Factory.define :es_cell_EPD0127_4_E01, :parent => :es_cell_EPD0127_4_E01_without
         :colony_name => 'WBAA'
       )
     )
+
+    es_cell.reload
   end
 end
 
@@ -291,6 +293,8 @@ Factory.define :es_cell_EPD0343_1_H06, :parent => :es_cell_EPD0343_1_H06_without
       :mi_date => Date.parse('2010-09-13'),
       :consortium_name => 'EUCOMM-EUMODIC'
     )
+
+    es_cell.reload
   end
 end
 
@@ -307,6 +311,7 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
       :consortium_name => 'MGP',
       :production_centre_name => 'WTSI'
     )
+    es_cell.reload
   end
 end
 

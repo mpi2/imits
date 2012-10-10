@@ -65,7 +65,12 @@ class GeneTest < ActiveSupport::TestCase
     end
 
     context '::sync_with_remotes' do
-      setup do
+      teardown do
+        DCC_BIOMART.unstub(:search)
+        TARG_REP_BIOMART.unstub(:search)
+      end
+
+      should 'work' do
         dcc_gene_data = [
           {
             'mgi_accession_id' => 'MGI:11111',
@@ -140,14 +145,7 @@ class GeneTest < ActiveSupport::TestCase
         ]
 
         TARG_REP_BIOMART.stubs(:search).returns(targ_rep_clone_data)
-      end
 
-      teardown do
-        DCC_BIOMART.unstub(:search)
-        TARG_REP_BIOMART.unstub(:search)
-      end
-
-      should 'work' do
         assert_equal 0, Gene.all.count
 
         Gene.sync_with_remotes
@@ -180,6 +178,42 @@ class GeneTest < ActiveSupport::TestCase
         assert_equal 2, Gene.all.count
         assert_nil Gene.find_by_marker_symbol('GeneC')
         assert_equal 2, moo1.ikmc_projects_count
+      end
+
+      should 'not update a gene whose data has not changed' do
+        orig_time = Time.parse('2012-01-01 00:00:00 UTC')
+        Factory.create :gene, :mgi_accession_id => 'MGI:99999999991',
+                'marker_symbol' => 'Test1',
+                :created_at => orig_time,
+                :updated_at => orig_time
+
+        DCC_BIOMART.stubs(:search).returns(
+          [
+            {
+              'mgi_accession_id' => 'MGI:99999999991',
+              'marker_symbol'    => 'Test1',
+              'ikmc_project'     => 'mirKO',
+              'ikmc_project_id'  => '12345'
+            }
+          ]
+        )
+
+        TARG_REP_BIOMART.stubs(:search).returns(
+          [
+            {
+              'mgi_accession_id' => 'MGI:9999999991',
+              'pipeline'         => 'EUCOMM',
+              'escell_clone'     => 'EPD0123_A_01',
+              'mutation_subtype' => 'conditional_ready'
+            }
+          ]
+        )
+
+        Gene.sync_with_remotes
+
+        test1 = Gene.find_by_marker_symbol('Test1')
+
+        assert_equal orig_time, test1.updated_at
       end
     end
 
@@ -518,8 +552,8 @@ class GeneTest < ActiveSupport::TestCase
 
       should 'return correct status with plan and microinjection attempt' do
         mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
-        :consortium_name => 'BaSH',
-        :production_centre_name => 'WTSI'
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI'
         gene = mi.gene
         gene.reload
         assert_equal MiAttempt::Status.genotype_confirmed.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
@@ -528,22 +562,22 @@ class GeneTest < ActiveSupport::TestCase
       should 'return correct status with multiple stamps for plan, microinjection and phenotype attempt' do
 
         mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
-          :consortium_name => 'BaSH',
-          :production_centre_name => 'WTSI'
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI'
         plan = mi.mi_plan
         plan.update_attributes!(:number_of_es_cells_starting_qc => 1)
         pt = Factory.create :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi
         gene = plan.gene
         replace_status_stamps(plan,
-        'Assigned' => '2011-01-01',
-        'Assigned - ES Cell QC In Progress' => '2011-05-31')
+          'Assigned' => '2011-01-01',
+          'Assigned - ES Cell QC In Progress' => '2011-05-31')
 
         replace_status_stamps(mi,
-        'Micro-injection in progress' => '2011-05-31',
-        'Genotype confirmed' => '2011-05-31')
+          'Micro-injection in progress' => '2011-05-31',
+          'Genotype confirmed' => '2011-05-31')
 
         replace_status_stamps(pt,
-        'Phenotype Attempt Registered' => '2011-05-31')
+          'Phenotype Attempt Registered' => '2011-05-31')
 
         gene.reload
         assert_equal PhenotypeAttempt::Status["Phenotype Attempt Registered"].name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]

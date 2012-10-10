@@ -38,4 +38,13 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
     end
   end
 
+  context 'SolrUpdate::Observer::MiPlan' do
+    should 'tell the enqueuer that a MiPlan has changed' do
+      plan = stub('plan')
+      SolrUpdate::Enqueuer.any_instance.expects(:mi_plan_updated).with(plan)
+      o = SolrUpdate::Observer::MiPlan.new
+      o.after_save(plan)
+    end
+  end
+
 end

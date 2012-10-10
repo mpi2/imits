@@ -40,7 +40,7 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
         @enqueuer.mi_attempt_updated(mi)
       end
 
-      should 'tell itself the mi_attempt\'s phenotype attempts have changed too' do
+      should 'tell itself the mi_attempt`s phenotype attempts have been updated' do
         mi = Factory.create :mi_attempt_genotype_confirmed, :id => 67
         assert_equal 0, mi.phenotype_attempts.all.size
 
@@ -50,8 +50,8 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
         assert_equal [], mi.phenotype_attempts, 'The phenotype_attempts association is cached on the mi_attempt side BEFORE it\'s phenotype attempts are created, and we test that this behaviour does not mess up our enqueuer'
 
         SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => mi.id})
-        SolrUpdate::Enqueuer.any_instance.expects(:phenotype_attempt_updated).with(pa1)
-        SolrUpdate::Enqueuer.any_instance.expects(:phenotype_attempt_updated).with(pa2)
+        @enqueuer.expects(:phenotype_attempt_updated).with(pa1)
+        @enqueuer.expects(:phenotype_attempt_updated).with(pa2)
         @enqueuer.mi_attempt_updated(mi)
       end
     end
@@ -75,6 +75,20 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
         @enqueuer.phenotype_attempt_destroyed(pa)
       end
 
+    end
+
+    context 'when a mi_plan changes' do
+      should 'tell itself that each of the mi_plan`s mi_attempts have been updated' do
+        plan = Factory.create :mi_plan_with_production_centre, :id => 546
+        mi1 = Factory.create :mi_attempt2, :mi_plan => plan, :id => 5723
+        mi2 = Factory.create :mi_attempt2, :mi_plan => plan, :id => 5875
+        plan.reload
+
+        @enqueuer.expects(:mi_attempt_updated).with(mi1)
+        @enqueuer.expects(:mi_attempt_updated).with(mi2)
+
+        @enqueuer.mi_plan_updated(plan)
+      end
     end
 
   end

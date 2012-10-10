@@ -26,7 +26,7 @@ class EsCell < ActiveRecord::Base
     end
   end
 
-  class AlleleSymbolSuperscriptFormatUnrecognizedError < RuntimeError; end
+  class AlleleSymbolSuperscriptFormatUnrecognizedError < Error; end
 
   def allele_symbol_superscript=(text)
     if text.nil?

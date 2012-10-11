@@ -69,7 +69,7 @@
         <% end %>
         </tbody>
       </table>
-      <% if @phenotype_attempt.status_stamps.where(:status_id => 'cec'.status.id).count != 0 %>
+      <% if @phenotype_attempt.has_status? :cec %>
         <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
       <% end %>
     <% else %>

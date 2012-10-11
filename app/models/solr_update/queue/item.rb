@@ -30,8 +30,10 @@ class SolrUpdate::Queue::Item < ActiveRecord::Base
   end
   private_class_method :get_model_type
 
-  def self.process_in_order
-    self.order('created_at asc').all.each do |item|
+  def self.process_in_order(args = {})
+    args.symbolize_keys!
+
+    self.order('created_at asc').limit(args[:limit]).all.each do |item|
       if item.mi_attempt_id
         reference = {'type' => 'mi_attempt', 'id' => item.mi_attempt_id}
       elsif item.phenotype_attempt_id

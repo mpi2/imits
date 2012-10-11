@@ -3,6 +3,8 @@
 class MiAttempt::Status < ActiveRecord::Base
   acts_as_reportable
 
+  include StatusInterface
+
   validates :name, :presence => true, :uniqueness => true
 
   has_many :status_stamps

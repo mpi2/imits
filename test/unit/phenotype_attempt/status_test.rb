@@ -9,12 +9,8 @@ class PhenotypeAttempt::StatusTest < ActiveSupport::TestCase
       assert_should have_db_column(:name).with_options(:null => false)
     end
 
-    should 'have #[] shortcut' do
-      assert_equal PhenotypeAttempt::Status.find_by_name!('Phenotype Attempt Registered'),
-              PhenotypeAttempt::Status['Phenotype Attempt Registered']
-
-      s = PhenotypeAttempt::Status.create!(:name => 'Nonexistent', :code => 'nex')
-      assert_equal s, PhenotypeAttempt::Status[:Nonexistent]
+    should 'include StatusInterface' do
+      assert_include PhenotypeAttempt::Status.ancestors, StatusInterface
     end
 
   end

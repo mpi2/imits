@@ -240,6 +240,8 @@ end
 class Test::Person < ApplicationModel
 
   class Status < ApplicationModel
+    include StatusInterface
+
     self.connection.create_table :test_person_statuses, :temporary => true do |t|
       t.string :name, :null => false
       t.string :code, :null => false

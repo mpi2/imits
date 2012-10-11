@@ -117,7 +117,7 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   def allele_symbol
-    if has_status?(:cec.status)
+    if has_status?(:cec)
       return mouse_allele_symbol
     else
       return self.mi_attempt.allele_symbol

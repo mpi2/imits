@@ -13,10 +13,8 @@ class MiPlan::StatusTest < ActiveSupport::TestCase
 
   should have_db_column(:order_by)
 
-  should 'have ::[] lookup shortcut' do
-    assert_equal MiPlan::Status.find_by_name!('Interest'), MiPlan::Status['Interest']
-    assert_equal MiPlan::Status.find_by_name!('Assigned'), MiPlan::Status['Assigned']
-    assert_equal MiPlan::Status.find_by_name!('Conflict'), MiPlan::Status[:Conflict]
+  should 'include StatusInterface' do
+    assert_include MiPlan::Status.ancestors, StatusInterface
   end
 
   should 'have ::all_non_assigned' do

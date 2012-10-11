@@ -36,5 +36,9 @@ class MiAttempt::StatusTest < ActiveSupport::TestCase
       end
     end
 
+    should 'include StatusInterface' do
+      assert_include MiAttempt::Status.ancestors, StatusInterface
+    end
+
   end
 end

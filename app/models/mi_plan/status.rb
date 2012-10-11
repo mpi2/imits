@@ -3,11 +3,9 @@
 class MiPlan::Status < ActiveRecord::Base
   acts_as_reportable
 
-  validates :name, :presence => true, :uniqueness => true
+  include StatusInterface
 
-  def self.[](name)
-    return self.find_by_name!(name.to_s)
-  end
+  validates :name, :presence => true, :uniqueness => true
 
   def self.all_non_assigned
     return [

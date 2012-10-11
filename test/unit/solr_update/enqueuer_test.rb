@@ -40,6 +40,14 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
         @enqueuer.mi_attempt_updated(mi)
       end
 
+      should 'enqueue a deletion for it if it does has status "gtc" but is currently aborted' do
+        mi = Factory.create :mi_attempt_genotype_confirmed, :id => 55, :is_active => false
+        assert_equal 'abt', mi.status.code
+        SolrUpdate::Queue.expects(:enqueue_for_update).never
+        SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'mi_attempt', 'id' => mi.id})
+        @enqueuer.mi_attempt_updated(mi)
+      end
+
       should 'tell itself the mi_attempt`s phenotype attempts have been updated' do
         mi = Factory.create :mi_attempt_genotype_confirmed, :id => 67
         assert_equal 0, mi.phenotype_attempts.all.size
@@ -73,6 +81,14 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
         pa = Factory.create :phenotype_attempt, :id => 568
         SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'phenotype_attempt', 'id' => pa.id})
         @enqueuer.phenotype_attempt_destroyed(pa)
+      end
+
+      should 'enqueue a deletion for it if it does has status "cec" but is currently aborted' do
+        pa = Factory.create :phenotype_attempt_status_cec, :id => 345, :is_active => false
+        assert_equal 'abt', pa.status.code
+        SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'phenotype_attempt', 'id' => pa.id})
+        SolrUpdate::Queue.expects(:enqueue_for_update).never
+        @enqueuer.phenotype_attempt_updated(pa)
       end
 
     end

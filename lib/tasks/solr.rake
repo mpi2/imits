@@ -5,7 +5,7 @@ namespace :solr do
       enqueuer = SolrUpdate::Enqueuer.new
       MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i) }
     end
-    SolrUpdate::Queue.run
+    SolrUpdate::Queue.run(:limit => nil)
   end
 
   desc 'Run the SOLR update queue to send recent changes to the index'

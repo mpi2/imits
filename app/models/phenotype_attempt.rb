@@ -72,7 +72,7 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   def create_initial_distribution_centre
-    if self.distribution_centres.empty? and status_stamps.where(:status_id => 'cec'.status.id).count != 0
+    if distribution_centres.empty? and has_status? :cec
       dc = self.distribution_centres.new
       dc.centre = self.production_centre
       dc.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')

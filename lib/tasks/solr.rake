@@ -7,9 +7,4 @@ namespace :solr do
     end
     SolrUpdate::Queue.run(:limit => nil)
   end
-
-  desc 'Run the SOLR update queue to send recent changes to the index'
-  task 'update' => [:environment] do
-    SolrUpdate::Queue.run
-  end
 end

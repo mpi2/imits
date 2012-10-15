@@ -4,6 +4,16 @@ class SolrUpdate::Queue::Item < ActiveRecord::Base
   belongs_to :mi_attempt
   belongs_to :phenotype_attempt
 
+  def reference
+    if mi_attempt_id
+      return {'type' => 'mi_attempt', 'id' => mi_attempt_id}
+    elsif phenotype_attempt_id
+      return {'type' => 'phenotype_attempt', 'id' => phenotype_attempt_id}
+    else
+      raise SolrUpdate::Error, 'No IDs set'
+    end
+  end
+
   def self.add(reference, action)
     if reference.kind_of?(ApplicationModel)
       reference = {'type' => get_model_type(reference), 'id' => reference.id}
@@ -34,13 +44,7 @@ class SolrUpdate::Queue::Item < ActiveRecord::Base
     args.symbolize_keys!
 
     self.order('created_at asc').limit(args[:limit]).all.each do |item|
-      if item.mi_attempt_id
-        reference = {'type' => 'mi_attempt', 'id' => item.mi_attempt_id}
-      elsif item.phenotype_attempt_id
-        reference = {'type' => 'phenotype_attempt', 'id' => item.phenotype_attempt_id}
-      end
-      yield([reference, item.action])
-      item.destroy
+      yield(item)
     end
   end
 

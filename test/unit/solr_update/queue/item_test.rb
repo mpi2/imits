@@ -16,6 +16,13 @@ class SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
       assert_raise(ActiveRecord::StatementInvalid) { SolrUpdate::Queue::Item.create!(:mi_attempt_id => 2, :phenotype_attempt_id => 2) }
     end
 
+    should 'have #reference' do
+      i = SolrUpdate::Queue::Item.new(:mi_attempt_id => 5)
+      assert_equal({'type' => 'mi_attempt', 'id' => 5}, i.reference)
+      i = SolrUpdate::Queue::Item.new(:phenotype_attempt_id => 7)
+      assert_equal({'type' => 'phenotype_attempt', 'id' => 7}, i.reference)
+    end
+
     should 'have valid action' do
       i = SolrUpdate::Queue::Item.create!(:mi_attempt_id => 1, :action => 'update'); i.reload
       assert_equal 'update', i.action
@@ -50,11 +57,11 @@ class SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
       @item1 = SolrUpdate::Queue::Item.create!(:phenotype_attempt_id => 2, :action => 'delete', :created_at => '2012-01-01 00:00:00 UTC')
     end
 
-    should 'process mi_attempts in order they were added and deletes them: #process_in_order' do
+    should 'process mi_attempts in order they were added: #process_in_order' do
       setup_for_process
       things_processed = []
-      SolrUpdate::Queue::Item.process_in_order do |object_id, action|
-        things_processed << [object_id, action]
+      SolrUpdate::Queue::Item.process_in_order do |item|
+        things_processed << [item.reference, item.action]
       end
 
       expected = [
@@ -64,8 +71,8 @@ class SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
 
       assert_equal expected, things_processed
 
-      assert_nil SolrUpdate::Queue::Item.find_by_id(@item1.id)
-      assert_nil SolrUpdate::Queue::Item.find_by_id(@item2.id)
+      assert_not_nil SolrUpdate::Queue::Item.find_by_id(@item1.id)
+      assert_not_nil SolrUpdate::Queue::Item.find_by_id(@item2.id)
     end
 
     should 'only process a limited number of items per call if told to' do
@@ -75,37 +82,26 @@ class SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
 
       ids_processed = []
 
-      SolrUpdate::Queue::Item.process_in_order(:limit => 3) do |ref, action|
-        ids_processed.push ref['id']
+      SolrUpdate::Queue::Item.process_in_order(:limit => 3) do |item|
+        ids_processed.push item.id
+        item.destroy
       end
 
       assert_equal 3, ids_processed.size
 
-      SolrUpdate::Queue::Item.process_in_order(:limit => 2) do |ref, action|
-        ids_processed.push ref['id']
+      SolrUpdate::Queue::Item.process_in_order(:limit => 2) do |item|
+        ids_processed.push item.id
+        item.destroy
       end
 
       assert_equal 5, ids_processed.size
 
-      SolrUpdate::Queue::Item.process_in_order do |ref, action|
-        ids_processed.push ref['id']
+      SolrUpdate::Queue::Item.process_in_order do |item|
+        ids_processed.push item.id
+        item.destroy
       end
 
       assert_equal 10, ids_processed.size
-    end
-
-    should 'not delete queue item if an exception is raised during processing' do
-      setup_for_process
-      assert_raise(MockError) do
-        SolrUpdate::Queue::Item.process_in_order do |object_id, action|
-          if object_id['type'] == 'mi_attempt'
-            raise MockError
-          end
-        end
-      end
-
-      assert_nil SolrUpdate::Queue::Item.find_by_id(@item1.id)
-      assert_not_nil SolrUpdate::Queue::Item.find_by_id(@item2.id)
     end
 
     should 'add only one command per item, removing any that are already present' do

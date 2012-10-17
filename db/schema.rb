@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120926124146) do
+ActiveRecord::Schema.define(:version => 20121017152352) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -108,6 +108,7 @@ ActiveRecord::Schema.define(:version => 20120926124146) do
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
+  add_index "genes", ["mgi_accession_id"], :name => "index_genes_on_mgi_accession_id", :unique => true
 
   create_table "intermediate_report", :force => true do |t|
     t.string   "consortium",                                                  :null => false

@@ -56,69 +56,39 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         end
       end
 
-      should 'be set correctly if consortium is MGP and has a distribution centre with EMMA flag set to true exists' do
-        @test_object.mi_plan.update_attributes!(:consortium => Consortium.find_by_name!('MGP'))
-        @test_object.distribution_centres.destroy_all
+      ['MGP', 'MGP Legacy'].each do |mgp_consortium|
+        should "be set correctly if consortium is #{mgp_consortium} and has a distribution centre with EMMA flag set to true exists" do
+          @test_object.mi_plan.update_attributes!(:consortium => Consortium.find_by_name!(mgp_consortium))
+          @test_object.distribution_centres.destroy_all
 
-        dist_centre1 = Factory.create distribution_centres_factory,
-                :centre => Centre.find_by_name!('WTSI'),
-                :is_distributed_by_emma => false, object_type => @test_object
-        dist_centre2 = Factory.create distribution_centres_factory,
-                :centre => Centre.find_by_name!('ICS'),
-                :is_distributed_by_emma => true, object_type => @test_object
-        @test_object.distribution_centres = [dist_centre1, dist_centre2]
+          dist_centre1 = Factory.create distribution_centres_factory,
+                  :centre => Centre.find_by_name!('WTSI'),
+                  :is_distributed_by_emma => false, object_type => @test_object
+          dist_centre2 = Factory.create distribution_centres_factory,
+                  :centre => Centre.find_by_name!('ICS'),
+                  :is_distributed_by_emma => true, object_type => @test_object
+          @test_object.distribution_centres = [dist_centre1, dist_centre2]
 
-        @test_object.reload
+          @test_object.reload
 
-        doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-        assert_equal 'EMMA', doc['order_from_name']
-        assert_equal "http://www.emmanet.org/mutant_types.php?keyword=#{@test_object.gene.marker_symbol}", doc['order_from_url']
-      end
+          doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
+          assert_equal 'EMMA', doc['order_from_name']
+          assert_equal "http://www.emmanet.org/mutant_types.php?keyword=#{@test_object.gene.marker_symbol}", doc['order_from_url']
+        end
 
-      should 'be set correctly if consortium is MGP Legacy and has a distribution centre with EMMA flag set to true exists' do
-        @test_object.mi_plan.update_attributes!(:consortium => Consortium.find_by_name!('MGP Legacy'))
-        @test_object.distribution_centres.destroy_all
+        should "be set correctly if consortium is #{mgp_consortium} and has NO distribution centre with EMMA flag set" do
+          @test_object.mi_plan.consortium = Consortium.find_by_name!(mgp_consortium)
+          dist_centre = Factory.create distribution_centres_factory,
+                  :centre => Centre.find_by_name!('WTSI'),
+                  :is_distributed_by_emma => false, object_type => @test_object
+          @test_object.distribution_centres.destroy_all
+          @test_object.distribution_centres = [dist_centre]
 
-        dist_centre1 = Factory.create distribution_centres_factory,
-                :centre => Centre.find_by_name!('WTSI'),
-                :is_distributed_by_emma => false, object_type => @test_object
-        dist_centre2 = Factory.create distribution_centres_factory,
-                :centre => Centre.find_by_name!('ICS'),
-                :is_distributed_by_emma => true, object_type => @test_object
-        @test_object.distribution_centres = [dist_centre1, dist_centre2]
-
-        @test_object.reload
-
-        doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-        assert_equal 'EMMA', doc['order_from_name']
-        assert_equal "http://www.emmanet.org/mutant_types.php?keyword=#{@test_object.gene.marker_symbol}", doc['order_from_url']
-      end
-      
-      should 'be set correctly if consortium is MGP and has NO distribution centre with EMMA flag set' do
-        @test_object.mi_plan.consortium = Consortium.find_by_name!('MGP')
-        dist_centre = Factory.create distribution_centres_factory,
-                :centre => Centre.find_by_name!('WTSI'),
-                :is_distributed_by_emma => false, object_type => @test_object
-        @test_object.distribution_centres.destroy_all
-        @test_object.distribution_centres = [dist_centre]
-
-        doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-        assert_equal 'WTSI', doc['order_from_name']
-        assert_equal "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{@test_object.gene.marker_symbol}", doc['order_from_url']
-      end
-
-      should 'be set correctly if consortium is MGP Legacy and has NO distribution centre with EMMA flag set' do
-        @test_object.mi_plan.consortium = Consortium.find_by_name!('MGP Legacy')
-        dist_centre = Factory.create distribution_centres_factory,
-                :centre => Centre.find_by_name!('WTSI'),
-                :is_distributed_by_emma => false, object_type => @test_object
-        @test_object.distribution_centres.destroy_all
-        @test_object.distribution_centres = [dist_centre]
-
-        doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-        assert_equal 'WTSI', doc['order_from_name']
-        assert_equal "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{@test_object.gene.marker_symbol}", doc['order_from_url']
-      end
+          doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
+          assert_equal 'WTSI', doc['order_from_name']
+          assert_equal "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{@test_object.gene.marker_symbol}", doc['order_from_url']
+        end
+      end # ['MGP', 'MGP Legacy'].each
     
     end
   end # order_from_tests

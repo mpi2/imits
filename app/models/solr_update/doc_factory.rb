@@ -103,7 +103,7 @@ class SolrUpdate::DocFactory
       solr_doc['order_from_name'] = 'EMMA'
       solr_doc['order_from_url'] = "http://www.emmanet.org/mutant_types.php?keyword=#{object.gene.marker_symbol}"
 
-    elsif (object.consortium.name == 'MGP' || object.consortium.name == 'MGP Legacy')
+    elsif ['MGP', 'MGP Legacy'].include? object.consortium.name
       if object.distribution_centres.all.find {|ds| ds.is_distributed_by_emma? }
         solr_doc['order_from_name'] = 'EMMA'
         solr_doc['order_from_url'] = "http://www.emmanet.org/mutant_types.php?keyword=#{object.gene.marker_symbol}"

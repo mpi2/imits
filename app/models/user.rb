@@ -20,6 +20,7 @@ class User < ActiveRecord::Base
           :production_centre, :production_centre_id, :name, :is_contactable
 
   belongs_to :production_centre, :class_name => 'Centre'
+  belongs_to :es_cell_distribution_centre, :class_name => "TargRep::EsCellDistributionCentre"
 
   after_initialize do
     self.remember_me = true

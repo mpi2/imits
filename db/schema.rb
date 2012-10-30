@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -11,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120926124146) do
+ActiveRecord::Schema.define(:version => 20121030122923) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -90,6 +89,16 @@ ActiveRecord::Schema.define(:version => 20120926124146) do
   end
 
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true
+
+  create_table "genbank_files", :force => true do |t|
+    t.integer  "allele_id",        :null => false
+    t.text     "escell_clone"
+    t.text     "targeting_vector"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
 
   create_table "genes", :force => true do |t|
     t.string   "marker_symbol",                      :limit => 75, :null => false
@@ -410,6 +419,162 @@ ActiveRecord::Schema.define(:version => 20120926124146) do
   end
 
   add_index "strains", ["name"], :name => "index_strains_on_name", :unique => true
+
+  create_table "targ_rep_alleles", :force => true do |t|
+    t.integer  "gene_id"
+    t.string   "assembly",            :limit => 50,  :default => "NCBIM37", :null => false
+    t.string   "chromosome",          :limit => 2,                          :null => false
+    t.string   "strand",              :limit => 1,                          :null => false
+    t.integer  "homology_arm_start",                                        :null => false
+    t.integer  "homology_arm_end",                                          :null => false
+    t.integer  "loxp_start"
+    t.integer  "loxp_end"
+    t.integer  "cassette_start"
+    t.integer  "cassette_end"
+    t.string   "cassette",            :limit => 100
+    t.string   "backbone",            :limit => 100
+    t.string   "design_type",                                               :null => false
+    t.string   "design_subtype"
+    t.string   "subtype_description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "floxed_start_exon"
+    t.string   "floxed_end_exon"
+    t.integer  "project_design_id"
+    t.string   "mutation_type"
+    t.string   "mutation_subtype"
+    t.string   "mutation_method"
+    t.string   "reporter"
+    t.string   "cassette_type",       :limit => 50
+  end
+
+  create_table "targ_rep_distribution_qcs", :force => true do |t|
+    t.string   "five_prime_sr_pcr"
+    t.string   "three_prime_sr_pcr"
+    t.float    "karyotype_low"
+    t.float    "karyotype_high"
+    t.string   "copy_number"
+    t.string   "five_prime_lr_pcr"
+    t.string   "three_prime_lr_pcr"
+    t.string   "thawing"
+    t.string   "loa"
+    t.string   "loxp"
+    t.string   "lacz"
+    t.string   "chr1"
+    t.string   "chr8a"
+    t.string   "chr8b"
+    t.string   "chr11a"
+    t.string   "chr11b"
+    t.string   "chry"
+    t.integer  "es_cell_id"
+    t.integer  "es_cell_distribution_centre_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "targ_rep_es_cell_distribution_centres", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "targ_rep_es_cell_qc_conflicts", :force => true do |t|
+    t.integer  "es_cell_id"
+    t.string   "qc_field",        :null => false
+    t.string   "current_result",  :null => false
+    t.string   "proposed_result", :null => false
+    t.text     "comment"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "targ_rep_es_cell_qc_conflicts", ["es_cell_id"], :name => "es_cell_qc_conflicts_es_cell_id_fk"
+
+  create_table "targ_rep_es_cells", :force => true do |t|
+    t.integer  "allele_id",                                                              :null => false
+    t.integer  "targeting_vector_id"
+    t.string   "parental_cell_line"
+    t.string   "allele_symbol_superscript",             :limit => 75
+    t.string   "name",                                  :limit => 100,                   :null => false
+    t.string   "comment"
+    t.string   "contact"
+    t.string   "ikmc_project_id"
+    t.string   "mgi_allele_id",                         :limit => 50
+    t.integer  "pipeline_id"
+    t.boolean  "report_to_public",                                     :default => true, :null => false
+    t.string   "strain",                                :limit => 25
+    t.string   "production_qc_five_prime_screen"
+    t.string   "production_qc_three_prime_screen"
+    t.string   "production_qc_loxp_screen"
+    t.string   "production_qc_loss_of_allele"
+    t.string   "production_qc_vector_integrity"
+    t.string   "user_qc_map_test"
+    t.string   "user_qc_karyotype"
+    t.string   "user_qc_tv_backbone_assay"
+    t.string   "user_qc_loxp_confirmation"
+    t.string   "user_qc_southern_blot"
+    t.string   "user_qc_loss_of_wt_allele"
+    t.string   "user_qc_neo_count_qpcr"
+    t.string   "user_qc_lacz_sr_pcr"
+    t.string   "user_qc_mutant_specific_sr_pcr"
+    t.string   "user_qc_five_prime_cassette_integrity"
+    t.string   "user_qc_neo_sr_pcr"
+    t.string   "user_qc_five_prime_lr_pcr"
+    t.string   "user_qc_three_prime_lr_pcr"
+    t.text     "user_qc_comment"
+    t.string   "allele_type",                           :limit => 2
+    t.string   "mutation_subtype",                      :limit => 100
+    t.string   "allele_symbol_superscript_template",    :limit => 75
+    t.integer  "legacy_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "targ_rep_es_cells", ["allele_id"], :name => "es_cells_allele_id_fk"
+  add_index "targ_rep_es_cells", ["name"], :name => "targ_rep_index_es_cells_on_name", :unique => true
+  add_index "targ_rep_es_cells", ["pipeline_id"], :name => "es_cells_pipeline_id_fk"
+
+  create_table "targ_rep_mutation_methods", :force => true do |t|
+    t.string   "name",       :limit => 100, :null => false
+    t.string   "code",       :limit => 100, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "targ_rep_mutation_subtypes", :force => true do |t|
+    t.string   "name",       :limit => 100, :null => false
+    t.string   "code",       :limit => 100, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "targ_rep_mutation_types", :force => true do |t|
+    t.string   "name",       :limit => 100, :null => false
+    t.string   "code",       :limit => 100, :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "targ_rep_pipelines", :force => true do |t|
+    t.string   "name",        :null => false
+    t.string   "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "targ_rep_targeting_vectors", :force => true do |t|
+    t.integer  "allele_id",                             :null => false
+    t.string   "name",                                  :null => false
+    t.string   "intermediate_vector"
+    t.boolean  "report_to_public",    :default => true, :null => false
+    t.integer  "pipeline_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"
+  add_index "targ_rep_targeting_vectors", ["name"], :name => "index_targvec", :unique => true
+  add_index "targ_rep_targeting_vectors", ["pipeline_id"], :name => "targeting_vectors_pipeline_id_fk"
 
   create_table "users", :force => true do |t|
     t.string   "email",                               :default => "",    :null => false

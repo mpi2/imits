@@ -1,13 +1,14 @@
 class Gene < ActiveRecord::Base
   acts_as_reportable
 
-  has_many :es_cells
   has_many :mi_plans
   has_many :mi_attempts, :through => :mi_plans
   has_many :phenotype_attempts, :through => :mi_plans
 
   has_many :notifications
   has_many :contacts, :through => :notifications
+
+  has_many :alleles, :class_name => "TargRep::Allele"
 
   validates :marker_symbol, :presence => true, :uniqueness => true
 

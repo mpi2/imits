@@ -284,12 +284,12 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal nil, default_phenotype_attempt.mi_attempt.mouse_allele_symbol_superscript
       end
 
-      should 'be nil if EsCell#allele_symbol_superscript_template and mouse_allele_type are nil' do
+      should 'be nil if TargRep::EsCell#allele_symbol_superscript_template and mouse_allele_type are nil' do
         default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = nil
         assert_equal nil, default_phenotype_attempt.mouse_allele_symbol_superscript
       end
 
-      should 'be nil if EsCell#allele_symbol_superscript_template is nil and mouse_allele_type is not nil' do
+      should 'be nil if TargRep::EsCell#allele_symbol_superscript_template is nil and mouse_allele_type is not nil' do
         default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = nil
         default_phenotype_attempt.mouse_allele_type = 'e'
         assert_equal nil, default_phenotype_attempt.mi_attempt.mouse_allele_symbol_superscript

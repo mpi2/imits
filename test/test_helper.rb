@@ -117,6 +117,12 @@ class ActiveSupport::TestCase
   def cbx1; @cbx1 ||= Factory.create(:gene_cbx1); end
 
   fixtures :all
+
+  def create_standard_pipelines
+    ["KOMP-CSD", "KOMP-Regeneron", "NorCOMM", "EUCOMM", "mirKO", "Sanger MGP", "EUCOMMTools", "EUCOMMToolsCre"].each do |n|
+      Factory.create :pipeline, :name => n
+    end
+  end
 end
 
 require 'capybara/rails'

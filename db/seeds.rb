@@ -193,3 +193,16 @@ Seeds.load MiPlan::EsQcComment, [
   {:id => 2, :name => 'All valid available clones failed'},
   {:id => 3, :name => 'Enough clones failed'}
 ]
+
+##
+## TargRep Seeds
+##
+
+Seeds.load TargRep::Pipeline, [
+  { :name => 'KOMP-CSD' },
+  { :name => 'KOMP-Regeneron' },
+  { :name => 'NorCOMM' },
+  { :name => 'EUCOMM' },
+  { :name => 'mirKO' },
+  { :name => 'Sanger MGP' }
+]

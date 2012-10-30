@@ -142,12 +142,12 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal nil, default_mi_attempt.mouse_allele_symbol_superscript
         end
 
-        should 'be nil if EsCell#allele_symbol_superscript_template and mouse_allele_type are nil' do
+        should 'be nil if TargRep::EsCell#allele_symbol_superscript_template and mouse_allele_type are nil' do
           default_mi_attempt.es_cell.allele_symbol_superscript = nil
           assert_equal nil, default_mi_attempt.mouse_allele_symbol_superscript
         end
 
-        should 'be nil if EsCell#allele_symbol_superscript_template is nil and mouse_allele_type is not nil' do
+        should 'be nil if TargRep::EsCell#allele_symbol_superscript_template is nil and mouse_allele_type is not nil' do
           default_mi_attempt.es_cell.allele_symbol_superscript = nil
           default_mi_attempt.mouse_allele_type = 'e'
           assert_equal nil, default_mi_attempt.mouse_allele_symbol_superscript
@@ -646,12 +646,12 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be overridden by the associated es_cell\'s name if that exists' do
-        @mi_attempt.es_cell = EsCell.find_by_name('EPD0343_1_H06')
+        @mi_attempt.es_cell = TargRep::EsCell.find_by_name('EPD0343_1_H06')
         assert_equal 'EPD0343_1_H06', @mi_attempt.es_cell_name
       end
 
       should 'not be settable if there is an associated es_cell' do
-        @mi_attempt.es_cell = EsCell.find_by_name('EPD0343_1_H06')
+        @mi_attempt.es_cell = TargRep::EsCell.find_by_name('EPD0343_1_H06')
         @mi_attempt.es_cell_name = 'EPD0127_4_E01'
         assert_equal 'EPD0343_1_H06', @mi_attempt.es_cell_name
       end
@@ -671,7 +671,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'not validate as missing if not set but es_cell is set' do
         @mi_attempt.es_cell_name = nil
-        @mi_attempt.es_cell = EsCell.find_by_name('EPD0343_1_H06')
+        @mi_attempt.es_cell = TargRep::EsCell.find_by_name('EPD0343_1_H06')
         @mi_attempt.valid?
         assert @mi_attempt.errors['es_cell_name'].blank?
       end

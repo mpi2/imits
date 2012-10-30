@@ -38,7 +38,7 @@ module SolrUpdate::Observer
   end
 
   class AnyWithMiAttempts < ActiveRecord::Observer
-    observe :mi_plan, :es_cell, :gene
+    observe :mi_plan, :"TargRep::EsCell", :gene
 
     def initialize
       super

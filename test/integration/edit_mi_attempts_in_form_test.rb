@@ -8,7 +8,7 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
     setup do
       create_common_test_objects
       @mi_attempt = Factory.create(:mi_attempt,
-        :es_cell => EsCell.find_by_name('EPD0343_1_H06'),
+        :es_cell => TargRep::EsCell.find_by_name('EPD0343_1_H06'),
         :mi_date => '2011-06-09',
         :date_chimeras_mated => '2011-06-02',
         :colony_name => 'MAAB',

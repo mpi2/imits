@@ -10,7 +10,7 @@ class GeneTest < ActiveSupport::TestCase
       Factory.create :gene
       create_common_test_objects
 
-      assert_should have_many :es_cells
+      assert_should have_many :alleles
       assert_should have_many :mi_plans
 
       assert_should have_db_column(:marker_symbol).of_type(:string).with_options(:null => false, :limit => 75)
@@ -253,7 +253,7 @@ class GeneTest < ActiveSupport::TestCase
               :number_of_es_cells_starting_qc => 4
 
       Factory.create :mi_attempt,
-              :es_cell => Factory.create(:es_cell, :gene => @gene),
+              :es_cell => Factory.create(:es_cell),
               :consortium_name => 'MARC',
               :production_centre_name => 'MARC',
               :is_active => true
@@ -311,7 +311,7 @@ class GeneTest < ActiveSupport::TestCase
               :number_of_es_cells_passing_qc => 7
 
       @marc_attempt = Factory.create :mi_attempt,
-              :es_cell => Factory.create(:es_cell, :gene => @gene),
+              :es_cell => Factory.create(:es_cell),
               :consortium_name => 'MARC',
               :production_centre_name => 'MARC',
               :is_active => true
@@ -351,37 +351,37 @@ class GeneTest < ActiveSupport::TestCase
                 :mgi_accession_id => 'MGI:12345'
 
         Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'MGP',
                 :production_centre_name => 'WTSI',
                 :is_active => true
 
         Factory.create :mi_attempt_chimeras_obtained,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'MGP',
                 :production_centre_name => 'WTSI',
                 :is_active => true
 
         Factory.create :wtsi_mi_attempt_genotype_confirmed,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'MGP',
                 :production_centre_name => 'WTSI'
 
         3.times do
           Factory.create :mi_attempt,
-                  :es_cell => Factory.create(:es_cell, :gene => gene),
+                  :es_cell => Factory.create(:es_cell),
                   :consortium_name => 'DTCC',
                   :production_centre_name => 'UCD',
                   :is_active => true
         end
 
         Factory.create :mi_attempt_genotype_confirmed,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'DTCC',
                 :production_centre_name => 'UCD'
 
         Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'MARC',
                 :production_centre_name => 'MARC',
                 :is_active => false
@@ -403,7 +403,7 @@ class GeneTest < ActiveSupport::TestCase
 
         2.times do
           mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
-                  :es_cell => Factory.create(:es_cell, :gene => gene),
+                  :es_cell => Factory.create(:es_cell),
                   :consortium_name => 'MGP',
                   :is_active => true
           assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
@@ -411,7 +411,7 @@ class GeneTest < ActiveSupport::TestCase
 
         3.times do
           mi = Factory.create :mi_attempt_genotype_confirmed,
-                  :es_cell => Factory.create(:es_cell, :gene => gene),
+                  :es_cell => Factory.create(:es_cell),
                   :consortium_name => 'DTCC',
                   :production_centre_name => 'UCD',
                   :is_active => true
@@ -419,13 +419,13 @@ class GeneTest < ActiveSupport::TestCase
         end
 
         Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'MARC',
                 :production_centre_name => 'MARC',
                 :is_active => false
 
         in_progress_mi = Factory.create :mi_attempt_genotype_confirmed,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'EUCOMM-EUMODIC',
                 :production_centre_name => 'WTSI'
         in_progress_mi.number_of_het_offspring = 0
@@ -452,7 +452,7 @@ class GeneTest < ActiveSupport::TestCase
 
         3.times do
           mi = Factory.create :mi_attempt_genotype_confirmed,
-                  :es_cell => Factory.create(:es_cell, :gene => gene),
+                  :es_cell => Factory.create(:es_cell),
                   :consortium_name => 'DTCC',
                   :production_centre_name => 'UCD',
                   :is_active => true
@@ -461,20 +461,20 @@ class GeneTest < ActiveSupport::TestCase
 
         2.times do
           Factory.create :mi_attempt,
-                  :es_cell => Factory.create(:es_cell, :gene => gene),
+                  :es_cell => Factory.create(:es_cell),
                   :consortium_name => 'MGP',
                   :production_centre_name => 'WTSI',
                   :is_active => false
         end
 
         Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'MARC',
                 :production_centre_name => 'MARC',
                 :is_active => false
 
         in_progress_mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'EUCOMM-EUMODIC'
         in_progress_mi.update_attributes!(:is_released_from_genotyping => false,
           :total_male_chimeras => 0)
@@ -497,20 +497,20 @@ class GeneTest < ActiveSupport::TestCase
                 :mgi_accession_id => 'MGI:12345'
 
         mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'MGP',
                 :is_active => true
         pa = Factory.create :phenotype_attempt_status_pdc, :mi_attempt => mi
         assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
 
         mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'MGP',
                 :is_active => true
         assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
 
         mi = Factory.create :mi_attempt_genotype_confirmed,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'DTCC',
                 :production_centre_name => 'UCD',
                 :is_active => true
@@ -518,13 +518,13 @@ class GeneTest < ActiveSupport::TestCase
         assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
 
         Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'MARC',
                 :production_centre_name => 'MARC',
                 :is_active => false
 
         in_progress_mi = Factory.create :mi_attempt_genotype_confirmed,
-                :es_cell => Factory.create(:es_cell, :gene => gene),
+                :es_cell => Factory.create(:es_cell),
                 :consortium_name => 'EUCOMM-EUMODIC',
                 :production_centre_name => 'WTSI'
         in_progress_mi.number_of_het_offspring = 0

@@ -25,7 +25,7 @@ class MiAttempt < ApplicationModel
   ].freeze
 
   belongs_to :mi_plan
-  belongs_to :es_cell
+  belongs_to :es_cell, :class_name => 'TargRep::EsCell'
   belongs_to :status
   belongs_to :updated_by, :class_name => 'User'
   belongs_to :blast_strain, :class_name => 'Strain'
@@ -131,7 +131,7 @@ class MiAttempt < ApplicationModel
 
   def set_es_cell_from_es_cell_name
     if ! self.es_cell
-      self.es_cell = EsCell.find_or_create_from_marts_by_name(self.es_cell_name)
+      self.es_cell = TargRep::EsCell.find_or_create_from_marts_by_name(self.es_cell_name)
     end
   end
 

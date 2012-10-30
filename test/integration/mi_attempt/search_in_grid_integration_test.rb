@@ -43,7 +43,7 @@ class MiAttempt::SearchInGridIntegrationTest < Kermits2::JsIntegrationTest
             end
 
             should 'show all data for that MI attempt' do
-              mi_attempt = EsCell.find_by_name!('EPD0343_1_H06').mi_attempts.first
+              mi_attempt = TargRep::EsCell.find_by_name!('EPD0343_1_H06').mi_attempts.first
               mi_attempt.mouse_allele_type = 'b'
               mi_attempt.save!
               sleep 3

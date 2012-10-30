@@ -1,19 +1,51 @@
 #encoding: utf-8
 
+##
+##  Factory helpers - From TargRep
+##
+Factory.sequence(:pgdgr_plate_name) { |n| "PGDGR_#{n}" }
+Factory.sequence(:epd_plate_name)   { |n| "EPD_#{n}" }
+Factory.sequence(:pipeline_name)    { |n| "pipeline_name_#{n}" }
+Factory.sequence(:ikmc_project_id)  { |n| "project_000#{n}" }
+Factory.sequence(:mgi_allele_id)    { |n| "MGI:#{n}" }
+Factory.sequence(:centre_name)   { |n| "Centre_#{n}" }
+
+
 Factory.define :user do |user|
   user.sequence(:email) { |n| "user#{n}@example.com" }
   user.password 'password'
   user.production_centre { Centre.find_by_name!('WTSI') }
 end
 
-Factory.define :pipeline do |pipeline|
-  pipeline.sequence(:name) { |n| "Auto-generated Pipeline Name #{n}" }
-  pipeline.description 'Pipeline Description'
-end
-
 Factory.define :gene do |gene|
   gene.sequence(:marker_symbol) { |n| "Auto-generated Symbol #{n}" }
   gene.sequence(:mgi_accession_id) { |n| "MGI:#{"%.10i" % n}" }
+end
+
+##
+## ES Cells - from TargRep
+##
+
+Factory.define :es_cell, :class => TargRep::EsCell do |f|
+  f.name                { Factory.next(:epd_plate_name) }
+  f.parental_cell_line  { ['JM8 parental', 'JM8.F6', 'JM8.N19'][rand(3)] }
+  f.mgi_allele_id       { Factory.next(:mgi_allele_id) }
+  f.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
+
+  ikmc_project_id = Factory.next( :ikmc_project_id )
+
+  f.association :pipeline, :factory => :pipeline
+  f.association :allele, :factory => :allele
+  f.targeting_vector { |es_cell|
+    es_cell.association( :targeting_vector, {
+      :allele_id       => es_cell.allele_id,
+      :ikmc_project_id => ikmc_project_id
+    })
+  }
+  f.ikmc_project_id { ikmc_project_id }
+end
+
+Factory.define :invalid_escell, :class => TargRep::EsCell do |f|
 end
 
 Factory.define :contact do |contact|
@@ -27,14 +59,6 @@ Factory.define :notification do |notification|
   notification.welcome_email_text 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
   notification.last_email_sent Time.now - 1.hour
   notification.last_email_text 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-end
-
-Factory.define :es_cell do |es_cell|
-  es_cell.sequence(:name) { |n| "Auto-generated ES Cell Name #{n}" }
-  es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
-  es_cell.association(:pipeline) { Pipeline.find_by_name! 'EUCOMM' }
-  es_cell.association(:gene)
-  es_cell.allele_id { rand 99999 }
 end
 
 Factory.define :centre do |centre|
@@ -226,6 +250,185 @@ Factory.define :phenotype_attempt_distribution_centre, :class => PhenotypeAttemp
   distribution_centre.association :phenotype_attempt, :factory => :phenotype_attempt_status_cec
 end
 
+## TargRep Specific factories
+
+# 4413674 starts the longest sequence VALID of sequential MGI accession IDs
+Factory.sequence(:mgi_accession_id) { |n| "MGI:#{n + 4413674}" }
+
+Factory.define :pipeline, :class => TargRep::Pipeline do |pipeline|
+  pipeline.name { Factory.next(:pipeline_name) }
+  pipeline.description 'Pipeline Description'
+end
+
+Factory.define :allele, :class => TargRep::Allele do |f|
+  f.sequence(:project_design_id)    { |n| "design id #{n}"}
+  f.sequence(:subtype_description)  { |n| "subtype description #{n}" }
+  f.sequence(:cassette)             { |n| "cassette #{n}"}
+  f.sequence(:backbone)             { |n| "backbone #{n}"}
+
+  f.assembly       "NCBIM37"
+  f.chromosome     { [("1".."19").to_a + ['X', 'Y', 'MT']].flatten[rand(22)] }
+  f.strand         { ['+', '-'][rand(2)] }
+  f.mutation_method { TargRep::MutationMethod.all[rand(TargRep::MutationMethod.all.count)] }
+  f.mutation_type    { TargRep::MutationType.find_by_code('crd')  }
+  f.mutation_subtype { TargRep::MutationSubtype.all[rand(TargRep::MutationSubtype.all.count)]  }
+  f.cassette_type  { ['Promotorless','Promotor Driven'][rand(2)] }
+
+  #     Features positions chose for this factory:
+  #     They have been fixed so that complex tests can be cleaner. Otherwise,
+  #     for testing a single feature, each other feature position has to be
+  #     reset.
+  #
+  #     +--------------------+------------+------------+
+  #     | Feature            | Strand '+' | Strand '-' |
+  #     +--------------------+------------+------------+
+  #     | Homology arm start | 10         | 160        |
+  #     | Cassette start     | 40         | 130        |
+  #     | Cassette end       | 70         | 100        |
+  #     | LoxP start         | 100        | 70         | <- Absent for design
+  #     | LoxP end           | 130        | 40         | <- type 'Knock Out'
+  #     | Homology arm end   | 160        | 10         |
+  #     +--------------------+------------+------------+
+  #
+
+  # Homology arm
+  f.homology_arm_start do |allele|
+    case allele.strand
+      when '+' then 10
+      when '-' then 160
+    end
+  end
+
+  f.homology_arm_end do |allele|
+    case allele.strand
+      when '+' then 160
+      when '-' then 10
+    end
+  end
+
+  # Cassette
+  f.cassette_start do |allele|
+    case allele.strand
+      when '+' then 40
+      when '-' then 130
+    end
+  end
+
+  f.cassette_end do |allele|
+    case allele.strand
+      when '+' then 70
+      when '-' then 100
+    end
+  end
+
+  # LoxP
+  f.loxp_start do |allele|
+    if !allele.mutation_type.no_loxp_site?
+      case allele.strand
+        when '+' then 100
+        when '-' then 70
+      end
+    end
+  end
+
+  f.loxp_end do |allele|
+    if !allele.mutation_type.no_loxp_site?
+      case allele.strand
+        when '+' then 130
+        when '-' then 40
+      end
+    end
+  end
+end
+
+Factory.define :invalid_allele, :class => TargRep::Allele do |f|
+end
+
+##
+## Targeting Vector
+##
+
+Factory.define :targeting_vector, :class => TargRep::TargetingVector do |f|
+  f.name { Factory.next(:pgdgr_plate_name) }
+  f.ikmc_project_id { Factory.next(:ikmc_project_id) }
+  f.association :pipeline, :factory => :pipeline
+  f.association :allele, :factory => :allele
+end
+
+Factory.define :invalid_targeting_vector, :class => TargRep::TargetingVector do |f|
+end
+
+##
+## EsCellQcConflict
+##
+
+Factory.define :es_cell_qc_conflict, :class => TargRep::EsCellQcConflict do |f|
+  qc_field  = TargRep::EsCell::ESCELL_QC_OPTIONS.keys[ rand(TargRep::EsCell::ESCELL_QC_OPTIONS.size) - 1 ]
+  qc_values = TargRep::EsCell::ESCELL_QC_OPTIONS[qc_field][:values]
+
+  current_result  = qc_values.first
+  proposed_result = qc_values[ rand(qc_values.size - 1) + 1 ]
+
+  f.qc_field        { qc_field.to_s }
+  f.proposed_result { proposed_result }
+
+  f.es_cell { |conflict|
+    conflict.association( :es_cell, {
+      qc_field.to_sym => current_result
+    })
+  }
+end
+
+##
+## GenBank files
+##
+
+Factory.define :genbank_file, :class => TargRep::GenbankFile do |f|
+  f.sequence(:escell_clone)       { |n| "ES Cell clone file #{n}" }
+  f.sequence(:targeting_vector)   { |n| "Targeting vector file #{n}" }
+
+  f.association :allele, :factory => :allele
+end
+
+Factory.define :invalid_genbank_file, :class => TargRep::GenbankFile do |f|
+end
+
+##
+## Now named: EsCellDistributionCentre
+##
+
+Factory.define :es_cell_distribution_centre, :class => TargRep::EsCellDistributionCentre do |f|
+  f.name { Factory.next(:centre_name) }
+end
+
+##
+## DistributionQc
+##
+
+Factory.define :distribution_qc, :class => TargRep::DistributionQc do |f|
+  f.association :es_cell_distribution_centre, :factory => :es_cell_distribution_centre
+  f.association :es_cell, :factory => :es_cell
+
+  f.five_prime_sr_pcr 'pass'
+  f.three_prime_sr_pcr 'fail'
+  f.karyotype_low 0.1
+  f.karyotype_high 0.9
+  f.copy_number 'pass'
+  f.five_prime_lr_pcr 'fail'
+  f.three_prime_lr_pcr 'pass'
+  f.thawing 'fail'
+  f.loa 'pass'
+  f.loxp 'fail'
+  f.lacz 'pass'
+  f.chr1 'fail'
+  f.chr8a 'pass'
+  f.chr8b 'fail'
+  f.chr11a 'pass'
+  f.chr11b 'fail'
+  f.chry 'pass'
+end
+
+
 #Specifics
 
 Factory.define :gene_cbx1, :parent => :gene do |gene|
@@ -242,7 +445,7 @@ Factory.define :es_cell_EPD0127_4_E01_without_mi_attempts, :parent => :es_cell d
   es_cell.name 'EPD0127_4_E01'
   es_cell.association(:gene, :factory => :gene_trafd1)
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
-  es_cell.pipeline { Pipeline.find_by_name! 'EUCOMM' }
+  es_cell.pipeline { TargRep::Pipeline.find_by_name! 'EUCOMM' }
 end
 
 Factory.define :es_cell_EPD0127_4_E01, :parent => :es_cell_EPD0127_4_E01_without_mi_attempts do |es_cell|
@@ -280,7 +483,7 @@ Factory.define :es_cell_EPD0343_1_H06_without_mi_attempts, :parent => :es_cell d
   es_cell.name 'EPD0343_1_H06'
   es_cell.association :gene, :marker_symbol => 'Myo1c'
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
-  es_cell.pipeline { Pipeline.find_by_name! 'EUCOMM' }
+  es_cell.pipeline {TargRep::Pipeline.find_by_name! 'EUCOMM' }
 end
 
 Factory.define :es_cell_EPD0343_1_H06, :parent => :es_cell_EPD0343_1_H06_without_mi_attempts do |es_cell|
@@ -302,7 +505,7 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0029_1_G04'
   es_cell.association :gene, :marker_symbol => 'Gatc'
   es_cell.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
-  es_cell.pipeline { Pipeline.find_by_name! 'KOMP-CSD' }
+  es_cell.pipeline { TargRep::Pipeline.find_by_name! 'KOMP-CSD' }
 
   es_cell.after_create do |es_cell|
     mi_attempt = Factory.create(:mi_attempt,

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -89,16 +90,6 @@ ActiveRecord::Schema.define(:version => 20121030122923) do
   end
 
   add_index "es_cells", ["name"], :name => "index_es_cells_on_name", :unique => true
-
-  create_table "genbank_files", :force => true do |t|
-    t.integer  "allele_id",        :null => false
-    t.text     "escell_clone"
-    t.text     "targeting_vector"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
 
   create_table "genes", :force => true do |t|
     t.string   "marker_symbol",                      :limit => 75, :null => false
@@ -433,19 +424,17 @@ ActiveRecord::Schema.define(:version => 20121030122923) do
     t.integer  "cassette_end"
     t.string   "cassette",            :limit => 100
     t.string   "backbone",            :limit => 100
-    t.string   "design_type",                                               :null => false
-    t.string   "design_subtype"
     t.string   "subtype_description"
-    t.datetime "created_at"
-    t.datetime "updated_at"
     t.string   "floxed_start_exon"
     t.string   "floxed_end_exon"
     t.integer  "project_design_id"
-    t.string   "mutation_type"
-    t.string   "mutation_subtype"
-    t.string   "mutation_method"
     t.string   "reporter"
+    t.integer  "mutation_method_id"
+    t.integer  "mutation_type_id"
+    t.integer  "mutation_subtype_id"
     t.string   "cassette_type",       :limit => 50
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "targ_rep_distribution_qcs", :force => true do |t|
@@ -471,6 +460,8 @@ ActiveRecord::Schema.define(:version => 20121030122923) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "targ_rep_distribution_qcs", ["es_cell_distribution_centre_id", "es_cell_id"], :name => "index_distribution_qcs_centre_es_cell", :unique => true
 
   create_table "targ_rep_es_cell_distribution_centres", :force => true do |t|
     t.string   "name"
@@ -534,6 +525,16 @@ ActiveRecord::Schema.define(:version => 20121030122923) do
   add_index "targ_rep_es_cells", ["name"], :name => "targ_rep_index_es_cells_on_name", :unique => true
   add_index "targ_rep_es_cells", ["pipeline_id"], :name => "es_cells_pipeline_id_fk"
 
+  create_table "targ_rep_genbank_files", :force => true do |t|
+    t.integer  "allele_id",        :null => false
+    t.text     "escell_clone"
+    t.text     "targeting_vector"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
+
   create_table "targ_rep_mutation_methods", :force => true do |t|
     t.string   "name",       :limit => 100, :null => false
     t.string   "code",       :limit => 100, :null => false
@@ -565,6 +566,7 @@ ActiveRecord::Schema.define(:version => 20121030122923) do
   create_table "targ_rep_targeting_vectors", :force => true do |t|
     t.integer  "allele_id",                             :null => false
     t.string   "name",                                  :null => false
+    t.string   "ikmc_project_id"
     t.string   "intermediate_vector"
     t.boolean  "report_to_public",    :default => true, :null => false
     t.integer  "pipeline_id"

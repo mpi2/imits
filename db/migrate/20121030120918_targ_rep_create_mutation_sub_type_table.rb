@@ -10,6 +10,6 @@ class TargRepCreateMutationSubTypeTable < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table "mutation_subtypes"
+    drop_table "targ_rep_mutation_subtypes"
   end
 end

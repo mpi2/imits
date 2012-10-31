@@ -22,9 +22,9 @@ class TargRepCreateDistributionQcTable < ActiveRecord::Migration
       t.integer  "es_cell_distribution_centre_id"
       
       t.timestamps
-
-      add_index "targ_rep_distribution_qcs", ["es_cell_distribution_centre_id", "es_cell_id"], :name => "index_distribution_qcs_centre_es_cell", :unique => true
     end
+
+    add_index "targ_rep_distribution_qcs", ["es_cell_distribution_centre_id", "es_cell_id"], :name => "index_distribution_qcs_centre_es_cell", :unique => true
   end
 
   def self.down

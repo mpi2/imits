@@ -3,9 +3,11 @@ class NetworkGraph::MiAttemptNode < NetworkGraph::NodeWithStates
   def initialize(params)
     params[:rank] = "3"
     super(params)
-    find_statuses(MiAttempt.find_by_id(@id))
+    mi_attempt = MiAttempt.find_by_id(@id)
+    find_statuses(mi_attempt)
     @colony_background_strain = params[:colony_background_strain]
     @test_cross_strain = params[:test_cross_strain]
+    @colony_name = mi_attempt.colony_name
   end
 
   def label_html
@@ -20,6 +22,7 @@ class NetworkGraph::MiAttemptNode < NetworkGraph::NodeWithStates
       end
     end
     html << "<tr><td>Colony background strain:</td><td>#{CGI.escapeHTML(@colony_background_strain)}</td></tr>"
+    html << "<tr><td>Colony name:</td><td>#{CGI.escapeHTML(@colony_name)}</td></tr>"
     html << "<tr><td>Test cross strain:</td><td>#{CGI.escapeHTML(@test_cross_strain)}</td></tr>"
     html << "</table>>"
     return html

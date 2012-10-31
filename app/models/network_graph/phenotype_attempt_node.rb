@@ -3,7 +3,9 @@ class NetworkGraph::PhenotypeAttemptNode < NetworkGraph::NodeWithStates
     params[:rank] = "4"
     super(params)
     @cre_deleter_strain = params[:cre_deleter_strain]
+    phenotype_attempt = PhenotypeAttempt.find_by_id(@id)
     find_statuses(PhenotypeAttempt.find_by_id(@id))
+    @colony_name = phenotype_attempt.colony_name
   end
 
   def label_html
@@ -18,6 +20,7 @@ class NetworkGraph::PhenotypeAttemptNode < NetworkGraph::NodeWithStates
         html << "<tr><td>#{CGI.escapeHTML(status)}:</td><td>#{CGI.escapeHTML(@statuses[status])}</td></tr>"
       end
     end
+    html << "<tr><td>Colony name:</td><td>#{CGI.escapeHTML(@colony_name)}</td></tr>"
     html << "</table>>"
     return html
   end

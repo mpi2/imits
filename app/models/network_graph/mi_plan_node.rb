@@ -1,9 +1,8 @@
 class NetworkGraph::MiPlanNode < NetworkGraph::NodeWithStates
-  def initialize(params)
+  def initialize(mi_plan, params)
     params[:rank] = "2"
-    super(params)
-    find_statuses(MiPlan.find_by_id(@id))
-
+    super(mi_plan, params)
+    find_statuses(mi_plan)
   end
 
   def label_html

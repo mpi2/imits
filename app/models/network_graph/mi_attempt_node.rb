@@ -1,13 +1,12 @@
 class NetworkGraph::MiAttemptNode < NetworkGraph::NodeWithStates
 
-  def initialize(params)
+  def initialize(mi_attempt, params)
     params[:rank] = "3"
-    super(params)
-    mi_attempt = MiAttempt.find_by_id(@id)
+    super(mi_attempt, params)
     find_statuses(mi_attempt)
-    @colony_background_strain = params[:colony_background_strain]
-    @test_cross_strain = params[:test_cross_strain]
-    @colony_name = mi_attempt.colony_name
+    @colony_background_strain = mi_attempt.colony_background_strain.try(:name).to_s
+    @test_cross_strain = mi_attempt.test_cross_strain.try(:name).to_s
+    @colony_name = mi_attempt.colony_name.to_s
   end
 
   def label_html

@@ -1,11 +1,10 @@
 class NetworkGraph::PhenotypeAttemptNode < NetworkGraph::NodeWithStates
-  def initialize(params)
+  def initialize(phenotype_attempt, params)
     params[:rank] = "4"
-    super(params)
-    @cre_deleter_strain = params[:cre_deleter_strain]
-    phenotype_attempt = PhenotypeAttempt.find_by_id(@id)
-    find_statuses(PhenotypeAttempt.find_by_id(@id))
-    @colony_name = phenotype_attempt.colony_name
+    super(phenotype_attempt, params)
+    @cre_deleter_strain = phenotype_attempt.deleter_strain.try(:name).to_s
+    find_statuses(phenotype_attempt)
+    @colony_name = phenotype_attempt.colony_name.to_s
   end
 
   def label_html

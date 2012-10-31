@@ -57,14 +57,14 @@ class NetworkGraph
     @relations.each do |from_node, to_node|
       dot_string << "\"#{from_node.node_symbol}\" -> \"#{to_node.node_symbol}\";\n"
     end
-    dot_string << "{node [shape=\"plaintext\", fontsize=16];\n \"Gene\" -> \"Mi Plans\" -> \"Mouse Production\" -> \"Phenotype Attempts\";}\n"
+    dot_string << "{node [shape=\"plaintext\", fontsize=16];\n \"Gene\" -> \"Plan\" -> \"Mouse Production\" -> \"Phenotype Attempts\";}\n"
     @ranks.each do |rank, nodes|
       if nodes.length > 0
         case rank
           when "source"
             dot_string << "{rank=same;\"Gene\";\"#{nodes.map{|node| node.node_symbol}.join('";"')}\"}\n"
           when "2"
-            dot_string << "{rank=same;\"Mi Plans\";\"#{nodes.map{|node| node.node_symbol}.join('";"')}\"}\n"
+            dot_string << "{rank=same;\"Plan\";\"#{nodes.map{|node| node.node_symbol}.join('";"')}\"}\n"
           when "3"
             dot_string << "{rank=same;\"Mouse Production\";\"#{nodes.map{|node| node.node_symbol}.join('";"')}\"}\n"
           when "4"

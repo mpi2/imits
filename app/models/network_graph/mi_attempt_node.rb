@@ -3,7 +3,7 @@ class NetworkGraph::MiAttemptNode < NetworkGraph::NodeWithStates
   def initialize(params)
     params[:rank] = "3"
     super(params)
-    find_statuses(MiAttempt.find_by_id(@id).status_stamps.order("created_at DESC"))
+    find_statuses(MiAttempt.find_by_id(@id))
     @colony_background_strain = params[:colony_background_strain]
     @test_cross_strain = params[:test_cross_strain]
   end
@@ -12,6 +12,7 @@ class NetworkGraph::MiAttemptNode < NetworkGraph::NodeWithStates
     html = "<<table>" +
              "<tr><td colspan=\"2\">Mouse Production</td></tr>" +
              "<tr><td>Consortium:</td><td>#{CGI.escapeHTML(@consortium)}</td></tr>" +
+             "<tr><td>Current Status:</td><td>#{CGI.escapeHTML(@current_status)}</td></tr>" +
              "<tr><td>Centre:</td><td>#{CGI.escapeHTML(@centre)}</td></tr>"
     ['Micro-injection in progress', 'Chimeras obtained', 'Genotype confirmed', 'Micro-injection aborted'].each do |status|
       if @statuses.has_key?(status)

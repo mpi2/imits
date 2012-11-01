@@ -22,6 +22,7 @@ class TargRep::EsCell < ActiveRecord::Base
 
   has_many :es_cell_qc_conflicts, :dependent => :destroy, :class_name => "TargRep::EsCellQcConflict"
   has_many :distribution_qcs, :dependent => :destroy, :class_name => "TargRep::DistributionQc"
+  has_many :mi_attempts
 
   accepts_nested_attributes_for :es_cell_qc_conflicts, :allow_destroy => true
   accepts_nested_attributes_for :distribution_qcs, :allow_destroy => true
@@ -50,16 +51,6 @@ class TargRep::EsCell < ActiveRecord::Base
       :allow_nil => true
   end
 
-  validates_numericality_of :distribution_qc_karyotype_low,
-    :greater_than_or_equal_to => 0,
-    :less_than_or_equal_to    => 1,
-    :allow_nil                => true
-
-  validates_numericality_of :distribution_qc_karyotype_high,
-    :greater_than_or_equal_to => 0,
-    :less_than_or_equal_to    => 1,
-    :allow_nil                => true
-
   validates_format_of :mgi_allele_id,
     :with      => /^MGI\:\d+$/,
     :message   => "is not a valid MGI Allele ID",
@@ -78,6 +69,9 @@ class TargRep::EsCell < ActiveRecord::Base
 
   attr_protected :allele_symbol_superscript_template
 
+  delegate :gene, :to => :allele
+  delegate :marker_symbol, :to => :gene
+  
   ##
   ## Methods
   ##
@@ -147,6 +141,8 @@ class TargRep::EsCell < ActiveRecord::Base
     class AlleleSymbolSuperscriptFormatUnrecognizedError < Error; end
 
     def allele_symbol_superscript=(text)
+      write_attribute(:allele_symbol_superscript, text)
+
       if text.nil?
         self.allele_symbol_superscript_template = nil
         self.allele_type = nil

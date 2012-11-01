@@ -28,20 +28,22 @@ end
 
 Factory.define :es_cell, :class => TargRep::EsCell do |f|
   f.name                { Factory.next(:epd_plate_name) }
-  f.parental_cell_line  { ['JM8 parental', 'JM8.F6', 'JM8.N19'][rand(3)] }
+  f.parental_cell_line  { ['JM8 parental', 'JM8.F6', 'JM8.N19'].sample }
   f.mgi_allele_id       { Factory.next(:mgi_allele_id) }
   f.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
 
-  ikmc_project_id = Factory.next( :ikmc_project_id )
+  ikmc_project_id = Factory.next(:ikmc_project_id)
 
   f.association :pipeline, :factory => :pipeline
-  f.association :allele, :factory => :allele
-  f.targeting_vector { |es_cell|
-    es_cell.association( :targeting_vector, {
-      :allele_id       => es_cell.allele_id,
-      :ikmc_project_id => ikmc_project_id
-    })
-  }
+  f.association :allele,   :factory => :allele
+
+  #f.targeting_vector { |es_cell|
+  #  es_cell.association( :targeting_vector, {
+  #    :allele_id       => es_cell.allele_id,
+  #    :ikmc_project_id => ikmc_project_id
+  #  })
+  #}
+
   f.ikmc_project_id { ikmc_project_id }
 end
 
@@ -93,7 +95,7 @@ Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_p
 end
 
 Factory.define :mi_attempt do |mi_attempt|
-  mi_attempt.association :es_cell
+  mi_attempt.association :es_cell, :factory => :es_cell
   mi_attempt.consortium_name 'EUCOMM-EUMODIC'
   mi_attempt.production_centre_name 'WTSI'
   mi_attempt.mi_date { Date.today }
@@ -101,7 +103,7 @@ end
 
 Factory.define :mi_attempt2, :class => MiAttempt do |mi_attempt|
   mi_attempt.association :mi_plan
-  mi_attempt.es_cell { |mi| Factory.create(:es_cell, :gene => mi.mi_plan.gene) }
+  mi_attempt.es_cell { |mi| Factory.create(:es_cell) }
   mi_attempt.mi_date { Date.today }
 end
 
@@ -265,6 +267,7 @@ Factory.define :allele, :class => TargRep::Allele do |f|
   f.sequence(:subtype_description)  { |n| "subtype description #{n}" }
   f.sequence(:cassette)             { |n| "cassette #{n}"}
   f.sequence(:backbone)             { |n| "backbone #{n}"}
+  f.association :gene, :factory => :randomly_populated_gene
 
   f.assembly       "NCBIM37"
   f.chromosome     { [("1".."19").to_a + ['X', 'Y', 'MT']].flatten[rand(22)] }
@@ -436,14 +439,22 @@ Factory.define :gene_cbx1, :parent => :gene do |gene|
   gene.mgi_accession_id 'MGI:105369'
 end
 
+Factory.define :allele_with_gene_cbx1, :parent => :allele do |allele|
+  allele.association :gene, :factory => :gene_cbx1
+end
+
 Factory.define :gene_trafd1, :parent => :gene do |gene|
   gene.marker_symbol 'Trafd1'
   gene.mgi_accession_id 'MGI:1923551'
 end
 
+Factory.define :allele_with_gene_trafd1, :parent => :allele do |allele|
+  allele.association :gene, :factory => :gene_trafd1
+end
+
 Factory.define :es_cell_EPD0127_4_E01_without_mi_attempts, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0127_4_E01'
-  es_cell.association(:gene, :factory => :gene_trafd1)
+  es_cell.association :allele, :factory => :allele_with_gene_trafd1
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.pipeline { TargRep::Pipeline.find_by_name! 'EUCOMM' }
 end
@@ -479,9 +490,18 @@ Factory.define :es_cell_EPD0127_4_E01, :parent => :es_cell_EPD0127_4_E01_without
   end
 end
 
+Factory.define :gene_myolc, :parent => :gene do |gene|
+  gene.marker_symbol 'Myo1c'
+  gene.mgi_accession_id 'MGI:1923351'
+end
+
+Factory.define :allele_with_gene_myolc, :parent => :allele do |allele|
+  allele.association :gene, :factory => :gene_myolc
+end
+
 Factory.define :es_cell_EPD0343_1_H06_without_mi_attempts, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0343_1_H06'
-  es_cell.association :gene, :marker_symbol => 'Myo1c'
+  es_cell.association :allele, :factory => :allele_with_gene_myolc
   es_cell.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   es_cell.pipeline {TargRep::Pipeline.find_by_name! 'EUCOMM' }
 end
@@ -503,7 +523,7 @@ end
 
 Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0029_1_G04'
-  es_cell.association :gene, :marker_symbol => 'Gatc'
+  #es_cell.association :gene, :marker_symbol => 'Gatc'
   es_cell.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
   es_cell.pipeline { TargRep::Pipeline.find_by_name! 'KOMP-CSD' }
 

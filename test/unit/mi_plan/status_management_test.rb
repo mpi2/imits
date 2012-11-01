@@ -87,20 +87,20 @@ class MiPlan::StatusManagementTest < ActiveSupport::TestCase
       end
 
       should 'set status to "Inspect - MI Attempt" if only other plans for gene are Assigned or pre-assignment and there are MIs as far as "in progress" for the gene' do
-        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => default_mi_plan.gene)
+        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell)
         same_gene_plan = TestDummy.mi_plan default_mi_plan.marker_symbol
         assert_equal 'Inspect - MI Attempt', same_gene_plan.status.name
       end
 
       should 'NOT set "Inspect - MI Attempt" by counting aborted MI as in progress' do
-        mi = Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => cbx1), :is_active => false
+        mi = Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell), :is_active => false
         mi.mi_plan.update_attributes!(:is_active => false)
         same_gene_plan = TestDummy.mi_plan cbx1.marker_symbol
         assert_equal 'Assigned', same_gene_plan.status.name
       end
 
       should 'set status to "Inspect - GLT Mouse" if only other plans for the gene are Assigned or pre-assignment and there are MIs as far as "genotype confirmed" for the gene' do
-        Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => default_mi_plan.gene)
+        Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell)
         same_gene_plan = TestDummy.mi_plan default_mi_plan.marker_symbol
         assert_equal 'Inspect - GLT Mouse', same_gene_plan.status.name
       end

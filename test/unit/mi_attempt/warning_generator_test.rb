@@ -15,7 +15,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         :force_assignment => true)
 
       mi = Factory.build(:public_mi_attempt,
-        :es_cell => Factory.create(:es_cell, :gene => gene),
+        :es_cell => Factory.create(:es_cell),
         :consortium_name => 'BaSH',
         :production_centre_name => 'WTSI')
 
@@ -28,7 +28,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         es_cell = Factory.create :es_cell_EPD0029_1_G04
         @existing_mi = es_cell.mi_attempts.first
         @mi = Factory.build(:public_mi_attempt,
-          :es_cell => Factory.create(:es_cell, :gene => @existing_mi.es_cell.gene))
+          :es_cell => Factory.create(:es_cell))
       end
 
       should 'generate warning for new record' do
@@ -48,7 +48,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :gene => gene, :withdrawn => true
-      es_cell = Factory.create :es_cell, :gene => gene
+      es_cell = Factory.create :es_cell
 
       mi = Factory.build(:public_mi_attempt, :consortium_name => mi_plan.consortium.name,
         :production_centre_name => mi_plan.production_centre.name,
@@ -66,7 +66,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :gene => gene, :force_assignment => true
-      es_cell = Factory.create :es_cell, :gene => gene
+      es_cell = Factory.create :es_cell
 
       mi = Factory.build(:public_mi_attempt, :consortium_name => mi_plan.consortium.name,
               :production_centre_name => mi_plan.production_centre.name,
@@ -102,7 +102,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => nil,
                 :gene => gene, :force_assignment => true
-        es_cell = Factory.create :es_cell, :gene => gene
+        es_cell = Factory.create :es_cell
 
         mi = Factory.build :public_mi_attempt, :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',
@@ -123,7 +123,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => Centre.find_by_name!('WTSI'),
                 :gene => gene, :force_assignment => true
-        es_cell = Factory.create :es_cell, :gene => gene
+        es_cell = Factory.create :es_cell
 
         mi = Factory.build :public_mi_attempt, :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',

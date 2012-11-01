@@ -63,3 +63,20 @@ private
   end
 
 end
+
+# == Schema Information
+#
+# Table name: targ_rep_genbank_files
+#
+#  id               :integer         not null, primary key
+#  allele_id        :integer         not null
+#  escell_clone     :text
+#  targeting_vector :text
+#  created_at       :datetime
+#  updated_at       :datetime
+#
+# Indexes
+#
+#  genbank_files_allele_id_fk  (allele_id)
+#
+

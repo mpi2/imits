@@ -15,7 +15,6 @@ class IntermediateReportTest < ActiveSupport::TestCase
 
       es_cell = Factory.create(:es_cell,
       :name => 'EPD0027_2_A01',
-      :gene => @cbx1,
       :mutation_subtype => 'conditional_ready',
       :ikmc_project_id => 35505,
       :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi'

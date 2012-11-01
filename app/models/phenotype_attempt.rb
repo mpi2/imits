@@ -104,7 +104,7 @@ class PhenotypeAttempt < ApplicationModel
       return nil
     else
       return self.es_cell.allele_symbol_superscript_template.sub(
-        EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
+        TargRep::EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
     end
   end
 

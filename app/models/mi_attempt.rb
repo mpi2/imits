@@ -131,7 +131,8 @@ class MiAttempt < ApplicationModel
 
   def set_es_cell_from_es_cell_name
     if ! self.es_cell
-      self.es_cell = TargRep::EsCell.find_or_create_from_marts_by_name(self.es_cell_name)
+      ## TODO: This needs modifying previously "find_or_create_from_marts_by_name"
+      self.es_cell = TargRep::EsCell.find_by_name(self.es_cell_name)
     end
   end
 
@@ -290,7 +291,7 @@ class MiAttempt < ApplicationModel
       return nil
     else
       return es_cell.allele_symbol_superscript_template.sub(
-        EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
+        TargRep::EsCell::TEMPLATE_CHARACTER, mouse_allele_type)
     end
   end
 

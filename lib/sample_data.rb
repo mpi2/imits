@@ -12,14 +12,14 @@ class SampleData
       user = Factory.create(:user, :email => 'test@example.com')
     end
 
-    Pipeline.find_or_create_by_name('EUCOMM')
-    Pipeline.find_or_create_by_name('KOMP')
+    TargRep::Pipeline.find_or_create_by_name('EUCOMM')
+    TargRep::Pipeline.find_or_create_by_name('KOMP')
 
     [
-      {:name => 'EPD_SAMPLE_1', :pipeline => Pipeline.find_by_name!('EUCOMM')},
-      {:name => 'EPD_SAMPLE_2', :pipeline => Pipeline.find_by_name!('KOMP')}
+      {:name => 'EPD_SAMPLE_1', :pipeline => TargRep::Pipeline.find_by_name!('EUCOMM')},
+      {:name => 'EPD_SAMPLE_2', :pipeline => TargRep::Pipeline.find_by_name!('KOMP')}
     ].each do |es_cell_data|
-      es_cell = EsCell.find_by_name(es_cell_data[:name])
+      es_cell = TargRep::EsCell.find_by_name(es_cell_data[:name])
       if es_cell
         es_cell.mi_attempts.destroy_all
         es_cell.destroy

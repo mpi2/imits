@@ -50,11 +50,12 @@ class MiPlanTest < ActiveSupport::TestCase
 
         should 'get active MI with latest in_progress_date if active one exists' do
           cbx1 = Factory.create :gene_cbx1
+          allele = Factory.create :allele, :gene => cbx1
           inactive_mi = Factory.create :mi_attempt,
                   :colony_name => 'A',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :mi_date => '2011-12-12',
                   :is_active => false
           replace_status_stamps(inactive_mi,
@@ -66,7 +67,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :colony_name => 'C',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :mi_date => '2011-12-12',
                   :is_active => true
           replace_status_stamps(older_mi_1,
@@ -77,7 +78,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :colony_name => 'B',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :mi_date => '2011-12-12',
                   :is_active => true
           replace_status_stamps(latest_mi,
@@ -88,7 +89,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :colony_name => 'D',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :mi_date => '2011-12-13',
                   :is_active => true
           replace_status_stamps(older_mi_2,
@@ -106,11 +107,12 @@ class MiPlanTest < ActiveSupport::TestCase
 
         should 'get latest inactive MI if no active ones exist' do
           cbx1 = Factory.create :gene_cbx1
+          allele = Factory.create :allele, :gene => cbx1
           older_mi = Factory.create :mi_attempt,
                   :colony_name => 'A',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :is_active => false
           replace_status_stamps(older_mi,
             ip => '2011-05-05 00:00 UTC',
@@ -121,7 +123,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :colony_name => 'B',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :is_active => false
           replace_status_stamps(latest_mi,
             ip => '2011-11-02 00:00 UTC',
@@ -141,12 +143,12 @@ class MiPlanTest < ActiveSupport::TestCase
 
         should 'return GC MIs ahead of others regardless of their date' do
           cbx1 = Factory.create :gene_cbx1
-
+          allele = Factory.create :allele, :gene => cbx1
           abrt_mi = Factory.create :mi_attempt,
                   :colony_name => 'Z',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :is_active => false
           replace_status_stamps(abrt_mi,
             ip => '2012-02-02 00:00 UTC',
@@ -157,7 +159,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :colony_name => 'D',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :is_active => true
           replace_status_stamps(ip_mi,
             ip => '2012-01-02 00:00 UTC'
@@ -167,7 +169,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :colony_name => 'C',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :is_active => true
           replace_status_stamps(latest_mi,
             ip => '2011-05-05 00:00 UTC',
@@ -180,7 +182,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
                   :is_released_from_genotyping => true,
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :is_active => true
           replace_status_stamps(older_mi_1,
             ip => '2011-04-05 00:00 UTC',
@@ -195,12 +197,12 @@ class MiPlanTest < ActiveSupport::TestCase
 
         should 'return CO MIs ahead of IP or aborted ones regardless of their date' do
           cbx1 = Factory.create :gene_cbx1
-
+          allele = Factory.create :allele, :gene => cbx1
           abrt_mi = Factory.create :mi_attempt,
                   :colony_name => 'Z',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :total_male_chimeras => 1,
                   :is_active => false
           replace_status_stamps(abrt_mi,
@@ -213,7 +215,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :colony_name => 'D',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :is_active => true
           replace_status_stamps(ip_mi,
             ip => '2012-01-02 00:00 UTC'
@@ -223,7 +225,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :colony_name => 'C',
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :total_male_chimeras => 1,
                   :is_active => true
           replace_status_stamps(latest_mi,
@@ -236,7 +238,7 @@ class MiPlanTest < ActiveSupport::TestCase
                   :consortium_name => 'BaSH',
                   :production_centre_name => 'WTSI',
                   :total_male_chimeras => 1,
-                  :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :es_cell => Factory.create(:es_cell, :allele => allele),
                   :is_active => true
           replace_status_stamps(older_mi_1,
             ip => '2011-04-05 00:00 UTC',
@@ -448,8 +450,9 @@ class MiPlanTest < ActiveSupport::TestCase
 
         should 'cannot be set to false if an active phenotype attempt found' do
           gene = Factory.create :gene_cbx1
+          allele = Factory.create :allele, :gene => gene
           plan = Factory.create :mi_plan, :gene => gene, :is_active => true
-          active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)
+          active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :allele => allele)
           active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => plan
           plan.reload
           plan.is_active = false
@@ -829,6 +832,7 @@ class MiPlanTest < ActiveSupport::TestCase
     context '#reason_for_inspect_or_conflict' do
       setup do
         @gene = Factory.create :gene_cbx1
+        @allele = Factory.create :allele, :gene => @gene
         @eucomm_cons = Consortium.find_by_name!('EUCOMM-EUMODIC')
         @bash_cons = Consortium.find_by_name!('BaSH')
         @mgp_cons = Consortium.find_by_name!('MGP')
@@ -839,13 +843,13 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'correctly return for Inspect - GLT Mouse' do
         mi_attempt = Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :es_cell => Factory.create(:es_cell, :allele => @allele),
                 :consortium_name => @eucomm_cons.name,
                 :production_centre_name => @ics_cent.name
         set_mi_attempt_genotype_confirmed(mi_attempt)
 
         mi_attempt = Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :es_cell => Factory.create(:es_cell, :allele => @allele),
                 :consortium_name => @bash_cons.name,
                 :production_centre_name => @jax_cent.name
         set_mi_attempt_genotype_confirmed(mi_attempt)
@@ -861,12 +865,12 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'correctly return for Inspect - MI Attempt' do
         mi_attempt = Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :es_cell => Factory.create(:es_cell, :allele => @allele),
                 :consortium_name => @eucomm_cons.name,
                 :production_centre_name => @ics_cent.name
 
         mi_attempt = Factory.create :mi_attempt,
-                :es_cell => Factory.create(:es_cell, :gene => @gene),
+                :es_cell => Factory.create(:es_cell, :allele => @allele),
                 :consortium_name => @bash_cons.name,
                 :production_centre_name => @jax_cent.name,
                 :is_active => true
@@ -931,8 +935,9 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'return the latest created active one if there are any active phenotype attempts' do
+        allele = Factory.create(:allele, :gene => default_mi_plan.gene)
         mi_attempt = Factory.create :mi_attempt_genotype_confirmed,
-                :es_cell => Factory.create(:es_cell, :gene => default_mi_plan.gene)
+                :es_cell => Factory.create(:es_cell, :allele => allele)
         Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
                 :created_at => "2011-12-02 23:59:59 UTC",
                 :mi_attempt => mi_attempt
@@ -950,8 +955,9 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'return the latest created aborted one if all its phenotype attempts are aborted' do
+        allele = Factory.create(:allele, :gene => default_mi_plan.gene)
         mi_attempt = Factory.create :mi_attempt_genotype_confirmed,
-                :es_cell => Factory.create(:es_cell, :gene => default_mi_plan.gene)
+                :es_cell => Factory.create(:es_cell, :allele => allele)
         Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
                 :created_at => '2011-12-02 23:59:59 UTC',
                 :is_active => false, :mi_attempt => mi_attempt
@@ -969,11 +975,12 @@ class MiPlanTest < ActiveSupport::TestCase
     context '#distinct_old_genotype_confirmed_es_cells_count' do
       should 'work' do
         cbx1 = Factory.create :gene_cbx1
+        allele = Factory.create :allele, :gene => cbx1
 
         mi_plan_args = {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+          :es_cell => Factory.create(:es_cell, :allele => allele)
         }
 
         mi_attempt1 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
@@ -988,20 +995,20 @@ class MiPlanTest < ActiveSupport::TestCase
           ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
         ])
 
-        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
         mi_attempt3 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
         replace_status_stamps(mi_attempt3, [
           ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
           ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
         ])
 
-        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
         mi_attempt4 = Factory.create(:mi_attempt, mi_plan_args)
         replace_status_stamps(mi_attempt4, [
           ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
         ])
 
-        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
         newer_mi_attempt = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
 
         mi_plan = mi_attempt1.mi_plan.reload
@@ -1014,7 +1021,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan_args = {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+          :es_cell => Factory.create(:es_cell)
         }
 
         mi_attempt = Factory.create(:mi_attempt_genotype_confirmed, :is_active => false)
@@ -1032,11 +1039,12 @@ class MiPlanTest < ActiveSupport::TestCase
     context '#distinct_old_non_genotype_confirmed_es_cells_count' do
       should 'just work' do
         cbx1 = Factory.create :gene_cbx1
+        allele = Factory.create :allele, :gene => cbx1
 
         mi_plan_args = {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+          :es_cell => Factory.create(:es_cell, :allele => allele)
         }
 
         mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
@@ -1050,20 +1058,20 @@ class MiPlanTest < ActiveSupport::TestCase
           ['Micro-injection aborted', '2010-05-13 05:04:01 UTC'],
         ])
 
-        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
         mi_attempt3 = Factory.create(:mi_attempt, mi_plan_args)
         replace_status_stamps(mi_attempt3, [
           ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
         ])
 
-        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
         mi_attempt4 = Factory.create(:wtsi_mi_attempt_genotype_confirmed, mi_plan_args)
         replace_status_stamps(mi_attempt4, [
           ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
           ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
         ])
 
-        mi_plan_args[:es_cell] = Factory.create(:es_cell, :gene => cbx1)
+        mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
         newer_mi_attempt = Factory.create(:mi_attempt, mi_plan_args)
 
         mi_plan = mi_attempt1.mi_plan.reload
@@ -1076,7 +1084,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan_args = {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+          :es_cell => Factory.create(:es_cell)
         }
 
         mi_attempt = Factory.create(:mi_attempt_genotype_confirmed, :is_active => false)
@@ -1117,9 +1125,10 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'find phenotype' do
         gene = Factory.create :gene_cbx1
+        allele = Factory.create :allele, :gene => gene
         mi_plan = Factory.create :mi_plan, :gene => gene
         mi_attempt = Factory.create :mi_attempt_genotype_confirmed,
-          :es_cell => Factory.create(:es_cell, :gene => gene)
+          :es_cell => Factory.create(:es_cell, :allele => allele)
         phenotype = Factory.create :phenotype_attempt, :mi_plan => mi_plan,
           :mi_attempt => mi_attempt
 
@@ -1159,9 +1168,10 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'find phenotype with earliest date stamp' do
         gene = Factory.create :gene_cbx1
+        allele = Factory.create :allele, :gene => gene
         mi_plan = Factory.create :mi_plan, :gene => gene
         mi_attempt = Factory.create :mi_attempt_genotype_confirmed,
-          :es_cell => Factory.create(:es_cell, :gene => gene)
+          :es_cell => Factory.create(:es_cell, :allele => allele)
         phenotype = Factory.create :phenotype_attempt, :mi_plan => mi_plan,
           :created_at => "2011-12-02",
           :mi_attempt => mi_attempt
@@ -1185,7 +1195,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan_args = {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+          :es_cell => Factory.create(:es_cell)
         }
 
         d = DateTime.now.to_date
@@ -1206,7 +1216,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan_args = {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+          :es_cell => Factory.create(:es_cell)
         }
 
         d = DateTime.now.to_date
@@ -1227,7 +1237,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan_args = {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+          :es_cell => Factory.create(:es_cell)
         }
 
         mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)
@@ -1248,7 +1258,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan_args = {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+          :es_cell => Factory.create(:es_cell)
         }
 
         d = DateTime.now.to_date
@@ -1269,7 +1279,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan_args = {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+          :es_cell => Factory.create(:es_cell)
         }
 
         d = DateTime.now.to_date
@@ -1290,7 +1300,7 @@ class MiPlanTest < ActiveSupport::TestCase
         mi_plan_args = {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => Factory.create(:es_cell, :gene => cbx1)
+          :es_cell => Factory.create(:es_cell)
         }
 
         mi_attempt1 = Factory.create(:mi_attempt, mi_plan_args)

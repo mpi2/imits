@@ -8,6 +8,8 @@ class TargRep::Allele < ActiveRecord::Base
   belongs_to :mutation_method,  :class_name => "TargRep::MutationMethod"
   belongs_to :mutation_type,    :class_name => "TargRep::MutationType"
   belongs_to :mutation_subtype, :class_name => "TargRep::MutationSubtype"
+  belongs_to :gene
+
 
   access_association_by_attribute :mutation_method,  :name
   access_association_by_attribute :mutation_type,    :name
@@ -41,13 +43,15 @@ class TargRep::Allele < ActiveRecord::Base
   accepts_nested_attributes_for :targeting_vectors, :allow_destroy  => true
   accepts_nested_attributes_for :es_cells,          :allow_destroy  => true
 
+  delegate :mgi_accession_id, :to => :gene
+
   ##
   ## Validations
   ##
 
   validates_uniqueness_of :project_design_id,
     :scope => [
-      :mgi_accession_id, :assembly, :chromosome, :strand,
+      :assembly, :chromosome, :strand,
       :cassette, :backbone,
       :homology_arm_start, :homology_arm_end,
       :cassette_start, :cassette_end,
@@ -56,7 +60,6 @@ class TargRep::Allele < ActiveRecord::Base
     :message => "must have unique design features"
 
   validates_presence_of [
-    :mgi_accession_id,
     :assembly,
     :chromosome,
     :strand,
@@ -91,10 +94,6 @@ class TargRep::Allele < ActiveRecord::Base
   validates_associated :mutation_subtype,
     :message    => "should be a valid mutation subtype"
 
-  validates_format_of :mgi_accession_id,
-    :with       => /^MGI\:\d+$/,
-    :message    => "is not a valid MGI Accession ID"
-
   validates_format_of :floxed_start_exon,
     :with       => /^ENSMUSE\d+$/,
     :message    => "is not a valid Ensembl Exon ID",
@@ -116,6 +115,8 @@ class TargRep::Allele < ActiveRecord::Base
 
   validate :has_correct_cassette_type
 
+  validates :gene, :presence => true
+
   ##
   ## Filters
   ##
@@ -127,15 +128,14 @@ class TargRep::Allele < ActiveRecord::Base
   ##
 
   def missing_fields?
-    !(mgi_accession_id.blank? &&
-      assembly.blank? &&
-      chromosome.blank? &&
-      strand.blank? &&
-      mutation_type.blank? &&
-      homology_arm_start.blank? &&
-      homology_arm_end.blank? &&
-      cassette_start.blank? &&
-      cassette_end.blank?)
+    assembly.blank? &&
+    chromosome.blank? &&
+    strand.blank? &&
+    mutation_type.blank? &&
+    homology_arm_start.blank? &&
+    homology_arm_end.blank? &&
+    cassette_start.blank? &&
+    cassette_end.blank?
   end
 
   public
@@ -359,18 +359,16 @@ end
 #  cassette_end        :integer
 #  cassette            :string(100)
 #  backbone            :string(100)
-#  design_type         :string(255)     not null
-#  design_subtype      :string(255)
 #  subtype_description :string(255)
-#  created_at          :datetime
-#  updated_at          :datetime
 #  floxed_start_exon   :string(255)
 #  floxed_end_exon     :string(255)
 #  project_design_id   :integer
-#  mutation_type       :string(255)
-#  mutation_subtype    :string(255)
-#  mutation_method     :string(255)
 #  reporter            :string(255)
+#  mutation_method_id  :integer
+#  mutation_type_id    :integer
+#  mutation_subtype_id :integer
 #  cassette_type       :string(50)
+#  created_at          :datetime
+#  updated_at          :datetime
 #
 

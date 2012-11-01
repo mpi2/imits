@@ -7,6 +7,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
 
     setup do
       @cbx1 = Factory.create :gene_cbx1
+      @allele = Factory.create :allele, :gene => @cbx1, :mutation_subtype => TargRep::MutationSubtype.find_by_name("Conditional ready")
     end
 
     context 'general tests' do
@@ -18,7 +19,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
 
         es_cell = Factory.create(:es_cell,
           :name => 'EPD0027_2_A01',
-          :gene => @cbx1,
+          :allele => @allele,
           :mutation_subtype => 'conditional_ready',
           :ikmc_project_id => 35505,
           :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi'

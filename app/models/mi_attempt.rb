@@ -338,8 +338,8 @@ class MiAttempt < ApplicationModel
 
   def self.translations
     return {
-      'es_cell_marker_symbol'   => 'es_cell_gene_marker_symbol',
-      'es_cell_allele_symbol'   => 'es_cell_gene_allele_symbol',
+      'es_cell_marker_symbol'   => 'es_cell_allele_gene_marker_symbol',
+      'es_cell_allele_symbol'   => 'es_cell_allele_symbol',
       'consortium_name'         => 'mi_plan_consortium_name',
       'production_centre_name'  => 'mi_plan_production_centre_name'
     }

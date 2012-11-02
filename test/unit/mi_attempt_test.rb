@@ -208,7 +208,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'return "" regardless if es_cell has no allele_symbol_superscript' do
-          es_cell = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => Factory.create(:gene_cbx1))
+          es_cell = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => Factory.create(:gene_cbx1)),
                   :allele_symbol_superscript => nil
           assert_equal nil, es_cell.allele_symbol_superscript
 

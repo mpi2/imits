@@ -8,6 +8,8 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
     should 'not generate warnings when there are none' do
       Factory.create :mi_attempt, :consortium_name => 'MGP'
       gene = Factory.create :gene_cbx1
+      allele = Factory.create :allele, :gene => gene
+
       mi_plan = Factory.create(:mi_plan,
         :gene => gene,
         :consortium => Consortium.find_by_name!('BaSH'),
@@ -15,7 +17,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         :force_assignment => true)
 
       mi = Factory.build(:public_mi_attempt,
-        :es_cell => Factory.create(:es_cell),
+        :es_cell => Factory.create(:es_cell, :allele => allele),
         :consortium_name => 'BaSH',
         :production_centre_name => 'WTSI')
 
@@ -26,9 +28,9 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
     context 'when trying to create MI for already injected gene' do
       setup do
         es_cell = Factory.create :es_cell_EPD0029_1_G04
-        @existing_mi = es_cell.mi_attempts.first
+        allele = TargRep::Allele.includes(:gene).where("genes.marker_symbol = 'Gatc'").first or raise ActiveRecord::RecordNotFound
         @mi = Factory.build(:public_mi_attempt,
-          :es_cell => Factory.create(:es_cell))
+          :es_cell => Factory.create(:es_cell, :allele => allele))
       end
 
       should 'generate warning for new record' do
@@ -45,10 +47,11 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
 
     should 'generate warning if MiPlan that will be assigned does not have an assigned status' do
       gene = Factory.create :gene_cbx1
+      allele = Factory.create :allele, :gene => gene
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :gene => gene, :withdrawn => true
-      es_cell = Factory.create :es_cell
+      es_cell = Factory.create :es_cell, :allele => allele
 
       mi = Factory.build(:public_mi_attempt, :consortium_name => mi_plan.consortium.name,
         :production_centre_name => mi_plan.production_centre.name,
@@ -63,10 +66,11 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
 
     should 'not generate warning if MiPlan that will be assigned already has an assigned status' do
       gene = Factory.create :gene_cbx1
+      allele = Factory.create :allele, :gene => gene
       mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :gene => gene, :force_assignment => true
-      es_cell = Factory.create :es_cell
+      es_cell = Factory.create :es_cell, :allele => allele
 
       mi = Factory.build(:public_mi_attempt, :consortium_name => mi_plan.consortium.name,
               :production_centre_name => mi_plan.production_centre.name,
@@ -99,10 +103,11 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
     context 'when checking if MiPlan to be assigned has a production centre' do
       should 'generate warning if it does not have production centre' do
         gene = Factory.create :gene_cbx1
+        allele = Factory.create :allele, :gene => gene
         Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => nil,
                 :gene => gene, :force_assignment => true
-        es_cell = Factory.create :es_cell
+        es_cell = Factory.create :es_cell, :allele => allele
 
         mi = Factory.build :public_mi_attempt, :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',
@@ -117,13 +122,14 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
 
       should 'not generate warning if there are two MiPlans, one with the assigned and one without a production centre' do
         gene = Factory.create :gene_cbx1
+        allele = Factory.create :allele, :gene => gene
         Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => nil,
                 :gene => gene, :force_assignment => true
         Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => Centre.find_by_name!('WTSI'),
                 :gene => gene, :force_assignment => true
-        es_cell = Factory.create :es_cell
+        es_cell = Factory.create :es_cell, :allele => allele
 
         mi = Factory.build :public_mi_attempt, :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',

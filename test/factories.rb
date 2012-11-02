@@ -5,7 +5,6 @@
 ##
 Factory.sequence(:pgdgr_plate_name) { |n| "PGDGR_#{n}" }
 Factory.sequence(:epd_plate_name)   { |n| "EPD_#{n}" }
-Factory.sequence(:pipeline_name)    { |n| "pipeline_name_#{n}" }
 Factory.sequence(:ikmc_project_id)  { |n| "project_000#{n}" }
 Factory.sequence(:mgi_allele_id)    { |n| "MGI:#{n}" }
 Factory.sequence(:centre_name)   { |n| "Centre_#{n}" }
@@ -34,7 +33,7 @@ Factory.define :es_cell, :class => TargRep::EsCell do |f|
 
   ikmc_project_id = Factory.next(:ikmc_project_id)
 
-  f.association :pipeline, :factory => :pipeline
+  f.association(:pipeline) { TargRep::Pipeline.find_by_name! 'EUCOMM' }
   f.association :allele,   :factory => :allele
 
   #f.targeting_vector { |es_cell|
@@ -258,7 +257,7 @@ end
 Factory.sequence(:mgi_accession_id) { |n| "MGI:#{n + 4413674}" }
 
 Factory.define :pipeline, :class => TargRep::Pipeline do |pipeline|
-  pipeline.name { Factory.next(:pipeline_name) }
+  pipeline.sequence(:name) { |n| "Auto-generated Pipeline Name #{n}" }
   pipeline.description 'Pipeline Description'
 end
 
@@ -521,9 +520,18 @@ Factory.define :es_cell_EPD0343_1_H06, :parent => :es_cell_EPD0343_1_H06_without
   end
 end
 
+Factory.define :gene_gatc, :parent => :gene do |gene|
+  gene.marker_symbol 'Gatc'
+  gene.mgi_accession_id 'MGI:1923351'
+end
+
+Factory.define :allele_with_gene_gatc, :parent => :allele do |allele|
+  allele.association :gene, :factory => :gene_gatc
+end
+
 Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   es_cell.name 'EPD0029_1_G04'
-  #es_cell.association :gene, :marker_symbol => 'Gatc'
+  es_cell.association :allele, :factory => :allele_with_gene_gatc
   es_cell.allele_symbol_superscript 'tm1a(KOMP)Wtsi'
   es_cell.pipeline { TargRep::Pipeline.find_by_name! 'KOMP-CSD' }
 

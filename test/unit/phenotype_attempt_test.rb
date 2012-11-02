@@ -102,8 +102,9 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
       should 'not be inactive if the associated phenotype_attempt is active' do
         gene = Factory.create :gene_cbx1
+        allele = Factory.create :allele, :gene => gene
         inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => false
-        active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)
+        active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :allele => allele)
 
         active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
         active_pa.is_active = true

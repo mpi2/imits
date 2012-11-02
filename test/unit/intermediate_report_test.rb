@@ -13,8 +13,11 @@ class IntermediateReportTest < ActiveSupport::TestCase
       :gene => @cbx1,
       :is_bespoke_allele => true
 
+      allele = Factory.create(:allele, :gene => @cbx1)
+
       es_cell = Factory.create(:es_cell,
       :name => 'EPD0027_2_A01',
+      :allele => allele,
       :mutation_subtype => 'conditional_ready',
       :ikmc_project_id => 35505,
       :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi'

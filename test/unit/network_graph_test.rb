@@ -64,8 +64,8 @@ class NetworkGraphTest < ActiveSupport::TestCase
           expected = "<<table>" +
                      "<tr><td colspan=\"2\">Mouse Production</td></tr>" +
                      "<tr><td>Consortium:</td><td>#{consortium}</td></tr>" +
-                     "<tr><td>Current Status:</td><td>#{current_status}</td></tr>" +
                      "<tr><td>Centre:</td><td>#{centre}</td></tr>" +
+                     "<tr><td>Current Status:</td><td>#{current_status}</td></tr>" +
                      "#{status_string}" +
                      "<tr><td>Colony background strain:</td><td>#{colony_background_strain}</td></tr>" +
                      "<tr><td>Colony name:</td><td>#{colony_name}</td></tr>" +

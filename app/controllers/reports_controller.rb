@@ -13,12 +13,12 @@ class ReportsController < ApplicationController
 
   def double_assigned_plans_matrix
     @report = Reports::MiPlans::DoubleAssignment.get_matrix
-    send_data_csv('double_assigned_matrix.csv', @report.to_csv) if request.format == :csv
+    send_data_csv('double_assigned_matrix.csv', @report.to_csv)
   end
 
   def double_assigned_plans_list
     @report = Reports::MiPlans::DoubleAssignment.get_list
-    send_data_csv('double_assigned_list.csv', @report.to_csv) if request.format == :csv
+    send_data_csv('double_assigned_list.csv', @report.to_csv)
   end
 
   def double_assigned_plans

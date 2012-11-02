@@ -308,9 +308,14 @@ class Gene < ActiveRecord::Base
       :process_results => true,
       :timeout => 600,
       :filters => { 'mgi_accession_id' => mgi_accession_ids },
-      :attributes => ['mgi_accession_id','pipeline','escell_clone','mutation_subtype'],
+      :attributes => ['mgi_accession_id','pipeline','escell_clone','mutation_subtype','mutation_type'],
       :required_attributes => ['escell_clone','mutation_subtype']
     )
+
+    targ_rep_data.each do |result|
+      result['mutation_subtype'] = result['mutation_type'].downcase.gsub(/\s+/, '_') if result['mutation_type']
+      result.delete('mutation_type')
+    end
 
     dcc_data.each do |row|
       gene = data[ row['mgi_accession_id'] ] ||= {
@@ -477,4 +482,3 @@ end
 #
 #  index_genes_on_marker_symbol  (marker_symbol) UNIQUE
 #
-

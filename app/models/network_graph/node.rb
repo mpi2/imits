@@ -1,11 +1,9 @@
 class NetworkGraph::Node
 
-  def initialize(params={})
+  def initialize(object, params={})
     @rank = params[:rank]
     @node_symbol = params[:symbol]
-    @id = params[:id]
-    @consortium  = params[:consortium]
-    @centre = params[:centre]
+    @id = object.id
     @url = params[:url]
   end
 

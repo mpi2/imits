@@ -57,14 +57,14 @@ class NetworkGraph
 
   def create_dot_file(orientation = "LR")
     dot_string = "digraph \"Production Graph\"{rankdir=\"#{orientation}\";\n"
-    dot_string << "{node [shape=\"plaintext\", fontsize=16];\n \"Gene\" -> \"Plan\" -> \"Mouse Production\" -> \"Phenotype Attempts\";}\n" if orientation == "UD"
+    dot_string << "{node [shape=\"plaintext\", fontsize=16];\n \"Gene\" -> \"Plan\" -> \"Mouse Production\" -> \"Phenotype Attempt\";}\n" if orientation == "UD"
     @nodes.each do |key,node|
       dot_string << "\"#{node.node_symbol}\" [shape=none, margin=0, fontsize=10#{(node.url != ''?", URL=\"#{node.url}\"":"")}, label=#{node.label_html}];\n"
     end
     @relations.each do |from_node, to_node|
       dot_string << "\"#{from_node.node_symbol}\" -> \"#{to_node.node_symbol}\";\n"
     end
-    dot_string << "{node [shape=\"plaintext\", fontsize=16];\n \"Gene\" -> \"Plan\" -> \"Mouse Production\" -> \"Phenotype Attempts\";}\n" if orientation == "LR"
+    dot_string << "{node [shape=\"plaintext\", fontsize=16];\n \"Gene\" -> \"Plan\" -> \"Mouse Production\" -> \"Phenotype Attempt\";}\n" if orientation == "LR"
     @ranks.each do |rank, nodes|
       if nodes.length > 0
         case rank
@@ -75,7 +75,7 @@ class NetworkGraph
           when "3"
             dot_string << "{rank=same;\"Mouse Production\";\"#{nodes.map{|node| node.node_symbol}.join('";"')}\"}\n"
           when "4"
-            dot_string << "{rank=same;\"Phenotype Attempts\";\"#{nodes.map{|node| node.node_symbol}.join('";"')}\"}\n"
+            dot_string << "{rank=same;\"Phenotype Attempt\";\"#{nodes.map{|node| node.node_symbol}.join('";"')}\"}\n"
         end
       end
     end

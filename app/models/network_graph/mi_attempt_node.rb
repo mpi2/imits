@@ -13,8 +13,8 @@ class NetworkGraph::MiAttemptNode < NetworkGraph::NodeWithStates
     html = "<<table>" +
              "<tr><td colspan=\"2\">Mouse Production</td></tr>" +
              "<tr><td>Consortium:</td><td>#{CGI.escapeHTML(@consortium)}</td></tr>" +
-             "<tr><td>Current Status:</td><td>#{CGI.escapeHTML(@current_status)}</td></tr>" +
-             "<tr><td>Centre:</td><td>#{CGI.escapeHTML(@centre)}</td></tr>"
+             "<tr><td>Centre:</td><td>#{CGI.escapeHTML(@centre)}</td></tr>" +
+             "<tr><td>Current Status:</td><td>#{CGI.escapeHTML(@current_status)}</td></tr>"
     ['Micro-injection in progress', 'Chimeras obtained', 'Genotype confirmed', 'Micro-injection aborted'].each do |status|
       if @statuses.has_key?(status)
         html << "<tr><td>#{CGI.escapeHTML(status)}:</td><td>#{CGI.escapeHTML(@statuses[status])}</td></tr>"

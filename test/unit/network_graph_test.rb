@@ -133,7 +133,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
 {rank=same;"Gene";"G1"}
 {rank=same;"Plan";"P1";"P2"}
 {rank=same;"Mouse Production";"MA1"}
-{rank=same;"Phenotype Attempts";"PA1"}
+{rank=same;"Phenotype Attempt";"PA1"}
       EOL
 
       got_lines = got.split("\n")

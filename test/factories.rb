@@ -320,3 +320,16 @@ Factory.define :report_cache do |report_cache|
   report_cache.data ''
   report_cache.format 'csv'
 end
+
+Factory.define :solr_update_queue_item, :class => SolrUpdate::Queue::Item do |item|
+  item.action 'update'
+end
+
+
+Factory.define :solr_update_queue_item_mi_attempt, :parent => :solr_update_queue_item do |item|
+  item.sequence(:mi_attempt_id)
+end
+
+Factory.define :solr_update_queue_item_phenotype_attempt, :parent => :solr_update_queue_item do |item|
+  item.sequence(:phenotype_attempt_id)
+end

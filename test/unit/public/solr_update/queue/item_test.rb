@@ -4,7 +4,7 @@ class Public::SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
   class MockError < RuntimeError; end
 
   def default_item
-    @@default_item ||= SolrUpdate::Queue::Item.create!(:mi_attempt_id => 2).to_public
+    @@default_item ||= Factory.create(:solr_update_queue_item_mi_attempt, :mi_attempt_id => 2).to_public
   end
 
   context 'Public::SolrUpdate::Queue::Item' do

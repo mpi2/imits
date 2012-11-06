@@ -66,4 +66,10 @@ Kermits2::Application.routes.draw do
   resources :report_caches, :only => [:show]
 
   match ':controller/:id/history' => ':controller#history'
+
+  namespace :solr_update do
+    namespace :queue do
+      resources :items, :only => [:index]
+    end
+  end
 end

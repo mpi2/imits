@@ -20,11 +20,11 @@ class TargRep::TargetingVector < ActiveRecord::Base
   ##
 
   validates :name,
-    :uniqueness => {:message => 'This targeting vector name has already been taken'},
+    :uniqueness => true,
     :presence => true
 
   validates :pipeline, :presence => true
-  validates :allele, :presence => {:on => :save, :unless => :nested}
+  validates :allele, :presence => {:unless => :nested}
 
   ##
   ## Filters
@@ -80,6 +80,7 @@ end
 #  id                  :integer         not null, primary key
 #  allele_id           :integer         not null
 #  name                :string(255)     not null
+#  ikmc_project_id     :string(255)
 #  intermediate_vector :string(255)
 #  report_to_public    :boolean         default(TRUE), not null
 #  pipeline_id         :integer

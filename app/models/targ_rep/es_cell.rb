@@ -3,6 +3,7 @@
 class TargRep::EsCell < ActiveRecord::Base
 
   acts_as_audited
+  acts_as_reportable
 
   attr_accessor :nested
 
@@ -36,7 +37,7 @@ class TargRep::EsCell < ActiveRecord::Base
     :presence => true
 
   validates :pipeline_id, :presence => true
-  validates :allele_id, :presence => {:on => :save, :unless => :nested}
+  validates :allele_id, :presence => {:unless => :nested}
   validates :parental_cell_line, :presence => true
   validates :targeting_vector_id, :consistent_allele => {:if => :has_allele_and_targeting_vector?}
 
@@ -234,7 +235,7 @@ class TargRep::EsCell < ActiveRecord::Base
 
   private
     def has_allele_and_targeting_vector?
-      self.allele.blank? && self.targeting_vector.blank?
+      !(self.allele.blank? && self.targeting_vector.blank?)
     end
 
 

@@ -7,12 +7,13 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
 
     setup do
       @cbx1 = Factory.create :gene_cbx1
-      @allele = Factory.create :allele, :gene => @cbx1, :mutation_subtype => TargRep::MutationSubtype.find_by_name("Conditional ready")
+      @allele = Factory.create :allele, :gene => @cbx1, :mutation_type => TargRep::MutationType.find_by_name!("Conditional Ready")
     end
 
     context 'general tests' do
+
       setup do
-        Factory.create :mi_plan,
+        @miplan = Factory.create :mi_plan,
                 :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => Centre.find_by_name!('ICS'),
                 :gene => @cbx1
@@ -37,23 +38,23 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Genotype confirmed' => '2011-11-23 00:00:00 UTC'
         )
 
-        bash_wtsi_plan = bash_wtsi_attempt.mi_plan
-        replace_status_stamps(bash_wtsi_plan,
+        @bash_wtsi_plan = bash_wtsi_attempt.mi_plan
+        replace_status_stamps(@bash_wtsi_plan,
           [
             ['Assigned', '2011-11-02 00:00:00 UTC']
           ]
         )
 
-        bash_wtsi_plan.sub_project = MiPlan::SubProject.find_by_name!('Legacy EUCOMM')
-        bash_wtsi_plan.priority = MiPlan::Priority.find_by_name!('Medium')
-        bash_wtsi_plan.number_of_es_cells_starting_qc = 4
-        bash_wtsi_plan.save!
-        bash_wtsi_plan.status_stamps.last.update_attributes!(
+        @bash_wtsi_plan.sub_project = MiPlan::SubProject.find_by_name!('Legacy EUCOMM')
+        @bash_wtsi_plan.priority = MiPlan::Priority.find_by_name!('Medium')
+        @bash_wtsi_plan.number_of_es_cells_starting_qc = 4
+        @bash_wtsi_plan.save!
+        @bash_wtsi_plan.status_stamps.last.update_attributes!(
           :created_at => '2011-11-03 23:59:59.999 UTC')
 
-        bash_wtsi_plan.number_of_es_cells_passing_qc = 3
-        bash_wtsi_plan.save!
-        bash_wtsi_plan.status_stamps.last.update_attributes!(
+        @bash_wtsi_plan.number_of_es_cells_passing_qc = 3
+        @bash_wtsi_plan.save!
+        @bash_wtsi_plan.status_stamps.last.update_attributes!(
           :created_at => '2011-11-04 23:59:59.999 UTC')
 
         pt = Factory.create :phenotype_attempt_status_pdc,
@@ -75,9 +76,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
                 :es_cell => es_cell,
                 :consortium_name => 'MGP',
                 :production_centre_name => 'WTSI'
-        mgp_wtsi_plan = mgp_wtsi_attempt.mi_plan
-
-        mgp_wtsi_plan.status_stamps.first.update_attributes!(
+        @mgp_wtsi_plan = mgp_wtsi_attempt.mi_plan
+        @mgp_wtsi_plan.status_stamps.first.update_attributes!(
           :created_at => '2011-12-11 23:59:59.999 UTC')
 
         mgp_wtsi_attempt.status_stamps.first.update_attributes!(
@@ -185,7 +185,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Phenotype Attempt Aborted Date' => '2011-12-08',
           'Distinct Genotype Confirmed ES Cells'=> 1,
           'Distinct Old Non Genotype Confirmed ES Cells'=> 0,
-          'MiPlan ID' => 2,
+          'MiPlan ID' => @bash_wtsi_plan.id,
           'Total Pipeline Efficiency Gene Count' => 1,
           'GC Pipeline Efficiency Gene Count' => 1,
           'Aborted - ES Cell QC Failed Date' => ''
@@ -228,7 +228,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Phenotype Attempt Aborted Date' => '',
           'Distinct Genotype Confirmed ES Cells'=> 0,
           'Distinct Old Non Genotype Confirmed ES Cells'=> 1,
-          'MiPlan ID' => 3,
+          'MiPlan ID' => @mgp_wtsi_plan.id,
           'Total Pipeline Efficiency Gene Count' => 1,
           'GC Pipeline Efficiency Gene Count' => 0,
           'Aborted - ES Cell QC Failed Date' => ''

@@ -49,10 +49,9 @@ class ActiveSupport::TestCase
   end
 
   def create_common_test_objects
-    create_standard_pipelines
-    Factory.create(:es_cell_EPD0127_4_E01)
-    Factory.create(:es_cell_EPD0343_1_H06)
-    Factory.create(:es_cell_EPD0029_1_G04)
+    Factory.create(:es_cell_EPD0127_4_E01, :allele => Factory.create(:allele))
+    Factory.create(:es_cell_EPD0343_1_H06, :allele => Factory.create(:allele))
+    Factory.create(:es_cell_EPD0029_1_G04, :allele => Factory.create(:allele))
   end
 
   def default_user
@@ -119,11 +118,6 @@ class ActiveSupport::TestCase
 
   fixtures :all
 
-  def create_standard_pipelines
-    ["KOMP-CSD", "KOMP-Regeneron", "NorCOMM", "EUCOMM", "mirKO", "Sanger MGP", "EUCOMMTools", "EUCOMMToolsCre"].each do |n|
-      Factory.create :pipeline, :name => n
-    end
-  end
 end
 
 require 'capybara/rails'

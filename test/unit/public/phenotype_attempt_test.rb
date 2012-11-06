@@ -97,8 +97,9 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
     context '#mi_plan' do
       setup do
         @cbx1 = Factory.create(:gene_cbx1)
+        @allele = Factory.create(:allele, :gene => @cbx1)
         @mi = Factory.create(:mi_attempt_genotype_confirmed,
-          :es_cell => Factory.create(:es_cell, :gene => @cbx1),
+          :es_cell => Factory.create(:es_cell, :allele => @allele),
           :consortium_name => 'BaSH',
           :production_centre_name => 'ICS')
       end

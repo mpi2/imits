@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121030122923) do
+ActiveRecord::Schema.define(:version => 20121105114415) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -563,6 +563,8 @@ ActiveRecord::Schema.define(:version => 20121030122923) do
     t.datetime "updated_at"
   end
 
+  add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true
+
   create_table "targ_rep_targeting_vectors", :force => true do |t|
     t.integer  "allele_id",                             :null => false
     t.string   "name",                                  :null => false
@@ -579,20 +581,18 @@ ActiveRecord::Schema.define(:version => 20121030122923) do
   add_index "targ_rep_targeting_vectors", ["pipeline_id"], :name => "targeting_vectors_pipeline_id_fk"
 
   create_table "users", :force => true do |t|
-    t.string   "email",                               :default => "",    :null => false
-    t.string   "encrypted_password",   :limit => 128, :default => "",    :null => false
+    t.string   "email",                                         :default => "",    :null => false
+    t.string   "encrypted_password",             :limit => 128, :default => "",    :null => false
     t.datetime "remember_created_at"
-    t.integer  "production_centre_id",                                   :null => false
+    t.integer  "production_centre_id",                                             :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "name"
-    t.boolean  "is_contactable",                      :default => false
+    t.boolean  "is_contactable",                                :default => false
+    t.integer  "es_cell_distribution_centre_id"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
-
-  add_foreign_key "es_cells", "genes", :name => "es_cells_gene_id_fk"
-  add_foreign_key "es_cells", "pipelines", :name => "es_cells_pipeline_id_fk"
 
   add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"
@@ -601,7 +601,6 @@ ActiveRecord::Schema.define(:version => 20121030122923) do
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk", :column => "status_id"
   add_foreign_key "mi_attempt_status_stamps", "mi_attempts", :name => "mi_attempt_status_stamps_mi_attempt_id_fk"
 
-  add_foreign_key "mi_attempts", "es_cells", :name => "mi_attempts_es_cell_id_fk"
   add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk", :column => "status_id"
   add_foreign_key "mi_attempts", "mi_plans", :name => "mi_attempts_mi_plan_id_fk"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_five_prime_cassette_integrity_id_fk", :column => "qc_five_prime_cassette_integrity_id"
@@ -646,5 +645,7 @@ ActiveRecord::Schema.define(:version => 20121030122923) do
   add_foreign_key "phenotype_attempts", "mi_plans", :name => "phenotype_attempts_mi_plan_id_fk"
   add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"
   add_foreign_key "phenotype_attempts", "strains", :name => "phenotype_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
+
+  add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 
 end

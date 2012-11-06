@@ -36,12 +36,11 @@ Factory.define :es_cell, :class => TargRep::EsCell do |f|
   f.association(:pipeline) { TargRep::Pipeline.find_by_name! 'EUCOMM' }
   f.association :allele,   :factory => :allele
 
-  #f.targeting_vector { |es_cell|
-  #  es_cell.association( :targeting_vector, {
-  #    :allele_id       => es_cell.allele_id,
-  #    :ikmc_project_id => ikmc_project_id
-  #  })
-  #}
+  f.targeting_vector do |es_cell|
+    es_cell.association :targeting_vector,
+      :allele       => es_cell.allele,
+      :ikmc_project_id => ikmc_project_id
+  end
 
   f.ikmc_project_id { ikmc_project_id }
 end
@@ -260,6 +259,10 @@ Factory.define :pipeline, :class => TargRep::Pipeline do |pipeline|
   pipeline.sequence(:name) { |n| "Auto-generated Pipeline Name #{n}" }
   pipeline.description 'Pipeline Description'
 end
+
+Factory.define :invalid_pipeline, :class => TargRep::Pipeline do |f|
+end
+
 
 Factory.define :allele, :class => TargRep::Allele do |f|
   f.sequence(:project_design_id)    { |n| "design id #{n}"}

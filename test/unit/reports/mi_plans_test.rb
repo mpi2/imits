@@ -287,17 +287,17 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
     end
 
     should 'display double-assignments between two consortia with production centres and mi_attempts (list)' do
-      gene_trafd1 = Factory.create :gene_trafd1
+      allele = Factory.create :allele_with_gene_trafd1
 
       Factory.create :mi_attempt,
-              :es_cell => Factory.create(:es_cell, :gene => gene_trafd1),
+              :es_cell => Factory.create(:es_cell, :allele => allele),
               'mi_date' => '2011-11-05',
               :status => MiAttempt::Status.micro_injection_in_progress,
               :production_centre_name => 'WTSI',
               :consortium_name => 'BaSH'
 
       Factory.create :mi_attempt,
-              :es_cell => Factory.create(:es_cell, :gene => gene_trafd1),
+              :es_cell => Factory.create(:es_cell, :allele => allele),
               'mi_date' => '2011-10-05',
               :status => MiAttempt::Status.micro_injection_in_progress,
               :production_centre_name => 'WTSI',

@@ -1,5 +1,7 @@
 class TargRep::Pipeline < ActiveRecord::Base
 
+  acts_as_reportable
+
   self.include_root_in_json = false
 
   ##
@@ -14,7 +16,7 @@ class TargRep::Pipeline < ActiveRecord::Base
   ##
 
   validates :name,
-    :uniqueness => {:message => 'This pipeline name has already been taken'},
+    :uniqueness => {:message => 'has already been taken'},
     :presence => true
 
 
@@ -29,5 +31,9 @@ end
 #  description :string(255)
 #  created_at  :datetime
 #  updated_at  :datetime
+#
+# Indexes
+#
+#  index_targ_rep_pipelines_on_name  (name) UNIQUE
 #
 

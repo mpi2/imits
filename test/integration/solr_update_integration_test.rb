@@ -18,7 +18,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       old_strain = Strain.first
       new_strain = Strain.offset(1).first
       es_cell = Factory.create(:es_cell,
-        :gene => cbx1,
+        :allele => Factory.create(:allele, :gene => cbx1),
         :name => 'EPD0027_2_A02',
         :mutation_subtype => 'conditional_ready',
         :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi',

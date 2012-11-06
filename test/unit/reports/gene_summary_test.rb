@@ -8,24 +8,26 @@ class Reports::GeneSummaryTest < ActiveSupport::TestCase
 
     should 'get table' do
 
-      gene_cbx1 = Factory.create :gene_cbx1
+      allele = Factory.create :allele_with_gene_cbx1
 
       gene = Factory.create :gene,
         :marker_symbol => 'Moo1',
         :mgi_accession_id => 'MGI:12345'
 
+      allele_with_moo1 = Factory.create(:allele, :gene => gene)
+
       Factory.create :wtsi_mi_attempt_genotype_confirmed,
-        :es_cell => Factory.create(:es_cell, :gene => gene),
+        :es_cell => Factory.create(:es_cell, :allele => allele_with_moo1),
         :consortium_name => 'MGP',
         :is_active => true
 
       Factory.create :wtsi_mi_attempt_genotype_confirmed,
-        :es_cell => Factory.create(:es_cell, :gene => gene),
+        :es_cell => Factory.create(:es_cell, :allele => allele_with_moo1),
         :consortium_name => 'EUCOMM-EUMODIC',
         :is_active => true
 
       Factory.create :wtsi_mi_attempt_genotype_confirmed,
-        :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
+        :es_cell => Factory.create(:es_cell, :allele => allele),
         :consortium_name => 'EUCOMM-EUMODIC',
         :is_active => true
 

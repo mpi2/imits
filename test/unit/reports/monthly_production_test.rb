@@ -8,10 +8,10 @@ class Reports::MonthlyProductionTest < ActiveSupport::TestCase
 
     should 'get table' do
 
-      gene_cbx1 = Factory.create :gene_cbx1
+      allele = Factory.create :allele_with_gene_cbx1
 
       Factory.create :wtsi_mi_attempt_genotype_confirmed,
-        :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
+        :es_cell => Factory.create(:es_cell, :allele => allele),
         :consortium_name => 'MGP',
         :is_active => true,
         :total_pups_born => 10,

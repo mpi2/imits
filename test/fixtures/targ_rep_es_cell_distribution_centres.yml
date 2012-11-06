@@ -1,0 +1,22 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+1:
+  name: WTSI
+
+2:
+  name: KOMP
+
+3:
+  name: EUCOMM
+
+
+
+# == Schema Information
+#
+# Table name: centres
+#
+#  id         :integer(4)      not null, primary key
+#  name       :string(255)
+#  created_at :datetime
+#  updated_at :datetime
+#

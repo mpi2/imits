@@ -1,0 +1,33 @@
+---
+1:
+  id: 1
+  name: "KOMP-CSD"
+  description: 'Pipeline Description'
+2:
+  id: 2
+  name: "KOMP-Regeneron"
+  description: 'Pipeline Description'
+3:
+  id: 3
+  name: "NorCOMM"
+  description: 'Pipeline Description'
+4:
+  id: 4
+  name: "EUCOMM"
+  description: 'Pipeline Description'
+5:
+  id: 5
+  name: "mirKO"
+  description: 'Pipeline Description'
+6:
+  id: 6
+  name: "Sanger MGP"
+  description: 'Pipeline Description'
+7:
+  id: 7
+  name: "EUCOMMTools"
+  description: 'Pipeline Description'
+8:
+  id: 8
+  name: "EUCOMMToolsCre"
+  description: 'Pipeline Description'

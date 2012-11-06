@@ -40,7 +40,9 @@ class NotificationMailer < ActionMailer::Base
       relevant_phenotype_attempt = @relevant_status[:phenotype_attempt_id] ? PhenotypeAttempt.find(@relevant_status[:phenotype_attempt_id]) : nil
   
       @relevant_production_centre = "unknown production centre"
-      @relevant_cell_name = @gene.es_cells.length > 0 ? @gene.es_cells.first.name : ''
+      if es_cell = TargRep::EsCell.includes(:allele).where("targ_rep_alleles.gene_id = '#{@gene.id}'").first
+        @relevant_cell_name = es_cell.name
+      end
   
       if relevant_phenotype_attempt
         @allele_symbol = relevant_phenotype_attempt.allele_symbol.to_s.sub('</sup>', '>').sub('<sup>','<').html_safe

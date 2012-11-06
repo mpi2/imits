@@ -21,7 +21,7 @@ class TargRep::Allele < ActiveRecord::Base
     def unique_public_info
       info_map = ActiveSupport::OrderedHash.new
 
-      self.each do |es_cell|
+      self.order('id ASC').each do |es_cell|
         key = {
           :strain => es_cell.strain,
           :allele_symbol_superscript => es_cell.allele_symbol_superscript,
@@ -199,6 +199,7 @@ class TargRep::Allele < ActiveRecord::Base
     end
 
   protected
+
     def has_right_features
       error_msg = "cannot be greater than %s position on this strand (#{strand})"
 
@@ -253,7 +254,7 @@ class TargRep::Allele < ActiveRecord::Base
         end
       end
 
-      if mutation_type.no_loxp_site?
+      if mutation_type && mutation_type.no_loxp_site?
         unless loxp_start.nil? and loxp_end.nil?
           errors.add(:loxp_start, "has to be blank for this mutation method")
           errors.add(:loxp_end,   "has to be blank for this mutation method")

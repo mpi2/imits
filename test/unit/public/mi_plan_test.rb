@@ -25,8 +25,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
     context '#mi_attempts_count' do
       should 'be readable' do
-        gene = Factory.create :gene_cbx1
-        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+        allele = Factory.create :allele_with_gene_cbx1
+        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :allele => allele)).to_public
         pa = Factory.create(:phenotype_attempt, :mi_plan => nil, :mi_attempt => mi).to_public
         plan = pa.mi_attempt.mi_plan.to_public
         plan.reload
@@ -36,8 +36,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
     context '#phenotype_attempts_count' do
       should 'be readable' do
-        gene = Factory.create :gene_cbx1
-        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+        allele = Factory.create :allele_with_gene_cbx1
+        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :allele => allele)).to_public
         plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1').to_public
         pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
         plan.reload
@@ -111,8 +111,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'should NOT be updateable if the MiPlan has phenotype attempts' do
-        gene = Factory.create :gene_cbx1
-        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+        allele = Factory.create(:allele_with_gene_cbx1)
+        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :allele => allele)).to_public
 
         plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1').to_public
         pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
@@ -335,9 +335,10 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     context '#status_dates' do
       should 'show status stamps and their dates' do
         plan = Factory.create :mi_plan_with_production_centre
+        allele = Factory.create(:allele, :gene => plan.gene)
         mi = Factory.create :mi_attempt, :consortium_name => plan.consortium.name,
                 :production_centre_name => plan.production_centre.name,
-                :es_cell => Factory.create(:es_cell, :gene => plan.gene)
+                :es_cell => Factory.create(:es_cell, :allele => allele)
         assert_equal plan, mi.mi_plan
 
         plan = mi.mi_plan

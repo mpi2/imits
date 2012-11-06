@@ -43,15 +43,16 @@ end
 #
 # Table name: users
 #
-#  id                   :integer         not null, primary key
-#  email                :string(255)     default(""), not null
-#  encrypted_password   :string(128)     default(""), not null
-#  remember_created_at  :datetime
-#  production_centre_id :integer         not null
-#  created_at           :datetime
-#  updated_at           :datetime
-#  name                 :string(255)
-#  is_contactable       :boolean         default(FALSE)
+#  id                             :integer         not null, primary key
+#  email                          :string(255)     default(""), not null
+#  encrypted_password             :string(128)     default(""), not null
+#  remember_created_at            :datetime
+#  production_centre_id           :integer         not null
+#  created_at                     :datetime
+#  updated_at                     :datetime
+#  name                           :string(255)
+#  is_contactable                 :boolean         default(FALSE)
+#  es_cell_distribution_centre_id :integer
 #
 # Indexes
 #

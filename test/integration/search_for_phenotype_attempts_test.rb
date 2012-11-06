@@ -22,7 +22,7 @@ class SearchForPhenotypeAttemptsTest < Kermits2::JsIntegrationTest
 
     def create_es_cell_EPD0011_1_G18
       es_cell = Factory.create :es_cell, :name => 'EPD0011_1_G18',
-              :gene => Factory.create(:gene, :marker_symbol => 'Gatc'),
+              :allele => Factory.create(:allele_with_gene_gatc),
               :allele_symbol_superscript => 'tm1a(KOMP)Wtsi',
               :pipeline => Pipeline.find_by_name!('KOMP-CSD')
       mi_attempt = Factory.create(:wtsi_mi_attempt_genotype_confirmed,

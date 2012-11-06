@@ -10,7 +10,7 @@ class Reports::MiProduction::ImpcGraphReportDisplayTest < ActiveSupport::TestCas
       return Factory.create(factory, {
           :consortium_name => consortia,
           :production_centre_name => production_centre,
-          :es_cell => TestDummy.create(:es_cell, gene)
+          :es_cell => TestDummy.create(:es_cell, :allele => Factory.create(:allele, :gene => Gene.find_by_marker_symbol!(gene)))
         }.merge(attrs)
       )
     end

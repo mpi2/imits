@@ -116,10 +116,10 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
     context 'when creating solr docs for mi_attempt' do
 
       setup do
+        @allele = Factory.create(:allele, :gene => cbx1, :mutation_type => TargRep::MutationType.find_by_name!("Conditional Ready"))
         @es_cell = Factory.create :es_cell,
-                :gene => cbx1,
-                :mutation_subtype => 'conditional_ready',
-                :allele_id => 663
+                :allele => @allele,
+                :mutation_subtype => 'conditional_ready'
         @mi_attempt = Factory.create :mi_attempt, :id => 43,
                 :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
                 :es_cell => @es_cell
@@ -170,7 +170,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_id' do
-        assert_equal 663, @doc['allele_id']
+        assert_equal @allele.id, @doc['allele_id']
       end
 
       should 'set strain of origin' do
@@ -189,12 +189,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_image_url' do
-        assert_equal 'http://www.knockoutmouse.org/targ_rep/alleles/663/allele-image',
+        assert_equal "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/allele-image",
                 @doc['allele_image_url']
       end
 
       should 'set genbank_file_url' do
-        assert_equal 'http://www.knockoutmouse.org/targ_rep/alleles/663/escell-clone-genbank-file',
+        assert_equal "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
                 @doc['genbank_file_url']
       end
 
@@ -204,10 +204,10 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
     context 'when creating solr docs for phenotype_attempt' do
 
       setup do
+        @allele = Factory.create(:allele, :gene => cbx1)
         @es_cell = Factory.create :es_cell,
-                :gene => cbx1,
-                :mutation_subtype => 'conditional_ready',
-                :allele_id => 8563
+                :allele => @allele,
+                :mutation_subtype => 'conditional_ready'
         @mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => @es_cell
 
         @phenotype_attempt = Factory.create :phenotype_attempt_status_cec,
@@ -252,7 +252,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_id' do
-        assert_equal 8563, @doc['allele_id']
+        assert_equal @allele.id, @doc['allele_id']
       end
 
       should 'set strain of origin' do
@@ -270,12 +270,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_image_url' do
-        assert_equal 'http://www.knockoutmouse.org/targ_rep/alleles/8563/allele-image-cre',
+        assert_equal "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/allele-image-cre",
                 @doc['allele_image_url']
       end
 
       should 'set genbank_file_url' do
-        assert_equal 'http://www.knockoutmouse.org/targ_rep/alleles/8563/escell-clone-cre-genbank-file',
+        assert_equal "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
                 @doc['genbank_file_url']
       end
 

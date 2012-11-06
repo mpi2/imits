@@ -15,8 +15,8 @@ class TargRep::EsCellQcConflict < ActiveRecord::Base
   private
 
     def stamp_qc_result
-      if conflict.current_result.blank?
-        conflict.current_result = conflict.es_cell.attributes[conflict.qc_field.to_s]
+      if self.current_result.blank?
+        self.current_result = self.es_cell.attributes[self.qc_field.to_s]
       end
     end
 

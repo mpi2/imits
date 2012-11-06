@@ -12,7 +12,7 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
       return Factory.create(factory, {
           :consortium_name => 'BaSH',
           :production_centre_name => 'WTSI',
-          :es_cell => TestDummy.create(:es_cell, gene)
+          :es_cell => TestDummy.create(:es_cell, :allele => Factory.create(:allele, :gene => Gene.find_by_marker_symbol!(gene)))
         }.merge(attrs)
       )
     end
@@ -21,7 +21,7 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
       return Factory.create(:mi_attempt_genotype_confirmed, {
           :consortium_name => 'DTCC',
           :production_centre_name => 'UCD',
-          :es_cell => TestDummy.create(:es_cell, gene)
+          :es_cell => TestDummy.create(:es_cell, :allele => Factory.create(:allele, :gene => Gene.find_by_marker_symbol!(gene)))
         }.merge(attrs)
       )
     end

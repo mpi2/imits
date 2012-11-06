@@ -5,10 +5,6 @@ require 'test_helper'
 class MiAttemptTest < ActiveSupport::TestCase
   context 'MiAttempt' do
 
-    setup do
-      create_standard_pipelines
-    end
-
     def default_mi_attempt
       @default_mi_attempt ||= Factory.create( :mi_attempt,
         :blast_strain             => Strain.find_by_name!('BALB/c'),
@@ -166,7 +162,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context '#mouse_allele_symbol' do
         setup do
-          @es_cell = Factory.create :es_cell_EPD0343_1_H06
+          @es_cell = Factory.create :es_cell_EPD0343_1_H06, :allele => Factory.create(:allele_with_gene_myolc)
           @mi_attempt = Factory.build :mi_attempt, :es_cell => @es_cell
           @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
         end
@@ -192,7 +188,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context '#allele_symbol' do
         setup do
-          @es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+          @es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
         end
 
         should 'return the mouse_allele_symbol if mouse_allele_type is set' do
@@ -306,7 +302,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'be auto-generated if not supplied' do
-          es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+          es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
           attributes = {
             :es_cell => es_cell,
             :colony_name => nil,
@@ -528,7 +524,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           end
 
           should 'grab existing MiPlan with that MiPlan logical key when consortium_name and production_centre_name changes' do
-            es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+            es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
             mi_plan = Factory.create :mi_plan, :gene => es_cell.gene,
                     :consortium => Consortium.find_by_name!('MARC'),
                     :production_centre => Centre.find_by_name!('VETMEDUNI'),
@@ -639,8 +635,8 @@ class MiAttemptTest < ActiveSupport::TestCase
     context '#es_cell_name virtual attribute' do
       setup do
 
-        Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-        Factory.create :es_cell_EPD0343_1_H06_without_mi_attempts
+        Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
+        Factory.create :es_cell_EPD0343_1_H06_without_mi_attempts, :allele => Factory.create(:allele_with_gene_myolc)
 
         @mi_attempt = mi = Factory.build(:mi_attempt)
         mi.es_cell_id = nil
@@ -703,7 +699,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have #gene' do
-      es_cell = Factory.create :es_cell_EPD0343_1_H06
+      es_cell = Factory.create :es_cell_EPD0343_1_H06, :allele => Factory.create(:allele_with_gene_myolc)
       mi = es_cell.mi_attempts.first
       assert_equal es_cell.gene, mi.gene
     end
@@ -835,12 +831,12 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     context '::translate_public_param' do
       should 'translate marker_symbol' do
-        assert_equal 'es_cell_gene_marker_symbol_eq',
+        assert_equal 'es_cell_allele_gene_marker_symbol_eq',
                 MiAttempt.translate_public_param('es_cell_marker_symbol_eq')
       end
 
       should 'translate allele symbol' do
-        assert_equal 'es_cell_gene_allele_symbol_in',
+        assert_equal 'es_cell_allele_symbol_in',
                 MiAttempt.translate_public_param('es_cell_allele_symbol_in')
       end
 
@@ -867,11 +863,11 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'translate searching predicates' do
-        es_cell = Factory.create :es_cell_EPD0127_4_E01
-        allele = TargRep::Allele.includes(:gene).where("genes.marker_symbol = 'Trafd1'").first or ActiveRecord::RecordNotFound
-        Factory.create :es_cell_EPD0343_1_H06
+        allele = Factory.create(:allele_with_gene_trafd1)
+        es_cell = Factory.create :es_cell_EPD0127_4_E01, :allele => allele
+        Factory.create :es_cell_EPD0343_1_H06, :allele => Factory.create(:allele_with_gene_myolc)
         ## TODO: With this added it should not fail
-        ##Factory.create :mi_attempt, :production_centre_name => 'ICS'
+        Factory.create :mi_attempt, :production_centre_name => 'ICS'
         Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :allele => allele)
         results = MiAttempt.public_search(:es_cell_marker_symbol_eq => 'Trafd1',
           :production_centre_name_eq => 'ICS').result

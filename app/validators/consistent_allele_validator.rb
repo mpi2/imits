@@ -22,7 +22,7 @@ class ConsistentAlleleValidator < ActiveModel::EachValidator
       valid = false
     end
 
-    record.errors[attribute] << (options[:message] || "is invalid.") unless valid
+    record.errors[attribute] << (options[:message] || "is invalid. This ES Cell has a different allele (alleleXXX) compared to its targeting vector (alleleYYY). However the allele can only mismatch in the presence / absence of the loxP site!") unless valid
   end
 
 end

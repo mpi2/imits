@@ -76,7 +76,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
       end
 
       should 'allow users to delete mi_plans' do
-        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1))
 
         mi_plan = Factory.create :mi_plan,
                 :gene => cbx1,
@@ -103,7 +103,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
       end
 
       should_eventually 'allow users to edit mi_plans' do
-        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1))
 
         mi_plan = Factory.create :mi_plan,
                 :gene => cbx1,

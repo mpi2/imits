@@ -14,9 +14,9 @@ class TargRep::GenbankFile < ActiveRecord::Base
   ## Validations
   ##
 
-  validates :allele,
+  validates :allele_id,
     :presence => true,
-    :uniqueness => {:message => "must be unique"},
+    :uniqueness => true,
     :unless => :nested
 
   def escell_clone_cre

@@ -305,7 +305,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#mouse_allele_symbol' do
       setup do
-        @es_cell = Factory.create :es_cell_EPD0343_1_H06
+        @es_cell = Factory.create :es_cell_EPD0343_1_H06, :allele => Factory.create(:allele_with_gene_myolc)
         @mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => @es_cell
         @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
         @phenotype_attempt = Factory.create :phenotype_attempt, :mi_attempt => @mi_attempt
@@ -332,7 +332,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#allele_symbol' do
       setup do
-        @es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        @es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
       end
 
       should 'return the mouse_allele_symbol if mouse_allele_type is at or after Cre Excision Complete' do

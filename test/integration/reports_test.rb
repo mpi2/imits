@@ -176,7 +176,11 @@ class ReportsTest < Kermits2::IntegrationTest
       context 'All Planned Micro-Injections' do
 
         should 'return valid results for BaSH' do
-          bash_plan1 = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'), :status => MiPlan::Status['Assigned']
+          bash_plan1 = Factory.create :mi_plan,
+                            :consortium => Consortium.find_by_name!('BaSH'),
+                            :status => MiPlan::Status['Assigned']
+          Reports::MiProduction::Intermediate.new.cache
+
           assert_equal 'Assigned', bash_plan1.status.name
           report = Reports::MiProduction::PlannedMicroinjectionList.new 'BaSH'
           report.cache
@@ -187,7 +191,7 @@ class ReportsTest < Kermits2::IntegrationTest
           assert ! page.has_content?('Exception')
           assert page.has_content?('1 planned micro-injections found for BaSH')
 
-          headings = ['Consortium', 'SubProject', 'Bespoke', 'Production Centre','Marker Symbol','MGI Accession ID','Priority','Status','Reason for Inspect/Conflict','Non-Assigned Plans','Assigned Plans','Aborted MIs','MIs in Progress','GLT Mice']
+          headings = ['Consortium', 'SubProject', 'Bespoke', 'Production Centre','Marker Symbol','MGI Accession ID','Priority','Plan Status','Best Status','Reason for Inspect/Conflict','Non-Assigned Plans','Assigned Plans','Aborted MIs','MIs in Progress','GLT Mice']
           headings.each { |heading| assert page.has_content?(heading) }
 
           contents = ['BaSH','No','Auto-generated Symbol','High','Assigned']

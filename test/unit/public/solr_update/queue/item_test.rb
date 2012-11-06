@@ -4,7 +4,7 @@ class Public::SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
   class MockError < RuntimeError; end
 
   def default_item
-    @@default_item ||= SolrUpdate::Queue::Item.create!(:mi_attempt_id => 2)
+    @@default_item ||= SolrUpdate::Queue::Item.create!(:mi_attempt_id => 2).to_public
   end
 
   context 'Public::SolrUpdate::Queue::Item' do
@@ -23,6 +23,9 @@ class Public::SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
     should 'have defined attributes in serialized output' do
       expected = %w{
         id
+        reference
+        action
+        created_at
       }
       got = default_item.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

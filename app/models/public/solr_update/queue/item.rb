@@ -1,5 +1,23 @@
 class Public::SolrUpdate::Queue::Item < ::SolrUpdate::Queue::Item
   set_table_name 'solr_update_queue_items'
+
+  include Public::Serializable
+
+  FULL_ACCESS_ATTRIBUTES = %w{
+  }
+
+  READABLE_ATTRIBUTES = %w{
+    id
+    reference
+    action
+    created_at
+  } + FULL_ACCESS_ATTRIBUTES
+
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
+
 end
 
 # == Schema Information

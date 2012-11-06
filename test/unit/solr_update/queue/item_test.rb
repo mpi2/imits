@@ -51,10 +51,9 @@ class SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
       mi.stubs(:id => 5)
       pa = Factory.build :phenotype_attempt
       pa.stubs(:id => 8)
-      puts pa.inspect
+
       a = Factory.build :allele
       a.stubs(:id => 12)
-      puts a.inspect
 
       SolrUpdate::Queue::Item.add(pa, 'delete')
       SolrUpdate::Queue::Item.add(mi, 'update')

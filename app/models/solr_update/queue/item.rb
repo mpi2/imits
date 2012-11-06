@@ -3,12 +3,15 @@ class SolrUpdate::Queue::Item < ActiveRecord::Base
 
   belongs_to :mi_attempt
   belongs_to :phenotype_attempt
+  belongs_to :allele
 
   def reference
     if mi_attempt_id
       return {'type' => 'mi_attempt', 'id' => mi_attempt_id}
     elsif phenotype_attempt_id
       return {'type' => 'phenotype_attempt', 'id' => phenotype_attempt_id}
+    elsif allele_id
+      return {'type' => 'allele', 'id' => allele_id}
     else
       raise SolrUpdate::Error, 'No IDs set'
     end
@@ -17,7 +20,10 @@ class SolrUpdate::Queue::Item < ActiveRecord::Base
   def self.add(reference, action)
     if reference.kind_of?(ApplicationModel)
       reference = {'type' => get_model_type(reference), 'id' => reference.id}
+    elsif reference.kind_of?(TargRep::Allele)
+      allele_reference = {'type' => 'allele', 'id' => reference.id}
     end
+      
 
     fkey = reference['type'] + '_id'
 

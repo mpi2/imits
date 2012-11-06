@@ -4,6 +4,9 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
   context 'SolrUpdate::Enqueuer' do
 
     setup do
+      @gene = stub('gene', :mgi_accession_id => 'MGI:X1')
+      @allele = stub('allele', :id => 44, :gene => @gene)
+      @es_cell = stub('es_cell', :id => 642, :allele => @allele)
       @enqueuer = SolrUpdate::Enqueuer.new
     end
 
@@ -48,7 +51,7 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
         @enqueuer.mi_attempt_updated(mi)
       end
 
-      should 'tell itself the mi_attempt`s phenotype attempts have been updated' do
+      should 'tell itself the mi_attempt\'s phenotype attempts have been updated' do
         mi = Factory.create :mi_attempt_genotype_confirmed, :id => 67
         assert_equal 0, mi.phenotype_attempts.all.size
 
@@ -94,7 +97,7 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
     end
 
     context 'when anything with mi_attempts changes' do
-      should 'tell itself that each of the changed object`s mi_attempts have been updated' do
+      should 'tell itself that each of the changed object\'s mi_attempts have been updated' do
         mi1 = stub('mi1'); mi2 = stub('mi2')
         mi_attempts = stub('mi_attempts')
         has_mi_attempts = stub('has_mi_attempts', :changes => {'key' => ['old', 'new']})
@@ -107,7 +110,7 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
         @enqueuer.any_with_mi_attempts_updated(has_mi_attempts)
       end
 
-      should 'not tell itself to enqueue the object`s mi_attempts if it was not actually changed' do
+      should 'not tell itself to enqueue the object\'s mi_attempts if it was not actually changed' do
         mi1 = stub('mi1'); mi2 = stub('mi2')
         mi_attempts = stub('mi_attempts')
         has_mi_attempts = stub('has_mi_attempts', :changes => {})
@@ -118,6 +121,30 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
 
         @enqueuer.any_with_mi_attempts_updated(has_mi_attempts)
       end
+    end
+
+    context 'when an allele changes' do
+
+      should 'enqueue an update for it if it has changed' do
+        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'allele', 'id' => 44})
+        @enqueuer.allele_updated(@allele)
+      end
+
+      should 'enqueue a deletion if it has been deleted' do
+        SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'allele', 'id' => 44})
+        @enqueuer.allele_destroyed(@allele)
+      end
+
+      should 'enqueue its allele to be updated if its es_cell has changed' do
+        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'allele', 'id' => 44})
+        @enqueuer.es_cell_updated(@es_cell)
+      end
+
+      should 'enqueue its allele to be updated if its es_cell is deleted' do
+        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'allele', 'id' => 44})
+        @enqueuer.es_cell_destroyed(@es_cell)
+      end
+
     end
 
   end

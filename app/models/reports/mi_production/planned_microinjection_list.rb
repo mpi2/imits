@@ -20,6 +20,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
 
     return nil if report.nil?
 
+    report.add_column('Best Status') { |row| IntermediateReport.find_by_mi_plan_id(row.data['ID']).try(:overall_status) }
     report.add_column('Reason for Inspect/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_or_conflict }
     report.remove_columns(['ID'])
 
@@ -52,7 +53,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       'gene.marker_symbol'      => 'Marker Symbol',
       'gene.mgi_accession_id'   => 'MGI Accession ID',
       'priority.name'           => 'Priority',
-      'status.name'             => 'Status'
+      'status.name'             => 'Plan Status'
     }
 
     report_options = {

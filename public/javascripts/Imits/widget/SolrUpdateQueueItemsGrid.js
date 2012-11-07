@@ -41,16 +41,19 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
     {
         dataIndex: 'id',
         header: 'ID',
-        readOnly: true
+        readOnly: true,
+        width: 60
     },
     {
         dataIndex: 'reference',
         header: 'Reference',
         readOnly: true,
-        width: 150,
+        width: 200,
         renderer: function(value, metaData, record) {
             var ref = record.get('reference');
-            return Ext.String.format('{0} / {1}', ref.type, ref.id);
+            var editUrl = Ext.String.format('{0}/{1}s/{2}', window.basePath, ref.type, ref.id);
+            var historyUrl = editUrl + '/history';
+            return Ext.String.format('<a href="{0}">{1} / {2}</a> (<a href="{3}">audit history</a>)', editUrl, ref.type, ref.id, historyUrl);
         }
     },
     {

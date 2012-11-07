@@ -113,4 +113,22 @@ class ApplicationController < ActionController::Base
   end
   protected :format_languishing_report
 
+  def authorize_admin_user!
+    if current_user.try(:admin?) != true
+
+      respond_to do |format|
+        format.html do
+          flash[:alert] = 'Access to restricted area detected - this incident has been logged'
+          redirect_to root_path
+        end
+
+        format.json do
+          render :json => {'error' => 'Access to restricted area detected - this incident has been logged' }
+        end
+      end
+
+    end
+  end
+  protected :authorize_admin_user!
+
 end

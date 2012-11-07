@@ -4,6 +4,8 @@ class SolrUpdate::Queue::ItemsController < ApplicationController
 
   before_filter :authenticate_user!
 
+  before_filter :authorize_admin_user!
+
   def index
     respond_to do |format|
       format.json do

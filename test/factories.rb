@@ -6,6 +6,10 @@ Factory.define :user do |user|
   user.production_centre { Centre.find_by_name!('WTSI') }
 end
 
+Factory.define :admin_user, :parent => :user do |user|
+  user.email 'vvi@sanger.ac.uk'
+end
+
 Factory.define :pipeline do |pipeline|
   pipeline.sequence(:name) { |n| "Auto-generated Pipeline Name #{n}" }
   pipeline.description 'Pipeline Description'

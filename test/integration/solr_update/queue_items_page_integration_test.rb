@@ -20,7 +20,7 @@ class SolrUpdate::QueueItemsPageIntegrationTest < Kermits2::JsIntegrationTest
       login admin_user
       click_link 'Solr Update Queue'
       wait_until_grid_loaded
-      assert_equal 2, page.find('.x-grid-row').size
+      assert_equal 2, page.all('.x-grid-row').size
     end
 
   end

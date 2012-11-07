@@ -1,6 +1,6 @@
 class SolrUpdate::Queue::ItemsController < ApplicationController
 
-  respond_to :json
+  respond_to :json, :html
 
   before_filter :authenticate_user!
 
@@ -11,6 +11,8 @@ class SolrUpdate::Queue::ItemsController < ApplicationController
       format.json do
         render :json => data_for_serialized(:json, 'id asc', Public::SolrUpdate::Queue::Item, :public_search)
       end
+
+      format.html
     end
   end
 

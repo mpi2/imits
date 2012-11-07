@@ -9,11 +9,18 @@ Ext.define('Imits.model.SolrUpdateQueueItem', {
         persist: false
     },
     {
+        name: 'reference'
+    },
+    {
         name: 'action'
+    },
+    {
+        name: 'created_at'
     }
     ],
 
     proxy: Ext.create('Imits.data.Proxy', {
-        resource: 'solr_update/queue/item'
+        resource: 'solr_update_queue_item',
+        resourcePath: 'solr_update/queue/items'
     })
 });

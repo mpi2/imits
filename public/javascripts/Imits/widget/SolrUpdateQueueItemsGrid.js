@@ -18,8 +18,6 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
         pageSize: 20
     },
 
-    selType: 'rowmodel',
-
     features: [
     {
         ftype: 'ransack_filters',
@@ -37,28 +35,41 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
             dock: 'bottom',
             displayInfo: true
         }));
-
-        self.addListener('itemclick', function (theView, record) {
-            var id = record.data['id'];
-            self.setLoading("Editing plan....");
-            self.setLoading(false);
-        });
     },
 
     columns: [
     {
         dataIndex: 'id',
         header: 'ID',
+        readOnly: true
+    },
+    {
+        dataIndex: 'reference',
+        header: 'Reference',
         readOnly: true,
-        hidden: true
+        width: 150,
+        renderer: function(value, metaData, record) {
+            var ref = record.get('reference');
+            return Ext.String.format('{0} / {1}', ref.type, ref.id);
+        }
     },
     {
         dataIndex: 'action',
         header: 'Action',
         readOnly: true,
+        width: 60,
         filter: {
-            type: 'string'
+            type: 'list',
+            options: ['update', 'delete']
         }
+    },
+    {
+        dataIndex: 'created_at',
+        xtype: 'datecolumn',
+        format: 'd-m-Y H:i:s',
+        header: 'Created At',
+        readOnly: true,
+        width: 125
     }
     ]
 });

@@ -7,10 +7,15 @@ Ext.define('Imits.data.Proxy', {
 
     constructor: function (config) {
         var resource = config.resource;
+        var resourcePath = resource + 's';
+
+        if (config.resourcePath) {
+            resourcePath = config.resourcePath;
+        }
 
         this.callParent([{
             format: 'json',
-            url: window.basePath + '/' + resource + 's',
+            url: window.basePath + '/' + resourcePath,
             extraParams: {
                 'extended_response': true
             },

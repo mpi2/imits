@@ -127,6 +127,7 @@ class ApplicationController < ActionController::Base
         end
       end
 
+      Rails.logger.info 'Unauthorized access detected'
     end
   end
   protected :authorize_admin_user!

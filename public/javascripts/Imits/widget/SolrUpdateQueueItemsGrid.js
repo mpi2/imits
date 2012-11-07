@@ -15,7 +15,7 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
         autoLoad: true,
         remoteSort: true,
         remoteFilter: true,
-        pageSize: 20
+        pageSize: 200
     },
 
     features: [

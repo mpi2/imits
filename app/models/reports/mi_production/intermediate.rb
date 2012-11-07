@@ -70,8 +70,6 @@ class Reports::MiProduction::Intermediate < Reports::Base
         record['Allele Symbol'] = mi_attempt.allele_symbol
         record['Genetic Background'] = mi_attempt.colony_background_strain.try(:name)
         record['MiAttempt Colony Name'] = mi_attempt.colony_name
-        record['MiAttempt Consortium'] = mi_attempt.consortium_name
-        record['MiAttempt Production Centre'] = mi_attempt.production_centre_name
         mi_status_dates = mi_attempt.reportable_statuses_with_latest_dates
         mi_status_dates.each do |name, date|
           record["#{name} Date"] = date.to_s
@@ -83,6 +81,10 @@ class Reports::MiProduction::Intermediate < Reports::Base
         record['PhenotypeAttempt Status'] = phenotype_attempt.status.name
         record['Overall Status'] = record['PhenotypeAttempt Status']
         record['PhenotypeAttempt Colony Name'] = phenotype_attempt.colony_name
+
+        phenotype_mi_attempt = phenotype_attempt.mi_attempt
+        record['MiAttempt Consortium'] = phenotype_mi_attempt.consortium_name
+        record['MiAttempt Production Centre'] = phenotype_mi_attempt.production_centre_name
 
         pt_status_names = phenotype_attempt.reportable_statuses_with_latest_dates
         pt_status_names.each do |name, date|

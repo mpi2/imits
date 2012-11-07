@@ -172,6 +172,10 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
           }
   
           list_heads = [
+            'MiAttempt Colony Name',
+            'MiAttempt Consortium',
+            'MiAttempt Production Centre',
+            'PhenotypeAttempt Colony Name',
             'All genes',
             'ES QC confirmed',
             'Microinjection aborted',

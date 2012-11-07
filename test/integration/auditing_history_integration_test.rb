@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class AuditingHistoryTest < Kermits2::IntegrationTest
+class AuditingHistoryIntegrationTest < Kermits2::IntegrationTest
   context 'MI attempts history page' do
     should 'work' do
       login

@@ -143,7 +143,11 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiPlan ID',
           'Total Pipeline Efficiency Gene Count',
           'GC Pipeline Efficiency Gene Count',
-          'Aborted - ES Cell QC Failed Date'
+          'Aborted - ES Cell QC Failed Date',
+          'MiAttempt Colony Name',
+          'MiAttempt Consortium',
+          'MiAttempt Production Centre',
+          'PhenotypeAttempt Colony Name'
         ]
 
         assert_equal expected, @report.column_names
@@ -187,7 +191,11 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiPlan ID' => 2,
           'Total Pipeline Efficiency Gene Count' => 1,
           'GC Pipeline Efficiency Gene Count' => 1,
-          'Aborted - ES Cell QC Failed Date' => ''
+          'Aborted - ES Cell QC Failed Date' => '',
+          'MiAttempt Colony Name' => 'WTSI-EPD0027_2_A01-1',
+          'MiAttempt Consortium' => 'BaSH',
+          'MiAttempt Production Centre' => 'WTSI',
+          'PhenotypeAttempt Colony Name' => 'WTSI-EPD0027_2_A01-1-1'
         }
         assert_equal expected, bash_wtsi_row.data
       end
@@ -230,7 +238,11 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiPlan ID' => 3,
           'Total Pipeline Efficiency Gene Count' => 1,
           'GC Pipeline Efficiency Gene Count' => 0,
-          'Aborted - ES Cell QC Failed Date' => ''
+          'Aborted - ES Cell QC Failed Date' => '',
+          'MiAttempt Colony Name' => 'WTSI-EPD0027_2_A01-2',
+          'MiAttempt Consortium' => 'MGP',
+          'MiAttempt Production Centre' => 'WTSI',
+          'PhenotypeAttempt Colony Name' => ''
           }
         assert_equal expected, mgp_wtsi_row.data
       end

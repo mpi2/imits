@@ -69,6 +69,9 @@ class Reports::MiProduction::Intermediate < Reports::Base
         record['Mutation Sub-Type'] = mi_attempt.es_cell.mutation_subtype
         record['Allele Symbol'] = mi_attempt.allele_symbol
         record['Genetic Background'] = mi_attempt.colony_background_strain.try(:name)
+        record['MiAttempt Colony Name'] = mi_attempt.colony_name
+        record['MiAttempt Consortium'] = mi_attempt.consortium_name
+        record['MiAttempt Production Centre'] = mi_attempt.production_centre_name
         mi_status_dates = mi_attempt.reportable_statuses_with_latest_dates
         mi_status_dates.each do |name, date|
           record["#{name} Date"] = date.to_s
@@ -79,6 +82,7 @@ class Reports::MiProduction::Intermediate < Reports::Base
       if phenotype_attempt
         record['PhenotypeAttempt Status'] = phenotype_attempt.status.name
         record['Overall Status'] = record['PhenotypeAttempt Status']
+        record['PhenotypeAttempt Colony Name'] = phenotype_attempt.colony_name
 
         pt_status_names = phenotype_attempt.reportable_statuses_with_latest_dates
         pt_status_names.each do |name, date|
@@ -127,7 +131,11 @@ class Reports::MiProduction::Intermediate < Reports::Base
       'MiPlan ID',
       'Total Pipeline Efficiency Gene Count',
       'GC Pipeline Efficiency Gene Count',
-      'Aborted - ES Cell QC Failed Date'
+      'Aborted - ES Cell QC Failed Date',
+      'MiAttempt Colony Name',
+      'MiAttempt Consortium',
+      'MiAttempt Production Centre',
+      'PhenotypeAttempt Colony Name'
     ]
     report.reorder(column_names)
 

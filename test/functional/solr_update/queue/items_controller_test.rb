@@ -32,9 +32,25 @@ class SolrUpdate::Queue::ItemsControllerTest < ActionController::TestCase
           assert_equal 3, JSON.parse(response.body).size
         end
 
-        should 'filter with ransack'
+        should 'filter with ransack' do
+          Factory.create :solr_update_queue_item_phenotype_attempt
+          Factory.create :solr_update_queue_item_phenotype_attempt
+          Factory.create :solr_update_queue_item_mi_attempt
 
-        should 'respond with ExtJS compatible response'
+          get :index, :format => :json, :phenotype_attempt_id_not_null => true
+          assert_response :success
+
+          items_data = JSON.parse(response.body)
+          assert_equal 2, items_data.size
+        end
+
+        should 'respond with ExtJS compatible response' do
+          Factory.create :solr_update_queue_item_mi_attempt
+          get :index, :format => :json, :extended_response => true
+          assert_response :success
+          assert_equal ['solr_update_queue_items', 'success', 'total'].sort,
+                  JSON.parse(response.body).keys
+        end
       end
     end
 

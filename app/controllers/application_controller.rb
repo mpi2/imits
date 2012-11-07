@@ -38,7 +38,7 @@ class ApplicationController < ActionController::Base
     data = data.as_json
 
     retval = {
-      controller_name => data,
+      controller_path.gsub('/', '_') => data,
       'success' => true,
       'total' => total
     }

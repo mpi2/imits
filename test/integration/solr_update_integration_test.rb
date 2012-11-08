@@ -48,6 +48,13 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
     context 'when an MI attempt is modified' do
       setup do
         @mi_attempt.update_attributes!(:colony_background_strain => @new_strain)
+
+        dist_centre = Factory.create :mi_attempt_distribution_centre,
+                :centre => Centre.find_by_name!('WTSI'),
+                :is_distributed_by_emma => false, :mi_attempt => @mi_attempt
+
+        @mi_attempt.distribution_centres = [dist_centre]
+
         SolrUpdate::Queue.run
       end
 
@@ -63,8 +70,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'allele_name' => @mi_attempt.allele_symbol,
           'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image",
           'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-genbank-file",
-          'order_from_url' => "http://www.komp.org/geneinfo.php?project=CSD35505",
-          'order_from_name' => 'KOMP'
+          'order_from_urls' => ["mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for Cbx1"],
+          'order_from_names' => ['WTSI']
         }
 
         fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
@@ -112,8 +119,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'allele_name' => phenotype_attempt.allele_symbol,
         'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image-cre",
         'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-cre-genbank-file",
-        'order_from_url' => "http://www.komp.org/geneinfo.php?project=CSD35505",
-        'order_from_name' => 'KOMP'
+        'order_from_urls' => [""],
+        'order_from_names' => ['ICS']
       }
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

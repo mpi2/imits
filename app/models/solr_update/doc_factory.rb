@@ -87,54 +87,31 @@ class SolrUpdate::DocFactory
     return [solr_doc]
   end
 
-  #def self.set_order_from_details_old(object, solr_doc)
-  #  if Consortium.komp2.include? object.consortium
-  #    solr_doc['order_from_name'] = 'KOMP'
-  #    project_id = object.es_cell.ikmc_project_id
-  #    if project_id.nil?
-  #      solr_doc['order_from_url'] = "http://www.komp.org/"
-  #    else
-  #      if ! project_id.match(/^VG/)
-  #        project_id = 'CSD' + project_id
-  #      end
-  #
-  #      solr_doc['order_from_url'] = "http://www.komp.org/geneinfo.php?project=#{project_id}"
-  #    end
-  #
-  #  elsif ['Phenomin', 'Helmholtz GMC', 'Monterotondo', 'MRC'].include? object.consortium.name
-  #    solr_doc['order_from_name'] = 'EMMA'
-  #    solr_doc['order_from_url'] = "http://www.emmanet.org/mutant_types.php?keyword=#{object.gene.marker_symbol}"
-  #
-  #  elsif ['MGP', 'MGP Legacy'].include? object.consortium.name
-  #    if object.distribution_centres.all.find {|ds| ds.is_distributed_by_emma? }
-  #      solr_doc['order_from_name'] = 'EMMA'
-  #      solr_doc['order_from_url'] = "http://www.emmanet.org/mutant_types.php?keyword=#{object.gene.marker_symbol}"
-  #    else
-  #      solr_doc['order_from_name'] = 'WTSI'
-  #      solr_doc['order_from_url'] = "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{object.gene.marker_symbol}"
-  #    end
-  #  end
-  #end
-
   def self.set_order_from_details(object, solr_doc, config = nil)
-    # get config yml
-    # find target
-    # raise on fail
-    # build from config
-    # loop over centres
-
     config ||= YAML.load_file("#{Rails.root}/config/dist_centre_urls.yml")
-
-  #  pp config
 
     solr_doc['order_from_names'] ||= []
     solr_doc['order_from_urls'] ||= []
 
     object.distribution_centres.each do |distribution_centre|
-
       centre_name = distribution_centre.centre.name
 
+      #puts "#### distribution_centre"
+      #pp distribution_centre
+
       next if ! config.has_key? centre_name
+
+      # see http://stackoverflow.com/questions/4521921/how-to-know-if-todays-date-is-in-a-date-range
+
+      #next if ! distribution_centre.start_date.nil? && distribution_centre.start_date.to_date
+
+      start_date = distribution_centre.start_date ? distribution_centre.start_date : Time.now
+      current = Time.now
+      end_date = distribution_centre.end_date ? distribution_centre.end_date : Time.now
+      range = start_date.to_time..end_date.to_time
+      #puts "#### start_date: #{start_date} - current: #{current} - end_date: #{end_date}"   # - range === current: #{range === current}"
+      #next if ! range === current
+      next if ! range.cover?(current)
 
       details = config[centre_name]
       details = config['EMMA'] if distribution_centre.is_distributed_by_emma
@@ -144,20 +121,9 @@ class SolrUpdate::DocFactory
       order_from_name = centre_name
       order_from_name = 'EMMA' if distribution_centre.is_distributed_by_emma
 
-      ##check for emma
-      #if distribution_centre.is_distributed_by_emma
-      # # solr_doc['orders'].push({:order_from_name => 'EMMA', :order_from_url => config['EMMA'][:preferred]})
-      # # next
-      # details = config['EMMA']
-      #end
-      #puts "#### project_id: #{project_id}"
-      #puts "#### marker_symbol: #{marker_symbol}"
-
       order_from_url = details[:default]
       order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id) if /PROJECT_ID/ =~ details[:preferred] && project_id
       order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol) if /MARKER_SYMBOL/ =~ details[:preferred] && marker_symbol
-
-#      solr_doc['orders'].push({:order_from_name => order_from_name, :order_from_url => order_from_url}) if order_from_url
 
       solr_doc['order_from_names'].push order_from_name if order_from_url
       solr_doc['order_from_urls'].push order_from_url if order_from_url

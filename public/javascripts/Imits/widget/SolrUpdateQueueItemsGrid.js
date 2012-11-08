@@ -84,13 +84,24 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
             tooltip: 'Run now',
             handler: function (grid, rowIndex, colIndex) {
                 var item = grid.getStore().getAt(rowIndex);
+                var itemId = item.get('id');
                 Ext.Msg.confirm('Run item?',
-                    'Run item ' + item.get('id') + '?',
+                    'Run item ' + itemId + '?',
                     function (buttonName) {
                         if (buttonName === 'yes') {
-                            grid.setLoading('Running item ' + item.get('id'));
-                            grid.getStore().remove(item);
-                            grid.setLoading(false);
+                            grid.setLoading('Running item ' + itemId);
+
+                            Ext.Ajax.request({
+                                method: 'POST',
+                                params: {'authenticity_token': window.authenticityToken},
+                                url: window.basePath + '/solr_update/queue/items/' + itemId + '/run.json',
+                                success: function () {
+                                    grid.getStore().remove(item);
+                                },
+                                callback: function () {
+                                    grid.setLoading(false);
+                                }
+                            });
                         }
                     });
             }

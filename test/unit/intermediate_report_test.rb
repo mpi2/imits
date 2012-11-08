@@ -142,7 +142,11 @@ class IntermediateReportTest < ActiveSupport::TestCase
         :phenotype_attempt_aborted_date,
         :distinct_genotype_confirmed_es_cells,
         :distinct_old_non_genotype_confirmed_es_cells,
-        :mi_plan_id
+        :mi_plan_id,
+        :mi_attempt_colony_name,
+        :mi_attempt_consortium,
+        :mi_attempt_production_centre,
+        :phenotype_attempt_colony_name
       ]
 
       attributes.each do |attribute|

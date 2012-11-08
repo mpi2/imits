@@ -85,11 +85,14 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           @test_object.distribution_centres = [dist_centre]
 
           doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
+
+          pp doc
+
           assert_equal 'WTSI', doc['order_from_name']
           assert_equal "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{@test_object.gene.marker_symbol}", doc['order_from_url']
         end
       end # ['MGP', 'MGP Legacy'].each
-    
+
     end
   end # order_from_tests
 
@@ -280,6 +283,197 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       order_from_tests :phenotype_attempt
+    end
+
+    context '#set_order_from_details' do
+
+      setup do
+        es_cell = Factory.create :es_cell,
+                :gene => cbx1,
+                :mutation_subtype => 'conditional_ready',
+                :allele_id => 663
+        @mi_attempt = Factory.create :mi_attempt, :id => 43,
+                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
+                :es_cell => es_cell
+
+#        distribution_centres_factory = :"mi_attempt_distribution_centre"
+
+        @mi_attempt.es_cell.ikmc_project_id = 'VG10003'
+
+#        @config = YAML.load_file("#{Rails.root}/config/dist_centre_urls.yml")
+
+        @config ={
+          "Harwell"=> {:preferred=>"http://www.mousebook.org/searchmousebook.php?query=PROJECT_ID", :default=>"www.Harwell-default.com"},
+          "HMGU"=>{:preferred=>"www.HMGU.com?query=MARKER_SYMBOL", :default=>"www.HMGU-default.com"},
+          "ICS"=>{:preferred=>"www.ICS.com?query=PROJECT_ID", :default=>"www.ICS-default.com"},
+          "CNB"=>{:preferred=>"www.CNB.com?query=PROJECT_ID", :default=>"www.CNB-default.com"},
+          "Monterotondo"=>{:preferred=>"www.Monterotondo.com?query=PROJECT_ID", :default=>"www.Monterotondo-default.com"},
+          "JAX"=>{:preferred=>"", :default=>"www.JAX-default.com"},
+          "WTSI"=> {:preferred=> "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for MARKER_SYMBOL", :default=>"www.WTSI-default.com"},
+          "Oulu"=>{:preferred=>"www.Oulu.com?query=PROJECT_ID", :default=>"www.Oulu-default.com"},
+          "UCD"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
+          "VETMEDUNI"=>{:preferred=>"", :default=>"www.VETMEDUNI-default.com"},
+          "BCM"=>{:preferred=>"", :default=>"www.BCM-default.com"},
+          "CNRS"=>{:preferred=>"www.CNRS.com?query=MARKER_SYMBOL", :default=>"www.CNRS-default.com"},
+          "APN"=>{:preferred=>"www.APN.com?query=MARKER_SYMBOL", :default=>"www.APN-default.com"},
+          "TCP"=>{:preferred=>"www.TCP.com?query=MARKER_SYMBOL", :default=>"www.TCP-default.com"},
+          "MARC"=>{:preferred=>"www.MARC.com?query=MARKER_SYMBOL", :default=>"www.MARC-default.com"},
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+        }
+
+        mi_attempt_distribution_centre = []
+        phenotype_attempt_distribution_centre = []
+
+        @mi_attempt2 = Factory.create :mi_attempt_genotype_confirmed, :es_cell => es_cell
+
+        @phenotype_attempt = Factory.create :phenotype_attempt_status_cec,
+                :id => 86, :mi_attempt => @mi_attempt2,
+                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN2')
+
+        @config.keys.each do |key|
+          Centre.create! :name => key if ! Centre.find_by_name key
+          dist_centre = Factory.create :mi_attempt_distribution_centre,
+                  :centre => Centre.find_by_name!(key),
+                  :is_distributed_by_emma => false, :mi_attempt => @mi_attempt
+
+          dist_centre2 = Factory.create :phenotype_attempt_distribution_centre,
+                  :centre => Centre.find_by_name!(key),
+                  :is_distributed_by_emma => false, :phenotype_attempt => @phenotype_attempt
+
+          mi_attempt_distribution_centre.push dist_centre
+          phenotype_attempt_distribution_centre.push dist_centre2
+        end
+
+        @mi_attempt.distribution_centres = mi_attempt_distribution_centre
+
+        @mi_attempt.reload
+
+        #es_cell2 = Factory.create :es_cell,
+        #        :gene => cbx1,
+        #        :mutation_subtype => 'conditional_ready',
+        #        :allele_id => 663
+
+#        @phenotype_attempt.stubs(:allele_symbol).returns('TEST ALLELE SYMBOL2')
+
+        @phenotype_attempt.distribution_centres.destroy_all
+      #  pp phenotype_attempt_distribution_centre
+        @phenotype_attempt.distribution_centres = phenotype_attempt_distribution_centre
+
+        @phenotype_attempt.reload
+
+      end
+
+      def check_order_details(object)
+        doc = {'test_doc' => true}
+
+        SolrUpdate::DocFactory.set_order_from_details(object, doc, @config)
+
+       # puts "#### mi_attempt : #{mi_attempt.distribution_centres.inspect}"
+      #  puts "#### doc : #{doc.inspect}"
+
+        hash_check = {}
+        doc['orders'].each do |order|
+          hash_check[order[:order_from_name]] = order[:order_from_url]
+        end
+
+        @config.keys.each do |key|
+          if /PROJECT_ID/ =~ @config[key][:preferred]
+            if object.es_cell.ikmc_project_id
+              assert @config[key][:preferred].gsub(/PROJECT_ID/, object.es_cell.ikmc_project_id), hash_check[key]
+            else
+              assert @config[key][:default], hash_check[key]
+            end
+          elsif /MARKER_SYMBOL/ =~ @config[key][:preferred]
+            if object.gene.marker_symbol
+              assert @config[key][:preferred].gsub(/MARKER_SYMBOL/, object.gene.marker_symbol), hash_check[key]
+            else
+              assert @config[key][:default], hash_check[key]
+            end
+          else
+            assert @config[key][:default], hash_check[key]
+          end
+        end
+
+        return hash_check
+      end
+
+      should 'manage mi_attempt' do
+        check_order_details(@mi_attempt)
+      end
+
+      should 'manage phenotype_attempt' do
+        check_order_details(@phenotype_attempt)
+      end
+
+      should 'default if no marker' do
+        #@config = {
+        #  "WTSI"=> {:preferred=> "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for MARKER_SYMBOL", :default=>"http://www.example.com"},
+        #}
+
+        @mi_attempt.gene.marker_symbol = nil
+
+        hash_check = check_order_details(@mi_attempt)
+
+        #puts "#### hash_check['WTSI'] = #{hash_check['WTSI']}"
+        #puts "#### @config['WTSI'][:default] = #{@config['WTSI'][:default]}"
+        #
+        #pp hash_check
+
+        #assert hash_check['WTSI'].length > 0
+        #assert @config['WTSI'][:default].length > 0
+        #assert @config['WTSI'][:default] == hash_check['WTSI']
+
+        @config.keys.each do |key|
+          if /MARKER_SYMBOL/ =~ @config[key][:preferred]
+            assert @config[key][:default].length > 0
+            assert hash_check[key].length > 0
+            assert @config[key][:default], hash_check[key]
+        #    puts "#### #{@config[key][:default]} - #{hash_check[key]}"
+          end
+        end
+
+      end
+
+      should 'default if no id' do
+        @mi_attempt.es_cell.ikmc_project_id = nil
+
+        hash_check = check_order_details(@mi_attempt)
+
+        @config.keys.each do |key|
+          if /PROJECT_ID/ =~ @config[key][:preferred]
+            assert @config[key][:default].length > 0
+            assert hash_check[key].length > 0
+            assert @config[key][:default], hash_check[key]
+           # puts "#### #{@config[key][:default]} - #{hash_check[key]}"
+          end
+        end
+      end
+
+      should 'not fall over if it cannot find centre in config' do
+
+        @config.delete('WTSI')
+        hash_check = check_order_details(@mi_attempt)
+ #       pp hash_check
+
+        assert ! hash_check.include?('WTSI')
+
+      end
+
+      should 'handle emma' do
+
+        @mi_attempt.distribution_centres.each do |distribution_centre|
+          distribution_centre.is_distributed_by_emma = true
+        end
+
+        hash_check = check_order_details(@mi_attempt)
+    #    pp hash_check
+
+        assert hash_check.keys.size == 1
+        assert_equal hash_check['EMMA'], @config['EMMA'][:preferred].gsub(/MARKER_SYMBOL/, @mi_attempt.gene.marker_symbol)
+
+#        assert ! hash_check.include?('WTSI')
+
+      end
     end
 
   end

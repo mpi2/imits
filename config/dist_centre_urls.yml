@@ -1,6 +1,6 @@
 ---
 Harwell:
-  :preferred: 'http://www.mousebook.org/searchmousebook.php'
+  :preferred: ''
   :default: ''
 HMGU:
   :preferred: ''
@@ -17,15 +17,9 @@ Monterotondo:
 JAX:
   :preferred: ''
   :default: ''
-WTSI:
-  :preferred: 'mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for MARKER_SYMBOL'
-  :default: ''
 Oulu:
   :preferred: ''
   :default: ''
-UCD:
-  :preferred: 'http://www.komp.org/geneinfo.php?project=PROJECT_ID'
-  :default: 'http://www.komp.org/'
 VETMEDUNI:
   :preferred: ''
   :default: ''
@@ -43,6 +37,13 @@ TCP:
   :default: ''
 MARC:
   :preferred: ''
+  :default: ''
+  
+UCD:
+  :preferred: 'http://www.komp.org/geneinfo.php?project=PROJECT_ID'
+  :default: 'http://www.komp.org/'
+WTSI:
+  :preferred: 'mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for MARKER_SYMBOL'
   :default: ''
 EMMA:
   :preferred: 'http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL'

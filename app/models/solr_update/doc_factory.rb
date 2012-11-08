@@ -1,3 +1,5 @@
+require 'pp'
+
 class SolrUpdate::DocFactory
   extend SolrUpdate::Util
 
@@ -114,9 +116,52 @@ class SolrUpdate::DocFactory
   #  end
   #end
 
-  def self.set_order_from_details(object, solr_doc)
-    solr_doc['orders'] ||= []
-    solr_doc['orders'].push({:order_from_name => 'WTSI', :order_from_url => 'mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{object.gene.marker_symbol}'})
+  def self.set_order_from_details(object, solr_doc, config = nil)
+    # get config yml
+    # find target
+    # raise on fail
+    # build from config
+    # loop over centres
+
+    config ||= YAML.load_file("#{Rails.root}/config/dist_centre_urls.yml")
+
+  #  pp config
+
+    solr_doc['order_from_names'] ||= []
+    solr_doc['order_from_urls'] ||= []
+
+    object.distribution_centres.each do |distribution_centre|
+
+      centre_name = distribution_centre.centre.name
+
+      next if ! config.has_key? centre_name
+
+      details = config[centre_name]
+      details = config['EMMA'] if distribution_centre.is_distributed_by_emma
+
+      project_id = object.es_cell.ikmc_project_id
+      marker_symbol = object.gene.marker_symbol
+      order_from_name = centre_name
+      order_from_name = 'EMMA' if distribution_centre.is_distributed_by_emma
+
+      ##check for emma
+      #if distribution_centre.is_distributed_by_emma
+      # # solr_doc['orders'].push({:order_from_name => 'EMMA', :order_from_url => config['EMMA'][:preferred]})
+      # # next
+      # details = config['EMMA']
+      #end
+      #puts "#### project_id: #{project_id}"
+      #puts "#### marker_symbol: #{marker_symbol}"
+
+      order_from_url = details[:default]
+      order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id) if /PROJECT_ID/ =~ details[:preferred] && project_id
+      order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol) if /MARKER_SYMBOL/ =~ details[:preferred] && marker_symbol
+
+#      solr_doc['orders'].push({:order_from_name => order_from_name, :order_from_url => order_from_url}) if order_from_url
+
+      solr_doc['order_from_names'].push order_from_name if order_from_url
+      solr_doc['order_from_urls'].push order_from_url if order_from_url
+    end
   end
 
 end

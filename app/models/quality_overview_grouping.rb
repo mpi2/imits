@@ -58,7 +58,7 @@ class QualityOverviewGrouping
       if quality_overview.confirm_downstream_lox_p_site != nil || !quality_overview.confirm_downstream_lox_p_site.blank?
         pass_downstream = true
       else
-        if quality_overview.mutation_subtype == 'conditional_ready'
+        if quality_overview.mutation_subtype == 'Conditional Ready'
           self.confirm_downstream_lox_p_site_total = self.confirm_downstream_lox_p_site_total + 1
         end
       end
@@ -67,7 +67,7 @@ class QualityOverviewGrouping
       else
         self.confirm_no_additional_vector_insertions_total = self.confirm_no_additional_vector_insertions_total + 1
       end
-      if quality_overview.mutation_subtype == 'conditional_ready'
+      if quality_overview.mutation_subtype == 'Conditional Ready'
         if pass_locus && pass_structure && pass_downstream && pass_vector
           self.colonies_with_overall_pass = self.colonies_with_overall_pass + 1
         end

@@ -1,6 +1,7 @@
 class SolrUpdate::Queue::ItemsController < ApplicationController
 
-  respond_to :json, :html
+  respond_to :json
+  respond_to :html, :only => [:index]
 
   before_filter :authenticate_user!
 
@@ -14,6 +15,12 @@ class SolrUpdate::Queue::ItemsController < ApplicationController
 
       format.html
     end
+  end
+
+  def run
+    item = SolrUpdate::Queue::Item.find(params[:id])
+    SolrUpdate::Queue.process_item(item)
+    head :ok
   end
 
 end

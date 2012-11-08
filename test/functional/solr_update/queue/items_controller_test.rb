@@ -70,7 +70,18 @@ class SolrUpdate::Queue::ItemsControllerTest < ActionController::TestCase
                     JSON.parse(response.body).keys
           end
         end
-      end
+
+        context 'POST /run' do
+          should 'process queue item supplied' do
+            item = Factory.create(:solr_update_queue_item_mi_attempt,
+              :action => :delete, :id => 53)
+            SolrUpdate::Queue.expects(:process_item).with(item)
+
+            post :run, :format => :json, :id => item.id
+          end
+        end
+
+      end # when authenticated and authorized
 
     end
   end

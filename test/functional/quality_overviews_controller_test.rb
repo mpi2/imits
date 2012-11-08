@@ -24,11 +24,11 @@ class QualityOverviewsControllerTest < ActionController::TestCase
       gene_celsr3 = Factory.create :gene, :marker_symbol => 'Celsr3', :mgi_accession_id => 'MGI:1858236', :ikmc_projects_count => 2, :conditional_es_cells_count => nil,
       :non_conditional_es_cells_count => nil, :deletion_es_cells_count => 2, :other_targeted_mice_count => nil, :other_condtional_mice_count => nil, :mutation_published_as_lethal_count => nil,
       :publications_for_gene_count => nil, :go_annotations_for_gene_count => nil
+      allele_with_gene_celsr3 = Factory.create(:allele, :gene => gene_celsr3)
 
-      Factory.create :pipeline, :name => 'KOMP-Regeneron'
       pipeline = TargRep::Pipeline.find_by_name! 'KOMP-Regeneron'
       es_cell_celsr3 = Factory.create :es_cell, :name => '10009A-F9', :allele_symbol_superscript_template => 'tm1(KOMP)Vlcg', :allele_type => nil, :pipeline => pipeline,
-      :gene => gene_celsr3, :parental_cell_line => 'VGB6', :mutation_subtype => 'deletion'
+      :allele => allele_with_gene_celsr3, :parental_cell_line => 'VGB6', :mutation_subtype => 'deletion'
 
       centre = Centre.find_by_name! 'UCD'
       mi_attempt_distribution_centre = Factory.create :mi_attempt_distribution_centre, :centre => centre, :is_distributed_by_emma => true
@@ -42,10 +42,11 @@ class QualityOverviewsControllerTest < ActionController::TestCase
       gene_lgi2 = Factory.create :gene, :marker_symbol => 'Lgi2', :mgi_accession_id => 'MGI:2180196', :ikmc_projects_count => 2, :conditional_es_cells_count => 12,
       :non_conditional_es_cells_count => 4, :deletion_es_cells_count => 5, :other_targeted_mice_count => nil, :other_condtional_mice_count => nil, :mutation_published_as_lethal_count => nil,
       :publications_for_gene_count => nil, :go_annotations_for_gene_count => nil
+      allele_with_gene_lgi2 = Factory.create(:allele, :gene => gene_lgi2)
 
       pipeline = TargRep::Pipeline.find_by_name! 'KOMP-Regeneron'
       es_cell_lgi2 = Factory.create :es_cell, :name => '10011B-G3', :allele_symbol_superscript_template => 'tm1(KOMP)Vlcg', :allele_type => nil, :pipeline => pipeline,
-      :gene => gene_lgi2, :parental_cell_line => 'VGB6', :mutation_subtype => 'deletion'
+      :allele => allele_with_gene_lgi2, :parental_cell_line => 'VGB6', :mutation_subtype => 'deletion'
 
       centre = Centre.find_by_name! 'UCD'
       mi_attempt_distribution_centre = Factory.create :mi_attempt_distribution_centre, :centre => centre, :is_distributed_by_emma => true

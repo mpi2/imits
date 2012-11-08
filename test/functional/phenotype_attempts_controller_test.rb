@@ -105,14 +105,15 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
         end
 
         should 'translate search params' do
-          cbx1 = Factory.create :gene_cbx1
-          trafd1 = Factory.create :gene_trafd1
+          allele = Factory.create(:allele_with_gene_cbx1)
+          allele_with_trafd1 = Factory.create(:allele_with_gene_trafd1)
+
           Factory.create :phenotype_attempt, :colony_name => 'Cbx1_A',
-                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => cbx1))
+                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :allele => allele))
           Factory.create :phenotype_attempt, :colony_name => 'Cbx1_B',
-                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => cbx1))
+                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :allele => allele))
           Factory.create :phenotype_attempt, :colony_name => 'Trafd1_A',
-                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => trafd1))
+                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :allele => allele_with_trafd1))
           get :index, :format => :json, :marker_symbol_eq => 'Cbx1'
           assert_equal ['Cbx1_A', 'Cbx1_B'], JSON.parse(response.body).map{|i| i['colony_name']}
         end

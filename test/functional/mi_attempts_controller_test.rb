@@ -195,7 +195,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       def valid_create_for_format(format)
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
         assert_equal 0, MiAttempt.count
         Factory.create(:mi_plan, :gene => es_cell.gene,
           :production_centre => Centre.find_by_name!('WTSI'),
@@ -230,7 +230,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'on validation errors redirect to edit page and show errors' do
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
         mi_attempt = Factory.create :mi_attempt, :colony_name => 'MAAB'
         assert_equal 1, MiAttempt.count
         post :create, :mi_attempt => {
@@ -274,7 +274,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'set production centre to logged in user centre' do
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
         post :create,
                 :mi_attempt => {'es_cell_name' => es_cell.name, 'consortium_name' => 'EUCOMM-EUMODIC', 'mi_date' => Date.today.to_s},
                 :format => :json
@@ -287,7 +287,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
       should 'authorize the MI belongs to the user\'s production centre for REST only' do
         assert_equal 'WTSI', default_user.production_centre.name
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
         post :create, :mi_attempt => {
           'es_cell_name' => es_cell.name,
           'consortium_name' => 'BaSH',
@@ -302,7 +302,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'not authorize the MI belongs to the user\'s production centre via HTML' do
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
         post :create, :mi_attempt => {
           'es_cell_name' => es_cell.name,
           'consortium_name' => 'BaSH',

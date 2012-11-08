@@ -33,7 +33,7 @@ class Reports::MiPlans
           from mi_plans join mi_attempts on (mi_plans.id = mi_attempts.mi_plan_id and mi_attempts.is_active = true)
           group by gene_id
           having (count(distinct(mi_plans.production_centre_id)) > 1 or count(distinct(mi_plans.consortium_id)) > 1)
-        ) 
+        )
         order by marker_symbol
       SQL
 
@@ -85,7 +85,7 @@ class Reports::MiPlans
           group by gene_id
           having (count(distinct(mi_plans.production_centre_id)) > 1 or count(distinct(mi_plans.consortium_id)) > 1)
         )
-        order by marker_symbol, consortia_name 
+        order by marker_symbol, consortia_name
       SQL
 
 

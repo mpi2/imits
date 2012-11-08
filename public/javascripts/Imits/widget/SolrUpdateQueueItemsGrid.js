@@ -15,7 +15,7 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
         autoLoad: true,
         remoteSort: true,
         remoteFilter: true,
-        pageSize: 200
+        pageSize: 5
     },
 
     features: [
@@ -84,7 +84,15 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
             tooltip: 'Run now',
             handler: function (grid, rowIndex, colIndex) {
                 var item = grid.getStore().getAt(rowIndex);
-                alert("Run " + item.get('id'));
+                Ext.Msg.confirm('Run item?',
+                    'Run item ' + item.get('id') + '?',
+                    function (buttonName) {
+                        if (buttonName === 'yes') {
+                            grid.setLoading('Running item ' + item.get('id'));
+                            grid.getStore().remove(item);
+                            grid.setLoading(false);
+                        }
+                    });
             }
         },
         {
@@ -92,7 +100,23 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
             tooltip: 'Delete',
             handler: function (grid, rowIndex, colIndex) {
                 var item = grid.getStore().getAt(rowIndex);
-                alert("Delete " + item.get('id'));
+                Ext.Msg.confirm('Delete item?',
+                    'Delete item ' + item.get('id') + '?',
+                    function (buttonName) {
+                        if (buttonName === 'yes') {
+                            grid.setLoading('Deleting item ' + item.get('id'));
+                            item.destroy({
+                                success: function () {
+                                    grid.getStore().remove(item);
+                                },
+
+                                callback: function () {
+                                    grid.setLoading(false);
+                                }
+
+                            });
+                        }
+                    });
             }
         }
         ]

@@ -85,6 +85,7 @@ class Reports::MiProduction::Intermediate < Reports::Base
         phenotype_mi_attempt = phenotype_attempt.mi_attempt
         record['MiAttempt Consortium'] = phenotype_mi_attempt.consortium_name
         record['MiAttempt Production Centre'] = phenotype_mi_attempt.production_centre_name
+        record['MiAttempt Colony Name'] = phenotype_mi_attempt.colony_name if !record['MiAttempt Colony Name']
 
         pt_status_names = phenotype_attempt.reportable_statuses_with_latest_dates
         pt_status_names.each do |name, date|

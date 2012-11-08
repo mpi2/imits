@@ -23,4 +23,10 @@ class SolrUpdate::Queue::ItemsController < ApplicationController
     head :ok
   end
 
+  def destroy
+    item = SolrUpdate::Queue::Item.find(params[:id])
+    item.destroy
+    head :ok
+  end
+
 end

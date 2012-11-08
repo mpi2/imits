@@ -81,6 +81,15 @@ class SolrUpdate::Queue::ItemsControllerTest < ActionController::TestCase
           end
         end
 
+        context 'DELETE /destroy' do
+          should 'delete item supplied' do
+            item = Factory.create(:solr_update_queue_item_mi_attempt,
+              :action => :delete, :id => 547)
+            delete :destroy, :format => :json, :id => item.id
+            assert_nil SolrUpdate::Queue::Item.find_by_id(item.id)
+          end
+        end
+
       end # when authenticated and authorized
 
     end

@@ -69,7 +69,7 @@ Kermits2::Application.routes.draw do
 
   namespace :solr_update do
     namespace :queue do
-      resources :items, :only => [:index] do
+      resources :items, :only => [:index, :destroy] do
         post :run, :on => :member
       end
     end

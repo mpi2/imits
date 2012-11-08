@@ -116,7 +116,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
                 :mouse_allele_type => 'c',
                 :colony_background_strain => Strain.find_by_name!('C57BL/6N')
 
-        pt_lazy = Factory.create :phenotype_attempt_status_pdc,
+        Factory.create :phenotype_attempt_status_pdc,
                 :mi_attempt => bash_wtsi_attempt,
                 :colony_background_strain => Strain.find_by_name!('C57BL/6N'),
                 :mi_plan => jax_mi_plan

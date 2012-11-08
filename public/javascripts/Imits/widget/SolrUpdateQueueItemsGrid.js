@@ -48,8 +48,8 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
         dataIndex: 'reference',
         header: 'Reference',
         readOnly: true,
-        width: 200,
-        renderer: function(value, metaData, record) {
+        flex: 1,
+        renderer: function (value, metaData, record) {
             var ref = record.get('reference');
             var editUrl = Ext.String.format('{0}/{1}s/{2}', window.basePath, ref.type, ref.id);
             var historyUrl = editUrl + '/history';
@@ -73,6 +73,29 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
         header: 'Created At',
         readOnly: true,
         width: 125
+    },
+    {
+        header: '',
+        xtype: 'actioncolumn',
+        width: 48,
+        items: [
+        {
+            icon: window.basePath + '/images/icons/resultset_next.png',
+            tooltip: 'Run now',
+            handler: function (grid, rowIndex, colIndex) {
+                var item = grid.getStore().getAt(rowIndex);
+                alert("Run " + item.get('id'));
+            }
+        },
+        {
+            icon: window.basePath + '/images/icons/cancel.png',
+            tooltip: 'Delete',
+            handler: function (grid, rowIndex, colIndex) {
+                var item = grid.getStore().getAt(rowIndex);
+                alert("Delete " + item.get('id'));
+            }
+        }
+        ]
     }
     ]
 });

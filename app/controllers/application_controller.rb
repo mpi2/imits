@@ -3,6 +3,8 @@ class ApplicationController < ActionController::Base
 
   after_filter :log_json_response_parameters
 
+  rescue_from RuntimeError, :with => :custom_json_exception_handler
+
   def params_cleaned_for_search(dirty_params)
 
     dirty_params = dirty_params.dup.stringify_keys
@@ -131,5 +133,18 @@ class ApplicationController < ActionController::Base
     end
   end
   protected :authorize_admin_user!
+
+  def custom_json_exception_handler(exception)
+    if request.format == :json
+      error_json = {
+        'error' => exception.class.name,
+        'message' => exception.message,
+        'backtrace' => exception.backtrace.join("\n")
+      }.to_json
+      render :json => error_json, :status => :internal_server_error
+      Rails.logger.error "#{exception.class.name}: #{exception.message}\n#{exception.backtrace.join("\n")}"
+    end
+  end
+  protected :custom_json_exception_handler
 
 end

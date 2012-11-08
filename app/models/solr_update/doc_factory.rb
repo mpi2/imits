@@ -85,33 +85,38 @@ class SolrUpdate::DocFactory
     return [solr_doc]
   end
 
+  #def self.set_order_from_details_old(object, solr_doc)
+  #  if Consortium.komp2.include? object.consortium
+  #    solr_doc['order_from_name'] = 'KOMP'
+  #    project_id = object.es_cell.ikmc_project_id
+  #    if project_id.nil?
+  #      solr_doc['order_from_url'] = "http://www.komp.org/"
+  #    else
+  #      if ! project_id.match(/^VG/)
+  #        project_id = 'CSD' + project_id
+  #      end
+  #
+  #      solr_doc['order_from_url'] = "http://www.komp.org/geneinfo.php?project=#{project_id}"
+  #    end
+  #
+  #  elsif ['Phenomin', 'Helmholtz GMC', 'Monterotondo', 'MRC'].include? object.consortium.name
+  #    solr_doc['order_from_name'] = 'EMMA'
+  #    solr_doc['order_from_url'] = "http://www.emmanet.org/mutant_types.php?keyword=#{object.gene.marker_symbol}"
+  #
+  #  elsif ['MGP', 'MGP Legacy'].include? object.consortium.name
+  #    if object.distribution_centres.all.find {|ds| ds.is_distributed_by_emma? }
+  #      solr_doc['order_from_name'] = 'EMMA'
+  #      solr_doc['order_from_url'] = "http://www.emmanet.org/mutant_types.php?keyword=#{object.gene.marker_symbol}"
+  #    else
+  #      solr_doc['order_from_name'] = 'WTSI'
+  #      solr_doc['order_from_url'] = "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{object.gene.marker_symbol}"
+  #    end
+  #  end
+  #end
+
   def self.set_order_from_details(object, solr_doc)
-    if Consortium.komp2.include? object.consortium
-      solr_doc['order_from_name'] = 'KOMP'
-      project_id = object.es_cell.ikmc_project_id
-      if project_id.nil?
-        solr_doc['order_from_url'] = "http://www.komp.org/"
-      else
-        if ! project_id.match(/^VG/)
-          project_id = 'CSD' + project_id
-        end
-
-        solr_doc['order_from_url'] = "http://www.komp.org/geneinfo.php?project=#{project_id}"
-      end
-
-    elsif ['Phenomin', 'Helmholtz GMC', 'Monterotondo', 'MRC'].include? object.consortium.name
-      solr_doc['order_from_name'] = 'EMMA'
-      solr_doc['order_from_url'] = "http://www.emmanet.org/mutant_types.php?keyword=#{object.gene.marker_symbol}"
-
-    elsif ['MGP', 'MGP Legacy'].include? object.consortium.name
-      if object.distribution_centres.all.find {|ds| ds.is_distributed_by_emma? }
-        solr_doc['order_from_name'] = 'EMMA'
-        solr_doc['order_from_url'] = "http://www.emmanet.org/mutant_types.php?keyword=#{object.gene.marker_symbol}"
-      else
-        solr_doc['order_from_name'] = 'WTSI'
-        solr_doc['order_from_url'] = "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{object.gene.marker_symbol}"
-      end
-    end
+    solr_doc['orders'] ||= []
+    solr_doc['orders'].push({:order_from_name => 'WTSI', :order_from_url => 'mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{object.gene.marker_symbol}'})
   end
 
 end

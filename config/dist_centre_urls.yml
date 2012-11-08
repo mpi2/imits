@@ -1,0 +1,50 @@
+---
+Harwell:
+  :preferred: 'http://www.mousebook.org/searchmousebook.php'
+  :default: ''
+HMGU:
+  :preferred: ''
+  :default: ''
+ICS:
+  :preferred: ''
+  :default: ''
+CNB:
+  :preferred: ''
+  :default: ''
+Monterotondo:
+  :preferred: ''
+  :default: ''
+JAX:
+  :preferred: ''
+  :default: ''
+WTSI:
+  :preferred: 'mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for MARKER_SYMBOL'
+  :default: ''
+Oulu:
+  :preferred: ''
+  :default: ''
+UCD:
+  :preferred: 'http://www.komp.org/geneinfo.php?project=PROJECT_ID'
+  :default: 'http://www.komp.org/'
+VETMEDUNI:
+  :preferred: ''
+  :default: ''
+BCM:
+  :preferred: ''
+  :default: ''
+CNRS:
+  :preferred: ''
+  :default: ''
+APN:
+  :preferred: ''
+  :default: ''
+TCP:
+  :preferred: ''
+  :default: ''
+MARC:
+  :preferred: ''
+  :default: ''
+EMMA:
+  :preferred: 'http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL'
+  :default: ''
+  

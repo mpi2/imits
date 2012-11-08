@@ -22,26 +22,26 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
     should 'ensure column order (matrix)' do
 
       gene_cbx1 = Factory.create :gene_cbx1
-      Factory.create :mi_plan, :gene => gene_cbx1,
-              :consortium => Consortium.find_by_name!('BaSH'),
-              :production_centre => Centre.find_by_name!('WTSI'),
-              :force_assignment => true
+      es_cell_cbx1 = Factory.create :es_cell, :gene => gene_cbx1
 
-      Factory.create :mi_plan, :gene => gene_cbx1,
-              :consortium => Consortium.find_by_name!('JAX'),
-              :production_centre => Centre.find_by_name!('JAX'),
-              :number_of_es_cells_starting_qc => 5
+      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
+              :consortium_name => 'BaSH',
+              :production_centre_name => 'WTSI'
+
+      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
+              :consortium_name => 'JAX',
+              :production_centre_name => 'JAX'
 
       gene_trafd1 = Factory.create :gene_trafd1
-      Factory.create :mi_plan, :gene => gene_trafd1,
-              :consortium => Consortium.find_by_name!('BaSH'),
-              :production_centre => Centre.find_by_name!('WTSI'),
-              :force_assignment => true
+      es_cell_trafd1 = Factory.create :es_cell, :gene => gene_trafd1
 
-      Factory.create :mi_plan, :gene => gene_trafd1,
-              :consortium => Consortium.find_by_name!('JAX'),
-              :production_centre => Centre.find_by_name!('JAX'),
-              :number_of_es_cells_starting_qc => 5
+      Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
+              :consortium_name => 'BaSH',
+              :production_centre_name => 'WTSI'
+
+      Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
+              :consortium_name => 'JAX',
+              :production_centre_name => 'JAX'
 
       report = Reports::MiPlans::DoubleAssignment.get_matrix
       assert !report.blank?

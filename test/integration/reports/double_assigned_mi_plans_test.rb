@@ -15,17 +15,16 @@ class Reports::DoubleAssignedMiPlansTest < Kermits2::IntegrationTest
 
       should 'allow users to visit the double-assignment page & see entries' do
 
-        gene_cbx1 = Factory.create :gene_cbx1
+      gene_cbx1 = Factory.create :gene_cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :gene => gene_cbx1
 
-        Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('BaSH'),
-          :production_centre => Centre.find_by_name('WTSI'),
-          :status => MiPlan::Status['Assigned']
+      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
+              :consortium_name => 'BaSH',
+              :production_centre_name => 'WTSI'
 
-        Factory.create :mi_plan, :gene => gene_cbx1,
-          :consortium => Consortium.find_by_name('JAX'),
-          :production_centre => Centre.find_by_name('JAX'),
-          :number_of_es_cells_starting_qc => 5
+      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
+              :consortium_name => 'JAX',
+              :production_centre_name => 'JAX'
 
         visit '/reports/double_assigned_plans'
         assert_match '/reports/double_assigned_plans', current_url
@@ -33,11 +32,11 @@ class Reports::DoubleAssignedMiPlansTest < Kermits2::IntegrationTest
         assert page.has_css?('div#double-matrix tr:nth-child(2) td:nth-child(4)', :text => '1')
         assert page.has_css?('a', :text => 'Download Matrix as CSV')
 
-        assert_match 'Double-Assignments for Consortium: BaSH', page.body
-        assert_match 'Double-Assignments for Consortium: JAX', page.body
+        assert_match 'Double - Production for Consortium: BaSH', page.body
+        assert_match 'Double - Production for Consortium: JAX', page.body
 
-        assert page.has_content? "Marker Symbol Consortium Plan Status MI Status Centre MI Date"
-        assert page.has_content? "Cbx1 BaSH Assigned"
+        assert page.has_content? "Marker Symbol Consortium MI Status Centre MI Date"
+        assert page.has_content? "Cbx1 BaSH Micro-injection in progress"
 
         assert page.has_css?('a', :text => 'Download List as CSV')
 

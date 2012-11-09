@@ -96,21 +96,14 @@ class SolrUpdate::DocFactory
     object.distribution_centres.each do |distribution_centre|
       centre_name = distribution_centre.centre.name
 
-      #puts "#### distribution_centre"
-      #pp distribution_centre
-
       next if ! config.has_key? centre_name
 
       # see http://stackoverflow.com/questions/4521921/how-to-know-if-todays-date-is-in-a-date-range
-
-      #next if ! distribution_centre.start_date.nil? && distribution_centre.start_date.to_date
 
       start_date = distribution_centre.start_date ? distribution_centre.start_date : Time.now
       current = Time.now
       end_date = distribution_centre.end_date ? distribution_centre.end_date : Time.now
       range = start_date.to_time..end_date.to_time
-      #puts "#### start_date: #{start_date} - current: #{current} - end_date: #{end_date}"   # - range === current: #{range === current}"
-      #next if ! range === current
       next if ! range.cover?(current)
 
       details = config[centre_name]

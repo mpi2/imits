@@ -46,8 +46,8 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       select 'MGI:3046308: Hprt', :from => 'phenotype_attempt[deleter_strain_name]'
       fill_in 'phenotype_attempt[number_of_cre_matings_successful]', :with => '11'
 
-      find_button('Update').click
-      sleep 3
+      find_button('phenotype_attempt_submit').click
+      assert page.has_no_css?('#phenotype_attempt_submit[disabled]')
 
       @phenotype_attempt.reload
       visit current_path

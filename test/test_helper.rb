@@ -189,6 +189,7 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
     wait_until_grid_loaded
     assert page.has_css?('.x-grid-row')
     find(:xpath, '//td/div[text()="' + es_cell_name + '"]').click
+    assert page.find('.x-window', :visible => false)
   end
 
   def make_form_element_usable(element_name)
@@ -208,6 +209,11 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
 
   def wait_until_no_mask
     assert page.has_no_css?('.x-mask', :visible => true)
+  end
+
+  def choose_date_from_datepicker_for_input(input_name)
+    page.find("input[name=\"#{input_name}\"] + div.x-form-trigger-wrap div.x-form-trigger").click
+    page.find('.x-datepicker .x-datepicker-date', :visible => true).click
   end
 end
 

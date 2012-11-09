@@ -94,7 +94,9 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
 
                             Ext.Ajax.request({
                                 method: 'POST',
-                                params: {'authenticity_token': window.authenticityToken},
+                                params: {
+                                    'authenticity_token': window.authenticityToken
+                                    },
                                 url: window.basePath + '/solr_update/queue/items/' + itemId + '/run.json',
                                 success: function () {
                                     grid.getStore().remove(item);
@@ -135,6 +137,15 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
             }
         }
         ]
+    },
+    {
+        header: '',
+        width: 80,
+        renderer: function (value, metaData, record) {
+            var ref = record.get('reference');
+            return Ext.String.format('<a href="{0}/search?q=type:{1}+id:{2}">{3}</a>',
+                window.SOLR_ALLELE_URL, ref.type, ref.id, 'SOLR view');
+        }
     }
     ]
 });

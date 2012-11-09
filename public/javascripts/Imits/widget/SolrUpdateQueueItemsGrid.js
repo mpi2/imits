@@ -3,7 +3,8 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
 
     requires: [
     'Imits.widget.grid.RansackFiltersFeature',
-    'Imits.model.SolrUpdateQueueItem'
+    'Imits.model.SolrUpdateQueueItem',
+    'Imits.Util'
     ],
 
     title: 'Solr Update Queue Items',
@@ -15,7 +16,7 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
         autoLoad: true,
         remoteSort: true,
         remoteFilter: true,
-        pageSize: 5
+        pageSize: 200
     },
 
     features: [
@@ -97,6 +98,9 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
                                 url: window.basePath + '/solr_update/queue/items/' + itemId + '/run.json',
                                 success: function () {
                                     grid.getStore().remove(item);
+                                },
+                                failure: function (response) {
+                                    Imits.Util.handleErrorResponse(response);
                                 },
                                 callback: function () {
                                     grid.setLoading(false);

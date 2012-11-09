@@ -10,6 +10,10 @@
     ['Reports', reports_path],
     ['Manual', request.env['SCRIPT_NAME'].to_s+'/manual.pdf']
   ]
+
+  if current_user.admin?
+    navigation_links.push ['Solr Update Queue', solr_update_queue_items_path]
+  end
 %>
 
 <ul>

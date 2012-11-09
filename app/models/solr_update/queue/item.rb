@@ -1,4 +1,4 @@
-class SolrUpdate::Queue::Item < ActiveRecord::Base
+class SolrUpdate::Queue::Item < ApplicationModel
   set_table_name 'solr_update_queue_items'
 
   belongs_to :mi_attempt

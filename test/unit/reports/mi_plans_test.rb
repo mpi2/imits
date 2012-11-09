@@ -21,8 +21,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
     should 'ensure column order (matrix)' do
 
-      gene_cbx1 = Factory.create :gene_cbx1
-      es_cell_cbx1 = Factory.create :es_cell, :gene => gene_cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
 
       Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
               :consortium_name => 'BaSH',
@@ -32,8 +31,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
               :consortium_name => 'JAX',
               :production_centre_name => 'JAX'
 
-      gene_trafd1 = Factory.create :gene_trafd1
-      es_cell_trafd1 = Factory.create :es_cell, :gene => gene_trafd1
+      es_cell_trafd1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_trafd1)
 
       Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
               :consortium_name => 'BaSH',
@@ -60,8 +58,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
     should 'display double-assignments between two consortia and production centres (matrix)' do
 
-      gene_cbx1 = Factory.create :gene_cbx1
-      es_cell_cbx1 = Factory.create :es_cell, :gene => gene_cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
 
       Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
               :consortium_name => 'BaSH',
@@ -71,8 +68,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
               :consortium_name => 'JAX',
               :production_centre_name => 'JAX'
 
-      gene_trafd1 = Factory.create :gene_trafd1
-      es_cell_trafd1 = Factory.create :es_cell, :gene => gene_trafd1
+      es_cell_trafd1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_trafd1)
 
       Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
               :consortium_name => 'BaSH',
@@ -104,8 +100,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
     should 'not display a value when no double-assignment (matrix)' do
 
-      gene_cbx1 = Factory.create :gene_cbx1
-      es_cell_cbx1 = Factory.create :es_cell, :gene => gene_cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
 
       Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
               :consortium_name => 'BaSH',
@@ -116,8 +111,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
               :production_centre_name => 'JAX',
               :is_active => false
 
-      gene_trafd1 = Factory.create :gene_trafd1
-      es_cell_trafd1 = Factory.create :es_cell, :gene => gene_trafd1
+      es_cell_trafd1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_trafd1)
 
       Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
               :consortium_name => 'BaSH',
@@ -206,8 +200,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
     should 'have consortia on page (list)' do
 
-      gene_cbx1 = Factory.create :gene_cbx1
-      es_cell_cbx1 = Factory.create :es_cell, :gene => gene_cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
 
       Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
               :consortium_name => 'BaSH',
@@ -229,8 +222,7 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
     should 'display double-assignments between two consortia with production centres (list)' do
 
-      gene_cbx1 = Factory.create :gene_cbx1
-      es_cell_cbx1 = Factory.create :es_cell, :gene => gene_cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
 
       Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
               :consortium_name => 'BaSH',
@@ -253,36 +245,6 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
       assert_equal ["BaSH", "JAX", "BaSH", "JAX"].sort, report.column('Consortium').sort
       assert_equal ["WTSI", "JAX", "WTSI", "JAX"].sort, report.column('Centre').sort
 
-    end
-
-    should 'display double-assignments between two consortia with production centres and mi_attempts (list)' do
-      allele = Factory.create :allele_with_gene_trafd1
-
-      Factory.create :mi_attempt,
-              :es_cell => Factory.create(:es_cell, :allele => allele),
-              'mi_date' => '2011-11-05',
-              :status => MiAttempt::Status.micro_injection_in_progress,
-              :production_centre_name => 'WTSI',
-              :consortium_name => 'BaSH'
-
-      Factory.create :mi_attempt,
-              :es_cell => Factory.create(:es_cell, :allele => allele),
-              'mi_date' => '2011-10-05',
-              :status => MiAttempt::Status.micro_injection_in_progress,
-              :production_centre_name => 'WTSI',
-              :consortium_name => 'DTCC'
-
-      report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
-      assert !report.blank?
-      columns = Reports::MiPlans::DoubleAssignment::LIST_COLUMNS
-      assert !columns.blank?
-
-      assert_equal ['Trafd1','Trafd1','Trafd1','Trafd1'], report.column('Marker Symbol')
-      assert_equal ['Assigned','Assigned','Assigned','Assigned'], report.column('Plan Status')
-      assert_equal ['Micro-injection in progress','Micro-injection in progress','Micro-injection in progress','Micro-injection in progress'], report.column('MI Status')
-      assert_equal ['WTSI','WTSI','WTSI','WTSI'], report.column('Centre')
-      assert_equal ['DTCC','BaSH','DTCC','BaSH'].sort, report.column('Consortium').sort
-      assert_equal ['2011-10-05','2011-11-05','2011-10-05','2011-11-05'].sort, report.column('MI Date').sort
     end
 
   end

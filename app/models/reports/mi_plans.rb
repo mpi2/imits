@@ -69,13 +69,13 @@ class Reports::MiPlans
           consortia.name as consortia_name,
           mi_attempts.mi_date as mi_attempts_mi_date,
           mi_attempt_statuses.name as mi_attempt_statuses_name,
-          es_cells.name es_cell_name,
-          es_cells.mutation_subtype mutation_type
+          targ_rep_es_cells.name es_cell_name,
+          targ_rep_es_cells.mutation_subtype mutation_type
         from mi_plans
           join mi_plan_statuses on mi_plans.status_id = mi_plan_statuses.id
           join mi_attempts on (mi_plans.id = mi_attempts.mi_plan_id and mi_attempts.is_active = true)
           join mi_attempt_statuses on mi_attempts.status_id = mi_attempt_statuses.id
-          join es_cells on es_cells.id = mi_attempts.es_cell_id
+          join targ_rep_es_cells on targ_rep_es_cells.id = mi_attempts.es_cell_id
           join consortia on mi_plans.consortium_id = consortia.id
           join centres on mi_plans.production_centre_id = centres.id
           join genes on mi_plans.gene_id = genes.id

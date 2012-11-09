@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
 
   after_filter :log_json_response_parameters
 
-  rescue_from RuntimeError, :with => :custom_json_exception_handler
+  rescue_from Exception, :with => :custom_json_exception_handler
 
   def params_cleaned_for_search(dirty_params)
 

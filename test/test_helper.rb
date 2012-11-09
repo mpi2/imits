@@ -183,9 +183,11 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
   end
 
   def choose_es_cell_from_list(marker_symbol = 'Cbx1', es_cell_name = 'EPD0027_2_A01')
+    assert page.has_css?('[name=marker_symbol-search-box]')
     fill_in 'marker_symbol-search-box', :with => marker_symbol
     find(:xpath, '//button/span[text()="Search"]').click
-    sleep 5
+    wait_until_grid_loaded
+    assert page.has_css?('.x-grid-row')
     find(:xpath, '//td/div[text()="' + es_cell_name + '"]').click
   end
 
@@ -201,7 +203,7 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
 
   def wait_until_grid_loaded
     assert page.has_css?('.x-grid', :visible => true)
-    assert page.has_no_css?('.x-mask', :visible => true)
+    wait_until_no_mask
   end
 
   def wait_until_no_mask

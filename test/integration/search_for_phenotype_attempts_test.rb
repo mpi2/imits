@@ -61,7 +61,7 @@ class SearchForPhenotypeAttemptsTest < Kermits2::JsIntegrationTest
         fill_in 'q[terms]', :with => "Gatc\n"
         select 'WTSI', :from => 'q[production_centre_name]'
         click_button 'Search'
-        sleep 3
+        wait_until_grid_loaded
       end
 
       should 'show results that match the search terms and the filter' do

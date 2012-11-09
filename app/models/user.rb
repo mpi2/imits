@@ -19,6 +19,8 @@ class User < ActiveRecord::Base
   attr_accessible :email, :password, :password_confirmation, :remember_me,
           :production_centre, :production_centre_id, :name, :is_contactable
 
+  validates :production_centre_id, :presence => true
+
   belongs_to :production_centre, :class_name => 'Centre'
   belongs_to :es_cell_distribution_centre, :class_name => "TargRep::EsCellDistributionCentre"
 

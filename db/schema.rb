@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121107080657) do
+ActiveRecord::Schema.define(:version => 20121109144055) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -596,6 +596,7 @@ ActiveRecord::Schema.define(:version => 20121107080657) do
     t.string   "name"
     t.boolean  "is_contactable",                                :default => false
     t.integer  "es_cell_distribution_centre_id"
+    t.integer  "legacy_id"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

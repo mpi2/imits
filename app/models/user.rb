@@ -55,6 +55,7 @@ end
 #  name                           :string(255)
 #  is_contactable                 :boolean         default(FALSE)
 #  es_cell_distribution_centre_id :integer
+#  legacy_id                      :integer
 #
 # Indexes
 #

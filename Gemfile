@@ -45,3 +45,8 @@ group :development, :test do
 
   gem 'thin', :require => nil
 end
+
+group :migration do
+  gem "sequel"
+  gem "mysql2"
+end

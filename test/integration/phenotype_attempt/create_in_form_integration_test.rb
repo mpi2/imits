@@ -6,10 +6,13 @@ class PhenotypeAttempt::CreateInFormIntegrationTest < Kermits2::JsIntegrationTes
   context 'When creating Phenotype Attempt in form' do
 
     setup do
-      @mi_attempt = Factory.create :wtsi_mi_attempt_genotype_confirmed,
-              :colony_name => 'MABC',
-              :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      ApplicationModel.uncached do
+        @mi_attempt = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+                :colony_name => 'MABC',
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI'
+      end
+
       login
 
       click_link "Mouse Production"
@@ -23,7 +26,7 @@ class PhenotypeAttempt::CreateInFormIntegrationTest < Kermits2::JsIntegrationTes
     end
 
     should 'save Phenotype attempt and redirect back to show page when valid data' do
-      TestDummy.mi_plan('DTCC', 'UCD', @mi_attempt.gene.marker_symbol)
+      ApplicationModel.uncached { TestDummy.mi_plan('DTCC', 'UCD', @mi_attempt.gene.marker_symbol) }
 
       fill_in 'phenotype_attempt_colony_name', :with => 'TEST'
 

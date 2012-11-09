@@ -203,7 +203,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'have #pipeline_name' do
-      assert_match(/Auto-generated Pipeline Name/, default_mi_attempt.pipeline_name)
+      assert_match(/EUCOMM/, default_mi_attempt.pipeline_name)
     end
 
   end

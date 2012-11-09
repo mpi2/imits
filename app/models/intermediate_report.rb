@@ -61,5 +61,9 @@ end
 #  gc_pipeline_efficiency_gene_count            :integer
 #  is_bespoke_allele                            :boolean
 #  aborted_es_cell_qc_failed_date               :date
+#  mi_attempt_colony_name                       :string(255)
+#  mi_attempt_consortium                        :string(255)
+#  mi_attempt_production_centre                 :string(255)
+#  phenotype_attempt_colony_name                :string(255)
 #
 

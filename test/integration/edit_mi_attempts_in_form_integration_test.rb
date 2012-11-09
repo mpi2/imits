@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
+class EditMiAttemptsInFormIntegrationTest < Kermits2::JsIntegrationTest
   context 'When editing MI Attempt in form' do
 
     setup do

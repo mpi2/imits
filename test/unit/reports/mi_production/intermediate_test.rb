@@ -103,6 +103,24 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         pt.status_stamps.create!(:created_at => '2011-12-30 23:59:59 UTC',
           :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'])
 
+
+        jax_mi_plan = Factory.create :mi_plan,
+                :consortium => Consortium.find_by_name!('DTCC'),
+                :production_centre => Centre.find_by_name!('ICS'),
+                :gene => @cbx1
+
+        bash_wtsi_attempt = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+                :es_cell => es_cell,
+                :consortium_name => 'JAX',
+                :production_centre_name => 'WTSI',
+                :mouse_allele_type => 'c',
+                :colony_background_strain => Strain.find_by_name!('C57BL/6N')
+
+        Factory.create :phenotype_attempt_status_pdc,
+                :mi_attempt => bash_wtsi_attempt,
+                :colony_background_strain => Strain.find_by_name!('C57BL/6N'),
+                :mi_plan => jax_mi_plan
+
         @report = Reports::MiProduction::Intermediate.new.report
       end
 
@@ -143,7 +161,11 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiPlan ID',
           'Total Pipeline Efficiency Gene Count',
           'GC Pipeline Efficiency Gene Count',
-          'Aborted - ES Cell QC Failed Date'
+          'Aborted - ES Cell QC Failed Date',
+          'MiAttempt Colony Name',
+          'MiAttempt Consortium',
+          'MiAttempt Production Centre',
+          'PhenotypeAttempt Colony Name'
         ]
 
         assert_equal expected, @report.column_names
@@ -187,7 +209,11 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiPlan ID' => 2,
           'Total Pipeline Efficiency Gene Count' => 1,
           'GC Pipeline Efficiency Gene Count' => 1,
-          'Aborted - ES Cell QC Failed Date' => ''
+          'Aborted - ES Cell QC Failed Date' => '',
+          'MiAttempt Colony Name' => 'WTSI-EPD0027_2_A01-1',
+          'MiAttempt Consortium' => 'BaSH',
+          'MiAttempt Production Centre' => 'WTSI',
+          'PhenotypeAttempt Colony Name' => 'WTSI-EPD0027_2_A01-1-1'
         }
         assert_equal expected, bash_wtsi_row.data
       end
@@ -230,7 +256,11 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'MiPlan ID' => 3,
           'Total Pipeline Efficiency Gene Count' => 1,
           'GC Pipeline Efficiency Gene Count' => 0,
-          'Aborted - ES Cell QC Failed Date' => ''
+          'Aborted - ES Cell QC Failed Date' => '',
+          'MiAttempt Colony Name' => 'WTSI-EPD0027_2_A01-2',
+          'MiAttempt Consortium' => '',
+          'MiAttempt Production Centre' => '',
+          'PhenotypeAttempt Colony Name' => ''
           }
         assert_equal expected, mgp_wtsi_row.data
       end
@@ -255,6 +285,11 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         assert_equal 'Phenotype Attempt Registered', ee_wtsi_row['PhenotypeAttempt Status']
         assert_equal '', ee_wtsi_row['Micro-injection in progress Date']
         assert_equal '2012-01-01', ee_wtsi_row['Phenotype Attempt Registered Date']
+      end
+
+      should 'find MiPlan with MiAttempt Consortium that is different to Consortium' do
+        mgp_wtsi_row = @report.find {|r| r.data['Consortium'] == 'DTCC' && r.data['MiAttempt Consortium'] == 'JAX'}
+        assert_equal 'WTSI', mgp_wtsi_row.data['MiAttempt Production Centre']
       end
 
       should 'not have values for empty columns' do

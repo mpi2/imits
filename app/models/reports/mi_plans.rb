@@ -4,18 +4,12 @@ class Reports::MiPlans
 
   class DoubleAssignment
 
-    LIST_COLUMNS = [ 'Target Consortium', 'Marker Symbol', 'Consortium', 'Plan Status', 'MI Status', 'Centre', 'MI Date' ]
-
-    def self.get_funding
-      consortia = self.get_consortia
-      funders = consortia.map { |row| Consortium.find_by_name!(row).funding }
-      return funders
-    end
+    LIST_COLUMNS = [ 'Target Consortium', 'Marker Symbol', 'Consortium', 'MI Status', 'Centre', 'MI Date' , 'ES Cell', 'MUTATION TYPE']
 
     def self.get_consortia
       all = Consortium.all.map(&:name).sort_by { |c| c.downcase }
       komp2 = Consortium.all.find_all { |item| item.funding == 'KOMP2' }.map(&:name).sort
-      ikmc = ["EUCOMM-EUMODIC", "MGP-KOMP", "UCD-KOMP"]
+      ikmc = ["EUCOMM-EUMODIC", "UCD-KOMP", "MGP Legacy"]
       others = all - komp2 - ikmc
       return komp2 + others + ikmc
     end
@@ -29,18 +23,18 @@ class Reports::MiPlans
           genes.marker_symbol as marker_symbol,
           COALESCE(centres.name, 'NONE') as centres_name,
           consortia.name as consortia_name
-        from mi_plans
-          left outer join centres on mi_plans.production_centre_id = centres.id
+        from mi_attempts
+          join mi_plans on (mi_attempts.mi_plan_id = mi_plans.id and mi_attempts.is_active = true)
+          join centres on mi_plans.production_centre_id = centres.id
           join consortia on mi_plans.consortium_id = consortia.id
           join genes on mi_plans.gene_id = genes.id
         where mi_plans.gene_id in (
           select gene_id
-          from mi_plans
-          where mi_plans.status_id in #{assigned_statuses}
-
+          from mi_plans join mi_attempts on (mi_plans.id = mi_attempts.mi_plan_id and mi_attempts.is_active = true)
           group by gene_id
-          having count(*) > 1
-        ) and mi_plans.status_id in #{assigned_statuses} order by marker_symbol;
+          having (count(distinct(mi_plans.production_centre_id)) > 1 or count(distinct(mi_plans.consortium_id)) > 1)
+        )
+        order by marker_symbol
       SQL
 
       result = ActiveRecord::Base.connection.select_all( sql )
@@ -74,22 +68,26 @@ class Reports::MiPlans
           COALESCE(centres.name, 'NONE') as centres_name,
           consortia.name as consortia_name,
           mi_attempts.mi_date as mi_attempts_mi_date,
-          mi_attempt_statuses.name as mi_attempt_statuses_name
+          mi_attempt_statuses.name as mi_attempt_statuses_name,
+          es_cells.name es_cell_name,
+          es_cells.mutation_subtype mutation_type
         from mi_plans
           join mi_plan_statuses on mi_plans.status_id = mi_plan_statuses.id
-          left outer join mi_attempts on mi_plans.id = mi_attempts.mi_plan_id
-          left outer join mi_attempt_statuses on mi_attempts.status_id = mi_attempt_statuses.id
+          join mi_attempts on (mi_plans.id = mi_attempts.mi_plan_id and mi_attempts.is_active = true)
+          join mi_attempt_statuses on mi_attempts.status_id = mi_attempt_statuses.id
+          join es_cells on es_cells.id = mi_attempts.es_cell_id
           join consortia on mi_plans.consortium_id = consortia.id
-          left outer join centres on mi_plans.production_centre_id = centres.id
+          join centres on mi_plans.production_centre_id = centres.id
           join genes on mi_plans.gene_id = genes.id
         where mi_plans.gene_id in (
           select gene_id
-          from mi_plans
-          where mi_plans.status_id in #{assigned_statuses}
+          from mi_plans join mi_attempts on (mi_plans.id = mi_attempts.mi_plan_id and mi_attempts.is_active = true)
           group by gene_id
-          having count(*) > 1
-        ) and mi_plans.status_id in #{assigned_statuses} order by marker_symbol;
+          having (count(distinct(mi_plans.production_centre_id)) > 1 or count(distinct(mi_plans.consortium_id)) > 1)
+        )
+        order by marker_symbol, consortia_name
       SQL
+
 
       result = ActiveRecord::Base.connection.select_all( sql )
 
@@ -101,10 +99,11 @@ class Reports::MiPlans
         [
           row['marker_symbol'],
           row['consortia_name'],
-          row['mi_plan_statuses_name'],
           row['mi_attempt_statuses_name'],
           row['centres_name'],
-          row['mi_attempts_mi_date']
+          row['mi_attempts_mi_date'],
+          row['es_cell_name'],
+          row['mutation_type']
         ]
         )
       end
@@ -116,12 +115,11 @@ class Reports::MiPlans
     def self.get_matrix_columns
       columns = []
 
-      funders = get_funding
       consortia = get_consortia
-
-      for i in (0..funders.size-1)
-        columns.push(funders[i] + ' - ' + consortia[i])
+      consortia.each do |cons|
+        columns.push(cons)
       end
+
       columns
     end
 
@@ -130,13 +128,13 @@ class Reports::MiPlans
       genes = get_genes_for_matrix
 
       cons_matrix = {}
-      genes.each_pair do |k1, v1|
-        genes[k1].each_pair do |k2, v2|
-          genes[k1].each_pair do |k3, v3|
-            cons_matrix[k2] ||= {}
-            cons_matrix[k2][k3] ||= {}
-            cons_matrix[k2][k3][k1] = 0;
-            cons_matrix[k2][k3][k1] = 1 if k2 != k3;
+      genes.each_pair do |marker_symbol, consortium|
+        genes[marker_symbol].each_pair do |consortium, v2|
+          genes[marker_symbol].each_pair do |consortiumb, v3|
+            cons_matrix[consortium] ||= {}
+            cons_matrix[consortium][consortiumb] ||= {}
+            cons_matrix[consortium][consortiumb][marker_symbol] = 0;
+            cons_matrix[consortium][consortiumb][marker_symbol] = 1 if consortium != consortiumb;
           end
         end
       end
@@ -183,7 +181,8 @@ class Reports::MiPlans
 
     end
 
-    def self.get_list
+    # The matrix data is the actual matrix of double-produced genes for each consortium
+    def self.get_list()
       report = get_list_without_grouping
       report = Grouping( report, :by => 'Target Consortium', :order => ['Marker Symbol', 'Consortium', 'Centre'] )
       return report
@@ -198,7 +197,7 @@ class Reports::MiPlans
       report = Table( LIST_COLUMNS )
 
       consortia.each do |consortium|
-        group_heading = "Double-Assignments for Consortium: #{consortium}"
+        group_heading = "Double - Production for Consortium: #{consortium}"
         genes.each_pair do |marker, value|
           consortia_for_gene = value.keys
           has_consortia = consortia_for_gene.grep(/^#{consortium}$/)

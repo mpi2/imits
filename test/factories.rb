@@ -6,6 +6,10 @@ Factory.define :user do |user|
   user.production_centre { Centre.find_by_name!('WTSI') }
 end
 
+Factory.define :admin_user, :parent => :user do |user|
+  user.email 'vvi@sanger.ac.uk'
+end
+
 Factory.define :pipeline do |pipeline|
   pipeline.sequence(:name) { |n| "Auto-generated Pipeline Name #{n}" }
   pipeline.description 'Pipeline Description'
@@ -319,4 +323,17 @@ Factory.define :report_cache do |report_cache|
   report_cache.sequence(:name) { |n| "Report Cache #{n}"}
   report_cache.data ''
   report_cache.format 'csv'
+end
+
+Factory.define :solr_update_queue_item, :class => SolrUpdate::Queue::Item do |item|
+  item.action 'update'
+end
+
+
+Factory.define :solr_update_queue_item_mi_attempt, :parent => :solr_update_queue_item do |item|
+  item.sequence(:mi_attempt_id)
+end
+
+Factory.define :solr_update_queue_item_phenotype_attempt, :parent => :solr_update_queue_item do |item|
+  item.sequence(:phenotype_attempt_id)
 end

@@ -71,7 +71,7 @@ class EsCell < ActiveRecord::Base
 
   def self.get_es_cells_from_marts_by_names(names)
     raise ArgumentError, 'Need array of ES cell names please' unless names.kind_of?(Array)
-    return DCC_BIOMART.search(
+    search_results = DCC_BIOMART.search(
       :filters => {},
       :attributes => ['marker_symbol'],
       :process_results => true,
@@ -86,6 +86,7 @@ class EsCell < ActiveRecord::Base
             'pipeline',
             'mgi_accession_id',
             'allele_symbol_superscript',
+            'mutation_type',
             'mutation_subtype',
             'production_qc_loxp_screen',
             'parental_cell_line',
@@ -94,6 +95,13 @@ class EsCell < ActiveRecord::Base
         }
       ]
     )
+
+    search_results.each do |result|
+      result['mutation_subtype'] = result['mutation_type'].downcase.gsub(/\s+/, '_')
+      result.delete('mutation_type')
+    end
+
+    return search_results
   end
 
   def self.create_es_cell_from_mart_data(mart_data)
@@ -136,12 +144,13 @@ class EsCell < ActiveRecord::Base
 
   def self.get_es_cells_from_marts_by_marker_symbol(marker_symbol)
     return nil if marker_symbol.blank?
-    return TARG_REP_BIOMART.search(
+    search_results = TARG_REP_BIOMART.search(
       :filters => {},
       :attributes => [
         'escell_clone',
         'pipeline',
         'production_qc_loxp_screen',
+        'mutation_type',
         'mutation_subtype',
         'parental_cell_line'
       ],
@@ -158,6 +167,14 @@ class EsCell < ActiveRecord::Base
         }
       ]
     ).sort_by {|i| i['escell_clone']}
+
+    search_results.each do |result|
+      result['mutation_subtype'] = result['mutation_type'].downcase.gsub(/\s+/, '_')
+      result.delete('mutation_type')
+    end
+
+    return search_results
+
   end
 
   def self.sync_all_with_marts

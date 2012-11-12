@@ -37,7 +37,7 @@ Factory.define :es_cell, :class => TargRep::EsCell do |f|
 
   ikmc_project_id = Factory.next(:ikmc_project_id)
 
-  f.association(:pipeline) { TargRep::Pipeline.find_by_name! 'EUCOMM' }
+  f.pipeline { TargRep::Pipeline.find_by_name! 'EUCOMM' }
   f.association :allele,   :factory => :allele
 
   f.targeting_vector do |es_cell|
@@ -360,7 +360,7 @@ end
 Factory.define :targeting_vector, :class => TargRep::TargetingVector do |f|
   f.name { Factory.next(:pgdgr_plate_name) }
   f.ikmc_project_id { Factory.next(:ikmc_project_id) }
-  f.association :pipeline, :factory => :pipeline
+  f.pipeline { TargRep::Pipeline.find_by_name! 'EUCOMM' }
   f.association :allele, :factory => :allele
 end
 

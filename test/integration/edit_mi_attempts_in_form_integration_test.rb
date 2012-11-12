@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
+class EditMiAttemptsInFormIntegrationTest < Kermits2::JsIntegrationTest
   context 'When editing MI Attempt in form' do
 
     setup do
@@ -25,7 +25,6 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'show default values' do
-      sleep 1
       assert_equal '129P2', page.find('select[name="mi_attempt[test_cross_strain_name]"] option[selected=selected]').text
       assert_equal 'MAAB', page.find('input[name="mi_attempt[colony_name]"]').value
       assert_equal '09/06/2011', page.find('input[name="mi_attempt[mi_date]"]').value
@@ -42,7 +41,7 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
 
       assert_difference 'MiAttempt.count', 0 do
         click_button 'mi_attempt_submit'
-        sleep 3
+        assert page.has_no_css?('#mi_attempt_submit[disabled]')
       end
 
       @mi_attempt.reload
@@ -62,7 +61,7 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       fill_in 'mi_attempt[colony_name]', :with => 'MBSS'
       assert_difference 'MiAttempt.count', 0 do
         click_button 'mi_attempt_submit'
-        sleep 3
+        assert page.has_no_css?('#mi_attempt_submit[disabled]')
       end
       assert_match /\/mi_attempts\/\d+$/, current_url
       assert page.has_css? '.message.alert'
@@ -71,15 +70,15 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
     end
 
     should_eventually 'show status change history' do
-      mi = Factory.create :mi_attempt_with_status_history
-      tmp = mi.mi_plan.status_stamps.first.created_at
-      mi.mi_plan.status_stamps.first.update_attributes!(:created_at => mi.status_stamps.first.created_at)
-      mi.status_stamps.first.update_attributes!(:created_at => tmp)
-
-      sleep 1
+      mi = nil
+      ApplicationModel.uncached do
+        mi = Factory.create :mi_attempt_with_status_history
+        tmp = mi.mi_plan.status_stamps.first.created_at
+        mi.mi_plan.status_stamps.first.update_attributes!(:created_at => mi.status_stamps.first.created_at)
+        mi.status_stamps.first.update_attributes!(:created_at => tmp)
+      end
 
       visit "/mi_attempts/#{mi.id}"
-      sleep 3
 
       [
         ['01 Jan 2011', 'Micro-injection in progress'],
@@ -90,7 +89,7 @@ class EditMiAttemptsInFormTest < Kermits2::JsIntegrationTest
         ['06 Jun 2011', 'Micro-injection aborted'],
         ['07 Jul 2011', 'Genotype confirmed']
       ].each_with_index do |values, idx|
-        idx += 1 # damn nth-child starting index of 1
+        idx += 1 # due to nth-child starting index of 1
         within("table tbody tr:nth-child(#{idx})") do
           values.each {|i| assert page.has_css?('td', :text => i), "#{i} not found in row #{idx}"}
         end

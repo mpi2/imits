@@ -1,0 +1,13 @@
+<% @tab = 'Solr Update Queue' %>
+
+<% content_for :pre_js_footer do %>
+  <%= javascript_tag "SOLR_ALLELE_URL = #{SolrUpdate::Config['index_proxy']['allele'].to_json}" %>
+<% end %>
+
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag 'solr_update_queue_items/index' %>
+<% end %>
+
+<div class="clear"></div>
+
+<div id="solr-update-queue-items-grid" style="width: 625px; margin-left: auto; margin-right: auto"></div>

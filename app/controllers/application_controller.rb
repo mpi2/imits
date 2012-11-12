@@ -3,6 +3,8 @@ class ApplicationController < ActionController::Base
 
   after_filter :log_json_response_parameters
 
+  rescue_from Exception, :with => :custom_json_exception_handler
+
   def params_cleaned_for_search(dirty_params)
 
     dirty_params = dirty_params.dup.stringify_keys
@@ -38,7 +40,7 @@ class ApplicationController < ActionController::Base
     data = data.as_json
 
     retval = {
-      controller_name => data,
+      controller_path.gsub('/', '_') => data,
       'success' => true,
       'total' => total
     }
@@ -112,5 +114,37 @@ class ApplicationController < ActionController::Base
     end
   end
   protected :format_languishing_report
+
+  def authorize_admin_user!
+    if current_user.try(:admin?) != true
+
+      respond_to do |format|
+        format.html do
+          flash[:alert] = 'Access to restricted area detected - this incident has been logged'
+          redirect_to root_path
+        end
+
+        format.json do
+          render :json => {'error' => 'Access to restricted area detected - this incident has been logged' }
+        end
+      end
+
+      Rails.logger.info 'Unauthorized access detected'
+    end
+  end
+  protected :authorize_admin_user!
+
+  def custom_json_exception_handler(exception)
+    if request.format == :json
+      error_json = {
+        'error' => exception.class.name,
+        'message' => exception.message,
+        'backtrace' => exception.backtrace.join("\n")
+      }.to_json
+      render :json => error_json, :status => :internal_server_error
+      Rails.logger.error "#{exception.class.name}: #{exception.message}\n#{exception.backtrace.join("\n")}"
+    end
+  end
+  protected :custom_json_exception_handler
 
 end

@@ -49,7 +49,7 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       find_button('phenotype_attempt_submit').click
       assert page.has_no_css?('#phenotype_attempt_submit[disabled]')
 
-      @phenotype_attempt.reload
+      ApplicationModel.uncached { @phenotype_attempt.reload }
       visit current_path
 
       assert_equal "ABCD", page.find('input[name="phenotype_attempt[colony_name]"]').value
@@ -66,13 +66,8 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'always show distribution centre if one exists' do
-      ApplicationModel.uncached do
-        @phenotype_attempt.number_of_cre_matings_successful = 0
-        @phenotype_attempt.phenotyping_started = false
-        @phenotype_attempt.phenotyping_complete = false
-        @phenotype_attempt.save!
-        @phenotype_attempt.reload
-      end
+      pa = Factory.create :phenotype_attempt
+      Factory.create :phenotype_attempt_distribution_centre, :phenotype_attempt => pa
 
       visit current_path
 

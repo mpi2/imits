@@ -66,10 +66,14 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'always show distribution centre if one exists' do
-      pa = Factory.create :phenotype_attempt
-      Factory.create :phenotype_attempt_distribution_centre, :phenotype_attempt => pa
+      pa = nil
 
-      visit current_path
+      ApplicationModel.uncached do
+        pa = Factory.create :phenotype_attempt
+        Factory.create :phenotype_attempt_distribution_centre, :phenotype_attempt => pa
+      end
+
+      visit phenotype_attempt_path pa
 
       assert page.has_css? 'table[id="distribution_centres_table"]'
     end

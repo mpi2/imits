@@ -307,12 +307,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           "ICS"=>{:preferred=>"www.ICS.com?query=PROJECT_ID", :default=>"www.ICS-default.com"},
           "CNB"=>{:preferred=>"www.CNB.com?query=PROJECT_ID", :default=>"www.CNB-default.com"},
           "Monterotondo"=>{:preferred=>"www.Monterotondo.com?query=PROJECT_ID", :default=>"www.Monterotondo-default.com"},
-          "JAX"=>{:preferred=>"", :default=>"www.JAX-default.com"},
+          "JAX"=>{:preferred=>"www.JAX.com/whatever", :default=>"www.JAX-default.com"},
           "WTSI"=> {:preferred=> "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for MARKER_SYMBOL", :default=>"www.WTSI-default.com"},
           "Oulu"=>{:preferred=>"www.Oulu.com?query=PROJECT_ID", :default=>"www.Oulu-default.com"},
           "UCD"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
-          "VETMEDUNI"=>{:preferred=>"", :default=>"www.VETMEDUNI-default.com"},
-          "BCM"=>{:preferred=>"", :default=>"www.BCM-default.com"},
+          "VETMEDUNI"=>{:preferred=>"www.VETMEDUNI.com/stuff", :default=>"www.VETMEDUNI-default.com"},
+          "BCM"=>{:preferred=>"www.BCM.com/something", :default=>"www.BCM-default.com"},
           "CNRS"=>{:preferred=>"www.CNRS.com?query=MARKER_SYMBOL", :default=>"www.CNRS-default.com"},
           "APN"=>{:preferred=>"www.APN.com?query=MARKER_SYMBOL", :default=>"www.APN-default.com"},
           "TCP"=>{:preferred=>"www.TCP.com?query=MARKER_SYMBOL", :default=>"www.TCP-default.com"},
@@ -410,7 +410,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
       end
 
-      should 'default if no id' do
+      should 'default if no project id' do
         @mi_attempt.es_cell.ikmc_project_id = nil
 
         hash_check = check_order_details(@mi_attempt)
@@ -443,34 +443,58 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
       should 'manage expired dates' do
         @mi_attempt.distribution_centres.each do |distribution_centre|
-          #distribution_centre.start_date = Time.now
           distribution_centre.end_date = Time.now - 1.day
         end
 
         hash_check = check_order_details(@mi_attempt)
-
-     #   pp hash_check
-
         assert_equal 0, hash_check.keys.size
-
-        #assert hash_check.keys.size == 1
-        #assert_equal hash_check['EMMA'], @config['EMMA'][:preferred].gsub(/MARKER_SYMBOL/, @mi_attempt.gene.marker_symbol)
       end
 
       should 'manage future end dates' do
         @mi_attempt.distribution_centres.each do |distribution_centre|
-          #distribution_centre.start_date = Time.now
           distribution_centre.end_date = Time.now + 1.day
         end
 
         hash_check = check_order_details(@mi_attempt)
-
-       # pp hash_check
-
         assert_equal 16, hash_check.keys.size
+      end
 
-        #assert hash_check.keys.size == 1
-        #assert_equal hash_check['EMMA'], @config['EMMA'][:preferred].gsub(/MARKER_SYMBOL/, @mi_attempt.gene.marker_symbol)
+      should 'manage null dates' do
+        @mi_attempt.distribution_centres.each do |distribution_centre|
+          distribution_centre.start_date = nil
+          distribution_centre.end_date = nil
+        end
+
+        hash_check = check_order_details(@mi_attempt)
+        assert_equal 16, hash_check.keys.size
+      end
+
+      should 'manage empty config file fields (i.e. config file centres have an entry but that entry is set to empty string)' do
+        config = @config
+
+        @config = {
+          "Harwell"=> {:preferred=>"http://www.mousebook.org/searchmousebook.php?query=PROJECT_ID", :default=>"www.Harwell-default.com"},
+          "HMGU"=>{:preferred=>"", :default=>"www.HMGU-default.com"}
+        }
+
+        hash_check = check_order_details(@mi_attempt)
+        assert_equal 1, hash_check.keys.size
+
+        @config = config
+      end
+
+      should 'manage both empty config file fields (i.e. config file centres have an entry but that entry is set to empty string)' do
+        config = @config
+
+        @config = {
+          "Harwell"=> {:preferred=>"", :default=>"www.something.com"},
+          "HMGU"=>{:preferred=>"", :default=>"www.something-else.com"}
+        }
+
+        hash_check = check_order_details(@mi_attempt)
+        assert_equal 0, hash_check.keys.size
+
+        @config = config
       end
 
     end

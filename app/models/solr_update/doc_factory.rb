@@ -1,4 +1,3 @@
-require 'pp'
 
 class SolrUpdate::DocFactory
   extend SolrUpdate::Util
@@ -98,8 +97,6 @@ class SolrUpdate::DocFactory
 
       next if ! config.has_key? centre_name
 
-      # see http://stackoverflow.com/questions/4521921/how-to-know-if-todays-date-is-in-a-date-range
-
       start_date = distribution_centre.start_date ? distribution_centre.start_date : Time.now
       current = Time.now
       end_date = distribution_centre.end_date ? distribution_centre.end_date : Time.now
@@ -108,6 +105,7 @@ class SolrUpdate::DocFactory
 
       details = config[centre_name]
       details = config['EMMA'] if distribution_centre.is_distributed_by_emma
+      next if details[:preferred].length == 0
 
       project_id = object.es_cell.ikmc_project_id
       marker_symbol = object.gene.marker_symbol
@@ -115,11 +113,20 @@ class SolrUpdate::DocFactory
       order_from_name = 'EMMA' if distribution_centre.is_distributed_by_emma
 
       order_from_url = details[:default]
-      order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id) if /PROJECT_ID/ =~ details[:preferred] && project_id
-      order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol) if /MARKER_SYMBOL/ =~ details[:preferred] && marker_symbol
 
-      solr_doc['order_from_names'].push order_from_name if order_from_url
-      solr_doc['order_from_urls'].push order_from_url if order_from_url
+      if project_id && /PROJECT_ID/ =~ details[:preferred]
+        order_from_url = details[:preferred].gsub(/PROJECT_ID/, project_id)
+      end
+
+      if marker_symbol && /MARKER_SYMBOL/ =~ details[:preferred]
+        order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
+      end
+
+      if order_from_url
+        solr_doc['order_from_names'].push order_from_name
+        solr_doc['order_from_urls'].push order_from_url
+      end
+
     end
   end
 

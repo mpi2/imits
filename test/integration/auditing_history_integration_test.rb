@@ -22,7 +22,7 @@ class AuditingHistoryIntegrationTest < Kermits2::IntegrationTest
 
     context 'Plan' do
       should 'work' do
-        plan = Factory.create :plan, :id => 346
+        plan = Factory.create :mi_plan, :id => 346
         visit mi_plan_path(plan)
         click_link 'History'
         assert_equal 'Plan 346 History', page.find('h2').text

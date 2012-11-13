@@ -1308,5 +1308,9 @@ class MiPlanTest < ActiveSupport::TestCase
       assert_include default_mi_plan.class.ancestors, ApplicationModel::HasStatuses
     end
 
+    should 'have ::readable_name' do
+      assert_equal 'plan', MiPlan.readable_name
+    end
+
   end
 end

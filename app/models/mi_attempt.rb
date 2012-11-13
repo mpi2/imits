@@ -360,6 +360,10 @@ class MiAttempt < ApplicationModel
     es_cell.allele_id
   end
 
+  def self.readable_name
+    return 'micro-injection attempt'
+  end
+
 end
 
 # == Schema Information

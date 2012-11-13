@@ -18,21 +18,23 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
               :gene => Factory.create(:gene_cbx1)
 
       choose_es_cell_from_list
-      make_form_element_usable('mi_attempt[mi_date]')
 
+      choose_date_from_datepicker_for_input('mi_attempt[mi_date]')
       fill_in 'mi_attempt[colony_name]', :with => 'MZSQ'
-      fill_in 'mi_attempt[mi_date]', :with => '07/10/2011'
       select 'MGP', :from => 'mi_attempt[consortium_name]'
       select 'WTSI', :from => 'mi_attempt[production_centre_name]'
       click_button 'mi_attempt_submit'
 
-      sleep 3
+      assert page.has_no_css?('#mi_attempt_submit[disabled]')
 
       assert_match /\/mi_attempts\/\d+$/, current_url
-      mi_attempt = MiAttempt.find_by_colony_name!('MZSQ')
-      assert_equal mi_attempt.colony_name, page.find('input[name="mi_attempt[colony_name]"]').value
-      assert page.has_content? mi_attempt.consortium_name
-      assert_equal default_user.email, mi_attempt.updated_by.email
+
+      ApplicationModel.uncached do
+        mi_attempt = MiAttempt.find_by_colony_name!('MZSQ')
+        assert_equal mi_attempt.colony_name, page.find('input[name="mi_attempt[colony_name]"]').value
+        assert page.has_content? mi_attempt.consortium_name
+        assert_equal default_user.email, mi_attempt.updated_by.email
+      end
     end
 
     should 're-render form defaults filled in and validation errors when invalid data' do
@@ -40,7 +42,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       fill_in 'mi_attempt[colony_name]', :with => 'MABC'
       click_button 'mi_attempt_submit'
 
-      sleep 3
+      assert page.has_no_css?('#mi_attempt_submit[disabled]')
 
       assert_equal 'EPD0027_2_A01', page.find(:css, 'input[name="mi_attempt[es_cell_name]"]').value
       assert_equal '', page.find(:css, 'select[name="mi_attempt[consortium_name]"]').value
@@ -50,22 +52,24 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'show base errors' do
-      es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-      mi_plan = Factory.create :mi_plan,
-              :consortium => Consortium.find_by_name!('BaSH'),
-              :production_centre => Centre.find_by_name!('WTSI'),
-              :gene => es_cell.gene,
-              :number_of_es_cells_passing_qc => 0
+      es_cell = nil, mi_plan = nil
+
+      ApplicationModel.uncached do
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        mi_plan = Factory.create :mi_plan,
+                :consortium => Consortium.find_by_name!('BaSH'),
+                :production_centre => Centre.find_by_name!('WTSI'),
+                :gene => es_cell.gene,
+                :number_of_es_cells_passing_qc => 0
+      end
+
       assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status.name
 
-      sleep 3
-
       choose_es_cell_from_list es_cell.marker_symbol, es_cell.name
-      make_form_element_usable('mi_attempt[mi_date]')
-      fill_in 'mi_attempt[mi_date]', :with => '01/01/2011'
       select 'BaSH', :from => 'mi_attempt[consortium_name]'
       select 'WTSI', :from => 'mi_attempt[production_centre_name]'
       click_button 'mi_attempt_submit'
+      assert page.has_no_css?('#mi_attempt_submit[disabled]')
 
       assert page.has_css? '.alert.message', :text => /ES cells failed QC/
     end

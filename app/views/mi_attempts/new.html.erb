@@ -18,7 +18,7 @@
   <% end %>
 <% end %>
 
-<div id="mi-attempt-new-top" class="grid_8 prefix_2 suffix_2">
+<div id="object-new-top" class="grid_8 prefix_2 suffix_2">
   <%= form_tag nil do %>
     <fieldset class="collapsible">
       <legend>ES Cell Details</legend>
@@ -29,7 +29,7 @@
   <% end %>
 </div>
 
-<div id="mi-attempt-new-bottom" class="grid_8 prefix_2 suffix_2">
+<div id="object-new-bottom" class="grid_8 prefix_2 suffix_2">
   <%= form_for @mi_attempt, :as => :mi_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
     <div id="rest-of-form">
       <%= form.hidden_field 'es_cell_name' %>

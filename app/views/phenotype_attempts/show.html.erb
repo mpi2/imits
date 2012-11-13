@@ -1,11 +1,15 @@
-<% @title = 'Edit' %>
+<% @title = 'Edit Phenotype Attempt' %>
 
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag('phenotype_attempts/shared') %>
   <%= javascript_include_tag('phenotype_attempts/show') %>
 <% end %>
 
-<div id="phenotype-attempt-box" class="grid_8 prefix_2 suffix_2">
+<div id="object-box" class="grid_8 prefix_2 suffix_2">
+  <h2><%= @title %></h2>
+
+  <%= link_to 'History', phenotype_attempt_path(@phenotype_attempt) + '/history' %>
+
   <%= form_for @phenotype_attempt, :as => :phenotype_attempt, :html => {:class => 'edit show phenotype-attempt'} do |form| %>
     <fieldset class="collapsible">
       <legend>ES Cell Details</legend>
@@ -21,13 +25,12 @@
         </div>
       </div>
     </fieldset>
-      <div id="rest-of-form">
-        <%= render 'form_contents', :form => form %>
 
-        <div>
-          <%= form.submit 'Update', :class => 'disable-on-submit' %>
-        </div>
-      </div>
+    <%= render 'form_contents', :form => form %>
+
+    <div>
+      <%= form.submit 'Update', :class => 'disable-on-submit' %>
+    </div>
 
 <% end %>
 </div>

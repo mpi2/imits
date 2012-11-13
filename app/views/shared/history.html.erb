@@ -1,7 +1,9 @@
-<% @title = "History of Changes for #{@resource.class.name.titleize} #{@resource.id}" %>
+<% @title = "#{@resource.class.readable_name.capitalize} #{@resource.id} History" %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>
+
+  <%= link_to 'Back', @resource %>
 
   <div class="report">
     <table>

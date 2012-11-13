@@ -1,11 +1,15 @@
-<% @title = 'Edit' %>
+<% @title = 'Edit Micro-injection Attempt' %>
 
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag('mi_attempts/shared') %>
   <%= javascript_include_tag('mi_attempts/show') %>
 <% end %>
 
-<div id="mi-attempt-box" class="grid_8 prefix_2 suffix_2">
+<div id="object-box" class="grid_8 prefix_2 suffix_2">
+  <h2><%= @title %></h2>
+
+  <%= link_to 'History', mi_attempt_path(@mi_attempt) + '/history' %>
+
   <%= form_for @mi_attempt, :as => :mi_attempt, :html => {:class => 'edit show mi-attempt'} do |form| %>
     <fieldset class="collapsible">
       <legend>ES Cell Details</legend>

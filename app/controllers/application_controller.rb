@@ -143,6 +143,8 @@ class ApplicationController < ActionController::Base
       }.to_json
       render :json => error_json, :status => :internal_server_error
       Rails.logger.error "#{exception.class.name}: #{exception.message}\n#{exception.backtrace.join("\n")}"
+    else
+      raise exception
     end
   end
   protected :custom_json_exception_handler

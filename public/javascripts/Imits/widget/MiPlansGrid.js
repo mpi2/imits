@@ -51,10 +51,13 @@ Ext.define('Imits.widget.MiPlansGrid', {
             }
         });
 
-        self.addListener('itemclick', function (theView, record) {
-            var id = record.data['id'];
-            self.setLoading("Editing plan....");
-            self.miPlanEditor.edit(id);
+        self.addListener('itemclick', function (theView, record, item, index, event, eventOptions) {
+            var target = Ext.get(event.getTarget());
+            if (target.dom.nodeName.toLowerCase() !== 'a') {
+                var id = record.data['id'];
+                self.setLoading("Editing plan....");
+                self.miPlanEditor.edit(id);
+            }
         });
 
         self.addListener('afterrender', function () {

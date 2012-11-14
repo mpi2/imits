@@ -26,7 +26,7 @@ class MiPlansController < ApplicationController
   def public_mi_plans_url
     mi_plans_url
   end
-  protected :mi_plans_url
+  protected :public_mi_plans_url
 
   def create
     upgradeable = Public::MiPlan.check_for_upgradeable(params[:mi_plan])

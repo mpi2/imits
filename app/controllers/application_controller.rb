@@ -149,4 +149,10 @@ class ApplicationController < ActionController::Base
   end
   protected :custom_json_exception_handler
 
+  def set_centres_and_consortia
+    @centres = Centre.all
+    @consortia = Consortium.all
+  end
+  protected :set_centres_and_consortia
+
 end

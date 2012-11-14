@@ -1,0 +1,18 @@
+<% @title = 'Edit Plan' %>
+
+<div id="object-box" class="grid_8 prefix_2 suffix_2">
+    <h2><%= @title %></h2>
+
+    <%= link_to 'History', mi_plan_path(@mi_plan) + '/history' %>
+
+    <%= form_for @mi_plan, :as => :mi_plan, :html => {:class => 'edit show mi-plan'} do |form| %>
+
+        <%= render 'form_contents', :form => form %>
+
+        <div>
+            <%= form.submit 'Update', :class => 'disable-on-submit' %>
+        </div>
+
+    <% end %>
+
+</div>

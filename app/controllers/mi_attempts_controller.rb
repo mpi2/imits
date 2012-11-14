@@ -112,11 +112,6 @@ class MiAttemptsController < ApplicationController
 
   private
 
-  def set_centres_and_consortia
-    @centres = Centre.all
-    @consortia = Consortium.all
-  end
-
   def authorize_user_production_centre
     return true unless request.format == :json
 

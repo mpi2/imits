@@ -100,10 +100,24 @@ class SolrUpdate::DocFactory
 
       next if ! ['UCD', 'EMMA'].include?(centre_name) && ! config.has_key?(centre_name)
 
-      start_date = distribution_centre.start_date ? distribution_centre.start_date : Time.now
-      current = Time.now
-      end_date = distribution_centre.end_date ? distribution_centre.end_date : Time.now
+      current_time = Time.now
+
+      if distribution_centre.start_date
+        start_date = distribution_centre.start_date
+      else
+        start_date = current_time
+      end
+
+      current = current_time
+
+      if distribution_centre.end_date
+        end_date = distribution_centre.end_date
+      else
+        end_date = current_time
+      end
+
       range = start_date.to_time..end_date.to_time
+
       next if ! range.cover?(current)
 
       centre_name = 'KOMP' if centre_name == 'UCD'

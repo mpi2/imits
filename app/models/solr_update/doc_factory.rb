@@ -95,13 +95,8 @@ class SolrUpdate::DocFactory
     solr_doc['order_from_names'] ||= []
     solr_doc['order_from_urls'] ||= []
 
-    #puts "#### solr_doc['mgi_accession_id'] = #{solr_doc['mgi_accession_id']}"
-
     object.distribution_centres.each do |distribution_centre|
       centre_name = distribution_centre.centre.name
-
-      #puts "#### centre_name = #{centre_name}"
-      #puts "#### distribution_centre.is_distributed_by_emma = #{distribution_centre.is_distributed_by_emma}"
 
       next if ! ['UCD', 'EMMA'].include?(centre_name) && ! config.has_key?(centre_name)
 
@@ -114,16 +109,12 @@ class SolrUpdate::DocFactory
       centre_name = 'KOMP' if centre_name == 'UCD'
       centre_name = 'EMMA' if distribution_centre.is_distributed_by_emma?
       details = config[centre_name]
-      #details = config['EMMA'] if distribution_centre.is_distributed_by_emma
-      #details = config['KOMP'] if centre_name == 'UCD'
 
       next if details[:preferred].length == 0
 
       project_id = object.es_cell.ikmc_project_id
       marker_symbol = object.gene.marker_symbol
       order_from_name = centre_name
-      #order_from_name = 'EMMA' if distribution_centre.is_distributed_by_emma
-      #order_from_name = 'KOMP' if centre_name == 'UCD'
 
       order_from_url = details[:default]
 
@@ -135,10 +126,7 @@ class SolrUpdate::DocFactory
         order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
       end
 
-      # does it need escaping?
-      # order_from_url = CGI::escapeHTML(order_from_url) if /mailto/ =~ order_from_url
-
-      #puts "#### order_from_name = #{order_from_name}"
+      #order_from_url = CGI::escapeHTML(order_from_url) if /mailto/ =~ order_from_url
 
       if order_from_url
         solr_doc['order_from_names'].push order_from_name

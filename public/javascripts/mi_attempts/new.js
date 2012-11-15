@@ -319,7 +319,7 @@ Ext.define('Imits.MiAttempts.New.EsCellsList', {
     extend: 'Ext.grid.Panel',
     height: 150,
     store: {
-        fields: ['escell_clone', 'marker_symbol', 'pipeline', 'mutation_subtype', 'production_qc_loxp_screen'],
+        fields: ['name', 'marker_symbol', 'pipeline_name', 'mutation_subtype', 'production_qc_loxp_screen'],
         data: {
             'rows': []
         },
@@ -339,7 +339,7 @@ Ext.define('Imits.MiAttempts.New.EsCellsList', {
     columns: [
     {
         header: 'ES Cell',
-        dataIndex: 'escell_clone',
+        dataIndex: 'name',
         width: 100
     },
     {
@@ -349,7 +349,7 @@ Ext.define('Imits.MiAttempts.New.EsCellsList', {
     },
     {
         header: 'Pipeline',
-        dataIndex: 'pipeline',
+        dataIndex: 'pipeline_name',
         width: 80
     },
     {
@@ -368,8 +368,8 @@ Ext.define('Imits.MiAttempts.New.EsCellsList', {
         this.callParent();
 
         this.addListener('itemclick', function(theView, record) {
-            var esCellName = record.data['escell_clone'];
-            this.initialConfig.esCellSelectorForm.onEsCellNameSelected(record.data['escell_clone'], record.data['marker_symbol']);
+            var esCellName = record.data['name'];
+            this.initialConfig.esCellSelectorForm.onEsCellNameSelected(record.data['name'], record.data['marker_symbol']);
         });
     }
 });

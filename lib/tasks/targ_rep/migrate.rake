@@ -175,19 +175,24 @@ class LegacyTargRep
       @row ||= row
     end
 
+    ##
+    ## Easier access to an objects data.
+    ##
     def [](m)
       self.row[m]
     end
 
-    ##
-    ## Easier access to an objects data.
-    ##
     def method_missing(sym, *args, &block)
       if @row[sym.to_sym].blank?
         super
       else
         @row[sym]
       end
+    end
+
+    ## id wont appear in method missing. Override.
+    def id
+      self.row[:id]
     end
 
     ##
@@ -292,6 +297,9 @@ class LegacyTargRep
   end
 
   class Pipeline < Abstract; end
+  class EsCell < Abstract; end
+  class DistributionQc < Abstract; end
+  class EsCellQcConflict < Abstract; end
 
 end
 
@@ -304,6 +312,21 @@ def migration_dependancies(*models)
 end
 
 namespace :migrate do
+
+  desc "Migrate EsCellDistributionCentre data from TargRep. Keep TargRep IDs."
+  task :es_cell_distribution_centres => :environment do
+
+    begin
+      
+      LegacyTargRep.export_mysqlsql_import_postgresql('centres', 'es_cell_distribution_centres')
+
+    rescue => e
+      puts "EsCellDistributionCentre migration failed. Rolling back."
+      TargRep::EsCellDistributionCentre.delete_all
+      puts e
+    end
+  end
+
 
   desc "Import users from TargRep. Match duplicate users by email address."
   task :users => :environment do
@@ -391,7 +414,7 @@ namespace :migrate do
       TargRep::MutationType.delete_all
       TargRep::MutationSubtype.delete_all
       puts e
-    #end
+    end
   end
 
   desc "Import users from TargRep. Match duplicate users by email address."
@@ -406,7 +429,8 @@ namespace :migrate do
     }
 
     TargRep::Allele.transaction do
-      
+        
+        ::TargRep::Allele.disable_auditing
 
         LegacyTargRep::Allele.all.each do |old_allele|
 
@@ -449,7 +473,7 @@ namespace :migrate do
               puts "This allele has failed to save with #{allele.errors.inspect}"
               puts allele.inspect
               puts old_allele.inspect
-              failed_allele[:failed] << [old_allele.id, allele.errors.inspect]
+              failed_allele[:failed] << [old_allele[:id], allele.errors.inspect]
             end
 
           else
@@ -457,7 +481,7 @@ namespace :migrate do
             ## Record failed genes
             ##
             puts "Could not find Gene with mgi_accession_id: #{old_allele.mgi_accession_id}"
-            failed_allele[:missing] << [old_allele.id, old_allele.mgi_accession_id]
+            failed_allele[:missing] << [old_allele[:id], old_allele.mgi_accession_id]
           end
           
         end
@@ -468,6 +492,7 @@ namespace :migrate do
     puts "Could not match #{failed_allele[:missing].size} genes."
     puts "#{failed_allele[:failed].size} allele failed to migrate."
     puts "----"
+    ## CSV these
     puts failed_allele.inspect
 
   end
@@ -488,32 +513,38 @@ namespace :migrate do
 
       pipelines = {:updated => [], :created => []}
 
-      Pipeline.all.each do |pipeline|
-        if targ_rep_pipeline = TargRep::Pipeline.find_by_name(pipeline.name)
-          ##
-          ##  Update legacy_id of matching Pipeline's found in both iMits & TargRep.
-          ##  Update description, used in iMits & not TargRep.
+      ::TargRep::Pipeline.transaction do
 
-          targ_rep_pipeline.legacy_id = pipeline.id
-          targ_rep_pipeline.description = pipeline.description
+        ::TargRep::Pipeline.disable_auditing
 
-          if targ_rep_pipeline.save
-            pipelines[:updated] << targ_rep_pipeline.id
-          end
-        else
-          ##
-          ##  Create missing Pipeline's in TargRep::Pipeline table.
-          ##
+        Pipeline.all.each do |pipeline|
+          if targ_rep_pipeline = TargRep::Pipeline.find_by_name(pipeline.name)
+            ##
+            ##  Update legacy_id of matching Pipeline's found in both iMits & TargRep.
+            ##  Update description, used in iMits & not TargRep.
 
-          targ_rep_pipeline = TargRep::Pipeline.new
-          targ_rep_pipeline.name = pipeline.name
-          targ_rep_pipeline.description = pipeline.description
-          targ_rep_pipeline.legacy_id = pipeline.id
-          if targ_rep_pipeline.save
-            pipelines[:created] << targ_rep_pipeline.id
+            targ_rep_pipeline.legacy_id = pipeline.id
+            targ_rep_pipeline.description = pipeline.description
+
+            if targ_rep_pipeline.save
+              pipelines[:updated] << targ_rep_pipeline.id
+            end
+          else
+            ##
+            ##  Create missing Pipeline's in TargRep::Pipeline table.
+            ##
+
+            targ_rep_pipeline = TargRep::Pipeline.new
+            targ_rep_pipeline.name = pipeline.name
+            targ_rep_pipeline.description = pipeline.description
+            targ_rep_pipeline.legacy_id = pipeline.id
+            if targ_rep_pipeline.save
+              pipelines[:created] << targ_rep_pipeline.id
+            end
           end
         end
       end
+
     rescue => e
       puts "Pipeline migration failed. Rolling back."
       TargRep::Pipeline.delete_all
@@ -538,5 +569,188 @@ namespace :migrate do
       puts e
     end
   end
+
+  desc "Migrate EsCell data from TargRep. Match up with existing EsCells."
+  task :es_cells => :environment do
+    require 'targ_rep/pipeline'
+    require 'targ_rep/es_cell'
+
+    puts "You should have already have migrated the EsCellDistributionCentre, User, MutationMethod, MutationType, MutationSubtype, Allele, & Pipeline tables when you run this."
+    migration_dependancies(TargRep::EsCellDistributionCentre, User, TargRep::MutationMethod, TargRep::MutationType, TargRep::MutationSubtype, TargRep::Allele, TargRep::Pipeline, TargRep::TargetingVector)
+
+    begin
+      
+      es_cells = {
+        :matched => [],
+        :failed =>  [],
+        :created => []
+      }
+
+      ::TargRep::EsCell.transaction do
+
+        ::TargRep::EsCell.disable_auditing
+
+        LegacyTargRep::EsCell.all.each do |targ_rep_es_cell|
+        #test_es_cell_names = ["EPD0719_1_C02", "EPD0033_3_A11", "EPD0033_3_C11", "EPD0054_1_C05", "EPD0090_4_C10", "EPD0090_4_H11", "EPD0571_3_F01", "EPD0083_2_E03"]
+
+        #LegacyTargRep::EsCell.where(:name => test_es_cell_names).each do |targ_rep_es_cell|
+          puts targ_rep_es_cell
+          new_es_cell = ::TargRep::EsCell.new
+
+          new_es_cell.id                                     = targ_rep_es_cell[:id]
+          new_es_cell.name                                   = targ_rep_es_cell[:name]
+          new_es_cell.allele_id                              = targ_rep_es_cell[:allele_id]
+          new_es_cell.targeting_vector_id                    = targ_rep_es_cell[:targeting_vector_id]
+          new_es_cell.parental_cell_line                     = targ_rep_es_cell[:parental_cell_line]
+          new_es_cell.allele_symbol_superscript              = targ_rep_es_cell[:allele_symbol_superscript]
+          new_es_cell.comment                                = targ_rep_es_cell[:comment]
+          new_es_cell.contact                                = targ_rep_es_cell[:contact]
+          new_es_cell.ikmc_project_id                        = targ_rep_es_cell[:ikmc_project_id]
+          new_es_cell.mgi_allele_id                          = targ_rep_es_cell[:mgi_allele_id]
+          new_es_cell.pipeline_id                            = targ_rep_es_cell[:pipeline_id]
+          new_es_cell.report_to_public                       = targ_rep_es_cell[:report_to_public]
+          new_es_cell.strain                                 = targ_rep_es_cell[:strain]
+          new_es_cell.production_qc_five_prime_screen        = targ_rep_es_cell[:production_qc_five_prime_screen]
+          new_es_cell.production_qc_three_prime_screen       = targ_rep_es_cell[:production_qc_three_prime_screen]
+          new_es_cell.production_qc_loxp_screen              = targ_rep_es_cell[:production_qc_loxp_screen]
+          new_es_cell.production_qc_loss_of_allele           = targ_rep_es_cell[:production_qc_loss_of_allele]
+          new_es_cell.production_qc_vector_integrity         = targ_rep_es_cell[:production_qc_vector_integrity]
+          new_es_cell.user_qc_map_test                       = targ_rep_es_cell[:user_qc_map_test]
+          new_es_cell.user_qc_karyotype                      = targ_rep_es_cell[:user_qc_karyotype ]
+          new_es_cell.user_qc_tv_backbone_assay              = targ_rep_es_cell[:user_qc_tv_backbone_assay]
+          new_es_cell.user_qc_loxp_confirmation              = targ_rep_es_cell[:user_qc_loxp_confirmation]
+          new_es_cell.user_qc_southern_blot                  = targ_rep_es_cell[:user_qc_southern_blot]
+          new_es_cell.user_qc_loss_of_wt_allele              = targ_rep_es_cell[:user_qc_loss_of_wt_allele]
+          new_es_cell.user_qc_neo_count_qpcr                 = targ_rep_es_cell[:user_qc_neo_count_qpcr]
+          new_es_cell.user_qc_lacz_sr_pcr                    = targ_rep_es_cell[:user_qc_lacz_sr_pcr]
+          new_es_cell.user_qc_mutant_specific_sr_pcr         = targ_rep_es_cell[:user_qc_mutant_specific_sr_pcr]
+          new_es_cell.user_qc_five_prime_cassette_integrity  = targ_rep_es_cell[:user_qc_five_prime_cassette_integrity]
+          new_es_cell.user_qc_neo_sr_pcr                     = targ_rep_es_cell[:user_qc_neo_sr_pcr]
+          new_es_cell.user_qc_five_prime_lr_pcr              = targ_rep_es_cell[:user_qc_five_prime_lr_pcr]
+          new_es_cell.user_qc_three_prime_lr_pcr             = targ_rep_es_cell[:user_qc_three_prime_lr_pcr]
+          new_es_cell.user_qc_comment                        = targ_rep_es_cell[:user_qc_comment]
+
+          ##
+          ## Match TargRep EsCells to iMits EsCells
+          ##
+          if es_cell = EsCell.find_by_name(targ_rep_es_cell[:name])
+            new_es_cell.allele_type                            = es_cell.allele_type
+            new_es_cell.mutation_subtype                       = es_cell.mutation_subtype
+            new_es_cell.allele_symbol_superscript_template     = es_cell.allele_symbol_superscript_template
+            new_es_cell.legacy_id                              = es_cell.id
+
+            es_cells[:matched] << [targ_rep_es_cell[:id], es_cell.id]
+          end
+
+          if new_es_cell.save
+            es_cells[:created] << targ_rep_es_cell[:id]
+            
+            if new_es_cell.legacy_id
+              MiAttempt.update_all({:es_cell_id => new_es_cell.id}, {:es_cell_id => new_es_cell.legacy_id})
+            end
+          else
+            es_cells[:failed] << targ_rep_es_cell[:id]
+          end
+
+        end
+
+      end
+
+      puts "----"
+      puts "Created #{es_cells[:created].size} EsCells"
+      puts "Matched #{es_cells[:matched].size} EsCells"
+      puts "Can't migrate #{es_cells[:failed].size} EsCells"
+      puts "----"
+
+    rescue => e
+      puts "EsCell migration failed. Rolling back."
+      #TargRep::EsCell.delete_all
+      puts e
+    end
+
+  end
+
+  desc "Migrate DistributionQc data from TargRep."
+  task :distribution_qcs => :environment do
+    require 'targ_rep/pipeline'
+    require 'targ_rep/es_cell'
+
+    puts "You should have already have migrated the EsCellDistributionCentre, User, MutationMethod, MutationType, MutationSubtype, Allele, Pipeline, & EsCell tables when you run this."
+    migration_dependancies(TargRep::EsCellDistributionCentre, User, TargRep::MutationMethod, TargRep::MutationType, TargRep::MutationSubtype, TargRep::Allele, TargRep::Pipeline, TargRep::TargetingVector, TargRep::EsCell)
+
+    begin
+      
+      distribution_qcs = {
+        :failed =>  [],
+        :created => []
+      }
+
+      ::TargRep::DistributionQc.transaction do
+
+        ::TargRep::DistributionQc.disable_auditing
+
+        LegacyTargRep::DistributionQc.all.each do |targ_rep_distribution_qc|
+          
+          targ_rep_distribution_qc.row[:es_cell_distribution_centre_id] = targ_rep_distribution_qc[:centre_id]
+          targ_rep_distribution_qc.row.delete(:centre_id)
+
+          distribution_qc = ::TargRep::DistributionQc.new(targ_rep_distribution_qc.row)
+          distribution_qc.id = targ_rep_distribution_qc[:id]
+
+          if distribution_qc.save
+            distribution_qcs[:created] << distribution_qc.id
+          else
+            distribution_qcs[:failed] << targ_rep_distribution_qc.id
+          end
+  
+        end
+      end
+
+      puts "Created #{distribution_qcs[:created].size} DistributionQc"
+      puts "Failed to create #{distribution_qcs[:failed].size} DistributionQc"
+
+    end
+  end
+
+  desc "Migrate EsCellQcConflict data from TargRep."
+  task :es_cell_qc_conflicts => :environment do
+    require 'targ_rep/pipeline'
+    require 'targ_rep/es_cell'
+
+    puts "You should have already have migrated the EsCellDistributionCentre, User, MutationMethod, MutationType, MutationSubtype, Allele, Pipeline, EsCell, DistributionQc tables when you run this."
+    migration_dependancies(TargRep::EsCellDistributionCentre, User, TargRep::MutationMethod, TargRep::MutationType, TargRep::MutationSubtype, TargRep::Allele, TargRep::Pipeline, TargRep::TargetingVector, TargRep::EsCell, TargRep::DistributionQc)
+
+    begin
+      
+      es_cell_qc_conflicts = {
+        :failed =>  [],
+        :created => []
+      }
+
+      ::TargRep::EsCellQcConflict.transaction do
+
+        ::TargRep::EsCellQcConflict.disable_auditing
+
+        LegacyTargRep::EsCellQcConflict.all.each do |targ_rep_es_cell_qc_conflict|
+          
+
+          es_cell_qc_conflict = ::TargRep::EsCellQcConflict.new(targ_rep_es_cell_qc_conflict.row)
+          es_cell_qc_conflict.id = targ_rep_es_cell_qc_conflict[:id]
+
+          if es_cell_qc_conflict.save
+            es_cell_qc_conflicts[:created] << es_cell_qc_conflict.id
+          else
+            es_cell_qc_conflicts[:failed] << targ_rep_es_cell_qc_conflict.id
+          end
+  
+        end
+      end
+
+      puts "Created #{es_cell_qc_conflicts[:created].size} EsCellQcConflict"
+      puts "Failed to create #{es_cell_qc_conflicts[:failed].size} EsCellQcConflict"
+
+    end
+  end
+
 
 end

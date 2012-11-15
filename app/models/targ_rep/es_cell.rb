@@ -78,6 +78,11 @@ class TargRep::EsCell < ActiveRecord::Base
   ##
 
   public
+
+    def pipeline_name
+      self.pipeline.name
+    end
+
     def targeting_vector_name
       targeting_vector.name if targeting_vector
     end

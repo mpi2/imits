@@ -126,8 +126,6 @@ class SolrUpdate::DocFactory
         order_from_url = details[:preferred].gsub(/MARKER_SYMBOL/, marker_symbol)
       end
 
-      #order_from_url = CGI::escapeHTML(order_from_url) if /mailto/ =~ order_from_url
-
       if order_from_url
         solr_doc['order_from_names'].push order_from_name
         solr_doc['order_from_urls'].push order_from_url

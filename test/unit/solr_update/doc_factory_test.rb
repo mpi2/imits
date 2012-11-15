@@ -12,84 +12,86 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         @test_object = instance_variable_get(:"@#{object_type}")
       end
 
-      context 'when consortium is JAX, DTCC or BASH' do
-        should 'be set correctly to KOMP ikmc_project_id begins with VG' do
-          ['JAX', 'DTCC', 'BaSH'].each do |consortium_name|
-            @test_object.mi_plan.consortium = Consortium.find_by_name!(consortium_name)
-            @test_object.es_cell.ikmc_project_id = 'VG10003'
-            doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-            assert_equal 'KOMP', doc['order_from_name']
-            assert_equal 'http://www.komp.org/geneinfo.php?project=VG10003', doc['order_from_url']
-          end
-        end
+      #context 'when consortium is JAX, DTCC or BASH' do
+      #  should 'be set correctly to KOMP ikmc_project_id begins with VG' do
+      #    ['JAX', 'DTCC', 'BaSH'].each do |consortium_name|
+      #      @test_object.mi_plan.consortium = Consortium.find_by_name!(consortium_name)
+      #      @test_object.es_cell.ikmc_project_id = 'VG10003'
+      #      doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
+      #      assert_equal 'KOMP', doc['order_from_name']
+      #      assert_equal 'http://www.komp.org/geneinfo.php?project=VG10003', doc['order_from_url']
+      #    end
+      #  end
+      #
+      #  should 'be set correctly to KOMP if ikmc_project_id begins does NOT begin with VG' do
+      #    ['JAX', 'DTCC', 'BaSH'].each do |consortium_name|
+      #      @test_object.mi_plan.consortium = Consortium.find_by_name!(consortium_name)
+      #      @test_object.es_cell.ikmc_project_id = '10003'
+      #      doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
+      #      assert_equal 'KOMP', doc['order_from_name']
+      #      assert_equal 'http://www.komp.org/geneinfo.php?project=CSD10003', doc['order_from_url']
+      #    end
+      #  end
+      #
+      #  should 'be set correctly if ikmc_project_id does NOT exist' do
+      #    ['JAX', 'DTCC', 'BaSH'].each do |consortium_name|
+      #      @test_object.mi_plan.consortium = Consortium.find_by_name!(consortium_name)
+      #      @test_object.es_cell.ikmc_project_id = nil
+      #      doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
+      #      assert_equal 'KOMP', doc['order_from_name']
+      #      assert_equal 'http://www.komp.org/', doc['order_from_url']
+      #    end
+      #  end
+      #end
 
-        should 'be set correctly to KOMP if ikmc_project_id begins does NOT begin with VG' do
-          ['JAX', 'DTCC', 'BaSH'].each do |consortium_name|
-            @test_object.mi_plan.consortium = Consortium.find_by_name!(consortium_name)
-            @test_object.es_cell.ikmc_project_id = '10003'
-            doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-            assert_equal 'KOMP', doc['order_from_name']
-            assert_equal 'http://www.komp.org/geneinfo.php?project=CSD10003', doc['order_from_url']
-          end
-        end
+      #should 'be set correctly if consortium is Phenomin, HHelmholtz GMC, Monterotondo, MRC' do
+      #  ['Phenomin', 'Helmholtz GMC', 'Monterotondo', 'MRC'].each do |consortium_name|
+      #    consortium = Consortium.find_by_name!(consortium_name)
+      #    @test_object.mi_plan.update_attributes!(:consortium => consortium)
+      #    @test_object.reload
+      #
+      #    doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
+      #
+      #    assert_equal 'EMMA', doc['order_from_name']
+      #    assert_equal "http://www.emmanet.org/mutant_types.php?keyword=#{@test_object.gene.marker_symbol}", doc['order_from_url']
+      #  end
+      #end
 
-        should 'be set correctly if ikmc_project_id does NOT exist' do
-          ['JAX', 'DTCC', 'BaSH'].each do |consortium_name|
-            @test_object.mi_plan.consortium = Consortium.find_by_name!(consortium_name)
-            @test_object.es_cell.ikmc_project_id = nil
-            doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-            assert_equal 'KOMP', doc['order_from_name']
-            assert_equal 'http://www.komp.org/', doc['order_from_url']
-          end
-        end
-      end
+    #  ['MGP', 'MGP Legacy'].each do |mgp_consortium|
+        #should "be set correctly if consortium is #{mgp_consortium} and has a distribution centre with EMMA flag set to true exists" do
+        #  @test_object.mi_plan.update_attributes!(:consortium => Consortium.find_by_name!(mgp_consortium))
+        #  @test_object.distribution_centres.destroy_all
+        #
+        #  dist_centre1 = Factory.create distribution_centres_factory,
+        #          :centre => Centre.find_by_name!('WTSI'),
+        #          :is_distributed_by_emma => false, object_type => @test_object
+        #  dist_centre2 = Factory.create distribution_centres_factory,
+        #          :centre => Centre.find_by_name!('ICS'),
+        #          :is_distributed_by_emma => true, object_type => @test_object
+        #  @test_object.distribution_centres = [dist_centre1, dist_centre2]
+        #
+        #  @test_object.reload
+        #
+        #  doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
+        #  assert_equal 'EMMA', doc['order_from_name']
+        #  assert_equal "http://www.emmanet.org/mutant_types.php?keyword=#{@test_object.gene.marker_symbol}", doc['order_from_url']
+        #end
 
-      should 'be set correctly if consortium is Phenomin, HHelmholtz GMC, Monterotondo, MRC' do
-        ['Phenomin', 'Helmholtz GMC', 'Monterotondo', 'MRC'].each do |consortium_name|
-          consortium = Consortium.find_by_name!(consortium_name)
-          @test_object.mi_plan.update_attributes!(:consortium => consortium)
-          @test_object.reload
+        #should "be set correctly if consortium is #{mgp_consortium} and has NO distribution centre with EMMA flag set" do
+        #  @test_object.mi_plan.consortium = Consortium.find_by_name!(mgp_consortium)
+        #  dist_centre = Factory.create distribution_centres_factory,
+        #          :centre => Centre.find_by_name!('WTSI'),
+        #          :is_distributed_by_emma => false, object_type => @test_object
+        #  @test_object.distribution_centres.destroy_all
+        #  @test_object.distribution_centres = [dist_centre]
+        #
+        #  doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
+        #
+        #  assert_equal 'WTSI', doc['order_from_name']
+        #  assert_equal "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{@test_object.gene.marker_symbol}", doc['order_from_url']
+        #end
+   #   end # ['MGP', 'MGP Legacy'].each
 
-          doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-          assert_equal 'EMMA', doc['order_from_name']
-          assert_equal "http://www.emmanet.org/mutant_types.php?keyword=#{@test_object.gene.marker_symbol}", doc['order_from_url']
-        end
-      end
-
-      ['MGP', 'MGP Legacy'].each do |mgp_consortium|
-        should "be set correctly if consortium is #{mgp_consortium} and has a distribution centre with EMMA flag set to true exists" do
-          @test_object.mi_plan.update_attributes!(:consortium => Consortium.find_by_name!(mgp_consortium))
-          @test_object.distribution_centres.destroy_all
-
-          dist_centre1 = Factory.create distribution_centres_factory,
-                  :centre => Centre.find_by_name!('WTSI'),
-                  :is_distributed_by_emma => false, object_type => @test_object
-          dist_centre2 = Factory.create distribution_centres_factory,
-                  :centre => Centre.find_by_name!('ICS'),
-                  :is_distributed_by_emma => true, object_type => @test_object
-          @test_object.distribution_centres = [dist_centre1, dist_centre2]
-
-          @test_object.reload
-
-          doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-          assert_equal 'EMMA', doc['order_from_name']
-          assert_equal "http://www.emmanet.org/mutant_types.php?keyword=#{@test_object.gene.marker_symbol}", doc['order_from_url']
-        end
-
-        should "be set correctly if consortium is #{mgp_consortium} and has NO distribution centre with EMMA flag set" do
-          @test_object.mi_plan.consortium = Consortium.find_by_name!(mgp_consortium)
-          dist_centre = Factory.create distribution_centres_factory,
-                  :centre => Centre.find_by_name!('WTSI'),
-                  :is_distributed_by_emma => false, object_type => @test_object
-          @test_object.distribution_centres.destroy_all
-          @test_object.distribution_centres = [dist_centre]
-
-          doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-          assert_equal 'WTSI', doc['order_from_name']
-          assert_equal "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{@test_object.gene.marker_symbol}", doc['order_from_url']
-        end
-      end # ['MGP', 'MGP Legacy'].each
-    
     end
   end # order_from_tests
 
@@ -280,6 +282,291 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       order_from_tests :phenotype_attempt
+    end
+
+    context '#set_order_from_details' do
+
+      setup do
+        es_cell = Factory.create :es_cell,
+                :gene => cbx1,
+                :mutation_subtype => 'conditional_ready',
+                :allele_id => 663
+        @mi_attempt = Factory.create :mi_attempt, :id => 43,
+                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
+                :es_cell => es_cell
+
+        @mi_attempt.es_cell.ikmc_project_id = 'VG10003'
+
+        @config ={
+          "Harwell"=> {:preferred=>"http://www.mousebook.org/searchmousebook.php?query=PROJECT_ID", :default=>"www.Harwell-default.com"},
+          "HMGU"=>{:preferred=>"www.HMGU.com?query=MARKER_SYMBOL", :default=>"www.HMGU-default.com"},
+          "ICS"=>{:preferred=>"www.ICS.com?query=PROJECT_ID", :default=>"www.ICS-default.com"},
+          "CNB"=>{:preferred=>"www.CNB.com?query=PROJECT_ID", :default=>"www.CNB-default.com"},
+          "Monterotondo"=>{:preferred=>"www.Monterotondo.com?query=PROJECT_ID", :default=>"www.Monterotondo-default.com"},
+          "JAX"=>{:preferred=>"www.JAX.com/whatever", :default=>"www.JAX-default.com"},
+          "WTSI"=> {:preferred=> "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for MARKER_SYMBOL", :default=>"www.WTSI-default.com"},
+          "Oulu"=>{:preferred=>"www.Oulu.com?query=PROJECT_ID", :default=>"www.Oulu-default.com"},
+#          "UCD"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
+#          "KOMP"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
+          "VETMEDUNI"=>{:preferred=>"www.VETMEDUNI.com/stuff", :default=>"www.VETMEDUNI-default.com"},
+          "BCM"=>{:preferred=>"www.BCM.com/something", :default=>"www.BCM-default.com"},
+          "CNRS"=>{:preferred=>"www.CNRS.com?query=MARKER_SYMBOL", :default=>"www.CNRS-default.com"},
+          "APN"=>{:preferred=>"www.APN.com?query=MARKER_SYMBOL", :default=>"www.APN-default.com"},
+          "TCP"=>{:preferred=>"www.TCP.com?query=MARKER_SYMBOL", :default=>"www.TCP-default.com"},
+          "MARC"=>{:preferred=>"www.MARC.com?query=MARKER_SYMBOL", :default=>"www.MARC-default.com"},
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"},
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"},
+        }
+
+        mi_attempt_distribution_centre = []
+        phenotype_attempt_distribution_centre = []
+
+        @mi_attempt2 = Factory.create :mi_attempt_genotype_confirmed, :es_cell => es_cell
+
+        @phenotype_attempt = Factory.create :phenotype_attempt_status_cec,
+                :id => 86, :mi_attempt => @mi_attempt2,
+                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN2')
+
+        @config.keys.each do |key|
+          next if key == 'EMMA'
+          next if key == 'KOMP'
+          Centre.create! :name => key if ! Centre.find_by_name key
+          dist_centre = Factory.create :mi_attempt_distribution_centre,
+                  :centre => Centre.find_by_name!(key),
+                  :is_distributed_by_emma => false, :mi_attempt => @mi_attempt
+
+          dist_centre2 = Factory.create :phenotype_attempt_distribution_centre,
+                  :centre => Centre.find_by_name!(key),
+                  :is_distributed_by_emma => false, :phenotype_attempt => @phenotype_attempt
+
+          mi_attempt_distribution_centre.push dist_centre
+          phenotype_attempt_distribution_centre.push dist_centre2
+        end
+
+        @mi_attempt.distribution_centres = mi_attempt_distribution_centre
+
+        @mi_attempt.reload
+
+        @phenotype_attempt.distribution_centres.destroy_all
+        @phenotype_attempt.distribution_centres = phenotype_attempt_distribution_centre
+
+        @phenotype_attempt.reload
+      end
+
+      def check_order_details(object)
+        doc = {'test_doc' => true}
+
+        SolrUpdate::DocFactory.set_order_from_details(object, doc, @config)
+
+        hash_check = {}
+        counter = 0
+        assert_equal doc['order_from_names'].size, doc['order_from_urls'].size
+        doc['order_from_names'].each do |order_from_names|
+          hash_check[order_from_names] = doc['order_from_urls'][counter]
+          counter += 1
+        end
+
+        @config.keys.each do |key|
+          next if key == 'EMMA'
+          next if key == 'KOMP'
+          if /PROJECT_ID/ =~ @config[key][:preferred]
+            if object.es_cell.ikmc_project_id
+              assert @config[key][:preferred].gsub(/PROJECT_ID/, object.es_cell.ikmc_project_id), hash_check[key]
+            else
+              assert @config[key][:default], hash_check[key]
+            end
+          elsif /MARKER_SYMBOL/ =~ @config[key][:preferred]
+            if object.gene.marker_symbol
+              assert @config[key][:preferred].gsub(/MARKER_SYMBOL/, object.gene.marker_symbol), hash_check[key]
+            else
+              assert @config[key][:default], hash_check[key]
+            end
+          else
+            assert @config[key][:default], hash_check[key]
+          end
+        end
+
+        return hash_check
+      end
+
+      should 'manage mi_attempt' do
+        check_order_details(@mi_attempt)
+      end
+
+      should 'manage phenotype_attempt' do
+        check_order_details(@phenotype_attempt)
+      end
+
+      should 'default if no marker' do
+        @mi_attempt.gene.marker_symbol = nil
+
+        hash_check = check_order_details(@mi_attempt)
+
+        @config.keys.each do |key|
+          next if key == 'EMMA'
+          next if key == 'KOMP'
+          if /MARKER_SYMBOL/ =~ @config[key][:preferred]
+            assert @config[key][:default].length > 0
+            assert hash_check[key].length > 0
+            assert @config[key][:default], hash_check[key]
+          end
+        end
+
+      end
+
+      should 'default if no project id' do
+        @mi_attempt.es_cell.ikmc_project_id = nil
+
+        hash_check = check_order_details(@mi_attempt)
+
+        @config.keys.each do |key|
+          next if key == 'EMMA'
+          next if key == 'KOMP'
+          if /PROJECT_ID/ =~ @config[key][:preferred]
+            assert @config[key][:default].length > 0
+            assert hash_check[key].length > 0
+            assert @config[key][:default], hash_check[key]
+          end
+        end
+      end
+
+      should 'not fall over if it cannot find centre in config' do
+        @config.delete('WTSI')
+        hash_check = check_order_details(@mi_attempt)
+        assert ! hash_check.include?('WTSI')
+      end
+
+      should 'handle emma' do
+        @mi_attempt.distribution_centres.each do |distribution_centre|
+          distribution_centre.is_distributed_by_emma = true
+        end
+
+        hash_check = check_order_details(@mi_attempt)
+
+        assert hash_check.keys.size == 1
+        assert_equal hash_check['EMMA'], @config['EMMA'][:preferred].gsub(/MARKER_SYMBOL/, @mi_attempt.gene.marker_symbol)
+      end
+
+      should 'manage expired dates' do
+        @mi_attempt.distribution_centres.each do |distribution_centre|
+          distribution_centre.end_date = Time.now - 1.day
+        end
+
+        hash_check = check_order_details(@mi_attempt)
+        assert_equal 0, hash_check.keys.size
+      end
+
+      should 'manage future end dates' do
+        @mi_attempt.distribution_centres.each do |distribution_centre|
+          distribution_centre.end_date = Time.now + 1.day
+        end
+
+        hash_check = check_order_details(@mi_attempt)
+        assert_equal @config.keys.size-2, hash_check.keys.size
+      end
+
+      should 'manage null dates' do
+        @mi_attempt.distribution_centres.each do |distribution_centre|
+          distribution_centre.start_date = nil
+          distribution_centre.end_date = nil
+        end
+
+        hash_check = check_order_details(@mi_attempt)
+        assert_equal @config.keys.size-2, hash_check.keys.size
+      end
+
+      should 'manage empty config file fields (i.e. config file centres have an entry but that entry is set to empty string)' do
+        config = @config
+
+        @config = {
+          "Harwell"=> {:preferred=>"http://www.mousebook.org/searchmousebook.php?query=PROJECT_ID", :default=>"www.Harwell-default.com"},
+          "HMGU"=>{:preferred=>"", :default=>"www.HMGU-default.com"},
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"},
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"}
+        }
+
+        hash_check = check_order_details(@mi_attempt)
+        assert_equal 1, hash_check.keys.size
+
+        @config = config
+      end
+
+      should 'manage both empty config file fields (i.e. config file centres have an entry but that entry is set to empty string)' do
+        config = @config
+
+        @config = {
+          "Harwell"=> {:preferred=>"", :default=>""},
+          "HMGU"=>{:preferred=>"", :default=>""},
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.KOMP-default.com"},
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+        }
+
+        hash_check = check_order_details(@mi_attempt)
+
+        assert_equal 0, hash_check.keys.size
+
+        @config = config
+      end
+
+      should 'flip to KOMP if UCD found' do
+        config = @config
+
+        @config = {
+          #"UCD"=>{:preferred=>"whatever-else.com/PROJECT_ID", :default=>"www.something-else.com"},
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"},
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+        }
+
+        es_cell = Factory.create :es_cell,
+                :gene => cbx1,
+                :mutation_subtype => 'conditional_ready',
+                :allele_id => 400,
+                :ikmc_project_id => 'VG10003'
+
+        mi_attempt = Factory.create :mi_attempt, :id => 433,
+                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN 2'),
+                :es_cell => es_cell
+
+        dist_centre = Factory.create :mi_attempt_distribution_centre,
+                :centre => Centre.find_by_name!('UCD'),
+                :is_distributed_by_emma => false, :mi_attempt => mi_attempt
+
+        mi_attempt.distribution_centres = [dist_centre]
+
+        hash_check = check_order_details(mi_attempt)
+
+        assert_equal 1, hash_check.keys.size
+        assert @config["KOMP"][:preferred].gsub(/PROJECT_ID/, mi_attempt.es_cell.ikmc_project_id), hash_check["KOMP"]
+
+        @config = config
+      end
+
+      should 'raise exception if config doesn\'t contain KOMP' do
+        config = @config
+        @config = {
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+        }
+
+        assert_raise RuntimeError do
+          check_order_details(@mi_attempt)
+        end
+
+        @config = config
+      end
+
+      should 'raise exception if config doesn\'t contain EMMA' do
+        config = @config
+        @config = {
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"}
+        }
+
+        assert_raise RuntimeError do
+          check_order_details(@mi_attempt)
+        end
+
+        @config = config
+      end
+
     end
 
   end

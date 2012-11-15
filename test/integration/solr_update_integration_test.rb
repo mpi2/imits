@@ -70,7 +70,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'allele_name' => @mi_attempt.allele_symbol,
           'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image",
           'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-genbank-file",
-          'order_from_urls' => ["mailto:mouseinterest@sanger.ac.uk?subject=\"Mutant mouse for Cbx1\""],
+          'order_from_urls' => ["mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1"],
           'order_from_names' => ['WTSI']
         }
 

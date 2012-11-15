@@ -31,6 +31,7 @@ end
 #  description :string(255)
 #  created_at  :datetime
 #  updated_at  :datetime
+#  legacy_id   :integer
 #
 # Indexes
 #

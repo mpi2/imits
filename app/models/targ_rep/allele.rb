@@ -51,7 +51,7 @@ class TargRep::Allele < ActiveRecord::Base
 
   validates_uniqueness_of :project_design_id,
     :scope => [
-      :assembly, :chromosome, :strand,
+      :gene_id, :assembly, :chromosome, :strand,
       :cassette, :backbone,
       :homology_arm_start, :homology_arm_end,
       :cassette_start, :cassette_end,

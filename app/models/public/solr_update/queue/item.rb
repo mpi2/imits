@@ -30,9 +30,11 @@ end
 #  action               :text
 #  created_at           :datetime
 #  updated_at           :datetime
+#  allele_id            :integer
 #
 # Indexes
 #
+#  index_solr_update_queue_items_on_allele_id             (allele_id) UNIQUE
 #  index_solr_update_queue_items_on_mi_attempt_id         (mi_attempt_id) UNIQUE
 #  index_solr_update_queue_items_on_phenotype_attempt_id  (phenotype_attempt_id) UNIQUE
 #

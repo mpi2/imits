@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121109144055) do
+ActiveRecord::Schema.define(:version => 20121113112851) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -567,6 +567,7 @@ ActiveRecord::Schema.define(:version => 20121109144055) do
     t.string   "description"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "legacy_id"
   end
 
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true

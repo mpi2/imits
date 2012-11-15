@@ -70,7 +70,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'allele_name' => @mi_attempt.allele_symbol,
           'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image",
           'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-genbank-file",
-          'order_from_urls' => ["mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for Cbx1"],
+          'order_from_urls' => ["mailto:mouseinterest@sanger.ac.uk?subject=\"Mutant mouse for Cbx1\""],
           'order_from_names' => ['WTSI']
         }
 
@@ -118,9 +118,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'strain' => @new_strain.name,
         'allele_name' => phenotype_attempt.allele_symbol,
         'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image-cre",
-        'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-cre-genbank-file",
-        'order_from_urls' => [""],
-        'order_from_names' => ['ICS']
+        'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-cre-genbank-file"
       }
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

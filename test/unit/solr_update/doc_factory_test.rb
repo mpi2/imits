@@ -310,14 +310,16 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           "JAX"=>{:preferred=>"www.JAX.com/whatever", :default=>"www.JAX-default.com"},
           "WTSI"=> {:preferred=> "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for MARKER_SYMBOL", :default=>"www.WTSI-default.com"},
           "Oulu"=>{:preferred=>"www.Oulu.com?query=PROJECT_ID", :default=>"www.Oulu-default.com"},
-          "UCD"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
+#          "UCD"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
+#          "KOMP"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
           "VETMEDUNI"=>{:preferred=>"www.VETMEDUNI.com/stuff", :default=>"www.VETMEDUNI-default.com"},
           "BCM"=>{:preferred=>"www.BCM.com/something", :default=>"www.BCM-default.com"},
           "CNRS"=>{:preferred=>"www.CNRS.com?query=MARKER_SYMBOL", :default=>"www.CNRS-default.com"},
           "APN"=>{:preferred=>"www.APN.com?query=MARKER_SYMBOL", :default=>"www.APN-default.com"},
           "TCP"=>{:preferred=>"www.TCP.com?query=MARKER_SYMBOL", :default=>"www.TCP-default.com"},
           "MARC"=>{:preferred=>"www.MARC.com?query=MARKER_SYMBOL", :default=>"www.MARC-default.com"},
-          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"},
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"},
         }
 
         mi_attempt_distribution_centre = []
@@ -330,6 +332,8 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
                 :colony_background_strain => Strain.create!(:name => 'TEST STRAIN2')
 
         @config.keys.each do |key|
+          next if key == 'EMMA'
+          next if key == 'KOMP'
           Centre.create! :name => key if ! Centre.find_by_name key
           dist_centre = Factory.create :mi_attempt_distribution_centre,
                   :centre => Centre.find_by_name!(key),
@@ -367,6 +371,8 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         end
 
         @config.keys.each do |key|
+          next if key == 'EMMA'
+          next if key == 'KOMP'
           if /PROJECT_ID/ =~ @config[key][:preferred]
             if object.es_cell.ikmc_project_id
               assert @config[key][:preferred].gsub(/PROJECT_ID/, object.es_cell.ikmc_project_id), hash_check[key]
@@ -401,6 +407,8 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         hash_check = check_order_details(@mi_attempt)
 
         @config.keys.each do |key|
+          next if key == 'EMMA'
+          next if key == 'KOMP'
           if /MARKER_SYMBOL/ =~ @config[key][:preferred]
             assert @config[key][:default].length > 0
             assert hash_check[key].length > 0
@@ -416,6 +424,8 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         hash_check = check_order_details(@mi_attempt)
 
         @config.keys.each do |key|
+          next if key == 'EMMA'
+          next if key == 'KOMP'
           if /PROJECT_ID/ =~ @config[key][:preferred]
             assert @config[key][:default].length > 0
             assert hash_check[key].length > 0
@@ -456,7 +466,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         end
 
         hash_check = check_order_details(@mi_attempt)
-        assert_equal 16, hash_check.keys.size
+        assert_equal @config.keys.size-2, hash_check.keys.size
       end
 
       should 'manage null dates' do
@@ -466,7 +476,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         end
 
         hash_check = check_order_details(@mi_attempt)
-        assert_equal 16, hash_check.keys.size
+        assert_equal @config.keys.size-2, hash_check.keys.size
       end
 
       should 'manage empty config file fields (i.e. config file centres have an entry but that entry is set to empty string)' do
@@ -474,7 +484,9 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
         @config = {
           "Harwell"=> {:preferred=>"http://www.mousebook.org/searchmousebook.php?query=PROJECT_ID", :default=>"www.Harwell-default.com"},
-          "HMGU"=>{:preferred=>"", :default=>"www.HMGU-default.com"}
+          "HMGU"=>{:preferred=>"", :default=>"www.HMGU-default.com"},
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"},
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"}
         }
 
         hash_check = check_order_details(@mi_attempt)
@@ -487,12 +499,85 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         config = @config
 
         @config = {
-          "Harwell"=> {:preferred=>"", :default=>"www.something.com"},
-          "HMGU"=>{:preferred=>"", :default=>"www.something-else.com"}
+          "Harwell"=> {:preferred=>"", :default=>""},
+          "HMGU"=>{:preferred=>"", :default=>""},
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.KOMP-default.com"},
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
         }
 
         hash_check = check_order_details(@mi_attempt)
+
+        #pp hash_check
+        #pp @mi_attempt.distribution_centres
+
+        #@mi_attempt.distribution_centres.each do |distribution_centre|
+        #  puts "distribution_centre.centre.name: #{distribution_centre.centre.name}"
+        #end
+
         assert_equal 0, hash_check.keys.size
+
+        @config = config
+      end
+
+      should 'flip to KOMP if UCD found' do
+        config = @config
+
+        @config = {
+          #"UCD"=>{:preferred=>"whatever-else.com/PROJECT_ID", :default=>"www.something-else.com"},
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"},
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+        }
+
+        es_cell = Factory.create :es_cell,
+                :gene => cbx1,
+                :mutation_subtype => 'conditional_ready',
+                :allele_id => 400,
+                :ikmc_project_id => 'VG10003'
+
+        mi_attempt = Factory.create :mi_attempt, :id => 433,
+                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN 2'),
+                :es_cell => es_cell
+
+        #pp es_cell
+        #pp mi_attempt
+
+        dist_centre = Factory.create :mi_attempt_distribution_centre,
+                :centre => Centre.find_by_name!('UCD'),
+                :is_distributed_by_emma => false, :mi_attempt => mi_attempt
+
+        mi_attempt.distribution_centres = [dist_centre]
+
+        hash_check = check_order_details(mi_attempt)
+
+        assert_equal 1, hash_check.keys.size
+        #assert_equal @config["KOMP"][:preferred], hash_check["KOMP"]
+        assert @config["KOMP"][:preferred].gsub(/PROJECT_ID/, mi_attempt.es_cell.ikmc_project_id), hash_check["KOMP"]
+
+        @config = config
+      end
+
+      should 'raise exception if config doesn\'t contain KOMP' do
+        config = @config
+        @config = {
+          "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
+        }
+
+        assert_raise RuntimeError do
+          check_order_details(@mi_attempt)
+        end
+
+        @config = config
+      end
+
+      should 'raise exception if config doesn\'t contain EMMA' do
+        config = @config
+        @config = {
+          "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"}
+        }
+
+        assert_raise RuntimeError do
+          check_order_details(@mi_attempt)
+        end
 
         @config = config
       end

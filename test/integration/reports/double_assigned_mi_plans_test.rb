@@ -15,8 +15,7 @@ class Reports::DoubleAssignedMiPlansTest < Kermits2::IntegrationTest
 
       should 'allow users to visit the double-assignment page & see entries' do
 
-      gene_cbx1 = Factory.create :gene_cbx1
-      es_cell_cbx1 = Factory.create :es_cell, :gene => gene_cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
 
       Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
               :consortium_name => 'BaSH',

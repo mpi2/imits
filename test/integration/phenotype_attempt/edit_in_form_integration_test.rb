@@ -33,7 +33,7 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
     should 'show default values' do
       assert page.has_css? 'form.phenotype-attempt'
 
-      assert_match /ICS-Auto-generated ES Cell Name/, page.find('input[name="phenotype_attempt[mi_attempt_colony_name]"]').value
+      assert_match /ICS-EPD_/, page.find('input[name="phenotype_attempt[mi_attempt_colony_name]"]').value
       assert_equal "1", page.find('input[id="phenotype_attempt_rederivation_started"]').value
       assert_equal "1", page.find('input[id="phenotype_attempt_rederivation_complete"]').value
       assert_match "", page.find('select[name="phenotype_attempt[deleter_strain_name]"]').value

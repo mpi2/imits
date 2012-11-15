@@ -14,10 +14,8 @@ class Reports::MonthlyProductionIntegrationTest < Kermits2::IntegrationTest
 
       should 'allow users to visit the correct page & see entries' do
 
-        gene_cbx1 = Factory.create :gene_cbx1
-
         Factory.create :wtsi_mi_attempt_genotype_confirmed,
-          :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
+          :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele_with_gene_cbx1)),
           :consortium_name => 'MGP',
           :is_active => true,
           :total_pups_born => 10,

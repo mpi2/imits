@@ -273,7 +273,7 @@ Factory.define :allele, :class => TargRep::Allele do |f|
   f.sequence(:subtype_description)  { |n| "subtype description #{n}" }
   f.sequence(:cassette)             { |n| "cassette #{n}"}
   f.sequence(:backbone)             { |n| "backbone #{n}"}
-  f.association :gene, :factory => :randomly_populated_gene
+  f.association :gene, :factory => :gene
 
   f.assembly       "NCBIM37"
   f.chromosome     { [("1".."19").to_a + ['X', 'Y', 'MT']].flatten[rand(22)] }

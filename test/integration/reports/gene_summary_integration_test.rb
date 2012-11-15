@@ -17,19 +17,17 @@ class Reports::GeneSummaryIntegrationTest < Kermits2::IntegrationTest
         visit '/reports/mi_attempts_by_gene'
         assert_match '/reports/mi_attempts_by_gene', current_url
 
-        gene_cbx1 = Factory.create :gene_cbx1
-
         gene_moo1 = Factory.create :gene,
           :marker_symbol => 'Moo1',
           :mgi_accession_id => 'MGI:12345'
 
         Factory.create :wtsi_mi_attempt_genotype_confirmed,
-          :es_cell => Factory.create(:es_cell, :gene => gene_moo1),
+          :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => gene_moo1)),
           :consortium_name => 'EUCOMM-EUMODIC',
           :is_active => true
 
         Factory.create :wtsi_mi_attempt_genotype_confirmed,
-          :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
+          :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele_with_gene_cbx1)),
           :consortium_name => 'EUCOMM-EUMODIC',
           :is_active => true
 

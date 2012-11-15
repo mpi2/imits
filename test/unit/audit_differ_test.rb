@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class AuditDifferTest < ActiveSupport::TestCase
-  def audit_differ; @audit_differ ||= AuditDiffer.new; end
+  def default_audit_differ; @audit_differ ||= AuditDiffer.new; end
 
   context 'AuditDiffer' do
 
@@ -11,7 +11,8 @@ class AuditDifferTest < ActiveSupport::TestCase
           'first_name' => 'Fred',
           'surname' => 'Bloggs',
           'married?' => false,
-          'income' => 20000
+          'income' => 20000,
+          'car' => true
         }
 
         h2 = {
@@ -19,23 +20,68 @@ class AuditDifferTest < ActiveSupport::TestCase
           'surname' => 'Bloggs',
           'married?' => true,
           'income' => 30000,
-          'kids' => 2
+          'kids' => 2,
+          'car' => nil
         }
 
-        diff = audit_differ.diff(h1, h2)
+        diff = default_audit_differ.changed_values(h1, h2)
 
-        assert_equal({'married?' => true, 'kids' => 2, 'income' => 30000}, diff)
+        assert_equal({'married?' => true, 'kids' => 2, 'income' => 30000, 'car' => nil}, diff)
+      end
+
+      should 'translate keys that require no special processing' do
+        assert_equal({'a_key' => 'a_value'},
+          default_audit_differ.translate({'a_key' => 'a_value'}, :model => MiPlan))
       end
 
       [
-        'status_id',
-        'production_centre_id',
-        'consortium_id',
-        'sub_project_id',
-        'priority_id'
-      ].each do |field|
-        should "look up readable value for #{field} in result"
+        ['production_centre_id', Centre.find_by_name!('WTSI').id, 'production_centre', 'WTSI'],
+        ['consortium_id', Consortium.find_by_name!('BaSH').id, 'consortium', 'BaSH']
+      ].each do |fkey, fkey_id, translation, translated_value|
+        should "translate common foreign key #{fkey} to readable value" do
+          assert_equal({translation => translated_value},
+            default_audit_differ.translate({fkey => fkey_id}, :model => MiPlan))
+        end
       end
+    end
+
+    should 'get formatted hash of changes' do
+      h1 = {
+        'consortium_id' => Consortium.find_by_name!('EUCOMM-EUMODIC').id,
+        'priority_id' => MiPlan::Priority.find_by_name!('Low').id
+      }
+
+      h2 = {
+        'consortium_id' => Consortium.find_by_name!('BaSH').id,
+        'production_centre_id' => Centre.find_by_name!('WTSI').id,
+        'status_id' => MiPlan::Status[:asg].id,
+        'priority_id' => MiPlan::Priority.find_by_name!('Low').id,
+        'total_male_chimeras' => 4
+      }
+
+      got = default_audit_differ.get_formatted_changes(h1, h2, :model => MiPlan)
+
+      expected = {
+        'consortium' => 'BaSH',
+        'production_centre' => 'WTSI',
+        'status' => 'Assigned',
+        'total_male_chimeras' => 4
+      }
+
+      assert_equal expected, got
+    end
+
+    should 'Translate old fkey names into new ones' do
+      expected = {
+        'status' => 'Assigned',
+        'priority' => 'High'
+      }
+
+      assert_equal expected, default_audit_differ.get_formatted_changes(
+        {},
+        {'mi_plan_status_id' => MiPlan::Status[:asg].id, 'mi_plan_priority_id' => MiPlan::Priority.find_by_name!('High').id},
+        :model => MiPlan
+      )
     end
 
   end

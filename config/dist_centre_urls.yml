@@ -42,7 +42,7 @@ UCD:
   :preferred: 'http://www.komp.org/geneinfo.php?project=PROJECT_ID'
   :default: 'http://www.komp.org/'
 WTSI:
-  :preferred: 'mailto:mouseinterest@sanger.ac.uk?subject="Mutant mouse for MARKER_SYMBOL"'
+  :preferred: 'mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for MARKER_SYMBOL'
   :default: ''
 EMMA:
   :preferred: 'http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL'

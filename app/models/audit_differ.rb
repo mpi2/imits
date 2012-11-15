@@ -1,11 +1,5 @@
 class AuditDiffer
 
-#  TRANSLATIONS = {
-#    'production_centre_id' => proc {|i, opts| Centre.find_by_id(i).try(:name)},
-#    'consortium_id' => proc {|i, opts| Consortium.find_by_id(i).try(:name)},
-#    'status_id' => proc {|i, opts| opts[:model].const_get(:Status).find_by_id(i).try(:name) }
-#  }
-
   TRANSLATIONS = {}
 
   def self.build_translations
@@ -76,11 +70,11 @@ class AuditDiffer
     return translated
   end
 
-  def get_formatted_changes(h1, h2, options = {})
+  def get_formatted_changes(hash, options = {})
     options.symbolize_keys!
     model = options.fetch(:model)
 
-    return translate(changed_values(pre_translate(h1), pre_translate(h2)), :model => model)
+    return translate(pre_translate(hash), :model => model)
   end
 
 end

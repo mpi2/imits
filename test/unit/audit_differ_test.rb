@@ -5,61 +5,30 @@ class AuditDifferTest < ActiveSupport::TestCase
 
   context 'AuditDiffer' do
 
-    context 'when comparing 2 hashes' do
-      should 'show everything in the 2nd hash that has changed or was not present in the first hash' do
-        h1 = {
-          'first_name' => 'Fred',
-          'surname' => 'Bloggs',
-          'married?' => false,
-          'income' => 20000,
-          'car' => true
-        }
+    should 'translate keys that require no special processing' do
+      assert_equal({'a_key' => 'a_value'},
+        default_audit_differ.translate({'a_key' => 'a_value'}, :model => MiPlan))
+    end
 
-        h2 = {
-          'first_name' => 'Fred',
-          'surname' => 'Bloggs',
-          'married?' => true,
-          'income' => 30000,
-          'kids' => 2,
-          'car' => nil
-        }
-
-        diff = default_audit_differ.changed_values(h1, h2)
-
-        assert_equal({'married?' => true, 'kids' => 2, 'income' => 30000, 'car' => nil}, diff)
-      end
-
-      should 'translate keys that require no special processing' do
-        assert_equal({'a_key' => 'a_value'},
-          default_audit_differ.translate({'a_key' => 'a_value'}, :model => MiPlan))
-      end
-
-      [
-        ['production_centre_id', Centre.find_by_name!('WTSI').id, 'production_centre', 'WTSI'],
-        ['consortium_id', Consortium.find_by_name!('BaSH').id, 'consortium', 'BaSH']
-      ].each do |fkey, fkey_id, translation, translated_value|
-        should "translate common foreign key #{fkey} to readable value" do
-          assert_equal({translation => translated_value},
-            default_audit_differ.translate({fkey => fkey_id}, :model => MiPlan))
-        end
+    [
+      ['production_centre_id', Centre.find_by_name!('WTSI').id, 'production_centre', 'WTSI'],
+      ['consortium_id', Consortium.find_by_name!('BaSH').id, 'consortium', 'BaSH']
+    ].each do |fkey, fkey_id, translation, translated_value|
+      should "translate common foreign key #{fkey} to readable value" do
+        assert_equal({translation => translated_value},
+          default_audit_differ.translate({fkey => fkey_id}, :model => MiPlan))
       end
     end
 
-    should 'get formatted hash of changes' do
-      h1 = {
-        'consortium_id' => Consortium.find_by_name!('EUCOMM-EUMODIC').id,
-        'priority_id' => MiPlan::Priority.find_by_name!('Low').id
-      }
-
-      h2 = {
+    should 'get formatted hash' do
+      h = {
         'consortium_id' => Consortium.find_by_name!('BaSH').id,
         'production_centre_id' => Centre.find_by_name!('WTSI').id,
         'status_id' => MiPlan::Status[:asg].id,
-        'priority_id' => MiPlan::Priority.find_by_name!('Low').id,
         'total_male_chimeras' => 4
       }
 
-      got = default_audit_differ.get_formatted_changes(h1, h2, :model => MiPlan)
+      got = default_audit_differ.get_formatted_changes(h, :model => MiPlan)
 
       expected = {
         'consortium' => 'BaSH',
@@ -78,7 +47,6 @@ class AuditDifferTest < ActiveSupport::TestCase
       }
 
       assert_equal expected, default_audit_differ.get_formatted_changes(
-        {},
         {'mi_plan_status_id' => MiPlan::Status[:asg].id, 'mi_plan_priority_id' => MiPlan::Priority.find_by_name!('High').id},
         :model => MiPlan
       )

@@ -52,8 +52,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       #
       #    doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
       #
-      #    pp doc
-      #
       #    assert_equal 'EMMA', doc['order_from_name']
       #    assert_equal "http://www.emmanet.org/mutant_types.php?keyword=#{@test_object.gene.marker_symbol}", doc['order_from_url']
       #  end
@@ -88,8 +86,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         #  @test_object.distribution_centres = [dist_centre]
         #
         #  doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-        #
-        #  pp doc
         #
         #  assert_equal 'WTSI', doc['order_from_name']
         #  assert_equal "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{@test_object.gene.marker_symbol}", doc['order_from_url']
@@ -507,13 +503,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
         hash_check = check_order_details(@mi_attempt)
 
-        #pp hash_check
-        #pp @mi_attempt.distribution_centres
-
-        #@mi_attempt.distribution_centres.each do |distribution_centre|
-        #  puts "distribution_centre.centre.name: #{distribution_centre.centre.name}"
-        #end
-
         assert_equal 0, hash_check.keys.size
 
         @config = config
@@ -538,9 +527,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
                 :colony_background_strain => Strain.create!(:name => 'TEST STRAIN 2'),
                 :es_cell => es_cell
 
-        #pp es_cell
-        #pp mi_attempt
-
         dist_centre = Factory.create :mi_attempt_distribution_centre,
                 :centre => Centre.find_by_name!('UCD'),
                 :is_distributed_by_emma => false, :mi_attempt => mi_attempt
@@ -550,7 +536,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         hash_check = check_order_details(mi_attempt)
 
         assert_equal 1, hash_check.keys.size
-        #assert_equal @config["KOMP"][:preferred], hash_check["KOMP"]
         assert @config["KOMP"][:preferred].gsub(/PROJECT_ID/, mi_attempt.es_cell.ikmc_project_id), hash_check["KOMP"]
 
         @config = config

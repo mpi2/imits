@@ -7,7 +7,7 @@ class AuditDiffer
       'production_centre_id' => Centre,
       'consortium_id' => Consortium
     }.each do |easy_fkey, klass|
-      TRANSLATIONS[easy_fkey] = proc {|i, opts| klass.find_by_id(i).try(:name) }
+      TRANSLATIONS[easy_fkey] = proc {|values, opts| values.map {|i| klass.find_by_id(i).try(:name) } }
     end
 
     [
@@ -16,7 +16,7 @@ class AuditDiffer
       'sub_project_id'
     ].each do |fkey|
       klass_name = fkey.gsub(/_id$/, '').camelize.to_sym
-      TRANSLATIONS[fkey] = proc {|i, opts| opts[:model].const_get(klass_name).find_by_id(i).try(:name) }
+      TRANSLATIONS[fkey] = proc {|values, opts| values.map {|i| opts[:model].const_get(klass_name).find_by_id(i).try(:name) } }
     end
 
     TRANSLATIONS.freeze
@@ -58,12 +58,17 @@ class AuditDiffer
 
     model = options[:model]
 
-    hash.each do |key, value|
+    hash.each do |key, values|
       formatted_key = key.gsub(/_id$/, '')
+
+      if ! values.kind_of? Array
+        values = [nil, values]
+      end
+
       if TRANSLATIONS.has_key?(key)
-        translated[formatted_key] = TRANSLATIONS[key].call(value, :model => model)
+        translated[formatted_key] = TRANSLATIONS[key].call(values, :model => model)
       else
-        translated[formatted_key] = value
+        translated[formatted_key] = values
       end
     end
 

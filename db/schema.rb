@@ -108,6 +108,7 @@ ActiveRecord::Schema.define(:version => 20121113112851) do
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true
+  add_index "genes", ["mgi_accession_id"], :name => "index_genes_on_mgi_accession_id", :unique => true
 
   create_table "intermediate_report", :force => true do |t|
     t.string   "consortium",                                                  :null => false

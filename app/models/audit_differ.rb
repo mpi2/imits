@@ -4,16 +4,23 @@ class AuditDiffer
 
   def self.build_translations
     {
-      'production_centre_id' => Centre,
-      'consortium_id' => Consortium
-    }.each do |easy_fkey, klass|
-      TRANSLATIONS[easy_fkey] = proc {|values, opts| values.map {|i| klass.find_by_id(i).try(:name) } }
+      'production_centre_id' => {klass: Centre},
+      'consortium_id' => {klass: Consortium},
+      'blast_strain_id' => {klass: Strain},
+      'colony_background_strain_id' => {klass: Strain},
+      'test_cross_strain_id' => {klass: Strain},
+      'deleter_strain_id' => {klass: Strain}
+    }.each do |easy_fkey, opts|
+      klass = opts[:klass]
+      attr = opts[:attr] || :name
+      TRANSLATIONS[easy_fkey] = proc {|values, opts| values.map {|i| klass.find_by_id(i).try(attr) } }
     end
 
     [
       'status_id',
       'priority_id',
-      'sub_project_id'
+      'sub_project_id',
+      'es_cell_id'
     ].each do |fkey|
       klass_name = fkey.gsub(/_id$/, '').camelize.to_sym
       TRANSLATIONS[fkey] = proc {|values, opts| values.map {|i| opts[:model].const_get(klass_name).find_by_id(i).try(:name) } }
@@ -64,6 +71,8 @@ class AuditDiffer
       if ! values.kind_of? Array
         values = [nil, values]
       end
+
+      next if values[0].blank? and values[1].blank?
 
       if TRANSLATIONS.has_key?(key)
         translated[formatted_key] = TRANSLATIONS[key].call(values, :model => model)

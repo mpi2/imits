@@ -25,7 +25,7 @@ class AuditDifferTest < ActiveSupport::TestCase
       assert_equal expected, got
     end
 
-    should 'Translate old fkey names into new ones' do
+    should 'translate old fkey names into new ones' do
       expected = {
         'status' => [nil, 'Assigned'],
         'priority' => [nil, 'High']
@@ -34,6 +34,20 @@ class AuditDifferTest < ActiveSupport::TestCase
       audit = {
         'mi_plan_status_id' => MiPlan::Status[:asg].id,
         'mi_plan_priority_id' => MiPlan::Priority.find_by_name!('High').id
+      }
+
+      assert_equal expected,
+              default_audit_differ.get_formatted_changes(audit, :model => MiPlan)
+    end
+
+    should 'not include essentially blank changes' do
+      expected = {
+        'total_male_chimeras' => [4, nil]
+      }
+
+      audit = {
+        'comments' => '',
+        'total_male_chimeras' => [4, nil]
       }
 
       assert_equal expected,

@@ -18,7 +18,7 @@ namespace :extjs do
 
   task :unpack => [:config] do
     file = Rails.root + "tmp/#{EXTJS_CONFIG['version']}.zip"
-    if ! File.directory?(Rails.root + "tmp/#{EXTJS_CONFIG['version']}")
+    if ! File.directory?(Rails.root + "tmp/#{EXTJS_CONFIG['dirname']}")
       if ! system("cd #{Rails.root}/tmp && unzip -q -o #{file}")
         raise "unzip failed!"
       end
@@ -26,9 +26,9 @@ namespace :extjs do
   end
 
   desc "Install ExtJS version configured in config/extjs.yml"
-  task :install => [:config] do
+  task :install => [:config, :download, :unpack] do
     files_list = EXTJS_CONFIG['files']
-    extjs_dir = Rails.root + "tmp/#{EXTJS_CONFIG['version']}"
+    extjs_dir = Rails.root + "tmp/#{EXTJS_CONFIG['dirname']}"
     public_extjs_dir = Rails.root + 'public/extjs'
 
     if File.exist?(public_extjs_dir) then FileUtils.rm_r(public_extjs_dir) end

@@ -3,7 +3,7 @@ require 'test_helper'
 class AuditRevisionFormatterTest < ActiveSupport::TestCase
   def default_audit_revision_formatter; @audit_revision_formatter ||= AuditRevisionFormatter.new; end
 
-  context 'AuditDiffer' do
+  context 'AuditRevisionFormatter' do
 
     should 'get formatted hash from audit revision' do
       h = {

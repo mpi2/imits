@@ -9,7 +9,8 @@ class AuditRevisionFormatter
       'blast_strain_id' => {klass: Strain},
       'colony_background_strain_id' => {klass: Strain},
       'test_cross_strain_id' => {klass: Strain},
-      'deleter_strain_id' => {klass: Strain}
+      'deleter_strain_id' => {klass: Strain},
+      'gene_id' => {klass: Gene, attr: 'marker_symbol'}
     }.each do |easy_fkey, opts|
       klass = opts[:klass]
       attr = opts[:attr] || :name

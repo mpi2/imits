@@ -1,5 +1,5 @@
 <% @title = "#{@resource.class.readable_name.capitalize} #{@resource.id} History" %>
-<% audit_revision_formatter = AuditDiffer.new %>
+<% audit_revision_formatter = AuditRevisionFormatter.new %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>

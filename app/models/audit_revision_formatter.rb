@@ -1,4 +1,4 @@
-class AuditDiffer
+class AuditRevisionFormatter
 
   TRANSLATIONS = {}
 

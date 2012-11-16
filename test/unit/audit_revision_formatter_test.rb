@@ -1,7 +1,7 @@
 require 'test_helper'
 
-class AuditDifferTest < ActiveSupport::TestCase
-  def default_audit_differ; @audit_differ ||= AuditDiffer.new; end
+class AuditRevisionFormatterTest < ActiveSupport::TestCase
+  def default_audit_revision_formatter; @audit_revision_formatter ||= AuditRevisionFormatter.new; end
 
   context 'AuditDiffer' do
 
@@ -13,7 +13,7 @@ class AuditDifferTest < ActiveSupport::TestCase
         'total_male_chimeras' => [4, nil]
       }
 
-      got = default_audit_differ.get_formatted_changes(h, :model => MiPlan)
+      got = default_audit_revision_formatter.get_formatted_changes(h, :model => MiPlan)
 
       expected = {
         'consortium' => ['EUCOMM-EUMODIC', 'BaSH'],
@@ -37,7 +37,7 @@ class AuditDifferTest < ActiveSupport::TestCase
       }
 
       assert_equal expected,
-              default_audit_differ.get_formatted_changes(audit, :model => MiPlan)
+              default_audit_revision_formatter.get_formatted_changes(audit, :model => MiPlan)
     end
 
     should 'not include essentially blank changes' do
@@ -51,7 +51,7 @@ class AuditDifferTest < ActiveSupport::TestCase
       }
 
       assert_equal expected,
-              default_audit_differ.get_formatted_changes(audit, :model => MiPlan)
+              default_audit_revision_formatter.get_formatted_changes(audit, :model => MiPlan)
     end
 
   end

@@ -2,8 +2,8 @@
 
 <% content_for :pre_js_footer do %>
   <%= javascript_tag "USER_PRODUCTION_CENTRE = #{current_user.production_centre.name.to_json}" %>
-  <%= javascript_tag "PHENOTYPE_CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).to_json}" %>
-  <%= javascript_tag "PHENOTYPE_CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
+  <%= javascript_tag "CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).to_json}" %>
+  <%= javascript_tag "CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
   <%= javascript_tag "PHENOTYPE_STATUS_OPTIONS = #{PhenotypeAttempt::Status.all.map(&:name).to_json}" %>
   <%= javascript_tag "PHENOTYPE_ATTEMPT_SEARCH_PARAMS = #{params[:q].to_json}" %>
   <%= javascript_tag "PHENOTYPE_DELETER_STRAIN_OPTIONS = #{DeleterStrain.all.map(&:name).to_json}" %>

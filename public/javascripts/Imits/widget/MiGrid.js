@@ -19,7 +19,8 @@ Ext.define('Imits.widget.MiGrid', {
     'Imits.widget.QCCombo',
     'Imits.widget.grid.BoolGridColumn',
     'Imits.widget.grid.MiAttemptRansackFiltersFeature',
-    'Imits.widget.grid.SimpleDateColumn'
+    'Imits.widget.grid.SimpleDateColumn',
+    'Imits.Util'
     ],
 
     title: 'Micro-Injection Attempts',
@@ -148,26 +149,32 @@ Ext.define('Imits.widget.MiGrid', {
     },
 
     initComponent: function() {
-        this.callParent();
+        var self = this;
 
-        this.addDocked(Ext.create('Ext.toolbar.Paging', {
-            store: this.getStore(),
+        self.callParent();
+
+        self.addDocked(Ext.create('Ext.toolbar.Paging', {
+            store: self.getStore(),
             dock: 'bottom',
             displayInfo: true
         }));
 
-        this.addDocked(Ext.create('Ext.container.ButtonGroup', {
+        self.addDocked(Ext.create('Ext.container.ButtonGroup', {
             layout: 'hbox',
             dock: 'top',
             items: [
-            this.switchViewButtonConfig('Everything', true),
-            this.switchViewButtonConfig('Transfer Details'),
-            this.switchViewButtonConfig('Litter Details'),
-            this.switchViewButtonConfig('Chimera Mating Details'),
-            this.switchViewButtonConfig('QC Details'),
-            this.switchViewButtonConfig('Summary')
+            self.switchViewButtonConfig('Everything', true),
+            self.switchViewButtonConfig('Transfer Details'),
+            self.switchViewButtonConfig('Litter Details'),
+            self.switchViewButtonConfig('Chimera Mating Details'),
+            self.switchViewButtonConfig('QC Details'),
+            self.switchViewButtonConfig('Summary')
             ]
         }));
+
+        self.addListener('afterrender', function () {
+            self.filters.createFilters();
+        });
     },
 
     // BEGIN COLUMN DEFINITION
@@ -239,7 +246,8 @@ Ext.define('Imits.widget.MiGrid', {
             readOnly: true,
             filter: {
                 type: 'list',
-                options: window.MI_ATTEMPT_CENTRE_OPTIONS
+                options: window.MI_ATTEMPT_CENTRE_OPTIONS,
+                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'production_centre_name')
             },
             sortable: false
         },
@@ -281,7 +289,8 @@ Ext.define('Imits.widget.MiGrid', {
             sortable: false,
             filter: {
                 type: 'list',
-                options: window.MI_ATTEMPT_STATUS_OPTIONS
+                options: window.MI_ATTEMPT_STATUS_OPTIONS,
+                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'status_name')
             }
         },
         {

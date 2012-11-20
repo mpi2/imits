@@ -33,6 +33,14 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
         @enqueuer.mi_attempt_updated(mi)
       end
 
+      should 'not enqueue an update if mi_attempt is not linked to an allele' do
+        mi = Factory.create :mi_attempt_genotype_confirmed, :id => 66
+        mi.es_cell.update_attributes!(:allele_id => 0)
+        mi.reload
+        SolrUpdate::Queue.expects(:enqueue_for_update).never
+        @enqueuer.mi_attempt_updated(mi)
+      end
+
       should 'enqueue a deletion for it if it does not have status "gtc"' do
         mi = Factory.create :mi_attempt_chimeras_obtained, :id => 55
         SolrUpdate::Queue.expects(:enqueue_for_update).never
@@ -68,6 +76,14 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
       should 'enqueue an update for it if it has status "cec"' do
         pa = Factory.create :phenotype_attempt_status_cec, :id => 67545
         SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'phenotype_attempt', 'id' => pa.id})
+        @enqueuer.phenotype_attempt_updated(pa)
+      end
+
+      should 'not enqueue an update if phenotype_attempt is not linked to an allele' do
+        pa = Factory.create :phenotype_attempt_status_cec, :id => 345
+        pa.mi_attempt.es_cell.update_attributes!(:allele_id => 0)
+        pa.reload
+        SolrUpdate::Queue.expects(:enqueue_for_update).never
         @enqueuer.phenotype_attempt_updated(pa)
       end
 

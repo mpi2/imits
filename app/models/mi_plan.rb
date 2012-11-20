@@ -317,6 +317,10 @@ class MiPlan < ApplicationModel
     end
     return 0
   end
+
+  def self.readable_name
+    return 'plan'
+  end
 end
 
 # == Schema Information

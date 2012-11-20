@@ -352,7 +352,7 @@ table.report_table th, .report table th, .report_chunky table th   {
   background-color: #ccc;
 }
 
-table .report_chunky table tr:nth-child(odd)   {
+table .report_chunky table tr:nth-child(odd) {
   background-color: #e6e6e6;
 }
 
@@ -360,7 +360,7 @@ table.report_table td, .report table td, .report_chunky table td  {
 	border: 1px solid #999;
 }
 
-table.report_table th, .report table th,  {
+table.report_table th, .report table th {
   padding: 3px 3px;
 }
 
@@ -522,25 +522,11 @@ div.user-form div.submit {
 
 /* @end */
 
-/* @group Micro-Injection Create/Edit Form */
+/* @group Create/Edit Form */
 
-#mi-attempt-box,
-#mi-attempt-new-top,
-#mi-attempt-new-bottom {
-  box-sizing: content-box;
-  -webkit-box-sizing: content-box;
-  -moz-box-sizing: content-box;
-  -o-box-sizing: content-box;
-  -ms-box-sizing: content-box;
-}
-
-/* @end */
-
-/* @group Phenotype Attempt Create/Edit Form */
-
-#phenotype-attempt-box,
-#phenotype-attempt-new-top,
-#phenotype-attempt-new-bottom {
+#object-box,
+#object-new-top,
+#object-new-bottom {
   box-sizing: content-box;
   -webkit-box-sizing: content-box;
   -moz-box-sizing: content-box;

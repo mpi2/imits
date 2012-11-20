@@ -1,0 +1,36 @@
+<% generator = FieldGenerator.new(form) %>
+<% mi_plan = form.object %>
+
+<fieldset class="collapsible">
+    <legend>Details</legend>
+
+    <div>
+        <div class="marker-symbol">
+            <div class="label">Marker Symbol</div>
+            <div><%= mi_plan.gene.marker_symbol %></div>
+        </div>
+
+        <% if ! mi_plan.status.blank? %>
+            <div>
+                <label>Status</label>
+                <span><%= mi_plan.status.name %></span>
+            </div>
+        <% end %>
+
+        <div>
+            <%= form.label :consortium_name, 'Consortium' %>
+            <span><%= mi_plan.consortium_name %></span>
+        </div>
+
+        <div>
+            <%= form.label :production_centre_name, 'Production Centre' %>
+            <span><%= mi_plan.production_centre_name %></span>
+        </div>
+
+        <div>
+            <%= form.label :comment %>
+            <%= form.text_area :comment %>
+        </div>
+
+    </div>
+</fieldset>

@@ -7,7 +7,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
     'Imits.widget.MiPlanEditor'
     ],
 
-    title: 'Your Plans',
+    title: 'Plans',
     iconCls: 'icon-grid',
     columnLines: true,
 
@@ -51,10 +51,13 @@ Ext.define('Imits.widget.MiPlansGrid', {
             }
         });
 
-        self.addListener('itemclick', function (theView, record) {
-            var id = record.data['id'];
-            self.setLoading("Editing plan....");
-            self.miPlanEditor.edit(id);
+        self.addListener('itemclick', function (theView, record, item, index, event, eventOptions) {
+            var target = Ext.get(event.getTarget());
+            if (target.dom.nodeName.toLowerCase() !== 'a') {
+                var id = record.data['id'];
+                self.setLoading("Editing plan....");
+                self.miPlanEditor.edit(id);
+            }
         });
 
         self.addListener('afterrender', function () {
@@ -77,6 +80,15 @@ Ext.define('Imits.widget.MiPlansGrid', {
         header: 'ID',
         readOnly: true,
         hidden: true
+    },
+    {
+        header: 'Edit In Form',
+        dataIndex: 'edit_link',
+        renderer: function(value, metaData, record) {
+            var id = record.getId();
+            return Ext.String.format('<a href="{0}/mi_plans/{1}">Edit in Form</a>', window.basePath, id);
+        },
+        sortable: false
     },
     {
         dataIndex: 'marker_symbol',

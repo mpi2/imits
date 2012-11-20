@@ -3,7 +3,7 @@
 require 'test_helper'
 
 class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
-  context 'View & Edit MiPlans in grid tests:' do
+  context 'View & Edit MiPlans tests:' do
 
     should 'display MiPlan data' do
       plan = Factory.create :mi_plan,
@@ -143,23 +143,12 @@ class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
       assert_equal 'Inactive', mi_plan.reload.status.name
     end
 
-    should_eventually 'allow users to change consortium on mi_plans' do
-      mi_plan = Factory.create :mi_plan,
-              :gene => Factory.create(:gene_cbx1),
-              :consortium => Consortium.find_by_name!('BaSH'),
-              :production_centre => Centre.find_by_name!('WTSI'),
-              :status => MiPlan::Status['Assigned']
-
+    should 'have link to edit form' do
+      mi_plan = ApplicationModel.uncached { Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI') }
       login default_user
       visit '/mi_plans'
-
-      find('.x-grid-cell').click
-
-      page.execute_script("Ext.ComponentManager.get('consortium_name').setValue('Helmholtz GMC')")
-
-      find('#update-button').click
-
-      wait_until { mi_plan.reload; mi_plan.consortium == Consortium.find_by_name!('Helmholtz GMC') }
+      assert page.has_css?("a[href=\"#{mi_plan_path(mi_plan)}\"]")
     end
+
   end
 end

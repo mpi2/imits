@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 class MiPlansController < ApplicationController
-  respond_to :html, :only => [:gene_selection, :index]
+  respond_to :html, :only => [:gene_selection, :index, :show]
   respond_to :json, :except => [:gene_selection]
   before_filter :authenticate_user!
 
@@ -15,18 +15,19 @@ class MiPlansController < ApplicationController
   end
 
   def show
-    respond_with Public::MiPlan.find_by_id(params[:id])
+    set_centres_and_consortia
+    @mi_plan = Public::MiPlan.find_by_id(params[:id])
+    respond_with @mi_plan
   end
 
-  def public_mi_plan_url(id)
-    mi_plan_url(id)
-  end
+  alias_method :public_mi_plan_url, :mi_plan_url
   protected :public_mi_plan_url
-
-  def public_mi_plans_url
-    mi_plans_url
+  alias_method :public_mi_plans_url, :mi_plans_url
+  protected :public_mi_plans_url
+  helper do
+    def public_mi_plans_path(*args); mi_plans_path(*args); end
+    def public_mi_plan_path(*args); mi_plan_path(*args); end
   end
-  protected :mi_plans_url
 
   def create
     upgradeable = Public::MiPlan.check_for_upgradeable(params[:mi_plan])

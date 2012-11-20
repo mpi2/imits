@@ -144,6 +144,10 @@ class PhenotypeAttempt < ApplicationModel
     self.status_stamps.find_by_status_id(self.status_id)
   end
 
+  def self.readable_name
+    'phenotype attempt'
+  end
+
 end
 
 # == Schema Information

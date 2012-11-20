@@ -996,5 +996,9 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_include default_mi_attempt.class.ancestors, ApplicationModel::HasStatuses
     end
 
+    should 'have ::readable_name' do
+      assert_equal 'micro-injection attempt', MiAttempt.readable_name
+    end
+
   end
 end

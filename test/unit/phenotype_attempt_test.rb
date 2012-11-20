@@ -464,5 +464,9 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
               default_phenotype_attempt.allele_id
     end
 
+    should 'have ::readable_name' do
+      assert_equal 'phenotype attempt', PhenotypeAttempt.readable_name
+    end
+
   end
 end

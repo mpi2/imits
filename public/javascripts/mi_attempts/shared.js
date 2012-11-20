@@ -1,8 +1,8 @@
 function replaceTextFieldWithExtField(selector, replacementCreationFunction) {
-    Ext.select(selector).each(function(textField) {
+    Ext.select(selector).each(function (textField) {
         var name = textField.dom.name;
         var defaultValue = textField.dom.value;
-        var renderDiv = new Ext.Element(Ext.core.DomHelper.createDom({tag: 'div'}));
+        var renderDiv = new Ext.Element(Ext.core.DomHelper.createDom({tag: 'div', 'data-name-of-replaced': name}));
         renderDiv.replace(textField);
 
         replacementCreationFunction(renderDiv, name, defaultValue);

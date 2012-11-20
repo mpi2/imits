@@ -12,10 +12,12 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'save MI and redirect back to show page when valid data' do
-      mi_plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),
-              :consortium => Consortium.find_by_name!('MGP'),
-              :status => MiPlan::Status[:Assigned],
-              :gene => Factory.create(:gene_cbx1)
+      mi_plan = ApplicationModel.uncached do
+        Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),
+                :consortium => Consortium.find_by_name!('MGP'),
+                :status => MiPlan::Status[:Assigned],
+                :gene => Factory.create(:gene_cbx1)
+      end
 
       choose_es_cell_from_list
 

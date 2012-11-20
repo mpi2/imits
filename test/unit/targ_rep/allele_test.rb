@@ -14,7 +14,7 @@ class TargRep::AlleleTest < ActiveSupport::TestCase
   should belong_to(:mutation_method)
 
   should validate_uniqueness_of(:project_design_id).scoped_to([
-      :assembly, :chromosome, :strand,
+      :gene_id, :assembly, :chromosome, :strand,
       :cassette, :backbone,
       :homology_arm_start, :homology_arm_end,
       :cassette_start, :cassette_end,

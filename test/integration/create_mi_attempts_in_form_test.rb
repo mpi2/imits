@@ -12,12 +12,14 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'save MI and redirect back to show page when valid data' do
+      Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1))
+      
       mi_plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),
               :consortium => Consortium.find_by_name!('MGP'),
               :status => MiPlan::Status[:Assigned],
-              :gene => Factory.create(:gene_cbx1)
+              :gene => cbx1
 
-      choose_es_cell_from_list
+      choose_es_cell_from_list 'cbx1', 'EPD_3'
 
       choose_date_from_datepicker_for_input('mi_attempt[mi_date]')
       fill_in 'mi_attempt[colony_name]', :with => 'MZSQ'
@@ -44,7 +46,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
 
       assert page.has_no_css?('#mi_attempt_submit[disabled]')
 
-      assert_equal 'EPD0027_2_A01', page.find(:css, 'input[name="mi_attempt[es_cell_name]"]').value
+      assert_equal 'EPD_1', page.find(:css, 'input[name="mi_attempt[es_cell_name]"]').value
       assert_equal '', page.find(:css, 'select[name="mi_attempt[consortium_name]"]').value
       assert page.has_css? '.message.alert'
       assert page.has_css? '.field_with_errors'
@@ -55,7 +57,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       es_cell = nil, mi_plan = nil
 
       ApplicationModel.uncached do
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele, :gene => cbx1)
         mi_plan = Factory.create :mi_plan,
                 :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => Centre.find_by_name!('WTSI'),

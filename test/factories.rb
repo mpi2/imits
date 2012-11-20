@@ -498,7 +498,7 @@ end
 
 Factory.define :gene_myolc, :parent => :gene do |gene|
   gene.marker_symbol 'Myo1c'
-  gene.mgi_accession_id 'MGI:1923351'
+  gene.mgi_accession_id 'MGI:1923352'
 end
 
 Factory.define :allele_with_gene_myolc, :parent => :allele do |allele|
@@ -529,7 +529,7 @@ end
 
 Factory.define :gene_gatc, :parent => :gene do |gene|
   gene.marker_symbol 'Gatc'
-  gene.mgi_accession_id 'MGI:1923351'
+  gene.mgi_accession_id 'MGI:1923353'
 end
 
 Factory.define :allele_with_gene_gatc, :parent => :allele do |allele|

@@ -40,6 +40,8 @@ class SolrUpdate::Queue::Item < ApplicationModel
       return 'mi_attempt'
     elsif model.kind_of? PhenotypeAttempt
       return 'phenotype_attempt'
+    elsif model.kind_of? TargRep::Allele
+      return 'allele'
     else
       raise 'unknown model type'
     end

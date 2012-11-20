@@ -14,8 +14,9 @@ class QualityOverview::ViewIndexIntegrationTest < Kermits2::IntegrationTest
         :publications_for_gene_count => nil, :go_annotations_for_gene_count => nil
 
         pipeline = TargRep::Pipeline.find_by_name! 'EUCOMM'
+        allele = Factory.create(:allele, :gene => gene_tpi1)
         es_cell_tpi1 = Factory.create :es_cell, :name => 'EPD0183_4_A09', :allele_symbol_superscript_template => 'tm1@(EUCOMM)Wtsi', :allele_type => 'a', :pipeline => pipeline,
-        :gene => gene_tpi1, :parental_cell_line => 'JM8.N4', :mutation_subtype => "conditional_ready"
+        :allele => allele, :parental_cell_line => 'JM8.N4', :mutation_subtype => "conditional_ready"
 
         centre = Centre.find_by_name! 'CNB'
         mi_attempt_distribution_centre = Factory.create :mi_attempt_distribution_centre, :centre => centre, :is_distributed_by_emma => true
@@ -30,10 +31,10 @@ class QualityOverview::ViewIndexIntegrationTest < Kermits2::IntegrationTest
         :non_conditional_es_cells_count => nil, :deletion_es_cells_count => 2, :other_targeted_mice_count => nil, :other_condtional_mice_count => nil, :mutation_published_as_lethal_count => nil,
         :publications_for_gene_count => nil, :go_annotations_for_gene_count => nil
 
-        Factory.create :pipeline, :name => 'KOMP-Regeneron'
         pipeline = TargRep::Pipeline.find_by_name! 'KOMP-Regeneron'
+        allele = Factory.create(:allele, :gene => gene_celsr3)
         es_cell_celsr3 = Factory.create :es_cell, :name => '10009A-F9', :allele_symbol_superscript_template => 'tm1(KOMP)Vlcg', :allele_type => nil, :pipeline => pipeline,
-        :gene => gene_celsr3, :parental_cell_line => 'VGB6', :mutation_subtype => 'deletion'
+        :allele => allele, :parental_cell_line => 'VGB6', :mutation_subtype => 'deletion'
 
         centre = Centre.find_by_name! 'UCD'
         mi_attempt_distribution_centre = Factory.create :mi_attempt_distribution_centre, :centre => centre, :is_distributed_by_emma => true
@@ -49,8 +50,9 @@ class QualityOverview::ViewIndexIntegrationTest < Kermits2::IntegrationTest
         :publications_for_gene_count => nil, :go_annotations_for_gene_count => nil
 
         pipeline = TargRep::Pipeline.find_by_name! 'KOMP-Regeneron'
+        allele = Factory.create(:allele, :gene => gene_lgi2)
         es_cell_lgi2 = Factory.create :es_cell, :name => '10011B-G3', :allele_symbol_superscript_template => 'tm1(KOMP)Vlcg', :allele_type => nil, :pipeline => pipeline,
-        :gene => gene_lgi2, :parental_cell_line => 'VGB6', :mutation_subtype => 'deletion'
+        :allele => allele, :parental_cell_line => 'VGB6', :mutation_subtype => 'deletion'
 
         centre = Centre.find_by_name! 'UCD'
         mi_attempt_distribution_centre = Factory.create :mi_attempt_distribution_centre, :centre => centre, :is_distributed_by_emma => true

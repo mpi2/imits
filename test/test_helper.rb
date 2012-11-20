@@ -129,9 +129,14 @@ Capybara.default_wait_time = 10
 if ! ENV['CHROMIUM'].blank?
   require 'selenium-webdriver'
 
-  Selenium::WebDriver::Chrome.path = "/usr/bin/chromium-browser"
+  if ENV['CHROME_DRIVER_PATH']
+    Selenium::WebDriver::Chrome.driver_path = ENV['CHROME_DRIVER_PATH']
+  end
+
+  Selenium::WebDriver::Chrome.path = ENV['CHROME_PATH'] || "/usr/bin/chromium-browser"
+
   Capybara.register_driver :selenium do |app|
-    Capybara::Selenium::Driver.new(app, :browser => :chrome)
+    Capybara::Selenium::Driver.new(app, :browser => :chrome, :switches => ['--disable-translate', '--disable-smooth-scrolling', '--window-size=3000,1000', '--window-position=0,0'])
   end
 end
 
@@ -183,7 +188,7 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
     ".x-grid-body tbody tr:nth-child(#{table_row+1}) .x-grid-cell-inner"
   end
 
-  def choose_es_cell_from_list(marker_symbol = 'Cbx1', es_cell_name = 'EPD0027_2_A01')
+  def choose_es_cell_from_list(marker_symbol = 'Auto-generated Symbol 1', es_cell_name = 'EPD_1')
     assert page.has_css?('[name=marker_symbol-search-box]')
     fill_in 'marker_symbol-search-box', :with => marker_symbol
     find(:xpath, '//button/span[text()="Search"]').click

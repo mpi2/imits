@@ -24,7 +24,7 @@ class SearchForPhenotypeAttemptsTest < Kermits2::JsIntegrationTest
       es_cell = Factory.create :es_cell, :name => 'EPD0011_1_G18',
               :allele => Factory.create(:allele_with_gene_gatc),
               :allele_symbol_superscript => 'tm1a(KOMP)Wtsi',
-              :pipeline => Pipeline.find_by_name!('KOMP-CSD')
+              :pipeline => TargRep::Pipeline.find_by_name!('KOMP-CSD')
       mi_attempt = Factory.create(:wtsi_mi_attempt_genotype_confirmed,
         :es_cell => es_cell,
         :colony_name => 'MBFD',

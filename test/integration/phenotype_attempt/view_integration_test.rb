@@ -9,7 +9,7 @@ class PhenotypeAttempt::ViewIntegrationTest < Kermits2::JsIntegrationTest
       user = Factory.create :user, :production_centre => pa.mi_plan.production_centre
       login user
       visit '/phenotype_attempts'
-      sleep 2.5
+      sleep 5
       [
         'EUCOMM-EUMODIC',
         'ICS',

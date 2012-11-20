@@ -15,7 +15,7 @@ class MiAttempt::WarningsTest < Kermits2::JsIntegrationTest
       end
 
       should 'not show warnings when there are validation errors' do
-        es_cell = Factory.create :es_cell_EPD0127_4_E01
+        es_cell = Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
 
         visit new_mi_attempt_path
         choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
@@ -26,7 +26,7 @@ class MiAttempt::WarningsTest < Kermits2::JsIntegrationTest
       end
 
       should 'show them after posting form when there are warnings' do
-        es_cell = Factory.create :es_cell_EPD0127_4_E01
+        es_cell = Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
 
         visit new_mi_attempt_path
         choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
@@ -49,6 +49,8 @@ class MiAttempt::WarningsTest < Kermits2::JsIntegrationTest
       end
 
       should 'let user ignore warnings and create anyway' do
+        Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
+        
         visit new_mi_attempt_path
         choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
         choose_date_from_datepicker_for_input('mi_attempt[mi_date]')

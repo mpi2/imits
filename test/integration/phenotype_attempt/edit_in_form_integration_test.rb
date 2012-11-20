@@ -19,7 +19,7 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
 
     should 'show but not allow editing es_cell or gene' do
       assert_match /Auto-generated Symbol/, page.find('.marker-symbol').text
-      assert_match /Auto-generated ES Cell Name/, page.find('.es-cell-name').text
+      assert_match /EPD_/, page.find('.es-cell-name').text
     end
 
     should 'show but not allow editing consortium or production centre' do

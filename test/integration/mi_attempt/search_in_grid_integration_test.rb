@@ -46,7 +46,7 @@ class MiAttempt::SearchInGridIntegrationTest < Kermits2::JsIntegrationTest
               mi_attempt = TargRep::EsCell.find_by_name!('EPD0343_1_H06').mi_attempts.first
               mi_attempt.mouse_allele_type = 'b'
               mi_attempt.save!
-              sleep 3
+              sleep 10
               click_button 'Search'
               [
                 'EPD0343_1_H06',
@@ -114,9 +114,9 @@ class MiAttempt::SearchInGridIntegrationTest < Kermits2::JsIntegrationTest
 
         context 'by a term and filtering by production centre' do
           setup do
-            @es_cell1 = Factory.create :es_cell_EPD0343_1_H06
-            @es_cell2 = Factory.create :es_cell_EPD0127_4_E01
-            @es_cell3 = Factory.create :es_cell_EPD0029_1_G04
+            @es_cell1 = Factory.create :es_cell_EPD0343_1_H06, :allele => Factory.create(:allele_with_gene_myolc)
+            @es_cell2 = Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
+            @es_cell3 = Factory.create :es_cell_EPD0029_1_G04, :allele => Factory.create(:allele_with_gene_gatc)
 
             @mi_attempt = Factory.create(:mi_attempt, :es_cell => @es_cell1,
               :production_centre_name => 'ICS')
@@ -145,9 +145,9 @@ class MiAttempt::SearchInGridIntegrationTest < Kermits2::JsIntegrationTest
 
         context 'by a term and filtering by status' do
           setup do
-            @es_cell1 = Factory.create :es_cell_EPD0343_1_H06
-            @es_cell2 = Factory.create :es_cell_EPD0127_4_E01
-            @es_cell3 = Factory.create :es_cell_EPD0029_1_G04
+            @es_cell1 = Factory.create :es_cell_EPD0343_1_H06, :allele => Factory.create(:allele_with_gene_myolc)
+            @es_cell2 = Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
+            @es_cell3 = Factory.create :es_cell_EPD0029_1_G04, :allele => Factory.create(:allele_with_gene_gatc)
 
             @status = MiAttempt::Status.micro_injection_aborted.name
             @mi_attempt = Factory.create(:mi_attempt, :es_cell => @es_cell2)

@@ -8,11 +8,11 @@ class EsCellsController < ApplicationController
 
   def mart_search
     if ! params[:es_cell_name].blank?
-      respond_with TargRep::EsCell.where('lower(name) like ?', "%#{params[:es_cell_name].to_s.downcase}%"),
+      respond_with TargRep::EsCell.search(:name_cont => params[:es_cell_name]).result.limit(100),
         :methods => ['marker_symbol', 'pipeline_name']
 
     elsif ! params[:marker_symbol].blank?
-      respond_with TargRep::EsCell.includes(:allele => [:gene]).where('lower(genes.marker_symbol) = ?', params[:marker_symbol].to_s.downcase),
+      respond_with TargRep::EsCell.search(:allele_gene_marker_symbol_cont =>  params[:marker_symbol]).result.limit(100),
         :methods => ['marker_symbol', 'pipeline_name']
     
     else

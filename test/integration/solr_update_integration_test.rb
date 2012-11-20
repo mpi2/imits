@@ -17,12 +17,13 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 
       old_strain = Strain.first
       new_strain = Strain.offset(1).first
+      allele = Factory.create(:allele, :gene => cbx1)
       es_cell = Factory.create(:es_cell,
-        :allele => Factory.create(:allele, :gene => cbx1),
+        :allele => allele,
         :name => 'EPD0027_2_A02',
         :mutation_subtype => 'conditional_ready',
         :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi',
-        :allele_id => 902,
+        :allele => allele,
         :ikmc_project_id => '35505')
 
       mi = Factory.create(:mi_attempt_genotype_confirmed,
@@ -42,6 +43,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       @mi_attempt = mi
       @phenotype_attempts = [pa1, pa2]
       @new_strain = new_strain
+      @allele = allele
       @es_cell = es_cell
     end
 
@@ -64,12 +66,12 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'type' => 'mi_attempt',
           'product_type' => 'Mouse',
           'allele_type' => 'Conditional Ready',
-          'allele_id' => 902,
+          'allele_id' => @allele.id,
           'mgi_accession_id' => cbx1.mgi_accession_id,
           'strain' => @new_strain.name,
           'allele_name' => @mi_attempt.allele_symbol,
-          'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image",
-          'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-genbank-file",
+          'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/allele-image",
+          'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
           'order_from_urls' => ["mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1"],
           'order_from_names' => ['WTSI']
         }
@@ -113,12 +115,12 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'type' => 'phenotype_attempt',
         'product_type' => 'Mouse',
         'allele_type' => 'Cre Excised Conditional Ready',
-        'allele_id' => 902,
+        'allele_id' => @allele.id,
         'mgi_accession_id' => cbx1.mgi_accession_id,
         'strain' => @new_strain.name,
         'allele_name' => phenotype_attempt.allele_symbol,
-        'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image-cre",
-        'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-cre-genbank-file"
+        'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/allele-image-cre",
+        'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file"
       }
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')
@@ -163,7 +165,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 
     should_if_solr 'update an es_cell`s mi_attempt solr docs if the es_cell changes' do
       es_cell = @mi_attempt.es_cell
-      es_cell.update_attributes!(:parental_cell_line => 'Foo/1')
+      es_cell.update_attributes!(:parental_cell_line => 'JM8.F6')
       SolrUpdate::Queue.run
       fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
       assert_equal [@mi_attempt.id], fetched_docs.map{|i| i['id']}

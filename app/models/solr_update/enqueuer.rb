@@ -4,7 +4,7 @@ class SolrUpdate::Enqueuer
 
     reference = {'type' => 'mi_attempt', 'id' => mi.id}
 
-    if mi.has_status? :gtc and ! mi.has_status? :abt
+    if mi.has_status? :gtc and ! mi.has_status? :abt and mi.allele_id > 0
       SolrUpdate::Queue.enqueue_for_update(reference)
     else
       SolrUpdate::Queue.enqueue_for_delete(reference)
@@ -23,7 +23,7 @@ class SolrUpdate::Enqueuer
   def phenotype_attempt_updated(pa)
     reference = {'type' => 'phenotype_attempt', 'id' => pa.id}
 
-    if pa.has_status? :cec and ! pa.has_status? :abt
+    if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0
       SolrUpdate::Queue.enqueue_for_update(reference)
     else
       SolrUpdate::Queue.enqueue_for_delete(reference)

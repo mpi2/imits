@@ -98,7 +98,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'])
 
         pt = ee_wtsi_plan.phenotype_attempts.create!(:mi_attempt => bash_wtsi_attempt,
-          :created_at => '2012-01-01 23:59:59 UTC')
+          :created_at => '2011-12-30 23:59:59 UTC')
         pt.status_stamps.destroy_all
         pt.status_stamps.create!(:created_at => '2011-12-30 23:59:59 UTC',
           :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'])
@@ -279,7 +279,6 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
       end
 
       should 'have correct values when there is a PhenotypeAttempt but no MI attempt' do
-        File.open('/tmp/blah.csv', 'wb') {|f| f.puts @report.to_csv}
         ee_wtsi_row = @report.find {|r| r.data['Consortium'] == 'EUCOMM-EUMODIC' && r.data['Production Centre'] == 'WTSI'}
         assert_equal 'Phenotype Attempt Registered', ee_wtsi_row['Overall Status']
         assert_equal '', ee_wtsi_row['MiAttempt Status']

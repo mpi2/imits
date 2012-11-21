@@ -279,6 +279,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
       end
 
       should 'have correct values when there is a PhenotypeAttempt but no MI attempt' do
+        File.open('/tmp/blah.csv', 'wb') {|f| f.puts @report.to_csv}
         ee_wtsi_row = @report.find {|r| r.data['Consortium'] == 'EUCOMM-EUMODIC' && r.data['Production Centre'] == 'WTSI'}
         assert_equal 'Phenotype Attempt Registered', ee_wtsi_row['Overall Status']
         assert_equal '', ee_wtsi_row['MiAttempt Status']

@@ -208,7 +208,7 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
   end
 
   def wait_until_no_mask
-    assert page.has_no_css?('.x-mask', :visible => true)
+    assert page.has_no_css?('.x-mask')
   end
 
   def choose_date_from_datepicker_for_input(input_name)

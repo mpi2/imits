@@ -1,7 +1,11 @@
 Kermits2::Application.routes.draw do
   root :to => "root#index"
 
-  resources :genes, :only => [:index]
+  resources :genes, :only => [:index] do
+    member do
+      get 'relationship_tree'
+    end
+  end
 
   resources :mi_plans do
     collection do

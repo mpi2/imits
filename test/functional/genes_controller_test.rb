@@ -59,5 +59,17 @@ class GenesControllerTest < ActionController::TestCase
       end
     end
 
+    context 'GET relationship_tree' do
+      setup do
+        sign_in default_user
+      end
+
+      should 'work' do
+        assert cbx1
+        get :relationship_tree, :id => cbx1.id
+        assert_response :success, response.body
+      end
+    end
+
   end
 end

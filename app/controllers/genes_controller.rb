@@ -1,5 +1,6 @@
 class GenesController < ApplicationController
   respond_to :json
+  respond_to :html, :only => [:relationship_tree]
   before_filter :authenticate_user!
 
   def index
@@ -21,6 +22,9 @@ class GenesController < ApplicationController
         :type => 'image/png',
         :disposition => 'inline'
     end
+  end
+
+  def relationship_tree
   end
 
   private

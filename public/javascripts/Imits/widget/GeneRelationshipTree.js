@@ -28,6 +28,10 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
         'Ext.data.TreeStore'
     ],
 
+    mixins: [
+        'Imits.widget.ManageResizeWithBrowserFrame'
+    ],
+
     title: 'Relationship Tree',
     store: Imits.getStore(),
     rootVisible: true,

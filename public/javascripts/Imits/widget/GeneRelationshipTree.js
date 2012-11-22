@@ -1,13 +1,36 @@
 Imits.getStore = function () {
     var consortia = Ext.Array.merge([], window.CONSORTIA);
     var centres = Ext.Array.merge([], window.CENTRES);
-    var children = [];
+    var hierarchy = {};
 
     Ext.Array.each(consortia, function (consortiumName) {
+        hierarchy[consortiumName] = {};
+        Ext.Array.each(centres, function (centreName) {
+            var leaves = [];
+            hierarchy[consortiumName][centreName] = leaves;
+        });
+    });
+
+    hierarchy['EUCOMM-EUMODIC'].WTSI.push({text: 'MI Attempt', leaf: true});
+
+    hierarchy.BaSH.WTSI.push({text: 'MI Attempt', leaf: true});
+    hierarchy.BaSH.WTSI.push({text: 'MI Attempt', leaf: true});
+    hierarchy.BaSH.WTSI.push({text: 'Phenotype Attempt', leaf: true});
+
+    hierarchy.DTCC.UCD.push({text: 'MI Attempt', leaf: true});
+    hierarchy.BaSH.WTSI.push({text: 'Phenotype Attempt', leaf: true});
+
+    var children = [];
+
+    Ext.Object.each(hierarchy, function (consortiumName, centresHash) {
         var centresInConsortium = [];
         children.push({text: consortiumName, children: centresInConsortium});
-        Ext.Array.each(centres, function (centreName) {
-            centresInConsortium.push({text: centreName, leaf: false});
+        Ext.Object.each(centresHash, function (centreName, leaves) {
+            if (Ext.isEmpty(leaves)) {
+                centresInConsortium.push({text: centreName, leaf: false});
+            } else {
+                centresInConsortium.push({text: centreName, children: leaves});
+            }
         });
     });
 

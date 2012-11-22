@@ -25,6 +25,7 @@ class GenesController < ApplicationController
   end
 
   def relationship_tree
+    @gene = Gene.find_by_mgi_accession_id!(params[:id])
   end
 
   private

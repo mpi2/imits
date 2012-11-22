@@ -24,14 +24,16 @@ Imits.getStore = function () {
 
     Ext.Object.each(hierarchy, function (consortiumName, centresHash) {
         var centresInConsortium = [];
-        children.push({text: consortiumName, children: centresInConsortium});
+
         Ext.Object.each(centresHash, function (centreName, leaves) {
-            if (Ext.isEmpty(leaves)) {
-                centresInConsortium.push({text: centreName, leaf: false});
-            } else {
-                centresInConsortium.push({text: centreName, children: leaves});
+            if (!Ext.isEmpty(leaves)) {
+                centresInConsortium.push({text: centreName, children: leaves, expanded: true});
             }
         });
+
+        if (!Ext.isEmpty(centresInConsortium)) {
+            children.push({text: consortiumName, children: centresInConsortium, expanded: true});
+        }
     });
 
     var store = Ext.create('Ext.data.TreeStore', {
@@ -63,9 +65,14 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
         }
     },
 
-    title: 'Relationship Tree',
+    initComponent: function () {
+        var self = this;
+
+        self.callParent();
+    },
+
+    title: '&nbsp;',
     store: Imits.getStore(),
-    rootVisible: true,
-    useArrows: true,
-    height: 600
+    rootVisible: false,
+    useArrows: true
 });

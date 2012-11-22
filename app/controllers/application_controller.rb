@@ -1,6 +1,9 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
+  clear_helpers
+  helper :application, :notification_mailer
+
   after_filter :log_json_response_parameters
 
   rescue_from Exception, :with => :custom_json_exception_handler

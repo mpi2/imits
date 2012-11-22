@@ -46,8 +46,9 @@ class MiAttempt::SearchInGridIntegrationTest < Kermits2::JsIntegrationTest
               mi_attempt = TargRep::EsCell.find_by_name!('EPD0343_1_H06').mi_attempts.first
               mi_attempt.mouse_allele_type = 'b'
               mi_attempt.save!
-              sleep 10
+              sleep 4
               click_button 'Search'
+              sleep 50
               [
                 'EPD0343_1_H06',
                 'Myo1c',

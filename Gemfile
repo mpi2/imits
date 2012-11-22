@@ -23,6 +23,9 @@ gem 'scruffy_Sanger','0.2.6.1', :require => 'scruffy'
 
 gem 'unicorn'
 
+## For TargRep
+gem 'dynamic_form'
+
 group :development, :test do
   gem 'launchy'
   gem 'awesome_print'

@@ -1,7 +1,9 @@
 Kermits2::Application.routes.draw do
   root :to => "root#index"
 
-  resources :genes, :only => [:index]
+  resources :genes, :only => [:index] do
+    post :autocomplete, :on => :collection
+  end
 
   resources :mi_plans do
     collection do
@@ -67,12 +69,56 @@ Kermits2::Application.routes.draw do
 
   match ':controller/:id/history' => ':controller#history'
 
+  match 'targ_rep/:controller(/:action(/:id)(.:format))'
+
   namespace :solr_update do
     namespace :queue do
       resources :items, :only => [:index, :destroy] do
         post :run, :on => :member
       end
     end
+  end
+
+  ## TargRep interface
+  namespace :targ_rep do
+    resources :pipelines
+    
+    resources :alleles do
+      get :history, :on => :member
+    end
+
+    resources :genbank_files
+    resources :targeting_vectors
+    
+    resources :es_cells do
+      match  :bulk_edit, :on => :collection, :via => [:get, :post]
+      put    :update_multiple, :on => :collection
+    end
+
+    resources :distribution_qcs
+
+    get '/alleles/:id/escell-clone-genbank-file' => 'alleles#escell_clone_genbank_file', :as => 'escell_clone_genbank_file'
+    get '/alleles/:id/targeting-vector-genbank-file' => 'alleles#targeting_vector_genbank_file', :as => 'targeting_vector_genbank_file'
+    get '/alleles/:id/escell-clone-cre-genbank-file' => 'alleles#escell_clone_cre_genbank_file', :as => 'escell_clone_cre_genbank_file'
+    get '/alleles/:id/targeting-vector-cre-genbank-file' => 'alleles#targeting_vector_cre_genbank_file', :as => 'targeting_vector_cre_genbank_file'
+    get '/alleles/:id/escell-clone-flp-genbank-file' => 'alleles#escell_clone_flp_genbank_file', :as => 'escell_clone_flp_genbank_file'
+    get '/alleles/:id/targeting-vector-flp-genbank-file' => 'allele#targeting_vector_flp_genbank_file', :as => 'targeting_vector_flp_genbank_file'
+    get '/alleles/:id/escell-clone-flp-cre-genbank-file' => 'alleles#escell_clone_flp_cre_genbank_file', :as => 'escell_clone_flp_cre_genbank_file'
+    get '/alleles/:id/targeting-vector-flp-cre-genbank-file' => 'alleles#targeting_vector_flp_cre_genbank_file', :as => 'targeting_vector_flp_cre_genbank_file'
+    get '/alleles/:id/allele-image' => 'alleles#allele_image', :as => 'allele_image'
+    get '/alleles/:id/allele-image-cre' => 'alleles#allele_image_cre', :as => 'allele_image_cre'
+    get '/alleles/:id/allele-image-flp' => 'alleles#allele_image_flp', :as => 'allele_image_flp'
+    get '/alleles/:id/allele-image-flp-cre' => 'alleles#allele_image_flp_cre', :as => 'allele_image_flp_cre'
+    get '/alleles/:id/cassette-image' => 'alleles#cassette_image', :as => 'cassette_image'
+    get '/alleles/:id/vector-image' => 'alleles#vector_image', :as => 'vector_image'
+    get '/alleles/:id/vector-image-cre' => 'alleles#vector_image_cre', :as => 'vector_image_cre'
+    get '/alleles/:id/vector-image-flp' => 'alleles#vector_image_flp', :as => 'vector_image_flp'
+    get '/alleles/:id/vector-image-flp-cre' => 'alleles#vector_image_flp_cre', :as => 'vector_image_flp_cre'
+
+    #connect ':controller/:action/:id.:format'
+    #connect ':controller/:action.:format'
+
+    root :to => "welcome#index"
   end
 
 end

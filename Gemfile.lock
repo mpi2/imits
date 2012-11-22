@@ -63,6 +63,7 @@ GEM
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.0.3)
       warden (~> 1.0.3)
+    dynamic_form (1.1.4)
     erubis (2.6.6)
       abstract (>= 1.0.0)
     eventmachine (0.12.10)
@@ -199,6 +200,7 @@ DEPENDENCIES
   chromedriver-helper
   database_cleaner
   devise
+  dynamic_form
   factory_girl_rails
   foreigner
   hoptoad_notifier

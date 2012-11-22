@@ -1,0 +1,110 @@
+<div class="grid_12">
+  <h2><%= @allele.mgi_accession_id %> | Project Design ID: <%= @allele.project_design_id %></h2>
+</div>
+
+<div class="grid_6">
+  <fieldset>
+    <legend>Genomic Position</legend>
+    <p><strong>Assembly:</strong> <%= @allele.assembly %></p>
+    <p><strong>Chromosome:</strong> <%= @allele.chromosome %></p>
+    <p><strong>Strand</strong> <%= @allele.strand %></p>
+  </fieldset>
+
+  <fieldset>
+    <legend>Mutation Details</legend>
+    <p><strong>Mutation method:</strong> <%= @allele.mutation_method.name %></p>
+    <p><strong>Mutation type:</strong> <%= @allele.mutation_type.name %></p>
+    <p>
+      <strong>Mutation subtype:</strong> <%= @allele.mutation_subtype_name %><br />
+      <em><%= @allele.subtype_description %></em>
+    </p>
+    <p><strong>Cassette:</strong> <%= @allele.cassette %></p>
+    <p><strong>Cassette Type:</strong> <%= @allele.cassette_type %></p>
+    <p><strong>Backbone:</strong> <%= @allele.backbone %></p>
+    <% if @allele.floxed_start_exon == @allele.floxed_end_exon %>
+      <p><strong>Floxed Exon:</strong> <%= @allele.floxed_start_exon %></p>
+    <% else %>
+      <p><strong>First Floxed Exon:</strong> <%= @allele.floxed_start_exon %></p>
+      <p><strong>Last Floxed Exon:</strong> <%= @allele.floxed_end_exon %></p>
+    <% end %>
+  </fieldset>
+</div>
+
+<div class="grid_6">
+  <fieldset>
+    <legend>Molecular Co-Ordinates</legend>
+    <table class="list">
+      <thead>
+        <th>Feature</th>
+        <th>Start</th>
+        <th>End</th>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Homology Arm</td>
+          <td><%= @allele.homology_arm_start %></td>
+          <td><%= @allele.homology_arm_end %></td>
+        </tr>
+        <tr class="even">
+          <td>Cassette</td>
+          <td><%= @allele.cassette_start %></td>
+          <td><%= @allele.cassette_end %></td>
+        </tr>
+        <tr>
+          <td>LoxP</td>
+          <td><%= @allele.loxp_start %></td>
+          <td><%= @allele.loxp_end %></td>
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+
+  <fieldset id="genbank_files">
+    <legend>Genbank Files / Images</legend>
+    <% genbank_file = @allele.genbank_file %>
+    <p>
+      <strong>Targeting Vector Genbank File: </strong>
+      <% unless genbank_file.nil? or genbank_file.targeting_vector.nil? %>
+        <a href="<%= targ_rep_targeting_vector_genbank_file_url(:id => @allele.id) %>" target="_blank" class="ss_sprite ss_magnifier">view</a>
+        <a href="<%= targ_rep_vector_image_url(:id => @allele.id) %>" target="_blank" class="ss_sprite ss_image">vector_image</a>
+      <% else %>
+        <em>not available</em>
+      <% end %>
+    </p>
+    <p>
+      <strong>ES Cell Clone / Allele Genbank File: </strong>
+      <% unless genbank_file.nil? or genbank_file.escell_clone.nil? %>
+        <a href="<%= targ_rep_escell_clone_genbank_file_url(:id => @allele.id) %>" target="_blank" class="ss_sprite ss_magnifier">view</a>
+        <a href="<%= targ_rep_allele_image_url(:id => @allele.id) %>" target="_blank" class="ss_sprite ss_image">allele_image</a>
+        <a href="<%= targ_rep_cassette_image_url(:id => @allele.id) %>" target="_blank" class="ss_sprite ss_image">cassette_image</a>
+      <% else %>
+        <em>not available</em>
+      <% end %>
+    </p>
+  </fieldset>
+</div>
+
+<div class="grid_12">
+  <fieldset>
+    <legend>Targeting Vectors</legend>
+    <%= render :partial => 'show_targeting_vectors' %>
+  </fieldset>
+</div>
+
+<div class="grid_12">
+  <fieldset>
+    <legend>ES Cells</legend>
+    <%= render :partial => 'show_es_cells' %>
+  </fieldset>
+</div>
+
+<% if current_user %>
+<div class="grid_12">
+  <a href="<%= edit_targ_rep_allele_path(@allele) %>" class="button">
+    <%= image_tag "icons/pencil.png", :alt => "" %> Edit
+  </a>
+  <a href="<%= url_for(targ_rep_alleles_path) %>" class="button negative">
+    <%= image_tag "targ_rep/led-icons/cross.png", :alt => "" %> Back
+  </a>
+</div>
+<% end %>

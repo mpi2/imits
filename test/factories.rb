@@ -367,26 +367,6 @@ end
 Factory.define :invalid_targeting_vector, :class => TargRep::TargetingVector do |f|
 end
 
-##
-## EsCellQcConflict
-##
-
-Factory.define :es_cell_qc_conflict, :class => TargRep::EsCellQcConflict do |f|
-  qc_field  = TargRep::EsCell::ESCELL_QC_OPTIONS.keys[ rand(TargRep::EsCell::ESCELL_QC_OPTIONS.size) - 1 ]
-  qc_values = TargRep::EsCell::ESCELL_QC_OPTIONS[qc_field][:values]
-
-  current_result  = qc_values.first
-  proposed_result = qc_values[ rand(qc_values.size - 1) + 1 ]
-
-  f.qc_field        { qc_field.to_s }
-  f.proposed_result { proposed_result }
-
-  f.es_cell { |conflict|
-    conflict.association( :es_cell, {
-      qc_field.to_sym => current_result
-    })
-  }
-end
 
 ##
 ## GenBank files

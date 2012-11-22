@@ -39,4 +39,12 @@ class SolrUpdate::Enqueuer
       object.mi_attempts.reload.each {|mi| mi_attempt_updated(mi) }
     end
   end
+
+  def update_mi_or_phenotype_attempt(object)
+    if object.respond_to? 'phenotype_attempt'
+      phenotype_attempt_updated(object.phenotype_attempt)
+    else
+      mi_attempt_updated(object.mi_attempt)
+    end
+  end
 end

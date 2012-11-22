@@ -136,5 +136,25 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
       end
     end
 
+    context '#update_mi_or_phenotype_attempt' do
+      should 'just work with mi_attempt' do
+        object = stub('distribution_centre')
+        mi_attempt = stub('mi_attempt')
+        object.stubs(:mi_attempt).returns(mi_attempt)
+        object.expects("respond_to?").with('phenotype_attempt').returns(false)
+        @enqueuer.expects(:mi_attempt_updated).with(mi_attempt)
+        @enqueuer.update_mi_or_phenotype_attempt(object)
+      end
+
+      should 'just work with phenotype_attempt' do
+        object = stub('distribution_centre')
+        phenotype_attempt = stub('phenotype_attempt')
+        object.stubs(:phenotype_attempt).returns(phenotype_attempt)
+        object.expects("respond_to?").with('phenotype_attempt').returns(true)
+        @enqueuer.expects(:phenotype_attempt_updated).with(phenotype_attempt)
+        @enqueuer.update_mi_or_phenotype_attempt(object)
+      end
+    end
+
   end
 end

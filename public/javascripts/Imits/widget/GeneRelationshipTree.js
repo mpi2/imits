@@ -7,7 +7,7 @@ Imits.getStore = function () {
         var centresInConsortium = [];
         children.push({text: consortiumName, children: centresInConsortium});
         Ext.Array.each(centres, function (centreName) {
-            centresInConsortium.push({text: centreName, leaf: true});
+            centresInConsortium.push({text: centreName, leaf: false});
         });
     });
 
@@ -25,15 +25,24 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
     extend: 'Ext.tree.Panel',
 
     requires: [
-        'Ext.data.TreeStore'
+        'Ext.data.TreeStore',
+        'Ext.tree.plugin.TreeViewDragDrop'
     ],
 
     mixins: [
         'Imits.widget.ManageResizeWithBrowserFrame'
     ],
 
+    viewConfig: {
+        plugins: {
+            ptype: 'treeviewdragdrop',
+            containerScroll: true
+        }
+    },
+
     title: 'Relationship Tree',
     store: Imits.getStore(),
     rootVisible: true,
+    useArrows: true,
     height: 600
 });

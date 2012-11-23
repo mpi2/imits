@@ -38,10 +38,10 @@ class GenesController < ApplicationController
                   {
                     'name' => 'Plan', 'status' => 'Assigned', 'sub_project' => '',
                     'children' => [
-                      {'name' => 'MI Atttempt', 'colony_name' => 'ABCD', 'status' => 'Micro-injection in progress', 'leaf' => 'true'},
-                      {'name' => 'MI Atttempt', 'colony_name' => 'EFGH', 'status' => 'Micro-injection aborted', 'leaf' => 'true'},
-                      {'name' => 'Phenotype Atttempt', 'colony_name' => 'IJKL-1', 'status' => 'Phenotype Attempt Registered', 'leaf' => 'true'},
-                      {'name' => 'Phenotype Atttempt', 'colony_name' => 'ABCD-1', 'status' => 'Cre Excision Complete', 'leaf' => 'true'}
+                      {'name' => 'MI Attempt', 'colony_name' => 'ABCD', 'status' => 'Micro-injection in progress', 'leaf' => 'true'},
+                      {'name' => 'MI Attempt', 'colony_name' => 'EFGH', 'status' => 'Micro-injection aborted', 'leaf' => 'true'},
+                      {'name' => 'Phenotype Attempt', 'colony_name' => 'IJKL-1', 'status' => 'Phenotype Attempt Registered', 'leaf' => 'true'},
+                      {'name' => 'Phenotype Attempt', 'colony_name' => 'ABCD-1', 'status' => 'Cre Excision Complete', 'leaf' => 'true'}
                     ]
                   }
                 ]

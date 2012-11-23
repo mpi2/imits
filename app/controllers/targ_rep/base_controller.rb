@@ -4,6 +4,8 @@ class TargRep::BaseController < ActionController::Base
   layout 'targ_rep'
   clear_helpers
 
+  helper 'targ_rep/alleles', 'targ_rep/application'
+
   before_filter :authenticate_user!
 
   def authorize_admin_user!

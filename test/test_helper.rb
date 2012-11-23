@@ -31,6 +31,22 @@ class ActiveRecord::Base
   end
 end
 
+class ActionController::TestCase
+  self.use_transactional_fixtures = false
+
+  def database_strategy; :transaction; end
+
+  def setup
+    DatabaseCleaner.strategy = self.database_strategy
+    DatabaseCleaner.start
+    Test::Person.destroy_all
+  end
+
+  def teardown
+    DatabaseCleaner.clean
+  end
+end
+
 class ActiveSupport::TestCase
   include SolrUpdate::TestHelp
 

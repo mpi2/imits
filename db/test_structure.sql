@@ -1251,41 +1251,6 @@ ALTER SEQUENCE targ_rep_es_cell_distribution_centres_id_seq OWNED BY targ_rep_es
 
 
 --
--- Name: targ_rep_es_cell_qc_conflicts; Type: TABLE; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE TABLE targ_rep_es_cell_qc_conflicts (
-    id integer NOT NULL,
-    es_cell_id integer,
-    qc_field character varying(255) NOT NULL,
-    current_result character varying(255) NOT NULL,
-    proposed_result character varying(255) NOT NULL,
-    comment text,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
-);
-
-
---
--- Name: targ_rep_es_cell_qc_conflicts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE targ_rep_es_cell_qc_conflicts_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: targ_rep_es_cell_qc_conflicts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE targ_rep_es_cell_qc_conflicts_id_seq OWNED BY targ_rep_es_cell_qc_conflicts.id;
-
-
---
 -- Name: targ_rep_es_cells; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -1814,13 +1779,6 @@ ALTER TABLE ONLY targ_rep_es_cell_distribution_centres ALTER COLUMN id SET DEFAU
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY targ_rep_es_cell_qc_conflicts ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cell_qc_conflicts_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: -
---
-
 ALTER TABLE ONLY targ_rep_es_cells ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cells_id_seq'::regclass);
 
 
@@ -2130,14 +2088,6 @@ ALTER TABLE ONLY targ_rep_es_cell_distribution_centres
 
 
 --
--- Name: targ_rep_es_cell_qc_conflicts_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY targ_rep_es_cell_qc_conflicts
-    ADD CONSTRAINT targ_rep_es_cell_qc_conflicts_pkey PRIMARY KEY (id);
-
-
---
 -- Name: targ_rep_es_cells_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2213,13 +2163,6 @@ CREATE INDEX associated_index ON audits USING btree (associated_id, associated_t
 --
 
 CREATE INDEX auditable_index ON audits USING btree (auditable_id, auditable_type);
-
-
---
--- Name: es_cell_qc_conflicts_es_cell_id_fk; Type: INDEX; Schema: public; Owner: -; Tablespace: 
---
-
-CREATE INDEX es_cell_qc_conflicts_es_cell_id_fk ON targ_rep_es_cell_qc_conflicts USING btree (es_cell_id);
 
 
 --
@@ -3014,3 +2957,5 @@ INSERT INTO schema_migrations (version) VALUES ('20121109144055');
 INSERT INTO schema_migrations (version) VALUES ('20121113112851');
 
 INSERT INTO schema_migrations (version) VALUES ('20121017152352');
+
+INSERT INTO schema_migrations (version) VALUES ('20121123145151');

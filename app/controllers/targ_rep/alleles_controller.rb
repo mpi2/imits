@@ -312,26 +312,19 @@ class TargRep::AllelesController < TargRep::BaseController
       allele_params.delete "action"
       allele_params.delete "format"
       allele_params.delete "page"
+      allele_params.delete "utf8"
 
       if allele_params.include? :search
         allele_params = params[:search]
-      elsif allele_params[ :loxp_start ] == 'null' and allele_params[ :loxp_end ] == 'null'
+      elsif allele_params[:loxp_start] == 'null' and allele_params[:loxp_end] == 'null'
         # 'loxp_start_null' and 'loxp_end_null' should be used to force
         # these fields to be null
-        allele_params.delete( :loxp_start )
-        allele_params.delete( :loxp_end )
-        allele_params.update({ :loxp_start_null => true, :loxp_end_null => true })
+        allele_params.delete :loxp_start
+        allele_params.delete :loxp_end
+        allele_params.update :loxp_start_null => true, :loxp_end_null => true
       end
 
-      # Search on marker_symbol against SolR and returns
-      if allele_params.include? :marker_symbol and !allele_params[:marker_symbol].blank?
-        marker_symbol = allele_params.delete :marker_symbol
-        results = Gene.search(:marker_symbol_cont => marker_symbol).result
-
-        unless results.empty?
-          allele_params.update :mgi_accession_id => results.first.mgi_accession_id
-        end
-      end
+      allele_params.delete_if { |k, v| v.empty? }
 
       Rails.logger.debug allele_params.inspect
 
@@ -375,7 +368,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
       if allele_params.include? :targeting_vectors
         allele_params[:targeting_vectors].each do |attrs|
-          attrs.update({ :nested => true })
+          attrs.update :nested => true
 
           # Move 'es_cells' Array related to this Targeting Vector
           # into the 'es_cells_attributes' Array created above.
@@ -383,10 +376,10 @@ class TargRep::AllelesController < TargRep::BaseController
           # related to the proper targeting_vector when it gets an ID.
           if attrs.include? :es_cells
             attrs[:es_cells].each do |es_cell_attr|
-              es_cell_attr.update({ :nested => true, :targeting_vector_name => attrs[:name] })
-              allele_params[:es_cells_attributes].push( es_cell_attr )
+              es_cell_attr.update :nested => true, :targeting_vector_name => attrs[:name]
+              allele_params[:es_cells_attributes].push es_cell_attr
             end
-            attrs.delete( :es_cells )
+            attrs.delete :es_cells
           end
         end
 

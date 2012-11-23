@@ -27,12 +27,12 @@ Imits.getStore = function () {
 
         Ext.Object.each(centresHash, function (centreName, leaves) {
             if (!Ext.isEmpty(leaves)) {
-                centresInConsortium.push({name: centreName, children: leaves, expanded: true});
+                centresInConsortium.push({name: centreName, children: leaves});
             }
         });
 
         if (!Ext.isEmpty(centresInConsortium)) {
-            children.push({name: consortiumName, children: centresInConsortium, expanded: true});
+            children.push({name: consortiumName, children: centresInConsortium});
         }
     });
 
@@ -78,6 +78,11 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
             text: 'Status',
             dataIndex: 'status',
             width: 200
+        },
+        {
+            text: 'Colony name',
+            dataIndex: 'colony_name',
+            width: 200
         }
     ],
 
@@ -85,10 +90,31 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
         var self = this;
 
         self.callParent();
+
+        self.addListener('load', function (thing, records, successful) {
+            if (successful) {
+                self.expandAll();
+            }
+        });
+
+        self.addListener('beforeitemmove', function (node, oldParent, newParent, index) {
+            console.log({node: node, oldParent: oldParent, newParent: newParent, index: index});
+            return false;
+        });
     },
 
     title: '&nbsp;',
-    store: Imits.getStore(),
+    store: Ext.create('Ext.data.TreeStore', {
+        fields: [
+            {name: 'name', type: 'string'},
+            {name: 'status', type: 'string'},
+            {name: 'colony_name', type: 'string'}
+        ],
+        proxy: {
+            type: 'ajax',
+            url: window.basePath + '/genes/' + window.GENE.mgi_accession_id + '/relationship_tree'
+        }
+    }),
     rootVisible: false,
     useArrows: true
 });

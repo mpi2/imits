@@ -3,7 +3,7 @@
 <% content_for :pre_js_footer do %>
   <%= javascript_tag "CONSORTIA = #{Consortium.order(:name).all.map(&:name).to_json}" %>
   <%= javascript_tag "CENTRES = #{Centre.order(:name).all.map(&:name).to_json}" %>
-  <%= javascript_tag "GENE_MARKER_SYMBOL = #{@gene.marker_symbol.to_json}" %>
+  <%= javascript_tag "GENE = #{@gene.to_json}" %>
 <% end %>
 
 <% content_for :post_js_footer do %>

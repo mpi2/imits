@@ -12,5 +12,17 @@ class MiPlan::EditInFormIntegrationTest < Kermits2::IntegrationTest
       assert_equal 'Edit Plan', page.find('h2').text
     end
 
+    context 'sub_project_name viewing and editing' do
+      should 'work for WTSI users'
+
+      should 'not work for non-WTSI users'
+    end
+
+    context 'is_bespoke_allele viewing and editing' do
+      should 'work for WTSI users'
+
+      should 'not work for non-WTSI users'
+    end
+
   end
 end

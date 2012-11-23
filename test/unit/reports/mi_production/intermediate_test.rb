@@ -99,7 +99,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'])
 
         pt = ee_wtsi_plan.phenotype_attempts.create!(:mi_attempt => bash_wtsi_attempt,
-          :created_at => '2012-01-01 23:59:59 UTC')
+          :created_at => '2011-12-30 23:59:59 UTC')
         pt.status_stamps.destroy_all
         pt.status_stamps.create!(:created_at => '2011-12-30 23:59:59 UTC',
           :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'])

@@ -12,6 +12,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 'save MI and redirect back to show page when valid data' do
+      
       Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1))
       
       mi_plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),

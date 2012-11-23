@@ -214,11 +214,21 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
   end
 
   def wait_until_no_mask
-    assert page.has_no_css?('.x-mask', :visible => true)
+    tries = 0
+    begin
+      tries += 1
+      assert page.has_no_css?('.x-mask', :visible => true)
+    rescue Selenium::WebDriver::Error::StaleElementReferenceError
+      if tries == 3
+        raise
+      else
+        retry
+      end
+    end
   end
 
   def choose_date_from_datepicker_for_input(input_name)
-    page.find("input[name=\"#{input_name}\"] + div.x-form-trigger-wrap div.x-form-trigger").click
+    page.find("div[data-name-of-replaced=\"#{input_name}\"] div.x-form-date-trigger").click
     page.find('.x-datepicker .x-datepicker-date', :visible => true).click
   end
 end

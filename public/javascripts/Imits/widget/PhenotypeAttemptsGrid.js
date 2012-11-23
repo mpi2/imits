@@ -16,7 +16,8 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
     'Imits.model.PhenotypeAttempt',
     'Imits.widget.SimpleNumberField',
     'Imits.widget.grid.PhenotypeAttemptRansackFiltersFeature',
-    'Imits.widget.grid.BoolGridColumn'
+    'Imits.widget.grid.BoolGridColumn',
+    'Imits.Util'
     ],
 
     title: "Phenotype attempts",
@@ -27,6 +28,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         model: 'Imits.model.PhenotypeAttempt',
         autoLoad: true,
         remoteSort: true,
+        remoteFilter: true,
         pageSize: 20
     },
 
@@ -50,6 +52,9 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
             displayInfo: true
         }));
 
+        self.addListener('afterrender', function () {
+            self.filters.createFilters();
+        });
     },
 
     columns: [
@@ -83,7 +88,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         width: 115,
         filter: {
             type: 'list',
-            options: window.PHENOTYPE_CONSORTIUM_OPTIONS
+            options: window.CONSORTIUM_OPTIONS
         }
     },
     {
@@ -93,7 +98,8 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         width: 150,
         filter: {
             type: 'list',
-            options: window.PHENOTYPE_CENTRE_OPTIONS
+            options: window.CENTRE_OPTIONS,
+            value: Imits.Util.extractValueIfExistent(window.PHENOTYPE_ATTEMPT_SEARCH_PARAMS, 'production_centre_name')
         }
     },
     {
@@ -103,14 +109,14 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         sortable: false,
         width: 225,
         renderer: function(value, metaData, record){
-          var paId = record.getId();
-          var distribution_centres = record.get('distribution_centres_formatted_display');
-          if (distribution_centres != '') {
-            return Ext.String.format('<a href="{0}/phenotype_attempts/{1}#distribution_centres" target="_blank">{2}</a>', window.basePath, paId, distribution_centres);
+            var paId = record.getId();
+            var distributionCentres = record.get('distribution_centres_formatted_display');
+            if (distributionCentres != '') {
+                return Ext.String.format('<a href="{0}/phenotype_attempts/{1}#distribution_centres" target="_blank">{2}</a>', window.basePath, paId, distributionCentres);
             } else {
-                return Ext.String.format('{0}', distribution_centres);
-              }
-          }
+                return Ext.String.format('{0}', distributionCentres);
+            }
+        }
     },
     {
         dataIndex: 'marker_symbol',

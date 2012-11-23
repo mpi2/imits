@@ -21,11 +21,9 @@ class TargRep::EsCell < ActiveRecord::Base
   belongs_to :allele, :class_name => "TargRep::Allele"
   belongs_to :targeting_vector, :class_name => "TargRep::TargetingVector"
 
-  has_many :es_cell_qc_conflicts, :dependent => :destroy, :class_name => "TargRep::EsCellQcConflict"
   has_many :distribution_qcs, :dependent => :destroy, :class_name => "TargRep::DistributionQc"
   has_many :mi_attempts
 
-  accepts_nested_attributes_for :es_cell_qc_conflicts, :allow_destroy => true
   accepts_nested_attributes_for :distribution_qcs, :allow_destroy => true
 
   ##
@@ -149,7 +147,7 @@ class TargRep::EsCell < ActiveRecord::Base
     def allele_symbol_superscript=(text)
       write_attribute(:allele_symbol_superscript, text)
 
-      if text.nil?
+      if text.blank?
         self.allele_symbol_superscript_template = nil
         self.allele_type = nil
         return

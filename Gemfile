@@ -18,7 +18,7 @@ gem 'mpi2_solr_update'
 gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
 
-gem 'rmagick'
+gem 'rmagick', :require => false
 gem 'scruffy_Sanger','0.2.6.1', :require => 'scruffy'
 
 gem 'unicorn'

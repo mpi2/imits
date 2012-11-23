@@ -712,45 +712,5 @@ namespace :migrate do
     end
   end
 
-  desc "Migrate EsCellQcConflict data from TargRep."
-  task :es_cell_qc_conflicts => :environment do
-    require 'targ_rep/pipeline'
-    require 'targ_rep/es_cell'
-
-    puts "You should have already have migrated the EsCellDistributionCentre, User, MutationMethod, MutationType, MutationSubtype, Allele, Pipeline, EsCell, DistributionQc tables when you run this."
-    migration_dependancies(TargRep::EsCellDistributionCentre, User, TargRep::MutationMethod, TargRep::MutationType, TargRep::MutationSubtype, TargRep::Allele, TargRep::Pipeline, TargRep::TargetingVector, TargRep::EsCell, TargRep::DistributionQc)
-
-    begin
-      
-      es_cell_qc_conflicts = {
-        :failed =>  [],
-        :created => []
-      }
-
-      ::TargRep::EsCellQcConflict.transaction do
-
-        ::TargRep::EsCellQcConflict.disable_auditing
-
-        LegacyTargRep::EsCellQcConflict.all.each do |targ_rep_es_cell_qc_conflict|
-          
-
-          es_cell_qc_conflict = ::TargRep::EsCellQcConflict.new(targ_rep_es_cell_qc_conflict.row)
-          es_cell_qc_conflict.id = targ_rep_es_cell_qc_conflict[:id]
-
-          if es_cell_qc_conflict.save
-            es_cell_qc_conflicts[:created] << es_cell_qc_conflict.id
-          else
-            es_cell_qc_conflicts[:failed] << targ_rep_es_cell_qc_conflict.id
-          end
-  
-        end
-      end
-
-      puts "Created #{es_cell_qc_conflicts[:created].size} EsCellQcConflict"
-      puts "Failed to create #{es_cell_qc_conflicts[:failed].size} EsCellQcConflict"
-
-    end
-  end
-
 
 end

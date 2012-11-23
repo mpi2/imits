@@ -21,7 +21,6 @@ Ajax.Responders.register({
   }
 });
 
-
 // Toggles to show/hide the ES Cell QC metrics
 function setup_qc_metric_toggles() {
   $$('a.es_cell_qc_toggle').each( function(link) {
@@ -52,7 +51,7 @@ document.observe('dom:loaded', function() {
     new Form.Element.Observer('gene_marker_symbol', 0.1, function(event) {
       var string = $F('gene_marker_symbol');
       if (string.length >= 3) {
-        console.log(string)
+
         xhr = new Ajax.Request('/genes/autocomplete', {
           method:'post',
           parameters: {
@@ -77,7 +76,7 @@ document.observe('dom:loaded', function() {
                 Form.Element.setValue('gene_marker_symbol', '');
                 $('gene_marker_symbol').placeholder = text
                 $('gene_autocomplete').className = '';
-                Form.Element.setValue('allele_gene_id', id);
+                Form.Element.setValue('targ_rep_allele_gene_id', id);
                 clearList()
               });
             });

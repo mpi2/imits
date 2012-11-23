@@ -16,7 +16,6 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
       assert_should belong_to(:allele)
       assert_should belong_to(:targeting_vector)
 
-      assert_should have_many(:es_cell_qc_conflicts)
       assert_should have_many(:distribution_qcs)
       assert_should have_many(:mi_attempts)
 

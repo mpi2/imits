@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121113112851) do
+ActiveRecord::Schema.define(:version => 20121123145151) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -475,18 +475,6 @@ ActiveRecord::Schema.define(:version => 20121113112851) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  create_table "targ_rep_es_cell_qc_conflicts", :force => true do |t|
-    t.integer  "es_cell_id"
-    t.string   "qc_field",        :null => false
-    t.string   "current_result",  :null => false
-    t.string   "proposed_result", :null => false
-    t.text     "comment"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
-
-  add_index "targ_rep_es_cell_qc_conflicts", ["es_cell_id"], :name => "es_cell_qc_conflicts_es_cell_id_fk"
 
   create_table "targ_rep_es_cells", :force => true do |t|
     t.integer  "allele_id",                                                              :null => false

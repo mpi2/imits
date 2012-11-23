@@ -8,7 +8,7 @@
   <p>
     <%= label_tag :gene_marker_symbol, "Gene" %><br />
     <%= text_field_tag "gene_marker_symbol", '', :class => :title %>
-    <%= hidden_field :allele, :gene_id %>
+    <%= f.hidden_field :gene_id %>
   </p>
   <ul id="gene_autocomplete">
   </ul>
@@ -27,11 +27,11 @@
     <p>
       <%= f.label :chromosome %><br />
       <% chromosomes = ('1'..'19').to_a.push('X').push('Y').push('MT').unshift('') %>
-      <%= select( :allele, :chromosome, chromosomes ) %>
+      <%= f.select :chromosome, chromosomes %>
     </p>
     <p>
       <%= f.label :strand %><br />
-      <%= select( :allele, :strand, ['','+','-'] ) %>
+      <%= f.select :strand, ['','+','-'] %>
     </p>
     <p>
       <%= f.label :assembly, "Assembly" %><br />
@@ -63,7 +63,7 @@
     </p>
     <p>
       <%= f.label :cassette_type %><br />
-      <%= select( :allele, :cassette_type, ['','Promotorless', 'Promotor Driven'] ) %>
+      <%= f.select :cassette_type, ['','Promotorless', 'Promotor Driven'] %>
     </p>
     <p>
       <%= f.label :backbone %><br />
@@ -145,7 +145,7 @@
       </tr>
     </thead>
     <tbody id="targeting_vectors">
-      <% f.fields_for :targeting_vectors do |targ_vec_form| %>
+      <%= f.fields_for :targeting_vectors do |targ_vec_form| %>
         <%= render :partial => 'targ_vec_form', :locals => { :f => targ_vec_form } %>
       <% end -%>
     </tbody>

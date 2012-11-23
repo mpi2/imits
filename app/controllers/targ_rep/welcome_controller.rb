@@ -1,4 +1,4 @@
-class TargRep::WelcomeController < TargRep::ApplicationController
+class TargRep::WelcomeController < TargRep::BaseController
 
   skip_before_filter :authenticate_user!
 

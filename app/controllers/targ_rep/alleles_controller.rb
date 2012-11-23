@@ -1,4 +1,4 @@
-class TargRep::AllelesController < TargRep::ApplicationController
+class TargRep::AllelesController < TargRep::BaseController
   
   respond_to :html, :xml, :json
 
@@ -29,7 +29,7 @@ class TargRep::AllelesController < TargRep::ApplicationController
       :include => [
         :genbank_file,
         { :targeting_vectors => :pipeline },
-        { :es_cells => [ :pipeline, :es_cell_qc_conflicts ] }
+        { :es_cells => [ :pipeline ] }
       ]
 
     @es_cells = @allele.es_cells.sort{ |a,b| a.name <=> b.name }
@@ -53,7 +53,7 @@ class TargRep::AllelesController < TargRep::ApplicationController
       :include => [
         :genbank_file,
         { :targeting_vectors => :pipeline },
-        { :es_cells => [ :pipeline, :es_cell_qc_conflicts ] }
+        { :es_cells => [ :pipeline ] }
       ]
 
     mutational_drop_downs
@@ -308,10 +308,10 @@ class TargRep::AllelesController < TargRep::ApplicationController
       allele_params = params.dup
 
       # Just keep Molecular Structure params.
-      allele_params.delete( "controller" )
-      allele_params.delete( "action" )
-      allele_params.delete( "format" )
-      allele_params.delete( "page" )
+      allele_params.delete "controller"
+      allele_params.delete "action"
+      allele_params.delete "format"
+      allele_params.delete "page"
 
       if allele_params.include? :search
         allele_params = params[:search]
@@ -325,25 +325,24 @@ class TargRep::AllelesController < TargRep::ApplicationController
 
       # Search on marker_symbol against SolR and returns
       if allele_params.include? :marker_symbol and !allele_params[:marker_symbol].blank?
-        marker_symbol = allele_params.delete( :marker_symbol )
-        solr_results = search_solr({
-          :q   => "marker_symbol:#{marker_symbol}",
-          :fl  => "mgi_accession_id"
-        })
-        docs = solr_results['response']['docs']
+        marker_symbol = allele_params.delete :marker_symbol
+        results = Gene.search(:marker_symbol_cont => marker_symbol).result
 
-        unless docs.empty?
-          allele_params.update({ :mgi_accession_id => docs[0]['mgi_accession_id'] })
+        unless results.empty?
+          allele_params.update :mgi_accession_id => results.first.mgi_accession_id
         end
       end
+
+      Rails.logger.debug allele_params.inspect
 
       return allele_params
     end
 
     def format_nested_params
       # Specific to create/update methods - webservice interface
-      params[:allele] = params.delete(:molecular_structure) if params[:molecular_structure]
-      allele_params = params[:allele]
+      params[:targ_rep_allele] = params.delete(:molecular_structure) if params[:molecular_structure]
+      params[:targ_rep_allele] = params.delete(:allele) if params[:allele]
+      allele_params = params[:targ_rep_allele]
 
       # README: http://htgt.internal.sanger.ac.uk:4005/issues/257
       #
@@ -423,31 +422,32 @@ class TargRep::AllelesController < TargRep::ApplicationController
     end
 
     def check_for_genbank_file
-      four_oh_four() if @allele.genbank_file.nil?
+      four_oh_four if @allele.genbank_file.nil?
     end
 
     def check_for_escell_genbank_file
-      four_oh_four() if @allele.genbank_file.escell_clone.nil? || @allele.genbank_file.escell_clone.empty?
+      four_oh_four if @allele.genbank_file.escell_clone.nil? || @allele.genbank_file.escell_clone.empty?
     end
 
     def check_for_vector_genbank_file
-      four_oh_four() if @allele.genbank_file.targeting_vector.nil? || @allele.genbank_file.targeting_vector.empty?
+      four_oh_four if @allele.genbank_file.targeting_vector.nil? || @allele.genbank_file.targeting_vector.empty?
     end
 
     # One can give a targeting_vector_name instead of a targeting_vector_id
     # to link an ES Cell to its Targeting Vector.
     # This function will find the right targeting vector from the given name
-    def update_links_escell_to_targ_vec( allele_id, params )
-      return unless params.include? :es_cells_attributes
-
+    def update_links_escell_to_targ_vec allele_id, params
+      return if params[:es_cells_attributes].blank?
       es_cells_attrs = []
       if params[:es_cells_attributes].is_a? Array
         params[:es_cells_attributes].each do |attrs|
-          es_cells_attrs.push( attrs )
+          next if attrs[:name].blank?
+          es_cells_attrs.push attrs
         end
       else
         params[:es_cells_attributes].each do |key, attrs|
-          es_cells_attrs.push( attrs )
+          next if attrs[:name].blank?
+          es_cells_attrs.push attrs
         end
       end
 
@@ -458,15 +458,15 @@ class TargRep::AllelesController < TargRep::ApplicationController
 
           # Find ES Cell from its 'id' or its 'name' + 'allele_id'
           if attrs.include? :id
-            es_cell = EsCell.find( attrs[:id] )
+            es_cell = TargRep::EsCell.find attrs[:id]
           else
-            search  = EsCell.search({ :name_like => attrs[:name], :allele_id_is => allele_id })
+            search  = TargRep::EsCell.search :name_like => attrs[:name], :allele_id_is => allele_id
             es_cell = search.first
           end
 
           # Find targeting vector from given name and link it to the ES Cell
           if es_cell and es_cell.targeting_vector.nil?
-            search = TargetingVector.name_is(attrs[:targeting_vector_name])
+            search = TargRep::TargetingVector.name_is(attrs[:targeting_vector_name])
             es_cell.targeting_vector = search.first
             es_cell.save
           end

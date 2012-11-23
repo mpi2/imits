@@ -299,13 +299,3 @@ class Test::Person < ApplicationModel
 
   validates :name, :uniqueness => true
 end
-
-ApplicationModel.class_eval do
-  def self.to_public_class
-    return "Public::#{self.name}".constantize
-  end
-
-  def to_public
-    return self.class.to_public_class.find(self.id)
-  end
-end

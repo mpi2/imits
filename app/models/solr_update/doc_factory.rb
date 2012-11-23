@@ -72,8 +72,8 @@ class SolrUpdate::DocFactory
     #puts "#### deleter_strain:"
     #pp phenotype_attempt.deleter_strain
 
-    puts "#### phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript_template:"
-    pp phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript_template
+    #puts "#### phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript_template:"
+    #pp phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript_template
 
     #imits_development=# select distinct mouse_allele_type from phenotype_attempts;
     # mouse_allele_type
@@ -93,15 +93,38 @@ class SolrUpdate::DocFactory
     #  solr_doc['allele_type'] = 'Cre-excised deletion (tm1.1)'
     #end
 
-    if ['b', '.1'].include? phenotype_attempt.mouse_allele_type
-      solr_doc['allele_type'] = "Cre-excised deletion (tm1#{phenotype_attempt.mouse_allele_type})"
-    end
+    #if ['b', '.1'].include? phenotype_attempt.mouse_allele_type
+    #  solr_doc['allele_type'] = "Cre-excised deletion (tm1#{phenotype_attempt.mouse_allele_type})"
+    #end
 
     #if phenotype_attempt.mouse_allele_type == 'b'
     #  solr_doc['allele_type'] = 'Cre Excised Conditional Ready'
     #elsif phenotype_attempt.mouse_allele_type == '.1'
     #  solr_doc['allele_type'] = 'Cre Excised Deletion'
     #end
+
+    allele_type = ''
+    if phenotype_attempt.mouse_allele_symbol.nil?
+      allele_type = phenotype_attempt.mi_attempt.allele_symbol
+    else
+      allele_type = phenotype_attempt.mouse_allele_symbol
+    end
+
+    puts "#### phenotype_attempt.mi_attempt.allele_symbol: #{phenotype_attempt.mi_attempt.allele_symbol}"
+    puts "#### phenotype_attempt.mouse_allele_symbol: #{phenotype_attempt.mouse_allele_symbol}"
+    puts "#### create_for_phenotype_attempt: allele_type: #{allele_type}"
+
+    target = allele_type[/\>(.+)?\(/, 1]
+
+    puts "#### create_for_phenotype_attempt: target: #{target}"
+
+    if ['b', '.1'].include? phenotype_attempt.mouse_allele_type
+      solr_doc['allele_type'] = "Cre-excised deletion (#{target})"
+    end
+
+
+
+
 
     solr_doc['allele_id'] = phenotype_attempt.allele_id
 

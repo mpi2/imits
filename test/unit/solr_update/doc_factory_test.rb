@@ -243,13 +243,13 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         should 'be Cre Excised Conditional Ready if mouse_allele_type is b' do
           @phenotype_attempt.mouse_allele_type = 'b'
           doc = SolrUpdate::DocFactory.create_for_phenotype_attempt(@phenotype_attempt).first
-          assert_equal 'Cre Excised Conditional Ready', doc['allele_type']
+          assert_equal 'Cre-excised deletion (tm1b)', doc['allele_type']
         end
 
         should 'be Cre Excised Deletion if mouse_allele_type is .1' do
           @phenotype_attempt.mouse_allele_type = '.1'
           doc = SolrUpdate::DocFactory.create_for_phenotype_attempt(@phenotype_attempt).first
-          assert_equal 'Cre Excised Deletion', doc['allele_type']
+          assert_equal 'Cre-excised deletion (tm1.1)', doc['allele_type']
         end
       end
 

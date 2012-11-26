@@ -37,7 +37,7 @@ class TargRep::EsCell < ActiveRecord::Base
   validates :pipeline_id, :presence => true
   validates :allele_id, :presence => {:unless => :nested}
   validates :parental_cell_line, :presence => true
-  validates :targeting_vector_id, :consistent_allele => {:if => :has_allele_and_targeting_vector?}
+  validates :targeting_vector, :consistent_allele => {:if => :has_allele_and_targeting_vector?}
 
   validate :set_and_check_strain
 
@@ -71,6 +71,9 @@ class TargRep::EsCell < ActiveRecord::Base
   delegate :gene, :to => :allele
   delegate :marker_symbol, :to => :gene
   
+  scope :has_targeting_vector, where('targeting_vector_id is not NULL')
+  scope :no_targeting_vector, where(:targeting_vector_id => nil)
+
   ##
   ## Methods
   ##
@@ -93,9 +96,7 @@ class TargRep::EsCell < ActiveRecord::Base
       TargRep::EsCell.include_root_in_json = false
       options.update(
         :include => {
-          :creator => { :only => [:id, :username] },
-          :updater => { :only => [:id, :username] },
-          :distribution_qcs => { :except => [:es_cell_id, :created_at, :updated_at] }
+          :distribution_qcs => { :except => [:id, :created_at, :updated_at] }
         }
       )
       super( options )
@@ -105,9 +106,7 @@ class TargRep::EsCell < ActiveRecord::Base
       options.update(
         :skip_types => true,
         :include => {
-          :creator => { :only => [:id, :username] },
-          :updater => { :only => [:id, :username] },
-          :distribution_qcs => { :except => [:es_cell_id, :created_at, :updated_at] }
+          :distribution_qcs => { :except => [:id, :created_at, :updated_at] }
         }
       )
     end
@@ -127,7 +126,7 @@ class TargRep::EsCell < ActiveRecord::Base
         self.distribution_qcs.build
       end
 
-      self.distribution_qcs.push TargRep::DistributionQc.new(:centre => centre)
+      self.distribution_qcs.push TargRep::DistributionQc.new(:es_cell_distribution_centre => centre)
     end
 
     ##

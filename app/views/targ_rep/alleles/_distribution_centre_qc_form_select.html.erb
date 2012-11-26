@@ -1,2 +1,2 @@
-<%= render :partial => 'show_distribution_centre_qc_title', :locals => { :symbol => symbol } %>
+<%= render :partial => 'targ_rep/alleles/show_distribution_centre_qc_title', :locals => { :symbol => symbol } %>
 <td><%= distribution_qc.select( symbol, TargRep::DistributionQc.get_qc_metrics[symbol.to_s][:values], { :include_blank => true } ) %></td>

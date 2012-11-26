@@ -40,12 +40,6 @@ Factory.define :es_cell, :class => TargRep::EsCell do |f|
   f.pipeline { TargRep::Pipeline.find_by_name! 'EUCOMM' }
   f.association :allele,   :factory => :allele
 
-  f.targeting_vector do |es_cell|
-    es_cell.association :targeting_vector,
-      :allele       => es_cell.allele,
-      :ikmc_project_id => ikmc_project_id
-  end
-
   f.ikmc_project_id { ikmc_project_id }
 end
 

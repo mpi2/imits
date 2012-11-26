@@ -5,14 +5,18 @@ class TargRep::AllelesController < TargRep::BaseController
   # For webservice interface
   before_filter :format_nested_params, :only => [:create, :update]
 
+  before_filter :authorize_admin_user!, :only => :destroy
+
   # GET /alleles
   # GET /alleles.xml
   # GET /alleles.json
   def index
     params[:page] ||= 1
+    params[:per_page] ||= 100
     allele_params = setup_allele_search(params)
     @alleles = TargRep::Allele.search(allele_params).result.paginate(
       :page    => params[:page],
+      :per_page => params[:per_page],
       :select  => "distinct targ_rep_alleles.*",
       :include => [ { :targeting_vectors => :pipeline }, { :es_cells => :pipeline } ]
     )
@@ -42,7 +46,7 @@ class TargRep::AllelesController < TargRep::BaseController
   def new
     @allele = TargRep::Allele.new
     mutational_drop_downs
-    @allele.genbank_file = GenbankFile.new
+    @allele.genbank_file = TargRep::GenbankFile.new
     @allele.targeting_vectors.build
     @allele.es_cells.build
   end
@@ -147,58 +151,58 @@ class TargRep::AllelesController < TargRep::BaseController
   # GET /alleles/1/escell_clone_genbank_file/
   def escell_clone_genbank_file
     find_allele
-    check_for_genbank_file
-    check_for_escell_genbank_file
+    return if check_for_genbank_file
+    return if check_for_escell_genbank_file
     send_genbank_file(@allele.genbank_file.escell_clone)
   end
 
   # GET /alleles/1/targeting-vector-genbank-file/
   def targeting_vector_genbank_file
     find_allele
-    check_for_genbank_file
-    check_for_vector_genbank_file
+    return if check_for_genbank_file
+    return if check_for_vector_genbank_file
     send_genbank_file(@allele.genbank_file.targeting_vector)
   end
 
   def escell_clone_cre_genbank_file
     find_allele
-    check_for_genbank_file
-    check_for_escell_genbank_file
+    return if check_for_genbank_file
+    return if check_for_escell_genbank_file
     send_genbank_file(@allele.genbank_file.escell_clone_cre)
   end
 
   def targeting_vector_cre_genbank_file
     find_allele
-    check_for_genbank_file
-    check_for_vector_genbank_file
+    return if check_for_genbank_file
+    return if check_for_vector_genbank_file
     send_genbank_file(@allele.genbank_file.targeting_vector_cre)
   end
 
   def escell_clone_flp_genbank_file
     find_allele
-    check_for_genbank_file
-    check_for_escell_genbank_file
+    return if check_for_genbank_file
+    return if check_for_escell_genbank_file
     send_genbank_file(@allele.genbank_file.escell_clone_flp)
   end
 
   def targeting_vector_flp_genbank_file
     find_allele
-    check_for_genbank_file
-    check_for_vector_genbank_file
+    return if check_for_genbank_file
+    return if check_for_vector_genbank_file
     send_genbank_file(@allele.genbank_file.targeting_vector_flp)
   end
 
   def escell_clone_flp_cre_genbank_file
     find_allele
-    check_for_genbank_file
-    check_for_escell_genbank_file
+    return if check_for_genbank_file
+    return if check_for_escell_genbank_file
     send_genbank_file(@allele.genbank_file.escell_clone_flp_cre)
   end
 
   def targeting_vector_flp_cre_genbank_file
     find_allele
-    check_for_genbank_file
-    check_for_vector_genbank_file
+    return if check_for_genbank_file
+    return if check_for_vector_genbank_file
     send_genbank_file(@allele.genbank_file.targeting_vector_flp_cre)
   end
 
@@ -215,71 +219,71 @@ class TargRep::AllelesController < TargRep::BaseController
   # GET /alleles/1/allele-image/
   def allele_image
     find_allele
-    check_for_genbank_file
-    check_for_escell_genbank_file
+    return if check_for_genbank_file
+    return if check_for_escell_genbank_file
     send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone).render.to_blob { self.format = "PNG" })
   end
 
   # GET /alleles/1/allele-image-cre/
   def allele_image_cre
     find_allele
-    check_for_genbank_file
-    check_for_escell_genbank_file
+    return if check_for_genbank_file
+    return if check_for_escell_genbank_file
     send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_cre).render.to_blob { self.format = "PNG" })
   end
 
   # GET /alleles/1/allele-image-flp/
   def allele_image_flp
     find_allele
-    check_for_genbank_file
-    check_for_escell_genbank_file
+    return if check_for_genbank_file
+    return if check_for_escell_genbank_file
     send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_flp).render.to_blob { self.format = "PNG" })
   end
 
   # GET /alleles/1/allele-image-flp-cre/
   def allele_image_flp_cre
     find_allele
-    check_for_genbank_file
-    check_for_escell_genbank_file
+    return if check_for_genbank_file
+    return if check_for_escell_genbank_file
     send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_flp_cre).render.to_blob { self.format = "PNG" })
   end
 
   # GET /alleles/1/cassette-image/
   def cassette_image
     find_allele
-    check_for_genbank_file
+    return if check_for_genbank_file
     send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone, true).render.to_blob { self.format = "PNG" })
   end
 
   # GET /alleles/1/vector-image/
   def vector_image
     find_allele
-    check_for_genbank_file
-    check_for_vector_genbank_file
+    return if check_for_genbank_file
+    return if check_for_vector_genbank_file
     send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector ).render.to_blob { self.format = "PNG" })
   end
 
   # GET /alleles/1/vector-image-cre/
   def vector_image_cre
     find_allele
-    check_for_genbank_file
-    check_for_vector_genbank_file
+    return if check_for_genbank_file
+    return if check_for_vector_genbank_file
     send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector_cre ).render.to_blob { self.format = "PNG" })
   end
 
   # GET /alleles/1/vector-image-flp/
   def vector_image_flp
     find_allele
-    check_for_genbank_file
-    check_for_vector_genbank_file
+    return if check_for_genbank_file
+    return if check_for_vector_genbank_file
     send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector_flp ).render.to_blob { self.format = "PNG" })
   end
 
   # GET /alleles/1/vector-image-flp-cre/
   def vector_image_flp_cre
     find_allele
-    check_for_genbank_file
-    check_for_vector_genbank_file
+    return if check_for_genbank_file
+    return if check_for_vector_genbank_file
     send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector_flp_cre ).render.to_blob { self.format = "PNG" })
   end
 
@@ -312,6 +316,7 @@ class TargRep::AllelesController < TargRep::BaseController
       allele_params.delete "action"
       allele_params.delete "format"
       allele_params.delete "page"
+      allele_params.delete "per_page"
       allele_params.delete "utf8"
 
       if allele_params.include? :search
@@ -409,7 +414,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
     def four_oh_four
       respond_to do |format|
-        format.html { render :file => "#{RAILS_ROOT}/public/404.html", :status => "404 Not Found" }
+        format.html { render :file => "#{Rails.root}/public/404.html", :status => "404 Not Found" }
         format.all { render :nothing => true, :status => "404 Not Found" }
       end
     end
@@ -423,7 +428,7 @@ class TargRep::AllelesController < TargRep::BaseController
     end
 
     def check_for_vector_genbank_file
-      four_oh_four if @allele.genbank_file.targeting_vector.nil? || @allele.genbank_file.targeting_vector.empty?
+      four_oh_four if check_for_genbank_file && @allele.genbank_file.targeting_vector.nil? || @allele.genbank_file.targeting_vector.empty?
     end
 
     # One can give a targeting_vector_name instead of a targeting_vector_id
@@ -453,14 +458,13 @@ class TargRep::AllelesController < TargRep::BaseController
           if attrs.include? :id
             es_cell = TargRep::EsCell.find attrs[:id]
           else
-            search  = TargRep::EsCell.search :name_like => attrs[:name], :allele_id_is => allele_id
+            search  = TargRep::EsCell.search(:name_like => attrs[:name], :allele_id_is => allele_id).result
             es_cell = search.first
           end
 
           # Find targeting vector from given name and link it to the ES Cell
           if es_cell and es_cell.targeting_vector.nil?
-            search = TargRep::TargetingVector.name_is(attrs[:targeting_vector_name])
-            es_cell.targeting_vector = search.first
+            es_cell.targeting_vector = TargRep::TargetingVector.find_by_name!(attrs[:targeting_vector_name])
             es_cell.save
           end
         end

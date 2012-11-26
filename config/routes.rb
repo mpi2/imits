@@ -39,12 +39,6 @@ Kermits2::Application.routes.draw do
   post 'user/admin/transform', :to => 'user/admin#transform', :as => :transform_admin
   post 'user/admin/create_user', :to => 'user/admin#create_user', :as => :admin_create_user
 
-  resources :es_cells, :only => [] do
-    collection do
-      get 'mart_search'
-    end
-  end
-
   resources :sub_projects, :only => [:index, :create, :destroy]
 
   match 'gene/:id/network_graph' => "genes#network_graph"
@@ -78,6 +72,8 @@ Kermits2::Application.routes.draw do
       end
     end
   end
+
+  match '/es_cells/mart_search' => 'TargRep::EsCells#mart_search', :as => 'mart_search'
 
   ## TargRep interface
   namespace :targ_rep do

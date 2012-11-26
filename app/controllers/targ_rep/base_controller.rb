@@ -9,8 +9,7 @@ class TargRep::BaseController < ActionController::Base
   before_filter :authenticate_user!
 
   def authorize_admin_user!
-    if current_user.try(:admin?) != true
-
+    unless current_user.admin?
       respond_to do |format|
         format.html do
           flash[:alert] = 'Access to restricted area detected - this incident has been logged'
@@ -18,11 +17,11 @@ class TargRep::BaseController < ActionController::Base
         end
 
         format.json do
-          render :json => {'error' => 'Access to restricted area detected - this incident has been logged' }
+          render :json => {'error' => 'Access to restricted area detected - this incident has been logged' }, :status => 302
         end
       end
 
-      Rails.logger.info 'Unauthorized access detected'
+      return false
     end
   end
   protected :authorize_admin_user!

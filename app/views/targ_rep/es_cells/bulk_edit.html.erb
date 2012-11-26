@@ -1,0 +1,85 @@
+<% javascript 'dynamic_esc_qc_conflict_selects' %>
+
+<div class="grid_12">
+  <h2>ES Cell Bulk Editing</h2>
+
+  <%= form_tag bulk_edit_targ_rep_es_cells_path, :method => :post do %>
+    Enter a list of ES Cell names (one ES Cell per line) to edit and press search:<br />
+    <%=
+      text_area_tag :es_cell_names,
+        params[:es_cell_names],
+        :rows => 10,
+        :cols => 25,
+        :style => "height:auto"
+    %>
+    <br />
+    <button type="submit" class="button">
+      <%= image_tag "led-icons/find.png", :alt => "" %> Search
+    </button>
+
+  <% end %>
+</div>
+
+<% if @es_cells and @es_cells.size > 0 %>
+  <div class="grid_12 clear hr alpha omega"></div>
+
+  <div class="grid_12">
+    <% pipeline_list = TargRep::Pipeline.find(:all, :order => "name").collect {|p| [ p.name, p.id ] } %>
+
+    <%= form_tag update_multiple_targ_rep_es_cells_path, :method => :put do %>
+      <% @es_cells.each do |es_cell| %>
+        <%= fields_for "es_cells[]", es_cell do |f| %>
+          <%= f.hidden_field :name %>
+          <h3><%=h es_cell.name %></h3>
+
+          <% unless f.error_messages.empty? %>
+            <div class="error">
+              <%= f.error_messages :object_name => "es_cell" %>
+            </div>
+          <% end %>
+
+          <table class="list">
+            <thead>
+              <tr>
+                <th>Targeting Vector</th>
+                <th>TV IKMC Project ID</th>
+                <th>Pipeline</th>
+                <th>Allele Symbol Superscript</th>
+                <th>Parental Cell Line</th>
+                <th>IKMC Project ID</th>
+                <th>Report to Public</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <% if es_cell.targeting_vector %>
+                  <td><%=h es_cell.targeting_vector.name %></td>
+                  <td><%=h print_dash_on_empty( es_cell.targeting_vector.ikmc_project_id ) %></td>
+                <% else %>
+                  <td></td>
+                  <td></td>
+                <% end %>
+                <td><%= f.select :pipeline_id, pipeline_list.unshift(['',nil]) %></td>
+                <td><%= f.text_field :allele_symbol_superscript %></td>
+                <td><%= f.text_field :parental_cell_line %></td>
+                <td><%= f.text_field :ikmc_project_id %></td>
+                <td><%= f.check_box :report_to_public %></td>
+                <td><a href="#" class="es_cell_qc_toggle ss_sprite ss_magnifier">show/hide QC metrics</a></td>
+              </tr>
+              <tr class="es_cell_qc">
+                <td colspan="8">
+                  <%= render :partial => 'targ_rep/alleles/es_cell_qc_form', :locals => { :f => f } %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        <% end %>
+      <% end %>
+
+      <button type="submit" class="button positive">
+        <%= image_tag "led-icons/accept.png", :alt => "" %> Save
+      </button>
+    <% end %>
+  </div>
+<% end %>

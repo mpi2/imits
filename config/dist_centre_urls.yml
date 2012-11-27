@@ -15,7 +15,7 @@ Monterotondo:
   :preferred: ''
   :default: ''
 JAX:
-  :preferred: ''
+  :preferred: 'http://www.mouse-genome.bcm.tmc.edu/bash/'
   :default: ''
 Oulu:
   :preferred: ''
@@ -24,7 +24,7 @@ VETMEDUNI:
   :preferred: ''
   :default: ''
 BCM:
-  :preferred: ''
+  :preferred: 'http://jaxmice.jax.org/index.html'
   :default: ''
 CNRS:
   :preferred: ''

@@ -6,25 +6,8 @@
 #Task #9313: create 'robot' users for (most) production centres
 #http://htgt.internal.sanger.ac.uk:4005/issues/9313
 #
-#Author: Vivek Iyer
-#Status: New
-#Priority: Immediate
-#Assignee: Richard Easty
-#Category:
-#Target version: 2012 November 2
-#Related RT Ticket:
-#Sprint:
-#
-#
 #There are a number of production centres, who - like us - need 'robot' users. Create these, assigning them to the various centres:
 #
-#ICS
-#Harwell
-#JAX
-#UCD
-#TCP
-#BCM
-#CNR
 #... let's make one user PER centre.
 #Password - make it random in production
 #
@@ -38,3 +21,28 @@
 # for each centre
 # add robot user if not already there
 # set password to password
+
+DEBUG = true
+
+ApplicationModel.audited_transaction do
+
+counter = 1
+Centre.all.each do |centre|
+	#puts "NAME: #{centre.name}"
+	name = centre.name.gsub(/\s+/, '_').downcase + '_robot'
+	# see http://stackoverflow.com/questions/88311/how-best-to-generate-a-random-string-in-ruby
+      	password = ('a'..'z').to_a.shuffle[0,8].join
+	next if User.find_by_name name
+	puts "#{name} - '#{password}'" if DEBUG
+      	User.create!( { :name => name, :email => "dummy_#{counter}@sanger.ac.uk", :password => password, :production_centre_id => centre.id } )
+      	#User.create!( { :username => name, :password => 'password' } )
+	counter += 1
+end
+
+raise 'rollback!' if DEBUG
+
+end
+
+#User.all.each do |user|
+	#puts "NAME: #{user.name}"
+#end

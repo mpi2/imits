@@ -135,6 +135,8 @@ class TargRep::EsCellsController < TargRep::BaseController
       escell_params.delete "action"
       escell_params.delete "format"
       escell_params.delete "page"
+      escell_params.delete "per_page"
+      escell_params.delete "utf8"
 
       params[:page] ||= 1
       params[:per_page] ||= 100

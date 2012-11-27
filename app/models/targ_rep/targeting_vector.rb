@@ -39,23 +39,13 @@ class TargRep::TargetingVector < ActiveRecord::Base
   public
   
     def to_json( options = {} )
-      TargetingVector.include_root_in_json = false
-      options.update(
-        :include => {
-          :creator => { :only => [:id, :username] },
-          :updater => { :only => [:id, :username] }
-        }
-      )
-      super( options )
+      TargRep::TargetingVector.include_root_in_json = false
+      super options
     end
 
     def to_xml( options = {} )
       options.update(
-        :skip_types => true,
-        :include => {
-          :creator => { :only => [:id, :username] },
-          :updater => { :only => [:id, :username] }
-        }
+        :skip_types => true
       )
     end
 
@@ -66,7 +56,7 @@ class TargRep::TargetingVector < ActiveRecord::Base
   protected
     # Set mirKO ikmc_project_ids to "mirKO#{self.allele_id}"
     def set_mirko_ikmc_project_id
-      if ( self.ikmc_project_id.blank? or self.ikmc_project_id =~ /^mirko$/i ) and self.pipeline.name == "mirKO"
+      if (self.ikmc_project_id.blank? or self.ikmc_project_id =~ /^mirko$/i) and self.pipeline.name == "mirKO"
         self.ikmc_project_id = "mirKO#{ self.allele_id }"
       end
     end

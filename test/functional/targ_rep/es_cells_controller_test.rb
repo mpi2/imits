@@ -206,8 +206,6 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
     es_cell = wtsi_distribution_qc.es_cell
     id = wtsi_distribution_qc.id
 
-    puts wtsi_distribution_qc.inspect
-
     target = {
       :id => id,
       :five_prime_sr_pcr => ['pass', 'fail'].sample,

@@ -22,10 +22,10 @@ class TargRep::WelcomeController < TargRep::BaseController
 
     TargRep::Pipeline.all.each do |pipeline|
       @pipeline_counts[pipeline.name] = {
-        :alleles  => allele_counts[ pipeline.id ] ? allele_counts[ pipeline.id ] : 0,
-        :genes    => gene_counts[ pipeline.id ]   ? gene_counts[ pipeline.id ]   : 0,
-        :vectors  => vector_counts[ pipeline.id ] ? vector_counts[ pipeline.id ] : 0,
-        :es_cells => escell_counts[ pipeline.id ] ? escell_counts[ pipeline.id ] : 0
+        :alleles  => allele_counts[pipeline.id] ? allele_counts[pipeline.id] : 0,
+        :genes    => gene_counts[pipeline.id]   ? gene_counts[pipeline.id]   : 0,
+        :vectors  => vector_counts[pipeline.id] ? vector_counts[pipeline.id] : 0,
+        :es_cells => escell_counts[pipeline.id] ? escell_counts[pipeline.id] : 0
       }
       @total_counts[:pipelines] += 1
       @total_counts[:alleles]   += @pipeline_counts[pipeline.name][:alleles]
@@ -34,11 +34,7 @@ class TargRep::WelcomeController < TargRep::BaseController
       @total_counts[:es_cells]  += @pipeline_counts[pipeline.name][:es_cells]
     end
   end
-  
-  def boom
-    raise "Testing Exception Reporting"
-  end
-  
+   
   private
   
   def allele_count_by_pipeline
@@ -57,6 +53,8 @@ class TargRep::WelcomeController < TargRep::BaseController
       ) tmp
       group by id
     SQL
+
+    Rails.logger.debug 'Allele count by Pipeline'
     run_count_sql(sql)
   end
   
@@ -76,6 +74,8 @@ class TargRep::WelcomeController < TargRep::BaseController
       ) tmp
       group by id
     SQL
+
+    Rails.logger.debug 'Gene count by Pipeline'
     run_count_sql(sql)
   end
   
@@ -88,6 +88,8 @@ class TargRep::WelcomeController < TargRep::BaseController
         targ_rep_targeting_vectors
       group by pipeline_id
     SQL
+
+    Rails.logger.debug 'Targeting Vector count by Pipeline'
     run_count_sql(sql)
   end
   
@@ -100,15 +102,21 @@ class TargRep::WelcomeController < TargRep::BaseController
         targ_rep_es_cells
       group by pipeline_id
     SQL
+
+    Rails.logger.debug 'Es Cell count by Pipeline'
     run_count_sql(sql)
   end
   
   def run_count_sql(sql)
     counts  = {}
     results = ActiveRecord::Base.connection.execute(sql)
+
     results.each do |res|
+      res = res.values
       counts[ res[0].to_i ] = res[1].to_i
     end
+
+    puts counts
     return counts
   end
   

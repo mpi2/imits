@@ -106,7 +106,7 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
         }
       }
 
-      post :create, :allele => allele
+      post :create, :targ_rep_allele => allele
 
       assert_equal mol_struct_count + 1, TargRep::Allele.count, "Controller should have created 1 valid allele."
       assert_equal targ_vec_count + 2, TargRep::TargetingVector.count, "Controller should have created 2 valid targeting vectors."

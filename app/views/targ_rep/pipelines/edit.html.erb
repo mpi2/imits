@@ -1,0 +1,17 @@
+<div class="grid_12">
+  <h2>Edit Pipeline: <%= @pipeline.name %></h2>
+  
+  <%= form_for @pipeline do |f| %>
+    <%= f.error_messages %>
+    <p>
+      <%= f.label :name %><br />
+      <%= f.text_field :name, :class => 'text' %>
+    </p>
+    <p>
+      <%= f.submit 'Update' %>
+    </p>
+  <% end %>
+  
+  <%= link_to 'Show', @pipeline %> |
+  <%= link_to 'Back', [:targ_rep, :pipelines] %>
+</div>

@@ -237,8 +237,6 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
 
     found = false
 
-    puts object['distribution_qcs'].first['id'].inspect
-
     if distribution_qc = object['distribution_qcs'].first
       target.delete(:id)
       

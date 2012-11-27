@@ -116,7 +116,6 @@ class TargRep::WelcomeController < TargRep::BaseController
       counts[ res[0].to_i ] = res[1].to_i
     end
 
-    puts counts
     return counts
   end
   

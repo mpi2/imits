@@ -47,6 +47,22 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
     end
   end
 
+  context 'SolrUpdate::Observer::DistributionCentre' do
+    should 'tell the enqueuer that a MiAttempt::DistributionCentre is changed' do
+      object = stub('object')
+      SolrUpdate::Enqueuer.any_instance.expects(:update_mi_or_phenotype_attempt).with(object)
+      o = SolrUpdate::Observer::DistributionCentres.new
+      o.after_save(object)
+    end
+
+    should 'tell the enqueuer that a MiAttempt::DistributionCentre is deleted' do
+      object = stub('object')
+      SolrUpdate::Enqueuer.any_instance.expects(:update_mi_or_phenotype_attempt).with(object)
+      o = SolrUpdate::Observer::DistributionCentres.new
+      o.after_destroy(object)
+    end
+  end
+
   context 'SolrUpdate::Observer::Allele' do
 
     should 'enqueue a solr update when an allele changes' do
@@ -86,6 +102,5 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
     end
 
   end
-
 
 end

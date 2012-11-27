@@ -4,7 +4,7 @@ class SolrUpdate::Enqueuer
 
     reference = {'type' => 'mi_attempt', 'id' => mi.id}
 
-    if mi.has_status? :gtc and ! mi.has_status? :abt
+    if mi.has_status? :gtc and ! mi.has_status? :abt and mi.allele_id > 0
       SolrUpdate::Queue.enqueue_for_update(reference)
     else
       SolrUpdate::Queue.enqueue_for_delete(reference)
@@ -23,7 +23,7 @@ class SolrUpdate::Enqueuer
   def phenotype_attempt_updated(pa)
     reference = {'type' => 'phenotype_attempt', 'id' => pa.id}
 
-    if pa.has_status? :cec and ! pa.has_status? :abt
+    if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0
       SolrUpdate::Queue.enqueue_for_update(reference)
     else
       SolrUpdate::Queue.enqueue_for_delete(reference)
@@ -37,6 +37,14 @@ class SolrUpdate::Enqueuer
   def any_with_mi_attempts_updated(object)
     if object.changes.present?
       object.mi_attempts.reload.each {|mi| mi_attempt_updated(mi) }
+    end
+  end
+
+  def update_mi_or_phenotype_attempt(object)
+    if object.respond_to? 'phenotype_attempt'
+      phenotype_attempt_updated(object.phenotype_attempt)
+    else
+      mi_attempt_updated(object.mi_attempt)
     end
   end
 
@@ -59,4 +67,5 @@ class SolrUpdate::Enqueuer
   def es_cell_destroyed(es_cell)
     allele_updated(es_cell.allele)
   end
+
 end

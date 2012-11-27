@@ -52,25 +52,23 @@ module SolrUpdate::Observer
     public_class_method :new
   end
 
-  class Allele < ActiveRecord::Observer
-    observe :"TargRep::Allele"
+  class DistributionCentres < ActiveRecord::Observer
+    observe 'MiAttempt::DistributionCentre', 'PhenotypeAttempt::DistributionCentre'
 
     def initialize
       super
       @enqueuer = SolrUpdate::Enqueuer.new
     end
-
-    def after_save(allele)
-      @enqueuer.allele_updated(allele)
+    
+    def after_save(object)
+      @enqueuer.update_mi_or_phenotype_attempt(object)
     end
 
-    def after_destroy(allele)
-      @enqueuer.allele_destroyed(allele)
+    def after_destroy(object)
+      @enqueuer.update_mi_or_phenotype_attempt(object)
     end
 
-    class << self
-      public :new
-    end
+    public_class_method :new
   end
 
   class EsCell < ActiveRecord::Observer
@@ -89,9 +87,26 @@ module SolrUpdate::Observer
       @enqueuer.es_cell_destroyed(es_cell)
     end
 
-    class << self
-      public :new
+    public_class_method :new
+  end
+
+  class Allele < ActiveRecord::Observer
+    observe :"TargRep::Allele"
+
+    def initialize
+      super
+      @enqueuer = SolrUpdate::Enqueuer.new
     end
+
+    def after_save(allele)
+      @enqueuer.allele_updated(allele)
+    end
+
+    def after_destroy(allele)
+      @enqueuer.allele_destroyed(allele)
+    end
+
+    public_class_method :new
   end
 
 end

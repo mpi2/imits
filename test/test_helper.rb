@@ -204,7 +204,7 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
     ".x-grid-body tbody tr:nth-child(#{table_row+1}) .x-grid-cell-inner"
   end
 
-  def choose_es_cell_from_list(marker_symbol = 'Auto-generated Symbol 1', es_cell_name = 'EPD_1')
+  def choose_es_cell_from_list(marker_symbol = 'Auto-generated Symbol', es_cell_name = 'EPD_1')
     assert page.has_css?('[name=marker_symbol-search-box]')
     fill_in 'marker_symbol-search-box', :with => marker_symbol
     find(:xpath, '//button/span[text()="Search"]').click

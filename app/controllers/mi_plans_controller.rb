@@ -2,7 +2,7 @@
 
 class MiPlansController < ApplicationController
   respond_to :html, :only => [:gene_selection, :index, :show]
-  respond_to :json, :except => [:gene_selection]
+  respond_to :json, :except => [:gene_selection, :attributes]
   before_filter :authenticate_user!
 
   def gene_selection
@@ -103,6 +103,10 @@ class MiPlansController < ApplicationController
   def history
     @resource = MiPlan.find(params[:id])
     render :template => '/shared/history'
+  end
+
+  def attributes
+    render :json => create_attribute_documentation_for(Public::MiPlan)
   end
 
 end

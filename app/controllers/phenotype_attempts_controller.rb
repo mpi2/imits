@@ -2,7 +2,8 @@
 
 class PhenotypeAttemptsController < ApplicationController
 
-  respond_to :html, :json, :xml
+  respond_to :html, :json, :xml, :except => [:attributes]
+  respond_to :json, :only => [:attributes]
 
   before_filter :authenticate_user!
 
@@ -101,14 +102,13 @@ class PhenotypeAttemptsController < ApplicationController
     render :template => '/shared/history'
   end
 
-  private
-
   def set_centres_consortia_and_strains
     @centres = Centre.all
     @consortia = Consortium.all
     @deleter_strain = DeleterStrain.all
     @colony_background_strain = Strain.all
   end
+  private :set_centres_consortia_and_strains
 
   def authorize_user_production_centre
     return true unless request.format == :json
@@ -122,11 +122,17 @@ class PhenotypeAttemptsController < ApplicationController
 
     return true
   end
+  private :authorize_user_production_centre
 
   alias_method :public_phenotype_attempt_url, :phenotype_attempt_url
+  private :public_phenotype_attempt_url
   helper do
     def public_phenotype_attempts_path(*args); phenotype_attempts_path(*args); end
     def public_phenotype_attempt_path(*args); phenotype_attempt_path(*args); end
+  end
+
+  def attributes
+    render :json => create_attribute_documentation_for(Public::PhenotypeAttempt)
   end
 
 end

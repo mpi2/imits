@@ -52,8 +52,8 @@ document.observe('dom:loaded', function() {
       var string = $F('gene_marker_symbol');
       if (string.length >= 3) {
 
-        xhr = new Ajax.Request('/genes/autocomplete', {
-          method:'post',
+        xhr = new Ajax.Request('/genes', {
+          method:'get',
           parameters: {
             marker_symbol_cont: string
           },

@@ -9,12 +9,6 @@ class GenesController < ApplicationController
     end
   end
 
-  def autocomplete
-    respond_to do |format|
-      format.json { render :json => data_for_serialized(:json)}
-    end
-  end
-
   def network_graph
     gene = Gene.find_by_id(params[:id])
     if !gene.nil?

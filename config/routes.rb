@@ -1,9 +1,7 @@
 Kermits2::Application.routes.draw do
   root :to => "root#index"
 
-  resources :genes, :only => [:index] do
-    post :autocomplete, :on => :collection
-  end
+  resources :genes, :only => [:index]
 
   resources :mi_plans do
     collection do

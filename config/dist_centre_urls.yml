@@ -15,7 +15,7 @@ Monterotondo:
   :preferred: ''
   :default: ''
 JAX:
-  :preferred: 'http://www.mouse-genome.bcm.tmc.edu/bash/'
+  :preferred: 'http://jaxmice.jax.org/index.html'
   :default: ''
 Oulu:
   :preferred: ''
@@ -24,7 +24,7 @@ VETMEDUNI:
   :preferred: ''
   :default: ''
 BCM:
-  :preferred: 'http://jaxmice.jax.org/index.html'
+  :preferred: 'jcrowe@bcm.tmc.edu?subject=Mutant mouse for MARKER_SYMBOL'
   :default: ''
 CNRS:
   :preferred: ''

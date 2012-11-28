@@ -36,7 +36,7 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
         @enqueuer.mi_attempt_updated(mi)
       end
 
-      should 'not enqueue an update if mi_attempt is not linked to an allele' do
+      should_eventually 'not enqueue an update if mi_attempt is not linked to an allele' do
         mi = Factory.create :mi_attempt_genotype_confirmed, :id => 66
         mi.es_cell.update_attributes!(:allele_id => 0)
         mi.reload
@@ -82,10 +82,12 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
         @enqueuer.phenotype_attempt_updated(pa)
       end
 
-      should 'not enqueue an update if phenotype_attempt is not linked to an allele' do
+      should_eventually 'not enqueue an update if phenotype_attempt is not linked to an allele' do
         pa = Factory.create :phenotype_attempt_status_cec, :id => 345
         pa.mi_attempt.es_cell.update_attributes!(:allele_id => 0)
         pa.reload
+        puts pa.inspect
+        puts pa.es_cell.inspect
         SolrUpdate::Queue.expects(:enqueue_for_update).never
         @enqueuer.phenotype_attempt_updated(pa)
       end

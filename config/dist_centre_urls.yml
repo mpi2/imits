@@ -16,7 +16,7 @@ Monterotondo:
   :default: ''
 JAX:
   :preferred: 'http://jaxmice.jax.org/index.html'
-  :default: ''
+  :default: 'http://jaxmice.jax.org/index.html'
 Oulu:
   :preferred: ''
   :default: ''

@@ -140,6 +140,7 @@ end
 #  mouse_allele_type                :string(2)
 #  deleter_strain_id                :integer
 #  colony_background_strain_id      :integer
+#  cre_excision_required            :boolean         default(TRUE), not null
 #
 # Indexes
 #

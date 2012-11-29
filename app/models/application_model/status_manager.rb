@@ -1,18 +1,26 @@
 class ApplicationModel::StatusManager
 
   class Item
-    def initialize(required, &conditions)
+    def initialize(required, options = {}, &conditions)
       @conditions = conditions
+      @options = options.symbolize_keys!
       @required = required
     end
 
     def conditions_met_for?(object)
       conditions_met = @conditions.call(object)
-      if @required
+      if @options[:skip_requirements_if]
+        enforce_req = (not @options[:skip_requirements_if].call(object))
+      else
+        enforce_req = true
+      end
+
+      if @required and enforce_req == true
         required_conditions_met = @required.conditions_met_for?(object)
       else
         required_conditions_met = true
       end
+
       return (conditions_met and required_conditions_met)
     end
   end
@@ -23,10 +31,10 @@ class ApplicationModel::StatusManager
     @status_class = @klass.const_get(:Status)
   end
 
-  def add(status, required = nil, &conditions)
+  def add(status, required = nil, options = {}, &conditions)
     raise "Already have #{status}" if @items.has_key?(status)
     required = @items[required]
-    @items[status] = Item.new(required, &conditions)
+    @items[status] = Item.new(required, options, &conditions)
   end
 
   def get_status_for(object)

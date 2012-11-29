@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require 'test_helper'
+require 'pp'
 
 class MiAttemptTest < ActiveSupport::TestCase
   context 'MiAttempt' do
@@ -979,6 +980,36 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     should 'have ::readable_name' do
       assert_equal 'micro-injection attempt', MiAttempt.readable_name
+    end
+
+    should 'handle template character in allele_symbol_superscript_template' do
+      mi_attempt = Factory.create( :mi_attempt,
+        :blast_strain             => Strain.find_by_name!('BALB/c'),
+        :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd'),
+        :test_cross_strain        => Strain.find_by_name!('129P2/OlaHsd')
+      )
+
+      #pp mi_attempt
+      #
+      #puts "#### mi_attempt.status:"
+      #pp mi_attempt.status
+      #
+      #puts "#### mi_attempt.mouse_allele_symbol: #{mi_attempt.mouse_allele_symbol}"
+      #puts "#### mi_attempt.allele_symbol: #{mi_attempt.allele_symbol}"
+      #
+      #puts "#### mi_attempt.mouse_allele_type: #{mi_attempt.mouse_allele_type}"
+      #puts "#### mi_attempt.es_cell.allele_symbol_superscript_template: #{mi_attempt.es_cell.allele_symbol_superscript_template}"
+
+      assert_equal "Auto-generated Symbol 1<sup>tm1a(EUCOMM)Wtsi</sup>", mi_attempt.allele_symbol
+
+      mi_attempt.es_cell.allele_symbol_superscript_template = mi_attempt.es_cell.allele_symbol_superscript_template.gsub(/@/, '')
+
+      mi_attempt.es_cell.save!
+
+      assert_equal "Auto-generated Symbol 1<sup>tm1(EUCOMM)Wtsi</sup>", mi_attempt.allele_symbol
+
+      assert mi_attempt.es_cell.allele_symbol_superscript_template !~ /@/
+      assert mi_attempt.allele_symbol !~ /@/
     end
 
   end

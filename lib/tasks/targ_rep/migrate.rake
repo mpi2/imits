@@ -25,7 +25,8 @@ class LegacyTargRep
     Sequel.mysql2(config['database'], 
       :user => config['username'],
       :password => config['password'],
-      :host => config['host'])
+      :host => config['host'],
+      :loggers => [Logger.new($stdout)])
   end
 
   ##
@@ -246,6 +247,14 @@ class LegacyTargRep
       ##
       def find_by_id(id)
         self.dataset.where('id = ?', id).first
+      end
+
+      def count
+        self.dataset.count
+      end
+
+      def limit(limit, offset = nil)
+        self.dataset.limit(limit, offset).map {|row| self.new(row)}
       end
 
     end
@@ -578,93 +587,105 @@ namespace :migrate do
     puts "You should have already have migrated the EsCellDistributionCentre, User, MutationMethod, MutationType, MutationSubtype, Allele, & Pipeline tables when you run this."
     migration_dependancies(TargRep::EsCellDistributionCentre, User, TargRep::MutationMethod, TargRep::MutationType, TargRep::MutationSubtype, TargRep::Allele, TargRep::Pipeline, TargRep::TargetingVector)
 
+    matched_es_cells = {}
+
     begin
-      
-      es_cells = {
-        :matched => [],
-        :failed =>  [],
-        :created => []
-      }
 
-      ::TargRep::EsCell.transaction do
+      number_of_es_cells = LegacyTargRep::EsCell.count
+      sets = (number_of_es_cells.to_f / 1000.0).ceil
 
-        ::TargRep::EsCell.disable_auditing
+      legacy_es_cells = EsCell.all
 
-        LegacyTargRep::EsCell.all.each do |targ_rep_es_cell|
-        #test_es_cell_names = ["EPD0719_1_C02", "EPD0033_3_A11", "EPD0033_3_C11", "EPD0054_1_C05", "EPD0090_4_C10", "EPD0090_4_H11", "EPD0571_3_F01", "EPD0083_2_E03"]
+      ::TargRep::EsCell.disable_auditing
 
-        #LegacyTargRep::EsCell.where(:name => test_es_cell_names).each do |targ_rep_es_cell|
-          puts targ_rep_es_cell
-          new_es_cell = ::TargRep::EsCell.new
+      #LegacyTargRep::EsCell.all.each do |targ_rep_es_cell|
+      #test_es_cell_names = ["EPD0719_1_C02", "EPD0033_3_A11", "EPD0033_3_C11", "EPD0054_1_C05", "EPD0090_4_C10", "EPD0090_4_H11", "EPD0571_3_F01", "EPD0083_2_E03"]
 
-          new_es_cell.id                                     = targ_rep_es_cell[:id]
-          new_es_cell.name                                   = targ_rep_es_cell[:name]
-          new_es_cell.allele_id                              = targ_rep_es_cell[:allele_id]
-          new_es_cell.targeting_vector_id                    = targ_rep_es_cell[:targeting_vector_id]
-          new_es_cell.parental_cell_line                     = targ_rep_es_cell[:parental_cell_line]
-          new_es_cell.allele_symbol_superscript              = targ_rep_es_cell[:allele_symbol_superscript]
-          new_es_cell.comment                                = targ_rep_es_cell[:comment]
-          new_es_cell.contact                                = targ_rep_es_cell[:contact]
-          new_es_cell.ikmc_project_id                        = targ_rep_es_cell[:ikmc_project_id]
-          new_es_cell.mgi_allele_id                          = targ_rep_es_cell[:mgi_allele_id]
-          new_es_cell.pipeline_id                            = targ_rep_es_cell[:pipeline_id]
-          new_es_cell.report_to_public                       = targ_rep_es_cell[:report_to_public]
-          new_es_cell.strain                                 = targ_rep_es_cell[:strain]
-          new_es_cell.production_qc_five_prime_screen        = targ_rep_es_cell[:production_qc_five_prime_screen]
-          new_es_cell.production_qc_three_prime_screen       = targ_rep_es_cell[:production_qc_three_prime_screen]
-          new_es_cell.production_qc_loxp_screen              = targ_rep_es_cell[:production_qc_loxp_screen]
-          new_es_cell.production_qc_loss_of_allele           = targ_rep_es_cell[:production_qc_loss_of_allele]
-          new_es_cell.production_qc_vector_integrity         = targ_rep_es_cell[:production_qc_vector_integrity]
-          new_es_cell.user_qc_map_test                       = targ_rep_es_cell[:user_qc_map_test]
-          new_es_cell.user_qc_karyotype                      = targ_rep_es_cell[:user_qc_karyotype ]
-          new_es_cell.user_qc_tv_backbone_assay              = targ_rep_es_cell[:user_qc_tv_backbone_assay]
-          new_es_cell.user_qc_loxp_confirmation              = targ_rep_es_cell[:user_qc_loxp_confirmation]
-          new_es_cell.user_qc_southern_blot                  = targ_rep_es_cell[:user_qc_southern_blot]
-          new_es_cell.user_qc_loss_of_wt_allele              = targ_rep_es_cell[:user_qc_loss_of_wt_allele]
-          new_es_cell.user_qc_neo_count_qpcr                 = targ_rep_es_cell[:user_qc_neo_count_qpcr]
-          new_es_cell.user_qc_lacz_sr_pcr                    = targ_rep_es_cell[:user_qc_lacz_sr_pcr]
-          new_es_cell.user_qc_mutant_specific_sr_pcr         = targ_rep_es_cell[:user_qc_mutant_specific_sr_pcr]
-          new_es_cell.user_qc_five_prime_cassette_integrity  = targ_rep_es_cell[:user_qc_five_prime_cassette_integrity]
-          new_es_cell.user_qc_neo_sr_pcr                     = targ_rep_es_cell[:user_qc_neo_sr_pcr]
-          new_es_cell.user_qc_five_prime_lr_pcr              = targ_rep_es_cell[:user_qc_five_prime_lr_pcr]
-          new_es_cell.user_qc_three_prime_lr_pcr             = targ_rep_es_cell[:user_qc_three_prime_lr_pcr]
-          new_es_cell.user_qc_comment                        = targ_rep_es_cell[:user_qc_comment]
+      #LegacyTargRep::EsCell.where(:name => test_es_cell_names).each do |targ_rep_es_cell|
 
-          ##
-          ## Match TargRep EsCells to iMits EsCells
-          ##
-          if es_cell = EsCell.find_by_name(targ_rep_es_cell[:name])
-            new_es_cell.allele_type                            = es_cell.allele_type
-            new_es_cell.mutation_subtype                       = es_cell.mutation_subtype
-            new_es_cell.allele_symbol_superscript_template     = es_cell.allele_symbol_superscript_template
-            new_es_cell.legacy_id                              = es_cell.id
+      puts "Number of sets: #{sets}"
 
-            es_cells[:matched] << [targ_rep_es_cell[:id], es_cell.id]
-          end
+      `> failed_es_cells`
 
-          if new_es_cell.save
-            es_cells[:created] << targ_rep_es_cell[:id]
-            
-            if new_es_cell.legacy_id
-              MiAttempt.update_all({:es_cell_id => new_es_cell.id}, {:es_cell_id => new_es_cell.legacy_id})
+      sets.times do |i|
+        offset = 1000 * i
+        puts "Set ##{i}"
+        ::TargRep::EsCell.transaction do
+          LegacyTargRep::EsCell.limit(1000, offset).each do |targ_rep_es_cell|
+
+            new_es_cell = ::TargRep::EsCell.new
+
+            new_es_cell.id                                     = targ_rep_es_cell[:id]
+            new_es_cell.name                                   = targ_rep_es_cell[:name]
+            new_es_cell.allele_id                              = targ_rep_es_cell[:allele_id]
+            new_es_cell.targeting_vector_id                    = targ_rep_es_cell[:targeting_vector_id]
+            new_es_cell.parental_cell_line                     = targ_rep_es_cell[:parental_cell_line]
+            new_es_cell.allele_symbol_superscript              = targ_rep_es_cell[:allele_symbol_superscript]
+            new_es_cell.comment                                = targ_rep_es_cell[:comment]
+            new_es_cell.contact                                = targ_rep_es_cell[:contact]
+            new_es_cell.ikmc_project_id                        = targ_rep_es_cell[:ikmc_project_id]
+            new_es_cell.mgi_allele_id                          = targ_rep_es_cell[:mgi_allele_id]
+            new_es_cell.pipeline_id                            = targ_rep_es_cell[:pipeline_id]
+            new_es_cell.report_to_public                       = targ_rep_es_cell[:report_to_public]
+            new_es_cell.strain                                 = targ_rep_es_cell[:strain]
+            new_es_cell.production_qc_five_prime_screen        = targ_rep_es_cell[:production_qc_five_prime_screen]
+            new_es_cell.production_qc_three_prime_screen       = targ_rep_es_cell[:production_qc_three_prime_screen]
+            new_es_cell.production_qc_loxp_screen              = targ_rep_es_cell[:production_qc_loxp_screen]
+            new_es_cell.production_qc_loss_of_allele           = targ_rep_es_cell[:production_qc_loss_of_allele]
+            new_es_cell.production_qc_vector_integrity         = targ_rep_es_cell[:production_qc_vector_integrity]
+            new_es_cell.user_qc_map_test                       = targ_rep_es_cell[:user_qc_map_test]
+            new_es_cell.user_qc_karyotype                      = targ_rep_es_cell[:user_qc_karyotype ]
+            new_es_cell.user_qc_tv_backbone_assay              = targ_rep_es_cell[:user_qc_tv_backbone_assay]
+            new_es_cell.user_qc_loxp_confirmation              = targ_rep_es_cell[:user_qc_loxp_confirmation]
+            new_es_cell.user_qc_southern_blot                  = targ_rep_es_cell[:user_qc_southern_blot]
+            new_es_cell.user_qc_loss_of_wt_allele              = targ_rep_es_cell[:user_qc_loss_of_wt_allele]
+            new_es_cell.user_qc_neo_count_qpcr                 = targ_rep_es_cell[:user_qc_neo_count_qpcr]
+            new_es_cell.user_qc_lacz_sr_pcr                    = targ_rep_es_cell[:user_qc_lacz_sr_pcr]
+            new_es_cell.user_qc_mutant_specific_sr_pcr         = targ_rep_es_cell[:user_qc_mutant_specific_sr_pcr]
+            new_es_cell.user_qc_five_prime_cassette_integrity  = targ_rep_es_cell[:user_qc_five_prime_cassette_integrity]
+            new_es_cell.user_qc_neo_sr_pcr                     = targ_rep_es_cell[:user_qc_neo_sr_pcr]
+            new_es_cell.user_qc_five_prime_lr_pcr              = targ_rep_es_cell[:user_qc_five_prime_lr_pcr]
+            new_es_cell.user_qc_three_prime_lr_pcr             = targ_rep_es_cell[:user_qc_three_prime_lr_pcr]
+            new_es_cell.user_qc_comment                        = targ_rep_es_cell[:user_qc_comment]
+
+            ##
+            ## Match TargRep EsCells to iMits EsCells
+            ##
+            if es_cell = legacy_es_cells.find {|e| e.name == targ_rep_es_cell[:name]}
+              new_es_cell.allele_type                            = es_cell.allele_type
+              new_es_cell.mutation_subtype                       = es_cell.mutation_subtype
+              new_es_cell.allele_symbol_superscript_template     = es_cell.allele_symbol_superscript_template
+              new_es_cell.legacy_id                              = es_cell.id
             end
-          else
-            es_cells[:failed] << targ_rep_es_cell[:id]
+
+            #puts "Saving: #{new_es_cell.name}"
+            if new_es_cell.save
+              if new_es_cell.legacy_id
+                matched_es_cells[new_es_cell.legacy_id] = new_es_cell.id
+              end
+            else
+              `echo '#{targ_rep_es_cell.row}\nErrors: #{new_es_cell.errors}\n\n' >> failed_es_cells`
+            end
           end
-
         end
-
       end
 
-      puts "----"
-      puts "Created #{es_cells[:created].size} EsCells"
-      puts "Matched #{es_cells[:matched].size} EsCells"
-      puts "Can't migrate #{es_cells[:failed].size} EsCells"
-      puts "----"
+      puts "Update MiAttempts with new EsCell id"
+      MiAttempt.transaction do
+        ## We're looping through MiAttempts, using update_all will cause an issue where new ids could be mistaken for legacy ids.
+        MiAttempt.order('id ASC').each do |mi|
+          if legacy_id = matched_es_cells[mi.es_cell_id]
+            MiAttempt.update_al({:es_cell_id => legacy_id}, {:id => mi.id})
+          end
+        end
+      end
 
-    rescue => e
-      puts "EsCell migration failed. Rolling back."
-      #TargRep::EsCell.delete_all
+    rescue SystemExit, Interrupt, SignalException
+      puts "\nEsCell migration canceled. Rolling back.\n"
+      ActiveRecord::Base.connection.execute('truncate targ_rep_es_cells')
+    rescue Exception => e
+      puts "\nEsCell migration failed. Rolling back.\n"
+      ActiveRecord::Base.connection.execute('truncate targ_rep_es_cells')
       puts e
     end
 

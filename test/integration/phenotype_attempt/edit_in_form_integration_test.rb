@@ -58,7 +58,6 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       assert_equal nil, page.find('input[id="phenotype_attempt_rederivation_complete"]')["checked"]
       assert_match "MGI:3046308: Hprt", page.find('select[name="phenotype_attempt[deleter_strain_name]"]').value
       assert_match "11", page.find('input[name="phenotype_attempt[number_of_cre_matings_successful]"]').value
-      assert_equal 'selected', page.find('input[name="cre_excision_required"]').value
 
       assert_match /\/phenotype_attempts\/#{@phenotype_attempt.id}$/, current_url
     end

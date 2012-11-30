@@ -20,9 +20,15 @@ class EsCell < ActiveRecord::Base
 
   def allele_symbol_superscript
     if allele_type
+ #     puts "#### allele_type"
       return allele_symbol_superscript_template.sub(TEMPLATE_CHARACTER, allele_type)
     else
-      return allele_symbol_superscript_template
+#      puts "#### allele_type else"
+      if allele_symbol_superscript_template
+        return allele_symbol_superscript_template.sub(TEMPLATE_CHARACTER, '')
+      else
+        return nil
+      end
     end
   end
 
@@ -39,7 +45,7 @@ class EsCell < ActiveRecord::Base
 
     if md
       if md[2].blank?
-        self.allele_symbol_superscript_template = md[1] + md[3]
+        self.allele_symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
         self.allele_type = nil
       else
         self.allele_symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
@@ -230,4 +236,3 @@ end
 #
 #  index_es_cells_on_name  (name) UNIQUE
 #
-

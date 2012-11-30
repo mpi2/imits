@@ -989,26 +989,34 @@ class MiAttemptTest < ActiveSupport::TestCase
         :test_cross_strain        => Strain.find_by_name!('129P2/OlaHsd')
       )
 
-      #pp mi_attempt
-      #
-      #puts "#### mi_attempt.status:"
-      #pp mi_attempt.status
-      #
-      #puts "#### mi_attempt.mouse_allele_symbol: #{mi_attempt.mouse_allele_symbol}"
-      #puts "#### mi_attempt.allele_symbol: #{mi_attempt.allele_symbol}"
-      #
-      #puts "#### mi_attempt.mouse_allele_type: #{mi_attempt.mouse_allele_type}"
-      #puts "#### mi_attempt.es_cell.allele_symbol_superscript_template: #{mi_attempt.es_cell.allele_symbol_superscript_template}"
+      assert(/Auto\-generated Symbol \d+<sup>tm1a\(EUCOMM\)Wtsi<\/sup>/ =~ mi_attempt.allele_symbol)
 
-      assert_equal "Auto-generated Symbol 1<sup>tm1a(EUCOMM)Wtsi</sup>", mi_attempt.allele_symbol
-
+      old_allele_symbol_superscript_template = mi_attempt.es_cell.allele_symbol_superscript_template
       mi_attempt.es_cell.allele_symbol_superscript_template = mi_attempt.es_cell.allele_symbol_superscript_template.gsub(/@/, '')
 
       mi_attempt.es_cell.save!
 
-      assert_equal "Auto-generated Symbol 1<sup>tm1(EUCOMM)Wtsi</sup>", mi_attempt.allele_symbol
+      assert_match(/Auto-generated Symbol \d+<sup>tm1\(EUCOMM\)Wtsi<\/sup>/, mi_attempt.allele_symbol)
 
       assert mi_attempt.es_cell.allele_symbol_superscript_template !~ /@/
+      assert mi_attempt.allele_symbol !~ /@/
+
+      mi_attempt.mouse_allele_type = nil
+      mi_attempt.save!
+
+
+
+
+
+      mi_attempt.es_cell.allele_symbol_superscript_template = old_allele_symbol_superscript_template
+
+      mi_attempt.es_cell.save!
+
+      assert mi_attempt.allele_symbol.length > 0
+
+      assert_match(/Auto-generated Symbol \d+<sup>tm1a\(EUCOMM\)Wtsi<\/sup>/, mi_attempt.allele_symbol)
+
+      assert mi_attempt.es_cell.allele_symbol_superscript_template =~ /@/
       assert mi_attempt.allele_symbol !~ /@/
     end
 

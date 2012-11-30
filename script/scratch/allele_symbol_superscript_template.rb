@@ -16,10 +16,6 @@ ApplicationModel.audited_transaction do
 # tm1(KOMP)Mbp                       |    60
 #(10 rows)
 
-#['tm1(CreERT2_EGFP)Wtsi', 'tm1(EUCOMM)Wtsi', 'tm1(KOMP)Wtsi','tm2(KOMP)Vlcg', '<sup>sv</sup>', 'tm1(KOMP)Vlcg','tm2(KOMP)Wtsi','tm2(EUCOMM)Wtsi', 'Gt(IST12384G7)Tigm','tm1(KOMP)Mbp']
-#select allele_symbol_superscript_template,count(*) from es_cells where allele_symbol_superscript_template not like '%@%'
-#select * from es_cells where allele_symbol_superscript_template not like '%@%'
-
 DEBUG = true
 
 puts "ENV: #{Rails.env}"

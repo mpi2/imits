@@ -468,53 +468,6 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       assert_equal 'phenotype attempt', PhenotypeAttempt.readable_name
     end
 
-    #should 'handle template character in allele_symbol_superscript_template' do
-    #  phenotype_attempt = Factory.create :phenotype_attempt
-    #
-    #  phenotype_attempt.rederivation_started = true
-    #  phenotype_attempt.rederivation_complete = true
-    #  phenotype_attempt.number_of_cre_matings_started = 1
-    #  phenotype_attempt.number_of_cre_matings_successful = 1
-    #  #phenotype_attempt.phenotyping_started = true
-    #  #phenotype_attempt.phenotyping_complete = true
-    #  phenotype_attempt.deleter_strain = DeleterStrain.all.first
-    #  phenotype_attempt.colony_background_strain = Strain.all.first
-    #  phenotype_attempt.mouse_allele_type = '.1'
-    #
-    #  phenotype_attempt.save!
-    #
-    #  #pp phenotype_attempt
-    #  #puts "#### phenotype_attempt.mouse_allele_symbol: #{phenotype_attempt.mouse_allele_symbol}"
-    #  #puts "#### phenotype_attempt.allele_symbol: #{phenotype_attempt.allele_symbol}"
-    #  #puts "#### phenotype_attempt.status:"
-    #  #pp phenotype_attempt.status
-    #  #puts "#### phenotype_attempt.mouse_allele_type: #{phenotype_attempt.mouse_allele_type}"
-    #  #puts "#### phenotype_attempt.es_cell.allele_symbol_superscript_template: #{phenotype_attempt.es_cell.allele_symbol_superscript_template}"
-    #
-    #  assert_equal "Cre Excision Complete", phenotype_attempt.status.name
-    #  assert_equal "Auto-generated Symbol 1<sup>tm1.1(EUCOMM)Wtsi</sup>", phenotype_attempt.allele_symbol
-    #
-    #  phenotype_attempt.es_cell.allele_symbol_superscript_template = phenotype_attempt.es_cell.allele_symbol_superscript_template.gsub(/@/, '')
-    #
-    #  #puts "#### phenotype_attempt.es_cell.allele_symbol_superscript_template: #{phenotype_attempt.es_cell.allele_symbol_superscript_template}"
-    #
-    #  assert_equal "Auto-generated Symbol 1<sup>tm1(EUCOMM)Wtsi</sup>", phenotype_attempt.allele_symbol
-    #
-    #  assert phenotype_attempt.allele_symbol !~ /@/
-    #
-    #  #assert phenotype_attempt.number_of_cre_matings_successful.to_i > 0
-    #  #assert ['b', '.1'].include?(phenotype_attempt.mouse_allele_type)
-    #  #assert ! phenotype_attempt.colony_background_strain.nil?
-    #
-    #  ##<PhenotypeAttempt id: 1, mi_attempt_id: 1, status_id: 2, is_active: true, rederivation_started: false,
-    #  #rederivation_complete: false, number_of_cre_matings_started: 0, number_of_cre_matings_successful: 0,
-    #  #phenotyping_started: false, phenotyping_complete: false, created_at: "2012-11-29 15:45:02",
-    #  #updated_at: "2012-11-29 15:45:02", mi_plan_id: 1, colony_name: "ICS-Auto-generated ES Cell Name 1-1-1",
-    #  #mouse_allele_type: nil, deleter_strain_id: nil, colony_background_strain_id: nil>
-    #
-    #  #flunk
-    #end
-
     should 'handle template character in allele_symbol_superscript_template' do
       phenotype_attempt = Factory.create :phenotype_attempt
 
@@ -528,16 +481,29 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       phenotype_attempt.save!
       assert_equal "Cre Excision Complete", phenotype_attempt.status.name
 
-      assert_equal "Auto-generated Symbol 1<sup>tm1.1(EUCOMM)Wtsi</sup>", phenotype_attempt.allele_symbol
+      assert_match(/Auto\-generated Symbol \d+<sup>tm1.1\(EUCOMM\)Wtsi<\/sup>/, phenotype_attempt.allele_symbol)
 
+      old_allele_symbol_superscript_template = phenotype_attempt.es_cell.allele_symbol_superscript_template
       phenotype_attempt.es_cell.allele_symbol_superscript_template = phenotype_attempt.es_cell.allele_symbol_superscript_template.gsub(/@/, '')
 
       phenotype_attempt.es_cell.save!
 
-      assert_equal "Auto-generated Symbol 1<sup>tm1(EUCOMM)Wtsi</sup>", phenotype_attempt.allele_symbol
+      assert_match(/Auto-generated Symbol \d+<sup>tm1\(EUCOMM\)Wtsi<\/sup>/, phenotype_attempt.allele_symbol)
 
       assert phenotype_attempt.es_cell.allele_symbol_superscript_template !~ /@/
       assert phenotype_attempt.allele_symbol !~ /@/
+
+      #phenotype_attempt.mouse_allele_type = nil
+      #phenotype_attempt.es_cell.allele_symbol_superscript_template = old_allele_symbol_superscript_template
+      #
+      #phenotype_attempt.es_cell.save!
+      #
+      #assert phenotype_attempt.allele_symbol.length > 0
+      #
+      #assert_equal "Auto-generated Symbol 1<sup>tm1(EUCOMM)Wtsi</sup>", phenotype_attempt.allele_symbol
+      #
+      #assert phenotype_attempt.es_cell.allele_symbol_superscript_template =~ /@/
+      #assert phenotype_attempt.allele_symbol !~ /@/
     end
 
   end

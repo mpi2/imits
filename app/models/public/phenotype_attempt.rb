@@ -21,6 +21,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     deleter_strain_name
     distribution_centres_attributes
     colony_background_strain_name
+    cre_excision_required
   }
 
   READABLE_ATTRIBUTES = %w{

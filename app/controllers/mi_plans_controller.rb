@@ -2,7 +2,7 @@
 
 class MiPlansController < ApplicationController
   respond_to :html, :only => [:gene_selection, :index, :show]
-  respond_to :json, :except => [:gene_selection, :attributes]
+  respond_to :json, :except => [:gene_selection]
   before_filter :authenticate_user!
 
   def gene_selection

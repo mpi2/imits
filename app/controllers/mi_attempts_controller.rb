@@ -2,8 +2,7 @@
 
 class MiAttemptsController < ApplicationController
 
-  respond_to :html, :json, :xml, :except => [:attributes]
-  respond_to :json, :only => [:attributes]
+  respond_to :html, :json, :xml
 
   before_filter :authenticate_user!
 

@@ -3,25 +3,25 @@
 
 <fieldset class="collapsible">
   <legend>Universal Details</legend>
-   <div>
-   <% if @mi_attempt %>
-     <label>MI Attempt Colony Name</label>
-     <%= @mi_attempt.colony_name %>
-     <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
-   <% end %>
-   </div>
-   <div>
-     <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
-   </div>
-   <div>
-     <% if ! @phenotype_attempt.status_id.nil? %>
-       <label>Status</label>
-       <%= @phenotype_attempt.status_name%>
-       <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name || 'p' %>
-     <% end %>
-   </div>
-   <div class="consortium-name">
-     <% consortium_field = capture do %>
+  <div>
+    <% if @mi_attempt %>
+      <label>MI Attempt Colony Name</label>
+      <%= @mi_attempt.colony_name %>
+      <%= form.hidden_field 'mi_attempt_colony_name', :value => @mi_attempt.colony_name %>
+    <% end %>
+  </div>
+  <div>
+    <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
+  </div>
+  <div>
+    <% if ! @phenotype_attempt.status_id.nil? %>
+      <label>Status</label>
+      <%= @phenotype_attempt.status_name%>
+      <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name || 'p' %>
+    <% end %>
+  </div>
+  <div class="consortium-name">
+    <% consortium_field = capture do %>
       <% if phenotype_attempt.new_record? %>
         <%= form.collection_select :consortium_name, @consortia, :name, :name, :include_blank => true %>
       <% else %>
@@ -29,24 +29,24 @@
       <% end %>
     <% end %>
     <%= generator.form_field(:consortium_name, 'Consortium', consortium_field) %>
-   </div>
-   <div class="production-centre-name">
-      <%= form.label :production_centre_name, 'Production Centre' %>
-      <% if phenotype_attempt.new_record? %>
-        <%= form.collection_select :production_centre_name, @centres, :name, :name %>
-      <% else %>
-        <span><%= phenotype_attempt.production_centre_name %></span>
-      <% end %>
-   </div>
-   <div>
-     <%= form.label :is_active, :is_active.to_s.titlecase %>
-     <%= form.check_box :is_active %>
-   </div>
+  </div>
+  <div class="production-centre-name">
+    <%= form.label :production_centre_name, 'Production Centre' %>
+    <% if phenotype_attempt.new_record? %>
+      <%= form.collection_select :production_centre_name, @centres, :name, :name %>
+    <% else %>
+      <span><%= phenotype_attempt.production_centre_name %></span>
+    <% end %>
+  </div>
+  <div>
+    <%= form.label :is_active, :is_active.to_s.titlecase %>
+    <%= form.check_box :is_active %>
+  </div>
 </fieldset>
 
 <fieldset class="collapsible" id="distribution_centres">
   <legend>Distribution Centres</legend>
-    <div class="distribution_centres">
+  <div class="distribution_centres">
     <% if phenotype_attempt.distribution_centres.length > 0 %>
       <table id="distribution_centres_table" class="report_table">
         <thead class="title">
@@ -60,22 +60,22 @@
           </tr>
         </thead>
         <tbody class="distribution_centres">
-        <% if phenotype_attempt.distribution_centres.length > 0 %>
-          <%= form.fields_for :distribution_centres do |builder| %>
-            <% if !builder.object.new_record? %>
-            <%= render '/shared/distribution_centre_fields', f: builder %>
+          <% if phenotype_attempt.distribution_centres.length > 0 %>
+            <%= form.fields_for :distribution_centres do |builder| %>
+              <% if !builder.object.new_record? %>
+                <%= render '/shared/distribution_centre_fields', f: builder %>
+              <% end %>
             <% end %>
           <% end %>
-        <% end %>
         </tbody>
       </table>
       <% if @phenotype_attempt.has_status? :cec %>
         <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
       <% end %>
     <% else %>
-    No Distribution Centres can be set until Status is Cre Excision Complete.
+      No Distribution Centres can be set until Status is Cre Excision Complete.
     <% end %>
-    </div>
+  </div>
 </fieldset>
 
 <fieldset class="collapsible">
@@ -89,22 +89,30 @@
 </fieldset>
 <fieldset class="collapsible">
   <legend>Cre Matings</legend>
-   <div>
-     <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
-   </div>
-   <div>
-     <%= form.collection_select :deleter_strain_name, @deleter_strain,:name, :name, :include_blank => true %>
-   </div>
-   <div>
-     <%= generator.number_field :number_of_cre_matings_successful %>
-   </div>
-   <div>
-     <%= generator.mouse_allele_type_field %>
-   </div>
-   <div>
-     <%= form.label :colony_background_strain_name, 'Colony Background Strain' %>
-   </div>
-   <div>
-     <%= form.collection_select :colony_background_strain_name, @colony_background_strain, :name, :name, :include_blank => true %>
-   </div>
+
+  <div>
+    <div>
+      <%= form.label :cre_excision_required, 'Is Cre-Excision Required?' %>
+      <%= form.check_box :cre_excision_required %>
+    </div>
+
+    <div>
+      <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
+    </div>
+    <div>
+      <%= form.collection_select :deleter_strain_name, @deleter_strain,:name, :name, :include_blank => true %>
+    </div>
+    <div>
+      <%= generator.number_field :number_of_cre_matings_successful %>
+    </div>
+    <div>
+      <%= generator.mouse_allele_type_field %>
+    </div>
+    <div>
+      <%= form.label :colony_background_strain_name, 'Colony Background Strain' %>
+    </div>
+    <div>
+      <%= form.collection_select :colony_background_strain_name, @colony_background_strain, :name, :name, :include_blank => true %>
+    </div>
+  </div>
 </fieldset>

@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 require 'test_helper'
-require 'pp'
 
 class MiAttemptTest < ActiveSupport::TestCase
   context 'MiAttempt' do
@@ -1003,10 +1002,6 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       mi_attempt.mouse_allele_type = nil
       mi_attempt.save!
-
-
-
-
 
       mi_attempt.es_cell.allele_symbol_superscript_template = old_allele_symbol_superscript_template
 

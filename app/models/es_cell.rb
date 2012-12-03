@@ -20,10 +20,8 @@ class EsCell < ActiveRecord::Base
 
   def allele_symbol_superscript
     if allele_type
- #     puts "#### allele_type"
       return allele_symbol_superscript_template.sub(TEMPLATE_CHARACTER, allele_type)
     else
-#      puts "#### allele_type else"
       if allele_symbol_superscript_template
         return allele_symbol_superscript_template.sub(TEMPLATE_CHARACTER, '')
       else

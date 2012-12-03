@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 require 'test_helper'
-require 'pp'
 
 class PhenotypeAttemptTest < ActiveSupport::TestCase
   context 'PhenotypeAttempt' do
@@ -492,18 +491,6 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
       assert phenotype_attempt.es_cell.allele_symbol_superscript_template !~ /@/
       assert phenotype_attempt.allele_symbol !~ /@/
-
-      #phenotype_attempt.mouse_allele_type = nil
-      #phenotype_attempt.es_cell.allele_symbol_superscript_template = old_allele_symbol_superscript_template
-      #
-      #phenotype_attempt.es_cell.save!
-      #
-      #assert phenotype_attempt.allele_symbol.length > 0
-      #
-      #assert_equal "Auto-generated Symbol 1<sup>tm1(EUCOMM)Wtsi</sup>", phenotype_attempt.allele_symbol
-      #
-      #assert phenotype_attempt.es_cell.allele_symbol_superscript_template =~ /@/
-      #assert phenotype_attempt.allele_symbol !~ /@/
     end
 
   end

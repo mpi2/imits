@@ -71,8 +71,9 @@ class SolrUpdate::DocFactory
     end
 
     target = allele_type[/\>(.+)?\(/, 1]
+    target = target ? " (#{target})" : ''
 
-    solr_doc['allele_type'] = "Cre-excised deletion (#{target})"
+    solr_doc['allele_type'] = "Cre-excised deletion#{target}"
 
     solr_doc['allele_id'] = phenotype_attempt.allele_id
 

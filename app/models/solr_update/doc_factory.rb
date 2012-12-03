@@ -1,4 +1,3 @@
-require 'pp'
 
 class SolrUpdate::DocFactory
   extend SolrUpdate::Util

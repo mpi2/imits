@@ -605,7 +605,7 @@ class GeneTest < ActiveSupport::TestCase
 
         @plan3 = TestDummy.mi_plan('Cbx1', 'DTCC', 'UCD', :number_of_es_cells_starting_qc => 2)
         @mi3_1 = Factory.create(:mi_attempt2_status_gtc, :mi_plan => @plan3)
-        @pa3_1 = Factory.create(:phenotype_attempt, :mi_plan => @plan3, :mi_attempt => @mi3_1)
+        @pa3_1 = Factory.create(:phenotype_attempt, :mi_plan => @plan3, :mi_attempt => @mi3_1, :colony_name => 'PA3_1')
 
         @plan4 = TestDummy.mi_plan('Cbx1', 'Monterotondo', 'Monterotondo')
       end
@@ -613,7 +613,7 @@ class GeneTest < ActiveSupport::TestCase
       should 'place MiPlans correctly' do
         data = cbx1.to_extjs_relationship_tree_structure
 
-        plan_data = data.find{|i| i['name'] == 'Monterotondo'}['children'].find{|i| i['name'] == 'Monterotondo'}['children'].first
+        plan_data = data.find {|i| i['name'] == 'Monterotondo'}['children'].find {|i| i['name'] == 'Monterotondo'}['children'].first
         expected = {
           'name' => 'Plan',
           'id' => @plan4.id,
@@ -626,12 +626,12 @@ class GeneTest < ActiveSupport::TestCase
       should 'place MiAttempts correctly' do
         data = cbx1.to_extjs_relationship_tree_structure
 
-        plan = data.find{|i| i['name'] == 'BaSH'}['children'].find{|i| i['name'] == 'WTSI'}['children'].first
+        plan = data.find {|i| i['name'] == 'BaSH'}['children'].find {|i| i['name'] == 'WTSI'}['children'].first
         assert plan.present?
         plan_children = plan['children']
         assert plan_children.present?
-puts plan_children.to_yaml
-        mi_data = plan_children.find{|i| i['id'] == @mi1_2.id}
+
+        mi_data = plan_children.find {|i| i['name'] == 'MI Attempt' and i['id'] == @mi1_2.id}
         expected = {
           'name' => 'MI Attempt',
           'colony_name' => 'MI1_2',
@@ -640,6 +640,25 @@ puts plan_children.to_yaml
           'leaf' => true
         }
         assert_equal expected, mi_data
+      end
+
+      should 'place PhenotypeAttempts correctly' do
+        data = cbx1.to_extjs_relationship_tree_structure
+
+        plan = data.find {|i| i['name'] == 'DTCC'}['children'].find {|i| i['name'] == 'UCD'}['children'].first
+        assert plan.present?
+        plan_children = plan['children']
+        assert plan_children.present?
+
+        pa_data = plan_children.find {|i| i['name'] == 'Phenotype Attempt' and i['id'] == @pa3_1.id}
+        expected = {
+          'name' => 'Phenotype Attempt',
+          'colony_name' => 'PA3_1',
+          'id' => @pa3_1.id,
+          'status' => 'Phenotype Attempt Registered',
+          'leaf' => true
+        }
+        assert_equal expected, pa_data
       end
     end
 

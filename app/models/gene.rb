@@ -464,13 +464,34 @@ class Gene < ActiveRecord::Base
         centre_group = {'name' => production_centre, 'children' => []}
         consortium_group['children'] << centre_group
 
-        fully_grouped_mi_plans.each do |mi_plan|
-          centre_group['children'] << {
+        fully_grouped_mi_plans.each do |plan|
+          plan_data = {
             'name' => 'Plan',
-            'id' => mi_plan.id,
-            'status' => mi_plan.status.name,
+            'id' => plan.id,
+            'status' => plan.status.name,
             'children' => []
           }
+          centre_group['children'] << plan_data
+
+          plan.mi_attempts.each do |mi|
+            plan_data['children'] << {
+              'id' => mi.id,
+              'name' => 'MI Attempt',
+              'colony_name' => mi.colony_name,
+              'status' => mi.status.name,
+              'leaf' => true
+            }
+          end
+
+          plan.phenotype_attempts.each do |pa|
+            plan_data['children'] << {
+              'id' => pa.id,
+              'name' => 'Phenotype Attempt',
+              'colony_name' => pa.colony_name,
+              'status' => pa.status.name,
+              'leaf' => true
+            }
+          end
         end
 
       end

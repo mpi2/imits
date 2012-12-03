@@ -64,10 +64,15 @@ class GenesControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      should 'work' do
-        assert cbx1
-        get :relationship_tree, :id => cbx1.id
+      should ', when JSON, render the gene`s relationship tree' do
+        gene = stub('gene')
+        Gene.expects(:find_by_mgi_accession_id!).with('MGI:9999999991').returns(gene)
+        mock_return = ['mock_return']
+        gene.expects(:to_extjs_relationship_tree_structure).with().returns(mock_return)
+
+        get :relationship_tree, :id => 'MGI:9999999991', :format => :json
         assert_response :success, response.body
+        assert_equal mock_return, JSON.parse(response.body)
       end
     end
 

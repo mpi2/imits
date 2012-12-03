@@ -30,38 +30,7 @@ class GenesController < ApplicationController
 
     respond_to do |format|
       format.json do
-        render :json => [
-          {
-            'name' => 'MGP', 'children' => [
-              {
-                'name' => 'WTSI', 'children' => [
-                  {
-                    'name' => 'Plan', 'status' => 'Assigned', 'sub_project' => '',
-                    'children' => [
-                      {'name' => 'MI Attempt', 'colony_name' => 'ABCD', 'status' => 'Micro-injection in progress', 'leaf' => 'true'},
-                      {'name' => 'MI Attempt', 'colony_name' => 'EFGH', 'status' => 'Micro-injection aborted', 'leaf' => 'true'},
-                      {'name' => 'Phenotype Attempt', 'colony_name' => 'IJKL-1', 'status' => 'Phenotype Attempt Registered', 'leaf' => 'true'},
-                      {'name' => 'Phenotype Attempt', 'colony_name' => 'ABCD-1', 'status' => 'Cre Excision Complete', 'leaf' => 'true'}
-                    ]
-                  }
-                ]
-              } # WTSI
-            ]
-          }, # MGP
-
-          {
-            'name' => 'DTCC', 'children' => [
-              {
-                'name' => 'TCP', 'children' => [
-                  {
-                    'name' => 'Plan', 'status' => 'Withdrawn', 'sub_project' => '',
-                    'children' => []
-                  }
-                ]
-              } # TCP
-            ]
-          } # DTCC
-        ]
+        render :json => @gene.to_extjs_relationship_tree_structure
       end
 
       format.html {}

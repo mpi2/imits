@@ -193,8 +193,6 @@ class Gene < ActiveRecord::Base
     return @selected_status
   end
 
-  private
-
   def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_id = nil)
     sql = <<-"SQL"
       SELECT
@@ -264,8 +262,6 @@ class Gene < ActiveRecord::Base
 
     return genes
   end
-
-  public
 
   # END Helper functions for clean reporting
 
@@ -438,8 +434,6 @@ class Gene < ActiveRecord::Base
 
   attr_protected *PRIVATE_ATTRIBUTES
 
-  private
-
   def default_serializer_options(options = {})
     options ||= {}
     options.symbolize_keys!
@@ -454,6 +448,35 @@ class Gene < ActiveRecord::Base
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + []
     return options
+  end
+  private :default_serializer_options
+
+  def to_extjs_relationship_tree_structure
+    retval = []
+
+    mi_plans.group_by {|i| i.consortium.name}.each do |consortium, consortium_mi_plans|
+
+      consortium_group = {'name' => consortium, 'children' => []}
+      retval << consortium_group
+
+      consortium_mi_plans.group_by {|i| i.production_centre.name}.each do |production_centre, fully_grouped_mi_plans|
+
+        centre_group = {'name' => production_centre, 'children' => []}
+        consortium_group['children'] << centre_group
+
+        fully_grouped_mi_plans.each do |mi_plan|
+          centre_group['children'] << {
+            'name' => 'Plan',
+            'id' => mi_plan.id,
+            'status' => mi_plan.status.name,
+            'children' => []
+          }
+        end
+
+      end
+    end
+
+    return retval
   end
 
 end

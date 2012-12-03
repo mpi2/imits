@@ -79,12 +79,6 @@ Factory.define :mi_attempt do |mi_attempt|
   mi_attempt.mi_date { Date.today }
 end
 
-Factory.define :mi_attempt2, :class => MiAttempt do |mi_attempt|
-  mi_attempt.association :mi_plan
-  mi_attempt.es_cell { |mi| Factory.create(:es_cell, :gene => mi.mi_plan.gene) }
-  mi_attempt.mi_date { Date.today }
-end
-
 Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_attempt|
   mi_attempt.total_male_chimeras 1
 end
@@ -159,6 +153,27 @@ Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt_ge
 
     mi.mi_plan.status_stamps.reload
     mi.status_stamps.reload
+  end
+end
+
+Factory.define :mi_attempt2, :class => MiAttempt do |mi_attempt|
+  mi_attempt.association :mi_plan
+  mi_attempt.es_cell { |mi| Factory.create(:es_cell, :gene => mi.mi_plan.gene) }
+  mi_attempt.mi_date { Date.today }
+end
+
+Factory.define :mi_attempt2_status_chr, :parent => :mi_attempt2 do |mi_attempt|
+  mi_attempt.total_male_chimeras 1
+end
+
+Factory.define :mi_attempt2_status_gtc, :parent => :mi_attempt2_status_chr do |mi_attempt|
+  mi_attempt.after_create do |mi_attempt|
+    if mi_attempt.production_centre.name == 'WTSI'
+      mi_attempt.update_attributes!(:is_released_from_genotyping => true)
+    else
+      mi_attempt.update_attributes!(:number_of_het_offspring => 1)
+    end
+    raise 'Status not gtc!' if ! mi_attempt.has_status? :gtc
   end
 end
 

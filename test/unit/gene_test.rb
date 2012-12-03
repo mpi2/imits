@@ -590,7 +590,58 @@ class GeneTest < ActiveSupport::TestCase
         gene = Factory.create :gene
         assert_equal 0, gene.es_cells_count
       end
-
     end
+
+    context '#to_extjs_relationship_tree_structure' do
+      setup do
+        assert cbx1
+
+        @plan1 = TestDummy.mi_plan('Cbx1', 'BaSH', 'WTSI')
+        @mi1_1 = Factory.create(:mi_attempt2_status_gtc, :mi_plan => @plan1)
+        @mi1_2 = Factory.create(:mi_attempt2, :mi_plan => @plan1, :is_active => false, :colony_name => 'MI1_2')
+        @pa1_1 = Factory.create(:phenotype_attempt, :mi_plan => @plan1, :mi_attempt => @mi1_1)
+
+        @plan2 = TestDummy.mi_plan('Cbx1', 'BaSH', 'UCD')
+
+        @plan3 = TestDummy.mi_plan('Cbx1', 'DTCC', 'UCD', :number_of_es_cells_starting_qc => 2)
+        @mi3_1 = Factory.create(:mi_attempt2_status_gtc, :mi_plan => @plan3)
+        @pa3_1 = Factory.create(:phenotype_attempt, :mi_plan => @plan3, :mi_attempt => @mi3_1)
+
+        @plan4 = TestDummy.mi_plan('Cbx1', 'Monterotondo', 'Monterotondo')
+      end
+
+      should 'place MiPlans correctly' do
+        data = cbx1.to_extjs_relationship_tree_structure
+
+        plan_data = data.find{|i| i['name'] == 'Monterotondo'}['children'].find{|i| i['name'] == 'Monterotondo'}['children'].first
+        expected = {
+          'name' => 'Plan',
+          'id' => @plan4.id,
+          'status' => 'Inspect - GLT Mouse',
+          'children' => []
+        }
+        assert_equal expected, plan_data
+      end
+
+      should 'place MiAttempts correctly' do
+        data = cbx1.to_extjs_relationship_tree_structure
+
+        plan = data.find{|i| i['name'] == 'BaSH'}['children'].find{|i| i['name'] == 'WTSI'}['children'].first
+        assert plan.present?
+        plan_children = plan['children']
+        assert plan_children.present?
+puts plan_children.to_yaml
+        mi_data = plan_children.find{|i| i['id'] == @mi1_2.id}
+        expected = {
+          'name' => 'MI Attempt',
+          'colony_name' => 'MI1_2',
+          'id' => @mi1_2.id,
+          'status' => 'Micro-injection aborted',
+          'leaf' => true
+        }
+        assert_equal expected, mi_data
+      end
+    end
+
   end
 end

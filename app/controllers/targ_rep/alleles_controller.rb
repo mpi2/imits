@@ -147,6 +147,9 @@ class TargRep::AllelesController < TargRep::BaseController
   ##
   ## Custom controllers
   ##
+  def history
+    @allele = TargRep::Allele.find(params[:id])
+  end
 
   # GET /alleles/1/escell_clone_genbank_file/
   def escell_clone_genbank_file

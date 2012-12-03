@@ -4,7 +4,8 @@ class User < ActiveRecord::Base
     'vvi@sanger.ac.uk',
     're4@sanger.ac.uk',
     'pen1adm@sanger.ac.uk',
-    'pen2adm@sanger.ac.uk'
+    'pen2adm@sanger.ac.uk',
+    'jr18@sanger.ac.uk'
   ]
 
   REMOTE_ACCESS_USERS = [

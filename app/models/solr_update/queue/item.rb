@@ -3,7 +3,7 @@ class SolrUpdate::Queue::Item < ApplicationModel
 
   belongs_to :mi_attempt
   belongs_to :phenotype_attempt
-  belongs_to :allele
+  belongs_to :allele, :class_name => "TargRep::Allele"
 
   def reference
     if mi_attempt_id

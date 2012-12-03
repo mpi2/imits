@@ -110,8 +110,6 @@ class MiAttemptsController < ApplicationController
     render :template => '/shared/history'
   end
 
-  private
-
   def authorize_user_production_centre
     return true unless request.format == :json
 
@@ -124,11 +122,17 @@ class MiAttemptsController < ApplicationController
 
     return true
   end
+  private :authorize_user_production_centre
 
   alias_method :public_mi_attempt_url, :mi_attempt_url
+  private :public_mi_attempt_url
   helper do
     def public_mi_attempts_path(*args); mi_attempts_path(*args); end
     def public_mi_attempt_path(*args); mi_attempt_path(*args); end
+  end
+
+  def attributes
+    render :json => create_attribute_documentation_for(Public::MiAttempt)
   end
 
 end

@@ -7,14 +7,22 @@ Kermits2::Application.routes.draw do
     collection do
       get 'gene_selection'
       delete 'destroy'
+      get 'attributes'
     end
   end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
     resource :phenotype_attempts, :only => [:new]
+    collection do
+      get 'attributes'
+    end
   end
 
-  resources :phenotype_attempts, :only => [:index, :create, :show, :update]
+  resources :phenotype_attempts, :only => [:index, :create, :show, :update] do
+    collection do
+      get 'attributes'
+    end
+  end
 
   resources :contacts do
     collection do

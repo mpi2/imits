@@ -134,6 +134,14 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
 
       end
 
+      context 'GET /attributes' do
+        should 'work' do
+          get :attributes
+          assert_response :success
+          assert_include JSON.parse(response.body).keys, 'readable'
+        end
+      end
+
     end # when authenticated
 
   end

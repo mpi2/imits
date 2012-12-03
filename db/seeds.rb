@@ -85,7 +85,8 @@ Seeds.load Strain, [
   {:id => 52, :name => '129S5/SvEvBrd/Wtsi or C57BL/6Brd-Tyr<c-Brd>'},
   {:id => 53, :name => 'C57BL/6Brd-Tyr<c-Brd>;C57BL/6N'},
   {:id => 54, :name => 'BALB/cWtsi;C57BL/6Brd-Tyr<c-Brd>'},
-  {:id => 55, :name => 'C57BL/6Dnk or C57BL/6JIco or C57BL/6NTac'}
+  {:id => 55, :name => 'C57BL/6Dnk or C57BL/6JIco or C57BL/6NTac'},
+  {:id => 56, :name => 'C57BL/6N;C57BL/6NTac'}
 ]
 
 Seeds.load MiAttempt::Status, [

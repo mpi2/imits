@@ -105,4 +105,8 @@ class MiPlansController < ApplicationController
     render :template => '/shared/history'
   end
 
+  def attributes
+    render :json => create_attribute_documentation_for(Public::MiPlan)
+  end
+
 end

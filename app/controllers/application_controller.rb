@@ -158,4 +158,12 @@ class ApplicationController < ActionController::Base
   end
   protected :set_centres_and_consortia
 
+  def create_attribute_documentation_for(klass)
+    {
+      'readable' => klass.const_get(:READABLE_ATTRIBUTES),
+      'writable' => klass.const_get(:WRITABLE_ATTRIBUTES)
+    }
+  end
+  protected :create_attribute_documentation_for
+
 end

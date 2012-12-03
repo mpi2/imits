@@ -23,7 +23,7 @@ module PhenotypeAttempt::StatusManagement
     pt.number_of_cre_matings_successful.to_i > 0 and ['b', '.1'].include?(pt.mouse_allele_type) and ! pt.colony_background_strain.nil?
   end
 
-  ss.add('Phenotyping Started', 'Cre Excision Complete') do |pt|
+  ss.add('Phenotyping Started', 'Cre Excision Complete', :skip_requirements_if => lambda {|pt| pt.cre_excision_required? == false}) do |pt|
     pt.phenotyping_started?
   end
 

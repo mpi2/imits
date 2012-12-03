@@ -29,7 +29,8 @@ module Kermits2
     config.active_record.observers = [
       'SolrUpdate::Observer::AnyWithMiAttempts',
       'SolrUpdate::Observer::MiAttempt',
-      'SolrUpdate::Observer::PhenotypeAttempt'
+      'SolrUpdate::Observer::PhenotypeAttempt',
+      'SolrUpdate::Observer::DistributionCentres'
     ]
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.

@@ -512,7 +512,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         config = @config
 
         @config = {
-          #"UCD"=>{:preferred=>"whatever-else.com/PROJECT_ID", :default=>"www.something-else.com"},
           "KOMP"=>{:preferred=>"whatever.com/PROJECT_ID", :default=>"www.something.com"},
           "EMMA"=> {:preferred=>"http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL", :default=>"www.EMMA-default.com"}
         }

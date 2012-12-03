@@ -51,4 +51,23 @@ module SolrUpdate::Observer
 
     public_class_method :new
   end
+
+  class DistributionCentres < ActiveRecord::Observer
+    observe 'MiAttempt::DistributionCentre', 'PhenotypeAttempt::DistributionCentre'
+
+    def initialize
+      super
+      @enqueuer = SolrUpdate::Enqueuer.new
+    end
+
+    def after_save(object)
+      @enqueuer.update_mi_or_phenotype_attempt(object)
+    end
+
+    def after_destroy(object)
+      @enqueuer.update_mi_or_phenotype_attempt(object)
+    end
+
+    public_class_method :new
+  end
 end

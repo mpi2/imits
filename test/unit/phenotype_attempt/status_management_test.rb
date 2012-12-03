@@ -144,6 +144,20 @@ class PhenotypeAttempt::StatusChangerTest < ActiveSupport::TestCase
       assert_equal 'Cre Excision Complete', phenotype_attempt.status.name
     end
 
+    should 'transition through Phenotype Attempt Registered -> Phenotyping Started -> Phenotyping Complete by setting cre_excision_required to false' do
+      phenotype_attempt.valid?
+      assert_equal 'Phenotype Attempt Registered', phenotype_attempt.status.name
+
+      phenotype_attempt.phenotyping_started = true
+      phenotype_attempt.cre_excision_required = false
+      phenotype_attempt.valid?
+      assert_equal 'Phenotyping Started', phenotype_attempt.status.name
+
+      phenotype_attempt.phenotyping_complete = true
+      phenotype_attempt.valid?
+      assert_equal 'Phenotyping Complete', phenotype_attempt.status.name
+    end
+
     context 'status stamps' do
       should 'be created if conditions for a status are met' do
         pa = Factory.create :phenotype_attempt

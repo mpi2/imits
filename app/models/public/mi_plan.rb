@@ -32,7 +32,10 @@ class Public::MiPlan < ::MiPlan
     'phenotype_attempts_count'
   ] + FULL_ACCESS_ATTRIBUTES
 
-  attr_accessible(*FULL_ACCESS_ATTRIBUTES)
+  WRITABLE_ATTRIBUTES = %w{
+  } + FULL_ACCESS_ATTRIBUTES
+
+  attr_accessible(*WRITABLE_ATTRIBUTES)
 
   access_association_by_attribute :sub_project, :name
   access_association_by_attribute :gene, :marker_symbol, :full_alias => :marker_symbol

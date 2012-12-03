@@ -401,5 +401,14 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
     end
 
+    context 'GET /attributes' do
+      should 'work' do
+        sign_in default_user
+        get :attributes
+        assert_response :success
+        assert_include JSON.parse(response.body).keys, 'readable'
+      end
+    end
+
   end
 end

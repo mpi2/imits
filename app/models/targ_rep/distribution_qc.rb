@@ -123,11 +123,6 @@ class TargRep::DistributionQc < ActiveRecord::Base
 
 end
 
-## For view compatibility due to iMits move
-def centre_name
-  self.es_cell_distribution_centre_name
-end
-
 # == Schema Information
 #
 # Table name: targ_rep_distribution_qcs

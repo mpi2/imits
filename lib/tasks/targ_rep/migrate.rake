@@ -21,7 +21,7 @@ class LegacyTargRep
   ##
   def self.database_connection
     Rails.logger.info "Connecting to #{Rails.env.to_s} database `#{config['database']}` with `#{config['username']}@#{config['password']}`"
-    
+    Sequel.mysql2.disconnect
     Sequel.mysql2(config['database'], 
       :user => config['username'],
       :password => config['password'],
@@ -201,7 +201,7 @@ class LegacyTargRep
     ##
     class << self
 
-      attr_accessor :tablename
+      attr_accessor :dataset, :tablename
 
       ##
       ## Find tablename based on class. You can override this in the specific class.
@@ -218,7 +218,7 @@ class LegacyTargRep
       ## Retrieve table as Sequel dataset. You should always sort the table by something.
       ##
       def dataset
-        LegacyTargRep.database_connection[self.tablename].order(:created_at)
+        @dataset ||= LegacyTargRep.database_connection[self.tablename].order(:created_at)
       end
 
       ##
@@ -327,7 +327,7 @@ namespace :migrate do
 
     begin
       
-      LegacyTargRep.export_mysqlsql_import_postgresql('centres', 'es_cell_distribution_centres')
+      LegacyTargRep.export_mysqlsql_import_postgresql('centres', 'targ_rep_es_cell_distribution_centres')
 
     rescue => e
       puts "EsCellDistributionCentre migration failed. Rolling back."
@@ -353,7 +353,9 @@ namespace :migrate do
         if imits_user = imits_users.where(:email => user.email).first
           ## Update existing user with Legacy ID
           puts "Updating user #{user.email}"
-          imits_user.update_attribute(:legacy_id, user.id)
+          imits_user.legacy_id = user.id
+          imits_user.es_cell_distribution_centre_id = user[:centre_id]
+          imits_user.save
         else
 
           ## Get production centre name from hash.
@@ -376,7 +378,7 @@ namespace :migrate do
             ## However this will be renamed es_cell_distribution_centres. ID's should match.
             ## Can be null.
             ##
-            new_user.es_cell_distribution_centre_id = user.row[:centre_id]
+            new_user.es_cell_distribution_centre_id = user[:centre_id]
             ## Save TargRep id for mapping & potential audits.
             new_user.legacy_id = user.id
             ## Save and raise an exception if it fails.
@@ -675,7 +677,7 @@ namespace :migrate do
         ## We're looping through MiAttempts, using update_all will cause an issue where new ids could be mistaken for legacy ids.
         MiAttempt.order('id ASC').each do |mi|
           if legacy_id = matched_es_cells[mi.es_cell_id]
-            MiAttempt.update_al({:es_cell_id => legacy_id}, {:id => mi.id})
+            MiAttempt.update_all({:es_cell_id => legacy_id}, {:id => mi.id})
           end
         end
       end

@@ -33,7 +33,7 @@ class MiAttempt::DistributionCentre < ApplicationModel
   validates :deposited_material_id, :presence => true
 
   access_association_by_attribute :deposited_material, :name
-  access_association_by_attribute :centre, :name
+  access_association_by_attribute :es_cell_distribution_centre, :name
 end
 
 # == Schema Information

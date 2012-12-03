@@ -84,6 +84,7 @@ class TargRep::EsCellsController < TargRep::BaseController
 
     TargRep::EsCell.transaction do
       @distribution_qcs = TargRep::DistributionQc.update(params[:distribution_qcs].keys, params[:distribution_qcs].values).reject { |p| p.errors.empty? }
+
       @es_cells = TargRep::EsCell.update(params[:es_cells].keys, params[:es_cells].values).reject { |p| p.errors.empty? }
     end
 
@@ -101,10 +102,10 @@ class TargRep::EsCellsController < TargRep::BaseController
 
     if @es_cells.empty? && @distribution_qcs.empty?
       flash[:notice] = "ES Cells Updated"
-      redirect_to :action => :bulk_edit
+      redirect_to bulk_edit_targ_rep_es_cells_path
     else
       flash[:error] = "There was a problem updating some of your records - the failed entries are shown below"
-      redirect_to :action => :bulk_edit, :es_cell_names => es_cell_names
+      redirect_to targ_rep_es_cells_bulk_edit_path(:es_cell_names => es_cell_names)
     end
   end
 

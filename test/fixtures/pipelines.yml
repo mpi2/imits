@@ -1,0 +1,12 @@
+---
+EUCOMM:
+  id: 1
+  name: EUCOMM
+
+KOMP:
+  id: 2
+  name: KOMP-CSD
+
+SANGER_FACULTY:
+  id: 3
+  name: SANGER_FACULTY

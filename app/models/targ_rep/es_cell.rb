@@ -119,7 +119,7 @@ class TargRep::EsCell < ActiveRecord::Base
       return if ! centre  # do nothing if we haven't a centre
 
       self.distribution_qcs.each do |dqc|
-        return if dqc.centre == centre
+        return if dqc.es_cell_distribution_centre == centre
       end
 
       if ! self.distribution_qcs || self.distribution_qcs.size == 0

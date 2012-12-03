@@ -118,12 +118,6 @@ class TargRep::Allele < ActiveRecord::Base
   validates :gene, :presence => true
 
   ##
-  ## Filters
-  ##
-
-#  before_validation :set_mutation_details_and_clean_blanks
-
-  ##
   ## Methods
   ##
 
@@ -261,29 +255,6 @@ class TargRep::Allele < ActiveRecord::Base
         end
       end
     end
-
-#    def set_mutation_details_and_clean_blanks
-      # Set the mutation details
-#      self.mutation_type = 'targeted_mutation'
-#      self.mutation_subtype = case self.design_type
-#        when 'Deletion'   then 'deletion'
-#        when 'Insertion'  then 'insertion'
-#        when 'Knock Out'  then self.loxp_start.nil? ? 'targeted_non_conditional' : 'conditional_ready'
-#      end
-
-#      if ['conditional_ready', 'insertion', 'deletion'].include? self.mutation_subtype
-#        if self.design_subtype and self.design_subtype === 'domain'
-#          self.mutation_method = 'domain_disruption'
-#        else
-#          self.mutation_method = 'frameshift'
-#        end
-#      end
-
-      # Convert any blank strings to nil...
-#      self.attributes.each do |name,value|
-#        self.send("#{name}=".to_sym, nil) if value.is_a?(String) and value.empty?
-#      end
-#    end
 
     def has_correct_cassette_type
       known_cassettes = {

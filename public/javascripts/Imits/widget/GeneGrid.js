@@ -57,16 +57,27 @@ Ext.define('Imits.widget.GeneGrid', {
         header: 'Gene',
         dataIndex: 'marker_symbol',
         readOnly: true,
-        renderer: function(symbol) {
+        renderer: function (symbol) {
             return Ext.String.format('<a href="http://www.knockoutmouse.org/martsearch/search?query={0}" target="_blank">{0}</a>', symbol);
         }
     },
     {
+        header: 'Tree',
+        readOnly: true,
+        renderer: function (value, metaData, record) {
+            var mgiId = record.get('mgi_accession_id');
+            var iconURL = '<img src="' + window.basePath + '/images/icons/application_side_tree.png" alt="Blah"/>';
+            return Ext.String.format('<a href="{0}/genes/{1}/relationship_tree">{2}</a>', window.basePath, mgiId, iconURL);
+        },
+        width: 40,
+        sortable: false
+    },
+    {
         header: 'Production History',
         dataIndex: 'production_history_link',
-        renderer: function(value, metaData, record) {
+        renderer: function (value, metaData, record) {
             var geneId = record.getId();
-            return Ext.String.format('<a href="{0}/gene/{1}/network_graph">Production Graph</a>', window.basePath, geneId);
+            return Ext.String.format('<a href="{0}/genes/{1}/network_graph">Production Graph</a>', window.basePath, geneId);
         },
         sortable: false
     },

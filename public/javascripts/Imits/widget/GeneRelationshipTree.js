@@ -3,7 +3,8 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
 
     requires: [
         'Ext.data.TreeStore',
-        'Ext.tree.plugin.TreeViewDragDrop'
+        'Ext.tree.plugin.TreeViewDragDrop',
+        'Imits.widget.ManageResizeWithBrowserFrame'
     ],
 
     mixins: [
@@ -55,14 +56,18 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
     title: '&nbsp;',
     store: Ext.create('Ext.data.TreeStore', {
         fields: [
+            {name: 'id', type: 'integer'},
             {name: 'name', type: 'string'},
             {name: 'status', type: 'string'},
             {name: 'colony_name', type: 'string'}
         ],
+
         proxy: {
             type: 'ajax',
-            url: window.basePath + '/genes/' + window.GENE.mgi_accession_id + '/relationship_tree'
+            url: window.basePath + '/genes/' + Imits.Util.extractValueIfExistent(window.GENE, 'mgi_accession_id') + '/relationship_tree.json'
         }
+
+//        proxy: 'gene_relationship_tree'
     }),
     rootVisible: false,
     useArrows: true

@@ -469,6 +469,8 @@ class Gene < ActiveRecord::Base
             'name' => 'Plan',
             'id' => plan.id,
             'status' => plan.status.name,
+            'consortium_name' => plan.consortium.name,
+            'production_centre_name' => plan.production_centre.name,
             'children' => []
           }
           centre_group['children'] << plan_data
@@ -479,6 +481,8 @@ class Gene < ActiveRecord::Base
               'name' => 'MI Attempt',
               'colony_name' => mi.colony_name,
               'status' => mi.status.name,
+              'consortium_name' => mi.consortium.name,
+              'production_centre_name' => mi.production_centre.name,
               'leaf' => true
             }
           end
@@ -489,6 +493,8 @@ class Gene < ActiveRecord::Base
               'name' => 'Phenotype Attempt',
               'colony_name' => pa.colony_name,
               'status' => pa.status.name,
+              'consortium_name' => pa.consortium.name,
+              'production_centre_name' => pa.production_centre.name,
               'leaf' => true
             }
           end

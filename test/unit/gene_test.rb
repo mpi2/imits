@@ -607,17 +607,19 @@ class GeneTest < ActiveSupport::TestCase
         @mi3_1 = Factory.create(:mi_attempt2_status_gtc, :mi_plan => @plan3)
         @pa3_1 = Factory.create(:phenotype_attempt, :mi_plan => @plan3, :mi_attempt => @mi3_1, :colony_name => 'PA3_1')
 
-        @plan4 = TestDummy.mi_plan('Cbx1', 'Monterotondo', 'Monterotondo')
+        @plan4 = TestDummy.mi_plan('Cbx1', 'Helmholtz GMC', 'HMGU')
       end
 
       should 'place MiPlans correctly' do
         data = cbx1.to_extjs_relationship_tree_structure
 
-        plan_data = data.find {|i| i['name'] == 'Monterotondo'}['children'].find {|i| i['name'] == 'Monterotondo'}['children'].first
+        plan_data = data.find {|i| i['name'] == 'Helmholtz GMC'}['children'].find {|i| i['name'] == 'HMGU'}['children'].first
         expected = {
           'name' => 'Plan',
           'id' => @plan4.id,
           'status' => 'Inspect - GLT Mouse',
+          'consortium_name' => 'Helmholtz GMC',
+          'production_centre_name' => 'HMGU',
           'children' => []
         }
         assert_equal expected, plan_data
@@ -637,6 +639,8 @@ class GeneTest < ActiveSupport::TestCase
           'colony_name' => 'MI1_2',
           'id' => @mi1_2.id,
           'status' => 'Micro-injection aborted',
+          'consortium_name' => 'BaSH',
+          'production_centre_name' => 'WTSI',
           'leaf' => true
         }
         assert_equal expected, mi_data
@@ -656,6 +660,8 @@ class GeneTest < ActiveSupport::TestCase
           'colony_name' => 'PA3_1',
           'id' => @pa3_1.id,
           'status' => 'Phenotype Attempt Registered',
+          'consortium_name' => 'DTCC',
+          'production_centre_name' => 'UCD',
           'leaf' => true
         }
         assert_equal expected, pa_data

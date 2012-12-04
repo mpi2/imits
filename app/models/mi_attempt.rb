@@ -321,6 +321,13 @@ class MiAttempt < ApplicationModel
     consortium = Consortium.find_by_name(consortium_name)
     production_centre = Centre.find_by_name(production_centre_name)
     return unless es_cell and consortium and production_centre
+
+    if mi_plan
+      if consortium == mi_plan.consortium and production_centre == mi_plan.production_centre
+        return mi_plan
+      end
+    end
+
     lookup_conditions = {
       :gene_id => es_cell.gene.id,
       :consortium_id => consortium.id,

@@ -567,6 +567,19 @@ class MiAttemptTest < ActiveSupport::TestCase
 
           assert_match 'ES cells failed QC', mi_attempt.errors[:base].join
         end
+
+        should 'not be set to the wrong one if neither consortium or production centre were changed' do
+          assert cbx1
+          p2 = TestDummy.mi_plan 'BaSH', 'WTSI', 'Cbx1'
+          p1 = TestDummy.mi_plan 'BaSH', 'WTSI', 'Cbx1', :sub_project => MiPlan::SubProject.find_by_name!('MGPinterest')
+
+          mi = Factory.create :mi_attempt2, :mi_plan => p1
+
+          mi.consortium_name = 'BaSH'
+          mi.production_centre_name = 'WTSI'
+          mi.save!
+          assert_equal p1, mi.mi_plan
+        end
       end
 
       should 'have #updated_by column' do

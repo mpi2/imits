@@ -617,6 +617,8 @@ class GeneTest < ActiveSupport::TestCase
         production_centre_data = consortium_data['children'].find {|i| i['name'] == 'WTSI'}
 
         assert_equal ['Consortium', 'Centre'], [consortium_data['type'], production_centre_data['type']]
+
+        assert_equal 'BaSH', production_centre_data['consortium_name']
       end
 
       should 'place MiPlans correctly' do

@@ -454,14 +454,14 @@ class Gene < ActiveRecord::Base
   def to_extjs_relationship_tree_structure
     retval = []
 
-    mi_plans.group_by {|i| i.consortium.name}.each do |consortium, consortium_mi_plans|
+    mi_plans.group_by {|i| i.consortium.name}.each do |consortium_name, consortium_mi_plans|
 
-      consortium_group = {'name' => consortium, 'type' => 'Consortium', 'children' => []}
+      consortium_group = {'name' => consortium_name, 'type' => 'Consortium', 'children' => []}
       retval << consortium_group
 
-      consortium_mi_plans.group_by {|i| i.production_centre.name}.each do |production_centre, fully_grouped_mi_plans|
+      consortium_mi_plans.group_by {|i| i.production_centre.name}.each do |production_centre_name, fully_grouped_mi_plans|
 
-        centre_group = {'name' => production_centre, 'type' => 'Centre', 'children' => []}
+        centre_group = {'name' => production_centre_name, 'type' => 'Centre', 'consortium_name' => consortium_name, 'children' => []}
         consortium_group['children'] << centre_group
 
         fully_grouped_mi_plans.each do |plan|

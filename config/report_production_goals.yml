@@ -65,64 +65,64 @@ summary_month_by_month:
   DTCC:
     2012:
       12:
-        mi_goals: 337
-        gc_goals: 266
+        mi_goals: 491
+        gc_goals: 265
       11:
-        mi_goals: 314
-        gc_goals: 252
+        mi_goals: 459
+        gc_goals: 249
       10:
-        mi_goals: 391
-        gc_goals: 238
+        mi_goals: 427
+        gc_goals: 233
       9:
-        mi_goals: 368
-        gc_goals: 224
+        mi_goals: 395
+        gc_goals: 217
       8:
-        mi_goals: 345
-        gc_goals: 210
+        mi_goals: 363
+        gc_goals: 201
       7:
-        mi_goals: 322
-        gc_goals: 196
+        mi_goals: 331
+        gc_goals: 185
       6:
         mi_goals: 299
-        gc_goals: 182
+        gc_goals: 169
       5:
         mi_goals: 276
-        gc_goals: 168
+        gc_goals: 156
       4:
         mi_goals: 253
-        gc_goals: 154
+        gc_goals: 143
       3:
         mi_goals: 230
-        gc_goals: 140
+        gc_goals: 130
       2:
         mi_goals: 207
-        gc_goals: 126
+        gc_goals: 117
       1:
         mi_goals: 184
-        gc_goals: 112
+        gc_goals: 104
 
     2011:
       12:
         mi_goals: 161
-        gc_goals: 98
+        gc_goals: 91
       11:
         mi_goals: 138
-        gc_goals: 84
+        gc_goals: 78
       10:
         mi_goals: 115
-        gc_goals: 70
+        gc_goals: 65
       9:
         mi_goals: 92
-        gc_goals: 56
+        gc_goals: 52
       8:
         mi_goals: 69
-        gc_goals: 42
+        gc_goals: 39
       7:
         mi_goals: 46
-        gc_goals: 28
+        gc_goals: 26
       6:
         mi_goals: 23
-        gc_goals: 14
+        gc_goals: 13
 
 
   JAX:

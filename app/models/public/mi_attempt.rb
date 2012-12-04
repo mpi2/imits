@@ -84,7 +84,7 @@ class Public::MiAttempt < ::MiAttempt
   end
 
   def pipeline_name
-    self.es_cell && self.es_cell.pipeline && self.es_cell.pipeline.name ? self.es_cell.pipeline.name : nil
+    try(:es_cell).try(:pipeline).try(:name)
   end
 end
 

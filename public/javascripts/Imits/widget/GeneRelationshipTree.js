@@ -64,10 +64,15 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
 
         proxy: {
             type: 'ajax',
-            url: window.basePath + '/genes/' + Imits.Util.extractValueIfExistent(window.GENE, 'mgi_accession_id') + '/relationship_tree.json'
+            url: (function () {
+                if (window.GENE) {
+                    return window.basePath + '/genes/' + window.GENE.mgi_accession_id + '/relationship_tree.json';
+                } else {
+                    return '';
+                }
+            }())
         }
 
-//        proxy: 'gene_relationship_tree'
     }),
     rootVisible: false,
     useArrows: true

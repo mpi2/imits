@@ -618,7 +618,8 @@ class GeneTest < ActiveSupport::TestCase
 
         assert_equal ['Consortium', 'Centre'], [consortium_data['type'], production_centre_data['type']]
 
-        assert_equal 'BaSH', production_centre_data['consortium_name']
+        assert_equal ['BaSH', 'WTSI'], production_centre_data.values_at('consortium_name', 'production_centre_name')
+        assert_equal 'BaSH', consortium_data['consortium_name']
       end
 
       should 'place MiPlans correctly' do

@@ -36,6 +36,39 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
         }
     ],
 
+    handleMove: function (node, oldParent, newParent) {
+        var self = this, oldPlanData = node.data, newPlanData = newParent.data;
+
+        if (!newPlanData.production_centre_name) {
+            newPlanData.production_centre_name = oldPlanData.production_centre_name;
+        }
+
+        if (newPlanData.consortium_name === node.data.consortium_name &&
+            newPlanData.production_centre_name === node.data.production_centre_name) {
+            Ext.MessageBox.alert('Alert', Ext.String.format('This {0} already belongs to {1} and {2}',
+                                                            node.data.name,
+                                                            newPlanData.consortium_name,
+                                                            newPlanData.production_centre_name));
+        } else {
+            var message =
+                Ext.String.format("Updating {0} {1}<br>" +
+                                  "Old consortium / production centre: {2} / {3}<br>" +
+                                  "New consortium / production centre: {4} / {5}",
+                                  node.data.name,
+                                  node.data.colony_name,
+                                  oldPlanData.consortium_name,
+                                  oldPlanData.production_centre_name,
+                                  newPlanData.consortium_name,
+                                  newPlanData.production_centre_name);
+            Ext.MessageBox.confirm('Note', message, function (button) {
+                if (button === 'yes') {
+                    self.getStore().reload();
+                    Ext.MessageBox.alert('Alert', 'Moving...');
+                }
+            });
+        }
+    },
+
     initComponent: function () {
         var self = this;
 
@@ -48,7 +81,10 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
         });
 
         self.addListener('beforeitemmove', function (node, oldParent, newParent, index) {
-            console.log({node: node, oldParent: oldParent, newParent: newParent, index: index});
+            if ( ['MiPlan', 'Centre', 'Consortium'].indexOf(newParent.data.type) !== -1 ) {
+                self.handleMove(node, oldParent, newParent);
+            }
+
             return false;
         });
     },
@@ -58,8 +94,11 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
         fields: [
             {name: 'id', type: 'integer'},
             {name: 'name', type: 'string'},
+            {name: 'type', type: 'string'},
             {name: 'status', type: 'string'},
-            {name: 'colony_name', type: 'string'}
+            {name: 'colony_name', type: 'string'},
+            {name: 'consortium_name', type: 'string'},
+            {name: 'production_centre_name', type: 'string'},
         ],
 
         proxy: {

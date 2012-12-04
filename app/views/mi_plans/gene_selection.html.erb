@@ -15,7 +15,7 @@
   <%= javascript_include_tag 'mi_plans/gene_selection' %>
 <% end %>
 
-<h2>Register Interest in Micro-Injecting Genes</h2>
+<h2><%= @tab %></h2>
 
 <%= form_tag gene_selection_mi_plans_path, :method => :get, :id => 'gene-search-form'  do %>
   <fieldset class="collapsible">

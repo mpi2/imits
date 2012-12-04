@@ -35,7 +35,7 @@ Ext.define('Imits.widget.GeneGrid', {
     'Ext.ux.RowExpander',
     'Ext.selection.CheckboxModel'
     ],
-    title: 'Please Select the Genes You Would Like to Register Interest In*',
+    title: '&nbsp;',
     iconCls: 'icon-grid',
     columnLines: true,
     store: {

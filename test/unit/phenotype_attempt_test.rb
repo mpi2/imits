@@ -467,5 +467,31 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       assert_equal 'phenotype attempt', PhenotypeAttempt.readable_name
     end
 
+    should 'handle template character in allele_symbol_superscript_template' do
+      phenotype_attempt = Factory.create :phenotype_attempt
+
+      phenotype_attempt.rederivation_started = true
+      phenotype_attempt.rederivation_complete = true
+      phenotype_attempt.number_of_cre_matings_started = 1
+      phenotype_attempt.number_of_cre_matings_successful = 1
+      phenotype_attempt.deleter_strain = DeleterStrain.all.first
+      phenotype_attempt.colony_background_strain = Strain.all.first
+      phenotype_attempt.mouse_allele_type = '.1'
+      phenotype_attempt.save!
+      assert_equal "Cre Excision Complete", phenotype_attempt.status.name
+
+      assert_match(/Auto\-generated Symbol \d+<sup>tm1.1\(EUCOMM\)Wtsi<\/sup>/, phenotype_attempt.allele_symbol)
+
+      old_allele_symbol_superscript_template = phenotype_attempt.es_cell.allele_symbol_superscript_template
+      phenotype_attempt.es_cell.allele_symbol_superscript_template = phenotype_attempt.es_cell.allele_symbol_superscript_template.gsub(/@/, '')
+
+      phenotype_attempt.es_cell.save!
+
+      assert_match(/Auto-generated Symbol \d+<sup>tm1\(EUCOMM\)Wtsi<\/sup>/, phenotype_attempt.allele_symbol)
+
+      assert phenotype_attempt.es_cell.allele_symbol_superscript_template !~ /@/
+      assert phenotype_attempt.allele_symbol !~ /@/
+    end
+
   end
 end

@@ -456,17 +456,18 @@ class Gene < ActiveRecord::Base
 
     mi_plans.group_by {|i| i.consortium.name}.each do |consortium, consortium_mi_plans|
 
-      consortium_group = {'name' => consortium, 'children' => []}
+      consortium_group = {'name' => consortium, 'type' => 'Consortium', 'children' => []}
       retval << consortium_group
 
       consortium_mi_plans.group_by {|i| i.production_centre.name}.each do |production_centre, fully_grouped_mi_plans|
 
-        centre_group = {'name' => production_centre, 'children' => []}
+        centre_group = {'name' => production_centre, 'type' => 'Centre', 'children' => []}
         consortium_group['children'] << centre_group
 
         fully_grouped_mi_plans.each do |plan|
           plan_data = {
             'name' => 'Plan',
+            'type' => 'MiPlan',
             'id' => plan.id,
             'status' => plan.status.name,
             'consortium_name' => plan.consortium.name,
@@ -479,6 +480,7 @@ class Gene < ActiveRecord::Base
             plan_data['children'] << {
               'id' => mi.id,
               'name' => 'MI Attempt',
+              'type' => 'MiAttempt',
               'colony_name' => mi.colony_name,
               'status' => mi.status.name,
               'consortium_name' => mi.consortium.name,
@@ -491,6 +493,7 @@ class Gene < ActiveRecord::Base
             plan_data['children'] << {
               'id' => pa.id,
               'name' => 'Phenotype Attempt',
+              'type' => 'PhenotypeAttempt',
               'colony_name' => pa.colony_name,
               'status' => pa.status.name,
               'consortium_name' => pa.consortium.name,

@@ -610,12 +610,22 @@ class GeneTest < ActiveSupport::TestCase
         @plan4 = TestDummy.mi_plan('Cbx1', 'Helmholtz GMC', 'HMGU')
       end
 
+      should 'add data to consortia and production centres correctly' do
+        data = cbx1.to_extjs_relationship_tree_structure
+
+        consortium_data = data.find {|i| i['name'] == 'BaSH'}
+        production_centre_data = consortium_data['children'].find {|i| i['name'] == 'WTSI'}
+
+        assert_equal ['Consortium', 'Centre'], [consortium_data['type'], production_centre_data['type']]
+      end
+
       should 'place MiPlans correctly' do
         data = cbx1.to_extjs_relationship_tree_structure
 
         plan_data = data.find {|i| i['name'] == 'Helmholtz GMC'}['children'].find {|i| i['name'] == 'HMGU'}['children'].first
         expected = {
           'name' => 'Plan',
+          'type' => 'MiPlan',
           'id' => @plan4.id,
           'status' => 'Inspect - GLT Mouse',
           'consortium_name' => 'Helmholtz GMC',
@@ -636,6 +646,7 @@ class GeneTest < ActiveSupport::TestCase
         mi_data = plan_children.find {|i| i['name'] == 'MI Attempt' and i['id'] == @mi1_2.id}
         expected = {
           'name' => 'MI Attempt',
+          'type' => 'MiAttempt',
           'colony_name' => 'MI1_2',
           'id' => @mi1_2.id,
           'status' => 'Micro-injection aborted',
@@ -657,6 +668,7 @@ class GeneTest < ActiveSupport::TestCase
         pa_data = plan_children.find {|i| i['name'] == 'Phenotype Attempt' and i['id'] == @pa3_1.id}
         expected = {
           'name' => 'Phenotype Attempt',
+          'type' => 'PhenotypeAttempt',
           'colony_name' => 'PA3_1',
           'id' => @pa3_1.id,
           'status' => 'Phenotype Attempt Registered',

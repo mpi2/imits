@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'pp'
 
 class IntermediateReportTest < ActiveSupport::TestCase
   context 'IntermediateReport' do

@@ -66,11 +66,17 @@ class SolrUpdate::DocFactory
       solr_doc['mgi_accession_id'] = phenotype_attempt.gene.mgi_accession_id
     end
 
-    if phenotype_attempt.mouse_allele_type == 'b'
-      solr_doc['allele_type'] = 'Cre Excised Conditional Ready'
-    elsif phenotype_attempt.mouse_allele_type == '.1'
-      solr_doc['allele_type'] = 'Cre Excised Deletion'
+    allele_type = ''
+    if phenotype_attempt.mouse_allele_symbol.nil?
+      allele_type = phenotype_attempt.mi_attempt.allele_symbol
+    else
+      allele_type = phenotype_attempt.mouse_allele_symbol
     end
+
+    target = allele_type[/\>(.+)?\(/, 1]
+    target = target ? " (#{target})" : ''
+
+    solr_doc['allele_type'] = "Cre-excised deletion#{target}"
 
     solr_doc['allele_id'] = phenotype_attempt.allele_id
 

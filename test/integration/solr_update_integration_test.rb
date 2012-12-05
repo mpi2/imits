@@ -114,7 +114,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'id' => phenotype_attempt.id,
         'type' => 'phenotype_attempt',
         'product_type' => 'Mouse',
-        'allele_type' => 'Cre Excised Conditional Ready',
+        'allele_type' => 'Cre-excised deletion (tm1b)',
         'allele_id' => @allele.id,
         'mgi_accession_id' => cbx1.mgi_accession_id,
         'strain' => @new_strain.name,

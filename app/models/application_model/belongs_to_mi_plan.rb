@@ -1,0 +1,2 @@
+module ApplicationModel::BelongsToMiPlan
+end

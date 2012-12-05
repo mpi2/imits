@@ -84,12 +84,10 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   def status_name; status.name; end
 
   def consortium_name
-    if ! @consortium_name.blank?
-      return @consortium_name
+    if @consortium_name.blank?
+      mi_plan.try(:consortium).try(:name)
     else
-      if self.mi_plan
-        @consortium_name = consortium.name
-      end
+      return @consortium_name
     end
   end
 
@@ -98,12 +96,10 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   end
 
   def production_centre_name
-    if ! @production_centre_name.blank?
-      return @production_centre_name
+    if @production_centre_name.blank?
+      mi_plan.try(:production_centre).try(:name)
     else
-      if self.mi_plan
-        @production_centre_name = production_centre.try(:name)
-      end
+      return @production_centre_name
     end
   end
 

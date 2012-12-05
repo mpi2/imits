@@ -30,12 +30,10 @@ Ext.define('Imits.model.MiAttempt', {
     },
     'colony_name',
     {
-        name: 'consortium_name',
-        persist: false
+        name: 'consortium_name'
     },
     {
-        name: 'production_centre_name',
-        persist: false
+        name: 'production_centre_name'
     },
     'distribution_centres_attributes',
     {

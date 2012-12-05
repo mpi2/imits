@@ -3,8 +3,7 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
 
     requires: [
         'Ext.data.TreeStore',
-        'Ext.tree.plugin.TreeViewDragDrop',
-        'Imits.widget.ManageResizeWithBrowserFrame'
+        'Ext.tree.plugin.TreeViewDragDrop'
     ],
 
     mixins: [
@@ -62,8 +61,26 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
                                   newPlanData.production_centre_name);
             Ext.MessageBox.confirm('Note', message, function (button) {
                 if (button === 'yes') {
-                    self.getStore().reload();
-                    Ext.MessageBox.alert('Alert', 'Moving...');
+                    var modelClass;
+                    if (node.data.type === 'MiAttempt') {
+                        modelClass = Imits.model.MiAttempt;
+                    } else if (node.data.type === 'PhenotypeAttempt') {
+                        modelClass = Imits.model.PhenotypeAttempt;
+                    } else {
+                        throw('Unknown model');
+                    }
+
+                    modelClass.load(node.data.id, {
+                        success: function (object) {
+                            object.set('consortium_name', newPlanData.consortium_name);
+                            object.set('production_centre_name', newPlanData.production_centre_name);
+                            object.save({
+                                success: function () {
+                                    self.getStore().reload();
+                                }
+                            });
+                        }
+                    });
                 }
             });
         }

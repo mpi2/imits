@@ -65,9 +65,9 @@ class EsCellTest < ActiveSupport::TestCase
         assert_equal 'b', default_es_cell.allele_type
       end
 
-      should 'store a.s.s.t. only and null out allele_type when allele symbol superscript does not include an allele type letter' do
+      should 'NOT store a.s.s.t. only and null out allele_type when allele symbol superscript does not include an allele type letter' do
         default_es_cell.allele_symbol_superscript = 'tm1(EUCOMM)Wtsi'
-        assert_equal 'tm1(EUCOMM)Wtsi', default_es_cell.allele_symbol_superscript_template
+        assert_equal 'tm1@(EUCOMM)Wtsi', default_es_cell.allele_symbol_superscript_template
         assert_equal nil, default_es_cell.allele_type
       end
 

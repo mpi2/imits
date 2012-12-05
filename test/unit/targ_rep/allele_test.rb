@@ -237,7 +237,7 @@ class TargRep::AlleleTest < ActiveSupport::TestCase
           Factory.create :es_cell,
                   :allele => allele,
                   :parental_cell_line => strains[i][0],
-                  :allele_symbol_superscript => allele_symbol_superscript[i],
+                  :mgi_allele_symbol_superscript => allele_symbol_superscript[i],
                   :ikmc_project_id => ikmc_project_ids[i],
                   :pipeline => TargRep::Pipeline.find_by_name!('EUCOMM')
         end
@@ -245,21 +245,21 @@ class TargRep::AlleleTest < ActiveSupport::TestCase
         allele = TargRep::Allele.find(allele.id)
         unique_es_cells = allele.es_cells.unique_public_info
         assert_equal 3, unique_es_cells.count
-        assert unique_es_cells.include?({:strain => strains[0][1], :allele_symbol_superscript => allele_symbol_superscript[0], :pipeline => 'EUCOMM', :ikmc_project_id => '1'})
-        assert unique_es_cells.include?({:strain => strains[1][1], :allele_symbol_superscript => allele_symbol_superscript[1], :pipeline => 'EUCOMM', :ikmc_project_id => '2'})
-        assert unique_es_cells.include?({:strain => strains[2][1], :allele_symbol_superscript => allele_symbol_superscript[2], :pipeline => 'EUCOMM', :ikmc_project_id => '3'})
+        assert unique_es_cells.include?({:strain => strains[0][1], :mgi_allele_symbol_superscript => allele_symbol_superscript[0], :pipeline => 'EUCOMM', :ikmc_project_id => '1'})
+        assert unique_es_cells.include?({:strain => strains[1][1], :mgi_allele_symbol_superscript => allele_symbol_superscript[1], :pipeline => 'EUCOMM', :ikmc_project_id => '2'})
+        assert unique_es_cells.include?({:strain => strains[2][1], :mgi_allele_symbol_superscript => allele_symbol_superscript[2], :pipeline => 'EUCOMM', :ikmc_project_id => '3'})
       end
 
       should ', if there are ES cells that differ only in pipeline, just emit a row for the first one' do
         allele = Factory.create :allele
         Factory.create :es_cell, :allele => allele,
                 :parental_cell_line => 'JM8A',
-                :allele_symbol_superscript => 'tm1a(EUCOMM)WTSI',
+                :mgi_allele_symbol_superscript => 'tm1a(EUCOMM)WTSI',
                 :pipeline => TargRep::Pipeline.find_by_name!('EUCOMM'),
                 :ikmc_project_id => '1'
         Factory.create :es_cell, :allele => allele,
                 :parental_cell_line => 'JM8A',
-                :allele_symbol_superscript => 'tm1a(EUCOMM)WTSI',
+                :mgi_allele_symbol_superscript => 'tm1a(EUCOMM)WTSI',
                 :pipeline => TargRep::Pipeline.find_by_name!('mirKO'),
                 :ikmc_project_id => '1'
         #allele.reload
@@ -268,7 +268,7 @@ class TargRep::AlleleTest < ActiveSupport::TestCase
         assert_equal 1, unique_info.size
         expected = {
           :strain => 'C57BL/6N-A<tm1Brd>/a',
-          :allele_symbol_superscript => 'tm1a(EUCOMM)WTSI',
+          :mgi_allele_symbol_superscript => 'tm1a(EUCOMM)WTSI',
           :ikmc_project_id => '1',
           :pipeline => 'EUCOMM'
         }

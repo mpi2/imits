@@ -10,6 +10,15 @@ stylesheets:
     - public/stylesheets/grid.css
     - public/extjs/examples/ux/**/*.css
     - public/stylesheets/application.css
+  targ_rep:
+    - public/stylesheets/targ_rep/reset.css
+    - public/stylesheets/targ_rep/typography.css
+    - public/stylesheets/targ_rep/forms.css
+    - public/stylesheets/targ_rep/grid.css
+    - public/stylesheets/targ_rep/sprites.css
+    - public/stylesheets/targ_rep/buttons.css
+    - public/stylesheets/targ_rep/style.css
+
   ie:
     - public/stylesheets/grid_ie.css
 
@@ -18,4 +27,11 @@ javascripts:
     - public/extjs/ext-all-debug.js
     - public/javascripts/application.js
     - public/javascripts/extjs_hacky_monkey_patches.js
+  targ_rep:
+    - public/javascripts/targ_rep/prototype.js
+    - public/javascripts/targ_rep/effects.js
+    - public/javascripts/targ_rep/dragdrop.js
+    - public/javascripts/targ_rep/controls.js
+    - public/javascripts/targ_rep/application.js
+    
   extjs_autodep: <%= ExtjsAutodep.as_yaml %>

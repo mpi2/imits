@@ -34,6 +34,7 @@ Factory.define :es_cell, :class => TargRep::EsCell do |f|
   f.parental_cell_line  { ['JM8 parental', 'JM8.F6', 'JM8.N19'].sample }
   f.mgi_allele_id       { Factory.next(:mgi_allele_id) }
   f.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
+  f.mgi_allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
 
   ikmc_project_id = Factory.next(:ikmc_project_id)
 

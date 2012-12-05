@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121129000000) do
+ActiveRecord::Schema.define(:version => 20121203164954) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -481,7 +481,7 @@ ActiveRecord::Schema.define(:version => 20121129000000) do
     t.integer  "allele_id",                                                              :null => false
     t.integer  "targeting_vector_id"
     t.string   "parental_cell_line"
-    t.string   "allele_symbol_superscript",             :limit => 75
+    t.string   "mgi_allele_symbol_superscript",         :limit => 75
     t.string   "name",                                  :limit => 100,                   :null => false
     t.string   "comment"
     t.string   "contact"

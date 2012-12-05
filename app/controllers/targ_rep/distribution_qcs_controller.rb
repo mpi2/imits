@@ -1,14 +1,15 @@
-class TargRep::DistributionQcsController < ApplicationController
+class TargRep::DistributionQcsController < TargRep::BaseController
 
 
   def create
     @distribution_qc = TargRep::DistributionQc.new(params[:targ_rep_distribution_qc])
-
+    
     respond_to do |format|
       if @distribution_qc.save
         format.json { render :json => @distribution_qc, :status => :created, :location => @distribution_qc }
         format.xml  { render :xml  => @distribution_qc, :status => :created, :location => @distribution_qc }
       else
+        puts @distribution_qc.errors
         format.json { render :json => @distribution_qc.errors, :status => :unprocessable_entity }
         format.xml  { render :xml  => @distribution_qc.errors, :status => :unprocessable_entity }
       end

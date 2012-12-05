@@ -8,8 +8,10 @@
   <title>IKMC Targeting Repository - <%= controller.controller_name.titlecase %>: <%= controller.action_name %></title>
 
   <%= javascript 'prototype', 'effects', 'dragdrop', 'controls', 'application'  %>
-  <%= stylesheet 'reset', 'typography', 'forms', 'grid', 'sprites', 'buttons', 'style' %>
-  <!--[if IE]><%= stylesheet_link_tag 'targ_rep/grid_ie' %><![endif]-->
+  <%= include_stylesheets :targ_rep, :media => 'all' %>
+  <!--[if IE]>
+  <%= include_stylesheets :ie, :media => 'all' %>
+  <![endif]-->
   
   <%= yield(:head) %>
 </head>

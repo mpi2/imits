@@ -1,5 +1,5 @@
 class EsCell < ActiveRecord::Base
-  
+
 end
 
 # == Schema Information

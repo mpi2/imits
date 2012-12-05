@@ -6,6 +6,10 @@ class TargRep::DistributionQcsControllerTest < ActionController::TestCase
 
   context "TargRep::DistributionQcsController" do
 
+    setup do
+      sign_in default_user
+    end
+
     should "create new distribution_qc" do
       es_cell = Factory.create(:es_cell)
 

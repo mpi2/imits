@@ -132,21 +132,16 @@ class TargRep::EsCell < ActiveRecord::Base
     ##
     ## iMits methods
     ##
-    
+
     def allele_symbol_superscript
-      if allele_type
-        return allele_symbol_superscript_template.sub(TEMPLATE_CHARACTER, allele_type)
-      else
-        return allele_symbol_superscript_template
-      end
+      return if allele_symbol_superscript_template.blank?
+      allele_symbol_superscript_template.sub(TEMPLATE_CHARACTER, allele_type.to_s)
     end
 
     class AlleleSymbolSuperscriptFormatUnrecognizedError < Error; end
 
     def allele_symbol_superscript=(text)
-      write_attribute(:allele_symbol_superscript, text)
-
-      if text.blank?
+      if text.nil?
         self.allele_symbol_superscript_template = nil
         self.allele_type = nil
         return
@@ -155,13 +150,8 @@ class TargRep::EsCell < ActiveRecord::Base
       md = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/.match(text)
 
       if md
-        if md[2].blank?
-          self.allele_symbol_superscript_template = md[1] + md[3]
-          self.allele_type = nil
-        else
-          self.allele_symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
-          self.allele_type = md[2]
-        end
+        self.allele_symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
+        self.allele_type = md[2]
       else
         md = /\AGt\(\w+\)\w+\Z/.match(text)
         if md
@@ -251,7 +241,7 @@ end
 #  allele_id                             :integer         not null
 #  targeting_vector_id                   :integer
 #  parental_cell_line                    :string(255)
-#  allele_symbol_superscript             :string(75)
+#  mgi_allele_symbol_superscript         :string(75)
 #  name                                  :string(100)     not null
 #  comment                               :string(255)
 #  contact                               :string(255)

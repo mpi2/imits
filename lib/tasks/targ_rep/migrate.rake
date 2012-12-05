@@ -623,6 +623,7 @@ namespace :migrate do
             new_es_cell.targeting_vector_id                    = targ_rep_es_cell[:targeting_vector_id]
             new_es_cell.parental_cell_line                     = targ_rep_es_cell[:parental_cell_line]
             new_es_cell.allele_symbol_superscript              = targ_rep_es_cell[:allele_symbol_superscript]
+            new_es_cell.mgi_allele_symbol_superscript          = targ_rep_es_cell[:allele_symbol_superscript]
             new_es_cell.comment                                = targ_rep_es_cell[:comment]
             new_es_cell.contact                                = targ_rep_es_cell[:contact]
             new_es_cell.ikmc_project_id                        = targ_rep_es_cell[:ikmc_project_id]
@@ -654,9 +655,7 @@ namespace :migrate do
             ## Match TargRep EsCells to iMits EsCells
             ##
             if es_cell = legacy_es_cells.find {|e| e.name == targ_rep_es_cell[:name]}
-              new_es_cell.allele_type                            = es_cell.allele_type
               new_es_cell.mutation_subtype                       = es_cell.mutation_subtype
-              new_es_cell.allele_symbol_superscript_template     = es_cell.allele_symbol_superscript_template
               new_es_cell.legacy_id                              = es_cell.id
             end
 

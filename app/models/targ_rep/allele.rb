@@ -24,7 +24,7 @@ class TargRep::Allele < ActiveRecord::Base
       self.order('id ASC').each do |es_cell|
         key = {
           :strain => es_cell.strain,
-          :allele_symbol_superscript => es_cell.allele_symbol_superscript,
+          :mgi_allele_symbol_superscript => es_cell.mgi_allele_symbol_superscript,
           :ikmc_project_id => es_cell.ikmc_project_id.to_s
         }
 

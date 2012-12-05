@@ -1000,5 +1000,39 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert_equal 'micro-injection attempt', MiAttempt.readable_name
     end
 
+    should 'handle template character in allele_symbol_superscript_template' do
+      mi_attempt = Factory.create( :mi_attempt,
+        :blast_strain             => Strain.find_by_name!('BALB/c'),
+        :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd'),
+        :test_cross_strain        => Strain.find_by_name!('129P2/OlaHsd')
+      )
+
+      assert(/Auto\-generated Symbol \d+<sup>tm1a\(EUCOMM\)Wtsi<\/sup>/ =~ mi_attempt.allele_symbol)
+
+      old_allele_symbol_superscript_template = mi_attempt.es_cell.allele_symbol_superscript_template
+      mi_attempt.es_cell.allele_symbol_superscript_template = mi_attempt.es_cell.allele_symbol_superscript_template.gsub(/@/, '')
+
+      mi_attempt.es_cell.save!
+
+      assert_match(/Auto-generated Symbol \d+<sup>tm1\(EUCOMM\)Wtsi<\/sup>/, mi_attempt.allele_symbol)
+
+      assert mi_attempt.es_cell.allele_symbol_superscript_template !~ /@/
+      assert mi_attempt.allele_symbol !~ /@/
+
+      mi_attempt.mouse_allele_type = nil
+      mi_attempt.save!
+
+      mi_attempt.es_cell.allele_symbol_superscript_template = old_allele_symbol_superscript_template
+
+      mi_attempt.es_cell.save!
+
+      assert mi_attempt.allele_symbol.length > 0
+
+      assert_match(/Auto-generated Symbol \d+<sup>tm1a\(EUCOMM\)Wtsi<\/sup>/, mi_attempt.allele_symbol)
+
+      assert mi_attempt.es_cell.allele_symbol_superscript_template =~ /@/
+      assert mi_attempt.allele_symbol !~ /@/
+    end
+
   end
 end

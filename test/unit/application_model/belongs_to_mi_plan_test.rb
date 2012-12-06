@@ -101,6 +101,21 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         assert_equal plan, @object.try_to_find_plan
       end
 
+      should 'return mi_attempt`s mi_plan if the consortium and production centre are the same as the ones that are found using try_to_find_* methods and gene is the same' do
+        plan = stub('plan',
+          :production_centre => Centre.find_by_name!('WTSI'),
+          :consortium => Consortium.find_by_name!('BaSH'),
+          :gene => cbx1)
+        mi_attempt = stub('mi_attempt',
+          :mi_plan => plan,
+          :gene => cbx1)
+        @object.stubs(:try_to_find_consortium_name => 'BaSH',
+          :try_to_find_production_centre_name => 'WTSI',
+          :mi_attempt => mi_attempt)
+
+        assert_equal plan, @object.try_to_find_plan
+      end
+
       should 'find and return MiPlan with consortium and production centre returned by try_to_find_* methods if they are both present' do
         @object.stubs(:try_to_find_consortium_name => 'BaSH',
           :try_to_find_production_centre_name => 'WTSI')

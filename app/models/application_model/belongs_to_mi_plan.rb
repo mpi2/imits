@@ -17,7 +17,7 @@ module ApplicationModel::BelongsToMiPlan
     c = try_to_find_consortium_name
     p = try_to_find_production_centre_name
 
-    if c.blank? or p.blank?
+    if c.blank? or p.blank? or gene.blank?
       return nil
     elsif mi_plan
       if c == mi_plan.consortium.name and p == mi_plan.production_centre.name
@@ -33,5 +33,12 @@ module ApplicationModel::BelongsToMiPlan
     end
 
     return nil
+  end
+
+  def set_mi_plan
+    plan = try_to_find_plan
+    if plan
+      self.mi_plan = plan
+    end
   end
 end

@@ -7,6 +7,7 @@ class PhenotypeAttempt < ApplicationModel
   extend AccessAssociationByAttribute
   include PhenotypeAttempt::StatusManagement
   include ApplicationModel::HasStatuses
+  include ApplicationModel::BelongsToMiPlan
 
   belongs_to :mi_attempt
   belongs_to :mi_plan
@@ -24,13 +25,13 @@ class PhenotypeAttempt < ApplicationModel
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
 
-  validate :mi_attempt do |me|
+  validate do |me|
     if me.mi_attempt and me.mi_attempt.status != MiAttempt::Status.genotype_confirmed
       me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.status.name}')")
     end
   end
 
-  validate :mi_plan do |me|
+  validate do |me|
     if me.mi_attempt and me.mi_plan and me.mi_attempt.gene != me.mi_plan.gene
       me.errors.add(:mi_plan, 'must have same gene as mi_attempt')
     end
@@ -38,17 +39,12 @@ class PhenotypeAttempt < ApplicationModel
 
   # BEGIN Callbacks
   before_validation :change_status
-  before_validation :set_mi_plan
 
   before_save :generate_colony_name_if_blank
-  before_save :ensure_plan_is_valid
+  before_save :set_mi_plan
 
   after_save :manage_status_stamps
   after_save :create_initial_distribution_centre
-
-  def set_mi_plan
-    self.mi_plan ||= mi_attempt.try(:mi_plan)
-  end
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?

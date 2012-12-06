@@ -9,7 +9,7 @@ module TargRep::ApplicationHelper
   end
   
   def javascript(*files)
-    content_for(:head) { javascript_include_tag(*files.map {|f| "targ_rep/#{f}"}, :cache => true) }
+    content_for(:head) { javascript_include_tag(*files.map {|f| "targ_rep/#{f}"}) }
   end
   
   def stylesheet(*files)

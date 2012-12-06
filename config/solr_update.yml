@@ -14,6 +14,11 @@ labs:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://t87-dev.internal.sanger.ac.uk:8983/solr/allele
 
+migration:
+  index_proxy:
+    gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
+    allele: http://t87-dev.internal.sanger.ac.uk:8983/solr/allele
+
 staging:
   index_proxy:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene

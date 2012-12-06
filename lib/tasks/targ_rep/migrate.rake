@@ -13,7 +13,12 @@ class LegacyTargRep
   ## Get TargRep config. This needs to be in config/database.targ_rep.yml
   ##
   def self.config
-    @config ||= YAML.load_file("#{Rails.root}/config/database.targ_rep.yml")[Rails.env.to_s]
+    begin
+      @config ||= YAML.load_file("#{Rails.root}/config/database.targ_rep.yml")[Rails.env.to_s]
+    rescue
+      puts "Migration Failed. config/database.targ_rep.yml does not exist."
+      raise
+    end
   end
 
   ##
@@ -26,6 +31,7 @@ class LegacyTargRep
       :user => config['username'],
       :password => config['password'],
       :host => config['host'],
+      :port => config['port'],
       :loggers => [Logger.new($stdout)])
   end
 
@@ -113,10 +119,20 @@ class LegacyTargRep
 
     begin
       puts "Export Mysql database"
-      dump_command = "mysqldump --compatible=postgresql --skip-comments --no-create-info -u #{LegacyTargRep.config['username']} #{LegacyTargRep.config['password'].blank? ? '' : "-p #{LegacyTargRep.config['password']}"} --skip-extended-insert --complete-insert --skip-opt #{LegacyTargRep.config['database']} #{tablename} > #{exported_file}"
+      dump_command = "mysqldump --compatible=postgresql --skip-comments --no-create-info --skip-extended-insert --complete-insert --skip-opt"
+      dump_command << " --host=#{LegacyTargRep.config['host']}" if LegacyTargRep.config['host']
+      dump_command << " --port=#{LegacyTargRep.config['port']}" if LegacyTargRep.config['port']
+      dump_command << " --user=#{LegacyTargRep.config['username']}" if LegacyTargRep.config['username']
+      dump_command << " --password=#{LegacyTargRep.config['password']}" if LegacyTargRep.config['password']
+      
+      dump_command << " #{LegacyTargRep.config['database']} #{tablename} > #{exported_file}"
       puts dump_command
       `#{dump_command}`
-      rename_table = %Q[sed -i "" "s/#{tablename}/#{new_tablename}/g" #{exported_file}]
+      if ENV['osx']
+        rename_table = %Q[sed -i "" "s/#{tablename}/#{new_tablename}/g" #{exported_file}]
+      else
+        rename_table = %Q[sed -i "s/#{tablename}/#{new_tablename}/g" #{exported_file}]
+      end
       puts rename_table
       `#{rename_table}`
 

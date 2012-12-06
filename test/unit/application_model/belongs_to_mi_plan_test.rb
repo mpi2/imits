@@ -106,13 +106,29 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
           :try_to_find_production_centre_name => 'WTSI')
 
         plan = TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx1')
-
         assert_equal plan, @object.try_to_find_plan
       end
 
-      should 'return nil if either of try_to_find_* methods return nil'
+      should 'return nil if either of try_to_find_* methods return nil' do
+        TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx1')
+        [
+          [nil, nil],
+          ['BaSH', nil],
+          [nil, 'WTSI']
+        ].each do |c, p|
+          @object.stubs(:try_to_find_consortium_name => c,
+            :try_to_find_production_centre_name => p)
 
-      should 'return nil if MiPlan identified by try_to_find_* methods cannot be found'
+          assert_equal nil, @object.try_to_find_plan
+        end
+      end
+
+      should 'return nil if MiPlan identified by try_to_find_* methods cannot be found' do
+        TestDummy.mi_plan('DTCC', 'UCD', 'Cbx1')
+        @object.stubs(:try_to_find_consortium_name => 'BaSH',
+          :try_to_find_production_centre_name => 'WTSI')
+        assert_equal nil, @object.try_to_find_plan
+      end
     end
 
   end

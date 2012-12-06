@@ -51,7 +51,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
       should 'return what has been explicitly assigned regardless of mi_plan or mi_attempt existence' do
         @object.mi_attempt = OpenStruct.new(:consortium => Consortium.find_by_name!('BaSH'))
         @object.mi_plan = OpenStruct.new(:consortium => Consortium.find_by_name!('DTCC'))
-        @object.consortium_name = 'EUCOMM-EUMODIC'
+        @object.instance_variable_set(:@consortium_name, 'EUCOMM-EUMODIC')
         assert_equal 'EUCOMM-EUMODIC', @object.try_to_find_consortium_name
       end
 

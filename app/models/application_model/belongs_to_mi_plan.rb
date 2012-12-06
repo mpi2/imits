@@ -12,4 +12,7 @@ module ApplicationModel::BelongsToMiPlan
     return mi_attempt.consortium.name if(respond_to?(:mi_attempt) and mi_attempt.present?)
     return nil
   end
+
+  def try_to_find_plan
+  end
 end

@@ -4,7 +4,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
   context 'ApplicationModel::BelongsToMiPlan' do
 
     setup do
-      @object = stub(:gene => cbx1)
+      @object = stub(:gene => cbx1, :mi_plan => nil)
       @object.extend ApplicationModel::BelongsToMiPlan
     end
 

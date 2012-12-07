@@ -1,3 +1,11 @@
+GIT
+  remote: http://github.com/i-dcc/allele_image.git
+  revision: 8b5a61e63d7574fec40793ce2c4231efc65e4d4d
+  specs:
+    allele_image (0.4.2)
+      bio
+      rmagick
+
 GEM
   remote: http://rubygems.org/
   remote: http://www.i-dcc.org/rubygems/
@@ -42,6 +50,7 @@ GEM
     arel (2.0.10)
     awesome_print (0.4.0)
     bcrypt-ruby (3.0.1)
+    bio (1.4.3)
     biomart (0.2.2)
       builder
     builder (2.1.2)
@@ -193,6 +202,7 @@ PLATFORMS
 DEPENDENCIES
   acts_as_audited (~> 2.0.0.rc7)
   acts_as_reportable
+  allele_image!
   annotate
   awesome_print
   biomart

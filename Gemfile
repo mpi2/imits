@@ -25,6 +25,7 @@ gem 'unicorn'
 
 ## For TargRep
 gem 'dynamic_form'
+gem 'allele_image', :git => 'http://github.com/i-dcc/allele_image.git'
 
 group :development, :test do
   gem 'launchy'

@@ -406,7 +406,7 @@ class MiPlanTest < ActiveSupport::TestCase
         should 'not be settable if currently not in an allowed status' do
           default_mi_plan.withdrawn = true
           assert_false default_mi_plan.valid?
-          assert_match /cannot be set/, default_mi_plan.errors[:withdrawn].first
+          assert_match(/cannot be set/, default_mi_plan.errors[:withdrawn].first)
         end
 
         should 'be settable on a new record' do
@@ -922,6 +922,21 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'return nil if no conflict' do
         mi_plan = Factory.create :mi_plan
         assert_nil mi_plan.reason_for_inspect_or_conflict
+      end
+    end
+
+    context '#best_status_phenotype_attempt' do
+      should 'return nil if there are no phenotype attempts for this MI' do
+        assert_equal nil, default_mi_plan.best_status_phenotype_attempt
+      end
+
+      should 'return the best created active one if there are any active phenotype attempts' do
+        default_mi_plan.production_centre = Centre.first
+        mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => default_mi_plan.gene)
+        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan, :created_at => "2011-12-03 23:59:59 UTC", :mi_attempt => mi_attempt
+        Factory.create :phenotype_attempt_status_cec, :mi_plan => default_mi_plan, :created_at => "2011-12-02 23:59:59 UTC", :mi_attempt => mi_attempt
+        pt = Factory.create :phenotype_attempt_status_pdc, :mi_plan => default_mi_plan, :created_at => "2011-12-01 23:59:59 UTC", :mi_attempt => mi_attempt
+        assert_equal pt, default_mi_plan.best_status_phenotype_attempt
       end
     end
 

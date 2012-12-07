@@ -126,6 +126,17 @@ class MiPlan < ApplicationModel
     end
   end
 
+  def best_status_phenotype_attempt
+    ordered_pas = phenotype_attempts.all.sort { |pa1, pa2| pa2.status.order_by <=> pa1.status.order_by }
+    
+    if ordered_pas.empty?
+      return nil
+    else
+      return ordered_pas.first
+    end
+
+  end
+  
   def latest_relevant_phenotype_attempt
     return phenotype_attempts.order('is_active desc, created_at desc').first
   end

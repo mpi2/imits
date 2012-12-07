@@ -43,7 +43,7 @@ class Reports::MiProduction::Intermediate < Reports::Base
     report_options[:methods] = [
       'reportable_statuses_with_latest_dates',
       'latest_relevant_mi_attempt',
-      'latest_relevant_phenotype_attempt',
+      'best_status_phenotype_attempt',
       'distinct_old_genotype_confirmed_es_cells_count',
       'distinct_old_non_genotype_confirmed_es_cells_count',
       'total_pipeline_efficiency_gene_count',
@@ -76,7 +76,7 @@ class Reports::MiProduction::Intermediate < Reports::Base
         end
       end
 
-      phenotype_attempt = record['latest_relevant_phenotype_attempt']
+      phenotype_attempt = record['best_status_phenotype_attempt']
       if phenotype_attempt
         record['PhenotypeAttempt Status'] = phenotype_attempt.status.name
         record['Overall Status'] = record['PhenotypeAttempt Status']

@@ -8,6 +8,8 @@ class TargRep::BaseController < ActionController::Base
 
   before_filter :authenticate_user!
 
+  require 'allele_image'
+
   def authorize_admin_user!
     unless current_user.admin?
       respond_to do |format|

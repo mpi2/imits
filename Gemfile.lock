@@ -1,11 +1,3 @@
-GIT
-  remote: http://github.com/i-dcc/allele_image.git
-  revision: 8b5a61e63d7574fec40793ce2c4231efc65e4d4d
-  specs:
-    allele_image (0.4.2)
-      bio
-      rmagick
-
 GEM
   remote: http://rubygems.org/
   remote: http://www.i-dcc.org/rubygems/
@@ -202,9 +194,9 @@ PLATFORMS
 DEPENDENCIES
   acts_as_audited (~> 2.0.0.rc7)
   acts_as_reportable
-  allele_image!
   annotate
   awesome_print
+  bio
   biomart
   capybara
   chromedriver-helper

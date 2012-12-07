@@ -52,7 +52,7 @@
             <% if current_user %>
               <%= link_to 'edit', edit_targ_rep_allele_path(allele), :class => "ss_sprite ss_pencil" %>
               <% if current_user.admin? %>
-                <%= link_to 'delete', [:targ_rep, allele], :confirm => 'Are you sure?', :method => :delete, :class => "ss_sprite ss_cross" %>
+                <%= link_to 'delete', allele, :confirm => 'Are you sure?', :method => :delete, :class => "ss_sprite ss_cross" %>
               <% end %>
             <% end %>
           </td>

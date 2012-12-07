@@ -119,7 +119,8 @@ class LegacyTargRep
 
     begin
       puts "Export Mysql database"
-      dump_command = "mysqldump --compatible=postgresql --skip-comments --no-create-info --skip-extended-insert --complete-insert --skip-opt"
+      dump_command = "mysqldump --compatible=postgresql --skip-comments --no-create-info --skip-extended-insert"
+      dump_command << " --complete-insert --skip-opt --default-character-set=latin1"
       dump_command << " --host=#{LegacyTargRep.config['host']}" if LegacyTargRep.config['host']
       dump_command << " --port=#{LegacyTargRep.config['port']}" if LegacyTargRep.config['port']
       dump_command << " --user=#{LegacyTargRep.config['username']}" if LegacyTargRep.config['username']

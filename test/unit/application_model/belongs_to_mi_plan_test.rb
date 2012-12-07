@@ -4,25 +4,24 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
 
   def self.tests
 
-    should 'have #mi_plan' do
-      plan = Factory.create :mi_plan
-      subject.mi_plan_id = plan.id
-      assert_equal plan, subject.mi_plan
-    end
+    context '#mi_plan' do
+      should 'be in DB' do
+        assert_should have_db_column(:mi_plan_id).of_type(:integer).with_options(:null => false)
+      end
 
-    should 'validate that an mi_plan exists' do
-      subject.valid?
-      assert_should validate_presence_of :mi_plan
-    end
+      should 'exist' do
+        assert_should belong_to :mi_plan
+      end
+
+      should 'validate that an mi_plan exists' do
+        subject.valid?
+        assert_should validate_presence_of :mi_plan
+      end
+    end # context '#mi_plan'
 
   end # def self.tests
 
   context 'ApplicationModel::BelongsToMiPlan' do
-
-    setup do
-      @object = stub(:gene => cbx1, :mi_plan => nil)
-      @object.extend ActiveModel::Validations
-    end
 
     context 'for MiAttempt' do
       subject { MiAttempt.new }

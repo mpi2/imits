@@ -26,7 +26,7 @@ class PhenotypeAttempt < ApplicationModel
 
   validate do |me|
     if me.mi_attempt and me.mi_attempt.status != MiAttempt::Status.genotype_confirmed
-      me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.status.name}')")
+      me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.status.try(:name)}')")
     end
   end
 
@@ -38,6 +38,9 @@ class PhenotypeAttempt < ApplicationModel
 
   # BEGIN Callbacks
   before_validation :change_status
+  before_validation do |me|
+    me.mi_plan ||= mi_attempt.try(:mi_plan)
+  end
 
   before_save :generate_colony_name_if_blank
   # TODO before_save :set_mi_plan
@@ -45,12 +48,6 @@ class PhenotypeAttempt < ApplicationModel
 
   after_save :manage_status_stamps
   after_save :create_initial_distribution_centre
-
-=begin TODO
-  def set_mi_plan
-    self.mi_plan ||= mi_attempt.try(:mi_plan)
-  end
-=end
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?

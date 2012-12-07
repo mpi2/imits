@@ -10,7 +10,6 @@ class PhenotypeAttempt < ApplicationModel
   include ApplicationModel::BelongsToMiPlan
 
   belongs_to :mi_attempt
-  belongs_to :mi_plan
   belongs_to :status
   belongs_to :deleter_strain
   belongs_to :colony_background_strain, :class_name => 'Strain'
@@ -41,10 +40,17 @@ class PhenotypeAttempt < ApplicationModel
   before_validation :change_status
 
   before_save :generate_colony_name_if_blank
-  before_save :set_mi_plan
+  # TODO before_save :set_mi_plan
+  # TODO before_save :ensure_plan_is_valid
 
   after_save :manage_status_stamps
   after_save :create_initial_distribution_centre
+
+=begin TODO
+  def set_mi_plan
+    self.mi_plan ||= mi_attempt.try(:mi_plan)
+  end
+=end
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?
@@ -56,6 +62,7 @@ class PhenotypeAttempt < ApplicationModel
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
 
+=begin TODO
   def ensure_plan_is_valid
     if ! mi_plan.assigned?
       mi_plan.force_assignment = true
@@ -66,6 +73,7 @@ class PhenotypeAttempt < ApplicationModel
       self.mi_plan.save!
     end
   end
+=end
 
   def create_initial_distribution_centre
     if distribution_centres.empty? and has_status? :cec

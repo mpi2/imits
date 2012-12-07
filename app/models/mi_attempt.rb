@@ -8,6 +8,7 @@ class MiAttempt < ApplicationModel
   include MiAttempt::StatusManagement
   include MiAttempt::WarningGenerator
   include ApplicationModel::HasStatuses
+  include ApplicationModel::BelongsToMiPlan
 
   QC_FIELDS = [
     :qc_southern_blot,
@@ -24,7 +25,6 @@ class MiAttempt < ApplicationModel
     :qc_three_prime_lr_pcr
   ].freeze
 
-  belongs_to :mi_plan
   belongs_to :es_cell
   belongs_to :status
   belongs_to :updated_by, :class_name => 'User'
@@ -79,7 +79,7 @@ class MiAttempt < ApplicationModel
       mi.errors.add :base, error
     end
   end
-
+=begin TODO
   validate do |mi_attempt|
     if ! Consortium.find_by_name(mi_attempt.consortium_name)
       mi_attempt.errors.add :consortium_name, 'does not exist'
@@ -88,7 +88,7 @@ class MiAttempt < ApplicationModel
       mi_attempt.errors.add :production_centre_name, 'does not exist'
     end
   end
-
+=end
   validate do |mi_attempt|
     next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
     if(mi_attempt.es_cell.gene != mi_attempt.mi_plan.gene)
@@ -118,7 +118,7 @@ class MiAttempt < ApplicationModel
   end
 
   before_save :generate_colony_name_if_blank
-  before_save :set_mi_plan
+  # TODO before_save :set_mi_plan
 
   after_save :manage_status_stamps
   after_save :reload_mi_plan_mi_attempts
@@ -153,6 +153,7 @@ class MiAttempt < ApplicationModel
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
 
+=begin TODO
   def set_mi_plan
     mi_plan_to_set = find_matching_mi_plan
     if ! mi_plan_to_set
@@ -173,6 +174,7 @@ class MiAttempt < ApplicationModel
 
     self.mi_plan = mi_plan_to_set
   end
+=end
 
   def reload_mi_plan_mi_attempts
     mi_plan.mi_attempts.reload

@@ -1,4 +1,12 @@
 module ApplicationModel::BelongsToMiPlan
+  extend ActiveSupport::Concern
+
+  included do
+    belongs_to :mi_plan
+    validates :mi_plan, :presence => true
+  end
+
+=begin
   def try_to_find_production_centre_name
     return @production_centre_name if @production_centre_name
     return mi_plan.production_centre.name if(mi_plan.present? and mi_plan.production_centre.present?)
@@ -41,4 +49,5 @@ module ApplicationModel::BelongsToMiPlan
       self.mi_plan = plan
     end
   end
+=end
 end

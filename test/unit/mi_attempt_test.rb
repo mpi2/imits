@@ -1028,5 +1028,9 @@ class MiAttemptTest < ActiveSupport::TestCase
       assert mi_attempt.allele_symbol !~ /@/
     end
 
+    should 'include BelongsToMiPlan' do
+      assert_include MiAttempt.ancestors, ApplicationModel::BelongsToMiPlan
+    end
+
   end
 end

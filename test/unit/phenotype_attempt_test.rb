@@ -493,5 +493,10 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       assert phenotype_attempt.allele_symbol !~ /@/
     end
 
+
+    should 'include BelongsToMiPlan' do
+      assert_include PhenotypeAttempt.ancestors, ApplicationModel::BelongsToMiPlan
+    end
+
   end
 end

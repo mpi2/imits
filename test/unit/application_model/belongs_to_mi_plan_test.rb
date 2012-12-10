@@ -13,8 +13,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         assert_should belong_to :mi_plan
       end
 
-      should 'validate that an mi_plan exists' do
-        subject.valid?
+      should 'validate existence' do
         assert_should validate_presence_of :mi_plan
       end
     end # context '#mi_plan'

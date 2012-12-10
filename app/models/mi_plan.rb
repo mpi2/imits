@@ -143,6 +143,33 @@ class MiPlan < ApplicationModel
   def add_status_stamp(status_to_add)
     self.status_stamps.create!(:status => status_to_add)
   end
+
+  def mi_attempts_count
+    self.mi_attempts.count
+  end
+
+  def phenotype_attempts_count
+    self.phenotype_attempts.count
+  end
+
+  def has_active_mi_attempts?
+    self.mi_attempts.each do |mi_attempt|
+      if mi_attempt.is_active?
+        return true
+      end
+    end
+    return false
+  end
+
+  def has_active_phenotype_attempts?
+    self.phenotype_attempts.each do |phenotype_attempt|
+      if phenotype_attempt.is_active?
+        return true
+      end
+    end
+    return false
+  end
+
   private :add_status_stamp
 
   def reportable_statuses_with_latest_dates

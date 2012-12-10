@@ -101,27 +101,27 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         assert default_mi_plan.valid?
       end
 
-      should 'should NOT be updateable if the MiPlan has MiAttempts' do
-        mi_attempt = Factory.create(:mi_attempt).to_public
-        mi_plan = mi_attempt.mi_plan.to_public
-        assert_not_equal mi_plan.consortium, Consortium.find_by_name('MGP')
-        mi_plan.consortium = Consortium.find_by_name('MGP')
-        mi_plan.valid?
-        assert_match(/cannot be changed \(has micro-injection attempts\)/, mi_plan.errors[:consortium_name].first)
-      end
+ #     should 'should NOT be updateable if the MiPlan has MiAttempts' do
+ #       mi_attempt = Factory.create(:mi_attempt).to_public
+ #       mi_plan = mi_attempt.mi_plan.to_public
+ #       assert_not_equal mi_plan.consortium, Consortium.find_by_name('MGP')
+ #       mi_plan.consortium = Consortium.find_by_name('MGP')
+ #       mi_plan.valid?
+ #       assert_match(/cannot be changed \(has micro-injection attempts\)/, mi_plan.errors[:consortium_name].first)
+ #     end
 
-      should 'should NOT be updateable if the MiPlan has phenotype attempts' do
-        gene = Factory.create :gene_cbx1
-        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+ #     should 'should NOT be updateable if the MiPlan has phenotype attempts' do
+ #       gene = Factory.create :gene_cbx1
+ #       mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
 
-        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1').to_public
-        pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
-        plan.reload
+#        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1').to_public
+#        pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
+#        plan.reload
 
-        plan.consortium = Consortium.find_by_name!('DTCC')
-        plan.valid?
-        assert_match(/cannot be changed \(has phenotype attempts\)/, plan.errors[:consortium_name].first)
-      end
+#        plan.consortium = Consortium.find_by_name!('DTCC')
+#        plan.valid?
+#        assert_match(/cannot be changed \(has phenotype attempts\)/, plan.errors[:consortium_name].first)
+#      end
     end
 
     context '#production_centre_name' do
@@ -268,7 +268,9 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'mgi_accession_id',
         'es_qc_comment_name',
         'mi_attempts_count',
-        'phenotype_attempts_count'
+        'phenotype_attempts_count',
+        'has_active_mi_attempts?',
+        'has_active_phenotype_attempts?'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

@@ -29,7 +29,9 @@ class Public::MiPlan < ::MiPlan
     'status_dates',
     'mgi_accession_id',
     'mi_attempts_count',
-    'phenotype_attempts_count'
+    'has_active_mi_attempts?',
+    'phenotype_attempts_count',
+    'has_active_phenotype_attempts?'
   ] + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -76,16 +78,16 @@ class Public::MiPlan < ::MiPlan
     end
   end
 
-  validate do |plan|
-    if !plan.new_record? and plan.changes.has_key? 'consortium_id'
-      if plan.mi_attempts.size > 0
-        plan.errors.add(:consortium_name, 'cannot be changed (has micro-injection attempts)')
-      end
-      if plan.phenotype_attempts.size > 0
-        plan.errors.add(:consortium_name, 'cannot be changed (has phenotype attempts)')
-      end
-    end
-  end
+#  validate do |plan|
+#    if !plan.new_record? and plan.changes.has_key? 'consortium_id'
+#      if plan.mi_attempts.size > 0
+#        plan.errors.add(:consortium_name, 'cannot be changed (has micro-injection attempts)')
+#      end
+#      if plan.phenotype_attempts.size > 0
+#        plan.errors.add(:consortium_name, 'cannot be changed (has phenotype attempts)')
+#      end
+#    end
+#  end
 
   def self.translations
     return {

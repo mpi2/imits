@@ -157,7 +157,7 @@ Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt_ge
 end
 
 Factory.define :mi_attempt2, :class => MiAttempt do |mi_attempt|
-  mi_attempt.association :mi_plan
+  mi_attempt.association :mi_plan, :factory => :mi_plan_with_production_centre
   mi_attempt.es_cell { |mi| Factory.create(:es_cell, :gene => mi.mi_plan.gene) }
   mi_attempt.mi_date { Date.today }
 end
@@ -178,7 +178,8 @@ Factory.define :mi_attempt2_status_gtc, :parent => :mi_attempt2_status_chr do |m
 end
 
 Factory.define :phenotype_attempt do |phenotype_attempt|
-  phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
+  phenotype_attempt.association :mi_attempt, :factory => :mi_attempt2_status_gtc
+  phenotype_attempt.mi_plan { |pa| pa.mi_attempt.mi_plan }
 end
 
 Factory.define :public_phenotype_attempt, :class => Public::PhenotypeAttempt do |phenotype_attempt|

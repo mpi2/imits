@@ -16,6 +16,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
       should 'validate existence' do
         assert_should validate_presence_of :mi_plan
       end
+
     end # context '#mi_plan'
 
   end # def self.tests
@@ -56,6 +57,14 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
       subject { MiAttempt.new }
 
       tests
+
+      should 'report error if trying to save with an mi_plan that is not assigned or is inactive' do
+        plan = Factory.create :mi_plan_with_production_centre, :is_active => false
+        object = Factory.build :mi_attempt2, :mi_plan => plan
+        assert_raise(ApplicationModel::BelongsToMiPlan::UnassignedMiPlanError) do
+          object.save
+        end
+      end
     end
 
     context 'for PhenotypeAttempt' do

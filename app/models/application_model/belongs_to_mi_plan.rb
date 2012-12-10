@@ -1,9 +1,15 @@
 module ApplicationModel::BelongsToMiPlan
   extend ActiveSupport::Concern
 
+  class UnassignedMiPlanError < RuntimeError; end
+
   included do
     belongs_to :mi_plan
     validates :mi_plan, :presence => true
+
+    before_save do |object|
+      raise UnassignedMiPlanError if object.mi_plan.has_status? :asg
+    end
   end
 
   module Public

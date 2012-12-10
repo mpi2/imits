@@ -37,17 +37,6 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
     end
 
     context '#consortium_name virtual attribute' do
-      should 'be writable with any value which should be returned on a read when no MiPlan is set' do
-        pt = Factory.build :public_phenotype_attempt, :mi_plan => nil, :consortium_name => 'Foo'
-        assert_equal 'Foo', pt.consortium_name
-      end
-
-      should 'validate the consortium exists for a new record' do
-        pt = Factory.build(:public_phenotype_attempt, :consortium_name => 'Foo')
-        assert_false pt.valid?
-        assert_equal ['does not exist'], pt.errors[:consortium_name]
-      end
-
       should 'validate the consortium cannot be changed on update' do
         assert default_phenotype_attempt
         pt = Public::PhenotypeAttempt.find(default_phenotype_attempt.id)
@@ -57,26 +46,9 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt.valid?
         assert_equal ['cannot be changed'], pt.errors[:consortium_name], pt.errors.inspect
       end
-
-      should 'be equal to the associated mi_plan consortium name if it has not yet been set' do
-          pt = Factory.create(:phenotype_attempt).to_public
-          pt.save!
-          assert_equal pt.consortium_name, pt.mi_plan.consortium.name
-      end
     end
 
     context '#production_centre_name virtual attribute' do
-      should 'be writable with any value which should be returned on a read when no MiPlan is set' do
-        pt = Factory.build :public_phenotype_attempt, :mi_plan => nil, :production_centre_name => 'Foo'
-        assert_equal 'Foo', pt.production_centre_name
-      end
-
-      should 'validate the production_centre exists for a new record' do
-        pt = Factory.build(:public_phenotype_attempt, :production_centre_name => 'Foo')
-        pt.valid?
-        assert_equal ['does not exist'], pt.errors[:production_centre_name]
-      end
-
       should 'validate the production_centre cannot be changed on update' do
         assert default_phenotype_attempt
         pt = Public::PhenotypeAttempt.find(default_phenotype_attempt.id)
@@ -85,12 +57,6 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt.production_centre_name = 'TCP'
         pt.valid?
         assert_equal ['cannot be changed'], pt.errors[:production_centre_name], pt.errors.inspect
-      end
-
-      should 'be equal to the associated mi_plan production centre name' do
-          pt = Factory.create(:phenotype_attempt).to_public
-          pt.save!
-          assert_equal pt.production_centre_name, pt.mi_plan.production_centre.name
       end
     end
 

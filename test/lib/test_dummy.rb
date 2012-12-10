@@ -8,7 +8,8 @@ class TestDummy
     :consortium,
     :production_centre,
     :centre,
-    :deposited_material
+    :deposited_material,
+    :sub_project
   ].freeze
 
   def self.create(type, *values)

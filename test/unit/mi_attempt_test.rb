@@ -29,10 +29,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should have_many(:distribution_centres)
       end
 
-      should 'validate presence of production_centre_name' do
-        assert_should validate_presence_of :production_centre_name
-      end
-
       context '#status' do
         should 'exist' do
           assert_should have_db_column(:status_id).with_options(:null => false)
@@ -716,70 +712,6 @@ class MiAttemptTest < ActiveSupport::TestCase
       should 'be nil if neither mi_plan or es_cell exist' do
         mi = Factory.build :mi_attempt2, :es_cell => nil, :mi_plan => nil
         assert_equal nil, mi.gene
-      end
-    end
-
-    context '#consortium_name virtual attribute' do
-      context 'when mi_plan exists' do
-        should 'on get return mi_plan consortium name' do
-          assert_equal default_mi_attempt.mi_plan.consortium.name, default_mi_attempt.consortium_name
-        end
-
-        should 'when set on update NOT give validation error' do
-          default_mi_attempt.consortium_name = Consortium.find_by_name!('MARC').name
-          assert default_mi_attempt.valid?
-        end
-      end
-
-      context 'when mi_plan does not exist' do
-        should 'on get return the assigned consortium_name' do
-          mi = MiAttempt.new :consortium_name => 'Nonexistent Consortium'
-          assert_equal 'Nonexistent Consortium', mi.consortium_name
-        end
-
-        should 'when set to nonexistent consortium and validated give error' do
-          mi = MiAttempt.new :consortium_name => 'Nonexistent Consortium'
-          mi.valid?
-          assert_equal ['does not exist'], mi.errors['consortium_name']
-        end
-
-        should 'when set to a valid consortium and validated should not give error' do
-          mi = MiAttempt.new :consortium_name => 'BaSH'
-          mi.valid?
-          assert_blank mi.errors['consortium_name']
-        end
-      end
-    end
-
-    context '#production_centre_name virtual attribute' do
-      context 'when mi_plan exists' do
-        should 'on get return mi_plan production_centre name' do
-          assert_equal default_mi_attempt.mi_plan.production_centre.name, default_mi_attempt.production_centre_name
-        end
-
-        should 'when set on update NOT give validation error' do
-          default_mi_attempt.production_centre_name = 'WTSI'
-          assert default_mi_attempt.valid?
-        end
-      end
-
-      context 'when mi_plan does not exist' do
-        should 'on get return the assigned production_centre_name' do
-          mi = MiAttempt.new :production_centre_name => 'Nonexistent Centre'
-          assert_equal 'Nonexistent Centre', mi.production_centre_name
-        end
-
-        should 'when set to nonexistent production_centre and validated give error' do
-          mi = MiAttempt.new :production_centre_name => 'Nonexistent Centre'
-          mi.valid?
-          assert_equal ['does not exist'], mi.errors['production_centre_name']
-        end
-
-        should 'when set to a valid production_centre and validated should not give error' do
-          mi = MiAttempt.new :production_centre_name => 'ICS'
-          mi.valid?
-          assert_blank mi.errors['production_centre_name']
-        end
       end
     end
 

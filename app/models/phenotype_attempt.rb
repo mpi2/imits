@@ -43,8 +43,6 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   before_save :generate_colony_name_if_blank
-  # TODO before_save :set_mi_plan
-  # TODO before_save :ensure_plan_is_valid
 
   after_save :manage_status_stamps
   after_save :create_initial_distribution_centre
@@ -58,19 +56,6 @@ class PhenotypeAttempt < ApplicationModel
       self.colony_name = "#{self.mi_attempt.colony_name}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
-
-=begin TODO
-  def ensure_plan_is_valid
-    if ! mi_plan.assigned?
-      mi_plan.force_assignment = true
-      mi_plan.save!
-    end
-    if self.is_active?
-      self.mi_plan.is_active = true
-      self.mi_plan.save!
-    end
-  end
-=end
 
   def create_initial_distribution_centre
     if distribution_centres.empty? and has_status? :cec

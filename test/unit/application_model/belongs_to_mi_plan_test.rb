@@ -13,10 +13,6 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         assert_should belong_to :mi_plan
       end
 
-      should 'validate existence' do
-        assert_should validate_presence_of :mi_plan
-      end
-
     end # context '#mi_plan'
 
   end # def self.tests
@@ -47,6 +43,73 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
 
         assert_match /mi_plan_id.+consortium_name.+production_centre_name/, subject.errors[:base].first
       end
+
+      should 'be writable with any value which should be returned on a read when no MiPlan is set' do
+        if @factory == :public_mi_attempt
+          common_attrs = {:mi_plan => nil, :es_cell_name => nil}
+        elsif @factory == :public_phenotype_attempt
+          common_attrs = {:mi_plan => nil, :mi_attempt_colony_name => nil}
+        end
+
+        object = Factory.build @factory, common_attrs.merge(:consortium_name => 'Foo')
+        assert_equal 'Foo', object.consortium_name
+
+        object = Factory.build @factory, common_attrs.merge(:production_centre_name => 'Foo')
+        assert_equal 'Foo', object.production_centre_name
+      end
+
+      should 'be equal to the associated mi_plan values if they have not yet been set' do
+        plan = TestDummy.mi_plan 'BaSH', 'WTSI'
+        object = Factory.build @factory,
+                :mi_plan => plan,
+                :consortium_name => nil,
+                :production_centre_name => nil
+        assert_equal 'BaSH', object.consortium_name
+        assert_equal 'WTSI', object.production_centre_name
+      end
+
+      should ',on update, NOT fail validation' do
+        object = Factory.create @factory
+        object.consortium_name = 'MARC'
+        object.production_centre_name = 'MARC'
+        assert object.valid?, object.errors.inspect
+      end
+
+      should 'fail validation when set to nonexistent values' do
+        subject.consortium_name = 'Nonexistent Consortium'
+        subject.production_centre_name = 'Nonexistent Production Centre'
+        subject.valid?
+        assert_equal ['does not exist', 'does not exist'],
+                subject.errors['consortium_name'] + subject.errors['production_centre_name']
+
+        subject.valid?
+        assert_equal ['does not exist'], subject.errors['consortium_name']
+      end
+    end
+
+    should 'return the same mi_plan if it has the same production centre and consortium that are passed in' do
+      assert cbx1
+      plan1 = TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx1', :force_assignment => true)
+      plan2 = TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx1', 'MGPinterest', :force_assignment => true)
+      es_cell = Factory.create(:es_cell, :gene => cbx1)
+
+      if @factory == :public_mi_attempt
+        object = Factory.create @factory,
+                :mi_plan_id => plan2.id,
+                :es_cell_name => es_cell.name
+      elsif @factory == :public_phenotype_attempt
+        mi = Factory.create :mi_attempt2_status_gtc,
+                :mi_plan => plan2,
+                :es_cell => es_cell
+        object = Factory.create @factory,
+                :mi_plan_id => plan2.id,
+                :mi_attempt_colony_name => mi.colony_name
+      end
+
+      object.consortium_name = 'BaSH'
+      object.production_centre_name = 'WTSI'
+      object.save!
+      assert_equal plan2, object.mi_plan
     end
 
   end # def self.public_tests
@@ -55,14 +118,16 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
 
     context 'for MiAttempt' do
       subject { MiAttempt.new }
-
+      setup do
+        @factory = :mi_attempt
+      end
       tests
 
       should 'report error if trying to save with an mi_plan that is not assigned or is inactive' do
         plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1, :is_active => false
         assert_equal 'ina', plan.status.code
         object = Factory.build :mi_attempt2, :mi_plan => plan
-        assert_raise(ApplicationModel::BelongsToMiPlan::UnassignedMiPlanError) do
+        assert_raise(ApplicationModel::BelongsToMiPlan::UnsuitableMiPlanError) do
           object.save
         end
 
@@ -71,34 +136,49 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
         assert_equal 'ins-con', plan.status.code
         object = Factory.build :mi_attempt2, :mi_plan => plan
-        assert_raise(ApplicationModel::BelongsToMiPlan::UnassignedMiPlanError) do
+        assert_raise(ApplicationModel::BelongsToMiPlan::UnsuitableMiPlanError) do
           object.save
         end
       end
+
+      should 'raise if mi_plan does not exist' do
+        object = Factory.build :mi_attempt2
+        object.mi_plan = nil
+
+        assert_raise(ApplicationModel::BelongsToMiPlan::MissingMiPlanError) do
+          object.save
+        end
+      end
+
     end
 
     context 'for PhenotypeAttempt' do
       subject { PhenotypeAttempt.new }
-
+      setup do
+        @factory = :public_phenotype_attempt
+      end
       tests
     end
 
     context 'for Public::MiAttempt' do
       subject { Public::MiAttempt.new }
-
+      setup do
+        @factory = :public_mi_attempt
+      end
       public_tests
 
       context '#mi_plan and #mi_plan_id test:' do
         should 'force #mi_plan to be assigned and active' do
           unused_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
 
+          es_cell = Factory.create :es_cell, :gene => cbx1
           inactive_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1, :is_active => false
           conflict_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
           assert_equal 'ins-con', conflict_plan.status.code
           assert_equal 'ina', inactive_plan.status.code
 
-          Factory.create :public_mi_attempt, :mi_plan_id => inactive_plan.id
-          Factory.create :public_mi_attempt, :mi_plan_id => conflict_plan.id
+          Factory.create :public_mi_attempt, :es_cell_name => es_cell.name, :mi_plan_id => inactive_plan.id
+          Factory.create :public_mi_attempt, :es_cell_name => es_cell.name, :mi_plan_id => conflict_plan.id
 
           inactive_plan.reload
           conflict_plan.reload
@@ -106,6 +186,18 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
           assert_true inactive_plan.has_status? :asg
           assert_true conflict_plan.has_status? :asg
         end
+      end
+
+      should 'use #consortium_name and #prduction_centre_name to look up an plan if they are supplied' do
+        assert cbx1
+        plan = TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx1')
+        es_cell = Factory.create(:es_cell, :gene => cbx1)
+        object = Factory.create :public_mi_attempt,
+                :mi_plan => nil,
+                :consortium_name => 'BaSH',
+                :production_centre_name => 'WTSI',
+                :es_cell_name => es_cell.name
+        assert_equal plan, object.mi_plan
       end
     end
 
@@ -116,151 +208,6 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
       end
       public_tests
     end
-
-=begin
-    setup do
-      @object = stub(:gene => cbx1, :mi_plan => nil)
-      @object.extend ApplicationModel::BelongsToMiPlan
-    end
-
-    context '#try_to_find_production_centre_name' do
-      should 'return instance variable value regardless of mi_plan or mi_attempt existence' do
-        @object.stubs(
-          :mi_attempt => stub('mi_attempt', :production_centre => Centre.find_by_name!('WTSI')),
-          :mi_plan => stub('plan', :production_centre => Centre.find_by_name!('UCD'))
-        )
-        @object.instance_variable_set(:@production_centre_name, 'ICS')
-        assert_equal 'ICS', @object.try_to_find_production_centre_name
-      end
-
-      context 'if not assigned yet' do
-        should 'read from mi_plan when it is set and has valid production centre even if an mi_attempt is set' do
-          @object.stubs(
-            :mi_attempt => stub('mi_attempt', :production_centre => Centre.find_by_name!('WTSI')),
-            :mi_plan => stub('plan', :production_centre => Centre.find_by_name!('ICS'))
-          )
-          assert_equal 'ICS', @object.try_to_find_production_centre_name
-        end
-
-        should 'read from mi_attempt if it is set and no mi_plan is set' do
-          @object.stubs(
-            :mi_attempt => stub('mi_attempt', :production_centre => Centre.find_by_name!('WTSI')),
-            :mi_plan => nil
-          )
-          assert_equal 'WTSI', @object.try_to_find_production_centre_name
-        end
-
-        should 'read from mi_attempt if it is set and mi_plan has no production centre' do
-          @object.stubs(
-            :mi_attempt => stub('mi_attempt', :production_centre => Centre.find_by_name!('WTSI')),
-            :mi_plan => stub('plan', :production_centre => nil)
-          )
-          assert_equal 'WTSI', @object.try_to_find_production_centre_name
-        end
-
-        should 'return nil if mi_plan without production centre is set and no mi_attempt is present' do
-          @object.stubs(:mi_plan => stub('plan', :production_centre => nil))
-          assert_equal nil, @object.try_to_find_production_centre_name
-        end
-
-        should 'be nil if no source found' do
-          assert_equal nil, @object.try_to_find_production_centre_name
-        end
-      end
-    end
-
-    context '#try_to_find_consortium_name' do
-      should 'return what has been explicitly assigned regardless of mi_plan or mi_attempt existence' do
-        @object.stubs(
-          :mi_attempt => stub('mi_attempt', :consortium => Consortium.find_by_name!('BaSH')),
-          :mi_plan => stub('plan', :consortium => Consortium.find_by_name!('DTCC'))
-        )
-        @object.instance_variable_set(:@consortium_name, 'EUCOMM-EUMODIC')
-        assert_equal 'EUCOMM-EUMODIC', @object.try_to_find_consortium_name
-      end
-
-      context 'if not assigned yet' do
-        should 'read from mi_plan when it is set even if an mi_attempt is set' do
-          @object.stubs(
-            :mi_attempt => stub('mi_attempt', :consortium => Consortium.find_by_name!('BaSH')),
-            :mi_plan => stub('plan', :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'))
-          )
-          assert_equal 'EUCOMM-EUMODIC', @object.try_to_find_consortium_name
-        end
-
-        should 'read from mi_attempt if it is set and no mi_plan is set' do
-          @object.stubs(
-            :mi_attempt => stub('mi_attempt', :consortium => Consortium.find_by_name!('BaSH')),
-            :mi_plan => nil
-          )
-          assert_equal 'BaSH', @object.try_to_find_consortium_name
-        end
-
-        should 'be nil if no source found' do
-          @object.stubs(:mi_plan => nil)
-          assert_equal nil, @object.try_to_find_consortium_name
-        end
-      end
-    end
-
-    context '#try_to_find_plan' do
-      should 'return already set mi_plan if the consortium and production centre are the same as the ones that are found using try_to_find_* methods and gene is the same' do
-        plan = stub('plan',
-          :production_centre => Centre.find_by_name!('WTSI'),
-          :consortium => Consortium.find_by_name!('BaSH'),
-          :gene => cbx1)
-        @object.stubs(:try_to_find_consortium_name => 'BaSH',
-          :try_to_find_production_centre_name => 'WTSI',
-          :mi_plan => plan)
-
-        assert_equal plan, @object.try_to_find_plan
-      end
-
-      should 'return mi_attempt`s mi_plan if the consortium and production centre are the same as the ones that are found using try_to_find_* methods and gene is the same' do
-        plan = stub('plan',
-          :production_centre => Centre.find_by_name!('WTSI'),
-          :consortium => Consortium.find_by_name!('BaSH'),
-          :gene => cbx1)
-        mi_attempt = stub('mi_attempt',
-          :mi_plan => plan,
-          :gene => cbx1)
-        @object.stubs(:try_to_find_consortium_name => 'BaSH',
-          :try_to_find_production_centre_name => 'WTSI',
-          :mi_attempt => mi_attempt)
-
-        assert_equal plan, @object.try_to_find_plan
-      end
-
-      should 'find and return MiPlan with consortium and production centre returned by try_to_find_* methods if they are both present' do
-        @object.stubs(:try_to_find_consortium_name => 'BaSH',
-          :try_to_find_production_centre_name => 'WTSI')
-
-        plan = TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx1')
-        assert_equal plan, @object.try_to_find_plan
-      end
-
-      should 'return nil if either of try_to_find_* methods return nil' do
-        TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx1')
-        [
-          [nil, nil],
-          ['BaSH', nil],
-          [nil, 'WTSI']
-        ].each do |c, p|
-          @object.stubs(:try_to_find_consortium_name => c,
-            :try_to_find_production_centre_name => p)
-
-          assert_equal nil, @object.try_to_find_plan
-        end
-      end
-
-      should 'return nil if MiPlan identified by try_to_find_* methods cannot be found' do
-        TestDummy.mi_plan('DTCC', 'UCD', 'Cbx1')
-        @object.stubs(:try_to_find_consortium_name => 'BaSH',
-          :try_to_find_production_centre_name => 'WTSI')
-        assert_equal nil, @object.try_to_find_plan
-      end
-    end
-=end
 
   end
 end

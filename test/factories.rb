@@ -84,16 +84,8 @@ Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_atte
 end
 
 Factory.define :public_mi_attempt, :class => Public::MiAttempt do |mi_attempt|
-  mi_attempt.es_cell_name do |i|
-    if ! i.mi_plan
-      Factory.create(:es_cell).name
-    else
-      Factory.create(:es_cell, :gene => i.mi_plan.gene).name
-    end
-  end
-
-  mi_attempt.consortium_name { |i| if i.mi_plan; nil; else; 'EUCOMM-EUMODIC'; end }
-  mi_attempt.production_centre_name { |i| if i.mi_plan; nil; else; 'WTSI'; end }
+  mi_attempt.association(:mi_plan, :factory => :mi_plan_with_production_centre)
+  mi_attempt.es_cell_name { |i| Factory.create(:es_cell, :gene => i.mi_plan.gene).name }
   mi_attempt.mi_date { Date.today }
 end
 

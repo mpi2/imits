@@ -52,63 +52,13 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     end
   end
 
-  # validate :consortium_name_and_production_centre_name_from_mi_plan_validation
+  # TODO validate :consortium_name_and_production_centre_name_from_mi_plan_validation
 
   # BEGIN Callbacks
 
-=begin TODO
-  def set_mi_plan
-    return if mi_plan
-    return if mi_attempt.nil?
-
-    if production_centre_name
-      centre_to_set = Centre.find_by_name(production_centre_name)
-    else
-      centre_to_set = mi_attempt.production_centre
-    end
-
-    if consortium_name
-      consortium_to_set = Consortium.find_by_name(consortium_name)
-    else
-      consortium_to_set = mi_attempt.consortium
-    end
-
-    if centre_to_set and consortium_to_set and mi_attempt.gene
-      self.mi_plan = MiPlan.where(
-        :gene_id => mi_attempt.gene.id,
-        :production_centre_id => centre_to_set.id,
-        :consortium_id => consortium_to_set.id
-      ).first
-    end
-  end
-=end
   # END Callbacks
 
   def status_name; status.name; end
-
-  def consortium_name
-    if @consortium_name.blank?
-      mi_plan.try(:consortium).try(:name)
-    else
-      return @consortium_name
-    end
-  end
-
-  def consortium_name=(arg)
-    @consortium_name = arg
-  end
-
-  def production_centre_name
-    if @production_centre_name.blank?
-      mi_plan.try(:production_centre).try(:name)
-    else
-      return @production_centre_name
-    end
-  end
-
-  def production_centre_name=(arg)
-    @production_centre_name = arg
-  end
 
   def self.translations
     return {

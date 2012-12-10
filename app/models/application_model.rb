@@ -73,11 +73,6 @@ class ApplicationModel < ActiveRecord::Base
 
       if mi_plan and mi_plan.send(association_name) and value != mi_plan.send(association_name).name
         errors.add attr, 'cannot be changed'
-      else
-        associated = klass.find_by_name(value)
-        if associated.blank?
-          errors.add attr, 'does not exist'
-        end
       end
     end
   end

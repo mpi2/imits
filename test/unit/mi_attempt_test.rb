@@ -334,10 +334,10 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'manage trimming and spacing' do
           colony_names = [
-                          { :old => "a_dummy_colony_name_with_no_spaces", :new => "a_dummy_colony_name_with_no_spaces" },
-                          { :old => "a dummy colony name with no dodgy spaces", :new => "a dummy colony name with no dodgy spaces" },
-                          { :old => " a \t dummy   colony name with  dodgy  \t\t  spaces ", :new => "a dummy colony name with dodgy spaces" }
-                        ]
+            { :old => "a_dummy_colony_name_with_no_spaces", :new => "a_dummy_colony_name_with_no_spaces" },
+            { :old => "a dummy colony name with no dodgy spaces", :new => "a dummy colony name with no dodgy spaces" },
+            { :old => " a \t dummy   colony name with  dodgy  \t\t  spaces ", :new => "a dummy colony name with dodgy spaces" }
+          ]
 
           colony_names.each do |item|
             mi_attempt = Factory.create( :mi_attempt, :colony_name => item[:old])
@@ -697,10 +697,26 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    should 'have #gene' do
-      es_cell = Factory.create :es_cell_EPD0343_1_H06
-      mi = es_cell.mi_attempts.first
-      assert_equal es_cell.gene, mi.gene
+    context '#gene' do
+      should 'delegate to mi_plan if that exists' do
+        es_cell = Factory.create :es_cell
+        plan = Factory.create :mi_plan, :gene => cbx1
+
+        mi = Factory.build :mi_attempt2, :es_cell => es_cell, :mi_plan => plan
+        assert_equal plan.gene, mi.gene
+      end
+
+      should 'delegate to es_cell if mi_plan does not exist but es_cell does' do
+        es_cell = Factory.create :es_cell
+
+        mi = Factory.build :mi_attempt2, :es_cell => es_cell, :mi_plan => nil
+        assert_equal es_cell.gene, mi.gene
+      end
+
+      should 'be nil if neither mi_plan or es_cell exist' do
+        mi = Factory.build :mi_attempt2, :es_cell => nil, :mi_plan => nil
+        assert_equal nil, mi.gene
+      end
     end
 
     context '#consortium_name virtual attribute' do
@@ -970,12 +986,12 @@ class MiAttemptTest < ActiveSupport::TestCase
       should 'output a string of distribution centre and deposited material' do
         mi = Factory.create :mi_attempt_genotype_confirmed
         dc = TestDummy.create :mi_attempt_distribution_centre,
-              'WTSI',
-              'Live mice',
-              :start_date => '2012-01-01',
-              :end_date => '2012-01-02',
-              :is_distributed_by_emma => true,
-              :mi_attempt => mi
+                'WTSI',
+                'Live mice',
+                :start_date => '2012-01-01',
+                :end_date => '2012-01-02',
+                :is_distributed_by_emma => true,
+                :mi_attempt => mi
         assert_equal "[EMMA, WTSI, Live mice]", mi.distribution_centres_formatted_display
       end
     end

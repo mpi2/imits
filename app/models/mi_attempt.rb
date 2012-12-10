@@ -304,7 +304,15 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  delegate :gene, :to => :es_cell
+  def gene
+    if mi_plan.try(:gene)
+      return mi_plan.gene
+    elsif es_cell.try(:gene)
+      return es_cell.gene
+    else
+      return nil
+    end
+  end
 
   def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
   def es_cell_allele_symbol; es_cell.try(:allele_symbol); end

@@ -1,7 +1,6 @@
 class GenesController < ApplicationController
   respond_to :json
   before_filter :authenticate_user!
-  skip_before_filter :verify_authenticity_token, :only => :autocomplete
 
   def index
     respond_to do |format|

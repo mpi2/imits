@@ -241,9 +241,22 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
     end
 
     context '#gene' do
-      should 'be the mi_plan\'s gene' do
-        assert_equal default_phenotype_attempt.mi_plan.gene,
-                default_phenotype_attempt.gene
+      should 'be the mi_plan\'s gene if it is set' do
+        plan = Factory.create :mi_plan_with_production_centre
+        mi = Factory.create :mi_attempt2
+        pa = Factory.build :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi
+        assert_equal plan.gene, pa.gene
+      end
+
+      should 'be the #mi_attempt\'s gene if it is set but there is no mi_plan' do
+        mi = Factory.create :mi_attempt2
+        pa = Factory.build :phenotype_attempt, :mi_plan => nil, :mi_attempt => mi
+        assert_equal mi.gene, pa.gene
+      end
+
+      should 'be nil if neither are set' do
+        pa = Factory.build :phenotype_attempt, :mi_plan => nil, :mi_attempt => nil
+        assert_equal nil, pa.gene
       end
     end
 

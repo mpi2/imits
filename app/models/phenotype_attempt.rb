@@ -125,7 +125,17 @@ class PhenotypeAttempt < ApplicationModel
     end
   end
 
-  delegate :gene, :consortium, :production_centre, :to => :mi_plan, :allow_nil => true
+  def gene
+    if mi_plan.try(:gene)
+      return mi_plan.gene
+    elsif mi_attempt.try(:gene)
+      return mi_attempt.gene
+    else
+      return nil
+    end
+  end
+
+  delegate :consortium, :production_centre, :to => :mi_plan, :allow_nil => true
   delegate :marker_symbol, :to => :gene, :allow_nil => true
   delegate :es_cell, :allele_id, :to => :mi_attempt, :allow_nil => true
 

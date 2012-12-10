@@ -21,6 +21,36 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
 
   end # def self.tests
 
+  def self.public_tests
+
+    context '#consortium_name and #production_centre_name' do
+      should 'both be assigned or neither' do
+        subject.consortium_name = 'BaSH'
+        subject.production_centre_name = ''
+        subject.valid?
+        assert_match /both or neither.+must be assigned/i, subject.errors[:base].first
+
+        subject.consortium_name = ''
+        subject.production_centre_name = 'WTSI'
+        subject.valid?
+        assert_match /both or neither.+must be assigned/i, subject.errors[:base].first
+      end
+
+      should 'not be passed in if #mi_plan_id is passed in' do
+        plan = Factory.create :mi_plan
+        subject.mi_plan_id = plan.id
+        assert_equal true, subject.changes.has_key?(:mi_plan_id)
+        subject.consortium_name = 'BaSH'
+        subject.production_centre_name = 'WTSI'
+        subject.valid?
+        assert_equal true, subject.changes.has_key?(:mi_plan_id)
+
+        assert_match /mi_plan_id.+consortium_name.+production_centre_name/, subject.errors[:base].first
+      end
+    end
+
+  end # def self.public_tests
+
   context 'ApplicationModel::BelongsToMiPlan' do
 
     context 'for MiAttempt' do
@@ -33,6 +63,18 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
       subject { PhenotypeAttempt.new }
 
       tests
+    end
+
+    context 'for Public::MiAttempt' do
+      subject { Public::MiAttempt.new }
+
+      public_tests
+    end
+
+    context 'for Public::PhenotypeAttempt' do
+      subject { Public::PhenotypeAttempt.new }
+
+      public_tests
     end
 
 =begin

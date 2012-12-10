@@ -2,9 +2,10 @@
 
 class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
-  extend AccessAssociationByAttribute
-  include Public::Serializable
-  include Public::DistributionCentresAttributes
+  extend ::AccessAssociationByAttribute
+  include ::Public::Serializable
+  include ::Public::DistributionCentresAttributes
+  include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
     colony_name
@@ -54,6 +55,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
   # BEGIN Callbacks
 
+=begin TODO
   def set_mi_plan
     return if mi_plan
     return if mi_attempt.nil?
@@ -78,7 +80,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
       ).first
     end
   end
-
+=end
   # END Callbacks
 
   def status_name; status.name; end

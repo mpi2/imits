@@ -1,7 +1,8 @@
 class Public::MiAttempt < ::MiAttempt
 
-  include Public::Serializable
-  include Public::DistributionCentresAttributes
+  include ::Public::Serializable
+  include ::Public::DistributionCentresAttributes
+  include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
     es_cell_name

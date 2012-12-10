@@ -6,6 +6,29 @@ module ApplicationModel::BelongsToMiPlan
     validates :mi_plan, :presence => true
   end
 
+  module Public
+    extend ActiveSupport::Concern
+
+    included do
+      validate :validate_production_centre_name_and_consortium_name_both_or_neither
+      validate :mi_plan_id_or_names_not_both
+    end # included
+
+    def validate_production_centre_name_and_consortium_name_both_or_neither
+      if( (@production_centre_name.blank? and @consortium_name.present?) or
+                  (@consortium_name.blank? and @production_centre_name.present?))
+        errors.add(:base, 'Either both or neither of consortium_name and production_centre_name must be assigned')
+      end
+    end
+
+    def mi_plan_id_or_names_not_both
+      if(changes.has_key?(:mi_plan_id) and (
+            @production_centre_name.present? or @consortium_name.present?))
+        errors.add(:base, 'If mi_plan_id is assigned, consortium_name or production_centre_name cannot be assigned as well')
+      end
+    end
+  end # Public
+
 =begin
   def try_to_find_production_centre_name
     return @production_centre_name if @production_centre_name

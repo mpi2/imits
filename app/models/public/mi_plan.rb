@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 class Public::MiPlan < ::MiPlan
-  extend AccessAssociationByAttribute
-  include Public::Serializable
+  extend ::AccessAssociationByAttribute
+  include ::Public::Serializable
 
   FULL_ACCESS_ATTRIBUTES = [
     'marker_symbol',

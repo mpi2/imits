@@ -13,8 +13,11 @@ module ApplicationModel::BelongsToMiPlan
     before_save :deal_with_unassigned_or_inactive_plans
   end
 
+  # To be overridden in Public
   def set_mi_plan
-    # to be overridden
+    if self.kind_of? PhenotypeAttempt
+      self.mi_plan ||= mi_attempt.try(:mi_plan)
+    end
   end
   protected :set_mi_plan
 
@@ -81,19 +84,28 @@ module ApplicationModel::BelongsToMiPlan
     protected :lookup_mi_plan
 
     def set_mi_plan
-      return unless @production_centre_name.present? and @consortium_name.present? and gene.present?
+      if @production_centre_name.present? and @consortium_name.present? and gene.present?
 
-      if mi_plan.present? and
-                mi_plan.consortium.name == @consortium_name and
-                mi_plan.production_centre.name == @production_centre_name
-        return mi_plan
+        if mi_plan.present? and
+                  mi_plan.consortium.name == @consortium_name and
+                  mi_plan.production_centre.name == @production_centre_name
+          return mi_plan
+        end
+
+        found_plan = lookup_mi_plan
+        if found_plan
+          self.mi_plan = found_plan
+        else
+          self.mi_plan = MiPlan.create!(
+            :consortium => Consortium.find_by_name!(@consortium_name),
+            :production_centre => Centre.find_by_name!(@production_centre_name),
+            :gene => gene,
+            :force_assignment => true,
+            :priority => MiPlan::Priority.find_by_name!('High')
+          )
+        end
       end
-
-      found_plan = lookup_mi_plan
-      if found_plan
-        self.mi_plan = found_plan
-      end
-
+      super
     end
     protected :set_mi_plan
 

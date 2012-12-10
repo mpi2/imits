@@ -38,9 +38,6 @@ class PhenotypeAttempt < ApplicationModel
 
   # BEGIN Callbacks
   before_validation :change_status
-  before_validation do |me|
-    me.mi_plan ||= mi_attempt.try(:mi_plan)
-  end
 
   before_save :generate_colony_name_if_blank
 

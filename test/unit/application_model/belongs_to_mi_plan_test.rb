@@ -85,7 +85,50 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         subject.valid?
         assert_equal ['does not exist'], subject.errors['consortium_name']
       end
-    end
+
+      should 'use #consortium_name and #prduction_centre_name to look up a plan if they are supplied' do
+        assert cbx1
+        plan = TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx1')
+        common_attrs = {
+          :mi_plan => nil,
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI'
+        }
+        if @factory == :public_mi_attempt
+          es_cell = Factory.create(:es_cell, :gene => cbx1)
+          common_attrs[:es_cell_name] = es_cell.name
+        elsif @factory == :public_phenotype_attempt
+          mi = Factory.create :mi_attempt2_status_gtc, :mi_plan => plan
+          common_attrs[:mi_attempt_colony_name] = mi.colony_name
+        end
+
+        object = Factory.create @factory, common_attrs
+        assert_equal plan, object.mi_plan
+      end
+
+      should 'use #consortium_name and #prduction_centre_name to create a new plan if they are supplied and a plan is not found' do
+        assert cbx1
+        common_attrs = {
+          :mi_plan => nil,
+          :consortium_name => 'BaSH',
+          :production_centre_name => 'WTSI'
+        }
+        if @factory == :public_mi_attempt
+          es_cell = Factory.create(:es_cell, :gene => cbx1)
+          common_attrs[:es_cell_name] = es_cell.name
+        elsif @factory == :public_phenotype_attempt
+          mi = Factory.create :mi_attempt2_status_gtc, :mi_plan => TestDummy.mi_plan('ICS', 'Cbx1')
+          common_attrs[:mi_attempt_colony_name] = mi.colony_name
+        end
+
+        object = Factory.create @factory, common_attrs
+
+        p = object.mi_plan
+        assert_equal ['BaSH', 'WTSI', 'Cbx1', 'Assigned', 'High'],
+                [p.consortium.name, p.production_centre.name, p.gene.marker_symbol, p.status.name, p.priority.name]
+      end
+
+    end # context '#consortium_name and #production_centre_name'
 
     should 'return the same mi_plan if it has the same production centre and consortium that are passed in' do
       assert cbx1
@@ -158,6 +201,14 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         @factory = :public_phenotype_attempt
       end
       tests
+
+      should 'default to mi_attempt.mi_plan' do
+        plan = Factory.create :mi_plan_with_production_centre
+        mi = Factory.create(:mi_attempt2_status_gtc, :mi_plan => plan)
+        pt = Factory.build :phenotype_attempt, :mi_plan => nil, :mi_attempt => mi
+        pt.save!
+        assert_equal plan, pt.mi_plan
+      end
     end
 
     context 'for Public::MiAttempt' do
@@ -187,19 +238,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
           assert_true conflict_plan.has_status? :asg
         end
       end
-
-      should 'use #consortium_name and #prduction_centre_name to look up an plan if they are supplied' do
-        assert cbx1
-        plan = TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx1')
-        es_cell = Factory.create(:es_cell, :gene => cbx1)
-        object = Factory.create :public_mi_attempt,
-                :mi_plan => nil,
-                :consortium_name => 'BaSH',
-                :production_centre_name => 'WTSI',
-                :es_cell_name => es_cell.name
-        assert_equal plan, object.mi_plan
-      end
-    end
+    end # context 'for Public::MiAttempt'
 
     context 'for Public::PhenotypeAttempt' do
       subject { Public::PhenotypeAttempt.new }

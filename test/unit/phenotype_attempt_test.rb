@@ -42,14 +42,6 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
     end
 
     context '#mi_plan' do
-      should 'default to mi_attempt.mi_plan' do
-        plan = Factory.create :mi_plan
-        mi = Factory.build(:mi_attempt2, :mi_plan => plan)
-        pt = Factory.build :phenotype_attempt, :mi_plan => nil, :mi_attempt => mi
-        pt.valid?
-        assert_equal plan, pt.mi_plan
-      end
-
       should 'not be overritten by default value if it is explicitly set' do
         mi_attempt = Factory.create :mi_attempt_genotype_confirmed
         plan = Factory.create :mi_plan, :gene => mi_attempt.gene

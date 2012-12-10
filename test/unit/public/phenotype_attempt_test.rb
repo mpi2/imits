@@ -63,10 +63,9 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
     context '#mi_plan' do
       setup do
         @cbx1 = Factory.create(:gene_cbx1)
-        @mi = Factory.create(:mi_attempt_genotype_confirmed,
+        @mi = Factory.create(:mi_attempt2_status_gtc,
           :es_cell => Factory.create(:es_cell, :gene => @cbx1),
-          :consortium_name => 'BaSH',
-          :production_centre_name => 'ICS')
+          :mi_plan => TestDummy.mi_plan('BaSH', 'ICS', 'Cbx1'))
       end
 
       should 'not raise error when being set by before filter if no mi_attempt is found' do
@@ -112,13 +111,6 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
           :production_centre_name => 'UCD', :consortium_name => 'DTCC')
         pt.save!
         assert_equal plan, pt.mi_plan
-      end
-
-      should 'cause validation error if MiPlan matching supplied parameters does not exist' do
-        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
-          :consortium_name => 'DTCC')
-        pt.valid?
-        assert_match(/cannot be found with supplied parameters/i, pt.errors['mi_plan'].first)
       end
 
       should 'set MiPlan to Assigned status if not assigned already' do

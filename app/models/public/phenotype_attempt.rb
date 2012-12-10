@@ -44,7 +44,6 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   access_association_by_attribute :deleter_strain, :name
 
   validates :mi_attempt_colony_name, :presence => true
-  validates :mi_plan, :presence => {:message => 'cannot be found with supplied parameters.  Please either create it first or check consortium_name and/or production_centre_name supplied'}
 
   validate do |me|
     if me.changed.include?('mi_attempt_id') and ! me.new_record?

@@ -56,6 +56,7 @@ class Public::MiAttempt < ::MiAttempt
     comments
     genotyping_comment
     distribution_centres_attributes
+    mi_plan_id
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -66,7 +67,6 @@ class Public::MiAttempt < ::MiAttempt
     status_name
     mouse_allele_symbol_superscript
     mouse_allele_symbol
-    mi_plan_id
     phenotype_attempts_count
     pipeline_name
   } + FULL_ACCESS_ATTRIBUTES

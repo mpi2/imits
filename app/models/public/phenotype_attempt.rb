@@ -23,6 +23,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     distribution_centres_attributes
     colony_background_strain_name
     cre_excision_required
+    mi_plan_id
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -51,7 +52,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     end
   end
 
-  validate :consortium_name_and_production_centre_name_from_mi_plan_validation
+  # validate :consortium_name_and_production_centre_name_from_mi_plan_validation
 
   # BEGIN Callbacks
 

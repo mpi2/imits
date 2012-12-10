@@ -59,7 +59,17 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
       tests
 
       should 'report error if trying to save with an mi_plan that is not assigned or is inactive' do
-        plan = Factory.create :mi_plan_with_production_centre, :is_active => false
+        plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1, :is_active => false
+        assert_equal 'ina', plan.status.code
+        object = Factory.build :mi_attempt2, :mi_plan => plan
+        assert_raise(ApplicationModel::BelongsToMiPlan::UnassignedMiPlanError) do
+          object.save
+        end
+
+        plan.destroy
+        unused_plan = Factory.create :mi_plan, :gene => cbx1
+        plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+        assert_equal 'ins-con', plan.status.code
         object = Factory.build :mi_attempt2, :mi_plan => plan
         assert_raise(ApplicationModel::BelongsToMiPlan::UnassignedMiPlanError) do
           object.save
@@ -77,11 +87,33 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
       subject { Public::MiAttempt.new }
 
       public_tests
+
+      context '#mi_plan and #mi_plan_id test:' do
+        should 'force #mi_plan to be assigned and active' do
+          unused_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+
+          inactive_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1, :is_active => false
+          conflict_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+          assert_equal 'ins-con', conflict_plan.status.code
+          assert_equal 'ina', inactive_plan.status.code
+
+          Factory.create :public_mi_attempt, :mi_plan_id => inactive_plan.id
+          Factory.create :public_mi_attempt, :mi_plan_id => conflict_plan.id
+
+          inactive_plan.reload
+          conflict_plan.reload
+
+          assert_true inactive_plan.has_status? :asg
+          assert_true conflict_plan.has_status? :asg
+        end
+      end
     end
 
     context 'for Public::PhenotypeAttempt' do
       subject { Public::PhenotypeAttempt.new }
-
+      setup do
+        @factory = :public_phenotype_attempt
+      end
       public_tests
     end
 

@@ -7,9 +7,12 @@ module ApplicationModel::BelongsToMiPlan
     belongs_to :mi_plan
     validates :mi_plan, :presence => true
 
-    before_save do |object|
-      raise UnassignedMiPlanError if object.mi_plan.has_status? :asg
+    before_save :deal_with_unassigned_or_inactive_plans
+
+    def deal_with_unassigned_or_inactive_plans
+      raise UnassignedMiPlanError unless mi_plan.assigned?
     end
+    protected :deal_with_unassigned_or_inactive_plans
   end
 
   module Public
@@ -18,6 +21,14 @@ module ApplicationModel::BelongsToMiPlan
     included do
       validate :validate_production_centre_name_and_consortium_name_both_or_neither
       validate :mi_plan_id_or_names_not_both
+
+      def deal_with_unassigned_or_inactive_plans
+        if ! mi_plan.assigned?
+          mi_plan.update_attributes!(:is_active => true, :force_assignment => true)
+        end
+      end
+      protected :deal_with_unassigned_or_inactive_plans
+
     end # included
 
     def validate_production_centre_name_and_consortium_name_both_or_neither

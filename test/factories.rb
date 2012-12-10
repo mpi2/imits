@@ -84,9 +84,16 @@ Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_atte
 end
 
 Factory.define :public_mi_attempt, :class => Public::MiAttempt do |mi_attempt|
-  mi_attempt.es_cell_name { Factory.create(:es_cell).name }
-  mi_attempt.consortium_name 'EUCOMM-EUMODIC'
-  mi_attempt.production_centre_name 'WTSI'
+  mi_attempt.es_cell_name do |i|
+    if ! i.mi_plan
+      Factory.create(:es_cell).name
+    else
+      Factory.create(:es_cell, :gene => i.mi_plan.gene).name
+    end
+  end
+
+  mi_attempt.consortium_name { |i| if i.mi_plan; nil; else; 'EUCOMM-EUMODIC'; end }
+  mi_attempt.production_centre_name { |i| if i.mi_plan; nil; else; 'WTSI'; end }
   mi_attempt.mi_date { Date.today }
 end
 
@@ -183,7 +190,7 @@ Factory.define :phenotype_attempt do |phenotype_attempt|
 end
 
 Factory.define :public_phenotype_attempt, :class => Public::PhenotypeAttempt do |phenotype_attempt|
-  phenotype_attempt.mi_attempt_colony_name { Factory.create(:mi_attempt_genotype_confirmed).colony_name }
+  phenotype_attempt.mi_attempt_colony_name { |pa| Factory.create(:mi_attempt2_status_gtc).colony_name }
 end
 
 Factory.define :phenotype_attempt_status_cec, :parent => :phenotype_attempt do |phenotype_attempt|

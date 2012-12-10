@@ -6,7 +6,9 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
   context 'Public::MiAttempt' do
 
     def default_mi_attempt
-      @default_mi_attempt ||= Factory.create(:mi_attempt).to_public
+      plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+      es_cell = Factory.create :es_cell, :gene => cbx1
+      @default_mi_attempt ||= Factory.create(:mi_attempt, :es_cell => es_cell, :mi_plan => plan).to_public
     end
 
     should 'have #status_name' do
@@ -66,6 +68,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         is_released_from_genotyping
         comments
         genotyping_comment
+        mi_plan_id
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

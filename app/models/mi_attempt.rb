@@ -68,18 +68,6 @@ class MiAttempt < ApplicationModel
     end
   end
 
-=begin TODO make this a before_save exception
-  validate do |mi|
-    matching_mi_plan = find_matching_mi_plan
-
-    if matching_mi_plan and
-              matching_mi_plan.status == MiPlan::Status['Aborted - ES Cell QC Failed']
-      error = 'ES cells failed QC'
-      mi.errors.add :base, error
-    end
-  end
-=end
-
   validate do |mi_attempt|
     next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
     if(mi_attempt.es_cell.gene != mi_attempt.mi_plan.gene)

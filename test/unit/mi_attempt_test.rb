@@ -376,7 +376,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           end
         end
 
-        context 'on update' do
+        context 'when Inactive state is involved' do
           setup do
             default_mi_attempt.update_attributes!(:is_active => false)
             default_mi_attempt.reload
@@ -399,20 +399,19 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'not be allowed to be in state "Aborted - ES Cell QC Failed" for MiAttempt to be created against it' do
           gene = Factory.create :gene_cbx1
-          mi_plan = Factory.create :mi_plan,
-                  :gene => gene,
-                  :consortium => Consortium.find_by_name!('BaSH'),
-                  :number_of_es_cells_starting_qc => 5,
-                  :number_of_es_cells_passing_qc => 0
-          assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status.name
+          plan = TestDummy.mi_plan('BaSH', 'WTSI',
+            :gene => gene,
+            :number_of_es_cells_starting_qc => 5,
+            :number_of_es_cells_passing_qc => 0)
+          assert_equal 'Aborted - ES Cell QC Failed', plan.status.name
           es_cell = Factory.create :es_cell, :gene => gene
 
           mi_attempt = Factory.build :mi_attempt2, :es_cell => es_cell,
-                  :mi_plan => mi_plan
+                  :mi_plan => plan
 
-          mi_attempt.valid?
-
-          assert_match 'ES cells failed QC', mi_attempt.errors[:base].join
+          assert_raise(ApplicationModel::BelongsToMiPlan::UnsuitableMiPlanError) do
+            mi_attempt.save!
+          end
         end
       end
 

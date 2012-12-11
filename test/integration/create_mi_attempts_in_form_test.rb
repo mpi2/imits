@@ -27,7 +27,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       puts TargRep::EsCell.all.map(&:name).inspect
       puts '-'
 
-      choose_es_cell_from_list 'Cbx1', 'EPD_1161'
+      choose_es_cell_from_list 'Cbx1', 'EPD_1155'
 
       choose_date_from_datepicker_for_input('mi_attempt[mi_date]')
       fill_in 'mi_attempt[colony_name]', :with => 'MZSQ'
@@ -54,7 +54,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       puts TargRep::EsCell.all.map(&:name).inspect
       puts '-'
 
-      choose_es_cell_from_list 'Auto-generated Symbol 1484', 'EPD_1159'
+      choose_es_cell_from_list 'Auto-generated Symbol 1268', 'EPD_1153'
       fill_in 'mi_attempt[colony_name]', :with => 'MABC'
       click_button 'mi_attempt_submit'
 

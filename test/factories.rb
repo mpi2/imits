@@ -83,9 +83,16 @@ Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_atte
   mi_attempt.total_male_chimeras 1
 end
 
+# Pass in :mi_plan => nil if you want to pass in production_centre_name and consortium_name
 Factory.define :public_mi_attempt, :class => Public::MiAttempt do |mi_attempt|
   mi_attempt.association(:mi_plan, :factory => :mi_plan_with_production_centre)
-  mi_attempt.es_cell_name { |i| Factory.create(:es_cell, :gene => i.mi_plan.gene).name }
+  mi_attempt.es_cell_name do |i|
+    if i.mi_plan.try(:gene)
+      Factory.create(:es_cell, :gene => i.mi_plan.gene).name
+    else
+      Factory.create(:es_cell).name
+    end
+  end
   mi_attempt.mi_date { Date.today }
 end
 

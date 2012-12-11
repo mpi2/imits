@@ -21,7 +21,7 @@ module MiAttempt::WarningGenerator
       return true
     end
 
-    potential_mi_plan = find_matching_mi_plan
+    potential_mi_plan = lookup_mi_plan
     if !potential_mi_plan
       add_warning :no_interest_expressed_in_gene
       return true

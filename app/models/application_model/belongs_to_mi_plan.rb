@@ -86,7 +86,6 @@ module ApplicationModel::BelongsToMiPlan
         :consortium_name_eq => @consortium_name,
         :gene_id_eq => gene.id).result.first
     end
-    protected :lookup_mi_plan
 
     def set_mi_plan
       if @production_centre_name.present? and @consortium_name.present? and gene.present?

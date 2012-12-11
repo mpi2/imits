@@ -70,8 +70,6 @@ Kermits2::Application.routes.draw do
 
   match ':controller/:id/history' => ':controller#history'
 
-  match 'targ_rep/:controller(/:action(/:id)(.:format))'
-
   namespace :solr_update do
     namespace :queue do
       resources :items, :only => [:index, :destroy] do
@@ -123,5 +121,7 @@ Kermits2::Application.routes.draw do
 
     root :to => "welcome#index"
   end
+
+  match 'targ_rep/:controller(/:action(/:id)(.:format))'
 
 end

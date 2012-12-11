@@ -45,7 +45,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
     context '#mi_plan' do
       should 'not be overritten by default value if it is explicitly set' do
         mi_attempt = Factory.create :mi_attempt2_status_gtc
-        plan = Factory.create :mi_plan, :gene => mi_attempt.gene
+        plan = Factory.create :mi_plan_with_production_centre, :gene => mi_attempt.gene, :force_assignment => true
         pt = Factory.create :phenotype_attempt, :mi_attempt => mi_attempt, :mi_plan => plan
         assert_equal plan, pt.mi_plan
         assert_not_equal pt.mi_attempt.mi_plan, pt.mi_plan
@@ -270,7 +270,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       setup do
         @es_cell = Factory.create :es_cell_EPD0343_1_H06
         @mi_attempt = Factory.create :mi_attempt2_status_gtc, :es_cell => @es_cell,
-                :mi_plan => Factory.create(:mi_plan, :gene => @es_cell.gene)
+                :mi_plan => Factory.create(:mi_plan_with_production_centre, :gene => @es_cell.gene, :force_assignment => true)
         @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
         @phenotype_attempt = Factory.create :phenotype_attempt, :mi_attempt => @mi_attempt
       end
@@ -380,8 +380,9 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#distribution_centres_formatted_display' do
       should 'output a string of distribution centre and deposited material' do
-        pa = Factory.create :phenotype_attempt_status_pdc
-        assert_equal "[ICS, Frozen embryos]", pa.distribution_centres_formatted_display
+        pa = Factory.create :phenotype_attempt_status_pdc,
+                :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => bash_wtsi_cbx1_plan)
+        assert_equal "[WTSI, Frozen embryos]", pa.distribution_centres_formatted_display
       end
     end
 

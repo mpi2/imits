@@ -55,6 +55,8 @@ module Kermits2
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
 
+    require 'solr_update'
+
     if File.expand_path(__FILE__).match %r{^/opt/t87/global}
       require('/opt/t87/global/lib/config_rails_app'); VM.config_rails_app(config)
     end

@@ -53,7 +53,12 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
         renderer: function (value, metaData, record) {
             var ref = record.get('reference');
             var editUrl = Ext.String.format('{0}/{1}s/{2}', window.basePath, ref.type, ref.id);
-            var historyUrl = editUrl + '/history';
+            if(ref.type == "allele") {
+              var historyUrl = '/targ_rep' + editUrl + '/history';
+            } else {
+              var historyUrl = editUrl + '/history';
+            }
+            
             return Ext.String.format('<a href="{0}">{1} / {2}</a> (<a href="{3}">audit history</a>)', editUrl, ref.type, ref.id, historyUrl);
         }
     },

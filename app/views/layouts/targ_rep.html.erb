@@ -24,7 +24,7 @@
     <div id="userbox" class="grid_3 prefix_1">
       <div id="userbox-inner" class="box">
         <% if user_signed_in? %>
-          <%= link_to "profile (#{current_user.email})", user_path(current_user), :class => "ss_sprite ss_user" %> |
+          <%= link_to "profile (#{current_user.email})", user_path(:redirect => 'targ_rep'), :class => "ss_sprite ss_user" %> |
           <%= link_to "logout", destroy_user_session_path, :method => :delete, :class => "ss_sprite ss_door_open" %>
         <% else %>
           <%= link_to "login", new_user_session_path, :class => "ss_sprite ss_key" %>

@@ -13,7 +13,6 @@ gem 'devise'
 gem 'biomart'
 gem 'acts_as_audited', '~>2.0.0.rc7'
 gem 'ransack', '0.7'
-gem 'mpi2_solr_update'
 
 gem 'will_paginate', '~>3.0.pre2'
 gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'

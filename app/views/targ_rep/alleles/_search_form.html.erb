@@ -17,7 +17,7 @@
 <%= form_tag targ_rep_alleles_path, :method => 'get', :id => 'search_form' do %>
   <table class="no-border">
     <tr>
-      <td><%= label_tag :gene_marker_symbol, "Marker Symbol" %>:</td>
+      <td><%= label_tag :gene_marker_symbol_cont, "Marker Symbol" %>:</td>
       <td><%= text_field_tag :gene_marker_symbol_cont, params[:gene_marker_symbol_cont] %></td>
       <td><%= label_tag :gene_mgi_accession_id_eq, "MGI Acc. ID" %>:</td>
       <td><%= text_field_tag :gene_mgi_accession_id_eq, params[:gene_mgi_accession_id_eq] %></td>
@@ -33,12 +33,12 @@
       <td></td>
     </tr>
     <tr>
-      <td><%= label_tag :mutation_type_id_is, "Mutation Type" %>:</td>
-      <td><%= select_tag :mutation_type_id_is, options_for_select([['All','']] + TargRep::MutationType.all.collect{ |u| [u.name, u.id]})  %></td>
-      <td><%= label_tag :cassette_is, 'Cassette' %>:</td>
-      <td><%= select_tag :cassette_is, cassette_options %></td>
-      <td><%= label_tag :backbone_is, 'Backbone' %>:</td>
-      <td><%= select_tag :backbone_is, backbone_options %></td>
+      <td><%= label_tag :mutation_type_id_eq, "Mutation Type" %>:</td>
+      <td><%= select_tag :mutation_type_id_eq, options_for_select([['All','']] + TargRep::MutationType.all.collect{ |u| [u.name, u.id]})  %></td>
+      <td><%= label_tag :cassette_eq, 'Cassette' %>:</td>
+      <td><%= select_tag :cassette_eq, cassette_options %></td>
+      <td><%= label_tag :backbone_eq, 'Backbone' %>:</td>
+      <td><%= select_tag :backbone_eq, backbone_options %></td>
     </tr>
 
     <tr>

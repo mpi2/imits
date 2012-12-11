@@ -20,4 +20,12 @@ module ApplicationHelper
     end
     link_to(name, '#', class: "add-row", :"data-fields" => fields.gsub("\n", ""), :"data-object-id" => @new_object.object_id)
   end
+
+  def javascript(*files)
+    content_for(:head) { javascript_include_tag(*files) }
+  end
+  
+  def stylesheet(*files)
+    content_for(:head) { stylesheet_link_tag(*files) }
+  end
 end

@@ -36,6 +36,7 @@ Kermits2::Application.routes.draw do
   match 'notifications' => 'notifications#delete', :via => :delete
 
   devise_for :users,
+          :controllers => { :sessions => "sessions" },
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do
     get 'user', :to => 'users#show', :as => :user
     put 'user', :to => 'users#update'

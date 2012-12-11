@@ -6,7 +6,9 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
   context 'When creating MI Attempt in form' do
 
     setup do
-      Factory.create(:mi_attempt, :colony_name => 'MABC')
+      Factory.create :mi_attempt,
+        :colony_name => 'MABC'
+
       login
       click_link 'Create MI Attempt'
     end
@@ -20,7 +22,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
               :status => MiPlan::Status[:Assigned],
               :gene => cbx1
 
-      choose_es_cell_from_list 'cbx1', 'EPD_3'
+      choose_es_cell_from_list 'Cbx1', 'EPD_10'
 
       choose_date_from_datepicker_for_input('mi_attempt[mi_date]')
       fill_in 'mi_attempt[colony_name]', :with => 'MZSQ'
@@ -29,7 +31,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
       click_button 'mi_attempt_submit'
 
       assert page.has_no_css?('#mi_attempt_submit[disabled]')
-
+      
       assert_match /\/mi_attempts\/\d+$/, current_url
 
       ApplicationModel.uncached do
@@ -41,13 +43,14 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 're-render form defaults filled in and validation errors when invalid data' do
-      choose_es_cell_from_list
+
+      choose_es_cell_from_list 'Auto-generated Symbol 9', 'EPD_8'
       fill_in 'mi_attempt[colony_name]', :with => 'MABC'
       click_button 'mi_attempt_submit'
 
       assert page.has_no_css?('#mi_attempt_submit[disabled]')
 
-      assert_equal 'EPD_1', page.find(:css, 'input[name="mi_attempt[es_cell_name]"]').value
+      assert_equal 'EPD_8', page.find(:css, 'input[name="mi_attempt[es_cell_name]"]').value
       assert_equal '', page.find(:css, 'select[name="mi_attempt[consortium_name]"]').value
       assert page.has_css? '.message.alert'
       assert page.has_css? '.field_with_errors'

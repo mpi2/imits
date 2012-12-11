@@ -19,7 +19,7 @@ class UserIntegrationTest < Kermits2::IntegrationTest
         fill_in 'user[password]', :with => 'new password'
         fill_in 'user[password_confirmation]', :with => 'new password'
         click_button 'user_submit'
-        assert_match %r{^http://[^/]+/user$}, current_url
+        assert_match %r{^http://[^/]+/user}, current_url
         assert page.has_css? 'legend', :text => 'Change Password'
 
         visit '/users/logout'

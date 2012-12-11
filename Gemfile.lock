@@ -85,7 +85,6 @@ GEM
     jammit (0.6.5)
       yui-compressor (>= 0.9.3)
     json (1.7.5)
-    json_pure (1.7.5)
     kgio (2.7.4)
     launchy (2.0.5)
       addressable (~> 2.2.6)
@@ -100,9 +99,6 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.19)
     mocha (0.9.12)
-    mpi2_solr_update (1.5.0)
-      activesupport
-      json_pure
     multi_json (1.1.0)
     mysql2 (0.2.7)
     nokogiri (1.5.2)
@@ -210,7 +206,6 @@ DEPENDENCIES
   launchy
   letter_opener
   mocha
-  mpi2_solr_update
   mysql2
   parallel_tests
   pg

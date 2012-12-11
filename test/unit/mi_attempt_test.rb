@@ -363,32 +363,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal ['must have a production centre (INTERNAL ERROR)'],
                   mi.errors['mi_plan']
         end
-
-        context 'inactive status tests:' do
-          setup do
-            @mi_attempt = Factory.create :public_mi_attempt, :is_active => false
-          end
-
-          should 'mi_plan should be reactivated when the associated mi_attempt is active' do
-            @mi_attempt.mi_plan.is_active = false
-            @mi_attempt.mi_plan.save!
-            @mi_attempt.is_active = true
-            @mi_attempt.save!
-            @mi_attempt.reload
-            assert_equal true, @mi_attempt.mi_plan.is_active?
-            assert_equal 'Assigned', @mi_attempt.mi_plan.status.name
-          end
-
-          should 'not set its status to Assigned if MI attempt is not becoming active again' do
-            @mi_attempt.update_attributes!(:is_active => false)
-            @mi_attempt.reload
-            @mi_attempt.mi_plan.update_attributes!(:is_active => false)
-            @mi_attempt.mi_plan.save!
-
-            @mi_attempt.save!
-            assert_equal 'Inactive', @mi_attempt.mi_plan.status.name
-          end
-        end
       end
 
       should 'have #updated_by column' do

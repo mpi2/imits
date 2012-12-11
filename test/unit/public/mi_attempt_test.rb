@@ -8,7 +8,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
     def default_mi_attempt
       plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
       es_cell = Factory.create :es_cell, :gene => cbx1
-      @default_mi_attempt ||= Factory.create(:mi_attempt, :es_cell => es_cell, :mi_plan => plan).to_public
+      @default_mi_attempt ||= Factory.create(:mi_attempt2, :es_cell => es_cell, :mi_plan => plan).to_public
     end
 
     should 'have #status_name' do
@@ -162,7 +162,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
 
     context '#distribution_centres_attributes' do
       should 'be output correctly' do
-        mi = Factory.create(:mi_attempt_genotype_confirmed)
+        mi = Factory.create(:mi_attempt2_status_gtc)
         ds1 = Factory.create(:mi_attempt_distribution_centre,
           :start_date => '2012-01-02', :mi_attempt => mi)
         ds2 = Factory.create(:mi_attempt_distribution_centre,
@@ -178,7 +178,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'can be updated and destroyed' do
-        mi = Factory.create(:mi_attempt_genotype_confirmed).to_public
+        mi = Factory.create(:mi_attempt2_status_gtc).to_public
         ds1 = Factory.create(:mi_attempt_distribution_centre,
           :centre => Centre.find_by_name!('WTSI'),
           :start_date => '2012-01-02', :mi_attempt => mi)

@@ -10,7 +10,7 @@ class Reports::MiProduction::LanguishingIntegrationTest < Kermits2::IntegrationT
     end
 
     should 'work' do
-      Factory.create :mi_attempt
+      Factory.create :mi_attempt2
       Reports::MiProduction::Intermediate.new.cache
       visit '/reports/mi_production/languishing'
       assert page.has_css? '#content'
@@ -26,7 +26,7 @@ class Reports::MiProduction::LanguishingIntegrationTest < Kermits2::IntegrationT
 
     context '_detail' do
       should 'work' do
-        Factory.create :mi_attempt
+        Factory.create :mi_attempt2
         Reports::MiProduction::Intermediate.new.cache
         visit '/reports/mi_production/languishing'
         click_link '1'
@@ -46,7 +46,7 @@ class Reports::MiProduction::LanguishingIntegrationTest < Kermits2::IntegrationT
     end
 
     should 'show Micro-injection in progress as "Mouse production attempt"' do
-      Factory.create :mi_attempt
+      Factory.create :mi_attempt2
       Reports::MiProduction::Intermediate.new.cache
       visit '/reports/mi_production/languishing'
       assert page.has_no_content? 'Micro-injection in progress'
@@ -54,7 +54,7 @@ class Reports::MiProduction::LanguishingIntegrationTest < Kermits2::IntegrationT
     end
 
     should 'have working detail link for Mouse production attempt / Micro-injection in progress' do
-      Factory.create :mi_attempt
+      Factory.create :mi_attempt2
       Reports::MiProduction::Intermediate.new.cache
       visit '/reports/mi_production/languishing'
       link = page.find('.report td a')

@@ -7,7 +7,7 @@
   <%= csrf_meta_tag %>
   <title>IKMC Targeting Repository - <%= controller.controller_name.titlecase %>: <%= controller.action_name %></title>
 
-  <%= javascript 'prototype', 'effects', 'dragdrop', 'controls', 'application'  %>
+  <%= javascript 'prototype', 'rails', 'application'  %>
   <%= include_stylesheets :targ_rep, :media => 'all' %>
   <!--[if IE]>
   <%= include_stylesheets :ie, :media => 'all' %>

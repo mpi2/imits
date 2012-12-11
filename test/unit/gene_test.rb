@@ -252,10 +252,9 @@ class GeneTest < ActiveSupport::TestCase
               :production_centre => Centre.find_by_name!('WTSI'),
               :number_of_es_cells_starting_qc => 4
 
-      Factory.create :mi_attempt,
+      Factory.create :mi_attempt2,
               :es_cell => Factory.create(:es_cell, :gene => @gene),
-              :consortium_name => 'MARC',
-              :production_centre_name => 'MARC',
+              :mi_plan => TestDummy.mi_plan('MARC', 'MARC', :gene => @gene, :force_assignment => true),
               :is_active => true
     end
 
@@ -310,10 +309,9 @@ class GeneTest < ActiveSupport::TestCase
               :production_centre => Centre.find_by_name!('JAX'),
               :number_of_es_cells_passing_qc => 7
 
-      @marc_attempt = Factory.create :mi_attempt,
+      @marc_attempt = Factory.create :mi_attempt2,
               :es_cell => Factory.create(:es_cell, :gene => @gene),
-              :consortium_name => 'MARC',
-              :production_centre_name => 'MARC',
+              :mi_plan => TestDummy.mi_plan('MARC', 'MARC', :gene => @gene, :force_assignment => true),
               :is_active => true
     end
 
@@ -350,40 +348,38 @@ class GeneTest < ActiveSupport::TestCase
                 :marker_symbol => 'Moo1',
                 :mgi_accession_id => 'MGI:12345'
 
-        Factory.create :mi_attempt,
+        plan = TestDummy.mi_plan('MGP', 'WTSI', :gene => gene, :force_assignment => true)
+
+        Factory.create :mi_attempt2,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MGP',
-                :production_centre_name => 'WTSI',
+                :mi_plan => plan,
                 :is_active => true
 
-        Factory.create :mi_attempt_chimeras_obtained,
+        Factory.create :mi_attempt2_status_chr,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MGP',
-                :production_centre_name => 'WTSI',
+                :mi_plan => plan,
                 :is_active => true
 
-        Factory.create :wtsi_mi_attempt_genotype_confirmed,
+        Factory.create :mi_attempt2_status_gtc,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MGP',
-                :production_centre_name => 'WTSI'
+                :mi_plan => plan
 
+        dtcc_ucd_plan = TestDummy.mi_plan 'DTCC', 'UCD', :gene => gene, :force_assignment => true
         3.times do
-          Factory.create :mi_attempt,
+          Factory.create :mi_attempt2,
                   :es_cell => Factory.create(:es_cell, :gene => gene),
-                  :consortium_name => 'DTCC',
-                  :production_centre_name => 'UCD',
+                  :mi_plan => dtcc_ucd_plan,
                   :is_active => true
         end
 
-        Factory.create :mi_attempt_genotype_confirmed,
+        Factory.create :mi_attempt2_status_gtc,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'DTCC',
-                :production_centre_name => 'UCD'
+                :mi_plan => dtcc_ucd_plan
 
-        Factory.create :mi_attempt,
+        marc_plan = TestDummy.mi_plan 'MARC', 'MARC', :gene => gene, :force_assignment => true
+        Factory.create :mi_attempt2,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MARC',
-                :production_centre_name => 'MARC',
+                :mi_plan => marc_plan,
                 :is_active => false
 
         assert gene
@@ -401,33 +397,34 @@ class GeneTest < ActiveSupport::TestCase
                 :marker_symbol => 'Moo1',
                 :mgi_accession_id => 'MGI:12345'
 
+        plan = TestDummy.mi_plan('MGP', 'WTSI', :gene => gene, :force_assignment => true)
         2.times do
-          mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+          mi = Factory.create :mi_attempt2_status_gtc,
                   :es_cell => Factory.create(:es_cell, :gene => gene),
-                  :consortium_name => 'MGP',
+                  :mi_plan => plan,
                   :is_active => true
           assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
         end
 
+        plan = TestDummy.mi_plan('DTCC', 'UCD', :gene => gene, :force_assignment => true)
         3.times do
-          mi = Factory.create :mi_attempt_genotype_confirmed,
+          mi = Factory.create :mi_attempt2_status_gtc,
                   :es_cell => Factory.create(:es_cell, :gene => gene),
-                  :consortium_name => 'DTCC',
-                  :production_centre_name => 'UCD',
+                  :mi_plan => plan,
                   :is_active => true
           assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
         end
 
-        Factory.create :mi_attempt,
+        plan = TestDummy.mi_plan('MARC', 'MARC', :gene => gene, :force_assignment => true)
+        Factory.create :mi_attempt2,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MARC',
-                :production_centre_name => 'MARC',
+                :mi_plan => plan,
                 :is_active => false
 
-        in_progress_mi = Factory.create :mi_attempt_genotype_confirmed,
+        plan = TestDummy.mi_plan('EUCOMM-EUMODIC', 'WTSI', :gene => gene, :force_assignment => true)
+        in_progress_mi = Factory.create :mi_attempt2_status_gtc,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'EUCOMM-EUMODIC',
-                :production_centre_name => 'WTSI'
+                :mi_plan => plan
         in_progress_mi.number_of_het_offspring = 0
         in_progress_mi.total_male_chimeras = 0
         in_progress_mi.save!
@@ -450,32 +447,33 @@ class GeneTest < ActiveSupport::TestCase
                 :marker_symbol => 'Moo1',
                 :mgi_accession_id => 'MGI:12345'
 
+        plan = TestDummy.mi_plan('DTCC', 'UCD', :gene => gene, :force_assignment => true)
         3.times do
-          mi = Factory.create :mi_attempt_genotype_confirmed,
+          mi = Factory.create :mi_attempt2_status_gtc,
                   :es_cell => Factory.create(:es_cell, :gene => gene),
-                  :consortium_name => 'DTCC',
-                  :production_centre_name => 'UCD',
+                  :mi_plan => plan,
                   :is_active => true
           assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
         end
 
+        plan = TestDummy.mi_plan('MGP', 'WTSI', :gene => gene, :force_assignment => true)
         2.times do
-          Factory.create :mi_attempt,
+          Factory.create :mi_attempt2,
                   :es_cell => Factory.create(:es_cell, :gene => gene),
-                  :consortium_name => 'MGP',
-                  :production_centre_name => 'WTSI',
+                  :mi_plan => plan,
                   :is_active => false
         end
 
-        Factory.create :mi_attempt,
+        plan = TestDummy.mi_plan('MARC', 'MARC', :gene => gene, :force_assignment => true)
+        Factory.create :mi_attempt2,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MARC',
-                :production_centre_name => 'MARC',
+                :mi_plan => plan,
                 :is_active => false
 
-        in_progress_mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+        plan = TestDummy.mi_plan('EUCOMM-EUMODIC', 'ICS', :gene => gene, :force_assignment => true)
+        in_progress_mi = Factory.create :mi_attempt2_status_gtc,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'EUCOMM-EUMODIC'
+                :mi_plan => plan
         in_progress_mi.update_attributes!(:is_released_from_genotyping => false,
           :total_male_chimeras => 0)
         assert_equal MiAttempt::Status.micro_injection_in_progress.name, in_progress_mi.status.name
@@ -496,37 +494,38 @@ class GeneTest < ActiveSupport::TestCase
                 :marker_symbol => 'Moo1',
                 :mgi_accession_id => 'MGI:12345'
 
-        mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+        plan = TestDummy.mi_plan('MGP', 'WTSI', :gene => gene, :force_assignment => true)
+        mi = Factory.create :mi_attempt2_status_gtc,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MGP',
+                :mi_plan => plan,
                 :is_active => true
         pa = Factory.create :phenotype_attempt_status_pdc, :mi_attempt => mi
         assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
 
-        mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+        mi = Factory.create :mi_attempt2_status_gtc,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MGP',
+                :mi_plan => plan,
                 :is_active => true
         assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
 
-        mi = Factory.create :mi_attempt_genotype_confirmed,
+        plan = TestDummy.mi_plan('DTCC', 'UCD', :gene => gene, :force_assignment => true)
+        mi = Factory.create :mi_attempt2_status_gtc,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'DTCC',
-                :production_centre_name => 'UCD',
+                :mi_plan => plan,
                 :is_active => true
         pa = Factory.create :phenotype_attempt_status_pdc, :mi_attempt => mi
         assert_equal MiAttempt::Status.genotype_confirmed.name, mi.status.name
 
-        Factory.create :mi_attempt,
+        plan = TestDummy.mi_plan('MARC', 'MARC', :gene => gene, :force_assignment => true)
+        Factory.create :mi_attempt2,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'MARC',
-                :production_centre_name => 'MARC',
+                :mi_plan => plan,
                 :is_active => false
 
-        in_progress_mi = Factory.create :mi_attempt_genotype_confirmed,
+        plan = TestDummy.mi_plan('EUCOMM-EUMODIC', 'WTSI', :gene => gene, :force_assignment => true)
+        in_progress_mi = Factory.create :mi_attempt2_status_gtc,
                 :es_cell => Factory.create(:es_cell, :gene => gene),
-                :consortium_name => 'EUCOMM-EUMODIC',
-                :production_centre_name => 'WTSI'
+                :mi_plan => plan
         in_progress_mi.number_of_het_offspring = 0
         in_progress_mi.total_male_chimeras = 0
         in_progress_mi.save!
@@ -549,19 +548,16 @@ class GeneTest < ActiveSupport::TestCase
       end
 
       should 'return correct status with plan and microinjection attempt' do
-        mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
-                :consortium_name => 'BaSH',
-                :production_centre_name => 'WTSI'
+        mi = Factory.create :mi_attempt2_status_gtc,
+                :mi_plan => bash_wtsi_cbx1_plan
         gene = mi.gene
         gene.reload
         assert_equal MiAttempt::Status.genotype_confirmed.name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
       end
 
       should 'return correct status with multiple stamps for plan, microinjection and phenotype attempt' do
-
-        mi = Factory.create :wtsi_mi_attempt_genotype_confirmed,
-                :consortium_name => 'BaSH',
-                :production_centre_name => 'WTSI'
+        mi = Factory.create :mi_attempt2_status_gtc,
+                :mi_plan => bash_wtsi_cbx1_plan
         plan = mi.mi_plan
         plan.update_attributes!(:number_of_es_cells_starting_qc => 1)
         pt = Factory.create :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi

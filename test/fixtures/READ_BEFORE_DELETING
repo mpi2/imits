@@ -1,0 +1,3 @@
+Many of these fixture files are empty for a reason; they cause the
+test framework to empty the tables in the database so our testing can
+be done in a pristine environment.  DO NOT DELETE them.

@@ -37,7 +37,7 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
 
 
     should 'be generated off the intermediate production report minus some columns' do
-      cbx1 = Factory.create(:gene_cbx1)
+      assert cbx1
 
       mi = Factory.create :mi_attempt2,
               :mi_plan => bash_wtsi_cbx1_plan,

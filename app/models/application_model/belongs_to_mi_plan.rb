@@ -110,8 +110,9 @@ module ApplicationModel::BelongsToMiPlan
 
         found_plan = lookup_mi_plan
         if found_plan
+          found_plan = MiPlan.find(found_plan)
+
           if found_plan.production_centre.blank? and kind_of? MiAttempt
-            found_plan = MiPlan.find(found_plan)
             found_plan.update_attributes!(:production_centre => Centre.find_by_name!(@production_centre_name))
           end
           self.mi_plan = found_plan

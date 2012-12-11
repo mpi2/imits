@@ -51,8 +51,6 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     end
   end
 
-  # TODO validate :consortium_name_and_production_centre_name_from_mi_plan_validation
-
   # BEGIN Callbacks
 
   # END Callbacks

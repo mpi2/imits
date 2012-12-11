@@ -36,30 +36,6 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    context '#consortium_name virtual attribute' do
-      should 'validate the consortium cannot be changed on update' do
-        assert default_phenotype_attempt
-        pt = Public::PhenotypeAttempt.find(default_phenotype_attempt.id)
-        assert_not_equal 'JAX', pt.consortium_name
-
-        pt.consortium_name = 'JAX'
-        pt.valid?
-        assert_equal ['cannot be changed'], pt.errors[:consortium_name], pt.errors.inspect
-      end
-    end
-
-    context '#production_centre_name virtual attribute' do
-      should 'validate the production_centre cannot be changed on update' do
-        assert default_phenotype_attempt
-        pt = Public::PhenotypeAttempt.find(default_phenotype_attempt.id)
-        assert_not_equal 'TCP', pt.production_centre_name
-
-        pt.production_centre_name = 'TCP'
-        pt.valid?
-        assert_equal ['cannot be changed'], pt.errors[:production_centre_name], pt.errors.inspect
-      end
-    end
-
     context '#mi_plan' do
       setup do
         @cbx1 = Factory.create(:gene_cbx1)
@@ -77,26 +53,6 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name)
         pt.save!
         assert_equal @mi.mi_plan, pt.mi_plan
-      end
-
-      should 'be set to correct MiPlan if only production_centre_name is provided' do
-        plan = Factory.create(:mi_plan, :gene => @cbx1,
-          :consortium => Consortium.find_by_name!('BaSH'),
-          :production_centre => Centre.find_by_name!('UCD'))
-        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
-          :production_centre_name => 'UCD')
-        pt.save!
-        assert_equal plan, pt.mi_plan
-      end
-
-      should 'be set to correct MiPlan if only consortium_name is provided' do
-        plan = Factory.create(:mi_plan, :gene => @cbx1,
-          :consortium => Consortium.find_by_name!('DTCC'),
-          :production_centre => Centre.find_by_name!('ICS'))
-        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
-          :consortium_name => 'DTCC')
-        pt.save!
-        assert_equal plan, pt.mi_plan
       end
 
       should 'be set to correct MiPlan if both consortium_name and production_centre_name are provided' do
@@ -118,7 +74,10 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
                 'JAX', @mi.mi_plan.production_centre.name)
         assert_equal 'Inspect - GLT Mouse', plan.status.name
 
-        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
+        pt = Factory.build(:public_phenotype_attempt,
+          :mi_plan => nil,
+          :mi_attempt_colony_name => @mi.colony_name,
+          :production_centre_name => @mi.mi_plan.production_centre.name,
           :consortium_name => 'JAX')
         pt.save!
         plan.reload

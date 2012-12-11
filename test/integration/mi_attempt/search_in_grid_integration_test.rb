@@ -48,7 +48,7 @@ class MiAttempt::SearchInGridIntegrationTest < Kermits2::JsIntegrationTest
               mi_attempt.save!
               sleep 4
               click_button 'Search'
-              sleep 50
+              sleep 4
               [
                 'EPD0343_1_H06',
                 'Myo1c',

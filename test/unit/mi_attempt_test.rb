@@ -350,6 +350,11 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       context '#mi_plan' do
+        should 'know about its new MiAttempt without having to be manually reloaded' do
+          mi = Factory.create :mi_attempt2
+          assert_equal [mi], mi.mi_plan.mi_attempts
+        end
+
         should 'have a production centre' do
           mi_plan = Factory.create(:mi_plan)
           assert_nil mi_plan.production_centre
@@ -359,58 +364,29 @@ class MiAttemptTest < ActiveSupport::TestCase
                   mi.errors['mi_plan']
         end
 
-        should ', be reactivated, when the associated mi_attempt is active' do
-          mi_attempt = Factory.create :mi_attempt2, :is_active => false
-          mi_attempt.mi_plan.is_active = false
-          mi_attempt.mi_plan.save!
-          mi_attempt.is_active = true
-          mi_attempt.save!
-          mi_attempt.reload
-          assert_equal true, mi_attempt.mi_plan.is_active?
-        end
-
-        context 'on create' do
-          should 'know about its new MiAttempt without having to be manually reloaded' do
-            mi = Factory.create :mi_attempt2
-            assert_equal [mi], mi.mi_plan.mi_attempts
-          end
-        end
-
-        context 'when Inactive state is involved' do
+        context 'inactive status tests:' do
           setup do
-            default_mi_attempt.update_attributes!(:is_active => false)
-            default_mi_attempt.reload
-            default_mi_attempt.mi_plan.update_attributes!(:is_active => false)
-            default_mi_attempt.mi_plan.save!
+            @mi_attempt = Factory.create :public_mi_attempt, :is_active => false
           end
 
-          should 'set its status to Assigned if MI attempt is becoming active again' do
-            default_mi_attempt.update_attributes!(:is_active => true)
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-            assert_equal 'Assigned', default_mi_attempt.mi_plan.status.name
+          should 'mi_plan should be reactivated when the associated mi_attempt is active' do
+            @mi_attempt.mi_plan.is_active = false
+            @mi_attempt.mi_plan.save!
+            @mi_attempt.is_active = true
+            @mi_attempt.save!
+            @mi_attempt.reload
+            assert_equal true, @mi_attempt.mi_plan.is_active?
+            assert_equal 'Assigned', @mi_attempt.mi_plan.status.name
           end
 
           should 'not set its status to Assigned if MI attempt is not becoming active again' do
-            default_mi_attempt.save!
-            assert_equal 'Inactive', default_mi_attempt.mi_plan.status.name
-          end
-        end
+            @mi_attempt.update_attributes!(:is_active => false)
+            @mi_attempt.reload
+            @mi_attempt.mi_plan.update_attributes!(:is_active => false)
+            @mi_attempt.mi_plan.save!
 
-        should 'not be allowed to be in state "Aborted - ES Cell QC Failed" for MiAttempt to be created against it' do
-          gene = Factory.create :gene_cbx1
-          plan = TestDummy.mi_plan('BaSH', 'WTSI',
-            :gene => gene,
-            :number_of_es_cells_starting_qc => 5,
-            :number_of_es_cells_passing_qc => 0)
-          assert_equal 'Aborted - ES Cell QC Failed', plan.status.name
-          es_cell = Factory.create :es_cell, :gene => gene
-
-          mi_attempt = Factory.build :mi_attempt2, :es_cell => es_cell,
-                  :mi_plan => plan
-
-          assert_raise(ApplicationModel::BelongsToMiPlan::UnsuitableMiPlanError) do
-            mi_attempt.save!
+            @mi_attempt.save!
+            assert_equal 'Inactive', @mi_attempt.mi_plan.status.name
           end
         end
       end

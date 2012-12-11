@@ -192,8 +192,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
           object.save
         end
       end
-
-    end
+    end # context 'for MiAttempt'
 
     context 'for PhenotypeAttempt' do
       subject { PhenotypeAttempt.new }
@@ -219,7 +218,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
       public_tests
 
       context '#mi_plan and #mi_plan_id test:' do
-        should 'force #mi_plan to be assigned and active' do
+        should 'force #mi_plan to be assigned and active if children are active' do
           unused_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
 
           es_cell = Factory.create :es_cell, :gene => cbx1
@@ -235,7 +234,19 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
           conflict_plan.reload
 
           assert_true inactive_plan.has_status? :asg
+          assert_false inactive_plan.has_status? :ina
           assert_true conflict_plan.has_status? :asg
+          assert_false conflict_plan.has_status? 'ins-con'
+        end
+
+        should 'allow #mi_plan to be inactive if children are inactive' do
+          es_cell = Factory.create :es_cell, :gene => cbx1
+          inactive_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1, :is_active => false
+          assert_equal 'ina', inactive_plan.status.code
+
+          Factory.create :public_mi_attempt, :es_cell_name => es_cell.name, :mi_plan_id => inactive_plan.id, :is_active => false
+          assert_true inactive_plan.has_status? :asg
+          assert_true inactive_plan.has_status? :ina
         end
       end
     end # context 'for Public::MiAttempt'

@@ -13,7 +13,7 @@ module ApplicationModel::BelongsToMiPlan
     before_save :deal_with_unassigned_or_inactive_plans
   end
 
-  # To be overridden in Public
+  # Overridden in Public
   def set_mi_plan
     if self.kind_of? PhenotypeAttempt
       self.mi_plan ||= mi_attempt.try(:mi_plan)
@@ -26,8 +26,9 @@ module ApplicationModel::BelongsToMiPlan
   end
   protected :ensure_plan_exists
 
+  # Overridden in Public
   def deal_with_unassigned_or_inactive_plans
-    raise UnsuitableMiPlanError, 'mi_plan is not in an assigned state.  This is probably a bug, please inform the developers of this application.' unless mi_plan.assigned?
+    raise UnsuitableMiPlanError, "mi_plan is in status #{mi_plan.status.name} - it must be in an assigned state." unless mi_plan.assigned?
   end
   protected :deal_with_unassigned_or_inactive_plans
 
@@ -42,7 +43,11 @@ module ApplicationModel::BelongsToMiPlan
 
     def deal_with_unassigned_or_inactive_plans
       if ! mi_plan.assigned?
-        mi_plan.update_attributes!(:is_active => true, :force_assignment => true)
+        new_attrs = {:is_active => true, :force_assignment => true}
+        if kind_of? MiAttempt and ! is_active?
+          new_attrs.delete(:is_active)
+        end
+        mi_plan.update_attributes!(new_attrs)
       end
     end
     protected :deal_with_unassigned_or_inactive_plans

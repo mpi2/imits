@@ -101,17 +101,17 @@ class MiAttempt < ApplicationModel
   after_save :manage_status_stamps
   after_save :reload_mi_plan_mi_attempts
 
-  protected
-
   def set_total_chimeras
     self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
   end
+  protected :set_total_chimeras
 
   def set_es_cell_from_es_cell_name
     if ! self.es_cell
       self.es_cell = EsCell.find_or_create_from_marts_by_name(self.es_cell_name)
     end
   end
+  protected :set_es_cell_from_es_cell_name
 
   def set_blank_qc_fields_to_na
     QC_FIELDS.each do |qc_field|
@@ -120,6 +120,7 @@ class MiAttempt < ApplicationModel
       end
     end
   end
+  protected :set_blank_qc_fields_to_na
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?
@@ -130,12 +131,12 @@ class MiAttempt < ApplicationModel
       self.colony_name = "#{self.production_centre.name}-#{self.es_cell.name}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
+  protected :generate_colony_name_if_blank
 
   def reload_mi_plan_mi_attempts
     mi_plan.mi_attempts.reload
   end
-
-  public
+  protected :reload_mi_plan_mi_attempts
 
   # END Callbacks
 

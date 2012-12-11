@@ -26,14 +26,15 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be assignable to Genotype confirmed MiAttempt' do
-        new_mi = Factory.create :mi_attempt_genotype_confirmed,
-                :es_cell => default_phenotype_attempt.mi_attempt.es_cell
+        new_mi = Factory.create :mi_attempt2_status_gtc,
+                :es_cell => default_phenotype_attempt.es_cell,
+                :mi_plan => bash_wtsi_cbx1_plan(:gene => default_phenotype_attempt.gene, :force_assignment => true)
         default_phenotype_attempt.mi_attempt = new_mi
         default_phenotype_attempt.save!
       end
 
       should 'not be set to MiAttempt that is not Genotype confirmed' do
-        new_mi = Factory.create :mi_attempt
+        new_mi = Factory.create :mi_attempt2
         assert_equal MiAttempt::Status.micro_injection_in_progress, new_mi.status
         default_phenotype_attempt.mi_attempt = new_mi
         default_phenotype_attempt.valid?
@@ -43,7 +44,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#mi_plan' do
       should 'not be overritten by default value if it is explicitly set' do
-        mi_attempt = Factory.create :mi_attempt_genotype_confirmed
+        mi_attempt = Factory.create :mi_attempt2_status_gtc
         plan = Factory.create :mi_plan, :gene => mi_attempt.gene
         pt = Factory.create :phenotype_attempt, :mi_attempt => mi_attempt, :mi_plan => plan
         assert_equal plan, pt.mi_plan
@@ -59,43 +60,6 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         default_phenotype_attempt.mi_plan = plan
         assert ! default_phenotype_attempt.valid?
         assert_equal ['must have same gene as mi_attempt'], default_phenotype_attempt.errors[:mi_plan]
-      end
-
-      should 'get set to Assigned if not already in an assigned state' do
-        plan = Factory.create :mi_plan, :gene => default_phenotype_attempt.gene,
-                :status => MiPlan::Status['Assigned']
-        default_phenotype_attempt.mi_plan = plan
-        assert default_phenotype_attempt.save
-        plan.reload; assert_equal 'Assigned', plan.status.name
-
-        plan = Factory.create :mi_plan, :gene => default_phenotype_attempt.gene,
-                :number_of_es_cells_starting_qc => 5
-        default_phenotype_attempt.mi_plan = plan
-        assert default_phenotype_attempt.save
-        plan.reload; assert_equal 'Assigned - ES Cell QC In Progress', plan.status.name
-
-        plan = Factory.create :mi_plan, :gene => default_phenotype_attempt.gene,
-                :status => MiPlan::Status['Interest']
-        default_phenotype_attempt.mi_plan = plan
-        default_phenotype_attempt.save!
-        plan.reload; assert_equal 'Assigned', plan.status.name
-
-        plan = Factory.create :mi_plan, :gene => default_phenotype_attempt.gene,
-                :status => MiPlan::Status['Conflict']
-        default_phenotype_attempt.mi_plan = plan
-        assert default_phenotype_attempt.save
-        plan.reload; assert_equal 'Assigned', plan.status.name
-      end
-
-      should 'not be inactive if the associated phenotype_attempt is active' do
-        gene = Factory.create :gene_cbx1
-        inactive_plan = Factory.create :mi_plan, :gene => gene, :is_active => false
-        active_mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => gene)
-
-        active_pa = Factory.create :phenotype_attempt, :is_active => true, :mi_attempt => active_mi_attempt, :mi_plan => inactive_plan
-        active_pa.is_active = true
-        active_pa.save!
-        assert inactive_plan.reload.is_active?
       end
     end #mi_plan
 
@@ -208,7 +172,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be auto-generated' do
-        mi = Factory.create :mi_attempt_genotype_confirmed, :colony_name => 'ABCD123'
+        mi = Factory.create :mi_attempt2_status_gtc, :colony_name => 'ABCD123'
 
         pt = Factory.create :phenotype_attempt, :mi_attempt => mi
         assert_equal 'ABCD123-1', pt.colony_name
@@ -305,7 +269,8 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
     context '#mouse_allele_symbol' do
       setup do
         @es_cell = Factory.create :es_cell_EPD0343_1_H06
-        @mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => @es_cell
+        @mi_attempt = Factory.create :mi_attempt2_status_gtc, :es_cell => @es_cell,
+                :mi_plan => Factory.create(:mi_plan, :gene => @es_cell.gene)
         @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
         @phenotype_attempt = Factory.create :phenotype_attempt, :mi_attempt => @mi_attempt
       end

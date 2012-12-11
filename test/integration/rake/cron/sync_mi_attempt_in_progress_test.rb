@@ -8,7 +8,7 @@ module Rake
         should 'work' do
           Factory.create :user, :email => 'htgt@sanger.ac.uk'
 
-          mi1 = Factory.create :mi_attempt_genotype_confirmed,
+          mi1 = Factory.create :mi_attempt2_status_gtc,
                   :mi_date => '2011-11-01'
           replace_status_stamps(mi1,
             [
@@ -17,7 +17,7 @@ module Rake
             ]
           )
 
-          mi2 = Factory.create :mi_attempt_genotype_confirmed, :is_active => false,
+          mi2 = Factory.create :mi_attempt2_status_gtc, :is_active => false,
                   :mi_date => '2011-11-02'
           replace_status_stamps(mi2,
             [

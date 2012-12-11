@@ -38,7 +38,9 @@ class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
     end
 
     should 'allow users to withdraw mi_plans' do
-      Factory.create :mi_attempt, :consortium_name => 'DTCC', :es_cell => Factory.create(:es_cell, :gene => cbx1)
+      Factory.create :mi_attempt2,
+              :mi_plan => TestDummy.mi_plan('DTCC', 'UCD', :gene => cbx1, :force_assignment => true),
+              :es_cell => Factory.create(:es_cell, :gene => cbx1)
 
       mi_plan = Factory.create :mi_plan,
               :gene => cbx1,

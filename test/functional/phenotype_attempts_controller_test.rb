@@ -26,7 +26,7 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
       context 'POST create' do
         should 'work for JSON' do
           assert_equal 0, PhenotypeAttempt.count
-          mi = Factory.create :wtsi_mi_attempt_genotype_confirmed
+          mi = Factory.create :mi_attempt2_status_gtc
 
           attributes = {
             :mi_attempt_colony_name => mi.colony_name
@@ -39,28 +39,13 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
         end
 
         should 'fail properly for JSON' do
-          mi = Factory.create :mi_attempt
+          mi = Factory.create :mi_attempt2
 
           attributes = {
             :mi_attempt_colony_name => mi.colony_name
           }
           post :create, :phenotype_attempt => attributes, :format => :json
           assert_response 422, response.body
-        end
-
-        should 'return errors when trying to create a phenotype with no corresponding plan' do
-          mi = Factory.create :wtsi_mi_attempt_genotype_confirmed
-          assert_equal 0, PhenotypeAttempt.count
-          attributes = {
-            :mi_attempt_colony_name => mi.colony_name,
-            :consortium_name => 'BaSH',
-            :production_centre_name => 'WTSI'
-          }
-          post :create, :phenotype_attempt => attributes, :format => :json
-          assert_equal 0, PhenotypeAttempt.count
-
-          assert_response 422
-          assert ! flash[:alert].blank?
         end
       end
 
@@ -108,11 +93,11 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
           cbx1 = Factory.create :gene_cbx1
           trafd1 = Factory.create :gene_trafd1
           Factory.create :phenotype_attempt, :colony_name => 'Cbx1_A',
-                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => cbx1))
+                  :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :es_cell => Factory.create(:es_cell, :gene => cbx1), :mi_plan => Factory.create(:mi_plan_with_production_centre, :force_assignment => true,:gene => cbx1))
           Factory.create :phenotype_attempt, :colony_name => 'Cbx1_B',
-                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => cbx1))
+                  :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :es_cell => Factory.create(:es_cell, :gene => cbx1), :mi_plan => Factory.create(:mi_plan_with_production_centre, :force_assignment => true,:gene => cbx1))
           Factory.create :phenotype_attempt, :colony_name => 'Trafd1_A',
-                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => trafd1))
+                  :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :es_cell => Factory.create(:es_cell, :gene => trafd1), :mi_plan => Factory.create(:mi_plan_with_production_centre, :force_assignment => true,:gene => trafd1))
           get :index, :format => :json, :marker_symbol_eq => 'Cbx1'
           assert_equal ['Cbx1_A', 'Cbx1_B'], JSON.parse(response.body).map{|i| i['colony_name']}
         end

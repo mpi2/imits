@@ -27,7 +27,7 @@ class ReportsTest < Kermits2::IntegrationTest
 
       should 'allow users to get planned_microinjection_summary_and_conflicts reports' do
         15.times { Factory.create :mi_plan, :consortium_id => Consortium.find_by_name!('DTCC').id }
-        20.times { Factory.create :mi_attempt }
+        20.times { Factory.create :mi_attempt2 }
 
         visit '/reports'
         click_link 'Plans and Conflicts for All Consortia'
@@ -51,7 +51,7 @@ class ReportsTest < Kermits2::IntegrationTest
 
       should 'allow users to get reports of all mi_plans in the system' do
         15.times { Factory.create :mi_plan, :consortium_id => Consortium.find_by_name!('DTCC').id }
-        20.times { Factory.create :mi_attempt }
+        20.times { Factory.create :mi_attempt2 }
 
         visit '/reports'
         click_link 'All Planned Micro-Injections'

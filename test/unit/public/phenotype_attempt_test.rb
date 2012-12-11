@@ -11,7 +11,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
     context '#mi_attempt_colony_name' do
       should 'AccessAssociationByAttribute' do
-        mi = Factory.create :mi_attempt, :colony_name => 'ABCD123'
+        mi = Factory.create :mi_attempt2, :colony_name => 'ABCD123'
         default_phenotype_attempt.mi_attempt_colony_name = 'ABCD123'
         assert_equal mi, default_phenotype_attempt.mi_attempt
       end
@@ -21,14 +21,14 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'not be updateable' do
-        mi = Factory.create :mi_attempt
+        mi = Factory.create :mi_attempt2
         default_phenotype_attempt.mi_attempt_colony_name = mi.colony_name
         default_phenotype_attempt.valid?
         assert_match /cannot be changed/, default_phenotype_attempt.errors[:mi_attempt_colony_name].first
       end
 
       should 'be able to be set on create' do
-        mi = Factory.create :mi_attempt_genotype_confirmed
+        mi = Factory.create :mi_attempt2_status_gtc
         phenotype_attempt = Factory.create(:public_phenotype_attempt,
           :mi_attempt_colony_name => mi.colony_name)
         phenotype_attempt.valid?

@@ -159,7 +159,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
       month = stamp.created_at.month
       day = stamp.created_at.day
       consortium = stamp.mi_attempt.mi_plan.consortium.name
-      pcentre = stamp.mi_attempt.production_centre_name
+      pcentre = stamp.mi_attempt.production_centre.name
       pcentre = 'UNKNOWN' if pcentre.blank? || pcentre.to_s.length < 1
       next if pcentre == 'UNKNOWN'
       next if self.consortia && ! self.consortia.include?(consortium)

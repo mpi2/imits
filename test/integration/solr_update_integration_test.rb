@@ -25,8 +25,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         :allele_id => 902,
         :ikmc_project_id => '35505')
 
-      mi = Factory.create(:mi_attempt_genotype_confirmed,
-        :consortium_name => 'BaSH',
+      mi = Factory.create(:mi_attempt2_status_gtc,
+        :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => es_cell.gene, :force_assignment => true),
         :colony_background_strain => old_strain,
         :es_cell => es_cell)
 
@@ -91,7 +91,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
     end
 
     should_if_solr 'delete SOLR docs in index for mi_attempts that are deleted from the DB' do
-      mi = Factory.create :mi_attempt_genotype_confirmed
+      mi = Factory.create :mi_attempt2_status_gtc
       SolrUpdate::Queue.run
       assert_equal 1, @allele_index_proxy.search(:q => 'type:mi_attempt').size
 
@@ -118,7 +118,9 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'strain' => @new_strain.name,
         'allele_name' => phenotype_attempt.allele_symbol,
         'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image-cre",
-        'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-cre-genbank-file"
+        'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-cre-genbank-file",
+        'order_from_names' => ['WTSI'],
+        'order_from_urls' => ['mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1']
       }
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

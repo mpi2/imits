@@ -187,6 +187,10 @@ Ext.define('Imits.model.MiAttempt', {
         type: 'int',
         readOnly: true,
         persist: false
+    },
+    {
+        name: 'mi_plan_id',
+        type: 'int'
     }
     ],
 

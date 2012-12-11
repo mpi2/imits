@@ -46,8 +46,6 @@ class PhenotypeAttemptsController < ApplicationController
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
     @mi_attempt = MiAttempt.find_by_colony_name(@phenotype_attempt.mi_attempt_colony_name)
 
-    @phenotype_attempt.production_centre_name ||= current_user.production_centre.name
-
     return unless authorize_user_production_centre
 
     if ! @phenotype_attempt.valid?
@@ -112,7 +110,7 @@ class PhenotypeAttemptsController < ApplicationController
   def authorize_user_production_centre
     return true unless request.format == :json
 
-    if current_user.production_centre.name != @phenotype_attempt.production_centre_name
+    if @phenotype_attempt.production_centre_name and current_user.production_centre.name != @phenotype_attempt.production_centre_name
       render :json => {
         'error' => 'Cannot create/update phenotype attempts for other production centres'
       }, :status => 401

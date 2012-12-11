@@ -37,7 +37,6 @@ class MiAttemptsController < ApplicationController
   def create
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
-    @mi_attempt.production_centre_name ||= current_user.production_centre.name
 
     return unless authorize_user_production_centre
 
@@ -113,7 +112,7 @@ class MiAttemptsController < ApplicationController
   def authorize_user_production_centre
     return true unless request.format == :json
 
-    if current_user.production_centre.name != @mi_attempt.production_centre_name
+    if @mi_attempt.production_centre_name.present? and current_user.production_centre.name != @mi_attempt.production_centre_name
       render :json => {
         'error' => 'Cannot create/update MI attempts for other production centres'
       }, :status => 401

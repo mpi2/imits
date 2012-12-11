@@ -273,18 +273,6 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_not_equal 0, doc.xpath('count(//error)')
       end
 
-      should 'set production centre to logged in user centre' do
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-        post :create,
-                :mi_attempt => {'es_cell_name' => es_cell.name, 'consortium_name' => 'EUCOMM-EUMODIC', 'mi_date' => Date.today.to_s},
-                :format => :json
-        assert_response :success, response.body
-
-        mi_attempt = MiAttempt.first
-        assert_equal 'WTSI', mi_attempt.production_centre_name
-        assert_equal 'EUCOMM-EUMODIC', mi_attempt.consortium_name
-      end
-
       should 'authorize the MI belongs to the user\'s production centre for REST only' do
         assert_equal 'WTSI', default_user.production_centre.name
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
@@ -319,7 +307,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should "work with valid params for XML" do
-        mi_attempt = Factory.create :mi_attempt2, :total_blasts_injected => nil
+        mi_attempt = Factory.create :mi_attempt2, :mi_plan => bash_wtsi_cbx1_plan, :total_blasts_injected => nil
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'total_blasts_injected' => 1},
@@ -331,7 +319,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should "work with valid params for JSON" do
-        mi_attempt = Factory.create :mi_attempt2, :total_blasts_injected => nil
+        mi_attempt = Factory.create :mi_attempt2, :mi_plan => bash_wtsi_cbx1_plan, :total_blasts_injected => nil
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'total_blasts_injected' => 1},
@@ -345,8 +333,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       def bad_update_for_format(format)
-        Factory.create :mi_attempt2, :colony_name => 'EXISTING COLONY NAME'
-        mi_attempt = Factory.create :mi_attempt2
+        Factory.create :mi_attempt2, :colony_name => 'EXISTING COLONY NAME',
+                :mi_plan => bash_wtsi_cbx1_plan
+        mi_attempt = Factory.create :mi_attempt2,
+                :mi_plan => bash_wtsi_cbx1_plan
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'colony_name' => 'EXISTING COLONY NAME'},
@@ -367,7 +357,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'take extended_response parameter into account for JSON' do
-        mi_attempt = Factory.create(:mi_attempt2, :total_blasts_injected => nil).to_public
+        mi_attempt = Factory.create(:mi_attempt2, :mi_plan => bash_wtsi_cbx1_plan, :total_blasts_injected => nil).to_public
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'total_blasts_injected' => 1},

@@ -26,7 +26,8 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
       context 'POST create' do
         should 'work for JSON' do
           assert_equal 0, PhenotypeAttempt.count
-          mi = Factory.create :mi_attempt2_status_gtc
+          mi = Factory.create :mi_attempt2_status_gtc,
+                  :mi_plan => bash_wtsi_cbx1_plan
 
           attributes = {
             :mi_attempt_colony_name => mi.colony_name

@@ -32,6 +32,11 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
             text: 'Colony name',
             dataIndex: 'colony_name',
             width: 200
+        },
+        {
+            text: 'Sub-project',
+            dataIndex: 'sub_project_name',
+            width: 200
         }
     ],
 
@@ -72,8 +77,7 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
 
                     modelClass.load(node.data.id, {
                         success: function (object) {
-                            object.set('consortium_name', newPlanData.consortium_name);
-                            object.set('production_centre_name', newPlanData.production_centre_name);
+                            object.set('mi_plan_id', newPlanData.id);
                             object.save({
                                 success: function () {
                                     self.getStore().reload();
@@ -116,6 +120,7 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
             {name: 'colony_name', type: 'string'},
             {name: 'consortium_name', type: 'string'},
             {name: 'production_centre_name', type: 'string'},
+            {name: 'sub_project_name', type: 'string'}
         ],
 
         proxy: {

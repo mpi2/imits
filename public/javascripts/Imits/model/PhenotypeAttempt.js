@@ -54,6 +54,10 @@ Ext.define('Imits.model.PhenotypeAttempt', {
     },
     {
         name: 'phenotyping_complete'
+    },
+    {
+        name: 'mi_plan_id',
+        type: 'int'
     }
     ],
 

@@ -116,6 +116,10 @@ class ActiveSupport::TestCase
 
   def cbx1; @cbx1 ||= Factory.create(:gene_cbx1); end
 
+  def bash_wtsi_cbx1_plan(more = {})
+    @bash_wtsi_cbx1_plan ||= TestDummy.mi_plan('BaSH', 'WTSI', {:gene => cbx1}.merge(more))
+  end
+
   fixtures :all
 end
 

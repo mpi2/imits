@@ -486,6 +486,7 @@ class Gene < ActiveRecord::Base
             plan_data['children'] << create_extjs_relationship_tree_node(mi,
               'name' => 'MI Attempt',
               'colony_name' => mi.colony_name,
+              'mi_plan_id' => mi.mi_plan.id,
               'leaf' => true
             )
           end
@@ -494,6 +495,7 @@ class Gene < ActiveRecord::Base
             plan_data['children'] << create_extjs_relationship_tree_node(pa,
               'name' => 'Phenotype Attempt',
               'colony_name' => pa.colony_name,
+              'mi_plan_id' => pa.mi_plan.id,
               'leaf' => true
             )
           end

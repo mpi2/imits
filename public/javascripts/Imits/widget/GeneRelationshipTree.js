@@ -41,14 +41,11 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
     ],
 
     handleMove: function (node, oldParent, newParent) {
-        var self = this, oldPlanData = node.data, newPlanData = newParent.data;
+        var self = this, newPlanData = newParent.data;
 
-        if (!newPlanData.production_centre_name) {
-            newPlanData.production_centre_name = oldPlanData.production_centre_name;
-        }
-
-        if (newPlanData.consortium_name === node.data.consortium_name &&
-            newPlanData.production_centre_name === node.data.production_centre_name) {
+        if (newPlanData.type !== 'MiPlan') {
+            Ext.MessageBox.alert('Alert', Ext.String.format('Can only drag onto a Plan'));
+        } else if (newPlanData.id === node.data.mi_plan_id) {
             Ext.MessageBox.alert('Alert', Ext.String.format('This {0} already belongs to {1} and {2}',
                                                             node.data.name,
                                                             newPlanData.consortium_name,
@@ -56,14 +53,16 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
         } else {
             var message =
                 Ext.String.format("Updating {0} {1}<br>" +
-                                  "Old consortium / production centre: {2} / {3}<br>" +
-                                  "New consortium / production centre: {4} / {5}",
+                                  "Old consortium / production centre / plan ID: {2} / {3} / {4}<br>" +
+                                  "New consortium / production centre / plan ID: {5} / {6} / {7}<br>",
                                   node.data.name,
                                   node.data.colony_name,
-                                  oldPlanData.consortium_name,
-                                  oldPlanData.production_centre_name,
+                                  node.data.consortium_name,
+                                  node.data.production_centre_name,
+                                  node.data.mi_plan_id,
                                   newPlanData.consortium_name,
-                                  newPlanData.production_centre_name);
+                                  newPlanData.production_centre_name,
+                                  newPlanData.id);
             Ext.MessageBox.confirm('Note', message, function (button) {
                 if (button === 'yes') {
                     var modelClass;
@@ -114,6 +113,7 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
     store: Ext.create('Ext.data.TreeStore', {
         fields: [
             {name: 'id', type: 'integer'},
+            {name: 'mi_plan_id', type: 'integer'},
             {name: 'name', type: 'string'},
             {name: 'type', type: 'string'},
             {name: 'status', type: 'string'},

@@ -86,7 +86,9 @@ Seeds.load Strain, [
   {:id => 53, :name => 'C57BL/6Brd-Tyr<c-Brd>;C57BL/6N'},
   {:id => 54, :name => 'BALB/cWtsi;C57BL/6Brd-Tyr<c-Brd>'},
   {:id => 55, :name => 'C57BL/6Dnk or C57BL/6JIco or C57BL/6NTac'},
-  {:id => 56, :name => 'C57BL/6N;C57BL/6NTac'}
+  {:id => 56, :name => 'C57BL/6N;C57BL/6NTac'},
+  {:id => 57, :name => 'B6N-Tyrc/BrdCrCrl'},
+  {:id => 58, :name => 'B6N-Albino N9'}
 ]
 
 Seeds.load MiAttempt::Status, [
@@ -146,7 +148,8 @@ Seeds.load Centre, [
   {:id => 15, :name => 'MARC'},
   {:id => 16, :name => 'VETMEDUNI'},
   {:id => 17, :name => 'IMG'},
-  {:id => 18, :name => 'CNRS'}
+  {:id => 18, :name => 'CNRS'},
+  {:id => 19, :name => 'KRIBB'}
 ]
 
 Seeds.load MiPlan::Status, [
@@ -186,7 +189,8 @@ Seeds.load DeleterStrain, [
   {:id => 2, :name => 'MGI:3046308: Hprt<tm1(CMV-cre)Brd>'},
   {:id => 3, :name => 'B6N.Cg-Tg(Sox2-cre)1Amc/J'},
   {:id => 4, :name => 'Gt(ROSA)26Sor<tm16(cre)Arte>'},
-  {:id => 5, :name => 'C57BL/6NTac-Tg(ACTB-cre)3Mrt/H'}
+  {:id => 5, :name => 'C57BL/6NTac-Tg(ACTB-cre)3Mrt/H'},
+  {:id => 6, :name => 'Gt(ROSA)26Sortm1(ACTB-cre,-EGFP)Ics (MGI:5285392)'}
 ]
 
 Seeds.load MiPlan::EsQcComment, [

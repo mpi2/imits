@@ -11,7 +11,7 @@ class AuditingHistoryIntegrationTest < Kermits2::IntegrationTest
 
     context 'MI attempts' do
       should 'work' do
-        mi_attempt = Factory.create :mi_attempt, :id => 23
+        mi_attempt = Factory.create :mi_attempt2, :id => 23
         visit mi_attempt_path(mi_attempt)
         click_link 'History'
         assert_equal 'Micro-injection attempt 23 History', page.find('h2').text

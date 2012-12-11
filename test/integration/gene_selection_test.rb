@@ -76,7 +76,8 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
       end
 
       should 'allow users to delete mi_plans' do
-        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => cbx1)
+        Factory.create :mi_attempt2, :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_plan => bash_wtsi_cbx1_plan
 
         mi_plan = Factory.create :mi_plan,
                 :gene => cbx1,
@@ -102,12 +103,13 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         assert_nil MiPlan.find_by_id(mi_plan_id)
       end
 
-      should_eventually 'allow users to edit mi_plans' do
-        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => cbx1)
+      should 'allow users to edit mi_plans' do
+        Factory.create :mi_attempt2, :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                :mi_plan => bash_wtsi_cbx1_plan
 
         mi_plan = Factory.create :mi_plan,
                 :gene => cbx1,
-                :consortium => Consortium.find_by_name!('BaSH'),
+                :consortium => Consortium.find_by_name!('MGP'),
                 :production_centre => Centre.find_by_name!('WTSI')
         assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
@@ -116,7 +118,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         assert page.has_css?('.x-grid-row')
         assert_equal 1, all('a.mi-plan').size
 
-        find('a.mi-plan', :text => '[BaSH:WTSI:Inspect - MI Attempt]').click
+        find('a.mi-plan', :text => '[MGP:WTSI:Inspect - MI Attempt]').click
         assert page.has_css?('.plan.editor')
 
         fill_in 'number_of_es_cells_starting_qc', :with => '5'
@@ -125,7 +127,7 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
         assert page.has_css?('.x-message-box button')
         all('.x-message-box button').detect {|b| b.text == 'Yes'}.click
 
-        find('a.mi-plan', :text => '[BaSH:WTSI]').click
+        find('a.mi-plan', :text => '[MGP:WTSI]').click
         assert page.has_css?('.plan.editor')
 
         fill_in 'number_of_es_cells_starting_qc', :with => '10'

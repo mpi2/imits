@@ -39,8 +39,8 @@ class Reports::MiProduction::DetailTest < ActiveSupport::TestCase
     should 'be generated off the intermediate production report minus some columns' do
       cbx1 = Factory.create(:gene_cbx1)
 
-      mi = Factory.create :mi_attempt, :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI',
+      mi = Factory.create :mi_attempt2,
+              :mi_plan => bash_wtsi_cbx1_plan,
               :es_cell => Factory.create(:es_cell, :gene => cbx1)
       plan = mi.mi_plan
       plan.number_of_es_cells_passing_qc = 5; plan.save!

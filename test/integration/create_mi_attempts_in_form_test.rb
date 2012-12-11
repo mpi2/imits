@@ -6,7 +6,7 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
   context 'When creating MI Attempt in form' do
 
     setup do
-      Factory.create(:mi_attempt, :colony_name => 'MABC')
+      Factory.create(:mi_attempt2, :colony_name => 'MABC')
       login
       click_link 'Create MI Attempt'
     end

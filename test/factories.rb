@@ -99,38 +99,6 @@ Factory.define :wtsi_mi_attempt_genotype_confirmed, :parent => :mi_attempt_chime
   mi_attempt.is_released_from_genotyping true
 end
 
-# TODO Remove this, move the set up of this test data to the one test where the
-# test data is used
-Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_confirmed do |mi_attempt|
-  mi_attempt.after_create do |mi|
-    mi.status_stamps.destroy_all
-
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.genotype_confirmed,
-      :created_at => Time.parse('2011-07-07 12:00:00'))
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.micro_injection_aborted,
-      :created_at => Time.parse('2011-06-06 12:00:00'))
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.genotype_confirmed,
-      :created_at => Time.parse('2011-05-05 12:00:00'))
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.micro_injection_in_progress,
-      :created_at => Time.parse('2011-04-04 12:00:00'))
-
-    mi.mi_plan.status_stamps.first.update_attributes(:created_at => Time.parse('2011-03-03 12:00:00'))
-    mi.mi_plan.status_stamps.create!(
-      :status => MiPlan::Status[:Conflict],
-      :created_at => Time.parse('2011-02-02 12:00:00'))
-    mi.mi_plan.status_stamps.create!(
-      :status => MiPlan::Status[:Interest],
-      :created_at => Time.parse('2011-01-01 12:00:00'))
-
-    mi.mi_plan.status_stamps.reload
-    mi.status_stamps.reload
-  end
-end
-
 Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt_genotype_confirmed do |mi_attempt|
   mi_attempt.after_create do |mi|
     mi.status_stamps.destroy_all

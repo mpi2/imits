@@ -7,8 +7,10 @@ class EditMiAttemptsInFormIntegrationTest < Kermits2::JsIntegrationTest
 
     setup do
       create_common_test_objects
-      @mi_attempt = Factory.create(:mi_attempt,
-        :es_cell => EsCell.find_by_name('EPD0343_1_H06'),
+      es_cell = EsCell.find_by_name!('EPD0343_1_H06')
+      @mi_attempt = Factory.create(:mi_attempt2,
+        :es_cell => es_cell,
+        :mi_plan => Factory.create(:mi_plan_with_production_centre, :gene => es_cell.gene, :force_assignment => true),
         :mi_date => '2011-06-09',
         :date_chimeras_mated => '2011-06-02',
         :colony_name => 'MAAB',
@@ -67,33 +69,6 @@ class EditMiAttemptsInFormIntegrationTest < Kermits2::JsIntegrationTest
       assert page.has_css? '.message.alert'
       assert page.has_css? '.field_with_errors'
       assert page.has_css? '.error-message'
-    end
-
-    should_eventually 'show status change history' do
-      mi = nil
-      ApplicationModel.uncached do
-        mi = Factory.create :mi_attempt_with_status_history
-        tmp = mi.mi_plan.status_stamps.first.created_at
-        mi.mi_plan.status_stamps.first.update_attributes!(:created_at => mi.status_stamps.first.created_at)
-        mi.status_stamps.first.update_attributes!(:created_at => tmp)
-      end
-
-      visit "/mi_attempts/#{mi.id}"
-
-      [
-        ['01 Jan 2011', 'Micro-injection in progress'],
-        ['02 Feb 2011', 'Conflict'],
-        ['03 Mar 2011', 'Assigned'],
-        ['04 Apr 2011', 'Interest'],
-        ['05 May 2011', 'Genotype confirmed'],
-        ['06 Jun 2011', 'Micro-injection aborted'],
-        ['07 Jul 2011', 'Genotype confirmed']
-      ].each_with_index do |values, idx|
-        idx += 1 # due to nth-child starting index of 1
-        within("table tbody tr:nth-child(#{idx})") do
-          values.each {|i| assert page.has_css?('td', :text => i), "#{i} not found in row #{idx}"}
-        end
-      end
     end
 
     should 'not let production centre or consortium be edited' do

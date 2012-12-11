@@ -16,9 +16,9 @@ class Reports::MonthlyProductionIntegrationTest < Kermits2::IntegrationTest
 
         gene_cbx1 = Factory.create :gene_cbx1
 
-        Factory.create :wtsi_mi_attempt_genotype_confirmed,
+        Factory.create :mi_attempt2_status_gtc,
           :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
-          :consortium_name => 'MGP',
+          :mi_plan => TestDummy.mi_plan('MGP', 'WTSI', :gene => gene_cbx1, :force_assignment => true),
           :is_active => true,
           :total_pups_born => 10,
           :total_male_chimeras => 10

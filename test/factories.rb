@@ -177,7 +177,7 @@ Factory.define :randomly_populated_es_cell, :parent => :es_cell do |es_cell|
   es_cell.association :gene, :factory => :randomly_populated_gene
 end
 
-Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
+Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt2 do |mi_attempt|
   mi_attempt.blast_strain { Strain.all.sample }
   mi_attempt.test_cross_strain { Strain.all.sample }
   mi_attempt.colony_background_strain { Strain.all.sample }

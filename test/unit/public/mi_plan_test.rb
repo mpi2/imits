@@ -26,8 +26,12 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     context '#mi_attempts_count' do
       should 'be readable' do
         gene = Factory.create :gene_cbx1
-        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
-        pa = Factory.create(:phenotype_attempt, :mi_plan => nil, :mi_attempt => mi).to_public
+        mi = Factory.create(:mi_attempt2_status_gtc, 
+          :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => gene, :force_assignment => true),
+          :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+        pa = Factory.create(:phenotype_attempt,
+          :mi_plan => nil,
+          :mi_attempt => mi).to_public
         plan = pa.mi_attempt.mi_plan.to_public
         plan.reload
         assert_equal 1, plan.phenotype_attempts_count
@@ -37,8 +41,10 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     context '#phenotype_attempts_count' do
       should 'be readable' do
         gene = Factory.create :gene_cbx1
-        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
-        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1').to_public
+        mi = Factory.create(:mi_attempt2_status_gtc,
+          :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => gene, :force_assignment => true),
+          :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1', :force_assignment => true).to_public
         pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
         plan.reload
         assert_equal 1, plan.phenotype_attempts_count
@@ -102,7 +108,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'should NOT be updateable if the MiPlan has MiAttempts' do
-        mi_attempt = Factory.create(:mi_attempt).to_public
+        mi_attempt = Factory.create(:mi_attempt2).to_public
         mi_plan = mi_attempt.mi_plan.to_public
         assert_not_equal mi_plan.consortium, Consortium.find_by_name('MGP')
         mi_plan.consortium = Consortium.find_by_name('MGP')
@@ -112,9 +118,11 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
       should 'should NOT be updateable if the MiPlan has phenotype attempts' do
         gene = Factory.create :gene_cbx1
-        mi = Factory.create(:wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI', :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
+        mi = Factory.create(:mi_attempt2_status_gtc,
+          :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :force_assignment => true, :gene => gene),
+          :es_cell => Factory.create(:es_cell, :gene => gene)).to_public
 
-        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1').to_public
+        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1', :force_assignment => true).to_public
         pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
         plan.reload
 
@@ -151,8 +159,9 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'not be updateable if the MiPlan has any MiAttempts' do
-        mi = Factory.create :mi_attempt, :production_centre_name => 'WTSI'
-        plan = Public::MiPlan.find(mi.mi_plan.id)
+        plan = TestDummy.mi_plan('BaSH', 'WTSI')
+        mi = Factory.create :mi_attempt2, :mi_plan => plan
+        plan = plan.reload.to_public
         plan.production_centre_name = 'ICS'
         plan.valid?
         assert_match(/cannot be changed/, plan.errors[:production_centre_name].first)
@@ -335,9 +344,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
     context '#status_dates' do
       should 'show status stamps and their dates' do
         plan = Factory.create :mi_plan_with_production_centre
-        mi = Factory.create :mi_attempt, :consortium_name => plan.consortium.name,
-                :production_centre_name => plan.production_centre.name,
-                :es_cell => Factory.create(:es_cell, :gene => plan.gene)
+        mi = Factory.create :mi_attempt2, :mi_plan => plan
         assert_equal plan, mi.mi_plan
 
         plan = mi.mi_plan

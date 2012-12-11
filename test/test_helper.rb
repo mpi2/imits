@@ -70,7 +70,7 @@ class ActiveSupport::TestCase
     mi_attempt.is_active = true
     mi_attempt.total_male_chimeras = 1
 
-    if mi_attempt.production_centre_name == 'WTSI'
+    if mi_attempt.production_centre.try(:name) == 'WTSI'
       mi_attempt.is_released_from_genotyping = true
     else
       if mi_attempt.number_of_het_offspring.to_i == 0
@@ -83,7 +83,7 @@ class ActiveSupport::TestCase
 
   def unset_mi_attempt_genotype_confirmed(mi_attempt)
     raise 'MiAttempt must be in state Genotype confirmed' unless mi_attempt.has_status? :gtc.status
-    if mi_attempt.production_centre_name == 'WTSI'
+    if mi_attempt.production_centre.try(:name) == 'WTSI'
       mi_attempt.update_attributes!(:is_released_from_genotyping => false)
     else
       mi_attempt.update_attributes!(

@@ -236,7 +236,7 @@ end
 Factory.define :mi_attempt_distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
   distribution_centre.association :centre
   distribution_centre.association :deposited_material
-  distribution_centre.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
+  distribution_centre.association :mi_attempt, :factory => :mi_attempt2_status_gtc
 end
 
 Factory.define :phenotype_attempt_distribution_centre, :class => PhenotypeAttempt::DistributionCentre do |distribution_centre|
@@ -266,25 +266,23 @@ end
 
 Factory.define :es_cell_EPD0127_4_E01, :parent => :es_cell_EPD0127_4_E01_without_mi_attempts do |es_cell|
   es_cell.after_create do |es_cell|
-    common_attrs = {
-      :consortium_name => 'EUCOMM-EUMODIC',
-      :production_centre_name => 'ICS'
-    }
+    plan = TestDummy.mi_plan('EUCOMM-EUMODIC', 'ICS', :gene => es_cell.gene)
+    common_attrs = {:mi_plan => plan}
 
-    Factory.create(:mi_attempt,
+    Factory.create(:mi_attempt2,
       common_attrs.merge(
         :es_cell => es_cell,
         :colony_name => 'MBSS'
       )
     )
 
-    Factory.create(:mi_attempt,
+    Factory.create(:mi_attempt2,
       common_attrs.merge(
         :es_cell => es_cell
       )
     )
 
-    Factory.create(:mi_attempt,
+    Factory.create(:mi_attempt2,
       common_attrs.merge(
         :es_cell => es_cell,
         :colony_name => 'WBAA'
@@ -304,13 +302,12 @@ end
 
 Factory.define :es_cell_EPD0343_1_H06, :parent => :es_cell_EPD0343_1_H06_without_mi_attempts do |es_cell|
   es_cell.after_create do |es_cell|
-
-    Factory.create(:mi_attempt,
+    plan = TestDummy.mi_plan('EUCOMM-EUMODIC', 'WTSI', :gene => es_cell.gene)
+    Factory.create(:mi_attempt2,
       :es_cell => es_cell,
       :colony_name => 'MDCF',
-      :production_centre_name => 'WTSI',
       :mi_date => Date.parse('2010-09-13'),
-      :consortium_name => 'EUCOMM-EUMODIC'
+      :mi_plan => plan
     )
 
     es_cell.reload
@@ -324,11 +321,10 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   es_cell.pipeline { Pipeline.find_by_name! 'KOMP-CSD' }
 
   es_cell.after_create do |es_cell|
-    mi_attempt = Factory.create(:mi_attempt,
+    mi_attempt = Factory.create(:mi_attempt2,
       :es_cell => es_cell,
       :colony_name => 'MBFD',
-      :consortium_name => 'MGP',
-      :production_centre_name => 'WTSI'
+      :mi_plan => TestDummy.mi_plan('MGP', 'WTSI', :gene => es_cell.gene)
     )
     es_cell.reload
   end

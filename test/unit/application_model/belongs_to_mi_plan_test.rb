@@ -249,6 +249,23 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
           assert_true inactive_plan.has_status? :ina
         end
       end
+
+      context 'when creating with #consortium_name and #production_centre_name' do
+        should 'find an MiPlan without a production centre if one with production centre could not be found and upgrade it' do
+          plan = TestDummy.mi_plan 'BaSH', :gene => cbx1
+          assert plan.production_centre.blank?
+
+          mi = Factory.create :public_mi_attempt,
+                  :mi_plan => nil,
+                  :es_cell_name => Factory.create(:es_cell, :gene => cbx1).name,
+                  :consortium_name => 'BaSH',
+                  :production_centre_name => 'WTSI'
+
+          plan.reload
+          assert_equal plan, mi.mi_plan
+          assert_equal 'WTSI', plan.production_centre.name
+        end
+      end
     end # context 'for Public::MiAttempt'
 
     context 'for Public::PhenotypeAttempt' do

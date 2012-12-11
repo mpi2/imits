@@ -110,7 +110,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         mi = Factory.build :public_mi_attempt, :mi_plan => nil,
                 :consortium_name => 'BaSH',
                 :production_centre_name => 'WTSI',
-                :es_cell_name => es_cell_name
+                :es_cell_name => es_cell.name
         assert mi.valid?
 
         assert_true mi.generate_warnings

@@ -81,10 +81,22 @@ module ApplicationModel::BelongsToMiPlan
     protected :validate_consortium_and_production_centre_names_exist
 
     def lookup_mi_plan
-      return MiPlan.search(
+      lookup_params = {
         :production_centre_name_eq => @production_centre_name,
         :consortium_name_eq => @consortium_name,
-        :gene_id_eq => gene.id).result.first
+        :gene_id_eq => gene.id
+      }
+      plan = MiPlan.search(lookup_params).result.first
+      return plan if plan
+
+      if ! plan and kind_of? MiAttempt
+        lookup_params.delete(:production_centre_name_eq)
+        lookup_params[:production_centre_is_null] = true
+        plan = MiPlan.search(lookup_params).result.first
+        return plan if plan
+      end
+
+      return nil
     end
 
     def set_mi_plan
@@ -98,6 +110,10 @@ module ApplicationModel::BelongsToMiPlan
 
         found_plan = lookup_mi_plan
         if found_plan
+          if found_plan.production_centre.blank? and kind_of? MiAttempt
+            found_plan = MiPlan.find(found_plan)
+            found_plan.update_attributes!(:production_centre => Centre.find_by_name!(@production_centre_name))
+          end
           self.mi_plan = found_plan
         else
           self.mi_plan = MiPlan.create!(

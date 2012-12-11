@@ -22,6 +22,11 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
               :status => MiPlan::Status[:Assigned],
               :gene => cbx1
 
+      puts 'l30'
+      puts Gene.all.map(&:marker_symbol).inspect
+      puts TargRep::EsCell.all.map(&:name).inspect
+      puts '-'
+
       choose_es_cell_from_list 'Cbx1', 'EPD_10'
 
       choose_date_from_datepicker_for_input('mi_attempt[mi_date]')
@@ -43,6 +48,11 @@ class CreateMiAttemptsInFormTest < Kermits2::JsIntegrationTest
     end
 
     should 're-render form defaults filled in and validation errors when invalid data' do
+
+      puts 'l52'
+      puts Gene.all.map(&:marker_symbol).inspect
+      puts TargRep::EsCell.all.map(&:name).inspect
+      puts '-'
 
       choose_es_cell_from_list 'Auto-generated Symbol 9', 'EPD_8'
       fill_in 'mi_attempt[colony_name]', :with => 'MABC'

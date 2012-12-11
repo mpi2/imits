@@ -936,7 +936,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
       should 'return the best created active one if there are any active phenotype attempts' do
         default_mi_plan.production_centre = Centre.first
-        mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :gene => default_mi_plan.gene)
+        mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => default_mi_plan.gene))
         Factory.create :phenotype_attempt, :mi_plan => default_mi_plan, :created_at => "2011-12-03 23:59:59 UTC", :mi_attempt => mi_attempt
         Factory.create :phenotype_attempt_status_cec, :mi_plan => default_mi_plan, :created_at => "2011-12-02 23:59:59 UTC", :mi_attempt => mi_attempt
         pt = Factory.create :phenotype_attempt_status_pdc, :mi_plan => default_mi_plan, :created_at => "2011-12-01 23:59:59 UTC", :mi_attempt => mi_attempt

@@ -673,6 +673,7 @@ class GeneTest < ActiveSupport::TestCase
           'status' => 'Phenotype Attempt Registered',
           'consortium_name' => 'DTCC',
           'production_centre_name' => 'UCD',
+          'mi_plan_id' => @pa3_1.mi_plan_id,
           'leaf' => true
         }
         assert_equal expected, pa_data

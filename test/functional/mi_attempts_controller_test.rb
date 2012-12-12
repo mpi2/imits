@@ -6,7 +6,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
   context 'MiAttempt controller' do
 
     should 'require authentication with machine interface' do
-      mi_attempt = Factory.create(:mi_attempt)
+      mi_attempt = Factory.create(:mi_attempt2)
       get :show, :id => mi_attempt.id, :format => :json
       assert ! response.success?
     end
@@ -52,7 +52,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         end
 
         should 'filter by status' do
-          mi = Factory.create :mi_attempt
+          mi = Factory.create :mi_attempt2
           mi.update_attributes!(:is_active => false)
           get :index, :q => {'status_name_eq' => MiAttempt::Status.micro_injection_aborted.name}, :format => :json
           data = JSON.parse(response.body)
@@ -62,20 +62,20 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'paginate by default for JSON' do
-        200.times {Factory.create :mi_attempt}
+        200.times {Factory.create :mi_attempt2}
         get :index, :format => :json
         data = JSON.parse(response.body)
         assert_equal 20, data.size
       end
 
       should 'paginate by default for XML' do
-        200.times {Factory.create :mi_attempt}
+        200.times {Factory.create :mi_attempt2}
         get :index, :format => :xml
         assert_equal 20, response.body.scan('<mi_attempt>').size
       end
 
       should 'allow pagination' do
-        200.times {Factory.create :mi_attempt}
+        200.times {Factory.create :mi_attempt2}
         get :index, :format => :json, :per_page => 50
         data = JSON.parse(response.body)
         assert_equal 50, data.size
@@ -86,9 +86,9 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'sort by ID by default' do
-        Factory.create :mi_attempt, :id => 500
-        Factory.create :mi_attempt, :id => 20
-        Factory.create :mi_attempt, :id => 200
+        Factory.create :mi_attempt2, :id => 500
+        Factory.create :mi_attempt2, :id => 20
+        Factory.create :mi_attempt2, :id => 200
 
         get :index, 'format' => 'json'
         all_ids = JSON.parse(response.body).map {|i| i['id']}
@@ -96,9 +96,9 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'sort by other parameters' do
-        Factory.create :mi_attempt, :id => 500, :colony_name => 'EPD_001'
-        Factory.create :mi_attempt, :id => 20, :colony_name => 'EPD_003'
-        Factory.create :mi_attempt, :id => 200, :colony_name => 'EPD_002'
+        Factory.create :mi_attempt2, :id => 500, :colony_name => 'EPD_001'
+        Factory.create :mi_attempt2, :id => 20, :colony_name => 'EPD_003'
+        Factory.create :mi_attempt2, :id => 200, :colony_name => 'EPD_002'
         get :index, 'format' => 'json', 'sorts' => 'colony_name'
 
         names = JSON.parse(response.body).map {|i| i['colony_name']}
@@ -107,7 +107,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
       context 'JSON extended_response' do
         should 'be included when parameter is passed' do
-          mi = Factory.create(:mi_attempt).to_public
+          mi = Factory.create(:mi_attempt2).to_public
           get :index, :format => 'json', 'extended_response' => 'true'
           expected = {
             'mi_attempts' => [mi.as_json],
@@ -125,7 +125,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         end
 
         should 'include total MI attempts' do
-          100.times { Factory.create :mi_attempt }
+          100.times { Factory.create :mi_attempt2 }
           get :index, :format => 'json', 'extended_response' => 'true', :per_page => 25
           got = JSON.parse(response.body)
           assert_equal true, got['success']
@@ -135,17 +135,17 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
         should 'include total MI attempts from filtering' do
           found_mis = [
-            Factory.create(:mi_attempt, :colony_name => 'ABC_1'),
-            Factory.create(:mi_attempt, :colony_name => 'ABC_2'),
-            Factory.create(:mi_attempt, :colony_name => 'ABC_3'),
-            Factory.create(:mi_attempt, :colony_name => 'ABC_4'),
-            Factory.create(:mi_attempt, :colony_name => 'ABC_5'),
-            Factory.create(:mi_attempt, :colony_name => 'ABC_6'),
-            Factory.create(:mi_attempt, :colony_name => 'ABC_7'),
-            Factory.create(:mi_attempt, :colony_name => 'ABC_8'),
-            Factory.create(:mi_attempt, :colony_name => 'ABC_9')
+            Factory.create(:mi_attempt2, :colony_name => 'ABC_1'),
+            Factory.create(:mi_attempt2, :colony_name => 'ABC_2'),
+            Factory.create(:mi_attempt2, :colony_name => 'ABC_3'),
+            Factory.create(:mi_attempt2, :colony_name => 'ABC_4'),
+            Factory.create(:mi_attempt2, :colony_name => 'ABC_5'),
+            Factory.create(:mi_attempt2, :colony_name => 'ABC_6'),
+            Factory.create(:mi_attempt2, :colony_name => 'ABC_7'),
+            Factory.create(:mi_attempt2, :colony_name => 'ABC_8'),
+            Factory.create(:mi_attempt2, :colony_name => 'ABC_9')
           ]
-          Factory.create(:mi_attempt, :colony_name => 'DEF_1')
+          Factory.create(:mi_attempt2, :colony_name => 'DEF_1')
           get :index, :format => 'json', 'extended_response' => 'true', :per_page => 5, 'colony_name_cont' => 'ABC', 'sorts' => 'colony_name ASC'
           got = JSON.parse(response.body)
           assert_equal true, got['success']
@@ -159,7 +159,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
     context 'GET show' do
       setup do
         sign_in default_user
-        @mi_attempt = Factory.create(:mi_attempt).to_public
+        @mi_attempt = Factory.create(:mi_attempt2).to_public
       end
 
       should 'get one mi attempt by ID as XML' do
@@ -180,7 +180,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
     context 'GET history' do
       setup do
         sign_in default_user
-        @mi_attempt = Factory.create(:mi_attempt).to_public
+        @mi_attempt = Factory.create(:mi_attempt2).to_public
       end
 
       should 'show the history page for a given mi_attempt' do
@@ -231,7 +231,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
       should 'on validation errors redirect to edit page and show errors' do
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-        mi_attempt = Factory.create :mi_attempt, :colony_name => 'MAAB'
+        mi_attempt = Factory.create :mi_attempt2, :colony_name => 'MAAB'
         assert_equal 1, MiAttempt.count
         post :create, :mi_attempt => {
           'es_cell_name' => 'EPD0127_4_E01',
@@ -273,18 +273,6 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_not_equal 0, doc.xpath('count(//error)')
       end
 
-      should 'set production centre to logged in user centre' do
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-        post :create,
-                :mi_attempt => {'es_cell_name' => es_cell.name, 'consortium_name' => 'EUCOMM-EUMODIC', 'mi_date' => Date.today.to_s},
-                :format => :json
-        assert_response :success, response.body
-
-        mi_attempt = MiAttempt.first
-        assert_equal 'WTSI', mi_attempt.production_centre_name
-        assert_equal 'EUCOMM-EUMODIC', mi_attempt.consortium_name
-      end
-
       should 'authorize the MI belongs to the user\'s production centre for REST only' do
         assert_equal 'WTSI', default_user.production_centre.name
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
@@ -296,7 +284,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         }, :format => :json
         assert_response 401, response.body
         expected = {
-          'error' => 'Cannot create/update MI attempts for other production centres'
+          'error' => 'Cannot create/update data for other production centres'
         }
         assert_equal(expected, JSON.parse(response.body))
       end
@@ -319,7 +307,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should "work with valid params for XML" do
-        mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
+        mi_attempt = Factory.create :mi_attempt2, :mi_plan => bash_wtsi_cbx1_plan, :total_blasts_injected => nil
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'total_blasts_injected' => 1},
@@ -331,7 +319,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should "work with valid params for JSON" do
-        mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil
+        mi_attempt = Factory.create :mi_attempt2, :mi_plan => bash_wtsi_cbx1_plan, :total_blasts_injected => nil
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'total_blasts_injected' => 1},
@@ -345,8 +333,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       def bad_update_for_format(format)
-        Factory.create :mi_attempt, :colony_name => 'EXISTING COLONY NAME'
-        mi_attempt = Factory.create :mi_attempt
+        Factory.create :mi_attempt2, :colony_name => 'EXISTING COLONY NAME',
+                :mi_plan => bash_wtsi_cbx1_plan
+        mi_attempt = Factory.create :mi_attempt2,
+                :mi_plan => bash_wtsi_cbx1_plan
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'colony_name' => 'EXISTING COLONY NAME'},
@@ -367,7 +357,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'take extended_response parameter into account for JSON' do
-        mi_attempt = Factory.create(:mi_attempt, :total_blasts_injected => nil).to_public
+        mi_attempt = Factory.create(:mi_attempt2, :mi_plan => bash_wtsi_cbx1_plan, :total_blasts_injected => nil).to_public
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'total_blasts_injected' => 1},
@@ -387,15 +377,15 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
       should 'authorize the MI belongs to the user\'s production centre' do
         assert_equal 'WTSI', default_user.production_centre.name
-        mi_attempt = Factory.create :mi_attempt, :total_blasts_injected => nil,
-                :production_centre_name => 'ICS'
+        mi_attempt = Factory.create :mi_attempt2, :total_blasts_injected => nil,
+                :mi_plan => TestDummy.mi_plan('MGP', 'ICS')
 
         put :update, :id => mi_attempt.id,
                 :mi_attempt => {'total_blasts_injected' => 1},
                 :format => :json
         assert_response 401, response.status
         expected = {
-          'error' => 'Cannot create/update MI attempts for other production centres'
+          'error' => 'Cannot create/update data for other production centres'
         }
         assert_equal(expected, JSON.parse(response.body))
       end

@@ -40,7 +40,7 @@ class SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
     end
 
     should 'allow #adding model objects directly instead of just the id' do
-      mi = Factory.build :mi_attempt
+      mi = Factory.build :mi_attempt2
       mi.stubs(:id => 5)
       pa = Factory.build :phenotype_attempt
       pa.stubs(:id => 8)

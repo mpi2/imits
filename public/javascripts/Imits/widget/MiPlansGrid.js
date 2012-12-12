@@ -3,7 +3,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
 
     requires: [
     'Imits.model.MiPlan',
-    'Imits.widget.grid.MiPlanRansackFiltersFeature',
+    'Imits.widget.grid.RansackFiltersFeature',
     'Imits.widget.MiPlanEditor'
     ],
 
@@ -24,7 +24,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
 
     features: [
     {
-        ftype: 'mi_plan_ransack_filters',
+        ftype: 'ransack_filters',
         local: false
     }
     ],
@@ -61,6 +61,8 @@ Ext.define('Imits.widget.MiPlansGrid', {
         });
 
         self.addListener('afterrender', function () {
+            self.filters.createFilters();
+
             if(window.CAN_SEE_SUB_PROJECT) {
                 var subProjectColumn = Ext.Array.filter(self.columns, function (i) {
                     return i.dataIndex === 'sub_project_name';
@@ -115,7 +117,8 @@ Ext.define('Imits.widget.MiPlansGrid', {
         width: 115,
         filter: {
             type: 'list',
-            options: window.CENTRE_OPTIONS
+            options: window.CENTRE_OPTIONS,
+            value: window.USER_PRODUCTION_CENTRE
         }
     },
     {

@@ -138,10 +138,12 @@ class ApplicationController < ActionController::Base
     if request.format == :json
       error_json = {
         'error' => exception.class.name,
-        'message' => exception.message,
-        'backtrace' => exception.backtrace.join("\n")
-      }.to_json
-      render :json => error_json, :status => :internal_server_error
+        'message' => exception.message
+      }
+      unless exception.kind_of? ApplicationModel::ValidationError
+        error_json['backtrace'] = exception.backtrace.join("\n")
+      end
+      render :json => error_json.to_json, :status => :internal_server_error
       Rails.logger.error "#{exception.class.name}: #{exception.message}\n#{exception.backtrace.join("\n")}"
     else
       raise exception
@@ -162,5 +164,27 @@ class ApplicationController < ActionController::Base
     }
   end
   protected :create_attribute_documentation_for
+
+  def authorize_user_production_centre(object)
+    return true unless request.format == :json
+
+    if object.production_centre_name.present?
+      production_centre_name = object.production_centre_name
+    elsif object.mi_plan.present? and object.mi_plan.production_centre.present?
+      production_centre_name = object.mi_plan.production_centre.name
+    else
+      return true
+    end
+
+    if current_user.production_centre.name != production_centre_name
+      render :json => {
+        'error' => 'Cannot create/update data for other production centres'
+      }, :status => 401
+      return false
+    end
+
+    return true
+  end
+  protected :authorize_user_production_centre
 
 end

@@ -6,7 +6,7 @@ class QualityOverviewTest < ActiveSupport::TestCase
 
   setup do
     @es_cell = Factory.create :es_cell_EPD0343_1_H06
-    @mi_attempt = Factory.build :mi_attempt, :es_cell => @es_cell
+    @mi_attempt = Factory.build :mi_attempt2, :es_cell => @es_cell
     @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
   end
 

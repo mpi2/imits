@@ -8,7 +8,8 @@ class TestDummy
     :consortium,
     :production_centre,
     :centre,
-    :deposited_material
+    :deposited_material,
+    :sub_project
   ].freeze
 
   def self.create(type, *values)
@@ -26,14 +27,16 @@ class TestDummy
       hash_values = {}
     end
 
-    @object = Factory.build type, hash_values
     @associations = ASSOCIATIONS.dup
+    @object_class = FactoryGirl.factory_by_name(type).build_class
+    attrs_to_assign = {}
     values.each do |value|
       attr, value = get_attr_and_associated(value)
-      #if(attr)
-        @object.send("#{attr}=", value)
-      #end
+      attrs_to_assign[attr] = value
+      hash_values.delete(attr)
     end
+
+    @object = Factory.build type, hash_values.merge(attrs_to_assign)
 
     @object.save!
   end
@@ -44,7 +47,7 @@ class TestDummy
 
   def get_attr_and_associated(value)
     @associations.each do |association|
-      reflection = @object.class.reflections[association]
+      reflection = @object_class.reflections[association]
       next unless reflection
 
       associated = find_associated_by_value(reflection.klass, value)

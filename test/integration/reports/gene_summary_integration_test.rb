@@ -20,18 +20,18 @@ class Reports::GeneSummaryIntegrationTest < Kermits2::IntegrationTest
         gene_cbx1 = Factory.create :gene_cbx1
 
         gene_moo1 = Factory.create :gene,
-          :marker_symbol => 'Moo1',
-          :mgi_accession_id => 'MGI:12345'
+                :marker_symbol => 'Moo1',
+                :mgi_accession_id => 'MGI:12345'
 
-        Factory.create :wtsi_mi_attempt_genotype_confirmed,
-          :es_cell => Factory.create(:es_cell, :gene => gene_moo1),
-          :consortium_name => 'EUCOMM-EUMODIC',
-          :is_active => true
+        Factory.create :mi_attempt2_status_gtc,
+                :es_cell => Factory.create(:es_cell, :gene => gene_moo1),
+                :mi_plan => TestDummy.mi_plan('EUCOMM-EUMODIC', 'WTSI', 'Moo1'),
+                :is_active => true
 
-        Factory.create :wtsi_mi_attempt_genotype_confirmed,
-          :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
-          :consortium_name => 'EUCOMM-EUMODIC',
-          :is_active => true
+        Factory.create :mi_attempt2_status_gtc,
+                :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
+                :mi_plan => TestDummy.mi_plan('EUCOMM-EUMODIC', 'WTSI', :gene => gene_cbx1),
+                :is_active => true
 
         click_button 'Generate Report'
 

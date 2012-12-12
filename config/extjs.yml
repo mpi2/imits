@@ -1,6 +1,7 @@
 ---
-version: ext-4.0.7-gpl
-cdn_host: http://cdn.sencha.io/
+version: ext-4.1.1a-gpl
+dirname: ext-4.1.1a
+cdn_host: http://cdn.sencha.com/
 files:
 - ext-all-debug.js
 - resources/css/ext-all.css

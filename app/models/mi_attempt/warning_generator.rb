@@ -16,12 +16,12 @@ module MiAttempt::WarningGenerator
 
     return false unless new_record?
 
-    if MiAttempt.public_search(:es_cell_marker_symbol_eq => gene.marker_symbol).result.count != 0
+    if MiAttempt.search(:mi_plan_gene_marker_symbol_eq => gene.marker_symbol).result.count != 0
       add_warning :gene_already_micro_injected
       return true
     end
 
-    potential_mi_plan = find_matching_mi_plan
+    potential_mi_plan = lookup_mi_plan
     if !potential_mi_plan
       add_warning :no_interest_expressed_in_gene
       return true

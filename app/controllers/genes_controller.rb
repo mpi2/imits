@@ -1,5 +1,7 @@
 class GenesController < ApplicationController
   respond_to :json
+  respond_to :html, :json, :only => [:relationship_tree]
+
   before_filter :authenticate_user!
 
   def index
@@ -17,9 +19,21 @@ class GenesController < ApplicationController
       gv.close_write
       data = gv.read
       send_data data,
-        :filename => "#{gene.marker_symbol}network_graph.png?#{Time.now.strftime "%d%m%Y%H%M%S"}",
-        :type => 'image/png',
-        :disposition => 'inline'
+              :filename => "#{gene.marker_symbol}network_graph.png?#{Time.now.strftime "%d%m%Y%H%M%S"}",
+              :type => 'image/png',
+              :disposition => 'inline'
+    end
+  end
+
+  def relationship_tree
+    @gene = Gene.find_by_mgi_accession_id!(params[:id])
+
+    respond_to do |format|
+      format.json do
+        render :json => @gene.to_extjs_relationship_tree_structure
+      end
+
+      format.html {}
     end
   end
 

@@ -13,8 +13,6 @@ class QualityOverviewsController < ApplicationController
     @quality_overviews = QualityOverview.group(quality_overviews_sorted)
   end
 
-  protected :import
-
   def export_to_csv
 
     quality_overviews = QualityOverview.import(ALLELE_OVERALL_PASS_PATH)

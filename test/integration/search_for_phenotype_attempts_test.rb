@@ -25,11 +25,10 @@ class SearchForPhenotypeAttemptsTest < Kermits2::JsIntegrationTest
               :gene => Factory.create(:gene, :marker_symbol => 'Gatc'),
               :allele_symbol_superscript => 'tm1a(KOMP)Wtsi',
               :pipeline => Pipeline.find_by_name!('KOMP-CSD')
-      mi_attempt = Factory.create(:wtsi_mi_attempt_genotype_confirmed,
+      mi_attempt = Factory.create(:mi_attempt2_status_gtc,
         :es_cell => es_cell,
         :colony_name => 'MBFD',
-        :consortium_name => 'MGP',
-        :production_centre_name => 'WTSI'
+        :mi_plan => TestDummy.mi_plan('MGP', 'WTSI', 'Gatc', :force_assignment => true)
       )
       Factory.create :phenotype_attempt_status_pdc, :mi_attempt => mi_attempt
 

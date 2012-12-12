@@ -6,7 +6,7 @@ class MiAttemptTest < ActiveSupport::TestCase
   context 'MiAttempt' do
 
     def default_mi_attempt
-      @default_mi_attempt ||= Factory.create( :mi_attempt,
+      @default_mi_attempt ||= Factory.create(:mi_attempt2,
         :blast_strain             => Strain.find_by_name!('BALB/c'),
         :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd'),
         :test_cross_strain        => Strain.find_by_name!('129P2/OlaHsd')
@@ -29,10 +29,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_should have_many(:distribution_centres)
       end
 
-      should 'validate presence of production_centre_name' do
-        assert_should validate_presence_of :production_centre_name
-      end
-
       context '#status' do
         should 'exist' do
           assert_should have_db_column(:status_id).with_options(:null => false)
@@ -40,7 +36,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'be set to "Micro-injection in progress" by default' do
-          assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt).status.name
+          assert_equal 'Micro-injection in progress', Factory.create(:mi_attempt2).status.name
         end
 
         should ', when changed, add a status stamp' do
@@ -65,7 +61,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'always include a Micro-injection in progress status, even if MI is created in Genotype confirmed state' do
-          mi = Factory.create :mi_attempt_genotype_confirmed
+          mi = Factory.create :mi_attempt2_status_gtc
           assert_include mi.status_stamps.map {|i| i.status.code}, 'mip'
         end
       end
@@ -73,7 +69,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       context '#status_name' do
         should 'be filtered on #public_search' do
           default_mi_attempt.update_attributes!(:is_active => false)
-          mi_attempt_2 = Factory.create :mi_attempt_genotype_confirmed
+          mi_attempt_2 = Factory.create :mi_attempt2_status_gtc
           mi_ids = MiAttempt.public_search(:status_name_ci_in => MiAttempt::Status.micro_injection_aborted.name).result.map(&:id)
           assert_include mi_ids, default_mi_attempt.id
           assert ! mi_ids.include?(mi_attempt_2.id)
@@ -100,7 +96,7 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       context '#reportable_statuses_with_latest_dates' do
         should 'work' do
-          mi = Factory.create :mi_attempt
+          mi = Factory.create :mi_attempt2
 
           set_mi_attempt_genotype_confirmed(mi)
           replace_status_stamps(mi,
@@ -163,7 +159,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       context '#mouse_allele_symbol' do
         setup do
           @es_cell = Factory.create :es_cell_EPD0343_1_H06
-          @mi_attempt = Factory.build :mi_attempt, :es_cell => @es_cell
+          @mi_attempt = Factory.build :mi_attempt2, :es_cell => @es_cell
           @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
         end
 
@@ -192,13 +188,13 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'return the mouse_allele_symbol if mouse_allele_type is set' do
-          mi = Factory.build :mi_attempt, :mouse_allele_type => 'b',
+          mi = Factory.build :mi_attempt2, :mouse_allele_type => 'b',
                   :es_cell => @es_cell
           assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', mi.allele_symbol
         end
 
         should 'return the es_cell.allele_symbol if mouse_allele_type is not set' do
-          mi = Factory.build :mi_attempt, :mouse_allele_type => nil,
+          mi = Factory.build :mi_attempt2, :mouse_allele_type => nil,
                   :es_cell => @es_cell
           assert_equal 'Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>', mi.allele_symbol
         end
@@ -208,7 +204,7 @@ class MiAttemptTest < ActiveSupport::TestCase
                   :allele_symbol_superscript => nil
           assert_equal nil, es_cell.allele_symbol_superscript
 
-          mi = Factory.build :mi_attempt, :mouse_allele_type => 'c',
+          mi = Factory.build :mi_attempt2, :mouse_allele_type => 'c',
                   :es_cell => es_cell
           assert_equal nil, mi.allele_symbol
         end
@@ -292,9 +288,9 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'be unique (case insensitive)' do
-          mi_attempt = Factory.create( :mi_attempt,
+          mi_attempt = Factory.create(:mi_attempt2,
             :colony_name => 'ABCD')
-          mi_attempt2 = Factory.build( :mi_attempt,
+          mi_attempt2 = Factory.build(:mi_attempt2,
             :colony_name => 'abcd')
 
           mi_attempt2.valid?
@@ -303,14 +299,14 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'be auto-generated if not supplied' do
           es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
+          plan = TestDummy.mi_plan('EUCOMM-EUMODIC', 'ICS', :gene => es_cell.gene)
           attributes = {
             :es_cell => es_cell,
             :colony_name => nil,
-            :consortium_name => 'EUCOMM-EUMODIC',
-            :production_centre_name => 'ICS'
+            :mi_plan => plan
           }
-          mi_attempts = (1..3).to_a.map { Factory.create :mi_attempt, attributes }
-          mi_attempt_last = Factory.create :mi_attempt, attributes.merge(:colony_name => 'MABC')
+          mi_attempts = (1..3).to_a.map { Factory.create :mi_attempt2, attributes }
+          mi_attempt_last = Factory.create :mi_attempt2, attributes.merge(:colony_name => 'MABC')
 
           assert_equal ['ICS-EPD0127_4_E01-1', 'ICS-EPD0127_4_E01-2', 'ICS-EPD0127_4_E01-3'],
                   mi_attempts.map(&:colony_name)
@@ -318,30 +314,30 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'not be auto-generated if es_cell was not assigned or found' do
-          mi_attempt = Factory.build :mi_attempt, :es_cell => nil, :colony_name => nil
-          assert_false mi_attempt.save
+          mi_attempt = Factory.build :mi_attempt2, :es_cell => nil, :colony_name => nil
+          assert_false mi_attempt.valid?
           assert_nil mi_attempt.colony_name
         end
 
         should 'not be auto-generated if production centre was not assigned' do
-          mi_plan    = Factory.create :mi_plan
+          mi_plan = Factory.create :mi_plan
           assert_nil mi_plan.production_centre
 
-          mi_attempt = Factory.build :mi_attempt, :mi_plan => mi_plan, :colony_name => nil
-          assert_false mi_attempt.save
+          mi_attempt = Factory.build :mi_attempt2, :mi_plan => mi_plan, :colony_name => nil
+          assert_false mi_attempt.valid?
           assert_nil mi_attempt.colony_name
         end
 
         should 'manage trimming and spacing' do
           colony_names = [
-                          { :old => "a_dummy_colony_name_with_no_spaces", :new => "a_dummy_colony_name_with_no_spaces" },
-                          { :old => "a dummy colony name with no dodgy spaces", :new => "a dummy colony name with no dodgy spaces" },
-                          { :old => " a \t dummy   colony name with  dodgy  \t\t  spaces ", :new => "a dummy colony name with dodgy spaces" }
-                        ]
+            { :old => "a_dummy_colony_name_with_no_spaces", :new => "a_dummy_colony_name_with_no_spaces" },
+            { :old => "a dummy colony name with no dodgy spaces", :new => "a dummy colony name with no dodgy spaces" },
+            { :old => " a \t dummy   colony name with  dodgy  \t\t  spaces ", :new => "a dummy colony name with dodgy spaces" }
+          ]
 
           colony_names.each do |item|
-            mi_attempt = Factory.create( :mi_attempt, :colony_name => item[:old])
-            assert_true mi_attempt.save
+            mi_attempt = Factory.create(:mi_attempt2, :colony_name => item[:old])
+            mi_attempt.save!
             assert_equal item[:new], mi_attempt.colony_name
           end
         end
@@ -349,223 +345,23 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'have #comments' do
-        mi = Factory.create :mi_attempt, :comments => 'this is a comment'
+        mi = Factory.create :mi_attempt2, :comments => 'this is a comment'
         assert_equal 'this is a comment', mi.comments
       end
 
       context '#mi_plan' do
+        should 'know about its new MiAttempt without having to be manually reloaded' do
+          mi = Factory.create :mi_attempt2
+          assert_equal [mi], mi.mi_plan.mi_attempts
+        end
+
         should 'have a production centre' do
           mi_plan = Factory.create(:mi_plan)
           assert_nil mi_plan.production_centre
-          mi = Factory.build :mi_attempt, :mi_plan => mi_plan, :production_centre_name => 'WTSI'
+          mi = Factory.build :mi_attempt2, :mi_plan => mi_plan
           mi.valid?
           assert_equal ['must have a production centre (INTERNAL ERROR)'],
                   mi.errors['mi_plan']
-        end
-
-        should ', be reactivated, when the associated mi_attempt is active' do
-          mi_attempt = Factory.create :mi_attempt, :is_active => false
-          mi_attempt.mi_plan.is_active = false
-          mi_attempt.mi_plan.save!
-          mi_attempt.is_active = true
-          mi_attempt.save!
-          mi_attempt.reload
-          assert_equal true, mi_attempt.mi_plan.is_active?
-        end
-
-        context 'on create' do
-          should 'be set to a matching MiPlan' do
-            cbx1 = Factory.create :gene_cbx1
-            mi_plan = Factory.create :mi_plan, :gene => cbx1,
-                    :consortium => Consortium.find_by_name!('BaSH'),
-                    :production_centre => Centre.find_by_name!('WTSI'),
-                    :status => MiPlan::Status.find_by_name!('Interest')
-
-            Factory.create :mi_plan, :gene => cbx1,
-                    :consortium => Consortium.find_by_name!('BaSH'),
-                    :production_centre => nil,
-                    :status => MiPlan::Status.find_by_name!('Interest')
-
-            mi_attempt = Factory.build :mi_attempt,
-                    :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                    :production_centre_name => mi_plan.production_centre.name,
-                    :consortium_name => mi_plan.consortium.name,
-                    :mi_plan => nil
-
-            assert_no_difference("MiPlan.count") do
-              mi_attempt.save!
-            end
-
-            assert_equal mi_plan, mi_attempt.mi_plan
-          end
-
-          should 'be know about its new MiAttempt without having to be manually reloaded' do
-            mi = Factory.create :mi_attempt
-            assert_equal [mi], mi.mi_plan.mi_attempts
-          end
-
-          should ', when assigning a matching MiPlan, set its status to Assigned if it is otherwise' do
-            original_mi_plan = Factory.create :mi_plan, :gene => cbx1,
-                    :consortium => Consortium.find_by_name!('DTCC'),
-                    :production_centre => Centre.find_by_name!('UCD')
-
-            conflict_mi_plan = Factory.create :mi_plan, :gene => cbx1,
-                    :consortium => Consortium.find_by_name!('BaSH'),
-                    :production_centre => Centre.find_by_name!('WTSI')
-            assert_equal 'Inspect - Conflict', conflict_mi_plan.status.name
-
-            mi_attempt = Factory.build :mi_attempt,
-                    :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                    :production_centre_name => conflict_mi_plan.production_centre.name,
-                    :consortium_name => conflict_mi_plan.consortium.name
-
-            assert_no_difference("MiPlan.count") do
-              mi_attempt.save!
-            end
-
-            conflict_mi_plan.reload
-            assert_equal conflict_mi_plan, mi_attempt.mi_plan
-            assert_equal 'Assigned', conflict_mi_plan.status.name
-          end
-
-          should 'be created if none match gene, consortium and production centre' do
-            cbx1 = Factory.create :gene_cbx1
-            assert_blank MiPlan.search(:production_centre_name_eq => 'WTSI',
-              :consortium_name_eq => 'BaSH',
-              :es_cell_gene_marker_symbol_eq => 'Cbx1').result
-
-            mi_attempt = Factory.build :mi_attempt,
-                    :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                    :mi_plan => nil
-            mi_attempt.production_centre_name = 'WTSI'
-            mi_attempt.consortium_name = 'BaSH'
-            mi_attempt.save!
-
-            assert_equal 1, MiPlan.search(:production_centre_name_eq => 'WTSI',
-              :consortium_name_eq => 'BaSH',
-              :es_cell_gene_marker_symbol_eq => 'Cbx1').result.count
-            assert_equal 'Cbx1', mi_attempt.mi_plan.gene.marker_symbol
-            assert_equal 'WTSI', mi_attempt.mi_plan.production_centre.name
-            assert_equal 'BaSH', mi_attempt.mi_plan.consortium.name
-            assert_equal 'High', mi_attempt.mi_plan.priority.name
-            assert_equal 'Assigned', mi_attempt.mi_plan.status.name
-          end
-
-          should 'be assigned the MiPlan with specified consortium and gene but no production centre if an MiPlan with all 3 attributes does not exist - should also set the MiPlan\'s production centre to the one specified and mi_plan_status to Assigned' do
-            assert_blank MiPlan.search(:production_centre_name_eq => 'WTSI',
-              :consortium_name_eq => 'BaSH',
-              :es_cell_gene_marker_symbol_eq => 'Cbx1').result
-
-            cbx1 = Factory.create :gene_cbx1
-
-            mi_plan = Factory.create :mi_plan, :gene => cbx1,
-                    :consortium => Consortium.find_by_name!('BaSH'),
-                    :production_centre => nil,
-                    :status => MiPlan::Status.find_by_name!('Interest')
-
-            mi_attempt = Factory.build :mi_attempt,
-                    :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                    :production_centre_name => 'WTSI',
-                    :consortium_name => mi_plan.consortium.name,
-                    :mi_plan => nil
-
-            assert_no_difference("MiPlan.count") do
-              mi_attempt.save!
-            end
-
-            mi_plan.reload
-            assert_equal mi_plan, mi_attempt.mi_plan
-            assert_equal 'WTSI', mi_plan.production_centre.name
-            assert_equal 'Assigned', mi_plan.status.name
-          end
-        end
-
-        context 'on update' do
-          setup do
-            default_mi_attempt.update_attributes!(:is_active => false)
-            default_mi_attempt.reload
-            default_mi_attempt.mi_plan.update_attributes!(:is_active => false)
-            default_mi_attempt.mi_plan.save!
-          end
-
-          should 'set its status to Assigned if MI attempt is becoming active again' do
-            default_mi_attempt.update_attributes!(:is_active => true)
-            default_mi_attempt.save!
-            default_mi_attempt.reload
-            assert_equal 'Assigned', default_mi_attempt.mi_plan.status.name
-          end
-
-          should 'not set its status to Assigned if MI attempt is not becoming active again' do
-            default_mi_attempt.save!
-            assert_equal 'Inactive', default_mi_attempt.mi_plan.status.name
-          end
-
-          should 'create new MiPlan with that MiPlan logical key when consortium_name and production_centre_name changes' do
-
-            assert_blank MiPlan.search(:production_centre_name_eq => 'Harwell',
-              :consortium_name_eq => 'Phenomin').result
-
-            centre = Factory.create :centre, :name => 'Harwell'
-            mi_attempt = default_mi_attempt
-            id_old = mi_attempt.mi_plan.id
-            mi_attempt.production_centre_name = 'Harwell'
-            mi_attempt.consortium_name = 'Phenomin'
-            mi_attempt.save!
-            assert_not_equal id_old, mi_attempt.mi_plan.id
-            assert_equal 'Harwell', mi_attempt.mi_plan.production_centre.name
-            assert_equal 'Phenomin', mi_attempt.mi_plan.consortium.name
-          end
-
-          should 'grab existing MiPlan with that MiPlan logical key when consortium_name and production_centre_name changes' do
-            es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-            mi_plan = Factory.create :mi_plan, :gene => es_cell.gene,
-                    :consortium => Consortium.find_by_name!('MARC'),
-                    :production_centre => Centre.find_by_name!('VETMEDUNI'),
-                    :status => MiPlan::Status.find_by_name!('Interest')
-
-            mi_plan2 = Factory.create :mi_plan, :gene => es_cell.gene,
-                    :consortium => Consortium.find_by_name!('NorCOMM2'),
-                    :production_centre => Centre.find_by_name!('CNRS'),
-                    :status => MiPlan::Status.find_by_name!('Interest')
-
-            mi_attempt = MiAttempt.new(:es_cell => es_cell,
-              :production_centre_name => 'VETMEDUNI',
-              :consortium_name => 'MARC',
-              :mi_date => Date.today)
-
-            mi_attempt.save!
-
-            assert_equal mi_plan.id, mi_attempt.mi_plan.id
-
-            mi_attempt.production_centre_name = 'CNRS'
-            mi_attempt.consortium_name = 'NorCOMM2'
-
-            mi_attempt.save!
-
-            assert_equal mi_plan2.id, mi_attempt.mi_plan.id
-            assert_equal 'CNRS', mi_attempt.mi_plan.production_centre.name
-            assert_equal 'NorCOMM2', mi_attempt.mi_plan.consortium.name
-          end
-
-        end
-
-        should 'not be allowed to be in state "Aborted - ES Cell QC Failed" for MiAttempt to be created against it' do
-          gene = Factory.create :gene_cbx1
-          mi_plan = Factory.create :mi_plan,
-                  :gene => gene,
-                  :consortium => Consortium.find_by_name!('BaSH'),
-                  :number_of_es_cells_starting_qc => 5,
-                  :number_of_es_cells_passing_qc => 0
-          assert_equal 'Aborted - ES Cell QC Failed', mi_plan.status.name
-          es_cell = Factory.create :es_cell, :gene => gene
-
-          mi_attempt = Factory.build :mi_attempt, :es_cell => es_cell,
-                  :consortium_name => mi_plan.consortium.name,
-                  :production_centre_name => 'WTSI'
-
-          mi_attempt.valid?
-
-          assert_match 'ES cells failed QC', mi_attempt.errors[:base].join
         end
       end
 
@@ -623,12 +419,13 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
     end
 
-    context '#es_cell_name virtual attribute' do
+    context '#es_cell_name virtual attribute (TODO: move to Public::MiAttempt)' do
       setup do
-        Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts
-        Factory.create :es_cell_EPD0343_1_H06_without_mi_attempts
+        @trafd1 = Factory.create :gene_trafd1
+        @es_cell_1 = Factory.create :es_cell, :name => 'EPD0127_4_E01', :gene => @trafd1
+        @es_cell_2 = Factory.create :es_cell, :name => 'EPD0127_4_E02', :gene => @trafd1
 
-        @mi_attempt = mi = Factory.build(:mi_attempt)
+        @mi_attempt = mi = Factory.build(:mi_attempt2, :mi_plan => TestDummy.mi_plan('MGP', 'WTSI', :gene => @trafd1))
         mi.es_cell_id = nil
         mi.es_cell = nil
 
@@ -646,21 +443,23 @@ class MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be overridden by the associated es_cell\'s name if that exists' do
-        @mi_attempt.es_cell = EsCell.find_by_name('EPD0343_1_H06')
-        assert_equal 'EPD0343_1_H06', @mi_attempt.es_cell_name
+        @mi_attempt.es_cell = @es_cell_2
+        assert_equal @es_cell_2.name, @mi_attempt.es_cell_name
       end
 
       should 'not be settable if there is an associated es_cell' do
-        @mi_attempt.es_cell = EsCell.find_by_name('EPD0343_1_H06')
-        @mi_attempt.es_cell_name = 'EPD0127_4_E01'
-        assert_equal 'EPD0343_1_H06', @mi_attempt.es_cell_name
+        @mi_attempt.es_cell = @es_cell_2
+        @mi_attempt.es_cell_name = @es_cell_1.name
+        assert_equal @es_cell_2.name, @mi_attempt.es_cell_name
       end
 
       should 'pull in es_cell from marts if it is not in the DB' do
-        @mi_attempt.es_cell_name = 'EPD0029_1_G04'
+        assert_equal nil, EsCell.find_by_name('EPD0127_4_E04')
+        @mi_attempt.es_cell_name = 'EPD0127_4_E04'
         @mi_attempt.save!
 
-        assert_equal 'EPD0029_1_G04', @mi_attempt.es_cell_name
+        assert EsCell.find_by_name('EPD0127_4_E04')
+        assert_equal EsCell.find_by_name!('EPD0127_4_E04'), @mi_attempt.es_cell
       end
 
       should 'validate as missing if not set and es_cell is not set either' do
@@ -671,86 +470,38 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       should 'not validate as missing if not set but es_cell is set' do
         @mi_attempt.es_cell_name = nil
-        @mi_attempt.es_cell = EsCell.find_by_name('EPD0343_1_H06')
+        @mi_attempt.es_cell = EsCell.find_by_name('EPD0127_4_E02')
         @mi_attempt.valid?
         assert @mi_attempt.errors['es_cell_name'].blank?
       end
 
       should 'validate when es_cell_name is not a valid es_cell in the marts' do
-        mi_plan = Factory.create(:mi_plan, :production_centre => Centre.first)
-        mi_attempt = MiAttempt.new(:es_cell_name => 'EPD0127_4_G01', :mi_plan => mi_plan)
+        mi_plan = Factory.create(:mi_plan_with_production_centre)
+        mi_attempt = MiAttempt.new(:es_cell_name => 'EPD0127_4_Z99', :mi_plan => mi_plan)
         assert_false mi_attempt.valid?
         assert ! mi_attempt.errors[:es_cell_name].blank?
       end
     end
 
-    should 'have #gene' do
-      es_cell = Factory.create :es_cell_EPD0343_1_H06
-      mi = es_cell.mi_attempts.first
-      assert_equal es_cell.gene, mi.gene
-    end
+    context '#gene' do
+      should 'delegate to mi_plan if that exists' do
+        es_cell = Factory.create :es_cell
+        plan = Factory.create :mi_plan, :gene => cbx1
 
-    context '#consortium_name virtual attribute' do
-      context 'when mi_plan exists' do
-        should 'on get return mi_plan consortium name' do
-          assert_equal default_mi_attempt.mi_plan.consortium.name, default_mi_attempt.consortium_name
-        end
-
-        should 'when set on update NOT give validation error' do
-          default_mi_attempt.consortium_name = Consortium.find_by_name!('MARC').name
-          assert default_mi_attempt.valid?
-        end
+        mi = Factory.build :mi_attempt2, :es_cell => es_cell, :mi_plan => plan
+        assert_equal plan.gene, mi.gene
       end
 
-      context 'when mi_plan does not exist' do
-        should 'on get return the assigned consortium_name' do
-          mi = MiAttempt.new :consortium_name => 'Nonexistent Consortium'
-          assert_equal 'Nonexistent Consortium', mi.consortium_name
-        end
+      should 'delegate to es_cell if mi_plan does not exist but es_cell does' do
+        es_cell = Factory.create :es_cell
 
-        should 'when set to nonexistent consortium and validated give error' do
-          mi = MiAttempt.new :consortium_name => 'Nonexistent Consortium'
-          mi.valid?
-          assert_equal ['does not exist'], mi.errors['consortium_name']
-        end
-
-        should 'when set to a valid consortium and validated should not give error' do
-          mi = MiAttempt.new :consortium_name => 'BaSH'
-          mi.valid?
-          assert_blank mi.errors['consortium_name']
-        end
-      end
-    end
-
-    context '#production_centre_name virtual attribute' do
-      context 'when mi_plan exists' do
-        should 'on get return mi_plan production_centre name' do
-          assert_equal default_mi_attempt.mi_plan.production_centre.name, default_mi_attempt.production_centre_name
-        end
-
-        should 'when set on update NOT give validation error' do
-          default_mi_attempt.production_centre_name = 'WTSI'
-          assert default_mi_attempt.valid?
-        end
+        mi = Factory.build :mi_attempt2, :es_cell => es_cell, :mi_plan => nil
+        assert_equal es_cell.gene, mi.gene
       end
 
-      context 'when mi_plan does not exist' do
-        should 'on get return the assigned production_centre_name' do
-          mi = MiAttempt.new :production_centre_name => 'Nonexistent Centre'
-          assert_equal 'Nonexistent Centre', mi.production_centre_name
-        end
-
-        should 'when set to nonexistent production_centre and validated give error' do
-          mi = MiAttempt.new :production_centre_name => 'Nonexistent Centre'
-          mi.valid?
-          assert_equal ['does not exist'], mi.errors['production_centre_name']
-        end
-
-        should 'when set to a valid production_centre and validated should not give error' do
-          mi = MiAttempt.new :production_centre_name => 'ICS'
-          mi.valid?
-          assert_blank mi.errors['production_centre_name']
-        end
+      should 'be nil if neither mi_plan or es_cell exist' do
+        mi = Factory.build :mi_attempt2, :es_cell => nil, :mi_plan => nil
+        assert_equal nil, mi.gene
       end
     end
 
@@ -767,7 +518,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'validate that es_cell gene is the same as mi_plan gene' do
-      mi = Factory.create :mi_attempt
+      mi = Factory.create :mi_attempt2
       mi.mi_plan.gene = Factory.create :gene
 
       mi.valid?
@@ -776,8 +527,8 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     context '::active' do
       should 'work' do
-        10.times { Factory.create( :mi_attempt ) }
-        10.times { Factory.create( :mi_attempt, :is_active => false ) }
+        10.times { Factory.create :mi_attempt2 }
+        10.times { Factory.create :mi_attempt2, :is_active => false }
         assert_equal MiAttempt.where(:is_active => true).count, MiAttempt.active.count
         assert_equal 10, MiAttempt.active.count
       end
@@ -787,7 +538,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       the_status = MiAttempt::Status.genotype_confirmed
 
       10.times do
-        Factory.create :mi_attempt_genotype_confirmed
+        Factory.create :mi_attempt2_status_gtc
       end
 
       assert_equal 10, MiAttempt.where(:status_id => the_status.id).count
@@ -797,7 +548,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     should 'have ::in_progress' do
       the_status = MiAttempt::Status.micro_injection_in_progress
 
-      10.times { Factory.create :mi_attempt }
+      10.times { Factory.create :mi_attempt2 }
 
       assert_equal 10, MiAttempt.where(:status_id => the_status.id).count
       assert_equal 10, MiAttempt.in_progress.count
@@ -807,7 +558,7 @@ class MiAttemptTest < ActiveSupport::TestCase
       the_status = MiAttempt::Status.micro_injection_aborted
 
       10.times do
-        mi = Factory.create :mi_attempt
+        mi = Factory.create :mi_attempt2
         mi.update_attributes!(:is_active => false)
       end
 
@@ -851,8 +602,10 @@ class MiAttemptTest < ActiveSupport::TestCase
       should 'translate searching predicates' do
         es_cell = Factory.create :es_cell_EPD0127_4_E01
         Factory.create :es_cell_EPD0343_1_H06
-        Factory.create :mi_attempt, :production_centre_name => 'ICS'
-        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :gene => Gene.find_by_marker_symbol!('Trafd1'))
+        Factory.create :mi_attempt2, :mi_plan => TestDummy.mi_plan('ICS')
+        Factory.create :mi_attempt2,
+                :es_cell => Factory.create(:es_cell, :gene => Gene.find_by_marker_symbol!('Trafd1')),
+                :mi_plan => TestDummy.mi_plan('WTSI', 'Trafd1', :force_assignment => true)
         results = MiAttempt.public_search(:es_cell_marker_symbol_eq => 'Trafd1',
           :production_centre_name_eq => 'ICS').result
 
@@ -860,49 +613,6 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         colony_names = es_cell.mi_attempts.map(&:colony_name)
         assert_equal colony_names.sort, results.map(&:colony_name).sort
-      end
-    end
-
-    context '#find_matching_mi_plan' do
-      should 'return the MiPlan with production centre for this MiAttempt if it exists' do
-        gene = Factory.create :gene_cbx1
-        Factory.create :mi_plan,
-                :consortium => Consortium.find_by_name!('BaSH'),
-                :gene => gene
-        mi_plan = Factory.create :mi_plan,
-                :consortium => Consortium.find_by_name!('BaSH'),
-                :production_centre => Centre.find_by_name!('WTSI'),
-                :gene => gene
-        es_cell = Factory.create(:es_cell, :gene => gene)
-
-        mi = MiAttempt.new :consortium_name => 'BaSH',
-                :production_centre_name => 'WTSI',
-                :es_cell_name => es_cell.name
-        mi.valid? # does not matter if it passes or not, just want filters to fire
-
-        assert_nil mi.mi_plan
-        assert_equal mi_plan, mi.find_matching_mi_plan
-      end
-
-      should 'return the MiPlan without production centre for this MiAttempt, if one with does not exist' do
-        gene = Factory.create :gene_cbx1
-        mi_plan = Factory.create :mi_plan,
-                :consortium => Consortium.find_by_name!('BaSH'),
-                :gene => gene
-        es_cell = Factory.create(:es_cell, :gene => gene)
-
-        mi = MiAttempt.new :consortium_name => 'BaSH',
-                :production_centre_name => 'WTSI',
-                :es_cell_name => es_cell.name
-        mi.valid?
-
-        assert_nil mi.mi_plan
-        assert_equal mi_plan, mi.find_matching_mi_plan
-      end
-
-      should 'return nil if gene is nil' do
-        mi = MiAttempt.new
-        assert_nil mi.find_matching_mi_plan
       end
     end
 
@@ -922,13 +632,11 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     context '#in_progress_date' do
       should 'return status stamp date for in progress status' do
-        mi = Factory.create :mi_attempt_genotype_confirmed
+        mi = Factory.create :mi_attempt2_status_gtc
         replace_status_stamps(mi,
-          [
-            [MiAttempt::Status.chimeras_obtained.name, '2011-11-12 00:00 UTC'],
-            [MiAttempt::Status.micro_injection_in_progress.name, '2011-06-12 00:00 UTC'],
-            [MiAttempt::Status.genotype_confirmed.name, '2011-01-24 00:00 UTC']
-          ]
+          :chr => '2011-11-12 00:00 UTC',
+          :mip => '2011-06-12 00:00 UTC',
+          :gtc => '2011-01-24 00:00 UTC'
         )
         assert_equal Date.parse('2011-06-12'), mi.in_progress_date
       end
@@ -955,14 +663,14 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     context '#distribution_centres_formatted_display' do
       should 'output a string of distribution centre and deposited material' do
-        mi = Factory.create :mi_attempt_genotype_confirmed
         dc = TestDummy.create :mi_attempt_distribution_centre,
-              'WTSI',
-              'Live mice',
-              :start_date => '2012-01-01',
-              :end_date => '2012-01-02',
-              :is_distributed_by_emma => true,
-              :mi_attempt => mi
+                'WTSI',
+                'Live mice',
+                :start_date => '2012-01-01',
+                :end_date => '2012-01-02',
+                :is_distributed_by_emma => true
+        mi = dc.mi_attempt
+        mi.reload
         assert_equal "[EMMA, WTSI, Live mice]", mi.distribution_centres_formatted_display
       end
     end
@@ -982,11 +690,7 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     should 'handle template character in allele_symbol_superscript_template' do
-      mi_attempt = Factory.create( :mi_attempt,
-        :blast_strain             => Strain.find_by_name!('BALB/c'),
-        :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd'),
-        :test_cross_strain        => Strain.find_by_name!('129P2/OlaHsd')
-      )
+      mi_attempt = Factory.create(:mi_attempt2)
 
       assert(/Auto\-generated Symbol \d+<sup>tm1a\(EUCOMM\)Wtsi<\/sup>/ =~ mi_attempt.allele_symbol)
 
@@ -1013,6 +717,10 @@ class MiAttemptTest < ActiveSupport::TestCase
 
       assert mi_attempt.es_cell.allele_symbol_superscript_template =~ /@/
       assert mi_attempt.allele_symbol !~ /@/
+    end
+
+    should 'include BelongsToMiPlan' do
+      assert_include MiAttempt.ancestors, ApplicationModel::BelongsToMiPlan
     end
 
   end

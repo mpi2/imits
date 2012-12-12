@@ -7,10 +7,11 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
 
     setup do
       ApplicationModel.uncached do
-        @phenotype_attempt = Factory.create :phenotype_attempt_status_pdc, :colony_background_strain => Strain.find_by_name!('C57BL/6N')
-        @phenotype_attempt.mi_plan.consortium = Consortium.find_by_name('BaSH')
-        @phenotype_attempt.mi_plan.production_centre = Centre.find_by_name('WTSI')
-        @phenotype_attempt.save!
+        mi = Factory.create(:mi_attempt2_status_gtc,
+          :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI'))
+        @phenotype_attempt = Factory.create :phenotype_attempt_status_pdc,
+                :colony_background_strain => Strain.find_by_name!('C57BL/6N'),
+                :mi_attempt => mi
       end
       login
       click_link 'Phenotyping'
@@ -33,7 +34,7 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
     should 'show default values' do
       assert page.has_css? 'form.phenotype-attempt'
 
-      assert_match /ICS-Auto-generated ES Cell Name/, page.find('input[name="phenotype_attempt[mi_attempt_colony_name]"]').value
+      assert_match /WTSI-Auto-generated ES Cell Name/, page.find('input[name="phenotype_attempt[mi_attempt_colony_name]"]').value
       assert_equal "1", page.find('input[name="phenotype_attempt[rederivation_started]"]').value
       assert_equal "1", page.find('input[name="phenotype_attempt[rederivation_complete]"]').value
       assert_match "", page.find('select[name="phenotype_attempt[deleter_strain_name]"]').value

@@ -11,25 +11,25 @@ class Reports::GeneSummaryTest < ActiveSupport::TestCase
       gene_cbx1 = Factory.create :gene_cbx1
 
       gene = Factory.create :gene,
-        :marker_symbol => 'Moo1',
-        :mgi_accession_id => 'MGI:12345'
+              :marker_symbol => 'Moo1',
+              :mgi_accession_id => 'MGI:12345'
 
-      Factory.create :wtsi_mi_attempt_genotype_confirmed,
-        :es_cell => Factory.create(:es_cell, :gene => gene),
-        :consortium_name => 'MGP',
-        :is_active => true
+      Factory.create :mi_attempt2_status_gtc,
+              :es_cell => Factory.create(:es_cell, :gene => gene),
+              :mi_plan => TestDummy.mi_plan('MGP', 'WTSI', :gene => gene, :force_assignment => true),
+              :is_active => true
 
-      Factory.create :wtsi_mi_attempt_genotype_confirmed,
-        :es_cell => Factory.create(:es_cell, :gene => gene),
-        :consortium_name => 'EUCOMM-EUMODIC',
-        :is_active => true
+      Factory.create :mi_attempt2_status_gtc,
+              :es_cell => Factory.create(:es_cell, :gene => gene),
+              :mi_plan => TestDummy.mi_plan('EUCOMM-EUMODIC', 'WTSI', :gene => gene, :force_assignment => true),
+              :is_active => true
 
-      Factory.create :wtsi_mi_attempt_genotype_confirmed,
-        :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
-        :consortium_name => 'EUCOMM-EUMODIC',
-        :is_active => true
+      Factory.create :mi_attempt2_status_gtc,
+              :es_cell => Factory.create(:es_cell, :gene => gene_cbx1),
+              :mi_plan => TestDummy.mi_plan('EUCOMM-EUMODIC', 'WTSI', :gene => gene_cbx1, :force_assignment => true),
+              :is_active => true
 
-      report = Reports::GeneSummary.generate()
+      report = Reports::GeneSummary.generate
 
       assert !report.blank?
 

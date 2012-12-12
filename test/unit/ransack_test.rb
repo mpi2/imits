@@ -7,8 +7,8 @@ class RansackTest < ActiveSupport::TestCase
 
     context 'ci_in' do
       should 'work' do
-        a = Factory.create(:mi_attempt, :colony_name => 'MAAB')
-        b = Factory.create(:mi_attempt, :colony_name => 'MAAN')
+        a = Factory.create(:mi_attempt2, :colony_name => 'MAAB')
+        b = Factory.create(:mi_attempt2, :colony_name => 'MAAN')
 
         assert_equal [a, b].sort,
                 MiAttempt.search(:colony_name_ci_in => ['maab', 'maan']).result.sort

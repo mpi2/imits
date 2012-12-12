@@ -7,9 +7,9 @@ class PhenotypeAttempt < ApplicationModel
   extend AccessAssociationByAttribute
   include PhenotypeAttempt::StatusManagement
   include ApplicationModel::HasStatuses
+  include ApplicationModel::BelongsToMiPlan
 
   belongs_to :mi_attempt
-  belongs_to :mi_plan
   belongs_to :status
   belongs_to :deleter_strain
   belongs_to :colony_background_strain, :class_name => 'Strain'
@@ -24,13 +24,13 @@ class PhenotypeAttempt < ApplicationModel
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
 
-  validate :mi_attempt do |me|
+  validate do |me|
     if me.mi_attempt and me.mi_attempt.status != MiAttempt::Status.genotype_confirmed
-      me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.status.name}')")
+      me.errors.add(:mi_attempt, "Status must be 'Genotype confirmed' (is currently '#{me.mi_attempt.status.try(:name)}')")
     end
   end
 
-  validate :mi_plan do |me|
+  validate do |me|
     if me.mi_attempt and me.mi_plan and me.mi_attempt.gene != me.mi_plan.gene
       me.errors.add(:mi_plan, 'must have same gene as mi_attempt')
     end
@@ -38,17 +38,11 @@ class PhenotypeAttempt < ApplicationModel
 
   # BEGIN Callbacks
   before_validation :change_status
-  before_validation :set_mi_plan
 
   before_save :generate_colony_name_if_blank
-  before_save :ensure_plan_is_valid
 
   after_save :manage_status_stamps
   after_save :create_initial_distribution_centre
-
-  def set_mi_plan
-    self.mi_plan ||= mi_attempt.try(:mi_plan)
-  end
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?
@@ -58,17 +52,6 @@ class PhenotypeAttempt < ApplicationModel
       i += 1
       self.colony_name = "#{self.mi_attempt.colony_name}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
-  end
-
-  def ensure_plan_is_valid
-    if ! mi_plan.assigned?
-      mi_plan.force_assignment = true
-      mi_plan.save!
-    end
-    if self.is_active?
-      self.mi_plan.is_active = true
-      self.mi_plan.save!
-    end
   end
 
   def create_initial_distribution_centre
@@ -124,7 +107,17 @@ class PhenotypeAttempt < ApplicationModel
     end
   end
 
-  delegate :gene, :consortium, :production_centre, :to => :mi_plan, :allow_nil => true
+  def gene
+    if mi_plan.try(:gene)
+      return mi_plan.gene
+    elsif mi_attempt.try(:gene)
+      return mi_attempt.gene
+    else
+      return nil
+    end
+  end
+
+  delegate :consortium, :production_centre, :to => :mi_plan, :allow_nil => true
   delegate :marker_symbol, :to => :gene, :allow_nil => true
   delegate :es_cell, :allele_id, :to => :mi_attempt, :allow_nil => true
 

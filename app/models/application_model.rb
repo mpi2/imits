@@ -62,26 +62,6 @@ class ApplicationModel < ActiveRecord::Base
     return self.search(translated_params)
   end
 
-  def consortium_name_and_production_centre_name_from_mi_plan_validation
-    {
-      :consortium_name => Consortium,
-      :production_centre_name => Centre
-    }.each do |attr, klass|
-      value = send(attr)
-      next if value.blank?
-      association_name = attr.to_s.gsub('_name', '')
-
-      if mi_plan and mi_plan.send(association_name) and value != mi_plan.send(association_name).name
-        errors.add attr, 'cannot be changed'
-      else
-        associated = klass.find_by_name(value)
-        if associated.blank?
-          errors.add attr, 'does not exist'
-        end
-      end
-    end
-  end
-
   def self.audited_transaction
     ActiveRecord::Base.transaction do
       Audit.as_user(User.find_by_email! 'htgt@sanger.ac.uk') do
@@ -90,4 +70,11 @@ class ApplicationModel < ActiveRecord::Base
     end
   end
 
+  def self.to_public_class
+    return "Public::#{self.name}".constantize
+  end
+
+  def to_public
+    return self.class.to_public_class.find(self.id)
+  end
 end

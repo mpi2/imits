@@ -4,14 +4,17 @@ class PhenotypeAttempt::ViewIntegrationTest < Kermits2::JsIntegrationTest
   context 'View PhenotypeAttempt in grid tests:' do
 
     should 'display PhenotypeAttempt data' do
-      pa = Factory.create :phenotype_attempt, :deleter_strain => DeleterStrain.first, :number_of_cre_matings_successful => 12
-      pa.save!
+      mi = Factory.create :mi_attempt2_status_gtc, :mi_plan => TestDummy.mi_plan('MGP', 'ICS')
+      pa = Factory.create :phenotype_attempt_status_cec,
+              :deleter_strain => DeleterStrain.find_by_name!('MGI:3046308: Hprt'),
+              :number_of_cre_matings_successful => 12,
+              :mi_attempt => mi
       user = Factory.create :user, :production_centre => pa.mi_plan.production_centre
       login user
       visit '/phenotype_attempts'
-      sleep 2.5
+      wait_until_grid_loaded
       [
-        'EUCOMM-EUMODIC',
+        'MGP',
         'ICS',
         '12',
         'MGI:3046308: Hprt'

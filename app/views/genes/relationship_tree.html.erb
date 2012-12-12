@@ -1,0 +1,21 @@
+<% @title = "Relationship tree for #{@gene.marker_symbol}" %>
+
+<% content_for :pre_js_footer do %>
+  <%= javascript_tag "CONSORTIA = #{Consortium.order(:name).all.map(&:name).to_json}" %>
+  <%= javascript_tag "CENTRES = #{Centre.order(:name).all.map(&:name).to_json}" %>
+  <%= javascript_tag "GENE = #{@gene.to_json}" %>
+<% end %>
+
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag 'genes/relationship_tree' %>
+<% end %>
+
+<h2><%= @title %></h2>
+
+<div class="grid_2">&nbsp;</div>
+
+<div class="grid_8">
+  <div id="relationship-tree"></div>
+</div>
+
+<div class="grid_2">&nbsp;</div>

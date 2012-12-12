@@ -2,9 +2,10 @@
 
 class Public::PhenotypeAttempt < ::PhenotypeAttempt
 
-  extend AccessAssociationByAttribute
-  include Public::Serializable
-  include Public::DistributionCentresAttributes
+  extend ::AccessAssociationByAttribute
+  include ::Public::Serializable
+  include ::Public::DistributionCentresAttributes
+  include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
     colony_name
@@ -22,6 +23,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     distribution_centres_attributes
     colony_background_strain_name
     cre_excision_required
+    mi_plan_id
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -42,7 +44,6 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   access_association_by_attribute :deleter_strain, :name
 
   validates :mi_attempt_colony_name, :presence => true
-  validates :mi_plan, :presence => {:message => 'cannot be found with supplied parameters.  Please either create it first or check consortium_name and/or production_centre_name supplied'}
 
   validate do |me|
     if me.changed.include?('mi_attempt_id') and ! me.new_record?
@@ -50,66 +51,11 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     end
   end
 
-  validate :consortium_name_and_production_centre_name_from_mi_plan_validation
-
   # BEGIN Callbacks
-
-  def set_mi_plan
-    return if mi_plan
-    return if mi_attempt.nil?
-
-    if production_centre_name
-      centre_to_set = Centre.find_by_name(production_centre_name)
-    else
-      centre_to_set = mi_attempt.production_centre
-    end
-
-    if consortium_name
-      consortium_to_set = Consortium.find_by_name(consortium_name)
-    else
-      consortium_to_set = mi_attempt.consortium
-    end
-
-    if centre_to_set and consortium_to_set and mi_attempt.gene
-      self.mi_plan = MiPlan.where(
-        :gene_id => mi_attempt.gene.id,
-        :production_centre_id => centre_to_set.id,
-        :consortium_id => consortium_to_set.id
-      ).first
-    end
-  end
 
   # END Callbacks
 
   def status_name; status.name; end
-
-  def consortium_name
-    if ! @consortium_name.blank?
-      return @consortium_name
-    else
-      if self.mi_plan
-        @consortium_name = consortium.name
-      end
-    end
-  end
-
-  def consortium_name=(arg)
-    @consortium_name = arg
-  end
-
-  def production_centre_name
-    if ! @production_centre_name.blank?
-      return @production_centre_name
-    else
-      if self.mi_plan
-        @production_centre_name = production_centre.try(:name)
-      end
-    end
-  end
-
-  def production_centre_name=(arg)
-    @production_centre_name = arg
-  end
 
   def self.translations
     return {

@@ -1,7 +1,12 @@
 Kermits2::Application.routes.draw do
   root :to => "root#index"
 
-  resources :genes, :only => [:index]
+  resources :genes, :only => [:index] do
+    member do
+      get 'network_graph'
+      get 'relationship_tree'
+    end
+  end
 
   resources :mi_plans do
     collection do
@@ -53,7 +58,6 @@ Kermits2::Application.routes.draw do
 
   resources :sub_projects, :only => [:index, :create, :destroy]
 
-  match 'gene/:id/network_graph' => "genes#network_graph"
   match 'quality_overviews' => "quality_overviews#index"
   match 'quality_overview_groupings' => "quality_overview_groupings#index"
   match 'quality_overviews/export_to_csv' => "quality_overviews#export_to_csv"

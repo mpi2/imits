@@ -193,8 +193,6 @@ class Gene < ActiveRecord::Base
     return @selected_status
   end
 
-  private
-
   def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_id = nil)
     sql = <<-"SQL"
       SELECT
@@ -264,8 +262,6 @@ class Gene < ActiveRecord::Base
 
     return genes
   end
-
-  public
 
   # END Helper functions for clean reporting
 
@@ -438,8 +434,6 @@ class Gene < ActiveRecord::Base
 
   attr_protected *PRIVATE_ATTRIBUTES
 
-  private
-
   def default_serializer_options(options = {})
     options ||= {}
     options.symbolize_keys!
@@ -454,6 +448,64 @@ class Gene < ActiveRecord::Base
     ]
     options[:except] ||= PRIVATE_ATTRIBUTES.dup + []
     return options
+  end
+  private :default_serializer_options
+
+  def create_extjs_relationship_tree_node(object, extra_attributes = {})
+    return {
+      'id' => object.id,
+      'type' => object.class.name,
+      'status' => object.status.name,
+      'consortium_name' => object.consortium.name,
+      'production_centre_name' => object.production_centre.name
+    }.merge(extra_attributes)
+  end
+  protected :create_extjs_relationship_tree_node
+
+  def to_extjs_relationship_tree_structure
+    retval = []
+
+    mi_plans.group_by {|i| i.consortium.name}.each do |consortium_name, consortium_mi_plans|
+
+      consortium_group = {'name' => consortium_name, 'consortium_name' => consortium_name, 'type' => 'Consortium', 'children' => []}
+      retval << consortium_group
+
+      consortium_mi_plans.group_by {|i| i.production_centre.name}.each do |production_centre_name, fully_grouped_mi_plans|
+
+        centre_group = {'name' => production_centre_name, 'type' => 'Centre', 'consortium_name' => consortium_name, 'production_centre_name' => production_centre_name, 'children' => []}
+        consortium_group['children'] << centre_group
+
+        fully_grouped_mi_plans.each do |plan|
+          plan_data = create_extjs_relationship_tree_node(plan,
+            'name' => 'Plan',
+            'sub_project_name' => plan.sub_project.name,
+            'children' => []
+          )
+          centre_group['children'] << plan_data
+
+          plan.mi_attempts.each do |mi|
+            plan_data['children'] << create_extjs_relationship_tree_node(mi,
+              'name' => 'MI Attempt',
+              'colony_name' => mi.colony_name,
+              'mi_plan_id' => mi.mi_plan.id,
+              'leaf' => true
+            )
+          end
+
+          plan.phenotype_attempts.each do |pa|
+            plan_data['children'] << create_extjs_relationship_tree_node(pa,
+              'name' => 'Phenotype Attempt',
+              'colony_name' => pa.colony_name,
+              'mi_plan_id' => pa.mi_plan.id,
+              'leaf' => true
+            )
+          end
+        end
+
+      end
+    end
+
+    return retval
   end
 
 end

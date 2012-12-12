@@ -603,7 +603,7 @@ class GeneTest < ActiveSupport::TestCase
         @mi3_1 = Factory.create(:mi_attempt2_status_gtc, :mi_plan => @plan3)
         @pa3_1 = Factory.create(:phenotype_attempt, :mi_plan => @plan3, :mi_attempt => @mi3_1, :colony_name => 'PA3_1')
 
-        @plan4 = TestDummy.mi_plan('Cbx1', 'Helmholtz GMC', 'HMGU')
+        @plan4 = TestDummy.mi_plan('Cbx1', 'Helmholtz GMC', 'HMGU', 'MGPinterest')
       end
 
       should 'add data to consortia and production centres correctly' do
@@ -629,6 +629,7 @@ class GeneTest < ActiveSupport::TestCase
           'status' => 'Inspect - GLT Mouse',
           'consortium_name' => 'Helmholtz GMC',
           'production_centre_name' => 'HMGU',
+          'sub_project_name' => @plan4.sub_project.name,
           'children' => []
         }
         assert_equal expected, plan_data

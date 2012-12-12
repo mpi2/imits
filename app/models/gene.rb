@@ -478,6 +478,7 @@ class Gene < ActiveRecord::Base
         fully_grouped_mi_plans.each do |plan|
           plan_data = create_extjs_relationship_tree_node(plan,
             'name' => 'Plan',
+            'sub_project_name' => plan.sub_project.name,
             'children' => []
           )
           centre_group['children'] << plan_data

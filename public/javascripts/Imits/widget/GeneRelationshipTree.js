@@ -24,6 +24,11 @@ Ext.define('Imits.widget.GeneRelationshipTree', {
             flex: 1
         },
         {
+            text: 'ID',
+            dataIndex: 'id',
+            hidden: true
+        },
+        {
             text: 'Status',
             dataIndex: 'status',
             width: 200

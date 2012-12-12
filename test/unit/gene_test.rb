@@ -651,7 +651,7 @@ class GeneTest < ActiveSupport::TestCase
           'status' => 'Micro-injection aborted',
           'consortium_name' => 'BaSH',
           'production_centre_name' => 'WTSI',
-          'mi_plan_id' => @mi1_2.id,
+          'mi_plan_id' => @mi1_2.mi_plan_id,
           'leaf' => true
         }
         assert_equal expected, mi_data

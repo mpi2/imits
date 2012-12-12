@@ -1,6 +1,13 @@
-<div id="userbox">
-  <div id="userbox-inner">
-    You are logged in as <%= current_user.email %><br/>
-    <%= link_to 'Edit profile', user_path %> | <%= link_to 'Logout', destroy_user_session_path %>
-  </div>
-</div>
+<% if user_signed_in? %>
+  You are logged in as <%= current_user.email %><br/>
+  <%= link_to 'Edit profile', user_path %> | <%= link_to 'Logout', destroy_user_session_path %>
+
+  <% if controller.controller_name == 'welcome' -%>
+    | <%= link_to 'Go to iMits', root_path %>
+  <% else -%>
+    | <%= link_to 'Go to TargRep', targ_rep_root_path %>
+  <% end -%>
+
+<% else %>
+  <%= link_to "login", new_user_session_path, :class => "ss_sprite ss_key" %>
+<% end %>

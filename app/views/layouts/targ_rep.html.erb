@@ -21,16 +21,13 @@
     <div id="header" class="grid_8">
       <h1><%= link_to "IKMC Targeting Repository", targ_rep_root_path %></h1>
     </div>
+    
     <div id="userbox" class="grid_3 prefix_1">
       <div id="userbox-inner" class="box">
-        <% if user_signed_in? %>
-          <%= link_to "profile (#{current_user.email})", user_path(:redirect => 'targ_rep'), :class => "ss_sprite ss_user" %> |
-          <%= link_to "logout", destroy_user_session_path, :method => :delete, :class => "ss_sprite ss_door_open" %>
-        <% else %>
-          <%= link_to "login", new_user_session_path, :class => "ss_sprite ss_key" %>
-        <% end %>
+        <%= render '/layouts/userbox' %>
       </div>
     </div>
+
   </div>
 
   <div class="container_12">

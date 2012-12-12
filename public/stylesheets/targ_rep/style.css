@@ -6,7 +6,8 @@ body {
 
 #header {
   padding: 15px 0 0;
-  margin-bottom: 1px;
+  margin-top:10px;
+  width:56.33%;
 }
 
 #navigation {
@@ -26,14 +27,17 @@ body {
 }
 
 #userbox {
-  padding-top: 15px;
+  width:31.3%;
+  margin-top:10px;
+  padding-top:5px;
+  margin-bottom:15px;
 }
 
 #userbox-inner {
   -webkit-border-radius: 5px;
   border: 1px solid #ccc;
   background-color: #e7ecfb;
-  padding: 10px;
+  padding: 5px 0;
   text-align: center;
 }
 

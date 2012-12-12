@@ -74,10 +74,9 @@ class MiAttemptsController < ApplicationController
     @mi_attempt = Public::MiAttempt.find(params[:id])
     return unless authorize_user_production_centre(@mi_attempt)
 
-    @mi_attempt.attributes = params[:mi_attempt]
     @mi_attempt.updated_by = current_user
 
-    if @mi_attempt.save
+    if @mi_attempt.update_attributes(params[:mi_attempt])
       @mi_attempt.reload
       flash.now[:notice] = 'MI attempt updated successfully'
     end

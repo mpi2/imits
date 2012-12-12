@@ -239,6 +239,22 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
           assert_false conflict_plan.has_status? 'ins-con'
         end
 
+        should 'set target mi_plan to assigned when moving it to that one' do
+          old_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+          mi = Factory.create(:mi_attempt2, :mi_plan => old_plan).to_public
+
+          es_cell = Factory.create :es_cell, :gene => cbx1
+          new_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+          assert_equal 'ins-mip', new_plan.status.code
+
+          mi = Public::MiAttempt.find(mi.id)
+          assert_equal old_plan.id, mi.mi_plan.id # DO NOT REMOVE THIS LINE
+          mi.attributes = {'mi_plan_id' => new_plan.id}
+          assert mi.save
+          new_plan.reload
+          assert_equal 'asg', new_plan.status.code
+        end
+
         should 'allow #mi_plan to be inactive if children are inactive' do
           es_cell = Factory.create :es_cell, :gene => cbx1
           inactive_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1, :is_active => false

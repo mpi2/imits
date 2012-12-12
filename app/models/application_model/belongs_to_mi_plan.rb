@@ -42,6 +42,7 @@ module ApplicationModel::BelongsToMiPlan
     end # included
 
     def deal_with_unassigned_or_inactive_plans
+      mi_plan.reload
       if ! mi_plan.assigned?
         new_attrs = {:is_active => true, :force_assignment => true}
         if kind_of? MiAttempt and ! is_active?
@@ -100,8 +101,8 @@ module ApplicationModel::BelongsToMiPlan
     end
 
     def set_mi_plan
+      mi_plan.try(:reload)
       if @production_centre_name.present? and @consortium_name.present? and gene.present?
-
         if mi_plan.present? and
                   mi_plan.consortium.name == @consortium_name and
                   mi_plan.production_centre.name == @production_centre_name

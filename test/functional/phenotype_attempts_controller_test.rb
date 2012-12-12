@@ -48,11 +48,25 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
           post :create, :phenotype_attempt => attributes, :format => :json
           assert_response 422, response.body
         end
+
+        should 'authorize the phenotype attempt belongs to the user\'s production centre' do
+          assert_equal 'WTSI', default_user.production_centre.name
+          mi_attempt = Factory.create :mi_attempt2_status_gtc,
+                  :mi_plan => TestDummy.mi_plan('MGP', 'ICS')
+
+          post :create, :phenotype_attempt => {'mi_attempt_colony_name' => mi_attempt.colony_name, 'consortium_name' => 'BaSH', 'production_centre_name' => 'ICS'},
+                  :format => :json
+          assert_response 401, response.status
+          expected = {
+            'error' => 'Cannot create/update data for other production centres'
+          }
+          assert_equal(expected, JSON.parse(response.body))
+        end
       end
 
       context 'PUT update' do
         should 'work for JSON' do
-          pt = Factory.create(:phenotype_attempt).to_public
+          pt = Factory.create(:phenotype_attempt, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => bash_wtsi_cbx1_plan)).to_public
           assert pt.is_active?
           put :update, :id => pt.id, :phenotype_attempt => {:is_active => false},
                   :format => :json
@@ -62,7 +76,7 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
         end
 
         should 'fail properly for JSON' do
-          pt = Factory.create(:phenotype_attempt).to_public
+          pt = Factory.create(:phenotype_attempt, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => bash_wtsi_cbx1_plan)).to_public
           assert pt.is_active?
           put :update, :id => pt.id, :phenotype_attempt => {:consortium_name => 'Nonexistent'},
                   :format => :json

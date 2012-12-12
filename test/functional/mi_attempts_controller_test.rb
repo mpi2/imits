@@ -284,7 +284,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
         }, :format => :json
         assert_response 401, response.body
         expected = {
-          'error' => 'Cannot create/update MI attempts for other production centres'
+          'error' => 'Cannot create/update data for other production centres'
         }
         assert_equal(expected, JSON.parse(response.body))
       end

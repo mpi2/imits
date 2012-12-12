@@ -38,7 +38,7 @@ class MiAttemptsController < ApplicationController
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
 
-    return unless authorize_user_production_centre
+    return unless authorize_user_production_centre(@mi_attempt)
 
     if ! @mi_attempt.valid?
       flash.now[:alert] = 'Micro-injection could not be created - please check the values you entered'
@@ -72,10 +72,10 @@ class MiAttemptsController < ApplicationController
 
   def update
     @mi_attempt = Public::MiAttempt.find(params[:id])
+    return unless authorize_user_production_centre(@mi_attempt)
+
     @mi_attempt.attributes = params[:mi_attempt]
     @mi_attempt.updated_by = current_user
-
-    return unless authorize_user_production_centre(@mi_attempt)
 
     if @mi_attempt.save
       @mi_attempt.reload

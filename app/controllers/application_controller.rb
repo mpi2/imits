@@ -168,7 +168,15 @@ class ApplicationController < ActionController::Base
   def authorize_user_production_centre(object)
     return true unless request.format == :json
 
-    if object.production_centre.name.present? and current_user.production_centre.name != object.production_centre.name
+    if object.production_centre_name.present?
+      production_centre_name = object.production_centre_name
+    elsif object.mi_plan.present? and object.mi_plan.production_centre.present?
+      production_centre_name = object.mi_plan.production_centre.name
+    else
+      return true
+    end
+
+    if current_user.production_centre.name != production_centre_name
       render :json => {
         'error' => 'Cannot create/update data for other production centres'
       }, :status => 401

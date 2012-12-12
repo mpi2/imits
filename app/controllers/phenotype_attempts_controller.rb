@@ -46,6 +46,8 @@ class PhenotypeAttemptsController < ApplicationController
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
     @mi_attempt = MiAttempt.find_by_colony_name(@phenotype_attempt.mi_attempt_colony_name)
 
+    return unless authorize_user_production_centre(@phenotype_attempt)
+
     if ! @phenotype_attempt.valid?
       plan_error = @phenotype_attempt.errors[:mi_plan].find { |e| /cannot be found with supplied parameters/ =~ e}
       if plan_error != nil
@@ -68,9 +70,10 @@ class PhenotypeAttemptsController < ApplicationController
 
   def update
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
-    @phenotype_attempt.update_attributes(params[:phenotype_attempt])
 
     return unless authorize_user_production_centre(@phenotype_attempt)
+
+    @phenotype_attempt.update_attributes(params[:phenotype_attempt])
 
     respond_with @phenotype_attempt do |format|
       format.html do

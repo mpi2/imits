@@ -72,40 +72,6 @@ Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_p
   end
 end
 
-Factory.define :mi_attempt do |mi_attempt|
-  mi_attempt.association :es_cell
-  mi_attempt.consortium_name 'EUCOMM-EUMODIC'
-  mi_attempt.production_centre_name 'WTSI'
-  mi_attempt.mi_date { Date.today }
-end
-
-Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_attempt|
-  mi_attempt.total_male_chimeras 1
-end
-
-# Pass in :mi_plan => nil if you want to pass in production_centre_name and consortium_name
-Factory.define :public_mi_attempt, :class => Public::MiAttempt do |mi_attempt|
-  mi_attempt.association(:mi_plan, :factory => :mi_plan_with_production_centre)
-  mi_attempt.es_cell_name do |i|
-    if i.mi_plan.try(:gene)
-      Factory.create(:es_cell, :gene => i.mi_plan.gene).name
-    else
-      Factory.create(:es_cell).name
-    end
-  end
-  mi_attempt.mi_date { Date.today }
-end
-
-Factory.define :mi_attempt_genotype_confirmed, :parent => :mi_attempt_chimeras_obtained do |mi_attempt|
-  mi_attempt.production_centre_name 'ICS'
-  mi_attempt.number_of_het_offspring 1
-end
-
-Factory.define :wtsi_mi_attempt_genotype_confirmed, :parent => :mi_attempt_chimeras_obtained do |mi_attempt|
-  mi_attempt.production_centre_name 'WTSI'
-  mi_attempt.is_released_from_genotyping true
-end
-
 Factory.define :mi_attempt2, :class => MiAttempt do |mi_attempt|
   mi_attempt.association :mi_plan, :factory => :mi_plan_with_production_centre
   mi_attempt.es_cell { |mi| Factory.create(:es_cell, :gene => mi.mi_plan.gene) }
@@ -149,6 +115,19 @@ Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt2_s
     mi.mi_plan.status_stamps.reload
     mi.status_stamps.reload
   end
+end
+
+# Pass in :mi_plan => nil if you want to pass in production_centre_name and consortium_name
+Factory.define :public_mi_attempt, :class => Public::MiAttempt do |mi_attempt|
+  mi_attempt.association(:mi_plan, :factory => :mi_plan_with_production_centre)
+  mi_attempt.es_cell_name do |i|
+    if i.mi_plan.try(:gene)
+      Factory.create(:es_cell, :gene => i.mi_plan.gene).name
+    else
+      Factory.create(:es_cell).name
+    end
+  end
+  mi_attempt.mi_date { Date.today }
 end
 
 Factory.define :phenotype_attempt do |phenotype_attempt|

@@ -76,20 +76,23 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
       end
 
       should 'allow users to delete mi_plans' do
-        Factory.create :mi_attempt2, :es_cell => Factory.create(:es_cell, :gene => cbx1),
-                :mi_plan => bash_wtsi_cbx1_plan
+        mi_plan = nil
+        ApplicationModel.uncached do
+          Factory.create :mi_attempt2, :es_cell => Factory.create(:es_cell, :gene => cbx1),
+                  :mi_plan => bash_wtsi_cbx1_plan
 
-        mi_plan = Factory.create :mi_plan,
-                :gene => cbx1,
-                :consortium => Consortium.find_by_name!('BaSH'),
-                :production_centre => Centre.find_by_name!('WTSI')
-        assert_equal 'Inspect - MI Attempt', mi_plan.status.name
+          mi_plan = Factory.create :mi_plan,
+                  :gene => cbx1,
+                  :consortium => Consortium.find_by_name!('MGP'),
+                  :production_centre => Centre.find_by_name!('ICS')
+          assert_equal 'Inspect - MI Attempt', mi_plan.status.name
+        end
 
         mi_plan_id = mi_plan.id
 
         visit '/mi_plans/gene_selection'
 
-        assert page.has_css?('a.mi-plan', :text => '[BaSH:WTSI:Inspect - MI Attempt]')
+        assert page.has_css?('a.mi-plan', :text => '[MGP:ICS:Inspect - MI Attempt]')
         assert_equal 1, all('a.mi-plan').size
 
         find('a.mi-plan').click
@@ -99,8 +102,9 @@ class GeneSelectionTest < Kermits2::JsIntegrationTest
 
         assert_equal 0, all('a.mi-plan').size
 
-        sleep 3
-        assert_nil MiPlan.find_by_id(mi_plan_id)
+        ApplicationModel.uncached do
+          assert_nil MiPlan.find_by_id(mi_plan_id)
+        end
       end
 
       should 'allow users to edit mi_plans' do

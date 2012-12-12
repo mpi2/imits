@@ -1,15 +1,5 @@
 #encoding: utf-8
 
-##
-##  Factory helpers - From TargRep
-##
-Factory.sequence(:pgdgr_plate_name) { |n| "PGDGR_#{n}" }
-Factory.sequence(:epd_plate_name)   { |n| "EPD_#{n}" }
-Factory.sequence(:ikmc_project_id)  { |n| "project_000#{n}" }
-Factory.sequence(:mgi_allele_id)    { |n| "MGI:#{n}" }
-Factory.sequence(:centre_name)   { |n| "Centre_#{n}" }
-
-
 Factory.define :user do |user|
   user.sequence(:email) { |n| "user#{n}@example.com" }
   user.password 'password'
@@ -30,18 +20,16 @@ end
 ##
 
 Factory.define :es_cell, :class => TargRep::EsCell do |f|
-  f.name                { Factory.next(:epd_plate_name) }
+  f.sequence(:name)     { |n| "EPD_#{n}" }
   f.parental_cell_line  { ['JM8 parental', 'JM8.F6', 'JM8.N19'].sample }
-  f.mgi_allele_id       { Factory.next(:mgi_allele_id) }
+  f.sequence(:mgi_allele_id)    { |n| "MGI:#{n}" }
   f.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
   f.mgi_allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
-
-  ikmc_project_id = Factory.next(:ikmc_project_id)
 
   f.pipeline { TargRep::Pipeline.find_by_name! 'EUCOMM' }
   f.association :allele,   :factory => :allele
 
-  f.ikmc_project_id { ikmc_project_id }
+  f.sequence(:ikmc_project_id)  { |n| "project_000#{n}" }
 end
 
 Factory.define :invalid_escell, :class => TargRep::EsCell do |f|
@@ -353,8 +341,8 @@ end
 ##
 
 Factory.define :targeting_vector, :class => TargRep::TargetingVector do |f|
-  f.name { Factory.next(:pgdgr_plate_name) }
-  f.ikmc_project_id { Factory.next(:ikmc_project_id) }
+  f.sequence(:name) { |n| "PGDGR_#{n}" }
+  f.sequence(:ikmc_project_id)  { |n| "project_000#{n}" }
   f.pipeline { TargRep::Pipeline.find_by_name! 'EUCOMM' }
   f.association :allele, :factory => :allele
 end
@@ -382,7 +370,7 @@ end
 ##
 
 Factory.define :es_cell_distribution_centre, :class => TargRep::EsCellDistributionCentre do |f|
-  f.name { Factory.next(:centre_name) }
+  f.sequence(:name)   { |n| "Centre_#{n}" }
 end
 
 ##

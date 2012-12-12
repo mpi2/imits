@@ -10,6 +10,13 @@ class TargRep::BaseController < ActionController::Base
 
   require 'allele_image'
 
+  after_filter :store_location
+
+  def store_location
+    # store last url as long as it isn't a /users path
+    session[:previous_url] = request.fullpath
+  end
+
   def authorize_admin_user!
     unless current_user.admin?
       respond_to do |format|

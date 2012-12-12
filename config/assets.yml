@@ -29,9 +29,7 @@ javascripts:
     - public/javascripts/extjs_hacky_monkey_patches.js
   targ_rep:
     - public/javascripts/targ_rep/prototype.js
-    - public/javascripts/targ_rep/effects.js
-    - public/javascripts/targ_rep/dragdrop.js
-    - public/javascripts/targ_rep/controls.js
+    - public/javascripts/targ_rep/rails.js
     - public/javascripts/targ_rep/application.js
     
   extjs_autodep: <%= ExtjsAutodep.as_yaml %>

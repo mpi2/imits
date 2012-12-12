@@ -46,8 +46,6 @@ class PhenotypeAttemptsController < ApplicationController
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
     @mi_attempt = MiAttempt.find_by_colony_name(@phenotype_attempt.mi_attempt_colony_name)
 
-    return unless authorize_user_production_centre
-
     if ! @phenotype_attempt.valid?
       plan_error = @phenotype_attempt.errors[:mi_plan].find { |e| /cannot be found with supplied parameters/ =~ e}
       if plan_error != nil
@@ -71,6 +69,8 @@ class PhenotypeAttemptsController < ApplicationController
   def update
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     @phenotype_attempt.update_attributes(params[:phenotype_attempt])
+
+    return unless authorize_user_production_centre(@phenotype_attempt)
 
     respond_with @phenotype_attempt do |format|
       format.html do
@@ -106,20 +106,6 @@ class PhenotypeAttemptsController < ApplicationController
     @colony_background_strain = Strain.all
   end
   private :set_centres_consortia_and_strains
-
-  def authorize_user_production_centre
-    return true unless request.format == :json
-
-    if @phenotype_attempt.production_centre_name and current_user.production_centre.name != @phenotype_attempt.production_centre_name
-      render :json => {
-        'error' => 'Cannot create/update phenotype attempts for other production centres'
-      }, :status => 401
-      return false
-    end
-
-    return true
-  end
-  private :authorize_user_production_centre
 
   alias_method :public_phenotype_attempt_url, :phenotype_attempt_url
   private :public_phenotype_attempt_url

@@ -68,6 +68,22 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
                   :format => :json
           assert_response 422
         end
+
+        should 'authorize the phenotype attempt belongs to the user\'s production centre' do
+          assert_equal 'WTSI', default_user.production_centre.name
+          mi_attempt = Factory.create :mi_attempt2_status_gtc,
+                  :mi_plan => TestDummy.mi_plan('MGP', 'ICS')
+          pa = Factory.create :phenotype_attempt, :mi_attempt => mi_attempt
+
+          put :update, :id => pa.id,
+                  :phenotype_attempt => {'colony_name' => 'TEST'},
+                  :format => :json
+          assert_response 401, response.status
+          expected = {
+            'error' => 'Cannot create/update data for other production centres'
+          }
+          assert_equal(expected, JSON.parse(response.body))
+        end
       end
 
       context 'GET index' do

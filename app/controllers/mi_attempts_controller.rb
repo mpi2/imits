@@ -75,7 +75,7 @@ class MiAttemptsController < ApplicationController
     @mi_attempt.attributes = params[:mi_attempt]
     @mi_attempt.updated_by = current_user
 
-    return unless authorize_user_production_centre
+    return unless authorize_user_production_centre(@mi_attempt)
 
     if @mi_attempt.save
       @mi_attempt.reload
@@ -108,20 +108,6 @@ class MiAttemptsController < ApplicationController
     @resource = MiAttempt.find(params[:id])
     render :template => '/shared/history'
   end
-
-  def authorize_user_production_centre
-    return true unless request.format == :json
-
-    if @mi_attempt.production_centre_name.present? and current_user.production_centre.name != @mi_attempt.production_centre_name
-      render :json => {
-        'error' => 'Cannot create/update MI attempts for other production centres'
-      }, :status => 401
-      return false
-    end
-
-    return true
-  end
-  private :authorize_user_production_centre
 
   alias_method :public_mi_attempt_url, :mi_attempt_url
   private :public_mi_attempt_url

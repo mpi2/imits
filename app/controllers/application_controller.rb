@@ -138,9 +138,11 @@ class ApplicationController < ActionController::Base
     if request.format == :json
       error_json = {
         'error' => exception.class.name,
-        'message' => exception.message,
-        'backtrace' => exception.backtrace.join("\n")
+        'message' => exception.message
       }.to_json
+      unless exception.kind_of? ApplicationModel::ValidationError
+        error_json['backtrace'] = exception.backtrace.join("\n")
+      end
       render :json => error_json, :status => :internal_server_error
       Rails.logger.error "#{exception.class.name}: #{exception.message}\n#{exception.backtrace.join("\n")}"
     else

@@ -1,7 +1,7 @@
 module ApplicationModel::BelongsToMiPlan
   extend ActiveSupport::Concern
 
-  class Error < RuntimeError; end
+  class Error <  ApplicationModel::ValidationError; end
   class MissingMiPlanError < Error; end
   class UnsuitableMiPlanError < Error; end
 

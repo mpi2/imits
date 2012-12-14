@@ -68,8 +68,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'mgi_accession_id' => cbx1.mgi_accession_id,
           'strain' => @new_strain.name,
           'allele_name' => @mi_attempt.allele_symbol,
-          'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image",
-          'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-genbank-file",
+          'allele_image_url' => "https://www.i-dcc.org/targ_rep/alleles/902/allele-image",
+          'genbank_file_url' => "https://www.i-dcc.org/targ_rep/alleles/902/escell-clone-genbank-file",
           'order_from_urls' => ["mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1"],
           'order_from_names' => ['WTSI']
         }
@@ -117,8 +117,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'mgi_accession_id' => cbx1.mgi_accession_id,
         'strain' => @new_strain.name,
         'allele_name' => phenotype_attempt.allele_symbol,
-        'allele_image_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/allele-image-cre",
-        'genbank_file_url' => "http://www.knockoutmouse.org/targ_rep/alleles/902/escell-clone-cre-genbank-file",
+        'allele_image_url' => "https://www.i-dcc.org/targ_rep/alleles/902/allele-image-cre",
+        'genbank_file_url' => "https://www.i-dcc.org/targ_rep/alleles/902/escell-clone-cre-genbank-file",
         'order_from_names' => ['WTSI'],
         'order_from_urls' => ['mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1']
       }

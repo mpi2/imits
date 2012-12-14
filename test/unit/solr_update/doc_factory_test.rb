@@ -99,12 +99,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_image_url' do
-        assert_equal 'http://www.knockoutmouse.org/targ_rep/alleles/663/allele-image',
+        assert_equal 'https://www.i-dcc.org/targ_rep/alleles/663/allele-image',
                 @doc['allele_image_url']
       end
 
       should 'set genbank_file_url' do
-        assert_equal 'http://www.knockoutmouse.org/targ_rep/alleles/663/escell-clone-genbank-file',
+        assert_equal 'https://www.i-dcc.org/targ_rep/alleles/663/escell-clone-genbank-file',
                 @doc['genbank_file_url']
       end
     end
@@ -180,12 +180,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_image_url' do
-        assert_equal 'http://www.knockoutmouse.org/targ_rep/alleles/8563/allele-image-cre',
+        assert_equal 'https://www.i-dcc.org/targ_rep/alleles/8563/allele-image-cre',
                 @doc['allele_image_url']
       end
 
       should 'set genbank_file_url' do
-        assert_equal 'http://www.knockoutmouse.org/targ_rep/alleles/8563/escell-clone-cre-genbank-file',
+        assert_equal 'https://www.i-dcc.org/targ_rep/alleles/8563/escell-clone-cre-genbank-file',
                 @doc['genbank_file_url']
       end
     end

@@ -213,8 +213,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           "JAX"=>{:preferred=>"www.JAX.com/whatever", :default=>"www.JAX-default.com"},
           "WTSI"=> {:preferred=> "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for MARKER_SYMBOL", :default=>"www.WTSI-default.com"},
           "Oulu"=>{:preferred=>"www.Oulu.com?query=PROJECT_ID", :default=>"www.Oulu-default.com"},
-#          "UCD"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
-#          "KOMP"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
           "VETMEDUNI"=>{:preferred=>"www.VETMEDUNI.com/stuff", :default=>"www.VETMEDUNI-default.com"},
           "BCM"=>{:preferred=>"www.BCM.com/something", :default=>"www.BCM-default.com"},
           "CNRS"=>{:preferred=>"www.CNRS.com?query=MARKER_SYMBOL", :default=>"www.CNRS-default.com"},

@@ -69,7 +69,7 @@ class MiAttempt::WarningsTest < Kermits2::JsIntegrationTest
     end
 
     should 'not show them on edit page' do
-      mi = Factory.create :mi_attempt
+      mi = Factory.create :mi_attempt2
       visit mi_attempt_path(mi)
       assert page.has_no_css?('#warnings')
     end

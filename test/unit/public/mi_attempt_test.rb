@@ -6,7 +6,9 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
   context 'Public::MiAttempt' do
 
     def default_mi_attempt
-      @default_mi_attempt ||= Factory.create(:mi_attempt).to_public
+      plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+      es_cell = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1)
+      @default_mi_attempt ||= Factory.create(:mi_attempt2, :es_cell => es_cell, :mi_plan => plan).to_public
     end
 
     should 'have #status_name' do
@@ -66,6 +68,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         is_released_from_genotyping
         comments
         genotyping_comment
+        mi_plan_id
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -159,7 +162,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
 
     context '#distribution_centres_attributes' do
       should 'be output correctly' do
-        mi = Factory.create(:mi_attempt_genotype_confirmed)
+        mi = Factory.create(:mi_attempt2_status_gtc)
         ds1 = Factory.create(:mi_attempt_distribution_centre,
           :start_date => '2012-01-02', :mi_attempt => mi)
         ds2 = Factory.create(:mi_attempt_distribution_centre,
@@ -175,7 +178,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       end
 
       should 'can be updated and destroyed' do
-        mi = Factory.create(:mi_attempt_genotype_confirmed).to_public
+        mi = Factory.create(:mi_attempt2_status_gtc).to_public
         ds1 = Factory.create(:mi_attempt_distribution_centre,
           :centre => Centre.find_by_name!('WTSI'),
           :start_date => '2012-01-02', :mi_attempt => mi)
@@ -206,5 +209,31 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
       assert_match(/EUCOMM/, default_mi_attempt.pipeline_name)
     end
 
+
+    context 'inactive status tests:' do
+      setup do
+        @mi_attempt = Factory.create :public_mi_attempt, :is_active => false
+      end
+
+      should 'mi_plan should be reactivated when the associated mi_attempt is active' do
+        @mi_attempt.mi_plan.is_active = false
+        @mi_attempt.mi_plan.save!
+        @mi_attempt.is_active = true
+        @mi_attempt.save!
+        @mi_attempt.reload
+        assert_equal true, @mi_attempt.mi_plan.is_active?
+        assert_equal 'Assigned', @mi_attempt.mi_plan.status.name
+      end
+
+      should 'not set its status to Assigned if MI attempt is not becoming active again' do
+        @mi_attempt.update_attributes!(:is_active => false)
+        @mi_attempt.reload
+        @mi_attempt.mi_plan.update_attributes!(:is_active => false)
+        @mi_attempt.mi_plan.save!
+
+        @mi_attempt.save!
+        assert_equal 'Inactive', @mi_attempt.mi_plan.status.name
+      end
+    end
   end
 end

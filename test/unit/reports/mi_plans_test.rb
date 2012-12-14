@@ -4,8 +4,8 @@ require 'test_helper'
 
 class Reports::MiPlansTest < ActiveSupport::TestCase
 
+  def trafd1; @trafd1 ||= Factory.create :gene_trafd1; end
   context 'Reports::MiPlans::DoubleAssignment' do
-
 
     should 'return consortia names' do
       test_columns = ["BaSH", "DTCC", "JAX",
@@ -20,26 +20,23 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
     end
 
     should 'ensure column order (matrix)' do
+      assert cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1)
+      plan = TestDummy.mi_plan('BaSH', 'WTSI', :gene => cbx1, :force_assignment => true)
+      Factory.create :mi_attempt2, :es_cell => es_cell_cbx1,
+              :mi_plan => plan
 
-      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
+      Factory.create :mi_attempt2, :es_cell => es_cell_cbx1,
+              :mi_plan => TestDummy.mi_plan('JAX', 'JAX', :gene => cbx1, :force_assignment => true)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
-              :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      assert trafd1
+      es_cell_trafd1 = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => trafd1)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
-              :consortium_name => 'JAX',
-              :production_centre_name => 'JAX'
+      Factory.create :mi_attempt2, :es_cell => es_cell_trafd1,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => trafd1, :force_assignment => true)
 
-      es_cell_trafd1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_trafd1)
-
-      Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
-              :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
-
-      Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
-              :consortium_name => 'JAX',
-              :production_centre_name => 'JAX'
+      Factory.create :mi_attempt2, :es_cell => es_cell_trafd1,
+              :mi_plan => TestDummy.mi_plan('JAX', 'JAX', :gene => trafd1, :force_assignment => true)
 
       report = Reports::MiPlans::DoubleAssignment.get_matrix
       assert !report.blank?
@@ -58,25 +55,23 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
     should 'display double-assignments between two consortia and production centres (matrix)' do
 
-      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
+      assert cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
-              :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      Factory.create :mi_attempt2, :es_cell => es_cell_cbx1,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => cbx1, :force_assignment => true)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
-              :consortium_name => 'JAX',
-              :production_centre_name => 'JAX'
+      Factory.create :mi_attempt2, :es_cell => es_cell_cbx1,
+              :mi_plan => TestDummy.mi_plan('JAX', 'JAX', :gene => cbx1, :force_assignment => true)
 
-      es_cell_trafd1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_trafd1)
+      assert trafd1
+      es_cell_trafd1 = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => trafd1)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
-              :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      Factory.create :mi_attempt2, :es_cell => es_cell_trafd1,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => trafd1, :force_assignment => true)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
-              :consortium_name => 'JAX',
-              :production_centre_name => 'JAX'
+      Factory.create :mi_attempt2, :es_cell => es_cell_trafd1,
+              :mi_plan => TestDummy.mi_plan('JAX', 'JAX', :gene => trafd1, :force_assignment => true)
 
       report = Reports::MiPlans::DoubleAssignment.get_matrix
       assert !report.blank?
@@ -100,26 +95,24 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
     should 'not display a value when no double-assignment (matrix)' do
 
-      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
+      assert cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
-              :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      Factory.create :mi_attempt2, :es_cell => es_cell_cbx1,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => cbx1, :force_assignment => true)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
-              :consortium_name => 'JAX',
-              :production_centre_name => 'JAX',
+      Factory.create :mi_attempt2, :es_cell => es_cell_cbx1,
+              :mi_plan => TestDummy.mi_plan('JAX', 'JAX', :gene => cbx1, :force_assignment => true),
               :is_active => false
 
-      es_cell_trafd1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_trafd1)
+      assert trafd1
+      es_cell_trafd1 = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => trafd1)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
-              :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      Factory.create :mi_attempt2, :es_cell => es_cell_trafd1,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => trafd1, :force_assignment => true)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_trafd1,
-              :consortium_name => 'JAX',
-              :production_centre_name => 'JAX',
+      Factory.create :mi_attempt2, :es_cell => es_cell_trafd1,
+              :mi_plan => TestDummy.mi_plan('JAX', 'JAX', :gene => trafd1, :force_assignment => true),
               :is_active => false
 
 
@@ -139,24 +132,24 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
     end
 
     should 'not display double-assignment if no active mi_attempts have been assigned to mi_plans (matrix)' do
-      gene_cbx1 = Factory.create :gene_cbx1
-      Factory.create :mi_plan, :gene => gene_cbx1,
+      assert cbx1
+      Factory.create :mi_plan, :gene => cbx1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :force_assignment => true
 
-      Factory.create :mi_plan, :gene => gene_cbx1,
+      Factory.create :mi_plan, :gene => cbx1,
               :consortium => Consortium.find_by_name!('JAX'),
               :production_centre => Centre.find_by_name!('JAX'),
               :force_assignment => true
 
-      gene_trafd1 = Factory.create :gene_trafd1
-      Factory.create :mi_plan, :gene => gene_trafd1,
+      assert trafd1
+      Factory.create :mi_plan, :gene => trafd1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :force_assignment => true
 
-      Factory.create :mi_plan, :gene => gene_trafd1,
+      Factory.create :mi_plan, :gene => trafd1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('ICS'),
               :force_assignment => true
@@ -177,14 +170,14 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
     should 'not display a value when no double-assignment (list)' do
 
-      gene_cbx1 = Factory.create :gene_cbx1
-      Factory.create :mi_plan, :gene => gene_cbx1,
+      assert cbx1
+      Factory.create :mi_plan, :gene => cbx1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :force_assignment => true
 
-      gene_trafd1 = Factory.create :gene_trafd1
-      Factory.create :mi_plan, :gene => gene_trafd1,
+      assert trafd1
+      Factory.create :mi_plan, :gene => trafd1,
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI'),
               :force_assignment => true
@@ -200,15 +193,14 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
     should 'have consortia on page (list)' do
 
-      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
+      assert cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
-              :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      Factory.create :mi_attempt2, :es_cell => es_cell_cbx1,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => cbx1, :force_assignment => true)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
-              :consortium_name => 'JAX',
-              :production_centre_name => 'JAX'
+      Factory.create :mi_attempt2, :es_cell => es_cell_cbx1,
+              :mi_plan => TestDummy.mi_plan('JAX', 'JAX', :gene => cbx1, :force_assignment => true)
 
       report = Reports::MiPlans::DoubleAssignment.get_list
       assert !report.blank?
@@ -222,22 +214,21 @@ class Reports::MiPlansTest < ActiveSupport::TestCase
 
     should 'display double-assignments between two consortia with production centres (list)' do
 
-      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele_with_gene_cbx1)
+      assert cbx1
+      es_cell_cbx1 = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
-              :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      Factory.create :mi_attempt2, :es_cell => es_cell_cbx1,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => cbx1, :force_assignment => true)
 
-      Factory.create :mi_attempt, :es_cell => es_cell_cbx1,
-              :consortium_name => 'JAX',
-              :production_centre_name => 'JAX'
+      Factory.create :mi_attempt2, :es_cell => es_cell_cbx1,
+              :mi_plan => TestDummy.mi_plan('JAX', 'JAX', :gene => cbx1, :force_assignment => true)
 
       report = Reports::MiPlans::DoubleAssignment.get_list_without_grouping
       assert !report.blank?
       columns = Reports::MiPlans::DoubleAssignment::LIST_COLUMNS
       assert !columns.blank?
 
-      for i in (0..3)
+      (0..3).each do |i|
         assert_equal 'Cbx1', report.column('Marker Symbol')[i]
         assert_equal 'Micro-injection in progress', report.column('MI Status')[i]
       end

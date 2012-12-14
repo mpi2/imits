@@ -7,9 +7,9 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediateTest < A
   context 'Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate' do
 
     def new_gene_mi(factory, gene, consortia, production_centre, attrs = {})
+      plan = TestDummy.mi_plan(consortia, production_centre, gene, :force_assignment => true)
       return Factory.create(factory, {
-          :consortium_name => consortia,
-          :production_centre_name => production_centre,
+          :mi_plan => plan,
           :es_cell => TestDummy.create(:es_cell, :allele => Factory.create(:allele, :gene => Gene.find_by_marker_symbol!(gene)))
         }.merge(attrs)
       )
@@ -33,24 +33,22 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediateTest < A
               :number_of_es_cells_starting_qc => 2,
               :number_of_es_cells_passing_qc => 0
 
-      new_gene_mi(:mi_attempt, 'Cbx5', 'BaSH', 'WTSI')
-      new_gene_mi(:mi_attempt, 'Cbx6', 'BaSH', 'WTSI')
-      new_gene_mi(:mi_attempt_chimeras_obtained, 'Cbx7', 'BaSH', 'WTSI')
-      new_gene_mi(:wtsi_mi_attempt_genotype_confirmed, 'Cbx8', 'BaSH', 'WTSI')
-      new_gene_mi(:wtsi_mi_attempt_genotype_confirmed, 'Cbx9', 'BaSH', 'WTSI')
-      new_gene_mi(:mi_attempt, 'Cbx10', 'BaSH', 'WTSI', :is_active => false)
+      new_gene_mi(:mi_attempt2, 'Cbx5', 'BaSH', 'WTSI')
+      new_gene_mi(:mi_attempt2, 'Cbx6', 'BaSH', 'WTSI')
+      new_gene_mi(:mi_attempt2_status_chr, 'Cbx7', 'BaSH', 'WTSI')
+      new_gene_mi(:mi_attempt2_status_gtc, 'Cbx8', 'BaSH', 'WTSI')
+      new_gene_mi(:mi_attempt2_status_gtc, 'Cbx9', 'BaSH', 'WTSI')
+      new_gene_mi(:mi_attempt2, 'Cbx10', 'BaSH', 'WTSI', :is_active => false)
 
       Factory.create :phenotype_attempt,
-              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx11'),
-              :mi_attempt => new_gene_mi(:wtsi_mi_attempt_genotype_confirmed, 'Cbx11', 'BaSH', 'WTSI')
+              :mi_attempt => new_gene_mi(:mi_attempt2_status_gtc, 'Cbx11', 'BaSH', 'WTSI')
 
       Factory.create :phenotype_attempt_status_pdc,
-              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx12'),
-              :mi_attempt => new_gene_mi(:wtsi_mi_attempt_genotype_confirmed, 'Cbx12', 'BaSH', 'WTSI')
+              :mi_attempt => new_gene_mi(:mi_attempt2_status_gtc, 'Cbx12', 'BaSH', 'WTSI')
 
-      new_gene_mi(:mi_attempt, 'Cbx13', 'JAX', 'JAX')
-      new_gene_mi(:mi_attempt, 'Cbx14', 'DTCC', 'UCD')
-      new_gene_mi(:mi_attempt, 'Cbx15', 'RIKEN BRC', 'RIKEN BRC')
+      new_gene_mi(:mi_attempt2, 'Cbx13', 'JAX', 'JAX')
+      new_gene_mi(:mi_attempt2, 'Cbx14', 'DTCC', 'UCD')
+      new_gene_mi(:mi_attempt2, 'Cbx15', 'RIKEN BRC', 'RIKEN BRC')
 
       Reports::MiProduction::Intermediate.new.cache
     end

@@ -82,6 +82,12 @@ class TestDummyTest < ActiveSupport::TestCase
         plan = TestDummy.mi_plan('JAX')
         assert_equal ['JAX', nil], [plan.consortium.name, plan.production_centre.try(:name)]
       end
+
+      should 'not create redundant associated objects' do
+        consortia = Consortium.all.map(&:name)
+        TestDummy.mi_plan 'BaSH', 'WTSI'
+        assert_equal [], (Consortium.all.map(&:name) - consortia), 'Extra consortia were created found'
+      end
     end
 
   end

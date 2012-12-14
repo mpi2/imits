@@ -182,7 +182,7 @@ class Reports::MiPlans
     end
 
     # The matrix data is the actual matrix of double-produced genes for each consortium
-    def self.get_list()
+    def self.get_list
       report = get_list_without_grouping
       report = Grouping( report, :by => 'Target Consortium', :order => ['Marker Symbol', 'Consortium', 'Centre'] )
       return report

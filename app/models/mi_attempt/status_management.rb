@@ -12,7 +12,7 @@ module MiAttempt::StatusManagement
   end
 
   ss.add('Genotype confirmed', 'Chimeras obtained') do |mi|
-    if mi.production_centre_name == 'WTSI'
+    if mi.production_centre.try(:name) == 'WTSI'
       mi.is_released_from_genotyping?
     else
       mi.number_of_het_offspring.to_i != 0 or mi.number_of_chimeras_with_glt_from_genotyping.to_i != 0

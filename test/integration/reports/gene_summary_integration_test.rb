@@ -21,14 +21,14 @@ class Reports::GeneSummaryIntegrationTest < Kermits2::IntegrationTest
           :marker_symbol => 'Moo1',
           :mgi_accession_id => 'MGI:12345'
 
-        Factory.create :wtsi_mi_attempt_genotype_confirmed,
+        Factory.create :mi_attempt2_status_gtc,
           :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => gene_moo1)),
-          :consortium_name => 'EUCOMM-EUMODIC',
+          :mi_plan => TestDummy.mi_plan('EUCOMM-EUMODIC', 'WTSI', 'Moo1'),
           :is_active => true
 
-        Factory.create :wtsi_mi_attempt_genotype_confirmed,
-          :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele_with_gene_cbx1)),
-          :consortium_name => 'EUCOMM-EUMODIC',
+        Factory.create :mi_attempt2_status_gtc,
+          :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1)),
+          :mi_plan => TestDummy.mi_plan('EUCOMM-EUMODIC', 'WTSI', :gene => cbx1),
           :is_active => true
 
         click_button 'Generate Report'

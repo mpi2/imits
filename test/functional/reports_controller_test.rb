@@ -13,7 +13,7 @@ class ReportsControllerTest < ActionController::TestCase
       setup do
         create_common_test_objects
         5.times { Factory.create :mi_plan, :consortium_id => Consortium.find_by_name!('DTCC').id }
-        10.times { Factory.create :mi_attempt }
+        10.times { Factory.create :mi_attempt2 }
 
         sign_in default_user
       end

@@ -31,13 +31,13 @@ class PhenotypeAttemptsController < ApplicationController
     @user = current_user
     @mi_attempt = MiAttempt.find_by_id(params[:mi_attempt_id])
     if @mi_attempt.status.name == "Genotype confirmed"
-        @phenotype_attempt = Public::PhenotypeAttempt.new(
-          :mi_attempt_colony_name => @mi_attempt.colony_name,
-          :consortium_name => @mi_attempt.consortium_name,
-          :production_centre_name => @mi_attempt.production_centre_name
-        )
+      @phenotype_attempt = Public::PhenotypeAttempt.new(
+        :mi_attempt_colony_name => @mi_attempt.colony_name,
+        :consortium_name => @mi_attempt.consortium.name,
+        :production_centre_name => @mi_attempt.production_centre.name
+      )
     else
-         flash.now[:alert] = "#{@mi_attempt.status.name} status"
+      flash.now[:alert] = "#{@mi_attempt.status.name} status"
     end
   end
 
@@ -46,9 +46,7 @@ class PhenotypeAttemptsController < ApplicationController
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
     @mi_attempt = MiAttempt.find_by_colony_name(@phenotype_attempt.mi_attempt_colony_name)
 
-    @phenotype_attempt.production_centre_name ||= current_user.production_centre.name
-
-    return unless authorize_user_production_centre
+    return unless authorize_user_production_centre(@phenotype_attempt)
 
     if ! @phenotype_attempt.valid?
       plan_error = @phenotype_attempt.errors[:mi_plan].find { |e| /cannot be found with supplied parameters/ =~ e}
@@ -72,6 +70,9 @@ class PhenotypeAttemptsController < ApplicationController
 
   def update
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
+
+    return unless authorize_user_production_centre(@phenotype_attempt)
+
     @phenotype_attempt.update_attributes(params[:phenotype_attempt])
 
     respond_with @phenotype_attempt do |format|
@@ -108,20 +109,6 @@ class PhenotypeAttemptsController < ApplicationController
     @colony_background_strain = Strain.all
   end
   private :set_centres_consortia_and_strains
-
-  def authorize_user_production_centre
-    return true unless request.format == :json
-
-    if current_user.production_centre.name != @phenotype_attempt.production_centre_name
-      render :json => {
-        'error' => 'Cannot create/update phenotype attempts for other production centres'
-      }, :status => 401
-      return false
-    end
-
-    return true
-  end
-  private :authorize_user_production_centre
 
   alias_method :public_phenotype_attempt_url, :phenotype_attempt_url
   private :public_phenotype_attempt_url

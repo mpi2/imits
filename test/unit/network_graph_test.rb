@@ -109,11 +109,14 @@ class NetworkGraphTest < ActiveSupport::TestCase
 
     should 'produce dot file' do
       gene = Factory.create :gene, :marker_symbol => 'blogs'
+
       allele = Factory.create :allele, :gene => Gene.find_by_id(gene.id)
       es_cell = Factory.create :es_cell, :allele => allele, :name => 'blogs'
-      mi_plan = Factory.create :mi_plan, :gene => Gene.find_by_id(gene.id), :consortium => Consortium.find_by_name('BaSH'), :production_centre => Centre.find_by_name('WTSI')
-      mi_attempt = Factory.create :wtsi_mi_attempt_genotype_confirmed, :mi_plan => mi_plan, :es_cell => es_cell
-      phenotype_attempt = Factory.create :phenotype_attempt, :mi_plan => mi_plan, :mi_attempt => mi_attempt
+      plan2 = Factory.create :mi_plan, :gene => Gene.find_by_id(gene.id)
+      mi_plan = Factory.create :mi_plan, :gene => Gene.find_by_id(gene.id), :consortium => Consortium.find_by_name('BaSH'), :production_centre => Centre.find_by_name('WTSI'), :force_assignment => true
+      mi_attempt = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan, :es_cell => es_cell
+      phenotype_attempt = Factory.create :phenotype_attempt, :mi_plan => plan2, :mi_attempt => mi_attempt
+
 
       got = NetworkGraph.new(gene.id).dot_file
 

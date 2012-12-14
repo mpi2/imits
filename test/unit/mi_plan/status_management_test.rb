@@ -7,7 +7,7 @@ class MiPlan::StatusManagementTest < ActiveSupport::TestCase
 
     context 'when setting status based on attributes' do
       def default_mi_plan
-        @default_mi_plan ||= Factory.create :mi_plan, :gene => cbx1
+        @default_mi_plan ||= Factory.create :mi_plan_with_production_centre, :gene => cbx1
       end
 
       should 'set status to Assigned by default' do
@@ -88,13 +88,19 @@ class MiPlan::StatusManagementTest < ActiveSupport::TestCase
 
       should 'set status to "Inspect - MI Attempt" if only other plans for gene are Assigned or pre-assignment and there are MIs as far as "in progress" for the gene' do
         allele = Factory.create :allele, :gene => cbx1
-        Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell, :allele => allele)
+        Factory.create :mi_attempt2, :es_cell => Factory.create(:es_cell, :allele => allele),
+          :mi_plan => default_mi_plan
+
         same_gene_plan = TestDummy.mi_plan default_mi_plan.marker_symbol
         assert_equal 'Inspect - MI Attempt', same_gene_plan.status.name
       end
 
       should 'NOT set "Inspect - MI Attempt" by counting aborted MI as in progress' do
-        mi = Factory.create :mi_attempt, :es_cell => Factory.create(:es_cell), :is_active => false
+        allele = Factory.create(:allele, :gene => cbx1)
+        mi = Factory.create :mi_attempt2, :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => false,
+          :mi_plan => bash_wtsi_cbx1_plan(:force_assignment => true)
+
         mi.mi_plan.update_attributes!(:is_active => false)
         same_gene_plan = TestDummy.mi_plan cbx1.marker_symbol
         assert_equal 'Assigned', same_gene_plan.status.name
@@ -102,7 +108,8 @@ class MiPlan::StatusManagementTest < ActiveSupport::TestCase
 
       should 'set status to "Inspect - GLT Mouse" if only other plans for the gene are Assigned or pre-assignment and there are MIs as far as "genotype confirmed" for the gene' do
         allele = Factory.create(:allele, :gene => cbx1)
-        Factory.create :mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :allele => allele)
+        Factory.create :mi_attempt2_status_gtc, :es_cell => Factory.create(:es_cell, :allele => allele),
+          :mi_plan => default_mi_plan
         same_gene_plan = TestDummy.mi_plan default_mi_plan.marker_symbol
         assert_equal 'Inspect - GLT Mouse', same_gene_plan.status.name
       end

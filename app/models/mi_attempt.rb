@@ -8,6 +8,7 @@ class MiAttempt < ApplicationModel
   include MiAttempt::StatusManagement
   include MiAttempt::WarningGenerator
   include ApplicationModel::HasStatuses
+  include ApplicationModel::BelongsToMiPlan
 
   QC_FIELDS = [
     :qc_southern_blot,
@@ -49,8 +50,6 @@ class MiAttempt < ApplicationModel
   protected :status=
 
   validates :es_cell_name, :presence => true
-  validates :production_centre_name, :presence => true
-  validates :consortium_name, :presence => true
   validates :status, :presence => true
   validates :colony_name, :uniqueness => {:case_sensitive => false}, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
@@ -67,25 +66,6 @@ class MiAttempt < ApplicationModel
 
     if mi.mi_plan.production_centre.blank?
       mi.errors.add :mi_plan, 'must have a production centre (INTERNAL ERROR)'
-    end
-  end
-
-  validate do |mi|
-    matching_mi_plan = find_matching_mi_plan
-
-    if matching_mi_plan and
-              matching_mi_plan.status == MiPlan::Status['Aborted - ES Cell QC Failed']
-      error = 'ES cells failed QC'
-      mi.errors.add :base, error
-    end
-  end
-
-  validate do |mi_attempt|
-    if ! Consortium.find_by_name(mi_attempt.consortium_name)
-      mi_attempt.errors.add :consortium_name, 'does not exist'
-    end
-    if ! Centre.find_by_name(mi_attempt.production_centre_name)
-      mi_attempt.errors.add :production_centre_name, 'does not exist'
     end
   end
 
@@ -118,16 +98,14 @@ class MiAttempt < ApplicationModel
   end
 
   before_save :generate_colony_name_if_blank
-  before_save :set_mi_plan
 
   after_save :manage_status_stamps
   after_save :reload_mi_plan_mi_attempts
 
-  protected
-
   def set_total_chimeras
     self.total_chimeras = total_male_chimeras.to_i + total_female_chimeras.to_i
   end
+  protected :set_total_chimeras
 
   def set_es_cell_from_es_cell_name
     if ! self.es_cell
@@ -135,6 +113,7 @@ class MiAttempt < ApplicationModel
       self.es_cell = TargRep::EsCell.find_by_name(self.es_cell_name)
     end
   end
+  protected :set_es_cell_from_es_cell_name
 
   def set_blank_qc_fields_to_na
     QC_FIELDS.each do |qc_field|
@@ -143,6 +122,7 @@ class MiAttempt < ApplicationModel
       end
     end
   end
+  protected :set_blank_qc_fields_to_na
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?
@@ -150,36 +130,15 @@ class MiAttempt < ApplicationModel
     i = 0
     begin
       i += 1
-      self.colony_name = "#{self.production_centre_name}-#{self.es_cell_name}-#{i}"
+      self.colony_name = "#{self.production_centre.name}-#{self.es_cell.name}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
-
-  def set_mi_plan
-    mi_plan_to_set = find_matching_mi_plan
-    if ! mi_plan_to_set
-      mi_plan_to_set = MiPlan.new
-      mi_plan_to_set.priority = MiPlan::Priority.find_by_name!('High')
-      mi_plan_to_set.consortium = Consortium.find_by_name!(consortium_name)
-      mi_plan_to_set.gene = es_cell.gene
-    end
-
-    mi_plan_to_set.production_centre = Centre.find_by_name!(production_centre_name)
-
-    if is_active?
-      mi_plan_to_set.is_active = true
-    end
-
-    mi_plan_to_set.force_assignment = true
-    mi_plan_to_set.save!
-
-    self.mi_plan = mi_plan_to_set
-  end
+  protected :generate_colony_name_if_blank
 
   def reload_mi_plan_mi_attempts
     mi_plan.mi_attempts.reload
   end
-
-  public
+  protected :reload_mi_plan_mi_attempts
 
   # END Callbacks
 
@@ -199,38 +158,6 @@ class MiAttempt < ApplicationModel
     where(:status_id => MiAttempt::Status.micro_injection_aborted.id)
   end
 
-  def consortium_name
-    if ! @consortium_name.blank?
-      return @consortium_name
-    else
-      if self.mi_plan
-        @consortium_name = self.mi_plan.consortium.name
-      end
-    end
-  end
-
-  def consortium_name=(arg)
-    @consortium_name = arg
-  end
-
-  def production_centre_name
-    if ! @production_centre_name.blank?
-      return @production_centre_name
-    else
-      if self.mi_plan
-        @production_centre_name = self.mi_plan.production_centre.try(:name)
-      end
-    end
-  end
-
-  def production_centre_name=(arg)
-    @production_centre_name = arg
-  end
-
-  def production_centre_name=(arg)
-    @production_centre_name = arg
-  end
-
   def distribution_centres_formatted_display
     output_string = ''
     self.distribution_centres.each do |distribution_centre|
@@ -244,7 +171,7 @@ class MiAttempt < ApplicationModel
       end
       output_string << "[#{output_array.join(', ')}] "
     end
-    return output_string.strip()
+    return output_string.strip
   end
 
   def es_cell_name
@@ -311,30 +238,20 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  delegate :gene, :to => :es_cell
+  def gene
+    if mi_plan.try(:gene)
+      return mi_plan.gene
+    elsif es_cell.try(:gene)
+      return es_cell.gene
+    else
+      return nil
+    end
+  end
 
   def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
   def es_cell_allele_symbol; es_cell.try(:allele_symbol); end
 
-  delegate :production_centre, :consortium, :to => :mi_plan
-
-  def find_matching_mi_plan
-    consortium = Consortium.find_by_name(consortium_name)
-    production_centre = Centre.find_by_name(production_centre_name)
-    return unless es_cell and consortium and production_centre
-    lookup_conditions = {
-      :gene_id => es_cell.gene.id,
-      :consortium_id => consortium.id,
-      :production_centre_id => production_centre.id
-    }
-    mi_plan = MiPlan.where(lookup_conditions).first
-    if ! mi_plan
-      lookup_conditions[:production_centre_id] = nil
-      mi_plan = MiPlan.where(lookup_conditions).first
-    end
-
-    return mi_plan
-  end
+  delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true
 
   def self.translations
     return {

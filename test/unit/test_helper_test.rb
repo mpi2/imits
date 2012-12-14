@@ -23,7 +23,7 @@ class TestHelperTest < ActiveSupport::TestCase
 
     context '#replace_status_stamps' do
       should 'work for MiAttempt' do
-        mi = Factory.create :mi_attempt_genotype_confirmed
+        mi = Factory.create :mi_attempt2_status_gtc
         expected = [
           ['Micro-injection in progress', '2010-03-11 07:12:03 UTC'],
           ['Chimeras obtained', '2010-03-12 07:43:03 UTC'],

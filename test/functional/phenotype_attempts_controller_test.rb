@@ -26,7 +26,8 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
       context 'POST create' do
         should 'work for JSON' do
           assert_equal 0, PhenotypeAttempt.count
-          mi = Factory.create :wtsi_mi_attempt_genotype_confirmed
+          mi = Factory.create :mi_attempt2_status_gtc,
+                  :mi_plan => bash_wtsi_cbx1_plan
 
           attributes = {
             :mi_attempt_colony_name => mi.colony_name
@@ -39,7 +40,7 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
         end
 
         should 'fail properly for JSON' do
-          mi = Factory.create :mi_attempt
+          mi = Factory.create :mi_attempt2
 
           attributes = {
             :mi_attempt_colony_name => mi.colony_name
@@ -48,25 +49,24 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
           assert_response 422, response.body
         end
 
-        should 'return errors when trying to create a phenotype with no corresponding plan' do
-          mi = Factory.create :wtsi_mi_attempt_genotype_confirmed
-          assert_equal 0, PhenotypeAttempt.count
-          attributes = {
-            :mi_attempt_colony_name => mi.colony_name,
-            :consortium_name => 'BaSH',
-            :production_centre_name => 'WTSI'
-          }
-          post :create, :phenotype_attempt => attributes, :format => :json
-          assert_equal 0, PhenotypeAttempt.count
+        should 'authorize the phenotype attempt belongs to the user\'s production centre' do
+          assert_equal 'WTSI', default_user.production_centre.name
+          mi_attempt = Factory.create :mi_attempt2_status_gtc,
+                  :mi_plan => TestDummy.mi_plan('MGP', 'ICS')
 
-          assert_response 422
-          assert ! flash[:alert].blank?
+          post :create, :phenotype_attempt => {'mi_attempt_colony_name' => mi_attempt.colony_name, 'consortium_name' => 'BaSH', 'production_centre_name' => 'ICS'},
+                  :format => :json
+          assert_response 401, response.status
+          expected = {
+            'error' => 'Cannot create/update data for other production centres'
+          }
+          assert_equal(expected, JSON.parse(response.body))
         end
       end
 
       context 'PUT update' do
         should 'work for JSON' do
-          pt = Factory.create(:phenotype_attempt).to_public
+          pt = Factory.create(:phenotype_attempt, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => bash_wtsi_cbx1_plan)).to_public
           assert pt.is_active?
           put :update, :id => pt.id, :phenotype_attempt => {:is_active => false},
                   :format => :json
@@ -76,11 +76,27 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
         end
 
         should 'fail properly for JSON' do
-          pt = Factory.create(:phenotype_attempt).to_public
+          pt = Factory.create(:phenotype_attempt, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => bash_wtsi_cbx1_plan)).to_public
           assert pt.is_active?
           put :update, :id => pt.id, :phenotype_attempt => {:consortium_name => 'Nonexistent'},
                   :format => :json
           assert_response 422
+        end
+
+        should 'authorize the phenotype attempt belongs to the user\'s production centre' do
+          assert_equal 'WTSI', default_user.production_centre.name
+          mi_attempt = Factory.create :mi_attempt2_status_gtc,
+                  :mi_plan => TestDummy.mi_plan('MGP', 'ICS')
+          pa = Factory.create :phenotype_attempt, :mi_attempt => mi_attempt
+
+          put :update, :id => pa.id,
+                  :phenotype_attempt => {'colony_name' => 'TEST'},
+                  :format => :json
+          assert_response 401, response.status
+          expected = {
+            'error' => 'Cannot create/update data for other production centres'
+          }
+          assert_equal(expected, JSON.parse(response.body))
         end
       end
 
@@ -105,15 +121,16 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
         end
 
         should 'translate search params' do
-          allele = Factory.create(:allele_with_gene_cbx1)
+          allele = Factory.create(:allele, :gene => cbx1)
           allele_with_trafd1 = Factory.create(:allele_with_gene_trafd1)
 
           Factory.create :phenotype_attempt, :colony_name => 'Cbx1_A',
-                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :allele => allele))
+                  :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :es_cell => Factory.create(:es_cell, :allele => allele), :mi_plan => Factory.create(:mi_plan_with_production_centre, :force_assignment => true, :gene => cbx1))
           Factory.create :phenotype_attempt, :colony_name => 'Cbx1_B',
-                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :allele => allele))
+                  :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :es_cell => Factory.create(:es_cell, :allele => allele), :mi_plan => Factory.create(:mi_plan_with_production_centre, :force_assignment => true, :gene => cbx1))
           Factory.create :phenotype_attempt, :colony_name => 'Trafd1_A',
-                  :mi_attempt => Factory.create(:mi_attempt_genotype_confirmed, :es_cell => Factory.create(:es_cell, :allele => allele_with_trafd1))
+                  :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :es_cell => Factory.create(:es_cell, :allele => allele_with_trafd1), :mi_plan => Factory.create(:mi_plan_with_production_centre, :force_assignment => true, :gene => allele_with_trafd1.gene))
+
           get :index, :format => :json, :marker_symbol_eq => 'Cbx1'
           assert_equal ['Cbx1_A', 'Cbx1_B'], JSON.parse(response.body).map{|i| i['colony_name']}
         end

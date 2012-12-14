@@ -17,19 +17,19 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
 
     context 'when a mi_attempt changes' do
       should 'enqueue an update to it if it has status "gtc"' do
-        mi = Factory.create :mi_attempt_genotype_confirmed, :id => 55
+        mi = Factory.create :mi_attempt2_status_gtc, :id => 55
         SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => 55})
         @enqueuer.mi_attempt_updated(mi)
       end
 
       should 'enqueue a deletion if it has been deleted' do
-        mi = Factory.create :mi_attempt_genotype_confirmed, :id => 22
+        mi = Factory.create :mi_attempt2_status_gtc, :id => 22
         SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'mi_attempt', 'id' => 22})
         @enqueuer.mi_attempt_destroyed(mi)
       end
 
       should 'not enqueue an update if mi_attempt gene does not have mgi_accession_id' do
-        mi = Factory.create :mi_attempt_genotype_confirmed, :id => 55
+        mi = Factory.create :mi_attempt2_status_gtc, :id => 55
         mi.gene.update_attributes!(:mgi_accession_id => nil)
         mi.reload
         SolrUpdate::Queue.expects(:enqueue_for_update).never
@@ -37,7 +37,7 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
       end
 
       should_eventually 'not enqueue an update if mi_attempt is not linked to an allele' do
-        mi = Factory.create :mi_attempt_genotype_confirmed, :id => 66
+        mi = Factory.create :mi_attempt2_status_gtc, :id => 66
         mi.es_cell.update_attributes!(:allele_id => 0)
         mi.reload
         SolrUpdate::Queue.expects(:enqueue_for_update).never
@@ -45,14 +45,14 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
       end
 
       should 'enqueue a deletion for it if it does not have status "gtc"' do
-        mi = Factory.create :mi_attempt_chimeras_obtained, :id => 55
+        mi = Factory.create :mi_attempt2_status_chr, :id => 55
         SolrUpdate::Queue.expects(:enqueue_for_update).never
         SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'mi_attempt', 'id' => mi.id})
         @enqueuer.mi_attempt_updated(mi)
       end
 
       should 'enqueue a deletion for it if it does has status "gtc" but is currently aborted' do
-        mi = Factory.create :mi_attempt_genotype_confirmed, :id => 55, :is_active => false
+        mi = Factory.create :mi_attempt2_status_gtc, :id => 55, :is_active => false
         assert_equal 'abt', mi.status.code
         SolrUpdate::Queue.expects(:enqueue_for_update).never
         SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'mi_attempt', 'id' => mi.id})
@@ -60,7 +60,7 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
       end
 
       should 'tell itself the mi_attempt\'s phenotype attempts have been updated' do
-        mi = Factory.create :mi_attempt_genotype_confirmed, :id => 67
+        mi = Factory.create :mi_attempt2_status_gtc, :id => 67
         assert_equal 0, mi.phenotype_attempts.all.size
 
         pa1 = Factory.create :phenotype_attempt, :mi_attempt => mi, :id => 675

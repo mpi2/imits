@@ -7,10 +7,10 @@ class PhenotypeAttempt::CreateInFormIntegrationTest < Kermits2::JsIntegrationTes
 
     setup do
       ApplicationModel.uncached do
-        @mi_attempt = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+        @mi_attempt = Factory.create :mi_attempt2_status_gtc,
                 :colony_name => 'MABC',
-                :consortium_name => 'BaSH',
-                :production_centre_name => 'WTSI'
+                :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1)),
+                :mi_plan => bash_wtsi_cbx1_plan
       end
 
       login

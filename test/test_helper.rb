@@ -70,7 +70,7 @@ class ActiveSupport::TestCase
     mi_attempt.is_active = true
     mi_attempt.total_male_chimeras = 1
 
-    if mi_attempt.production_centre_name == 'WTSI'
+    if mi_attempt.production_centre.try(:name) == 'WTSI'
       mi_attempt.is_released_from_genotyping = true
     else
       if mi_attempt.number_of_het_offspring.to_i == 0
@@ -83,7 +83,7 @@ class ActiveSupport::TestCase
 
   def unset_mi_attempt_genotype_confirmed(mi_attempt)
     raise 'MiAttempt must be in state Genotype confirmed' unless mi_attempt.has_status? :gtc.status
-    if mi_attempt.production_centre_name == 'WTSI'
+    if mi_attempt.production_centre.try(:name) == 'WTSI'
       mi_attempt.update_attributes!(:is_released_from_genotyping => false)
     else
       mi_attempt.update_attributes!(
@@ -115,6 +115,10 @@ class ActiveSupport::TestCase
   end
 
   def cbx1; @cbx1 ||= Factory.create(:gene_cbx1); end
+
+  def bash_wtsi_cbx1_plan(more = {})
+    @bash_wtsi_cbx1_plan ||= TestDummy.mi_plan('BaSH', 'WTSI', {:gene => cbx1}.merge(more))
+  end
 
   fixtures :all
 
@@ -304,14 +308,4 @@ class Test::Person < ApplicationModel
   belongs_to :status
 
   validates :name, :uniqueness => true
-end
-
-ApplicationModel.class_eval do
-  def self.to_public_class
-    return "Public::#{self.name}".constantize
-  end
-
-  def to_public
-    return self.class.to_public_class.find(self.id)
-  end
 end

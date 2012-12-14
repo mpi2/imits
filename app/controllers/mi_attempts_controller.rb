@@ -37,9 +37,8 @@ class MiAttemptsController < ApplicationController
   def create
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
-    @mi_attempt.production_centre_name ||= current_user.production_centre.name
 
-    return unless authorize_user_production_centre
+    return unless authorize_user_production_centre(@mi_attempt)
 
     if ! @mi_attempt.valid?
       flash.now[:alert] = 'Micro-injection could not be created - please check the values you entered'
@@ -73,12 +72,11 @@ class MiAttemptsController < ApplicationController
 
   def update
     @mi_attempt = Public::MiAttempt.find(params[:id])
-    @mi_attempt.attributes = params[:mi_attempt]
+    return unless authorize_user_production_centre(@mi_attempt)
+
     @mi_attempt.updated_by = current_user
 
-    return unless authorize_user_production_centre
-
-    if @mi_attempt.save
+    if @mi_attempt.update_attributes(params[:mi_attempt])
       @mi_attempt.reload
       flash.now[:notice] = 'MI attempt updated successfully'
     end
@@ -109,20 +107,6 @@ class MiAttemptsController < ApplicationController
     @resource = MiAttempt.find(params[:id])
     render :template => '/shared/history'
   end
-
-  def authorize_user_production_centre
-    return true unless request.format == :json
-
-    if current_user.production_centre.name != @mi_attempt.production_centre_name
-      render :json => {
-        'error' => 'Cannot create/update MI attempts for other production centres'
-      }, :status => 401
-      return false
-    end
-
-    return true
-  end
-  private :authorize_user_production_centre
 
   alias_method :public_mi_attempt_url, :mi_attempt_url
   private :public_mi_attempt_url

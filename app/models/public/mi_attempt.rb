@@ -1,7 +1,8 @@
 class Public::MiAttempt < ::MiAttempt
 
-  include Public::Serializable
-  include Public::DistributionCentresAttributes
+  include ::Public::Serializable
+  include ::Public::DistributionCentresAttributes
+  include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
     es_cell_name
@@ -55,6 +56,7 @@ class Public::MiAttempt < ::MiAttempt
     comments
     genotyping_comment
     distribution_centres_attributes
+    mi_plan_id
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -65,7 +67,6 @@ class Public::MiAttempt < ::MiAttempt
     status_name
     mouse_allele_symbol_superscript
     mouse_allele_symbol
-    mi_plan_id
     phenotype_attempts_count
     pipeline_name
   } + FULL_ACCESS_ATTRIBUTES
@@ -84,7 +85,7 @@ class Public::MiAttempt < ::MiAttempt
   end
 
   def pipeline_name
-    self.es_cell && self.es_cell.pipeline && self.es_cell.pipeline.name ? self.es_cell.pipeline.name : nil
+    try(:es_cell).try(:pipeline).try(:name)
   end
 end
 

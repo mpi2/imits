@@ -8,16 +8,16 @@ class Reports::MonthlyProductionTest < ActiveSupport::TestCase
 
     should 'get table' do
 
-      allele = Factory.create :allele_with_gene_cbx1
+      allele = Factory.create :allele, :gene => cbx1
 
-      Factory.create :wtsi_mi_attempt_genotype_confirmed,
+      Factory.create :mi_attempt2_status_gtc,
         :es_cell => Factory.create(:es_cell, :allele => allele),
-        :consortium_name => 'MGP',
+        :mi_plan => TestDummy.mi_plan('MGP', 'WTSI', :gene => cbx1, :force_assignment => true),
         :is_active => true,
         :total_pups_born => 10,
         :total_male_chimeras => 10
 
-      report = Reports::MonthlyProduction.generate()
+      report = Reports::MonthlyProduction.generate
 
       assert !report.blank?
 

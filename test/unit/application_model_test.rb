@@ -17,5 +17,18 @@ class ApplicationModelTest < ActiveSupport::TestCase
       end
     end
 
+    context '::to_public_class' do
+      should 'work' do
+        assert_equal Public::MiPlan, MiPlan.to_public_class
+      end
+    end
+
+    context '#to_public' do
+      should 'work' do
+        p = Factory.create :mi_plan
+        assert_equal Public::MiPlan, p.to_public.class
+      end
+    end
+
   end
 end

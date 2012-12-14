@@ -10,17 +10,15 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
 
     def new_gene_mi(factory, gene, attrs = {})
       return Factory.create(factory, {
-          :consortium_name => 'BaSH',
-          :production_centre_name => 'WTSI',
+          :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', gene, :force_assignment => true),
           :es_cell => TestDummy.create(:es_cell, :allele => Factory.create(:allele, :gene => Gene.find_by_marker_symbol!(gene)))
         }.merge(attrs)
       )
     end
 
     def new_non_wtsi_gene_gc_mi(gene, attrs = {})
-      return Factory.create(:mi_attempt_genotype_confirmed, {
-          :consortium_name => 'DTCC',
-          :production_centre_name => 'UCD',
+      return Factory.create(:mi_attempt2_status_gtc, {
+          :mi_plan => TestDummy.mi_plan('DTCC', 'UCD', gene, :force_assignment => true),
           :es_cell => TestDummy.create(:es_cell, :allele => Factory.create(:allele, :gene => Gene.find_by_marker_symbol!(gene)))
         }.merge(attrs)
       )
@@ -44,12 +42,12 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
               :number_of_es_cells_starting_qc => 2,
               :number_of_es_cells_passing_qc => 0
 
-      new_gene_mi(:mi_attempt, 'Cbx5')
-      new_gene_mi(:mi_attempt, 'Cbx6')
-      new_gene_mi(:mi_attempt_chimeras_obtained, 'Cbx7')
-      new_gene_mi(:wtsi_mi_attempt_genotype_confirmed, 'Cbx8')
-      new_gene_mi(:wtsi_mi_attempt_genotype_confirmed, 'Cbx9')
-      new_gene_mi(:mi_attempt, 'Cbx10', :is_active => false)
+      new_gene_mi(:mi_attempt2, 'Cbx5')
+      new_gene_mi(:mi_attempt2, 'Cbx6')
+      new_gene_mi(:mi_attempt2_status_chr, 'Cbx7')
+      new_gene_mi(:mi_attempt2_status_gtc, 'Cbx8')
+      new_gene_mi(:mi_attempt2_status_gtc, 'Cbx9')
+      new_gene_mi(:mi_attempt2, 'Cbx10', :is_active => false)
 
       Factory.create :phenotype_attempt,
               :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx11'),

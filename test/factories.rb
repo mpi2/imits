@@ -79,73 +79,35 @@ Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_p
   end
 end
 
-Factory.define :mi_attempt do |mi_attempt|
-  mi_attempt.association :es_cell, :factory => :es_cell
-  mi_attempt.consortium_name 'EUCOMM-EUMODIC'
-  mi_attempt.production_centre_name 'WTSI'
-  mi_attempt.mi_date { Date.today }
-end
+#Factory.define :mi_attempt do |mi_attempt|
+#  mi_attempt.association :es_cell, :factory => :es_cell
+#  mi_attempt.consortium_name 'EUCOMM-EUMODIC'
+#  mi_attempt.production_centre_name 'WTSI'
+#  mi_attempt.mi_date { Date.today }
+#end
 
 Factory.define :mi_attempt2, :class => MiAttempt do |mi_attempt|
-  mi_attempt.association :mi_plan
-  mi_attempt.es_cell { |mi| Factory.create(:es_cell) }
+  mi_attempt.association :mi_plan, :factory => :mi_plan_with_production_centre
+  mi_attempt.es_cell { |mi| Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => mi.mi_plan.gene)) }
   mi_attempt.mi_date { Date.today }
 end
 
-Factory.define :mi_attempt_chimeras_obtained, :parent => :mi_attempt do |mi_attempt|
+Factory.define :mi_attempt2_status_chr, :parent => :mi_attempt2 do |mi_attempt|
   mi_attempt.total_male_chimeras 1
 end
 
-Factory.define :public_mi_attempt, :class => Public::MiAttempt do |mi_attempt|
-  mi_attempt.es_cell_name { Factory.create(:es_cell).name }
-  mi_attempt.consortium_name 'EUCOMM-EUMODIC'
-  mi_attempt.production_centre_name 'WTSI'
-  mi_attempt.mi_date { Date.today }
-end
-
-Factory.define :mi_attempt_genotype_confirmed, :parent => :mi_attempt_chimeras_obtained do |mi_attempt|
-  mi_attempt.production_centre_name 'ICS'
-  mi_attempt.number_of_het_offspring 1
-end
-
-Factory.define :wtsi_mi_attempt_genotype_confirmed, :parent => :mi_attempt_chimeras_obtained do |mi_attempt|
-  mi_attempt.production_centre_name 'WTSI'
-  mi_attempt.is_released_from_genotyping true
-end
-
-# TODO Remove this, move the set up of this test data to the one test where the
-# test data is used
-Factory.define :mi_attempt_with_status_history, :parent => :mi_attempt_genotype_confirmed do |mi_attempt|
-  mi_attempt.after_create do |mi|
-    mi.status_stamps.destroy_all
-
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.genotype_confirmed,
-      :created_at => Time.parse('2011-07-07 12:00:00'))
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.micro_injection_aborted,
-      :created_at => Time.parse('2011-06-06 12:00:00'))
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.genotype_confirmed,
-      :created_at => Time.parse('2011-05-05 12:00:00'))
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.micro_injection_in_progress,
-      :created_at => Time.parse('2011-04-04 12:00:00'))
-
-    mi.mi_plan.status_stamps.first.update_attributes(:created_at => Time.parse('2011-03-03 12:00:00'))
-    mi.mi_plan.status_stamps.create!(
-      :status => MiPlan::Status[:Conflict],
-      :created_at => Time.parse('2011-02-02 12:00:00'))
-    mi.mi_plan.status_stamps.create!(
-      :status => MiPlan::Status[:Interest],
-      :created_at => Time.parse('2011-01-01 12:00:00'))
-
-    mi.mi_plan.status_stamps.reload
-    mi.status_stamps.reload
+Factory.define :mi_attempt2_status_gtc, :parent => :mi_attempt2_status_chr do |mi_attempt|
+  mi_attempt.after_create do |mi_attempt|
+    if mi_attempt.production_centre.name == 'WTSI'
+      mi_attempt.update_attributes!(:is_released_from_genotyping => true)
+    else
+      mi_attempt.update_attributes!(:number_of_het_offspring => 1)
+    end
+    raise 'Status not gtc!' if ! mi_attempt.has_status? :gtc
   end
 end
 
-Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt_genotype_confirmed do |mi_attempt|
+Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt2_status_gtc do |mi_attempt|
   mi_attempt.after_create do |mi|
     mi.status_stamps.destroy_all
 
@@ -169,12 +131,26 @@ Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt_ge
   end
 end
 
+# Pass in :mi_plan => nil if you want to pass in production_centre_name and consortium_name
+Factory.define :public_mi_attempt, :class => Public::MiAttempt do |mi_attempt|
+  mi_attempt.association(:mi_plan, :factory => :mi_plan_with_production_centre)
+  mi_attempt.es_cell_name do |i|
+    if i.mi_plan.try(:gene)
+      Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => i.mi_plan.gene)).name
+    else
+      Factory.create(:es_cell).name
+    end
+  end
+  mi_attempt.mi_date { Date.today }
+end
+
 Factory.define :phenotype_attempt do |phenotype_attempt|
-  phenotype_attempt.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
+  phenotype_attempt.association :mi_attempt, :factory => :mi_attempt2_status_gtc
+  phenotype_attempt.mi_plan { |pa| pa.mi_attempt.mi_plan }
 end
 
 Factory.define :public_phenotype_attempt, :class => Public::PhenotypeAttempt do |phenotype_attempt|
-  phenotype_attempt.mi_attempt_colony_name { Factory.create(:mi_attempt_genotype_confirmed).colony_name }
+  phenotype_attempt.mi_attempt_colony_name { |pa| Factory.create(:mi_attempt2_status_gtc).colony_name }
 end
 
 Factory.define :phenotype_attempt_status_cec, :parent => :phenotype_attempt do |phenotype_attempt|
@@ -201,7 +177,7 @@ Factory.define :randomly_populated_es_cell, :parent => :es_cell do |es_cell|
   es_cell.association :gene, :factory => :randomly_populated_gene
 end
 
-Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt do |mi_attempt|
+Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt2 do |mi_attempt|
   mi_attempt.blast_strain { Strain.all.sample }
   mi_attempt.test_cross_strain { Strain.all.sample }
   mi_attempt.colony_background_strain { Strain.all.sample }
@@ -228,7 +204,7 @@ end
 Factory.define :mi_attempt_distribution_centre, :class => MiAttempt::DistributionCentre do |distribution_centre|
   distribution_centre.association :centre
   distribution_centre.association :deposited_material
-  distribution_centre.association :mi_attempt, :factory => :mi_attempt_genotype_confirmed
+  distribution_centre.association :mi_attempt, :factory => :mi_attempt2_status_gtc
 end
 
 Factory.define :phenotype_attempt_distribution_centre, :class => PhenotypeAttempt::DistributionCentre do |distribution_centre|
@@ -430,25 +406,23 @@ end
 
 Factory.define :es_cell_EPD0127_4_E01, :parent => :es_cell_EPD0127_4_E01_without_mi_attempts do |es_cell|
   es_cell.after_create do |es_cell|
-    common_attrs = {
-      :consortium_name => 'EUCOMM-EUMODIC',
-      :production_centre_name => 'ICS'
-    }
+    plan = TestDummy.mi_plan('EUCOMM-EUMODIC', 'ICS', :gene => es_cell.gene)
+    common_attrs = {:mi_plan => plan}
 
-    Factory.create(:mi_attempt,
+    Factory.create(:mi_attempt2,
       common_attrs.merge(
         :es_cell => es_cell,
         :colony_name => 'MBSS'
       )
     )
 
-    Factory.create(:mi_attempt,
+    Factory.create(:mi_attempt2,
       common_attrs.merge(
         :es_cell => es_cell
       )
     )
 
-    Factory.create(:mi_attempt,
+    Factory.create(:mi_attempt2,
       common_attrs.merge(
         :es_cell => es_cell,
         :colony_name => 'WBAA'
@@ -477,13 +451,12 @@ end
 
 Factory.define :es_cell_EPD0343_1_H06, :parent => :es_cell_EPD0343_1_H06_without_mi_attempts do |es_cell|
   es_cell.after_create do |es_cell|
-
-    Factory.create(:mi_attempt,
+    plan = TestDummy.mi_plan('EUCOMM-EUMODIC', 'WTSI', :gene => es_cell.gene)
+    Factory.create(:mi_attempt2,
       :es_cell => es_cell,
       :colony_name => 'MDCF',
-      :production_centre_name => 'WTSI',
       :mi_date => Date.parse('2010-09-13'),
-      :consortium_name => 'EUCOMM-EUMODIC'
+      :mi_plan => plan
     )
 
     es_cell.reload
@@ -506,11 +479,10 @@ Factory.define :es_cell_EPD0029_1_G04, :parent => :es_cell do |es_cell|
   es_cell.pipeline { TargRep::Pipeline.find_by_name! 'KOMP-CSD' }
 
   es_cell.after_create do |es_cell|
-    mi_attempt = Factory.create(:mi_attempt,
+    mi_attempt = Factory.create(:mi_attempt2,
       :es_cell => es_cell,
       :colony_name => 'MBFD',
-      :consortium_name => 'MGP',
-      :production_centre_name => 'WTSI'
+      :mi_plan => TestDummy.mi_plan('MGP', 'WTSI', :gene => es_cell.gene)
     )
     es_cell.reload
   end

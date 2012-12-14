@@ -7,8 +7,8 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
 
     context 'status, when production centre is WTSI' do
       setup do
-        @mi_attempt = Factory.create :mi_attempt,
-                :production_centre_name => 'WTSI',
+        @mi_attempt = Factory.create :mi_attempt2,
+                :mi_plan => bash_wtsi_cbx1_plan(:force_assignment => true),
                 :is_released_from_genotyping => false
       end
 
@@ -34,8 +34,8 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
 
     context 'status, when production centre is not WTSI' do
       setup do
-        @mi_attempt = Factory.create :mi_attempt,
-                :production_centre_name => 'ICS',
+        @mi_attempt = Factory.create :mi_attempt2,
+                :mi_plan => TestDummy.mi_plan('BaSH', 'ICS', :force_assignment => true),
                 :number_of_het_offspring => nil,
                 :number_of_chimeras_with_glt_from_genotyping => nil
       end
@@ -120,8 +120,8 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
       context 'when set to false' do
         context 'when production centre is WTSI' do
           should 'set status to aborted, even if is_released_from_gentotyping is true' do
-            mi = Factory.create :mi_attempt,
-                    :production_centre_name => 'WTSI',
+            mi = Factory.create :mi_attempt2,
+                    :mi_plan => bash_wtsi_cbx1_plan,
                     :is_released_from_genotyping => true,
                     :is_active => false
 
@@ -131,8 +131,8 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
 
         context 'when production centre is not WTSI' do
           should 'set status to aborted, even if genotype confirmed conditions are met' do
-            mi = Factory.create :mi_attempt,
-                    :production_centre_name => 'ICS',
+            mi = Factory.create :mi_attempt2,
+                    :mi_plan => TestDummy.mi_plan('BaSH', 'ICS'),
                     :number_of_het_offspring => 1,
                     :is_active => false
 
@@ -143,8 +143,8 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
 
       context 'when was false (and status was aborted) and is set to true' do
         should 'add an in-progress status' do
-          mi = Factory.create :mi_attempt,
-                  :production_centre_name => 'ICS',
+          mi = Factory.create :mi_attempt2,
+                  :mi_plan => TestDummy.mi_plan('BaSH', 'ICS'),
                   :is_active => false
 
           mi.is_active = true
@@ -154,7 +154,7 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
         end
 
         should 're-evaluate status based on rules and set to confirmed' do
-          mi = Factory.create :mi_attempt_genotype_confirmed,
+          mi = Factory.create :mi_attempt2_status_gtc,
                   :is_active => false
           assert_equal MiAttempt::Status.micro_injection_aborted, mi.status
 
@@ -167,8 +167,8 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
     end
 
     should 'avoid adding the same status twice consecutively' do
-      mi = Factory.create :mi_attempt,
-              :production_centre_name => 'ICS'
+      mi = Factory.create :mi_attempt2,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'ICS')
       mi.save!
       mi.update_attributes!(:total_male_chimeras => 1)
       mi.save!
@@ -189,7 +189,7 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
 
     context 'status stamps' do
       should 'be created if conditions for a status are met' do
-        mi = Factory.create :mi_attempt
+        mi = Factory.create :mi_attempt2
         assert_equal 1, mi.status_stamps.count
 
         set_mi_attempt_genotype_confirmed(mi)
@@ -198,7 +198,7 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
       end
 
       should 'be deleted if conditions for a status are not met' do
-        mi = Factory.create :mi_attempt, :is_active => false
+        mi = Factory.create :mi_attempt2, :is_active => false
         assert_equal 'abt', mi.status_stamps.last.status.code
         mi.update_attributes!(:is_active => true)
         assert_equal 'mip', mi.status_stamps.last.status.code
@@ -206,7 +206,7 @@ class MiAttempt::StatusManagementTest < ActiveSupport::TestCase
       end
 
       should_eventually 'have return order defined by StatusManager' do
-        mi = Factory.create :mi_attempt_genotype_confirmed
+        mi = Factory.create :mi_attempt2_status_gtc
         replace_status_stamps(mi,
           :gtc => '2011-01-01',
           :mip => '2011-01-02',

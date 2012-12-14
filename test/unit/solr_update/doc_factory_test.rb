@@ -10,104 +10,11 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
     @fake_unique_public_info.replace replacement
   end
 
-  def self.order_from_tests(object_type)
-    factory_method_name = :"create_for_#{object_type}"
-    distribution_centres_factory = :"#{object_type}_distribution_centre"
-
-    context 'order_from_url and order_from_name' do
-
-      setup do
-        @test_object = instance_variable_get(:"@#{object_type}")
-      end
-
-      #context 'when consortium is JAX, DTCC or BASH' do
-      #  should 'be set correctly to KOMP ikmc_project_id begins with VG' do
-      #    ['JAX', 'DTCC', 'BaSH'].each do |consortium_name|
-      #      @test_object.mi_plan.consortium = Consortium.find_by_name!(consortium_name)
-      #      @test_object.es_cell.ikmc_project_id = 'VG10003'
-      #      doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-      #      assert_equal 'KOMP', doc['order_from_name']
-      #      assert_equal 'http://www.komp.org/geneinfo.php?project=VG10003', doc['order_from_url']
-      #    end
-      #  end
-      #
-      #  should 'be set correctly to KOMP if ikmc_project_id begins does NOT begin with VG' do
-      #    ['JAX', 'DTCC', 'BaSH'].each do |consortium_name|
-      #      @test_object.mi_plan.consortium = Consortium.find_by_name!(consortium_name)
-      #      @test_object.es_cell.ikmc_project_id = '10003'
-      #      doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-      #      assert_equal 'KOMP', doc['order_from_name']
-      #      assert_equal 'http://www.komp.org/geneinfo.php?project=CSD10003', doc['order_from_url']
-      #    end
-      #  end
-      #
-      #  should 'be set correctly if ikmc_project_id does NOT exist' do
-      #    ['JAX', 'DTCC', 'BaSH'].each do |consortium_name|
-      #      @test_object.mi_plan.consortium = Consortium.find_by_name!(consortium_name)
-      #      @test_object.es_cell.ikmc_project_id = nil
-      #      doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-      #      assert_equal 'KOMP', doc['order_from_name']
-      #      assert_equal 'http://www.komp.org/', doc['order_from_url']
-      #    end
-      #  end
-      #end
-
-      #should 'be set correctly if consortium is Phenomin, HHelmholtz GMC, Monterotondo, MRC' do
-      #  ['Phenomin', 'Helmholtz GMC', 'Monterotondo', 'MRC'].each do |consortium_name|
-      #    consortium = Consortium.find_by_name!(consortium_name)
-      #    @test_object.mi_plan.update_attributes!(:consortium => consortium)
-      #    @test_object.reload
-      #
-      #    doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-      #
-      #    assert_equal 'EMMA', doc['order_from_name']
-      #    assert_equal "http://www.emmanet.org/mutant_types.php?keyword=#{@test_object.gene.marker_symbol}", doc['order_from_url']
-      #  end
-      #end
-
-    #  ['MGP', 'MGP Legacy'].each do |mgp_consortium|
-        #should "be set correctly if consortium is #{mgp_consortium} and has a distribution centre with EMMA flag set to true exists" do
-        #  @test_object.mi_plan.update_attributes!(:consortium => Consortium.find_by_name!(mgp_consortium))
-        #  @test_object.distribution_centres.destroy_all
-        #
-        #  dist_centre1 = Factory.create distribution_centres_factory,
-        #          :centre => Centre.find_by_name!('WTSI'),
-        #          :is_distributed_by_emma => false, object_type => @test_object
-        #  dist_centre2 = Factory.create distribution_centres_factory,
-        #          :centre => Centre.find_by_name!('ICS'),
-        #          :is_distributed_by_emma => true, object_type => @test_object
-        #  @test_object.distribution_centres = [dist_centre1, dist_centre2]
-        #
-        #  @test_object.reload
-        #
-        #  doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-        #  assert_equal 'EMMA', doc['order_from_name']
-        #  assert_equal "http://www.emmanet.org/mutant_types.php?keyword=#{@test_object.gene.marker_symbol}", doc['order_from_url']
-        #end
-
-        #should "be set correctly if consortium is #{mgp_consortium} and has NO distribution centre with EMMA flag set" do
-        #  @test_object.mi_plan.consortium = Consortium.find_by_name!(mgp_consortium)
-        #  dist_centre = Factory.create distribution_centres_factory,
-        #          :centre => Centre.find_by_name!('WTSI'),
-        #          :is_distributed_by_emma => false, object_type => @test_object
-        #  @test_object.distribution_centres.destroy_all
-        #  @test_object.distribution_centres = [dist_centre]
-        #
-        #  doc = SolrUpdate::DocFactory.send(factory_method_name, @test_object).first
-        #
-        #  assert_equal 'WTSI', doc['order_from_name']
-        #  assert_equal "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for #{@test_object.gene.marker_symbol}", doc['order_from_url']
-        #end
-   #   end # ['MGP', 'MGP Legacy'].each
-
-    end
-  end # order_from_tests
-
   context 'SolrUpdate::DocFactory' do
 
     context '#create' do
       should 'work when reference type is mi_attempt' do
-        mi = Factory.create :mi_attempt
+        mi = Factory.create :mi_attempt2
         mi_ref = {'type' => 'mi_attempt', 'id' => mi.id}
         docs = [{'test_doc' => true}]
         SolrUpdate::DocFactory.expects(:create_for_mi_attempt).with(mi).returns(docs)
@@ -140,9 +47,10 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         @es_cell = Factory.create :es_cell,
                 :allele => @allele,
                 :mutation_subtype => 'conditional_ready'
-        @mi_attempt = Factory.create :mi_attempt, :id => 43,
+        @mi_attempt = Factory.create :mi_attempt2, :id => 43,
                 :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
-                :es_cell => @es_cell
+                :es_cell => @es_cell,
+                :mi_plan => bash_wtsi_cbx1_plan
         @mi_attempt.stubs(:allele_symbol).returns('TEST ALLELE SYMBOL')
 
         docs = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt)
@@ -217,8 +125,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert_equal "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
                 @doc['genbank_file_url']
       end
-
-      order_from_tests :mi_attempt
     end
 
     context 'when creating solr docs for phenotype_attempt' do
@@ -228,7 +134,10 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         @es_cell = Factory.create :es_cell,
                 :allele => @allele,
                 :mutation_subtype => 'conditional_ready'
-        @mi_attempt = Factory.create :mi_attempt_genotype_confirmed, :es_cell => @es_cell
+
+        @mi_attempt = Factory.create :mi_attempt2_status_gtc,
+          :es_cell => @es_cell,
+          :mi_plan => bash_wtsi_cbx1_plan
 
         @phenotype_attempt = Factory.create :phenotype_attempt_status_cec,
                 :id => 86, :mi_attempt => @mi_attempt,
@@ -298,8 +207,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert_equal "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
                 @doc['genbank_file_url']
       end
-
-      order_from_tests :phenotype_attempt
     end
 
     context 'when creating solr docs for allele' do
@@ -474,9 +381,10 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
                 :allele => allele,
                 :mutation_subtype => 'conditional_ready',
                 :allele_id => 663
-        @mi_attempt = Factory.create :mi_attempt, :id => 43,
+        @mi_attempt = Factory.create :mi_attempt2, :id => 43,
                 :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
-                :es_cell => es_cell
+                :es_cell => es_cell,
+                :mi_plan => bash_wtsi_cbx1_plan
 
         @mi_attempt.es_cell.ikmc_project_id = 'VG10003'
 
@@ -504,7 +412,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         mi_attempt_distribution_centre = []
         phenotype_attempt_distribution_centre = []
 
-        @mi_attempt2 = Factory.create :mi_attempt_genotype_confirmed, :es_cell => es_cell
+        @mi_attempt2 = Factory.create :mi_attempt2_status_gtc, :es_cell => es_cell, :mi_plan => bash_wtsi_cbx1_plan
 
         @phenotype_attempt = Factory.create :phenotype_attempt_status_cec,
                 :id => 86, :mi_attempt => @mi_attempt2,
@@ -707,9 +615,9 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
                 :allele_id => 400,
                 :ikmc_project_id => 'VG10003'
 
-        mi_attempt = Factory.create :mi_attempt, :id => 433,
+        mi_attempt = Factory.create :mi_attempt2, :id => 433,
                 :colony_background_strain => Strain.create!(:name => 'TEST STRAIN 2'),
-                :es_cell => es_cell
+                :es_cell => es_cell, :mi_plan => bash_wtsi_cbx1_plan
 
         dist_centre = Factory.create :mi_attempt_distribution_centre,
                 :centre => Centre.find_by_name!('UCD'),

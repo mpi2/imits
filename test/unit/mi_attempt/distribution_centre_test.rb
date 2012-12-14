@@ -33,7 +33,7 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
     end
 
     should 'serialize correctly' do
-      mi = Factory.create :mi_attempt_genotype_confirmed
+      mi = Factory.create :mi_attempt2_status_gtc
       dc = TestDummy.create :mi_attempt_distribution_centre,
               'WTSI',
               'Live mice',

@@ -26,10 +26,10 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi'
         )
 
-        bash_wtsi_attempt = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+        bash_wtsi_plan = TestDummy.mi_plan('BaSH', 'WTSI', :gene => @cbx1, :force_assignment => true)
+        bash_wtsi_attempt = Factory.create :mi_attempt2_status_gtc,
                 :es_cell => es_cell,
-                :consortium_name => 'BaSH',
-                :production_centre_name => 'WTSI',
+                :mi_plan => bash_wtsi_plan,
                 :mouse_allele_type => 'c',
                 :colony_background_strain => Strain.find_by_name!('C57BL/6N')
         replace_status_stamps(bash_wtsi_attempt,
@@ -72,10 +72,10 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           'Phenotype Attempt Aborted' => '2011-12-08 23:59:59 UTC'
         )
 
-        mgp_wtsi_attempt = Factory.create :mi_attempt,
+        @mgp_wtsi_plan = TestDummy.mi_plan('MGP', 'WTSI', :gene => es_cell.gene, :force_assignment => true)
+        mgp_wtsi_attempt = Factory.create :mi_attempt2,
                 :es_cell => es_cell,
-                :consortium_name => 'MGP',
-                :production_centre_name => 'WTSI'
+                :mi_plan => @mgp_wtsi_plan
         @mgp_wtsi_plan = mgp_wtsi_attempt.mi_plan
         @mgp_wtsi_plan.status_stamps.first.update_attributes!(
           :created_at => '2011-12-11 23:59:59.999 UTC')
@@ -90,7 +90,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         ee_wtsi_plan = Factory.create :mi_plan,
                 :gene => @cbx1,
                 :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
-                :production_centre => Centre.find_by_name!('WTSI')
+                :production_centre => Centre.find_by_name!('WTSI'),
+                :force_assignment => true
 
         pt = ee_wtsi_plan.phenotype_attempts.create!(:mi_attempt => bash_wtsi_attempt,
           :created_at => '2012-01-01 23:59:59 UTC')
@@ -105,22 +106,22 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           :status => PhenotypeAttempt::Status['Phenotype Attempt Registered'])
 
 
-        jax_mi_plan = Factory.create :mi_plan,
-                :consortium => Consortium.find_by_name!('DTCC'),
-                :production_centre => Centre.find_by_name!('ICS'),
-                :gene => @cbx1
-
-        bash_wtsi_attempt = Factory.create :wtsi_mi_attempt_genotype_confirmed,
+        jax_wtsi_plan = TestDummy.mi_plan('JAX', 'WTSI', :gene => es_cell.gene, :force_assignment => true)
+        bash_wtsi_attempt = Factory.create :mi_attempt2_status_gtc,
                 :es_cell => es_cell,
-                :consortium_name => 'JAX',
-                :production_centre_name => 'WTSI',
+                :mi_plan => jax_wtsi_plan,
                 :mouse_allele_type => 'c',
                 :colony_background_strain => Strain.find_by_name!('C57BL/6N')
 
+        dtcc_ics_mi_plan = Factory.create :mi_plan,
+                :consortium => Consortium.find_by_name!('DTCC'),
+                :production_centre => Centre.find_by_name!('ICS'),
+                :gene => @cbx1,
+                :force_assignment => true
         Factory.create :phenotype_attempt_status_pdc,
                 :mi_attempt => bash_wtsi_attempt,
                 :colony_background_strain => Strain.find_by_name!('C57BL/6N'),
-                :mi_plan => jax_mi_plan
+                :mi_plan => dtcc_ics_mi_plan
 
         @report = Reports::MiProduction::Intermediate.new.report
       end

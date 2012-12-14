@@ -28,8 +28,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
     end
 
     should 'report for each month June 2011 and forward' do
-      mi = Factory.create :wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      mi = Factory.create :mi_attempt2_status_gtc,
+              :mi_plan => bash_wtsi_cbx1_plan(:force_assignment => true)
       plan = mi.mi_plan
       plan.update_attributes!(:number_of_es_cells_starting_qc => 1)
       pt = Factory.create :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi
@@ -79,12 +79,13 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
     should 'accumulate numbers for MiAttempts for distinct genes' do
       2.times do
         es_cell = Factory.create :es_cell
-        mi = Factory.create :mi_attempt, :es_cell => es_cell,
-                :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
+        plan = TestDummy.mi_plan('BaSH', 'WTSI', :gene => es_cell.gene, :force_assignment => true)
+        mi = Factory.create :mi_attempt2, :es_cell => es_cell,
+                :mi_plan => plan
         replace_status_stamps(mi.mi_plan, 'Assigned' => '2011-01-01')
         replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
-        mi = Factory.create :mi_attempt, :es_cell => es_cell,
-                :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
+        mi = Factory.create :mi_attempt2, :es_cell => es_cell,
+                :mi_plan => plan
         replace_status_stamps(mi.mi_plan, 'Assigned' => '2011-01-01')
         replace_status_stamps(mi, 'Micro-injection in progress' => '2011-08-01')
       end
@@ -104,7 +105,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
 
     should 'accumulate numbers of PhenotypeAttempts for distinct genes' do
       2.times do
-        mi = Factory.create :wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH', :production_centre_name => 'WTSI'
+        mi = Factory.create :mi_attempt2_status_gtc, 
+                :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :force_assignment => true)
         replace_status_stamps(mi.mi_plan,
           'Assigned' => '2011-01-01'
         )
@@ -189,8 +191,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
     end
 
     should 'not accumulate previous MiAttempt statuses' do
-      mi1 = Factory.create :mi_attempt, :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      mi1 = Factory.create :mi_attempt2,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :force_assignment => true)
       replace_status_stamps(mi1.mi_plan,
         'Assigned' => '2011-01-01'
       )
@@ -198,8 +200,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityKomp2Test< ActiveSupport
         'Micro-injection in progress' => '2011-08-01'
       )
 
-      mi2 = Factory.create :wtsi_mi_attempt_genotype_confirmed, :consortium_name => 'BaSH',
-              :production_centre_name => 'WTSI'
+      mi2 = Factory.create :mi_attempt2_status_gtc,
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :force_assignment => true)
       replace_status_stamps(mi2.mi_plan,
         'Assigned' => '2011-01-01'
       )

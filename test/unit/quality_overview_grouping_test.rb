@@ -20,8 +20,9 @@ class QualityOverviewTest < ActiveSupport::TestCase
 
         centre = Centre.find_by_name! 'CNB'
         mi_attempt_distribution_centre = Factory.create :mi_attempt_distribution_centre, :centre => centre, :is_distributed_by_emma => true
-        mi_attempt_tpi1 = Factory.create :wtsi_mi_attempt_genotype_confirmed, :es_cell => es_cell_tpi1, :colony_name => 'MCFC', :production_centre_name => 'WTSI',
-        :number_of_het_offspring => 2
+        plan = TestDummy.mi_plan 'EUCOMM-EUMODIC', 'WTSI', 'Tpi1', :force_assignment => true
+        mi_attempt_tpi1 = Factory.create :mi_attempt2_status_gtc, :es_cell => es_cell_tpi1, :colony_name => 'MCFC', :mi_plan => plan,
+            :number_of_het_offspring => 2
 
         mi_attempt_tpi1.distribution_centres.push(mi_attempt_distribution_centre)
         mi_attempt_tpi1.save!
@@ -39,8 +40,9 @@ class QualityOverviewTest < ActiveSupport::TestCase
 
         centre = Centre.find_by_name! 'UCD'
         mi_attempt_distribution_centre = Factory.create :mi_attempt_distribution_centre, :centre => centre, :is_distributed_by_emma => true
-        mi_attempt_celsr3 = Factory.create :mi_attempt_genotype_confirmed, :es_cell => es_cell_celsr3, :colony_name => 'UCD-10009A-F9-1', :production_centre_name => 'UCD',
-        :number_of_het_offspring => 2
+        plan = TestDummy.mi_plan 'EUCOMM-EUMODIC', 'UCD', 'Celsr3', :force_assignment => true
+        mi_attempt_celsr3 = Factory.create :mi_attempt2_status_gtc, :es_cell => es_cell_celsr3, :colony_name => 'UCD-10009A-F9-1',
+            :mi_plan => plan, :number_of_het_offspring => 2
 
         mi_attempt_celsr3.distribution_centres.push(mi_attempt_distribution_centre)
         mi_attempt_celsr3.save!
@@ -58,8 +60,9 @@ class QualityOverviewTest < ActiveSupport::TestCase
 
         centre = Centre.find_by_name! 'UCD'
         mi_attempt_distribution_centre = Factory.create :mi_attempt_distribution_centre, :centre => centre, :is_distributed_by_emma => true
-        mi_attempt_lgi2 = Factory.create :mi_attempt_genotype_confirmed, :es_cell => es_cell_lgi2, :colony_name => 'BL1071', :production_centre_name => 'UCD',
-        :number_of_het_offspring => 2
+        plan = TestDummy.mi_plan 'EUCOMM-EUMODIC', 'UCD', 'Lgi2', :force_assignment => true
+        mi_attempt_lgi2 = Factory.create :mi_attempt2_status_gtc, :es_cell => es_cell_lgi2, :colony_name => 'BL1071',
+            :mi_plan => plan, :number_of_het_offspring => 2
 
         mi_attempt_lgi2.distribution_centres.push(mi_attempt_distribution_centre)
         mi_attempt_lgi2.save!

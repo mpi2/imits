@@ -298,8 +298,8 @@ class EsCellTest < ActiveSupport::TestCase
         assert_equal 'C030046E11Rik', mart_data['marker_symbol']
 
         es_cell = Factory.create :es_cell, :name => 'HEPD0549_6_D02',
-                :gene => Factory.create(:gene_cbx1)
-        mi = Factory.create(:mi_attempt, :es_cell => es_cell)
+                :gene => cbx1
+        mi = Factory.create(:mi_attempt2, :es_cell => es_cell, :mi_plan => bash_wtsi_cbx1_plan)
 
         assert_raise(EsCell::SyncError) do
           EsCell.sync_all_with_marts

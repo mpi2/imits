@@ -117,12 +117,13 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_image_url' do
-        assert_equal "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/allele-image",
+        assert_equal "http://www.knockoutmouse.org/targ_rep/alleles//allele-image",
+        assert_equal 'https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/allele-image',
                 @doc['allele_image_url']
       end
 
       should 'set genbank_file_url' do
-        assert_equal "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
+        assert_equal 'https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file',
                 @doc['genbank_file_url']
       end
     end
@@ -199,7 +200,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_image_url' do
-        assert_equal "http://www.knockoutmouse.org/targ_rep/alleles/#{@allele.id}/allele-image-cre",
+        assert_equal 'https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/allele-image-cre',
                 @doc['allele_image_url']
       end
 
@@ -397,8 +398,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
           "JAX"=>{:preferred=>"www.JAX.com/whatever", :default=>"www.JAX-default.com"},
           "WTSI"=> {:preferred=> "mailto:mouseinterest@sanger.ac.uk?Subject=Mutant mouse for MARKER_SYMBOL", :default=>"www.WTSI-default.com"},
           "Oulu"=>{:preferred=>"www.Oulu.com?query=PROJECT_ID", :default=>"www.Oulu-default.com"},
-#          "UCD"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
-#          "KOMP"=> {:preferred=>"http://www.komp.org/geneinfo.php?project=PROJECT_ID", :default=>"www.UCD-default.com"},
           "VETMEDUNI"=>{:preferred=>"www.VETMEDUNI.com/stuff", :default=>"www.VETMEDUNI-default.com"},
           "BCM"=>{:preferred=>"www.BCM.com/something", :default=>"www.BCM-default.com"},
           "CNRS"=>{:preferred=>"www.CNRS.com?query=MARKER_SYMBOL", :default=>"www.CNRS-default.com"},

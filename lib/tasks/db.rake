@@ -18,7 +18,15 @@ namespace :db do
     task "#{envname}:dump" do
       config = YAML.load_file("#{Rails.root}/config/database.yml")[envname]
       if ! config
-        config = YAML.load_file("#{Rails.root}/config/database.#{envname}.yml")[envname]
+        [
+         "#{Rails.root}/config/database.#{envname}.yml",
+         "/opt/t87/global/conf/imits/#{envname}/database.yml"
+        ].each do |config_location|
+          if File.file? config_location
+            config = YAML.load_file(config_location)[envname]
+            break
+          end
+        end
       end
       raise "Cannot find #{envname} database config" unless config
       if config['port'].blank?; config['port'] = '5432'; end

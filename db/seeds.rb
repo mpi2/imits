@@ -88,7 +88,9 @@ Seeds.load Strain, [
   {:id => 55, :name => 'C57BL/6Dnk or C57BL/6JIco or C57BL/6NTac'},
   {:id => 56, :name => 'C57BL/6N;C57BL/6NTac'},
   {:id => 57, :name => 'B6N-Tyrc/BrdCrCrl'},
-  {:id => 58, :name => 'B6N-Albino N9'}
+  {:id => 58, :name => 'B6N-Albino N9'},
+  {:id => 59, :name => 'ICR (CD-1)'},
+  {:id => 60, :name => 'C57BL6/6NHsd'}
 ]
 
 Seeds.load MiAttempt::Status, [

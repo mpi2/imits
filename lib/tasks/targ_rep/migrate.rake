@@ -690,10 +690,17 @@ namespace :migrate do
 
       puts "Update MiAttempts with new EsCell id"
       MiAttempt.transaction do
+
+        remove_es_cells = EsCell.find_all_by_name(["Chd7-FL", "Atp2b2-MAME", "Tmc1-MAMG"]).map(&:id)
+        mi_attempts = MiAttempt.find_all_by_es_cell_id(remove_es_cells)
+        mi_attempts.map(&:destroy)
+
         ## We're looping through MiAttempts, using update_all will cause an issue where new ids could be mistaken for legacy ids.
         MiAttempt.order('id ASC').each do |mi|
           if legacy_id = matched_es_cells[mi.es_cell_id]
             MiAttempt.update_all({:es_cell_id => legacy_id}, {:id => mi.id})
+          else
+            `echo '#{mi.inspect}\n\n' >> missing_es_cell_for_mi_attempts`
           end
         end
       end

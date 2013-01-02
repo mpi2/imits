@@ -1,9 +1,12 @@
 config/old_database.yml
 config/database.production.yml
 config/database.staging.yml
+config/database.targ_rep.yml
 coverage/*
 public/javascripts/all.js
 sqlnet.log
 db/dump.*.sql
 .bundle/config
 .DS_Store
+*.log
+db/test_structure.sql

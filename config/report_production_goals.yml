@@ -1,5 +1,9 @@
 summary_month_by_month:
   BaSH:
+    2013:
+      1:
+        mi_goals: 616
+        gc_goals: 235
     2012:
       12:
         mi_goals: 588
@@ -63,6 +67,10 @@ summary_month_by_month:
 
 
   DTCC:
+    2013:
+      1:
+        mi_goals: 523
+        gc_goals: 281
     2012:
       12:
         mi_goals: 491
@@ -126,6 +134,10 @@ summary_month_by_month:
 
 
   JAX:
+    2013:
+      1:
+        mi_goals: 242
+        gc_goals: 90
     2012:
       12:
         mi_goals: 212

@@ -47,6 +47,7 @@ class PhenotypeAttempt::DistributionCentreTest < ActiveSupport::TestCase
         'centre_name' => 'WTSI',
         'deposited_material_name' => 'Live mice',
         'is_distributed_by_emma' => true,
+        'distribution_network' => 'EMMA',
         'start_date' => '2012-01-01',
         'end_date' => '2012-01-02',
         '_destroy' => false

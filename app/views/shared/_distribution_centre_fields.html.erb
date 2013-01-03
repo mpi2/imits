@@ -3,7 +3,7 @@
         <%= f.select :centre_name, Centre.all.map(&:name), :include_blank => true %>
     </td>
     <td>
-        <%= f.check_box :is_distributed_by_emma %>
+        <%= f.select :distribution_network, MiAttempt::DistributionCentre::DISTRIBUTION_NETWORKS, :include_blank => true %>
     </td>
     <td>
         <%= f.select :deposited_material_name, DepositedMaterial.all.map(&:name), :include_blank => true %>

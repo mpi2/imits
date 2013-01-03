@@ -16,24 +16,34 @@ namespace :db do
   ['production', 'staging'].each do |envname|
     desc "Dump #{envname} DB into db/dump.#{envname}.sql"
     task "#{envname}:dump" do
+      tmppath = Rails.application.config.paths.tmp.first
       config = YAML.load_file("#{Rails.root}/config/database.yml")[envname]
       if ! config
-        config = YAML.load_file("#{Rails.root}/config/database.#{envname}.yml")[envname]
+        [
+         "#{Rails.root}/config/database.#{envname}.yml",
+         "/opt/t87/global/conf/imits/#{envname}/database.yml"
+        ].each do |config_location|
+          if File.file? config_location
+            config = YAML.load_file(config_location)[envname]
+            break
+          end
+        end
       end
       raise "Cannot find #{envname} database config" unless config
       if config['port'].blank?; config['port'] = '5432'; end
-      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --no-privileges #{config['database']} > tmp/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
+      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --no-privileges #{config['database']} > #{tmppath}/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
     end
 
     desc "Load dump of #{envname} DB (produced with db:#{envname}:dump) into current envrionment DB"
     task "#{envname}:load" do
       raise "Production environment detected" if Rails.env.production?
-      config = YAML.load_file("#{Rails.root}/config/database.yml")[Rails.env]
+      tmppath = Rails.application.config.paths.tmp.first
+      config = YAML.load_file(Rails.application.config.paths.config.database.first)[Rails.env]
       if config['port'].blank?; config['port'] = '5432'; end
       psql_cmd = "PGPASSWORD='#{config['password']}' psql -U #{config['username']} -h #{config['host']} -p #{config['port']} #{config['database']}"
 
       system("cd #{Rails.root}; echo 'drop schema public cascade; create schema public' | #{psql_cmd}") or raise("Failed to drop public schema in environment #{envname}")
-      system("cd #{Rails.root}; #{psql_cmd} < tmp/dump.#{envname}.sql > /dev/null") or raise("Failed to load #{envname} dump of DB")
+      system("cd #{Rails.root}; #{psql_cmd} < #{tmppath}/dump.#{envname}.sql > /dev/null") or raise("Failed to load #{envname} dump of DB")
     end
 
     desc "Dump #{envname} DB into current environment DB"

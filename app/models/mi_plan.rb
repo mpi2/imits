@@ -376,3 +376,4 @@ end
 #
 #  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
 #
+

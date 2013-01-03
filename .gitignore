@@ -9,3 +9,4 @@ db/dump.*.sql
 .bundle/config
 .DS_Store
 *.log
+db/test_structure.sql

@@ -162,8 +162,8 @@ class MiAttempt < ApplicationModel
     output_string = ''
     self.distribution_centres.each do |distribution_centre|
       output_array = []
-      if distribution_centre.is_distributed_by_emma
-        output_array << 'EMMA'
+      if distribution_centre.distribution_network
+        output_array << distribution_centre.distribution_network
       end
       output_array << distribution_centre.centre.name
       if !distribution_centre.deposited_material.name.nil?

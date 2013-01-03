@@ -360,6 +360,11 @@ table.report_table td, .report table td, .report_chunky table td  {
 	border: 1px solid #999;
 }
 
+table.report_table table.date-field td {
+  border-width:0;
+  padding:0;
+}
+
 table.report_table th, .report table th {
   padding: 3px 3px;
 }

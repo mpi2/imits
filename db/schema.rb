@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121203164954) do
+ActiveRecord::Schema.define(:version => 20130103113250) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -164,6 +164,7 @@ ActiveRecord::Schema.define(:version => 20121203164954) do
     t.boolean  "is_distributed_by_emma", :default => false, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "distribution_network"
   end
 
   create_table "mi_attempt_status_stamps", :force => true do |t|
@@ -330,6 +331,7 @@ ActiveRecord::Schema.define(:version => 20121203164954) do
     t.boolean  "is_distributed_by_emma", :default => false, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "distribution_network"
   end
 
   create_table "phenotype_attempt_status_stamps", :force => true do |t|

@@ -41,6 +41,13 @@ class MiAttempt::DistributionCentre < ApplicationModel
   access_association_by_attribute :deposited_material, :name
   access_association_by_attribute :centre, :name
 
+  before_save do
+    ## TODO: Update martbuilder so we don't need to continue updating the boolean.
+    self[:is_distributed_by_emma] = self.distribution_network == 'EMMA'
+
+    true # Rails doesn't save if you return false.
+  end
+
   ## This is for backwards compatibility with portal.
   def is_distributed_by_emma
     self.distribution_network == 'EMMA'
@@ -50,14 +57,12 @@ class MiAttempt::DistributionCentre < ApplicationModel
     ## Set distribution_network to EMMA if `bool` is true
     if bool
       self.distribution_network = 'EMMA'
-      ## TODO: Update martbuilder so we don't need to continue updating the boolean.
-      self[:is_distributed_by_emma] = true
     ## Set distribution_network to nothing if `bool` is false and already set to EMMA, or leave as previous value.
     elsif is_distributed_by_emma
       self.distribution_network = nil
-      self[:is_distributed_by_emma] = false
     end
   end
+
 end
 
 # == Schema Information

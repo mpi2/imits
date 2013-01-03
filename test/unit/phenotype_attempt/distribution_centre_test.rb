@@ -57,12 +57,22 @@ class PhenotypeAttempt::DistributionCentreTest < ActiveSupport::TestCase
     end
 
     context '#distribution_network' do
+      setup do
+        @dc = Factory.create :phenotype_attempt_distribution_centre
+      end
+
       should "be set to 'EMMA' when is_distributed_by_emma is set to true" do
-        dc = Factory.create :mi_attempt_distribution_centre
-        dc.is_distributed_by_emma = true
-        dc.save!
-        assert_equal "EMMA", dc.distribution_network
-        assert_equal true, dc[:is_distributed_by_emma]
+        @dc.is_distributed_by_emma = true
+        @dc.save!
+        assert_equal "EMMA", @dc.distribution_network
+        assert_equal true, @dc[:is_distributed_by_emma]
+      end
+
+      should "set is_distributed_by_emma to false if #distribution_network is not 'EMMA'" do
+        @dc.distribution_network = 'MMRRC'
+        @dc.save!
+        assert_equal "MMRRC", @dc.distribution_network
+        assert_equal false, @dc[:is_distributed_by_emma]
       end
     end
 

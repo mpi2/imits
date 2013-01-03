@@ -55,5 +55,15 @@ class PhenotypeAttempt::DistributionCentreTest < ActiveSupport::TestCase
       assert_equal expected, JSON.parse(dc.to_json)
     end
 
+    context '#distribution_network' do
+      should "be set to 'EMMA' when is_distributed_by_emma is set to true" do
+        dc = Factory.create :mi_attempt_distribution_centre
+        dc.is_distributed_by_emma = true
+        dc.save!
+        assert_equal "EMMA", dc.distribution_network
+        assert_equal true, dc[:is_distributed_by_emma]
+      end
+    end
+
   end
 end

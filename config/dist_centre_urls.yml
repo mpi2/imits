@@ -47,6 +47,9 @@ WTSI:
 EMMA:
   :preferred: 'http://www.emmanet.org/mutant_types.php?keyword=MARKER_SYMBOL'
   :default: ''
+MMRRC:
+  :preferred: 'http://www.mmrrc.org/catalog/StrainCatalogSearchForm.php?search_query=MARKER_SYMBOL'
+  :default: ''
 KOMP:
   :preferred: 'http://www.komp.org/geneinfo.php?project=PROJECT_ID'
   :default: 'http://www.komp.org/'

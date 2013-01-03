@@ -127,7 +127,7 @@ class SolrUpdate::DocFactory
       next if ! range.cover?(current)
 
       centre_name = 'KOMP' if centre_name == 'UCD'
-      centre_name = 'EMMA' if distribution_centre.is_distributed_by_emma?
+      centre_name = distribution_centre.distribution_network if distribution_centre.distribution_network
       details = config[centre_name]
 
       next if details[:preferred].length == 0

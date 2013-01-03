@@ -1,3 +1,5 @@
+#encoding: utf-8
+
 require 'test_helper'
 
 class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
@@ -47,12 +49,23 @@ class MiAttempt::DistributionCentreTest < ActiveSupport::TestCase
         'centre_name' => 'WTSI',
         'deposited_material_name' => 'Live mice',
         'is_distributed_by_emma' => true,
+        'distribution_network' => 'EMMA',
         'start_date' => '2012-01-01',
         'end_date' => '2012-01-02',
         '_destroy' => false
       }
 
       assert_equal expected, JSON.parse(dc.to_json)
+    end
+
+    context '#distribution_network' do
+      should "be set to 'EMMA' when is_distributed_by_emma is set to true" do
+        dc = Factory.create :mi_attempt_distribution_centre
+        dc.is_distributed_by_emma = true
+        dc.save!
+        assert_equal "EMMA", dc.distribution_network
+        assert_equal true, dc[:is_distributed_by_emma]
+      end
     end
 
   end

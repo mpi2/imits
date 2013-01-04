@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class User::AdminTest < Kermits2::IntegrationTest
+class User::AdminTest < TarMits::IntegrationTest
 
   context 'Admin integration:' do
 

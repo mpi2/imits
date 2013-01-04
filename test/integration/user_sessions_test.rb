@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class UserSessionsTest < Kermits2::IntegrationTest
+class UserSessionsTest < TarMits::IntegrationTest
 
   context 'User sessions integration:' do
 

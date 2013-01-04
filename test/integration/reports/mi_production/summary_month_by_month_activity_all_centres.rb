@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresTest < Kermits2::IntegrationTest
+class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresTest < TarMits::IntegrationTest
 
   DEBUG = true
 

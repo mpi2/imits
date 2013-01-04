@@ -4,4 +4,4 @@
 require File.expand_path('../config/application', __FILE__)
 require 'rake'
 
-Kermits2::Application.load_tasks
+TarMits::Application.load_tasks

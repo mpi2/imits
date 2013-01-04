@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class GeneSelectionTest < Kermits2::JsIntegrationTest
+class GeneSelectionTest < TarMits::JsIntegrationTest
   context 'the gene_selection page' do
     should 'require the user to be logged in' do
       visit '/mi_plans/gene_selection'

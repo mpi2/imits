@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class PhenotypeAttempt::CreateInFormIntegrationTest < Kermits2::JsIntegrationTest
+class PhenotypeAttempt::CreateInFormIntegrationTest < TarMits::JsIntegrationTest
   context 'When creating Phenotype Attempt in form' do
 
     setup do

@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::LanguishingIntegrationTest < Kermits2::IntegrationTest
+class Reports::MiProduction::LanguishingIntegrationTest < TarMits::IntegrationTest
   context '/reports/mi_production/languishing' do
 
     setup do

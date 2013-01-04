@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class NavigationTest < Kermits2::IntegrationTest
+class NavigationTest < TarMits::IntegrationTest
   context 'Navigation' do
 
     should 'not be shown when not logged in' do

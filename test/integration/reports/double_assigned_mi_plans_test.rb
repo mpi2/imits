@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::DoubleAssignedMiPlansTest < Kermits2::IntegrationTest
+class Reports::DoubleAssignedMiPlansTest < TarMits::IntegrationTest
 
   context 'Double-Assigned MI Plans test:' do
 

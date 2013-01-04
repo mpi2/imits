@@ -1,4 +1,4 @@
-Kermits2::Application.routes.draw do
+TarMits::Application.routes.draw do
   root :to => "root#index"
 
   resources :genes, :only => [:index] do

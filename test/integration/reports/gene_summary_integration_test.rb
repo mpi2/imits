@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::GeneSummaryIntegrationTest < Kermits2::IntegrationTest
+class Reports::GeneSummaryIntegrationTest < TarMits::IntegrationTest
 
   context 'reports/mi_attempts_by_gene' do
 

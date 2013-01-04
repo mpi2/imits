@@ -144,7 +144,7 @@ if ! ENV['CHROMIUM'].blank?
   end
 end
 
-class Kermits2::IntegrationTest < ActionDispatch::IntegrationTest
+class TarMits::IntegrationTest < ActionDispatch::IntegrationTest
   include Capybara::DSL
 
   def database_strategy; :deletion; end
@@ -177,7 +177,7 @@ class Kermits2::IntegrationTest < ActionDispatch::IntegrationTest
   end
 end
 
-class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
+class TarMits::JsIntegrationTest < TarMits::IntegrationTest
   def setup
     super
     Capybara.current_driver = :selenium
@@ -245,7 +245,7 @@ class ActionController::TestCase
   end
 end
 
-class Kermits2::ExternalScriptTestCase < ActiveSupport::TestCase
+class TarMits::ExternalScriptTestCase < ActiveSupport::TestCase
   def database_strategy; :deletion; end
 
   def run_script(commands)

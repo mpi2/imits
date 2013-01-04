@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class SolrUpdate::QueueItemsPageIntegrationTest < Kermits2::JsIntegrationTest
+class SolrUpdate::QueueItemsPageIntegrationTest < TarMits::JsIntegrationTest
   context 'Solr update queue items page integration test' do
 
     should 'not show solr queue link if not admin user' do

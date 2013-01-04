@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class MiPlan::ViewEditIntegrationTest < Kermits2::JsIntegrationTest
+class MiPlan::ViewEditIntegrationTest < TarMits::JsIntegrationTest
   context 'View & Edit MiPlans tests:' do
 
     should 'display MiPlan data' do

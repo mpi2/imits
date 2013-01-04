@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class QualityOverview::ViewIndexIntegrationTest < Kermits2::IntegrationTest
+class QualityOverview::ViewIndexIntegrationTest < TarMits::IntegrationTest
 
   context 'QualityOverview' do
 

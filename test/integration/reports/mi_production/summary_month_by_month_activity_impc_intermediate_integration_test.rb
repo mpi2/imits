@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediateIntegrationTest < Kermits2::IntegrationTest
+class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediateIntegrationTest < TarMits::IntegrationTest
 
   context 'Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate' do
     should 'require the user to be logged in' do

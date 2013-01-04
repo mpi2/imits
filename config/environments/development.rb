@@ -1,4 +1,4 @@
-Kermits2::Application.configure do
+TarMits::Application.configure do
   # Settings specified here will take precedence over those in config/application.rb
 
   ENV['RAILS_ASSET_ID'] = ''

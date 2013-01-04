@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class MiPlan::SubProject::CreateInFormIntegrationTest < Kermits2::IntegrationTest
+class MiPlan::SubProject::CreateInFormIntegrationTest < TarMits::IntegrationTest
   context 'When creating sub project in form' do
 
     should 'save sub project and redirect back to index page with notice message' do

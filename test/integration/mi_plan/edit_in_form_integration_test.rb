@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class MiPlan::EditInFormIntegrationTest < Kermits2::IntegrationTest
+class MiPlan::EditInFormIntegrationTest < TarMits::IntegrationTest
   context 'Edit MiPlans in Form tests:' do
 
     should 'edit page should work' do

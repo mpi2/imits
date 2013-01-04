@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class AuditingHistoryIntegrationTest < Kermits2::IntegrationTest
+class AuditingHistoryIntegrationTest < TarMits::IntegrationTest
   context 'Audit history page for' do
 
     setup do

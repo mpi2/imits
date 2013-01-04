@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class MiAttempt::SearchInGridIntegrationTest < Kermits2::JsIntegrationTest
+class MiAttempt::SearchInGridIntegrationTest < TarMits::JsIntegrationTest
   context 'Searching for MI attempts in grid' do
 
     should 'need a valid logged in user' do

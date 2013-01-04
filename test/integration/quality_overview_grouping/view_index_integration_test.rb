@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class QualityOverviewGrouping::ViewIndexIntegrationTest < Kermits2::IntegrationTest
+class QualityOverviewGrouping::ViewIndexIntegrationTest < TarMits::IntegrationTest
 
   context 'QualityOverviewGrouping view index' do
 

@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class SearchForPhenotypeAttemptsTest < Kermits2::JsIntegrationTest
+class SearchForPhenotypeAttemptsTest < TarMits::JsIntegrationTest
 
   should 'need a valid logged in user' do
     visit '/users/logout'

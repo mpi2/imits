@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class Reports::ImpcGeneListIntegrationTest < Kermits2::IntegrationTest
+class Reports::ImpcGeneListIntegrationTest < TarMits::IntegrationTest
   context '/reports/impc_gene_list' do
 
     setup do

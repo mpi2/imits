@@ -2,7 +2,7 @@ require 'test_helper'
 
 module Rake
   module Cron
-    class CacheReportsTest < Kermits2::ExternalScriptTestCase
+    class CacheReportsTest < TarMits::ExternalScriptTestCase
       context 'rake cron:cache_reports' do
         setup do
           Factory.create :user, :email => 'htgt@sanger.ac.uk'

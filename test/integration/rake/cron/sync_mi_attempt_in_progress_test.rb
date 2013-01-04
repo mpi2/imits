@@ -2,7 +2,7 @@ require 'test_helper'
 
 module Rake
   module Cron
-    class SyncMiAttemptInProgressDatesTest < Kermits2::ExternalScriptTestCase
+    class SyncMiAttemptInProgressDatesTest < TarMits::ExternalScriptTestCase
       context 'rake cron:sync_mi_attempt_in_progress_dates' do
 
         should 'work' do

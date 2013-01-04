@@ -84,6 +84,8 @@ class MiPlan < ApplicationModel
   after_save :manage_status_stamps
   after_save :conflict_resolve_others
 
+  after_save :reset_status_stamp_created_at
+
   after_destroy :conflict_resolve_others
 
   private
@@ -100,6 +102,18 @@ class MiPlan < ApplicationModel
     else
       self.sub_project ||= SubProject.find_by_name!('')
     end
+  end
+
+  def new_qc_in_progress?
+    !self.status_id_changed? &&
+    self.status.name == 'Assigned - ES Cell QC In Progress' &&
+    self.number_of_es_cells_starting_qc_changed?
+  end
+
+  def reset_status_stamp_created_at
+    return unless new_qc_in_progress?
+    status_stamp = self.status_stamps.find_by_status_id(self.status_id)
+    status_stamp.update_attribute(:created_at, Time.now)
   end
 
   public

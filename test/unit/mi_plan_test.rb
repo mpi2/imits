@@ -367,6 +367,21 @@ class MiPlanTest < ActiveSupport::TestCase
           default_mi_plan.valid?
           assert_equal 7, default_mi_plan.number_of_es_cells_starting_qc
         end
+
+        should 'when updated reset the created_at time of the current status stamp' do
+          default_mi_plan.number_of_es_cells_starting_qc = 7
+          default_mi_plan.save!
+          
+          original_status_time = default_mi_plan.status_stamps.find_by_status_id(default_mi_plan.status_id).created_at
+
+          default_mi_plan.number_of_es_cells_starting_qc = default_mi_plan.number_of_es_cells_starting_qc + 1
+          default_mi_plan.save
+          current_status_time = default_mi_plan.status_stamps.find_by_status_id(default_mi_plan.status_id).created_at
+
+          assert_equal 8, default_mi_plan.number_of_es_cells_starting_qc
+          assert (original_status_time < current_status_time), 'created_at has not been updated'
+        end
+
       end
 
       context '#number_of_es_cells_passing_qc' do

@@ -11,7 +11,7 @@ class SetDistributionNetworkFromEmmaBoolean < ActiveRecord::Migration
     (MiAttempt::DistributionCentre.all + PhenotypeAttempt::DistributionCentre.all).each do |dc|
       if dc[:is_distributed_by_emma]
         dc.distribution_network = 'EMMA'
-        dc.save!
+        dc.save! rescue false
       end
     end
   end

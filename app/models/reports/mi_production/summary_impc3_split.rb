@@ -33,9 +33,8 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
     'Rederivation started',
     'Rederivation completed',
     'Registered for phenotyping'#,
-
-  #  'Gene Pipeline efficiency (%)',
-  #  'Clone Pipeline efficiency (%)'
+    #'Gene Pipeline efficiency (%)',
+    #'Clone Pipeline efficiency (%)'
   ] + DEBUG_HEADINGS
 
   def self.report_title; 'Production for IMPC Consortia'; end
@@ -410,7 +409,7 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
       "Cre excision completed",
       "Phenotyping started",
       "Phenotyping completed",
-      "Phenotyping aborted",
+      "Phenotyping aborted"
     ] + (details ? DEBUG_HEADINGS : [])
 
     report.reorder(new_columns)

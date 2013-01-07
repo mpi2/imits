@@ -231,6 +231,17 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '#phenotype_only' do
+      should 'block MiAttempts on an MiPlan' do
+        default_mi_plan.phenotype_only = true
+        default_mi_plan.save
+
+        mi = Factory.build :mi_attempt2, :mi_plan => default_mi_plan
+        mi.save
+        assert ! mi.errors[:mi_plan].blank?
+      end
+    end
+
     should 'limit the public mass-assignment API' do
       expected = [
         'marker_symbol',
@@ -239,6 +250,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'priority_name',
         'number_of_es_cells_starting_qc',
         'number_of_es_cells_passing_qc',
+        'phenotype_only',
         'withdrawn',
         'sub_project_name',
         'is_active',
@@ -277,7 +289,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'mgi_accession_id',
         'es_qc_comment_name',
         'mi_attempts_count',
-        'phenotype_attempts_count'
+        'phenotype_attempts_count',
+        'phenotype_only'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

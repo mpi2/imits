@@ -133,7 +133,7 @@ GEM
       rdoc (~> 3.4)
       thor (~> 0.14.4)
     raindrops (0.8.0)
-    rake (10.0.3)
+    rake (10.0.2)
     ransack (0.7.0)
       actionpack (~> 3.0)
       activerecord (~> 3.0)
@@ -205,7 +205,7 @@ DEPENDENCIES
   parallel_tests
   pg
   rails (~> 3.0.9)
-  rake
+  rake (= 10.0.2)
   ransack (= 0.7)
   rmagick
   scruffy_Sanger (= 0.2.6.1)

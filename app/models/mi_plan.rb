@@ -371,6 +371,7 @@ end
 #  comment                        :text
 #  withdrawn                      :boolean         default(FALSE), not null
 #  es_qc_comment_id               :integer
+#  phenotype_only                 :boolean
 #
 # Indexes
 #

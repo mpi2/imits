@@ -82,6 +82,12 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  validate do |mi_attempt|
+    if mi_attempt.mi_plan.phenotype_only
+      mi_attempt.errors.add(:mi_plan, 'cannot belong to this mi plan (phenotype only)')
+    end
+  end
+
   # BEGIN Callbacks
 
   before_validation :set_blank_qc_fields_to_na

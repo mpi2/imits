@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 source 'http://www.i-dcc.org/rubygems'
 
-gem 'rake'
+gem 'rake', '10.0.2'
 gem 'rails', '~> 3.0.9'
 gem 'hoptoad_notifier'
 gem 'jammit'

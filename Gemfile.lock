@@ -207,7 +207,7 @@ DEPENDENCIES
   parallel_tests
   pg
   rails (~> 3.0.9)
-  rake
+  rake (= 10.0.2)
   ransack (= 0.7)
   rmagick
   scruffy_Sanger (= 0.2.6.1)

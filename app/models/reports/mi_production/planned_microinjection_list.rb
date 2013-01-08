@@ -49,6 +49,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       'consortium.name'         => 'Consortium',
       'sub_project.name'        => 'SubProject',
       'is_bespoke_allele'       => 'Bespoke',
+      'phenotype_only'          => 'Phenotype only?',
       'production_centre.name'  => 'Production Centre',
       'gene.marker_symbol'      => 'Marker Symbol',
       'gene.mgi_accession_id'   => 'MGI Accession ID',
@@ -67,7 +68,10 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
         :priority           => { :only => [:name] },
         :status             => { :only => [:name] }
       },
-      :transforms => lambda {|r| r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No'}
+      :transforms => lambda do |r|
+        r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No'
+        r["phenotype_only"] = r.phenotype_only ? 'Yes' : 'No'
+      end
     }
 
     report = MiPlan.report_table( :all, report_options )

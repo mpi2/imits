@@ -93,7 +93,7 @@ class Public::MiPlan < ::MiPlan
       if plan.changes.has_key? 'phenotype_only' and plan.phenotype_only
         plan.errors.add(:phenotype_only, 'cannot be set (has micro-injection_attempts)')
       elsif plan.phenotype_only
-        plan.errors.add(:phenotype_only, '^ This MiPlan is phenotype only. You cannot add MiAttempts.')
+        plan.errors.add(:phenotype_only, 'This MiPlan is phenotype only. You cannot add MiAttempts.')
       end
     end
   end
@@ -152,7 +152,7 @@ end
 #  comment                        :text
 #  withdrawn                      :boolean         default(FALSE), not null
 #  es_qc_comment_id               :integer
-#  phenotype_only                 :boolean
+#  phenotype_only                 :boolean         default(FALSE)
 #
 # Indexes
 #

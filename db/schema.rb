@@ -307,7 +307,7 @@ ActiveRecord::Schema.define(:version => 20130107104030) do
     t.text     "comment"
     t.boolean  "withdrawn",                      :default => false, :null => false
     t.integer  "es_qc_comment_id"
-    t.boolean  "phenotype_only"
+    t.boolean  "phenotype_only",                 :default => false
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true

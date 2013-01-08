@@ -83,8 +83,11 @@ class MiAttempt < ApplicationModel
   end
 
   validate do |mi_attempt|
-    if mi_attempt.mi_plan && mi_attempt.mi_plan.phenotype_only
-      mi_attempt.errors.add(:mi_plan, 'cannot belong to this mi plan (phenotype only)')
+    next if mi_attempt.mi_plan.blank?
+
+    if mi_attempt.mi_plan.phenotype_only
+      mi_attempt.errors.add(:base, 'MiAttempt cannot be created on this plan (phenotype only)')
+      return false
     end
   end
 

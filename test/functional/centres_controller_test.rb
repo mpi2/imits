@@ -34,6 +34,15 @@ class CentresControllerTest < ActionController::TestCase
         assert_response :success 
       end
 
+      should 'create an invalid centre via POST request (via JSON)' do
+        post :create,
+          :centre => {'name' => "WTSI"},
+          :format => 'json'
+
+        assert_equal JSON.parse(response.body), {'error' => 'Centre name must be present and unique.'}
+        assert_response 422
+      end
+
       should 'create and then update via a POST, then a PUT request (via JSON)' do
         post :create,
           :centre => {'name' => "New centre"},

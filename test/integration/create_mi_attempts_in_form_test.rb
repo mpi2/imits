@@ -13,15 +13,15 @@ class CreateMiAttemptsInFormTest < TarMits::JsIntegrationTest
     end
 
     should 'save MI and redirect back to show page when valid data' do
-      
-      Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1))
+
+      es_cell = Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1))
       
       mi_plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),
               :consortium => Consortium.find_by_name!('MGP'),
               :status => MiPlan::Status[:Assigned],
               :gene => cbx1
 
-      choose_es_cell_from_list 'Cbx1', 'EPD_10'
+      choose_es_cell_from_list cbx1.marker_symbol, es_cell.name
 
       choose_date_from_datepicker_for_input('mi_attempt[mi_date]')
       fill_in 'mi_attempt[colony_name]', :with => 'MZSQ'
@@ -42,14 +42,16 @@ class CreateMiAttemptsInFormTest < TarMits::JsIntegrationTest
     end
 
     should 're-render form defaults filled in and validation errors when invalid data' do
+      allele = TargRep::Allele.first
+      es_cell = TargRep::EsCell.first
 
-      choose_es_cell_from_list 'Auto-generated Symbol 9', 'EPD_8'
+      choose_es_cell_from_list allele.gene.marker_symbol, es_cell.name
       fill_in 'mi_attempt[colony_name]', :with => 'MABC'
       click_button 'mi_attempt_submit'
 
       assert page.has_no_css?('#mi_attempt_submit[disabled]')
 
-      assert_equal 'EPD_8', page.find(:css, 'input[name="mi_attempt[es_cell_name]"]').value
+      assert_equal es_cell.name, page.find(:css, 'input[name="mi_attempt[es_cell_name]"]').value
       assert_equal '', page.find(:css, 'select[name="mi_attempt[consortium_name]"]').value
       assert page.has_css? '.message.alert'
       assert page.has_css? '.field_with_errors'

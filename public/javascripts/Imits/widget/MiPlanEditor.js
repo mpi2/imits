@@ -81,6 +81,12 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 store: window.PRIORITY_OPTIONS
             },
             {
+                id: 'phenotype_only',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Phenotype only?',
+                name: 'phenotype_only'
+            },
+            {
                 id: 'is_conditional_allele',
                 xtype: 'simplecheckbox',
                 fieldLabel: 'Conditional allele?',

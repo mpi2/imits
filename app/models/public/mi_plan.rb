@@ -20,7 +20,8 @@ class Public::MiPlan < ::MiPlan
     'is_deletion_allele',
     'is_cre_knock_in_allele',
     'is_cre_bac_allele',
-    'comment'
+    'comment',
+    'phenotype_only'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -87,6 +88,16 @@ class Public::MiPlan < ::MiPlan
     end
   end
 
+  validate do |plan|
+    if plan.mi_attempts.size > 0
+      if plan.changes.has_key? 'phenotype_only' and plan.phenotype_only
+        plan.errors.add(:phenotype_only, 'cannot be set (has micro-injection_attempts)')
+      elsif plan.phenotype_only
+        plan.errors.add(:phenotype_only, 'This MiPlan is phenotype only. You cannot add MiAttempts.')
+      end
+    end
+  end
+
   def self.translations
     return {
       'marker_symbol' => 'gene_marker_symbol',
@@ -141,6 +152,7 @@ end
 #  comment                        :text
 #  withdrawn                      :boolean         default(FALSE), not null
 #  es_qc_comment_id               :integer
+#  phenotype_only                 :boolean         default(FALSE)
 #
 # Indexes
 #

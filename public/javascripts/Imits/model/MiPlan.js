@@ -48,6 +48,10 @@ Ext.define('Imits.model.MiPlan', {
         name: 'es_qc_comment_name'
     },
     {
+        name: 'phenotype_only',
+        defaultValue: false
+    },
+    {
         name: 'is_conditional_allele',
         defaultValue: false
     },

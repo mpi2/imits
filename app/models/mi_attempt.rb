@@ -83,6 +83,15 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  validate do |mi_attempt|
+    next if mi_attempt.mi_plan.blank?
+
+    if mi_attempt.mi_plan.phenotype_only
+      mi_attempt.errors.add(:base, 'MiAttempt cannot be created on this plan (phenotype only)')
+      return false
+    end
+  end
+
   # BEGIN Callbacks
 
   before_validation :set_blank_qc_fields_to_na

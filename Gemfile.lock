@@ -113,7 +113,7 @@ GEM
     polyamorous (0.5.0)
       activerecord (~> 3.0)
     polyglot (0.3.3)
-    rack (1.2.6)
+    rack (1.2.5)
     rack-mount (0.6.14)
       rack (>= 1.0.0)
     rack-test (0.5.7)
@@ -186,28 +186,29 @@ PLATFORMS
 
 DEPENDENCIES
   acts_as_audited (~> 2.0.0.rc7)
-  acts_as_reportable
+  acts_as_reportable (= 1.1.1)
   annotate
   awesome_print
-  biomart
+  biomart (= 0.2.2)
   capybara
   chromedriver-helper
   database_cleaner
-  devise
+  devise (= 1.4.7)
   factory_girl_rails
-  foreigner
-  hoptoad_notifier
-  jammit
+  foreigner (= 1.0.3)
+  hoptoad_notifier (= 2.4.11)
+  jammit (= 0.6.5)
   launchy
   letter_opener
   mocha
-  mpi2_solr_update
+  mpi2_solr_update (= 1.5.0)
   parallel_tests
-  pg
+  pg (= 0.11.0)
+  rack (= 1.2.5)
   rails (~> 3.0.9)
   rake (= 10.0.2)
   ransack (= 0.7)
-  rmagick
+  rmagick (= 2.13.1)
   scruffy_Sanger (= 0.2.6.1)
   selenium-webdriver (= 2.21)
   shoulda
@@ -215,5 +216,5 @@ DEPENDENCIES
   simplecov-rcov
   test-unit
   thin
-  unicorn
+  unicorn (= 4.3.0)
   will_paginate (~> 3.0.pre2)

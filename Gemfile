@@ -3,25 +3,26 @@ source 'http://www.i-dcc.org/rubygems'
 
 gem 'rake', '10.0.2'
 gem 'rails', '~> 3.0.9'
-gem 'hoptoad_notifier'
-gem 'jammit'
+gem 'rack', '1.2.5'
+gem 'hoptoad_notifier', '2.4.11'
+gem 'jammit', '0.6.5'
 
-gem 'pg'
-gem 'foreigner'
+gem 'pg', '0.11.0'
+gem 'foreigner', '1.0.3'
 
-gem 'devise'
-gem 'biomart'
+gem 'devise', '1.4.7'
+gem 'biomart', '0.2.2'
 gem 'acts_as_audited', '~>2.0.0.rc7'
 gem 'ransack', '0.7'
-gem 'mpi2_solr_update'
+gem 'mpi2_solr_update', '1.5.0'
 
 gem 'will_paginate', '~>3.0.pre2'
-gem 'acts_as_reportable', :require => 'ruport/acts_as_reportable'
+gem 'acts_as_reportable', '1.1.1', :require => 'ruport/acts_as_reportable'
 
-gem 'rmagick'
+gem 'rmagick', '2.13.1'
 gem 'scruffy_Sanger','0.2.6.1', :require => 'scruffy'
 
-gem 'unicorn'
+gem 'unicorn', '4.3.0'
 
 group :development, :test do
   gem 'launchy'

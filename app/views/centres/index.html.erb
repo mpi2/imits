@@ -1,0 +1,41 @@
+<%= content_for :head do %>
+<style type="text/css">
+div.adjust-alot {padding-left: 75px;}
+div.adjust {padding-left: 50px;}
+div.adjust-a-little {padding-left: 25px;}
+table.bottom-border td, th {
+ border-bottom:1px dotted black;
+ padding: 5px;
+}
+</style>
+<% end %>
+
+<div class = "adjust-a-little"><h1>Centres</h1></div>
+</br>
+<div class="adjust">
+  <h2>Create New Centre</h2>
+</div>
+<div class="adjust-alot">
+  <%= form_for Centre.new do |f| %>
+    <%= f.label :name, 'Enter name'%>
+    <%= f.text_field :name%>
+    <%= f.submit%>
+  <% end %>
+</div></br></br>
+<div class="adjust"><h2>Current centres</h2></div>
+<div  class="adjust-alot">
+  <table class="bottom-border">
+    <% Centre.all.each do |centre| %>
+      <tr>
+        <td><%= centre.name %></td>
+        <% if !centre.has_children? %>
+          <td width=100 align="right">
+            <%= button_to '  Delete  ', centre, :id => "#{centre.name}_button", :confirm => "Are you sure you want to delete '#{centre.name}'", :method => :delete %>
+          </td>
+        <% else %>
+          <td></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </table>
+</div>

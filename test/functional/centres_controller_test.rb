@@ -39,7 +39,7 @@ class CentresControllerTest < ActionController::TestCase
           :centre => {'name' => "WTSI"},
           :format => 'json'
 
-        assert_equal JSON.parse(response.body), {'error' => 'Centre name must be present and unique.'}
+        assert_equal JSON.parse(response.body), {'error' => 'Could not create centre (name must be present and unique)'}
         assert_response 422
       end
 
@@ -68,10 +68,27 @@ class CentresControllerTest < ActionController::TestCase
         new_centre = Centre.find_by_name("New centre")
 
         delete :destroy,
-          :id => new_centre.id
+          :id => new_centre.id,
+          :format => 'json'
 
         assert Centre.find_by_id(new_centre.id).blank?
         assert_response :success
+      end
+
+      should 'create and then destroy via a POST, a DELETE request should fail due to the Centre having an MiPlan (via JSON)' do
+        post :create,
+          :centre => {'name' => "New centre"},
+          :format => 'json'
+
+        new_centre = Centre.find_by_name("New centre")
+        Factory.create(:mi_plan, :production_centre => new_centre)
+
+        delete :destroy,
+          :id => new_centre.id,
+          :format => 'json'
+
+        assert !Centre.find_by_id(new_centre.id).blank?
+        assert_response 422
       end
 
     end

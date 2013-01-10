@@ -1,6 +1,8 @@
 Kermits2::Application.routes.draw do
   root :to => "root#index"
 
+  resources :production_goals
+
   resources :genes, :only => [:index] do
     member do
       get 'network_graph'

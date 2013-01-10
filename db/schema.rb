@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130109114249) do
+ActiveRecord::Schema.define(:version => 20130110103728) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -382,6 +382,16 @@ ActiveRecord::Schema.define(:version => 20130109114249) do
   end
 
   add_index "pipelines", ["name"], :name => "index_pipelines_on_name", :unique => true
+
+  create_table "production_goals", :force => true do |t|
+    t.integer  "consortium_id"
+    t.integer  "year"
+    t.integer  "month"
+    t.integer  "mi_goal"
+    t.integer  "gc_goal"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "qc_results", :force => true do |t|
     t.string   "description", :limit => 50, :null => false

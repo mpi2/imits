@@ -2,7 +2,7 @@
 development:
   adapter: postgresql
   encoding: unicode
-  database: imits_development2
+  database: imits_development
   pool: 5
   username: imits
   password: imits

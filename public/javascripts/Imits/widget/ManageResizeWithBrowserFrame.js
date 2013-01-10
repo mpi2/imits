@@ -9,7 +9,7 @@ Ext.define('Imits.widget.ManageResizeWithBrowserFrame', {
             newGridHeight = 200;
         }
         this.setHeight(newGridHeight);
-        this.setWidth(this.getEl().up('div').getWidth());
+        this.setWidth(this.getEl().up('div').getWidth() - 1);
         this.doLayout();
     }
 });

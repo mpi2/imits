@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130110103728) do
+ActiveRecord::Schema.define(:version => 20130110140730) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -392,6 +392,8 @@ ActiveRecord::Schema.define(:version => 20130110103728) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "production_goals", ["consortium_id", "year", "month"], :name => "index_production_goals_on_consortium_id_and_year_and_month", :unique => true
 
   create_table "qc_results", :force => true do |t|
     t.string   "description", :limit => 50, :null => false

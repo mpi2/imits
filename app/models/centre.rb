@@ -3,7 +3,20 @@ class Centre < ActiveRecord::Base
 
   validates :name, :presence => true, :uniqueness => true
 
+  has_many :mi_plans, :foreign_key => 'production_centre_id'
+  has_many :mi_attempt_distribution_centres, :class_name => "MiAttempt::DistributionCentre"
+  has_many :phenotype_attempt_distribution_centres, :class_name => "PhenotypeAttempt::DistributionCentre"
+
   default_scope :order => 'name ASC'
+
+  def has_children?
+    ! (mi_plans.empty? && mi_attempt_distribution_centres.empty? && phenotype_attempt_distribution_centres.empty?)
+  end
+
+  def destroy
+    return false if has_children?
+    super
+  end
 end
 
 # == Schema Information

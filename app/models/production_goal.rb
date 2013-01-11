@@ -6,6 +6,7 @@ class ProductionGoal < ActiveRecord::Base
   include ::Public::Serializable
   
   READABLE_ATTRIBUTES = %w(
+    id
     year
     month
     mi_goal
@@ -16,8 +17,8 @@ class ProductionGoal < ActiveRecord::Base
 
   ## Validations
   validates :consortium_id, :presence => true, :uniqueness => {:scope => [:year, :month]}
-  validates :year, :presence => true
-  validates :month, :presence => true
+  validates :year, :presence => true, :numericality => {:greater_than => 2010, :less_than => 2050}
+  validates :month, :presence => true, :numericality => {:less_than => 13, :greater_than => 0}
   validates :mi_goal, :presence => true
   validates :gc_goal, :presence => true
 

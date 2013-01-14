@@ -177,15 +177,6 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
             readOnly: true,
             hidden: true
         },
-        //{
-        //    header: 'Edit In Form',
-        //    dataIndex: 'edit_link',
-        //    renderer: function(value, metaData, record) {
-        //        var id = record.getId();
-        //        return Ext.String.format('<a href="{0}/production_goals/{1}">Edit in Form</a>', window.basePath, id);
-        //    },
-        //    sortable: false
-        //},
         {
             dataIndex: 'consortium_name',
             header: 'Consortium',
@@ -230,7 +221,7 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
                 tooltip: 'Delete',
                 handler: function(grid, rowIndex, colIndex) {
                     var rec = grid.getStore().getAt(rowIndex);
-                    if(confirm("Terminate " + rec.get('firstname')))
+                    if(confirm("Remove production goal?"))
                         grid.getStore().removeAt(rowIndex)
                 }
             }]

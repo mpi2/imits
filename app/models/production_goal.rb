@@ -27,7 +27,7 @@ class ProductionGoal < ActiveRecord::Base
 
   access_association_by_attribute :consortium, :name
 
-  attr_accessible :year, :month, :mi_goal, :gc_goal, :consortium_name
+  attr_accessible *READABLE_ATTRIBUTES
 
 end
 

@@ -37,7 +37,7 @@ class ProductionGoalsControllerTest < ActionController::TestCase
 
         post :create,
           :production_goal => {
-            'consortium_id' => production_goal.consortium.id,
+            'consortium_name' => production_goal.consortium.name,
             'year' => production_goal.year,
             'month' => production_goal.month,
             'mi_goal' => 55,
@@ -53,7 +53,7 @@ class ProductionGoalsControllerTest < ActionController::TestCase
 
         post :create,
           :production_goal => {
-            'consortium_id' => Consortium.first.id,
+            'consortium_name' => 'BASH',
             'year' => 2055,
             'month' => 1,
             'mi_goal' => 55,

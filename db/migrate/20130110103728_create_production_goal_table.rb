@@ -24,7 +24,9 @@ class CreateProductionGoalTable < ActiveRecord::Migration
           mi_goal = row.last["mi_goals"]
           gc_goal = row.last["gc_goals"]
 
-          ProductionGoal.create :consortium => Consortium.find_by_name(consortium), :year => year, :month => month, :mi_goal => mi_goal, :gc_goal => gc_goal
+          if c = Consortium.find_by_name(consortium)
+            production_goal = ProductionGoal.create :consortium_id => c.id, :year => year, :month => month, :mi_goal => mi_goal, :gc_goal => gc_goal
+          end
         end
       end
     end

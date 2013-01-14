@@ -37,4 +37,15 @@ class ProductionGoalsController < ApplicationController
       end
     end
   end
+
+  def destroy
+    @production_goal = ProductionGoal.find(params[:id])
+
+    @production_goal.destroy
+
+    respond_to do |format|
+      format.html { redirect_to [:production_goals]}
+      format.json { render :nothing => true, :status => 200 }
+    end
+  end
 end

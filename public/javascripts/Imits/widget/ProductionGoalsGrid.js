@@ -3,6 +3,7 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
 
     requires: [
         'Imits.model.ProductionGoal',
+        'Imits.widget.grid.RansackFiltersFeature',
         'Imits.Util'
     ],
 
@@ -22,6 +23,13 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
     },
 
     selType: 'rowmodel',
+
+    features: [
+    {
+        ftype: 'ransack_filters',
+        local: false
+    }
+    ],
 
     plugins: [
     Ext.create('Ext.grid.plugin.RowEditing', {
@@ -188,6 +196,10 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
                 listConfig: {
                     minWidth: 200
                 }
+            },
+            filter: {
+                type: 'list',
+                options: window.CONSORTIUM_OPTIONS
             }
         },
         {
@@ -209,6 +221,19 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
             dataIndex: 'gc_goal',
             header: 'GC Goal',
             editor: 'simplenumberfield'
+        },
+        {
+            xtype:'actioncolumn',
+            width:21,
+            items: [{
+                icon: 'images/icons/delete.png',
+                tooltip: 'Delete',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    if(confirm("Terminate " + rec.get('firstname')))
+                        grid.getStore().removeAt(rowIndex)
+                }
+            }]
         }
     ]
 });

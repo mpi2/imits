@@ -27,6 +27,10 @@ gem 'unicorn', '4.3.0'
 gem 'dynamic_form', '1.1.4'
 gem 'bio', '1.4.3'
 
+gem "sequel"
+gem "mysql2"
+
+
 group :development, :test do
   gem 'launchy'
   gem 'awesome_print'
@@ -48,9 +52,4 @@ group :development, :test do
   gem 'capybara', :require => nil
 
   gem 'thin', :require => nil
-end
-
-group :migration do
-  gem "sequel"
-  gem "mysql2"
 end

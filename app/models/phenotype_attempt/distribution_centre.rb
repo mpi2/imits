@@ -63,6 +63,10 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
     end
   end
 
+  def self.readable_name
+    return 'phenotype attempt distribution centre'
+  end
+
 end
 
 # == Schema Information

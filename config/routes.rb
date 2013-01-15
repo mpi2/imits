@@ -19,11 +19,19 @@ Kermits2::Application.routes.draw do
     end
   end
 
+  namespace :mi_attempts do
+    resources :distribution_centres
+  end
+
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
     resource :phenotype_attempts, :only => [:new]
     collection do
       get 'attributes'
     end
+  end
+
+  namespace :phenotype_attempts do
+    resources :distribution_centres
   end
 
   resources :phenotype_attempts, :only => [:index, :create, :show, :update] do

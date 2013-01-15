@@ -63,6 +63,10 @@ class MiAttempt::DistributionCentre < ApplicationModel
     end
   end
 
+  def self.readable_name
+    return 'mi attempt distribution centre'
+  end
+
 end
 
 # == Schema Information

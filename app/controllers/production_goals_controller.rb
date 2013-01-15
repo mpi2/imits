@@ -48,4 +48,9 @@ class ProductionGoalsController < ApplicationController
       format.json { render :nothing => true, :status => 200 }
     end
   end
+
+  def history
+    @resource = ProductionGoal.find(params[:id])
+    render :template => '/shared/history'
+  end
 end

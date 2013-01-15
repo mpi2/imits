@@ -506,3 +506,11 @@ end
 Factory.define :solr_update_queue_item_phenotype_attempt, :parent => :solr_update_queue_item do |item|
   item.sequence(:phenotype_attempt_id)
 end
+
+Factory.define :production_goal do |production_goal|
+  production_goal.consortium { Consortium.first }
+  production_goal.year 2012
+  production_goal.month 1
+  production_goal.mi_goal 123
+  production_goal.gc_goal 123
+end

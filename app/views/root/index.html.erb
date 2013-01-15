@@ -55,5 +55,28 @@
       <p>View a list of all iMits users and the production centre that they belong to</p>
     </a>
   </div>
+
+  <div class="homepage-links">
+    <a href="<%= centres_path %>">
+      <h4>Manage Production Centres</h4>
+      <p>Add/Remove iMits production centres</p>
+    </a>
+  </div>
+
+  <% if current_user.can_see_sub_project? %>
+    <div class="homepage-links">
+    <a href="<%= sub_projects_path %>">
+      <h4>Manage Sub projects</h4>
+      <p>Add/Remove iMits sub projects</p>
+    </a>
+  </div>
+  <% end %>
+
+  <div class="homepage-links">
+    <a href="<%= production_goals_path %>">
+      <h4>Manage production goals</h4>
+      <p>Add/Remove iMits production goals</p>
+    </a>
+  </div>
 </div>
 

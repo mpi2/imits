@@ -82,7 +82,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
   end
 
   def self.add_cumulated_counts_and_monthly_goals(summary)
-    goal_data = YAML.load_file('config/report_production_goals.yml')
     current_totals_per_consortium = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
     Consortium.all.each do |consortium|
       current_totals_per_consortium[consortium.name][:es_starts] = 0
@@ -95,6 +94,10 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
       month_hash.keys.sort.each do |month|
         cons_hash = month_hash[month]
         cons_hash.keys.sort.each do |consortium|
+
+          unless production_goal = ProductionGoal.unscoped.includes(:consortium).where(:"consortia.name" => consortium, :year => year, :month => month).first
+            next
+          end
 
           total_es_starts =
             summary[year][month][consortium]['ALL']['ES Cell QC In Progress'].keys.size +
@@ -118,8 +121,8 @@ class Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc < Reports
           summary[year][month][consortium]['ALL']['Cumulative MIs'] = total_mi_attempts
           summary[year][month][consortium]['ALL']['Cumulative Genotype Confirmed'] = total_gc_mice
 
-          summary[year][month][consortium]['ALL']['MI Goal'] = goal_data['summary_month_by_month'][consortium][year][month]['mi_goals']
-          summary[year][month][consortium]['ALL']['GC Goal'] = goal_data['summary_month_by_month'][consortium][year][month]['gc_goals']
+          summary[year][month][consortium]['ALL']['MI Goal'] = production_goal.mi_goal
+          summary[year][month][consortium]['ALL']['GC Goal'] = production_goal.gc_goal
         end
       end
     end

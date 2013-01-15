@@ -2,6 +2,7 @@ config/old_database.yml
 config/database.production.yml
 config/database.staging.yml
 config/database.targ_rep.yml
+config/database.yml
 coverage/*
 public/javascripts/all.js
 sqlnet.log

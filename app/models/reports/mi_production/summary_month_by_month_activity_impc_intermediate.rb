@@ -65,7 +65,6 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
 
 
   def self.format(summary)
-    goal_data = YAML.load_file('config/report_production_goals.yml')
     dataset ={}
     summary.each do |consortiumindex, condata|
       next if condata['empty']
@@ -114,13 +113,15 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
             state.has_key?('ES Cell QC Failed') ? record['cumulative_es_failed'] = es_failed_sum += data['ES Cell QC Failed'] : 0
             state.has_key?('Micro-injection in progress') ? record['cumulative_mis'] = mis_sum += data['Micro-injection in progress'] : 0
             state.has_key?('Genotype confirmed') ? record['cumulative_genotype_confirmed'] = genotype_confirm_sum += data['Genotype confirmed'] : 0
-            if goal_data['summary_month_by_month'].has_key?(consortium)
-              record['mi_goal'] = (goal_data['summary_month_by_month'][consortium][year].has_key?(month) ? goal_data['summary_month_by_month'][consortium][year][month]['mi_goals'] : 0)
-              record['gc_goal'] = (goal_data['summary_month_by_month'][consortium][year].has_key?(month) ? goal_data['summary_month_by_month'][consortium][year][month]['gc_goals'] : 0)
+
+            if production_goal = ProductionGoal.unscoped.includes(:consortium).where(:"consortia.name" => consortium, :year => year, :month => month).first
+              record['mi_goal'] = production_goal.mi_goal
+              record['gc_goal'] = production_goal.gc_goal
             else
               record['mi_goal'] = 0
               record['gc_goal'] = 0
             end
+
             dataset[consortiumindex]['mi_attempt_data'] << record.dup
 
             record2 = {}

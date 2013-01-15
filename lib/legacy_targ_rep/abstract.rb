@@ -73,14 +73,18 @@ class LegacyTargRep
       ## Find by id and raise exception if not found
       ##
       def find(id)
-        self.dataset.where('id = ?', id).first or raise LegacyTargRep::RecordNotFound
+        @record = self.dataset.where('id = ?', id).first
+        raise LegacyTargRep::RecordNotFound if @record.blank?
+        self.new(@record)
       end
 
       ##
       ## Find by id without raising an exception
       ##
       def find_by_id(id)
-        self.dataset.where('id = ?', id).first
+        @record = self.dataset.where('id = ?', id).first
+        return if @record.blank?
+        self.new(@record)
       end
 
       def count

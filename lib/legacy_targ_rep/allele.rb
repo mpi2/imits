@@ -24,5 +24,13 @@ class LegacyTargRep
       LegacyTargRep::EsCell.where(:allele_id => self[:id])
     end
 
+    def targeting_vectors
+      LegacyTargRep::TargetingVector.where(:allele_id => self[:id])
+    end
+
+    def no_products?
+      es_cells.empty? && targeting_vectors.empty?
+    end
+
   end
 end

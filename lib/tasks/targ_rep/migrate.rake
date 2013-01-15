@@ -144,8 +144,8 @@ namespace :migrate do
 
           ## Don't migrate removed Allele.
           next if LegacyTargRep::Allele::DELETE_ALLELE.include?(old_allele.id)
-
-          next if 
+          ## Don't migrate Allele with no products.
+          next if old_allele.no_products?
 
           if gene = Gene.find_by_mgi_accession_id(mgi_accession_id)
 

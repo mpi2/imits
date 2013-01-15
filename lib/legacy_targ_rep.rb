@@ -188,5 +188,5 @@ class LegacyTargRep
   class EsCell < Abstract; end
   class DistributionQc < Abstract; end
   class EsCellQcConflict < Abstract; end
-
+  class TargetingVector < Abstract; end
 end

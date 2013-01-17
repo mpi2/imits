@@ -42,7 +42,6 @@ class PhenotypeAttempt < ApplicationModel
   before_save :generate_colony_name_if_blank
 
   after_save :manage_status_stamps
-  after_save :create_initial_distribution_centre
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?
@@ -52,16 +51,6 @@ class PhenotypeAttempt < ApplicationModel
       i += 1
       self.colony_name = "#{self.mi_attempt.colony_name}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
-  end
-
-  def create_initial_distribution_centre
-    if distribution_centres.empty? and has_status? :cec
-      dc = self.distribution_centres.new
-      dc.centre = self.production_centre
-      dc.deposited_material = DepositedMaterial.find_by_name!('Frozen embryos')
-      dc.save!
-      distribution_centres.reload
-    end
   end
 
   # END Callbacks

@@ -176,12 +176,16 @@ class LegacyTargRep
       conn.execute "alter table #{new_tablename} drop column updated_by"
     end
 
+    update_sequences(new_tablename)
+
+  end
+
+  def self.update_sequences(tablename)
     puts "Rescyning table sequence based on last id in table."
     conn = ActiveRecord::Base.connection
-    if conn.columns(new_tablename).detect{|i|i.name == "id"}
-      conn.execute "SELECT setval('#{new_tablename}_id_seq', (SELECT max(id) FROM #{new_tablename}))"
+    if conn.columns(tablename).detect{|i|i.name == "id"}
+      conn.execute "SELECT setval('#{tablename}_id_seq', (SELECT max(id) FROM #{tablename}))"
     end
-
   end
 
   class Pipeline < Abstract; end

@@ -20,7 +20,7 @@ class TargRep::EsCellsController < TargRep::BaseController
   # POST /es_cells.xml
   # POST /es_cells.json
   def create
-    @es_cell = TargRep::EsCell.new params[:es_cell]
+    @es_cell = TargRep::EsCell.new params[:targ_rep_es_cell]
 
     respond_to do |format|
       if @es_cell.save
@@ -39,7 +39,7 @@ class TargRep::EsCellsController < TargRep::BaseController
     find_escell
 
     respond_to do |format|
-      if @es_cell.update_attributes params[:es_cell]
+      if @es_cell.update_attributes params[:targ_rep_es_cell]
         format.xml  { render :xml  => @es_cell, :location => @es_cell }
         format.json { render :json => @es_cell, :location => @es_cell }
       else

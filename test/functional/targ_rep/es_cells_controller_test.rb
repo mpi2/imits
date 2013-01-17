@@ -58,7 +58,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
 
     # CREATE
     assert_difference('TargRep::EsCell.count') do
-      post :create, :format => :json, :es_cell => {
+      post :create, :format => :json, :targ_rep_es_cell => {
         :name                => es_cell_attrs[:name],
         :parental_cell_line  => es_cell_attrs[:parental_cell_line],
         :targeting_vector_id => TargRep::EsCell.first.targeting_vector_id,
@@ -87,7 +87,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
     es_cell_attrs = Factory.attributes_for :es_cell
 
     assert_difference('TargRep::EsCell.count') do
-      response = post :create, :format => :json, :es_cell => {
+      response = post :create, :format => :json, :targ_rep_es_cell => {
         :name               => es_cell_attrs[:name],
         :parental_cell_line => es_cell_attrs[:parental_cell_line],
         :allele_id          => TargRep::EsCell.first.allele_id,
@@ -117,7 +117,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
 
     # CREATE a valid ES Cell
     assert_difference('TargRep::EsCell.count') do
-      post :create, :format => :json, :es_cell => {
+      post :create, :format => :json, :targ_rep_es_cell => {
         :name                => es_cell_attrs[:name],
         :parental_cell_line  => es_cell_attrs[:parental_cell_line],
         :targeting_vector_id => TargRep::EsCell.first.targeting_vector_id,
@@ -131,7 +131,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
     created_es_cell = TargRep::EsCell.find_by_name es_cell_attrs[:name]
 
     # UPDATE - should fail as we're trying to enter a duplicate name
-    put :update, :format => :json, :id => created_es_cell.id, :es_cell => { :name => another_escell.name }
+    put :update, :format => :json, :id => created_es_cell.id, :targ_rep_es_cell => { :name => another_escell.name }
     assert_response 400
   end
 
@@ -150,7 +150,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
 
     assert_equal es_cell.allele_id, current_parent.id, "WTF? The es_cell doesn't have the correct allele_id in the first place..."
 
-    put :update, :format => :json, :id => es_cell.id, :es_cell => { :allele_id => new_parent.id }
+    put :update, :format => :json, :id => es_cell.id, :targ_rep_es_cell => { :allele_id => new_parent.id }
     assert_response :success
 
     es_cell = TargRep::EsCell.find(es_cell.id)
@@ -227,7 +227,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
       :karyotype_high => [0.1, 0.2, 0.3, 0.4, 0.5].sample
     }
 
-    put :update, :format => :json, :id => es_cell.id, :es_cell => { :distribution_qcs_attributes => [ target ] }
+    put :update, :format => :json, :id => es_cell.id, :targ_rep_es_cell => { :distribution_qcs_attributes => [ target ] }
     assert_response :success
 
     response = get :show, :format => :json, :id => es_cell.id
@@ -261,7 +261,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
     es_cell_attrs = Factory.attributes_for :es_cell 
 
     assert_difference('TargRep::EsCell.count') do
-      post :create, :format => :json, :es_cell => {
+      post :create, :format => :json, :targ_rep_es_cell => {
         :name                => es_cell_attrs[:name],
         :parental_cell_line  => es_cell_attrs[:parental_cell_line],
         :targeting_vector_id => TargRep::EsCell.first.targeting_vector_id,
@@ -305,7 +305,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
       :karyotype_high => [0.1, 0.2, 0.3, 0.4, 0.5].sample
     }
 
-    put :update, :format => :json, :id => es_cell.id, :es_cell => { :distribution_qcs_attributes => [target] }
+    put :update, :format => :json, :id => es_cell.id, :targ_rep_es_cell => { :distribution_qcs_attributes => [target] }
     assert_response :success
 
     es_cell.reload
@@ -331,7 +331,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
     es_cell_attrs = Factory.attributes_for( :es_cell )
 
     assert_difference('TargRep::EsCell.count') do
-      post :create, :format => :json, :es_cell => {
+      post :create, :format => :json, :targ_rep_es_cell => {
         :name                => es_cell_attrs[:name],
         :parental_cell_line  => es_cell_attrs[:parental_cell_line],
         :targeting_vector_id => TargRep::EsCell.first.targeting_vector_id,
@@ -375,7 +375,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
       :karyotype_high => [0.1, 0.2, 0.3, 0.4, 0.5].sample
     }
 
-    put :update, :format => :json, :id => es_cell.id, :es_cell => { :distribution_qcs_attributes => [target] }
+    put :update, :format => :json, :id => es_cell.id, :targ_rep_es_cell => { :distribution_qcs_attributes => [target] }
     assert_response :success
 
     es_cell.reload
@@ -418,7 +418,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
       :karyotype_high => [0.1, 0.2, 0.3, 0.4, 0.5].sample
     }
 
-    put :update, :format => :json, :id => es_cell.id, :es_cell => { :distribution_qcs_attributes => [target] }
+    put :update, :format => :json, :id => es_cell.id, :targ_rep_es_cell => { :distribution_qcs_attributes => [target] }
     assert_response 400
 
   end

@@ -193,7 +193,9 @@ namespace :migrate do
           
         end
   
-     end
+    end
+
+    LegacyTargRep.update_sequences('targ_rep_alleles')
 
     puts "----"
     puts "Could not match #{failed_allele[:missing].size} genes."
@@ -366,6 +368,8 @@ namespace :migrate do
           end
         end
       end
+
+      LegacyTargRep.update_sequences('targ_rep_es_cells')
 
       puts "Update MiAttempts with new EsCell id"
       MiAttempt.transaction do

@@ -50,7 +50,7 @@ class DistributionCentresController < ApplicationController
       .where('consortia.name = ?', params[:consortium_name])
       .where('production_centres_mi_plans.name = ?', params[:pc_name])
       .where('mi_plan_id = mi_plans.id')
-      .where("#{@parent_table_name}.status_id = 2")
+      .where("#{@parent_table_name}.status_id = #{@status_id}")
 
     if params[:dc_name].blank?
       mis = mis.where('centres is null')
@@ -89,6 +89,7 @@ class DistributionCentresController < ApplicationController
     # @klass = MiAttempt::DistributionCentre
     # @table_name = 'mi_attempt_distribution_centres'
     # @parent_table_name = 'mi_attempts'
+    # @status_id = 2
     #
     raise "You need to extend this method & controller for this to work."
   end

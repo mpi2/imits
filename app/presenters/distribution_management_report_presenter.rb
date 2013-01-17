@@ -96,6 +96,10 @@ class DistributionManagementReportPresenter
     @parent_table_name.gsub(/s/, '_id')
   end
 
+  def status_id
+    @parent_table_name == 'mi_attempts' ? 2 : 6
+  end
+
   def raw_sql
     sql = <<-EOF
       SELECT 
@@ -108,7 +112,7 @@ class DistributionManagementReportPresenter
       JOIN mi_plans ON mi_plans.gene_id = genes.id
       JOIN consortia ON consortia.id = mi_plans.consortium_id
       JOIN centres pc ON mi_plans.production_centre_id = pc.id
-      JOIN #{@parent_table_name} ON (#{@parent_table_name}.mi_plan_id = mi_plans.id and #{@parent_table_name}.status_id = 2)
+      JOIN #{@parent_table_name} ON (#{@parent_table_name}.mi_plan_id = mi_plans.id and #{@parent_table_name}.status_id = #{status_id})
       LEFT OUTER JOIN #{@table_name} midc ON midc.#{foreign_key} = #{@parent_table_name}.id
       LEFT OUTER JOIN centres dc ON dc.id = midc.centre_id
       GROUP BY consortium_name, pc_name, midc.distribution_network,dc_name

@@ -20,7 +20,12 @@ Kermits2::Application.routes.draw do
   end
 
   namespace :mi_attempts do
-    resources :distribution_centres
+    resources :distribution_centres do
+      collection do
+        get 'grid_redirect'
+      end
+    end
+
   end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
@@ -31,7 +36,11 @@ Kermits2::Application.routes.draw do
   end
 
   namespace :phenotype_attempts do
-    resources :distribution_centres
+    resources :distribution_centres do
+      collection do
+        get 'grid_redirect'
+      end
+    end
   end
 
   resources :phenotype_attempts, :only => [:index, :create, :show, :update] do

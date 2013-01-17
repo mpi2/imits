@@ -20,4 +20,9 @@ module ApplicationHelper
     end
     link_to(name, '#', class: "add-row", :"data-fields" => fields.gsub("\n", ""), :"data-object-id" => @new_object.object_id)
   end
+
+  def grid_redirect_path(consortium_name, pc_name, distribution_network, dc_name)
+    ammended_table_name = @table_name.gsub(/_distribution_centres/, "s_distribution_centres")
+    send("grid_redirect_#{ammended_table_name}_path", {:consortium_name => consortium_name, :pc_name => pc_name, :distribution_network => distribution_network, :dc_name => dc_name})
+  end
 end

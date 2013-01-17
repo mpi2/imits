@@ -5,6 +5,7 @@ class PhenotypeAttempts::DistributionCentresController < DistributionCentresCont
   def find_class
     @klass = PhenotypeAttempt::DistributionCentre
     @table_name = 'phenotype_attempt_distribution_centres'
+    @parent_table_name = 'phenotype_attempts'
   end
 
 end

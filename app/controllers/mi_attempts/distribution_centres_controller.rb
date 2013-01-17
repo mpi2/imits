@@ -5,6 +5,7 @@ class MiAttempts::DistributionCentresController < DistributionCentresController
   def find_class
     @klass = MiAttempt::DistributionCentre
     @table_name = 'mi_attempt_distribution_centres'
+    @parent_table_name = 'mi_attempts'
   end
 
 end

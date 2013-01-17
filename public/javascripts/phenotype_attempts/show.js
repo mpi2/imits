@@ -22,7 +22,11 @@ Ext.select('form .add-row').on("click", function(event){
 
   data = data.replace(regexp, time);
 
-  Ext.select("#distribution_centres_table:not(td > table) > tbody > tr:last").insertSibling(data, 'after');
+  if(!Ext.select("#distribution_centres_table:not(td > table) > tbody > tr:last").elements.length) {
+    Ext.select("#distribution_centres_table tbody").insertSibling(data, 'append');
+  } else {
+    Ext.select("#distribution_centres_table:not(td > table) > tbody > tr:last").insertSibling(data, 'after');
+  }
 
   Ext.select("#distribution_centres_table tr:last a.remove-row").on("click", function(e){
         e.preventDefault();

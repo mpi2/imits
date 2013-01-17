@@ -50,7 +50,11 @@ class DistributionManagementReportPresenter
       s << content_tag(:td)
       s << content_tag(:td, 'No centre')
       distribution_networks.reverse.each do |dn|
-        has_distribution_network(dn).map {|r| r["dc_name"]}.uniq.compact.each do |distribution_centre|
+        distribution_centres = has_distribution_network(dn).map {|r| r["dc_name"]}.uniq.compact
+        if distribution_centres.empty?
+          s << content_tag(:td)
+        end
+        distribution_centres.each do |distribution_centre|
           s << content_tag(:td, distribution_centre)
         end
       end

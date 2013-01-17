@@ -26,7 +26,11 @@
 
 
         <% @report.distribution_networks.reverse.each do |distribution_network| %>
-          <%- @report.has_distribution_network(distribution_network).map {|r| r["dc_name"]}.uniq.compact.each do |distribution_centre| %>
+          <%- distribution_centres = @report.has_distribution_network(distribution_network).map {|r| r["dc_name"]}.uniq.compact %>
+          <%- if distribution_centres.empty? %>
+            <td></td>
+          <% end %>
+          <%- distribution_centres.each do |distribution_centre| %>
             <% if count = row["#{distribution_network}-#{distribution_centre}"] %>
               <td><%= link_to count, grid_redirect_path(row['consortium_name'], row['pc_name'], distribution_network, distribution_centre) %></td>
             <% else %>

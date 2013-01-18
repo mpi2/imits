@@ -23,6 +23,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     distribution_centres_attributes
     colony_background_strain_name
     cre_excision_required
+    tat_cre
     mi_plan_id
   }
 
@@ -88,6 +89,7 @@ end
 #  deleter_strain_id                :integer
 #  colony_background_strain_id      :integer
 #  cre_excision_required            :boolean         default(TRUE), not null
+#  tat_cre                          :boolean         default(FALSE)
 #
 # Indexes
 #

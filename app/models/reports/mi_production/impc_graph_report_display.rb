@@ -158,14 +158,16 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
       graph << Scruffy::Components::Graphs.new(:graphs, :position => [12, 10], :size => [92, 75])
     end
     mi_graph.renderer.components << Scruffy::Components::Legend.new(:legend, :position => [12, 10], :size => [70, 70], :vertical_legend => true)
-    file = "#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/#{render[:consortium].downcase}_#{render[:name]}_performance#{Time.now.strftime "%Y%m%d%H%M%S"}-#{rand(100)}.#{format}"
-    FileUtils.mkdir_p File.dirname(file)
-    mi_graph.render(:size => [render[:width],render[:height]], :min_value => render[:min_value], :max_value => render[:max_value], :to => file, :as => "#{format}")
+    charts_folder = File.join(Rails.application.config.paths.tmp.first, "reports/impc_graph_report_display/charts")
+    file_name = File.join("#{render[:consortium].downcase}_#{render[:name]}_performance#{Time.now.strftime "%Y%m%d%H%M%S"}-#{rand(100)}.#{format}")
+    file_path = File.join(charts_folder, file_name)
+    FileUtils.mkdir_p File.dirname(file_path)
+    mi_graph.render(:size => [render[:width],render[:height]], :min_value => render[:min_value], :max_value => render[:max_value], :to => file_path, :as => "#{format}")
 
     if !@chart_file_names.has_key?(render[:consortium].downcase)
       @chart_file_names[render[:consortium].downcase] = {}
     end
-    @chart_file_names[render[:consortium].downcase][render[:name]] = file
+    @chart_file_names[render[:consortium].downcase][render[:name]] = file_name
   end
 
   def self.clear_charts_in_tmp_folder

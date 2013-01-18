@@ -116,6 +116,20 @@
 </div>
 
 <div class="grid_4">
+  <h3>Distribution centre management</h3>
+  <div class="report-links">
+    <a href="<%= mi_attempts_distribution_centres_path %>">
+      <h4>Mi Attempt Distribution centre report</h4>
+      <p>Matrix showing MiAttempts by distribution centre. Easily find MiAttempts missing distribution centres.</p>
+    </a>
+  </div>
+    <div class="report-links">
+    <a href="<%= phenotype_attempts_distribution_centres_path %>">
+      <h4>Phenotype Attempt Distribution centre report</h4>
+      <p>Matrix showing Phenotype attempts by distribution centre. Easily find Phenotype attempts missing distribution centres.</p>
+    </a>
+  </div>
+
   <h3>Double production <%= @generated_message %></h3>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :double_assigned_plans) %>">

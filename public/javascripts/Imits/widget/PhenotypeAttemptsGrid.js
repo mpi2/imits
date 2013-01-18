@@ -62,7 +62,11 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         dataIndex: 'id',
         header: 'ID',
         readOnly: true,
-        hidden: true
+        hidden: true,
+        filter: {
+            type: 'string',
+            value: Imits.Util.extractValueIfExistent(window.PHENOTYPE_ATTEMPT_SEARCH_PARAMS, 'phenotype_attempt_id')
+        }
     },
     {
         header: 'Edit In Form',
@@ -88,7 +92,8 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         width: 115,
         filter: {
             type: 'list',
-            options: window.CONSORTIUM_OPTIONS
+            options: window.CONSORTIUM_OPTIONS,
+            value: Imits.Util.extractValueIfExistent(window.PHENOTYPE_ATTEMPT_SEARCH_PARAMS, 'consortium_name')
         }
     },
     {
@@ -123,7 +128,8 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         header: 'Marker Symbol',
         readOnly: true,
         filter: {
-            type: 'string'
+            type: 'string',
+            value: Imits.Util.extractValueIfExistent(window.PHENOTYPE_ATTEMPT_SEARCH_PARAMS, 'es_cell_marker_symbol')
         }
     },
     {

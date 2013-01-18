@@ -185,7 +185,11 @@ Ext.define('Imits.widget.MiGrid', {
             dataIndex: 'id',
             header: 'ID',
             readOnly: true,
-            hidden: true
+            hidden: (Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'mi_attempt_id') ? false : true),
+            filter: {
+                type: 'string',
+                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'mi_attempt_id')
+            }
         }
         ],
         'common': [
@@ -236,7 +240,8 @@ Ext.define('Imits.widget.MiGrid', {
             width: 115,
             filter: {
                 type: 'list',
-                options: window.MI_ATTEMPT_CONSORTIUM_OPTIONS
+                options: window.MI_ATTEMPT_CONSORTIUM_OPTIONS,
+                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'consortium_name')
             },
             sortable: false
         },
@@ -257,7 +262,8 @@ Ext.define('Imits.widget.MiGrid', {
             readOnly: true,
             sortable: false,
             filter: {
-                type: 'string'
+                type: 'string',
+                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'es_cell_name')
             }
         },
         {
@@ -267,7 +273,8 @@ Ext.define('Imits.widget.MiGrid', {
             readOnly: true,
             sortable: false,
             filter: {
-                type: 'string'
+                type: 'string',
+                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'es_cell_marker_symbol')
             }
         },
         {
@@ -298,7 +305,8 @@ Ext.define('Imits.widget.MiGrid', {
             header: 'Colony Name',
             editor: 'textfield',
             filter: {
-                type: 'string'
+                type: 'string',
+                value: Imits.Util.extractValueIfExistent(window.MI_ATTEMPT_SEARCH_PARAMS, 'colony_name')
             }
         },
         {

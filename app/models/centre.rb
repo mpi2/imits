@@ -1,4 +1,5 @@
 class Centre < ActiveRecord::Base
+  acts_as_audited
   acts_as_reportable
 
   validates :name, :presence => true, :uniqueness => true
@@ -16,6 +17,10 @@ class Centre < ActiveRecord::Base
   def destroy
     return false if has_children?
     super
+  end
+
+  def self.readable_name
+    return 'centre'
   end
 end
 

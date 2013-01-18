@@ -1,0 +1,45 @@
+<table class="report_table" width="100%" cellpadding="3" cellspacing="3">
+  <thead>
+    <tr>
+      <th>Consortium</th>
+      <th>Production centre</th>
+      <th colspan="<%= @report.number_of_columns %>">Distribution centre</th>
+    </tr>
+    <tr>
+      <%= @report.network_header_columns %>
+    </tr>
+    <tr>
+      <%= @report.centre_header_columns %>
+    <tr>
+  </thead>
+  <tbody>
+    <% @report.results_by_distribution.each do |key, row| %>
+      <tr>
+        <td><%= row['consortium_name'] %></td>
+        <td><%= row['pc_name'] %></td>
+
+        <% if count = row["-"] %>
+          <td><%= link_to count, grid_redirect_path(row['consortium_name'], row['pc_name'], nil, nil) %></td>
+        <% else %>
+          <td></td>
+        <% end %>
+
+
+        <% @report.distribution_networks.reverse.each do |distribution_network| %>
+          <%- distribution_centres = @report.has_distribution_network(distribution_network).map {|r| r["dc_name"]}.uniq.compact %>
+          <%- if distribution_centres.empty? %>
+            <td></td>
+          <% end %>
+          <%- distribution_centres.each do |distribution_centre| %>
+            <% if count = row["#{distribution_network}-#{distribution_centre}"] %>
+              <td><%= link_to count, grid_redirect_path(row['consortium_name'], row['pc_name'], distribution_network, distribution_centre) %></td>
+            <% else %>
+              <td></td>
+            <% end %>
+          <% end %>
+        <% end %>
+
+      </tr>
+    <% end %>
+  </tbody>
+</table>

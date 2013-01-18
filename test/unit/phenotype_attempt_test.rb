@@ -332,41 +332,41 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_should have_many(:distribution_centres)
       end
 
-      should 'have 1 created by default if it goes past the Cre Excision Complete status' do
-        pa = Factory.create :phenotype_attempt
-        assert_equal 0, pa.distribution_centres.count
+      #should 'have 1 created by default if it goes past the Cre Excision Complete status' do
+      #  pa = Factory.create :phenotype_attempt
+      #  assert_equal 0, pa.distribution_centres.count
 
-        pa = Factory.create :phenotype_attempt_status_pdc
-        assert_equal 1, pa.distribution_centres.count
-        dc = pa.distribution_centres.first
-        assert_equal 'Frozen embryos', dc.deposited_material.name
-        assert_equal pa.production_centre.name, dc.centre.name
-      end
+      #  pa = Factory.create :phenotype_attempt_status_pdc
+      #  assert_equal 1, pa.distribution_centres.count
+      #  dc = pa.distribution_centres.first
+      #  assert_equal 'Frozen embryos', dc.deposited_material.name
+      #  assert_equal pa.production_centre.name, dc.centre.name
+      #end
 
-      should 'test that if a status is changed, distribution centre creation logic is triggered on the new value, not the old value' do
-        pa = Factory.create :phenotype_attempt_status_pdc
-        dc = PhenotypeAttempt::DistributionCentre.find_all_by_phenotype_attempt_id(pa.id)
-        dc.first.destroy
+      #should 'test that if a status is changed, distribution centre creation logic is triggered on the new value, not the old value' do
+      #  pa = Factory.create :phenotype_attempt_status_pdc
+      #  dc = PhenotypeAttempt::DistributionCentre.find_all_by_phenotype_attempt_id(pa.id)
+      #  dc.first.destroy
 
-        pa.number_of_cre_matings_successful = 0
-        pa.phenotyping_started = false
-        pa.phenotyping_complete = false
-        pa.save!
-        pa.reload
-        pa.distribution_centres.reload
-        assert_equal 0, pa.distribution_centres.count
-      end
+      #  pa.number_of_cre_matings_successful = 0
+      #  pa.phenotyping_started = false
+      #  pa.phenotyping_complete = false
+      #  pa.save!
+      #  pa.reload
+      #  pa.distribution_centres.reload
+      #  assert_equal 0, pa.distribution_centres.count
+      #end
 
-      should 'be refreshed when a one is created automatically' do
-        pa = Factory.create :phenotype_attempt
-        assert_equal [], pa.distribution_centres.all
-        pa.deleter_strain = DeleterStrain.first
-        pa.colony_background_strain = Strain.first
-        pa.number_of_cre_matings_successful = 1
-        pa.mouse_allele_type = 'b'
-        pa.save!
-        assert_kind_of PhenotypeAttempt::DistributionCentre, pa.distribution_centres.first
-      end
+      #should 'be refreshed when a one is created automatically' do
+      #  pa = Factory.create :phenotype_attempt
+      #  assert_equal [], pa.distribution_centres.all
+      #  pa.deleter_strain = DeleterStrain.first
+      #  pa.colony_background_strain = Strain.first
+      #  pa.number_of_cre_matings_successful = 1
+      #  pa.mouse_allele_type = 'b'
+      #  pa.save!
+      #  assert_kind_of PhenotypeAttempt::DistributionCentre, pa.distribution_centres.first
+      #end
     end
 
     context 'before filter' do
@@ -383,6 +383,8 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       should 'output a string of distribution centre and deposited material' do
         pa = Factory.create :phenotype_attempt_status_pdc,
                 :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => bash_wtsi_cbx1_plan)
+
+        dc = Factory.create(:phenotype_attempt_distribution_centre, :centre => pa.production_centre, :phenotype_attempt => pa, :deposited_material => DepositedMaterial.find_by_name!('Frozen embryos'))
         assert_equal "[WTSI, Frozen embryos]", pa.distribution_centres_formatted_display
       end
     end

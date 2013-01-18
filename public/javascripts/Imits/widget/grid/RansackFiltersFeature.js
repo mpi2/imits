@@ -12,7 +12,20 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
     buildQuerySingle: function (filter) {
         var param = {};
         switch (filter.data.type) {
+            case 'numeric':
+                if(filter.data.comparison != 'eq') {
+                    param['q[' + filter.field + '_'+filter.data.comparison+']'] = filter.data.value;
+                } else {
+                    param['q[' + filter.field + '_in][]'] = filter.data.value;
+                }
+                break;
             case 'string':
+                if(filter.field == 'id') {
+                    param['q[' + filter.field + '_in][]'] = filter.data.value.split(',');
+                } else {
+                    param['q[' + filter.field + '_ci_in][]'] = filter.data.value;
+                }
+                break;
             case 'list':
                 param['q[' + filter.field + '_ci_in][]'] = filter.data.value;
                 break;

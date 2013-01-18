@@ -29,6 +29,10 @@ class ProductionGoal < ActiveRecord::Base
 
   attr_accessible *READABLE_ATTRIBUTES
 
+  def self.readable_name
+    return 'production goal'
+  end
+
 end
 
 # == Schema Information

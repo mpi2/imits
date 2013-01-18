@@ -1,11 +1,10 @@
 class DistributionManagementReportPresenter
   include ActionView::Helpers::TagHelper
 
-  attr_accessor :table_name, :parent_table_name, :results, :results_by_distribution
+  attr_accessor :klass, :results, :results_by_distribution
 
-  def initialize(table_name, parent_table_name)
-    @table_name = table_name
-    @parent_table_name = parent_table_name
+  def initialize(klass)
+    @klass = klass
     results
   end
 
@@ -93,11 +92,11 @@ class DistributionManagementReportPresenter
   end
 
   def foreign_key
-    @parent_table_name.gsub(/s/, '_id')
+    @klass.parent.table_name.gsub(/s/, '_id')
   end
 
   def status_id
-    @parent_table_name == 'mi_attempts' ? 2 : 6
+    @klass.parent.table_name == 'mi_attempts' ? 2 : [6, 7, 8].join(', ')
   end
 
   def raw_sql
@@ -112,8 +111,8 @@ class DistributionManagementReportPresenter
       JOIN mi_plans ON mi_plans.gene_id = genes.id
       JOIN consortia ON consortia.id = mi_plans.consortium_id
       JOIN centres pc ON mi_plans.production_centre_id = pc.id
-      JOIN #{@parent_table_name} ON (#{@parent_table_name}.mi_plan_id = mi_plans.id and #{@parent_table_name}.status_id = #{status_id})
-      LEFT OUTER JOIN #{@table_name} midc ON midc.#{foreign_key} = #{@parent_table_name}.id
+      JOIN #{@klass.parent.table_name} ON (#{@klass.parent.table_name}.mi_plan_id = mi_plans.id and #{@klass.parent.table_name}.status_id IN (#{status_id}))
+      LEFT OUTER JOIN #{@klass.table_name} midc ON midc.#{foreign_key} = #{@klass.parent.table_name}.id
       LEFT OUTER JOIN centres dc ON dc.id = midc.centre_id
       GROUP BY consortium_name, pc_name, midc.distribution_network,dc_name
       ORDER BY  consortium_name, pc_name, midc.distribution_network,dc_name;

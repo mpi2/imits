@@ -71,7 +71,7 @@ class PhenotypeAttempt::EditInFormTest < Kermits2::JsIntegrationTest
       pa = nil
 
       ApplicationModel.uncached do
-        pa = Factory.create :phenotype_attempt
+        pa = Factory.create :phenotype_attempt_status_cec
         Factory.create :phenotype_attempt_distribution_centre, :phenotype_attempt => pa
       end
 

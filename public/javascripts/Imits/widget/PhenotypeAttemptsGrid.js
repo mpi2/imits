@@ -62,7 +62,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
         dataIndex: 'id',
         header: 'ID',
         readOnly: true,
-        hidden: true,
+        hidden: (Imits.Util.extractValueIfExistent(window.PHENOTYPE_ATTEMPT_SEARCH_PARAMS, 'phenotype_attempt_id') ? false : true),
         filter: {
             type: 'string',
             value: Imits.Util.extractValueIfExistent(window.PHENOTYPE_ATTEMPT_SEARCH_PARAMS, 'phenotype_attempt_id')

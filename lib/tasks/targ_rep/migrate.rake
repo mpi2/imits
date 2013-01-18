@@ -435,6 +435,8 @@ namespace :migrate do
         end
       end
 
+      LegacyTargRep.update_sequences('targ_rep_distribution_qcs')
+
       puts "Created #{distribution_qcs[:created].size} DistributionQc"
       puts "Failed to create #{distribution_qcs[:failed].size} DistributionQc"
 

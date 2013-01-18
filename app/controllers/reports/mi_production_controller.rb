@@ -205,11 +205,14 @@ class Reports::MiProductionController < ApplicationController
   private :summary_3_split_helper
 
   def impc_graph_report_download_image
-    filename = params[:chart_file_name].split('/')[-1]
-    if File.exists?("#{params[:chart_file_name]}")
-      data = File.read("#{params[:chart_file_name]}")
+    filename = params[:chart_file_name].split('/').pop
+    charts_folder = File.join(Rails.application.config.paths.tmp.first, "reports/impc_graph_report_display/charts")
+    file_path = File.join(charts_folder, filename)
+    if File.exists?(file_path)
+      data = File.read(file_path)
+      response.headers["Cache-Control"] = "no-cache"
       send_data data,
-            :filename => "#{filename}?#{Time.now.strftime "%d%m%Y%H%M%S"}",
+            :filename => filename,
             :type => 'image/jpeg'
     else
       flash[:alert] = "Page expired! Please try again"
@@ -219,10 +222,14 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def impc_graph_report_display_image
-    filename = params[:chart_file_name].split('/')[-1]
-    data = File.read("#{params[:chart_file_name]}")
+    filename = params[:chart_file_name].split('/').pop
+    charts_folder = File.join(Rails.application.config.paths.tmp.first, "reports/impc_graph_report_display/charts")
+    file_path = File.join(charts_folder, filename)
+
+    data = File.read(file_path)
+    response.headers["Cache-Control"] = "no-cache"
     send_data data,
-            :filename => "#{filename}?#{Time.now.strftime "%d%m%Y%H%M%S"}",
+            :filename => filename,
             :type => 'image/jpeg',
             :disposition => 'inline'
   end

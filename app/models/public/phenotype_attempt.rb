@@ -32,6 +32,8 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     distribution_centres_formatted_display
     status_name
     marker_symbol
+    mouse_allele_symbol_superscript
+    mouse_allele_symbol
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{

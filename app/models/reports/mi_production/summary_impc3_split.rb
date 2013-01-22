@@ -32,10 +32,10 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
     'Cre excision started',
     'Rederivation started',
     'Rederivation completed',
-    'Registered for phenotyping'#,
+    'Registered for phenotyping',
 
-    #'Gene Pipeline efficiency (%)',
-    #'Clone Pipeline efficiency (%)'
+    'Gene Pipeline efficiency (%)',
+    'Clone Pipeline efficiency (%)'
   ] + DEBUG_HEADINGS
 
   def self.report_title; 'Production for IMPC Consortia'; end
@@ -410,7 +410,7 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
       "Cre excision completed",
       "Phenotyping started",
       "Phenotyping completed",
-      "Phenotyping aborted"
+      "Phenotyping aborted",
     ] + (details ? DEBUG_HEADINGS : [])
 
     report.reorder(new_columns)
@@ -426,9 +426,7 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
       "Cre excision completed",
       "Phenotyping started",
       "Phenotyping completed",
-      "Phenotyping aborted",
-      "Gene Pipeline efficiency (%)",
-      "Clone Pipeline efficiency (%)"
+      "Phenotyping aborted"
     )
     
     mouse_report.reorder(
@@ -442,7 +440,9 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
         "Microinjections",
         "Chimaeras produced",
         "Genotype confirmed mice",
-        "Microinjection aborted"
+        "Microinjection aborted",
+        "Gene Pipeline efficiency (%)",
+        "Clone Pipeline efficiency (%)",
       ]
     )
     
@@ -556,7 +556,7 @@ class Reports::MiProduction::SummaryImpc3Split < Reports::Base
           next
         end
 
-        ignore_columns = ['Production Centre', 'Gene Pipeline efficiency (%)', 'Clone Pipeline efficiency (%)', 'Gene Pipeline Efficiency', 'Clone Pipeline Efficiency']
+        ignore_columns = ['Production Centre', 'Gene Pipeline efficiency (%)', 'Clone Pipeline efficiency (%)']
 
         other_columns.each do |consortium_name2|
           array.push "<td>#{table.column(consortium_name2)[i]}</td>" if ignore_columns.include?(consortium_name2)

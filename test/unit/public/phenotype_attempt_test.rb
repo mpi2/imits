@@ -118,7 +118,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'deleter_strain_name',
         'colony_background_strain_name',
         'cre_excision_required',
-        'mi_plan_id'
+        'mi_plan_id',
+        'tat_cre'
       ]
       got = (Public::PhenotypeAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -145,7 +146,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'deleter_strain_name',
         'colony_background_strain_name',
         'cre_excision_required',
-        'mi_plan_id'
+        'mi_plan_id',
+        'tat_cre'
       ]
       got = default_phenotype_attempt.as_json.keys
       assert_equal expected.sort, got.sort

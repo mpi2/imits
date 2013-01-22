@@ -154,6 +154,7 @@ end
 #  deleter_strain_id                :integer
 #  colony_background_strain_id      :integer
 #  cre_excision_required            :boolean         default(TRUE), not null
+#  tat_cre                          :boolean         default(FALSE)
 #
 # Indexes
 #

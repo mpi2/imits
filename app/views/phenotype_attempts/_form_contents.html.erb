@@ -88,36 +88,39 @@
   <% end %>
 </fieldset>
 <fieldset class="collapsible">
-  <legend>Cre Matings</legend>
+  <legend>Cre Excision</legend>
 
   <div>
-    <div>
-      <%= form.label :tat_cre, "Tat-Cre ?" %>
-      <%= form.check_box :tat_cre %>
-    </div>
-
     <div>
       <%= form.label :cre_excision_required, 'Is Cre-Excision Required?' %>
       <%= form.check_box :cre_excision_required %>
     </div>
 
-    <div>
-      <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
-    </div>
-    <div>
-      <%= form.collection_select :deleter_strain_name, @deleter_strain,:name, :name, :include_blank => true %>
-    </div>
-    <div>
-      <%= generator.number_field :number_of_cre_matings_successful %>
-    </div>
-    <div>
-      <%= generator.mouse_allele_type_field %>
-    </div>
-    <div>
-      <%= form.label :colony_background_strain_name, 'Colony Background Strain' %>
-    </div>
-    <div>
-      <%= form.collection_select :colony_background_strain_name, @colony_background_strain, :name, :name, :include_blank => true %>
+    <div id="cre-excision-fields">
+      <div>
+        <%= form.label :tat_cre, "Cre Excision via TAT-Cre?" %>
+        <%= form.check_box :tat_cre %>
+      </div>
+      <div id="tat-cre-hidden-fields">
+        <div>
+          <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
+        </div>
+        <div>
+          <%= form.collection_select :deleter_strain_name, @deleter_strain,:name, :name, :include_blank => true %>
+        </div>
+        <div>
+          <%= generator.number_field :number_of_cre_matings_successful %>
+        </div>
+      </div>
+      <div>
+        <%= generator.mouse_allele_type_field %>
+      </div>
+      <div>
+        <%= form.label :colony_background_strain_name, 'Colony Background Strain' %>
+      </div>
+      <div>
+        <%= form.collection_select :colony_background_strain_name, @colony_background_strain, :name, :name, :include_blank => true %>
+      </div>
     </div>
   </div>
 </fieldset>

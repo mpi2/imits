@@ -69,6 +69,10 @@ sup { vertical-align: super; font-size: 80%; }
 em { font-style: italic; }
 strong { font-weight: bold; }
 
+.hidden {
+  display:none;
+}
+
 .large-text {
     font-size: 1.5em;
     line-height: 1.5em;

@@ -96,12 +96,12 @@
       <%= form.check_box :cre_excision_required %>
     </div>
 
-    <div id="cre-excision-fields">
+    <div id="cre-excision-fields" class="<%= @phenotype_attempt.cre_excision_required ? '' : 'hidden' %>">
       <div>
         <%= form.label :tat_cre, "Cre Excision via TAT-Cre?" %>
         <%= form.check_box :tat_cre %>
       </div>
-      <div id="tat-cre-hidden-fields">
+      <div id="tat-cre-hidden-fields" class="<%= @phenotype_attempt.tat_cre ? 'hidden' : '' %>">
         <div>
           <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
         </div>

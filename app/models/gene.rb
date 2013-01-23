@@ -286,7 +286,7 @@ class Gene < ActiveRecord::Base
     raise ArgumentError, 'Need an array of MGI Accession IDs' unless mgi_accession_ids.kind_of?(Array)
     raise ArgumentError, 'You must specify some MGI Accession IDs to search for' if mgi_accession_ids.empty?
 
-    ikmc_projects = ['KOMP-CSD','KOMP-Regeneron','EUCOMM','NorCOMM','mirKO']
+    ikmc_projects = ['KOMP-CSD','KOMP-Regeneron','EUCOMM','NorCOMM','mirKO','EUCOMMTools','EUCOMMToolsCre']
     data          = {}
 
     # We have to do two seperate queries here as we may be looking for genes that do

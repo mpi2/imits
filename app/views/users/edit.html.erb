@@ -21,12 +21,22 @@
           </td>
         </tr>
 
+        <% if session[:masquerade] || current_user.admin? %>
+          <tr>
+            <td>
+              <%= form.label :admin %>
+              <span><%= form.check_box :admin %></span>
+            </td>
+          </tr>
+        <% end %>
+
         <tr>
           <td>
             <%= form.label :production_centre %>
             <span><%= resource.production_centre.name %></span>
           </td>
         </tr>
+
       </table>
     </fieldset>
 

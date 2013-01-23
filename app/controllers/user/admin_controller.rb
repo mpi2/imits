@@ -14,6 +14,7 @@ class User::AdminController < ApplicationController
 
   def transform
     sign_in(:user, User.find_by_email!(params[:user_email]))
+    session[:masquerade] = true
     redirect_to user_path, :notice => 'Transformation complete'
   end
 

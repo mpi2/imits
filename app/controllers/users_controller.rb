@@ -18,6 +18,10 @@ class UsersController < Devise::RegistrationsController
       user_params.delete(:password_confirmation) if user_params[:password_confirmation].blank?
     end
 
+    if session[:masquerade] || current_user.admin?
+      resource.admin = params[:user][:admin]
+    end
+
     if resource.update_attributes(user_params)
       set_flash_message :notice, :updated if is_navigational_format?
       sign_in resource_name, resource, :bypass => true

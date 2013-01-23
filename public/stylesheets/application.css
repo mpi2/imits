@@ -505,6 +505,11 @@ div.user-form div.submit {
     margin-bottom: 0;
 }
 
+div.password-reset #error_explanation {
+  width:600px;
+  line-height:1.4;
+}
+
 /* @end */
 
 /* @group Micro-Injection Search Form */

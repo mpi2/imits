@@ -62,8 +62,10 @@ Kermits2::Application.routes.draw do
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do
+    get 'users' => 'users#index', :as => :users
     get 'user', :to => 'users#show', :as => :user
     put 'user', :to => 'users#update'
+    match 'password_reset' => 'users#password_reset', :as => :password_reset
   end
 
   get 'user/admin', :to => 'user/admin#index', :as => :user_admin

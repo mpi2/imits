@@ -1,0 +1,29 @@
+<% @title = 'Password reset' %>
+
+<div class="user-form grid_4 prefix_4 suffix_4 password-reset">
+  <%= form_for(resource, :as => resource_name, :url => password_path(resource_name), :html => { :method => :put }) do |f| %>
+    <%= devise_error_messages! %>
+    <%= f.hidden_field :reset_password_token %>
+
+    <fieldset>
+      <legend><%= @title %></legend>
+
+      <table>
+        <tr>
+          <td>
+            <%= f.label :password, "New password" %>
+            <%= f.password_field :password %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <%= f.label :password_confirmation, "Confirm new password" %>
+            <%= f.password_field :password_confirmation %>
+          </td>
+        </tr>
+      </table>
+
+      <div class="submit"><%= f.submit "Change my password" %></div>
+    </fieldset>
+  <% end %>
+</div>

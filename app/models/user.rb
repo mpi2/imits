@@ -29,10 +29,6 @@ class User < ActiveRecord::Base
     self.remember_me = true
   end
 
-  def admin?
-    return ADMIN_USERS.include?(email)
-  end
-
   def remote_access?
     return REMOTE_ACCESS_USERS.include?(email)
   end
@@ -57,6 +53,7 @@ end
 #  is_contactable                 :boolean         default(FALSE)
 #  es_cell_distribution_centre_id :integer
 #  legacy_id                      :integer
+#  admin                          :boolean         default(FALSE)
 #
 # Indexes
 #

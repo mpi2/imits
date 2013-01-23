@@ -8,6 +8,7 @@ end
 
 Factory.define :admin_user, :parent => :user do |user|
   user.email 'vvi@sanger.ac.uk'
+  user.admin true
 end
 
 Factory.define :gene do |gene|

@@ -39,7 +39,7 @@ module ApplicationModel::BelongsToMiPlan
       validate :validate_production_centre_name_and_consortium_name_both_or_neither
       validate :validate_mi_plan_id_or_names_not_both
       validate :validate_consortium_and_production_centre_names_exist
-      validate :lookup_mi_plan
+      validate :validate_mi_plan_and_lookup_if_blank
     end # included
 
     def deal_with_unassigned_or_inactive_plans
@@ -82,30 +82,39 @@ module ApplicationModel::BelongsToMiPlan
     end
     protected :validate_consortium_and_production_centre_names_exist
 
-    def lookup_mi_plan
-      return false if mi_plan.blank? && gene.blank?
+    def validate_mi_plan_and_lookup_if_blank
+      plan = mi_plan
+      if plan.blank? && production_centre_name && @consortium_name && gene
+        plan = lookup_mi_plan
+      end
 
+      if plan && plan.phenotype_only
+        self.errors.add(:base, 'MiAttempt cannot be created for this MiPlan. (phenotype only)')
+      end
+    end
+    protected :validate_mi_plan_and_lookup_if_blank
+
+    def lookup_mi_plan
       lookup_params = {
         :production_centre_name_eq => @production_centre_name,
         :consortium_name_eq => @consortium_name,
         :gene_id_eq => gene.id
-      }
-      plan = MiPlan.search(lookup_params).result.first
-      
-      if kind_of? MiAttempt
-        if plan
-          if plan.phenotype_only
-            self.errors.add(:base, 'MiAttempt cannot be created for this MiPlan. (phenotype only)')
-            return nil
-          end
-        else
-          lookup_params.delete(:production_centre_name_eq)
-          lookup_params[:production_centre_is_null] = true
-          plan = MiPlan.search(lookup_params).result.first
-        end
+      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+
+      plan = MiPlan
+        .includes(:production_centre, :consortium)
+        .where("centres.name" => @production_centre_name, "consortia.name" => @consortium_name, :gene_id => gene.id).first
+
+      return plan if plan
+
+      if ! plan and kind_of? MiAttempt
+        lookup_params.delete(:production_centre_name_eq)
+        lookup_params[:production_centre_is_null] = true
+        plan = MiPlan.search(lookup_params).result.first
+        return plan if plan
       end
 
-      return plan
+      return nil
     end
 
     def set_mi_plan

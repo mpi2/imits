@@ -69,6 +69,7 @@ class Public::MiAttempt < ::MiAttempt
     mouse_allele_symbol
     phenotype_attempts_count
     pipeline_name
+    allele_symbol
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{

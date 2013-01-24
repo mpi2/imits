@@ -1,0 +1,49 @@
+<% @title = 'User Admin' %>
+
+<div class="user-form grid_4 prefix_4 suffix_4">
+  <%= form_tag [:transform, :admin, :users], :html => { :method => :post } do |form| %>
+    <fieldset>
+      <legend><%= 'Transform into another user' %></legend>
+
+      <table>
+        <tr>
+          <td>
+            <%= label_tag 'user_email' %>
+            <%= select_tag 'user_email', options_for_select(User.all.map(&:email).sort) %>
+          </td>
+        </tr>
+      </table>
+
+      <div class="submit">
+        <%= submit_tag 'Transform' %>
+      </div>
+    </fieldset>
+  <% end %>
+
+  <%= form_for :user, :url => [:admin, :users] do |form| %>
+    <fieldset>
+      <legend><%= 'Create New User' %></legend>
+
+      <table>
+        <tr>
+          <td>
+            <%= form.label :email %>
+            <%= form.text_field :email %>
+          </td>
+        </tr>
+
+        <tr>
+          <td>
+            <%= form.label :production_centre %>
+            <%= form.collection_select :production_centre_id, Centre.all.sort_by(&:name), :id, :name %>
+          </td>
+        </tr>
+      </table>
+
+      <div class="submit">
+        <%= form.submit 'Create User' %>
+      </div>
+    </fieldset>
+
+  <% end %>
+</div>

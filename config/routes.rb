@@ -1,6 +1,14 @@
 Kermits2::Application.routes.draw do
   root :to => "root#index"
 
+  namespace :admin do
+    resources :users do
+      collection do
+        match 'transform'
+      end
+    end
+  end
+
   resources :production_goals
   resources :centres
 
@@ -67,10 +75,6 @@ Kermits2::Application.routes.draw do
     put 'user', :to => 'users#update'
     match 'password_reset' => 'users#password_reset', :as => :password_reset
   end
-
-  get 'user/admin', :to => 'user/admin#index', :as => :user_admin
-  post 'user/admin/transform', :to => 'user/admin#transform', :as => :transform_admin
-  post 'user/admin/create_user', :to => 'user/admin#create_user', :as => :admin_create_user
 
   resources :es_cells, :only => [] do
     collection do

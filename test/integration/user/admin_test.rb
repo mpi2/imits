@@ -20,7 +20,7 @@ class User::AdminTest < Kermits2::IntegrationTest
     end
 
     should 'allow authorized admins to become another user' do
-      vvi = Factory.create :user, :email => 'vvi@sanger.ac.uk'
+      vvi = Factory.create :admin_user
       user = Factory.create :user
       login vvi
       assert page.has_content? "You are logged in as #{vvi.email}"
@@ -34,7 +34,7 @@ class User::AdminTest < Kermits2::IntegrationTest
     end
 
     should 'let authorized admins to create users' do
-      vvi = Factory.create :user, :email => 'vvi@sanger.ac.uk'
+      vvi = Factory.create :admin_user
       login vvi
       assert page.has_content? "You are logged in as #{vvi.email}"
       visit '/user/admin'
@@ -52,7 +52,7 @@ class User::AdminTest < Kermits2::IntegrationTest
     end
 
     should 'validate when creating users' do
-      vvi = Factory.create :user, :email => 'vvi@sanger.ac.uk'
+      vvi = Factory.create :admin_user
       login vvi
       assert page.has_content? "You are logged in as #{vvi.email}"
       visit '/user/admin'

@@ -14,7 +14,7 @@ class User < ActiveRecord::Base
     'a.blake@har.mrc.ac.uk'
   ]
 
-  devise :database_authenticatable, :rememberable, :validatable
+  devise :database_authenticatable, :rememberable, :validatable, :recoverable
 
   attr_accessible :email, :password, :password_confirmation, :remember_me,
           :production_centre, :production_centre_id, :name, :is_contactable
@@ -32,22 +32,29 @@ class User < ActiveRecord::Base
   def can_see_sub_project?
     return ['WTSI','JAX'].include?(production_centre.name)
   end
+
+  def production_centre_name
+    return nil if production_centre.blank?
+    production_centre.name
+  end
 end
 
 # == Schema Information
 #
 # Table name: users
 #
-#  id                   :integer         not null, primary key
-#  email                :string(255)     default(""), not null
-#  encrypted_password   :string(128)     default(""), not null
-#  remember_created_at  :datetime
-#  production_centre_id :integer         not null
-#  created_at           :datetime
-#  updated_at           :datetime
-#  name                 :string(255)
-#  is_contactable       :boolean         default(FALSE)
-#  admin                :boolean         default(FALSE)
+#  id                     :integer         not null, primary key
+#  email                  :string(255)     default(""), not null
+#  encrypted_password     :string(128)     default(""), not null
+#  remember_created_at    :datetime
+#  production_centre_id   :integer         not null
+#  created_at             :datetime
+#  updated_at             :datetime
+#  name                   :string(255)
+#  is_contactable         :boolean         default(FALSE)
+#  admin                  :boolean         default(FALSE)
+#  reset_password_token   :string(255)
+#  reset_password_sent_at :datetime
 #
 # Indexes
 #

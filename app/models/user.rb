@@ -32,6 +32,11 @@ class User < ActiveRecord::Base
   def can_see_sub_project?
     return ['WTSI','JAX'].include?(production_centre.name)
   end
+
+  def production_centre_name
+    return nil if production_centre.blank?
+    production_centre.name
+  end
 end
 
 # == Schema Information

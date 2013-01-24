@@ -15,7 +15,7 @@ class User < ActiveRecord::Base
     'a.blake@har.mrc.ac.uk'
   ]
 
-  devise :database_authenticatable, :rememberable, :validatable
+  devise :database_authenticatable, :rememberable, :validatable, :recoverable
 
   attr_accessible :email, :password, :password_confirmation, :remember_me,
           :production_centre, :production_centre_id, :name, :is_contactable
@@ -36,6 +36,11 @@ class User < ActiveRecord::Base
   def can_see_sub_project?
     return ['WTSI','JAX'].include?(production_centre.name)
   end
+
+  def production_centre_name
+    return nil if production_centre.blank?
+    production_centre.name
+  end
 end
 
 # == Schema Information
@@ -54,6 +59,8 @@ end
 #  es_cell_distribution_centre_id :integer
 #  legacy_id                      :integer
 #  admin                          :boolean         default(FALSE)
+#  reset_password_token           :string(255)
+#  reset_password_sent_at         :datetime
 #
 # Indexes
 #

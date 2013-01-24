@@ -2,9 +2,9 @@ SITE_PATH = case Rails.env
 when 'production' then
   'http://mousephenotype.org/imits'
 when 'staging' then
-  'http://htgt.internal.sanger.ac.uk:4008/kermits2'
+  'http://i-dcc.org/staging/imits'
 else
-  'http://example.com/imits'
+  'http://localhost:3000'
 end
 
 ALLELE_OVERALL_PASS_PATH = case Rails.env

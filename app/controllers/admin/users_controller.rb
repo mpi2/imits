@@ -1,13 +1,4 @@
-class User::AdminController < ApplicationController
-
-  before_filter :authenticate_user!
-
-  before_filter do
-    unless current_user.admin?
-      redirect_to root_url, :alert => 'Unauthorized access detected!  This incident will be reported'
-      Rails.logger.info "Unauthorized access detected by #{current_user.inspect}"
-    end
-  end
+class Admin::UsersController < Admin::BaseController
 
   def index
   end
@@ -18,7 +9,7 @@ class User::AdminController < ApplicationController
     redirect_to user_path, :notice => 'Transformation complete'
   end
 
-  def create_user
+  def create
     @user = User.new(params[:user].merge(:password => 'password'))
     if @user.save
       sign_in(:user, @user)
@@ -28,4 +19,5 @@ class User::AdminController < ApplicationController
       render :action => :index
     end
   end
+
 end

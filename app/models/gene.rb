@@ -287,7 +287,7 @@ class Gene < ActiveRecord::Base
     raise ArgumentError, 'Need an array of MGI Accession IDs' unless mgi_accession_ids.kind_of?(Array)
     raise ArgumentError, 'You must specify some MGI Accession IDs to search for' if mgi_accession_ids.empty?
 
-    ikmc_projects = ['KOMP-CSD','KOMP-Regeneron','EUCOMM','NorCOMM','mirKO']
+    ikmc_projects = ['KOMP-CSD','KOMP-Regeneron','EUCOMM','NorCOMM','mirKO','EUCOMMTools','EUCOMMToolsCre']
     data          = {}
 
     # We have to do two seperate queries here as we may be looking for genes that do
@@ -405,7 +405,7 @@ class Gene < ActiveRecord::Base
       logger.debug "[Gene.sync_with_remotes] Evaluating #{mgi_ids_to_delete.size} gene(s) for deletion..."
       mgi_ids_to_delete.each do |mgi_accession_id|
         current_gene = Gene.find_by_mgi_accession_id(mgi_accession_id)
-        if current_gene.mi_plans.size == 0
+        if current_gene.mi_plans.size == 0 && current_gene.notifications.empty?
           logger.debug "[Gene.sync_with_remotes] Deleting gene data for #{current_gene.mgi_accession_id}"
           current_gene.destroy
         end

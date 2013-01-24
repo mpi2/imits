@@ -7,14 +7,14 @@ class User::AdminTest < Kermits2::IntegrationTest
   context 'Admin integration:' do
 
     should 'require login' do
-      visit '/user/admin'
+      visit '/admin/users'
       assert page.has_css? '.message.alert'
       assert_login_page
     end
 
     should 'not allow non-authorized users to access admin page' do
       login
-      visit '/user/admin'
+      visit '/admin/users'
       assert_match root_url, current_url
       assert_match /unauthorized access detected/i, page.find('.message.alert').text
     end
@@ -25,7 +25,7 @@ class User::AdminTest < Kermits2::IntegrationTest
       login vvi
       assert page.has_content? "You are logged in as #{vvi.email}"
 
-      visit '/user/admin'
+      visit '/admin/users'
       select user.email, :from => 'user_email'
       click_button 'Transform'
 
@@ -37,7 +37,7 @@ class User::AdminTest < Kermits2::IntegrationTest
       vvi = Factory.create :admin_user
       login vvi
       assert page.has_content? "You are logged in as #{vvi.email}"
-      visit '/user/admin'
+      visit '/admin/users'
       fill_in 'user[email]', :with => 'newuser@example.com'
       select 'WTSI', :from => 'user[production_centre_id]'
       click_button 'Create User'
@@ -55,7 +55,7 @@ class User::AdminTest < Kermits2::IntegrationTest
       vvi = Factory.create :admin_user
       login vvi
       assert page.has_content? "You are logged in as #{vvi.email}"
-      visit '/user/admin'
+      visit '/admin/users'
       fill_in 'user[email]', :with => 'invalid email'
       click_button 'Create User'
 

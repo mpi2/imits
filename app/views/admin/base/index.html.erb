@@ -1,0 +1,25 @@
+<% @tab = "Admin" %>
+
+<div class="grid_12">
+  <h2>iMits Admin area</h2>
+
+  <p>What would you like to do today?</p>
+
+  <div class="clear" style="margin-top:15px"></div>
+</div>
+
+<div class="grid_8">
+  <div class="homepage-links">
+    <a href="<%= url_for [:admin, :users] %>">
+      <h3>User Management</h3>
+      <p>Masquerade and Create users</p>
+    </a>
+  </div>
+
+  <div class="homepage-links">
+    <a href="<%= url_for [:admin, :notifications] %>">
+      <h3>Notifications</h3>
+      <p>View notifications sent for genes. You can also retry notifications.</p>
+    </a>
+  </div>
+</div>

@@ -3,7 +3,8 @@ Ext.define('Imits.widget.NotificationsGrid', {
 
     requires: [
       'Imits.model.Notification',
-      'Imits.widget.NotificationPane'
+      'Imits.widget.NotificationPane',
+      'Imits.widget.grid.RansackFiltersFeature'
     ],
 
     title: 'Notifications',
@@ -102,15 +103,12 @@ Ext.define('Imits.widget.NotificationsGrid', {
       width:130
     },
     {
-      dataIndex: "last_email",
-      header: "Last email sent",
-      hidden: true
-    },
-    {
-      dataIndex: "welcome_email",
-      header: "Welcome email",
-      width:130,
-      hidden: true
+      dataIndex: "updated_at",
+      xtype: 'datecolumn',
+      format: "Y-m-d H:i:s",
+      header: "Last updated",
+      hidden: true,
+      width:130
     },
     {
       xtype:'actioncolumn',

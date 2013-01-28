@@ -31,10 +31,13 @@ Ext.define('Imits.model.Notification', {
     },
     {
       name: "last_email"
+    },
+    {
+      name: "updated_at"
     }
     ],
     proxy: Ext.create('Imits.data.Proxy', {
-        resource: 'notification',
+        resource: 'admin_notification',
         resourcePath: 'admin/notifications'
     })
 })

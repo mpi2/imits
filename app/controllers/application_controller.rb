@@ -35,6 +35,11 @@ class ApplicationController < ActionController::Base
   end
   protected :params_cleaned_for_search
 
+  def params_cleaned_for_sort(sorts)
+    return sorts
+  end
+  protected :params_cleaned_for_sort
+
   def json_format_extended_response(data, total)
     data = [data] unless data.kind_of? Array
     data = data.as_json
@@ -54,7 +59,7 @@ class ApplicationController < ActionController::Base
     params.delete(:per_page) if params[:per_page].blank? or params[:per_page].to_i == 0
 
     result = model_class.send(search_method, params_cleaned_for_search(params)).result
-    result = result.order(params[:sorts]) if params[:sorts]
+    result = result.order(params_cleaned_for_sort(params[:sorts])) if params[:sorts]
     retval = result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
 
     if format == :json and params[:extended_response].to_s == 'true'

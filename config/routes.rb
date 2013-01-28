@@ -7,6 +7,12 @@ Kermits2::Application.routes.draw do
         match 'transform'
       end
     end
+
+    resources :notifications do
+      member do
+        put 'retry'
+      end
+    end
   end
 
   resources :production_goals

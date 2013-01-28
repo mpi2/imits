@@ -626,3 +626,7 @@ div.report_control * {
     background-color: #caed9e;
     padding: 0.5em;
 }
+
+.x-action-col-icon:hover {
+  cursor:pointer;
+}

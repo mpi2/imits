@@ -1,6 +1,8 @@
 Kermits2::Application.routes.draw do
   root :to => "root#index"
 
+  get 'admin' => 'Admin::Base#index', :as => :admin
+
   namespace :admin do
     resources :users do
       collection do

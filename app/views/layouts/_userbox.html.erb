@@ -1,6 +1,10 @@
 <div id="userbox">
   <div id="userbox-inner">
     You are logged in as <%= current_user.email %><br/>
-    <%= link_to 'Edit profile', user_path %> | <%= link_to 'Logout', destroy_user_session_path %>
+    <%= link_to 'Edit profile', user_path %>
+    <% if current_user.admin? %>
+      | <%= link_to 'Admin', admin_path %>
+    <% end %>
+    | <%= link_to 'Logout', destroy_user_session_path %>
   </div>
 </div>

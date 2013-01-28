@@ -4,7 +4,8 @@ Ext.define('Imits.widget.NotificationsGrid', {
     requires: [
       'Imits.model.Notification',
       'Imits.widget.NotificationPane',
-      'Imits.widget.grid.RansackFiltersFeature'
+      'Imits.widget.grid.RansackFiltersFeature',
+      'Imits.Util'
     ],
 
     title: 'Notifications',
@@ -20,6 +21,13 @@ Ext.define('Imits.widget.NotificationsGrid', {
     },
 
     selType: 'rowmodel',
+
+    features: [
+    {
+        ftype: 'ransack_filters',
+        local: false
+    }
+    ],
 
     initComponent: function () {
         var self = this;
@@ -64,10 +72,10 @@ Ext.define('Imits.widget.NotificationsGrid', {
 
     columns: [
     {
-        dataIndex: 'id',
-        header: 'ID',
-        readOnly: true,
-        hidden: true
+      dataIndex: 'id',
+      header: 'ID',
+      readOnly: true,
+      hidden: true
     },
     {
       dataIndex: "gene_id",
@@ -76,7 +84,10 @@ Ext.define('Imits.widget.NotificationsGrid', {
     },
     {
       dataIndex: "gene_marker_symbol",
-      header: "Gene"
+      header: "Gene",
+      filter: {
+        type: 'string'
+      }
     },
     {
       dataIndex: "contact_id",
@@ -86,7 +97,10 @@ Ext.define('Imits.widget.NotificationsGrid', {
     {
       dataIndex: "contact_email",
       header: "Contact",
-      width:180
+      width:180,
+      filter: {
+        type: 'string'
+      }
     },
     {
       dataIndex: "last_email_sent",

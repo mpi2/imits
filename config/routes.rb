@@ -15,6 +15,8 @@ Kermits2::Application.routes.draw do
         put 'retry'
       end
     end
+
+    resources :contacts
   end
 
   resources :production_goals

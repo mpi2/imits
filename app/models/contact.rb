@@ -3,7 +3,7 @@ class Contact < ActiveRecord::Base
 
   attr_accessible :email
 
-  has_many :notifications
+  has_many :notifications, :dependent => :destroy
   has_many :genes, :through => :notifications
 
   accepts_nested_attributes_for :notifications, :reject_if => :all_blank

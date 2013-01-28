@@ -253,6 +253,10 @@ ul[class*=x-tab] { list-style: none; }
 	text-decoration: none;
 }
 
+#userbox-inner a.active {
+  font-weight:bold;
+}
+
 #userbox-inner a:hover {
 	text-decoration: underline;
 }

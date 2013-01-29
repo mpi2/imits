@@ -9,7 +9,7 @@ class Notification < ActiveRecord::Base
   belongs_to :contact
   belongs_to :gene
   
-  access_association_by_attribute :contact, :email, :validates => false
+  access_association_by_attribute :contact, :email, :skip_validation => true
   access_association_by_attribute :gene, :marker_symbol
   access_association_by_attribute :gene, :mgi_accession_id
 

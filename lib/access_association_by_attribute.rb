@@ -7,8 +7,6 @@ module AccessAssociationByAttribute
 
     association_class = reflections[association_name].klass
 
-    options[:validates] = options[:validates] || true
-
     if ! options[:full_alias].blank?
       virtual_attribute = options[:full_alias]
     elsif ! options[:attribute_alias].blank?
@@ -72,7 +70,7 @@ module AccessAssociationByAttribute
       end
     end
 
-    unless options[:validates]
+    unless options[:skip_validation]
       validate "#{virtual_attribute}_validation"
     end
 

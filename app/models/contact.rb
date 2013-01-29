@@ -8,7 +8,7 @@ class Contact < ActiveRecord::Base
 
   accepts_nested_attributes_for :notifications, :reject_if => :all_blank
 
-  validates :email, :presence => true, :email => true
+  validates :email, :presence => true, :email => true, :uniqueness => true
 
 end
 

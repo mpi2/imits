@@ -4,7 +4,7 @@ class Admin::NotificationsController < Admin::BaseController
 
     respond_to do |format|
       format.html
-      format.json { render :json => data_for_serialized(:json).to_json(:methods => [:contact_email, :gene_marker_symbol])}
+      format.json { render :json => data_for_serialized(:json) }
     end
   end
 
@@ -15,6 +15,16 @@ class Admin::NotificationsController < Admin::BaseController
       format.json {
         render :json => @notification.to_json(:only => [:id], :methods => [:last_email, :welcome_email])
       }
+    end
+  end
+
+  def create
+    @notification = Notification.new(params[:admin_notification])
+
+    if @notification.save
+      render :json => @notification.to_json      
+    else
+      render :json => {'error' => @notification.errors.full_messages.join("\n")}, :status => 422
     end
   end
 

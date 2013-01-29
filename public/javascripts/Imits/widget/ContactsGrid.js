@@ -36,67 +36,16 @@ Ext.define('Imits.widget.ContactsGrid', {
       })
     ],
 
-    createContact: function() {
-        var self = this;
-        var emailAddress = self.emailField.getSubmitValue();
-
-        if(!emailAddress || emailAddress && !emailAddress.length) {
-            alert("You must enter a Email Address.");
-            return
-        }
-
-        self.setLoading(true);
-
-        var contactRecord = Ext.create('Imits.model.Contact', {
-            'email' : emailAddress
-        });
-
-        contactRecord.save({
-            callback: function() {
-                self.reloadStore();
-                self.setLoading(false);
-
-                self.emailField.setValue()
-            }
-        })
-    },
-
     initComponent: function () {
-        var self = this;
+      var self = this;
 
-        self.callParent();
+      self.callParent();
 
-        self.addDocked(Ext.create('Ext.toolbar.Paging', {
-            store: self.getStore(),
-            dock: 'bottom',
-            displayInfo: true
-        }));
-
-        self.emailField = Ext.create('Ext.form.field.Text', {
-          fieldLabel: 'Email address',
-          name: 'email',
-          labelWidth: 80,
-          width:250,
-          labelAlign: 'right'
-        })
-
-        self.addDocked(Ext.create('Ext.toolbar.Toolbar', {
-            dock: 'top',
-            items: [
-              self.emailField,
-              '  ',
-              {
-                  id: 'register_interest_button',
-                  text: 'Create contact',
-                  cls:'x-btn-text-icon',
-                  iconCls: 'icon-add',
-                  grid: self,
-                  handler: function() {
-                      self.createContact();
-                  }
-              }
-           ]
-        }));
+      self.addDocked(Ext.create('Ext.toolbar.Paging', {
+          store: self.getStore(),
+          dock: 'bottom',
+          displayInfo: true
+      }));
     },
 
     columns: [

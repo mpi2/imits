@@ -5,7 +5,7 @@ class Admin::ContactsController < Admin::BaseController
   def index
     respond_to do |format|
       format.html
-      format.json { render :json => data_for_serialized(:json).to_json(:methods => [:contact_email, :gene_marker_symbol])}
+      format.json { render :json => data_for_serialized(:json) }
     end
   end
 

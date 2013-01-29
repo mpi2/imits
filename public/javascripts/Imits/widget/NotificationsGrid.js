@@ -29,45 +29,102 @@ Ext.define('Imits.widget.NotificationsGrid', {
     }
     ],
 
-    initComponent: function () {
+    createNotification: function() {
         var self = this;
+        var emailAddress = self.emailField.getSubmitValue();
+        var geneField = self.geneField.getSubmitValue();
 
-        self.callParent();
+        if(!emailAddress || emailAddress && !emailAddress.length) {
+            alert("You must enter a Email Address.");
+            return
+        }
 
-        self.addDocked(Ext.create('Ext.toolbar.Paging', {
-            store: self.getStore(),
-            dock: 'bottom',
-            displayInfo: true
-        }));
+        if(!geneField || geneField && !geneField.length) {
+            alert("You must enter a gene marker symbol.");
+            return
+        }
 
-        //self.addListener('afterrender', function () {
-        //    self.filters.createFilters();
-        //});
+        self.setLoading(true);
 
-        self.notificationPane = Ext.create('Imits.widget.NotificationPane', {
-            listeners: {
-                'hide': {
-                    fn: function () {
-                        self.setLoading(false);
-                    }
+        var notificationRecord = Ext.create('Imits.model.Notification', {
+            'contact_email' : emailAddress,
+            'gene_marker_symbol' : geneField
+        });
+
+        notificationRecord.save({
+            callback: function() {
+                self.reloadStore();
+                self.setLoading(false);
+
+                self.geneField.setValue()
+                self.emailField.setValue()
+            }
+        })
+    },
+
+    initComponent: function () {
+      var self = this;
+
+      self.callParent();
+
+      self.addDocked(Ext.create('Ext.toolbar.Paging', {
+          store: self.getStore(),
+          dock: 'bottom',
+          displayInfo: true
+      }));
+
+      self.notificationPane = Ext.create('Imits.widget.NotificationPane', {
+          listeners: {
+              'hide': {
+                  fn: function () {
+                      self.setLoading(false);
+                  }
+              }
+          }
+      });
+
+      self.getView().on('cellmousedown',function(view, cell, cellIdx, record, row, rowIdx, eOpts){
+        var id = record.data['id'];
+        self.setLoading("Loading notification....");
+        self.notificationPane.load(id);
+      });
+
+      self.geneField = Ext.create('Ext.form.field.ComboBox', {
+        displayField: 'gene_name',
+        store: window.GENE_OPTIONS,
+        fieldLabel: 'Gene of interest',
+        labelAlign: 'right',
+        labelWidth: 100,
+        queryMode: 'local',
+        typeAhead: true
+      });
+
+      self.emailField = Ext.create('Ext.form.field.Text', {
+        fieldLabel: 'Email address',
+        name: 'email',
+        labelWidth: 80,
+        width:250,
+        labelAlign: 'right'
+      })
+
+      self.addDocked(Ext.create('Ext.toolbar.Toolbar', {
+          dock: 'top',
+          items: [
+            self.geneField,
+            self.emailField,
+            '  ',
+            {
+                id: 'register_interest_button',
+                text: 'Register interest',
+                cls:'x-btn-text-icon',
+                iconCls: 'icon-add',
+                grid: self,
+                handler: function() {
+                    self.createNotification();
                 }
             }
-        });
-
-        //self.addListener('itemclick', function (theView, record, item, index, event, eventOptions) {
-        //    var target = Ext.get(event.getTarget());
-        //    if (target.dom.nodeName.toLowerCase() !== 'a') {
-        //        var id = record.data['id'];
-        //        self.setLoading("Loading notification....");
-        //        self.notificationPane.load(id);
-        //    }
-        //});
-
-        self.getView().on('cellmousedown',function(view, cell, cellIdx, record, row, rowIdx, eOpts){
-          var id = record.data['id'];
-          self.setLoading("Loading notification....");
-          self.notificationPane.load(id);
-        });
+         ]
+      }));
     },
 
     columns: [

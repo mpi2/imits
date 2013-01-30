@@ -59,7 +59,9 @@ class Notification < ActiveRecord::Base
     sql = <<-EOF
       SELECT genes.marker_symbol, count(*) as total
       FROM notifications
+      JOIN contacts ON contacts.id = notifications.contact_id
       JOIN genes ON genes.id = notifications.gene_id
+      WHERE contacts.report_to_public is true
       GROUP BY genes.marker_symbol
       ORDER BY total desc, genes.marker_symbol;
     EOF

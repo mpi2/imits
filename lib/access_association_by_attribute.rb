@@ -70,7 +70,9 @@ module AccessAssociationByAttribute
       end
     end
 
-    validate "#{virtual_attribute}_validation"
+    unless options[:skip_validation]
+      validate "#{virtual_attribute}_validation"
+    end
 
   end
 end

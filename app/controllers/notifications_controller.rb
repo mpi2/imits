@@ -8,74 +8,33 @@ class NotificationsController < ApplicationController
   before_filter :remote_access_allowed!
 
   def create
-
-    @contact = Contact.where(:email => params[:contact][:email]).first
-    if !@contact
-      @contact = Contact.new(params[:contact])
-      @contact.save!
-    end
-
-    @gene = Gene.where(:mgi_accession_id => params[:gene][:mgi_accession_id]).first
-
-    if @gene && @contact
-      notifications = Notification.where(:gene_id => @gene.id, :contact_id => @contact.id)
-      if notifications.length == 0
-
-        @notification = Notification.new
-        @notification.gene = @gene
-        @notification.contact = @contact
-
-        if @notification.save!
-          if mailer = NotificationMailer.welcome_email(@notification)
-
-             @notification.welcome_email_text = mailer.body
-             @notification.welcome_email_sent = Time.now.utc
-             @notification.save!
-             mailer.deliver
-          end
-          render :json => {}
-        else
-          render json: {success: false, errors: ["Notification could not be created"]}, status: :unprocessable_entity
-        end
-
+    if params[:contact] && params[:gene]
+      @notification = Notification.new(:contact_email => params[:contact][:email], :gene_mgi_accession_id => params[:gene][:mgi_accession_id])
+      if @notification.save
+        render :nothing => true
       else
-        render json: {success: false, errors: ["Already registered for this contact and gene"]}, status: :not_acceptable
+        render :json => {:success => false, :errors => @notification.errors.full_messages}, :status => :not_acceptable
       end
-
     else
-      if @gene.nil?
-        render json: {success: false, errors: ["Gene not found :: Gene is nil"]}, status: :unprocessable_entity
-      elsif @contact.nil?
-        render json: {success: false, errors: ["Contact not found or could not be created :: Contact is nil"]}, status: :unprocessable_entity
-      elsif @gene.nil? && @contact.nil?
-        render json: {success: false, errors: ["No parameters provided :: Both Gene and Contact are nil"]}, status: :not_acceptable
-      end
+      render :json => {:success =>  false, :errors => ["No parameters provided :: Gene MGI Accession ID and Contact Email Address must be supplied."]}, :status => :not_acceptable
     end
   end
 
-  def delete
-    @contact = Contact.where(:email => params[:contact][:email]).first
-    @gene = Gene.where(:mgi_accession_id => params[:gene][:mgi_accession_id]).first
+  def destroy
 
-    if @gene && @contact
-      notifications = Notification.where(:gene_id => @gene.id, :contact_id => @contact.id)
-      if notifications.length > 0
-        @notification = notifications.first
+    if params[:contact] && params[:gene]
+      @notification = Notification.search(:contact_email_ci_eq => params[:contact][:email], :gene_mgi_accession_id_ci_eq => params[:gene][:mgi_accession_id]).result.first
+
+      if @notification
         @notification.destroy
-
         render :json => {}
       else
-        render json: {success: false, errors: ["Notification not found"]}, status: :unprocessable_entity
+        render :json => {:success => true, :errors => ["Notification not found"]}, status: :unprocessable_entity
       end
     else
-      if @gene.nil?
-        render json: {success: false, errors: ["Gene not found :: Gene is nil"]}, status: :unprocessable_entity
-      elsif @contact.nil?
-        render json: {success: false, errors: ["Contact not found :: Contact is nil"]}, status: :unprocessable_entity
-      elsif @gene.nil? && @contact.nil?
-        render json: {success: false, errors: ["No parameters provided :: Both Gene and Contact are nil"]}, status: :not_acceptable
-      end
+      render :json => {:success =>  false, :errors => ["No parameters provided :: Gene MGI Accession ID and Contact Email Address must be supplied."]}, :status => :not_acceptable
     end
+
   end
 
   private

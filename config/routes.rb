@@ -15,6 +15,8 @@ Kermits2::Application.routes.draw do
         put 'retry'
       end
     end
+
+    resources :contacts
   end
 
   resources :production_goals
@@ -73,8 +75,7 @@ Kermits2::Application.routes.draw do
   end
 
   resources :notifications, :only => [:create]
-
-  match 'notifications' => 'notifications#delete', :via => :delete
+  match 'notifications' => 'notifications#destroy', :via => :delete
 
   devise_for :users,
           :path_names => { :sign_in => 'login', :sign_out => 'logout' } do

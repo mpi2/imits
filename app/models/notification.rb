@@ -33,12 +33,12 @@ class Notification < ActiveRecord::Base
 
   def welcome_email
     return if welcome_email_text.blank?
-    YAML.load(welcome_email_text).raw_source
+    YAML.load(welcome_email_text).to_s
   end
 
   def last_email
     return if last_email_text.blank?
-    YAML.load(last_email_text).raw_source
+    YAML.load(last_email_text).to_s
   end
 
   def retry!

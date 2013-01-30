@@ -55,13 +55,26 @@ class Notification < ActiveRecord::Base
     end
   end
 
+  def self.notifications_by_gene
+    sql = <<-EOF
+      SELECT genes.marker_symbol, count(*) as total
+      FROM notifications
+      JOIN genes ON genes.id = notifications.gene_id
+      GROUP BY genes.marker_symbol
+      ORDER BY total desc, genes.marker_symbol;
+    EOF
+
+    result = ActiveRecord::Base.connection.execute sql
+    result.to_a.map(&:symbolize_keys)
+  end
+
   private
 
     def send_welcome_email
       return unless valid?
       
       if mailer = NotificationMailer.welcome_email(self)
-        self.welcome_email_text = mailer.body
+        self.welcome_email_text = mailer.body.to_s
         self.welcome_email_sent = Time.now.utc
         
         mailer.deliver

@@ -1,0 +1,29 @@
+<% @tab = 'Reports' %>
+<% @title = 'Notification interest by gene' %>
+
+<p><%#= link_to "Download List as CSV", :controller => :reports, :action => :double_assigned_plans_list, :format => :csv %></p>
+<p><%#= link_to "Download Matrix as CSV", :controller => :reports, :action => :double_assigned_plans_matrix, :format => :csv %></p>
+
+<br/>
+
+<h2>Notification interest by gene</h2>
+<p>Counts the number of notifications per gene</p>
+
+<div id="double-matrix" class="report grid_12">
+  <table>
+    <thead>
+      <tr>
+        <th>Gene</th>
+        <th>Number of notifications</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for row in @report %>
+        <tr>
+          <td class='report-cell-text'><%= row[:marker_symbol] %></td>
+          <td class='report-cell-integer'><%= row[:total] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -102,6 +102,8 @@ Kermits2::Application.routes.draw do
 
   match 'reports' => "reports#index", :as => :reports
 
+  match 'reports/notifications_by_gene' => 'reports#notifications_by_gene'
+
   match 'reports/mi_production' => "reports/mi_production#index"
   match 'reports/mi_production/(:action(.:format))' => "reports/mi_production#:action"
 

@@ -11,3 +11,4 @@ db/dump.*.sql
 .DS_Store
 *.log
 db/test_structure.sql
+db/structure.sql

@@ -1,10 +1,10 @@
 class CreateGenes < ActiveRecord::Migration
   class BasicEsCell < ActiveRecord::Base
-    set_table_name :es_cells
+    self.table_name = :es_cells
   end
 
   class BasicGene < ActiveRecord::Base
-    set_table_name :genes
+    self.table_name = :genes
     has_many :es_cells, :class_name => 'BasicEsCell', :foreign_key => 'gene_id'
   end
 

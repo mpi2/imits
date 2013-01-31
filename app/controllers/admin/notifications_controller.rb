@@ -48,7 +48,6 @@ class Admin::NotificationsController < Admin::BaseController
 
   ## Override to add as_json options. See ApplicationController for overidden method.
   def json_format_extended_response(data, total)
-    data = [data] unless data.kind_of? Array
     data = data.as_json(:methods => [:contact_email, :gene_marker_symbol])
 
     retval = {

@@ -378,6 +378,8 @@ class MiPlanTest < ActiveSupport::TestCase
           default_mi_plan.save
           current_status_time = default_mi_plan.status_stamps.find_by_status_id(default_mi_plan.status_id).created_at
 
+          sleep 1
+
           assert_equal 8, default_mi_plan.number_of_es_cells_starting_qc
           assert (original_status_time < current_status_time), 'created_at has not been updated'
         end

@@ -1,5 +1,5 @@
 <% if !Rails.env.production? %>
-<%= render :partial => 'notification_mailer/shared/development_environment_warning.text.erb' %>
+<%= render :partial => 'notification_mailer/shared/development_environment_warning' %>
 <% end %>
 Dear colleague,
 
@@ -8,7 +8,7 @@ You have registered interest in this gene via the IMPC (www.mousephenotype.org).
 You are receiving this email because the IMPC production status of the gene has changed.
 
 <% if !@relevant_status.empty? %>
-<%= render :partial => "notification_mailer/status_email/#{@relevant_status[:status]}.text.erb" %>
+<%= render :partial => "notification_mailer/status_email/#{@relevant_status[:status]}" %>
 <% end %>
 
 <% if @total_cell_count > 0 %>

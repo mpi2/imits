@@ -268,7 +268,7 @@ class Test::Person < ApplicationModel
       t.string :name, :null => false
       t.string :code, :null => false
     end
-    set_table_name :test_person_statuses
+    self.table_name = :test_person_statuses
 
     has_many :test_people, :dependent => :destroy
 
@@ -282,7 +282,7 @@ class Test::Person < ApplicationModel
       t.integer :status_id, :null => false
       t.integer :person_id, :null => false
     end
-    set_table_name :test_person_status_stamps
+    self.table_name = :test_person_status_stamps
 
     belongs_to :status
   end
@@ -296,7 +296,7 @@ class Test::Person < ApplicationModel
     t.integer :status_id
   end
   self.connection.add_foreign_key :test_people, :test_person_statuses, :column => :status_id
-  set_table_name :test_people
+  self.table_name = :test_people
 
   has_many :status_stamps
   belongs_to :status

@@ -41,7 +41,8 @@ class ApplicationController < ActionController::Base
   protected :params_cleaned_for_sort
 
   def json_format_extended_response(data, total)
-    data = [data] unless data.kind_of? Array
+    # This fails with ActiveRecord::Relation
+    #data = [data] unless data.kind_of? Array
     data = data.as_json
 
     retval = {

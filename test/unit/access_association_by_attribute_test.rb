@@ -10,7 +10,7 @@ class Test::Pet < ActiveRecord::Base
     t.text    :name
     t.text    :animal
   end
-  set_table_name :test_pets
+  self.table_name = :test_pets
 
   belongs_to :owner, :class_name => 'Test::Person'
 
@@ -204,7 +204,7 @@ class AccessAssociationByAttributeTest < ActiveSupport::TestCase
 
     should 'look up classes for associations within the current namespace' do
       class ::Test::Pet::Master < ActiveRecord::Base
-        set_table_name 'test_people'
+        self.table_name = 'test_people'
       end
 
       class ::Test::Pet

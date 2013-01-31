@@ -206,7 +206,7 @@ class Reports::MiProductionController < ApplicationController
 
   def impc_graph_report_download_image
     filename = params[:chart_file_name].split('/').pop
-    charts_folder = File.join(Rails.application.config.paths.tmp.first, "reports/impc_graph_report_display/charts")
+    charts_folder = File.join(Rails.application.config.paths['tmp'].first, "reports/impc_graph_report_display/charts")
     file_path = File.join(charts_folder, filename)
     if File.exists?(file_path)
       data = File.read(file_path)
@@ -223,7 +223,7 @@ class Reports::MiProductionController < ApplicationController
 
   def impc_graph_report_display_image
     filename = params[:chart_file_name].split('/').pop
-    charts_folder = File.join(Rails.application.config.paths.tmp.first, "reports/impc_graph_report_display/charts")
+    charts_folder = File.join(Rails.application.config.paths['tmp'].first, "reports/impc_graph_report_display/charts")
     file_path = File.join(charts_folder, filename)
 
     data = File.read(file_path)

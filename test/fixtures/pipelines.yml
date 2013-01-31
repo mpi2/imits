@@ -2,11 +2,17 @@
 EUCOMM:
   id: 1
   name: EUCOMM
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 
 KOMP:
   id: 2
   name: KOMP-CSD
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 
 SANGER_FACULTY:
   id: 3
   name: SANGER_FACULTY
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>

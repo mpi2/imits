@@ -112,8 +112,9 @@ class MiPlan < ApplicationModel
 
   def reset_status_stamp_created_at
     return unless new_qc_in_progress?
-    status_stamp = self.status_stamps.find_by_status_id(self.status_id)
-    status_stamp.update_attribute(:created_at, Time.now)
+    status_stamp = self.status_stamps.find_by_status_id!(self.status_id)
+    status_stamp.created_at = Time.now
+    status_stamp.save!
   end
 
   public

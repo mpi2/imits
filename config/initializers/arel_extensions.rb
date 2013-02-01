@@ -3,7 +3,6 @@ module Arel
   module Visitors
     class ToSql
       def visit_Arel_Nodes_CaseInsensitiveIn(o)
-        Rails.logger.info 'find query'
         "UPPER(#{visit o.left}) IN (#{visit o.right})"
       end
     end
@@ -14,27 +13,16 @@ module Arel
   end
 
   module Nodes
-    class CaseInsensitiveIn < Arel::Nodes::In
-      def initialize(left, right)
-        Rails.logger.info 'initialize'
-        super(left, right)
-      end
-
-      def self.name
-        Rails.logger.info caller
-        "Arel::Nodes::CaseInsensitiveIn"
-      end
-    end
+    class CaseInsensitiveIn < Arel::Nodes::In; end
   end
 
   module Predications
-    def bob(other)
+    def ci_in(other)
       if other.kind_of? Array
-        puts 'use bob predicate'
         upcased_other = other.map {|i| i.try(:upcase)}
         Nodes::CaseInsensitiveIn.new(self, upcased_other)
       else
-        raise "Unsupported operand for bob (#{other.class.name})"
+        raise "Unsupported operand for ci_in (#{other.class.name})"
       end
     end
   end

@@ -83,7 +83,7 @@ module ApplicationModel::BelongsToMiPlan
     protected :validate_consortium_and_production_centre_names_exist
 
     def validate_mi_plan_and_lookup_if_blank
-      return if kind_of? MiAttempt
+      return if kind_of? PhenotypeAttempt
       plan = mi_plan
       if plan.blank? && @production_centre_name && @consortium_name && gene
         plan = lookup_mi_plan

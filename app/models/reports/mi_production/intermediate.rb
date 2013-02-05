@@ -62,7 +62,7 @@ class Reports::MiProduction::Intermediate < Reports::Base
       record['Overall Status'] = record['status.name']
 
       mi_attempt = record['latest_relevant_mi_attempt']
-      if mi_attempt
+      if mi_attempt && mi_attempt.es_cell
         record['MiAttempt Status'] = mi_attempt.status.name
         record['Overall Status'] = record['MiAttempt Status']
         record['IKMC Project ID'] = mi_attempt.es_cell.ikmc_project_id

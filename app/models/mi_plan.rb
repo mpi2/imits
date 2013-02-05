@@ -239,7 +239,7 @@ class MiPlan < ApplicationModel
     mi_attempts.genotype_confirmed.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
       mip_date = dates["Micro-injection in progress"]
-      es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
+      es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date && mi.es_cell
     end
 
     return es_cells.sort.uniq.size
@@ -250,7 +250,7 @@ class MiPlan < ApplicationModel
     mi_attempts.search(:status_id_not_eq => MiAttempt::Status.genotype_confirmed.id).result.each do |mi|
       dates = mi.reportable_statuses_with_latest_dates
       mip_date = dates["Micro-injection in progress"]
-      es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date
+      es_cells.push mi.es_cell.name if mip_date < 6.months.ago.to_date && mi.es_cell
     end
 
     return es_cells.sort.uniq.size

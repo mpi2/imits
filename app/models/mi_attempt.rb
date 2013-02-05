@@ -351,6 +351,7 @@ end
 #  updated_at                                      :datetime
 #  mi_plan_id                                      :integer         not null
 #  genotyping_comment                              :string(512)
+#  legacy_es_cell_id                               :integer
 #
 # Indexes
 #

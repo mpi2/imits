@@ -380,9 +380,10 @@ namespace :migrate do
 
         ## We're looping through MiAttempts, using update_all will cause an issue where new ids could be mistaken for legacy ids.
         MiAttempt.order('id ASC').each do |mi|
-          if legacy_id = matched_es_cells[mi.es_cell_id]
-            MiAttempt.update_all({:es_cell_id => legacy_id}, {:id => mi.id})
-          else
+          new_id = matched_es_cells[mi.es_cell_id]
+          MiAttempt.update_all({:es_cell_id => new_id, :legacy_es_cell_id => mi.es_cell_id}, {:id => mi.id})
+          
+          if new_id.blank?
             `echo '#{mi.inspect}\n\n' >> missing_es_cell_for_mi_attempts`
           end
         end

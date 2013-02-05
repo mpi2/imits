@@ -3,19 +3,33 @@
   id: 1
   name: Domain Disruption
   code: dmd
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 2:
   id: 2
   name: Frameshift
   code: fms
+    created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 3:
   id: 3
   name: Artificial Intron
   code: afi
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 4:
   id: 4
   name: Hprt
   code: hpt
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 5:
   id: 5
   name: Rosa26
   code: rsa
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>

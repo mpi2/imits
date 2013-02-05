@@ -3,7 +3,12 @@
   id: 1
   name: Targeted Mutation
   code: tgm
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 2:
   id: 2
   name: Recombination Mediated Cassette Exchange
   code: rmce
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>

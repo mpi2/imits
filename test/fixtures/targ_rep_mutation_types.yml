@@ -3,23 +3,40 @@
   id: 1
   name: Conditional Ready
   code: crd
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 2:
   id: 2
   name: Deletion
   code: del
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 3:
   id: 3
   name: Targeted Non Conditional
   code: tnc
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 4:
   id: 4
   name: Cre Knock In
   code: cki
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 5:
   id: 5
   name: Cre BAC
   code: cbc
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 6:
   id: 6
   name: Insertion
   code: ins
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>

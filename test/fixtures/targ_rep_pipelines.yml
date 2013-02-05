@@ -3,31 +3,54 @@
   id: 1
   name: "KOMP-CSD"
   description: 'Pipeline Description'
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 2:
   id: 2
   name: "KOMP-Regeneron"
   description: 'Pipeline Description'
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 3:
   id: 3
   name: "NorCOMM"
   description: 'Pipeline Description'
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 4:
   id: 4
   name: "EUCOMM"
   description: 'Pipeline Description'
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 5:
   id: 5
   name: "mirKO"
   description: 'Pipeline Description'
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 6:
   id: 6
   name: "Sanger MGP"
   description: 'Pipeline Description'
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 7:
   id: 7
   name: "EUCOMMTools"
   description: 'Pipeline Description'
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
 8:
   id: 8
   name: "EUCOMMToolsCre"
   description: 'Pipeline Description'
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>

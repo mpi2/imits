@@ -2,13 +2,18 @@
 
 1:
   name: WTSI
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
 
 2:
   name: KOMP
-
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+  
 3:
   name: EUCOMM
-
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
 
 
 # == Schema Information

@@ -38,7 +38,7 @@ namespace :db do
     task "#{envname}:load" do
       raise "Production environment detected" if Rails.env.production?
       tmppath = Rails.application.config.paths['tmp'].first
-      config = YAML.load_file(Rails.application.config.paths.config.database.first)[Rails.env]
+      config = YAML.load_file(Rails.application.config.paths['config/database'].first)[Rails.env]
       if config['port'].blank?; config['port'] = '5432'; end
       psql_cmd = "PGPASSWORD='#{config['password']}' psql -U #{config['username']} -h #{config['host']} -p #{config['port']} #{config['database']}"
 

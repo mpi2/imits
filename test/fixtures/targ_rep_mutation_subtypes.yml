@@ -10,7 +10,7 @@
   id: 2
   name: Frameshift
   code: fms
-    created_at: <%= 5.days.ago.to_s(:db) %>
+  created_at: <%= 5.days.ago.to_s(:db) %>
   updated_at: <%= 5.days.ago.to_s(:db) %>
 
 3:

@@ -26,6 +26,10 @@ class ReportsController < ApplicationController
     @report2 = Reports::MiPlans::DoubleAssignment.get_list
   end
 
+  def notifications_by_gene
+    @report = Notification.notifications_by_gene
+  end
+
   def genes_list
     @report = Table(
       [

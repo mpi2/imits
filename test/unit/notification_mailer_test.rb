@@ -10,14 +10,11 @@ class NotificationMailerTest < ActionMailer::TestCase
       gene = Factory.create(:gene_cbx1)
       contact = Factory.create(:contact)
       notification = Factory.create :notification, {:gene => gene, :contact => contact}
-      assert_equal 0, ActionMailer::Base.deliveries.size
-      notification_mail = NotificationMailer.welcome_email(notification)
-      notification_mail.deliver
       assert_equal 1, ActionMailer::Base.deliveries.size
 
       email = ActionMailer::Base.deliveries.first
 
-      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
+      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', email.subject]
 
     end
 
@@ -27,15 +24,15 @@ class NotificationMailerTest < ActionMailer::TestCase
       contact = Factory.create(:contact)
       notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene, :contact => contact}
 
-      assert_equal 0, ActionMailer::Base.deliveries.size
+      assert_equal 1, ActionMailer::Base.deliveries.size
       if !notification.check_statuses.empty?
         notification_mail = NotificationMailer.status_email(notification)
 
         notification_mail.deliver
       end
-      assert_equal 1, ActionMailer::Base.deliveries.size
+      assert_equal 2, ActionMailer::Base.deliveries.size
 
-      email = ActionMailer::Base.deliveries.first
+      email = ActionMailer::Base.deliveries.last
       assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
     end
 
@@ -45,15 +42,15 @@ class NotificationMailerTest < ActionMailer::TestCase
       contact = Factory.create(:contact)
       notification = Factory.create :notification, {:gene => mi_attempt_with_recent_history.gene, :contact => contact}
 
-      assert_equal 0, ActionMailer::Base.deliveries.size
+      assert_equal 1, ActionMailer::Base.deliveries.size
       if !notification.check_statuses.empty?
         notification_mail = NotificationMailer.status_email(notification)
 
         notification_mail.deliver
       end
-      assert_equal 1, ActionMailer::Base.deliveries.size
+      assert_equal 2, ActionMailer::Base.deliveries.size
 
-      email = ActionMailer::Base.deliveries.first
+      email = ActionMailer::Base.deliveries.last
       assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
     end
 
@@ -81,15 +78,15 @@ class NotificationMailerTest < ActionMailer::TestCase
       contact = Factory.create(:contact)
       notification = Factory.create :notification, {:gene => pa.gene, :contact => contact}
 
-      assert_equal 0, ActionMailer::Base.deliveries.size
+      assert_equal 1, ActionMailer::Base.deliveries.size
       if !notification.check_statuses.empty?
         notification_mail = NotificationMailer.status_email(notification)
 
         notification_mail.deliver
       end
-      assert_equal 1, ActionMailer::Base.deliveries.size
+      assert_equal 2, ActionMailer::Base.deliveries.size
 
-      email = ActionMailer::Base.deliveries.first
+      email = ActionMailer::Base.deliveries.last
       assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
     end
 
@@ -102,7 +99,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       notification = Factory.create :notification, {:gene => mi_attempt_with_recent_history.gene, :contact => contact}
       excluded_statuses = ['aborted_es_cell_qc_failed', 'microinjection_aborted', 'phenotype_attempt_aborted']
 
-      assert_equal 0, ActionMailer::Base.deliveries.size
+      assert_equal 1, ActionMailer::Base.deliveries.size
       if !notification.check_statuses.empty?
         if !excluded_statuses.any? {|status| notification.gene.relevant_status[:status].include? status}
           notification_mail = NotificationMailer.status_email(notification)
@@ -110,9 +107,9 @@ class NotificationMailerTest < ActionMailer::TestCase
           notification_mail.deliver
         end
       end
-      email = ActionMailer::Base.deliveries.first
+      email = ActionMailer::Base.deliveries.last
 
-      assert_equal 0, ActionMailer::Base.deliveries.size
+      assert_equal 1, ActionMailer::Base.deliveries.size
     end
   end
 end

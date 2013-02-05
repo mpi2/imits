@@ -1,0 +1,14 @@
+<% @tab = 'Admin' %>
+<% @title = "Notifications Admin" %>
+
+<%= content_for :pre_js_footer do %>
+  <%= javascript_tag "GENE_OPTIONS = #{Gene.all.map(&:marker_symbol).to_json}" %>
+<% end %>
+
+<%= content_for :post_js_footer do %>
+  <%= javascript_include_tag 'notifications/index' %>
+<% end %>
+
+<div class="clear"></div>
+
+<div id="notifications-grid"></div>

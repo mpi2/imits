@@ -158,7 +158,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
       graph << Scruffy::Components::Graphs.new(:graphs, :position => [12, 10], :size => [92, 75])
     end
     mi_graph.renderer.components << Scruffy::Components::Legend.new(:legend, :position => [12, 10], :size => [70, 70], :vertical_legend => true)
-    charts_folder = File.join(Rails.application.config.paths.tmp.first, "reports/impc_graph_report_display/charts")
+    charts_folder = File.join(Rails.application.config.paths['tmp'].first, "reports/impc_graph_report_display/charts")
     file_name = File.join("#{render[:consortium].downcase}_#{render[:name]}_performance#{Time.now.strftime "%Y%m%d%H%M%S"}-#{rand(100)}.#{format}")
     file_path = File.join(charts_folder, file_name)
     FileUtils.mkdir_p File.dirname(file_path)
@@ -171,7 +171,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
   end
 
   def self.clear_charts_in_tmp_folder
-    Dir.glob("#{Rails.application.config.paths.tmp.first}/reports/impc_graph_report_display/charts/*.jpeg") do |file|
+    Dir.glob("#{Rails.application.config.paths['tmp'].first}/reports/impc_graph_report_display/charts/*.jpeg") do |file|
       if File.file?(file)
         if File.atime(file) < (Time.now - 30.minutes)
           File.delete(file)

@@ -102,7 +102,7 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
 
       context 'GET index' do
         should 'allow filtering with Ransack' do
-          pt = Factory.create :phenotype_attempt, :deleter_strain_id => DeleterStrain.first,
+          pt = Factory.create :phenotype_attempt, :deleter_strain_id => DeleterStrain.first.id,
                   :colony_name => 'A'
           Factory.create :phenotype_attempt, :deleter_strain_id => nil,
                   :colony_name => 'B'

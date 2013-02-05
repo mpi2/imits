@@ -262,9 +262,8 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'return validation errors for JSON' do
         post :create, :mi_attempt => {'production_centre_name' => 'WTSI'}, :format => :json
         assert_equal response.success?, false
-
         data = JSON.parse(response.body)
-        assert_include data['es_cell_name'], 'cannot be blank'
+        assert_include data['errors']['es_cell_name'], 'cannot be blank'
       end
 
       should 'return validation errors for XML' do
@@ -349,7 +348,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'return errors with invalid params for JSON' do
         bad_update_for_format(:json)
         data = JSON.parse(response.body)
-        assert_include data['colony_name'], 'has already been taken'
+        assert_include data['errors']['colony_name'], 'has already been taken'
       end
 
       should 'return errors with invalid params for XML' do
@@ -370,10 +369,10 @@ class MiAttemptsControllerTest < ActionController::TestCase
         mi_attempt.reload
         expected = {
           'total' => 1,
-          'mi_attempts' => [JSON.parse(mi_attempt.to_json)],
+          'mi_attempts' => JSON.parse(mi_attempt.to_json),
           'success' => true
         }
-        assert_equal expected['mi_attempts'].first, got['mi_attempts'].first
+        assert_equal expected['mi_attempts'], got['mi_attempts']
         assert_equal expected, got
       end
 

@@ -17,11 +17,11 @@ module Notification::StatusChecker
         )
 
           if self.last_email_sent
-            if relevant_status[:date] > self.last_email_sent
+            if relevant_status[:date] > self.last_email_sent || self.retry
               self.relevant_statuses.push(relevant_status)
             end
           elsif self.welcome_email_sent
-            if relevant_status[:date] > self.welcome_email_sent
+            if relevant_status[:date] > self.welcome_email_sent || self.retry
               self.relevant_statuses.push(relevant_status)
             end
           end

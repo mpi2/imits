@@ -1,0 +1,10 @@
+<% @tab = 'Admin' %>
+<% @title = "Contacts Admin" %>
+
+<%= content_for :post_js_footer do %>
+  <%= javascript_include_tag 'contacts/index' %>
+<% end %>
+
+<div class="clear"></div>
+
+<div id="contacts-grid"></div>

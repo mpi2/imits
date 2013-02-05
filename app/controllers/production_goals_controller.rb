@@ -23,7 +23,6 @@ class ProductionGoalsController < ApplicationController
     else
       render :json => {'error' => 'Could not create production goal (invalid data)'}, :status => 422
     end
-
   end
 
   def update

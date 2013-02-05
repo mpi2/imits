@@ -1,5 +1,5 @@
 class SolrUpdate::Queue::Item < ApplicationModel
-  set_table_name 'solr_update_queue_items'
+  self.table_name = 'solr_update_queue_items'
 
   belongs_to :mi_attempt
   belongs_to :phenotype_attempt

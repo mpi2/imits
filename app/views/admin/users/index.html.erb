@@ -1,3 +1,4 @@
+<% @tab = 'Admin' %>
 <% @title = 'User Admin' %>
 
 <div class="user-form grid_4 prefix_4 suffix_4">
@@ -41,7 +42,7 @@
       </table>
 
       <div class="submit">
-        <%= form.submit 'Create User' %>
+        <%= form.submit 'Create User', :id => 'user_submit' %>
       </div>
     </fieldset>
 

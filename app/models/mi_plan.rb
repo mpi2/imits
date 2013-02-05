@@ -112,8 +112,9 @@ class MiPlan < ApplicationModel
 
   def reset_status_stamp_created_at
     return unless new_qc_in_progress?
-    status_stamp = self.status_stamps.find_by_status_id(self.status_id)
-    status_stamp.update_attribute(:created_at, Time.now)
+    status_stamp = self.status_stamps.find_by_status_id!(self.status_id)
+    status_stamp.created_at = Time.now
+    status_stamp.save!
   end
 
   public
@@ -204,19 +205,19 @@ class MiPlan < ApplicationModel
     case self.status.name
     when 'Inspect - GLT Mouse'
       other_centres_consortia = MiPlan.scoped.where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',
-        { :gene_id => self.gene_id, :id => self.id }).with_genotype_confirmed_mouse.map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
+        { :gene_id => self.gene_id, :id => self.id }).with_genotype_confirmed_mouse.map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq.sort
       return "GLT mouse produced at: #{other_centres_consortia.join(', ')}"
     when 'Inspect - MI Attempt'
       other_centres_consortia = MiPlan.scoped.where('gene_id = :gene_id AND id != :id',
-        { :gene_id => self.gene_id, :id => self.id }).with_active_mi_attempt.map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq
+        { :gene_id => self.gene_id, :id => self.id }).with_active_mi_attempt.map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq.sort
       return "MI already in progress at: #{other_centres_consortia.join(', ')}"
     when 'Inspect - Conflict'
       other_consortia = MiPlan.where('gene_id = :gene_id AND id != :id',
-        { :gene_id => self.gene_id, :id => self.id }).where(:status_id => MiPlan::Status.all_assigned ).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq
+        { :gene_id => self.gene_id, :id => self.id }).where(:status_id => MiPlan::Status.all_assigned ).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq.sort
       return "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
     when 'Conflict'
       other_consortia = MiPlan.where('gene_id = :gene_id AND id != :id',
-        { :gene_id => self.gene_id, :id => self.id }).where(:status_id => MiPlan::Status[:Conflict] ).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq
+        { :gene_id => self.gene_id, :id => self.id }).where(:status_id => MiPlan::Status[:Conflict] ).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq.sort
       return "Other MI plans for: #{other_consortia.join(', ')}"
     else
       return nil

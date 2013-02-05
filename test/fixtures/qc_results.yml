@@ -2,9 +2,15 @@
 1:
   description: na
   id: 1
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 2:
   description: fail
   id: 2
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 3:
   description: pass
   id: 3
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>

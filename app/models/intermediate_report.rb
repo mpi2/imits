@@ -1,5 +1,5 @@
 class IntermediateReport < ActiveRecord::Base
-  set_table_name :intermediate_report
+  self.table_name = :intermediate_report
 
   acts_as_reportable
 

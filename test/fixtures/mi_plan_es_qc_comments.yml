@@ -2,9 +2,15 @@
 1:
   name: No assay available
   id: 1
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 2:
   name: All valid available clones failed
   id: 2
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 3:
   name: 'Enough clones failed'
   id: 3
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>

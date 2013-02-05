@@ -2,123 +2,205 @@
 1:
   id: 1
   name: BALB/c
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 2:
   id: 2
   name: BALB/cAm
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 3:
   id: 3
   name: BALB/cAnNCrl
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 4:
   id: 4
   name: BALB/cJ
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 5:
   id: 5
   name: BALB/cN
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 6:
   id: 6
   name: BALB/cWtsi;C57BL/6J-Tyr<c-Brd>
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 7:
   id: 7
   name: C3HxBALB/c
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 8:
   id: 8
   name: C57BL/6J
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 9:
   id: 9
   name: C57BL/6J Albino
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 10:
   id: 10
   name: C57BL/6J-A<W-J>/J
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 11:
   id: 11
   name: C57BL/6J-Tyr<c-2J>
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 12:
   id: 12
   name: C57BL/6J-Tyr<c-2J>/J
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 13:
   id: 13
   name: C57BL/6J-Tyr<c-Brd>
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 14:
   id: 14
   name: C57BL/6J-Tyr<c-Brd>;C57BL/6JIco
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 15:
   id: 15
   name: C57BL/6J-Tyr<c-Brd>;C57BL/6N
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 16:
   id: 16
   name: C57BL/6J-Tyr<c-Brd>;Stock
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 17:
   id: 17
   name: C57BL/6JcBrd/cBrd
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 18:
   id: 18
   name: C57BL/6N
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 19:
   id: 19
   name: C57BL/6NCrl
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 20:
   id: 20
   name: C57BL6/NCrl
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 21:
   id: 21
   name: C57Bl/6J Albino
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 22:
   id: 22
   name: CD1
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 23:
   id: 23
   name: FVB
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 24:
   id: 24
   name: Stock
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 25:
   id: 25
   name: Swiss Webster
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 26:
   id: 26
   name: b
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 27:
   id: 27
   name: 129P2
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 28:
   id: 28
   name: 129P2/OlaHsd
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 29:
   id: 29
   name: 129S5/SvEvBrd/Wtsi
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 30:
   id: 30
   name: 129S5/SvEvBrd/Wtsi or C57BL/6J-Tyr<c-Brd>
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 31:
   id: 31
   name: C57BL/6J-Tyr<c-Brd> or C57BL/6NTac/Den
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 32:
   id: 32
   name: C57BL/6J-Tyr<c-Brd> or C57BL/6NTac/Den or CBA/Wtsi
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 33:
   id: 33
   name: C57BL/6J-Tyr<c-Brd> or C57BL/6NTac/USA
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 34:
   id: 34
   name: C57BL/6JIco
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 35:
   id: 35
   name: C57BL/6NTac
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 36:
   id: 36
   name: C57BL/6NTac/Den
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 37:
   id: 37
   name: C57BL/6NTac/Den or C57BL/6NTac/USA
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 38:
   id: 38
   name: C57BL/6NTac/USA
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 39:
   id: 39
   name: C57BL/6JIco;C57BL/6J-Tyr<c-Brd>
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 40:
   id: 40
   name: Delete once confirmed its use
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 41:
   id: 41
   name: c
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>

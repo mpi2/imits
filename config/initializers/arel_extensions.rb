@@ -2,10 +2,13 @@ module Arel
 
   module Visitors
     class ToSql
-
       def visit_Arel_Nodes_CaseInsensitiveIn(o)
         "UPPER(#{visit o.left}) IN (#{visit o.right})"
       end
+    end
+
+    class DepthFirst
+      alias :visit_Arel_Nodes_CaseInsensitiveIn                 :binary
     end
   end
 

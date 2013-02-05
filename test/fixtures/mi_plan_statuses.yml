@@ -6,6 +6,8 @@
   id: 1
   name: Assigned
   order_by: 80
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 2:
   code: int
   description: Interest - A consortium has expressed an interest to micro-inject this
@@ -13,6 +15,8 @@
   id: 2
   name: Interest
   order_by: 30
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 3:
   code: con
   description: Conflict - More than one consortium has expressed an interest in micro-injecting
@@ -20,24 +24,32 @@
   id: 3
   name: Conflict
   order_by: 40
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 4:
   code: ins-gtc
   description: Inspect - A GLT mouse is already recorded in iMits
   id: 4
   name: Inspect - GLT Mouse
   order_by: 70
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 5:
   code: ins-mip
   description: Inspect - An active micro-injection attempt is already in progress
   id: 5
   name: Inspect - MI Attempt
   order_by: 60
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 6:
   code: ins-con
   description: Inspect - This gene is already assigned in another planned micro-injection
   id: 6
   name: Inspect - Conflict
   order_by: 50
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 7:
   code: ina
   description: Inactive - A consortium/production centre has failed micro-injections
@@ -45,6 +57,8 @@
   id: 7
   name: Inactive
   order_by: 20
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 8:
   code: asg-esp
   description: Assigned - The ES cells are currently being QCed by the production
@@ -52,12 +66,16 @@
   id: 8
   name: Assigned - ES Cell QC In Progress
   order_by: 110
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 9:
   code: asg-esc
   description: Assigned - ES cells have passed the QC phase and are ready for micro-injection
   id: 9
   name: Assigned - ES Cell QC Complete
   order_by: 100
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 10:
   code: abt-esf
   description: Aborted - ES cells have failed the QC phase, and micro-injection cannot
@@ -65,6 +83,8 @@
   id: 10
   name: Aborted - ES Cell QC Failed
   order_by: 90
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 11:
   code: wit
   description: Withdrawn - Interest in micro-injecting this gene was withdrawn by
@@ -72,3 +92,5 @@
   id: 11
   name: Withdrawn
   order_by: 10
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>

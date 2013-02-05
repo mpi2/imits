@@ -71,8 +71,9 @@ class MiPlansControllerTest < ActionController::TestCase
               :format => :json
             )
           end
+
           assert_response 422
-          assert_equal ['cannot be blank'], JSON.parse(response.body)['marker_symbol']
+          assert_equal ['cannot be blank'], JSON.parse(response.body)['errors']['marker_symbol']
         end
 
         should 'return errors when trying to create duplicate-but-with-production-centre to existing one' do
@@ -154,7 +155,7 @@ class MiPlansControllerTest < ActionController::TestCase
 
         should 'return error if gene not found' do
           mip3 = Factory.create :mi_plan_with_production_centre,
-                  :status_id => MiPlan::Status.find_by_name!('Interest')
+                  :status_id => MiPlan::Status.find_by_name!('Interest').id
           assert_no_difference('MiPlan.count') do
             delete(
               :destroy,

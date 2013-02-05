@@ -19,7 +19,7 @@ table.bottom-border td, th {
   <%= form_for @sub_project_new, :url => { :action => "create" } do |f| %>
     <%= f.label :name, 'Enter name'%>
     <%= f.text_field :name%>
-    <%= f.submit%>
+    <%= f.submit "Create Sub project", :id => "mi_plan_sub_project_submit" %>
   <% end %>
 </div></br></br>
 <div class="adjust"><h2>Current sub-projects</h2></div>

@@ -3,11 +3,17 @@
   description: Estimated injection in the next 0-4 months
   id: 1
   name: High
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 2:
   description: Estimated injection in the next 5-8 months
   id: 2
   name: Medium
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 3:
   description: Estimated injection in the next 9-12 months
   id: 3
   name: Low
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>

@@ -4,38 +4,54 @@
   id: 1
   name: Phenotype Attempt Aborted
   order_by: 310
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 2:
   code: par
   id: 2
   name: Phenotype Attempt Registered
   order_by: 320
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 3:
   code: res
   id: 3
   name: Rederivation Started
   order_by: 330
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 4:
   code: rec
   id: 4
   name: Rederivation Complete
   order_by: 340
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 5:
   code: ces
   id: 5
   name: Cre Excision Started
   order_by: 350
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 6:
   code: cec
   id: 6
   name: Cre Excision Complete
   order_by: 360
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 7:
   code: pds
   id: 7
   name: Phenotyping Started
   order_by: 370
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>
 8:
   code: pdc
   id: 8
   name: Phenotyping Complete
   order_by: 380
+  created_at: <%= 5.day.ago.to_s(:db) %>
+  updated_at: <%= 5.day.ago.to_s(:db) %>

@@ -1,6 +1,10 @@
 <% if user_signed_in? %>
   You are logged in as <%= current_user.email %><br/>
-  <%= link_to 'Edit profile', user_path %> | <%= link_to 'Logout', destroy_user_session_path %>
+  <%= link_to 'Edit profile', user_path %>
+  <% if current_user.admin? %>
+   | <%= link_to 'Admin', admin_path, :class => @tab == 'Admin' ? 'active' : '' %>
+  <% end %>
+   | <%= link_to 'Logout', destroy_user_session_path %>
   <% if request.path =~ /\/targ_rep/ -%>
     | <%= link_to 'Go to iMits', root_path %>
   <% else -%>

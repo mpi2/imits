@@ -1,12 +1,22 @@
 TarMits::Application.routes.draw do
   root :to => "root#index"
 
+  get 'admin' => 'Admin::Base#index', :as => :admin
+
   namespace :admin do
     resources :users do
       collection do
         match 'transform'
       end
     end
+
+    resources :notifications do
+      member do
+        put 'retry'
+      end
+    end
+
+    resources :contacts
   end
 
   resources :production_goals
@@ -65,8 +75,7 @@ TarMits::Application.routes.draw do
   end
 
   resources :notifications, :only => [:create]
-
-  match 'notifications' => 'notifications#delete', :via => :delete
+  match 'notifications' => 'notifications#destroy', :via => :delete
 
   devise_for :users,
           :controllers => { :sessions => "sessions" },
@@ -93,6 +102,8 @@ TarMits::Application.routes.draw do
   match 'debug_info' => 'root#debug_info'
 
   match 'reports' => "reports#index", :as => :reports
+
+  match 'reports/notifications_by_gene' => 'reports#notifications_by_gene'
 
   match 'reports/mi_production' => "reports/mi_production#index"
   match 'reports/mi_production/(:action(.:format))' => "reports/mi_production#:action"

@@ -3,12 +3,12 @@ class Contact < ActiveRecord::Base
 
   attr_accessible :email
 
-  has_many :notifications
+  has_many :notifications, :dependent => :destroy
   has_many :genes, :through => :notifications
 
   accepts_nested_attributes_for :notifications, :reject_if => :all_blank
 
-  validates :email, :presence => true, :email => true
+  validates :email, :presence => true, :email => true, :uniqueness => true
 
 end
 
@@ -16,10 +16,11 @@ end
 #
 # Table name: contacts
 #
-#  id         :integer         not null, primary key
-#  email      :string(255)     not null
-#  created_at :datetime
-#  updated_at :datetime
+#  id               :integer         not null, primary key
+#  email            :string(255)     not null
+#  created_at       :datetime
+#  updated_at       :datetime
+#  report_to_public :boolean         default(TRUE)
 #
 # Indexes
 #

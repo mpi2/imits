@@ -51,7 +51,7 @@ class SolrUpdate::Enqueuer
   def allele_updated(allele)
     begin
       SolrUpdate::Queue.enqueue_for_update({'type' => 'allele', 'id' => allele.id})
-    rescue SolrUpdate::IndexProxy::LookupError
+    rescue SolrUpdate::LookupError
       SolrUpdate::Queue.enqueue_for_delete({'type' => 'allele', 'id' => allele.id})
     end
   end

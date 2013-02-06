@@ -16,7 +16,7 @@
   <% @distribution_qcs = f.object.distribution_qcs || [] %>
 
   <% @distribution_qcs.each do |distribution_qc| %>
-    <%= fields_for :"distribution_qcs[]", distribution_qc do |dqc| %>
+    <%= f.fields_for :distribution_qcs, distribution_qc do |dqc| %>
       <% @readonly = dqc.object.es_cell_distribution_centre != current_user.es_cell_distribution_centre %>
       <% next if @readonly %>
       <%= render :partial => 'targ_rep/alleles/edit_distribution_centre_qc', :locals => { :distribution_qc => dqc } %>

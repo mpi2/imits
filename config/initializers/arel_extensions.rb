@@ -5,6 +5,10 @@ module Arel
       def visit_Arel_Nodes_CaseInsensitiveIn(o)
         "UPPER(#{visit o.left}) IN (#{visit o.right})"
       end
+
+      def visit_Sequel_SQL_AliasedExpression(o)
+        "#{o.expression} AS #{o.aliaz}"
+      end
     end
 
     class DepthFirst

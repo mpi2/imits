@@ -12,28 +12,18 @@
   </tr>
 </table>
 
+<% if current_user.es_cell_distribution_centre %>
+  <% @distribution_qcs = f.object.distribution_qcs || [] %>
 
-<% @bulk_edit = defined?(@bulk_edit) && @bulk_edit %>
-
-<% if @bulk_edit %>
-  <% if current_user.es_cell_distribution_centre %>
-
-    <% @distribution_qcs = f.object.distribution_qcs || [] %>
-
-    <% @distribution_qcs.each do |distribution_qc| %>
-      <%= fields_for :"distribution_qcs[]", distribution_qc do |dqc| %>
-        <% @readonly = dqc.object.es_cell_distribution_centre != current_user.es_cell_distribution_centre %>
-        <% next if @readonly %>
-        <%= render :partial => 'targ_rep/alleles/edit_distribution_centre_qc', :locals => { :distribution_qc => dqc } %>
-      <% end %>
+  <% @distribution_qcs.each do |distribution_qc| %>
+    <%= fields_for :"distribution_qcs[]", distribution_qc do |dqc| %>
+      <% @readonly = dqc.object.es_cell_distribution_centre != current_user.es_cell_distribution_centre %>
+      <% next if @readonly %>
+      <%= render :partial => 'targ_rep/alleles/edit_distribution_centre_qc', :locals => { :distribution_qc => dqc } %>
     <% end %>
-
-  <% else %>
-
-    <%= render :partial => 'targ_rep/alleles/email_centre_request' %>
-
   <% end %>
-
+<% else %>
+  <%= render :partial => 'targ_rep/alleles/email_centre_request' %>
 <% end %>
 
 <table class="es_cell_qc_info">

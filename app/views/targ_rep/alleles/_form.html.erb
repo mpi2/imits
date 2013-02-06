@@ -7,7 +7,7 @@
 <div class="grid_6">
   <p>
     <%= label_tag :gene_marker_symbol, "Gene" %><br />
-    <%= text_field_tag "gene_marker_symbol", '', :class => :title %>
+    <%= text_field_tag "gene_marker_symbol", @allele.marker_symbol, :class => :title %>
     <%= f.hidden_field :gene_id %>
   </p>
   <ul id="gene_autocomplete">

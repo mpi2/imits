@@ -20,6 +20,10 @@ class TargRep::DistributionQc < ActiveRecord::Base
     :less_than_or_equal_to    => 1,
     :allow_nil                => true
 
+  validate do
+    self.errors.add :base, 'has no data' if is_empty?
+  end
+
   SHORT_VALUES = %w( pass fail )
   LONG_VALUES = SHORT_VALUES + ['passb']
 

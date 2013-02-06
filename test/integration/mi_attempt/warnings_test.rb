@@ -18,7 +18,7 @@ class MiAttempt::WarningsTest < TarMits::JsIntegrationTest
         es_cell = Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
 
         visit new_mi_attempt_path
-        choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
+        choose_es_cell_from_list(es_cell.gene.marker_symbol, es_cell.name)
         fill_in 'mi_attempt[colony_name]', :with => es_cell.mi_attempts.first.colony_name
         click_button 'mi_attempt_submit'
         assert page.has_content? 'ES Cell Details'
@@ -29,7 +29,7 @@ class MiAttempt::WarningsTest < TarMits::JsIntegrationTest
         es_cell = Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
 
         visit new_mi_attempt_path
-        choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
+        choose_es_cell_from_list(es_cell.gene.marker_symbol, es_cell.name)
         choose_date_from_datepicker_for_input('mi_attempt[mi_date]')
         select 'BaSH', :from => 'mi_attempt[consortium_name]'
 
@@ -49,10 +49,10 @@ class MiAttempt::WarningsTest < TarMits::JsIntegrationTest
       end
 
       should 'let user ignore warnings and create anyway' do
-        Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
+        es_cell = Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
         
         visit new_mi_attempt_path
-        choose_es_cell_from_list('Trafd1', 'EPD0127_4_E01')
+        choose_es_cell_from_list(es_cell.gene.marker_symbol, es_cell.name)
         choose_date_from_datepicker_for_input('mi_attempt[mi_date]')
         select 'BaSH', :from => 'mi_attempt[consortium_name]'
 

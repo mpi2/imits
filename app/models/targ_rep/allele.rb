@@ -44,6 +44,7 @@ class TargRep::Allele < ActiveRecord::Base
   accepts_nested_attributes_for :es_cells,          :allow_destroy  => true
 
   delegate :mgi_accession_id, :to => :gene
+  delegate :marker_symbol, :to => :gene
 
   ##
   ## Validations

@@ -379,8 +379,8 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
         es_cell = Factory.create :es_cell,
                 :allele => allele,
-                :mutation_subtype => 'conditional_ready',
-                :allele_id => 663
+                :mutation_subtype => 'conditional_ready'
+
         @mi_attempt = Factory.create :mi_attempt2, :id => 43,
                 :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
                 :es_cell => es_cell,
@@ -610,7 +610,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         es_cell = Factory.create :es_cell,
                 :allele => allele,
                 :mutation_subtype => 'conditional_ready',
-                :allele_id => 400,
                 :ikmc_project_id => 'VG10003'
 
         mi_attempt = Factory.create :mi_attempt2, :id => 433,

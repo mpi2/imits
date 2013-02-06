@@ -25,11 +25,11 @@ class TargRep::GenbankFilesControllerTest < ActionController::TestCase
     end
 
     should "not get new" do
-      assert_raise(ActionController::UnknownAction) { get :new }
+      assert_raise(AbstractController::ActionNotFound) { get :new }
     end
 
     should "not get edit" do
-      assert_raise(ActionController::UnknownAction) { get :edit }
+      assert_raise(AbstractController::ActionNotFound) { get :edit }
     end
 
     should "create genbank_file" do

@@ -139,8 +139,11 @@ TarMits::Application.routes.draw do
     resources :targeting_vectors
     
     resources :es_cells do
-      match  :bulk_edit, :on => :collection, :via => [:get, :post]
-      put    :update_multiple, :on => :collection
+      collection do
+        get :mart_search
+        match :bulk_edit, :via => [:get, :post]
+        put :update_multiple
+      end
     end
 
     resources :distribution_qcs

@@ -235,7 +235,7 @@ Ext.define('Imits.MiAttempts.New.SearchTab', {
         this.esCellSelectorForm.window.showLoadMask();
         Ext.Ajax.request({
             method: 'GET',
-            url: window.basePath + '/es_cells/mart_search.json',
+            url: window.basePath + '/targ_rep/es_cells/mart_search.json',
             params: urlParams,
             success: function(response) {
                 var data = Ext.decode(response.responseText);

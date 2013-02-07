@@ -375,7 +375,9 @@ class MiPlanTest < ActiveSupport::TestCase
           original_status_time = default_mi_plan.status_stamps.find_by_status_id(default_mi_plan.status_id).created_at
 
           default_mi_plan.number_of_es_cells_starting_qc = default_mi_plan.number_of_es_cells_starting_qc + 1
-          default_mi_plan.save
+          sleep 5 ## Wait 5, if it does it too quickly the time will be the same.
+          default_mi_plan.save!
+          default_mi_plan.reload
           current_status_time = default_mi_plan.status_stamps.find_by_status_id(default_mi_plan.status_id).created_at
 
           assert_equal 8, default_mi_plan.number_of_es_cells_starting_qc

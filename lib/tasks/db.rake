@@ -16,7 +16,7 @@ namespace :db do
   ['production', 'staging'].each do |envname|
     desc "Dump #{envname} DB into db/dump.#{envname}.sql"
     task "#{envname}:dump" do
-      tmppath = Rails.application.config.paths.tmp.first
+      tmppath = Rails.application.config.paths['tmp'].first
       config = YAML.load_file("#{Rails.root}/config/database.yml")[envname]
       if ! config
         [
@@ -37,8 +37,8 @@ namespace :db do
     desc "Load dump of #{envname} DB (produced with db:#{envname}:dump) into current envrionment DB"
     task "#{envname}:load" do
       raise "Production environment detected" if Rails.env.production?
-      tmppath = Rails.application.config.paths.tmp.first
-      config = YAML.load_file(Rails.application.config.paths.config.database.first)[Rails.env]
+      tmppath = Rails.application.config.paths['tmp'].first
+      config = YAML.load_file(Rails.application.config.paths['config/database'].first)[Rails.env]
       if config['port'].blank?; config['port'] = '5432'; end
       psql_cmd = "PGPASSWORD='#{config['password']}' psql -U #{config['username']} -h #{config['host']} -p #{config['port']} #{config['database']}"
 

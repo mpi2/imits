@@ -10,7 +10,7 @@ namespace :db do
         fixtures_dir = File.join(Rails.root, 'test', 'fixtures')
 
         Dir["#{fixtures_dir}/**/*.{yml,csv}"].each do |fixture_file|
-          Fixtures.create_fixtures(fixtures_dir, fixture_file[(fixtures_dir.size + 1)..-5])
+          ActiveRecord::Fixtures.create_fixtures(fixtures_dir, fixture_file[(fixtures_dir.size + 1)..-5])
         end
       end
     end

@@ -1,5 +1,5 @@
 <% if !Rails.env.production? %>
-<%= render :partial => 'notification_mailer/shared/development_environment_warning.text.erb' %>
+<%= render :partial => 'notification_mailer/shared/development_environment_warning' %>
 <% end %>
 Dear colleague,
 
@@ -11,7 +11,7 @@ This gene will be considered for mouse production by the IMPC.
 <% end %>
 
 <% if !@relevant_status.empty? %>
-<%= render :partial => "notification_mailer/welcome_email/#{@relevant_status[:status]}.text.erb" %>
+<%= render :partial => "notification_mailer/welcome_email/#{@relevant_status[:status]}" %>
 <% end %>
 
 <% if @total_cell_count > 0 %>

@@ -126,15 +126,17 @@ end
 require 'capybara/rails'
 require 'capybara/dsl'
 
-Capybara.default_driver = :rack_test
-Capybara.default_wait_time = 10
-
 if ! ENV['CHROMIUM'].blank?
   require 'selenium-webdriver'
 
-  Selenium::WebDriver::Chrome.path = "/usr/bin/chromium-browser"
+  if ENV['CHROME_DRIVER_PATH']
+    Selenium::WebDriver::Chrome.driver_path = ENV['CHROME_DRIVER_PATH']
+  end
+
+  Selenium::WebDriver::Chrome.path = ENV['CHROME_PATH'] || "/usr/bin/chromium-browser"
+
   Capybara.register_driver :selenium do |app|
-    Capybara::Selenium::Driver.new(app, :browser => :chrome)
+    Capybara::Selenium::Driver.new(app, :browser => :chrome, :switches => ['--disable-translate', '--disable-smooth-scrolling', '--window-size=3000,1000', '--window-position=0,0'])
   end
 end
 
@@ -217,7 +219,7 @@ class Kermits2::JsIntegrationTest < Kermits2::IntegrationTest
       tries += 1
       assert page.has_no_css?('.x-mask', :visible => true)
     rescue Selenium::WebDriver::Error::StaleElementReferenceError
-      if tries == 3
+      if tries == 20
         raise
       else
         retry
@@ -268,7 +270,7 @@ class Test::Person < ApplicationModel
       t.string :name, :null => false
       t.string :code, :null => false
     end
-    set_table_name :test_person_statuses
+    self.table_name = :test_person_statuses
 
     has_many :test_people, :dependent => :destroy
 
@@ -282,7 +284,7 @@ class Test::Person < ApplicationModel
       t.integer :status_id, :null => false
       t.integer :person_id, :null => false
     end
-    set_table_name :test_person_status_stamps
+    self.table_name = :test_person_status_stamps
 
     belongs_to :status
   end
@@ -296,7 +298,7 @@ class Test::Person < ApplicationModel
     t.integer :status_id
   end
   self.connection.add_foreign_key :test_people, :test_person_statuses, :column => :status_id
-  set_table_name :test_people
+  self.table_name = :test_people
 
   has_many :status_stamps
   belongs_to :status

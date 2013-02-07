@@ -6,26 +6,7 @@
     <%= f.select :pipeline_id, pipeline_list.unshift(['',nil]) %>
   </td>
   <td><%= f.text_field :name %></td>
-  <td>
-    <%= f.text_field :targeting_vector_name %>
-    <div id="autocomplete_for_" class="autocomplete"></div>
-    <script type="text/javascript">
-      var input_field_id = $('autocomplete_for_').previous('input').readAttribute('id');
-      $('autocomplete_for_').writeAttribute('id', 'autocomplete_for_' + input_field_id);
-      
-      new Ajax.Autocompleter(
-        input_field_id,
-        'autocomplete_for_' + input_field_id,
-        '<%= url_for :controller => 'targeting_vectors', :action => 'index', :format => :js %>',
-        {
-          method: 'GET',
-          min_chars: 2,
-          paramName: 'name_like',
-          parameters: 'allele_id=<%= @allele.id %>'
-        }
-      );
-    </script>
-  </td>
+  <td><%= f.text_field :targeting_vector_name %></td>
   <td><%= f.text_field :mgi_allele_id %></td>
   <td><%= f.text_field :mgi_allele_symbol_superscript %></td>
   <td><%= f.text_field :parental_cell_line %></td>

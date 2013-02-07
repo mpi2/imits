@@ -54,9 +54,10 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
   add_index "consortia", ["name"], :name => "index_consortia_on_name", :unique => true
 
   create_table "contacts", :force => true do |t|
-    t.string   "email",      :null => false
+    t.string   "email",                              :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "report_to_public", :default => true
   end
 
   add_index "contacts", ["email"], :name => "index_contacts_on_email", :unique => true

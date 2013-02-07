@@ -119,6 +119,8 @@ TarMits::Application.routes.draw do
     end
   end
 
+  get '/javascripts/dynamic_esc_qc_conflict_selects' => 'javascripts#dynamic_esc_qc_conflict_selects'
+
   ## TargRep interface
   namespace :targ_rep do
     resources :pipelines

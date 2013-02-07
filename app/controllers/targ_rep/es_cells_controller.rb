@@ -83,29 +83,18 @@ class TargRep::EsCellsController < TargRep::BaseController
   def update_multiple
 
     TargRep::EsCell.transaction do
-      @distribution_qcs = TargRep::DistributionQc.update(params[:distribution_qcs].keys, params[:distribution_qcs].values).reject { |p| p.errors.empty? }
-
       @es_cells = TargRep::EsCell.update(params[:es_cells].keys, params[:es_cells].values).reject { |p| p.errors.empty? }
     end
 
-    es_cell_names = ''
-    if ! @es_cells.empty? || ! @distribution_qcs.empty?
-      hash = {}
-      @es_cells.each do |es_cell|
-        hash[es_cell.name] = 1
-      end
-      @distribution_qcs.each do |distribution_qc|
-        hash[distribution_qc.es_cell.name] = 1
-      end
-      hash.keys.each {|key| es_cell_names += "#{key}\n" }
-    end
+    es_cell_names = @es_cells.map(&:name).join("\n")
 
-    if @es_cells.empty? && @distribution_qcs.empty?
+    if @es_cells.empty?
       flash[:notice] = "ES Cells Updated"
       redirect_to bulk_edit_targ_rep_es_cells_path
     else
       flash[:error] = "There was a problem updating some of your records - the failed entries are shown below"
-      redirect_to targ_rep_es_cells_bulk_edit_path(:es_cell_names => es_cell_names)
+      flash[:validation] = @es_cells.map{|e| e.errors.full_messages}.flatten.join("<br />")
+      redirect_to bulk_edit_targ_rep_es_cells_path(:es_cell_names => es_cell_names)
     end
   end
 

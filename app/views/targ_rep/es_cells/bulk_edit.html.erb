@@ -1,6 +1,10 @@
 <% javascript_include_tag 'dynamic_esc_qc_conflict_selects' %>
 
 <div class="grid_12">
+  <%= flash[:validation] %>
+</div>
+
+<div class="grid_12">
   <h2>ES Cell Bulk Editing</h2>
 
   <%= form_tag bulk_edit_targ_rep_es_cells_path, :method => :post do %>
@@ -28,7 +32,7 @@
 
     <%= form_tag update_multiple_targ_rep_es_cells_path, :method => :put do %>
       <% @es_cells.each do |es_cell| %>
-        <%= fields_for "es_cells[]", es_cell do |f| %>
+        <%= fields_for :"es_cells", es_cell, :index => es_cell.id do |f| %>
           <%= f.hidden_field :name %>
           <h3><%=h es_cell.name %></h3>
 

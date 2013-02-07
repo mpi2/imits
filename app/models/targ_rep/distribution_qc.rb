@@ -44,7 +44,8 @@ class TargRep::DistributionQc < ActiveRecord::Base
   validates_inclusion_of :chr11b, :in => LONG_VALUES, :allow_blank => true
   validates_inclusion_of :chry, :in => LONG_VALUES, :allow_blank => true
 
-  validates :es_cell_distribution_centre_id, :uniqueness => {:scope => :es_cell_id}
+  validates :es_cell_distribution_centre_id, :uniqueness => {:scope => :es_cell_id}, :presence => true
+  validates :es_cell_id, :presence => true
 
   def self.get_qc_metrics
     qc_metrics = {

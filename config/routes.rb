@@ -86,12 +86,6 @@ TarMits::Application.routes.draw do
     match 'password_reset' => 'users#password_reset', :as => :password_reset
   end
 
-  resources :es_cells, :only => [] do
-    collection do
-      get 'mart_search'
-    end
-  end
-
   resources :sub_projects, :only => [:index, :create, :destroy]
 
   match 'quality_overviews' => "quality_overviews#index"
@@ -125,8 +119,6 @@ TarMits::Application.routes.draw do
     end
   end
 
-  match '/es_cells/mart_search' => 'TargRep::EsCells#mart_search', :as => 'mart_search'
-
   ## TargRep interface
   namespace :targ_rep do
     resources :pipelines
@@ -142,7 +134,7 @@ TarMits::Application.routes.draw do
       collection do
         get :mart_search
         match :bulk_edit, :via => [:get, :post]
-        put :update_multiple
+        match :update_multiple, :via => [:get, :put]
       end
     end
 

@@ -5,7 +5,7 @@ class TargRep::EsCell < ActiveRecord::Base
   acts_as_audited
   acts_as_reportable
 
-  attr_accessor :nested
+  attr_accessor :nested, :bulk
 
   class Error < RuntimeError; end
   class SyncError < Error; end
@@ -116,17 +116,9 @@ class TargRep::EsCell < ActiveRecord::Base
     end
 
     def build_distribution_qc(centre)
-      return if ! centre  # do nothing if we haven't a centre
-
-      self.distribution_qcs.each do |dqc|
-        return if dqc.es_cell_distribution_centre == centre
-      end
-
-      if ! self.distribution_qcs || self.distribution_qcs.size == 0
-        self.distribution_qcs.build
-      end
-
-      self.distribution_qcs.push TargRep::DistributionQc.new(:es_cell_distribution_centre => centre)
+      return if centre.blank?
+      return if self.distribution_qcs.find_by_es_cell_distribution_centre_id(centre.id)
+      self.distribution_qcs.push centre.distribution_qcs.build(:es_cell => self)
     end
 
     ##

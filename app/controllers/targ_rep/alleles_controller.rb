@@ -459,7 +459,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
           # Find ES Cell from its 'id' or its 'name' + 'allele_id'
           if attrs.include? :id
-            es_cell = TargRep::EsCell.find attrs[:id]
+            es_cell = TargRep::EsCell.find_by_id attrs[:id]
           else
             search  = TargRep::EsCell.search(:name_like => attrs[:name], :allele_id_is => allele_id).result
             es_cell = search.first

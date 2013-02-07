@@ -21,8 +21,8 @@ module TargRep::AllelesHelper
     if form_builder.object.new_record?
       # If the es cell is a new record, we can just remove from the dom
       link_to_function( "remove", { :class => 'ss_sprite ss_cross' } ) do |page|
-        page << "$(this).up('tr.es_cell').next('tr.es_cell_qc').remove();"
-        page << "$(this).up('tr.es_cell').remove();"
+        page << "$(this).parents('.es_cell:first').next('.es_cell_qc').remove();"
+        page << "$(this).parents('.es_cell:first').remove();"
       end
     else
       # However if it's a "real" record it has to be deleted from the database,

@@ -9,5 +9,5 @@
   <td><%= f.text_field :name %></td>
   <td><%= f.text_field :intermediate_vector %></td>
   <td><%= f.check_box :report_to_public %></td>
-  <td><%= remove_targ_vec_link(f) %></td>
+  <td><%= link_to 'Remove', '', :class => "es_cell_delete_row #{f.object.new_record? ? '' : 'hard'}" %></td>
 </tr>

@@ -133,6 +133,8 @@ namespace :migrate do
       :missing => Array.new
     }
 
+    ActiveRecord::Base.observers.disable(:all)
+
     TargRep::Allele.transaction do
         
         ::TargRep::Allele.disable_auditing
@@ -214,6 +216,8 @@ namespace :migrate do
     puts "You should have already have migrated the EsCellDistributionCentre, User, MutationMethod, MutationType, MutationSubtype, & Allele tables when you run this."
     migration_dependancies(TargRep::EsCellDistributionCentre, User, TargRep::MutationMethod, TargRep::MutationType, TargRep::MutationSubtype, TargRep::Allele)
 
+    ActiveRecord::Base.observers.disable(:all)
+
     begin
 
       LegacyTargRep.export_mysqlsql_import_postgresql('pipelines', 'targ_rep_pipelines')
@@ -285,6 +289,8 @@ namespace :migrate do
 
     puts "You should have already have migrated the EsCellDistributionCentre, User, MutationMethod, MutationType, MutationSubtype, Allele, & Pipeline tables when you run this."
     migration_dependancies(TargRep::EsCellDistributionCentre, User, TargRep::MutationMethod, TargRep::MutationType, TargRep::MutationSubtype, TargRep::Allele, TargRep::Pipeline, TargRep::TargetingVector)
+
+    ActiveRecord::Base.observers.disable(:all)
 
     matched_es_cells = {}
 

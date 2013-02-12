@@ -149,6 +149,9 @@ class LegacyTargRep
     
       puts "Import database into iMits"
       import_command = %Q[psql -W -h #{DATABASE_CONFIG['host']} -f #{escaped_file} #{DATABASE_CONFIG['database']} -U #{DATABASE_CONFIG['username']}]
+      import_command << " -p #{DATABASE_CONFIG['port']}" if DATABASE_CONFIG['port']
+      import_command << " -h #{DATABASE_CONFIG['host']}" if DATABASE_CONFIG['host']
+
     # puts import_command      
 
       `#{import_command}`

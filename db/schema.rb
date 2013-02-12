@@ -392,8 +392,8 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
     t.integer  "month"
     t.integer  "mi_goal"
     t.integer  "gc_goal"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
   end
 
   add_index "production_goals", ["consortium_id", "year", "month"], :name => "index_production_goals_on_consortium_id_and_year_and_month", :unique => true
@@ -459,8 +459,8 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
     t.integer  "mutation_type_id"
     t.integer  "mutation_subtype_id"
     t.string   "cassette_type",       :limit => 50
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                :null => false
+    t.datetime "updated_at",                                                :null => false
   end
 
   create_table "targ_rep_distribution_qcs", :force => true do |t|
@@ -483,16 +483,16 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
     t.string   "chry"
     t.integer  "es_cell_id"
     t.integer  "es_cell_distribution_centre_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                     :null => false
+    t.datetime "updated_at",                     :null => false
   end
 
   add_index "targ_rep_distribution_qcs", ["es_cell_distribution_centre_id", "es_cell_id"], :name => "index_distribution_qcs_centre_es_cell", :unique => true
 
   create_table "targ_rep_es_cell_distribution_centres", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "targ_rep_es_cells", :force => true do |t|
@@ -531,8 +531,8 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
     t.string   "mutation_subtype",                      :limit => 100
     t.string   "allele_symbol_superscript_template",    :limit => 75
     t.integer  "legacy_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                                                             :null => false
+    t.datetime "updated_at",                                                             :null => false
   end
 
   add_index "targ_rep_es_cells", ["allele_id"], :name => "es_cells_allele_id_fk"
@@ -552,29 +552,29 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
   create_table "targ_rep_mutation_methods", :force => true do |t|
     t.string   "name",       :limit => 100, :null => false
     t.string   "code",       :limit => 100, :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
   end
 
   create_table "targ_rep_mutation_subtypes", :force => true do |t|
     t.string   "name",       :limit => 100, :null => false
     t.string   "code",       :limit => 100, :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
   end
 
   create_table "targ_rep_mutation_types", :force => true do |t|
     t.string   "name",       :limit => 100, :null => false
     t.string   "code",       :limit => 100, :null => false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                :null => false
+    t.datetime "updated_at",                :null => false
   end
 
   create_table "targ_rep_pipelines", :force => true do |t|
     t.string   "name",        :null => false
     t.string   "description"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
     t.integer  "legacy_id"
   end
 
@@ -587,8 +587,8 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
     t.string   "intermediate_vector"
     t.boolean  "report_to_public",    :default => true, :null => false
     t.integer  "pipeline_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",                            :null => false
+    t.datetime "updated_at",                            :null => false
   end
 
   add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"
@@ -604,21 +604,19 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
     t.datetime "updated_at"
     t.string   "name"
     t.boolean  "is_contactable",                                :default => false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
     t.integer  "es_cell_distribution_centre_id"
     t.integer  "legacy_id"
     t.boolean  "admin",                                         :default => false
-    t.string   "reset_password_token"
-    t.datetime "reset_password_sent_at"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
 
   add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"
-  add_foreign_key "mi_attempt_distribution_centres", "mi_attempts", :name => "mi_attempt_distribution_centres_mi_attempt_id_fk"
 
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk", :column => "status_id"
-  add_foreign_key "mi_attempt_status_stamps", "mi_attempts", :name => "mi_attempt_status_stamps_mi_attempt_id_fk"
 
   add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk", :column => "status_id"
   add_foreign_key "mi_attempts", "mi_plans", :name => "mi_attempts_mi_plan_id_fk"
@@ -660,7 +658,6 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempt_statuses", :name => "phenotype_attempt_status_stamps_status_id_fk", :column => "status_id"
   add_foreign_key "phenotype_attempt_status_stamps", "phenotype_attempts", :name => "phenotype_attempt_status_stamps_phenotype_attempt_id_fk"
 
-  add_foreign_key "phenotype_attempts", "mi_attempts", :name => "phenotype_attempts_mi_attempt_id_fk"
   add_foreign_key "phenotype_attempts", "mi_plans", :name => "phenotype_attempts_mi_plan_id_fk"
   add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"
   add_foreign_key "phenotype_attempts", "strains", :name => "phenotype_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"

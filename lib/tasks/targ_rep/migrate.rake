@@ -138,7 +138,6 @@ namespace :migrate do
     TargRep::Allele.transaction do
         
         ::TargRep::Allele.disable_auditing
-        ActiveRecord::Base.observers.disable(:all)
 
         LegacyTargRep::Allele.all.each do |old_allele|
 
@@ -302,7 +301,6 @@ namespace :migrate do
       legacy_es_cells = EsCell.all
 
       ::TargRep::EsCell.disable_auditing
-      ActiveRecord::Base.observers.disable(:all)
 
       #LegacyTargRep::EsCell.all.each do |targ_rep_es_cell|
       #test_es_cell_names = ["EPD0719_1_C02", "EPD0033_3_A11", "EPD0033_3_C11", "EPD0054_1_C05", "EPD0090_4_C10", "EPD0090_4_H11", "EPD0571_3_F01", "EPD0083_2_E03"]

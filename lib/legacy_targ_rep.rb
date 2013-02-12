@@ -117,7 +117,7 @@ class LegacyTargRep
       end
     end
 
-    exported_file = File.join(Rails.root, 'tmp', "#{tablename}.sql")
+    exported_file = File.join(Rails.application.config.paths['tmp'].first, "#{tablename}.sql")
 
     begin
       puts "Export Mysql database"
@@ -144,11 +144,13 @@ class LegacyTargRep
         file_body = file_body.gsub(/\\\'/, "\'\'").gsub(/\\r/, "\r").gsub(/\\n/, "\n")
       end
 
-      escaped_file = File.join(Rails.root, 'tmp', "#{tablename}-escaped.sql")
+      escaped_file = File.join(Rails.application.config.paths['tmp'].first, "#{tablename}-escaped.sql")
       File.open(escaped_file, 'w') {|f| f.write(escaped_file_string)}
     
       puts "Import database into iMits"
       import_command = %Q[psql -W -h #{DATABASE_CONFIG['host']} -f #{escaped_file} #{DATABASE_CONFIG['database']} -U #{DATABASE_CONFIG['username']}]
+      import_command << " -p #{DATABASE_CONFIG['port']}" if DATABASE_CONFIG['port']
+      import_command << " -h #{DATABASE_CONFIG['host']}" if DATABASE_CONFIG['host']
     # puts import_command      
 
       `#{import_command}`

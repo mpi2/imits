@@ -133,6 +133,8 @@ namespace :migrate do
       :missing => Array.new
     }
 
+    ActiveRecord::Base.observers.disable(:all)
+
     TargRep::Allele.transaction do
         
         ::TargRep::Allele.disable_auditing
@@ -213,6 +215,8 @@ namespace :migrate do
     puts "You should have already have migrated the EsCellDistributionCentre, User, MutationMethod, MutationType, MutationSubtype, & Allele tables when you run this."
     migration_dependancies(TargRep::EsCellDistributionCentre, User, TargRep::MutationMethod, TargRep::MutationType, TargRep::MutationSubtype, TargRep::Allele)
 
+    ActiveRecord::Base.observers.disable(:all)
+
     begin
 
       LegacyTargRep.export_mysqlsql_import_postgresql('pipelines', 'targ_rep_pipelines')
@@ -223,8 +227,6 @@ namespace :migrate do
       pipelines = {:updated => [], :created => []}
 
       ::TargRep::Pipeline.transaction do
-
-        ::TargRep::Pipeline.disable_auditing
 
         Pipeline.all.each do |pipeline|
           if targ_rep_pipeline = TargRep::Pipeline.find_by_name(pipeline.name)
@@ -287,6 +289,8 @@ namespace :migrate do
     puts "You should have already have migrated the EsCellDistributionCentre, User, MutationMethod, MutationType, MutationSubtype, Allele, & Pipeline tables when you run this."
     migration_dependancies(TargRep::EsCellDistributionCentre, User, TargRep::MutationMethod, TargRep::MutationType, TargRep::MutationSubtype, TargRep::Allele, TargRep::Pipeline, TargRep::TargetingVector)
 
+    ActiveRecord::Base.observers.disable(:all)
+
     matched_es_cells = {}
 
     begin
@@ -317,8 +321,15 @@ namespace :migrate do
 
             new_es_cell.id                                     = targ_rep_es_cell[:id]
             new_es_cell.name                                   = targ_rep_es_cell[:name]
-            new_es_cell.allele_id                              = targ_rep_es_cell[:allele_id]
-            new_es_cell.targeting_vector_id                    = targ_rep_es_cell[:targeting_vector_id]
+
+            if allele = ::TargRep::Allele.find_by_id(targ_rep_es_cell[:allele_id])
+              new_es_cell.allele_id                              = allele.id
+            end
+
+            if targeting_vector = TargRep::TargetingVector.find_by_id(targ_rep_es_cell[:targeting_vector_id])
+              new_es_cell.targeting_vector_id                    = targeting_vector.id
+            end
+
             new_es_cell.parental_cell_line                     = targ_rep_es_cell[:parental_cell_line]
             new_es_cell.allele_symbol_superscript              = targ_rep_es_cell[:allele_symbol_superscript]
             new_es_cell.mgi_allele_symbol_superscript          = targ_rep_es_cell[:allele_symbol_superscript]
@@ -381,7 +392,7 @@ namespace :migrate do
         ## We're looping through MiAttempts, using update_all will cause an issue where new ids could be mistaken for legacy ids.
         MiAttempt.order('id ASC').each do |mi|
           new_id = matched_es_cells[mi.es_cell_id]
-          MiAttempt.update_all({:es_cell_id => new_id, :legacy_es_cell_id => mi.es_cell_id}, {:id => mi.id})
+          MiAttempt.update_all({:es_cell_id => new_id.to_i, :legacy_es_cell_id => mi.es_cell_id}, {:id => mi.id})
           
           if new_id.blank?
             `echo '#{mi.inspect}\n\n' >> missing_es_cell_for_mi_attempts`
@@ -396,6 +407,7 @@ namespace :migrate do
       puts "\nEsCell migration failed. Rolling back.\n"
       ActiveRecord::Base.connection.execute('truncate targ_rep_es_cells')
       puts e
+      puts e.backtrace.join("\n")
     end
 
   end

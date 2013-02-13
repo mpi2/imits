@@ -15,6 +15,10 @@ class ProductionGoalsController < ApplicationController
     end
   end
 
+  def show
+    redirect_to [:production_goals]
+  end
+
   def create
     @production_goal = ProductionGoal.new(params[:production_goal])
 

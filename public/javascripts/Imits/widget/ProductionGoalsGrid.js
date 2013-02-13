@@ -225,6 +225,15 @@ Ext.define('Imits.widget.ProductionGoalsGrid', {
                         grid.getStore().removeAt(rowIndex)
                 }
             }]
+        },
+        {
+            header: 'History',
+            dataIndex: 'edit_link',
+            renderer: function(value, metaData, record) {
+                var pgId = record.getId();
+                return Ext.String.format('<a href="{0}/production_goals/{1}/history">View history</a>', window.basePath, pgId);
+            },
+            sortable: false
         }
     ]
 });

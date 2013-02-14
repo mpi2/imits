@@ -15,8 +15,8 @@ Monterotondo:
   :preferred: ''
   :default: ''
 JAX:
-  :preferred: 'http://jaxmice.jax.org/index.html'
-  :default: 'http://jaxmice.jax.org/index.html'
+  :preferred: 'http://jaxmice.jax.org/list/komp_strains'
+  :default: 'http://jaxmice.jax.org/list/komp_strains'
 Oulu:
   :preferred: ''
   :default: ''

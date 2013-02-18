@@ -265,6 +265,21 @@ class MiAttemptTest < ActiveSupport::TestCase
             assert_equal 'na', default_mi_attempt.send("#{qc_field}_result")
             assert_equal 'na', default_mi_attempt.send(qc_field).try(:description)
           end
+
+        end
+
+        should "mouse_allele_type should be set to 'e' if qc_loxp_confirmation is set from pass to fail." do
+          default_mi_attempt.qc_loxp_confirmation_result = 'fail'
+          default_mi_attempt.save!
+
+          assert_equal 'fail', default_mi_attempt.qc_loxp_confirmation_result
+          assert_equal 'e', default_mi_attempt.mouse_allele_type
+
+          default_mi_attempt.qc_loxp_confirmation_result = 'pass'
+          default_mi_attempt.save!
+
+          assert_equal 'pass', default_mi_attempt.qc_loxp_confirmation_result
+          assert_equal nil, default_mi_attempt.mouse_allele_type          
         end
       end
 

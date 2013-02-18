@@ -99,9 +99,15 @@ class MiAttempt < ApplicationModel
   before_validation :change_status
 
   before_validation do |mi|
-    if mi.qc_loxp_confirmation_id_changed? && mi.qc_loxp_confirmation_result == 'pass' && mi.qc_loxp_confirmation_id_was == 2 ## 2 is the Id of the QcResult 'fail'
+    return true unless mi.qc_loxp_confirmation_id_changed?
+
+    if mi.qc_loxp_confirmation_result == 'fail' && mi.qc_loxp_confirmation_id_was == 3 ## 3 is the Id of the QcResult 'pass'
       self.mouse_allele_type = 'e'
+    elsif mi.qc_loxp_confirmation_result == 'pass' && mi.qc_loxp_confirmation_id_was == 2 ## 2 is the Id of the QcResult 'fail'
+      self.mouse_allele_type = nil
     end
+
+    true
   end
 
   before_validation do |mi|

@@ -269,9 +269,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should "mouse_allele_type should be set to 'e' if qc_loxp_confirmation is set from pass to fail." do
-          default_mi_attempt.qc_loxp_confirmation_result = 'pass'
-          default_mi_attempt.save!
-
           default_mi_attempt.qc_loxp_confirmation_result = 'fail'
           default_mi_attempt.save!
 

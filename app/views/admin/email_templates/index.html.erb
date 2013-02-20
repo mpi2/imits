@@ -23,7 +23,7 @@ table.bottom-border td, th {
       <tr>
         <td><%= email_template.status.blank? ? 'No status' : email_template.status.humanize %></td>
         <td><%= link_to 'edit', [:admin, email_template] %></td>
-        <td><%= link_to 'remove', admin_email_template_path(email_template, :method => "_DELETE"), :method => :delete, :confirm => "Are you sure you want to delete this email template?" %></td>
+        <td><%= button_to '  Delete  ', {:action => "destroy", :id => email_template.id}, :id => "email_template_#{email_template.id}_button", :confirm => "Are you sure you want to delete this email template?", :method => :delete %></td>
       </tr>
     <% end %>
   </table>

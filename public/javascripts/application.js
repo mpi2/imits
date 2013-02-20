@@ -94,4 +94,12 @@ Ext.onReady(function() {
             if(!confirm(this.getAttribute('data-confirm'))) e.preventDefault();
         })
     }
+
+    buttons=Ext.select('input[data-confirm]')
+    for(var i=0; i<buttons.elements.length; i++) {
+        var button = buttons.elements[i]
+        button.parentElement.parentElement.addEventListener('submit', function(e) {
+            if(!confirm(button.getAttribute('data-confirm'))) e.preventDefault();
+        })
+    }
 })

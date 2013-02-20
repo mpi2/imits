@@ -1,7 +1,7 @@
 class Admin::EmailTemplatesController < Admin::BaseController
 
   before_filter do
-    @title = "Email Notifications"
+    @title = "Email Templates"
     @tab = "Admin"
   end
 
@@ -57,6 +57,12 @@ class Admin::EmailTemplatesController < Admin::BaseController
 
     @email_template.update_attributes(params[:email_template])
     redirect_to [:admin, @email_template]
+  end
+
+  def destroy
+    @email_template = EmailTemplate.find(params[:id])
+    @email_template.destroy
+    redirect_to [:admin, :email_templates], :notice => "The email template was removed successfully."
   end
 
   private

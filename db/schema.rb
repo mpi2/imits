@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130130121045) do
+ActiveRecord::Schema.define(:version => 20130219102215) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -75,6 +75,14 @@ ActiveRecord::Schema.define(:version => 20130130121045) do
   end
 
   add_index "deposited_materials", ["name"], :name => "index_deposited_materials_on_name", :unique => true
+
+  create_table "email_templates", :force => true do |t|
+    t.string   "status"
+    t.text     "welcome_body"
+    t.text     "update_body"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
 
   create_table "es_cells", :force => true do |t|
     t.string   "name",                               :limit => 100, :null => false

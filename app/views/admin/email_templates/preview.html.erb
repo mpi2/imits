@@ -1,0 +1,63 @@
+<%= content_for :head do %>
+  <style type="text/css">
+    div.adjust-alot {padding-left: 75px;}
+    div.adjust {padding-left: 50px;}
+    div.adjust-a-little {padding-left: 25px;}
+    table.bottom-border td, th {
+      border-bottom:1px dotted black;
+      padding: 5px;
+    }
+    label.gene_for_preview {
+      display:inline;
+    }
+
+    span.red {
+      color:red;
+      font-weight:bold;
+    }
+  </style>
+<% end %>
+
+<div class = "adjust-a-little"><h1>Email Template</h1>
+<br/>
+
+  <h2>Previewing with Gene '<%= @gene.marker_symbol %>'</h2>
+  <br />
+
+  <h2>Welcome email body</h2>
+  <p>
+    <% if @welcome_email_body.blank? %>
+      <span class='red'>
+        Your template was not valid. Please check your syntax, and that you are not accessing non-existent local variables. <%= link_to 'Back', 'javascript: history.go(-1)' %>
+      </span>
+    <% else %>
+      <%= sanitize(@welcome_email_body.to_s.gsub(/\n/, "<br />").html_safe, :tags => %w(br)) %>
+    <% end %>
+  </p>
+
+  <br />
+  <h2>Update email body</h2>
+  <p>
+    <% if @update_email_body.blank? %>
+      <span class='red'>
+        Your template was not valid. Please check your syntax, and that you are not accessing non-existent local variables.
+      </span>
+    <% else %>
+      <%= sanitize(@update_email_body.to_s.gsub(/\n/, "<br />").html_safe, :tags => %w(br)) %> 
+    <% end %>
+  </p>
+  <br />
+</div>
+
+<%= form_for @email_template, :url => @email_template.new_record? ? [:admin, :email_templates] : [:admin, @email_template], :html => {:class => 'edit show mi-attempt'} do |form| %>
+
+  <%= form.hidden_field :status, :class => 'x-form-text' %>
+  <%= form.hidden_field :welcome_body, :class => 'x-form-text' %>
+  <%= form.hidden_field :update_body, :class => 'x-form-text' %>
+
+  <% if @welcome_email_body && @update_email_body %>
+    <%= form.submit 'Submit', :class => 'disable-on-submit', :id => 'mi_attempt_submit' %>
+  <% end %>
+
+  <%= link_to 'Back', 'javascript: history.go(-1)' %>
+<% end %>

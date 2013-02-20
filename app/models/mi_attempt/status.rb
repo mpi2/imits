@@ -25,6 +25,7 @@ class MiAttempt::Status < ActiveRecord::Base
   def self.chimeras_obtained
     @@chimeras_obtained ||= self.find_by_name!('Chimeras obtained').freeze
   end
+
 end
 
 # == Schema Information

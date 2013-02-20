@@ -19,6 +19,15 @@ NO_BREAK_SPACE = '\u00A0';
     };
 }());
 
+function getMetaContents(mn){
+  var m = document.getElementsByTagName('meta')
+  for(var i in m){
+   if(m[i].name == mn){
+     return m[i].content;
+   }
+  }
+}
+
 function setInitialFocus() {
     var thing = Ext.select('.initial-focus').first();
     if(thing) {
@@ -77,3 +86,12 @@ Ext.util.Format.safeTextRenderer = function(value) {
 
     return Ext.util.Format.htmlEncode(value);
 }
+
+Ext.onReady(function() {
+    links=Ext.select('a[data-confirm]')
+    for(var i=0; i<links.elements.length; i++) {
+        links.elements[i].addEventListener('click', function(e) {
+            if(!confirm(this.getAttribute('data-confirm'))) e.preventDefault();
+        })
+    }
+})

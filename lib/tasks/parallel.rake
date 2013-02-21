@@ -5,5 +5,6 @@ namespace :parallel do
 
   task(:prepare, [:count]) do |t, args|
     Rake::Task['parallel:fixtures:load'].invoke(args[:count])
+    Rake::Task['imits:generate_email_templates RAILS_ENV=test'].invoke
   end
 end

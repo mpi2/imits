@@ -11,7 +11,6 @@ class NotificationMailer < ActionMailer::Base
     @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
     email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
 
-    return if @email_template.blank? || email_body.blank?
     mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
       format.text { render :inline => email_body }
     end

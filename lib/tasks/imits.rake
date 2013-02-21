@@ -115,10 +115,11 @@ namespace :imits do
         welcome_snippet = File.read "#{Rails.root}/app/views/notification_mailer/welcome_email/#{status}"
         status_snippet = File.read "#{Rails.root}/app/views/notification_mailer/status_email/#{status}"
 
-        next if welcome_snippet.blank? && status_snippet.blank?
-
         email_template.status = status.gsub(/\.text\.erb/, '')
         email_template.status[0] = ''
+
+        next if email_template.status.blank? && email_template.status.blank? && !['aborted_es_cell_qc_failed', 'microinjection_aborted', 'phenotype_attempt_aborted'].include?(email_template.status)
+
         email_template.welcome_body = welcome_body.gsub(/__RELEVANT_STATUS__\n/, welcome_snippet).gsub(/^      /, '')
         email_template.update_body  = update_body.gsub(/__RELEVANT_STATUS__\n/, status_snippet).gsub(/^      /, '')
 

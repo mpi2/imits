@@ -17,6 +17,7 @@ namespace :db do
 
     task :prepare do
       Rake::Task['db:test:fixtures:load'].invoke
+      Rake::Task['imits:generate_email_templates'].invoke
     end
 
   end

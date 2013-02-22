@@ -312,7 +312,7 @@ Factory.define :production_goal do |production_goal|
   production_goal.gc_goal 123
 end
 
-Factory.define :email_template_without_status do |email_template|
+Factory.define :email_template_without_status, :class => EmailTemplate do |email_template|
   email_template.welcome_body <<-EOF
       Dear colleague,
 
@@ -398,4 +398,20 @@ Factory.define :email_template_without_status do |email_template|
 
       The MPI2 (KOMP2) informatics consortium.
     EOF
+end
+
+Factory.define :email_template_microinjection_aborted, :parent => :email_template_without_status do |et|
+  et.status 'microinjection_aborted'
+end
+
+Factory.define :email_template_genotype_confirmed, :parent => :email_template_without_status do |et|
+  et.status 'genotype_confirmed'
+end
+
+Factory.define :email_template_assigned_es_cell_qc_complete, :parent => :email_template_without_status do |et|
+  et.status 'assigned_es_cell_qc_complete'
+end
+
+Factory.define :email_template_phenotyping_complete, :parent => :email_template_without_status do |et|
+  et.status 'phenotyping_complete'
 end

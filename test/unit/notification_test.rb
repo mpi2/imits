@@ -6,8 +6,11 @@ class NotificationTest < ActiveSupport::TestCase
 
   context 'Notification' do
 
+    setup do
+      Factory.create(:email_template_without_status)     
+    end
+
     def default_notification
-      Factory.create(:email_template_without_status)
       @default_notification ||= Factory.create :notification
     end
 

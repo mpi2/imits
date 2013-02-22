@@ -7,7 +7,7 @@ class NotificationTest < ActiveSupport::TestCase
   context 'Notification' do
 
     def default_notification
-      puts EmailTemplate.count
+      Factory.create(:email_template_without_status)
       @default_notification ||= Factory.create :notification
     end
 

@@ -12,12 +12,14 @@ namespace :db do
         Dir["#{fixtures_dir}/**/*.{yml,csv}"].each do |fixture_file|
           ActiveRecord::Fixtures.create_fixtures(fixtures_dir, fixture_file[(fixtures_dir.size + 1)..-5])
         end
+
+
+        Rake::Task['imits:generate_email_templates'].invoke
       end
     end
 
     task :prepare do
       Rake::Task['db:test:fixtures:load'].invoke
-      Rake::Task['imits:generate_email_templates'].invoke
     end
 
   end

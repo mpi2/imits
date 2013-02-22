@@ -1,6 +1,10 @@
 namespace :imits do
-  desc 'Generate email templates from current file implementation'
+  desc 'Generate email templates from current file implementation (this will remove current email templates!)'
   task :generate_email_templates => :environment do
+
+    ## Remove all current email templates
+    EmailTemplate.delete_all
+
     welcome_body = <<-EOF
       Dear colleague,
 

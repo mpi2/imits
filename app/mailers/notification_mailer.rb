@@ -8,6 +8,9 @@ class NotificationMailer < ActionMailer::Base
 
     set_attributes
 
+    puts 'welcome'
+    puts @relevant_status[:status]
+
     @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
     email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
 
@@ -28,6 +31,9 @@ class NotificationMailer < ActionMailer::Base
     end
     
     set_attributes
+
+    puts 'update'
+    puts @relevant_status[:status]
 
     @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
     email_body = ERB.new(@email_template.update_body).result(binding) rescue nil

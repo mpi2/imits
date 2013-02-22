@@ -313,7 +313,7 @@ Factory.define :production_goal do |production_goal|
 end
 
 Factory.define :email_template_without_status do |email_template|
-  email_template.welcome_body = <<-EOF
+  email_template.welcome_body <<-EOF
       Dear colleague,
 
       Thank you for registering for gene <%= @gene.marker_symbol %>
@@ -358,7 +358,7 @@ Factory.define :email_template_without_status do |email_template|
 
     EOF
 
-  email_template.update_body = <<-EOF
+  email_template.update_body <<-EOF
       Dear colleague,
 
       You have registered interest in this gene via the IMPC (www.mousephenotype.org).

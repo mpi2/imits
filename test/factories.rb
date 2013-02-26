@@ -292,7 +292,7 @@ Factory.define :allele, :class => TargRep::Allele do |f|
 
   # LoxP
   f.loxp_start do |allele|
-    if !allele.mutation_type.no_loxp_site?
+    if allele.mutation_type && !allele.mutation_type.no_loxp_site?
       case allele.strand
         when '+' then 100
         when '-' then 70
@@ -301,7 +301,7 @@ Factory.define :allele, :class => TargRep::Allele do |f|
   end
 
   f.loxp_end do |allele|
-    if !allele.mutation_type.no_loxp_site?
+    if allele.mutation_type && !allele.mutation_type.no_loxp_site?
       case allele.strand
         when '+' then 130
         when '-' then 40

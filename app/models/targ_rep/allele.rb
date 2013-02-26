@@ -60,19 +60,20 @@ class TargRep::Allele < ActiveRecord::Base
     ],
     :message => "must have unique design features"
 
-  validates_presence_of [
-    :assembly,
-    :chromosome,
-    :strand,
-    :mutation_method,
-    :mutation_type,
-    :homology_arm_start,
-    :homology_arm_end,
-    :cassette_start,
-    :cassette_end,
-    :cassette,
-    :cassette_type
-  ]
+  validates :assembly,           :presence => true
+  validates :chromosome,         :presence => true
+  validates :strand,             :presence => true
+  validates :mutation_method,    :presence => true
+  validates :mutation_type,      :presence => true
+  validates :homology_arm_start, :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
+  validates :homology_arm_end,   :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
+  validates :cassette_start,     :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
+  validates :cassette_end,       :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
+  validates :cassette,           :presence => true
+  validates :cassette_type,      :presence => true
+
+  validates :loxp_start, :numericality => {:only_integer => true, :greater_than => 0, :allow_nil => true}
+  validates :loxp_end, :numericality => {:only_integer => true, :greater_than => 0, :allow_nil => true}
 
   validates_inclusion_of :cassette_type,
     :in => ['Promotorless','Promotor Driven'],
@@ -105,13 +106,6 @@ class TargRep::Allele < ActiveRecord::Base
     :message    => "is not a valid Ensembl Exon ID",
     :allow_nil  => true
 
-  validates_numericality_of :homology_arm_start, :only_integer => true, :greater_than => 0
-  validates_numericality_of :homology_arm_end,   :only_integer => true, :greater_than => 0
-  validates_numericality_of :cassette_start,     :only_integer => true, :greater_than => 0
-  validates_numericality_of :cassette_end,       :only_integer => true, :greater_than => 0
-  validates_numericality_of :loxp_start,         :only_integer => true, :greater_than => 0, :allow_nil => true
-  validates_numericality_of :loxp_end,           :only_integer => true, :greater_than => 0, :allow_nil => true
-
   validate :has_right_features, :unless => :missing_fields?
 
   validate :has_correct_cassette_type
@@ -123,13 +117,13 @@ class TargRep::Allele < ActiveRecord::Base
   ##
 
   def missing_fields?
-    assembly.blank? &&
-    chromosome.blank? &&
-    strand.blank? &&
-    mutation_type.blank? &&
-    homology_arm_start.blank? &&
-    homology_arm_end.blank? &&
-    cassette_start.blank? &&
+    assembly.blank? ||
+    chromosome.blank? ||
+    strand.blank? ||
+    mutation_type.blank? ||
+    homology_arm_start.blank? ||
+    homology_arm_end.blank? ||
+    cassette_start.blank? ||
     cassette_end.blank?
   end
 
@@ -196,57 +190,70 @@ class TargRep::Allele < ActiveRecord::Base
   protected
 
     def has_right_features
+      return unless self.errors.empty?
+
       error_msg = "cannot be greater than %s position on this strand (#{strand})"
 
       case strand
-      when '+'
-        if homology_arm_start > cassette_start
-          errors.add( :homology_arm_start, error_msg % "cassette start" )
-        end
-        if cassette_start > cassette_end
-          errors.add( :cassette_start, error_msg % "cassette end" )
-        end
+        when '+'
+          if homology_arm_start > cassette_start
+            errors.add( :homology_arm_start, error_msg % "cassette start" )
+          end
+        
+          if cassette_start > cassette_end
+            errors.add( :cassette_start, error_msg % "cassette end" )
+          end
+        
         # With LoxP site
-        if loxp_start and loxp_end
-          if cassette_end > loxp_start
-            errors.add( :cassette_end, error_msg % "loxp start" )
+          if loxp_start and loxp_end
+            if cassette_end > loxp_start
+              errors.add( :cassette_end, error_msg % "loxp start" )
+            end
+            
+            if loxp_start > loxp_end
+              errors.add( :loxp_start, error_msg % "loxp end" )
+            end
+          
+            if loxp_end > homology_arm_end
+              errors.add( :loxp_end, error_msg % "homology arm end" )
+            end
+            
+            # Without LoxP site
+          else
+            if cassette_end > homology_arm_end
+              errors.add( :cassette_end, error_msg % "homology arm end" )
+            end
           end
-          if loxp_start > loxp_end
-            errors.add( :loxp_start, error_msg % "loxp end" )
+      
+        when '-'
+          if homology_arm_start < cassette_start
+            errors.add( :cassette_start, error_msg % "homology arm start" )
           end
-          if loxp_end > homology_arm_end
-            errors.add( :loxp_end, error_msg % "homology arm end" )
+          
+          if cassette_start < cassette_end
+            errors.add( :cassette_end, error_msg % "cassette start" )
           end
-        # Without LoxP site
-        else
-          if cassette_end > homology_arm_end
-            errors.add( :cassette_end, error_msg % "homology arm end" )
+        
+          # With LoxP site
+          if loxp_start and loxp_end
+            if cassette_end < loxp_start
+              errors.add( :loxp_start, error_msg % "cassette end" )
+            end
+          
+            if loxp_start < loxp_end
+              errors.add( :loxp_end, error_msg % "loxp start" )
+            end
+          
+            if loxp_end < homology_arm_end
+              errors.add( :homology_arm_end, error_msg % "loxp end" )
+            end
+        
+          # Without LoxP site
+          else
+            if cassette_end < homology_arm_end
+              errors.add( :homology_arm_end, error_msg % "cassette end" )
+            end
           end
-        end
-      when '-'
-        if homology_arm_start < cassette_start
-          errors.add( :cassette_start, error_msg % "homology arm start" )
-        end
-        if cassette_start < cassette_end
-          errors.add( :cassette_end, error_msg % "cassette start" )
-        end
-        # With LoxP site
-        if loxp_start and loxp_end
-          if cassette_end < loxp_start
-            errors.add( :loxp_start, error_msg % "cassette end" )
-          end
-          if loxp_start < loxp_end
-            errors.add( :loxp_end, error_msg % "loxp start" )
-          end
-          if loxp_end < homology_arm_end
-            errors.add( :homology_arm_end, error_msg % "loxp end" )
-          end
-        # Without LoxP site
-        else
-          if cassette_end < homology_arm_end
-            errors.add( :homology_arm_end, error_msg % "cassette end" )
-          end
-        end
       end
 
       if mutation_type && mutation_type.no_loxp_site?

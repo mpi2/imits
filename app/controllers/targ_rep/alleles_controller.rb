@@ -7,6 +7,26 @@ class TargRep::AllelesController < TargRep::BaseController
 
   before_filter :authorize_admin_user!, :only => :destroy
 
+  skip_before_filter :authenticate_user!, :only => [
+    :escell_clone_genbank_file,
+    :targeting_vector_genbank_file,
+    :escell_clone_cre_genbank_file,
+    :targeting_vector_cre_genbank_file,
+    :escell_clone_flp_genbank_file,
+    :targeting_vector_flp_genbank_file,
+    :escell_clone_flp_cre_genbank_file,
+    :targeting_vector_flp_cre_genbank_file,
+    :allele_image,
+    :allele_image_cre,
+    :allele_image_flp,
+    :allele_image_flp_cre,
+    :cassette_image,
+    :vector_image,
+    :vector_image_cre,
+    :vector_image_flp,
+    :vector_image_flp_cre
+  ] 
+
   # GET /alleles
   # GET /alleles.xml
   # GET /alleles.json

@@ -43,7 +43,7 @@ $(function() {
         var string = $(this).val();
 
         if(string.length >= 3) {
-          $.get(basePath + 'genes?marker_symbol_cont='+string, function(data) {
+          $.get(basePath + '/genes?marker_symbol_cont='+string, function(data) {
             if(data.length) {
               $autocomplete_list.html('')
               $autocomplete_list.addClass('active');

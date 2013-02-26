@@ -7,6 +7,8 @@
   <%= csrf_meta_tag %>
   <title>IKMC Targeting Repository - <%= controller.controller_name.titlecase %>: <%= controller.action_name %></title>
 
+  <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
+
   <%= javascript 'jquery.min', 'rails', 'application'  %>
   <%= include_stylesheets :targ_rep, :media => 'all' %>
   <!--[if IE]>

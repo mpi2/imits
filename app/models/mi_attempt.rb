@@ -100,6 +100,18 @@ class MiAttempt < ApplicationModel
   before_validation :change_status
 
   before_validation do |mi|
+    return true unless mi.qc_loxp_confirmation_id_changed?
+
+    if mi.qc_loxp_confirmation_result == 'fail'
+      self.mouse_allele_type = 'e'
+    elsif mi.qc_loxp_confirmation_result == 'pass'
+      self.mouse_allele_type = nil
+    end
+
+    true
+  end
+
+  before_validation do |mi|
     if ! mi.colony_name.nil?
       mi.colony_name = mi.colony_name.to_s.strip || mi.colony_name
       mi.colony_name = mi.colony_name.to_s.gsub(/\s+/, ' ')

@@ -15,6 +15,7 @@ class TargRep::DistributionQcsControllerTest < ActionController::TestCase
 
       target = {
         :es_cell_id         => es_cell.id,
+        :es_cell_distribution_centre => Factory.create(:es_cell_distribution_centre),
         :five_prime_sr_pcr  => ['pass', 'fail'].sample,
         :three_prime_sr_pcr => ['pass', 'fail'].sample,
         :copy_number        => ['pass', 'fail'].sample,
@@ -35,7 +36,7 @@ class TargRep::DistributionQcsControllerTest < ActionController::TestCase
       }
 
       assert_difference('TargRep::DistributionQc.count') do
-        post :create, :format => :json, :distribution_qc => target
+        post :create, :format => :json, :targ_rep_distribution_qc => target
       end
 
       assert_response :success

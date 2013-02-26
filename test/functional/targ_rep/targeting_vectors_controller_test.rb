@@ -11,11 +11,11 @@ class TargRep::TargetingVectorsControllerTest < ActionController::TestCase
     end
       
     should "not allow us to GET /edit" do
-      assert_raise(ActionController::UnknownAction) { get :edit }
+      assert_raise(AbstractController::ActionNotFound) { get :edit }
     end
     
     should "not allow us to GET /new" do
-      assert_raise(ActionController::UnknownAction) { get :new }
+      assert_raise(AbstractController::ActionNotFound) { get :new }
     end
     
     should "allow us to GET /index" do

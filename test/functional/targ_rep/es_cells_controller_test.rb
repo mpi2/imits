@@ -46,11 +46,11 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
   end
 
   should "not allow us to GET /new" do
-    assert_raise(ActionController::UnknownAction) { get :new }
+    assert_raise(AbstractController::ActionNotFound) { get :new }
   end
 
   should "not allow us to GET /edit without a cell id" do
-    assert_raise(ActionController::UnknownAction) { get :edit }
+    assert_raise(AbstractController::ActionNotFound) { get :edit }
   end
 
   should "allow us to create, update and delete an es_cell we made" do

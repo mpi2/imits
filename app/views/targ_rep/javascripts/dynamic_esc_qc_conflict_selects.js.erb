@@ -1,0 +1,9 @@
+
+var qc_options = new Array();
+<% TargRep::EsCell::ESCELL_QC_OPTIONS.each do |qc_test,qc_conf| -%>
+  <% if qc_test.match(/^user/) -%>
+    <% qc_conf[:values].each do |qc_value| -%>
+      qc_options.push( new Array("<%= qc_test %>", "<%= qc_value %>") );
+    <% end -%>
+  <% end -%>
+<% end -%>

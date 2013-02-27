@@ -31,7 +31,8 @@ namespace :db do
       end
       raise "Cannot find #{envname} database config" unless config
       if config['port'].blank?; config['port'] = '5432'; end
-      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --no-privileges #{config['database']} > #{tmppath}/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
+      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} -T targ_rep_genbank_files -T audits --no-privileges #{config['database']} > #{tmppath}/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
+      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --schema-only -t targ_rep_genbank_files -t audits --no-privileges #{config['database']} >> #{tmppath}/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
     end
 
     desc "Load dump of #{envname} DB (produced with db:#{envname}:dump) into current envrionment DB"

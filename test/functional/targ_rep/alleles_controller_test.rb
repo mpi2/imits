@@ -60,9 +60,9 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
         :project_design_id  => mol_struct[:project_design_id],
         :chromosome         => mol_struct[:chromosome],
         :strand             => mol_struct[:strand],
-        :mutation_method    => mol_struct[:mutation_method],
-        :mutation_type      => mol_struct[:mutation_type],
-        :mutation_subtype   => mol_struct[:mutation_subtype],
+        :mutation_method_id    => mol_struct[:mutation_method].id,
+        :mutation_type_id      => mol_struct[:mutation_type].id,
+        :mutation_subtype_id   => mol_struct[:mutation_subtype].id,
         :homology_arm_start => mol_struct[:homology_arm_start],
         :homology_arm_end   => mol_struct[:homology_arm_end],
         :cassette_start     => mol_struct[:cassette_start],
@@ -77,6 +77,7 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
             :ikmc_project_id     => targ_vec1[:ikmc_project_id],
             :name                => targ_vec1[:name],
             :intermediate_vector => targ_vec1[:intermediate_vector],
+            :report_to_public    => true,
             :es_cells => [
               Factory.attributes_for(:es_cell, :ikmc_project_id => targ_vec1[:ikmc_project_id], :pipeline_id => targ_vec1[:pipeline_id]),
               Factory.attributes_for(:es_cell, :ikmc_project_id => targ_vec1[:ikmc_project_id], :pipeline_id => targ_vec1[:pipeline_id]),
@@ -89,7 +90,8 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
             :pipeline_id         => targ_vec2[:pipeline_id],
             :ikmc_project_id     => targ_vec2[:ikmc_project_id],
             :name                => targ_vec2[:name],
-            :intermediate_vector => targ_vec2[:intermediate_vector]
+            :intermediate_vector => targ_vec2[:intermediate_vector],
+            :report_to_public => true
           }
         ],
 
@@ -118,6 +120,10 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
     should "allow us to create, update and delete a allele we made" do
       allele_attrs = Factory.attributes_for :allele
       allele_attrs[:gene_id] = Factory.create(:gene).id
+      allele_attrs[:mutation_method_id]  = allele_attrs.delete(:mutation_method)
+      allele_attrs[:mutation_type_id]    = allele_attrs.delete(:mutation_type)
+      allele_attrs[:mutation_subtype_id] = allele_attrs.delete(:mutation_subtype)
+
       # CREATE
       assert_difference('TargRep::Allele.count') do
         post :create, :allele => allele_attrs
@@ -128,7 +134,12 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
       created_allele.save
 
       # UPDATE
-      put :update, { :id => created_allele.id, :allele => Factory.attributes_for(:allele) }
+      allele_attrs = Factory.attributes_for(:allele)
+      allele_attrs[:mutation_method_id]  = allele_attrs.delete(:mutation_method)
+      allele_attrs[:mutation_type_id]    = allele_attrs.delete(:mutation_type)
+      allele_attrs[:mutation_subtype_id] = allele_attrs.delete(:mutation_subtype)
+
+      put :update, { :id => created_allele.id, :allele => allele_attrs }
       assert_redirected_to targ_rep_allele_path(assigns(:allele))
 
       ## DELETE
@@ -153,9 +164,9 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
         :gene_id            => gene.id,
         :chromosome         => mol_struct[:chromosome],
         :strand             => mol_struct[:strand],
-        :mutation_method    => mol_struct[:mutation_method],
-        :mutation_type      => mol_struct[:mutation_type],
-        :mutation_subtype   => mol_struct[:mutation_subtype],
+        :mutation_method_id    => mol_struct[:mutation_method].id,
+        :mutation_type_id      => mol_struct[:mutation_type].id,
+        :mutation_subtype_id   => mol_struct[:mutation_subtype].id,
         :homology_arm_start => mol_struct[:homology_arm_start],
         :homology_arm_end   => mol_struct[:homology_arm_end],
         :cassette_start     => mol_struct[:cassette_start],
@@ -187,9 +198,9 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
         :gene_id            => gene.id,
         :chromosome         => mol_struct[:chromosome],
         :strand             => mol_struct[:strand],
-        :mutation_method    => mol_struct[:mutation_method],
-        :mutation_type      => mol_struct[:mutation_type],
-        :mutation_subtype   => mol_struct[:mutation_subtype],
+        :mutation_method_id    => mol_struct[:mutation_method].id,
+        :mutation_type_id      => mol_struct[:mutation_type].id,
+        :mutation_subtype_id   => mol_struct[:mutation_subtype].id,
         :homology_arm_start => mol_struct[:homology_arm_start],
         :homology_arm_end   => mol_struct[:homology_arm_end],
         :cassette_start     => mol_struct[:cassette_start],
@@ -217,9 +228,9 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
         :gene_id            => gene.id,
         :chromosome         => mol_struct[:chromosome],
         :strand             => mol_struct[:strand],
-        :mutation_method    => mol_struct[:mutation_method],
-        :mutation_type      => mol_struct[:mutation_type],
-        :mutation_subtype   => mol_struct[:mutation_subtype],
+        :mutation_method_id    => mol_struct[:mutation_method].id,
+        :mutation_type_id      => mol_struct[:mutation_type].id,
+        :mutation_subtype_id   => mol_struct[:mutation_subtype].id,
         :homology_arm_start => mol_struct[:homology_arm_start],
         :homology_arm_end   => mol_struct[:homology_arm_end],
         :cassette_start     => mol_struct[:cassette_start],
@@ -269,6 +280,9 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
     should "not allow us to update a allele with invalid parameters" do
       mol_struct_attrs = Factory.attributes_for :allele
       mol_struct_attrs[:gene_id] = Factory.create(:gene).id
+      mol_struct_attrs[:mutation_method_id]  = mol_struct_attrs.delete(:mutation_method)
+      mol_struct_attrs[:mutation_type_id]    = mol_struct_attrs.delete(:mutation_type)
+      mol_struct_attrs[:mutation_subtype_id] = mol_struct_attrs.delete(:mutation_subtype)
 
       # CREATE a valid Molecular Structure
       assert_difference('TargRep::Allele.count') do

@@ -238,9 +238,9 @@ Factory.define :allele, :class => TargRep::Allele do |f|
   f.assembly       "NCBIM37"
   f.chromosome     { [("1".."19").to_a + ['X', 'Y', 'MT']].flatten[rand(22)] }
   f.strand         { ['+', '-'][rand(2)] }
-  f.mutation_method_id { TargRep::MutationMethod.all[rand(TargRep::MutationMethod.all.count)].id }
-  f.mutation_type_id    { TargRep::MutationType.find_by_code('crd').id  }
-  f.mutation_subtype_id { TargRep::MutationSubtype.all[rand(TargRep::MutationSubtype.all.count)].id  }
+  f.mutation_method { TargRep::MutationMethod.all[rand(TargRep::MutationMethod.all.count)] }
+  f.mutation_type    { TargRep::MutationType.find_by_code('crd') }
+  f.mutation_subtype { TargRep::MutationSubtype.all[rand(TargRep::MutationSubtype.all.count)] }
   f.cassette_type  { ['Promotorless','Promotor Driven'][rand(2)] }
 
   #     Features positions chose for this factory:

@@ -217,6 +217,7 @@ class TarMits::JsIntegrationTest < TarMits::IntegrationTest
   def wait_until_no_mask
     tries = 0
     begin
+      sleep 1
       tries += 1
       assert page.has_no_css?('.x-mask', :visible => true)
     rescue Selenium::WebDriver::Error::StaleElementReferenceError

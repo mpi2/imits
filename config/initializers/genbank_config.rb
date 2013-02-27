@@ -1,5 +1,5 @@
 if !(Rails.env == 'development' or Rails.env == 'test')
-  GENBANK_RECOMBINATION_SCRIPT_PATH = 'recombinate_sequence.pl'
+  GENBANK_RECOMBINATION_SCRIPT_PATH = '/opt/t87/global/software/perl/bin/recombinate_sequence.pl'
 elsif Rails.env == 'test'
   GENBANK_RECOMBINATION_SCRIPT_PATH = 'test/lib/recombinate_sequence.pl'
 else

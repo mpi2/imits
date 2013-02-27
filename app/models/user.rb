@@ -56,11 +56,11 @@ end
 #  updated_at                     :datetime
 #  name                           :string(255)
 #  is_contactable                 :boolean         default(FALSE)
+#  reset_password_token           :string(255)
+#  reset_password_sent_at         :datetime
 #  es_cell_distribution_centre_id :integer
 #  legacy_id                      :integer
 #  admin                          :boolean         default(FALSE)
-#  reset_password_token           :string(255)
-#  reset_password_sent_at         :datetime
 #
 # Indexes
 #

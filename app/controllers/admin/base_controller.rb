@@ -9,4 +9,9 @@ class Admin::BaseController < ApplicationController
     end
   end
 
+  def history
+    @resource = controller_name.classify.constantize.find(params[:id])
+    render :template => '/shared/history'
+  end
+
 end

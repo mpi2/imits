@@ -5,10 +5,14 @@ class NotificationMailer < ActionMailer::Base
     @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)
     @relevant_status = @gene.relevant_status
-    
-    set_attributes(notification)
+
+    set_attributes
+
+    @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
+    email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+
     mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
-      format.text
+      format.text { render :inline => email_body }
     end
   end
 
@@ -23,13 +27,18 @@ class NotificationMailer < ActionMailer::Base
       @relevant_status = notification.relevant_statuses.sort_by {|this_status| -this_status[:order_by] }.first
     end
     
-    set_attributes(notification)
+    set_attributes
+
+    @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
+    email_body = ERB.new(@email_template.update_body).result(binding) rescue nil
+    
+    return if @email_template.blank? || email_body.blank?
     mail(:to => @contact.email, :subject => "Status update for #{@gene.marker_symbol}") do |format|
-      format.text
+      format.text { render :inline => email_body }
     end
   end
 
-  def set_attributes(notification)
+  def set_attributes
 
     @modifier_string = "is not"
     @total_cell_count = @gene.es_cells_count

@@ -152,8 +152,8 @@ end
 #  chry                           :string(255)
 #  es_cell_id                     :integer
 #  es_cell_distribution_centre_id :integer
-#  created_at                     :datetime
-#  updated_at                     :datetime
+#  created_at                     :datetime        not null
+#  updated_at                     :datetime        not null
 #
 # Indexes
 #

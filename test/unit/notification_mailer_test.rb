@@ -4,6 +4,12 @@ class NotificationMailerTest < ActionMailer::TestCase
   context 'NotificationMailer' do
     setup do
       ActionMailer::Base.deliveries.clear
+
+      Factory.create(:email_template_without_status)
+      Factory.create(:email_template_microinjection_aborted)
+      Factory.create(:email_template_genotype_confirmed)
+      Factory.create(:email_template_assigned_es_cell_qc_complete)
+      Factory.create(:email_template_phenotyping_complete)
     end
 
     should '#SEND welcome_email' do

@@ -94,7 +94,8 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
             type: 'list',
             options: window.CONSORTIUM_OPTIONS,
             value: Imits.Util.extractValueIfExistent(window.PHENOTYPE_ATTEMPT_SEARCH_PARAMS, 'consortium_name')
-        }
+        },
+        sortable: false
     },
     {
         dataIndex: 'production_centre_name',
@@ -105,7 +106,8 @@ Ext.define('Imits.widget.PhenotypeAttemptsGrid', {
             type: 'list',
             options: window.CENTRE_OPTIONS,
             value: Imits.Util.extractValueIfExistent(window.PHENOTYPE_ATTEMPT_SEARCH_PARAMS, 'production_centre_name')
-        }
+        },
+        sortable: false
     },
     {
         header: 'Distribution Centres',

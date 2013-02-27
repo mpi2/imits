@@ -1,9 +1,6 @@
 class TargRep::TargetingVectorsController < TargRep::BaseController
 
   before_filter :authorize_admin_user!, :only => :destroy
-    
-  # For webservice interface
-  before_filter :format_nested_params, :only => [:create, :update]
   
   respond_to :xml, :json
 
@@ -28,7 +25,7 @@ class TargRep::TargetingVectorsController < TargRep::BaseController
   def create
     format_nested_params
 
-    @targeting_vector = TargRep::TargetingVector.new params[:targ_rep_targeting_vector]
+    @targeting_vector = TargRep::TargetingVector.new(params[:targ_rep_targeting_vector])
     
     respond_to do |format|
       if @targeting_vector.save
@@ -46,7 +43,7 @@ class TargRep::TargetingVectorsController < TargRep::BaseController
     format_nested_params
 
     respond_to do |format|
-      if @targeting_vector.update_attributes params[:targ_rep_targeting_vector]
+      if @targeting_vector.update_attributes(params[:targ_rep_targeting_vector])
         format.xml  { render :xml  => @targeting_vector, :status => :ok, :location => @targeting_vector }
         format.json { render :json => @targeting_vector, :status => :ok, :location => @targeting_vector }
       else

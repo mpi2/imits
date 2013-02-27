@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130205114839) do
+ActiveRecord::Schema.define(:version => 20130219102215) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -75,6 +75,14 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
   end
 
   add_index "deposited_materials", ["name"], :name => "index_deposited_materials_on_name", :unique => true
+
+  create_table "email_templates", :force => true do |t|
+    t.string   "status"
+    t.text     "welcome_body"
+    t.text     "update_body"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
 
   create_table "es_cells", :force => true do |t|
     t.string   "name",                               :limit => 100, :null => false
@@ -581,14 +589,14 @@ ActiveRecord::Schema.define(:version => 20130205114839) do
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true
 
   create_table "targ_rep_targeting_vectors", :force => true do |t|
-    t.integer  "allele_id",                             :null => false
-    t.string   "name",                                  :null => false
+    t.integer  "allele_id",           :null => false
+    t.string   "name",                :null => false
     t.string   "ikmc_project_id"
     t.string   "intermediate_vector"
-    t.boolean  "report_to_public",    :default => true, :null => false
+    t.integer  "report_to_public",    :null => false
     t.integer  "pipeline_id"
-    t.datetime "created_at",                            :null => false
-    t.datetime "updated_at",                            :null => false
+    t.datetime "created_at",          :null => false
+    t.datetime "updated_at",          :null => false
   end
 
   add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"

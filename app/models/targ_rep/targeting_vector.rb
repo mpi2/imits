@@ -32,6 +32,10 @@ class TargRep::TargetingVector < ActiveRecord::Base
 
   before_save :set_mirko_ikmc_project_id
 
+  before_save do
+    self.report_to_public = true if self.report_to_public.blank?
+  end
+
   ##
   ## Methods
   ##
@@ -72,10 +76,10 @@ end
 #  name                :string(255)     not null
 #  ikmc_project_id     :string(255)
 #  intermediate_vector :string(255)
-#  report_to_public    :boolean         default(TRUE), not null
+#  report_to_public    :integer         not null
 #  pipeline_id         :integer
-#  created_at          :datetime
-#  updated_at          :datetime
+#  created_at          :datetime        not null
+#  updated_at          :datetime        not null
 #
 # Indexes
 #

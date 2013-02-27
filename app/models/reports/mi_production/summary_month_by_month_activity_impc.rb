@@ -154,10 +154,12 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpc < Reports::Base
     MiAttempt::StatusStamp.all.each do |stamp|
 
       next if stamp.created_at < CUT_OFF_DATE
-
+      next if stamp.mi_attempt.blank?
+      
       year = stamp.created_at.year
       month = stamp.created_at.month
       day = stamp.created_at.day
+      next if stamp.mi_attempt.mi_plan.blank?
       consortium = stamp.mi_attempt.mi_plan.consortium.name
       pcentre = stamp.mi_attempt.production_centre.name
       pcentre = 'UNKNOWN' if pcentre.blank? || pcentre.to_s.length < 1

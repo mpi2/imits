@@ -265,8 +265,8 @@ end
 #  mutation_subtype                      :string(100)
 #  allele_symbol_superscript_template    :string(75)
 #  legacy_id                             :integer
-#  created_at                            :datetime
-#  updated_at                            :datetime
+#  created_at                            :datetime        not null
+#  updated_at                            :datetime        not null
 #
 # Indexes
 #

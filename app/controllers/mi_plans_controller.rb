@@ -109,4 +109,15 @@ class MiPlansController < ApplicationController
     render :json => create_attribute_documentation_for(Public::MiPlan)
   end
 
+  def params_cleaned_for_sort(sorts)
+    sorts.gsub!(/production_centre_name/, "centres.name")
+    sorts.gsub!(/gene_marker_symbol/, "genes.marker_symbol")
+    sorts.gsub!(/consortium_name/, "consortia.name")
+    sorts.gsub!(/status_name/, "mi_plan_statuses.name")
+    sorts.gsub!(/priority_name/, "mi_plan_priorities.name")
+    sorts.gsub!(/sub_project_name/, "mi_plan_sub_projects.name")
+
+    sorts
+  end
+
 end

@@ -1,0 +1,25 @@
+<%= content_for :head do %>
+  <style type="text/css">
+    div.adjust-alot {padding-left: 75px;}
+    div.adjust {padding-left: 50px;}
+    div.adjust-a-little {padding-left: 25px;}
+    table.bottom-border td, th {
+      border-bottom:1px dotted black;
+      padding: 5px;
+    }
+    label.gene_for_preview {
+      display:inline;
+    }
+  </style>
+<% end %>
+
+<div class = "adjust-a-little"><h1>Email Template</h1>(<%= link_to 'back to email templates', [:admin, :email_templates] %>)</div>
+</br>
+
+  <%= form_for EmailTemplate.new, :url => [:preview, :admin, :email_templates], :html => {:class => 'edit show mi-attempt'} do |form| %>
+    <%= render :partial => 'form', :object => form %>
+
+    <%= form.submit 'Preview', :class => 'disable-on-submit', :id => 'mi_attempt_submit' %>
+    <%= content_tag(:label, 'with gene (marker symbol)', :for => 'gene_for_preview', :class => 'gene_for_preview') %>
+    <%= text_field_tag :gene_for_preview, '', :class => 'x-form-text' %>
+  <% end %>

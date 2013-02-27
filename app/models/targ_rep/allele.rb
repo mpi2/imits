@@ -348,7 +348,7 @@ end
 #  mutation_type_id    :integer
 #  mutation_subtype_id :integer
 #  cassette_type       :string(50)
-#  created_at          :datetime
-#  updated_at          :datetime
+#  created_at          :datetime        not null
+#  updated_at          :datetime        not null
 #
 

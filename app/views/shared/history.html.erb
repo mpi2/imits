@@ -3,8 +3,11 @@
 
 <div class="grid_12">
   <h2><%= @title %></h2>
-
-  <%= link_to 'Back', @resource %>
+  <%- if request.path =~ /admin/ %>
+    <%= link_to 'Back', [:admin, @resource] %>
+  <%- else %>
+    <%= link_to 'Back', @resource %>
+  <%- end %>
 
   <div class="report">
     <table>

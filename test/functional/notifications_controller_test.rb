@@ -4,6 +4,7 @@ class NotificationsControllerTest < ActionController::TestCase
 
   context 'NotificationsController' do
     setup do
+      Factory.create(:email_template_without_status)
       centre = Centre.find_by_name!('WTSI')
       remote_user = Factory.create :user, {:email => 'vvi@sanger.ac.uk', :password => 'password', :production_centre => centre}
       sign_in remote_user

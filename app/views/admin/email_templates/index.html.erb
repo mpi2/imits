@@ -1,0 +1,30 @@
+<%= content_for :head do %>
+<style type="text/css">
+div.adjust-alot {padding-left: 75px;}
+div.adjust {padding-left: 50px;}
+div.adjust-a-little {padding-left: 25px;}
+table.bottom-border td, th {
+ border-bottom:1px dotted black;
+ padding: 5px;
+}
+</style>
+<% end %>
+
+<div class = "adjust-a-little">
+  <h1>Email Templates</h1>
+  <%= link_to 'New email template', [:new, :admin, :email_templates] %>
+  (<%= link_to 'back to admin', [:admin] %>)
+</div>
+
+</br>
+<div  class="adjust-alot">
+  <table class="bottom-border">
+    <% @email_templates.each do |email_template| %>
+      <tr>
+        <td><%= email_template.status.blank? ? 'No status' : email_template.status.humanize %></td>
+        <td><%= link_to 'edit', [:admin, email_template] %></td>
+        <td><%= button_to '  Delete  ', {:action => "destroy", :id => email_template.id}, :id => "email_template_#{email_template.id}_button", :confirm => "Are you sure you want to delete this email template?", :method => :delete %></td>
+      </tr>
+    <% end %>
+  </table>
+</div>

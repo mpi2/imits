@@ -435,6 +435,13 @@ form textarea {
     height: 5em;
 }
 
+.x-border-box form textarea.x-form-text {
+  width:90%;
+  padding:1%;
+  height:600px;
+  font-family:'Bitstream Vera Sans Mono', Monaco, Courier, monospace;
+}
+
 form div.field_with_errors {
     display: inline;
 }

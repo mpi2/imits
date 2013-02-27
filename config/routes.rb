@@ -8,15 +8,30 @@ TarMits::Application.routes.draw do
       collection do
         match 'transform'
       end
+
+      member do
+        get 'history'
+      end
     end
 
     resources :notifications do
       member do
         put 'retry'
+        get 'history'
       end
     end
 
     resources :contacts
+    
+    resources :email_templates do
+      collection do
+        post 'preview'
+      end
+
+      member do
+        get 'history'
+      end
+    end
   end
 
   resources :production_goals

@@ -6,7 +6,6 @@ namespace :cron do
   desc 'Gene/EsCell - Sync data caches with BioMarts and remote data sources'
   task :sync_data_with_remotes => [:environment] do
     ApplicationModel.audited_transaction { Gene.sync_with_remotes }
-    ApplicationModel.audited_transaction { EsCell.sync_all_with_marts }
   end
 
 

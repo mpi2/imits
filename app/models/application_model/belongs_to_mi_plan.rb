@@ -97,21 +97,21 @@ module ApplicationModel::BelongsToMiPlan
 
     def lookup_mi_plan
       lookup_params = {
-        :production_centre_name_eq => @production_centre_name,
-        :consortium_name_eq => @consortium_name,
+        :production_centre_name_eq => production_centre_name,
+        :consortium_name_eq => consortium_name,
         :gene_id_eq => gene.id
       }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
       plan = MiPlan
         .includes(:production_centre, :consortium)
-        .where("centres.name" => @production_centre_name, "consortia.name" => @consortium_name, :gene_id => gene.id).first
+        .where("centres.name" => production_centre_name, "consortia.name" => consortium_name, :gene_id => gene.id).first
 
       return plan if plan
 
       if ! plan and kind_of? MiAttempt
         plan = MiPlan
           .includes(:production_centre, :consortium)
-          .where("production_centre_id" => nil, "consortia.name" => @consortium_name, :gene_id => gene.id).first
+          .where("production_centre_id" => nil, "consortia.name" => consortium_name, :gene_id => gene.id).first
 
         return plan if plan
       end

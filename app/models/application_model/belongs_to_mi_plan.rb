@@ -109,9 +109,10 @@ module ApplicationModel::BelongsToMiPlan
       return plan if plan
 
       if ! plan and kind_of? MiAttempt
-        lookup_params.delete(:production_centre_name_eq)
-        lookup_params[:production_centre_is_null] = true
-        plan = MiPlan.search(lookup_params).result.first
+        plan = MiPlan
+          .includes(:production_centre, :consortium)
+          .where("production_centre_id" => nil, "consortia.name" => @consortium_name, :gene_id => gene.id).first
+
         return plan if plan
       end
 

@@ -1,4 +1,14 @@
 namespace :solr do
+  desc 'Run the SOLR update queue to send recent changes to the index'
+  task 'update' => [:environment] do
+    SolrUpdate::Queue.run
+  end
+
+  desc 'How many queue items are there in the queue?'
+  task 'update:count' => [:environment] do
+    puts SolrUpdate::Queue::Item.count
+  end
+
   desc 'Enqueue every TargRep::Allele, TargRep::EsCell, MiAttempt & PhenotypeAttempt for solr update'
   task 'update:enqueue:all' => [:environment] do
     ApplicationModel.transaction do

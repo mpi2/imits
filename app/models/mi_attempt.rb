@@ -296,6 +296,7 @@ class MiAttempt < ApplicationModel
   end
 
   def allele_id
+    return 0 unless es_cell
     es_cell.allele_id
   end
 

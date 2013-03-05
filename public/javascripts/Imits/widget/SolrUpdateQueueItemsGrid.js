@@ -52,13 +52,15 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
         flex: 1,
         renderer: function (value, metaData, record) {
             var ref = record.get('reference');
-            var editUrl = Ext.String.format('{0}/{1}s/{2}', window.basePath, ref.type, ref.id);
+            
             if(ref.type == "allele") {
-              var historyUrl = '/targ_rep' + editUrl + '/history';
+              var editUrl = Ext.String.format('{0}/{1}s/{2}', document.location.pathname.replace(/solr_update\/queue\/items/, "targ_rep"), ref.type, ref.id);
             } else {
-              var historyUrl = editUrl + '/history';
+              var editUrl = Ext.String.format('{0}/{1}s/{2}', window.basePath, ref.type, ref.id);
             }
             
+						var historyUrl =  editUrl + '/history';
+
             return Ext.String.format('<a href="{0}">{1} / {2}</a> (<a href="{3}">audit history</a>)', editUrl, ref.type, ref.id, historyUrl);
         }
     },

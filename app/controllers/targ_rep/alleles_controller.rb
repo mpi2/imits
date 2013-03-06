@@ -451,7 +451,7 @@ class TargRep::AllelesController < TargRep::BaseController
     end
 
     def check_for_vector_genbank_file
-      four_oh_four if check_for_genbank_file && @allele.genbank_file.targeting_vector.nil? || @allele.genbank_file.targeting_vector.empty?
+      four_oh_four if check_for_genbank_file && @allele.genbank_file.targeting_vector.blank?
     end
 
     # One can give a targeting_vector_name instead of a targeting_vector_id

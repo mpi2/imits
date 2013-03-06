@@ -88,18 +88,26 @@ Ext.util.Format.safeTextRenderer = function(value) {
 }
 
 Ext.onReady(function() {
-    links=Ext.select('a[data-confirm]')
+    var links=Ext.select('a[data-confirm]')
     for(var i=0; i<links.elements.length; i++) {
         links.elements[i].addEventListener('click', function(e) {
             if(!confirm(this.getAttribute('data-confirm'))) e.preventDefault();
         })
     }
 
-    buttons=Ext.select('input[data-confirm]')
+    var buttons=Ext.select('input[data-confirm]');
     for(var i=0; i<buttons.elements.length; i++) {
-        var button = buttons.elements[i]
-        button.parentElement.parentElement.addEventListener('submit', function(e) {
-            if(!confirm(button.getAttribute('data-confirm'))) e.preventDefault();
-        })
+        var button = buttons.elements[i];
+        button.form.onsubmit = function(e) {
+            if(!confirm(button.getAttribute('data-confirm'))) {
+                // Check for presense of event variable. In IE this wont exist,
+                // luckily simply returning false works in IE, while it doesn't in Webkit/Gecko
+                if(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                return false;
+            }
+        }
     }
 })

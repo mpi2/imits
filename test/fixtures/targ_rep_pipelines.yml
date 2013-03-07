@@ -54,3 +54,11 @@
   description: 'Pipeline Description'
   created_at: <%= 5.days.ago.to_s(:db) %>
   updated_at: <%= 5.days.ago.to_s(:db) %>
+
+9:
+  id: 9
+  name: "EUCOMM GT"
+  description: 'Pipeline Description'
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+  report_to_public: false

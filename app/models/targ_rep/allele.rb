@@ -22,6 +22,8 @@ class TargRep::Allele < ActiveRecord::Base
       info_map = ActiveSupport::OrderedHash.new
 
       self.order('id ASC').each do |es_cell|
+        next if !es_cell.pipeline.report_to_public || !es_cell.report_to_public
+
         key = {
           :strain => es_cell.strain,
           :mgi_allele_symbol_superscript => es_cell.mgi_allele_symbol_superscript,

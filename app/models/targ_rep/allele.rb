@@ -1,6 +1,6 @@
 class TargRep::Allele < ActiveRecord::Base
   acts_as_audited
-  
+
   extend AccessAssociationByAttribute
   ##
   ## Associations
@@ -199,55 +199,55 @@ class TargRep::Allele < ActiveRecord::Base
           if homology_arm_start > cassette_start
             errors.add( :homology_arm_start, error_msg % "cassette start" )
           end
-        
+
           if cassette_start > cassette_end
             errors.add( :cassette_start, error_msg % "cassette end" )
           end
-        
+
         # With LoxP site
           if loxp_start and loxp_end
             if cassette_end > loxp_start
               errors.add( :cassette_end, error_msg % "loxp start" )
             end
-            
+
             if loxp_start > loxp_end
               errors.add( :loxp_start, error_msg % "loxp end" )
             end
-          
+
             if loxp_end > homology_arm_end
               errors.add( :loxp_end, error_msg % "homology arm end" )
             end
-            
+
             # Without LoxP site
           else
             if cassette_end > homology_arm_end
               errors.add( :cassette_end, error_msg % "homology arm end" )
             end
           end
-      
+
         when '-'
           if homology_arm_start < cassette_start
             errors.add( :cassette_start, error_msg % "homology arm start" )
           end
-          
+
           if cassette_start < cassette_end
             errors.add( :cassette_end, error_msg % "cassette start" )
           end
-        
+
           # With LoxP site
           if loxp_start and loxp_end
             if cassette_end < loxp_start
               errors.add( :loxp_start, error_msg % "cassette end" )
             end
-          
+
             if loxp_start < loxp_end
               errors.add( :loxp_end, error_msg % "loxp start" )
             end
-          
+
             if loxp_end < homology_arm_end
               errors.add( :homology_arm_end, error_msg % "loxp end" )
             end
-        
+
           # Without LoxP site
           else
             if cassette_end < homology_arm_end
@@ -298,6 +298,7 @@ class TargRep::Allele < ActiveRecord::Base
         'Ifitm2_intron_L1L2_GT1_LF2A_LacZ_BetactP_neo' => 'Promotor Driven',
         'Ifitm2_intron_L1L2_GT2_LF2A_LacZ_BetactP_neo' => 'Promotor Driven',
         'Ifitm2_intron_L1L2_GTk_LacZ_BetactP_neo'      => 'Promotor Driven',
+        'Ifitm2_intron_L1L2_Bact_P              '      => 'Promotor Driven',
         'pL1L2_GT0_T2A_H2BCherry_Puro_delRsrll_NO_DTA' => 'Promotor Driven',
         'pL1L2_GT1_T2A_H2BCherry_Puro_delRsrll_NO_DTA' => 'Promotor Driven',
         'pL1L2_GT2_T2A_H2BCherry_Puro_delRsrll_NO_DTA' => 'Promotor Driven',
@@ -311,6 +312,15 @@ class TargRep::Allele < ActiveRecord::Base
         'pL1L2_GT1_LF2A_nEGFPO_T2A_CreERT_puro'        => 'Promotorless',
         'pL1L2_GT2_LF2A_nEGFPO_T2A_CreERT_puro'        => 'Promotorless',
         'pL1L2_GTK_nEGFPO_T2A_CreERT_puro'             => 'Promotorless',
+        'pL1L2_frt_BetactP_neo_frt_lox'                => 'Promotor Driven',
+        'pL1L2_frt15_BetactinBSD_frt14_neo_Rox'        => 'Promotor Driven',
+        'L1L2_GT0_LF2A_LacZ_BetactP_neo'               => 'Promotor Driven',
+        'L1L2_GT1_LF2A_LacZ_BetactP_neo'               => 'Promotor Driven',
+        'L1L2_GT2_LF2A_LacZ_BetactP_neo'               => 'Promotor Driven',
+        'L1L2_gt0_Del_LacZ'                            => 'Promotorless',
+        'L1L2_gt1_Del_LacZ'                            => 'Promotorless',
+        'L1L2_gt2_Del_LacZ'                            => 'Promotorless',
+        'V5_Flag_biotin'                               => 'Promotorless',
       }
 
       unless known_cassettes[cassette].nil?

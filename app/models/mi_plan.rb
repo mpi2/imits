@@ -122,6 +122,7 @@ class MiPlan < ApplicationModel
   # END Callbacks
 
   delegate :marker_symbol, :to => :gene
+  delegate :mgi_accession_id, :to => :gene
 
   def latest_relevant_mi_attempt
     @@status_sort_order ||= {

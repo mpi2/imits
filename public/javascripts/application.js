@@ -102,4 +102,25 @@ Ext.onReady(function() {
             if(!confirm(button.getAttribute('data-confirm'))) return false;
         }
     }
+
+    var frames=Ext.select('div[data-remoteurl]');
+    var csrf_token = Ext.select('meta[name=csrf-token]').elements[0].content;
+    
+    for(var i=0; i<frames.elements.length; i++) {
+        var frame = frames.elements[i];
+        var url = frame.dataset.remoteurl;
+
+        Ext.Ajax.request({
+            url: url,
+            params: {
+                remote : true
+            },
+            headers: {
+                'X-CSRF-Token' : csrf_token
+            },
+            success: function(response){
+                frame.innerHTML = response.responseText;
+            }
+        })
+    }
 })

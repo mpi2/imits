@@ -1,0 +1,31 @@
+<h3># Conflicting Micro-Injection Plans</h3>
+<div class='report'>
+  <table>
+    <thead>
+      <tr>
+        <td>Consortium</td>
+        <td>SubProject</td>
+        <td>Bespoke</td>
+        <td>Production Centre</td>
+        <td>Marker Symbol</td>
+        <td>MGI Accession ID</td>
+        <td>Priority</td>
+        <td>Reason for conflict</td>
+      </tr>
+    </thead>
+    <tbody>
+      <% for mi_plan in @mi_plans %>
+        <tr>
+          <td><%= mi_plan.consortium.name %></td>
+          <td><%= mi_plan.sub_project.name if mi_plan.sub_project %></td>
+          <td><%= mi_plan.is_bespoke_allele ? 'Yes' : 'No' %></td>
+          <td><%= mi_plan.production_centre.name if mi_plan.production_centre %></td>
+          <td><%= mi_plan.marker_symbol %></td>
+          <td><%= mi_plan.mgi_accession_id %></td>
+          <td><%= mi_plan.priority.name if mi_plan.priority %></td>
+          <td><%#= mi_plan.reason_for_inspect_or_conflict  THIS NEEDS MODIFYING AS IT'S QUITE A HORRIFIC%></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

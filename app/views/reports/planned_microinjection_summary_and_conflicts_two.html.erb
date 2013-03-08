@@ -1,0 +1,106 @@
+<% @title = 'Planned Micro-Injection Summary and Conflicts' %>
+
+<h2><%= @title %></h2>
+
+<h3># Genes in Planned Micro-Injection Statuses</h3>
+<div class='report'>
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <% @statuses.each do |status| %>
+          <th><%= status.name %></th>
+        <% end %>
+        <th>TOTAL BY CONSORTIUM</th>
+      </tr>
+    </thead>
+
+    <% for consortium in @consortia %>
+      <tr>
+        <td><%= consortium %></td>
+        <% @statuses.each do |status| %>
+          <td><%= @consortia_by_status["#{consortium} - #{status.name}"] || 0 %></td>
+        <% end %>
+        <td><%= @consortia_totals[consortium] || 0 %></td>
+      </tr>
+    <% end %>
+
+    <tfoot>
+      <tr>
+        <td>TOTAL BY STATUS</td>
+        <% @statuses.each do |status| %>
+          <td><%= @status_totals[status.name] || 0 %></td>
+        <% end %>
+        <td><%= @gene_count %></td>
+      </tr>
+    <tfoot>
+
+
+  
+  </table>
+</div>
+
+<h3># Genes in Priority Groups</h3>
+<div class='report'>
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <% @priorities.each do |priority| %>
+          <th><%= priority.name %></th>
+        <% end %>
+        <th>TOTAL BY CONSORTIUM</th>
+      </tr>
+    </thead>
+
+    <% for consortium in @consortia %>
+      <tr>
+        <td><%= consortium %></td>
+        <% @priorities.each do |priority| %>
+          <td><%= @consortia_by_priority["#{consortium} - #{priority.name}"] || 0 %></td>
+        <% end %>
+        <td><%= @consortia_totals[consortium] || 0 %></td>
+      </tr>
+    <% end %>
+
+    <tfoot>
+      <tr>
+        <td>TOTAL BY PRIORITY</td>
+        <% @priorities.each do |priority| %>
+          <td><%= @priority_totals[priority.name] || 0 %></td>
+        <% end %>
+        <td><%= @gene_count %></td>
+      </tr>
+    <tfoot>
+  </table>
+</div>
+
+<h3># Genes in Planned Micro-Injections by Status / Priority</h3>
+<% for status in @statuses %>
+<% next if @consortia.map {|c| @priorities.map{|p| @consortia_by_priority["#{c} - #{p.name} - #{status.name}"].to_i || 0}}.flatten.sum == 0 %>
+  <h4><%= status.name %></h4>
+  <div class='report'>
+    <table>
+      <thead>
+        <tr>
+          <th>Consortium</th>
+          <% @priorities.each do |priority| %>
+            <th><%= priority.name %></th>
+          <% end %>
+        </tr>
+      </thead>
+
+      <% for consortium in @consortia %>
+        <% next if @priorities.map{|p| @consortia_by_priority["#{consortium} - #{p.name} - #{status.name}"].to_i || 0}.sum == 0 %>
+        <tr>
+          <td><%= consortium %></td>
+          <% @priorities.each do |priority| %>
+            <td><%= @consortia_by_priority["#{consortium} - #{priority.name} - #{status.name}"] || 0 %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </table>
+  </div>
+<% end %>
+
+<div class='remote_report' data-remoteurl='/reports/conflicting_micro_injection_plans' data-loadingtext="Conflicting Micro-Injection Plans"></div>

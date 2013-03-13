@@ -160,7 +160,7 @@ module AlleleImage
 
       backbone_image.push( five_flank_bb ).push( main_bb.append(true) ).push( three_flank_bb )
       backbone_image = backbone_image.append( false )
-  
+
       return backbone_image
     end
 

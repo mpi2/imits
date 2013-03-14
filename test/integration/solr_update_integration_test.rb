@@ -12,31 +12,31 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
       commands_json = commands.to_json
       @allele_index_proxy.update(commands_json)
 
-      fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
+      fetched_docs = @allele_index_proxy.search(:q => '*:*')
       assert fetched_docs.blank?, 'docs were not destroyed!'
 
       old_strain = Strain.first
       new_strain = Strain.offset(1).first
       allele = Factory.create(:allele, :gene => cbx1)
       es_cell = Factory.create(:es_cell,
-        :allele => allele,
-        :name => 'EPD0027_2_A02',
-        :mutation_subtype => 'conditional_ready',
-        :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi',
-        :allele => allele,
-        :ikmc_project_id => '35505')
+      :allele => allele,
+      :name => 'EPD0027_2_A02',
+      :mutation_subtype => 'conditional_ready',
+      :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi',
+      :allele => allele,
+      :ikmc_project_id => '35505')
 
       mi = Factory.create(:mi_attempt2_status_gtc,
-        :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => es_cell.gene, :force_assignment => true),
-        :colony_background_strain => old_strain,
-        :es_cell => es_cell)
+      :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => es_cell.gene, :force_assignment => true),
+      :colony_background_strain => old_strain,
+      :es_cell => es_cell)
 
       pa1 = Factory.create(:phenotype_attempt_status_cec,
-        :mi_attempt => mi,
-        :colony_background_strain => old_strain)
+      :mi_attempt => mi,
+      :colony_background_strain => old_strain)
       pa2 = Factory.create(:phenotype_attempt_status_cec,
-        :mi_attempt => mi,
-        :colony_background_strain => old_strain)
+      :mi_attempt => mi,
+      :colony_background_strain => old_strain)
 
       SolrUpdate::Queue::Item.destroy_all
 
@@ -52,8 +52,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         @mi_attempt.update_attributes!(:colony_background_strain => @new_strain)
 
         dist_centre = Factory.create :mi_attempt_distribution_centre,
-                :centre => Centre.find_by_name!('WTSI'),
-                :is_distributed_by_emma => false, :mi_attempt => @mi_attempt
+        :centre => Centre.find_by_name!('WTSI'),
+        :is_distributed_by_emma => false, :mi_attempt => @mi_attempt
 
         @mi_attempt.distribution_centres = [dist_centre]
 
@@ -70,8 +70,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'mgi_accession_id' => cbx1.mgi_accession_id,
           'strain' => @new_strain.name,
           'allele_name' => @mi_attempt.allele_symbol,
-          'allele_image_url' => "https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/allele-image",
-          'genbank_file_url' => "https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
+          'allele_image_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image",
+          'genbank_file_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
           'order_from_urls' => ["mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1"],
           'order_from_names' => ['WTSI']
         }
@@ -119,10 +119,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'mgi_accession_id' => cbx1.mgi_accession_id,
         'strain' => @new_strain.name,
         'allele_name' => phenotype_attempt.allele_symbol,
-        'allele_image_url' => "https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/allele-image-cre",
-        'genbank_file_url' => "https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
-        'order_from_names' => ['WTSI'],
-        'order_from_urls' => ['mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1']
+        'allele_image_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image-cre",
+        'genbank_file_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
       }
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

@@ -65,6 +65,7 @@ class Public::MiAttempt < ::MiAttempt
     es_cell_marker_symbol
     es_cell_allele_symbol
     status_name
+    status_dates
     mouse_allele_symbol_superscript
     mouse_allele_symbol
     phenotype_attempts_count
@@ -80,6 +81,14 @@ class Public::MiAttempt < ::MiAttempt
   accepts_nested_attributes_for :distribution_centres, :allow_destroy => true
 
   def status_name; status.name; end
+
+  def status_dates
+    retval = reportable_statuses_with_latest_dates
+    retval.each do |status_name, date|
+      retval[status_name] = date.to_s
+    end
+    return retval
+  end
 
   def phenotype_attempts_count
     self.phenotype_attempts.count
@@ -154,4 +163,3 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

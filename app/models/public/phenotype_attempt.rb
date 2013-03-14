@@ -31,6 +31,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     id
     distribution_centres_formatted_display
     status_name
+    status_dates
     marker_symbol
     mouse_allele_symbol_superscript
     mouse_allele_symbol
@@ -59,6 +60,14 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   # END Callbacks
 
   def status_name; status.name; end
+
+  def status_dates
+    retval = reportable_statuses_with_latest_dates
+    retval.each do |status_name, date|
+      retval[status_name] = date.to_s
+    end
+    return retval
+  end
 
   def self.translations
     return {
@@ -97,4 +106,3 @@ end
 #
 #  index_phenotype_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

@@ -1,5 +1,5 @@
 class TargRep::AllelesController < TargRep::BaseController
-  
+
   respond_to :html, :xml, :json
 
   # For webservice interface
@@ -25,7 +25,7 @@ class TargRep::AllelesController < TargRep::BaseController
     :vector_image_cre,
     :vector_image_flp,
     :vector_image_flp_cre
-  ] 
+  ]
 
   # GET /alleles
   # GET /alleles.xml

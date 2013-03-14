@@ -111,7 +111,7 @@ module AlleleImage
         cassette        = get_feature features, 'Synthetic Cassette'
         three_arm       = get_feature features, '3 arm'
         five_arm        = get_feature features, '5 arm'
-        
+
         #Knock Out Design
         if critical_region
           g5 = create_virtual_primer 'G5', five_arm.start, five_arm.start + 50
@@ -219,7 +219,7 @@ module AlleleImage
                 bio_feature = Bio::Feature.new "misc_feature", "#{start}..#{stop}"
                 bio_feature.append Bio::Feature::Qualifier.new("note", label)
 
-                feature = AlleleImage::Feature.new bio_feature 
+                feature = AlleleImage::Feature.new bio_feature
                 features.slice! feature_index, query.size
                 features.insert feature_index, feature
               end

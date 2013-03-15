@@ -19,6 +19,7 @@ class MiAttemptsControllerTest < ActionController::TestCase
       context 'search helpers' do
         setup do
           create_common_test_objects
+        end
 
        # should 'work in XML format' do
        #   get :index, :colony_name_cont => 'MBS', :format => :xml

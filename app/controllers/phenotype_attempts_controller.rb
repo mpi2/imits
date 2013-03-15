@@ -2,7 +2,7 @@
 
 class PhenotypeAttemptsController < ApplicationController
 
-  respond_to :html, :json, :xml
+  respond_to :html, :json
 
   before_filter :authenticate_user!
 
@@ -16,7 +16,6 @@ class PhenotypeAttemptsController < ApplicationController
         q[:terms] = q[:terms].lines.map(&:strip).select{|i|!i.blank?}.join("\n")
       end
 
-      format.xml { render :xml => data_for_serialized(:xml).to_xml(:root => 'phenotype_attempts', :dasherize => false) }
       format.json { render :json => data_for_serialized(:json) }
     end
   end

@@ -210,7 +210,7 @@ class TarMits::JsIntegrationTest < TarMits::IntegrationTest
   end
 
   def wait_until_grid_loaded
-#    assert page.has_css?('.x-grid', :visible => true)
+    assert page.has_css?('.x-grid', :visible => true)
     wait_until_no_mask
   end
 

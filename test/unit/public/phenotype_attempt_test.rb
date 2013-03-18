@@ -24,13 +24,13 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         mi = Factory.create :mi_attempt2
         default_phenotype_attempt.mi_attempt_colony_name = mi.colony_name
         default_phenotype_attempt.valid?
-        assert_match /cannot be changed/, default_phenotype_attempt.errors[:mi_attempt_colony_name].first
+        assert_match(/cannot be changed/, default_phenotype_attempt.errors[:mi_attempt_colony_name].first)
       end
 
       should 'be able to be set on create' do
         mi = Factory.create :mi_attempt2_status_gtc
         phenotype_attempt = Factory.create(:public_phenotype_attempt,
-          :mi_attempt_colony_name => mi.colony_name)
+        :mi_attempt_colony_name => mi.colony_name)
         phenotype_attempt.valid?
         assert phenotype_attempt.errors[:mi_attempt_colony_name].blank?
       end
@@ -40,8 +40,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       setup do
         @allele = Factory.create(:allele, :gene => cbx1)
         @mi = Factory.create(:mi_attempt2_status_gtc,
-          :es_cell => Factory.create(:es_cell, :allele => @allele),
-          :mi_plan => TestDummy.mi_plan('BaSH', 'ICS', 'Cbx1'))
+        :es_cell => Factory.create(:es_cell, :allele => @allele),
+        :mi_plan => TestDummy.mi_plan('BaSH', 'ICS', 'Cbx1'))
       end
 
       should 'not raise error when being set by before filter if no mi_attempt is found' do
@@ -57,28 +57,28 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
       should 'be set to correct MiPlan if both consortium_name and production_centre_name are provided' do
         Factory.create(:mi_plan, :gene => @cbx1,
-          :production_centre => Centre.find_by_name!('UCD'))
+        :production_centre => Centre.find_by_name!('UCD'))
         Factory.create(:mi_plan, :gene => @cbx1,
-          :consortium => Consortium.find_by_name!('DTCC'))
+        :consortium => Consortium.find_by_name!('DTCC'))
         plan = Factory.create(:mi_plan, :gene => @cbx1,
-          :consortium => Consortium.find_by_name!('DTCC'),
-          :production_centre => Centre.find_by_name!('UCD'))
+        :consortium => Consortium.find_by_name!('DTCC'),
+        :production_centre => Centre.find_by_name!('UCD'))
         pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
-          :production_centre_name => 'UCD', :consortium_name => 'DTCC')
+        :production_centre_name => 'UCD', :consortium_name => 'DTCC')
         pt.save!
         assert_equal plan, pt.mi_plan
       end
 
       should 'set MiPlan to Assigned status if not assigned already' do
         plan = TestDummy.mi_plan(@mi.mi_plan.marker_symbol,
-                'JAX', @mi.mi_plan.production_centre.name)
+        'JAX', @mi.mi_plan.production_centre.name)
         assert_equal 'Inspect - GLT Mouse', plan.status.name
 
         pt = Factory.build(:public_phenotype_attempt,
-          :mi_plan => nil,
-          :mi_attempt_colony_name => @mi.colony_name,
-          :production_centre_name => @mi.mi_plan.production_centre.name,
-          :consortium_name => 'JAX')
+        :mi_plan => nil,
+        :mi_attempt_colony_name => @mi.colony_name,
+        :production_centre_name => @mi.mi_plan.production_centre.name,
+        :consortium_name => 'JAX')
         pt.save!
         plan.reload
         assert_equal plan, pt.mi_plan
@@ -87,14 +87,14 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
 
       should 'not overwrite existing MiPlan that has been assigned' do
         Factory.create :mi_plan, :consortium => Consortium.find_by_name!('DTCC'),
-                :production_centre => Centre.find_by_name!('TCP'),
-                :gene => @mi.gene
+        :production_centre => Centre.find_by_name!('TCP'),
+        :gene => @mi.gene
 
         pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
-          :consortium_name => 'DTCC', :production_centre_name => 'TCP')
+        :consortium_name => 'DTCC', :production_centre_name => 'TCP')
         plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('DTCC'),
-                :production_centre => Centre.find_by_name!('UCD'),
-                :gene => @mi.gene
+        :production_centre => Centre.find_by_name!('UCD'),
+        :gene => @mi.gene
         pt.mi_plan = plan
         pt.valid?
         assert_equal plan, pt.mi_plan
@@ -130,6 +130,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'id',
         'colony_name',
         'status_name',
+        'status_dates',
         'consortium_name',
         'production_centre_name',
         'distribution_centres_attributes',
@@ -173,24 +174,24 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
     context '::translate_public_param' do
       should 'translate marker_symbol for search' do
         assert_equal 'mi_plan_gene_marker_symbol_eq',
-                Public::PhenotypeAttempt.translate_public_param('marker_symbol_eq')
+        Public::PhenotypeAttempt.translate_public_param('marker_symbol_eq')
       end
 
       should 'translate consortium_name for search' do
         assert_equal 'mi_plan_consortium_name_in',
-                Public::PhenotypeAttempt.translate_public_param('consortium_name_in')
+        Public::PhenotypeAttempt.translate_public_param('consortium_name_in')
       end
 
       should 'translate production_centre_name for search' do
         assert_equal 'mi_plan_production_centre_in',
-                Public::PhenotypeAttempt.translate_public_param('production_centre_in')
+        Public::PhenotypeAttempt.translate_public_param('production_centre_in')
       end
 
       should 'leave other params untouched' do
         assert_equal 'phenotyping_started_eq',
-                Public::PhenotypeAttempt.translate_public_param('phenotyping_started_eq')
+        Public::PhenotypeAttempt.translate_public_param('phenotyping_started_eq')
         assert_equal 'deleter_strain_name asc',
-                Public::PhenotypeAttempt.translate_public_param('deleter_strain_name asc')
+        Public::PhenotypeAttempt.translate_public_param('deleter_strain_name asc')
       end
     end
 
@@ -210,14 +211,38 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         pt = Factory.create(:phenotype_attempt_status_pdc)
 
         Factory.create(:phenotype_attempt_distribution_centre,
-          :start_date => '2012-01-02', :phenotype_attempt => pt)
+        :start_date => '2012-01-02', :phenotype_attempt => pt)
         Factory.create(:phenotype_attempt_distribution_centre,
-          :end_date => '2012-02-02', :phenotype_attempt => pt)
+        :end_date => '2012-02-02', :phenotype_attempt => pt)
         ds = pt.distribution_centres
         expected = pt.distribution_centres.all.map(&:as_json)
 
         pt = pt.reload.to_public
         assert_equal expected, pt.distribution_centres_attributes
+      end
+    end
+
+    context '#status_dates' do
+
+      setup do
+        @phenotype_attempt = Factory.create(:public_phenotype_attempt)
+        @phenotype_attempt.save!
+
+        @phenotype_attempt.deleter_strain = DeleterStrain.first
+        @phenotype_attempt.save!
+      end
+
+      should 'show status stamps and their dates' do
+
+        now = Time.now.strftime("%Y-%m-%d")
+
+        status_dates = {
+          "Cre Excision Started"=>"#{now}",
+          "Phenotype Attempt Registered"=>"#{now}"
+        }
+
+        assert_equal status_dates, @phenotype_attempt.status_dates
+
       end
     end
 

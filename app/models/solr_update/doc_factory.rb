@@ -169,7 +169,7 @@ class SolrUpdate::DocFactory
         'allele_id' => allele.id,
         'mgi_accession_id' => allele.mgi_accession_id,
         'strain' => es_cell_info[:strain],
-        'allele_name' => "#{marker_symbol}<sup>#{es_cell_info[:allele_symbol_superscript]}</sup>",
+        'allele_name' => "#{marker_symbol}<sup>#{es_cell_info[:mgi_allele_symbol_superscript]}</sup>",
         'allele_image_url' => allele_image_url(allele.id),
         'genbank_file_url' => genbank_file_url(allele.id),
         'order_from_urls' => [order_from_info[:url]],

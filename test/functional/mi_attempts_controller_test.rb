@@ -21,12 +21,12 @@ class MiAttemptsControllerTest < ActionController::TestCase
           create_common_test_objects
         end
 
-        should 'work in XML format' do
-          get :index, :colony_name_cont => 'MBS', :format => :xml
-          doc = parse_xml_from_response
-          assert_equal 1, doc.xpath('count(//mi_attempt)'), doc
-          assert_equal 'EPD0127_4_E01', doc.css('mi_attempt es_cell_name').text
-        end
+       # should 'work in XML format' do
+       #   get :index, :colony_name_cont => 'MBS', :format => :xml
+       #   doc = parse_xml_from_response
+       #   assert_equal 1, doc.xpath('count(//mi_attempt)'), doc
+       #   assert_equal 'EPD0127_4_E01', doc.css('mi_attempt es_cell_name').text
+       # end
 
         should 'work in JSON format' do
           get :index, :colony_name_cont => 'MB', :format => :json
@@ -68,11 +68,11 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_equal 20, data.size
       end
 
-      should 'paginate by default for XML' do
-        200.times {Factory.create :mi_attempt2}
-        get :index, :format => :xml
-        assert_equal 20, response.body.scan('<mi_attempt>').size
-      end
+      #should 'paginate by default for XML' do
+      #  200.times {Factory.create :mi_attempt2}
+      #  get :index, :format => :xml
+      #  assert_equal 20, response.body.scan('<mi_attempt>').size
+      #end
 
       should 'allow pagination' do
         200.times {Factory.create :mi_attempt2}
@@ -162,13 +162,13 @@ class MiAttemptsControllerTest < ActionController::TestCase
         @mi_attempt = Factory.create(:mi_attempt2).to_public
       end
 
-      should 'get one mi attempt by ID as XML' do
-        get :show, :id => @mi_attempt.id, :format => :xml
-        assert response.success?
-
-        doc = parse_xml_from_response
-        assert_equal @mi_attempt.id, doc.css('mi_attempt id').text.to_i
-      end
+      #should 'get one mi attempt by ID as XML' do
+      #  get :show, :id => @mi_attempt.id, :format => :xml
+      #  assert response.success?
+      #
+      #  doc = parse_xml_from_response
+      #  assert_equal @mi_attempt.id, doc.css('mi_attempt id').text.to_i
+      #end
 
       should 'get one mi attempt by ID as JSON' do
         get :show, :id => @mi_attempt.id, :format => :json
@@ -253,11 +253,11 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_equal mi.id, data['id']
       end
 
-      should 'work with valid params for XML' do
-        mi = valid_create_for_format(:xml)
-        doc = parse_xml_from_response
-        assert_equal mi.id.to_s, doc.css('id').text
-      end
+      #should 'work with valid params for XML' do
+      #  mi = valid_create_for_format(:xml)
+      #  doc = parse_xml_from_response
+      #  assert_equal mi.id.to_s, doc.css('id').text
+      #end
 
       should 'return validation errors for JSON' do
         post :create, :mi_attempt => {'production_centre_name' => 'WTSI'}, :format => :json
@@ -266,13 +266,13 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_include data['errors']['es_cell_name'], 'cannot be blank'
       end
 
-      should 'return validation errors for XML' do
-        post :create, :mi_attempt => {'production_centre_name' => 'WTSI'}, :format => :xml
-        assert_equal response.success?, false
-
-        doc = parse_xml_from_response
-        assert_not_equal 0, doc.xpath('count(//error)')
-      end
+      #should 'return validation errors for XML' do
+      #  post :create, :mi_attempt => {'production_centre_name' => 'WTSI'}, :format => :xml
+      #  assert_equal response.success?, false
+      #
+      #  doc = parse_xml_from_response
+      #  assert_not_equal 0, doc.xpath('count(//error)')
+      #end
 
       should 'authorize the MI belongs to the user\'s production centre for REST only' do
         assert_equal 'WTSI', default_user.production_centre.name
@@ -307,17 +307,17 @@ class MiAttemptsControllerTest < ActionController::TestCase
         sign_in default_user
       end
 
-      should "work with valid params for XML" do
-        mi_attempt = Factory.create :mi_attempt2, :mi_plan => bash_wtsi_cbx1_plan, :total_blasts_injected => nil
-
-        put :update, :id => mi_attempt.id,
-                :mi_attempt => {'total_blasts_injected' => 1},
-                :format => :xml
-        assert_response :success
-
-        mi_attempt.reload
-        assert_equal 1, mi_attempt.total_blasts_injected
-      end
+      #should "work with valid params for XML" do
+      #  mi_attempt = Factory.create :mi_attempt2, :mi_plan => bash_wtsi_cbx1_plan, :total_blasts_injected => nil
+      #
+      #  put :update, :id => mi_attempt.id,
+      #          :mi_attempt => {'total_blasts_injected' => 1},
+      #          :format => :xml
+      #  assert_response :success
+      #
+      #  mi_attempt.reload
+      #  assert_equal 1, mi_attempt.total_blasts_injected
+      #end
 
       should "work with valid params for JSON" do
         mi_attempt = Factory.create :mi_attempt2, :mi_plan => bash_wtsi_cbx1_plan, :total_blasts_injected => nil
@@ -351,11 +351,11 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_include data['errors']['colony_name'], 'has already been taken'
       end
 
-      should 'return errors with invalid params for XML' do
-        bad_update_for_format(:xml)
-        doc = parse_xml_from_response
-        assert_not_equal 0, doc.xpath('count(//error)')
-      end
+      #should 'return errors with invalid params for XML' do
+      #  bad_update_for_format(:xml)
+      #  doc = parse_xml_from_response
+      #  assert_not_equal 0, doc.xpath('count(//error)')
+      #end
 
       should 'take extended_response parameter into account for JSON' do
         mi_attempt = Factory.create(:mi_attempt2, :mi_plan => bash_wtsi_cbx1_plan, :total_blasts_injected => nil).to_public

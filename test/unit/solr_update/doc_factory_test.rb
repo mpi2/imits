@@ -117,12 +117,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_image_url' do
-        assert_equal "https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/allele-image",
+        assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image",
                 @doc['allele_image_url']
       end
 
       should 'set genbank_file_url' do
-        assert_equal "https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
+        assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
                 @doc['genbank_file_url']
       end
     end
@@ -199,12 +199,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_image_url' do
-        assert_equal "https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/allele-image-cre",
+        assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image-cre",
                 @doc['allele_image_url']
       end
 
       should 'set genbank_file_url' do
-        assert_equal "https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
+        assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
                 @doc['genbank_file_url']
       end
     end
@@ -216,8 +216,8 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         @allele = Factory.create :allele, :mutation_type => TargRep::MutationType.find_by_code!('crd'), :gene => @gene
                 
         @fake_unique_public_info = [
-          {:strain => 'C57BL/6N', :allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi', :pipeline => 'EUCOMM'},
-          {:strain => 'C57BL/6N-A<tm1Brd>/a', :allele_symbol_superscript => 'tm2a(EUCOMM)Wtsi', :pipeline => 'EUCOMMTools'}
+          {:strain => 'C57BL/6N', :mgi_allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi', :pipeline => 'EUCOMM'},
+          {:strain => 'C57BL/6N-A<tm1Brd>/a', :mgi_allele_symbol_superscript => 'tm2a(EUCOMM)Wtsi', :pipeline => 'EUCOMMTools'}
         ]
 
         es_cells = stub('es_cells')
@@ -260,12 +260,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       end
 
       should 'set allele_image_url' do
-        url = "https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/allele-image"
+        url = "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image"
         assert_equal [url, url], @docs.map {|d| d['allele_image_url']}
       end
 
       should 'set genbank_file_url' do
-        url = "https://www.i-dcc.org/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file"
+        url = "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file"
         assert_equal [url, url], @docs.map {|d| d['genbank_file_url']}
       end
 

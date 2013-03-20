@@ -82,6 +82,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         es_cell_allele_symbol
         mi_date
         status_name
+        status_dates
         colony_name
         consortium_name
         production_centre_name
@@ -236,5 +237,27 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         assert_equal 'Inactive', @mi_attempt.mi_plan.status.name
       end
     end
+
+
+    context '#status_dates' do
+
+      setup do
+        @mi_attempt = Factory.create :public_mi_attempt, :is_active => false
+      end
+
+      should 'show status stamps and their dates' do
+
+        now = Time.now.strftime("%Y-%m-%d")
+
+        status_dates = {
+          "Micro-injection aborted"=>"#{now}",
+          "Micro-injection in progress"=>"#{now}"
+        }
+
+        assert_equal status_dates, @mi_attempt.status_dates
+
+      end
+    end
+
   end
 end

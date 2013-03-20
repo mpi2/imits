@@ -274,6 +274,27 @@ class TargRep::AlleleTest < ActiveSupport::TestCase
         }
         assert_equal(expected, unique_info.first)
       end
+
+      should "do not report on report_to_public: false pipelines" do
+        strains = [['JM8A','C57BL/6N-A<tm1Brd>/a'], ['JM8A','C57BL/6N-A<tm1Brd>/a'], ['C2','C57BL/6N'], ['JM8A','C57BL/6N-A<tm1Brd>/a']]
+        allele_symbol_superscript = ['tm1e(EUCOMM)Hmgu', 'tm1e(EUCOMM)WTSI', 'tm1e(EUCOMM)WTSI', 'tm1e(EUCOMM)WTSI']
+        ikmc_project_ids = ['1', '2', '3', '2']
+        allele = Factory.create :allele
+        (0..3).each do |i|
+          Factory.create :es_cell,
+                  :allele => allele,
+                  :parental_cell_line => strains[i][0],
+                  :mgi_allele_symbol_superscript => allele_symbol_superscript[i],
+                  :ikmc_project_id => ikmc_project_ids[i],
+                  :pipeline => TargRep::Pipeline.find_by_name!('EUCOMM GT')
+        end
+        #allele.reload
+        allele = TargRep::Allele.find(allele.id)
+        unique_es_cells = allele.es_cells.unique_public_info
+        assert_equal 0, unique_es_cells.count
+      end
+
+
     end
 
   end

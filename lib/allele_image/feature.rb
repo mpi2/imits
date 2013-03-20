@@ -26,9 +26,10 @@ module AlleleImage
         raise NotRenderableError, [@feature_type, @feature_name, @position].inspect + ' not renderable'
       end
 
+      @render_options = AlleleImage::RENDERABLE_FEATURES[ @feature_type ][ @feature_name ]
+
       return if @feature_type == "exon" and @feature_name != "En2 exon"
 
-      @render_options = AlleleImage::RENDERABLE_FEATURES[ @feature_type ][ @feature_name ]
       @feature_name   = @render_options[ "label" ] || @feature_name
     end
 

@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 require 'test_helper'
-require 'mocha'
 
 class GeneTest < ActiveSupport::TestCase
   context 'Gene' do

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130307114011) do
+ActiveRecord::Schema.define(:version => 20130318163354) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -253,6 +253,14 @@ ActiveRecord::Schema.define(:version => 20130307114011) do
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
+
+  create_table "mi_plan_es_cell_qcs", :force => true do |t|
+    t.integer  "number_starting_qc"
+    t.integer  "number_passing_qc"
+    t.integer  "mi_plan_id"
+    t.datetime "created_at",         :null => false
+    t.datetime "updated_at",         :null => false
+  end
 
   create_table "mi_plan_es_qc_comments", :force => true do |t|
     t.string   "name",       :null => false
@@ -645,6 +653,8 @@ ActiveRecord::Schema.define(:version => 20130307114011) do
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_test_cross_strain_id_fk", :column => "test_cross_strain_id"
   add_foreign_key "mi_attempts", "users", :name => "mi_attempts_updated_by_id_fk", :column => "updated_by_id"
+
+  add_foreign_key "mi_plan_es_cell_qcs", "mi_plans", :name => "mi_plan_es_cell_qcs_mi_plan_id_fk"
 
   add_foreign_key "mi_plan_status_stamps", "mi_plan_statuses", :name => "mi_plan_status_stamps_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plan_status_stamps", "mi_plans", :name => "mi_plan_status_stamps_mi_plan_id_fk"

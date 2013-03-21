@@ -3,8 +3,6 @@ class MiPlan::EsCellQc < ActiveRecord::Base
 
   default_scope(order('id asc'))
 
-  #  acts_as_audited
-
   belongs_to :mi_plan
 
   attr_accessible :number_passing_qc, :number_starting_qc

@@ -260,7 +260,9 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'is_deletion_allele',
         'is_cre_knock_in_allele',
         'is_cre_bac_allele',
-        'comment'
+        'comment',
+        'completion_note',
+        'recovery'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -290,7 +292,9 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'es_qc_comment_name',
         'mi_attempts_count',
         'phenotype_attempts_count',
-        'phenotype_only'
+        'phenotype_only',
+        'completion_note',
+        'recovery'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

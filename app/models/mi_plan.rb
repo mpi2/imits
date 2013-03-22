@@ -80,6 +80,7 @@ class MiPlan < ApplicationModel
   before_validation :set_default_sub_project
 
   before_validation :change_status
+  before_validation :check_completion_note
 
   after_save :manage_status_stamps
   after_save :conflict_resolve_others
@@ -346,6 +347,21 @@ class MiPlan < ApplicationModel
   def self.readable_name
     return 'plan'
   end
+
+  def self.get_completion_note_enum
+    ['', "Handoff complete", "Allele not needed"]
+  end
+
+  def check_completion_note
+
+    #return if self.completion_note == nil
+    self.completion_note = '' if self.completion_note.blank?
+
+    if ! MiPlan.get_completion_note_enum.include?(self.completion_note)
+      legal_values = MiPlan.get_completion_note_enum.map { |k| "'#{k}'" }.join(', ')
+      self.errors.add :completion_note, "recognised values are #{legal_values}"
+    end
+  end
 end
 
 # == Schema Information
@@ -373,9 +389,10 @@ end
 #  withdrawn                      :boolean         default(FALSE), not null
 #  es_qc_comment_id               :integer
 #  phenotype_only                 :boolean         default(FALSE)
+#  completion_note                :string(100)
+#  recovery                       :boolean
 #
 # Indexes
 #
 #  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
 #
-

@@ -21,7 +21,9 @@ class Public::MiPlan < ::MiPlan
     'is_cre_knock_in_allele',
     'is_cre_bac_allele',
     'comment',
-    'phenotype_only'
+    'phenotype_only',
+    'completion_note',
+    'recovery'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -153,6 +155,8 @@ end
 #  withdrawn                      :boolean         default(FALSE), not null
 #  es_qc_comment_id               :integer
 #  phenotype_only                 :boolean         default(FALSE)
+#  completion_note                :string(100)
+#  recovery                       :boolean
 #
 # Indexes
 #

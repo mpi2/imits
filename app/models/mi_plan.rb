@@ -353,8 +353,6 @@ class MiPlan < ApplicationModel
   end
 
   def check_completion_note
-
-    #return if self.completion_note == nil
     self.completion_note = '' if self.completion_note.blank?
 
     if ! MiPlan.get_completion_note_enum.include?(self.completion_note)

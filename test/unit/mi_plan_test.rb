@@ -1077,8 +1077,6 @@ class MiPlanTest < ActiveSupport::TestCase
           plan.save!
           plan.reload
 
-          #puts "#### completion_note: '#{plan.completion_note}'"
-
           assert_equal value, plan.completion_note
         end
       end

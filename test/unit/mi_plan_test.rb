@@ -372,7 +372,7 @@ class MiPlanTest < ActiveSupport::TestCase
         should 'when updated reset the created_at time of the current status stamp' do
           default_mi_plan.number_of_es_cells_starting_qc = 7
           default_mi_plan.save!
-          
+
           original_status_time = default_mi_plan.status_stamps.find_by_status_id(default_mi_plan.status_id).created_at
 
           default_mi_plan.number_of_es_cells_starting_qc = default_mi_plan.number_of_es_cells_starting_qc + 1
@@ -382,7 +382,7 @@ class MiPlanTest < ActiveSupport::TestCase
           current_status_time = default_mi_plan.status_stamps.find_by_status_id(default_mi_plan.status_id).created_at
 
           assert_equal 8, default_mi_plan.number_of_es_cells_starting_qc
-          assert (original_status_time < current_status_time), 'created_at has not been updated'
+          assert((original_status_time < current_status_time), 'created_at has not been updated')
         end
 
       end
@@ -1049,6 +1049,44 @@ class MiPlanTest < ActiveSupport::TestCase
 
     should 'have ::readable_name' do
       assert_equal 'plan', MiPlan.readable_name
+    end
+
+    context '#completion_note' do
+
+      should 'misc. checks' do
+        assert_should have_db_column(:completion_note).of_type(:string).with_options(:limit => 100)
+      end
+
+      should 'prevent invalid value settings' do
+        plan = Factory.create :mi_plan_with_production_centre
+
+        plan.completion_note = 'some other string'
+
+        legal_values = MiPlan.get_completion_note_enum.map { |k| "'#{k}'" }.join(', ')
+        expected_error = "recognised values are #{legal_values}"
+
+        assert_false plan.save
+        assert_contains plan.errors[:completion_note], expected_error
+      end
+
+      should 'allow valid value settings - limit to acceptable strings' do
+        plan = Factory.create :mi_plan_with_production_centre
+
+        MiPlan.get_completion_note_enum.each do |value|
+          plan.completion_note = value
+          plan.save!
+          plan.reload
+
+          assert_equal value, plan.completion_note
+        end
+      end
+
+    end
+
+    context '#recovery' do
+      should 'misc. checks' do
+        assert_should have_db_column(:recovery).of_type(:boolean)
+      end
     end
 
   end

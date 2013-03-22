@@ -6,4 +6,5 @@
   <%= javascript_tag "CAN_SEE_SUB_PROJECT = #{current_user.can_see_sub_project?.to_json}" %>
   <%= javascript_tag "WITHDRAWABLE_STATUSES = #{MiPlan::Status.all_pre_assignment.map(&:name).to_json}" %>
   <%= javascript_tag "ES_QC_COMMENT_NAMES = #{MiPlan::EsQcComment.all_names.to_json}" %>
+  <%= javascript_tag "COMPLETION_NOTES = #{MiPlan.get_completion_note_enum.to_json}" %>
 <% end %>

@@ -97,7 +97,8 @@ class TargRep::EsCell < ActiveRecord::Base
       options.update(
         :include => {
           :distribution_qcs => { :except => [:id, :created_at, :updated_at] }
-        }
+        },
+        :methods => [:allele_symbol_superscript]
       )
       super( options )
     end
@@ -107,7 +108,8 @@ class TargRep::EsCell < ActiveRecord::Base
         :skip_types => true,
         :include => {
           :distribution_qcs => { :except => [:id, :created_at, :updated_at] }
-        }
+        },
+        :methods => [:allele_symbol_superscript]
       )
     end
 
@@ -153,6 +155,8 @@ class TargRep::EsCell < ActiveRecord::Base
           raise AlleleSymbolSuperscriptFormatUnrecognizedError, "Bad allele symbol superscript #{text}"
         end
       end
+
+      self.mgi_allele_symbol_superscript = text
 
     end
 

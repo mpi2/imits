@@ -7,7 +7,7 @@ gem 'rack', '~> 1.4.0'
 gem 'hoptoad_notifier', '2.4.11'
 gem 'jammit', '0.6.5'
 
-gem 'pg', '0.11.0'
+gem 'pg', '0.14.1'
 gem 'foreigner', '1.0.3'
 
 gem 'devise', '1.4.7'
@@ -39,7 +39,7 @@ group :development, :test do
 
   gem 'test-unit', '2.5.3', :require => nil
   gem 'shoulda', :require => nil
-  gem 'mocha', '0.9.12', :require => nil
+  gem 'mocha', '0.13.3', :require => nil
   gem 'database_cleaner', '0.6.7', :require => nil
   gem 'factory_girl_rails', '1.1.0', :require => nil
 

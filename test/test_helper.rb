@@ -12,7 +12,7 @@ require 'factory_girl_rails'
 require 'open3'
 require 'test/unit'
 require 'shoulda'
-require 'mocha'
+require 'mocha/api'
 
 unless ENV['COVERAGE'].to_s.empty?
   require 'simplecov-rcov'

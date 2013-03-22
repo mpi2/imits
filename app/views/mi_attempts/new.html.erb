@@ -35,6 +35,13 @@
       <%= form.hidden_field 'es_cell_name' %>
       <%= form.hidden_field 'es_cell_marker_symbol' %>
 
+      <fieldset class="collapsible">
+        <legend>Mi-Plan Details</legend>
+          <div id="mi_plan_list"></div>
+          <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>">Create new miplan</a></div>
+      </fieldset>
+
+      <%= form.hidden_field 'mi_plan_id' %>
       <%= render 'form_contents', :form => form %>
 
       <div>

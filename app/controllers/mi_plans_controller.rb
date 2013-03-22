@@ -20,6 +20,36 @@ class MiPlansController < ApplicationController
     respond_with @mi_plan
   end
 
+  def search_by_marker_symbol
+    @mi_plans_hash = []
+    @mi_plans = Gene.find_by_marker_symbol( params[:marker_symbol] ).try(:mi_plans).includes(:consortium, :production_centre, :sub_project, :status, :priority)
+
+    @mi_plans.each do |mi_plan|
+        @mi_plans_hash << {
+          'id'                             => mi_plan.id,
+          'consortium_name'                => mi_plan.consortium.name,
+          'production_centre_name'         => mi_plan.production_centre.name,
+          'sub_project_name'               => mi_plan.sub_project.name,
+          'status_name'                    => mi_plan.status.name,
+          'priority_name'                  => mi_plan.priority.name,
+          'number_of_es_cells_starting_qc' => mi_plan.number_of_es_cells_starting_qc,
+          'number_of_es_cells_passing_qc'  => mi_plan.number_of_es_cells_passing_qc,
+          'is_active'                      => mi_plan.is_active,
+          'is_bespoke_allele'              => mi_plan.is_bespoke_allele,
+          'is_conditional_allele'          => mi_plan.is_conditional_allele,
+          'is_deletion_allele'             => mi_plan.is_deletion_allele,
+          'is_cre_knock_in_allele'         => mi_plan.is_cre_knock_in_allele,
+          'is_cre_bac_allele'              => mi_plan.is_cre_bac_allele,
+          'comment'                        => mi_plan.comment,
+          'withdrawn'                      => mi_plan.withdrawn,
+          'phenotype_only'                 => mi_plan.phenotype_only,
+          'created_at'                     => mi_plan.created_at,
+          'updated_at'                     => mi_plan.updated_at,
+        }
+    end
+    respond_with @mi_plans_hash.to_json
+  end
+
   alias_method :public_mi_plan_url, :mi_plan_url
   protected :public_mi_plan_url
   alias_method :public_mi_plans_url, :mi_plans_url

@@ -22,7 +22,7 @@ TarMits::Application.routes.draw do
     end
 
     resources :contacts
-    
+
     resources :email_templates do
       collection do
         post 'preview'
@@ -46,6 +46,7 @@ TarMits::Application.routes.draw do
 
   resources :mi_plans do
     collection do
+      get 'search_by_marker_symbol'
       get 'gene_selection'
       delete 'destroy'
       get 'attributes'
@@ -139,14 +140,14 @@ TarMits::Application.routes.draw do
   ## TargRep interface
   namespace :targ_rep do
     resources :pipelines
-    
+
     resources :alleles do
       get :history, :on => :member
     end
 
     resources :genbank_files
     resources :targeting_vectors
-    
+
     resources :es_cells do
       collection do
         get :mart_search

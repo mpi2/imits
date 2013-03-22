@@ -607,6 +607,31 @@ div.report_control * {
 	font: bold medium Georgia, "Times New Roman", Times, serif;
 }
 
+.remotediv {
+  overflow:auto;
+
+}
+
+.remotediv .loading {
+  overflow:auto;
+  padding:3em auto 3em 5px;
+}
+
+.remotediv .loading p {
+  font-size:1.2em;
+  font-weight:bold;
+}
+
+.remotediv .loading p img {
+  margin-right:1em;
+  float:left;
+}
+
+.remotediv .loading p span {
+  float:left;
+  margin-top:8px;
+}
+
 /* @end */
 
 .wait {

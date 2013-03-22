@@ -1,16 +1,17 @@
 <h3># Conflicting Micro-Injection Plans</h3>
+<p><%= @mi_plans.size %> conflicting micro-injection plans found</p>
 <div class='report'>
   <table>
     <thead>
       <tr>
-        <td>Consortium</td>
-        <td>SubProject</td>
-        <td>Bespoke</td>
-        <td>Production Centre</td>
-        <td>Marker Symbol</td>
-        <td>MGI Accession ID</td>
-        <td>Priority</td>
-        <td>Reason for conflict</td>
+        <th>Consortium</th>
+        <th>SubProject</th>
+        <th>Bespoke</th>
+        <th>Production Centre</th>
+        <th>Marker Symbol</th>
+        <th>MGI Accession ID</th>
+        <th>Priority</th>
+        <th>Reason for conflict</th>
       </tr>
     </thead>
     <tbody>
@@ -23,7 +24,7 @@
           <td><%= mi_plan.marker_symbol %></td>
           <td><%= mi_plan.mgi_accession_id %></td>
           <td><%= mi_plan.priority.name if mi_plan.priority %></td>
-          <td><%#= mi_plan.reason_for_inspect_or_conflict  THIS NEEDS MODIFYING AS IT'S QUITE A HORRIFIC%></td>
+          <td><%= conflict_text(mi_plan) %></td>
         </tr>
       <% end %>
     </tbody>

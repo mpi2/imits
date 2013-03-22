@@ -146,6 +146,17 @@ class ReportsController < ApplicationController
                   .joins(:consortium, :priority, :status)
                   .includes(:production_centre, :sub_project)
                   .where(:status_id => 3)
+                  .order('consortia.name asc')
+
+
+  end
+
+  def inspect_micro_injection_plans
+    @mi_plans = MiPlan
+                  .joins(:consortium, :status)
+                  .includes(:priority, :production_centre, :sub_project)
+                  .where(:mi_plan_statuses => {:name => ['Inspect - Conflict', 'Inspect - MI Attempt', 'Inspect - GLT Mouse']})
+                  .order(:status_id, 'consortia.name')
 
 
   end

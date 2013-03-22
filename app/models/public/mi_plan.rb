@@ -21,7 +21,9 @@ class Public::MiPlan < ::MiPlan
     'is_cre_knock_in_allele',
     'is_cre_bac_allele',
     'comment',
-    'phenotype_only'
+    'phenotype_only',
+    'completion_note',
+    'recovery'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -54,18 +56,6 @@ class Public::MiPlan < ::MiPlan
     :if => proc {|p| p.changed.include?('number_of_es_cells_starting_qc')},
     :message => 'cannot be unset after being set'
   }
-  validate :number_of_es_cells_passing_qc do |mi_plan|
-    next if mi_plan.new_record?
-
-    changes = mi_plan.changes['number_of_es_cells_passing_qc']
-    if changes and changes[0] != nil
-      if mi_plan.number_of_es_cells_passing_qc.blank?
-        mi_plan.errors.add(:number_of_es_cells_passing_qc, 'cannot be unset after being set')
-      elsif mi_plan.number_of_es_cells_passing_qc == 0
-        mi_plan.errors.add(:number_of_es_cells_passing_qc, 'cannot be set to 0 after being set')
-      end
-    end
-  end
 
   validate do |plan|
     if !plan.new_record? and plan.changes.has_key? 'gene_id'
@@ -153,6 +143,8 @@ end
 #  withdrawn                      :boolean         default(FALSE), not null
 #  es_qc_comment_id               :integer
 #  phenotype_only                 :boolean         default(FALSE)
+#  completion_note                :string(100)
+#  recovery                       :boolean
 #
 # Indexes
 #

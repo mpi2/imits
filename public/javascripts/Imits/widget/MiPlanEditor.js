@@ -151,6 +151,20 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 name: 'es_qc_comment_name',
                 storeOptionsAreSpecial: true,
                 store: window.ES_QC_COMMENT_NAMES
+            },
+            {
+                id: 'completion_note',
+                xtype: 'simplecombo',
+                fieldLabel: 'IKMC Project note',
+                name: 'completion_note',
+                storeOptionsAreSpecial: true,
+                store: window.COMPLETION_NOTES
+            },
+            {
+                id: 'recovery',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Recovery?',
+                name: 'recovery'
             }
             ],
 
@@ -347,9 +361,9 @@ Ext.define('Imits.widget.MiPlanEditor', {
             }
             ]
         });
-        var panelHeight = 520;
+        var panelHeight = 560;
         if(window.CAN_SEE_SUB_PROJECT) {
-            panelHeight = 540;
+            panelHeight = 580;
         }
 
         this.add(Ext.create('Ext.panel.Panel', {

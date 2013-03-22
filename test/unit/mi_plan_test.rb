@@ -14,6 +14,182 @@ class MiPlanTest < ActiveSupport::TestCase
       assert_equal 'Assigned', default_mi_plan.status.name
     end
 
+    context 'es_cell_qc tests:' do
+
+      def mi_plan_es_cell_qcs_check_list(plan, array)
+        assert_equal array[array.size-1][:number_starting_qc], plan.number_of_es_cells_starting_qc
+        assert_equal array[array.size-1][:number_passing_qc], plan.number_of_es_cells_passing_qc
+
+        assert_equal array.size, plan.es_cell_qcs.size
+
+        counter = 0
+        plan.es_cell_qcs.each do |mi_plan_es_cell_qc|
+          assert_equal array[counter][:number_starting_qc], mi_plan_es_cell_qc.number_starting_qc
+          assert_equal array[counter][:number_passing_qc], mi_plan_es_cell_qc.number_passing_qc
+          counter += 1
+        end
+      end
+
+      should 'add single row to qc table when setting only number_of_es_cells_starting_qc' do
+        @mi_plan = Factory.create :mi_plan_with_production_centre
+
+        number_of_es_cells_starting_qc = 23
+        number_of_es_cells_passing_qc = nil
+
+        @mi_plan.number_of_es_cells_starting_qc = number_of_es_cells_starting_qc
+        @mi_plan.save!
+        @mi_plan.reload
+
+        mi_plan_es_cell_qcs_check_list(@mi_plan, [
+          {:number_starting_qc => number_of_es_cells_starting_qc, :number_passing_qc => number_of_es_cells_passing_qc}
+        ])
+      end
+
+      should 'add multiple rows to qc table' do
+        @mi_plan = Factory.create :mi_plan_with_production_centre
+
+        array = [
+          {:number_starting_qc => 1, :number_passing_qc => 1},
+          {:number_starting_qc => 8, :number_passing_qc => 3},
+          {:number_starting_qc => 20, :number_passing_qc => 6},
+          {:number_starting_qc => nil, :number_passing_qc => nil},
+          {:number_starting_qc => 10, :number_passing_qc => 5},
+          {:number_starting_qc => 8, :number_passing_qc => 3}
+        ]
+
+        array.each do |item|
+          @mi_plan.number_of_es_cells_starting_qc = item[:number_starting_qc]
+          @mi_plan.number_of_es_cells_passing_qc = item[:number_passing_qc]
+          @mi_plan.save!
+          @mi_plan.reload
+        end
+
+        mi_plan_es_cell_qcs_check_list(@mi_plan, array)
+      end
+
+      should 'detect invalid entry for number_passing_qc' do
+        @mi_plan = Factory.create :mi_plan_with_production_centre
+
+        array = [ {:number_starting_qc => 20, :number_passing_qc => 200} ]
+
+        array.each do |item|
+          @mi_plan.number_of_es_cells_starting_qc = item[:number_starting_qc]
+          @mi_plan.number_of_es_cells_passing_qc = item[:number_passing_qc]
+          assert_false @mi_plan.save
+          assert_include @mi_plan.errors[:number_of_es_cells_passing_qc], "passing qc exceeds starting qc"
+        end
+      end
+
+      should 'allow switch back to previous status if no valid mi_attempts or phenotype attempts' do
+        @mi_plan = Factory.create :mi_plan_with_production_centre
+
+        array = [
+          {:number_starting_qc => 20, :number_passing_qc => 6, :status => 'asg-esc'},
+          {:number_starting_qc => nil, :number_passing_qc => nil, :status => 'asg'},
+        ]
+
+        array.each do |item|
+          @mi_plan.number_of_es_cells_starting_qc = item[:number_starting_qc]
+          @mi_plan.number_of_es_cells_passing_qc = item[:number_passing_qc]
+          @mi_plan.save!
+          @mi_plan.reload
+
+          assert_equal 0, @mi_plan.mi_attempts.size
+          assert_equal 0, @mi_plan.phenotype_attempts.size
+
+          assert_equal item[:status], @mi_plan.status.code
+        end
+
+        mi_plan_es_cell_qcs_check_list(@mi_plan, array)
+      end
+
+      should 'prevent switch to aborted if valid mi_attempts' do
+        mi_attempt = Factory.create(:mi_attempt2_status_gtc)
+
+        plan = mi_attempt.mi_plan
+
+        plan.number_of_es_cells_starting_qc = 20
+        plan.number_of_es_cells_passing_qc = 6
+        plan.save!
+        plan.reload
+
+        assert_equal 1, plan.mi_attempts.size
+        assert_equal 0, plan.phenotype_attempts.size
+        assert_equal 'asg-esc', plan.status.code
+
+        plan.number_of_es_cells_passing_qc = 0
+
+        assert_false plan.save
+        assert_include plan.errors[:status], "cannot be changed - micro-injection attempts exist"
+      end
+
+      should 'prevent switch to aborted if valid phenotype attempts' do
+        phenotype_attempt = Factory.create(:phenotype_attempt_status_cec)
+
+        plan = phenotype_attempt.mi_plan
+
+        plan.number_of_es_cells_starting_qc = 20
+        plan.number_of_es_cells_passing_qc = 6
+        plan.save!
+        plan.reload
+
+        assert_equal 1, plan.mi_attempts.size
+        assert_equal 1, plan.phenotype_attempts.size
+        assert_equal 'asg-esc', plan.status.code
+
+        plan.number_of_es_cells_passing_qc = 0
+
+        assert_false plan.save
+        assert_include plan.errors[:status], "cannot be changed - phenotype attempts exist"
+      end
+
+      should 'allow multiple changes despite mi_attempts' do
+        mi_attempt = Factory.create(:mi_attempt2_status_gtc)
+
+        plan = mi_attempt.mi_plan
+
+        array = [
+          {:number_starting_qc => 1, :number_passing_qc => 1},
+          {:number_starting_qc => 8, :number_passing_qc => 3},
+          {:number_starting_qc => 20, :number_passing_qc => 6},
+          {:number_starting_qc => 10, :number_passing_qc => 5},
+          {:number_starting_qc => 8, :number_passing_qc => 3}
+        ]
+
+        array.each do |item|
+          plan.number_of_es_cells_starting_qc = item[:number_starting_qc]
+          plan.number_of_es_cells_passing_qc = item[:number_passing_qc]
+          plan.save!
+          plan.reload
+        end
+
+        mi_plan_es_cell_qcs_check_list(plan, array)
+      end
+
+      should 'allow multiple changes despite phenotype_attempts' do
+        phenotype_attempt = Factory.create(:phenotype_attempt_status_cec)
+
+        plan = phenotype_attempt.mi_plan
+
+        array = [
+          {:number_starting_qc => 1, :number_passing_qc => 1},
+          {:number_starting_qc => 8, :number_passing_qc => 3},
+          {:number_starting_qc => 20, :number_passing_qc => 6},
+          {:number_starting_qc => 10, :number_passing_qc => 5},
+          {:number_starting_qc => 8, :number_passing_qc => 3}
+        ]
+
+        array.each do |item|
+          plan.number_of_es_cells_starting_qc = item[:number_starting_qc]
+          plan.number_of_es_cells_passing_qc = item[:number_passing_qc]
+          plan.save!
+          plan.reload
+        end
+
+        mi_plan_es_cell_qcs_check_list(plan, array)
+      end
+    end
+
     context 'attribute tests:' do
       should 'have associations' do
         assert_should belong_to :gene
@@ -53,44 +229,44 @@ class MiPlanTest < ActiveSupport::TestCase
           plan = bash_wtsi_cbx1_plan
           allele = Factory.create :allele, :gene => cbx1
           inactive_mi = Factory.create :mi_attempt2,
-                  :colony_name => 'A',
-                  :mi_plan => plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :mi_date => '2011-12-12',
-                  :is_active => false
+          :colony_name => 'A',
+          :mi_plan => plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :mi_date => '2011-12-12',
+          :is_active => false
           replace_status_stamps(inactive_mi,
-            'mip' => '2011-10-10 00:00 UTC',
-            'abt' => Time.now
+          'mip' => '2011-10-10 00:00 UTC',
+          'abt' => Time.now
           )
 
           older_mi_1 = Factory.create :mi_attempt2,
-                  :colony_name => 'C',
-                  :mi_plan => plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :mi_date => '2011-12-12',
-                  :is_active => true
+          :colony_name => 'C',
+          :mi_plan => plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :mi_date => '2011-12-12',
+          :is_active => true
           replace_status_stamps(older_mi_1,
-            'mip' => '2011-03-02 00:00 UTC'
+          'mip' => '2011-03-02 00:00 UTC'
           )
 
           latest_mi = Factory.create :mi_attempt2,
-                  :colony_name => 'B',
-                  :mi_plan => plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :mi_date => '2011-12-12',
-                  :is_active => true
+          :colony_name => 'B',
+          :mi_plan => plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :mi_date => '2011-12-12',
+          :is_active => true
           replace_status_stamps(latest_mi,
-            'mip' => '2011-11-02 00:00 UTC'
+          'mip' => '2011-11-02 00:00 UTC'
           )
 
           older_mi_2 = Factory.create :mi_attempt2,
-                  :colony_name => 'D',
-                  :mi_plan => plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :mi_date => '2011-12-13',
-                  :is_active => true
+          :colony_name => 'D',
+          :mi_plan => plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :mi_date => '2011-12-13',
+          :is_active => true
           replace_status_stamps(older_mi_2,
-            'mip' => '2011-09-02 00:00 UTC'
+          'mip' => '2011-09-02 00:00 UTC'
           )
 
           mi_plan = older_mi_1.mi_plan
@@ -106,23 +282,23 @@ class MiPlanTest < ActiveSupport::TestCase
           assert cbx1
           allele = Factory.create :allele, :gene => cbx1
           older_mi = Factory.create :mi_attempt2,
-                  :colony_name => 'A',
-                  :mi_plan => bash_wtsi_cbx1_plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :is_active => false
+          :colony_name => 'A',
+          :mi_plan => bash_wtsi_cbx1_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => false
           replace_status_stamps(older_mi,
-            ip => '2011-05-05 00:00 UTC',
-            abrt => '2011-06-05 00:00 UTC'
+          ip => '2011-05-05 00:00 UTC',
+          abrt => '2011-06-05 00:00 UTC'
           )
 
           latest_mi = Factory.create :mi_attempt2,
-                  :colony_name => 'B',
-                  :mi_plan => bash_wtsi_cbx1_plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :is_active => false
+          :colony_name => 'B',
+          :mi_plan => bash_wtsi_cbx1_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => false
           replace_status_stamps(latest_mi,
-            ip => '2011-11-02 00:00 UTC',
-            abrt => '2011-12-02 00:00 UTC'
+          ip => '2011-11-02 00:00 UTC',
+          abrt => '2011-12-02 00:00 UTC'
           )
           mi_plan = older_mi.mi_plan
 
@@ -140,44 +316,44 @@ class MiPlanTest < ActiveSupport::TestCase
           assert cbx1
           allele = Factory.create :allele, :gene => cbx1
           abrt_mi = Factory.create :mi_attempt2,
-                  :colony_name => 'Z',
-                  :mi_plan => bash_wtsi_cbx1_plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :is_active => false
+          :colony_name => 'Z',
+          :mi_plan => bash_wtsi_cbx1_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => false
           replace_status_stamps(abrt_mi,
-            ip => '2012-02-02 00:00 UTC',
-            abrt => '2012-04-02 00:00 UTC'
+          ip => '2012-02-02 00:00 UTC',
+          abrt => '2012-04-02 00:00 UTC'
           )
 
           ip_mi = Factory.create :mi_attempt2,
-                  :colony_name => 'D',
-                  :mi_plan => bash_wtsi_cbx1_plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :is_active => true
+          :colony_name => 'D',
+          :mi_plan => bash_wtsi_cbx1_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true
           replace_status_stamps(ip_mi,
-            ip => '2012-01-02 00:00 UTC'
+          ip => '2012-01-02 00:00 UTC'
           )
 
           latest_mi = Factory.create :mi_attempt2_status_gtc,
-                  :colony_name => 'C',
-                  :mi_plan => bash_wtsi_cbx1_plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :is_active => true
+          :colony_name => 'C',
+          :mi_plan => bash_wtsi_cbx1_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true
           replace_status_stamps(latest_mi,
-            ip => '2011-05-05 00:00 UTC',
-            co => '2011-06-05',
-            gc => '2011-07-05 00:00 UTC'
+          ip => '2011-05-05 00:00 UTC',
+          co => '2011-06-05',
+          gc => '2011-07-05 00:00 UTC'
           )
 
           older_mi_1 = Factory.create :mi_attempt2_status_gtc,
-                  :colony_name => 'B',
-                  :mi_plan => bash_wtsi_cbx1_plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :is_active => true
+          :colony_name => 'B',
+          :mi_plan => bash_wtsi_cbx1_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true
           replace_status_stamps(older_mi_1,
-            ip => '2011-04-05 00:00 UTC',
-            co => '2011-05-05',
-            gc => '2011-06-05 00:00 UTC'
+          ip => '2011-04-05 00:00 UTC',
+          co => '2011-05-05',
+          gc => '2011-06-05 00:00 UTC'
           )
 
           mi_plan = latest_mi.mi_plan
@@ -189,44 +365,44 @@ class MiPlanTest < ActiveSupport::TestCase
           assert cbx1
           allele = Factory.create :allele, :gene => cbx1
           abrt_mi = Factory.create :mi_attempt2,
-                  :colony_name => 'Z',
-                  :mi_plan => bash_wtsi_cbx1_plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :total_male_chimeras => 1,
-                  :is_active => false
+          :colony_name => 'Z',
+          :mi_plan => bash_wtsi_cbx1_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :total_male_chimeras => 1,
+          :is_active => false
           replace_status_stamps(abrt_mi,
-            ip => '2012-02-02 00:00 UTC',
-            co => '2012-03-02',
-            abrt => '2012-04-02 00:00 UTC'
+          ip => '2012-02-02 00:00 UTC',
+          co => '2012-03-02',
+          abrt => '2012-04-02 00:00 UTC'
           )
 
           ip_mi = Factory.create :mi_attempt2,
-                  :colony_name => 'D',
-                  :mi_plan => bash_wtsi_cbx1_plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :is_active => true
+          :colony_name => 'D',
+          :mi_plan => bash_wtsi_cbx1_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true
           replace_status_stamps(ip_mi,
-            ip => '2012-01-02 00:00 UTC'
+          ip => '2012-01-02 00:00 UTC'
           )
 
           latest_mi = Factory.create :mi_attempt2_status_chr,
-                  :colony_name => 'C',
-                  :mi_plan => bash_wtsi_cbx1_plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :is_active => true
+          :colony_name => 'C',
+          :mi_plan => bash_wtsi_cbx1_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true
           replace_status_stamps(latest_mi,
-            ip => '2011-05-05 00:00 UTC',
-            co => '2011-07-05'
+          ip => '2011-05-05 00:00 UTC',
+          co => '2011-07-05'
           )
 
           older_mi_1 = Factory.create :mi_attempt2_status_chr,
-                  :colony_name => 'B',
-                  :mi_plan => bash_wtsi_cbx1_plan,
-                  :es_cell => Factory.create(:es_cell, :allele => allele),
-                  :is_active => true
+          :colony_name => 'B',
+          :mi_plan => bash_wtsi_cbx1_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true
           replace_status_stamps(older_mi_1,
-            ip => '2011-04-05 00:00 UTC',
-            co => '2011-06-05'
+          ip => '2011-04-05 00:00 UTC',
+          co => '2011-06-05'
           )
 
           mi_plan = latest_mi.mi_plan
@@ -267,16 +443,16 @@ class MiPlanTest < ActiveSupport::TestCase
 
         should 'add the stamp' do
           assert_not_equal [], MiPlan::StatusStamp.where(
-            :mi_plan_id => default_mi_plan.id,
-            :status_id => MiPlan::Status[:Assigned].id)
+          :mi_plan_id => default_mi_plan.id,
+          :status_id => MiPlan::Status[:Assigned].id)
           assert_not_equal [], MiPlan::StatusStamp.where(
-            :mi_plan_id => default_mi_plan.id,
-            :status_id => MiPlan::Status[:Conflict].id)
+          :mi_plan_id => default_mi_plan.id,
+          :status_id => MiPlan::Status[:Conflict].id)
         end
 
         should 'update the association afterwards' do
           assert_equal [MiPlan::Status[:Assigned], MiPlan::Status[:Conflict]],
-                  default_mi_plan.status_stamps.map(&:status)
+          default_mi_plan.status_stamps.map(&:status)
         end
       end
 
@@ -291,13 +467,13 @@ class MiPlanTest < ActiveSupport::TestCase
           plan.status_stamps.destroy_all
 
           plan.status_stamps.create!(:status => MiPlan::Status['Interest'],
-            :created_at => '2010-10-30 23:59:59')
+          :created_at => '2010-10-30 23:59:59')
           plan.status_stamps.create!(:status => MiPlan::Status['Conflict'],
-            :created_at => '2011-05-30 23:59:59')
+          :created_at => '2011-05-30 23:59:59')
           plan.status_stamps.create!(:status => MiPlan::Status['Inspect - GLT Mouse'],
-            :created_at => '2011-11-03 00:00:00 UTC')
+          :created_at => '2011-11-03 00:00:00 UTC')
           plan.status_stamps.create!(:status => MiPlan::Status['Inactive'],
-            :created_at => '2011-10-24 23:59:59')
+          :created_at => '2011-10-24 23:59:59')
 
           expected = {
             'Interest' => Date.parse('2010-10-30'),
@@ -316,8 +492,8 @@ class MiPlanTest < ActiveSupport::TestCase
           default_mi_plan.save!
 
           replace_status_stamps(default_mi_plan,
-            :Assigned => '2012-01-01',
-            :Inactive => '2012-01-02')
+          :Assigned => '2012-01-01',
+          :Inactive => '2012-01-02')
 
           expected = ["Assigned", "Inactive"]
           assert_equal expected, default_mi_plan.status_stamps.map{|i| i.status.name}
@@ -372,7 +548,7 @@ class MiPlanTest < ActiveSupport::TestCase
         should 'when updated reset the created_at time of the current status stamp' do
           default_mi_plan.number_of_es_cells_starting_qc = 7
           default_mi_plan.save!
-          
+
           original_status_time = default_mi_plan.status_stamps.find_by_status_id(default_mi_plan.status_id).created_at
 
           default_mi_plan.number_of_es_cells_starting_qc = default_mi_plan.number_of_es_cells_starting_qc + 1
@@ -382,7 +558,7 @@ class MiPlanTest < ActiveSupport::TestCase
           current_status_time = default_mi_plan.status_stamps.find_by_status_id(default_mi_plan.status_id).created_at
 
           assert_equal 8, default_mi_plan.number_of_es_cells_starting_qc
-          assert (original_status_time < current_status_time), 'created_at has not been updated'
+          assert((original_status_time < current_status_time), 'created_at has not been updated')
         end
 
       end
@@ -423,7 +599,7 @@ class MiPlanTest < ActiveSupport::TestCase
         plan.save!
 
         plan2 = Factory.build(:mi_plan,
-          :gene => plan.gene, :consortium => plan.consortium, :sub_project => plan.sub_project)
+        :gene => plan.gene, :consortium => plan.consortium, :sub_project => plan.sub_project)
         assert_false plan2.save
 
         assert_false plan2.valid?
@@ -518,9 +694,9 @@ class MiPlanTest < ActiveSupport::TestCase
         10.times do
           gene = Factory.create :gene
           mi = Factory.create :mi_attempt2_status_gtc,
-                  :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => gene)),
-                  :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => gene),
-                  :is_active => true
+          :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => gene)),
+          :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => gene),
+          :is_active => true
         end
 
         assert MiPlan.count > MiPlan.with_genotype_confirmed_mouse.count
@@ -533,10 +709,10 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'return the one with the same marker symbol and consortium but no production centre' do
         consortium = Consortium.find_by_name!('BaSH')
         plan = Factory.create :mi_plan, :gene => cbx1, :consortium => consortium,
-                :production_centre => nil
+        :production_centre => nil
 
         got = MiPlan.check_for_upgradeable(:marker_symbol => cbx1.marker_symbol,
-          :consortium_name => consortium.name, :production_centre_name => 'WTSI')
+        :consortium_name => consortium.name, :production_centre_name => 'WTSI')
         assert_equal plan, got
       end
 
@@ -545,10 +721,10 @@ class MiPlanTest < ActiveSupport::TestCase
         bash = Consortium.find_by_name!('BaSH')
         wtsi = Centre.find_by_name!('WTSI')
         Factory.create :mi_plan, :gene => cbx1, :consortium => bash,
-                :production_centre => wtsi
+        :production_centre => wtsi
 
         got = MiPlan.check_for_upgradeable(:marker_symbol => cbx1.marker_symbol,
-          :consortium_name => bash.name, :production_centre_name => 'ICS')
+        :consortium_name => bash.name, :production_centre_name => 'ICS')
         assert_nil got
       end
     end
@@ -593,36 +769,36 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'correctly return for Inspect - GLT Mouse' do
 
         mi_attempt = Factory.create :mi_attempt2_status_gtc,
-                :es_cell => Factory.create(:es_cell, :allele => @allele),
-                :mi_plan => TestDummy.mi_plan(@eucomm_cons.name, @ics_cent.name, @gene.marker_symbol, :force_assignment => true)
+        :es_cell => Factory.create(:es_cell, :allele => @allele),
+        :mi_plan => TestDummy.mi_plan(@eucomm_cons.name, @ics_cent.name, @gene.marker_symbol, :force_assignment => true)
 
         mi_attempt = Factory.create :mi_attempt2_status_gtc,
-                :es_cell => Factory.create(:es_cell, :allele => @allele),
-                :mi_plan => TestDummy.mi_plan(@bash_cons.name, @jax_cent.name, @gene.marker_symbol, :force_assignment => true)
+        :es_cell => Factory.create(:es_cell, :allele => @allele),
+        :mi_plan => TestDummy.mi_plan(@bash_cons.name, @jax_cent.name, @gene.marker_symbol, :force_assignment => true)
 
 
         mi_plan = Factory.create :mi_plan, :gene => @gene,
-                :consortium => @mgp_cons, :production_centre => @cnb_cent
+        :consortium => @mgp_cons, :production_centre => @cnb_cent
 
         assert_equal 'Inspect - GLT Mouse', mi_plan.status.name
 
         assert_equal "GLT mouse produced at: #{@ics_cent.name} (#{@eucomm_cons.name}), #{@jax_cent.name} (#{@bash_cons.name})",
-                mi_plan.reason_for_inspect_or_conflict
+        mi_plan.reason_for_inspect_or_conflict
       end
 
       should 'correctly return for Inspect - MI Attempt' do
         mi_attempt = Factory.create :mi_attempt2,
-                :es_cell => Factory.create(:es_cell, :allele => @allele),
-                :mi_plan => TestDummy.mi_plan(@eucomm_cons.name, @ics_cent.name, :gene => @gene, :force_assignment => true)
+        :es_cell => Factory.create(:es_cell, :allele => @allele),
+        :mi_plan => TestDummy.mi_plan(@eucomm_cons.name, @ics_cent.name, :gene => @gene, :force_assignment => true)
 
         mi_attempt = Factory.create :mi_attempt2,
-                :es_cell => Factory.create(:es_cell, :allele => @allele),
-                :mi_plan => TestDummy.mi_plan(@bash_cons.name, @jax_cent.name, :gene => @gene, :force_assignment => true),
+        :es_cell => Factory.create(:es_cell, :allele => @allele),
+        :mi_plan => TestDummy.mi_plan(@bash_cons.name, @jax_cent.name, :gene => @gene, :force_assignment => true),
 
-                :is_active => true
+        :is_active => true
 
         mi_plan = Factory.create :mi_plan, :gene => @gene,
-                :consortium => @mgp_cons, :production_centre => @cnb_cent
+        :consortium => @mgp_cons, :production_centre => @cnb_cent
 
         assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
@@ -635,15 +811,15 @@ class MiPlanTest < ActiveSupport::TestCase
         Factory.create :mi_attempt2
 
         Factory.create :mi_plan, :gene => @gene,
-                :consortium => @eucomm_cons, :production_centre => @ics_cent,
-                :status => MiPlan::Status[:Assigned]
+        :consortium => @eucomm_cons, :production_centre => @ics_cent,
+        :status => MiPlan::Status[:Assigned]
 
         Factory.create :mi_plan, :gene => @gene,
-                :consortium => @bash_cons, :production_centre => @jax_cent,
-                :number_of_es_cells_starting_qc => 5
+        :consortium => @bash_cons, :production_centre => @jax_cent,
+        :number_of_es_cells_starting_qc => 5
 
         mi_plan = Factory.create :mi_plan, :gene => @gene,
-                :consortium => @mgp_cons, :production_centre => @cnb_cent
+        :consortium => @mgp_cons, :production_centre => @cnb_cent
 
         assert_equal 'Inspect - Conflict', mi_plan.status.name
         assert_match(/#{@bash_cons.name}/, mi_plan.reason_for_inspect_or_conflict)
@@ -655,18 +831,18 @@ class MiPlanTest < ActiveSupport::TestCase
         Factory.create :mi_attempt2
 
         Factory.create :mi_plan, :gene => @gene,
-                :consortium => @eucomm_cons, :production_centre => @ics_cent
+        :consortium => @eucomm_cons, :production_centre => @ics_cent
 
         Factory.create :mi_plan, :gene => @gene,
-                :consortium => @bash_cons, :production_centre => @jax_cent
+        :consortium => @bash_cons, :production_centre => @jax_cent
 
         mi_plan = Factory.create :mi_plan, :gene => @gene,
-                :consortium => @mgp_cons, :production_centre => @cnb_cent
+        :consortium => @mgp_cons, :production_centre => @cnb_cent
 
         assert_equal 'Inspect - Conflict', mi_plan.status.name
 
         assert_equal "Other 'Assigned' MI plans for: #{@eucomm_cons.name}",
-                mi_plan.reason_for_inspect_or_conflict
+        mi_plan.reason_for_inspect_or_conflict
       end
 
       should 'return nil if no conflict' do
@@ -683,8 +859,8 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'return the best created active one if there are any active phenotype attempts' do
         default_mi_plan.production_centre = Centre.first
         mi_attempt = Factory.create :mi_attempt2_status_gtc,
-                :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => default_mi_plan.gene)),
-                :mi_plan => default_mi_plan
+        :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => default_mi_plan.gene)),
+        :mi_plan => default_mi_plan
 
         Factory.create :phenotype_attempt, :mi_plan => default_mi_plan, :created_at => "2011-12-03 23:59:59 UTC", :mi_attempt => mi_attempt
         Factory.create :phenotype_attempt_status_cec, :mi_plan => default_mi_plan, :created_at => "2011-12-02 23:59:59 UTC", :mi_attempt => mi_attempt
@@ -702,21 +878,21 @@ class MiPlanTest < ActiveSupport::TestCase
 
         allele = Factory.create(:allele, :gene => default_mi_plan.gene)
         mi_attempt = Factory.create :mi_attempt2_status_gtc,
-                :es_cell => Factory.create(:es_cell, :allele => allele),
-                :mi_plan => default_mi_plan
+        :es_cell => Factory.create(:es_cell, :allele => allele),
+        :mi_plan => default_mi_plan
 
         Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-                :created_at => "2011-12-02 23:59:59 UTC",
-                :mi_attempt => mi_attempt
+        :created_at => "2011-12-02 23:59:59 UTC",
+        :mi_attempt => mi_attempt
         pt = Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-                :created_at => "2011-12-03 23:59:59 UTC",
-                :mi_attempt => mi_attempt
+        :created_at => "2011-12-03 23:59:59 UTC",
+        :mi_attempt => mi_attempt
         Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-                :created_at => "2011-12-01 23:59:59 UTC",
-                :mi_attempt => mi_attempt
+        :created_at => "2011-12-01 23:59:59 UTC",
+        :mi_attempt => mi_attempt
         Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-                :created_at => "2011-12-10 23:59:59 UTC",
-                :mi_attempt => mi_attempt, :is_active => false
+        :created_at => "2011-12-10 23:59:59 UTC",
+        :mi_attempt => mi_attempt, :is_active => false
 
         assert_equal pt, default_mi_plan.latest_relevant_phenotype_attempt
       end
@@ -725,18 +901,18 @@ class MiPlanTest < ActiveSupport::TestCase
 
         allele = Factory.create(:allele, :gene => default_mi_plan.gene)
         mi_attempt = Factory.create :mi_attempt2_status_gtc,
-                :es_cell => Factory.create(:es_cell, :allele => allele),
-                :mi_plan => default_mi_plan
+        :es_cell => Factory.create(:es_cell, :allele => allele),
+        :mi_plan => default_mi_plan
 
         Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-                :created_at => '2011-12-02 23:59:59 UTC',
-                :is_active => false, :mi_attempt => mi_attempt
+        :created_at => '2011-12-02 23:59:59 UTC',
+        :is_active => false, :mi_attempt => mi_attempt
         pt = Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-                :created_at => '2011-12-03 23:59:59 UTC',
-                :is_active => false, :mi_attempt => mi_attempt
+        :created_at => '2011-12-03 23:59:59 UTC',
+        :is_active => false, :mi_attempt => mi_attempt
         Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-                :created_at => '2011-12-01 23:59:59 UTC',
-                :is_active => false, :mi_attempt => mi_attempt
+        :created_at => '2011-12-01 23:59:59 UTC',
+        :is_active => false, :mi_attempt => mi_attempt
 
         assert_equal pt, default_mi_plan.latest_relevant_phenotype_attempt
       end
@@ -794,9 +970,9 @@ class MiPlanTest < ActiveSupport::TestCase
 
         mi_attempt = Factory.create(:mi_attempt2_status_gtc, :is_active => false)
         replace_status_stamps(mi_attempt,
-          'Micro-injection in progress' => '2010-05-13',
-          'Genotype confirmed' => '2010-11-12',
-          'Micro-injection aborted' => '2010-12-11'
+        'Micro-injection in progress' => '2010-05-13',
+        'Genotype confirmed' => '2010-11-12',
+        'Micro-injection aborted' => '2010-12-11'
         )
 
         result = mi_attempt.mi_plan.distinct_old_genotype_confirmed_es_cells_count
@@ -856,9 +1032,9 @@ class MiPlanTest < ActiveSupport::TestCase
 
         mi_attempt = Factory.create(:mi_attempt2_status_gtc, :is_active => false)
         replace_status_stamps(mi_attempt,
-          'Micro-injection in progress' => '2010-05-13',
-          'Genotype confirmed' => '2010-11-12',
-          'Micro-injection aborted' => '2010-12-11'
+        'Micro-injection in progress' => '2010-05-13',
+        'Genotype confirmed' => '2010-11-12',
+        'Micro-injection aborted' => '2010-12-11'
         )
 
         result = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
@@ -871,7 +1047,7 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'find plan' do
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create(:mi_plan, :gene => gene,
-          :consortium => Consortium.find_by_name!('MGP'))
+        :consortium => Consortium.find_by_name!('MGP'))
         mi_plan.number_of_es_cells_passing_qc = 0
         mi_plan.save!
 
@@ -895,14 +1071,14 @@ class MiPlanTest < ActiveSupport::TestCase
         allele = Factory.create :allele, :gene => gene
         mi_plan = Factory.create :mi_plan_with_production_centre, :gene => gene
         mi_attempt = Factory.create :mi_attempt2_status_gtc,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :mi_plan => mi_plan
+        :es_cell => Factory.create(:es_cell, :allele => allele),
+        :mi_plan => mi_plan
 
         phenotype = Factory.create :phenotype_attempt, :mi_plan => mi_plan,
-          :mi_attempt => mi_attempt
+        :mi_attempt => mi_attempt
 
         replace_status_stamps(phenotype,
-          'Phenotype Attempt Registered' => '2011-10-30')
+        'Phenotype Attempt Registered' => '2011-10-30')
 
         results = mi_plan.latest_relevant_status
 
@@ -917,8 +1093,8 @@ class MiPlanTest < ActiveSupport::TestCase
       should 'find plan' do
         gene = Factory.create :gene_cbx1
         mi_plan = Factory.create(:mi_plan, :gene => gene,
-          :consortium => Consortium.find_by_name!('MGP'),
-          :number_of_es_cells_passing_qc => 0)
+        :consortium => Consortium.find_by_name!('MGP'),
+        :number_of_es_cells_passing_qc => 0)
 
         results = mi_plan.relevant_status_stamp
 
@@ -941,12 +1117,12 @@ class MiPlanTest < ActiveSupport::TestCase
         allele = Factory.create :allele, :gene => gene
         mi_plan = Factory.create :mi_plan_with_production_centre, :gene => gene
         mi_attempt = Factory.create :mi_attempt2_status_gtc,
-                :mi_plan => mi_plan,
-                :es_cell => Factory.create(:es_cell, :allele => allele)
+        :mi_plan => mi_plan,
+        :es_cell => Factory.create(:es_cell, :allele => allele)
 
         phenotype = Factory.create :phenotype_attempt, :mi_plan => mi_plan,
-                :created_at => "2011-12-02",
-                :mi_attempt => mi_attempt
+        :created_at => "2011-12-02",
+        :mi_attempt => mi_attempt
 
         replace_status_stamps(phenotype,
         'Phenotype Attempt Registered' => '2011-10-30')
@@ -1049,6 +1225,44 @@ class MiPlanTest < ActiveSupport::TestCase
 
     should 'have ::readable_name' do
       assert_equal 'plan', MiPlan.readable_name
+    end
+
+    context '#completion_note' do
+
+      should 'misc. checks' do
+        assert_should have_db_column(:completion_note).of_type(:string).with_options(:limit => 100)
+      end
+
+      should 'prevent invalid value settings' do
+        plan = Factory.create :mi_plan_with_production_centre
+
+        plan.completion_note = 'some other string'
+
+        legal_values = MiPlan.get_completion_note_enum.map { |k| "'#{k}'" }.join(', ')
+        expected_error = "recognised values are #{legal_values}"
+
+        assert_false plan.save
+        assert_contains plan.errors[:completion_note], expected_error
+      end
+
+      should 'allow valid value settings - limit to acceptable strings' do
+        plan = Factory.create :mi_plan_with_production_centre
+
+        MiPlan.get_completion_note_enum.each do |value|
+          plan.completion_note = value
+          plan.save!
+          plan.reload
+
+          assert_equal value, plan.completion_note
+        end
+      end
+
+    end
+
+    context '#recovery' do
+      should 'misc. checks' do
+        assert_should have_db_column(:recovery).of_type(:boolean)
+      end
     end
 
   end

@@ -187,50 +187,6 @@ class Public::MiPlanTest < ActiveSupport::TestCase
       end
     end
 
-    context '#number_of_es_cells_starting_qc' do
-      should 'validate non-blankness only it was previously set to a number' do
-        assert_equal nil, default_mi_plan.number_of_es_cells_starting_qc
-        default_mi_plan.number_of_es_cells_starting_qc = 5
-        default_mi_plan.save!
-
-        default_mi_plan.number_of_es_cells_starting_qc = nil
-        assert_false default_mi_plan.save
-
-        assert ! default_mi_plan.errors[:number_of_es_cells_starting_qc].blank?
-      end
-    end
-
-    context '#number_of_es_cells_passing_qc' do
-      should 'validate non-blankness only it was previously set to a number' do
-        assert_equal nil, default_mi_plan.number_of_es_cells_passing_qc
-        default_mi_plan.number_of_es_cells_passing_qc = 5
-        default_mi_plan.save!
-
-        default_mi_plan.number_of_es_cells_passing_qc = nil
-        assert_false default_mi_plan.save
-
-        assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
-      end
-
-      should 'validate cannot be set to 0 if was previously non-zero' do
-        2.times do |i|
-          default_mi_plan.number_of_es_cells_passing_qc = 0
-          default_mi_plan.save!
-        end
-
-        default_mi_plan.number_of_es_cells_passing_qc = 5
-        default_mi_plan.save!
-
-        default_mi_plan.number_of_es_cells_passing_qc = nil
-        assert_false default_mi_plan.save
-        assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
-
-        default_mi_plan.number_of_es_cells_passing_qc = 0
-        assert_false default_mi_plan.save
-        assert ! default_mi_plan.errors[:number_of_es_cells_passing_qc].blank?
-      end
-    end
-
     context '#phenotype_only' do
       should 'block MiAttempts on an MiPlan' do
         default_mi_plan.phenotype_only = true
@@ -260,7 +216,9 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'is_deletion_allele',
         'is_cre_knock_in_allele',
         'is_cre_bac_allele',
-        'comment'
+        'comment',
+        'completion_note',
+        'recovery'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -290,7 +248,9 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'es_qc_comment_name',
         'mi_attempts_count',
         'phenotype_attempts_count',
-        'phenotype_only'
+        'phenotype_only',
+        'completion_note',
+        'recovery'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

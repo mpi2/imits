@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130307114011) do
+ActiveRecord::Schema.define(:version => 20130322100056) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -254,6 +254,14 @@ ActiveRecord::Schema.define(:version => 20130307114011) do
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
 
+  create_table "mi_plan_es_cell_qcs", :force => true do |t|
+    t.integer  "number_starting_qc"
+    t.integer  "number_passing_qc"
+    t.integer  "mi_plan_id"
+    t.datetime "created_at",         :null => false
+    t.datetime "updated_at",         :null => false
+  end
+
   create_table "mi_plan_es_qc_comments", :force => true do |t|
     t.string   "name",       :null => false
     t.datetime "created_at"
@@ -298,26 +306,28 @@ ActiveRecord::Schema.define(:version => 20130307114011) do
   end
 
   create_table "mi_plans", :force => true do |t|
-    t.integer  "gene_id",                                           :null => false
-    t.integer  "consortium_id",                                     :null => false
-    t.integer  "status_id",                                         :null => false
-    t.integer  "priority_id",                                       :null => false
+    t.integer  "gene_id",                                                          :null => false
+    t.integer  "consortium_id",                                                    :null => false
+    t.integer  "status_id",                                                        :null => false
+    t.integer  "priority_id",                                                      :null => false
     t.integer  "production_centre_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "number_of_es_cells_starting_qc"
     t.integer  "number_of_es_cells_passing_qc"
-    t.integer  "sub_project_id",                                    :null => false
-    t.boolean  "is_active",                      :default => true,  :null => false
-    t.boolean  "is_bespoke_allele",              :default => false, :null => false
-    t.boolean  "is_conditional_allele",          :default => false, :null => false
-    t.boolean  "is_deletion_allele",             :default => false, :null => false
-    t.boolean  "is_cre_knock_in_allele",         :default => false, :null => false
-    t.boolean  "is_cre_bac_allele",              :default => false, :null => false
+    t.integer  "sub_project_id",                                                   :null => false
+    t.boolean  "is_active",                                     :default => true,  :null => false
+    t.boolean  "is_bespoke_allele",                             :default => false, :null => false
+    t.boolean  "is_conditional_allele",                         :default => false, :null => false
+    t.boolean  "is_deletion_allele",                            :default => false, :null => false
+    t.boolean  "is_cre_knock_in_allele",                        :default => false, :null => false
+    t.boolean  "is_cre_bac_allele",                             :default => false, :null => false
     t.text     "comment"
-    t.boolean  "withdrawn",                      :default => false, :null => false
+    t.boolean  "withdrawn",                                     :default => false, :null => false
     t.integer  "es_qc_comment_id"
-    t.boolean  "phenotype_only",                 :default => false
+    t.boolean  "phenotype_only",                                :default => false
+    t.string   "completion_note",                :limit => 100
+    t.boolean  "recovery"
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
@@ -645,6 +655,8 @@ ActiveRecord::Schema.define(:version => 20130307114011) do
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
   add_foreign_key "mi_attempts", "strains", :name => "mi_attempts_test_cross_strain_id_fk", :column => "test_cross_strain_id"
   add_foreign_key "mi_attempts", "users", :name => "mi_attempts_updated_by_id_fk", :column => "updated_by_id"
+
+  add_foreign_key "mi_plan_es_cell_qcs", "mi_plans", :name => "mi_plan_es_cell_qcs_mi_plan_id_fk"
 
   add_foreign_key "mi_plan_status_stamps", "mi_plan_statuses", :name => "mi_plan_status_stamps_mi_plan_status_id_fk", :column => "status_id"
   add_foreign_key "mi_plan_status_stamps", "mi_plans", :name => "mi_plan_status_stamps_mi_plan_id_fk"

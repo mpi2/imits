@@ -21,7 +21,19 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
     return nil if report.nil?
 
     report.add_column('Best Status') { |row| IntermediateReport.find_by_mi_plan_id(row.data['ID']).try(:overall_status) }
+    report.add_column('Latest status date') { |row| MiPlan::StatusStamp.where(:mi_plan_id => row.data['ID']).order('created_at desc').first.created_at.to_date }
     report.add_column('Reason for Inspect/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_or_conflict }
+    report.add_column('# Aborted attempts on this plan') { |row| MiAttempt.aborted.where(:mi_plan_id => row.data['ID']).count }
+    report.add_column('Date of latest aborted attempt') do |row|
+
+      ids = MiAttempt.aborted.where(:mi_plan_id => row.data['ID']).map(&:id)
+      
+      if status_stamp = MiAttempt::StatusStamp.includes(:status).where(:mi_attempt_id => ids, :'mi_attempt_statuses.code' => 'abt').order('mi_attempt_status_stamps.created_at desc').first
+        status_stamp.created_at.to_date
+      end
+
+    end
+
     report.remove_columns(['ID'])
 
     mis_by_gene = {

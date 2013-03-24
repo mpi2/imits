@@ -155,7 +155,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             {
                 id: 'completion_note',
                 xtype: 'simplecombo',
-                fieldLabel: 'IKMC Project note',
+                fieldLabel: 'Completion note',
                 name: 'completion_note',
                 storeOptionsAreSpecial: true,
                 store: window.COMPLETION_NOTES

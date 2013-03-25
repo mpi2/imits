@@ -24,12 +24,12 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         subject.consortium_name = 'BaSH'
         subject.production_centre_name = ''
         subject.valid?
-        assert_match /both or neither.+must be assigned/i, subject.errors[:base].first
+        assert_match(/both or neither.+must be assigned/i, subject.errors[:base].first)
 
         subject.consortium_name = ''
         subject.production_centre_name = 'WTSI'
         subject.valid?
-        assert_match /both or neither.+must be assigned/i, subject.errors[:base].first
+        assert_match(/both or neither.+must be assigned/i, subject.errors[:base].first)
       end
 
       should 'not be passed in if #mi_plan_id is passed in' do
@@ -41,7 +41,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         subject.valid?
         assert_equal true, subject.changes.has_key?(:mi_plan_id)
 
-        assert_match /mi_plan_id.+consortium_name.+production_centre_name/, subject.errors[:base].first
+        assert_match(/mi_plan_id.+consortium_name.+production_centre_name/, subject.errors[:base].first)
       end
 
       should 'be writable with any value which should be returned on a read when no MiPlan is set' do

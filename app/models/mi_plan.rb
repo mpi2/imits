@@ -20,6 +20,7 @@ class MiPlan < ApplicationModel
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
   has_many :phenotype_attempts
+  has_many :es_cell_qcs, :dependent => :delete_all
 
   protected :status=
 
@@ -44,14 +45,31 @@ class MiPlan < ApplicationModel
   end
 
   validate do |plan|
+
     statuses = MiPlan::Status.all_non_assigned
+
     if statuses.include?(plan.status) and plan.phenotype_attempts.length != 0
-      plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
+
+      plan.phenotype_attempts.each do |phenotype_attempt|
+        if phenotype_attempt.status.code != 'abt'
+          plan.errors.add(:status, 'cannot be changed - phenotype attempts exist')
+          return
+        end
+      end
+
     end
 
     if statuses.include?(plan.status) and plan.mi_attempts.length != 0
-      plan.errors.add(:status, 'cannot be changed - micro-injection attempts exist')
+
+      plan.mi_attempts.each do |mi_attempt|
+        if mi_attempt.status.code != 'abt'
+          plan.errors.add(:status, 'cannot be changed - micro-injection attempts exist')
+          return
+        end
+      end
+
     end
+
   end
 
   validate do |plan|
@@ -77,9 +95,11 @@ class MiPlan < ApplicationModel
   # BEGIN Callbacks
 
   before_validation :set_default_number_of_es_cells_starting_qc
+  before_validation :check_number_of_es_cells_passing_qc
   before_validation :set_default_sub_project
 
   before_validation :change_status
+  before_validation :check_completion_note
 
   after_save :manage_status_stamps
   after_save :conflict_resolve_others
@@ -88,11 +108,37 @@ class MiPlan < ApplicationModel
 
   after_destroy :conflict_resolve_others
 
+  before_save :update_es_cell_qc
+
   private
+
+  def update_es_cell_qc
+
+    last = es_cell_qcs.last
+
+    return if last && number_of_es_cells_starting_qc == last.number_starting_qc &&
+      number_of_es_cells_passing_qc == last.number_passing_qc
+
+    if number_of_es_cells_starting_qc_changed? || number_of_es_cells_passing_qc_changed?
+      es_cell_qcs.build(
+        :number_starting_qc => number_of_es_cells_starting_qc,
+        :number_passing_qc => number_of_es_cells_passing_qc
+      )
+    end
+
+  end
 
   def set_default_number_of_es_cells_starting_qc
     if number_of_es_cells_starting_qc.nil?
       self.number_of_es_cells_starting_qc = number_of_es_cells_passing_qc
+    end
+  end
+
+  def check_number_of_es_cells_passing_qc
+    if ! number_of_es_cells_starting_qc.blank? && ! number_of_es_cells_passing_qc.blank?
+      if number_of_es_cells_starting_qc < number_of_es_cells_passing_qc
+        self.errors.add :number_of_es_cells_passing_qc, "passing qc exceeds starting qc"
+      end
     end
   end
 
@@ -347,6 +393,19 @@ class MiPlan < ApplicationModel
   def self.readable_name
     return 'plan'
   end
+
+  def self.get_completion_note_enum
+    ['', "Handoff complete", "Allele not needed"]
+  end
+
+  def check_completion_note
+    self.completion_note = '' if self.completion_note.blank?
+
+    if ! MiPlan.get_completion_note_enum.include?(self.completion_note)
+      legal_values = MiPlan.get_completion_note_enum.map { |k| "'#{k}'" }.join(', ')
+      self.errors.add :completion_note, "recognised values are #{legal_values}"
+    end
+  end
 end
 
 # == Schema Information
@@ -374,6 +433,8 @@ end
 #  withdrawn                      :boolean         default(FALSE), not null
 #  es_qc_comment_id               :integer
 #  phenotype_only                 :boolean         default(FALSE)
+#  completion_note                :string(100)
+#  recovery                       :boolean
 #
 # Indexes
 #

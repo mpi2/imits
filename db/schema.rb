@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130307114011) do
+ActiveRecord::Schema.define(:version => 20130322154023) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -320,7 +320,7 @@ ActiveRecord::Schema.define(:version => 20130307114011) do
     t.boolean  "phenotype_only",                 :default => false
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "notifications", :force => true do |t|
     t.datetime "welcome_email_sent"

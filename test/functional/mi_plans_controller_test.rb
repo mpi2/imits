@@ -73,7 +73,7 @@ class MiPlansControllerTest < ActionController::TestCase
           end
 
           assert_response 422
-          assert_equal ['cannot be blank'], JSON.parse(response.body)['errors']['marker_symbol']
+          assert_equal ['cannot be blank'], JSON.parse(response.body)['marker_symbol']
         end
 
         should 'return errors when trying to create duplicate-but-with-production-centre to existing one' do
@@ -131,6 +131,33 @@ class MiPlansControllerTest < ActionController::TestCase
           second_plan = Public::MiPlan.last
           assert_equal second_plan.as_json, JSON.parse(response.body)
         end
+
+      should 'return allow multiple plans for same consortium, production centre and gene but different allele structures' do
+          cbx1 = Factory.create :gene_cbx1
+          consortium = Consortium.find_by_name!('MGP')
+          centre = Centre.find_by_name!('WTSI')
+          sub_project = MiPlan::SubProject.find_by_name!('WTSI_Bone_A')
+
+          mi_plan_1 = Factory.create :mi_plan, :gene => cbx1, :consortium => consortium, :production_centre => centre, :sub_project => sub_project
+
+          post :create, :mi_plan => {
+              :marker_symbol => 'Cbx1',
+              :consortium_name => 'MGP',
+              :production_centre_name => 'WTSI',
+              :priority_name => 'High',
+              :is_bespoke_allele => true,
+              :is_conditional_allele => true,
+              :is_deletion_allele => false,
+              :is_cre_knock_in_allele => true,
+              :is_cre_bac_allele => false,
+          }, :format => :json
+
+          mi_plans = Public::MiPlan.where(:gene_id => cbx1.id, :consortium_id => consortium.id, :production_centre_id => centre.id)
+          assert_equal mi_plans.count, 2
+
+          second_plan = Public::MiPlan.last
+          assert_equal second_plan.as_json, JSON.parse(response.body)
+        end
       end
 
       context 'DELETE destroy' do
@@ -148,6 +175,12 @@ class MiPlansControllerTest < ActionController::TestCase
               :marker_symbol => mip2.gene.marker_symbol,
               :consortium => mip2.consortium.name,
               :production_centre => mip2.production_centre.name,
+              :sub_project => '',
+              :is_bespoke_allele => false,
+              :is_conditional_allele => false,
+              :is_deletion_allele => false,
+              :is_cre_knock_in_allele => false,
+              :is_cre_bac_allele => false,
               :format => :json
             )
           end
@@ -162,6 +195,12 @@ class MiPlansControllerTest < ActionController::TestCase
               :marker_symbol => 'Wibble',
               :consortium => mip3.consortium.name,
               :production_centre => mip3.production_centre.name,
+              :sub_project => '',
+              :is_bespoke_allele => false,
+              :is_conditional_allele => false,
+              :is_deletion_allele => false,
+              :is_cre_knock_in_allele => false,
+              :is_cre_bac_allele => false,
               :format => :json
             )
           end
@@ -187,7 +226,13 @@ class MiPlansControllerTest < ActionController::TestCase
               :destroy,
               :marker_symbol => 'Cbx1',
               :consortium => 'MARC',
-              :production_centre => '',
+              :production_centre => nil,
+              :sub_project => '',
+              :is_bespoke_allele => false,
+              :is_conditional_allele => false,
+              :is_deletion_allele => false,
+              :is_cre_knock_in_allele => false,
+              :is_cre_bac_allele => false,
               :format => :json
             )
           end

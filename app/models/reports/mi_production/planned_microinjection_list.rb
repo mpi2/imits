@@ -20,8 +20,8 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
 
     return nil if report.nil?
 
+    report.add_column('Latest plan status date') { |row| MiPlan::StatusStamp.where(:mi_plan_id => row.data['ID']).order('created_at desc').first.created_at.to_date }
     report.add_column('Best Status') { |row| IntermediateReport.find_by_mi_plan_id(row.data['ID']).try(:overall_status) }
-    report.add_column('Latest status date') { |row| MiPlan::StatusStamp.where(:mi_plan_id => row.data['ID']).order('created_at desc').first.created_at.to_date }
     report.add_column('Reason for Inspect/Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_or_conflict }
     report.add_column('# Aborted attempts on this plan') { |row| MiAttempt.aborted.where(:mi_plan_id => row.data['ID']).count }
     report.add_column('Date of latest aborted attempt') do |row|
@@ -61,6 +61,8 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       'consortium.name'         => 'Consortium',
       'sub_project.name'        => 'SubProject',
       'is_bespoke_allele'       => 'Bespoke',
+      'recovery'                => 'Recovery',
+      'completion_note'         => 'Completion note',
       'phenotype_only'          => 'Phenotype only?',
       'production_centre.name'  => 'Production Centre',
       'gene.marker_symbol'      => 'Marker Symbol',
@@ -83,6 +85,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       :transforms => lambda do |r|
         r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No'
         r["phenotype_only"] = r.phenotype_only ? 'Yes' : 'No'
+        r["recovery"] = r.recovery ? 'Yes' : 'No'
       end
     }
 

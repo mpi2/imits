@@ -1,5 +1,7 @@
 Ext.namespace('Imits.MiAttempts.New');
-
+Ext.require ([
+  'MiPlanListViewModel'
+])
 Ext.onReady(function() {
     processRestOfForm();
 
@@ -19,7 +21,7 @@ function processRestOfForm() {
     var restOfForm = Ext.get('rest-of-form');
 
     var store = Ext.create('Ext.data.JsonStore', {
-        model: 'MiPlanModel',
+        model: 'MiPlanListViewModel',
         storeId: 'store',
         proxy: {
             type: 'ajax',
@@ -446,7 +448,3 @@ Ext.define('Imits.MiAttempts.New.EsCellsList', {
     }
 });
 
-Ext.define('MiPlanModel', {
-    extend: 'Ext.data.Model',
-    fields: ['id', 'consortium_name', 'production_centre_name', 'sub_project_name', 'is_conditional_allele', 'is_deletion_allele', 'is_cre_knock_in_allele', 'is_cre_bac_allele', 'is_active']
-});

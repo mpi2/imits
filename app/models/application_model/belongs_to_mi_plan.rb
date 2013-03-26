@@ -85,8 +85,12 @@ module ApplicationModel::BelongsToMiPlan
     def validate_mi_plan_and_lookup_if_blank
       return if kind_of? PhenotypeAttempt
       plan = mi_plan
-      if plan.blank? && @production_centre_name && @consortium_name && gene
-        plan = lookup_mi_plan
+      if plan.blank?
+        if @production_centre_name && @consortium_name && gene
+          plan = lookup_mi_plan
+        else
+          errors.add(:base, 'Plan has not been selected. Please select a plan to continue')
+        end
       end
 
       if plan && plan.phenotype_only
@@ -100,7 +104,7 @@ module ApplicationModel::BelongsToMiPlan
         :production_centre_name_eq => production_centre_name,
         :consortium_name_eq => consortium_name,
         :gene_id_eq => gene.id
-      }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+      }
 
       plan = MiPlan
         .includes(:production_centre, :consortium)

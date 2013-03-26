@@ -1,12 +1,13 @@
 Ext.namespace('Imits.MiAttempts.New');
-
+Ext.require ([
+  'MiPlanListViewModel'
+])
 Ext.onReady(function() {
     processRestOfForm();
 
     var panel = Ext.create('Imits.MiAttempts.New.EsCellSelectorForm', {
         renderTo: 'es-cell-selector'
     });
-
     var ignoreWarningsButton = Ext.get('ignore-warnings');
     if(ignoreWarningsButton) {
         ignoreWarningsButton.addListener('click', function() {
@@ -18,6 +19,66 @@ Ext.onReady(function() {
 
 function processRestOfForm() {
     var restOfForm = Ext.get('rest-of-form');
+
+    var store = Ext.create('Ext.data.JsonStore', {
+        model: 'MiPlanListViewModel',
+        storeId: 'store',
+        proxy: {
+            type: 'ajax',
+            url: window.basePath + '/mi_plans/search_by_marker_symbol.json'
+        },
+    });
+
+    var listView = Ext.create('Ext.grid.Panel', {
+        width:1000,
+        height:250,
+        title:'Select a Plan',
+        renderTo: 'mi_plan_list',
+        store: store,
+        multiSelect: false,
+        viewConfig: {
+            emptyText: 'No images to display'
+        },
+
+        columns: [{
+            text: 'Consortium',
+            flex: 50,
+            dataIndex: 'consortium_name'
+        },{
+            text: 'Production Centre',
+            flex: 50,
+            dataIndex: 'production_centre_name'
+        },{
+            text: 'Sub Project',
+            flex: 50,
+            dataIndex: 'sub_project_name'
+        },{
+            text: 'Conditional',
+            flex: 50,
+            dataIndex: 'is_conditional_allele'
+        },{
+            text: 'Deletion',
+            flex: 50,
+            dataIndex: 'is_deletion_allele'
+        },{
+            text: 'Cre Knock In',
+            flex: 50,
+            dataIndex: 'is_cre_knock_in_allele'
+        },{
+            text: 'Cre Bac',
+            flex: 50,
+            dataIndex: 'is_cre_bac_allele'
+        },{
+            text: 'Active',
+            flex: 50,
+            dataIndex: 'is_active'
+        }
+        ]
+    });
+
+        listView.on('selectionchange', function(view, nodes){
+        restOfForm.getInputElement("mi_attempt[mi_plan_id]").set({ value: nodes[0].get('id') });
+    });
 
     restOfForm.getInputElement = function(name) {
         return Ext.get(Ext.Array.filter(Ext.query('#rest-of-form input'), function(i) {
@@ -45,8 +106,14 @@ function processRestOfForm() {
         return this.esCellNameField.getValue();
     }
 
+    restOfForm.set_mi_plan_selection = function(MarkerSymbol){
+
+        if (MarkerSymbol){
+            store.load({params: {marker_symbol: MarkerSymbol}});
+        };
+    }
+
     if(restOfForm.getEsCellName() == '') {
-        restOfForm.setVisibilityMode(Ext.Element.DISPLAY);
         restOfForm.setVisible(false, false);
         restOfForm.hidden = true;
     } else {
@@ -54,20 +121,24 @@ function processRestOfForm() {
     }
 
     restOfForm.ignoreWarningsField = restOfForm.getInputElement("ignore_warnings");
-
     var esCellMarkerSymbolField = restOfForm.getInputElement("mi_attempt[es_cell_marker_symbol]");
-    restOfForm.esCellMarkerSymbol = esCellMarkerSymbolField.getValue();
+    var MarkerSymbolValue = esCellMarkerSymbolField.getValue();
+    restOfForm.esCellMarkerSymbol = MarkerSymbolValue;
+    if (MarkerSymbolValue){
+        restOfForm.set_mi_plan_selection(MarkerSymbolValue);
+    }
     esCellMarkerSymbolField.remove();
 
     restOfForm.submitButton = Ext.get('mi_attempt_submit');
     restOfForm.submitButton.onClickHandler = function() {
+
         this.dom.disabled = 'disabled';
         Ext.getBody().addCls('wait');
         var form = this.up('form');
         form.dom.submit();
     }
-    restOfForm.submitButton.addListener('click', restOfForm.submitButton.onClickHandler, restOfForm.submitButton);
 
+    restOfForm.submitButton.addListener('click', restOfForm.submitButton.onClickHandler, restOfForm.submitButton);
     Imits.MiAttempts.New.restOfForm = restOfForm;
 }
 
@@ -148,6 +219,9 @@ Ext.define('Imits.MiAttempts.New.EsCellSelectorForm', {
         this.esCellNameTextField.setValue(esCellName);
         this.esCellMarkerSymbolDiv.update(esCellMarkerSymbol);
         this.window.hide();
+
+        Imits.MiAttempts.New.restOfForm.set_mi_plan_selection(esCellMarkerSymbol);
+
         Imits.MiAttempts.New.restOfForm.setEsCellDetails(esCellName, esCellMarkerSymbol);
         Imits.MiAttempts.New.restOfForm.showIfHidden();
     },
@@ -373,3 +447,4 @@ Ext.define('Imits.MiAttempts.New.EsCellsList', {
         });
     }
 });
+

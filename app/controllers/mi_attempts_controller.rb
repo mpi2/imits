@@ -26,17 +26,15 @@ class MiAttemptsController < ApplicationController
   protected :data_for_serialized
 
   def new
-    set_centres_and_consortia
-
     @mi_attempt = Public::MiAttempt.new(
       :production_centre_name => current_user.production_centre.name
     )
   end
 
   def create
+
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
-
     return unless authorize_user_production_centre(@mi_attempt)
 
     if ! @mi_attempt.valid?
@@ -44,11 +42,9 @@ class MiAttemptsController < ApplicationController
       if ! @mi_attempt.errors[:base].blank?
         flash.now[:alert] += '<br/>' + @mi_attempt.errors[:base].join('<br/>')
       end
-      set_centres_and_consortia
     elsif request.format == :html and
               params[:ignore_warnings] != 'true' and
               @mi_attempt.generate_warnings
-      set_centres_and_consortia
       render :action => :new
       return
     else
@@ -60,7 +56,6 @@ class MiAttemptsController < ApplicationController
   end
 
   def show
-    set_centres_and_consortia
     @mi_attempt = Public::MiAttempt.find(params[:id])
     if @mi_attempt.has_status?(:gtc) && @mi_attempt.distribution_centres.length == 0
       @mi_attempt.distribution_centres.build

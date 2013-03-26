@@ -20,11 +20,6 @@ class PhenotypeAttempt::CreateInFormIntegrationTest < TarMits::JsIntegrationTest
       within('.x-grid') { click_link "Create" }
     end
 
-    should 'allow editing consortium or production centre' do
-      assert page.has_css?('select[name="phenotype_attempt[production_centre_name]"]')
-      assert page.has_css?('select[name="phenotype_attempt[consortium_name]"]')
-    end
-
     should 'save Phenotype attempt and redirect back to show page when valid data' do
       ApplicationModel.uncached { TestDummy.mi_plan('DTCC', 'UCD', @mi_attempt.gene.marker_symbol) }
 

@@ -194,7 +194,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
         mi = Factory.build :mi_attempt2, :mi_plan => default_mi_plan
         mi.save
-        assert ! mi.errors[:mi_plan].blank?
+        assert ! mi.errors[:base].blank?
       end
     end
 

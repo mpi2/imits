@@ -61,14 +61,6 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  validate do |mi|
-    next unless mi.mi_plan
-
-    if mi.mi_plan.production_centre.blank?
-      mi.errors.add :mi_plan, 'must have a production centre (INTERNAL ERROR)'
-    end
-  end
-
   validate do |mi_attempt|
     next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
     if(mi_attempt.es_cell.gene != mi_attempt.mi_plan.gene)
@@ -87,13 +79,13 @@ class MiAttempt < ApplicationModel
     next if mi_attempt.mi_plan.blank?
 
     if mi_attempt.mi_plan.phenotype_only
-      mi_attempt.errors.add(:base, 'MiAttempt cannot be created on this plan (phenotype only)')
-      return false
+      mi_attempt.errors.add(:base, 'MiAttempt cannot be created for this MiPlan. (phenotype only)')
     end
   end
 
   # BEGIN Callbacks
 
+  before_validation :ensure_plan_exists # this method are in belongs_to_mi_plan
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_total_chimeras
   before_validation :set_es_cell_from_es_cell_name
@@ -119,7 +111,7 @@ class MiAttempt < ApplicationModel
   end
 
   before_save :generate_colony_name_if_blank
-
+  before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   after_save :manage_status_stamps
   after_save :reload_mi_plan_mi_attempts
 

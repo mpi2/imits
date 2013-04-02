@@ -26,19 +26,17 @@ class MiAttemptsController < ApplicationController
   protected :data_for_serialized
 
   def new
-    @mi_attempt = Public::MiAttempt.new(
-      :production_centre_name => current_user.production_centre.name
-    )
+    @mi_attempt = Public::MiAttempt.new
   end
 
   def create
-
     @mi_attempt = Public::MiAttempt.new(params[:mi_attempt])
     @mi_attempt.updated_by = current_user
     return unless authorize_user_production_centre(@mi_attempt)
 
     if ! @mi_attempt.valid?
-      flash.now[:alert] = 'Micro-injection could not be created - please check the values you entered'
+      flash.now[:alert] = "Micro-injection could not be created - please check the values you entered"
+
       if ! @mi_attempt.errors[:base].blank?
         flash.now[:alert] += '<br/>' + @mi_attempt.errors[:base].join('<br/>')
       end
@@ -48,6 +46,9 @@ class MiAttemptsController < ApplicationController
       render :action => :new
       return
     else
+      if @mi_attempt.try(:production_centre).try(:name) == nil
+        @mi_attempt.mi_plan.update_attributes!(:production_centre => current_user.production_centre.name)
+      end
       @mi_attempt.save!
       flash[:notice] = 'Micro-injection attempt created'
     end

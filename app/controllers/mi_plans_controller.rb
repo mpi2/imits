@@ -27,9 +27,9 @@ class MiPlansController < ApplicationController
     @mi_plans.each do |mi_plan|
         @mi_plans_hash << {
           'id'                             => mi_plan.id,
-          'consortium_name'                => mi_plan.consortium.name,
-          'production_centre_name'         => mi_plan.production_centre.name,
-          'sub_project_name'               => mi_plan.sub_project.name,
+          'consortium_name'                => mi_plan.try(:consortium).try(:name),
+          'production_centre_name'         => mi_plan.try(:production_centre).try(:name),
+          'sub_project_name'               => mi_plan.try(:sub_project).try(:name),
           'status_name'                    => mi_plan.status.name,
           'priority_name'                  => mi_plan.priority.name,
           'number_of_es_cells_starting_qc' => mi_plan.number_of_es_cells_starting_qc,

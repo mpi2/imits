@@ -9,6 +9,7 @@ class PhenotypeAttempt < ApplicationModel
   include ApplicationModel::HasStatuses
   include ApplicationModel::BelongsToMiPlan
 
+  belongs_to :mi_plan
   belongs_to :mi_attempt
   belongs_to :status
   belongs_to :deleter_strain
@@ -37,15 +38,22 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   # BEGIN Callbacks
+  after_initialize :set_mi_plan # need to set mi_plan if blank before authorize_user_production_centre is fired in controller.
   before_validation :change_status
-
+  before_save :set_mi_plan # this is here if mi_plan is edited after initialization
+  before_save :ensure_plan_exists # this method is in belongs_to_mi_plan
+  before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
   before_save :generate_colony_name_if_blank
-
   after_save :manage_status_stamps
+
+  def set_mi_plan
+    if ! self.mi_plan.present?
+      self.mi_plan = self.mi_attempt.try(:mi_plan)
+    end
+  end
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?
-
     i = 0
     begin
       i += 1

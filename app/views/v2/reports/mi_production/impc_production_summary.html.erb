@@ -1,0 +1,71 @@
+<% @title = 'IMPC Production summary' %>
+
+<h1><%= @title %></h1>
+
+<div class="report production_summary">
+
+  <h2>Mouse production summary</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>All genes</th>
+        <th>Consortium</th>
+        <th>ES cell QC</th>
+        <th>ES QC confirmed</th>
+        <th>ES QC failed</th>
+        <th>Production Centre</th>
+        <th>Microinjections</th>
+        <th>Chimaeras produced</th>
+        <th>Genotype confirmed mice</th>
+        <th>Microinjection aborted</th>
+        <th>Gene Pipeline efficiency (%)</th>
+        <th>Clone Pipeline efficiency (%)</th>
+        <th>Intent to phenotype</th>
+        <th>Cre excision started</th>
+        <th>Cre excision completed</th>
+        <th>Phenotyping started</th>
+        <th>Phenotyping completed</th>
+        <th>Phenotyping aborted</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @consortium_by_distinct_gene.each do |row| %>
+        <% count = 0 %>
+        
+        <% @consortium_centre_by_status[row['consortium']].each do |centre| %>
+          <% rowspan = @consortium_centre_by_status[row['consortium']].size %>
+          <tr>
+            <% unless count > 0 %>
+              <td rowspan="<%= rowspan %>"><%= row['consortium'] %></td>
+              <td rowspan="<%= rowspan %>"><%= link_to row['count'], report_detail_path(:consortium => row['consortium']) %></td>
+              <% @mi_plan_statuses.each do |status| %>
+                <td rowspan="<%= rowspan %>"><%= report_link_to(@consortium_by_status, row['consortium'], status) %></td>
+              <% end %>
+            <% end %>
+
+            <td><%= centre %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], 'Microinjections', :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], 'Chimeras', :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], 'Genotype Confirmed Mice', :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], 'Microinjection aborted', :centre => centre) %></td>
+            <td><%= efficiency_percentage(@gene_efficiency_totals, row['consortium'], centre) %></td>
+            <td><%= efficiency_percentage(@clone_efficiency_totals, row['consortium'], centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_phenotyping_status, row['consortium'], 'Intent to phenotype', :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_phenotyping_status, row['consortium'], 'Cre excision started', :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_phenotyping_status, row['consortium'], 'Cre excision completed', :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_phenotyping_status, row['consortium'], 'Phenotyping started', :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_phenotyping_status, row['consortium'], 'Phenotyping completed', :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_phenotyping_status, row['consortium'], 'Phenotyping aborted', :centre => centre) %></td>
+          </tr>
+
+          <% count += 1 %>
+        <% end %>
+
+
+      <% end %>
+    </tbody>
+  </table>
+
+</div>
+

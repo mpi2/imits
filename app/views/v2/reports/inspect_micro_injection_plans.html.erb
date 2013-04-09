@@ -1,0 +1,40 @@
+<% @title = 'Inspect Micro-Injection Plans' %>
+<h3># Inspect Micro-Injection Plans</h3>
+
+<div class='report'>
+
+  <% for status in @mi_plans.group_by {|m| m.status.name} %>
+
+    <p><%= status.first %> - <%= status.last.size %> inspect micro-injection plans found</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Consortium</th>
+          <th>SubProject</th>
+          <th>Bespoke</th>
+          <th>Production Centre</th>
+          <th>Marker Symbol</th>
+          <th>MGI Accession ID</th>
+          <th>Priority</th>
+          <th>Reason for conflict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for mi_plan in status.last %>
+          <tr>
+            <td><%= mi_plan.consortium.name %></td>
+            <td><%= mi_plan.sub_project.name if mi_plan.sub_project %></td>
+            <td><%= mi_plan.is_bespoke_allele ? 'Yes' : 'No' %></td>
+            <td><%= mi_plan.production_centre.name if mi_plan.production_centre %></td>
+            <td><%= mi_plan.marker_symbol %></td>
+            <td><%= mi_plan.mgi_accession_id %></td>
+            <td><%= mi_plan.priority.name if mi_plan.priority %></td>
+            <td><%= reason_for_inspect_or_conflict(mi_plan, @mi_plans) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+  <% end %>
+</div>

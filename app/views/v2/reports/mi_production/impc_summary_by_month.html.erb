@@ -1,0 +1,84 @@
+<% @title = 'IMPC Summary by month' %>
+
+<h1><%= @title %></h1>
+
+<div class='report'>
+
+  <% @consortia.each do |consortium| %>
+    <h2><%= consortium %></h2>
+    <h3>Mouse production</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Month</th>
+          <th>Consortium</th>
+          <% @clone_columns.each do |column| %>
+            <th><%= column %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <% @summary_by_month[:dates].keys.each do |year| %>
+          <% count = 0 %>
+          <% months = @summary_by_month[:dates][year].uniq %>
+          <% months.each do |date| %>
+            
+            <tr>
+              <% unless count > 0 %>
+                <td rowspan='<%= months.size %>'><%= year %></td>
+              <% end %>
+              <td><%= date.strftime('%B') %></td>
+              <td width="8%"><%= consortium %></td>
+              <% @clone_columns.each do |column| %>
+                <td><%= report_link_to(@summary_by_month, consortium, column, :centre => date) %></td>
+              <% end %>
+            </tr>
+
+            <% count += 1%>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+
+    <br />
+    <h3>Phenotyping</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Month</th>
+          <th>Consortium</th>
+          <% @phenotype_columns.each do |column| %>
+            <th><%= column %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <% @summary_by_month[:dates].keys.each do |year| %>
+          <% count = 0 %>
+          <% months = @summary_by_month[:dates][year].uniq %>
+          <% months.each do |date| %>
+            
+            <tr>
+              <% unless count > 0 %>
+                <td rowspan='<%= months.size %>'><%= year %></td>
+              <% end %>
+              <td><%= date.strftime('%B') %></td>
+              <td width="8%"><%= consortium %></td>
+              <% @phenotype_columns.each do |column| %>
+                <td><%= report_link_to(@summary_by_month, consortium, column, :centre => date) %></td>
+              <% end %>
+            </tr>
+
+            <% count += 1%>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+    <br />
+  <% end %>
+</div>

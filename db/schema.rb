@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130322100056) do
+ActiveRecord::Schema.define(:version => 20130326153718) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -130,7 +130,7 @@ ActiveRecord::Schema.define(:version => 20130322100056) do
     t.string   "mi_plan_status",                               :limit => 50
     t.string   "mi_attempt_status",                            :limit => 50
     t.string   "phenotype_attempt_status",                     :limit => 50
-    t.integer  "ikmc_project_id"
+    t.string   "ikmc_project_id"
     t.string   "mutation_sub_type",                            :limit => 100
     t.string   "allele_symbol",                                :limit => 75,  :null => false
     t.string   "genetic_background",                           :limit => 50,  :null => false

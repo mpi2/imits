@@ -346,6 +346,24 @@ div#messages {
 
 /* @group Tables */
 
+.report.production_summary table td {
+  text-align:center;
+}
+
+.report.production_summary h2 {
+  margin-top:1em;
+}
+
+.report.production_summary table.descriptions td {
+  text-align:left;
+}
+
+.report.production_summary table.descriptions tbody th {
+  background:#fff;
+  font-weight:bold;
+  width:250px;
+}
+
 table.full_width {
   width: 100%;
 }

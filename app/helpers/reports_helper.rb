@@ -52,7 +52,7 @@ module ReportsHelper
   end
 
   def allele_symbol_for_csv(symbol)
-    symbol.gsub(/<sup>/, '<').gsub(/<\/sup>/, '>').html_safe
+    symbol.to_s.gsub(/<sup>/, '<').gsub(/<\/sup>/, '>').html_safe
   end
 
   def report_csv_data(hash, consortium, column, date = nil)

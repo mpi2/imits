@@ -63,7 +63,7 @@
           <td><%= report_row.overall_status %></td>
           <td><%= report_row.ikmc_project_id %></td>
           <td><%= pretty_mutation_type(report_row.mutation_sub_type) %></td>
-          <td><%= report_row.allele_symbol.html_safe %></td>
+          <td><%= report_row.allele_symbol.to_s.html_safe %></td>
           <td><%= report_row.genetic_background %></td>
           <td><%= report_row.assigned_date %></td>
           <td><%= report_row.assigned_es_cell_qc_in_progress_date %></td>

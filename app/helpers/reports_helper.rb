@@ -80,13 +80,15 @@ module ReportsHelper
     if type =~ /Efficiency|Cumulative|Goal/i
       value
     elsif value > 0
-      link_to(value, report_detail_path(filter, options))
+      link_to(value, report_detail_path(options))
     end
   end
 
-  def report_detail_path(consortium, options = {})
+  def report_detail_path(options = {})
     path = SITE_PATH + '/v2/reports/mi_production/production_detail'
     path = path + '?' + options.to_query unless options.empty?
+  
+    path
   end
 
   def efficiency_percentage(hash, consortium, centre)

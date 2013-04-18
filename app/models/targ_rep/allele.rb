@@ -10,7 +10,7 @@ class TargRep::Allele < ActiveRecord::Base
   belongs_to :mutation_subtype, :class_name => "TargRep::MutationSubtype"
   belongs_to :gene
 
-
+  access_association_by_attribute :gene, :mgi_accession_id
   access_association_by_attribute :mutation_method,  :name
   access_association_by_attribute :mutation_type,    :name
   access_association_by_attribute :mutation_subtype, :name

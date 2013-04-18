@@ -2,6 +2,8 @@
 
 <h1><%= @title %></h1>
 
+<p><%= link_to 'Download as CSV', report_csv_path %></p>
+
 <div class='report'>
 
   <% @consortia.each do |consortium| %>

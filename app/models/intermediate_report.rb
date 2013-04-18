@@ -3,6 +3,8 @@ class IntermediateReport < ActiveRecord::Base
 
   acts_as_reportable
 
+  require_dependency 'intermediate_report/generate'
+
   ## Class methods
 
   def self.generate(report)

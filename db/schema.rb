@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130326153718) do
+ActiveRecord::Schema.define(:version => 20130417142254) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -121,9 +121,9 @@ ActiveRecord::Schema.define(:version => 20130326153718) do
 
   create_table "intermediate_report", :force => true do |t|
     t.string   "consortium",                                                  :null => false
-    t.string   "sub_project",                                                 :null => false
+    t.string   "sub_project"
     t.string   "priority"
-    t.string   "production_centre",                            :limit => 100, :null => false
+    t.string   "production_centre"
     t.string   "gene",                                         :limit => 75,  :null => false
     t.string   "mgi_accession_id",                             :limit => 40
     t.string   "overall_status",                               :limit => 50
@@ -132,8 +132,8 @@ ActiveRecord::Schema.define(:version => 20130326153718) do
     t.string   "phenotype_attempt_status",                     :limit => 50
     t.string   "ikmc_project_id"
     t.string   "mutation_sub_type",                            :limit => 100
-    t.string   "allele_symbol",                                :limit => 75,  :null => false
-    t.string   "genetic_background",                           :limit => 50,  :null => false
+    t.string   "allele_symbol"
+    t.string   "genetic_background"
     t.date     "assigned_date"
     t.date     "assigned_es_cell_qc_in_progress_date"
     t.date     "assigned_es_cell_qc_complete_date"
@@ -448,7 +448,7 @@ ActiveRecord::Schema.define(:version => 20130326153718) do
   add_index "solr_update_queue_items", ["phenotype_attempt_id"], :name => "index_solr_update_queue_items_on_phenotype_attempt_id", :unique => true
 
   create_table "strains", :force => true do |t|
-    t.string   "name",       :limit => 50, :null => false
+    t.string   "name",       :limit => 100, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -604,7 +604,7 @@ ActiveRecord::Schema.define(:version => 20130326153718) do
     t.string   "name",                :null => false
     t.string   "ikmc_project_id"
     t.string   "intermediate_vector"
-    t.integer  "report_to_public",    :null => false
+    t.boolean  "report_to_public",    :null => false
     t.integer  "pipeline_id"
     t.datetime "created_at",          :null => false
     t.datetime "updated_at",          :null => false

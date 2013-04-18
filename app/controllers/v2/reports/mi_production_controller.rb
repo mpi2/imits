@@ -47,7 +47,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @report  = PriorityReportPresenter.new
     @columns = PriorityReportPresenter.columns
 
-    @status_by_sub_project = @report.report_hash
+    @status_by_priority = @report.report_hash
   end
 
   def komp2_summary_by_month

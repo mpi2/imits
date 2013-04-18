@@ -1,0 +1,4 @@
+Priorities, <%= @columns.join(', ') %>
+<% @status_by_priority[:rows].each do |priority| %>
+<%= priority %>, <%= @columns.map{|column| report_csv_data(@status_by_priority, priority, column)}.join(', ') %>
+<% end %>

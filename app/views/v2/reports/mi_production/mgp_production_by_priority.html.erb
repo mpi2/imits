@@ -2,6 +2,8 @@
 
 <h1><%= @title %></h1>
 
+<p><%= link_to 'Download as CSV', report_csv_path %></p>
+
 <div class="report production_summary">
 
   <table>
@@ -14,11 +16,11 @@
       </tr>
     </thead>
     <tbody>
-      <% @status_by_sub_project[:rows].each do |sub_project| %>
+      <% @status_by_priority[:rows].each do |priority| %>
         <tr>
-          <td><%= sub_project %></td>
+          <td><%= priority %></td>
           <% for column in @columns %>
-            <td><%= report_link_to(@status_by_sub_project, sub_project, column, :filter_by => :sub_project) %>
+            <td><%= report_link_to(@status_by_priority, priority, column, :filter_by => :sub_project) %>
           <% end %>
         </tr>
       <% end %>

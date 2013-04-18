@@ -1,6 +1,8 @@
 <% @title = 'Inspect Micro-Injection Plans' %>
 <h3># Inspect Micro-Injection Plans</h3>
 
+<p><%= link_to 'Download as CSV', report_csv_path %></p>
+
 <div class='report'>
 
   <% for status in @mi_plans.group_by {|m| m.status.name} %>

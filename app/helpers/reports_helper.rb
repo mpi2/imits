@@ -55,8 +55,12 @@ module ReportsHelper
     symbol.gsub(/<sup>/, '<').gsub(/<\/sup>/, '>').html_safe
   end
 
-  def report_csv_data(hash, consortium, column, date)
-    hash["#{consortium}-#{date}-#{column}"].to_i
+  def report_csv_data(hash, consortium, column, date = nil)
+    if date
+      hash["#{consortium}-#{date}-#{column}"].to_i
+    else
+      hash["#{consortium}-#{column}"].to_i
+    end
   end
 
   def report_link_to(hash, filter, type, options = {})

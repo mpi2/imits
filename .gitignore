@@ -1,6 +1,7 @@
 config/old_database.yml
 config/database.production.yml
 config/database.staging.yml
+config/database.labs.yml
 config/database.targ_rep.yml
 config/database.yml
 coverage/*

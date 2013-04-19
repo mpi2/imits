@@ -1,7 +1,7 @@
 <% @tab = 'View Phenotype Attempts' %>
 
 <% content_for :pre_js_footer do %>
-  <%= javascript_tag "USER_PRODUCTION_CENTRE = #{current_user.production_centre.name.to_json}" %>
+  <%= javascript_tag "USER_PRODUCTION_CENTRE = #{current_user ? current_user.production_centre.name.to_json : ''}" %>
   <%= javascript_tag "CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).to_json}" %>
   <%= javascript_tag "CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
   <%= javascript_tag "PHENOTYPE_STATUS_OPTIONS = #{PhenotypeAttempt::Status.all.map(&:name).to_json}" %>
@@ -10,10 +10,11 @@
 <% end %>
 
 <% content_for :post_js_footer do %>
+  <%= javascript_tag "FULL_ACCESS = #{@access}" %>
   <%= javascript_include_tag 'phenotype_attempts/index' %>
 <% end %>
 
-<%= form_tag phenotype_attempts_path, :method => :get, :id => 'pa-search-form' do %>
+<%= form_tag "phenotype_attempts", :method => :get, :id => 'pa-search-form' do %>
   <fieldset class="collapsible">
     <legend>Search for Phenotype Attempts</legend>
     <div>
@@ -26,6 +27,10 @@
           <tr>
             <td><label for="q[production_centre_name]">Production Centre:</label></td>
             <td><%= select_tag 'q[production_centre_name]', options_for_select(['']+@centres.map(&:name), params[:q][:production_centre_name]) %></td>
+          </tr>
+          <tr>
+            <td><label for="q[status_name]">Status:</label></td>
+            <td><%= select_tag 'q[status_name]', options_for_select(['']+PhenotypeAttempt::Status.all.map(&:name), params[:q][:status_name]) %></td>
           </tr>
         </table>
       </div>

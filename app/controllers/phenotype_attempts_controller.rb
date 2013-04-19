@@ -4,16 +4,18 @@ class PhenotypeAttemptsController < ApplicationController
 
   respond_to :html, :json
 
-  before_filter :authenticate_user!
+  before_filter :authenticate_user!, :except => [:index]
 
   def index
     respond_to do |format|
       format.html do
+        authenticate_user!
         set_centres_consortia_and_strains
         q = params[:q] ||= {}
 
         q[:terms] ||= ''
         q[:terms] = q[:terms].lines.map(&:strip).select{|i|!i.blank?}.join("\n")
+        @access = true
       end
 
       format.json { render :json => data_for_serialized(:json) }
@@ -21,7 +23,7 @@ class PhenotypeAttemptsController < ApplicationController
   end
 
   def data_for_serialized(format)
-    super(format, 'id asc', Public::PhenotypeAttempt, :public_search)
+    super(format, 'id asc', Public::PhenotypeAttempt, :public_search, false)
   end
   protected :data_for_serialized
 

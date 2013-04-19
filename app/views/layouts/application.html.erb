@@ -39,6 +39,11 @@
         <%= render '/layouts/navigation' %>
       </div>
       <div class="clear"></div>
+    <% else %>
+      <div id="navigation" class="container_12">
+        <%= render 'open/layouts/navigation' %>
+      </div>
+      <div class="clear"></div>
     <% end %>
 
     <div id="messages" class="container_12">

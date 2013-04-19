@@ -1,0 +1,190 @@
+<% @title = 'Micro-injection Attempt' %>
+
+<div id="object-box" class="grid_8 prefix_2 suffix_2">
+  <h2><%= @title %></h2>
+
+<form class="edit show mi-attempt" >
+<div>
+  <fieldset class="collapsible">
+    <legend>ES Cell Details</legend>
+    <div>
+      <div class="marker-symbol">
+        <div class="label">Marker Symbol</div>
+        <span><%= @mi_attempt.es_cell.marker_symbol %></span>
+      </div>
+
+      <div class="es-cell-name">
+        <div class="label">ES Cell Name</div>
+        <span><%= @mi_attempt.es_cell.name %></span>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="collapsible">
+    <legend>Universal Details</legend>
+    <div>
+      <div class="label">Micro-Injection Date</div>
+      <span><%= @mi_attempt.mi_date %></span>
+
+      <% if ! @mi_attempt.status.blank? %>
+        <div>
+          <label>Status</label>
+          <span><%= @mi_attempt.status.name %></span>
+        </div>
+      <% end %>
+
+      <div class="label">Colony Name</div>
+      <span><%= @mi_attempt.colony_name %></span>
+
+      <div class="label">Consortium Name</div>
+      <span><%= @mi_attempt.consortium_name %></span>
+
+      <div class="label">Production Centre Name</div>
+      <span><%= @mi_attempt.production_centre_name %></span>
+
+      <div class="label">Comments</div>
+      <span><%= @mi_attempt.comments %></span>
+
+    </div>
+  </fieldset>
+
+  <fieldset class="collapsible" id="distribution_centres">
+    <legend>Distribution Centres</legend>
+      <div class="distribution_centres">
+        <% if @mi_attempt.status.try(:name) == 'Genotype confirmed' && @mi_attempt.distribution_centres.length > 0%>
+          <table id="distribution_centres_table" class="report_table">
+            <thead class="title">
+              <tr>
+                <th>Distribution centre</th>
+                <th>Distribution network?</th>
+                <th>Deposited material</th>
+                <th>Start date</th>
+                <th>End date</th>
+              </tr>
+            </thead>
+            <tbody class="distribution_centres">
+              <% @mi_attempt.distribution_centres.each do |distribution_centre| %>
+                <tr>
+                  <td><%= distribution_centre.centre_name %></td>
+                  <td><%= distribution_centre.distribution_network %></td>
+                  <td><%= distribution_centre.deposited_material_name %></td>
+                  <td><%= distribution_centre.start_date %></td>
+                  <td><%= distribution_centre.end_date %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          No Distribution Centres.
+        <% end %>
+      </div>
+  </fieldset>
+
+  <fieldset class="collapsible">
+    <legend>Transfer Details</legend>
+    <div>
+      <div class="label">Blast Strain</div>
+      <span><%= @mi_attempt.blast_strain.try(:name) %></span>
+
+      <div class="label">Total Blasts Injected</div>
+      <span><%= @mi_attempt.total_blasts_injected %></span>
+
+      <div class="label">Total Transferred</div>
+      <span><%= @mi_attempt.total_transferred %></span>
+
+      <div class="label">Number Surrogates Receiving</div>
+      <span><%= @mi_attempt.number_surrogates_receiving %></span>
+    </div>
+  </fieldset>
+
+  <fieldset class="collapsible">
+    <legend>Litter Details</legend>
+    <div>
+      <div class="label">Total Pups Born</div>
+      <span><%= @mi_attempt.total_pups_born %></span>
+
+      <div class="label">Total Female Chimeras</div>
+      <span><%= @mi_attempt.total_female_chimeras %></span>
+
+      <div class="label">Total Male Chimeras</div>
+      <span><%= @mi_attempt.total_male_chimeras %></span>
+
+      <div class="label">Number of Male with</div>
+      <table class="male_chimerism">
+        <thead class="title">
+          <tr><th>0% to 39% Chimerism</th><th>40% to 79% Chimerism</th><th>80% to 99% Chimerism</th><th>100% Chimerism</th></tr>
+        </thead>
+        <tbody class="distribution_centres">
+        <tr>
+          <td><%= @mi_attempt.number_of_males_with_0_to_39_percent_chimerism || 0 %></td>
+          <td><%= @mi_attempt.number_of_males_with_40_to_79_percent_chimerism || 0 %></td>
+          <td><%= @mi_attempt.number_of_males_with_80_to_99_percent_chimerism || 0 %></td>
+          <td><%= @mi_attempt.number_of_males_with_100_percent_chimerism || 0 %></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </fieldset>
+
+  <fieldset class="collapsible">
+    <legend>Chimera Mating Details</legend>
+    <div>
+      <div class="label">Colony Background Strain</div>
+      <span><%= @mi_attempt.colony_background_strain.try(:name) %></span>
+
+      <div class="label">Test Cross Strain</div>
+      <span><%= @mi_attempt.test_cross_strain.try(:name) %></span>
+
+      <div class="label">Date Chimeras Mated</div>
+      <span><%= @mi_attempt.date_chimeras_mated %></span>
+
+      <div class="label">Number of Chimera Matings Attempted</div>
+      <span><%= @mi_attempt.number_of_chimera_matings_attempted %></span>
+
+      <div class="label">Number of chimera Matings Successful</div>
+      <span><%= @mi_attempt.number_of_chimera_matings_successful %></span>
+
+      <div class="label">Number of Chimeras with glt from cct</div>
+      <span><%= @mi_attempt.number_of_chimeras_with_glt_from_cct %></span>
+
+      <div class="label">Number of Chimeras with glt from genotyping</div>
+      <span><%= @mi_attempt.number_of_chimeras_with_glt_from_genotyping %></span>
+
+      <div class="label">Number of Chimeras with</div>
+      <table class="male_chimerism">
+        <thead class="title">
+          <tr><th>0% to 39% glt</th><th>40% to 79% glt</th><th>80% to 99% glt</th><th>100% glt</th></tr>
+        </thead>
+        <tbody class="distribution_centres">
+        <tr>
+          <td><%= @mi_attempt.number_of_chimeras_with_0_to_9_percent_glt || 0 %></td>
+          <td><%= @mi_attempt.number_of_chimeras_with_10_to_49_percent_glt || 0 %></td>
+          <td><%= @mi_attempt.number_of_chimeras_with_50_to_99_percent_glt || 0 %></td>
+          <td><%= @mi_attempt.number_of_chimeras_with_100_percent_glt || 0 %></td>
+        </tr>
+        </tbody>
+      </table>
+
+      <div class="label">Total F1 Mice from Matings</div>
+      <span><%= @mi_attempt.total_f1_mice_from_matings %></span>
+
+      <div class="label">Number of cct Offspring</div>
+      <span><%= @mi_attempt.number_of_cct_offspring %></span>
+
+      <div class="label">Number of het Offspring</div>
+      <span><%= @mi_attempt.number_of_het_offspring %></span>
+
+      <div class="label">Number of Live glt Offspring</div>
+      <span><%= @mi_attempt.number_of_live_glt_offspring %></span>
+    </div>
+  </fieldset>
+
+  <fieldset class="collapsible">
+    <legend>QC Details</legend>
+    <div>
+
+    </div>
+  </fieldset>
+
+</form>
+</div>

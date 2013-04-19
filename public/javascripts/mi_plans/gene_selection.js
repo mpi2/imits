@@ -11,8 +11,13 @@ Ext.onReady(function() {
   );
 
   // Initialize the grid
-  var grid = Ext.create('Imits.widget.GeneGrid', { renderTo: 'mi-planning-grid' });
-
+  var grid;
+  if (FULL_ACCESS == true){
+    grid = Ext.create('Imits.widget.GeneGrid', { renderTo: 'mi-planning-grid' })
+  }
+  else{
+    grid = Ext.create('Imits.widget.GeneGridGeneral', { renderTo: 'mi-planning-grid' })
+  }
   // Resize the grid and set up listeners
   grid.manageResize();
   Ext.EventManager.onWindowResize(grid.manageResize, grid);

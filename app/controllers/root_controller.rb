@@ -2,12 +2,16 @@ class RootController < ApplicationController
 
   respond_to :html
 
-  before_filter :authenticate_user!
-
   def index
+    if user_signed_in?
+      render 'root/index'
+    else
+      render 'open/root/index'
+    end
   end
 
   def users_by_production_centre
+    authenticate_user!
     @users_by_production_centre = {}
 
     User.order('users.name').includes(:production_centre).each do |user|

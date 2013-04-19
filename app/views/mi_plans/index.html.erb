@@ -1,14 +1,15 @@
 <% @tab = 'Plans' %>
 
-<%= render 'plan_editor_js_constants' %>
+<%= render 'mi_plans/plan_editor_js_constants' %>
 
 <% content_for :pre_js_footer do %>
   <%= javascript_tag "STATUS_OPTIONS = #{MiPlan::Status.all.map(&:name).to_json}" %>
-  <%= javascript_tag "USER_PRODUCTION_CENTRE = #{current_user.production_centre.name.to_json}" %>
+  <%= javascript_tag "USER_PRODUCTION_CENTRE = #{current_user ? current_user.production_centre.name.to_json : ''}" %>
 <% end %>
 
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag 'mi_plans/index' %>
+  <%= javascript_tag "FULL_ACCESS = #{@access}" %>
 <% end %>
 
 <div class="clear"></div>

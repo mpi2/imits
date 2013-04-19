@@ -489,6 +489,26 @@ form fieldset.collapsible-content-hidden {
 	border-radius: 0px;
 }
 
+form table.male_chimerism {
+  margin-top: 0;
+  width: 700px;
+}
+
+form table.male_chimerism th {
+  border: 1px solid #999;
+  text-align: left;
+  background-color: #ccc;
+  padding: 3px 3px;
+  width: 25%;
+}
+
+form table.male_chimerism td {
+    border: 1px solid #999;
+    padding: 3px 3px;
+    width: 25%;
+}
+
+
 /* @end */
 
 /* @group User Login / Password Change Form */
@@ -641,3 +661,13 @@ div.report_control * {
 .x-action-col-icon:hover {
   cursor:pointer;
 }
+
+.mpi2-allele-grid table th {
+    text-align: left;
+    font-weight: bold;
+    color: #01617a;
+    border-bottom: 3px solid #d57c24;
+    border-top: none!important;
+  }
+
+.mpi2-search-container table tr, .mpi2-search-container table, .mpi2-search-container table td {}

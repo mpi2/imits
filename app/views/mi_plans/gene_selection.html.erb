@@ -5,10 +5,11 @@
   gene_search_params = '' if gene_search_params.empty?
 -%>
 
-<%= render 'plan_editor_js_constants' %>
+<%= render 'mi_plans/plan_editor_js_constants' %>
 
 <% content_for :pre_js_footer do %>
   <%= javascript_tag "GENE_SEARCH_PARAMS = #{gene_search_params.to_json}" %>
+  <%= javascript_tag "FULL_ACCESS = #{@access}" %>
 <% end %>
 
 <% content_for :post_js_footer do %>
@@ -17,7 +18,7 @@
 
 <h2><%= @tab %></h2>
 
-<%= form_tag gene_selection_mi_plans_path, :method => :get, :id => 'gene-search-form'  do %>
+<%= form_tag "gene_selection", :method => :get, :id => 'gene-search-form'  do %>
   <fieldset class="collapsible">
     <legend>Filter Genes</legend>
     <div>
@@ -31,7 +32,7 @@
       </div>
       <div class="grid_6 omega">
         <div style="display:inline-block;">
-          <label for="q[mi_plans_consortium_id_in]">MIs for Consortium:</label>
+          <label for="q[mi_plans_consortium_id_in]">Consortium:</label>
           <%=
             select_tag(
               'q[mi_plans_consortium_id_in]',
@@ -41,7 +42,7 @@
           %>
         </div>
         <div style="display:inline-block;">
-          <label for="q[mi_plans_production_centre_id_in]">MIs at Production Centre:</label>
+          <label for="q[mi_plans_production_centre_id_in]">Production Centre:</label>
           <%=
             select_tag(
               'q[mi_plans_production_centre_id_in]',
@@ -49,6 +50,30 @@
               { :include_blank => true, :multiple => true, :size => 6 }
             )
           %>
+        </div>
+        <div style="display:inline-block;">
+          <table>
+            <tr>
+              <td><label for="q[mi_plans_mi_attempts_id_not_null]">MI in progress:</label></td>
+              <% mi_default = params[:q][:mi_plans_mi_attempts_id_not_null] && params[:q][:mi_plans_mi_attempts_id_not_null] == '1' ? "checked" : "unchecked" %>
+              <td><%= check_box :q, :mi_plans_mi_attempts_id_not_null, {:checked => mi_default} %></td>
+            </tr>
+            <tr>
+              <td><label for="q[mi_plans_mi_attempts_status_stamps_status_id_in]">Genotype Confirmed MI:</label></td>
+              <% mi_default = params[:q][:mi_plans_mi_attempts_status_stamps_status_id_in] && params[:q][:mi_plans_mi_attempts_status_stamps_status_id_in] == '2' ? "checked" : "unchecked" %>
+              <td><%= check_box :q, :mi_plans_mi_attempts_status_stamps_status_id_in, {:checked => mi_default}, '2', '' %></td>
+            </tr>
+            <tr>
+              <td><label for="q[mi_plans_phenotype_attempts_id_not_null]">Phenotype in progress:</label></td>
+              <% pa_default = params[:q][:mi_plans_phenotype_attempts_id_not_null] && params[:q][:mi_plans_phenotype_attempts_id_not_null] == '1' ? "checked" : "unchecked" %>
+              <td><%= check_box :q, :mi_plans_phenotype_attempts_id_not_null, {:checked => pa_default} %></td>
+            </tr>
+            <tr>
+              <td><label for="q[mi_plans_phenotype_attempts_status_stamps_status_id_in]">CreExised Phenotype:</label></td>
+              <% pa_default = params[:q][:mi_plans_phenotype_attempts_status_stamps_status_id_in] && params[:q][:mi_plans_phenotype_attempts_status_stamps_status_id_in] == '6' ? "checked" : "unchecked" %>
+              <td><%= check_box :q, :mi_plans_phenotype_attempts_status_stamps_status_id_in, {:checked => pa_default}, '6','' %></td>
+            </tr>
+          </table>
         </div>
       </div>
       <div id="buttons" class="grid_12">

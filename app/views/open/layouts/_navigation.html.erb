@@ -1,0 +1,17 @@
+<%
+  navigation_links = [
+    ['Home', root_path],
+    ['Gene Selection', gene_selection_open_mi_plans_path],
+    ['Plans', open_mi_plans_path],
+    ['Mouse Production', open_mi_attempts_path()],
+    ['Phenotyping', open_phenotype_attempts_path()]
+  ]
+%>
+
+<ul>
+  <% navigation_links.each do |link| %>
+    <li <% if @tab == link[0] %>class="current"<% end %>>
+      <%= link_to *link %>
+    </li>
+  <% end %>
+</ul>

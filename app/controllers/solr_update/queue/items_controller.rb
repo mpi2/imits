@@ -10,7 +10,7 @@ class SolrUpdate::Queue::ItemsController < ApplicationController
   def index
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'created_at asc', Public::SolrUpdate::Queue::Item, :public_search)
+        render :json => data_for_serialized(:json, 'created_at asc', Public::SolrUpdate::Queue::Item, :public_search, false)
       end
 
       format.html

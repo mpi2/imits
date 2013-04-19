@@ -13,9 +13,10 @@
 
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag 'mi_attempts/index' %>
+  <%= javascript_tag "FULL_ACCESS = #{@access}" %>
 <% end %>
 
-<%= form_tag mi_attempts_path, :method => :get, :id => 'mi-search-form' do %>
+<%= form_tag "mi_attempts", :method => :get, :id => 'mi-search-form' do %>
   <fieldset class="collapsible">
     <legend>Search for Micro-Injections</legend>
     <div>

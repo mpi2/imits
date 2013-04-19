@@ -1,0 +1,51 @@
+<% @tab = "Home" %>
+
+<div class="grid_12">
+  <h2>Welcome to iMits</h2>
+
+  <p>What would you like to do today?</p>
+
+  <div class="clear" style="margin-top:15px"></div>
+</div>
+
+<div class="grid_8">
+  <div class="homepage-links">
+    <a href="<%= gene_selection_open_mi_plans_path %>">
+      <h3>Gene Selection / Micro-Injection Planning</h3>
+      <p>Register interest (on behalf of your consortium) in micro-injecting some genes</p>
+    </a>
+  </div>
+
+  <div class="homepage-links">
+    <a href="<%= open_mi_attempts_path() %>">
+      <h3>Search For Micro-Injection Attempts</h3>
+      <p>Search for data on existing micro-injection attempt records</p>
+    </a>
+  </div>
+</div>
+
+<div class="grid_4">
+  <div class="homepage-links">
+    <a href="<%= consortia_path %>">
+      <h4>Consortia</h4>
+      <p>
+        View a list of all consortia submitting data to iMits and the production centres
+        that are working as part of these consortia
+      </p>
+    </a>
+  </div>
+
+  <div class="homepage-links">
+    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :detail) %>">
+      <h4>Gene-by-gene Status Change Dates for all IMPC Consortia</h4>
+      <p>
+        View the mouse production and phenotyping progress for all genes broken down by IMPC consortia.
+      </p>
+    </a>
+  </div>
+
+</div>
+
+<div class="grid_12">
+  <%= render 'open/root/mpi2_grid' %>
+</div>

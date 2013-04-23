@@ -7,7 +7,7 @@ class PhenotypeAttempt::CreateInFormIntegrationTest < TarMits::JsIntegrationTest
     should 'not display create phenotype attempt column' do
       visit '/'
       click_link "Mouse Production"
-      within('.x-grid') { assert page.has_no_content?('Phenotype') }
+      within('.x-grid') {assert has_no_content?('Create')}
     end
   end
 

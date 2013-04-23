@@ -3,6 +3,14 @@
 require 'test_helper'
 
 class PhenotypeAttempt::CreateInFormIntegrationTest < TarMits::JsIntegrationTest
+  context 'When user is not logged in grid' do
+    should 'not display create phenotype attempt column' do
+      visit '/'
+      click_link "Mouse Production"
+      within('.x-grid') { assert page.has_no_content?('Phenotype') }
+    end
+  end
+
   context 'When creating Phenotype Attempt in form' do
 
     setup do

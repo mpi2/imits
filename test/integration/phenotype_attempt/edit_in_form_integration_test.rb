@@ -3,6 +3,25 @@
 require 'test_helper'
 
 class PhenotypeAttempt::EditInFormTest < TarMits::JsIntegrationTest
+
+  context 'When user is not logged in' do
+
+    setup do
+      ApplicationModel.uncached do
+        mi = Factory.create(:mi_attempt2_status_gtc,
+          :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI'))
+        @phenotype_attempt = Factory.create :phenotype_attempt_status_pdc,
+                :colony_background_strain => Strain.find_by_name!('C57BL/6N'),
+                :mi_attempt => mi
+      end
+    end
+
+    should 'user should not be able to edit Phenotpye Attempt' do
+      visit phenotype_attempt_path(@phenotype_attempt)
+      assert_login_page
+    end
+  end
+
   context 'When editing Phenotype Attempt in form' do
 
     setup do

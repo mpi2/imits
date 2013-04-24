@@ -1,0 +1,479 @@
+class IntermediateReport
+
+  class Generate
+
+    attr_accessor :report_rows, :size, :clone_efficiencies, :gene_efficiencies
+
+    def initialize
+      @report_rows = []
+      @clone_efficiencies = {}
+      @gene_efficiencies = {}
+
+      create_clone_efficiency_hash
+      create_gene_efficiency_hash
+      parse_raw_report
+
+      nil
+    end
+
+    def raw_report
+      ActiveRecord::Base.connection.execute(self.class.report_sql).to_a
+    end
+
+    def raw_clone_efficiencies
+      ActiveRecord::Base.connection.execute(self.class.clone_efficiency_sql).to_a
+    end
+
+    def raw_gene_efficiencies
+      ActiveRecord::Base.connection.execute(self.class.gene_efficiency_sql).to_a
+    end
+
+    def create_clone_efficiency_hash
+      raw_clone_efficiencies.each do |ce|
+        @clone_efficiencies[ce['mi_plan_id']] = {
+          :distinct_genotype_confirmed_es_cells => ce['gtc_count'],
+          :distinct_old_non_genotype_confirmed_es_cells => ce['non_gtc_count']
+        }
+      end
+
+      nil
+    end
+
+    def create_gene_efficiency_hash
+      raw_gene_efficiencies.each do |ge|
+        @gene_efficiencies[ge['mi_plan_id']] = {
+          :gc_pipeline_efficiency_gene_count => ge['gtc_count'],
+          :total_pipeline_efficiency_gene_count => ge['total_count']
+        }
+      end
+    end
+
+    def parse_raw_report
+      
+      raw_report.each do |report_row|
+
+        if report_row['gene'] && report_row['allele_symbol_superscript']
+          report_row['allele_symbol'] = report_row['gene']+"<sup>"+report_row['allele_symbol_superscript']+"</sup>"
+        end
+
+        if hash = @clone_efficiencies[report_row['mi_plan_id']]
+          report_row['distinct_genotype_confirmed_es_cells']         = hash[:distinct_genotype_confirmed_es_cells]
+          report_row['distinct_old_non_genotype_confirmed_es_cells'] = hash[:distinct_old_non_genotype_confirmed_es_cells]
+        end
+
+        if hash = @gene_efficiencies[report_row['mi_plan_id']]
+          report_row['gc_pipeline_efficiency_gene_count']    = hash[:gc_pipeline_efficiency_gene_count]
+          report_row['total_pipeline_efficiency_gene_count'] = hash[:total_pipeline_efficiency_gene_count]
+        end
+
+        report_row['distinct_genotype_confirmed_es_cells']         = report_row['distinct_genotype_confirmed_es_cells'].to_i
+        report_row['distinct_old_non_genotype_confirmed_es_cells'] = report_row['distinct_old_non_genotype_confirmed_es_cells'].to_i
+        report_row['gc_pipeline_efficiency_gene_count']            = report_row['gc_pipeline_efficiency_gene_count'].to_i
+        report_row['total_pipeline_efficiency_gene_count']         = report_row['total_pipeline_efficiency_gene_count'].to_i
+
+        report_row.delete('allele_symbol_superscript')
+
+        @report_rows << report_row
+      end
+
+      true
+    end
+
+    def size
+      @size ||= report_rows.size
+    end
+
+    def to_s
+      "#<IntermediateReport::Generate size: #{size}>"
+    end
+
+    def insert_report
+      sql =  <<-EOF
+        BEGIN;
+
+        TRUNCATE intermediate_report;
+
+        INSERT INTO intermediate_report (#{self.class.columns.join(', ')}) VALUES
+      EOF
+      
+      values = Array.new.tap do |v|
+        report_rows.each do |report_row|
+          v << "(#{self.class.row_for_sql(report_row)})"
+        end
+      end
+
+      sql << values.join(",\n")
+
+      sql << "; COMMIT;"
+
+      ActiveRecord::Base.connection.execute(sql)
+
+      nil
+    end
+
+    ##
+    ## Class methods
+    ##
+
+    class << self
+
+      def row_for_sql(report_row)
+        columns.map {|c| data_for_sql(c, report_row)}.join(', ')
+      end
+
+      def data_for_sql(column, report_row)
+
+        data = report_row[column]
+
+        if data.blank?
+          data = 'NULL'
+        elsif data.is_a?(String)
+          data = "\'#{data}\'"
+        end
+
+        data
+      end
+
+      def report_sql
+        <<-EOF
+          -- get the best_mi_attempts per plan in a CTE using WITH
+          WITH best_mi_attempts AS (
+            SELECT 
+              best_mi_attempts.id AS mi_attempts_id,
+              mi_attempt_statuses.name AS mi_attempt_status,
+              best_mi_attempts.mi_plan_id,
+              best_mi_attempts.colony_name AS mi_attempt_colony_name,
+              targ_rep_es_cells.ikmc_project_id,
+              targ_rep_mutation_types.name AS mutation_sub_type,
+              targ_rep_es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
+              strains.name AS genetic_background,
+              in_progress_stamps.created_at::date AS micro_injection_in_progress_date,
+              chimearic_stamps.created_at::date   AS chimeras_obtained_date,
+              gc_stamps.created_at::date          AS genotype_confirmed_date,
+              aborted_stamps.created_at::date     AS micro_injection_aborted_date
+
+            FROM (
+              SELECT DISTINCT mi_attempts.*
+              FROM mi_attempts
+              JOIN (
+                SELECT 
+                  best_attempts_for_plan_and_status.mi_plan_id,
+                  best_attempts_for_plan_and_status.order_by,
+                  first_value(best_attempts_for_plan_and_status.mi_attempt_id) OVER (PARTITION BY best_attempts_for_plan_and_status.mi_plan_id) AS mi_attempt_id
+                FROM (
+                  SELECT 
+                    mi_attempts.mi_plan_id,
+                    mi_attempt_statuses.order_by,
+                    mi_attempts.id as mi_attempt_id
+
+                  FROM mi_attempts
+                  JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
+                  JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = 1
+                  ORDER BY
+                    mi_attempts.mi_plan_id,
+                    mi_attempt_statuses.order_by DESC,
+                    mi_attempt_status_stamps.created_at ASC
+                ) as best_attempts_for_plan_and_status
+              ) AS att ON mi_attempts.id = att.mi_attempt_id
+
+            ) best_mi_attempts
+
+            JOIN targ_rep_es_cells ON targ_rep_es_cells.id = best_mi_attempts.es_cell_id
+            JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
+            JOIN mi_attempt_statuses ON mi_attempt_statuses.id = best_mi_attempts.status_id
+            LEFT JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
+            LEFT JOIN strains ON best_mi_attempts.colony_background_strain_id = strains.id
+            LEFT JOIN mi_attempt_status_stamps AS in_progress_stamps ON in_progress_stamps.mi_attempt_id = best_mi_attempts.id AND in_progress_stamps.status_id = 1
+            LEFT JOIN mi_attempt_status_stamps AS gc_stamps          ON gc_stamps.mi_attempt_id = best_mi_attempts.id          AND gc_stamps.status_id = 2
+            LEFT JOIN mi_attempt_status_stamps AS aborted_stamps     ON aborted_stamps.mi_attempt_id = best_mi_attempts.id     AND aborted_stamps.status_id = 3
+            LEFT JOIN mi_attempt_status_stamps AS chimearic_stamps   ON chimearic_stamps.mi_attempt_id = best_mi_attempts.id   AND chimearic_stamps.status_id = 4
+
+            ORDER BY mi_plan_id
+          ),
+
+          -- get the best_phenotype_attempts per plan in a CTE using WITH
+          best_phenotype_attempts AS (
+            SELECT 
+              best_phenotype_attempts.colony_name AS phenotype_attempt_colony_name,
+              best_phenotype_attempts.id as phenotype_attempt_id,
+              phenotype_attempt_statuses.name AS phenotype_attempt_status,
+              best_phenotype_attempts.mi_plan_id,
+              mi_attempts.colony_name AS pa_mi_attempt_colony_name,
+              centres.name AS pa_mi_attempt_production_centre,
+              consortia.name AS pa_mi_attempt_consortium,
+              registered_statuses.created_at::date as phenotype_attempt_registered_date,
+              re_started_statuses.created_at::date as rederivation_started_date,
+              re_complete_statuses.created_at::date as rederivation_complete_date,
+              cre_started_statuses.created_at::date as cre_excision_started_date,
+              cre_complete_statuses.created_at::date as cre_excision_complete_date,
+              started_statuses.created_at::date as phenotyping_started_date,
+              complete_statuses.created_at::date as phenotyping_complete_date,
+              aborted_statuses.created_at::date as phenotype_attempt_aborted_date
+                        
+            FROM (
+              SELECT DISTINCT phenotype_attempts.*
+              FROM phenotype_attempts
+              JOIN (
+                SELECT 
+                  best_attempts_for_plan_and_status.mi_plan_id,
+                  best_attempts_for_plan_and_status.order_by,
+                  first_value(best_attempts_for_plan_and_status.phenotype_attempt_id) OVER (PARTITION BY best_attempts_for_plan_and_status.mi_plan_id) AS phenotype_attempt_id
+                FROM (
+                  SELECT 
+                    phenotype_attempts.mi_plan_id,
+                    phenotype_attempt_statuses.order_by,
+                    phenotype_attempts.id as phenotype_attempt_id
+
+                    FROM phenotype_attempts
+                    JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id
+                    ORDER BY
+                      phenotype_attempts.mi_plan_id,
+                      phenotype_attempt_statuses.order_by DESC
+                ) AS best_attempts_for_plan_and_status
+              ) AS attempts_join ON phenotype_attempts.id = attempts_join.phenotype_attempt_id
+            ) best_phenotype_attempts
+
+            LEFT JOIN mi_attempts ON best_phenotype_attempts.mi_attempt_id = mi_attempts.id
+            LEFT JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+            LEFT JOIN consortia ON consortia.id = mi_plans.consortium_id
+            LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
+            JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = best_phenotype_attempts.status_id
+
+            LEFT JOIN phenotype_attempt_status_stamps AS aborted_statuses ON aborted_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND aborted_statuses.status_id = 1
+            LEFT JOIN phenotype_attempt_status_stamps AS registered_statuses ON registered_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND registered_statuses.status_id = 2
+            LEFT JOIN phenotype_attempt_status_stamps AS re_started_statuses ON re_started_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND re_started_statuses.status_id = 3
+            LEFT JOIN phenotype_attempt_status_stamps AS re_complete_statuses ON re_complete_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND re_complete_statuses.status_id = 4
+            LEFT JOIN phenotype_attempt_status_stamps AS cre_started_statuses ON cre_started_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND cre_started_statuses.status_id = 5
+            LEFT JOIN phenotype_attempt_status_stamps AS cre_complete_statuses ON cre_complete_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND cre_complete_statuses.status_id = 6
+            LEFT JOIN phenotype_attempt_status_stamps AS started_statuses ON started_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND started_statuses.status_id = 7
+            LEFT JOIN phenotype_attempt_status_stamps AS complete_statuses ON complete_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND complete_statuses.status_id = 8
+
+            ORDER BY mi_plan_id
+          )
+
+          -- build intermediate report
+
+          SELECT
+            consortia.name AS consortium,
+            mi_plan_sub_projects.name AS sub_project,
+            mi_plan_priorities.name AS priority,
+            centres.name AS production_centre,
+            genes.marker_symbol AS gene,
+            genes.mgi_accession_id,
+            CASE
+              WHEN best_phenotype_attempts.phenotype_attempt_status is null AND best_mi_attempts.mi_attempt_status is null
+                THEN mi_plan_statuses.name
+              WHEN best_phenotype_attempts.phenotype_attempt_status is null
+                THEN best_mi_attempts.mi_attempt_status
+              ELSE best_phenotype_attempts.phenotype_attempt_status
+            END AS overall_status, 
+            mi_plan_statuses.name AS mi_plan_status,
+            best_mi_attempts.mi_attempt_status,
+            best_phenotype_attempts.phenotype_attempt_status,
+            best_mi_attempts.ikmc_project_id,
+            best_mi_attempts.mutation_sub_type,
+            -- #allele_symbol is a method, we either need to combine the marker_symbol and the allele_symbol_superscript or call the method on the model
+            best_mi_attempts.allele_symbol_superscript,
+            best_mi_attempts.genetic_background,
+            assigned_stamps.created_at::date AS assigned_date,
+            in_progress_stamps.created_at::date AS assigned_es_cell_qc_in_progress_date,
+            complete_stamps.created_at::date AS assigned_es_cell_qc_complete_date,
+            best_mi_attempts.micro_injection_in_progress_date,
+            best_mi_attempts.chimeras_obtained_date,
+            best_mi_attempts.genotype_confirmed_date,
+            best_mi_attempts.micro_injection_aborted_date,
+            best_phenotype_attempts.phenotype_attempt_registered_date,
+            best_phenotype_attempts.rederivation_started_date,
+            best_phenotype_attempts.rederivation_complete_date,
+            best_phenotype_attempts.cre_excision_started_date,
+            best_phenotype_attempts.cre_excision_complete_date,
+            best_phenotype_attempts.phenotyping_started_date,
+            best_phenotype_attempts.phenotyping_complete_date,
+            best_phenotype_attempts.phenotype_attempt_aborted_date,
+            --  distinct_genotype_confirmed_es_cells         :integer
+            --  distinct_old_non_genotype_confirmed_es_cells :integer
+            mi_plans.id AS mi_plan_id,
+            --  total_pipeline_efficiency_gene_count         :integer
+            --  gc_pipeline_efficiency_gene_count            :integer
+            mi_plans.is_bespoke_allele,
+            aborted_stamps.created_at::date AS aborted_es_cell_qc_failed_date,
+            case
+              when best_mi_attempts.mi_attempt_colony_name is null
+              then best_phenotype_attempts.pa_mi_attempt_colony_name
+              else best_mi_attempts.mi_attempt_colony_name
+            end AS mi_attempt_colony_name,
+            best_phenotype_attempts.pa_mi_attempt_consortium AS mi_attempt_consortium,
+            best_phenotype_attempts.pa_mi_attempt_production_centre AS mi_attempt_production_centre,
+            best_phenotype_attempts.phenotype_attempt_colony_name
+
+          FROM mi_plans
+
+          JOIN consortia ON consortia.id = mi_plans.consortium_id
+          JOIN mi_plan_sub_projects ON mi_plan_sub_projects.id = mi_plans.sub_project_id
+          JOIN mi_plan_priorities ON mi_plan_priorities.id = mi_plans.priority_id
+          JOIN genes ON genes.id = mi_plans.gene_id
+          JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id
+
+          LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
+
+          LEFT JOIN mi_plan_status_stamps AS assigned_stamps    ON assigned_stamps.mi_plan_id = mi_plans.id AND assigned_stamps.status_id = 1
+          LEFT JOIN mi_plan_status_stamps AS in_progress_stamps ON in_progress_stamps.mi_plan_id = mi_plans.id AND in_progress_stamps.status_id = 8
+          LEFT JOIN mi_plan_status_stamps AS complete_stamps    ON complete_stamps.mi_plan_id = mi_plans.id AND complete_stamps.status_id = 9
+          LEFT JOIN mi_plan_status_stamps AS aborted_stamps     ON aborted_stamps.mi_plan_id  = mi_plans.id AND aborted_stamps.status_id = 10
+
+          LEFT JOIN best_mi_attempts ON best_mi_attempts.mi_plan_id = mi_plans.id
+          LEFT JOIN best_phenotype_attempts ON best_phenotype_attempts.mi_plan_id = mi_plans.id
+
+          ORDER BY mi_plans.id
+        EOF
+      end
+
+      def clone_efficiency_sql
+        <<-EOF
+          SELECT
+            mi_plans.id AS mi_plan_id,
+            sum(case when mi_attempts.status_id = 2 then 1 else 0 end) AS gtc_count,
+            sum(case when mi_attempts.status_id != 2 then 1 else 0 end) AS non_gtc_count--,
+            --count(*)
+            
+          FROM targ_rep_es_cells
+
+          JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN consortia ON consortia.id = mi_plans.consortium_id
+          JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
+          LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
+
+          WHERE
+            mi_attempt_status_stamps.created_at > '#{report_cut_off_date}'
+          AND
+            mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
+          AND
+            (
+              centres.name = 'HMGU' AND consortia.name  = 'Helmholtz GMC'
+            OR
+              centres.name = 'ICS' AND consortia.name  IN ('Phenomin', 'Helmholtz GMC')
+            OR
+              centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
+            OR
+              centres.name = 'Harwell' AND consortia.name  IN ('BaSH', 'MRC')
+            OR
+              centres.name = 'UCD' AND consortia.name  = 'DTCC'
+            OR
+              centres.name = 'WTSI' AND consortia.name  IN ('MGP', 'BaSH')
+            OR
+              centres.name = 'Monterotondo' AND consortia.name  = 'Monterotondo'
+            )
+
+          GROUP BY mi_plans.id
+        EOF
+      end
+
+      def gene_efficiency_sql
+        <<-EOF
+          WITH counts AS (
+            SELECT
+              genes.id AS gene_id,
+              mi_plans.id AS mi_plan_id,
+              sum(case when mi_attempts.status_id = 2 then 1 else 0 end) as gtc_count,
+              --sum(case when mi_attempts.status_id != 2 then 1 else 0 end) as non_gtc_count,
+              count(*)
+              
+            FROM genes
+
+            JOIN targ_rep_alleles ON genes.id = targ_rep_alleles.gene_id
+            JOIN targ_rep_es_cells ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
+            JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+            JOIN consortia ON consortia.id = mi_plans.consortium_id
+            JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
+            LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
+
+            WHERE
+              mi_attempt_status_stamps.created_at > '2011-06-01 00:00:00'
+            AND
+              mi_attempt_status_stamps.created_at < '2012-10-17 10:25:57'
+            AND
+              (
+                centres.name = 'HMGU' AND consortia.name  = 'Helmholtz GMC'
+              OR
+                centres.name = 'ICS' AND consortia.name  IN ('Phenomin', 'Helmholtz GMC')
+              OR
+                centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
+              OR
+                centres.name = 'Harwell' AND consortia.name  IN ('BaSH', 'MRC')
+              OR
+                centres.name = 'UCD' AND consortia.name  = 'DTCC'
+              OR
+                centres.name = 'WTSI' AND consortia.name  IN ('MGP', 'BaSH')
+              OR
+                centres.name = 'Monterotondo' AND consortia.name  = 'Monterotondo'
+              )
+
+            GROUP BY genes.id, mi_plans.id
+            ORDER BY mi_plans.id asc
+          )
+
+          SELECT
+            gene_id,
+            mi_plan_id,
+            SUM(case when gtc_count > 0 then 1 else 0 end) AS gtc_count,
+            --SUM(case when non_gtc_count > 0 then 1 else 0 end) AS non_gtc_count,
+            SUM(case when count > 0 then 1 else 0 end) AS total_count
+
+          FROM counts
+          GROUP BY gene_id, mi_plan_id
+        EOF
+      end
+
+      def report_cut_off_date
+        '2011-06-01 00:00:00'
+      end
+
+      def columns
+        [
+          'consortium',                                  
+          'sub_project',
+          'priority',
+          'production_centre',
+          'gene',
+          'mgi_accession_id',
+          'overall_status',
+          'mi_plan_status',
+          'mi_attempt_status',
+          'phenotype_attempt_status',
+          'ikmc_project_id',
+          'mutation_sub_type',
+          'allele_symbol',
+          'genetic_background',
+          'assigned_date',
+          'assigned_es_cell_qc_in_progress_date',
+          'assigned_es_cell_qc_complete_date',
+          'micro_injection_in_progress_date',
+          'chimeras_obtained_date',
+          'genotype_confirmed_date',
+          'micro_injection_aborted_date',
+          'phenotype_attempt_registered_date',
+          'rederivation_started_date',
+          'rederivation_complete_date',
+          'cre_excision_started_date',
+          'cre_excision_complete_date',
+          'phenotyping_started_date',
+          'phenotyping_complete_date',
+          'phenotype_attempt_aborted_date',
+          'distinct_genotype_confirmed_es_cells',
+          'distinct_old_non_genotype_confirmed_es_cells',
+          'mi_plan_id',
+          'total_pipeline_efficiency_gene_count',
+          'gc_pipeline_efficiency_gene_count',
+          'is_bespoke_allele',
+          'aborted_es_cell_qc_failed_date',
+          'mi_attempt_colony_name',
+          'mi_attempt_consortium',
+          'mi_attempt_production_centre',
+          'phenotype_attempt_colony_name'
+        ]
+      end
+    end
+  end
+end

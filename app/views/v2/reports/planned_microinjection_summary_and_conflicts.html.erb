@@ -1,0 +1,143 @@
+<% @title = 'Planned Micro-Injection Summary and Conflicts' %>
+
+<h2><%= @title %></h2>
+
+<h3># Genes in Planned Micro-Injection Statuses</h3>
+
+<p><%= link_to 'Download as CSV', report_csv_path %></p>
+
+<div class='report'>
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <% @statuses.each do |status| %>
+          <th><%= status.name %></th>
+        <% end %>
+        <th>TOTAL BY CONSORTIUM</th>
+      </tr>
+    </thead>
+
+    <% for consortium in @consortia %>
+      <tr>
+        <td><%= consortium %></td>
+        <% @statuses.each do |status| %>
+          <td><%= @consortia_by_status["#{consortium} - #{status.name}"] || 0 %></td>
+        <% end %>
+        <td><%= @consortia_totals[consortium] || 0 %></td>
+      </tr>
+    <% end %>
+
+    <tfoot>
+      <tr>
+        <td>TOTAL BY STATUS</td>
+        <% @statuses.each do |status| %>
+          <td><%= @status_totals[status.name] || 0 %></td>
+        <% end %>
+        <td><%= @gene_count %></td>
+      </tr>
+    <tfoot>
+
+
+  
+  </table>
+</div>
+
+<h3># Genes in Priority Groups</h3>
+<div class='report'>
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <% @priorities.each do |priority| %>
+          <th><%= priority.name %></th>
+        <% end %>
+        <th>TOTAL BY CONSORTIUM</th>
+      </tr>
+    </thead>
+
+    <% for consortium in @consortia %>
+      <tr>
+        <td><%= consortium %></td>
+        <% @priorities.each do |priority| %>
+          <td><%= @consortia_by_priority["#{consortium} - #{priority.name}"] || 0 %></td>
+        <% end %>
+        <td><%= @consortia_totals[consortium] || 0 %></td>
+      </tr>
+    <% end %>
+
+    <tfoot>
+      <tr>
+        <td>TOTAL BY PRIORITY</td>
+        <% @priorities.each do |priority| %>
+          <td><%= @priority_totals[priority.name] || 0 %></td>
+        <% end %>
+        <td><%= @gene_count %></td>
+      </tr>
+    <tfoot>
+  </table>
+</div>
+
+<h3># Genes in Planned Micro-Injections by Status / Priority</h3>
+<% for status in @statuses %>
+<% next if @consortia.map {|c| @priorities.map{|p| @consortia_by_priority["#{c} - #{p.name} - #{status.name}"].to_i || 0}}.flatten.sum == 0 %>
+  <h4><%= status.name %></h4>
+  <div class='report'>
+    <table>
+      <thead>
+        <tr>
+          <th>Consortium</th>
+          <% @priorities.each do |priority| %>
+            <th><%= priority.name %></th>
+          <% end %>
+        </tr>
+      </thead>
+
+      <% for consortium in @consortia %>
+        <% next if @priorities.map{|p| @consortia_by_priority["#{consortium} - #{p.name} - #{status.name}"].to_i || 0}.sum == 0 %>
+        <tr>
+          <td><%= consortium %></td>
+          <% @priorities.each do |priority| %>
+            <td><%= @consortia_by_priority["#{consortium} - #{priority.name} - #{status.name}"] || 0 %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </table>
+  </div>
+<% end %>
+
+<% @title = 'Conflicting Micro-Injection Plans' %>
+<h3># Conflicting Micro-Injection Plans</h3>
+<p><%= @conflicting_mi_plans.size %> conflicting micro-injection plans found</p>
+<div class='report'>
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <th>SubProject</th>
+        <th>Bespoke</th>
+        <th>Production Centre</th>
+        <th>Marker Symbol</th>
+        <th>MGI Accession ID</th>
+        <th>Priority</th>
+        <th>Reason for conflict</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for mi_plan in @conflicting_mi_plans %>
+        <tr>
+          <td><%= mi_plan.consortium.name %></td>
+          <td><%= mi_plan.sub_project.name if mi_plan.sub_project %></td>
+          <td><%= mi_plan.is_bespoke_allele ? 'Yes' : 'No' %></td>
+          <td><%= mi_plan.production_centre.name if mi_plan.production_centre %></td>
+          <td><%= mi_plan.marker_symbol %></td>
+          <td><%= mi_plan.mgi_accession_id %></td>
+          <td><%= mi_plan.priority.name if mi_plan.priority %></td>
+          <td><%= conflict_text(mi_plan, @conflicting_mi_plans) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class='remote_report' data-remoteurl='<%= SITE_PATH %>/v2/reports/inspect_micro_injection_plans' data-loadingtext="Loading 'Inspect Micro-Injection Plans' report..."></div>

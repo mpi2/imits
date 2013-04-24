@@ -5,6 +5,8 @@ class ReportsController < ApplicationController
 
   before_filter :authenticate_user!, :except => [:impc_gene_list]
 
+  layout :check_remote_load
+
   extend Reports::Helper
   include Reports::Helper
 
@@ -299,4 +301,9 @@ class ReportsController < ApplicationController
     return report
   end
 
+  private
+
+    def check_remote_load
+      params[:remote] ? false : 'application'
+    end
 end

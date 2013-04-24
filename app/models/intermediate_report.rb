@@ -3,6 +3,10 @@ class IntermediateReport < ActiveRecord::Base
 
   acts_as_reportable
 
+  require_dependency 'intermediate_report/generate'
+
+  ## Class methods
+
   def self.generate(report)
     IntermediateReport.transaction do
       IntermediateReport.destroy_all
@@ -16,6 +20,7 @@ class IntermediateReport < ActiveRecord::Base
       end
     end
   end
+  
 end
 
 # == Schema Information
@@ -33,7 +38,7 @@ end
 #  mi_plan_status                               :string(50)
 #  mi_attempt_status                            :string(50)
 #  phenotype_attempt_status                     :string(50)
-#  ikmc_project_id                              :integer
+#  ikmc_project_id                              :string(255)
 #  mutation_sub_type                            :string(100)
 #  allele_symbol                                :string(75)      not null
 #  genetic_background                           :string(50)      not null

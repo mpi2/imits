@@ -69,6 +69,9 @@ module AlleleImage
       "En2 SA (ATG)" => {
         "width" => 80
       },
+      "adenovirus splice acceptor" => {
+        "label" => "SA"
+      },
       "Cd4 TM" => {
         "width"  => 80,
         "colour" => "black",

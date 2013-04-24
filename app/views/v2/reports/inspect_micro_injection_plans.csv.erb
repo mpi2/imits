@@ -1,0 +1,9 @@
+<% for status in @mi_plans.group_by {|m| m.status.name} %>
+
+<%= status.first %>
+
+Consortium, SubProject, Bespoke, Production Centre, Marker Symbol, MGI Accession ID, Priority, Reason for conflict
+<% for mi_plan in status.last %>
+<%= mi_plan.consortium.name %>, <%= mi_plan.sub_project.name if mi_plan.sub_project %>, <%= mi_plan.is_bespoke_allele ? 'Yes' : 'No' %>, <%= mi_plan.production_centre.name if mi_plan.production_centre %>, <%= mi_plan.marker_symbol %>, <%= mi_plan.mgi_accession_id %>, <%= mi_plan.priority.name if mi_plan.priority %>, <%= reason_for_inspect_or_conflict(mi_plan, @mi_plans).gsub(/'/, '') %>
+<% end %>
+<% end %>

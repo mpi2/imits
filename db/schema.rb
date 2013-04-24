@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130322154023) do
+ActiveRecord::Schema.define(:version => 20130403100056) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -448,7 +448,7 @@ ActiveRecord::Schema.define(:version => 20130322154023) do
   add_index "solr_update_queue_items", ["phenotype_attempt_id"], :name => "index_solr_update_queue_items_on_phenotype_attempt_id", :unique => true
 
   create_table "strains", :force => true do |t|
-    t.string   "name",       :limit => 50, :null => false
+    t.string   "name",       :limit => 100, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

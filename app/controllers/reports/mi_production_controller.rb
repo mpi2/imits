@@ -4,11 +4,11 @@ class Reports::MiProductionController < ApplicationController
 
   respond_to :html, :csv
 
-  before_filter :authenticate_user!, :except => [:summary_by_consortium_and_accumulated_status]
+  before_filter :authenticate_user!, :except => [:summary_by_consortium_and_accumulated_status, :detail]
 
   def detail
     if request.format == :csv
-      if current_user.can_see_sub_project?
+      if current_user && current_user.can_see_sub_project?
         report = Reports::MiProduction::Detail.generate
       else
         report = Reports::MiProduction::Detail.generate

@@ -3,7 +3,7 @@
 class MiPlansController < ApplicationController
   respond_to :html, :only => [:gene_selection, :index, :show]
   respond_to :json, :except => [:gene_selection]
-  before_filter :authenticate_user!
+  before_filter :authenticate_user!, :except => [:index]
 
   def gene_selection
     q = params[:q] ||= {}
@@ -12,6 +12,8 @@ class MiPlansController < ApplicationController
     q[:marker_symbol_or_mgi_accession_id_ci_in] =
             q[:marker_symbol_or_mgi_accession_id_ci_in].
             lines.map(&:strip).select{|i|!i.blank?}.join("\n")
+
+    @access = true
   end
 
   def show
@@ -92,10 +94,12 @@ class MiPlansController < ApplicationController
   def index
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'marker_symbol asc', Public::MiPlan, :public_search)
+        render :json => data_for_serialized(:json, 'marker_symbol asc', Public::MiPlan, :public_search, false)
       end
 
       format.html do
+        authenticate_user!
+        @access = true
       end
     end
   end

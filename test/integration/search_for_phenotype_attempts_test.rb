@@ -4,15 +4,14 @@ require 'test_helper'
 
 class SearchForPhenotypeAttemptsTest < TarMits::JsIntegrationTest
 
-  should 'need a valid logged in user' do
-    visit '/users/logout'
+    context 'when not logged in grid ' do
 
-    visit '/'
-    assert_match %r{/users/login$}, current_url
-
-    visit '/phenotype_attempts'
-    assert_match %r{/users/login$}, current_url
-  end
+      should 'not have an editable option' do
+        visit '/'
+        click_link 'Phenotyping'
+        assert page.has_content?('Show In Form')
+      end
+    end
 
   context 'As valid user:' do
     setup do
@@ -35,6 +34,11 @@ class SearchForPhenotypeAttemptsTest < TarMits::JsIntegrationTest
       return es_cell
     end
 
+    should 'have an editable option' do
+      visit '/phenotype_attempts'
+      assert page.has_content?('Edit In Form')
+    end
+
     context 'searching for phenotyping attempts by marker symbol' do
       setup do
         create_es_cell_EPD0011_1_G18
@@ -49,7 +53,7 @@ class SearchForPhenotypeAttemptsTest < TarMits::JsIntegrationTest
       end
 
       should 'not find unmatched phenotype attempts' do
-        assert page.has_no_css?('div', :text => 'Abo')
+        assert page.has_no_css?('div', :text => 'Huff')
       end
     end
 

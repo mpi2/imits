@@ -8,6 +8,8 @@ class TargRep::AllelesController < TargRep::BaseController
   before_filter :authorize_admin_user!, :only => :destroy
 
   skip_before_filter :authenticate_user!, :only => [
+    :show,
+    :index,
     :escell_clone_genbank_file,
     :targeting_vector_genbank_file,
     :escell_clone_cre_genbank_file,

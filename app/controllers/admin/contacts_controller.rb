@@ -36,7 +36,7 @@ class Admin::ContactsController < Admin::BaseController
   end
 
   def data_for_serialized(format)
-    super(format, 'id asc', Contact, :search)
+    super(format, 'id asc', Contact, :search, false)
   end
   protected :data_for_serialized
 

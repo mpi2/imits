@@ -1,32 +1,6 @@
-// Helper functions for cell templates - see in the grid below...
-function splitResultString(mi_string) {
-    var mis = [];
-    var pattern = /^\[(.+)\:(.+)\:(\d+)\]$/;
-    Ext.Array.each(mi_string.split('<br/>'), function(mi) {
-        var match = pattern.exec(mi);
-        mis.push({
-            consortium: match[1],
-            production_centre: match[2],
-            count: match[3]
-        });
-    });
-    return mis;
-}
-
-function printMiPlanString(mi_plan) {
-    var str = '[' + mi_plan['consortium'];
-    if (!Ext.isEmpty(mi_plan['production_centre'])) {
-        str = str + ':' + mi_plan['production_centre'];
-    }
-    if (!Ext.isEmpty(mi_plan['status_name'])) {
-        str = str + ':' + mi_plan['status_name'];
-    }
-    str = str + ']';
-    return str;
-}
-
+// gene grid with edit functionality
 Ext.define('Imits.widget.GeneGrid', {
-    extend: 'Imits.widget.Grid',
+    extend: 'Imits.widget.GeneGridCommon',
     requires: [
     'Imits.model.Gene',
     'Imits.widget.grid.RansackFiltersFeature',
@@ -35,16 +9,6 @@ Ext.define('Imits.widget.GeneGrid', {
     'Ext.ux.RowExpander',
     'Ext.selection.CheckboxModel'
     ],
-    title: '&nbsp;',
-    iconCls: 'icon-grid',
-    columnLines: true,
-    store: {
-        model: 'Imits.model.Gene',
-        autoLoad: true,
-        remoteSort: true,
-        remoteFilter: true,
-        pageSize: 20
-    },
     selModel: Ext.create('Ext.selection.CheckboxModel'),
     features: [
     {
@@ -52,151 +16,95 @@ Ext.define('Imits.widget.GeneGrid', {
         local: false
     }
     ],
-    columns: [
-    {
-        header: 'Gene',
-        dataIndex: 'marker_symbol',
-        readOnly: true,
-        renderer: function (symbol) {
-            return Ext.String.format('<a href="http://www.knockoutmouse.org/martsearch/search?query={0}" target="_blank">{0}</a>', symbol);
-        }
-    },
-    {
-        header: 'Tree',
-        readOnly: true,
-        renderer: function (value, metaData, record) {
-            var mgiId = record.get('mgi_accession_id');
-            var iconURL = '<img src="' + window.basePath + '/images/icons/application_side_tree.png" alt="Blah"/>';
-            return Ext.String.format('<a href="{0}/genes/{1}/relationship_tree">{2}</a>', window.basePath, mgiId, iconURL);
-        },
-        width: 40,
-        sortable: false
-    },
-    {
-        header: 'Production History',
-        dataIndex: 'production_history_link',
-        renderer: function (value, metaData, record) {
-            var geneId = record.getId();
-            return Ext.String.format('<a href="{0}/genes/{1}/network_graph">Production Graph</a>', window.basePath, geneId);
-        },
-        sortable: false
-    },
-    {
-        header: '# IKMC Projects',
-        dataIndex: 'ikmc_projects_count',
-        readOnly: true
-    },
-    {
-        header: '# Clones',
-        dataIndex: 'pretty_print_types_of_cells_available',
-        readOnly: true,
-        sortable: false
-    },
-    {
-        header: 'Non-Assigned Plans',
-        dataIndex: 'non_assigned_mi_plans',
-        readOnly: true,
-        sortable: false,
-        width: 250,
-        flex: 1,
-        xtype: 'templatecolumn',
-        tpl: new Ext.XTemplate(
-            '<tpl for="non_assigned_mi_plans">',
-            '<a class="mi-plan" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
-            '</tpl>',
-            {
-                prettyPrintMiPlan: printMiPlanString
-            }
-            )
-    },
-    {
-        header: 'Assigned Plans',
-        dataIndex: 'assigned_mi_plans',
-        readOnly: true,
-        sortable: false,
-        width: 180,
-        flex: 1,
-        xtype: 'templatecolumn',
-        tpl: new Ext.XTemplate(
-            '<tpl for="assigned_mi_plans">',
-            '<a class="mi-plan" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
-            '</tpl>',
-            {
-                prettyPrintMiPlan: printMiPlanString
-            }
-            )
-    },
-    {
-        header: 'Aborted MIs',
-        dataIndex: 'pretty_print_aborted_mi_attempts',
-        readOnly: true,
-        sortable: false,
-        width: 180,
-        flex: 1,
-        xtype: 'templatecolumn',
-        tpl: new Ext.XTemplate(
-            '<tpl for="this.processedMIs(pretty_print_aborted_mi_attempts)">',
-            '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
-            '</tpl>',
-            {
-                processedMIs: splitResultString
-            }
-            )
-    },
-    {
-        header: 'MIs in Progress',
-        dataIndex: 'pretty_print_mi_attempts_in_progress',
-        readOnly: true,
-        sortable: false,
-        width: 180,
-        flex: 1,
-        xtype: 'templatecolumn',
-        tpl: new Ext.XTemplate(
-            '<tpl for="this.processedMIs(pretty_print_mi_attempts_in_progress)">',
-            '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
-            '</tpl>',
-            {
-                processedMIs: splitResultString
-            }
-            )
-    },
-    {
-        header: 'Genotype Confirmed MIs',
-        dataIndex: 'pretty_print_mi_attempts_genotype_confirmed',
-        readOnly: true,
-        sortable: false,
-        width: 180,
-        flex: 1,
-        xtype: 'templatecolumn',
-        tpl: new Ext.XTemplate(
-            '<tpl for="this.processedMIs(pretty_print_mi_attempts_genotype_confirmed)">',
-            '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
-            '</tpl>',
-            {
-                processedMIs: splitResultString
-            }
-            )
-    },
-    {
-      header: 'Phenotype Attempts',
-        dataIndex: 'pretty_print_phenotype_attempts',
-        readOnly: true,
-        sortable: false,
-        width: 180,
-        flex: 1,
-        xtype: 'templatecolumn',
-        tpl: new Ext.XTemplate(
-            '<tpl for="this.processedMIs(pretty_print_phenotype_attempts)">',
-            '<a href="' + window.basePath + '/phenotype_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
-            '</tpl>',
-            {
-                processedMIs: splitResultString
-            }
-            )
-    }
+    // extends the geneColumns in GeneGridCommon. These column should be independent from the GeneGridCommon (read only grid). columns common to read only grid and editable grid should be added to GeneGridCommon.
+    additionalColumns: [
+                        {'position': 6,
+                         'data': {header: 'Aborted MIs',
+                                  dataIndex: 'pretty_print_aborted_mi_attempts',
+                                  readOnly: true,
+                                  sortable: false,
+                                  width: 180,
+                                  flex: 1,
+                                  xtype: 'templatecolumn',
+                                  tpl: new Ext.XTemplate(
+                                      '<tpl for="this.processedMIs(pretty_print_aborted_mi_attempts)">',
+                                      '<a href="' + window.basePath +  '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
+                                      '</tpl>',
+                                      {
+                                          processedMIs: splitResultString
+                                      }
+                                     )
+                                 }
+                        },
+                        {'position': 7,
+                         'data': {header: 'MIs in Progress',
+                                  dataIndex: 'pretty_print_mi_attempts_in_progress',
+                                  readOnly: true,
+                                  sortable: false,
+                                  width: 180,
+                                  flex: 1,
+                                  xtype: 'templatecolumn',
+                                  tpl: new Ext.XTemplate(
+                                      '<tpl for="this.processedMIs(pretty_print_mi_attempts_in_progress)">',
+                                      '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
+                                      '</tpl>',
+                                      {
+                                          processedMIs: splitResultString
+                                      }
+                                      )
+                                 }
+                        },
+                        {'position': 8,
+                         'data': {header: 'Genotype Confirmed MIs',
+                                 dataIndex: 'pretty_print_mi_attempts_genotype_confirmed',
+                                 readOnly: true,
+                                 sortable: false,
+                                 width: 180,
+                                 flex: 1,
+                                 xtype: 'templatecolumn',
+                                 tpl: new Ext.XTemplate(
+                                     '<tpl for="this.processedMIs(pretty_print_mi_attempts_genotype_confirmed)">',
+                                     '<a href="' + window.basePath + '/mi_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
+                                     '</tpl>',
+                                     {
+                                          processedMIs: splitResultString
+                                     }
+                                 )
+                                }
+                        },
+                        {'position': 9,
+                         'data': {header: 'Phenotype Attempts',
+                                  dataIndex: 'pretty_print_phenotype_attempts',
+                                  readOnly: true,
+                                  sortable: false,
+                                  width: 180,
+                                  flex: 1,
+                                  xtype: 'templatecolumn',
+                                  tpl: new Ext.XTemplate(
+                                      '<tpl for="this.processedMIs(pretty_print_phenotype_attempts)">',
+                                      '<a href="' + window.basePath + '/open/phenotype_attempts?q[terms]={parent.marker_symbol}&q[production_centre_name]={production_centre}" target="_blank">[{consortium}:{production_centre}:{count}]</a></br>',
+                                      '</tpl>',
+                                      {
+                                          processedMIs: splitResultString
+                                      }
+                                  )
+                                 }
+                      },
+                        {'position': 1 ,
+                         'data': {header: 'Tree',
+                                  readOnly: true,
+                                  renderer: function (value, metaData, record) {
+                                      var mgiId = record.get('mgi_accession_id');
+                                      var iconURL = '<img src="' + window.basePath + '/images/icons/application_side_tree.png" alt="Blah"/>';
+                                      return Ext.String.format('<a href="{0}/genes/{1}/relationship_tree">{2}</a>', window.basePath, mgiId, iconURL);
+                                  },
+                                  width: 40,
+                                  sortable: false
+                                  }
+                         }
     ],
 
-    /** @private **/
+           /** @private **/
     createComboBox: function(id, label, labelWidth, store, includeBlank, isHidden) {
         if(includeBlank) {
             store = Ext.Array.merge([null], store);
@@ -282,6 +190,7 @@ Ext.define('Imits.widget.GeneGrid', {
             var id = target.getAttribute('data-id');
             grid.setLoading("Editing gene interest....");
             grid.miPlanEditor.edit(id);
+
         },
         grid,
         {
@@ -291,14 +200,12 @@ Ext.define('Imits.widget.GeneGrid', {
 
     initComponent: function() {
         var grid = this;
-        grid.callParent();
 
-        // Add the bottom (pagination) toolbar
-        grid.addDocked(Ext.create('Ext.toolbar.Paging', {
-            store: grid.getStore(),
-            dock: 'bottom',
-            displayInfo: true
-        }));
+        // Adds additional columns
+        Ext.Array.each(grid.additionalColumns, function(column) {
+            grid.addColumn(column['data'], column['position']);
+        });
+        grid.callParent();
 
         var isSubProjectHidden = true;
         if(window.CAN_SEE_SUB_PROJECT) {

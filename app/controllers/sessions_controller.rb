@@ -9,7 +9,7 @@ class SessionsController < Devise::SessionsController
     # We actually need to hardcode this as Rails default responder doesn't
     # support returning empty response on GET request
     respond_to do |format|
-      format.any(*navigational_formats) { redirect_to redirect_path }
+      format.any(*navigational_formats) { redirect_to redirect_path(self.resource) }
       format.all do
         head :no_content
       end
@@ -17,7 +17,8 @@ class SessionsController < Devise::SessionsController
   end
 
   private
-    def redirect_path
+    def redirect_path(resource)
+      print resource
       targ_rep? ? targ_rep_root_path : root_path
     end
 

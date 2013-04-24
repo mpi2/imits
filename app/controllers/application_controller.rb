@@ -68,12 +68,12 @@ class ApplicationController < ActionController::Base
   end
   protected :json_format_extended_response
 
-  def data_for_serialized(format, default_sort, model_class, search_method)
+  def data_for_serialized(format, default_sort, model_class, search_method, select_distinct)
 
     params[:sorts] = default_sort if(params[:sorts].blank?)
     params.delete(:per_page) if params[:per_page].blank? or params[:per_page].to_i == 0
 
-    result = model_class.send(search_method, params_cleaned_for_search(params)).result
+    result = model_class.send(search_method, params_cleaned_for_search(params)).result(:distinct => select_distinct)
     result = result.order(params_cleaned_for_sort(params[:sorts])) if params[:sorts]
     retval = result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
 

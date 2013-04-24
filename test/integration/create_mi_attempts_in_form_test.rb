@@ -3,6 +3,12 @@
 require 'test_helper'
 
 class CreateMiAttemptsInFormTest < TarMits::JsIntegrationTest
+
+  should 'require user to be logged in' do
+    visit new_mi_attempt_path
+    assert_login_page
+  end
+
   context 'When creating MI Attempt in form' do
 
     setup do
@@ -15,7 +21,7 @@ class CreateMiAttemptsInFormTest < TarMits::JsIntegrationTest
     should 'save MI and redirect back to show page when valid data' do
 
       es_cell = Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1))
-      
+
       mi_plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),
               :consortium => Consortium.find_by_name!('MGP'),
               :status => MiPlan::Status[:Assigned],
@@ -30,7 +36,7 @@ class CreateMiAttemptsInFormTest < TarMits::JsIntegrationTest
       click_button 'mi_attempt_submit'
 
       assert page.has_no_css?('#mi_attempt_submit[disabled]')
-      
+
       assert_match /\/mi_attempts\/\d+$/, current_url
 
       ApplicationModel.uncached do

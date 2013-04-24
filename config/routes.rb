@@ -22,7 +22,7 @@ TarMits::Application.routes.draw do
     end
 
     resources :contacts
-    
+
     resources :email_templates do
       collection do
         post 'preview'
@@ -58,7 +58,6 @@ TarMits::Application.routes.draw do
         get 'grid_redirect'
       end
     end
-
   end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
@@ -139,14 +138,14 @@ TarMits::Application.routes.draw do
   ## TargRep interface
   namespace :targ_rep do
     resources :pipelines
-    
+
     resources :alleles do
       get :history, :on => :member
     end
 
     resources :genbank_files
     resources :targeting_vectors
-    
+
     resources :es_cells do
       collection do
         get :mart_search
@@ -183,4 +182,15 @@ TarMits::Application.routes.draw do
 
   match 'targ_rep/:controller(/:action(/:id)(.:format))'
 
+  namespace :open do
+
+    resources :mi_plans do
+      collection do
+        get 'gene_selection'
+      end
+    end
+
+    resources :mi_attempts, :only => [:index, :show]
+    resources :phenotype_attempts, :only => [:index, :show,]
+  end
 end

@@ -8,7 +8,7 @@ Ext.define('Imits.data.Proxy', {
 
     constructor: function (config) {
         var resource = config.resource;
-        var resourcePath = resource + 's';
+        var resourcePath =  resource + 's';
 
         if (config.resourcePath) {
             resourcePath = config.resourcePath;

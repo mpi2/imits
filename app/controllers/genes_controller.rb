@@ -2,7 +2,7 @@ class GenesController < ApplicationController
   respond_to :json
   respond_to :html, :json, :only => [:relationship_tree]
 
-  before_filter :authenticate_user!
+  before_filter :authenticate_user!, :except => [:index, :network_graph]
 
   def index
     respond_to do |format|
@@ -40,6 +40,6 @@ class GenesController < ApplicationController
   private
 
   def data_for_serialized(format)
-    super(format, 'marker_symbol', Gene, :search)
+    super(format, 'marker_symbol', Gene, :search, true)
   end
 end

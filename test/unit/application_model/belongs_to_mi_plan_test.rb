@@ -124,7 +124,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         object = Factory.create @factory, common_attrs
 
         p = object.mi_plan
-        assert_equal ['BaSH', 'WTSI', 'Cbx1', 'Assigned', 'High'],
+        assert_equal ['BaSH', 'WTSI', 'Cbx1', 'Assigned', 'Low'],
                 [p.consortium.name, p.production_centre.name, p.gene.marker_symbol, p.status.name, p.priority.name]
       end
 

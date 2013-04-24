@@ -142,7 +142,8 @@ module ApplicationModel::BelongsToMiPlan
             :production_centre => Centre.find_by_name!(@production_centre_name),
             :gene => gene,
             :force_assignment => true,
-            :priority => MiPlan::Priority.find_by_name!('High')
+            :phenotype_only => kind_of?(PhenotypeAttempt),
+            :priority => MiPlan::Priority.find_by_name!('Low')
           )
         end
       end

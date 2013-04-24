@@ -20,34 +20,46 @@ class MiPlansController < ApplicationController
     respond_with @mi_plan
   end
 
-  def search_by_marker_symbol
-    @mi_plans_hash = []
-    @mi_plans = Gene.find_by_marker_symbol( params[:marker_symbol] ).try(:mi_plans).includes(:consortium, :production_centre, :sub_project, :status, :priority)
+  def search_for_available_phenotyping_plans
+    #must pass params hash with :marker_symbol and a :mi_plan_id associated with an mi_attempt
+    sql = <<-SQL
+      SELECT mi_plans.* FROM mi_plans JOIN genes ON mi_plans.gene_id = genes.id
+      WHERE  (mi_plans.is_active AND (NOT mi_plans.withdrawn) AND genes.marker_symbol = '#{params[:marker_symbol]}')
+         AND (mi_plans.phenotype_only OR mi_plans.id = '#{params[:mi_plan_id]}')
+    SQL
 
+    @mi_plans = MiPlan.find_by_sql(sql)
+    params[:id_in] = []
     @mi_plans.each do |mi_plan|
-        @mi_plans_hash << {
-          'id'                             => mi_plan.id,
-          'consortium_name'                => mi_plan.try(:consortium).try(:name),
-          'production_centre_name'         => mi_plan.try(:production_centre).try(:name),
-          'sub_project_name'               => mi_plan.try(:sub_project).try(:name),
-          'status_name'                    => mi_plan.status.name,
-          'priority_name'                  => mi_plan.priority.name,
-          'number_of_es_cells_starting_qc' => mi_plan.number_of_es_cells_starting_qc,
-          'number_of_es_cells_passing_qc'  => mi_plan.number_of_es_cells_passing_qc,
-          'is_active'                      => mi_plan.is_active,
-          'is_bespoke_allele'              => mi_plan.is_bespoke_allele,
-          'is_conditional_allele'          => mi_plan.is_conditional_allele,
-          'is_deletion_allele'             => mi_plan.is_deletion_allele,
-          'is_cre_knock_in_allele'         => mi_plan.is_cre_knock_in_allele,
-          'is_cre_bac_allele'              => mi_plan.is_cre_bac_allele,
-          'comment'                        => mi_plan.comment,
-          'withdrawn'                      => mi_plan.withdrawn,
-          'phenotype_only'                 => mi_plan.phenotype_only,
-          'created_at'                     => mi_plan.created_at,
-          'updated_at'                     => mi_plan.updated_at,
-        }
+      params[:id_in] << mi_plan.id
     end
-    respond_with @mi_plans_hash.to_json
+    params.delete(:marker_symbol)
+    params[:id_in]
+    respond_to do |format|
+      format.json do
+        render :json => data_for_serialized(:json, 'consortium_name asc', Public::MiPlan, :public_search)
+      end
+    end
+  end
+
+  def search_for_available_mi_attempt_plans
+    sql = <<-SQL
+      SELECT mi_plans.* FROM mi_plans JOIN genes ON mi_plans.gene_id = genes.id
+      WHERE genes.marker_symbol = '#{params[:marker_symbol]}' AND mi_plans.is_active AND (NOT mi_plans.withdrawn) AND (NOT phenotype_only)
+    SQL
+
+    @mi_plans = MiPlan.find_by_sql(sql)
+    params[:id_in] = []
+    @mi_plans.each do |mi_plan|
+      params[:id_in] << mi_plan.id
+    end
+    params.delete(:marker_symbol)
+    params[:id_in]
+    respond_to do |format|
+      format.json do
+        render :json => data_for_serialized(:json, 'consortium_name asc', Public::MiPlan, :public_search)
+      end
+    end
   end
 
   alias_method :public_mi_plan_url, :mi_plan_url

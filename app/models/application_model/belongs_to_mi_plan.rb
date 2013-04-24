@@ -11,7 +11,7 @@ module ApplicationModel::BelongsToMiPlan
 #  end
 
   def ensure_plan_exists
-    self.errors.add(:base, 'An mi_plan MUST be assigned via mi_plan_id') if mi_plan.blank?
+    self.errors.add(:base, 'Please select a plan') if mi_plan.blank?
   end
   protected :ensure_plan_exists
 

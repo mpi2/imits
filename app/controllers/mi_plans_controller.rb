@@ -20,6 +20,36 @@ class MiPlansController < ApplicationController
     respond_with @mi_plan
   end
 
+  def search_by_marker_symbol
+    @mi_plans_hash = []
+    @mi_plans = Gene.find_by_marker_symbol( params[:marker_symbol] ).try(:mi_plans).includes(:consortium, :production_centre, :sub_project, :status, :priority)
+
+    @mi_plans.each do |mi_plan|
+        @mi_plans_hash << {
+          'id'                             => mi_plan.id,
+          'consortium_name'                => mi_plan.try(:consortium).try(:name),
+          'production_centre_name'         => mi_plan.try(:production_centre).try(:name),
+          'sub_project_name'               => mi_plan.try(:sub_project).try(:name),
+          'status_name'                    => mi_plan.status.name,
+          'priority_name'                  => mi_plan.priority.name,
+          'number_of_es_cells_starting_qc' => mi_plan.number_of_es_cells_starting_qc,
+          'number_of_es_cells_passing_qc'  => mi_plan.number_of_es_cells_passing_qc,
+          'is_active'                      => mi_plan.is_active,
+          'is_bespoke_allele'              => mi_plan.is_bespoke_allele,
+          'is_conditional_allele'          => mi_plan.is_conditional_allele,
+          'is_deletion_allele'             => mi_plan.is_deletion_allele,
+          'is_cre_knock_in_allele'         => mi_plan.is_cre_knock_in_allele,
+          'is_cre_bac_allele'              => mi_plan.is_cre_bac_allele,
+          'comment'                        => mi_plan.comment,
+          'withdrawn'                      => mi_plan.withdrawn,
+          'phenotype_only'                 => mi_plan.phenotype_only,
+          'created_at'                     => mi_plan.created_at,
+          'updated_at'                     => mi_plan.updated_at,
+        }
+    end
+    respond_with @mi_plans_hash.to_json
+  end
+
   alias_method :public_mi_plan_url, :mi_plan_url
   protected :public_mi_plan_url
   alias_method :public_mi_plans_url, :mi_plans_url
@@ -35,8 +65,13 @@ class MiPlansController < ApplicationController
       message = "#{upgradeable.marker_symbol} has already been selected by #{upgradeable.consortium_name} without a production centre, please add your production centre to that selection"
       render(:json => {'error' => message}, :status => 422)
     else
-      @mi_plan = Public::MiPlan.create(params[:mi_plan])
-      respond_with @mi_plan
+      @mi_plan = Public::MiPlan.new(params[:mi_plan])
+      if @mi_plan.valid?
+        @mi_plan.save!
+        respond_with @mi_plan
+      else
+        render :json => @mi_plan.errors, :status => 422
+      end
     end
   end
 
@@ -55,33 +90,57 @@ class MiPlansController < ApplicationController
 
   def destroy
     @mi_plan = nil
+    error_str = ''
 
     if !params[:id].blank?
-      @mi_plan = Public::MiPlan.find_by_id(params[:id])
+      @mi_plan = Public::MiPlan.where("id = '#{params[:id]}'")
     else
-      search_params = {
-        :gene_marker_symbol_eq => params[:marker_symbol],
-        :consortium_name_eq    => params[:consortium],
-      }
-
-      if params[:production_centre].blank?
-        search_params[:production_centre_id_null] = true
-      else
-        search_params[:production_centre_name_eq] = params[:production_centre]
+      [:consortium, :marker_symbol, :sub_project, :is_bespoke_allele, :is_conditional_allele, :is_deletion_allele, :is_cre_knock_in_allele, :is_cre_bac_allele].each do |param|
+        if !params.has_key?(param)
+          error_str = "missing parameter; #{param} is required."
+          break
+        end
       end
 
-      search_results = Public::MiPlan.search(search_params).result
-      @mi_plan = search_results.first if search_results.size == 1
-    end
+      consortium = Consortium.find_by_name(params[:consortium])
+      gene = Gene.find_by_marker_symbol(params[:marker_symbol])
+      [consortium, gene].each do |param|
+        if param.blank?
+          error_str = "Unable to delete mi_plans; consortium or marker symbol has an invalid value."
+        end
+      end
+      if error_str.blank?
+        search_params = "gene_id = '#{gene.id}' AND "         \
+                        "consortium_id = '#{consortium.id}' AND "         \
+                        "sub_project_id = #{MiPlan::SubProject.find_by_name(params[:sub_project]).try(:id)} AND " \
+                        "is_bespoke_allele =  #{params[:is_bespoke_allele]} AND "                                 \
+                        "is_conditional_allele = #{params[:is_conditional_allele]} AND "                          \
+                        "is_deletion_allele = #{params[:is_deletion_allele]} AND "                                \
+                        "is_cre_knock_in_allele = #{params[:is_cre_knock_in_allele]} AND "                        \
+                        "is_cre_bac_allele = #{params[:is_cre_bac_allele]} "
 
-    if !@mi_plan.nil?
-      @mi_plan.destroy
+        production_centre = Centre.find_by_name(params[:production_centre])
+        if production_centre.blank?
+          search_params += "AND production_centre_id IS NULL "
+        else
+          search_params += "AND production_centre_id = '#{production_centre.id}'"
+        end
+        @mi_plan = Public::MiPlan.where(search_params)
+        if @mi_plan.count > 1
+          error_str = 'Unable to delete mi_plans. Found multiple mi_plans for the paramaters you supplied.'
+        elsif @mi_plan.count == 0
+          error_str = 'Unable to find an mi_plan for the paramaters you have supplied.'
+        end
+      end
+    end
+    if (!@mi_plan.blank?) and @mi_plan.count == 1
+      @mi_plan.first.destroy
       respond_to { |format| format.json { head :ok } }
     else
       respond_to do |format|
         format.json {
           render(
-            :json => { :mi_plan => 'Unable to find an mi_plan for the paramaters you have supplied.' },
+            :json => { :mi_plan => error_str },
             :status => 422
           )
         }

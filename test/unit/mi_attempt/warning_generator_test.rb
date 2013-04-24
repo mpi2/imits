@@ -56,7 +56,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
               :gene => gene, :withdrawn => true
       es_cell = Factory.create :es_cell, :allele => allele
 
-      mi = Factory.build(:public_mi_attempt, 
+      mi = Factory.build(:public_mi_attempt,
         :mi_plan => mi_plan,
         :es_cell_name => es_cell.name)
       assert mi.valid?, mi.errors.inspect
@@ -89,73 +89,27 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       assert_false mi.generate_warnings, mi.warnings
     end
 
-    should 'generate warning if MiPlan for the MiAttempt has to be created' do
-      mi = Public::MiAttempt.new :mi_plan => nil,
-              :production_centre_name => 'ICS',
-              :consortium_name => 'BaSH',
-              :es_cell_name => Factory.create(:es_cell).name,
-              :mi_date => Date.today
-      assert_equal 0, MiPlan.count
-      assert_equal true, mi.valid?, mi.errors
-
-      assert_true mi.generate_warnings
-      assert_equal 1, mi.warnings.size
-      assert_match 'no expressions of interest', mi.warnings.first
-      assert_match 'assign ICS', mi.warnings.first
-    end
-
     context 'when checking if MiPlan to be assigned has a production centre' do
       should 'generate warning if it does not have production centre' do
         gene = Factory.create :gene_cbx1
         allele = Factory.create :allele, :gene => gene
-        Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
+        mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
                 :production_centre => nil,
                 :gene => gene, :force_assignment => true
         es_cell = Factory.create :es_cell, :allele => allele
 
-        mi = Factory.build :public_mi_attempt, :mi_plan => nil,
-                :consortium_name => 'BaSH',
-                :production_centre_name => 'WTSI',
+        mi = Factory.build :public_mi_attempt, :mi_plan => mi_plan,
                 :es_cell_name => es_cell.name
         assert mi.valid?
 
         assert_true mi.generate_warnings
-        expected_message = 'Continuing will assign WTSI as the production centre micro-injecting the gene on behalf of BaSH'
+        expected_message = 'Continuing will assign your production centre as the production centre micro-injecting the gene on behalf of BaSH'
         assert_match expected_message, mi.warnings.first
         assert_match 'BaSH is planning on micro-injecting', mi.warnings.first
       end
 
-      should 'not generate warning if there are two MiPlans, one with the assigned and one without a production centre' do
-        gene = Factory.create :gene_cbx1
-        allele = Factory.create :allele, :gene => gene
-        Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
-                :production_centre => nil,
-                :gene => gene, :force_assignment => true
-        Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
-                :production_centre => Centre.find_by_name!('WTSI'),
-                :gene => gene, :force_assignment => true
-        es_cell = Factory.create :es_cell, :allele => allele
-
-        mi = Factory.build :public_mi_attempt, :mi_plan => nil,
-                :consortium_name => 'BaSH',
-                :production_centre_name => 'WTSI',
-                :es_cell_name => es_cell.name
-
-        assert_false mi.generate_warnings
-      end
     end
 
     should_eventually 'be able to generate more than one warning (when we actually have conditions generating more than one)'
-
-    should 'raise if trying to generate warnings while there are validation errors' do
-      mi = Factory.build :public_mi_attempt, :mi_plan => nil, :mi_date => nil
-      mi.consortium_name = nil
-      assert_false mi.valid?
-
-      assert_raise_message(/non-valid/) do
-        mi.generate_warnings
-      end
-    end
-
   end
 end

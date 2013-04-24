@@ -11,8 +11,8 @@
     <legend>ES Cell Details</legend>
     <div>
       <div class="marker-symbol">
-        <div class="label">Marker Symbol</div>
-        <div><%= @mi_attempt.es_cell.marker_symbol %></div>
+        <div class="label" >Marker Symbol</div>
+        <div id="marker_symbol"><%= @mi_attempt.es_cell.marker_symbol %></div>
       </div>
 
       <div class="es-cell-name">
@@ -21,7 +21,14 @@
       </div>
     </div>
   </fieldset>
-    <div id="rest-of-form">   
+    <div id="rest-of-form">
+      <fieldset class="collapsible">
+        <legend>Mi-Plan Details</legend>
+          <div id="mi_plan_list_phenotype"></div>
+          <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>">Create new miplan</a></div>
+      </fieldset>
+
+      <%= form.hidden_field 'mi_plan_id', :value => @mi_attempt.mi_plan_id %>
       <%= render 'form_contents', :form => form %>
       <div>
         <button id="phenotype_attempt_submit">Create</button>

@@ -17,24 +17,6 @@
 
     <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
 
-    <% consortium_field = capture do %>
-      <% if mi_attempt.new_record? %>
-        <%= form.collection_select :consortium_name, @consortia, :name, :name, :include_blank => true %>
-      <% else %>
-        <span><%= mi_attempt.consortium_name %></span>
-      <% end %>
-    <% end %>
-    <%= generator.form_field(:consortium_name, 'Consortium', consortium_field) %>
-
-    <div>
-      <%= form.label :production_centre_name, 'Production Centre' %>
-      <% if mi_attempt.new_record? %>
-        <%= form.collection_select :production_centre_name, @centres, :name, :name %>
-      <% else %>
-        <span><%= mi_attempt.production_centre_name %></span>
-      <% end %>
-    </div>
-
     <div>
       <%= form.label :comments %>
       <%= form.text_area :comments %>

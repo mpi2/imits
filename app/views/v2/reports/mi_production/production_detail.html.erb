@@ -38,11 +38,11 @@
         <th>Phenotyping Started Date</th>
         <th>Phenotyping Complete Date</th>
         <th>Phenotype Attempt Aborted Date</th>
-        <th>Distinct Genotype Confirmed ES Cells</th>
+        <th>Distinct Old Genotype Confirmed ES Cells</th>
         <th>Distinct Old Non Genotype Confirmed ES Cells</th>
         <th>MiPlan ID</th>
-        <th>Total Pipeline Efficiency Gene Count</th>
-        <th>GC Pipeline Efficiency Gene Count</th>
+        <th>Total old Pipeline Efficiency Gene Count</th>
+        <th>GC old Pipeline Efficiency Gene Count</th>
         <th>Aborted - ES Cell QC Failed Date</th>
         <th>MiAttempt Colony Name</th>
         <th>MiAttempt Consortium</th>
@@ -80,11 +80,11 @@
           <td><%= report_row.phenotyping_started_date %></td>
           <td><%= report_row.phenotyping_complete_date %></td>
           <td><%= report_row.phenotype_attempt_aborted_date %></td>
-          <td><%= report_row.distinct_genotype_confirmed_es_cells %></td>
-          <td><%= report_row.distinct_old_non_genotype_confirmed_es_cells %></td>
+          <td><%= report_row.distinct_old_genotype_confirmed_es_cells.to_i %></td>
+          <td><%= report_row.distinct_old_non_genotype_confirmed_es_cells.to_i %></td>
           <td><%= report_row.mi_plan_id %></td>
-          <td><%= report_row.total_pipeline_efficiency_gene_count %></td>
-          <td><%= report_row.gc_pipeline_efficiency_gene_count %></td>
+          <td><%= report_row.total_old_pipeline_efficiency_gene_count.to_i %></td>
+          <td><%= report_row.gc_old_pipeline_efficiency_gene_count.to_i %></td>
           <td><%= report_row.aborted_es_cell_qc_failed_date %></td>
           <td><%= report_row.mi_attempt_colony_name %></td>
           <td><%= report_row.mi_attempt_consortium %></td>

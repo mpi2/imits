@@ -1,0 +1,45 @@
+<% @title = 'IMPC Production centre by month summary' %>
+
+<h1><%= @title %></h1>
+
+<p><%#= link_to 'Download as CSV', report_csv_path %></p>
+
+<div class="report">
+
+  <% @centre_by_month[:centres].each do |centre| %>
+    <h2><%= centre %></h2>
+  
+
+    <table>
+      <thead>
+        <tr>
+          <th rowspan='2'>Date</th>
+          <th rowspan='2'>Production centre</th>
+          <% @columns.each do |column, key| %>
+            <th colspan=2><%= column %></th>
+          <% end %>
+        </tr>
+        <tr>
+          <% @columns.each do |column, key| %>
+            <th>Actual</th>
+            <th>Goal</th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @centre_by_month[:dates].each do |date| %>
+          <tr>
+            <td><%= date %></td>
+            <td><%= centre %></td>
+            <% @columns.each do |column, key| %>
+              <td><%= @centre_by_month["#{date}-#{centre}-#{column}"] %></td>
+              <td><%= @centre_by_month["#{date}-#{centre}-#{column}_goal"] %></td>
+            <% end %>
+          </tr>
+        <% end %>    
+      </tbody>
+    </table>
+    <br />
+  <% end %>
+
+</div>

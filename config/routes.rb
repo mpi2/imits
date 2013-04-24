@@ -34,7 +34,7 @@ TarMits::Application.routes.draw do
     end
   end
 
-  resources :production_goals
+  resources :production_goals, :tracking_goals
   resources :centres
 
   resources :genes, :only => [:index] do

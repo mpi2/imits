@@ -1,32 +1,28 @@
 module ReportsHelper
 
-  def reason_for_inspect_or_conflict(mi_plan, mi_plans)
-    case mi_plan.status.name
-    when 'Inspect - GLT Mouse'
-      other_centres_consortia = MiPlan.scoped.where('mi_plans.gene_id = :gene_id AND mi_plans.id != :id',
-        { :gene_id => mi_plan.gene_id, :id => mi_plan.id }).with_genotype_confirmed_mouse.map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq.sort
-      return "GLT mouse produced at: #{other_centres_consortia.join(', ')}"
-    when 'Inspect - MI Attempt'
-      other_centres_consortia = MiPlan.scoped.where('gene_id = :gene_id AND id != :id',
-        { :gene_id => mi_plan.gene_id, :id => mi_plan.id }).with_active_mi_attempt.map{ |p| "#{p.production_centre.name} (#{p.consortium.name})" }.uniq.sort
-      return "MI already in progress at: #{other_centres_consortia.join(', ')}"
-    when 'Inspect - Conflict'
-      other_consortia = MiPlan.where('gene_id = :gene_id AND id != :id',
-        { :gene_id => mi_plan.gene_id, :id => mi_plan.id }).where(:status_id => MiPlan::Status.all_assigned ).without_active_mi_attempt.map{ |p| p.consortium.name }.uniq.sort
-      return "Other 'Assigned' MI plans for: #{other_consortia.join(', ')}"
-    when 'Conflict'
-      return conflict_text(mi_plan, mi_plans)
-    else
-      return nil
+  def reason_for_inspect_or_conflict(table_type, string_array)
+
+    text = case table_type
+      when 'inspect-gtc'
+        "GLT mouse produced at:"
+      when 'inspect-mip'
+        "MI already in progress at:"
+      when 'inspect-con'
+        "Other 'Assigned' MI plans for:"
+      when 'conflict'
+        "Other MI plans for:"
+    end
+
+    String.new.tap do |s|
+      s << text
+      s << " "
+      s << string_array.to_s.gsub(/\{/, '').gsub(/\}/, '').gsub(/_/, ' ').gsub(',', ', ')
     end
   end
 
-  def conflict_text(mi_plan, conflicting_mi_plans)
-    mi_plans = conflicting_mi_plans.select{|plan| plan.id != mi_plan.id && plan.gene_id == mi_plan.gene_id}
-    "Other MI plans for: #{mi_plans.map {|plan| plan.consortium.name}.join(', ')}" unless mi_plans.empty?
-  end
-
   def report_csv_path
+    return '?format=csv' if request.env['REQUEST_URI'].blank?
+     
     uri = request.env['REQUEST_URI']
     if uri =~ /\?/
       uri + '&format=csv'
@@ -70,6 +66,8 @@ module ReportsHelper
       value = hash["#{filter}-#{options[:centre]}-#{type}"].to_i
       options[:pcentre] = options[:centre] if options[:centre]
       options.delete(:centre)
+    elsif options[:date]
+      value = hash["#{filter}-#{options[:date]}-#{type}"].to_i
     else
       value = hash["#{filter}-#{type}"].to_i
     end

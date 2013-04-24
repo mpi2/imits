@@ -1,0 +1,6 @@
+Date, Production centre, <%= @columns.map {|column, key| column }.join(', ') %>
+<% @centre_by_month[:centres].each do |centre| %>
+<% @centre_by_month[:dates].each do |date| %>
+<%= date %>, <%= centre %>, <%= @columns.map {|column, key| @centre_by_month["#{date}-#{centre}-#{column}"] }.join(', ') %>
+<% end %>
+<% end %>

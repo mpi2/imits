@@ -1,5 +1,9 @@
-class BaseSummaryByMonthPresenter < BaseReportPresenter
-
+class BaseSummaryByMonthPresenter
+  
+  ##
+  ##  This is the base presenter for reporting on counts of statuses for particular months,
+  ##  this report uses the intermediate report table.
+  ##
 
   attr_accessor :report_hash
 
@@ -118,7 +122,7 @@ class BaseSummaryByMonthPresenter < BaseReportPresenter
       sql = <<-EOF
         WITH
           series AS (
-            SELECT generate_series('#{report_cut_off_date.to_date}', '#{Time.now.to_date.to_s(:db)}', interval '1 month')::date as date
+            SELECT generate_series('2011-06-01 00:00:00', '#{Time.now.to_date.to_s(:db)}', interval '1 month')::date as date
           ),
              
           counts AS (

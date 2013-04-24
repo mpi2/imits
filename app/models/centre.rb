@@ -8,6 +8,8 @@ class Centre < ActiveRecord::Base
   has_many :mi_attempt_distribution_centres, :class_name => "MiAttempt::DistributionCentre"
   has_many :phenotype_attempt_distribution_centres, :class_name => "PhenotypeAttempt::DistributionCentre"
 
+  has_many :tracking_goals
+
   default_scope :order => 'name ASC'
 
   def has_children?

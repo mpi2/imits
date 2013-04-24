@@ -37,6 +37,14 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   # BEGIN Callbacks
+
+  before_validation do |pa|
+    if ! pa.colony_name.nil?
+      pa.colony_name = pa.colony_name.to_s.strip || pa.colony_name
+      pa.colony_name = pa.colony_name.to_s.gsub(/\s+/, ' ')
+    end
+  end
+
   before_validation :change_status
 
   before_save :generate_colony_name_if_blank

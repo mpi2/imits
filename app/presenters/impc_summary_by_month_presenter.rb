@@ -1,5 +1,7 @@
 class ImpcSummaryByMonthPresenter < BaseSummaryByMonthPresenter
 
+  ## See superclass for inherited methods.
+
   class << self
 
     def available_consortia

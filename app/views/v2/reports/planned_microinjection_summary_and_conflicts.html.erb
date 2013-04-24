@@ -3,7 +3,6 @@
 <h2><%= @title %></h2>
 
 <h3># Genes in Planned Micro-Injection Statuses</h3>
-
 <p><%= link_to 'Download as CSV', report_csv_path %></p>
 
 <div class='report'>
@@ -106,38 +105,25 @@
   </div>
 <% end %>
 
-<% @title = 'Conflicting Micro-Injection Plans' %>
 <h3># Conflicting Micro-Injection Plans</h3>
-<p><%= @conflicting_mi_plans.size %> conflicting micro-injection plans found</p>
+<p><%= @report.execute_conflict_report.size %> conflicting micro-injection plans found</p>
 <div class='report'>
-  <table>
-    <thead>
-      <tr>
-        <th>Consortium</th>
-        <th>SubProject</th>
-        <th>Bespoke</th>
-        <th>Production Centre</th>
-        <th>Marker Symbol</th>
-        <th>MGI Accession ID</th>
-        <th>Priority</th>
-        <th>Reason for conflict</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% for mi_plan in @conflicting_mi_plans %>
-        <tr>
-          <td><%= mi_plan.consortium.name %></td>
-          <td><%= mi_plan.sub_project.name if mi_plan.sub_project %></td>
-          <td><%= mi_plan.is_bespoke_allele ? 'Yes' : 'No' %></td>
-          <td><%= mi_plan.production_centre.name if mi_plan.production_centre %></td>
-          <td><%= mi_plan.marker_symbol %></td>
-          <td><%= mi_plan.mgi_accession_id %></td>
-          <td><%= mi_plan.priority.name if mi_plan.priority %></td>
-          <td><%= conflict_text(mi_plan, @conflicting_mi_plans) %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+  <%= render :partial => 'conflict_report_table', :locals => {:conflict_report_table => @report.execute_conflict_report, :table_type => 'conflict'} %>
 </div>
 
-<div class='remote_report' data-remoteurl='<%= SITE_PATH %>/v2/reports/inspect_micro_injection_plans' data-loadingtext="Loading 'Inspect Micro-Injection Plans' report..."></div>
+<h3># Inspect Micro-Injection Plans</h3>
+<div class='report'>
+  <p>Inspect - Conflict - <%= @report.execute_inspect_con_report.size %> inspect micro-injection plans found</p>
+  <%= render :partial => 'conflict_report_table', :locals => {:conflict_report_table => @report.execute_inspect_con_report, :table_type => 'inspect-con'} %>
+</div>
+
+<div class='report'>
+  <p>Inspect - MI Attempt - <%= @report.execute_inspect_mis_report.size %> inspect micro-injection plans found</p>
+  <%= render :partial => 'conflict_report_table', :locals => {:conflict_report_table => @report.execute_inspect_mis_report, :table_type => 'inspect-mip'} %>
+</div>
+
+<div class='report'>
+  <p>Inspect - GLT Mouse - <%= @report.execute_inspect_gtc_report.size %> inspect micro-injection plans found</p>
+
+  <%= render :partial => 'conflict_report_table', :locals => {:conflict_report_table => @report.execute_inspect_gtc_report, :table_type => 'inspect-gtc'} %>
+</div>

@@ -32,7 +32,9 @@ class IntermediateReport
       raw_clone_efficiencies.each do |ce|
         @clone_efficiencies[ce['mi_plan_id']] = {
           :distinct_genotype_confirmed_es_cells => ce['gtc_count'],
-          :distinct_old_non_genotype_confirmed_es_cells => ce['non_gtc_count']
+          :distinct_non_genotype_confirmed_es_cells => ce['non_gtc_count'],
+          :distinct_old_genotype_confirmed_es_cells => ce['old_gtc_count'],
+          :distinct_old_non_genotype_confirmed_es_cells => ce['old_non_gtc_count']
         }
       end
 
@@ -42,10 +44,14 @@ class IntermediateReport
     def create_gene_efficiency_hash
       raw_gene_efficiencies.each do |ge|
         @gene_efficiencies[ge['mi_plan_id']] = {
+          :total_pipeline_efficiency_gene_count => ge['total_count'],
           :gc_pipeline_efficiency_gene_count => ge['gtc_count'],
-          :total_pipeline_efficiency_gene_count => ge['total_count']
+          :total_old_pipeline_efficiency_gene_count => ge['old_total_count'],
+          :gc_old_pipeline_efficiency_gene_count => ge['old_gtc_count']
         }
       end
+
+      nil
     end
 
     def parse_raw_report
@@ -57,19 +63,27 @@ class IntermediateReport
         end
 
         if hash = @clone_efficiencies[report_row['mi_plan_id']]
-          report_row['distinct_genotype_confirmed_es_cells']         = hash[:distinct_genotype_confirmed_es_cells]
+          report_row['distinct_genotype_confirmed_es_cells']     = hash[:distinct_genotype_confirmed_es_cells]
+          report_row['distinct_non_genotype_confirmed_es_cells'] = hash[:distinct_non_genotype_confirmed_es_cells]
+          report_row['distinct_old_genotype_confirmed_es_cells'] = hash[:distinct_old_genotype_confirmed_es_cells]
           report_row['distinct_old_non_genotype_confirmed_es_cells'] = hash[:distinct_old_non_genotype_confirmed_es_cells]
         end
 
         if hash = @gene_efficiencies[report_row['mi_plan_id']]
           report_row['gc_pipeline_efficiency_gene_count']    = hash[:gc_pipeline_efficiency_gene_count]
           report_row['total_pipeline_efficiency_gene_count'] = hash[:total_pipeline_efficiency_gene_count]
+          report_row['total_old_pipeline_efficiency_gene_count'] = hash[:total_old_pipeline_efficiency_gene_count]
+          report_row['gc_old_pipeline_efficiency_gene_count']    = hash[:gc_old_pipeline_efficiency_gene_count]
         end
 
         report_row['distinct_genotype_confirmed_es_cells']         = report_row['distinct_genotype_confirmed_es_cells'].to_i
         report_row['distinct_old_non_genotype_confirmed_es_cells'] = report_row['distinct_old_non_genotype_confirmed_es_cells'].to_i
+        report_row['distinct_old_genotype_confirmed_es_cells']     = report_row['distinct_old_genotype_confirmed_es_cells'].to_i
+        report_row['distinct_old_non_genotype_confirmed_es_cells'] = report_row['distinct_old_non_genotype_confirmed_es_cells'].to_i
         report_row['gc_pipeline_efficiency_gene_count']            = report_row['gc_pipeline_efficiency_gene_count'].to_i
         report_row['total_pipeline_efficiency_gene_count']         = report_row['total_pipeline_efficiency_gene_count'].to_i
+        report_row['total_old_pipeline_efficiency_gene_count']     = report_row['total_old_pipeline_efficiency_gene_count'].to_i
+        report_row['gc_old_pipeline_efficiency_gene_count']        = report_row['gc_old_pipeline_efficiency_gene_count'].to_i
 
         report_row.delete('allele_symbol_superscript')
 
@@ -332,10 +346,27 @@ class IntermediateReport
         <<-EOF
           SELECT
             mi_plans.id AS mi_plan_id,
-            sum(case when mi_attempts.status_id = 2 then 1 else 0 end) AS gtc_count,
-            sum(case when mi_attempts.status_id != 2 then 1 else 0 end) AS non_gtc_count--,
-            --count(*)
+
+            SUM(CASE
+              WHEN mi_attempts.status_id = 2 AND mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
+              THEN 1 ELSE 0
+            END) AS gtc_old_count,
             
+            SUM(CASE
+              WHEN mi_attempts.status_id != 2 AND mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
+              THEN 1 ELSE 0
+            END) AS old_non_gtc_count,
+
+            SUM(CASE
+              WHEN mi_attempts.status_id = 2
+              THEN 1 ELSE 0
+            END) AS gtc_count,
+            
+            SUM(CASE
+              WHEN mi_attempts.status_id != 2
+              THEN 1 ELSE 0
+            END) AS non_gtc_count
+
           FROM targ_rep_es_cells
 
           JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
@@ -343,27 +374,6 @@ class IntermediateReport
           JOIN consortia ON consortia.id = mi_plans.consortium_id
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
           LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
-
-          WHERE
-            mi_attempt_status_stamps.created_at > '#{report_cut_off_date}'
-          AND
-            mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
-          AND
-            (
-              centres.name = 'HMGU' AND consortia.name  = 'Helmholtz GMC'
-            OR
-              centres.name = 'ICS' AND consortia.name  IN ('Phenomin', 'Helmholtz GMC')
-            OR
-              centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
-            OR
-              centres.name = 'Harwell' AND consortia.name  IN ('BaSH', 'MRC')
-            OR
-              centres.name = 'UCD' AND consortia.name  = 'DTCC'
-            OR
-              centres.name = 'WTSI' AND consortia.name  IN ('MGP', 'BaSH')
-            OR
-              centres.name = 'Monterotondo' AND consortia.name  = 'Monterotondo'
-            )
 
           GROUP BY mi_plans.id
         EOF
@@ -375,9 +385,23 @@ class IntermediateReport
             SELECT
               genes.id AS gene_id,
               mi_plans.id AS mi_plan_id,
-              sum(case when mi_attempts.status_id = 2 then 1 else 0 end) as gtc_count,
-              --sum(case when mi_attempts.status_id != 2 then 1 else 0 end) as non_gtc_count,
-              count(*)
+
+              SUM(CASE
+                WHEN mi_attempts.status_id = 2 AND mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
+                THEN 1 ELSE 0
+              END) AS old_gtc_count,
+              
+              SUM(CASE
+                WHEN mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
+                THEN 1 ELSE 0
+              END) AS old_total_count,
+
+              SUM(CASE
+                WHEN mi_attempts.status_id = 2
+                THEN 1 ELSE 0
+              END) AS gtc_count,
+              
+              COUNT(*) AS total_count
               
             FROM genes
 
@@ -389,27 +413,6 @@ class IntermediateReport
             JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
             LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
 
-            WHERE
-              mi_attempt_status_stamps.created_at > '2011-06-01 00:00:00'
-            AND
-              mi_attempt_status_stamps.created_at < '2012-10-17 10:25:57'
-            AND
-              (
-                centres.name = 'HMGU' AND consortia.name  = 'Helmholtz GMC'
-              OR
-                centres.name = 'ICS' AND consortia.name  IN ('Phenomin', 'Helmholtz GMC')
-              OR
-                centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
-              OR
-                centres.name = 'Harwell' AND consortia.name  IN ('BaSH', 'MRC')
-              OR
-                centres.name = 'UCD' AND consortia.name  = 'DTCC'
-              OR
-                centres.name = 'WTSI' AND consortia.name  IN ('MGP', 'BaSH')
-              OR
-                centres.name = 'Monterotondo' AND consortia.name  = 'Monterotondo'
-              )
-
             GROUP BY genes.id, mi_plans.id
             ORDER BY mi_plans.id asc
           )
@@ -417,17 +420,14 @@ class IntermediateReport
           SELECT
             gene_id,
             mi_plan_id,
+            SUM(case when old_gtc_count > 0 then 1 else 0 end) AS old_gtc_count,
+            SUM(case when old_total_count > 0 then 1 else 0 end) AS old_total_count,
             SUM(case when gtc_count > 0 then 1 else 0 end) AS gtc_count,
-            --SUM(case when non_gtc_count > 0 then 1 else 0 end) AS non_gtc_count,
-            SUM(case when count > 0 then 1 else 0 end) AS total_count
+            SUM(case when total_count > 0 then 1 else 0 end) AS total_count
 
           FROM counts
           GROUP BY gene_id, mi_plan_id
         EOF
-      end
-
-      def report_cut_off_date
-        '2011-06-01 00:00:00'
       end
 
       def columns
@@ -462,10 +462,14 @@ class IntermediateReport
           'phenotyping_complete_date',
           'phenotype_attempt_aborted_date',
           'distinct_genotype_confirmed_es_cells',
+          'distinct_non_genotype_confirmed_es_cells',
+          'distinct_old_genotype_confirmed_es_cells',
           'distinct_old_non_genotype_confirmed_es_cells',
           'mi_plan_id',
           'total_pipeline_efficiency_gene_count',
           'gc_pipeline_efficiency_gene_count',
+          'total_old_pipeline_efficiency_gene_count',
+          'gc_old_pipeline_efficiency_gene_count',
           'is_bespoke_allele',
           'aborted_es_cell_qc_failed_date',
           'mi_attempt_colony_name',

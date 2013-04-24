@@ -35,7 +35,7 @@
               <td><%= date.strftime('%B') %></td>
               <td><%= consortium %></td>
               <% @clone_columns.each do |column| %>
-                <td><%= report_link_to(@summary_by_month, consortium, column, :centre => date) %></td>
+                <td><%= report_link_to(@summary_by_month, consortium, column, :date => date) %></td>
               <% end %>
             </tr>
 
@@ -72,7 +72,7 @@
               <td><%= date.strftime('%B') %></td>
               <td><%= consortium %></td>
               <% @phenotype_columns.each do |column| %>
-                <td><%= report_link_to(@summary_by_month, consortium, column, :centre => date) %></td>
+                <td><%= report_link_to(@summary_by_month, consortium, column, :date => date) %></td>
               <% end %>
             </tr>
 

@@ -1,4 +1,12 @@
-class GroupReportPresenter < BaseReportPresenter
+class GroupReportPresenter 
+
+  ##
+  ##  This is the base presenter for reports grouped by sub-project, and priority.
+  ##  Statuses are taken from the intermediate report, efficiencies from live data tables.
+  ##  Sub-classes must define `consortium`, `intermediate_group_field`, `efficiency_group_field_and_alias`
+  ##  and `efficiency_join_statement` methods. See subclasses for examples. You could create new subclasses to group
+  ##  by many other fields.
+  ##
 
   attr_accessor :report_hash
 
@@ -242,8 +250,7 @@ class GroupReportPresenter < BaseReportPresenter
           #{efficiency_join_statement}
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
           JOIN consortia ON consortia.id = mi_plans.consortium_id
-          WHERE mi_attempt_status_stamps.created_at > '#{report_cut_off_date}'
-                  AND mi_attempt_status_stamps.created_at < '#{six_months_ago}'
+          WHERE mi_attempt_status_stamps.created_at < '#{six_months_ago}'
             AND consortia.name = '#{consortium}'
           GROUP BY genes.id, #{efficiency_group_field_and_alias[:name]}
           ORDER BY #{efficiency_group_field_and_alias[:name]} ASC
@@ -270,8 +277,7 @@ class GroupReportPresenter < BaseReportPresenter
           JOIN consortia ON consortia.id = mi_plans.consortium_id
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
           #{efficiency_join_statement}
-          WHERE mi_attempt_status_stamps.created_at > '#{report_cut_off_date}'
-                  AND mi_attempt_status_stamps.created_at < '#{six_months_ago}'
+          WHERE mi_attempt_status_stamps.created_at < '#{six_months_ago}'
             AND consortia.name = '#{consortium}'
           GROUP BY targ_rep_es_cells.id, #{efficiency_group_field_and_alias[:name]}
           ORDER BY #{efficiency_group_field_and_alias[:name]} ASC

@@ -1,4 +1,10 @@
-class BaseProductionReportPresenter < BaseReportPresenter
+class BaseProductionReportPresenter
+
+  ##
+  ## This is the base presenter for production specific reports grouped by
+  ## consortium, centre, and status, while also displaying gene & clone efficiency data.
+  ## Consortium/centre/status queries use the intermediate report, efficiency data comes from live tables.
+  ##
 
   attr_accessor :consortium_by_status
   attr_accessor :consortium_centre_by_status
@@ -24,8 +30,8 @@ class BaseProductionReportPresenter < BaseReportPresenter
     @consortium_centre_by_status ||= ActiveRecord::Base.connection.execute(self.class.consortium_centre_by_status_sql)
   end
 
-  def consortium_centre_by_phenotyping_status
-    ActiveRecord::Base.connection.execute(self.class.consortium_centre_by_phenotyping_status_sql)
+  def consortium_centre_by_phenotyping_status(cre_excision_required)
+    ActiveRecord::Base.connection.execute(self.class.consortium_centre_by_phenotyping_status_sql(cre_excision_required))
   end
 
   def consortium_by_distinct_gene
@@ -108,10 +114,10 @@ class BaseProductionReportPresenter < BaseReportPresenter
     hash
   end
 
-  def generate_consortium_centre_by_phenotyping_status
+  def generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     hash = {}
 
-    consortium_centre_by_phenotyping_status.each do |report_row|
+    consortium_centre_by_phenotyping_status(cre_excision_required).each do |report_row|
       next if report_row['production_centre'].blank?
 
       hash["#{report_row['consortium']}"] = hash["#{report_row['consortium']}"] || []
@@ -120,16 +126,26 @@ class BaseProductionReportPresenter < BaseReportPresenter
       end
 
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Intent to phenotype"]    ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation started"]   ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation completed"] ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision started"]   ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision completed"] ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping started"]    ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping completed"]  ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping aborted"]    ||= 0
+      
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Intent to phenotype"] += report_row["count"].to_i
 
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Intent to phenotype"]    += report_row["count"].to_i
+      if report_row['phenotype_attempt_status'] == 'Rederivation Started'
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation started"] += report_row["count"].to_i
+      end
+
+      if report_row['phenotype_attempt_status'] == 'Rederivation Complete'
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation completed"] += report_row["count"].to_i
+      end
 
       if report_row['phenotype_attempt_status'] == 'Cre Excision Started'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision started"]   += report_row["count"].to_i
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision started"] += report_row["count"].to_i
       end
 
       if report_row['phenotype_attempt_status'] == 'Cre Excision Complete'
@@ -137,7 +153,7 @@ class BaseProductionReportPresenter < BaseReportPresenter
       end
 
       if report_row['phenotype_attempt_status'] == 'Phenotyping Started'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping started"]   += report_row["count"].to_i
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping started"] += report_row["count"].to_i
       end
 
       if report_row['phenotype_attempt_status'] == 'Phenotyping Complete'
@@ -145,7 +161,7 @@ class BaseProductionReportPresenter < BaseReportPresenter
       end
 
       if report_row['phenotype_attempt_status'] == 'Phenotype Attempt Aborted'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping aborted"]   += report_row["count"].to_i
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping aborted"] += report_row["count"].to_i
       end
 
     end
@@ -240,7 +256,7 @@ class BaseProductionReportPresenter < BaseReportPresenter
       EOF
     end
 
-    def consortium_centre_by_phenotyping_status_sql
+    def consortium_centre_by_phenotyping_status_sql(cre_excision_required = true)
       sql = <<-EOF
         SELECT
         consortium,
@@ -248,7 +264,7 @@ class BaseProductionReportPresenter < BaseReportPresenter
         phenotype_attempt_status,
         COUNT(*)
         FROM intermediate_report
-        JOIN phenotype_attempts ON intermediate_report.phenotype_attempt_colony_name = phenotype_attempts.colony_name
+        JOIN phenotype_attempts ON intermediate_report.phenotype_attempt_colony_name = phenotype_attempts.colony_name AND phenotype_attempts.cre_excision_required is #{cre_excision_required}
         WHERE consortium in ('#{available_consortia.join('\', \'')}')
         GROUP BY consortium, production_centre, phenotype_attempt_status
         ORDER BY consortium, production_centre;
@@ -277,8 +293,7 @@ class BaseProductionReportPresenter < BaseReportPresenter
           JOIN consortia ON consortia.id = mi_plans.consortium_id
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
           LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
-          WHERE mi_attempt_status_stamps.created_at > '#{report_cut_off_date}'
-                  AND mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
+          WHERE mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
             AND consortia.name in ('#{available_consortia.join('\', \'')}')
           GROUP BY genes.id, consortium_name, production_centre_name
         ) as counts
@@ -306,8 +321,7 @@ class BaseProductionReportPresenter < BaseReportPresenter
           JOIN consortia ON consortia.id = mi_plans.consortium_id
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
           LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
-          WHERE mi_attempt_status_stamps.created_at > '#{report_cut_off_date}'
-                  AND mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
+          WHERE mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
             AND consortia.name in ('#{available_consortia.join('\', \'')}')
           GROUP BY targ_rep_es_cells.id, consortium_name, production_centre_name
         ) as counts

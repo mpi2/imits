@@ -11,8 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-
-ActiveRecord::Schema.define(:version => 20130417142254) do
+ActiveRecord::Schema.define(:version => 20130424100316) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -163,6 +162,10 @@ ActiveRecord::Schema.define(:version => 20130417142254) do
     t.string   "mi_attempt_consortium"
     t.string   "mi_attempt_production_centre"
     t.string   "phenotype_attempt_colony_name"
+    t.integer  "distinct_non_genotype_confirmed_es_cells"
+    t.integer  "distinct_old_genotype_confirmed_es_cells"
+    t.integer  "total_old_pipeline_efficiency_gene_count"
+    t.integer  "gc_old_pipeline_efficiency_gene_count"
   end
 
   create_table "mi_attempt_distribution_centres", :force => true do |t|
@@ -331,7 +334,7 @@ ActiveRecord::Schema.define(:version => 20130417142254) do
     t.boolean  "recovery"
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "notifications", :force => true do |t|
     t.datetime "welcome_email_sent"
@@ -614,6 +617,15 @@ ActiveRecord::Schema.define(:version => 20130417142254) do
   add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"
   add_index "targ_rep_targeting_vectors", ["name"], :name => "index_targvec", :unique => true
   add_index "targ_rep_targeting_vectors", ["pipeline_id"], :name => "targeting_vectors_pipeline_id_fk"
+
+  create_table "tracking_goals", :force => true do |t|
+    t.integer  "production_centre_id"
+    t.date     "date"
+    t.string   "goal_type"
+    t.integer  "goal"
+    t.datetime "created_at",           :null => false
+    t.datetime "updated_at",           :null => false
+  end
 
   create_table "users", :force => true do |t|
     t.string   "email",                                         :default => "",    :null => false

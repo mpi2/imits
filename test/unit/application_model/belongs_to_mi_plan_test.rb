@@ -17,6 +17,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
 
   end # def self.tests
 
+
   context 'ApplicationModel::BelongsToMiPlan' do
 
     context 'for MiAttempt' do
@@ -49,7 +50,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         object.mi_plan = nil
 
         object.valid?
-        assert_match(/An mi_plan MUST be assigned via mi_plan_id/i, object.errors[:base].join('; '))
+        assert_match(/Please select a plan/i, object.errors[:base].join('; '))
       end
     end # context 'for MiAttempt'
 

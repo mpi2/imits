@@ -58,8 +58,20 @@ class IntermediateReport
       
       raw_report.each do |report_row|
 
-        if report_row['gene'] && report_row['allele_symbol_superscript']
-          report_row['allele_symbol'] = report_row['gene']+"<sup>"+report_row['allele_symbol_superscript']+"</sup>"
+        #if report_row['gene'] && report_row['allele_symbol_superscript']
+        #  report_row['allele_symbol'] = report_row['gene']+"<sup>"+report_row['allele_symbol_superscript']+"</sup>"
+        #end
+
+        mouse_allele_symbol_superscript = unless report_row['mouse_allele_type'].blank? || report_row['allele_symbol_superscript_template'].blank?
+          report_row['allele_symbol_superscript_template'].sub(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['mouse_allele_type'])
+        end
+
+        unless mouse_allele_symbol_superscript.blank?
+          report_row['allele_symbol'] = "#{report_row['gene']}<sup>#{mouse_allele_symbol_superscript}</sup>"
+        end
+
+        if report_row['allele_symbol'].blank?
+          report_row['allele_symbol'] = "#{report_row['gene']}<sup>#{report_row['allele_symbol_superscript']}</sup>"
         end
 
         if hash = @clone_efficiencies[report_row['mi_plan_id']]
@@ -85,7 +97,10 @@ class IntermediateReport
         report_row['total_old_pipeline_efficiency_gene_count']     = report_row['total_old_pipeline_efficiency_gene_count'].to_i
         report_row['gc_old_pipeline_efficiency_gene_count']        = report_row['gc_old_pipeline_efficiency_gene_count'].to_i
 
+        report_row.delete('pa_mouse_allele_type')
+        report_row.delete('mi_mouse_allele_type')
         report_row.delete('allele_symbol_superscript')
+        report_row.delete('allele_symbol_superscript_template')
 
         @report_rows << report_row
       end
@@ -160,6 +175,8 @@ class IntermediateReport
               targ_rep_es_cells.ikmc_project_id,
               targ_rep_mutation_types.name AS mutation_sub_type,
               targ_rep_es_cells.mgi_allele_symbol_superscript AS allele_symbol_superscript,
+              targ_rep_es_cells.allele_symbol_superscript_template AS allele_symbol_superscript_template,
+              best_mi_attempts.mouse_allele_type AS mi_mouse_allele_type,
               strains.name AS genetic_background,
               in_progress_stamps.created_at::date AS micro_injection_in_progress_date,
               chimearic_stamps.created_at::date   AS chimeras_obtained_date,
@@ -222,7 +239,8 @@ class IntermediateReport
               cre_complete_statuses.created_at::date as cre_excision_complete_date,
               started_statuses.created_at::date as phenotyping_started_date,
               complete_statuses.created_at::date as phenotyping_complete_date,
-              aborted_statuses.created_at::date as phenotype_attempt_aborted_date
+              aborted_statuses.created_at::date as phenotype_attempt_aborted_date,
+              best_phenotype_attempts.mouse_allele_type AS pa_mouse_allele_type
                         
             FROM (
               SELECT DISTINCT phenotype_attempts.*
@@ -286,8 +304,9 @@ class IntermediateReport
             best_phenotype_attempts.phenotype_attempt_status,
             best_mi_attempts.ikmc_project_id,
             best_mi_attempts.mutation_sub_type,
-            -- #allele_symbol is a method, we either need to combine the marker_symbol and the allele_symbol_superscript or call the method on the model
             best_mi_attempts.allele_symbol_superscript,
+            best_mi_attempts.allele_symbol_superscript_template,
+            best_mi_attempts.mi_mouse_allele_type,
             best_mi_attempts.genetic_background,
             assigned_stamps.created_at::date AS assigned_date,
             in_progress_stamps.created_at::date AS assigned_es_cell_qc_in_progress_date,
@@ -304,11 +323,8 @@ class IntermediateReport
             best_phenotype_attempts.phenotyping_started_date,
             best_phenotype_attempts.phenotyping_complete_date,
             best_phenotype_attempts.phenotype_attempt_aborted_date,
-            --  distinct_genotype_confirmed_es_cells         :integer
-            --  distinct_old_non_genotype_confirmed_es_cells :integer
+            best_phenotype_attempts.pa_mouse_allele_type,
             mi_plans.id AS mi_plan_id,
-            --  total_pipeline_efficiency_gene_count         :integer
-            --  gc_pipeline_efficiency_gene_count            :integer
             mi_plans.is_bespoke_allele,
             aborted_stamps.created_at::date AS aborted_es_cell_qc_failed_date,
             case

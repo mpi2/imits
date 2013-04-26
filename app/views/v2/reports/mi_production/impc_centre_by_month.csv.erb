@@ -1,6 +1,9 @@
-Date, Production centre, <%= @columns.map {|column, key| column }.join(', ') %>
 <% @centre_by_month[:centres].each do |centre| %>
+
+<%= centre %>
+
+Date, Production centre, <%= @columns.map {|column, key| ["#{column} (actual)", "#{column} (goal)"] }.flatten.join(', ') %>
 <% @centre_by_month[:dates].each do |date| %>
-<%= date %>, <%= centre %>, <%= @columns.map {|column, key| @centre_by_month["#{date}-#{centre}-#{column}"] }.join(', ') %>
+<%= date %>, <%= centre %>, <%= @columns.map {|column, key| [@centre_by_month["#{date}-#{centre}-#{column}"].to_i, @centre_by_month["#{date}-#{centre}-#{column}_goal"].to_i] }.flatten.join(', ') %>
 <% end %>
 <% end %>

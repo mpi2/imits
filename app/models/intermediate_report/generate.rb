@@ -17,15 +17,15 @@ class IntermediateReport
     end
 
     def raw_report
-      ActiveRecord::Base.connection.execute(self.class.report_sql).to_a
+      @raw_report ||= ActiveRecord::Base.connection.execute(self.class.report_sql).to_a
     end
 
     def raw_clone_efficiencies
-      ActiveRecord::Base.connection.execute(self.class.clone_efficiency_sql).to_a
+      @raw_clone_efficiencies ||= ActiveRecord::Base.connection.execute(self.class.clone_efficiency_sql).to_a
     end
 
     def raw_gene_efficiencies
-      ActiveRecord::Base.connection.execute(self.class.gene_efficiency_sql).to_a
+      @raw_gene_efficiencies ||= ActiveRecord::Base.connection.execute(self.class.gene_efficiency_sql).to_a
     end
 
     def create_clone_efficiency_hash
@@ -58,20 +58,41 @@ class IntermediateReport
       
       raw_report.each do |report_row|
 
-        #if report_row['gene'] && report_row['allele_symbol_superscript']
-        #  report_row['allele_symbol'] = report_row['gene']+"<sup>"+report_row['allele_symbol_superscript']+"</sup>"
-        #end
-
-        mouse_allele_symbol_superscript = unless report_row['mouse_allele_type'].blank? || report_row['allele_symbol_superscript_template'].blank?
-          report_row['allele_symbol_superscript_template'].sub(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['mouse_allele_type'])
+        ## Use the MiAttempt mouse_allele_type combined with the EsCell
+        mouse_allele_symbol_superscript = if !report_row['mi_mouse_allele_type'].blank? && !report_row['allele_symbol_superscript_template'].blank?
+          report_row['allele_symbol_superscript_template'].sub(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['mi_mouse_allele_type'])
         end
 
         unless mouse_allele_symbol_superscript.blank?
           report_row['allele_symbol'] = "#{report_row['gene']}<sup>#{mouse_allele_symbol_superscript}</sup>"
         end
 
-        if report_row['allele_symbol'].blank?
+        ## Use the PhenotypeAttempt mouse_allele_type combined with the EsCell (via PhenotypeAttempt -> MiAttempt -> TargRep::EsCell)
+        ## allele_symbol_superscript in order to create the allele_symbol
+        allowed_pa_statuses = ["Cre excision completed", "Phenotyping started", "Phenotyping completed", "Phenotyping aborted"]
+
+        phenotype_allele_symbol_superscript = if allowed_pa_statuses.include?(report_row['phenotype_attempt_status']) &&
+                                                  !report_row['pa_mouse_allele_type'].blank? &&
+                                                  !report_row['pa_allele_symbol_superscript_template'].blank?
+
+          report_row['pa_allele_symbol_superscript_template'].sub(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['pa_mouse_allele_type'])
+        end
+
+        unless phenotype_allele_symbol_superscript.blank?
+          report_row['allele_symbol'] = "#{report_row['gene']}<sup>#{phenotype_allele_symbol_superscript}</sup>"
+        end
+
+        ## If there's no mouse_allele_type on the MiAttempt use the EsCell's allele_symbol_superscript
+        if report_row['allele_symbol'].blank? && !report_row['allele_symbol_superscript'].blank?
           report_row['allele_symbol'] = "#{report_row['gene']}<sup>#{report_row['allele_symbol_superscript']}</sup>"
+        end
+
+        ##
+        ## If there's no direct link to an MiAttempt
+        ## and the PhenotypeAttempt is not Cre-complete or better
+        ## use EsCell's allele_symbol_superscript via PhenotypeAttempt's MI
+        if report_row['allele_symbol'].blank? && !report_row['pa_allele_symbol_superscript'].blank?
+          report_row['allele_symbol'] = "#{report_row['gene']}<sup>#{report_row['pa_allele_symbol_superscript']}</sup>"
         end
 
         if hash = @clone_efficiencies[report_row['mi_plan_id']]
@@ -98,6 +119,8 @@ class IntermediateReport
         report_row['gc_old_pipeline_efficiency_gene_count']        = report_row['gc_old_pipeline_efficiency_gene_count'].to_i
 
         report_row.delete('pa_mouse_allele_type')
+        report_row.delete('pa_allele_symbol_superscript_template')
+        report_row.delete('pa_mgi_allele_symbol_superscript')
         report_row.delete('mi_mouse_allele_type')
         report_row.delete('allele_symbol_superscript')
         report_row.delete('allele_symbol_superscript_template')
@@ -240,7 +263,9 @@ class IntermediateReport
               started_statuses.created_at::date as phenotyping_started_date,
               complete_statuses.created_at::date as phenotyping_complete_date,
               aborted_statuses.created_at::date as phenotype_attempt_aborted_date,
-              best_phenotype_attempts.mouse_allele_type AS pa_mouse_allele_type
+              best_phenotype_attempts.mouse_allele_type AS pa_mouse_allele_type,
+              targ_rep_es_cells.allele_symbol_superscript_template AS pa_allele_symbol_superscript_template,
+              targ_rep_es_cells.mgi_allele_symbol_superscript AS pa_allele_symbol_superscript
                         
             FROM (
               SELECT DISTINCT phenotype_attempts.*
@@ -266,6 +291,7 @@ class IntermediateReport
             ) best_phenotype_attempts
 
             LEFT JOIN mi_attempts ON best_phenotype_attempts.mi_attempt_id = mi_attempts.id
+            LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
             LEFT JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
             LEFT JOIN consortia ON consortia.id = mi_plans.consortium_id
             LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
@@ -324,6 +350,8 @@ class IntermediateReport
             best_phenotype_attempts.phenotyping_complete_date,
             best_phenotype_attempts.phenotype_attempt_aborted_date,
             best_phenotype_attempts.pa_mouse_allele_type,
+            best_phenotype_attempts.pa_allele_symbol_superscript_template,
+            best_phenotype_attempts.pa_allele_symbol_superscript,
             mi_plans.id AS mi_plan_id,
             mi_plans.is_bespoke_allele,
             aborted_stamps.created_at::date AS aborted_es_cell_qc_failed_date,

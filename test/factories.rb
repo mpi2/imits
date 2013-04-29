@@ -72,6 +72,10 @@ Factory.define :mi_plan_with_production_centre, :parent => :mi_plan do |mi_plan|
   mi_plan.association :production_centre, :factory => :centre
 end
 
+Factory.define :mi_plan_phenotype_only, :parent => :mi_plan_with_production_centre do |mi_plan|
+  mi_plan.phenotype_only true
+end
+
 # TODO Remove this factory, it is only used in 1 place
 Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_plan|
   mi_plan.after_create do |plan|

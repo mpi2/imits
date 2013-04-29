@@ -22,8 +22,21 @@ class PhenotypeAttempt < ApplicationModel
 
   protected :status=
 
+  validates :mi_attempt, :presence => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :colony_name, :uniqueness => {:case_sensitive => false}
+
+  # validate mi_plan
+  validate do |me|
+    if validate_plan
+
+      if !me.mi_plan.phenotype_only and me.mi_attempt and me.mi_attempt.mi_plan != me.mi_plan
+        me.errors.add(:mi_plan, 'must be either the same as the mi_attempt OR phenotype_only')
+      end
+
+    end
+  end
+
 
   validate do |me|
     if me.mi_attempt and me.mi_attempt.status != MiAttempt::Status.genotype_confirmed
@@ -31,24 +44,34 @@ class PhenotypeAttempt < ApplicationModel
     end
   end
 
-  validate do |me|
-    if me.mi_attempt and me.mi_plan and me.mi_attempt.gene != me.mi_plan.gene
-      me.errors.add(:mi_plan, 'must have same gene as mi_attempt')
-    end
-  end
+#  validate :validate_plan # this method is in belongs_to_mi_plan
+
+
+
+#  validate do |me|
+#    if me.mi_attempt and me.mi_plan and me.mi_attempt.gene != me.mi_plan.gene
+#      me.errors.add(:mi_plan, 'must have same gene as mi_attempt')
+#    end
+#  end
+
+#  validate do |me|
+#    if me.mi_plan and (!me.mi_plan.phenotype_only or (me.mi_attempt and me.mi_attempt.mi_plan != me.mi_plan))
+#      me.errors.add(:mi_plan, 'must be either the same as the mi_attempt OR phenotype_only')
+#    end
+#  end
 
   # BEGIN Callbacks
   after_initialize :set_mi_plan # need to set mi_plan if blank before authorize_user_production_centre is fired in controller.
   before_validation :change_status
-  before_save :set_mi_plan # this is here if mi_plan is edited after initialization
-  before_save :ensure_plan_exists # this method is in belongs_to_mi_plan
+  before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
+#  before_save :ensure_plan_exists # this method is in belongs_to_mi_plan
   before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
   before_save :generate_colony_name_if_blank
   after_save :manage_status_stamps
 
   def set_mi_plan
     if ! self.mi_plan.present?
-      self.mi_plan = self.mi_attempt.try(:mi_plan)
+      self.mi_plan = self.try(:mi_attempt).try(:mi_plan)
     end
   end
 

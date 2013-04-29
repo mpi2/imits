@@ -46,6 +46,10 @@ class BaseProductionReportPresenter
     @clone_efficiency_totals ||= ActiveRecord::Base.connection.execute(self.class.clone_efficiency_totals_sql)
   end
 
+  def effort_efficiency_totals
+    @effort_efficiency_totals ||= ActiveRecord::Base.connection.execute(self.class.effort_based_efficiency_totals_sql)
+  end
+
   def generate_consortium_by_status
     hash = {}
 
@@ -191,6 +195,24 @@ class BaseProductionReportPresenter
     hash
   end
 
+  def generate_effort_efficiency_totals
+    hash = {}
+
+    effort_efficiency_totals.each do |report_row|
+
+      gtc_gene_count   = report_row['gene_count'].to_f
+      total_injections = report_row['total_injections'].to_f
+
+      efficiency = if gtc_gene_count > 0.0 && total_injections > 0.0
+        gtc_gene_count / total_injections
+      end.to_f
+
+      hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-effort_efficiency"] = efficiency
+    end
+
+    hash
+  end
+
   class << self
 
     def mi_plan_statuses
@@ -326,6 +348,78 @@ class BaseProductionReportPresenter
           GROUP BY targ_rep_es_cells.id, consortium_name, production_centre_name
         ) as counts
         GROUP BY counts.consortium_name, counts.production_centre_name
+      EOF
+    end
+
+    def effort_based_efficiency_totals_sql
+      <<-EOF
+        WITH distinct_microinjected_genes AS (
+          SELECT
+            counts.consortium_name,
+            counts.production_centre_name,
+            sum(gtc_count) as gene_count
+          FROM (
+            SELECT
+              genes.id as gene_id,
+              consortia.name as consortium_name,
+              centres.name as production_centre_name,
+              sum(case when mi_attempts.status_id = 2 then 1 else 0 end) as gtc_count,
+              1 as gene
+            FROM genes
+            JOIN targ_rep_alleles ON genes.id = targ_rep_alleles.gene_id
+            JOIN targ_rep_es_cells ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
+            JOIN mi_attempts ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+            JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+            JOIN consortia ON consortia.id = mi_plans.consortium_id
+            LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
+            
+            WHERE
+              mi_attempts.mi_date <= '#{6.months.ago.to_s(:db)}'
+            AND
+              consortia.name in ('#{available_consortia.join('\', \'')}')
+
+            GROUP BY
+              genes.id,
+              consortium_name,
+              production_centre_name
+
+            ORDER BY genes.id
+          ) as counts
+
+          GROUP BY
+            counts.consortium_name,
+            counts.production_centre_name
+        ),
+
+        total_microinjections AS (
+          SELECT
+            consortia.name AS consortium_name,
+            centres.name AS production_centre_name,
+            count(*) AS total_injections
+          FROM mi_attempts
+          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN consortia ON consortia.id = mi_plans.consortium_id
+          LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
+
+          WHERE
+            mi_attempts.mi_date <= '#{6.months.ago.to_s(:db)}'
+          AND
+            consortia.name in ('#{available_consortia.join('\', \'')}')
+
+          GROUP BY
+            consortium_name,
+            production_centre_name
+          
+        )
+
+        SELECT 
+          total_microinjections.consortium_name,
+          total_microinjections.production_centre_name,
+          distinct_microinjected_genes.gene_count,
+          total_microinjections.total_injections
+        FROM distinct_microinjected_genes
+        JOIN total_microinjections ON total_microinjections.consortium_name = distinct_microinjected_genes.consortium_name AND total_microinjections.production_centre_name = distinct_microinjected_genes.production_centre_name
+
       EOF
     end
   end

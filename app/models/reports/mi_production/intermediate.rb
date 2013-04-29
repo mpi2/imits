@@ -82,8 +82,9 @@ class Reports::MiProduction::Intermediate < Reports::Base
         record['Overall Status'] = record['PhenotypeAttempt Status']
         record['PhenotypeAttempt Colony Name'] = phenotype_attempt.colony_name
 
+        record['Allele Symbol'] = phenotype_attempt.allele_symbol if record['Allele Symbol'].blank?
+
         phenotype_mi_attempt = phenotype_attempt.mi_attempt
-        record['Allele Symbol'] = phenotype_mi_attempt.allele_symbol if record['Allele Symbol'].blank?
         record['MiAttempt Consortium'] = phenotype_mi_attempt.consortium.name
         record['MiAttempt Production Centre'] = phenotype_mi_attempt.production_centre.name
         record['MiAttempt Colony Name'] = phenotype_mi_attempt.colony_name if !record['MiAttempt Colony Name']

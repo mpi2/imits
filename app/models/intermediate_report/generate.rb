@@ -69,7 +69,7 @@ class IntermediateReport
 
         ## Use the PhenotypeAttempt mouse_allele_type combined with the EsCell (via PhenotypeAttempt -> MiAttempt -> TargRep::EsCell)
         ## allele_symbol_superscript in order to create the allele_symbol
-        allowed_pa_statuses = ["Cre excision completed", "Phenotyping started", "Phenotyping completed", "Phenotyping aborted"]
+        allowed_pa_statuses = ["Cre excision completed", "Phenotyping started", "Phenotyping completed"]
 
         phenotype_allele_symbol_superscript = if allowed_pa_statuses.include?(report_row['phenotype_attempt_status']) &&
                                                   !report_row['pa_mouse_allele_type'].blank? &&

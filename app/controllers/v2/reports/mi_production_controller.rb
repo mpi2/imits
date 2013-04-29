@@ -17,6 +17,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(false)
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
+    @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
     @mi_plan_statuses = Komp2ProductionReportPresenter.mi_plan_statuses
   end
 
@@ -34,6 +35,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(false)
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
+    @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
     @mi_plan_statuses = ImpcProductionReportPresenter.mi_plan_statuses
   end
 

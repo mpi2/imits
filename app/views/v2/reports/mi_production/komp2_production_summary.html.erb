@@ -23,6 +23,7 @@
         <th>Microinjection aborted</th>
         <th>Gene Pipeline efficiency (%)</th>
         <th>Clone Pipeline efficiency (%)</th>
+        <th>Effort based efficiency</th>
       </tr>
     </thead>
     <tbody>
@@ -47,6 +48,7 @@
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjection aborted", :centre => centre) %></td>
             <td><%= efficiency_percentage(@gene_efficiency_totals, row['consortium'], centre) %></td>
             <td><%= efficiency_percentage(@clone_efficiency_totals, row['consortium'], centre) %></td>
+            <td><%= @effort_efficiency_totals["#{row['consortium']}-#{centre}-effort_efficiency"].to_f.round(2) %></td>
           </tr>
 
           <% count += 1 %>
@@ -139,8 +141,8 @@
               <td><%= centre %></td>
               <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre, :cre_excision_required => false) %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Intent to phenotype", :centre => centre, :cre_excision_required => false) %></td>
-              <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Rederivation started", :centre => centre, :cre_excision_required => false) %></td>
-              <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Rederivation completed", :centre => centre, :cre_excision_required => false) %></td>              
+              <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Rederivation started", :centre => centre, :cre_excision_required => false) %></td>
+              <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Rederivation completed", :centre => centre, :cre_excision_required => false) %></td>              
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Phenotyping started", :centre => centre, :cre_excision_required => false) %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Phenotyping completed", :centre => centre, :cre_excision_required => false) %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Phenotyping aborted", :centre => centre, :cre_excision_required => false) %></td>
@@ -208,6 +210,10 @@
       <tr>
         <th>Clone Pipeline Efficiency</th>
         <td>(#Unique Clones for all Genotype Confirmed MI's > 6 months old) / (#Unique Clones for all MI's > 6 months old)</td>
+      </tr>
+      <tr>
+        <th>Effort based efficiency <span>*New*</span></th>
+        <td>(#Unique Genes for all Genotype Confirmed MI's > 6 months old) / (#Micro-injections > 6 months old)</td>
       </tr>
     </tbody>
   </table>

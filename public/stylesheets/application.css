@@ -358,6 +358,10 @@ div#messages {
   text-align:left;
 }
 
+.report.production_summary table.descriptions th span {
+  color:red;
+}
+
 .report.production_summary table.descriptions tbody th {
   background:#fff;
   font-weight:bold;

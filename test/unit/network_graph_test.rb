@@ -89,7 +89,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
           colony_name = phenotype_attempt.colony_name.to_s
           all_statuses = ''
           statuses.each do |status|
-            all_statuses << "<tr><td>#{status.status.name}:</td><td>#{status.created_at.strftime "%d/%m/%Y"}</td></tr>" 
+            all_statuses << "<tr><td>#{status.status.name}:</td><td>#{status.created_at.strftime "%d/%m/%Y"}</td></tr>"
           end
           node = NetworkGraph::PhenotypeAttemptNode.new(phenotype_attempt, params={ :symbol => symbol, :url => "" })
           expected = "<<table>" +
@@ -112,7 +112,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
 
       allele = Factory.create :allele, :gene => Gene.find_by_id(gene.id)
       es_cell = Factory.create :es_cell, :allele => allele, :name => 'blogs'
-      plan2 = Factory.create :mi_plan, :gene => Gene.find_by_id(gene.id)
+      plan2 = Factory.create :mi_plan_phenotype_only, :gene => Gene.find_by_id(gene.id)
       mi_plan = Factory.create :mi_plan, :gene => Gene.find_by_id(gene.id), :consortium => Consortium.find_by_name('BaSH'), :production_centre => Centre.find_by_name('WTSI'), :force_assignment => true
       mi_attempt = Factory.create :mi_attempt2_status_gtc, :mi_plan => mi_plan, :es_cell => es_cell
       phenotype_attempt = Factory.create :phenotype_attempt, :mi_plan => plan2, :mi_attempt => mi_attempt

@@ -61,12 +61,27 @@ class MiAttempt < ApplicationModel
     end
   end
 
+#  validate :validate_plan # this method is in belongs_to_mi_plan
+
+  # validate mi plan
   validate do |mi_attempt|
-    next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
-    if(mi_attempt.es_cell.gene != mi_attempt.mi_plan.gene)
-      mi_attempt.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{mi_attempt.es_cell.gene.marker_symbol} != #{mi_attempt.mi_plan.gene.marker_symbol})"
+    if validate_plan #test whether to continue with validations
+      if mi_attempt.mi_plan.phenotype_only
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be created for this MiPlan. (phenotype only)')
+      end
+
+#      if (mi_attempt.es_cell and mi_attempt.es_cell.try(:gene) != mi_attempt.mi_plan.try(:gene))
+#        mi_attempt.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{mi_attempt.es_cell.try(:gene).try(:marker_symbol)} != #{mi_attempt.mi_plan.try(:gene).try(:marker_symbol)})"
+#      end
     end
   end
+
+#  validate do |mi_attempt|
+#    next unless mi_attempt.es_cell and mi_attempt.mi_plan and mi_attempt.es_cell.gene and mi_attempt.mi_plan.gene
+#    if(mi_attempt.es_cell.gene != mi_attempt.mi_plan.gene)
+#      mi_attempt.errors.add :base, "mi_plan and es_cell gene mismatch!  Should be the same! (#{mi_attempt.es_cell.gene.marker_symbol} != #{mi_attempt.mi_plan.gene.marker_symbol})"
+#    end
+#  end
 
   validate do |mi_attempt|
     if !mi_attempt.phenotype_attempts.blank? and
@@ -75,17 +90,16 @@ class MiAttempt < ApplicationModel
     end
   end
 
-  validate do |mi_attempt|
-    next if mi_attempt.mi_plan.blank?
+#  validate do |mi_attempt|
+#    next if mi_attempt.mi_plan.blank?
 
-    if mi_attempt.mi_plan.phenotype_only
-      mi_attempt.errors.add(:base, 'MiAttempt cannot be created for this MiPlan. (phenotype only)')
-    end
-  end
+#    if mi_attempt.mi_plan.phenotype_only
+#      mi_attempt.errors.add(:base, 'MiAttempt cannot be created for this MiPlan. (phenotype only)')
+#    end
+#  end
 
   # BEGIN Callbacks
 
-  before_validation :ensure_plan_exists # this method are in belongs_to_mi_plan
   before_validation :set_blank_qc_fields_to_na
   before_validation :set_total_chimeras
   before_validation :set_es_cell_from_es_cell_name

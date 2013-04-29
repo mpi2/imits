@@ -17,6 +17,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
 
   end # def self.tests
 
+
   context 'ApplicationModel::BelongsToMiPlan' do
 
     context 'for MiAttempt' do
@@ -27,9 +28,10 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
       tests
 
       should 'report error if trying to save with an mi_plan that is not assigned or is inactive' do
-        plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1, :is_active => false
-        assert_equal 'ina', plan.status.code
-        object = Factory.build :mi_attempt2, :mi_plan => plan
+        plan = Factory.create :mi_plan_with_production_centre, :production_centre => Centre.find_by_name('WTSI'), :gene => cbx1
+        plan_in_conflict = Factory.create :mi_plan_with_production_centre, :production_centre => Centre.find_by_name('JAX') , :gene => cbx1
+        assert_equal 'ins-con', plan_in_conflict.status.code
+        object = Factory.build :mi_attempt2, :mi_plan => plan_in_conflict
         assert_raise(ApplicationModel::BelongsToMiPlan::UnsuitableMiPlanError) do
           object.save
         end
@@ -49,7 +51,7 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
         object.mi_plan = nil
 
         object.valid?
-        assert_match(/An mi_plan MUST be assigned via mi_plan_id/i, object.errors[:base].join('; '))
+        assert_match(/Please select a plan/i, object.errors[:base].join('; '))
       end
     end # context 'for MiAttempt'
 
@@ -76,23 +78,18 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
       end
 
       context '#mi_plan and #mi_plan_id test:' do
-        should 'force #mi_plan to be assigned and active if children are active' do
+        should 'force #mi_plan to be assigned if children are active' do
           unused_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
 
           es_cell = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1)
           inactive_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1, :is_active => false
           conflict_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
           assert_equal 'ins-con', conflict_plan.status.code
-          assert_equal 'ina', inactive_plan.status.code
 
-          Factory.create :public_mi_attempt, :es_cell_name => es_cell.name, :mi_plan_id => inactive_plan.id
           Factory.create :public_mi_attempt, :es_cell_name => es_cell.name, :mi_plan_id => conflict_plan.id
 
-          inactive_plan.reload
           conflict_plan.reload
 
-          assert_true inactive_plan.has_status? :asg
-          assert_false inactive_plan.has_status? :ina
           assert_true conflict_plan.has_status? :asg
           assert_false conflict_plan.has_status? 'ins-con'
         end
@@ -115,12 +112,13 @@ class ApplicationModel::BelongsToMiPlanTest < ActiveSupport::TestCase
 
         should 'allow #mi_plan to be inactive if children are inactive' do
           es_cell = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1)
-          inactive_plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1, :is_active => false
-          assert_equal 'ina', inactive_plan.status.code
+          plan = Factory.create :mi_plan_with_production_centre, :gene => cbx1
+          assert_not_equal 'ina', plan.status.code
 
-          Factory.create :public_mi_attempt, :es_cell_name => es_cell.name, :mi_plan_id => inactive_plan.id, :is_active => false
-          assert_true inactive_plan.has_status? :asg
-          assert_true inactive_plan.has_status? :ina
+          Factory.create :public_mi_attempt, :es_cell_name => es_cell.name, :mi_plan_id => plan.id, :is_active => false
+          plan.is_active = false
+          assert plan.save
+          assert_equal 'ina', plan.status.code
         end
       end
     end # context 'for Public::MiAttempt'

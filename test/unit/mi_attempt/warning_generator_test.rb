@@ -48,25 +48,6 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
       end
     end
 
-    should 'generate warning if MiPlan that will be assigned does not have an assigned status' do
-      gene = Factory.create :gene_cbx1
-      allele = Factory.create :allele, :gene => gene
-      mi_plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('BaSH'),
-              :production_centre => Centre.find_by_name!('WTSI'),
-              :gene => gene, :withdrawn => true
-      es_cell = Factory.create :es_cell, :allele => allele
-
-      mi = Factory.build(:public_mi_attempt,
-        :mi_plan => mi_plan,
-        :es_cell_name => es_cell.name)
-      assert mi.valid?, mi.errors.inspect
-
-      assert_true mi.generate_warnings
-      assert_equal 1, mi.warnings.size
-      assert_match 'has not been assigned to WTSI', mi.warnings.first
-      assert_match 'will assign it to WTSI', mi.warnings.first
-    end
-
     should 'not generate warning if MiPlan that will be assigned already has an assigned status' do
       gene = Factory.create :gene_cbx1
       allele = Factory.create :allele, :gene => gene

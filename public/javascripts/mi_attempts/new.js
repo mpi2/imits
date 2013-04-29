@@ -25,7 +25,7 @@ function processRestOfForm() {
         storeId: 'store',
         proxy: {
             type: 'ajax',
-            url: window.basePath + '/mi_plans/search_by_marker_symbol.json'
+            url: window.basePath + '/mi_plans/search_for_available_mi_attempt_plans.json'
         },
     });
 

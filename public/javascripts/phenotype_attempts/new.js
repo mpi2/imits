@@ -16,12 +16,12 @@ Ext.onReady(function() {
 function processRestOfForm() {
     var restOfForm = Ext.get('rest-of-form');
 
-    var miplanstore = Ext.create('Ext.data.JsonStore', {
+    var miplanstorephenotype = Ext.create('Ext.data.JsonStore', {
         model: 'MiPlanListViewModel',
-        storeId: 'miplanstore',
+        storeId: 'miplanstorephenotype',
         proxy: {
             type: 'ajax',
-            url: window.basePath + '/mi_plans/search_by_marker_symbol.json'
+            url: window.basePath + '/mi_plans/search_for_available_phenotyping_plans.json'
         },
         reader: {
             type: 'json'
@@ -35,7 +35,7 @@ function processRestOfForm() {
         height:250,
         title:'Select a Plan',
         renderTo: 'mi_plan_list_phenotype',
-        store: miplanstore,
+        store: miplanstorephenotype,
         singleSelect : true,
         viewConfig: {
             emptyText: 'No images to display'
@@ -70,6 +70,10 @@ function processRestOfForm() {
             flex: 50,
             dataIndex: 'is_cre_bac_allele'
         },{
+            text: 'Phenotype Only',
+            flex: 50,
+            dataIndex: 'phenotype_only'
+        },{
             text: 'Active',
             flex: 50,
             dataIndex: 'is_active'
@@ -82,9 +86,9 @@ function processRestOfForm() {
       restOfForm.getInputElement("phenotype_attempt[mi_plan_id]").set({ value: nodes[0].get('id') });
     });
 
-    miplanstore.on('load', function(){
+    miplanstorephenotype.on('load', function(){
 
-        var recordIndex = miplanstore.find('id', restOfForm.getInputElement("phenotype_attempt[mi_plan_id]").getValue());
+        var recordIndex = miplanstorephenotype.find('id', restOfForm.getInputElement('phenotype_attempt[mi_plan_id]').getValue());
         if (recordIndex != -1) {
             miplanlistview.getSelectionModel().select(recordIndex);
         }
@@ -103,13 +107,13 @@ function processRestOfForm() {
         }
     }
 
-    restOfForm.set_mi_plan_selection = function(MarkerSymbol){
+    restOfForm.set_mi_plan_selection = function(MarkerSymbol, MiPlanId){
         if (MarkerSymbol){
-            miplanstore.load({params: {marker_symbol: MarkerSymbol}});
+            miplanstorephenotype.load({params: {marker_symbol: MarkerSymbol, mi_plan_id: MiPlanId}});
         };
     }
 
-    restOfForm.set_mi_plan_selection(Ext.get('marker_symbol').getHTML())
+    restOfForm.set_mi_plan_selection(Ext.get('marker_symbol').getHTML(), restOfForm.getInputElement('phenotype_attempt[mi_plan_id]').getValue());
 
 
     restOfForm.submitButton = Ext.get('phenotype_attempt_submit');

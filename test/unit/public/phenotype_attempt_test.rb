@@ -58,6 +58,7 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       should 'set MiPlan to Assigned status if not assigned already' do
         plan = TestDummy.mi_plan(@mi.mi_plan.marker_symbol,
         'JAX', @mi.mi_plan.production_centre.name)
+        plan.phenotype_only = true
         assert_equal 'Inspect - GLT Mouse', plan.status.name
 
         pt = Factory.build(:public_phenotype_attempt,

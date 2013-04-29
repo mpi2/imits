@@ -46,7 +46,8 @@ TarMits::Application.routes.draw do
 
   resources :mi_plans do
     collection do
-      get 'search_by_marker_symbol'
+      get 'search_for_available_mi_attempt_plans'
+      get 'search_for_available_phenotyping_plans'
       get 'gene_selection'
       delete 'destroy'
       get 'attributes'

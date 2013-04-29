@@ -87,7 +87,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
           :created_at => '2011-12-13 00:00:00 UTC')
 
 
-        ee_wtsi_plan = Factory.create :mi_plan,
+        ee_wtsi_plan = Factory.create :mi_plan_phenotype_only,
                 :gene => @cbx1,
                 :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
                 :production_centre => Centre.find_by_name!('WTSI'),
@@ -113,7 +113,7 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
                 :mouse_allele_type => 'c',
                 :colony_background_strain => Strain.find_by_name!('C57BL/6N')
 
-        dtcc_ics_mi_plan = Factory.create :mi_plan,
+        dtcc_ics_mi_plan = Factory.create :mi_plan_phenotype_only,
                 :consortium => Consortium.find_by_name!('DTCC'),
                 :production_centre => Centre.find_by_name!('ICS'),
                 :gene => @cbx1,

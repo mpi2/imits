@@ -230,6 +230,7 @@ Ext.define('Imits.widget.GeneGrid', {
         var consortiumName       = grid.consortiumCombo.getSubmitValue();
         var productionCentreName = grid.centreCombo.getSubmitValue();
         var subProjectName       = grid.subprojectCombo.getSubmitValue();
+        var PhenotypeOnly        = grid.phenotypeonlyCheck.getSubmitValue() || false;
         var priorityName         = grid.priorityCombo.getSubmitValue();
         var isBespokeAllele      = grid.isbespokealleleCheck.getSubmitValue() || false;
         var isConditionalAllele  = grid.isconditionalalleleCheck.getSubmitValue() || false;
@@ -259,6 +260,7 @@ Ext.define('Imits.widget.GeneGrid', {
                 'consortium_name'        : consortiumName,
                 'production_centre_name' : productionCentreName,
                 'sub_project_name'       : subProjectName,
+                'phenotype_only'         : PhenotypeOnly,
                 'priority_name'          : priorityName,
                 'is_bespoke_allele'      : isBespokeAllele,
                 'is_conditional_allele'  : isConditionalAllele,
@@ -330,6 +332,7 @@ Ext.define('Imits.widget.GeneGrid', {
         grid.centreCombo      = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_OPTIONS, true, false);
         grid.subprojectCombo  = grid.createComboBox('sub_project', 'Sub Project', 65, window.SUB_PROJECT_OPTIONS, false, isSubProjectHidden);
         grid.priorityCombo    = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_OPTIONS, false, false);
+        grid.phenotypeonlyCheck     = grid.createCheckBox('phenotype_only', 'Phenotype Only', 85, false);
         grid.isbespokealleleCheck     = grid.createCheckBox('is_bespoke_allele', 'Bespoke', 47, false);
         grid.isconditionalalleleCheck = grid.createCheckBox('is_conditional_allele', 'Conditional', 54, false);
         grid.isdeletionalleleCheck    = grid.createCheckBox('is_deletion_allele', 'Deletion', 47, false);
@@ -343,6 +346,7 @@ Ext.define('Imits.widget.GeneGrid', {
             grid.centreCombo,
             grid.subprojectCombo,
             grid.priorityCombo,
+            grid.phenotypeonlyCheck,
             grid.isbespokealleleCheck,
             grid.isconditionalalleleCheck,
             grid.isdeletionalleleCheck,

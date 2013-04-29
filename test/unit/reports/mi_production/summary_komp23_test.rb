@@ -50,11 +50,11 @@ class Reports::MiProduction::SummaryKomp23Test < ActiveSupport::TestCase
       new_gene_mi(:mi_attempt2, 'Cbx10', :is_active => false)
 
       Factory.create :phenotype_attempt,
-              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx11'),
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx11', :phenotype_only => true),
               :mi_attempt => new_non_wtsi_gene_gc_mi('Cbx11')
 
       Factory.create :phenotype_attempt_status_pdc,
-              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx12'),
+              :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', 'Cbx12', :phenotype_only => true),
               :mi_attempt => new_non_wtsi_gene_gc_mi('Cbx12')
 
       Reports::MiProduction::Intermediate.new.cache

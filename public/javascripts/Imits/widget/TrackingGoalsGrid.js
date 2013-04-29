@@ -51,15 +51,15 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
             return
         }
 
-        if(!yearValue.length || yearValue.length && (yearValue < 2010 || yearValue > 2050)) {
-            alert("You must enter a valid year.");
-            return;
-        }
+        //if(!yearValue.length || yearValue.length && (yearValue < 2010 || yearValue > 2050)) {
+        //    alert("You must enter a valid year.");
+        //    return;
+        //}
 
-        if(monthValue.length && (monthValue < 1 || monthValue > 12)) {
-            alert("You must enter a valid month.");
-            return
-        }
+        //if(monthValue.length && (monthValue < 1 || monthValue > 12)) {
+        //    alert("You must enter a valid month.");
+        //    return
+        //}
 
         if(!goalValue.length || !typeValue) {
             alert("You must enter correct tracking goal values.")

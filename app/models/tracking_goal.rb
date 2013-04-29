@@ -28,7 +28,6 @@ class TrackingGoal < ActiveRecord::Base
 
   ## Validations
   validates :production_centre_id, :presence => true, :uniqueness => {:scope => [:date, :goal_type]}
-  validates :date, :presence => true
   validates :goal, :presence => true
   validates :goal_type, :presence => true, :inclusion => {:in => GOAL_TYPES}
 
@@ -40,11 +39,21 @@ class TrackingGoal < ActiveRecord::Base
   attr_accessible *READABLE_ATTRIBUTES
 
   before_validation do
-    if @month && @year
+    if !@month.blank? && !@year.blank?
       self.date = Date.parse("#{@year}-#{@month}-01") rescue nil
     end
 
     true
+  end
+
+  before_save(:on => :create) do
+    if self.date.blank?
+      ## Check to see if we already have a blank date for the cumulative row.
+      if self.class.where(:goal_type => self.goal_type, :production_centre_id => self.production_centre_id, :date => nil).first
+        self.errors.add :date, 'There is already a cumulative goal for this production centre.'
+        return false
+      end
+    end
   end
 
   def month

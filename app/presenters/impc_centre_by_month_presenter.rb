@@ -38,7 +38,11 @@ class ImpcCentreByMonthPresenter
 
       self.class.columns.each do |column, key|
         @report_rows["To #{start_date}-#{centre}-#{column}"] = report_row[key]
-      end    
+
+        if report_row["#{key}_goal"]
+          @report_rows["To #{start_date}-#{centre}-#{column}_goal"] = report_row["#{key}_goal"]
+        end
+      end     
     end
 
     (by_month_all_injections_and_gtc_genes + by_month_report_remaining_columns).each do |report_row|
@@ -77,10 +81,11 @@ class ImpcCentreByMonthPresenter
       }
     end
 
+    ## Start date is the first of March for that year (Except January/February where it's the previous year)
     def start_date
       year = Time.now.year
 
-      if Time.now.month < 2
+      if Time.now.month <= 2
         year = Time.now.year - 1
       end
 
@@ -94,6 +99,20 @@ class ImpcCentreByMonthPresenter
     def cumulative_counts_sql
       <<-EOF
 
+      SELECT
+        counts.production_centre,
+        counts.mi_in_progress_count,
+        counts.genotype_confirmed_count,
+        counts.cre_excised_or_better_count,
+        counts.phenotype_started_or_better_count,
+        counts.phenotype_complete_count,
+        mip_goals.goal AS mi_in_progress_count_goal,
+        gtc_goals.goal AS genotype_confirmed_count_goal,
+        cre_goals.goal AS cre_excised_or_better_count_goal,
+        ps_goals.goal AS  phenotype_started_or_better_count_goal,
+        pc_goals.goal AS  phenotype_complete_count_goal
+
+      FROM (
         SELECT
           production_centre,
           SUM(CASE
@@ -114,9 +133,10 @@ class ImpcCentreByMonthPresenter
           COUNT(cre_ex_gene_count) AS cre_excised_or_better_count,
           COUNT(ps_gene_count) AS phenotype_started_or_better_count,
           COUNT(pc_gene_count) AS phenotype_complete_count
+
         FROM intermediate_report
         JOIN mi_plans ON mi_plans.id = intermediate_report.mi_plan_id
-
+        
         LEFT JOIN (
           SELECT DISTINCT genes.*
           FROM genes
@@ -140,7 +160,7 @@ class ImpcCentreByMonthPresenter
           LEFT JOIN phenotype_attempts ON phenotype_attempts.mi_plan_id = mi_plans.id
           WHERE phenotype_attempts.status_id in (8)
         ) AS pc_gene_count ON mi_plans.gene_id = pc_gene_count.id
-
+      
         WHERE
           production_centre = 'HMGU' AND consortium = 'Helmholtz GMC'
         OR
@@ -157,6 +177,16 @@ class ImpcCentreByMonthPresenter
           production_centre = 'Monterotondo' AND consortium = 'Monterotondo'
 
         GROUP BY production_centre
+        ORDER BY production_centre ASC
+        ) AS counts
+
+        JOIN centres ON centres.name = production_centre
+        LEFT JOIN tracking_goals AS mip_goals ON mip_goals.date IS NULL AND centres.id = mip_goals.production_centre_id AND mip_goals.goal_type = 'total_injected_clones'
+        LEFT JOIN tracking_goals AS gtc_goals ON gtc_goals.date IS NULL AND centres.id = gtc_goals.production_centre_id AND gtc_goals.goal_type = 'total_glt_clones'
+        LEFT JOIN tracking_goals AS cre_goals ON cre_goals.date IS NULL AND centres.id = cre_goals.production_centre_id AND cre_goals.goal_type = 'cre_exicised_genes'
+        LEFT JOIN tracking_goals AS ps_goals ON ps_goals.date IS NULL AND centres.id = ps_goals.production_centre_id AND ps_goals.goal_type = 'phenotype_started_genes'
+        LEFT JOIN tracking_goals AS pc_goals ON pc_goals.date  IS NULL AND centres.id = pc_goals.production_centre_id AND pc_goals.goal_type = 'phenotype_complete_genes'
+
         ORDER BY production_centre ASC
 
       EOF
@@ -209,7 +239,7 @@ class ImpcCentreByMonthPresenter
           GROUP BY
             series.date,
             production_centre
-          ORDER BY production_centre ASC
+          ORDER BY series.date ASC, production_centre ASC
         )
 
         SELECT
@@ -225,6 +255,8 @@ class ImpcCentreByMonthPresenter
         LEFT JOIN centres ON centres.name = counts.production_centre
         LEFT JOIN tracking_goals AS mip_goals ON counts.date = mip_goals.date AND centres.id = mip_goals.production_centre_id AND mip_goals.goal_type = 'total_injected_clones'
         LEFT JOIN tracking_goals AS gtc_goals ON counts.date = gtc_goals.date AND centres.id = gtc_goals.production_centre_id AND gtc_goals.goal_type = 'total_glt_clones'
+
+        ORDER BY counts.date ASC
       EOF
     end
 

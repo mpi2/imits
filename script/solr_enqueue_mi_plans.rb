@@ -2,22 +2,7 @@
 
 require 'pp'
 
-#@enqueuer = SolrUpdate::Enqueuer.new
-#
-##puts "#### allele:"
-##pp TargRep::Allele.all.first
-##@enqueuer.allele_updated(TargRep::Allele.all.first)
-#
-#puts "\n\n#### plan:"
-#pp MiPlan.all.first
-#
-#@enqueuer.mi_plan_updated(MiPlan.all.first)
-#
-#SolrUpdate::Queue.run
-#
-#exit
-
-LIMIT = 500
+LIMIT = 5000
 
 #SolrUpdate::Queue::Item.where('gene_id is not null').destroy_all
 
@@ -27,20 +12,20 @@ puts "MiPlan Count: #{MiPlan.all.size}"
 
 counter = 0
 hash = {}
-#MiPlan.all.each do |plan|
-#MiPlan.find(:all, :order => :id).each do |plan|
+MiPlan.find(:all, :order => :id).each do |plan|
+  #MiPlan.find(:all, :order => :id, :conditions => { :id => 528 }).each do |plan|
 
-#plan = MiPlan.find 1
-plan = MiPlan.find 528
+  #plan = MiPlan.find 1
+  #plan = MiPlan.find 528
 
-  pp plan
-  pp plan.status
-  #pp plan.mi_attempts
+  #pp plan
+  #pp plan.status
+  ##pp plan.mi_attempts
 
-  plan.mi_attempts.each do |mi|
-    pp mi
-    pp mi.status_stamps
-  end
+  #plan.mi_attempts.each do |mi|
+  #  pp mi
+  #  pp mi.status_stamps
+  #end
 
   @enqueuer.mi_plan_updated(plan)
 
@@ -50,11 +35,16 @@ plan = MiPlan.find 528
   hash[plan.gene_id] += 1
 
   counter += 1
- # break if counter >= LIMIT
+  break if counter > 0 && counter >= LIMIT
 
-#end
+end
 
+puts "run queue..."
 SolrUpdate::Queue.run(:limit => hash.keys.size)
+#SolrUpdate::Queue.run #:limit => 300
+#SolrUpdate::Queue.run #:limit => 300
+#SolrUpdate::Queue.run #:limit => 300
+#SolrUpdate::Queue.run #:limit => 300
 
 puts "Processed Genes: #{hash.keys.size}"
 puts "Processed Plans: #{counter}"

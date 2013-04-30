@@ -13,6 +13,7 @@
     <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
     <%= javascript_tag "authenticityToken = '#{form_authenticity_token}';" %>
     <%= javascript_tag "Rails = {env: '#{Rails.env}'};" %>
+    <%= javascript_include_tag('mpi2Search/search') %>
 
     <%= yield :head %>
 
@@ -23,6 +24,7 @@
     <div id="header" class="container_12">
       <div class="grid_8">
         <h1><%= link_to 'iMits', root_path %></h1>
+        <div id = 'gene_search' name = 'gene_search' ><input type ='text' id = 'search_for_gene' name = 'search_for_gene'> <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button></div>
       </div>
       <div class="grid_4">
         <div id="userbox">

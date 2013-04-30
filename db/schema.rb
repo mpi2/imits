@@ -334,7 +334,7 @@ ActiveRecord::Schema.define(:version => 20130424100316) do
     t.boolean  "recovery"
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "notifications", :force => true do |t|
     t.datetime "welcome_email_sent"

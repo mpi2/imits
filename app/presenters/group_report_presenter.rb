@@ -80,9 +80,9 @@ class GroupReportPresenter
         @report_hash["#{field}-Microinjection aborted"] += total_mice
       end
 
-      @report_hash["#{field}-Genotype confirmed mice 6 months"] += report_row['gtc_in_6months'].to_i
-      @report_hash["#{field}-Microinjection aborted 6 months"] += report_row['abt_in_6months'].to_i
-      @report_hash["#{field}-Languishing"] += report_row['languishing'].to_i
+      #@report_hash["#{field}-Genotype confirmed mice 6 months"] += report_row['gtc_in_6months'].to_i
+      #@report_hash["#{field}-Microinjection aborted 6 months"] += report_row['abt_in_6months'].to_i
+      #@report_hash["#{field}-Languishing"] += report_row['languishing'].to_i
 
       phenotype_attempt_status = report_row['phenotype_attempt_status']
 
@@ -190,9 +190,9 @@ class GroupReportPresenter
         'Microinjection aborted',
         'Gene Pipeline efficiency (%)',
         'Clone Pipeline efficiency (%)',
-        'Genotype confirmed mice 6 months',
-        'Microinjection aborted 6 months',
-        'Languishing',
+        #'Genotype confirmed mice 6 months',
+        #'Microinjection aborted 6 months',
+        #'Languishing',
         'Registered for phenotyping',
         'Cre excision started',
         'Cre excision completed',
@@ -211,19 +211,15 @@ class GroupReportPresenter
     def statuses_by_sql
       sql = <<-EOF
         SELECT
-        #{intermediate_group_field},
-        mi_plan_status,
-        mi_attempt_status,
-        phenotype_attempt_status,
-        count(intermediate_report.id) as total_mice,
-        sum(case when gtc_stamps.created_at < '#{six_months_ago}' then 1 else 0 end) as gtc_in_6months,
-        sum(case when abt_stamps.created_at < '#{six_months_ago}' then 1 else 0 end) as abt_in_6months,
-        sum(case when mip_stamps.created_at < '#{six_months_ago}' then 1 else 0 end) as languishing
-        FROM intermediate_report
-        LEFT JOIN mi_attempts ON mi_attempts.colony_name = intermediate_report.mi_attempt_colony_name
-        LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON gtc_stamps.mi_attempt_id = mi_attempts.id AND gtc_stamps.status_id = 2 AND mi_attempts.status_id != 3
-        LEFT JOIN mi_attempt_status_stamps as abt_stamps ON abt_stamps.mi_attempt_id = mi_attempts.id AND abt_stamps.status_id = 3 AND mi_attempts.status_id = 3
-        LEFT JOIN mi_attempt_status_stamps as mip_stamps ON mip_stamps.mi_attempt_id = mi_attempts.id AND mip_stamps.status_id = 1 AND (mi_attempts.status_id = 1 OR mi_attempts.status_id = 4)
+          #{intermediate_group_field},
+          mi_plan_status,
+          mi_attempt_status,
+          phenotype_attempt_status,
+          count(r.id) as total_mice--,
+          --sum(case when r.genotype_confirmed_date is not NULL AND r.micro_injection_in_progress_date <= '#{six_months_ago}' then 1 else 0 end) as gtc_in_6months,
+          --sum(case when r.micro_injection_aborted_date is not NULL AND r.micro_injection_in_progress_date <= '#{six_months_ago}' then 1 else 0 end) as abt_in_6months,
+          --sum(case when r.mi_attempt_status = 'Micro-injection in progress' AND r.micro_injection_in_progress_date <= '#{six_months_ago}' then 1 else 0 end) as languishing
+        FROM intermediate_report AS r
         WHERE consortium = '#{consortium}'
         GROUP BY #{intermediate_group_field}, mi_plan_status, mi_attempt_status, phenotype_attempt_status
         ORDER BY #{intermediate_group_field} ASC

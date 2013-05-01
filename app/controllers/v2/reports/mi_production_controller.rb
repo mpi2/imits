@@ -39,6 +39,9 @@ class V2::Reports::MiProductionController < ApplicationController
     @mi_plan_statuses = ImpcProductionReportPresenter.mi_plan_statuses
   end
 
+  skip_before_filter :authenticate_user!
+  before_filter :authenticate_user_if_not_sanger, :only => [:mgp_production_by_subproject, :mgp_production_by_priority]
+
   def mgp_production_by_subproject
     @report  = SubProjectReportPresenter.new
     @columns = SubProjectReportPresenter.columns
@@ -182,6 +185,12 @@ class V2::Reports::MiProductionController < ApplicationController
       elsif ['phenotyping aborted', 'phenotype attempt aborted'].include?(hash['type'].to_s.downcase)
         hash['phenotype_attempt_status_eq'] = 'Phenotype Attempt Aborted'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
+      elsif ['genotype confirmed mice 6 months'].include?(hash['type'].to_s.downcase)
+        hash['mi_attempt_status_eq'] = 'Genotype confirmed'
+        hash['genotype_confirmed_date_gteq'] = 6.months.ago.to_date
+      elsif ['microinjection aborted 6 months'].include?(hash['type'].to_s.downcase)
+        hash['mi_attempt_status_eq'] = 'Micro-injection aborted'
+        hash['micro_injection_aborted_date_gteq'] = 6.months.ago.to_date
       end
 
       ##
@@ -283,6 +292,12 @@ class V2::Reports::MiProductionController < ApplicationController
 
 
       hash.delete('date')
+    end
+
+    def authenticate_user_if_not_sanger
+      if ! /sanger/.match request.headers['HTTP_CLIENTREALM'].to_s
+        authenticate_user!
+      end
     end
 
 end

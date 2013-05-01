@@ -59,7 +59,7 @@ module SolrUpdate::Observer
       super
       @enqueuer = SolrUpdate::Enqueuer.new
     end
-    
+
     def after_save(object)
       @enqueuer.update_mi_or_phenotype_attempt(object)
     end
@@ -104,6 +104,25 @@ module SolrUpdate::Observer
 
     def after_destroy(allele)
       @enqueuer.allele_destroyed(allele)
+    end
+
+    public_class_method :new
+  end
+
+  class MiPlan < ActiveRecord::Observer
+    observe :mi_plan
+
+    def initialize
+      super
+      @enqueuer = SolrUpdate::Enqueuer.new
+    end
+
+    def after_save(object)
+      @enqueuer.mi_plan_updated(object)
+    end
+
+    def after_destroy(object)
+      @enqueuer.mi_plan_destroyed(object)
     end
 
     public_class_method :new

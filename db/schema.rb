@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130403100056) do
+ActiveRecord::Schema.define(:version => 20130423142230) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -330,7 +330,7 @@ ActiveRecord::Schema.define(:version => 20130403100056) do
     t.boolean  "recovery"
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "notifications", :force => true do |t|
     t.datetime "welcome_email_sent"
@@ -441,6 +441,7 @@ ActiveRecord::Schema.define(:version => 20130403100056) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "allele_id"
+    t.integer  "gene_id"
   end
 
   add_index "solr_update_queue_items", ["allele_id"], :name => "index_solr_update_queue_items_on_allele_id", :unique => true
@@ -604,7 +605,7 @@ ActiveRecord::Schema.define(:version => 20130403100056) do
     t.string   "name",                :null => false
     t.string   "ikmc_project_id"
     t.string   "intermediate_vector"
-    t.integer  "report_to_public",    :null => false
+    t.boolean  "report_to_public",    :null => false
     t.integer  "pipeline_id"
     t.datetime "created_at",          :null => false
     t.datetime "updated_at",          :null => false

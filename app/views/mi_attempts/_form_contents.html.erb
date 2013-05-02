@@ -27,7 +27,7 @@
 <fieldset class="collapsible" id="distribution_centres">
   <legend>Distribution Centres</legend>
     <div class="distribution_centres">
-    <% if mi_attempt.status.try(:name) == 'Genotype confirmed' %>
+    <% if ['gtc', 'chr'].include?(mi_attempt.status.try(:code)) %>
       <table id="distribution_centres_table" class="report_table">
         <thead class="title">
           <tr>

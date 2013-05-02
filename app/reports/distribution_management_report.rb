@@ -1,4 +1,4 @@
-class DistributionManagementReportPresenter
+class DistributionManagementReport
   include ActionView::Helpers::TagHelper
 
   attr_accessor :klass, :results, :results_by_distribution

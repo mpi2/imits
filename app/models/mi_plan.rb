@@ -173,6 +173,7 @@ class MiPlan < ApplicationModel
   # END Callbacks
 
   delegate :marker_symbol, :to => :gene
+  delegate :mgi_accession_id, :to => :gene
 
   def latest_relevant_mi_attempt
     @@status_sort_order ||= {
@@ -442,6 +443,6 @@ end
 #
 # Indexes
 #
-#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id) UNIQUE
+#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id,is_bespoke_allele,is_conditional_allele,is_deletion_allele,is_cre_knock_in_allele,is_cre_bac_allele) UNIQUE
 #
 

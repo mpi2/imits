@@ -61,6 +61,13 @@ class PhenotypeAttempt < ApplicationModel
 #  end
 
   # BEGIN Callbacks
+  before_validation do |pa|
+    if ! pa.colony_name.nil?
+      pa.colony_name = pa.colony_name.to_s.strip || pa.colony_name
+      pa.colony_name = pa.colony_name.to_s.gsub(/\s+/, ' ')
+    end
+  end
+
   after_initialize :set_mi_plan # need to set mi_plan if blank before authorize_user_production_centre is fired in controller.
   before_validation :change_status
   before_validation :set_mi_plan # this is here if mi_plan is edited after initialization

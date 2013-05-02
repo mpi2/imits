@@ -1,4 +1,4 @@
-class TargRep::EsCell
+module TargRep::EsCell::QcFields
 
   qc_metrics = {
     "production_qc_five_prime_screen"       => { :name => "5' Screen",   :values => ["pass","not confirmed","no reads detected","not attempted"] },

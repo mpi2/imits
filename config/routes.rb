@@ -34,7 +34,7 @@ TarMits::Application.routes.draw do
     end
   end
 
-  resources :production_goals
+  resources :production_goals, :tracking_goals
   resources :centres
 
   resources :genes, :only => [:index] do
@@ -118,6 +118,10 @@ TarMits::Application.routes.draw do
 
   match 'reports/mi_production' => "reports/mi_production#index"
   match 'reports/mi_production/(:action(.:format))' => "reports/mi_production#:action"
+
+  match 'v2/reports/(:action(.:format))'               => "v2/reports#:action"
+  match 'v2/reports/mi_production'                     => "v2/reports/mi_production#index"
+  match 'v2/reports/mi_production/(:action(.:format))' => "v2/reports/mi_production#:action"
 
   match 'reports/production/mgp' => "reports/production/mgp#index"
   match 'reports/production/mgp/(:action(.:format))' => "reports/production/mgp#:action"

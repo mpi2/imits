@@ -1,4 +1,4 @@
-class PriorityReportPresenter < GroupReportPresenter
+class PriorityReport < GroupReport
 
   ## See superclass for inherited methods.
 

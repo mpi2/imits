@@ -1,4 +1,4 @@
-class SubProjectReportPresenter < GroupReportPresenter
+class SubProjectReport < GroupReport
 
   ## See superclass for inherited methods.
 

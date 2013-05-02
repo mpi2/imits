@@ -1,4 +1,4 @@
-class BaseProductionReportPresenter
+class BaseProductionReport
 
   ##
   ## This is the base presenter for production specific reports grouped by
@@ -245,7 +245,7 @@ class BaseProductionReportPresenter
         SELECT
         consortium,
         COUNT(distinct(gene))
-        FROM intermediate_report
+        FROM new_intermediate_report
         WHERE consortium in ('#{available_consortia.join('\', \'')}')
         GROUP BY consortium;
       EOF
@@ -257,7 +257,7 @@ class BaseProductionReportPresenter
         consortium,
         mi_plan_status,
         COUNT(*)
-        FROM intermediate_report
+        FROM new_intermediate_report
         WHERE consortium in ('#{available_consortia.join('\', \'')}')
         GROUP BY consortium, mi_plan_status
         ORDER BY consortium;
@@ -271,7 +271,7 @@ class BaseProductionReportPresenter
         production_centre,
         mi_attempt_status,
         COUNT(*)
-        FROM intermediate_report
+        FROM new_intermediate_report
         WHERE consortium in ('#{available_consortia.join('\', \'')}')
         GROUP BY consortium, production_centre, mi_attempt_status
         ORDER BY consortium, production_centre;
@@ -280,16 +280,18 @@ class BaseProductionReportPresenter
 
     def consortium_centre_by_phenotyping_status_sql(cre_excision_required = true)
       sql = <<-EOF
+        -- Phenotyping counts
         SELECT
         consortium,
         production_centre,
         phenotype_attempt_status,
         COUNT(*)
-        FROM intermediate_report
-        JOIN phenotype_attempts ON intermediate_report.phenotype_attempt_colony_name = phenotype_attempts.colony_name AND phenotype_attempts.cre_excision_required is #{cre_excision_required}
+        FROM new_intermediate_report
+        JOIN phenotype_attempts ON new_intermediate_report.phenotype_attempt_colony_name = phenotype_attempts.colony_name AND phenotype_attempts.cre_excision_required is #{cre_excision_required}
         WHERE consortium in ('#{available_consortia.join('\', \'')}')
         GROUP BY consortium, production_centre, phenotype_attempt_status
         ORDER BY consortium, production_centre;
+        -- Phenotyping counts END
       EOF
     end
 

@@ -1,4 +1,4 @@
-class Komp2SummaryByMonthPresenter < BaseSummaryByMonthPresenter
+class Komp2SummaryByMonthReport < BaseSummaryByMonthReport
 
   ## See superclass for inherited methods.
 

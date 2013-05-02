@@ -1,7 +1,5 @@
-class IntermediateReport
-
+class NewIntermediateReport
   class Generate
-
     attr_accessor :report_rows, :size, :clone_efficiencies, :gene_efficiencies
 
     def initialize
@@ -118,6 +116,8 @@ class IntermediateReport
         report_row['total_old_pipeline_efficiency_gene_count']     = report_row['total_old_pipeline_efficiency_gene_count'].to_i
         report_row['gc_old_pipeline_efficiency_gene_count']        = report_row['gc_old_pipeline_efficiency_gene_count'].to_i
 
+        report_row['created_at'] = Time.now.to_s(:db)
+
         report_row.delete('pa_mouse_allele_type')
         report_row.delete('pa_allele_symbol_superscript_template')
         report_row.delete('pa_mgi_allele_symbol_superscript')
@@ -136,16 +136,16 @@ class IntermediateReport
     end
 
     def to_s
-      "#<IntermediateReport::Generate size: #{size}>"
+      "#<NewIntermediateReport::Generate size: #{size}>"
     end
 
     def insert_report
       sql =  <<-EOF
         BEGIN;
 
-        TRUNCATE intermediate_report;
+        TRUNCATE new_intermediate_report;
 
-        INSERT INTO intermediate_report (#{self.class.columns.join(', ')}) VALUES
+        INSERT INTO new_intermediate_report (#{self.class.columns.join(', ')}) VALUES
       EOF
       
       values = Array.new.tap do |v|
@@ -519,7 +519,8 @@ class IntermediateReport
           'mi_attempt_colony_name',
           'mi_attempt_consortium',
           'mi_attempt_production_centre',
-          'phenotype_attempt_colony_name'
+          'phenotype_attempt_colony_name',
+          'created_at'
         ]
       end
     end

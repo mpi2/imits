@@ -1,4 +1,4 @@
-class GroupReportPresenter 
+class GroupReport
 
   ##
   ##  This is the base presenter for reports grouped by sub-project, and priority.
@@ -219,7 +219,7 @@ class GroupReportPresenter
           --sum(case when r.genotype_confirmed_date is not NULL AND r.micro_injection_in_progress_date <= '#{six_months_ago}' then 1 else 0 end) as gtc_in_6months,
           --sum(case when r.micro_injection_aborted_date is not NULL AND r.micro_injection_in_progress_date <= '#{six_months_ago}' then 1 else 0 end) as abt_in_6months,
           --sum(case when r.mi_attempt_status = 'Micro-injection in progress' AND r.micro_injection_in_progress_date <= '#{six_months_ago}' then 1 else 0 end) as languishing
-        FROM intermediate_report AS r
+        FROM new_intermediate_report AS r
         WHERE consortium = '#{consortium}'
         GROUP BY #{intermediate_group_field}, mi_plan_status, mi_attempt_status, phenotype_attempt_status
         ORDER BY #{intermediate_group_field} ASC

@@ -1,4 +1,4 @@
-class Komp2ProductionReportPresenter < BaseProductionReportPresenter
+class Komp2ProductionReport < BaseProductionReport
 
   ## See superclass for inherited methods.
 

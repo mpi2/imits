@@ -5,11 +5,11 @@ class V2::Reports::MiProductionController < ApplicationController
   helper :reports
 
   def production_detail
-    @intermediate_report = IntermediateReport.search(params[:q]).result.order('id asc')
+    @intermediate_report = NewIntermediateReport.search(params[:q]).result.order('id asc')
   end
 
   def komp2_production_summary
-    @report = Komp2ProductionReportPresenter.new
+    @report = Komp2ProductionReport.new
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
@@ -18,16 +18,11 @@ class V2::Reports::MiProductionController < ApplicationController
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
-    @mi_plan_statuses = Komp2ProductionReportPresenter.mi_plan_statuses
-  end
-
-
-  def impc_production_detail
-    @intermediate_report = IntermediateReport.search(params[:q]).result.order('id asc')
+    @mi_plan_statuses = Komp2ProductionReport.mi_plan_statuses
   end
 
   def impc_production_summary
-    @report = ImpcProductionReportPresenter.new
+    @report = ImpcProductionReport.new
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
@@ -36,48 +31,48 @@ class V2::Reports::MiProductionController < ApplicationController
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
-    @mi_plan_statuses = ImpcProductionReportPresenter.mi_plan_statuses
+    @mi_plan_statuses = ImpcProductionReport.mi_plan_statuses
   end
 
   skip_before_filter :authenticate_user!
   before_filter :authenticate_user_if_not_sanger, :only => [:mgp_production_by_subproject, :mgp_production_by_priority]
 
   def mgp_production_by_subproject
-    @report  = SubProjectReportPresenter.new
-    @columns = SubProjectReportPresenter.columns
+    @report  = SubProjectReport.new
+    @columns = SubProjectReport.columns
 
     @status_by_sub_project = @report.report_hash
   end
 
   def mgp_production_by_priority
-    @report  = PriorityReportPresenter.new
-    @columns = PriorityReportPresenter.columns
+    @report  = PriorityReport.new
+    @columns = PriorityReport.columns
 
     @status_by_priority = @report.report_hash
   end
 
   def komp2_summary_by_month
-    @report  = Komp2SummaryByMonthPresenter.new
-    @clone_columns = Komp2SummaryByMonthPresenter.clone_columns
-    @phenotype_columns = Komp2SummaryByMonthPresenter.phenotype_columns
-    @consortia = Komp2SummaryByMonthPresenter.available_consortia
+    @report  = Komp2SummaryByMonthReport.new
+    @clone_columns = Komp2SummaryByMonthReport.clone_columns
+    @phenotype_columns = Komp2SummaryByMonthReport.phenotype_columns
+    @consortia = Komp2SummaryByMonthReport.available_consortia
 
     @summary_by_month = @report.report_hash
   end
 
   def impc_summary_by_month
-    @report  = ImpcSummaryByMonthPresenter.new
-    @clone_columns = ImpcSummaryByMonthPresenter.clone_columns
-    @phenotype_columns = ImpcSummaryByMonthPresenter.phenotype_columns
-    @consortia = ImpcSummaryByMonthPresenter.available_consortia
+    @report  = ImpcSummaryByMonthReport.new
+    @clone_columns = ImpcSummaryByMonthReport.clone_columns
+    @phenotype_columns = ImpcSummaryByMonthReport.phenotype_columns
+    @consortia = ImpcSummaryByMonthReport.available_consortia
 
     @summary_by_month = @report.report_hash
   end
 
   def impc_centre_by_month
-    @report = ImpcCentreByMonthPresenter.new
+    @report = ImpcCentreByMonthReport.new
     @centre_by_month = @report.report_rows
-    @columns = ImpcCentreByMonthPresenter.columns
+    @columns = ImpcCentreByMonthReport.columns
   end
 
   private
@@ -138,11 +133,15 @@ class V2::Reports::MiProductionController < ApplicationController
         hash['mi_plan_status_eq'] = 'Aborted - ES Cell QC Failed'
         translate_date(hash, hash['mi_plan_status_eq'])
 
+      elsif hash['type'].to_s.downcase == 'microinjections'
+        hash['mi_attempt_status_ci_in'] = ['Micro-injection in progress', 'Chimeras obtained', 'Genotype confirmed', 'Micro-injection aborted']
+        translate_date(hash, 'Micro-injection in progress')
+
       elsif hash['type'].to_s.downcase == 'micro-injection in progress'
         hash['mi_attempt_status_eq'] = 'Micro-injection in progress'
         translate_date(hash, hash['mi_attempt_status_eq'])
 
-      elsif hash['type'].to_s.downcase == 'chimeras obtained'
+      elsif ['chimaeras produced', 'chimeras obtained', 'chimeras'].include?(hash['type'].to_s.downcase)
         hash['mi_attempt_status_eq'] = 'Chimeras obtained'
         translate_date(hash, hash['mi_attempt_status_eq'])
 
@@ -154,9 +153,13 @@ class V2::Reports::MiProductionController < ApplicationController
         hash['mi_attempt_status_eq'] = 'Micro-injection aborted'
         translate_date(hash, hash['mi_attempt_status_eq'])
       
-      elsif ['intent to phenotype', 'phenotype attempt registered'].include?(hash['type'].to_s.downcase)
+      elsif hash['type'].to_s.downcase == 'phenotype attempt registered'
         hash['phenotype_attempt_status_eq'] = 'Phenotype Attempt Registered'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
+
+      elsif ['intent to phenotype', 'registered for phenotyping'].include?(hash['type'].to_s.downcase)
+        hash['phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+        translate_date(hash, 'Phenotype Attempt Registered')
       
       elsif hash['type'].to_s.downcase == 'rederivation started'
         hash['phenotype_attempt_status_eq'] = 'Rederivation Started'
@@ -185,9 +188,11 @@ class V2::Reports::MiProductionController < ApplicationController
       elsif ['phenotyping aborted', 'phenotype attempt aborted'].include?(hash['type'].to_s.downcase)
         hash['phenotype_attempt_status_eq'] = 'Phenotype Attempt Aborted'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
+
       elsif ['genotype confirmed mice 6 months'].include?(hash['type'].to_s.downcase)
         hash['mi_attempt_status_eq'] = 'Genotype confirmed'
         hash['genotype_confirmed_date_gteq'] = 6.months.ago.to_date
+      
       elsif ['microinjection aborted 6 months'].include?(hash['type'].to_s.downcase)
         hash['mi_attempt_status_eq'] = 'Micro-injection aborted'
         hash['micro_injection_aborted_date_gteq'] = 6.months.ago.to_date
@@ -202,6 +207,7 @@ class V2::Reports::MiProductionController < ApplicationController
         hash.delete('mi_plan_status_eq')
         hash.delete('mi_attempt_status_eq')
         hash.delete('phenotype_attempt_status_eq')
+        hash.delete('phenotype_attempt_status_ci_in')
       end
 
 

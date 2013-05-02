@@ -14,7 +14,7 @@ module TarMits
 
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
-    config.autoload_paths += %W(#{config.root}/lib #{config.root}/presenters)
+    config.autoload_paths += %W(#{config.root}/lib #{config.root}/reports)
 
     if Rails.env.test?
       config.autoload_paths += %W(#{config.root}/test/lib)

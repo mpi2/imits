@@ -1,4 +1,4 @@
-class MicroInjectionSummaryAndConflictsPresenter
+class MicroInjectionSummaryAndConflictsReport
 
   attr_accessor :consortia_by_priority,
     :consortia_by_status,

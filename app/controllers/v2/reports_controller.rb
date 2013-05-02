@@ -3,7 +3,7 @@ class V2::ReportsController < ApplicationController
   helper :reports
 
   def planned_microinjection_summary_and_conflicts
-    @report = MicroInjectionSummaryAndConflictsPresenter.new
+    @report = MicroInjectionSummaryAndConflictsReport.new
     @consortia_by_priority = @report.consortia_by_priority
     @consortia_by_status = @report.consortia_by_status
     @consortia_totals = @report.consortia_totals

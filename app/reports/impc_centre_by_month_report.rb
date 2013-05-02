@@ -1,4 +1,4 @@
-class ImpcCentreByMonthPresenter 
+class ImpcCentreByMonthReport 
 
   attr_accessor :report_rows
 
@@ -134,8 +134,8 @@ class ImpcCentreByMonthPresenter
           COUNT(ps_gene_count) AS phenotype_started_or_better_count,
           COUNT(pc_gene_count) AS phenotype_complete_count
 
-        FROM intermediate_report
-        JOIN mi_plans ON mi_plans.id = intermediate_report.mi_plan_id
+        FROM new_intermediate_report
+        JOIN mi_plans ON mi_plans.id = new_intermediate_report.mi_plan_id
         
         LEFT JOIN (
           SELECT DISTINCT genes.*
@@ -219,7 +219,7 @@ class ImpcCentreByMonthPresenter
             END) AS genotype_confirmed_count
             
           FROM series
-          CROSS JOIN intermediate_report
+          CROSS JOIN new_intermediate_report
 
           WHERE
             production_centre = 'HMGU' AND consortium = 'Helmholtz GMC'

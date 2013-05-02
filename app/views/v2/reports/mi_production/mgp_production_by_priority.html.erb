@@ -20,7 +20,7 @@
         <tr>
           <td><%= priority %></td>
           <% for column in @columns %>
-            <td><%= report_link_to(@status_by_priority, priority, column, :filter_by => :sub_project) %>
+            <td><%= report_link_to(@status_by_priority, priority, column, :filter_by => :priority, :consortium => 'MGP') %>
           <% end %>
         </tr>
       <% end %>

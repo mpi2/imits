@@ -688,3 +688,78 @@ div.report_control * {
 .x-action-col-icon:hover {
   cursor:pointer;
 }
+
+.report table.qc_grid {
+  border:1px solid #efefef;
+  margin-bottom:30px;
+}
+
+.report table.qc_grid tbody td span {
+  display: none;
+}
+
+.report table.qc_grid tbody td.text span {
+  display: inline;
+}
+
+.report table.qc_grid tbody td.qc {
+  width:5px;
+  height:5px;
+  border-width:0;
+}
+
+.report table.qc_grid tbody td.pass {
+  background-color:green;
+}
+
+.report table.qc_grid tbody td.fail {
+  background-color:red;
+}
+
+.report table.qc_grid tbody td.na {
+  background-color:#fff;
+}
+
+.report table.qc_grid tbody td.right-border {
+  border-right:1px solid #999;
+}
+
+.report table.qc_grid tbody td:hover .cell-popup {
+  display:block;
+}  
+
+.report table.qc_grid tbody td .cell-popup {
+  width:300px;
+  position:absolute;
+  font-size:.75em;
+  display:none;
+  background-color:#fff;
+  margin-left:20px;
+  padding:5px;
+
+  border:5px solid #efefef;
+
+  border-radius:4px;
+  -webkit-border-radius:4px;
+  -moz-border-radius:4px;
+}
+
+.report table.qc_grid tbody td .cell-popup dt {
+  clear:left;
+  float:left;
+  width:150px;
+  font-weight:bold;
+}
+
+.report table.qc_grid tbody td .cell-popup dt.qc_result, .report table.qc_grid tbody td .cell-popup dd.qc_result {
+  font-weight:bold;
+}
+
+.report.qc h2:first-child {
+  border-top-width:0;
+}
+
+.report.qc h2 {
+  border-top:1px solid #ddd;
+  padding-top:20px;
+}

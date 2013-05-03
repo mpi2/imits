@@ -119,6 +119,7 @@ TarMits::Application.routes.draw do
   match 'reports/mi_production' => "reports/mi_production#index"
   match 'reports/mi_production/(:action(.:format))' => "reports/mi_production#:action"
 
+  match 'v2/reports' => 'reports#index'
   match 'v2/reports/(:action(.:format))'               => "v2/reports#:action"
   match 'v2/reports/mi_production'                     => "v2/reports/mi_production#index"
   match 'v2/reports/mi_production/(:action(.:format))' => "v2/reports/mi_production#:action"

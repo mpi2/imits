@@ -100,4 +100,28 @@ module ReportsHelper
     end
   end
 
+  def grid_qc_result(value, type = nil)
+    return value if type =~ /colony_name|distribution_centre/
+
+    case value
+      when /pass/, '3'
+        'pass'
+      when /fail|double|limit/, '2'
+        'fail'
+      else
+        'na'
+    end
+  end
+
+  ## Used in QcGridReport
+  def grid_class(value, type)
+
+    klass = grid_qc_result(value)
+
+    if type == 'qc_three_prime_lr_pcr_id'
+      klass << ' right-border'
+    end
+
+    klass
+  end
 end

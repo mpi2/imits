@@ -2,6 +2,10 @@ class V2::ReportsController < ApplicationController
 
   helper :reports
 
+  def index
+    redirect_to reports_path
+  end
+
   def planned_microinjection_summary_and_conflicts
     @report = MicroInjectionSummaryAndConflictsReport.new
     @consortia_by_priority = @report.consortia_by_priority
@@ -13,6 +17,11 @@ class V2::ReportsController < ApplicationController
 
     @statuses = @report.class.statuses
     @priorities = @report.class.priorities
+  end
+
+  def qc_grid
+    @report = QcGridReport.new
+    @mi_attempts = @report.mi_attempts
   end
 
 end

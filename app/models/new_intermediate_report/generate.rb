@@ -58,7 +58,7 @@ class NewIntermediateReport
 
         ## Use the MiAttempt mouse_allele_type combined with the EsCell
         mouse_allele_symbol_superscript = if !report_row['mi_mouse_allele_type'].blank? && !report_row['allele_symbol_superscript_template'].blank?
-          report_row['allele_symbol_superscript_template'].sub(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['mi_mouse_allele_type'])
+          report_row['allele_symbol_superscript_template'].sub!(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['mi_mouse_allele_type'])
         end
 
         unless mouse_allele_symbol_superscript.blank?
@@ -67,13 +67,13 @@ class NewIntermediateReport
 
         ## Use the PhenotypeAttempt mouse_allele_type combined with the EsCell (via PhenotypeAttempt -> MiAttempt -> TargRep::EsCell)
         ## allele_symbol_superscript in order to create the allele_symbol
-        allowed_pa_statuses = ["Cre excision completed", "Phenotyping started", "Phenotyping completed"]
+        allowed_pa_statuses = ["Cre Excision Complete", "Phenotyping Started", "Phenotyping Complete"]
 
         phenotype_allele_symbol_superscript = if allowed_pa_statuses.include?(report_row['phenotype_attempt_status']) &&
                                                   !report_row['pa_mouse_allele_type'].blank? &&
                                                   !report_row['pa_allele_symbol_superscript_template'].blank?
 
-          report_row['pa_allele_symbol_superscript_template'].sub(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['pa_mouse_allele_type'])
+          report_row['pa_allele_symbol_superscript_template'].sub!(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['pa_mouse_allele_type'])
         end
 
         unless phenotype_allele_symbol_superscript.blank?

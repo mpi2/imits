@@ -140,25 +140,38 @@ class NewIntermediateReport
     end
 
     def insert_report
-      sql =  <<-EOF
-        BEGIN;
+      begin
+        sql =  <<-EOF
+          BEGIN;
 
-        TRUNCATE new_intermediate_report;
+          TRUNCATE new_intermediate_report;
 
-        INSERT INTO new_intermediate_report (#{self.class.columns.join(', ')}) VALUES
-      EOF
-      
-      values = Array.new.tap do |v|
-        report_rows.each do |report_row|
-          v << "(#{self.class.row_for_sql(report_row)})"
+          INSERT INTO new_intermediate_report (#{self.class.columns.join(', ')}) VALUES
+        EOF
+        
+        values = Array.new.tap do |v|
+          report_rows.each do |report_row|
+            v << "(#{self.class.row_for_sql(report_row)})"
+          end
         end
+
+        sql << values.join(",\n")
+
+        return if values.empty?
+
+        sql << "; COMMIT;"
+
+        ActiveRecord::Base.connection.execute(sql)
+
+        puts "Report generation successful."
+
+      rescue => e
+        puts "ERROR"
+        puts
+        puts e.inspect
+
+        raise Tarmits::ReportGenerationFailed
       end
-
-      sql << values.join(",\n")
-
-      sql << "; COMMIT;"
-
-      ActiveRecord::Base.connection.execute(sql)
 
       nil
     end
@@ -168,6 +181,11 @@ class NewIntermediateReport
     ##
 
     class << self
+
+      def cache
+        report = self.new
+        report.insert_report
+      end
 
       def row_for_sql(report_row)
         columns.map {|c| data_for_sql(c, report_row)}.join(', ')

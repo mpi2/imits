@@ -163,12 +163,16 @@ class NewIntermediateReport
 
         ActiveRecord::Base.connection.execute(sql)
 
+        INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] Report generation successful."
         puts "Report generation successful."
 
       rescue => e
         puts "ERROR"
         puts
         puts e.inspect
+
+        INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] ERROR - Report generation failed."
+        INTERMEDIATE_REPORT_LOG.info e.inspect
 
         raise Tarmits::ReportGenerationFailed
       end
@@ -183,6 +187,8 @@ class NewIntermediateReport
     class << self
 
       def cache
+        INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] Report generation started."
+
         report = self.new
         report.insert_report
       end

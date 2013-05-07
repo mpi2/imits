@@ -17,7 +17,7 @@ class Gene < ActiveRecord::Base
   def pretty_print_types_of_cells_available
     html = []
     {
-      :conditional_es_cells_count     => 'Conditional',
+      :conditional_es_cells_count     => 'Knockout First',
       :non_conditional_es_cells_count => 'Targeted Trap',
       :deletion_es_cells_count        => 'Deletion'
     }.each do |method,type|

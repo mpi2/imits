@@ -46,8 +46,8 @@ class MiAttemptsController < ApplicationController
       render :action => :new
       return
     else
-      if @mi_attempt.try(:production_centre).try(:name) == nil
-        @mi_attempt.mi_plan.update_attributes!(:production_centre => current_user.production_centre.name)
+      if @mi_attempt.production_centre.blank?
+        @mi_attempt.mi_plan.update_attributes!(:production_centre => current_user.production_centre)
       end
       @mi_attempt.save!
       flash[:notice] = 'Micro-injection attempt created'

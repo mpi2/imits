@@ -43,14 +43,18 @@ begin
       task :part5 => [:environment] do
         ApplicationModel.audited_transaction do
           Reports::MiProduction::PlannedMicroinjectionList.cache_all
+          Reports::MiAttemptsList.new.cache
         end
       end
 
       task :part6 => [:environment] do
         ApplicationModel.audited_transaction do
           Reports::MiProduction::ImpcGraphReportDisplay.clear_charts_in_tmp_folder
-          Reports::MiAttemptsList.new.cache
         end
+      end
+
+      task :intermediate_report => [:environment] do
+        NewIntermediateReport::Generate.cache
       end
     end
 

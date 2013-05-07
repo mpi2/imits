@@ -662,7 +662,9 @@ div.report_control * {
   cursor:pointer;
 }
 
-.mpi2-allele-grid table th {
+
+
+#mpi2-allele-grid table th {
     text-align: left;
     font-weight: bold;
     color: #01617a;
@@ -670,4 +672,41 @@ div.report_control * {
     border-top: none!important;
   }
 
-.mpi2-search-container table tr, .mpi2-search-container table, .mpi2-search-container table td {}
+#mpi2-search table th {
+    text-align: left;
+    font-weight: bold;
+    color: #01617a;
+    border-bottom: 3px solid #d57c24;
+    border-top: none!important;
+  }
+
+.product  {
+    width: 6%;
+}
+.allele-type  {
+    width: 8%;
+}
+.strain-of-origin  {
+    width: 10%;
+}
+.mgi-allele-name  {
+    width: 14%;
+}
+.allele-map  {
+    width: 40%;
+}
+.allele-sequrnce  {
+    width: 12%;
+}
+.order th, tr  {
+    width: 10%;
+}
+.latest-status {
+    width: 80%;
+}
+
+
+
+
+
+

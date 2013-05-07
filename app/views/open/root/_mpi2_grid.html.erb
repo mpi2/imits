@@ -6,18 +6,16 @@
   <%= javascript_include_tag("mpi2Search/search") %>
 <% end %>
 
-<% content_for :search_box do %>
-  <div id = 'gene_search' name = 'gene_search' ><input type ='text' id = 'search_for_gene' name = 'search_for_gene'> <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button></div>
-<% end %>
-
 <link type="text/css" rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/base/jquery-ui.css">
 
-<div id="mouse-alleles" style="visibility:hidden">
+<div class="grid_2" id="mouse-alleles" style="visibility:hidden; padding-top:10px;">
   <h2>ES Cell and Mouse Alleles</h2>
-
-  <div>
-    <div id="mpi2-search"></div><div id="mpi2-allele-grid"></div>
-  </div>
+  <div id="mpi2-search"></div>
 </div>
+
+<div class="grid_10" id="mpi2-allele-grid" style="padding-top:38px;"></div>
+
+
+
 
 

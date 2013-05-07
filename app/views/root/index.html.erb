@@ -4,8 +4,12 @@
   <h2>Welcome to iMits</h2>
 
   <p>What would you like to do today?</p>
-
+  <div id = 'gene_search' name = 'gene_search' ><input type ='text' id = 'search_for_gene' name = 'search_for_gene'> <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button></div>
   <div class="clear" style="margin-top:15px"></div>
+</div>
+
+<div class="grid_12" style="padding-bottom:30px">
+  <%= render 'open/root/mpi2_grid' %>
 </div>
 
 <div class="grid_8">
@@ -79,7 +83,3 @@
     </a>
   </div>
 </div>
-<div class="grid_8">
-  <%= render 'open/root/mpi2_grid' %>
-</div>
-

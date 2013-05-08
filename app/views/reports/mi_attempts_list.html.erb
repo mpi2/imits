@@ -10,6 +10,10 @@
 
 <% unless params[:commit].blank? %>
   <div class="report grid_12">
-    <%= render :partial => '/reports/report_with_counts', :locals => { :report => @report, :label => 'micro-injection attempts' } %>
+    <% if @cached %>
+      <%= @report.data.to_s.html_safe %>
+    <% else %>
+      <%= render :partial => '/reports/report_with_counts', :locals => { :report => @report, :label => 'micro-injection attempts' } %>
+    <% end %>
   </div>
 <% end %>

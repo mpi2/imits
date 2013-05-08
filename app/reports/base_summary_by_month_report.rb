@@ -1,4 +1,4 @@
-class BaseSummaryByMonthPresenter
+class BaseSummaryByMonthReport
   
   ##
   ##  This is the base presenter for reporting on counts of statuses for particular months,
@@ -69,12 +69,12 @@ class BaseSummaryByMonthPresenter
         "ES Cell QC In Progress" => :assigned_es_cell_count,
         "ES Cell QC Complete"    => :es_cell_complete_count,
         "ES Cell QC Failed"      => :es_cell_aborted_count,
-        "Cumulative MIs"         => :cumulative_mis,
         "Micro-Injection In Progress" => :mi_in_progress_count,
+        "Cumulative MIs"         => :cumulative_mis,
         "MI Goal"            => :mi_goal,
         "Chimeras obtained"  => :chimeras_obtained_count,
-        "Cumulative genotype confirmed" => :cumulative_gcs,
         "Genotype confirmed" => :genotype_confirmed_count,
+        "Cumulative genotype confirmed" => :cumulative_gcs,
         "GC Goal"            => :genotype_confirmed_goals,
         "Micro-injection aborted"      => :mi_aborted_count,
         "Phenotype Attempt Registered" => :phenotype_registered_count,
@@ -94,12 +94,12 @@ class BaseSummaryByMonthPresenter
         "ES Cell QC In Progress",
         "ES Cell QC Complete",
         "ES Cell QC Failed",
-        "Cumulative MIs",
         "Micro-Injection In Progress",
+        "Cumulative MIs",
         "MI Goal",
         "Chimeras obtained",
-        "Cumulative genotype confirmed",
         "Genotype confirmed",
+        "Cumulative genotype confirmed",
         "GC Goal",
         "Micro-injection aborted"
       ]
@@ -146,7 +146,7 @@ class BaseSummaryByMonthPresenter
               sum(case when report.phenotype_attempt_aborted_date >= series.date AND report.phenotype_attempt_aborted_date < date(series.date + interval '1 month') then 1 else 0 end) as phenotype_aborted_count
 
             FROM series
-            CROSS JOIN intermediate_report as report
+            CROSS JOIN new_intermediate_report as report
             WHERE consortium in ('#{available_consortia.join('\', \'')}')
             GROUP BY series.date, report.consortium
             ORDER BY series.date DESC

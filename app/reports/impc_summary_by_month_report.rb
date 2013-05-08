@@ -1,4 +1,4 @@
-class ImpcSummaryByMonthPresenter < BaseSummaryByMonthPresenter
+class ImpcSummaryByMonthReport < BaseSummaryByMonthReport
 
   ## See superclass for inherited methods.
 

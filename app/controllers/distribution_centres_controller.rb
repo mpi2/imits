@@ -3,8 +3,8 @@ class DistributionCentresController < ApplicationController
   before_filter :find_class
 
   def index
-    ## Defined in app/presenters/distribution_management_presenter.rb
-    @report = DistributionManagementReportPresenter.new(@klass)
+    ## Defined in app/reports/distribution_management_report.rb
+    @report = DistributionManagementReport.new(@klass)
 
     respond_to do |format|
       format.html {

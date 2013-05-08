@@ -21,8 +21,8 @@
         <th>Chimaeras produced</th>
         <th>Genotype confirmed mice</th>
         <th>Microinjection aborted</th>
-        <th>Gene Pipeline efficiency (%)</th>
-        <th>Clone Pipeline efficiency (%)</th>
+        <!--<th>Gene Pipeline efficiency (%)</th>-->
+        <!--<th>Clone Pipeline efficiency (%)</th>-->
         <th>Effort based efficiency</th>
       </tr>
     </thead>
@@ -46,8 +46,8 @@
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], 'Chimeras', :centre => centre) %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], 'Genotype Confirmed Mice', :centre => centre) %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], 'Microinjection aborted', :centre => centre) %></td>
-            <td><%= efficiency_percentage(@gene_efficiency_totals, row['consortium'], centre) %></td>
-            <td><%= efficiency_percentage(@clone_efficiency_totals, row['consortium'], centre) %></td>
+            <!--<td><%= efficiency_percentage(@gene_efficiency_totals, row['consortium'], centre) %></td>-->
+            <!--<td><%= efficiency_percentage(@clone_efficiency_totals, row['consortium'], centre) %></td>-->
             <td><%= @effort_efficiency_totals["#{row['consortium']}-#{centre}-effort_efficiency"].to_f.round(2) %></td>
           </tr>
 
@@ -82,7 +82,7 @@
       <% @consortium_by_distinct_gene.each do |row| %>
         <% count = 0 %>
         
-        <% unless @consortium_centre_by_non_cre_phenotyping_status[row['consortium']].blank? %> 
+        <% unless @consortium_centre_by_cre_phenotyping_status[row['consortium']].blank? %> 
           <% @consortium_centre_by_cre_phenotyping_status[row['consortium']].each do |centre| %>
             <% rowspan = @consortium_centre_by_cre_phenotyping_status[row['consortium']].size %>
             <tr>
@@ -92,7 +92,7 @@
               <% end %>
 
               <td><%= centre %></td>
-              <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre, :cre_excision_required => true) %></td>
+              <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre) %></td>
               <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Intent to phenotype", :centre => centre, :cre_excision_required => true) %></td>
               <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Rederivation started", :centre => centre, :cre_excision_required => true) %></td>
               <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Rederivation completed", :centre => centre, :cre_excision_required => true) %></td>
@@ -142,7 +142,7 @@
               <% end %>
 
               <td><%= centre %></td>
-              <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre, :cre_excision_required => false) %></td>
+              <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre) %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Intent to phenotype", :centre => centre, :cre_excision_required => false) %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Rederivation started", :centre => centre, :cre_excision_required => false) %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Rederivation completed", :centre => centre, :cre_excision_required => false) %></td>
@@ -206,6 +206,7 @@
         <th>Genotype Confirmed Mice</th>
         <td>Number of Genes where iMits has at least one 'Chimera with GC offspring' or 'Het offspring' recorded.</td>
       </tr>
+      <!--
       <tr>
         <th>Gene Pipeline Efficiency</th>
         <td>(#Unique Genes for all Genotype Confirmed MI's > 6 months old) / (#Unique Genes for all MI's > 6 months old)</td>
@@ -214,6 +215,7 @@
         <th>Clone Pipeline Efficiency</th>
         <td>(#Unique Clones for all Genotype Confirmed MI's > 6 months old) / (#Unique Clones for all MI's > 6 months old)</td>
       </tr>
+      -->
       <tr>
         <th>Effort based efficiency <span>*New*</span></th>
         <td>(#Unique Genes for all Genotype Confirmed MI's > 6 months old) / (#Micro-injections > 6 months old)</td>

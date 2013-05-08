@@ -88,14 +88,15 @@ class MiPlansController < ApplicationController
   end
 
   def update
-    @mi_plan = Public::MiPlan.find_by_id(params[:id])
-    if ! @mi_plan
-      render(:json => 'mi_plan not found', :status => 422)
-    else
+    @mi_plan = Public::MiPlan.find(params[:id])
+    
+    respond_to do |format|
       if @mi_plan.update_attributes params[:mi_plan]
-        render :json => @mi_plan
+        format.html { redirect_to mi_plan_path(@mi_plan) }
+        format.json { render :json => @mi_plan }
       else
-        render :json => @mi_plan.errors, :status => 422
+        format.html { render :action => 'edit' }
+        format.json { render :json => @mi_plan.errors, :status => 422 }
       end
     end
   end

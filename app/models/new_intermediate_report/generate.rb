@@ -1,7 +1,5 @@
-class IntermediateReport
-
+class NewIntermediateReport
   class Generate
-
     attr_accessor :report_rows, :size, :clone_efficiencies, :gene_efficiencies
 
     def initialize
@@ -60,7 +58,7 @@ class IntermediateReport
 
         ## Use the MiAttempt mouse_allele_type combined with the EsCell
         mouse_allele_symbol_superscript = if !report_row['mi_mouse_allele_type'].blank? && !report_row['allele_symbol_superscript_template'].blank?
-          report_row['allele_symbol_superscript_template'].sub(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['mi_mouse_allele_type'])
+          report_row['allele_symbol_superscript_template'].sub!(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['mi_mouse_allele_type'])
         end
 
         unless mouse_allele_symbol_superscript.blank?
@@ -69,13 +67,13 @@ class IntermediateReport
 
         ## Use the PhenotypeAttempt mouse_allele_type combined with the EsCell (via PhenotypeAttempt -> MiAttempt -> TargRep::EsCell)
         ## allele_symbol_superscript in order to create the allele_symbol
-        allowed_pa_statuses = ["Cre excision completed", "Phenotyping started", "Phenotyping completed"]
+        allowed_pa_statuses = ["Cre Excision Complete", "Phenotyping Started", "Phenotyping Complete"]
 
         phenotype_allele_symbol_superscript = if allowed_pa_statuses.include?(report_row['phenotype_attempt_status']) &&
                                                   !report_row['pa_mouse_allele_type'].blank? &&
                                                   !report_row['pa_allele_symbol_superscript_template'].blank?
 
-          report_row['pa_allele_symbol_superscript_template'].sub(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['pa_mouse_allele_type'])
+          report_row['pa_allele_symbol_superscript_template'].sub!(TargRep::EsCell::TEMPLATE_CHARACTER, report_row['pa_mouse_allele_type'])
         end
 
         unless phenotype_allele_symbol_superscript.blank?
@@ -118,6 +116,8 @@ class IntermediateReport
         report_row['total_old_pipeline_efficiency_gene_count']     = report_row['total_old_pipeline_efficiency_gene_count'].to_i
         report_row['gc_old_pipeline_efficiency_gene_count']        = report_row['gc_old_pipeline_efficiency_gene_count'].to_i
 
+        report_row['created_at'] = Time.now.to_s(:db)
+
         report_row.delete('pa_mouse_allele_type')
         report_row.delete('pa_allele_symbol_superscript_template')
         report_row.delete('pa_mgi_allele_symbol_superscript')
@@ -136,29 +136,57 @@ class IntermediateReport
     end
 
     def to_s
-      "#<IntermediateReport::Generate size: #{size}>"
+      "#<NewIntermediateReport::Generate size: #{size}>"
     end
 
     def insert_report
-      sql =  <<-EOF
-        BEGIN;
+      begin
+        sql =  <<-EOF
+          BEGIN;
 
-        TRUNCATE intermediate_report;
+          TRUNCATE new_intermediate_report;
 
-        INSERT INTO intermediate_report (#{self.class.columns.join(', ')}) VALUES
-      EOF
-      
-      values = Array.new.tap do |v|
-        report_rows.each do |report_row|
-          v << "(#{self.class.row_for_sql(report_row)})"
+          INSERT INTO new_intermediate_report (#{self.class.columns.join(', ')}) VALUES
+        EOF
+        
+        values = Array.new.tap do |v|
+          report_rows.each do |report_row|
+            v << "(#{self.class.row_for_sql(report_row)})"
+          end
         end
+
+        sql << values.join(",\n")
+
+        return if values.empty?
+
+        sql << "; COMMIT;"
+
+        ActiveRecord::Base.connection.execute(sql)
+
+        INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] Report generation successful."
+        puts "[#{Time.now}] Report generation successful."
+
+      rescue => e
+        puts "[#{Time.now}] ERROR"
+        puts e.inspect
+        puts e.backtrace.join("\n")
+
+        INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] ERROR - Report generation failed."
+        INTERMEDIATE_REPORT_LOG.info e.inspect
+        INTERMEDIATE_REPORT_LOG.info e.backtrace.join("\n")
+
+        unless @retrying
+          ActiveRecord::Base.connection.reconnect!
+          @retrying = true
+
+          puts "[#{Time.now}] Reconnecting database and retrying..."
+          INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] Reconnecting database and retrying..."
+
+          retry
+        end
+
+        raise Tarmits::ReportGenerationFailed
       end
-
-      sql << values.join(",\n")
-
-      sql << "; COMMIT;"
-
-      ActiveRecord::Base.connection.execute(sql)
 
       nil
     end
@@ -168,6 +196,14 @@ class IntermediateReport
     ##
 
     class << self
+
+      def cache
+        puts "[#{Time.now}] Report generation started."
+        INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] Report generation started."
+
+        report = self.new
+        report.insert_report
+      end
 
       def row_for_sql(report_row)
         columns.map {|c| data_for_sql(c, report_row)}.join(', ')
@@ -519,7 +555,8 @@ class IntermediateReport
           'mi_attempt_colony_name',
           'mi_attempt_consortium',
           'mi_attempt_production_centre',
-          'phenotype_attempt_colony_name'
+          'phenotype_attempt_colony_name',
+          'created_at'
         ]
       end
     end

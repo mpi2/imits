@@ -279,14 +279,6 @@ class MiPlansControllerTest < ActionController::TestCase
           assert_match /^4\d\d$/, response.status.to_s
         end
 
-        should 'return errors if id not found' do
-          assert_no_difference('MiPlan.count') do
-            put :update, :id => '99999', :mi_plan => {:priority_name => 'Nonexistent'},
-                    :format => :json
-          end
-          assert_match /^4\d\d$/, response.status.to_s
-        end
-
         should 'use Public::MiPlan, not MiPlan' do
           mi_plan = Public::MiPlan.find(Factory.create(:mi_plan,
               :priority => MiPlan::Priority.find_by_name!('High')))

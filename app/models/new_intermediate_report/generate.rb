@@ -164,15 +164,26 @@ class NewIntermediateReport
         ActiveRecord::Base.connection.execute(sql)
 
         INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] Report generation successful."
-        puts "Report generation successful."
+        puts "[#{Time.now}] Report generation successful."
 
       rescue => e
-        puts "ERROR"
-        puts
+        puts "[#{Time.now}] ERROR"
         puts e.inspect
+        puts e.backtrace.join("\n")
 
         INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] ERROR - Report generation failed."
         INTERMEDIATE_REPORT_LOG.info e.inspect
+        INTERMEDIATE_REPORT_LOG.info e.backtrace.join("\n")
+
+        unless @retrying
+          ActiveRecord::Base.connection.reconnect!
+          @retrying = true
+
+          puts "[#{Time.now}] Reconnecting database and retrying..."
+          INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] Reconnecting database and retrying..."
+
+          retry
+        end
 
         raise Tarmits::ReportGenerationFailed
       end
@@ -187,6 +198,7 @@ class NewIntermediateReport
     class << self
 
       def cache
+        puts "[#{Time.now}] Report generation started."
         INTERMEDIATE_REPORT_LOG.info "[#{Time.now}] Report generation started."
 
         report = self.new

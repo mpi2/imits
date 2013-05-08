@@ -26,12 +26,14 @@ class MiAttempt::WarningsTest < TarMits::JsIntegrationTest
       end
 
       should 'show them after posting form when there are warnings' do
+        mi_attempt = Factory.create :mi_attempt2
         es_cell = Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
 
         visit new_mi_attempt_path
         choose_es_cell_from_list(es_cell.gene.marker_symbol, es_cell.name)
         choose_date_from_datepicker_for_input('mi_attempt[mi_date]')
-        select 'BaSH', :from => 'mi_attempt[consortium_name]'
+        consortium_name = 'EUCOMM-EUMODIC'
+        find(:xpath, '//td/div[text()="' + consortium_name + '"]').click
 
         mis_count = es_cell.mi_attempts.count
         click_button 'mi_attempt_submit'
@@ -50,11 +52,12 @@ class MiAttempt::WarningsTest < TarMits::JsIntegrationTest
 
       should 'let user ignore warnings and create anyway' do
         es_cell = Factory.create :es_cell_EPD0127_4_E01, :allele => Factory.create(:allele_with_gene_trafd1)
-        
+
         visit new_mi_attempt_path
         choose_es_cell_from_list(es_cell.gene.marker_symbol, es_cell.name)
         choose_date_from_datepicker_for_input('mi_attempt[mi_date]')
-        select 'BaSH', :from => 'mi_attempt[consortium_name]'
+        consortium_name = 'EUCOMM-EUMODIC'
+        find(:xpath, '//td/div[text()="' + consortium_name + '"]').click
 
         click_button 'mi_attempt_submit'
 

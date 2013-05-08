@@ -44,7 +44,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         mi = Factory.create(:mi_attempt2_status_gtc,
           :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :gene => cbx1, :force_assignment => true),
           :es_cell => Factory.create(:es_cell, :allele => allele)).to_public
-        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1', :force_assignment => true).to_public
+        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1', :force_assignment => true, :phenotype_only => true).to_public
         pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
         plan.reload
         assert_equal 1, plan.phenotype_attempts_count
@@ -122,7 +122,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
           :mi_plan => TestDummy.mi_plan('BaSH', 'WTSI', :force_assignment => true, :gene => cbx1),
           :es_cell => Factory.create(:es_cell, :allele => allele)).to_public
 
-        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1', :force_assignment => true).to_public
+        plan = TestDummy.mi_plan('MGP', 'WTSI', 'Cbx1', :force_assignment => true, :phenotype_only => true).to_public
         pa = Factory.create(:phenotype_attempt, :mi_plan => plan, :mi_attempt => mi).to_public
         plan.reload
 
@@ -194,7 +194,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
 
         mi = Factory.build :mi_attempt2, :mi_plan => default_mi_plan
         mi.save
-        assert ! mi.errors[:mi_plan].blank?
+        assert ! mi.errors[:base].blank?
       end
     end
 

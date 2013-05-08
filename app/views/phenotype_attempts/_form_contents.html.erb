@@ -20,24 +20,6 @@
       <%= form.hidden_field 'phenotype_attempt_status_name', :value => @phenotype_attempt.status_name || 'p' %>
     <% end %>
   </div>
-  <div class="consortium-name">
-    <% consortium_field = capture do %>
-      <% if phenotype_attempt.new_record? %>
-        <%= form.collection_select :consortium_name, @consortia, :name, :name, :include_blank => true %>
-      <% else %>
-        <span><%= phenotype_attempt.consortium_name %></span>
-      <% end %>
-    <% end %>
-    <%= generator.form_field(:consortium_name, 'Consortium', consortium_field) %>
-  </div>
-  <div class="production-centre-name">
-    <%= form.label :production_centre_name, 'Production Centre' %>
-    <% if phenotype_attempt.new_record? %>
-      <%= form.collection_select :production_centre_name, @centres, :name, :name %>
-    <% else %>
-      <span><%= phenotype_attempt.production_centre_name %></span>
-    <% end %>
-  </div>
   <div>
     <%= form.label :is_active, :is_active.to_s.titlecase %>
     <%= form.check_box :is_active %>
@@ -47,7 +29,7 @@
 <fieldset class="collapsible" id="distribution_centres">
   <legend>Distribution Centres</legend>
   <div class="distribution_centres">
-    <% if phenotype_attempt.status.try(:name) == "Cre Excision Complete" %>
+    <% if ['cec', 'pds', 'pdc'].include?(phenotype_attempt.status.try(:code)) %>
       <table id="distribution_centres_table" class="report_table">
         <thead class="title">
           <tr>

@@ -76,7 +76,7 @@ end
 #  name                :string(255)     not null
 #  ikmc_project_id     :string(255)
 #  intermediate_vector :string(255)
-#  report_to_public    :integer         not null
+#  report_to_public    :boolean         not null
 #  pipeline_id         :integer
 #  created_at          :datetime        not null
 #  updated_at          :datetime        not null

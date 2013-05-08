@@ -30,6 +30,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
                 :es_cell => default_phenotype_attempt.es_cell,
                 :mi_plan => bash_wtsi_cbx1_plan(:gene => default_phenotype_attempt.gene, :force_assignment => true)
         default_phenotype_attempt.mi_attempt = new_mi
+        default_phenotype_attempt.mi_plan.phenotype_only = true
         default_phenotype_attempt.save!
       end
 
@@ -45,21 +46,21 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
     context '#mi_plan' do
       should 'not be overritten by default value if it is explicitly set' do
         mi_attempt = Factory.create :mi_attempt2_status_gtc
-        plan = Factory.create :mi_plan_with_production_centre, :gene => mi_attempt.gene, :force_assignment => true
+        plan = Factory.create :mi_plan_phenotype_only, :gene => mi_attempt.gene, :force_assignment => true
         pt = Factory.create :phenotype_attempt, :mi_attempt => mi_attempt, :mi_plan => plan
         assert_equal plan, pt.mi_plan
         assert_not_equal pt.mi_attempt.mi_plan, pt.mi_plan
       end
 
       should 'validate as having same gene as mi_attempt.es_cell' do
-        plan = Factory.create :mi_plan,
+        plan = Factory.create :mi_plan_phenotype_only,
                 :consortium => default_phenotype_attempt.mi_plan.consortium,
                 :production_centre => default_phenotype_attempt.mi_plan.production_centre
         assert_not_equal plan.gene, default_phenotype_attempt.mi_attempt.es_cell.gene
 
         default_phenotype_attempt.mi_plan = plan
         assert ! default_phenotype_attempt.valid?
-        assert_equal ['must have same gene as mi_attempt'], default_phenotype_attempt.errors[:mi_plan]
+        assert_equal "mi_plan and es_cell gene mismatch!  Should be the same! (#{default_phenotype_attempt.mi_attempt.es_cell.gene.marker_symbol} != #{default_phenotype_attempt.mi_plan.gene.marker_symbol})", default_phenotype_attempt.errors[:base].first
       end
 
     end #mi_plan

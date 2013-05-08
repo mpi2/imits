@@ -12,7 +12,7 @@ class TargRep::EsCell < ActiveRecord::Base
 
   TEMPLATE_CHARACTER = '@'
 
-  require_dependency 'targ_rep/es_cell/qc_fields'
+  include TargRep::EsCell::QcFields
 
   ##
   ## Relationships

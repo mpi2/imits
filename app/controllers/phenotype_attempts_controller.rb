@@ -33,9 +33,7 @@ class PhenotypeAttemptsController < ApplicationController
     @mi_attempt = MiAttempt.find_by_id(params[:mi_attempt_id])
     if @mi_attempt.status.name == "Genotype confirmed"
       @phenotype_attempt = Public::PhenotypeAttempt.new(
-        :mi_attempt_colony_name => @mi_attempt.colony_name,
-        :consortium_name => @mi_attempt.consortium.name,
-        :production_centre_name => @mi_attempt.production_centre.name
+        :mi_plan => @mi_attempt.mi_plan
       )
     else
       flash.now[:alert] = "#{@mi_attempt.status.name} status"

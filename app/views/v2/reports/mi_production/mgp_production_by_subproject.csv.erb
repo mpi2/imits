@@ -1,0 +1,4 @@
+Sub-projects, <%= @columns.join(', ') %>
+<% @status_by_sub_project[:rows].each do |sub_project| %>
+<%= sub_project %>, <%= @columns.map{|column| report_csv_data(@status_by_sub_project, sub_project, column)}.join(', ') %>
+<% end %>

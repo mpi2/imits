@@ -279,7 +279,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           default_mi_attempt.save!
 
           assert_equal 'pass', default_mi_attempt.qc_loxp_confirmation_result
-          assert_equal nil, default_mi_attempt.mouse_allele_type          
+          assert_equal nil, default_mi_attempt.mouse_allele_type
         end
       end
 
@@ -335,15 +335,6 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_nil mi_attempt.colony_name
         end
 
-        should 'not be auto-generated if production centre was not assigned' do
-          mi_plan = Factory.create :mi_plan
-          assert_nil mi_plan.production_centre
-
-          mi_attempt = Factory.build :mi_attempt2, :mi_plan => mi_plan, :colony_name => nil
-          assert_false mi_attempt.valid?
-          assert_nil mi_attempt.colony_name
-        end
-
         should 'manage trimming and spacing' do
           colony_names = [
             { :old => "a_dummy_colony_name_with_no_spaces", :new => "a_dummy_colony_name_with_no_spaces" },
@@ -369,15 +360,6 @@ class MiAttemptTest < ActiveSupport::TestCase
         should 'know about its new MiAttempt without having to be manually reloaded' do
           mi = Factory.create :mi_attempt2
           assert_equal [mi], mi.mi_plan.mi_attempts
-        end
-
-        should 'have a production centre' do
-          mi_plan = Factory.create(:mi_plan)
-          assert_nil mi_plan.production_centre
-          mi = Factory.build :mi_attempt2, :mi_plan => mi_plan
-          mi.valid?
-          assert_equal ['must have a production centre (INTERNAL ERROR)'],
-                  mi.errors['mi_plan']
         end
       end
 
@@ -638,7 +620,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal colony_names.sort, results.map(&:colony_name).sort
       end
     end
-    
+
     context '#production_centre' do
       should 'delegate to mi_plan' do
         assert_equal default_mi_attempt.mi_plan.production_centre,

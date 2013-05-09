@@ -326,7 +326,7 @@ div#messages {
   color: #8f110b;
 }
 
-.homepage-links a p, .homepage-links a ul,
+.homepage-links a p, .homepage-links a ul, .homepage-links p,
 .report-links a p, .report-links a ul {
   font-style: italic;
   color: #999;
@@ -709,10 +709,7 @@ div.report_control * {
   cursor:pointer;
 }
 
-<<<<<<< HEAD
-
-
-#mpi2-allele-grid table th {
+div#mpi2-allele-grid table th {
     text-align: left;
     font-weight: bold;
     color: #01617a;
@@ -720,7 +717,7 @@ div.report_control * {
     border-top: none!important;
   }
 
-#mpi2-search table th {
+div#mpi2-search table th {
     text-align: left;
     font-weight: bold;
     color: #01617a;

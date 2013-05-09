@@ -22,7 +22,7 @@ function create_allele_grid(mgiAccession){
 }
 
 function create_gene_grid(mgiAccession){
-  $("#mpi2-search").mpi2Search().trigger('search', [{type: 'gene' ,solrParams: {q: mgiAccession}}]);
+  $("#mpi2-search").mpi2Search().trigger('search', [{type: 'gene_new' ,solrParams: {q: mgiAccession}}]);
   create_allele_grid('');
   document.getElementById("mouse-alleles").style.display="inline";
   $(".gene").delegate("a","click",function(){

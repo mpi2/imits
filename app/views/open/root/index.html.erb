@@ -4,11 +4,13 @@
   <h2>Welcome to iMits</h2>
 
   <p>What would you like to do today?</p>
-  <div id = 'gene_search' name = 'gene_search' ><input type ='text' id = 'search_for_gene' name = 'search_for_gene'> <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button></div>
-  <div class="clear" style="margin-top:15px"></div>
+  <div class="homepage-links" id = 'gene_search' name = 'gene_search' ><input type ='text' id = 'search_for_gene' name = 'search_for_gene'>
+    <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button>
+    <p>Search by Marker symbol or MGI number</p>
+  </div>
 </div>
 
-<div class="grid_12" style="padding-bottom:30px">
+<div class="grid_12">
   <%= render 'open/root/mpi2_grid' %>
 </div>
 
@@ -24,6 +26,13 @@
     <a href="<%= open_mi_attempts_path() %>">
       <h3>Search For Micro-Injection Attempts</h3>
       <p>Search for data on existing micro-injection attempt records</p>
+    </a>
+  </div>
+
+  <div class="homepage-links">
+    <a href="<%= open_phenotype_attempts_path() %>">
+      <h3>Search For Phenotype Attempts</h3>
+      <p>Search for data on existing phenotype attempt records</p>
     </a>
   </div>
 </div>

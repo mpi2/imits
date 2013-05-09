@@ -1,0 +1,51 @@
+<% @title = 'Genotype confirmed QC grid' %>
+<h3># Genotype confirmed QC grid</h3>
+
+<p><%= link_to 'Download as CSV', report_csv_path %></p>
+
+<div class='report qc'>
+
+  <% for consortium, centre in @mi_attempts[:consortia] %>
+    <h2><%= consortium %></h2>
+    <% for centre, genes in centre %>
+      <h3><%= centre %></h3>
+
+      <table class='qc_grid'>
+        <tbody>
+
+          <% for gene in genes %>
+            <tr>
+              <% for column in QcGridReport.html_columns %>
+                <% value = @mi_attempts["#{consortium}-#{centre}-#{gene}-#{column}"] || 'na' %>
+                <td data-centre="<%= centre %>" data-consortium="<%= consortium %>" data-column="<%= column %>" class="qc <%= grid_class(value, column) %>">
+                  <% unless value.blank? %>
+                    <div class='cell-popup'>
+                      <dl>
+                        <dt class='qc_result'>QC Type</dt>
+                        <dd class='qc_result'><%= column.humanize %></dd>
+                        <dt class='qc_result'>QC Result</dt>
+                        <dd class='qc_result'><%= grid_qc_result(value) %></dd>
+                        <dt>Gene</dt>
+                        <dd><%= gene %></dd>
+                        <dt>Consortium</dt>
+                        <dd><%= consortium %><dd>
+                        <dt>Production centre</dt>
+                        <dd><%= centre %><dd>
+                        <% if QcGridReport.distribution_qc_columns.include?(column) %>
+                          <dt>Distribution centre name</dt>
+                          <dd><%= @mi_attempts["#{consortium}-#{centre}-#{gene}-distribution_centre"] %><dd>
+                        <% end %>
+                    </div>
+                  <% end %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+
+        </tbody>
+      </table>
+
+    <% end %>
+  <% end %>
+
+</div>

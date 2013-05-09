@@ -5,6 +5,8 @@ class ReportsController < ApplicationController
 
   before_filter :authenticate_user!, :except => [:impc_gene_list]
 
+  layout :check_remote_load
+
   extend Reports::Helper
   include Reports::Helper
 
@@ -72,24 +74,55 @@ class ReportsController < ApplicationController
     )
   end
 
-  def mi_attempts_list
-    unless params[:commit].blank?
-      @report = generate_mi_list_report( params )
+  def full_report?
+    params[:consortium_id].blank? && params[:grouping].blank? && params[:production_centre_id].blank?
+  end
 
-      if @report.nil?
-        redirect_to cleaned_redirect_params( :mi_attempts_list, params ) if request.format == :csv
-        return
+  def mi_attempts_list
+
+    unless params[:commit].blank?
+
+      if full_report?
+        @cached = true
+
+        if request.format == :csv
+          if cached_report = ReportCache.find_by_name_and_format('full_mi_attempts_list', 'csv')
+            send_data(
+              cached_report.data,
+              :type     => 'text/csv; charset=utf-8; header=present',
+              :filename => 'full_mi_attempts_list.csv'
+            )  and return
+
+          else
+            @cached = false
+          end
+        else
+          @report = ReportCache.find_by_name_and_format('full_mi_attempts_list', 'html')
+
+          if @report.blank?
+            @cached = false
+          end
+        end
       end
 
-      @report.sort_rows_by!( 'Injection Date', :order => :descending )
-      @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
+      unless @cached
+        @report = generate_mi_list_report( params )
 
-      if request.format == :csv
-        send_data(
-          @report.to_csv,
-          :type     => 'text/csv; charset=utf-8; header=present',
-          :filename => 'mi_attempts_list.csv'
-        )
+        if @report.nil?
+          redirect_to cleaned_redirect_params( :mi_attempts_list, params ) if request.format == :csv
+          return
+        end
+
+        @report.sort_rows_by!( 'Injection Date', :order => :descending )
+        @report = Grouping( @report, :by => params[:grouping], :order => :name ) unless params[:grouping].blank?
+
+        if request.format == :csv
+          send_data(
+            @report.to_csv,
+            :type     => 'text/csv; charset=utf-8; header=present',
+            :filename => 'mi_attempts_list.csv'
+          )
+        end
       end
     end
   end
@@ -299,4 +332,9 @@ class ReportsController < ApplicationController
     return report
   end
 
+  private
+
+    def check_remote_load
+      params[:remote] ? false : 'application'
+    end
 end

@@ -9,7 +9,7 @@ class Public::SolrUpdate::Queue::ItemTest < ActiveSupport::TestCase
 
   context 'Public::SolrUpdate::Queue::Item' do
 
-    should 'be a sub-class of SolrUpdate::Queue::Item' do
+    should 'be a subclass of SolrUpdate::Queue::Item' do
       assert_include Public::SolrUpdate::Queue::Item.ancestors, SolrUpdate::Queue::Item
     end
 

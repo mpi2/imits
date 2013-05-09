@@ -81,7 +81,7 @@ class IntermediateReportTest < ActiveSupport::TestCase
         :created_at => '2011-12-13 00:00:00 UTC')
 
 
-      ee_wtsi_plan = Factory.create :mi_plan,
+      ee_wtsi_plan = Factory.create :mi_plan_phenotype_only,
               :gene => @cbx1,
               :consortium => Consortium.find_by_name!('EUCOMM-EUMODIC'),
               :production_centre => Centre.find_by_name!('WTSI'),

@@ -288,153 +288,80 @@ class Gene < ActiveRecord::Base
 
   # END Helper functions for clean reporting
 
-  # BEGIN Mart Operations
+  def update_cached_counts(logger=Rails.logger)
+    self.ikmc_projects_count            = self.allele.select(:ikmc_project_id).joins(:es_cells).group(:ikmc_project_id).length
+    self.conditional_es_cells_count     = self.allele.joins(:mutation_type, :es_cells).where(:targ_rep_mutation_types => {:code => :crd}).count
+    self.non_conditional_es_cells_count = self.allele.joins(:mutation_type, :es_cells).where(:targ_rep_mutation_types => {:code => :tnc}).count
+    self.deletion_es_cells_count        = self.allele.joins(:mutation_type, :es_cells).where(:targ_rep_mutation_types => {:code => :del}).count
 
-  def self.find_or_create_from_marts_by_mgi_accession_id(mgi_accession_id)
-    return nil if mgi_accession_id.blank?
-
-    gene = self.find_by_mgi_accession_id(mgi_accession_id)
-    return gene if gene
-
-    mart_data = get_gene_data_from_remotes([mgi_accession_id])
-
-    if mart_data[mgi_accession_id].blank?
-      return nil
-    else
-      return self.find_or_create_by_mgi_accession_id(mart_data[mgi_accession_id])
+    if self.changes.present?
+      logged.debug "[@gene.update_cached_counts] Updating gene cached counts..."
+      self.save
     end
   end
 
-  def self.get_gene_data_from_remotes(mgi_accession_ids)
-    raise ArgumentError, 'Need an array of MGI Accession IDs' unless mgi_accession_ids.kind_of?(Array)
-    raise ArgumentError, 'You must specify some MGI Accession IDs to search for' if mgi_accession_ids.empty?
-
-    ikmc_projects = ['KOMP-CSD','KOMP-Regeneron','EUCOMM','NorCOMM','mirKO','EUCOMMTools','EUCOMMToolsCre']
-    data          = {}
-
-    # We have to do two seperate queries here as we may be looking for genes that do
-    # not have any IKMC products...
-
-    dcc_data = DCC_BIOMART.search(
-      :process_results => true,
-      :timeout => 600,
-      :filters =>  { 'mgi_accession_id' => mgi_accession_ids },
-      :attributes => ['mgi_accession_id','marker_symbol','ikmc_project','ikmc_project_id']
-    )
-
-    targ_rep_data = TARG_REP_BIOMART.search(
-      :process_results => true,
-      :timeout => 600,
-      :filters => { 'mgi_accession_id' => mgi_accession_ids },
-      :attributes => ['mgi_accession_id','pipeline','escell_clone','mutation_subtype','mutation_type'],
-      :required_attributes => ['escell_clone','mutation_subtype']
-    )
-
-    targ_rep_data.each do |result|
-      result['mutation_subtype'] = result['mutation_type'].downcase.gsub(/\s+/, '_') if result['mutation_type']
-      result.delete('mutation_type')
-    end
-
-    dcc_data.each do |row|
-      gene = data[ row['mgi_accession_id'] ] ||= {
-        :marker_symbol                    => row['marker_symbol'],
-        :mgi_accession_id                 => row['mgi_accession_id'],
-        :ikmc_project_id                  => [],
-        :conditional_ready                => [],
-        :targeted_non_conditional         => [],
-        :deletion                         => []
-      }
-
-      if ikmc_projects.include?( row['ikmc_project'] )
-        gene[:ikmc_project_id].push( row['ikmc_project_id'] )
-      end
-    end
-
-    targ_rep_data.each do |row|
-      gene = data[ row['mgi_accession_id'] ]
-      if !gene.nil? and ikmc_projects.include?( row['pipeline'] )
-        gene[ row['mutation_subtype'].to_sym ].push( row['escell_clone'] )
-      end
-    end
-
-    data.each do |mgi_accession_id,gene_details|
-      gene_details[:ikmc_projects_count]            = gene_details[:ikmc_project_id].uniq.compact.count
-      gene_details[:conditional_es_cells_count]     = gene_details[:conditional_ready].uniq.compact.count
-      gene_details[:non_conditional_es_cells_count] = gene_details[:targeted_non_conditional].uniq.compact.count
-      gene_details[:deletion_es_cells_count]        = gene_details[:deletion].uniq.compact.count
-
-      [
-        :ikmc_projects_count,
-        :conditional_es_cells_count,
-        :non_conditional_es_cells_count,
-        :deletion_es_cells_count
-      ].each do |count|
-        gene_details[count] = nil if gene_details[count] == 0
-      end
-
-      gene_details.delete :ikmc_project_id
-      gene_details.delete :conditional_ready
-      gene_details.delete :targeted_non_conditional
-      gene_details.delete :deletion
-    end
-
-    return data
-  end
-
-  def self.sync_with_remotes(logger=Rails.logger)
-    all_genes                     = Gene.all
-    all_current_mgi_accession_ids = all_genes.map(&:mgi_accession_id).compact
-    all_remote_mgi_accession_ids  = DCC_BIOMART.search(
-      :process_results => true,
-      :filters => {},
-      :attributes => ['mgi_accession_id'],
-      :required_attributes => ['mgi_accession_id']
-    ).map { |row| row['mgi_accession_id'] }
-
+  def self.update_cached_counts_old(logger=Rails.logger)
+    all_genes = Gene.all
     # update existing genes
-    logger.debug "[Gene.sync_with_remotes] Gathering data for existing genes to see if they need updating..."
-    current_genes_data = {}
-    all_current_mgi_accession_ids.each_slice(1000) { |slice| current_genes_data.merge!( get_gene_data_from_remotes(slice) ) }
-    current_genes_data.each do |mgi_accession_id, gene_data|
-      current_gene = Gene.find_by_mgi_accession_id(mgi_accession_id)
-
-      current_gene.attributes = gene_data
-
-      if current_gene.changes.present?
-        logger.debug "[Gene.sync_with_remotes] Updating information for #{current_gene.mgi_accession_id}"
-        current_gene.save!
-      end
+    logger.debug "[Gene.update_cached_counts] Gathering data for existing genes to see if they need updating..."
+    
+    all_genes.each do |gene|
+      gene.update_cached_counts
     end
 
-    # create new genes
-    new_mgi_ids_to_create = all_remote_mgi_accession_ids - all_current_mgi_accession_ids
-    if new_mgi_ids_to_create.size > 0
-      logger.debug "[Gene.sync_with_remotes] Gathering data for #{new_mgi_ids_to_create.size} new gene(s)..."
-      new_genes_data = {}
-      new_mgi_ids_to_create.each_slice(1000) { |slice| new_genes_data.merge!( get_gene_data_from_remotes(slice) ) }
-      new_genes_data.each do |mgi_accession_id, gene_data|
-        logger.debug "[Gene.sync_with_remotes] Creating gene entry for #{mgi_accession_id}"
-        Gene.create!(gene_data)
-      end
-    else
-      logger.debug "[Gene.sync_with_remotes] No new genes need to be created..."
-    end
+  end
 
-    # remove old genes that are no longer in the DCC_BIOMART - as long as they
-    # don't have any mi_plans hanging off them...
-    mgi_ids_to_delete = all_current_mgi_accession_ids - all_remote_mgi_accession_ids
-    if mgi_ids_to_delete.size > 0
-      logger.debug "[Gene.sync_with_remotes] Evaluating #{mgi_ids_to_delete.size} gene(s) for deletion..."
-      mgi_ids_to_delete.each do |mgi_accession_id|
-        current_gene = Gene.find_by_mgi_accession_id(mgi_accession_id)
-        if current_gene.mi_plans.size == 0 && current_gene.notifications.empty?
-          logger.debug "[Gene.sync_with_remotes] Deleting gene data for #{current_gene.mgi_accession_id}"
-          current_gene.destroy
+  def self.update_cached_counts(logger=Rails.logger)
+
+    count_clones_by_gene_and_mutation_type_sql = <<-EOF
+      SELECT
+        targ_rep_alleles.gene_id as gene,
+        targ_rep_mutation_types.code as mutation_type,
+        ikmc_project_id,
+        count(*) as es_cell_count
+      FROM targ_rep_es_cells
+      INNER JOIN targ_rep_alleles ON targ_rep_alleles.id = targ_rep_es_cells.allele_id
+      LEFT OUTER JOIN targ_rep_mutation_types ON targ_rep_mutation_types.id = targ_rep_alleles.mutation_type_id
+      WHERE targ_rep_es_cells.report_to_public is true
+      --AND targ_rep_alleles.gene_id = 88
+      GROUP BY gene, mutation_type, ikmc_project_id
+    EOF
+
+    count_clones_by_gene_and_mutation_type = ActiveRecord::Base.connection.execute(count_clones_by_gene_and_mutation_type_sql).to_a
+
+    count_clones_by_gene_and_mutation_type.group_by {|r| r["gene"]}.each do |gene_id, row_hashes|
+
+      ikmc_projects = []
+      conditional_es_cells_count     = 0
+      non_conditional_es_cells_count = 0
+      deletion_es_cells_count        = 0
+
+      row_hashes.each do |row_hash|
+        case row_hash['mutation_type']
+          when 'crd'
+            conditional_es_cells_count += row_hash['es_cell_count'].to_i
+          when 'tnc'
+            non_conditional_es_cells_count += row_hash['es_cell_count'].to_i
+          when 'del'
+            deletion_es_cells_count += row_hash['es_cell_count'].to_i
+        end
+
+        unless ikmc_projects.include?(row_hash['ikmc_project_id'])
+          ikmc_projects << row_hash['ikmc_project_id']
         end
       end
-    else
-      logger.debug "[Gene.sync_with_remotes] No gene entries look like they need to be deleted..."
+
+      Gene.update_all({
+        ikmc_projects_count: ikmc_projects.size,
+        conditional_es_cells_count: conditional_es_cells_count,
+        non_conditional_es_cells_count: non_conditional_es_cells_count,
+        deletion_es_cells_count: deletion_es_cells_count,
+        updated_at: Time.now.to_s(:db)
+      }, {:id => gene_id.to_i})
+
     end
+
+    true
   end
 
   # END Mart Operations

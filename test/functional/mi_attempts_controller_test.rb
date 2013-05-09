@@ -197,16 +197,15 @@ class MiAttemptsControllerTest < ActionController::TestCase
       def valid_create_for_format(format)
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
         assert_equal 0, MiAttempt.count
-        Factory.create(:mi_plan, :gene => es_cell.gene,
-          :production_centre => Centre.find_by_name!('WTSI'),
-          :consortium => Consortium.find_by_name!('MGP'),
-          :status => MiPlan::Status[:Assigned])
+        mi_plan = Factory.create(:mi_plan, :gene => es_cell.gene,
+                    :production_centre => Centre.find_by_name!('WTSI'),
+                    :consortium => Consortium.find_by_name!('MGP'),
+                    :status => MiPlan::Status[:Assigned])
 
         post( :create,
           :mi_attempt => {
             'es_cell_name' => es_cell.name,
-            :production_centre_name => 'WTSI',
-            :consortium_name => 'MGP',
+            'mi_plan_id' => mi_plan.id ,
             'mi_date' => Date.today.to_s
           },
           :format => format
@@ -233,12 +232,16 @@ class MiAttemptsControllerTest < ActionController::TestCase
 
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
         mi_attempt = Factory.create :mi_attempt2, :colony_name => 'MAAB'
+        mi_plan = (Factory.create :mi_plan, :gene => es_cell.gene,
+                    :production_centre => Centre.find_by_name!('ICS'),
+                    :consortium => Consortium.find_by_name!('BaSH'),
+                    :status => MiPlan::Status[:Assigned])
 
         assert_equal 1, MiAttempt.count
         post :create, :mi_attempt => {
           'es_cell_name' => 'EPD0127_4_E01',
           'colony_name' => 'MAAB',
-          'consortium_name' => 'EUCOMM-EUMODIC',
+          'mi_plan_id'  => mi_plan.id,
           'mi_date' => Date.today.to_s
         }
         assert_equal 1, MiAttempt.count
@@ -260,7 +263,11 @@ class MiAttemptsControllerTest < ActionController::TestCase
       #end
 
       should 'return validation errors for JSON' do
-        post :create, :mi_attempt => {'production_centre_name' => 'WTSI'}, :format => :json
+        mi_plan = (Factory.create :mi_plan,
+                    :production_centre => Centre.find_by_name!('WTSI'),
+                    :consortium => Consortium.find_by_name!('BaSH'),
+                    :status => MiPlan::Status[:Assigned])
+        post :create, :mi_attempt => {'mi_plan_id' => mi_plan.id}, :format => :json
         assert_equal response.success?, false
         data = JSON.parse(response.body)
         assert_include data['errors']['es_cell_name'], 'cannot be blank'
@@ -277,11 +284,14 @@ class MiAttemptsControllerTest < ActionController::TestCase
       should 'authorize the MI belongs to the user\'s production centre for REST only' do
         assert_equal 'WTSI', default_user.production_centre.name
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
+        mi_plan = (Factory.create :mi_plan, :gene => es_cell.gene,
+                     :production_centre => Centre.find_by_name!('ICS'),
+                     :consortium => Consortium.find_by_name!('BaSH'),
+                     :status => MiPlan::Status[:Assigned])
         post :create, :mi_attempt => {
           'es_cell_name' => es_cell.name,
-          'consortium_name' => 'BaSH',
+          'mi_plan_id' => mi_plan.id,
           'mi_date' => '2011-05-01',
-          :production_centre_name => 'ICS'
         }, :format => :json
         assert_response 401, response.body
         expected = {
@@ -291,14 +301,18 @@ class MiAttemptsControllerTest < ActionController::TestCase
       end
 
       should 'not authorize the MI belongs to the user\'s production centre via HTML' do
+        assert_equal 'WTSI', default_user.production_centre.name
         es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
+        mi_plan = (Factory.create :mi_plan, :gene => es_cell.gene,
+                             :production_centre => Centre.find_by_name!('ICS'),
+                             :consortium => Consortium.find_by_name!('BaSH'),
+                             :status => MiPlan::Status[:Assigned])
         post :create, :mi_attempt => {
           'es_cell_name' => es_cell.name,
-          'consortium_name' => 'BaSH',
+          'mi_plan_id' => mi_plan.id,
           'mi_date' => '2011-05-01',
-          :production_centre_name => 'ICS'
         }, :format => :html
-        assert_response :success, response.status
+        assert_response 302, response.status
       end
     end
 

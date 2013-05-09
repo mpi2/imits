@@ -1,0 +1,99 @@
+<% @title = 'Production Summary Detail' %>
+
+<!--<%= params.inspect %>-->
+
+<h2><%= @title %></h2>
+
+<p><%= link_to 'Download as CSV', report_csv_path %></p>
+
+<div class='report'>
+
+  <p>Showing <%= @intermediate_report.count %> results.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <th>Sub-Project</th>
+        <th>Is Bespoke Allele</th>
+        <th>Priority</th>
+        <th>Production Centre</th>
+        <th>Gene</th>
+        <th>MGI Accession ID</th>
+        <th>Status</th>
+        <th>IKMC Project ID</th>
+        <th>Mutation Type</th>
+        <th>Allele Symbol</th>
+        <th>Genetic Background</th>
+        <th>Assigned Date</th>
+        <th>Assigned - ES Cell QC in Progress Date</th>
+        <th>Assigned - ES Cell QC Complete Date</th>
+        <th>Micro-injection in progress Date</th>
+        <th>Chimeras obtained Date</th>
+        <th>Genotype confirmed Date</th>
+        <th>Micro-injection aborted Date</th>
+        <th>Phenotype Attempt Registered Date</th>
+        <th>Rederivation Started Date</th>
+        <th>Rederivation Complete Date</th>
+        <th>Cre Excision Started Date</th>
+        <th>Cre Excision Complete Date</th>
+        <th>Phenotyping Started Date</th>
+        <th>Phenotyping Complete Date</th>
+        <th>Phenotype Attempt Aborted Date</th>
+        <th>Distinct Old Genotype Confirmed ES Cells</th>
+        <th>Distinct Old Non Genotype Confirmed ES Cells</th>
+        <th>MiPlan ID</th>
+        <th>Total old Pipeline Efficiency Gene Count</th>
+        <th>GC old Pipeline Efficiency Gene Count</th>
+        <th>Aborted - ES Cell QC Failed Date</th>
+        <th>MiAttempt Colony Name</th>
+        <th>MiAttempt Consortium</th>
+        <th>MiAttempt Production Centre</th>
+        <th>PhenotypeAttempt Colony Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for report_row in @intermediate_report %>
+        <tr>
+          <td><%= report_row.consortium %></td>
+          <td><%= report_row.sub_project %></td>
+          <td><%= boolean_to_text(report_row.is_bespoke_allele) %></td>
+          <td><%= report_row.priority %></td>
+          <td><%= report_row.production_centre %></td>
+          <td><%= report_row.gene %></td>
+          <td><%= report_row.mgi_accession_id %></td>
+          <td><%= report_row.overall_status %></td>
+          <td><%= report_row.ikmc_project_id %></td>
+          <td><%= pretty_mutation_type(report_row.mutation_sub_type) %></td>
+          <td><%= report_row.allele_symbol.to_s.html_safe %></td>
+          <td><%= report_row.genetic_background %></td>
+          <td><%= report_row.assigned_date %></td>
+          <td><%= report_row.assigned_es_cell_qc_in_progress_date %></td>
+          <td><%= report_row.assigned_es_cell_qc_complete_date %></td>
+          <td><%= report_row.micro_injection_in_progress_date %></td>
+          <td><%= report_row.chimeras_obtained_date %></td>
+          <td><%= report_row.genotype_confirmed_date %></td>
+          <td><%= report_row.micro_injection_aborted_date %></td>
+          <td><%= report_row.phenotype_attempt_registered_date %></td>
+          <td><%= report_row.rederivation_started_date %></td>
+          <td><%= report_row.rederivation_complete_date %></td>
+          <td><%= report_row.cre_excision_started_date %></td>
+          <td><%= report_row.cre_excision_complete_date %></td>
+          <td><%= report_row.phenotyping_started_date %></td>
+          <td><%= report_row.phenotyping_complete_date %></td>
+          <td><%= report_row.phenotype_attempt_aborted_date %></td>
+          <td><%= report_row.distinct_old_genotype_confirmed_es_cells.to_i %></td>
+          <td><%= report_row.distinct_old_non_genotype_confirmed_es_cells.to_i %></td>
+          <td><%= report_row.mi_plan_id %></td>
+          <td><%= report_row.total_old_pipeline_efficiency_gene_count.to_i %></td>
+          <td><%= report_row.gc_old_pipeline_efficiency_gene_count.to_i %></td>
+          <td><%= report_row.aborted_es_cell_qc_failed_date %></td>
+          <td><%= report_row.mi_attempt_colony_name %></td>
+          <td><%= report_row.mi_attempt_consortium %></td>
+          <td><%= report_row.mi_attempt_production_centre %></td>
+          <td><%= report_row.phenotype_attempt_colony_name %> </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

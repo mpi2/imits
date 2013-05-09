@@ -197,7 +197,7 @@ class ApplicationController < ActionController::Base
       return true
     end
 
-    if current_user.production_centre.name != production_centre_name
+    if current_user.production_centre.name != production_centre_name && !current_user.admin
       render :json => {
         'error' => 'Cannot create/update data for other production centres'
       }, :status => 401

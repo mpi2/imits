@@ -17,7 +17,7 @@ class Reports::MiProduction::FeedImpc
     'Microinjection in progress' => ['Micro-injection in progress', 'Genotype confirmed'],
     'Genotype Confirmed Mice' => ['Genotype confirmed'],
     'Phenotyping in progress' => ['Phenotyping Started'],
-    'Phenotype data available' => ['Phenotyping Complete']
+    'Phenotype data available' => ['Phenotyping Started', 'Phenotyping Complete']
   }
 
   def self.subsummary(request, params)

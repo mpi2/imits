@@ -6,7 +6,9 @@ LIMIT = -1
 
 #SolrUpdate::Queue::Item.where('gene_id is not null').destroy_all
 
-raise "#### queue already contains records!" if SolrUpdate::Queue::Item.where('gene_id is not null').size > 0
+size = SolrUpdate::Queue::Item.where('gene_id is not null').size
+
+raise "#### queue contains #{size} gene records!" if size > 0
 
 puts "MiPlan Count: #{MiPlan.all.size}"
 

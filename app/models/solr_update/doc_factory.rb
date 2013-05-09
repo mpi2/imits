@@ -159,8 +159,8 @@ class SolrUpdate::DocFactory
 
     end
 
-    solr_doc['order_from_names'].uniq!
-    solr_doc['order_from_urls'].uniq!
+    #solr_doc['order_from_names'].uniq!
+    #solr_doc['order_from_urls'].uniq!
   end
 
   def self.create_for_allele(allele)
@@ -225,8 +225,6 @@ class SolrUpdate::DocFactory
       'consortium' => '',
       'production_centre' => ''
     }
-
-  #  pp gene.mi_plans
 
     plan = gene.relevant_plan
 

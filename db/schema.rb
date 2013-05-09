@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130423142230) do
+ActiveRecord::Schema.define(:version => 20130502150234) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -123,17 +123,17 @@ ActiveRecord::Schema.define(:version => 20130423142230) do
     t.string   "consortium",                                                  :null => false
     t.string   "sub_project",                                                 :null => false
     t.string   "priority"
-    t.string   "production_centre",                            :limit => 100, :null => false
+    t.string   "production_centre",                                           :null => false
     t.string   "gene",                                         :limit => 75,  :null => false
     t.string   "mgi_accession_id",                             :limit => 40
     t.string   "overall_status",                               :limit => 50
     t.string   "mi_plan_status",                               :limit => 50
     t.string   "mi_attempt_status",                            :limit => 50
     t.string   "phenotype_attempt_status",                     :limit => 50
-    t.integer  "ikmc_project_id"
+    t.string   "ikmc_project_id"
     t.string   "mutation_sub_type",                            :limit => 100
-    t.string   "allele_symbol",                                :limit => 75,  :null => false
-    t.string   "genetic_background",                           :limit => 50,  :null => false
+    t.string   "allele_symbol",                                               :null => false
+    t.string   "genetic_background",                                          :null => false
     t.date     "assigned_date"
     t.date     "assigned_es_cell_qc_in_progress_date"
     t.date     "assigned_es_cell_qc_complete_date"
@@ -330,7 +330,55 @@ ActiveRecord::Schema.define(:version => 20130423142230) do
     t.boolean  "recovery"
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele"], :name => "mi_plan_logical_key", :unique => true
+
+  create_table "new_intermediate_report", :force => true do |t|
+    t.string   "gene",                                         :limit => 75,  :null => false
+    t.integer  "mi_plan_id",                                                  :null => false
+    t.string   "consortium",                                                  :null => false
+    t.string   "production_centre"
+    t.string   "sub_project"
+    t.string   "priority"
+    t.string   "mgi_accession_id",                             :limit => 40
+    t.string   "overall_status",                               :limit => 50
+    t.string   "mi_plan_status",                               :limit => 50
+    t.string   "mi_attempt_status",                            :limit => 50
+    t.string   "phenotype_attempt_status",                     :limit => 50
+    t.string   "ikmc_project_id"
+    t.string   "mutation_sub_type",                            :limit => 100
+    t.string   "allele_symbol"
+    t.string   "genetic_background"
+    t.boolean  "is_bespoke_allele"
+    t.string   "mi_attempt_colony_name"
+    t.string   "mi_attempt_consortium"
+    t.string   "mi_attempt_production_centre"
+    t.string   "phenotype_attempt_colony_name"
+    t.date     "assigned_date"
+    t.date     "assigned_es_cell_qc_in_progress_date"
+    t.date     "assigned_es_cell_qc_complete_date"
+    t.date     "aborted_es_cell_qc_failed_date"
+    t.date     "micro_injection_in_progress_date"
+    t.date     "chimeras_obtained_date"
+    t.date     "genotype_confirmed_date"
+    t.date     "micro_injection_aborted_date"
+    t.date     "phenotype_attempt_registered_date"
+    t.date     "rederivation_started_date"
+    t.date     "rederivation_complete_date"
+    t.date     "cre_excision_started_date"
+    t.date     "cre_excision_complete_date"
+    t.date     "phenotyping_started_date"
+    t.date     "phenotyping_complete_date"
+    t.date     "phenotype_attempt_aborted_date"
+    t.integer  "distinct_genotype_confirmed_es_cells"
+    t.integer  "distinct_old_genotype_confirmed_es_cells"
+    t.integer  "distinct_non_genotype_confirmed_es_cells"
+    t.integer  "distinct_old_non_genotype_confirmed_es_cells"
+    t.integer  "total_pipeline_efficiency_gene_count"
+    t.integer  "total_old_pipeline_efficiency_gene_count"
+    t.integer  "gc_pipeline_efficiency_gene_count"
+    t.integer  "gc_old_pipeline_efficiency_gene_count"
+    t.datetime "created_at"
+  end
 
   create_table "notifications", :force => true do |t|
     t.datetime "welcome_email_sent"
@@ -615,6 +663,15 @@ ActiveRecord::Schema.define(:version => 20130423142230) do
   add_index "targ_rep_targeting_vectors", ["name"], :name => "index_targvec", :unique => true
   add_index "targ_rep_targeting_vectors", ["pipeline_id"], :name => "targeting_vectors_pipeline_id_fk"
 
+  create_table "tracking_goals", :force => true do |t|
+    t.integer  "production_centre_id"
+    t.date     "date"
+    t.string   "goal_type"
+    t.integer  "goal"
+    t.datetime "created_at",           :null => false
+    t.datetime "updated_at",           :null => false
+  end
+
   create_table "users", :force => true do |t|
     t.string   "email",                                         :default => "",    :null => false
     t.string   "encrypted_password",             :limit => 128, :default => "",    :null => false
@@ -635,6 +692,7 @@ ActiveRecord::Schema.define(:version => 20130423142230) do
 
   add_foreign_key "mi_attempt_distribution_centres", "centres", :name => "mi_attempt_distribution_centres_centre_id_fk"
   add_foreign_key "mi_attempt_distribution_centres", "deposited_materials", :name => "mi_attempt_distribution_centres_deposited_material_id_fk"
+  add_foreign_key "mi_attempt_distribution_centres", "mi_attempts", :name => "mi_attempt_distribution_centres_mi_attempt_id_fk"
 
   add_foreign_key "mi_attempt_status_stamps", "mi_attempt_statuses", :name => "mi_attempt_status_stamps_mi_attempt_status_id_fk", :column => "status_id"
 

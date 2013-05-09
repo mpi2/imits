@@ -26,6 +26,20 @@
       </div>
     </fieldset>
 
+    <fieldset class="collapsible">
+      <legend>Mi-Plan Details</legend>
+        <div>
+          <div class="consortium-name">
+            <div class="label">Consortium</div>
+            <div><%= @mi_attempt.consortium_name %></div>
+          </div>
+          <div class="production-centre-name">
+            <div class="label">Production Centre</div>
+            <div><%= @mi_attempt.production_centre_name %></div>
+          </div>
+        </div>
+    </fieldset>
+
     <%= render 'form_contents', :form => form %>
 
     <div>

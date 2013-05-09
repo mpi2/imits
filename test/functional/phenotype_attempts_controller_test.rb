@@ -43,7 +43,8 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
           mi = Factory.create :mi_attempt2
 
           attributes = {
-            :mi_attempt_colony_name => mi.colony_name
+            :mi_attempt => mi,
+            :mouse_allele_type => 'I AM NOT IN THE LIST'
           }
           post :create, :phenotype_attempt => attributes, :format => :json
           assert_response 422, response.body
@@ -54,7 +55,7 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
           mi_attempt = Factory.create :mi_attempt2_status_gtc,
                   :mi_plan => TestDummy.mi_plan('MGP', 'ICS')
 
-          post :create, :phenotype_attempt => {'mi_attempt_colony_name' => mi_attempt.colony_name, 'consortium_name' => 'BaSH', 'production_centre_name' => 'ICS'},
+          post :create, :phenotype_attempt => {'mi_attempt_colony_name' => mi_attempt.colony_name, 'mi_attempt' => mi_attempt},
                   :format => :json
           assert_response 401, response.status
           expected = {
@@ -78,7 +79,7 @@ class PhenotypeAttemptsControllerTest < ActionController::TestCase
         should 'fail properly for JSON' do
           pt = Factory.create(:phenotype_attempt, :mi_attempt => Factory.create(:mi_attempt2_status_gtc, :mi_plan => bash_wtsi_cbx1_plan)).to_public
           assert pt.is_active?
-          put :update, :id => pt.id, :phenotype_attempt => {:consortium_name => 'Nonexistent'},
+          put :update, :id => pt.id, :phenotype_attempt => {:mouse_allele_type => 'I AM NOT IN THE LIST'},
                   :format => :json
           assert_response 422
         end

@@ -55,49 +55,19 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         assert_equal @mi.mi_plan, pt.mi_plan
       end
 
-      should 'be set to correct MiPlan if both consortium_name and production_centre_name are provided' do
-        Factory.create(:mi_plan, :gene => @cbx1,
-        :production_centre => Centre.find_by_name!('UCD'))
-        Factory.create(:mi_plan, :gene => @cbx1,
-        :consortium => Consortium.find_by_name!('DTCC'))
-        plan = Factory.create(:mi_plan, :gene => @cbx1,
-        :consortium => Consortium.find_by_name!('DTCC'),
-        :production_centre => Centre.find_by_name!('UCD'))
-        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
-        :production_centre_name => 'UCD', :consortium_name => 'DTCC')
-        pt.save!
-        assert_equal plan, pt.mi_plan
-      end
-
       should 'set MiPlan to Assigned status if not assigned already' do
         plan = TestDummy.mi_plan(@mi.mi_plan.marker_symbol,
         'JAX', @mi.mi_plan.production_centre.name)
+        plan.phenotype_only = true
         assert_equal 'Inspect - GLT Mouse', plan.status.name
 
         pt = Factory.build(:public_phenotype_attempt,
-        :mi_plan => nil,
-        :mi_attempt_colony_name => @mi.colony_name,
-        :production_centre_name => @mi.mi_plan.production_centre.name,
-        :consortium_name => 'JAX')
+        :mi_plan => plan,
+        :mi_attempt_colony_name => @mi.colony_name)
         pt.save!
         plan.reload
         assert_equal plan, pt.mi_plan
         assert_equal 'Assigned', plan.status.name
-      end
-
-      should 'not overwrite existing MiPlan that has been assigned' do
-        Factory.create :mi_plan, :consortium => Consortium.find_by_name!('DTCC'),
-        :production_centre => Centre.find_by_name!('TCP'),
-        :gene => @mi.gene
-
-        pt = Factory.build(:public_phenotype_attempt, :mi_attempt_colony_name => @mi.colony_name,
-        :consortium_name => 'DTCC', :production_centre_name => 'TCP')
-        plan = Factory.create :mi_plan, :consortium => Consortium.find_by_name!('DTCC'),
-        :production_centre => Centre.find_by_name!('UCD'),
-        :gene => @mi.gene
-        pt.mi_plan = plan
-        pt.valid?
-        assert_equal plan, pt.mi_plan
       end
     end
 

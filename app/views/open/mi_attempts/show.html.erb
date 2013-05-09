@@ -182,6 +182,15 @@
   <fieldset class="collapsible">
     <legend>QC Details</legend>
     <div>
+      <% statuses = {} %>
+      <% QcResult.all.each do |a| %>
+        <% statuses[a.id] = a.description %>
+      <% end %>
+
+      <% MiAttempt::QC_FIELDS.map do |qc_field| %>
+        <div class="label"><%= qc_field.to_s.gsub('_', ' ') %></div>
+        <span><%= statuses[@mi_attempt[qc_field.to_s + '_id']] %></span>
+      <% end %>
 
     </div>
   </fieldset>

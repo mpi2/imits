@@ -1,26 +1,33 @@
 function populate_allele_grid(){
-  document.getElementById("mpi2-allele-grid").style.visibility="hidden";
+  var search_text = document.getElementById("search_for_gene").value;
+  document.getElementById("mouse-alleles").style.display="none";
+  document.getElementById("mpi2-allele-grid").style.display="none";
   var mgiAccession = '';
   var patt = new RegExp("MGI:");
-  if (patt.test(document.getElementById("marker_symbol").value)){
-    mgiAccession = document.getElementById("marker_symbol").value;
-    create_grid(mgiAccession);
+  if (patt.test(search_text)){
+    mgiAccession = search_text;
+    create_gene_grid('mgi_accession_id:'+mgiAccession);
   }
-  else if (document.getElementById("marker_symbol").value) {
-    var request = $.ajax({url: window.basePath +"genes.json?marker_symbol_eq=" + document.getElementById("marker_symbol").value, dataType: 'json'});
-    request.done(function (response, textStatus, jqZHR){
-      if (response.length != 0){
-        mgiAccession = response[0]['mgi_accession_id'];
-        create_grid(mgiAccession);
-      };
-    });
+  else if (search_text) {
+    create_gene_grid('marker_symbol:'+search_text);
   }
 }
 
-function create_grid(mgiAccession){
+function create_allele_grid(mgiAccession){
   if (mgiAccession){
     mgiAccession = mgiAccession.replace('MGI:', '');
     $("#mpi2-allele-grid").mpi2GenePageAlleleGrid().trigger('search', {solrParams: {q: 'mgi_accession_id:'+mgiAccession}});
-    document.getElementById("mpi2-allele-grid").style.visibility="visible";
+    document.getElementById("mpi2-allele-grid").style.display="inline";
   }
+}
+
+function create_gene_grid(mgiAccession){
+  $("#mpi2-search").mpi2Search().trigger('search', [{type: 'gene_new' ,solrParams: {q: mgiAccession}}]);
+  create_allele_grid('');
+  document.getElementById("mouse-alleles").style.display="inline";
+  $(".gene").delegate("a","click",function(){
+    var id= this.getAttribute('data-id');
+    create_allele_grid(id);
+  });
+
 }

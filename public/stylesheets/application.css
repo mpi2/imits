@@ -326,7 +326,7 @@ div#messages {
   color: #8f110b;
 }
 
-.homepage-links a p, .homepage-links a ul,
+.homepage-links a p, .homepage-links a ul, .homepage-links p,
 .report-links a p, .report-links a ul {
   font-style: italic;
   color: #999;
@@ -345,6 +345,28 @@ div#messages {
 /* @end */
 
 /* @group Tables */
+
+.report.production_summary table td {
+  text-align:center;
+}
+
+.report.production_summary h2 {
+  margin-top:1em;
+}
+
+.report.production_summary table.descriptions td {
+  text-align:left;
+}
+
+.report.production_summary table.descriptions th span {
+  color:red;
+}
+
+.report.production_summary table.descriptions tbody th {
+  background:#fff;
+  font-weight:bold;
+  width:250px;
+}
 
 table.full_width {
   width: 100%;
@@ -627,6 +649,31 @@ div.report_control * {
 	font: bold medium Georgia, "Times New Roman", Times, serif;
 }
 
+.remotediv {
+  overflow:auto;
+
+}
+
+.remotediv .loading {
+  overflow:auto;
+  padding:3em auto 3em 5px;
+}
+
+.remotediv .loading p {
+  font-size:1.2em;
+  font-weight:bold;
+}
+
+.remotediv .loading p img {
+  margin-right:1em;
+  float:left;
+}
+
+.remotediv .loading p span {
+  float:left;
+  margin-top:8px;
+}
+
 /* @end */
 
 .wait {
@@ -662,7 +709,7 @@ div.report_control * {
   cursor:pointer;
 }
 
-.mpi2-allele-grid table th {
+div#mpi2-allele-grid table th {
     text-align: left;
     font-weight: bold;
     color: #01617a;
@@ -670,4 +717,110 @@ div.report_control * {
     border-top: none!important;
   }
 
-.mpi2-search-container table tr, .mpi2-search-container table, .mpi2-search-container table td {}
+div#mpi2-search table th {
+    text-align: left;
+    font-weight: bold;
+    color: #01617a;
+    border-bottom: 3px solid #d57c24;
+    border-top: none!important;
+  }
+
+.product  {
+    width: 6%;
+}
+.allele-type  {
+    width: 8%;
+}
+.strain-of-origin  {
+    width: 10%;
+}
+.mgi-allele-name  {
+    width: 14%;
+}
+.allele-map  {
+    width: 40%;
+}
+.allele-sequrnce  {
+    width: 12%;
+}
+.order th, tr  {
+    width: 10%;
+}
+.latest-status {
+    width: 80%;
+}
+
+.report table.qc_grid {
+  border:1px solid #efefef;
+  margin-bottom:30px;
+}
+
+.report table.qc_grid tbody td span {
+  display: none;
+}
+
+.report table.qc_grid tbody td.text span {
+  display: inline;
+}
+
+.report table.qc_grid tbody td.qc {
+  width:5px;
+  height:5px;
+  border-width:0;
+}
+
+.report table.qc_grid tbody td.pass {
+  background-color:green;
+}
+
+.report table.qc_grid tbody td.fail {
+  background-color:red;
+}
+
+.report table.qc_grid tbody td.na {
+  background-color:#fff;
+}
+
+.report table.qc_grid tbody td.right-border {
+  border-right:1px solid #999;
+}
+
+.report table.qc_grid tbody td:hover .cell-popup {
+  display:block;
+}
+
+.report table.qc_grid tbody td .cell-popup {
+  width:300px;
+  position:absolute;
+  font-size:.75em;
+  display:none;
+  background-color:#fff;
+  margin-left:20px;
+  padding:5px;
+
+  border:5px solid #efefef;
+
+  border-radius:4px;
+  -webkit-border-radius:4px;
+  -moz-border-radius:4px;
+}
+
+.report table.qc_grid tbody td .cell-popup dt {
+  clear:left;
+  float:left;
+  width:150px;
+  font-weight:bold;
+}
+
+.report table.qc_grid tbody td .cell-popup dt.qc_result, .report table.qc_grid tbody td .cell-popup dd.qc_result {
+  font-weight:bold;
+}
+
+.report.qc h2:first-child {
+  border-top-width:0;
+}
+
+.report.qc h2 {
+  border-top:1px solid #ddd;
+  padding-top:20px;
+}

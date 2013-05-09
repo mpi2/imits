@@ -11,7 +11,7 @@
 <ul>
   <% navigation_links.each do |link| %>
     <li <% if @tab == link[0] %>class="current"<% end %>>
-      <%= link_to *link %>
+      <%= link_to *link, :id => "#{link[0]}-link" %>
     </li>
   <% end %>
 </ul>

@@ -4,8 +4,14 @@
   <h2>Welcome to iMits</h2>
 
   <p>What would you like to do today?</p>
+  <div class="homepage-links" id = 'gene_search' name = 'gene_search' ><input type ='text' id = 'search_for_gene' name = 'search_for_gene'>
+    <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button>
+    <p>Search by Marker symbol or MGI number</p>
+  </div>
+</div>
 
-  <div class="clear" style="margin-top:15px"></div>
+<div class="grid_12">
+  <%= render 'open/root/mpi2_grid' %>
 </div>
 
 <div class="grid_8">
@@ -27,6 +33,13 @@
     <a href="<%= new_mi_attempt_path %>">
       <h3>Create Micro-Injection Attempts</h3>
       <p>Enter data on new micro-injection attempts</p>
+    </a>
+  </div>
+
+  <div class="homepage-links">
+    <a href="<%= open_phenotype_attempts_path() %>">
+      <h3>Search For Phenotype Attempts</h3>
+      <p>Search for data on existing phenotype attempt records</p>
     </a>
   </div>
 
@@ -78,8 +91,11 @@
       <p>Add/Remove iMits production goals</p>
     </a>
   </div>
-</div>
-<div class="grid_8">
-  <%= render 'open/root/mpi2_grid' %>
-</div>
 
+  <div class="homepage-links">
+    <a href="<%= tracking_goals_path %>">
+      <h4>Manage IMPC Centre Goals</h4>
+      <p>Add/Remove iMits IMPC centre goals</p>
+    </a>
+  </div>
+</div>

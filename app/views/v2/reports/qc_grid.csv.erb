@@ -1,0 +1,8 @@
+<%= QcGridReport.columns.join(', ') %>
+<% for consortium, centres in @mi_attempts[:consortia] %>
+<% for centre, genes in centres %>
+<% for gene in genes %>
+<%= consortium %>, <%= centre %>, <%= gene %>, <%= QcGridReport.csv_columns.map {|column| grid_qc_result(@mi_attempts["#{consortium}-#{centre}-#{gene}-#{column}"], column)}.join(', ') %>
+<% end %>
+<% end %>
+<% end %>

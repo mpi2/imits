@@ -1,0 +1,28 @@
+<table>
+  <thead>
+    <tr>
+      <th>Consortium</th>
+      <th>SubProject</th>
+      <th>Bespoke</th>
+      <th>Production Centre</th>
+      <th>Marker Symbol</th>
+      <th>MGI Accession ID</th>
+      <th>Priority</th>
+      <th>Reason for conflict</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% for report_row in conflict_report_table %>
+      <tr>
+        <td><%= report_row['consortium'] %></td>
+        <td><%= report_row['sub_project'] %></td>
+        <td><%= report_row['is_bespoke_allele'] == 't' ? 'Yes' : 'No' %></td>
+        <td><%= report_row['production_centre'] %></td>
+        <td><%= report_row['marker_symbol'] %></td>
+        <td><%= report_row['mgi_accession_id'] %></td>
+        <td><%= report_row['priority'] %></td>
+        <td><%= reason_for_inspect_or_conflict(table_type, report_row['reason_for_conflict']) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

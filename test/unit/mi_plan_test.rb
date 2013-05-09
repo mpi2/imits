@@ -508,7 +508,7 @@ class MiPlanTest < ActiveSupport::TestCase
 
         should 'not be a non-assigned status if it has any phenotype attempts' do
           mi = Factory.create :mi_attempt2_status_gtc, :mi_plan => TestDummy.mi_plan('DTCC', 'UCD', :gene => cbx1, :force_assignment => true)
-          plan = bash_wtsi_cbx1_plan(:force_assignment => true)
+          plan = bash_wtsi_cbx1_plan(:force_assignment => true, :phenotype_only => true)
           pt = Factory.create :phenotype_attempt, :mi_plan => plan, :mi_attempt => mi
           plan.reload
           assert_equal 0, plan.mi_attempts.count

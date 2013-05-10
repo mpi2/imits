@@ -102,6 +102,7 @@ Ext.define('Imits.widget.GeneGrid', {
                                   sortable: false
                                   }
                          }
+
     ],
 
            /** @private **/
@@ -145,6 +146,7 @@ Ext.define('Imits.widget.GeneGrid', {
         var isDeletionAllele     = grid.isdeletionalleleCheck.getSubmitValue() || false;
         var isCreKnockInAllele   = grid.iscreknockinalleleCheck.getSubmitValue() || false;
         var isCreBacAllele       = grid.iscrebacalleleCheck.getSubmitValue() || false;
+        var conditionalTm1c      = grid.conditionaltm1cCheck.getSubmitValue() || false;
 
         if(selectedGenes.length == 0) {
             alert('You must select some genes to register interest in');
@@ -174,7 +176,8 @@ Ext.define('Imits.widget.GeneGrid', {
                 'is_conditional_allele'  : isConditionalAllele,
                 'is_deletion_allele'     : isDeletionAllele,
                 'is_cre_knock_in_allele' : isCreKnockInAllele,
-                'is_cre_bac_allele'      : isCreBacAllele
+                'is_cre_bac_allele'      : isCreBacAllele,
+                'conditional_tm1c'       : conditionalTm1c
             });
             miPlan.save({
                 failure: function() {
@@ -239,12 +242,13 @@ Ext.define('Imits.widget.GeneGrid', {
         grid.centreCombo      = grid.createComboBox('production_centre', 'Production Centre', 100, window.CENTRE_OPTIONS, true, false);
         grid.subprojectCombo  = grid.createComboBox('sub_project', 'Sub Project', 65, window.SUB_PROJECT_OPTIONS, false, isSubProjectHidden);
         grid.priorityCombo    = grid.createComboBox('priority', 'Priority', 47, window.PRIORITY_OPTIONS, false, false);
-        grid.phenotypeonlyCheck     = grid.createCheckBox('phenotype_only', 'Phenotype Only', 85, false);
-        grid.isbespokealleleCheck     = grid.createCheckBox('is_bespoke_allele', 'Bespoke', 47, false);
-        grid.isconditionalalleleCheck = grid.createCheckBox('is_conditional_allele', 'Conditional', 54, false);
-        grid.isdeletionalleleCheck    = grid.createCheckBox('is_deletion_allele', 'Deletion', 47, false);
-        grid.iscreknockinalleleCheck  = grid.createCheckBox('is_cre_knock_in_allele', 'Cre Knock In', 75, false);
-        grid.iscrebacalleleCheck      = grid.createCheckBox('is_cre_bac_allele', 'Cre Bac', 47, false);
+        grid.phenotypeonlyCheck     = grid.createCheckBox('phenotype_only', 'Phenotype Only', 95, false);
+        grid.isbespokealleleCheck     = grid.createCheckBox('is_bespoke_allele', 'Bespoke', 52, false);
+        grid.isconditionalalleleCheck = grid.createCheckBox('is_conditional_allele', 'Knockout First Tm1a', 120, false);
+        grid.isdeletionalleleCheck    = grid.createCheckBox('is_deletion_allele', 'Deletion', 57, false);
+        grid.iscreknockinalleleCheck  = grid.createCheckBox('is_cre_knock_in_allele', 'Cre Knock In', 80, false);
+        grid.iscrebacalleleCheck      = grid.createCheckBox('is_cre_bac_allele', 'Cre Bac', 55, false);
+        grid.conditionaltm1cCheck      = grid.createCheckBox('conditional_tm1c', 'Conditional tm1c', 100, false);
 
         grid.addDocked(Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',
@@ -253,13 +257,21 @@ Ext.define('Imits.widget.GeneGrid', {
             grid.centreCombo,
             grid.subprojectCombo,
             grid.priorityCombo,
-            grid.phenotypeonlyCheck,
+            grid.phenotypeonlyCheck
+            ]
+        }));
+
+        grid.addDocked(Ext.create('Ext.toolbar.Toolbar', {
+            dock: 'top',
+            items: [
             grid.isbespokealleleCheck,
             grid.isconditionalalleleCheck,
+            grid.conditionaltm1cCheck,
             grid.isdeletionalleleCheck,
             grid.iscreknockinalleleCheck,
             grid.iscrebacalleleCheck,
-            '  ',
+            '',
+            '',
             {
                 id: 'register_interest_button',
                 text: 'Register Interest',

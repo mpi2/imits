@@ -1,3 +1,12 @@
+<% content_for :post_js_footer do %>
+
+  <%= javascript_include_tag('raphael') %>
+  <%= javascript_include_tag('jquery.qtip') %>
+  <%= javascript_include_tag('diagram.builder') %>
+
+
+<% end %>
+
 <% generator = MiAttemptFieldGenerator.new(form) %>
 <% mi_attempt = form.object %>
 
@@ -105,22 +114,36 @@
   </div>
 </fieldset>
 
-<fieldset class="collapsible">
+<fieldset class="collapsible hide-by-default">
   <legend>QC Details</legend>
   <div>
     <%= generator.qc_fields %>
-
-    <% [:report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
-      <div>
-        <%= form.label field, field.to_s.titlecase %>
-        <%= form.check_box field %>
-      </div>
-    <% end %>
-
-    <div>
-      <label>Genotyping Comment</label>
-      <%= form.text_area :genotyping_comment, :disabled => true %>
-    </div>
-
   </div>
 </fieldset>
+
+<%= link_to 'QC image', '#qcimage ' %>
+
+<fieldset class="collapsible">
+  <legend>Other</legend>
+
+  <% [:report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
+    <div>
+      <%= form.label field, field.to_s.titlecase %>
+      <%= form.check_box field %>
+    </div>
+  <% end %>
+
+  <div>
+    <label>Genotyping Comment</label>
+    <%= form.text_area :genotyping_comment, :disabled => true %>
+  </div>
+</fieldset>
+
+<div id='qcimage'>
+
+  <div id="diagram">
+    <div id="holder">
+    </div>
+  </div>
+
+</div>

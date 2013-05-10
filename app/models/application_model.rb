@@ -59,7 +59,25 @@ class ApplicationModel < ActiveRecord::Base
       translated_params[translate_public_param(name)] = value
     end
 
-    return self.search(translated_params)
+    verify_translated_params = translated_params.dup
+    verify_translated_params.delete('sorts')
+    verify_translated_params.delete('extended_response')
+
+    ##
+    ## We need to detect situations in which ransack does not apply any conditions and the users *are*
+    ## requesting data using invalid conditions.
+    ##
+    search_object = self.search(translated_params)
+
+    if !verify_translated_params.empty? && search_object.conditions.empty?
+      ##
+      ## This nil needs to be handled on the other end.
+      ## The old implementation expects a ransack dataset.
+      ##
+      return nil
+    end
+
+    return search_object
   end
 
   def self.audited_transaction

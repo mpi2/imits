@@ -91,7 +91,8 @@ class Public::MiPlan < ::MiPlan
   def self.translations
     return {
       'marker_symbol' => 'gene_marker_symbol',
-      'mgi_accession_id' => 'gene_mgi_accession_id'
+      'mgi_accession_id' => 'gene_mgi_accession_id',
+      'es_cell_name' => 'gene_allele_es_cells_name'
     }
   end
 

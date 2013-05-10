@@ -35,4 +35,16 @@ class TargRep::BaseController < ActionController::Base
   end
   protected :authorize_admin_user!
 
+  def empty_payload?(payload)
+    if payload.blank? || payload.is_a?(Hash) && payload.empty?
+      render :json => {
+        'error' => 'Your JSON payload is empty.'
+      }, :status => 400
+      return true
+    end
+
+    return false
+  end
+  protected :empty_payload?
+
 end

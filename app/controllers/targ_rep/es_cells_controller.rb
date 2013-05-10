@@ -116,6 +116,10 @@ class TargRep::EsCellsController < TargRep::BaseController
     end
   end
 
+  def attributes
+    render :json => create_attribute_documentation_for(TargRep::EsCell)
+  end
+
   private
     def find_escell
       @es_cell = TargRep::EsCell.find params[:id]

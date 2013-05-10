@@ -47,4 +47,16 @@ class TargRep::BaseController < ActionController::Base
   end
   protected :empty_payload?
 
+  def create_attribute_documentation_for(klass)
+
+    readable_attributes = klass.new.attributes.keys
+    writable_attributes = klass.new.attributes.keys - klass.protected_attributes.to_a
+
+    {
+      'readable' => readable_attributes,
+      'writable' => writable_attributes
+    }
+  end
+  protected :create_attribute_documentation_for
+
 end

@@ -73,7 +73,7 @@ class TargRep::EsCellsControllerTest < ActionController::TestCase
     created_es_cell.save!
 
     # UPDATE
-    put :update, :format => :json, :id => created_es_cell.id, :es_cell => { :name => 'new name' }
+    put :update, :format => :json, :id => created_es_cell.id, :targ_rep_es_cell => { :name => 'new name' }
     assert_response :success, "Could not update ES Cell"
 
     # DELETE

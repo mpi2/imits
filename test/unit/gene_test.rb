@@ -51,7 +51,7 @@ class GeneTest < ActiveSupport::TestCase
                 :deletion_es_cells_count => 5
 
         assert gene
-        assert_equal "2 Conditional<br/>10 Targeted Trap<br/>5 Deletion", gene.pretty_print_types_of_cells_available
+        assert_equal "2 Knockout First, Tm1a<br/>10 Targeted Trap<br/>5 Deletion", gene.pretty_print_types_of_cells_available
       end
     end
 

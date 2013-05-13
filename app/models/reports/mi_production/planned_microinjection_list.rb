@@ -27,7 +27,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
     report.add_column('Date of latest aborted attempt') do |row|
 
       ids = MiAttempt.aborted.where(:mi_plan_id => row.data['ID']).map(&:id)
-      
+
       if status_stamp = MiAttempt::StatusStamp.includes(:status).where(:mi_attempt_id => ids, :'mi_attempt_statuses.code' => 'abt').order('mi_attempt_status_stamps.created_at desc').first
         status_stamp.created_at.to_date
       end
@@ -64,6 +64,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       'recovery'                => 'Recovery',
       'completion_note'         => 'Completion note',
       'phenotype_only'          => 'Phenotype only?',
+      'ignore_avaliable_mice'   => 'Ignore Avaliable Mice',
       'production_centre.name'  => 'Production Centre',
       'gene.marker_symbol'      => 'Marker Symbol',
       'gene.mgi_accession_id'   => 'MGI Accession ID',
@@ -85,6 +86,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       :transforms => lambda do |r|
         r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No'
         r["phenotype_only"] = r.phenotype_only ? 'Yes' : 'No'
+        r["ignore_avaliable_mice"] = r.ignore_avaliable_mice ? 'Yes' : 'No'
         r["recovery"] = r.recovery ? 'Yes' : 'No'
       end
     }

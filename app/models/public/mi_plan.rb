@@ -22,6 +22,8 @@ class Public::MiPlan < ::MiPlan
     'is_cre_bac_allele',
     'comment',
     'phenotype_only',
+    'conditional_tm1c',
+    'ignore_available_mice',
     'completion_note',
     'recovery'
   ]
@@ -91,7 +93,8 @@ class Public::MiPlan < ::MiPlan
   def self.translations
     return {
       'marker_symbol' => 'gene_marker_symbol',
-      'mgi_accession_id' => 'gene_mgi_accession_id'
+      'mgi_accession_id' => 'gene_mgi_accession_id',
+      'es_cell_name' => 'gene_allele_es_cells_name'
     }
   end
 

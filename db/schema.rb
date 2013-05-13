@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130502150234) do
+ActiveRecord::Schema.define(:version => 20130510144848) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -250,6 +250,7 @@ ActiveRecord::Schema.define(:version => 20130502150234) do
     t.integer  "mi_plan_id",                                                                        :null => false
     t.string   "genotyping_comment",                              :limit => 512
     t.integer  "legacy_es_cell_id"
+    t.integer  "qc_lacz_count_qpcr_id",                                          :default => 1
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -328,9 +329,11 @@ ActiveRecord::Schema.define(:version => 20130502150234) do
     t.boolean  "phenotype_only",                                :default => false
     t.string   "completion_note",                :limit => 100
     t.boolean  "recovery"
+    t.boolean  "conditional_tm1c",                              :default => false, :null => false
+    t.boolean  "ignore_available_mice",                         :default => false, :null => false
   end
 
-  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele"], :name => "mi_plan_logical_key", :unique => true
+  add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "new_intermediate_report", :force => true do |t|
     t.string   "gene",                                         :limit => 75,  :null => false

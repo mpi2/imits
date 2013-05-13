@@ -320,6 +320,10 @@ class TargRep::AllelesController < TargRep::BaseController
     )
   end
 
+  def attributes
+    render :json => create_attribute_documentation_for(TargRep::Allele)
+  end
+
   private
     def find_allele
       @allele = TargRep::Allele.find(params[:id])

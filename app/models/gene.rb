@@ -17,7 +17,7 @@ class Gene < ActiveRecord::Base
   def pretty_print_types_of_cells_available
     html = []
     {
-      :conditional_es_cells_count     => 'Conditional',
+      :conditional_es_cells_count     => 'Knockout First, Tm1a',
       :non_conditional_es_cells_count => 'Targeted Trap',
       :deletion_es_cells_count        => 'Deletion'
     }.each do |method,type|
@@ -304,7 +304,7 @@ class Gene < ActiveRecord::Base
     all_genes = Gene.all
     # update existing genes
     logger.debug "[Gene.update_cached_counts] Gathering data for existing genes to see if they need updating..."
-    
+
     all_genes.each do |gene|
       gene.update_cached_counts
     end

@@ -79,6 +79,14 @@ Ext.define('Imits.model.MiPlan', {
         defaultValue: false
     },
     {
+        name: 'conditional_tm1c',
+        defaultValue: false
+    },
+    {
+        name: 'ignore_available_mice',
+        defaultValue: false
+    },
+    {
         name: 'comment'
     },
     {

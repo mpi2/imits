@@ -22,6 +22,8 @@ class TargRep::EsCellsController < TargRep::BaseController
   def create
     @es_cell = TargRep::EsCell.new params[:targ_rep_es_cell]
 
+    return if empty_payload?(params[:targ_rep_es_cell])
+
     respond_to do |format|
       if @es_cell.save
         format.xml  { render :xml  => @es_cell, :status => :created, :location => @es_cell }
@@ -37,6 +39,8 @@ class TargRep::EsCellsController < TargRep::BaseController
   # PUT /es_cells/1.json
   def update
     find_escell
+
+    return if empty_payload?(params[:targ_rep_es_cell])
 
     respond_to do |format|
       if @es_cell.update_attributes params[:targ_rep_es_cell]
@@ -110,6 +114,10 @@ class TargRep::EsCellsController < TargRep::BaseController
     else
       respond_with []
     end
+  end
+
+  def attributes
+    render :json => create_attribute_documentation_for(TargRep::EsCell)
   end
 
   private

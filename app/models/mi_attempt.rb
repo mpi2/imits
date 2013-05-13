@@ -290,14 +290,6 @@ class MiAttempt < ApplicationModel
     }
   end
 
-  def self.public_search(params)
-    translated_params = {}
-    params.stringify_keys.each do |name, value|
-      translated_params[translate_public_param(name)] = value
-    end
-    return self.search(translated_params)
-  end
-
   def in_progress_date
     return status_stamps.all.find {|ss| ss.status_id == MiAttempt::Status.micro_injection_in_progress.id}.created_at.utc.to_date
   end

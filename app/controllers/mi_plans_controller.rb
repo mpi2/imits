@@ -72,6 +72,8 @@ class MiPlansController < ApplicationController
   end
 
   def create
+    return if empty_payload?(params[:mi_plan])
+
     upgradeable = Public::MiPlan.check_for_upgradeable(params[:mi_plan])
     if upgradeable
       message = "#{upgradeable.marker_symbol} has already been selected by #{upgradeable.consortium_name} without a production centre, please add your production centre to that selection"
@@ -88,6 +90,8 @@ class MiPlansController < ApplicationController
   end
 
   def update
+    return if empty_payload?(params[:mi_plan])
+
     @mi_plan = Public::MiPlan.find(params[:id])
     
     respond_to do |format|

@@ -25,6 +25,7 @@ stylesheets:
 javascripts:
   common:
     - public/extjs/ext-all-debug.js
+    - public/javascripts/targ_rep/jquery.min.js
     - public/javascripts/application.js
     - public/javascripts/extjs_hacky_monkey_patches.js
   targ_rep:

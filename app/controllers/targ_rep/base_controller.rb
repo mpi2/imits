@@ -35,4 +35,28 @@ class TargRep::BaseController < ActionController::Base
   end
   protected :authorize_admin_user!
 
+  def empty_payload?(payload)
+    if payload.blank? || payload.is_a?(Hash) && payload.empty?
+      render :json => {
+        'error' => 'Your JSON payload is empty.'
+      }, :status => 400
+      return true
+    end
+
+    return false
+  end
+  protected :empty_payload?
+
+  def create_attribute_documentation_for(klass)
+
+    readable_attributes = klass.new.attributes.keys
+    writable_attributes = klass.new.attributes.keys - klass.protected_attributes.to_a
+
+    {
+      'readable' => readable_attributes,
+      'writable' => writable_attributes
+    }
+  end
+  protected :create_attribute_documentation_for
+
 end

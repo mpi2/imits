@@ -74,7 +74,7 @@ class ImpcCentreByMonthReport
     def columns
       {
         'Total injected clones' => 'mi_in_progress_count',
-        'Total genotype confirmed clones' => 'genotype_confirmed_count',
+        'Total genotype confirmed genes' => 'genotype_confirmed_count',
         'Cre excised genes (or better)' => 'cre_excised_or_better_count',
         'Phenotype started genes (or better)' => 'phenotype_started_or_better_count',
         'Phenotype complete genes' => 'phenotype_complete_count'

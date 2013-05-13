@@ -7,6 +7,9 @@
 
 <div id="object-new-bottom" class="grid_8 prefix_2 suffix_2">
   <%= form_for @phenotype_attempt, :as => :phenotype_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
+
+  <%= form.error_messages %>
+  
   <fieldset class="collapsible">
     <legend>ES Cell Details</legend>
     <div>

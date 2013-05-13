@@ -96,6 +96,11 @@ class ImpcCentreByMonthReport
       (Date.parse(start_date) - 1.month).strftime('%b %Y')
     end
 
+    ## Don't report incomplete month
+    def end_date
+      (Time.now.to_date - 1.month).to_s(:db)
+    end
+
     def cumulative_counts_sql
       <<-EOF
 
@@ -196,7 +201,7 @@ class ImpcCentreByMonthReport
       <<-EOF
         WITH
           series AS (
-            SELECT generate_series('#{start_date}', '#{Time.now.to_date.to_s(:db)}', interval '1 month')::date as date
+            SELECT generate_series('#{start_date}', '#{end_date}', interval '1 month')::date as date
           ),
           counts AS (
             SELECT
@@ -264,7 +269,7 @@ class ImpcCentreByMonthReport
       <<-EOF
         WITH
           series AS (
-            SELECT generate_series('#{start_date}', '#{Time.now.to_date.to_s(:db)}', interval '1 month')::date as date
+            SELECT generate_series('#{start_date}', '#{end_date}', interval '1 month')::date as date
           ),
           counts AS (
           

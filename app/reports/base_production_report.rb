@@ -219,6 +219,10 @@ class BaseProductionReport
       ['ES Cell QC', 'ES QC Confirmed', 'ES QC Failed']
     end
 
+    def title
+      "Production summary"
+    end
+
     def available_consortia
       [
         'BaSH',

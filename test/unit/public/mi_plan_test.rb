@@ -219,7 +219,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'conditional_tm1c',
         'comment',
         'completion_note',
-        'ignore_avaliable_mice',
+        'ignore_available_mice',
         'recovery'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
@@ -252,7 +252,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'mi_attempts_count',
         'phenotype_attempts_count',
         'phenotype_only',
-        'ignore_avaliable_mice',
+        'ignore_available_mice',
         'completion_note',
         'recovery'
       ]

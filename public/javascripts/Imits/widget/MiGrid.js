@@ -550,6 +550,12 @@ Ext.define('Imits.widget.MiGrid', {
             editor: 'qccombo'
         },
         {
+            dataIndex: 'qc_lacz_count_qpcr_result',
+            header: 'Lacz Count QPCR',
+            sortable: false,
+            editor: 'qccombo'
+        },
+        {
             dataIndex: 'qc_neo_sr_pcr_result',
             header: 'Neo SR PCR',
             sortable: false,

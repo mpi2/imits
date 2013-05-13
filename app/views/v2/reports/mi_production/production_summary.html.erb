@@ -60,18 +60,16 @@
    <table>
     <thead>
       <tr>
-        <th>All genes</th>
         <th>Consortium</th>
         <th>Production centre</th>
-        <th>Genotype confirmed mice</th>
         <th>Intent to phenotype</th>
         <th>Rederivation started</th>
         <th>Rederivation completed</th>
         <th>Cre excision started</th>
         <th>Cre excision completed</th>
         <th>Phenotyping started</th>
-        <th>Phenotyping completed</th>
         <th>Phenotyping aborted</th>
+        <th>Phenotyping completed</th>
       </tr>
     </thead>
     <tbody>
@@ -84,19 +82,17 @@
           <tr>
             <% unless count > 0 %>
               <td rowspan="<%= rowspan %>"><%= row['consortium'] %></td>
-              <td rowspan="<%= rowspan %>"><%= link_to row['count'], report_detail_path(:consortium => row['consortium']) %></td>
             <% end %>
 
             <td><%= centre %></td>
-            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre, :cre_excision_required => true) %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Intent to phenotype", :centre => centre, :cre_excision_required => true) %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Rederivation started", :centre => centre, :cre_excision_required => true) %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Rederivation completed", :centre => centre, :cre_excision_required => true) %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre excision started", :centre => centre, :cre_excision_required => true) %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre excision completed", :centre => centre, :cre_excision_required => true) %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Phenotyping started", :centre => centre, :cre_excision_required => true) %></td>
-            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Phenotyping completed", :centre => centre, :cre_excision_required => true) %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Phenotyping aborted", :centre => centre, :cre_excision_required => true) %></td>
+            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Phenotyping completed", :centre => centre, :cre_excision_required => true) %></td>
           </tr>
 
           <% count += 1 %>
@@ -106,7 +102,7 @@
 
       <% unless row_count > 0 %>
         <tr>
-          <td colspan='12'>There are no cre-excision required attempts for this consortia.</td>
+          <td colspan='10'>There are no cre-excision required attempts for this consortia.</td>
         </tr>
       <% end %>
 
@@ -118,18 +114,16 @@
    <table>
     <thead>
       <tr>
-        <th>All genes</th>
         <th>Consortium</th>
         <th>Production centre</th>
-        <th>Genotype confirmed mice</th>
         <th>Intent to phenotype</th>
         <th>Rederivation started</th>
         <th>Rederivation completed</th>
         <th>Cre excision started</th>
         <th>Cre excision completed</th>
         <th>Phenotyping started</th>
-        <th>Phenotyping completed</th>
         <th>Phenotyping aborted</th>
+        <th>Phenotyping completed</th>
       </tr>
     </thead>
     <tbody>
@@ -143,19 +137,17 @@
             <tr>
               <% unless count > 0 %>
                 <td rowspan="<%= rowspan %>"><%= row['consortium'] %></td>
-                <td rowspan="<%= rowspan %>"><%= link_to row['count'], report_detail_path(:consortium => row['consortium']) %></td>
               <% end %>
 
               <td><%= centre %></td>
-              <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre, :cre_excision_required => false) %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Intent to phenotype", :centre => centre, :cre_excision_required => false) %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Rederivation started", :centre => centre, :cre_excision_required => false) %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Rederivation completed", :centre => centre, :cre_excision_required => false) %></td>              
               <td>n/a</td>
               <td>n/a</td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Phenotyping started", :centre => centre, :cre_excision_required => false) %></td>
-              <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Phenotyping completed", :centre => centre, :cre_excision_required => false) %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Phenotyping aborted", :centre => centre, :cre_excision_required => false) %></td>
+              <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Phenotyping completed", :centre => centre, :cre_excision_required => false) %></td>
             </tr>
 
             <% count += 1 %>
@@ -166,7 +158,7 @@
 
       <% unless row_count > 0 %>
         <tr>
-          <td colspan='12'>There are no cre-excision *not* required attempts for this consortia.</td>
+          <td colspan='10'>There are no cre-excision *not* required attempts for this consortia.</td>
         </tr>
       <% end %>
 

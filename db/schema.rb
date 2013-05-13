@@ -330,7 +330,7 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
     t.string   "completion_note",                :limit => 100
     t.boolean  "recovery"
     t.boolean  "conditional_tm1c",                              :default => false, :null => false
-    t.boolean  "ignore_avaliable_mice",                         :default => false, :null => false
+    t.boolean  "ignore_available_mice",                         :default => false, :null => false
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true

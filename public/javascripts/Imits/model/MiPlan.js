@@ -83,7 +83,7 @@ Ext.define('Imits.model.MiPlan', {
         defaultValue: false
     },
     {
-        name: 'ignore_avaliable_mice',
+        name: 'ignore_available_mice',
         defaultValue: false
     },
     {

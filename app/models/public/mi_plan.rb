@@ -23,7 +23,7 @@ class Public::MiPlan < ::MiPlan
     'comment',
     'phenotype_only',
     'conditional_tm1c',
-    'ignore_avaliable_mice',
+    'ignore_available_mice',
     'completion_note',
     'recovery'
   ]

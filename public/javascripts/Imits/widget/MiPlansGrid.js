@@ -142,10 +142,17 @@ Ext.define('Imits.widget.MiPlansGrid', {
         }
     },
     {
-        dataIndex: 'is_conditional_allele',
-        header: 'Conditional',
+        dataIndex: 'phenotype_only',
+        header: 'Phenotype Only',
         xtype: 'boolgridcolumn',
-        width: 60,
+        width: 90,
+        readOnly: true
+    },
+    {
+        dataIndex: 'is_conditional_allele',
+        header: 'Knockout First tm1a',
+        xtype: 'boolgridcolumn',
+        width: 110,
         readOnly: true
     },
     {
@@ -159,7 +166,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
         dataIndex: 'is_cre_knock_in_allele',
         header: 'Cre Knock-in',
         xtype: 'boolgridcolumn',
-        width: 60,
+        width: 80,
         readOnly: true
     },
     {
@@ -176,6 +183,20 @@ Ext.define('Imits.widget.MiPlansGrid', {
         width: 60,
         readOnly: true,
         hidden: true
+    },
+    {
+        dataIndex: 'conditional_tm1c',
+        header: 'Conditional tm1c',
+        xtype: 'boolgridcolumn',
+        width: 90,
+        readOnly: true
+    },
+    {
+        dataIndex: 'ignore_available_mice',
+        header: 'Ignore Available Mice',
+        xtype: 'boolgridcolumn',
+        width: 120,
+        readOnly: true
     },
     {
         dataIndex: 'sub_project_name',

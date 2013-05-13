@@ -168,10 +168,10 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 store: window.COMPLETION_NOTES
             },
             {
-                id: 'ignore_avaliable_mice',
+                id: 'ignore_available_mice',
                 xtype: 'simplecheckbox',
-                fieldLabel: 'Ignore Avaliable Mice',
-                name: 'ignore_avaliable_mice'
+                fieldLabel: 'Ignore Available Mice',
+                name: 'ignore_available_mice'
             },
             {
                 id: 'recovery',

@@ -128,4 +128,23 @@ module SolrUpdate::Observer
     public_class_method :new
   end
 
+  class Gene < ActiveRecord::Observer
+    observe :gene
+
+    def initialize
+      super
+      @enqueuer = SolrUpdate::Enqueuer.new
+    end
+
+    def after_save(object)
+      @enqueuer.gene_updated(object)
+    end
+
+    def after_destroy(object)
+      @enqueuer.gene_destroyed(object)
+    end
+
+    public_class_method :new
+  end
+
 end

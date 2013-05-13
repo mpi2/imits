@@ -91,4 +91,16 @@ class SolrUpdate::Enqueuer
     SolrUpdate::Queue.enqueue_for_delete(plan.gene)
   end
 
+  def gene_updated(gene)
+    begin
+      SolrUpdate::Queue.enqueue_for_update(gene)
+    rescue SolrUpdate::LookupError
+      SolrUpdate::Queue.enqueue_for_delete(gene)
+    end
+  end
+
+  def gene_destroyed(gene)
+    SolrUpdate::Queue.enqueue_for_delete(gene)
+  end
+
 end

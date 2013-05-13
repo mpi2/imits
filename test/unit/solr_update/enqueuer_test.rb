@@ -228,5 +228,21 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
       end
     end
 
+    context 'when a gene changes' do
+
+      should 'enqueue an update for it if it has changed' do
+        @gene = Factory.create :gene_cbx1
+        SolrUpdate::Queue.expects(:enqueue_for_update).with(@gene)
+        @enqueuer.gene_updated(@gene)
+      end
+
+      should 'enqueue a deletion if it has been deleted' do
+        @gene = Factory.create :gene_cbx1
+        SolrUpdate::Queue.expects(:enqueue_for_delete).with(@gene)
+        @enqueuer.gene_destroyed(@gene)
+      end
+
+    end
+
   end
 end

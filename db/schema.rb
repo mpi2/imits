@@ -492,6 +492,7 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "allele_id"
+    t.integer  "gene_id"
   end
 
   add_index "solr_update_queue_items", ["allele_id"], :name => "index_solr_update_queue_items_on_allele_id", :unique => true

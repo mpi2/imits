@@ -1,6 +1,7 @@
 class SolrUpdate::Queue::Item < ApplicationModel
   self.table_name = 'solr_update_queue_items'
 
+  belongs_to :gene
   belongs_to :mi_attempt
   belongs_to :phenotype_attempt
   belongs_to :allele, :class_name => "TargRep::Allele"
@@ -12,23 +13,31 @@ class SolrUpdate::Queue::Item < ApplicationModel
       return {'type' => 'phenotype_attempt', 'id' => phenotype_attempt_id}
     elsif allele_id
       return {'type' => 'allele', 'id' => allele_id}
+    elsif gene_id
+      return {'type' => 'gene', 'id' => gene_id}
     else
       raise SolrUpdate::Error, 'No IDs set'
     end
   end
 
   def self.add(reference, action)
-    if reference.kind_of?(ApplicationModel)
+
+    if reference.kind_of?(Gene)
+      reference = {'type' => 'gene', 'id' => reference.id}
+    elsif reference.kind_of?(ApplicationModel)
       reference = {'type' => get_model_type(reference), 'id' => reference.id}
     elsif reference.kind_of?(TargRep::Allele)
       reference = {'type' => 'allele', 'id' => reference.id}
     end
-      
 
     fkey = reference['type'] + '_id'
 
     existing = self.where(fkey => reference['id']).all.first
     if ! existing.blank?
+      existing.destroy
+    end
+
+    self.where(fkey => reference['id']).all.each do |existing|
       existing.destroy
     end
 
@@ -42,6 +51,8 @@ class SolrUpdate::Queue::Item < ApplicationModel
       return 'phenotype_attempt'
     elsif model.kind_of? TargRep::Allele
       return 'allele'
+    elsif model.kind_of? Gene
+      return 'gene'
     else
       raise 'unknown model type'
     end
@@ -69,6 +80,7 @@ end
 #  created_at           :datetime
 #  updated_at           :datetime
 #  allele_id            :integer
+#  gene_id              :integer
 #
 # Indexes
 #

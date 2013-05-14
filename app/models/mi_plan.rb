@@ -356,7 +356,12 @@ class MiPlan < ApplicationModel
 
     mi = latest_relevant_mi_attempt
     if mi
-      status_stamp = mi.status_stamps.find_by_status_id!(mi.status.id)
+      status_stamp = mi.status_stamps.find_by_status_id(mi.status.id)
+
+      if ! status_stamp
+        puts "#### cannot find mi.status_stamp with mi.status.id: #{mi.status.id} - mi.id: #{mi.id} - mi_plan.id: #{self.id} - gene: #{self.gene.marker_symbol}"
+        status_stamp = status_stamps.find_by_status_id!(status.id)
+      end
     end
 
     pa = latest_relevant_phenotype_attempt

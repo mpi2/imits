@@ -194,6 +194,28 @@ class Gene < ActiveRecord::Base
     return @selected_status
   end
 
+  def relevant_plan
+    this_plan = nil
+    @selected_status = Hash.new
+
+    self.mi_plans.each do |plan|
+
+      this_status = plan.relevant_status_stamp
+
+      if @selected_status.empty?
+        this_plan = plan
+        @selected_status = this_status
+
+      elsif this_status[:order_by] > @selected_status[:order_by]
+        @selected_status = this_status
+        this_plan = plan
+
+      end
+    end
+
+    return this_plan
+  end
+
   def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_id = nil)
     sql = <<-"SQL"
       SELECT

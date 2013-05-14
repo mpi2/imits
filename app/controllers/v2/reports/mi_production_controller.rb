@@ -27,6 +27,7 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def impc_production_summary
+    @title = ImpcProductionReport.title
     @report = ImpcProductionReport.new
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
@@ -42,6 +43,7 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def eucomm_tools_production_summary
+    @title = EucommToolsProductionReport.title
     @report = EucommToolsProductionReport.new
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status

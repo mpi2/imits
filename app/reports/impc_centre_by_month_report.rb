@@ -3,9 +3,10 @@ class ImpcCentreByMonthReport
   attr_accessor :report_rows
 
   def initialize
+    ## It's easier to display the report, if we create all the report rows while building the report.
     @report_rows = {
-      :dates => [],
-      :centres => []
+      ## Store an array of uniq dates to display in the report.
+      :dates => []
     }
 
     self.generate_report
@@ -23,21 +24,31 @@ class ImpcCentreByMonthReport
     @cumulative_report ||= ActiveRecord::Base.connection.execute(self.class.cumulative_counts_sql).to_a
   end
 
+  def cumulative_cre
+    @cumulative_cre ||= ActiveRecord::Base.connection.execute(self.class.cumulative_cre_count_sql).to_a
+  end
+
+  def cumulative_phenotype_started
+    @cumulative_phenotype_started ||= ActiveRecord::Base.connection.execute(self.class.cumulative_phenotype_started_count_sql).to_a
+  end
+
+  def cumulative_phenotype_complete
+    @cumulative_phenotype_complete ||= ActiveRecord::Base.connection.execute(self.class.cumulative_phenotype_complete_count_sql).to_a
+  end
+
   def generate_report
 
     start_date = self.class.formatted_start_date
 
     @report_rows[:dates] << "To #{start_date}"
 
-    cumulative_report.each do |report_row|
+    (cumulative_report + cumulative_cre + cumulative_phenotype_started + cumulative_phenotype_complete).each do |report_row|
       centre = report_row['production_centre']
 
-      unless @report_rows[:centres].include?(centre)
-        @report_rows[:centres] << centre
-      end
-
       self.class.columns.each do |column, key|
-        @report_rows["To #{start_date}-#{centre}-#{column}"] = report_row[key]
+        if report_row[key] || @report_rows["To #{start_date}-#{centre}-#{column}"].blank?
+          @report_rows["To #{start_date}-#{centre}-#{column}"] = report_row[key] || 0
+        end
 
         if report_row["#{key}_goal"]
           @report_rows["To #{start_date}-#{centre}-#{column}_goal"] = report_row["#{key}_goal"]
@@ -51,10 +62,6 @@ class ImpcCentreByMonthReport
 
       unless @report_rows[:dates].include?(date)
         @report_rows[:dates] << date
-      end
-
-      unless @report_rows[:centres].include?(centre)
-        @report_rows[:centres] << centre
       end
 
       self.class.columns.each do |column, key|
@@ -98,7 +105,26 @@ class ImpcCentreByMonthReport
 
     ## Don't report incomplete month
     def end_date
-      (Time.now.to_date - 1.month).to_s(:db)
+      end_date = Time.now.to_date
+      ## But do report it if it's the last day of the month.
+      end_date = end_date - 1.month unless end_date == end_date.end_of_month
+
+      end_date.to_s(:db)
+    end
+
+    def centres
+      [
+        'BCM',
+        'HMGU',
+        'Harwell',
+        'ICS',
+        'JAX',
+        'Monterotondo',
+        'RIKEN BRC',
+        'TCP',
+        'UCD',
+        'WTSI'
+      ]
     end
 
     def cumulative_counts_sql
@@ -108,14 +134,8 @@ class ImpcCentreByMonthReport
         counts.production_centre,
         counts.mi_in_progress_count,
         counts.genotype_confirmed_count,
-        counts.cre_excised_or_better_count,
-        counts.phenotype_started_or_better_count,
-        counts.phenotype_complete_count,
         mip_goals.goal AS mi_in_progress_count_goal,
-        gtc_goals.goal AS genotype_confirmed_count_goal,
-        cre_goals.goal AS cre_excised_or_better_count_goal,
-        ps_goals.goal AS  phenotype_started_or_better_count_goal,
-        pc_goals.goal AS  phenotype_complete_count_goal
+        gtc_goals.goal AS genotype_confirmed_count_goal
 
       FROM (
         SELECT
@@ -134,39 +154,12 @@ class ImpcCentreByMonthReport
             WHEN genotype_confirmed_date < '#{start_date}'
             THEN gc_pipeline_efficiency_gene_count
             ELSE 0
-          END) AS genotype_confirmed_count,
-          COUNT(cre_ex_gene_count) AS cre_excised_or_better_count,
-          COUNT(ps_gene_count) AS phenotype_started_or_better_count,
-          COUNT(pc_gene_count) AS phenotype_complete_count
+          END) AS genotype_confirmed_count
 
         FROM new_intermediate_report
         JOIN mi_plans ON mi_plans.id = new_intermediate_report.mi_plan_id
-        
-        LEFT JOIN (
-          SELECT DISTINCT genes.*
-          FROM genes
-          JOIN mi_plans ON mi_plans.gene_id = genes.id
-          LEFT JOIN phenotype_attempts ON phenotype_attempts.mi_plan_id = mi_plans.id
-          WHERE phenotype_attempts.status_id in (5, 6, 7, 8)
-        ) AS cre_ex_gene_count ON mi_plans.gene_id = cre_ex_gene_count.id
-
-        LEFT JOIN (
-          SELECT DISTINCT genes.*
-          FROM genes
-          JOIN mi_plans ON mi_plans.gene_id = genes.id
-          LEFT JOIN phenotype_attempts ON phenotype_attempts.mi_plan_id = mi_plans.id
-          WHERE phenotype_attempts.status_id in (7, 8)
-        ) AS ps_gene_count ON mi_plans.gene_id = ps_gene_count.id
-
-        LEFT JOIN (
-          SELECT DISTINCT genes.*
-          FROM genes
-          JOIN mi_plans ON mi_plans.gene_id = genes.id
-          LEFT JOIN phenotype_attempts ON phenotype_attempts.mi_plan_id = mi_plans.id
-          WHERE phenotype_attempts.status_id in (8)
-        ) AS pc_gene_count ON mi_plans.gene_id = pc_gene_count.id
       
-        WHERE
+      WHERE
           production_centre = 'HMGU' AND consortium = 'Helmholtz GMC'
         OR
           production_centre = 'ICS' AND consortium IN ('Phenomin', 'Helmholtz GMC')
@@ -183,17 +176,134 @@ class ImpcCentreByMonthReport
 
         GROUP BY production_centre
         ORDER BY production_centre ASC
-        ) AS counts
+      ) AS counts
 
-        JOIN centres ON centres.name = production_centre
-        LEFT JOIN tracking_goals AS mip_goals ON mip_goals.date IS NULL AND centres.id = mip_goals.production_centre_id AND mip_goals.goal_type = 'total_injected_clones'
-        LEFT JOIN tracking_goals AS gtc_goals ON gtc_goals.date IS NULL AND centres.id = gtc_goals.production_centre_id AND gtc_goals.goal_type = 'total_glt_clones'
+      JOIN centres ON centres.name = production_centre
+      LEFT JOIN tracking_goals AS mip_goals ON mip_goals.date IS NULL AND centres.id = mip_goals.production_centre_id AND mip_goals.goal_type = 'total_injected_clones'
+      LEFT JOIN tracking_goals AS gtc_goals ON gtc_goals.date IS NULL AND centres.id = gtc_goals.production_centre_id AND gtc_goals.goal_type = 'total_glt_clones'
+
+      ORDER BY production_centre ASC
+
+      EOF
+    end
+
+    def cumulative_cre_count_sql
+      <<-EOF
+        SELECT
+          counts.name as production_centre,
+          count as cre_excised_or_better_count,
+          goal as cre_excised_or_better_count_goal
+
+        FROM (
+          SELECT
+          plan_counts.name,
+          count(*)
+          FROM (
+            SELECT
+            centres.name,
+            genes.id,
+            count(mi_plans)
+            FROM genes
+            JOIN mi_plans ON mi_plans.gene_id = genes.id
+            JOIN phenotype_attempts ON phenotype_attempts.mi_plan_id = mi_plans.id
+            JOIN phenotype_attempt_status_stamps ON phenotype_attempt_status_stamps.phenotype_attempt_id = phenotype_attempts.id and phenotype_attempt_status_stamps.status_id = 6
+            JOIN centres ON centres.id = mi_plans.production_centre_id
+
+            WHERE
+            phenotype_attempts.status_id in (6, 7, 8)
+            AND
+            phenotype_attempt_status_stamps.created_at < '#{start_date}'
+
+            GROUP BY centres.name, genes.id
+          ) as plan_counts
+
+
+          GROUP BY plan_counts.name
+        ) as counts
+
+        JOIN centres ON centres.name = counts.name
+
         LEFT JOIN tracking_goals AS cre_goals ON cre_goals.date IS NULL AND centres.id = cre_goals.production_centre_id AND cre_goals.goal_type = 'cre_exicised_genes'
-        LEFT JOIN tracking_goals AS ps_goals ON ps_goals.date IS NULL AND centres.id = ps_goals.production_centre_id AND ps_goals.goal_type = 'phenotype_started_genes'
-        LEFT JOIN tracking_goals AS pc_goals ON pc_goals.date  IS NULL AND centres.id = pc_goals.production_centre_id AND pc_goals.goal_type = 'phenotype_complete_genes'
+      EOF
+    end
 
-        ORDER BY production_centre ASC
+    def cumulative_phenotype_started_count_sql
+      <<-EOF
+        SELECT
+          counts.name as production_centre,
+          count as cre_excised_or_better_count,
+          goal as cre_excised_or_better_count_goal
 
+        FROM (
+          SELECT
+          plan_counts.name,
+          count(*)
+          FROM (
+            SELECT
+            centres.name,
+            genes.id,
+            count(mi_plans)
+            FROM genes
+            JOIN mi_plans ON mi_plans.gene_id = genes.id
+            JOIN phenotype_attempts ON phenotype_attempts.mi_plan_id = mi_plans.id
+            JOIN phenotype_attempt_status_stamps ON phenotype_attempt_status_stamps.phenotype_attempt_id = phenotype_attempts.id and phenotype_attempt_status_stamps.status_id = 7
+            JOIN centres ON centres.id = mi_plans.production_centre_id
+
+            WHERE
+            phenotype_attempts.status_id in (7, 8)
+            AND
+            phenotype_attempt_status_stamps.created_at < '#{start_date}'
+
+            GROUP BY centres.name, genes.id
+          ) as plan_counts
+
+
+          GROUP BY plan_counts.name
+        ) as counts
+
+        JOIN centres ON centres.name = counts.name
+
+        LEFT JOIN tracking_goals AS cre_goals ON cre_goals.date IS NULL AND centres.id = cre_goals.production_centre_id AND cre_goals.goal_type = 'phenotype_started_genes'
+      EOF
+    end
+
+    def cumulative_phenotype_complete_count_sql
+      <<-EOF
+        SELECT
+          counts.name as production_centre,
+          count as cre_excised_or_better_count,
+          goal as cre_excised_or_better_count_goal
+
+        FROM (
+          SELECT
+          plan_counts.name,
+          count(*)
+          FROM (
+            SELECT
+            centres.name,
+            genes.id,
+            count(mi_plans)
+            FROM genes
+            JOIN mi_plans ON mi_plans.gene_id = genes.id
+            JOIN phenotype_attempts ON phenotype_attempts.mi_plan_id = mi_plans.id
+            JOIN phenotype_attempt_status_stamps ON phenotype_attempt_status_stamps.phenotype_attempt_id = phenotype_attempts.id and phenotype_attempt_status_stamps.status_id = 8
+            JOIN centres ON centres.id = mi_plans.production_centre_id
+
+            WHERE
+            phenotype_attempts.status_id = 8
+            AND
+            phenotype_attempt_status_stamps.created_at < '#{start_date}'
+
+            GROUP BY centres.name, genes.id
+          ) as plan_counts
+
+
+          GROUP BY plan_counts.name
+        ) as counts
+
+        JOIN centres ON centres.name = counts.name
+
+        LEFT JOIN tracking_goals AS cre_goals ON cre_goals.date IS NULL AND centres.id = cre_goals.production_centre_id AND cre_goals.goal_type = 'phenotype_complete_genes'
       EOF
     end
 
@@ -303,9 +413,9 @@ class ImpcCentreByMonthReport
               JOIN mi_plans ON mi_plans.gene_id = genes.id
               JOIN phenotype_attempts ON mi_plans.id = phenotype_attempts.mi_plan_id
               JOIN centres ON centres.id = mi_plans.production_centre_id
-              LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 5 AND cre_stamps.created_at >= '2013-03-01' 
-              LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at >= '2013-03-01' 
-              LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at >= '2013-03-01' 
+              LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at >= '#{start_date}' 
+              LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at >= '#{start_date}' 
+              LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at >= '#{start_date}' 
               JOIN consortia ON consortia.id = mi_plans.consortium_id
 
               WHERE

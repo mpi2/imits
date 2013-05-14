@@ -9,8 +9,8 @@
   <table>
     <thead>
       <tr>
+        <th width="150">Consortium</th>
         <th>All genes</th>
-        <th>Consortium</th>
         <th>ES cell QC</th>
         <th>ES QC confirmed</th>
         <th>ES QC failed</th>
@@ -21,6 +21,8 @@
         <th>Microinjection aborted</th>
         <!--<th>Gene Pipeline efficiency (%)</th>-->
         <!--<th>Clone Pipeline efficiency (%)</th>-->
+        <th>Total GC genes > 6 months</th>
+        <th>All Microinjections > 6 months</th>
         <th>Pipeline efficiency</th>
       </tr>
     </thead>
@@ -46,6 +48,8 @@
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjection aborted", :centre => centre) %></td>
             <!--<td><%= efficiency_percentage(@gene_efficiency_totals, row['consortium'], centre) %></td>-->
             <!--<td><%= efficiency_percentage(@clone_efficiency_totals, row['consortium'], centre) %></td>-->
+            <td><%= @effort_efficiency_totals["#{row['consortium']}-#{centre}-gtc_count_efficiency"].to_i %></td>
+            <td><%= @effort_efficiency_totals["#{row['consortium']}-#{centre}-total_count_efficiency"].to_i %></td>
             <td><%= @effort_efficiency_totals["#{row['consortium']}-#{centre}-effort_efficiency"].to_f.round(2) %></td>
           </tr>
 
@@ -60,7 +64,7 @@
    <table>
     <thead>
       <tr>
-        <th>Consortium</th>
+        <th width="150">Consortium</th>
         <th>Production centre</th>
         <th>Intent to phenotype</th>
         <th>Rederivation started</th>
@@ -77,6 +81,8 @@
       <% @consortium_by_distinct_gene.each do |row| %>
         <% count = 0 %>
         
+        <% next if @consortium_centre_by_cre_phenotyping_status[row['consortium']].blank? %>
+
         <% @consortium_centre_by_cre_phenotyping_status[row['consortium']].each do |centre| %>
           <% rowspan = @consortium_centre_by_cre_phenotyping_status[row['consortium']].size %>
           <tr>
@@ -114,7 +120,7 @@
    <table>
     <thead>
       <tr>
-        <th>Consortium</th>
+        <th width="150">Consortium</th>
         <th>Production centre</th>
         <th>Intent to phenotype</th>
         <th>Rederivation started</th>
@@ -216,6 +222,14 @@
       </tr>
       -->
       <tr>
+        <th>Total GC genes > 6 months <span>*New*</span></th>
+        <td>Unique Genes for all Genotype Confirmed MI's > 6 months old</td>
+      </tr>      
+      <tr>
+        <th>All Microinjections > 6 months <span>*New*</span></th>
+        <td>Micro-injections > 6 months old</td>
+      </tr>
+      <tr>
         <th>Effort based efficiency <span>*New*</span></th>
         <td>(#Unique Genes for all Genotype Confirmed MI's > 6 months old) / (#Micro-injections > 6 months old)</td>
       </tr>
@@ -242,11 +256,15 @@
           <strong>Cumulative!</strong> Number of Genes where Genotype Confirmed Mice have been Registered for Phenotyping by this Consortium / Production Centre 
           <br />(Mice may be drawn from other consortia)
         </td>
-      </tr><!--
+      </tr>
       <tr>
         <th>Rederivation Started / Finished</th>
-        <td>This step can be skipped</td>
-      </tr>-->
+        <td>Total number of Genes for mouse lines being Rederived from archived lines.</td>
+      </tr>
+      <tr>
+        <th>Cre exicision Started / Completed</th>
+        <td>Total number of Genes for mouse lines where Cre Excision has started/completed.</td>
+      </tr>
       <tr>
         <th>Phenotype started / completed</th>
         <td>Phenotyping <strong>data</strong> has started / finished flowing to the KOMP2 DCC (MPI2) - currently accessible via machine interface only</td>

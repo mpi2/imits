@@ -207,6 +207,8 @@ class BaseProductionReport
         gtc_gene_count / total_injections
       end.to_f
 
+      hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-gtc_count_efficiency"] = gtc_gene_count
+      hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-total_count_efficiency"] = total_injections
       hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-effort_efficiency"] = efficiency
     end
 

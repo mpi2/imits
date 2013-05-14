@@ -37,6 +37,8 @@ class V2::Reports::MiProductionController < ApplicationController
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
     @mi_plan_statuses = ImpcProductionReport.mi_plan_statuses
+
+    render :template => 'v2/reports/mi_production/production_summary'
   end
 
   def eucomm_tools_production_summary
@@ -50,6 +52,8 @@ class V2::Reports::MiProductionController < ApplicationController
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
     @mi_plan_statuses = EucommToolsProductionReport.mi_plan_statuses
+
+    render :template => 'v2/reports/mi_production/production_summary'
   end 
 
   skip_before_filter :authenticate_user!

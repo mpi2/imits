@@ -70,7 +70,7 @@ class TargRep::EsCell < ActiveRecord::Base
 
   delegate :gene, :to => :allele
   delegate :marker_symbol, :to => :gene
-  
+
   scope :has_targeting_vector, where('targeting_vector_id is not NULL')
   scope :no_targeting_vector, where(:targeting_vector_id => nil)
 
@@ -96,7 +96,7 @@ class TargRep::EsCell < ActiveRecord::Base
       TargRep::EsCell.include_root_in_json = false
       options.update(
         :include => {
-          :distribution_qcs => { :except => [:id, :created_at, :updated_at] }
+          :distribution_qcs => { :except => [:created_at, :updated_at] }
         },
         :methods => [:allele_symbol_superscript]
       )

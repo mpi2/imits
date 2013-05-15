@@ -218,7 +218,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'is_cre_bac_allele',
         'comment',
         'completion_note',
-        'recovery'
+        'recovery',
+        'status_stamps_attributes'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort

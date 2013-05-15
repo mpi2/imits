@@ -16,6 +16,7 @@ class MiAttempt < ApplicationModel
     :qc_five_prime_cassette_integrity,
     :qc_tv_backbone_assay,
     :qc_neo_count_qpcr,
+    :qc_lacz_count_qpcr,
     :qc_neo_sr_pcr,
     :qc_loa_qpcr,
     :qc_homozygous_loa_sr_pcr,

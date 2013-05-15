@@ -83,7 +83,9 @@ class MiPlan < ApplicationModel
       :is_conditional_allele => plan.is_conditional_allele,
       :is_deletion_allele => plan.is_deletion_allele,
       :is_cre_knock_in_allele => plan.is_cre_knock_in_allele,
-      :is_cre_bac_allele => plan.is_cre_bac_allele).map(&:id)
+      :is_cre_bac_allele => plan.is_cre_bac_allele,
+      :conditional_tm1c => plan.conditional_tm1c,
+      :phenotype_only => plan.phenotype_only).map(&:id)
     other_ids -= [plan.id]
     if(other_ids.count != 0)
       plan.errors.add(:gene, 'already has a plan by that consortium/production centre and allele discription')

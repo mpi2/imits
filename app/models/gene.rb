@@ -17,7 +17,7 @@ class Gene < ActiveRecord::Base
   def pretty_print_types_of_cells_available
     html = []
     {
-      :conditional_es_cells_count     => 'Conditional',
+      :conditional_es_cells_count     => 'Knockout First, Tm1a',
       :non_conditional_es_cells_count => 'Targeted Trap',
       :deletion_es_cells_count        => 'Deletion'
     }.each do |method,type|
@@ -194,6 +194,28 @@ class Gene < ActiveRecord::Base
     return @selected_status
   end
 
+  def relevant_plan
+    this_plan = nil
+    @selected_status = Hash.new
+
+    self.mi_plans.each do |plan|
+
+      this_status = plan.relevant_status_stamp
+
+      if @selected_status.empty?
+        this_plan = plan
+        @selected_status = this_status
+
+      elsif this_status[:order_by] > @selected_status[:order_by]
+        @selected_status = this_status
+        this_plan = plan
+
+      end
+    end
+
+    return this_plan
+  end
+
   def self.pretty_print_mi_attempts_in_bulk_helper(active, statuses, gene_id = nil)
     sql = <<-"SQL"
       SELECT
@@ -282,7 +304,7 @@ class Gene < ActiveRecord::Base
     all_genes = Gene.all
     # update existing genes
     logger.debug "[Gene.update_cached_counts] Gathering data for existing genes to see if they need updating..."
-    
+
     all_genes.each do |gene|
       gene.update_cached_counts
     end

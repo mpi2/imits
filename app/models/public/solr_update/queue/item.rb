@@ -31,6 +31,7 @@ end
 #  created_at           :datetime
 #  updated_at           :datetime
 #  allele_id            :integer
+#  gene_id              :integer
 #
 # Indexes
 #

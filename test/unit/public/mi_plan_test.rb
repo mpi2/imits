@@ -216,10 +216,12 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'is_deletion_allele',
         'is_cre_knock_in_allele',
         'is_cre_bac_allele',
+        'conditional_tm1c',
         'comment',
         'completion_note',
-        'recovery',
-        'status_stamps_attributes'
+        'status_stamps_attributes',
+        'ignore_available_mice',
+        'recovery'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -243,6 +245,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'is_deletion_allele',
         'is_cre_knock_in_allele',
         'is_cre_bac_allele',
+        'conditional_tm1c',
         'comment',
         'status_dates',
         'mgi_accession_id',
@@ -250,6 +253,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'mi_attempts_count',
         'phenotype_attempts_count',
         'phenotype_only',
+        'ignore_available_mice',
         'completion_note',
         'recovery'
       ]

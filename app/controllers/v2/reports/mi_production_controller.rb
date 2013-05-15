@@ -9,6 +9,8 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def komp2_production_summary
+    @title = Komp2ProductionReport.title
+
     @report = Komp2ProductionReport.new
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
@@ -19,9 +21,13 @@ class V2::Reports::MiProductionController < ApplicationController
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
     @mi_plan_statuses = Komp2ProductionReport.mi_plan_statuses
+
+
+    render :template => 'v2/reports/mi_production/production_summary'
   end
 
   def impc_production_summary
+    @title = ImpcProductionReport.title
     @report = ImpcProductionReport.new
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
@@ -32,7 +38,25 @@ class V2::Reports::MiProductionController < ApplicationController
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
     @mi_plan_statuses = ImpcProductionReport.mi_plan_statuses
+
+    render :template => 'v2/reports/mi_production/production_summary'
   end
+
+  def eucomm_tools_production_summary
+    @title = EucommToolsProductionReport.title
+    @report = EucommToolsProductionReport.new
+    @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
+    @consortium_by_status        = @report.generate_consortium_by_status
+    @consortium_centre_by_status = @report.generate_consortium_centre_by_status
+    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status
+    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(false)
+    @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
+    @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
+    @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
+    @mi_plan_statuses = EucommToolsProductionReport.mi_plan_statuses
+
+    render :template => 'v2/reports/mi_production/production_summary'
+  end 
 
   skip_before_filter :authenticate_user!
   before_filter :authenticate_user_if_not_sanger, :only => [:mgp_production_by_subproject, :mgp_production_by_priority]

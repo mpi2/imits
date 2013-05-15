@@ -22,6 +22,8 @@ class MiPlan < ApplicationModel
   has_many :phenotype_attempts
   has_many :es_cell_qcs, :dependent => :delete_all
 
+  accepts_nested_attributes_for :status_stamps
+
   protected :status=
 
   validate do |plan|

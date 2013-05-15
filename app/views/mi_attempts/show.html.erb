@@ -11,6 +11,9 @@
   <%= link_to 'History', mi_attempt_path(@mi_attempt) + '/history' %>
 
   <%= form_for @mi_attempt, :as => :mi_attempt, :html => {:class => 'edit show mi-attempt'} do |form| %>
+
+    <%= form.error_messages %>
+
     <fieldset class="collapsible">
       <legend>ES Cell Details</legend>
       <div>
@@ -41,6 +44,27 @@
     </fieldset>
 
     <%= render 'form_contents', :form => form %>
+
+    <fieldset class="collapsible hide-by-default">
+      <legend>Status stamps</legend>
+        <div>
+          <table id="distribution_centres_table" class="report_table">
+            <thead class="title">
+              <tr>
+                <th>Status name</th>
+                <th>Actioned</th>
+              </tr>
+            </thead>
+            <tbody class="distribution_centres">
+              <%= form.fields_for :status_stamps do |builder| %>
+                <% if !builder.object.new_record? %>
+                <%= render '/shared/status_stamp_fields', f: builder %>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+    </fieldset>
 
     <div>
       <%= form.submit 'Update', :class => 'disable-on-submit', :id => 'mi_attempt_submit' %>

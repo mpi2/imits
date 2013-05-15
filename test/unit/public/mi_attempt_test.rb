@@ -70,6 +70,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         comments
         genotyping_comment
         mi_plan_id
+        status_stamps_attributes
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

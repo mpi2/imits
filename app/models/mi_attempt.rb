@@ -48,6 +48,8 @@ class MiAttempt < ApplicationModel
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
 
+  accepts_nested_attributes_for :status_stamps
+
   protected :status=
 
   validates :es_cell_name, :presence => true

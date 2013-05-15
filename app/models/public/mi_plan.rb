@@ -25,7 +25,8 @@ class Public::MiPlan < ::MiPlan
     'conditional_tm1c',
     'ignore_available_mice',
     'completion_note',
-    'recovery'
+    'recovery',
+    'status_stamps_attributes'
   ]
 
   READABLE_ATTRIBUTES = [

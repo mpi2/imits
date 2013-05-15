@@ -219,6 +219,7 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'conditional_tm1c',
         'comment',
         'completion_note',
+        'status_stamps_attributes',
         'ignore_available_mice',
         'recovery'
       ]

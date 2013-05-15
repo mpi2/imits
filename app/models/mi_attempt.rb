@@ -48,7 +48,6 @@ class MiAttempt < ApplicationModel
   end
 
   accepts_nested_attributes_for :status_stamps
-  attr_accessible :status_stamps_attributes
 
   protected :status=
 

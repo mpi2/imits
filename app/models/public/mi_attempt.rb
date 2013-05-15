@@ -57,6 +57,7 @@ class Public::MiAttempt < ::MiAttempt
     genotyping_comment
     distribution_centres_attributes
     mi_plan_id
+    status_stamps_attributes
   }
 
   READABLE_ATTRIBUTES = %w{

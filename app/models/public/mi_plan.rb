@@ -23,7 +23,8 @@ class Public::MiPlan < ::MiPlan
     'comment',
     'phenotype_only',
     'completion_note',
-    'recovery'
+    'recovery',
+    'status_stamps_attributes'
   ]
 
   READABLE_ATTRIBUTES = [

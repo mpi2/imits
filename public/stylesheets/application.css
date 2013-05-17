@@ -765,20 +765,22 @@ div.report_control * {
 }
 
 #qcimage {
-  display:none;
-  position:fixed;
-  width:50%;
-  left:50%;
-  margin-left:-25%;
-  height:60%;
-  top:50%;
-  margin-top:-25%;
-  background-color:#fff;
-  border:4px solid #efefef;
+
 }
 
 #qcimage .diagram {
   position:relative;
+}
+
+#qcimage .diagram h3 {
+  position:absolute;
+  bottom:5px;
+  right:30px;
+}
+
+#qcimage .diagram .holder {
+  border:4px solid #efefef;
+  margin:2em 0;
 }
 
 .errorExplanation {

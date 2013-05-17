@@ -114,7 +114,21 @@
   </div>
 </fieldset>
 
-<fieldset class="collapsible">
+<div id='qcimage'>
+
+  <div class="diagram">
+    <div id='holder_mutant' class='holder'></div>
+    <h3>Mutant</h3>
+  </div>
+
+  <div class="diagram">
+    <div id='holder_wildtype' class='holder'></div>
+    <h3>Wildtype</h3>
+  </div>
+
+</div>
+
+<fieldset class="collapsible hide-by-default qc-details">
   <legend>QC Details</legend>
   <div>
     <%= generator.qc_fields %>
@@ -136,12 +150,3 @@
     <%= form.text_area :genotyping_comment, :disabled => true %>
   </div>
 </fieldset>
-
-<div id='qcimage'>
-
-  <div id="diagram">
-    <div id="holder">
-    </div>
-  </div>
-
-</div>

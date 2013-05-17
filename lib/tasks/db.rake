@@ -75,8 +75,10 @@ namespace :db do
 
     raise "Cannot find #{envname} database config" unless config
     if config['port'].blank?; config['port'] = '5432'; end
-    system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} -T contacts -T notifications -T targ_rep_genbank_files -T audits --no-privileges #{config['database']} > #{uploadir}/public_dump.sql") or raise("Failed to public dump #{envname} DB")
-    system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --schema-only -t contacts -t notifications -t targ_rep_genbank_files -t audits --no-privileges #{config['database']} >> #{uploadir}/public_dump.sql") or raise("Failed to public dump #{envname} DB")
+    system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --column-inserts -T email_templates -T contacts -T notifications -T targ_rep_genbank_files -T audits --no-privileges #{config['database']} > #{uploadir}/public_dump.sql") or raise("Failed to public dump #{envname} DB")
+    system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --column-inserts --schema-only -t email_templates -t contacts -t notifications -t targ_rep_genbank_files -t audits --no-privileges #{config['database']} >> #{uploadir}/public_dump.sql") or raise("Failed to public dump #{envname} DB")
+    system("cd #{uploadir}; tar -cvzf 'public_dump.sql.tar.gz' public_dump.sql") or raise("Failed to compress #{uploadir}/public_dump.sql")
+    system("rm #{uploadir}/public_dump.sql") or raise("Failed to clean up #{uploadir}/public_dump.sql")
   end
 
 

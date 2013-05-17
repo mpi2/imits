@@ -61,6 +61,11 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       'consortium.name'         => 'Consortium',
       'sub_project.name'        => 'SubProject',
       'is_bespoke_allele'       => 'Bespoke',
+      'is_conditional_allele'   => 'Knockout First tm1a',
+      'is_deletion_allele'      => 'Deletion',
+      'is_cre_knock_in_allele'  => 'Cre Knock-in',
+      'is_cre_bac_allele'       => 'Cre BAC',
+      'conditional_tm1c'        => 'Conditional tm1c',
       'recovery'                => 'Recovery',
       'completion_note'         => 'Completion note',
       'phenotype_only'          => 'Phenotype only?',
@@ -87,6 +92,11 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
         r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No'
         r["phenotype_only"] = r.phenotype_only ? 'Yes' : 'No'
         r["ignore_avaliable_mice"] = r.ignore_avaliable_mice ? 'Yes' : 'No'
+        r["is_conditional_allele"] = r.is_conditional_allele ? 'Yes' : 'No'
+        r["is_deletion_allele"] = r.is_deletion_allele ? 'Yes' : 'No'
+        r["is_cre_knock_in_allele"] = r.is_cre_knock_in_allele ? 'Yes' : 'No'
+        r["is_cre_bac_allele"] = r.is_cre_bac_allele ? 'Yes' : 'No'
+        r["conditional_tm1c"] = r.conditional_tm1c ? 'Yes' : 'No'
         r["recovery"] = r.recovery ? 'Yes' : 'No'
       end
     }

@@ -9,17 +9,24 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 
 --
--- Name: intermediate; Type: SCHEMA; Schema: -; Owner: -
+-- Name: biomart2; Type: SCHEMA; Schema: -; Owner: -
 --
 
-CREATE SCHEMA intermediate;
+CREATE SCHEMA biomart2;
 
 
 --
--- Name: whatever; Type: SCHEMA; Schema: -; Owner: -
+-- Name: biomart3; Type: SCHEMA; Schema: -; Owner: -
 --
 
-CREATE SCHEMA whatever;
+CREATE SCHEMA biomart3;
+
+
+--
+-- Name: biomart4; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA biomart4;
 
 
 --
@@ -36,14 +43,614 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
-SET search_path = intermediate, pg_catalog;
+SET search_path = biomart2, pg_catalog;
 
 SET default_tablespace = '';
 
 SET default_with_oids = false;
 
 --
--- Name: meta_conf__dataset__main; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: genes_2__genes__main; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes_2__genes__main (
+    marker_symbol_208 character varying(75),
+    mgi_accession_id_208 character varying(40),
+    id_208_key integer,
+    non_conditional_es_cells_count_208 integer,
+    mutation_published_as_lethal_count_208 integer,
+    go_annotations_for_gene_count_208 integer,
+    updated_at_208 timestamp without time zone,
+    conditional_es_cells_count_208 integer,
+    other_targeted_mice_count_208 integer,
+    created_at_208 timestamp without time zone,
+    ikmc_projects_count_208 integer,
+    publications_for_gene_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    deletion_es_cells_count_208 integer,
+    mi_plans_count integer DEFAULT 0
+);
+
+
+--
+-- Name: genes_2__intermediate_report__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes_2__intermediate_report__dm (
+    id_2019_key integer,
+    phenotype_attempt_registered_date_209 date,
+    assigned_es_cell_qc_complete_date_209 date,
+    consortium_209 character varying(255),
+    priority_209 character varying(255),
+    overall_status_209 character varying(50),
+    mi_attempt_status_209 character varying(50),
+    total_pipeline_efficiency_gene_count_209 integer,
+    distinct_genotype_confirmed_es_cells_209 integer,
+    phenotyping_started_date_209 date,
+    mgi_accession_id_209 character varying(40),
+    rederivation_started_date_209 date,
+    distinct_old_non_genotype_confirmed_es_cells_209 integer,
+    phenotyping_complete_date_209 date,
+    mi_attempt_colony_name_209 character varying(255),
+    allele_symbol_209 character varying(75),
+    assigned_es_cell_qc_in_progress_date_209 date,
+    assigned_date_209 date,
+    aborted_es_cell_qc_failed_date_209 date,
+    mutation_sub_type_209 character varying(100),
+    mi_attempt_consortium_209 character varying(255),
+    genetic_background_209 character varying(50),
+    gc_pipeline_efficiency_gene_count_209 integer,
+    micro_injection_aborted_date_209 date,
+    phenotype_attempt_status_209 character varying(50),
+    cre_excision_complete_date_209 date,
+    genotype_confirmed_date_209 date,
+    updated_at_209 timestamp without time zone,
+    phenotype_attempt_aborted_date_209 date,
+    id_209 integer,
+    is_bespoke_allele_209 boolean,
+    chimeras_obtained_date_209 date,
+    mi_plan_status_209 character varying(50),
+    production_centre_209 character varying(100),
+    rederivation_complete_date_209 date,
+    cre_excision_started_date_209 date,
+    created_at_209 timestamp without time zone,
+    gene_209 character varying(75),
+    sub_project_209 character varying(255),
+    phenotype_attempt_colony_name_209 character varying(255),
+    mi_attempt_production_centre_209 character varying(255),
+    ikmc_project_id_209 integer,
+    micro_injection_in_progress_date_209 date
+);
+
+
+--
+-- Name: genes_2__mi_attempt_distribution_centres__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes_2__mi_attempt_distribution_centres__dm (
+    id_2013_key integer,
+    is_distributed_by_emma_2010 boolean,
+    deposited_material_id_2010 integer,
+    end_date_2010 date,
+    name_202 character varying(100),
+    id_2010 integer,
+    created_at_206 timestamp without time zone,
+    updated_at_202 timestamp without time zone,
+    name_206 character varying(50),
+    start_date_2010 date,
+    created_at_202 timestamp without time zone,
+    created_at_2010 timestamp without time zone,
+    centre_id_2010 integer,
+    updated_at_206 timestamp without time zone,
+    updated_at_2010 timestamp without time zone
+);
+
+
+--
+-- Name: genes_2__mi_attempt_status_stamps__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes_2__mi_attempt_status_stamps__dm (
+    id_2013_key integer,
+    updated_at_2011 timestamp without time zone,
+    id_2011 integer,
+    updated_at_2012 timestamp without time zone,
+    name_2012 character varying(50),
+    status_id_2011 integer,
+    created_at_2011 timestamp without time zone,
+    created_at_2012 timestamp without time zone,
+    order_by_2012 integer,
+    code_2012 character varying(10)
+);
+
+
+--
+-- Name: genes_2__mi_attempts__main; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes_2__mi_attempts__main (
+    created_at_208 timestamp without time zone,
+    comment_2019 text,
+    other_targeted_mice_count_208 integer,
+    is_active_2019 boolean,
+    created_at_203 timestamp without time zone,
+    funding_203 character varying(255),
+    is_cre_bac_allele_2019 boolean,
+    mutation_published_as_lethal_count_208 integer,
+    contact_203 character varying(255),
+    name_203 character varying(255),
+    name_202 character varying(100),
+    status_id_2019 integer,
+    code_2017 character varying(10),
+    number_of_es_cells_passing_qc_2019 integer,
+    description_2017 character varying(255),
+    description_2015 character varying(100),
+    marker_symbol_208 character varying(75),
+    participants_203 text,
+    es_qc_comment_id_2019 integer,
+    updated_at_2019 timestamp without time zone,
+    updated_at_2018 timestamp without time zone,
+    updated_at_2017 timestamp without time zone,
+    id_2019_key integer,
+    conditional_es_cells_count_208 integer,
+    number_of_es_cells_starting_qc_2019 integer,
+    updated_at_2015 timestamp without time zone,
+    updated_at_2014 timestamp without time zone,
+    created_at_202 timestamp without time zone,
+    go_annotations_for_gene_count_208 integer,
+    name_2018 character varying(255),
+    name_2017 character varying(50),
+    updated_at_203 timestamp without time zone,
+    is_deletion_allele_2019 boolean,
+    updated_at_202 timestamp without time zone,
+    id_208_key integer,
+    publications_for_gene_count_208 integer,
+    name_2015 character varying(10),
+    name_2014 character varying(255),
+    deletion_es_cells_count_208 integer,
+    created_at_2014 timestamp without time zone,
+    created_at_2015 timestamp without time zone,
+    updated_at_208 timestamp without time zone,
+    created_at_2018 timestamp without time zone,
+    created_at_2019 timestamp without time zone,
+    is_cre_knock_in_allele_2019 boolean,
+    created_at_2017 timestamp without time zone,
+    consortium_id_2019 integer,
+    order_by_2017 integer,
+    production_centre_id_2019 integer,
+    priority_id_2019 integer,
+    ikmc_projects_count_208 integer,
+    is_conditional_allele_2019 boolean,
+    is_bespoke_allele_2019 boolean,
+    mgi_accession_id_208 character varying(40),
+    non_conditional_es_cells_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    withdrawn_2019 boolean,
+    sub_project_id_2019 integer,
+    mi_plans_count integer,
+    qc_tv_backbone_assay_id_2013 integer,
+    number_of_chimeras_with_glt_from_cct_2013 integer,
+    number_of_males_with_40_to_79_percent_chimerism_2013 integer,
+    qc_three_prime_lr_pcr_id_2013 integer,
+    qc_loa_qpcr_id_2013 integer,
+    mi_date_2013 date,
+    number_of_chimeras_with_glt_from_genotyping_2013 integer,
+    number_of_chimeras_with_10_to_49_percent_glt_2013 integer,
+    qc_homozygous_loa_sr_pcr_id_2013 integer,
+    total_f1_mice_from_matings_2013 integer,
+    number_of_cct_offspring_2013 integer,
+    status_id_2013 integer,
+    total_blasts_injected_2013 integer,
+    report_to_public_2013 boolean,
+    total_male_chimeras_2013 integer,
+    total_transferred_2013 integer,
+    number_of_chimeras_with_100_percent_glt_2013 integer,
+    total_chimeras_2013 integer,
+    mouse_allele_type_2013 character varying(2),
+    updated_by_id_2013 integer,
+    updated_at_2013 timestamp without time zone,
+    qc_lacz_sr_pcr_id_2013 integer,
+    number_of_males_with_80_to_99_percent_chimerism_2013 integer,
+    genotyping_comment_2013 character varying(512),
+    qc_mutant_specific_sr_pcr_id_2013 integer,
+    colony_name_2013 character varying(125),
+    date_chimeras_mated_2013 date,
+    total_pups_born_2013 integer,
+    blast_strain_id_2013 integer,
+    number_surrogates_receiving_2013 integer,
+    number_of_males_with_0_to_39_percent_chimerism_2013 integer,
+    qc_loxp_confirmation_id_2013 integer,
+    id_2013_key integer,
+    qc_neo_sr_pcr_id_2013 integer,
+    number_of_chimera_matings_attempted_2013 integer,
+    colony_background_strain_id_2013 integer,
+    number_of_het_offspring_2013 integer,
+    created_at_2013 timestamp without time zone,
+    total_female_chimeras_2013 integer,
+    qc_neo_count_qpcr_id_2013 integer,
+    number_of_males_with_100_percent_chimerism_2013 integer,
+    is_active_2013 boolean,
+    is_released_from_genotyping_2013 boolean,
+    number_of_chimeras_with_0_to_9_percent_glt_2013 integer,
+    number_of_chimeras_with_50_to_99_percent_glt_2013 integer,
+    number_of_live_glt_offspring_2013 integer,
+    test_cross_strain_id_2013 integer,
+    qc_southern_blot_id_2013 integer,
+    es_cell_id_2013 integer,
+    qc_five_prime_cassette_integrity_id_2013 integer,
+    number_of_chimera_matings_successful_2013 integer,
+    qc_five_prime_lr_pcr_id_2013 integer,
+    comments_2013 text,
+    updated_at_2012 timestamp without time zone,
+    name_2012 character varying(50),
+    created_at_2012 timestamp without time zone,
+    code_2012 character varying(10),
+    order_by_2012 integer,
+    updated_at_2026 timestamp without time zone,
+    description_2026 character varying(50),
+    created_at_2026 timestamp without time zone,
+    updated_at_2026_r1 timestamp without time zone,
+    description_2026_r1 character varying(50),
+    created_at_2026_r1 timestamp without time zone,
+    updated_at_2026_r2 timestamp without time zone,
+    description_2026_r2 character varying(50),
+    created_at_2026_r2 timestamp without time zone,
+    updated_at_2026_r3 timestamp without time zone,
+    description_2026_r3 character varying(50),
+    created_at_2026_r3 timestamp without time zone,
+    updated_at_2026_r4 timestamp without time zone,
+    description_2026_r4 character varying(50),
+    created_at_2026_r4 timestamp without time zone,
+    updated_at_2026_r5 timestamp without time zone,
+    description_2026_r5 character varying(50),
+    created_at_2026_r5 timestamp without time zone,
+    updated_at_2026_r6 timestamp without time zone,
+    description_2026_r6 character varying(50),
+    created_at_2026_r6 timestamp without time zone,
+    updated_at_2026_r7 timestamp without time zone,
+    description_2026_r7 character varying(50),
+    created_at_2026_r7 timestamp without time zone,
+    updated_at_2026_r8 timestamp without time zone,
+    description_2026_r8 character varying(50),
+    created_at_2026_r8 timestamp without time zone,
+    updated_at_2026_r9 timestamp without time zone,
+    description_2026_r9 character varying(50),
+    created_at_2026_r9 timestamp without time zone,
+    updated_at_2026_r10 timestamp without time zone,
+    description_2026_r10 character varying(50),
+    created_at_2026_r10 timestamp without time zone,
+    updated_at_2026_r11 timestamp without time zone,
+    description_2026_r11 character varying(50),
+    created_at_2026_r11 timestamp without time zone,
+    updated_at_2030 timestamp without time zone,
+    name_2030 character varying(50),
+    created_at_2030 timestamp without time zone,
+    updated_at_2030_r1 timestamp without time zone,
+    name_2030_r1 character varying(50),
+    created_at_2030_r1 timestamp without time zone,
+    updated_at_2030_r2 timestamp without time zone,
+    name_2030_r2 character varying(50),
+    created_at_2030_r2 timestamp without time zone,
+    mi_attempts_count integer DEFAULT 0
+);
+
+
+--
+-- Name: genes_2__mi_plan_status_stamps__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes_2__mi_plan_status_stamps__dm (
+    id_2019_key integer,
+    order_by_2017 integer,
+    code_2017 character varying(10),
+    name_2017 character varying(50),
+    created_at_2016 timestamp without time zone,
+    updated_at_2016 timestamp without time zone,
+    created_at_2017 timestamp without time zone,
+    updated_at_2017 timestamp without time zone,
+    description_2017 character varying(255),
+    id_2016 integer,
+    status_id_2016 integer
+);
+
+
+--
+-- Name: genes_2__mi_plans__main; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes_2__mi_plans__main (
+    created_at_208 timestamp without time zone,
+    other_targeted_mice_count_208 integer,
+    id_208_key integer,
+    marker_symbol_208 character varying(75),
+    publications_for_gene_count_208 integer,
+    mutation_published_as_lethal_count_208 integer,
+    ikmc_projects_count_208 integer,
+    deletion_es_cells_count_208 integer,
+    conditional_es_cells_count_208 integer,
+    updated_at_208 timestamp without time zone,
+    mgi_accession_id_208 character varying(40),
+    non_conditional_es_cells_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    go_annotations_for_gene_count_208 integer,
+    priority_id_2019 integer,
+    withdrawn_2019 boolean,
+    is_active_2019 boolean,
+    is_conditional_allele_2019 boolean,
+    status_id_2019 integer,
+    sub_project_id_2019 integer,
+    es_qc_comment_id_2019 integer,
+    production_centre_id_2019 integer,
+    is_cre_bac_allele_2019 boolean,
+    is_cre_knock_in_allele_2019 boolean,
+    id_2019_key integer,
+    updated_at_2019 timestamp without time zone,
+    number_of_es_cells_starting_qc_2019 integer,
+    created_at_2019 timestamp without time zone,
+    is_deletion_allele_2019 boolean,
+    number_of_es_cells_passing_qc_2019 integer,
+    consortium_id_2019 integer,
+    comment_2019 text,
+    is_bespoke_allele_2019 boolean,
+    updated_at_202 timestamp without time zone,
+    name_202 character varying(100),
+    created_at_202 timestamp without time zone,
+    funding_203 character varying(255),
+    updated_at_203 timestamp without time zone,
+    name_203 character varying(255),
+    created_at_203 timestamp without time zone,
+    participants_203 text,
+    contact_203 character varying(255),
+    updated_at_2014 timestamp without time zone,
+    name_2014 character varying(255),
+    created_at_2014 timestamp without time zone,
+    updated_at_2015 timestamp without time zone,
+    description_2015 character varying(100),
+    name_2015 character varying(10),
+    created_at_2015 timestamp without time zone,
+    updated_at_2017 timestamp without time zone,
+    description_2017 character varying(255),
+    name_2017 character varying(50),
+    created_at_2017 timestamp without time zone,
+    code_2017 character varying(10),
+    order_by_2017 integer,
+    updated_at_2018 timestamp without time zone,
+    name_2018 character varying(255),
+    created_at_2018 timestamp without time zone,
+    mi_plans_count integer DEFAULT 0,
+    mi_attempts_count integer DEFAULT 0
+);
+
+
+--
+-- Name: genes_2__phenotype_attempts__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes_2__phenotype_attempts__dm (
+    id_2019_key integer,
+    is_active_2024 boolean,
+    cre_excision_required_2024 boolean,
+    phenotyping_complete_2024 boolean,
+    mouse_allele_type_2024 character varying(2),
+    deleter_strain_id_2024 integer,
+    status_id_2024 integer,
+    phenotyping_started_2024 boolean,
+    created_at_205 timestamp without time zone,
+    number_of_cre_matings_started_2024 integer,
+    colony_name_2024 character varying(125),
+    id_2024 integer,
+    created_at_2023 timestamp without time zone,
+    name_2023 character varying(50),
+    number_of_cre_matings_successful_2024 integer,
+    updated_at_2023 timestamp without time zone,
+    updated_at_2030 timestamp without time zone,
+    mi_attempt_id_2024 integer,
+    updated_at_205 timestamp without time zone,
+    name_205 character varying(100),
+    updated_at_2024 timestamp without time zone,
+    created_at_2024 timestamp without time zone,
+    order_by_2023 integer,
+    name_2030 character varying(50),
+    created_at_2030 timestamp without time zone,
+    rederivation_complete_2024 boolean,
+    code_2023 character varying(10),
+    colony_background_strain_id_2024 integer,
+    rederivation_started_2024 boolean
+);
+
+
+--
+-- Name: genes_2__phenotype_attempts_mb001__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes_2__phenotype_attempts_mb001__dm (
+    id_2013_key integer,
+    is_active_2024 boolean,
+    cre_excision_required_2024 boolean,
+    phenotyping_complete_2024 boolean,
+    mouse_allele_type_2024 character varying(2),
+    deleter_strain_id_2024 integer,
+    status_id_2024 integer,
+    phenotyping_started_2024 boolean,
+    created_at_205 timestamp without time zone,
+    number_of_cre_matings_started_2024 integer,
+    colony_name_2024 character varying(125),
+    id_2024 integer,
+    mi_plan_id_2024 integer,
+    created_at_2023 timestamp without time zone,
+    name_2023 character varying(50),
+    number_of_cre_matings_successful_2024 integer,
+    updated_at_2023 timestamp without time zone,
+    updated_at_2030 timestamp without time zone,
+    updated_at_205 timestamp without time zone,
+    name_205 character varying(100),
+    updated_at_2024 timestamp without time zone,
+    created_at_2024 timestamp without time zone,
+    order_by_2023 integer,
+    name_2030 character varying(50),
+    created_at_2030 timestamp without time zone,
+    rederivation_complete_2024 boolean,
+    code_2023 character varying(10),
+    colony_background_strain_id_2024 integer,
+    rederivation_started_2024 boolean
+);
+
+
+--
+-- Name: genes__genes__main; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes__genes__main (
+    id_208_key integer,
+    marker_symbol character varying(75),
+    go_annotations_for_gene_count_208 integer,
+    mutation_published_as_lethal_count_208 integer,
+    non_conditional_es_cells_count_208 integer,
+    other_targeted_mice_count_208 integer,
+    conditional_es_cells_count_208 integer,
+    mgi_accession_id character varying(40),
+    publications_for_gene_count_208 integer,
+    ikmc_projects_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    deletion_es_cells_count_208 integer
+);
+
+
+--
+-- Name: genes__mi_plans__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes__mi_plans__dm (
+    id_208_key integer,
+    name_2015 character varying(10),
+    is_cre_knock_in_allele_2019 boolean,
+    is_bespoke_allele_2019 boolean,
+    withdrawn_2019 boolean,
+    name_2017 character varying(50),
+    priority_id_2019 integer,
+    is_active_2019 boolean,
+    sub_project_id_2019 integer,
+    order_by_2017 integer,
+    is_cre_bac_allele_2019 boolean,
+    number_of_es_cells_passing_qc_2019 integer,
+    description_2017 character varying(255),
+    comment_2019 text,
+    mi_plan_sub_project_name character varying(255),
+    number_of_es_cells_starting_qc_2019 integer,
+    consortium_funding character varying(255),
+    production_centre_name character varying(100),
+    code_2017 character varying(10),
+    description_2015 character varying(100),
+    is_deletion_allele_2019 boolean,
+    is_conditional_allele_2019 boolean,
+    consortium_id_2019 integer,
+    consortium_name character varying(255),
+    name_2014 character varying(255),
+    production_centre_id_2019 integer,
+    status_id_2019 integer,
+    es_qc_comment_id_2019 integer,
+    id_2019 integer
+);
+
+
+--
+-- Name: genes__targ_rep_alleles__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE genes__targ_rep_alleles__dm (
+    id_208_key integer,
+    subtype_description_2031 character varying(255),
+    chromosome_2031 character varying(2),
+    code_2038 character varying(100),
+    homology_arm_start_2031 integer,
+    backbone_2031 character varying(100),
+    loxp_start_2031 integer,
+    legacy_id_2039 integer,
+    strand_2031 character varying(1),
+    name_2036 character varying(100),
+    name_2037 character varying(100),
+    cassette_type_2031 character varying(50),
+    report_to_public_2040 boolean,
+    code_2036 character varying(100),
+    cassette_2031 character varying(100),
+    description_2039 character varying(255),
+    name_2039 character varying(255),
+    homology_arm_end_2031 integer,
+    cassette_start_2031 integer,
+    mutation_subtype_id_2031 integer,
+    assembly_2031 character varying(50),
+    mutation_method_id_2031 integer,
+    code_2037 character varying(100),
+    cassette_end_2031 integer,
+    mutation_type_id_2031 integer,
+    id_2031 integer,
+    floxed_start_exon_2031 character varying(255),
+    reporter_2031 character varying(255),
+    id_2040 integer,
+    project_design_id_2031 integer,
+    ikmc_project_id_2040 character varying(255),
+    name_2040 character varying(255),
+    intermediate_vector_2040 character varying(255),
+    floxed_end_exon_2031 character varying(255),
+    loxp_end_2031 integer,
+    name_2038 character varying(100),
+    pipeline_id_2040 integer
+);
+
+
+--
+-- Name: intermediate_report__intermediate_report__main; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE intermediate_report__intermediate_report__main (
+    assigned_es_cell_qc_in_progress_date_209 date,
+    production_centre_209 character varying(100),
+    micro_injection_in_progress_date_209 date,
+    gc_pipeline_efficiency_gene_count_209 integer,
+    mgi_accession_id_209 character varying(40),
+    phenotype_attempt_status_209 character varying(50),
+    assigned_es_cell_qc_complete_date_209 date,
+    overall_status_209 character varying(50),
+    micro_injection_aborted_date_209 date,
+    genotype_confirmed_date_209 date,
+    assigned_date_209 date,
+    id_209_key integer,
+    consortium_209 character varying(255),
+    sub_project_209 character varying(255),
+    priority_209 character varying(255),
+    rederivation_complete_date_209 date,
+    phenotype_attempt_colony_name_209 character varying(255),
+    created_at_209 timestamp without time zone,
+    mi_plan_id_209 integer,
+    phenotype_attempt_registered_date_209 date,
+    aborted_es_cell_qc_failed_date_209 date,
+    gene_209 character varying(75),
+    cre_excision_started_date_209 date,
+    ikmc_project_id_209 integer,
+    phenotyping_complete_date_209 date,
+    mi_plan_status_209 character varying(50),
+    mi_attempt_status_209 character varying(50),
+    phenotyping_started_date_209 date,
+    total_pipeline_efficiency_gene_count_209 integer,
+    mi_attempt_production_centre_209 character varying(255),
+    cre_excision_complete_date_209 date,
+    mutation_sub_type_209 character varying(100),
+    allele_symbol_209 character varying(75),
+    phenotype_attempt_aborted_date_209 date,
+    distinct_old_non_genotype_confirmed_es_cells_209 integer,
+    updated_at_209 timestamp without time zone,
+    mi_attempt_colony_name_209 character varying(255),
+    genetic_background_209 character varying(50),
+    mi_attempt_consortium_209 character varying(255),
+    rederivation_started_date_209 date,
+    chimeras_obtained_date_209 date,
+    distinct_genotype_confirmed_es_cells_209 integer,
+    is_bespoke_allele_209 boolean
+);
+
+
+--
+-- Name: meta_conf__dataset__main; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
 CREATE TABLE meta_conf__dataset__main (
@@ -59,7 +666,7 @@ CREATE TABLE meta_conf__dataset__main (
 
 
 --
--- Name: meta_conf__interface__dm; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: meta_conf__interface__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
 CREATE TABLE meta_conf__interface__dm (
@@ -69,7 +676,7 @@ CREATE TABLE meta_conf__interface__dm (
 
 
 --
--- Name: meta_conf__user__dm; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: meta_conf__user__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
 CREATE TABLE meta_conf__user__dm (
@@ -79,7 +686,7 @@ CREATE TABLE meta_conf__user__dm (
 
 
 --
--- Name: meta_conf__xml__dm; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: meta_conf__xml__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
 CREATE TABLE meta_conf__xml__dm (
@@ -91,7 +698,7 @@ CREATE TABLE meta_conf__xml__dm (
 
 
 --
--- Name: meta_template__template__main; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: meta_template__template__main; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
 CREATE TABLE meta_template__template__main (
@@ -101,7 +708,7 @@ CREATE TABLE meta_template__template__main (
 
 
 --
--- Name: meta_template__xml__dm; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: meta_template__xml__dm; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
 CREATE TABLE meta_template__xml__dm (
@@ -111,7 +718,7 @@ CREATE TABLE meta_template__xml__dm (
 
 
 --
--- Name: meta_version__version__main; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: meta_version__version__main; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
 CREATE TABLE meta_version__version__main (
@@ -120,223 +727,13 @@ CREATE TABLE meta_version__version__main (
 
 
 --
--- Name: mi_plans__intermediate_report__dm; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: temp18; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
-CREATE TABLE mi_plans__intermediate_report__dm (
-    id_2019_key integer,
-    phenotype_attempt_registered_date_209 date,
-    assigned_es_cell_qc_complete_date_209 date,
-    consortium_209 character varying(255),
-    priority_209 character varying(255),
-    overall_status_209 character varying(50),
-    mi_attempt_status_209 character varying(50),
-    total_pipeline_efficiency_gene_count_209 integer,
-    distinct_genotype_confirmed_es_cells_209 integer,
-    phenotyping_started_date_209 date,
-    mgi_accession_id_209 character varying(40),
-    rederivation_started_date_209 date,
-    distinct_old_non_genotype_confirmed_es_cells_209 integer,
-    phenotyping_complete_date_209 date,
-    mi_attempt_colony_name_209 character varying(255),
-    allele_symbol_209 character varying(75),
-    assigned_es_cell_qc_in_progress_date_209 date,
-    assigned_date_209 date,
-    aborted_es_cell_qc_failed_date_209 date,
-    mutation_sub_type_209 character varying(100),
-    mi_attempt_consortium_209 character varying(255),
-    genetic_background_209 character varying(50),
-    gc_pipeline_efficiency_gene_count_209 integer,
-    micro_injection_aborted_date_209 date,
-    phenotype_attempt_status_209 character varying(50),
-    cre_excision_complete_date_209 date,
-    genotype_confirmed_date_209 date,
-    updated_at_209 timestamp without time zone,
-    phenotype_attempt_aborted_date_209 date,
-    id_209 integer,
-    is_bespoke_allele_209 boolean,
-    chimeras_obtained_date_209 date,
-    mi_plan_status_209 character varying(50),
-    production_centre_209 character varying(100),
-    rederivation_complete_date_209 date,
-    cre_excision_started_date_209 date,
-    created_at_209 timestamp without time zone,
-    gene_209 character varying(75),
-    sub_project_209 character varying(255),
-    phenotype_attempt_colony_name_209 character varying(255),
-    mi_attempt_production_centre_209 character varying(255),
-    ikmc_project_id_209 integer,
-    micro_injection_in_progress_date_209 date
-);
-
-
---
--- Name: mi_plans__mi_attempts__dm; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plans__mi_attempts__dm (
-    id_2019_key integer,
-    qc_neo_count_qpcr_id_2013 integer,
-    number_of_males_with_0_to_39_percent_chimerism_2013 integer,
-    updated_by_id_2013 integer,
-    updated_at_2026_r9 timestamp without time zone,
-    number_surrogates_receiving_2013 integer,
-    description_2026_r2 character varying(50),
-    created_at_2013 timestamp without time zone,
-    qc_five_prime_lr_pcr_id_2013 integer,
-    name_2012 character varying(50),
-    created_at_2026_r11 timestamp without time zone,
-    number_of_chimeras_with_10_to_49_percent_glt_2013 integer,
-    qc_neo_sr_pcr_id_2013 integer,
-    description_2026 character varying(50),
-    description_2026_r3 character varying(50),
-    number_of_males_with_80_to_99_percent_chimerism_2013 integer,
-    updated_at_2026_r1 timestamp without time zone,
-    created_at_2026_r2 timestamp without time zone,
-    colony_background_strain_id_2013 integer,
-    qc_mutant_specific_sr_pcr_id_2013 integer,
-    qc_southern_blot_id_2013 integer,
-    is_released_from_genotyping_2013 boolean,
-    description_2026_r7 character varying(50),
-    name_2030 character varying(50),
-    description_2026_r4 character varying(50),
-    total_male_chimeras_2013 integer,
-    updated_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_0_to_9_percent_glt_2013 integer,
-    mi_date_2013 date,
-    created_at_2026_r8 timestamp without time zone,
-    updated_at_2026_r4 timestamp without time zone,
-    qc_tv_backbone_assay_id_2013 integer,
-    created_at_2026_r4 timestamp without time zone,
-    qc_loxp_confirmation_id_2013 integer,
-    qc_lacz_sr_pcr_id_2013 integer,
-    order_by_2012 integer,
-    test_cross_strain_id_2013 integer,
-    colony_name_2013 character varying(125),
-    number_of_het_offspring_2013 integer,
-    updated_at_2030_r1 timestamp without time zone,
-    genotyping_comment_2013 character varying(512),
-    description_2026_r11 character varying(50),
-    qc_loa_qpcr_id_2013 integer,
-    total_blasts_injected_2013 integer,
-    updated_at_2012 timestamp without time zone,
-    date_chimeras_mated_2013 date,
-    number_of_chimeras_with_glt_from_genotyping_2013 integer,
-    es_cell_id_2013 integer,
-    created_at_2012 timestamp without time zone,
-    code_2012 character varying(10),
-    blast_strain_id_2013 integer,
-    number_of_males_with_100_percent_chimerism_2013 integer,
-    updated_at_2013 timestamp without time zone,
-    id_2013 integer,
-    number_of_chimera_matings_successful_2013 integer,
-    total_f1_mice_from_matings_2013 integer,
-    created_at_2026_r7 timestamp without time zone,
-    name_2030_r2 character varying(50),
-    number_of_live_glt_offspring_2013 integer,
-    description_2026_r8 character varying(50),
-    description_2026_r6 character varying(50),
-    mouse_allele_type_2013 character varying(2),
-    total_chimeras_2013 integer,
-    description_2026_r9 character varying(50),
-    updated_at_2030 timestamp without time zone,
-    updated_at_2026_r2 timestamp without time zone,
-    description_2026_r5 character varying(50),
-    updated_at_2026_r6 timestamp without time zone,
-    updated_at_2026_r10 timestamp without time zone,
-    qc_three_prime_lr_pcr_id_2013 integer,
-    qc_five_prime_cassette_integrity_id_2013 integer,
-    created_at_2026_r6 timestamp without time zone,
-    created_at_2026_r1 timestamp without time zone,
-    is_active_2013 boolean,
-    status_id_2013 integer,
-    total_transferred_2013 integer,
-    number_of_cct_offspring_2013 integer,
-    created_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_100_percent_glt_2013 integer,
-    created_at_2030_r1 timestamp without time zone,
-    updated_at_2026_r5 timestamp without time zone,
-    number_of_chimeras_with_50_to_99_percent_glt_2013 integer,
-    total_female_chimeras_2013 integer,
-    name_2030_r1 character varying(50),
-    updated_at_2026 timestamp without time zone,
-    total_pups_born_2013 integer,
-    number_of_chimeras_with_glt_from_cct_2013 integer,
-    description_2026_r10 character varying(50),
-    report_to_public_2013 boolean,
-    created_at_2026_r5 timestamp without time zone,
-    created_at_2026_r9 timestamp without time zone,
-    qc_homozygous_loa_sr_pcr_id_2013 integer,
-    number_of_chimera_matings_attempted_2013 integer,
-    created_at_2026 timestamp without time zone,
-    created_at_2026_r3 timestamp without time zone,
-    updated_at_2026_r7 timestamp without time zone,
-    updated_at_2026_r11 timestamp without time zone,
-    created_at_2030 timestamp without time zone,
-    number_of_males_with_40_to_79_percent_chimerism_2013 integer,
-    comments_2013 text,
-    description_2026_r1 character varying(50),
-    updated_at_2026_r8 timestamp without time zone,
-    updated_at_2026_r3 timestamp without time zone,
-    created_at_2026_r10 timestamp without time zone
-);
-
-
---
--- Name: mi_plans__mi_plan_status_stamps__dm; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plans__mi_plan_status_stamps__dm (
-    id_2019_key integer,
-    order_by_2017 integer,
-    code_2017 character varying(10),
-    name_2017 character varying(50),
-    created_at_2016 timestamp without time zone,
-    updated_at_2016 timestamp without time zone,
-    created_at_2017 timestamp without time zone,
-    updated_at_2017 timestamp without time zone,
-    description_2017 character varying(255),
-    id_2016 integer,
-    status_id_2016 integer
-);
-
-
---
--- Name: mi_plans__mi_plans__main; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plans__mi_plans__main (
-    priority_id_2019 integer,
-    withdrawn_2019 boolean,
-    is_active_2019 boolean,
-    is_conditional_allele_2019 boolean,
-    status_id_2019 integer,
-    sub_project_id_2019 integer,
-    es_qc_comment_id_2019 integer,
-    production_centre_id_2019 integer,
-    gene_id_2019 integer,
-    is_cre_bac_allele_2019 boolean,
-    is_cre_knock_in_allele_2019 boolean,
-    id_2019_key integer,
-    updated_at_2019 timestamp without time zone,
-    number_of_es_cells_starting_qc_2019 integer,
-    is_deletion_allele_2019 boolean,
-    created_at_2019 timestamp without time zone,
-    number_of_es_cells_passing_qc_2019 integer,
-    comment_2019 text,
-    consortium_id_2019 integer,
-    is_bespoke_allele_2019 boolean,
-    updated_at_202 timestamp without time zone,
-    name_202 character varying(100),
-    created_at_202 timestamp without time zone,
-    updated_at_203 timestamp without time zone,
-    funding_203 character varying(255),
-    name_203 character varying(255),
-    created_at_203 timestamp without time zone,
-    contact_203 character varying(255),
-    participants_203 text,
+CREATE TABLE temp18 (
     marker_symbol_208 character varying(75),
     mgi_accession_id_208 character varying(40),
+    id_208_key integer,
     non_conditional_es_cells_count_208 integer,
     mutation_published_as_lethal_count_208 integer,
     go_annotations_for_gene_count_208 integer,
@@ -346,8 +743,58 @@ CREATE TABLE mi_plans__mi_plans__main (
     created_at_208 timestamp without time zone,
     ikmc_projects_count_208 integer,
     publications_for_gene_count_208 integer,
-    deletion_es_cells_count_208 integer,
     other_condtional_mice_count_208 integer,
+    deletion_es_cells_count_208 integer
+);
+
+
+--
+-- Name: temp26; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE temp26 (
+    created_at_208 timestamp without time zone,
+    other_targeted_mice_count_208 integer,
+    id_208_key integer,
+    marker_symbol_208 character varying(75),
+    publications_for_gene_count_208 integer,
+    mutation_published_as_lethal_count_208 integer,
+    ikmc_projects_count_208 integer,
+    deletion_es_cells_count_208 integer,
+    conditional_es_cells_count_208 integer,
+    updated_at_208 timestamp without time zone,
+    mgi_accession_id_208 character varying(40),
+    non_conditional_es_cells_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    go_annotations_for_gene_count_208 integer,
+    priority_id_2019 integer,
+    withdrawn_2019 boolean,
+    is_active_2019 boolean,
+    is_conditional_allele_2019 boolean,
+    status_id_2019 integer,
+    sub_project_id_2019 integer,
+    es_qc_comment_id_2019 integer,
+    production_centre_id_2019 integer,
+    is_cre_bac_allele_2019 boolean,
+    is_cre_knock_in_allele_2019 boolean,
+    id_2019_key integer,
+    updated_at_2019 timestamp without time zone,
+    number_of_es_cells_starting_qc_2019 integer,
+    created_at_2019 timestamp without time zone,
+    is_deletion_allele_2019 boolean,
+    number_of_es_cells_passing_qc_2019 integer,
+    consortium_id_2019 integer,
+    comment_2019 text,
+    is_bespoke_allele_2019 boolean,
+    updated_at_202 timestamp without time zone,
+    name_202 character varying(100),
+    created_at_202 timestamp without time zone,
+    funding_203 character varying(255),
+    updated_at_203 timestamp without time zone,
+    name_203 character varying(255),
+    created_at_203 timestamp without time zone,
+    participants_203 text,
+    contact_203 character varying(255),
     updated_at_2014 timestamp without time zone,
     name_2014 character varying(255),
     created_at_2014 timestamp without time zone,
@@ -368,411 +815,11 @@ CREATE TABLE mi_plans__mi_plans__main (
 
 
 --
--- Name: mi_plans__phenotype_attempts__dm; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plans__phenotype_attempts__dm (
-    id_2019_key integer,
-    qc_neo_count_qpcr_id_2013 integer,
-    number_of_males_with_0_to_39_percent_chimerism_2013 integer,
-    updated_by_id_2013 integer,
-    updated_at_2026_r9 timestamp without time zone,
-    number_surrogates_receiving_2013 integer,
-    description_2026_r2 character varying(50),
-    created_at_2013 timestamp without time zone,
-    created_at_2026_r11 timestamp without time zone,
-    qc_five_prime_lr_pcr_id_2013 integer,
-    name_2012 character varying(50),
-    number_of_chimeras_with_10_to_49_percent_glt_2013 integer,
-    qc_neo_sr_pcr_id_2013 integer,
-    description_2026 character varying(50),
-    description_2026_r3 character varying(50),
-    number_of_males_with_80_to_99_percent_chimerism_2013 integer,
-    colony_name_2024 character varying(125),
-    updated_at_2026_r1 timestamp without time zone,
-    created_at_2030_r3 timestamp without time zone,
-    created_at_2026_r2 timestamp without time zone,
-    qc_mutant_specific_sr_pcr_id_2013 integer,
-    colony_background_strain_id_2013 integer,
-    qc_southern_blot_id_2013 integer,
-    mi_attempt_id_2024 integer,
-    updated_at_2024 timestamp without time zone,
-    name_2030 character varying(50),
-    description_2026_r7 character varying(50),
-    is_released_from_genotyping_2013 boolean,
-    description_2026_r4 character varying(50),
-    total_male_chimeras_2013 integer,
-    updated_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_0_to_9_percent_glt_2013 integer,
-    is_active_2024 boolean,
-    mi_date_2013 date,
-    created_at_2026_r8 timestamp without time zone,
-    updated_at_2026_r4 timestamp without time zone,
-    qc_tv_backbone_assay_id_2013 integer,
-    created_at_2026_r4 timestamp without time zone,
-    updated_at_2030_r3 timestamp without time zone,
-    phenotyping_started_2024 boolean,
-    created_at_205 timestamp without time zone,
-    qc_loxp_confirmation_id_2013 integer,
-    qc_lacz_sr_pcr_id_2013 integer,
-    id_2024 integer,
-    order_by_2012 integer,
-    created_at_2023 timestamp without time zone,
-    test_cross_strain_id_2013 integer,
-    colony_name_2013 character varying(125),
-    name_205 character varying(100),
-    number_of_het_offspring_2013 integer,
-    order_by_2023 integer,
-    created_at_2024 timestamp without time zone,
-    updated_at_2030_r1 timestamp without time zone,
-    description_2026_r11 character varying(50),
-    genotyping_comment_2013 character varying(512),
-    qc_loa_qpcr_id_2013 integer,
-    total_blasts_injected_2013 integer,
-    updated_at_2012 timestamp without time zone,
-    date_chimeras_mated_2013 date,
-    number_of_chimeras_with_glt_from_genotyping_2013 integer,
-    es_cell_id_2013 integer,
-    created_at_2012 timestamp without time zone,
-    code_2012 character varying(10),
-    blast_strain_id_2013 integer,
-    cre_excision_required_2024 boolean,
-    number_of_males_with_100_percent_chimerism_2013 integer,
-    updated_at_2013 timestamp without time zone,
-    deleter_strain_id_2024 integer,
-    number_of_chimera_matings_successful_2013 integer,
-    created_at_2026_r7 timestamp without time zone,
-    total_f1_mice_from_matings_2013 integer,
-    mi_plan_id_2013 integer,
-    name_2030_r2 character varying(50),
-    number_of_cre_matings_started_2024 integer,
-    number_of_live_glt_offspring_2013 integer,
-    description_2026_r8 character varying(50),
-    name_2030_r3 character varying(50),
-    description_2026_r6 character varying(50),
-    mouse_allele_type_2013 character varying(2),
-    number_of_cre_matings_successful_2024 integer,
-    updated_at_2023 timestamp without time zone,
-    updated_at_2030 timestamp without time zone,
-    description_2026_r9 character varying(50),
-    total_chimeras_2013 integer,
-    updated_at_205 timestamp without time zone,
-    updated_at_2026_r2 timestamp without time zone,
-    description_2026_r5 character varying(50),
-    updated_at_2026_r6 timestamp without time zone,
-    updated_at_2026_r10 timestamp without time zone,
-    qc_three_prime_lr_pcr_id_2013 integer,
-    qc_five_prime_cassette_integrity_id_2013 integer,
-    created_at_2026_r6 timestamp without time zone,
-    created_at_2026_r1 timestamp without time zone,
-    code_2023 character varying(10),
-    is_active_2013 boolean,
-    colony_background_strain_id_2024 integer,
-    status_id_2013 integer,
-    rederivation_started_2024 boolean,
-    total_transferred_2013 integer,
-    phenotyping_complete_2024 boolean,
-    mouse_allele_type_2024 character varying(2),
-    number_of_cct_offspring_2013 integer,
-    created_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_100_percent_glt_2013 integer,
-    created_at_2030_r1 timestamp without time zone,
-    updated_at_2026_r5 timestamp without time zone,
-    status_id_2024 integer,
-    number_of_chimeras_with_50_to_99_percent_glt_2013 integer,
-    total_female_chimeras_2013 integer,
-    name_2030_r1 character varying(50),
-    updated_at_2026 timestamp without time zone,
-    description_2026_r10 character varying(50),
-    total_pups_born_2013 integer,
-    number_of_chimeras_with_glt_from_cct_2013 integer,
-    report_to_public_2013 boolean,
-    created_at_2026_r9 timestamp without time zone,
-    created_at_2026_r5 timestamp without time zone,
-    name_2023 character varying(50),
-    qc_homozygous_loa_sr_pcr_id_2013 integer,
-    number_of_chimera_matings_attempted_2013 integer,
-    created_at_2026 timestamp without time zone,
-    created_at_2026_r3 timestamp without time zone,
-    updated_at_2026_r7 timestamp without time zone,
-    updated_at_2026_r11 timestamp without time zone,
-    created_at_2030 timestamp without time zone,
-    number_of_males_with_40_to_79_percent_chimerism_2013 integer,
-    comments_2013 text,
-    description_2026_r1 character varying(50),
-    updated_at_2026_r8 timestamp without time zone,
-    rederivation_complete_2024 boolean,
-    updated_at_2026_r3 timestamp without time zone,
-    created_at_2026_r10 timestamp without time zone
-);
-
-
---
--- Name: targ_rep_alleles__targ_rep_alleles__main; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE TABLE targ_rep_alleles__targ_rep_alleles__main (
-    cassette_type_2031 character varying(50),
-    assembly_2031 character varying(50),
-    strand_2031 character varying(1),
-    cassette_end_2031 integer,
-    mutation_method_id_2031 integer,
-    homology_arm_end_2031 integer,
-    project_design_id_2031 integer,
-    gene_id_2031 integer,
-    chromosome_2031 character varying(2),
-    floxed_end_exon_2031 character varying(255),
-    floxed_start_exon_2031 character varying(255),
-    reporter_2031 character varying(255),
-    id_2031_key integer,
-    loxp_start_2031 integer,
-    cassette_start_2031 integer,
-    homology_arm_start_2031 integer,
-    mutation_subtype_id_2031 integer,
-    cassette_2031 character varying(100),
-    subtype_description_2031 character varying(255),
-    mutation_type_id_2031 integer,
-    backbone_2031 character varying(100),
-    loxp_end_2031 integer,
-    marker_symbol_208 character varying(75),
-    go_annotations_for_gene_count_208 integer,
-    mutation_published_as_lethal_count_208 integer,
-    non_conditional_es_cells_count_208 integer,
-    other_targeted_mice_count_208 integer,
-    conditional_es_cells_count_208 integer,
-    mgi_accession_id_208 character varying(40),
-    publications_for_gene_count_208 integer,
-    ikmc_projects_count_208 integer,
-    deletion_es_cells_count_208 integer,
-    other_condtional_mice_count_208 integer,
-    name_2036 character varying(100),
-    code_2036 character varying(100),
-    name_2037 character varying(100),
-    code_2037 character varying(100),
-    name_2038 character varying(100),
-    code_2038 character varying(100),
-    id_2040 integer,
-    intermediate_vector_2040 character varying(255),
-    pipeline_id_2040 integer,
-    ikmc_project_id_2040 character varying(255),
-    name_2040 character varying(255),
-    report_to_public_2040 boolean,
-    legacy_id_2039 integer,
-    description_2039 character varying(255),
-    name_2039 character varying(255)
-);
-
-
---
--- Name: targ_rep_alleles__targ_rep_es_cells__dm; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE TABLE targ_rep_alleles__targ_rep_es_cells__dm (
-    id_2031_key integer,
-    name_2039_r1 character varying(255),
-    production_qc_loxp_screen_2034 character varying(255),
-    user_qc_southern_blot_2034 character varying(255),
-    user_qc_mutant_specific_sr_pcr_2034 character varying(255),
-    created_at_2039 timestamp without time zone,
-    user_qc_neo_sr_pcr_2034 character varying(255),
-    user_qc_loxp_confirmation_2034 character varying(255),
-    user_qc_map_test_2034 character varying(255),
-    comment_2034 character varying(255),
-    legacy_id_2039 integer,
-    legacy_id_2034 integer,
-    production_qc_vector_integrity_2034 character varying(255),
-    allele_symbol_superscript_template_2034 character varying(75),
-    report_to_public_2040 boolean,
-    name_2034 character varying(100),
-    legacy_id_2039_r1 integer,
-    user_qc_comment_2034 text,
-    user_qc_five_prime_lr_pcr_2034 character varying(255),
-    updated_at_2034 timestamp without time zone,
-    contact_2034 character varying(255),
-    updated_at_2039 timestamp without time zone,
-    parental_cell_line_2034 character varying(255),
-    strain_2034 character varying(25),
-    mutation_subtype_2034 character varying(100),
-    mgi_allele_id_2034 character varying(50),
-    description_2039 character varying(255),
-    name_2039 character varying(255),
-    user_qc_three_prime_lr_pcr_2034 character varying(255),
-    production_qc_five_prime_screen_2034 character varying(255),
-    user_qc_tv_backbone_assay_2034 character varying(255),
-    updated_at_2040 timestamp without time zone,
-    allele_id_2040 integer,
-    updated_at_2039_r1 timestamp without time zone,
-    description_2039_r1 character varying(255),
-    id_2034 integer,
-    user_qc_lacz_sr_pcr_2034 character varying(255),
-    user_qc_karyotype_2034 character varying(255),
-    created_at_2040 timestamp without time zone,
-    user_qc_neo_count_qpcr_2034 character varying(255),
-    ikmc_project_id_2034 character varying(255),
-    production_qc_three_prime_screen_2034 character varying(255),
-    created_at_2039_r1 timestamp without time zone,
-    production_qc_loss_of_allele_2034 character varying(255),
-    report_to_public_2034 boolean,
-    allele_type_2034 character varying(2),
-    ikmc_project_id_2040 character varying(255),
-    mgi_allele_symbol_superscript_2034 character varying(75),
-    name_2040 character varying(255),
-    intermediate_vector_2040 character varying(255),
-    pipeline_id_2034 integer,
-    user_qc_loss_of_wt_allele_2034 character varying(255),
-    targeting_vector_id_2034 integer,
-    created_at_2034 timestamp without time zone,
-    user_qc_five_prime_cassette_integrity_2034 character varying(255),
-    pipeline_id_2040 integer
-);
-
-
---
--- Name: temp30; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: temp30; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
 CREATE TABLE temp30 (
     id_2019_key integer,
-    qc_neo_count_qpcr_id_2013 integer,
-    number_of_males_with_0_to_39_percent_chimerism_2013 integer,
-    updated_by_id_2013 integer,
-    updated_at_2026_r9 timestamp without time zone,
-    number_surrogates_receiving_2013 integer,
-    description_2026_r2 character varying(50),
-    created_at_2013 timestamp without time zone,
-    created_at_2026_r11 timestamp without time zone,
-    qc_five_prime_lr_pcr_id_2013 integer,
-    name_2012 character varying(50),
-    number_of_chimeras_with_10_to_49_percent_glt_2013 integer,
-    qc_neo_sr_pcr_id_2013 integer,
-    description_2026 character varying(50),
-    description_2026_r3 character varying(50),
-    number_of_males_with_80_to_99_percent_chimerism_2013 integer,
-    colony_name_2024 character varying(125),
-    updated_at_2026_r1 timestamp without time zone,
-    created_at_2030_r3 timestamp without time zone,
-    created_at_2026_r2 timestamp without time zone,
-    qc_mutant_specific_sr_pcr_id_2013 integer,
-    colony_background_strain_id_2013 integer,
-    qc_southern_blot_id_2013 integer,
-    mi_attempt_id_2024 integer,
-    updated_at_2024 timestamp without time zone,
-    name_2030 character varying(50),
-    description_2026_r7 character varying(50),
-    is_released_from_genotyping_2013 boolean,
-    description_2026_r4 character varying(50),
-    total_male_chimeras_2013 integer,
-    updated_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_0_to_9_percent_glt_2013 integer,
-    is_active_2024 boolean,
-    mi_date_2013 date,
-    created_at_2026_r8 timestamp without time zone,
-    updated_at_2026_r4 timestamp without time zone,
-    qc_tv_backbone_assay_id_2013 integer,
-    created_at_2026_r4 timestamp without time zone,
-    updated_at_2030_r3 timestamp without time zone,
-    phenotyping_started_2024 boolean,
-    created_at_205 timestamp without time zone,
-    qc_loxp_confirmation_id_2013 integer,
-    qc_lacz_sr_pcr_id_2013 integer,
-    id_2024 integer,
-    order_by_2012 integer,
-    created_at_2023 timestamp without time zone,
-    test_cross_strain_id_2013 integer,
-    colony_name_2013 character varying(125),
-    name_205 character varying(100),
-    number_of_het_offspring_2013 integer,
-    order_by_2023 integer,
-    created_at_2024 timestamp without time zone,
-    updated_at_2030_r1 timestamp without time zone,
-    description_2026_r11 character varying(50),
-    genotyping_comment_2013 character varying(512),
-    qc_loa_qpcr_id_2013 integer,
-    total_blasts_injected_2013 integer,
-    updated_at_2012 timestamp without time zone,
-    date_chimeras_mated_2013 date,
-    number_of_chimeras_with_glt_from_genotyping_2013 integer,
-    es_cell_id_2013 integer,
-    created_at_2012 timestamp without time zone,
-    code_2012 character varying(10),
-    blast_strain_id_2013 integer,
-    cre_excision_required_2024 boolean,
-    number_of_males_with_100_percent_chimerism_2013 integer,
-    updated_at_2013 timestamp without time zone,
-    deleter_strain_id_2024 integer,
-    number_of_chimera_matings_successful_2013 integer,
-    created_at_2026_r7 timestamp without time zone,
-    total_f1_mice_from_matings_2013 integer,
-    mi_plan_id_2013 integer,
-    name_2030_r2 character varying(50),
-    number_of_cre_matings_started_2024 integer,
-    number_of_live_glt_offspring_2013 integer,
-    description_2026_r8 character varying(50),
-    name_2030_r3 character varying(50),
-    description_2026_r6 character varying(50),
-    mouse_allele_type_2013 character varying(2),
-    number_of_cre_matings_successful_2024 integer,
-    updated_at_2023 timestamp without time zone,
-    updated_at_2030 timestamp without time zone,
-    description_2026_r9 character varying(50),
-    total_chimeras_2013 integer,
-    updated_at_205 timestamp without time zone,
-    updated_at_2026_r2 timestamp without time zone,
-    description_2026_r5 character varying(50),
-    updated_at_2026_r6 timestamp without time zone,
-    updated_at_2026_r10 timestamp without time zone,
-    qc_three_prime_lr_pcr_id_2013 integer,
-    qc_five_prime_cassette_integrity_id_2013 integer,
-    created_at_2026_r6 timestamp without time zone,
-    created_at_2026_r1 timestamp without time zone,
-    code_2023 character varying(10),
-    is_active_2013 boolean,
-    colony_background_strain_id_2024 integer,
-    status_id_2013 integer,
-    rederivation_started_2024 boolean,
-    total_transferred_2013 integer,
-    phenotyping_complete_2024 boolean,
-    mouse_allele_type_2024 character varying(2),
-    number_of_cct_offspring_2013 integer,
-    created_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_100_percent_glt_2013 integer,
-    created_at_2030_r1 timestamp without time zone,
-    updated_at_2026_r5 timestamp without time zone,
-    status_id_2024 integer,
-    number_of_chimeras_with_50_to_99_percent_glt_2013 integer,
-    total_female_chimeras_2013 integer,
-    name_2030_r1 character varying(50),
-    updated_at_2026 timestamp without time zone,
-    description_2026_r10 character varying(50),
-    total_pups_born_2013 integer,
-    number_of_chimeras_with_glt_from_cct_2013 integer,
-    report_to_public_2013 boolean,
-    created_at_2026_r9 timestamp without time zone,
-    created_at_2026_r5 timestamp without time zone,
-    name_2023 character varying(50),
-    qc_homozygous_loa_sr_pcr_id_2013 integer,
-    number_of_chimera_matings_attempted_2013 integer,
-    created_at_2026 timestamp without time zone,
-    created_at_2026_r3 timestamp without time zone,
-    updated_at_2026_r7 timestamp without time zone,
-    updated_at_2026_r11 timestamp without time zone,
-    created_at_2030 timestamp without time zone,
-    number_of_males_with_40_to_79_percent_chimerism_2013 integer,
-    comments_2013 text,
-    description_2026_r1 character varying(50),
-    updated_at_2026_r8 timestamp without time zone,
-    rederivation_complete_2024 boolean,
-    updated_at_2026_r3 timestamp without time zone,
-    created_at_2026_r10 timestamp without time zone
-);
-
-
---
--- Name: temp34; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE TABLE temp34 (
-    id_2019_key integer,
     order_by_2017 integer,
     code_2017 character varying(10),
     name_2017 character varying(50),
@@ -787,293 +834,513 @@ CREATE TABLE temp34 (
 
 
 --
--- Name: temp53; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: temp36; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
-CREATE TABLE temp53 (
+CREATE TABLE temp36 (
     id_2019_key integer,
-    qc_neo_count_qpcr_id_2013 integer,
-    number_of_males_with_0_to_39_percent_chimerism_2013 integer,
-    updated_by_id_2013 integer,
-    updated_at_2026_r9 timestamp without time zone,
-    number_surrogates_receiving_2013 integer,
-    description_2026_r2 character varying(50),
-    created_at_2013 timestamp without time zone,
-    qc_five_prime_lr_pcr_id_2013 integer,
-    name_2012 character varying(50),
-    created_at_2026_r11 timestamp without time zone,
-    number_of_chimeras_with_10_to_49_percent_glt_2013 integer,
-    qc_neo_sr_pcr_id_2013 integer,
-    description_2026 character varying(50),
-    description_2026_r3 character varying(50),
-    number_of_males_with_80_to_99_percent_chimerism_2013 integer,
-    updated_at_2026_r1 timestamp without time zone,
-    created_at_2026_r2 timestamp without time zone,
-    colony_background_strain_id_2013 integer,
-    qc_mutant_specific_sr_pcr_id_2013 integer,
-    qc_southern_blot_id_2013 integer,
-    is_released_from_genotyping_2013 boolean,
-    description_2026_r7 character varying(50),
+    is_active_2024 boolean,
+    cre_excision_required_2024 boolean,
+    phenotyping_complete_2024 boolean,
+    mouse_allele_type_2024 character varying(2),
+    deleter_strain_id_2024 integer,
+    status_id_2024 integer,
+    phenotyping_started_2024 boolean,
+    created_at_205 timestamp without time zone,
+    number_of_cre_matings_started_2024 integer,
+    colony_name_2024 character varying(125),
+    id_2024 integer,
+    created_at_2023 timestamp without time zone,
+    name_2023 character varying(50),
+    number_of_cre_matings_successful_2024 integer,
+    updated_at_2023 timestamp without time zone,
+    updated_at_2030 timestamp without time zone,
+    mi_attempt_id_2024 integer,
+    updated_at_205 timestamp without time zone,
+    name_205 character varying(100),
+    updated_at_2024 timestamp without time zone,
+    created_at_2024 timestamp without time zone,
+    order_by_2023 integer,
     name_2030 character varying(50),
-    description_2026_r4 character varying(50),
-    total_male_chimeras_2013 integer,
-    updated_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_0_to_9_percent_glt_2013 integer,
-    mi_date_2013 date,
-    created_at_2026_r8 timestamp without time zone,
-    updated_at_2026_r4 timestamp without time zone,
+    created_at_2030 timestamp without time zone,
+    rederivation_complete_2024 boolean,
+    code_2023 character varying(10),
+    colony_background_strain_id_2024 integer,
+    rederivation_started_2024 boolean
+);
+
+
+--
+-- Name: temp54; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE temp54 (
+    created_at_208 timestamp without time zone,
+    comment_2019 text,
+    other_targeted_mice_count_208 integer,
+    is_active_2019 boolean,
+    created_at_203 timestamp without time zone,
+    funding_203 character varying(255),
+    is_cre_bac_allele_2019 boolean,
+    mutation_published_as_lethal_count_208 integer,
+    contact_203 character varying(255),
+    name_203 character varying(255),
+    name_202 character varying(100),
+    status_id_2019 integer,
+    code_2017 character varying(10),
+    number_of_es_cells_passing_qc_2019 integer,
+    description_2017 character varying(255),
+    description_2015 character varying(100),
+    marker_symbol_208 character varying(75),
+    participants_203 text,
+    es_qc_comment_id_2019 integer,
+    updated_at_2019 timestamp without time zone,
+    updated_at_2018 timestamp without time zone,
+    updated_at_2017 timestamp without time zone,
+    id_2019_key integer,
+    conditional_es_cells_count_208 integer,
+    number_of_es_cells_starting_qc_2019 integer,
+    updated_at_2015 timestamp without time zone,
+    updated_at_2014 timestamp without time zone,
+    created_at_202 timestamp without time zone,
+    go_annotations_for_gene_count_208 integer,
+    name_2018 character varying(255),
+    name_2017 character varying(50),
+    updated_at_203 timestamp without time zone,
+    is_deletion_allele_2019 boolean,
+    updated_at_202 timestamp without time zone,
+    id_208_key integer,
+    publications_for_gene_count_208 integer,
+    name_2015 character varying(10),
+    name_2014 character varying(255),
+    deletion_es_cells_count_208 integer,
+    created_at_2014 timestamp without time zone,
+    created_at_2015 timestamp without time zone,
+    updated_at_208 timestamp without time zone,
+    created_at_2018 timestamp without time zone,
+    created_at_2019 timestamp without time zone,
+    is_cre_knock_in_allele_2019 boolean,
+    created_at_2017 timestamp without time zone,
+    consortium_id_2019 integer,
+    order_by_2017 integer,
+    production_centre_id_2019 integer,
+    priority_id_2019 integer,
+    ikmc_projects_count_208 integer,
+    is_conditional_allele_2019 boolean,
+    is_bespoke_allele_2019 boolean,
+    mgi_accession_id_208 character varying(40),
+    non_conditional_es_cells_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    withdrawn_2019 boolean,
+    sub_project_id_2019 integer,
+    mi_plans_count integer,
     qc_tv_backbone_assay_id_2013 integer,
-    created_at_2026_r4 timestamp without time zone,
-    qc_loxp_confirmation_id_2013 integer,
-    qc_lacz_sr_pcr_id_2013 integer,
-    order_by_2012 integer,
-    test_cross_strain_id_2013 integer,
-    colony_name_2013 character varying(125),
-    number_of_het_offspring_2013 integer,
-    updated_at_2030_r1 timestamp without time zone,
-    genotyping_comment_2013 character varying(512),
-    description_2026_r11 character varying(50),
+    number_of_chimeras_with_glt_from_cct_2013 integer,
+    number_of_males_with_40_to_79_percent_chimerism_2013 integer,
+    qc_three_prime_lr_pcr_id_2013 integer,
     qc_loa_qpcr_id_2013 integer,
-    total_blasts_injected_2013 integer,
-    updated_at_2012 timestamp without time zone,
-    date_chimeras_mated_2013 date,
+    mi_date_2013 date,
     number_of_chimeras_with_glt_from_genotyping_2013 integer,
+    number_of_chimeras_with_10_to_49_percent_glt_2013 integer,
+    qc_homozygous_loa_sr_pcr_id_2013 integer,
+    total_f1_mice_from_matings_2013 integer,
+    number_of_cct_offspring_2013 integer,
+    status_id_2013 integer,
+    total_blasts_injected_2013 integer,
+    report_to_public_2013 boolean,
+    total_male_chimeras_2013 integer,
+    total_transferred_2013 integer,
+    number_of_chimeras_with_100_percent_glt_2013 integer,
+    total_chimeras_2013 integer,
+    mouse_allele_type_2013 character varying(2),
+    updated_by_id_2013 integer,
+    updated_at_2013 timestamp without time zone,
+    qc_lacz_sr_pcr_id_2013 integer,
+    number_of_males_with_80_to_99_percent_chimerism_2013 integer,
+    genotyping_comment_2013 character varying(512),
+    qc_mutant_specific_sr_pcr_id_2013 integer,
+    colony_name_2013 character varying(125),
+    date_chimeras_mated_2013 date,
+    total_pups_born_2013 integer,
+    blast_strain_id_2013 integer,
+    number_surrogates_receiving_2013 integer,
+    number_of_males_with_0_to_39_percent_chimerism_2013 integer,
+    qc_loxp_confirmation_id_2013 integer,
+    id_2013_key integer,
+    qc_neo_sr_pcr_id_2013 integer,
+    number_of_chimera_matings_attempted_2013 integer,
+    colony_background_strain_id_2013 integer,
+    number_of_het_offspring_2013 integer,
+    created_at_2013 timestamp without time zone,
+    total_female_chimeras_2013 integer,
+    qc_neo_count_qpcr_id_2013 integer,
+    number_of_males_with_100_percent_chimerism_2013 integer,
+    is_active_2013 boolean,
+    is_released_from_genotyping_2013 boolean,
+    number_of_chimeras_with_0_to_9_percent_glt_2013 integer,
+    number_of_chimeras_with_50_to_99_percent_glt_2013 integer,
+    number_of_live_glt_offspring_2013 integer,
+    test_cross_strain_id_2013 integer,
+    qc_southern_blot_id_2013 integer,
     es_cell_id_2013 integer,
+    qc_five_prime_cassette_integrity_id_2013 integer,
+    number_of_chimera_matings_successful_2013 integer,
+    qc_five_prime_lr_pcr_id_2013 integer,
+    comments_2013 text,
+    updated_at_2012 timestamp without time zone,
+    name_2012 character varying(50),
     created_at_2012 timestamp without time zone,
     code_2012 character varying(10),
-    blast_strain_id_2013 integer,
-    number_of_males_with_100_percent_chimerism_2013 integer,
-    updated_at_2013 timestamp without time zone,
-    id_2013 integer,
-    number_of_chimera_matings_successful_2013 integer,
-    total_f1_mice_from_matings_2013 integer,
-    created_at_2026_r7 timestamp without time zone,
-    name_2030_r2 character varying(50),
-    number_of_live_glt_offspring_2013 integer,
-    description_2026_r8 character varying(50),
-    description_2026_r6 character varying(50),
-    mouse_allele_type_2013 character varying(2),
-    total_chimeras_2013 integer,
-    description_2026_r9 character varying(50),
-    updated_at_2030 timestamp without time zone,
-    updated_at_2026_r2 timestamp without time zone,
-    description_2026_r5 character varying(50),
-    updated_at_2026_r6 timestamp without time zone,
-    updated_at_2026_r10 timestamp without time zone,
-    qc_three_prime_lr_pcr_id_2013 integer,
-    qc_five_prime_cassette_integrity_id_2013 integer,
-    created_at_2026_r6 timestamp without time zone,
-    created_at_2026_r1 timestamp without time zone,
-    is_active_2013 boolean,
-    status_id_2013 integer,
-    total_transferred_2013 integer,
-    number_of_cct_offspring_2013 integer,
-    created_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_100_percent_glt_2013 integer,
-    created_at_2030_r1 timestamp without time zone,
-    updated_at_2026_r5 timestamp without time zone,
-    number_of_chimeras_with_50_to_99_percent_glt_2013 integer,
-    total_female_chimeras_2013 integer,
-    name_2030_r1 character varying(50),
+    order_by_2012 integer,
     updated_at_2026 timestamp without time zone,
-    total_pups_born_2013 integer,
-    number_of_chimeras_with_glt_from_cct_2013 integer,
-    description_2026_r10 character varying(50),
-    report_to_public_2013 boolean,
-    created_at_2026_r5 timestamp without time zone,
-    created_at_2026_r9 timestamp without time zone,
-    qc_homozygous_loa_sr_pcr_id_2013 integer,
-    number_of_chimera_matings_attempted_2013 integer,
+    description_2026 character varying(50),
     created_at_2026 timestamp without time zone,
-    created_at_2026_r3 timestamp without time zone,
-    updated_at_2026_r7 timestamp without time zone,
-    updated_at_2026_r11 timestamp without time zone,
-    created_at_2030 timestamp without time zone,
-    number_of_males_with_40_to_79_percent_chimerism_2013 integer,
-    comments_2013 text,
+    updated_at_2026_r1 timestamp without time zone,
     description_2026_r1 character varying(50),
-    updated_at_2026_r8 timestamp without time zone,
+    created_at_2026_r1 timestamp without time zone,
+    updated_at_2026_r2 timestamp without time zone,
+    description_2026_r2 character varying(50),
+    created_at_2026_r2 timestamp without time zone,
     updated_at_2026_r3 timestamp without time zone,
-    created_at_2026_r10 timestamp without time zone
+    description_2026_r3 character varying(50),
+    created_at_2026_r3 timestamp without time zone,
+    updated_at_2026_r4 timestamp without time zone,
+    description_2026_r4 character varying(50),
+    created_at_2026_r4 timestamp without time zone,
+    updated_at_2026_r5 timestamp without time zone,
+    description_2026_r5 character varying(50),
+    created_at_2026_r5 timestamp without time zone,
+    updated_at_2026_r6 timestamp without time zone,
+    description_2026_r6 character varying(50),
+    created_at_2026_r6 timestamp without time zone,
+    updated_at_2026_r7 timestamp without time zone,
+    description_2026_r7 character varying(50),
+    created_at_2026_r7 timestamp without time zone,
+    updated_at_2026_r8 timestamp without time zone,
+    description_2026_r8 character varying(50),
+    created_at_2026_r8 timestamp without time zone,
+    updated_at_2026_r9 timestamp without time zone,
+    description_2026_r9 character varying(50),
+    created_at_2026_r9 timestamp without time zone,
+    updated_at_2026_r10 timestamp without time zone,
+    description_2026_r10 character varying(50),
+    created_at_2026_r10 timestamp without time zone,
+    updated_at_2026_r11 timestamp without time zone,
+    description_2026_r11 character varying(50),
+    created_at_2026_r11 timestamp without time zone,
+    updated_at_2030 timestamp without time zone,
+    name_2030 character varying(50),
+    created_at_2030 timestamp without time zone,
+    updated_at_2030_r1 timestamp without time zone,
+    name_2030_r1 character varying(50),
+    created_at_2030_r1 timestamp without time zone,
+    updated_at_2030_r2 timestamp without time zone,
+    name_2030_r2 character varying(50),
+    created_at_2030_r2 timestamp without time zone
 );
 
 
 --
--- Name: temp56; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: temp58; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
-CREATE TABLE temp56 (
-    id_2019_key integer,
-    phenotype_attempt_registered_date_209 date,
-    assigned_es_cell_qc_complete_date_209 date,
-    consortium_209 character varying(255),
-    priority_209 character varying(255),
-    overall_status_209 character varying(50),
-    mi_attempt_status_209 character varying(50),
-    total_pipeline_efficiency_gene_count_209 integer,
-    distinct_genotype_confirmed_es_cells_209 integer,
-    phenotyping_started_date_209 date,
-    mgi_accession_id_209 character varying(40),
-    rederivation_started_date_209 date,
-    distinct_old_non_genotype_confirmed_es_cells_209 integer,
-    phenotyping_complete_date_209 date,
-    mi_attempt_colony_name_209 character varying(255),
-    allele_symbol_209 character varying(75),
-    assigned_es_cell_qc_in_progress_date_209 date,
-    assigned_date_209 date,
-    aborted_es_cell_qc_failed_date_209 date,
-    mutation_sub_type_209 character varying(100),
-    mi_attempt_consortium_209 character varying(255),
-    genetic_background_209 character varying(50),
-    gc_pipeline_efficiency_gene_count_209 integer,
-    micro_injection_aborted_date_209 date,
-    phenotype_attempt_status_209 character varying(50),
-    cre_excision_complete_date_209 date,
-    genotype_confirmed_date_209 date,
-    updated_at_209 timestamp without time zone,
-    phenotype_attempt_aborted_date_209 date,
-    id_209 integer,
-    is_bespoke_allele_209 boolean,
-    chimeras_obtained_date_209 date,
-    mi_plan_status_209 character varying(50),
-    production_centre_209 character varying(100),
-    rederivation_complete_date_209 date,
-    cre_excision_started_date_209 date,
-    created_at_209 timestamp without time zone,
-    gene_209 character varying(75),
-    sub_project_209 character varying(255),
-    phenotype_attempt_colony_name_209 character varying(255),
-    mi_attempt_production_centre_209 character varying(255),
-    ikmc_project_id_209 integer,
-    micro_injection_in_progress_date_209 date
+CREATE TABLE temp58 (
+    id_2013_key integer,
+    updated_at_2011 timestamp without time zone,
+    id_2011 integer,
+    updated_at_2012 timestamp without time zone,
+    name_2012 character varying(50),
+    status_id_2011 integer,
+    created_at_2011 timestamp without time zone,
+    created_at_2012 timestamp without time zone,
+    order_by_2012 integer,
+    code_2012 character varying(10)
 );
 
 
 --
--- Name: temp63; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: temp63; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
 --
 
 CREATE TABLE temp63 (
-    cassette_type_2031 character varying(50),
-    assembly_2031 character varying(50),
-    strand_2031 character varying(1),
-    cassette_end_2031 integer,
-    mutation_method_id_2031 integer,
-    homology_arm_end_2031 integer,
-    project_design_id_2031 integer,
-    gene_id_2031 integer,
-    chromosome_2031 character varying(2),
-    floxed_end_exon_2031 character varying(255),
-    floxed_start_exon_2031 character varying(255),
-    reporter_2031 character varying(255),
-    id_2031_key integer,
-    loxp_start_2031 integer,
-    cassette_start_2031 integer,
-    homology_arm_start_2031 integer,
-    mutation_subtype_id_2031 integer,
-    cassette_2031 character varying(100),
-    subtype_description_2031 character varying(255),
-    mutation_type_id_2031 integer,
-    backbone_2031 character varying(100),
-    loxp_end_2031 integer,
-    marker_symbol_208 character varying(75),
+    id_2013_key integer,
+    is_distributed_by_emma_2010 boolean,
+    deposited_material_id_2010 integer,
+    end_date_2010 date,
+    name_202 character varying(100),
+    id_2010 integer,
+    created_at_206 timestamp without time zone,
+    updated_at_202 timestamp without time zone,
+    name_206 character varying(50),
+    start_date_2010 date,
+    created_at_202 timestamp without time zone,
+    created_at_2010 timestamp without time zone,
+    centre_id_2010 integer,
+    updated_at_206 timestamp without time zone,
+    updated_at_2010 timestamp without time zone
+);
+
+
+--
+-- Name: temp69; Type: TABLE; Schema: biomart2; Owner: -; Tablespace: 
+--
+
+CREATE TABLE temp69 (
+    id_2013_key integer,
+    is_active_2024 boolean,
+    cre_excision_required_2024 boolean,
+    phenotyping_complete_2024 boolean,
+    mouse_allele_type_2024 character varying(2),
+    deleter_strain_id_2024 integer,
+    status_id_2024 integer,
+    phenotyping_started_2024 boolean,
+    created_at_205 timestamp without time zone,
+    number_of_cre_matings_started_2024 integer,
+    colony_name_2024 character varying(125),
+    id_2024 integer,
+    mi_plan_id_2024 integer,
+    created_at_2023 timestamp without time zone,
+    name_2023 character varying(50),
+    number_of_cre_matings_successful_2024 integer,
+    updated_at_2023 timestamp without time zone,
+    updated_at_2030 timestamp without time zone,
+    updated_at_205 timestamp without time zone,
+    name_205 character varying(100),
+    updated_at_2024 timestamp without time zone,
+    created_at_2024 timestamp without time zone,
+    order_by_2023 integer,
+    name_2030 character varying(50),
+    created_at_2030 timestamp without time zone,
+    rederivation_complete_2024 boolean,
+    code_2023 character varying(10),
+    colony_background_strain_id_2024 integer,
+    rederivation_started_2024 boolean
+);
+
+
+SET search_path = biomart3, pg_catalog;
+
+--
+-- Name: imits2__genes__main; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__genes__main (
+    id_208_key integer,
+    marker_symbol character varying(75),
     go_annotations_for_gene_count_208 integer,
     mutation_published_as_lethal_count_208 integer,
     non_conditional_es_cells_count_208 integer,
     other_targeted_mice_count_208 integer,
     conditional_es_cells_count_208 integer,
-    mgi_accession_id_208 character varying(40),
+    mgi_accession_id character varying(40),
     publications_for_gene_count_208 integer,
     ikmc_projects_count_208 integer,
-    deletion_es_cells_count_208 integer,
     other_condtional_mice_count_208 integer,
-    name_2036 character varying(100),
-    code_2036 character varying(100),
-    name_2037 character varying(100),
-    code_2037 character varying(100),
-    name_2038 character varying(100),
-    code_2038 character varying(100),
-    id_2040 integer,
+    deletion_es_cells_count_208 integer,
+    mi_plans_count integer DEFAULT 0
+);
+
+
+--
+-- Name: imits2__mi_attempt_distribution_centres__dm; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__mi_attempt_distribution_centres__dm (
+    id_2013_key integer,
+    is_distributed_by_emma_2010 boolean,
+    deposited_material_id_2010 integer,
+    end_date_2010 date,
+    name_202 character varying(100),
+    id_2010 integer,
+    name_206 character varying(50),
+    start_date_2010 date,
+    centre_id_2010 integer
+);
+
+
+--
+-- Name: imits2__mi_attempts__main; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__mi_attempts__main (
+    marker_symbol character varying(75),
+    name_2018 character varying(255),
+    comment_2019 text,
+    other_targeted_mice_count_208 integer,
+    is_active_2019 boolean,
+    mgi_accession_id character varying(40),
+    is_deletion_allele_2019 boolean,
+    id_208_key integer,
+    production_centre_name character varying(100),
+    publications_for_gene_count_208 integer,
+    is_cre_bac_allele_2019 boolean,
+    mi_plan_priority_name character varying(10),
+    mutation_published_as_lethal_count_208 integer,
+    name_2014 character varying(255),
+    deletion_es_cells_count_208 integer,
+    mi_plan_priority_description character varying(100),
+    mi_plan_status_description character varying(255),
+    contact_203 character varying(255),
+    is_cre_knock_in_allele_2019 boolean,
+    status_id_2019 integer,
+    code_2017 character varying(10),
+    mi_plan_status_name character varying(50),
+    consortium_id_2019 integer,
+    number_of_es_cells_passing_qc_2019 integer,
+    order_by_2017 integer,
+    participants_203 text,
+    production_centre_id_2019 integer,
+    consortium_funding character varying(255),
+    priority_id_2019 integer,
+    es_qc_comment_id_2019 integer,
+    ikmc_projects_count_208 integer,
+    consortium_name character varying(255),
+    is_conditional_allele_2019 boolean,
+    number_of_es_cells_starting_qc_2019 integer,
+    conditional_es_cells_count_208 integer,
+    id_2019_key integer,
+    is_bespoke_allele_2019 boolean,
+    non_conditional_es_cells_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    withdrawn_2019 boolean,
+    sub_project_id_2019 integer,
+    mi_plans_count integer,
+    go_annotations_for_gene_count_208 integer,
+    qc_tv_backbone_assay_id_2013 integer,
+    number_of_chimeras_with_glt_from_cct_2013 integer,
+    number_of_males_with_40_to_79_percent_chimerism_2013 integer,
+    qc_three_prime_lr_pcr_id_2013 integer,
+    qc_loa_qpcr_id_2013 integer,
+    mi_date date,
+    number_of_chimeras_with_glt_from_genotyping_2013 integer,
+    number_of_chimeras_with_10_to_49_percent_glt_2013 integer,
+    qc_homozygous_loa_sr_pcr_id_2013 integer,
+    total_f1_mice_from_matings_2013 integer,
+    number_of_cct_offspring_2013 integer,
+    status_id_2013 integer,
+    total_blasts_injected_2013 integer,
+    report_to_public_2013 boolean,
+    total_male_chimeras_2013 integer,
+    total_transferred_2013 integer,
+    number_of_chimeras_with_100_percent_glt_2013 integer,
+    total_chimeras_2013 integer,
+    mouse_allele_type_2013 character varying(2),
+    qc_lacz_sr_pcr_id_2013 integer,
+    number_of_males_with_80_to_99_percent_chimerism_2013 integer,
+    genotyping_comment_2013 character varying(512),
+    qc_mutant_specific_sr_pcr_id_2013 integer,
+    mi_attempt_colony_name character varying(125),
+    date_chimeras_mated_2013 date,
+    total_pups_born_2013 integer,
+    blast_strain_id_2013 integer,
+    number_surrogates_receiving_2013 integer,
+    number_of_males_with_0_to_39_percent_chimerism_2013 integer,
+    qc_loxp_confirmation_id_2013 integer,
+    id_2013_key integer,
+    qc_neo_sr_pcr_id_2013 integer,
+    number_of_chimera_matings_attempted_2013 integer,
+    colony_background_strain_id_2013 integer,
+    number_of_het_offspring_2013 integer,
+    total_female_chimeras_2013 integer,
+    qc_neo_count_qpcr_id_2013 integer,
+    number_of_males_with_100_percent_chimerism_2013 integer,
+    mi_attempt_is_active boolean,
+    is_released_from_genotyping_2013 boolean,
+    number_of_chimeras_with_0_to_9_percent_glt_2013 integer,
+    number_of_chimeras_with_50_to_99_percent_glt_2013 integer,
+    number_of_live_glt_offspring_2013 integer,
+    test_cross_strain_id_2013 integer,
+    qc_southern_blot_id_2013 integer,
+    es_cell_id_2013 integer,
+    qc_five_prime_cassette_integrity_id_2013 integer,
+    number_of_chimera_matings_successful_2013 integer,
+    qc_five_prime_lr_pcr_id_2013 integer,
+    comments_2013 text,
+    mi_attempt_status_name character varying(50),
+    mi_attempt_status_code character varying(10),
+    user_qc_tv_backbone_assay_2034 character varying(255),
+    allele_id_2034 integer,
+    production_qc_three_prime_screen_2034 character varying(255),
+    mutation_subtype_2034 character varying(100),
+    strain_2034 character varying(25),
+    production_qc_five_prime_screen_2034 character varying(255),
+    user_qc_five_prime_lr_pcr_2034 character varying(255),
+    user_qc_karyotype_2034 character varying(255),
+    contact_2034 character varying(255),
+    mgi_allele_id_2034 character varying(50),
+    mgi_allele_symbol_superscript character varying(75),
+    user_qc_neo_count_qpcr_2034 character varying(255),
+    legacy_id_2034 integer,
+    user_qc_loxp_confirmation_2034 character varying(255),
+    targ_rep_es_cell_name character varying(100),
+    production_qc_vector_integrity_2034 character varying(255),
+    targeting_vector_id_2034 integer,
+    production_qc_loxp_screen_2034 character varying(255),
+    user_qc_mutant_specific_sr_pcr_2034 character varying(255),
+    user_qc_comment_2034 text,
+    user_qc_three_prime_lr_pcr_2034 character varying(255),
+    production_qc_loss_of_allele_2034 character varying(255),
+    parental_cell_line character varying(255),
+    ikmc_project_id_2034 character varying(255),
+    user_qc_five_prime_cassette_integrity_2034 character varying(255),
+    report_to_public_2034 boolean,
+    user_qc_loss_of_wt_allele_2034 character varying(255),
+    user_qc_map_test_2034 character varying(255),
+    user_qc_lacz_sr_pcr_2034 character varying(255),
+    allele_type_2034 character varying(2),
+    user_qc_neo_sr_pcr_2034 character varying(255),
+    allele_symbol_superscript_template character varying(75),
+    pipeline_id_2034 integer,
+    user_qc_southern_blot_2034 character varying(255),
+    comment_2034 character varying(255),
+    legacy_id_2039 integer,
+    description_2039 character varying(255),
+    targ_rep_pipeline_name character varying(255),
+    allele_id_2040_r1 integer,
     intermediate_vector_2040 character varying(255),
     pipeline_id_2040 integer,
     ikmc_project_id_2040 character varying(255),
     name_2040 character varying(255),
     report_to_public_2040 boolean,
-    legacy_id_2039 integer,
-    description_2039 character varying(255),
-    name_2039 character varying(255)
-);
-
-
---
--- Name: temp69; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE TABLE temp69 (
-    id_2031_key integer,
-    name_2039_r1 character varying(255),
-    production_qc_loxp_screen_2034 character varying(255),
-    user_qc_southern_blot_2034 character varying(255),
-    user_qc_mutant_specific_sr_pcr_2034 character varying(255),
-    created_at_2039 timestamp without time zone,
-    user_qc_neo_sr_pcr_2034 character varying(255),
-    user_qc_loxp_confirmation_2034 character varying(255),
-    user_qc_map_test_2034 character varying(255),
-    comment_2034 character varying(255),
-    legacy_id_2039 integer,
-    legacy_id_2034 integer,
-    production_qc_vector_integrity_2034 character varying(255),
-    allele_symbol_superscript_template_2034 character varying(75),
-    report_to_public_2040 boolean,
-    name_2034 character varying(100),
     legacy_id_2039_r1 integer,
-    user_qc_comment_2034 text,
-    user_qc_five_prime_lr_pcr_2034 character varying(255),
-    updated_at_2034 timestamp without time zone,
-    contact_2034 character varying(255),
-    updated_at_2039 timestamp without time zone,
-    parental_cell_line_2034 character varying(255),
-    strain_2034 character varying(25),
-    mutation_subtype_2034 character varying(100),
-    mgi_allele_id_2034 character varying(50),
-    description_2039 character varying(255),
-    name_2039 character varying(255),
-    user_qc_three_prime_lr_pcr_2034 character varying(255),
-    production_qc_five_prime_screen_2034 character varying(255),
-    user_qc_tv_backbone_assay_2034 character varying(255),
-    updated_at_2040 timestamp without time zone,
-    allele_id_2040 integer,
-    updated_at_2039_r1 timestamp without time zone,
     description_2039_r1 character varying(255),
-    id_2034 integer,
-    user_qc_lacz_sr_pcr_2034 character varying(255),
-    user_qc_karyotype_2034 character varying(255),
-    created_at_2040 timestamp without time zone,
-    user_qc_neo_count_qpcr_2034 character varying(255),
-    ikmc_project_id_2034 character varying(255),
-    production_qc_three_prime_screen_2034 character varying(255),
-    created_at_2039_r1 timestamp without time zone,
-    production_qc_loss_of_allele_2034 character varying(255),
-    report_to_public_2034 boolean,
-    allele_type_2034 character varying(2),
-    ikmc_project_id_2040 character varying(255),
-    mgi_allele_symbol_superscript_2034 character varying(75),
-    name_2040 character varying(255),
-    intermediate_vector_2040 character varying(255),
-    pipeline_id_2034 integer,
-    user_qc_loss_of_wt_allele_2034 character varying(255),
-    targeting_vector_id_2034 integer,
-    created_at_2034 timestamp without time zone,
-    user_qc_five_prime_cassette_integrity_2034 character varying(255),
-    pipeline_id_2040 integer
+    name_2039_r1 character varying(255),
+    description_2026 character varying(50),
+    description_2026_r1 character varying(50),
+    description_2026_r2 character varying(50),
+    description_2026_r3 character varying(50),
+    description_2026_r4 character varying(50),
+    description_2026_r5 character varying(50),
+    description_2026_r6 character varying(50),
+    description_2026_r7 character varying(50),
+    description_2026_r8 character varying(50),
+    description_2026_r9 character varying(50),
+    description_2026_r10 character varying(50),
+    description_2026_r11 character varying(50),
+    name_2030 character varying(50),
+    name_2030_r1 character varying(50),
+    name_2030_r2 character varying(50),
+    mi_attempts_count integer DEFAULT 0
 );
 
 
 --
--- Name: temp7; Type: TABLE; Schema: intermediate; Owner: -; Tablespace: 
+-- Name: imits2__mi_plans__main; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
 --
 
-CREATE TABLE temp7 (
+CREATE TABLE imits2__mi_plans__main (
+    marker_symbol character varying(75),
+    conditional_es_cells_count_208 integer,
+    other_targeted_mice_count_208 integer,
+    mgi_accession_id character varying(40),
+    id_208_key integer,
+    non_conditional_es_cells_count_208 integer,
+    publications_for_gene_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    ikmc_projects_count_208 integer,
+    mutation_published_as_lethal_count_208 integer,
+    deletion_es_cells_count_208 integer,
+    go_annotations_for_gene_count_208 integer,
     priority_id_2019 integer,
     withdrawn_2019 boolean,
     is_active_2019 boolean,
@@ -1082,56 +1349,672 @@ CREATE TABLE temp7 (
     sub_project_id_2019 integer,
     es_qc_comment_id_2019 integer,
     production_centre_id_2019 integer,
-    gene_id_2019 integer,
     is_cre_bac_allele_2019 boolean,
     is_cre_knock_in_allele_2019 boolean,
     id_2019_key integer,
-    updated_at_2019 timestamp without time zone,
     number_of_es_cells_starting_qc_2019 integer,
-    created_at_2019 timestamp without time zone,
     is_deletion_allele_2019 boolean,
     number_of_es_cells_passing_qc_2019 integer,
     consortium_id_2019 integer,
     comment_2019 text,
     is_bespoke_allele_2019 boolean,
-    updated_at_202 timestamp without time zone,
-    name_202 character varying(100),
-    created_at_202 timestamp without time zone,
-    funding_203 character varying(255),
-    updated_at_203 timestamp without time zone,
-    name_203 character varying(255),
-    created_at_203 timestamp without time zone,
+    production_centre_name character varying(100),
+    consortium_funding character varying(255),
+    consortium_name character varying(255),
     participants_203 text,
     contact_203 character varying(255),
-    marker_symbol_208 character varying(75),
-    mgi_accession_id_208 character varying(40),
-    non_conditional_es_cells_count_208 integer,
-    mutation_published_as_lethal_count_208 integer,
-    go_annotations_for_gene_count_208 integer,
-    updated_at_208 timestamp without time zone,
-    conditional_es_cells_count_208 integer,
-    other_targeted_mice_count_208 integer,
-    created_at_208 timestamp without time zone,
-    ikmc_projects_count_208 integer,
-    publications_for_gene_count_208 integer,
-    other_condtional_mice_count_208 integer,
-    deletion_es_cells_count_208 integer,
-    updated_at_2014 timestamp without time zone,
     name_2014 character varying(255),
-    created_at_2014 timestamp without time zone,
-    updated_at_2015 timestamp without time zone,
-    description_2015 character varying(100),
-    name_2015 character varying(10),
-    created_at_2015 timestamp without time zone,
-    updated_at_2017 timestamp without time zone,
-    description_2017 character varying(255),
-    name_2017 character varying(50),
-    created_at_2017 timestamp without time zone,
+    mi_plan_priority_description character varying(100),
+    mi_plan_priority_name character varying(10),
+    mi_plan_status_description character varying(255),
+    mi_plan_status_name character varying(50),
     code_2017 character varying(10),
     order_by_2017 integer,
-    updated_at_2018 timestamp without time zone,
     name_2018 character varying(255),
-    created_at_2018 timestamp without time zone
+    mi_plans_count integer DEFAULT 0,
+    mi_attempts_count integer DEFAULT 0
+);
+
+
+--
+-- Name: imits2__phenotype_attempts__dm; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__phenotype_attempts__dm (
+    id_2019_key integer,
+    is_active_2024 boolean,
+    cre_excision_required_2024 boolean,
+    phenotyping_complete_2024 boolean,
+    mouse_allele_type_2024 character varying(2),
+    deleter_strain_id_2024 integer,
+    status_id_2024 integer,
+    phenotyping_started_2024 boolean,
+    number_of_cre_matings_started_2024 integer,
+    colony_name_2024 character varying(125),
+    id_2024 integer,
+    name_2023 character varying(50),
+    number_of_cre_matings_successful_2024 integer,
+    mi_attempt_id_2024 integer,
+    name_205 character varying(100),
+    order_by_2023 integer,
+    name_2030 character varying(50),
+    rederivation_complete_2024 boolean,
+    code_2023 character varying(10),
+    colony_background_strain_id_2024 integer,
+    rederivation_started_2024 boolean
+);
+
+
+--
+-- Name: imits2__phenotype_attempts_mb001__dm; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__phenotype_attempts_mb001__dm (
+    id_2013_key integer,
+    is_active_2024 boolean,
+    cre_excision_required_2024 boolean,
+    phenotyping_complete_2024 boolean,
+    mouse_allele_type_2024 character varying(2),
+    deleter_strain_id_2024 integer,
+    status_id_2024 integer,
+    phenotyping_started_2024 boolean,
+    number_of_cre_matings_started_2024 integer,
+    colony_name_2024 character varying(125),
+    id_2024 integer,
+    mi_plan_id_2024 integer,
+    name_2023 character varying(50),
+    number_of_cre_matings_successful_2024 integer,
+    name_205 character varying(100),
+    order_by_2023 integer,
+    name_2030 character varying(50),
+    rederivation_complete_2024 boolean,
+    code_2023 character varying(10),
+    colony_background_strain_id_2024 integer,
+    rederivation_started_2024 boolean
+);
+
+
+--
+-- Name: imits2__targ_rep_alleles__dm; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__targ_rep_alleles__dm (
+    id_208_key integer,
+    subtype_description_2031 character varying(255),
+    chromosome_2031 character varying(2),
+    code_2038 character varying(100),
+    created_at_2039 timestamp without time zone,
+    homology_arm_start_2031 integer,
+    backbone_2031 character varying(100),
+    loxp_start_2031 integer,
+    updated_at_2037 timestamp without time zone,
+    updated_at_2038 timestamp without time zone,
+    legacy_id_2039 integer,
+    strand_2031 character varying(1),
+    name_2036 character varying(100),
+    name_2037 character varying(100),
+    cassette_type_2031 character varying(50),
+    report_to_public_2040 boolean,
+    code_2036 character varying(100),
+    updated_at_2036 timestamp without time zone,
+    cassette_2031 character varying(100),
+    updated_at_2031 timestamp without time zone,
+    created_at_2037 timestamp without time zone,
+    updated_at_2039 timestamp without time zone,
+    created_at_2031 timestamp without time zone,
+    description_2039 character varying(255),
+    name_2039 character varying(255),
+    homology_arm_end_2031 integer,
+    cassette_start_2031 integer,
+    mutation_subtype_id_2031 integer,
+    updated_at_2040 timestamp without time zone,
+    assembly_2031 character varying(50),
+    mutation_method_id_2031 integer,
+    code_2037 character varying(100),
+    created_at_2038 timestamp without time zone,
+    created_at_2040 timestamp without time zone,
+    cassette_end_2031 integer,
+    mutation_type_id_2031 integer,
+    id_2031 integer,
+    floxed_start_exon_2031 character varying(255),
+    reporter_2031 character varying(255),
+    id_2040 integer,
+    project_design_id_2031 integer,
+    ikmc_project_id_2040 character varying(255),
+    name_2040 character varying(255),
+    intermediate_vector_2040 character varying(255),
+    floxed_end_exon_2031 character varying(255),
+    loxp_end_2031 integer,
+    created_at_2036 timestamp without time zone,
+    name_2038 character varying(100),
+    pipeline_id_2040 integer
+);
+
+
+--
+-- Name: meta_conf__dataset__main; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_conf__dataset__main (
+    dataset_id_key integer,
+    dataset character varying(100),
+    display_name character varying(200),
+    description character varying(200),
+    type character varying(20),
+    visible integer,
+    version character varying(25),
+    modified timestamp without time zone
+);
+
+
+--
+-- Name: meta_conf__interface__dm; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_conf__interface__dm (
+    dataset_id_key integer,
+    interface character varying(100)
+);
+
+
+--
+-- Name: meta_conf__user__dm; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_conf__user__dm (
+    dataset_id_key integer,
+    mart_user character varying(100)
+);
+
+
+--
+-- Name: meta_conf__xml__dm; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_conf__xml__dm (
+    dataset_id_key integer,
+    xml bytea,
+    compressed_xml bytea,
+    message_digest bytea
+);
+
+
+--
+-- Name: meta_template__template__main; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_template__template__main (
+    dataset_id_key integer,
+    template character varying(100)
+);
+
+
+--
+-- Name: meta_template__xml__dm; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_template__xml__dm (
+    template character varying(100),
+    compressed_xml bytea
+);
+
+
+--
+-- Name: meta_version__version__main; Type: TABLE; Schema: biomart3; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_version__version__main (
+    version character varying(10)
+);
+
+
+SET search_path = biomart4, pg_catalog;
+
+--
+-- Name: imits2__genes__main; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__genes__main (
+    id_208_key integer,
+    marker_symbol character varying(75),
+    go_annotations_for_gene_count_208 integer,
+    mutation_published_as_lethal_count_208 integer,
+    non_conditional_es_cells_count_208 integer,
+    other_targeted_mice_count_208 integer,
+    conditional_es_cells_count_208 integer,
+    mgi_accession_id character varying(40),
+    publications_for_gene_count_208 integer,
+    ikmc_projects_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    deletion_es_cells_count_208 integer,
+    mi_plans_count integer DEFAULT 0
+);
+
+
+--
+-- Name: imits2__mi_attempt_distribution_centres__dm; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__mi_attempt_distribution_centres__dm (
+    id_2013_key integer,
+    is_distributed_by_emma_2010 boolean,
+    deposited_material_id_2010 integer,
+    end_date_2010 date,
+    name_202 character varying(100),
+    id_2010 integer,
+    name_206 character varying(50),
+    start_date_2010 date,
+    centre_id_2010 integer
+);
+
+
+--
+-- Name: imits2__mi_attempts__main; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__mi_attempts__main (
+    marker_symbol character varying(75),
+    name_2018 character varying(255),
+    comment_2019 text,
+    other_targeted_mice_count_208 integer,
+    is_active_2019 boolean,
+    mgi_accession_id character varying(40),
+    is_deletion_allele_2019 boolean,
+    id_208_key integer,
+    production_centre_name character varying(100),
+    publications_for_gene_count_208 integer,
+    is_cre_bac_allele_2019 boolean,
+    mi_plan_priority_name character varying(10),
+    mutation_published_as_lethal_count_208 integer,
+    name_2014 character varying(255),
+    deletion_es_cells_count_208 integer,
+    mi_plan_priority_description character varying(100),
+    mi_plan_status_description character varying(255),
+    contact_203 character varying(255),
+    is_cre_knock_in_allele_2019 boolean,
+    status_id_2019 integer,
+    code_2017 character varying(10),
+    mi_plan_status_name character varying(50),
+    consortium_id_2019 integer,
+    number_of_es_cells_passing_qc_2019 integer,
+    order_by_2017 integer,
+    participants_203 text,
+    production_centre_id_2019 integer,
+    consortium_funding character varying(255),
+    priority_id_2019 integer,
+    es_qc_comment_id_2019 integer,
+    ikmc_projects_count_208 integer,
+    consortium_name character varying(255),
+    is_conditional_allele_2019 boolean,
+    number_of_es_cells_starting_qc_2019 integer,
+    conditional_es_cells_count_208 integer,
+    id_2019_key integer,
+    is_bespoke_allele_2019 boolean,
+    non_conditional_es_cells_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    withdrawn_2019 boolean,
+    sub_project_id_2019 integer,
+    mi_plans_count integer,
+    go_annotations_for_gene_count_208 integer,
+    qc_tv_backbone_assay_id_2013 integer,
+    number_of_chimeras_with_glt_from_cct_2013 integer,
+    number_of_males_with_40_to_79_percent_chimerism_2013 integer,
+    qc_three_prime_lr_pcr_id_2013 integer,
+    qc_loa_qpcr_id_2013 integer,
+    mi_date date,
+    number_of_chimeras_with_glt_from_genotyping_2013 integer,
+    number_of_chimeras_with_10_to_49_percent_glt_2013 integer,
+    qc_homozygous_loa_sr_pcr_id_2013 integer,
+    total_f1_mice_from_matings_2013 integer,
+    number_of_cct_offspring_2013 integer,
+    status_id_2013 integer,
+    total_blasts_injected_2013 integer,
+    report_to_public_2013 boolean,
+    total_male_chimeras_2013 integer,
+    total_transferred_2013 integer,
+    number_of_chimeras_with_100_percent_glt_2013 integer,
+    total_chimeras_2013 integer,
+    mouse_allele_type_2013 character varying(2),
+    qc_lacz_sr_pcr_id_2013 integer,
+    number_of_males_with_80_to_99_percent_chimerism_2013 integer,
+    genotyping_comment_2013 character varying(512),
+    qc_mutant_specific_sr_pcr_id_2013 integer,
+    mi_attempt_colony_name character varying(125),
+    date_chimeras_mated_2013 date,
+    total_pups_born_2013 integer,
+    blast_strain_id_2013 integer,
+    number_surrogates_receiving_2013 integer,
+    number_of_males_with_0_to_39_percent_chimerism_2013 integer,
+    qc_loxp_confirmation_id_2013 integer,
+    id_2013_key integer,
+    qc_neo_sr_pcr_id_2013 integer,
+    number_of_chimera_matings_attempted_2013 integer,
+    colony_background_strain_id_2013 integer,
+    number_of_het_offspring_2013 integer,
+    total_female_chimeras_2013 integer,
+    qc_neo_count_qpcr_id_2013 integer,
+    number_of_males_with_100_percent_chimerism_2013 integer,
+    mi_attempt_is_active boolean,
+    is_released_from_genotyping_2013 boolean,
+    number_of_chimeras_with_0_to_9_percent_glt_2013 integer,
+    number_of_chimeras_with_50_to_99_percent_glt_2013 integer,
+    number_of_live_glt_offspring_2013 integer,
+    test_cross_strain_id_2013 integer,
+    qc_southern_blot_id_2013 integer,
+    es_cell_id_2013 integer,
+    qc_five_prime_cassette_integrity_id_2013 integer,
+    number_of_chimera_matings_successful_2013 integer,
+    qc_five_prime_lr_pcr_id_2013 integer,
+    comments_2013 text,
+    mi_attempt_status_name character varying(50),
+    mi_attempt_status_code character varying(10),
+    user_qc_tv_backbone_assay_2034 character varying(255),
+    allele_id_2034 integer,
+    production_qc_three_prime_screen_2034 character varying(255),
+    mutation_subtype_2034 character varying(100),
+    strain_2034 character varying(25),
+    production_qc_five_prime_screen_2034 character varying(255),
+    user_qc_five_prime_lr_pcr_2034 character varying(255),
+    user_qc_karyotype_2034 character varying(255),
+    contact_2034 character varying(255),
+    mgi_allele_id_2034 character varying(50),
+    mgi_allele_symbol_superscript character varying(75),
+    user_qc_neo_count_qpcr_2034 character varying(255),
+    legacy_id_2034 integer,
+    user_qc_loxp_confirmation_2034 character varying(255),
+    targ_rep_es_cell_name character varying(100),
+    production_qc_vector_integrity_2034 character varying(255),
+    targeting_vector_id_2034 integer,
+    production_qc_loxp_screen_2034 character varying(255),
+    user_qc_mutant_specific_sr_pcr_2034 character varying(255),
+    user_qc_comment_2034 text,
+    user_qc_three_prime_lr_pcr_2034 character varying(255),
+    production_qc_loss_of_allele_2034 character varying(255),
+    parental_cell_line character varying(255),
+    ikmc_project_id_2034 character varying(255),
+    user_qc_five_prime_cassette_integrity_2034 character varying(255),
+    report_to_public_2034 boolean,
+    user_qc_loss_of_wt_allele_2034 character varying(255),
+    user_qc_map_test_2034 character varying(255),
+    user_qc_lacz_sr_pcr_2034 character varying(255),
+    allele_type_2034 character varying(2),
+    user_qc_neo_sr_pcr_2034 character varying(255),
+    allele_symbol_superscript_template character varying(75),
+    pipeline_id_2034 integer,
+    user_qc_southern_blot_2034 character varying(255),
+    comment_2034 character varying(255),
+    legacy_id_2039 integer,
+    description_2039 character varying(255),
+    targ_rep_pipeline_name character varying(255),
+    allele_id_2040_r1 integer,
+    intermediate_vector_2040 character varying(255),
+    pipeline_id_2040 integer,
+    ikmc_project_id_2040 character varying(255),
+    name_2040 character varying(255),
+    report_to_public_2040 boolean,
+    legacy_id_2039_r1 integer,
+    description_2039_r1 character varying(255),
+    name_2039_r1 character varying(255),
+    description_2026 character varying(50),
+    description_2026_r1 character varying(50),
+    description_2026_r2 character varying(50),
+    description_2026_r3 character varying(50),
+    description_2026_r4 character varying(50),
+    description_2026_r5 character varying(50),
+    description_2026_r6 character varying(50),
+    description_2026_r7 character varying(50),
+    description_2026_r8 character varying(50),
+    description_2026_r9 character varying(50),
+    description_2026_r10 character varying(50),
+    description_2026_r11 character varying(50),
+    blast_strain_name character varying(50),
+    colony_background_strain_name character varying(50),
+    test_cross_strain_name character varying(50),
+    mi_attempts_count integer DEFAULT 0
+);
+
+
+--
+-- Name: imits2__mi_plans__main; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__mi_plans__main (
+    marker_symbol character varying(75),
+    conditional_es_cells_count_208 integer,
+    other_targeted_mice_count_208 integer,
+    mgi_accession_id character varying(40),
+    id_208_key integer,
+    non_conditional_es_cells_count_208 integer,
+    publications_for_gene_count_208 integer,
+    other_condtional_mice_count_208 integer,
+    ikmc_projects_count_208 integer,
+    mutation_published_as_lethal_count_208 integer,
+    deletion_es_cells_count_208 integer,
+    go_annotations_for_gene_count_208 integer,
+    priority_id_2019 integer,
+    withdrawn_2019 boolean,
+    is_active_2019 boolean,
+    is_conditional_allele_2019 boolean,
+    status_id_2019 integer,
+    sub_project_id_2019 integer,
+    es_qc_comment_id_2019 integer,
+    production_centre_id_2019 integer,
+    is_cre_bac_allele_2019 boolean,
+    is_cre_knock_in_allele_2019 boolean,
+    id_2019_key integer,
+    number_of_es_cells_starting_qc_2019 integer,
+    is_deletion_allele_2019 boolean,
+    number_of_es_cells_passing_qc_2019 integer,
+    consortium_id_2019 integer,
+    comment_2019 text,
+    is_bespoke_allele_2019 boolean,
+    production_centre_name character varying(100),
+    consortium_funding character varying(255),
+    consortium_name character varying(255),
+    participants_203 text,
+    contact_203 character varying(255),
+    name_2014 character varying(255),
+    mi_plan_priority_description character varying(100),
+    mi_plan_priority_name character varying(10),
+    mi_plan_status_description character varying(255),
+    mi_plan_status_name character varying(50),
+    code_2017 character varying(10),
+    order_by_2017 integer,
+    name_2018 character varying(255),
+    mi_plans_count integer DEFAULT 0,
+    mi_attempts_count integer DEFAULT 0
+);
+
+
+--
+-- Name: imits2__phenotype_attempts__dm; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__phenotype_attempts__dm (
+    id_2019_key integer,
+    is_active_2024 boolean,
+    cre_excision_required_2024 boolean,
+    phenotyping_complete_2024 boolean,
+    mouse_allele_type_2024 character varying(2),
+    deleter_strain_id_2024 integer,
+    status_id_2024 integer,
+    phenotyping_started_2024 boolean,
+    number_of_cre_matings_started_2024 integer,
+    colony_name_2024 character varying(125),
+    id_2024 integer,
+    name_2023 character varying(50),
+    number_of_cre_matings_successful_2024 integer,
+    mi_attempt_id_2024 integer,
+    name_205 character varying(100),
+    order_by_2023 integer,
+    name_2030 character varying(50),
+    rederivation_complete_2024 boolean,
+    code_2023 character varying(10),
+    colony_background_strain_id_2024 integer,
+    rederivation_started_2024 boolean
+);
+
+
+--
+-- Name: imits2__phenotype_attempts_mb001__dm; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__phenotype_attempts_mb001__dm (
+    id_2013_key integer,
+    is_active_2024 boolean,
+    cre_excision_required_2024 boolean,
+    phenotyping_complete_2024 boolean,
+    mouse_allele_type_2024 character varying(2),
+    deleter_strain_id_2024 integer,
+    status_id_2024 integer,
+    phenotyping_started_2024 boolean,
+    number_of_cre_matings_started_2024 integer,
+    colony_name_2024 character varying(125),
+    id_2024 integer,
+    mi_plan_id_2024 integer,
+    name_2023 character varying(50),
+    number_of_cre_matings_successful_2024 integer,
+    name_205 character varying(100),
+    order_by_2023 integer,
+    name_2030 character varying(50),
+    rederivation_complete_2024 boolean,
+    code_2023 character varying(10),
+    colony_background_strain_id_2024 integer,
+    rederivation_started_2024 boolean
+);
+
+
+--
+-- Name: imits2__targ_rep_alleles__dm; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE imits2__targ_rep_alleles__dm (
+    id_208_key integer,
+    subtype_description_2031 character varying(255),
+    chromosome_2031 character varying(2),
+    code_2038 character varying(100),
+    created_at_2039 timestamp without time zone,
+    homology_arm_start_2031 integer,
+    backbone_2031 character varying(100),
+    loxp_start_2031 integer,
+    updated_at_2037 timestamp without time zone,
+    updated_at_2038 timestamp without time zone,
+    legacy_id_2039 integer,
+    strand_2031 character varying(1),
+    name_2036 character varying(100),
+    name_2037 character varying(100),
+    cassette_type_2031 character varying(50),
+    report_to_public_2040 boolean,
+    code_2036 character varying(100),
+    updated_at_2036 timestamp without time zone,
+    cassette_2031 character varying(100),
+    updated_at_2031 timestamp without time zone,
+    created_at_2037 timestamp without time zone,
+    updated_at_2039 timestamp without time zone,
+    created_at_2031 timestamp without time zone,
+    description_2039 character varying(255),
+    name_2039 character varying(255),
+    homology_arm_end_2031 integer,
+    cassette_start_2031 integer,
+    mutation_subtype_id_2031 integer,
+    updated_at_2040 timestamp without time zone,
+    assembly_2031 character varying(50),
+    mutation_method_id_2031 integer,
+    code_2037 character varying(100),
+    created_at_2038 timestamp without time zone,
+    created_at_2040 timestamp without time zone,
+    cassette_end_2031 integer,
+    mutation_type_id_2031 integer,
+    id_2031 integer,
+    floxed_start_exon_2031 character varying(255),
+    reporter_2031 character varying(255),
+    id_2040 integer,
+    project_design_id_2031 integer,
+    ikmc_project_id_2040 character varying(255),
+    name_2040 character varying(255),
+    intermediate_vector_2040 character varying(255),
+    floxed_end_exon_2031 character varying(255),
+    loxp_end_2031 integer,
+    created_at_2036 timestamp without time zone,
+    name_2038 character varying(100),
+    pipeline_id_2040 integer
+);
+
+
+--
+-- Name: meta_conf__dataset__main; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_conf__dataset__main (
+    dataset_id_key integer,
+    dataset character varying(100),
+    display_name character varying(200),
+    description character varying(200),
+    type character varying(20),
+    visible integer,
+    version character varying(25),
+    modified timestamp without time zone
+);
+
+
+--
+-- Name: meta_conf__interface__dm; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_conf__interface__dm (
+    dataset_id_key integer,
+    interface character varying(100)
+);
+
+
+--
+-- Name: meta_conf__user__dm; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_conf__user__dm (
+    dataset_id_key integer,
+    mart_user character varying(100)
+);
+
+
+--
+-- Name: meta_conf__xml__dm; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_conf__xml__dm (
+    dataset_id_key integer,
+    xml bytea,
+    compressed_xml bytea,
+    message_digest bytea
+);
+
+
+--
+-- Name: meta_template__template__main; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_template__template__main (
+    dataset_id_key integer,
+    template character varying(100)
+);
+
+
+--
+-- Name: meta_template__xml__dm; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_template__xml__dm (
+    template character varying(100),
+    compressed_xml bytea
+);
+
+
+--
+-- Name: meta_version__version__main; Type: TABLE; Schema: biomart4; Owner: -; Tablespace: 
+--
+
+CREATE TABLE meta_version__version__main (
+    version character varying(10)
 );
 
 
@@ -2893,953 +3776,320 @@ CREATE SEQUENCE users_id_seq
 ALTER SEQUENCE users_id_seq OWNED BY users.id;
 
 
-SET search_path = whatever, pg_catalog;
-
---
--- Name: meta_conf__dataset__main; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE meta_conf__dataset__main (
-    dataset_id_key integer,
-    dataset character varying(100),
-    display_name character varying(200),
-    description character varying(200),
-    type character varying(20),
-    visible integer,
-    version character varying(25),
-    modified timestamp without time zone
-);
-
-
---
--- Name: meta_conf__interface__dm; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE meta_conf__interface__dm (
-    dataset_id_key integer,
-    interface character varying(100)
-);
-
-
---
--- Name: meta_conf__user__dm; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE meta_conf__user__dm (
-    dataset_id_key integer,
-    mart_user character varying(100)
-);
-
-
---
--- Name: meta_conf__xml__dm; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE meta_conf__xml__dm (
-    dataset_id_key integer,
-    xml bytea,
-    compressed_xml bytea,
-    message_digest bytea
-);
-
-
---
--- Name: meta_template__template__main; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE meta_template__template__main (
-    dataset_id_key integer,
-    template character varying(100)
-);
-
-
---
--- Name: meta_template__xml__dm; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE meta_template__xml__dm (
-    template character varying(100),
-    compressed_xml bytea
-);
-
-
---
--- Name: meta_version__version__main; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE meta_version__version__main (
-    version character varying(10)
-);
-
-
---
--- Name: mi_plans__intermediate_report__dm; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plans__intermediate_report__dm (
-    id_2019_key integer,
-    phenotype_attempt_registered_date_209 date,
-    assigned_es_cell_qc_complete_date_209 date,
-    consortium_209 character varying(255),
-    priority_209 character varying(255),
-    overall_status_209 character varying(50),
-    mi_attempt_status_209 character varying(50),
-    total_pipeline_efficiency_gene_count_209 integer,
-    distinct_genotype_confirmed_es_cells_209 integer,
-    phenotyping_started_date_209 date,
-    mgi_accession_id_209 character varying(40),
-    rederivation_started_date_209 date,
-    distinct_old_non_genotype_confirmed_es_cells_209 integer,
-    phenotyping_complete_date_209 date,
-    mi_attempt_colony_name_209 character varying(255),
-    allele_symbol_209 character varying(75),
-    assigned_es_cell_qc_in_progress_date_209 date,
-    assigned_date_209 date,
-    aborted_es_cell_qc_failed_date_209 date,
-    mutation_sub_type_209 character varying(100),
-    mi_attempt_consortium_209 character varying(255),
-    genetic_background_209 character varying(50),
-    gc_pipeline_efficiency_gene_count_209 integer,
-    micro_injection_aborted_date_209 date,
-    phenotype_attempt_status_209 character varying(50),
-    cre_excision_complete_date_209 date,
-    genotype_confirmed_date_209 date,
-    updated_at_209 timestamp without time zone,
-    phenotype_attempt_aborted_date_209 date,
-    id_209 integer,
-    is_bespoke_allele_209 boolean,
-    chimeras_obtained_date_209 date,
-    mi_plan_status_209 character varying(50),
-    production_centre_209 character varying(100),
-    rederivation_complete_date_209 date,
-    cre_excision_started_date_209 date,
-    created_at_209 timestamp without time zone,
-    gene_209 character varying(75),
-    sub_project_209 character varying(255),
-    phenotype_attempt_colony_name_209 character varying(255),
-    mi_attempt_production_centre_209 character varying(255),
-    ikmc_project_id_209 integer,
-    micro_injection_in_progress_date_209 date
-);
-
-
---
--- Name: mi_plans__mi_attempts__dm; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plans__mi_attempts__dm (
-    id_2019_key integer,
-    qc_neo_count_qpcr_id_2013 integer,
-    number_of_males_with_0_to_39_percent_chimerism_2013 integer,
-    updated_by_id_2013 integer,
-    updated_at_2026_r9 timestamp without time zone,
-    number_surrogates_receiving_2013 integer,
-    description_2026_r2 character varying(50),
-    created_at_2013 timestamp without time zone,
-    qc_five_prime_lr_pcr_id_2013 integer,
-    name_2012 character varying(50),
-    created_at_2026_r11 timestamp without time zone,
-    number_of_chimeras_with_10_to_49_percent_glt_2013 integer,
-    qc_neo_sr_pcr_id_2013 integer,
-    description_2026 character varying(50),
-    description_2026_r3 character varying(50),
-    number_of_males_with_80_to_99_percent_chimerism_2013 integer,
-    updated_at_2026_r1 timestamp without time zone,
-    created_at_2026_r2 timestamp without time zone,
-    colony_background_strain_id_2013 integer,
-    qc_mutant_specific_sr_pcr_id_2013 integer,
-    qc_southern_blot_id_2013 integer,
-    is_released_from_genotyping_2013 boolean,
-    description_2026_r7 character varying(50),
-    name_2030 character varying(50),
-    description_2026_r4 character varying(50),
-    total_male_chimeras_2013 integer,
-    updated_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_0_to_9_percent_glt_2013 integer,
-    mi_date_2013 date,
-    created_at_2026_r8 timestamp without time zone,
-    updated_at_2026_r4 timestamp without time zone,
-    qc_tv_backbone_assay_id_2013 integer,
-    created_at_2026_r4 timestamp without time zone,
-    qc_loxp_confirmation_id_2013 integer,
-    qc_lacz_sr_pcr_id_2013 integer,
-    order_by_2012 integer,
-    test_cross_strain_id_2013 integer,
-    colony_name_2013 character varying(125),
-    number_of_het_offspring_2013 integer,
-    updated_at_2030_r1 timestamp without time zone,
-    genotyping_comment_2013 character varying(512),
-    description_2026_r11 character varying(50),
-    qc_loa_qpcr_id_2013 integer,
-    total_blasts_injected_2013 integer,
-    updated_at_2012 timestamp without time zone,
-    date_chimeras_mated_2013 date,
-    number_of_chimeras_with_glt_from_genotyping_2013 integer,
-    es_cell_id_2013 integer,
-    created_at_2012 timestamp without time zone,
-    code_2012 character varying(10),
-    blast_strain_id_2013 integer,
-    number_of_males_with_100_percent_chimerism_2013 integer,
-    updated_at_2013 timestamp without time zone,
-    id_2013 integer,
-    number_of_chimera_matings_successful_2013 integer,
-    total_f1_mice_from_matings_2013 integer,
-    created_at_2026_r7 timestamp without time zone,
-    name_2030_r2 character varying(50),
-    number_of_live_glt_offspring_2013 integer,
-    description_2026_r8 character varying(50),
-    description_2026_r6 character varying(50),
-    mouse_allele_type_2013 character varying(2),
-    total_chimeras_2013 integer,
-    description_2026_r9 character varying(50),
-    updated_at_2030 timestamp without time zone,
-    updated_at_2026_r2 timestamp without time zone,
-    description_2026_r5 character varying(50),
-    updated_at_2026_r6 timestamp without time zone,
-    updated_at_2026_r10 timestamp without time zone,
-    qc_three_prime_lr_pcr_id_2013 integer,
-    qc_five_prime_cassette_integrity_id_2013 integer,
-    created_at_2026_r6 timestamp without time zone,
-    created_at_2026_r1 timestamp without time zone,
-    is_active_2013 boolean,
-    status_id_2013 integer,
-    total_transferred_2013 integer,
-    number_of_cct_offspring_2013 integer,
-    created_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_100_percent_glt_2013 integer,
-    created_at_2030_r1 timestamp without time zone,
-    updated_at_2026_r5 timestamp without time zone,
-    number_of_chimeras_with_50_to_99_percent_glt_2013 integer,
-    total_female_chimeras_2013 integer,
-    name_2030_r1 character varying(50),
-    updated_at_2026 timestamp without time zone,
-    total_pups_born_2013 integer,
-    number_of_chimeras_with_glt_from_cct_2013 integer,
-    description_2026_r10 character varying(50),
-    report_to_public_2013 boolean,
-    created_at_2026_r5 timestamp without time zone,
-    created_at_2026_r9 timestamp without time zone,
-    qc_homozygous_loa_sr_pcr_id_2013 integer,
-    number_of_chimera_matings_attempted_2013 integer,
-    created_at_2026 timestamp without time zone,
-    created_at_2026_r3 timestamp without time zone,
-    updated_at_2026_r7 timestamp without time zone,
-    updated_at_2026_r11 timestamp without time zone,
-    created_at_2030 timestamp without time zone,
-    number_of_males_with_40_to_79_percent_chimerism_2013 integer,
-    comments_2013 text,
-    description_2026_r1 character varying(50),
-    updated_at_2026_r8 timestamp without time zone,
-    updated_at_2026_r3 timestamp without time zone,
-    created_at_2026_r10 timestamp without time zone
-);
-
-
---
--- Name: mi_plans__mi_plan_status_stamps__dm; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plans__mi_plan_status_stamps__dm (
-    id_2019_key integer,
-    order_by_2017 integer,
-    code_2017 character varying(10),
-    name_2017 character varying(50),
-    created_at_2016 timestamp without time zone,
-    updated_at_2016 timestamp without time zone,
-    created_at_2017 timestamp without time zone,
-    updated_at_2017 timestamp without time zone,
-    description_2017 character varying(255),
-    id_2016 integer,
-    status_id_2016 integer
-);
-
-
---
--- Name: mi_plans__mi_plans__main; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plans__mi_plans__main (
-    priority_id_2019 integer,
-    withdrawn_2019 boolean,
-    is_active_2019 boolean,
-    is_conditional_allele_2019 boolean,
-    status_id_2019 integer,
-    sub_project_id_2019 integer,
-    es_qc_comment_id_2019 integer,
-    production_centre_id_2019 integer,
-    gene_id_2019 integer,
-    is_cre_bac_allele_2019 boolean,
-    is_cre_knock_in_allele_2019 boolean,
-    id_2019_key integer,
-    updated_at_2019 timestamp without time zone,
-    number_of_es_cells_starting_qc_2019 integer,
-    is_deletion_allele_2019 boolean,
-    created_at_2019 timestamp without time zone,
-    number_of_es_cells_passing_qc_2019 integer,
-    comment_2019 text,
-    consortium_id_2019 integer,
-    is_bespoke_allele_2019 boolean,
-    updated_at_202 timestamp without time zone,
-    name_202 character varying(100),
-    created_at_202 timestamp without time zone,
-    updated_at_203 timestamp without time zone,
-    funding_203 character varying(255),
-    name_203 character varying(255),
-    created_at_203 timestamp without time zone,
-    contact_203 character varying(255),
-    participants_203 text,
-    marker_symbol_208 character varying(75),
-    mgi_accession_id_208 character varying(40),
-    non_conditional_es_cells_count_208 integer,
-    mutation_published_as_lethal_count_208 integer,
-    go_annotations_for_gene_count_208 integer,
-    updated_at_208 timestamp without time zone,
-    conditional_es_cells_count_208 integer,
-    other_targeted_mice_count_208 integer,
-    created_at_208 timestamp without time zone,
-    ikmc_projects_count_208 integer,
-    publications_for_gene_count_208 integer,
-    deletion_es_cells_count_208 integer,
-    other_condtional_mice_count_208 integer,
-    updated_at_2014 timestamp without time zone,
-    name_2014 character varying(255),
-    created_at_2014 timestamp without time zone,
-    updated_at_2015 timestamp without time zone,
-    description_2015 character varying(100),
-    name_2015 character varying(10),
-    created_at_2015 timestamp without time zone,
-    updated_at_2017 timestamp without time zone,
-    description_2017 character varying(255),
-    name_2017 character varying(50),
-    created_at_2017 timestamp without time zone,
-    code_2017 character varying(10),
-    order_by_2017 integer,
-    updated_at_2018 timestamp without time zone,
-    name_2018 character varying(255),
-    created_at_2018 timestamp without time zone
-);
-
-
---
--- Name: mi_plans__phenotype_attempts__dm; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE mi_plans__phenotype_attempts__dm (
-    id_2019_key integer,
-    qc_neo_count_qpcr_id_2013 integer,
-    number_of_males_with_0_to_39_percent_chimerism_2013 integer,
-    updated_by_id_2013 integer,
-    updated_at_2026_r9 timestamp without time zone,
-    number_surrogates_receiving_2013 integer,
-    description_2026_r2 character varying(50),
-    created_at_2013 timestamp without time zone,
-    created_at_2026_r11 timestamp without time zone,
-    qc_five_prime_lr_pcr_id_2013 integer,
-    name_2012 character varying(50),
-    number_of_chimeras_with_10_to_49_percent_glt_2013 integer,
-    qc_neo_sr_pcr_id_2013 integer,
-    description_2026 character varying(50),
-    description_2026_r3 character varying(50),
-    number_of_males_with_80_to_99_percent_chimerism_2013 integer,
-    colony_name_2024 character varying(125),
-    updated_at_2026_r1 timestamp without time zone,
-    created_at_2030_r3 timestamp without time zone,
-    created_at_2026_r2 timestamp without time zone,
-    qc_mutant_specific_sr_pcr_id_2013 integer,
-    colony_background_strain_id_2013 integer,
-    qc_southern_blot_id_2013 integer,
-    mi_attempt_id_2024 integer,
-    updated_at_2024 timestamp without time zone,
-    name_2030 character varying(50),
-    description_2026_r7 character varying(50),
-    is_released_from_genotyping_2013 boolean,
-    description_2026_r4 character varying(50),
-    total_male_chimeras_2013 integer,
-    updated_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_0_to_9_percent_glt_2013 integer,
-    is_active_2024 boolean,
-    mi_date_2013 date,
-    created_at_2026_r8 timestamp without time zone,
-    updated_at_2026_r4 timestamp without time zone,
-    qc_tv_backbone_assay_id_2013 integer,
-    created_at_2026_r4 timestamp without time zone,
-    updated_at_2030_r3 timestamp without time zone,
-    phenotyping_started_2024 boolean,
-    created_at_205 timestamp without time zone,
-    qc_loxp_confirmation_id_2013 integer,
-    qc_lacz_sr_pcr_id_2013 integer,
-    id_2024 integer,
-    order_by_2012 integer,
-    created_at_2023 timestamp without time zone,
-    test_cross_strain_id_2013 integer,
-    colony_name_2013 character varying(125),
-    name_205 character varying(100),
-    number_of_het_offspring_2013 integer,
-    order_by_2023 integer,
-    created_at_2024 timestamp without time zone,
-    updated_at_2030_r1 timestamp without time zone,
-    description_2026_r11 character varying(50),
-    genotyping_comment_2013 character varying(512),
-    qc_loa_qpcr_id_2013 integer,
-    total_blasts_injected_2013 integer,
-    updated_at_2012 timestamp without time zone,
-    date_chimeras_mated_2013 date,
-    number_of_chimeras_with_glt_from_genotyping_2013 integer,
-    es_cell_id_2013 integer,
-    created_at_2012 timestamp without time zone,
-    code_2012 character varying(10),
-    blast_strain_id_2013 integer,
-    cre_excision_required_2024 boolean,
-    number_of_males_with_100_percent_chimerism_2013 integer,
-    updated_at_2013 timestamp without time zone,
-    deleter_strain_id_2024 integer,
-    number_of_chimera_matings_successful_2013 integer,
-    created_at_2026_r7 timestamp without time zone,
-    total_f1_mice_from_matings_2013 integer,
-    mi_plan_id_2013 integer,
-    name_2030_r2 character varying(50),
-    number_of_cre_matings_started_2024 integer,
-    number_of_live_glt_offspring_2013 integer,
-    description_2026_r8 character varying(50),
-    name_2030_r3 character varying(50),
-    description_2026_r6 character varying(50),
-    mouse_allele_type_2013 character varying(2),
-    number_of_cre_matings_successful_2024 integer,
-    updated_at_2023 timestamp without time zone,
-    updated_at_2030 timestamp without time zone,
-    description_2026_r9 character varying(50),
-    total_chimeras_2013 integer,
-    updated_at_205 timestamp without time zone,
-    updated_at_2026_r2 timestamp without time zone,
-    description_2026_r5 character varying(50),
-    updated_at_2026_r6 timestamp without time zone,
-    updated_at_2026_r10 timestamp without time zone,
-    qc_three_prime_lr_pcr_id_2013 integer,
-    qc_five_prime_cassette_integrity_id_2013 integer,
-    created_at_2026_r6 timestamp without time zone,
-    created_at_2026_r1 timestamp without time zone,
-    code_2023 character varying(10),
-    is_active_2013 boolean,
-    colony_background_strain_id_2024 integer,
-    status_id_2013 integer,
-    rederivation_started_2024 boolean,
-    total_transferred_2013 integer,
-    phenotyping_complete_2024 boolean,
-    mouse_allele_type_2024 character varying(2),
-    number_of_cct_offspring_2013 integer,
-    created_at_2030_r2 timestamp without time zone,
-    number_of_chimeras_with_100_percent_glt_2013 integer,
-    created_at_2030_r1 timestamp without time zone,
-    updated_at_2026_r5 timestamp without time zone,
-    status_id_2024 integer,
-    number_of_chimeras_with_50_to_99_percent_glt_2013 integer,
-    total_female_chimeras_2013 integer,
-    name_2030_r1 character varying(50),
-    updated_at_2026 timestamp without time zone,
-    description_2026_r10 character varying(50),
-    total_pups_born_2013 integer,
-    number_of_chimeras_with_glt_from_cct_2013 integer,
-    report_to_public_2013 boolean,
-    created_at_2026_r9 timestamp without time zone,
-    created_at_2026_r5 timestamp without time zone,
-    name_2023 character varying(50),
-    qc_homozygous_loa_sr_pcr_id_2013 integer,
-    number_of_chimera_matings_attempted_2013 integer,
-    created_at_2026 timestamp without time zone,
-    created_at_2026_r3 timestamp without time zone,
-    updated_at_2026_r7 timestamp without time zone,
-    updated_at_2026_r11 timestamp without time zone,
-    created_at_2030 timestamp without time zone,
-    number_of_males_with_40_to_79_percent_chimerism_2013 integer,
-    comments_2013 text,
-    description_2026_r1 character varying(50),
-    updated_at_2026_r8 timestamp without time zone,
-    rederivation_complete_2024 boolean,
-    updated_at_2026_r3 timestamp without time zone,
-    created_at_2026_r10 timestamp without time zone
-);
-
-
---
--- Name: targ_rep_alleles__targ_rep_alleles__main; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE targ_rep_alleles__targ_rep_alleles__main (
-    cassette_type_2031 character varying(50),
-    assembly_2031 character varying(50),
-    strand_2031 character varying(1),
-    cassette_end_2031 integer,
-    mutation_method_id_2031 integer,
-    homology_arm_end_2031 integer,
-    project_design_id_2031 integer,
-    gene_id_2031 integer,
-    chromosome_2031 character varying(2),
-    floxed_end_exon_2031 character varying(255),
-    floxed_start_exon_2031 character varying(255),
-    reporter_2031 character varying(255),
-    id_2031_key integer,
-    loxp_start_2031 integer,
-    cassette_start_2031 integer,
-    mutation_subtype_id_2031 integer,
-    homology_arm_start_2031 integer,
-    mutation_type_id_2031 integer,
-    subtype_description_2031 character varying(255),
-    cassette_2031 character varying(100),
-    loxp_end_2031 integer,
-    backbone_2031 character varying(100),
-    marker_symbol_208 character varying(75),
-    go_annotations_for_gene_count_208 integer,
-    mutation_published_as_lethal_count_208 integer,
-    non_conditional_es_cells_count_208 integer,
-    other_targeted_mice_count_208 integer,
-    conditional_es_cells_count_208 integer,
-    mgi_accession_id_208 character varying(40),
-    publications_for_gene_count_208 integer,
-    ikmc_projects_count_208 integer,
-    other_condtional_mice_count_208 integer,
-    deletion_es_cells_count_208 integer,
-    name_2036 character varying(100),
-    code_2036 character varying(100),
-    name_2037 character varying(100),
-    code_2037 character varying(100),
-    name_2038 character varying(100),
-    code_2038 character varying(100),
-    id_2040 integer,
-    intermediate_vector_2040 character varying(255),
-    pipeline_id_2040 integer,
-    ikmc_project_id_2040 character varying(255),
-    name_2040 character varying(255),
-    report_to_public_2040 boolean,
-    legacy_id_2039 integer,
-    description_2039 character varying(255),
-    name_2039 character varying(255)
-);
-
-
---
--- Name: targ_rep_alleles__targ_rep_es_cells__dm; Type: TABLE; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE TABLE targ_rep_alleles__targ_rep_es_cells__dm (
-    id_2031_key integer,
-    name_2039_r1 character varying(255),
-    production_qc_loxp_screen_2034 character varying(255),
-    user_qc_southern_blot_2034 character varying(255),
-    user_qc_mutant_specific_sr_pcr_2034 character varying(255),
-    created_at_2039 timestamp without time zone,
-    user_qc_neo_sr_pcr_2034 character varying(255),
-    user_qc_loxp_confirmation_2034 character varying(255),
-    user_qc_map_test_2034 character varying(255),
-    comment_2034 character varying(255),
-    legacy_id_2039 integer,
-    legacy_id_2034 integer,
-    production_qc_vector_integrity_2034 character varying(255),
-    allele_symbol_superscript_template_2034 character varying(75),
-    report_to_public_2040 boolean,
-    name_2034 character varying(100),
-    legacy_id_2039_r1 integer,
-    user_qc_comment_2034 text,
-    user_qc_five_prime_lr_pcr_2034 character varying(255),
-    updated_at_2034 timestamp without time zone,
-    contact_2034 character varying(255),
-    updated_at_2039 timestamp without time zone,
-    strain_2034 character varying(25),
-    parental_cell_line_2034 character varying(255),
-    mutation_subtype_2034 character varying(100),
-    mgi_allele_id_2034 character varying(50),
-    description_2039 character varying(255),
-    name_2039 character varying(255),
-    user_qc_three_prime_lr_pcr_2034 character varying(255),
-    production_qc_five_prime_screen_2034 character varying(255),
-    user_qc_tv_backbone_assay_2034 character varying(255),
-    updated_at_2040 timestamp without time zone,
-    allele_id_2040 integer,
-    updated_at_2039_r1 timestamp without time zone,
-    description_2039_r1 character varying(255),
-    id_2034 integer,
-    user_qc_lacz_sr_pcr_2034 character varying(255),
-    user_qc_karyotype_2034 character varying(255),
-    created_at_2040 timestamp without time zone,
-    user_qc_neo_count_qpcr_2034 character varying(255),
-    ikmc_project_id_2034 character varying(255),
-    production_qc_three_prime_screen_2034 character varying(255),
-    created_at_2039_r1 timestamp without time zone,
-    production_qc_loss_of_allele_2034 character varying(255),
-    report_to_public_2034 boolean,
-    allele_type_2034 character varying(2),
-    ikmc_project_id_2040 character varying(255),
-    mgi_allele_symbol_superscript_2034 character varying(75),
-    name_2040 character varying(255),
-    intermediate_vector_2040 character varying(255),
-    pipeline_id_2034 integer,
-    user_qc_loss_of_wt_allele_2034 character varying(255),
-    targeting_vector_id_2034 integer,
-    created_at_2034 timestamp without time zone,
-    user_qc_five_prime_cassette_integrity_2034 character varying(255),
-    pipeline_id_2040 integer
-);
-
-
-SET search_path = public, pg_catalog;
-
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE audits ALTER COLUMN id SET DEFAULT nextval('audits_id_seq'::regclass);
+ALTER TABLE ONLY audits ALTER COLUMN id SET DEFAULT nextval('audits_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE centres ALTER COLUMN id SET DEFAULT nextval('centres_id_seq'::regclass);
+ALTER TABLE ONLY centres ALTER COLUMN id SET DEFAULT nextval('centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE consortia ALTER COLUMN id SET DEFAULT nextval('consortia_id_seq'::regclass);
+ALTER TABLE ONLY consortia ALTER COLUMN id SET DEFAULT nextval('consortia_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE contacts ALTER COLUMN id SET DEFAULT nextval('contacts_id_seq'::regclass);
+ALTER TABLE ONLY contacts ALTER COLUMN id SET DEFAULT nextval('contacts_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE deleter_strains ALTER COLUMN id SET DEFAULT nextval('deleter_strains_id_seq'::regclass);
+ALTER TABLE ONLY deleter_strains ALTER COLUMN id SET DEFAULT nextval('deleter_strains_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE deposited_materials ALTER COLUMN id SET DEFAULT nextval('deposited_materials_id_seq'::regclass);
+ALTER TABLE ONLY deposited_materials ALTER COLUMN id SET DEFAULT nextval('deposited_materials_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE email_templates ALTER COLUMN id SET DEFAULT nextval('email_templates_id_seq'::regclass);
+ALTER TABLE ONLY email_templates ALTER COLUMN id SET DEFAULT nextval('email_templates_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE es_cells ALTER COLUMN id SET DEFAULT nextval('es_cells_id_seq'::regclass);
+ALTER TABLE ONLY es_cells ALTER COLUMN id SET DEFAULT nextval('es_cells_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE genes ALTER COLUMN id SET DEFAULT nextval('genes_id_seq'::regclass);
+ALTER TABLE ONLY genes ALTER COLUMN id SET DEFAULT nextval('genes_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE intermediate_report ALTER COLUMN id SET DEFAULT nextval('intermediate_report_id_seq'::regclass);
+ALTER TABLE ONLY intermediate_report ALTER COLUMN id SET DEFAULT nextval('intermediate_report_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_attempt_distribution_centres ALTER COLUMN id SET DEFAULT nextval('mi_attempt_distribution_centres_id_seq'::regclass);
+ALTER TABLE ONLY mi_attempt_distribution_centres ALTER COLUMN id SET DEFAULT nextval('mi_attempt_distribution_centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_attempt_status_stamps ALTER COLUMN id SET DEFAULT nextval('mi_attempt_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY mi_attempt_status_stamps ALTER COLUMN id SET DEFAULT nextval('mi_attempt_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_attempt_statuses ALTER COLUMN id SET DEFAULT nextval('mi_attempt_statuses_id_seq'::regclass);
+ALTER TABLE ONLY mi_attempt_statuses ALTER COLUMN id SET DEFAULT nextval('mi_attempt_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_attempts ALTER COLUMN id SET DEFAULT nextval('mi_attempts_id_seq'::regclass);
+ALTER TABLE ONLY mi_attempts ALTER COLUMN id SET DEFAULT nextval('mi_attempts_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_es_cell_qcs ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_cell_qcs_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_es_cell_qcs ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_cell_qcs_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_es_qc_comments ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_qc_comments_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_es_qc_comments ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_qc_comments_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_priorities ALTER COLUMN id SET DEFAULT nextval('mi_plan_priorities_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_priorities ALTER COLUMN id SET DEFAULT nextval('mi_plan_priorities_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_status_stamps ALTER COLUMN id SET DEFAULT nextval('mi_plan_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_status_stamps ALTER COLUMN id SET DEFAULT nextval('mi_plan_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_statuses ALTER COLUMN id SET DEFAULT nextval('mi_plan_statuses_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_statuses ALTER COLUMN id SET DEFAULT nextval('mi_plan_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_sub_projects ALTER COLUMN id SET DEFAULT nextval('mi_plan_sub_projects_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_sub_projects ALTER COLUMN id SET DEFAULT nextval('mi_plan_sub_projects_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plans ALTER COLUMN id SET DEFAULT nextval('mi_plans_id_seq'::regclass);
+ALTER TABLE ONLY mi_plans ALTER COLUMN id SET DEFAULT nextval('mi_plans_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE new_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_intermediate_report_id_seq'::regclass);
+ALTER TABLE ONLY new_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_intermediate_report_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE notifications ALTER COLUMN id SET DEFAULT nextval('notifications_id_seq'::regclass);
+ALTER TABLE ONLY notifications ALTER COLUMN id SET DEFAULT nextval('notifications_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE phenotype_attempt_distribution_centres ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_distribution_centres_id_seq'::regclass);
+ALTER TABLE ONLY phenotype_attempt_distribution_centres ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_distribution_centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE phenotype_attempt_status_stamps ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY phenotype_attempt_status_stamps ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE phenotype_attempt_statuses ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_statuses_id_seq'::regclass);
+ALTER TABLE ONLY phenotype_attempt_statuses ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE phenotype_attempts ALTER COLUMN id SET DEFAULT nextval('phenotype_attempts_id_seq'::regclass);
+ALTER TABLE ONLY phenotype_attempts ALTER COLUMN id SET DEFAULT nextval('phenotype_attempts_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE pipelines ALTER COLUMN id SET DEFAULT nextval('pipelines_id_seq'::regclass);
+ALTER TABLE ONLY pipelines ALTER COLUMN id SET DEFAULT nextval('pipelines_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE production_goals ALTER COLUMN id SET DEFAULT nextval('production_goals_id_seq'::regclass);
+ALTER TABLE ONLY production_goals ALTER COLUMN id SET DEFAULT nextval('production_goals_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE qc_results ALTER COLUMN id SET DEFAULT nextval('qc_results_id_seq'::regclass);
+ALTER TABLE ONLY qc_results ALTER COLUMN id SET DEFAULT nextval('qc_results_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE report_caches ALTER COLUMN id SET DEFAULT nextval('report_caches_id_seq'::regclass);
+ALTER TABLE ONLY report_caches ALTER COLUMN id SET DEFAULT nextval('report_caches_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE solr_update_queue_items ALTER COLUMN id SET DEFAULT nextval('solr_update_queue_items_id_seq'::regclass);
+ALTER TABLE ONLY solr_update_queue_items ALTER COLUMN id SET DEFAULT nextval('solr_update_queue_items_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE strains ALTER COLUMN id SET DEFAULT nextval('strains_id_seq'::regclass);
+ALTER TABLE ONLY strains ALTER COLUMN id SET DEFAULT nextval('strains_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_alleles ALTER COLUMN id SET DEFAULT nextval('targ_rep_alleles_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_alleles ALTER COLUMN id SET DEFAULT nextval('targ_rep_alleles_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_distribution_qcs ALTER COLUMN id SET DEFAULT nextval('targ_rep_distribution_qcs_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_distribution_qcs ALTER COLUMN id SET DEFAULT nextval('targ_rep_distribution_qcs_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_es_cell_distribution_centres ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cell_distribution_centres_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_es_cell_distribution_centres ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cell_distribution_centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_es_cells ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cells_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_es_cells ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cells_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_genbank_files ALTER COLUMN id SET DEFAULT nextval('targ_rep_genbank_files_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_genbank_files ALTER COLUMN id SET DEFAULT nextval('targ_rep_genbank_files_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_mutation_methods ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_methods_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_mutation_methods ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_methods_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_mutation_subtypes ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_subtypes_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_mutation_subtypes ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_subtypes_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_mutation_types ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_types_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_mutation_types ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_types_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_rep_pipelines_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_rep_pipelines_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval('targ_rep_targeting_vectors_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval('targ_rep_targeting_vectors_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE tracking_goals ALTER COLUMN id SET DEFAULT nextval('tracking_goals_id_seq'::regclass);
+ALTER TABLE ONLY tracking_goals ALTER COLUMN id SET DEFAULT nextval('tracking_goals_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
-
-SET search_path = intermediate, pg_catalog;
-
---
--- Name: meta_conf__dataset__main_dataset_id_key_key; Type: CONSTRAINT; Schema: intermediate; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY meta_conf__dataset__main
-    ADD CONSTRAINT meta_conf__dataset__main_dataset_id_key_key UNIQUE (dataset_id_key);
-
-
---
--- Name: meta_conf__interface__dm_dataset_id_key_interface_key; Type: CONSTRAINT; Schema: intermediate; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY meta_conf__interface__dm
-    ADD CONSTRAINT meta_conf__interface__dm_dataset_id_key_interface_key UNIQUE (dataset_id_key, interface);
-
-
---
--- Name: meta_conf__user__dm_dataset_id_key_mart_user_key; Type: CONSTRAINT; Schema: intermediate; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY meta_conf__user__dm
-    ADD CONSTRAINT meta_conf__user__dm_dataset_id_key_mart_user_key UNIQUE (dataset_id_key, mart_user);
-
-
---
--- Name: meta_conf__xml__dm_dataset_id_key_key; Type: CONSTRAINT; Schema: intermediate; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY meta_conf__xml__dm
-    ADD CONSTRAINT meta_conf__xml__dm_dataset_id_key_key UNIQUE (dataset_id_key);
-
-
---
--- Name: meta_template__xml__dm_template_key; Type: CONSTRAINT; Schema: intermediate; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY meta_template__xml__dm
-    ADD CONSTRAINT meta_template__xml__dm_template_key UNIQUE (template);
-
-
-SET search_path = public, pg_catalog;
 
 --
 -- Name: audits_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
@@ -4201,101 +4451,6 @@ ALTER TABLE ONLY users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
 
 
-SET search_path = whatever, pg_catalog;
-
---
--- Name: meta_conf__dataset__main_dataset_id_key_key; Type: CONSTRAINT; Schema: whatever; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY meta_conf__dataset__main
-    ADD CONSTRAINT meta_conf__dataset__main_dataset_id_key_key UNIQUE (dataset_id_key);
-
-
---
--- Name: meta_conf__interface__dm_dataset_id_key_interface_key; Type: CONSTRAINT; Schema: whatever; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY meta_conf__interface__dm
-    ADD CONSTRAINT meta_conf__interface__dm_dataset_id_key_interface_key UNIQUE (dataset_id_key, interface);
-
-
---
--- Name: meta_conf__user__dm_dataset_id_key_mart_user_key; Type: CONSTRAINT; Schema: whatever; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY meta_conf__user__dm
-    ADD CONSTRAINT meta_conf__user__dm_dataset_id_key_mart_user_key UNIQUE (dataset_id_key, mart_user);
-
-
---
--- Name: meta_conf__xml__dm_dataset_id_key_key; Type: CONSTRAINT; Schema: whatever; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY meta_conf__xml__dm
-    ADD CONSTRAINT meta_conf__xml__dm_dataset_id_key_key UNIQUE (dataset_id_key);
-
-
---
--- Name: meta_template__xml__dm_template_key; Type: CONSTRAINT; Schema: whatever; Owner: -; Tablespace: 
---
-
-ALTER TABLE ONLY meta_template__xml__dm
-    ADD CONSTRAINT meta_template__xml__dm_template_key UNIQUE (template);
-
-
-SET search_path = intermediate, pg_catalog;
-
---
--- Name: i_30; Type: INDEX; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_30 ON mi_plans__phenotype_attempts__dm USING btree (id_2019_key);
-
-
---
--- Name: i_34; Type: INDEX; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_34 ON mi_plans__mi_plan_status_stamps__dm USING btree (id_2019_key);
-
-
---
--- Name: i_53; Type: INDEX; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_53 ON mi_plans__mi_attempts__dm USING btree (id_2019_key);
-
-
---
--- Name: i_56; Type: INDEX; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_56 ON mi_plans__intermediate_report__dm USING btree (id_2019_key);
-
-
---
--- Name: i_63; Type: INDEX; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_63 ON targ_rep_alleles__targ_rep_alleles__main USING btree (id_2031_key);
-
-
---
--- Name: i_69; Type: INDEX; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_69 ON targ_rep_alleles__targ_rep_es_cells__dm USING btree (id_2031_key);
-
-
---
--- Name: i_7; Type: INDEX; Schema: intermediate; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_7 ON mi_plans__mi_plans__main USING btree (id_2019_key);
-
-
-SET search_path = public, pg_catalog;
-
 --
 -- Name: associated_index; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
@@ -4575,59 +4730,6 @@ CREATE UNIQUE INDEX unique_schema_migrations ON schema_migrations USING btree (v
 
 CREATE INDEX user_index ON audits USING btree (user_id, user_type);
 
-
-SET search_path = whatever, pg_catalog;
-
---
--- Name: i_30; Type: INDEX; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_30 ON mi_plans__phenotype_attempts__dm USING btree (id_2019_key);
-
-
---
--- Name: i_34; Type: INDEX; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_34 ON mi_plans__mi_plan_status_stamps__dm USING btree (id_2019_key);
-
-
---
--- Name: i_53; Type: INDEX; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_53 ON mi_plans__mi_attempts__dm USING btree (id_2019_key);
-
-
---
--- Name: i_56; Type: INDEX; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_56 ON mi_plans__intermediate_report__dm USING btree (id_2019_key);
-
-
---
--- Name: i_63; Type: INDEX; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_63 ON targ_rep_alleles__targ_rep_alleles__main USING btree (id_2031_key);
-
-
---
--- Name: i_69; Type: INDEX; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_69 ON targ_rep_alleles__targ_rep_es_cells__dm USING btree (id_2031_key);
-
-
---
--- Name: i_7; Type: INDEX; Schema: whatever; Owner: -; Tablespace: 
---
-
-CREATE INDEX i_7 ON mi_plans__mi_plans__main USING btree (id_2019_key);
-
-
-SET search_path = public, pg_catalog;
 
 --
 -- Name: mi_attempt_distribution_centres_centre_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -

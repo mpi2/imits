@@ -175,7 +175,6 @@ $(function() {
     builder.addTextBox('qc_southern_blot', 'Southern Blot', '')
     builder.addTextBox('qc_five_prime_cassette_integrity', 'Five Prime Cassette Integrity', '')
 
-
     //
     //  Wildtype diagram
     //

@@ -774,8 +774,10 @@ div.report_control * {
 
 #qcimage .diagram h3 {
   position:absolute;
-  bottom:5px;
+  bottom:0px;
   right:30px;
+  font-size:1.8em;
+  font-weight:bold;
 }
 
 #qcimage .diagram .holder {

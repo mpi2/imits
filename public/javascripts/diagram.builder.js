@@ -419,6 +419,10 @@ function DiagramBuilder(options, width, height) {
         style: { classes: 'qtip-blue' },
         show: {
           ready: true
+        },
+        hide: {
+          event: false,
+          fixed: true
         }
     });
 
@@ -463,6 +467,10 @@ function DiagramBuilder(options, width, height) {
         style: { classes: 'qtip-blue' },
         show: {
           ready: true
+        },
+        hide: {
+          event: false,
+          fixed: true
         }
     });
 
@@ -497,7 +505,6 @@ function DiagramBuilder(options, width, height) {
     //it will also add a text box inline with the text
     var first_coords = line_options.first.getBBox();
     var second_coords = line_options.second.getBBox();
-
 
     var coords = {};
 

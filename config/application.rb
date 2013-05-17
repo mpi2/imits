@@ -59,6 +59,7 @@ module TarMits
     require 'solr_update'
 
     config.paths['intermediate_report_log'] = 'log/intermediate_report.log'
+    config.paths['upload_path'] = 'public/uploads'
 
     if File.expand_path(__FILE__).match %r{^/opt/t87/global}
       require('/opt/t87/global/lib/config_rails_app'); VM.config_rails_app(config)

@@ -160,6 +160,7 @@ end
 #  mi_plan_id                                      :integer         not null
 #  genotyping_comment                              :string(512)
 #  legacy_es_cell_id                               :integer
+#  qc_lacz_count_qpcr_id                           :integer         default(1)
 #
 # Indexes
 #

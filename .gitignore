@@ -5,7 +5,7 @@ config/database.targ_rep.yml
 config/database.yml
 coverage/*
 public/javascripts/all.js
-public/uploads
+uploads
 sqlnet.log
 db/dump.*.sql
 .bundle/config

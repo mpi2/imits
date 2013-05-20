@@ -271,6 +271,7 @@ end
 #  legacy_id                             :integer
 #  created_at                            :datetime        not null
 #  updated_at                            :datetime        not null
+#  production_centre_auto_update         :boolean         default(TRUE)
 #
 # Indexes
 #

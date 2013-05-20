@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130510144848) do
+ActiveRecord::Schema.define(:version => 20130520101048) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -603,6 +603,7 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
     t.integer  "legacy_id"
     t.datetime "created_at",                                                             :null => false
     t.datetime "updated_at",                                                             :null => false
+    t.boolean  "production_centre_auto_update",                        :default => true
   end
 
   add_index "targ_rep_es_cells", ["allele_id"], :name => "es_cells_allele_id_fk"

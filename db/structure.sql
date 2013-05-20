@@ -3471,7 +3471,8 @@ CREATE TABLE targ_rep_es_cells (
     allele_symbol_superscript_template character varying(75),
     legacy_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    production_centre_auto_update boolean DEFAULT true
 );
 
 
@@ -5318,3 +5319,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130510104125');
 INSERT INTO schema_migrations (version) VALUES ('20130510111914');
 
 INSERT INTO schema_migrations (version) VALUES ('20130510144848');
+
+INSERT INTO schema_migrations (version) VALUES ('20130520101048');

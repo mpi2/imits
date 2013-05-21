@@ -20,6 +20,7 @@ class TargRep::EsCell < ActiveRecord::Base
   belongs_to :pipeline, :class_name => "TargRep::Pipeline"
   belongs_to :allele, :class_name => "TargRep::Allele"
   belongs_to :targeting_vector, :class_name => "TargRep::TargetingVector"
+  belongs_to :user_mouse_clinic, :class_name => 'Centre'
 
   has_many :distribution_qcs, :dependent => :destroy, :class_name => "TargRep::DistributionQc"
   has_many :mi_attempts
@@ -272,6 +273,10 @@ end
 #  created_at                            :datetime        not null
 #  updated_at                            :datetime        not null
 #  production_centre_auto_update         :boolean         default(TRUE)
+#  user_loxp_srpcr_and_sequencing        :string(255)
+#  user_karyotype_spread                 :string(255)
+#  user_karyotype_pcr                    :string(255)
+#  user_mouse_clinic_id                  :integer
 #
 # Indexes
 #

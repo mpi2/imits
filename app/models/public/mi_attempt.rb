@@ -161,6 +161,9 @@ end
 #  genotyping_comment                              :string(512)
 #  legacy_es_cell_id                               :integer
 #  qc_lacz_count_qpcr_id                           :integer         default(1)
+#  qc_critical_region_qpcr_id                      :integer
+#  qc_loxp_srpcr_id                                :integer
+#  qc_loxp_srpcr_and_sequencing_id                 :integer
 #
 # Indexes
 #

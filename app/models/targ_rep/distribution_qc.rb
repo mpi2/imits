@@ -154,6 +154,8 @@ end
 #  es_cell_distribution_centre_id :integer
 #  created_at                     :datetime        not null
 #  updated_at                     :datetime        not null
+#  loxp_srpcr                     :string(255)
+#  unspecified_repository_testing :boolean
 #
 # Indexes
 #

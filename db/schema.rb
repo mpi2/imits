@@ -251,9 +251,9 @@ ActiveRecord::Schema.define(:version => 20130521115232) do
     t.string   "genotyping_comment",                              :limit => 512
     t.integer  "legacy_es_cell_id"
     t.integer  "qc_lacz_count_qpcr_id",                                          :default => 1
-    t.integer  "qc_critical_region_qpcr_id"
-    t.integer  "qc_loxp_srpcr_id"
-    t.integer  "qc_loxp_srpcr_and_sequencing_id"
+    t.integer  "qc_critical_region_qpcr_id",                                     :default => 1
+    t.integer  "qc_loxp_srpcr_id",                                               :default => 1
+    t.integer  "qc_loxp_srpcr_and_sequencing_id",                                :default => 1
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -559,7 +559,7 @@ ActiveRecord::Schema.define(:version => 20130521115232) do
     t.datetime "created_at",                     :null => false
     t.datetime "updated_at",                     :null => false
     t.string   "loxp_srpcr"
-    t.boolean  "unspecified_repository_testing"
+    t.string   "unspecified_repository_testing"
   end
 
   add_index "targ_rep_distribution_qcs", ["es_cell_distribution_centre_id", "es_cell_id"], :name => "index_distribution_qcs_centre_es_cell", :unique => true
@@ -609,10 +609,10 @@ ActiveRecord::Schema.define(:version => 20130521115232) do
     t.datetime "created_at",                                                             :null => false
     t.datetime "updated_at",                                                             :null => false
     t.boolean  "production_centre_auto_update",                        :default => true
-    t.string   "user_loxp_srpcr_and_sequencing"
-    t.string   "user_karyotype_spread"
-    t.string   "user_karyotype_pcr"
-    t.integer  "user_mouse_clinic_id"
+    t.string   "user_qc_loxp_srpcr_and_sequencing"
+    t.string   "user_qc_karyotype_spread"
+    t.string   "user_qc_karyotype_pcr"
+    t.integer  "user_qc_mouse_clinic_id"
   end
 
   add_index "targ_rep_es_cells", ["allele_id"], :name => "es_cells_allele_id_fk"
@@ -758,7 +758,7 @@ ActiveRecord::Schema.define(:version => 20130521115232) do
   add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"
   add_foreign_key "phenotype_attempts", "strains", :name => "phenotype_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
 
-  add_foreign_key "targ_rep_es_cells", "centres", :name => "targ_rep_es_cells_user_mouse_clinic_id_fk", :column => "user_mouse_clinic_id"
+  add_foreign_key "targ_rep_es_cells", "centres", :name => "targ_rep_es_cells_user_qc_mouse_clinic_id_fk", :column => "user_qc_mouse_clinic_id"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

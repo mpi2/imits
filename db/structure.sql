@@ -2566,9 +2566,9 @@ CREATE TABLE mi_attempts (
     genotyping_comment character varying(512),
     legacy_es_cell_id integer,
     qc_lacz_count_qpcr_id integer DEFAULT 1,
-    qc_critical_region_qpcr_id integer,
-    qc_loxp_srpcr_id integer,
-    qc_loxp_srpcr_and_sequencing_id integer
+    qc_critical_region_qpcr_id integer DEFAULT 1,
+    qc_loxp_srpcr_id integer DEFAULT 1,
+    qc_loxp_srpcr_and_sequencing_id integer DEFAULT 1
 );
 
 
@@ -3380,7 +3380,7 @@ CREATE TABLE targ_rep_distribution_qcs (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     loxp_srpcr character varying(255),
-    unspecified_repository_testing boolean
+    unspecified_repository_testing character varying(255)
 );
 
 
@@ -3478,10 +3478,10 @@ CREATE TABLE targ_rep_es_cells (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     production_centre_auto_update boolean DEFAULT true,
-    user_loxp_srpcr_and_sequencing character varying(255),
-    user_karyotype_spread character varying(255),
-    user_karyotype_pcr character varying(255),
-    user_mouse_clinic_id integer
+    user_qc_loxp_srpcr_and_sequencing character varying(255),
+    user_qc_karyotype_spread character varying(255),
+    user_qc_karyotype_pcr character varying(255),
+    user_qc_mouse_clinic_id integer
 );
 
 
@@ -5102,11 +5102,11 @@ ALTER TABLE ONLY phenotype_attempts
 
 
 --
--- Name: targ_rep_es_cells_user_mouse_clinic_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: targ_rep_es_cells_user_qc_mouse_clinic_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY targ_rep_es_cells
-    ADD CONSTRAINT targ_rep_es_cells_user_mouse_clinic_id_fk FOREIGN KEY (user_mouse_clinic_id) REFERENCES centres(id);
+    ADD CONSTRAINT targ_rep_es_cells_user_qc_mouse_clinic_id_fk FOREIGN KEY (user_qc_mouse_clinic_id) REFERENCES centres(id);
 
 
 --

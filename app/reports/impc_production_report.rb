@@ -21,6 +21,7 @@ class ImpcProductionReport < BaseProductionReport
         'MGP Legacy',
         'MRC',
         'Monterotondo',
+        'Monterotondo R&D',
         'NorCOMM2',
         'Phenomin',
         'RIKEN BRC',

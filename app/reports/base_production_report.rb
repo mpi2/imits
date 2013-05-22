@@ -54,7 +54,7 @@ class BaseProductionReport
     hash = {}
 
     consortium_by_status.each do |report_row|
-   
+
       hash["#{report_row['consortium']}-ES Cell QC"] ||= 0
       hash["#{report_row['consortium']}-ES QC Confirmed"] ||= 0
       hash["#{report_row['consortium']}-ES QC Failed"] ||= 0
@@ -81,7 +81,7 @@ class BaseProductionReport
 
   def generate_consortium_centre_by_status
     hash = {}
-   
+
     consortium_centre_by_status.each do |report_row|
       next if report_row['production_centre'].blank?
 
@@ -112,7 +112,7 @@ class BaseProductionReport
       if 'Micro-injection aborted' == non_cumulative_status
         hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjection aborted"] += report_row['count'].to_i
       end
-    
+
     end
 
     hash
@@ -137,7 +137,7 @@ class BaseProductionReport
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping started"]    ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping completed"]  ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping aborted"]    ||= 0
-      
+
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Intent to phenotype"] += report_row["count"].to_i
 
       if report_row['phenotype_attempt_status'] == 'Rederivation Started'
@@ -176,7 +176,7 @@ class BaseProductionReport
   def generate_gene_efficiency_totals
     hash = {}
 
-    gene_efficiency_totals.each do |report_row|   
+    gene_efficiency_totals.each do |report_row|
       hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-count"]     = report_row['total_mice'].to_f
       hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-gtc_count"] = report_row['gtc_mice'].to_f
     end
@@ -226,24 +226,7 @@ class BaseProductionReport
     end
 
     def available_consortia
-      [
-        'BaSH',
-        'DTCC',
-        'DTCC-Legacy',
-        'EUCOMM-EUMODIC',
-        'EUCOMMToolsCre',
-        'Helmholtz GMC',
-        'JAX',
-        'MARC',
-        'MGP',
-        'MGP Legacy',
-        'MRC',
-        'Monterotondo',
-        'NorCOMM2',
-        'Phenomin',
-        'RIKEN BRC',
-        'UCD-KOMP'
-      ]
+      []
     end
 
     def consortium_by_distinct_gene_sql
@@ -259,7 +242,7 @@ class BaseProductionReport
 
     def consortium_by_status_sql
       sql = <<-EOF
-        SELECT 
+        SELECT
         consortium,
         mi_plan_status,
         COUNT(*)
@@ -380,7 +363,7 @@ class BaseProductionReport
             JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
             JOIN consortia ON consortia.id = mi_plans.consortium_id
             LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
-            
+
             WHERE
               mi_attempts.mi_date <= '#{6.months.ago.to_s(:db)}'
             AND
@@ -417,10 +400,10 @@ class BaseProductionReport
           GROUP BY
             consortium_name,
             production_centre_name
-          
+
         )
 
-        SELECT 
+        SELECT
           total_microinjections.consortium_name,
           total_microinjections.production_centre_name,
           distinct_microinjected_genes.gene_count,

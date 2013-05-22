@@ -19,9 +19,14 @@
 <table class="es_cell_qc_info">
   <caption>User/Mouse Clinic QC</caption>
   <tr>
+    <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_mouse_clinic_name } %>
     <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_southern_blot } %>
     <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_map_test } %>
+  </tr>
     <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_karyotype } %>
+    <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_karyotype_spread } %>
+    <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_karyotype_pcr } %>
+  <tr>
   </tr>
   <tr>
     <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_tv_backbone_assay } %>
@@ -39,6 +44,7 @@
     <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_loxp_confirmation } %>
   </tr>
   <tr>
+    <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_loxp_srpcr_and_sequencing } %>
     <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_three_prime_lr_pcr } %>
     <td colspan="4"></td>
   </tr>

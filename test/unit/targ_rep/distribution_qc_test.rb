@@ -27,6 +27,8 @@ class TargRep::DistributionQcTest < ActiveSupport::TestCase
   should have_db_column(:chry).of_type(:string)
   should have_db_column(:es_cell_id).of_type(:integer)
   should have_db_column(:es_cell_distribution_centre_id).of_type(:integer)
+  should have_db_column(:loxp_srpcr).of_type(:string)
+  should have_db_column(:unspecified_repository_testing).of_type(:string)
 
   should 'return centre_name' do
     name = 'Some Centre Name'

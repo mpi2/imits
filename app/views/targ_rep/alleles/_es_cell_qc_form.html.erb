@@ -40,9 +40,14 @@
     </td>
   </tr>
   <tr>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_mouse_clinic_name } %>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_southern_blot } %>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_map_test } %>
+  </tr>
+  <tr>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_karyotype } %>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_karyotype_spread } %>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_karyotype_pcr } %>
   </tr>
   <tr>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_tv_backbone_assay } %>
@@ -60,6 +65,7 @@
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_loxp_confirmation } %>
   </tr>
   <tr>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_loxp_srpcr_and_sequencing } %>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_three_prime_lr_pcr } %>
     <td colspan="4"></td>
   </tr>

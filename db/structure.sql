@@ -2565,7 +2565,10 @@ CREATE TABLE mi_attempts (
     mi_plan_id integer NOT NULL,
     genotyping_comment character varying(512),
     legacy_es_cell_id integer,
-    qc_lacz_count_qpcr_id integer DEFAULT 1
+    qc_lacz_count_qpcr_id integer DEFAULT 1,
+    qc_critical_region_qpcr_id integer DEFAULT 1,
+    qc_loxp_srpcr_id integer DEFAULT 1,
+    qc_loxp_srpcr_and_sequencing_id integer DEFAULT 1
 );
 
 
@@ -3375,7 +3378,9 @@ CREATE TABLE targ_rep_distribution_qcs (
     es_cell_id integer,
     es_cell_distribution_centre_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    loxp_srpcr character varying(255),
+    unspecified_repository_testing character varying(255)
 );
 
 
@@ -3472,7 +3477,11 @@ CREATE TABLE targ_rep_es_cells (
     legacy_id integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    production_centre_auto_update boolean DEFAULT true
+    production_centre_auto_update boolean DEFAULT true,
+    user_qc_loxp_srpcr_and_sequencing character varying(255),
+    user_qc_karyotype_spread character varying(255),
+    user_qc_karyotype_pcr character varying(255),
+    user_qc_mouse_clinic_id integer
 );
 
 
@@ -4797,6 +4806,14 @@ ALTER TABLE ONLY mi_attempts
 
 
 --
+-- Name: mi_attempts_qc_critical_region_qpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mi_attempts
+    ADD CONSTRAINT mi_attempts_qc_critical_region_qpcr_id_fk FOREIGN KEY (qc_critical_region_qpcr_id) REFERENCES qc_results(id);
+
+
+--
 -- Name: mi_attempts_qc_five_prime_cassette_integrity_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4842,6 +4859,22 @@ ALTER TABLE ONLY mi_attempts
 
 ALTER TABLE ONLY mi_attempts
     ADD CONSTRAINT mi_attempts_qc_loxp_confirmation_id_fk FOREIGN KEY (qc_loxp_confirmation_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mi_attempts_qc_loxp_srpcr_and_sequencing_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mi_attempts
+    ADD CONSTRAINT mi_attempts_qc_loxp_srpcr_and_sequencing_id_fk FOREIGN KEY (qc_loxp_srpcr_and_sequencing_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mi_attempts_qc_loxp_srpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mi_attempts
+    ADD CONSTRAINT mi_attempts_qc_loxp_srpcr_id_fk FOREIGN KEY (qc_loxp_srpcr_id) REFERENCES qc_results(id);
 
 
 --
@@ -5066,6 +5099,14 @@ ALTER TABLE ONLY phenotype_attempts
 
 ALTER TABLE ONLY phenotype_attempts
     ADD CONSTRAINT phenotype_attempts_status_id_fk FOREIGN KEY (status_id) REFERENCES phenotype_attempt_statuses(id);
+
+
+--
+-- Name: targ_rep_es_cells_user_qc_mouse_clinic_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_es_cells
+    ADD CONSTRAINT targ_rep_es_cells_user_qc_mouse_clinic_id_fk FOREIGN KEY (user_qc_mouse_clinic_id) REFERENCES centres(id);
 
 
 --
@@ -5321,3 +5362,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130510111914');
 INSERT INTO schema_migrations (version) VALUES ('20130510144848');
 
 INSERT INTO schema_migrations (version) VALUES ('20130520101048');
+
+INSERT INTO schema_migrations (version) VALUES ('20130521115232');

@@ -5,6 +5,7 @@ class Centre < ActiveRecord::Base
   validates :name, :presence => true, :uniqueness => true
 
   has_many :mi_plans, :foreign_key => 'production_centre_id'
+  has_many :targ_rep_es_cells, :foreign_key => 'user_mouse_clinic_id'
   has_many :mi_attempt_distribution_centres, :class_name => "MiAttempt::DistributionCentre"
   has_many :phenotype_attempt_distribution_centres, :class_name => "PhenotypeAttempt::DistributionCentre"
 

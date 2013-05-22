@@ -23,7 +23,10 @@ class MiAttempt < ApplicationModel
     :qc_lacz_sr_pcr,
     :qc_mutant_specific_sr_pcr,
     :qc_loxp_confirmation,
-    :qc_three_prime_lr_pcr
+    :qc_three_prime_lr_pcr,
+    :qc_critical_region_qpcr,
+    :qc_loxp_srpcr,
+    :qc_loxp_srpcr_and_sequencing
   ].freeze
 
   belongs_to :mi_plan
@@ -367,6 +370,9 @@ end
 #  genotyping_comment                              :string(512)
 #  legacy_es_cell_id                               :integer
 #  qc_lacz_count_qpcr_id                           :integer         default(1)
+#  qc_critical_region_qpcr_id                      :integer         default(1)
+#  qc_loxp_srpcr_id                                :integer         default(1)
+#  qc_loxp_srpcr_and_sequencing_id                 :integer         default(1)
 #
 # Indexes
 #

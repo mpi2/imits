@@ -16,6 +16,8 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
       assert_should belong_to(:allele)
       assert_should belong_to(:targeting_vector)
 
+      assert_should belong_to(:user_qc_mouse_clinic)
+
       assert_should have_many(:distribution_qcs)
       assert_should have_many(:mi_attempts)
 
@@ -26,6 +28,7 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
       pass_fail_only_qc_fields = [
         :production_qc_loss_of_allele,
         :production_qc_vector_integrity,
+        :user_qc_karyotype,
         :user_qc_five_prime_lr_pcr,
         :user_qc_three_prime_lr_pcr,
         :user_qc_map_test,
@@ -36,7 +39,10 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
         :user_qc_lacz_sr_pcr,
         :user_qc_mutant_specific_sr_pcr,
         :user_qc_five_prime_cassette_integrity,
-        :user_qc_neo_sr_pcr
+        :user_qc_neo_sr_pcr,
+        :user_qc_karyotype_spread,
+        :user_qc_karyotype_pcr,
+        :user_qc_loxp_srpcr_and_sequencing
         ]
 
       pass_fail_only_qc_fields.each do |qc_field|
@@ -54,10 +60,17 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
       pass_not_confirmed_qc_fields.each do |qc_field|
         assert_should allow_value('pass').for(qc_field)
         assert_should allow_value('not confirmed').for(qc_field)
+        assert_should allow_value('no reads detected').for(qc_field)
         assert_should_not allow_value('fail').for(qc_field)
         assert_should_not allow_value('wibble').for(qc_field)
       end
 
+    end
+
+    should 'return centre_name' do
+      centre = Factory.create :centre
+      es_cell = TargRep::EsCell.create :user_qc_mouse_clinic => centre
+      assert_equal centre.name, es_cell.user_qc_mouse_clinic_name
     end
 
     should "not be saved if it has empty attributes" do

@@ -736,6 +736,10 @@ div.report_control * {
   background-color:#fff;
 }
 
+.report.qc_report .qc_grid .qc_row .score {
+  width:10px;
+}
+
 .report.qc_report .qc_grid .qc_row .score_1 {
   background-color:#290410;
 }
@@ -765,7 +769,7 @@ div.report_control * {
 }
 
 .report.qc_report .qc_grid .qc_row .spacing {
-  margin-right:5px;
+  border-right:20px solid #efefef;
 }
 
 .report.qc_report .cell-popup {
@@ -782,6 +786,12 @@ div.report_control * {
   border-radius:4px;
   -webkit-border-radius:4px;
   -moz-border-radius:4px;
+
+  overflow:hidden;
+}
+
+.report.qc_report .cell-popup dl {
+  overflow:hidden;
 }
 
 .report.qc_report .cell-popup dt {
@@ -802,6 +812,11 @@ div.report_control * {
 .report.qc_report table .histo {
   width:200px;
   height:40px;
+}
+
+.report.qc_report table td.column_hover {
+  background:#FF6B6B;
+  color:#fff;
 }
 
 /* MiAttempt QC image */

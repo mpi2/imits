@@ -159,12 +159,7 @@ $(document).ready(function() {
 
         var data = $link.data();
 
-        $popup = $('.cell-popup')
-            .show()
-            .css({
-                left: x + 'px',
-                top: y + 'px'
-            });
+        var $popup = $('.cell-popup')
 
         $('dd.qc_type', $popup).text(data.column);
         $('dd.qc_centre', $popup).text(data.centre);
@@ -182,7 +177,6 @@ $(document).ready(function() {
         }
 
         if(data.threepLoxpScore) {
-            console.log('true')
             $('dd.threep_loxp_score', $popup).text(data.threepLoxpScore);
             $('.threep_loxp_score', $popup).show();
         } else {
@@ -200,6 +194,27 @@ $(document).ready(function() {
             $('.dc', $popup).hide();
         }
 
+        var positions = {
+            left: x + 'px',
+            top: y
+        }
+
+        var bottomEdge  = (y - window.pageYOffset) + $popup.height();
+        var screenSpace = $(window).height();
+
+        if(bottomEdge >= screenSpace) {
+            positions.top = (positions.top - $popup.height())
+        }
+
+        console.log(positions)
+
+        $popup
+            .show()
+            .css({
+                top: positions.top,
+                left: positions.left
+            });
+
     })
 
     $('.report.qc_report .qc').mouseout(function() {
@@ -210,6 +225,7 @@ $(document).ready(function() {
 
     $histoFrame.each(function() {
         var $frame = $(this);
+        var columnCount = 3;
 
         var targetingScore = $frame.data().targetingScore
         var cassetteScore  = $frame.data().cassetteScore
@@ -222,6 +238,16 @@ $(document).ready(function() {
             from: 0,
             colors: ['#FF6B6B', '#C7F464', '#4ECDC4', '#556270']
         }).hover(function() {
+            cells = ['.targeting_score_cell', '.cassette_score_cell', '.threep_loxp_score_cell', '.insertion_score_cell'];
+            klass = cells[this.columnCount];
+            $cell = $(klass, $frame.parent().parent());
+            $cell.addClass('column_hover')
+        }, function() {
+            cells = $('td', $frame.parent().parent());
+            cells.removeClass('column_hover')
+        }).each(function() {
+            this.columnCount = columnCount;
+            columnCount -= 1;
         })
     })
 })

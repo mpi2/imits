@@ -1,0 +1,73 @@
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('raphael') %>
+  <%= javascript_include_tag('g.raphael') %>
+  <%= javascript_include_tag('g.bar') %>
+<% end %>
+
+<% @title = 'Genotype confirmed QC summary' %>
+<h2>Genotype confirmed QC summary</h2>
+
+<p><%= link_to 'Download full grid as CSV', url_for(:controller => "v2/reports", :action => :qc_grid, :format => 'csv') %></p>
+
+<div class='report qc_report'>
+
+  <table>
+  
+    <thead>
+      <tr>
+        <th class='centre' rowspan='2'>
+          <strong>Consortium</strong>
+        </th>
+        <th class='centre' rowspan='2'>
+          <strong>Production centre</strong>
+        </th>
+        <th class='centre' colspan='4'>Averages over report</th>
+        <th></th>
+        <th></th>
+      </td>
+      <tr>
+        <th>Targeting score</th>
+        <th>Cassette score</th>
+        <th>Threep loxp score</th>
+        <th>Insertion score</th>
+        <th>Scores</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @centre_by_consortia.each_with_index do |hash, count| %>
+        <% consortium, production_centres = hash %>
+        <% production_centres.each_with_index do |production_centre, centre_count| %>
+          <tr>
+            <% unless centre_count > 0 %>
+              <td rowspan='<%= production_centres.size %>'>
+                <%= consortium %>
+                (<%= link_to 'CSV', url_for(:controller => "v2/reports", :action => :qc_grid, :consortium => consortium, :format => 'csv') %>)
+              </td>
+            <% end %>
+
+            <td><%= production_centre %></td>
+            <td><%= targeting_score = average_score('targeting_score', @score_averages["#{consortium}-#{production_centre}"]) %></td>
+            <td><%= cassette_score = average_score('cassette_score', @score_averages["#{consortium}-#{production_centre}"]) %></td>
+            <td><%= threep_loxp_score = average_score('threep_loxp_score', @score_averages["#{consortium}-#{production_centre}"]) %></td>
+            <td><%= insertion_score = average_score('insertion_score', @score_averages["#{consortium}-#{production_centre}"]) %></td>
+            <td>
+              <div class='histo' id='histo_<%= consortium.downcase.parameterize.underscore %>_<%= production_centre.downcase.parameterize.underscore %>'
+                data-targeting-score='<%= targeting_score %>'
+                data-cassette-score='<%= cassette_score %>'
+                data-three-loxp-score='<%= threep_loxp_score %>'
+                data-insertion-score='<%= insertion_score %>'>
+              </div>
+            </td>
+            <td>
+              <%= link_to 'See more', url_for(:controller => "v2/reports", :action => :qc_grid, :consortium => consortium, :production_centre => production_centre) %>
+              (<%= link_to 'CSV', url_for(:controller => "v2/reports", :action => :qc_grid, :consortium => consortium, :production_centre => production_centre, :format => 'csv') %>)
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  
+  </table>
+</div>

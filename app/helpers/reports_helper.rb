@@ -101,7 +101,7 @@ module ReportsHelper
   end
 
   def grid_qc_result(value, type = nil)
-    return value if type =~ /colony_name|distribution_centre/
+    return value if type =~ /colony_name|distribution_centre|es_cell/
 
     case value
       when /pass/, '3'
@@ -116,12 +116,37 @@ module ReportsHelper
   ## Used in QcGridReport
   def grid_class(value, type)
 
-    klass = grid_qc_result(value)
+    if ['insertion_score', 'threep_loxp_score', 'targeting_score', 'cassette_score'].include?(type)
+      klass = "score score_#{value}"
+    else
+      klass = grid_qc_result(value)
+    end
 
-    if type == 'qc_three_prime_lr_pcr_id'
+    if ['qc_three_prime_lr_pcr', 'chry'].include?(type)
       klass << ' right-border'
+    end
+
+    if type == 'chry'
+      klass << ' spacing'
+    end
+
+    if QcGridReport.distribution_qc_columns.include?(type)
+      klass << ' distribution_centre'
     end
 
     klass
   end
+
+  def average_score(type, hash)
+    if type == 'threep_loxp_score'
+      total = hash['threep_loxp_score_total'].to_f
+    else
+      total = hash['count'].to_f
+    end
+    
+    subset = hash[type].to_f
+
+    (subset / total).round(1)
+  end
+
 end

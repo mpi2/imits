@@ -689,47 +689,87 @@ div.report_control * {
   cursor:pointer;
 }
 
-.report table.qc_grid {
+.report .qc_grid {
   border:1px solid #efefef;
   margin-bottom:30px;
+  float:left;
 }
 
-.report table.qc_grid tbody td span {
-  display: none;
+/* QC grid report */
+
+.report.qc_report h2:first-child {
+  border-top-width:0;
 }
 
-.report table.qc_grid tbody td.text span {
-  display: inline;
+.report.qc_report h2 {
+  border-top:1px solid #ddd;
+  padding-top:20px;
+  clear:both;
 }
 
-.report table.qc_grid tbody td.qc {
-  width:5px;
-  height:5px;
+.report.qc_report h3 {
+  clear:both;
+}
+
+.report.qc_report .qc_grid .qc_row {
+  overflow:hidden;
+  clear:both;
+}
+
+.report.qc_report .qc_grid .qc {
+  float:left;
+  width:6px;
+  height:6px;
   border-width:0;
+  clear:none;
 }
 
-.report table.qc_grid tbody td.pass {
+.report.qc_report .qc_grid .qc_row .pass {
   background-color:green;
 }
 
-.report table.qc_grid tbody td.fail {
+.report.qc_report .qc_grid .qc_row .fail {
   background-color:red;
 }
 
-.report table.qc_grid tbody td.na {
+.report.qc_report .qc_grid .qc_row .na {
   background-color:#fff;
 }
 
-.report table.qc_grid tbody td.right-border {
+.report.qc_report .qc_grid .qc_row .score_1 {
+  background-color:#290410;
+}
+
+.report.qc_report .qc_grid .qc_row .score_2 {
+  background-color:#691932;
+}
+
+.report.qc_report .qc_grid .qc_row .score_3 {
+  background-color:#902342;
+}
+
+.report.qc_report .qc_grid .qc_row .score_4 {
+  background-color:#CB4A83;
+}
+
+.report.qc_report .qc_grid .qc_row .score_5 {
+  background-color:#F68BCF;
+}
+
+.report.qc_report .qc_grid .qc_row .score_6 {
+  background-color:#F8A8F1;
+}
+
+.report.qc_report .qc_grid .qc_row .right-border {
   border-right:1px solid #999;
 }
 
-.report table.qc_grid tbody td:hover .cell-popup {
-  display:block;
-}  
+.report.qc_report .qc_grid .qc_row .spacing {
+  margin-right:5px;
+}
 
-.report table.qc_grid tbody td .cell-popup {
-  width:300px;
+.report.qc_report .cell-popup {
+  width:400px;
   position:absolute;
   font-size:.75em;
   display:none;
@@ -744,25 +784,27 @@ div.report_control * {
   -moz-border-radius:4px;
 }
 
-.report table.qc_grid tbody td .cell-popup dt {
+.report.qc_report .cell-popup dt {
   clear:left;
   float:left;
   width:150px;
   font-weight:bold;
 }
 
-.report table.qc_grid tbody td .cell-popup dt.qc_result, .report table.qc_grid tbody td .cell-popup dd.qc_result {
+.report.qc_report .cell-popup dt.qc_result, .report.qc_report .cell-popup dd.qc_result {
   font-weight:bold;
 }
 
-.report.qc h2:first-child {
-  border-top-width:0;
+.report.qc_report table thead th {
+  text-align:center;
 }
 
-.report.qc h2 {
-  border-top:1px solid #ddd;
-  padding-top:20px;
+.report.qc_report table .histo {
+  width:200px;
+  height:40px;
 }
+
+/* MiAttempt QC image */
 
 #qcimage {
   display:none;

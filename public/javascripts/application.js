@@ -147,3 +147,105 @@ function populateDiv(frames, i) {
         }
     })
 }
+
+$(document).ready(function() {
+    // QC grid popup
+    $('.report.qc_report .qc').mouseover(function() {
+
+        var $link = $(this);
+
+        var x = $link.offset().left;
+        var y = $link.offset().top;
+
+        var data = $link.data();
+
+        var $popup = $('.cell-popup')
+
+        $('dd.qc_type', $popup).text(data.column);
+        $('dd.qc_centre', $popup).text(data.centre);
+        $('dd.qc_consortium', $popup).text(data.consortium);
+        $('dd.qc_gene', $popup).text(data.gene);
+        $('dd.qc_result', $popup).text(data.result);
+        $('dd.qc_es_cell', $popup).text(data.esCell);
+        $('dd.qc_mutation_type', $popup).text(data.mutationType);
+        $('dd.qc_colony', $popup).text(data.colonyName);
+
+        if($link.hasClass('score')) {
+            $('.qc_specific').hide();
+        } else {
+            $('.qc_specific').show();
+        }
+
+        if(data.threepLoxpScore) {
+            $('dd.threep_loxp_score', $popup).text(data.threepLoxpScore);
+            $('.threep_loxp_score', $popup).show();
+        } else {
+            $('.threep_loxp_score', $popup).hide();
+        }
+
+        $('.targeting_score', $popup).text(data.targetingScore);
+        $('.cassette_score', $popup).text(data.cassetteScore);
+        $('.insertion_score', $popup).text(data.insertionScore);
+
+        if(data.distributionCentre && $link.hasClass('distribution_centre')) {
+            $('.dc', $popup).show();
+            $('.qc_distribution_centre', $popup).text(data.distributionCentre);
+        } else {
+            $('.dc', $popup).hide();
+        }
+
+        var positions = {
+            left: x + 'px',
+            top: y
+        }
+
+        var bottomEdge  = (y - window.pageYOffset) + $popup.height();
+        var screenSpace = $(window).height();
+
+        if(bottomEdge >= screenSpace) {
+            positions.top = (positions.top - $popup.height())
+        }
+
+        $popup
+            .show()
+            .css({
+                top: positions.top,
+                left: positions.left
+            });
+
+    })
+
+    $('.report.qc_report .qc').mouseout(function() {
+        $('.cell-popup').hide();
+    })
+
+    var $histoFrame = $('.histo');
+
+    $histoFrame.each(function() {
+        var $frame = $(this);
+        var columnCount = 3;
+
+        var targetingScore = $frame.data().targetingScore
+        var cassetteScore  = $frame.data().cassetteScore
+        var threeLoxpScore = $frame.data().threeLoxpScore
+        var insertionScore = $frame.data().insertionScore
+
+        var r = Raphael($frame.attr('id'));
+        r.hbarchart(0, 2, 200, 44, [targetingScore, cassetteScore, threeLoxpScore, insertionScore], {
+            to: 6,
+            from: 0,
+            colors: ['#FF6B6B', '#C7F464', '#4ECDC4', '#556270']
+        }).hover(function() {
+            cells = ['.targeting_score_cell', '.cassette_score_cell', '.threep_loxp_score_cell', '.insertion_score_cell'];
+            klass = cells[this.columnCount];
+            $cell = $(klass, $frame.parent().parent());
+            $cell.addClass('column_hover')
+        }, function() {
+            cells = $('td', $frame.parent().parent());
+            cells.removeClass('column_hover')
+        }).each(function() {
+            this.columnCount = columnCount;
+            columnCount -= 1;
+        })
+    })
+})

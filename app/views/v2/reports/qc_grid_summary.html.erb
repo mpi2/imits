@@ -7,41 +7,46 @@
 <% @title = 'Summary of Mouse Genotype QC' %>
 <h2><%= @title %></h2>
 
-<p><%= link_to 'Download full grid as CSV', url_for(:controller => "v2/reports", :action => :qc_grid, :format => 'csv') %></p>
-
-<p>
-  This page summarises the QC assays performed on mice which have been declared <strong>genotype confirmed</strong> in Tarmits.
-</p>
-
-<p>The Wellcome Trust Sanger Institute has defined four categories of assay:</p>
-
-<dl>
-  <dt>Targeting</dt>
-  <dd>
-    The locus is correctly targeted.
-  </dd>
-  <dt>Allele structure</dt>
-  <dd>
-    The targeting cassette has the correct structure.
-  </dd>
-  <dt>3' LoxP</dt>
-  <dd>
-    The 3' Loxp site is verified to exist (only applicable for Conditional mutations).
-  </dd>
-  <dt>Vector Insertions</dt>
-  <dd>
-    There are no additional vector insertions elsewhere in the genome.
-  </dd>
-</ul>
-
-<p>
-  Each mouse line is given a score between 1 and 6 depending on the assays recorded in Tarmits. We have summarised the average score per category for each Consortium/Production centre.
-</p>
-
-<p>Click through to see a summary of all genotyped confirmed lines, their assays, and their scores. Use the download CSV links to retrieve all the data used in these calculations.</p>
-
-
 <div class='report qc_report'>
+
+  <p><%= link_to 'Download full grid as CSV', url_for(:controller => "v2/reports", :action => :qc_grid, :format => 'csv') %></p>
+
+  <p>This page summarises the QC assays performed on mice which have been declared <strong>Genotype Confirmed</strong> in Tarmits.</p>
+
+  <p>The Wellcome Trust Sanger Institute has defined four categories of assay:</p>
+
+  <table class='descriptions'>
+    <thead>
+      <tr>
+        <th>Assay</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>Targeting</th>
+        <td>The locus is correctly targeted.</td>
+      </tr>
+      <tr>
+        <th>Allele structure</th>
+        <td>The targeting cassette has the correct structure.</td>
+      </tr>
+      <tr>
+        <th>3' LoxP</td>
+        <td>The 3' Loxp site is verified to exist (only applicable for Conditional mutations).</td>
+      </tr>
+      <tr>
+        <th>Vector Insertions</th>
+        <td>
+          There are no additional vector insertions elsewhere in the genome.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Each mouse line is given a score between 1 and 6 depending on the assays recorded in Tarmits. We have summarised the average score per category for each Consortium/Production centre.</p>
+
+  <p>Click through to see a summary of all genotyped confirmed lines, their assays, and their scores. Use the download CSV links to retrieve all the data used in these calculations.</p>
 
   <table>
   

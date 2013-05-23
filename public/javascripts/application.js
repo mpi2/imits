@@ -206,8 +206,6 @@ $(document).ready(function() {
             positions.top = (positions.top - $popup.height())
         }
 
-        console.log(positions)
-
         $popup
             .show()
             .css({

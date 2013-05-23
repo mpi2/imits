@@ -13,6 +13,76 @@
     <h3><%= @report.production_centre.name %></h3>
   <% end %>
 
+  <div class='qc_grid_key'>
+
+    <%= image_tag 'screens/key1.jpg' %>
+    <%= image_tag 'screens/key2.jpg' %>
+
+    <div>
+      <h3>QC assay result key</h3>
+      <table class='descriptions key'>
+        <thead>
+          <tr>
+            <th>Colour</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class='pass'></td>
+            <td>Pass</td>
+          </tr>
+          <tr>
+            <td class='fail'></td>
+            <td>Fail</td>
+          </tr>
+          <tr>
+            <td class='na'></td>
+            <td>Not attempted</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <h3>Score key for Genotyping assay</h3>
+      <table class='descriptions key'>
+        <thead>
+          <tr>
+            <th>Colour</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class='score_1'></td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td class='score_2'></td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td class='score_3'></td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td class='score_4'></td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td class='score_5'></td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td class='score_6'></td>
+            <td>6</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <div class='qc_grid'>
     <% for row in @report_rows %>
       <div class='qc_row'>

@@ -693,10 +693,15 @@ div.report_control * {
   cursor:pointer;
 }
 
-.report .qc_grid {
+.report.qc_report {
+  min-width: 816px;
+}
+
+.report.qc_report .qc_grid {
   border:1px solid #efefef;
   margin-bottom:30px;
   float:left;
+  background:#efefef;
 }
 
 /* QC grid report */
@@ -773,7 +778,29 @@ div.report_control * {
 }
 
 .report.qc_report .qc_grid .qc_row .spacing {
-  border-right:20px solid #efefef;
+  margin-right:20px;
+}
+
+.report.qc_report .qc_grid_key {
+  float:right;
+  margin-left:40px;
+  padding:20px;
+  border:4px solid #efefef
+}
+
+.report.qc_report .qc_grid_key img {
+  display:block;
+  margin-bottom:10px;
+}
+
+.report.qc_report .qc_grid_key div {
+  float:left;
+  margin-top:20px;
+  margin-left:20px;
+}
+
+.report.qc_report .qc_grid_key table {
+  float:left;
 }
 
 .report.qc_report .cell-popup {
@@ -815,6 +842,46 @@ div.report_control * {
 
 .report.qc_report table.descriptions thead th {
   text-align:left;
+}
+
+.report.qc_report table.descriptions.key {
+  margin-bottom:20px;
+}
+
+.report.qc_report table.descriptions.key td.pass {
+  background-color:green;
+}
+
+.report.qc_report table.descriptions.key td.fail {
+  background-color:red;
+}
+
+.report.qc_report table.descriptions.key td.na {
+  background-color:#fff;
+}
+
+.report.qc_report table.descriptions.key td.score_1 {
+  background-color:#290410;
+}
+
+.report.qc_report table.descriptions.key td.score_2 {
+  background-color:#691932;
+}
+
+.report.qc_report table.descriptions.key td.score_3 {
+  background-color:#902342;
+}
+
+.report.qc_report table.descriptions.key td.score_4 {
+  background-color:#CB4A83;
+}
+
+.report.qc_report table.descriptions.key td.score_5 {
+  background-color:#F68BCF;
+}
+
+.report.qc_report table.descriptions.key td.score_6 {
+  background-color:#F8A8F1;
 }
 
 .report.qc_report table .histo {

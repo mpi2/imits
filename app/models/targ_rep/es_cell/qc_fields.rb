@@ -24,8 +24,16 @@ module TargRep::EsCell::QcFields
     "user_qc_mouse_clinic_name"             => { :name => "Mouse Clinic",  :values => Centre.all.map{|clinic| clinic.name}.append('') },
     "user_qc_karyotype_spread"              => { :name => "Karyotype Spread" },
     "user_qc_karyotype_pcr"                 => { :name => "Karyotype PCR" },
-    "user_qc_loxp_srpcr_and_sequencing"     => { :name => "Loxp SRPCR and Sequencing" }
+    "user_qc_loxp_srpcr_and_sequencing"     => { :name => "Loxp SR-PCR and Sequencing" },
+
+    "user_qc_chr1"                          => { :name => "Chr1"},
+    "user_qc_chr11"                         => { :name => "Chr11"},
+    "user_qc_chr8"                          => { :name => "Chr8"},
+    "user_qc_chry"                          => { :name => "Chry"},
+    "user_qc_lacz_qpcr"                     => { :name => "LacZ qPCR"}
   }
+
+
 
   qc_metrics.each do |field,data|
     if data[:values].nil?

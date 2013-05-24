@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130521115232) do
+ActiveRecord::Schema.define(:version => 20130524110125) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -613,6 +613,11 @@ ActiveRecord::Schema.define(:version => 20130521115232) do
     t.string   "user_qc_karyotype_spread"
     t.string   "user_qc_karyotype_pcr"
     t.integer  "user_qc_mouse_clinic_id"
+    t.string   "user_qc_chr1"
+    t.string   "user_qc_chr11"
+    t.string   "user_qc_chr8"
+    t.string   "user_qc_chry"
+    t.string   "user_qc_lacz_qpcr"
   end
 
   add_index "targ_rep_es_cells", ["allele_id"], :name => "es_cells_allele_id_fk"

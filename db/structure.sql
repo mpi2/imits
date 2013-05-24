@@ -3481,7 +3481,12 @@ CREATE TABLE targ_rep_es_cells (
     user_qc_loxp_srpcr_and_sequencing character varying(255),
     user_qc_karyotype_spread character varying(255),
     user_qc_karyotype_pcr character varying(255),
-    user_qc_mouse_clinic_id integer
+    user_qc_mouse_clinic_id integer,
+    user_qc_chr1 character varying(255),
+    user_qc_chr11 character varying(255),
+    user_qc_chr8 character varying(255),
+    user_qc_chry character varying(255),
+    user_qc_lacz_qpcr character varying(255)
 );
 
 
@@ -5364,3 +5369,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130510144848');
 INSERT INTO schema_migrations (version) VALUES ('20130520101048');
 
 INSERT INTO schema_migrations (version) VALUES ('20130521115232');
+
+INSERT INTO schema_migrations (version) VALUES ('20130524110125');

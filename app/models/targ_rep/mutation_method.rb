@@ -2,7 +2,7 @@ class TargRep::MutationMethod < ActiveRecord::Base
   
   acts_as_audited
 
-  has_many :allele, :class_name => "TargRep::Allele"
+  has_many :allele
 
   validates :name, :presence => true, :uniqueness => true
   validates :code, :presence => true, :uniqueness => true

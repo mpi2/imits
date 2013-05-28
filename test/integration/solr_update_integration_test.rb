@@ -165,7 +165,7 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
 
     should_if_solr 'update an es_cell`s mi_attempt solr docs if the es_cell changes' do
       es_cell = @mi_attempt.es_cell
-      es_cell.update_attributes!(:parental_cell_line => 'JM8.F6')
+      es_cell.update_attributes!(:parental_cell_line => 'JM8.P6')
       SolrUpdate::Queue.run
       fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
       assert_equal [@mi_attempt.id], fetched_docs.map{|i| i['id']}

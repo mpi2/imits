@@ -1,13 +1,14 @@
 class TargRep::Allele < ActiveRecord::Base
+  
   acts_as_audited
 
   extend AccessAssociationByAttribute
   ##
   ## Associations
   ##
-  belongs_to :mutation_method,  :class_name => "TargRep::MutationMethod"
-  belongs_to :mutation_type,    :class_name => "TargRep::MutationType"
-  belongs_to :mutation_subtype, :class_name => "TargRep::MutationSubtype"
+  belongs_to :mutation_method, :class_name => 'TargRep::MutationMethod'
+  belongs_to :mutation_type, :class_name => 'TargRep::MutationType'
+  belongs_to :mutation_subtype, :class_name => 'TargRep::MutationSubtype'
   belongs_to :gene
 
   access_association_by_attribute :gene, :mgi_accession_id
@@ -15,9 +16,9 @@ class TargRep::Allele < ActiveRecord::Base
   access_association_by_attribute :mutation_type,    :name
   access_association_by_attribute :mutation_subtype, :name
 
-  has_one    :genbank_file,      :dependent => :destroy, :class_name => "TargRep::GenbankFile"
-  has_many   :targeting_vectors, :dependent => :destroy, :class_name => "TargRep::TargetingVector"
-  has_many   :es_cells,          :dependent => :destroy, :class_name => "TargRep::EsCell" do
+  has_one    :genbank_file,      :dependent => :destroy, :foreign_key => 'allele_id'
+  has_many   :targeting_vectors, :dependent => :destroy, :foreign_key => 'allele_id'
+  has_many   :es_cells,          :dependent => :destroy, :foreign_key => 'allele_id' do
     def unique_public_info
       info_map = ActiveSupport::OrderedHash.new
 
@@ -67,8 +68,6 @@ class TargRep::Allele < ActiveRecord::Base
   validates :strand,             :presence => true
   validates :mutation_method,    :presence => true
   validates :mutation_type,      :presence => true
-  validates :homology_arm_start, :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
-  validates :homology_arm_end,   :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
   validates :cassette_start,     :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
   validates :cassette_end,       :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
   validates :cassette,           :presence => true
@@ -343,8 +342,8 @@ end
 #  assembly            :string(50)      default("NCBIM37"), not null
 #  chromosome          :string(2)       not null
 #  strand              :string(1)       not null
-#  homology_arm_start  :integer         not null
-#  homology_arm_end    :integer         not null
+#  homology_arm_start  :integer
+#  homology_arm_end    :integer
 #  loxp_start          :integer
 #  loxp_end            :integer
 #  cassette_start      :integer
@@ -362,5 +361,7 @@ end
 #  cassette_type       :string(50)
 #  created_at          :datetime        not null
 #  updated_at          :datetime        not null
+#  intron              :integer
+#  type                :string(255)     default("TargRep::Allele")
 #
 

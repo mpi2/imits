@@ -28,4 +28,8 @@ module TargRep::AllelesHelper
     link_to_function( 'Add a targeting vector', onclick)
   end
 
+  def gene_trap?
+    @klass == TargRep::GeneTrap
+  end
+
 end

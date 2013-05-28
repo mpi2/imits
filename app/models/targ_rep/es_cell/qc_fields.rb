@@ -19,7 +19,12 @@ module TargRep::EsCell::QcFields
     "user_qc_lacz_sr_pcr"                   => { :name => "LacZ SR-PCR" },
     "user_qc_mutant_specific_sr_pcr"        => { :name => "Mutant Specific SR-PCR" },
     "user_qc_five_prime_cassette_integrity" => { :name => "5' Cassette Integrity" },
-    "user_qc_neo_sr_pcr"                    => { :name => "Neo SR-PCR" }
+    "user_qc_neo_sr_pcr"                    => { :name => "Neo SR-PCR" },
+
+    "user_qc_mouse_clinic_name"             => { :name => "Mouse Clinic",  :values => Centre.all.map{|clinic| clinic.name}.append('') },
+    "user_qc_karyotype_spread"              => { :name => "Karyotype Spread" },
+    "user_qc_karyotype_pcr"                 => { :name => "Karyotype PCR" },
+    "user_qc_loxp_srpcr_and_sequencing"     => { :name => "Loxp SRPCR and Sequencing" }
   }
 
   qc_metrics.each do |field,data|

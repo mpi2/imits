@@ -1,51 +1,152 @@
-<% @title = 'Genotype confirmed QC grid' %>
-<h3># Genotype confirmed QC grid</h3>
+<% @title = 'QC Results for all Genotype Confirmed Mouse Lines' %>
+<h2><%= @title %></h2>
 
 <p><%= link_to 'Download as CSV', report_csv_path %></p>
 
-<div class='report qc'>
+<div class='report qc_report'>
 
-  <% for consortium, centre in @mi_attempts[:consortia] %>
-    <h2><%= consortium %></h2>
-    <% for centre, genes in centre %>
-      <h3><%= centre %></h3>
+  <% if @report.consortium %>
+    <h2><%= @report.consortium.name %></h2>
+  <% end %>
 
-      <table class='qc_grid'>
+  <% if @report.production_centre %>
+    <h3><%= @report.production_centre.name %></h3>
+  <% end %>
+
+  <div class='qc_grid_key'>
+
+    <%= image_tag 'screens/key1.jpg' %>
+    <%= image_tag 'screens/key2.jpg' %>
+
+    <div>
+      <h3>QC assay result key</h3>
+      <table class='descriptions key'>
+        <thead>
+          <tr>
+            <th>Colour</th>
+            <th>Description</th>
+          </tr>
+        </thead>
         <tbody>
-
-          <% for gene in genes %>
-            <tr>
-              <% for column in QcGridReport.html_columns %>
-                <% value = @mi_attempts["#{consortium}-#{centre}-#{gene}-#{column}"] || 'na' %>
-                <td data-centre="<%= centre %>" data-consortium="<%= consortium %>" data-column="<%= column %>" class="qc <%= grid_class(value, column) %>">
-                  <% unless value.blank? %>
-                    <div class='cell-popup'>
-                      <dl>
-                        <dt class='qc_result'>QC Type</dt>
-                        <dd class='qc_result'><%= column.humanize %></dd>
-                        <dt class='qc_result'>QC Result</dt>
-                        <dd class='qc_result'><%= grid_qc_result(value) %></dd>
-                        <dt>Gene</dt>
-                        <dd><%= gene %></dd>
-                        <dt>Consortium</dt>
-                        <dd><%= consortium %><dd>
-                        <dt>Production centre</dt>
-                        <dd><%= centre %><dd>
-                        <% if QcGridReport.distribution_qc_columns.include?(column) %>
-                          <dt>Distribution centre name</dt>
-                          <dd><%= @mi_attempts["#{consortium}-#{centre}-#{gene}-distribution_centre"] %><dd>
-                        <% end %>
-                    </div>
-                  <% end %>
-                </td>
-              <% end %>
-            </tr>
-          <% end %>
-
+          <tr>
+            <td class='pass'></td>
+            <td>Pass</td>
+          </tr>
+          <tr>
+            <td class='fail'></td>
+            <td>Fail</td>
+          </tr>
+          <tr>
+            <td class='na'></td>
+            <td>Not attempted</td>
+          </tr>
         </tbody>
       </table>
+    </div>
 
+    <div>
+      <h3>Score key for Genotyping assay</h3>
+      <table class='descriptions key'>
+        <thead>
+          <tr>
+            <th>Colour</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class='score_1'></td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td class='score_2'></td>
+            <td>2</td>
+          </tr>
+          <tr>
+            <td class='score_3'></td>
+            <td>3</td>
+          </tr>
+          <tr>
+            <td class='score_4'></td>
+            <td>4</td>
+          </tr>
+          <tr>
+            <td class='score_5'></td>
+            <td>5</td>
+          </tr>
+          <tr>
+            <td class='score_6'></td>
+            <td>6</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class='qc_grid'>
+    <% for row in @report_rows %>
+      <div class='qc_row'>
+        <% for column in QcGridReport.html_columns %>
+          <% result = row.data[column] %>
+          <div
+            data-result="<%= grid_qc_result(result) %>"
+            data-centre="<%= row.production_centre %>"
+            data-consortium="<%= row.consortium %>"
+            data-column="<%= column.humanize %>"
+            data-gene="<%= row.gene %>"
+            data-es-cell="<%= row.es_cell %>"
+            data-mutation-type="<%= row.mutation_type %>"
+            data-colony-name="<%= row.colony_name %>"
+            <% if row.respond_to?(:distribution_centre) %>
+              data-distribution-centre="<%= row.distribution_centre %>"
+            <% end %>
+            <% if row.respond_to?(:targeting_score) %>
+              data-targeting-score="<%= row.targeting_score %>"
+            <% end %>
+            <% if row.respond_to?(:cassette_score) %>
+              data-cassette-score="<%= row.cassette_score %>"
+            <% end %>
+            <% if row.respond_to?(:threep_loxp_score) %>
+              data-threep-loxp-score="<%= row.threep_loxp_score %>"
+            <% end %>
+            <% if row.respond_to?(:insertion_score) %>
+              data-insertion-score="<%= row.insertion_score %>"
+            <% end %>
+            class="qc <%= grid_class(result, column) %>">
+          </div>
+        <% end %>
+      </div>
     <% end %>
-  <% end %>
+  </div>
+
+  <div class='cell-popup'>
+    <dl>
+      <dt class='bold qc_specific'>QC Type</dt>
+      <dd class='bold qc_specific qc_type'></dd>
+      <dt class='bold qc_specific'>QC Result</dt>
+      <dd class='bold qc_specific qc_result'></dd>
+      <dt>Gene</dt>
+      <dd class='qc_gene'></dd>
+      <dt>Colony name</dt>
+      <dd class='qc_colony'></dd>
+      <dt>EsCell</dt>
+      <dd class='qc_es_cell'></dd>
+      <dt>Mutation type</dt>
+      <dd class='qc_mutation_type'></dd>
+      <dt>Consortium</dt>
+      <dd class='qc_consortium'><dd>
+      <dt>Production centre</dt>
+      <dd class='qc_centre'><dd>
+      <dt class='dc'>Distribution centre name</dt>
+      <dd class='dc qc_distribution_centre'><dd>
+      <dt class='row_specific'>Targeting score</dt>
+      <dd class='row_specific targeting_score'></dd>
+      <dt class='row_specific'>Cassette score</dt>
+      <dd class='row_specific cassette_score'></dd>
+      <dt class='row_specific threep_loxp_score'>Threep loxp score</dt>
+      <dd class='row_specific threep_loxp_score'></dd>
+      <dt class='row_specific'>Insertion score</dt>
+      <dd class='row_specific insertion_score'></dd>
+  </div>
 
 </div>

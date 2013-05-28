@@ -49,7 +49,38 @@ namespace :db do
 
     desc "Dump #{envname} DB into current environment DB"
     task "#{envname}:clone" => ["db:#{envname}:dump", "db:#{envname}:load"]
+
   end
+
+  desc "Dump public DB into public/uploads/public_dump.sql"
+  task :public_dump do
+    uploadir = Rails.application.config.paths['upload_path'].first
+    envname  = Rails.env.to_s
+
+    config = YAML.load_file("#{Rails.root}/config/database.yml")[envname]
+    if ! config
+      [
+       "#{Rails.root}/config/database.#{envname}.yml",
+       "/opt/t87/global/conf/imits/#{envname}/database.yml"
+      ].each do |config_location|
+        if File.file? config_location
+          config = YAML.load_file(config_location)[envname]
+          break
+        end
+      end
+    end
+
+    `mkdir -p #{uploadir}` if Rails.env.development?
+    puts uploadir
+
+    raise "Cannot find #{envname} database config" unless config
+    if config['port'].blank?; config['port'] = '5432'; end
+    system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --column-inserts -T email_templates -T contacts -T notifications -T targ_rep_genbank_files -T audits --no-privileges #{config['database']} > #{uploadir}/public_dump.sql") or raise("Failed to public dump #{envname} DB")
+    system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --column-inserts --schema-only -t email_templates -t contacts -t notifications -t targ_rep_genbank_files -t audits --no-privileges #{config['database']} >> #{uploadir}/public_dump.sql") or raise("Failed to public dump #{envname} DB")
+    system("cd #{uploadir}; tar -cvzf 'public_dump.sql.tar.gz' public_dump.sql") or raise("Failed to compress #{uploadir}/public_dump.sql")
+    system("rm #{uploadir}/public_dump.sql") or raise("Failed to clean up #{uploadir}/public_dump.sql")
+  end
+
 
   desc 'Reset user passwords to "password"'
   task 'passwords:reset' => :environment do

@@ -44,7 +44,7 @@ class CreateMiAttemptsInFormTest < TarMits::JsIntegrationTest
     end
 
     should 're-render form defaults filled in and validation errors when invalid data' do
-      allele = TargRep::Allele.first
+      allele = TargRep::TargetedAllele.first
       es_cell = TargRep::EsCell.first
 
       choose_es_cell_from_list allele.gene.marker_symbol, es_cell.name

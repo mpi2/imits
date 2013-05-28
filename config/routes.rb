@@ -143,10 +143,15 @@ TarMits::Application.routes.draw do
 
   get '/javascripts/dynamic_esc_qc_conflict_selects' => 'javascripts#dynamic_esc_qc_conflict_selects'
 
+  get '/public_dump' => 'root#public_dump', :as => 'public_dump'
+
   ## TargRep interface
   namespace :targ_rep do
     resources :pipelines
 
+    resources :gene_traps
+    resources :targeted_alleles
+    
     resources :alleles do
       get :history, :on => :member
 

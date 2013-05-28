@@ -1,9 +1,33 @@
 <div class="grid_12">
-  <p>
-    <b>Name:</b>
-    <%=h @pipeline.name %>
-  </p>
-  
   <%= link_to 'Edit', [:edit, @pipeline] %> |
   <%= link_to 'Back', [:targ_rep, :pipelines] %>
+
+  <p>
+    <b>Name:</b>
+    <%= @pipeline.name %>
+  </p>
+
+  <p>
+    <b>Description:</b>
+    <%= @pipeline.description %>
+  </p>
+
+  <p>
+    <b>Gene Trap:</b>
+    <% if @pipeline.gene_trap %>
+      <span class="ss_sprite ss_tick">&nbsp;</span>
+    <% else %>
+      <span class="ss_sprite ss_cross">&nbsp;</span>
+    <% end %>
+  </p>
+
+  <p>
+    <b>Report to public:</b>
+    <% if @pipeline.report_to_public %>
+      <span class="ss_sprite ss_tick">&nbsp;</span>
+    <% else %>
+      <span class="ss_sprite ss_cross">&nbsp;</span>
+    <% end %>
+  </p>
+
 </div>

@@ -1,0 +1,110 @@
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('raphael') %>
+  <%= javascript_include_tag('g.raphael') %>
+  <%= javascript_include_tag('g.bar') %>
+<% end %>
+
+<% @title = 'Summary of Mouse Genotype QC' %>
+<h2><%= @title %></h2>
+
+<div class='report qc_report'>
+
+  <p><%= link_to 'Download full grid as CSV', url_for(:controller => "v2/reports", :action => :qc_grid, :format => 'csv') %></p>
+
+  <p>This page summarises the QC assays performed on mice which have been declared <strong>Genotype Confirmed</strong> in Tarmits.</p>
+
+  <p>The Wellcome Trust Sanger Institute has defined four categories of assay:</p>
+
+  <table class='descriptions'>
+    <thead>
+      <tr>
+        <th>Assay</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>Targeting</th>
+        <td>The locus is correctly targeted.</td>
+      </tr>
+      <tr>
+        <th>Allele structure</th>
+        <td>The targeting cassette has the correct structure.</td>
+      </tr>
+      <tr>
+        <th>3' LoxP</td>
+        <td>The 3' Loxp site is verified to exist (only applicable for Conditional mutations).</td>
+      </tr>
+      <tr>
+        <th>Vector Insertions</th>
+        <td>
+          There are no additional vector insertions elsewhere in the genome.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>Each mouse line is given a score between 1 and 6 depending on the assays recorded in Tarmits. We have summarised the average score per category for each Consortium/Production centre.</p>
+
+  <p>Click through to see a summary of all genotyped confirmed lines, their assays, and their scores. Use the download CSV links to retrieve all the data used in these calculations.</p>
+
+  <table>
+  
+    <thead>
+      <tr>
+        <th class='centre' rowspan='2'>
+          <strong>Consortium</strong>
+        </th>
+        <th class='centre' rowspan='2'>
+          <strong>Production centre</strong>
+        </th>
+        <th class='centre' colspan='4'>Averages over report</th>
+        <th></th>
+        <th></th>
+      </td>
+      <tr>
+        <th>Targeting</th>
+        <th>Allele structure</th>
+        <th>3' LoxP</th>
+        <th>Vector Insertions</th>
+        <th>Scores</th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @centre_by_consortia.each_with_index do |hash, count| %>
+        <% consortium, production_centres = hash %>
+        <% production_centres.each_with_index do |production_centre, centre_count| %>
+          <tr>
+            <% unless centre_count > 0 %>
+              <td rowspan='<%= production_centres.size %>'>
+                <%= consortium %>
+                (<%= link_to 'CSV', url_for(:controller => "v2/reports", :action => :qc_grid, :consortium => consortium, :format => 'csv') %>)
+              </td>
+            <% end %>
+
+            <td><%= production_centre %></td>
+            <td class='targeting_score_cell'><%= targeting_score = average_score('targeting_score', @score_averages["#{consortium}-#{production_centre}"]) %></td>
+            <td class='cassette_score_cell'><%= cassette_score = average_score('cassette_score', @score_averages["#{consortium}-#{production_centre}"]) %></td>
+            <td class='threep_loxp_score_cell'><%= threep_loxp_score = average_score('threep_loxp_score', @score_averages["#{consortium}-#{production_centre}"]) %></td>
+            <td class='insertion_score_cell'><%= insertion_score = average_score('insertion_score', @score_averages["#{consortium}-#{production_centre}"]) %></td>
+            <td>
+              <div class='histo' id='histo_<%= consortium.downcase.parameterize.underscore %>_<%= production_centre.downcase.parameterize.underscore %>'
+                data-targeting-score='<%= targeting_score %>'
+                data-cassette-score='<%= cassette_score %>'
+                data-three-loxp-score='<%= threep_loxp_score %>'
+                data-insertion-score='<%= insertion_score %>'>
+              </div>
+            </td>
+            <td>
+              <%= link_to 'See more', url_for(:controller => "v2/reports", :action => :qc_grid, :consortium => consortium, :production_centre => production_centre) %>
+              (<%= link_to 'CSV', url_for(:controller => "v2/reports", :action => :qc_grid, :consortium => consortium, :production_centre => production_centre, :format => 'csv') %>)
+            </td>
+          </tr>
+        <% end %>
+      <% end %>
+    </tbody>
+  
+  </table>
+</div>

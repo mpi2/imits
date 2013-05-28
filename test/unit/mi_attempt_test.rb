@@ -144,13 +144,19 @@ class MiAttemptTest < ActiveSupport::TestCase
         end
 
         should 'be nil if TargRep::EsCell#allele_symbol_superscript_template is nil and mouse_allele_type is not nil' do
-          default_mi_attempt.es_cell.allele_symbol_superscript = nil
+          es_cell = default_mi_attempt.es_cell
+          es_cell.allele_symbol_superscript = nil
+          es_cell.save!
+
           default_mi_attempt.mouse_allele_type = 'e'
           assert_equal nil, default_mi_attempt.mouse_allele_symbol_superscript
         end
 
         should 'work if mouse_allele_type is present' do
-          default_mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          es_cell = default_mi_attempt.es_cell
+          es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          es_cell.save!
+          
           default_mi_attempt.mouse_allele_type = 'e'
           assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_symbol_superscript
         end
@@ -160,7 +166,8 @@ class MiAttemptTest < ActiveSupport::TestCase
         setup do
           @es_cell = Factory.create :es_cell_EPD0343_1_H06, :allele => Factory.create(:allele_with_gene_myolc)
           @mi_attempt = Factory.build :mi_attempt2, :es_cell => @es_cell
-          @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          @es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+          @es_cell.save
         end
 
         should 'be nil if mouse_allele_type is nil' do

@@ -12,3 +12,10 @@
   code: rmce
   created_at: <%= 5.days.ago.to_s(:db) %>
   updated_at: <%= 5.days.ago.to_s(:db) %>
+
+3:
+  id: 3
+  name: Gene Trap
+  code: gt
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>

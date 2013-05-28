@@ -12,10 +12,11 @@ class TargRep::DistributionQcsControllerTest < ActionController::TestCase
 
     should "create new distribution_qc" do
       es_cell = Factory.create(:es_cell)
+      es_cell_distribution_centre = Factory.create(:es_cell_distribution_centre)
 
       target = {
         :es_cell_id         => es_cell.id,
-        :es_cell_distribution_centre => Factory.create(:es_cell_distribution_centre),
+        :es_cell_distribution_centre_id => es_cell_distribution_centre.id,
         :five_prime_sr_pcr  => ['pass', 'fail'].sample,
         :three_prime_sr_pcr => ['pass', 'fail'].sample,
         :copy_number        => ['pass', 'fail'].sample,

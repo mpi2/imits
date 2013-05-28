@@ -86,6 +86,14 @@ class PhenotypeAttemptsController < ApplicationController
         @mi_attempt = @phenotype_attempt.mi_attempt
         render :action => :show
       end
+
+      format.json do
+        if @phenotype_attempt.valid?
+          render :json => @phenotype_attempt
+        else
+          render :json => @phenotype_attempt.errors, :status => :unprocessable_entity
+        end
+      end
     end
   end
 

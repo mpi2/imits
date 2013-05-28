@@ -5,8 +5,8 @@ class TargRep::DistributionQc < ActiveRecord::Base
 
   attr_accessor :nested
 
-  belongs_to :es_cell, :class_name => "TargRep::EsCell"
-  belongs_to :es_cell_distribution_centre, :class_name => "TargRep::EsCellDistributionCentre"
+  belongs_to :es_cell
+  belongs_to :es_cell_distribution_centre
 
   access_association_by_attribute :es_cell_distribution_centre, :name
 
@@ -49,21 +49,23 @@ class TargRep::DistributionQc < ActiveRecord::Base
 
   def self.get_qc_metrics
     qc_metrics = {
-      "copy_number"              => { :name => "Copy Number" },
-      "five_prime_lr_pcr"        => { :name => "5' LR-PCR" },
-      "three_prime_lr_pcr"       => { :name => "3' LR-PCR" },
-      "five_prime_sr_pcr"        => { :name => "5' SR-PCR" },
-      "three_prime_sr_pcr"       => { :name => "3' SR-PCR" },
-      "thawing"                  => { :name => "Cells Thawed Correctly" },
-      "loa"                      => { :name => "LOA"},
-      "loxp"                     => { :name => "LOXP"},
-      "lacz"                     => { :name => "LACZ"},
-      "chr1"                     => { :name => "Chromosome 1"},
-      "chr8a"                    => { :name => "Chromosome 8a"},
-      "chr8b"                    => { :name => "Chromosome 8b"},
-      "chr11a"                   => { :name => "Chromosome 11a"},
-      "chr11b"                   => { :name => "Chromosome 11b"},
-      "chry"                     => { :name => "Chromosome Y"}
+      "copy_number"                    => { :name => "Copy Number" },
+      "five_prime_lr_pcr"              => { :name => "5' LR-PCR" },
+      "three_prime_lr_pcr"             => { :name => "3' LR-PCR" },
+      "five_prime_sr_pcr"              => { :name => "5' SR-PCR" },
+      "three_prime_sr_pcr"             => { :name => "3' SR-PCR" },
+      "thawing"                        => { :name => "Cells Thawed Correctly" },
+      "loa"                            => { :name => "LOA"},
+      "loxp"                           => { :name => "LOXP QPCR"},
+      "loxp_srpcr"                     => { :name => "LOXP SRPCR"},
+      "unspecified_repository_testing" => { :name => "Unspecified Reposiitory Testing"},
+      "lacz"                           => { :name => "LACZ"},
+      "chr1"                           => { :name => "Chromosome 1"},
+      "chr8a"                          => { :name => "Chromosome 8a"},
+      "chr8b"                          => { :name => "Chromosome 8b"},
+      "chr11a"                         => { :name => "Chromosome 11a"},
+      "chr11b"                         => { :name => "Chromosome 11b"},
+      "chry"                           => { :name => "Chromosome Y"}
     }
 
     short_attributes = [
@@ -72,7 +74,9 @@ class TargRep::DistributionQc < ActiveRecord::Base
       :copy_number,
       :five_prime_lr_pcr,
       :three_prime_lr_pcr,
-      :thawing
+      :thawing,
+      :unspecified_repository_testing,
+      :loxp_srpcr
     ]
 
     long_attributes = [
@@ -154,6 +158,8 @@ end
 #  es_cell_distribution_centre_id :integer
 #  created_at                     :datetime        not null
 #  updated_at                     :datetime        not null
+#  loxp_srpcr                     :string(255)
+#  unspecified_repository_testing :string(255)
 #
 # Indexes
 #

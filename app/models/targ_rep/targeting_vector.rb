@@ -8,10 +8,10 @@ class TargRep::TargetingVector < ActiveRecord::Base
   ## Associations
   ##
 
-  belongs_to :pipeline, :class_name => "TargRep::Pipeline"
-  belongs_to :allele, :class_name => "TargRep::Allele"
+  belongs_to :pipeline
+  belongs_to :allele
 
-  has_many :es_cells, :dependent => :destroy, :class_name => "TargRep::EsCell"
+  has_many :es_cells
 
   accepts_nested_attributes_for :es_cells, :allow_destroy => true
 

@@ -37,7 +37,7 @@ module TargRep::EsCell::QcFields
 
   qc_metrics.each do |field,data|
     if data[:values].nil?
-      qc_metrics[field][:values] = ['pass','fail']
+      qc_metrics[field][:values] = ['pass','passb','fail']
     end
   end
 

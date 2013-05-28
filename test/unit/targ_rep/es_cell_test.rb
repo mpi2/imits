@@ -53,6 +53,7 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
       pass_fail_only_qc_fields.each do |qc_field|
         assert_should allow_value('pass').for(qc_field)
         assert_should allow_value('fail').for(qc_field)
+        assert_should allow_value('passb').for(qc_field)
         assert_should_not allow_value('wibble').for(qc_field)
       end
 

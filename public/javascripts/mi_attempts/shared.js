@@ -174,6 +174,9 @@ $(function() {
     builder.addTextBox('qc_tv_backbone_assay', 'TV Backbone Assay', '')
     builder.addTextBox('qc_southern_blot', 'Southern Blot', '')
     builder.addTextBox('qc_five_prime_cassette_integrity', 'Five Prime Cassette Integrity', '')
+    builder.addTextBox('qc_critical_region_qpcr', 'Critical region QPCR', '')
+    builder.addTextBox('qc_loxp_srpcr', 'LOXP SRPCR', '')
+    builder.addTextBox('qc_loxp_srpcr_and_sequencing', 'LOCP SRPCR and sequencing', '')
 
     //
     //  Wildtype diagram

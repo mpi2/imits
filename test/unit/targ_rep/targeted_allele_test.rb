@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TargRep::AlleleTest < ActiveSupport::TestCase
+class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
   setup do
     @allele = Factory.create(:allele)
     # allele has been saved successfully here
@@ -242,7 +242,7 @@ class TargRep::AlleleTest < ActiveSupport::TestCase
                   :pipeline => TargRep::Pipeline.find_by_name!('EUCOMM')
         end
         #allele.reload
-        allele = TargRep::Allele.find(allele.id)
+        allele = TargRep::TargetedAllele.find(allele.id)
         unique_es_cells = allele.es_cells.unique_public_info
         assert_equal 3, unique_es_cells.count
         assert unique_es_cells.include?({:strain => strains[0][1], :mgi_allele_symbol_superscript => allele_symbol_superscript[0], :pipeline => 'EUCOMM', :ikmc_project_id => '1'})
@@ -263,7 +263,7 @@ class TargRep::AlleleTest < ActiveSupport::TestCase
                 :pipeline => TargRep::Pipeline.find_by_name!('mirKO'),
                 :ikmc_project_id => '1'
         #allele.reload
-        allele = TargRep::Allele.find(allele.id)
+        allele = TargRep::TargetedAllele.find(allele.id)
         unique_info = allele.es_cells.unique_public_info
         assert_equal 1, unique_info.size
         expected = {
@@ -289,7 +289,7 @@ class TargRep::AlleleTest < ActiveSupport::TestCase
                   :pipeline => TargRep::Pipeline.find_by_name!('EUCOMM GT')
         end
         #allele.reload
-        allele = TargRep::Allele.find(allele.id)
+        allele = TargRep::TargetedAllele.find(allele.id)
         unique_es_cells = allele.es_cells.unique_public_info
         assert_equal 0, unique_es_cells.count
       end

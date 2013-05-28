@@ -149,6 +149,9 @@ TarMits::Application.routes.draw do
   namespace :targ_rep do
     resources :pipelines
 
+    resources :gene_traps
+    resources :targeted_alleles
+    
     resources :alleles do
       get :history, :on => :member
 

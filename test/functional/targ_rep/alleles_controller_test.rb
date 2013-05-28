@@ -37,7 +37,7 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
     end
 
     should "allow us to GET /edit" do
-      get :edit, :id => TargRep::Allele.first.to_param
+      get :edit, :id => TargRep::TargetedAllele.first.to_param
       assert_response :success
     end
 
@@ -48,7 +48,7 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
       genbank_file  = Factory.build :genbank_file
       gene          = Factory.create :gene
 
-      mol_struct_count  = TargRep::Allele.count
+      mol_struct_count  = TargRep::TargetedAllele.count
       targ_vec_count    = TargRep::TargetingVector.count
       es_cell_count     = TargRep::EsCell.count
       unlinked_es_cells = TargRep::EsCell.no_targeting_vector.count
@@ -110,7 +110,7 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
 
       post :create, :targ_rep_allele => allele
 
-      assert_equal mol_struct_count + 1, TargRep::Allele.count, "Controller should have created 1 valid allele."
+      assert_equal mol_struct_count + 1, TargRep::TargetedAllele.count, "Controller should have created 1 valid allele."
       assert_equal targ_vec_count + 2, TargRep::TargetingVector.count, "Controller should have created 2 valid targeting vectors."
       assert_equal es_cell_count + 6, TargRep::EsCell.count, "Controller should have created 6 valid ES cells."
       assert_equal unlinked_es_cells + 3, TargRep::EsCell.no_targeting_vector.count, "Controller should have created 3 more ES cells not linked to a targeting vector"
@@ -125,12 +125,12 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
       allele_attrs[:mutation_subtype_id] = allele_attrs.delete(:mutation_subtype)
 
       # CREATE
-      assert_difference('TargRep::Allele.count') do
+      assert_difference('TargRep::TargetedAllele.count') do
         post :create, :allele => allele_attrs
       end
-      assert_redirected_to targ_rep_allele_path(assigns(:allele))
+      assert_redirected_to targ_rep_targeted_allele_path(assigns(:allele))
 
-      created_allele = TargRep::Allele.search(:gene_id_eq => allele_attrs[:gene_id]).result.last
+      created_allele = TargRep::TargetedAllele.search(:gene_id_eq => allele_attrs[:gene_id]).result.last
       created_allele.save
 
       # UPDATE
@@ -140,7 +140,7 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
       allele_attrs[:mutation_subtype_id] = allele_attrs.delete(:mutation_subtype)
 
       put :update, { :id => created_allele.id, :allele => allele_attrs }
-      assert_redirected_to targ_rep_allele_path(assigns(:allele))
+      assert_redirected_to targ_rep_targeted_allele_path(assigns(:allele))
 
       ## DELETE
       #back_url = targ_rep_alleles_path
@@ -156,7 +156,7 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
       genbank_file  = Factory.attributes_for :genbank_file
       gene          = Factory.create :gene
 
-      mol_struct_count    = TargRep::Allele.count
+      mol_struct_count    = TargRep::TargetedAllele.count
       genbank_file_count  = TargRep::GenbankFile.count
 
       post :create, :allele => {
@@ -182,7 +182,7 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
       assert_true assigns["allele"].valid?, assigns["allele"].errors.full_messages.join(', ')
       assert_redirected_to assigns["allele"], "Not redirected to the new allele"
 
-      assert_equal mol_struct_count + 1, TargRep::Allele.count, "Controller should have created 1 valid allele."
+      assert_equal mol_struct_count + 1, TargRep::TargetedAllele.count, "Controller should have created 1 valid allele."
       assert_equal genbank_file_count + 1, TargRep::GenbankFile.count, "Controller should have created 1 more genbank file"
     end
 
@@ -190,7 +190,7 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
       mol_struct = Factory.attributes_for :allele
       gene = Factory.create :gene
 
-      mol_struct_count    = TargRep::Allele.count
+      mol_struct_count    = TargRep::TargetedAllele.count
       genbank_file_count  = TargRep::GenbankFile.count
 
       post :create, :allele => {
@@ -213,14 +213,14 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
         }
       }
 
-      assert_equal mol_struct_count + 1, TargRep::Allele.count, "Controller should have created 1 valid allele."
+      assert_equal mol_struct_count + 1, TargRep::TargetedAllele.count, "Controller should have created 1 valid allele."
       assert_equal genbank_file_count, TargRep::GenbankFile.count, "Controller should not have created any genbank file"
     end
 
     should "not create genbank file database entries if the genbank file arguments are nil" do
       mol_struct = Factory.attributes_for :allele
       gene = Factory.create :gene
-      mol_struct_count    = TargRep::Allele.count
+      mol_struct_count    = TargRep::TargetedAllele.count
       genbank_file_count  = TargRep::GenbankFile.count
 
       post :create, :allele => {
@@ -240,19 +240,19 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
         :genbank_file       => { :escell_clone => nil, :targeting_vector => nil }
       }
 
-      assert_equal mol_struct_count + 1, TargRep::Allele.count, "Controller should have created 1 valid allele."
+      assert_equal mol_struct_count + 1, TargRep::TargetedAllele.count, "Controller should have created 1 valid allele."
       assert_equal genbank_file_count, TargRep::GenbankFile.count, "Controller should not have created any genbank file"
     end
 
     should "not create an invalid allele" do
-      assert_no_difference('TargRep::Allele.count') do
+      assert_no_difference('TargRep::TargetedAllele.count') do
         post :create, :allele => Factory.attributes_for(:invalid_allele)
       end
       assert_template :new
     end
 
     should "show an allele" do
-      allele_id = TargRep::Allele.first.id
+      allele_id = TargRep::TargetedAllele.first.id
 
       # html
       get :show, :format => "html", :id => allele_id
@@ -285,12 +285,12 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
       mol_struct_attrs[:mutation_subtype_id] = mol_struct_attrs.delete(:mutation_subtype)
 
       # CREATE a valid Molecular Structure
-      assert_difference('TargRep::Allele.count') do
+      assert_difference('TargRep::TargetedAllele.count') do
         post :create, :allele => mol_struct_attrs
       end
-      assert_redirected_to targ_rep_allele_path(assigns(:allele))
+      assert_redirected_to targ_rep_targeted_allele_path(assigns(:allele))
 
-      created_mol_struct = TargRep::Allele.search(:mgi_accession_id_eq => mol_struct_attrs[:mgi_accession_id]).result.first
+      created_mol_struct = TargRep::TargetedAllele.search(:mgi_accession_id_eq => mol_struct_attrs[:mgi_accession_id]).result.first
 
       # UPDATE - should fail
       put :update, :id => created_mol_struct.id,
@@ -303,8 +303,8 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
 
     should "not allow us to delete a allele when we're not the creator" do
       # Permission will be denied here because we are not deleting with the owner
-      assert_no_difference('TargRep::Allele.count') do
-        delete :destroy, :id => TargRep::Allele.first.id
+      assert_no_difference('TargRep::TargetedAllele.count') do
+        delete :destroy, :id => TargRep::TargetedAllele.first.id
       end
       assert_response 302
     end

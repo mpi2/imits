@@ -8,6 +8,18 @@
       <%= f.text_field :name, :class => 'text' %>
     </p>
     <p>
+      <%= f.label :description %><br />
+      <%= f.text_field :description, :class => 'text' %>
+    </p>
+    <p>
+      <%= f.label :gene_trap %><br />
+      <%= f.check_box :gene_trap %>
+    </p>
+    <p>
+      <%= f.label :report_to_public %><br />
+      <%= f.check_box :report_to_public %>
+    </p>
+    <p>
       <%= f.submit 'Update' %>
     </p>
   <% end %>

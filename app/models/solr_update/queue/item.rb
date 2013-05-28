@@ -4,7 +4,7 @@ class SolrUpdate::Queue::Item < ApplicationModel
   belongs_to :gene
   belongs_to :mi_attempt
   belongs_to :phenotype_attempt
-  belongs_to :allele, :class_name => "TargRep::Allele"
+  belongs_to :allele
 
   def reference
     if mi_attempt_id
@@ -26,7 +26,7 @@ class SolrUpdate::Queue::Item < ApplicationModel
       reference = {'type' => 'gene', 'id' => reference.id}
     elsif reference.kind_of?(ApplicationModel)
       reference = {'type' => get_model_type(reference), 'id' => reference.id}
-    elsif reference.kind_of?(TargRep::Allele)
+    elsif reference.kind_of?(TargRep::TargetedAllele)
       reference = {'type' => 'allele', 'id' => reference.id}
     end
 
@@ -49,7 +49,7 @@ class SolrUpdate::Queue::Item < ApplicationModel
       return 'mi_attempt'
     elsif model.kind_of? PhenotypeAttempt
       return 'phenotype_attempt'
-    elsif model.kind_of? TargRep::Allele
+    elsif model.kind_of? TargRep::TargetedAllele
       return 'allele'
     elsif model.kind_of? Gene
       return 'gene'

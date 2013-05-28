@@ -3311,8 +3311,8 @@ CREATE TABLE targ_rep_alleles (
     assembly character varying(50) DEFAULT 'NCBIM37'::character varying NOT NULL,
     chromosome character varying(2) NOT NULL,
     strand character varying(1) NOT NULL,
-    homology_arm_start integer NOT NULL,
-    homology_arm_end integer NOT NULL,
+    homology_arm_start integer,
+    homology_arm_end integer,
     loxp_start integer,
     loxp_end integer,
     cassette_start integer,
@@ -3329,7 +3329,9 @@ CREATE TABLE targ_rep_alleles (
     mutation_subtype_id integer,
     cassette_type character varying(50),
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    intron integer,
+    type character varying(255) DEFAULT 'TargRep::TargetedAllele'::character varying
 );
 
 
@@ -3657,7 +3659,8 @@ CREATE TABLE targ_rep_pipelines (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     legacy_id integer,
-    report_to_public boolean DEFAULT true
+    report_to_public boolean DEFAULT true,
+    gene_trap boolean DEFAULT false
 );
 
 
@@ -5370,4 +5373,12 @@ INSERT INTO schema_migrations (version) VALUES ('20130520101048');
 
 INSERT INTO schema_migrations (version) VALUES ('20130521115232');
 
+INSERT INTO schema_migrations (version) VALUES ('20130523144937');
+
+INSERT INTO schema_migrations (version) VALUES ('20130523154950');
+
+INSERT INTO schema_migrations (version) VALUES ('20130523161221');
+
 INSERT INTO schema_migrations (version) VALUES ('20130524110125');
+
+INSERT INTO schema_migrations (version) VALUES ('20130528083431');

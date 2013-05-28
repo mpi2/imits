@@ -28,7 +28,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
     context 'when trying to create MI for already injected gene' do
       setup do
         es_cell = Factory.create :es_cell_EPD0029_1_G04, :allele => Factory.create(:allele_with_gene_gatc)
-        allele = TargRep::Allele.includes(:gene).where("genes.marker_symbol = 'Gatc'").first or raise ActiveRecord::RecordNotFound
+        allele = TargRep::TargetedAllele.includes(:gene).where("genes.marker_symbol = 'Gatc'").first or raise ActiveRecord::RecordNotFound
         @existing_mi = es_cell.mi_attempts.first
         @mi = Factory.build(:public_mi_attempt,
           :es_cell => Factory.create(:es_cell, :allele => allele),

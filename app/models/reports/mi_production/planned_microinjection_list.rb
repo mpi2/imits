@@ -69,7 +69,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       'recovery'                => 'Recovery',
       'completion_note'         => 'Completion note',
       'phenotype_only'          => 'Phenotype only?',
-      'ignore_avaliable_mice'   => 'Ignore Avaliable Mice',
+      'ignore_avaliable_mice'   => 'Ignore Available Mice',
       'production_centre.name'  => 'Production Centre',
       'gene.marker_symbol'      => 'Marker Symbol',
       'gene.mgi_accession_id'   => 'MGI Accession ID',

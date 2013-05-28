@@ -122,30 +122,33 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
     context '#allele_symbol_superscript=' do
       should 'store a.s.s.t. and allele_type when allele symbol superscript includes an allele type letter' do
         default_es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+        default_es_cell.save!
         assert_equal 'tm2@(KOMP)Wtsi', default_es_cell.allele_symbol_superscript_template
         assert_equal 'b', default_es_cell.allele_type
       end
 
       should 'NOT store a.s.s.t. only and null out allele_type when allele symbol superscript does not include an allele type letter' do
         default_es_cell.allele_symbol_superscript = 'tm1(EUCOMM)Wtsi'
+        default_es_cell.save!
         assert_equal 'tm1@(EUCOMM)Wtsi', default_es_cell.allele_symbol_superscript_template
         assert_equal nil, default_es_cell.allele_type
       end
 
       should 'set both a.s.s.t. and allele_type to nil when set to nil' do
         default_es_cell.allele_symbol_superscript = nil
+        default_es_cell.save!
         assert_equal nil, default_es_cell.allele_symbol_superscript_template
         assert_equal nil, default_es_cell.allele_type
       end
 
-      should 'raise error if allele name superscript is not in a recognized format' do
-        assert_raise TargRep::EsCell::AlleleSymbolSuperscriptFormatUnrecognizedError do
-          default_es_cell.allele_symbol_superscript = 'nonsense'
-        end
+      should 'don\'t save if allele name superscript is not in a recognized format' do
+        default_es_cell.allele_symbol_superscript = 'nonsense'
+        assert_equal false, default_es_cell.save
       end
 
       should 'recognise gene trap alleles' do
         default_es_cell.allele_symbol_superscript = 'Gt(IST12384G7)Tigm'
+        default_es_cell.save!
         assert_equal 'Gt(IST12384G7)Tigm', default_es_cell.allele_symbol_superscript_template
         assert_equal nil, default_es_cell.allele_type
       end
@@ -161,6 +164,7 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
       should 'be nil if allele_symbol_superscript is nil' do
         default_es_cell.allele_symbol_superscript = nil
         default_es_cell.gene.marker_symbol = 'Trafd1'
+        default_es_cell.save!
         assert_nil default_es_cell.allele_symbol
       end
     end

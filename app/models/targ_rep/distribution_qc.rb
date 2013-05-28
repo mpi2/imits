@@ -5,8 +5,8 @@ class TargRep::DistributionQc < ActiveRecord::Base
 
   attr_accessor :nested
 
-  belongs_to :es_cell, :class_name => "TargRep::EsCell"
-  belongs_to :es_cell_distribution_centre, :class_name => "TargRep::EsCellDistributionCentre"
+  belongs_to :es_cell
+  belongs_to :es_cell_distribution_centre
 
   access_association_by_attribute :es_cell_distribution_centre, :name
 

@@ -12,7 +12,7 @@ class SolrUpdate::DocFactory
       return create_for_phenotype_attempt(PhenotypeAttempt.find(reference['id']))
 
     when 'allele' then
-      return create_for_allele(TargRep::Allele.find(reference['id']))
+      return create_for_allele(TargRep::TargetedAllele.find(reference['id']))
 
     when 'gene' then
       return create_for_gene(Gene.find(reference['id']))

@@ -91,7 +91,7 @@ module SolrUpdate::Observer
   end
 
   class Allele < ActiveRecord::Observer
-    observe :"TargRep::Allele"
+    observe :"TargRep::TargetedAllele"
 
     def initialize
       super

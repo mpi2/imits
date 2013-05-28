@@ -17,14 +17,15 @@ class TargRep::EsCell < ActiveRecord::Base
   ##
   ## Relationships
   ##
-  belongs_to :pipeline, :class_name => "TargRep::Pipeline"
-  belongs_to :allele, :class_name => "TargRep::Allele"
-  belongs_to :targeting_vector, :class_name => "TargRep::TargetingVector"
+  belongs_to :pipeline
+  belongs_to :allele
+
+  belongs_to :targeting_vector
   belongs_to :user_qc_mouse_clinic, :class_name => 'Centre'
 
   access_association_by_attribute :user_qc_mouse_clinic, :name
 
-  has_many :distribution_qcs, :dependent => :destroy, :class_name => "TargRep::DistributionQc"
+  has_many :distribution_qcs, :dependent => :destroy
   has_many :mi_attempts
 
   accepts_nested_attributes_for :distribution_qcs, :allow_destroy => true
@@ -68,6 +69,8 @@ class TargRep::EsCell < ActiveRecord::Base
   before_validation :stamp_tv_project_id_on_cell,       :if     => Proc.new { |a| a.ikmc_project_id.nil? }
   before_validation :convert_ikmc_project_id_to_string, :unless => Proc.new { |a| a.ikmc_project_id.is_a?(String) }
   before_validation :remove_empty_distribution_qcs
+
+  validate :set_allele_symbol_superscript
 
   attr_protected :allele_symbol_superscript_template
 
@@ -135,32 +138,33 @@ class TargRep::EsCell < ActiveRecord::Base
       allele_symbol_superscript_template.sub(TEMPLATE_CHARACTER, allele_type.to_s)
     end
 
-    class AlleleSymbolSuperscriptFormatUnrecognizedError < Error; end
-
     def allele_symbol_superscript=(text)
-      if text.nil?
+      self.mgi_allele_symbol_superscript = text
+    end
+
+    def set_allele_symbol_superscript
+      return if allele_symbol_superscript_template_changed?
+      
+      if mgi_allele_symbol_superscript.blank?
         self.allele_symbol_superscript_template = nil
         self.allele_type = nil
         return
       end
 
-      md = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/.match(text)
+      md = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
 
       if md
         self.allele_symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
         self.allele_type = md[2]
       else
-        md = /\AGt\(\w+\)\w+\Z/.match(text)
+        md = /\AGt\(\w+\)\w+\Z/.match(mgi_allele_symbol_superscript)
         if md
-          self.allele_symbol_superscript_template = text
+          self.allele_symbol_superscript_template = mgi_allele_symbol_superscript
           self.allele_type = nil
         else
-          raise AlleleSymbolSuperscriptFormatUnrecognizedError, "Bad allele symbol superscript #{text}"
+          self.errors.add :allele_symbol_superscript, "Bad allele symbol superscript '#{mgi_allele_symbol_superscript}'"
         end
       end
-
-      self.mgi_allele_symbol_superscript = text
-
     end
 
     def allele_symbol

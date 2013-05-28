@@ -3,14 +3,7 @@
   
   <%= form_for @pipeline do |f| %>
     <%= f.error_messages %>
-    <p>
-      <%= f.label :name %><br />
-      <%= f.text_field :name, :class => 'text' %>
-    </p>
-    <p>
-      <%= f.label :description %><br />
-      <%= f.text_field :description, :class => 'text' %>
-    </p>
+    <%= render :partial => 'form', :object => f %>
     <p>
       <%= f.submit 'Create' %>
     </p>

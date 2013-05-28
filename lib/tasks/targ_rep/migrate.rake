@@ -135,7 +135,7 @@ namespace :migrate do
 
     ActiveRecord::Base.observers.disable(:all)
 
-    TargRep::Allele.transaction do
+    TargRep::TargetedAllele.transaction do
         
         ::TargRep::Allele.disable_auditing
 
@@ -151,7 +151,7 @@ namespace :migrate do
 
           if gene = Gene.find_by_mgi_accession_id(mgi_accession_id)
 
-            allele = TargRep::Allele.new
+            allele = TargRep::TargetedAllele.new
 
             allele.id                  = old_allele[:id]
             allele.gene_id             = gene.id

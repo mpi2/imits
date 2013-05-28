@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130521115232) do
+ActiveRecord::Schema.define(:version => 20130528083431) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -512,11 +512,11 @@ ActiveRecord::Schema.define(:version => 20130521115232) do
 
   create_table "targ_rep_alleles", :force => true do |t|
     t.integer  "gene_id"
-    t.string   "assembly",            :limit => 50,  :default => "NCBIM37", :null => false
-    t.string   "chromosome",          :limit => 2,                          :null => false
-    t.string   "strand",              :limit => 1,                          :null => false
-    t.integer  "homology_arm_start",                                        :null => false
-    t.integer  "homology_arm_end",                                          :null => false
+    t.string   "assembly",            :limit => 50,  :default => "NCBIM37",         :null => false
+    t.string   "chromosome",          :limit => 2,                                  :null => false
+    t.string   "strand",              :limit => 1,                                  :null => false
+    t.integer  "homology_arm_start"
+    t.integer  "homology_arm_end"
     t.integer  "loxp_start"
     t.integer  "loxp_end"
     t.integer  "cassette_start"
@@ -532,8 +532,10 @@ ActiveRecord::Schema.define(:version => 20130521115232) do
     t.integer  "mutation_type_id"
     t.integer  "mutation_subtype_id"
     t.string   "cassette_type",       :limit => 50
-    t.datetime "created_at",                                                :null => false
-    t.datetime "updated_at",                                                :null => false
+    t.datetime "created_at",                                                        :null => false
+    t.datetime "updated_at",                                                        :null => false
+    t.integer  "intron"
+    t.string   "type",                               :default => "TargRep::Allele"
   end
 
   create_table "targ_rep_distribution_qcs", :force => true do |t|
@@ -651,12 +653,13 @@ ActiveRecord::Schema.define(:version => 20130521115232) do
   end
 
   create_table "targ_rep_pipelines", :force => true do |t|
-    t.string   "name",                               :null => false
+    t.string   "name",                                :null => false
     t.string   "description"
-    t.datetime "created_at",                         :null => false
-    t.datetime "updated_at",                         :null => false
+    t.datetime "created_at",                          :null => false
+    t.datetime "updated_at",                          :null => false
     t.integer  "legacy_id"
     t.boolean  "report_to_public", :default => true
+    t.boolean  "gene_trap",        :default => false
   end
 
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true

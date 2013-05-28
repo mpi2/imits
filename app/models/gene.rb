@@ -8,7 +8,7 @@ class Gene < ActiveRecord::Base
   has_many :notifications
   has_many :contacts, :through => :notifications
 
-  has_many :allele, :class_name => "TargRep::Allele"
+  has_many :allele, :class_name => 'TargRep::Allele'
 
   validates :marker_symbol, :presence => true, :uniqueness => true
 

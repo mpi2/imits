@@ -1,20 +1,28 @@
 <%
-  pipeline_array       = TargRep::Pipeline.all.map { |pipeline| [pipeline.name, pipeline.id.to_s] }
+  if gene_trap?
+    pipelines = TargRep::Pipeline.gene_trap
+  else
+    pipelines = TargRep::Pipeline.targeted
+  end
+
+  pipeline_array       = pipelines.map { |pipeline| [pipeline.name, pipeline.id.to_s] }
   tv_pipeline_options  = options_for_select [['All','']] + pipeline_array, params[:targeting_vectors_pipeline_id_eq]
   esc_pipeline_options = options_for_select [['All','']] + pipeline_array, params[:es_cells_pipeline_id_eq]
 
-  cassette_array = TargRep::Allele.all(:select => 'DISTINCT cassette').map do |allele|
+  cassette_array = @klass.uniq.select('cassette, mutation_type_id').map do |allele|
     [allele.cassette, allele.cassette]
   end
   cassette_options = options_for_select [['All','']] + cassette_array, params[:cassette]
 
-  backbone_array = TargRep::Allele.all(:select => 'DISTINCT backbone').map do |allele|
-    [allele.backbone, allele.backbone] unless allele.backbone.blank?
+  unless @gene_trap
+    backbone_array = @klass.uniq.select('backbone, mutation_type_id').map do |allele|
+      [allele.backbone, allele.backbone] unless allele.backbone.blank?
+    end
+    backbone_options = options_for_select [['All','']] + backbone_array, params[:backbone]
   end
-  backbone_options = options_for_select [['All','']] + backbone_array, params[:backbone]
 %>
 
-<%= form_tag targ_rep_alleles_path, :method => 'get', :id => 'search_form' do %>
+<%= form_tag (gene_trap? ? [:targ_rep, :gene_traps] : [:targ_rep, :targeted_alleles]), :method => 'get', :id => 'search_form' do %>
   <table class="no-border">
     <tr>
       <td><%= label_tag :gene_marker_symbol_cont, "Marker Symbol" %>:</td>
@@ -24,31 +32,35 @@
       <td><%= label_tag :project_design_id_eq, "Project Design ID" %>:</td>
       <td><%= text_field_tag :project_design_id_eq, params[:project_design_id_eq] %></td>
     </tr>
+  
     <tr>
-      <td><%= label_tag :targeting_vectors_pipeline_id_eq, 'TV Pipeline' %>:</td>
-      <td><%= select_tag :targeting_vectors_pipeline_id_eq, tv_pipeline_options %></td>
+      <% unless gene_trap? %>
+        <td><%= label_tag :targeting_vectors_pipeline_id_eq, 'TV Pipeline' %>:</td>
+        <td><%= select_tag :targeting_vectors_pipeline_id_eq, tv_pipeline_options %></td>
+      <% end %>
       <td><%= label_tag :es_cells_pipeline_id_eq, 'ESC Pipeline' %>:</td>
       <td><%= select_tag :es_cells_pipeline_id_eq, esc_pipeline_options %></td>
       <td></td>
       <td></td>
     </tr>
+
     <tr>
-      <td><%= label_tag :mutation_type_id_eq, "Mutation Type" %>:</td>
-      <td><%= select_tag :mutation_type_id_eq, options_for_select([['All','']] + TargRep::MutationType.all.collect{ |u| [u.name, u.id]})  %></td>
+      <% unless gene_trap? %>
+        <td><%= label_tag :mutation_type_id_eq, "Mutation Type" %>:</td>
+        <td><%= select_tag :mutation_type_id_eq, options_for_select([['All','']] + TargRep::MutationType.all.collect{ |u| [u.name, u.id]})  %></td>
+      <% end %>
       <td><%= label_tag :cassette_eq, 'Cassette' %>:</td>
       <td><%= select_tag :cassette_eq, cassette_options %></td>
-      <td><%= label_tag :backbone_eq, 'Backbone' %>:</td>
-      <td><%= select_tag :backbone_eq, backbone_options %></td>
+      <% unless gene_trap? %>
+        <td><%= label_tag :backbone_eq, 'Backbone' %>:</td>
+        <td><%= select_tag :backbone_eq, backbone_options %></td>
+      <% end %>
     </tr>
 
     <tr>
       <td colspan="4">
         <button type="submit" class="button">
           <%= image_tag "targ_rep/led-icons/find.png", :alt => "" %> Search
-        </button>
-
-        <button type="reset" class="button negative">
-          <%= image_tag "targ_rep/led-icons/cross.png", :alt => "" %> Reset
         </button>
       </td>
     </tr>

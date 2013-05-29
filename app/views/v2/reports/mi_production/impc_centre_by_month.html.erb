@@ -8,18 +8,21 @@
 
   <% ImpcCentreByMonthReport.centres.each do |centre| %>
     <h2><%= centre %></h2>
-  
 
     <table>
       <thead>
         <tr>
           <th rowspan='2'>Date</th>
           <th rowspan='2'>Production centre</th>
-          <% @columns.each do |column, key| %>
+          <th colspan=<%= @es_cell_columns.keys.size %> style='text-align:center;'>ES Cell Supply</th>
+          <% @columns.keys.each do |column| %>
             <th colspan=2><%= column %></th>
           <% end %>
         </tr>
         <tr>
+          <% @es_cell_columns.keys.each do |column| %>
+            <th><%= column %></th>
+          <% end %>
           <% @columns.each do |column, key| %>
             <th>Actual</th>
             <th>Goal</th>
@@ -31,6 +34,9 @@
           <tr>
             <td><%= date %></td>
             <td><%= centre %></td>
+            <% @es_cell_columns.each do |column, key| %>
+              <td><%= @centre_by_month["#{date}-#{centre}-#{column}"] %></td>
+            <% end %>
             <% @columns.each do |column, key| %>
               <td><%= @centre_by_month["#{date}-#{centre}-#{column}"] %></td>
               <td><%= @centre_by_month["#{date}-#{centre}-#{column}_goal"] %></td>

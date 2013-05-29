@@ -13,6 +13,9 @@ class TrackingGoal < ActiveRecord::Base
     cre_exicised_genes
     phenotype_started_genes
     phenotype_complete_genes
+    eucomm_required
+    komp_required
+    norcomm_required
   )
 
   READABLE_ATTRIBUTES = %w(
@@ -39,8 +42,12 @@ class TrackingGoal < ActiveRecord::Base
   attr_accessible *READABLE_ATTRIBUTES
 
   before_validation do
-    if !@month.blank? && !@year.blank?
-      self.date = Date.parse("#{@year}-#{@month}-01") rescue nil
+    if !month.blank? && !year.blank?
+      begin
+        self.date = Date.parse("#{year}-#{month}-01")
+      rescue
+        self.errors.add :date, "Invalid date"
+      end
     end
 
     true
@@ -57,13 +64,15 @@ class TrackingGoal < ActiveRecord::Base
   end
 
   def month
-    return if date.blank?
-    date.month
+    @month || date.try(:month)
   end
 
   def year
-    return if date.blank?
-    date.year
+    @year || date.try(:year)
+  end
+
+  def cumulative?
+    self.date.blank?
   end
 
   def self.readable_name

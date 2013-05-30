@@ -211,7 +211,7 @@ class MiPlan < ApplicationModel
   delegate :mgi_accession_id, :to => :gene
 
   def centre_pipeline
-    @centre_pipeline ||= TargRep::CentrePipeline.all.find{|p| p.centres.include?(default_pipeline.name) }.try(:name)
+    @centre_pipeline ||= TargRep::CentrePipeline.all.find{|p| p.centres.include?(default_pipeline.try(:name)) }.try(:name)
   end
 
   def default_pipeline

@@ -91,9 +91,9 @@ class ImpcCentreByMonthReport
     def es_cell_supply_columns
       {
         'ES Cell Received' => 'es_cells_received',
-        'Required for EUMMCR' => 'eucomm_required',
-        'Required for KOMP' => 'komp_required',
-        'Required for NorCOMM' => 'norcomm_required'
+        'Required from EUMMCR' => 'eucomm_required',
+        'Required from KOMP' => 'komp_required',
+        'Required from NorCOMM' => 'norcomm_required'
       }
     end
 

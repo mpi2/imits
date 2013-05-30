@@ -160,7 +160,7 @@ class MiPlan < ApplicationModel
   end
 
   def update_es_cell_received
-    if number_of_es_cells_received.blank? && number_of_es_cells_starting_qc > 0
+    if number_of_es_cells_received.blank? && number_of_es_cells_starting_qc.to_i > 0
       return if centre_pipeline.blank?
       self.number_of_es_cells_received = number_of_es_cells_starting_qc
       self.es_cells_received_on = Date.today

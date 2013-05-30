@@ -26,7 +26,11 @@ class Public::MiPlan < ::MiPlan
     'ignore_available_mice',
     'completion_note',
     'recovery',
-    'status_stamps_attributes'
+    'status_stamps_attributes',
+    'number_of_es_cells_received',
+    'es_cells_received_on',
+    'es_cells_received_from_id',
+    'es_cells_received_from_name'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -122,6 +126,7 @@ class Public::MiPlan < ::MiPlan
   end
 end
 
+
 # == Schema Information
 #
 # Table name: mi_plans
@@ -151,6 +156,9 @@ end
 #  recovery                       :boolean
 #  conditional_tm1c               :boolean         default(FALSE), not null
 #  ignore_available_mice          :boolean         default(FALSE), not null
+#  number_of_es_cells_received    :integer
+#  es_cells_received_on           :date
+#  es_cells_received_from_id      :integer
 #
 # Indexes
 #

@@ -2,7 +2,7 @@ class NewIntermediateReport < ActiveRecord::Base
 
   self.table_name = :new_intermediate_report
 
-  require_dependency 'new_intermediate_report/generate'
+  include NewIntermediateReport::ReportGenerator
 
   belongs_to :phenotype_attempt, :primary_key => 'colony_name', :foreign_key => 'phenotype_attempt_colony_name'
 

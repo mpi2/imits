@@ -140,6 +140,27 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 hidden: isSubProjectHidden
             },
             {
+                id: 'number_of_es_cells_received',
+                xtype: 'simplenumberfield',
+                fieldLabel: '# of ES Cells received',
+                name: 'number_of_es_cells_received'
+            },
+            {
+                id: 'es_cells_received_on',
+                xtype: 'datefield',
+                fieldLabel: 'ES Cells received on',
+                name: 'es_cells_received_on',
+                maxValue: new Date(),
+                format: 'd-m-Y'
+            },
+            {
+                id: 'es_cells_received_from_name',
+                xtype: 'simplecombo',
+                fieldLabel: 'ES Cells received from',
+                name: 'es_cells_received_from_name',
+                store: window.PIPELINE_OPTIONS
+            },
+            {
                 id: 'number_of_es_cells_starting_qc',
                 xtype: 'simplenumberfield',
                 fieldLabel: '# of ES Cells starting QC',
@@ -374,9 +395,9 @@ Ext.define('Imits.widget.MiPlanEditor', {
             }
             ]
         });
-        var panelHeight = 620;
+        var panelHeight = 700;
         if(window.CAN_SEE_SUB_PROJECT) {
-            panelHeight = 640;
+            panelHeight = 720;
         }
 
         this.add(Ext.create('Ext.panel.Panel', {

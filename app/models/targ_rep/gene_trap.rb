@@ -17,6 +17,7 @@ class TargRep::GeneTrap < TargRep::Allele
 
 end
 
+
 # == Schema Information
 #
 # Table name: targ_rep_alleles
@@ -46,6 +47,6 @@ end
 #  created_at          :datetime        not null
 #  updated_at          :datetime        not null
 #  intron              :integer
-#  type                :string(255)     default("TargRep::Allele")
+#  type                :string(255)     default("TargRep::TargetedAllele")
 #
 

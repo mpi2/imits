@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130528083431) do
+ActiveRecord::Schema.define(:version => 20130528142149) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -334,6 +334,9 @@ ActiveRecord::Schema.define(:version => 20130528083431) do
     t.boolean  "recovery"
     t.boolean  "conditional_tm1c",                              :default => false, :null => false
     t.boolean  "ignore_available_mice",                         :default => false, :null => false
+    t.integer  "number_of_es_cells_received"
+    t.date     "es_cells_received_on"
+    t.integer  "es_cells_received_from_id"
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true
@@ -512,9 +515,9 @@ ActiveRecord::Schema.define(:version => 20130528083431) do
 
   create_table "targ_rep_alleles", :force => true do |t|
     t.integer  "gene_id"
-    t.string   "assembly",            :limit => 50,  :default => "NCBIM37",         :null => false
-    t.string   "chromosome",          :limit => 2,                                  :null => false
-    t.string   "strand",              :limit => 1,                                  :null => false
+    t.string   "assembly",            :limit => 50,  :default => "NCBIM37",                 :null => false
+    t.string   "chromosome",          :limit => 2,                                          :null => false
+    t.string   "strand",              :limit => 1,                                          :null => false
     t.integer  "homology_arm_start"
     t.integer  "homology_arm_end"
     t.integer  "loxp_start"
@@ -532,10 +535,17 @@ ActiveRecord::Schema.define(:version => 20130528083431) do
     t.integer  "mutation_type_id"
     t.integer  "mutation_subtype_id"
     t.string   "cassette_type",       :limit => 50
-    t.datetime "created_at",                                                        :null => false
-    t.datetime "updated_at",                                                        :null => false
+    t.datetime "created_at",                                                                :null => false
+    t.datetime "updated_at",                                                                :null => false
     t.integer  "intron"
-    t.string   "type",                               :default => "TargRep::Allele"
+    t.string   "type",                               :default => "TargRep::TargetedAllele"
+  end
+
+  create_table "targ_rep_centre_pipelines", :force => true do |t|
+    t.string   "name"
+    t.text     "centres"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "targ_rep_distribution_qcs", :force => true do |t|

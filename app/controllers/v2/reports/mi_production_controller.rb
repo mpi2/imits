@@ -2,6 +2,9 @@ class V2::Reports::MiProductionController < ApplicationController
 
   before_filter :params_cleaned_for_search
 
+  before_filter :authenticate_user!, :except => [:mgp_production_by_subproject, :mgp_production_by_priority]
+  before_filter :authenticate_user_if_not_sanger, :only => [:mgp_production_by_subproject, :mgp_production_by_priority]
+
   helper :reports
 
   def production_detail
@@ -58,9 +61,6 @@ class V2::Reports::MiProductionController < ApplicationController
     render :template => 'v2/reports/mi_production/production_summary'
   end 
 
-  skip_before_filter :authenticate_user!
-  before_filter :authenticate_user_if_not_sanger, :only => [:mgp_production_by_subproject, :mgp_production_by_priority]
-
   def mgp_production_by_subproject
     @report  = SubProjectReport.new
     @columns = SubProjectReport.columns
@@ -97,6 +97,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @report = ImpcCentreByMonthReport.new
     @centre_by_month = @report.report_rows
     @columns = ImpcCentreByMonthReport.columns
+    @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
   end
 
   private

@@ -221,7 +221,11 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'completion_note',
         'status_stamps_attributes',
         'ignore_available_mice',
-        'recovery'
+        'recovery',
+        'number_of_es_cells_received',
+        'es_cells_received_from_id',
+        'es_cells_received_from_name',
+        'es_cells_received_on'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -255,7 +259,11 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'phenotype_only',
         'ignore_available_mice',
         'completion_note',
-        'recovery'
+        'recovery',
+        'number_of_es_cells_received',
+        'es_cells_received_from_id',
+        'es_cells_received_from_name',
+        'es_cells_received_on'
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

@@ -48,6 +48,11 @@ Factory.define :notification do |notification|
   notification.last_email_text 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
 end
 
+Factory.define :notification_simple, :class => Notification  do |notification|
+  notification.association(:gene)
+  notification.association(:contact)
+end
+
 Factory.define :centre do |centre|
   centre.sequence(:name) { |n| "Auto-generated Centre Name #{n}" }
 end
@@ -79,6 +84,13 @@ end
 Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_plan|
   mi_plan.after_create do |plan|
     plan.number_of_es_cells_passing_qc = 2
+    plan.save!
+  end
+end
+
+Factory.define :mi_plan_with_recent_status_history2, :parent => :mi_plan do |mi_plan|
+  mi_plan.after_create do |plan|
+    plan.number_of_es_cells_starting_qc = 2
     plan.save!
   end
 end

@@ -1,37 +1,94 @@
+require 'pp'
+
 class NotificationMailer < ActionMailer::Base
+
+  include ActionView::Helpers::TextHelper
+
   default :from => 'info@mousephenotype.org'
-  def welcome_email(notification)
-    
-    @contact = Contact.find(notification.contact_id)
-    @gene = Gene.find(notification.gene_id)
-    @relevant_status = @gene.relevant_status
 
-    set_attributes
+  #def welcome_email(notification)
+  #
+  #  @contact = Contact.find(notification.contact_id)
+  #  @gene = Gene.find(notification.gene_id)
+  #  @relevant_status = @gene.relevant_status
+  #
+  #  set_attributes
+  #
+  #  @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
+  #  email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+  #
+  #  mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
+  #    format.text { render :inline => email_body }
+  #  end
+  #end
 
-    @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
-    email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+  def welcome_email_new(stuff)
 
-    mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
+    # puts "#### welcome_email_new:"
+
+    @genes = stuff[:genes]
+    @contact_email = stuff[:contact_email]
+    #@gene_list = @genes.map(&:marker_symbol).join(', ')
+    @gene_list = []
+    @genes.each do |gene|
+      @gene_list.push gene[:marker_symbol]
+    end
+
+    #    @gene_list = @gene_list.join ", "
+    #word_wrap('Once upon a time', :line_width => 8)
+    @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
+
+    #@relevant_status = stuff[:relevant_status]
+
+    #puts "#### @relevant_status"
+    #pp @relevant_status
+
+    #/nfs/users/nfs_r/re4/dev/imits/app/views/notification_mailer/welcome_email.text.erb
+
+    email_body = ERB.new(IO.read("#{Rails.root}/app/views/notification_mailer/welcome_email.text.erb")).result(binding)
+
+    #email_body.gsub!(/^$\n/, "\n")
+    email_body.gsub!(/\n\n+/, "\n\n")
+
+    # puts email_body
+
+    mail(:to => @contact_email, :subject => "Welcome from the MPI2 (KOMP2) informatics consortium") do |format|
       format.text { render :inline => email_body }
     end
   end
 
   def status_email(notification)
 
+    #puts "#### status_email:"
+    #pp notification
+
+    return if notification.welcome_email_sent.nil?
+
+    #puts "#### after"
+    #raise "#### cannot get here!"
+
     @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)
-    
+
+    @relevant_status = {}
+
     #This sets the relevant_statuses array in the notification
     notification.check_statuses
+
+    #puts "#### notification.relevant_statuses:"
+    #pp notification.relevant_statuses
+
+    return if notification.check_statuses.empty?
+
     if notification.relevant_statuses.length > 0
       @relevant_status = notification.relevant_statuses.sort_by {|this_status| -this_status[:order_by] }.first
     end
-    
+
     set_attributes
 
     @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
     email_body = ERB.new(@email_template.update_body).result(binding) rescue nil
-    
+
     return if @email_template.blank? || email_body.blank?
     mail(:to => @contact.email, :subject => "Status update for #{@gene.marker_symbol}") do |format|
       format.text { render :inline => email_body }
@@ -47,12 +104,12 @@ class NotificationMailer < ActionMailer::Base
       relevant_mi_plan = @relevant_status[:mi_plan_id] ? MiPlan.find(@relevant_status[:mi_plan_id]) : nil
       relevant_mi_attempt = @relevant_status[:mi_attempt_id] ? MiAttempt.find(@relevant_status[:mi_attempt_id]) : nil
       relevant_phenotype_attempt = @relevant_status[:phenotype_attempt_id] ? PhenotypeAttempt.find(@relevant_status[:phenotype_attempt_id]) : nil
-  
+
       @relevant_production_centre = "unknown production centre"
       if es_cell = TargRep::EsCell.includes(:allele).where("targ_rep_alleles.gene_id = '#{@gene.id}'").first
         @relevant_cell_name = es_cell.name
       end
-  
+
       if relevant_phenotype_attempt
         @allele_symbol = relevant_phenotype_attempt.allele_symbol.to_s.sub('</sup>', '>').sub('<sup>','<').html_safe
       elsif relevant_mi_attempt
@@ -60,7 +117,7 @@ class NotificationMailer < ActionMailer::Base
       else
         @allele_symbol = ''
       end
-  
+
       if (relevant_mi_plan) && (relevant_mi_plan.production_centre != nil)
         @relevant_production_centre = relevant_mi_plan.production_centre.name
       end
@@ -68,7 +125,7 @@ class NotificationMailer < ActionMailer::Base
         @relevant_cell_name = relevant_mi_attempt.es_cell.name
         @allele_name_suffix = relevant_mi_attempt.es_cell.allele_symbol_superscript_template
       end
-  
+
       if @gene.mi_plans
         @gene.mi_plans.each do |plan|
           if plan.is_active?
@@ -78,6 +135,105 @@ class NotificationMailer < ActionMailer::Base
       end
     end
   end
-  
+
   private :set_attributes
+
+  def send_welcome_email_bulk
+    contacts = Contact.joins(:notifications).where('notifications.welcome_email_sent is null').uniq.pluck(:id)
+
+    return if contacts.empty?
+
+    contact_array = []
+
+    contacts.each do |contact_id|
+      genes_array = []
+      notifications = Notification.where("contact_id = #{contact_id}")
+
+      contact = Contact.find contact_id
+
+      notifications.each do |notification|
+        gene = Gene.find notification.gene_id
+
+        modifier_string = "is not"
+        modifier_string = "is" if gene.mi_plans.any? {|plan| plan.is_active? }
+
+        relevant_status = gene.relevant_status
+        relevant_status = relevant_status ? { :status => relevant_status[:status], :date => relevant_status[:date] }: nil
+
+        genes_array.push({
+          :marker_symbol => gene.marker_symbol,
+          :modifier_string => "is not",
+          :relevant_status => relevant_status,
+          :total_cell_count => gene.es_cells_count,
+          :conditional_es_cells_count => gene.conditional_es_cells_count,
+          :non_conditional_es_cells_count => gene.non_conditional_es_cells_count,
+          :deletion_es_cells_count => gene.deletion_es_cells_count,
+          :mgi_accession_id => gene.mgi_accession_id,
+          :notification_id => notification.id
+        })
+      end
+
+      contact_array.push({:contact_email => contact.email, :genes => genes_array})
+    end
+
+    contact_array.each do |contact|
+      mailer = NotificationMailer.welcome_email_new(contact)
+      next if ! mailer
+
+      ApplicationModel.audited_transaction do
+
+        contact[:genes].each do |gene|
+          notification = Notification.find gene[:notification_id]
+          notification.welcome_email_text = mailer.body.to_s
+          notification.welcome_email_sent = Time.now.utc
+          notification.save!
+        end
+
+        #puts "#### mailer:"
+        #pp mailer
+
+        mailer.deliver
+      end
+    end
+
+  end
+
+  #desc 'Generate status emails'
+  #task 'cron:status_emails' => [:environment] do
+  #ApplicationModel.audited_transaction do
+  #  @excluded_statuses = ['aborted_es_cell_qc_failed', 'microinjection_aborted', 'phenotype_attempt_aborted']
+  #  notifications = Notification.all
+  #  notifications.each do |this_notification|
+  #    if !this_notification.gene.relevant_status.empty?
+  #      if !@excluded_statuses.any? {|status| this_notification.gene.relevant_status[:status].include? status}
+  #        if !this_notification.check_statuses.empty?
+  #          mailer = NotificationMailer.status_email(this_notification)
+  #          this_notification.last_email_text = mailer.body.to_s
+  #          this_notification.last_email_sent = Time.now.utc
+  #          this_notification.save!
+  #          mailer.deliver
+  #        end
+  #      end
+  #    end
+  #  end
+  #end
+
+  def self.send_status_emails
+    excluded_statuses = ['aborted_es_cell_qc_failed', 'microinjection_aborted', 'phenotype_attempt_aborted']
+
+    ApplicationModel.audited_transaction do
+      Notification.all.each do |notification|
+        next if notification.gene.relevant_status.empty?
+        next if excluded_statuses.any? {|status| notification.gene.relevant_status[:status].include? status}
+        next if notification.check_statuses.empty?
+
+        mailer = NotificationMailer.status_email(notification)
+        notification.last_email_text = mailer.body.to_s
+        notification.last_email_sent = Time.now.utc
+        notification.save!
+        mailer.deliver
+      end
+    end
+  end
+
 end

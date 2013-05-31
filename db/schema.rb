@@ -512,9 +512,9 @@ ActiveRecord::Schema.define(:version => 20130528083431) do
 
   create_table "targ_rep_alleles", :force => true do |t|
     t.integer  "gene_id"
-    t.string   "assembly",            :limit => 50,  :default => "NCBIM37",         :null => false
-    t.string   "chromosome",          :limit => 2,                                  :null => false
-    t.string   "strand",              :limit => 1,                                  :null => false
+    t.string   "assembly",            :limit => 50,  :default => "NCBIM37",                 :null => false
+    t.string   "chromosome",          :limit => 2,                                          :null => false
+    t.string   "strand",              :limit => 1,                                          :null => false
     t.integer  "homology_arm_start"
     t.integer  "homology_arm_end"
     t.integer  "loxp_start"
@@ -532,10 +532,10 @@ ActiveRecord::Schema.define(:version => 20130528083431) do
     t.integer  "mutation_type_id"
     t.integer  "mutation_subtype_id"
     t.string   "cassette_type",       :limit => 50
-    t.datetime "created_at",                                                        :null => false
-    t.datetime "updated_at",                                                        :null => false
+    t.datetime "created_at",                                                                :null => false
+    t.datetime "updated_at",                                                                :null => false
     t.integer  "intron"
-    t.string   "type",                               :default => "TargRep::Allele"
+    t.string   "type",                               :default => "TargRep::TargetedAllele"
   end
 
   create_table "targ_rep_distribution_qcs", :force => true do |t|

@@ -99,7 +99,7 @@ class MiPlansController < ApplicationController
         format.html { redirect_to mi_plan_path(@mi_plan) }
         format.json { render :json => @mi_plan }
       else
-        format.html { render :action => 'edit' }
+        format.html { render :action => 'show' }
         format.json { render :json => @mi_plan.errors, :status => 422 }
       end
     end

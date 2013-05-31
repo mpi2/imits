@@ -19,7 +19,8 @@
 <table class="es_cell_qc_info">
   <caption>User/Mouse Clinic QC</caption>
   <tr>
-    <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_mouse_clinic_name } %>
+    <th width="24%">Mouse Clinic</th>
+    <td><%= print_dash_on_empty es_cell.send(:user_qc_mouse_clinic_name) %></td>
     <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_southern_blot } %>
     <%= render :partial => 'show_es_cells_qc_field', :locals => { :es_cell => es_cell, :symbol => :user_qc_map_test } %>
   </tr>

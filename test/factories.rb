@@ -552,6 +552,14 @@ Factory.define :production_goal do |production_goal|
   production_goal.gc_goal 123
 end
 
+Factory.define :tracking_goal do |tracking_goal|
+  tracking_goal.production_centre { Centre.first }
+  tracking_goal.month (rand(11) + 1)
+  tracking_goal.year (2012..2014).to_a[rand(2)]
+  tracking_goal.goal_type TrackingGoal::GOAL_TYPES[rand(7)]
+  tracking_goal.goal rand(100)
+end
+
 Factory.define :email_template_without_status, :class => EmailTemplate do |email_template|
   email_template.welcome_body <<-EOF
       Dear colleague,

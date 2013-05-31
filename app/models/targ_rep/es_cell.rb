@@ -12,8 +12,6 @@ class TargRep::EsCell < ActiveRecord::Base
 
   TEMPLATE_CHARACTER = '@'
 
-  include TargRep::EsCell::QcFields
-
   ##
   ## Relationships
   ##
@@ -45,15 +43,6 @@ class TargRep::EsCell < ActiveRecord::Base
 
   validate :set_and_check_strain
 
-  # Validate QC fields - the ESCELL_QC_OPTIONS constant comes from the
-  # this has been moved here `targ_rep/es_cell/qc_fields` and included as a dependancy.
-  ESCELL_QC_OPTIONS.each_key do |qc_field|
-    validates_inclusion_of qc_field,
-      :in        => ESCELL_QC_OPTIONS[qc_field.to_s][:values],
-      :message   => "This QC metric can only be set as: #{ESCELL_QC_OPTIONS[qc_field.to_s][:values].join(', ')}",
-      :allow_nil => true
-  end
-
   validates_format_of :mgi_allele_id,
     :with      => /^MGI\:\d+$/,
     :message   => "is not a valid MGI Allele ID",
@@ -79,6 +68,61 @@ class TargRep::EsCell < ActiveRecord::Base
 
   scope :has_targeting_vector, where('targeting_vector_id is not NULL')
   scope :no_targeting_vector, where(:targeting_vector_id => nil)
+
+  ##
+  ## QC validations
+  ##
+
+  def self.qc_options
+    hash = {
+      "production_qc_five_prime_screen"       => { :name => "5' Screen",   :values => ["pass","not confirmed","no reads detected","not attempted"] },
+      "production_qc_three_prime_screen"      => { :name => "3' Screen",   :values => ["pass","not confirmed","no reads detected"] },
+      "production_qc_loxp_screen"             => { :name => "LoxP Screen", :values => ["pass","not confirmed","no reads detected"] },
+      "production_qc_loss_of_allele"          => { :name => "Loss of WT Allele (LOA)" },
+      "production_qc_vector_integrity"        => { :name => "Vector Integrity" },
+
+      "user_qc_karyotype"                     => { :name => "Karyotype",     :values => ["pass","fail","limit"] },
+      "user_qc_southern_blot"                 => { :name => "Southern Blot", :values => ["pass","fail 5' end","fail 3' end","fail both ends","double integration"] },
+      "user_qc_five_prime_lr_pcr"             => { :name => "5' LR-PCR" },
+      "user_qc_three_prime_lr_pcr"            => { :name => "3' LR-PCR" },
+      "user_qc_map_test"                      => { :name => "Map Test" },
+      "user_qc_tv_backbone_assay"             => { :name => "TV Backbone Assay" },
+      "user_qc_loxp_confirmation"             => { :name => "LoxP Confirmation" },
+      "user_qc_loss_of_wt_allele"             => { :name => "Loss of WT Allele (LOA)" },
+      "user_qc_neo_count_qpcr"                => { :name => "Neo Count (qPCR)" },
+      "user_qc_lacz_sr_pcr"                   => { :name => "LacZ SR-PCR" },
+      "user_qc_mutant_specific_sr_pcr"        => { :name => "Mutant Specific SR-PCR" },
+      "user_qc_five_prime_cassette_integrity" => { :name => "5' Cassette Integrity" },
+      "user_qc_neo_sr_pcr"                    => { :name => "Neo SR-PCR" },
+
+      "user_qc_karyotype_spread"              => { :name => "Karyotype Spread" },
+      "user_qc_karyotype_pcr"                 => { :name => "Karyotype PCR" },
+      "user_qc_loxp_srpcr_and_sequencing"     => { :name => "Loxp SRPCR and Sequencing" }
+    }
+
+    hash.each do |field,data|
+      if data[:values].nil?
+        hash[field][:values] = ['pass','fail']
+      end
+    end
+
+    hash
+  end
+
+  TargRep::EsCell.qc_options.each_key do |qc_field|
+    validates_inclusion_of qc_field,
+      :in        => TargRep::EsCell.qc_options[qc_field.to_s][:values],
+      :message   => "This QC metric can only be set as: #{TargRep::EsCell.qc_options[qc_field.to_s][:values].join(', ')}",
+      :allow_nil => true
+  end
+
+  validate do |plan|
+    return true if user_qc_mouse_clinic_name.blank?
+    centre_names = Centre.pluck(:name)
+    unless centre_names.include?(self.user_qc_mouse_clinic_name)
+      self.errors.add(:user_qc_mouse_clinic_name, "This QC metric can only be set as: #{centre_names.join(', ')}.")
+    end
+  end
 
   ##
   ## Methods

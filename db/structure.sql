@@ -2813,7 +2813,10 @@ CREATE TABLE mi_plans (
     completion_note character varying(100),
     recovery boolean,
     conditional_tm1c boolean DEFAULT false NOT NULL,
-    ignore_available_mice boolean DEFAULT false NOT NULL
+    ignore_available_mice boolean DEFAULT false NOT NULL,
+    number_of_es_cells_received integer,
+    es_cells_received_on date,
+    es_cells_received_from_id integer
 );
 
 
@@ -3352,6 +3355,38 @@ CREATE SEQUENCE targ_rep_alleles_id_seq
 --
 
 ALTER SEQUENCE targ_rep_alleles_id_seq OWNED BY targ_rep_alleles.id;
+
+
+--
+-- Name: targ_rep_centre_pipelines; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_centre_pipelines (
+    id integer NOT NULL,
+    name character varying(255),
+    centres text,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: targ_rep_centre_pipelines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_centre_pipelines_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_centre_pipelines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_centre_pipelines_id_seq OWNED BY targ_rep_centre_pipelines.id;
 
 
 --
@@ -4036,6 +4071,13 @@ ALTER TABLE ONLY targ_rep_alleles ALTER COLUMN id SET DEFAULT nextval('targ_rep_
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY targ_rep_centre_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_rep_centre_pipelines_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY targ_rep_distribution_qcs ALTER COLUMN id SET DEFAULT nextval('targ_rep_distribution_qcs_id_seq'::regclass);
 
 
@@ -4379,6 +4421,14 @@ ALTER TABLE ONLY strains
 
 ALTER TABLE ONLY targ_rep_alleles
     ADD CONSTRAINT targ_rep_alleles_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: targ_rep_centre_pipelines_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_centre_pipelines
+    ADD CONSTRAINT targ_rep_centre_pipelines_pkey PRIMARY KEY (id);
 
 
 --
@@ -5382,3 +5432,7 @@ INSERT INTO schema_migrations (version) VALUES ('20130523161221');
 INSERT INTO schema_migrations (version) VALUES ('20130524110125');
 
 INSERT INTO schema_migrations (version) VALUES ('20130528083431');
+
+INSERT INTO schema_migrations (version) VALUES ('20130528131803');
+
+INSERT INTO schema_migrations (version) VALUES ('20130528142149');

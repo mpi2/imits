@@ -2,6 +2,6 @@
   <% if defined? name %>
     <%= name %>
   <% else %>
-    <%= TargRep::EsCell::ESCELL_QC_OPTIONS[symbol.to_s][:name] %>
+    <%= TargRep::EsCell.qc_options[symbol.to_s][:name] %>
   <% end %>
 </th>

@@ -97,12 +97,18 @@ class TargRep::EsCell < ActiveRecord::Base
 
       "user_qc_karyotype_spread"              => { :name => "Karyotype Spread" },
       "user_qc_karyotype_pcr"                 => { :name => "Karyotype PCR" },
-      "user_qc_loxp_srpcr_and_sequencing"     => { :name => "Loxp SRPCR and Sequencing" }
+      "user_qc_loxp_srpcr_and_sequencing"     => { :name => "Loxp SRPCR and Sequencing" },
+
+      "user_qc_chr1"                          => { :name => "Chr1"},
+      "user_qc_chr11"                         => { :name => "Chr11"},
+      "user_qc_chr8"                          => { :name => "Chr8"},
+      "user_qc_chry"                          => { :name => "Chry"},
+      "user_qc_lacz_qpcr"                     => { :name => "LacZ qPCR"}
     }
 
     hash.each do |field,data|
       if data[:values].nil?
-        hash[field][:values] = ['pass','fail']
+        hash[field][:values] = ['pass', 'passb','fail']
       end
     end
 
@@ -188,7 +194,7 @@ class TargRep::EsCell < ActiveRecord::Base
 
     def set_allele_symbol_superscript
       return if allele_symbol_superscript_template_changed?
-      
+
       if mgi_allele_symbol_superscript.blank?
         self.allele_symbol_superscript_template = nil
         self.allele_type = nil

@@ -440,9 +440,14 @@ end
 #  phenotype_only                 :boolean         default(FALSE)
 #  completion_note                :string(100)
 #  recovery                       :boolean
+#  conditional_tm1c               :boolean         default(FALSE), not null
+#  ignore_available_mice          :boolean         default(FALSE), not null
+#  number_of_es_cells_received    :integer
+#  es_cells_received_on           :date
+#  es_cells_received_from_id      :integer
 #
 # Indexes
 #
-#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id,is_bespoke_allele,is_conditional_allele,is_deletion_allele,is_cre_knock_in_allele,is_cre_bac_allele) UNIQUE
+#  mi_plan_logical_key  (gene_id,consortium_id,production_centre_id,sub_project_id,is_bespoke_allele,is_conditional_allele,is_deletion_allele,is_cre_knock_in_allele,is_cre_bac_allele,conditional_tm1c,phenotype_only) UNIQUE
 #
 

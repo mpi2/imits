@@ -726,29 +726,40 @@ div#mpi2-search table th {
   }
 
 .product  {
-    width: 6%;
+    padding: 0.5em;
 }
-.allele-type  {
-    width: 8%;
+.allele-type {
+    padding: 0.5em;
 }
 .strain-of-origin  {
-    width: 10%;
+    padding: 0.5em;
 }
 .mgi-allele-name  {
-    width: 14%;
+    padding: 0.5em;
 }
 .allele-map  {
-    width: 40%;
+    padding: 0.5em;
 }
-.allele-sequrnce  {
-    width: 12%;
+.allele-sequence  {
+    padding: 0.5em;
 }
-.order th, tr  {
-    width: 10%;
+.order  {
+    padding: 0.5em;
+}
+
+.gene {
+    padding: 0.5em;
 }
 .latest-status {
-    width: 80%;
+    padding: 0.5em;
 }
+.gene th {
+    width: 38%;
+}
+.latest-status th{
+    width: 62%;
+}
+
 
 .report table.qc_grid {
   border:1px solid #efefef;

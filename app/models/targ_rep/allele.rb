@@ -343,8 +343,8 @@ end
 #  assembly            :string(50)      default("NCBIM37"), not null
 #  chromosome          :string(2)       not null
 #  strand              :string(1)       not null
-#  homology_arm_start  :integer         not null
-#  homology_arm_end    :integer         not null
+#  homology_arm_start  :integer
+#  homology_arm_end    :integer
 #  loxp_start          :integer
 #  loxp_end            :integer
 #  cassette_start      :integer
@@ -362,5 +362,7 @@ end
 #  cassette_type       :string(50)
 #  created_at          :datetime        not null
 #  updated_at          :datetime        not null
+#  intron              :integer
+#  type                :string(255)     default("TargRep::TargetedAllele")
 #
 

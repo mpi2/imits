@@ -271,6 +271,16 @@ end
 #  legacy_id                             :integer
 #  created_at                            :datetime        not null
 #  updated_at                            :datetime        not null
+#  production_centre_auto_update         :boolean         default(TRUE)
+#  user_qc_loxp_srpcr_and_sequencing     :string(255)
+#  user_qc_karyotype_spread              :string(255)
+#  user_qc_karyotype_pcr                 :string(255)
+#  user_qc_mouse_clinic_id               :integer
+#  user_qc_chr1                          :string(255)
+#  user_qc_chr11                         :string(255)
+#  user_qc_chr8                          :string(255)
+#  user_qc_chry                          :string(255)
+#  user_qc_lacz_qpcr                     :string(255)
 #
 # Indexes
 #

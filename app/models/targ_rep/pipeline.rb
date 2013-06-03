@@ -33,6 +33,7 @@ end
 #  updated_at       :datetime        not null
 #  legacy_id        :integer
 #  report_to_public :boolean         default(TRUE)
+#  gene_trap        :boolean         default(FALSE)
 #
 # Indexes
 #

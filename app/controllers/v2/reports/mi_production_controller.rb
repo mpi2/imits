@@ -126,6 +126,12 @@ class V2::Reports::MiProductionController < ApplicationController
 
     render :template => 'v2/reports/mi_production/mi_attempt_summary'
   end
+  
+  def sliding_efficiency
+    @consortium_name = params[:consortium] || params[:consortium_name] || params[:consortia]
+    @production_centre_name = params[:centre] || params[:production_centre_name] || params[:centre_name]
+    @report = SlidingEfficiencyReport.new(@consortium_name, @production_centre_name)
+  end
 
   private
     def params_cleaned_for_search

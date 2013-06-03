@@ -361,7 +361,10 @@ class BaseProductionReport
           SELECT
             counts.consortium_name,
             counts.production_centre_name,
-            sum(case when gtc_count > 0 then 1 else 0 end) as gene_count
+            SUM(CASE
+              WHEN gtc_count > 0
+              THEN 1 ELSE 0
+            END) as gene_count
           FROM (
             SELECT
               genes.id as gene_id,

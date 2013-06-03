@@ -1,0 +1,46 @@
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('canvasjs.min') %>
+<% end %>
+
+<% @title = "#{@consortium_name}/#{@production_centre_name} Pipeline efficiency (Sliding scale)" %>
+
+<h2><%= @title %></h2>
+
+<!--<p><%= link_to 'Download as CSV', report_csv_path %></p>-->
+
+<div class='report sliding-efficiency'>
+
+  <div class='wrap'>
+    <% left = 0 %>
+    <% width = 4 %>
+    <% group_amount = 50.0 %>
+    <% gtc_genes = @report.mi_attempts.select{|mi| mi.status_id == 2}.map{|mi| mi.gene.id} %>
+    <% gtc_gene_count = gtc_genes.uniq.size %>
+    <% mis = @report.mi_attempts %>
+    <% mis_count = mis.size %>
+
+    <% mis_count.times do |group| %>
+        <% subset = mis[group..(group+(group_amount-1))] %>
+        <% break if subset.blank? %>
+        <% subset_genes = subset.select{|mi| mi.status_id == 2}.map{|mi| mi.gene.id}.uniq.size %>
+        <% next if subset.size < group_amount && group > 0 %>
+        <% efficiency = (subset_genes.to_f / subset.size.to_f).round(2) %>
+
+      <div class='bin'
+        data-number='<%= group + 1 %>'>
+
+        <div class='bar'
+          data-first='<%= subset.first.id %>'
+          data-last='<%= subset.last.id %>'
+          data-date='<%= subset.first.mi_date %>'
+          data-mi-total='<%= subset.size %>'
+          data-gene-total='<%= subset_genes %>'
+          data-efficiency='<%= efficiency = (subset_genes.to_f / subset.size.to_f).round(2) %>'
+          data-height='width:2px; height:<%= efficiency * 200 %>px;'></div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class='graph' id='line_graph'></div>
+  <div class='graph' id='new_bar_graph'></div>
+</div>

@@ -219,6 +219,10 @@ $(document).ready(function() {
         $('.cell-popup').hide();
     })
 
+    //
+    // QC summary graphs
+    //
+
     var $histoFrame = $('.histo');
 
     $histoFrame.each(function() {
@@ -248,4 +252,124 @@ $(document).ready(function() {
             columnCount -= 1;
         })
     })
+
+    //
+    // Sliding efficiency graph
+    //
+    $('.sliding-efficiency .graph').efficiencyGraph();
+
 })
+
+$.fn.efficiencyGraph = function() {
+
+    $(this).each(function() {
+
+        var $lineFrame = $(this);
+        var id = $lineFrame.attr('id');
+        
+        if(id == 'line_graph') {
+            lineGraph(id);
+        } else if(id == 'new_bar_graph') {
+            newBarGraph(id);
+        }
+    })
+
+    function lineGraph(id) {
+        var $bars = $('.bar');
+
+        var y = [];
+        var labels = [];
+
+        var $bars = $('.bar');
+
+        $bars.each(function() {
+            $bar = $(this);
+            y.push($bar.data().efficiency || 0);
+            var label = $bar.data().date
+            labels.push(label)
+        })
+
+
+        var dataPoints = []
+
+        for(var i=0; i<labels.length; i++) {
+            dataPoints.push({label: labels[i], y: y[i]})         
+        }
+
+        console.log(dataPoints)
+
+        CanvasJS.addColorSet("blue", ['#2f69bf'])
+
+        var chart = new CanvasJS.Chart(id, {
+            axisY: {
+                maximum: 1,
+                minimum: 0
+            },
+            colorSet: 'blue',
+
+            title:{
+                text: "Sliding efficiency"
+            },
+            data: [
+                {
+                    type: "line",
+                    showInLegend: true,
+                    dataPoints: dataPoints
+                }
+            ]
+        });
+
+        chart.render();
+
+    }; //lineGraph
+
+    function newBarGraph(id) {
+
+        var y = [];
+        var labels = [];
+
+        var $bars = $('.bar');
+
+        $bars.each(function() {
+            $bar = $(this);
+            y.push($bar.data().efficiency || 0);
+            var label = $bar.data().date
+            labels.push(label)
+        })
+
+
+        var dataPoints = []
+
+        for(var i=0; i<labels.length; i++) {
+            dataPoints.push({label: labels[i], y: y[i]})         
+        }
+
+        console.log(dataPoints)
+
+        CanvasJS.addColorSet("blue", ['#2f69bf'])
+        CanvasJS.addColorSet("green", ['green'])
+
+        var chart = new CanvasJS.Chart(id, {
+            axisY: {
+                maximum: 1,
+                minimum: 0
+            },
+            colorSet: 'blue',
+            zoomEnabled: true,
+            title:{
+                text: "Sliding efficiency"
+            },
+            data: [
+                {
+                    type: "column",
+                    showInLegend: true,
+                    dataPoints: dataPoints
+                }
+            ]
+     });
+
+    chart.render();
+    }; //newBarGraph
+
+    return $(this)
+}

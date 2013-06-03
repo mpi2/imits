@@ -44,6 +44,7 @@ html, body, .x-body {
     font-size: 12px;
     line-height: 1.5em;
     font-family: Verdana, sans-serif;
+    min-width:1100px;
 }
 
 /* TODO BAD - Find out how to do this in a better, more theme-compatible way */
@@ -959,4 +960,34 @@ div.report_control * {
 
 .errorExplanation ul li {
   list-style-type:disc;
+}
+
+.report.sliding-efficiency {
+
+}
+
+.report.sliding-efficiency .wrap {
+  display:none;
+  overflow:auto;
+  width:20000px;
+}
+
+.report.sliding-efficiency .wrap .box {
+  float:left;
+  height:200px;
+  position:relative;
+}
+
+.report.sliding-efficiency .wrap .box .bar {
+  float:left;
+  background:#556270;
+  width:2px;
+  position:absolute;
+  bottom:0;
+}
+
+.report.sliding-efficiency .graph {
+  width:1000px;
+  height:340px;
+  margin-bottom:2em;
 }

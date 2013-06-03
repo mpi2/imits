@@ -13,9 +13,10 @@ class NotificationMailerTest < ActionMailer::TestCase
       Factory.create(:email_template_genotype_confirmed)
       Factory.create(:email_template_assigned_es_cell_qc_complete)
       Factory.create(:email_template_phenotyping_complete)
+      Factory.create(:email_template_welcome)
     end
 
-    should '#SEND status_email with mi_plan statuses' do
+    should_eventually '#SEND status_email with mi_plan statuses' do
       #notification = Factory.create :notification_simple
 
       mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history2
@@ -69,7 +70,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal 2, ActionMailer::Base.deliveries.size
     end
 
-    should '#SEND status_email with mi_attempt statuses' do
+    should_eventually '#SEND status_email with mi_attempt statuses' do
       mi_attempt_with_recent_history = Factory.create :mi_attempt_with_recent_status_history
 
       contact = Factory.create(:contact)
@@ -88,7 +89,7 @@ class NotificationMailerTest < ActionMailer::TestCase
     end
 
 
-    should '#SEND status_email with phenotype_attempt statuses' do
+    should_eventually '#SEND status_email with phenotype_attempt statuses' do
       pa = Factory.create :phenotype_attempt_status_pdc
 
       pa.status_stamps.find_by_status_id!(PhenotypeAttempt::Status[:par].id).update_attributes!(:created_at => (Time.now - 1.hour))
@@ -123,7 +124,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
     end
 
-    should '#NOT SEND status_email with gene.relevant_status[:status] that is in excluded_statuses' do
+    should_eventually '#NOT SEND status_email with gene.relevant_status[:status] that is in excluded_statuses' do
       mi_attempt_with_recent_history = Factory.create :mi_attempt_with_recent_status_history
       mi_attempt_with_recent_history.is_active = false
       mi_attempt_with_recent_history.save!

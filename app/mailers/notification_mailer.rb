@@ -6,7 +6,72 @@ class NotificationMailer < ActionMailer::Base
 
   default :from => 'info@mousephenotype.org'
 
-  #def welcome_email(notification)
+  def welcome_email(notification)
+    genes_array = []
+    notifications = Notification.where("contact_id = #{notification.contact_id} and welcome_email_sent is null")
+
+    contact = Contact.find contact_id
+
+    notifications.each do |notification|
+      #next if notification.welcome_email_sent
+
+      gene = Gene.find notification.gene_id
+
+      modifier_string = "is not"
+      modifier_string = "is" if gene.mi_plans.any? {|plan| plan.is_active? }
+
+      relevant_status = gene.relevant_status
+      relevant_status = relevant_status ? { :status => relevant_status[:status], :date => relevant_status[:date] }: nil
+
+      genes_array.push({
+        :marker_symbol => gene.marker_symbol,
+        :modifier_string => "is not",
+        :relevant_status => relevant_status,
+        :total_cell_count => gene.es_cells_count,
+        :conditional_es_cells_count => gene.conditional_es_cells_count,
+        :non_conditional_es_cells_count => gene.non_conditional_es_cells_count,
+        :deletion_es_cells_count => gene.deletion_es_cells_count,
+        :mgi_accession_id => gene.mgi_accession_id,
+        :notification_id => notification.id
+      })
+    end
+
+    mailer = self.welcome_email_new({:contact_email => contact.email, :genes => genes_array})
+    if mailer
+      ApplicationModel.audited_transaction do
+
+        genes_array.each do |gene|
+          notification = Notification.find gene[:notification_id]
+          notification.welcome_email_text = mailer.body.to_s
+          notification.welcome_email_sent = Time.now.utc
+          notification.save!
+        end
+
+        mailer.deliver
+      end
+    end
+  end
+
+  #def welcome_email_x(notification)
+  #  @genes = contact[:genes]
+  #  @contact_email = contact[:contact_email]
+  #  @gene_list = []
+  #  @genes.each do |gene|
+  #    @gene_list.push gene[:marker_symbol]
+  #  end
+  #
+  #  @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
+  #  @email_template = EmailTemplate.find_by_status('welcome_new')
+  #  email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+  #
+  #  email_body.gsub!(/\n\n+/, "\n\n")
+  #
+  #  mail(:to => @contact_email, :subject => "Welcome from the MPI2 (KOMP2) informatics consortium") do |format|
+  #    format.text { render :inline => email_body }
+  #  end
+  #end
+
+  #def welcome_email_old(notification)
   #
   #  @contact = Contact.find(notification.contact_id)
   #  @gene = Gene.find(notification.gene_id)
@@ -22,35 +87,50 @@ class NotificationMailer < ActionMailer::Base
   #  end
   #end
 
-  def welcome_email_new(stuff)
+  #def welcome_email_new(contact)
+  #
+  #  @contact = Contact.find(contact.contact_id)
+  #  @gene = Gene.find(contact.gene_id)
+  #  @relevant_status = @gene.relevant_status
+  #
+  #  set_attributes
+  #
+  #  @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
+  #  email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+  #
+  #  mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
+  #    format.text { render :inline => email_body }
+  #  end
+  #end
 
-    # puts "#### welcome_email_new:"
-
-    @genes = stuff[:genes]
-    @contact_email = stuff[:contact_email]
-    #@gene_list = @genes.map(&:marker_symbol).join(', ')
+  def welcome_email_new(contact)
+    @genes = contact[:genes]
+    @contact_email = contact[:contact_email]
     @gene_list = []
     @genes.each do |gene|
       @gene_list.push gene[:marker_symbol]
     end
 
-    #    @gene_list = @gene_list.join ", "
-    #word_wrap('Once upon a time', :line_width => 8)
     @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
 
-    #@relevant_status = stuff[:relevant_status]
+    #@relevant_status = @gene.relevant_status
 
-    #puts "#### @relevant_status"
-    #pp @relevant_status
+    # TODO: fix me!
 
-    #/nfs/users/nfs_r/re4/dev/imits/app/views/notification_mailer/welcome_email.text.erb
+    #email_body = ERB.new(IO.read("#{Rails.root}/app/views/notification_mailer/welcome_email2.text.erb")).result(binding)
 
-    email_body = ERB.new(IO.read("#{Rails.root}/app/views/notification_mailer/welcome_email.text.erb")).result(binding)
+    @email_template = EmailTemplate.find_by_status('welcome_new')
 
-    #email_body.gsub!(/^$\n/, "\n")
+    #pp @email_template
+
+    email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+
+    #set_attributes
+
+    #@email_template = EmailTemplate.find_by_status(@relevant_status[:status])
+    #email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+
     email_body.gsub!(/\n\n+/, "\n\n")
-
-    # puts email_body
 
     mail(:to => @contact_email, :subject => "Welcome from the MPI2 (KOMP2) informatics consortium") do |format|
       format.text { render :inline => email_body }
@@ -173,28 +253,40 @@ class NotificationMailer < ActionMailer::Base
         })
       end
 
-      contact_array.push({:contact_email => contact.email, :genes => genes_array})
-    end
+      #contact_array.push({:contact_email => contact.email, :genes => genes_array})
 
-    contact_array.each do |contact|
-      mailer = NotificationMailer.welcome_email_new(contact)
+      mailer = self.welcome_email_new({:contact_email => contact.email, :genes => genes_array})
       next if ! mailer
 
       ApplicationModel.audited_transaction do
 
-        contact[:genes].each do |gene|
+        genes_array.each do |gene|
           notification = Notification.find gene[:notification_id]
           notification.welcome_email_text = mailer.body.to_s
           notification.welcome_email_sent = Time.now.utc
           notification.save!
         end
 
-        #puts "#### mailer:"
-        #pp mailer
-
         mailer.deliver
       end
     end
+
+    #contact_array.each do |contact|
+    #  mailer = NotificationMailer.welcome_email_new(contact)
+    #  next if ! mailer
+    #
+    #  ApplicationModel.audited_transaction do
+    #
+    #    contact[:genes].each do |gene|
+    #      notification = Notification.find gene[:notification_id]
+    #      notification.welcome_email_text = mailer.body.to_s
+    #      notification.welcome_email_sent = Time.now.utc
+    #      notification.save!
+    #    end
+    #
+    #    mailer.deliver
+    #  end
+    #end
 
   end
 

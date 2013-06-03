@@ -43,6 +43,7 @@ Ext.onReady(initNumberFields);
 Ext.onReady(initDateFields);
 
 $(function() {
+
     builder = new DiagramBuilder({
         frame_id: "holder_mutant",
         width: 850,
@@ -247,6 +248,8 @@ $(function() {
       line_height : 30
     });
 
+
+    // Keep the value of the two fields in sync
     $('.diagram select').live('change', function() {
         var $select = $(this);
         var value   = $select.val();
@@ -265,6 +268,18 @@ $(function() {
 
         var $qc_select = $('#'+matched_id)
         $qc_select.val(value)
+    })
+
+    // Fill the fields on page load
+    $('.qc-details select').each(function() {
+        var $select = $(this);
+        var value   = $select.val();
+        var id      = $select.attr('id');
+
+        matched_id = id.replace(/(mi_attempt_)|(_result)/g, '')
+        console.log(matched_id)
+        var $qc_select = $('#'+matched_id)
+        $qc_select.val(value);
     })
 
 })

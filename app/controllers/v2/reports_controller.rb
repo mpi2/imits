@@ -2,6 +2,8 @@ class V2::ReportsController < ApplicationController
 
   helper :reports
 
+  before_filter :authenticate_user!
+
   def index
     redirect_to reports_path
   end
@@ -19,9 +21,19 @@ class V2::ReportsController < ApplicationController
     @priorities = @report.class.priorities
   end
 
+  def qc_grid_summary
+    @report = QcGridReport::Summary.new
+    @centre_by_consortia = @report.centre_by_consortia
+    @score_averages = @report.generate_report
+  end
+
   def qc_grid
     @report = QcGridReport.new
-    @mi_attempts = @report.mi_attempts
+
+    @report.conditions = params
+    @report.run
+
+    @report_rows = @report.report_rows
   end
 
 end

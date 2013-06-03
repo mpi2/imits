@@ -37,7 +37,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             layout: 'anchor',
             defaults: {
                 anchor: '100%',
-                labelWidth: 150,
+                labelWidth: 160,
                 labelAlign: 'right',
                 labelPad: 10
             },
@@ -89,7 +89,7 @@ Ext.define('Imits.widget.MiPlanEditor', {
             {
                 id: 'is_conditional_allele',
                 xtype: 'simplecheckbox',
-                fieldLabel: 'Conditional allele?',
+                fieldLabel: 'Knockout First tm1a allele?',
                 name: 'is_conditional_allele'
             },
             {
@@ -118,6 +118,13 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 hidden: isSubProjectHidden
             },
             {
+                id: 'conditional_tm1c',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Conditional tm1c allele?',
+                name: 'conditional_tm1c',
+                hidden: isSubProjectHidden
+            },
+            {
                 id: 'comment',
                 xtype: 'textfield',
                 fieldLabel: 'Allele Type Comment',
@@ -131,6 +138,27 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 storeOptionsAreSpecial: true,
                 store: window.SUB_PROJECT_OPTIONS,
                 hidden: isSubProjectHidden
+            },
+            {
+                id: 'number_of_es_cells_received',
+                xtype: 'simplenumberfield',
+                fieldLabel: '# of ES Cells received',
+                name: 'number_of_es_cells_received'
+            },
+            {
+                id: 'es_cells_received_on',
+                xtype: 'datefield',
+                fieldLabel: 'ES Cells received on',
+                name: 'es_cells_received_on',
+                maxValue: new Date(),
+                format: 'd-m-Y'
+            },
+            {
+                id: 'es_cells_received_from_name',
+                xtype: 'simplecombo',
+                fieldLabel: 'ES Cells received from',
+                name: 'es_cells_received_from_name',
+                store: window.PIPELINE_OPTIONS
             },
             {
                 id: 'number_of_es_cells_starting_qc',
@@ -159,6 +187,12 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 name: 'completion_note',
                 storeOptionsAreSpecial: true,
                 store: window.COMPLETION_NOTES
+            },
+            {
+                id: 'ignore_available_mice',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Ignore Available Mice',
+                name: 'ignore_available_mice'
             },
             {
                 id: 'recovery',
@@ -361,9 +395,9 @@ Ext.define('Imits.widget.MiPlanEditor', {
             }
             ]
         });
-        var panelHeight = 560;
+        var panelHeight = 700;
         if(window.CAN_SEE_SUB_PROJECT) {
-            panelHeight = 580;
+            panelHeight = 720;
         }
 
         this.add(Ext.create('Ext.panel.Panel', {

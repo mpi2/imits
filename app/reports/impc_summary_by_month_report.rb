@@ -18,13 +18,14 @@ class ImpcSummaryByMonthReport < BaseSummaryByMonthReport
         'MGP Legacy',
         'MRC',
         'Monterotondo',
+        'Monterotondo R&D',
         'NorCOMM2',
         'Phenomin',
         'RIKEN BRC',
         'UCD-KOMP'
       ]
     end
-    
+
   end
 
 end

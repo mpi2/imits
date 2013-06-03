@@ -1,26 +1,41 @@
 <div class="grid_12">
   <h2>Pipelines</h2>
 
-  <table>
+  <p><%= link_to 'New pipeline', [:new, :targ_rep, :pipeline] %></p>
+
+  <table class='list'>
     <thead>
       <th>Name</th>
+      <th>Description</th>
+      <th>Gene Trap</th>
+      <th>Report to public</th>
       <th></th>
     </thead>
     <tbody>
       <% @pipelines.each do |pipeline| %>
         <tr class="<%= cycle("odd", "even") %>">
-          <td><%=h pipeline.name %></td>
+          <td><%= pipeline.name %></td>
+          <td><%= pipeline.description %></td>
+          <td>
+            <% if pipeline.gene_trap %>
+              <span class="ss_sprite ss_tick">&nbsp;</span>
+            <% else %>
+              <span class="ss_sprite ss_cross">&nbsp;</span>
+            <% end %>
+          </td>
+          <td>
+            <% if pipeline.report_to_public %>
+              <span class="ss_sprite ss_tick">&nbsp;</span>
+            <% else %>
+              <span class="ss_sprite ss_cross">&nbsp;</span>
+            <% end %>
+          </td>
           <td>
             <%= link_to 'view', pipeline, :class => "ss_sprite ss_magnifier" %>
             <%= link_to 'edit', [:edit, pipeline], :class => "ss_sprite ss_pencil" %>
-            <%= link_to 'delete', pipeline, :confirm => 'Are you sure?', :method => :delete, :class => "ss_sprite ss_cross" %>
           </td>
         </tr>
       <% end -%>
     </tbody>
   </table>
-
-  <br />
-
-  <%= link_to 'New pipeline', [:new, :targ_rep, :pipeline] %>
 </div>

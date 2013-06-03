@@ -1,4 +1,4 @@
-unless Rails.env.development?
+unless Rails.env.development? || Rails.env.test?
   Rake::TaskManager.class_eval do
     def remove_task(task_name)
       @tasks.delete(task_name.to_s)

@@ -35,4 +35,10 @@ class RootController < ApplicationController
   def debug_info
   end
 
+  def public_dump
+    file_path = File.join(Rails.application.config.paths['upload_path'].first, 'public_dump.sql.tar.gz')
+
+    send_file file_path, :disposition => 'attachment'
+  end
+
 end

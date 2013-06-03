@@ -73,14 +73,26 @@ class ApplicationController < ActionController::Base
     params[:sorts] = default_sort if(params[:sorts].blank?)
     params.delete(:per_page) if params[:per_page].blank? or params[:per_page].to_i == 0
 
-    result = model_class.send(search_method, params_cleaned_for_search(params)).result(:distinct => select_distinct)
-    result = result.order(params_cleaned_for_sort(params[:sorts])) if params[:sorts]
-    retval = result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
 
-    if format == :json and params[:extended_response].to_s == 'true'
-      return json_format_extended_response(retval, result.count)
+    search_object = model_class.send(search_method, params_cleaned_for_search(params))
+    if search_object
+      result = search_object.result(:distinct => select_distinct)
+      result = result.order(params_cleaned_for_sort(params[:sorts])) if params[:sorts]
+      retval = result.paginate(:page => params[:page], :per_page => params[:per_page] || 20)
+
+      if format == :json and params[:extended_response].to_s == 'true'
+        return json_format_extended_response(retval, result.count)
+      else
+        return retval
+      end
     else
-      return retval
+      if format == :json
+        return {
+          'errors' => 'Incorrect parameters used in request. Please check the documentation for options parameters.'
+        }
+      else
+        return []
+      end
     end
   end
   protected :data_for_serialized
@@ -207,5 +219,17 @@ class ApplicationController < ActionController::Base
     return true
   end
   protected :authorize_user_production_centre
+
+  def empty_payload?(payload)
+    if payload.blank? || payload.is_a?(Hash) && payload.empty?
+      render :json => {
+        'error' => 'Your JSON payload is empty.'
+      }, :status => 400
+      return true
+    end
+
+    return false
+  end
+  protected :empty_payload?
 
 end

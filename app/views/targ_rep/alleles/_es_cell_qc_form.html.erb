@@ -40,27 +40,44 @@
     </td>
   </tr>
   <tr>
+    <th width="24%">Mouse Clinic</th>
+    <td><%= f.collection_select :user_qc_mouse_clinic_name, Centre.all, :name, :name, :prompt => true %></td>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_southern_blot } %>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_map_test } %>
+  </tr>
+  <tr>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_karyotype } %>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_karyotype_spread } %>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_karyotype_pcr } %>
   </tr>
   <tr>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_tv_backbone_assay } %>
-    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_five_prime_lr_pcr } %>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_loss_of_wt_allele } %>
-  </tr>
-  <tr>
-    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_neo_count_qpcr } %>
-    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_lacz_sr_pcr } %>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_five_prime_cassette_integrity } %>
   </tr>
   <tr>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_neo_count_qpcr } %>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_neo_sr_pcr } %>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_mutant_specific_sr_pcr } %>
+  </tr>
+  <tr>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_loxp_confirmation } %>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_loxp_srpcr_and_sequencing } %>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_chry } %>
+  </tr>
+  <tr>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_chr1 } %>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_chr8 } %>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_chr11 } %>
   </tr>
   <tr>
     <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_three_prime_lr_pcr } %>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_five_prime_lr_pcr } %>
+    <td colspan="4"></td>
+  </tr>
+  <tr>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_lacz_sr_pcr } %>
+    <%= render :partial => 'targ_rep/alleles/es_cell_qc_form_select', :locals => { :f => f, :symbol => :user_qc_lacz_qpcr } %>
     <td colspan="4"></td>
   </tr>
   <tr>

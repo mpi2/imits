@@ -61,7 +61,7 @@ class EditMiAttemptsInFormIntegrationTest < TarMits::JsIntegrationTest
       fill_in 'mi_attempt[colony_name]', :with => 'ABCD'
       fill_in 'mi_attempt[total_blasts_injected]', :with => 22
       select 'C57BL/6N', :from => 'mi_attempt[test_cross_strain_name]'
-      select 'pass', :from => 'mi_attempt[qc_southern_blot_result]'
+      select 'pass', :from => 'qc_southern_blot'
       check 'mi_attempt[report_to_public]'
 
       assert_difference 'MiAttempt.count', 0 do

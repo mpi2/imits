@@ -25,6 +25,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     cre_excision_required
     tat_cre
     mi_plan_id
+    status_stamps_attributes
   }
 
   READABLE_ATTRIBUTES = %w{

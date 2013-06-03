@@ -27,6 +27,16 @@ Ext.define('Imits.model.MiPlan', {
         name: 'sub_project_name'
     },
     {
+        name: 'number_of_es_cells_received'
+    },
+    {
+        name: 'es_cells_received_on',
+        type: 'date'
+    },
+    {
+        name: 'es_cells_received_from_name'
+    },
+    {
         name: 'number_of_es_cells_starting_qc'
     },
     {
@@ -76,6 +86,14 @@ Ext.define('Imits.model.MiPlan', {
     },
     {
         name: 'is_conditional_allele',
+        defaultValue: false
+    },
+    {
+        name: 'conditional_tm1c',
+        defaultValue: false
+    },
+    {
+        name: 'ignore_available_mice',
         defaultValue: false
     },
     {

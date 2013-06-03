@@ -54,6 +54,7 @@ Ext.define('Imits.widget.MiGrid', {
                 sortable: false
                 }
             }]
+
     },
 
     constructor: function(config) {

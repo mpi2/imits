@@ -256,13 +256,17 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
 
       should 'be nil if TargRep::EsCell#allele_symbol_superscript_template is nil and mouse_allele_type is not nil' do
-        default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = nil
+        es_cell = default_phenotype_attempt.mi_attempt.es_cell
+        es_cell.allele_symbol_superscript = nil
+        es_cell.save
         default_phenotype_attempt.mouse_allele_type = 'e'
         assert_equal nil, default_phenotype_attempt.mi_attempt.mouse_allele_symbol_superscript
       end
 
       should 'work if mouse_allele_type is present' do
-        default_phenotype_attempt.mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+        es_cell = default_phenotype_attempt.mi_attempt.es_cell
+        es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+        es_cell.save!
         default_phenotype_attempt.mouse_allele_type = 'e'
         assert_equal 'tm2e(KOMP)Wtsi', default_phenotype_attempt.mouse_allele_symbol_superscript
       end
@@ -273,7 +277,8 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
         @es_cell = Factory.create :es_cell_EPD0343_1_H06, :allele => Factory.create(:allele_with_gene_myolc)
         @mi_attempt = Factory.create :mi_attempt2_status_gtc, :es_cell => @es_cell,
           :mi_plan => Factory.create(:mi_plan_with_production_centre, :gene => @es_cell.gene, :force_assignment => true)
-        @mi_attempt.es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+        @es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
+        @es_cell.save!
         @phenotype_attempt = Factory.create :phenotype_attempt, :mi_attempt => @mi_attempt
       end
 

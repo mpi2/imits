@@ -25,7 +25,6 @@ Factory.define :es_cell, :class => TargRep::EsCell do |f|
   f.parental_cell_line  { ['JM8 parental', 'JM8.F6', 'JM8.N19'].sample }
   f.sequence(:mgi_allele_id)    { |n| "MGI:#{n}" }
   f.allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
-  f.mgi_allele_symbol_superscript 'tm1a(EUCOMM)Wtsi'
 
   f.pipeline { TargRep::Pipeline.find_by_name! 'EUCOMM' }
   f.association :allele,   :factory => :allele
@@ -231,8 +230,39 @@ end
 Factory.define :invalid_pipeline, :class => TargRep::Pipeline do |f|
 end
 
+Factory.define :gene_trap, :class => TargRep::GeneTrap do |f|
+  f.sequence(:project_design_id)    { |n| "design id #{n}"}
+  f.sequence(:subtype_description)  { |n| "subtype description #{n}" }
+  f.sequence(:intron)               { (1..10).to_a[rand(10)] }
+  f.sequence(:cassette)             { |n| "cassette #{n}"}
+  f.association :gene, :factory => :gene
 
-Factory.define :allele, :class => TargRep::Allele do |f|
+  f.assembly       "NCBIM37"
+  f.chromosome     { [("1".."19").to_a + ['X', 'Y', 'MT']].flatten[rand(22)] }
+  f.strand         { ['+', '-'][rand(2)] }
+  f.mutation_method { TargRep::MutationMethod.find_by_code('gt') }
+  f.mutation_type    { TargRep::MutationType.find_by_code('gt') }
+  f.mutation_subtype { TargRep::MutationSubtype.all[rand(TargRep::MutationSubtype.all.count)] }
+  f.cassette_type  { ['Promotorless','Promotor Driven'][rand(2)] }
+
+  # Cassette
+  f.cassette_start do |allele|
+    case allele.strand
+      when '+' then 40
+      when '-' then 130
+    end
+  end
+
+  f.cassette_end do |allele|
+    case allele.strand
+      when '+' then 70
+      when '-' then 100
+    end
+  end
+
+end
+
+Factory.define :allele, :class => TargRep::TargetedAllele do |f|
   f.sequence(:project_design_id)    { |n| "design id #{n}"}
   f.sequence(:subtype_description)  { |n| "subtype description #{n}" }
   f.sequence(:cassette)             { |n| "cassette #{n}"}
@@ -314,7 +344,7 @@ Factory.define :allele, :class => TargRep::Allele do |f|
   end
 end
 
-Factory.define :invalid_allele, :class => TargRep::Allele do |f|
+Factory.define :invalid_allele, :class => TargRep::TargetedAllele do |f|
 end
 
 ##
@@ -520,6 +550,14 @@ Factory.define :production_goal do |production_goal|
   production_goal.month 1
   production_goal.mi_goal 123
   production_goal.gc_goal 123
+end
+
+Factory.define :tracking_goal do |tracking_goal|
+  tracking_goal.production_centre { Centre.first }
+  tracking_goal.month (rand(11) + 1)
+  tracking_goal.year (2012..2014).to_a[rand(2)]
+  tracking_goal.goal_type TrackingGoal::GOAL_TYPES[rand(7)]
+  tracking_goal.goal rand(100)
 end
 
 Factory.define :email_template_without_status, :class => EmailTemplate do |email_template|

@@ -103,4 +103,46 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
 
   end
 
+  context 'SolrUpdate::Observer::MiPlan' do
+    should 'enqueue a solr update an mi_plan changes' do
+      mi_plan = stub('mi_plan')
+
+      SolrUpdate::Enqueuer.any_instance.expects(:mi_plan_updated).with(mi_plan)
+
+      o = SolrUpdate::Observer::MiPlan.new
+      o.after_save mi_plan
+    end
+
+    should 'enqueue a solr update when mi_plan is deleted' do
+      mi_plan = stub('mi_plan')
+
+      SolrUpdate::Enqueuer.any_instance.expects(:mi_plan_destroyed).with(mi_plan)
+
+      o = SolrUpdate::Observer::MiPlan.new
+      o.after_destroy mi_plan
+    end
+
+  end
+
+  context 'SolrUpdate::Observer::Gene' do
+    should 'enqueue a solr update an gene changes' do
+      gene = stub('gene')
+
+      SolrUpdate::Enqueuer.any_instance.expects(:gene_updated).with(gene)
+
+      o = SolrUpdate::Observer::Gene.new
+      o.after_save gene
+    end
+
+    should 'enqueue a solr update when gene is deleted' do
+      gene = stub('gene')
+
+      SolrUpdate::Enqueuer.any_instance.expects(:gene_destroyed).with(gene)
+
+      o = SolrUpdate::Observer::Gene.new
+      o.after_destroy gene
+    end
+
+  end
+
 end

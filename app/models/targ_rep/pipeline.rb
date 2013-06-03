@@ -8,8 +8,8 @@ class TargRep::Pipeline < ActiveRecord::Base
   ## Associations
   ##
 
-  has_many :targeting_vectors, :dependent => :destroy, :class_name => "TargRep::TargetingVector"
-  has_many :es_cells, :dependent => :destroy, :class_name => "TargRep::EsCell"
+  has_many :targeting_vectors, :class_name => "TargRep::TargetingVector"
+  has_many :es_cells, :class_name => "TargRep::EsCell"
 
   ##
   ## Validations
@@ -19,6 +19,8 @@ class TargRep::Pipeline < ActiveRecord::Base
     :uniqueness => {:message => 'has already been taken'},
     :presence => true
 
+  scope :targeted, where(:gene_trap => false)
+  scope :gene_trap, where(:gene_trap => true)
 
 end
 

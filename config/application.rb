@@ -14,7 +14,7 @@ module TarMits
 
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
-    config.autoload_paths += %W(#{config.root}/lib #{config.root}/reports)
+    config.autoload_paths += %W(#{config.root}/lib #{config.root}/reports #{config.root}/presenters)
 
     if Rails.env.test?
       config.autoload_paths += %W(#{config.root}/test/lib)
@@ -33,7 +33,8 @@ module TarMits
       'SolrUpdate::Observer::PhenotypeAttempt',
       'SolrUpdate::Observer::DistributionCentres',
       'SolrUpdate::Observer::Allele',
-      'SolrUpdate::Observer::EsCell'
+      'SolrUpdate::Observer::EsCell',
+      'SolrUpdate::Observer::MiPlan'
     ]
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
@@ -58,6 +59,7 @@ module TarMits
     require 'solr_update'
 
     config.paths['intermediate_report_log'] = 'log/intermediate_report.log'
+    config.paths['upload_path'] = File.join(Rails.root, 'uploads')
 
     if File.expand_path(__FILE__).match %r{^/opt/t87/global}
       require('/opt/t87/global/lib/config_rails_app'); VM.config_rails_app(config)

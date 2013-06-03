@@ -1,13 +1,14 @@
 class TargRep::Allele < ActiveRecord::Base
+  
   acts_as_audited
 
   extend AccessAssociationByAttribute
   ##
   ## Associations
   ##
-  belongs_to :mutation_method,  :class_name => "TargRep::MutationMethod"
-  belongs_to :mutation_type,    :class_name => "TargRep::MutationType"
-  belongs_to :mutation_subtype, :class_name => "TargRep::MutationSubtype"
+  belongs_to :mutation_method, :class_name => 'TargRep::MutationMethod'
+  belongs_to :mutation_type, :class_name => 'TargRep::MutationType'
+  belongs_to :mutation_subtype, :class_name => 'TargRep::MutationSubtype'
   belongs_to :gene
 
   access_association_by_attribute :gene, :mgi_accession_id
@@ -15,9 +16,9 @@ class TargRep::Allele < ActiveRecord::Base
   access_association_by_attribute :mutation_type,    :name
   access_association_by_attribute :mutation_subtype, :name
 
-  has_one    :genbank_file,      :dependent => :destroy, :class_name => "TargRep::GenbankFile"
-  has_many   :targeting_vectors, :dependent => :destroy, :class_name => "TargRep::TargetingVector"
-  has_many   :es_cells,          :dependent => :destroy, :class_name => "TargRep::EsCell" do
+  has_one    :genbank_file,      :dependent => :destroy, :foreign_key => 'allele_id'
+  has_many   :targeting_vectors, :dependent => :destroy, :foreign_key => 'allele_id'
+  has_many   :es_cells,          :dependent => :destroy, :foreign_key => 'allele_id' do
     def unique_public_info
       info_map = ActiveSupport::OrderedHash.new
 
@@ -67,8 +68,6 @@ class TargRep::Allele < ActiveRecord::Base
   validates :strand,             :presence => true
   validates :mutation_method,    :presence => true
   validates :mutation_type,      :presence => true
-  validates :homology_arm_start, :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
-  validates :homology_arm_end,   :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
   validates :cassette_start,     :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
   validates :cassette_end,       :presence => true, :numericality => {:only_integer => true, :greater_than => 0}
   validates :cassette,           :presence => true
@@ -333,6 +332,7 @@ class TargRep::Allele < ActiveRecord::Base
     end
 
 end
+
 
 # == Schema Information
 #

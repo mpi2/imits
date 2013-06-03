@@ -20,12 +20,14 @@
     </p>
     <p><strong>Cassette:</strong> <%= @allele.cassette %></p>
     <p><strong>Cassette Type:</strong> <%= @allele.cassette_type %></p>
-    <p><strong>Backbone:</strong> <%= @allele.backbone %></p>
-    <% if @allele.floxed_start_exon == @allele.floxed_end_exon %>
-      <p><strong>Floxed Exon:</strong> <%= @allele.floxed_start_exon %></p>
-    <% else %>
-      <p><strong>First Floxed Exon:</strong> <%= @allele.floxed_start_exon %></p>
-      <p><strong>Last Floxed Exon:</strong> <%= @allele.floxed_end_exon %></p>
+    <% unless gene_trap? %>
+      <p><strong>Backbone:</strong> <%= @allele.backbone %></p>
+      <% if @allele.floxed_start_exon == @allele.floxed_end_exon %>
+        <p><strong>Floxed Exon:</strong> <%= @allele.floxed_start_exon %></p>
+      <% else %>
+        <p><strong>First Floxed Exon:</strong> <%= @allele.floxed_start_exon %></p>
+        <p><strong>Last Floxed Exon:</strong> <%= @allele.floxed_end_exon %></p>
+      <% end %>
     <% end %>
   </fieldset>
 </div>
@@ -40,21 +42,25 @@
         <th>End</th>
       </thead>
       <tbody>
-        <tr>
-          <td>Homology Arm</td>
-          <td><%= @allele.homology_arm_start %></td>
-          <td><%= @allele.homology_arm_end %></td>
-        </tr>
+        <% unless gene_trap? %>
+          <tr>
+            <td>Homology Arm</td>
+            <td><%= @allele.homology_arm_start %></td>
+            <td><%= @allele.homology_arm_end %></td>
+          </tr>
+        <% end %>
         <tr class="even">
           <td>Cassette</td>
           <td><%= @allele.cassette_start %></td>
           <td><%= @allele.cassette_end %></td>
         </tr>
-        <tr>
-          <td>LoxP</td>
-          <td><%= @allele.loxp_start %></td>
-          <td><%= @allele.loxp_end %></td>
-        </tr>
+        <% unless gene_trap? %>
+          <tr>
+            <td>LoxP</td>
+            <td><%= @allele.loxp_start %></td>
+            <td><%= @allele.loxp_end %></td>
+          </tr>
+        <% end %>
       </tbody>
     </table>
   </fieldset>
@@ -84,12 +90,14 @@
   </fieldset>
 </div>
 
-<div class="grid_12">
-  <fieldset>
-    <legend>Targeting Vectors</legend>
-    <%= render :partial => 'show_targeting_vectors' %>
-  </fieldset>
-</div>
+<% unless gene_trap? %>
+  <div class="grid_12">
+    <fieldset>
+      <legend>Targeting Vectors</legend>
+      <%= render :partial => 'show_targeting_vectors' %>
+    </fieldset>
+  </div>
+<% end %>
 
 <div class="grid_12">
   <fieldset>
@@ -100,10 +108,10 @@
 
 <% if current_user %>
 <div class="grid_12">
-  <a href="<%= edit_targ_rep_allele_path(@allele) %>" class="button">
+  <a href="<%= url_for([:edit, @allele]) %>" class="button">
     <%= image_tag "icons/pencil.png", :alt => "" %> Edit
   </a>
-  <a href="<%= url_for(targ_rep_alleles_path) %>" class="button negative">
+  <a href="<%= url_for(gene_trap? ? [:targ_rep, :gene_traps] : [:targ_rep, :alleles]) %>" class="button negative">
     <%= image_tag "targ_rep/led-icons/cross.png", :alt => "" %> Back
   </a>
 </div>

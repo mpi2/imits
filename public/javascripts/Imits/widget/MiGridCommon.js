@@ -510,6 +510,12 @@ Ext.define('Imits.widget.MiGridCommon', {
             editor: 'qccombo'
         },
         {
+            dataIndex: 'qc_lacz_count_qpcr_result',
+            header: 'Lacz Count QPCR',
+            sortable: false,
+            editor: 'qccombo'
+        },
+        {
             dataIndex: 'qc_neo_sr_pcr_result',
             header: 'Neo SR PCR',
             sortable: false,
@@ -548,6 +554,24 @@ Ext.define('Imits.widget.MiGridCommon', {
         {
             dataIndex: 'qc_three_prime_lr_pcr_result',
             header: 'Three Prime LR PCR',
+            sortable: false,
+            editor: 'qccombo'
+        },
+        {
+            dataIndex: 'qc_critical_region_qpcr_result',
+            header: 'Critical Region QPCR',
+            sortable: false,
+            editor: 'qccombo'
+        },
+        {
+            dataIndex: 'qc_loxp_srpcr_result',
+            header: 'Loxp SRPCR',
+            sortable: false,
+            editor: 'qccombo'
+        },
+        {
+            dataIndex: 'qc_loxp_srpcr_and_sequencing_result',
+            header: 'Loxp SRPRC and Sequencing',
             sortable: false,
             editor: 'qccombo'
         },

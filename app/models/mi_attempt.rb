@@ -16,13 +16,17 @@ class MiAttempt < ApplicationModel
     :qc_five_prime_cassette_integrity,
     :qc_tv_backbone_assay,
     :qc_neo_count_qpcr,
+    :qc_lacz_count_qpcr,
     :qc_neo_sr_pcr,
     :qc_loa_qpcr,
     :qc_homozygous_loa_sr_pcr,
     :qc_lacz_sr_pcr,
     :qc_mutant_specific_sr_pcr,
     :qc_loxp_confirmation,
-    :qc_three_prime_lr_pcr
+    :qc_three_prime_lr_pcr,
+    :qc_critical_region_qpcr,
+    :qc_loxp_srpcr,
+    :qc_loxp_srpcr_and_sequencing
   ].freeze
 
   belongs_to :mi_plan
@@ -46,6 +50,8 @@ class MiAttempt < ApplicationModel
     belongs_to qc_field, :class_name => 'QcResult'
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
+
+  accepts_nested_attributes_for :status_stamps
 
   protected :status=
 
@@ -287,14 +293,6 @@ class MiAttempt < ApplicationModel
       'consortium_name'         => 'mi_plan_consortium_name',
       'production_centre_name'  => 'mi_plan_production_centre_name'
     }
-  end
-
-  def self.public_search(params)
-    translated_params = {}
-    params.stringify_keys.each do |name, value|
-      translated_params[translate_public_param(name)] = value
-    end
-    return self.search(translated_params)
   end
 
   def in_progress_date

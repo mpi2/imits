@@ -24,6 +24,12 @@
 <div class="grid_6">
   <fieldset>
     <legend>Genomic Position</legend>
+    <% if gene_trap? %>
+      <p>
+        <%= f.label :intron %><br />
+        <%= f.text_field :intron, :class => 'text short' %>
+      </p>
+    <% end %>
     <p>
       <%= f.label :chromosome %><br />
       <% chromosomes = ('1'..'19').to_a.push('X').push('Y').push('MT').unshift('') %>
@@ -43,11 +49,12 @@
     <legend>Design Details</legend>
     <p>
       <%= f.label :mutation_method_id, "Mutation Method" %><br />
-      <%= f.collection_select :mutation_method_id, @mutation_method, :id, :name, :include_blank => true  %>
+      <%= f.text_field :mutation_method_id, :value => 'Gene Trap', :disabled => true, :class => :text  %>
     </p>
     <p>
       <%= f.label :mutation_type_id, "Mutation Type" %><br />
-      <%= f.collection_select :mutation_type_id, @mutation_type, :id, :name, :include_blank => true  %>
+      <%= f.text_field :mutation_type_name, :value => 'Gene Trap', :disabled => true, :class => :text  %>
+
     </p>
     <p>
       <%= f.label :mutation_subtype_id, "Mutation Subtype" %><br />
@@ -65,32 +72,36 @@
       <%= f.label :cassette_type %><br />
       <%= f.select :cassette_type, ['','Promotorless', 'Promotor Driven'] %>
     </p>
-    <p>
-      <%= f.label :backbone %><br />
-      <%= f.text_field :backbone, :class => :text %>
-    </p>
-    <p>
-      <%= f.label :floxed_start_exon, "First Floxed Exon" %><br />
-      <%= f.text_field :floxed_start_exon, :class => :text %>
-    </p>
-    <p>
-      <%= f.label :floxed_end_exon, "Last Floxed Exon" %><br />
-      <%= f.text_field :floxed_end_exon, :class => :text %>
-    </p>
+    <% unless gene_trap? %>
+      <p>
+        <%= f.label :backbone %><br />
+        <%= f.text_field :backbone, :class => :text %>
+      </p>
+      <p>
+        <%= f.label :floxed_start_exon, "First Floxed Exon" %><br />
+        <%= f.text_field :floxed_start_exon, :class => :text %>
+      </p>
+      <p>
+        <%= f.label :floxed_end_exon, "Last Floxed Exon" %><br />
+        <%= f.text_field :floxed_end_exon, :class => :text %>
+      </p>
+    <% end %>
   </fieldset>
 </div>
 
 <div class="grid_6">
   <fieldset>
     <legend>Molecular Co-Ordinates</legend>
-    <p>
-      <%= f.label :homology_arm_start, "Homology Arm Start" %><br />
-      <%= f.text_field :homology_arm_start, :class => :text %>
-    </p>
-    <p>
-      <%= f.label :homology_arm_end, "Homology Arm End" %><br />
-      <%= f.text_field :homology_arm_end, :class => :text %>
-    </p>
+    <% unless gene_trap? %>
+      <p>
+        <%= f.label :homology_arm_start, "Homology Arm Start" %><br />
+        <%= f.text_field :homology_arm_start, :class => :text %>
+      </p>
+      <p>
+        <%= f.label :homology_arm_end, "Homology Arm End" %><br />
+        <%= f.text_field :homology_arm_end, :class => :text %>
+      </p>
+    <% end %>
     <p>
       <%= f.label :cassette_start, "Cassette Start" %><br />
       <%= f.text_field :cassette_start, :class => :text %>
@@ -99,21 +110,22 @@
       <%= f.label :cassette_end, "Cassette End" %><br />
       <%= f.text_field :cassette_end, :class => :text %>
     </p>
-    <p>
-      <%= f.label :loxp_start, "LoxP Start" %><br />
-      <%= f.text_field :loxp_start, :class => :text %>
-    </p>
-    <p>
-      <%= f.label :loxp_end, "LoxP End" %><br />
-      <%= f.text_field :loxp_end, :class => :text %>
-    </p>
+    <% unless gene_trap? %>
+      <p>
+        <%= f.label :loxp_start, "LoxP Start" %><br />
+        <%= f.text_field :loxp_start, :class => :text %>
+      </p>
+      <p>
+        <%= f.label :loxp_end, "LoxP End" %><br />
+        <%= f.text_field :loxp_end, :class => :text %>
+      </p>
+    <% end %>
   </fieldset>
 </div>
 
 <div class="grid_12 clear"></div>
 
 <!-- Genbank files handling. -->
-
 <% f.fields_for :genbank_file do |genbank_form| -%>
   <%= genbank_form.hidden_field :nested %>
   <div class="grid_6">
@@ -127,31 +139,33 @@
   </div>
 <% end -%>
 
-<div class="grid_12 clear"></div>
+<% unless gene_trap? %>
+  <div class="grid_12 clear"></div>
 
-<!-- Targeting vectors handling. -->
+  <!-- Targeting vectors handling. -->
 
-<div class="grid_12">
-  <h3>Targeting Vectors</h3>
-  <table class="list">
-    <thead>
-      <tr>
-        <th>Pipeline</th>
-        <th>IKMC Project ID</th>
-        <th>Targeting Vector</th>
-        <th>Intermediate Vector</th>
-        <th>Report to Public</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="targeting_vectors">
-      <%= f.fields_for :targeting_vectors do |targ_vec_form| %>
-        <%= render :partial => 'targ_rep/alleles/targ_vec_form', :locals => { :f => targ_vec_form } %>
-      <% end -%>
-    </tbody>
-  </table>
-  <p><%= add_targ_vec_link(f) %></p>
-</div>
+  <div class="grid_12">
+    <h3>Targeting Vectors</h3>
+    <table class="list">
+      <thead>
+        <tr>
+          <th>Pipeline</th>
+          <th>IKMC Project ID</th>
+          <th>Targeting Vector</th>
+          <th>Intermediate Vector</th>
+          <th>Report to Public</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="targeting_vectors">
+        <%= f.fields_for :targeting_vectors do |targ_vec_form| %>
+          <%= render :partial => 'targ_rep/alleles/targ_vec_form', :locals => { :f => targ_vec_form } %>
+        <% end -%>
+      </tbody>
+    </table>
+    <p><%= add_targ_vec_link(f) %></p>
+  </div>
+<% end %>
 
 <div class="grid_12 clear"></div>
 

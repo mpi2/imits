@@ -10,10 +10,12 @@ class AuditRevisionFormatter
       'colony_background_strain_id' => {klass: Strain},
       'test_cross_strain_id' => {klass: Strain},
       'deleter_strain_id' => {klass: Strain},
-      'gene_id' => {klass: Gene, attr: 'marker_symbol'}
+      'gene_id' => {klass: Gene, attr: 'marker_symbol'},
+      'es_cell_id' => {klass: TargRep::EsCell}
     }.each do |easy_fkey, opts|
       klass = opts[:klass]
       attr = opts[:attr] || :name
+
       TRANSLATIONS[easy_fkey] = proc {|values, opts| values.map {|i| klass.find_by_id(i).try(attr) } }
     end
 
@@ -23,8 +25,20 @@ class AuditRevisionFormatter
       'sub_project_id',
       'es_cell_id'
     ].each do |fkey|
-      klass_name = fkey.gsub(/_id$/, '').camelize.to_sym
-      TRANSLATIONS[fkey] = proc {|values, opts| values.map {|i| opts[:model].const_get(klass_name).find_by_id(i).try(:name) } }
+      klass_name = fkey.gsub(/_id$/, '').camelize
+      TRANSLATIONS[fkey] = proc do |values, opts|
+        values.map do |i|
+          if ['EsCell', 'TargRep::EsCell'].include?(klass_name)
+            klass_name = "TargRep::EsCell"
+          elsif ['Status', 'Priority', 'SubProject'].include?(klass_name)
+            klass_name = "#{opts[:model].to_s}::#{klass_name}"
+          end
+
+          Rails.logger.info klass_name
+
+          klass_name.constantize.find_by_id(i).try(:name)
+        end
+      end
     end
 
     TRANSLATIONS.freeze

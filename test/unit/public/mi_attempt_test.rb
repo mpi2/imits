@@ -56,6 +56,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         qc_five_prime_cassette_integrity_result
         qc_tv_backbone_assay_result
         qc_neo_count_qpcr_result
+        qc_lacz_count_qpcr_result
         qc_neo_sr_pcr_result
         qc_loa_qpcr_result
         qc_homozygous_loa_sr_pcr_result
@@ -63,12 +64,16 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         qc_mutant_specific_sr_pcr_result
         qc_loxp_confirmation_result
         qc_three_prime_lr_pcr_result
+        qc_critical_region_qpcr_result
+        qc_loxp_srpcr_result
+        qc_loxp_srpcr_and_sequencing_result
         report_to_public
         is_active
         is_released_from_genotyping
         comments
         genotyping_comment
         mi_plan_id
+        status_stamps_attributes
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -123,6 +128,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         qc_five_prime_cassette_integrity_result
         qc_tv_backbone_assay_result
         qc_neo_count_qpcr_result
+        qc_lacz_count_qpcr_result
         qc_neo_sr_pcr_result
         qc_loa_qpcr_result
         qc_homozygous_loa_sr_pcr_result
@@ -130,6 +136,9 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         qc_mutant_specific_sr_pcr_result
         qc_loxp_confirmation_result
         qc_three_prime_lr_pcr_result
+        qc_critical_region_qpcr_result
+        qc_loxp_srpcr_result
+        qc_loxp_srpcr_and_sequencing_result
         report_to_public
         is_active
         is_released_from_genotyping

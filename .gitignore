@@ -5,10 +5,9 @@ config/database.targ_rep.yml
 config/database.yml
 coverage/*
 public/javascripts/all.js
+uploads
 sqlnet.log
 db/dump.*.sql
 .bundle/config
 .DS_Store
 *.log
-db/test_structure.sql
-db/structure.sql

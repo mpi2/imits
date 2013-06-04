@@ -296,7 +296,7 @@ $.fn.efficiencyGraph = function() {
 
         var chart = new CanvasJS.Chart(id, {
             axisY: {
-                title: 'Score',
+                title: 'Efficiency',
                 maximum: 1,
                 minimum: 0
             },

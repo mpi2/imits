@@ -48,8 +48,8 @@
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjection aborted", :centre => centre) %></td>
             <!--<td><%= efficiency_percentage(@gene_efficiency_totals, row['consortium'], centre) %></td>-->
             <!--<td><%= efficiency_percentage(@clone_efficiency_totals, row['consortium'], centre) %></td>-->
-            <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-gtc_count_efficiency"].to_i, genes_gt_mi_attempt_summary_path(:centres => centre, :consortium_name => row['consortium'])) %></td>
-            <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-total_count_efficiency"].to_i, all_mi_attempt_summary_path(:centres => centre, :consortium_name => row['consortium'])) %></td>
+            <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-gtc_count_efficiency"].to_i, genes_gt_mi_attempt_summary_path(:centres => centre, :consortia => row['consortium'])) %></td>
+            <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-total_count_efficiency"].to_i, all_mi_attempt_summary_path(:centres => centre, :consortia => row['consortium'])) %></td>
             <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-effort_efficiency"].to_f.round(2), sliding_efficiency_path(:production_centre_name => centre, :consortium_name => row['consortium'])) %></td>
           </tr>
 

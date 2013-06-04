@@ -193,7 +193,8 @@ $(function() {
     builder.addTextBox({
       name: 'qc_southern_blot',
       title: 'Southern Blot',
-      value: ''
+      value: '',
+      labelPosition: 'above'
     })
 
     builder.addTextBox({
@@ -215,8 +216,7 @@ $(function() {
       title: 'LOCP SRPCR and sequencing',
       value: '',
       offsetY: -305,
-      offsetX: 194,
-      labelPosition: 'bottom'
+      offsetX: 194
     })
 
     //

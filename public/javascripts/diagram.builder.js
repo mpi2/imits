@@ -473,13 +473,9 @@ function DiagramBuilder(options, width, height) {
     spacing = 25
     this._attributes.textBoxLeft = this._attributes.textWidth + left + spacing;
 
-    if(this._textFields.length % 2 == 0) {
+    if(options.labelPosition && options.labelPosition == 'above') {
       p = { my: "bottomMiddle", at:"topMiddle" }
     } else {
-      p = { my: "topMiddle", at:"bottomMiddle" }
-    }
-
-    if(options.labelPosition && options.labelPosition == 'bottom') {
       p = { my: "topMiddle", at:"bottomMiddle" }
     }
 

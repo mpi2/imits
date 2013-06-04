@@ -432,10 +432,29 @@ function DiagramBuilder(options, width, height) {
     return field;
   }
 
-  DiagramBuilder.prototype.addTextBox = function(name, title, value) {
+  DiagramBuilder.prototype.addTextBox = function(options) {
 
-    left = this._attributes.textBoxLeft ? this._attributes.textBoxLeft : 20
-    bottom = 20
+    default_options = {
+      name   : '',
+      value  : '',
+      title  : '',
+      offset : 20,
+      offsetY : 0,
+      offsetX : 0
+    }
+
+    //Use default or user specified line_options
+    options = $.extend({}, default_options, options);
+
+    name  = options.name
+    value = options.value
+    title = options.title
+
+    left = this._attributes.textBoxLeft ? this._attributes.textBoxLeft : options.offset
+    bottom = options.offset
+
+    left   = left + options.offsetX;
+    bottom = bottom - options.offsetY;
 
     //make a new input field and position it relative to the provided box
     //var field = $("<input type='text' name='" + name + "' id='" + name + "' value='" + defaultValue + "' placeholder='"+title+"' />")
@@ -457,6 +476,10 @@ function DiagramBuilder(options, width, height) {
     if(this._textFields.length % 2 == 0) {
       p = { my: "bottomMiddle", at:"topMiddle" }
     } else {
+      p = { my: "topMiddle", at:"bottomMiddle" }
+    }
+
+    if(options.labelPosition && options.labelPosition == 'bottom') {
       p = { my: "topMiddle", at:"bottomMiddle" }
     }
 
@@ -495,7 +518,9 @@ function DiagramBuilder(options, width, height) {
       //what if they're not level? everything will break.
       y_offset    : 10,   //how much space to leave below the elements
       line_height : 80,   //height of the label
-      text_offset : 15    //how far the text is from the line
+      text_offset : 15,    //how far the text is from the line
+      positionY: 0,
+      positionX: 0
     }
 
     //Use default or user specified line_options
@@ -518,6 +543,10 @@ function DiagramBuilder(options, width, height) {
       coords.yCentre = coords.y - line_options.line_height/2;
     }
 
+    coords.y = coords.y + line_options.positionY
+    coords.y2 = coords.y2 + line_options.positionY
+    coords.yCentre = coords.yCentre + line_options.positionY
+
     //done like this so the user can provide the more readable "start to end"
     var position_re = /(start|end).*(start|end)/i;
     var match = position_re.exec(line_options.position);
@@ -527,8 +556,12 @@ function DiagramBuilder(options, width, height) {
       coords.x = (match[1] == "end") ? first_coords.x2 : first_coords.x;
       coords.x2 = (match[2] == "start") ? second_coords.x : second_coords.x2;
       coords.xCentre = coords.x + Math.abs(coords.x - coords.x2)/2;
-    }
-    else {
+
+      coords.x = coords.x + line_options.positionX;
+      coords.x2 = coords.x2 + line_options.positionX;
+      coords.xCentre = coords.xCentre + line_options.positionX;
+
+    } else {
       throw("Invalid position given to addLabel:" + line_options.position);
     }
 

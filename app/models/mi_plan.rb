@@ -215,13 +215,7 @@ class MiPlan < ApplicationModel
   end
 
   def default_pipeline
-    @default_pipeline ||= if mi_attempts.empty?
-      gene.allele.first.try(:es_cells).try(:first).try(:pipeline)
-    elsif phenotype_attempts.empty?
-      self.phenotype_attempts.first.try(:es_cell).try(:pipeline)
-    else
-      self.mi_attempts.first.try(:es_cell).try(:pipeline)
-    end
+    @default_pipeline ||= self.mi_attempts.first.try(:es_cell).try(:pipeline)
   end
 
   def latest_relevant_mi_attempt

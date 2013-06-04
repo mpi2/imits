@@ -296,8 +296,6 @@ $.fn.efficiencyGraph = function() {
             dataPoints.push({label: labels[i], y: y[i]})         
         }
 
-        console.log(dataPoints)
-
         CanvasJS.addColorSet("blue", ['#2f69bf'])
 
         var chart = new CanvasJS.Chart(id, {
@@ -343,8 +341,6 @@ $.fn.efficiencyGraph = function() {
         for(var i=0; i<labels.length; i++) {
             dataPoints.push({label: labels[i], y: y[i]})         
         }
-
-        console.log(dataPoints)
 
         CanvasJS.addColorSet("blue", ['#2f69bf'])
         CanvasJS.addColorSet("green", ['green'])

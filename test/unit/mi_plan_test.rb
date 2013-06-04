@@ -1289,15 +1289,5 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_true mi_plan.save
       end
     end
-
-    context '#number_of_es_cells_received' do
-      should_eventually 'be populated by \'number_of_es_cells_starting_qc\' if blank and es_cells start qc' do
-        mi_plan = Factory.create :mi_plan
-        mi_plan.number_of_es_cells_starting_qc = 1
-        mi_plan.save
-        
-        assert_equal 1, mi_plan.number_of_es_cells_received
-      end
-    end
   end
 end

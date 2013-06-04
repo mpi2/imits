@@ -20,6 +20,8 @@ class PhenotypeAttempt < ApplicationModel
 
   access_association_by_attribute :colony_background_strain, :name
 
+  accepts_nested_attributes_for :status_stamps
+
   protected :status=
 
   validates :mi_attempt, :presence => true

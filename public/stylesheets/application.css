@@ -354,15 +354,19 @@ div#messages {
   margin-top:1em;
 }
 
-.report.production_summary table.descriptions td {
+.report table.descriptions thead th {
   text-align:left;
 }
 
-.report.production_summary table.descriptions th span {
+.report table.descriptions td {
+  text-align:left;
+}
+
+.report table.descriptions th span {
   color:red;
 }
 
-.report.production_summary table.descriptions tbody th {
+.report table.descriptions tbody th {
   background:#fff;
   font-weight:bold;
   width:250px;
@@ -726,71 +730,152 @@ div#mpi2-search table th {
   }
 
 .product  {
-    width: 6%;
+    padding: 0.5em;
 }
-.allele-type  {
-    width: 8%;
+.allele-type {
+    padding: 0.5em;
 }
 .strain-of-origin  {
-    width: 10%;
+    padding: 0.5em;
 }
 .mgi-allele-name  {
-    width: 14%;
+    padding: 0.5em;
 }
 .allele-map  {
-    width: 40%;
+    padding: 0.5em;
 }
-.allele-sequrnce  {
-    width: 12%;
+.allele-sequence  {
+    padding: 0.5em;
 }
-.order th, tr  {
-    width: 10%;
+.order  {
+    padding: 0.5em;
+}
+
+.gene {
+    padding: 0.5em;
 }
 .latest-status {
-    width: 80%;
+    padding: 0.5em;
+}
+.gene th {
+    width: 38%;
+}
+.latest-status th{
+    width: 62%;
 }
 
-.report table.qc_grid {
+.report.qc_report {
+  min-width: 816px;
+}
+
+.report.qc_report .qc_grid {
   border:1px solid #efefef;
   margin-bottom:30px;
+  float:left;
+  background:#efefef;
 }
 
-.report table.qc_grid tbody td span {
-  display: none;
+/* QC grid report */
+
+.report.qc_report h2:first-child {
+  border-top-width:0;
 }
 
-.report table.qc_grid tbody td.text span {
-  display: inline;
+.report.qc_report h2 {
+  border-top:1px solid #ddd;
+  padding-top:20px;
+  clear:both;
 }
 
-.report table.qc_grid tbody td.qc {
-  width:5px;
-  height:5px;
+.report.qc_report h3 {
+  clear:both;
+}
+
+.report.qc_report .qc_grid .qc_row {
+  overflow:hidden;
+  clear:both;
+}
+
+.report.qc_report .qc_grid .qc {
+  float:left;
+  width:6px;
+  height:6px;
   border-width:0;
+  clear:none;
 }
 
-.report table.qc_grid tbody td.pass {
+.report.qc_report .qc_grid .qc_row .pass {
   background-color:green;
 }
 
-.report table.qc_grid tbody td.fail {
+.report.qc_report .qc_grid .qc_row .fail {
   background-color:red;
 }
 
-.report table.qc_grid tbody td.na {
+.report.qc_report .qc_grid .qc_row .na {
   background-color:#fff;
 }
 
-.report table.qc_grid tbody td.right-border {
+.report.qc_report .qc_grid .qc_row .score {
+  width:10px;
+}
+
+.report.qc_report .qc_grid .qc_row .score_1 {
+  background-color:#290410;
+}
+
+.report.qc_report .qc_grid .qc_row .score_2 {
+  background-color:#691932;
+}
+
+.report.qc_report .qc_grid .qc_row .score_3 {
+  background-color:#902342;
+}
+
+.report.qc_report .qc_grid .qc_row .score_4 {
+  background-color:#CB4A83;
+}
+
+.report.qc_report .qc_grid .qc_row .score_5 {
+  background-color:#F68BCF;
+}
+
+.report.qc_report .qc_grid .qc_row .score_6 {
+  background-color:#F8A8F1;
+}
+
+.report.qc_report .qc_grid .qc_row .right-border {
   border-right:1px solid #999;
 }
 
-.report table.qc_grid tbody td:hover .cell-popup {
-  display:block;
+.report.qc_report .qc_grid .qc_row .spacing {
+  margin-right:20px;
 }
 
-.report table.qc_grid tbody td .cell-popup {
-  width:300px;
+.report.qc_report .qc_grid_key {
+  float:right;
+  margin-left:40px;
+  padding:20px;
+  border:4px solid #efefef
+}
+
+.report.qc_report .qc_grid_key img {
+  display:block;
+  margin-bottom:10px;
+}
+
+.report.qc_report .qc_grid_key div {
+  float:left;
+  margin-top:20px;
+  margin-left:20px;
+}
+
+.report.qc_report .qc_grid_key table {
+  float:left;
+}
+
+.report.qc_report .cell-popup {
+  width:400px;
   position:absolute;
   font-size:.75em;
   display:none;
@@ -803,24 +888,146 @@ div#mpi2-search table th {
   border-radius:4px;
   -webkit-border-radius:4px;
   -moz-border-radius:4px;
+
+  overflow:hidden;
 }
 
-.report table.qc_grid tbody td .cell-popup dt {
+.report.qc_report .cell-popup dl {
+  overflow:hidden;
+}
+
+.report.qc_report .cell-popup dt {
   clear:left;
   float:left;
   width:150px;
   font-weight:bold;
 }
 
-.report table.qc_grid tbody td .cell-popup dt.qc_result, .report table.qc_grid tbody td .cell-popup dd.qc_result {
+.report.qc_report .cell-popup dt.qc_result, .report.qc_report .cell-popup dd.qc_result {
   font-weight:bold;
 }
 
-.report.qc h2:first-child {
-  border-top-width:0;
+.report.qc_report table thead th {
+  text-align:center;
 }
 
-.report.qc h2 {
-  border-top:1px solid #ddd;
-  padding-top:20px;
+.report.qc_report table.descriptions thead th {
+  text-align:left;
+}
+
+.report.qc_report table.descriptions.key {
+  margin-bottom:20px;
+}
+
+.report.qc_report table.descriptions.key td.pass {
+  background-color:green;
+}
+
+.report.qc_report table.descriptions.key td.fail {
+  background-color:red;
+}
+
+.report.qc_report table.descriptions.key td.na {
+  background-color:#fff;
+}
+
+.report.qc_report table.descriptions.key td.score_1 {
+  background-color:#290410;
+}
+
+.report.qc_report table.descriptions.key td.score_2 {
+  background-color:#691932;
+}
+
+.report.qc_report table.descriptions.key td.score_3 {
+  background-color:#902342;
+}
+
+.report.qc_report table.descriptions.key td.score_4 {
+  background-color:#CB4A83;
+}
+
+.report.qc_report table.descriptions.key td.score_5 {
+  background-color:#F68BCF;
+}
+
+.report.qc_report table.descriptions.key td.score_6 {
+  background-color:#F8A8F1;
+}
+
+.report.qc_report table .histo {
+  width:200px;
+  height:40px;
+}
+
+.report.qc_report table td.column_hover {
+  color:#fff;
+}
+
+.report.qc_report table td.column_hover.targeting_score_cell {
+  background:#FF6B6B;
+}
+.report.qc_report table td.column_hover.cassette_score_cell {
+  background:#C7F464;
+  color:#556270;
+}
+.report.qc_report table td.column_hover.threep_loxp_score_cell {
+  background:#4ECDC4;
+}
+.report.qc_report table td.column_hover.insertion_score_cell {
+  background:#556270;
+}
+
+.report.qc_report p {
+  font-weight:normal;
+  font-size:1em;
+  font-family: Verdana, sans-serif;
+  margin:10px 0;
+}
+
+/* MiAttempt QC image */
+
+#qcimage {
+
+}
+
+#qcimage .diagram {
+  position:relative;
+}
+
+#qcimage .diagram h3 {
+  position:absolute;
+  bottom:0px;
+  right:30px;
+  font-size:1.8em;
+  font-weight:bold;
+}
+
+#qcimage .diagram .holder {
+  border:4px solid #efefef;
+  margin:2em 0;
+}
+
+.errorExplanation {
+  margin-top:20px;
+  background: url('../images/icons/flag_red.png') no-repeat 15px 20px;
+  background-color: #f78b83;
+  border: 2px solid #f06d65;
+  padding: 20px;
+  padding-bottom:10px;
+  margin-bottom: 2em;
+  border-radius: 4px;
+}
+
+.errorExplanation h2 {
+  font-size:1.4em;
+  margin-left:17px;
+}
+
+.errorExplanation p {
+  font-size:1em;
+}
+
+.errorExplanation ul li {
+  list-style-type:disc;
 }

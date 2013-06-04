@@ -1,10 +1,21 @@
 <% @tab = "Home" %>
 
 <div class="grid_12">
-  <h2>Welcome to iMits</h2>
+  <div style="padding-bottom:30px;">
+    <div style="padding-bottom:30px; border-bottom: 1px solid #bbb;">
+      <h2>Welcome</h2>
 
-  <p>What would you like to do today?</p>
-  <div class="homepage-links" id = 'gene_search' name = 'gene_search' ><input type ='text' id = 'search_for_gene' name = 'search_for_gene'>
+      <p>Welcome to International Micro-Injection Tracking System. iMITS is the designated database for the planning of all IMPC mouse production,</br>
+       as well as the central database to allow IMPC production centres to record the progress of mouse production, cre-excision and to summarise</br>
+       the progress of phenotype data collection and transfer to the <a href="http://www.mousephenotype.org/">IMPC DCC</a>.</br></br>
+       iMITS also stores all the mutation molecular structures made for the IKMC, as well as a catalog of all IKMC products.</br></br>
+       All IMPC data (specifically phenotyping data) can be found <a href="http://www.mousephenotype.org/">HERE</a></br></br>
+       All IMPC-related queries should be addressed to info@mousephenotype.org</p>
+    </div>
+  </div>
+  <div class="homepage-links" id = 'gene_search' name = 'gene_search' >
+    <h3>Quick search for IMPC products by gene</h3>
+    <input type ='text' id = 'search_for_gene' name = 'search_for_gene'>
     <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button>
     <p>Search by Marker symbol or MGI number</p>
   </div>
@@ -17,44 +28,22 @@
 <div class="grid_8">
   <div class="homepage-links">
     <a href="<%= gene_selection_open_mi_plans_path %>">
-      <h3>Gene Selection / Micro-Injection Planning</h3>
-      <p>Register interest (on behalf of your consortium) in micro-injecting some genes</p>
+      <h3>Gene selection and planning</h3>
+      <p>View production plans for each IMPC member consortium.</p>
     </a>
   </div>
 
   <div class="homepage-links">
     <a href="<%= open_mi_attempts_path() %>">
-      <h3>Search For Micro-Injection Attempts</h3>
-      <p>Search for data on existing micro-injection attempt records</p>
+      <h3>IMPC Mouse production</h3>
+      <p>Progress summary for mouse production attempts at each</br>centre, including genotyping assays.</p>
     </a>
   </div>
 
   <div class="homepage-links">
     <a href="<%= open_phenotype_attempts_path() %>">
-      <h3>Search For Phenotype Attempts</h3>
-      <p>Search for data on existing phenotype attempt records</p>
+      <h3>IMPC Phenotyping</h3>
+      <p>Progress summary for cre-excision and phenotype data</br>collection at each production / phenotyping centre.</p>
     </a>
   </div>
-</div>
-
-<div class="grid_4">
-  <div class="homepage-links">
-    <a href="<%= consortia_path %>">
-      <h4>Consortia</h4>
-      <p>
-        View a list of all consortia submitting data to iMits and the production centres
-        that are working as part of these consortia
-      </p>
-    </a>
-  </div>
-
-  <div class="homepage-links">
-    <a href="<%= url_for(:controller => 'reports/mi_production', :action => :detail) %>">
-      <h4>Gene-by-gene Status Change Dates for all IMPC Consortia</h4>
-      <p>
-        View the mouse production and phenotyping progress for all genes broken down by IMPC consortia.
-      </p>
-    </a>
-  </div>
-
 </div>

@@ -12,7 +12,10 @@ class SolrUpdate::DocFactory
       return create_for_phenotype_attempt(PhenotypeAttempt.find(reference['id']))
 
     when 'allele' then
-      return create_for_allele(TargRep::Allele.find(reference['id']))
+      return create_for_allele(TargRep::TargetedAllele.find(reference['id']))
+
+    when 'gene' then
+      return create_for_gene(Gene.find(reference['id']))
 
     else
       raise 'unknown type'
@@ -155,6 +158,9 @@ class SolrUpdate::DocFactory
       end
 
     end
+
+    #solr_doc['order_from_names'].uniq!
+    #solr_doc['order_from_urls'].uniq!
   end
 
   def self.create_for_allele(allele)
@@ -208,6 +214,31 @@ class SolrUpdate::DocFactory
     else
       raise "Pipeline not recognized"
     end
+  end
+
+  def self.create_for_gene(gene)
+    solr_doc = {
+      'id' => gene.id,
+      'type' => 'gene',
+      'allele_id' => '-1',
+      'mgi_accession_id' => ! gene.mgi_accession_id.blank? ? gene.mgi_accession_id : 'unknown',
+      'consortium' => '',
+      'production_centre' => ''
+    }
+
+    plan = gene.relevant_plan
+
+    if plan
+      solr_doc['consortium'] = plan.consortium.name if plan.consortium
+      solr_doc['production_centre'] = plan.production_centre.name if plan.production_centre
+    end
+
+    s = gene.relevant_status
+
+    solr_doc['status'] = s[:status].humanize
+    solr_doc['effective_date'] = s[:date]
+
+    return [solr_doc]
   end
 
 end

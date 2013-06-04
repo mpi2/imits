@@ -27,6 +27,16 @@ Ext.define('Imits.model.MiPlan', {
         name: 'sub_project_name'
     },
     {
+        name: 'number_of_es_cells_received'
+    },
+    {
+        name: 'es_cells_received_on',
+        type: 'date'
+    },
+    {
+        name: 'es_cells_received_from_name'
+    },
+    {
         name: 'number_of_es_cells_starting_qc'
     },
     {
@@ -83,7 +93,7 @@ Ext.define('Imits.model.MiPlan', {
         defaultValue: false
     },
     {
-        name: 'ignore_avaliable_mice',
+        name: 'ignore_available_mice',
         defaultValue: false
     },
     {

@@ -558,6 +558,24 @@ Ext.define('Imits.widget.MiGridCommon', {
             editor: 'qccombo'
         },
         {
+            dataIndex: 'qc_critical_region_qpcr_result',
+            header: 'Critical Region QPCR',
+            sortable: false,
+            editor: 'qccombo'
+        },
+        {
+            dataIndex: 'qc_loxp_srpcr_result',
+            header: 'Loxp SRPCR',
+            sortable: false,
+            editor: 'qccombo'
+        },
+        {
+            dataIndex: 'qc_loxp_srpcr_and_sequencing_result',
+            header: 'Loxp SRPRC and Sequencing',
+            sortable: false,
+            editor: 'qccombo'
+        },
+        {
             dataIndex: 'report_to_public',
             header: 'Report to Public',
             xtype: 'boolgridcolumn'

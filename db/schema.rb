@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130510144848) do
+ActiveRecord::Schema.define(:version => 20130528142149) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -251,6 +251,9 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
     t.string   "genotyping_comment",                              :limit => 512
     t.integer  "legacy_es_cell_id"
     t.integer  "qc_lacz_count_qpcr_id",                                          :default => 1
+    t.integer  "qc_critical_region_qpcr_id",                                     :default => 1
+    t.integer  "qc_loxp_srpcr_id",                                               :default => 1
+    t.integer  "qc_loxp_srpcr_and_sequencing_id",                                :default => 1
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -330,7 +333,10 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
     t.string   "completion_note",                :limit => 100
     t.boolean  "recovery"
     t.boolean  "conditional_tm1c",                              :default => false, :null => false
-    t.boolean  "ignore_avaliable_mice",                         :default => false, :null => false
+    t.boolean  "ignore_available_mice",                         :default => false, :null => false
+    t.integer  "number_of_es_cells_received"
+    t.date     "es_cells_received_on"
+    t.integer  "es_cells_received_from_id"
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true
@@ -492,6 +498,7 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "allele_id"
+    t.integer  "gene_id"
   end
 
   add_index "solr_update_queue_items", ["allele_id"], :name => "index_solr_update_queue_items_on_allele_id", :unique => true
@@ -508,11 +515,11 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
 
   create_table "targ_rep_alleles", :force => true do |t|
     t.integer  "gene_id"
-    t.string   "assembly",            :limit => 50,  :default => "NCBIM37", :null => false
-    t.string   "chromosome",          :limit => 2,                          :null => false
-    t.string   "strand",              :limit => 1,                          :null => false
-    t.integer  "homology_arm_start",                                        :null => false
-    t.integer  "homology_arm_end",                                          :null => false
+    t.string   "assembly",            :limit => 50,  :default => "NCBIM37",                 :null => false
+    t.string   "chromosome",          :limit => 2,                                          :null => false
+    t.string   "strand",              :limit => 1,                                          :null => false
+    t.integer  "homology_arm_start"
+    t.integer  "homology_arm_end"
     t.integer  "loxp_start"
     t.integer  "loxp_end"
     t.integer  "cassette_start"
@@ -528,8 +535,17 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
     t.integer  "mutation_type_id"
     t.integer  "mutation_subtype_id"
     t.string   "cassette_type",       :limit => 50
-    t.datetime "created_at",                                                :null => false
-    t.datetime "updated_at",                                                :null => false
+    t.datetime "created_at",                                                                :null => false
+    t.datetime "updated_at",                                                                :null => false
+    t.integer  "intron"
+    t.string   "type",                               :default => "TargRep::TargetedAllele"
+  end
+
+  create_table "targ_rep_centre_pipelines", :force => true do |t|
+    t.string   "name"
+    t.text     "centres"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "targ_rep_distribution_qcs", :force => true do |t|
@@ -554,6 +570,8 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
     t.integer  "es_cell_distribution_centre_id"
     t.datetime "created_at",                     :null => false
     t.datetime "updated_at",                     :null => false
+    t.string   "loxp_srpcr"
+    t.string   "unspecified_repository_testing"
   end
 
   add_index "targ_rep_distribution_qcs", ["es_cell_distribution_centre_id", "es_cell_id"], :name => "index_distribution_qcs_centre_es_cell", :unique => true
@@ -602,6 +620,16 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
     t.integer  "legacy_id"
     t.datetime "created_at",                                                             :null => false
     t.datetime "updated_at",                                                             :null => false
+    t.boolean  "production_centre_auto_update",                        :default => true
+    t.string   "user_qc_loxp_srpcr_and_sequencing"
+    t.string   "user_qc_karyotype_spread"
+    t.string   "user_qc_karyotype_pcr"
+    t.integer  "user_qc_mouse_clinic_id"
+    t.string   "user_qc_chr1"
+    t.string   "user_qc_chr11"
+    t.string   "user_qc_chr8"
+    t.string   "user_qc_chry"
+    t.string   "user_qc_lacz_qpcr"
   end
 
   add_index "targ_rep_es_cells", ["allele_id"], :name => "es_cells_allele_id_fk"
@@ -640,12 +668,13 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
   end
 
   create_table "targ_rep_pipelines", :force => true do |t|
-    t.string   "name",                               :null => false
+    t.string   "name",                                :null => false
     t.string   "description"
-    t.datetime "created_at",                         :null => false
-    t.datetime "updated_at",                         :null => false
+    t.datetime "created_at",                          :null => false
+    t.datetime "updated_at",                          :null => false
     t.integer  "legacy_id"
     t.boolean  "report_to_public", :default => true
+    t.boolean  "gene_trap",        :default => false
   end
 
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true
@@ -700,12 +729,15 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
 
   add_foreign_key "mi_attempts", "mi_attempt_statuses", :name => "mi_attempts_mi_attempt_status_id_fk", :column => "status_id"
   add_foreign_key "mi_attempts", "mi_plans", :name => "mi_attempts_mi_plan_id_fk"
+  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_critical_region_qpcr_id_fk", :column => "qc_critical_region_qpcr_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_five_prime_cassette_integrity_id_fk", :column => "qc_five_prime_cassette_integrity_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_five_prime_lr_pcr_id_fk", :column => "qc_five_prime_lr_pcr_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_homozygous_loa_sr_pcr_id_fk", :column => "qc_homozygous_loa_sr_pcr_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_lacz_sr_pcr_id_fk", :column => "qc_lacz_sr_pcr_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_loa_qpcr_id_fk", :column => "qc_loa_qpcr_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_loxp_confirmation_id_fk", :column => "qc_loxp_confirmation_id"
+  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_loxp_srpcr_and_sequencing_id_fk", :column => "qc_loxp_srpcr_and_sequencing_id"
+  add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_loxp_srpcr_id_fk", :column => "qc_loxp_srpcr_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_mutant_specific_sr_pcr_id_fk", :column => "qc_mutant_specific_sr_pcr_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_neo_count_qpcr_id_fk", :column => "qc_neo_count_qpcr_id"
   add_foreign_key "mi_attempts", "qc_results", :name => "mi_attempts_qc_neo_sr_pcr_id_fk", :column => "qc_neo_sr_pcr_id"
@@ -743,6 +775,8 @@ ActiveRecord::Schema.define(:version => 20130510144848) do
   add_foreign_key "phenotype_attempts", "mi_plans", :name => "phenotype_attempts_mi_plan_id_fk"
   add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"
   add_foreign_key "phenotype_attempts", "strains", :name => "phenotype_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
+
+  add_foreign_key "targ_rep_es_cells", "centres", :name => "targ_rep_es_cells_user_qc_mouse_clinic_id_fk", :column => "user_qc_mouse_clinic_id"
 
   add_foreign_key "users", "targ_rep_es_cell_distribution_centres", :name => "users_es_cell_distribution_centre_id_fk", :column => "es_cell_distribution_centre_id"
 

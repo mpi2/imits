@@ -39,15 +39,6 @@ Ext.define('Imits.widget.MiPlansGridCommon', {
       if(window.CAN_SEE_SUB_PROJECT){
         self.addColumn(
           {
-            dataIndex: 'is_bespoke_allele',
-            header: 'Bespoke',
-            xtype: 'boolgridcolumn',
-            width: 60,
-            readOnly: true
-          },this.miPlanColumns.length
-        );
-        self.addColumn(
-          {
             dataIndex: 'sub_project_name',
             header: 'Sub-Project',
             readOnly: true,
@@ -133,10 +124,17 @@ Ext.define('Imits.widget.MiPlansGridCommon', {
         }
     },
     {
-        dataIndex: 'is_conditional_allele',
-        header: 'Conditional',
+        dataIndex: 'phenotype_only',
+        header: 'Phenotype Only',
         xtype: 'boolgridcolumn',
-        width: 60,
+        width: 90,
+        readOnly: true
+    },
+    {
+        dataIndex: 'is_conditional_allele',
+        header: 'Knockout First tm1a',
+        xtype: 'boolgridcolumn',
+        width: 110,
         readOnly: true
     },
     {
@@ -150,7 +148,7 @@ Ext.define('Imits.widget.MiPlansGridCommon', {
         dataIndex: 'is_cre_knock_in_allele',
         header: 'Cre Knock-in',
         xtype: 'boolgridcolumn',
-        width: 60,
+        width: 80,
         readOnly: true
     },
     {
@@ -158,6 +156,28 @@ Ext.define('Imits.widget.MiPlansGridCommon', {
         header: 'Cre BAC',
         xtype: 'boolgridcolumn',
         width: 60,
+        readOnly: true
+    },
+    {
+        dataIndex: 'is_bespoke_allele',
+        header: 'Bespoke',
+        xtype: 'boolgridcolumn',
+        width: 60,
+        readOnly: true,
+        hidden: true
+    },
+    {
+        dataIndex: 'conditional_tm1c',
+        header: 'Conditional tm1c',
+        xtype: 'boolgridcolumn',
+        width: 90,
+        readOnly: true
+    },
+    {
+        dataIndex: 'ignore_available_mice',
+        header: 'Ignore Available Mice',
+        xtype: 'boolgridcolumn',
+        width: 120,
         readOnly: true
     }
 ]

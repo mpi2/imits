@@ -2,9 +2,10 @@
   navigation_links = [
     ['Home', root_path],
     ['Gene Selection', gene_selection_open_mi_plans_path],
-    ['Plans', open_mi_plans_path],
-    ['Mouse Production', open_mi_attempts_path()],
-    ['Phenotyping', open_phenotype_attempts_path()]
+    ['Mouse Production', open_mi_attempts_path],
+    ['Phenotyping', open_phenotype_attempts_path],
+    ['Consortia', consortia_path],
+    ['Gene Summary', url_for(:controller => 'reports/mi_production', :action => :detail)]
   ]
 %>
 

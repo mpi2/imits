@@ -2,26 +2,26 @@ class TargRep::MutationType < ActiveRecord::Base
   
   acts_as_audited
 
-  has_many :allele, :class_name => "TargRep::Allele"
+  has_many :allele
 
   validates :name, :presence => true, :uniqueness => true
   validates :code, :presence => true, :uniqueness => true
 
 
   def targeted_non_conditional?
-    if self.code == 'tnc'
-      true
-    else
-      false
-    end
+    self.code == 'tnc'
   end
 
   def no_loxp_site?
-    if !['crd', 'cki'].include?(self.code)
-      true
-    else
-      false
-    end
+    !['crd', 'cki'].include?(self.code)
+  end
+
+  def gene_trap?
+    self.code == 'gt'
+  end
+
+  def self.gene_trap_name
+    self.where(:code => 'gt').first.name
   end
 
 end

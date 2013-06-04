@@ -4,7 +4,7 @@ class TargRep::EsCell < ActiveRecord::Base
 
   acts_as_audited
   acts_as_reportable
-
+  extend AccessAssociationByAttribute
   attr_accessor :nested, :bulk
 
   class Error < RuntimeError; end
@@ -12,16 +12,18 @@ class TargRep::EsCell < ActiveRecord::Base
 
   TEMPLATE_CHARACTER = '@'
 
-  include TargRep::EsCell::QcFields
-
   ##
   ## Relationships
   ##
-  belongs_to :pipeline, :class_name => "TargRep::Pipeline"
-  belongs_to :allele, :class_name => "TargRep::Allele"
-  belongs_to :targeting_vector, :class_name => "TargRep::TargetingVector"
+  belongs_to :pipeline
+  belongs_to :allele
 
-  has_many :distribution_qcs, :dependent => :destroy, :class_name => "TargRep::DistributionQc"
+  belongs_to :targeting_vector
+  belongs_to :user_qc_mouse_clinic, :class_name => 'Centre'
+
+  access_association_by_attribute :user_qc_mouse_clinic, :name
+
+  has_many :distribution_qcs, :dependent => :destroy
   has_many :mi_attempts
 
   accepts_nested_attributes_for :distribution_qcs, :allow_destroy => true
@@ -41,15 +43,6 @@ class TargRep::EsCell < ActiveRecord::Base
 
   validate :set_and_check_strain
 
-  # Validate QC fields - the ESCELL_QC_OPTIONS constant comes from the
-  # this has been moved here `targ_rep/es_cell/qc_fields` and included as a dependancy.
-  ESCELL_QC_OPTIONS.each_key do |qc_field|
-    validates_inclusion_of qc_field,
-      :in        => ESCELL_QC_OPTIONS[qc_field.to_s][:values],
-      :message   => "This QC metric can only be set as: #{ESCELL_QC_OPTIONS[qc_field.to_s][:values].join(', ')}",
-      :allow_nil => true
-  end
-
   validates_format_of :mgi_allele_id,
     :with      => /^MGI\:\d+$/,
     :message   => "is not a valid MGI Allele ID",
@@ -66,13 +59,76 @@ class TargRep::EsCell < ActiveRecord::Base
   before_validation :convert_ikmc_project_id_to_string, :unless => Proc.new { |a| a.ikmc_project_id.is_a?(String) }
   before_validation :remove_empty_distribution_qcs
 
+  validate :set_allele_symbol_superscript
+
   attr_protected :allele_symbol_superscript_template
 
   delegate :gene, :to => :allele
   delegate :marker_symbol, :to => :gene
-  
+
   scope :has_targeting_vector, where('targeting_vector_id is not NULL')
   scope :no_targeting_vector, where(:targeting_vector_id => nil)
+
+  ##
+  ## QC validations
+  ##
+
+  def self.qc_options
+    hash = {
+      "production_qc_five_prime_screen"       => { :name => "5' Screen",   :values => ["pass","not confirmed","no reads detected","not attempted"] },
+      "production_qc_three_prime_screen"      => { :name => "3' Screen",   :values => ["pass","not confirmed","no reads detected"] },
+      "production_qc_loxp_screen"             => { :name => "LoxP Screen", :values => ["pass","not confirmed","no reads detected"] },
+      "production_qc_loss_of_allele"          => { :name => "Loss of WT Allele (LOA)" },
+      "production_qc_vector_integrity"        => { :name => "Vector Integrity" },
+
+      "user_qc_karyotype"                     => { :name => "Karyotype",     :values => ["pass","fail","limit"] },
+      "user_qc_southern_blot"                 => { :name => "Southern Blot", :values => ["pass","fail 5' end","fail 3' end","fail both ends","double integration"] },
+      "user_qc_five_prime_lr_pcr"             => { :name => "5' LR-PCR" },
+      "user_qc_three_prime_lr_pcr"            => { :name => "3' LR-PCR" },
+      "user_qc_map_test"                      => { :name => "Map Test" },
+      "user_qc_tv_backbone_assay"             => { :name => "TV Backbone Assay" },
+      "user_qc_loxp_confirmation"             => { :name => "LoxP Confirmation" },
+      "user_qc_loss_of_wt_allele"             => { :name => "Loss of WT Allele (LOA)" },
+      "user_qc_neo_count_qpcr"                => { :name => "Neo Count (qPCR)" },
+      "user_qc_lacz_sr_pcr"                   => { :name => "LacZ SR-PCR" },
+      "user_qc_mutant_specific_sr_pcr"        => { :name => "Mutant Specific SR-PCR" },
+      "user_qc_five_prime_cassette_integrity" => { :name => "5' Cassette Integrity" },
+      "user_qc_neo_sr_pcr"                    => { :name => "Neo SR-PCR" },
+
+      "user_qc_karyotype_spread"              => { :name => "Karyotype Spread" },
+      "user_qc_karyotype_pcr"                 => { :name => "Karyotype PCR" },
+      "user_qc_loxp_srpcr_and_sequencing"     => { :name => "Loxp SRPCR and Sequencing" },
+
+      "user_qc_chr1"                          => { :name => "Chr1"},
+      "user_qc_chr11"                         => { :name => "Chr11"},
+      "user_qc_chr8"                          => { :name => "Chr8"},
+      "user_qc_chry"                          => { :name => "Chry"},
+      "user_qc_lacz_qpcr"                     => { :name => "LacZ qPCR"}
+    }
+
+    hash.each do |field,data|
+      if data[:values].nil?
+        hash[field][:values] = ['pass', 'passb','fail']
+      end
+    end
+
+    hash
+  end
+
+  TargRep::EsCell.qc_options.each_key do |qc_field|
+    validates_inclusion_of qc_field,
+      :in        => TargRep::EsCell.qc_options[qc_field.to_s][:values],
+      :message   => "This QC metric can only be set as: #{TargRep::EsCell.qc_options[qc_field.to_s][:values].join(', ')}",
+      :allow_nil => true
+  end
+
+  validate do |plan|
+    return true if user_qc_mouse_clinic_name.blank?
+    centre_names = Centre.pluck(:name)
+    unless centre_names.include?(self.user_qc_mouse_clinic_name)
+      self.errors.add(:user_qc_mouse_clinic_name, "This QC metric can only be set as: #{centre_names.join(', ')}.")
+    end
+  end
 
   ##
   ## Methods
@@ -96,7 +152,7 @@ class TargRep::EsCell < ActiveRecord::Base
       TargRep::EsCell.include_root_in_json = false
       options.update(
         :include => {
-          :distribution_qcs => { :except => [:id, :created_at, :updated_at] }
+          :distribution_qcs => { :except => [:created_at, :updated_at] }
         },
         :methods => [:allele_symbol_superscript]
       )
@@ -132,32 +188,33 @@ class TargRep::EsCell < ActiveRecord::Base
       allele_symbol_superscript_template.sub(TEMPLATE_CHARACTER, allele_type.to_s)
     end
 
-    class AlleleSymbolSuperscriptFormatUnrecognizedError < Error; end
-
     def allele_symbol_superscript=(text)
-      if text.nil?
+      self.mgi_allele_symbol_superscript = text
+    end
+
+    def set_allele_symbol_superscript
+      return if allele_symbol_superscript_template_changed?
+
+      if mgi_allele_symbol_superscript.blank?
         self.allele_symbol_superscript_template = nil
         self.allele_type = nil
         return
       end
 
-      md = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/.match(text)
+      md = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
 
       if md
         self.allele_symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]
         self.allele_type = md[2]
       else
-        md = /\AGt\(\w+\)\w+\Z/.match(text)
+        md = /\AGt\(\w+\)\w+\Z/.match(mgi_allele_symbol_superscript)
         if md
-          self.allele_symbol_superscript_template = text
+          self.allele_symbol_superscript_template = mgi_allele_symbol_superscript
           self.allele_type = nil
         else
-          raise AlleleSymbolSuperscriptFormatUnrecognizedError, "Bad allele symbol superscript #{text}"
+          self.errors.add :allele_symbol_superscript, "Bad allele symbol superscript '#{mgi_allele_symbol_superscript}'"
         end
       end
-
-      self.mgi_allele_symbol_superscript = text
-
     end
 
     def allele_symbol
@@ -271,6 +328,16 @@ end
 #  legacy_id                             :integer
 #  created_at                            :datetime        not null
 #  updated_at                            :datetime        not null
+#  production_centre_auto_update         :boolean         default(TRUE)
+#  user_qc_loxp_srpcr_and_sequencing     :string(255)
+#  user_qc_karyotype_spread              :string(255)
+#  user_qc_karyotype_pcr                 :string(255)
+#  user_qc_mouse_clinic_id               :integer
+#  user_qc_chr1                          :string(255)
+#  user_qc_chr11                         :string(255)
+#  user_qc_chr8                          :string(255)
+#  user_qc_chry                          :string(255)
+#  user_qc_lacz_qpcr                     :string(255)
 #
 # Indexes
 #

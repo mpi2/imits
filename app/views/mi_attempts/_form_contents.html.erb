@@ -1,3 +1,12 @@
+<% content_for :post_js_footer do %>
+
+  <%= javascript_include_tag('raphael') %>
+  <%= javascript_include_tag('jquery.qtip') %>
+  <%= javascript_include_tag('diagram.builder') %>
+
+
+<% end %>
+
 <% generator = MiAttemptFieldGenerator.new(form) %>
 <% mi_attempt = form.object %>
 
@@ -105,22 +114,41 @@
   </div>
 </fieldset>
 
-<fieldset class="collapsible">
+<div id='qcimage'>
+
+  <h2>Mouse Genotyping QC</h2>
+
+  <div class="diagram">
+    <div id='holder_mutant' class='holder'></div>
+    <h3>Mutant</h3>
+  </div>
+
+  <div class="diagram">
+    <div id='holder_wildtype' class='holder'></div>
+    <h3>Wild Type</h3>
+  </div>
+
+</div>
+
+<fieldset class="collapsible hide-by-default qc-details">
   <legend>QC Details</legend>
   <div>
     <%= generator.qc_fields %>
+  </div>
+</fieldset>
 
-    <% [:report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
-      <div>
-        <%= form.label field, field.to_s.titlecase %>
-        <%= form.check_box field %>
-      </div>
-    <% end %>
+<fieldset class="collapsible">
+  <legend>Other</legend>
 
+  <% [:report_to_public, :is_active, :is_released_from_genotyping].each do |field| %>
     <div>
-      <label>Genotyping Comment</label>
-      <%= form.text_area :genotyping_comment, :disabled => true %>
+      <%= form.label field, field.to_s.titlecase %>
+      <%= form.check_box field %>
     </div>
+  <% end %>
 
+  <div>
+    <label>Genotyping Comment</label>
+    <%= form.text_area :genotyping_comment, :disabled => true %>
   </div>
 </fieldset>

@@ -8,7 +8,7 @@ class TargRep::GenbankFile < ActiveRecord::Base
   ## Associations
   ##
 
-  belongs_to :allele, :class_name => "TargRep::Allele"
+  belongs_to :allele
 
   ##
   ## Validations

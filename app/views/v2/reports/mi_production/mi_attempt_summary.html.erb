@@ -1,0 +1,79 @@
+<% @title = 'Mi Production Summary Detail' %>
+
+<!--<%= params.inspect %>-->
+
+<h2><%= @title %></h2>
+
+<p><%= link_to 'Download as CSV', report_csv_path %></p>
+
+<div class='report'>
+
+  <p>Showing <%= @micro_injection_list.count %> results.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <th>Production Centre</th>
+        <th>IKMC Project ID</th>
+        <th>Gene</th>
+        <th>MGI Accession ID</th>
+        <th>Priority</th>
+        <th>Is Bespoke Allele</th>
+        <th>Knockout First tm1a</th>
+        <th>Deletion</th>
+        <th>Cre Knock In</th>
+        <th>Cre Bac</th>
+        <th>Conditional tm1c</th>
+        <th>Ignore Available Mice</th>
+        <th>Plan Status</th>
+        <th>Aborted</th>
+        <th>Assigned</th>
+        <th>ESCell QC In Progress</th>
+        <th>ESCell QC complete</th>
+        <th>Colony Name</th>
+        <th>Genetic Background</th>
+        <th>Mutation Type</th>
+        <th>MI Status</th>
+        <th>Micro-injection aborted</th>
+        <th>Micro-injection in progress</th>
+        <th>Chimeras obtained</th>
+        <th>Genotype confirmed</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for report_row in @micro_injection_list %>
+        <tr>
+          <td><%= report_row["consortium"] %></td>
+          <td><%= report_row["production_centre"] %></td>
+          <td><%= report_row["ikmc_project_id"] %></td>
+          <td><%= report_row["marker_symbol"] %></td>
+          <td><%= report_row["mgi_accession_id"] %></td>
+          <td><%= report_row["priority"] %></td>
+
+          <td><%= boolean_to_text(report_row["bespoke_allele"]) %></td>
+          <td><%= boolean_to_text(report_row["conditional_allele"]) %></td>
+          <td><%= boolean_to_text(report_row["deletion_allele"]) %></td>
+          <td><%= boolean_to_text(report_row["cre_knock_in_allele"]) %></td>
+          <td><%= boolean_to_text(report_row["cre_bac_allele"]) %></td>
+          <td><%= boolean_to_text(report_row["conditional_tm1c"]) %></td>
+          <td><%= boolean_to_text(report_row["ignore_available_mice"]) %></td>
+          <td><%= report_row["mi_plan_status"] %></td>
+          <td><%= report_row["aborted_date"] %></td>
+          <td><%= report_row["assigned_date"] %></td>
+          <td><%= report_row["assigned_es_cell_qc_in_progress_date"] %></td>
+          <td><%= report_row["assigned_es_cell_qc_complete_date"] %></td>
+
+          <td><%= report_row["mi_attempt_colony_name"] %></td>
+          <td><%= report_row["genetic_background"] %></td>
+          <td><%= pretty_mutation_type(report_row["mutation_sub_type"]) %></td>
+          <td><%= report_row["mi_attempt_status"] %></td>
+          <td><%= report_row["micro_injection_aborted_date"] %></td>
+          <td><%= report_row["micro_injection_in_progress_date"] %></td>
+          <td><%= report_row["chimeras_obtained_date"] %></td>
+          <td><%= report_row["genotype_confirmed_date"] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

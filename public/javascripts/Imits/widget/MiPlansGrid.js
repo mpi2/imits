@@ -40,7 +40,6 @@ Ext.define('Imits.widget.MiPlansGrid', {
                 grid.miPlanEditor.edit(id);
             }
         });
-
         this.callParent();
     }
 })

@@ -2,6 +2,11 @@ class TargRep::AllelesController < TargRep::BaseController
 
   respond_to :html, :xml, :json
 
+  before_filter do
+    @klass = TargRep::TargetedAllele
+    @title = 'Targeted Allele'
+  end
+
   # For webservice interface
   before_filter :format_nested_params, :only => [:create, :update]
 
@@ -36,12 +41,11 @@ class TargRep::AllelesController < TargRep::BaseController
     params[:page] ||= 1
     params[:per_page] ||= 100
     allele_params = setup_allele_search(params)
-    @alleles = TargRep::Allele.search(allele_params).result.paginate(
+    @alleles = @klass.includes(:gene, :targeting_vectors => [:pipeline], :es_cells => [:pipeline]).search(allele_params).result.paginate(
       :page    => params[:page],
-      :per_page => params[:per_page],
-      :select  => "distinct targ_rep_alleles.*",
-      :include => [ { :targeting_vectors => :pipeline }, { :es_cells => :pipeline } ]
+      :per_page => params[:per_page]
     )
+
     mutational_drop_downs
 
     respond_with @alleles
@@ -51,7 +55,7 @@ class TargRep::AllelesController < TargRep::BaseController
   # GET /alleles/1.xml
   # GET /alleles/1.json
   def show
-    @allele = TargRep::Allele.find params[:id],
+    @allele = @klass.find params[:id],
       :include => [
         :genbank_file,
         { :targeting_vectors => :pipeline },
@@ -66,7 +70,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
   # GET /alleles/new
   def new
-    @allele = TargRep::Allele.new
+    @allele = @klass.new
     mutational_drop_downs
     @allele.genbank_file = TargRep::GenbankFile.new
     @allele.targeting_vectors.build
@@ -75,7 +79,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
   # GET /alleles/1/edit
   def edit
-    @allele = TargRep::Allele.find params[:id],
+    @allele = @klass.find params[:id],
       :include => [
         :genbank_file,
         { :targeting_vectors => :pipeline },
@@ -96,7 +100,7 @@ class TargRep::AllelesController < TargRep::BaseController
   # POST /alleles.xml
   # POST /alleles.json
   def create
-    @allele = TargRep::Allele.new(params[:targ_rep_allele])
+    @allele = @klass.new(params[:targ_rep_allele])
     mutational_drop_downs
 
     respond_to do |format|
@@ -170,7 +174,7 @@ class TargRep::AllelesController < TargRep::BaseController
   ## Custom controllers
   ##
   def history
-    @allele = TargRep::Allele.find(params[:id])
+    @allele = @klass.find(params[:id])
   end
 
   # GET /alleles/1/escell_clone_genbank_file/
@@ -322,9 +326,15 @@ class TargRep::AllelesController < TargRep::BaseController
     )
   end
 
+  def attributes
+    render :json => create_attribute_documentation_for(@klass)
+  end
+
+  def gene_trap?; false; end
+
   private
     def find_allele
-      @allele = TargRep::Allele.find(params[:id])
+      @allele = @klass.find(params[:id])
     end
 
     def mutational_drop_downs
@@ -365,6 +375,8 @@ class TargRep::AllelesController < TargRep::BaseController
       # Specific to create/update methods - webservice interface
       params[:targ_rep_allele] = params.delete(:molecular_structure) if params[:molecular_structure]
       params[:targ_rep_allele] = params.delete(:allele) if params[:allele]
+      params[:targ_rep_allele] = params.delete(:targ_rep_gene_trap) if params[:targ_rep_gene_trap]
+      params[:targ_rep_allele] = params.delete(:targ_rep_targeted_allele) if params[:targ_rep_targeted_allele]
       allele_params = params[:targ_rep_allele]
 
       # README: http://htgt.internal.sanger.ac.uk:4005/issues/257
@@ -489,7 +501,7 @@ class TargRep::AllelesController < TargRep::BaseController
           end
 
           # Find targeting vector from given name and link it to the ES Cell
-          if es_cell and es_cell.targeting_vector.nil?
+          if es_cell && es_cell.targeting_vector.nil? && !attrs[:targeting_vector_name].blank?
             es_cell.targeting_vector = TargRep::TargetingVector.find_by_name!(attrs[:targeting_vector_name])
             es_cell.save
           end

@@ -23,7 +23,10 @@ class MiAttempt < ApplicationModel
     :qc_lacz_sr_pcr,
     :qc_mutant_specific_sr_pcr,
     :qc_loxp_confirmation,
-    :qc_three_prime_lr_pcr
+    :qc_three_prime_lr_pcr,
+    :qc_critical_region_qpcr,
+    :qc_loxp_srpcr,
+    :qc_loxp_srpcr_and_sequencing
   ].freeze
 
   belongs_to :mi_plan
@@ -47,6 +50,8 @@ class MiAttempt < ApplicationModel
     belongs_to qc_field, :class_name => 'QcResult'
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
+
+  accepts_nested_attributes_for :status_stamps
 
   protected :status=
 
@@ -290,14 +295,6 @@ class MiAttempt < ApplicationModel
     }
   end
 
-  def self.public_search(params)
-    translated_params = {}
-    params.stringify_keys.each do |name, value|
-      translated_params[translate_public_param(name)] = value
-    end
-    return self.search(translated_params)
-  end
-
   def in_progress_date
     return status_stamps.all.find {|ss| ss.status_id == MiAttempt::Status.micro_injection_in_progress.id}.created_at.utc.to_date
   end
@@ -372,6 +369,10 @@ end
 #  mi_plan_id                                      :integer         not null
 #  genotyping_comment                              :string(512)
 #  legacy_es_cell_id                               :integer
+#  qc_lacz_count_qpcr_id                           :integer         default(1)
+#  qc_critical_region_qpcr_id                      :integer         default(1)
+#  qc_loxp_srpcr_id                                :integer         default(1)
+#  qc_loxp_srpcr_and_sequencing_id                 :integer         default(1)
 #
 # Indexes
 #

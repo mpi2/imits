@@ -1,0 +1,22 @@
+---
+1:
+  id: 1
+  name: 'KOMP'
+  centres: ['KOMP-CSD', 'KOMP-Regeneron']
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
+2:
+  id: 2
+  name: 'EUMMCR'
+  centres: ['EUCOMM', 'EUCOMMTools', 'EUCOMMToolsCre']
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>
+
+
+3:
+  id: 3
+  name: 'NorCOMM2GLS'
+  centres: ['NorCOMM']
+  created_at: <%= 5.days.ago.to_s(:db) %>
+  updated_at: <%= 5.days.ago.to_s(:db) %>

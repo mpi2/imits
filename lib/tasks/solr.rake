@@ -9,14 +9,14 @@ namespace :solr do
     puts SolrUpdate::Queue::Item.count
   end
 
-  desc 'Enqueue every TargRep::Allele, TargRep::EsCell, MiAttempt & PhenotypeAttempt for solr update'
+  desc 'Enqueue every TargRep::TargetedAllele, TargRep::EsCell, MiAttempt & PhenotypeAttempt for solr update'
   task 'update:enqueue:all' => [:environment] do
     ApplicationModel.transaction do
       enqueuer = SolrUpdate::Enqueuer.new
       MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i) }
 
       enqueuer = SolrUpdate::Enqueuer.new
-      TargRep::Allele.all.each { |a| enqueuer.allele_updated(a) }
+      TargRep::TargetedAllele.all.each { |a| enqueuer.allele_updated(a) }
     end
   end
 
@@ -25,6 +25,6 @@ namespace :solr do
   end
 
 
-  desc 'Sync every TargRep::Allele, TargRep::EsCell, MiAttempt & PhenotypeAttempt with the SOLR index'
+  desc 'Sync every TargRep::TargetedAllele, TargRep::EsCell, MiAttempt & PhenotypeAttempt with the SOLR index'
   task 'update:all' => ['update:enqueue:all', 'update:run_queue:all']
 end

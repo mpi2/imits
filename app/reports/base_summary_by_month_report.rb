@@ -1,5 +1,5 @@
 class BaseSummaryByMonthReport
-  
+
   ##
   ##  This is the base presenter for reporting on counts of statuses for particular months,
   ##  this report uses the intermediate report table.
@@ -43,24 +43,7 @@ class BaseSummaryByMonthReport
   class << self
 
     def available_consortia
-      [
-        'BaSH',
-        'DTCC',
-        'DTCC-Legacy',
-        'EUCOMM-EUMODIC',
-        'EUCOMMToolsCre',
-        'Helmholtz GMC',
-        'JAX',
-        'MARC',
-        'MGP',
-        'MGP Legacy',
-        'MRC',
-        'Monterotondo',
-        'NorCOMM2',
-        'Phenomin',
-        'RIKEN BRC',
-        'UCD-KOMP'
-      ]
+      []
     end
 
     def columns
@@ -115,7 +98,7 @@ class BaseSummaryByMonthReport
         "Phenotyping Started",
         "Phenotyping Complete",
         "Phenotype Attempt Aborted"
-      ] 
+      ]
     end
 
     def summary_by_month_sql
@@ -124,26 +107,86 @@ class BaseSummaryByMonthReport
           series AS (
             SELECT generate_series('2011-06-01 00:00:00', '#{Time.now.to_date.to_s(:db)}', interval '1 month')::date as date
           ),
-             
+
           counts AS (
             SELECT
               series.date as date,
               report.consortium as consortium,
-              sum(case when report.assigned_es_cell_qc_in_progress_date >= series.date AND report.assigned_es_cell_qc_in_progress_date < date(series.date + interval '1 month') then 1 else 0 end) as assigned_es_cell_count,
-              sum(case when report.assigned_es_cell_qc_complete_date >= series.date AND report.assigned_es_cell_qc_complete_date < date(series.date + interval '1 month') then 1 else 0 end) as es_cell_complete_count,
-              sum(case when report.aborted_es_cell_qc_failed_date >= series.date AND report.aborted_es_cell_qc_failed_date < date(series.date + interval '1 month') then 1 else 0 end) as es_cell_aborted_count,
-              sum(case when report.micro_injection_in_progress_date >= series.date AND report.micro_injection_in_progress_date < date(series.date + interval '1 month') then 1 else 0 end) as mi_in_progress_count,
-              sum(case when report.chimeras_obtained_date >= series.date AND report.chimeras_obtained_date < date(series.date + interval '1 month') then 1 else 0 end) as chimeras_obtained_count,
-              sum(case when report.genotype_confirmed_date >= series.date AND report.genotype_confirmed_date < date(series.date + interval '1 month') then 1 else 0 end) as genotype_confirmed_count,
-              sum(case when report.micro_injection_aborted_date >= series.date AND report.micro_injection_aborted_date < date(series.date + interval '1 month') then 1 else 0 end) as mi_aborted_count,
-              sum(case when report.phenotype_attempt_registered_date >= series.date AND report.phenotype_attempt_registered_date < date(series.date + interval '1 month') then 1 else 0 end) as phenotype_registered_count,
-              sum(case when report.rederivation_started_date >= series.date AND report.rederivation_started_date < date(series.date + interval '1 month') then 1 else 0 end) as rederivation_started_count,
-              sum(case when report.rederivation_complete_date >= series.date AND report.rederivation_complete_date < date(series.date + interval '1 month') then 1 else 0 end) as rederivation_complete_count,
-              sum(case when report.cre_excision_started_date >= series.date AND report.cre_excision_started_date < date(series.date + interval '1 month') then 1 else 0 end) as cre_excision_started_count,
-              sum(case when report.cre_excision_complete_date >= series.date AND report.cre_excision_complete_date < date(series.date + interval '1 month') then 1 else 0 end) as cre_excision_complete_count,
-              sum(case when report.phenotyping_started_date >= series.date AND report.phenotyping_started_date < date(series.date + interval '1 month') then 1 else 0 end) as phenotype_started_count,
-              sum(case when report.phenotyping_complete_date >= series.date AND report.phenotyping_complete_date < date(series.date + interval '1 month') then 1 else 0 end) as phenotype_complete_count,
-              sum(case when report.phenotype_attempt_aborted_date >= series.date AND report.phenotype_attempt_aborted_date < date(series.date + interval '1 month') then 1 else 0 end) as phenotype_aborted_count
+              SUM(CASE
+                WHEN report.assigned_es_cell_qc_in_progress_date >= series.date
+                  AND report.assigned_es_cell_qc_in_progress_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as assigned_es_cell_count,
+              SUM(CASE
+                WHEN report.assigned_es_cell_qc_complete_date >= series.date
+                  AND report.assigned_es_cell_qc_complete_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as es_cell_complete_count,
+              SUM(CASE
+                WHEN report.aborted_es_cell_qc_failed_date >= series.date
+                  AND report.aborted_es_cell_qc_failed_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as es_cell_aborted_count,
+              SUM(CASE
+                WHEN report.micro_injection_in_progress_date >= series.date
+                  AND report.micro_injection_in_progress_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as mi_in_progress_count,
+              SUM(CASE
+                WHEN report.chimeras_obtained_date >= series.date
+                  AND report.chimeras_obtained_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as chimeras_obtained_count,
+              SUM(CASE
+                WHEN report.genotype_confirmed_date >= series.date
+                  AND report.genotype_confirmed_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as genotype_confirmed_count,
+              SUM(CASE
+                WHEN report.micro_injection_aborted_date >= series.date
+                  AND report.micro_injection_aborted_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as mi_aborted_count,
+              SUM(CASE
+                WHEN report.phenotype_attempt_registered_date >= series.date
+                  AND report.phenotype_attempt_registered_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as phenotype_registered_count,
+              SUM(CASE
+                WHEN report.rederivation_started_date >= series.date
+                  AND report.rederivation_started_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as rederivation_started_count,
+              SUM(CASE
+                WHEN report.rederivation_complete_date >= series.date
+                  AND report.rederivation_complete_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as rederivation_complete_count,
+              SUM(CASE
+                WHEN report.cre_excision_started_date >= series.date
+                  AND report.cre_excision_started_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as cre_excision_started_count,
+              SUM(CASE
+                WHEN report.cre_excision_complete_date >= series.date
+                  AND report.cre_excision_complete_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as cre_excision_complete_count,
+              SUM(CASE
+                WHEN report.phenotyping_started_date >= series.date
+                  AND report.phenotyping_started_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as phenotype_started_count,
+              SUM(CASE
+                WHEN report.phenotyping_complete_date >= series.date
+                  AND report.phenotyping_complete_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as phenotype_complete_count,
+              SUM(CASE
+                WHEN report.phenotype_attempt_aborted_date >= series.date
+                  AND report.phenotype_attempt_aborted_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as phenotype_aborted_count
 
             FROM series
             CROSS JOIN new_intermediate_report as report

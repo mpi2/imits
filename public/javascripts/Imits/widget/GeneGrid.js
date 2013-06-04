@@ -102,7 +102,6 @@ Ext.define('Imits.widget.GeneGrid', {
                                   sortable: false
                                   }
                          }
-
     ],
 
            /** @private **/

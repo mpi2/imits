@@ -23,7 +23,7 @@
 <div class="grid_4">
   <h3>Plans (Production, Phenotyping)</h3>
   <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :planned_microinjection_summary_and_conflicts) %>">
+    <a href="<%= url_for(:controller => "v2/reports", :action => :planned_microinjection_summary_and_conflicts) %>">
       <h4>Plans and Conflicts for All Consortia</h4>
       <p>Summary counts of all Plans by Status and Priority, showing Conflicts</p>
     </a>
@@ -63,7 +63,7 @@
 
   <h3>KOMP2 Production Reports <%= @generated_message %></h3>
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_komp23) %>">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_production_summary) %>">
         <h4>Production for KOMP2 Consortia</h4>
       </a>
     </div>
@@ -75,7 +75,7 @@
     </div>
 
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_komp2_compressed) %>">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_summary_by_month) %>">
       <h4>Monthly Production for KOMP2 Consortia (tables only)</h4>
       </a>
     </div>
@@ -102,17 +102,22 @@
       </a>
     </div>
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_impc3) %>">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_production_summary) %>">
         <h4>Production for IMPC Consortia</h4>
       </a>
     </div>
 
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_impc_intermediate) %>">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_summary_by_month) %>">
       <h4>Monthly Production for IMPC Consortia (tables only)</h4>
       </a>
     </div>
 
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month) %>">
+      <h4>Monthly Production for IMPC Production centres</h4>
+      </a>
+    </div>
     <!--
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_impc) %>">
@@ -181,59 +186,18 @@
       <p>Lists details on all micro-injections attempts.</p>
     </a>
   </div>
+
+  <h3>Other</h3>
+  <div class="report-links">
+    <a href="<%= url_for(:controller => 'v2/reports', :action => :qc_grid_summary) %>">
+    <h4>Genotyping QC Grid</h4>
+    </a>
+  </div>
 </div>
 
 <% if current_user.admin %>
 
-  <div class='grid_10'>
-    <h2>Experimental Reports</h2>
-    <h5>Currently only available to admins</h5>
-  </div>
-
   <div class="grid_4">
-    <h3>Plans (Production, Phenotyping)</h3>
-    <div class="report-links">
-      <a href="<%= url_for(:controller => "v2/reports", :action => :planned_microinjection_summary_and_conflicts) %>">
-        <h4>Plans and Conflicts for All Consortia</h4>
-        <p>Summary counts of all Plans by Status and Priority, showing Conflicts</p>
-      </a>
-    </div>
-  </div>
-
-  <div class="grid_4">
-    <h3>KOMP2 Production Reports</h3>
-      <div class="report-links">
-        <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_production_summary) %>">
-          <h4>Production for KOMP2 Consortia</h4>
-        </a>
-      </div>
-
-      <div class="report-links">
-        <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_summary_by_month) %>">
-        <h4>Monthly Production for KOMP2 Consortia (tables only)</h4>
-        </a>
-      </div>
-
-    <h3>IMPC Production Reports</h3>
-
-      <div class="report-links">
-        <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_production_summary) %>">
-          <h4>Production for IMPC Consortia</h4>
-        </a>
-      </div>
-
-      <div class="report-links">
-        <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_summary_by_month) %>">
-        <h4>Monthly Production for IMPC Consortia (tables only)</h4>
-        </a>
-      </div>
-
-      <div class="report-links">
-        <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month) %>">
-        <h4>Monthly Production for IMPC Production centres</h4>
-        </a>
-      </div>
-
     <h3>MGP Production</h3>
 
       <div class="report-links">
@@ -249,13 +213,4 @@
         </a>
       </div>
   </div>
-
-  <div class="grid_4">
-      <div class="report-links">
-        <a href="<%= url_for(:controller => 'v2/reports', :action => :qc_grid_summary) %>">
-        <h4>Genotyping QC Grid</h4>
-        </a>
-      </div>
-  </div>
-
 <% end %>

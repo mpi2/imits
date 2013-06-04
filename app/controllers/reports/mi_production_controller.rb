@@ -64,10 +64,12 @@ class Reports::MiProductionController < ApplicationController
   private :summary_3_helper
 
   def summary_komp23
+    redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :komp2_production_summary) and return
     summary_3_split_helper(Reports::MiProduction::SummaryKomp23)
   end
 
   def summary_impc3
+    redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :impc_production_summary) and return
     summary_3_helper(Reports::MiProduction::SummaryImpc3)
   end
 
@@ -136,6 +138,8 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_month_by_month_activity_komp2_compressed
+        redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :komp2_summary_by_month) and return
+
     @report_data = Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed.new
     if request.format == :csv
       send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv)
@@ -145,6 +149,8 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_month_by_month_activity_impc_intermediate
+    redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :impc_summary_by_month) and return
+
     @report_data = Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate.new
     if request.format == :csv
       send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv)

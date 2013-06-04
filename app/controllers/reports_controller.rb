@@ -167,6 +167,9 @@ class ReportsController < ApplicationController
   end
 
   def planned_microinjection_summary_and_conflicts
+
+    redirect_to url_for(:controller => "v2/reports", :action => :planned_microinjection_summary_and_conflicts) and return
+
     @include_plans_with_active_attempts = true
     @include_plans_with_active_attempts = false if params[:include_plans_with_active_attempts] == 'false'
 

@@ -5,8 +5,7 @@ require 'test_helper'
 class MiPlan::ViewEditIntegrationTest < TarMits::JsIntegrationTest
   context 'When user not logged in grid' do
     should 'not have edit link' do
-      visit '/'
-      click_link 'Plans'
+      visit '/open/mi_plans'
       assert page.has_no_content?('Edit In Form')
     end
 
@@ -21,9 +20,7 @@ class MiPlan::ViewEditIntegrationTest < TarMits::JsIntegrationTest
               :consortium => Consortium.find_by_name!('BaSH'),
               :production_centre => Centre.find_by_name!('WTSI')
       assert_equal 'Inspect - MI Attempt', mi_plan.status.name
-
-      visit '/'
-      click_link 'Plans'
+      visit '/open/mi_plans'
       find('.x-grid-cell-inner', :text => 'BaSH').click
       assert page.has_no_content?('Change Gene Interest')
     end

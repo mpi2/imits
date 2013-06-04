@@ -405,7 +405,7 @@ table.report_table th, .report table th {
 }
 
 table.report_table td, .report table td {
-        padding: 3px 3px;
+  padding: 3px 3px;
 }
 
 table.report_table tr.odd td, .report table tr.odd td {
@@ -841,6 +841,14 @@ div.report_control * {
   text-align:center;
 }
 
+.report.qc_report table.qc_summary_table {
+  margin:30px 0;
+}
+
+.report.qc_report table.descriptions {
+  margin:30px 0;
+}
+
 .report.qc_report table.descriptions thead th {
   text-align:left;
 }
@@ -885,6 +893,11 @@ div.report_control * {
   background-color:#F8A8F1;
 }
 
+.report.qc_report table.descriptions td i {
+  font-style:italic;
+  font-size:.9em;
+}
+
 .report.qc_report table .histo {
   width:200px;
   height:40px;
@@ -913,6 +926,7 @@ div.report_control * {
   font-size:1em;
   font-family: Verdana, sans-serif;
   margin:10px 0;
+  line-height:1.6;
 }
 
 /* MiAttempt QC image */
@@ -962,8 +976,12 @@ div.report_control * {
   list-style-type:disc;
 }
 
-.report.sliding-efficiency {
-
+.report.sliding-efficiency  p {
+  font-weight:normal;
+  font-size:1em;
+  font-family: Verdana, sans-serif;
+  margin:10px 0;
+  line-height:1.6;
 }
 
 .report.sliding-efficiency .wrap {

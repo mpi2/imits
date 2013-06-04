@@ -2,7 +2,7 @@
   <%= javascript_include_tag('canvasjs.min') %>
 <% end %>
 
-<% @title = "#{@consortium_name}/#{@production_centre_name} Pipeline efficiency (Sliding scale)" %>
+<% @title = "#{@consortium_name} / #{@production_centre_name} Moving Pipeline Efficiency" %>
 
 <h2><%= @title %></h2>
 
@@ -10,6 +10,15 @@
 
 <div class='report sliding-efficiency'>
 
+  <p>This graph is created by dividing all the microinjections for this Consortium / Production centre into bins, with 50 MI's / bin. Inside each bin we calculate the efficiency as follows:</p>
+
+  <p>Unique number of Genes for Genotype Confirmed MI's in Bin / (Total number of MI's in Bin = 50)</p>
+
+  <p>
+    This is the same efficiency calculation used in the standard report page, with the exception that it's performed on a bin of 50 MI's.
+    The date visible on the x-axis is the date of the earliest MI in each bin"
+  </p>
+  
   <div class='wrap'>
     <% left = 0 %>
     <% width = 4 %>
@@ -42,5 +51,5 @@
   </div>
 
   <div class='graph' id='line_graph'></div>
-  <div class='graph' id='new_bar_graph'></div>
+  <!--<div class='graph' id='new_bar_graph'></div>-->
 </div>

@@ -430,17 +430,17 @@ class ImpcCentreByMonthReport
               series.date,
               production_centre,
               SUM(CASE
-                WHEN counts.count > 0 AND cre_date >= series.date AND cre_date < date(series.date + interval '1 month')
+                WHEN cre_date = series.date
                 THEN 1
                 ELSE 0
               END) as cre_excised_or_better_count,
                 SUM(CASE
-                WHEN counts.count > 0 AND ps_date >= series.date AND ps_date < date(series.date + interval '1 month')
+                WHEN ps_date = series.date
                 THEN 1
                 ELSE 0
               END) as phenotype_started_or_better_count,
               SUM(CASE
-                WHEN counts.count > 0 AND pc_date >= series.date AND pc_date < date(series.date + interval '1 month')
+                WHEN pc_date = series.date
                 THEN 1
                 ELSE 0
               END) as phenotype_complete_count
@@ -448,9 +448,9 @@ class ImpcCentreByMonthReport
               SELECT
                 genes.id as gene_id,
                 centres.name as production_centre,
-                cre_stamps.created_at as cre_date,
-                ps_stamps.created_at as ps_date,
-                pc_stamps.created_at as pc_date,
+                date_trunc('MONTH', cre_stamps.created_at) as cre_date,
+                date_trunc('MONTH', ps_stamps.created_at) as ps_date,
+                date_trunc('MONTH', pc_stamps.created_at) as pc_date,
                 count(*)
               FROM genes
               JOIN mi_plans ON mi_plans.gene_id = genes.id

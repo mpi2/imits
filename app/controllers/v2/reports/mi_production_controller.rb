@@ -7,6 +7,14 @@ class V2::Reports::MiProductionController < ApplicationController
 
   helper :reports
 
+  before_filter do
+    if params[:format] == 'csv'
+      response.headers["Cache-Control"] = "no-cache"
+      response.headers["Content-Type"] = "text/csv"
+      response.headers["Content-Disposition"] = "attachment;filename=#{action_name}-#{Date.today.to_s(:db)}.csv"
+    end
+  end
+
   def production_detail
     @intermediate_report = NewIntermediateReport.search(params[:q]).result.order('id asc')
   end

@@ -61,7 +61,7 @@
       </a>
     </div>
 
-  <h3>KOMP2 Production Reports <%= @generated_message %></h3>
+  <h3>KOMP2 Production Reports</h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_production_summary) %>">
         <h4>Production for KOMP2 Consortia</h4>
@@ -94,7 +94,7 @@
     </div>
     -->
 
-  <h3>IMPC Production Reports <%= @generated_message %></h3>
+  <h3>IMPC Production Reports</h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium_and_accumulated_status) %>">
         <h4>All Consortia - Key Statuses</h4>
@@ -112,19 +112,26 @@
       <h4>Monthly Production for IMPC Consortia (tables only)</h4>
       </a>
     </div>
-
+    <!--
     <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month) %>">
       <h4>Monthly Production for IMPC Production centres</h4>
       </a>
     </div>
-    <!--
+    
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_month_by_month_activity_impc) %>">
       <h7>IMPC Month-by-month activity (Legacy- all monthly attempts)</h7>
       </a>
     </div>
     -->
+
+  <h3>EUCOMMToolsCre Production Reports</h3>
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :eucomm_tools_production_summary) %>">
+        <h4>Production for EUCOMMToolsCre</h4>
+      </a>
+    </div>
 
 </div>
 

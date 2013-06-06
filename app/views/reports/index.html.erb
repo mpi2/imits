@@ -205,6 +205,12 @@
 <% if current_user.admin %>
 
   <div class="grid_4">
+    <div class="report-links">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month) %>">
+      <h4>Monthly Production for IMPC Production centres</h4>
+      </a>
+    </div>
+
     <h3>MGP Production</h3>
 
       <div class="report-links">

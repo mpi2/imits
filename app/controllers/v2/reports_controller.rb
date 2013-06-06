@@ -4,6 +4,14 @@ class V2::ReportsController < ApplicationController
 
   before_filter :authenticate_user!
 
+  before_filter do
+    if params[:format] == 'csv'
+      response.headers["Cache-Control"] = "no-cache"
+      response.headers["Content-Type"] = "text/csv"
+      response.headers["Content-Disposition"] = "attachment;filename=#{action_name}-#{Date.today.to_s(:db)}.csv"
+    end
+  end
+
   def index
     redirect_to reports_path
   end

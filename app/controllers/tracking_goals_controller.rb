@@ -25,7 +25,7 @@ class TrackingGoalsController < ApplicationController
     if @tracking_goal.save
       respond_with @tracking_goal
     else
-      render :json => {'error' => 'Could not create production goal (invalid data)'}, :status => 422
+      render :json => {'error' => 'Could not create tracking goal (invalid data)'}, :status => 422
     end
   end
 
@@ -34,9 +34,9 @@ class TrackingGoalsController < ApplicationController
     
     respond_to do |format|
       if @tracking_goal.update_attributes(params[:tracking_goal])
-        format.json { respond_with @tracking_goal }
+        format.json { render :json => @tracking_goal.to_json }
       else
-        format.json { render :json => {'error' => 'Could not update production goal (invalid data)'}, :status => 422 }
+        format.json { render :json => {'error' => 'Could not update tracking goal (invalid data)'}, :status => 422 }
       end
     end
   end

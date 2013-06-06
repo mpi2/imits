@@ -1265,5 +1265,29 @@ class MiPlanTest < ActiveSupport::TestCase
       end
     end
 
+    context '#es_cells_received_on and #es_cells_received_from' do
+      should 'should have a value if \'number_of_es_cells_received\' has a value' do
+        mi_plan = Factory.create :mi_plan
+        mi_plan.number_of_es_cells_received = 1
+        assert_false mi_plan.save
+
+        mi_plan.es_cells_received_on = Date.today
+        mi_plan.es_cells_received_from_name = 'EUMMCR'
+        assert_true mi_plan.save
+      end
+    end
+
+    context '#es_cells_received_from' do
+      should 'only be in MiPlan::PIPELINES' do
+        mi_plan = Factory.create :mi_plan
+        mi_plan.number_of_es_cells_received = 1
+        mi_plan.es_cells_received_on = Date.today
+        mi_plan.es_cells_received_from_name = 'ASD'
+        assert_false mi_plan.save
+
+        mi_plan.es_cells_received_from_name = 'EUMMCR'
+        assert_true mi_plan.save
+      end
+    end
   end
 end

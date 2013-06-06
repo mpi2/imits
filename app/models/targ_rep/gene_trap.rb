@@ -17,6 +17,7 @@ class TargRep::GeneTrap < TargRep::Allele
 
 end
 
+
 # == Schema Information
 #
 # Table name: targ_rep_alleles

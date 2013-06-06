@@ -1,0 +1,55 @@
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('canvasjs.min') %>
+<% end %>
+
+<% @title = "#{@consortium_name} / #{@production_centre_name} Moving Pipeline Efficiency" %>
+
+<h2><%= @title %></h2>
+
+<!--<p><%= link_to 'Download as CSV', report_csv_path %></p>-->
+
+<div class='report sliding-efficiency'>
+
+  <p>This graph is created by dividing all the microinjections for this Consortium / Production centre into bins, with 50 MI's / bin. Inside each bin we calculate the efficiency as follows:</p>
+
+  <p>Unique number of Genes for Genotype Confirmed MI's in Bin / (Total number of MI's in Bin = 50)</p>
+
+  <p>
+    This is the same efficiency calculation used in the standard report page, with the exception that it's performed on a bin of 50 MI's.
+    The date visible on the x-axis is the date of the earliest MI in each bin"
+  </p>
+  
+  <div class='wrap'>
+    <% left = 0 %>
+    <% width = 4 %>
+    <% group_amount = 50.0 %>
+    <% gtc_genes = @report.mi_attempts.select{|mi| mi.status_id == 2}.map{|mi| mi.gene.id} %>
+    <% gtc_gene_count = gtc_genes.uniq.size %>
+    <% mis = @report.mi_attempts %>
+    <% mis_count = mis.size %>
+
+    <% mis_count.times do |group| %>
+        <% subset = mis[group..(group+(group_amount-1))] %>
+        <% break if subset.blank? %>
+        <% subset_genes = subset.select{|mi| mi.status_id == 2}.map{|mi| mi.gene.id}.uniq.size %>
+        <% next if subset.size < group_amount && group > 0 %>
+        <% efficiency = (subset_genes.to_f / subset.size.to_f).round(2) %>
+
+      <div class='bin'
+        data-number='<%= group + 1 %>'>
+
+        <div class='bar'
+          data-first='<%= subset.first.id %>'
+          data-last='<%= subset.last.id %>'
+          data-date='<%= subset.first.mi_date %>'
+          data-mi-total='<%= subset.size %>'
+          data-gene-total='<%= subset_genes %>'
+          data-efficiency='<%= efficiency = (subset_genes.to_f / subset.size.to_f).round(2) %>'
+          data-height='width:2px; height:<%= efficiency * 200 %>px;'></div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class='graph' id='line_graph'></div>
+  <!--<div class='graph' id='new_bar_graph'></div>-->
+</div>

@@ -333,6 +333,7 @@ class TargRep::Allele < ActiveRecord::Base
 
 end
 
+
 # == Schema Information
 #
 # Table name: targ_rep_alleles

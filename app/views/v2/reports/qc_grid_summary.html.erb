@@ -11,7 +11,11 @@
 
   <p><%= link_to 'Download full grid as CSV', url_for(:controller => "v2/reports", :action => :qc_grid, :format => 'csv') %></p>
 
-  <p>This page summarises the QC assays performed on mice which have been declared <strong>Genotype Confirmed</strong> in Tarmits.</p>
+  <p>
+    This page summarises the QC assays performed on mice which have been declared <strong>Genotype Confirmed</strong> in Tarmits.
+    Each Genotype Confirmed Mouse line is scored in four categories.
+    Each category is given a score from 1-6, based on the assays recorded for each mouse
+  </p>
 
   <p>The Wellcome Trust Sanger Institute has defined four categories of assay:</p>
 
@@ -44,11 +48,14 @@
     </tbody>
   </table>
 
-  <p>Each mouse line is given a score between 1 and 6 depending on the assays recorded in Tarmits. We have summarised the average score per category for each Consortium/Production centre.</p>
+  <p>
+    Each mouse line is given a score between 1 and 6 depending on the assays recorded in Tarmits. We have summarised the average score per category for each Consortium/Production centre.
+    The relationship between recorded assays and scores is detailed <a href="#key">here</a>.
+  </p>
 
-  <p>Click through to see a summary of all genotyped confirmed lines, their assays, and their scores. Use the download CSV links to retrieve all the data used in these calculations.</p>
+  <p>The table below records the AVERAGE score in each category for all the Genotype Confirmed Mouse lines grouped by Consortium/Production Centre. Click through to see a summary of all genotyped confirmed lines, their assays, and their scores. Use the download CSV links to retrieve all the data used in these calculations.</p>
 
-  <table>
+  <table class='qc_summary_table'>
   
     <thead>
       <tr>
@@ -107,4 +114,136 @@
     </tbody>
   
   </table>
+
+  <a id='key'></a>
+
+  <p>This table details the relationship between the score for each category and the genotyping assays recorded for each Genotype Confirmed mouse line in Tarmits.</p>
+  <p>Some scores have no applicable assays in Tarmits: in this case we state "currently not implemented"</p>
+
+  <table class='descriptions'>
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Score</th>
+        <th>Assays which need to pass</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Targeting</td>
+        <td>6</td>
+        <td>Southern Blot</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>5</td>
+        <td>Homozygous LOA QPCR or Homozygous LOA SRPCR</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>4</td>
+        <td>5' LRPCR and 3' LRPCR and mutant specific SRPCR</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>3</td>
+        <td>5' LRPCR and 3' LRPCR</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>2</td>
+        <td>5' LRPCR or 3' LRPCR</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>1</td>
+        <td>No verification beyond ES Cell</td>
+      </tr>
+      <tr>
+        <td colspan=3>Cassette Structure</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>5</td>
+        <td>Full sequencing of cassette (currently not implemented)</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>4</td>
+        <td>Amplification of PCR tiling array across whole cassette (currently not implemented)</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>3</td>
+        <td>Neo Count QPCR</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>2</td>
+        <td>LacZ SRPCR</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>1</td>
+        <td>No verification beyond ES Cell</td>
+      </tr>
+      <tr>
+        <td colspan=3>3' LoxP verification</td>
+      </td>
+      <tr>
+        <td><i>Not applicable to deletions</i></td>
+        <td>5</td>
+        <td>Sequencing of PCR product from levels 3 or 4</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>4</td>
+        <td>Amplification using gene-specific srPCR-assay</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>3</td>
+        <td>"LoxP confirmation" - not specified in Tarmits, but is SRPCR - based in practice.</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>2</td>
+        <td>Amplification using qPCR-based universal assay (currently not implemented)</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>1</td>
+        <td>No verification beyond ES Cell</td>
+      </tr>
+      <tr>
+        <td colspan=3>No Additional Vector Insertions</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>5</td>
+        <td>Genome Sequencing of mouse (currently not implemented)</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>4</td>
+        <td>Southern Blot</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>3</td>
+        <td>Neo Count QPCR and Targeting vector Backbone assay</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>2</td>
+        <td>Vector Backbone Assay</td>
+      </tr>
+      <tr>
+        <td></td>
+        <td>1</td>
+        <td>No verification beyond ES Cell</td>
+      </tr>
+    </tbody>
+  </table>
+
 </div>

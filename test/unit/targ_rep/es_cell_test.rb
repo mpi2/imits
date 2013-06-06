@@ -42,7 +42,12 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
         :user_qc_neo_sr_pcr,
         :user_qc_karyotype_spread,
         :user_qc_karyotype_pcr,
-        :user_qc_loxp_srpcr_and_sequencing
+        :user_qc_loxp_srpcr_and_sequencing,
+        :user_qc_chr1,
+        :user_qc_chr11,
+        :user_qc_chr8,
+        :user_qc_chry,
+        :user_qc_lacz_qpcr
         ]
 
       pass_fail_only_qc_fields.each do |qc_field|

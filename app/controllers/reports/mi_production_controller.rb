@@ -34,41 +34,12 @@ class Reports::MiProductionController < ApplicationController
     render :text => @report.to_html, :layout => false if feed
   end
 
-  def summary_3_helper(report_class)
-    @title2 = report_class.report_title
-
-    if params[:consortium]
-      params[:format] = request.format
-      params[:script_name] = request.env['REQUEST_URI']
-      @report_data = report_class.generate(params)
-      @title2 = @report_data[:title]
-
-      if request.format == :csv
-        send_data_csv("#{report_class.report_name}_detail.csv", @report_data[:csv])
-      else
-        render :action => 'summary_3'
-      end
-      return
-    end
-
-    query = ReportCache.where(:name => report_class.report_name)
-
-    @report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data}
-
-    if request.format == :csv
-      send_data_csv("#{report_class.report_name}.csv", @report_data[:csv])
-    else
-      render :action => 'summary_3'
-    end
-  end
-  private :summary_3_helper
-
   def summary_komp23
-    summary_3_split_helper(Reports::MiProduction::SummaryKomp23)
+    redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :komp2_production_summary) and return
   end
 
   def summary_impc3
-    summary_3_helper(Reports::MiProduction::SummaryImpc3)
+    redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :impc_production_summary) and return
   end
 
   def languishing
@@ -125,8 +96,6 @@ class Reports::MiProductionController < ApplicationController
     end
   end
 
-  private :summary_3_helper
-
   def summary_month_by_month_activity_impc
     month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityImpc)
   end
@@ -136,21 +105,11 @@ class Reports::MiProductionController < ApplicationController
   end
 
   def summary_month_by_month_activity_komp2_compressed
-    @report_data = Reports::MiProduction::SummaryMonthByMonthActivityKomp2Compressed.new
-    if request.format == :csv
-      send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv)
-    else
-    render :action => 'summary_month_by_month_activity_komp2_compressed'
-    end
+    redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :komp2_summary_by_month) and return
   end
 
   def summary_month_by_month_activity_impc_intermediate
-    @report_data = Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate.new
-    if request.format == :csv
-      send_data_csv("#{@report_data.class.report_name}.csv", @report_data.csv)
-    else
-    render :action => 'summary_month_by_month_activity_komp2_compressed'
-    end
+    redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :impc_summary_by_month) and return
   end
 
   def month_by_month_helper_no_cache(report_class)
@@ -173,36 +132,6 @@ class Reports::MiProductionController < ApplicationController
   def summary_month_by_month_activity_all_centres_komp2
     month_by_month_helper_no_cache(Reports::MiProduction::SummaryMonthByMonthActivityAllCentresKomp2)
   end
-
-  def summary_3_split_helper(report_class)
-    @title2 = report_class.report_title
-
-    if params[:consortium]
-      params[:format] = request.format
-      params[:script_name] = request.env['REQUEST_URI']
-      @report_data = report_class.generate(params)
-      @title2 = @report_data[:title]
-
-      if request.format == :csv
-        send_data_csv("#{report_class.report_name}_detail.csv", @report_data[:csv])
-      else
-        render :action => 'summary_3'
-      end
-      return
-    end
-
-    query = ReportCache.where(:name => report_class.report_name)
-    @mouse_html = query.where(:format=>'mouse_html').first.data
-    @pheno_html = query.where(:format=>'pheno_html').first.data
-    csv = query.where(:format=>'csv').first.data
-
-    if request.format == :csv
-      send_data_csv("#{report_class.report_name}.csv", csv)
-    else
-      render :action => 'summary_3_split'
-    end
-  end
-  private :summary_3_split_helper
 
   def impc_graph_report_download_image
     filename = params[:chart_file_name].split('/').pop

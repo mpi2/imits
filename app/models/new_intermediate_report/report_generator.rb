@@ -1,4 +1,4 @@
-class NewIntermediateReport
+module NewIntermediateReport::ReportGenerator
   class Generate
     attr_accessor :report_rows, :size, :clone_efficiencies, :gene_efficiencies
 

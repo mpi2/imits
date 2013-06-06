@@ -219,6 +219,10 @@ $(document).ready(function() {
         $('.cell-popup').hide();
     })
 
+    //
+    // QC summary graphs
+    //
+
     var $histoFrame = $('.histo');
 
     $histoFrame.each(function() {
@@ -248,4 +252,74 @@ $(document).ready(function() {
             columnCount -= 1;
         })
     })
+
+    //
+    // Sliding efficiency graph
+    //
+    $('.sliding-efficiency .graph').efficiencyGraph();
+
 })
+
+$.fn.efficiencyGraph = function() {
+
+    $(this).each(function() {
+
+        var $lineFrame = $(this);
+        var id = $lineFrame.attr('id');
+        
+        var $bars = $('.bar');
+
+        var y = [];
+        var labels = [];
+
+        var $bars = $('.bar');
+
+        $bars.each(function() {
+            $bar = $(this);
+            y.push($bar.data().efficiency || 0);
+            var label = $bar.data().date
+            labels.push(label)
+        })
+
+
+        var dataPoints = []
+
+        for(var i=0; i<labels.length; i++) {
+            dataPoints.push({
+                label: labels[i],
+                y: y[i],
+                markerColor: '#2f69bf'
+            })
+        }
+
+        CanvasJS.addColorSet("blue", ['#2f69bf'])
+
+        var chart = new CanvasJS.Chart(id, {
+            axisY: {
+                title: 'Efficiency',
+                maximum: 1,
+                minimum: 0
+            },
+
+            title:{
+                text: "Average Efficiency, based on a moving 50 - microinjection window"
+            },
+            data: [
+                {
+                    type: "splineArea",
+                    color: "rgba(47,105,191,.7)",
+                    lineColor: "black",
+                    markerSize: 2,
+                    lineThickness: 1,
+                    dataPoints: dataPoints
+                }
+            ]
+        });
+
+        chart.render();
+
+    });
+
+
+    return $(this)
+}

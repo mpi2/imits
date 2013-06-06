@@ -1,8 +1,19 @@
 class V2::Reports::MiProductionController < ApplicationController
 
-  before_filter :params_cleaned_for_search
+  before_filter :params_cleaned_for_search, :except => [:all_mi_attempt_summary, :genes_gt_mi_attempt_summary]
+
+  before_filter :authenticate_user!, :except => [:mgp_production_by_subproject, :mgp_production_by_priority]
+  before_filter :authenticate_user_if_not_sanger, :only => [:mgp_production_by_subproject, :mgp_production_by_priority]
 
   helper :reports
+
+  before_filter do
+    if params[:format] == 'csv'
+      response.headers["Cache-Control"] = "no-cache"
+      response.headers["Content-Type"] = "text/csv"
+      response.headers["Content-Disposition"] = "attachment;filename=#{action_name}-#{Date.today.to_s(:db)}.csv"
+    end
+  end
 
   def production_detail
     @intermediate_report = NewIntermediateReport.search(params[:q]).result.order('id asc')
@@ -56,10 +67,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @mi_plan_statuses = EucommToolsProductionReport.mi_plan_statuses
 
     render :template => 'v2/reports/mi_production/production_summary'
-  end 
-
-  skip_before_filter :authenticate_user!
-  before_filter :authenticate_user_if_not_sanger, :only => [:mgp_production_by_subproject, :mgp_production_by_priority]
+  end
 
   def mgp_production_by_subproject
     @report  = SubProjectReport.new
@@ -97,6 +105,40 @@ class V2::Reports::MiProductionController < ApplicationController
     @report = ImpcCentreByMonthReport.new
     @centre_by_month = @report.report_rows
     @columns = ImpcCentreByMonthReport.columns
+    @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
+  end
+
+  def genes_gt_mi_attempt_summary
+    @consortia = params[:consortia].split(',')
+    @production_centres = params[:centres].split(',')
+
+    @title = ''
+    @report = BaseProductionReport.new
+    @report.class.available_consortia = @consortia
+    @report.class.available_production_centres = @production_centres
+    @micro_injection_list = @report.most_advanced_gt_mi_for_genes
+
+    render :template => 'v2/reports/mi_production/mi_attempt_summary'
+  end
+
+  def all_mi_attempt_summary
+    @consortia = params[:consortia].split(',')
+    @production_centres = params[:centres].split(',')
+
+    @title = ''
+
+    @report = BaseProductionReport.new
+    @report.class.available_consortia = @consortia
+    @report.class.available_production_centres = @production_centres
+    @micro_injection_list = @report.micro_injection_list
+
+    render :template => 'v2/reports/mi_production/mi_attempt_summary'
+  end
+  
+  def sliding_efficiency
+    @consortium_name = params[:consortium] || params[:consortium_name] || params[:consortia]
+    @production_centre_name = params[:centre] || params[:production_centre_name] || params[:centre_name]
+    @report = SlidingEfficiencyReport.new(@consortium_name, @production_centre_name)
   end
 
   private
@@ -172,11 +214,11 @@ class V2::Reports::MiProductionController < ApplicationController
       elsif ['genotype confirmed mice', 'genotype confirmed'].include?(hash['type'].to_s.downcase)
         hash['mi_attempt_status_eq'] = 'Genotype confirmed'
         translate_date(hash, hash['mi_attempt_status_eq'])
-      
+
       elsif ['microinjection aborted', 'micro-injection aborted'].include?(hash['type'].to_s.downcase)
         hash['mi_attempt_status_eq'] = 'Micro-injection aborted'
         translate_date(hash, hash['mi_attempt_status_eq'])
-      
+
       elsif hash['type'].to_s.downcase == 'phenotype attempt registered'
         hash['phenotype_attempt_status_eq'] = 'Phenotype Attempt Registered'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
@@ -184,31 +226,31 @@ class V2::Reports::MiProductionController < ApplicationController
       elsif ['intent to phenotype', 'registered for phenotyping'].include?(hash['type'].to_s.downcase)
         hash['phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
         translate_date(hash, 'Phenotype Attempt Registered')
-      
+
       elsif hash['type'].to_s.downcase == 'rederivation started'
         hash['phenotype_attempt_status_eq'] = 'Rederivation Started'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
-      
+
       elsif hash['type'].to_s.downcase == 'rederivation completed'
         hash['phenotype_attempt_status_eq'] = 'Rederivation Complete'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
-      
+
       elsif hash['type'].to_s.downcase == 'cre excision started'
         hash['phenotype_attempt_status_eq'] = 'Cre Excision Started'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
-      
+
       elsif hash['type'].to_s.downcase == 'cre excision completed'
         hash['phenotype_attempt_status_eq'] = 'Cre Excision Complete'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
-      
+
       elsif hash['type'].to_s.downcase == 'phenotyping started'
         hash['phenotype_attempt_status_eq'] = 'Phenotyping Started'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
-      
+
       elsif hash['type'].to_s.downcase == 'phenotyping completed'
         hash['phenotype_attempt_status_eq'] = 'Phenotyping Complete'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
-      
+
       elsif ['phenotyping aborted', 'phenotype attempt aborted'].include?(hash['type'].to_s.downcase)
         hash['phenotype_attempt_status_eq'] = 'Phenotype Attempt Aborted'
         translate_date(hash, hash['phenotype_attempt_status_eq'])
@@ -216,7 +258,7 @@ class V2::Reports::MiProductionController < ApplicationController
       elsif ['genotype confirmed mice 6 months'].include?(hash['type'].to_s.downcase)
         hash['mi_attempt_status_eq'] = 'Genotype confirmed'
         hash['genotype_confirmed_date_gteq'] = 6.months.ago.to_date
-      
+
       elsif ['microinjection aborted 6 months'].include?(hash['type'].to_s.downcase)
         hash['mi_attempt_status_eq'] = 'Micro-injection aborted'
         hash['micro_injection_aborted_date_gteq'] = 6.months.ago.to_date
@@ -242,7 +284,7 @@ class V2::Reports::MiProductionController < ApplicationController
 
     def translate_date(hash, type)
       return if hash['date'].blank?
-      
+
       month_begins = Date.parse(hash['date'])
       next_month = month_begins + 1.month
 

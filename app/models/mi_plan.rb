@@ -16,6 +16,8 @@ class MiPlan < ApplicationModel
   belongs_to :production_centre, :class_name => 'Centre'
   belongs_to :es_qc_comment
 
+  belongs_to :es_cells_received_from, :class_name => 'TargRep::CentrePipeline'
+
   has_many :mi_attempts
   has_many :status_stamps, :order => "#{MiPlan::StatusStamp.table_name}.created_at ASC",
           :dependent => :destroy
@@ -23,6 +25,8 @@ class MiPlan < ApplicationModel
   has_many :es_cell_qcs, :dependent => :delete_all
 
   accepts_nested_attributes_for :status_stamps
+
+  access_association_by_attribute :es_cells_received_from, :name
 
   protected :status=
 
@@ -101,6 +105,20 @@ class MiPlan < ApplicationModel
     end
   end
 
+  validate do |plan|
+    update_es_cell_received
+
+    if !plan.number_of_es_cells_received.blank?
+      if es_cells_received_on.blank?
+        plan.errors.add(:es_cells_received_on, 'cannot be blank if \'number_of_es_cells_received\' has a value')
+      end
+
+      if es_cells_received_from_id.blank?
+        plan.errors.add(:es_cells_received_from, 'cannot be blank if \'number_of_es_cells_received\' has a value')
+      end
+    end
+  end
+
   # BEGIN Callbacks
 
   before_validation :set_default_number_of_es_cells_starting_qc
@@ -118,6 +136,10 @@ class MiPlan < ApplicationModel
   after_destroy :conflict_resolve_others
 
   before_save :update_es_cell_qc
+  
+  before_save :update_es_cell_received
+
+  scope :phenotype_only, where(:phenotype_only => true)
 
   private
 
@@ -135,6 +157,15 @@ class MiPlan < ApplicationModel
       )
     end
 
+  end
+
+  def update_es_cell_received
+    if number_of_es_cells_received.blank? && number_of_es_cells_starting_qc.to_i > 0
+      return if centre_pipeline.blank?
+      self.number_of_es_cells_received = number_of_es_cells_starting_qc
+      self.es_cells_received_on = Date.today
+      self.es_cells_received_from_name = centre_pipeline
+    end
   end
 
   def set_default_number_of_es_cells_starting_qc
@@ -178,6 +209,14 @@ class MiPlan < ApplicationModel
 
   delegate :marker_symbol, :to => :gene
   delegate :mgi_accession_id, :to => :gene
+
+  def centre_pipeline
+    @centre_pipeline ||= TargRep::CentrePipeline.all.find{|p| p.centres.include?(default_pipeline.try(:name)) }.try(:name)
+  end
+
+  def default_pipeline
+    @default_pipeline ||= self.mi_attempts.first.try(:es_cell).try(:pipeline)
+  end
 
   def latest_relevant_mi_attempt
     @@status_sort_order ||= {
@@ -417,6 +456,7 @@ class MiPlan < ApplicationModel
   end
 end
 
+
 # == Schema Information
 #
 # Table name: mi_plans
@@ -446,6 +486,9 @@ end
 #  recovery                       :boolean
 #  conditional_tm1c               :boolean         default(FALSE), not null
 #  ignore_available_mice          :boolean         default(FALSE), not null
+#  number_of_es_cells_received    :integer
+#  es_cells_received_on           :date
+#  es_cells_received_from_id      :integer
 #
 # Indexes
 #

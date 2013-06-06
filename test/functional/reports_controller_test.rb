@@ -49,5 +49,6 @@ class ReportsControllerTest < ActionController::TestCase
           end
         end
       end
+    end
   end
 end

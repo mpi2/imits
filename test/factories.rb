@@ -95,6 +95,15 @@ Factory.define :mi_plan_with_recent_status_history2, :parent => :mi_plan do |mi_
   end
 end
 
+Factory.define :mi_plan_with_recent_status_history3, :parent => :mi_plan do |mi_plan|
+  mi_plan.after_create do |plan|
+    plan.number_of_es_cells_starting_qc = 2
+    plan.save!
+    plan.number_of_es_cells_passing_qc = 2
+    plan.save!
+  end
+end
+
 #Factory.define :mi_attempt do |mi_attempt|
 #  mi_attempt.association :es_cell, :factory => :es_cell
 #  mi_attempt.consortium_name 'EUCOMM-EUMODIC'
@@ -700,7 +709,7 @@ This gene will be considered for mouse production by the IMPC.
 
 <% if gene[:relevant_status][:status] %>
 <% @relevant_status = gene[:relevant_status] %>
-<%= render :partial => "notification_mailer/welcome_email/" + gene[:relevant_status][:status].to_s %>
+<%#= render :partial => "notification_mailer/welcome_email/" + gene[:relevant_status][:status].to_s %>
 <% end %>
 
 <% if gene[:total_cell_count] > 0 %>

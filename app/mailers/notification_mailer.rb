@@ -20,12 +20,20 @@ class NotificationMailer < ActionMailer::Base
       modifier_string = "is not"
       modifier_string = "is" if gene.mi_plans.any? {|plan| plan.is_active? }
 
+      #gene.mi_plans.each do |plan|
+      #  raise "#### found active #{gene.marker_symbol}!" if plan.is_active?
+      #end
+
       relevant_status = gene.relevant_status
-      relevant_status = relevant_status ? { :status => relevant_status[:status], :date => relevant_status[:date] }: nil
+      relevant_status = ! relevant_status.empty? ? { :status => relevant_status[:status], :date => relevant_status[:date] } :
+      { :status => 'unknown', :date => Date.today }
+
+      # puts "#### relevant_status 2:"
+      #  pp relevant_status
 
       genes_array.push({
         :marker_symbol => gene.marker_symbol,
-        :modifier_string => "is not",
+        :modifier_string => modifier_string,
         :relevant_status => relevant_status,
         :total_cell_count => gene.es_cells_count,
         :conditional_es_cells_count => gene.conditional_es_cells_count,
@@ -36,7 +44,7 @@ class NotificationMailer < ActionMailer::Base
       })
     end
 
-    mailer = self.welcome_email_new({:contact_email => contact.email, :genes => genes_array})
+    mailer = self.welcome_email_bulk({:contact_email => contact.email, :genes => genes_array})
     if mailer
       ApplicationModel.audited_transaction do
 
@@ -52,72 +60,84 @@ class NotificationMailer < ActionMailer::Base
     end
   end
 
-  #def welcome_email_x(notification)
-  #  @genes = contact[:genes]
-  #  @contact_email = contact[:contact_email]
-  #  @gene_list = []
-  #  @genes.each do |gene|
-  #    @gene_list.push gene[:marker_symbol]
-  #  end
-  #
-  #  @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
-  #  @email_template = EmailTemplate.find_by_status('welcome_new')
-  #  email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
-  #
-  #  email_body.gsub!(/\n\n+/, "\n\n")
-  #
-  #  mail(:to => @contact_email, :subject => "Welcome from the MPI2 (KOMP2) informatics consortium") do |format|
-  #    format.text { render :inline => email_body }
-  #  end
-  #end
-
-  #def welcome_email_old(notification)
-  #
-  #  @contact = Contact.find(notification.contact_id)
-  #  @gene = Gene.find(notification.gene_id)
-  #  @relevant_status = @gene.relevant_status
-  #
-  #  set_attributes
-  #
-  #  @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
-  #  email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
-  #
-  #  mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
-  #    format.text { render :inline => email_body }
-  #  end
-  #end
-
-  #def welcome_email_new(contact)
-  #
-  #  @contact = Contact.find(contact.contact_id)
-  #  @gene = Gene.find(contact.gene_id)
-  #  @relevant_status = @gene.relevant_status
-  #
-  #  set_attributes
-  #
-  #  @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
-  #  email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
-  #
-  #  mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
-  #    format.text { render :inline => email_body }
-  #  end
-  #end
-
-  def welcome_email_new(contact)
+  def welcome_email_bulk(contact)
     @genes = contact[:genes]
     @contact_email = contact[:contact_email]
     @gene_list = []
     @genes.each do |gene|
-      @gene_list.push gene[:marker_symbol]
+      @gene_list.push gene[:marker_symbol] if gene[:relevant_status] && gene[:relevant_status][:status]
     end
+
+    # pp @gene_list
+
+    # pp contact
+
+    #puts "#### @genes:"
+    #pp @genes
 
     @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
 
-    #@relevant_status = @gene.relevant_status
+ #   @tsv = "Gene\tStatus\tIMPC\tIKMC\tDetails\n"
 
-    # TODO: fix me!
+    @tsv = CSV.generate do |csv|
 
-    #email_body = ERB.new(IO.read("#{Rails.root}/app/views/notification_mailer/welcome_email2.text.erb")).result(binding)
+      csv << %W{Gene Status IMPC IKMC Details}
+
+      @genes.each do |gene|
+        impc_site = ''
+        impc_site = "http://www.mousephenotype.org/data/genes/#{gene[:mgi_accession_id]}" if gene[:modifier_string] == "is"
+
+        ikmc_site = ''
+        ikmc_site = "http://www.knockoutmouse.org/search_results?criteria=#{gene[:mgi_accession_id]}" if gene[:total_cell_count] > 0
+
+        #<%= render :partial => "notification_mailer/welcome_email/" + gene[:relevant_status][:status].to_s %>
+        @relevant_status = gene[:relevant_status]
+        # email_template2 = EmailTemplate.find_by_status(gene[:relevant_status][:status])
+
+        #  puts "#### found template #{gene[:relevant_status][:status]}" if email_template2
+
+        #email_body2 = ERB.new(email_template2.welcome_body).result(binding) rescue nil
+
+        #/nfs/users/nfs_r/re4/dev/imits3/app/views/notification_mailer/welcome_email/_aborted_es_cell_qc_failed.text.erb
+
+        #if File.exist?("#{Rails.root}/app/views/notification_mailer/welcome_email/_#{gene[:relevant_status][:status]}.text.erb")
+        #  puts "#### found template #{gene[:relevant_status][:status]}"
+        #end
+
+        email_body2 = ERB.new(File.read("#{Rails.root}/app/views/notification_mailer/welcome_email/_#{gene[:relevant_status][:status]}.text.erb")).result(binding) rescue nil
+
+        #email_body2 = '' if
+
+        if email_body2 && email_body2.length < 10 && File.exist?("#{Rails.root}/app/views/notification_mailer/welcome_email/_#{gene[:relevant_status][:status]}.text.erb")
+          puts "#### found template #{gene[:relevant_status][:status]}"
+          email_body2 = ''
+        end
+
+        email_body2 = '' if ! email_body2
+
+        email_body2.gsub!(/\t/, ' ')
+        email_body2.gsub!(/\s+/, ' ')
+
+        pp email_body2
+
+        #@tsv += gene[:marker_symbol].to_s + "\t" +
+        #gene[:relevant_status][:status].to_s + "\t" +
+        #impc_site.to_s + "\t" +
+        #ikmc_site.to_s + "\t" +
+        #email_body2.to_s + "\n"
+
+        #csv << ["row", "of", "CSV", "data"]
+        #csv << ["another", "row"]
+
+        csv << [
+          gene[:marker_symbol].to_s,
+          gene[:relevant_status][:status].to_s,
+          impc_site.to_s,
+          ikmc_site.to_s,
+          email_body2.to_s
+        ]
+      end
+    end
 
     @email_template = EmailTemplate.find_by_status('welcome_new')
 
@@ -125,13 +145,13 @@ class NotificationMailer < ActionMailer::Base
 
     email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
 
-    #set_attributes
-
-    #@email_template = EmailTemplate.find_by_status(@relevant_status[:status])
-    #email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+    #return if ! email_body
 
     email_body.gsub!(/\n\n+/, "\n\n")
 
+    #  raise "#### send email!"
+
+    attachments['gene_list.tsv'] = @tsv
     mail(:to => @contact_email, :subject => "Welcome from the MPI2 (KOMP2) informatics consortium") do |format|
       format.text { render :inline => email_body }
     end
@@ -139,13 +159,7 @@ class NotificationMailer < ActionMailer::Base
 
   def status_email(notification)
 
-    #puts "#### status_email:"
-    #pp notification
-
     return if notification.welcome_email_sent.nil?
-
-    #puts "#### after"
-    #raise "#### cannot get here!"
 
     @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)
@@ -154,9 +168,6 @@ class NotificationMailer < ActionMailer::Base
 
     #This sets the relevant_statuses array in the notification
     notification.check_statuses
-
-    #puts "#### notification.relevant_statuses:"
-    #pp notification.relevant_statuses
 
     return if notification.check_statuses.empty?
 
@@ -237,12 +248,32 @@ class NotificationMailer < ActionMailer::Base
         modifier_string = "is not"
         modifier_string = "is" if gene.mi_plans.any? {|plan| plan.is_active? }
 
+        #raise "#### true!" if modifier_string == "is"
+        #
+        #gene.mi_plans.each do |plan|
+        #  raise "#### found active #{gene.marker_symbol}!" if plan.is_active?
+        #end
+
         relevant_status = gene.relevant_status
-        relevant_status = relevant_status ? { :status => relevant_status[:status], :date => relevant_status[:date] }: nil
+
+        #if relevant_status.empty?
+        #  puts "#### problem: #{gene.marker_symbol}"
+        #end
+
+        relevant_status = !relevant_status.empty? ? { :status => relevant_status[:status], :date => relevant_status[:date] } : #nil
+        { :status => 'unknown', :date => Date.today }
+
+        #puts "#### relevant_status X:"
+        #pp relevant_status
+
+        #if relevant_status[:status] =~ /abort/i
+        #  puts "#### ignore #{gene.marker_symbol}"
+        #  next
+        #end
 
         genes_array.push({
           :marker_symbol => gene.marker_symbol,
-          :modifier_string => "is not",
+          :modifier_string => modifier_string,
           :relevant_status => relevant_status,
           :total_cell_count => gene.es_cells_count,
           :conditional_es_cells_count => gene.conditional_es_cells_count,
@@ -253,9 +284,7 @@ class NotificationMailer < ActionMailer::Base
         })
       end
 
-      #contact_array.push({:contact_email => contact.email, :genes => genes_array})
-
-      mailer = self.welcome_email_new({:contact_email => contact.email, :genes => genes_array})
+      mailer = self.welcome_email_bulk({:contact_email => contact.email, :genes => genes_array})
       next if ! mailer
 
       ApplicationModel.audited_transaction do
@@ -270,24 +299,6 @@ class NotificationMailer < ActionMailer::Base
         mailer.deliver
       end
     end
-
-    #contact_array.each do |contact|
-    #  mailer = NotificationMailer.welcome_email_new(contact)
-    #  next if ! mailer
-    #
-    #  ApplicationModel.audited_transaction do
-    #
-    #    contact[:genes].each do |gene|
-    #      notification = Notification.find gene[:notification_id]
-    #      notification.welcome_email_text = mailer.body.to_s
-    #      notification.welcome_email_sent = Time.now.utc
-    #      notification.save!
-    #    end
-    #
-    #    mailer.deliver
-    #  end
-    #end
-
   end
 
   #desc 'Generate status emails'
@@ -310,6 +321,33 @@ class NotificationMailer < ActionMailer::Base
   #  end
   #end
 
+  #def self.send_status_emails_old
+  #  ApplicationModel.audited_transaction do
+  #    @excluded_statuses = ['aborted_es_cell_qc_failed', 'microinjection_aborted', 'phenotype_attempt_aborted']
+  #    notifications = Notification.all
+  #    puts "#### 1"
+  #    notifications.each do |this_notification|
+  #      puts "#### 2"
+  #      if !this_notification.gene.relevant_status.empty?
+  #        puts "#### 3"
+  #        if !@excluded_statuses.any? {|status| this_notification.gene.relevant_status[:status].include? status}
+  #          puts "#### 4"
+  #          if !this_notification.check_statuses.empty?
+  #            puts "#### 5"
+  #            mailer = NotificationMailer.status_email(this_notification)
+  #            this_notification.last_email_text = mailer.body.to_s
+  #            this_notification.last_email_sent = Time.now.utc
+  #            this_notification.save!
+  #            mailer.deliver
+  #          end
+  #        end
+  #      end
+  #    end
+  #  end
+  #end
+
+  # this is a replacement for the cron:status_emails rake task
+
   def self.send_status_emails
     excluded_statuses = ['aborted_es_cell_qc_failed', 'microinjection_aborted', 'phenotype_attempt_aborted']
 
@@ -327,5 +365,4 @@ class NotificationMailer < ActionMailer::Base
       end
     end
   end
-
 end

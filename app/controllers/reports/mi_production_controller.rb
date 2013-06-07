@@ -68,40 +68,12 @@ class Reports::MiProductionController < ApplicationController
     send_data_csv('languishing_production_report_detail.csv', @report.to_csv) if request.format == :csv
   end
 
-  def month_by_month_helper(report_class)
-    @title2 = report_class.report_title
-
-    if params[:consortium]
-      params[:format] = request.format
-      params[:script_name] = request.env['REQUEST_URI']
-      @report_data = report_class.generate(params)
-      @title2 = @report_data[:title]
-
-      if request.format == :csv
-        send_data_csv("#{report_class.report_name}_detail.csv", @report_data[:csv])
-      else
-        render :action => 'month_by_month'
-      end
-      return
-    end
-
-    query = ReportCache.where(:name => report_class.report_name)
-
-    @report_data = { :csv => query.where(:format => 'csv').first.data, :html => query.where(:format => 'html').first.data}
-
-    if request.format == :csv
-      send_data_csv("#{report_class.report_name}.csv", @report_data[:csv])
-    else
-      render :action => 'month_by_month'
-    end
-  end
-
   def summary_month_by_month_activity_impc
-    month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityImpc)
+    summary_month_by_month_activity_impc_intermediate
   end
 
   def summary_month_by_month_activity_komp2
-    month_by_month_helper(Reports::MiProduction::SummaryMonthByMonthActivityKomp2)
+    summary_month_by_month_activity_komp2_compressed
   end
 
   def summary_month_by_month_activity_komp2_compressed
@@ -110,27 +82,6 @@ class Reports::MiProductionController < ApplicationController
 
   def summary_month_by_month_activity_impc_intermediate
     redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :impc_summary_by_month) and return
-  end
-
-  def month_by_month_helper_no_cache(report_class)
-    @title2 = report_class.report_title
-
-    params[:script_name] = url_for(:action => 'summary_month_by_month_activity_impc')
-    @report_data = report_class.generate(params)
-
-    if request.format == :csv
-      send_data_csv("#{report_class.report_name}.csv", @report_data[:csv])
-    else
-      render :action => 'month_by_month'
-    end
-  end
-
-  def summary_month_by_month_activity_all_centres_impc
-    month_by_month_helper_no_cache(Reports::MiProduction::SummaryMonthByMonthActivityAllCentresImpc)
-  end
-
-  def summary_month_by_month_activity_all_centres_komp2
-    month_by_month_helper_no_cache(Reports::MiProduction::SummaryMonthByMonthActivityAllCentresKomp2)
   end
 
   def impc_graph_report_download_image

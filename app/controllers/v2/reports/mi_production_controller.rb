@@ -2,8 +2,8 @@ class V2::Reports::MiProductionController < ApplicationController
 
   before_filter :params_cleaned_for_search, :except => [:all_mi_attempt_summary, :genes_gt_mi_attempt_summary]
 
-  before_filter :authenticate_user!, :except => [:mgp_production_by_subproject, :mgp_production_by_priority]
-  before_filter :authenticate_user_if_not_sanger, :only => [:mgp_production_by_subproject, :mgp_production_by_priority]
+  before_filter :authenticate_user!, :except => [:production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
+  before_filter :authenticate_user_if_not_sanger, :only => [:production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
 
   helper :reports
 

@@ -16,24 +16,24 @@ class ImpcCentreByMonthReport
     @by_month_clones ||= ActiveRecord::Base.connection.execute(self.class.by_month_clones_sql).to_a
   end
 
-  def by_month_report
-    @by_month_report ||= ActiveRecord::Base.connection.execute(self.class.by_month_report_sql).to_a
+  def by_month_genes
+    @by_month_genes ||= ActiveRecord::Base.connection.execute(self.class.by_month_genes_sql).to_a
   end
 
-  def cumulative_report
-    @cumulative_report ||= ActiveRecord::Base.connection.execute(self.class.cumulative_counts_sql).to_a
+  def cumulative_clones
+    @cumulative_clones ||= ActiveRecord::Base.connection.execute(self.class.cumulative_clones_sql).to_a
   end
 
-  def cumulative_gene_count
-    @cumulative_cre ||= ActiveRecord::Base.connection.execute(self.class.cumulative_gene_count_sql).to_a
+  def cumulative_genes
+    @cumulative_cre ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql).to_a
   end
 
-  def cumulative_phenotype_started
-    @cumulative_phenotype_started ||= ActiveRecord::Base.connection.execute(self.class.cumulative_phenotype_started_count_sql).to_a
+  def cumulative_received
+    @cumulative_received ||= ActiveRecord::Base.connection.execute(self.class.cumulative_received_sql).to_a
   end
 
-  def cumulative_phenotype_complete
-    @cumulative_phenotype_complete ||= ActiveRecord::Base.connection.execute(self.class.cumulative_phenotype_complete_count_sql).to_a
+  def by_month_received
+    @by_month_received ||= ActiveRecord::Base.connection.execute(self.class.by_month_received_sql).to_a
   end
 
   def generate_report
@@ -42,14 +42,8 @@ class ImpcCentreByMonthReport
 
     @report_rows[:dates] << "To #{start_date}"
 
-    (cumulative_report + cumulative_gene_count).each do |report_row|
+    (cumulative_clones + cumulative_genes).each do |report_row|
       centre = report_row['production_centre']
-
-      self.class.es_cell_supply_columns.each do |column, key|
-        if report_row[key] || @report_rows["To #{start_date}-#{centre}-#{column}"].blank?
-          @report_rows["To #{start_date}-#{centre}-#{column}"] = report_row[key].to_i if report_row[key].to_i > 0
-        end        
-      end
 
       self.class.columns.each do |column, key|
         if report_row[key] || @report_rows["To #{start_date}-#{centre}-#{column}"].blank?
@@ -62,16 +56,12 @@ class ImpcCentreByMonthReport
       end     
     end
 
-    (by_month_clones + by_month_report).each do |report_row|
+    (by_month_clones + by_month_genes).each do |report_row|
       date = Date.parse(report_row['date']).strftime('%b %Y')
       centre = report_row['production_centre']
 
       unless @report_rows[:dates].include?(date)
         @report_rows[:dates] << date
-      end
-
-      self.class.es_cell_supply_columns.each do |column, key|
-        @report_rows["#{date}-#{centre}-#{column}"] = report_row[key].to_i if report_row[key].to_i > 0
       end
 
       self.class.columns.each do |column, key|
@@ -82,6 +72,29 @@ class ImpcCentreByMonthReport
         end
       end
 
+    end
+
+    cumulative_received.each do |report_row|
+      centre = report_row['production_centre']
+
+      self.class.es_cell_supply_columns.each do |column, key|
+        if report_row[key] || @report_rows["To #{start_date}-#{centre}-#{column}"].blank?
+          @report_rows["To #{start_date}-#{centre}-#{column}"] = report_row[key].to_i if report_row[key].to_i > 0
+        end        
+      end
+    end
+
+    by_month_received.each do |report_row|
+      date = Date.parse(report_row['date']).strftime('%b %Y')
+      centre = report_row['production_centre']
+
+      unless @report_rows[:dates].include?(date)
+        @report_rows[:dates] << date
+      end
+
+      self.class.es_cell_supply_columns.each do |column, key|
+        @report_rows["#{date}-#{centre}-#{column}"] = report_row[key].to_i if report_row[key].to_i > 0
+      end
     end
 
   end
@@ -101,8 +114,8 @@ class ImpcCentreByMonthReport
       {
         'Total injected clones' => 'mi_in_progress_count',
         'Total genotype confirmed genes' => 'genotype_confirmed_count',
-        'Cre excised genes (or better)' => 'cre_excised_or_better_count',
-        'Phenotype started genes (or better)' => 'phenotype_started_or_better_count',
+        'Cre excised genes' => 'cre_excised_or_better_count',
+        'Phenotype started genes' => 'phenotype_started_or_better_count',
         'Phenotype complete genes' => 'phenotype_complete_count'
       }
     end
@@ -146,7 +159,7 @@ class ImpcCentreByMonthReport
       ]
     end
 
-    def cumulative_counts_sql
+    def cumulative_clones_sql
       <<-EOF
         WITH
           injected_es_cells AS (
@@ -207,26 +220,19 @@ class ImpcCentreByMonthReport
             counts.production_centre,
             counts.mi_in_progress_count,
             counts.es_cells_received,
-            mip_goals.goal AS mi_in_progress_count_goal,
-            eucomm_required_goals.goal as eucomm_required,
-            komp_required_goals.goal as komp_required,
-            norcomm_required_goals.goal as norcomm_required
+            mip_goals.goal AS mi_in_progress_count_goal
 
           FROM counts
 
           JOIN centres ON centres.name = production_centre
           LEFT JOIN tracking_goals AS mip_goals ON mip_goals.date IS NULL AND centres.id = mip_goals.production_centre_id AND mip_goals.goal_type = 'total_injected_clones'
 
-          LEFT JOIN tracking_goals AS eucomm_required_goals ON eucomm_required_goals.date IS NULL AND centres.id = eucomm_required_goals.production_centre_id AND eucomm_required_goals.goal_type = 'eucomm_required'
-          LEFT JOIN tracking_goals AS komp_required_goals ON komp_required_goals.date IS NULL AND centres.id = komp_required_goals.production_centre_id AND komp_required_goals.goal_type = 'komp_required'
-          LEFT JOIN tracking_goals AS norcomm_required_goals ON norcomm_required_goals.date IS NULL AND centres.id = norcomm_required_goals.production_centre_id AND norcomm_required_goals.goal_type = 'norcomm_required'
-
           ORDER BY
             production_centre ASC
       EOF
     end
 
-    def cumulative_gene_count_sql
+    def cumulative_genes_sql
       <<-EOF
 
         WITH
@@ -432,7 +438,7 @@ class ImpcCentreByMonthReport
       EOF
     end
 
-    def by_month_report_sql
+    def by_month_genes_sql
       <<-EOF
         WITH series AS (
           SELECT generate_series('#{start_date}', '#{end_date}', interval '1 month')::date as date
@@ -560,11 +566,7 @@ class ImpcCentreByMonthReport
           gtc_goals.goal  AS genotype_confirmed_count_goal,
           cre_goals.goal AS cre_excised_or_better_count_goal,
           ps_goals.goal  AS phenotype_started_or_better_count_goal,
-          pc_goals.goal  AS phenotype_complete_count_goal,
-
-          eucomm_required_goals.goal AS eucomm_required,
-          komp_required_goals.goal AS komp_required,
-          norcomm_required_goals.goal AS norcomm_required
+          pc_goals.goal  AS phenotype_complete_count_goal
 
         FROM gtc_centres
 
@@ -577,12 +579,116 @@ class ImpcCentreByMonthReport
         LEFT JOIN tracking_goals AS ps_goals ON gtc_centres.date = ps_goals.date AND centres.id = ps_goals.production_centre_id AND ps_goals.goal_type = 'phenotype_started_genes'
         LEFT JOIN tracking_goals AS pc_goals ON gtc_centres.date = pc_goals.date AND centres.id = pc_goals.production_centre_id AND pc_goals.goal_type = 'phenotype_complete_genes'
 
-        LEFT JOIN tracking_goals AS eucomm_required_goals ON eucomm_required_goals.date = gtc_centres.date AND centres.id = eucomm_required_goals.production_centre_id AND eucomm_required_goals.goal_type = 'eucomm_required'
-        LEFT JOIN tracking_goals AS komp_required_goals ON komp_required_goals.date = gtc_centres.date AND centres.id = komp_required_goals.production_centre_id AND komp_required_goals.goal_type = 'komp_required'
-        LEFT JOIN tracking_goals AS norcomm_required_goals ON norcomm_required_goals.date = gtc_centres.date AND centres.id = norcomm_required_goals.production_centre_id AND norcomm_required_goals.goal_type = 'norcomm_required'
-
-
         ORDER BY gtc_centres.date ASC, gtc_centres.production_centre ASC
+      EOF
+    end
+
+    def cumulative_received_sql
+      <<-EOF
+        SELECT
+          production_centre,
+          es_cells_received,
+          eucomm_required_goals.goal as eucomm_required,
+          komp_required_goals.goal as komp_required,
+          norcomm_required_goals.goal as norcomm_required
+
+        FROM (
+        SELECT
+          centres.name as production_centre,
+          centres.id as production_centre_id,
+          SUM(number_of_es_cells_received) as es_cells_received
+
+        FROM mi_plans
+
+        JOIN centres ON centres.id = mi_plans.production_centre_id
+        JOIN consortia ON consortia.id = mi_plans.consortium_id
+
+          WHERE
+            (
+              centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
+            OR
+              centres.name = 'ICS' AND consortia.name IN ('Phenomin', 'Helmholtz GMC')
+            OR
+              centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
+            OR
+              centres.name = 'Harwell' AND consortia.name IN ('BaSH', 'MRC')
+            OR
+              centres.name = 'UCD' AND consortia.name = 'DTCC'
+            OR
+              centres.name = 'WTSI' AND consortia.name IN ('MGP', 'BaSH')
+            OR
+              centres.name = 'Monterotondo' AND consortia.name = 'Monterotondo'
+            )
+
+            AND mi_plans.es_cells_received_on < '#{start_date}'
+
+        GROUP BY
+          centres.name,
+          centres.id
+        ) AS counts
+
+        LEFT JOIN tracking_goals AS eucomm_required_goals ON eucomm_required_goals.date IS NULL AND counts.production_centre_id = eucomm_required_goals.production_centre_id AND eucomm_required_goals.goal_type = 'eucomm_required'
+        LEFT JOIN tracking_goals AS komp_required_goals ON komp_required_goals.date IS NULL AND counts.production_centre_id = komp_required_goals.production_centre_id AND komp_required_goals.goal_type = 'komp_required'
+        LEFT JOIN tracking_goals AS norcomm_required_goals ON norcomm_required_goals.date IS NULL AND counts.production_centre_id = norcomm_required_goals.production_centre_id AND norcomm_required_goals.goal_type = 'norcomm_required'
+      EOF
+    end
+
+    def by_month_received_sql
+      <<-EOF
+        WITH series AS (
+          SELECT generate_series('#{start_date}', '#{end_date}', interval '1 month')::date as date
+        ), counts AS (
+
+        SELECT
+          series.date,
+          centres.name as production_centre,
+          centres.id as production_centre_id,
+          SUM(CASE
+            WHEN date_trunc('MONTH', es_cells_received_on) = series.date
+            THEN number_of_es_cells_received ELSE 0
+          END) as es_cells_received
+
+        FROM mi_plans
+        CROSS JOIN series
+
+        JOIN centres ON centres.id = mi_plans.production_centre_id
+        JOIN consortia ON consortia.id = mi_plans.consortium_id
+
+          WHERE
+            centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
+          OR
+            centres.name = 'ICS' AND consortia.name IN ('Phenomin', 'Helmholtz GMC')
+          OR
+            centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
+          OR
+            centres.name = 'Harwell' AND consortia.name IN ('BaSH', 'MRC')
+          OR
+            centres.name = 'UCD' AND consortia.name = 'DTCC'
+          OR
+            centres.name = 'WTSI' AND consortia.name IN ('MGP', 'BaSH')
+          OR
+            centres.name = 'Monterotondo' AND consortia.name = 'Monterotondo'
+
+        GROUP BY
+          series.date,
+          centres.name,
+          centres.id
+
+        )
+
+        SELECT
+          counts.date,
+          production_centre,
+          es_cells_received,
+          eucomm_required_goals.goal as eucomm_required,
+          komp_required_goals.goal as komp_required,
+          norcomm_required_goals.goal as norcomm_required
+
+        FROM counts
+
+        LEFT JOIN tracking_goals AS eucomm_required_goals ON eucomm_required_goals.date = counts.date AND counts.production_centre_id = eucomm_required_goals.production_centre_id AND eucomm_required_goals.goal_type = 'eucomm_required'
+        LEFT JOIN tracking_goals AS komp_required_goals ON komp_required_goals.date = counts.date AND counts.production_centre_id = komp_required_goals.production_centre_id AND komp_required_goals.goal_type = 'komp_required'
+        LEFT JOIN tracking_goals AS norcomm_required_goals ON norcomm_required_goals.date = counts.date AND counts.production_centre_id = norcomm_required_goals.production_centre_id AND norcomm_required_goals.goal_type = 'norcomm_required'
       EOF
     end
 

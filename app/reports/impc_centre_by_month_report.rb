@@ -345,6 +345,8 @@ class ImpcCentreByMonthReport
                   phenotype_centres.phenotype_started_or_better_count,
                   phenotype_centres.phenotype_complete_count,
 
+          gtc_goals.goal as genotype_confirmed_count_goal,
+          
           cre_goals.goal as cre_excised_or_better_count_goal,
           ps_goals.goal as phenotype_started_or_better_count_goal,
           pc_goals.goal as phenotype_complete_count_goal
@@ -354,6 +356,7 @@ class ImpcCentreByMonthReport
                 LEFT JOIN phenotype_centres ON phenotype_centres.production_centre = gtc_centres.production_centre
                 JOIN centres ON centres.name = gtc_centres.production_centre
 
+          LEFT JOIN tracking_goals AS gtc_goals ON gtc_goals.date IS NULL AND centres.id = gtc_goals.production_centre_id AND gtc_goals.goal_type = 'total_glt_clones'
           LEFT JOIN tracking_goals AS cre_goals ON cre_goals.date IS NULL AND centres.id = cre_goals.production_centre_id AND cre_goals.goal_type = 'cre_exicised_genes'
           LEFT JOIN tracking_goals AS ps_goals ON ps_goals.date IS NULL AND centres.id = ps_goals.production_centre_id AND ps_goals.goal_type = 'phenotype_started_genes'
           LEFT JOIN tracking_goals AS pc_goals ON pc_goals.date IS NULL AND centres.id = pc_goals.production_centre_id AND pc_goals.goal_type = 'phenotype_complete_genes'

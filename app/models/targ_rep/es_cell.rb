@@ -17,6 +17,7 @@ class TargRep::EsCell < ActiveRecord::Base
   ##
   belongs_to :pipeline
   belongs_to :allele
+  belongs_to :ikmc_project, :class_name => "TargRep::IkmcProject", :foreign_key => :ikmc_project_foreign_id
 
   belongs_to :targeting_vector
   belongs_to :user_qc_mouse_clinic, :class_name => 'Centre'
@@ -286,6 +287,8 @@ class TargRep::EsCell < ActiveRecord::Base
 
 end
 
+
+
 # == Schema Information
 #
 # Table name: targ_rep_es_cells
@@ -338,6 +341,7 @@ end
 #  user_qc_chr8                          :string(255)
 #  user_qc_chry                          :string(255)
 #  user_qc_lacz_qpcr                     :string(255)
+#  ikmc_project_foreign_id               :integer
 #
 # Indexes
 #

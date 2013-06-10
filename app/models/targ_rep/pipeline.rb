@@ -10,7 +10,7 @@ class TargRep::Pipeline < ActiveRecord::Base
 
   has_many :targeting_vectors, :class_name => "TargRep::TargetingVector"
   has_many :es_cells, :class_name => "TargRep::EsCell"
-
+  has_many :ikmc_projects, :class_name => "TargRep::IkmcProject"
   ##
   ## Validations
   ##

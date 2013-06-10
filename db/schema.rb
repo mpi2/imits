@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130528142149) do
+ActiveRecord::Schema.define(:version => 20130604264213) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -630,6 +630,7 @@ ActiveRecord::Schema.define(:version => 20130528142149) do
     t.string   "user_qc_chr8"
     t.string   "user_qc_chry"
     t.string   "user_qc_lacz_qpcr"
+    t.integer  "ikmc_project_foreign_id"
   end
 
   add_index "targ_rep_es_cells", ["allele_id"], :name => "es_cells_allele_id_fk"
@@ -645,6 +646,18 @@ ActiveRecord::Schema.define(:version => 20130528142149) do
   end
 
   add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
+
+  create_table "targ_rep_ikmc_project_statuses", :force => true do |t|
+    t.string "name"
+  end
+
+  create_table "targ_rep_ikmc_projects", :force => true do |t|
+    t.string   "name"
+    t.integer  "status_id"
+    t.integer  "pipeline_id"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
 
   create_table "targ_rep_mutation_methods", :force => true do |t|
     t.string   "name",       :limit => 100, :null => false
@@ -680,14 +693,15 @@ ActiveRecord::Schema.define(:version => 20130528142149) do
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true
 
   create_table "targ_rep_targeting_vectors", :force => true do |t|
-    t.integer  "allele_id",           :null => false
-    t.string   "name",                :null => false
+    t.integer  "allele_id",               :null => false
+    t.string   "name",                    :null => false
     t.string   "ikmc_project_id"
     t.string   "intermediate_vector"
-    t.boolean  "report_to_public",    :null => false
+    t.boolean  "report_to_public",        :null => false
     t.integer  "pipeline_id"
-    t.datetime "created_at",          :null => false
-    t.datetime "updated_at",          :null => false
+    t.datetime "created_at",              :null => false
+    t.datetime "updated_at",              :null => false
+    t.integer  "ikmc_project_foreign_id"
   end
 
   add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"

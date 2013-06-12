@@ -16,6 +16,8 @@ class NotificationsControllerTest < ActionController::TestCase
 
       should 'work without immediate' do
 
+        ActionMailer::Base.deliveries = []
+
         gene = Factory.create(:gene_cbx1)
         contact = Factory.create(:contact)
 
@@ -33,7 +35,7 @@ class NotificationsControllerTest < ActionController::TestCase
         end
 
         assert Notification.all.size > 0, "Cannot find expected notification!"
-        assert ActionMailer::Base.deliveries.size > 0, "Cannot find expected ActionMailer delivery!"
+        assert ActionMailer::Base.deliveries.size == 0, "Found unexpected ActionMailer delivery!"
 
         #puts "#### ActionMailer::Base.deliveries:"
         #pp ActionMailer::Base.deliveries
@@ -41,7 +43,8 @@ class NotificationsControllerTest < ActionController::TestCase
         notification = Notification.last
         assert_equal notification.gene, gene
         assert_equal notification.contact, contact
-        assert_equal ActionMailer::Base.deliveries.last.to.first, contact.email
+        #assert_equal ActionMailer::Base.deliveries.last.to.first, contact.email
+        #assert ActionMailer::Base.deliveries.size == 0
       end
 
       should 'work with immediate' do
@@ -75,6 +78,8 @@ class NotificationsControllerTest < ActionController::TestCase
       end
 
       should 'create a new contact without immediate' do
+
+        ActionMailer::Base.deliveries = []
 
         gene = Factory.create(:gene_cbx1)
 

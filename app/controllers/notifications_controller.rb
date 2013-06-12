@@ -16,11 +16,10 @@ class NotificationsController < ApplicationController
       @notification = Notification.new(:contact_email => params[:contact][:email], :gene_mgi_accession_id => params[:gene][:mgi_accession_id])
 
       if @notification.save
-        begin
-          mailer = NotificationMailer.welcome_email(@notification) if params[:contact][:immediate]
+
+        if params[:contact][:immediate]
+          mailer = NotificationMailer.welcome_email(@notification)
           mailer.deliver
-        rescue => e
-          render :json => {:success => false, :errors => e.inspect}, :status => :not_acceptable
         end
 
         render :json => {:success => true}, :status => :success

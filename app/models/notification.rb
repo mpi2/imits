@@ -1,5 +1,5 @@
 
-require 'pp'
+#require 'pp'
 
 class Notification < ActiveRecord::Base
   include Notification::StatusChecker

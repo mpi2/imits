@@ -229,34 +229,12 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal 1, ActionMailer::Base.deliveries.size
     end
 
-    #should '#send_welcome_email_bulk 2' do
-    #  genes = []
-    #  5.times {genes.push Factory.create(:gene)}
-    #
-    #  contacts = []
-    #  5.times { contacts.push Factory.create(:contact)}
-    #
-    #  notification = []
-    #  i = 0
-    #
-    #  5.times { notification.push(Factory.create(:notification_simple, {:gene => genes[i], :contact => contacts[i]})); i += 1 }
-    #
-    #  assert_equal 5, Notification.all.count
-    #
-    #  NotificationMailer.send_welcome_email_bulk
-    #
-    #  Notification.all.each do |notification|
-    #    assert ! notification.welcome_email_sent.blank?
-    #    assert ! notification.welcome_email_text.blank?
-    #  end
-    #
-    #  assert_equal 5, ActionMailer::Base.deliveries.size
-    #end
-
     should '#send_welcome_email_bulk 3' do
       contacts = []
       contact_count = 50
       contact_count.times { contacts.push Factory.create(:contact)}
+
+      Notification.delete_all
 
       i = 0
       notification = []
@@ -313,7 +291,7 @@ class NotificationMailerTest < ActionMailer::TestCase
 
       Notification.all.each do |notification|
         assert ! notification.welcome_email_sent.blank?
-        assert ! notification.welcome_email_text.blank?
+        #assert ! notification.welcome_email_text.blank?
       end
 
       assert_equal 1, ActionMailer::Base.deliveries.size

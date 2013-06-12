@@ -1,5 +1,5 @@
 class TargRep::TargetingVector < ActiveRecord::Base
-  
+
   acts_as_audited
 
   attr_accessor :nested
@@ -41,7 +41,7 @@ class TargRep::TargetingVector < ActiveRecord::Base
   ##
 
   public
-  
+
     def to_json( options = {} )
       TargRep::TargetingVector.include_root_in_json = false
       super options
@@ -51,6 +51,7 @@ class TargRep::TargetingVector < ActiveRecord::Base
       options.update(
         :skip_types => true
       )
+      super options
     end
 
     def report_to_public?

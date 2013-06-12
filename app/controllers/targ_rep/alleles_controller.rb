@@ -45,8 +45,18 @@ class TargRep::AllelesController < TargRep::BaseController
     )
 
     mutational_drop_downs
-
-    respond_with @alleles
+    options = {
+        :methods => [
+            :mutation_method_name,
+            :mutation_type_name,
+            :mutation_subtype_name,
+            :marker_symbol
+        ]}
+    respond_to do |format|
+      format.html {respond_with @alleles}
+      format.xml {respond_with @alleles}
+      format.json {respond_with @alleles.to_json(options)}
+    end
   end
 
   # GET /alleles/1

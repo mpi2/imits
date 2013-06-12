@@ -1,5 +1,5 @@
 class TargRep::Allele < ActiveRecord::Base
-  
+
   acts_as_audited
 
   extend AccessAssociationByAttribute
@@ -48,6 +48,35 @@ class TargRep::Allele < ActiveRecord::Base
 
   delegate :mgi_accession_id, :to => :gene
   delegate :marker_symbol, :to => :gene
+
+  ALLELE_JSON = {
+    :include => {
+        :es_cells => { :except => [
+            :allele_id,
+            :created_at, :updated_at,
+            :creator, :updater
+        ],
+        :include => {
+            :distribution_qcs => { :except => [:created_at, :updated_at] , :methods => [:es_cell_distribution_centre_name]}
+            },
+        :methods => [:allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name]},
+        :targeting_vectors => { :except => [
+            :allele_id,
+            :created_at, :updated_at,
+            :creator, :updater
+        ]},
+        :genbank_file => { :except => [
+            :allele_id,
+            :created_at, :updated_at,
+            :creator, :updater
+        ]},
+    },
+    :methods => [
+        :mutation_method_name,
+        :mutation_type_name,
+        :mutation_subtype_name,
+        :marker_symbol
+    ]}
 
   ##
   ## Validations
@@ -131,27 +160,7 @@ class TargRep::Allele < ActiveRecord::Base
   public
     def to_json( options = {} )
       TargRep::Allele.include_root_in_json = false
-      options.update(
-        :include => {
-          :es_cells => { :except => [
-              :allele_id,
-              :created_at, :updated_at,
-              :creator, :updater
-          ]},
-          :targeting_vectors => { :except => [
-              :allele_id,
-              :created_at, :updated_at,
-              :creator, :updater
-          ]},
-          :genbank_file => { :except => [
-              :allele_id,
-              :created_at, :updated_at,
-              :creator, :updater
-          ]},
-        }
-      )
-
-      super( options )
+      super( ALLELE_JSON )
     end
 
     def to_xml( options = {} )
@@ -168,7 +177,13 @@ class TargRep::Allele < ActiveRecord::Base
               :created_at, :updated_at,
               :creator, :updater
           ]}
-        }
+        },
+        :methods => [
+            :mutation_method_name,
+            :mutation_type_name,
+            :mutation_subtype_name,
+            :marker_symbol
+                    ]
       )
       super( options )
     end

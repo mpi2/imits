@@ -155,7 +155,7 @@ TarMits::Application.routes.draw do
 
     resources :gene_traps
     resources :targeted_alleles
-    
+
     resources :alleles do
       get :history, :on => :member
 

@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-require 'pp'
 require 'test_helper'
 
 class NotificationTest < ActiveSupport::TestCase
@@ -31,30 +30,29 @@ class NotificationTest < ActiveSupport::TestCase
       end
     end
 
-    context 'method tests' do
-
-      should '#check_statuses' do
-
-        #notification = Factory.create(:notification_simple, {:gene => Factory.create(:gene), :contact => Factory.create(:contact)})
-
-        mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history3
-        contact = Factory.create(:contact)
-        notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene, :contact => contact}
-
-        pp notification.check_statuses
-        assert_equal 1, notification.check_statuses.size
-        assert_equal "assigned_es_cell_qc_complete", notification.check_statuses[0][:status]
-
-
-        #if !(
-        #  (relevant_status[:status].downcase == "micro-injection aborted") ||
-        #  (relevant_status[:status].downcase == "inactive") ||
-        #  (relevant_status[:status].downcase == "withdrawn") ||
-        #  (relevant_status[:status].downcase == "phenotype attempt aborted")
-        #)
-
-      end
-    end
+    #context 'method tests' do
+    #
+    #  should '#check_statuses' do
+    #
+    #    #notification = Factory.create(:notification_simple, {:gene => Factory.create(:gene), :contact => Factory.create(:contact)})
+    #
+    #    mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history3
+    #    contact = Factory.create(:contact)
+    #    notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene, :contact => contact}
+    #
+    #    assert_equal 1, notification.check_statuses.size
+    #    assert_equal "assigned_es_cell_qc_complete", notification.check_statuses[0][:status]
+    #
+    #
+    #    #if !(
+    #    #  (relevant_status[:status].downcase == "micro-injection aborted") ||
+    #    #  (relevant_status[:status].downcase == "inactive") ||
+    #    #  (relevant_status[:status].downcase == "withdrawn") ||
+    #    #  (relevant_status[:status].downcase == "phenotype attempt aborted")
+    #    #)
+    #
+    #  end
+    #end
 
     #  should '#send_welcome_email_bulk' do
     #
@@ -87,8 +85,11 @@ class NotificationTest < ActiveSupport::TestCase
         gene = Factory.create(:gene_cbx1)
         notification = Notification.create!(:contact_email => contact_email, :gene_mgi_accession_id => gene.mgi_accession_id)
         assert notification
-        assert Contact.find_by_email contact_email
-      #  pp Contact.find_by_email contact_email
+        contact = Contact.find_by_email(contact_email)
+        asert contact
+        actual_email = contact.email
+        asert actual_email
+        assert_equal contact_email, actual_email
       end
     end
   end

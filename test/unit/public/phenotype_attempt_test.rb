@@ -217,5 +217,36 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context '#colony_name' do
+
+      should 'not allow colony_name to be update if phenotyping has started and phenotype record already exists' do
+        @phenotype_attempt = Factory.build(:public_phenotype_attempt, :phenotyping_started => true, :number_of_cre_matings_successful => 2, :deleter_strain_id => 1, :colony_background_strain_id => 1, :mouse_allele_type => 'b')
+        assert @phenotype_attempt.valid?
+        assert_equal @phenotype_attempt.status.code, 'pds'
+        @phenotype_attempt.save
+        @phenotype_attempt.colony_name = 'this should NOT be valid'
+        assert_false @phenotype_attempt.valid?
+      end
+
+      should 'allow colony_name to be update if phenotyping has started and phenotype record does not exist' do
+        @phenotype_attempt = Factory.build(:public_phenotype_attempt, :phenotyping_started => true, :number_of_cre_matings_successful => 2, :deleter_strain_id => 1, :colony_background_strain_id => 1, :mouse_allele_type => 'b')
+        assert @phenotype_attempt.valid?
+        assert_equal @phenotype_attempt.status.code, 'pds'
+        @phenotype_attempt.colony_name = 'this should be valid'
+        assert @phenotype_attempt.valid?
+        assert @phenotype_attempt.save!
+      end
+
+      should 'allow colony_name update if phenotyping has NOT started' do
+        @phenotype_attempt = Factory.build(:public_phenotype_attempt)
+        assert @phenotype_attempt.valid?
+        assert_not_equal @phenotype_attempt.status.code, 'pds'
+        @phenotype_attempt.colony_name = 'this should be valid'
+        assert @phenotype_attempt.valid?
+        assert @phenotype_attempt.save!
+      end
+    end
+
+
   end
 end

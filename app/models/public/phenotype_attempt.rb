@@ -57,7 +57,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   end
 
   validate do |me|
-    if me.changes.has_key?('colony_name') and me.status.order_by >= PhenotypeAttempt::Status.find_by_code('pds').order_by #Phenotype Started
+    if me.changes.has_key?('colony_name') and (! me.changes[:colony_name][0].nil?) and me.status.order_by >= PhenotypeAttempt::Status.find_by_code('pds').order_by #Phenotype Started
       me.errors.add(:phenotype_attempt, "colony_name can not be changed once phenotyping has started")
     end
   end

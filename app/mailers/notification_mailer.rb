@@ -44,11 +44,6 @@ class NotificationMailer < ActionMailer::Base
 
         email_body2 = ERB.new(File.read("#{Rails.root}/app/views/notification_mailer/welcome_email/_#{gene[:relevant_status][:status]}.text.erb")).result(binding) rescue nil
 
-        #if email_body2 && email_body2.length < 10 && File.exist?("#{Rails.root}/app/views/notification_mailer/welcome_email/_#{gene[:relevant_status][:status]}.text.erb")
-        #  puts "#### found template #{gene[:relevant_status][:status]}"
-        #  email_body2 = ''
-        #end
-
         email_body2 = '' if ! email_body2
 
         email_body2.gsub!(/\t/, ' ')
@@ -170,8 +165,8 @@ class NotificationMailer < ActionMailer::Base
 
         relevant_status = gene.relevant_status
 
-        relevant_status = !relevant_status.empty? ? { :status => relevant_status[:status], :date => relevant_status[:date] } : #nil
-        { :status => 'unknown', :date => Date.today }
+        relevant_status = !relevant_status.empty? ? { :status => relevant_status[:status], :date => relevant_status[:date] } :
+          { :status => 'unknown', :date => Date.today }
 
         genes_array.push({
           :marker_symbol => gene.marker_symbol,

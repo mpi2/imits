@@ -33,11 +33,8 @@ APN:
   :preferred: ''
   :default: ''
 TCP:
-  :preferred: ''
-  :default: ''
-MARC:
-  :preferred: ''
-  :default: ''  
+  :preferred: 'mailto:lauryl.nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL'
+  :default: 'mailto:lauryl.nutter@phenogenomics.ca?subject=Mutant mouse enquiry'MARC:
 UCD:
   :preferred: 'http://www.komp.org/geneinfo.php?project=PROJECT_ID'
   :default: 'http://www.komp.org/'

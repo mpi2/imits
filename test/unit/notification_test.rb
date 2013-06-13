@@ -35,7 +35,7 @@ class NotificationTest < ActiveSupport::TestCase
 
       should '#check_statuses' do
 
-       # puts "#### check_statuses..."
+        # puts "#### check_statuses..."
 
         mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history3
         contact = Factory.create(:contact)

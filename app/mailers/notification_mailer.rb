@@ -14,6 +14,7 @@ class NotificationMailer < ActionMailer::Base
 
     @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
     email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+    email_body.gsub!(/\n\n+/, "\n\n")
 
     mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
       format.text { render :inline => email_body }
@@ -166,16 +167,13 @@ class NotificationMailer < ActionMailer::Base
         relevant_status = gene.relevant_status
 
         relevant_status = !relevant_status.empty? ? { :status => relevant_status[:status], :date => relevant_status[:date] } :
-          { :status => 'unknown', :date => Date.today }
+        { :status => 'unknown', :date => Date.today }
 
         genes_array.push({
           :marker_symbol => gene.marker_symbol,
           :modifier_string => modifier_string,
           :relevant_status => relevant_status,
           :total_cell_count => gene.es_cells_count,
-          :conditional_es_cells_count => gene.conditional_es_cells_count,
-          :non_conditional_es_cells_count => gene.non_conditional_es_cells_count,
-          :deletion_es_cells_count => gene.deletion_es_cells_count,
           :mgi_accession_id => gene.mgi_accession_id,
           :notification_id => notification.id
         })

@@ -100,13 +100,26 @@ class NotificationsControllerTest < ActionController::TestCase
     context 'DELETE delete' do
       should 'work' do
 
+        Factory.create :notification
+        Factory.create :notification
+        Factory.create :notification
+        Factory.create :notification
+        Factory.create :notification
+
         gene = Factory.create(:gene_cbx1)
         contact = Factory.create(:contact)
 
         notification = Factory.create :notification, {:gene => gene, :contact => contact}
+
+        id = notification.id
+
         assert_difference('Notification.count', -1) do
           delete(:destroy, :gene => {:mgi_accession_id => gene.mgi_accession_id}, :contact =>{:email => contact.email}, :format => :json)
         end
+
+        n = Notification.find_by_id id
+
+        assert_nil n
       end
     end
 

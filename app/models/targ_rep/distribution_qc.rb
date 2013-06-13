@@ -33,10 +33,13 @@ class TargRep::DistributionQc < ActiveRecord::Base
   validates_inclusion_of :five_prime_lr_pcr, :in => SHORT_VALUES, :allow_blank => true
   validates_inclusion_of :three_prime_lr_pcr, :in => SHORT_VALUES, :allow_blank => true
   validates_inclusion_of :thawing, :in => SHORT_VALUES, :allow_blank => true
+  validates_inclusion_of :unspecified_repository_testing, :in => SHORT_VALUES, :allow_blank => true
 
   validates_inclusion_of :loa, :in => LONG_VALUES, :allow_blank => true
   validates_inclusion_of :loxp, :in => LONG_VALUES, :allow_blank => true
+  validates_inclusion_of :loxp_srpcr, :in => LONG_VALUES, :allow_blank => true
   validates_inclusion_of :lacz, :in => LONG_VALUES, :allow_blank => true
+  validates_inclusion_of :neo_qpcr, :in => LONG_VALUES, :allow_blank => true
   validates_inclusion_of :chr1, :in => LONG_VALUES, :allow_blank => true
   validates_inclusion_of :chr8a, :in => LONG_VALUES, :allow_blank => true
   validates_inclusion_of :chr8b, :in => LONG_VALUES, :allow_blank => true
@@ -58,6 +61,7 @@ class TargRep::DistributionQc < ActiveRecord::Base
       "loa"                            => { :name => "LOA"},
       "loxp"                           => { :name => "LOXP QPCR"},
       "loxp_srpcr"                     => { :name => "LOXP SRPCR"},
+      "neo_qpcr"                     => { :name => "Neo Count (qPCR)"},
       "unspecified_repository_testing" => { :name => "Unspecified Reposiitory Testing"},
       "lacz"                           => { :name => "LACZ"},
       "chr1"                           => { :name => "Chromosome 1"},
@@ -76,7 +80,7 @@ class TargRep::DistributionQc < ActiveRecord::Base
       :three_prime_lr_pcr,
       :thawing,
       :unspecified_repository_testing,
-      :loxp_srpcr
+
     ]
 
     long_attributes = [
@@ -88,7 +92,9 @@ class TargRep::DistributionQc < ActiveRecord::Base
       :chr8b,
       :chr11a,
       :chr11b,
-      :chry
+      :chry,
+      :loxp_srpcr,
+      :neo_qpcr
     ]
 
     short_attributes.each do |attr|
@@ -119,6 +125,8 @@ class TargRep::DistributionQc < ActiveRecord::Base
     return false if ! self.thawing.blank?
     return false if ! self.loa.blank?
     return false if ! self.loxp.blank?
+    return false if ! self.loxp_srpcr.blank?
+    return false if ! self.neo_qpcr.blank?
     return false if ! self.lacz.blank?
     return false if ! self.chr1.blank?
     return false if ! self.chr8a.blank?
@@ -127,10 +135,12 @@ class TargRep::DistributionQc < ActiveRecord::Base
     return false if ! self.chry.blank?
     return false if ! self.karyotype_low.blank?
     return false if ! self.karyotype_high.blank?
+    return false if ! self.unspecified_repository_testing.blank?
     return true
   end
 
 end
+
 
 # == Schema Information
 #
@@ -160,6 +170,7 @@ end
 #  updated_at                     :datetime        not null
 #  loxp_srpcr                     :string(255)
 #  unspecified_repository_testing :string(255)
+#  neo_qpcr                       :string(255)
 #
 # Indexes
 #

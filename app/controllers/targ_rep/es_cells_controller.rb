@@ -8,7 +8,10 @@ class TargRep::EsCellsController < TargRep::BaseController
     find_escells
     @es_cells = @search
 
-    respond_with @es_cells
+    respond_to do |format|
+      format.xml {respond_with @es_cells}
+      format.json {respond_with @es_cells.to_json(TargRep::EsCell::JSON_OPTIONS)}
+    end
   end
 
   def show
@@ -110,7 +113,7 @@ class TargRep::EsCellsController < TargRep::BaseController
     elsif ! params[:marker_symbol].blank?
       respond_with TargRep::EsCell.search(:allele_gene_marker_symbol_cont =>  params[:marker_symbol]).result.limit(100),
         :methods => ['marker_symbol', 'pipeline_name']
-    
+
     else
       respond_with []
     end
@@ -141,5 +144,5 @@ class TargRep::EsCellsController < TargRep::BaseController
 
       @search = TargRep::EsCell.search(escell_params).result.paginate(:page => params[:page], :per_page => params[:per_page])
     end
-    
+
 end

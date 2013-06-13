@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130528142149) do
+ActiveRecord::Schema.define(:version => 20130610142149) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -572,6 +572,7 @@ ActiveRecord::Schema.define(:version => 20130528142149) do
     t.datetime "updated_at",                     :null => false
     t.string   "loxp_srpcr"
     t.string   "unspecified_repository_testing"
+    t.string   "neo_qpcr"
   end
 
   add_index "targ_rep_distribution_qcs", ["es_cell_distribution_centre_id", "es_cell_id"], :name => "index_distribution_qcs_centre_es_cell", :unique => true

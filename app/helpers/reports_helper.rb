@@ -83,10 +83,7 @@ module ReportsHelper
   end
 
   def report_detail_path(options = {})
-    path = SITE_PATH + '/v2/reports/mi_production/production_detail'
-    path = path + '?' + options.to_query unless options.empty?
-  
-    path
+    production_detail_path(options)
   end
 
   def efficiency_percentage(hash, consortium, centre)

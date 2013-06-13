@@ -2534,7 +2534,8 @@ CREATE TABLE targ_rep_distribution_qcs (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     loxp_srpcr character varying(255),
-    unspecified_repository_testing character varying(255)
+    unspecified_repository_testing character varying(255),
+    neo_qpcr character varying(255)
 );
 
 
@@ -5334,3 +5335,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130528083431');
 INSERT INTO schema_migrations (version) VALUES ('20130528131803');
 
 INSERT INTO schema_migrations (version) VALUES ('20130528142149');
+
+INSERT INTO schema_migrations (version) VALUES ('20130610142149');

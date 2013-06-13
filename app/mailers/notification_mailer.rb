@@ -190,6 +190,7 @@ class NotificationMailer < ActionMailer::Base
           notification = Notification.find gene[:notification_id]
           notification.welcome_email_text = mailer.attachments[0].to_s
           notification.welcome_email_sent = Time.now.utc
+          #last_email_sent = notification.welcome_email_sent
           notification.save!
         end
 

@@ -1,6 +1,4 @@
 
-#require 'pp'
-
 class Notification < ActiveRecord::Base
   include Notification::StatusChecker
   extend ::AccessAssociationByAttribute
@@ -40,6 +38,7 @@ class Notification < ActiveRecord::Base
   def retry!
     if last_email_sent.blank?
       self.welcome_email_sent = Time.now.utc
+      #last_email_sent = self.welcome_email_sent
       self.retry = true
       self.save!
       NotificationMailer.welcome_email(self).deliver

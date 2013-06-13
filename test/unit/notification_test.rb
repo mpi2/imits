@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-require 'pp'
 require 'test_helper'
 
 class NotificationTest < ActiveSupport::TestCase
@@ -35,8 +34,6 @@ class NotificationTest < ActiveSupport::TestCase
 
       should '#check_statuses' do
 
-        # puts "#### check_statuses..."
-
         mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history3
         contact = Factory.create(:contact)
         notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene, :contact => contact}
@@ -48,13 +45,10 @@ class NotificationTest < ActiveSupport::TestCase
 
         mi_attempt_with_recent_status_history = Factory.create :mi_attempt_with_recent_status_history
 
-        #assert mi_plan_with_recent_history.mi_attempts
-        #assert mi_plan_with_recent_history.mi_attempts.size == 0
-        #
-        #mi_plan_with_recent_history.mi_attempts[0].is_active = false
-        #mi_plan_with_recent_history.save!
-        #
-        #assert_false mi_plan_with_recent_history.mi_attempts[0].is_active?
+
+
+
+
 
         contact = Factory.create(:contact)
         notification = Factory.create :notification, {:gene => mi_attempt_with_recent_status_history.mi_plan.gene, :contact => contact}
@@ -79,7 +73,8 @@ class NotificationTest < ActiveSupport::TestCase
         notification = Factory.create :notification, {:gene => mi_attempt_with_recent_status_history.mi_plan.gene, :contact => contact}
 
         assert_equal 0, notification.check_statuses.size
-        #assert_equal "microinjection_aborted", notification.check_statuses[0][:status]    # TODO: fix me!
+
+
 
 
 
@@ -93,7 +88,6 @@ class NotificationTest < ActiveSupport::TestCase
         notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene, :contact => contact}
 
         assert_equal 0, notification.check_statuses.size
-        #assert_equal "assigned_es_cell_qc_complete", notification.check_statuses[0][:status]
 
 
 
@@ -101,23 +95,14 @@ class NotificationTest < ActiveSupport::TestCase
 
         Notification.delete_all
 
-        #mi_plan = Factory.create(:mi_plan_in_conflict)   #, :status => MiPlan::Status.find_by_name!('Conflict'))
 
         mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history
         mi_plan = Factory.create(:mi_plan, :gene => mi_plan_with_recent_history.gene)
 
         mi_plan.withdrawn = true
-        mi_plan.save!     #(:validate => false)
+        mi_plan.save!
 
-        #pp mi_plan
-        #puts "#### status:"
-        #pp mi_plan.status
 
-        ##mi_plan.status = MiPlan::Status.find_by_name! 'Interest'
-        ##mi_plan.save!
-
-        #mi_plan.save!
-        #mi_plan.reload
 
         contact = Factory.create(:contact)
         notification = Factory.create :notification, {:gene => mi_plan.gene, :contact => contact}
@@ -143,44 +128,12 @@ class NotificationTest < ActiveSupport::TestCase
         notification = Factory.create :notification, {:gene => phenotype_attempt.mi_plan.gene, :contact => contact}
 
         assert_equal 0, notification.check_statuses.size
-        #assert_equal "phenotype_attempt_aborted", notification.check_statuses[0][:status]   # TODO: fix me
 
 
 
-
-        #if !(
-        #  (relevant_status[:status].downcase == "micro-injection aborted") ||
-        #  (relevant_status[:status].downcase == "inactive") ||
-        #  (relevant_status[:status].downcase == "withdrawn") ||
-        #  (relevant_status[:status].downcase == "phenotype attempt aborted")
-        #)
 
       end
     end
-
-    #  should '#send_welcome_email_bulk' do
-    #
-    #    gene = Factory.create(:gene_cbx1)
-    #    contact = Factory.create(:contact)
-    #    notification = Factory.create :notification_simple, {:gene => gene, :contact => contact}
-    #
-    #    gene = Factory.create(:gene, :marker_symbol => 'Xbnf1')
-    #    notification = Factory.create :notification_simple, {:gene => gene, :contact => contact}
-    #
-    #    gene = Factory.create(:gene, :marker_symbol => 'Ady3')
-    #    notification = Factory.create :notification_simple, {:gene => gene, :contact => contact}
-    #
-    #    Notification.send_welcome_email_bulk
-    #
-    #    Notification.all.each do |notification|
-    #      assert ! notification.welcome_email_sent.blank?
-    #      assert ! notification.welcome_email_text.blank?
-    #     # pp notification
-    #    end
-    #  end
-    #
-    #  should '#send_status_emails'
-    #  end
 
     context 'other tests' do
       should 'ensure we create contact if one does not already exist' do

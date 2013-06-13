@@ -103,7 +103,6 @@ class NotificationMailer < ActionMailer::Base
   end
 
   def set_attributes
-
     @modifier_string = "is not"
     @total_cell_count = @gene.es_cells_count
 

@@ -104,13 +104,6 @@ Factory.define :mi_plan_with_recent_status_history3, :parent => :mi_plan do |mi_
   end
 end
 
-#Factory.define :mi_attempt do |mi_attempt|
-#  mi_attempt.association :es_cell, :factory => :es_cell
-#  mi_attempt.consortium_name 'EUCOMM-EUMODIC'
-#  mi_attempt.production_centre_name 'WTSI'
-#  mi_attempt.mi_date { Date.today }
-#end
-
 Factory.define :mi_attempt2, :class => MiAttempt do |mi_attempt|
   mi_attempt.association :mi_plan, :factory => :mi_plan_with_production_centre
   mi_attempt.es_cell { |mi| Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => mi.mi_plan.gene)) }

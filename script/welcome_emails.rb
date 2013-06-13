@@ -406,10 +406,6 @@ set_2 = %W{
   Wwp2
 }
 
-#pp set_1
-
-#pp set_1
-
 puts "#### set_1 counts #{set_1.size}/#{set_1.sort.uniq.size}"
 puts "#### set_2 counts #{set_2.size}/#{set_2.sort.uniq.size}"
 
@@ -421,11 +417,11 @@ contact = Contact.find_by_email contact_email
 raise "#### cannot find email '#{contact_email}'" if ! contact
 
 notifications = Notification.where("contact_id = #{contact.id}")
-#raise "#### Found notifications!" if notifications && notifications.size > 0
+raise "#### Found notifications!" if notifications && notifications.size > 0
 
-if notifications && notifications.size > 0
-  Notification.where("contact_id = #{contact.id}").destroy_all
-end
+#if notifications && notifications.size > 0
+#  Notification.where("contact_id = #{contact.id}").destroy_all
+#end
 
 ApplicationModel.transaction do
 
@@ -433,15 +429,10 @@ ApplicationModel.transaction do
     gene = Gene.find_by_marker_symbol g
     next if ! gene
 
-    #  pp gene
-
     notification = Notification.new(:contact_email => contact_email, :gene_mgi_accession_id => gene.mgi_accession_id)
     notification.save!
-
-    # break
   end
 
-  #raise "rollback!"
   NotificationMailer.send_welcome_email_bulk
 
 end

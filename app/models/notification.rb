@@ -65,19 +65,6 @@ class Notification < ActiveRecord::Base
     result.to_a.map(&:symbolize_keys)
   end
 
-  private
-
-  #def send_welcome_email
-  #  return unless valid?
-  #
-  #  if mailer = NotificationMailer.welcome_email(self)
-  #    self.welcome_email_text = mailer.body.to_s
-  #    self.welcome_email_sent = Time.now.utc
-  #
-  #    mailer.deliver
-  #  end
-  #end
-
 end
 
 # == Schema Information

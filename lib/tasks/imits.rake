@@ -140,13 +140,6 @@ namespace :imits do
 
 
 
-#<% @lines = '' %>
-#<% @genes.each do |gene| %>
-#<% @lines += gene[:marker_symbol].to_s + "\t" + gene[:relevant_status][:status].to_s + "\t" + gene[:modifier_string] + "\n" %>
-#<% end %>
-
-
-
   desc 'Generate email welcome template'
 task :welcome_email_template => :environment do
   welcome_body = <<-EOF
@@ -158,9 +151,7 @@ Dear colleague,
 Thank you for registering for the following genes:
 <%= @gene_list %>.
 
---------------------------------------------------------------------------------
-
-<%= @tsv %>
+Please see the attached file for further details.
 
 Updates on gene status will be sent to <%= @contact_email %>.
 

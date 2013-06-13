@@ -8,9 +8,6 @@ class NotificationsController < ApplicationController
   before_filter :remote_access_allowed!
 
   def create
-
-    # puts "#### params: #{params.inspect}"
-
     if params[:contact] && params[:gene]
 
       @notification = Notification.new(:contact_email => params[:contact][:email], :gene_mgi_accession_id => params[:gene][:mgi_accession_id])

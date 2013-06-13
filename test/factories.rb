@@ -696,9 +696,7 @@ Dear colleague,
 Thank you for registering for the following genes:
 <%= @gene_list %>.
 
---------------------------------------------------------------------------------
-
-<%= @tsv %>
+Please see the attached file for further details.
 
 Updates on gene status will be sent to <%= @contact_email %>.
 

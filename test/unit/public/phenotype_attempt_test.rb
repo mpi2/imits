@@ -120,8 +120,9 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'cre_excision_required',
         'mi_plan_id',
         'tat_cre',
-        "mouse_allele_symbol",
-        "mouse_allele_symbol_superscript"
+        'mouse_allele_symbol',
+        'mouse_allele_symbol_superscript',
+        'allele_symbol'
       ]
       got = default_phenotype_attempt.as_json.keys
       assert_equal expected.sort, got.sort

@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+require 'pp'
 require 'test_helper'
 
 class NotificationTest < ActiveSupport::TestCase
@@ -30,29 +31,132 @@ class NotificationTest < ActiveSupport::TestCase
       end
     end
 
-    #context 'method tests' do
-    #
-    #  should '#check_statuses' do
-    #
-    #    #notification = Factory.create(:notification_simple, {:gene => Factory.create(:gene), :contact => Factory.create(:contact)})
-    #
-    #    mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history3
-    #    contact = Factory.create(:contact)
-    #    notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene, :contact => contact}
-    #
-    #    assert_equal 1, notification.check_statuses.size
-    #    assert_equal "assigned_es_cell_qc_complete", notification.check_statuses[0][:status]
-    #
-    #
-    #    #if !(
-    #    #  (relevant_status[:status].downcase == "micro-injection aborted") ||
-    #    #  (relevant_status[:status].downcase == "inactive") ||
-    #    #  (relevant_status[:status].downcase == "withdrawn") ||
-    #    #  (relevant_status[:status].downcase == "phenotype attempt aborted")
-    #    #)
-    #
-    #  end
-    #end
+    context 'method tests' do
+
+      should '#check_statuses' do
+
+       # puts "#### check_statuses..."
+
+        mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history3
+        contact = Factory.create(:contact)
+        notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene, :contact => contact}
+
+        assert_equal 1, notification.check_statuses.size
+        assert_equal "assigned_es_cell_qc_complete", notification.check_statuses[0][:status]
+
+        Notification.delete_all
+
+        mi_attempt_with_recent_status_history = Factory.create :mi_attempt_with_recent_status_history
+
+        #assert mi_plan_with_recent_history.mi_attempts
+        #assert mi_plan_with_recent_history.mi_attempts.size == 0
+        #
+        #mi_plan_with_recent_history.mi_attempts[0].is_active = false
+        #mi_plan_with_recent_history.save!
+        #
+        #assert_false mi_plan_with_recent_history.mi_attempts[0].is_active?
+
+        contact = Factory.create(:contact)
+        notification = Factory.create :notification, {:gene => mi_attempt_with_recent_status_history.mi_plan.gene, :contact => contact}
+
+        assert_equal 1, notification.check_statuses.size
+        assert_equal "genotype_confirmed", notification.check_statuses[0][:status]
+
+
+
+
+
+
+
+        mi_attempt_with_recent_status_history.is_active = false
+        mi_attempt_with_recent_status_history.save!
+
+        mi_attempt_with_recent_status_history.reload
+
+        assert_false mi_attempt_with_recent_status_history.is_active?
+
+        contact = Factory.create(:contact)
+        notification = Factory.create :notification, {:gene => mi_attempt_with_recent_status_history.mi_plan.gene, :contact => contact}
+
+        assert_equal 0, notification.check_statuses.size
+        #assert_equal "microinjection_aborted", notification.check_statuses[0][:status]    # TODO: fix me!
+
+
+
+
+        mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history3
+        mi_plan_with_recent_history.is_active = false
+        mi_plan_with_recent_history.save!
+        mi_plan_with_recent_history.reload
+
+        contact = Factory.create(:contact)
+        notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene, :contact => contact}
+
+        assert_equal 0, notification.check_statuses.size
+        #assert_equal "assigned_es_cell_qc_complete", notification.check_statuses[0][:status]
+
+
+
+
+
+        Notification.delete_all
+
+        #mi_plan = Factory.create(:mi_plan_in_conflict)   #, :status => MiPlan::Status.find_by_name!('Conflict'))
+
+        mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history
+        mi_plan = Factory.create(:mi_plan, :gene => mi_plan_with_recent_history.gene)
+
+        mi_plan.withdrawn = true
+        mi_plan.save!     #(:validate => false)
+
+        #pp mi_plan
+        #puts "#### status:"
+        #pp mi_plan.status
+
+        ##mi_plan.status = MiPlan::Status.find_by_name! 'Interest'
+        ##mi_plan.save!
+
+        #mi_plan.save!
+        #mi_plan.reload
+
+        contact = Factory.create(:contact)
+        notification = Factory.create :notification, {:gene => mi_plan.gene, :contact => contact}
+
+        assert_equal 1, notification.check_statuses.size
+        assert_equal "assigned_es_cell_qc_complete", notification.check_statuses[0][:status]
+
+
+
+
+
+
+
+
+
+        phenotype_attempt = Factory.create(:phenotype_attempt)
+
+        phenotype_attempt.is_active = false
+        phenotype_attempt.save!
+        phenotype_attempt.reload
+
+        contact = Factory.create(:contact)
+        notification = Factory.create :notification, {:gene => phenotype_attempt.mi_plan.gene, :contact => contact}
+
+        assert_equal 0, notification.check_statuses.size
+        #assert_equal "phenotype_attempt_aborted", notification.check_statuses[0][:status]   # TODO: fix me
+
+
+
+
+        #if !(
+        #  (relevant_status[:status].downcase == "micro-injection aborted") ||
+        #  (relevant_status[:status].downcase == "inactive") ||
+        #  (relevant_status[:status].downcase == "withdrawn") ||
+        #  (relevant_status[:status].downcase == "phenotype attempt aborted")
+        #)
+
+      end
+    end
 
     #  should '#send_welcome_email_bulk' do
     #
@@ -86,9 +190,9 @@ class NotificationTest < ActiveSupport::TestCase
         notification = Notification.create!(:contact_email => contact_email, :gene_mgi_accession_id => gene.mgi_accession_id)
         assert notification
         contact = Contact.find_by_email(contact_email)
-        asert contact
+        assert contact
         actual_email = contact.email
-        asert actual_email
+        assert actual_email
         assert_equal contact_email, actual_email
       end
     end

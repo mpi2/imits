@@ -1,5 +1,4 @@
 
-#require 'pp'
 require 'test_helper'
 
 class NotificationsControllerTest < ActionController::TestCase
@@ -28,23 +27,15 @@ class NotificationsControllerTest < ActionController::TestCase
 
           body = response.body && response.body.length >= 2 ? JSON.parse(response.body) : nil
 
-          #puts "#### body:"
-          #pp body
-
           assert body && body["success"] == true
         end
 
         assert Notification.all.size > 0, "Cannot find expected notification!"
         assert ActionMailer::Base.deliveries.size == 0, "Found unexpected ActionMailer delivery!"
 
-        #puts "#### ActionMailer::Base.deliveries:"
-        #pp ActionMailer::Base.deliveries
-
         notification = Notification.last
         assert_equal notification.gene, gene
         assert_equal notification.contact, contact
-        #assert_equal ActionMailer::Base.deliveries.last.to.first, contact.email
-        #assert ActionMailer::Base.deliveries.size == 0
       end
 
       should 'work with immediate' do
@@ -59,17 +50,11 @@ class NotificationsControllerTest < ActionController::TestCase
 
           body = response.body && response.body.length >= 2 ? JSON.parse(response.body) : nil
 
-          #puts "#### body:"
-          #pp body
-
           assert body && body["success"] == true
         end
 
         assert Notification.all.size > 0, "Cannot find expected notification!"
         assert ActionMailer::Base.deliveries.size > 0, "Cannot find expected ActionMailer delivery!"
-
-        #puts "#### ActionMailer::Base.deliveries:"
-        #pp ActionMailer::Base.deliveries
 
         notification = Notification.last
         assert_equal notification.gene, gene
@@ -90,9 +75,6 @@ class NotificationsControllerTest < ActionController::TestCase
 
           body = response.body && response.body.length >= 2 ? JSON.parse(response.body) : nil
 
-          #puts "#### body:"
-          #pp body
-
           assert body && body["success"] == true
         end
 
@@ -108,9 +90,6 @@ class NotificationsControllerTest < ActionController::TestCase
           assert response && response.body, "Invalid response from call!"
 
           body = response.body && response.body.length >= 2 ? JSON.parse(response.body) : nil
-
-          #puts "#### body:"
-          #pp body
 
           assert body && body["success"] == true
         end
@@ -131,8 +110,6 @@ class NotificationsControllerTest < ActionController::TestCase
       end
     end
 
-
   end
-
 
 end

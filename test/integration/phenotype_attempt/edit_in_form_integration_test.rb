@@ -44,7 +44,6 @@ class PhenotypeAttempt::EditInFormTest < TarMits::JsIntegrationTest
     end
 
     should 'edit phenotype successfully and redirect back to show page' do
-      fill_in 'phenotype_attempt[colony_name]', :with => 'ABCD'
       uncheck 'phenotype_attempt[rederivation_complete]'
       select 'MGI:3046308: Hprt', :from => 'phenotype_attempt[deleter_strain_name]'
       fill_in 'phenotype_attempt[number_of_cre_matings_successful]', :with => '11'
@@ -55,7 +54,6 @@ class PhenotypeAttempt::EditInFormTest < TarMits::JsIntegrationTest
       ApplicationModel.uncached { @phenotype_attempt.reload }
       visit current_path
 
-      assert_equal "ABCD", page.find('input[name="phenotype_attempt[colony_name]"]').value
       assert_equal "true", page.find('input[id="phenotype_attempt_rederivation_started"]')["checked"]
       assert_equal nil, page.find('input[id="phenotype_attempt_rederivation_complete"]')["checked"]
       assert_match "MGI:3046308: Hprt", page.find('select[name="phenotype_attempt[deleter_strain_name]"]').value

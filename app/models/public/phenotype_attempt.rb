@@ -36,6 +36,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     marker_symbol
     mouse_allele_symbol_superscript
     mouse_allele_symbol
+    allele_symbol
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{

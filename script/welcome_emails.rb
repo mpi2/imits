@@ -411,28 +411,87 @@ puts "#### set_2 counts #{set_2.size}/#{set_2.sort.uniq.size}"
 
 sets = set_1 + set_2
 
+contacts = ['re4@sanger.ac.uk', 'tmeehan@ebi.ac.uk', 'Lauryl.Nutter@phenogenomics.ca']
+
 contact_email = 're4@sanger.ac.uk'
 
-contact = Contact.find_by_email contact_email
-raise "#### cannot find email '#{contact_email}'" if ! contact
+#contact = Contact.find_by_email contact_email
+#raise "#### cannot find email '#{contact_email}'" if ! contact
 
-notifications = Notification.where("contact_id = #{contact.id}")
-raise "#### Found notifications!" if notifications && notifications.size > 0
-
+#notifications = Notification.where("contact_id = #{contact.id}")
+##raise "#### Found notifications!" if notifications && notifications.size > 0
+#
 #if notifications && notifications.size > 0
 #  Notification.where("contact_id = #{contact.id}").destroy_all
 #end
 
-ApplicationModel.transaction do
+#ApplicationModel.transaction do
+#
+#  sets.sort.uniq.each do |g|
+#    gene = Gene.find_by_marker_symbol g
+#    next if ! gene
+#
+#    notification = Notification.new(:contact_email => contact_email, :gene_mgi_accession_id => gene.mgi_accession_id)
+#    notification.save!
+#  end
+#
+#  NotificationMailer.send_welcome_email_bulk
+#
+#end
 
-  sets.sort.uniq.each do |g|
-    gene = Gene.find_by_marker_symbol g
-    next if ! gene
+def build_welcome_email(contact_email, genes)
+  ApplicationModel.transaction do
 
-    notification = Notification.new(:contact_email => contact_email, :gene_mgi_accession_id => gene.mgi_accession_id)
-    notification.save!
+    genes.sort.uniq.each do |g|
+      gene = Gene.find_by_marker_symbol g
+      next if ! gene
+
+      contact = Contact.find(:first, :conditions => [ "lower(email) = ?", contact_email.downcase ])
+      gene = Gene.find(:first, :conditions => [ "lower(mgi_accession_id) = ?", gene.mgi_accession_id.downcase ] )
+
+      nots = nil
+      nots = Notification.where("contact_id = #{contact.id} and gene_id = #{gene.id}") if contact && gene
+      #nots.destroy_all if nots && nots.size > 0
+      puts "#### already registered email: #{contact.email} - gene: #{gene.mgi_accession_id}" if nots && nots.size > 0
+      next if nots && nots.size > 0
+
+      notification = Notification.new(:contact_email => contact_email, :gene_mgi_accession_id => gene.mgi_accession_id)
+      notification.save!
+    end
+
   end
-
-  NotificationMailer.send_welcome_email_bulk
-
 end
+
+def notifications_counts(contact_email)
+  contact = Contact.find(:first, :conditions => [ "lower(email) = ?", contact_email.downcase ])
+  nots = Notification.where("contact_id = #{contact.id}") if contact
+  count = nots && nots.size > 0 ? nots.size : 0
+  puts "#### #{contact_email} has #{count} notifications"
+end
+
+def delete_notifications(contact_email)
+  contact = Contact.find_by_email contact_email
+  raise "#### cannot find email '#{contact_email}'" if ! contact
+
+  notifications = Notification.where("contact_id = #{contact.id}")
+
+  Notification.where("contact_id = #{contact.id}").destroy_all if notifications && notifications.size > 0
+end
+
+#contacts.each do |contact|
+#  notifications_counts(contact)
+#end
+#
+#exit
+
+#delete_notifications(contact_email)
+
+build_welcome_email(contacts[1], set_1)
+
+NotificationMailer.send_welcome_email_bulk
+
+#delete_notifications contact_email
+
+build_welcome_email(contacts[2], set_2)
+
+NotificationMailer.send_welcome_email_bulk

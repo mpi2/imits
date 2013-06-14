@@ -157,7 +157,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal 1, ActionMailer::Base.deliveries.size
     end
 
-    should '#send_welcome_email_bulk 3' do
+    should '#send_welcome_email_bulk - check send_status_emails' do
       contacts = []
       contact_count = 50
       contact_count.times { contacts.push Factory.create(:contact)}
@@ -195,7 +195,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal 0, ActionMailer::Base.deliveries.size
     end
 
-    should '#send_welcome_email_bulk 4' do
+    should '#send_welcome_email_bulk - check single contact multiple notifications sends single email' do
       contact = Factory.create(:contact)
 
       genes = []
@@ -212,10 +212,46 @@ class NotificationMailerTest < ActionMailer::TestCase
 
       Notification.all.each do |notification|
         assert ! notification.welcome_email_sent.blank?
-        #assert ! notification.welcome_email_text.blank?
+        assert ! notification.welcome_email_text.blank?
       end
 
       assert_equal 1, ActionMailer::Base.deliveries.size
+
+      ActionMailer::Base.deliveries = []
+
+      NotificationMailer.send_welcome_email_bulk
+
+      assert_equal 0, ActionMailer::Base.deliveries.size
+
+      NotificationMailer.send_status_emails
+
+      assert_equal 0, ActionMailer::Base.deliveries.size
+    end
+
+    should '#send_welcome_email_bulk - check multiple contacts multiple notifications sends correct number of emails' do
+
+      contacts = []
+      contact_count = 10
+      contact_count.times { contacts.push Factory.create(:contact)}
+
+      notifications = []
+
+      contact_hash = {}
+
+      while contact_hash.size < contact_count
+        c = contacts.sample
+        contact_hash[c.email] = 1
+        notifications.push(Factory.create(:notification_simple, {:gene => Factory.create(:gene), :contact => c}))
+      end
+
+      NotificationMailer.send_welcome_email_bulk
+
+      Notification.all.each do |notification|
+        assert ! notification.welcome_email_sent.blank?
+        assert ! notification.welcome_email_text.blank?
+      end
+
+      assert_equal contact_count, ActionMailer::Base.deliveries.size
 
       ActionMailer::Base.deliveries = []
 

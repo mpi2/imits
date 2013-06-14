@@ -701,7 +701,7 @@ The MPI2 (KOMP2) informatics consortium.
 
 EOF
 
-  email_template.status 'welcome_new'
+  email_template.status 'welcome_template'
   email_template.welcome_body { welcome_body }
   email_template.update_body  { 'unused' }
 end

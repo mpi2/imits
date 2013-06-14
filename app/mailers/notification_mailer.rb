@@ -31,7 +31,7 @@ class NotificationMailer < ActionMailer::Base
 
     @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
 
-    @tsv = CSV.generate do |csv|
+    @csv = CSV.generate do |csv|
       csv << %W{Gene Status IMPC IKMC Details}
 
       @genes.each do |gene|
@@ -60,13 +60,13 @@ class NotificationMailer < ActionMailer::Base
       end
     end
 
-    @email_template = EmailTemplate.find_by_status('welcome_new')
+    @email_template = EmailTemplate.find_by_status('welcome_template')
 
     email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
 
     email_body.gsub!(/\n\n+/, "\n\n")
 
-    attachments['gene_list.csv'] = @tsv
+    attachments['gene_list.csv'] = @csv
 
     mail(:to => @contact_email, :subject => "Welcome from the MPI2 (KOMP2) informatics consortium") do |format|
       format.text { render :inline => email_body }

@@ -162,17 +162,17 @@ Best Regards,
 The MPI2 (KOMP2) informatics consortium.
     EOF
 
-    email_template = EmailTemplate.find_by_status('welcome_new')
+    email_template = EmailTemplate.find_by_status('welcome_template')
 
     if email_template
-      puts "#### welcome_new email template already exists!"
+      puts "#### welcome_template email template already exists!"
       email_template.destroy
     end
 
     email_template = EmailTemplate.new
 
     update_body = 'unused'
-    email_template.status = 'welcome_new'
+    email_template.status = 'welcome_template'
 
     email_template.welcome_body = welcome_body
     email_template.update_body  = update_body

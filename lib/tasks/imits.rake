@@ -137,4 +137,49 @@ namespace :imits do
     end
 
   end
+
+
+
+  desc 'Generate email welcome template'
+task :welcome_email_template => :environment do
+  welcome_body = <<-EOF
+<% if !Rails.env.production? %>
+<%= render :partial => 'notification_mailer/shared/development_environment_warning' %>
+<% end %>
+Dear colleague,
+
+Thank you for registering for the following genes:
+<%= @gene_list %>.
+
+Please see the attached file for further details.
+
+Updates on gene status will be sent to <%= @contact_email %>.
+
+For further information / enquiries please write to info@mousephenotype.org
+
+Best Regards,
+
+The MPI2 (KOMP2) informatics consortium.
+    EOF
+
+    email_template = EmailTemplate.find_by_status('welcome_template')
+
+    if email_template
+      puts "#### welcome_template email template already exists!"
+      email_template.destroy
+    end
+
+    email_template = EmailTemplate.new
+
+    update_body = 'unused'
+    email_template.status = 'welcome_template'
+
+    email_template.welcome_body = welcome_body
+    email_template.update_body  = update_body
+
+    email_template.save!
+
+  end
 end
+
+#<% if gene[:relevant_status][:status] && File.exist?("#{Rails.root}/app/views/notification_mailer/welcome_email/_#{gene[:relevant_status][:status]}.text.erb") %>

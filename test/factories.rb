@@ -48,6 +48,11 @@ Factory.define :notification do |notification|
   notification.last_email_text 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
 end
 
+Factory.define :notification_simple, :class => Notification  do |notification|
+  notification.association(:gene)
+  notification.association(:contact)
+end
+
 Factory.define :centre do |centre|
   centre.sequence(:name) { |n| "Auto-generated Centre Name #{n}" }
 end
@@ -83,12 +88,21 @@ Factory.define :mi_plan_with_recent_status_history, :parent => :mi_plan do |mi_p
   end
 end
 
-#Factory.define :mi_attempt do |mi_attempt|
-#  mi_attempt.association :es_cell, :factory => :es_cell
-#  mi_attempt.consortium_name 'EUCOMM-EUMODIC'
-#  mi_attempt.production_centre_name 'WTSI'
-#  mi_attempt.mi_date { Date.today }
-#end
+Factory.define :mi_plan_with_recent_status_history2, :parent => :mi_plan do |mi_plan|
+  mi_plan.after_create do |plan|
+    plan.number_of_es_cells_starting_qc = 2
+    plan.save!
+  end
+end
+
+Factory.define :mi_plan_with_recent_status_history3, :parent => :mi_plan do |mi_plan|
+  mi_plan.after_create do |plan|
+    plan.number_of_es_cells_starting_qc = 2
+    plan.save!
+    plan.number_of_es_cells_passing_qc = 2
+    plan.save!
+  end
+end
 
 Factory.define :mi_attempt2, :class => MiAttempt do |mi_attempt|
   mi_attempt.association :mi_plan, :factory => :mi_plan_with_production_centre
@@ -662,4 +676,32 @@ end
 
 Factory.define :email_template_phenotyping_complete, :parent => :email_template_without_status do |et|
   et.status 'phenotyping_complete'
+end
+
+Factory.define :email_template_welcome, :class => EmailTemplate do |email_template|
+
+welcome_body = <<-EOF
+<% if !Rails.env.production? %>
+<%= render :partial => 'notification_mailer/shared/development_environment_warning' %>
+<% end %>
+Dear colleague,
+
+Thank you for registering for the following genes:
+<%= @gene_list %>.
+
+Please see the attached file for further details.
+
+Updates on gene status will be sent to <%= @contact_email %>.
+
+For further information / enquiries please write to info@mousephenotype.org
+
+Best Regards,
+
+The MPI2 (KOMP2) informatics consortium.
+
+EOF
+
+  email_template.status 'welcome_template'
+  email_template.welcome_body { welcome_body }
+  email_template.update_body  { 'unused' }
 end

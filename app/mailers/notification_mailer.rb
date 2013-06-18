@@ -22,8 +22,8 @@ class NotificationMailer < ActionMailer::Base
   end
 
   def welcome_email_bulk(contact)
-    hyperlink = true
     wrap_details = false
+    hyperlink_fn_separator = ','  # differs between open-office & excel
 
     @genes = contact[:genes]
     @contact_email = contact[:contact_email]
@@ -37,18 +37,20 @@ class NotificationMailer < ActionMailer::Base
     @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
 
     @csv = CSV.generate do |csv|
-      headings = ['Marker symbol', 'Mosue production status',  'Link to IMPC', 'Link to IKMC', 'IMPC Status Details']
+      headings = ['Marker symbol', 'Mouse production status', 'Link to IMPC', 'Link to IKMC', 'Click to IMPC', 'Click to IKMC', 'IMPC Status Details']
 
       csv << headings
 
       @genes.each do |gene|
         impc_site = ''
         impc_site = "http://www.mousephenotype.org/data/genes/#{gene[:mgi_accession_id]}" if gene[:modifier_string] == "is"
-        impc_site = "=HYPERLINK(\"#{impc_site}\"; \"Click here\")" if hyperlink && impc_site.length > 0
+        impc_site_fn = ''
+        impc_site_fn = "=HYPERLINK(\"#{impc_site}\" #{hyperlink_fn_separator} \"Click here\")" if impc_site.length > 0
 
         ikmc_site = ''
         ikmc_site = "http://www.knockoutmouse.org/search_results?criteria=#{gene[:mgi_accession_id]}" if gene[:total_cell_count] > 0
-        ikmc_site = "=HYPERLINK(\"#{ikmc_site}\"; \"Click here\")" if hyperlink && ikmc_site.length > 0
+        ikmc_site_fn = ''
+        ikmc_site_fn = "=HYPERLINK(\"#{ikmc_site}\" #{hyperlink_fn_separator} \"Click here\")" if ikmc_site.length > 0
 
         @relevant_status = gene[:relevant_status]
 
@@ -65,11 +67,18 @@ class NotificationMailer < ActionMailer::Base
 
         email_body2 = word_wrap(email_body2, :line_width => 35) if wrap_details && email_body2 && email_body2.length > 0
 
+        status = gene[:relevant_status][:status].to_s.humanize.titleize
+        status = status.gsub(/\s+es\s+/i, ' ES ')
+        status = status.gsub(/\s+qc\s+/i, ' QC ')
+        status = status.gsub(/\s+impc\s+/i, ' IMPC ')
+
         row = [
           gene[:marker_symbol].to_s,
-          gene[:relevant_status][:status].to_s.humanize.titleize,
+          status,
           impc_site.to_s,
-          ikmc_site.to_s
+          ikmc_site.to_s,
+          impc_site_fn.to_s,
+          ikmc_site_fn.to_s
         ]
 
         row.push email_body2.to_s if email_body2.to_s.length > 0

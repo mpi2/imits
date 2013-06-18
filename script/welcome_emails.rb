@@ -5,9 +5,9 @@ require 'pp'
 @options = {
   #  :contact_email => 'tmeehan@ebi.ac.uk',
   #  :contact_email => 'Lauryl.Nutter@phenogenomics.ca',
-  #  :contact_email => 'vvi@sanger.ac.uk',
-  :contact_email => 're4@sanger.ac.uk',
-  :set => 2,
+    :contact_email => 'vvi@sanger.ac.uk',
+  #  :contact_email => 're4@sanger.ac.uk',
+  :set => 1,
   :delete => true
 }
 

@@ -690,8 +690,7 @@ Thank you for registering your interest in the following genes:
 
 <%= @gene_list %>.
 
-Please see the attached csv file for details on the status of each gene in IMPC production, along with links for further information for each gene.
-(The csv file can be saved and opened inside Microsoft Excel or any other spreadsheet program.)
+Please see the attached csv file for details on the status of each gene in IMPC production, along with links for further information for each gene. (The csv file can be saved and opened inside Microsoft Excel or any other spreadsheet program.)
 
 Further updates on the status of individual genes in this list will be sent to <%= @contact_email %>.
 

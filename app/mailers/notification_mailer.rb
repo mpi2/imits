@@ -38,9 +38,6 @@ class NotificationMailer < ActionMailer::Base
     @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
 
     @csv = CSV.generate do |csv|
-      #csv << %W{Gene Status IMPC IKMC Details Comments} if annotate
-      #csv << %W{Gene Status IMPC IKMC Details} if ! annotate
-
       headings = ['Marker symbol', 'IKMC Status',  'IMPC', 'IKMC', 'IKMC Status Details']
       headings.push 'Temp Comments' if annotate
 
@@ -53,7 +50,6 @@ class NotificationMailer < ActionMailer::Base
 
         ikmc_site = ''
         ikmc_site = "http://www.knockoutmouse.org/search_results?criteria=#{gene[:mgi_accession_id]}" if gene[:total_cell_count] > 0
-        #=HYPERLINK("http://www.example.org"; "Click here")
         ikmc_site = "=HYPERLINK(\"#{ikmc_site}\"; \"Click here\")" if hyperlink && ikmc_site.length > 0
 
         @relevant_status = gene[:relevant_status]
@@ -62,7 +58,6 @@ class NotificationMailer < ActionMailer::Base
 
         email_body2 = '' if ! email_body2
 
-        # email_body2.gsub!(/\t/, ' ')
         email_body2.gsub!(/\s+/, ' ')
 
         comments = ''
@@ -173,17 +168,11 @@ class NotificationMailer < ActionMailer::Base
   def get_relevant_status(gene)
     rs = gene.relevant_status
 
-    #relevant_status = !relevant_status.empty? ? { :status => relevant_status[:status], :date => relevant_status[:date] } :
-    #{ :status => 'unknown', :date => Date.today }
-
     relevant_status = { :status => 'not found', :date => Date.today }
 
     if rs.empty?
       status = ''
       status = 'no plans' if ! gene.mi_plans || gene.mi_plans.size == 0
-      #status += ' - ' if status.length > 0 && (! gene.mi_attempts || gene.mi_attempts.size == 0)
-      #status += 'no attempts' if ! gene.mi_attempts || gene.mi_attempts.size == 0
-
       relevant_status = { :status => status, :date => Date.today }
     else
       relevant_status = { :status => rs[:status], :date => rs[:date] }
@@ -213,23 +202,6 @@ class NotificationMailer < ActionMailer::Base
         modifier_string = "is not"
         modifier_string = "is" if gene.mi_plans.any? {|plan| plan.is_active? }
 
-        #rs = gene.relevant_status
-        #
-        ##relevant_status = !relevant_status.empty? ? { :status => relevant_status[:status], :date => relevant_status[:date] } :
-        ##{ :status => 'unknown', :date => Date.today }
-        #
-        #relevant_status = { :status => 'not found', :date => Date.today }
-        #
-        #if rs.empty?
-        #  if ! gene.mi_plans || gene.mi_plans.size == 0
-        #    relevant_status = { :status => 'no plan', :date => Date.today }
-        #  else
-        #    relevant_status = { :status => 'plan problem', :date => Date.today }
-        #  end
-        #else
-        #  relevant_status = { :status => rs[:status], :date => rs[:date] }
-        #end
-
         relevant_status = get_relevant_status(gene)
 
         genes_array.push({
@@ -251,7 +223,6 @@ class NotificationMailer < ActionMailer::Base
           notification = Notification.find gene[:notification_id]
           notification.welcome_email_text = mailer.attachments[0].to_s
           notification.welcome_email_sent = Time.now.utc
-          #last_email_sent = notification.welcome_email_sent
           notification.save!
         end
 

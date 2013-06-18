@@ -2,18 +2,7 @@
 
 require 'pp'
 
-@options = {
-  #  :contact_email => 'tmeehan@ebi.ac.uk',
-  #  :contact_email => 'Lauryl.Nutter@phenogenomics.ca',
-    :contact_email => 'vvi@sanger.ac.uk',
-  #  :contact_email => 're4@sanger.ac.uk',
-  :set => 1,
-  :delete => true
-}
-
-raise ArgumentError, 'You must specify a contact_email option!' if @options[:contact_email].nil?
-raise ArgumentError, 'You must specify a set option!' if @options[:set].nil?
-raise ArgumentError, 'You must specify a set option of 1 or 2!' if @options[:set] != 1 && @options[:set] != 2
+raise "#### Not for use in Production!" if Rails.env.production?
 
 set_1 = %W{
   Gm10088
@@ -453,18 +442,65 @@ def delete_notifications(contact_email)
   puts "#### attempting to delete notifications for '#{contact_email}'"
 
   contact = Contact.find_by_email contact_email
-  raise "#### cannot find email '#{contact_email}'" if ! contact
+
+  if ! contact
+    puts "#### delete: cannot find email '#{contact_email}'"
+    return
+  end
 
   notifications = Notification.where("contact_id = #{contact.id}")
 
   Notification.where("contact_id = #{contact.id}").destroy_all if notifications && notifications.size > 0
 end
 
-delete_notifications(@options[:contact_email]) if @options[:delete]
+contacts_list = [
+  {
+    :contact_email => 're4@sanger.ac.uk',
+    :sets => [set_1, set_2],
+    :delete => true,
+    :active => false
+  },
+  {
+    :contact_email => 'vvi@sanger.ac.uk',
+    :sets => [set_1, set_2],
+    :delete => true,
+    :active => false
+  },
+  {
+    :contact_email => 'A.Mallon@har.mrc.ac.uk',
+    :sets => [set_1, set_2],
+    :delete => false,
+    :active => false
+  },
+  {
+    :contact_email => 'A.Blake@har.mrc.ac.uk',
+    :sets => [set_1, set_2],
+    :delete => true,
+    :active => false
+  },
+  {
+    :contact_email => 'tmeehan@ebi.ac.uk',
+    :sets => [set_1, set_2],
+    :delete => true,
+    :active => false
+  },
+  {
+    :contact_email => 'Lauryl.Nutter@phenogenomics.ca',
+    :sets => [set_2],
+    :delete => true,
+    :active => false
+  }
+]
 
-target_set = set_1 if @options[:set] == 1
-target_set = set_2 if @options[:set] == 2
+contacts_list.each do |contact|
+  if ! contact[:active]
+    puts "#### ignore '#{contact[:contact_email]}'"
+    next
+  end
 
-build_welcome_email(@options[:contact_email], target_set)
-
-NotificationMailer.send_welcome_email_bulk
+  contact[:sets].each do |set|
+    delete_notifications(contact[:contact_email]) if contact[:delete]
+    build_welcome_email(contact[:contact_email], set)
+    NotificationMailer.send_welcome_email_bulk
+  end
+end

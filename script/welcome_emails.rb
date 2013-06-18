@@ -3,19 +3,13 @@
 require 'pp'
 
 @options = {
-#  :contact_email => 'tmeehan@ebi.ac.uk',
-#  :contact_email => 'Lauryl.Nutter@phenogenomics.ca',
-#  :contact_email => 'vvi@sanger.ac.uk',
+  #  :contact_email => 'tmeehan@ebi.ac.uk',
+  #  :contact_email => 'Lauryl.Nutter@phenogenomics.ca',
+  #  :contact_email => 'vvi@sanger.ac.uk',
   :contact_email => 're4@sanger.ac.uk',
   :set => 2,
   :delete => true
 }
-
-#OptionParser.new do |opts|
-#  opts.banner = 'Usage: $0 [options]'
-#  opts.on('--contact_email email', '-c', String, 'contact') { |arg| @options[:contact_email] = arg }
-#  opts.on('--set [1|2]', '-c', Integer, 'gene set to use') { |arg| @options[:set] = arg }
-#end.parse!
 
 raise ArgumentError, 'You must specify a contact_email option!' if @options[:contact_email].nil?
 raise ArgumentError, 'You must specify a set option!' if @options[:set].nil?
@@ -474,4 +468,3 @@ target_set = set_2 if @options[:set] == 2
 build_welcome_email(@options[:contact_email], target_set)
 
 NotificationMailer.send_welcome_email_bulk
-

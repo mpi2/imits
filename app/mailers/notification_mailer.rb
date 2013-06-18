@@ -22,7 +22,6 @@ class NotificationMailer < ActionMailer::Base
   end
 
   def welcome_email_bulk(contact)
-    annotate = true
     hyperlink = true
     wrap_details = false
 
@@ -38,8 +37,9 @@ class NotificationMailer < ActionMailer::Base
     @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
 
     @csv = CSV.generate do |csv|
-      headings = ['Marker symbol', 'IKMC Status',  'IMPC', 'IKMC', 'IKMC Status Details']
-      headings.push 'Temp Comments' if annotate
+      #headings = ['Marker symbol', 'IKMC Status',  'IMPC', 'IKMC', 'IKMC Status Details']
+      headings = ['Marker symbol', 'Mosue production status',  'Link to IMPC', 'Link to IKMC', 'IMPC Status Details']
+      #Marker symbol	mOuse production Status	Link to IMPC	Link to IKMC	IMPc Status Details	Extra info
 
       csv << headings
 
@@ -61,8 +61,8 @@ class NotificationMailer < ActionMailer::Base
         email_body2.gsub!(/\s+/, ' ')
 
         comments = ''
-        if gene[:relevant_status][:status].to_s =~ /no plans/ && ikmc_site.length > 0
-          comments = "No plans, but gene has #{gene[:total_cell_count]} ES cells"
+        if gene[:relevant_status][:status].to_s =~ /not assigned for IMPC production/i && ikmc_site.length > 0
+          comments = "No IMPC plans - but gene has #{gene[:total_cell_count]} IKMC clones"
         end
 
         email_body2 = word_wrap(email_body2, :line_width => 35) if wrap_details && email_body2 && email_body2.length > 0
@@ -71,11 +71,11 @@ class NotificationMailer < ActionMailer::Base
           gene[:marker_symbol].to_s,
           gene[:relevant_status][:status].to_s.humanize.titleize,
           impc_site.to_s,
-          ikmc_site.to_s,
-          email_body2.to_s
+          ikmc_site.to_s
         ]
 
-        row.push comments if annotate
+        row.push email_body2.to_s if email_body2.to_s.length > 0
+        row.push comments.to_s if email_body2.to_s.length == 0 && comments.to_s.length > 0
 
         csv << row
       end
@@ -172,7 +172,7 @@ class NotificationMailer < ActionMailer::Base
 
     if rs.empty?
       status = ''
-      status = 'no plans' if ! gene.mi_plans || gene.mi_plans.size == 0
+      status = 'not assigned for IMPC production' if ! gene.mi_plans || gene.mi_plans.size == 0
       relevant_status = { :status => status, :date => Date.today }
     else
       relevant_status = { :status => rs[:status], :date => rs[:date] }

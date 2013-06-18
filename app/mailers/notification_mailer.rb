@@ -37,9 +37,7 @@ class NotificationMailer < ActionMailer::Base
     @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
 
     @csv = CSV.generate do |csv|
-      #headings = ['Marker symbol', 'IKMC Status',  'IMPC', 'IKMC', 'IKMC Status Details']
       headings = ['Marker symbol', 'Mosue production status',  'Link to IMPC', 'Link to IKMC', 'IMPC Status Details']
-      #Marker symbol	mOuse production Status	Link to IMPC	Link to IKMC	IMPc Status Details	Extra info
 
       csv << headings
 

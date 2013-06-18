@@ -49,6 +49,7 @@
           </tr>
         </thead>
         <tbody class="distribution_centres">
+        <tr></tr>
         <% if mi_attempt.distribution_centres.length > 0 %>
           <%= form.fields_for :distribution_centres do |builder| %>
             <% if !builder.object.new_record? %>
@@ -56,7 +57,7 @@
             <% end %>
           <% end %>
         <% end %>
-        </tbody>
+      </tbody>
       </table>
       <%= link_to_add_fields "Add Distribution Centre", form, :distribution_centres %>
     <% else %>

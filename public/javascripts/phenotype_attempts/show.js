@@ -5,10 +5,13 @@ function addHideRowLinks() {
             event.preventDefault();
             var inputField = Ext.get(target).prev('.destroy-field');
             inputField.set({value: true});
-            Ext.get(target).parent().parent().remove();
+            row = Ext.get(target).parent().parent();
+            row.setVisibilityMode(Ext.Element.DISPLAY);
+            row.hide();
         }, this, {delegate: 'a'});
     }
 }
+
 
 Ext.onReady(addHideRowLinks);
 

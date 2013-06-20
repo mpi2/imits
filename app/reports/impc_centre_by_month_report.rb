@@ -1,4 +1,4 @@
-class ImpcCentreByMonthReport 
+class ImpcCentreByMonthReport
 
   attr_accessor :report_rows
 
@@ -53,7 +53,7 @@ class ImpcCentreByMonthReport
         if report_row["#{key}_goal"].to_i > 0
           @report_rows["To #{start_date}-#{centre}-#{column}_goal"] = report_row["#{key}_goal"]
         end
-      end     
+      end
     end
 
     (by_month_clones + by_month_genes).each do |report_row|
@@ -80,7 +80,7 @@ class ImpcCentreByMonthReport
       self.class.es_cell_supply_columns.each do |column, key|
         if report_row[key] || @report_rows["To #{start_date}-#{centre}-#{column}"].blank?
           @report_rows["To #{start_date}-#{centre}-#{column}"] = report_row[key].to_i if report_row[key].to_i > 0
-        end        
+        end
       end
     end
 
@@ -175,7 +175,7 @@ class ImpcCentreByMonthReport
             JOIN centres ON centres.id = mi_plans.production_centre_id
             JOIN consortia ON consortia.id = mi_plans.consortium_id
 
-            JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at < '#{start_date}' 
+            JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at < '#{start_date}'
 
         WHERE
           centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
@@ -214,7 +214,7 @@ class ImpcCentreByMonthReport
           ORDER BY injected_es_cells.production_centre ASC
         )
 
-          
+
 
           SELECT
             counts.production_centre,
@@ -270,13 +270,13 @@ class ImpcCentreByMonthReport
             genes_with_plans.production_centre_name as production_centre,
             count(gtc_stamps.*) as genotype_confirmed_count
           FROM genes_with_plans
-          JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id
+          JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id and mi_attempts.status_id != 3
           LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at < '#{start_date}'
 
           GROUP BY
             genes_with_plans.gene_id,
             genes_with_plans.production_centre_name
-                  
+
           ORDER BY genes_with_plans.production_centre_name ASC
         ),
 
@@ -302,7 +302,7 @@ class ImpcCentreByMonthReport
             count(ps_stamps.*) as phenotype_started_or_better_count,
             count(pc_stamps.*) as phenotype_complete_count
           FROM genes_with_plans
-          JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id
+          JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id AND phenotype_attempts.status_id != 1
           LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at < '#{start_date}'
           LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at < '#{start_date}'
           LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at < '#{start_date}'
@@ -310,7 +310,7 @@ class ImpcCentreByMonthReport
           GROUP BY
             genes_with_plans.gene_id,
             genes_with_plans.production_centre_name
-                  
+
           ORDER BY genes_with_plans.production_centre_name ASC
         ),
 
@@ -346,7 +346,7 @@ class ImpcCentreByMonthReport
                   phenotype_centres.phenotype_complete_count,
 
           gtc_goals.goal as genotype_confirmed_count_goal,
-          
+
           cre_goals.goal as cre_excised_or_better_count_goal,
           ps_goals.goal as phenotype_started_or_better_count_goal,
           pc_goals.goal as phenotype_complete_count_goal
@@ -383,7 +383,7 @@ class ImpcCentreByMonthReport
         JOIN centres ON centres.id = mi_plans.production_centre_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
 
-        JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at >= '#{start_date}' 
+        JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at >= '#{start_date}'
 
         WHERE
           centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
@@ -479,14 +479,14 @@ class ImpcCentreByMonthReport
             genes_with_plans.production_centre_name as production_centre,
             date_trunc('MONTH', gtc_stamps.created_at) as gtc_date
           FROM genes_with_plans
-          JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id
-          LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at >= '#{start_date}' 
+          JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id AND mi_attempts.status_id != 3
+          LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at >= '#{start_date}'
 
           GROUP BY
             genes_with_plans.gene_id,
             genes_with_plans.production_centre_name,
             gtc_date
-          
+
           ORDER BY genes_with_plans.production_centre_name ASC
         ),
 
@@ -516,10 +516,10 @@ class ImpcCentreByMonthReport
             date_trunc('MONTH', ps_stamps.created_at) as ps_date,
             date_trunc('MONTH', pc_stamps.created_at) as pc_date
           FROM genes_with_plans
-          JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id
-          LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at >= '#{start_date}' 
-          LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at >= '#{start_date}' 
-          LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at >= '#{start_date}' 
+          JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id AND phenotype_attempts.status_id != 1
+          LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at >= '#{start_date}'
+          LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at >= '#{start_date}'
+          LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at >= '#{start_date}'
 
           GROUP BY
             genes_with_plans.gene_id,

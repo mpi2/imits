@@ -36,6 +36,45 @@ class ImpcCentreByMonthReport
     @by_month_received ||= ActiveRecord::Base.connection.execute(self.class.by_month_received_sql).to_a
   end
 
+  def cumulative_totals
+    @total_to_date ||= generate_cumulatives
+  end
+
+  def generate_cumulatives
+    total_to_date = {}
+    # remove es_cells_received from cumulative _clones and by_month_clones. should only include genes.
+    (cumulative_clones.map{|a| s= a.dup; s.delete('es_cells_received');s } + cumulative_genes + cumulative_received +  by_month_clones.map{|a| s= a.dup; s.delete('es_cells_received');s } + by_month_genes + by_month_received ).each do |report_row|
+      centre = report_row['production_centre']
+      if !total_to_date.has_key?(centre)
+        total_to_date[centre] = {
+           'mi_in_progress_count_cumulative'               => 0,
+           'mi_in_progress_count_goal_cumulative'          => 0,
+           'genotype_confirmed_count_cumulative'           => 0,
+           'genotype_confirmed_count_goal_cumulative'      => 0,
+           'cre_excised_or_better_count_cumulative'        => 0,
+           'cre_excised_or_better_count_goal_cumulative'   => 0,
+           'phenotype_started_or_better_count_cumulative'  => 0,
+           'phenotype_started_or_better_count_goal_cumulative'  => 0,
+           'phenotype_complete_count_cumulative'           => 0,
+           'phenotype_complete_count_goal_cumulative'      => 0,
+           'es_cells_received_cumulative'                  => 0,
+           'eucomm_required_cumulative'                    => 0,
+           'komp_required_cumulative'                      => 0,
+           'norcomm_required_cumulative'                   => 0,
+           'wtsi_required_cumulative'                      => 0
+          }
+      end
+
+      report_row.each do |column, value|
+        if total_to_date[centre].has_key?("#{column}_cumulative")
+          puts "#{centre} #{column} #{value}"
+          total_to_date[centre]["#{column}_cumulative"] += value.to_i
+        end
+      end
+    end
+    return total_to_date
+  end
+
   def generate_report
 
     start_date = self.class.formatted_start_date

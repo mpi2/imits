@@ -104,6 +104,7 @@ class V2::Reports::MiProductionController < ApplicationController
   def impc_centre_by_month
     @report = ImpcCentreByMonthReport.new
     @centre_by_month = @report.report_rows
+    @cumulative_totals = @report.cumulative_totals
     @columns = ImpcCentreByMonthReport.columns
     @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
   end
@@ -134,7 +135,7 @@ class V2::Reports::MiProductionController < ApplicationController
 
     render :template => 'v2/reports/mi_production/mi_attempt_summary'
   end
-  
+
   def sliding_efficiency
     @consortium_name = params[:consortium] || params[:consortium_name] || params[:consortia]
     @production_centre_name = params[:centre] || params[:production_centre_name] || params[:centre_name]

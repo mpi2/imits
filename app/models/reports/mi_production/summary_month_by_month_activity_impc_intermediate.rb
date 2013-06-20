@@ -4,6 +4,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
 
   def self.report_name; 'summary_month_by_month_activity_komp2_compressed'; end
   def self.report_title; 'IMPC Summary Month by Month'; end
+  def self.cut_off_date; Date.parse('2006-01-01'); end
   def self.consortia
     cons = []
     Consortium.order("name").each do |consortium|
@@ -29,7 +30,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
 
   def self.generate
     summary = Hash.new{|h,k| h[k]=Hash.new(&h.default_proc) }
-    time = CUT_OFF_DATE
+    time = self.cut_off_date
     cons = self.consortia.dup
     while time <= Time.now.to_date
       year, month = convert_date(time)
@@ -46,7 +47,7 @@ class Reports::MiProduction::SummaryMonthByMonthActivityImpcIntermediate < Repor
       next if !cons.include?(miplanrec.consortium)
       self.states.each do |state, name|
         date = miplanrec[name]
-        next if date == nil or date < CUT_OFF_DATE or date > Time.now.to_date
+        next if date == nil or date < self.cut_off_date or date > Time.now.to_date
         year, month = convert_date(date)
         consortium = miplanrec.consortium
         summary [consortium]['data'][year][month][consortium][state] += 1

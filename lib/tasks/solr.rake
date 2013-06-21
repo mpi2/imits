@@ -17,7 +17,7 @@ namespace :solr do
     ApplicationModel.transaction do
       enqueuer = SolrUpdate::Enqueuer.new
       MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i) }
-      
+
       enqueuer = SolrUpdate::Enqueuer.new
       TargRep::TargetedAllele.all.each { |a| enqueuer.allele_updated(a) }
 
@@ -25,25 +25,6 @@ namespace :solr do
       PhenotypeAttempt.all.each { |p| enqueuer.phenotype_attempt_updated(p) }
     end
   end
-
-  #desc 'Enqueue every TargRep::TargetedAllele, TargRep::EsCell, MiAttempt & PhenotypeAttempt for solr update'
-  #task 'update:all_run' => [:environment] do
-  #  ApplicationModel.transaction do
-  #    pp SolrUpdate::IndexProxy::Allele.get_uri
-  #
-  #    #enqueuer = SolrUpdate::Enqueuer.new
-  #    #MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i) }
-  #    #SolrUpdate::Queue.run(:limit => nil)
-  #    #
-  #    #enqueuer = SolrUpdate::Enqueuer.new
-  #    #TargRep::TargetedAllele.all.each { |a| enqueuer.allele_updated(a) }
-  #    #SolrUpdate::Queue.run(:limit => nil)
-  #
-  #    enqueuer = SolrUpdate::Enqueuer.new
-  #    PhenotypeAttempt.all.each { |p| enqueuer.phenotype_attempt_updated(p) }
-  #    SolrUpdate::Queue.run(:limit => nil)
-  #  end
-  #end
 
   task 'update:run_queue:all' => [:environment] do
     SolrUpdate::Queue.run(:limit => nil)

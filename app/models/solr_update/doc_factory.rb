@@ -1,4 +1,6 @@
 
+#require 'pp'
+
 class SolrUpdate::DocFactory
   extend SolrUpdate::Util
 
@@ -22,12 +24,98 @@ class SolrUpdate::DocFactory
     end
   end
 
+  #def self.get_best_phenotype_attempt(mi_attempt)
+  #  pt = mi_attempt.phenotype_attempts.order('is_active desc, created_at desc').first
+  #
+  #  #mi_attempt.phenotype_attempts.each do |phenotype_attempt|
+  #  #end
+  #
+  #  if pt
+  #    pheno_status_list = {}
+  #    mi_dates = pt.reportable_statuses_with_latest_dates
+  #
+  #    mi_dates.each do |name, date|
+  #      pheno_status_list["#{name}"] = date.to_s
+  #    end
+  #
+  #    s = pt.status.name
+  #    d = pheno_status_list[s]
+  #  end
+  #end
+
+  def self.relevant_phenotype_attempt_status(mi_attempt)
+
+    #puts"\n\n\n#### mi_attempt.phenotype_attempts:"
+    #pp mi_attempt.phenotype_attempts
+    #puts"#### \n\n\n"
+
+    return nil if ! mi_attempt.phenotype_attempts || mi_attempt.phenotype_attempts.size == 0
+
+    selected_status = {}
+
+    mi_attempt.phenotype_attempts.each do |phenotype_attempt|
+
+      if selected_status.empty?
+        status = phenotype_attempt.status_stamps.first.status
+        selected_status = {
+          :name => status.name,
+          :order_by => status.order_by,
+          :cre_excision_required => phenotype_attempt.cre_excision_required
+        }
+      end
+
+      phenotype_attempt.status_stamps.each do |status_stamp|
+
+        #puts "\n\n\n#### status_stamp:"
+        #pp status_stamp
+        #puts "####\n\n\n"
+        #
+        #puts "\n\n\n#### selected_status:"
+        #pp selected_status
+        #puts "####\n\n\n"
+
+        if status_stamp.status[:order_by] > selected_status[:order_by]
+          selected_status = {
+            :name => status_stamp.status.name,
+            :order_by => status_stamp.status.order_by,
+            :cre_excision_required => phenotype_attempt.cre_excision_required
+          }
+        end
+      end
+
+    end
+
+    selected_status.empty? ? nil : selected_status
+  end
+
+#        elsif this_status[:order_by] > @selected_status[:order_by]
+
   def self.create_for_mi_attempt(mi_attempt)
     solr_doc = {
       'id' => mi_attempt.id,
       'product_type' => 'Mouse',
-      'type' => 'mi_attempt'
+      'type' => 'mi_attempt',
+      'best_status_pa_cre_ex_not_required' => '',
+      'best_status_pa_cre_ex_required' => '',
+      'current_pa_status' => ''
     }
+
+    #1) When there was a genotype confirmed mouse (doctype = mouse),
+    #a) Augment the document to indicate the best status of any PA for that mouse which had cre_ex_required => false.
+    #b) Also augment the doc to indicate the best status of any PA for that mouse which had cre_ex_required => true - this will be redundant to the next part.
+
+    #2) When there was a cre-ex PA (doctype = mouse), augment it to indicate the current status of this particular PA (ie whether the PA is phenotype-started etc).
+
+    #best_pa_status = relevant_phenotype_attempt_status(mi_attempt)
+    best_pa_status = mi_attempt.relevant_phenotype_attempt_status
+
+    if best_pa_status
+      if best_pa_status[:cre_excision_required]
+        solr_doc['best_status_pa_cre_ex_required'] = best_pa_status[:name]
+      else
+        solr_doc['best_status_pa_cre_ex_not_required'] = best_pa_status[:name]
+      end
+    end
 
     if mi_attempt.gene.mgi_accession_id
       solr_doc['mgi_accession_id'] = mi_attempt.gene.mgi_accession_id
@@ -62,8 +150,36 @@ class SolrUpdate::DocFactory
     solr_doc = {
       'id' => phenotype_attempt.id,
       'product_type' => 'Mouse',
-      'type' => 'phenotype_attempt'
+      'type' => 'phenotype_attempt',
+      'best_status_pa_cre_ex_not_required' => '',
+      'best_status_pa_cre_ex_required' => '',
+      'current_pa_status' => ''
     }
+
+    #1) When there was a genotype confirmed mouse (doctype = mouse),
+    #a) Augment the document to indicate the best status of any PA for that mouse which had cre_ex_required => false.
+    #b) Also augment the doc to indicate the best status of any PA for that mouse which had cre_ex_required => true - this will be redundant to the next part.
+
+    #2) When there was a cre-ex PA (doctype = mouse), augment it to indicate the current status of this particular PA (ie whether the PA is phenotype-started etc).
+
+    #s = phenotype_attempt.mi_plan.gene.relevant_status
+    #status = s[:status].humanize
+
+    #if phenotype_attempt.cre_excision_required
+    #  solr_doc['best_status_pa_cre_ex_required'] = phenotype_attempt.status.name
+    #  #solr_doc['best_status_pa_cre_ex_required'] = status
+    #else
+    #  solr_doc['best_status_pa_cre_ex_not_required'] = phenotype_attempt.status.name
+    #  #solr_doc['best_status_pa_cre_ex_not_required'] = status
+    #end
+
+    #solr_doc['current_pa_status'] = solr_doc['best_status_pa_cre_ex_required']
+    solr_doc['current_pa_status'] = phenotype_attempt.status.name
+
+    #puts "\n\n\n#### phenotype_attempt:"
+    #pp phenotype_attempt
+    #pp phenotype_attempt.status
+    #puts "####\n\n\n"
 
     if phenotype_attempt.gene.mgi_accession_id
       solr_doc['mgi_accession_id'] = phenotype_attempt.gene.mgi_accession_id
@@ -158,15 +274,25 @@ class SolrUpdate::DocFactory
       end
 
     end
-
-    #solr_doc['order_from_names'].uniq!
-    #solr_doc['order_from_urls'].uniq!
   end
 
   def self.create_for_allele(allele)
     marker_symbol = allele.gene.marker_symbol
     docs = allele.es_cells.unique_public_info.map do |es_cell_info|
       order_from_info = calculate_order_from_info(es_cell_info.merge(:allele => allele))
+
+
+
+      #3) When we had an ES-cell (doctype = es cell), augment it to indicate if any mouse production was in progress on that 'class' of ES cells.
+      #This last one is possibly tricky - can skip if needed.
+
+      #puts "\n\n\n#### allele:"
+      #pp allele
+      #puts "####\n\n\n"
+
+      s = allele.gene.relevant_status
+      status = s[:status].to_s.humanize
+
       {
         'type' => 'allele',
         'id' => allele.id,
@@ -179,7 +305,8 @@ class SolrUpdate::DocFactory
         'allele_image_url' => allele_image_url(allele.id),
         'genbank_file_url' => genbank_file_url(allele.id),
         'order_from_urls' => [order_from_info[:url]],
-        'order_from_names' => [order_from_info[:name]]
+        'order_from_names' => [order_from_info[:name]],
+        'production_in_progress' => status
       }
     end
 
@@ -235,7 +362,7 @@ class SolrUpdate::DocFactory
 
     s = gene.relevant_status
 
-    solr_doc['status'] = s[:status].humanize
+    solr_doc['status'] = s[:status].to_s.humanize
     solr_doc['effective_date'] = s[:date]
 
     return [solr_doc]

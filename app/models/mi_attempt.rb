@@ -308,6 +308,47 @@ class MiAttempt < ApplicationModel
     return 'micro-injection attempt'
   end
 
+  def relevant_phenotype_attempt_status
+
+    return nil if ! phenotype_attempts || phenotype_attempts.size == 0
+
+    selected_status = {}
+
+    self.phenotype_attempts.each do |phenotype_attempt|
+
+      if selected_status.empty?
+        status = phenotype_attempt.status_stamps.first.status
+        selected_status = {
+          :name => status.name,
+          :order_by => status.order_by,
+          :cre_excision_required => phenotype_attempt.cre_excision_required
+        }
+      end
+
+      phenotype_attempt.status_stamps.each do |status_stamp|
+
+        #puts "\n\n\n#### status_stamp:"
+        #pp status_stamp
+        #puts "####\n\n\n"
+        #
+        #puts "\n\n\n#### selected_status:"
+        #pp selected_status
+        #puts "####\n\n\n"
+
+        if status_stamp.status[:order_by] > selected_status[:order_by]
+          selected_status = {
+            :name => status_stamp.status.name,
+            :order_by => status_stamp.status.order_by,
+            :cre_excision_required => phenotype_attempt.cre_excision_required
+          }
+        end
+      end
+
+    end
+
+    selected_status.empty? ? nil : selected_status
+  end
+
 end
 
 # == Schema Information

@@ -156,7 +156,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           es_cell = default_mi_attempt.es_cell
           es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           es_cell.save!
-          
+
           default_mi_attempt.mouse_allele_type = 'e'
           assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_symbol_superscript
         end
@@ -733,6 +733,101 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     should 'include BelongsToMiPlan' do
       assert_include MiAttempt.ancestors, ApplicationModel::BelongsToMiPlan
+    end
+
+    context '#relevant_phenotype_attempt_status' do
+      should 'just work' do
+        gene = Factory.create :gene,
+        :marker_symbol => 'Moo1',
+        :mgi_accession_id => 'MGI:12345'
+
+        allele = Factory.create :allele, :gene => gene
+
+        plan = TestDummy.mi_plan('MGP', 'WTSI', :gene => gene, :force_assignment => true)
+
+        mi = Factory.create :mi_attempt2_status_gtc,
+        :es_cell => Factory.create(:es_cell, :allele => allele),
+        :mi_plan => plan,
+        :is_active => true
+
+        mi.phenotype_attempts.create!
+
+        mi.reload
+
+        status = mi.relevant_phenotype_attempt_status
+        assert_equal "Phenotype Attempt Registered", status[:name]
+
+        # move to Rederivation Started
+
+        pa = mi.phenotype_attempts[0]
+        pa.rederivation_started = true
+        pa.save!
+
+        mi.reload
+
+        status = mi.relevant_phenotype_attempt_status
+        assert_equal "Rederivation Started", status[:name]
+
+        # move to Cre Excision Started
+
+        pa = mi.phenotype_attempts[0]
+        pa.deleter_strain = DeleterStrain.first
+        pa.save!
+
+        mi.reload
+
+        status = mi.relevant_phenotype_attempt_status
+        assert_equal "Cre Excision Started", status[:name]
+
+        # move to Cre Excision Complete
+
+        pa = mi.phenotype_attempts[0]
+        pa.number_of_cre_matings_successful = 2
+        pa.colony_background_strain = Strain.first
+        pa.mouse_allele_type = 'b'
+        pa.save!
+
+        mi.reload
+
+        status = mi.relevant_phenotype_attempt_status
+
+        assert_equal "Cre Excision Complete", status[:name]
+
+        # move to Phenotyping Started
+
+        pa = mi.phenotype_attempts[0]
+        pa.phenotyping_started = true
+        pa.save!
+
+        mi.reload
+
+        status = mi.relevant_phenotype_attempt_status
+
+        assert_equal "Phenotyping Started", status[:name]
+
+        # move to Phenotyping Complete
+
+        pa = mi.phenotype_attempts[0]
+        pa.phenotyping_complete = true
+        pa.save!
+
+        mi.reload
+
+        status = mi.relevant_phenotype_attempt_status
+
+        assert_equal "Phenotyping Complete", status[:name]
+
+        # add another pa to list
+
+        mi.phenotype_attempts.create!
+        mi.reload
+
+        mi.reload
+
+        status = mi.relevant_phenotype_attempt_status
+
+        assert_equal "Phenotyping Complete", status[:name]
+      end
     end
 
   end

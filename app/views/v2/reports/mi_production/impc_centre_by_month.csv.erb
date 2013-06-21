@@ -6,4 +6,5 @@ Date, Production centre, <%= @es_cell_columns.keys.join(', ') %>, <%= @columns.m
 <% @centre_by_month[:dates].each do |date| %>
 <%= date %>, <%= centre %>, <%= @es_cell_columns.keys.map {|column| @centre_by_month["#{date}-#{centre}-#{column}"].to_i}.join(', ') %>, <%= @columns.map {|column, key| [@centre_by_month["#{date}-#{centre}-#{column}"].to_i, @centre_by_month["#{date}-#{centre}-#{column}_goal"].to_i] }.flatten.join(', ') %>
 <% end %>
+,Total to date, <%= @es_cell_columns.map{|key, column| @cumulative_totals[centre]["#{column}_cumulative"].to_i}.join(', ') %>, <%= @columns.map {|key, column| [@cumulative_totals[centre]["#{column}_cumulative"].to_i, @cumulative_totals[centre]["#{column}_goal_cumulative"].to_i]}.flatten.join(', ') %>
 <% end %>

@@ -271,11 +271,12 @@ class BaseProductionReport
         SELECT
         consortium,
         production_centre,
+        gene,
         mi_attempt_status,
         COUNT(*)
         FROM new_intermediate_report
         WHERE consortium in ('#{available_consortia.join('\', \'')}')
-        GROUP BY consortium, production_centre, mi_attempt_status
+        GROUP BY consortium, production_centre, gene, mi_attempt_status
         ORDER BY consortium, production_centre;
       EOF
     end

@@ -11,18 +11,17 @@
       <tr>
         <th width="150">Consortium</th>
         <th>All genes</th>
-        <th>ES cell QC</th>
-        <th>ES QC confirmed</th>
-        <th>ES QC failed</th>
+        <th>ES cell QC (genes)</th>
+        <th>ES QC confirmed (genes)</th>
+        <th>ES QC failed (genes)</th>
         <th>Production Centre</th>
-        <th>Microinjections</th>
-        <th>Chimaeras produced</th>
-        <th>Genotype confirmed mice</th>
-        <th>Microinjection aborted</th>
-        <!--<th>Gene Pipeline efficiency (%)</th>-->
-        <!--<th>Clone Pipeline efficiency (%)</th>-->
-        <th>Total GC genes > 6 months</th>
-        <th>All Microinjections > 6 months</th>
+        <th>All Accumulated Microinjections (genes)</th>
+        <th>All Accumulated Microinjections (clones)</th>
+        <th>All Accumulated Microinjections (number of attempts)</th>
+        <th>Microinjections PENDING (genes)</th>
+        <th>Chimaeras produced (genes)</th>
+        <th>Genotype confirmed mice (genes)</th>
+        <th>Microinjection aborted (genes)</th>
         <th>Pipeline efficiency</th>
       </tr>
     </thead>
@@ -43,13 +42,12 @@
 
             <td><%= centre %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre) %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Chimeras", :centre => centre) %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre) %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjection aborted", :centre => centre) %></td>
-            <!--<td><%= efficiency_percentage(@gene_efficiency_totals, row['consortium'], centre) %></td>-->
-            <!--<td><%= efficiency_percentage(@clone_efficiency_totals, row['consortium'], centre) %></td>-->
-            <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-gtc_count_efficiency"].to_i, genes_gt_mi_attempt_summary_path(:centres => centre, :consortia => row['consortium'])) %></td>
-            <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-total_count_efficiency"].to_i, all_mi_attempt_summary_path(:centres => centre, :consortia => row['consortium'])) %></td>
             <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-effort_efficiency"].to_f.round(2), sliding_efficiency_path(:production_centre_name => centre, :consortium_name => row['consortium'])) %></td>
           </tr>
 
@@ -188,27 +186,39 @@
         <td>Unique genes targeted by Consortium</td>
       </tr>
       <tr>
-        <th>ES Cell QC</th>
+        <th>ES Cell QC (genes)</th>
         <td><strong>Cumulative!</strong> Genes where we see any ES QC activity, in progress, successful or aborted</td>
       </tr>
       <tr>
-        <th>ES QC Confirmed</th>
+        <th>ES QC Confirmed (genes)</th>
         <td>Genes where QC ES Cell clone(s) have been thawed and QC passed.</td>
       </tr>
       <tr>
-        <th>Aborted - ES QC Failed</th>
+        <th>Aborted - ES QC Failed (genes)</th>
         <td>Genes where no more attempts will be made to thaw existing ES Cell clones for this gene.</td>
       </tr>
       <tr>
-        <th>Microinjections</th>
+        <th>All Accumulated Microinjections (genes)</th>
         <td><strong>Cumulative!</strong> Number of Genes with any mouse production activity, In Progress, Chimeric, Genotype Confirmed or Aborted</td>
       </tr>
       <tr>
-        <th>Chimeras</th>
+        <th>All Accumulated Microinjections (Clones) <span>*New*</span></th>
+        <td><strong>Cumulative!</strong> Number of unique Clones with any mouse production activity, In Progress, Chimeric, Genotype Confirmed or Aborted</td>
+      </tr>
+      <tr>
+        <th>All Accumulated Microinjections (number of attempts) <span>*New*</span></th>
+        <td><strong>Cumulative!</strong> Number of attempts with any mouse production activity, In Progress, Chimeric, Genotype Confirmed or Aborted</td>
+      </tr>
+      <tr>
+        <th>Microinjections PENDING (genes) <span>*New*</span></th>
+        <td>Number of Genes with mouse production activity, In Progress</td>
+      </tr>
+      <tr>
+        <th>Chimeras (genes)</th>
         <td>Number of Genes where iMits has at least one male chimera recorded</td>
       </tr>
       <tr>
-        <th>Genotype Confirmed Mice</th>
+        <th>Genotype Confirmed Mice (genes)</th>
         <td>Number of Genes where iMits has at least one 'Chimera with GC offspring' or 'Het offspring' recorded.</td>
       </tr>
       <!--
@@ -221,14 +231,6 @@
         <td>(#Unique Clones for all Genotype Confirmed MI's > 6 months old) / (#Unique Clones for all MI's > 6 months old)</td>
       </tr>
       -->
-      <tr>
-        <th>Total GC genes > 6 months <span>*New*</span></th>
-        <td>Unique Genes for all Genotype Confirmed MI's > 6 months old</td>
-      </tr>
-      <tr>
-        <th>All Microinjections > 6 months <span>*New*</span></th>
-        <td>Micro-injections > 6 months old</td>
-      </tr>
       <tr>
         <th>Effort based efficiency <span>*New*</span></th>
         <td>(#Unique Genes for all Genotype Confirmed MI's > 6 months old) / (#Micro-injections > 6 months old)</td>

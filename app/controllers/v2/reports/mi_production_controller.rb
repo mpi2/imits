@@ -107,7 +107,23 @@ class V2::Reports::MiProductionController < ApplicationController
     @columns = ImpcCentreByMonthReport.columns
     @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
   end
+  
+  def impc_centre_es_detail
+    @report = ImpcCentreByMonthDetail.new
+  end
 
+  def impc_centre_mi_detail
+    @report = ImpcCentreByMonthDetail.new
+    @centre = params[:centre]
+    @mis = @report.mi_rows(@centre)
+  end
+
+  def impc_centre_pa_detail
+    @report = ImpcCentreByMonthDetail.new
+    @centre = params[:centre]
+    @pas = @report.pa_rows(@centre)
+  end
+  
   def genes_gt_mi_attempt_summary
     @consortia = params[:consortia].split(',')
     @production_centres = params[:centres].split(',')

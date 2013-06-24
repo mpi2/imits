@@ -270,7 +270,7 @@ class ImpcCentreByMonthReport
             genes_with_plans.production_centre_name as production_centre,
             count(gtc_stamps.*) as genotype_confirmed_count
           FROM genes_with_plans
-          JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id
+          JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id and mi_attempts.status_id != 3
           LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at < '#{start_date}'
 
           GROUP BY

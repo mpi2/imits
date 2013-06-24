@@ -1,0 +1,4 @@
+Consortium, Production Centre, Gene, Colony, Status, Registered, Cre Started, Cre Complete, Phenotyping Started, Phenotyping Complete, Aborted
+<% @pas.each do |pa| %>
+<%= pa["consortium"] %>, <%= pa["production_centre"] %>, <%= pa["marker_symbol"] %>, <%= pa["colony_name"] %>, <%= pa["registered_date"] %>, <%= pa["cre_started_date"] %>, <%= pa["cre_complete_date"] %>, <%= pa["phenotyping_started_date"] %>, <%= pa["phenotyping_complete_date"] %>, <%= pa["phenotyping_aborted_date"] %>
+<% end %>

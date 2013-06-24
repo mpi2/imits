@@ -59,6 +59,7 @@ class Reports::MiProduction::ImpcGraphReportDisplayTest < ActiveSupport::TestCas
 
       mi_attempt = MiAttempt.all
       mi_attempt.each do |mi|
+        mi.update_attributes(:mi_date => 1.month.ago)
         status = mi.status_stamps
         status.each do |stamp|
           stamp.update_attributes(:created_at => 1.month.ago)

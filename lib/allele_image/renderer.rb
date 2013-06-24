@@ -61,6 +61,7 @@ module AlleleImage
       @font_size             = params[:font_size]
       @image_height          = @bottom_margin + @feature_height + @top_margin
       @cassetteonly          = params[:cassetteonly]
+      @simple                = @construct.simple
       # set the AlleleImage::Feature class attribute text_width
       AlleleImage::Feature.text_width(@text_width)
       # render the image
@@ -912,21 +913,40 @@ module AlleleImage
           feature.orientation == "forward" ? second_point[0] + tail_height : second_point[0] - tail_height,
           @top_margin / 2
         ]
+        arrow_point = [
+          third_point[0] + 6,
+          third_point[1]
+        ]
 
         drawing      = Magick::Draw.new
-        stroke_width = 1
-
+        
         drawing.stroke("black")
-        drawing.stroke_width(stroke_width)
-        drawing.line( first_point[0], first_point[1], second_point[0], second_point[1] )
-        draw_arrow(
-          image, third_point,
-          :direction    => feature.orientation == "forward" ? "east" : "west",
-          :tail_height  => tail_height,
-          :arm_height   => arm_height,
-          :arm_width    => arm_width,
-          :stroke_width => stroke_width
-        )
+
+        if @simple
+          stroke_width = 6
+          drawing.stroke_width(stroke_width)
+          drawing.fill_opacity(0)
+          drawing.bezier(first_point[0],first_point[1], first_point[0], third_point[1], first_point[0], third_point[1], third_point[0], third_point[1])
+          draw_arrow(
+            image, arrow_point,
+            :direction    => feature.orientation == "forward" ? "east" : "west",
+            :tail_height  => 15,#tail_height,
+            :arm_height   => 12,#arm_height,
+            :arm_width    => 6#arm_width
+          )
+        else
+          stroke_width = 1
+          drawing.stroke_width(stroke_width)
+          drawing.line( first_point[0], first_point[1], second_point[0], second_point[1] )
+          draw_arrow(
+            image, third_point,
+            :direction    => feature.orientation == "forward" ? "east" : "west",
+            :tail_height  => tail_height,
+            :arm_height   => arm_height,
+            :arm_width    => arm_width,
+            :stroke_width => stroke_width
+          )
+        end
 
         drawing.draw( image )
 

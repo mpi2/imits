@@ -253,6 +253,24 @@ class TargRep::AllelesController < TargRep::BaseController
     )
   end
 
+  ## GET /alleles/1/image
+  #def image
+  #  find_allele
+  #  return if check_for_genbank_file
+  #  return if check_for_escell_genbank_file
+  #  
+  # => Code here to generate allele image
+  #
+  #end
+
+  # GET /alleles/1/allele-image-cre/
+  def simple_allele_image_cre
+    find_allele
+    return if check_for_genbank_file
+    return if check_for_escell_genbank_file
+    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_cre, :simple => true).render.to_blob { self.format = "PNG" })
+  end
+
   # GET /alleles/1/allele-image/
   def allele_image
     find_allele
@@ -289,7 +307,7 @@ class TargRep::AllelesController < TargRep::BaseController
   def cassette_image
     find_allele
     return if check_for_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone, true).render.to_blob { self.format = "PNG" })
+    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone, :cassetteonly => true).render.to_blob { self.format = "PNG" })
   end
 
   # GET /alleles/1/vector-image/

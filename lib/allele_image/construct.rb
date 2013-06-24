@@ -18,15 +18,17 @@ module AlleleImage
   # * three_flank_features
   #
   class Construct
-    attr_reader :backbone_features, :bac_label, :boundries, :circular, :features, :rcmb_primers
+    attr_reader :backbone_features, :bac_label, :boundries, :circular, :features, :rcmb_primers, :simple
 
-    def initialize features, circular, cassette_label, backbone_label, bac_label = nil
-      @rcmb_primers   = initialize_rcmb_primers features
-      @features       = replace_functional_units features, AlleleImage::FUNCTIONAL_UNITS
-      @circular       = circular
-      @cassette_label = cassette_label
-      @backbone_label = backbone_label
-      @bac_label      = bac_label
+    def initialize options = {}
+
+      @rcmb_primers   = initialize_rcmb_primers options[:features]
+      @features       = replace_functional_units options[:features], AlleleImage::FUNCTIONAL_UNITS
+      @circular       = options[:circular]
+      @cassette_label = options[:cassette_label]
+      @backbone_label = options[:backbone_label]
+      @bac_label      = options[:bac_label]
+      @simple         = options[:simple]
 
       raise "NoRcmbPrimers" unless @rcmb_primers.size > 0
 
@@ -66,9 +68,15 @@ module AlleleImage
     # keep these the same, the initialize section method should change
     # still need these features stored in a array
     def cassette_features
-      cassette_features ||= initialize_section(:cassette_features)
+      @cassette_features ||= initialize_section(:cassette_features)
 
-      @cassette_features = cassette_features.reject { |f| f.feature_name == "Synthetic Cassette" }
+      if @simple
+        @cassette_features = @cassette_features.select {|f| ['CDS', 'misc_recomb', 'promoter'].include?(f.feature_type) }
+      end
+
+      @cassette_features.each {|f| puts f.inspect}
+
+      @cassette_features = @cassette_features.reject { |f| f.feature_name == "Synthetic Cassette" }
     end
 
     def five_arm_features

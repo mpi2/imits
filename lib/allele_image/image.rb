@@ -2,11 +2,11 @@ module AlleleImage
   class Image
     attr_reader :construct, :input, :parser, :renderer
 
-    def initialize(input, cassetteonly = false)
+    def initialize(input, options = {})
       @input         = input
-      @parser        = AlleleImage::Parser.new( @input )
+      @parser        = AlleleImage::Parser.new(@input, options[:simple])
       @construct     = @parser.construct
-      @renderer      = AlleleImage::Renderer.new( @construct, :cassetteonly => cassetteonly )
+      @renderer      = AlleleImage::Renderer.new(@construct, :cassetteonly => options[:cassetteonly])
     end
 
     def render

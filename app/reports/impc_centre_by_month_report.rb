@@ -1,4 +1,4 @@
-class ImpcCentreByMonthReport 
+class ImpcCentreByMonthReport
 
   attr_accessor :report_rows
 
@@ -36,6 +36,45 @@ class ImpcCentreByMonthReport
     @by_month_received ||= ActiveRecord::Base.connection.execute(self.class.by_month_received_sql).to_a
   end
 
+  def cumulative_totals
+    @total_to_date ||= generate_cumulatives
+  end
+
+  def generate_cumulatives
+    total_to_date = {}
+    # remove es_cells_received from cumulative _clones and by_month_clones. should only include genes.
+    (cumulative_clones.map{|a| s= a.dup; s.delete('es_cells_received');s } + cumulative_genes + cumulative_received +  by_month_clones.map{|a| s= a.dup; s.delete('es_cells_received');s } + by_month_genes + by_month_received ).each do |report_row|
+      centre = report_row['production_centre']
+      if !total_to_date.has_key?(centre)
+        total_to_date[centre] = {
+           'mi_in_progress_count_cumulative'               => 0,
+           'mi_in_progress_count_goal_cumulative'          => 0,
+           'genotype_confirmed_count_cumulative'           => 0,
+           'genotype_confirmed_count_goal_cumulative'      => 0,
+           'cre_excised_or_better_count_cumulative'        => 0,
+           'cre_excised_or_better_count_goal_cumulative'   => 0,
+           'phenotype_started_or_better_count_cumulative'  => 0,
+           'phenotype_started_or_better_count_goal_cumulative'  => 0,
+           'phenotype_complete_count_cumulative'           => 0,
+           'phenotype_complete_count_goal_cumulative'      => 0,
+           'es_cells_received_cumulative'                  => 0,
+           'eucomm_required_cumulative'                    => 0,
+           'komp_required_cumulative'                      => 0,
+           'norcomm_required_cumulative'                   => 0,
+           'wtsi_required_cumulative'                      => 0
+          }
+      end
+
+      report_row.each do |column, value|
+        if total_to_date[centre].has_key?("#{column}_cumulative")
+          puts "#{centre} #{column} #{value}"
+          total_to_date[centre]["#{column}_cumulative"] += value.to_i
+        end
+      end
+    end
+    return total_to_date
+  end
+
   def generate_report
 
     start_date = self.class.formatted_start_date
@@ -53,7 +92,7 @@ class ImpcCentreByMonthReport
         if report_row["#{key}_goal"].to_i > 0
           @report_rows["To #{start_date}-#{centre}-#{column}_goal"] = report_row["#{key}_goal"]
         end
-      end     
+      end
     end
 
     (by_month_clones + by_month_genes).each do |report_row|
@@ -80,7 +119,7 @@ class ImpcCentreByMonthReport
       self.class.es_cell_supply_columns.each do |column, key|
         if report_row[key] || @report_rows["To #{start_date}-#{centre}-#{column}"].blank?
           @report_rows["To #{start_date}-#{centre}-#{column}"] = report_row[key].to_i if report_row[key].to_i > 0
-        end        
+        end
       end
     end
 
@@ -106,7 +145,8 @@ class ImpcCentreByMonthReport
         'ES Cell Received' => 'es_cells_received',
         'Required from EUMMCR' => 'eucomm_required',
         'Required from KOMP' => 'komp_required',
-        'Required from NorCOMM' => 'norcomm_required'
+        'Required from NorCOMM' => 'norcomm_required',
+        'Required from WTSI' => 'wtsi_required'
       }
     end
 
@@ -175,7 +215,7 @@ class ImpcCentreByMonthReport
             JOIN centres ON centres.id = mi_plans.production_centre_id
             JOIN consortia ON consortia.id = mi_plans.consortium_id
 
-            JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at < '#{start_date}' 
+            JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at < '#{start_date}'
 
         WHERE
           centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
@@ -214,7 +254,7 @@ class ImpcCentreByMonthReport
           ORDER BY injected_es_cells.production_centre ASC
         )
 
-          
+
 
           SELECT
             counts.production_centre,
@@ -276,7 +316,7 @@ class ImpcCentreByMonthReport
           GROUP BY
             genes_with_plans.gene_id,
             genes_with_plans.production_centre_name
-                  
+
           ORDER BY genes_with_plans.production_centre_name ASC
         ),
 
@@ -302,7 +342,7 @@ class ImpcCentreByMonthReport
             count(ps_stamps.*) as phenotype_started_or_better_count,
             count(pc_stamps.*) as phenotype_complete_count
           FROM genes_with_plans
-          JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id
+          JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id AND phenotype_attempts.status_id != 1
           LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at < '#{start_date}'
           LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at < '#{start_date}'
           LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at < '#{start_date}'
@@ -310,7 +350,7 @@ class ImpcCentreByMonthReport
           GROUP BY
             genes_with_plans.gene_id,
             genes_with_plans.production_centre_name
-                  
+
           ORDER BY genes_with_plans.production_centre_name ASC
         ),
 
@@ -346,7 +386,7 @@ class ImpcCentreByMonthReport
                   phenotype_centres.phenotype_complete_count,
 
           gtc_goals.goal as genotype_confirmed_count_goal,
-          
+
           cre_goals.goal as cre_excised_or_better_count_goal,
           ps_goals.goal as phenotype_started_or_better_count_goal,
           pc_goals.goal as phenotype_complete_count_goal
@@ -383,7 +423,7 @@ class ImpcCentreByMonthReport
         JOIN centres ON centres.id = mi_plans.production_centre_id
         JOIN consortia ON consortia.id = mi_plans.consortium_id
 
-        JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at >= '#{start_date}' 
+        JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at >= '#{start_date}'
 
         WHERE
           centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
@@ -479,14 +519,14 @@ class ImpcCentreByMonthReport
             genes_with_plans.production_centre_name as production_centre,
             date_trunc('MONTH', gtc_stamps.created_at) as gtc_date
           FROM genes_with_plans
-          JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id
-          LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at >= '#{start_date}' 
+          JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id AND mi_attempts.status_id != 3
+          LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at >= '#{start_date}'
 
           GROUP BY
             genes_with_plans.gene_id,
             genes_with_plans.production_centre_name,
             gtc_date
-          
+
           ORDER BY genes_with_plans.production_centre_name ASC
         ),
 
@@ -516,10 +556,10 @@ class ImpcCentreByMonthReport
             date_trunc('MONTH', ps_stamps.created_at) as ps_date,
             date_trunc('MONTH', pc_stamps.created_at) as pc_date
           FROM genes_with_plans
-          JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id
-          LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at >= '#{start_date}' 
-          LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at >= '#{start_date}' 
-          LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at >= '#{start_date}' 
+          JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id AND phenotype_attempts.status_id != 1
+          LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at >= '#{start_date}'
+          LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at >= '#{start_date}'
+          LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at >= '#{start_date}'
 
           GROUP BY
             genes_with_plans.gene_id,
@@ -593,7 +633,8 @@ class ImpcCentreByMonthReport
           es_cells_received,
           eucomm_required_goals.goal as eucomm_required,
           komp_required_goals.goal as komp_required,
-          norcomm_required_goals.goal as norcomm_required
+          norcomm_required_goals.goal as norcomm_required,
+          wtsi_required_goals.goal as wtsi_required
 
         FROM (
         SELECT
@@ -633,6 +674,7 @@ class ImpcCentreByMonthReport
         LEFT JOIN tracking_goals AS eucomm_required_goals ON eucomm_required_goals.date IS NULL AND counts.production_centre_id = eucomm_required_goals.production_centre_id AND eucomm_required_goals.goal_type = 'eucomm_required'
         LEFT JOIN tracking_goals AS komp_required_goals ON komp_required_goals.date IS NULL AND counts.production_centre_id = komp_required_goals.production_centre_id AND komp_required_goals.goal_type = 'komp_required'
         LEFT JOIN tracking_goals AS norcomm_required_goals ON norcomm_required_goals.date IS NULL AND counts.production_centre_id = norcomm_required_goals.production_centre_id AND norcomm_required_goals.goal_type = 'norcomm_required'
+        LEFT JOIN tracking_goals AS wtsi_required_goals ON wtsi_required_goals.date IS NULL AND counts.production_centre_id = wtsi_required_goals.production_centre_id AND wtsi_required_goals.goal_type = 'wtsi_required'
       EOF
     end
 
@@ -640,43 +682,43 @@ class ImpcCentreByMonthReport
       <<-EOF
         WITH series AS (
           SELECT generate_series('#{start_date}', '#{end_date}', interval '1 month')::date as date
-        ), counts AS (
+        ),
 
-        SELECT
-          series.date,
-          centres.name as production_centre,
-          centres.id as production_centre_id,
-          SUM(CASE
-            WHEN date_trunc('MONTH', es_cells_received_on) = series.date
-            THEN number_of_es_cells_received ELSE 0
-          END) as es_cells_received
+        counts AS (
+          SELECT
+            series.date,
+            centres.name as production_centre,
+            centres.id as production_centre_id,
+            SUM(CASE
+              WHEN date_trunc('MONTH', es_cells_received_on) = series.date
+              THEN number_of_es_cells_received ELSE 0
+            END) as es_cells_received
 
-        FROM mi_plans
-        CROSS JOIN series
+          FROM mi_plans
+          CROSS JOIN series
 
-        JOIN centres ON centres.id = mi_plans.production_centre_id
-        JOIN consortia ON consortia.id = mi_plans.consortium_id
+          JOIN centres ON centres.id = mi_plans.production_centre_id
+          JOIN consortia ON consortia.id = mi_plans.consortium_id
 
-          WHERE
-            centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
-          OR
-            centres.name = 'ICS' AND consortia.name IN ('Phenomin', 'Helmholtz GMC')
-          OR
-            centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
-          OR
-            centres.name = 'Harwell' AND consortia.name IN ('BaSH', 'MRC')
-          OR
-            centres.name = 'UCD' AND consortia.name = 'DTCC'
-          OR
-            centres.name = 'WTSI' AND consortia.name IN ('MGP', 'BaSH')
-          OR
-            centres.name = 'Monterotondo' AND consortia.name = 'Monterotondo'
+            WHERE
+              centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
+            OR
+              centres.name = 'ICS' AND consortia.name IN ('Phenomin', 'Helmholtz GMC')
+            OR
+              centres.name in ('BCM', 'TCP', 'JAX', 'RIKEN BRC')
+            OR
+              centres.name = 'Harwell' AND consortia.name IN ('BaSH', 'MRC')
+            OR
+              centres.name = 'UCD' AND consortia.name = 'DTCC'
+            OR
+              centres.name = 'WTSI' AND consortia.name IN ('MGP', 'BaSH')
+            OR
+              centres.name = 'Monterotondo' AND consortia.name = 'Monterotondo'
 
-        GROUP BY
-          series.date,
-          centres.name,
-          centres.id
-
+          GROUP BY
+            series.date,
+            centres.name,
+            centres.id
         )
 
         SELECT
@@ -685,13 +727,15 @@ class ImpcCentreByMonthReport
           es_cells_received,
           eucomm_required_goals.goal as eucomm_required,
           komp_required_goals.goal as komp_required,
-          norcomm_required_goals.goal as norcomm_required
+          norcomm_required_goals.goal as norcomm_required,
+          wtsi_required_goals.goal as wtsi_required
 
         FROM counts
 
         LEFT JOIN tracking_goals AS eucomm_required_goals ON eucomm_required_goals.date = counts.date AND counts.production_centre_id = eucomm_required_goals.production_centre_id AND eucomm_required_goals.goal_type = 'eucomm_required'
         LEFT JOIN tracking_goals AS komp_required_goals ON komp_required_goals.date = counts.date AND counts.production_centre_id = komp_required_goals.production_centre_id AND komp_required_goals.goal_type = 'komp_required'
         LEFT JOIN tracking_goals AS norcomm_required_goals ON norcomm_required_goals.date = counts.date AND counts.production_centre_id = norcomm_required_goals.production_centre_id AND norcomm_required_goals.goal_type = 'norcomm_required'
+        LEFT JOIN tracking_goals AS wtsi_required_goals ON wtsi_required_goals.date = counts.date AND counts.production_centre_id = wtsi_required_goals.production_centre_id AND wtsi_required_goals.goal_type = 'wtsi_required'
       EOF
     end
 

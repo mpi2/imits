@@ -104,6 +104,7 @@ class V2::Reports::MiProductionController < ApplicationController
   def impc_centre_by_month
     @report = ImpcCentreByMonthReport.new
     @centre_by_month = @report.report_rows
+    @cumulative_totals = @report.cumulative_totals
     @columns = ImpcCentreByMonthReport.columns
     @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
   end
@@ -125,32 +126,31 @@ class V2::Reports::MiProductionController < ApplicationController
   end
   
   def genes_gt_mi_attempt_summary
-    @consortia = params[:consortia].split(',')
-    @production_centres = params[:centres].split(',')
+    @consortia = Consortium.where(:name => params[:consortia].split(','))
+    @production_centres = Centre.where(:name => params[:centres].split(','))
 
     @title = ''
     @report = BaseProductionReport.new
-    @report.class.available_consortia = @consortia
-    @report.class.available_production_centres = @production_centres
+    @report.class.available_consortia = @consortia.map(&:name)
+    @report.class.available_production_centres = @production_centres.map(&:name)
     @micro_injection_list = @report.most_advanced_gt_mi_for_genes
 
     render :template => 'v2/reports/mi_production/mi_attempt_summary'
   end
 
   def all_mi_attempt_summary
-    @consortia = params[:consortia].split(',')
-    @production_centres = params[:centres].split(',')
+    @consortia = Consortium.where(:name => params[:consortia].split(','))
+    @production_centres = Centre.where(:name => params[:centres].split(','))
 
     @title = ''
-
     @report = BaseProductionReport.new
-    @report.class.available_consortia = @consortia
-    @report.class.available_production_centres = @production_centres
+    @report.class.available_consortia = @consortia.map(&:name)
+    @report.class.available_production_centres = @production_centres.map(&:name)
     @micro_injection_list = @report.micro_injection_list
 
     render :template => 'v2/reports/mi_production/mi_attempt_summary'
   end
-  
+
   def sliding_efficiency
     @consortium_name = params[:consortium] || params[:consortium_name] || params[:consortia]
     @production_centre_name = params[:centre] || params[:production_centre_name] || params[:centre_name]

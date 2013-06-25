@@ -42,8 +42,22 @@
               <td><%= @centre_by_month["#{date}-#{centre}-#{column}_goal"] %></td>
             <% end %>
           </tr>
-        <% end %>    
+        <% end %>
       </tbody>
+      <tfoot>
+        <tr>
+          <td colspan='2'>Total to date</td>
+
+          <% @es_cell_columns.each do |key, column| %>
+            <td><%= @cumulative_totals[centre]["#{column}_cumulative"] %></td>
+          <% end %>
+
+          <% @columns.each do |key, column| %>
+            <td><%= @cumulative_totals[centre]["#{column}_cumulative"] %></td>
+            <td><%= @cumulative_totals[centre]["#{column}_goal_cumulative"] %></td>
+          <% end %>
+        </tr>
+      </tfoot>
     </table>
     <br />
     <table>

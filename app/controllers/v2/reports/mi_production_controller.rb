@@ -110,27 +110,26 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def genes_gt_mi_attempt_summary
-    @consortia = params[:consortia].split(',')
-    @production_centres = params[:centres].split(',')
+    @consortia = Consortium.where(:name => params[:consortia].split(','))
+    @production_centres = Centre.where(:name => params[:centres].split(','))
 
     @title = ''
     @report = BaseProductionReport.new
-    @report.class.available_consortia = @consortia
-    @report.class.available_production_centres = @production_centres
+    @report.class.available_consortia = @consortia.map(&:name)
+    @report.class.available_production_centres = @production_centres.map(&:name)
     @micro_injection_list = @report.most_advanced_gt_mi_for_genes
 
     render :template => 'v2/reports/mi_production/mi_attempt_summary'
   end
 
   def all_mi_attempt_summary
-    @consortia = params[:consortia].split(',')
-    @production_centres = params[:centres].split(',')
+    @consortia = Consortium.where(:name => params[:consortia].split(','))
+    @production_centres = Centre.where(:name => params[:centres].split(','))
 
     @title = ''
-
     @report = BaseProductionReport.new
-    @report.class.available_consortia = @consortia
-    @report.class.available_production_centres = @production_centres
+    @report.class.available_consortia = @consortia.map(&:name)
+    @report.class.available_production_centres = @production_centres.map(&:name)
     @micro_injection_list = @report.micro_injection_list
 
     render :template => 'v2/reports/mi_production/mi_attempt_summary'

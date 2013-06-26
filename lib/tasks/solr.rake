@@ -15,14 +15,61 @@ namespace :solr do
   desc 'Enqueue every TargRep::TargetedAllele, TargRep::EsCell, MiAttempt & PhenotypeAttempt for solr update'
   task 'update:enqueue:all' => [:environment] do
     ApplicationModel.transaction do
+
+      puts "#### enqueueing mi_attempts..."
       enqueuer = SolrUpdate::Enqueuer.new
       MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i) }
 
+      puts "#### enqueueing alleles..."
       enqueuer = SolrUpdate::Enqueuer.new
       TargRep::TargetedAllele.all.each { |a| enqueuer.allele_updated(a) }
 
+      puts "#### enqueueing phenotype_attempts..."
       enqueuer = SolrUpdate::Enqueuer.new
       PhenotypeAttempt.all.each { |p| enqueuer.phenotype_attempt_updated(p) }
+
+      puts "#### enqueueing genes..."
+      enqueuer = SolrUpdate::Enqueuer.new
+      Gene.all.each { |g| enqueuer.gene_updated(g) }
+    end
+  end
+
+  #desc 'Enqueue every TargRep::TargetedAllele, TargRep::EsCell, MiAttempt & PhenotypeAttempt for solr update'
+  task 'update:partial_run' => [:environment] do
+
+    pp SolrUpdate::IndexProxy::Allele.get_uri
+
+    #exit
+
+    ApplicationModel.transaction do
+
+      puts "#### enqueueing mi_attempts..."
+      enqueuer = SolrUpdate::Enqueuer.new
+      MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i) }
+
+      puts "#### running mi_attempts..."
+      SolrUpdate::Queue.run(:limit => nil)
+
+      #puts "#### enqueueing alleles..."
+      #enqueuer = SolrUpdate::Enqueuer.new
+      #TargRep::TargetedAllele.all.each { |a| enqueuer.allele_updated(a) }
+      #
+      #puts "#### running alleles..."
+      #SolrUpdate::Queue.run(:limit => nil)
+
+      puts "#### enqueueing phenotype_attempts..."
+      enqueuer = SolrUpdate::Enqueuer.new
+      PhenotypeAttempt.all.each { |p| enqueuer.phenotype_attempt_updated(p) }
+
+      puts "#### running phenotype_attempts..."
+      SolrUpdate::Queue.run(:limit => nil)
+
+      #puts "#### enqueueing genes..."
+      #enqueuer = SolrUpdate::Enqueuer.new
+      #Gene.all.each { |g| enqueuer.gene_updated(g) }
+      #
+      #puts "#### running genes..."
+      #SolrUpdate::Queue.run(:limit => nil)
     end
   end
 

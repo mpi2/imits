@@ -100,12 +100,11 @@ class MiAttemptTest < ActiveSupport::TestCase
 
           set_mi_attempt_genotype_confirmed(mi)
           replace_status_stamps(mi,
-            :mip => '2011-01-01',
             :chr => '2011-01-02',
             :gtc => '2011-01-03'
           )
           expected = {
-            'Micro-injection in progress' => Date.parse('2011-01-01'),
+            'Micro-injection in progress' => mi.mi_date,
             'Chimeras obtained' => Date.parse('2011-01-02'),
             'Genotype confirmed' => Date.parse('2011-01-03')
           }
@@ -643,14 +642,14 @@ class MiAttemptTest < ActiveSupport::TestCase
     end
 
     context '#in_progress_date' do
-      should 'return status stamp date for in progress status' do
+      should 'return status stamp date for in progress status which matches mi_date' do
         mi = Factory.create :mi_attempt2_status_gtc
         replace_status_stamps(mi,
           :chr => '2011-11-12 00:00 UTC',
-          :mip => '2011-06-12 00:00 UTC',
+          :mip => '2011-06-12 00:00 UTC', # this will be over written to match the mi_date
           :gtc => '2011-01-24 00:00 UTC'
         )
-        assert_equal Date.parse('2011-06-12'), mi.in_progress_date
+        assert_equal mi.mi_date, mi.in_progress_date
       end
     end
 

@@ -133,6 +133,7 @@ class MiAttempt < ApplicationModel
   before_save :generate_colony_name_if_blank
   before_save :deal_with_unassigned_or_inactive_plans # this method are in belongs_to_mi_plan
   after_save :manage_status_stamps
+  after_save :make_mi_date_and_in_progress_status_consistent
   after_save :reload_mi_plan_mi_attempts
 
   def set_total_chimeras
@@ -167,6 +168,18 @@ class MiAttempt < ApplicationModel
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
   protected :generate_colony_name_if_blank
+
+  def make_mi_date_and_in_progress_status_consistent
+    in_progress_status = self.status_stamps.find_by_status_id(1)
+
+    if in_progress_status
+      if self.mi_date.to_date != in_progress_status.created_at.to_date
+        in_progress_status.created_at = self.mi_date.to_datetime
+        in_progress_status.save
+      end
+    end
+  end
+  protected :make_mi_date_and_in_progress_status_consistent
 
   def reload_mi_plan_mi_attempts
     mi_plan.mi_attempts.reload

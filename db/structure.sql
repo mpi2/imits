@@ -848,6 +848,70 @@ ALTER SEQUENCE mi_plans_id_seq OWNED BY mi_plans.id;
 
 
 --
+-- Name: new_gene_intermediate_report; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE new_gene_intermediate_report (
+    id integer NOT NULL,
+    gene character varying(75) NOT NULL,
+    consortium character varying(255) NOT NULL,
+    production_centre character varying(255),
+    mgi_accession_id character varying(40),
+    overall_status character varying(50),
+    mi_attempt_status character varying(50),
+    phenotype_attempt_status character varying(50),
+    ikmc_project_id character varying(255),
+    mutation_sub_type character varying(100),
+    allele_symbol character varying(255),
+    genetic_background character varying(255),
+    mi_attempt_colony_name character varying(255),
+    mi_attempt_consortium character varying(255),
+    mi_attempt_production_centre character varying(255),
+    phenotype_attempt_colony_name character varying(255),
+    micro_injection_in_progress_date date,
+    chimeras_obtained_date date,
+    genotype_confirmed_date date,
+    micro_injection_aborted_date date,
+    phenotype_attempt_registered_date date,
+    rederivation_started_date date,
+    rederivation_complete_date date,
+    cre_excision_started_date date,
+    cre_excision_complete_date date,
+    phenotyping_started_date date,
+    phenotyping_complete_date date,
+    phenotype_attempt_aborted_date date,
+    distinct_genotype_confirmed_es_cells integer,
+    distinct_old_genotype_confirmed_es_cells integer,
+    distinct_non_genotype_confirmed_es_cells integer,
+    distinct_old_non_genotype_confirmed_es_cells integer,
+    total_pipeline_efficiency_gene_count integer,
+    total_old_pipeline_efficiency_gene_count integer,
+    gc_pipeline_efficiency_gene_count integer,
+    gc_old_pipeline_efficiency_gene_count integer,
+    created_at timestamp without time zone
+);
+
+
+--
+-- Name: new_gene_intermediate_report_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE new_gene_intermediate_report_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: new_gene_intermediate_report_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE new_gene_intermediate_report_id_seq OWNED BY new_gene_intermediate_report.id;
+
+
+--
 -- Name: new_intermediate_report; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -1989,6 +2053,13 @@ ALTER TABLE ONLY mi_plans ALTER COLUMN id SET DEFAULT nextval('mi_plans_id_seq':
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY new_gene_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_gene_intermediate_report_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY new_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_intermediate_report_id_seq'::regclass);
 
 
@@ -2326,6 +2397,14 @@ ALTER TABLE ONLY mi_plan_sub_projects
 
 ALTER TABLE ONLY mi_plans
     ADD CONSTRAINT mi_plans_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: new_gene_intermediate_report_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY new_gene_intermediate_report
+    ADD CONSTRAINT new_gene_intermediate_report_pkey PRIMARY KEY (id);
 
 
 --
@@ -3447,3 +3526,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130528131803');
 INSERT INTO schema_migrations (version) VALUES ('20130528142149');
 
 INSERT INTO schema_migrations (version) VALUES ('20130610142149');
+
+INSERT INTO schema_migrations (version) VALUES ('20130625115302');

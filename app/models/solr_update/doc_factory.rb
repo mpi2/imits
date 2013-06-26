@@ -184,9 +184,6 @@ class SolrUpdate::DocFactory
     docs = allele.es_cells.unique_public_info.map do |es_cell_info|
       order_from_info = calculate_order_from_info(es_cell_info.merge(:allele => allele))
 
-      s = allele.gene.relevant_status
-      status = s[:status].to_s.humanize
-
       {
         'type' => 'allele',
         'id' => allele.id,
@@ -199,8 +196,7 @@ class SolrUpdate::DocFactory
         'allele_image_url' => allele_image_url(allele.id),
         'genbank_file_url' => genbank_file_url(allele.id),
         'order_from_urls' => [order_from_info[:url]],
-        'order_from_names' => [order_from_info[:name]],
-        'production_in_progress' => status
+        'order_from_names' => [order_from_info[:name]]
       }
     end
 

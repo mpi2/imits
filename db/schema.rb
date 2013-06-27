@@ -347,8 +347,13 @@ ActiveRecord::Schema.define(:version => 20130625115302) do
     t.string   "production_centre"
     t.string   "mgi_accession_id",                             :limit => 40
     t.string   "overall_status",                               :limit => 50
+    t.string   "mi_plan_status",                               :limit => 50
     t.string   "mi_attempt_status",                            :limit => 50
     t.string   "phenotype_attempt_status",                     :limit => 50
+    t.date     "assigned_date"
+    t.date     "assigned_es_cell_qc_in_progress_date"
+    t.date     "assigned_es_cell_qc_complete_date"
+    t.date     "aborted_es_cell_qc_failed_date"
     t.string   "ikmc_project_id"
     t.string   "mutation_sub_type",                            :limit => 100
     t.string   "allele_symbol"
@@ -377,6 +382,7 @@ ActiveRecord::Schema.define(:version => 20130625115302) do
     t.integer  "total_old_pipeline_efficiency_gene_count"
     t.integer  "gc_pipeline_efficiency_gene_count"
     t.integer  "gc_old_pipeline_efficiency_gene_count"
+    t.integer  "most_advanced_mi_plan_id_by_consortia"
     t.datetime "created_at"
   end
 

@@ -858,8 +858,13 @@ CREATE TABLE new_gene_intermediate_report (
     production_centre character varying(255),
     mgi_accession_id character varying(40),
     overall_status character varying(50),
+    mi_plan_status character varying(50),
     mi_attempt_status character varying(50),
     phenotype_attempt_status character varying(50),
+    assigned_date date,
+    assigned_es_cell_qc_in_progress_date date,
+    assigned_es_cell_qc_complete_date date,
+    aborted_es_cell_qc_failed_date date,
     ikmc_project_id character varying(255),
     mutation_sub_type character varying(100),
     allele_symbol character varying(255),
@@ -888,6 +893,7 @@ CREATE TABLE new_gene_intermediate_report (
     total_old_pipeline_efficiency_gene_count integer,
     gc_pipeline_efficiency_gene_count integer,
     gc_old_pipeline_efficiency_gene_count integer,
+    most_advanced_mi_plan_id_by_consortia integer,
     created_at timestamp without time zone
 );
 

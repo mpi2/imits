@@ -15,9 +15,9 @@
         <th>ES QC confirmed (genes)</th>
         <th>ES QC failed (genes)</th>
         <th>Production Centre</th>
-        <th>All Accumulated Microinjections (genes)</th>
-        <th>All Accumulated Microinjections (clones)</th>
         <th>All Accumulated Microinjections (number of attempts)</th>
+        <th>All Accumulated Microinjections (clones)</th>
+        <th>All Accumulated Microinjections (genes)</th>
         <th>Microinjections PENDING (genes)</th>
         <th>Chimaeras produced (genes)</th>
         <th>Genotype confirmed mice (genes)</th>
@@ -41,10 +41,10 @@
             <% end %>
 
             <td><%= centre %></td>
+            <td><%= @consortium_centre_by_status[ "#{row['consortium']}-#{centre}-Microinjections-mi_attempt" ] %></td>
+            <td><%= @consortium_centre_by_status[ "#{row['consortium']}-#{centre}-Microinjections-clones" ] %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre) %></td>
-            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre) %></td>
-            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre) %></td>
-            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre) %></td>
+            <td><%= @consortium_centre_by_status [ "#{row['consortium']}-#{centre}-Microinjections-in-progress" ] %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Chimeras", :centre => centre) %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre) %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjection aborted", :centre => centre) %></td>

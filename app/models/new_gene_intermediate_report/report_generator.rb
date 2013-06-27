@@ -225,7 +225,7 @@ module NewGeneIntermediateReport::ReportGenerator
 
       def report_sql
         <<-EOF
-          -- get the best_mi_attempts per plan in a CTE using WITH
+          -- get the best_mi_attempts per gene in a CTE using WITH
           WITH best_mi_attempts AS (
             SELECT
               best_mi_attempts.id AS mi_attempts_id,
@@ -288,11 +288,11 @@ module NewGeneIntermediateReport::ReportGenerator
             LEFT JOIN mi_attempt_status_stamps AS aborted_stamps     ON aborted_stamps.mi_attempt_id = best_mi_attempts.id     AND aborted_stamps.status_id = 3
             LEFT JOIN mi_attempt_status_stamps AS chimearic_stamps   ON chimearic_stamps.mi_attempt_id = best_mi_attempts.id   AND chimearic_stamps.status_id = 4
 
-            ORDER BY mi_plan_id
+            ORDER BY gene_id, consortium_id, production_centre_id
           ),
 
 
-          -- get the best_phenotype_attempts per plan in a CTE using WITH
+          -- get the best_phenotype_attempts per gene in a CTE using WITH
           best_phenotype_attempts AS (
             SELECT
               best_phenotype_attempts.colony_name AS phenotype_attempt_colony_name,
@@ -316,7 +316,6 @@ module NewGeneIntermediateReport::ReportGenerator
               best_phenotype_attempts.mouse_allele_type AS pa_mouse_allele_type,
               targ_rep_es_cells.allele_symbol_superscript_template AS pa_allele_symbol_superscript_template,
               targ_rep_es_cells.mgi_allele_symbol_superscript AS pa_allele_symbol_superscript
-
             FROM (
               SELECT DISTINCT phenotype_attempts.*
               FROM phenotype_attempts
@@ -352,7 +351,6 @@ module NewGeneIntermediateReport::ReportGenerator
             LEFT JOIN consortia ON consortia.id = mi_attempt_mi_plans.consortium_id
             LEFT JOIN centres ON centres.id = mi_attempt_mi_plans.production_centre_id
             JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = best_phenotype_attempts.status_id
-
             LEFT JOIN phenotype_attempt_status_stamps AS aborted_statuses ON aborted_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND aborted_statuses.status_id = 1
             LEFT JOIN phenotype_attempt_status_stamps AS registered_statuses ON registered_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND registered_statuses.status_id = 2
             LEFT JOIN phenotype_attempt_status_stamps AS re_started_statuses ON re_started_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND re_started_statuses.status_id = 3
@@ -361,10 +359,113 @@ module NewGeneIntermediateReport::ReportGenerator
             LEFT JOIN phenotype_attempt_status_stamps AS cre_complete_statuses ON cre_complete_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND cre_complete_statuses.status_id = 6
             LEFT JOIN phenotype_attempt_status_stamps AS started_statuses ON started_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND started_statuses.status_id = 7
             LEFT JOIN phenotype_attempt_status_stamps AS complete_statuses ON complete_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND complete_statuses.status_id = 8
+            ORDER BY gene_id, consortium_id, production_centre_id
+          ),
 
-            ORDER BY mi_plan_id
+
+          -- get the best_mi_plans per gene in a CTE using WITH
+          best_mi_plans AS (
+            SELECT
+              best_mi_plans.id AS mi_plan_id,
+              mi_plan_statuses.name AS mi_plan_status,
+              best_mi_plans.gene_id AS gene_id,
+              best_mi_plans.consortium_id AS consortium_id,
+              best_mi_plans.production_centre_id AS production_centre_id,
+              assigned.created_at::date          AS assigned_date,
+              es_qc_in_progress.created_at::date AS es_qc_in_progress_date,
+              es_qc_complete.created_at::date    AS es_qc_complete_date,
+              es_qc_fail.created_at::date        AS es_qc_fail_date
+            FROM (
+              SELECT DISTINCT mi_plans.*
+              FROM mi_plans
+              JOIN (
+                SELECT
+                  best_plans_for_gene_consortia_centre_and_status.gene_id,
+                  best_plans_for_gene_consortia_centre_and_status.consortium_id,
+                  best_plans_for_gene_consortia_centre_and_status.production_centre_id,
+                  best_plans_for_gene_consortia_centre_and_status.order_by,
+                  first_value(best_plans_for_gene_consortia_centre_and_status.mi_plan_id) OVER (PARTITION BY best_plans_for_gene_consortia_centre_and_status.gene_id, best_plans_for_gene_consortia_centre_and_status.consortium_id, best_plans_for_gene_consortia_centre_and_status.production_centre_id) AS mi_plan_id
+                FROM (
+                  SELECT
+                    mi_plans.gene_id,
+                    mi_plans.consortium_id,
+                    mi_plans.production_centre_id,
+                    (CASE
+                      WHEN mi_plan_statuses.name = 'Aborted - ES Cell QC Failed'       THEN 1
+                      WHEN mi_plan_statuses.name = 'Assigned'                          THEN 2
+                      WHEN mi_plan_statuses.name = 'Assigned - ES Cell QC In Progress' THEN 3
+                      WHEN mi_plan_statuses.name = 'Assigned - ES Cell QC Complete'    THEN 4
+                    END) As order_by,
+                    mi_plans.id as mi_plan_id
+                  FROM mi_plans
+                  JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id AND mi_plan_statuses.name in ('Aborted - ES Cell QC Failed', 'Assigned', 'Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete')
+                  JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = mi_plans.id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
+                  ORDER BY
+                    mi_plans.gene_id,
+                    mi_plans.consortium_id,
+                    mi_plans.production_centre_id,
+                    mi_plan_statuses.order_by DESC,
+                    mi_plan_status_stamps.created_at ASC
+                ) as best_plans_for_gene_consortia_centre_and_status
+              ) AS att ON mi_plans.id = att.mi_plan_id
+            ) best_mi_plans
+            LEFT JOIN mi_plan_status_stamps AS assigned          ON assigned.mi_plan_id = best_mi_plans.id          AND assigned.status_id = 1
+            LEFT JOIN mi_plan_status_stamps AS es_qc_in_progress ON es_qc_in_progress.mi_plan_id = best_mi_plans.id AND es_qc_in_progress.status_id = 8
+            LEFT JOIN mi_plan_status_stamps AS es_qc_complete    ON es_qc_complete.mi_plan_id = best_mi_plans.id    AND es_qc_complete.status_id = 9
+            LEFT JOIN mi_plan_status_stamps AS es_qc_fail        ON es_qc_fail.mi_plan_id = best_mi_plans.id        AND es_qc_fail.status_id = 10
+            JOIN mi_plan_statuses ON mi_plan_statuses.id = best_mi_plans.status_id
+            ORDER BY gene_id, consortium_id, production_centre_id
+          ),
+
+          -- get the best_mi_plans per gene only by consortia in a CTE using WITH
+          best_mi_plan_for_this_gene AS (
+            SELECT
+              best_mi_plan_for_this_gene.id AS mi_plan_id,
+              mi_plan_statuses.name AS mi_plan_status,
+              best_mi_plan_for_this_gene.gene_id AS gene_id,
+              best_mi_plan_for_this_gene.consortium_id AS consortium_id,
+              assigned.created_at::date          AS assigned_date,
+              es_qc_in_progress.created_at::date AS es_qc_in_progress_date,
+              es_qc_complete.created_at::date    AS es_qc_complete_date,
+              es_qc_fail.created_at::date        AS es_qc_fail_date
+            FROM (
+              SELECT DISTINCT mi_plans.*
+              FROM mi_plans
+              JOIN (
+                SELECT
+                  best_plans_for_gene_consortia_and_status.gene_id,
+                  best_plans_for_gene_consortia_and_status.consortium_id,
+                  best_plans_for_gene_consortia_and_status.order_by,
+                  first_value(best_plans_for_gene_consortia_and_status.mi_plan_id) OVER (PARTITION BY best_plans_for_gene_consortia_and_status.gene_id, best_plans_for_gene_consortia_and_status.consortium_id) AS mi_plan_id
+                FROM (
+                  SELECT
+                    mi_plans.gene_id,
+                    mi_plans.consortium_id,
+                    (CASE
+                      WHEN mi_plan_statuses.name = 'Aborted - ES Cell QC Failed'       THEN 1
+                      WHEN mi_plan_statuses.name = 'Assigned'                          THEN 2
+                      WHEN mi_plan_statuses.name = 'Assigned - ES Cell QC In Progress' THEN 3
+                      WHEN mi_plan_statuses.name = 'Assigned - ES Cell QC Complete'    THEN 4
+                    END) As order_by,
+                    mi_plans.id as mi_plan_id
+                  FROM mi_plans
+                  JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id AND mi_plan_statuses.name in ('Aborted - ES Cell QC Failed', 'Assigned', 'Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete')
+                  JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = mi_plans.id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
+                  ORDER BY
+                    mi_plans.gene_id,
+                    mi_plans.consortium_id,
+                    mi_plan_statuses.order_by DESC,
+                    mi_plan_status_stamps.created_at ASC
+                ) as best_plans_for_gene_consortia_and_status
+              ) AS att ON mi_plans.id = att.mi_plan_id
+            ) best_mi_plan_for_this_gene
+            LEFT JOIN mi_plan_status_stamps AS assigned          ON assigned.mi_plan_id = best_mi_plan_for_this_gene.id          AND assigned.status_id = 1
+            LEFT JOIN mi_plan_status_stamps AS es_qc_in_progress ON es_qc_in_progress.mi_plan_id = best_mi_plan_for_this_gene.id AND es_qc_in_progress.status_id = 8
+            LEFT JOIN mi_plan_status_stamps AS es_qc_complete    ON es_qc_complete.mi_plan_id = best_mi_plan_for_this_gene.id    AND es_qc_complete.status_id = 9
+            LEFT JOIN mi_plan_status_stamps AS es_qc_fail        ON es_qc_fail.mi_plan_id = best_mi_plan_for_this_gene.id        AND es_qc_fail.status_id = 10
+            JOIN mi_plan_statuses ON mi_plan_statuses.id = best_mi_plan_for_this_gene.status_id
+            ORDER BY gene_id, consortium_id
           )
-
 
           -- build intermediate report
 
@@ -380,8 +481,17 @@ module NewGeneIntermediateReport::ReportGenerator
                 THEN best_mi_attempts.mi_attempt_status
               ELSE best_phenotype_attempts.phenotype_attempt_status
             END AS overall_status,
+
+            best_mi_plans.mi_plan_id AS mi_plan_status,
+
             best_mi_attempts.mi_attempt_status,
             best_phenotype_attempts.phenotype_attempt_status,
+
+            best_mi_plans.assigned_date AS assigned_date,
+            best_mi_plans.es_qc_in_progress_date AS assigned_es_cell_qc_in_progress_date,
+            best_mi_plans.es_qc_complete_date AS assigned_es_cell_qc_complete_date,
+            best_mi_plans.es_qc_fail_date AS aborted_es_cell_qc_failed_date,
+
             best_mi_attempts.ikmc_project_id,
             best_mi_attempts.mutation_sub_type,
             best_mi_attempts.allele_symbol_superscript,
@@ -409,15 +519,18 @@ module NewGeneIntermediateReport::ReportGenerator
             end AS mi_attempt_colony_name,
             best_phenotype_attempts.pa_mi_attempt_consortium AS mi_attempt_consortium,
             best_phenotype_attempts.pa_mi_attempt_production_centre AS mi_attempt_production_centre,
-            best_phenotype_attempts.phenotype_attempt_colony_name
+            best_phenotype_attempts.phenotype_attempt_colony_name,
+            best_mi_plan_for_this_gene.mi_plan_id AS most_advanced_mi_plan_id_by_consortia
 
           FROM (SELECT DISTINCT mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id FROM mi_plans) AS unique_gene_plans
 
           JOIN consortia ON consortia.id = unique_gene_plans.consortium_id
           JOIN genes ON genes.id = unique_gene_plans.gene_id
           LEFT JOIN centres ON centres.id = unique_gene_plans.production_centre_id
-          LEFT JOIN best_mi_attempts ON best_mi_attempts.gene_id = unique_gene_plans.gene_id AND  best_mi_attempts.consortium_id = unique_gene_plans.consortium_id AND  best_mi_attempts.production_centre_id = unique_gene_plans.production_centre_id
+          LEFT JOIN best_mi_attempts ON best_mi_attempts.gene_id = unique_gene_plans.gene_id AND  best_mi_attempts.consortium_id = unique_gene_plans.consortium_id AND best_mi_attempts.production_centre_id = unique_gene_plans.production_centre_id
           LEFT JOIN best_phenotype_attempts ON best_phenotype_attempts.gene_id = unique_gene_plans.gene_id AND best_phenotype_attempts.consortium_id = unique_gene_plans.consortium_id AND  best_phenotype_attempts.production_centre_id = unique_gene_plans.production_centre_id
+          LEFT JOIN best_mi_plans ON best_mi_plans.gene_id = unique_gene_plans.gene_id AND best_mi_plans.consortium_id = unique_gene_plans.consortium_id AND best_mi_plans.production_centre_id = unique_gene_plans.production_centre_id
+          LEFT JOIN best_mi_plan_for_this_gene ON best_mi_plan_for_this_gene.gene_id = unique_gene_plans.gene_id AND best_mi_plan_for_this_gene.consortium_id = unique_gene_plans.consortium_id
 
           ORDER BY unique_gene_plans.gene_id, unique_gene_plans.consortium_id, unique_gene_plans.production_centre_id
         EOF
@@ -522,8 +635,13 @@ module NewGeneIntermediateReport::ReportGenerator
           'gene',
           'mgi_accession_id',
           'overall_status',
+          'mi_plan_status',
           'mi_attempt_status',
           'phenotype_attempt_status',
+          'assigned_date',
+          'assigned_es_cell_qc_in_progress_date',
+          'assigned_es_cell_qc_complete_date',
+          'aborted_es_cell_qc_failed_date',
           'ikmc_project_id',
           'mutation_sub_type',
           'allele_symbol',
@@ -552,6 +670,7 @@ module NewGeneIntermediateReport::ReportGenerator
           'mi_attempt_consortium',
           'mi_attempt_production_centre',
           'phenotype_attempt_colony_name',
+          'most_advanced_mi_plan_id_by_consortia',
           'created_at'
         ]
 

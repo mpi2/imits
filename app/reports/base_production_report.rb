@@ -8,6 +8,8 @@ class BaseProductionReport
 
   attr_accessor :consortium_by_status
   attr_accessor :consortium_centre_by_status
+  attr_accessor :consortium_centre_micro_injecions_by_mi_attempt
+  attr_accessor :consortium_centre_micro_injecions_by_clones
   attr_accessor :consortium_by_distinct_gene
   attr_accessor :gene_efficiency_totals
   attr_accessor :clone_efficiency_totals
@@ -20,6 +22,14 @@ class BaseProductionReport
 
   def consortium_centre_by_status
     @consortium_centre_by_status ||= ActiveRecord::Base.connection.execute(self.class.consortium_centre_by_status_sql)
+  end
+
+  def consortium_centre_micro_injecions_by_mi_attempt
+    @consortium_centre_micro_injecions_by_mi_attempt ||= ActiveRecord::Base.connection.execute(self.class.consortium_centre_micro_injecions_by_mi_attempt_sql)
+  end
+
+  def consortium_centre_micro_injecions_by_clones
+    @consortium_centre_micro_injecions_by_clones ||= ActiveRecord::Base.connection.execute(self.class.consortium_centre_micro_injecions_by_clones_sql)
   end
 
   def consortium_centre_by_phenotyping_status(cre_excision_required)
@@ -95,6 +105,7 @@ class BaseProductionReport
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Chimeras"]         ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Genotype Confirmed Mice"]   ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjection aborted"]    ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjections-in-progress"]    ||= 0
 
       non_cumulative_status = report_row['mi_attempt_status']
 
@@ -103,17 +114,46 @@ class BaseProductionReport
       end
 
       if 'Chimeras obtained' == non_cumulative_status
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Chimeras"] += report_row['count'].to_i
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Chimeras"] = report_row['count'].to_i
       end
 
       if 'Genotype confirmed' == non_cumulative_status
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Genotype Confirmed Mice"] += report_row['count'].to_i
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Genotype Confirmed Mice"] = report_row['count'].to_i
       end
 
       if 'Micro-injection aborted' == non_cumulative_status
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjection aborted"] += report_row['count'].to_i
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjection aborted"] = report_row['count'].to_i
       end
 
+      if 'Micro-injection in progress' == non_cumulative_status
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjections-in-progress"] = report_row['count'].to_i
+      end
+
+    end
+
+
+    consortium_centre_micro_injecions_by_mi_attempt.each do |report_row|
+      next if report_row['production_centre'].blank?
+
+      hash["#{report_row['consortium']}"] = hash["#{report_row['consortium']}"] || []
+      if !hash["#{report_row['consortium']}"].include?(report_row['production_centre'])
+        hash["#{report_row['consortium']}"] << report_row['production_centre']
+      end
+
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjections-mi_attempt"]  ||= report_row['count'].to_i
+            hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjections-mi_attempt-in-progress"]  ||= report_row['count_mi_attempts_in_progress'].to_i
+    end
+
+
+    consortium_centre_micro_injecions_by_clones.each do |report_row|
+      next if report_row['production_centre'].blank?
+
+      hash["#{report_row['consortium']}"] = hash["#{report_row['consortium']}"] || []
+      if !hash["#{report_row['consortium']}"].include?(report_row['production_centre'])
+        hash["#{report_row['consortium']}"] << report_row['production_centre']
+      end
+
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjections-clones"]  ||= report_row['count'].to_i
     end
 
     hash
@@ -247,22 +287,46 @@ class BaseProductionReport
         SELECT
         consortium,
         COUNT(distinct(gene))
-        FROM new_intermediate_report
+        FROM new_gene_intermediate_report
         WHERE consortium in ('#{available_consortia.join('\', \'')}')
         GROUP BY consortium;
       EOF
     end
 
+    # WHAT DOES THIS DO
     def consortium_by_status_sql
       sql = <<-EOF
         SELECT
-        consortium,
-        mi_plan_status,
+        consortia.name AS consortium,
+        mi_plan_statuses.name AS mi_plan_status,
         COUNT(*)
-        FROM new_intermediate_report
-        WHERE consortium in ('#{available_consortia.join('\', \'')}')
-        GROUP BY consortium, mi_plan_status
-        ORDER BY consortium;
+        FROM (
+        SELECT DISTINCT most_advanced_mi_plan_id_by_consortia AS mi_plan_id FROM new_gene_intermediate_report
+        ) AS mp
+        JOIN mi_plans ON mi_plans.id = mp.mi_plan_id
+        JOIN consortia ON consortia.id = mi_plans.consortium_id
+        JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id
+        WHERE consortia.name in ('#{available_consortia.join('\', \'')}')
+        GROUP BY consortia.name, mi_plan_statuses.name
+        ORDER BY consortia.name;
+      EOF
+    end
+
+    def consortium_centre_micro_injecions_by_clones_sql
+      sql = <<-EOF
+        SELECT
+        consortia.name AS consortium,
+        centres.name AS production_centre,
+        COUNT(DISTINCT(targ_rep_es_cells.id)) AS count
+        FROM targ_rep_es_cells
+        JOIN mi_attempts ON mi_attempts.es_cell_id = targ_rep_es_cells.id
+        JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = 1
+        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+        JOIN consortia ON consortia.id = mi_plans.consortium_id
+        JOIN centres ON centres.id = mi_plans.production_centre_id
+        WHERE consortia.name in ('#{available_consortia.join('\', \'')}')
+        GROUP BY consortia.name, centres.name
+        ORDER BY consortia.name, centres.name;
       EOF
     end
 
@@ -271,13 +335,30 @@ class BaseProductionReport
         SELECT
         consortium,
         production_centre,
-        gene,
         mi_attempt_status,
-        COUNT(*)
-        FROM new_intermediate_report
+        COUNT(*) AS count
+        FROM new_gene_intermediate_report
         WHERE consortium in ('#{available_consortia.join('\', \'')}')
-        GROUP BY consortium, production_centre, gene, mi_attempt_status
+        GROUP BY consortium, production_centre, mi_attempt_status
         ORDER BY consortium, production_centre;
+      EOF
+    end
+
+    def consortium_centre_micro_injecions_by_mi_attempt_sql
+      sql = <<-EOF
+        SELECT
+        consortia.name AS consortium,
+        centres.name AS production_centre,
+        COUNT(*) AS count,
+        SUM(CASE WHEN mi_attempts.status_id = 1 THEN 1 ELSE 0 END) As count_mi_attempts_in_progress
+        FROM mi_attempts
+        JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = 1
+        JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+        JOIN consortia ON consortia.id = mi_plans.consortium_id
+        JOIN centres ON centres.id = mi_plans.production_centre_id
+        WHERE consortia.name in ('#{available_consortia.join('\', \'')}')
+        GROUP BY consortia.name, centres.name
+        ORDER BY consortia.name, centres.name;
       EOF
     end
 
@@ -289,8 +370,8 @@ class BaseProductionReport
         production_centre,
         phenotype_attempt_status,
         COUNT(*)
-        FROM new_intermediate_report
-        JOIN phenotype_attempts ON new_intermediate_report.phenotype_attempt_colony_name = phenotype_attempts.colony_name AND phenotype_attempts.cre_excision_required is #{cre_excision_required}
+        FROM new_gene_intermediate_report
+        JOIN phenotype_attempts ON new_gene_intermediate_report.phenotype_attempt_colony_name = phenotype_attempts.colony_name AND phenotype_attempts.cre_excision_required is #{cre_excision_required}
         WHERE consortium in ('#{available_consortia.join('\', \'')}')
         GROUP BY consortium, production_centre, phenotype_attempt_status
         ORDER BY consortium, production_centre;

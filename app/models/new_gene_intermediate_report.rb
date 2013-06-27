@@ -9,6 +9,9 @@ class NewGeneIntermediateReport < ActiveRecord::Base
 end
 
 
+
+
+
 # == Schema Information
 #
 # Table name: new_gene_intermediate_report
@@ -19,8 +22,13 @@ end
 #  production_centre                            :string(255)
 #  mgi_accession_id                             :string(40)
 #  overall_status                               :string(50)
+#  mi_plan_status                               :string(50)
 #  mi_attempt_status                            :string(50)
 #  phenotype_attempt_status                     :string(50)
+#  assigned_date                                :date
+#  assigned_es_cell_qc_in_progress_date         :date
+#  assigned_es_cell_qc_complete_date            :date
+#  aborted_es_cell_qc_failed_date               :date
 #  ikmc_project_id                              :string(255)
 #  mutation_sub_type                            :string(100)
 #  allele_symbol                                :string(255)
@@ -49,6 +57,7 @@ end
 #  total_old_pipeline_efficiency_gene_count     :integer
 #  gc_pipeline_efficiency_gene_count            :integer
 #  gc_old_pipeline_efficiency_gene_count        :integer
+#  most_advanced_mi_plan_id_by_consortia        :integer
 #  created_at                                   :datetime
 #
 

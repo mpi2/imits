@@ -83,6 +83,37 @@
       </div>
     </div>
   </fieldset>
+
+  <% if ! current_user %>
+  <fieldset class="collapsible">
+    <legend>Overview</legend>
+    <div>
+
+      <!--TODO: create a class for the paragraph-->
+
+      <p style='line-height:180%'>Each row in this report shows you available IKMC products for a single MGI gene, as well as planned and ongoing IMPC production for that MGI gene.</p>
+
+      <p style='line-height:180%'><strong>Non-Assigned Plans:</strong> These are plans for IMPC production which hasn't started, and where there is known IMPC production already on the gene.</p>
+
+      <p style='line-height:180%'><strong>Assigned Plans:</strong> These are plans for IMPC production which will start.</p>
+
+      <p style='line-height:180%'><strong>MIs in Progress:</strong> This represents ongoing IMPC production. Each cell will show a summary of progress in this format:
+      [Consortium, Production Centre, Status]. Clicking on the link will take you to the details of all mouse production for that gene.</p>
+
+      <p style='line-height:180%'><strong>Genotype Confirmed MIs:</strong> This represents IMPC (or Legacy) production where a genotype confirmed mouse has been produced.
+      Each cell will show a summary of progress in this format: [Consortium, Production Centre, Status].</p>
+
+      <p style='line-height:180%'>Clicking on the link will take you to the details of all mouse production for that gene.</p>
+
+      <p style='line-height:180%'><strong>Phenotype Attempts:</strong> This represents IMPC Cre-excision and Phenotyping basedon IMPC
+      Each cell will show a summary of progress in this format: [Consortium, Production Centre, Status].</p>
+
+      <p style='line-height:180%'>Clicking on the link will take you to the details of all cre-excision and phenotyping for that gene.</p>
+
+    </div>
+  </fieldset>
+  <% end %>
+
 <% end %>
 
 <div class="clear"></div>

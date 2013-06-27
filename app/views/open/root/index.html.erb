@@ -13,12 +13,18 @@
        All IMPC-related queries should be addressed to info@mousephenotype.org</p>
     </div>
   </div>
+
+  <% if Rails.application.config.show_search_page %>
+
   <div class="homepage-links" id = 'gene_search' name = 'gene_search' >
     <h3>Quick search for IMPC products by gene</h3>
     <input type ='text' id = 'search_for_gene' name = 'search_for_gene'>
     <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button>
     <p>Search by Marker symbol or MGI number</p>
   </div>
+
+  <% end %>
+
 </div>
 
 <div class="grid_12">

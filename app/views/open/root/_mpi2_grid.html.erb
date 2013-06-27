@@ -1,9 +1,12 @@
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"%>
   <%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.js"%>
-  <%= javascript_include_tag "https://raw.github.com/mpi2/mpi2_search/gene_grid_modification/all.js"%>
-  <%= javascript_include_tag "mpi2Search/all.js"%>
-  <%= javascript_include_tag("mpi2Search/search.js") %>
+
+  <% if Rails.application.config.show_search_page %>
+    <%= javascript_include_tag "https://raw.github.com/mpi2/mpi2_search/gene_grid_modification/all.js"%>
+    <%= javascript_include_tag "mpi2Search/all.js"%>
+    <%= javascript_include_tag("mpi2Search/search.js") %>
+  <% end %>
 <% end %>
 
 <link type="text/css" rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/base/jquery-ui.css">
@@ -14,8 +17,3 @@
 </div>
 
 <div class="grid_10" id="mpi2-allele-grid" style="display:none;padding-bottom:30px;"></div>
-
-
-
-
-

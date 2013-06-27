@@ -4,10 +4,18 @@
   <h2>Welcome to iMits</h2>
 
   <p>What would you like to do today?</p>
+
+  <br/>
+
+  <% if Rails.application.config.show_search_page %>
+
   <div class="homepage-links" id = 'gene_search' name = 'gene_search' ><input type ='text' id = 'search_for_gene' name = 'search_for_gene'>
     <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button>
     <p>Search by Marker symbol or MGI number</p>
   </div>
+
+  <% end %>
+
 </div>
 
 <div class="grid_12">

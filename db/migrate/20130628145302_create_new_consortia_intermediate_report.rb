@@ -1,8 +1,8 @@
-class CreateNewGeneIntermediateReport < ActiveRecord::Migration
+class CreateNewConsortiaIntermediateReport < ActiveRecord::Migration
 
   def self.up
 
-  create_table :new_gene_intermediate_report do |t|
+  create_table :new_consortia_intermediate_report do |t|
       t.string   :gene,         :limit => 75,  :null => false
       t.string   :consortium,   :null => false
       t.string   :production_centre
@@ -55,15 +55,11 @@ class CreateNewGeneIntermediateReport < ActiveRecord::Migration
       t.integer  :gc_pipeline_efficiency_gene_count
       t.integer  :gc_old_pipeline_efficiency_gene_count
 
-      t.integer   :most_advanced_mi_plan_id_by_consortia,  :limit => 50
-      t.integer   :most_advanced_mi_attempt_id_by_consortia,  :limit => 50
-      t.integer   :most_advanced_phenotype_attempt_id_by_consortia,  :limit => 50
-
       t.datetime :created_at
     end
   end
 
   def self.down
-    drop_table :new_gene_intermediate_report
+    drop_table :new_consortia_intermediate_report
   end
 end

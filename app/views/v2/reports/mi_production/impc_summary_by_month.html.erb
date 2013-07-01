@@ -22,17 +22,17 @@
         </tr>
       </thead>
       <tbody>
-        
+
         <% @summary_by_month[:dates].keys.each do |year| %>
           <% count = 0 %>
           <% months = @summary_by_month[:dates][year].uniq %>
           <% months.each do |date| %>
-            
+
             <tr>
               <% unless count > 0 %>
                 <td rowspan='<%= months.size %>'><%= year %></td>
               <% end %>
-              <td><%= date.strftime('%B') %></td>
+              <td><%= if date.to_s != '2011-05-01' then date.strftime('%B') else 'Pre June' end %></td>
               <td width="8%"><%= consortium %></td>
               <% @clone_columns.each do |column| %>
                 <td><%= report_link_to(@summary_by_month, consortium, column, :date => date) %></td>
@@ -59,17 +59,17 @@
         </tr>
       </thead>
       <tbody>
-        
+
         <% @summary_by_month[:dates].keys.each do |year| %>
           <% count = 0 %>
           <% months = @summary_by_month[:dates][year].uniq %>
           <% months.each do |date| %>
-            
+
             <tr>
               <% unless count > 0 %>
                 <td rowspan='<%= months.size %>'><%= year %></td>
               <% end %>
-              <td><%= date.strftime('%B') %></td>
+              <td><%= if date.to_s != '2011-05-01' then date.strftime('%B') else 'Pre June' end %></td>
               <td width="8%"><%= consortium %></td>
               <% @phenotype_columns.each do |column| %>
                 <td><%= report_link_to(@summary_by_month, consortium, column, :date => date) %></td>

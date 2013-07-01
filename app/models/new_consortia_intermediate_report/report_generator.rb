@@ -1,4 +1,4 @@
-module NewGeneIntermediateReport::ReportGenerator
+module NewConsortiaIntermediateReport::ReportGenerator
   class Generate
     attr_accessor :report_rows, :size, :clone_efficiencies, :gene_efficiencies
 
@@ -137,7 +137,7 @@ module NewGeneIntermediateReport::ReportGenerator
     end
 
     def to_s
-      "#<NewGeneIntermediateReport::Generate size: #{size}>"
+      "#<NewConsortiaIntermediateReport::Generate size: #{size}>"
     end
 
     def insert_report
@@ -145,9 +145,9 @@ module NewGeneIntermediateReport::ReportGenerator
         sql =  <<-EOF
           BEGIN;
 
-          TRUNCATE new_gene_intermediate_report;
+          TRUNCATE new_consortia_intermediate_report;
 
-          INSERT INTO new_gene_intermediate_report (#{self.class.columns.join(', ')}) VALUES
+          INSERT INTO new_consortia_intermediate_report (#{self.class.columns.join(', ')}) VALUES
         EOF
 
         values = Array.new.tap do |v|
@@ -233,7 +233,6 @@ module NewGeneIntermediateReport::ReportGenerator
               best_mi_attempts.mi_plan_id,
               mi_plans.gene_id AS gene_id,
               mi_plans.consortium_id AS consortium_id,
-              mi_plans.production_centre_id AS production_centre_id,
               best_mi_attempts.colony_name AS mi_attempt_colony_name,
               targ_rep_es_cells.ikmc_project_id,
               targ_rep_mutation_types.name AS mutation_sub_type,
@@ -253,14 +252,12 @@ module NewGeneIntermediateReport::ReportGenerator
                 SELECT
                   best_attempts_for_gene_consortia_centre_and_status.gene_id,
                   best_attempts_for_gene_consortia_centre_and_status.consortium_id,
-                  best_attempts_for_gene_consortia_centre_and_status.production_centre_id,
                   best_attempts_for_gene_consortia_centre_and_status.order_by,
-                  first_value(best_attempts_for_gene_consortia_centre_and_status.mi_attempt_id) OVER (PARTITION BY best_attempts_for_gene_consortia_centre_and_status.gene_id, best_attempts_for_gene_consortia_centre_and_status.consortium_id, best_attempts_for_gene_consortia_centre_and_status.production_centre_id) AS mi_attempt_id
+                  first_value(best_attempts_for_gene_consortia_centre_and_status.mi_attempt_id) OVER (PARTITION BY best_attempts_for_gene_consortia_centre_and_status.gene_id, best_attempts_for_gene_consortia_centre_and_status.consortium_id) AS mi_attempt_id
                 FROM (
                   SELECT
                     mi_plans.gene_id,
                     mi_plans.consortium_id,
-                    mi_plans.production_centre_id,
                     mi_attempt_statuses.order_by,
                     mi_attempts.id as mi_attempt_id
                   FROM mi_plans
@@ -270,7 +267,6 @@ module NewGeneIntermediateReport::ReportGenerator
                   ORDER BY
                     mi_plans.gene_id,
                     mi_plans.consortium_id,
-                    mi_plans.production_centre_id,
                     mi_attempt_statuses.order_by DESC,
                     mi_attempt_status_stamps.created_at ASC
                 ) as best_attempts_for_gene_consortia_centre_and_status
@@ -288,7 +284,7 @@ module NewGeneIntermediateReport::ReportGenerator
             LEFT JOIN mi_attempt_status_stamps AS aborted_stamps     ON aborted_stamps.mi_attempt_id = best_mi_attempts.id     AND aborted_stamps.status_id = 3
             LEFT JOIN mi_attempt_status_stamps AS chimearic_stamps   ON chimearic_stamps.mi_attempt_id = best_mi_attempts.id   AND chimearic_stamps.status_id = 4
 
-            ORDER BY gene_id, consortium_id, production_centre_id
+            ORDER BY gene_id, consortium_id
           ),
 
 
@@ -301,7 +297,6 @@ module NewGeneIntermediateReport::ReportGenerator
               best_phenotype_attempts.mi_plan_id,
               mi_plans.gene_id AS gene_id,
               mi_plans.consortium_id AS consortium_id,
-              mi_plans.production_centre_id AS production_centre_id,
               mi_attempts.colony_name AS pa_mi_attempt_colony_name,
               centres.name AS pa_mi_attempt_production_centre,
               consortia.name AS pa_mi_attempt_consortium,
@@ -323,14 +318,12 @@ module NewGeneIntermediateReport::ReportGenerator
                 SELECT
                   best_attempts_for_gene_consortia_centre_and_status.gene_id,
                   best_attempts_for_gene_consortia_centre_and_status.consortium_id,
-                  best_attempts_for_gene_consortia_centre_and_status.production_centre_id,
                   best_attempts_for_gene_consortia_centre_and_status.order_by,
-                  first_value(best_attempts_for_gene_consortia_centre_and_status.phenotype_attempt_id) OVER (PARTITION BY best_attempts_for_gene_consortia_centre_and_status.gene_id, best_attempts_for_gene_consortia_centre_and_status.consortium_id, best_attempts_for_gene_consortia_centre_and_status.production_centre_id) AS phenotype_attempt_id
+                  first_value(best_attempts_for_gene_consortia_centre_and_status.phenotype_attempt_id) OVER (PARTITION BY best_attempts_for_gene_consortia_centre_and_status.gene_id, best_attempts_for_gene_consortia_centre_and_status.consortium_id) AS phenotype_attempt_id
                 FROM (
                   SELECT
                     mi_plans.gene_id,
                     mi_plans.consortium_id,
-                    mi_plans.production_centre_id,
                     phenotype_attempt_statuses.order_by,
                     phenotype_attempts.id as phenotype_attempt_id
                     FROM mi_plans
@@ -339,7 +332,6 @@ module NewGeneIntermediateReport::ReportGenerator
                     ORDER BY
                       mi_plans.gene_id,
                       mi_plans.consortium_id,
-                      mi_plans.production_centre_id,
                       phenotype_attempt_statuses.order_by DESC
                 ) AS best_attempts_for_gene_consortia_centre_and_status
               ) AS attempts_join ON phenotype_attempts.id = attempts_join.phenotype_attempt_id
@@ -359,7 +351,7 @@ module NewGeneIntermediateReport::ReportGenerator
             LEFT JOIN phenotype_attempt_status_stamps AS cre_complete_statuses ON cre_complete_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND cre_complete_statuses.status_id = 6
             LEFT JOIN phenotype_attempt_status_stamps AS started_statuses ON started_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND started_statuses.status_id = 7
             LEFT JOIN phenotype_attempt_status_stamps AS complete_statuses ON complete_statuses.phenotype_attempt_id = best_phenotype_attempts.id AND complete_statuses.status_id = 8
-            ORDER BY gene_id, consortium_id, production_centre_id
+            ORDER BY gene_id, consortium_id
           ),
 
 
@@ -370,7 +362,6 @@ module NewGeneIntermediateReport::ReportGenerator
               mi_plan_statuses.name AS mi_plan_status,
               best_mi_plans.gene_id AS gene_id,
               best_mi_plans.consortium_id AS consortium_id,
-              best_mi_plans.production_centre_id AS production_centre_id,
               assigned.created_at::date          AS assigned_date,
               es_qc_in_progress.created_at::date AS es_qc_in_progress_date,
               es_qc_complete.created_at::date    AS es_qc_complete_date,
@@ -382,14 +373,12 @@ module NewGeneIntermediateReport::ReportGenerator
                 SELECT
                   best_plans_for_gene_consortia_centre_and_status.gene_id,
                   best_plans_for_gene_consortia_centre_and_status.consortium_id,
-                  best_plans_for_gene_consortia_centre_and_status.production_centre_id,
                   best_plans_for_gene_consortia_centre_and_status.order_by,
-                  first_value(best_plans_for_gene_consortia_centre_and_status.mi_plan_id) OVER (PARTITION BY best_plans_for_gene_consortia_centre_and_status.gene_id, best_plans_for_gene_consortia_centre_and_status.consortium_id, best_plans_for_gene_consortia_centre_and_status.production_centre_id) AS mi_plan_id
+                  first_value(best_plans_for_gene_consortia_centre_and_status.mi_plan_id) OVER (PARTITION BY best_plans_for_gene_consortia_centre_and_status.gene_id, best_plans_for_gene_consortia_centre_and_status.consortium_id) AS mi_plan_id
                 FROM (
                   SELECT
                     mi_plans.gene_id,
                     mi_plans.consortium_id,
-                    mi_plans.production_centre_id,
                     (CASE
                       WHEN mi_plan_statuses.name = 'Aborted - ES Cell QC Failed'       THEN 1
                       WHEN mi_plan_statuses.name = 'Assigned'                          THEN 2
@@ -403,7 +392,6 @@ module NewGeneIntermediateReport::ReportGenerator
                   ORDER BY
                     mi_plans.gene_id,
                     mi_plans.consortium_id,
-                    mi_plans.production_centre_id,
                     mi_plan_statuses.order_by DESC,
                     mi_plan_status_stamps.created_at ASC
                 ) as best_plans_for_gene_consortia_centre_and_status
@@ -414,168 +402,25 @@ module NewGeneIntermediateReport::ReportGenerator
             LEFT JOIN mi_plan_status_stamps AS es_qc_complete    ON es_qc_complete.mi_plan_id = best_mi_plans.id    AND es_qc_complete.status_id = 9
             LEFT JOIN mi_plan_status_stamps AS es_qc_fail        ON es_qc_fail.mi_plan_id = best_mi_plans.id        AND es_qc_fail.status_id = 10
             JOIN mi_plan_statuses ON mi_plan_statuses.id = best_mi_plans.status_id
-            ORDER BY gene_id, consortium_id, production_centre_id
-          ),
-
-
-
-
-
-
-
-          best_mi_attempts_by_consortia AS (
-            SELECT
-              best_mi_attempts_by_consortia.id AS mi_attempts_id,
-              mi_plans.gene_id AS gene_id,
-              mi_plans.consortium_id AS consortium_id
-            FROM (
-              SELECT DISTINCT mi_attempts.*
-              FROM mi_attempts
-              JOIN (
-                SELECT
-                  best_attempts_for_gene_consortia_and_status.gene_id,
-                  best_attempts_for_gene_consortia_and_status.consortium_id,
-                  best_attempts_for_gene_consortia_and_status.order_by,
-                  first_value(best_attempts_for_gene_consortia_and_status.mi_attempt_id) OVER (PARTITION BY best_attempts_for_gene_consortia_and_status.gene_id, best_attempts_for_gene_consortia_and_status.consortium_id) AS mi_attempt_id
-                FROM (
-                  SELECT
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
-                    mi_attempt_statuses.order_by,
-                    mi_attempts.id as mi_attempt_id
-                  FROM mi_plans
-                  JOIN mi_attempts ON mi_plans.id = mi_attempts.mi_plan_id
-                  JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id
-                  JOIN mi_attempt_status_stamps ON mi_attempt_status_stamps.mi_attempt_id = mi_attempts.id AND mi_attempt_status_stamps.status_id = 1
-                  ORDER BY
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
-                    mi_attempt_statuses.order_by DESC,
-                    mi_attempt_status_stamps.created_at ASC
-                ) as best_attempts_for_gene_consortia_and_status
-              ) AS att ON mi_attempts.id = att.mi_attempt_id
-            ) AS best_mi_attempts_by_consortia
-            JOIN mi_plans ON mi_plans.id = best_mi_attempts_by_consortia.mi_plan_id
-            ORDER BY gene_id, consortium_id
-          ),
-
-
-          -- get the best_phenotype_attempts per gene in a CTE using WITH
-          best_phenotype_attempts_by_consortia AS (
-            SELECT
-              best_phenotype_attempts_by_consortia.id as phenotype_attempt_id,
-              mi_plans.gene_id AS gene_id,
-              mi_plans.consortium_id AS consortium_id
-            FROM (
-              SELECT DISTINCT phenotype_attempts.*
-              FROM phenotype_attempts
-              JOIN (
-                SELECT
-                  best_attempts_for_gene_consortia_and_status.gene_id,
-                  best_attempts_for_gene_consortia_and_status.consortium_id,
-                  best_attempts_for_gene_consortia_and_status.order_by,
-                  first_value(best_attempts_for_gene_consortia_and_status.phenotype_attempt_id) OVER (PARTITION BY best_attempts_for_gene_consortia_and_status.gene_id, best_attempts_for_gene_consortia_and_status.consortium_id) AS phenotype_attempt_id
-                FROM (
-
-                  SELECT
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
-                    phenotype_attempt_statuses.order_by,
-                    phenotype_attempts.id as phenotype_attempt_id
-                    FROM mi_plans
-                    JOIN phenotype_attempts ON mi_plans.id = phenotype_attempts.mi_plan_id
-                    JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id
-                    ORDER BY
-                      mi_plans.gene_id,
-                      mi_plans.consortium_id,
-                      phenotype_attempt_statuses.order_by DESC
-                ) AS best_attempts_for_gene_consortia_and_status
-              ) AS attempts_join ON phenotype_attempts.id = attempts_join.phenotype_attempt_id
-            ) best_phenotype_attempts_by_consortia
-
-            JOIN mi_plans ON mi_plans.id = best_phenotype_attempts_by_consortia.mi_plan_id
-            LEFT JOIN consortia ON consortia.id = mi_plans.consortium_id
-            ORDER BY mi_plans.gene_id, mi_plans.consortium_id
-          ),
-
-
-
-
-
-
-
-
-
-
-
-
-          -- get the best_mi_plans per gene only by consortia in a CTE using WITH
-          best_mi_plan_for_this_gene AS (
-            SELECT
-              best_mi_plan_for_this_gene.id AS mi_plan_id,
-              mi_plan_statuses.name AS mi_plan_status,
-              best_mi_plan_for_this_gene.gene_id AS gene_id,
-              best_mi_plan_for_this_gene.consortium_id AS consortium_id,
-              assigned.created_at::date          AS assigned_date,
-              es_qc_in_progress.created_at::date AS es_qc_in_progress_date,
-              es_qc_complete.created_at::date    AS es_qc_complete_date,
-              es_qc_fail.created_at::date        AS es_qc_fail_date
-            FROM (
-              SELECT DISTINCT mi_plans.*
-              FROM mi_plans
-              JOIN (
-                SELECT
-                  best_plans_for_gene_consortia_and_status.gene_id,
-                  best_plans_for_gene_consortia_and_status.consortium_id,
-                  best_plans_for_gene_consortia_and_status.order_by,
-                  first_value(best_plans_for_gene_consortia_and_status.mi_plan_id) OVER (PARTITION BY best_plans_for_gene_consortia_and_status.gene_id, best_plans_for_gene_consortia_and_status.consortium_id) AS mi_plan_id
-                FROM (
-                  SELECT
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
-                    (CASE
-                      WHEN mi_plan_statuses.name = 'Aborted - ES Cell QC Failed'       THEN 1
-                      WHEN mi_plan_statuses.name = 'Assigned'                          THEN 2
-                      WHEN mi_plan_statuses.name = 'Assigned - ES Cell QC In Progress' THEN 3
-                      WHEN mi_plan_statuses.name = 'Assigned - ES Cell QC Complete'    THEN 4
-                    END) As order_by,
-                    mi_plans.id as mi_plan_id
-                  FROM mi_plans
-                  JOIN mi_plan_statuses ON mi_plan_statuses.id = mi_plans.status_id AND mi_plan_statuses.name in ('Aborted - ES Cell QC Failed', 'Assigned', 'Assigned - ES Cell QC In Progress', 'Assigned - ES Cell QC Complete')
-                  JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = mi_plans.id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
-                  ORDER BY
-                    mi_plans.gene_id,
-                    mi_plans.consortium_id,
-                    mi_plan_statuses.order_by DESC,
-                    mi_plan_status_stamps.created_at ASC
-                ) as best_plans_for_gene_consortia_and_status
-              ) AS att ON mi_plans.id = att.mi_plan_id
-            ) best_mi_plan_for_this_gene
-            LEFT JOIN mi_plan_status_stamps AS assigned          ON assigned.mi_plan_id = best_mi_plan_for_this_gene.id          AND assigned.status_id = 1
-            LEFT JOIN mi_plan_status_stamps AS es_qc_in_progress ON es_qc_in_progress.mi_plan_id = best_mi_plan_for_this_gene.id AND es_qc_in_progress.status_id = 8
-            LEFT JOIN mi_plan_status_stamps AS es_qc_complete    ON es_qc_complete.mi_plan_id = best_mi_plan_for_this_gene.id    AND es_qc_complete.status_id = 9
-            LEFT JOIN mi_plan_status_stamps AS es_qc_fail        ON es_qc_fail.mi_plan_id = best_mi_plan_for_this_gene.id        AND es_qc_fail.status_id = 10
-            JOIN mi_plan_statuses ON mi_plan_statuses.id = best_mi_plan_for_this_gene.status_id
             ORDER BY gene_id, consortium_id
           )
+
 
           -- build intermediate report
 
           SELECT
             consortia.name AS consortium,
-            centres.name AS production_centre,
             genes.marker_symbol AS gene,
             genes.mgi_accession_id,
             CASE
               WHEN best_phenotype_attempts.phenotype_attempt_status is null AND best_mi_attempts.mi_attempt_status is null
-                THEN 'no_attempts'
+                THEN (CASE WHEN best_mi_plans.mi_plan_status is null THEN 'no_attempts' ELSE best_mi_plans.mi_plan_status END)
               WHEN best_phenotype_attempts.phenotype_attempt_status is null
                 THEN best_mi_attempts.mi_attempt_status
               ELSE best_phenotype_attempts.phenotype_attempt_status
             END AS overall_status,
 
             best_mi_plans.mi_plan_status AS mi_plan_status,
-
             best_mi_attempts.mi_attempt_status,
             best_phenotype_attempts.phenotype_attempt_status,
 
@@ -618,24 +463,17 @@ module NewGeneIntermediateReport::ReportGenerator
             end AS mi_attempt_colony_name,
             best_phenotype_attempts.pa_mi_attempt_consortium AS mi_attempt_consortium,
             best_phenotype_attempts.pa_mi_attempt_production_centre AS mi_attempt_production_centre,
-            best_phenotype_attempts.phenotype_attempt_colony_name,
-            best_mi_plan_for_this_gene.mi_plan_id AS most_advanced_mi_plan_id_by_consortia,
-            best_mi_attempts_by_consortia.mi_attempts_id AS most_advanced_mi_attempt_id_by_consortia,
-            best_phenotype_attempts_by_consortia.phenotype_attempt_id AS most_advanced_phenotype_attempt_id_by_consortia
+            best_phenotype_attempts.phenotype_attempt_colony_name
 
-          FROM (SELECT DISTINCT mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id FROM mi_plans) AS unique_gene_plans
+          FROM (SELECT DISTINCT mi_plans.gene_id, mi_plans.consortium_id FROM mi_plans) AS unique_gene_plans
 
           JOIN consortia ON consortia.id = unique_gene_plans.consortium_id
           JOIN genes ON genes.id = unique_gene_plans.gene_id
-          LEFT JOIN centres ON centres.id = unique_gene_plans.production_centre_id
-          LEFT JOIN best_mi_attempts ON best_mi_attempts.gene_id = unique_gene_plans.gene_id AND  best_mi_attempts.consortium_id = unique_gene_plans.consortium_id AND best_mi_attempts.production_centre_id = unique_gene_plans.production_centre_id
-          LEFT JOIN best_phenotype_attempts ON best_phenotype_attempts.gene_id = unique_gene_plans.gene_id AND best_phenotype_attempts.consortium_id = unique_gene_plans.consortium_id AND  best_phenotype_attempts.production_centre_id = unique_gene_plans.production_centre_id
-          LEFT JOIN best_mi_plans ON best_mi_plans.gene_id = unique_gene_plans.gene_id AND best_mi_plans.consortium_id = unique_gene_plans.consortium_id AND best_mi_plans.production_centre_id = unique_gene_plans.production_centre_id
-          LEFT JOIN best_mi_plan_for_this_gene ON best_mi_plan_for_this_gene.gene_id = unique_gene_plans.gene_id AND best_mi_plan_for_this_gene.consortium_id = unique_gene_plans.consortium_id
-          LEFT JOIN best_mi_attempts_by_consortia ON best_mi_attempts_by_consortia.gene_id = unique_gene_plans.gene_id AND best_mi_attempts_by_consortia.consortium_id = unique_gene_plans.consortium_id
-          LEFT JOIN best_phenotype_attempts_by_consortia ON best_phenotype_attempts_by_consortia.gene_id = unique_gene_plans.gene_id AND best_phenotype_attempts_by_consortia.consortium_id = unique_gene_plans.consortium_id
+          LEFT JOIN best_mi_attempts ON best_mi_attempts.gene_id = unique_gene_plans.gene_id AND  best_mi_attempts.consortium_id = unique_gene_plans.consortium_id
+          LEFT JOIN best_phenotype_attempts ON best_phenotype_attempts.gene_id = unique_gene_plans.gene_id AND best_phenotype_attempts.consortium_id = unique_gene_plans.consortium_id
+          LEFT JOIN best_mi_plans ON best_mi_plans.gene_id = unique_gene_plans.gene_id AND best_mi_plans.consortium_id = unique_gene_plans.consortium_id
 
-          ORDER BY unique_gene_plans.gene_id, unique_gene_plans.consortium_id, unique_gene_plans.production_centre_id
+          ORDER BY unique_gene_plans.gene_id, unique_gene_plans.consortium_id
         EOF
       end
 
@@ -644,7 +482,6 @@ module NewGeneIntermediateReport::ReportGenerator
           SELECT
             mi_plans.gene_id AS gene_id,
             mi_plans.consortium_id As consortium_id,
-            mi_plans.production_centre_id AS production_centre_id,
 
             SUM(CASE
               WHEN mi_attempts.status_id = 2 AND mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
@@ -672,9 +509,8 @@ module NewGeneIntermediateReport::ReportGenerator
           JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
           JOIN consortia ON consortia.id = mi_plans.consortium_id
           JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
-          LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
 
-          GROUP BY mi_plans.gene_id, mi_plans.consortium_id, mi_plans.production_centre_id
+          GROUP BY mi_plans.gene_id, mi_plans.consortium_id
         EOF
       end
 
@@ -684,7 +520,6 @@ module NewGeneIntermediateReport::ReportGenerator
             SELECT
               genes.id AS gene_id,
               mi_plans.consortium_id AS consortium_id,
-              mi_plans.production_centre_id AS production_centre_id,
 
               SUM(CASE
                 WHEN mi_attempts.status_id = 2 AND mi_attempt_status_stamps.created_at < '#{6.months.ago.to_s(:db)}'
@@ -711,23 +546,21 @@ module NewGeneIntermediateReport::ReportGenerator
             JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
             JOIN consortia ON consortia.id = mi_plans.consortium_id
             JOIN mi_attempt_status_stamps ON mi_attempts.id = mi_attempt_status_stamps.mi_attempt_id AND mi_attempt_status_stamps.status_id = 1
-            LEFT JOIN centres ON centres.id = mi_plans.production_centre_id
 
-            GROUP BY genes.id, mi_plans.consortium_id, mi_plans.production_centre_id
-            ORDER BY genes.id, mi_plans.consortium_id, mi_plans.production_centre_id
+            GROUP BY genes.id, mi_plans.consortium_id
+            ORDER BY genes.id, mi_plans.consortium_id
           )
 
           SELECT
             gene_id,
             consortium_id,
-            production_centre_id,
             SUM(case when old_gtc_count > 0 then 1 else 0 end) AS old_gtc_count,
             SUM(case when old_total_count > 0 then 1 else 0 end) AS old_total_count,
             SUM(case when gtc_count > 0 then 1 else 0 end) AS gtc_count,
             SUM(case when total_count > 0 then 1 else 0 end) AS total_count
 
           FROM counts
-          GROUP BY gene_id, consortium_id, production_centre_id
+          GROUP BY gene_id, consortium_id
         EOF
       end
 
@@ -776,9 +609,6 @@ module NewGeneIntermediateReport::ReportGenerator
           'mi_attempt_consortium',
           'mi_attempt_production_centre',
           'phenotype_attempt_colony_name',
-          'most_advanced_mi_plan_id_by_consortia',
-          'most_advanced_mi_attempt_id_by_consortia',
-          'most_advanced_phenotype_attempt_id_by_consortia',
           'created_at'
         ]
 

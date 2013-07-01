@@ -15,7 +15,7 @@ namespace :db do
 
   ['production', 'staging'].each do |envname|
     desc "Dump #{envname} DB into db/dump.#{envname}.sql"
-    task "#{envname}:dump" do
+    task "#{envname}:dump", [:include_genbank_files] do |task, args|
       tmppath = Rails.application.config.paths['tmp'].first
       config = YAML.load_file("#{Rails.root}/config/database.yml")[envname]
       if ! config
@@ -31,8 +31,17 @@ namespace :db do
       end
       raise "Cannot find #{envname} database config" unless config
       if config['port'].blank?; config['port'] = '5432'; end
-      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} -T targ_rep_genbank_files -T audits --no-privileges #{config['database']} > #{tmppath}/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
-      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --schema-only -t targ_rep_genbank_files -t audits --no-privileges #{config['database']} >> #{tmppath}/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
+
+      skip_genbank_data = ''
+      create_empty_genbank_schema = ''
+
+      unless args[:include_genbank_files]
+        skip_genbank_data = '-T targ_rep_genbank_files'
+        create_empty_genbank_schema = '-t targ_rep_genbank_files'
+      end
+
+      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} #{skip_genbank_data} -T audits --no-privileges #{config['database']} > #{tmppath}/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
+      system("cd #{Rails.root}; PGPASSWORD='#{config['password']}' pg_dump -U #{config['username']} -h #{config['host']} -p #{config['port']} --schema-only #{create_empty_genbank_schema} -t audits --no-privileges #{config['database']} >> #{tmppath}/dump.#{envname}.sql") or raise("Failed to dump #{envname} DB")
     end
 
     desc "Load dump of #{envname} DB (produced with db:#{envname}:dump) into current envrionment DB"
@@ -48,7 +57,16 @@ namespace :db do
     end
 
     desc "Dump #{envname} DB into current environment DB"
-    task "#{envname}:clone" => ["db:#{envname}:dump", "db:#{envname}:load"]
+    task "#{envname}:clone", [:include_genbank_files] do |task, args|
+
+      if args[:include_genbank_files]
+        Rake::Task["db:#{envname}:dump"].invoke(true)
+      else
+        Rake::Task["db:#{envname}:dump"].invoke
+      end
+      
+      Rake::Task["db:#{envname}:load"].invoke
+    end
 
   end
 

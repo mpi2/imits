@@ -73,7 +73,7 @@ class MiAttempt < ApplicationModel
   validate do |mi_attempt|
     if validate_plan #test whether to continue with validations
       if mi_attempt.mi_plan.phenotype_only
-        mi_attempt.errors.add(:base, 'MiAttempt cannot be created for this MiPlan. (phenotype only)')
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (phenotype only)')
       end
 
 #      if (mi_attempt.es_cell and mi_attempt.es_cell.try(:gene) != mi_attempt.mi_plan.try(:gene))

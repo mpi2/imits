@@ -9,16 +9,16 @@
   tv_pipeline_options  = options_for_select [['All','']] + pipeline_array, params[:targeting_vectors_pipeline_id_eq]
   esc_pipeline_options = options_for_select [['All','']] + pipeline_array, params[:es_cells_pipeline_id_eq]
 
-  cassette_array = @klass.uniq.select('cassette, mutation_type_id').map do |allele|
-    [allele.cassette, allele.cassette]
+  cassette_array = @klass.order('cassette asc').pluck('cassette').uniq.map do |cassette|
+    [cassette, cassette]
   end
-  cassette_options = options_for_select [['All','']] + cassette_array, params[:cassette]
+  cassette_options = options_for_select [['All','']] + cassette_array, params[:cassette_eq]
 
   unless @gene_trap
     backbone_array = @klass.uniq.select('backbone, mutation_type_id').map do |allele|
       [allele.backbone, allele.backbone] unless allele.backbone.blank?
     end
-    backbone_options = options_for_select [['All','']] + backbone_array, params[:backbone]
+    backbone_options = options_for_select [['All','']] + backbone_array, params[:backbone_eq]
   end
 %>
 
@@ -47,7 +47,7 @@
     <tr>
       <% unless gene_trap? %>
         <td><%= label_tag :mutation_type_id_eq, "Mutation Type" %>:</td>
-        <td><%= select_tag :mutation_type_id_eq, options_for_select([['All','']] + TargRep::MutationType.all.collect{ |u| [u.name, u.id]})  %></td>
+        <td><%= select_tag :mutation_type_id_eq, options_for_select([['All','']] + TargRep::MutationType.all.collect{ |u| [u.name, u.id]}, params[:mutation_type_id_eq])  %></td>
       <% end %>
       <td><%= label_tag :cassette_eq, 'Cassette' %>:</td>
       <td><%= select_tag :cassette_eq, cassette_options %></td>

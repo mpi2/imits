@@ -83,6 +83,7 @@
         <a href="<%= targ_rep_escell_clone_genbank_file_url(:id => @allele.id) %>" target="_blank" class="ss_sprite ss_magnifier">view</a>
         <a href="<%= targ_rep_allele_image_url(:id => @allele.id) %>" target="_blank" class="ss_sprite ss_image">allele_image</a>
         <a href="<%= targ_rep_cassette_image_url(:id => @allele.id) %>" target="_blank" class="ss_sprite ss_image">cassette_image</a>
+        <a href="<%= targ_rep_allele_image_url(:id => @allele.id) %>?simple=true" target="_blank" class="ss_sprite ss_image">simple_image</a>
       <% else %>
         <em>not available</em>
       <% end %>

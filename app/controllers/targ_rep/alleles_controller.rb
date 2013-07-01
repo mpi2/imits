@@ -39,10 +39,13 @@ class TargRep::AllelesController < TargRep::BaseController
     params[:page] ||= 1
     params[:per_page] ||= 100
     allele_params = setup_allele_search(params)
-    @alleles = @klass.includes(:gene, :targeting_vectors => [:pipeline], :es_cells => [:pipeline]).search(allele_params).result.paginate(
-      :page    => params[:page],
-      :per_page => params[:per_page]
-    )
+    @alleles = @klass.order('targ_rep_alleles.created_at desc')
+      .search(allele_params)
+      .result(:distinct => true)
+      .paginate(
+        :page    => params[:page],
+        :per_page => params[:per_page]
+      )
 
     mutational_drop_downs
     options = {
@@ -253,102 +256,165 @@ class TargRep::AllelesController < TargRep::BaseController
     )
   end
 
-  ## GET /alleles/1/image
-  #def image
-  #  find_allele
-  #  return if check_for_genbank_file
-  #  return if check_for_escell_genbank_file
-  #  
-  # => Code here to generate allele image
-  #
-  #end
+  def has_required_data?
+    if params[:type].blank?
+      @error_message = 'Incorrect usage. Please follow the links on the page to navigate between allele.'
+      return false
+    end
+    ## Check for a genbank file
+    if @allele.genbank_file.nil?
+      @error_message = 'Could not find Genbank file.'
+      return false
+    end
 
-  # GET /alleles/1/allele-image-cre/
-  def simple_allele_image_cre
+    if params[:type] == 'allele' && (@allele.genbank_file.escell_clone.nil? || @allele.genbank_file.escell_clone.empty?)
+      @error_message = 'Could not find EsCell\'s Genbank file data.'
+      return false
+    elsif params[:type] == 'vector' && @allele.genbank_file.targeting_vector.blank?
+      @error_message = 'Could not find Targeting vector\'s Genbank file data.'
+      return false
+    end
+
+    true
+  end
+
+  def genbank_data
+    if params[:type] == 'allele' || params[:type] == 'cassette'
+      @allele.genbank_file.escell_clone
+    elsif params[:type] == 'allele' && params[:method] == 'cre'
+      @allele.genbank_file.escell_clone_cre
+    elsif params[:type] == 'allele' && params[:method] == 'flp'
+      @allele.genbank_file.escell_clone_flp
+    elsif params[:type] == 'allele' && params[:method] == 'flp_cre'
+      @allele.genbank_file.escell_clone_flp_cre
+    elsif params[:type] == 'vector'
+      @allele.genbank_file.targeting_vector
+    elsif params[:type] == 'vector' && params[:method] == 'cre'
+      @allele.genbank_file.targeting_vector_cre
+    elsif params[:type] == 'vector' && params[:method] == 'flp'
+      @allele.genbank_file.targeting_vector_flp
+    elsif params[:type] == 'vector' && params[:method] == 'flp_cre'
+      @allele.genbank_file.targeting_vector_flp_cre
+    end
+  end
+
+  def render_image(options = {})
+    raise ActiveRecord::RecordNotFound, @error_message unless has_required_data?
+
+    if params[:type] == 'cassette'
+      options[:cassetteonly] = true
+    end
+
+    options[:mutation_type] = @allele.mutation_type_name  
+
+    send_allele_image(
+      AlleleImage::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }
+    )
+  end
+
+  ## GET /alleles/1/image
+  def image
     find_allele
-    return if check_for_genbank_file
-    return if check_for_escell_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_cre, :simple => true).render.to_blob { self.format = "PNG" })
+    render_image(params)
   end
 
   # GET /alleles/1/allele-image/
   def allele_image
     find_allele
-    return if check_for_genbank_file
-    return if check_for_escell_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone).render.to_blob { self.format = "PNG" })
+    params[:type] = 'allele'
+    render_image(params)
   end
 
   # GET /alleles/1/allele-image-cre/
   def allele_image_cre
     find_allele
-    return if check_for_genbank_file
-    return if check_for_escell_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_cre).render.to_blob { self.format = "PNG" })
+    params[:type] = 'allele'
+    params[:method] = 'cre'
+    render_image(params)
   end
 
   # GET /alleles/1/allele-image-flp/
   def allele_image_flp
     find_allele
-    return if check_for_genbank_file
-    return if check_for_escell_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_flp).render.to_blob { self.format = "PNG" })
+    params[:type] = 'allele'
+    params[:method] = 'flp'
+    render_image(params)
   end
 
   # GET /alleles/1/allele-image-flp-cre/
   def allele_image_flp_cre
     find_allele
-    return if check_for_genbank_file
-    return if check_for_escell_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_flp_cre).render.to_blob { self.format = "PNG" })
+    params[:type] = 'allele'
+    params[:method] = 'flp_cre'
+    render_image(params)
   end
 
   # GET /alleles/1/cassette-image/
   def cassette_image
     find_allele
-    return if check_for_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone, :cassetteonly => true).render.to_blob { self.format = "PNG" })
+    params[:type] = 'cassette'
+    render_image(params)
   end
 
   # GET /alleles/1/vector-image/
   def vector_image
     find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector ).render.to_blob { self.format = "PNG" })
+    params[:type] = 'vector'
+    render_image(params)
   end
 
   # GET /alleles/1/vector-image-cre/
   def vector_image_cre
     find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector_cre ).render.to_blob { self.format = "PNG" })
+    params[:type] = 'vector'
+    params[:method] = 'cre'
+    render_image(params)
   end
 
   # GET /alleles/1/vector-image-flp/
   def vector_image_flp
     find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector_flp ).render.to_blob { self.format = "PNG" })
+    params[:type] = 'vector'
+    params[:method] = 'flp'
+    render_image(params)
   end
 
   # GET /alleles/1/vector-image-flp-cre/
   def vector_image_flp_cre
     find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector_flp_cre ).render.to_blob { self.format = "PNG" })
+    params[:type] = 'vector'
+    params[:method] = 'flp_cre'
+    render_image(params)
   end
 
   def send_allele_image(allele_image)
+
+    filename = String.new.tap do |s|
+
+      s << "#{@allele.cassette}-"
+
+      s << "#{@allele.mutation_type_name.parameterize.underscore}-"
+
+      if params[:method]
+        s << "#{params[:method]}-"
+      end
+
+      s << "#{@allele.id}-"
+      s << "#{params[:type]}"
+
+      if params[:simple]
+        s << '-simple'
+      end
+
+      if params[:cassette]
+        s << '-cassette'
+      end
+
+      s << ".png"
+    end
+
     send_data(
-      allele_image,
-      {
-        :disposition => "inline",
-        :type => "image/png"
-      }
+      allele_image, :disposition => "inline", :type => "image/png", :filename => filename
     )
   end
 

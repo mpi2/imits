@@ -34,7 +34,11 @@ module AlleleImage
     end
 
     def width
-      @render_options and @render_options.has_key?("width") ? @render_options[ "width" ] :  @feature_name.length * @@text_width
+      @width ||= (@render_options and @render_options.has_key?("width") ? @render_options[ "width" ] :  @feature_name.length * @@text_width)
+    end
+
+    def width=(w)
+      @width = w
     end
 
     def renderable_feature?

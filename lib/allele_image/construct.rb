@@ -71,10 +71,8 @@ module AlleleImage
       @cassette_features ||= initialize_section(:cassette_features)
 
       if @simple
-        @cassette_features = @cassette_features.select {|f| ['CDS', 'misc_recomb', 'promoter'].include?(f.feature_type) }
+        @cassette_features = @cassette_features.select {|f| AlleleImage::SIMPLE_FEATURES.include?(f.feature_name) || AlleleImage::SIMPLE_FEATURE_TYPES.include?(f.feature_type) }
       end
-
-      @cassette_features.each {|f| puts f.inspect}
 
       @cassette_features = @cassette_features.reject { |f| f.feature_name == "Synthetic Cassette" }
     end

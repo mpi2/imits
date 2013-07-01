@@ -62,6 +62,15 @@ module AlleleImage
       @image_height          = @bottom_margin + @feature_height + @top_margin
       @cassetteonly          = params[:cassetteonly]
       @simple                = @construct.simple
+      @mutation_type         = params[:mutation_type]
+
+      @split_exons = 0
+
+      if @simple
+        @annotation_height = 30
+        @font_size = 30
+      end
+
       # set the AlleleImage::Feature class attribute text_width
       AlleleImage::Feature.text_width(@text_width)
       # render the image
@@ -202,7 +211,9 @@ module AlleleImage
         end
 
         homology_arm_label = @construct.bac_label ? "5' #{ @construct.bac_label }" : "5 arm"
-        annotation_image = draw_homology_arm( annotation_image, homology_arm_label, genomic.stop - genomic.start )
+        unless @simple
+          annotation_image = draw_homology_arm( annotation_image, homology_arm_label, genomic.stop - genomic.start )
+        end
 
         # Stack the images
         image_list.push( annotation_image )
@@ -356,7 +367,10 @@ module AlleleImage
         end
 
         homology_arm_label = @construct.bac_label ? "3' #{ @construct.bac_label }" : "3 arm"
-        annotation_image = draw_homology_arm( annotation_image, homology_arm_label, genomic.last.stop - genomic.first.start )
+        
+        unless @simple
+          annotation_image = draw_homology_arm( annotation_image, homology_arm_label, genomic.last.stop - genomic.first.start )
+        end
 
         # Stack the images
         image_list.push( annotation_image )
@@ -381,7 +395,6 @@ module AlleleImage
 
       # This needs to centralize the features it renders
       def render_mutant_region( features, params={} )
-        params[:label]    = false unless params.include?(:label)
         cassette_features = insert_gaps_between( features )
         image_list        = Magick::ImageList.new
         image_width       = params.include?(:width) ? params[:width] : calculate_width( cassette_features )
@@ -404,15 +417,25 @@ module AlleleImage
         features_width = calculate_width( cassette_features )
         x              = ( image_width - features_width ) / 2
 
-        cassette_features.each do |feature|
+        cassette_features.each_with_index do |feature, index|
           feature_width = 0
           if feature.feature_name == "gap"
             feature_width = @gap_width
+          elsif @simple && feature.feature_type == 'promoter'
+            promotor_width = x - (feature.width / 2) + 15
+            antibiotic_resistance = cassette_features[index + 1]
+            draw_feature( main_image, feature, promotor_width, y , :related_feature => antibiotic_resistance)
+            feature_width = 10
           else
             draw_feature( main_image, feature, x, y )
             feature_width = feature.width
           end
           x += feature_width ? feature_width : 0
+        end
+
+        ## Render a double slash on a deletion for simple images
+        if @simple && @mutation_type == 'Deletion'
+          draw_double_slash(main_image, x, y)
         end
 
         image_list.push( main_image )
@@ -521,7 +544,14 @@ module AlleleImage
         stroke_width = params[:stroke_width] || 2.5
 
         # set colour and thickness of arrow
-        arrow.stroke( "black" )
+
+        if params[:colour]
+          stroke_colour = params[:colour]
+        else
+          stroke_colour = "black"
+        end
+
+        arrow.stroke(stroke_colour)
         arrow.stroke_width(stroke_width)
 
         # make the value of "point" the center (origin)
@@ -597,7 +627,7 @@ module AlleleImage
       end
 
       # Need to get this method drawing exons as well
-      def draw_feature( image, feature, x, y )
+      def draw_feature( image, feature, x, y, options = {})
         if feature.feature_type == "exon" and not feature.feature_name.match(/En2/)
           if feature.feature_name.match(/fragment/)
             draw_exon_fragment( image, x, y )
@@ -605,7 +635,7 @@ module AlleleImage
             draw_exon( image, x, y )
           end
         elsif feature.feature_type == "promoter"
-          draw_promoter( image, feature, [x, y] )
+          draw_promoter( image, feature, [x, y], options)
         else
           case feature.feature_name
           when "FRT"
@@ -632,10 +662,85 @@ module AlleleImage
             draw_pa_dta_pgk( image, feature, [x, y] )
           # Any non-speciall feature is probably a cassette feature
           # and can be rendered with the feature.render_options()
+          when 'Ifitm2 Intron'
+            draw_split_exon_label(image, feature, x, y)
+          when /pA|SA/i
+            draw_sa_pa(image, feature, x, y)
           else
             draw_cassette_feature( image, feature, x, y )
           end
         end
+      end
+
+      def draw_split_exon_label(image, feature, x, y, params = {})
+        unless @simple
+          return draw_cassette_feature(image, feature, x, y)
+        end
+
+        drawing = Magick::Draw.new
+
+        width = feature.width
+        height = @feature_height
+
+        drawing.stroke('transparent')
+        drawing.fill('transparent')
+        drawing.rectangle(x, @top_margin, x + width, @image_height - @bottom_margin)
+
+        drawing.draw(image)
+
+        if @split_exons.to_i > 0
+          label = 'SA'
+          x = x + width - 38
+        else
+          label = 'SD'
+        end
+        
+        y += y
+
+        # annotate the block
+        pointsize = 20
+        drawing.annotate( image, width, height, x, y, label ) do
+          self.fill        = 'black'
+          self.font_weight = Magick::BoldWeight
+          self.pointsize   = pointsize
+          self.font_style  = Magick::ItalicStyle
+        end
+
+        @split_exons += 1
+
+        return image
+      end
+
+      def draw_sa_pa(image, feature, x, y, params = {})
+
+        unless @simple
+          return draw_cassette_feature(image, feature, x, y)
+        end
+
+        width = 40
+        feature.width = 0
+        height  = @feature_height
+        label   = params[:label] || feature.feature_name
+        drawing = Magick::Draw.new
+
+        if label =~ /SA/
+          label = 'SA'
+        end
+
+        y = 60
+        x = x - width / 2
+
+        # annotate the block
+        pointsize = 20
+        drawing.annotate( image, width, height, x, y, label ) do
+          self.fill        = 'black'
+          self.font_weight = Magick::BoldWeight
+          self.gravity     = Magick::CenterGravity
+          self.pointsize   = pointsize
+          self.font_style  = Magick::ItalicStyle
+        end
+
+        return image
       end
 
       # draw a box with a label to the correct width
@@ -648,7 +753,7 @@ module AlleleImage
           drawing = Magick::Draw.new
 
           # create a block
-          drawing.stroke( "black" )
+          drawing.stroke( @simple ? "transparent" : "black" )
           drawing.fill( colour )
           drawing.rectangle( x, @top_margin, x + width, @image_height - @bottom_margin )
           drawing.draw( image )
@@ -669,7 +774,7 @@ module AlleleImage
       def draw_sequence( image, x1, y1, x2, y2 )
         d = Magick::Draw.new
 
-        d.stroke( "black" )
+        d.stroke( @simple ? '#999' : "black" )
         d.stroke_width( @sequence_stroke_width )
         d.line( x1, y1, x2, y2 )
         d.draw( image )
@@ -709,15 +814,17 @@ module AlleleImage
       def draw_label( image, label, x, y, height = @text_height )
         d = Magick::Draw.new
 
-        d.stroke( "black" )
-        d.fill( "white" )
-        d.draw( image )
-        pointsize = @font_size
-        d.annotate( image, image.columns, height, x, y, label ) do
-          self.fill        = "blue"
-          self.gravity     = Magick::CenterGravity
-          self.font_weight = Magick::BoldWeight
-          self.pointsize   = pointsize
+        unless @simple
+          d.stroke( "black" )
+          d.fill( "white" )
+          d.draw( image )
+          pointsize = @font_size
+          d.annotate( image, image.columns, height, x, y, label ) do
+            self.fill        = "blue"
+            self.gravity     = Magick::CenterGravity
+            self.font_weight = Magick::BoldWeight
+            self.pointsize   = pointsize
+          end
         end
 
         return image
@@ -725,17 +832,17 @@ module AlleleImage
 
       def draw_attp( image, feature, x, y, d = Magick::Draw.new, feature_width = feature.width )
         # Draw the two triangles
-        d.stroke( "black" )
+        d.stroke(@simple ? "transparent" : "black" )
         d.fill( "red" )
         d.polygon( x, @top_margin, x + feature_width - 2, @top_margin, x, @image_height - @bottom_margin - 2 )
         d.draw( image )
-        d.stroke( "black" )
+        d.stroke(@simple ? "transparent" : "black" )
         d.fill( "red" )
         d.polygon( x + 2, @image_height - @bottom_margin, x + feature_width, @top_margin + 2, x + feature_width, @image_height - @bottom_margin )
         d.draw( image )
 
         # write the annotation above
-        pointsize = @font_size
+        pointsize = @simple ? @font_size * 0.6 : @font_size
         d.annotate( image, feature_width, @top_margin, x, 0, feature.feature_name ) do
           self.fill        = "red"
           self.gravity     = Magick::CenterGravity
@@ -749,7 +856,7 @@ module AlleleImage
 
       def draw_loxp( image, feature, x, y, d = Magick::Draw.new, feature_width = feature.width )
         # Draw the triangle
-        d.stroke( "black" )
+        d.stroke( @simple ? "transparent" : "black" )
         d.fill( "#800000" )
 
         if feature.orientation == "forward"
@@ -761,7 +868,7 @@ module AlleleImage
         d.draw( image )
 
         # write the annotation above
-        pointsize = @font_size
+        pointsize = @simple ? @font_size * 0.6 : @font_size
         d.annotate( image, feature_width, @top_margin, x, 0, feature.feature_name ) do
           self.fill        = "#800000"
           self.gravity     = Magick::CenterGravity
@@ -775,8 +882,8 @@ module AlleleImage
 
       def draw_rox( image, feature, x, y, d = Magick::Draw.new, feature_width = feature.width )
         # Draw the triangle
-        d.stroke( "black" )
-        d.fill( "pink" )
+        d.stroke(@simple ? "transparent" :  "black" )
+        d.fill( "#E94E77" )
 
         if feature.orientation == "forward"
           d.polygon( x, @top_margin, x + feature_width, y, x, @image_height - @bottom_margin )
@@ -787,9 +894,9 @@ module AlleleImage
         d.draw( image )
 
         # write the annotation above
-        pointsize = @font_size
+        pointsize = @simple ? @font_size * 0.6 : @font_size
         d.annotate( image, feature_width, @top_margin, x, 0, feature.feature_name ) do
-          self.fill        = "pink"
+          self.fill        = "#E94E77"
           self.gravity     = Magick::CenterGravity
           self.font_weight = Magick::BoldWeight
           self.font_style  = Magick::ItalicStyle
@@ -803,13 +910,13 @@ module AlleleImage
         b = feature.orientation == "forward" ? x : x + feature_width
 
         # Draw the triangle
-        d.stroke( "black" )
+        d.stroke(@simple ? "transparent" : "black" )
         d.fill( "orange" )
         d.polygon( x, @top_margin, b, @image_height - @bottom_margin, x + feature_width, @top_margin )
         d.draw( image )
 
         # write the annotation above
-        pointsize = @font_size
+        pointsize = @simple ? @font_size * 0.6 : @font_size
         d.annotate( image, feature_width, @top_margin, x, 0, "F3" ) do
           self.fill        = "orange"
           self.gravity     = Magick::CenterGravity
@@ -826,13 +933,13 @@ module AlleleImage
         b = feature.orientation == "forward" ? x : x + feature_width
 
         # Draw the triangle
-        d.stroke( "black" )
+        d.stroke( @simple ? "transparent" : "black" )
         d.fill( "#008040" )
         d.polygon( x, @top_margin, b, @image_height - @bottom_margin, x + feature_width, @top_margin )
         d.draw( image )
 
         # write the annotation above
-        pointsize = @font_size
+        pointsize = @simple ? @font_size * 0.6 : @font_size
         d.annotate( image, feature_width, @top_margin, x, 0, feature.feature_name ) do
           self.fill        = "#008040"
           self.gravity     = Magick::CenterGravity
@@ -845,8 +952,8 @@ module AlleleImage
       end
 
       def draw_exon( image, x, y, d = Magick::Draw.new, feature_width = @text_width )
-        d.stroke( "black" )
-        d.fill( "#fbcf3b" )
+        d.stroke( @simple ? "transparent" : "black" )
+        d.fill( @simple ? "#999": "#fbcf3b" )
         d.rectangle( x, @top_margin, x + feature_width, @image_height - @bottom_margin )
         d.draw( image )
 
@@ -854,10 +961,10 @@ module AlleleImage
       end
 
       def draw_exon_fragment( image, x, y, d = Magick::Draw.new, feature_width = @text_width )
-        d.stroke( "black" )
-        d.fill( "#fbcf3b" )
+        d.stroke(@simple ? "transparent" : "black" )
+        d.fill(@simple ? "#666" : "#fbcf3b" )
         d.rectangle( x, @top_margin, x + feature_width, @image_height - @bottom_margin )
-        d.fill("red")
+        d.fill(@simple ? "#999" : "red")
         d.polygon( x ,                @top_margin,
                    x + feature_width, @image_height - @bottom_margin,
                    x,                 @image_height - @bottom_margin,
@@ -898,8 +1005,11 @@ module AlleleImage
       # @param  [AlleleImage::Feature] the feature to draw
       # @param  [Array<Num, Num>] the point to place drawing
       # @return [Magick::Image]
-      def draw_promoter( image, feature, point )
-        draw_cassette_feature( image, feature, point[0], point[1] )
+      def draw_promoter( image, feature, point, options = {})
+        
+        unless @simple
+          draw_cassette_feature(image, feature, point[0], point[1])
+        end
 
         # make the dimensions constant
         tail_height = 15
@@ -920,19 +1030,27 @@ module AlleleImage
 
         drawing      = Magick::Draw.new
         
-        drawing.stroke("black")
+        if options[:related_feature] && options[:related_feature].render_options["colour"]
+          stroke_colour = options[:related_feature].render_options["colour"]
+        else
+          stroke_colour = 'black'
+        end
+
+        drawing.stroke(stroke_colour)
 
         if @simple
           stroke_width = 6
           drawing.stroke_width(stroke_width)
           drawing.fill_opacity(0)
           drawing.bezier(first_point[0],first_point[1], first_point[0], third_point[1], first_point[0], third_point[1], third_point[0], third_point[1])
+
           draw_arrow(
             image, arrow_point,
             :direction    => feature.orientation == "forward" ? "east" : "west",
             :tail_height  => 15,#tail_height,
             :arm_height   => 12,#arm_height,
-            :arm_width    => 6#arm_width
+            :arm_width    => 6,#arm_width
+            :colour => stroke_colour
           )
         else
           stroke_width = 1
@@ -993,6 +1111,14 @@ module AlleleImage
       end
 
       def draw_intervening_sequence( image, x, y )
+        if @simple
+          return draw_elipsis(image, x, y)
+        else
+          return draw_double_slash(image, x, y)
+        end
+      end
+
+      def draw_double_slash(image, x, y)
         d = Magick::Draw.new
 
         d.stroke( "black" )
@@ -1001,6 +1127,39 @@ module AlleleImage
         d.draw( image )
         d.line( x + @text_width / 2, @image_height - @bottom_margin, x + @text_width, @top_margin )
         d.draw( image )
+
+        return image
+      end
+
+      def draw_elipsis(image, x, y)
+        d = Magick::Draw.new
+
+        first_dot_x = x
+        second_dot_x = x + @text_width / 2
+        third_dot_x = x + @text_width
+
+        y_position = @image_height - @bottom_margin - 1
+
+        d.stroke( "black" )
+        d.stroke_width( @sequence_stroke_width )
+        d.line(first_dot_x, y_position, first_dot_x + 2, y_position)
+        d.draw( image )
+        d.line(second_dot_x, y_position, second_dot_x + 2,  y_position)
+        d.draw( image )
+        d.line(third_dot_x, y_position, third_dot_x + 2,  y_position)
+        d.draw( image )
+
+        y_position = @top_margin + 1
+
+        d.stroke( "black" )
+        d.stroke_width( @sequence_stroke_width )
+        d.line(first_dot_x, y_position, first_dot_x + 2, y_position)
+        d.draw( image )
+        d.line(second_dot_x, y_position, second_dot_x + 2,  y_position)
+        d.draw( image )
+        d.line(third_dot_x, y_position, third_dot_x + 2,  y_position)
+        d.draw( image )
+
 
         return image
       end
@@ -1021,6 +1180,7 @@ module AlleleImage
          image_width = target_exons.map { |e| e.feature_name.match(/(\ENSMUSE\d+)/).captures.last.length }.max * @text_width
         end
 
+        return min_image_width if @simple
         return [ image_width, min_image_width ].max
       end
 
@@ -1042,7 +1202,9 @@ module AlleleImage
       def calculate_width( features )
         width, gaps = 0, 0
         features.each do |feature|
-          if feature.feature_name == "gap"
+          if @simple && (feature.feature_name == 'pA' || feature.feature_type == 'promoter' || feature.feature_name =~ /SA/)
+            width += 9 # Add a little spacing
+          elsif feature.feature_name == "gap"
             gaps += @gap_width
           else
             width += feature.width ? feature.width : 0

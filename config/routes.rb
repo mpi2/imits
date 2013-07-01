@@ -158,7 +158,8 @@ TarMits::Application.routes.draw do
 
     resources :alleles do
       get :history, :on => :member
-
+      get :image, :on => :member
+      
       collection do
         get :attributes
       end

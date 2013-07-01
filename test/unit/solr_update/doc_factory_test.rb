@@ -45,12 +45,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       setup do
         @allele = Factory.create(:allele, :gene => cbx1, :mutation_type => TargRep::MutationType.find_by_name!("Conditional Ready"))
         @es_cell = Factory.create :es_cell,
-                :allele => @allele,
-                :mutation_subtype => 'conditional_ready'
+        :allele => @allele,
+        :mutation_subtype => 'conditional_ready'
         @mi_attempt = Factory.create :mi_attempt2, :id => 43,
-                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
-                :es_cell => @es_cell,
-                :mi_plan => bash_wtsi_cbx1_plan
+        :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
+        :es_cell => @es_cell,
+        :mi_plan => bash_wtsi_cbx1_plan
         @mi_attempt.stubs(:allele_symbol).returns('TEST ALLELE SYMBOL')
 
         docs = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt)
@@ -118,12 +118,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
       should 'set allele_image_url' do
         assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image",
-                @doc['allele_image_url']
+        @doc['allele_image_url']
       end
 
       should 'set genbank_file_url' do
         assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
-                @doc['genbank_file_url']
+        @doc['genbank_file_url']
       end
     end
 
@@ -132,16 +132,16 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       setup do
         @allele = Factory.create(:allele, :gene => cbx1)
         @es_cell = Factory.create :es_cell,
-                :allele => @allele,
-                :mutation_subtype => 'conditional_ready'
+        :allele => @allele,
+        :mutation_subtype => 'conditional_ready'
 
         @mi_attempt = Factory.create :mi_attempt2_status_gtc,
-          :es_cell => @es_cell,
-          :mi_plan => bash_wtsi_cbx1_plan
+        :es_cell => @es_cell,
+        :mi_plan => bash_wtsi_cbx1_plan
 
         @phenotype_attempt = Factory.create :phenotype_attempt_status_cec,
-                :id => 86, :mi_attempt => @mi_attempt,
-                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN')
+        :id => 86, :mi_attempt => @mi_attempt,
+        :colony_background_strain => Strain.create!(:name => 'TEST STRAIN')
 
         @phenotype_attempt.stubs(:allele_symbol).returns('TEST ALLELE SYMBOL')
 
@@ -200,12 +200,12 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
       should 'set allele_image_url' do
         assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image-cre",
-                @doc['allele_image_url']
+        @doc['allele_image_url']
       end
 
       should 'set genbank_file_url' do
         assert_equal "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
-                @doc['genbank_file_url']
+        @doc['genbank_file_url']
       end
     end
 
@@ -214,7 +214,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
       setup do
         @gene = Factory.create :gene, :mgi_accession_id => 'MGI:9999999991', :marker_symbol => 'Test1'
         @allele = Factory.create :allele, :mutation_type => TargRep::MutationType.find_by_code!('crd'), :gene => @gene
-                
+
         @fake_unique_public_info = [
           {:strain => 'C57BL/6N', :mgi_allele_symbol_superscript => 'tm1a(EUCOMM)Wtsi', :pipeline => 'EUCOMM'},
           {:strain => 'C57BL/6N-A<tm1Brd>/a', :mgi_allele_symbol_superscript => 'tm2a(EUCOMM)Wtsi', :pipeline => 'EUCOMMTools'}
@@ -256,7 +256,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
 
       should 'set allele_name' do
         assert_equal ['Test1<sup>tm1a(EUCOMM)Wtsi</sup>', 'Test1<sup>tm2a(EUCOMM)Wtsi</sup>'],
-                @docs.map {|d| d['allele_name']}
+        @docs.map {|d| d['allele_name']}
       end
 
       should 'set allele_image_url' do
@@ -378,13 +378,13 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         allele = Factory.create(:allele, :gene => cbx1)
 
         es_cell = Factory.create :es_cell,
-                :allele => allele,
-                :mutation_subtype => 'conditional_ready'
+        :allele => allele,
+        :mutation_subtype => 'conditional_ready'
 
         @mi_attempt = Factory.create :mi_attempt2, :id => 43,
-                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
-                :es_cell => es_cell,
-                :mi_plan => bash_wtsi_cbx1_plan
+        :colony_background_strain => Strain.create!(:name => 'TEST STRAIN'),
+        :es_cell => es_cell,
+        :mi_plan => bash_wtsi_cbx1_plan
 
         @mi_attempt.es_cell.ikmc_project_id = 'VG10003'
 
@@ -413,20 +413,20 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         @mi_attempt2 = Factory.create :mi_attempt2_status_gtc, :es_cell => es_cell, :mi_plan => bash_wtsi_cbx1_plan
 
         @phenotype_attempt = Factory.create :phenotype_attempt_status_cec,
-                :id => 86, :mi_attempt => @mi_attempt2,
-                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN2')
+        :id => 86, :mi_attempt => @mi_attempt2,
+        :colony_background_strain => Strain.create!(:name => 'TEST STRAIN2')
 
         @config.keys.each do |key|
           next if key == 'EMMA'
           next if key == 'KOMP'
           Centre.create! :name => key if ! Centre.find_by_name key
           dist_centre = Factory.create :mi_attempt_distribution_centre,
-                  :centre => Centre.find_by_name!(key),
-                  :is_distributed_by_emma => false, :mi_attempt => @mi_attempt
+          :centre => Centre.find_by_name!(key),
+          :is_distributed_by_emma => false, :mi_attempt => @mi_attempt
 
           dist_centre2 = Factory.create :phenotype_attempt_distribution_centre,
-                  :centre => Centre.find_by_name!(key),
-                  :is_distributed_by_emma => false, :phenotype_attempt => @phenotype_attempt
+          :centre => Centre.find_by_name!(key),
+          :is_distributed_by_emma => false, :phenotype_attempt => @phenotype_attempt
 
           mi_attempt_distribution_centre.push dist_centre
           phenotype_attempt_distribution_centre.push dist_centre2
@@ -608,17 +608,17 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         allele = Factory.create(:allele, :gene => cbx1)
 
         es_cell = Factory.create :es_cell,
-                :allele => allele,
-                :mutation_subtype => 'conditional_ready',
-                :ikmc_project_id => 'VG10003'
+        :allele => allele,
+        :mutation_subtype => 'conditional_ready',
+        :ikmc_project_id => 'VG10003'
 
         mi_attempt = Factory.create :mi_attempt2, :id => 433,
-                :colony_background_strain => Strain.create!(:name => 'TEST STRAIN 2'),
-                :es_cell => es_cell, :mi_plan => bash_wtsi_cbx1_plan
+        :colony_background_strain => Strain.create!(:name => 'TEST STRAIN 2'),
+        :es_cell => es_cell, :mi_plan => bash_wtsi_cbx1_plan
 
         dist_centre = Factory.create :mi_attempt_distribution_centre,
-                :centre => Centre.find_by_name!('UCD'),
-                :is_distributed_by_emma => false, :mi_attempt => mi_attempt
+        :centre => Centre.find_by_name!('UCD'),
+        :is_distributed_by_emma => false, :mi_attempt => mi_attempt
 
         mi_attempt.distribution_centres = [dist_centre]
 
@@ -656,5 +656,6 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         @config = config
       end
     end
+
   end
 end

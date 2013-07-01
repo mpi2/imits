@@ -186,9 +186,10 @@ Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt2 do |mi_at
   mi_attempt.test_cross_strain { Strain.all.sample }
   mi_attempt.colony_background_strain { Strain.all.sample }
   mi_attempt.colony_name { (1..4).to_a.map { ('A'..'Z').to_a.sample }.join }
+  mi_attempt.mi_date { Date.today - 1.month }
 
   MiAttempt.columns.each do |column|
-    next if ['id', 'created_at', 'updated_at'].include?(column.name.to_s)
+    next if ['id', 'created_at', 'updated_at', 'mi_date'].include?(column.name.to_s)
     next if column.name.match(/_id$/)
 
     if column.type == :integer

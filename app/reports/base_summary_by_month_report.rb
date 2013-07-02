@@ -47,13 +47,20 @@ class BaseSummaryByMonthReport
     end
 
     def columns
-      {
+      { "Gene Interest" => :commenece_count,
+        "Cumulative Gene Interest" => :cumulative_commenece,
+        "Assigned" => :assigned_count,
+        "Cumulative Assigned" => :cumulative_assigned,
         "Cumulative ES Starts"   => :cumulative_es_cells,
         "ES Cell QC In Progress" => :assigned_es_cell_count,
         "ES Cell QC Complete"    => :es_cell_complete_count,
         "ES Cell QC Failed"      => :es_cell_aborted_count,
         "Micro-Injection In Progress" => :mi_in_progress_count,
         "Cumulative MIs"         => :cumulative_mis,
+
+        "Cumulative ES Cell QC Complete" => :cumulative_es_cell_complete,
+        "Cumulative ES Cell QC Failed" => :cumulative_es_cells_aborted,
+
         "MI Goal"            => :mi_goal,
         "Chimeras obtained"  => :chimeras_obtained_count,
         "Genotype confirmed" => :genotype_confirmed_count,
@@ -67,7 +74,11 @@ class BaseSummaryByMonthReport
         "Cre Excision Complete" => :cre_excision_complete_count,
         "Phenotyping Started"   => :phenotype_started_count,
         "Phenotyping Complete"  => :phenotype_complete_count,
-        "Phenotype Attempt Aborted" => :phenotype_aborted_count
+        "Phenotype Attempt Aborted" => :phenotype_aborted_count,
+
+        "Cumulative Phenotype Registered" => :cumulative_phenotype_registered,
+        "Cumulative Cre Excision Complete" => :cumulative_cre_excision_complete,
+        "Cumulative Phenotype Complete" => :cumulative_phenotype_complete
       }
     end
 
@@ -101,10 +112,21 @@ class BaseSummaryByMonthReport
       ]
     end
 
+    def date_previous_month
+      if (Time.now.month - 1) ==0
+        year = Time.now.year - 1
+        month = 12
+      else
+        year = Time.now.year
+        month = Time.now.month - 1
+      end
+      Date.civil( year,  month, -1).to_s(:db)
+    end
+
     def summary_by_month_sql(previous_month = false)
 
       if previous_month
-        up_to_date = Date.civil( Time.now.year,  Time.now.month, -1).to_s(:db)
+        up_to_date = date_previous_month
       else
         up_to_date = Time.now.to_date.to_s(:db)
       end
@@ -118,6 +140,16 @@ class BaseSummaryByMonthReport
             SELECT
               series.date as date,
               report.consortium as consortium,
+              SUM(CASE
+                WHEN report.commenece_date >= series.date
+                  AND report.commenece_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as commenece_count,
+              SUM(CASE
+                WHEN report.assigned_date >= series.date
+                  AND report.assigned_date < date(series.date + interval '1 month')
+                THEN 1 ELSE 0
+              END) as assigned_count,
               SUM(CASE
                 WHEN report.assigned_es_cell_qc_in_progress_date >= series.date
                   AND report.assigned_es_cell_qc_in_progress_date < date(series.date + interval '1 month')
@@ -196,7 +228,9 @@ class BaseSummaryByMonthReport
             FROM series
             CROSS JOIN (
               SELECT
-                consortium,
+                new_consortia_intermediate_report.consortium,
+                CASE WHEN gene_consortium_commence_date.commenece_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE gene_consortium_commence_date.commenece_date END AS commenece_date,
+                CASE WHEN assigned_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE assigned_date END AS assigned_date,
                 CASE WHEN assigned_es_cell_qc_in_progress_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE assigned_es_cell_qc_in_progress_date END AS assigned_es_cell_qc_in_progress_date,
                 CASE WHEN assigned_es_cell_qc_complete_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE assigned_es_cell_qc_complete_date END AS assigned_es_cell_qc_complete_date,
                 CASE WHEN aborted_es_cell_qc_failed_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE aborted_es_cell_qc_failed_date END AS aborted_es_cell_qc_failed_date,
@@ -213,6 +247,15 @@ class BaseSummaryByMonthReport
                 CASE WHEN phenotyping_complete_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotyping_complete_date END AS phenotyping_complete_date,
                 CASE WHEN phenotype_attempt_aborted_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotype_attempt_aborted_date END AS phenotype_attempt_aborted_date
               FROM new_consortia_intermediate_report
+              JOIN
+                (SELECT genes.marker_symbol AS gene, consortia.name AS consortium, min(mi_plan_commence_date.mi_plan_date) AS commenece_date
+                   FROM mi_plans
+                   JOIN (SELECT mi_plan_id as mi_plan_id, min(created_at) as mi_plan_date FROM mi_plan_status_stamps GROUP BY mi_plan_id) AS mi_plan_commence_date ON mi_plan_commence_date.mi_plan_id = mi_plans.id
+                   JOIN genes ON genes.id = mi_plans.gene_id
+                   JOIN consortia ON consortia.id = mi_plans.consortium_id
+                 GROUP BY gene, consortium
+                 ) AS gene_consortium_commence_date
+                 ON gene_consortium_commence_date.gene = new_consortia_intermediate_report.gene AND gene_consortium_commence_date.consortium = new_consortia_intermediate_report.consortium
             ) as report
             WHERE report.consortium in ('#{available_consortia.join('\', \'')}')
             GROUP BY series.date, report.consortium
@@ -222,6 +265,10 @@ class BaseSummaryByMonthReport
         SELECT
           date,
           consortium,
+          commenece_count,
+          SUM(commenece_count) OVER (PARTITION BY consortium ORDER BY date) as cumulative_commenece,
+          assigned_count,
+          SUM(assigned_count) OVER (PARTITION BY consortium ORDER BY date) as cumulative_assigned,
           assigned_es_cell_count,
           SUM(assigned_es_cell_count) OVER (PARTITION BY consortium ORDER BY date) as cumulative_es_cells,
           es_cell_complete_count,

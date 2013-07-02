@@ -365,7 +365,10 @@ module NewConsortiaIntermediateReport::ReportGenerator
               assigned.created_at::date          AS assigned_date,
               es_qc_in_progress.created_at::date AS es_qc_in_progress_date,
               es_qc_complete.created_at::date    AS es_qc_complete_date,
-              es_qc_fail.created_at::date        AS es_qc_fail_date
+              es_qc_fail.created_at::date        AS es_qc_fail_date,
+              sub_projects.name AS sub_project,
+              is_bespoke_allele AS AS is_bespoke_allele,
+              priority.name AS priority
             FROM (
               SELECT DISTINCT mi_plans.*
               FROM mi_plans
@@ -397,12 +400,23 @@ module NewConsortiaIntermediateReport::ReportGenerator
                 ) as best_plans_for_gene_consortia_centre_and_status
               ) AS att ON mi_plans.id = att.mi_plan_id
             ) best_mi_plans
+            LEFT JOIN sub_projects On sub_projects.id = mi_plans.sub_project_id
+            LEFT JOIN mi_plan_priorities ON mi_plan_priorities.id = mi_plans.priority_id
             LEFT JOIN mi_plan_status_stamps AS assigned          ON assigned.mi_plan_id = best_mi_plans.id          AND assigned.status_id = 1
             LEFT JOIN mi_plan_status_stamps AS es_qc_in_progress ON es_qc_in_progress.mi_plan_id = best_mi_plans.id AND es_qc_in_progress.status_id = 8
             LEFT JOIN mi_plan_status_stamps AS es_qc_complete    ON es_qc_complete.mi_plan_id = best_mi_plans.id    AND es_qc_complete.status_id = 9
             LEFT JOIN mi_plan_status_stamps AS es_qc_fail        ON es_qc_fail.mi_plan_id = best_mi_plans.id        AND es_qc_fail.status_id = 10
             JOIN mi_plan_statuses ON mi_plan_statuses.id = best_mi_plans.status_id
             ORDER BY gene_id, consortium_id
+          ),
+
+          -- get the earliest date an interest in the gene occured
+          gene_interest_commenced AS
+          (
+          SELECT mi_plans.gene_id AS gene_id, mi_plans.consortium_id AS consortium_id, min(mi_plan_commence_date.mi_plan_date) AS commenece_date
+            FROM mi_plans
+            JOIN (SELECT mi_plan_id as mi_plan_id, min(created_at) as mi_plan_date FROM mi_plan_status_stamps GROUP BY mi_plan_id) AS mi_plan_commence_date ON mi_plan_commence_date.mi_plan_id = mi_plans.id
+          GROUP BY mi_plans.gene_id, mi_plans.consortium_id
           )
 
 
@@ -412,6 +426,7 @@ module NewConsortiaIntermediateReport::ReportGenerator
             consortia.name AS consortium,
             genes.marker_symbol AS gene,
             genes.mgi_accession_id,
+            gene_interest_commenced.commenece_date AS gene_interest_date,
             CASE
               WHEN best_phenotype_attempts.phenotype_attempt_status is null AND best_mi_attempts.mi_attempt_status is null
                 THEN (CASE WHEN best_mi_plans.mi_plan_status is null THEN 'no_attempts' ELSE best_mi_plans.mi_plan_status END)
@@ -432,6 +447,10 @@ module NewConsortiaIntermediateReport::ReportGenerator
             best_mi_plans.es_qc_in_progress_date AS assigned_es_cell_qc_in_progress_date,
             best_mi_plans.es_qc_complete_date AS assigned_es_cell_qc_complete_date,
             best_mi_plans.es_qc_fail_date AS aborted_es_cell_qc_failed_date,
+
+            best_mi_plans.sub_project AS sub_project,
+            best_mi_plans.priority AS priority,
+            best_mi_plans.is_bespoke_allele AS is_bespoke_allele,
 
             best_mi_attempts.ikmc_project_id,
             best_mi_attempts.mutation_sub_type,
@@ -472,7 +491,7 @@ module NewConsortiaIntermediateReport::ReportGenerator
           LEFT JOIN best_mi_attempts ON best_mi_attempts.gene_id = unique_gene_plans.gene_id AND  best_mi_attempts.consortium_id = unique_gene_plans.consortium_id
           LEFT JOIN best_phenotype_attempts ON best_phenotype_attempts.gene_id = unique_gene_plans.gene_id AND best_phenotype_attempts.consortium_id = unique_gene_plans.consortium_id
           LEFT JOIN best_mi_plans ON best_mi_plans.gene_id = unique_gene_plans.gene_id AND best_mi_plans.consortium_id = unique_gene_plans.consortium_id
-
+          LEFT JOIN gene_interest_commenced ON gene_interest_commenced.gene_id = unique_gene_plans.gene_id AND gene_interest_commenced.consortium_id = unique_gene_plans.consortium_id
           ORDER BY unique_gene_plans.gene_id, unique_gene_plans.consortium_id
         EOF
       end
@@ -569,6 +588,7 @@ module NewConsortiaIntermediateReport::ReportGenerator
           'consortium',
           'production_centre',
           'gene',
+          'gene_interest_date',
           'mgi_accession_id',
           'overall_status',
           'mi_plan_status',
@@ -581,6 +601,9 @@ module NewConsortiaIntermediateReport::ReportGenerator
           'assigned_es_cell_qc_in_progress_date',
           'assigned_es_cell_qc_complete_date',
           'aborted_es_cell_qc_failed_date',
+          'sub_project',
+          'priority',
+          'is_bespoke_allele',
           'ikmc_project_id',
           'mutation_sub_type',
           'allele_symbol',

@@ -1,0 +1,132 @@
+<table class="report_table">
+<thead>
+<tr><th width="250">Status</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>All Genes</strong></td><td>Unique genes targeted by Consortium</td></tr>
+<tr>
+  <td><strong>ES Cell QC (gene)</strong></td>
+  <td><strong>Cumulative! </strong>Genes where we see <em>any</em> ES QC activity, in progess, successful or aborted</td></tr>
+<tr>
+  <td><strong>ES QC Confirmed (gene)</strong></td>
+  <td>Genes where QC ES Cell clone(s) have been thawed and QC passed.</td>
+</tr>
+<tr>
+  <td><strong>ES QC Failed (gene)</strong></td>
+  <td>
+    Genes where <em>no</em> more attempts will be made to thaw existing ES Cell clones for this gene.
+  </td>
+</tr>
+<tr>
+  <td><strong>Microinjections (gene)</strong></td>
+  <td><strong>Cumulative!</strong> Number of Genes with any mouse production activity, In Progess, Chimeric, Genotype Confirmed or Aborted</td>
+</tr>
+<tr>
+  <td><strong>Genotype Confirmed Mice (gene)</strong></td>
+  <td>Number of Genes where iMits has at least one 'Chimera with GC offspring' or 'Het offspring' recorded.</td>
+</tr>
+</tbody>
+</table>
+</br>
+
+<table class="report_table">
+<thead>
+<tr><th width="250">Status</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td  VALIGN="top"><strong>Intent to Phenotype (gene)</strong></td>
+  <td><strong>Cumulative!</strong> Number of Genes where Genotype Confirmed Mice have been Registered for Phenotyping by <em>this</em> Consortium / Production Centre <br/>(Mice may be drawn from <em>other</em> consortia)</td>
+</tr>
+<tr>
+  <td><strong>Cre excision complete (gene)</strong></td>
+  <td>Genes where exposure to Cre recombinase has been successful</td>
+</tr>
+<tr>
+  <td><strong>Phenotype complete (gene)</strong></td>
+  <td>Phenotyping <strong>data</strong> has finished flowing to the KOMP2 DCC (MPI2) - currently accessible via machine interface only</td>
+</tr>
+</tbody>
+</table>
+</br></br>
+
+<% n = 0 %>
+<% @consortia.each do |consortium| %>
+<%params.delete(:action)
+  params.delete(:controller)
+  params.delete(:script_name)
+  params.delete(:format) %>
+<table>
+  <tr>
+    <td width = "550">
+      <div class="report_chunky">
+      <dl>
+      <h1><%= consortium %></h1></br>
+      <pre><%=link_to 'Download as CSV', report_csv_path%>    <%=link_to('Download MI image', url_for({:action => 'graph_report_download_image', :controller => '/v2/reports/mi_production', :chart_file_name => @report.chart_file_names[consortium.downcase]['mi']}.merge(params))) %>    <%= link_to('Download GC image', url_for({:action => 'graph_report_download_image', :controller => '/v2/reports/mi_production', :chart_file_name => @report.chart_file_names[consortium.downcase]['gc']}.merge(params)))
+      %></pre>
+      <dt><table height = "670" width = "450">
+        <tr>
+          <th>Status</th>
+          <th>Current Total<br />(up to and inc. <%= @date_name %>)</th>
+          <th>Last Complete Month<br />(<%= @date_name %>)</th>
+        </tr>
+        <tr>
+          <td>All genes</td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Cumulative Gene Interest"]%></td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Gene Interest"]%></td>
+        </tr>
+        <tr>
+          <td>ES Cell QC (genes)</td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Cumulative ES Starts"]%></td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-ES Cell QC In Progress"]%></td>
+        </tr>
+        <tr>
+          <td>ES QC Confirmed (genes)</td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Cumulative ES Cell QC Complete"]%></td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-ES Cell QC Complete"]%></td>
+        </tr>
+        <tr>
+          <td>ES QC Failed (genes)</td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Cumulative ES Cell QC Failed"]%></td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-ES Cell QC Failed"]%></td>
+        </tr>
+        <tr>
+          <td>Microinjections (genes)</td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Cumulative MIs"]%></td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Micro-Injection In Progress"]%></td>
+        </tr>
+        <tr>
+          <td>Genotype Confirmed Mice (genes)</td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Cumulative genotype confirmed"]%></td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Genotype confirmed"]%></td>
+        </tr>
+        <tr>
+          <td>Intent to Phenotype (genes)</td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Cumulative Phenotype Registered"]%></td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Phenotype Attempt Registered"]%></td>
+        </tr>
+        <tr>
+          <td>Cre Excision Complete (genes)</td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Cumulative Cre Excision Complete"]%></td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Cre Excision Complete"]%></td>
+        </tr>
+        <tr>
+          <td>Phenotyping Complete (genes)</td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Cumulative Phenotype Complete"]%></td>
+          <td><%= @report.report_hash["#{consortium}-#{@date}-Phenotyping Complete"]%></td>
+        </tr>
+      </table></dt></dl></div>
+    </td>
+    <td width = "20"><pre>                 </pre></td>
+    <td width = "2000"></br>
+      <dl>
+        <dt><%= image_tag( url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['mi']}"}.merge(params)), :height => '380', :width => @report.size[n])%></dt>
+        </br>
+        <dt><%= image_tag( url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['gc']}"}.merge(params)), :height => '380', :width => @report.size[n]) %></dt>
+      </dl>
+    </td>
+  </tr>
+</table>
+</br></br></br></br>
+<% n += 1%>
+<% end %>

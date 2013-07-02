@@ -101,6 +101,51 @@ class V2::Reports::MiProductionController < ApplicationController
     @summary_by_month = @report.report_hash
   end
 
+   def komp2_graph_report_display
+    @report = Komp2GraphReportDisplay.new
+    date = Komp2GraphReportDisplay.date_previous_month.to_date.at_beginning_of_month
+    @consortia = Komp2GraphReportDisplay.available_consortia
+    @date = date.to_s
+    @date_name = Date::ABBR_MONTHNAMES[date.month]
+  end
+
+
+
+  def graph_report_display_image
+    filename = params[:chart_file_name].split('/').pop
+    charts_folder = File.join(Rails.application.config.paths['tmp'].first, "reports/impc_graph_report_display/charts")
+    file_path = File.join(charts_folder, filename)
+
+    data = File.read(file_path)
+    response.headers["Cache-Control"] = "no-cache"
+    send_data data,
+            :filename => filename,
+            :type => 'image/jpeg',
+            :disposition => 'inline'
+  end
+
+  def graph_report_download_image
+    filename = params[:chart_file_name].split('/').pop
+    charts_folder = File.join(Rails.application.config.paths['tmp'].first, "reports/impc_graph_report_display/charts")
+    file_path = File.join(charts_folder, filename)
+    if File.exists?(file_path)
+      data = File.read(file_path)
+      response.headers["Cache-Control"] = "no-cache"
+      send_data data,
+            :filename => filename,
+            :type => 'image/jpeg'
+    else
+      flash[:alert] = "Page expired! Please try again"
+      redirect_to :action => 'komp2_graph_report_display'
+
+    end
+  end
+
+
+
+
+
+
   def impc_centre_by_month
     @report = ImpcCentreByMonthReport.new
     @centre_by_month = @report.report_rows

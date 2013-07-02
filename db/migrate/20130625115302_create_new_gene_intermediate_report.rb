@@ -5,6 +5,7 @@ class CreateNewGeneIntermediateReport < ActiveRecord::Migration
   create_table :new_gene_intermediate_report do |t|
       t.string   :gene,         :limit => 75,  :null => false
       t.string   :consortium,   :null => false
+      t.date     :gene_interest_date
       t.string   :production_centre
       t.string   :mgi_accession_id,         :limit => 40
 
@@ -21,6 +22,10 @@ class CreateNewGeneIntermediateReport < ActiveRecord::Migration
       t.date     :assigned_es_cell_qc_in_progress_date
       t.date     :assigned_es_cell_qc_complete_date
       t.date     :aborted_es_cell_qc_failed_date
+
+      t.string   :sub_project
+      t.string   :priority
+      t.boolean  :is_bespoke_allele
 
       t.string   :ikmc_project_id
       t.string   :mutation_sub_type,        :limit => 100

@@ -269,6 +269,11 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert_equal [url, url], @docs.map {|d| d['genbank_file_url']}
       end
 
+      should 'set simple_allele_image_url' do
+        url = "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image?simple=true"
+        assert_equal [url, url], @docs.map {|d| d['simple_allele_image_url']}
+      end
+
       context 'order_from_urls and order_from_names' do
         should 'be set for any of the EUCOMM pipelines' do
           expected_url = ['http://www.eummcr.org/order.php']

@@ -50,6 +50,7 @@ class SolrUpdate::DocFactory
     solr_doc['allele_name'] = mi_attempt.allele_symbol
 
     solr_doc['allele_image_url'] = allele_image_url(mi_attempt.allele_id)
+    solr_doc['simple_allele_image_url'] = allele_image_url(mi_attempt.allele_id, :simple => true)
 
     solr_doc['genbank_file_url'] = genbank_file_url(mi_attempt.allele_id)
 
@@ -90,6 +91,8 @@ class SolrUpdate::DocFactory
     solr_doc['allele_name'] = phenotype_attempt.allele_symbol
 
     solr_doc['allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :cre => true)
+
+    solr_doc['simple_allele_image_url'] = allele_image_url(phenotype_attempt.allele_id, :cre => true, :simple => true)
 
     solr_doc['genbank_file_url'] = genbank_file_url(phenotype_attempt.allele_id, :cre => true)
 
@@ -177,6 +180,7 @@ class SolrUpdate::DocFactory
         'strain' => es_cell_info[:strain],
         'allele_name' => "#{marker_symbol}<sup>#{es_cell_info[:mgi_allele_symbol_superscript]}</sup>",
         'allele_image_url' => allele_image_url(allele.id),
+        'simple_allele_image_url' => allele_image_url(allele.id, :simple => true),
         'genbank_file_url' => genbank_file_url(allele.id),
         'order_from_urls' => [order_from_info[:url]],
         'order_from_names' => [order_from_info[:name]]

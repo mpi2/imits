@@ -233,9 +233,10 @@ class MiPlanTest < ActiveSupport::TestCase
           :mi_plan => plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
           :mi_date => '2011-12-12',
-          :is_active => false
+          :is_active => false,
+          :mi_date => '2011-10-10 00:00 UTC'
+
           replace_status_stamps(inactive_mi,
-          'mip' => '2011-10-10 00:00 UTC',
           'abt' => Time.now
           )
 
@@ -244,30 +245,22 @@ class MiPlanTest < ActiveSupport::TestCase
           :mi_plan => plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
           :mi_date => '2011-12-12',
-          :is_active => true
-          replace_status_stamps(older_mi_1,
-          'mip' => '2011-03-02 00:00 UTC'
-          )
+          :is_active => true,
+          :mi_date => '2011-03-02 00:00 UTC'
 
           latest_mi = Factory.create :mi_attempt2,
           :colony_name => 'B',
           :mi_plan => plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :mi_date => '2011-12-12',
+          :mi_date => '2011-11-02 00:00 UTC',
           :is_active => true
-          replace_status_stamps(latest_mi,
-          'mip' => '2011-11-02 00:00 UTC'
-          )
 
           older_mi_2 = Factory.create :mi_attempt2,
           :colony_name => 'D',
           :mi_plan => plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :mi_date => '2011-12-13',
+          :mi_date => '2011-09-02 00:00 UTC',
           :is_active => true
-          replace_status_stamps(older_mi_2,
-          'mip' => '2011-09-02 00:00 UTC'
-          )
 
           mi_plan = older_mi_1.mi_plan
 
@@ -319,9 +312,10 @@ class MiPlanTest < ActiveSupport::TestCase
           :colony_name => 'Z',
           :mi_plan => bash_wtsi_cbx1_plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => false
+          :is_active => false,
+          :mi_date => '2012-02-02 00:00 UTC'
+
           replace_status_stamps(abrt_mi,
-          ip => '2012-02-02 00:00 UTC',
           abrt => '2012-04-02 00:00 UTC'
           )
 
@@ -329,18 +323,17 @@ class MiPlanTest < ActiveSupport::TestCase
           :colony_name => 'D',
           :mi_plan => bash_wtsi_cbx1_plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true
-          replace_status_stamps(ip_mi,
-          ip => '2012-01-02 00:00 UTC'
-          )
+          :is_active => true,
+          :mi_date => '2012-01-02 00:00 UTC'
 
           latest_mi = Factory.create :mi_attempt2_status_gtc,
           :colony_name => 'C',
           :mi_plan => bash_wtsi_cbx1_plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true
+          :is_active => true,
+          :mi_date => '2011-05-05 00:00 UTC'
+
           replace_status_stamps(latest_mi,
-          ip => '2011-05-05 00:00 UTC',
           co => '2011-06-05',
           gc => '2011-07-05 00:00 UTC'
           )
@@ -349,9 +342,10 @@ class MiPlanTest < ActiveSupport::TestCase
           :colony_name => 'B',
           :mi_plan => bash_wtsi_cbx1_plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true
+          :is_active => true,
+          :mi_date => '2011-04-05 00:00 UTC'
+
           replace_status_stamps(older_mi_1,
-          ip => '2011-04-05 00:00 UTC',
           co => '2011-05-05',
           gc => '2011-06-05 00:00 UTC'
           )
@@ -369,9 +363,10 @@ class MiPlanTest < ActiveSupport::TestCase
           :mi_plan => bash_wtsi_cbx1_plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
           :total_male_chimeras => 1,
-          :is_active => false
+          :is_active => false,
+          :mi_date => '2012-02-02 00:00 UTC'
+
           replace_status_stamps(abrt_mi,
-          ip => '2012-02-02 00:00 UTC',
           co => '2012-03-02',
           abrt => '2012-04-02 00:00 UTC'
           )
@@ -380,18 +375,17 @@ class MiPlanTest < ActiveSupport::TestCase
           :colony_name => 'D',
           :mi_plan => bash_wtsi_cbx1_plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true
-          replace_status_stamps(ip_mi,
-          ip => '2012-01-02 00:00 UTC'
-          )
+          :is_active => true,
+          :mi_date => '2012-01-02 00:00 UTC'
 
           latest_mi = Factory.create :mi_attempt2_status_chr,
           :colony_name => 'C',
           :mi_plan => bash_wtsi_cbx1_plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true
+          :is_active => true,
+          :mi_date => '2011-05-05 00:00 UTC'
+
           replace_status_stamps(latest_mi,
-          ip => '2011-05-05 00:00 UTC',
           co => '2011-07-05'
           )
 
@@ -399,9 +393,10 @@ class MiPlanTest < ActiveSupport::TestCase
           :colony_name => 'B',
           :mi_plan => bash_wtsi_cbx1_plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true
+          :is_active => true,
+          :mi_date => '2011-04-05 00:00 UTC'
+
           replace_status_stamps(older_mi_1,
-          ip => '2011-04-05 00:00 UTC',
           co => '2011-06-05'
           )
 
@@ -926,19 +921,18 @@ class MiPlanTest < ActiveSupport::TestCase
 
         mi_plan_args = {
           :mi_plan => bash_wtsi_cbx1_plan(:force_assignment => true),
-          :es_cell => Factory.create(:es_cell, :allele => allele)
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :mi_date => '2010-05-13 05:04:01 UTC'
         }
 
         mi_attempt1 = Factory.create(:mi_attempt2_status_gtc, mi_plan_args)
         replace_status_stamps(mi_attempt1, [
           ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
-          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
         ])
 
         mi_attempt2 = Factory.create(:mi_attempt2_status_gtc, mi_plan_args)
         replace_status_stamps(mi_attempt2, [
           ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
-          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
         ])
 
         mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
@@ -946,22 +940,17 @@ class MiPlanTest < ActiveSupport::TestCase
 
         replace_status_stamps(mi_attempt3, [
           ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
-          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
         ])
 
         mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
         mi_attempt4 = Factory.create(:mi_attempt2, mi_plan_args)
-
-        replace_status_stamps(mi_attempt4, [
-          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
-        ])
 
         mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
         newer_mi_attempt = Factory.create(:mi_attempt2_status_gtc, mi_plan_args)
 
         mi_plan = mi_attempt1.mi_plan.reload
         result = mi_plan.distinct_old_genotype_confirmed_es_cells_count
-        assert_equal 2, result
+        assert_equal 3, result
       end
 
       should 'not treat aborted MIs with a GC status stamp as GC' do
@@ -988,31 +977,24 @@ class MiPlanTest < ActiveSupport::TestCase
 
         mi_plan_args = {
           :mi_plan => bash_wtsi_cbx1_plan(:force_assignment => true),
-          :es_cell => Factory.create(:es_cell, :allele => allele)
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :mi_date => '2010-05-13 05:04:01 UTC'
         }
 
         mi_attempt1 = Factory.create(:mi_attempt2, mi_plan_args)
-        replace_status_stamps(mi_attempt1, [
-          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
-        ])
 
         mi_attempt2 = Factory.create(:mi_attempt2, mi_plan_args.merge(:is_active => false))
         replace_status_stamps(mi_attempt2, [
-          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC'],
           ['Micro-injection aborted', '2010-05-13 05:04:01 UTC'],
         ])
 
         mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
         mi_attempt3 = Factory.create(:mi_attempt2, mi_plan_args)
-        replace_status_stamps(mi_attempt3, [
-          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
-        ])
 
         mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
         mi_attempt4 = Factory.create(:mi_attempt2_status_gtc, mi_plan_args)
         replace_status_stamps(mi_attempt4, [
-          ['Genotype confirmed', '2011-05-13 05:04:01 UTC'],
-          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
+          ['Genotype confirmed', '2011-05-13 05:04:01 UTC']
         ])
 
         mi_plan_args[:es_cell] = Factory.create(:es_cell, :allele => allele)
@@ -1020,25 +1002,25 @@ class MiPlanTest < ActiveSupport::TestCase
 
         mi_plan = mi_attempt1.mi_plan.reload
         result = mi_attempt1.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
-        assert_equal 2, result
+        assert_equal 3, result
       end
 
       should 'not treat aborted MIs with a GC status stamp as GC' do
         assert cbx1
         mi_plan_args = {
           :mi_plan => bash_wtsi_cbx1_plan(:force_assignment => true),
-          :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1))
+          :es_cell => Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1)),
+          :mi_date => '2010-05-13'
         }
 
         mi_attempt = Factory.create(:mi_attempt2_status_gtc, :is_active => false)
         replace_status_stamps(mi_attempt,
-        'Micro-injection in progress' => '2010-05-13',
         'Genotype confirmed' => '2010-11-12',
         'Micro-injection aborted' => '2010-12-11'
         )
 
         result = mi_attempt.mi_plan.distinct_old_non_genotype_confirmed_es_cells_count
-        assert_equal 1, result
+        assert_equal 0, result
       end
     end
 
@@ -1165,11 +1147,7 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'find one beyond six months old' do
-        mi_attempt1 = Factory.create(:mi_attempt2)
-
-        replace_status_stamps(mi_attempt1, [
-          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
-        ])
+        mi_attempt1 = Factory.create(:mi_attempt2, :mi_date => '2010-05-13 05:04:01 UTC')
 
         mi_plan = mi_attempt1.mi_plan.reload
         result = mi_attempt1.mi_plan.total_pipeline_efficiency_gene_count
@@ -1207,12 +1185,7 @@ class MiPlanTest < ActiveSupport::TestCase
       end
 
       should 'find one beyond six months old' do
-        mi_attempt1 = Factory.create(:mi_attempt2)
-
-        replace_status_stamps(mi_attempt1, [
-          ['Micro-injection in progress', '2010-05-13 05:04:01 UTC']
-        ])
-
+        mi_attempt1 = Factory.create(:mi_attempt2, :mi_date => '2010-05-13 05:04:01 UTC')
         mi_plan = mi_attempt1.mi_plan.reload
         result = mi_attempt1.mi_plan.total_pipeline_efficiency_gene_count
         assert_equal 1, result

@@ -300,20 +300,6 @@ class MiAttemptsControllerTest < ActionController::TestCase
         assert_equal(expected, JSON.parse(response.body))
       end
 
-      should 'not authorize the MI belongs to the user\'s production centre via HTML' do
-        assert_equal 'WTSI', default_user.production_centre.name
-        es_cell = Factory.create :es_cell_EPD0127_4_E01_without_mi_attempts, :allele => Factory.create(:allele_with_gene_trafd1)
-        mi_plan = (Factory.create :mi_plan, :gene => es_cell.gene,
-                             :production_centre => Centre.find_by_name!('ICS'),
-                             :consortium => Consortium.find_by_name!('BaSH'),
-                             :status => MiPlan::Status[:Assigned])
-        post :create, :mi_attempt => {
-          'es_cell_name' => es_cell.name,
-          'mi_plan_id' => mi_plan.id,
-          'mi_date' => '2011-05-01',
-        }, :format => :html
-        assert_response 302, response.status
-      end
     end
 
     context 'PUT update' do

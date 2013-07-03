@@ -17,7 +17,7 @@
           <th>Month</th>
           <th>Consortium</th>
           <% @clone_columns.each do |column| %>
-            <th><%= column %></th>
+            <th><%= column + ' (genes)'%></th>
           <% end %>
         </tr>
       </thead>
@@ -54,7 +54,7 @@
           <th>Month</th>
           <th>Consortium</th>
           <% @phenotype_columns.each do |column| %>
-            <th><%= column %></th>
+            <th><%= column + ' (genes)'%></th>
           <% end %>
         </tr>
       </thead>

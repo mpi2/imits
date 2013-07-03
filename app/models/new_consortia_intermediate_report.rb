@@ -9,6 +9,7 @@ class NewConsortiaIntermediateReport < ActiveRecord::Base
 end
 
 
+
 # == Schema Information
 #
 # Table name: new_consortia_intermediate_report
@@ -16,6 +17,7 @@ end
 #  id                                           :integer         not null, primary key
 #  gene                                         :string(75)      not null
 #  consortium                                   :string(255)     not null
+#  gene_interest_date                           :date
 #  production_centre                            :string(255)
 #  mgi_accession_id                             :string(40)
 #  overall_status                               :string(50)
@@ -29,6 +31,9 @@ end
 #  assigned_es_cell_qc_in_progress_date         :date
 #  assigned_es_cell_qc_complete_date            :date
 #  aborted_es_cell_qc_failed_date               :date
+#  sub_project                                  :string(255)
+#  priority                                     :string(255)
+#  is_bespoke_allele                            :boolean
 #  ikmc_project_id                              :string(255)
 #  mutation_sub_type                            :string(100)
 #  allele_symbol                                :string(255)

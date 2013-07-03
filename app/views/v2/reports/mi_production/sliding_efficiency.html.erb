@@ -4,6 +4,26 @@
 
 <% @title = "#{@consortium_name} / #{@production_centre_name} Moving Pipeline Efficiency" %>
 
+<div class='report sliding-efficiency'>
+  <% @effort_efficiency_totals.each do |efficiency| %>
+    <% if efficiency['production_centre_name'] == @production_centre_name %>
+      <h2>Overall Pipeline Efficiency</h2>
+
+      <p>The Overall Pipeline Efficiency = (Unique number of Genes for Genotype Confirmed MI's) / (Total number of MI's)</p>
+
+      <table align="center"><tr>
+        <th>Total GC genes > 6 months</th>
+        <th>All Microinjections > 6 months</th>
+        <th>Overall Pipeline efficiency</th>
+      </tr><tr>
+        <td><%= link_to(efficiency["gene_count"].to_i, genes_gt_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
+        <td><%= link_to(efficiency["total_injections"].to_i, all_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
+        <td><%= link_to((efficiency["gene_count"].to_f / efficiency["total_injections"].to_f).round(2), all_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
+      </tr></table>
+    <% end %>
+  <% end %>
+</div></br>
+
 <h2><%= @title %></h2>
 
 <!--<p><%= link_to 'Download as CSV', report_csv_path %></p>-->
@@ -17,18 +37,7 @@
   <p>
     This is the same efficiency calculation used in the standard report page, with the exception that it's performed on a bin of 50 MI's.
     The date visible on the x-axis is the date of the earliest MI in each bin"
-  </p>
-
-  <div>
-    <% if @effort_efficiency_totals.count == 1 %>
-      <table><tr>
-        <th>Total GC genes > 6 months</th>
-        <td><%= link_to(@effort_efficiency_totals.first["gene_count"].to_i, genes_gt_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
-        <th>All Microinjections > 6 months</th>
-        <td><%= link_to(@effort_efficiency_totals.first["total_injections"].to_i, all_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
-      </tr></table>
-    <% end %>
-  </div>
+  </p></br>
 
   <div class='wrap'>
     <% left = 0 %>

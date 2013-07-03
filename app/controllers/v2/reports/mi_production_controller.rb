@@ -142,10 +142,6 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
 
-
-
-
-
   def impc_centre_by_month
     @report = ImpcCentreByMonthReport.new
     @centre_by_month = @report.report_rows
@@ -185,6 +181,9 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_name = params[:consortium] || params[:consortium_name] || params[:consortia]
     @production_centre_name = params[:centre] || params[:production_centre_name] || params[:centre_name]
     @report = SlidingEfficiencyReport.new(@consortium_name, @production_centre_name)
+    bpr = BaseProductionReport.new
+    bpr.class.available_consortia = [@consortium_name]
+    @effort_efficiency_totals = bpr.effort_efficiency_totals
   end
 
   private

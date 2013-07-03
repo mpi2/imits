@@ -229,7 +229,7 @@ class BaseSummaryByMonthReport
             CROSS JOIN (
               SELECT
                 new_consortia_intermediate_report.consortium,
-                CASE WHEN gene_consortium_commence_date.commenece_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE gene_consortium_commence_date.commenece_date END AS commenece_date,
+                CASE WHEN new_consortia_intermediate_report.gene_interest_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE new_consortia_intermediate_report.gene_interest_date END AS commenece_date,
                 CASE WHEN assigned_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE assigned_date END AS assigned_date,
                 CASE WHEN assigned_es_cell_qc_in_progress_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE assigned_es_cell_qc_in_progress_date END AS assigned_es_cell_qc_in_progress_date,
                 CASE WHEN assigned_es_cell_qc_complete_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE assigned_es_cell_qc_complete_date END AS assigned_es_cell_qc_complete_date,
@@ -247,15 +247,6 @@ class BaseSummaryByMonthReport
                 CASE WHEN phenotyping_complete_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotyping_complete_date END AS phenotyping_complete_date,
                 CASE WHEN phenotype_attempt_aborted_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotype_attempt_aborted_date END AS phenotype_attempt_aborted_date
               FROM new_consortia_intermediate_report
-              JOIN
-                (SELECT genes.marker_symbol AS gene, consortia.name AS consortium, min(mi_plan_commence_date.mi_plan_date) AS commenece_date
-                   FROM mi_plans
-                   JOIN (SELECT mi_plan_id as mi_plan_id, min(created_at) as mi_plan_date FROM mi_plan_status_stamps GROUP BY mi_plan_id) AS mi_plan_commence_date ON mi_plan_commence_date.mi_plan_id = mi_plans.id
-                   JOIN genes ON genes.id = mi_plans.gene_id
-                   JOIN consortia ON consortia.id = mi_plans.consortium_id
-                 GROUP BY gene, consortium
-                 ) AS gene_consortium_commence_date
-                 ON gene_consortium_commence_date.gene = new_consortia_intermediate_report.gene AND gene_consortium_commence_date.consortium = new_consortia_intermediate_report.consortium
             ) as report
             WHERE report.consortium in ('#{available_consortia.join('\', \'')}')
             GROUP BY series.date, report.consortium

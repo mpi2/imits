@@ -21,15 +21,15 @@ class ImpcCentreByMonthReport
   end
 
   def cumulative_clones
-    @cumulative_clones ||= ActiveRecord::Base.connection.execute(self.class.cumulative_clones_sql).to_a
+    @cumulative_clones ||= ActiveRecord::Base.connection.execute(self.class.cumulative_clones_sql(self.class.real_start_date) ).to_a
   end
 
   def cumulative_genes
-    @cumulative_cre ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql).to_a
+    @cumulative_cre ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql(self.class.real_start_date) ).to_a
   end
 
   def cumulative_received
-    @cumulative_received ||= ActiveRecord::Base.connection.execute(self.class.cumulative_received_sql).to_a
+    @cumulative_received ||= ActiveRecord::Base.connection.execute(self.class.cumulative_received_sql(self.class.real_start_date) ).to_a
   end
 
   def by_month_received
@@ -42,36 +42,31 @@ class ImpcCentreByMonthReport
 
   def generate_cumulatives
     total_to_date = {}
-    # remove es_cells_received from cumulative _clones and by_month_clones. should only include genes.
-    (cumulative_clones.map{|a| s= a.dup; s.delete('es_cells_received');s } + cumulative_genes + cumulative_received +  by_month_clones.map{|a| s= a.dup; s.delete('es_cells_received');s } + by_month_genes + by_month_received ).each do |report_row|
-      centre = report_row['production_centre']
-      if !total_to_date.has_key?(centre)
-        total_to_date[centre] = {
-           'mi_in_progress_count_cumulative'               => 0,
-           'mi_in_progress_count_goal_cumulative'          => 0,
-           'genotype_confirmed_count_cumulative'           => 0,
-           'genotype_confirmed_count_goal_cumulative'      => 0,
-           'cre_excised_or_better_count_cumulative'        => 0,
-           'cre_excised_or_better_count_goal_cumulative'   => 0,
-           'phenotype_started_or_better_count_cumulative'  => 0,
-           'phenotype_started_or_better_count_goal_cumulative'  => 0,
-           'phenotype_complete_count_cumulative'           => 0,
-           'phenotype_complete_count_goal_cumulative'      => 0,
-           'es_cells_received_cumulative'                  => 0,
-           'eucomm_required_cumulative'                    => 0,
-           'komp_required_cumulative'                      => 0,
-           'norcomm_required_cumulative'                   => 0,
-           'wtsi_required_cumulative'                      => 0
-          }
-      end
 
-      report_row.each do |column, value|
-        if total_to_date[centre].has_key?("#{column}_cumulative")
-          puts "#{centre} #{column} #{value}"
-          total_to_date[centre]["#{column}_cumulative"] += value.to_i
+    to_date_cumulative ||= ActiveRecord::Base.connection.execute(self.class.cumulative_genes_sql(self.class.end_date) ).to_a
+    to_date_clones = ActiveRecord::Base.connection.execute(self.class.cumulative_clones_sql(self.class.end_date) ).to_a
+    to_date_received = ActiveRecord::Base.connection.execute(self.class.cumulative_received_sql(self.class.end_date) ).to_a
+
+    (to_date_clones + to_date_cumulative).each do |report_row|
+      centre = report_row['production_centre']
+      total_to_date[centre] = {} if ! total_to_date[centre]
+      self.class.columns.each do |column, key|
+        total_to_date[centre]["#{key}_cumulative"] = report_row[key].to_i if report_row[key].to_i > 0
+
+        if report_row["#{key}_goal"].to_i > 0
+          total_to_date[centre]["#{key}_goal_cumulative"] = report_row["#{key}_goal"]
         end
       end
     end
+
+    to_date_received.each do |report_row|
+      centre = report_row['production_centre']
+      total_to_date[centre] = {} if ! total_to_date[centre]
+      self.class.es_cell_supply_columns.each do |column, key|
+        total_to_date[centre]["#{key}_cumulative"] = report_row[key].to_i if report_row[key].to_i > 0
+      end
+    end
+
     return total_to_date
   end
 
@@ -171,8 +166,12 @@ class ImpcCentreByMonthReport
       Date.parse("#{year}-03-01").to_s(:db)
     end
 
+    def real_start_date
+      Date.parse(start_date) - 1.month
+    end
+
     def formatted_start_date
-      (Date.parse(start_date) - 1.month).strftime('%b %Y')
+      Date.parse(real_start_date.to_s).strftime('%b %Y')
     end
 
     ## Don't report incomplete month
@@ -199,7 +198,7 @@ class ImpcCentreByMonthReport
       ]
     end
 
-    def cumulative_clones_sql
+    def cumulative_clones_sql(cut_off_date)
       <<-EOF
         WITH
           injected_es_cells AS (
@@ -215,7 +214,7 @@ class ImpcCentreByMonthReport
             JOIN centres ON centres.id = mi_plans.production_centre_id
             JOIN consortia ON consortia.id = mi_plans.consortium_id
 
-            JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at < '#{start_date}'
+            JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at < '#{cut_off_date}'
 
         WHERE
           centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
@@ -260,19 +259,29 @@ class ImpcCentreByMonthReport
             counts.production_centre,
             counts.mi_in_progress_count,
             counts.es_cells_received,
-            mip_goals.goal AS mi_in_progress_count_goal
+            clone_goals.mip_goals AS mi_in_progress_count_goal
 
           FROM counts
 
           JOIN centres ON centres.name = production_centre
-          LEFT JOIN tracking_goals AS mip_goals ON mip_goals.date IS NULL AND centres.id = mip_goals.production_centre_id AND mip_goals.goal_type = 'total_injected_clones'
+          LEFT JOIN
+          (
+          SELECT
+            production_centre_id,
+            SUM(CASE WHEN tracking_goals.goal_type = 'total_injected_clones' THEN tracking_goals.goal ELSE 0 END) AS mip_goals
+          FROM tracking_goals
+          WHERE tracking_goals.date IS NULL OR to_number(to_char(tracking_goals.date, 'YYYYMM'),'999999' ) <= (#{(cut_off_date.to_date.strftime('%Y%m'))})
+                AND tracking_goals.goal_type = 'total_injected_clones'
+          GROUP BY production_centre_id
+
+        ) AS clone_goals ON clone_goals.production_centre_id = centres.id
 
           ORDER BY
             production_centre ASC
       EOF
     end
 
-    def cumulative_genes_sql
+    def cumulative_genes_sql (cut_off_date)
       <<-EOF
 
         WITH
@@ -311,7 +320,7 @@ class ImpcCentreByMonthReport
             count(gtc_stamps.*) as genotype_confirmed_count
           FROM genes_with_plans
           JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id and mi_attempts.status_id != 3
-          LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at < '#{start_date}'
+          LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at < '#{cut_off_date}'
 
           GROUP BY
             genes_with_plans.gene_id,
@@ -343,9 +352,9 @@ class ImpcCentreByMonthReport
             count(pc_stamps.*) as phenotype_complete_count
           FROM genes_with_plans
           JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id AND phenotype_attempts.status_id != 1
-          LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at < '#{start_date}'
-          LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at < '#{start_date}'
-          LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at < '#{start_date}'
+          LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at < '#{cut_off_date}'
+          LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at < '#{cut_off_date}'
+          LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at < '#{cut_off_date}'
 
           GROUP BY
             genes_with_plans.gene_id,
@@ -385,23 +394,30 @@ class ImpcCentreByMonthReport
                   phenotype_centres.phenotype_started_or_better_count,
                   phenotype_centres.phenotype_complete_count,
 
-          gtc_goals.goal as genotype_confirmed_count_goal,
-
-          cre_goals.goal as cre_excised_or_better_count_goal,
-          ps_goals.goal as phenotype_started_or_better_count_goal,
-          pc_goals.goal as phenotype_complete_count_goal
+          gene_goals.gtc_goals as genotype_confirmed_count_goal,
+          gene_goals.cre_goals as cre_excised_or_better_count_goal,
+          gene_goals.ps_goals as phenotype_started_or_better_count_goal,
+          gene_goals.pc_goals as phenotype_complete_count_goal
 
                 FROM gtc_centres
 
                 LEFT JOIN phenotype_centres ON phenotype_centres.production_centre = gtc_centres.production_centre
                 JOIN centres ON centres.name = gtc_centres.production_centre
 
-          LEFT JOIN tracking_goals AS gtc_goals ON gtc_goals.date IS NULL AND centres.id = gtc_goals.production_centre_id AND gtc_goals.goal_type = 'total_glt_clones'
-          LEFT JOIN tracking_goals AS cre_goals ON cre_goals.date IS NULL AND centres.id = cre_goals.production_centre_id AND cre_goals.goal_type = 'cre_exicised_genes'
-          LEFT JOIN tracking_goals AS ps_goals ON ps_goals.date IS NULL AND centres.id = ps_goals.production_centre_id AND ps_goals.goal_type = 'phenotype_started_genes'
-          LEFT JOIN tracking_goals AS pc_goals ON pc_goals.date IS NULL AND centres.id = pc_goals.production_centre_id AND pc_goals.goal_type = 'phenotype_complete_genes'
+          LEFT JOIN
+          (
+          SELECT
+            production_centre_id,
+            SUM(CASE WHEN tracking_goals.goal_type = 'total_glt_clones' THEN tracking_goals.goal ELSE 0 END) AS gtc_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'cre_exicised_genes' THEN tracking_goals.goal ELSE 0 END) AS cre_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_started_genes' THEN tracking_goals.goal ELSE 0 END) AS ps_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_complete_genes' THEN tracking_goals.goal ELSE 0 END) AS pc_goals
+          FROM tracking_goals
+          WHERE tracking_goals.date IS NULL OR to_number(to_char(tracking_goals.date, 'YYYYMM'),'999999' ) <= (#{(cut_off_date.to_date.strftime('%Y%m'))})
+                AND tracking_goals.goal_type IN ('total_glt_clones', 'cre_exicised_genes', 'phenotype_started_genes', 'phenotype_complete_genes' )
+          GROUP BY production_centre_id
 
-
+        ) AS gene_goals ON gene_goals.production_centre_id = centres.id
 
       EOF
     end
@@ -626,15 +642,15 @@ class ImpcCentreByMonthReport
       EOF
     end
 
-    def cumulative_received_sql
+    def cumulative_received_sql (cut_off_date)
       <<-EOF
         SELECT
           production_centre,
           es_cells_received,
-          eucomm_required_goals.goal as eucomm_required,
-          komp_required_goals.goal as komp_required,
-          norcomm_required_goals.goal as norcomm_required,
-          wtsi_required_goals.goal as wtsi_required
+          required_goals.eucomm_required_goals as eucomm_required,
+          required_goals.komp_required_goals as komp_required,
+          required_goals.norcomm_required_goals as norcomm_required,
+          required_goals.wtsi_required_goals as wtsi_required
 
         FROM (
         SELECT
@@ -664,17 +680,27 @@ class ImpcCentreByMonthReport
               centres.name = 'Monterotondo' AND consortia.name = 'Monterotondo'
             )
 
-            AND mi_plans.es_cells_received_on < '#{start_date}'
+            AND mi_plans.es_cells_received_on < '#{cut_off_date}'
 
         GROUP BY
           centres.name,
           centres.id
         ) AS counts
 
-        LEFT JOIN tracking_goals AS eucomm_required_goals ON eucomm_required_goals.date IS NULL AND counts.production_centre_id = eucomm_required_goals.production_centre_id AND eucomm_required_goals.goal_type = 'eucomm_required'
-        LEFT JOIN tracking_goals AS komp_required_goals ON komp_required_goals.date IS NULL AND counts.production_centre_id = komp_required_goals.production_centre_id AND komp_required_goals.goal_type = 'komp_required'
-        LEFT JOIN tracking_goals AS norcomm_required_goals ON norcomm_required_goals.date IS NULL AND counts.production_centre_id = norcomm_required_goals.production_centre_id AND norcomm_required_goals.goal_type = 'norcomm_required'
-        LEFT JOIN tracking_goals AS wtsi_required_goals ON wtsi_required_goals.date IS NULL AND counts.production_centre_id = wtsi_required_goals.production_centre_id AND wtsi_required_goals.goal_type = 'wtsi_required'
+        LEFT JOIN (
+          SELECT
+            production_centre_id,
+            SUM(CASE WHEN tracking_goals.goal_type = 'eucomm_required' THEN tracking_goals.goal ELSE 0 END) AS eucomm_required_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'komp_required' THEN tracking_goals.goal ELSE 0 END) AS komp_required_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'norcomm_required' THEN tracking_goals.goal ELSE 0 END) AS norcomm_required_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'wtsi_required' THEN tracking_goals.goal ELSE 0 END) AS wtsi_required_goals
+          FROM tracking_goals
+          WHERE tracking_goals.date IS NULL OR to_number(to_char(tracking_goals.date, 'YYYYMM'),'999999' ) <= (#{(cut_off_date.to_date.strftime('%Y%m'))})
+                AND tracking_goals.goal_type IN ('eucomm_required', 'komp_required', 'norcomm_required', 'wtsi_required' )
+          GROUP BY production_centre_id
+
+        ) AS required_goals ON required_goals.production_centre_id = counts.production_centre_id
+
       EOF
     end
 

@@ -33,9 +33,13 @@
                 <td rowspan='<%= months.size %>'><%= year %></td>
               <% end %>
               <td><%= if date.to_s != '2011-05-01' then date.strftime('%B') else 'Pre June' end %></td>
-              <td width="8%"><%= consortium %></td>
+              <td><%= consortium %></td>
               <% @clone_columns.each do |column| %>
-                <td><%= report_link_to(@summary_by_month, consortium, column, :date => date, :production_group => 'consortia') %></td>
+                <% if ((date.to_s == '2011-05-01') or (column =~ /Cumulative/i)) %>
+                  <td><%= report_link_to(@summary_by_month, consortium, column, :date => date, :production_group => 'consortia', :no_limit =>true) %></td>
+                <% else %>
+                  <td><%= report_link_to(@summary_by_month, consortium, column, :date => date, :production_group => 'consortia') %></td>
+                <% end %>
               <% end %>
             </tr>
 

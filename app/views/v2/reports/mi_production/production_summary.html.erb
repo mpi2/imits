@@ -34,20 +34,20 @@
           <tr>
             <% unless count > 0 %>
               <td rowspan="<%= rowspan %>"><%= row['consortium'] %></td>
-              <td rowspan="<%= rowspan %>"><%= link_to row['count'], report_detail_path(:consortium => row['consortium']) %></td>
+              <td rowspan="<%= rowspan %>"><%= link_to row['count'], report_detail_path(:consortium => row['consortium'], :production_group => 'consortia') %></td>
               <% @mi_plan_statuses.each do |status| %>
-                <td rowspan="<%= rowspan %>"><%= report_link_to(@consortium_by_status, row['consortium'], status) %></td>
+                <td rowspan="<%= rowspan %>"><%= report_link_to(@consortium_by_status, row['consortium'], status, :production_group => 'consortia') %></td>
               <% end %>
             <% end %>
 
             <td><%= centre %></td>
             <td><%= @consortium_centre_by_status[ "#{row['consortium']}-#{centre}-Microinjections-mi_attempt" ] %></td>
             <td><%= @consortium_centre_by_status[ "#{row['consortium']}-#{centre}-Microinjections-clones" ] %></td>
-            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre, :production_group => 'gene') %></td>
             <td><%= @consortium_centre_by_status [ "#{row['consortium']}-#{centre}-Microinjections-in-progress" ] %></td>
-            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Chimeras", :centre => centre) %></td>
-            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre) %></td>
-            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjection aborted", :centre => centre) %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Chimeras", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjection aborted", :centre => centre, :production_group => 'gene') %></td>
             <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-effort_efficiency"].to_f.round(2), sliding_efficiency_path(:production_centre_name => centre, :consortium_name => row['consortium'])) %></td>
           </tr>
 

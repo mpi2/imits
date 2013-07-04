@@ -2,8 +2,8 @@ class V2::Reports::MiProductionController < ApplicationController
 
   before_filter :params_cleaned_for_search, :except => [:all_mi_attempt_summary, :genes_gt_mi_attempt_summary]
 
-  before_filter :authenticate_user!, :except => [:production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
-  before_filter :authenticate_user_if_not_sanger, :only => [:production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
+  before_filter :authenticate_user!, :except => [:production_detail, :gene_production_detail, :consortia_production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
+  before_filter :authenticate_user_if_not_sanger, :only => [:production_detail, :gene_production_detail, :consortia_production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
 
   helper :reports
 
@@ -17,6 +17,16 @@ class V2::Reports::MiProductionController < ApplicationController
 
   def production_detail
     @intermediate_report = NewIntermediateReport.search(params[:q]).result.order('id asc')
+  end
+
+  def gene_production_detail
+    @intermediate_report = NewGeneIntermediateReport.search(params[:q]).result.order('id asc')
+    render :template => 'v2/reports/mi_production/production_detail'
+  end
+
+  def consortia_production_detail
+    @intermediate_report = NewConsortiaIntermediateReport.search(params[:q]).result.order('id asc')
+    render :template => 'v2/reports/mi_production/production_detail'
   end
 
   def komp2_production_summary

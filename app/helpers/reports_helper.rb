@@ -75,7 +75,7 @@ module ReportsHelper
     options[options[:filter_by]] = filter
     options.delete(:filter_by)
 
-    if type =~ /Efficiency|Cumulative|Goal/i
+    if type =~ /Efficiency|Goal/i
       value
     elsif value > 0
       link_to(value, report_detail_path(options))

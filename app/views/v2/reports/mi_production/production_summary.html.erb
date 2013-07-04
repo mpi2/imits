@@ -44,7 +44,7 @@
             <td><%= @consortium_centre_by_status[ "#{row['consortium']}-#{centre}-Microinjections-mi_attempt" ] %></td>
             <td><%= @consortium_centre_by_status[ "#{row['consortium']}-#{centre}-Microinjections-clones" ] %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjections", :centre => centre, :production_group => 'gene') %></td>
-            <td><%= @consortium_centre_by_status [ "#{row['consortium']}-#{centre}-Microinjections-in-progress" ] %></td>
+            <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Micro-injection in progress", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Chimeras", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjection aborted", :centre => centre, :production_group => 'gene') %></td>

@@ -105,7 +105,7 @@ class BaseProductionReport
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Chimeras"]         ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Genotype Confirmed Mice"]   ||= 0
       hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjection aborted"]    ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjections-in-progress"]    ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Micro-injection in progress"]    ||= 0
 
       non_cumulative_status = report_row['mi_attempt_status']
 
@@ -126,7 +126,7 @@ class BaseProductionReport
       end
 
       if 'Micro-injection in progress' == non_cumulative_status
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Microinjections-in-progress"] = report_row['count'].to_i
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Micro-injection in progress"] = report_row['count'].to_i
       end
 
     end

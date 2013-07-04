@@ -17,25 +17,29 @@
           <th>Month</th>
           <th>Consortium</th>
           <% @clone_columns.each do |column| %>
-            <th><%= column %></th>
+            <th><%= column + ' (genes)' %></th>
           <% end %>
         </tr>
       </thead>
       <tbody>
-        
+
         <% @summary_by_month[:dates].keys.each do |year| %>
           <% count = 0 %>
           <% months = @summary_by_month[:dates][year].uniq %>
           <% months.each do |date| %>
-            
+
             <tr>
               <% unless count > 0 %>
                 <td rowspan='<%= months.size %>'><%= year %></td>
               <% end %>
-              <td><%= date.strftime('%B') %></td>
-              <td width="8%"><%= consortium %></td>
+              <td><%= if date.to_s != '2011-05-01' then date.strftime('%B') else 'Pre June' end %></td>
+              <td><%= consortium %></td>
               <% @clone_columns.each do |column| %>
-                <td><%= report_link_to(@summary_by_month, consortium, column, :date => date) %></td>
+                <% if ((date.to_s == '2011-05-01') or (column =~ /Cumulative/i)) %>
+                  <td><%= report_link_to(@summary_by_month, consortium, column, :date => date, :production_group => 'consortia', :no_limit =>true) %></td>
+                <% else %>
+                  <td><%= report_link_to(@summary_by_month, consortium, column, :date => date, :production_group => 'consortia') %></td>
+                <% end %>
               <% end %>
             </tr>
 
@@ -54,25 +58,25 @@
           <th>Month</th>
           <th>Consortium</th>
           <% @phenotype_columns.each do |column| %>
-            <th><%= column %></th>
+            <th><%= column  + ' (genes)' %></th>
           <% end %>
         </tr>
       </thead>
       <tbody>
-        
+
         <% @summary_by_month[:dates].keys.each do |year| %>
           <% count = 0 %>
           <% months = @summary_by_month[:dates][year].uniq %>
           <% months.each do |date| %>
-            
+
             <tr>
               <% unless count > 0 %>
                 <td rowspan='<%= months.size %>'><%= year %></td>
               <% end %>
-              <td><%= date.strftime('%B') %></td>
+              <td><%= if date.to_s != '2011-05-01' then date.strftime('%B') else 'Pre June' end %></td>
               <td width="8%"><%= consortium %></td>
               <% @phenotype_columns.each do |column| %>
-                <td><%= report_link_to(@summary_by_month, consortium, column, :date => date) %></td>
+                <td><%= report_link_to(@summary_by_month, consortium, column, :date => date, :production_group => 'consortia') %></td>
               <% end %>
             </tr>
 

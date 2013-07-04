@@ -81,3 +81,19 @@ end
 #  created_at         :datetime
 #  updated_at         :datetime
 #
+
+# == Schema Information
+#
+# Table name: notifications
+#
+#  id                 :integer         not null, primary key
+#  welcome_email_sent :datetime
+#  welcome_email_text :text
+#  last_email_sent    :datetime
+#  last_email_text    :text
+#  gene_id            :integer         not null
+#  contact_id         :integer         not null
+#  created_at         :datetime
+#  updated_at         :datetime
+#
+

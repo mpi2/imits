@@ -69,7 +69,7 @@
     </div>
 
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :impc_graph_report_display) %>">
+      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :komp2_graph_report_display) %>">
       <h4>Monthly Production for KOMP2 Consortia (summary and graphs)</h4>
       </a>
     </div>
@@ -112,7 +112,7 @@
       <h4>Monthly Production for IMPC Consortia (tables only)</h4>
       </a>
     </div>
-    
+
     <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month) %>">
       <h4>Monthly Production for IMPC Production centres</h4>
@@ -157,7 +157,7 @@
       <p>Matrix showing mouse production for the same gene happening at two of more different consortia</p>
     </a>
   </div>
-  
+
   <h3>Languishing Projects <%= @generated_message %></h3>
     <div class="report-links">
       <a href="<%= url_for(:controller => 'reports/mi_production', :action => :languishing, :consortia => 'BaSH,DTCC,JAX') %>">
@@ -169,7 +169,7 @@
         <h4>All IMPC Languishing Projects</h4>
       </a>
     </div>
-  
+
   <h3>Production Summaries (Legacy)</h3>
   <!--
   <div class="report-links">

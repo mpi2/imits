@@ -41,7 +41,10 @@ begin
 
       task :intermediate_report => [:environment] do
         NewIntermediateReport::Generate.cache
+        NewGeneIntermediateReport::Generate.cache
+        NewConsortiaIntermediateReport::Generate.cache
       end
+
     end
 
   end

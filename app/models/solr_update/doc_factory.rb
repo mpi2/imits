@@ -22,12 +22,26 @@ class SolrUpdate::DocFactory
     end
   end
 
+
   def self.create_for_mi_attempt(mi_attempt)
     solr_doc = {
       'id' => mi_attempt.id,
       'product_type' => 'Mouse',
-      'type' => 'mi_attempt'
+      'type' => 'mi_attempt',
+      'best_status_pa_cre_ex_not_required' => '',
+      'best_status_pa_cre_ex_required' => '',
+      'current_pa_status' => ''
     }
+
+    best_pa_status = mi_attempt.relevant_phenotype_attempt_status
+
+    if best_pa_status
+      if best_pa_status[:cre_excision_required]
+        solr_doc['best_status_pa_cre_ex_required'] = best_pa_status[:name]
+      else
+        solr_doc['best_status_pa_cre_ex_not_required'] = best_pa_status[:name]
+      end
+    end
 
     if mi_attempt.gene.mgi_accession_id
       solr_doc['mgi_accession_id'] = mi_attempt.gene.mgi_accession_id
@@ -62,8 +76,13 @@ class SolrUpdate::DocFactory
     solr_doc = {
       'id' => phenotype_attempt.id,
       'product_type' => 'Mouse',
-      'type' => 'phenotype_attempt'
+      'type' => 'phenotype_attempt',
+      'best_status_pa_cre_ex_not_required' => '',
+      'best_status_pa_cre_ex_required' => '',
+      'current_pa_status' => ''
     }
+
+    solr_doc['current_pa_status'] = phenotype_attempt.status.name
 
     if phenotype_attempt.gene.mgi_accession_id
       solr_doc['mgi_accession_id'] = phenotype_attempt.gene.mgi_accession_id
@@ -158,15 +177,13 @@ class SolrUpdate::DocFactory
       end
 
     end
-
-    #solr_doc['order_from_names'].uniq!
-    #solr_doc['order_from_urls'].uniq!
   end
 
   def self.create_for_allele(allele)
     marker_symbol = allele.gene.marker_symbol
     docs = allele.es_cells.unique_public_info.map do |es_cell_info|
       order_from_info = calculate_order_from_info(es_cell_info.merge(:allele => allele))
+
       {
         'type' => 'allele',
         'id' => allele.id,
@@ -235,7 +252,7 @@ class SolrUpdate::DocFactory
 
     s = gene.relevant_status
 
-    solr_doc['status'] = s[:status].humanize
+    solr_doc['status'] = s[:status].to_s.humanize
     solr_doc['effective_date'] = s[:date]
 
     return [solr_doc]

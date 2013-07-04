@@ -48,7 +48,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
         should 'have a html label' do
           mi_attempt = Factory.create :randomly_populated_mi_attempt
           id = mi_attempt.id
-          status_stamps = mi_attempt.status_stamps.order("created_at DESC")
+          status_stamps = mi_attempt.status_stamps    #.order("created_at DESC")
           symbol = "PA1"
           consortium = mi_attempt.consortium.name
           centre = mi_attempt.production_centre.name
@@ -57,9 +57,16 @@ class NetworkGraphTest < ActiveSupport::TestCase
           colony_name = mi_attempt.colony_name.to_s
           test_cross_strain = CGI.escapeHTML(mi_attempt.test_cross_strain.name)
           status_string = ''
-          status_stamps.each do |status|
-            status_string << "<tr><td>#{status.status.name}:</td><td>#{status.created_at.strftime "%d/%m/%Y"}</td></tr>"
+
+          ['Micro-injection in progress', 'Chimeras obtained', 'Genotype confirmed', 'Micro-injection aborted'].each do |status_name|
+            status_stamps.each do |status|
+              if status_name == status.status.name
+                status_string << "<tr><td>#{status.status.name}:</td><td>#{status.created_at.strftime "%d/%m/%Y"}</td></tr>"
+                break
+              end
+            end
           end
+
           node = NetworkGraph::MiAttemptNode.new(mi_attempt, params= {:symbol => symbol, :url => "" })
           expected = "<<table>" +
                      "<tr><td colspan=\"2\">Mouse Production</td></tr>" +
@@ -71,6 +78,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
                      "<tr><td>Colony name:</td><td>#{colony_name}</td></tr>" +
                      "<tr><td>Test cross strain:</td><td>#{test_cross_strain}</td></tr>" +
                      "</table>>"
+
           got = node.label_html
           assert_equal expected, got
         end

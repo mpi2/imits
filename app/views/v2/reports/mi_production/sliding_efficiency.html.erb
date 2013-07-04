@@ -18,7 +18,7 @@
       </tr><tr>
         <td><%= link_to(efficiency["gene_count"].to_i, genes_gt_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
         <td><%= link_to(efficiency["total_injections"].to_i, all_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
-        <td><%= link_to((efficiency["gene_count"].to_f / efficiency["total_injections"].to_f).round(2), all_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
+        <td><%= (efficiency["gene_count"].to_f / efficiency["total_injections"].to_f).round(2) %></td>
       </tr></table>
     <% end %>
   <% end %>

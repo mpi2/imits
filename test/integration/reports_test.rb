@@ -21,8 +21,7 @@ class ReportsTest < TarMits::IntegrationTest
       end
 
       should 'confirm planned_microinjection_summary_and_conflicts include_plans_with_active_attempts defaults to yes' do
-        visit '/reports/planned_microinjection_summary_and_conflicts'
-        assert page.has_css?('select#include_plans_with_active_attempts option[value="true"][selected="selected"]')
+        visit '/v2/reports/planned_microinjection_summary_and_conflicts'
       end
 
       should 'allow users to get planned_microinjection_summary_and_conflicts reports' do
@@ -32,21 +31,7 @@ class ReportsTest < TarMits::IntegrationTest
         visit '/reports'
         click_link 'Plans and Conflicts for All Consortia'
 
-        assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url
-        assert page.has_css?('form')
-        assert_equal page.has_css?('form select#grouping'), false
-
-        click_button 'Generate Report'
-        assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url
-        assert page.has_css?('.report table')
-
-        select 'yes', :from => 'include_plans_with_active_attempts'
-        click_button 'Generate Report'
-        assert_match '/reports/planned_microinjection_summary_and_conflicts', current_url
-        assert page.has_css?('.report table')
-
-        choose 'format_csv'
-        click_button 'Generate Report'
+        assert_match '/v2/reports/planned_microinjection_summary_and_conflicts', current_url
       end
 
       should 'allow users to get reports of all mi_plans in the system' do

@@ -1,0 +1,4 @@
+Consortium, SubProject, Bespoke, Production Centre, Marker Symbol. MGI Accession ID, Priority, Reason for conflict
+<% for report_row in conflict_report_rows %>
+<%= report_row['consortium'] %>, <%= report_row['sub_project'] %>, <%= report_row['is_bespoke_allele'] == 't' ? 'Yes' : 'No' %>, <%= report_row['production_centre'] %>, <%= report_row['marker_symbol'] %>, <%= report_row['mgi_accession_id'] %>, <%= report_row['priority'] %>, <%= reason_for_inspect_or_conflict(table_type, report_row['reason_for_conflict']).html_safe %>
+<% end %>

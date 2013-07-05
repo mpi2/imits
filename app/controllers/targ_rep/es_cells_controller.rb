@@ -8,13 +8,10 @@ class TargRep::EsCellsController < TargRep::BaseController
     find_escells
     @es_cells = @search
 
-    respond_with do |format|
-      format.html {@es_cells}
-      format.xml  {@es_cells }
-      format.json {@es_cells }
+    respond_to do |format|
+      format.xml {respond_with @es_cells}
+      format.json {respond_with @es_cells.to_json(TargRep::EsCell::JSON_OPTIONS)}
     end
-
-    respond_with @es_cells
   end
 
   def show

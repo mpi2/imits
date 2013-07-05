@@ -22,7 +22,7 @@ module ReportsHelper
 
   def report_csv_path
     return '?format=csv' if request.env['REQUEST_URI'].blank?
-     
+
     uri = request.env['REQUEST_URI']
     if uri =~ /\?/
       uri + '&format=csv'
@@ -44,7 +44,7 @@ module ReportsHelper
       when 'targeted_non_conditional'
         'Targeted Non Conditional'
     end
-      
+
   end
 
   def allele_symbol_for_csv(symbol)
@@ -75,7 +75,7 @@ module ReportsHelper
     options[options[:filter_by]] = filter
     options.delete(:filter_by)
 
-    if type =~ /Efficiency|Cumulative|Goal/i
+    if type =~ /Efficiency|Goal/i
       value
     elsif value > 0
       link_to(value, report_detail_path(options))
@@ -83,10 +83,22 @@ module ReportsHelper
   end
 
   def report_detail_path(options = {})
-    path = SITE_PATH + '/v2/reports/mi_production/production_detail'
-    path = path + '?' + options.to_query unless options.empty?
-  
-    path
+
+    if !options[:production_group].blank?
+      case options[:production_group]
+      when 'gene'
+        options.delete(:production_group)
+        gene_production_detail_path(options)
+      when 'consortia'
+        options.delete(:production_group)
+        consortia_production_detail_path(options)
+      else
+        options.delete(:production_group)
+        production_detail_path(options)
+      end
+    else
+      production_detail_path(options)
+    end
   end
 
   def efficiency_percentage(hash, consortium, centre)
@@ -143,7 +155,7 @@ module ReportsHelper
     else
       total = hash['count'].to_f
     end
-    
+
     subset = hash[type].to_f
 
     (subset / total).round(1)

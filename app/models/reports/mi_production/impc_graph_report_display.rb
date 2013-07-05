@@ -56,7 +56,12 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
     @month = Date::MONTHNAMES[month]
     dataset = {}
     data.each do |consortium, consdata|
-      total = consdata['mi_attempt_data'].count
+      total = 0
+      consdata['mi_attempt_data'].each do |calc|
+        if Date.parse("#{calc['year'].to_s}-#{('0'+calc['month'].to_s)[-2..-1]}-01") >= Date.parse('2011-06-01')
+          total += 1
+        end
+      end
       (0...total).to_a.each do |rowno|
         all_data = consdata['mi_attempt_data'][rowno]
         all_data.update(consdata['phenotype_data'][rowno])
@@ -96,7 +101,7 @@ class Reports::MiProduction::ImpcGraphReportDisplay < Reports::MiProduction::Sum
           dataset[consortium]['tabulate'] << tabulate_data
         end
 
-        if (all_data['year'].to_s + ('0' + all_data['month'].to_s)[-2..-1]).to_i <= (year.to_s + ('0'+month.to_s)[-2..-1]).to_i
+        if ((all_data['year'].to_s + ('0' + all_data['month'].to_s)[-2..-1]).to_i <= (year.to_s + ('0'+month.to_s)[-2..-1]).to_i)
           dataset[consortium]['graph']['mi_goal_data'].insert(0,  all_data['mi_goal'])
           dataset[consortium]['graph']['mi_data'].insert(0,  all_data['cumulative_mis'])
           dataset[consortium]['graph']['mi_diff_data'].insert(0,  all_data['mi_goal'] - all_data['cumulative_mis'])

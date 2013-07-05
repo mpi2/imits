@@ -124,6 +124,10 @@ TarMits::Application.routes.draw do
   match 'v2/reports/mi_production'                     => "v2/reports/mi_production#index"
   match 'v2/reports/mi_production/(:action(.:format))' => "v2/reports/mi_production#:action"
 
+  match 'v2/reports/mi_production/production_detail(.:format)' => "v2/reports/mi_production#production_detail", as: 'production_detail'
+  match 'v2/reports/mi_production/gene_production_detail(.:format)' => "v2/reports/mi_production#gene_production_detail", as: 'gene_production_detail'
+  match 'v2/reports/mi_production/consortia_production_detail(.:format)' => "v2/reports/mi_production#consortia_production_detail", as: 'consortia_production_detail'
+
   match 'v2/reports/mi_production/sliding_efficiency(.:format)' => "v2/reports/mi_production#sliding_efficiency", as: 'sliding_efficiency'
   match 'v2/reports/mi_production/genes_gt_mi_attempt_summary(.:format)' => "v2/reports/mi_production#genes_gt_mi_attempt_summary", as: 'genes_gt_mi_attempt_summary'
   match 'v2/reports/mi_production/all_mi_attempt_summary(.:format)' => "v2/reports/mi_production#all_mi_attempt_summary", as: 'all_mi_attempt_summary'
@@ -154,7 +158,7 @@ TarMits::Application.routes.draw do
 
     resources :gene_traps
     resources :targeted_alleles
-    
+
     resources :alleles do
       get :history, :on => :member
 

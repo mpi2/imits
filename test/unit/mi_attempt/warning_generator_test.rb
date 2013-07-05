@@ -21,7 +21,7 @@ class MiAttempt::WarningGeneratorTest < ActiveSupport::TestCase
         :es_cell_name => Factory.create(:es_cell, :allele => allele).name,
         :mi_plan => mi_plan)
 
-      assert_false mi.generate_warnings, mi.warnings
+      assert_false mi.generate_warnings
       assert_equal nil, mi.warnings
     end
 

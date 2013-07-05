@@ -52,6 +52,7 @@ class TargRep::TargetingVector < ActiveRecord::Base
       options.update(
         :skip_types => true
       )
+      super options
     end
 
     def report_to_public?

@@ -28,6 +28,7 @@ class TargRep::DistributionQcTest < ActiveSupport::TestCase
   should have_db_column(:es_cell_id).of_type(:integer)
   should have_db_column(:es_cell_distribution_centre_id).of_type(:integer)
   should have_db_column(:loxp_srpcr).of_type(:string)
+  should have_db_column(:neo_qpcr).of_type(:string)
   should have_db_column(:unspecified_repository_testing).of_type(:string)
 
   should 'return centre_name' do
@@ -46,12 +47,15 @@ class TargRep::DistributionQcTest < ActiveSupport::TestCase
     :copy_number,
     :five_prime_lr_pcr,
     :three_prime_lr_pcr,
-    :thawing
+    :thawing,
+    :unspecified_repository_testing
   ]
 
   long_attributes = [
     :loa,
     :loxp,
+    :loxp_srpcr,
+    :neo_qpcr,
     :lacz,
     :chr1,
     :chr8a,

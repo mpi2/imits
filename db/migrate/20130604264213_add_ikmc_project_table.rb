@@ -24,7 +24,7 @@ class AddIkmcProjectTable < ActiveRecord::Migration
     TargRep::IkmcProject::Status.create name: 'ES Cells - Electroporation in Progress'
     TargRep::IkmcProject::Status.create name: 'ES Cells - Electroporation Unsuccessful'
     TargRep::IkmcProject::Status.create name: 'ES Cells - No QC Positives'
-    TargRep::IkmcProject::Status.create name: 'ES Cells – Electroporation Unsuccessful'
+    TargRep::IkmcProject::Status.create name: 'ES Cells - Electroporation Unsuccessful'
     TargRep::IkmcProject::Status.create name: 'Mice - Microinjection in progress'
     TargRep::IkmcProject::Status.create name: 'Mice - Genotype confirmed'
     TargRep::IkmcProject::Status.create name: 'Mice - Phenotype Data Available'

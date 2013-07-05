@@ -2,5 +2,5 @@
 
 require 'test_helper'
 
-class TargRep::GeneTrapsControllerTest < TargRep::AllelesControllerTest
-end
+#class TargRep::GeneTrapsControllerTest < TargRep::AllelesControllerTest
+#end

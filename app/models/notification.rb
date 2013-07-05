@@ -30,6 +30,11 @@ class Notification < ActiveRecord::Base
 
   validates :contact_id, :presence => true, :uniqueness => {:scope => :gene_id, :message => "Already registered for this contact and gene"}
 
+  def welcome_email
+    return if welcome_email_text.blank?
+    welcome_email_text
+  end
+
   def last_email
     return if last_email_text.blank?
     last_email_text
@@ -65,6 +70,16 @@ class Notification < ActiveRecord::Base
     result.to_a.map(&:symbolize_keys)
   end
 
+  def send_welcome_email
+    return unless valid?
+
+    if mailer = NotificationMailer.welcome_email(self)
+      self.welcome_email_text = mailer.body.to_s
+      self.welcome_email_sent = Time.now.utc
+      self.save!
+      mailer.deliver
+    end
+  end
 end
 
 # == Schema Information
@@ -96,4 +111,3 @@ end
 #  created_at         :datetime
 #  updated_at         :datetime
 #
-

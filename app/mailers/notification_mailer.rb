@@ -199,7 +199,7 @@ class NotificationMailer < ActionMailer::Base
 
     contacts.each do |contact_id|
       genes_array = []
-      notifications = Notification.where("contact_id = #{contact_id}")
+      notifications = Notification.where("contact_id = #{contact_id} and welcome_email_sent is null")
 
       contact = Contact.find contact_id
 
@@ -228,7 +228,7 @@ class NotificationMailer < ActionMailer::Base
 
         genes_array.each do |gene|
           notification = Notification.find gene[:notification_id]
-          notification.welcome_email_text = mailer.attachments[0].to_s
+          notification.welcome_email_text = mailer.text_part.body.to_s
           notification.welcome_email_sent = Time.now.utc
           notification.save!
         end

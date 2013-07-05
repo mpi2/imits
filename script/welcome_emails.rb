@@ -4,6 +4,29 @@ require 'pp'
 
 raise "#### Not for use in Production!" if Rails.env.production?
 
+set_x = %W{
+  Gm10088
+  Gm14680
+  Nat3
+}
+
+set_0 = %W{
+  Gm10088
+  Gm14680
+  Nat3
+  4930529M08Rik
+  4932438H23Rik
+  Adprhl2
+  Akap14
+  Arhgap22
+  Atp1a3
+  Atxn7l2
+  Bai2
+  Ccar1
+  Ccdc47
+  Ccdc89
+}
+
 set_1 = %W{
   Gm10088
   Gm14680
@@ -431,6 +454,33 @@ def build_welcome_email(contact_email, genes)
   end
 end
 
+def build_welcome_email_immediate(contact_email, genes)
+  ApplicationModel.transaction do
+
+    genes.sort.uniq.each do |g|
+      gene = Gene.find_by_marker_symbol g
+      next if ! gene
+
+      contact = Contact.find(:first, :conditions => [ "lower(email) = ?", contact_email.downcase ])
+      gene = Gene.find(:first, :conditions => [ "lower(mgi_accession_id) = ?", gene.mgi_accession_id.downcase ] )
+
+      nots = nil
+      nots = Notification.where("contact_id = #{contact.id} and gene_id = #{gene.id}") if contact && gene
+      puts "#### already registered email: #{contact.email} - gene: #{gene.mgi_accession_id}" if nots && nots.size > 0
+      next if nots && nots.size > 0
+
+      notification = Notification.new(:contact_email => contact_email, :gene_mgi_accession_id => gene.mgi_accession_id)
+      notification.save!
+
+      #mailer = NotificationMailer.welcome_email(notification)
+      #mailer.deliver
+
+      notification.send_welcome_email
+    end
+
+  end
+end
+
 def notifications_counts(contact_email)
   contact = Contact.find(:first, :conditions => [ "lower(email) = ?", contact_email.downcase ])
   nots = Notification.where("contact_id = #{contact.id}") if contact
@@ -456,40 +506,41 @@ end
 contacts_list = [
   {
     :contact_email => 're4@sanger.ac.uk',
-    :sets => [set_1, set_2],
+    :sets => [set_x],
     :delete => true,
-    :active => false
-  },
-  {
-    :contact_email => 'vvi@sanger.ac.uk',
-    :sets => [set_1, set_2],
-    :delete => true,
-    :active => false
-  },
-  {
-    :contact_email => 'A.Mallon@har.mrc.ac.uk',
-    :sets => [set_1, set_2],
-    :delete => false,
-    :active => false
-  },
-  {
-    :contact_email => 'A.Blake@har.mrc.ac.uk',
-    :sets => [set_1, set_2],
-    :delete => true,
-    :active => false
-  },
-  {
-    :contact_email => 'tmeehan@ebi.ac.uk',
-    :sets => [set_1, set_2],
-    :delete => true,
-    :active => false
-  },
-  {
-    :contact_email => 'Lauryl.Nutter@phenogenomics.ca',
-    :sets => [set_2],
-    :delete => true,
-    :active => false
+    :active => true
   }
+  #,
+  #{
+  #  :contact_email => 'vvi@sanger.ac.uk',
+  #  :sets => [set_1, set_2],
+  #  :delete => true,
+  #  :active => false
+  #},
+  #{
+  #  :contact_email => 'A.Mallon@har.mrc.ac.uk',
+  #  :sets => [set_1, set_2],
+  #  :delete => false,
+  #  :active => false
+  #},
+  #{
+  #  :contact_email => 'A.Blake@har.mrc.ac.uk',
+  #  :sets => [set_1, set_2],
+  #  :delete => true,
+  #  :active => false
+  #},
+  #{
+  #  :contact_email => 'tmeehan@ebi.ac.uk',
+  #  :sets => [set_1, set_2],
+  #  :delete => true,
+  #  :active => false
+  #},
+  #{
+  #  :contact_email => 'Lauryl.Nutter@phenogenomics.ca',
+  #  :sets => [set_2],
+  #  :delete => true,
+  #  :active => false
+  #}
 ]
 
 contacts_list.each do |contact|
@@ -500,7 +551,8 @@ contacts_list.each do |contact|
 
   contact[:sets].each do |set|
     delete_notifications(contact[:contact_email]) if contact[:delete]
-    build_welcome_email(contact[:contact_email], set)
-    NotificationMailer.send_welcome_email_bulk
+    #build_welcome_email(contact[:contact_email], set)
+    #NotificationMailer.send_welcome_email_bulk
+    build_welcome_email_immediate(contact[:contact_email], set)
   end
 end

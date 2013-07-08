@@ -279,7 +279,7 @@ class TargRep::AllelesController < TargRep::BaseController
   end
 
   def genbank_data
-    if params[:type] == 'allele' || params[:type] == 'cassette'
+    if params[:method].blank? && (params[:type] == 'allele' || params[:type] == 'cassette')
       @allele.genbank_file.escell_clone
     elsif params[:type] == 'allele' && params[:method] == 'cre'
       @allele.genbank_file.escell_clone_cre
@@ -287,7 +287,7 @@ class TargRep::AllelesController < TargRep::BaseController
       @allele.genbank_file.escell_clone_flp
     elsif params[:type] == 'allele' && params[:method] == 'flp_cre'
       @allele.genbank_file.escell_clone_flp_cre
-    elsif params[:type] == 'vector'
+    elsif params[:method].blank? && params[:type] == 'vector'
       @allele.genbank_file.targeting_vector
     elsif params[:type] == 'vector' && params[:method] == 'cre'
       @allele.genbank_file.targeting_vector_cre

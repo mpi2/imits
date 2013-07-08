@@ -27,6 +27,14 @@
 	margin-bottom: 5px;
 }
 
+#header_ro h1 a {
+	display: block;
+	background: url('../images/imits_logo_ro.png') no-repeat left center;
+	height: 65px;
+	text-indent: -9999px;
+	margin-bottom: 5px;
+}
+
 #footer {
     margin-top: 2em;
 	margin-bottom: 2em;

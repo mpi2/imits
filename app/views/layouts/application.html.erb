@@ -20,7 +20,8 @@
   </head>
 
   <body>
-    <div id="header" class="container_12">
+    <% header_id = current_user ? "header" : "header_ro" %>
+    <div id="<%= header_id %>" class="container_12">
       <div class="grid_8">
         <h1><%= link_to 'iMits', root_path %></h1>
       </div>
@@ -48,7 +49,7 @@
     <% end %>
 
     <div id="messages" class="container_12">
-      <% if !Rails.env.production? %>
+      <% if current_user && !Rails.env.production? %>
         <%= render_message :warning do %>
           PLEASE NOTE: This site is currently in 'development/testing' mode. This means that:
           <ul>

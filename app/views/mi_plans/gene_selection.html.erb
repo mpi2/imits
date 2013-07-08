@@ -1,4 +1,4 @@
-<% @tab = 'Gene Selection' %>
+<% @tab = 'Gene Summary' %>
 
 <%
   gene_search_params = params[:q]
@@ -86,7 +86,7 @@
 
   <% if ! current_user %>
   <fieldset class="collapsible">
-    <legend>Overview</legend>
+    <legend>Description of table</legend>
     <div>
 
       <!--TODO: create a class for the paragraph-->
@@ -119,4 +119,3 @@
 <div class="clear"></div>
 
 <div id="mi-planning-grid"></div>
-

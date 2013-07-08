@@ -13,24 +13,28 @@ class AddIkmcProjectTable < ActiveRecord::Migration
 
     TargRep::IkmcProject::Status.reset_column_information
 
-    TargRep::IkmcProject::Status.create name: 'Design Completed'
+    TargRep::IkmcProject::Status.create name: 'Redesign Requested'
     TargRep::IkmcProject::Status.create name: 'Design Not Possible'
+    TargRep::IkmcProject::Status.create name: 'Withdrawn From Pipeline'
+
+    TargRep::IkmcProject::Status.create name: 'VEGA Annotation Requested'
     TargRep::IkmcProject::Status.create name: 'Design Requested'
+    TargRep::IkmcProject::Status.create name: 'Design Completed'
+
+    TargRep::IkmcProject::Status.create name: 'Vector Unsuccessful - Project Terminated'
+    TargRep::IkmcProject::Status.create name: 'Vector - Initial Attempt Unsuccessful'
     TargRep::IkmcProject::Status.create name: 'Vector Construction in Progress'
     TargRep::IkmcProject::Status.create name: 'Vector Complete'
-    TargRep::IkmcProject::Status.create name: 'Vector - Initial Attempt Unsuccessful'
-    TargRep::IkmcProject::Status.create name: 'Vector Unsuccessful - Project Terminated'
+
+    TargRep::IkmcProject::Status.create name: 'ES Cells - Electroporation Unsuccessful'
     TargRep::IkmcProject::Status.create name: 'ES Cells - Targeting Confirmed'
     TargRep::IkmcProject::Status.create name: 'ES Cells - Electroporation in Progress'
     TargRep::IkmcProject::Status.create name: 'ES Cells - Electroporation Unsuccessful'
     TargRep::IkmcProject::Status.create name: 'ES Cells - No QC Positives'
-    TargRep::IkmcProject::Status.create name: 'ES Cells - Electroporation Unsuccessful'
+
     TargRep::IkmcProject::Status.create name: 'Mice - Microinjection in progress'
     TargRep::IkmcProject::Status.create name: 'Mice - Genotype confirmed'
     TargRep::IkmcProject::Status.create name: 'Mice - Phenotype Data Available'
-    TargRep::IkmcProject::Status.create name: 'VEGA Annotation Requested'
-    TargRep::IkmcProject::Status.create name: 'Redesign Requested'
-    TargRep::IkmcProject::Status.create name: 'Withdrawn From Pipeline'
 
     add_column :targ_rep_es_cells, :ikmc_project_foreign_id, :integer
     add_column :targ_rep_targeting_vectors, :ikmc_project_foreign_id, :integer

@@ -322,7 +322,17 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
       allele_without_gb = Factory.create :allele
 
       [:allele_image, :vector_image].each do |route|
-        assert_raise(ActiveRecord::RecordNotFound) { get route, :id => allele_without_gb.id }
+        get route, :id => allele_without_gb.id
+
+        expected = {
+          "Content-Disposition" => "inline; filename=\"missing-allele-image.png\"",
+          "Content-Transfer-Encoding" => "binary",
+          "Content-Type" => "image/png",
+          "Cache-Control" => "private"
+        }
+
+        assert_equal expected, response.header
+        assert_response 200
       end
     end
   end

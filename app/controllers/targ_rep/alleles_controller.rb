@@ -256,50 +256,54 @@ class TargRep::AllelesController < TargRep::BaseController
     )
   end
 
-  def has_required_data?
+  def missing_required_data?
     if params[:type].blank?
-      @error_message = 'Incorrect usage. Please follow the links on the page to navigate between allele.'
-      return false
+      Rails.logger.info 'Incorrect usage. Please follow the links on the page to navigate between allele.'
+      return true
     end
     ## Check for a genbank file
     if @allele.genbank_file.nil?
-      @error_message = 'Could not find Genbank file.'
-      return false
+      Rails.logger.info 'Could not find Genbank file.'
+      return true
     end
 
     if params[:type] == 'allele' && (@allele.genbank_file.escell_clone.nil? || @allele.genbank_file.escell_clone.empty?)
-      @error_message = 'Could not find EsCell\'s Genbank file data.'
-      return false
+      Rails.logger.info 'Could not find EsCell\'s Genbank file data.'
+      return true
     elsif params[:type] == 'vector' && @allele.genbank_file.targeting_vector.blank?
-      @error_message = 'Could not find Targeting vector\'s Genbank file data.'
-      return false
+      Rails.logger.info 'Could not find Targeting vector\'s Genbank file data.'
+      return true
     end
 
-    true
+    false
   end
 
   def genbank_data
+    return nil if @allele.genbank_file.blank?
+
     if params[:method].blank? && (params[:type] == 'allele' || params[:type] == 'cassette')
-      @allele.genbank_file.escell_clone
+      return @allele.genbank_file.escell_clone
     elsif params[:type] == 'allele' && params[:method] == 'cre'
-      @allele.genbank_file.escell_clone_cre
+      return @allele.genbank_file.escell_clone_cre
     elsif params[:type] == 'allele' && params[:method] == 'flp'
-      @allele.genbank_file.escell_clone_flp
+      return @allele.genbank_file.escell_clone_flp
     elsif params[:type] == 'allele' && params[:method] == 'flp_cre'
-      @allele.genbank_file.escell_clone_flp_cre
+      return @allele.genbank_file.escell_clone_flp_cre
     elsif params[:method].blank? && params[:type] == 'vector'
-      @allele.genbank_file.targeting_vector
+      return @allele.genbank_file.targeting_vector
     elsif params[:type] == 'vector' && params[:method] == 'cre'
-      @allele.genbank_file.targeting_vector_cre
+      return @allele.genbank_file.targeting_vector_cre
     elsif params[:type] == 'vector' && params[:method] == 'flp'
-      @allele.genbank_file.targeting_vector_flp
+      return @allele.genbank_file.targeting_vector_flp
     elsif params[:type] == 'vector' && params[:method] == 'flp_cre'
-      @allele.genbank_file.targeting_vector_flp_cre
+      return @allele.genbank_file.targeting_vector_flp_cre
     end
+
+    nil
   end
 
   def render_image(options = {})
-    raise ActiveRecord::RecordNotFound, @error_message unless has_required_data?
+    missing_data_image and return if missing_required_data? || genbank_data.blank?
 
     if params[:type] == 'cassette'
       options[:cassetteonly] = true
@@ -309,6 +313,13 @@ class TargRep::AllelesController < TargRep::BaseController
 
     send_allele_image(
       AlleleImage::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }
+    )
+  end
+
+  def missing_data_image
+    send_file(
+      File.join(Rails.root, 'public', 'images', 'missing-allele-image.png'),
+      :disposition => "inline", :type => "image/png"
     )
   end
 

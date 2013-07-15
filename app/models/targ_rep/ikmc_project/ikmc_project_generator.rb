@@ -48,8 +48,12 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         records = ActiveRecord::Base.connection.execute(sql)
 
         records.each do |ikmc_project|
-          TargRep::EsCell.where("ikmc_project_id = '#{ikmc_project['project_name']}' AND pipeline_id = #{ikmc_project['pipeline_id']} AND (ikmc_project_foreign_id IS NULL OR ikmc_project_foreign_id != #{ikmc_project['project_id']})").update_all(:ikmc_project_foreign_id => ikmc_project['project_id'])
-          TargRep::TargetingVector.where("ikmc_project_id = '#{ikmc_project['project_name']}' AND pipeline_id = #{ikmc_project['pipeline_id']} AND (ikmc_project_foreign_id IS NULL OR ikmc_project_foreign_id != #{ikmc_project['project_id']})").update_all(:ikmc_project_foreign_id => ikmc_project['project_id'])
+          TargRep::EsCell.where("ikmc_project_id = '#{ikmc_project['project_name']}' AND pipeline_id = #{ikmc_project['pipeline_id']} AND (ikmc_project_foreign_id IS NULL OR ikmc_project_foreign_id != #{ikmc_project['project_id']})").each do |es_cell|
+            es_cell.update_attributes(:ikmc_project_foreign_id => ikmc_project['project_id'])
+          end
+          TargRep::TargetingVector.where("ikmc_project_id = '#{ikmc_project['project_name']}' AND pipeline_id = #{ikmc_project['pipeline_id']} AND (ikmc_project_foreign_id IS NULL OR ikmc_project_foreign_id != #{ikmc_project['project_id']})").each do |target_vector|
+            target_vector.update_attributes(:ikmc_project_foreign_id => ikmc_project['project_id'])
+          end
         end
       end
 
@@ -158,6 +162,8 @@ module TargRep::IkmcProject::IkmcProjectGenerator
               if create_project.valid?
                 create_project.save
                 data.delete(project_value)
+              else
+                console.log("Invalid project: name => #{record['ikmc_project_name']}, pipeline_id => 7")
               end
             end
           end

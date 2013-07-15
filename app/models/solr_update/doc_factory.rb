@@ -33,15 +33,11 @@ class SolrUpdate::DocFactory
       'current_pa_status' => ''
     }
 
-    best_pa_status = mi_attempt.relevant_phenotype_attempt_status
+    best_pa_status_true = mi_attempt.relevant_phenotype_attempt_status(true)
+    best_pa_status_false = mi_attempt.relevant_phenotype_attempt_status(false)
 
-    if best_pa_status
-      if best_pa_status[:cre_excision_required]
-        solr_doc['best_status_pa_cre_ex_required'] = best_pa_status[:name]
-      else
-        solr_doc['best_status_pa_cre_ex_not_required'] = best_pa_status[:name]
-      end
-    end
+    solr_doc['best_status_pa_cre_ex_required'] = best_pa_status_true[:name]
+    solr_doc['best_status_pa_cre_ex_not_required'] = best_pa_status_false[:name]
 
     if mi_attempt.gene.mgi_accession_id
       solr_doc['mgi_accession_id'] = mi_attempt.gene.mgi_accession_id
@@ -81,6 +77,9 @@ class SolrUpdate::DocFactory
       'best_status_pa_cre_ex_required' => '',
       'current_pa_status' => ''
     }
+
+    solr_doc['best_status_pa_cre_ex_required'] = phenotype_attempt.status.name if phenotype_attempt.cre_excision_required
+    solr_doc['best_status_pa_cre_ex_not_required'] = phenotype_attempt.status.name if ! phenotype_attempt.cre_excision_required
 
     solr_doc['current_pa_status'] = phenotype_attempt.status.name
 

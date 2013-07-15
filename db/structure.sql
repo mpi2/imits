@@ -1771,7 +1771,8 @@ ALTER SEQUENCE targ_rep_genbank_files_id_seq OWNED BY targ_rep_genbank_files.id;
 
 CREATE TABLE targ_rep_ikmc_project_statuses (
     id integer NOT NULL,
-    name character varying(255)
+    name character varying(255),
+    type character varying(255)
 );
 
 
@@ -1800,9 +1801,9 @@ ALTER SEQUENCE targ_rep_ikmc_project_statuses_id_seq OWNED BY targ_rep_ikmc_proj
 
 CREATE TABLE targ_rep_ikmc_projects (
     id integer NOT NULL,
-    name character varying(255),
+    name character varying(255) NOT NULL,
     status_id integer,
-    pipeline_id integer,
+    pipeline_id integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -3725,10 +3726,10 @@ INSERT INTO schema_migrations (version) VALUES ('20130528131803');
 
 INSERT INTO schema_migrations (version) VALUES ('20130528142149');
 
-INSERT INTO schema_migrations (version) VALUES ('20130604264213');
-
 INSERT INTO schema_migrations (version) VALUES ('20130610142149');
 
 INSERT INTO schema_migrations (version) VALUES ('20130625115302');
 
 INSERT INTO schema_migrations (version) VALUES ('20130628145302');
+
+INSERT INTO schema_migrations (version) VALUES ('20130708264213');

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130628145302) do
+ActiveRecord::Schema.define(:version => 20130708264213) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -755,12 +755,13 @@ ActiveRecord::Schema.define(:version => 20130628145302) do
 
   create_table "targ_rep_ikmc_project_statuses", :force => true do |t|
     t.string "name"
+    t.string "type"
   end
 
   create_table "targ_rep_ikmc_projects", :force => true do |t|
-    t.string   "name"
+    t.string   "name",        :null => false
     t.integer  "status_id"
-    t.integer  "pipeline_id"
+    t.integer  "pipeline_id", :null => false
     t.datetime "created_at",  :null => false
     t.datetime "updated_at",  :null => false
   end

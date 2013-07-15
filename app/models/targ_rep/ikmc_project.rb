@@ -18,9 +18,15 @@ class TargRep::IkmcProject < ActiveRecord::Base
   ##
 
   validates :name,
-    :uniqueness => {:message => 'has already been taken'},
     :presence => true
+
+  validates :pipeline_id,
+    :presence => true
+
+  validates_uniqueness_of :name, scope: :pipeline_id
+
 end
+
 
 
 
@@ -29,9 +35,9 @@ end
 # Table name: targ_rep_ikmc_projects
 #
 #  id          :integer         not null, primary key
-#  name        :string(255)
+#  name        :string(255)     not null
 #  status_id   :integer
-#  pipeline_id :integer
+#  pipeline_id :integer         not null
 #  created_at  :datetime        not null
 #  updated_at  :datetime        not null
 #

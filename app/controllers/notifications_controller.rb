@@ -15,8 +15,7 @@ class NotificationsController < ApplicationController
       if @notification.save
 
         if params[:contact][:immediate]
-          mailer = NotificationMailer.welcome_email(@notification)
-          mailer.deliver if mailer
+          @notification.send_welcome_email
         end
 
         render :json => {:success => true}, :status => :success

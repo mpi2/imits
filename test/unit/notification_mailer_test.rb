@@ -269,5 +269,21 @@ class NotificationMailerTest < ActionMailer::TestCase
 
       assert_equal 0, ActionMailer::Base.deliveries.size
     end
+
+    should '#send_welcome_email_bulk - make sure we only send where welcome_email_sent is null' do
+      contact = Factory.create(:contact)
+
+      ['Cbx1', 'Xbnf1', 'Ady3'].each do |gene|
+        notification = Factory.create :notification_simple, {:gene => Factory.create(:gene, :marker_symbol => gene), :contact => contact}
+        notification.welcome_email_sent = Date.today
+        notification.save!
+      end
+
+      assert_equal 3, Notification.all.count
+
+      NotificationMailer.send_welcome_email_bulk
+
+      assert_equal 0, ActionMailer::Base.deliveries.size
+    end
   end
 end

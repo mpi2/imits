@@ -9,7 +9,7 @@
     <% if efficiency['production_centre_name'] == @production_centre_name %>
       <h2>Overall Pipeline Efficiency</h2>
 
-      <p>The Overall Pipeline Efficiency = (Unique number of Genes for Genotype Confirmed MI's) / (Total number of MI's)</p>
+      <p>The Overall Pipeline Efficiency = (Unique number of Genes for Genotype Confirmed MI's whose mi_date is older than 6 month ago) / (Total number of MI's  whose mi_date is older than 6 month ago)</p>
 
       <table align="center"><tr>
         <th>Total GC genes > 6 months</th>

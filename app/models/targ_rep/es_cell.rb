@@ -279,6 +279,7 @@ class TargRep::EsCell < ActiveRecord::Base
 
 end
 
+
 # == Schema Information
 #
 # Table name: targ_rep_es_cells
@@ -331,6 +332,7 @@ end
 #  user_qc_chr8                          :string(255)
 #  user_qc_chry                          :string(255)
 #  user_qc_lacz_qpcr                     :string(255)
+#  ikmc_project_foreign_id               :integer
 #
 # Indexes
 #

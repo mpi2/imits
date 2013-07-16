@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130628145302) do
+ActiveRecord::Schema.define(:version => 20130708264213) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -337,6 +337,9 @@ ActiveRecord::Schema.define(:version => 20130628145302) do
     t.integer  "number_of_es_cells_received"
     t.date     "es_cells_received_on"
     t.integer  "es_cells_received_from_id"
+    t.boolean  "point_mutation",                                :default => false, :null => false
+    t.boolean  "conditional_point_mutation",                    :default => false, :null => false
+    t.text     "allele_symbol_superscript"
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true
@@ -736,6 +739,7 @@ ActiveRecord::Schema.define(:version => 20130628145302) do
     t.string   "user_qc_chr8"
     t.string   "user_qc_chry"
     t.string   "user_qc_lacz_qpcr"
+    t.integer  "ikmc_project_foreign_id"
   end
 
   add_index "targ_rep_es_cells", ["allele_id"], :name => "es_cells_allele_id_fk"
@@ -751,6 +755,19 @@ ActiveRecord::Schema.define(:version => 20130628145302) do
   end
 
   add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
+
+  create_table "targ_rep_ikmc_project_statuses", :force => true do |t|
+    t.string "name"
+    t.string "type"
+  end
+
+  create_table "targ_rep_ikmc_projects", :force => true do |t|
+    t.string   "name",        :null => false
+    t.integer  "status_id"
+    t.integer  "pipeline_id", :null => false
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
+  end
 
   create_table "targ_rep_mutation_methods", :force => true do |t|
     t.string   "name",       :limit => 100, :null => false
@@ -786,14 +803,15 @@ ActiveRecord::Schema.define(:version => 20130628145302) do
   add_index "targ_rep_pipelines", ["name"], :name => "index_targ_rep_pipelines_on_name", :unique => true
 
   create_table "targ_rep_targeting_vectors", :force => true do |t|
-    t.integer  "allele_id",           :null => false
-    t.string   "name",                :null => false
+    t.integer  "allele_id",               :null => false
+    t.string   "name",                    :null => false
     t.string   "ikmc_project_id"
     t.string   "intermediate_vector"
-    t.boolean  "report_to_public",    :null => false
+    t.boolean  "report_to_public",        :null => false
     t.integer  "pipeline_id"
-    t.datetime "created_at",          :null => false
-    t.datetime "updated_at",          :null => false
+    t.datetime "created_at",              :null => false
+    t.datetime "updated_at",              :null => false
+    t.integer  "ikmc_project_foreign_id"
   end
 
   add_index "targ_rep_targeting_vectors", ["allele_id"], :name => "targeting_vectors_allele_id_fk"

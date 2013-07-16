@@ -68,19 +68,21 @@ class TargRep::TargetingVector < ActiveRecord::Base
 
 end
 
+
 # == Schema Information
 #
 # Table name: targ_rep_targeting_vectors
 #
-#  id                  :integer         not null, primary key
-#  allele_id           :integer         not null
-#  name                :string(255)     not null
-#  ikmc_project_id     :string(255)
-#  intermediate_vector :string(255)
-#  report_to_public    :boolean         not null
-#  pipeline_id         :integer
-#  created_at          :datetime        not null
-#  updated_at          :datetime        not null
+#  id                      :integer         not null, primary key
+#  allele_id               :integer         not null
+#  name                    :string(255)     not null
+#  ikmc_project_id         :string(255)
+#  intermediate_vector     :string(255)
+#  report_to_public        :boolean         not null
+#  pipeline_id             :integer
+#  created_at              :datetime        not null
+#  updated_at              :datetime        not null
+#  ikmc_project_foreign_id :integer
 #
 # Indexes
 #

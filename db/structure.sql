@@ -824,7 +824,10 @@ CREATE TABLE mi_plans (
     ignore_available_mice boolean DEFAULT false NOT NULL,
     number_of_es_cells_received integer,
     es_cells_received_on date,
-    es_cells_received_from_id integer
+    es_cells_received_from_id integer,
+    point_mutation boolean DEFAULT false NOT NULL,
+    conditional_point_mutation boolean DEFAULT false NOT NULL,
+    allele_symbol_superscript text
 );
 
 
@@ -1687,7 +1690,8 @@ CREATE TABLE targ_rep_es_cells (
     user_qc_chr11 character varying(255),
     user_qc_chr8 character varying(255),
     user_qc_chry character varying(255),
-    user_qc_lacz_qpcr character varying(255)
+    user_qc_lacz_qpcr character varying(255),
+    ikmc_project_foreign_id integer
 );
 
 
@@ -1762,6 +1766,69 @@ CREATE SEQUENCE targ_rep_genbank_files_id_seq
 --
 
 ALTER SEQUENCE targ_rep_genbank_files_id_seq OWNED BY targ_rep_genbank_files.id;
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_ikmc_project_statuses (
+    id integer NOT NULL,
+    name character varying(255),
+    type character varying(255)
+);
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_ikmc_project_statuses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_ikmc_project_statuses_id_seq OWNED BY targ_rep_ikmc_project_statuses.id;
+
+
+--
+-- Name: targ_rep_ikmc_projects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_ikmc_projects (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    status_id integer,
+    pipeline_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: targ_rep_ikmc_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_ikmc_projects_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_ikmc_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_ikmc_projects_id_seq OWNED BY targ_rep_ikmc_projects.id;
 
 
 --
@@ -1895,7 +1962,8 @@ CREATE TABLE targ_rep_targeting_vectors (
     report_to_public boolean NOT NULL,
     pipeline_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    ikmc_project_foreign_id integer
 );
 
 
@@ -2284,6 +2352,20 @@ ALTER TABLE ONLY targ_rep_genbank_files ALTER COLUMN id SET DEFAULT nextval('tar
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY targ_rep_ikmc_project_statuses ALTER COLUMN id SET DEFAULT nextval('targ_rep_ikmc_project_statuses_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_ikmc_projects ALTER COLUMN id SET DEFAULT nextval('targ_rep_ikmc_projects_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY targ_rep_mutation_methods ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_methods_id_seq'::regclass);
 
 
@@ -2655,6 +2737,22 @@ ALTER TABLE ONLY targ_rep_es_cells
 
 ALTER TABLE ONLY targ_rep_genbank_files
     ADD CONSTRAINT targ_rep_genbank_files_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_ikmc_project_statuses
+    ADD CONSTRAINT targ_rep_ikmc_project_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: targ_rep_ikmc_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_ikmc_projects
+    ADD CONSTRAINT targ_rep_ikmc_projects_pkey PRIMARY KEY (id);
 
 
 --
@@ -3633,6 +3731,10 @@ INSERT INTO schema_migrations (version) VALUES ('20130528142149');
 
 INSERT INTO schema_migrations (version) VALUES ('20130610142149');
 
+INSERT INTO schema_migrations (version) VALUES ('20130615170525');
+
 INSERT INTO schema_migrations (version) VALUES ('20130625115302');
 
 INSERT INTO schema_migrations (version) VALUES ('20130628145302');
+
+INSERT INTO schema_migrations (version) VALUES ('20130708264213');

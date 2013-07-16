@@ -341,8 +341,8 @@ class MiAttempt < ApplicationModel
 
         if phenotype_attempt.status.order_by > selected_status[:order_by]
           selected_status = {
-            :name => status_stamp.status.name,
-            :order_by => status_stamp.status.order_by
+            :name => phenotype_attempt.status.name,
+            :order_by => phenotype_attempt.status.order_by
           }
         end
 

@@ -36,8 +36,8 @@ class SolrUpdate::DocFactory
     best_pa_status_true = mi_attempt.relevant_phenotype_attempt_status(true)
     best_pa_status_false = mi_attempt.relevant_phenotype_attempt_status(false)
 
-    solr_doc['best_status_pa_cre_ex_required'] = best_pa_status_true[:name]
-    solr_doc['best_status_pa_cre_ex_not_required'] = best_pa_status_false[:name]
+    solr_doc['best_status_pa_cre_ex_required'] = best_pa_status_true[:name] if best_pa_status_true
+    solr_doc['best_status_pa_cre_ex_not_required'] = best_pa_status_false[:name] if best_pa_status_false
 
     if mi_attempt.gene.mgi_accession_id
       solr_doc['mgi_accession_id'] = mi_attempt.gene.mgi_accession_id

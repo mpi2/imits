@@ -169,22 +169,29 @@ class MiAttemptTest < ActiveSupport::TestCase
           @es_cell.save
         end
 
-        should 'be nil if mouse_allele_type is nil' do
-          @mi_attempt.mouse_allele_type = nil
-          assert_equal nil, @mi_attempt.mouse_allele_symbol
+        should 'override if allele_superscript is set on mi_plan' do
+          @mi_attempt.mi_plan.allele_symbol_superscript = 'override_text'
+          assert_equal 'Myo1c<sup>override_text</sup>', @mi_attempt.mouse_allele_symbol
         end
 
-        should 'work if mouse_allele_type is present' do
-          @mi_attempt.mouse_allele_type = 'e'
-          assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_symbol
-        end
+        context 'if not overridden' do
+          should 'be nil if mouse_allele_type is nil, even if es_cell.allele_symbol_superscript is sets' do
+            @mi_attempt.mouse_allele_type = nil
+            assert_equal nil, @mi_attempt.mouse_allele_symbol
+          end
 
-        should 'be nil if es_cell.allele_symbol_superscript is nil, even if mouse_allele_type is set' do
-          @es_cell.allele_symbol_superscript = nil
-          @es_cell.save!
-          @mi_attempt.es_cell.reload
-          @mi_attempt.mouse_allele_type = 'e'
-          assert_nil @mi_attempt.mouse_allele_symbol
+          should 'work if mouse_allele_type is present' do
+            @mi_attempt.mouse_allele_type = 'e'
+            assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_symbol
+          end
+
+          should 'be nil if es_cell.allele_symbol_superscript is nil, even if mouse_allele_type is set' do
+            @es_cell.allele_symbol_superscript = nil
+            @es_cell.save!
+            @mi_attempt.es_cell.reload
+            @mi_attempt.mouse_allele_type = 'e'
+            assert_nil @mi_attempt.mouse_allele_symbol
+          end
         end
       end
 

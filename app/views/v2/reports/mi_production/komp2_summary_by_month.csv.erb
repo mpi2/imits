@@ -1,9 +1,13 @@
-Date, Year, Month, Consortium, <%= @clone_columns.join(', ') %>, <%= @phenotype_columns.join(', ') %>
+Date, Year, Month, Consortium, <%= @clone_columns.map{|header| header + ' (genes)'}.join(', ') %>, <%= @phenotype_columns.map{|header| header + ' (genes)'}.join(', ') %>
 <% @consortia.each do |consortium| %>
 <% @summary_by_month[:dates].keys.each do |year| %>
 <% months = @summary_by_month[:dates][year].uniq %>
 <% months.each do |date| %>
-<%= date.strftime("%B-%Y") %>, <%= year %>, <%= date.month %>, <%= consortium %>, <%= @clone_columns.map {|c| report_csv_data(@summary_by_month, consortium, c, date)}.join(', ') %>, <%= @phenotype_columns.map {|c| report_csv_data(@summary_by_month, consortium, c, date)}.join(', ') %>
+<% if date.to_s != '2011-05-01' %>
+    <%= date.strftime("%B-%Y") %>, <%= year %>, <%= date.month %>, <%= consortium %>, <%= @clone_columns.map {|c| report_csv_data(@summary_by_month, consortium, c, date)}.join(', ') %>, <%= @phenotype_columns.map {|c| report_csv_data(@summary_by_month, consortium, c, date)}.join(', ') %>
+  <% else %>
+    Pre June 2011, 2011, Pre June, <%= consortium %>, <%= @clone_columns.map {|c| report_csv_data(@summary_by_month, consortium, c, date)}.join(', ') %>, <%= @phenotype_columns.map {|c| report_csv_data(@summary_by_month, consortium, c, date)}.join(', ') %>
+<% end %>
 <% end %>
 <% end %>
 <% end %>

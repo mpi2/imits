@@ -34,7 +34,7 @@ APN:
   :default: ''
 TCP:
   :preferred: 'mailto:lauryl.nutter@phenogenomics.ca?subject=Mutant mouse for MARKER_SYMBOL'
-  :default: ''
+  :default: 'mailto:lauryl.nutter@phenogenomics.ca?subject=Mutant mouse enquiry'
 MARC:
   :preferred: ''
   :default: ''  

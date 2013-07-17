@@ -41,7 +41,16 @@ begin
 
       task :intermediate_report => [:environment] do
         NewIntermediateReport::Generate.cache
+        NewGeneIntermediateReport::Generate.cache
+        NewConsortiaIntermediateReport::Generate.cache
       end
+
+      task :ikmc_project_update => [:environment] do
+        ApplicationModel.audited_transaction do
+          TargRep::IkmcProject::IkmcProjectGenerator::Generate.update_ikmc_projects
+        end
+      end
+
     end
 
   end

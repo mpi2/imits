@@ -30,7 +30,6 @@ class PhenotypeAttempt::EditInFormTest < TarMits::JsIntegrationTest
       assert page.has_no_css?('select[name="phenotype_attempt[consortium_name]"]')
     end
 
-
     should 'show default values' do
       assert page.has_css? 'form.phenotype-attempt'
 
@@ -60,6 +59,20 @@ class PhenotypeAttempt::EditInFormTest < TarMits::JsIntegrationTest
       assert_match "11", page.find('input[name="phenotype_attempt[number_of_cre_matings_successful]"]').value
 
       assert_match /\/phenotype_attempts\/#{@phenotype_attempt.id}$/, current_url
+    end
+
+    should 'prevent name change if phenotyping has started' do
+      fill_in 'phenotype_attempt[colony_name]', :with => 'ABCD'
+      uncheck 'phenotype_attempt[rederivation_complete]'
+      select 'MGI:3046308: Hprt', :from => 'phenotype_attempt[deleter_strain_name]'
+      fill_in 'phenotype_attempt[number_of_cre_matings_successful]', :with => '11'
+
+      find_button('phenotype_attempt_submit').click
+      assert page.has_no_css?('#phenotype_attempt_submit[disabled]')
+
+      sleep 20
+
+      assert_match /Phenotype attempt colony_name can not be changed once phenotyping has started/, page.find('.errorExplanation').text
     end
 
     should_eventually 'render deposited material errors' do

@@ -161,7 +161,8 @@ TarMits::Application.routes.draw do
 
     resources :alleles do
       get :history, :on => :member
-
+      get :image, :on => :member
+      
       collection do
         get :attributes
       end
@@ -189,6 +190,9 @@ TarMits::Application.routes.draw do
     get '/alleles/:id/targeting-vector-flp-genbank-file' => 'allele#targeting_vector_flp_genbank_file', :as => 'targeting_vector_flp_genbank_file'
     get '/alleles/:id/escell-clone-flp-cre-genbank-file' => 'alleles#escell_clone_flp_cre_genbank_file', :as => 'escell_clone_flp_cre_genbank_file'
     get '/alleles/:id/targeting-vector-flp-cre-genbank-file' => 'alleles#targeting_vector_flp_cre_genbank_file', :as => 'targeting_vector_flp_cre_genbank_file'
+
+    get '/alleles/:id/simple-allele-image-cre' => 'alleles#simple_allele_image_cre', :as => 'simple_allele_image_cre'
+
     get '/alleles/:id/allele-image' => 'alleles#allele_image', :as => 'allele_image'
     get '/alleles/:id/allele-image-cre' => 'alleles#allele_image_cre', :as => 'allele_image_cre'
     get '/alleles/:id/allele-image-flp' => 'alleles#allele_image_flp', :as => 'allele_image_flp'

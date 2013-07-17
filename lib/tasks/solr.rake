@@ -90,11 +90,18 @@ namespace :solr do
   task 'update:phenotype_attempts' => [:environment] do
     pp SolrUpdate::IndexProxy::Allele.get_uri
     ApplicationModel.transaction do
-      puts "#### enqueueing phenotype_attempts..."
-      enqueuer = SolrUpdate::Enqueuer.new
-      PhenotypeAttempt.all.each { |p| enqueuer.phenotype_attempt_updated(p) }
 
-      puts "#### running phenotype_attempts..."
+      puts "#### enqueueing phenotype_attempts..."
+
+      enqueuer = SolrUpdate::Enqueuer.new
+      counter = 0
+      PhenotypeAttempt.all.each do |p|
+        enqueuer.phenotype_attempt_updated(p)
+        counter += 1
+      end
+
+      puts "#### running phenotype_attempts (#{counter})..."
+
       SolrUpdate::Queue.run(:limit => nil)
     end
   end

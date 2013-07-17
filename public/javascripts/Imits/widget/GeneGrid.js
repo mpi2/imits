@@ -239,6 +239,8 @@ Ext.define('Imits.widget.GeneGrid', {
         var isCreKnockInAllele   = grid.iscreknockinalleleCheck.getSubmitValue() || false;
         var isCreBacAllele       = grid.iscrebacalleleCheck.getSubmitValue() || false;
         var conditionalTm1c      = grid.conditionaltm1cCheck.getSubmitValue() || false;
+        var pointMutation        = grid.pointmutationCheck.getSubmitValue() || false;
+        var conditionalPointMutation = grid.conditionalpointmutationCheck.getSubmitValue() || false;
 
         if(selectedGenes.length == 0) {
             alert('You must select some genes to register interest in');
@@ -269,7 +271,9 @@ Ext.define('Imits.widget.GeneGrid', {
                 'is_deletion_allele'     : isDeletionAllele,
                 'is_cre_knock_in_allele' : isCreKnockInAllele,
                 'is_cre_bac_allele'      : isCreBacAllele,
-                'conditional_tm1c'       : conditionalTm1c
+                'conditional_tm1c'       : conditionalTm1c,
+                'point_mutation'         : pointMutation,
+                'conditional_point_mutation' : conditionalPointMutation
             });
             miPlan.save({
                 failure: function() {
@@ -342,6 +346,8 @@ Ext.define('Imits.widget.GeneGrid', {
         grid.iscreknockinalleleCheck  = grid.createCheckBox('is_cre_knock_in_allele', 'Cre Knock In', 80, false);
         grid.iscrebacalleleCheck      = grid.createCheckBox('is_cre_bac_allele', 'Cre Bac', 55, false);
         grid.conditionaltm1cCheck      = grid.createCheckBox('conditional_tm1c', 'Conditional tm1c', 100, false);
+        grid.pointmutationCheck      = grid.createCheckBox('point_mutation', 'Point Mutation', 80, false);
+        grid.conditionalpointmutationCheck      = grid.createCheckBox('conditional_point_mutation', 'Conditional Point Mutation', 135, false);
 
         grid.addDocked(Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',
@@ -363,6 +369,8 @@ Ext.define('Imits.widget.GeneGrid', {
             grid.isdeletionalleleCheck,
             grid.iscreknockinalleleCheck,
             grid.iscrebacalleleCheck,
+            grid.pointmutationCheck,
+            grid.conditionalpointmutationCheck,
             '',
             '',
             {

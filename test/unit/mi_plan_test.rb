@@ -214,8 +214,23 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:is_deletion_allele).with_options(:null => false)
         assert_should have_db_column(:is_cre_knock_in_allele).with_options(:null => false)
         assert_should have_db_column(:is_cre_bac_allele).with_options(:null => false)
+        assert_should have_db_column(:point_mutation).with_options(:default => false, :null => false)
+        assert_should have_db_column(:conditional_point_mutation).with_options(:default => false, :null => false)
+        assert_should have_db_column(:allele_symbol_superscript)
         assert_should have_db_column(:comment)
         assert_should have_db_column(:es_qc_comment_id)
+        assert_should have_db_column(:number_of_es_cells_starting_qc)
+        assert_should have_db_column(:number_of_es_cells_passing_qc)
+        assert_should have_db_column(:is_active).with_options(:default => true, :null => false)
+        assert_should have_db_column(:withdrawn).with_options(:default => false, :null => false)
+        assert_should have_db_column(:phenotype_only).with_options(:default => false)
+        assert_should have_db_column(:completion_note)
+        assert_should have_db_column(:recovery)
+        assert_should have_db_column(:conditional_tm1c).with_options(:default => false, :null => false)
+        assert_should have_db_column(:ignore_available_mice).with_options(:default => false, :null => false)
+        assert_should have_db_column(:number_of_es_cells_received)
+        assert_should have_db_column(:es_cells_received_on)
+        assert_should have_db_column(:es_cells_received_from_id)
       end
 
       context '#latest_relevant_mi_attempt' do

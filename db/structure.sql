@@ -824,7 +824,10 @@ CREATE TABLE mi_plans (
     ignore_available_mice boolean DEFAULT false NOT NULL,
     number_of_es_cells_received integer,
     es_cells_received_on date,
-    es_cells_received_from_id integer
+    es_cells_received_from_id integer,
+    point_mutation boolean DEFAULT false NOT NULL,
+    conditional_point_mutation boolean DEFAULT false NOT NULL,
+    allele_symbol_superscript text
 );
 
 
@@ -3727,6 +3730,8 @@ INSERT INTO schema_migrations (version) VALUES ('20130528131803');
 INSERT INTO schema_migrations (version) VALUES ('20130528142149');
 
 INSERT INTO schema_migrations (version) VALUES ('20130610142149');
+
+INSERT INTO schema_migrations (version) VALUES ('20130615170525');
 
 INSERT INTO schema_migrations (version) VALUES ('20130625115302');
 

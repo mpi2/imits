@@ -269,16 +269,24 @@ class MiAttempt < ApplicationModel
   end
 
   def mouse_allele_symbol
-    if mouse_allele_symbol_superscript
-      return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>" unless es_cell.blank?
+    if es_cell.blank?
+      return nil
+
+    elsif !mi_plan.allele_symbol_superscript.blank?
+      return "#{es_cell.marker_symbol}<sup>#{mi_plan.allele_symbol_superscript}</sup>"
+
+    elsif mouse_allele_symbol_superscript
+      return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
+
     else
       return nil
     end
   end
 
   def allele_symbol
-    if mouse_allele_type
-      return mouse_allele_symbol
+    mi_attempt_allele_symbol_override = mouse_allele_symbol
+    if mi_attempt_allele_symbol_override
+      return mi_attempt_allele_symbol_override
     else
       return es_cell.allele_symbol unless es_cell.blank?
     end

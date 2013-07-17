@@ -337,6 +337,9 @@ ActiveRecord::Schema.define(:version => 20130708264213) do
     t.integer  "number_of_es_cells_received"
     t.date     "es_cells_received_on"
     t.integer  "es_cells_received_from_id"
+    t.boolean  "point_mutation",                                :default => false, :null => false
+    t.boolean  "conditional_point_mutation",                    :default => false, :null => false
+    t.text     "allele_symbol_superscript"
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true

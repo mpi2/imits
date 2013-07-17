@@ -280,8 +280,6 @@ class TargRep::EsCell < ActiveRecord::Base
 
 end
 
-
-
 # == Schema Information
 #
 # Table name: targ_rep_es_cells

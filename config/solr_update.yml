@@ -6,7 +6,7 @@ development:
     allele: http://localhost:8983/solr/allele
 
 test:
-  targ_rep_url: http://www.i-dcc.org/imits/targ_rep
+  targ_rep_url: https://www.i-dcc.org/imits/targ_rep
   index_proxy:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://localhost:8984/solr/allele

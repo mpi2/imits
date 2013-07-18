@@ -1,34 +1,39 @@
 ---
 development:
+  targ_rep_url: http://localhost:3000/targ_rep
   index_proxy:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://localhost:8983/solr/allele
 
 test:
+  targ_rep_url: http://www.i-dcc.org/imits/targ_rep
   index_proxy:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://localhost:8984/solr/allele
 
 labs:
+  targ_rep_url: https://www.i-dcc.org/labs/imits/targ_rep
   index_proxy:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://t87-dev.internal.sanger.ac.uk:8983/solr/allele
 
 migration:
+  targ_rep_url: https://www.i-dcc.org/imits/targ_rep
   index_proxy:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://t87-dev.internal.sanger.ac.uk:8983/solr/allele
 
 staging:
+  targ_rep_url: https://www.i-dcc.org/staging/imits/targ_rep
   index_proxy:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://ikmc.vm.bytemark.co.uk:8984/solr/allele
 
 production:
+  targ_rep_url: https://www.i-dcc.org/imits/targ_rep
   index_proxy:
     gene: http://ikmc.vm.bytemark.co.uk:8983/solr/gene
     allele: http://ikmc.vm.bytemark.co.uk:8983/solr/allele
 
 all:
-  targ_rep_url: https://www.i-dcc.org/imits/targ_rep
   queue_run_limit: 100

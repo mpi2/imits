@@ -69,8 +69,6 @@ class TargRep::TargetingVector < ActiveRecord::Base
 
 end
 
-
-
 # == Schema Information
 #
 # Table name: targ_rep_targeting_vectors

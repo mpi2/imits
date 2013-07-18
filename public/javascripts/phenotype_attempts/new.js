@@ -31,7 +31,7 @@ function processRestOfForm() {
 
     var miplanlistview = Ext.create('Ext.grid.Panel', {
         id: 'mi_plan_list',
-        width:1000,
+        width:1060,
         height:250,
         title:'Select a Plan',
         renderTo: 'mi_plan_list_phenotype',
@@ -51,31 +51,39 @@ function processRestOfForm() {
             dataIndex: 'production_centre_name'
         },{
             text: 'Sub Project',
-            flex: 50,
+            flex: 40,
             dataIndex: 'sub_project_name'
         },{
-            text: 'Conditional',
-            flex: 50,
+            text: 'Knockout First Tm1a',
+            flex: 60,
             dataIndex: 'is_conditional_allele'
         },{
-            text: 'Deletion',
+            text: 'Conditional tm1c',
             flex: 50,
+            dataIndex: 'conditional_tm1c'
+        },{
+            text: 'Deletion',
+            flex: 30,
             dataIndex: 'is_deletion_allele'
         },{
             text: 'Cre Knock In',
-            flex: 50,
+            flex: 40,
             dataIndex: 'is_cre_knock_in_allele'
         },{
             text: 'Cre Bac',
-            flex: 50,
+            flex: 30,
             dataIndex: 'is_cre_bac_allele'
         },{
-            text: 'Phenotype Only',
-            flex: 50,
-            dataIndex: 'phenotype_only'
+            text: 'Point Mutation',
+            flex: 40,
+            dataIndex: 'point_mutation'
+        },{
+            text: 'Conditional Point Mutation',
+            flex: 70,
+            dataIndex: 'conditional_point_mutation'
         },{
             text: 'Active',
-            flex: 50,
+            flex: 40,
             dataIndex: 'is_active'
         }
         ]

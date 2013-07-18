@@ -93,6 +93,18 @@ Ext.define('Imits.model.MiPlan', {
         defaultValue: false
     },
     {
+        name: 'point_mutation',
+        defaultValue: false
+    },
+    {
+        name: 'conditional_point_mutation',
+        defaultValue: false
+    },
+    {
+        name: 'allele_symbol_superscript',
+        defaultValue: false
+    },
+    {
         name: 'ignore_available_mice',
         defaultValue: false
     },

@@ -89,6 +89,8 @@ class MiPlan < ApplicationModel
       :is_cre_knock_in_allele => plan.is_cre_knock_in_allele,
       :is_cre_bac_allele => plan.is_cre_bac_allele,
       :conditional_tm1c => plan.conditional_tm1c,
+      :point_mutation => plan.point_mutation,
+      :conditional_point_mutation => plan.conditional_point_mutation,
       :phenotype_only => plan.phenotype_only).map(&:id)
     other_ids -= [plan.id]
     if(other_ids.count != 0)
@@ -136,7 +138,7 @@ class MiPlan < ApplicationModel
   after_destroy :conflict_resolve_others
 
   before_save :update_es_cell_qc
-  
+
   before_save :update_es_cell_received
 
   scope :phenotype_only, where(:phenotype_only => true)
@@ -463,6 +465,7 @@ class MiPlan < ApplicationModel
 end
 
 
+
 # == Schema Information
 #
 # Table name: mi_plans
@@ -495,6 +498,9 @@ end
 #  number_of_es_cells_received    :integer
 #  es_cells_received_on           :date
 #  es_cells_received_from_id      :integer
+#  point_mutation                 :boolean         default(FALSE), not null
+#  conditional_point_mutation     :boolean         default(FALSE), not null
+#  allele_symbol_superscript      :text
 #
 # Indexes
 #

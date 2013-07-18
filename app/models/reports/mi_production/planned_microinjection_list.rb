@@ -57,24 +57,30 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
 
   def generate_planned_mi_list_report( params={} )
     report_column_order_and_names = {
-      'id'                      => 'ID',
-      'consortium.name'         => 'Consortium',
-      'sub_project.name'        => 'SubProject',
-      'is_bespoke_allele'       => 'Bespoke',
-      'is_conditional_allele'   => 'Knockout First tm1a',
-      'is_deletion_allele'      => 'Deletion',
-      'is_cre_knock_in_allele'  => 'Cre Knock-in',
-      'is_cre_bac_allele'       => 'Cre BAC',
-      'conditional_tm1c'        => 'Conditional tm1c',
-      'recovery'                => 'Recovery',
-      'completion_note'         => 'Completion note',
-      'phenotype_only'          => 'Phenotype only?',
-      'ignore_avaliable_mice'   => 'Ignore Available Mice',
-      'production_centre.name'  => 'Production Centre',
-      'gene.marker_symbol'      => 'Marker Symbol',
-      'gene.mgi_accession_id'   => 'MGI Accession ID',
-      'priority.name'           => 'Priority',
-      'status.name'             => 'Plan Status'
+      'id'                         => 'ID',
+      'consortium.name'            => 'Consortium',
+      'sub_project.name'           => 'SubProject',
+      'is_bespoke_allele'          => 'Bespoke',
+
+      'is_conditional_allele'      => 'Knockout First tm1a',
+      'is_deletion_allele'         => 'Deletion',
+      'is_cre_knock_in_allele'     => 'Cre Knock-in',
+      'is_cre_bac_allele'          => 'Cre BAC',
+      'conditional_tm1c'           => 'Conditional tm1c',
+      'point_mutation'             => 'Point Mutation',
+      'conditional_point_mutation' => 'Conditional Point Mutation',
+      'allele_structure'           => 'Allele Structure',
+      'allele_symbol_superscript'  => 'Allele Symbol Superscript',
+
+      'recovery'                   => 'Recovery',
+      'completion_note'            => 'Completion note',
+      'phenotype_only'             => 'Phenotype only?',
+      'ignore_avaliable_mice'      => 'Ignore Available Mice',
+      'production_centre.name'     => 'Production Centre',
+      'gene.marker_symbol'         => 'Marker Symbol',
+      'gene.mgi_accession_id'      => 'MGI Accession ID',
+      'priority.name'              => 'Priority',
+      'status.name'                => 'Plan Status'
     }
 
     report_options = {
@@ -92,11 +98,15 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
         r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No'
         r["phenotype_only"] = r.phenotype_only ? 'Yes' : 'No'
         r["ignore_avaliable_mice"] = r.ignore_avaliable_mice ? 'Yes' : 'No'
-        r["is_conditional_allele"] = r.is_conditional_allele ? 'Yes' : 'No'
-        r["is_deletion_allele"] = r.is_deletion_allele ? 'Yes' : 'No'
-        r["is_cre_knock_in_allele"] = r.is_cre_knock_in_allele ? 'Yes' : 'No'
-        r["is_cre_bac_allele"] = r.is_cre_bac_allele ? 'Yes' : 'No'
-        r["conditional_tm1c"] = r.conditional_tm1c ? 'Yes' : 'No'
+        allele_str = ""
+        allele_str = r.is_conditional_allele ? "#{allele_str} [Knockout First tm1a]" : allele_str
+        allele_str = r.conditional_tm1c ? "#{allele_str} [Conditional tm1c]" : allele_str
+        allele_str = r.is_deletion_allele ? "#{allele_str} [Deletion]" : allele_str
+        allele_str = r.is_cre_knock_in_allele ? "#{allele_str} [Cre Knock-in]" : allele_str
+        allele_str = r.is_cre_bac_allele ? "#{allele_str} [Cre BAC]" : allele_str
+        allele_str = r.point_mutation ? "#{allele_str} [Point Mutation]" : allele_str
+        allele_str = r.conditional_point_mutation ? "#{allele_str} [Conditional Point Mutation]" : allele_str
+        r["allele_structure"] = allele_str
         r["recovery"] = r.recovery ? 'Yes' : 'No'
       end
     }
@@ -106,6 +116,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
     return nil if report.size == 0
 
     report.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
+    report.remove_columns(['is_conditional_allele', 'is_deletion_allele', 'is_cre_knock_in_allele', 'is_cre_bac_allele', 'conditional_tm1c', 'point_mutation', 'conditional_point_mutation'])
     report.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
     report.sort_rows_by!('Marker Symbol', :order => :ascending)
 

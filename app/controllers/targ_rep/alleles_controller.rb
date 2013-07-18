@@ -257,6 +257,8 @@ class TargRep::AllelesController < TargRep::BaseController
   end
 
   def missing_required_data?
+    return true if @allele.blank?
+    
     if params[:type].blank?
       Rails.logger.info 'Incorrect usage. Please follow the links on the page to navigate between allele.'
       return true
@@ -279,6 +281,7 @@ class TargRep::AllelesController < TargRep::BaseController
   end
 
   def genbank_data
+    return nil if @allele.blank?
     return nil if @allele.genbank_file.blank?
 
     if params[:method].blank? && (params[:type] == 'allele' || params[:type] == 'cassette')
@@ -303,7 +306,7 @@ class TargRep::AllelesController < TargRep::BaseController
   end
 
   def render_image(options = {})
-    missing_data_image and return if missing_required_data? || genbank_data.blank?
+    missing_data_image and return if missing_required_data? || genbank_data.blank? || @allele.blank?
 
     if params[:type] == 'cassette'
       options[:cassetteonly] = true
@@ -325,20 +328,20 @@ class TargRep::AllelesController < TargRep::BaseController
 
   ## GET /alleles/1/image
   def image
-    find_allele
+    @allele = @klass.find_by_id(params[:id])
     render_image(params)
   end
 
   # GET /alleles/1/allele-image/
   def allele_image
-    find_allele
+    @allele = @klass.find_by_id(params[:id])
     params[:type] = 'allele'
     render_image(params)
   end
 
   # GET /alleles/1/allele-image-cre/
   def allele_image_cre
-    find_allele
+    @allele = @klass.find_by_id(params[:id])
     params[:type] = 'allele'
     params[:method] = 'cre'
     render_image(params)
@@ -346,7 +349,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
   # GET /alleles/1/allele-image-flp/
   def allele_image_flp
-    find_allele
+    @allele = @klass.find_by_id(params[:id])
     params[:type] = 'allele'
     params[:method] = 'flp'
     render_image(params)
@@ -354,7 +357,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
   # GET /alleles/1/allele-image-flp-cre/
   def allele_image_flp_cre
-    find_allele
+    @allele = @klass.find_by_id(params[:id])
     params[:type] = 'allele'
     params[:method] = 'flp_cre'
     render_image(params)
@@ -362,21 +365,21 @@ class TargRep::AllelesController < TargRep::BaseController
 
   # GET /alleles/1/cassette-image/
   def cassette_image
-    find_allele
+    @allele = @klass.find_by_id(params[:id])
     params[:type] = 'cassette'
     render_image(params)
   end
 
   # GET /alleles/1/vector-image/
   def vector_image
-    find_allele
+    @allele = @klass.find_by_id(params[:id])
     params[:type] = 'vector'
     render_image(params)
   end
 
   # GET /alleles/1/vector-image-cre/
   def vector_image_cre
-    find_allele
+    @allele = @klass.find_by_id(params[:id])
     params[:type] = 'vector'
     params[:method] = 'cre'
     render_image(params)
@@ -384,7 +387,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
   # GET /alleles/1/vector-image-flp/
   def vector_image_flp
-    find_allele
+    @allele = @klass.find_by_id(params[:id])
     params[:type] = 'vector'
     params[:method] = 'flp'
     render_image(params)
@@ -392,7 +395,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
   # GET /alleles/1/vector-image-flp-cre/
   def vector_image_flp_cre
-    find_allele
+    @allele = @klass.find_by_id(params[:id])
     params[:type] = 'vector'
     params[:method] = 'flp_cre'
     render_image(params)

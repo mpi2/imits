@@ -7,8 +7,8 @@ class Reports::MiProduction::PlannedMicroinjectionListTest < ActiveSupport::Test
   context 'Reports::MiProduction::PlannedMicroinjectionList' do
     should 'create BaSH report' do
       Factory.create :mi_plan,
-              :consortium        => Consortium.find_by_name!('BaSH'),
-              :production_centre => Centre.find_by_name!('ICS')
+      :consortium        => Consortium.find_by_name!('BaSH'),
+      :production_centre => Centre.find_by_name!('ICS')
       Reports::MiProduction::Intermediate.new.cache
 
       report = Reports::MiProduction::PlannedMicroinjectionList.new 'BaSH'

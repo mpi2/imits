@@ -144,7 +144,11 @@ module AlleleImage
       "Ty1" => {},
       "ChlR_ccdB" => {},
       "ipcrTAR1 (GH1111)" => {},
-      "EGFP" => {},
+      "EGFP" => {
+        "colour" => "green",
+        "font" => "white",
+        "width" => 100
+      },
       "AsiSI" => {},
       "SA" => {}, # TODO Remove eventually
       "Splice Acceptor" => {},
@@ -166,9 +170,10 @@ module AlleleImage
         "colour" => "pink"
       },
       "Cre" => {
-        "width" => 45,
+        "width" => 55,
         "label" => "Cre",
-        "colour" => "blue"
+        "colour" => "blue",
+        "font" => "white"
       },
       "ERT2"=> {},
       "F2A" => {},
@@ -188,6 +193,12 @@ module AlleleImage
         "label" => "PGK",
         "font" => "white"
       },
+
+      ## This avoids rendering EM7 twice on PGK dual promoter images
+      #"EM7 promoter" => {
+      #  "label" => "EM7"
+      #},
+
       "mouse phosphoglycerate kinase 1 promoter" => {
         "colour" => "black",
         "label" => "PGK",
@@ -269,13 +280,24 @@ module AlleleImage
       },
 
       # mirKO
-      "pu-Delta-tk" => {},
+      "pu-Delta-tk" => {
+        "label" => "Puro",
+        "colour" => "purple",
+        "font" => "white",
+        "width" => 80
+      },
 
       "TM-lacZ " => {
         "colour" => "blue",
         "label" => "TM-lacZ",
         "font" => "white",
         "width" => 140
+      },
+      "puromycin N-acetyl transferase" => {
+        "label" => "Puro",
+        "colour" => "purple",
+        "font" => "white",
+        "width" => 80
       }
     },
 
@@ -303,13 +325,16 @@ module AlleleImage
     },
     "misc_recomb" => {
       "loxP (3')" => {
-        "label" => "loxP"
+        "label" => "loxP",
+        "width" => 40
       },
       "LoxP (5')" => {
-        "label" => "loxP"
+        "label" => "loxP",
+        "width" => 40
       },
       "loxP" => {
-        "label" => "loxP"
+        "label" => "loxP",
+        "width" => 40
       }
     },
     "frag" => {
@@ -331,4 +356,28 @@ module AlleleImage
   }
 
   RENDERABLE_FEATURES['CDS'] = RENDERABLE_FEATURES['gene']
+
+
+  SIMPLE_FEATURES = [
+    'Rox',
+    'EGFP',
+    'Cre',
+    'pu-Delta-tk',
+    'FRT',
+    'F3',
+    'Puro',
+    'TM-lacZ',
+    'lacZ',
+    'loxP',
+    'neo',
+    'neo*',
+    'AttP',
+    'pA',
+    'sA',
+    'SA',
+    'En2 SA',
+    'Ifitm2 Intron'    
+  ]
+
+  SIMPLE_FEATURE_TYPES = %w(promoter)
 end

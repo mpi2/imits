@@ -89,14 +89,14 @@
             <% end %>
 
             <td><%= centre %></td>
-            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Intent to phenotype", :centre => centre, :cre_excision_required => true) %></td>
-            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Rederivation started", :centre => centre, :cre_excision_required => true) %></td>
-            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Rederivation completed", :centre => centre, :cre_excision_required => true) %></td>
-            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre excision started", :centre => centre, :cre_excision_required => true) %></td>
-            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre excision completed", :centre => centre, :cre_excision_required => true) %></td>
-            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Phenotyping started", :centre => centre, :cre_excision_required => true) %></td>
-            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Phenotyping aborted", :centre => centre, :cre_excision_required => true) %></td>
-            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Phenotyping completed", :centre => centre, :cre_excision_required => true) %></td>
+            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Intent to phenotype", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Rederivation started", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Rederivation completed", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre excision started", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre excision completed", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Phenotyping started", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Phenotyping aborted", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Phenotyping completed", :centre => centre, :production_group => 'gene') %></td>
           </tr>
 
           <% count += 1 %>

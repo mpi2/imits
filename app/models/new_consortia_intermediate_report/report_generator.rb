@@ -355,6 +355,145 @@ module NewConsortiaIntermediateReport::ReportGenerator
           ),
 
 
+          -- get the best cre ex phenotype_attempts per plan in a CTE using WITH
+          best_cre_ex_phenotype_attempts AS (
+            SELECT
+              best_phenotype_attempts_cre_ex.colony_name AS phenotype_attempt_colony_name,
+              best_phenotype_attempts_cre_ex.id as phenotype_attempt_id,
+              phenotype_attempt_statuses.name AS phenotype_attempt_status,
+              best_phenotype_attempts_cre_ex.mi_plan_id,
+              mi_plans.gene_id AS gene_id,
+              mi_plans.consortium_id AS consortium_id,
+              mi_attempts.colony_name AS pa_mi_attempt_colony_name,
+              centres.name AS pa_mi_attempt_production_centre,
+              consortia.name AS pa_mi_attempt_consortium,
+              registered_statuses.created_at::date as phenotype_attempt_registered_date,
+              re_started_statuses.created_at::date as rederivation_started_date,
+              re_complete_statuses.created_at::date as rederivation_complete_date,
+              cre_started_statuses.created_at::date as cre_excision_started_date,
+              cre_complete_statuses.created_at::date as cre_excision_complete_date,
+              started_statuses.created_at::date as phenotyping_started_date,
+              complete_statuses.created_at::date as phenotyping_complete_date,
+              aborted_statuses.created_at::date as phenotype_attempt_aborted_date,
+              best_phenotype_attempts_cre_ex.mouse_allele_type AS pa_mouse_allele_type,
+              targ_rep_es_cells.allele_symbol_superscript_template AS pa_allele_symbol_superscript_template,
+              targ_rep_es_cells.mgi_allele_symbol_superscript AS pa_allele_symbol_superscript
+
+            FROM (
+              SELECT DISTINCT phenotype_attempts.*
+              FROM phenotype_attempts
+              JOIN (
+                SELECT
+                  best_attempts_for_plan_and_status_cre_ex.gene_id,
+                  best_attempts_for_plan_and_status_cre_ex.consortium_id,
+                  best_attempts_for_plan_and_status_cre_ex.order_by,
+                  first_value(best_attempts_for_plan_and_status_cre_ex.phenotype_attempt_id) OVER (PARTITION BY best_attempts_for_plan_and_status_cre_ex.gene_id, best_attempts_for_plan_and_status_cre_ex.consortium_id) AS phenotype_attempt_id
+                FROM (
+                  SELECT
+                    mi_plans.gene_id,
+                    mi_plans.consortium_id,
+                    phenotype_attempt_statuses.order_by,
+                    phenotype_attempts.id as phenotype_attempt_id
+                    FROM mi_plans
+                    JOIN phenotype_attempts ON mi_plans.id = phenotype_attempts.mi_plan_id
+                    JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id
+                    WHERE phenotype_attempts.cre_excision_required = true
+                    ORDER BY
+                      mi_plans.gene_id,
+                      mi_plans.consortium_id,
+                      phenotype_attempt_statuses.order_by DESC
+                ) AS best_attempts_for_plan_and_status_cre_ex
+              ) AS attempts_join ON phenotype_attempts.id = attempts_join.phenotype_attempt_id
+            ) best_phenotype_attempts_cre_ex
+
+            JOIN mi_plans ON mi_plans.id = best_phenotype_attempts_cre_ex.mi_plan_id
+            LEFT JOIN mi_attempts ON best_phenotype_attempts_cre_ex.mi_attempt_id = mi_attempts.id
+            LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+            LEFT JOIN mi_plans AS mi_attempt_mi_plans ON mi_attempt_mi_plans.id = mi_attempts.mi_plan_id
+            LEFT JOIN consortia ON consortia.id = mi_attempt_mi_plans.consortium_id
+            LEFT JOIN centres ON centres.id = mi_attempt_mi_plans.production_centre_id
+            JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = best_phenotype_attempts_cre_ex.status_id
+            LEFT JOIN phenotype_attempt_status_stamps AS aborted_statuses ON aborted_statuses.phenotype_attempt_id = best_phenotype_attempts_cre_ex.id AND aborted_statuses.status_id = 1
+            LEFT JOIN phenotype_attempt_status_stamps AS registered_statuses ON registered_statuses.phenotype_attempt_id = best_phenotype_attempts_cre_ex.id AND registered_statuses.status_id = 2
+            LEFT JOIN phenotype_attempt_status_stamps AS re_started_statuses ON re_started_statuses.phenotype_attempt_id = best_phenotype_attempts_cre_ex.id AND re_started_statuses.status_id = 3
+            LEFT JOIN phenotype_attempt_status_stamps AS re_complete_statuses ON re_complete_statuses.phenotype_attempt_id = best_phenotype_attempts_cre_ex.id AND re_complete_statuses.status_id = 4
+            LEFT JOIN phenotype_attempt_status_stamps AS cre_started_statuses ON cre_started_statuses.phenotype_attempt_id = best_phenotype_attempts_cre_ex.id AND cre_started_statuses.status_id = 5
+            LEFT JOIN phenotype_attempt_status_stamps AS cre_complete_statuses ON cre_complete_statuses.phenotype_attempt_id = best_phenotype_attempts_cre_ex.id AND cre_complete_statuses.status_id = 6
+            LEFT JOIN phenotype_attempt_status_stamps AS started_statuses ON started_statuses.phenotype_attempt_id = best_phenotype_attempts_cre_ex.id AND started_statuses.status_id = 7
+            LEFT JOIN phenotype_attempt_status_stamps AS complete_statuses ON complete_statuses.phenotype_attempt_id = best_phenotype_attempts_cre_ex.id AND complete_statuses.status_id = 8
+            ORDER BY gene_id, consortium_id
+          ),
+
+
+          -- get the best non cre ex phenotype_attempts per plan in a CTE using WITH
+          best_non_cre_ex_phenotype_attempts AS (
+            SELECT
+              best_phenotype_attempts_non_cre_ex.colony_name AS phenotype_attempt_colony_name,
+              best_phenotype_attempts_non_cre_ex.id as phenotype_attempt_id,
+              phenotype_attempt_statuses.name AS phenotype_attempt_status,
+              best_phenotype_attempts_non_cre_ex.mi_plan_id,
+              mi_plans.gene_id AS gene_id,
+              mi_plans.consortium_id AS consortium_id,
+              mi_attempts.colony_name AS pa_mi_attempt_colony_name,
+              centres.name AS pa_mi_attempt_production_centre,
+              consortia.name AS pa_mi_attempt_consortium,
+              registered_statuses.created_at::date as phenotype_attempt_registered_date,
+              re_started_statuses.created_at::date as rederivation_started_date,
+              re_complete_statuses.created_at::date as rederivation_complete_date,
+              cre_started_statuses.created_at::date as cre_excision_started_date,
+              cre_complete_statuses.created_at::date as cre_excision_complete_date,
+              started_statuses.created_at::date as phenotyping_started_date,
+              complete_statuses.created_at::date as phenotyping_complete_date,
+              aborted_statuses.created_at::date as phenotype_attempt_aborted_date,
+              best_phenotype_attempts_non_cre_ex.mouse_allele_type AS pa_mouse_allele_type,
+              targ_rep_es_cells.allele_symbol_superscript_template AS pa_allele_symbol_superscript_template,
+              targ_rep_es_cells.mgi_allele_symbol_superscript AS pa_allele_symbol_superscript
+
+            FROM (
+              SELECT DISTINCT phenotype_attempts.*
+              FROM phenotype_attempts
+              JOIN (
+                SELECT
+                  best_attempts_for_plan_and_status_non_cre_ex.gene_id,
+                  best_attempts_for_plan_and_status_non_cre_ex.consortium_id,
+                  best_attempts_for_plan_and_status_non_cre_ex.order_by,
+                  first_value(best_attempts_for_plan_and_status_non_cre_ex.phenotype_attempt_id) OVER (PARTITION BY best_attempts_for_plan_and_status_non_cre_ex.gene_id, best_attempts_for_plan_and_status_non_cre_ex.consortium_id) AS phenotype_attempt_id
+                FROM (
+                  SELECT
+                    mi_plans.gene_id,
+                    mi_plans.consortium_id,
+                    phenotype_attempt_statuses.order_by,
+                    phenotype_attempts.id as phenotype_attempt_id
+                    FROM mi_plans
+                    JOIN phenotype_attempts ON mi_plans.id = phenotype_attempts.mi_plan_id
+                    JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id
+                    WHERE phenotype_attempts.cre_excision_required = false
+                    ORDER BY
+                      mi_plans.gene_id,
+                      mi_plans.consortium_id,
+                      phenotype_attempt_statuses.order_by DESC
+                ) AS best_attempts_for_plan_and_status_non_cre_ex
+              ) AS attempts_join ON phenotype_attempts.id = attempts_join.phenotype_attempt_id
+            ) best_phenotype_attempts_non_cre_ex
+
+            JOIN mi_plans ON mi_plans.id = best_phenotype_attempts_non_cre_ex.mi_plan_id
+            LEFT JOIN mi_attempts ON best_phenotype_attempts_non_cre_ex.mi_attempt_id = mi_attempts.id
+            LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.id = mi_attempts.es_cell_id
+            LEFT JOIN mi_plans AS mi_attempt_mi_plans ON mi_attempt_mi_plans.id = mi_attempts.mi_plan_id
+            LEFT JOIN consortia ON consortia.id = mi_attempt_mi_plans.consortium_id
+            LEFT JOIN centres ON centres.id = mi_attempt_mi_plans.production_centre_id
+            JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = best_phenotype_attempts_non_cre_ex.status_id
+            LEFT JOIN phenotype_attempt_status_stamps AS aborted_statuses ON aborted_statuses.phenotype_attempt_id = best_phenotype_attempts_non_cre_ex.id AND aborted_statuses.status_id = 1
+            LEFT JOIN phenotype_attempt_status_stamps AS registered_statuses ON registered_statuses.phenotype_attempt_id = best_phenotype_attempts_non_cre_ex.id AND registered_statuses.status_id = 2
+            LEFT JOIN phenotype_attempt_status_stamps AS re_started_statuses ON re_started_statuses.phenotype_attempt_id = best_phenotype_attempts_non_cre_ex.id AND re_started_statuses.status_id = 3
+            LEFT JOIN phenotype_attempt_status_stamps AS re_complete_statuses ON re_complete_statuses.phenotype_attempt_id = best_phenotype_attempts_non_cre_ex.id AND re_complete_statuses.status_id = 4
+            LEFT JOIN phenotype_attempt_status_stamps AS cre_started_statuses ON cre_started_statuses.phenotype_attempt_id = best_phenotype_attempts_non_cre_ex.id AND cre_started_statuses.status_id = 5
+            LEFT JOIN phenotype_attempt_status_stamps AS cre_complete_statuses ON cre_complete_statuses.phenotype_attempt_id = best_phenotype_attempts_non_cre_ex.id AND cre_complete_statuses.status_id = 6
+            LEFT JOIN phenotype_attempt_status_stamps AS started_statuses ON started_statuses.phenotype_attempt_id = best_phenotype_attempts_non_cre_ex.id AND started_statuses.status_id = 7
+            LEFT JOIN phenotype_attempt_status_stamps AS complete_statuses ON complete_statuses.phenotype_attempt_id = best_phenotype_attempts_non_cre_ex.id AND complete_statuses.status_id = 8
+            ORDER BY gene_id, consortium_id
+          ),
+
           -- get the best_mi_plans per gene in a CTE using WITH
           best_mi_plans AS (
             SELECT
@@ -482,7 +621,39 @@ module NewConsortiaIntermediateReport::ReportGenerator
             end AS mi_attempt_colony_name,
             best_phenotype_attempts.pa_mi_attempt_consortium AS mi_attempt_consortium,
             best_phenotype_attempts.pa_mi_attempt_production_centre AS mi_attempt_production_centre,
-            best_phenotype_attempts.phenotype_attempt_colony_name
+            best_phenotype_attempts.phenotype_attempt_colony_name,
+
+            best_non_cre_ex_phenotype_attempts.phenotype_attempt_status AS non_cre_ex_phenotype_attempt_status,
+            best_non_cre_ex_phenotype_attempts.phenotype_attempt_registered_date AS non_cre_ex_phenotype_attempt_registered_date,
+            best_non_cre_ex_phenotype_attempts.rederivation_started_date AS non_cre_ex_rederivation_started_date,
+            best_non_cre_ex_phenotype_attempts.rederivation_complete_date AS non_cre_ex_rederivation_complete_date,
+            best_non_cre_ex_phenotype_attempts.cre_excision_started_date AS non_cre_ex_cre_excision_started_date,
+            best_non_cre_ex_phenotype_attempts.cre_excision_complete_date AS non_cre_ex_cre_excision_complete_date,
+            best_non_cre_ex_phenotype_attempts.phenotyping_started_date AS non_cre_ex_phenotyping_started_date,
+            best_non_cre_ex_phenotype_attempts.phenotyping_complete_date AS non_cre_ex_phenotyping_complete_date,
+            best_non_cre_ex_phenotype_attempts.phenotype_attempt_aborted_date AS non_cre_ex_phenotype_attempt_aborted_date,
+            best_non_cre_ex_phenotype_attempts.pa_mouse_allele_type AS non_cre_ex_pa_mouse_allele_type,
+            best_non_cre_ex_phenotype_attempts.pa_allele_symbol_superscript_template AS non_cre_ex_pa_allele_symbol_superscript_template,
+            best_non_cre_ex_phenotype_attempts.pa_allele_symbol_superscript AS non_cre_ex_pa_allele_symbol_superscript,
+            best_non_cre_ex_phenotype_attempts.pa_mi_attempt_consortium AS non_cre_ex_mi_attempt_consortium,
+            best_non_cre_ex_phenotype_attempts.pa_mi_attempt_production_centre AS non_cre_ex_mi_attempt_production_centre,
+            best_non_cre_ex_phenotype_attempts.phenotype_attempt_colony_name AS non_cre_ex_phenotype_attempt_colony_name,
+
+            best_cre_ex_phenotype_attempts.phenotype_attempt_status AS cre_ex_phenotype_attempt_status,
+            best_cre_ex_phenotype_attempts.phenotype_attempt_registered_date AS cre_ex_phenotype_attempt_registered_date,
+            best_cre_ex_phenotype_attempts.rederivation_started_date AS cre_ex_rederivation_started_date,
+            best_cre_ex_phenotype_attempts.rederivation_complete_date AS cre_ex_rederivation_complete_date,
+            best_cre_ex_phenotype_attempts.cre_excision_started_date AS cre_ex_cre_excision_started_date,
+            best_cre_ex_phenotype_attempts.cre_excision_complete_date AS cre_ex_cre_excision_complete_date,
+            best_cre_ex_phenotype_attempts.phenotyping_started_date AS cre_ex_phenotyping_started_date,
+            best_cre_ex_phenotype_attempts.phenotyping_complete_date AS cre_ex_phenotyping_complete_date,
+            best_cre_ex_phenotype_attempts.phenotype_attempt_aborted_date AS cre_ex_phenotype_attempt_aborted_date,
+            best_cre_ex_phenotype_attempts.pa_mouse_allele_type AS cre_ex_pa_mouse_allele_type,
+            best_cre_ex_phenotype_attempts.pa_allele_symbol_superscript_template AS cre_ex_pa_allele_symbol_superscript_template,
+            best_cre_ex_phenotype_attempts.pa_allele_symbol_superscript AS cre_ex_pa_allele_symbol_superscript,
+            best_cre_ex_phenotype_attempts.pa_mi_attempt_consortium AS cre_ex_mi_attempt_consortium,
+            best_cre_ex_phenotype_attempts.pa_mi_attempt_production_centre AS cre_ex_mi_attempt_production_centre,
+            best_cre_ex_phenotype_attempts.phenotype_attempt_colony_name AS cre_ex_phenotype_attempt_colony_name
 
           FROM (SELECT DISTINCT mi_plans.gene_id, mi_plans.consortium_id FROM mi_plans) AS unique_gene_plans
 
@@ -492,6 +663,10 @@ module NewConsortiaIntermediateReport::ReportGenerator
           LEFT JOIN best_phenotype_attempts ON best_phenotype_attempts.gene_id = unique_gene_plans.gene_id AND best_phenotype_attempts.consortium_id = unique_gene_plans.consortium_id
           LEFT JOIN best_mi_plans ON best_mi_plans.gene_id = unique_gene_plans.gene_id AND best_mi_plans.consortium_id = unique_gene_plans.consortium_id
           LEFT JOIN gene_interest_commenced ON gene_interest_commenced.gene_id = unique_gene_plans.gene_id AND gene_interest_commenced.consortium_id = unique_gene_plans.consortium_id
+
+          LEFT JOIN best_non_cre_ex_phenotype_attempts ON best_non_cre_ex_phenotype_attempts.gene_id = unique_gene_plans.gene_id AND best_non_cre_ex_phenotype_attempts.consortium_id = unique_gene_plans.consortium_id
+          LEFT JOIN best_cre_ex_phenotype_attempts ON best_cre_ex_phenotype_attempts.gene_id = unique_gene_plans.gene_id AND best_cre_ex_phenotype_attempts.consortium_id = unique_gene_plans.consortium_id
+
           ORDER BY unique_gene_plans.gene_id, unique_gene_plans.consortium_id
         EOF
       end
@@ -632,6 +807,36 @@ module NewConsortiaIntermediateReport::ReportGenerator
           'mi_attempt_consortium',
           'mi_attempt_production_centre',
           'phenotype_attempt_colony_name',
+          'non_cre_ex_phenotype_attempt_status',
+          'non_cre_ex_phenotype_attempt_registered_date',
+          'non_cre_ex_rederivation_started_date',
+          'non_cre_ex_rederivation_complete_date',
+          'non_cre_ex_cre_excision_started_date',
+          'non_cre_ex_cre_excision_complete_date',
+          'non_cre_ex_phenotyping_started_date',
+          'non_cre_ex_phenotyping_complete_date',
+          'non_cre_ex_phenotype_attempt_aborted_date',
+          'non_cre_ex_pa_mouse_allele_type',
+          'non_cre_ex_pa_allele_symbol_superscript_template',
+          'non_cre_ex_pa_allele_symbol_superscript',
+          'non_cre_ex_mi_attempt_consortium',
+          'non_cre_ex_mi_attempt_production_centre',
+          'non_cre_ex_phenotype_attempt_colony_name',
+          'cre_ex_phenotype_attempt_status',
+          'cre_ex_phenotype_attempt_registered_date',
+          'cre_ex_rederivation_started_date',
+          'cre_ex_rederivation_complete_date',
+          'cre_ex_cre_excision_started_date',
+          'cre_ex_cre_excision_complete_date',
+          'cre_ex_phenotyping_started_date',
+          'cre_ex_phenotyping_complete_date',
+          'cre_ex_phenotype_attempt_aborted_date',
+          'cre_ex_pa_mouse_allele_type',
+          'cre_ex_pa_allele_symbol_superscript_template',
+          'cre_ex_pa_allele_symbol_superscript',
+          'cre_ex_mi_attempt_consortium',
+          'cre_ex_mi_attempt_production_centre',
+          'cre_ex_phenotype_attempt_colony_name',
           'created_at'
         ]
 

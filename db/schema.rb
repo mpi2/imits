@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130708264213) do
+ActiveRecord::Schema.define(:version => 20130718140000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -345,15 +345,15 @@ ActiveRecord::Schema.define(:version => 20130708264213) do
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true
 
   create_table "new_consortia_intermediate_report", :force => true do |t|
-    t.string   "gene",                                         :limit => 75,  :null => false
-    t.string   "consortium",                                                  :null => false
+    t.string   "gene",                                             :limit => 75,  :null => false
+    t.string   "consortium",                                                      :null => false
     t.date     "gene_interest_date"
     t.string   "production_centre"
-    t.string   "mgi_accession_id",                             :limit => 40
-    t.string   "overall_status",                               :limit => 50
-    t.string   "mi_plan_status",                               :limit => 50
-    t.string   "mi_attempt_status",                            :limit => 50
-    t.string   "phenotype_attempt_status",                     :limit => 50
+    t.string   "mgi_accession_id",                                 :limit => 40
+    t.string   "overall_status",                                   :limit => 50
+    t.string   "mi_plan_status",                                   :limit => 50
+    t.string   "mi_attempt_status",                                :limit => 50
+    t.string   "phenotype_attempt_status",                         :limit => 50
     t.integer  "mi_plan_id"
     t.integer  "mi_attempt_id"
     t.integer  "phenotype_attempt_id"
@@ -365,7 +365,7 @@ ActiveRecord::Schema.define(:version => 20130708264213) do
     t.string   "priority"
     t.boolean  "is_bespoke_allele"
     t.string   "ikmc_project_id"
-    t.string   "mutation_sub_type",                            :limit => 100
+    t.string   "mutation_sub_type",                                :limit => 100
     t.string   "allele_symbol"
     t.string   "genetic_background"
     t.string   "mi_attempt_colony_name"
@@ -393,18 +393,48 @@ ActiveRecord::Schema.define(:version => 20130708264213) do
     t.integer  "gc_pipeline_efficiency_gene_count"
     t.integer  "gc_old_pipeline_efficiency_gene_count"
     t.datetime "created_at"
+    t.string   "non_cre_ex_phenotype_attempt_status"
+    t.date     "non_cre_ex_phenotype_attempt_registered_date"
+    t.date     "non_cre_ex_rederivation_started_date"
+    t.date     "non_cre_ex_rederivation_complete_date"
+    t.date     "non_cre_ex_cre_excision_started_date"
+    t.date     "non_cre_ex_cre_excision_complete_date"
+    t.date     "non_cre_ex_phenotyping_started_date"
+    t.date     "non_cre_ex_phenotyping_complete_date"
+    t.date     "non_cre_ex_phenotype_attempt_aborted_date"
+    t.string   "non_cre_ex_pa_mouse_allele_type"
+    t.string   "non_cre_ex_pa_allele_symbol_superscript_template"
+    t.string   "non_cre_ex_pa_allele_symbol_superscript"
+    t.string   "non_cre_ex_mi_attempt_consortium"
+    t.string   "non_cre_ex_mi_attempt_production_centre"
+    t.string   "non_cre_ex_phenotype_attempt_colony_name"
+    t.string   "cre_ex_phenotype_attempt_status"
+    t.date     "cre_ex_phenotype_attempt_registered_date"
+    t.date     "cre_ex_rederivation_started_date"
+    t.date     "cre_ex_rederivation_complete_date"
+    t.date     "cre_ex_cre_excision_started_date"
+    t.date     "cre_ex_cre_excision_complete_date"
+    t.date     "cre_ex_phenotyping_started_date"
+    t.date     "cre_ex_phenotyping_complete_date"
+    t.date     "cre_ex_phenotype_attempt_aborted_date"
+    t.string   "cre_ex_pa_mouse_allele_type"
+    t.string   "cre_ex_pa_allele_symbol_superscript_template"
+    t.string   "cre_ex_pa_allele_symbol_superscript"
+    t.string   "cre_ex_mi_attempt_consortium"
+    t.string   "cre_ex_mi_attempt_production_centre"
+    t.string   "cre_ex_phenotype_attempt_colony_name"
   end
 
   create_table "new_gene_intermediate_report", :force => true do |t|
-    t.string   "gene",                                            :limit => 75,  :null => false
-    t.string   "consortium",                                                     :null => false
+    t.string   "gene",                                             :limit => 75,  :null => false
+    t.string   "consortium",                                                      :null => false
     t.date     "gene_interest_date"
     t.string   "production_centre"
-    t.string   "mgi_accession_id",                                :limit => 40
-    t.string   "overall_status",                                  :limit => 50
-    t.string   "mi_plan_status",                                  :limit => 50
-    t.string   "mi_attempt_status",                               :limit => 50
-    t.string   "phenotype_attempt_status",                        :limit => 50
+    t.string   "mgi_accession_id",                                 :limit => 40
+    t.string   "overall_status",                                   :limit => 50
+    t.string   "mi_plan_status",                                   :limit => 50
+    t.string   "mi_attempt_status",                                :limit => 50
+    t.string   "phenotype_attempt_status",                         :limit => 50
     t.integer  "mi_plan_id"
     t.integer  "mi_attempt_id"
     t.integer  "phenotype_attempt_id"
@@ -416,7 +446,7 @@ ActiveRecord::Schema.define(:version => 20130708264213) do
     t.string   "priority"
     t.boolean  "is_bespoke_allele"
     t.string   "ikmc_project_id"
-    t.string   "mutation_sub_type",                               :limit => 100
+    t.string   "mutation_sub_type",                                :limit => 100
     t.string   "allele_symbol"
     t.string   "genetic_background"
     t.string   "mi_attempt_colony_name"
@@ -447,22 +477,52 @@ ActiveRecord::Schema.define(:version => 20130708264213) do
     t.integer  "most_advanced_mi_attempt_id_by_consortia"
     t.integer  "most_advanced_phenotype_attempt_id_by_consortia"
     t.datetime "created_at"
+    t.string   "non_cre_ex_phenotype_attempt_status"
+    t.date     "non_cre_ex_phenotype_attempt_registered_date"
+    t.date     "non_cre_ex_rederivation_started_date"
+    t.date     "non_cre_ex_rederivation_complete_date"
+    t.date     "non_cre_ex_cre_excision_started_date"
+    t.date     "non_cre_ex_cre_excision_complete_date"
+    t.date     "non_cre_ex_phenotyping_started_date"
+    t.date     "non_cre_ex_phenotyping_complete_date"
+    t.date     "non_cre_ex_phenotype_attempt_aborted_date"
+    t.string   "non_cre_ex_pa_mouse_allele_type"
+    t.string   "non_cre_ex_pa_allele_symbol_superscript_template"
+    t.string   "non_cre_ex_pa_allele_symbol_superscript"
+    t.string   "non_cre_ex_mi_attempt_consortium"
+    t.string   "non_cre_ex_mi_attempt_production_centre"
+    t.string   "non_cre_ex_phenotype_attempt_colony_name"
+    t.string   "cre_ex_phenotype_attempt_status"
+    t.date     "cre_ex_phenotype_attempt_registered_date"
+    t.date     "cre_ex_rederivation_started_date"
+    t.date     "cre_ex_rederivation_complete_date"
+    t.date     "cre_ex_cre_excision_started_date"
+    t.date     "cre_ex_cre_excision_complete_date"
+    t.date     "cre_ex_phenotyping_started_date"
+    t.date     "cre_ex_phenotyping_complete_date"
+    t.date     "cre_ex_phenotype_attempt_aborted_date"
+    t.string   "cre_ex_pa_mouse_allele_type"
+    t.string   "cre_ex_pa_allele_symbol_superscript_template"
+    t.string   "cre_ex_pa_allele_symbol_superscript"
+    t.string   "cre_ex_mi_attempt_consortium"
+    t.string   "cre_ex_mi_attempt_production_centre"
+    t.string   "cre_ex_phenotype_attempt_colony_name"
   end
 
   create_table "new_intermediate_report", :force => true do |t|
-    t.string   "gene",                                         :limit => 75,  :null => false
-    t.integer  "mi_plan_id",                                                  :null => false
-    t.string   "consortium",                                                  :null => false
+    t.string   "gene",                                             :limit => 75,  :null => false
+    t.integer  "mi_plan_id",                                                      :null => false
+    t.string   "consortium",                                                      :null => false
     t.string   "production_centre"
     t.string   "sub_project"
     t.string   "priority"
-    t.string   "mgi_accession_id",                             :limit => 40
-    t.string   "overall_status",                               :limit => 50
-    t.string   "mi_plan_status",                               :limit => 50
-    t.string   "mi_attempt_status",                            :limit => 50
-    t.string   "phenotype_attempt_status",                     :limit => 50
+    t.string   "mgi_accession_id",                                 :limit => 40
+    t.string   "overall_status",                                   :limit => 50
+    t.string   "mi_plan_status",                                   :limit => 50
+    t.string   "mi_attempt_status",                                :limit => 50
+    t.string   "phenotype_attempt_status",                         :limit => 50
     t.string   "ikmc_project_id"
-    t.string   "mutation_sub_type",                            :limit => 100
+    t.string   "mutation_sub_type",                                :limit => 100
     t.string   "allele_symbol"
     t.string   "genetic_background"
     t.boolean  "is_bespoke_allele"
@@ -495,6 +555,36 @@ ActiveRecord::Schema.define(:version => 20130708264213) do
     t.integer  "gc_pipeline_efficiency_gene_count"
     t.integer  "gc_old_pipeline_efficiency_gene_count"
     t.datetime "created_at"
+    t.string   "non_cre_ex_phenotype_attempt_status"
+    t.date     "non_cre_ex_phenotype_attempt_registered_date"
+    t.date     "non_cre_ex_rederivation_started_date"
+    t.date     "non_cre_ex_rederivation_complete_date"
+    t.date     "non_cre_ex_cre_excision_started_date"
+    t.date     "non_cre_ex_cre_excision_complete_date"
+    t.date     "non_cre_ex_phenotyping_started_date"
+    t.date     "non_cre_ex_phenotyping_complete_date"
+    t.date     "non_cre_ex_phenotype_attempt_aborted_date"
+    t.string   "non_cre_ex_pa_mouse_allele_type"
+    t.string   "non_cre_ex_pa_allele_symbol_superscript_template"
+    t.string   "non_cre_ex_pa_allele_symbol_superscript"
+    t.string   "non_cre_ex_mi_attempt_consortium"
+    t.string   "non_cre_ex_mi_attempt_production_centre"
+    t.string   "non_cre_ex_phenotype_attempt_colony_name"
+    t.string   "cre_ex_phenotype_attempt_status"
+    t.date     "cre_ex_phenotype_attempt_registered_date"
+    t.date     "cre_ex_rederivation_started_date"
+    t.date     "cre_ex_rederivation_complete_date"
+    t.date     "cre_ex_cre_excision_started_date"
+    t.date     "cre_ex_cre_excision_complete_date"
+    t.date     "cre_ex_phenotyping_started_date"
+    t.date     "cre_ex_phenotyping_complete_date"
+    t.date     "cre_ex_phenotype_attempt_aborted_date"
+    t.string   "cre_ex_pa_mouse_allele_type"
+    t.string   "cre_ex_pa_allele_symbol_superscript_template"
+    t.string   "cre_ex_pa_allele_symbol_superscript"
+    t.string   "cre_ex_mi_attempt_consortium"
+    t.string   "cre_ex_mi_attempt_production_centre"
+    t.string   "cre_ex_phenotype_attempt_colony_name"
   end
 
   create_table "notifications", :force => true do |t|

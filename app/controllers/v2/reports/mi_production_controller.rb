@@ -36,8 +36,8 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
-    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status
-    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(false)
+    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
+    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -53,8 +53,8 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
-    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status
-    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(false)
+    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
+    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -69,8 +69,8 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
-    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status
-    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(false)
+    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
+    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals

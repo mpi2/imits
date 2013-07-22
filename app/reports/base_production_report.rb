@@ -171,11 +171,17 @@ class BaseProductionReport
 
   def generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     hash = {}
+    prefix = ''
+    data = {}
 
     if cre_excision_required
       data = consortium_centre_by_phenotyping_status_cre_excision_required
+      prefix = 'Cre Ex'
+      prefix_key = 'cre_ex'
     else
       data = consortium_centre_by_phenotyping_status_cre_excision_not_required
+      prefix = 'Non Cre Ex'
+      prefix_key = 'non_cre_ex'
     end
 
     data.each do |report_row|
@@ -186,105 +192,49 @@ class BaseProductionReport
         hash["#{report_row['consortium']}"] << report_row['production_centre']
       end
 
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Intent to phenotype"]    ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation started"]   ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation completed"] ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision started"]   ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision completed"] ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping started"]    ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping completed"]  ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping aborted"]    ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Intent to phenotype"]    ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Rederivation started"]   ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Rederivation completed"] ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Cre excision started"]   ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Cre excision completed"] ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Phenotyping started"]    ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Phenotyping completed"]  ||= 0
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Phenotyping aborted"]    ||= 0
 
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Intent to phenotype"] += report_row["count"].to_i
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Intent to phenotype"] += report_row["count"].to_i
 
-      if report_row['phenotype_attempt_status'] == 'Rederivation Started'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation started"] += report_row["count"].to_i
+      if report_row["#{prefix_key}_phenotype_attempt_status"] == 'Rederivation Started'
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Rederivation started"] += report_row["count"].to_i
       end
 
-      if report_row['phenotype_attempt_status'] == 'Rederivation Complete'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation completed"] += report_row["count"].to_i
+      if report_row["#{prefix_key}_phenotype_attempt_status"] == 'Rederivation Complete'
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Rederivation completed"] += report_row["count"].to_i
       end
 
-      if report_row['phenotype_attempt_status'] == 'Cre Excision Started'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision started"] += report_row["count"].to_i
+      if report_row["#{prefix_key}_phenotype_attempt_status"] == 'Cre Excision Started'
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Cre excision started"] += report_row["count"].to_i
       end
 
-      if report_row['phenotype_attempt_status'] == 'Cre Excision Complete'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision completed"] += report_row["count"].to_i
+      if report_row["#{prefix_key}_phenotype_attempt_status"] == 'Cre Excision Complete'
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Cre excision completed"] += report_row["count"].to_i
       end
 
-      if report_row['phenotype_attempt_status'] == 'Phenotyping Started'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping started"] += report_row["count"].to_i
+      if report_row["#{prefix_key}_phenotype_attempt_status"] == 'Phenotyping Started'
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Phenotyping started"] += report_row["count"].to_i
       end
 
-      if report_row['phenotype_attempt_status'] == 'Phenotyping Complete'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping completed"] += report_row["count"].to_i
+      if report_row["#{prefix_key}_phenotype_attempt_status"] == 'Phenotyping Complete'
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Phenotyping completed"] += report_row["count"].to_i
       end
 
-      if report_row['phenotype_attempt_status'] == 'Phenotype Attempt Aborted'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping aborted"] += report_row["count"].to_i
-      end
-
-    end
-
-    hash
-  end
-
-  def generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
-    hash = {}
-
-    consortium_centre_by_phenotyping_status(cre_excision_required).each do |report_row|
-      next if report_row['production_centre'].blank?
-
-      hash["#{report_row['consortium']}"] = hash["#{report_row['consortium']}"] || []
-      if !hash["#{report_row['consortium']}"].include?(report_row['production_centre'])
-        hash["#{report_row['consortium']}"] << report_row['production_centre']
-      end
-
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Intent to phenotype"]    ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation started"]   ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation completed"] ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision started"]   ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision completed"] ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping started"]    ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping completed"]  ||= 0
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping aborted"]    ||= 0
-
-      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Intent to phenotype"] += report_row["count"].to_i
-
-      if report_row['phenotype_attempt_status'] == 'Rederivation Started'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation started"] += report_row["count"].to_i
-      end
-
-      if report_row['phenotype_attempt_status'] == 'Rederivation Complete'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Rederivation completed"] += report_row["count"].to_i
-      end
-
-      if report_row['phenotype_attempt_status'] == 'Cre Excision Started'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision started"] += report_row["count"].to_i
-      end
-
-      if report_row['phenotype_attempt_status'] == 'Cre Excision Complete'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre excision completed"] += report_row["count"].to_i
-      end
-
-      if report_row['phenotype_attempt_status'] == 'Phenotyping Started'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping started"] += report_row["count"].to_i
-      end
-
-      if report_row['phenotype_attempt_status'] == 'Phenotyping Complete'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping completed"] += report_row["count"].to_i
-      end
-
-      if report_row['phenotype_attempt_status'] == 'Phenotype Attempt Aborted'
-        hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotyping aborted"] += report_row["count"].to_i
+      if report_row["#{prefix_key}_phenotype_attempt_status"] == 'Phenotype Attempt Aborted'
+        hash["#{report_row['consortium']}-#{report_row['production_centre']}-#{prefix} Phenotyping aborted"] += report_row["count"].to_i
       end
 
     end
 
     hash
   end
-
 
 
   def generate_gene_efficiency_totals

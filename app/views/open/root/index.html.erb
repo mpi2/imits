@@ -14,6 +14,84 @@
     </div>
   </div>
 
+  <table style="font-size: 85%">
+  <tr>
+  <td width="500" style="display: table-cell;vertical-align: top;">
+    <h2 style="margin-bottom:0">New IMPC Mouse Production Attempts</h2>
+    <!--<div class="report grid_12" style=height="100px">-->
+    <div class="report grid_12" style="width:100%;height:410px;overflow:auto;margin-top:20px;">
+    <!--<div style="height:200px;overflow:auto;margin-top:20px;">-->
+
+<table style="width:100%;">
+  <!--<thead style="position:absolute;">-->
+  <thead>
+    <tr>
+      <th>Gene</th>
+      <th>Consortium</th>
+      <th>Production centre</th>
+      <th>Production date</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <% @table_1.each do |row| %>
+    <tr>
+      <td><%= raw row['marker_symbol_href'] %></td>
+      <td><%= raw row['consortium_href'] %></td>
+      <td><%= raw row['production_centre_href'] %></td>
+      <td><%= row['mi_date'] %></td>
+    </tr>
+    <% end %>
+
+  </tbody>
+</table>
+
+    </div>
+  </td>
+
+  <td width="20px">
+    <br/>
+  </td>
+
+  <td width="800" style="display: table-cell;vertical-align: top;">
+    <h2 style="margin-bottom:0">New IMPC Genotype Confirmed Mice</h2>
+    <!--<div class="report grid_12" style=height="100px">-->
+    <div class="report grid_12" style="width:100%;height:410px;overflow:auto;margin-top:20px;">
+
+<table style="width:100%;">
+  <thead>
+    <tr>
+      <th>Gene</th>
+      <th>Consortium</th>
+      <th>Production centre</th>
+      <!--<th>gc_date2</th>-->
+      <th>Production date</th>
+      <th>Genotype confirmed date</th>
+      <!--<th>Age</th>-->
+    </tr>
+  </thead>
+  <tbody>
+
+    <% @table_2.each do |row| %>
+    <tr>
+      <td><%= raw row['marker_symbol_href'] %></td>
+      <td><%= raw row['consortium_href'] %></td>
+      <td><%= raw row['production_centre_href'] %></td>
+      <!--<td><%= row['gc_date2'] %></td>-->
+      <td><%= row['mi_date'] %></td>
+      <td><%= row['gc_date'] %></td>
+      <!--<td><%= row['other_date'] %></td>-->
+    </tr>
+    <% end %>
+
+  </tbody>
+</table>
+
+    </div>
+  </td>
+  </tr>
+  </table>
+
   <% if Rails.application.config.show_search_page %>
 
   <div class="homepage-links" id = 'gene_search' name = 'gene_search' >

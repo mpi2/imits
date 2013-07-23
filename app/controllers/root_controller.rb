@@ -1,3 +1,6 @@
+
+require 'pp'
+
 class RootController < ApplicationController
 
   respond_to :html
@@ -6,6 +9,12 @@ class RootController < ApplicationController
     if user_signed_in?
       render 'root/index'
     else
+      @table_1 = ReadOnlyIndexReport::get_table_1
+      @table_2 = ReadOnlyIndexReport::get_table_2
+
+      #pp @table_1
+      #pp @table_2
+
       render 'open/root/index'
     end
   end

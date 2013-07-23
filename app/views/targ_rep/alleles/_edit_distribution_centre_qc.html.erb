@@ -36,23 +36,24 @@
   <tr>
     <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :five_prime_lr_pcr, :readonly => @readonly } %>
     <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :three_prime_lr_pcr, :readonly => @readonly } %>
+    <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :thawing, :readonly => @readonly } %>
     <td colspan="2"></td>
   </tr>
   <tr>
     <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :five_prime_sr_pcr, :readonly => @readonly } %>
     <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :three_prime_sr_pcr, :readonly => @readonly } %>
+    <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :unspecified_repository_testing, :readonly => @readonly } %>
     <td colspan="2"></td>
   </tr>
   <tr>
-    <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :thawing, :readonly => @readonly } %>
+    <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :loxp, :readonly => @readonly } %>
     <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :loxp_srpcr, :readonly => @readonly } %>
-    <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :unspecified_repository_testing, :readonly => @readonly } %>
     <td colspan="4"></td>
   </tr>
 
   <tr>
+    <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :neo_qpcr, :readonly => @readonly } %>
     <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :loa, :readonly => @readonly } %>
-    <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :loxp, :readonly => @readonly } %>
     <%= render :partial => 'targ_rep/alleles/distribution_centre_qc_form_select', :locals => { :distribution_qc => distribution_qc, :symbol => :lacz, :readonly => @readonly } %>
   </tr>
   <tr>

@@ -89,6 +89,8 @@ class MiPlan < ApplicationModel
       :is_cre_knock_in_allele => plan.is_cre_knock_in_allele,
       :is_cre_bac_allele => plan.is_cre_bac_allele,
       :conditional_tm1c => plan.conditional_tm1c,
+      :point_mutation => plan.point_mutation,
+      :conditional_point_mutation => plan.conditional_point_mutation,
       :phenotype_only => plan.phenotype_only).map(&:id)
     other_ids -= [plan.id]
     if(other_ids.count != 0)
@@ -136,7 +138,7 @@ class MiPlan < ApplicationModel
   after_destroy :conflict_resolve_others
 
   before_save :update_es_cell_qc
-  
+
   before_save :update_es_cell_received
 
   scope :phenotype_only, where(:phenotype_only => true)
@@ -157,15 +159,6 @@ class MiPlan < ApplicationModel
       )
     end
 
-  end
-
-  def update_es_cell_received
-    if number_of_es_cells_received.blank? && number_of_es_cells_starting_qc.to_i > 0
-      return if centre_pipeline.blank?
-      self.number_of_es_cells_received = number_of_es_cells_starting_qc
-      self.es_cells_received_on = Date.today
-      self.es_cells_received_from_name = centre_pipeline
-    end
   end
 
   def set_default_number_of_es_cells_starting_qc
@@ -210,18 +203,27 @@ class MiPlan < ApplicationModel
   delegate :marker_symbol, :to => :gene
   delegate :mgi_accession_id, :to => :gene
 
+  def update_es_cell_received
+    if number_of_es_cells_received.blank? && number_of_es_cells_starting_qc.to_i > 0
+      return if centre_pipeline.blank?
+      return if es_cell_qc_in_progress_date.blank?
+      self.number_of_es_cells_received = number_of_es_cells_starting_qc
+      self.es_cells_received_on = es_cell_qc_in_progress_date
+      self.es_cells_received_from_name = centre_pipeline
+    end
+  end
+
   def centre_pipeline
     @centre_pipeline ||= TargRep::CentrePipeline.all.find{|p| p.centres.include?(default_pipeline.try(:name)) }.try(:name)
   end
 
   def default_pipeline
-    @default_pipeline ||= if mi_attempts.empty?
-      gene.allele.first.try(:es_cells).try(:first).try(:pipeline)
-    elsif phenotype_attempts.empty?
-      self.phenotype_attempts.first.try(:es_cell).try(:pipeline)
-    else
-      self.mi_attempts.first.try(:es_cell).try(:pipeline)
-    end
+    @default_pipeline ||= self.mi_attempts.first.try(:es_cell).try(:pipeline)
+  end
+
+  def es_cell_qc_in_progress_date
+    status_stamp = self.status_stamps.where(status_id: MiPlan::Status['Assigned - ES Cell QC In Progress'].id).first
+    status_stamp.created_at.to_date if status_stamp
   end
 
   def latest_relevant_mi_attempt
@@ -463,6 +465,7 @@ class MiPlan < ApplicationModel
 end
 
 
+
 # == Schema Information
 #
 # Table name: mi_plans
@@ -495,6 +498,9 @@ end
 #  number_of_es_cells_received    :integer
 #  es_cells_received_on           :date
 #  es_cells_received_from_id      :integer
+#  point_mutation                 :boolean         default(FALSE), not null
+#  conditional_point_mutation     :boolean         default(FALSE), not null
+#  allele_symbol_superscript      :text
 #
 # Indexes
 #

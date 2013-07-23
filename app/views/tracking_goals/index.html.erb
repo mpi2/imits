@@ -1,7 +1,7 @@
 <% @title = "Manage tracking goals" %>
 
 <%= javascript_tag "CENTRE_OPTIONS = #{Centre.all.map(&:name).sort.to_json};" %>
-<%= javascript_tag "GOAL_TYPES = #{TrackingGoal::GOAL_TYPES.sort.to_json};" %>
+<%= javascript_tag "GOAL_TYPES = #{TrackingGoal::GOAL_TYPES.to_json};" %>
 <% content_for :post_js_footer do %>
   <%= javascript_include_tag 'tracking_goals/index' %>
 <% end %>

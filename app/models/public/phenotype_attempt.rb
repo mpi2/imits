@@ -36,6 +36,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     marker_symbol
     mouse_allele_symbol_superscript
     mouse_allele_symbol
+    allele_symbol
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -53,6 +54,12 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   validate do |me|
     if me.changed.include?('mi_attempt_id') and ! me.new_record?
       me.errors.add :mi_attempt_colony_name, 'cannot be changed'
+    end
+  end
+
+  validate do |me|
+    if me.changes.has_key?('colony_name') and (! me.changes[:colony_name][0].nil?) and me.status.order_by >= PhenotypeAttempt::Status.find_by_code('pds').order_by #Phenotype Started
+      me.errors.add(:phenotype_attempt, "colony_name can not be changed once phenotyping has started")
     end
   end
 

@@ -8,6 +8,23 @@ class MiAttempt::StatusStamp < ActiveRecord::Base
   belongs_to :status
 
   delegate :name, :code, :to => :status
+
+  validates :mi_attempt_id, :presence => true
+  validates :status_id, :presence => true
+
+  before_save :make_mi_date_and_in_progress_status_consistent
+
+  def make_mi_date_and_in_progress_status_consistent
+
+    if self.status_id == 1
+      mi_attempt = self.mi_attempt
+      if mi_attempt
+        self.created_at = mi_attempt.mi_date.to_datetime
+      end
+    end
+  end
+  protected :make_mi_date_and_in_progress_status_consistent
+
 end
 
 # == Schema Information

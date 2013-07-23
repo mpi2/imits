@@ -7,9 +7,9 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     def default_mi_attempt
       @default_mi_attempt ||= Factory.create(:mi_attempt2,
-        :blast_strain             => Strain.find_by_name!('BALB/c'),
-        :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd'),
-        :test_cross_strain        => Strain.find_by_name!('129P2/OlaHsd')
+      :blast_strain             => Strain.find_by_name!('BALB/c'),
+      :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd'),
+      :test_cross_strain        => Strain.find_by_name!('129P2/OlaHsd')
       )
     end
 
@@ -42,7 +42,7 @@ class MiAttemptTest < ActiveSupport::TestCase
         should ', when changed, add a status stamp' do
           default_mi_attempt.update_attributes!(:is_active => false)
           assert_equal [MiAttempt::Status.micro_injection_in_progress, MiAttempt::Status.micro_injection_aborted],
-                  default_mi_attempt.status_stamps.map(&:status)
+          default_mi_attempt.status_stamps.map(&:status)
         end
 
         should 'not be settable to non-genotype-confirmed if mi attempt has phenotype_attempts' do
@@ -84,13 +84,13 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'add the stamp' do
           assert_not_nil MiAttempt::StatusStamp.where(
-            :mi_attempt_id => default_mi_attempt.id,
-            :status_id => MiAttempt::Status.micro_injection_aborted.id)
+          :mi_attempt_id => default_mi_attempt.id,
+          :status_id => MiAttempt::Status.micro_injection_aborted.id)
         end
 
         should 'update the association afterwards' do
           assert_equal [MiAttempt::Status.micro_injection_aborted],
-                  default_mi_attempt.status_stamps.map(&:status)
+          default_mi_attempt.status_stamps.map(&:status)
         end
       end
 
@@ -100,12 +100,11 @@ class MiAttemptTest < ActiveSupport::TestCase
 
           set_mi_attempt_genotype_confirmed(mi)
           replace_status_stamps(mi,
-            :mip => '2011-01-01',
-            :chr => '2011-01-02',
-            :gtc => '2011-01-03'
+          :chr => '2011-01-02',
+          :gtc => '2011-01-03'
           )
           expected = {
-            'Micro-injection in progress' => Date.parse('2011-01-01'),
+            'Micro-injection in progress' => mi.mi_date,
             'Chimeras obtained' => Date.parse('2011-01-02'),
             'Genotype confirmed' => Date.parse('2011-01-03')
           }
@@ -156,7 +155,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           es_cell = default_mi_attempt.es_cell
           es_cell.allele_symbol_superscript = 'tm2b(KOMP)Wtsi'
           es_cell.save!
-          
+
           default_mi_attempt.mouse_allele_type = 'e'
           assert_equal 'tm2e(KOMP)Wtsi', default_mi_attempt.mouse_allele_symbol_superscript
         end
@@ -170,22 +169,29 @@ class MiAttemptTest < ActiveSupport::TestCase
           @es_cell.save
         end
 
-        should 'be nil if mouse_allele_type is nil' do
-          @mi_attempt.mouse_allele_type = nil
-          assert_equal nil, @mi_attempt.mouse_allele_symbol
+        should 'override if allele_superscript is set on mi_plan' do
+          @mi_attempt.mi_plan.allele_symbol_superscript = 'override_text'
+          assert_equal 'Myo1c<sup>override_text</sup>', @mi_attempt.mouse_allele_symbol
         end
 
-        should 'work if mouse_allele_type is present' do
-          @mi_attempt.mouse_allele_type = 'e'
-          assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_symbol
-        end
+        context 'if not overridden' do
+          should 'be nil if mouse_allele_type is nil, even if es_cell.allele_symbol_superscript is sets' do
+            @mi_attempt.mouse_allele_type = nil
+            assert_equal nil, @mi_attempt.mouse_allele_symbol
+          end
 
-        should 'be nil if es_cell.allele_symbol_superscript is nil, even if mouse_allele_type is set' do
-          @es_cell.allele_symbol_superscript = nil
-          @es_cell.save!
-          @mi_attempt.es_cell.reload
-          @mi_attempt.mouse_allele_type = 'e'
-          assert_nil @mi_attempt.mouse_allele_symbol
+          should 'work if mouse_allele_type is present' do
+            @mi_attempt.mouse_allele_type = 'e'
+            assert_equal 'Myo1c<sup>tm2e(KOMP)Wtsi</sup>', @mi_attempt.mouse_allele_symbol
+          end
+
+          should 'be nil if es_cell.allele_symbol_superscript is nil, even if mouse_allele_type is set' do
+            @es_cell.allele_symbol_superscript = nil
+            @es_cell.save!
+            @mi_attempt.es_cell.reload
+            @mi_attempt.mouse_allele_type = 'e'
+            assert_nil @mi_attempt.mouse_allele_symbol
+          end
         end
       end
 
@@ -196,23 +202,23 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'return the mouse_allele_symbol if mouse_allele_type is set' do
           mi = Factory.build :mi_attempt2, :mouse_allele_type => 'b',
-                  :es_cell => @es_cell
+          :es_cell => @es_cell
           assert_equal 'Trafd1<sup>tm1b(EUCOMM)Wtsi</sup>', mi.allele_symbol
         end
 
         should 'return the es_cell.allele_symbol if mouse_allele_type is not set' do
           mi = Factory.build :mi_attempt2, :mouse_allele_type => nil,
-                  :es_cell => @es_cell
+          :es_cell => @es_cell
           assert_equal 'Trafd1<sup>tm1a(EUCOMM)Wtsi</sup>', mi.allele_symbol
         end
 
         should 'return "" regardless if es_cell has no allele_symbol_superscript' do
           es_cell = Factory.create :es_cell, :allele => Factory.create(:allele, :gene => cbx1),
-                  :allele_symbol_superscript => nil
+          :allele_symbol_superscript => nil
           assert_equal nil, es_cell.allele_symbol_superscript
 
           mi = Factory.build :mi_attempt2, :mouse_allele_type => 'c',
-                  :es_cell => es_cell
+          :es_cell => es_cell
           assert_equal nil, mi.allele_symbol
         end
       end
@@ -311,9 +317,9 @@ class MiAttemptTest < ActiveSupport::TestCase
 
         should 'be unique (case insensitive)' do
           mi_attempt = Factory.create(:mi_attempt2,
-            :colony_name => 'ABCD')
+          :colony_name => 'ABCD')
           mi_attempt2 = Factory.build(:mi_attempt2,
-            :colony_name => 'abcd')
+          :colony_name => 'abcd')
 
           mi_attempt2.valid?
           assert ! mi_attempt2.errors[:colony_name].blank?
@@ -332,7 +338,7 @@ class MiAttemptTest < ActiveSupport::TestCase
           mi_attempt_last = Factory.create :mi_attempt2, attributes.merge(:colony_name => 'MABC')
 
           assert_equal ['ICS-EPD0127_4_E01-1', 'ICS-EPD0127_4_E01-2', 'ICS-EPD0127_4_E01-3'],
-                  mi_attempts.map(&:colony_name)
+          mi_attempts.map(&:colony_name)
           assert_equal 'MABC', mi_attempt_last.colony_name
         end
 
@@ -579,34 +585,34 @@ class MiAttemptTest < ActiveSupport::TestCase
     context '::translate_public_param' do
       should 'translate marker_symbol' do
         assert_equal 'es_cell_allele_gene_marker_symbol_eq',
-                MiAttempt.translate_public_param('es_cell_marker_symbol_eq')
+        MiAttempt.translate_public_param('es_cell_marker_symbol_eq')
       end
 
       should 'translate allele symbol' do
         assert_equal 'es_cell_allele_symbol_in',
-                MiAttempt.translate_public_param('es_cell_allele_symbol_in')
+        MiAttempt.translate_public_param('es_cell_allele_symbol_in')
       end
 
       should 'translate consortium_name' do
         assert_equal 'mi_plan_consortium_name_ci_in',
-                MiAttempt.translate_public_param('consortium_name_ci_in')
+        MiAttempt.translate_public_param('consortium_name_ci_in')
       end
 
       should 'translate production_centre' do
         assert_equal 'mi_plan_production_centre_name_eq',
-                MiAttempt.translate_public_param('production_centre_name_eq')
+        MiAttempt.translate_public_param('production_centre_name_eq')
       end
 
       should 'leave other params untouched' do
         assert_equal 'colony_name_not_in',
-                MiAttempt.translate_public_param('colony_name_not_in')
+        MiAttempt.translate_public_param('colony_name_not_in')
       end
     end
 
     context '::public_search' do
       should 'pass on parameters not needing translation to ::search' do
         assert_equal default_mi_attempt.id,
-                MiAttempt.public_search(:colony_name_eq => default_mi_attempt.colony_name).result.first.id
+        MiAttempt.public_search(:colony_name_eq => default_mi_attempt.colony_name).result.first.id
       end
 
       should 'translate searching predicates' do
@@ -615,11 +621,11 @@ class MiAttemptTest < ActiveSupport::TestCase
         Factory.create :es_cell_EPD0343_1_H06, :allele => Factory.create(:allele_with_gene_myolc)
         Factory.create :mi_attempt2, :mi_plan => TestDummy.mi_plan('ICS')
         Factory.create :mi_attempt2,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :mi_plan => TestDummy.mi_plan('WTSI', 'Trafd1', :force_assignment => true)
+        :es_cell => Factory.create(:es_cell, :allele => allele),
+        :mi_plan => TestDummy.mi_plan('WTSI', 'Trafd1', :force_assignment => true)
 
         results = MiAttempt.public_search(:es_cell_marker_symbol_eq => 'Trafd1',
-          :production_centre_name_eq => 'ICS').result
+        :production_centre_name_eq => 'ICS').result
 
         es_cell.reload
 
@@ -631,26 +637,26 @@ class MiAttemptTest < ActiveSupport::TestCase
     context '#production_centre' do
       should 'delegate to mi_plan' do
         assert_equal default_mi_attempt.mi_plan.production_centre,
-                default_mi_attempt.production_centre
+        default_mi_attempt.production_centre
       end
     end
 
     context '#consortium' do
       should 'delegate to mi_plan' do
         assert_equal default_mi_attempt.mi_plan.consortium,
-                default_mi_attempt.consortium
+        default_mi_attempt.consortium
       end
     end
 
     context '#in_progress_date' do
-      should 'return status stamp date for in progress status' do
+      should 'return status stamp date for in progress status which matches mi_date' do
         mi = Factory.create :mi_attempt2_status_gtc
         replace_status_stamps(mi,
-          :chr => '2011-11-12 00:00 UTC',
-          :mip => '2011-06-12 00:00 UTC',
-          :gtc => '2011-01-24 00:00 UTC'
+        :chr => '2011-11-12 00:00 UTC',
+        :mip => '2011-06-12 00:00 UTC', # this will be over written to match the mi_date
+        :gtc => '2011-01-24 00:00 UTC'
         )
-        assert_equal Date.parse('2011-06-12'), mi.in_progress_date
+        assert_equal mi.mi_date, mi.in_progress_date
       end
     end
 
@@ -676,11 +682,11 @@ class MiAttemptTest < ActiveSupport::TestCase
     context '#distribution_centres_formatted_display' do
       should 'output a string of distribution centre and deposited material' do
         dc = TestDummy.create :mi_attempt_distribution_centre,
-                'WTSI',
-                'Live mice',
-                :start_date => '2012-01-01',
-                :end_date => '2012-01-02',
-                :is_distributed_by_emma => true
+        'WTSI',
+        'Live mice',
+        :start_date => '2012-01-01',
+        :end_date => '2012-01-02',
+        :is_distributed_by_emma => true
         mi = dc.mi_attempt
         mi.reload
         assert_equal "[EMMA, WTSI, Live mice]", mi.distribution_centres_formatted_display
@@ -733,6 +739,118 @@ class MiAttemptTest < ActiveSupport::TestCase
 
     should 'include BelongsToMiPlan' do
       assert_include MiAttempt.ancestors, ApplicationModel::BelongsToMiPlan
+    end
+
+    def check_phenotype_attempt_status(mi, status_string)
+      status = mi.relevant_phenotype_attempt_status(true)
+      assert_equal status_string, status[:name]
+
+      status = mi.relevant_phenotype_attempt_status(false)
+      assert_nil status
+
+      pa = mi.phenotype_attempts[0]
+      pa.cre_excision_required = false
+      pa.save!
+
+      status = mi.relevant_phenotype_attempt_status(false)
+      assert_equal status_string, status[:name]
+
+      status = mi.relevant_phenotype_attempt_status(true)
+      assert_nil status
+    end
+
+    context '#relevant_phenotype_attempt_status' do
+      should 'just work' do
+        gene = Factory.create :gene,
+        :marker_symbol => 'Moo1',
+        :mgi_accession_id => 'MGI:12345'
+
+        allele = Factory.create :allele, :gene => gene
+
+        plan = TestDummy.mi_plan('MGP', 'WTSI', :gene => gene, :force_assignment => true)
+
+        mi = Factory.create :mi_attempt2_status_gtc,
+        :es_cell => Factory.create(:es_cell, :allele => allele),
+        :mi_plan => plan,
+        :is_active => true
+
+        mi.phenotype_attempts.create!
+
+        mi.reload
+
+        pa = mi.phenotype_attempts[0]
+        pa.cre_excision_required = true
+        pa.save!
+
+        check_phenotype_attempt_status(mi, "Phenotype Attempt Registered")
+
+        pa.cre_excision_required = true
+        pa.rederivation_started = true
+        pa.save!
+
+        check_phenotype_attempt_status(mi, "Rederivation Started")
+
+        pa.cre_excision_required = true
+        pa.deleter_strain = DeleterStrain.first
+        pa.save!
+
+        check_phenotype_attempt_status(mi, "Cre Excision Started")
+
+        pa.cre_excision_required = true
+        pa.number_of_cre_matings_successful = 2
+        pa.colony_background_strain = Strain.first
+        pa.mouse_allele_type = 'b'
+        pa.save!
+
+        check_phenotype_attempt_status(mi, "Cre Excision Complete")
+
+        pa.cre_excision_required = true
+        pa.phenotyping_started = true
+        pa.save!
+
+        check_phenotype_attempt_status(mi, "Phenotyping Started")
+
+        pa.cre_excision_required = true
+        pa.phenotyping_complete = true
+        pa.save!
+
+        check_phenotype_attempt_status(mi, "Phenotyping Complete")
+
+        ## add another pa to list
+
+        pa.cre_excision_required = true
+        pa.save!
+
+        mi.phenotype_attempts.create!
+        pa = mi.phenotype_attempts[1]
+        pa.cre_excision_required = false
+        pa.rederivation_started = true
+        pa.save!
+
+        assert_equal 2, mi.phenotype_attempts.size
+
+        #        check_phenotype_attempt_status(mi, "Phenotyping Complete")
+
+        status = mi.relevant_phenotype_attempt_status(true)
+        assert_equal "Phenotyping Complete", status[:name]
+
+        status = mi.relevant_phenotype_attempt_status(false)
+        assert_equal "Rederivation Started", status[:name]
+
+        pa = mi.phenotype_attempts[0]
+        pa.cre_excision_required = false
+        pa.save!
+
+        pa = mi.phenotype_attempts[1]
+        pa.cre_excision_required = true
+        pa.save!
+
+        status = mi.relevant_phenotype_attempt_status(false)
+        assert_equal "Phenotyping Complete", status[:name]
+
+        status = mi.relevant_phenotype_attempt_status(true)
+        assert_equal "Rederivation Started", status[:name]
+      end
     end
 
   end

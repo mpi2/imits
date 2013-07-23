@@ -53,18 +53,19 @@ class ReportsController < ApplicationController
     glt_mice         = Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk
     aborted_mis      = Gene.pretty_print_aborted_mi_attempts_in_bulk
 
-    Gene.order('marker_symbol asc').each do |gene|
-      @report << {
-        'Marker Symbol'     => gene.marker_symbol,
-        'MGI Accession ID'  => gene.mgi_accession_id,
-        '# IKMC Projects'   => gene.ikmc_projects_count,
-        '# Clones'          => gene.pretty_print_types_of_cells_available.gsub('<br/>',' '),
-        'Non-Assigned Plans'  => non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
-        'Assigned Plans'      => assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
-        'Aborted MIs'       => aborted_mis[gene.marker_symbol] ? aborted_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
-        'MIs in Progress'   => mis_in_progress[gene.marker_symbol] ? mis_in_progress[gene.marker_symbol].gsub('<br/>',' ') : nil,
-        'GLT Mice'          => glt_mice[gene.marker_symbol] ? glt_mice[gene.marker_symbol].gsub('<br/>',' ') : nil
-      }
+    Gene.select('marker_symbol, mgi_accession_id, ikmc_projects_count, conditional_es_cells_count, non_conditional_es_cells_count, deletion_es_cells_count')
+      .order('marker_symbol asc').each do |gene|
+      @report << [
+        gene.marker_symbol,
+        gene.mgi_accession_id,
+        gene.ikmc_projects_count,
+        gene.pretty_print_types_of_cells_available.gsub('<br/>',' '),
+        non_assigned_mis[gene.marker_symbol] ? non_assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+        assigned_mis[gene.marker_symbol] ? assigned_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+        aborted_mis[gene.marker_symbol] ? aborted_mis[gene.marker_symbol].gsub('<br/>',' ') : nil,
+        mis_in_progress[gene.marker_symbol] ? mis_in_progress[gene.marker_symbol].gsub('<br/>',' ') : nil,
+        glt_mice[gene.marker_symbol] ? glt_mice[gene.marker_symbol].gsub('<br/>',' ') : nil
+      ]
     end
 
     send_data(
@@ -167,117 +168,7 @@ class ReportsController < ApplicationController
   end
 
   def planned_microinjection_summary_and_conflicts
-    @include_plans_with_active_attempts = true
-    @include_plans_with_active_attempts = false if params[:include_plans_with_active_attempts] == 'false'
-
-    unless params[:commit].blank?
-      impc_consortia_ids = Consortium.where('name not in (?)', ['EUCOMM-EUMODIC','MGP-KOMP','UCD-KOMP']).map(&:id)
-
-      all_mi_plans = generate_planned_mi_list_report({ :consortium_id => impc_consortia_ids }, @include_plans_with_active_attempts)
-      all_mi_plans.sort_rows_by!('Consortium', :order => :ascending)
-
-      mi_plans_grouped_by_consortia = Grouping( all_mi_plans, :by => ['Consortium'], :order => :name )
-
-      total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(:gene_id, :distinct => true)
-      if @include_plans_with_active_attempts
-        total_number_of_planned_genes = MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true)
-      end
-
-      ##
-      ## Counts of mi_plans grouped by status
-      ##
-
-      statuses = MiPlan::Status.order('order_by asc').all.map { |s| s.name }
-      summary_by_status_args = { :order => ['Consortium'] + statuses }
-      statuses.each do |status|
-        summary_by_status_args[status] = lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Status'] == status } ) }
-      end
-
-      @summary_by_status = mi_plans_grouped_by_consortia.summary( 'Consortium', summary_by_status_args )
-
-      # Add totals by consortium
-      @summary_by_status.add_column('TOTAL BY CONSORTIUM') { |row| statuses.map { |status| row[status] }.reduce(:+) }
-
-      # Add totals by status
-      gene_count_by_status =
-        MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(
-        :gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :status)
-
-      if @include_plans_with_active_attempts
-        gene_count_by_status =
-          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_statuses.name', :include => :status)
-      end
-
-      @summary_by_status << totals = ['TOTAL BY STATUS'] + statuses.map { |status| gene_count_by_status[status] || 0 } + [total_number_of_planned_genes]
-
-      ##
-      ## Counts of mi_plans grouped by priority
-      ##
-
-      priorities = ['High','Medium','Low']
-      summary_by_priority_args = { :order => ['Consortium'] + priorities }
-      priorities.each do |priority|
-        summary_by_priority_args[priority] =
-          lambda { |group| count_unique_instances_of( group, 'Marker Symbol', lambda { |row| row.data['Priority'] == priority } ) }
-      end
-
-      @summary_by_priority = mi_plans_grouped_by_consortia.summary( 'Consortium', summary_by_priority_args )
-
-      # Add totals by consortium
-      @summary_by_priority.add_column('TOTAL BY CONSORTIUM') { |row| priorities.map { |priority| row[priority] }.reduce(:+) }
-
-      # Add totals by priority
-      gene_count_by_priority =
-        MiPlan.where('consortium_id in (?)', impc_consortia_ids).without_active_mi_attempt.count(
-        :gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :priority)
-
-      if @include_plans_with_active_attempts
-        gene_count_by_priority =
-          MiPlan.where('consortium_id in (?)', impc_consortia_ids).count(:gene_id, :distinct => true, :group => :'mi_plan_priorities.name', :include => :priority)
-      end
-
-      @summary_by_priority << ['TOTAL BY PRIORITY'] + priorities.map { |priority| gene_count_by_priority[priority] || 0 } + [total_number_of_planned_genes]
-
-      ##
-      ## Counts of mi_plans grouped by status and priority
-      ##
-
-      @summary_by_status_and_priority = Table( ['Consortium', 'Status'] + priorities )
-
-      mi_plans_grouped_by_status_consortia = Grouping( all_mi_plans, :by => ['Status','Consortium'] )
-      mi_plans_grouped_by_status_consortia.each do |status|
-        summary = mi_plans_grouped_by_status_consortia.subgrouping(status).summary( 'Consortium', summary_by_priority_args )
-        summary.each_entry do |row|
-          hash = row.to_hash
-          hash['Status'] = status
-          @summary_by_status_and_priority << hash
-        end
-      end
-
-      @summary_by_status_and_priority = Grouping(
-        @summary_by_status_and_priority,
-        :by => ['Status'], :order => lambda { |g| MiPlan::Status.find_by_name!(g.name).order_by }
-      )
-
-      ##
-      ## Details on conflicting and inspect mi_plans
-      ##
-
-      @conflict_report = all_mi_plans.sub_table { |row| row['Status'] == 'Conflict' }
-      @conflict_report.add_column('Reason for Conflict') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_or_conflict }
-      @conflict_report.remove_columns(['ID','Status'])
-
-      @inspect_report = all_mi_plans.sub_table { |row| row['Status'].include? 'Inspect' }
-      @inspect_report.add_column('Reason for Inspect') { |row| MiPlan.find(row.data['ID']).reason_for_inspect_or_conflict }
-      @inspect_report.remove_columns(['ID'])
-      @inspect_report = Grouping( @inspect_report, :by => ['Status'], :order => lambda { |g| MiPlan::Status.find_by_name!(g.name).order_by } )
-
-      if request.format == :csv
-        response.headers['Content-Type'] = 'text/csv'
-        response.headers['Content-Disposition'] = 'attachment; filename=planned_microinjection_summary_and_conflicts.csv'
-      end
-
-    end
+    redirect_to url_for(:controller => "v2/reports", :action => :planned_microinjection_summary_and_conflicts) and return
   end
 
   def impc_gene_list
@@ -287,49 +178,6 @@ class ReportsController < ApplicationController
       :type     => 'text/csv; charset=utf-8; header=present',
       :filename => 'impc_gene_list.csv'
     )
-  end
-
-  protected
-
-  def generate_planned_mi_list_report( params={}, include_plans_with_active_attempts=false )
-    report_column_order_and_names = {
-      'id'                      => 'ID',
-      'consortium.name'         => 'Consortium',
-      'sub_project.name'        => 'SubProject',
-      'is_bespoke_allele'       => 'Bespoke',
-      'production_centre.name'  => 'Production Centre',
-      'gene.marker_symbol'      => 'Marker Symbol',
-      'gene.mgi_accession_id'   => 'MGI Accession ID',
-      'priority.name'           => 'Priority',
-      'status.name'             => 'Status'
-    }
-
-    report_options = {
-      :only       => report_column_order_and_names.keys,
-      :conditions => process_filter_params( params ),
-      :include    => {
-        :sub_project        => { :only => [:name] },
-        :consortium         => { :only => [:name] },
-        :production_centre  => { :only => [:name] },
-        :gene               => { :only => [:marker_symbol,:mgi_accession_id] },
-        :priority           => { :only => [:name] },
-        :status             => { :only => [:name] }
-      },
-      :transforms => lambda {|r| r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No' }
-    }
-
-    report = case include_plans_with_active_attempts
-    when true  then MiPlan.report_table( :all, report_options )
-    when false then MiPlan.without_active_mi_attempt.report_table( :all, report_options )
-    end
-
-    return nil if report.size == 0
-
-    report.remove_columns( report_column_order_and_names.dup.delete_if{ |key,value| !value.blank? }.keys )
-    report.rename_columns( report_column_order_and_names.dup.delete_if{ |key,value| value.blank? } )
-    report.sort_rows_by!('Marker Symbol', :order => :ascending)
-
-    return report
   end
 
   private

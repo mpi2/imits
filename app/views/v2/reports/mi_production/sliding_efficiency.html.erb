@@ -1,0 +1,75 @@
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('canvasjs.min') %>
+<% end %>
+
+<% @title = "#{@consortium_name} / #{@production_centre_name} Moving Pipeline Efficiency" %>
+
+<div class='report sliding-efficiency'>
+  <% @effort_efficiency_totals.each do |efficiency| %>
+    <% if efficiency['production_centre_name'] == @production_centre_name %>
+      <h2>Overall Pipeline Efficiency</h2>
+
+      <p>The Overall Pipeline Efficiency = (Unique number of Genes for Genotype Confirmed MI's whose mi_date is older than 6 month ago) / (Total number of MI's  whose mi_date is older than 6 month ago)</p>
+
+      <table align="center"><tr>
+        <th>Total GC genes > 6 months</th>
+        <th>All Microinjections > 6 months</th>
+        <th>Overall Pipeline efficiency</th>
+      </tr><tr>
+        <td><%= link_to(efficiency["gene_count"].to_i, genes_gt_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
+        <td><%= link_to(efficiency["total_injections"].to_i, all_mi_attempt_summary_path(:centres => @production_centre_name, :consortia => @consortium_name)) %></td>
+        <td><%= (efficiency["gene_count"].to_f / efficiency["total_injections"].to_f).round(2) %></td>
+      </tr></table>
+    <% end %>
+  <% end %>
+</div></br>
+
+<h2><%= @title %></h2>
+
+<!--<p><%= link_to 'Download as CSV', report_csv_path %></p>-->
+
+<div class='report sliding-efficiency'>
+
+  <p>This graph is created by dividing all the microinjections for this Consortium / Production centre into bins, with 50 MI's / bin. Inside each bin we calculate the efficiency as follows:</p>
+
+  <p>Unique number of Genes for Genotype Confirmed MI's in Bin / (Total number of MI's in Bin = 50)</p>
+
+  <p>
+    This is the same efficiency calculation used in the standard report page, with the exception that it's performed on a bin of 50 MI's.
+    The date visible on the x-axis is the date of the earliest MI in each bin"
+  </p></br>
+
+  <div class='wrap'>
+    <% left = 0 %>
+    <% width = 4 %>
+    <% group_amount = 50.0 %>
+    <% gtc_genes = @report.mi_attempts.select{|mi| mi.status_id == 2}.map{|mi| mi.gene.id} %>
+    <% gtc_gene_count = gtc_genes.uniq.size %>
+    <% mis = @report.mi_attempts %>
+    <% mis_count = mis.size %>
+
+    <% mis_count.times do |group| %>
+        <% subset = mis[group..(group+(group_amount-1))] %>
+        <% break if subset.blank? %>
+        <% subset_genes = subset.select{|mi| mi.status_id == 2}.map{|mi| mi.gene.id}.uniq.size %>
+        <% next if subset.size < group_amount && group > 0 %>
+        <% efficiency = (subset_genes.to_f / subset.size.to_f).round(2) %>
+
+      <div class='bin'
+        data-number='<%= group + 1 %>'>
+
+        <div class='bar'
+          data-first='<%= subset.first.id %>'
+          data-last='<%= subset.last.id %>'
+          data-date='<%= subset.first.mi_date %>'
+          data-mi-total='<%= subset.size %>'
+          data-gene-total='<%= subset_genes %>'
+          data-efficiency='<%= efficiency = (subset_genes.to_f / subset.size.to_f).round(2) %>'
+          data-height='width:2px; height:<%= efficiency * 200 %>px;'></div>
+      </div>
+    <% end %>
+  </div>
+
+  <div class='graph' id='line_graph'></div>
+  <!--<div class='graph' id='new_bar_graph'></div>-->
+</div>

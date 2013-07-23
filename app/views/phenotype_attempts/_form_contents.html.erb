@@ -42,6 +42,7 @@
           </tr>
         </thead>
         <tbody class="distribution_centres">
+        <tr></tr>
           <% if phenotype_attempt.distribution_centres.length > 0 %>
             <%= form.fields_for :distribution_centres do |builder| %>
               <% if !builder.object.new_record? %>

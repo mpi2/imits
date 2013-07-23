@@ -31,7 +31,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
                 :es_cell => es_cell,
                 :mi_plan => bash_wtsi_plan,
                 :mouse_allele_type => 'c',
-                :colony_background_strain => Strain.find_by_name!('C57BL/6N')
+                :colony_background_strain => Strain.find_by_name!('C57BL/6N'),
+                :mi_date => '2011-11-22 00:00:00 UTC'
         replace_status_stamps(bash_wtsi_attempt,
           'Micro-injection in progress' => '2011-11-22 00:00:00 UTC',
           'Chimeras obtained' => '2011-11-22 23:59:59 UTC',
@@ -75,7 +76,8 @@ class Reports::MiProduction::IntermediateTest < ActiveSupport::TestCase
         @mgp_wtsi_plan = TestDummy.mi_plan('MGP', 'WTSI', :gene => es_cell.gene, :force_assignment => true)
         mgp_wtsi_attempt = Factory.create :mi_attempt2,
                 :es_cell => es_cell,
-                :mi_plan => @mgp_wtsi_plan
+                :mi_plan => @mgp_wtsi_plan,
+                :mi_date => '2011-12-12 00:00:00 UTC'
         @mgp_wtsi_plan = mgp_wtsi_attempt.mi_plan
         @mgp_wtsi_plan.status_stamps.first.update_attributes!(
           :created_at => '2011-12-11 23:59:59.999 UTC')

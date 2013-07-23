@@ -114,15 +114,31 @@ Ext.define('Imits.widget.MiPlanEditor', {
                 id: 'is_bespoke_allele',
                 xtype: 'simplecheckbox',
                 fieldLabel: 'Bespoke allele?',
-                name: 'is_bespoke_allele',
-                hidden: isSubProjectHidden
+                name: 'is_bespoke_allele'
             },
             {
                 id: 'conditional_tm1c',
                 xtype: 'simplecheckbox',
                 fieldLabel: 'Conditional tm1c allele?',
-                name: 'conditional_tm1c',
-                hidden: isSubProjectHidden
+                name: 'conditional_tm1c'
+            },
+            {
+                id: 'point_mutation',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Point Mutation?',
+                name: 'point_mutation'
+            },
+            {
+                id: 'conditional_point_mutation',
+                xtype: 'simplecheckbox',
+                fieldLabel: 'Conditional Point Mutation?',
+                name: 'conditional_point_mutation'
+            },
+            {
+                id: 'allele_symbol_superscript',
+                xtype: 'textfield',
+                fieldLabel: 'Allele Symbol Override',
+                name: 'allele_symbol_superscript'
             },
             {
                 id: 'comment',
@@ -395,9 +411,9 @@ Ext.define('Imits.widget.MiPlanEditor', {
             }
             ]
         });
-        var panelHeight = 700;
+        var panelHeight = 780;
         if(window.CAN_SEE_SUB_PROJECT) {
-            panelHeight = 720;
+            panelHeight = 800;
         }
 
         this.add(Ext.create('Ext.panel.Panel', {

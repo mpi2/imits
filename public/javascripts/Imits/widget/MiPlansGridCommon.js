@@ -174,6 +174,20 @@ Ext.define('Imits.widget.MiPlansGridCommon', {
         readOnly: true
     },
     {
+        dataIndex: 'point_mutation',
+        header: 'Point Mutation',
+        xtype: 'boolgridcolumn',
+        width: 80,
+        readOnly: true
+    },
+    {
+        dataIndex: 'conditional_point_mutation',
+        header: 'Conditional Point Mutation',
+        xtype: 'boolgridcolumn',
+        width: 140,
+        readOnly: true
+    },
+    {
         dataIndex: 'ignore_available_mice',
         header: 'Ignore Available Mice',
         xtype: 'boolgridcolumn',

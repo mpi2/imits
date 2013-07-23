@@ -30,25 +30,16 @@ TOTAL BY PRIORITY, <%= @priorities.map {|priority| @priority_totals[priority.nam
   <% end %>
 <% end %>
 
-Conflicting Micro-Injection Plans
 
-<% if @conflicting_mi_plans.size == 0 %>
-  No conflicts to report
-<% else %>
-  Consortium, SubProject, Bespoke, Production Centre, Marker Symbol, MGI Accession ID, Priority, Reason for conflict
-  <% for mi_plan in @conflicting_mi_plans %>
-    <%= mi_plan.consortium.name %>, <%= mi_plan.sub_project.name if mi_plan.sub_project %>, <%= mi_plan.is_bespoke_allele ? 'Yes' : 'No' %>, <%= mi_plan.production_centre.name if mi_plan.production_centre %>, <%= mi_plan.marker_symbol %>, <%= mi_plan.mgi_accession_id %>, <%= mi_plan.priority.name if mi_plan.priority %>, <%= conflict_text(mi_plan, @conflicting_mi_plans) %>
-  <% end %>
-<% end %>
+# Conflicting Micro-Injection Plans
+<%= render :partial => 'conflict_report_rows', :locals => {:conflict_report_rows => @report.execute_conflict_report, :table_type => 'conflict'} %>
 
-Inspect Micro-Injection Plans
+# Inspect Micro-Injection Plans
+## Inspect - Conflict
+<%= render :partial => 'conflict_report_rows', :locals => {:conflict_report_rows => @report.execute_inspect_con_report, :table_type => 'inspect-con'} %>
 
-<% for status in @mi_plans.group_by {|m| m.status.name} %>
+##Inspect - MI Attempt
+<%= render :partial => 'conflict_report_rows', :locals => {:conflict_report_rows => @report.execute_inspect_mis_report, :table_type => 'inspect-mip'} %>
 
-<%= status.first %>
-
-Consortium, SubProject, Bespoke, Production Centre, Marker Symbol, MGI Accession ID, Priority, Reason for conflict
-<% for mi_plan in status.last %>
-<%= mi_plan.consortium.name %>, <%= mi_plan.sub_project.name if mi_plan.sub_project %>, <%= mi_plan.is_bespoke_allele ? 'Yes' : 'No' %>, <%= mi_plan.production_centre.name if mi_plan.production_centre %>, <%= mi_plan.marker_symbol %>, <%= mi_plan.mgi_accession_id %>, <%= mi_plan.priority.name if mi_plan.priority %>, <%= reason_for_inspect_or_conflict(mi_plan, @mi_plans).gsub(/'/, '') %>
-<% end %>
-<% end %>
+##Inspect - GLT Mouse
+<%= render :partial => 'conflict_report_rows', :locals => {:conflict_report_rows => @report.execute_inspect_gtc_report, :table_type => 'inspect-gtc'} %>

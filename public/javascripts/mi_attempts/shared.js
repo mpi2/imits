@@ -43,6 +43,7 @@ Ext.onReady(initNumberFields);
 Ext.onReady(initDateFields);
 
 $(function() {
+
     builder = new DiagramBuilder({
         frame_id: "holder_mutant",
         width: 850,
@@ -168,15 +169,55 @@ $(function() {
       second : line2,
       text : 'Three Prime LR PCR',
       position : "start to end",
-      name : 'qc_three_prime_lr_pcr'
+      name : 'qc_three_prime_lr_pcr',
+      positionY : 20
     });
 
-    builder.addTextBox('qc_tv_backbone_assay', 'TV Backbone Assay', '')
-    builder.addTextBox('qc_southern_blot', 'Southern Blot', '')
-    builder.addTextBox('qc_five_prime_cassette_integrity', 'Five Prime Cassette Integrity', '')
-    builder.addTextBox('qc_critical_region_qpcr', 'Critical region QPCR', '')
-    builder.addTextBox('qc_loxp_srpcr', 'LOXP SRPCR', '')
-    builder.addTextBox('qc_loxp_srpcr_and_sequencing', 'LOCP SRPCR and sequencing', '')
+    builder.addLabel({
+      first : loxp,
+      second : loxp_end,
+      text : 'Critical region QPCR',
+      position : "end to start",
+      name : 'qc_critical_region_qpcr',
+      arrowHeads : 'oval-wide-long',
+      fill : 'rgba(166, 74, 70, 1)',
+      positionY : -50
+    });
+
+    builder.addTextBox({
+      name: 'qc_tv_backbone_assay',
+      title: 'TV Backbone Assay',
+      value: ''
+    })
+
+    builder.addTextBox({
+      name: 'qc_southern_blot',
+      title: 'Southern Blot',
+      value: '',
+      labelPosition: 'above'
+    })
+
+    builder.addTextBox({
+      name: 'qc_five_prime_cassette_integrity',
+      title: 'Five Prime Cassette Integrity',
+      value: ''
+    })
+
+    builder.addTextBox({
+      name: 'qc_loxp_srpcr',
+      title: 'LOXP SRPCR',
+      value: '',
+      offsetY: -305,
+      offsetX: 225
+    })
+
+    builder.addTextBox({
+      name: 'qc_loxp_srpcr_and_sequencing',
+      title: 'LOCP SRPCR and sequencing',
+      value: '',
+      offsetY: -305,
+      offsetX: 194
+    })
 
     //
     //  Wildtype diagram
@@ -247,6 +288,8 @@ $(function() {
       line_height : 30
     });
 
+
+    // Keep the value of the two fields in sync
     $('.diagram select').live('change', function() {
         var $select = $(this);
         var value   = $select.val();
@@ -265,6 +308,17 @@ $(function() {
 
         var $qc_select = $('#'+matched_id)
         $qc_select.val(value)
+    })
+
+    // Fill the fields on page load
+    $('.qc-details select').each(function() {
+        var $select = $(this);
+        var value   = $select.val();
+        var id      = $select.attr('id');
+
+        matched_id = id.replace(/(mi_attempt_)|(_result)/g, '')
+        var $qc_select = $('#'+matched_id)
+        $qc_select.val(value);
     })
 
 })

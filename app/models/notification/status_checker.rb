@@ -8,14 +8,10 @@ module Notification::StatusChecker
 
       this_gene.mi_plans.each do |this_plan|
         relevant_status = this_plan.relevant_status_stamp
-        # If the plan's relevant status 
-        if !(
-          (relevant_status[:status].downcase == "micro-injection aborted") ||
-          (relevant_status[:status].downcase == "inactive") ||
-          (relevant_status[:status].downcase == "withdrawn") ||
-          (relevant_status[:status].downcase == "phenotype attempt aborted")
-        )
 
+        ignore = %W{microinjection_aborted inactive withdrawn phenotype_attempt_aborted}
+
+        if ! ignore.include? relevant_status[:status].downcase
           if self.last_email_sent
             if relevant_status[:date] > self.last_email_sent || self.retry
               self.relevant_statuses.push(relevant_status)

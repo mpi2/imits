@@ -137,4 +137,48 @@ namespace :imits do
     end
 
   end
+
+
+
+  desc 'Generate email welcome template'
+task :welcome_email_template => :environment do
+  welcome_body = <<-EOF
+<% if !Rails.env.production? %>
+You have registered at the Beta system, which is subject to constant change. Please go to http://www.mousephenotype.org to register interest.
+<% end %>
+Dear registered IMPC user
+
+Thank you for registering your interest in the following genes:
+
+<%= @gene_list %>.
+
+Please see the attached csv file for details on the status of each gene in IMPC production, along with links for further information for each gene. (The csv file can be saved and opened inside Microsoft Excel or any other spreadsheet program.)
+
+Further updates on the status of individual genes in this list will be sent to <%= @contact_email %>.
+
+Further all further information / enquiries, please write to info@mousephenotype.org
+
+Best Regards,
+
+The MPI2 (KOMP2) informatics consortium.
+    EOF
+
+    email_template = EmailTemplate.find_by_status('welcome_template')
+
+    if email_template
+      puts "#### welcome_template email template already exists!"
+      email_template.destroy
+    end
+
+    email_template = EmailTemplate.new
+
+    update_body = 'unused'
+    email_template.status = 'welcome_template'
+
+    email_template.welcome_body = welcome_body
+    email_template.update_body  = update_body
+
+    email_template.save!
+
+  end
 end

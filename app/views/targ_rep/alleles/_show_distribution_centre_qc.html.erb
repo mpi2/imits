@@ -24,23 +24,24 @@
   <tr>
     <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :five_prime_lr_pcr } %>
     <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :three_prime_lr_pcr } %>
+    <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :thawing } %>
     <td colspan="2"></td>
   </tr>
   <tr>
     <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :five_prime_sr_pcr } %>
     <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :three_prime_sr_pcr } %>
+    <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :unspecified_repository_testing } %>
     <td colspan="2"></td>
   </tr>
   <tr>
-    <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :thawing } %>
+    <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :loxp } %>
     <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :loxp_srpcr } %>
-    <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :unspecified_repository_testing } %>
     <td colspan="4"></td>
   </tr>
 
   <tr>
+    <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :neo_qpcr } %>
     <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :loa } %>
-    <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :loxp } %>
     <%= render :partial => 'show_distribution_centre_qc_field', :locals => { :distribution_qc => distribution_qc, :symbol => :lacz } %>
   </tr>
   <tr>

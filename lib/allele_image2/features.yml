@@ -1,0 +1,259 @@
+---
+features:
+
+  aliases:
+    gene:
+      - cds
+
+  intron:
+    defaults:
+      colour: white
+      font: black
+
+    en2 intron:
+    mouse en2 intron:
+    5' ifitm2 intron:
+      label: ifitm2 intron
+    3' ifitm2 intron:
+      label: ifitm2 intron
+
+
+  primer_bind:
+    d5:
+    d3:
+    g5:
+    g3:
+    hd:
+    hu:
+    u5:
+    u3:
+    d5 - recombineering primer:
+    d3 - recombineering primer:
+    g5 - recombineering primer:
+    g3 - recombineering primer:
+    u5 - recombineering primer:
+    u3 - recombineering primer:
+
+  polya_site:
+    poly a [split]:
+        label: pa
+
+  misc_feature:
+    defaults:
+      colour: white
+      font: black
+
+    en2 sa:
+      width: 80
+    en2 sa (atg):
+      width: 80
+    adenovirus splice acceptor:
+      label: sa
+    cd4 tm:
+      width: 80
+      colour: black
+      font: white
+    pgk_dta_pa:
+      width: 300
+    pa_dta_pgk:
+      width: 300
+    sv40 pa:
+      label: pa
+    sv40 polyadenylation site:
+      label: pa
+    pgk pa:
+      label: pa
+    bgh pa:
+      label: pa
+    deltk1:
+    rat cd4:
+    frame k insert:
+    flag:
+    fsei:
+    puc ori:
+      label: ori
+    prescission:
+    gap:
+    ecmv ires:
+      colour: '#f7931e'
+      label: ires
+      font: white
+    tm domain:
+    rat cd4 transmembrane region:
+    beta-geo:
+      colour: blue
+      label: lacz
+      font: white
+      width: 140
+    asci-eagi adpater:
+    3 arm:
+    attp:
+    target region:
+    critical region:
+    f3:
+    loxp:
+      width: 40
+      label: loxp
+
+    downstream loxp:
+      width: 40
+      label: loxp
+
+    biotin:
+    tev:
+    uipcr cassette:
+      label: uipcr
+
+    ty1:
+    chlr_ccdb:
+    ipcrtar1 (gh1111):
+    egfp:
+      colour: green
+      font: white
+      width: 100
+
+    asisi:
+    sa:
+    splice acceptor:
+    sgra1:
+    rat cd4 fragment:
+    t2a:
+      label: t2a
+    "'self-cleaving' 2a peptide":
+      label: t2a
+    uipcr:
+    5 arm:
+    frt:
+      width: 35
+      label: frt
+    rox:
+      width: 35
+      label: rox
+      colour: pink
+    cre:
+      width: 55
+      label: cre
+      colour: blue
+      font: white
+    ert2:
+    f2a:
+    puromycin n-acetyl transferase label:
+      label: puro trans
+    pzero:
+    cd4 tm domain:
+    critical region:
+    synthetic loxp region:
+    synthetic cassette:
+
+  promoter:
+    defaults:
+      colour: black
+      font: white
+
+    pgk promoter:
+      label: pgk
+    mouse phosphoglycerate kinase 1 promoter:
+      label: pgk
+    human ubiquitin promoter:
+      colour: darkslateblue
+      label: hubip
+    human beta actin promoter:
+      colour: darkslateblue
+      label: hbactp
+    hubp (human ubiquitin promoter):
+      colour: darkslateblue
+      label: hubip
+    hubc promoter:
+      colour: darkslateblue
+      label: hubip
+
+  gene:
+    defaults:
+      colour: white
+      font: black
+
+    puro:
+      colour: purple
+      label: puro
+      font: white
+      width: 8
+    phes:
+    lacz:
+      colour: blue
+      label: lacz
+      font: white
+      width: 14
+    rat cd4 b-gal fusion:
+    ampr:
+    kanr:
+    ccdb/chlr:
+    clonnatr:
+    chlr:
+    ccdb:
+    bsdr:
+    neor:
+      colour: '#a99d'
+      label: neo
+      font: white
+      width: 8
+    neo:
+      colour: '#a99d'
+      label: neo
+      font: white
+      width: 8
+    neor*:
+      colour: '#a99d'
+      label: neo
+      font: white
+      width: 8
+    zeor:
+    specr:
+    dta:
+      colour: '#00ff'
+      label: dta
+      font: whi
+    pu-delta-tk:
+      label: puro
+      colour: purple
+      font: white
+      width: 8
+    tm-lacz:
+      colour: blue
+      label: tmacz
+      font: white
+      width: 14
+    puromycin n-acetyl transferase:
+      label: puro
+      colour: purple
+      font: white
+      width: 80
+
+  exon:
+    en2 exon:
+    mouse en2 exon:
+    intervening sequence:
+      intervening sequence:
+  dna:
+    lacz(for recom.):
+      colour: blue
+      label: lacz
+      font: white
+      width: 140
+  misc_recomb:
+    loxp (3'):
+      label: loxp
+      width: 40
+    loxp (5'):
+      label: loxp
+      width: 40
+    loxp:
+      label: loxp
+      width: 40
+  frag:
+    poly a signal:
+      label: pa
+  polya_signal:
+    sv40 polya:
+      label: pa
+    mpgk polya:
+      label: pa

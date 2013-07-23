@@ -1,0 +1,1 @@
+RENDERABLE_FEATURES2 = AlleleImage2::RenderableFeatures.load_yaml unless Rails.env.development?

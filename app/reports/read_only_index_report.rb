@@ -1,6 +1,6 @@
 class ReadOnlyIndexReport
 
-  ROW_LIMIT = 50
+  ROW_LIMIT = 10
   ROOT = '/open/mi_plans/gene_selection'
 
   def self.get_new_impc_mouse_prod_attempts_table

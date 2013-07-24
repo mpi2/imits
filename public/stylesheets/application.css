@@ -950,6 +950,7 @@ div.report_control * {
 #qcimage .diagram .holder {
   border:4px solid #efefef;
   margin:2em 0;
+  padding-bottom:20px;
 }
 
 .errorExplanation {

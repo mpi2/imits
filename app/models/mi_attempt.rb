@@ -343,14 +343,16 @@ class MiAttempt < ApplicationModel
           status = phenotype_attempt.status
           selected_status = {
             :name => status.name,
-            :order_by => status.order_by
+            :order_by => status.order_by,
+            :in_progress_date => phenotype_attempt.in_progress_date
           }
         end
 
-        if phenotype_attempt.status.order_by > selected_status[:order_by]
+        if phenotype_attempt.status.order_by > selected_status[:order_by] or (phenotype_attempt.status.order_by == selected_status[:order_by] and phenotype_attempt.in_progress_date > selected_status[:in_progress_date])
           selected_status = {
             :name => phenotype_attempt.status.name,
-            :order_by => phenotype_attempt.status.order_by
+            :order_by => phenotype_attempt.status.order_by,
+            :in_progress_date => phenotype_attempt.in_progress_date
           }
         end
 

@@ -233,191 +233,116 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:es_cells_received_from_id)
       end
 
-      context '#latest_relevant_mi_attempt' do
+      context '#latest_relevant_mi_attempt ' do
         def ip; MiAttempt::Status.micro_injection_in_progress.name; end
         def co; MiAttempt::Status.chimeras_obtained.name; end
         def gc; MiAttempt::Status.genotype_confirmed.name; end
         def abrt; MiAttempt::Status.micro_injection_aborted.name; end
 
-        should 'get active MI with latest in_progress_date if active one exists' do
+        should 'selects MI with most advance status' do
+
+          status_order = ["Micro-injection aborted", "Micro-injection in progress", "Chimeras obtained", "Genotype confirmed"]
+          extract_order = []
+          MiAttempt::Status.status_order.each do |status, value|
+            extract_order.push([status['name'], value])
+          end
+          assert_equal status_order, extract_order.sort{ |s1, s2| s1[1] <=> s2[1] }.map { |s| s[0] } # test MI status order
+
           assert cbx1
-          plan = bash_wtsi_cbx1_plan
+          mi_plan = bash_wtsi_cbx1_plan
           allele = Factory.create :allele, :gene => cbx1
+
           inactive_mi = Factory.create :mi_attempt2,
           :colony_name => 'A',
-          :mi_plan => plan,
+          :mi_plan => mi_plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :mi_date => '2011-12-12',
           :is_active => false,
-          :mi_date => '2011-10-10 00:00 UTC'
+          :mi_date => '2011-05-05 00:00 UTC'
 
           replace_status_stamps(inactive_mi,
-          'abt' => Time.now
+          'abt' => '2011-05-05 00:00 UTC'
           )
 
-          older_mi_1 = Factory.create :mi_attempt2,
-          :colony_name => 'C',
-          :mi_plan => plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :mi_date => '2011-12-12',
-          :is_active => true,
-          :mi_date => '2011-03-02 00:00 UTC'
-
-          latest_mi = Factory.create :mi_attempt2,
-          :colony_name => 'B',
-          :mi_plan => plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :mi_date => '2011-11-02 00:00 UTC',
-          :is_active => true
-
-          older_mi_2 = Factory.create :mi_attempt2,
-          :colony_name => 'D',
-          :mi_plan => plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :mi_date => '2011-09-02 00:00 UTC',
-          :is_active => true
-
-          mi_plan = older_mi_1.mi_plan
-
-          assert older_mi_1.id < latest_mi.id, 'This is needed to test part of the association'
-          assert_equal inactive_mi.mi_plan, latest_mi.mi_plan
-          assert_equal latest_mi.mi_plan, older_mi_1.mi_plan
           mi_plan.reload
-          assert_equal latest_mi.colony_name, mi_plan.latest_relevant_mi_attempt.colony_name
-        end
+          assert_equal inactive_mi.colony_name, mi_plan.latest_relevant_mi_attempt.colony_name
 
-        should 'get latest inactive MI if no active ones exist' do
-          assert cbx1
-          allele = Factory.create :allele, :gene => cbx1
-          older_mi = Factory.create :mi_attempt2,
-          :colony_name => 'A',
-          :mi_plan => bash_wtsi_cbx1_plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => false
-          replace_status_stamps(older_mi,
-          ip => '2011-05-05 00:00 UTC',
-          abrt => '2011-06-05 00:00 UTC'
-          )
-
-          latest_mi = Factory.create :mi_attempt2,
+          mip_mi = Factory.create :mi_attempt2,
           :colony_name => 'B',
-          :mi_plan => bash_wtsi_cbx1_plan,
+          :mi_plan => mi_plan,
           :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => false
-          replace_status_stamps(latest_mi,
-          ip => '2011-11-02 00:00 UTC',
-          abrt => '2011-12-02 00:00 UTC'
-          )
-          mi_plan = older_mi.mi_plan
+          :is_active => true,
+          :mi_date => '2011-05-05 00:00 UTC'
 
-          assert older_mi.id < latest_mi.id, 'This is needed to test part of the association'
-          assert_equal latest_mi.mi_plan, older_mi.mi_plan
-          assert_equal latest_mi.mi_date, mi_plan.latest_relevant_mi_attempt.mi_date
+          mi_plan.reload
+          assert_equal mip_mi.colony_name, mi_plan.latest_relevant_mi_attempt.colony_name
+
+          co_mi = Factory.create :mi_attempt2,
+          :colony_name => 'C',
+          :mi_plan => mi_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true,
+          :total_male_chimeras => 1,
+          :mi_date => '2011-05-05 00:00 UTC'
+
+          replace_status_stamps(co_mi,
+          co => '2011-05-05 00:00 UTC'
+          )
+
+          mi_plan.reload
+          assert_equal co_mi.colony_name, mi_plan.latest_relevant_mi_attempt.colony_name
+
+          gc_mi = Factory.create :mi_attempt2_status_gtc,
+          :colony_name => 'D',
+          :mi_plan => mi_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true,
+          :mi_date => '2011-05-05 00:00 UTC'
+
+          replace_status_stamps(gc_mi,
+          co => '2011-05-05 00:00 UTC',
+          gc => '2011-05-05 00:00 UTC'
+          )
+
+          mi_plan.reload
+          assert_equal gc_mi.colony_name, mi_plan.latest_relevant_mi_attempt.colony_name
         end
+
+
+        should 'selects the MI with the oldest progress date if there are many MIs with the most advanced status' do
+          assert cbx1
+          mi_plan = bash_wtsi_cbx1_plan
+          allele = Factory.create :allele, :gene => cbx1
+
+          mi = Factory.create :mi_attempt2,
+          :colony_name => 'C',
+          :mi_plan => mi_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true,
+          :mi_date => '2012-06-05 00:00 UTC'
+
+          oldest_mi = Factory.create :mi_attempt2,
+          :colony_name => 'A',
+          :mi_plan => mi_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true,
+          :mi_date => '2011-05-05 00:00 UTC'
+
+          newest_mi = Factory.create :mi_attempt2,
+          :colony_name => 'B',
+          :mi_plan => mi_plan,
+          :es_cell => Factory.create(:es_cell, :allele => allele),
+          :is_active => true,
+          :mi_date => '2012-06-06 00:00 UTC'
+
+          mi_plan.reload
+          assert_equal oldest_mi.colony_name, mi_plan.latest_relevant_mi_attempt.colony_name
+
+        end
+
 
         should 'return nil if none' do
           mi_plan = Factory.create :mi_plan
           assert_nil mi_plan.latest_relevant_mi_attempt
-        end
-
-        should 'return GC MIs ahead of others regardless of their date' do
-          assert cbx1
-          allele = Factory.create :allele, :gene => cbx1
-          abrt_mi = Factory.create :mi_attempt2,
-          :colony_name => 'Z',
-          :mi_plan => bash_wtsi_cbx1_plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => false,
-          :mi_date => '2012-02-02 00:00 UTC'
-
-          replace_status_stamps(abrt_mi,
-          abrt => '2012-04-02 00:00 UTC'
-          )
-
-          ip_mi = Factory.create :mi_attempt2,
-          :colony_name => 'D',
-          :mi_plan => bash_wtsi_cbx1_plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true,
-          :mi_date => '2012-01-02 00:00 UTC'
-
-          latest_mi = Factory.create :mi_attempt2_status_gtc,
-          :colony_name => 'C',
-          :mi_plan => bash_wtsi_cbx1_plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true,
-          :mi_date => '2011-05-05 00:00 UTC'
-
-          replace_status_stamps(latest_mi,
-          co => '2011-06-05',
-          gc => '2011-07-05 00:00 UTC'
-          )
-
-          older_mi_1 = Factory.create :mi_attempt2_status_gtc,
-          :colony_name => 'B',
-          :mi_plan => bash_wtsi_cbx1_plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true,
-          :mi_date => '2011-04-05 00:00 UTC'
-
-          replace_status_stamps(older_mi_1,
-          co => '2011-05-05',
-          gc => '2011-06-05 00:00 UTC'
-          )
-
-          mi_plan = latest_mi.mi_plan
-          assert [latest_mi.mi_plan, ip_mi.mi_plan, older_mi_1.mi_plan].uniq.size == 1
-          assert_equal 'C', mi_plan.latest_relevant_mi_attempt.colony_name
-        end
-
-        should 'return CO MIs ahead of IP or aborted ones regardless of their date' do
-          assert cbx1
-          allele = Factory.create :allele, :gene => cbx1
-          abrt_mi = Factory.create :mi_attempt2,
-          :colony_name => 'Z',
-          :mi_plan => bash_wtsi_cbx1_plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :total_male_chimeras => 1,
-          :is_active => false,
-          :mi_date => '2012-02-02 00:00 UTC'
-
-          replace_status_stamps(abrt_mi,
-          co => '2012-03-02',
-          abrt => '2012-04-02 00:00 UTC'
-          )
-
-          ip_mi = Factory.create :mi_attempt2,
-          :colony_name => 'D',
-          :mi_plan => bash_wtsi_cbx1_plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true,
-          :mi_date => '2012-01-02 00:00 UTC'
-
-          latest_mi = Factory.create :mi_attempt2_status_chr,
-          :colony_name => 'C',
-          :mi_plan => bash_wtsi_cbx1_plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true,
-          :mi_date => '2011-05-05 00:00 UTC'
-
-          replace_status_stamps(latest_mi,
-          co => '2011-07-05'
-          )
-
-          older_mi_1 = Factory.create :mi_attempt2_status_chr,
-          :colony_name => 'B',
-          :mi_plan => bash_wtsi_cbx1_plan,
-          :es_cell => Factory.create(:es_cell, :allele => allele),
-          :is_active => true,
-          :mi_date => '2011-04-05 00:00 UTC'
-
-          replace_status_stamps(older_mi_1,
-          co => '2011-06-05'
-          )
-
-          mi_plan = latest_mi.mi_plan
-          assert [latest_mi.mi_plan, ip_mi.mi_plan, older_mi_1.mi_plan].uniq.size == 1
-          assert_equal 'C', mi_plan.latest_relevant_mi_attempt.colony_name
         end
       end
 
@@ -880,52 +805,158 @@ class MiPlanTest < ActiveSupport::TestCase
     end
 
     context '#latest_relevant_phenotype_attempt' do
-      should 'return nil if there are no phenotype attempts for this MI' do
+
+      should 'return nil if there are no phenotype attemtps for this mi_plan' do
         assert_equal nil, default_mi_plan.latest_relevant_phenotype_attempt
       end
 
-      should 'return the latest created active one if there are any active phenotype attempts' do
+      should 'select the most advanced phenotype attempt' do
+
+        status_order = ["Phenotype Attempt Aborted", "Phenotype Attempt Registered", "Rederivation Started", "Rederivation Complete", "Cre Excision Started", "Cre Excision Complete", "Phenotyping Started", "Phenotyping Complete"]
+        extract_order = []
+        PhenotypeAttempt::Status.status_order.each do |status, value|
+          extract_order.push([status['name'], value])
+        end
+        assert_equal status_order, extract_order.sort{ |s1, s2| s1[1] <=> s2[1] }.map { |s| s[0] } # test PA status order
 
         allele = Factory.create(:allele, :gene => default_mi_plan.gene)
         mi_attempt = Factory.create :mi_attempt2_status_gtc,
         :es_cell => Factory.create(:es_cell, :allele => allele),
         :mi_plan => default_mi_plan
 
-        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-        :created_at => "2011-12-02 23:59:59 UTC",
-        :mi_attempt => mi_attempt
-        pt = Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-        :created_at => "2011-12-03 23:59:59 UTC",
-        :mi_attempt => mi_attempt
-        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-        :created_at => "2011-12-01 23:59:59 UTC",
-        :mi_attempt => mi_attempt
-        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-        :created_at => "2011-12-10 23:59:59 UTC",
-        :mi_attempt => mi_attempt, :is_active => false
+        aborted_phenotype = Factory.create :phenotype_attempt,
+          {:mi_plan => default_mi_plan,
+          :created_at => "2011-12-02 23:59:59 UTC",
+          :mi_attempt => mi_attempt,
+          :is_active => false}
 
-        assert_equal pt, default_mi_plan.latest_relevant_phenotype_attempt
+        assert_equal aborted_phenotype.status.code, 'abt'
+        assert_equal aborted_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
+
+
+        registered_phenotype = Factory.create :phenotype_attempt,
+          {:mi_plan => default_mi_plan,
+          :created_at => "2011-12-02 23:59:59 UTC",
+          :mi_attempt => mi_attempt}
+
+        assert_equal registered_phenotype.status.code, 'par'
+        assert_equal registered_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
+
+
+        red_started_phenotype = Factory.create :phenotype_attempt,
+          {:mi_plan => default_mi_plan,
+          :created_at => "2011-12-02 23:59:59 UTC",
+          :mi_attempt => mi_attempt,
+          :rederivation_started => true}
+
+        assert_equal red_started_phenotype.status.code, 'res'
+        assert_equal red_started_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
+
+
+        red_complete_phenotype = Factory.create :phenotype_attempt,
+          {:mi_plan => default_mi_plan,
+          :created_at => "2011-12-02 23:59:59 UTC",
+          :mi_attempt => mi_attempt,
+          :rederivation_started => true,
+          :rederivation_complete => true}
+
+        assert_equal red_complete_phenotype.status.code, 'rec'
+        assert_equal red_complete_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
+
+
+        cre_started_phenotype = Factory.create :phenotype_attempt,
+          {:mi_plan => default_mi_plan,
+          :created_at => "2011-12-02 23:59:59 UTC",
+          :mi_attempt => mi_attempt,
+          :rederivation_started => true,
+          :rederivation_complete => true,
+          :number_of_cre_matings_started => 1,
+          :deleter_strain_id => 1}
+
+        assert_equal cre_started_phenotype.status.code, 'ces'
+        assert_equal cre_started_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
+
+
+        cre_complete_phenotype = Factory.create :phenotype_attempt,
+          {:mi_plan => default_mi_plan,
+          :created_at => "2011-12-02 23:59:59 UTC",
+          :mi_attempt => mi_attempt,
+          :rederivation_started => true,
+          :rederivation_complete => true,
+          :number_of_cre_matings_started => 1,
+          :number_of_cre_matings_successful => 1,
+          :colony_background_strain_id => 1,
+          :mouse_allele_type => 'b',
+          :deleter_strain_id => 1}
+
+        assert_equal cre_complete_phenotype.status.code, 'cec'
+        assert_equal cre_complete_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
+
+
+        started_phenotype = Factory.create :phenotype_attempt,
+          {:mi_plan => default_mi_plan,
+          :created_at => "2011-12-02 23:59:59 UTC",
+          :mi_attempt => mi_attempt,
+          :rederivation_started => true,
+          :rederivation_complete => true,
+          :number_of_cre_matings_started => 1,
+          :number_of_cre_matings_successful => 1,
+          :colony_background_strain_id => 1,
+          :mouse_allele_type => 'b',
+          :deleter_strain_id => 1,
+          :phenotyping_started =>true}
+
+        assert_equal started_phenotype.status.code, 'pds'
+        assert_equal started_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
+
+
+        complete_phenotype = Factory.create :phenotype_attempt,
+          {:mi_plan => default_mi_plan,
+          :created_at => "2011-12-02 23:59:59 UTC",
+          :mi_attempt => mi_attempt,
+          :rederivation_started => true,
+          :rederivation_complete => true,
+          :number_of_cre_matings_started => 1,
+          :number_of_cre_matings_successful => 1,
+           :colony_background_strain_id => 1,
+          :mouse_allele_type => 'b',
+          :deleter_strain_id => 1,
+          :phenotyping_started => true,
+          :phenotyping_complete => true}
+
+        assert_equal complete_phenotype.status.code, 'pdc'
+        assert_equal complete_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
       end
 
-      should 'return the latest created aborted one if all its phenotype attempts are aborted' do
+      should 'selects the phenotype attempt with the oldest progress date if there are many PAs with the most advanced status' do
 
         allele = Factory.create(:allele, :gene => default_mi_plan.gene)
         mi_attempt = Factory.create :mi_attempt2_status_gtc,
         :es_cell => Factory.create(:es_cell, :allele => allele),
         :mi_plan => default_mi_plan
 
-        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-        :created_at => '2011-12-02 23:59:59 UTC',
-        :is_active => false, :mi_attempt => mi_attempt
-        pt = Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-        :created_at => '2011-12-03 23:59:59 UTC',
-        :is_active => false, :mi_attempt => mi_attempt
-        Factory.create :phenotype_attempt, :mi_plan => default_mi_plan,
-        :created_at => '2011-12-01 23:59:59 UTC',
-        :is_active => false, :mi_attempt => mi_attempt
+        extra_phenotype = Factory.create :phenotype_attempt,
+        {:mi_plan => default_mi_plan,
+        :created_at => "2011-11-09 23:59:59 UTC",
+        :mi_attempt => mi_attempt}
+        replace_status_stamps(extra_phenotype, "Phenotype Attempt Registered" => "2011-11-02 23:59:59 UTC")
 
-        assert_equal pt, default_mi_plan.latest_relevant_phenotype_attempt
+        oldest_phenotype = Factory.create :phenotype_attempt,
+        {:mi_plan => default_mi_plan,
+        :created_at => "2011-10-08 23:59:59 UTC",
+        :mi_attempt => mi_attempt}
+        replace_status_stamps(oldest_phenotype, "Phenotype Attempt Registered" => "2011-10-01 23:59:59 UTC")
+
+        newest_phenotype = Factory.create :phenotype_attempt,
+        {:mi_plan => default_mi_plan,
+        :created_at => "2012-12-10 23:59:59 UTC",
+        :mi_attempt => mi_attempt}
+        replace_status_stamps(newest_phenotype, "Phenotype Attempt Registered" => "2012-12-03 23:59:59 UTC")
+
+        assert_equal oldest_phenotype, default_mi_plan.latest_relevant_phenotype_attempt
+
       end
+
     end
 
     context '#distinct_old_genotype_confirmed_es_cells_count' do
@@ -1108,7 +1139,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_equal Date.today.to_date, results[:date].to_date
       end
 
-      should 'find phenotype with earliest date stamp' do
+      should 'find phenotype' do
         gene = Factory.create :gene_cbx1
 
         allele = Factory.create :allele, :gene => gene

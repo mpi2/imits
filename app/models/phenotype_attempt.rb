@@ -162,6 +162,10 @@ class PhenotypeAttempt < ApplicationModel
     return retval
   end
 
+  def in_progress_date
+    return status_stamps.all.find {|ss| ss.status_id == 2}.created_at.utc.to_date   #Phenotype Attempt Registered
+  end
+
   def earliest_relevant_status_stamp
     self.status_stamps.find_by_status_id(self.status_id)
   end
@@ -171,6 +175,7 @@ class PhenotypeAttempt < ApplicationModel
   end
 
 end
+
 
 # == Schema Information
 #
@@ -195,6 +200,7 @@ end
 #  colony_background_strain_id      :integer
 #  cre_excision_required            :boolean         default(TRUE), not null
 #  tat_cre                          :boolean         default(FALSE)
+#  report_to_public                 :boolean         default(TRUE), not null
 #
 # Indexes
 #

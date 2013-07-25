@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130718140000) do
+ActiveRecord::Schema.define(:version => 20130725112052) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -340,6 +340,7 @@ ActiveRecord::Schema.define(:version => 20130718140000) do
     t.boolean  "point_mutation",                                :default => false, :null => false
     t.boolean  "conditional_point_mutation",                    :default => false, :null => false
     t.text     "allele_symbol_superscript"
+    t.boolean  "report_to_public",                              :default => true,  :null => false
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true
@@ -646,6 +647,7 @@ ActiveRecord::Schema.define(:version => 20130718140000) do
     t.integer  "colony_background_strain_id"
     t.boolean  "cre_excision_required",                           :default => true,  :null => false
     t.boolean  "tat_cre",                                         :default => false
+    t.boolean  "report_to_public",                                :default => true,  :null => false
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true

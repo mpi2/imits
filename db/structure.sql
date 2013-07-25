@@ -827,7 +827,8 @@ CREATE TABLE mi_plans (
     es_cells_received_from_id integer,
     point_mutation boolean DEFAULT false NOT NULL,
     conditional_point_mutation boolean DEFAULT false NOT NULL,
-    allele_symbol_superscript text
+    allele_symbol_superscript text,
+    report_to_public boolean DEFAULT true NOT NULL
 );
 
 
@@ -1329,7 +1330,8 @@ CREATE TABLE phenotype_attempts (
     deleter_strain_id integer,
     colony_background_strain_id integer,
     cre_excision_required boolean DEFAULT true NOT NULL,
-    tat_cre boolean DEFAULT false
+    tat_cre boolean DEFAULT false,
+    report_to_public boolean DEFAULT true NOT NULL
 );
 
 
@@ -3830,3 +3832,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130628145302');
 INSERT INTO schema_migrations (version) VALUES ('20130708264213');
 
 INSERT INTO schema_migrations (version) VALUES ('20130718140000');
+
+INSERT INTO schema_migrations (version) VALUES ('20130725112052');

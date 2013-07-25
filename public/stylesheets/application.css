@@ -1029,6 +1029,7 @@ div#mpi2-search table th {
 #qcimage .diagram .holder {
   border:4px solid #efefef;
   margin:2em 0;
+  padding-bottom:20px;
 }
 
 .errorExplanation {

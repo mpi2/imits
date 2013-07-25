@@ -26,6 +26,14 @@ class MiAttempt::Status < ActiveRecord::Base
     @@chimeras_obtained ||= self.find_by_name!('Chimeras obtained').freeze
   end
 
+  def self.status_order
+    status_sort_order = {}
+    MiAttempt::Status.all.each do |status|
+      status_sort_order[status] = status[:order_by]
+    end
+    return status_sort_order
+  end
+
 end
 
 # == Schema Information

@@ -474,6 +474,7 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: mi_plans
@@ -509,6 +510,7 @@ end
 #  point_mutation                 :boolean         default(FALSE), not null
 #  conditional_point_mutation     :boolean         default(FALSE), not null
 #  allele_symbol_superscript      :text
+#  report_to_public               :boolean         default(TRUE), not null
 #
 # Indexes
 #

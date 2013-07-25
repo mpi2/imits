@@ -176,6 +176,7 @@ class PhenotypeAttempt < ApplicationModel
 
 end
 
+
 # == Schema Information
 #
 # Table name: phenotype_attempts
@@ -199,6 +200,7 @@ end
 #  colony_background_strain_id      :integer
 #  cre_excision_required            :boolean         default(TRUE), not null
 #  tat_cre                          :boolean         default(FALSE)
+#  report_to_public                 :boolean         default(TRUE), not null
 #
 # Indexes
 #

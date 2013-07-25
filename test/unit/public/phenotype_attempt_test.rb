@@ -90,7 +90,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'cre_excision_required',
         'mi_plan_id',
         'tat_cre',
-        'status_stamps_attributes'
+        'status_stamps_attributes',
+        'report_to_public'
       ]
       got = (Public::PhenotypeAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort

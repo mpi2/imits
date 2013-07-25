@@ -228,7 +228,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'es_cells_received_on',
         'conditional_point_mutation',
         'point_mutation',
-        'allele_symbol_superscript'
+        'allele_symbol_superscript',
+        'report_to_public'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort

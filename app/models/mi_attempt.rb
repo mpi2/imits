@@ -344,7 +344,7 @@ class MiAttempt < ApplicationModel
           selected_status = {
             :name => status.name,
             :order_by => status.order_by,
-            :in_progress_date => status.in_progress_date
+            :in_progress_date => phenotype_attempt.in_progress_date
           }
         end
 
@@ -352,7 +352,7 @@ class MiAttempt < ApplicationModel
           selected_status = {
             :name => phenotype_attempt.status.name,
             :order_by => phenotype_attempt.status.order_by,
-            :in_progress_date => status.in_progress_date
+            :in_progress_date => phenotype_attempt.in_progress_date
           }
         end
 

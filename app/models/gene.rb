@@ -185,7 +185,7 @@ class Gene < ActiveRecord::Base
       if @selected_status.empty?
         @selected_status = this_status
 
-      elsif this_status[:order_by] > @selected_status[:order_by]
+      elsif (this_status[:order_by] > @selected_status[:order_by]) or ( this_status[:order_by] == @selected_status[:order_by] and this_status[:date] < @selected_status[:date])
         @selected_status = this_status
 
       end
@@ -206,7 +206,7 @@ class Gene < ActiveRecord::Base
         this_plan = plan
         @selected_status = this_status
 
-      elsif this_status[:order_by] > @selected_status[:order_by]
+      elsif (this_status[:order_by] > @selected_status[:order_by]) or ( this_status[:order_by] == @selected_status[:order_by] and this_status[:date] < @selected_status[:date])
         @selected_status = this_status
         this_plan = plan
 

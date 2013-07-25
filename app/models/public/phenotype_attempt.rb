@@ -26,6 +26,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     tat_cre
     mi_plan_id
     status_stamps_attributes
+    report_to_public
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -86,6 +87,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   end
 end
 
+
 # == Schema Information
 #
 # Table name: phenotype_attempts
@@ -109,6 +111,7 @@ end
 #  colony_background_strain_id      :integer
 #  cre_excision_required            :boolean         default(TRUE), not null
 #  tat_cre                          :boolean         default(FALSE)
+#  report_to_public                 :boolean         default(TRUE), not null
 #
 # Indexes
 #

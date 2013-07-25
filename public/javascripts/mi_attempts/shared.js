@@ -63,7 +63,7 @@ $(function() {
     attrs.text = '1';
     attrs['background-color'] = "yellow";
     var box1 = builder._addBox(attrs);
-    
+
     // Frt Site
     var frt = builder.FrtSite();
 
@@ -77,7 +77,8 @@ $(function() {
       second : line,
       text : 'Five Prime LR PCR',
       position : "end to start",
-      name : 'qc_five_prime_lr_pcr'
+      name : 'qc_five_prime_lr_pcr',
+      positionY : 20
     });
 
     builder.addLabel({
@@ -94,13 +95,25 @@ $(function() {
     attrs.color = '#fff';
     attrs['background-color'] = "rgba(74,115,162, 1.0)";
     var lacz = builder._addBox(attrs);
-    
+
     builder.addLabel({
       first : lacz,
       second : lacz,
       text : 'LacZ SR PCR',
       position : "start to end",
-      name : 'qc_lacz_sr_pcr'
+      name : 'qc_lacz_sr_pcr',
+      positionY : 20
+    });
+
+    builder.addLabel({
+      first : lacz,
+      second : lacz,
+      text : 'LacZ count QPCR',
+      arrowHeads : 'oval-wide-long',
+      fill : 'rgba(166, 74, 70, 1)',
+      position : "start to end",
+      name : 'qc_lacz_count_qpcr',
+      positionY : -50,
     });
 
     // NEO
@@ -125,7 +138,8 @@ $(function() {
       second : neo,
       text : 'Neo SR PCR',
       position : "start to end",
-      name : 'qc_neo_sr_pcr'
+      name : 'qc_neo_sr_pcr',
+      positionY : 20
     });
 
 
@@ -187,7 +201,8 @@ $(function() {
     builder.addTextBox({
       name: 'qc_tv_backbone_assay',
       title: 'TV Backbone Assay',
-      value: ''
+      value: '',
+      positionY : 20
     })
 
     builder.addTextBox({

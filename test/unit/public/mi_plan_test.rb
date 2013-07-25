@@ -270,7 +270,8 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'es_cells_received_on',
         'conditional_point_mutation',
         'point_mutation',
-        'allele_symbol_superscript'
+        'allele_symbol_superscript',
+        'report_to_public'
 
       ]
       got = default_mi_plan.as_json.keys

@@ -36,6 +36,6 @@ Ext.define('Imits.widget.PhenotypeAttemptsGridGeneral', {
                 grid.addColumn(column['data'], column['position']);
         });
         grid.callParent();
-    },
+    }
 
 });

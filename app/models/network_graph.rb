@@ -1,7 +1,11 @@
 class NetworkGraph
 
-  def initialize(gene_id)
-    @gene = Gene.find_by_id(gene_id)
+  def initialize(params)
+    @gene = Gene.find_by_id(params[:gene])
+    @report_to_public = '(true, false)'
+    if params[:report_to_public] and params[:report_to_public] = true
+      @report_to_public = '(true)'
+    end
     @nodes = {}
     @relations = []
     @ranks = {'source' => [], "2" => [], "3" => [], "4" => []}
@@ -17,17 +21,17 @@ class NetworkGraph
     mi_no = 0
     phen_no = 0
 
-    @gene.mi_plans(:order => "created_at, id").each do |mi_plan|
+    @gene.mi_plans.where("report_to_public IN #{@report_to_public}").order("created_at, id").each do |mi_plan|
       plan_no += 1
       @nodes[['MP', mi_plan.id]] = NetworkGraph::MiPlanNode.new(mi_plan, params = {:symbol => "P#{plan_no}", :url => ''})
       @relations << [@nodes[['G',@gene.id]], @nodes[['MP',mi_plan.id]]]
 
-      mi_plan.mi_attempts(:order => "created_at, id").each do |mi_attempt|
+      mi_plan.mi_attempts.where("report_to_public IN #{@report_to_public}").order("created_at, id").each do |mi_attempt|
         mi_no += 1
         @nodes[['MA', mi_attempt.id]] = NetworkGraph::MiAttemptNode.new(mi_attempt, params = {:symbol => "MA#{mi_no}", :url => ""})
         @relations<<[@nodes[['MP',mi_plan.id]], @nodes[['MA',mi_attempt.id]]]
 
-        mi_attempt.phenotype_attempts(:order => "created_at, id").each do |phenotype_attempt|
+        mi_attempt.phenotype_attempts.where("report_to_public IN #{@report_to_public}").order("created_at, id").each do |phenotype_attempt|
           if ! @nodes.include?(['PA',phenotype_attempt.id])
             phen_no += 1
             @nodes[['PA',phenotype_attempt.id]] = NetworkGraph::PhenotypeAttemptNode.new(phenotype_attempt, params = {:symbol => "PA#{phen_no}", :url => ""})
@@ -36,7 +40,7 @@ class NetworkGraph
         end #end phenotype attempts associated with mi_attempt
       end  #end mi Attempts
 
-      phenotype_attempts = mi_plan.phenotype_attempts(:order => "created_at, id")
+      phenotype_attempts = mi_plan.phenotype_attempts.where("report_to_public IN #{@report_to_public}").order("created_at, id")
       if ! phenotype_attempts.nil?
         phenotype_attempts.each do |phenotype_attempt|
           if ! @nodes.include?(['PA',phenotype_attempt.id])

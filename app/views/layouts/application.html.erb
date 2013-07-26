@@ -9,6 +9,11 @@
     <%= include_stylesheets :ie, :media => 'all' %>
     <![endif]-->
 
+
+    <script type='text/javascript'>
+      var open_interface = <%= current_user ? 'false' : 'true' %>;
+    </script>
+
     <%= csrf_meta_tag %>
     <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
     <%= javascript_tag "authenticityToken = '#{form_authenticity_token}';" %>

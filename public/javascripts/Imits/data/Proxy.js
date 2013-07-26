@@ -11,7 +11,12 @@ Ext.define('Imits.data.Proxy', {
         var resourcePath =  resource + 's';
 
         if (config.resourcePath) {
-            resourcePath = config.resourcePath;
+            resourcePath =  config.resourcePath;
+        }
+
+        if(open_interface) {
+          resource = 'open_' + resource
+          resourcePath = 'open/' + resourcePath
         }
 
         this.callParent([{

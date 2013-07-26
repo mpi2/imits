@@ -161,7 +161,7 @@ TarMits::Application.routes.draw do
     resources :alleles do
       get :history, :on => :member
       get :image, :on => :member
-      
+
       collection do
         get :attributes
       end
@@ -219,6 +219,11 @@ TarMits::Application.routes.draw do
     end
 
     resources :mi_attempts, :only => [:index, :show]
-    resources :phenotype_attempts, :only => [:index, :show,]
+    resources :phenotype_attempts, :only => [:index, :show]
+    resources :genes, :only => [:index] do
+      member do
+        get 'network_graph'
+      end
+    end
   end
 end

@@ -17,6 +17,9 @@ class NotificationMailerTest < ActionMailer::TestCase
     end
 
     should '#SEND status_email with mi_plan statuses' do
+      assert_equal 0, Gene.all.count
+      assert_equal 0, MiPlan.all.count
+
       mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history
 
       contact = Factory.create(:contact)
@@ -38,6 +41,9 @@ class NotificationMailerTest < ActionMailer::TestCase
     end
 
     should '#SEND status_email with mi_attempt statuses' do
+      assert_equal 0, Gene.all.count
+      assert_equal 0, MiAttempt.all.count
+
       mi_attempt_with_recent_history = Factory.create :mi_attempt_with_recent_status_history
 
       contact = Factory.create(:contact)
@@ -59,6 +65,9 @@ class NotificationMailerTest < ActionMailer::TestCase
     end
 
     should '#SEND status_email with phenotype_attempt statuses' do
+      assert_equal 0, Gene.all.count
+      assert_equal 0, PhenotypeAttempt.all.count
+
       pa = Factory.create :phenotype_attempt_status_pdc
 
       pa.status_stamps.find_by_status_id!(PhenotypeAttempt::Status[:par].id).update_attributes!(:created_at => (Time.now - 1.hour))

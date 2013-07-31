@@ -34,7 +34,8 @@ module TarMits
       'SolrUpdate::Observer::DistributionCentres',
       'SolrUpdate::Observer::Allele',
       'SolrUpdate::Observer::EsCell',
-      'SolrUpdate::Observer::MiPlan'
+      'SolrUpdate::Observer::MiPlan',
+      'SolrUpdate::Observer::Gene'
     ]
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.

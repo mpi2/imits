@@ -3,8 +3,7 @@ Ext.define('Imits.widget.MiPlansGrid', {
 
     requires: [
     'Imits.model.MiPlan',
-    'Imits.widget.grid.RansackFiltersFeature',
-    'Imits.widget.MiPlanEditor'
+    'Imits.widget.grid.RansackFiltersFeature'
     ],
 
     title: 'Plans',
@@ -39,26 +38,6 @@ Ext.define('Imits.widget.MiPlansGrid', {
             dock: 'bottom',
             displayInfo: true
         }));
-
-        self.miPlanEditor = Ext.create('Imits.widget.MiPlanEditor', {
-            listeners: {
-                'hide': {
-                    fn: function () {
-                        self.reloadStore();
-                        self.setLoading(false);
-                    }
-                }
-            }
-        });
-
-        self.addListener('itemclick', function (theView, record, item, index, event, eventOptions) {
-            var target = Ext.get(event.getTarget());
-            if (target.dom.nodeName.toLowerCase() !== 'a') {
-                var id = record.data['id'];
-                self.setLoading("Editing plan....");
-                self.miPlanEditor.edit(id);
-            }
-        });
 
         self.addListener('afterrender', function () {
             self.filters.createFilters();

@@ -31,7 +31,6 @@ Ext.define('Imits.widget.GeneGrid', {
     'Imits.model.Gene',
     'Imits.widget.grid.RansackFiltersFeature',
     'Imits.widget.SimpleCombo',
-    'Imits.widget.MiPlanEditor',
     'Ext.ux.RowExpander',
     'Imits.widget.SimpleCheckbox'
     ],
@@ -103,7 +102,7 @@ Ext.define('Imits.widget.GeneGrid', {
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
             '<tpl for="non_assigned_mi_plans">',
-            '<a class="mi-plan" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
+            '<a href="' + window.basePath + '/mi_plans/{[values["id"]]}">{[this.prettyPrintMiPlan(values)]}</a></br>',
             '</tpl>',
             {
                 prettyPrintMiPlan: printMiPlanString
@@ -120,7 +119,7 @@ Ext.define('Imits.widget.GeneGrid', {
         xtype: 'templatecolumn',
         tpl: new Ext.XTemplate(
             '<tpl for="assigned_mi_plans">',
-            '<a class="mi-plan" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
+            '<a href="' + window.basePath + '/mi_plans/{[values["id"]]}">{[this.prettyPrintMiPlan(values)]}</a></br>',
             '</tpl>',
             {
                 prettyPrintMiPlan: printMiPlanString
@@ -294,30 +293,6 @@ Ext.define('Imits.widget.GeneGrid', {
         });
     },
 
-    initMiPlanEditor: function() {
-        var grid = this;
-        this.miPlanEditor = Ext.create('Imits.widget.MiPlanEditor', {
-            listeners: {
-                'hide': {
-                    fn: function() {
-                        grid.reloadStore();
-                        grid.setLoading(false);
-                    }
-                }
-            }
-        });
-
-        Ext.get(grid.renderTo).on('click', function(event, target) {
-            var id = target.getAttribute('data-id');
-            grid.setLoading("Editing gene interest....");
-            grid.miPlanEditor.edit(id);
-        },
-        grid,
-        {
-            delegate: 'a.mi-plan'
-        });
-    },
-
     initComponent: function() {
         var grid = this;
         grid.callParent();
@@ -385,7 +360,5 @@ Ext.define('Imits.widget.GeneGrid', {
             }
             ]
         }));
-
-        this.initMiPlanEditor();
     }
 });

@@ -20,7 +20,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       mi_plan_with_recent_history = Factory.create :mi_plan_with_recent_status_history
 
       contact = Factory.create(:contact)
-      notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene, :contact => contact}
+      notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene.reload, :contact => contact}
 
       # make sure we don't automatically send welcome
       assert_equal 0, ActionMailer::Base.deliveries.size
@@ -41,7 +41,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       mi_attempt_with_recent_history = Factory.create :mi_attempt_with_recent_status_history
 
       contact = Factory.create(:contact)
-      notification = Factory.create :notification, {:gene => mi_attempt_with_recent_history.gene, :contact => contact}
+      notification = Factory.create :notification, {:gene => mi_attempt_with_recent_history.gene.reload, :contact => contact}
 
       # make sure we don't automatically send welcome
       assert_equal 0, ActionMailer::Base.deliveries.size
@@ -79,7 +79,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       )
 
       contact = Factory.create(:contact)
-      notification = Factory.create :notification, {:gene => pa.gene, :contact => contact}
+      notification = Factory.create :notification, {:gene => pa.gene.reload, :contact => contact}
 
       assert ! notification.check_statuses.empty?
 

@@ -77,8 +77,7 @@
 <fieldset class="collapsible">
   <legend>Other</legend>
   <div>
-    <%= form.label :completion_note, 'Completion Note' %>
-    <%= form.text_area :completion_note %>
+    <%= generator.completion_note_type_field%>
   </div>
   <% [:report_to_public, :ignore_available_mice, :recovery].each do |field| %>
     <div>

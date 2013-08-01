@@ -107,3 +107,13 @@
     </div>
   </div>
 </fieldset>
+<fieldset class="collapsible">
+  <legend>Other</legend>
+
+  <% [:report_to_public, :is_active].each do |field| %>
+    <div>
+      <%= form.label field, field.to_s.titlecase %>
+      <%= form.check_box field %>
+    </div>
+  <% end %>
+</fieldset>

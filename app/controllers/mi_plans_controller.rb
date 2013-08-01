@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 class MiPlansController < ApplicationController
-  respond_to :html, :only => [:gene_selection, :index, :show]
+  respond_to :html, :only => [:gene_selection, :index, :show, :destroy]
   respond_to :json, :except => [:gene_selection]
   before_filter :authenticate_user!
 
@@ -93,7 +93,7 @@ class MiPlansController < ApplicationController
     return if empty_payload?(params[:mi_plan])
 
     @mi_plan = Public::MiPlan.find(params[:id])
-    
+
     respond_to do |format|
       if @mi_plan.update_attributes params[:mi_plan]
         format.html { redirect_to mi_plan_path(@mi_plan) }
@@ -112,7 +112,8 @@ class MiPlansController < ApplicationController
     if !params[:id].blank?
       @mi_plan = Public::MiPlan.where("id = '#{params[:id]}'")
     else
-      [:consortium, :marker_symbol, :sub_project, :is_bespoke_allele, :is_conditional_allele, :is_deletion_allele, :is_cre_knock_in_allele, :is_cre_bac_allele].each do |param|
+      [:consortium, :marker_symbol, :sub_project, :is_bespoke_allele, :is_conditional_allele, :is_deletion_allele, :is_cre_knock_in_allele, :is_cre_bac_allele, :phenotype_only, :conditional_tm1c, :point_mutation, :conditional_point_mutation
+].each do |param|
         if !params.has_key?(param)
           error_str = "missing parameter; #{param} is required."
           break
@@ -134,7 +135,11 @@ class MiPlansController < ApplicationController
                         "is_conditional_allele = #{params[:is_conditional_allele]} AND "                          \
                         "is_deletion_allele = #{params[:is_deletion_allele]} AND "                                \
                         "is_cre_knock_in_allele = #{params[:is_cre_knock_in_allele]} AND "                        \
-                        "is_cre_bac_allele = #{params[:is_cre_bac_allele]} "
+                        "is_cre_bac_allele = #{params[:is_cre_bac_allele]} AND "                                  \
+                        "phenotype_only = #{params[:phenotype_only]} AND "                                        \
+                        "conditional_tm1c = #{params[:conditional_tm1c]} AND "                                    \
+                        "point_mutation = #{params[:point_mutation]} AND "                                        \
+                        "conditional_point_mutation = #{params[:conditional_point_mutation]} "                    \
 
         production_centre = Centre.find_by_name(params[:production_centre])
         if production_centre.blank?
@@ -151,8 +156,24 @@ class MiPlansController < ApplicationController
       end
     end
     if (!@mi_plan.blank?) and @mi_plan.count == 1
-      @mi_plan.first.destroy
-      respond_to { |format| format.json { head :ok } }
+      if @mi_plan.first.mi_attempts.count == 0 and @mi_plan.first.phenotype_attempts.count == 0
+        @mi_plan.first.destroy
+      else
+        error_str = 'Unable to delete mi_plan with mi_attempts or phenotype_attempts'
+      end
+
+      respond_to do |format|
+        format.html do
+          if error_str.blank?
+            flash[:alert] = 'Mi Plan successfully deleted'
+            redirect_to :action => 'index'
+          else
+            flash[:alert] = error_str
+            redirect_to :action => 'show'
+          end
+        end
+        format.json { head :ok }
+      end
     else
       respond_to do |format|
         format.json {

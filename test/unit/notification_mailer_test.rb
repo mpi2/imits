@@ -28,6 +28,8 @@ class NotificationMailerTest < ActionMailer::TestCase
       # make sure we don't automatically send welcome
       assert_equal 0, ActionMailer::Base.deliveries.size
 
+      notification.reload
+
       assert ! notification.check_statuses.empty?
 
       if !notification.check_statuses.empty?
@@ -51,6 +53,8 @@ class NotificationMailerTest < ActionMailer::TestCase
 
       # make sure we don't automatically send welcome
       assert_equal 0, ActionMailer::Base.deliveries.size
+
+      notification.reload
 
       assert ! notification.check_statuses.empty?
 
@@ -89,6 +93,8 @@ class NotificationMailerTest < ActionMailer::TestCase
 
       contact = Factory.create(:contact)
       notification = Factory.create :notification, {:gene => pa.gene, :contact => contact}
+
+      notification.reload
 
       assert ! notification.check_statuses.empty?
 

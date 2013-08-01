@@ -126,7 +126,7 @@ class NetworkGraphTest < ActiveSupport::TestCase
       phenotype_attempt = Factory.create :phenotype_attempt, :mi_plan => plan2, :mi_attempt => mi_attempt
 
 
-      got = NetworkGraph.new(gene.id).dot_file
+      got = NetworkGraph.new(:gene => gene.id).dot_file
 
       assert_match(/"G\d".*Gene.*blogs/, got)
       assert_match(/"P\d".*Mi Plan/, got)

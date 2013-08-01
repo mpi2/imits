@@ -8,7 +8,7 @@ class GeneSelectionTest < TarMits::JsIntegrationTest
 
     should 'not display tree' do
       visit '/'
-      click_link 'Gene Selection'
+      click_link 'Gene Summary'
       assert page.has_no_content?('Tree')
     end
 
@@ -24,7 +24,7 @@ class GeneSelectionTest < TarMits::JsIntegrationTest
       assert_equal 'Inspect - MI Attempt', mi_plan.status.name
 
       visit '/'
-      click_link 'Gene Selection'
+      click_link 'Gene Summary'
       assert page.has_css?('.x-grid-row')
       assert_equal 1, all('a.mi-plan').size
       find('a.mi-plan', :text => '[MGP:WTSI:Inspect - MI Attempt]').click

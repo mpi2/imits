@@ -82,7 +82,7 @@ class Gene < ActiveRecord::Base
   end
 
   def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil)
-    data = self.class.non_assigned_mi_plans_in_bulk(gene_id)
+    data = Gene.non_assigned_mi_plans_in_bulk(gene_id)
 
     data.each do |marker_symbol,mi_plans|
       strings = mi_plans.map do |mip|
@@ -141,7 +141,7 @@ class Gene < ActiveRecord::Base
   end
 
   def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil)
-    data = self.class.assigned_mi_plans_in_bulk(gene_id)
+    data = Gene.assigned_mi_plans_in_bulk(gene_id)
 
     data.each do |marker_symbol,mi_plans|
       strings = mi_plans.map do |mip|

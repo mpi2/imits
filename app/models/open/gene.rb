@@ -75,7 +75,7 @@ class Open::Gene < ::Gene
 
 
   def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil)
-    data = Gene.non_assigned_mi_plans_in_bulk(gene_id)
+    data = Open::Gene.non_assigned_mi_plans_in_bulk(gene_id)
 
     data.each do |marker_symbol,mi_plans|
       strings = mi_plans.map do |mip|
@@ -106,12 +106,12 @@ class Open::Gene < ::Gene
       join consortia on mi_plans.consortium_id = consortia.id
       left join centres on mi_plans.production_centre_id = centres.id
       where mi_plan_statuses.name in
-        (#{MiPlan::Status.all_non_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
+        (#{MiPlan::Status.all_non_assigned.map {|i| Open::Gene.connection.quote(i.name) }.join(',')})
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?
 
     genes = {}
-    results = Gene.connection.execute(sql)
+    results = Open::Gene.connection.execute(sql)
     results.each do |res|
       genes[ res['marker_symbol'] ] ||= []
       genes[ res['marker_symbol'] ] << {
@@ -139,7 +139,7 @@ class Open::Gene < ::Gene
       left join centres on mi_plans.production_centre_id = centres.id
       left join mi_attempts on mi_attempts.mi_plan_id = mi_plans.id AND mi_attempts.report_to_public = true
       where mi_plan_statuses.name in
-        (#{MiPlan::Status.all_assigned.map {|i| Gene.connection.quote(i.name) }.join(',')})
+        (#{MiPlan::Status.all_assigned.map {|i| Open::Gene.connection.quote(i.name) }.join(',')})
       and mi_attempts.id is null
     SQL
     sql << "and genes.id = #{gene_id}" unless gene_id.nil?

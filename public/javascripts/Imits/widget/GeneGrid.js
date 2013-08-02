@@ -5,7 +5,6 @@ Ext.define('Imits.widget.GeneGrid', {
     'Imits.model.Gene',
     'Imits.widget.grid.RansackFiltersFeature',
     'Imits.widget.SimpleCombo',
-    'Imits.widget.MiPlanEditor',
     'Ext.ux.RowExpander',
     'Imits.widget.SimpleCheckbox'
     ],
@@ -18,6 +17,42 @@ Ext.define('Imits.widget.GeneGrid', {
     ],
     // extends the geneColumns in GeneGridCommon. These column should be independent from the GeneGridCommon (read only grid). columns common to read only grid and editable grid should be added to GeneGridCommon.
     additionalColumns: [
+                        {'position': 4,
+                          'data': { header: 'Non-Assigned Plans',
+                                    dataIndex: 'non_assigned_mi_plans',
+                                    readOnly: true,
+                                    sortable: false,
+                                    width: 250,
+                                    flex: 1,
+                                    xtype: 'templatecolumn',
+                                    tpl: new Ext.XTemplate(
+                                        '<tpl for="non_assigned_mi_plans">',
+                                        '<a href="' + window.basePath + '/mi_plans/{[values["id"]]}">{[this.prettyPrintMiPlan(values)]}</a></br>',
+                                        '</tpl>',
+                                        {
+                                            prettyPrintMiPlan: printMiPlanString
+                                        }
+                                        )
+                                   }
+                         },
+                         {'position': 5,
+                         'data': {header: 'Assigned Plans',
+                                  dataIndex: 'assigned_mi_plans',
+                                  readOnly: true,
+                                  sortable: false,
+                                  width: 180,
+                                  flex: 1,
+                                  xtype: 'templatecolumn',
+                                  tpl: new Ext.XTemplate(
+                                      '<tpl for="assigned_mi_plans">',
+                                      '<a href="' + window.basePath + '/mi_plans/{[values["id"]]}">{[this.prettyPrintMiPlan(values)]}</a></br>',
+                                      '</tpl>',
+                                      {
+                                          prettyPrintMiPlan: printMiPlanString
+                                      }
+                                      )
+                                  }
+                        },
                         {'position': 6,
                          'data': {header: 'Aborted MIs',
                                   dataIndex: 'pretty_print_aborted_mi_attempts',
@@ -112,6 +147,7 @@ Ext.define('Imits.widget.GeneGrid', {
                                  sortable: false
                                  }
                         }
+
     ],
 
            /** @private **/
@@ -210,32 +246,6 @@ Ext.define('Imits.widget.GeneGrid', {
             });
         });
     },
-
-    initMiPlanEditor: function() {
-        var grid = this;
-        this.miPlanEditor = Ext.create('Imits.widget.MiPlanEditor', {
-            listeners: {
-                'hide': {
-                    fn: function() {
-                        grid.reloadStore();
-                        grid.setLoading(false);
-                    }
-                }
-            }
-        });
-
-        Ext.get(grid.renderTo).on('click', function(event, target) {
-            var id = target.getAttribute('data-id');
-            grid.setLoading("Editing gene interest....");
-            grid.miPlanEditor.edit(id);
-
-        },
-        grid,
-        {
-            delegate: 'a.mi-plan'
-        });
-    },
-
     initComponent: function() {
         var grid = this;
 
@@ -301,7 +311,5 @@ Ext.define('Imits.widget.GeneGrid', {
             }
             ]
         }));
-
-        this.initMiPlanEditor();
     }
 });

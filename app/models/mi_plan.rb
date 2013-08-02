@@ -226,6 +226,10 @@ class MiPlan < ApplicationModel
     status_stamp.created_at.to_date if status_stamp
   end
 
+  def products
+   @products ||= {:mi_attempts => mi_attempts.where("is_active = true"), :phenotype_attempts => phenotype_attempts.where("is_active = true")}
+  end
+
   def latest_relevant_mi_attempt
 
     status_sort_order =  MiAttempt::Status.status_order

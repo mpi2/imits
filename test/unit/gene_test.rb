@@ -92,7 +92,7 @@ class GeneTest < ActiveSupport::TestCase
         assert @gene
         assert_equal 5, @gene.mi_plans.count
         mi_plans = @gene.non_assigned_mi_plans
-        assert mi_plans.include?({ :id => @mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI', :status_name => 'Inspect - Conflict' })
+        assert mi_plans.include?({ :id => @mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI', :status_name => 'Inspect - Conflict', :mi_plan => @mgp_plan.id.to_s })
 
         statuses = mi_plans.map {|p| p[:status_name]}
         assert !statuses.blank?
@@ -380,6 +380,7 @@ class GeneTest < ActiveSupport::TestCase
       should 'return correct status with only plan' do
         plan = Factory.create :mi_plan
         gene = plan.gene
+        gene.reload
         assert_equal MiPlan::Status["Assigned"].name.gsub(' -', '').gsub(' ', '_').gsub('-', '').downcase, gene.relevant_status[:status]
       end
 
@@ -440,14 +441,13 @@ class GeneTest < ActiveSupport::TestCase
         @pa3_1 = Factory.create(:phenotype_attempt, :mi_plan => @plan3, :mi_attempt => @mi3_1, :colony_name => 'PA3_1')
 
         @plan4 = TestDummy.mi_plan('Cbx1', 'Helmholtz GMC', 'HMGU', 'MGPinterest')
+        cbx1.reload
       end
 
       should 'add data to consortia and production centres correctly' do
         data = cbx1.to_extjs_relationship_tree_structure
-
         consortium_data = data.find {|i| i['name'] == 'BaSH'}
         production_centre_data = consortium_data['children'].find {|i| i['name'] == 'WTSI'}
-
         assert_equal ['Consortium', 'Centre'], [consortium_data['type'], production_centre_data['type']]
 
         assert_equal ['BaSH', 'WTSI'], production_centre_data.values_at('consortium_name', 'production_centre_name')

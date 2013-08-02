@@ -3,8 +3,7 @@ Ext.define('Imits.widget.MiPlansGridCommon', {
 
     requires: [
     'Imits.model.MiPlan',
-    'Imits.widget.grid.RansackFiltersFeature',
-    'Imits.widget.MiPlanEditor'
+    'Imits.widget.grid.RansackFiltersFeature'
     ],
 
     title: 'Plans',

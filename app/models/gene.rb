@@ -70,7 +70,8 @@ class Gene < ActiveRecord::Base
         :id => res['id'].to_i,
         :consortium => res['consortium'],
         :production_centre => res['production_centre'],
-        :status_name => res['status_name']
+        :status_name => res['status_name'],
+        :mi_plan => res['id']
       }
     end
 

@@ -32,7 +32,6 @@ Ext.define('Imits.widget.GeneGridCommon', {
     'Imits.model.Gene',
     'Imits.widget.grid.RansackFiltersFeature',
     'Imits.widget.SimpleCombo',
-    'Imits.widget.MiPlanEditor',
     'Ext.ux.RowExpander',
     'Ext.selection.CheckboxModel'
     ],
@@ -92,40 +91,6 @@ Ext.define('Imits.widget.GeneGridCommon', {
             dataIndex: 'pretty_print_types_of_cells_available',
             readOnly: true,
             sortable: false
-        },
-        {
-            header: 'Non-Assigned Plans',
-            dataIndex: 'non_assigned_mi_plans',
-            readOnly: true,
-            sortable: false,
-            width: 250,
-            flex: 1,
-            xtype: 'templatecolumn',
-            tpl: new Ext.XTemplate(
-                '<tpl for="non_assigned_mi_plans">',
-                '<a class="mi-plan" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
-                '</tpl>',
-                {
-                    prettyPrintMiPlan: printMiPlanString
-                }
-                )
-        },
-        {
-            header: 'Assigned Plans',
-            dataIndex: 'assigned_mi_plans',
-            readOnly: true,
-            sortable: false,
-            width: 180,
-            flex: 1,
-            xtype: 'templatecolumn',
-            tpl: new Ext.XTemplate(
-                '<tpl for="assigned_mi_plans">',
-                '<a class="mi-plan" data-marker_symbol="{parent.marker_symbol}" data-id="{id}" data-string="{[this.prettyPrintMiPlan(values)]}" href="#">{[this.prettyPrintMiPlan(values)]}</a><br/>',
-                '</tpl>',
-                {
-                    prettyPrintMiPlan: printMiPlanString
-                }
-                )
         }
 ]
 });

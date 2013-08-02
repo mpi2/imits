@@ -1,8 +1,8 @@
 # encoding: utf-8
 
 class Open::MiPlansController < OpenApplicationController
-  respond_to :html, :only => [:gene_selection, :index]
-  respond_to :json, :except => [:gene_selection, :index]
+  respond_to :html, :only => [:gene_selection, :index, :show]
+  respond_to :json, :except => [:gene_selection, :show]
 
   def gene_selection
 
@@ -36,4 +36,18 @@ class Open::MiPlansController < OpenApplicationController
     end
   end
 
+  def show
+    set_centres_and_consortia
+    @mi_plan = Public::MiPlan.find_by_id(params[:id])
+    respond_with @mi_plan
+  end
+
+  alias_method :public_mi_plan_url, :mi_plan_url
+  protected :public_mi_plan_url
+  alias_method :public_mi_plans_url, :mi_plans_url
+  protected :public_mi_plans_url
+  helper do
+    def public_mi_plans_path(*args); mi_plans_path(*args); end
+    def public_mi_plan_path(*args); mi_plan_path(*args); end
+  end
 end

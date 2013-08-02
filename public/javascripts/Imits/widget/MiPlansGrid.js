@@ -20,26 +20,6 @@ Ext.define('Imits.widget.MiPlansGrid', {
         Ext.Array.each(grid.additionalColumns, function(column) {
             grid.addColumn(column['data'], column['position']);
         });
-
-        grid.miPlanEditor = Ext.create('Imits.widget.MiPlanEditor', {
-            listeners: {
-                'hide': {
-                    fn: function () {
-                        grid.reloadStore();
-                        grid.setLoading(false);
-                    }
-                }
-            }
-        });
-
-        grid.addListener('itemclick', function (theView, record, item, index, event, eventOptions) {
-            var target = Ext.get(event.getTarget());
-            if (target.dom.nodeName.toLowerCase() !== 'a') {
-                var id = record.data['id'];
-                grid.setLoading("Editing plan....");
-                grid.miPlanEditor.edit(id);
-            }
-        });
         this.callParent();
     }
 })

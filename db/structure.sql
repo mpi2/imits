@@ -77,7 +77,9 @@ CREATE TABLE centres (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    contact_name character varying(100),
+    contact_email character varying(100)
 );
 
 
@@ -3834,3 +3836,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130708264213');
 INSERT INTO schema_migrations (version) VALUES ('20130718140000');
 
 INSERT INTO schema_migrations (version) VALUES ('20130725112052');
+
+INSERT INTO schema_migrations (version) VALUES ('20130801140814');

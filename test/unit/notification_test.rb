@@ -38,6 +38,8 @@ class NotificationTest < ActiveSupport::TestCase
         contact = Factory.create(:contact)
         notification = Factory.create :notification, {:gene => mi_plan_with_recent_history.gene, :contact => contact}
 
+        notification.reload
+
         assert_equal 1, notification.check_statuses.size
         assert_equal "assigned_es_cell_qc_complete", notification.check_statuses[0][:status]
 

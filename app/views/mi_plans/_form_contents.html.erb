@@ -2,35 +2,103 @@
 <% mi_plan = form.object %>
 
 <fieldset class="collapsible">
-    <legend>Details</legend>
+  <legend>Details</legend>
 
+  <div>
+      <div class="marker-symbol">
+        <div class="label">Marker Symbol</div>
+        <div><%= mi_plan.gene.marker_symbol %></div>
+      </div>
+
+      <div>
+        <%= form.label :consortium_name, 'Consortium' %>
+        <span><%= mi_plan.consortium_name %></span>
+      </div>
+
+      <div>
+        <%= generator.drop_down_field :field => :production_centre_name, :model => 'Centre', :label => 'Production Centre'%>
+      </div>
+      <% if ! mi_plan.status.blank? %>
+        <div>
+          <label>Status</label>
+          <span><%= mi_plan.status.name %></span>
+        </div>
+      <% end %>
+
+      <div>
+        <%= form.label 'phenotype_only', 'Phenotype Only' %>
+        <%= form.check_box 'phenotype_only' %>
+      </div>
+
+  </div>
+</fieldset>
+
+<fieldset class="collapsible">
+  <legend>Allele Structure</legend>
+
+  <% {'Bespoke allele?'=> :is_bespoke_allele, 'Knockout First tm1a allele?'=> :is_conditional_allele, 'Deletion allele?' => :is_deletion_allele, 'Cre Knock-in allele?' => :is_cre_knock_in_allele, 'Cre BAC allele?'=> :is_cre_bac_allele, 'Conditional tm1c allele?' => :conditional_tm1c , 'Point Mutation allele?' => :point_mutation, 'Conditional Point Mutation allele?' => :conditional_point_mutation}.each do |label, field| %>
     <div>
-        <div class="marker-symbol">
-            <div class="label">Marker Symbol</div>
-            <div><%= mi_plan.gene.marker_symbol %></div>
-        </div>
+      <%= form.label field, label.to_s.titlecase %>
+      <%= form.check_box field %>
+    </div>
+  <% end %>
 
-        <% if ! mi_plan.status.blank? %>
-            <div>
-                <label>Status</label>
-                <span><%= mi_plan.status.name %></span>
-            </div>
-        <% end %>
+  <div>
+    <%= generator.text_field :allele_symbol_superscript, :label => 'Allele Symbol Override' %>
+  </div>
+  <div>
+    <%= form.label :comment, 'Allele Comment' %>
+    <%= form.text_area :comment %>
+  </div>
+</fieldset>
 
-        <div>
-            <%= form.label :consortium_name, 'Consortium' %>
-            <span><%= mi_plan.consortium_name %></span>
-        </div>
 
-        <div>
-            <%= form.label :production_centre_name, 'Production Centre' %>
-            <span><%= mi_plan.production_centre_name %></span>
-        </div>
+<fieldset class="collapsible">
+  <legend>Order Info</legend>
+    <div>
+      <%= generator.drop_down_field :field => :priority_name, :model => 'MiPlan::Priority', :label => 'Priority' %>
+      <%= generator.number_field :number_of_es_cells_received %>
+      <%= generator.drop_down_field :field => :es_cells_received_from_name, :model => 'TargRep::CentrePipeline', :label =>'Received From' %>
+      <%= generator.text_field :es_cells_received_on, :class => 'date-field' %>
+    </div>
+</fieldset>
 
-        <div>
-            <%= form.label :comment %>
-            <%= form.text_area :comment %>
-        </div>
 
+<fieldset class="collapsible">
+  <legend>ES Cell QC</legend>
+    <div>
+      <%= generator.number_field :number_of_es_cells_starting_qc %>
+      <%= generator.number_field :number_of_es_cells_passing_qc %>
+      <%= generator.drop_down_field :field => :es_qc_comment_name, :model => 'MiPlan::EsQcComment', :label => 'Es QC Comment' %>
+    </div>
+</fieldset>
+
+
+<fieldset class="collapsible">
+  <legend>Other</legend>
+  <div>
+    <%= generator.completion_note_type_field%>
+  </div>
+  <% [:report_to_public, :ignore_available_mice, :recovery].each do |field| %>
+    <div>
+      <%= form.label field, field.to_s.titlecase %>
+      <%= form.check_box field %>
+    </div>
+  <% end %>
+    <div>
+      <%= form.label :is_active, :is_active.to_s.titlecase %>
+      <% if mi_plan.products[:mi_attempts].count > 0 or mi_plan.products[:phenotype_attempts].count > 0 %>
+        <%= form.check_box :is_active, disabled:true %>
+      <% else %>
+        <%= form.check_box :is_active, disabled:false %>
+      <% end %>
+    </div>
+    <div>
+      <%= form.label :withdrawn, :withdrawn.to_s.titlecase %>
+      <% if MiPlan::Status.all_pre_assignment.include? (mi_plan.status) %>
+        <%= form.check_box :withdrawn, disabled:false %>
+      <% else %>
+        <%= form.check_box :withdrawn, disabled:true %>
+      <% end %>
     </div>
 </fieldset>

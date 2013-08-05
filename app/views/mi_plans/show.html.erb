@@ -1,5 +1,10 @@
 <% @title = 'Edit Plan' %>
 
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('mi_attempts/shared') %>
+  <%= javascript_include_tag('mi_attempts/new') %>
+<% end %>
+
 <div id="object-box" class="grid_8 prefix_2 suffix_2">
     <h2><%= @title %></h2>
 
@@ -33,9 +38,11 @@
         </fieldset>
 
         <div>
-            <%= form.submit 'Update', :class => 'disable-on-submit' %>
+          <%= form.submit 'Update', :class => 'disable-on-submit' %>
         </div>
-
     <% end %>
-
 </div>
+<div  id="object-box" class="grid_8 prefix_2 suffix_2" style="margin-top:15px">
+  <%= button_to '  Delete  ', {:action => "destroy", :id =>@mi_plan.id}, :id => "mi_plan_delete_button", :confirm => "Are you sure you want to delete this Mi Plan?", :method => :delete%>
+</div>
+

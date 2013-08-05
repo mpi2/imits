@@ -1180,7 +1180,7 @@ module AlleleImage
          image_width = target_exons.map { |e| e.feature_name.match(/(\ENSMUSE\d+)/).captures.last.length }.max * @text_width
         end
 
-        return min_image_width if @simple
+        return min_image_width + 5 if @simple
         return [ image_width, min_image_width ].max
       end
 

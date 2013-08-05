@@ -146,6 +146,14 @@ class PhenotypeAttempt < ApplicationModel
     end
   end
 
+  def mi_attempt_colony_background_strain_name
+    if mi_attempt.colony_background_strain
+      return mi_attempt.colony_background_strain.name
+    else
+      return nil
+    end
+  end
+
   delegate :consortium, :production_centre, :to => :mi_plan, :allow_nil => true
   delegate :marker_symbol, :to => :gene, :allow_nil => true
   delegate :es_cell, :allele_id, :to => :mi_attempt, :allow_nil => true
@@ -173,7 +181,6 @@ class PhenotypeAttempt < ApplicationModel
   def self.readable_name
     'phenotype attempt'
   end
-
 end
 
 

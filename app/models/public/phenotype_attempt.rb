@@ -38,6 +38,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     mouse_allele_symbol_superscript
     mouse_allele_symbol
     allele_symbol
+    mi_attempt_colony_background_strain_name
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{

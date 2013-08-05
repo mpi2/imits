@@ -1,0 +1,26 @@
+<% @tab = 'Admin' %>
+<% @title = "Strains Admin" %>
+
+<div class="adjust">
+  <h2>Strains</h2>
+</div>
+<div class="adjust-alot">
+  <%= form_for Strain.new do |f| %>
+    <fieldset class="collapsible"><br>
+        <legend>Add New Strain</legend>
+        <span>
+            Strian Name <%= f.text_field :name%>
+            MGI Accession Id <%= f.text_field :mgi_strain_accession_id%>
+            MGI Strain Name <%= f.text_field :mgi_strain_name%>
+        </span>
+    <%= f.submit%>
+    </fieldset>
+  <% end %>
+</div>
+<%= content_for :post_js_footer do %>
+  <%= javascript_include_tag 'strains/index' %>
+<% end %>
+
+<div class="clear"></div>
+
+<div id="strains-grid"></div>

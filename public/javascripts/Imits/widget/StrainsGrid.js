@@ -1,23 +1,23 @@
-Ext.define('Imits.widget.ContactsGrid', {
+Ext.define('Imits.widget.StrainsGrid', {
     extend: 'Imits.widget.Grid',
 
     requires: [
-      'Imits.model.Contact',
+      'Imits.model.Strain',
       'Imits.widget.grid.RansackFiltersFeature',
       'Imits.Util'
     ],
 
-    title: 'Contacts',
+    title: 'Strains',
     iconCls: 'icon-grid',
     columnLines: true,
 
     store: {
-        model: 'Imits.model.Contact',
+        model: 'Imits.model.Strain',
         autoLoad: true,
         autoSync: true,
         remoteSort: true,
         remoteFilter: true,
-        pageSize: 20
+        pageSize: 25
     },
 
     selType: 'rowmodel',
@@ -56,8 +56,26 @@ Ext.define('Imits.widget.ContactsGrid', {
       hidden: true
     },
     {
-      dataIndex: "email",
-      header: "Email address",
+      dataIndex: 'name',
+      header: 'ID',
+      width:300,
+      filter: {
+        type: 'string'
+      },
+      editor: 'textfield'
+    },
+    {
+      dataIndex: 'mgi_strain_accession_id',
+      header: 'MGI Accession Id',
+      width:300,
+      filter: {
+        type: 'string'
+      },
+      editor: 'textfield'
+    },
+    {
+      dataIndex: 'mgi_strain_name',
+      header: 'MGI Strain Name',
       width:300,
       filter: {
         type: 'string'
@@ -73,7 +91,7 @@ Ext.define('Imits.widget.ContactsGrid', {
         handler: function(grid, rowIndex, colIndex) {
           var record = grid.getStore().getAt(rowIndex);
 
-          if(confirm("Remove contact?"))
+          if(confirm("Remove strain?"))
             grid.getStore().removeAt(rowIndex)
 
         }

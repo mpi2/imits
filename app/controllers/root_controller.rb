@@ -22,9 +22,9 @@ class RootController < ApplicationController
 
     sql = <<-EOF
       SELECT DISTINCT consortia.name AS consortium_name, centres.name AS centre_name, centres.contact_name, centres.contact_email
-      FROM mi_plans
-      JOIN consortia ON consortia.id = mi_plans.consortium_id
-      JOIN centres ON centres.id = mi_plans.production_centre_id
+      FROM consortia
+      LEFT JOIN
+      (mi_plans JOIN centres ON centres.id = mi_plans.production_centre_id) ON consortia.id = mi_plans.consortium_id
     EOF
 
     results = ActiveRecord::Base.connection.execute (sql)

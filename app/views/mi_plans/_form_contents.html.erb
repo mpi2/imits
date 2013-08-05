@@ -30,6 +30,13 @@
         <%= form.check_box 'phenotype_only' %>
       </div>
 
+
+      <%  if current_user.can_see_sub_project? %>
+        <div>
+          <%= generator.drop_down_field :field => :sub_project_name, :model => 'MiPlan::SubProject', :label => 'Sub Project' %>
+        </div>
+      <% end %>
+
   </div>
 </fieldset>
 

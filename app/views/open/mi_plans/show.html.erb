@@ -1,0 +1,21 @@
+<% @title = 'Plan' %>
+
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('mi_attempts/shared') %>
+  <%= javascript_include_tag('mi_attempts/new') %>
+<% end %>
+
+<div id="object-box" class="grid_8 prefix_2 suffix_2">
+    <h2><%= @title %></h2>
+
+
+    <%= form_for @mi_plan, :as => :mi_plan, :html => {:class => 'edit show mi-plan'} do |form| %>
+
+      <%= form.error_messages %>
+
+        <%= render 'form_contents', :form => form %>
+
+    <% end %>
+</div>
+
+

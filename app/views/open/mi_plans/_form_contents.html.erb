@@ -1,0 +1,107 @@
+<% generator = FieldGenerator.new(form) %>
+<% mi_plan = form.object %>
+
+<fieldset class="collapsible">
+  <legend>Details</legend>
+
+  <div>
+      <div class="marker-symbol">
+        <%= form.label :marker_symbol, 'Marker Symbol:' %>
+        <span><%= mi_plan.gene.marker_symbol %></span>
+      </div>
+
+      <div>
+        <%= form.label :consortium_name, 'Consortium:' %>
+        <span><%= mi_plan.consortium_name %></span>
+      </div>
+
+      <div>
+        <%= form.label :production_centre_name, 'Production Centre:' %>
+        <span><%= mi_plan.production_centre_name %></span>
+      </div>
+      <% if ! mi_plan.status.blank? %>
+        <div>
+          <%= form.label :status, 'Status:' %>
+          <span><%= mi_plan.status.name %></span>
+        </div>
+      <% end %>
+
+      <div>
+        <%= form.label 'phenotype_only', 'Phenotype Only' %>
+        <%= form.check_box 'phenotype_only', disabled:true %>
+      </div>
+
+  </div>
+</fieldset>
+
+<fieldset class="collapsible">
+  <legend>Allele Structure</legend>
+
+  <% {'Bespoke allele?'=> :is_bespoke_allele, 'Knockout First tm1a allele?'=> :is_conditional_allele, 'Deletion allele?' => :is_deletion_allele, 'Cre Knock-in allele?' => :is_cre_knock_in_allele, 'Cre BAC allele?'=> :is_cre_bac_allele, 'Conditional tm1c allele?' => :conditional_tm1c , 'Point Mutation allele?' => :point_mutation, 'Conditional Point Mutation allele?' => :conditional_point_mutation}.each do |label, field| %>
+    <div>
+      <%= form.label field, label.to_s.titlecase %>
+      <%= form.check_box field, disabled:true %>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :allele_symbol_superscript, 'Allele Symbol Override:' %>
+    <span><%= mi_plan.allele_symbol_superscript %></span>
+  </div>
+  <div>
+    <%= form.label :comment, 'Allele Comment' %>
+    <span><%= mi_plan.comment %></span>
+  </div>
+</fieldset>
+
+
+<fieldset class="collapsible">
+  <legend>Order Info</legend>
+    <div>
+      <%= form.label :priority_name, 'Priority:' %>
+      <span><%= mi_plan.priority_name %></span>
+    </div>
+    <div>
+      <%= form.label :number_of_es_cells_received, 'Number of ES Cells Received:' %>
+      <span><%= mi_plan.number_of_es_cells_received %></span>
+    </div>
+    <div>
+      <%= form.label :es_cells_received_from_name, 'Received From:' %>
+      <span><%= mi_plan.es_cells_received_from_name %></span>
+    </div>
+    <div>
+      <%= form.label :es_cells_received_on, 'Es Cell Received On:' %>
+      <span><%= mi_plan.es_cells_received_on %></span>
+    </div>
+</fieldset>
+
+
+<fieldset class="collapsible">
+  <legend>ES Cell QC</legend>
+    <div>
+      <%= form.label :number_of_es_cells_starting_qc, 'Number of ES Cells Starting QC:' %>
+      <span><%= mi_plan.number_of_es_cells_starting_qc %></span>
+    </div>
+    <div>
+      <%= form.label :number_of_es_cells_passing_qc, 'Number of ES Cells Passing QC:' %>
+      <span><%= mi_plan.number_of_es_cells_passing_qc %></span>
+    </div>
+    <div>
+      <%= form.label :es_qc_comment_name, 'Es QC Comment:' %>
+      <span><%= mi_plan.es_qc_comment_name %></span>
+    </div>
+</fieldset>
+
+
+<fieldset class="collapsible">
+  <legend>Other</legend>
+  <div>
+    <span>Es QC Comment: <%= mi_plan.completion_note %></span>
+  </div>
+  <% [:ignore_available_mice, :withdrawn].each do |field| %>
+    <div>
+      <%= form.label field, field.to_s.titlecase %>
+      <%= form.check_box field, disabled:true %>
+    </div>
+  <% end %>
+</fieldset>

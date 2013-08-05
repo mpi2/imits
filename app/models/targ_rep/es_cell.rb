@@ -11,12 +11,18 @@ class TargRep::EsCell < ActiveRecord::Base
   class SyncError < Error; end
 
   TEMPLATE_CHARACTER = '@'
-
+  JSON_OPTIONS = {
+      :include => {
+        :distribution_qcs => { :except => [:created_at, :updated_at] , :methods => [:es_cell_distribution_centre_name]}
+      },
+      :methods => [:allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name]
+  }
   ##
   ## Relationships
   ##
   belongs_to :pipeline
   belongs_to :allele
+  belongs_to :ikmc_project, :class_name => "TargRep::IkmcProject", :foreign_key => :ikmc_project_foreign_id
 
   belongs_to :targeting_vector
   belongs_to :user_qc_mouse_clinic, :class_name => 'Centre'
@@ -150,23 +156,11 @@ class TargRep::EsCell < ActiveRecord::Base
 
     def to_json( options = {} )
       TargRep::EsCell.include_root_in_json = false
-      options.update(
-        :include => {
-          :distribution_qcs => { :except => [:created_at, :updated_at] }
-        },
-        :methods => [:allele_symbol_superscript]
-      )
-      super( options )
+      super( JSON_OPTIONS )
     end
 
     def to_xml( options = {} )
-      options.update(
-        :skip_types => true,
-        :include => {
-          :distribution_qcs => { :except => [:id, :created_at, :updated_at] }
-        },
-        :methods => [:allele_symbol_superscript]
-      )
+      super( JSON_OPTIONS )
     end
 
     def report_to_public?
@@ -338,6 +332,7 @@ end
 #  user_qc_chr8                          :string(255)
 #  user_qc_chry                          :string(255)
 #  user_qc_lacz_qpcr                     :string(255)
+#  ikmc_project_foreign_id               :integer
 #
 # Indexes
 #

@@ -5,7 +5,6 @@ Ext.define('Imits.widget.GeneGrid', {
     'Imits.model.Gene',
     'Imits.widget.grid.RansackFiltersFeature',
     'Imits.widget.SimpleCombo',
-    'Imits.widget.MiPlanEditor',
     'Ext.ux.RowExpander',
     'Imits.widget.SimpleCheckbox'
     ],
@@ -18,6 +17,42 @@ Ext.define('Imits.widget.GeneGrid', {
     ],
     // extends the geneColumns in GeneGridCommon. These column should be independent from the GeneGridCommon (read only grid). columns common to read only grid and editable grid should be added to GeneGridCommon.
     additionalColumns: [
+                        {'position': 4,
+                          'data': { header: 'Non-Assigned Plans',
+                                    dataIndex: 'non_assigned_mi_plans',
+                                    readOnly: true,
+                                    sortable: false,
+                                    width: 250,
+                                    flex: 1,
+                                    xtype: 'templatecolumn',
+                                    tpl: new Ext.XTemplate(
+                                        '<tpl for="non_assigned_mi_plans">',
+                                        '<a href="' + window.basePath + '/mi_plans/{[values["id"]]}">{[this.prettyPrintMiPlan(values)]}</a></br>',
+                                        '</tpl>',
+                                        {
+                                            prettyPrintMiPlan: printMiPlanString
+                                        }
+                                        )
+                                   }
+                         },
+                         {'position': 5,
+                         'data': {header: 'Assigned Plans',
+                                  dataIndex: 'assigned_mi_plans',
+                                  readOnly: true,
+                                  sortable: false,
+                                  width: 180,
+                                  flex: 1,
+                                  xtype: 'templatecolumn',
+                                  tpl: new Ext.XTemplate(
+                                      '<tpl for="assigned_mi_plans">',
+                                      '<a href="' + window.basePath + '/mi_plans/{[values["id"]]}">{[this.prettyPrintMiPlan(values)]}</a></br>',
+                                      '</tpl>',
+                                      {
+                                          prettyPrintMiPlan: printMiPlanString
+                                      }
+                                      )
+                                  }
+                        },
                         {'position': 6,
                          'data': {header: 'Aborted MIs',
                                   dataIndex: 'pretty_print_aborted_mi_attempts',
@@ -89,7 +124,7 @@ Ext.define('Imits.widget.GeneGrid', {
                                       }
                                   )
                                  }
-                      },
+                        },
                         {'position': 1 ,
                          'data': {header: 'Tree',
                                   readOnly: true,
@@ -101,7 +136,18 @@ Ext.define('Imits.widget.GeneGrid', {
                                   width: 40,
                                   sortable: false
                                   }
-                         }
+                        },
+                        {'position': 1,
+                         'data': {header: 'Production History',
+                                 dataIndex: 'production_history_link',
+                                 renderer: function (value, metaData, record) {
+                                     var geneId = record.getId();
+                                     return Ext.String.format('<a href="{0}/genes/{1}/network_graph">Production Graph</a>', window.basePath, geneId);
+                                 },
+                                 sortable: false
+                                 }
+                        }
+
     ],
 
            /** @private **/
@@ -146,6 +192,8 @@ Ext.define('Imits.widget.GeneGrid', {
         var isCreKnockInAllele   = grid.iscreknockinalleleCheck.getSubmitValue() || false;
         var isCreBacAllele       = grid.iscrebacalleleCheck.getSubmitValue() || false;
         var conditionalTm1c      = grid.conditionaltm1cCheck.getSubmitValue() || false;
+        var pointMutation        = grid.pointmutationCheck.getSubmitValue() || false;
+        var conditionalPointMutation = grid.conditionalpointmutationCheck.getSubmitValue() || false;
 
         if(selectedGenes.length == 0) {
             alert('You must select some genes to register interest in');
@@ -176,7 +224,9 @@ Ext.define('Imits.widget.GeneGrid', {
                 'is_deletion_allele'     : isDeletionAllele,
                 'is_cre_knock_in_allele' : isCreKnockInAllele,
                 'is_cre_bac_allele'      : isCreBacAllele,
-                'conditional_tm1c'       : conditionalTm1c
+                'conditional_tm1c'       : conditionalTm1c,
+                'point_mutation'         : pointMutation,
+                'conditional_point_mutation' : conditionalPointMutation
             });
             miPlan.save({
                 failure: function() {
@@ -196,32 +246,6 @@ Ext.define('Imits.widget.GeneGrid', {
             });
         });
     },
-
-    initMiPlanEditor: function() {
-        var grid = this;
-        this.miPlanEditor = Ext.create('Imits.widget.MiPlanEditor', {
-            listeners: {
-                'hide': {
-                    fn: function() {
-                        grid.reloadStore();
-                        grid.setLoading(false);
-                    }
-                }
-            }
-        });
-
-        Ext.get(grid.renderTo).on('click', function(event, target) {
-            var id = target.getAttribute('data-id');
-            grid.setLoading("Editing gene interest....");
-            grid.miPlanEditor.edit(id);
-
-        },
-        grid,
-        {
-            delegate: 'a.mi-plan'
-        });
-    },
-
     initComponent: function() {
         var grid = this;
 
@@ -248,6 +272,8 @@ Ext.define('Imits.widget.GeneGrid', {
         grid.iscreknockinalleleCheck  = grid.createCheckBox('is_cre_knock_in_allele', 'Cre Knock In', 80, false);
         grid.iscrebacalleleCheck      = grid.createCheckBox('is_cre_bac_allele', 'Cre Bac', 55, false);
         grid.conditionaltm1cCheck      = grid.createCheckBox('conditional_tm1c', 'Conditional tm1c', 100, false);
+        grid.pointmutationCheck      = grid.createCheckBox('point_mutation', 'Point Mutation', 80, false);
+        grid.conditionalpointmutationCheck      = grid.createCheckBox('conditional_point_mutation', 'Conditional Point Mutation', 135, false);
 
         grid.addDocked(Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',
@@ -269,6 +295,8 @@ Ext.define('Imits.widget.GeneGrid', {
             grid.isdeletionalleleCheck,
             grid.iscreknockinalleleCheck,
             grid.iscrebacalleleCheck,
+            grid.pointmutationCheck,
+            grid.conditionalpointmutationCheck,
             '',
             '',
             {
@@ -283,7 +311,5 @@ Ext.define('Imits.widget.GeneGrid', {
             }
             ]
         }));
-
-        this.initMiPlanEditor();
     }
 });

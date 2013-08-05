@@ -824,7 +824,11 @@ CREATE TABLE mi_plans (
     ignore_available_mice boolean DEFAULT false NOT NULL,
     number_of_es_cells_received integer,
     es_cells_received_on date,
-    es_cells_received_from_id integer
+    es_cells_received_from_id integer,
+    point_mutation boolean DEFAULT false NOT NULL,
+    conditional_point_mutation boolean DEFAULT false NOT NULL,
+    allele_symbol_superscript text,
+    report_to_public boolean DEFAULT true NOT NULL
 );
 
 
@@ -845,6 +849,221 @@ CREATE SEQUENCE mi_plans_id_seq
 --
 
 ALTER SEQUENCE mi_plans_id_seq OWNED BY mi_plans.id;
+
+
+--
+-- Name: new_consortia_intermediate_report; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE new_consortia_intermediate_report (
+    id integer NOT NULL,
+    gene character varying(75) NOT NULL,
+    consortium character varying(255) NOT NULL,
+    gene_interest_date date,
+    production_centre character varying(255),
+    mgi_accession_id character varying(40),
+    overall_status character varying(50),
+    mi_plan_status character varying(50),
+    mi_attempt_status character varying(50),
+    phenotype_attempt_status character varying(50),
+    mi_plan_id integer,
+    mi_attempt_id integer,
+    phenotype_attempt_id integer,
+    assigned_date date,
+    assigned_es_cell_qc_in_progress_date date,
+    assigned_es_cell_qc_complete_date date,
+    aborted_es_cell_qc_failed_date date,
+    sub_project character varying(255),
+    priority character varying(255),
+    is_bespoke_allele boolean,
+    ikmc_project_id character varying(255),
+    mutation_sub_type character varying(100),
+    allele_symbol character varying(255),
+    genetic_background character varying(255),
+    mi_attempt_colony_name character varying(255),
+    mi_attempt_consortium character varying(255),
+    mi_attempt_production_centre character varying(255),
+    phenotype_attempt_colony_name character varying(255),
+    micro_injection_in_progress_date date,
+    chimeras_obtained_date date,
+    genotype_confirmed_date date,
+    micro_injection_aborted_date date,
+    phenotype_attempt_registered_date date,
+    rederivation_started_date date,
+    rederivation_complete_date date,
+    cre_excision_started_date date,
+    cre_excision_complete_date date,
+    phenotyping_started_date date,
+    phenotyping_complete_date date,
+    phenotype_attempt_aborted_date date,
+    distinct_genotype_confirmed_es_cells integer,
+    distinct_old_genotype_confirmed_es_cells integer,
+    distinct_non_genotype_confirmed_es_cells integer,
+    distinct_old_non_genotype_confirmed_es_cells integer,
+    total_pipeline_efficiency_gene_count integer,
+    total_old_pipeline_efficiency_gene_count integer,
+    gc_pipeline_efficiency_gene_count integer,
+    gc_old_pipeline_efficiency_gene_count integer,
+    created_at timestamp without time zone,
+    non_cre_ex_phenotype_attempt_status character varying(255),
+    non_cre_ex_phenotype_attempt_registered_date date,
+    non_cre_ex_rederivation_started_date date,
+    non_cre_ex_rederivation_complete_date date,
+    non_cre_ex_cre_excision_started_date date,
+    non_cre_ex_cre_excision_complete_date date,
+    non_cre_ex_phenotyping_started_date date,
+    non_cre_ex_phenotyping_complete_date date,
+    non_cre_ex_phenotype_attempt_aborted_date date,
+    non_cre_ex_pa_mouse_allele_type character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript character varying(255),
+    non_cre_ex_mi_attempt_consortium character varying(255),
+    non_cre_ex_mi_attempt_production_centre character varying(255),
+    non_cre_ex_phenotype_attempt_colony_name character varying(255),
+    cre_ex_phenotype_attempt_status character varying(255),
+    cre_ex_phenotype_attempt_registered_date date,
+    cre_ex_rederivation_started_date date,
+    cre_ex_rederivation_complete_date date,
+    cre_ex_cre_excision_started_date date,
+    cre_ex_cre_excision_complete_date date,
+    cre_ex_phenotyping_started_date date,
+    cre_ex_phenotyping_complete_date date,
+    cre_ex_phenotype_attempt_aborted_date date,
+    cre_ex_pa_mouse_allele_type character varying(255),
+    cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    cre_ex_pa_allele_symbol_superscript character varying(255),
+    cre_ex_mi_attempt_consortium character varying(255),
+    cre_ex_mi_attempt_production_centre character varying(255),
+    cre_ex_phenotype_attempt_colony_name character varying(255)
+);
+
+
+--
+-- Name: new_consortia_intermediate_report_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE new_consortia_intermediate_report_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: new_consortia_intermediate_report_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE new_consortia_intermediate_report_id_seq OWNED BY new_consortia_intermediate_report.id;
+
+
+--
+-- Name: new_gene_intermediate_report; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE new_gene_intermediate_report (
+    id integer NOT NULL,
+    gene character varying(75) NOT NULL,
+    consortium character varying(255) NOT NULL,
+    gene_interest_date date,
+    production_centre character varying(255),
+    mgi_accession_id character varying(40),
+    overall_status character varying(50),
+    mi_plan_status character varying(50),
+    mi_attempt_status character varying(50),
+    phenotype_attempt_status character varying(50),
+    mi_plan_id integer,
+    mi_attempt_id integer,
+    phenotype_attempt_id integer,
+    assigned_date date,
+    assigned_es_cell_qc_in_progress_date date,
+    assigned_es_cell_qc_complete_date date,
+    aborted_es_cell_qc_failed_date date,
+    sub_project character varying(255),
+    priority character varying(255),
+    is_bespoke_allele boolean,
+    ikmc_project_id character varying(255),
+    mutation_sub_type character varying(100),
+    allele_symbol character varying(255),
+    genetic_background character varying(255),
+    mi_attempt_colony_name character varying(255),
+    mi_attempt_consortium character varying(255),
+    mi_attempt_production_centre character varying(255),
+    phenotype_attempt_colony_name character varying(255),
+    micro_injection_in_progress_date date,
+    chimeras_obtained_date date,
+    genotype_confirmed_date date,
+    micro_injection_aborted_date date,
+    phenotype_attempt_registered_date date,
+    rederivation_started_date date,
+    rederivation_complete_date date,
+    cre_excision_started_date date,
+    cre_excision_complete_date date,
+    phenotyping_started_date date,
+    phenotyping_complete_date date,
+    phenotype_attempt_aborted_date date,
+    distinct_genotype_confirmed_es_cells integer,
+    distinct_old_genotype_confirmed_es_cells integer,
+    distinct_non_genotype_confirmed_es_cells integer,
+    distinct_old_non_genotype_confirmed_es_cells integer,
+    total_pipeline_efficiency_gene_count integer,
+    total_old_pipeline_efficiency_gene_count integer,
+    gc_pipeline_efficiency_gene_count integer,
+    gc_old_pipeline_efficiency_gene_count integer,
+    most_advanced_mi_plan_id_by_consortia integer,
+    most_advanced_mi_attempt_id_by_consortia integer,
+    most_advanced_phenotype_attempt_id_by_consortia integer,
+    created_at timestamp without time zone,
+    non_cre_ex_phenotype_attempt_status character varying(255),
+    non_cre_ex_phenotype_attempt_registered_date date,
+    non_cre_ex_rederivation_started_date date,
+    non_cre_ex_rederivation_complete_date date,
+    non_cre_ex_cre_excision_started_date date,
+    non_cre_ex_cre_excision_complete_date date,
+    non_cre_ex_phenotyping_started_date date,
+    non_cre_ex_phenotyping_complete_date date,
+    non_cre_ex_phenotype_attempt_aborted_date date,
+    non_cre_ex_pa_mouse_allele_type character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript character varying(255),
+    non_cre_ex_mi_attempt_consortium character varying(255),
+    non_cre_ex_mi_attempt_production_centre character varying(255),
+    non_cre_ex_phenotype_attempt_colony_name character varying(255),
+    cre_ex_phenotype_attempt_status character varying(255),
+    cre_ex_phenotype_attempt_registered_date date,
+    cre_ex_rederivation_started_date date,
+    cre_ex_rederivation_complete_date date,
+    cre_ex_cre_excision_started_date date,
+    cre_ex_cre_excision_complete_date date,
+    cre_ex_phenotyping_started_date date,
+    cre_ex_phenotyping_complete_date date,
+    cre_ex_phenotype_attempt_aborted_date date,
+    cre_ex_pa_mouse_allele_type character varying(255),
+    cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    cre_ex_pa_allele_symbol_superscript character varying(255),
+    cre_ex_mi_attempt_consortium character varying(255),
+    cre_ex_mi_attempt_production_centre character varying(255),
+    cre_ex_phenotype_attempt_colony_name character varying(255)
+);
+
+
+--
+-- Name: new_gene_intermediate_report_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE new_gene_intermediate_report_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: new_gene_intermediate_report_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE new_gene_intermediate_report_id_seq OWNED BY new_gene_intermediate_report.id;
 
 
 --
@@ -897,7 +1116,37 @@ CREATE TABLE new_intermediate_report (
     total_old_pipeline_efficiency_gene_count integer,
     gc_pipeline_efficiency_gene_count integer,
     gc_old_pipeline_efficiency_gene_count integer,
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    non_cre_ex_phenotype_attempt_status character varying(255),
+    non_cre_ex_phenotype_attempt_registered_date date,
+    non_cre_ex_rederivation_started_date date,
+    non_cre_ex_rederivation_complete_date date,
+    non_cre_ex_cre_excision_started_date date,
+    non_cre_ex_cre_excision_complete_date date,
+    non_cre_ex_phenotyping_started_date date,
+    non_cre_ex_phenotyping_complete_date date,
+    non_cre_ex_phenotype_attempt_aborted_date date,
+    non_cre_ex_pa_mouse_allele_type character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript character varying(255),
+    non_cre_ex_mi_attempt_consortium character varying(255),
+    non_cre_ex_mi_attempt_production_centre character varying(255),
+    non_cre_ex_phenotype_attempt_colony_name character varying(255),
+    cre_ex_phenotype_attempt_status character varying(255),
+    cre_ex_phenotype_attempt_registered_date date,
+    cre_ex_rederivation_started_date date,
+    cre_ex_rederivation_complete_date date,
+    cre_ex_cre_excision_started_date date,
+    cre_ex_cre_excision_complete_date date,
+    cre_ex_phenotyping_started_date date,
+    cre_ex_phenotyping_complete_date date,
+    cre_ex_phenotype_attempt_aborted_date date,
+    cre_ex_pa_mouse_allele_type character varying(255),
+    cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    cre_ex_pa_allele_symbol_superscript character varying(255),
+    cre_ex_mi_attempt_consortium character varying(255),
+    cre_ex_mi_attempt_production_centre character varying(255),
+    cre_ex_phenotype_attempt_colony_name character varying(255)
 );
 
 
@@ -1081,7 +1330,8 @@ CREATE TABLE phenotype_attempts (
     deleter_strain_id integer,
     colony_background_strain_id integer,
     cre_excision_required boolean DEFAULT true NOT NULL,
-    tat_cre boolean DEFAULT false
+    tat_cre boolean DEFAULT false,
+    report_to_public boolean DEFAULT true NOT NULL
 );
 
 
@@ -1425,7 +1675,8 @@ CREATE TABLE targ_rep_distribution_qcs (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     loxp_srpcr character varying(255),
-    unspecified_repository_testing character varying(255)
+    unspecified_repository_testing character varying(255),
+    neo_qpcr character varying(255)
 );
 
 
@@ -1531,7 +1782,8 @@ CREATE TABLE targ_rep_es_cells (
     user_qc_chr11 character varying(255),
     user_qc_chr8 character varying(255),
     user_qc_chry character varying(255),
-    user_qc_lacz_qpcr character varying(255)
+    user_qc_lacz_qpcr character varying(255),
+    ikmc_project_foreign_id integer
 );
 
 
@@ -1606,6 +1858,69 @@ CREATE SEQUENCE targ_rep_genbank_files_id_seq
 --
 
 ALTER SEQUENCE targ_rep_genbank_files_id_seq OWNED BY targ_rep_genbank_files.id;
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_ikmc_project_statuses (
+    id integer NOT NULL,
+    name character varying(255),
+    type character varying(255)
+);
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_ikmc_project_statuses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_ikmc_project_statuses_id_seq OWNED BY targ_rep_ikmc_project_statuses.id;
+
+
+--
+-- Name: targ_rep_ikmc_projects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_ikmc_projects (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    status_id integer,
+    pipeline_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: targ_rep_ikmc_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_ikmc_projects_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_ikmc_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_ikmc_projects_id_seq OWNED BY targ_rep_ikmc_projects.id;
 
 
 --
@@ -1739,7 +2054,8 @@ CREATE TABLE targ_rep_targeting_vectors (
     report_to_public boolean NOT NULL,
     pipeline_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    ikmc_project_foreign_id integer
 );
 
 
@@ -1988,6 +2304,20 @@ ALTER TABLE ONLY mi_plans ALTER COLUMN id SET DEFAULT nextval('mi_plans_id_seq':
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY new_consortia_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_consortia_intermediate_report_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY new_gene_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_gene_intermediate_report_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY new_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_intermediate_report_id_seq'::regclass);
 
 
@@ -2108,6 +2438,20 @@ ALTER TABLE ONLY targ_rep_es_cells ALTER COLUMN id SET DEFAULT nextval('targ_rep
 --
 
 ALTER TABLE ONLY targ_rep_genbank_files ALTER COLUMN id SET DEFAULT nextval('targ_rep_genbank_files_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_ikmc_project_statuses ALTER COLUMN id SET DEFAULT nextval('targ_rep_ikmc_project_statuses_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_ikmc_projects ALTER COLUMN id SET DEFAULT nextval('targ_rep_ikmc_projects_id_seq'::regclass);
 
 
 --
@@ -2328,6 +2672,22 @@ ALTER TABLE ONLY mi_plans
 
 
 --
+-- Name: new_consortia_intermediate_report_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY new_consortia_intermediate_report
+    ADD CONSTRAINT new_consortia_intermediate_report_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: new_gene_intermediate_report_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY new_gene_intermediate_report
+    ADD CONSTRAINT new_gene_intermediate_report_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: new_intermediate_report_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2469,6 +2829,22 @@ ALTER TABLE ONLY targ_rep_es_cells
 
 ALTER TABLE ONLY targ_rep_genbank_files
     ADD CONSTRAINT targ_rep_genbank_files_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_ikmc_project_statuses
+    ADD CONSTRAINT targ_rep_ikmc_project_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: targ_rep_ikmc_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_ikmc_projects
+    ADD CONSTRAINT targ_rep_ikmc_projects_pkey PRIMARY KEY (id);
 
 
 --
@@ -3444,3 +3820,17 @@ INSERT INTO schema_migrations (version) VALUES ('20130528083431');
 INSERT INTO schema_migrations (version) VALUES ('20130528131803');
 
 INSERT INTO schema_migrations (version) VALUES ('20130528142149');
+
+INSERT INTO schema_migrations (version) VALUES ('20130610142149');
+
+INSERT INTO schema_migrations (version) VALUES ('20130615170525');
+
+INSERT INTO schema_migrations (version) VALUES ('20130625115302');
+
+INSERT INTO schema_migrations (version) VALUES ('20130628145302');
+
+INSERT INTO schema_migrations (version) VALUES ('20130708264213');
+
+INSERT INTO schema_migrations (version) VALUES ('20130718140000');
+
+INSERT INTO schema_migrations (version) VALUES ('20130725112052');

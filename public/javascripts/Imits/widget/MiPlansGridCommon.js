@@ -3,8 +3,7 @@ Ext.define('Imits.widget.MiPlansGridCommon', {
 
     requires: [
     'Imits.model.MiPlan',
-    'Imits.widget.grid.RansackFiltersFeature',
-    'Imits.widget.MiPlanEditor'
+    'Imits.widget.grid.RansackFiltersFeature'
     ],
 
     title: 'Plans',
@@ -171,6 +170,20 @@ Ext.define('Imits.widget.MiPlansGridCommon', {
         header: 'Conditional tm1c',
         xtype: 'boolgridcolumn',
         width: 90,
+        readOnly: true
+    },
+    {
+        dataIndex: 'point_mutation',
+        header: 'Point Mutation',
+        xtype: 'boolgridcolumn',
+        width: 80,
+        readOnly: true
+    },
+    {
+        dataIndex: 'conditional_point_mutation',
+        header: 'Conditional Point Mutation',
+        xtype: 'boolgridcolumn',
+        width: 140,
         readOnly: true
     },
     {

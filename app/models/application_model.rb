@@ -13,6 +13,13 @@ class ApplicationModel < ActiveRecord::Base
     '.1' => '.1 - Promoter excision from Deletion'
   }.freeze
 
+
+  COMPLETION_NOTE ={
+    nil => '[none]',
+    'Handoff complete' => 'Handoff complete',
+    'Allele not needed' => 'Allele not needed'
+  }.freeze
+
   # BEGIN Callbacks
 
   before_validation :set_blank_strings_to_nil

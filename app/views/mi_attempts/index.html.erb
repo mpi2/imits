@@ -18,7 +18,7 @@
 
 <%= form_tag "mi_attempts", :method => :get, :id => 'mi-search-form' do %>
   <fieldset class="collapsible">
-    <legend>Search for Micro-Injections</legend>
+    <legend>Search for Mouse Production</legend>
     <div>
       <div class="grid_6 alpha">
         <label for="q[terms]">ES Cell Name, Gene Symbol, or Colony Name:</label>
@@ -42,7 +42,30 @@
       </div>
     </div>
   </fieldset>
-<% end %>
+
+  <% if ! current_user %>
+  <fieldset class="collapsible">
+    <legend>Description of table</legend>
+    <div>
+
+      <!--TODO: create a class for the paragraph-->
+      <p style='line-height:180%'>Each row of this table shows summary production statistics for a single IMPC mouse line</p>
+
+      <p style='line-height:180%'><strong>Show in form:</strong> show mouse line and details in single web page</p>
+      <p style='line-height:180%'><strong>Active phenotype:</strong> Number of cre excision and phenotype projects on this mouse line</p>
+      <p style='line-height:180%'><strong>Consortium:</strong> IMPC consortium reposnsible for mousr production or phenotyping</p>
+      <p style='line-height:180%'><strong>Production Centre:</strong> the centre at which mouse production is conducted</p>
+      <p style='line-height:180%'><strong>ES Cell:</strong> the name of the ES cell clone used in mouse production</p>
+      <p style='line-height:180%'><strong>Marker symbol:</strong> marker symbol of MGI locus.</p>
+      <p style='line-height:180%'><strong>Allele symbol:</strong> MGI allele symbol.</p>
+      <p style='line-height:180%'><strong>Status:</strong> status of the mouse production attempt</p>
+      <p style='line-height:180%'><strong>Colony name:</strong> the unique name of the mouse line</p>
+      <p style='line-height:180%'><strong>Distribution centre(s):</strong> the centre(s) nominated to distribute genotype confirmed mice</p>
+    </div>
+  </fieldset>
+  <% end %>
+
+  <% end %>
 
 <div class="clear"></div>
 

@@ -11,7 +11,7 @@ class NavigationTest < TarMits::IntegrationTest
         visit '/'
         assert page.has_css? '#navigation'
         assert page.has_link?('Home', {:href => root_path})
-        assert page.has_link?('Gene Selection', {:href => gene_selection_open_mi_plans_path})
+        assert page.has_link?('Gene Summary', {:href => gene_selection_open_mi_plans_path})
         assert page.has_no_link?('Plans', {:href => open_mi_plans_path})
         assert page.has_no_link?('Create MI Attempt')
         assert page.has_link?('Mouse Production', {:href => open_mi_attempts_path})

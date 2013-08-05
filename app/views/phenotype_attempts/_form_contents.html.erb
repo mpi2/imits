@@ -42,6 +42,7 @@
           </tr>
         </thead>
         <tbody class="distribution_centres">
+        <tr></tr>
           <% if phenotype_attempt.distribution_centres.length > 0 %>
             <%= form.fields_for :distribution_centres do |builder| %>
               <% if !builder.object.new_record? %>
@@ -105,4 +106,14 @@
       <%= form.collection_select :colony_background_strain_name, @colony_background_strain, :name, :name, :include_blank => true %>
     </div>
   </div>
+</fieldset>
+<fieldset class="collapsible">
+  <legend>Other</legend>
+
+  <% [:report_to_public, :is_active].each do |field| %>
+    <div>
+      <%= form.label field, field.to_s.titlecase %>
+      <%= form.check_box field %>
+    </div>
+  <% end %>
 </fieldset>

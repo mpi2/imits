@@ -34,7 +34,8 @@ module TarMits
       'SolrUpdate::Observer::DistributionCentres',
       'SolrUpdate::Observer::Allele',
       'SolrUpdate::Observer::EsCell',
-      'SolrUpdate::Observer::MiPlan'
+      'SolrUpdate::Observer::MiPlan',
+      'SolrUpdate::Observer::Gene'
     ]
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
@@ -64,6 +65,8 @@ module TarMits
     if File.expand_path(__FILE__).match %r{^/opt/t87/global}
       require('/opt/t87/global/lib/config_rails_app'); VM.config_rails_app(config)
     end
+
+    config.show_search_page = false
   end
 
   def self.git_revision

@@ -2,8 +2,7 @@ class GenesController < ApplicationController
   respond_to :json
   respond_to :html, :json, :only => [:relationship_tree]
 
-  before_filter :authenticate_user!, :except => [:index, :network_graph]
-
+  before_filter :authenticate_user!
   def index
     respond_to do |format|
       format.json { render :json => data_for_serialized(:json) }
@@ -13,7 +12,7 @@ class GenesController < ApplicationController
   def network_graph
     gene = Gene.find_by_id(params[:id])
     if !gene.nil?
-      dot_file = NetworkGraph.new(gene.id).dot_file
+      dot_file = NetworkGraph.new({:gene => gene.id}).dot_file
       gv=IO.popen("dot -q -Tpng","w+")
       gv.puts dot_file
       gv.close_write

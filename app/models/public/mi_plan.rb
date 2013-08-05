@@ -30,7 +30,11 @@ class Public::MiPlan < ::MiPlan
     'number_of_es_cells_received',
     'es_cells_received_on',
     'es_cells_received_from_id',
-    'es_cells_received_from_name'
+    'es_cells_received_from_name',
+    'point_mutation',
+    'conditional_point_mutation',
+    'allele_symbol_superscript',
+    'report_to_public'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -127,6 +131,8 @@ class Public::MiPlan < ::MiPlan
 end
 
 
+
+
 # == Schema Information
 #
 # Table name: mi_plans
@@ -159,6 +165,10 @@ end
 #  number_of_es_cells_received    :integer
 #  es_cells_received_on           :date
 #  es_cells_received_from_id      :integer
+#  point_mutation                 :boolean         default(FALSE), not null
+#  conditional_point_mutation     :boolean         default(FALSE), not null
+#  allele_symbol_superscript      :text
+#  report_to_public               :boolean         default(TRUE), not null
 #
 # Indexes
 #

@@ -1,0 +1,14 @@
+<% @consortia.each do |consortium| %>
+<%= consortium %>
+Status,Current Total(up to and inc. <%= @date_name %>),Last Complete Month(<%= @date_name %>)
+All genes,<%= @report.report_hash["#{consortium}-#{@date}-Cumulative Gene Interest"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Gene Interest"]%>
+ES Cell QC (genes), <%= @report.report_hash["#{consortium}-#{@date}-Cumulative ES Starts"]%>,<%= @report.report_hash["#{consortium}-#{@date}-ES Cell QC In Progress"]%>
+ES QC Confirmed (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative ES Cell QC Complete"]%>,<%= @report.report_hash["#{consortium}-#{@date}-ES Cell QC Complete"]%>
+ES QC Failed (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative ES Cell QC Failed"]%>,<%= @report.report_hash["#{consortium}-#{@date}-ES Cell QC Failed"]%>
+Microinjections (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative MIs"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Micro-Injection In Progress"]%>
+Genotype Confirmed Mice (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative genotype confirmed"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Genotype confirmed"]%>
+Intent to Phenotype (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative Phenotype Registered"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Phenotype Attempt Registered"]%>
+Cre Excision Complete (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative Cre Excision Complete"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Cre Excision Complete"]%>
+Phenotyping Complete (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative Phenotype Complete"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Phenotyping Complete"]%>
+
+<% end %>

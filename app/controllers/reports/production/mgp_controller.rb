@@ -5,6 +5,8 @@ class Reports::Production::MgpController < ApplicationController
   end
 
   def summary_subproject
+    redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :mgp_production_by_subproject) and return
+
     @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
     return_value = Reports::MiProduction::SummaryMgp23.generate('Sub-Project', request)
     @report = return_value[:table]
@@ -16,6 +18,8 @@ class Reports::Production::MgpController < ApplicationController
   end
 
   def summary_priority
+    redirect_to url_for(:controller => 'v2/reports/mi_production', :action => :mgp_production_by_priority) and return
+    
     @csv = Reports::MiProduction::SummaryMgp23::CSV_LINKS
     return_value = Reports::MiProduction::SummaryMgp23.generate('Priority', request)
     @report = return_value[:table]

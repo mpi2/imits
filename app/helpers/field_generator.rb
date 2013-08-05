@@ -32,6 +32,28 @@ class FieldGenerator
     form_field(:mouse_allele_type, nil, field_html)
   end
 
+  def completion_note_type_field
+    field_html = @form.select(:completion_note, ApplicationModel::COMPLETION_NOTE.invert)
+    form_field(:completion_note, nil, field_html)
+  end
+
+  def priorities_field
+    name = name.to_s
+    field_html = @form.collection_select(:priority_name, MiPlan::Priority.all, :name, :name, :include_blank => true)
+    form_field(:priority_name, nil, field_html)
+  end
+
+  def drop_down_field(params)
+    model = params[:model]
+    field = params[:field]
+    label = params[:label]
+    name = name.to_s
+    options = model.constantize.all
+    field_html = @form.collection_select(field, options, :name, :name, :include_blank => true)
+    form_field(field, label, field_html)
+  end
+
+
   private
 
   def tidy_label(old_label)

@@ -4,6 +4,42 @@ Ext.define('Imits.widget.GeneGridGeneral', {
 
     // extends the geneColumns in GeneGridCommon. These column should be independent from the GeneGrid (edit grid). columns common to read only grid and editable grid should be added to GeneGridCommon.
     additionalColumns: [
+                         {'position': 4,
+                          'data': { header: 'Non-Assigned Plans',
+                                    dataIndex: 'non_assigned_mi_plans',
+                                    readOnly: true,
+                                    sortable: false,
+                                    width: 250,
+                                    flex: 1,
+                                    xtype: 'templatecolumn',
+                                    tpl: new Ext.XTemplate(
+                                        '<tpl for="non_assigned_mi_plans">',
+                                        '<a href="' + window.basePath + '/open/mi_plans/{[values["id"]]}">{[this.prettyPrintMiPlan(values)]}</a></br>',
+                                        '</tpl>',
+                                        {
+                                            prettyPrintMiPlan: printMiPlanString
+                                        }
+                                        )
+                                   }
+                         },
+                         {'position': 5,
+                         'data': {header: 'Assigned Plans',
+                                  dataIndex: 'assigned_mi_plans',
+                                  readOnly: true,
+                                  sortable: false,
+                                  width: 180,
+                                  flex: 1,
+                                  xtype: 'templatecolumn',
+                                  tpl: new Ext.XTemplate(
+                                      '<tpl for="assigned_mi_plans">',
+                                      '<a href="' + window.basePath + '/open/mi_plans/{[values["id"]]}">{[this.prettyPrintMiPlan(values)]}</a></br>',
+                                      '</tpl>',
+                                      {
+                                          prettyPrintMiPlan: printMiPlanString
+                                      }
+                                      )
+                                  }
+                        },
                         {'position': 6,
                          'data': {header: 'Aborted MIs',
                                   dataIndex: 'pretty_print_aborted_mi_attempts',
@@ -75,7 +111,17 @@ Ext.define('Imits.widget.GeneGridGeneral', {
                                       }
                                   )
                                  }
-                      }
+                        },
+                        {'position': 1,
+                         'data': {header: 'Production History',
+                                 dataIndex: 'production_history_link',
+                                 renderer: function (value, metaData, record) {
+                                     var geneId = record.getId();
+                                     return Ext.String.format('<a href="{0}/open/genes/{1}/network_graph">Production Graph</a>', window.basePath, geneId);
+                                 },
+                                 sortable: false
+                                 }
+                        }
            ],
 
     initComponent: function() {

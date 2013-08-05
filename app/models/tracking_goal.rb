@@ -1,10 +1,10 @@
 class TrackingGoal < ActiveRecord::Base
-  
+
   ## Gems/Plugins
   acts_as_audited
   extend AccessAssociationByAttribute
   include ::Public::Serializable
-  
+
   attr_accessor :month, :year
 
   GOAL_TYPES = %w(
@@ -16,6 +16,7 @@ class TrackingGoal < ActiveRecord::Base
     eucomm_required
     komp_required
     norcomm_required
+    wtsi_required
   )
 
   READABLE_ATTRIBUTES = %w(

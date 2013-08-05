@@ -3,16 +3,16 @@ require 'test_helper'
 class GenesControllerTest < ActionController::TestCase
   context 'GenesController' do
 
-    should 'do not require authentication to get gene' do
+    should 'require authentication to get gene' do
       10.times { Factory.create :gene }
       get :index, :format => :json
-      assert response.success?
+      assert_false response.success?
     end
 
-    should 'do not require authentication to view network graph' do
+    should 'require authentication to view network graph' do
       10.times { Factory.create :gene }
       get :network_graph, :id => Gene.first.id, :format => :html
-      assert response.success?
+      assert_false response.success?
     end
 
     should 'require authentication to view tree view' do

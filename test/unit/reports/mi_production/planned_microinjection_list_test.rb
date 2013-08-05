@@ -7,15 +7,15 @@ class Reports::MiProduction::PlannedMicroinjectionListTest < ActiveSupport::Test
   context 'Reports::MiProduction::PlannedMicroinjectionList' do
     should 'create BaSH report' do
       Factory.create :mi_plan,
-              :consortium        => Consortium.find_by_name!('BaSH'),
-              :production_centre => Centre.find_by_name!('ICS')
+      :consortium        => Consortium.find_by_name!('BaSH'),
+      :production_centre => Centre.find_by_name!('ICS')
       Reports::MiProduction::Intermediate.new.cache
 
       report = Reports::MiProduction::PlannedMicroinjectionList.new 'BaSH'
 
       line1 = report.to_csv.lines.first
 
-      assert_match "Consortium,SubProject,Bespoke,Knockout First tm1a,Deletion,Cre Knock-in,Cre BAC,Conditional tm1c,Recovery,Completion note,Phenotype only?,Ignore Available Mice,Production Centre,Marker Symbol,MGI Accession ID,Priority,Plan Status,Latest plan status date,Best Status,Reason for Inspect/Conflict,# Aborted attempts on this plan,Date of latest aborted attempt,Non-Assigned Plans,Assigned Plans,Aborted MIs,MIs in Progress,GLT Mice", line1
+      assert_match "Consortium,SubProject,Bespoke,Allele Structure,Allele Symbol Superscript,Recovery,Completion note,Phenotype only?,Ignore Available Mice,Production Centre,Marker Symbol,MGI Accession ID,Priority,Plan Status,Latest plan status date,Best Status,Reason for Inspect/Conflict,# Aborted attempts on this plan,Date of latest aborted attempt,Non-Assigned Plans,Assigned Plans,Aborted MIs,MIs in Progress,GLT Mice", line1
 
     end
   end

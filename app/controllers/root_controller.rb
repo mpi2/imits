@@ -1,13 +1,22 @@
+
+require 'pp'
+
 class RootController < ApplicationController
 
   respond_to :html
 
-  before_filter :authenticate_user!
-
   def index
+    if user_signed_in?
+      render 'root/index'
+    else
+      @table_1 = ReadOnlyIndexReport::get_new_impc_mouse_prod_attempts_table
+      @table_2 = ReadOnlyIndexReport::get_new_impc_gc_mice_table
+      render 'open/root/index'
+    end
   end
 
   def users_by_production_centre
+    authenticate_user!
     @users_by_production_centre = {}
 
     User.order('users.name').includes(:production_centre).each do |user|

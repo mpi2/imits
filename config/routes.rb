@@ -62,7 +62,6 @@ TarMits::Application.routes.draw do
         get 'grid_redirect'
       end
     end
-
   end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
@@ -213,4 +212,20 @@ TarMits::Application.routes.draw do
 
   match 'targ_rep/:controller(/:action(/:id)(.:format))'
 
+  namespace :open do
+
+    resources :mi_plans do
+      collection do
+        get 'gene_selection'
+      end
+    end
+
+    resources :mi_attempts, :only => [:index, :show]
+    resources :phenotype_attempts, :only => [:index, :show]
+    resources :genes, :only => [:index] do
+      member do
+        get 'network_graph'
+      end
+    end
+  end
 end

@@ -9,11 +9,13 @@ class MiAttemptsController < ApplicationController
   def index
     respond_to do |format|
       format.html do
+        authenticate_user!
         set_centres_and_consortia
         q = params[:q] ||= {}
 
         q[:terms] ||= ''
         q[:terms] = q[:terms].lines.map(&:strip).select{|i|!i.blank?}.join("\n")
+        @access = true
       end
 
       format.json { render :json => data_for_serialized(:json) }
@@ -21,7 +23,7 @@ class MiAttemptsController < ApplicationController
   end
 
   def data_for_serialized(format)
-    super(format, 'id asc', Public::MiAttempt, :public_search)
+    super(format, 'id asc', Public::MiAttempt, :public_search, false)
   end
   protected :data_for_serialized
 

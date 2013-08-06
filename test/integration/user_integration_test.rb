@@ -23,6 +23,7 @@ class UserIntegrationTest < TarMits::IntegrationTest
         assert page.has_css? 'legend', :text => 'Change Password'
 
         visit '/users/logout'
+        visit '/users/login'
         fill_in 'Email', :with => user.email
         fill_in 'Password', :with => 'new password'
         click_button 'Login'

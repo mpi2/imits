@@ -11,9 +11,17 @@ function clearSearchTermsHandler() {
 }
 
 Ext.onReady(function() {
-    var grid = Ext.create('Imits.widget.MiGrid', {
-        renderTo: 'mi-attempts-grid'
-    });
+    var grid;
+    if (FULL_ACCESS == true){
+        grid = Ext.create('Imits.widget.MiGrid', {
+            renderTo: 'mi-attempts-grid'
+        });
+    }
+    else {
+        grid = Ext.create('Imits.widget.MiGridGeneral', {
+            renderTo: 'mi-attempts-grid'
+        });
+    }
     Ext.EventManager.onWindowResize(grid.manageResize, grid);
     grid.manageResize();
 

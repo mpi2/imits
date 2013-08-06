@@ -12,6 +12,8 @@ class MiPlansController < ApplicationController
     q[:marker_symbol_or_mgi_accession_id_ci_in] =
             q[:marker_symbol_or_mgi_accession_id_ci_in].
             lines.map(&:strip).select{|i|!i.blank?}.join("\n")
+
+    @access = true
   end
 
   def show
@@ -37,7 +39,7 @@ class MiPlansController < ApplicationController
     params[:id_in]
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'consortium_name asc', Public::MiPlan, :public_search)
+        render :json => data_for_serialized(:json, 'consortium_name asc', Public::MiPlan, :public_search, false)
       end
     end
   end
@@ -57,7 +59,7 @@ class MiPlansController < ApplicationController
     params[:id_in]
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'consortium_name asc', Public::MiPlan, :public_search)
+        render :json => data_for_serialized(:json, 'consortium_name asc', Public::MiPlan, :public_search, false)
       end
     end
   end
@@ -189,10 +191,12 @@ class MiPlansController < ApplicationController
   def index
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'marker_symbol asc', Public::MiPlan, :public_search)
+        render :json => data_for_serialized(:json, 'marker_symbol asc', Public::MiPlan, :public_search, false)
       end
 
       format.html do
+        authenticate_user!
+        @access = true
       end
     end
   end

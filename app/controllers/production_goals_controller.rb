@@ -8,7 +8,7 @@ class ProductionGoalsController < ApplicationController
     def index
     respond_to do |format|
       format.json do
-        render :json => data_for_serialized(:json, 'consortium_id asc, year desc, month desc', ProductionGoal, :search)
+        render :json => data_for_serialized(:json, 'consortium_id asc, year desc, month desc', ProductionGoal, :search, false)
       end
 
       format.html
@@ -31,7 +31,7 @@ class ProductionGoalsController < ApplicationController
 
   def update
     @production_goal = ProductionGoal.find(params[:id])
-    
+
     respond_to do |format|
       if @production_goal.update_attributes(params[:production_goal])
         format.json { respond_with @production_goal }

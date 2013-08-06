@@ -1,0 +1,124 @@
+<% @title = 'Show Phenotype Attempt' %>
+
+<% content_for :post_js_footer do %>
+  <%= javascript_include_tag('phenotype_attempts/shared') %>
+  <%= javascript_include_tag('phenotype_attempts/show') %>
+<% end %>
+
+<div id="object-box" class="grid_8 prefix_2 suffix_2">
+  <h2><%= @title %></h2>
+
+  <form class="edit show mi-attempt" >
+    <fieldset class="collapsible">
+      <legend>ES Cell Details</legend>
+      <div>
+        <div class="marker-symbol">
+          <div class="label">Marker Symbol</div>
+          <div><%= @mi_attempt.es_cell.marker_symbol %></div>
+        </div>
+
+        <div class="es-cell-name">
+          <div class="label">ES Cell Name</div>
+          <div><%= @mi_attempt.es_cell.name %></div>
+        </div>
+      </div>
+    </fieldset>
+
+
+    <fieldset class="collapsible">
+      <legend>Universal Details</legend>
+      <div>
+        <label>MI Attempt Colony Name</label>
+        <span><%= @mi_attempt.colony_name %></span>
+      </div>
+      <div>
+        <label>Status</label>
+        <span><%= @phenotype_attempt.status_name%></span>
+      </div>
+      <div class="consortium-name">
+        <label>Consortium Name</label>
+        <span><%= @phenotype_attempt.consortium_name %></span>
+      </div>
+      <div class="production-centre-name">
+        <label>Production Name</label>
+        <span><%= @phenotype_attempt.production_centre_name %></span>
+      </div>
+    </fieldset>
+
+    <fieldset class="collapsible" id="distribution_centres">
+      <legend>Distribution Centres</legend>
+        <div class="distribution_centres">
+          <% if @phenotype_attempt.status.try(:name) == "Cre Excision Complete" && @phenotype_attempt.distribution_centres.length > 0%>
+            <table id="distribution_centres_table" class="report_table">
+              <thead class="title">
+                <tr>
+                  <th>Distribution centre</th>
+                  <th>Distribution network?</th>
+                  <th>Deposited material</th>
+                  <th>Start date</th>
+                  <th>End date</th>
+                </tr>
+              </thead>
+              <tbody class="distribution_centres">
+                <% @phenotype_attempt.distribution_centres.each do |distribution_centre| %>
+                  <tr>
+                    <td><%= distribution_centre.centre_name %></td>
+                    <td><%= distribution_centre.distribution_network %></td>
+                    <td><%= distribution_centre.deposited_material_name %></td>
+                    <td><%= distribution_centre.start_date %></td>
+                    <td><%= distribution_centre.end_date %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            No Distribution Centres.
+          <% end %>
+        </div>
+    </fieldset>
+
+    <fieldset class="collapsible">
+        <legend>Rederivation</legend>
+        <div class="production-centre-name">
+            <label>Rederivation Started</label>
+            <span><%= @phenotype_attempt.rederivation_started %></span>
+        </div>
+        <div class="production-centre-name">
+            <label>Rederivation Complete</label>
+            <span><%= @phenotype_attempt.rederivation_complete %></span>
+        </div>
+    </fieldset>
+
+    <fieldset class="collapsible">
+      <legend>Cre Excision</legend>
+       <div>
+          <div>
+              <label>Is Cre-Excision Required?</label>
+              <span><%= @phenotype_attempt.cre_excision_required %></span>
+          </div>
+          <div>
+              <label>Cre Excision via TAT-Cre?</label>
+              <span><%= @phenotype_attempt.tat_cre %></span>
+          </div>
+          <div>
+              <label>Cre deleter Strain</label>
+              <span><%= @phenotype_attempt.deleter_strain_name %></span>
+          </div>
+          <div>
+              <label>Number of Successful Cre Matings</label>
+              <span><%= @phenotype_attempt.number_of_cre_matings_successful %></span>
+          </div>
+       </div>
+       <div>
+          <div>
+              <label>Mouse Allele Type</label>
+              <span><%= @phenotype_attempt.mouse_allele_type %></span>
+          </div>
+          <div>
+              <label>Colony Background Strain</label>
+              <span><%= @phenotype_attempt.colony_background_strain_name %></span>
+          </div>
+       </div>
+    </fieldset>
+  </form>
+</div>

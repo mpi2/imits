@@ -27,14 +27,17 @@ class Centre < ActiveRecord::Base
   end
 end
 
+
 # == Schema Information
 #
 # Table name: centres
 #
-#  id         :integer         not null, primary key
-#  name       :string(100)     not null
-#  created_at :datetime
-#  updated_at :datetime
+#  id            :integer         not null, primary key
+#  name          :string(100)     not null
+#  created_at    :datetime
+#  updated_at    :datetime
+#  contact_name  :string(100)
+#  contact_email :string(100)
 #
 # Indexes
 #

@@ -11,20 +11,27 @@ class RootController < ApplicationController
     @users_by_production_centre = {}
 
     User.order('users.name').includes(:production_centre).each do |user|
-      @users_by_production_centre[user.production_centre.name] ||= []
-      @users_by_production_centre[user.production_centre.name].push(user)
+      @users_by_production_centre[user.production_centre.try(:name)] ||= []
+      @users_by_production_centre[user.production_centre.try(:name)].push(user)
     end
   end
 
   def consortia
     @consortia_production_centres = {}
 
-    Consortium.includes(:mi_plans => :production_centre).each do |cons|
-      production_centres = []
-      cons.mi_plans.each do |mi_plan|
-        production_centres.push(mi_plan.production_centre.try(:name))
-      end
-      @consortia_production_centres[cons.name] = production_centres.compact.uniq.sort
+
+    sql = <<-EOF
+      SELECT DISTINCT consortia.name AS consortium_name, centres.name AS centre_name, centres.contact_name, centres.contact_email
+      FROM consortia
+      LEFT JOIN
+      (mi_plans JOIN centres ON centres.id = mi_plans.production_centre_id) ON consortia.id = mi_plans.consortium_id
+    EOF
+
+    results = ActiveRecord::Base.connection.execute (sql)
+
+    results.each do |rec|
+      @consortia_production_centres[rec['consortium_name']] = [] unless @consortia_production_centres[rec['consortium_name']]
+      @consortia_production_centres[rec['consortium_name']] << {:consortium_name=> rec['consortium_name'], :centre_name => rec['centre_name'], :contact_name => rec['contact_name'], :contact_email => rec['contact_email']}
     end
   end
 

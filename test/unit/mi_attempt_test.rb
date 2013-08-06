@@ -228,12 +228,37 @@ class MiAttemptTest < ActiveSupport::TestCase
           assert_equal 'BALB/c', default_mi_attempt.blast_strain.name
         end
 
+        should 'have a blast strain mgi accession id' do
+          assert_equal 'MGI:1', default_mi_attempt.blast_strain_mgi_accession
+        end
+
+
+        should 'have a blast strain mgi name' do
+          assert_equal 'BALB/c', default_mi_attempt.blast_strain_mgi_name
+        end
+
         should 'have a colony background strain' do
           assert_equal '129P2/OlaHsd', default_mi_attempt.colony_background_strain.name
         end
 
+        should 'have a colony background strain mgi accession id' do
+          assert_equal 'MGI:28', default_mi_attempt.colony_background_strain_mgi_accession
+        end
+
+        should 'have a colony background strain mgi name' do
+          assert_equal '129P2/OlaHsd', default_mi_attempt.colony_background_strain_mgi_name
+        end
+
         should 'have a test cross strain' do
           assert_equal '129P2/OlaHsd', default_mi_attempt.test_cross_strain.name
+        end
+
+        should 'have a test cross strain mgi accession id' do
+          assert_equal 'MGI:28', default_mi_attempt.test_cross_strain_mgi_accession
+        end
+
+        should 'have a test cross strain mgi name' do
+          assert_equal '129P2/OlaHsd', default_mi_attempt.test_cross_strain_mgi_name
         end
 
         should 'get and assign blast strain via AccessAssociationByAttribute' do

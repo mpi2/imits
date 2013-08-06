@@ -37,6 +37,8 @@ TarMits::Application.routes.draw do
   resources :production_goals, :tracking_goals
   resources :centres
 
+  resources :strains
+
   resources :genes, :only => [:index] do
     member do
       get 'network_graph'
@@ -162,7 +164,7 @@ TarMits::Application.routes.draw do
     resources :alleles do
       get :history, :on => :member
       get :image, :on => :member
-      
+
       collection do
         get :attributes
       end

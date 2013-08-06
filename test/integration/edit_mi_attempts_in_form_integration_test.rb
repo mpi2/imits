@@ -27,7 +27,7 @@ class EditMiAttemptsInFormIntegrationTest < TarMits::JsIntegrationTest
     end
 
     should 'show default values' do
-      assert_equal '129P2', page.find('select[name="mi_attempt[test_cross_strain_name]"] option[selected=selected]').text
+      assert_equal 'MGI:27:129P2', page.find('select[name="mi_attempt[test_cross_strain_name]"] option[selected=selected]').text
       assert_equal 'MAAB', page.find('input[name="mi_attempt[colony_name]"]').value
       assert_equal '09/06/2011', page.find('input[name="mi_attempt[mi_date]"]').value
       assert_equal '02/06/2011', page.find('input[name="mi_attempt[date_chimeras_mated]"]').value
@@ -37,7 +37,7 @@ class EditMiAttemptsInFormIntegrationTest < TarMits::JsIntegrationTest
     should 'edit mi successfully, set updated_by and redirect back to show page' do
       fill_in 'mi_attempt[colony_name]', :with => 'ABCD'
       fill_in 'mi_attempt[total_blasts_injected]', :with => 22
-      select 'C57BL/6N', :from => 'mi_attempt[test_cross_strain_name]'
+      select 'MGI:18:C57BL/6N', :from => 'mi_attempt[test_cross_strain_name]'
       select 'pass', :from => 'qc_southern_blot'
       check 'mi_attempt[report_to_public]'
 

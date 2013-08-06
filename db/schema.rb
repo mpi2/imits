@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130805152114) do
+ActiveRecord::Schema.define(:version => 20130806153714) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -650,6 +650,7 @@ ActiveRecord::Schema.define(:version => 20130805152114) do
     t.boolean  "cre_excision_required",                           :default => true,  :null => false
     t.boolean  "tat_cre",                                         :default => false
     t.boolean  "report_to_public",                                :default => true,  :null => false
+    t.date     "phenotyping_experiments_started"
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true

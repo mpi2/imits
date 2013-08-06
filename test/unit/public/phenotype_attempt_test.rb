@@ -91,7 +91,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'mi_plan_id',
         'tat_cre',
         'status_stamps_attributes',
-        'report_to_public'
+        'report_to_public',
+        'phenotyping_experiments_started'
       ]
       got = (Public::PhenotypeAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -129,7 +130,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'mouse_allele_symbol',
         'mouse_allele_symbol_superscript',
         'allele_symbol',
-        'report_to_public'
+        'report_to_public',
+        'phenotyping_experiments_started'
       ]
       got = default_phenotype_attempt.as_json.keys
       assert_equal expected.sort, got.sort

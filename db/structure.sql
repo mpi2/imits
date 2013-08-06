@@ -1333,7 +1333,8 @@ CREATE TABLE phenotype_attempts (
     colony_background_strain_id integer,
     cre_excision_required boolean DEFAULT true NOT NULL,
     tat_cre boolean DEFAULT false,
-    report_to_public boolean DEFAULT true NOT NULL
+    report_to_public boolean DEFAULT true NOT NULL,
+    phenotyping_experiments_started date
 );
 
 
@@ -3842,3 +3843,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130725112052');
 INSERT INTO schema_migrations (version) VALUES ('20130801140814');
 
 INSERT INTO schema_migrations (version) VALUES ('20130805152114');
+
+INSERT INTO schema_migrations (version) VALUES ('20130806153714');

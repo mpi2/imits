@@ -14,6 +14,9 @@
     <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
   </div>
   <div>
+    <%= generator.text_field :phenotyping_experiments_started, :label => 'Phenotyping Experiments Started', :class => 'date-field' %>
+  </div>
+  <div>
     <% if ! @phenotype_attempt.status_id.nil? %>
       <label>Status</label>
       <%= @phenotype_attempt.status_name%>

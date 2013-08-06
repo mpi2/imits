@@ -27,6 +27,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     mi_plan_id
     status_stamps_attributes
     report_to_public
+    phenotyping_experiments_started
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -93,6 +94,8 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
 end
 
 
+
+
 # == Schema Information
 #
 # Table name: phenotype_attempts
@@ -117,6 +120,7 @@ end
 #  cre_excision_required            :boolean         default(TRUE), not null
 #  tat_cre                          :boolean         default(FALSE)
 #  report_to_public                 :boolean         default(TRUE), not null
+#  phenotyping_experiments_started  :date
 #
 # Indexes
 #

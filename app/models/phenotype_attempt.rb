@@ -147,12 +147,25 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   def mi_attempt_colony_background_strain_name
-    if mi_attempt.colony_background_strain
-      return mi_attempt.colony_background_strain.name
-    else
-      return nil
-    end
+    mi_attempt.try(:colony_background_strain).try(:name)
   end
+
+  def mi_attempt_colony_background_mgi_strain_accession_id
+    mi_attempt.try(:colony_background_strain).try(:mgi_strain_accession_id)
+  end
+
+  def mi_attempt_colony_background_mgi_strain_name
+    mi_attempt.try(:colony_background_strain).try(:mgi_strain_name)
+  end
+
+  def colony_background_strain_mgi_accession
+    return colony_background_strain.try(:mgi_strain_accession_id)
+  end
+
+  def colony_background_strain_mgi_name
+    return colony_background_strain.try(:mgi_strain_name)
+  end
+
 
   delegate :consortium, :production_centre, :to => :mi_plan, :allow_nil => true
   delegate :marker_symbol, :to => :gene, :allow_nil => true

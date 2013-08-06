@@ -6,7 +6,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
   context 'PhenotypeAttempt' do
 
     def default_phenotype_attempt
-      @default_phenotype_attempt ||= Factory.create :phenotype_attempt
+      @default_phenotype_attempt ||= Factory.create :phenotype_attempt, :colony_background_strain => Strain.find_by_name!('129P2/OlaHsd')
     end
 
     should 'be audited' do
@@ -409,6 +409,14 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
 
         pa.reload
         assert_equal pa.colony_background_strain, Strain.first
+      end
+
+      should 'have a colony background strain mgi accession id' do
+        assert_equal 'MGI:28', default_phenotype_attempt.colony_background_strain_mgi_accession
+      end
+
+      should 'have a colony background strain mgi name' do
+        assert_equal '129P2/OlaHsd', default_phenotype_attempt.colony_background_strain_mgi_name
       end
 
       should 'expect colony_background_strain when cre excision is complete' do

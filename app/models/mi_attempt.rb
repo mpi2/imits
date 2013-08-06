@@ -302,6 +302,30 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  def blast_strain_mgi_accession
+    return blast_strain.try(:mgi_strain_accession_id)
+  end
+
+  def blast_strain_mgi_name
+    return blast_strain.try(:mgi_strain_name)
+  end
+
+  def colony_background_strain_mgi_accession
+    return colony_background_strain.try(:mgi_strain_accession_id)
+  end
+
+  def colony_background_strain_mgi_name
+    return colony_background_strain.try(:mgi_strain_name)
+  end
+
+  def test_cross_strain_mgi_accession
+    return test_cross_strain.try(:mgi_strain_accession_id)
+  end
+
+  def test_cross_strain_mgi_name
+    return test_cross_strain.try(:mgi_strain_name)
+  end
+
   def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
   def es_cell_allele_symbol; es_cell.try(:allele_symbol); end
 

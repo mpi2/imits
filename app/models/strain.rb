@@ -7,6 +7,14 @@ class Strain < ActiveRecord::Base
     :message   => "is not a valid MGI Allele ID",
     :allow_nil => true,
     :allow_blank => true
+
+  def pretty_drop_down
+    if !self.mgi_strain_accession_id.blank?
+      return "#{self.mgi_strain_accession_id}:#{self.name}"
+    else
+      return self.name
+    end
+  end
 end
 
 # == Schema Information

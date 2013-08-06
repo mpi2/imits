@@ -103,7 +103,7 @@
      <%= form.label :colony_background_strain_name, 'Colony Background Strain' %>
     </div>
     <div>
-      <%= form.collection_select :colony_background_strain_name, @colony_background_strain, :name, :name, :include_blank => true %>
+      <%= form.collection_select :colony_background_strain_name, Strain.all, :name, :pretty_drop_down, :include_blank => true %>
     </div>
   </div>
 </fieldset>

@@ -33,9 +33,9 @@
 
       <% @table_1.each do |row| %>
       <tr>
-        <td><%= raw row['marker_symbol_href'] %></td>
-        <td><%= raw row['consortium_href'] %></td>
-        <td><%= raw row['production_centre_href'] %></td>
+        <td><a href = <%= gene_selection_open_mi_plans_path('q[marker_symbol_or_mgi_accession_id_ci_in]' => row['marker_symbol'], 'q[mi_plans_consortium_id_in]' => row['consortium_id'], 'q[mi_plans_production_centre_id_in]' => row['production_centre_id'])  %>><%= row['marker_symbol'] %></a></td>
+        <td><a href = <%= gene_selection_open_mi_plans_path('q[marker_symbol_or_mgi_accession_id_ci_in]' => row['marker_symbol'], 'q[mi_plans_consortium_id_in]' => row['consortium_id'], 'q[mi_plans_production_centre_id_in]' => row['production_centre_id'])  %>><%= raw row['consortium'] %></td>
+        <td><a href = <%= gene_selection_open_mi_plans_path('q[marker_symbol_or_mgi_accession_id_ci_in]' => row['marker_symbol'], 'q[mi_plans_consortium_id_in]' => row['consortium_id'], 'q[mi_plans_production_centre_id_in]' => row['production_centre_id'])  %>><%= raw row['production_centre'] %></a></td>
         <td><%= row['mi_date'] %></td>
       </tr>
       <% end %>
@@ -68,9 +68,9 @@
 
       <% @table_2.each do |row| %>
       <tr>
-        <td><%= raw row['marker_symbol_href'] %></td>
-        <td><%= raw row['consortium_href'] %></td>
-        <td><%= raw row['production_centre_href'] %></td>
+        <td><a href = <%= gene_selection_open_mi_plans_path('q[marker_symbol_or_mgi_accession_id_ci_in]' => row['marker_symbol'], 'q[mi_plans_consortium_id_in]' => row['consortium_id'], 'q[mi_plans_production_centre_id_in]' => row['production_centre_id'])  %>><%= raw row['marker_symbol'] %></a></td>
+        <td><a href = <%= gene_selection_open_mi_plans_path('q[marker_symbol_or_mgi_accession_id_ci_in]' => row['marker_symbol'], 'q[mi_plans_consortium_id_in]' => row['consortium_id'], 'q[mi_plans_production_centre_id_in]' => row['production_centre_id'])  %>><%= raw row['consortium'] %></a></td>
+        <td><a href = <%= gene_selection_open_mi_plans_path('q[marker_symbol_or_mgi_accession_id_ci_in]' => row['marker_symbol'], 'q[mi_plans_consortium_id_in]' => row['consortium_id'], 'q[mi_plans_production_centre_id_in]' => row['production_centre_id'])  %>><%= raw row['production_centre'] %></a></td>
         <td><%= row['mi_date'] %></td>
         <td><%= row['gc_date'] %></td>
       </tr>
@@ -84,42 +84,4 @@
   </tr>
   </table>
 
-  <% if Rails.application.config.show_search_page %>
-
-  <div class="homepage-links" id = 'gene_search' name = 'gene_search' >
-    <h3>Quick search for IMPC products by gene</h3>
-    <input type ='text' id = 'search_for_gene' name = 'search_for_gene'>
-    <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button>
-    <p>Search by Marker symbol or MGI number</p>
-  </div>
-
-  <% end %>
-
 </div>
-
-<div class="grid_12">
-  <%= render 'open/root/mpi2_grid' %>
-</div>
-
-<!--<div class="grid_8">
-  <div class="homepage-links">
-    <a href="<%= gene_selection_open_mi_plans_path %>">
-      <h3>Gene selection and planning</h3>
-      <p>View production plans for each IMPC member consortium.</p>
-    </a>
-  </div>
-
-  <div class="homepage-links">
-    <a href="<%= open_mi_attempts_path() %>">
-      <h3>IMPC Mouse production</h3>
-      <p>Progress summary for mouse production attempts at each</br>centre, including genotyping assays.</p>
-    </a>
-  </div>
-
-  <div class="homepage-links">
-    <a href="<%= open_phenotype_attempts_path() %>">
-      <h3>IMPC Phenotyping</h3>
-      <p>Progress summary for cre-excision and phenotype data</br>collection at each production / phenotyping centre.</p>
-    </a>
-  </div>
-</div>-->

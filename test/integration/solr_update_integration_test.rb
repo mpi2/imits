@@ -73,7 +73,11 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'allele_image_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image",
           'genbank_file_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-genbank-file",
           'order_from_urls' => ["mailto:mouseinterest@sanger.ac.uk?subject=Mutant mouse for Cbx1"],
-          'order_from_names' => ['WTSI']
+          'order_from_names' => ['WTSI'],
+          'best_status_pa_cre_ex_not_required' => '',
+          'best_status_pa_cre_ex_required' => 'Cre Excision Complete',
+          'current_pa_status'=>'',
+          'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image?simple=true'
         }
 
         fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
@@ -121,6 +125,10 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'allele_name' => phenotype_attempt.allele_symbol,
         'allele_image_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/allele-image-cre",
         'genbank_file_url' => "https://www.i-dcc.org/imits/targ_rep/alleles/#{@allele.id}/escell-clone-cre-genbank-file",
+        'best_status_pa_cre_ex_not_required' => '',
+        'best_status_pa_cre_ex_required' => 'Cre Excision Complete',
+        'current_pa_status' => 'Cre Excision Complete',
+        'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image-cre?simple=true'
       }
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

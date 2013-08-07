@@ -77,10 +77,18 @@ class PhenotypeAttempt < ApplicationModel
   before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
   before_save :generate_colony_name_if_blank
   after_save :manage_status_stamps
+  after_save :set_phenotyping_experiments_started_if_blank
 
   def set_mi_plan
     if ! self.mi_plan.present?
       self.mi_plan = self.try(:mi_attempt).try(:mi_plan)
+    end
+  end
+
+  def set_phenotyping_experiments_started_if_blank
+    if self.phenotyping_experiments_started.blank? and self.status_stamps.where("status_id = 7").count !=0
+      self.phenotyping_experiments_started = self.status_stamps.where("status_id = 7").first.try(:created_at).try(:to_date) #Phenotype Started
+      self.save
     end
   end
 

@@ -141,6 +141,36 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context 'phenotyping_experiments_started' do
+      should 'not be set if attempt has not started phenotyping' do
+        pa =  Factory.create :phenotype_attempt_status_cec
+        assert_equal pa.status_stamps.where('status_id = 7').count, 0
+        assert_equal pa.phenotyping_experiments_started, nil
+      end
+
+      should 'default to phenotype_started date when blank' do
+        pa =  Factory.create :phenotype_attempt_status_cec
+        assert_equal pa.phenotyping_experiments_started, nil
+
+        pa.phenotyping_started = true
+        pa.save
+        pa.reload
+        assert_equal pa.phenotyping_experiments_started, pa.status_stamps.where('status_id = 7').first.created_at.to_date
+      end
+
+      should 'not be set to phenotype_started date when not blank' do
+        pes_date = Time.now.to_date - 1.month
+        pa =  Factory.create :phenotype_attempt_status_cec, :phenotyping_experiments_started => pes_date
+        assert_not_nil pa.phenotyping_experiments_started
+
+        pa.phenotyping_started = true
+        pa.save
+        pa.reload
+        assert_not_equal pa.phenotyping_experiments_started, pa.status_stamps.where('status_id = 7').first.created_at.to_date
+        assert_equal pa.phenotyping_experiments_started, pes_date
+      end
+    end
+
     context '#reportable_statuses_with_latest_dates' do
       should 'work' do
         default_phenotype_attempt.deleter_strain = DeleterStrain.first

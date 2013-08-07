@@ -82,6 +82,7 @@ class Public::MiAttempt < ::MiAttempt
     colony_background_strain_mgi_name
     test_cross_strain_mgi_accession
     test_cross_strain_mgi_name
+    mgi_accession_id
 
   } + FULL_ACCESS_ATTRIBUTES
 

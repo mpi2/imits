@@ -245,7 +245,7 @@ Ext.define('Imits.widget.MiGridCommon', {
         {
             dataIndex: 'es_cell_marker_symbol',
             header: 'Marker Symbol',
-            width: 75,
+            width: 85,
             readOnly: true,
             sortable: false,
             filter: {

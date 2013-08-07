@@ -302,6 +302,10 @@ class MiAttempt < ApplicationModel
     end
   end
 
+  def mgi_accession_id
+    return mi_plan.try(:gene).try(:mgi_accession_id)
+  end
+
   def blast_strain_mgi_accession
     return blast_strain.try(:mgi_strain_accession_id)
   end

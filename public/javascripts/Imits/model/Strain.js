@@ -22,6 +22,3 @@ Ext.define('Imits.model.Strain', {
         resource: 'strain'
     })
 })
-
-
-mgi_strain_name

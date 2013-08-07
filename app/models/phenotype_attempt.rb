@@ -166,6 +166,10 @@ class PhenotypeAttempt < ApplicationModel
     return colony_background_strain.try(:mgi_strain_name)
   end
 
+  def mgi_accession_id
+    return mi_plan.try(:gene).try(:mgi_accession_id)
+  end
+
 
   delegate :consortium, :production_centre, :to => :mi_plan, :allow_nil => true
   delegate :marker_symbol, :to => :gene, :allow_nil => true

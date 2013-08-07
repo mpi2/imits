@@ -15,10 +15,10 @@
   <% @consortia_production_centres.keys.sort.each do |consortium| %>
     <% m = n %>
     <% pc_row_span = @consortia_production_centres[consortium].count %>
-    <% n += (pc_row_span *3) +2 %>
-    <% if n > 49 %>
+    <% n += (pc_row_span *3) +3 %>
+    <% if n > 56 %>
       </div>
-      <% n = (pc_row_span *3) +2 %>
+      <% n = (pc_row_span *3) +3 %>
       <% m = 0 %>
     <% end %>
 

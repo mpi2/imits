@@ -131,7 +131,8 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'mouse_allele_symbol_superscript',
         'allele_symbol',
         'report_to_public',
-        'phenotyping_experiments_started'
+        'phenotyping_experiments_started',
+        'mgi_accession_id'
       ]
       got = default_phenotype_attempt.as_json.keys
       assert_equal expected.sort, got.sort

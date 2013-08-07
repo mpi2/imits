@@ -44,6 +44,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     mi_attempt_colony_background_mgi_strain_name
     colony_background_strain_mgi_accession
     colony_background_strain_mgi_name
+    mgi_accession_id
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{

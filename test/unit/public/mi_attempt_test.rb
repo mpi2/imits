@@ -154,6 +154,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         phenotype_attempts_count
         pipeline_name
         allele_symbol
+        mgi_accession_id
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

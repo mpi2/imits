@@ -195,7 +195,11 @@ Ext.define('Imits.model.MiAttempt', {
     {
         name: 'mi_plan_id',
         type: 'int'
-    }
+    },
+    {
+        name: 'mgi_accession_id'
+    },
+
     ],
 
     proxy: Ext.create('Imits.data.Proxy', {

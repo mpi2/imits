@@ -36,7 +36,7 @@ Ext.define('Imits.widget.MiGridGeneral', {
                 width: 150,
                 renderer: function(value, metaData, record) {
                     var mgi_accession_id = record.get('mgi_accession_id');
-                    return Ext.String.format('<a href="https://www.mousephenotype.org/data/genes/{0}#allele_tracker_panel_results">Summary</a>', mgi_accession_id);
+                    return Ext.String.format('<a href="https://www.mousephenotype.org/data/genes/{0}#allele_tracker_panel_results">View in IMPC Website</a>', mgi_accession_id);
                 },
                 sortable: false
                 }

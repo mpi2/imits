@@ -32,7 +32,7 @@
       </div>
       <div class="grid_6 omega">
         <div style="display:inline-block;">
-          <label for="q[mi_plans_consortium_id_in]">Consortium:</label>
+          <label for="q[mi_plans_consortium_id_in]"><a href=<%= consortia_path %>>Consortium:</a></label>
           <%=
             select_tag(
               'q[mi_plans_consortium_id_in]',
@@ -42,7 +42,7 @@
           %>
         </div>
         <div style="display:inline-block;">
-          <label for="q[mi_plans_production_centre_id_in]">Production Centre:</label>
+          <label for="q[mi_plans_production_centre_id_in]"><a href=<%= consortia_path %>>Production Centre:</a></label>
           <%=
             select_tag(
               'q[mi_plans_production_centre_id_in]',

@@ -74,11 +74,16 @@ Ext.define('Imits.widget.GeneGridCommon', {
     // colums to show in the grid common to both the editable and read only grid.
     geneColumns: [
         {
-            header: 'Gene',
+            header: 'View In IMPC',
             dataIndex: 'marker_symbol',
             readOnly: true,
-            renderer: function (symbol) {
-                return Ext.String.format('<a href="http://www.knockoutmouse.org/martsearch/search?query={0}" target="_blank">{0}</a>', symbol);
+            renderer: function (symbol, metaData, record) {
+                var mgi_accession_id = record.get('mgi_accession_id');
+                if (mgi_accession_id != '') {
+                  return Ext.String.format('<a href="https://www.mousephenotype.org/data/genes/{0}">{1}</a>', mgi_accession_id, symbol);
+                } else {
+                  return Ext.String.format('{0}', symbol);
+                }
             }
         },
         {

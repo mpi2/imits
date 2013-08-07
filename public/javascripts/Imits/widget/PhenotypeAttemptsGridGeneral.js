@@ -35,7 +35,7 @@ Ext.define('Imits.widget.PhenotypeAttemptsGridGeneral', {
                                    renderer: function(value, metaData, record) {
                                        var mgi_accession_id = record.get('mgi_accession_id');
                                        if (mgi_accession_id != '') {
-                                         return Ext.String.format('<a href="https://www.mousephenotype.org/data/genes/{0}">Summary</a>', mgi_accession_id);
+                                         return Ext.String.format('<a href="https://www.mousephenotype.org/data/genes/{0}">View in IMPC Website</a>', mgi_accession_id);
                                        } else {
                                          return Ext.String.format('{0}', Summary);
                                        }

@@ -61,7 +61,6 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       'consortium.name'            => 'Consortium',
       'sub_project.name'           => 'SubProject',
       'is_bespoke_allele'          => 'Bespoke',
-
       'is_conditional_allele'      => 'Knockout First tm1a',
       'is_deletion_allele'         => 'Deletion',
       'is_cre_knock_in_allele'     => 'Cre Knock-in',
@@ -71,11 +70,10 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       'conditional_point_mutation' => 'Conditional Point Mutation',
       'allele_structure'           => 'Allele Structure',
       'allele_symbol_superscript'  => 'Allele Symbol Superscript',
-
       'recovery'                   => 'Recovery',
       'completion_note'            => 'Completion note',
       'phenotype_only'             => 'Phenotype only?',
-      'ignore_avaliable_mice'      => 'Ignore Available Mice',
+      'ignore_available_mice'      => 'Ignore Available Mice',
       'production_centre.name'     => 'Production Centre',
       'gene.marker_symbol'         => 'Marker Symbol',
       'gene.mgi_accession_id'      => 'MGI Accession ID',
@@ -97,7 +95,7 @@ class Reports::MiProduction::PlannedMicroinjectionList < Reports::Base
       :transforms => lambda do |r|
         r["is_bespoke_allele"] = r.is_bespoke_allele ? 'Yes' : 'No'
         r["phenotype_only"] = r.phenotype_only ? 'Yes' : 'No'
-        r["ignore_avaliable_mice"] = r.ignore_avaliable_mice ? 'Yes' : 'No'
+        r["ignore_available_mice"] = r.ignore_available_mice ? 'Yes' : 'No'
         allele_str = ""
         allele_str = r.is_conditional_allele ? "#{allele_str} [Knockout First tm1a]" : allele_str
         allele_str = r.conditional_tm1c ? "#{allele_str} [Conditional tm1c]" : allele_str

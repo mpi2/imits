@@ -94,6 +94,8 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         distribution_centres_attributes
         distribution_centres_formatted_display
         blast_strain_name
+        blast_strain_mgi_name
+        blast_strain_mgi_accession
         total_blasts_injected
         total_transferred
         number_surrogates_receiving
@@ -106,6 +108,10 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         number_of_males_with_80_to_99_percent_chimerism
         number_of_males_with_100_percent_chimerism
         colony_background_strain_name
+        colony_background_strain_mgi_name
+        colony_background_strain_mgi_accession
+        test_cross_strain_mgi_name
+        test_cross_strain_mgi_accession
         test_cross_strain_name
         date_chimeras_mated
         number_of_chimera_matings_attempted
@@ -148,6 +154,7 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         phenotype_attempts_count
         pipeline_name
         allele_symbol
+        mgi_accession_id
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

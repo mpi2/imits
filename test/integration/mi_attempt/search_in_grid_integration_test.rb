@@ -5,14 +5,13 @@ require 'test_helper'
 class MiAttempt::SearchInGridIntegrationTest < TarMits::JsIntegrationTest
   context 'Searching for MI attempts in grid' do
 
-    should 'need a valid logged in user' do
-      visit '/users/logout'
+    context 'when not logged in grid ' do
 
-      visit '/'
-      assert_match %r{/users/login$}, current_url
-
-      visit '/mi_attempts'
-      assert_match %r{/users/login$}, current_url
+      should 'not have an editable option' do
+        visit '/'
+        click_link 'Mouse Production'
+        assert page.has_content?('Show In Form')
+      end
     end
 
     context 'as valid user' do
@@ -25,6 +24,11 @@ class MiAttempt::SearchInGridIntegrationTest < TarMits::JsIntegrationTest
         click_link 'Mouse Production'
         assert_equal default_user.production_centre.name,
                 page.find('select[name="q[production_centre_name]"] option[selected=selected]').value
+      end
+
+      should 'have an editable option' do
+        click_link 'Mouse Production'
+        assert page.has_content?('Edit In Form')
       end
 
       context 'by es_cell name' do

@@ -90,7 +90,9 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'cre_excision_required',
         'mi_plan_id',
         'tat_cre',
-        'status_stamps_attributes'
+        'status_stamps_attributes',
+        'report_to_public',
+        'phenotyping_experiments_started'
       ]
       got = (Public::PhenotypeAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -117,12 +119,20 @@ class Public::PhenotypeAttemptTest < ActiveSupport::TestCase
         'mouse_allele_type',
         'deleter_strain_name',
         'colony_background_strain_name',
+        'colony_background_strain_mgi_accession',
+        'colony_background_strain_mgi_name',
+        'mi_attempt_colony_background_mgi_strain_accession_id',
+        'mi_attempt_colony_background_mgi_strain_name',
+        'mi_attempt_colony_background_strain_name',
         'cre_excision_required',
         'mi_plan_id',
         'tat_cre',
         'mouse_allele_symbol',
         'mouse_allele_symbol_superscript',
-        'allele_symbol'
+        'allele_symbol',
+        'report_to_public',
+        'phenotyping_experiments_started',
+        'mgi_accession_id'
       ]
       got = default_phenotype_attempt.as_json.keys
       assert_equal expected.sort, got.sort

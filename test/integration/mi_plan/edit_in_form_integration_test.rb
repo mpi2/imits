@@ -3,6 +3,13 @@
 require 'test_helper'
 
 class MiPlan::EditInFormIntegrationTest < TarMits::IntegrationTest
+
+  should 'require user to be logged in' do
+      p = Factory.create :mi_plan
+      visit mi_plan_path p
+      assert_login_page
+  end
+
   context 'Edit MiPlans in Form tests:' do
 
     should 'edit page should work' do

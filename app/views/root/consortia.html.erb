@@ -1,17 +1,32 @@
+<% @tab = "Consortia" %>
 <% @title = 'Consortia Using iMits' %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>
   <p>
-    This page lists all the Consortia with data in iMits, their funding bodies,
-    and the production centres that have entered micro-injection data for them.
+    This page lists all the IMPC Consortia contributing data to iMits, their funding bodies,
+    and their associated IMPC production centres.
   </p>
   <div class="clear" style="margin-top:15px"></div>
 </div>
 
+<% n=0 %>
 <div class="grid_12 alpha omega">
   <% @consortia_production_centres.keys.sort.each do |consortium| %>
-    <div class="grid_3">
+    <% m = n %>
+    <% pc_row_span = @consortia_production_centres[consortium].count %>
+    <% n += (pc_row_span *3) +3 %>
+    <% if n > 56 %>
+      </div>
+      <% n = (pc_row_span *3) +3 %>
+      <% m = 0 %>
+    <% end %>
+
+
+    <% if m == 0 %>
+      <div class="grid_3">
+    <% end %>
+
       <table class="full_width report_table">
         <thead>
           <tr>
@@ -23,15 +38,32 @@
             <td>Funding Body</td>
             <td><%= Consortium.find_by_name!(consortium).funding %></td>
           </tr>
-          <tr>
-            <td>Prod. Centres</td>
-            <td><%= @consortia_production_centres[consortium].join(', ') %></td>
-          </tr>
+          <% data = @consortia_production_centres[consortium]%>
+          <% rec_1 = data.shift %>
+            <tr>
+            <td rowspan=<%=pc_row_span%>>Prod. Centres</td>
+
+            <td>
+              <dl>
+                <dd>Centre: <%= rec_1[:centre_name] %></dd>
+                <dd>Contact: <%= rec_1[:contact_name] %></dd>
+                <dd>Email: <%= rec_1[:contact_email]%></dd>
+              </dl>
+            </td>
+            </tr>
+          <% data.each do |production| %>
+            <tr>
+            <td>
+              <dl>
+                <dd>Centre: <%= production[:centre_name] %></dd>
+                <dd>Contact: <%= production[:contact_name] %></dd>
+                <dd>Email: <%= production[:contact_email]%></dd>
+              </dl>
+            </td>
+            </tr>
+          <% end %>
         </tbody>
       </table>
-    </div>
   <% end %>
+  </div>
 </div>
-
-
-

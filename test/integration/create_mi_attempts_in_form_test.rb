@@ -3,6 +3,12 @@
 require 'test_helper'
 
 class CreateMiAttemptsInFormTest < TarMits::JsIntegrationTest
+
+  should 'require user to be logged in' do
+    visit new_mi_attempt_path
+    assert_login_page
+  end
+
   context 'When creating MI Attempt in form' do
 
     setup do
@@ -17,6 +23,7 @@ class CreateMiAttemptsInFormTest < TarMits::JsIntegrationTest
       es_cell = Factory.create(:es_cell, :allele => Factory.create(:allele, :gene => cbx1))
 
       consortium_name = 'MGP'
+
       mi_plan = Factory.create :mi_plan, :production_centre => Centre.find_by_name!('WTSI'),
               :consortium => Consortium.find_by_name!(consortium_name),
               :status => MiPlan::Status[:Assigned],

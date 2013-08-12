@@ -226,16 +226,17 @@ class MiPlan < ApplicationModel
     status_stamp.created_at.to_date if status_stamp
   end
 
+  def products
+   @products ||= {:mi_attempts => mi_attempts.where("is_active = true"), :phenotype_attempts => phenotype_attempts.where("is_active = true")}
+  end
+
   def latest_relevant_mi_attempt
-    @@status_sort_order ||= {
-      MiAttempt::Status.micro_injection_aborted => 1,
-      MiAttempt::Status.micro_injection_in_progress => 2,
-      MiAttempt::Status.chimeras_obtained => 3,
-      MiAttempt::Status.genotype_confirmed => 4
-    }
+
+    status_sort_order =  MiAttempt::Status.status_order
+
     ordered_mis = mi_attempts.all.sort do |mi1, mi2|
-      [@@status_sort_order[mi1.status], mi1.in_progress_date] <=>
-              [@@status_sort_order[mi2.status], mi2.in_progress_date]
+      [status_sort_order[mi1.status], mi2.in_progress_date] <=>
+              [status_sort_order[mi2.status], mi1.in_progress_date]
     end
     if ordered_mis.empty?
       return nil
@@ -255,7 +256,18 @@ class MiPlan < ApplicationModel
   end
 
   def latest_relevant_phenotype_attempt
-    return phenotype_attempts.order('is_active desc, created_at desc').first
+
+    status_sort_order =  PhenotypeAttempt::Status.status_order
+
+    ordered_pas = phenotype_attempts.all.sort do |pi1, pi2|
+      [status_sort_order[pi1.status], pi2.in_progress_date] <=>
+              [status_sort_order[pi2.status], pi1.in_progress_date]
+    end
+    if ordered_pas.empty?
+      return nil
+    else
+      return ordered_pas.last
+    end
   end
 
   def add_status_stamp(status_to_add)
@@ -401,16 +413,16 @@ class MiPlan < ApplicationModel
   end
 
   def relevant_status_stamp
-    status_stamp = status_stamps.find_by_status_id!(status.id)
+    status_stamp = status_stamps.find_by_status_id!(status_id)
 
     mi = latest_relevant_mi_attempt
     if mi
-      status_stamp = mi.status_stamps.find_by_status_id!(mi.status.id)
+      status_stamp = mi.status_stamps.find_by_status_id!(mi.status_id)
     end
 
     pa = latest_relevant_phenotype_attempt
     if pa
-      status_stamp = pa.status_stamps.find_by_status_id!(pa.status.id)
+      status_stamp = pa.status_stamps.find_by_status_id!(pa.status_id)
     end
 
     retval = {}
@@ -466,6 +478,9 @@ end
 
 
 
+
+
+
 # == Schema Information
 #
 # Table name: mi_plans
@@ -501,6 +516,7 @@ end
 #  point_mutation                 :boolean         default(FALSE), not null
 #  conditional_point_mutation     :boolean         default(FALSE), not null
 #  allele_symbol_superscript      :text
+#  report_to_public               :boolean         default(TRUE), not null
 #
 # Indexes
 #

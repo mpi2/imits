@@ -11,9 +11,17 @@ function clearSearchTermsHandler() {
 }
 
 Ext.onReady(function() {
-    var grid = Ext.create('Imits.widget.PhenotypeAttemptsGrid', {
-        renderTo: 'phenotype-attempts-grid'
-    });
+    var grid;
+    if (FULL_ACCESS == true){
+        grid = Ext.create('Imits.widget.PhenotypeAttemptsGrid', {
+            renderTo: 'phenotype-attempts-grid'
+        });
+    }
+    else {
+        grid = Ext.create('Imits.widget.PhenotypeAttemptsGridGeneral', {
+            renderTo: 'phenotype-attempts-grid'
+        });
+    }
     Ext.EventManager.onWindowResize(grid.manageResize, grid);
     grid.manageResize();
 

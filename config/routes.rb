@@ -37,6 +37,8 @@ TarMits::Application.routes.draw do
   resources :production_goals, :tracking_goals
   resources :centres
 
+  resources :strains
+
   resources :genes, :only => [:index] do
     member do
       get 'network_graph'
@@ -60,7 +62,6 @@ TarMits::Application.routes.draw do
         get 'grid_redirect'
       end
     end
-
   end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
@@ -162,7 +163,7 @@ TarMits::Application.routes.draw do
     resources :alleles do
       get :history, :on => :member
       get :image, :on => :member
-      
+
       collection do
         get :attributes
       end
@@ -211,4 +212,20 @@ TarMits::Application.routes.draw do
 
   match 'targ_rep/:controller(/:action(/:id)(.:format))'
 
+  namespace :open do
+
+    resources :mi_plans do
+      collection do
+        get 'gene_selection'
+      end
+    end
+
+    resources :mi_attempts, :only => [:index, :show]
+    resources :phenotype_attempts, :only => [:index, :show]
+    resources :genes, :only => [:index] do
+      member do
+        get 'network_graph'
+      end
+    end
+  end
 end

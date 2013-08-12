@@ -36,8 +36,8 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
-    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status
-    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(false)
+    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
+    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -53,8 +53,8 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
-    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status
-    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(false)
+    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
+    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -69,8 +69,8 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_by_distinct_gene = @report.consortium_by_distinct_gene
     @consortium_by_status        = @report.generate_consortium_by_status
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
-    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status
-    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(false)
+    @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
+    @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -326,6 +326,79 @@ class V2::Reports::MiProductionController < ApplicationController
       elsif ['microinjection aborted 6 months'].include?(hash['type'].to_s.downcase)
         hash['mi_attempt_status_eq'] = 'Micro-injection aborted'
         hash['micro_injection_aborted_date_gteq'] = 6.months.ago.to_date
+
+      elsif ['cre ex phenotype attempt registered', 'cumulative non cre ex phenotype registered'].include?(hash['type'].to_s.downcase)
+        hash['cre_ex_phenotype_attempt_status_eq'] = 'Phenotype Attempt Registered'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['cre ex intent to phenotype'].include?(hash['type'].to_s.downcase)
+        hash['cre_ex_phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+        translate_date(hash, 'Phenotype Attempt Registered', lower_limit)
+
+      elsif hash['type'].to_s.downcase == 'cre ex rederivation started'
+        hash['cre_ex_phenotype_attempt_status_eq'] = 'Rederivation Started'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif hash['type'].to_s.downcase == 'cre ex rederivation completed'
+        hash['cre_ex_phenotype_attempt_status_eq'] = 'Rederivation Complete'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif hash['type'].to_s.downcase == 'cre ex cre excision started'
+        hash['cre_ex_phenotype_attempt_status_eq'] = 'Cre Excision Started'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['cre ex cre excision completed', 'cre ex cre excision complete', 'cumulative cre ex cre excision complete'].include?(hash['type'].to_s.downcase)
+        hash['cre_ex_phenotype_attempt_status_eq'] = 'Cre Excision Complete'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif hash['type'].to_s.downcase == 'cre ex phenotyping started'
+        hash['cre_ex_phenotype_attempt_status_eq'] = 'Phenotyping Started'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['cre ex phenotyping completed', 'cre ex phenotyping complete', 'cumulative cre ex phenotype complete'].include?(hash['type'].to_s.downcase)
+        hash['cre_ex_phenotype_attempt_status_eq'] = 'Phenotyping Complete'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['cre ex phenotyping aborted', 'cre ex phenotype attempt aborted'].include?(hash['type'].to_s.downcase)
+        hash['cre_ex_phenotype_attempt_status_eq'] = 'Phenotype Attempt Aborted'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['non cre ex phenotype attempt registered', 'cumulative non cre ex phenotype registered'].include?(hash['type'].to_s.downcase)
+        hash['non_cre_ex_phenotype_attempt_status_eq'] = 'Phenotype Attempt Registered'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['non cre ex intent to phenotype'].include?(hash['type'].to_s.downcase)
+        hash['non_cre_ex_phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+        translate_date(hash, 'Phenotype Attempt Registered', lower_limit)
+
+      elsif hash['type'].to_s.downcase == 'non cre ex rederivation started'
+        hash['non_cre_ex_phenotype_attempt_status_eq'] = 'Rederivation Started'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif hash['type'].to_s.downcase == 'non cre ex rederivation completed'
+        hash['non_cre_ex_phenotype_attempt_status_eq'] = 'Rederivation Complete'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif hash['type'].to_s.downcase == 'non cre ex cre excision started'
+        hash['non_cre_ex_phenotype_attempt_status_eq'] = 'Cre Excision Started'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['non cre ex cre excision completed', 'non cre ex cre excision complete', 'cumulative non cre ex cre excision complete'].include?(hash['type'].to_s.downcase)
+        hash['non_cre_ex_phenotype_attempt_status_eq'] = 'Cre Excision Complete'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif hash['type'].to_s.downcase == 'non cre ex phenotyping started'
+        hash['non_cre_ex_phenotype_attempt_status_eq'] = 'Phenotyping Started'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['non cre ex phenotyping completed', 'non cre ex phenotyping complete', 'cumulative non cre ex phenotype complete'].include?(hash['type'].to_s.downcase)
+        hash['non_cre_ex_phenotype_attempt_status_eq'] = 'Phenotyping Complete'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['non cre ex phenotyping aborted', 'non cre ex phenotype attempt aborted'].include?(hash['type'].to_s.downcase)
+        hash['non_cre_ex_phenotype_attempt_status_eq'] = 'Phenotype Attempt Aborted'
+        translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
       end
 
       ##
@@ -406,6 +479,18 @@ class V2::Reports::MiProductionController < ApplicationController
           hash['phenotype_attempt_registered_date_gteq'] = month_begins
         end
         hash['phenotype_attempt_registered_date_lt'] = next_month
+
+      elsif type == 'Cre Ex Phenotype Attempt Registered'
+        if !no_lower_limit
+          hash['cre_ex_phenotype_attempt_registered_date_gteq'] = month_begins
+        end
+        hash['cre_ex_phenotype_attempt_registered_date_lt'] = next_month
+
+      elsif type == 'Non Cre Ex Phenotype Attempt Registered'
+        if !no_lower_limit
+          hash['non_cre_ex_phenotype_attempt_registered_date_gteq'] = month_begins
+        end
+        hash['non_cre_ex_phenotype_attempt_registered_date_lt'] = next_month
 
       elsif type == 'Rederivation Started'
         if !no_lower_limit

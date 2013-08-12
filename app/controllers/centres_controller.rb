@@ -19,7 +19,7 @@ class CentresController < ApplicationController
 
   def create
     @centre = Centre.new(params[:centre])
-    
+
     respond_to do |format|
       if @centre.save
         format.html { redirect_to :centres, :notice => "Centre was created successfully." }
@@ -66,7 +66,7 @@ class CentresController < ApplicationController
   end
 
   def data_for_serialized(format)
-    super(format, 'id', Centre, :search)
+    super(format, 'id', Centre, :search, false)
   end
 
 end

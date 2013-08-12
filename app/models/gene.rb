@@ -27,19 +27,19 @@ class Gene < ActiveRecord::Base
   end
 
   def pretty_print_mi_attempts_in_progress
-    return Gene.pretty_print_mi_attempts_in_progress_in_bulk(self.id)[self.marker_symbol]
+    return self.class.pretty_print_mi_attempts_in_progress_in_bulk(self.id)[self.marker_symbol]
   end
 
   def pretty_print_mi_attempts_genotype_confirmed
-    return Gene.pretty_print_mi_attempts_genotype_confirmed_in_bulk(self.id)[self.marker_symbol]
+    return self.class.pretty_print_mi_attempts_genotype_confirmed_in_bulk(self.id)[self.marker_symbol]
   end
 
   def pretty_print_aborted_mi_attempts
-    return Gene.pretty_print_aborted_mi_attempts_in_bulk(self.id)[self.marker_symbol]
+    return self.class.pretty_print_aborted_mi_attempts_in_bulk(self.id)[self.marker_symbol]
   end
 
   def pretty_print_phenotype_attempts
-    return Gene.pretty_print_phenotype_attempts_in_bulk(self.id)[self.marker_symbol]
+    return self.class.pretty_print_phenotype_attempts_in_bulk(self.id)[self.marker_symbol]
   end
 
   # == Non-Assigned MiPlans
@@ -70,7 +70,8 @@ class Gene < ActiveRecord::Base
         :id => res['id'].to_i,
         :consortium => res['consortium'],
         :production_centre => res['production_centre'],
-        :status_name => res['status_name']
+        :status_name => res['status_name'],
+        :mi_plan => res['id']
       }
     end
 
@@ -78,7 +79,7 @@ class Gene < ActiveRecord::Base
   end
 
   def non_assigned_mi_plans
-    Gene.non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+    self.class.non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
   end
 
   def self.pretty_print_non_assigned_mi_plans_in_bulk(gene_id=nil)
@@ -98,7 +99,7 @@ class Gene < ActiveRecord::Base
   end
 
   def pretty_print_non_assigned_mi_plans
-    Gene.pretty_print_non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+    self.class.pretty_print_non_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
   end
 
   # == Assigned MiPlans
@@ -137,7 +138,7 @@ class Gene < ActiveRecord::Base
   end
 
   def assigned_mi_plans
-    Gene.assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+    self.class.assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
   end
 
   def self.pretty_print_assigned_mi_plans_in_bulk(gene_id=nil)
@@ -156,7 +157,7 @@ class Gene < ActiveRecord::Base
   end
 
   def pretty_print_assigned_mi_plans
-    Gene.pretty_print_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
+    self.class.pretty_print_assigned_mi_plans_in_bulk(self.id)[self.marker_symbol]
   end
 
 
@@ -185,7 +186,7 @@ class Gene < ActiveRecord::Base
       if @selected_status.empty?
         @selected_status = this_status
 
-      elsif this_status[:order_by] > @selected_status[:order_by]
+      elsif (this_status[:order_by] > @selected_status[:order_by]) or ( this_status[:order_by] == @selected_status[:order_by] and this_status[:date] < @selected_status[:date])
         @selected_status = this_status
 
       end
@@ -206,7 +207,7 @@ class Gene < ActiveRecord::Base
         this_plan = plan
         @selected_status = this_status
 
-      elsif this_status[:order_by] > @selected_status[:order_by]
+      elsif (this_status[:order_by] > @selected_status[:order_by]) or ( this_status[:order_by] == @selected_status[:order_by] and this_status[:date] < @selected_status[:date])
         @selected_status = this_status
         this_plan = plan
 

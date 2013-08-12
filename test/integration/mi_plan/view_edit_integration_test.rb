@@ -3,6 +3,28 @@
 require 'test_helper'
 
 class MiPlan::ViewEditIntegrationTest < TarMits::JsIntegrationTest
+  context 'When user not logged in grid' do
+    should 'not have edit link' do
+      visit '/open/mi_plans'
+      assert page.has_no_content?('Edit In Form')
+    end
+
+    should 'not load mi_plan editor' do
+      allele = Factory.create :allele, :gene => cbx1
+      Factory.create :mi_attempt2,
+        :mi_plan => TestDummy.mi_plan('DTCC', 'UCD', :gene => cbx1, :force_assignment => true),
+        :es_cell => Factory.create(:es_cell, :allele => allele)
+
+      mi_plan = Factory.create :mi_plan,
+              :gene => cbx1,
+              :consortium => Consortium.find_by_name!('BaSH'),
+              :production_centre => Centre.find_by_name!('WTSI')
+      assert_equal 'Inspect - MI Attempt', mi_plan.status.name
+      visit '/open/mi_plans'
+      find('.x-grid-cell-inner', :text => 'BaSH').click
+      assert page.has_no_content?('Change Gene Interest')
+    end
+  end
   context 'View & Edit MiPlans tests:' do
 
     should 'display MiPlan data' do
@@ -35,47 +57,6 @@ class MiPlan::ViewEditIntegrationTest < TarMits::JsIntegrationTest
       login user
       visit '/mi_plans'
       assert(page.has_no_css?('div', :text => 'Cbx1'))
-    end
-
-    should 'allow users to withdraw mi_plans' do
-      allele = Factory.create :allele, :gene => cbx1
-      Factory.create :mi_attempt2, 
-        :mi_plan => TestDummy.mi_plan('DTCC', 'UCD', :gene => cbx1, :force_assignment => true),
-        :es_cell => Factory.create(:es_cell, :allele => allele)
-
-      mi_plan = Factory.create :mi_plan,
-              :gene => cbx1,
-              :consortium => Consortium.find_by_name!('BaSH'),
-              :production_centre => Centre.find_by_name!('WTSI')
-      assert_equal 'Inspect - MI Attempt', mi_plan.status.name
-
-      login default_user
-      visit '/mi_plans'
-
-      find('.x-grid-cell-inner', :text => 'BaSH').click
-      find('#withdraw-button').click
-      find('#withdraw-confirmation-button').click
-
-      wait_until_no_mask
-      assert_equal 'Withdrawn', mi_plan.reload.status.name
-    end
-
-    should 'allow users to inactivate mi_plans' do
-      mi_plan = Factory.create :mi_plan,
-              :gene => Factory.create(:gene_cbx1),
-              :consortium => Consortium.find_by_name!('BaSH'),
-              :production_centre => Centre.find_by_name!('WTSI'),
-              :force_assignment => true
-
-      login default_user
-      visit '/mi_plans'
-
-      find('.x-grid-cell').click
-      find('#inactivate-button').click
-      find('#inactivate-confirmation-button').click
-
-      assert page.has_no_css?('.x-mask', :visible => true)
-      assert_equal 'Inactive', mi_plan.reload.status.name
     end
 
     should 'have link to edit form' do

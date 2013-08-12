@@ -77,7 +77,9 @@ CREATE TABLE centres (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    contact_name character varying(100),
+    contact_email character varying(100)
 );
 
 
@@ -827,7 +829,8 @@ CREATE TABLE mi_plans (
     es_cells_received_from_id integer,
     point_mutation boolean DEFAULT false NOT NULL,
     conditional_point_mutation boolean DEFAULT false NOT NULL,
-    allele_symbol_superscript text
+    allele_symbol_superscript text,
+    report_to_public boolean DEFAULT true NOT NULL
 );
 
 
@@ -903,7 +906,37 @@ CREATE TABLE new_consortia_intermediate_report (
     total_old_pipeline_efficiency_gene_count integer,
     gc_pipeline_efficiency_gene_count integer,
     gc_old_pipeline_efficiency_gene_count integer,
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    non_cre_ex_phenotype_attempt_status character varying(255),
+    non_cre_ex_phenotype_attempt_registered_date date,
+    non_cre_ex_rederivation_started_date date,
+    non_cre_ex_rederivation_complete_date date,
+    non_cre_ex_cre_excision_started_date date,
+    non_cre_ex_cre_excision_complete_date date,
+    non_cre_ex_phenotyping_started_date date,
+    non_cre_ex_phenotyping_complete_date date,
+    non_cre_ex_phenotype_attempt_aborted_date date,
+    non_cre_ex_pa_mouse_allele_type character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript character varying(255),
+    non_cre_ex_mi_attempt_consortium character varying(255),
+    non_cre_ex_mi_attempt_production_centre character varying(255),
+    non_cre_ex_phenotype_attempt_colony_name character varying(255),
+    cre_ex_phenotype_attempt_status character varying(255),
+    cre_ex_phenotype_attempt_registered_date date,
+    cre_ex_rederivation_started_date date,
+    cre_ex_rederivation_complete_date date,
+    cre_ex_cre_excision_started_date date,
+    cre_ex_cre_excision_complete_date date,
+    cre_ex_phenotyping_started_date date,
+    cre_ex_phenotyping_complete_date date,
+    cre_ex_phenotype_attempt_aborted_date date,
+    cre_ex_pa_mouse_allele_type character varying(255),
+    cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    cre_ex_pa_allele_symbol_superscript character varying(255),
+    cre_ex_mi_attempt_consortium character varying(255),
+    cre_ex_mi_attempt_production_centre character varying(255),
+    cre_ex_phenotype_attempt_colony_name character varying(255)
 );
 
 
@@ -982,7 +1015,37 @@ CREATE TABLE new_gene_intermediate_report (
     most_advanced_mi_plan_id_by_consortia integer,
     most_advanced_mi_attempt_id_by_consortia integer,
     most_advanced_phenotype_attempt_id_by_consortia integer,
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    non_cre_ex_phenotype_attempt_status character varying(255),
+    non_cre_ex_phenotype_attempt_registered_date date,
+    non_cre_ex_rederivation_started_date date,
+    non_cre_ex_rederivation_complete_date date,
+    non_cre_ex_cre_excision_started_date date,
+    non_cre_ex_cre_excision_complete_date date,
+    non_cre_ex_phenotyping_started_date date,
+    non_cre_ex_phenotyping_complete_date date,
+    non_cre_ex_phenotype_attempt_aborted_date date,
+    non_cre_ex_pa_mouse_allele_type character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript character varying(255),
+    non_cre_ex_mi_attempt_consortium character varying(255),
+    non_cre_ex_mi_attempt_production_centre character varying(255),
+    non_cre_ex_phenotype_attempt_colony_name character varying(255),
+    cre_ex_phenotype_attempt_status character varying(255),
+    cre_ex_phenotype_attempt_registered_date date,
+    cre_ex_rederivation_started_date date,
+    cre_ex_rederivation_complete_date date,
+    cre_ex_cre_excision_started_date date,
+    cre_ex_cre_excision_complete_date date,
+    cre_ex_phenotyping_started_date date,
+    cre_ex_phenotyping_complete_date date,
+    cre_ex_phenotype_attempt_aborted_date date,
+    cre_ex_pa_mouse_allele_type character varying(255),
+    cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    cre_ex_pa_allele_symbol_superscript character varying(255),
+    cre_ex_mi_attempt_consortium character varying(255),
+    cre_ex_mi_attempt_production_centre character varying(255),
+    cre_ex_phenotype_attempt_colony_name character varying(255)
 );
 
 
@@ -1055,7 +1118,37 @@ CREATE TABLE new_intermediate_report (
     total_old_pipeline_efficiency_gene_count integer,
     gc_pipeline_efficiency_gene_count integer,
     gc_old_pipeline_efficiency_gene_count integer,
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    non_cre_ex_phenotype_attempt_status character varying(255),
+    non_cre_ex_phenotype_attempt_registered_date date,
+    non_cre_ex_rederivation_started_date date,
+    non_cre_ex_rederivation_complete_date date,
+    non_cre_ex_cre_excision_started_date date,
+    non_cre_ex_cre_excision_complete_date date,
+    non_cre_ex_phenotyping_started_date date,
+    non_cre_ex_phenotyping_complete_date date,
+    non_cre_ex_phenotype_attempt_aborted_date date,
+    non_cre_ex_pa_mouse_allele_type character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript character varying(255),
+    non_cre_ex_mi_attempt_consortium character varying(255),
+    non_cre_ex_mi_attempt_production_centre character varying(255),
+    non_cre_ex_phenotype_attempt_colony_name character varying(255),
+    cre_ex_phenotype_attempt_status character varying(255),
+    cre_ex_phenotype_attempt_registered_date date,
+    cre_ex_rederivation_started_date date,
+    cre_ex_rederivation_complete_date date,
+    cre_ex_cre_excision_started_date date,
+    cre_ex_cre_excision_complete_date date,
+    cre_ex_phenotyping_started_date date,
+    cre_ex_phenotyping_complete_date date,
+    cre_ex_phenotype_attempt_aborted_date date,
+    cre_ex_pa_mouse_allele_type character varying(255),
+    cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    cre_ex_pa_allele_symbol_superscript character varying(255),
+    cre_ex_mi_attempt_consortium character varying(255),
+    cre_ex_mi_attempt_production_centre character varying(255),
+    cre_ex_phenotype_attempt_colony_name character varying(255)
 );
 
 
@@ -1239,7 +1332,9 @@ CREATE TABLE phenotype_attempts (
     deleter_strain_id integer,
     colony_background_strain_id integer,
     cre_excision_required boolean DEFAULT true NOT NULL,
-    tat_cre boolean DEFAULT false
+    tat_cre boolean DEFAULT false,
+    report_to_public boolean DEFAULT true NOT NULL,
+    phenotyping_experiments_started date
 );
 
 
@@ -1447,7 +1542,9 @@ CREATE TABLE strains (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    mgi_strain_accession_id character varying(100),
+    mgi_strain_name character varying(100)
 );
 
 
@@ -3738,3 +3835,13 @@ INSERT INTO schema_migrations (version) VALUES ('20130625115302');
 INSERT INTO schema_migrations (version) VALUES ('20130628145302');
 
 INSERT INTO schema_migrations (version) VALUES ('20130708264213');
+
+INSERT INTO schema_migrations (version) VALUES ('20130718140000');
+
+INSERT INTO schema_migrations (version) VALUES ('20130725112052');
+
+INSERT INTO schema_migrations (version) VALUES ('20130801140814');
+
+INSERT INTO schema_migrations (version) VALUES ('20130805152114');
+
+INSERT INTO schema_migrations (version) VALUES ('20130806153714');

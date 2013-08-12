@@ -4,27 +4,35 @@ module AlleleImage2
 
     attr_accessor :feature_name, :feature_type, :start, :stop, :orientation
 
-    def initialize(bio_feature)
+    def initialize(bio_feature, options = {})
       self.position = bio_feature.position
-      self.note = bio_feature.to_hash['note']
+      note = bio_feature.to_hash['note']
+      
+      unless note
+        raise NotRenderableError, "Missing feature name - " + self.inspect
+      end
+
+      self.feature_name = note.first
       self.feature_type = bio_feature.feature
 
-      unless AlleleImage2::RenderableFeatures.renderable?(feature_type, feature_name)
+      return if options[:skip_renderable_check]
+
+      if not AlleleImage2::RenderableFeatures.renderable?(feature_type, feature_name)
         raise NotRenderableError, self.inspect
       end
     end
 
-    def note=(note)
-      self.feature_name = note.first if note
-    end
-
     def position=(position)
-      @start, @stop = position.scan(/-?\d+/)
+      @start, @stop = position.scan(/-?\d+/).map(&:to_i)
       @orientation  = position.match(/^complement/) ? "reverse" : "forward"
     end
 
+    def label
+      render_options[:label] || feature_name
+    end
+
     def render_options
-      AlleleImage2::RenderableFeatures.feature_properties(feature_type, feature_name)
+      @render_options ||= AlleleImage2::RenderableFeatures.feature_properties(feature_type, feature_name)
     end
 
     def feature_class_name
@@ -32,7 +40,7 @@ module AlleleImage2
     end
 
     def image
-      "AlleleImage2::Features::#{feature_class_name}".constantize.new(feature_name, render_options)
+      @image ||= "AlleleImage2::Features::#{feature_class_name}".constantize.new(self)
     end
   end
 end

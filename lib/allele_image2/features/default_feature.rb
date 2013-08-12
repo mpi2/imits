@@ -1,40 +1,64 @@
-module AlleleImage2
-  module Features
-    class DefaultFeature
+class AlleleImage2::Features::DefaultFeature
 
-      def initialize(feature_name, options = {})
+  attr_accessor :feature, :simple_image, :render_options
 
-        @feature_name = feature_name
-        
-        @render_options = {
-          :width => @feature_name.length * 12,
-          :height => 40,
-          :stroke => 'black',
-          :colour => '#fff',
-          :stroke_width => 2.5,
-          :font_size => 10,
-          :font_colour => 'black'
-        }.merge(options)
+  def initialize(feature, options = {})
+    
+    @feature = feature
 
-      end
+    @text_width = 14
 
-      def render(renderer)
+    @render_options = {
+      :top_margin => 25,
+      :width => feature.label.length * @text_width,
+      :height => 40,
+      :stroke => 'black',
+      :colour => '#fff',
+      :stroke_width => 2.5,
+      :font_size => 18,
+      :font_colour => 'black'
+    }.merge(feature.render_options)
 
-        drawing = Magick::Draw.new
-        drawing.stroke @render_options[:stroke]
-        drawing.fill @render_options[:colour]
-        drawing.rectangle(renderer.x, 0, renderer.x + @render_options[:width], @render_options[:height])
-        drawing.draw(renderer.image)
-
-        drawing.annotate(renderer.image, @render_options[:width], @render_options[:height], 0, @feature_name) do
-          self.fill        = @render_options[:font_colour]
-          self.font_weight = Magick::BoldWeight
-          self.gravity     = Magick::CenterGravity
-          self.pointsize   = @render_options[:font_size]
-        end
-
-      end
-
-    end
   end
+
+  def simplify!
+    ## Set this to true if there is a simple image for your feature.
+    @simple_image = false
+  end
+
+  def width
+    @render_options[:width]
+  end
+
+  def render(renderer, image)
+    @simple_image ? simple(renderer, image) : detailed(renderer, image)
+  end
+
+  # From RMagick docs
+  # drawing.rectangle(x1, y1, x2, y2)
+  # drawing.annotate(img, width, height, x, y, text)
+
+  def detailed(renderer, image)
+    drawing = Magick::Draw.new
+    drawing.stroke @render_options[:stroke]
+    drawing.fill @render_options[:colour]
+    drawing.rectangle(renderer.x, @render_options[:top_margin], renderer.x + @render_options[:width], @render_options[:top_margin] + @render_options[:height])
+    drawing.draw(image)
+
+    font_colour = @render_options[:font_colour]
+    font_size   = @render_options[:font_size]
+
+    drawing.annotate(image, @render_options[:width], @render_options[:height], renderer.x, @render_options[:top_margin], feature.label) do
+      self.fill        = font_colour
+      self.font_weight = Magick::BoldWeight
+      self.gravity     = Magick::CenterGravity
+      self.pointsize   = font_size
+    end
+
+  end
+
+  ## No simple image for this feature.
+  def simple(renderer, image)
+  end
+
 end

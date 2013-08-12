@@ -1,4 +1,43 @@
 module AlleleImage2
+
+  FUNCTIONAL_UNITS = {
+
+    # TODO remove these 3 eventually
+    ["En2 intron", "SA", "En2 exon"] => "En2 SA",
+    ["En2 intron", "SA", "En2 exon", "Frame K insert"] => "En2 SA (ATG)",
+    ["rat Cd4", "TM domain"] => "Cd4 TM",
+
+    ["mouse En2 intron", "mouse En2 exon"] => "En2 SA",
+    ["mouse En2 intron", "Splice Acceptor", "mouse En2 exon"] => "En2 SA",
+    ["mouse En2 intron", "Splice Acceptor", "mouse En2 exon", "Frame K insert"] => "En2 SA (ATG)",
+    ["rat Cd4", "rat CD4 transmembrane region"] => "Cd4 TM",
+    # ["PGK", "DTA", "pA"] => "PGK_DTA_pA",
+    # ["pA", "DTA", "PGK"] => "pA_DTA_PGK",
+  }
+
+  SIMPLE_FEATURES = [
+    'Rox',
+    'EGFP',
+    'Cre',
+    'pu-Delta-tk',
+    'FRT',
+    'F3',
+    'Puro',
+    'TM-lacZ',
+    'lacZ',
+    'loxP',
+    'neo',
+    'neo*',
+    'AttP',
+    'pA',
+    'sA',
+    'SA',
+    'En2 SA',
+    'Ifitm2 Intron'    
+  ]
+
+  SIMPLE_FEATURE_TYPES = %w(promoter)
+
   class RenderableFeatures
 
     def self.config
@@ -6,28 +45,21 @@ module AlleleImage2
     end
 
     def self.load_yaml
-      features = YAML.load_file(File.join(Rails.root, 'lib', 'allele_image2', 'features.yml'))["features"]
+      features = YAML.load_file(File.join(Rails.root, 'lib', 'allele_image2', 'features.yml'))['features']
       return {} if features.blank?
 
-      features.recursively_symbolize_keys!
       features.recursively_downcase_keys!
+      features.recursively_symbolize_keys!
 
       features
     end
 
-    attr_accessor :feature_type, :feature_name, :alias_hash
+    attr_accessor :feature_type, :feature_name
 
     def initialize(feature_type, feature_name)
       @config = self.class.config
       self.feature_type = feature_type
       self.feature_name = feature_name
-
-      @alias_hash = {}
-      @config[:aliases].each do |key, aliases|
-        aliases.each do |a|
-          alias_hash[a.to_sym] = key
-        end
-      end
     end
 
     def feature_name=(name)
@@ -39,17 +71,31 @@ module AlleleImage2
     end
 
     def features
-      features_hash = @config[@alias_hash[@feature_type] || @feature_type]
+      features_hash = @config[@feature_type]
       return {} if features_hash.blank?
       features_hash
     end
 
     def feature_properties
-      return features[@feature_name] || features[:defaults]
+      if @feature_name.to_s =~ /fragment/
+
+        @feature_properties = features[:fragment]
+
+      else
+        @feature_properties = features[@feature_name]
+        if @feature_properties && @feature_properties[:alias]
+          @feature_properties = features[@feature_properties[:alias].to_sym]
+        end
+      end
+
+      return @feature_properties = features[:defaults] if @feature_properties.blank?
+      @feature_properties.reverse_merge!(features[:defaults] || {})
+
+      @feature_properties
     end
 
     def renderable?
-      return features.has_key?(@feature_name)
+      features.has_key?(@feature_name)
     end
 
     def self.renderable?(feature_type, feature_name)

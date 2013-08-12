@@ -314,9 +314,15 @@ class TargRep::AllelesController < TargRep::BaseController
 
     options[:mutation_type] = @allele.mutation_type_name  
 
-    send_allele_image(
-      AlleleImage::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }
-    )
+    if params[:new]
+      send_allele_image(
+        AlleleImage2::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }
+      )
+    else
+      send_allele_image(
+        AlleleImage::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }
+      )
+    end
   end
 
   def missing_data_image

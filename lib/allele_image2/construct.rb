@@ -103,7 +103,7 @@ module AlleleImage2
       def initialize_rcmb_primers features
         rcmb_primers = features.select do |feature|
           feature.feature_type == 'primer_bind' and \
-           RENDERABLE_FEATURES['primer_bind'].keys.include?(feature.feature_name)
+           RenderableFeatures.config[:primer_bind].keys.include?(feature.feature_name.downcase.to_sym)
         end
         if rcmb_primers.size > 0
           return rcmb_primers

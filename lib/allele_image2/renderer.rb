@@ -640,30 +640,6 @@ module AlleleImage2
         return image
       end
 
-      def draw_attp( image, feature, x, y, d = Magick::Draw.new, feature_width = feature.width )
-        # Draw the two triangles
-        d.stroke(@simple ? "transparent" : "black" )
-        d.fill( "red" )
-        d.polygon( x, @top_margin, x + feature_width - 2, @top_margin, x, @image_height - @bottom_margin - 2 )
-        d.draw( image )
-        d.stroke(@simple ? "transparent" : "black" )
-        d.fill( "red" )
-        d.polygon( x + 2, @image_height - @bottom_margin, x + feature_width, @top_margin + 2, x + feature_width, @image_height - @bottom_margin )
-        d.draw( image )
-
-        # write the annotation above
-        pointsize = @simple ? @font_size * 0.6 : @font_size
-        d.annotate( image, feature_width, @top_margin, x, 0, feature.feature_name ) do
-          self.fill        = "red"
-          self.gravity     = Magick::CenterGravity
-          self.font_weight = Magick::BoldWeight
-          self.font_style  = Magick::ItalicStyle
-          self.pointsize   = pointsize
-        end
-
-        return image
-      end
-
       # Draw the K-frame En2 SA feature
       #
       # @since  0.2.6

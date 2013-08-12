@@ -98,6 +98,9 @@ features:
     asci-eagi adpater:
     3 arm:
     attp:
+      colour: red
+      font_colour: red
+      class_name: Attp
     target region:
     critical region:
     f3:

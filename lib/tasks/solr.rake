@@ -48,12 +48,14 @@ namespace :solr do
 
   task 'update:mi_attempts' => [:environment] do
     pp SolrUpdate::IndexProxy::Allele.get_uri
+
     ApplicationModel.transaction do
       puts "#### enqueueing mi_attempts..."
       enqueuer = SolrUpdate::Enqueuer.new
-      MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i) }
+      counter = 0
+      MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i); counter += 1 }
 
-      puts "#### running mi_attempts..."
+      puts "#### running mi_attempts (#{counter})..."
       SolrUpdate::Queue.run(:limit => nil)
     end
   end
@@ -80,9 +82,15 @@ namespace :solr do
     ApplicationModel.transaction do
       puts "#### enqueueing alleles..."
       enqueuer = SolrUpdate::Enqueuer.new
-      TargRep::TargetedAllele.all.each { |a| enqueuer.allele_updated(a) }
 
-      puts "#### running alleles..."
+      counter = 0
+      TargRep::TargetedAllele.all.each do |a|
+        enqueuer.allele_updated(a)
+        counter += 1
+        #break if counter > 10
+      end
+
+      puts "#### running alleles (#{counter})..."
       SolrUpdate::Queue.run(:limit => nil)
     end
   end

@@ -30,7 +30,8 @@ class SolrUpdate::DocFactory
       'type' => 'mi_attempt',
       'best_status_pa_cre_ex_not_required' => '',
       'best_status_pa_cre_ex_required' => '',
-      'current_pa_status' => ''
+      'current_pa_status' => '',
+      'colony_name' => mi_attempt.colony_name
     }
 
     best_pa_status_true = mi_attempt.relevant_phenotype_attempt_status(true)

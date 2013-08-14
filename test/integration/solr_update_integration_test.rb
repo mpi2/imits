@@ -77,7 +77,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'best_status_pa_cre_ex_not_required' => '',
           'best_status_pa_cre_ex_required' => 'Cre Excision Complete',
           'current_pa_status'=>'',
-          'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image?simple=true'
+          'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image?simple=true',
+          'colony_name' => 'WTSI-EPD0027_2_A02-1'
         }
 
         fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')

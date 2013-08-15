@@ -1,21 +1,6 @@
 module AlleleImage2
   require "RMagick"
 
-  # == SYNOPSIS
-  #   image = AlleleImage2::Renderer.new( CONSTRUCT, FORMAT )
-  #
-  # == DESCRIPTION
-  # This expects you to implement a renderer for FORMAT that inherits
-  # from AlleleImage2::Renderer and implements a render() method. This method
-  # MUST accept an AlleleImage2::Construct object which gets passed to your
-  # AlleleImage2::Renderer::FORMAT#render() method. The render() should return
-  # something (not nil) that gets assigned to the AlleleImage2::Renderer@image
-  # attribute.
-  #
-  # == NOTE
-  # You can get at the image via the @image attribute directly or from the
-  # render() method. So it's up to you to make sure it is what you expect.
-  #
   class Renderer
     attr_reader :image, :options
 
@@ -419,7 +404,7 @@ module AlleleImage2
           if feature.feature_name == "gap"
             feature_width = @gap_width
           elsif @simple && feature.feature_type == 'promoter'
-            promotor_width = @x - (feature.width / 2) + 15
+            promotor_width = @x - (feature.image.width / 2) + 15
             antibiotic_resistance = cassette_features[index + 1]
             draw_feature( main_image, feature, promotor_width, @y , :related_feature => antibiotic_resistance)
             feature_width = 10

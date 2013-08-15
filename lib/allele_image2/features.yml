@@ -148,6 +148,7 @@ features:
       colour: "#008040"
       font_colour: "#008040"
       class_name: Frt
+      width: 35
     rox:
       width: 35
       label: Rox

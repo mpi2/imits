@@ -7,7 +7,7 @@ class AlleleImage2::Features::Asisi < AlleleImage2::Features::DefaultFeature
 
     drawing = Magick::Draw.new
 
-    annotation_y = renderer.x - 10 - @render_options[:height]
+    annotation_y = renderer.x# - 10 - @render_options[:height]
 
     # draw the AsiSI on the sequence
     

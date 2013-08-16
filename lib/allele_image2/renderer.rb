@@ -239,7 +239,7 @@ module AlleleImage2
           feature = @construct.backbone_features.find { |feature| feature.feature_name == "AsiSI" }
 
           if region.match(/main/) and feature
-            asisi = feature.image.render(self, asisi)
+            asisi = draw_feature(asisi, feature)
           end
 
           test  = Magick::ImageList.new
@@ -406,10 +406,10 @@ module AlleleImage2
           elsif @simple && feature.feature_type == 'promoter'
             promotor_width = @x - (feature.image.width / 2) + 15
             antibiotic_resistance = cassette_features[index + 1]
-            draw_feature( main_image, feature, promotor_width, @y , :related_feature => antibiotic_resistance)
+            draw_feature( main_image, feature)
             feature_width = 10
           else
-            draw_feature( main_image, feature, @x, @y )
+            draw_feature( main_image, feature)
             feature_width = feature.image.width
           end
           @x += feature_width ? feature_width : 0
@@ -471,9 +471,9 @@ module AlleleImage2
             feature_width = @gap_width
           elsif ( feature.feature_name.match(/5' fragment/) )
             @x =  ( image_width - calculate_exon_image_width( 1 ) ) - 1
-            draw_feature( main_image, feature, @x, @y )
+            draw_feature( main_image, feature)
           else
-            draw_feature( main_image, feature, @x, @y )
+            draw_feature( main_image, feature)
             feature_width = feature.image.width#@text_width # or Feature#width if it exists
           end
           @x += feature_width # update the x coordinate
@@ -516,7 +516,7 @@ module AlleleImage2
       # DRAW METHODS
 
       # Need to get this method drawing exons as well
-      def draw_feature( image, feature, x, y, options = {})
+      def draw_feature( image, feature)
         feature_renderer = feature.image
         feature_renderer.simplify! if @simple
         feature_renderer.render(self, image)
@@ -617,7 +617,7 @@ module AlleleImage2
           if sub_feature.feature_name == "gap"
             feature_width = @gap_width
           else
-            draw_feature( image, sub_feature, point[0], point[1] )
+            draw_feature( image, sub_feature)
             feature_width = sub_feature.image.width
           end
           point[0] += feature_width # update the x coordinate
@@ -636,7 +636,7 @@ module AlleleImage2
           if sub_feature.feature_name == "gap"
             feature_width = @gap_width
           else
-            draw_feature( image, sub_feature, point[0], point[1] )
+            draw_feature( image, sub_feature)
             feature_width = sub_feature.image.width
           end
           point[0] += feature_width # update the x coordinate

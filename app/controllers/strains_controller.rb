@@ -57,6 +57,6 @@ class StrainsController < ApplicationController
   end
 
   def data_for_serialized(format)
-    super(format, 'id', Strain, :search)
+    super(format, 'id', Strain, :search, false)
   end
 end

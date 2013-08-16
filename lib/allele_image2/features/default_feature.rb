@@ -23,7 +23,7 @@ class AlleleImage2::Features::DefaultFeature
 
   def simplify!
     ## Set this to true if there is a simple image for your feature.
-    @simple_image = false
+    @simple_image = true
   end
 
   def width
@@ -31,7 +31,7 @@ class AlleleImage2::Features::DefaultFeature
   end
 
   def render(renderer, image)
-    @simple_image ? simple(renderer, image) : detailed(renderer, image)
+    return @simple_image ? simple(renderer, image) : detailed(renderer, image)
   end
 
   # From RMagick docs

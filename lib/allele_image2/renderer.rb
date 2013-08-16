@@ -111,19 +111,19 @@ module AlleleImage2
       three_flank_bb = draw_empty_flank("3' arm backbone")
 
       # we want to render the "AsiSI" somewhere else
-      backbone_features = @construct.backbone_features.select { |feature| feature.feature_name != "AsiSI" }
+      backbone_features = @construct.backbone_features.select { |feature| feature.label != "AsiSI" }
       params[:width]    = [ calculate_width( backbone_features ), params[:width] ].max
       backbone          = Magick::ImageList.new
 
       # teeze out the PGK-DTA-pA structure making sure the only thing b/w the PGK and the pA is the DTA
-      wanted, rest = backbone_features.partition { |f| %w[pA DTA PGK].include?(f.feature_name) }
+      wanted, rest = backbone_features.partition { |f| %w[pA DTA PGK].include?(f.label) }
 
       if wanted.empty?
         backbone.push( render_mutant_region( backbone_features, :width => params[:width] ) )
       else
-        unexpected_features = backbone_features.select { |e| e.feature_name != "DTA" and wanted.first.start < e.start and e.stop < wanted.last.stop }
+        unexpected_features = backbone_features.select { |e| e.label != "DTA" and wanted.first.start < e.start and e.stop < wanted.last.stop }
 
-        raise "Unexpected features in PGK-DTA-pA structure: [#{unexpected_features.map(&:feature_name).join(', ')}]" unless unexpected_features.empty?
+        raise "Unexpected features in PGK-DTA-pA structure: [#{unexpected_features.map(&:label).join(', ')}]" unless unexpected_features.empty?
 
         rest_image   = render_mutant_region( rest,   :width => calculate_width(rest) )
         wanted_image = render_mutant_region( wanted, :width => calculate_width(wanted) )
@@ -239,7 +239,7 @@ module AlleleImage2
           feature = @construct.backbone_features.find { |feature| feature.feature_name == "AsiSI" }
 
           if region.match(/main/) and feature
-            asisi = draw_asisi( asisi, feature, [0, height/2] )
+            asisi = feature.image.render(self, asisi)
           end
 
           test  = Magick::ImageList.new
@@ -401,7 +401,7 @@ module AlleleImage2
 
         cassette_features.each_with_index do |feature, index|
           feature_width = 0
-          if feature.feature_name == "gap"
+          if feature.label == "gap"
             feature_width = @gap_width
           elsif @simple && feature.feature_type == 'promoter'
             promotor_width = @x - (feature.image.width / 2) + 15
@@ -515,54 +515,11 @@ module AlleleImage2
 
       # DRAW METHODS
 
-      #
-
-      #
-      # prototyping rendering AsiSI
-      def draw_asisi( image, feature, position )
-        asisi = Magick::Draw.new
-
-        # We draw the text "AsiSI" in a box with dimensions:
-        annotation_width  = feature.width
-        annotation_height = @text_height
-        annotation_x      = position.first
-        annotation_y      = position.last - 10 - @text_height
-
-        # draw the AsiSI on the sequence
-        pointsize = @font_size
-        asisi.annotate( image, annotation_width, annotation_height, annotation_x, annotation_y, feature.feature_name ) do
-          self.gravity     = Magick::CenterGravity
-          self.font_weight = Magick::BoldWeight
-          self.fill        = "black"
-          self.pointsize   = pointsize
-        end
-
-        # Draw the arrow pointing down in the moddle of the annotation
-        draw_arrow( image, [ position.first + annotation_width / 2, position.last - 2 ],
-          :tail_height => 10, :arm_height => 5, :arm_width => 5 )
-
-        return image
-      end
-
-      #
-      # draw the replication origin
-      def draw_ori( image, x_coord, y_coord )
-        origin = Magick::Draw.new
-        pointsize = @font_size
-
-        origin.annotate( image, @text_width * "ori".length, @text_height, x_coord, y_coord - @text_height, "ori" ) do
-          self.gravity     = Magick::CenterGravity
-          self.font_weight = Magick::BoldWeight
-          self.fill        = "black"
-          self.pointsize   = pointsize
-        end
-
-        return image
-      end
-
       # Need to get this method drawing exons as well
       def draw_feature( image, feature, x, y, options = {})
-        feature.image.render(self, image)
+        feature_renderer = feature.image
+        feature_renderer.simplify! if @simple
+        feature_renderer.render(self, image)
       end
 
       # draw the sequence
@@ -638,7 +595,7 @@ module AlleleImage2
         # write the annotation above
         pointsize = @font_size * 0.75
         atg_label = Magick::Draw.new
-        atg_label.annotate( image, feature.width, @top_margin, point[0], 0, "ATG" ) do
+        atg_label.annotate( image, feature.image.width, @top_margin, point[0], 0, "ATG" ) do
           self.fill        = "black"
           self.gravity     = Magick::CenterGravity
           self.font_weight = Magick::BoldWeight
@@ -655,13 +612,13 @@ module AlleleImage2
         pgk = AlleleImage2::Feature.new( Bio::Feature.new( "promoter", "1..2" ).append( Bio::Feature::Qualifier.new( "note", "PGK promoter" ) ) )
         dta = AlleleImage2::Feature.new( Bio::Feature.new( "CDS", "3..4" ).append( Bio::Feature::Qualifier.new( "note", "DTA" ) ) )
         pa  = AlleleImage2::Feature.new( Bio::Feature.new( "misc_feature", "5..6" ).append( Bio::Feature::Qualifier.new( "note", "PGK pA" ) ) )
-        [ ( 1 .. ( feature.width - 100 ) / @gap_width ).collect { |x| gap }, pgk, dta, pa ].flatten.each do |sub_feature|
+        [ ( 1 .. ( feature.image.width - 100 ) / @gap_width ).collect { |x| gap }, pgk, dta, pa ].flatten.each do |sub_feature|
           feature_width = 0
           if sub_feature.feature_name == "gap"
             feature_width = @gap_width
           else
             draw_feature( image, sub_feature, point[0], point[1] )
-            feature_width = sub_feature.width
+            feature_width = sub_feature.image.width
           end
           point[0] += feature_width # update the x coordinate
         end
@@ -674,13 +631,13 @@ module AlleleImage2
         pgk = AlleleImage2::Feature.new( Bio::Feature.new( "promoter", "complement(1..2)" ).append( Bio::Feature::Qualifier.new( "note", "PGK promoter" ) ) )
         dta = AlleleImage2::Feature.new( Bio::Feature.new( "CDS", "3..4" ).append( Bio::Feature::Qualifier.new( "note", "DTA" ) ) )
         pa  = AlleleImage2::Feature.new( Bio::Feature.new( "misc_feature", "5..6" ).append( Bio::Feature::Qualifier.new( "note", "PGK pA" ) ) )
-        [ ( 1 .. ( feature.width - 100 ) / @gap_width ).collect { |x| gap }, pa, dta, pgk ].flatten.each do |sub_feature|
+        [ ( 1 .. ( feature.image.width - 100 ) / @gap_width ).collect { |x| gap }, pa, dta, pgk ].flatten.each do |sub_feature|
           feature_width = 0
           if sub_feature.feature_name == "gap"
             feature_width = @gap_width
           else
             draw_feature( image, sub_feature, point[0], point[1] )
-            feature_width = sub_feature.width
+            feature_width = sub_feature.image.width
           end
           point[0] += feature_width # update the x coordinate
         end

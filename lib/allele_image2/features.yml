@@ -82,6 +82,7 @@ features:
     fsei:
     puc ori:
       label: ori
+      class_name: Ori
     prescission:
     gap:
     ecmv ires:
@@ -133,6 +134,7 @@ features:
       width: 100
 
     asisi:
+      class_name: Asisi
     sa:
     splice acceptor:
     sgra1:

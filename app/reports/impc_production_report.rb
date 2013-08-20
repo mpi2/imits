@@ -25,7 +25,8 @@ class ImpcProductionReport < BaseProductionReport
         'NorCOMM2',
         'Phenomin',
         'RIKEN BRC',
-        'UCD-KOMP'
+        'UCD-KOMP',
+        'Infrafrontier-S3'
       ]
     end
   end

@@ -13,6 +13,8 @@ class TargRep::AllelesController < TargRep::BaseController
   before_filter :authorize_admin_user!, :only => :destroy
 
   skip_before_filter :authenticate_user!, :only => [
+    :show,
+    :index,
     :escell_clone_genbank_file,
     :targeting_vector_genbank_file,
     :escell_clone_cre_genbank_file,
@@ -39,10 +41,13 @@ class TargRep::AllelesController < TargRep::BaseController
     params[:page] ||= 1
     params[:per_page] ||= 100
     allele_params = setup_allele_search(params)
-    @alleles = @klass.includes(:gene, :targeting_vectors => [:pipeline], :es_cells => [:pipeline]).search(allele_params).result.paginate(
-      :page    => params[:page],
-      :per_page => params[:per_page]
-    )
+    @alleles = @klass.order('targ_rep_alleles.created_at desc')
+      .search(allele_params)
+      .result(:distinct => true)
+      .paginate(
+        :page    => params[:page],
+        :per_page => params[:per_page]
+      )
 
     mutational_drop_downs
     options = {
@@ -253,84 +258,179 @@ class TargRep::AllelesController < TargRep::BaseController
     )
   end
 
+  def missing_required_data?
+    return true if @allele.blank?
+    
+    if params[:type].blank?
+      Rails.logger.info 'Incorrect usage. Please follow the links on the page to navigate between allele.'
+      return true
+    end
+    ## Check for a genbank file
+    if @allele.genbank_file.nil?
+      Rails.logger.info 'Could not find Genbank file.'
+      return true
+    end
+
+    if params[:type] == 'allele' && (@allele.genbank_file.escell_clone.nil? || @allele.genbank_file.escell_clone.empty?)
+      Rails.logger.info 'Could not find EsCell\'s Genbank file data.'
+      return true
+    elsif params[:type] == 'vector' && @allele.genbank_file.targeting_vector.blank?
+      Rails.logger.info 'Could not find Targeting vector\'s Genbank file data.'
+      return true
+    end
+
+    false
+  end
+
+  def genbank_data
+    return nil if @allele.blank?
+    return nil if @allele.genbank_file.blank?
+
+    if params[:method].blank? && (params[:type] == 'allele' || params[:type] == 'cassette')
+      return @allele.genbank_file.escell_clone
+    elsif params[:type] == 'allele' && params[:method] == 'cre'
+      return @allele.genbank_file.escell_clone_cre
+    elsif params[:type] == 'allele' && params[:method] == 'flp'
+      return @allele.genbank_file.escell_clone_flp
+    elsif params[:type] == 'allele' && params[:method] == 'flp_cre'
+      return @allele.genbank_file.escell_clone_flp_cre
+    elsif params[:method].blank? && params[:type] == 'vector'
+      return @allele.genbank_file.targeting_vector
+    elsif params[:type] == 'vector' && params[:method] == 'cre'
+      return @allele.genbank_file.targeting_vector_cre
+    elsif params[:type] == 'vector' && params[:method] == 'flp'
+      return @allele.genbank_file.targeting_vector_flp
+    elsif params[:type] == 'vector' && params[:method] == 'flp_cre'
+      return @allele.genbank_file.targeting_vector_flp_cre
+    end
+
+    nil
+  end
+
+  def render_image(options = {})
+    missing_data_image and return if missing_required_data? || genbank_data.blank? || @allele.blank?
+
+    if params[:type] == 'cassette'
+      options[:cassetteonly] = true
+    end
+
+    options[:mutation_type] = @allele.mutation_type_name  
+
+    send_allele_image(
+      AlleleImage::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }
+    )
+  end
+
+  def missing_data_image
+    send_file(
+      File.join(Rails.root, 'public', 'images', 'missing-allele-image.png'),
+      :disposition => "inline", :type => "image/png"
+    )
+  end
+
+  ## GET /alleles/1/image
+  def image
+    @allele = @klass.find_by_id(params[:id])
+    render_image(params)
+  end
+
   # GET /alleles/1/allele-image/
   def allele_image
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_escell_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone).render.to_blob { self.format = "PNG" })
+    @allele = @klass.find_by_id(params[:id])
+    params[:type] = 'allele'
+    render_image(params)
   end
 
   # GET /alleles/1/allele-image-cre/
   def allele_image_cre
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_escell_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_cre).render.to_blob { self.format = "PNG" })
+    @allele = @klass.find_by_id(params[:id])
+    params[:type] = 'allele'
+    params[:method] = 'cre'
+    render_image(params)
   end
 
   # GET /alleles/1/allele-image-flp/
   def allele_image_flp
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_escell_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_flp).render.to_blob { self.format = "PNG" })
+    @allele = @klass.find_by_id(params[:id])
+    params[:type] = 'allele'
+    params[:method] = 'flp'
+    render_image(params)
   end
 
   # GET /alleles/1/allele-image-flp-cre/
   def allele_image_flp_cre
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_escell_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone_flp_cre).render.to_blob { self.format = "PNG" })
+    @allele = @klass.find_by_id(params[:id])
+    params[:type] = 'allele'
+    params[:method] = 'flp_cre'
+    render_image(params)
   end
 
   # GET /alleles/1/cassette-image/
   def cassette_image
-    find_allele
-    return if check_for_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.escell_clone, true).render.to_blob { self.format = "PNG" })
+    @allele = @klass.find_by_id(params[:id])
+    params[:type] = 'cassette'
+    render_image(params)
   end
 
   # GET /alleles/1/vector-image/
   def vector_image
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector ).render.to_blob { self.format = "PNG" })
+    @allele = @klass.find_by_id(params[:id])
+    params[:type] = 'vector'
+    render_image(params)
   end
 
   # GET /alleles/1/vector-image-cre/
   def vector_image_cre
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector_cre ).render.to_blob { self.format = "PNG" })
+    @allele = @klass.find_by_id(params[:id])
+    params[:type] = 'vector'
+    params[:method] = 'cre'
+    render_image(params)
   end
 
   # GET /alleles/1/vector-image-flp/
   def vector_image_flp
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector_flp ).render.to_blob { self.format = "PNG" })
+    @allele = @klass.find_by_id(params[:id])
+    params[:type] = 'vector'
+    params[:method] = 'flp'
+    render_image(params)
   end
 
   # GET /alleles/1/vector-image-flp-cre/
   def vector_image_flp_cre
-    find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_allele_image(AlleleImage::Image.new(@allele.genbank_file.targeting_vector_flp_cre ).render.to_blob { self.format = "PNG" })
+    @allele = @klass.find_by_id(params[:id])
+    params[:type] = 'vector'
+    params[:method] = 'flp_cre'
+    render_image(params)
   end
 
   def send_allele_image(allele_image)
+
+    filename = String.new.tap do |s|
+
+      s << "#{@allele.cassette}-"
+
+      s << "#{@allele.mutation_type_name.parameterize.underscore}-"
+
+      if params[:method]
+        s << "#{params[:method]}-"
+      end
+
+      s << "#{@allele.id}-"
+      s << "#{params[:type]}"
+
+      if params[:simple]
+        s << '-simple'
+      end
+
+      if params[:cassette]
+        s << '-cassette'
+      end
+
+      s << ".png"
+    end
+
     send_data(
-      allele_image,
-      {
-        :disposition => "inline",
-        :type => "image/png"
-      }
+      allele_image, :disposition => "inline", :type => "image/png", :filename => filename
     )
   end
 

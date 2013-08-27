@@ -5,7 +5,17 @@
 
   <p>What would you like to do today?</p>
 
-  <div class="clear" style="margin-top:15px"></div>
+  <br/>
+
+  <% if Rails.application.config.show_search_page %>
+
+  <div class="homepage-links" id = 'gene_search' name = 'gene_search' ><input type ='text' id = 'search_for_gene' name = 'search_for_gene'>
+    <button  onclick="populate_allele_grid()" id = 'gene_search_submit'>Search</button>
+    <p>Search by Marker symbol or MGI number</p>
+  </div>
+
+  <% end %>
+
 </div>
 
 <div class="grid_8">
@@ -27,6 +37,13 @@
     <a href="<%= new_mi_attempt_path %>">
       <h3>Create Micro-Injection Attempts</h3>
       <p>Enter data on new micro-injection attempts</p>
+    </a>
+  </div>
+
+  <div class="homepage-links">
+    <a href="<%= open_phenotype_attempts_path() %>">
+      <h3>Search For Phenotype Attempts</h3>
+      <p>Search for data on existing phenotype attempt records</p>
     </a>
   </div>
 
@@ -72,6 +89,15 @@
   </div>
   <% end %>
 
+
+  <div class="homepage-links">
+  <a href="<%= strains_path %>">
+    <h4>Manage Strains</h4>
+    <p>Add/Remove iMits strains</p>
+  </a>
+  </div>
+
+
   <div class="homepage-links">
     <a href="<%= production_goals_path %>">
       <h4>Manage Production Goals</h4>
@@ -86,4 +112,3 @@
     </a>
   </div>
 </div>
-

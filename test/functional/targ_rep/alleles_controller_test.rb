@@ -309,12 +309,30 @@ class TargRep::AllelesControllerTest < ActionController::TestCase
       assert_response 302
     end
 
-    should "return 404 if we try to request something to do with a genbank file that doesn't exist" do
+    should "return 404 if we try to request a genbank file that doesn't exist" do
       allele_without_gb = Factory.create :allele
 
-      [:escell_clone_genbank_file, :targeting_vector_genbank_file, :allele_image, :vector_image].each do |route|
+      [:escell_clone_genbank_file, :targeting_vector_genbank_file].each do |route|
         get route, :id => allele_without_gb.id
         assert_response 404
+      end
+    end
+
+    should "return render if we try to request an image with a genbank file that doesn't exist" do
+      allele_without_gb = Factory.create :allele
+
+      [:allele_image, :vector_image].each do |route|
+        get route, :id => allele_without_gb.id
+
+        expected = {
+          "Content-Disposition" => "inline; filename=\"missing-allele-image.png\"",
+          "Content-Transfer-Encoding" => "binary",
+          "Content-Type" => "image/png",
+          "Cache-Control" => "private"
+        }
+
+        assert_equal expected, response.header
+        assert_response 200
       end
     end
   end

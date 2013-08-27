@@ -6,6 +6,10 @@ module SolrUpdate::Util
       action = 'allele-image'
     end
 
+    if args[:simple]
+      action << '?simple=true'
+    end
+
     return SolrUpdate::Config.fetch('targ_rep_url') + "/alleles/#{allele_id}/#{action}"
   end
 

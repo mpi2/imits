@@ -146,6 +146,31 @@ class PhenotypeAttempt < ApplicationModel
     end
   end
 
+  def mi_attempt_colony_background_strain_name
+    mi_attempt.try(:colony_background_strain).try(:name)
+  end
+
+  def mi_attempt_colony_background_mgi_strain_accession_id
+    mi_attempt.try(:colony_background_strain).try(:mgi_strain_accession_id)
+  end
+
+  def mi_attempt_colony_background_mgi_strain_name
+    mi_attempt.try(:colony_background_strain).try(:mgi_strain_name)
+  end
+
+  def colony_background_strain_mgi_accession
+    return colony_background_strain.try(:mgi_strain_accession_id)
+  end
+
+  def colony_background_strain_mgi_name
+    return colony_background_strain.try(:mgi_strain_name)
+  end
+
+  def mgi_accession_id
+    return mi_plan.try(:gene).try(:mgi_accession_id)
+  end
+
+
   delegate :consortium, :production_centre, :to => :mi_plan, :allow_nil => true
   delegate :marker_symbol, :to => :gene, :allow_nil => true
   delegate :es_cell, :allele_id, :to => :mi_attempt, :allow_nil => true
@@ -162,6 +187,10 @@ class PhenotypeAttempt < ApplicationModel
     return retval
   end
 
+  def in_progress_date
+    return status_stamps.all.find {|ss| ss.status_id == 2}.created_at.utc.to_date   #Phenotype Attempt Registered
+  end
+
   def earliest_relevant_status_stamp
     self.status_stamps.find_by_status_id(self.status_id)
   end
@@ -169,8 +198,10 @@ class PhenotypeAttempt < ApplicationModel
   def self.readable_name
     'phenotype attempt'
   end
-
 end
+
+
+
 
 # == Schema Information
 #
@@ -195,6 +226,8 @@ end
 #  colony_background_strain_id      :integer
 #  cre_excision_required            :boolean         default(TRUE), not null
 #  tat_cre                          :boolean         default(FALSE)
+#  report_to_public                 :boolean         default(TRUE), not null
+#  phenotyping_experiments_started  :date
 #
 # Indexes
 #

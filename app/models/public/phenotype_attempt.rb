@@ -26,6 +26,8 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     tat_cre
     mi_plan_id
     status_stamps_attributes
+    report_to_public
+    phenotyping_experiments_started
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -37,6 +39,12 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     mouse_allele_symbol_superscript
     mouse_allele_symbol
     allele_symbol
+    mi_attempt_colony_background_strain_name
+    mi_attempt_colony_background_mgi_strain_accession_id
+    mi_attempt_colony_background_mgi_strain_name
+    colony_background_strain_mgi_accession
+    colony_background_strain_mgi_name
+    mgi_accession_id
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -86,6 +94,9 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   end
 end
 
+
+
+
 # == Schema Information
 #
 # Table name: phenotype_attempts
@@ -109,6 +120,8 @@ end
 #  colony_background_strain_id      :integer
 #  cre_excision_required            :boolean         default(TRUE), not null
 #  tat_cre                          :boolean         default(FALSE)
+#  report_to_public                 :boolean         default(TRUE), not null
+#  phenotyping_experiments_started  :date
 #
 # Indexes
 #

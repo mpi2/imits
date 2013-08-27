@@ -181,6 +181,10 @@ class MiPlansControllerTest < ActionController::TestCase
               :is_deletion_allele => false,
               :is_cre_knock_in_allele => false,
               :is_cre_bac_allele => false,
+              :phenotype_only => false,
+              :conditional_tm1c => false,
+              :point_mutation => false,
+              :conditional_point_mutation => false,
               :format => :json
             )
           end
@@ -201,6 +205,10 @@ class MiPlansControllerTest < ActionController::TestCase
               :is_deletion_allele => false,
               :is_cre_knock_in_allele => false,
               :is_cre_bac_allele => false,
+              :phenotype_only => false,
+              :conditional_tm1c => false,
+              :point_mutation => false,
+              :conditional_point_mutation => false,
               :format => :json
             )
           end
@@ -233,6 +241,10 @@ class MiPlansControllerTest < ActionController::TestCase
               :is_deletion_allele => false,
               :is_cre_knock_in_allele => false,
               :is_cre_bac_allele => false,
+              :phenotype_only => false,
+              :conditional_tm1c => false,
+              :point_mutation => false,
+              :conditional_point_mutation => false,
               :format => :json
             )
           end

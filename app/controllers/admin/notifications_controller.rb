@@ -10,7 +10,7 @@ class Admin::NotificationsController < Admin::BaseController
 
   def show
     @notification = Notification.find(params[:id])
-    
+
     respond_to do |format|
       format.json {
         render :json => @notification.to_json(:only => [:id], :methods => [:last_email, :welcome_email])
@@ -22,7 +22,7 @@ class Admin::NotificationsController < Admin::BaseController
     @notification = Notification.new(params[:admin_notification])
 
     if @notification.save
-      render :json => @notification.to_json      
+      render :json => @notification.to_json
     else
       render :json => {'error' => @notification.errors.full_messages.join("\n")}, :status => 422
     end
@@ -42,7 +42,7 @@ class Admin::NotificationsController < Admin::BaseController
   end
 
   def data_for_serialized(format)
-    super(format, 'updated_at desc', Notification, :search)
+    super(format, 'updated_at desc', Notification, :search, false)
   end
   protected :data_for_serialized
 

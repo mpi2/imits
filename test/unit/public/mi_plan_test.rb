@@ -225,7 +225,11 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'number_of_es_cells_received',
         'es_cells_received_from_id',
         'es_cells_received_from_name',
-        'es_cells_received_on'
+        'es_cells_received_on',
+        'conditional_point_mutation',
+        'point_mutation',
+        'allele_symbol_superscript',
+        'report_to_public'
       ]
       got = (Public::MiPlan.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort
@@ -263,7 +267,12 @@ class Public::MiPlanTest < ActiveSupport::TestCase
         'number_of_es_cells_received',
         'es_cells_received_from_id',
         'es_cells_received_from_name',
-        'es_cells_received_on'
+        'es_cells_received_on',
+        'conditional_point_mutation',
+        'point_mutation',
+        'allele_symbol_superscript',
+        'report_to_public'
+
       ]
       got = default_mi_plan.as_json.keys
       assert_equal expected.sort, got.sort

@@ -73,7 +73,7 @@ class MiAttempt < ApplicationModel
   validate do |mi_attempt|
     if validate_plan #test whether to continue with validations
       if mi_attempt.mi_plan.phenotype_only
-        mi_attempt.errors.add(:base, 'MiAttempt cannot be created for this MiPlan. (phenotype only)')
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (phenotype only)')
       end
 
 #      if (mi_attempt.es_cell and mi_attempt.es_cell.try(:gene) != mi_attempt.mi_plan.try(:gene))
@@ -269,16 +269,24 @@ class MiAttempt < ApplicationModel
   end
 
   def mouse_allele_symbol
-    if mouse_allele_symbol_superscript
-      return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>" unless es_cell.blank?
+    if es_cell.blank?
+      return nil
+
+    elsif !mi_plan.allele_symbol_superscript.blank?
+      return "#{es_cell.marker_symbol}<sup>#{mi_plan.allele_symbol_superscript}</sup>"
+
+    elsif mouse_allele_symbol_superscript
+      return "#{es_cell.marker_symbol}<sup>#{mouse_allele_symbol_superscript}</sup>"
+
     else
       return nil
     end
   end
 
   def allele_symbol
-    if mouse_allele_type
-      return mouse_allele_symbol
+    mi_attempt_allele_symbol_override = mouse_allele_symbol
+    if mi_attempt_allele_symbol_override
+      return mi_attempt_allele_symbol_override
     else
       return es_cell.allele_symbol unless es_cell.blank?
     end
@@ -292,6 +300,34 @@ class MiAttempt < ApplicationModel
     else
       return nil
     end
+  end
+
+  def mgi_accession_id
+    return mi_plan.try(:gene).try(:mgi_accession_id)
+  end
+
+  def blast_strain_mgi_accession
+    return blast_strain.try(:mgi_strain_accession_id)
+  end
+
+  def blast_strain_mgi_name
+    return blast_strain.try(:mgi_strain_name)
+  end
+
+  def colony_background_strain_mgi_accession
+    return colony_background_strain.try(:mgi_strain_accession_id)
+  end
+
+  def colony_background_strain_mgi_name
+    return colony_background_strain.try(:mgi_strain_name)
+  end
+
+  def test_cross_strain_mgi_accession
+    return test_cross_strain.try(:mgi_strain_accession_id)
+  end
+
+  def test_cross_strain_mgi_name
+    return test_cross_strain.try(:mgi_strain_name)
   end
 
   def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
@@ -321,7 +357,7 @@ class MiAttempt < ApplicationModel
     return 'micro-injection attempt'
   end
 
-  def relevant_phenotype_attempt_status
+  def relevant_phenotype_attempt_status(cre_required)
 
     return nil if ! phenotype_attempts || phenotype_attempts.size == 0
 
@@ -329,40 +365,101 @@ class MiAttempt < ApplicationModel
 
     self.phenotype_attempts.each do |phenotype_attempt|
 
-      if selected_status.empty?
-        status = phenotype_attempt.status_stamps.first.status
-        selected_status = {
-          :name => status.name,
-          :order_by => status.order_by,
-          :cre_excision_required => phenotype_attempt.cre_excision_required
-        }
-      end
+      if cre_required == phenotype_attempt.cre_excision_required
 
-      phenotype_attempt.status_stamps.each do |status_stamp|
-
-        #puts "\n\n\n#### status_stamp:"
-        #pp status_stamp
-        #puts "####\n\n\n"
-        #
-        #puts "\n\n\n#### selected_status:"
-        #pp selected_status
-        #puts "####\n\n\n"
-
-        if status_stamp.status[:order_by] > selected_status[:order_by]
+        if selected_status.empty?
+          status = phenotype_attempt.status
           selected_status = {
-            :name => status_stamp.status.name,
-            :order_by => status_stamp.status.order_by,
-            :cre_excision_required => phenotype_attempt.cre_excision_required
+            :name => status.name,
+            :order_by => status.order_by,
+            :in_progress_date => phenotype_attempt.in_progress_date
           }
         end
-      end
 
+        if phenotype_attempt.status.order_by > selected_status[:order_by] or (phenotype_attempt.status.order_by == selected_status[:order_by] and phenotype_attempt.in_progress_date > selected_status[:in_progress_date])
+          selected_status = {
+            :name => phenotype_attempt.status.name,
+            :order_by => phenotype_attempt.status.order_by,
+            :in_progress_date => phenotype_attempt.in_progress_date
+          }
+        end
+
+      end
     end
 
     selected_status.empty? ? nil : selected_status
   end
 
 end
+
+# == Schema Information
+#
+# Table name: mi_attempts
+#
+#  id                                              :integer         not null, primary key
+#  es_cell_id                                      :integer         not null
+#  mi_date                                         :date            not null
+#  status_id                                       :integer         not null
+#  colony_name                                     :string(125)
+#  updated_by_id                                   :integer
+#  blast_strain_id                                 :integer
+#  total_blasts_injected                           :integer
+#  total_transferred                               :integer
+#  number_surrogates_receiving                     :integer
+#  total_pups_born                                 :integer
+#  total_female_chimeras                           :integer
+#  total_male_chimeras                             :integer
+#  total_chimeras                                  :integer
+#  number_of_males_with_0_to_39_percent_chimerism  :integer
+#  number_of_males_with_40_to_79_percent_chimerism :integer
+#  number_of_males_with_80_to_99_percent_chimerism :integer
+#  number_of_males_with_100_percent_chimerism      :integer
+#  colony_background_strain_id                     :integer
+#  test_cross_strain_id                            :integer
+#  date_chimeras_mated                             :date
+#  number_of_chimera_matings_attempted             :integer
+#  number_of_chimera_matings_successful            :integer
+#  number_of_chimeras_with_glt_from_cct            :integer
+#  number_of_chimeras_with_glt_from_genotyping     :integer
+#  number_of_chimeras_with_0_to_9_percent_glt      :integer
+#  number_of_chimeras_with_10_to_49_percent_glt    :integer
+#  number_of_chimeras_with_50_to_99_percent_glt    :integer
+#  number_of_chimeras_with_100_percent_glt         :integer
+#  total_f1_mice_from_matings                      :integer
+#  number_of_cct_offspring                         :integer
+#  number_of_het_offspring                         :integer
+#  number_of_live_glt_offspring                    :integer
+#  mouse_allele_type                               :string(2)
+#  qc_southern_blot_id                             :integer
+#  qc_five_prime_lr_pcr_id                         :integer
+#  qc_five_prime_cassette_integrity_id             :integer
+#  qc_tv_backbone_assay_id                         :integer
+#  qc_neo_count_qpcr_id                            :integer
+#  qc_neo_sr_pcr_id                                :integer
+#  qc_loa_qpcr_id                                  :integer
+#  qc_homozygous_loa_sr_pcr_id                     :integer
+#  qc_lacz_sr_pcr_id                               :integer
+#  qc_mutant_specific_sr_pcr_id                    :integer
+#  qc_loxp_confirmation_id                         :integer
+#  qc_three_prime_lr_pcr_id                        :integer
+#  report_to_public                                :boolean         default(TRUE), not null
+#  is_active                                       :boolean         default(TRUE), not null
+#  is_released_from_genotyping                     :boolean         default(FALSE), not null
+#  comments                                        :text
+#  created_at                                      :datetime
+#  updated_at                                      :datetime
+#  mi_plan_id                                      :integer         not null
+#  genotyping_comment                              :string(512)
+#  legacy_es_cell_id                               :integer
+#  qc_lacz_count_qpcr_id                           :integer         default(1)
+#  qc_critical_region_qpcr_id                      :integer         default(1)
+#  qc_loxp_srpcr_id                                :integer         default(1)
+#  qc_loxp_srpcr_and_sequencing_id                 :integer         default(1)
+#
+# Indexes
+#
+#  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
+#
 
 # == Schema Information
 #

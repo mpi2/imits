@@ -76,6 +76,14 @@ class Public::MiAttempt < ::MiAttempt
     phenotype_attempts_count
     pipeline_name
     allele_symbol
+    blast_strain_mgi_accession
+    blast_strain_mgi_name
+    colony_background_strain_mgi_accession
+    colony_background_strain_mgi_name
+    test_cross_strain_mgi_accession
+    test_cross_strain_mgi_name
+    mgi_accession_id
+
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{

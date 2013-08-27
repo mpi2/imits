@@ -14,6 +14,9 @@
     <%= generator.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
   </div>
   <div>
+    <%= generator.text_field :phenotyping_experiments_started, :label => 'Phenotyping Experiments Started', :class => 'date-field' %>
+  </div>
+  <div>
     <% if ! @phenotype_attempt.status_id.nil? %>
       <label>Status</label>
       <%= @phenotype_attempt.status_name%>
@@ -103,7 +106,17 @@
      <%= form.label :colony_background_strain_name, 'Colony Background Strain' %>
     </div>
     <div>
-      <%= form.collection_select :colony_background_strain_name, @colony_background_strain, :name, :name, :include_blank => true %>
+      <%= form.collection_select :colony_background_strain_name, Strain.all, :name, :pretty_drop_down, :include_blank => true %>
     </div>
   </div>
+</fieldset>
+<fieldset class="collapsible">
+  <legend>Other</legend>
+
+  <% [:report_to_public, :is_active].each do |field| %>
+    <div>
+      <%= form.label field, field.to_s.titlecase %>
+      <%= form.check_box field %>
+    </div>
+  <% end %>
 </fieldset>

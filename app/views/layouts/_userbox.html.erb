@@ -12,5 +12,11 @@
   <% end -%>
 
 <% else %>
-  <%= link_to "login", new_user_session_path, :class => "ss_sprite ss_key" %>
+  <% url_str = request.fullpath['/open/'] ? request.fullpath.gsub(/\/open\//,'/') : new_user_session_path %>
+  <%= link_to "login", url_str, :class => "ss_sprite ss_key" %>
+  <% if request.path =~ /\/targ_rep/ -%>
+    | <%= link_to 'Go to iMits', root_path %>
+  <% else -%>
+    | <%= link_to 'Go to TargRep', targ_rep_root_path %>
+  <% end -%>
 <% end %>

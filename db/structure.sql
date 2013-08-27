@@ -77,7 +77,9 @@ CREATE TABLE centres (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    contact_name character varying(100),
+    contact_email character varying(100)
 );
 
 
@@ -824,7 +826,11 @@ CREATE TABLE mi_plans (
     ignore_available_mice boolean DEFAULT false NOT NULL,
     number_of_es_cells_received integer,
     es_cells_received_on date,
-    es_cells_received_from_id integer
+    es_cells_received_from_id integer,
+    point_mutation boolean DEFAULT false NOT NULL,
+    conditional_point_mutation boolean DEFAULT false NOT NULL,
+    allele_symbol_superscript text,
+    report_to_public boolean DEFAULT true NOT NULL
 );
 
 
@@ -845,6 +851,221 @@ CREATE SEQUENCE mi_plans_id_seq
 --
 
 ALTER SEQUENCE mi_plans_id_seq OWNED BY mi_plans.id;
+
+
+--
+-- Name: new_consortia_intermediate_report; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE new_consortia_intermediate_report (
+    id integer NOT NULL,
+    gene character varying(75) NOT NULL,
+    consortium character varying(255) NOT NULL,
+    gene_interest_date date,
+    production_centre character varying(255),
+    mgi_accession_id character varying(40),
+    overall_status character varying(50),
+    mi_plan_status character varying(50),
+    mi_attempt_status character varying(50),
+    phenotype_attempt_status character varying(50),
+    mi_plan_id integer,
+    mi_attempt_id integer,
+    phenotype_attempt_id integer,
+    assigned_date date,
+    assigned_es_cell_qc_in_progress_date date,
+    assigned_es_cell_qc_complete_date date,
+    aborted_es_cell_qc_failed_date date,
+    sub_project character varying(255),
+    priority character varying(255),
+    is_bespoke_allele boolean,
+    ikmc_project_id character varying(255),
+    mutation_sub_type character varying(100),
+    allele_symbol character varying(255),
+    genetic_background character varying(255),
+    mi_attempt_colony_name character varying(255),
+    mi_attempt_consortium character varying(255),
+    mi_attempt_production_centre character varying(255),
+    phenotype_attempt_colony_name character varying(255),
+    micro_injection_in_progress_date date,
+    chimeras_obtained_date date,
+    genotype_confirmed_date date,
+    micro_injection_aborted_date date,
+    phenotype_attempt_registered_date date,
+    rederivation_started_date date,
+    rederivation_complete_date date,
+    cre_excision_started_date date,
+    cre_excision_complete_date date,
+    phenotyping_started_date date,
+    phenotyping_complete_date date,
+    phenotype_attempt_aborted_date date,
+    distinct_genotype_confirmed_es_cells integer,
+    distinct_old_genotype_confirmed_es_cells integer,
+    distinct_non_genotype_confirmed_es_cells integer,
+    distinct_old_non_genotype_confirmed_es_cells integer,
+    total_pipeline_efficiency_gene_count integer,
+    total_old_pipeline_efficiency_gene_count integer,
+    gc_pipeline_efficiency_gene_count integer,
+    gc_old_pipeline_efficiency_gene_count integer,
+    created_at timestamp without time zone,
+    non_cre_ex_phenotype_attempt_status character varying(255),
+    non_cre_ex_phenotype_attempt_registered_date date,
+    non_cre_ex_rederivation_started_date date,
+    non_cre_ex_rederivation_complete_date date,
+    non_cre_ex_cre_excision_started_date date,
+    non_cre_ex_cre_excision_complete_date date,
+    non_cre_ex_phenotyping_started_date date,
+    non_cre_ex_phenotyping_complete_date date,
+    non_cre_ex_phenotype_attempt_aborted_date date,
+    non_cre_ex_pa_mouse_allele_type character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript character varying(255),
+    non_cre_ex_mi_attempt_consortium character varying(255),
+    non_cre_ex_mi_attempt_production_centre character varying(255),
+    non_cre_ex_phenotype_attempt_colony_name character varying(255),
+    cre_ex_phenotype_attempt_status character varying(255),
+    cre_ex_phenotype_attempt_registered_date date,
+    cre_ex_rederivation_started_date date,
+    cre_ex_rederivation_complete_date date,
+    cre_ex_cre_excision_started_date date,
+    cre_ex_cre_excision_complete_date date,
+    cre_ex_phenotyping_started_date date,
+    cre_ex_phenotyping_complete_date date,
+    cre_ex_phenotype_attempt_aborted_date date,
+    cre_ex_pa_mouse_allele_type character varying(255),
+    cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    cre_ex_pa_allele_symbol_superscript character varying(255),
+    cre_ex_mi_attempt_consortium character varying(255),
+    cre_ex_mi_attempt_production_centre character varying(255),
+    cre_ex_phenotype_attempt_colony_name character varying(255)
+);
+
+
+--
+-- Name: new_consortia_intermediate_report_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE new_consortia_intermediate_report_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: new_consortia_intermediate_report_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE new_consortia_intermediate_report_id_seq OWNED BY new_consortia_intermediate_report.id;
+
+
+--
+-- Name: new_gene_intermediate_report; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE new_gene_intermediate_report (
+    id integer NOT NULL,
+    gene character varying(75) NOT NULL,
+    consortium character varying(255) NOT NULL,
+    gene_interest_date date,
+    production_centre character varying(255),
+    mgi_accession_id character varying(40),
+    overall_status character varying(50),
+    mi_plan_status character varying(50),
+    mi_attempt_status character varying(50),
+    phenotype_attempt_status character varying(50),
+    mi_plan_id integer,
+    mi_attempt_id integer,
+    phenotype_attempt_id integer,
+    assigned_date date,
+    assigned_es_cell_qc_in_progress_date date,
+    assigned_es_cell_qc_complete_date date,
+    aborted_es_cell_qc_failed_date date,
+    sub_project character varying(255),
+    priority character varying(255),
+    is_bespoke_allele boolean,
+    ikmc_project_id character varying(255),
+    mutation_sub_type character varying(100),
+    allele_symbol character varying(255),
+    genetic_background character varying(255),
+    mi_attempt_colony_name character varying(255),
+    mi_attempt_consortium character varying(255),
+    mi_attempt_production_centre character varying(255),
+    phenotype_attempt_colony_name character varying(255),
+    micro_injection_in_progress_date date,
+    chimeras_obtained_date date,
+    genotype_confirmed_date date,
+    micro_injection_aborted_date date,
+    phenotype_attempt_registered_date date,
+    rederivation_started_date date,
+    rederivation_complete_date date,
+    cre_excision_started_date date,
+    cre_excision_complete_date date,
+    phenotyping_started_date date,
+    phenotyping_complete_date date,
+    phenotype_attempt_aborted_date date,
+    distinct_genotype_confirmed_es_cells integer,
+    distinct_old_genotype_confirmed_es_cells integer,
+    distinct_non_genotype_confirmed_es_cells integer,
+    distinct_old_non_genotype_confirmed_es_cells integer,
+    total_pipeline_efficiency_gene_count integer,
+    total_old_pipeline_efficiency_gene_count integer,
+    gc_pipeline_efficiency_gene_count integer,
+    gc_old_pipeline_efficiency_gene_count integer,
+    most_advanced_mi_plan_id_by_consortia integer,
+    most_advanced_mi_attempt_id_by_consortia integer,
+    most_advanced_phenotype_attempt_id_by_consortia integer,
+    created_at timestamp without time zone,
+    non_cre_ex_phenotype_attempt_status character varying(255),
+    non_cre_ex_phenotype_attempt_registered_date date,
+    non_cre_ex_rederivation_started_date date,
+    non_cre_ex_rederivation_complete_date date,
+    non_cre_ex_cre_excision_started_date date,
+    non_cre_ex_cre_excision_complete_date date,
+    non_cre_ex_phenotyping_started_date date,
+    non_cre_ex_phenotyping_complete_date date,
+    non_cre_ex_phenotype_attempt_aborted_date date,
+    non_cre_ex_pa_mouse_allele_type character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript character varying(255),
+    non_cre_ex_mi_attempt_consortium character varying(255),
+    non_cre_ex_mi_attempt_production_centre character varying(255),
+    non_cre_ex_phenotype_attempt_colony_name character varying(255),
+    cre_ex_phenotype_attempt_status character varying(255),
+    cre_ex_phenotype_attempt_registered_date date,
+    cre_ex_rederivation_started_date date,
+    cre_ex_rederivation_complete_date date,
+    cre_ex_cre_excision_started_date date,
+    cre_ex_cre_excision_complete_date date,
+    cre_ex_phenotyping_started_date date,
+    cre_ex_phenotyping_complete_date date,
+    cre_ex_phenotype_attempt_aborted_date date,
+    cre_ex_pa_mouse_allele_type character varying(255),
+    cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    cre_ex_pa_allele_symbol_superscript character varying(255),
+    cre_ex_mi_attempt_consortium character varying(255),
+    cre_ex_mi_attempt_production_centre character varying(255),
+    cre_ex_phenotype_attempt_colony_name character varying(255)
+);
+
+
+--
+-- Name: new_gene_intermediate_report_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE new_gene_intermediate_report_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: new_gene_intermediate_report_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE new_gene_intermediate_report_id_seq OWNED BY new_gene_intermediate_report.id;
 
 
 --
@@ -897,7 +1118,37 @@ CREATE TABLE new_intermediate_report (
     total_old_pipeline_efficiency_gene_count integer,
     gc_pipeline_efficiency_gene_count integer,
     gc_old_pipeline_efficiency_gene_count integer,
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    non_cre_ex_phenotype_attempt_status character varying(255),
+    non_cre_ex_phenotype_attempt_registered_date date,
+    non_cre_ex_rederivation_started_date date,
+    non_cre_ex_rederivation_complete_date date,
+    non_cre_ex_cre_excision_started_date date,
+    non_cre_ex_cre_excision_complete_date date,
+    non_cre_ex_phenotyping_started_date date,
+    non_cre_ex_phenotyping_complete_date date,
+    non_cre_ex_phenotype_attempt_aborted_date date,
+    non_cre_ex_pa_mouse_allele_type character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    non_cre_ex_pa_allele_symbol_superscript character varying(255),
+    non_cre_ex_mi_attempt_consortium character varying(255),
+    non_cre_ex_mi_attempt_production_centre character varying(255),
+    non_cre_ex_phenotype_attempt_colony_name character varying(255),
+    cre_ex_phenotype_attempt_status character varying(255),
+    cre_ex_phenotype_attempt_registered_date date,
+    cre_ex_rederivation_started_date date,
+    cre_ex_rederivation_complete_date date,
+    cre_ex_cre_excision_started_date date,
+    cre_ex_cre_excision_complete_date date,
+    cre_ex_phenotyping_started_date date,
+    cre_ex_phenotyping_complete_date date,
+    cre_ex_phenotype_attempt_aborted_date date,
+    cre_ex_pa_mouse_allele_type character varying(255),
+    cre_ex_pa_allele_symbol_superscript_template character varying(255),
+    cre_ex_pa_allele_symbol_superscript character varying(255),
+    cre_ex_mi_attempt_consortium character varying(255),
+    cre_ex_mi_attempt_production_centre character varying(255),
+    cre_ex_phenotype_attempt_colony_name character varying(255)
 );
 
 
@@ -1081,7 +1332,9 @@ CREATE TABLE phenotype_attempts (
     deleter_strain_id integer,
     colony_background_strain_id integer,
     cre_excision_required boolean DEFAULT true NOT NULL,
-    tat_cre boolean DEFAULT false
+    tat_cre boolean DEFAULT false,
+    report_to_public boolean DEFAULT true NOT NULL,
+    phenotyping_experiments_started date
 );
 
 
@@ -1289,7 +1542,9 @@ CREATE TABLE strains (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    mgi_strain_accession_id character varying(100),
+    mgi_strain_name character varying(100)
 );
 
 
@@ -1532,7 +1787,8 @@ CREATE TABLE targ_rep_es_cells (
     user_qc_chr11 character varying(255),
     user_qc_chr8 character varying(255),
     user_qc_chry character varying(255),
-    user_qc_lacz_qpcr character varying(255)
+    user_qc_lacz_qpcr character varying(255),
+    ikmc_project_foreign_id integer
 );
 
 
@@ -1607,6 +1863,69 @@ CREATE SEQUENCE targ_rep_genbank_files_id_seq
 --
 
 ALTER SEQUENCE targ_rep_genbank_files_id_seq OWNED BY targ_rep_genbank_files.id;
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_ikmc_project_statuses (
+    id integer NOT NULL,
+    name character varying(255),
+    type character varying(255)
+);
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_ikmc_project_statuses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_ikmc_project_statuses_id_seq OWNED BY targ_rep_ikmc_project_statuses.id;
+
+
+--
+-- Name: targ_rep_ikmc_projects; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE targ_rep_ikmc_projects (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    status_id integer,
+    pipeline_id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: targ_rep_ikmc_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE targ_rep_ikmc_projects_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: targ_rep_ikmc_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE targ_rep_ikmc_projects_id_seq OWNED BY targ_rep_ikmc_projects.id;
 
 
 --
@@ -1740,7 +2059,8 @@ CREATE TABLE targ_rep_targeting_vectors (
     report_to_public boolean NOT NULL,
     pipeline_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    ikmc_project_foreign_id integer
 );
 
 
@@ -1842,322 +2162,350 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE audits ALTER COLUMN id SET DEFAULT nextval('audits_id_seq'::regclass);
+ALTER TABLE ONLY audits ALTER COLUMN id SET DEFAULT nextval('audits_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE centres ALTER COLUMN id SET DEFAULT nextval('centres_id_seq'::regclass);
+ALTER TABLE ONLY centres ALTER COLUMN id SET DEFAULT nextval('centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE consortia ALTER COLUMN id SET DEFAULT nextval('consortia_id_seq'::regclass);
+ALTER TABLE ONLY consortia ALTER COLUMN id SET DEFAULT nextval('consortia_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE contacts ALTER COLUMN id SET DEFAULT nextval('contacts_id_seq'::regclass);
+ALTER TABLE ONLY contacts ALTER COLUMN id SET DEFAULT nextval('contacts_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE deleter_strains ALTER COLUMN id SET DEFAULT nextval('deleter_strains_id_seq'::regclass);
+ALTER TABLE ONLY deleter_strains ALTER COLUMN id SET DEFAULT nextval('deleter_strains_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE deposited_materials ALTER COLUMN id SET DEFAULT nextval('deposited_materials_id_seq'::regclass);
+ALTER TABLE ONLY deposited_materials ALTER COLUMN id SET DEFAULT nextval('deposited_materials_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE email_templates ALTER COLUMN id SET DEFAULT nextval('email_templates_id_seq'::regclass);
+ALTER TABLE ONLY email_templates ALTER COLUMN id SET DEFAULT nextval('email_templates_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE es_cells ALTER COLUMN id SET DEFAULT nextval('es_cells_id_seq'::regclass);
+ALTER TABLE ONLY es_cells ALTER COLUMN id SET DEFAULT nextval('es_cells_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE genes ALTER COLUMN id SET DEFAULT nextval('genes_id_seq'::regclass);
+ALTER TABLE ONLY genes ALTER COLUMN id SET DEFAULT nextval('genes_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE intermediate_report ALTER COLUMN id SET DEFAULT nextval('intermediate_report_id_seq'::regclass);
+ALTER TABLE ONLY intermediate_report ALTER COLUMN id SET DEFAULT nextval('intermediate_report_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_attempt_distribution_centres ALTER COLUMN id SET DEFAULT nextval('mi_attempt_distribution_centres_id_seq'::regclass);
+ALTER TABLE ONLY mi_attempt_distribution_centres ALTER COLUMN id SET DEFAULT nextval('mi_attempt_distribution_centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_attempt_status_stamps ALTER COLUMN id SET DEFAULT nextval('mi_attempt_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY mi_attempt_status_stamps ALTER COLUMN id SET DEFAULT nextval('mi_attempt_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_attempt_statuses ALTER COLUMN id SET DEFAULT nextval('mi_attempt_statuses_id_seq'::regclass);
+ALTER TABLE ONLY mi_attempt_statuses ALTER COLUMN id SET DEFAULT nextval('mi_attempt_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_attempts ALTER COLUMN id SET DEFAULT nextval('mi_attempts_id_seq'::regclass);
+ALTER TABLE ONLY mi_attempts ALTER COLUMN id SET DEFAULT nextval('mi_attempts_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_es_cell_qcs ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_cell_qcs_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_es_cell_qcs ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_cell_qcs_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_es_qc_comments ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_qc_comments_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_es_qc_comments ALTER COLUMN id SET DEFAULT nextval('mi_plan_es_qc_comments_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_priorities ALTER COLUMN id SET DEFAULT nextval('mi_plan_priorities_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_priorities ALTER COLUMN id SET DEFAULT nextval('mi_plan_priorities_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_status_stamps ALTER COLUMN id SET DEFAULT nextval('mi_plan_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_status_stamps ALTER COLUMN id SET DEFAULT nextval('mi_plan_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_statuses ALTER COLUMN id SET DEFAULT nextval('mi_plan_statuses_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_statuses ALTER COLUMN id SET DEFAULT nextval('mi_plan_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plan_sub_projects ALTER COLUMN id SET DEFAULT nextval('mi_plan_sub_projects_id_seq'::regclass);
+ALTER TABLE ONLY mi_plan_sub_projects ALTER COLUMN id SET DEFAULT nextval('mi_plan_sub_projects_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE mi_plans ALTER COLUMN id SET DEFAULT nextval('mi_plans_id_seq'::regclass);
+ALTER TABLE ONLY mi_plans ALTER COLUMN id SET DEFAULT nextval('mi_plans_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE new_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_intermediate_report_id_seq'::regclass);
+ALTER TABLE ONLY new_consortia_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_consortia_intermediate_report_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE notifications ALTER COLUMN id SET DEFAULT nextval('notifications_id_seq'::regclass);
+ALTER TABLE ONLY new_gene_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_gene_intermediate_report_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE phenotype_attempt_distribution_centres ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_distribution_centres_id_seq'::regclass);
+ALTER TABLE ONLY new_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_intermediate_report_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE phenotype_attempt_status_stamps ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_status_stamps_id_seq'::regclass);
+ALTER TABLE ONLY notifications ALTER COLUMN id SET DEFAULT nextval('notifications_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE phenotype_attempt_statuses ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_statuses_id_seq'::regclass);
+ALTER TABLE ONLY phenotype_attempt_distribution_centres ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_distribution_centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE phenotype_attempts ALTER COLUMN id SET DEFAULT nextval('phenotype_attempts_id_seq'::regclass);
+ALTER TABLE ONLY phenotype_attempt_status_stamps ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_status_stamps_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE pipelines ALTER COLUMN id SET DEFAULT nextval('pipelines_id_seq'::regclass);
+ALTER TABLE ONLY phenotype_attempt_statuses ALTER COLUMN id SET DEFAULT nextval('phenotype_attempt_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE production_goals ALTER COLUMN id SET DEFAULT nextval('production_goals_id_seq'::regclass);
+ALTER TABLE ONLY phenotype_attempts ALTER COLUMN id SET DEFAULT nextval('phenotype_attempts_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE qc_results ALTER COLUMN id SET DEFAULT nextval('qc_results_id_seq'::regclass);
+ALTER TABLE ONLY pipelines ALTER COLUMN id SET DEFAULT nextval('pipelines_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE report_caches ALTER COLUMN id SET DEFAULT nextval('report_caches_id_seq'::regclass);
+ALTER TABLE ONLY production_goals ALTER COLUMN id SET DEFAULT nextval('production_goals_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE solr_update_queue_items ALTER COLUMN id SET DEFAULT nextval('solr_update_queue_items_id_seq'::regclass);
+ALTER TABLE ONLY qc_results ALTER COLUMN id SET DEFAULT nextval('qc_results_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE strains ALTER COLUMN id SET DEFAULT nextval('strains_id_seq'::regclass);
+ALTER TABLE ONLY report_caches ALTER COLUMN id SET DEFAULT nextval('report_caches_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_alleles ALTER COLUMN id SET DEFAULT nextval('targ_rep_alleles_id_seq'::regclass);
+ALTER TABLE ONLY solr_update_queue_items ALTER COLUMN id SET DEFAULT nextval('solr_update_queue_items_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_centre_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_rep_centre_pipelines_id_seq'::regclass);
+ALTER TABLE ONLY strains ALTER COLUMN id SET DEFAULT nextval('strains_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_distribution_qcs ALTER COLUMN id SET DEFAULT nextval('targ_rep_distribution_qcs_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_alleles ALTER COLUMN id SET DEFAULT nextval('targ_rep_alleles_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_es_cell_distribution_centres ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cell_distribution_centres_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_centre_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_rep_centre_pipelines_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_es_cells ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cells_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_distribution_qcs ALTER COLUMN id SET DEFAULT nextval('targ_rep_distribution_qcs_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_genbank_files ALTER COLUMN id SET DEFAULT nextval('targ_rep_genbank_files_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_es_cell_distribution_centres ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cell_distribution_centres_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_mutation_methods ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_methods_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_es_cells ALTER COLUMN id SET DEFAULT nextval('targ_rep_es_cells_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_mutation_subtypes ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_subtypes_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_genbank_files ALTER COLUMN id SET DEFAULT nextval('targ_rep_genbank_files_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_mutation_types ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_types_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_ikmc_project_statuses ALTER COLUMN id SET DEFAULT nextval('targ_rep_ikmc_project_statuses_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_rep_pipelines_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_ikmc_projects ALTER COLUMN id SET DEFAULT nextval('targ_rep_ikmc_projects_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval('targ_rep_targeting_vectors_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_mutation_methods ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_methods_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE tracking_goals ALTER COLUMN id SET DEFAULT nextval('tracking_goals_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_mutation_subtypes ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_subtypes_id_seq'::regclass);
 
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+ALTER TABLE ONLY targ_rep_mutation_types ALTER COLUMN id SET DEFAULT nextval('targ_rep_mutation_types_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_pipelines ALTER COLUMN id SET DEFAULT nextval('targ_rep_pipelines_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY targ_rep_targeting_vectors ALTER COLUMN id SET DEFAULT nextval('targ_rep_targeting_vectors_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY tracking_goals ALTER COLUMN id SET DEFAULT nextval('tracking_goals_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
 
 
 --
@@ -2329,6 +2677,22 @@ ALTER TABLE ONLY mi_plans
 
 
 --
+-- Name: new_consortia_intermediate_report_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY new_consortia_intermediate_report
+    ADD CONSTRAINT new_consortia_intermediate_report_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: new_gene_intermediate_report_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY new_gene_intermediate_report
+    ADD CONSTRAINT new_gene_intermediate_report_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: new_intermediate_report_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2470,6 +2834,22 @@ ALTER TABLE ONLY targ_rep_es_cells
 
 ALTER TABLE ONLY targ_rep_genbank_files
     ADD CONSTRAINT targ_rep_genbank_files_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: targ_rep_ikmc_project_statuses_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_ikmc_project_statuses
+    ADD CONSTRAINT targ_rep_ikmc_project_statuses_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: targ_rep_ikmc_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY targ_rep_ikmc_projects
+    ADD CONSTRAINT targ_rep_ikmc_projects_pkey PRIMARY KEY (id);
 
 
 --
@@ -3447,3 +3827,21 @@ INSERT INTO schema_migrations (version) VALUES ('20130528131803');
 INSERT INTO schema_migrations (version) VALUES ('20130528142149');
 
 INSERT INTO schema_migrations (version) VALUES ('20130610142149');
+
+INSERT INTO schema_migrations (version) VALUES ('20130615170525');
+
+INSERT INTO schema_migrations (version) VALUES ('20130625115302');
+
+INSERT INTO schema_migrations (version) VALUES ('20130628145302');
+
+INSERT INTO schema_migrations (version) VALUES ('20130708264213');
+
+INSERT INTO schema_migrations (version) VALUES ('20130718140000');
+
+INSERT INTO schema_migrations (version) VALUES ('20130725112052');
+
+INSERT INTO schema_migrations (version) VALUES ('20130801140814');
+
+INSERT INTO schema_migrations (version) VALUES ('20130805152114');
+
+INSERT INTO schema_migrations (version) VALUES ('20130806153714');

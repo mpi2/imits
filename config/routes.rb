@@ -37,6 +37,8 @@ TarMits::Application.routes.draw do
   resources :production_goals, :tracking_goals
   resources :centres
 
+  resources :strains
+
   resources :genes, :only => [:index] do
     member do
       get 'network_graph'
@@ -60,7 +62,6 @@ TarMits::Application.routes.draw do
         get 'grid_redirect'
       end
     end
-
   end
 
   resources :mi_attempts, :only => [:index, :new, :create, :show, :update] do
@@ -125,6 +126,9 @@ TarMits::Application.routes.draw do
   match 'v2/reports/mi_production/(:action(.:format))' => "v2/reports/mi_production#:action"
 
   match 'v2/reports/mi_production/production_detail(.:format)' => "v2/reports/mi_production#production_detail", as: 'production_detail'
+  match 'v2/reports/mi_production/gene_production_detail(.:format)' => "v2/reports/mi_production#gene_production_detail", as: 'gene_production_detail'
+  match 'v2/reports/mi_production/consortia_production_detail(.:format)' => "v2/reports/mi_production#consortia_production_detail", as: 'consortia_production_detail'
+
   match 'v2/reports/mi_production/sliding_efficiency(.:format)' => "v2/reports/mi_production#sliding_efficiency", as: 'sliding_efficiency'
   match 'v2/reports/mi_production/genes_gt_mi_attempt_summary(.:format)' => "v2/reports/mi_production#genes_gt_mi_attempt_summary", as: 'genes_gt_mi_attempt_summary'
   match 'v2/reports/mi_production/all_mi_attempt_summary(.:format)' => "v2/reports/mi_production#all_mi_attempt_summary", as: 'all_mi_attempt_summary'
@@ -158,6 +162,7 @@ TarMits::Application.routes.draw do
 
     resources :alleles do
       get :history, :on => :member
+      get :image, :on => :member
 
       collection do
         get :attributes
@@ -186,6 +191,9 @@ TarMits::Application.routes.draw do
     get '/alleles/:id/targeting-vector-flp-genbank-file' => 'allele#targeting_vector_flp_genbank_file', :as => 'targeting_vector_flp_genbank_file'
     get '/alleles/:id/escell-clone-flp-cre-genbank-file' => 'alleles#escell_clone_flp_cre_genbank_file', :as => 'escell_clone_flp_cre_genbank_file'
     get '/alleles/:id/targeting-vector-flp-cre-genbank-file' => 'alleles#targeting_vector_flp_cre_genbank_file', :as => 'targeting_vector_flp_cre_genbank_file'
+
+    get '/alleles/:id/simple-allele-image-cre' => 'alleles#simple_allele_image_cre', :as => 'simple_allele_image_cre'
+
     get '/alleles/:id/allele-image' => 'alleles#allele_image', :as => 'allele_image'
     get '/alleles/:id/allele-image-cre' => 'alleles#allele_image_cre', :as => 'allele_image_cre'
     get '/alleles/:id/allele-image-flp' => 'alleles#allele_image_flp', :as => 'allele_image_flp'
@@ -204,4 +212,20 @@ TarMits::Application.routes.draw do
 
   match 'targ_rep/:controller(/:action(/:id)(.:format))'
 
+  namespace :open do
+
+    resources :mi_plans do
+      collection do
+        get 'gene_selection'
+      end
+    end
+
+    resources :mi_attempts, :only => [:index, :show]
+    resources :phenotype_attempts, :only => [:index, :show]
+    resources :genes, :only => [:index] do
+      member do
+        get 'network_graph'
+      end
+    end
+  end
 end

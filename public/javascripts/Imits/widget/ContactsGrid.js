@@ -72,7 +72,7 @@ Ext.define('Imits.widget.ContactsGrid', {
         tooltip: 'Delete',
         handler: function(grid, rowIndex, colIndex) {
           var record = grid.getStore().getAt(rowIndex);
-          
+
           if(confirm("Remove contact?"))
             grid.getStore().removeAt(rowIndex)
 

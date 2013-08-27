@@ -33,7 +33,7 @@ class UserSessionsTest < TarMits::IntegrationTest
       should 'work' do
         login
         click_link 'Logout'
-        assert_login_page
+        assert_current_link 'Home'
       end
 
       should 'disable logout link' do

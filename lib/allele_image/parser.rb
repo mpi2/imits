@@ -14,9 +14,10 @@ require "bio"
 # it should inherit from AlleleImage::Parser.
 #
 class AlleleImage::Parser
-  attr_reader :construct, :features
+  attr_reader :construct, :features, :simple
 
-  def initialize(input)
+  def initialize(input, simple)
+    @simple = simple
     @construct = self.parse input
   end
 
@@ -43,11 +44,12 @@ class AlleleImage::Parser
     end
 
     AlleleImage::Construct.new(
-      @features.dup,
-      circular,
-      extract_label( genbank_object, "cassette" ),
-      extract_label( genbank_object, "backbone" ),
-      extract_label( genbank_object, "target_bac" )
+      :features => @features.dup,
+      :circular => circular,
+      :cassette_label => extract_label( genbank_object, "cassette" ),
+      :backbone_label => extract_label( genbank_object, "backbone" ),
+      :bac_label => extract_label( genbank_object, "target_bac" ),
+      :simple => @simple
     )
   end
 

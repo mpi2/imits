@@ -830,7 +830,8 @@ CREATE TABLE mi_plans (
     point_mutation boolean DEFAULT false NOT NULL,
     conditional_point_mutation boolean DEFAULT false NOT NULL,
     allele_symbol_superscript text,
-    report_to_public boolean DEFAULT true NOT NULL
+    report_to_public boolean DEFAULT true NOT NULL,
+    completion_comment text
 );
 
 
@@ -3845,3 +3846,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130801140814');
 INSERT INTO schema_migrations (version) VALUES ('20130805152114');
 
 INSERT INTO schema_migrations (version) VALUES ('20130806153714');
+
+INSERT INTO schema_migrations (version) VALUES ('20130827134214');

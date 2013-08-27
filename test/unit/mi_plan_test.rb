@@ -14,6 +14,17 @@ class MiPlanTest < ActiveSupport::TestCase
       assert_equal 'Assigned', default_mi_plan.status.name
     end
 
+    context 'validations' do
+      should 'not be allowed to enter a completion comment without a completion note' do
+        default_mi_plan
+        @default_mi_plan.completion_comment = 'Some comment'
+        assert_false @default_mi_plan.valid?
+
+        @default_mi_plan.completion_note = 'Handoff complete'
+        assert @default_mi_plan.save!
+      end
+    end
+
     context 'es_cell_qc tests:' do
 
       def mi_plan_es_cell_qcs_check_list(plan, array)

@@ -34,7 +34,8 @@ class Public::MiPlan < ::MiPlan
     'point_mutation',
     'conditional_point_mutation',
     'allele_symbol_superscript',
-    'report_to_public'
+    'report_to_public',
+    'completion_comment'
   ]
 
   READABLE_ATTRIBUTES = [
@@ -135,6 +136,7 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: mi_plans
@@ -171,6 +173,7 @@ end
 #  conditional_point_mutation     :boolean         default(FALSE), not null
 #  allele_symbol_superscript      :text
 #  report_to_public               :boolean         default(TRUE), not null
+#  completion_comment             :text
 #
 # Indexes
 #

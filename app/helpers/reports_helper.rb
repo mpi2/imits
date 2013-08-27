@@ -32,7 +32,11 @@ module ReportsHelper
   end
 
   def boolean_to_text(bool)
-    bool ? 'Yes' : 'No'
+    if bool.nil? or (bool =~ /t/).nil?
+      'No'
+    else
+      'Yes'
+    end
   end
 
   def pretty_mutation_type(mutation_type)

@@ -1,6 +1,6 @@
 class V2::Reports::MiProductionController < ApplicationController
 
-  before_filter :params_cleaned_for_search, :except => [:all_mi_attempt_summary, :genes_gt_mi_attempt_summary]
+  before_filter :params_cleaned_for_search, :except => [:all_mi_attempt_summary, :genes_gt_mi_attempt_summary, :planned_microinjection_list]
 
   before_filter :authenticate_user!, :except => [:production_detail, :gene_production_detail, :consortia_production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
   before_filter :authenticate_user_if_not_sanger, :only => [:production_detail, :gene_production_detail, :consortia_production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
@@ -159,6 +159,21 @@ class V2::Reports::MiProductionController < ApplicationController
     @columns = ImpcCentreByMonthReport.columns
     @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
   end
+
+  def planned_microinjection_list
+    consortium = Consortium.find_by_name(params[:consortium]).try(:name)
+
+    @report = PlannedMicroinjectionList.new
+    @mi_plan_summary = @report.mi_plan_summary(consortium)
+    @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
+    @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
+    @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
+    @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
+    @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
+    @consortium = consortium.blank? ? 'All' : consortium
+    @count = @report.blank? ? 0 : @mi_plan_summary.count
+  end
+
 
   def genes_gt_mi_attempt_summary
     @consortia = Consortium.where(:name => params[:consortia].split(','))

@@ -74,6 +74,8 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         genotyping_comment
         mi_plan_id
         status_stamps_attributes
+        cassette_transmission_verified
+        cassette_transmission_verified_auto_complete
       }
       got = (Public::MiAttempt.accessible_attributes.to_a - ['audit_comment'])
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"
@@ -155,6 +157,8 @@ class Public::MiAttemptTest < ActiveSupport::TestCase
         pipeline_name
         allele_symbol
         mgi_accession_id
+        cassette_transmission_verified
+        cassette_transmission_verified_auto_complete
       }
       got = default_mi_attempt.as_json.keys
       assert_equal expected.sort, got.sort, "Unexpected: #{got - expected}; Not got: #{expected - got}"

@@ -13,6 +13,8 @@ class MiAttempt::StatusStamp < ActiveRecord::Base
   validates :status_id, :presence => true
 
   before_save :make_mi_date_and_in_progress_status_consistent
+  after_create :set_cassette_transmission_verified
+  after_destroy :set_cassette_transmission_verified
 
   def make_mi_date_and_in_progress_status_consistent
 
@@ -25,6 +27,25 @@ class MiAttempt::StatusStamp < ActiveRecord::Base
   end
   protected :make_mi_date_and_in_progress_status_consistent
 
+  def set_cassette_transmission_verified
+    if self.status_id == 2 # genotype_confirmed
+      mi_attempt = MiAttempt.find(self.mi_attempt.id)
+      if mi_attempt.cassette_transmission_verified_auto_complete == true
+        #genotype_confirmed status stamp destroyed
+        mi_attempt = MiAttempt.find(self.mi_attempt.id)
+        mi_attempt.cassette_transmission_verified = nil
+        mi_attempt.cassette_transmission_verified_auto_complete = false
+        mi_attempt.save
+      elsif mi_attempt.cassette_transmission_verified.blank?
+        mi_attempt.cassette_transmission_verified = self.created_at
+        mi_attempt.cassette_transmission_verified_auto_complete = true
+        mi_attempt.save
+        #genotype_confirmed status stamp created
+      end
+    end
+    true
+  end
+  protected :set_cassette_transmission_verified
 end
 
 # == Schema Information

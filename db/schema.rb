@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130827134214) do
+ActiveRecord::Schema.define(:version => 20130827163214) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -256,6 +256,8 @@ ActiveRecord::Schema.define(:version => 20130827134214) do
     t.integer  "qc_critical_region_qpcr_id",                                     :default => 1
     t.integer  "qc_loxp_srpcr_id",                                               :default => 1
     t.integer  "qc_loxp_srpcr_and_sequencing_id",                                :default => 1
+    t.date     "cassette_transmission_verified"
+    t.boolean  "cassette_transmission_verified_auto_complete"
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true

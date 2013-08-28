@@ -157,7 +157,7 @@ class MiAttempt < ApplicationModel
         self.cassette_transmission_verified = self.status_stamps.where("status_id = 2").first.created_at.to_date
         self.cassette_transmission_verified_auto_complete = true
       end
-    elsif self.changes.has_key?('cassette_transmission_verified')
+    elsif self.changes.has_key?('cassette_transmission_verified') and !self.changes.has_key?('cassette_transmission_verified_auto_complete')
         self.cassette_transmission_verified_auto_complete = false
     end
     true

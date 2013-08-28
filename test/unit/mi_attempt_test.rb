@@ -394,6 +394,72 @@ class MiAttemptTest < ActiveSupport::TestCase
         assert_equal 'this is a comment', mi.comments
       end
 
+      context 'cassette_transmission_verified' do
+        context 'when automatically updated' do
+
+          should 'set value to the genotype confirmed date' do
+            mi_attempt = Factory.create :mi_attempt2_status_chr
+            assert_equal mi_attempt.status.name, "Chimeras obtained"
+            mi_attempt.is_released_from_genotyping = true
+            mi_attempt.number_of_het_offspring = 1
+            mi_attempt.number_of_chimeras_with_glt_from_genotyping = 1
+            mi_attempt.save
+            mi_attempt.reload
+
+            assert_equal mi_attempt.status.name, "Genotype confirmed"
+            assert mi_attempt.cassette_transmission_verified_auto_complete
+            assert_equal mi_attempt.cassette_transmission_verified, mi_attempt.status_stamps.where("status_id = 2").first.created_at.to_date
+          end
+
+          should 'set the value to nil when mi_attempt changes to a status lower than genotype confirmed' do
+            mi_attempt = Factory.create :mi_attempt2_status_gtc
+
+            assert_equal mi_attempt.status.name, "Genotype confirmed"
+            mi_attempt.is_released_from_genotyping = false
+            mi_attempt.number_of_het_offspring = 0
+            mi_attempt.number_of_chimeras_with_glt_from_genotyping = 0
+            mi_attempt.save
+            mi_attempt.reload
+
+            assert_equal mi_attempt.status.name, "Chimeras obtained"
+            assert_false mi_attempt.cassette_transmission_verified_auto_complete
+            assert_nil mi_attempt.cassette_transmission_verified
+          end
+        end
+
+        context 'when manually updated' do
+          should 'NOT change value when mi_attempt becomes genotype confirmed' do
+            mi_attempt = Factory.create :mi_attempt2_status_chr
+            assert_equal mi_attempt.status.name, "Chimeras obtained"
+            mi_attempt.cassette_transmission_verified = "2012/08/29"
+            mi_attempt.is_released_from_genotyping = true
+            mi_attempt.number_of_het_offspring = 1
+            mi_attempt.number_of_chimeras_with_glt_from_genotyping = 1
+            mi_attempt.save
+            mi_attempt.reload
+
+            assert_equal mi_attempt.status.name, "Genotype confirmed"
+            assert_false mi_attempt.cassette_transmission_verified_auto_complete
+            assert_not_equal mi_attempt.cassette_transmission_verified, "2012/08/29"
+          end
+
+          should 'NOT change value when mi_attempt changes to a status lower than genotype confirmed' do
+            mi_attempt = Factory.create :mi_attempt2_status_gtc
+            assert_equal mi_attempt.status.name, "Genotype confirmed"
+            mi_attempt.cassette_transmission_verified = "2012/08/29"
+            mi_attempt.is_released_from_genotyping = false
+            mi_attempt.number_of_het_offspring = 0
+            mi_attempt.number_of_chimeras_with_glt_from_genotyping = 0
+            mi_attempt.save
+            mi_attempt.reload
+
+            assert_equal mi_attempt.status.name, "Chimeras obtained"
+            assert_false mi_attempt.cassette_transmission_verified_auto_complete
+            assert_not_equal mi_attempt.cassette_transmission_verified, "2012/08/29"
+          end
+        end
+      end
+
       context '#mi_plan' do
         should 'know about its new MiAttempt without having to be manually reloaded' do
           mi = Factory.create :mi_attempt2

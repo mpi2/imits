@@ -87,6 +87,13 @@ class PlannedMicroinjectionList
         mi_plans.phenotype_only AS phenotype_only,
         mi_plans.ignore_available_mice AS ignore_available_mice,
         mi_plans.recovery AS recovery,
+        CASE
+          WHEN mi_plan_statuses.name = 'Inspect - GLT Mouse' THEN 'GLT mouse produced at: '
+          WHEN mi_plan_statuses.name = 'Inspect - MI Attempt' THEN 'MI already in progress at: '
+          WHEN mi_plan_statuses.name = 'Inspect - Conflict' THEN 'Other Assigned MI plans for: '
+          WHEN mi_plan_statuses.name = 'Conflict' THEN  'Other MI plans for: '
+          ELSE ''
+        END AS conflict_reason_text,
         string_agg(status_conflict_options.consortium_name, ', ') AS conflict_reason,
         mi_attempt_counts.plan_aborted_count AS plan_aborted_count,
         to_char(mi_attempt_counts.plan_aborted_max_date, 'dd/mm/yyyy') AS plan_aborted_max_date
@@ -106,6 +113,7 @@ class PlannedMicroinjectionList
         new_intermediate_report.priority,
         new_intermediate_report.mi_plan_status,
         mi_plan_status_stamps.created_at,
+        mi_plan_statuses.name,
         mi_plans.is_bespoke_allele,
         mi_plans.is_conditional_allele,
         mi_plans.conditional_tm1c,

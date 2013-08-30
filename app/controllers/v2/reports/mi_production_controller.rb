@@ -161,17 +161,19 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def planned_microinjection_list
-    consortium = Consortium.find_by_name(params[:consortium]).try(:name)
+    if !params[:commit].blank?
+      consortium = Consortium.find_by_name(params[:consortium]).try(:name)
 
-    @report = PlannedMicroinjectionList.new
-    @mi_plan_summary = @report.mi_plan_summary(consortium)
-    @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
-    @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
-    @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
-    @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
-    @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
-    @consortium = consortium.blank? ? 'All' : consortium
-    @count = @report.blank? ? 0 : @mi_plan_summary.count
+      @report = PlannedMicroinjectionList.new
+      @mi_plan_summary = @report.mi_plan_summary(consortium)
+      @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
+      @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
+      @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
+      @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
+      @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
+      @consortium = consortium.blank? ? 'All' : consortium
+      @count = @report.blank? ? 0 : @mi_plan_summary.count
+    end
   end
 
 

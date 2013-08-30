@@ -16,7 +16,6 @@ begin
 
       task :part3 => [:environment] do
         ApplicationModel.audited_transaction do
-          Reports::MiProduction::Intermediate.new.cache
         end
       end
 
@@ -28,7 +27,6 @@ begin
 
       task :part5 => [:environment] do
         ApplicationModel.audited_transaction do
-          Reports::MiProduction::PlannedMicroinjectionList.cache_all
           Reports::MiAttemptsList.new.cache
         end
       end

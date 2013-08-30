@@ -121,6 +121,12 @@ class MiPlan < ApplicationModel
     end
   end
 
+  validate do |plan|
+    if !plan.completion_comment.blank? and plan.completion_note.blank?
+      plan.errors.add(:completion_note, 'cannot be blank if a Completion Comment has been added')
+    end
+  end
+
   # BEGIN Callbacks
 
   before_validation :set_default_number_of_es_cells_starting_qc
@@ -481,6 +487,7 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: mi_plans
@@ -517,6 +524,7 @@ end
 #  conditional_point_mutation     :boolean         default(FALSE), not null
 #  allele_symbol_superscript      :text
 #  report_to_public               :boolean         default(TRUE), not null
+#  completion_comment             :text
 #
 # Indexes
 #

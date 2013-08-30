@@ -27,7 +27,7 @@ Ext.define('Imits.widget.GeneGrid', {
                                     xtype: 'templatecolumn',
                                     tpl: new Ext.XTemplate(
                                         '<tpl for="non_assigned_mi_plans">',
-                                        '<a href="' + window.basePath + '/mi_plans/{[values["id"]]}">{[this.prettyPrintMiPlan(values)]}</a></br>',
+                                        '<a href="' + window.basePath + '/mi_plans/{[values["id"]]}" target="_blank">{[this.prettyPrintMiPlan(values)]}</a></br>',
                                         '</tpl>',
                                         {
                                             prettyPrintMiPlan: printMiPlanString
@@ -45,7 +45,7 @@ Ext.define('Imits.widget.GeneGrid', {
                                   xtype: 'templatecolumn',
                                   tpl: new Ext.XTemplate(
                                       '<tpl for="assigned_mi_plans">',
-                                      '<a href="' + window.basePath + '/mi_plans/{[values["id"]]}">{[this.prettyPrintMiPlan(values)]}</a></br>',
+                                      '<a href="' + window.basePath + '/mi_plans/{[values["id"]]}" target="_blank">{[this.prettyPrintMiPlan(values)]}</a></br>',
                                       '</tpl>',
                                       {
                                           prettyPrintMiPlan: printMiPlanString

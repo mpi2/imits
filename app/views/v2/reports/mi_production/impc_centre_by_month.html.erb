@@ -8,7 +8,10 @@
 
   <% ImpcCentreByMonthReport.centres.each do |centre| %>
     <h2><%= centre %></h2>
-
+    <div>
+      <div><%= link_to("Mouse production Evidence", "impc_centre_mi_detail?centre=#{centre}") %></div>
+      <div><%= link_to("Cre-Excision / phenotyping Evidence","impc_centre_pa_detail?centre=#{centre}") %></div>
+    </div>
     <table>
       <thead>
         <tr>
@@ -59,6 +62,8 @@
         </tr>
       </tfoot>
     </table>
+    <br />
+    <br />
     <br />
   <% end %>
 

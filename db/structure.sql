@@ -578,7 +578,9 @@ CREATE TABLE mi_attempts (
     qc_lacz_count_qpcr_id integer DEFAULT 1,
     qc_critical_region_qpcr_id integer DEFAULT 1,
     qc_loxp_srpcr_id integer DEFAULT 1,
-    qc_loxp_srpcr_and_sequencing_id integer DEFAULT 1
+    qc_loxp_srpcr_and_sequencing_id integer DEFAULT 1,
+    cassette_transmission_verified date,
+    cassette_transmission_verified_auto_complete boolean
 );
 
 
@@ -830,7 +832,8 @@ CREATE TABLE mi_plans (
     point_mutation boolean DEFAULT false NOT NULL,
     conditional_point_mutation boolean DEFAULT false NOT NULL,
     allele_symbol_superscript text,
-    report_to_public boolean DEFAULT true NOT NULL
+    report_to_public boolean DEFAULT true NOT NULL,
+    completion_comment text
 );
 
 
@@ -3845,3 +3848,7 @@ INSERT INTO schema_migrations (version) VALUES ('20130801140814');
 INSERT INTO schema_migrations (version) VALUES ('20130805152114');
 
 INSERT INTO schema_migrations (version) VALUES ('20130806153714');
+
+INSERT INTO schema_migrations (version) VALUES ('20130827134214');
+
+INSERT INTO schema_migrations (version) VALUES ('20130827163214');

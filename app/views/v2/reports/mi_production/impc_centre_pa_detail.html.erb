@@ -1,0 +1,47 @@
+<% @title = "Mi Production Detail for Production Centre #{@centre}" %>
+
+<!--<%= params.inspect %>-->
+
+<h2><%= @title %></h2>
+
+<p><%= link_to 'Download as CSV', report_csv_path %></p>
+
+<div class='report'>
+
+  <p>Showing <%= @pas.count %> Phenotype Attempts</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <th>Production Centre</th>
+        <th>Gene</th>
+        <th>Colony</th>
+        <th>Status</th>
+        <th>Registered</th>
+        <th>Cre Started</th>
+        <th>Cre Complete</th>
+        <th>Phenotyping Started</th>
+        <th>Phenotyping Complete</th>
+        <th>Aborted Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for report_row in @pas %>
+        <tr>
+          <td><%= report_row["consortium"] %></td>
+          <td><%= report_row["production_centre"] %></td>
+          <td><%= report_row["marker_symbol"] %></td>
+          <td><%= report_row["colony_name"] %></td>
+          <td><%= report_row["current_status"] %></td>
+          <td><%= report_row["registered_date"] %></td>
+          <td><%= report_row["cre_started_date"] %></td>
+          <td><%= report_row["cre_complete_date"] %></td>
+          <td><%= report_row["phenotyping_started_date"] %></td>
+          <td><%= report_row["phenotyping_complete_date"] %></td>
+          <td><%= report_row["phenotyping_aborted_date"] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,47 @@
+<% @title = "Mi Production Detail for Production Centre #{@centre}" %>
+
+<!--<%= params.inspect %>-->
+
+<h2><%= @title %></h2>
+
+<p><%= link_to 'Download as CSV', report_csv_path %></p>
+
+<div class='report'>
+
+  <p>Showing <%= @mis.count %> Mi Attempts</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Consortium</th>
+        <th>Production Centre</th>
+        <th>Gene</th>
+        <th>Colony</th>
+        <th>Clone</th>
+        <th>Status</th>
+        <th>Asserted Date</th>
+        <th>Mi Commence Date</th>
+        <th>Chimerism Obtained Date</th>
+        <th>Genotype Confirmed Date</th>
+        <th>Aborted Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% for report_row in @mis %>
+        <tr>
+          <td><%= report_row["consortium"] %></td>
+          <td><%= report_row["production_centre"] %></td>
+          <td><%= report_row["marker_symbol"] %></td>
+          <td><%= report_row["colony_name"] %></td>
+          <td><%= report_row["clone"] %></td>
+          <td><%= report_row["current_status"] %></td>
+          <td><%= report_row["mi_date_asserted"] %></td>
+          <td><%= report_row["mi_date_of_entry"] %></td>
+          <td><%= report_row["chimerism_date"] %></td>
+          <td><%= report_row["gc_date"] %></td>
+          <td><%= report_row["abort_date"] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -160,6 +160,16 @@ class V2::Reports::MiProductionController < ApplicationController
     @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
   end
 
+  def impc_centre_es_detail
+    @report = ImpcCentreByMonthDetail.new
+  end
+
+  def impc_centre_mi_detail
+    @report = ImpcCentreByMonthDetail.new
+    @centre = params[:centre]
+    @mis = @report.mi_rows(@centre)
+  end
+
   def planned_microinjection_list
     if !params[:commit].blank?
       consortium = Consortium.find_by_name(params[:consortium]).try(:name)
@@ -176,6 +186,11 @@ class V2::Reports::MiProductionController < ApplicationController
     end
   end
 
+  def impc_centre_pa_detail
+    @report = ImpcCentreByMonthDetail.new
+    @centre = params[:centre]
+    @pas = @report.pa_rows(@centre)
+  end
 
   def genes_gt_mi_attempt_summary
     @consortia = Consortium.where(:name => params[:consortia].split(','))

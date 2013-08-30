@@ -62,6 +62,8 @@ class Public::MiAttempt < ::MiAttempt
     distribution_centres_attributes
     mi_plan_id
     status_stamps_attributes
+    cassette_transmission_verified
+    cassette_transmission_verified_auto_complete
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -111,6 +113,8 @@ class Public::MiAttempt < ::MiAttempt
     try(:es_cell).try(:pipeline).try(:name)
   end
 end
+
+
 
 # == Schema Information
 #
@@ -175,6 +179,8 @@ end
 #  qc_critical_region_qpcr_id                      :integer         default(1)
 #  qc_loxp_srpcr_id                                :integer         default(1)
 #  qc_loxp_srpcr_and_sequencing_id                 :integer         default(1)
+#  cassette_transmission_verified                  :date
+#  cassette_transmission_verified_auto_complete    :boolean
 #
 # Indexes
 #

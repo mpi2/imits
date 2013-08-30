@@ -1,0 +1,7 @@
+Consortium, Production Centre, Gene, Colony, Clone, Status, Asserted Date, Mi Commence Date, Chimerism Obtained Date, Genotype Confirmed Date, Aborted Date
+<% @mis.each do |mi| %>
+<%= mi["consortium"] %>, <%= mi["production_centre"] %>, <%= mi["marker_symbol"] %>, <%= mi["colony_name"] %>, <%= mi["clone"] %>, <%= mi["current_status"] %>, <%= mi["mi_date_asserted"] %>, <%= mi["mi_date_of_entry"] %>, <%= mi["chimerism_date"] %>, <%= mi["gc_date"] %>, <%= mi["abort_date"] %>
+<% end %>
+
+
+

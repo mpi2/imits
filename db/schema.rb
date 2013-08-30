@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130806153714) do
+ActiveRecord::Schema.define(:version => 20130827163214) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -256,6 +256,8 @@ ActiveRecord::Schema.define(:version => 20130806153714) do
     t.integer  "qc_critical_region_qpcr_id",                                     :default => 1
     t.integer  "qc_loxp_srpcr_id",                                               :default => 1
     t.integer  "qc_loxp_srpcr_and_sequencing_id",                                :default => 1
+    t.date     "cassette_transmission_verified"
+    t.boolean  "cassette_transmission_verified_auto_complete"
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -343,6 +345,7 @@ ActiveRecord::Schema.define(:version => 20130806153714) do
     t.boolean  "conditional_point_mutation",                    :default => false, :null => false
     t.text     "allele_symbol_superscript"
     t.boolean  "report_to_public",                              :default => true,  :null => false
+    t.text     "completion_comment"
   end
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only"], :name => "mi_plan_logical_key", :unique => true

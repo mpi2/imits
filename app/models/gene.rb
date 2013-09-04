@@ -421,7 +421,7 @@ class Gene < ActiveRecord::Base
       FROM status_summary
         JOIN genes ON genes.id = status_summary.gene_id
         JOIN consortia ON consortia.id = status_summary.consortium_id
-        JOIN centres ON centres.id = status_summary.production_centre_id
+        LEFT JOIN centres ON centres.id = status_summary.production_centre_id
       ORDER BY genes.marker_symbol, status_summary.status_name, consortia.name, centres.name
     EOF
 
@@ -474,7 +474,7 @@ class Gene < ActiveRecord::Base
         end
         data['assigned plans'][production_record['mi_plan_id']][:status_count] += production_record['status_count'].to_i
 
-      else
+      elsif !['Inactive'].include?(production_record['status_name'])
         if !data['non assigned plans'].has_key?(production_record['mi_plan_id'])
           data['non assigned plans'][production_record['mi_plan_id']] = {:marker_symbol => production_record['marker_symbol'], :mi_plan_id => production_record['mi_plan_id'], :consortium => production_record['consortium'], :centre => production_record['centre'], :status_name => production_record['status_name'], :status_count => 0}
         end

@@ -150,10 +150,10 @@ class GeneTest < ActiveSupport::TestCase
         assert @gene
         assert_equal 4, @gene.mi_plans.count
         result = @gene.assigned_mi_plans
-        assert_include result, { :id => @bash_plan.id, :consortium => 'BaSH', :production_centre => nil }
-        assert_include result, { :id => @mgp_plan.id, :consortium => 'MGP', :production_centre => 'WTSI' }
-        assert_include result, { :id => @jax_plan.id, :consortium => 'JAX', :production_centre => 'JAX' }
-        assert_not_include result, { :id => @marc_attempt.mi_plan.id, :consortium => 'MARC', :production_centre => 'MARC' }
+        assert_include result, { :id => @bash_plan.id, :mi_plan => @bash_plan.id.to_s, :consortium => 'BaSH', :production_centre => nil, :status_name=>"Assigned" }
+        assert_include result, { :id => @mgp_plan.id, :mi_plan=> @mgp_plan.id.to_s, :consortium => 'MGP', :production_centre => 'WTSI', :status_name=>"Assigned - ES Cell QC In Progress" }
+        assert_include result, { :id => @jax_plan.id, :mi_plan=> @jax_plan.id.to_s, :consortium => 'JAX', :production_centre => 'JAX', :status_name=>"Assigned - ES Cell QC Complete" }
+        assert_not_include result, { :id => @marc_attempt.mi_plan.id, :mi_plan => @marc_attempt.mi_plan.id.to_s, :consortium => 'MARC', :production_centre => 'MARC', :status_name=>"Assigned" }
       end
     end
 

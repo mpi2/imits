@@ -127,14 +127,15 @@ end
 
 Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt2_status_gtc do |mi_attempt|
   mi_attempt.after_create do |mi|
-    mi.status_stamps.destroy_all
 
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.genotype_confirmed,
-      :created_at => (Time.now - 1.hour))
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.micro_injection_in_progress,
-      :created_at => (Time.now - 1.month))
+    stamp = mi.status_stamps.where("status_id = #{MiAttempt::Status.genotype_confirmed.id}").first
+    stamp.created_at = (Time.now - 1.hour)
+    stamp.save
+
+    stamp = mi.status_stamps.where("status_id = #{MiAttempt::Status.micro_injection_in_progress.id}").first
+    stamp.created_at = (Time.now - 1.month)
+    stamp.save
+
 
     mi.mi_plan.status_stamps.first.update_attributes(:created_at => (Time.now - 3.month))
     mi.mi_plan.status_stamps.create!(

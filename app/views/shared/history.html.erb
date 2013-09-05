@@ -1,5 +1,5 @@
 <% @title = "#{@resource.class.readable_name.capitalize} #{@resource.id} History" %>
-<% audit_revision_formatter = AuditRevisionFormatter.new %>
+<% audit_revision_formatter = AuditRevisionFormatter.new(:model => @resource.class) %>
 
 <div class="grid_12">
   <h2><%= @title %></h2>
@@ -41,7 +41,7 @@
                 <% end %>
               <% end %>
             </td>
-            <% formatted_audited_changes = audit_revision_formatter.get_formatted_changes(revision.audited_changes, :model => @resource.class) %>
+            <% formatted_audited_changes = audit_revision_formatter.get_formatted_changes(revision.audited_changes) %>
             <td><%= formatted_audited_changes.keys.join('<br />').html_safe %></td>
             <td>
               <% values = formatted_audited_changes.values.map do |val_ary|

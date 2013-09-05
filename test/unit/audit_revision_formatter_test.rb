@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class AuditRevisionFormatterTest < ActiveSupport::TestCase
-  def default_audit_revision_formatter; @audit_revision_formatter ||= AuditRevisionFormatter.new; end
+  def default_audit_revision_formatter; @audit_revision_formatter ||= AuditRevisionFormatter.new(:model => MiPlan); end
 
   context 'AuditRevisionFormatter' do
 
@@ -13,7 +13,7 @@ class AuditRevisionFormatterTest < ActiveSupport::TestCase
         'total_male_chimeras' => [4, nil]
       }
 
-      got = default_audit_revision_formatter.get_formatted_changes(h, :model => MiPlan)
+      got = default_audit_revision_formatter.get_formatted_changes(h)
 
       expected = {
         'consortium' => ['EUCOMM-EUMODIC', 'BaSH'],
@@ -37,7 +37,7 @@ class AuditRevisionFormatterTest < ActiveSupport::TestCase
       }
 
       assert_equal expected,
-              default_audit_revision_formatter.get_formatted_changes(audit, :model => MiPlan)
+              default_audit_revision_formatter.get_formatted_changes(audit)
     end
 
     should 'not include essentially blank changes' do
@@ -51,7 +51,7 @@ class AuditRevisionFormatterTest < ActiveSupport::TestCase
       }
 
       assert_equal expected,
-              default_audit_revision_formatter.get_formatted_changes(audit, :model => MiPlan)
+              default_audit_revision_formatter.get_formatted_changes(audit)
     end
 
   end

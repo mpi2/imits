@@ -4,7 +4,7 @@ begin
   namespace :cron do
 
     desc 'Generate cached reports'
-    task :cache_reports => ['cron:reports:part3', 'cron:reports:part4', 'cron:reports:part5', 'cron:reports:part6']
+    task :cache_reports => [ 'cron:reports:part3', 'cron:reports:part4', 'cron:reports:part5', 'cron:reports:part6']
 
     namespace :reports do
 
@@ -16,6 +16,7 @@ begin
 
       task :part3 => [:environment] do
         ApplicationModel.audited_transaction do
+          Reports::MiProduction::Intermediate.new.cache
         end
       end
 

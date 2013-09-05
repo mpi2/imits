@@ -43,7 +43,6 @@ attr_accessor :model
             klass_name = "TargRep::EsCell"
           elsif ['Status', 'Priority', 'SubProject'].include?(klass_name)
             klass_name = "#{model.to_s}::#{klass_name}"
-            puts klass_name
           end
 
           Rails.logger.info klass_name

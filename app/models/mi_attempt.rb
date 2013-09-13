@@ -409,6 +409,7 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: mi_attempts
@@ -473,6 +474,7 @@ end
 #  qc_loxp_srpcr_id                                :integer         default(1)
 #  qc_loxp_srpcr_and_sequencing_id                 :integer         default(1)
 #  cassette_transmission_verified                  :date
+#  cassette_transmission_verified_auto_complete    :boolean
 #
 # Indexes
 #

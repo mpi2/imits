@@ -156,6 +156,23 @@ class V2::Reports::MiProductionController < ApplicationController
     @report = ImpcCentreByMonthReport.new
     @centre_by_month = @report.report_rows
     @cumulative_totals = @report.cumulative_totals
+    @consortia = @report.consortia
+    @columns = ImpcCentreByMonthReport.columns
+    @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
+  end
+
+  def impc_centre_by_month_consortia_breakdown
+    puts 'HELLO'
+    puts params[:centre]
+    @centre = Centre.find_by_name(params[:centre]).try(:name) || ''
+    puts @centre
+    if @centre.blank?
+      flash[:alert] = "Invalid Production Centre"
+    end
+    @report = ImpcCentreByMonthReportConsortiaBreakdown.new(@centre)
+    @consortia = @report.consortia
+    @consortium_by_month = @report.report_rows
+    @cumulative_totals = @report.cumulative_totals
     @columns = ImpcCentreByMonthReport.columns
     @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
   end

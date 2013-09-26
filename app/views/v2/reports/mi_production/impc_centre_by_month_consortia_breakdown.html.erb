@@ -1,0 +1,76 @@
+<% @title = 'IMPC Production consortia by month summary' %>
+
+<h1><%= @title %></h1>
+
+<% if ! @centre.blank? %>
+<p><%= link_to 'Download as CSV', report_csv_path %></p>
+
+<div class="report">
+  <% @consortia.each do |consortium| %>
+    <div><span class="x-large-text"><%= consortium %></span></div>
+    <table>
+      <thead>
+        <tr>
+          <th rowspan='3'>Date</th>
+          <th rowspan='3' style= 'border-right: 2px solid; border-color: #999'>Consortium</th>
+          <th colspan=<%= (@es_cell_columns.keys.size)*2 %> style='text-align:center;'>ES Cell supply (number of clones)</th>
+          <th colspan=2 style= 'border-left: 2px solid; border-color: #999'>Total Clones</th>
+          <th colspan=10 style= 'border-left: 2px solid; border-color: #999'>Total Genes</th>
+        </tr>
+        <tr>
+          <% @es_cell_columns.keys.each do |column| %>
+            <th colspan=2><%= column %></th>
+          <% end %>
+          <% @columns.keys.each do |column| %>
+            <th colspan=2 style= 'border-left: 2px solid; border-color: #999'><%= column %></th>
+          <% end %>
+        </tr>
+        <tr>
+          <% @es_cell_columns.keys.each do |column| %>
+            <th>Requested</th>
+            <th>Received</th>
+          <% end %>
+          <% @columns.each do |column, key| %>
+            <th style= 'border-left: 2px solid; border-color: #999'>Actual</th>
+            <th>Goal</th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @consortium_by_month[:dates].each do |date| %>
+          <tr>
+            <td><%= date %></td>
+            <td style= 'border-right: 2px solid; border-color: #999'><%= consortium %></td>
+            <% @es_cell_columns.each do |column, key| %>
+              <td><%= @consortium_by_month["#{date}-#{consortium}-#{column}-required"] %></td>
+              <td style='background-color: #eeeeee;'><%= @consortium_by_month["#{date}-#{consortium}-#{column}-received"] %></td>
+            <% end %>
+            <% @columns.each do |column, key| %>
+              <td style= 'border-left: 2px solid; border-color: #999'><%= @consortium_by_month["#{date}-#{consortium}-#{column}"] %></td>
+              <td style='background-color: #eeeeee;'><%= @consortium_by_month["#{date}-#{consortium}-#{column}_goal"] %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan='2' style= 'border-right: 2px solid; border-color: #999'>Total to date</td>
+
+          <% @es_cell_columns.each do |key, column| %>
+            <td><%= @cumulative_totals[consortium]["#{column[0]}_cumulative"] if !@cumulative_totals[consortium].blank?%></td>
+            <td style='background-color: #eeeeee;'><%= @cumulative_totals[consortium]["#{column[1]}_cumulative"] if !@cumulative_totals[consortium].blank? %></td>
+          <% end %>
+
+          <% @columns.each do |key, column| %>
+            <td style= 'border-left: 2px solid; border-color: #999'><%= @cumulative_totals[consortium]["#{column}_cumulative"] if !@cumulative_totals[consortium].blank? %></td>
+            <td style='background-color: #eeeeee;' ><%= @cumulative_totals[consortium]["#{column}_goal_cumulative"] if !@cumulative_totals[consortium].blank? %></td>
+          <% end %>
+        </tr>
+      </tfoot>
+    </table>
+    <br />
+    <br />
+    <br />
+  <% end %>
+<% end %>
+</div>

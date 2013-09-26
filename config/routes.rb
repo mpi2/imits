@@ -34,7 +34,10 @@ TarMits::Application.routes.draw do
     end
   end
 
-  resources :production_goals, :tracking_goals
+  resources :production_goals
+  resources :tracking_goals
+  match 'tracking_goals_by_consortium' => "tracking_goals#index_by_consortium"
+
   resources :centres
 
   resources :strains

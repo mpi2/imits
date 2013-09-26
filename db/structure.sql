@@ -2097,7 +2097,8 @@ CREATE TABLE tracking_goals (
     goal_type character varying(255),
     goal integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    consortium_id integer
 );
 
 
@@ -3852,3 +3853,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130806153714');
 INSERT INTO schema_migrations (version) VALUES ('20130827134214');
 
 INSERT INTO schema_migrations (version) VALUES ('20130827163214');
+
+INSERT INTO schema_migrations (version) VALUES ('20130918163214');

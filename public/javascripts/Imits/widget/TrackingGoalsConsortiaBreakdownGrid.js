@@ -1,4 +1,4 @@
-Ext.define('Imits.widget.TrackingGoalsGrid', {
+Ext.define('Imits.widget.TrackingGoalsConsortiaBreakdownGrid', {
     extend: 'Imits.widget.Grid',
 
     requires: [
@@ -40,11 +40,17 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
 
     createTrackingGoal: function() {
         var self = this;
+        var consortiumName = self.consortiumCombo.getSubmitValue();
         var centreName     = self.centreCombo.getSubmitValue();
         var yearValue      = self.yearText.getSubmitValue();
         var monthValue     = self.monthText.getSubmitValue();
         var goalValue      = self.goalText.getSubmitValue();
         var typeValue      = self.typeText.getSubmitValue();
+
+        if(!consortiumName || consortiumName && !consortiumName.length) {
+            alert("You must enter a valid Consortium.");
+            return
+        }
 
         if(!centreName || centreName && !centreName.length) {
             alert("You must enter a valid Centre.");
@@ -69,6 +75,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
         self.setLoading(true);
 
         var trackingGoal = Ext.create('Imits.model.TrackingGoal', {
+            'consortium_name' : consortiumName,
             'production_centre_name' : centreName,
             'year'      : yearValue,
             'month'     : monthValue,
@@ -81,7 +88,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
                 self.reloadStore();
                 self.setLoading(false);
 
-
+                self.consortiumCombo.setValue()
                 self.centreCombo.setValue()
                 self.yearText.setValue()
                 self.monthText.setValue()
@@ -103,6 +110,16 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
         }));
 
         // Add the create toolbar.
+        self.consortiumCombo = Ext.create('Imits.widget.SimpleCombo', {
+            id: 'consortiumCombobox',
+            store: window.CONSORTIUM_OPTIONS,
+            fieldLabel: 'Consortium',
+            labelAlign: 'right',
+            labelWidth: 65,
+            storeOptionsAreSpecial: true,
+            hidden: false
+        });
+
         self.centreCombo = Ext.create('Imits.widget.SimpleCombo', {
             id: 'centreCombobox',
             store: window.CENTRE_OPTIONS,
@@ -153,6 +170,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
         self.addDocked(Ext.create('Ext.toolbar.Toolbar', {
             dock: 'top',
             items: [
+            self.consortiumCombo,
             self.centreCombo,
             self.yearText,
             self.monthText,
@@ -185,9 +203,25 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
             hidden: true
         },
         {
+            dataIndex: 'consortium_name',
+            header: 'Consortium',
+            editor: {
+                xtype: 'simplecombo',
+                store: Ext.Array.merge([''], window.CONSORTIUM_OPTIONS),
+                storeOptionsAreSpecial: true,
+                listConfig: {
+                    minWidth: 200
+                }
+            },
+            sortable: false,
+            filter: {
+                type: 'list',
+                options: window.CONSORTIUM_OPTIONS
+            }
+        },
+        {
             dataIndex: 'production_centre_name',
             header: 'Production centre',
-            sortable: false,
             editor: {
                 xtype: 'simplecombo',
                 store: Ext.Array.merge([''], window.CENTRE_OPTIONS),
@@ -196,6 +230,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
                     minWidth: 200
                 }
             },
+            sortable: false,
             filter: {
                 type: 'list',
                 options: window.CENTRE_OPTIONS
@@ -205,13 +240,13 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
             dataIndex: 'year',
             header: 'Year',
             editor: 'simplenumberfield',
-           sortable: false
+            sortable: false
         },
         {
             dataIndex: 'month',
             header: 'Month',
             editor: 'simplenumberfield',
-           sortable: false
+            sortable: false
         },
         {
             dataIndex: 'goal',
@@ -262,7 +297,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
             filter: {
                 type: 'list',
                 options: ['0','1'],
-                value:'1',
+                value:'0',
                 active: true
             },
            hidden: true,

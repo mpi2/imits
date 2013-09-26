@@ -1,11 +1,11 @@
 class TrackingGoalsController < ApplicationController
 
   respond_to :json
-  respond_to :html, :only => [:index]
+  respond_to :html, :only => [:index, :index_by_consortium]
 
   before_filter :authenticate_user!
 
-    def index
+  def index
     respond_to do |format|
       format.json do
         render :json => data_for_serialized(:json, 'production_centre_id asc, date desc', TrackingGoal, :search)
@@ -14,6 +14,17 @@ class TrackingGoalsController < ApplicationController
       format.html
     end
   end
+
+  def index_by_consortium
+    respond_to do |format|
+      format.json do
+        render :json => data_for_serialized(:json, 'production_centre_id asc, date desc', TrackingGoal, :search)
+      end
+
+      format.html
+    end
+  end
+
 
   def show
     redirect_to [:tracking_goals]
@@ -31,7 +42,7 @@ class TrackingGoalsController < ApplicationController
 
   def update
     @tracking_goal = TrackingGoal.find(params[:id])
-    
+
     respond_to do |format|
       if @tracking_goal.update_attributes(params[:tracking_goal])
         format.json { render :json => @tracking_goal.to_json }

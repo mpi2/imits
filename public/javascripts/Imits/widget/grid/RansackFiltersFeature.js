@@ -22,12 +22,22 @@ Ext.define('Imits.widget.grid.RansackFiltersFeature', {
             case 'string':
                 if(filter.field == 'id') {
                     param['q[' + filter.field + '_in][]'] = filter.data.value.split(',');
-                } else {
+                }else {
                     param['q[' + filter.field + '_ci_in][]'] = filter.data.value;
                 }
                 break;
             case 'list':
-                param['q[' + filter.field + '_ci_in][]'] = filter.data.value;
+                if (filter.field == 'no_consortium_id') {
+                  if (filter.data.value == '1'){
+                    param['q[' + 'consortium_id_null]' ] = 1;
+                  }
+                  else {
+                    param['q[' + 'consortium_id_not_null]' ] = 1;
+                  }
+                }
+                else {
+                  param['q[' + filter.field + '_ci_in][]'] = filter.data.value;
+                }
                 break;
 
             case 'boolean':

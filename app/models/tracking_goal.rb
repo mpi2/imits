@@ -9,7 +9,7 @@ class TrackingGoal < ActiveRecord::Base
 
   GOAL_TYPES = %w(
     total_injected_clones
-    total_glt_clones
+    total_glt_genes
     cre_exicised_genes
     phenotype_experiment_started_genes
     phenotype_started_genes

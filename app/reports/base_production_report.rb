@@ -17,6 +17,8 @@ class BaseProductionReport
   attr_accessor :micro_injection_list
   attr_accessor :consortium_centre_by_phenotyping_status_cre_excision_required
   attr_accessor :consortium_centre_by_phenotyping_status_cre_excision_not_required
+  attr_accessor :mi_attempt_distribution_centre_counts
+  attr_accessor :phenotype_attempt_distribution_centre_counts
 
   def consortium_by_status
     @consortium_by_status ||= ActiveRecord::Base.connection.execute(self.class.consortium_by_status_sql)
@@ -68,6 +70,14 @@ class BaseProductionReport
 
   def micro_injection_list
     @micro_injection_list ||= ActiveRecord::Base.connection.execute(self.class.micro_injection_list_sql)
+  end
+
+  def mi_attempt_distribution_centre_counts
+    @mi_attempt_distribution_centre_counts ||= ActiveRecord::Base.connection.execute(self.class.mi_attempt_distribution_centre_counts_sql)
+  end
+
+  def phenotype_attempt_distribution_centre_counts
+    @phenotype_attempt_distribution_centre_counts ||= ActiveRecord::Base.connection.execute(self.class.phenotype_attempt_distribution_centre_counts_sql)
   end
 
 
@@ -274,6 +284,25 @@ class BaseProductionReport
       hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-gtc_count_efficiency"] = gtc_gene_count
       hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-total_count_efficiency"] = total_injections
       hash["#{report_row['consortium_name']}-#{report_row['production_centre_name']}-effort_efficiency"] = efficiency
+    end
+
+    hash
+  end
+
+
+  def generate_distribution_centre_counts
+    hash = {}
+
+    mi_attempt_distribution_centre_counts.each do |report_row|
+      hash["mi_attempt-#{report_row['consortium']}-#{report_row['centre']}-emma"] = report_row['emma']
+      hash["mi_attempt-#{report_row['consortium']}-#{report_row['centre']}-komp"] = report_row['komp']
+      hash["mi_attempt-#{report_row['consortium']}-#{report_row['centre']}-shelf"] = report_row['shelf']
+    end
+
+    phenotype_attempt_distribution_centre_counts.each do |report_row|
+      hash["phenotype_attempt-#{report_row['phenotype_type']}-#{report_row['consortium']}-#{report_row['centre']}-emma"] = report_row['emma']
+      hash["phenotype_attempt-#{report_row['phenotype_type']}-#{report_row['consortium']}-#{report_row['centre']}-komp"] = report_row['komp']
+      hash["phenotype_attempt-#{report_row['phenotype_type']}-#{report_row['consortium']}-#{report_row['centre']}-shelf"] = report_row['shelf']
     end
 
     hash
@@ -658,6 +687,68 @@ class BaseProductionReport
             ORDER BY genes.marker_symbol
       EOF
     end
+
+    def mi_attempt_distribution_centre_counts_sql
+      <<-EOF
+      SELECT
+        distribution_data.consortium AS consortium,
+        distribution_data.centre AS centre,
+        SUM(CASE WHEN distribution_data.emma > 0 THEN 1 ELSE 0 END) AS emma,
+        SUM(CASE WHEN distribution_data.komp > 0 THEN 1 ELSE 0 END) AS komp,
+        SUM(CASE WHEN distribution_data.shelf > 0 THEN 1 ELSE 0 END) AS shelf
+      FROM
+      (
+        SELECT
+          mi_plans.gene_id,
+          consortia.name AS consortium,
+          centres.name AS centre,
+          SUM(CASE WHEN mi_attempt_distribution_centres.is_distributed_by_emma = true THEN 1 ELSE 0 END) AS emma,
+          SUM(CASE WHEN dis_centre.name = 'UCD' THEN 1 ELSE 0 END) AS KOMP,
+          SUM(CASE WHEN dis_centre.name != 'UCD' AND mi_attempt_distribution_centres.is_distributed_by_emma = false THEN 1 ELSE 0 END) AS shelf
+        FROM mi_attempt_distribution_centres
+          JOIN centres AS dis_centre ON dis_centre.id = mi_attempt_distribution_centres.centre_id
+          JOIN mi_attempts ON mi_attempts.id = mi_attempt_distribution_centres.mi_attempt_id
+          JOIN mi_plans ON mi_plans.id = mi_attempts.mi_plan_id
+          JOIN consortia ON consortia.id  = mi_plans.consortium_id
+          JOIN centres ON centres.id = mi_plans.production_centre_id
+        GROUP BY mi_plans.gene_id, consortia.name, centres.name
+      ) AS distribution_data
+      GROUP BY distribution_data.consortium, distribution_data.centre
+      EOF
+    end
+
+
+    def phenotype_attempt_distribution_centre_counts_sql
+      <<-EOF
+      SELECT
+        distribution_data.phenotype_type AS phenotype_type,
+        distribution_data.consortium AS consortium,
+        distribution_data.centre AS centre,
+        SUM(CASE WHEN distribution_data.emma > 0 THEN 1 ELSE 0 END) AS emma,
+        SUM(CASE WHEN distribution_data.komp > 0 THEN 1 ELSE 0 END) AS komp,
+        SUM(CASE WHEN distribution_data.shelf > 0 THEN 1 ELSE 0 END) AS shelf
+      FROM
+      (
+        SELECT
+          mi_plans.gene_id,
+          CASE WHEN cre_excision_required = true THEN 'cre_required' ELSE 'cre_not_required' END AS phenotype_type,
+          consortia.name AS consortium,
+          centres.name AS centre,
+          SUM(CASE WHEN phenotype_attempt_distribution_centres.is_distributed_by_emma = true THEN 1 ELSE 0 END) AS emma,
+          SUM(CASE WHEN dis_centre.name = 'UCD' THEN 1 ELSE 0 END) AS KOMP,
+          SUM(CASE WHEN dis_centre.name != 'UCD' AND phenotype_attempt_distribution_centres.is_distributed_by_emma = false THEN 1 ELSE 0 END) AS shelf
+        FROM phenotype_attempt_distribution_centres
+          JOIN centres AS dis_centre ON dis_centre.id = phenotype_attempt_distribution_centres.centre_id
+          JOIN phenotype_attempts ON phenotype_attempts.id = phenotype_attempt_distribution_centres.phenotype_attempt_id
+          JOIN mi_plans ON mi_plans.id = phenotype_attempts.mi_plan_id
+          JOIN consortia ON consortia.id  = mi_plans.consortium_id
+          JOIN centres ON centres.id = mi_plans.production_centre_id
+        GROUP BY phenotype_type, mi_plans.gene_id, consortia.name, centres.name
+      ) AS distribution_data
+      GROUP BY phenotype_type, distribution_data.consortium, distribution_data.centre
+      EOF
+    end
+
 
     def micro_injection_list_sql
       <<-EOF

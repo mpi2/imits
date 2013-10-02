@@ -201,7 +201,7 @@ class ImpcCentreByMonthReport
 
     ## Don't report incomplete month
     def end_date
-      end_date = Time.now.to_date
+      end_date = Time.now
       ## But do report it if it's the last day of the month.
       end_date = (end_date - 1.month).end_of_month unless end_date == end_date.end_of_month
 
@@ -239,7 +239,7 @@ class ImpcCentreByMonthReport
             JOIN centres ON centres.id = mi_plans.production_centre_id
             JOIN consortia ON consortia.id = mi_plans.consortium_id
 
-            JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at < '#{cut_off_date}'
+            JOIN mi_attempt_status_stamps as mip_stamps ON mi_attempts.id = mip_stamps.mi_attempt_id AND mip_stamps.status_id = 1 AND mip_stamps.created_at <= '#{cut_off_date}'
 
         WHERE
           #{filter_by_centre_consortium.map{|key, value| "(centres.name = '#{key}' AND consortia.name IN ('#{value.join('\', \'')}'))"}.join(' OR ')}
@@ -321,7 +321,7 @@ class ImpcCentreByMonthReport
             count(gtc_stamps.*) as genotype_confirmed_count
           FROM genes_with_plans
           JOIN mi_attempts ON genes_with_plans.mi_plan_id = mi_attempts.mi_plan_id and mi_attempts.status_id != 3
-          LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at < '#{cut_off_date}'
+          LEFT JOIN mi_attempt_status_stamps as gtc_stamps ON mi_attempts.id = gtc_stamps.mi_attempt_id AND gtc_stamps.status_id = 2 AND gtc_stamps.created_at <= '#{cut_off_date}'
 
           GROUP BY
             genes_with_plans.gene_id,
@@ -351,12 +351,12 @@ class ImpcCentreByMonthReport
             count(cre_stamps.*) as cre_excised_or_better_count,
             count(ps_stamps.*) as phenotype_started_or_better_count,
             count(pc_stamps.*) as phenotype_complete_count,
-            SUM(CASE WHEN phenotyping_experiments_started < '#{cut_off_date}' THEN 1 ELSE 0 END) AS phenotype_experiments_started_count
+            SUM(CASE WHEN phenotyping_experiments_started <= '#{cut_off_date}' THEN 1 ELSE 0 END) AS phenotype_experiments_started_count
           FROM genes_with_plans
           JOIN phenotype_attempts ON genes_with_plans.mi_plan_id = phenotype_attempts.mi_plan_id AND phenotype_attempts.status_id != 1
-          LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at < '#{cut_off_date}'
-          LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at < '#{cut_off_date}'
-          LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at < '#{cut_off_date}'
+          LEFT JOIN phenotype_attempt_status_stamps as cre_stamps ON phenotype_attempts.id = cre_stamps.phenotype_attempt_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at <= '#{cut_off_date}'
+          LEFT JOIN phenotype_attempt_status_stamps as ps_stamps ON phenotype_attempts.id = ps_stamps.phenotype_attempt_id AND ps_stamps.status_id = 7 AND ps_stamps.created_at <= '#{cut_off_date}'
+          LEFT JOIN phenotype_attempt_status_stamps as pc_stamps ON phenotype_attempts.id = pc_stamps.phenotype_attempt_id AND pc_stamps.status_id = 8 AND pc_stamps.created_at <= '#{cut_off_date}'
 
           GROUP BY
             genes_with_plans.gene_id,
@@ -675,7 +675,7 @@ class ImpcCentreByMonthReport
               #{filter_by_centre_consortium.map{|key, value| "(centres.name = '#{key}' AND consortia.name IN ('#{value.join('\', \'')}'))"}.join(' OR ')}
             )
 
-            AND mi_plans.es_cells_received_on < '#{cut_off_date}'
+            AND mi_plans.es_cells_received_on <= '#{cut_off_date}'
 
         GROUP BY
           centres.name,

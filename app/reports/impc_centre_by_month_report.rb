@@ -416,14 +416,14 @@ class ImpcCentreByMonthReport
           (
           SELECT
             production_centre_id,
-            SUM(CASE WHEN tracking_goals.goal_type = 'total_glt_clones' THEN tracking_goals.goal ELSE 0 END) AS gtc_goals,
+            SUM(CASE WHEN tracking_goals.goal_type = 'total_glt_genes' THEN tracking_goals.goal ELSE 0 END) AS gtc_goals,
             SUM(CASE WHEN tracking_goals.goal_type = 'cre_exicised_genes' THEN tracking_goals.goal ELSE 0 END) AS cre_goals,
             SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_experiment_started_genes' THEN tracking_goals.goal ELSE 0 END) AS phenotype_started_goals,
             SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_started_genes' THEN tracking_goals.goal ELSE 0 END) AS ps_goals,
             SUM(CASE WHEN tracking_goals.goal_type = 'phenotype_complete_genes' THEN tracking_goals.goal ELSE 0 END) AS pc_goals
           FROM tracking_goals
           WHERE tracking_goals.date IS NULL OR to_number(to_char(tracking_goals.date, 'YYYYMM'),'999999' ) <= (#{(cut_off_date.to_date.strftime('%Y%m'))})
-                AND tracking_goals.goal_type IN ('total_glt_clones', 'cre_exicised_genes', 'phenotype_experiment_started_genes', 'phenotype_started_genes', 'phenotype_complete_genes' )
+                AND tracking_goals.goal_type IN ('total_glt_genes', 'cre_exicised_genes', 'phenotype_experiment_started_genes', 'phenotype_started_genes', 'phenotype_complete_genes' )
                 AND tracking_goals.consortium_id IS NULL
           GROUP BY production_centre_id
 
@@ -626,7 +626,7 @@ class ImpcCentreByMonthReport
         LEFT JOIN phenotype_centres ON phenotype_centres.date = gtc_centres.date AND phenotype_centres.production_centre = gtc_centres.production_centre
         JOIN centres ON centres.name = gtc_centres.production_centre
 
-        LEFT JOIN tracking_goals AS gtc_goals ON gtc_centres.date = gtc_goals.date AND centres.id = gtc_goals.production_centre_id AND gtc_goals.goal_type = 'total_glt_clones' AND gtc_goals.consortium_id IS NULL
+        LEFT JOIN tracking_goals AS gtc_goals ON gtc_centres.date = gtc_goals.date AND centres.id = gtc_goals.production_centre_id AND gtc_goals.goal_type = 'total_glt_genes' AND gtc_goals.consortium_id IS NULL
 
         LEFT JOIN tracking_goals AS cre_goals ON gtc_centres.date = cre_goals.date AND centres.id = cre_goals.production_centre_id AND cre_goals.goal_type = 'cre_exicised_genes' AND cre_goals.consortium_id IS NULL
         LEFT JOIN tracking_goals AS phenotype_experiments_started_goals ON gtc_centres.date = phenotype_experiments_started_goals.date AND centres.id = phenotype_experiments_started_goals.production_centre_id AND phenotype_experiments_started_goals.goal_type = 'phenotype_experiment_started_genes' AND phenotype_experiments_started_goals.consortium_id IS NULL

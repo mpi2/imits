@@ -74,31 +74,34 @@ class Komp2GraphReportDisplay < BaseSummaryByMonthReport
 
         rowno +=1
       end
-      size = dataset[consortium]['x_data'].count
-      dataset[consortium]['x_data_extended'] = Array.new(size){ |index| (index+1)%2 == 0 ? nil : dataset[consortium]['x_data'][index] }.compact
       dataset[consortium]['pos_gc_diff_data'].append(0)
       dataset[consortium]['neg_gc_diff_data'].append(0)
+      size = dataset[consortium]['x_data'].count
+      dataset[consortium]['x_data_extended'] = Array.new(size){ |index| (index+1)%2 == 0 ? nil : dataset[consortium]['x_data'][index] }.compact
       dataset[consortium]['extended_gc_goals'] = dataset[consortium]['gc_goal_data'].dup
-      last_date_so_far = dates.last
-      last_date = "2016-07-01".to_date
-      number_of_remaining_months = ((last_date.year - last_date_so_far.year) * 12) + (last_date.month - last_date_so_far.month)
-      remaining_goal_difference = (goals_for_2016["#{consortium}"].to_f - dataset[consortium]['gc_goal_data'].last.to_f)/number_of_remaining_months
-      new_goal = dataset[consortium]['gc_goal_data'].last.to_f
-      for i in 1..(number_of_remaining_months-1)
-        last_date_so_far = last_date_so_far.next_month
-        if rowno%2 == 0
-          dataset[consortium]['x_data_extended'].append([rowno, "#{Date::ABBR_MONTHNAMES[last_date_so_far.month]}-#{last_date_so_far.year.to_s[2..3]}"])
-        else
-          dataset[consortium]['x_data_extended'].append([rowno,''])
+
+      if goals_for_2016.has_key?("#{consortium}")
+        last_date_so_far = dates.last
+        last_date = "2016-07-01".to_date
+        number_of_remaining_months = ((last_date.year - last_date_so_far.year) * 12) + (last_date.month - last_date_so_far.month)
+        remaining_goal_difference = (goals_for_2016["#{consortium}"].to_f - dataset[consortium]['gc_goal_data'].last.to_f)/number_of_remaining_months
+        new_goal = dataset[consortium]['gc_goal_data'].last.to_f
+        for i in 1..(number_of_remaining_months-1)
+          last_date_so_far = last_date_so_far.next_month
+          if rowno%2 == 0
+            dataset[consortium]['x_data_extended'].append([rowno, "#{Date::ABBR_MONTHNAMES[last_date_so_far.month]}-#{last_date_so_far.year.to_s[2..3]}"])
+          else
+            dataset[consortium]['x_data_extended'].append([rowno,''])
+          end
+          rowno +=1
+          new_goal += remaining_goal_difference
+          dataset[consortium]['extended_gc_goals'].append(new_goal.to_i)
         end
-        rowno +=1
-        new_goal += remaining_goal_difference
-        dataset[consortium]['extended_gc_goals'].append(new_goal.to_i)
+        dataset[consortium]['extended_gc_goals'].append(goals_for_2016["#{consortium}"].to_i)
+        dataset[consortium]['x_data_extended'].append([rowno,""])
+        rowno+=1
+        dataset[consortium]['x_data_extended'].append([rowno,"Aug-16"])
       end
-      dataset[consortium]['extended_gc_goals'].append(goals_for_2016["#{consortium}"].to_i)
-      dataset[consortium]['x_data_extended'].append([rowno,""])
-      rowno+=1
-      dataset[consortium]['x_data_extended'].append([rowno,"Aug-16"])
     end
 
     return dataset

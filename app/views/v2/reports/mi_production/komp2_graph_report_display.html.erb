@@ -126,7 +126,7 @@
       <dl>
         <dt style = "display:block"><%= image_tag( url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['mi']}"}.merge(params)), :height => '380', :width => @report.size[n], :id => 'mi_graph')%></dt>
         </br>
-        <dt style = "display:block"><%= image_tag( url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['all_inc_gc']}"}.merge(params)), :mouseover => url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['gc']}"}.merge(params)),:height => '380', :width => @report.size[n], :id => 'gc_graph') %></dt>
+        <dt style = "display:block"><%= image_tag( url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['gc']}"}.merge(params)), :mouseover => url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['gc']}"}.merge(params)),:height => '380', :width => @report.size[n], :id => 'gc_graph') %></dt>
       </dl>
     </td>
   </tr>

@@ -34,6 +34,10 @@ class SolrUpdate::DocFactory
       'colony_name' => mi_attempt.colony_name
     }
 
+   # solr_doc['marker_symbol'] = mi_attempt.mi_plan.gene.marker_symbol
+
+  #  solr_doc['es_cell_name'] = mi_attempt.es_cell.name
+
     solr_doc['production_centre'] = mi_attempt.production_centre.name
 
     best_pa_status_true = mi_attempt.relevant_phenotype_attempt_status(true)
@@ -81,6 +85,10 @@ class SolrUpdate::DocFactory
       'best_status_pa_cre_ex_required' => '',
       'current_pa_status' => ''
     }
+
+   # solr_doc['marker_symbol'] = phenotype_attempt.mi_plan.gene.marker_symbol
+
+  #  solr_doc['parent_mi_attempt_colony_name'] = mi_attempt.colony_name
 
     solr_doc['production_centre'] = phenotype_attempt.production_centre.name
 
@@ -204,7 +212,8 @@ class SolrUpdate::DocFactory
         'simple_allele_image_url' => allele_image_url(allele.id, :simple => true),
         'genbank_file_url' => genbank_file_url(allele.id),
         'order_from_urls' => [order_from_info[:url]],
-        'order_from_names' => [order_from_info[:name]]
+        'order_from_names' => [order_from_info[:name]],
+      #  'marker_symbol' => marker_symbol
       }
     end
 
@@ -248,7 +257,8 @@ class SolrUpdate::DocFactory
       'allele_id' => '-1',
       'mgi_accession_id' => ! gene.mgi_accession_id.blank? ? gene.mgi_accession_id : 'unknown',
       'consortium' => '',
-      'production_centre' => ''
+      'production_centre' => '',
+  #    'marker_symbol' => gene.marker_symbol
     }
 
     plan = gene.relevant_plan

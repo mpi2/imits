@@ -34,6 +34,8 @@ class SolrUpdate::DocFactory
       'colony_name' => mi_attempt.colony_name
     }
 
+    solr_doc['production_centre'] = mi_attempt.production_centre.name
+
     best_pa_status_true = mi_attempt.relevant_phenotype_attempt_status(true)
     best_pa_status_false = mi_attempt.relevant_phenotype_attempt_status(false)
 
@@ -79,6 +81,8 @@ class SolrUpdate::DocFactory
       'best_status_pa_cre_ex_required' => '',
       'current_pa_status' => ''
     }
+
+    solr_doc['production_centre'] = phenotype_attempt.production_centre.name
 
     solr_doc['best_status_pa_cre_ex_required'] = phenotype_attempt.status.name if phenotype_attempt.cre_excision_required
     solr_doc['best_status_pa_cre_ex_not_required'] = phenotype_attempt.status.name if ! phenotype_attempt.cre_excision_required

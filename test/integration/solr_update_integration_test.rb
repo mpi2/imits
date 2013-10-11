@@ -130,7 +130,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'best_status_pa_cre_ex_not_required' => '',
         'best_status_pa_cre_ex_required' => 'Cre Excision Complete',
         'current_pa_status' => 'Cre Excision Complete',
-        'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image-cre?simple=true'
+        'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image-cre?simple=true',
+        'production_centre' => 'WTSI'
       }
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

@@ -939,7 +939,10 @@ CREATE TABLE new_consortia_intermediate_report (
     cre_ex_pa_allele_symbol_superscript character varying(255),
     cre_ex_mi_attempt_consortium character varying(255),
     cre_ex_mi_attempt_production_centre character varying(255),
-    cre_ex_phenotype_attempt_colony_name character varying(255)
+    cre_ex_phenotype_attempt_colony_name character varying(255),
+    phenotyping_data_flow_started_date date,
+    non_cre_ex_phenotyping_data_flow_started_date date,
+    cre_ex_phenotyping_data_flow_started_date date
 );
 
 
@@ -1048,7 +1051,10 @@ CREATE TABLE new_gene_intermediate_report (
     cre_ex_pa_allele_symbol_superscript character varying(255),
     cre_ex_mi_attempt_consortium character varying(255),
     cre_ex_mi_attempt_production_centre character varying(255),
-    cre_ex_phenotype_attempt_colony_name character varying(255)
+    cre_ex_phenotype_attempt_colony_name character varying(255),
+    phenotyping_data_flow_started_date date,
+    non_cre_ex_phenotyping_data_flow_started_date date,
+    cre_ex_phenotyping_data_flow_started_date date
 );
 
 
@@ -1151,7 +1157,10 @@ CREATE TABLE new_intermediate_report (
     cre_ex_pa_allele_symbol_superscript character varying(255),
     cre_ex_mi_attempt_consortium character varying(255),
     cre_ex_mi_attempt_production_centre character varying(255),
-    cre_ex_phenotype_attempt_colony_name character varying(255)
+    cre_ex_phenotype_attempt_colony_name character varying(255),
+    phenotyping_data_flow_started_date date,
+    non_cre_ex_phenotyping_data_flow_started_date date,
+    cre_ex_phenotyping_data_flow_started_date date
 );
 
 
@@ -3855,3 +3864,5 @@ INSERT INTO schema_migrations (version) VALUES ('20130827134214');
 INSERT INTO schema_migrations (version) VALUES ('20130827163214');
 
 INSERT INTO schema_migrations (version) VALUES ('20130918163214');
+
+INSERT INTO schema_migrations (version) VALUES ('20131015114400');

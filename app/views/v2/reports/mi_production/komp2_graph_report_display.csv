@@ -9,6 +9,6 @@ Microinjections (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulati
 Genotype Confirmed Mice (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative genotype confirmed"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Genotype confirmed"]%>
 Intent to Phenotype (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative Phenotype Registered"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Phenotype Attempt Registered"]%>
 Cre Excision Complete (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative Cre Excision Complete"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Cre Excision Complete"]%>
-Phenotyping Complete (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative Phenotype Complete"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Phenotyping Complete"]%>
+Phenotype data flow started (genes),<%= @report.report_hash["#{consortium}-#{@date}-Cumulative Phenotyping Data Flow Started"]%>,<%= @report.report_hash["#{consortium}-#{@date}-Phenotyping Data Flow Started"]%>
 
 <% end %>

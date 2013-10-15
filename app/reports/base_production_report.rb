@@ -18,6 +18,7 @@ class BaseProductionReport
   attr_accessor :consortium_centre_by_phenotyping_status_cre_excision_required
   attr_accessor :consortium_centre_by_phenotyping_status_cre_excision_not_required
   attr_accessor :mi_attempt_distribution_centre_counts
+  attr_accessor :phenotype_data_flow_counts
   attr_accessor :phenotype_attempt_distribution_centre_counts
 
   def consortium_by_status
@@ -74,6 +75,10 @@ class BaseProductionReport
 
   def mi_attempt_distribution_centre_counts
     @mi_attempt_distribution_centre_counts ||= ActiveRecord::Base.connection.execute(self.class.mi_attempt_distribution_centre_counts_sql)
+  end
+
+  def phenotype_data_flow_counts
+    @phenotype_data_flow_counts ||= ActiveRecord::Base.connection.execute(self.class.phenotype_data_flow_counts_sql)
   end
 
   def phenotype_attempt_distribution_centre_counts
@@ -303,6 +308,18 @@ class BaseProductionReport
       hash["phenotype_attempt-#{report_row['phenotype_type']}-#{report_row['consortium']}-#{report_row['centre']}-emma"] = report_row['emma']
       hash["phenotype_attempt-#{report_row['phenotype_type']}-#{report_row['consortium']}-#{report_row['centre']}-komp"] = report_row['komp']
       hash["phenotype_attempt-#{report_row['phenotype_type']}-#{report_row['consortium']}-#{report_row['centre']}-shelf"] = report_row['shelf']
+    end
+
+    hash
+  end
+
+  def generate_phenotyping_data_flow_started_counts
+    hash = {}
+
+    phenotype_data_flow_counts.each do |report_row|
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Phenotype Data Flow Count"] = report_row['phenotype_data_flow_count']
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Cre Ex Phenotype Data Flow Count"] = report_row['cre_ex_phenotype_data_flow_count']
+      hash["#{report_row['consortium']}-#{report_row['production_centre']}-Non Cre Ex Phenotype Data Flow Count"] = report_row['non_cre_ex_phenotype_data_flow_count']
     end
 
     hash
@@ -717,6 +734,22 @@ class BaseProductionReport
       EOF
     end
 
+    def phenotype_data_flow_counts_sql
+      <<-EOF
+      SELECT
+        consortium,
+        production_centre,
+        SUM(CASE WHEN phenotyping_data_flow_started_date IS NOT NULL THEN 1 ELSE 0 END) AS phenotype_data_flow_count,
+        SUM(CASE WHEN cre_ex_phenotyping_data_flow_started_date IS NOT NULL THEN 1 ELSE 0 END) AS cre_ex_phenotype_data_flow_count,
+        SUM(CASE WHEN non_cre_ex_phenotyping_data_flow_started_date IS NOT NULL THEN 1 ELSE 0 END) AS non_cre_ex_phenotype_data_flow_count
+      FROM
+        new_gene_intermediate_report
+      WHERE
+        consortium in ('#{available_consortia.join('\', \'')}')
+      GROUP BY
+        consortium, production_centre
+      EOF
+    end
 
     def phenotype_attempt_distribution_centre_counts_sql
       <<-EOF

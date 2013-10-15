@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130918163214) do
+ActiveRecord::Schema.define(:version => 20131015114400) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -429,6 +429,9 @@ ActiveRecord::Schema.define(:version => 20130918163214) do
     t.string   "cre_ex_mi_attempt_consortium"
     t.string   "cre_ex_mi_attempt_production_centre"
     t.string   "cre_ex_phenotype_attempt_colony_name"
+    t.date     "phenotyping_data_flow_started_date"
+    t.date     "non_cre_ex_phenotyping_data_flow_started_date"
+    t.date     "cre_ex_phenotyping_data_flow_started_date"
   end
 
   create_table "new_gene_intermediate_report", :force => true do |t|
@@ -513,6 +516,9 @@ ActiveRecord::Schema.define(:version => 20130918163214) do
     t.string   "cre_ex_mi_attempt_consortium"
     t.string   "cre_ex_mi_attempt_production_centre"
     t.string   "cre_ex_phenotype_attempt_colony_name"
+    t.date     "phenotyping_data_flow_started_date"
+    t.date     "non_cre_ex_phenotyping_data_flow_started_date"
+    t.date     "cre_ex_phenotyping_data_flow_started_date"
   end
 
   create_table "new_intermediate_report", :force => true do |t|
@@ -591,6 +597,9 @@ ActiveRecord::Schema.define(:version => 20130918163214) do
     t.string   "cre_ex_mi_attempt_consortium"
     t.string   "cre_ex_mi_attempt_production_centre"
     t.string   "cre_ex_phenotype_attempt_colony_name"
+    t.date     "phenotyping_data_flow_started_date"
+    t.date     "non_cre_ex_phenotyping_data_flow_started_date"
+    t.date     "cre_ex_phenotyping_data_flow_started_date"
   end
 
   create_table "notifications", :force => true do |t|

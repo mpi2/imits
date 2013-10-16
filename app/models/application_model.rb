@@ -10,9 +10,9 @@ class ApplicationModel < ActiveRecord::Base
     'c' => 'c - Knockout-First, Post-Flp - Conditional',
     'd' => 'd - Knockout-First, Post-Flp and Cre - Deletion, No Reporter',
     'e' => 'e - Targeted Non-Conditional',
+    'e.1' => 'e.1 - Promoter excision from tm1e mouse',
     '.1' => '.1 - Promoter excision from Deletion'
   }.freeze
-
 
   COMPLETION_NOTE ={
     nil => '[none]',

@@ -47,8 +47,12 @@
   <td>Genes where exposure to Cre recombinase has been successful</td>
 </tr>
 <tr>
-  <td><strong>Phenotype complete (gene)</strong></td>
-  <td>Phenotyping <strong>data</strong> has finished flowing to the KOMP2 DCC (MPI2) - currently accessible via machine interface only</td>
+  <td><strong>Phenotype experiments started (gene)</strong></td>
+  <td>Genes that have started phenotype experiments</td>
+</tr>
+<tr>
+  <td><strong>Phenotype data started (gene) / Phenotype complete (gene)</strong></td>
+  <td>Phenotyping <strong>data</strong> has started / finished flowing to the KOMP2 DCC (MPI2) - currently accessible via machine interface only</td>
 </tr>
 </tbody>
 </table>
@@ -115,9 +119,14 @@
           <td><%= report_link_to(@report.report_hash, consortium, 'Cre Excision Complete', :date => @date, :production_group => 'consortia')%></td>
         </tr>
         <tr>
+          <td>Phenotype experiments started (genes)</td>
+          <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative Phenotyping Experiments Started', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
+          <td><%= report_link_to(@report.report_hash, consortium, 'Phenotyping Experiments Started', :date => @date, :production_group => 'consortia')%></td>
+        </tr>
+        <tr>
           <td>Phenotype data flow started (genes)</td>
-          <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative Phenotyping Data Flow Started', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
-          <td><%= report_link_to(@report.report_hash, consortium, 'Phenotyping Data Flow Started', :date => @date, :production_group => 'consortia')%></td>
+          <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative Phenotype Started', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
+          <td><%= report_link_to(@report.report_hash, consortium, 'Phenotyping Started', :date => @date, :production_group => 'consortia')%></td>
         </tr>
       </table></dt></dl></div>
     </td>

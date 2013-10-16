@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131015114400) do
+ActiveRecord::Schema.define(:version => 20131016134400) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -230,7 +230,7 @@ ActiveRecord::Schema.define(:version => 20131015114400) do
     t.integer  "number_of_cct_offspring"
     t.integer  "number_of_het_offspring"
     t.integer  "number_of_live_glt_offspring"
-    t.string   "mouse_allele_type",                               :limit => 2
+    t.string   "mouse_allele_type",                               :limit => 3
     t.integer  "qc_southern_blot_id"
     t.integer  "qc_five_prime_lr_pcr_id"
     t.integer  "qc_five_prime_cassette_integrity_id"
@@ -429,9 +429,9 @@ ActiveRecord::Schema.define(:version => 20131015114400) do
     t.string   "cre_ex_mi_attempt_consortium"
     t.string   "cre_ex_mi_attempt_production_centre"
     t.string   "cre_ex_phenotype_attempt_colony_name"
-    t.date     "phenotyping_data_flow_started_date"
-    t.date     "non_cre_ex_phenotyping_data_flow_started_date"
-    t.date     "cre_ex_phenotyping_data_flow_started_date"
+    t.date     "phenotyping_experiments_started_date"
+    t.date     "non_cre_ex_phenotyping_experiments_started_date"
+    t.date     "cre_ex_phenotyping_experiments_started_date"
   end
 
   create_table "new_gene_intermediate_report", :force => true do |t|
@@ -516,9 +516,9 @@ ActiveRecord::Schema.define(:version => 20131015114400) do
     t.string   "cre_ex_mi_attempt_consortium"
     t.string   "cre_ex_mi_attempt_production_centre"
     t.string   "cre_ex_phenotype_attempt_colony_name"
-    t.date     "phenotyping_data_flow_started_date"
-    t.date     "non_cre_ex_phenotyping_data_flow_started_date"
-    t.date     "cre_ex_phenotyping_data_flow_started_date"
+    t.date     "phenotyping_experiments_started_date"
+    t.date     "non_cre_ex_phenotyping_experiments_started_date"
+    t.date     "cre_ex_phenotyping_experiments_started_date"
   end
 
   create_table "new_intermediate_report", :force => true do |t|
@@ -597,9 +597,9 @@ ActiveRecord::Schema.define(:version => 20131015114400) do
     t.string   "cre_ex_mi_attempt_consortium"
     t.string   "cre_ex_mi_attempt_production_centre"
     t.string   "cre_ex_phenotype_attempt_colony_name"
-    t.date     "phenotyping_data_flow_started_date"
-    t.date     "non_cre_ex_phenotyping_data_flow_started_date"
-    t.date     "cre_ex_phenotyping_data_flow_started_date"
+    t.date     "phenotyping_experiments_started_date"
+    t.date     "non_cre_ex_phenotyping_experiments_started_date"
+    t.date     "cre_ex_phenotyping_experiments_started_date"
   end
 
   create_table "notifications", :force => true do |t|
@@ -656,7 +656,7 @@ ActiveRecord::Schema.define(:version => 20131015114400) do
     t.datetime "updated_at"
     t.integer  "mi_plan_id",                                                         :null => false
     t.string   "colony_name",                      :limit => 125,                    :null => false
-    t.string   "mouse_allele_type",                :limit => 2
+    t.string   "mouse_allele_type",                :limit => 3
     t.integer  "deleter_strain_id"
     t.integer  "colony_background_strain_id"
     t.boolean  "cre_excision_required",                           :default => true,  :null => false

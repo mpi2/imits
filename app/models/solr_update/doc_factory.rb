@@ -34,9 +34,9 @@ class SolrUpdate::DocFactory
       'colony_name' => mi_attempt.colony_name
     }
 
-   # solr_doc['marker_symbol'] = mi_attempt.mi_plan.gene.marker_symbol
+    solr_doc['marker_symbol'] = mi_attempt.mi_plan.gene.marker_symbol
 
-  #  solr_doc['es_cell_name'] = mi_attempt.es_cell.name
+    solr_doc['es_cell_name'] = mi_attempt.es_cell.name
 
     solr_doc['production_centre'] = mi_attempt.production_centre.name
 
@@ -86,9 +86,10 @@ class SolrUpdate::DocFactory
       'current_pa_status' => ''
     }
 
-   # solr_doc['marker_symbol'] = phenotype_attempt.mi_plan.gene.marker_symbol
+    solr_doc['marker_symbol'] = phenotype_attempt.mi_plan.gene.marker_symbol
 
-  #  solr_doc['parent_mi_attempt_colony_name'] = mi_attempt.colony_name
+    solr_doc['colony_name'] = phenotype_attempt.colony_name
+    solr_doc['parent_mi_attempt_colony_name'] = phenotype_attempt.mi_attempt.colony_name
 
     solr_doc['production_centre'] = phenotype_attempt.production_centre.name
 
@@ -213,7 +214,7 @@ class SolrUpdate::DocFactory
         'genbank_file_url' => genbank_file_url(allele.id),
         'order_from_urls' => [order_from_info[:url]],
         'order_from_names' => [order_from_info[:name]],
-      #  'marker_symbol' => marker_symbol
+        'marker_symbol' => marker_symbol
       }
     end
 
@@ -258,7 +259,7 @@ class SolrUpdate::DocFactory
       'mgi_accession_id' => ! gene.mgi_accession_id.blank? ? gene.mgi_accession_id : 'unknown',
       'consortium' => '',
       'production_centre' => '',
-  #    'marker_symbol' => gene.marker_symbol
+      'marker_symbol' => gene.marker_symbol
     }
 
     plan = gene.relevant_plan

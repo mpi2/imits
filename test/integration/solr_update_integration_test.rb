@@ -79,7 +79,9 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'current_pa_status'=>'',
           'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image?simple=true',
           'colony_name' => 'WTSI-EPD0027_2_A02-1',
-          'production_centre' => 'WTSI'
+          'production_centre' => 'WTSI',
+          'es_cell_name' => 'EPD0027_2_A02',
+          'marker_symbol' => 'Cbx1'
         }
 
         fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
@@ -131,7 +133,9 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'best_status_pa_cre_ex_required' => 'Cre Excision Complete',
         'current_pa_status' => 'Cre Excision Complete',
         'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image-cre?simple=true',
-        'production_centre' => 'WTSI'
+        'production_centre' => 'WTSI',
+        'marker_symbol' => 'Cbx1',
+        'parent_mi_attempt_colony_name' => 'WTSI-EPD0027_2_A02-1-1'
       }
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

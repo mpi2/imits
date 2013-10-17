@@ -39,6 +39,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @distribution_centre_counts = @report.generate_distribution_centre_counts
+    @phenotyping_data_flow_started_counts = @report.generate_phenotyping_data_flow_started_counts
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -57,10 +58,12 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @distribution_centre_counts = @report.generate_distribution_centre_counts
+    @phenotyping_data_flow_started_counts = @report.generate_phenotyping_data_flow_started_counts
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
     @mi_plan_statuses = ImpcProductionReport.mi_plan_statuses
+
 
     render :template => 'v2/reports/mi_production/production_summary'
   end
@@ -74,6 +77,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @distribution_centre_counts = @report.generate_distribution_centre_counts
+    @phenotyping_data_flow_started_counts = @report.generate_phenotyping_data_flow_started_counts
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -165,10 +169,7 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def impc_centre_by_month_consortia_breakdown
-    puts 'HELLO'
-    puts params[:centre]
     @centre = Centre.find_by_name(params[:centre]).try(:name) || ''
-    puts @centre
     if @centre.blank?
       flash[:alert] = "Invalid Production Centre"
     end
@@ -362,6 +363,9 @@ class V2::Reports::MiProductionController < ApplicationController
       elsif hash['type'].to_s.downcase == 'phenotyping started'
         hash['phenotype_attempt_status_eq'] = 'Phenotyping Started'
         translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['phenotyping data flow started', 'cumulative phenotyping data flow started'].include?(hash['type'].to_s.downcase)
+        translate_date(hash, 'Phenotyping Data Flow Started', lower_limit)
 
       elsif ['phenotyping completed', 'phenotyping complete', 'cumulative phenotype complete'].include?(hash['type'].to_s.downcase)
         hash['phenotype_attempt_status_eq'] = 'Phenotyping Complete'
@@ -573,6 +577,12 @@ class V2::Reports::MiProductionController < ApplicationController
           hash['phenotyping_started_date_gteq'] = month_begins
         end
         hash['phenotyping_started_date_lt'] = next_month
+
+      elsif type == 'Phenotyping Data Flow Started'
+        if !no_lower_limit
+          hash['phenotyping_data_flow_started_date_gteq'] = month_begins
+        end
+        hash['phenotyping_data_flow_started_date_lt'] = next_month
 
       elsif type == 'Phenotyping Complete'
         if !no_lower_limit

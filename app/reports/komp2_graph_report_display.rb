@@ -27,16 +27,21 @@ class Komp2GraphReportDisplay < BaseSummaryByMonthReport
     report_date = self.class.date_previous_month.to_date.at_beginning_of_month
 
     sql = <<-EOF
-      SELECT consortia.name AS consortium, production_goals.gc_goal AS gc_goal
+      SELECT consortia.name AS consortium, production_goals.gc_goal AS gc_goal, to_date( production_goals.year || ' ' || production_goals.month || ' 01', 'YYYY MM DD') AS date
       FROM production_goals
         JOIN consortia ON consortia.id = production_goals.consortium_id
-      WHERE production_goals.year = 2016 AND production_goals.month = 1
+      WHERE to_date( production_goals.year || ' ' || production_goals.month || ' 01', 'YYYY MM DD')  >= '#{report_date}'
+      ORDER BY consortia.name, to_date( production_goals.year || ' ' || production_goals.month || ' 01', 'YYYY MM DD')
     EOF
     report_data = ActiveRecord::Base.connection.execute(sql)
-    goals_for_2016 = {}
+    future_goals = {}
     report_data.each do |report_row|
-      goals_for_2016[report_row['consortium']] = report_row['gc_goal']
+      if ! future_goals.has_key?(report_row['consortium'])
+        future_goals[report_row['consortium']] = []
+      end
+      future_goals[report_row['consortium']] << {:date => report_row['date'].to_date,  :goal => report_row['gc_goal'].to_i}
     end
+
 
     while report_date >= cut_off_date do
       dates.insert(0, report_date)
@@ -80,32 +85,56 @@ class Komp2GraphReportDisplay < BaseSummaryByMonthReport
       dataset[consortium]['x_data_extended'] = Array.new(size){ |index| (index+1)%2 == 0 ? nil : dataset[consortium]['x_data'][index] }.compact
       dataset[consortium]['extended_gc_goals'] = dataset[consortium]['gc_goal_data'].dup
 
-      if goals_for_2016.has_key?("#{consortium}")
+      rowno -=1 # readjust rowno
+      if future_goals.has_key?(consortium)
         last_date_so_far = dates.last
         last_date = "2016-07-01".to_date
-        number_of_remaining_months = ((last_date.year - last_date_so_far.year) * 12) + (last_date.month - last_date_so_far.month)
-        remaining_goal_difference = (goals_for_2016["#{consortium}"].to_f - dataset[consortium]['gc_goal_data'].last.to_f)/number_of_remaining_months
-        new_goal = dataset[consortium]['gc_goal_data'].last.to_f
-        for i in 1..(number_of_remaining_months-1)
-          last_date_so_far = last_date_so_far.next_month
-          if rowno%2 == 0
-            dataset[consortium]['x_data_extended'].append([rowno, "#{Date::ABBR_MONTHNAMES[last_date_so_far.month]}-#{last_date_so_far.year.to_s[2..3]}"])
-          else
-            dataset[consortium]['x_data_extended'].append([rowno,''])
-          end
-          rowno +=1
-          new_goal += remaining_goal_difference
-          dataset[consortium]['extended_gc_goals'].append(new_goal.to_i)
+        future_goals[consortium].insert(0, {:date => dates.last , :goal => dataset[consortium]['extended_gc_goals'].last})
+        if future_goals[consortium].last[:date] < last_date and dates.last < last_date
+          future_goals[consortium] << { :date => last_date.to_date, :goal => 820}
         end
-        dataset[consortium]['extended_gc_goals'].append(goals_for_2016["#{consortium}"].to_i)
-        dataset[consortium]['x_data_extended'].append([rowno,""])
-        rowno+=1
-        dataset[consortium]['x_data_extended'].append([rowno,"Aug-16"])
+
+        if future_goals[consortium].count > 0
+          loop_number = future_goals[consortium].count - 1
+          for i in 1..loop_number
+
+            number_of_month_diffences = (future_goals[consortium][i+1][:date].year - future_goals[consortium][i][:date].year) * 12 + (future_goals[consortium][i+1][:date].month - future_goals[consortium][i][:date].month)
+            if number_of_month_diffences > 1
+              goal_difference = (future_goals[consortium][i+1][:goal].to_f - future_goals[consortium][i][:goal].to_f)/number_of_month_diffences
+              for j in 1..(number_of_month_diffences - 1)
+                dataset[consortium]['extended_gc_goals'] << future_goals[consortium][i][:goal] + (j*(goal_difference)).to_i
+                rowno += 1
+                append_x_data(dataset, rowno, future_goals[consortium][i][:date] + j.month, consortium, i)
+              end
+              dataset[consortium]['extended_gc_goals'] << future_goals[consortium][i+1][:goal]
+              rowno += 1
+              append_x_data(dataset, rowno, future_goals[consortium][i+1][:date], consortium, i)
+            elsif number_of_month_diffences == 1
+              dataset[consortium]['extended_gc_goals'] << future_goals[consortium][i+1][:goal]
+              rowno += 1
+              append_x_data(dataset, rowno, future_goals[consortium][i+1][:date], consortium, i)
+            end
+
+            if future_goals[consortium][i+1][:date] == last_date
+              break
+            end
+          end
+        end
       end
     end
 
     return dataset
   end
+
+
+  def append_x_data(dataset, rowno, date, consortium, i)
+    if rowno%2 == 0
+      dataset[consortium]['x_data_extended'].append([rowno, "#{Date::ABBR_MONTHNAMES[date.month]}-#{date.year.to_s[2..3]}"])
+    else
+      dataset[consortium]['x_data_extended'].append([rowno,''])
+    end
+  end
+
 
   def draw_all_graphs(graph)
     one_width = []

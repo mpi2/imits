@@ -94,6 +94,7 @@
         <th>Rederivation completed (genes)</th>
         <th>Cre excision started (genes)</th>
         <th>Cre excision completed (genes)</th>
+        <th>Phenotyping data flow started (genes)</th>
         <th>Phenotyping started (genes)</th>
         <th>Phenotyping aborted (genes)</th>
         <th>Phenotyping completed (genes)</th>
@@ -106,6 +107,7 @@
         <th rowspan=2>Cre excision started (genes)</th>
         <th rowspan=2>Cre excision completed (genes)</th>
         <th colspan=3>Distribution centres</th>
+        <th rowspan=2>Phenotyping data flow started (genes)</th>
         <th rowspan=2>Phenotyping started (genes)</th>
         <th rowspan=2>Phenotyping aborted (genes)</th>
         <th rowspan=2>Phenotyping completed (genes)</th>
@@ -139,6 +141,7 @@
             <!--td><%= @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-emma"] if @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-emma"] and @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-emma"].to_i > 0 %></td>
             <td><%= @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-komp"] if @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-komp"] and @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-komp"].to_i > 0 %></td>
             <td><%= @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-shelf"] if @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-shelf"] and @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-shelf"].to_i > 0%></td-->
+            <td><%= @phenotyping_data_flow_started_counts["#{row['consortium']}-#{centre}-Cre Ex Phenotype Data Flow Count"] if @phenotyping_data_flow_started_counts["#{row['consortium']}-#{centre}-Cre Ex Phenotype Data Flow Count"] and @phenotyping_data_flow_started_counts["#{row['consortium']}-#{centre}-Cre Ex Phenotype Data Flow Count"].to_i > 0%></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Phenotyping started", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Phenotyping aborted", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Phenotyping completed", :centre => centre, :production_group => 'gene') %></td>
@@ -170,6 +173,7 @@
         <th>Rederivation completed (genes)</th>
         <th>Cre excision started (genes)</th>
         <th>Cre excision completed (genes)</th>
+        <th>Phenotyping data flow started (genes)</th>
         <th>Phenotyping started (genes)</th>
         <th>Phenotyping aborted (genes)</th>
         <th>Phenotyping completed (genes)</th>
@@ -182,6 +186,7 @@
         <th rowspan=2>Cre excision started (genes)</th>
         <th rowspan=2>Cre excision completed (genes)</th>
         <th colspan=3>Distribution centres</th>
+        <th rowspan=2>Phenotyping data flow started (genes)</th>
         <th rowspan=2>Phenotyping started (genes)</th>
         <th rowspan=2>Phenotyping aborted (genes)</th>
         <th rowspan=2>Phenotyping completed (genes)</th>
@@ -214,6 +219,7 @@
             <!--td><%= @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-emma"] if @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-emma"] and @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-emma"].to_i > 0 %></td>
             <td><%= @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-komp"] if @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-komp"] and @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-komp"].to_i > 0 %></td>
             <td><%= @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-shelf"] if @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-shelf"] and @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-shelf"].to_i > 0%></td-->
+            <td><%= @phenotyping_data_flow_started_counts["#{row['consortium']}-#{centre}-Non Cre Ex Phenotype Data Flow Count"] if @phenotyping_data_flow_started_counts["#{row['consortium']}-#{centre}-Non Cre Ex Phenotype Data Flow Count"] and @phenotyping_data_flow_started_counts["#{row['consortium']}-#{centre}-Non Cre Ex Phenotype Data Flow Count"].to_i > 0%></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Non Cre Ex Phenotyping started", :centre => centre, :production_group => 'gene') %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Non Cre Ex Phenotyping aborted", :centre => centre, :production_group => 'gene') %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Non Cre Ex Phenotyping completed", :centre => centre, :production_group => 'gene') %></td>
@@ -329,8 +335,8 @@
         <td>Total number of Genes for mouse lines where Cre Excision has started/completed.</td>
       </tr>
       <tr>
-        <th>Phenotype started (genes) / completed (genes)</th>
-        <td>Phenotyping <strong>data</strong> has started / finished flowing to the KOMP2 DCC (MPI2) - currently accessible via machine interface only</td>
+        <th>Data flow started (genes) / Started (genes) / Completed (genes)</th>
+        <td>Phenotyping <strong>data</strong> has started data flow / started / finished flowing to the KOMP2 DCC (MPI2) - currently accessible via machine interface only</td>
       </tr>
     </tbody>
   </table>

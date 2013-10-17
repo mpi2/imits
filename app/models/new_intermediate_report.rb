@@ -9,6 +9,7 @@ class NewIntermediateReport < ActiveRecord::Base
 end
 
 
+
 # == Schema Information
 #
 # Table name: new_intermediate_report
@@ -89,5 +90,8 @@ end
 #  cre_ex_mi_attempt_consortium                     :string(255)
 #  cre_ex_mi_attempt_production_centre              :string(255)
 #  cre_ex_phenotype_attempt_colony_name             :string(255)
+#  phenotyping_data_flow_started_date               :date
+#  non_cre_ex_phenotyping_data_flow_started_date    :date
+#  cre_ex_phenotyping_data_flow_started_date        :date
 #
 

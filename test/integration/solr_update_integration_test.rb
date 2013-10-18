@@ -135,7 +135,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'simple_allele_image_url' => 'https://www.i-dcc.org/imits/targ_rep/alleles/1/allele-image-cre?simple=true',
         'production_centre' => 'WTSI',
         'marker_symbol' => 'Cbx1',
-        'parent_mi_attempt_colony_name' => 'WTSI-EPD0027_2_A02-1-1'
+        'colony_name' => 'WTSI-EPD0027_2_A02-1-1',
+        'parent_mi_attempt_colony_name' => 'WTSI-EPD0027_2_A02-1'
       }
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

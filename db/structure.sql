@@ -553,7 +553,7 @@ CREATE TABLE mi_attempts (
     number_of_cct_offspring integer,
     number_of_het_offspring integer,
     number_of_live_glt_offspring integer,
-    mouse_allele_type character varying(2),
+    mouse_allele_type character varying(3),
     qc_southern_blot_id integer,
     qc_five_prime_lr_pcr_id integer,
     qc_five_prime_cassette_integrity_id integer,
@@ -940,9 +940,9 @@ CREATE TABLE new_consortia_intermediate_report (
     cre_ex_mi_attempt_consortium character varying(255),
     cre_ex_mi_attempt_production_centre character varying(255),
     cre_ex_phenotype_attempt_colony_name character varying(255),
-    phenotyping_data_flow_started_date date,
-    non_cre_ex_phenotyping_data_flow_started_date date,
-    cre_ex_phenotyping_data_flow_started_date date
+    phenotyping_experiments_started_date date,
+    non_cre_ex_phenotyping_experiments_started_date date,
+    cre_ex_phenotyping_experiments_started_date date
 );
 
 
@@ -1052,9 +1052,9 @@ CREATE TABLE new_gene_intermediate_report (
     cre_ex_mi_attempt_consortium character varying(255),
     cre_ex_mi_attempt_production_centre character varying(255),
     cre_ex_phenotype_attempt_colony_name character varying(255),
-    phenotyping_data_flow_started_date date,
-    non_cre_ex_phenotyping_data_flow_started_date date,
-    cre_ex_phenotyping_data_flow_started_date date
+    phenotyping_experiments_started_date date,
+    non_cre_ex_phenotyping_experiments_started_date date,
+    cre_ex_phenotyping_experiments_started_date date
 );
 
 
@@ -1158,9 +1158,9 @@ CREATE TABLE new_intermediate_report (
     cre_ex_mi_attempt_consortium character varying(255),
     cre_ex_mi_attempt_production_centre character varying(255),
     cre_ex_phenotype_attempt_colony_name character varying(255),
-    phenotyping_data_flow_started_date date,
-    non_cre_ex_phenotyping_data_flow_started_date date,
-    cre_ex_phenotyping_data_flow_started_date date
+    phenotyping_experiments_started_date date,
+    non_cre_ex_phenotyping_experiments_started_date date,
+    cre_ex_phenotyping_experiments_started_date date
 );
 
 
@@ -1340,7 +1340,7 @@ CREATE TABLE phenotype_attempts (
     updated_at timestamp without time zone,
     mi_plan_id integer NOT NULL,
     colony_name character varying(125) NOT NULL,
-    mouse_allele_type character varying(2),
+    mouse_allele_type character varying(3),
     deleter_strain_id integer,
     colony_background_strain_id integer,
     cre_excision_required boolean DEFAULT true NOT NULL,
@@ -3866,3 +3866,7 @@ INSERT INTO schema_migrations (version) VALUES ('20130827163214');
 INSERT INTO schema_migrations (version) VALUES ('20130918163214');
 
 INSERT INTO schema_migrations (version) VALUES ('20131015114400');
+
+INSERT INTO schema_migrations (version) VALUES ('20131016114401');
+
+INSERT INTO schema_migrations (version) VALUES ('20131016134400');

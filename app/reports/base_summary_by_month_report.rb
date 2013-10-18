@@ -73,13 +73,14 @@ class BaseSummaryByMonthReport
         "Cre Excision Started"  => :cre_excision_started_count,
         "Cre Excision Complete" => :cre_excision_complete_count,
         "Phenotyping Started"   => :phenotype_started_count,
-        "Phenotyping Data Flow Started" => :phenotyping_data_flow_started_count,
+        "Phenotyping Experiments Started" => :phenotyping_experiments_started_count,
         "Phenotyping Complete"  => :phenotype_complete_count,
         "Phenotype Attempt Aborted" => :phenotype_aborted_count,
 
         "Cumulative Phenotype Registered" => :cumulative_phenotype_registered,
         "Cumulative Cre Excision Complete" => :cumulative_cre_excision_complete,
-        "Cumulative Phenotyping Data Flow Started" => :cumulative_phenotyping_data_flow_started,
+        "Cumulative Phenotyping Experiments Started" => :cumulative_phenotyping_experiments_started,
+        "Cumulative Phenotype Started" => :cumulative_phenotype_started,
         "Cumulative Phenotype Complete" => :cumulative_phenotype_complete
       }
     end
@@ -218,10 +219,10 @@ class BaseSummaryByMonthReport
                 THEN 1 ELSE 0
               END) as phenotype_started_count,
               SUM(CASE
-                WHEN report.phenotyping_data_flow_started_date >= series.date
-                  AND report.phenotyping_data_flow_started_date < date(series.date + interval '1 month')
+                WHEN report.phenotyping_experiments_started_date >= series.date
+                  AND report.phenotyping_experiments_started_date < date(series.date + interval '1 month')
                 THEN 1 ELSE 0
-              END) as phenotyping_data_flow_started_count,
+              END) as phenotyping_experiments_started_count,
               SUM(CASE
                 WHEN report.phenotyping_complete_date >= series.date
                   AND report.phenotyping_complete_date < date(series.date + interval '1 month')
@@ -251,7 +252,7 @@ class BaseSummaryByMonthReport
                 CASE WHEN cre_excision_started_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE cre_excision_started_date END AS cre_excision_started_date,
                 CASE WHEN cre_excision_complete_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE cre_excision_complete_date END AS cre_excision_complete_date,
                 CASE WHEN phenotyping_started_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotyping_started_date END AS phenotyping_started_date,
-                CASE WHEN phenotyping_data_flow_started_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotyping_data_flow_started_date END AS phenotyping_data_flow_started_date,
+                CASE WHEN phenotyping_experiments_started_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotyping_experiments_started_date END AS phenotyping_experiments_started_date,
                 CASE WHEN phenotyping_complete_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotyping_complete_date END AS phenotyping_complete_date,
                 CASE WHEN phenotype_attempt_aborted_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotype_attempt_aborted_date END AS phenotype_attempt_aborted_date
               FROM new_consortia_intermediate_report
@@ -288,8 +289,9 @@ class BaseSummaryByMonthReport
           cre_excision_complete_count,
           SUM(cre_excision_complete_count) OVER (PARTITION BY consortium ORDER BY date) as cumulative_cre_excision_complete,
           phenotype_started_count,
-          phenotyping_data_flow_started_count,
-          SUM(phenotyping_data_flow_started_count) OVER (PARTITION BY consortium ORDER BY date) AS cumulative_phenotyping_data_flow_started,
+          SUM(phenotype_started_count) OVER (PARTITION BY consortium ORDER BY date) AS cumulative_phenotype_started,
+          phenotyping_experiments_started_count,
+          SUM(phenotyping_experiments_started_count) OVER (PARTITION BY consortium ORDER BY date) AS cumulative_phenotyping_experiments_started,
           phenotype_complete_count,
           SUM(phenotype_complete_count) OVER (PARTITION BY consortium ORDER BY date) as cumulative_phenotype_complete,
           phenotype_aborted_count,

@@ -97,6 +97,7 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: phenotype_attempts
@@ -115,7 +116,7 @@ end
 #  updated_at                       :datetime
 #  mi_plan_id                       :integer         not null
 #  colony_name                      :string(125)     not null
-#  mouse_allele_type                :string(2)
+#  mouse_allele_type                :string(3)
 #  deleter_strain_id                :integer
 #  colony_background_strain_id      :integer
 #  cre_excision_required            :boolean         default(TRUE), not null

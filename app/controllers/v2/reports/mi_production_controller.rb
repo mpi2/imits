@@ -39,7 +39,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @distribution_centre_counts = @report.generate_distribution_centre_counts
-    @phenotyping_data_flow_started_counts = @report.generate_phenotyping_data_flow_started_counts
+    @phenotyping_counts = @report.generate_phenotyping_counts
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -58,7 +58,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @distribution_centre_counts = @report.generate_distribution_centre_counts
-    @phenotyping_data_flow_started_counts = @report.generate_phenotyping_data_flow_started_counts
+    @phenotyping_counts = @report.generate_phenotyping_counts
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -77,7 +77,7 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
     @distribution_centre_counts = @report.generate_distribution_centre_counts
-    @phenotyping_data_flow_started_counts = @report.generate_phenotyping_data_flow_started_counts
+    @phenotyping_counts = @report.generate_phenotyping_counts
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -296,7 +296,6 @@ class V2::Reports::MiProductionController < ApplicationController
       else
         lower_limit = false
       end
-
       if hash['type'].to_s.downcase == 'es cell qc'
         hash['mi_plan_status_in'] = ['Assigned - ES Cell QC Complete', 'Assigned - ES Cell QC In Progress', 'Aborted - ES Cell QC Failed']
         translate_date(hash, hash['mi_plan_status_eq'], lower_limit)
@@ -360,12 +359,21 @@ class V2::Reports::MiProductionController < ApplicationController
         hash['phenotype_attempt_status_eq'] = 'Cre Excision Complete'
         translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
 
-      elsif hash['type'].to_s.downcase == 'phenotyping started'
+      elsif ['phenotyping started', 'cumulative phenotype started'].include?(hash['type'].to_s.downcase)
         hash['phenotype_attempt_status_eq'] = 'Phenotyping Started'
         translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
 
-      elsif ['phenotyping data flow started', 'cumulative phenotyping data flow started'].include?(hash['type'].to_s.downcase)
-        translate_date(hash, 'Phenotyping Data Flow Started', lower_limit)
+      elsif ['phenotyping experiments started', 'cumulative phenotyping experiments started'].include?(hash['type'].to_s.downcase)
+        hash['phenotyping_experiments_started_date_not_null'] = "1"
+        translate_date(hash, 'Phenotyping Experiments Started', lower_limit)
+
+      elsif ['non_cre_ex_phenotype experiments started'].include?(hash['type'].to_s.downcase)
+        hash['non_cre_ex_phenotyping_experiments_started_date_not_null'] = "1"
+        translate_date(hash, 'Non Cre Ex Phenotyping Experiments Started', lower_limit)
+
+      elsif ['cre ex phenotype experiments started'].include?(hash['type'].to_s.downcase)
+        hash['cre_ex_phenotyping_experiments_started_date_not_null'] = "1"
+        translate_date(hash, 'Cre Ex Phenotyping Experiments Started', lower_limit)
 
       elsif ['phenotyping completed', 'phenotyping complete', 'cumulative phenotype complete'].include?(hash['type'].to_s.downcase)
         hash['phenotype_attempt_status_eq'] = 'Phenotyping Complete'
@@ -478,7 +486,6 @@ class V2::Reports::MiProductionController < ApplicationController
 
     def translate_date(hash, type, no_lower_limit = false)
       return if hash['date'].blank?
-
       month_begins = Date.parse(hash['date'])
       next_month = month_begins + 1.month
 
@@ -578,11 +585,24 @@ class V2::Reports::MiProductionController < ApplicationController
         end
         hash['phenotyping_started_date_lt'] = next_month
 
-      elsif type == 'Phenotyping Data Flow Started'
+      elsif type == 'Phenotyping Experiments Started'
         if !no_lower_limit
-          hash['phenotyping_data_flow_started_date_gteq'] = month_begins
+          hash['phenotyping_experiments_started_date_gteq'] = month_begins
         end
-        hash['phenotyping_data_flow_started_date_lt'] = next_month
+        hash['phenotyping_experiments_started_date_lt'] = next_month
+
+
+      elsif type == 'Cre Ex Phenotyping Experiments Started'
+        if !no_lower_limit
+          hash['cre_ex_phenotyping_experiments_started_date_gteq'] = month_begins
+        end
+        hash['cre_ex_phenotyping_experiments_started_date_lt'] = next_month
+
+      elsif type == 'Non Cre Ex Phenotyping Experiments Started'
+        if !no_lower_limit
+          hash['non_cre_ex_phenotyping_experiments_started_date_gteq'] = month_begins
+        end
+        hash['non_cre_ex_phenotyping_experiments_started_date_lt'] = next_month
 
       elsif type == 'Phenotyping Complete'
         if !no_lower_limit

@@ -410,6 +410,8 @@ end
 
 
 
+
+
 # == Schema Information
 #
 # Table name: mi_attempts
@@ -447,7 +449,7 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
-#  mouse_allele_type                               :string(2)
+#  mouse_allele_type                               :string(3)
 #  qc_southern_blot_id                             :integer
 #  qc_five_prime_lr_pcr_id                         :integer
 #  qc_five_prime_cassette_integrity_id             :integer
@@ -519,7 +521,7 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
-#  mouse_allele_type                               :string(2)
+#  mouse_allele_type                               :string(3)
 #  qc_southern_blot_id                             :integer
 #  qc_five_prime_lr_pcr_id                         :integer
 #  qc_five_prime_cassette_integrity_id             :integer

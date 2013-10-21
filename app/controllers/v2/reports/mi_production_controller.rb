@@ -367,7 +367,7 @@ class V2::Reports::MiProductionController < ApplicationController
         hash['phenotyping_experiments_started_date_not_null'] = "1"
         translate_date(hash, 'Phenotyping Experiments Started', lower_limit)
 
-      elsif ['non_cre_ex_phenotype experiments started'].include?(hash['type'].to_s.downcase)
+      elsif ['non cre ex phenotype experiments started'].include?(hash['type'].to_s.downcase)
         hash['non_cre_ex_phenotyping_experiments_started_date_not_null'] = "1"
         translate_date(hash, 'Non Cre Ex Phenotyping Experiments Started', lower_limit)
 
@@ -463,6 +463,13 @@ class V2::Reports::MiProductionController < ApplicationController
         hash['non_cre_ex_phenotype_attempt_status_eq'] = 'Phenotype Attempt Aborted'
         translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
 
+      elsif hash['type'].to_s.downcase == 'cre ex phenotype attempt mi attempt plan confliction'
+        hash['cre_ex_phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+        hash['cre_ex_mi_attempt_consortium_or_cre_ex_mi_attempt_production_centre_not_in'] = [params[:q]['consortium_eq'],params[:q]['production_centre_eq']]
+
+      elsif hash['type'].to_s.downcase == 'non cre ex phenotype attempt mi attempt plan confliction'
+        hash['non_cre_ex_phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+        hash['non_cre_ex_mi_attempt_consortium_or_non_cre_ex_mi_attempt_production_centre_not_in'] = [params[:q]['consortium_eq'],params[:q]['production_centre_eq']]
       end
 
       ##

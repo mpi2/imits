@@ -179,10 +179,7 @@ namespace :solr do
     end
   end
 
-  desc 'Sync every TargRep::TargetedAllele, TargRep::EsCell, MiAttempt & PhenotypeAttempt with the SOLR index'
-  task 'update:all_quick' => ['update:genes', 'update:phenotype_attempts', 'update:alleles', 'update:mi_attempts']
-
   desc 'Sync phenotype_attempts, mi_attempts'
-  task 'update:some_quick' => ['update:phenotype_attempts', 'update:mi_attempts']
+  task 'update:mi_pa' => ['update:phenotype_attempts', 'update:mi_attempts']
 
 end

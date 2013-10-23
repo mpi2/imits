@@ -81,7 +81,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
           'colony_name' => 'WTSI-EPD0027_2_A02-1',
           'production_centre' => 'WTSI',
           'es_cell_name' => 'EPD0027_2_A02',
-          'marker_symbol' => 'Cbx1'
+          'marker_symbol' => 'Cbx1',
+          'project_ids' => ['35505']
         }
 
         fetched_docs = @allele_index_proxy.search(:q => 'type:mi_attempt')
@@ -136,7 +137,8 @@ class SolrUpdateIntegrationTest < ActiveSupport::TestCase
         'production_centre' => 'WTSI',
         'marker_symbol' => 'Cbx1',
         'colony_name' => 'WTSI-EPD0027_2_A02-1-1',
-        'parent_mi_attempt_colony_name' => 'WTSI-EPD0027_2_A02-1'
+        'parent_mi_attempt_colony_name' => 'WTSI-EPD0027_2_A02-1',
+        'project_ids' => ['35505']
       }
 
       fetched_docs = @allele_index_proxy.search(:q => 'type:phenotype_attempt')

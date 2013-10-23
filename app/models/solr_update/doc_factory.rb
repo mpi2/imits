@@ -31,7 +31,8 @@ class SolrUpdate::DocFactory
       'best_status_pa_cre_ex_not_required' => '',
       'best_status_pa_cre_ex_required' => '',
       'current_pa_status' => '',
-      'colony_name' => mi_attempt.colony_name
+      'colony_name' => mi_attempt.colony_name,
+      'project_ids' => [mi_attempt.es_cell.ikmc_project_id]
     }
 
     solr_doc['marker_symbol'] = mi_attempt.mi_plan.gene.marker_symbol
@@ -83,7 +84,8 @@ class SolrUpdate::DocFactory
       'type' => 'phenotype_attempt',
       'best_status_pa_cre_ex_not_required' => '',
       'best_status_pa_cre_ex_required' => '',
-      'current_pa_status' => ''
+      'current_pa_status' => '',
+      'project_ids' => [phenotype_attempt.mi_attempt.es_cell.ikmc_project_id]
     }
 
     solr_doc['marker_symbol'] = phenotype_attempt.mi_plan.gene.marker_symbol
@@ -214,7 +216,8 @@ class SolrUpdate::DocFactory
         'genbank_file_url' => genbank_file_url(allele.id),
         'order_from_urls' => [order_from_info[:url]],
         'order_from_names' => [order_from_info[:name]],
-        'marker_symbol' => marker_symbol
+        'marker_symbol' => marker_symbol,
+        'project_ids' => [es_cell_info[:ikmc_project_id]]
       }
     end
 

@@ -267,6 +267,32 @@ class TargRep::EsCellTest < ActiveSupport::TestCase
         assert( es_cell.save, "ES Cell validates the creation of an invalid entry" )
       end
 
+      should "save when cre knockin and cassette only differs with the addition \'of _dre\'" do
+        allele_cki  = Factory.create :allele, {:mutation_type => TargRep::MutationType.find_by_code('cki')}
+        targ_vec    = Factory.create :targeting_vector, {:allele => allele_cki}
+        mol_struct  = Factory.create :allele,
+               {
+               :gene_id             => targ_vec.allele.gene_id,
+               :project_design_id   => targ_vec.allele.project_design_id,
+               :mutation_type       => TargRep::MutationType.find_by_code('cki'),
+               :cassette            => "#{targ_vec.allele.cassette}_dre",
+               :backbone            => targ_vec.allele.backbone,
+               :homology_arm_start  => targ_vec.allele.homology_arm_start,
+               :homology_arm_end    => targ_vec.allele.homology_arm_end,
+               :cassette_start      => targ_vec.allele.cassette_start,
+               :cassette_end        => targ_vec.allele.cassette_end,
+               :strand              => targ_vec.allele.strand
+               }
+
+
+        es_cell = Factory.build :es_cell
+        es_cell.targeting_vector = targ_vec
+        es_cell.allele           = mol_struct
+
+        assert( es_cell.valid?, "ES Cell validates an invalid entry" )
+        assert( es_cell.save, "ES Cell validates the creation of an invalid entry" )
+      end
+
     end
 
     should "copy the IKMC project id from it's TV if the project id is empty" do

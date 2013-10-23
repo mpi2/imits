@@ -13,6 +13,18 @@ class ConsistentAlleleValidator < ActiveModel::EachValidator
         my_allele.project_design_id         == targ_vec_allele.project_design_id        and
         ['crd', 'tnc'].include?(my_allele.mutation_type.code)                           and
         ['crd', 'tnc'].include?(targ_vec_allele.mutation_type.code)                     and
+        my_allele.cassette                  == targ_vec_allele.cassette                 and
+        my_allele.backbone                  == targ_vec_allele.backbone                 and
+        my_allele.homology_arm_start        == targ_vec_allele.homology_arm_start       and
+        my_allele.homology_arm_end          == targ_vec_allele.homology_arm_end         and
+        my_allele.cassette_start            == targ_vec_allele.cassette_start           and
+        my_allele.cassette_end              == targ_vec_allele.cassette_end
+
+      ) || (
+        my_allele.mgi_accession_id          == targ_vec_allele.mgi_accession_id         and
+        my_allele.project_design_id         == targ_vec_allele.project_design_id        and
+        ['cki'].include?(my_allele.mutation_type.code)                                  and
+        ['cki'].include?(targ_vec_allele.mutation_type.code)                            and
         my_allele.cassette.gsub('_dre','')  == targ_vec_allele.cassette.gsub('_dre','') and
         my_allele.backbone                  == targ_vec_allele.backbone                 and
         my_allele.homology_arm_start        == targ_vec_allele.homology_arm_start       and

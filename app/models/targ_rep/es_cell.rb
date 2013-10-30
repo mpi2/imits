@@ -195,7 +195,7 @@ class TargRep::EsCell < ActiveRecord::Base
         return
       end
 
-      md = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
+      md = /\A(tm\d+)([a-e]|.\d+)?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
 
       if md
         self.allele_symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]

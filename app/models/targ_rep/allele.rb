@@ -28,8 +28,13 @@ class TargRep::Allele < ActiveRecord::Base
         key = {
           :strain => es_cell.strain,
           :mgi_allele_symbol_superscript => es_cell.mgi_allele_symbol_superscript,
-          :ikmc_project_id => es_cell.ikmc_project_id.to_s
+          :ikmc_project_id => es_cell.ikmc_project_id.to_s,
+         # :ikmc_project_status_name => ''
         }
+
+        #if es_cell.ikmc_project && es_cell.ikmc_project.status && es_cell.ikmc_project.status.name
+       #   key[:ikmc_project_status_name] = es_cell.ikmc_project.status.name
+        #end
 
         info_map[key] ||= {:pipelines => []}
         info_map[key][:pipelines].push(es_cell.pipeline.name)
@@ -380,4 +385,3 @@ end
 #  intron              :integer
 #  type                :string(255)     default("TargRep::TargetedAllele")
 #
-

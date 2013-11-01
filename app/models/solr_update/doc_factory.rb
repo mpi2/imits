@@ -1,4 +1,6 @@
 
+require 'pp'
+
 class SolrUpdate::DocFactory
   extend SolrUpdate::Util
 
@@ -32,8 +34,13 @@ class SolrUpdate::DocFactory
       'best_status_pa_cre_ex_required' => '',
       'current_pa_status' => '',
       'colony_name' => mi_attempt.colony_name,
-      'project_ids' => [mi_attempt.es_cell.ikmc_project_id]
+      'project_ids' => [mi_attempt.es_cell.ikmc_project_id],
+      #'project_statuses' => []
     }
+
+    #if mi_attempt.es_cell.ikmc_project && mi_attempt.es_cell.ikmc_project.status && mi_attempt.es_cell.ikmc_project.status.name
+      #solr_doc['project_statuses'] = [mi_attempt.es_cell.ikmc_project.status.name]
+    #end
 
     solr_doc['marker_symbol'] = mi_attempt.mi_plan.gene.marker_symbol
 
@@ -85,7 +92,8 @@ class SolrUpdate::DocFactory
       'best_status_pa_cre_ex_not_required' => '',
       'best_status_pa_cre_ex_required' => '',
       'current_pa_status' => '',
-      'project_ids' => [phenotype_attempt.mi_attempt.es_cell.ikmc_project_id]
+      'project_ids' => [phenotype_attempt.mi_attempt.es_cell.ikmc_project_id],
+      #'project_statuses' => [phenotype_attempt.mi_attempt.es_cell.ikmc_project.status.name]
     }
 
     solr_doc['marker_symbol'] = phenotype_attempt.mi_plan.gene.marker_symbol
@@ -217,7 +225,8 @@ class SolrUpdate::DocFactory
         'order_from_urls' => [order_from_info[:url]],
         'order_from_names' => [order_from_info[:name]],
         'marker_symbol' => marker_symbol,
-        'project_ids' => [es_cell_info[:ikmc_project_id]]
+        'project_ids' => [es_cell_info[:ikmc_project_id]],
+        #'project_statuses' => [es_cell_info[:ikmc_project_status_name]]
       }
     end
 

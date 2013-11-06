@@ -102,31 +102,58 @@ class V2::Reports::MiProductionController < ApplicationController
 
   def komp2_summary_by_month
     @report  = Komp2SummaryByMonthReport.new
-    @clone_columns = Komp2SummaryByMonthReport.clone_columns
-    @phenotype_columns = Komp2SummaryByMonthReport.phenotype_columns
-    @consortia = Komp2SummaryByMonthReport.available_consortia
+    @clone_columns = @report.clone_columns
+    @phenotype_columns = @report.phenotype_columns
+    @consortia = @report.available_consortia
 
     @summary_by_month = @report.report_hash
   end
 
   def impc_summary_by_month
     @report  = ImpcSummaryByMonthReport.new
-    @clone_columns = ImpcSummaryByMonthReport.clone_columns
-    @phenotype_columns = ImpcSummaryByMonthReport.phenotype_columns
-    @consortia = ImpcSummaryByMonthReport.available_consortia
+    @clone_columns = @report.clone_columns
+    @phenotype_columns = @report.phenotype_columns
+    @consortia = @report.available_consortia
 
     @summary_by_month = @report.report_hash
   end
 
-   def komp2_graph_report_display
+  def komp2_graph_report_display
+    @title = 'KOMP Production Summaries'
     @report = Komp2GraphReportDisplay.new
-    date = Komp2GraphReportDisplay.date_previous_month.to_date.at_beginning_of_month
-    @consortia = Komp2GraphReportDisplay.available_consortia
+    date = @report.date_previous_month.to_date.at_beginning_of_month
+    @consortia = @report.available_consortia
     @date = date.to_s
     @date_name = Date::ABBR_MONTHNAMES[date.month]
   end
 
+  def graph_report_display
 
+    @consortia = params[:consortia].split(',')
+    @title = "Production Summaries for #{@consortia.to_sentence}"
+
+    @error = false
+    missing_consortia = []
+    error_message = 'The following consortia do not exist: '
+    @consortia.each do |consortium|
+      if !Consortium.find_by_name(consortium)
+        missing_consortia.append(consortium)
+        @error = true
+      end
+    end
+    error_message << missing_consortia.to_sentence
+
+    if ! @error
+      @report = GraphReportDisplay.new(@consortia)
+      date = @report.date_previous_month.to_date.at_beginning_of_month
+      @date = date.to_s
+      @date_name = Date::ABBR_MONTHNAMES[date.month]
+    else
+      flash.now[:alert] = error_message
+      @consortia = []
+    end
+    render :template => 'v2/reports/mi_production/komp2_graph_report_display'
+  end
 
   def graph_report_display_image
     filename = params[:chart_file_name].split('/').pop

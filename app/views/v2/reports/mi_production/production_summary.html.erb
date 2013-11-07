@@ -39,7 +39,7 @@
           <% rowspan = @consortium_centre_by_status[row['consortium']].size %>
           <tr>
             <% unless count > 0 %>
-              <td rowspan="<%= rowspan %>"><%= link_to(row['consortium'],  "/v2/reports/mi_production/graph_report_display?consortia=#{row['consortium']}") %></td>
+              <td rowspan="<%= rowspan %>"><%= link_to(row['consortium'],  "graph_report_display?consortia=#{row['consortium']}") %></td>
               <td rowspan="<%= rowspan %>"><%= link_to row['count'], report_detail_path(:consortium => row['consortium'], :production_group => 'consortia') %></td>
               <% @mi_plan_statuses.each do |status| %>
                 <td rowspan="<%= rowspan %>"><%= report_link_to(@consortium_by_status, row['consortium'], status, :production_group => 'consortia') %></td>

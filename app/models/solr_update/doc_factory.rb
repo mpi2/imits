@@ -271,8 +271,16 @@ class SolrUpdate::DocFactory
       'mgi_accession_id' => ! gene.mgi_accession_id.blank? ? gene.mgi_accession_id : 'unknown',
       'consortium' => '',
       'production_centre' => '',
-      'marker_symbol' => gene.marker_symbol
+      'marker_symbol' => gene.marker_symbol,
+      'project_ids' => [],
+      'project_statuses' => []
     }
+
+    gene.mi_attempts.each do |mi|
+      next if ! mi || ! mi.es_cell || ! mi.es_cell.ikmc_project
+      solr_doc['project_ids'].push mi.es_cell.ikmc_project_id
+      solr_doc['project_statuses'].push mi.es_cell.ikmc_project.status.name
+    end
 
     plan = gene.relevant_plan
 

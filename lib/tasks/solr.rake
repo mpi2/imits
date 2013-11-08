@@ -53,7 +53,11 @@ namespace :solr do
       puts "#### enqueueing mi_attempts..."
       enqueuer = SolrUpdate::Enqueuer.new
       counter = 0
-      MiAttempt.all.each { |i| enqueuer.mi_attempt_updated(i); counter += 1 }
+      MiAttempt.all.each do |i| 
+        enqueuer.mi_attempt_updated(i)
+        counter += 1 
+        #break if counter > 10
+      end
 
       puts "#### running mi_attempts (#{counter})..."
       SolrUpdate::Queue.run(:limit => nil)
@@ -106,6 +110,7 @@ namespace :solr do
       PhenotypeAttempt.all.each do |p|
         enqueuer.phenotype_attempt_updated(p)
         counter += 1
+        #break if counter > 10
       end
 
       puts "#### running phenotype_attempts (#{counter})..."
@@ -119,7 +124,12 @@ namespace :solr do
     ApplicationModel.transaction do
       puts "#### enqueueing genes..."
       enqueuer = SolrUpdate::Enqueuer.new
-      Gene.all.each { |g| enqueuer.gene_updated(g) }
+      counter = 0
+      Gene.all.each do |g| 
+        enqueuer.gene_updated(g) 
+        counter += 1
+        #break if counter > 10
+      end
 
       puts "#### running genes..."
       SolrUpdate::Queue.run(:limit => nil)

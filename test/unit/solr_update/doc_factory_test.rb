@@ -38,6 +38,15 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert_equal test_docs, SolrUpdate::DocFactory.create(reference)
       end
 
+      should 'work when reference type is gene' do
+        @gene = Factory.create :gene, :mgi_accession_id => 'MGI:9999999991'
+        @allele = Factory.create :allele, :id => @gene.id, :gene => @gene
+        reference = {'type' => 'gene', 'id' => @gene.id}
+        test_docs = [{'test' => true}]
+        SolrUpdate::DocFactory.expects(:create_for_gene).with(@gene).returns(test_docs)
+        assert_equal test_docs, SolrUpdate::DocFactory.create(reference)
+      end
+
     end
 
     context 'when creating solr docs for mi_attempt' do

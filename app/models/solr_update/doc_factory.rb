@@ -276,8 +276,12 @@ class SolrUpdate::DocFactory
       'project_statuses' => []
     }
 
+    project_hash = {}
+
     gene.mi_attempts.each do |mi|
-      next if ! mi || ! mi.es_cell || ! mi.es_cell.ikmc_project
+      next if ! mi || ! mi.es_cell || ! mi.es_cell.ikmc_project || ! mi.es_cell.ikmc_project.status
+      next if project_hash.has_key?(mi.es_cell.ikmc_project_id)
+      project_hash[mi.es_cell.ikmc_project_id] = mi.es_cell.ikmc_project.status.name
       solr_doc['project_ids'].push mi.es_cell.ikmc_project_id
       solr_doc['project_statuses'].push mi.es_cell.ikmc_project.status.name
     end

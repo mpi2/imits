@@ -193,17 +193,27 @@ class TargRep::AllelesController < TargRep::BaseController
   # GET /alleles/1/escell_clone_genbank_file/
   def escell_clone_genbank_file
     find_allele
-    return if check_for_genbank_file
-    return if check_for_escell_genbank_file
-    send_genbank_file(@allele.genbank_file.escell_clone)
+    if @allele.pipeline_names =~ /mirKO/
+      flash[:notice] = 'Genbank file temporarily withdrawn.'
+      redirect_to :action => "show"
+    else
+      return if check_for_genbank_file
+      return if check_for_escell_genbank_file
+      send_genbank_file(@allele.genbank_file.escell_clone)
+    end
   end
 
   # GET /alleles/1/targeting-vector-genbank-file/
   def targeting_vector_genbank_file
     find_allele
-    return if check_for_genbank_file
-    return if check_for_vector_genbank_file
-    send_genbank_file(@allele.genbank_file.targeting_vector)
+    if @allele.pipeline_names =~ /mirKO/
+      flash[:notice] = 'Genbank file temporarily withdrawn.'
+      redirect_to :action => "show"
+    else
+      return if check_for_genbank_file
+      return if check_for_vector_genbank_file
+      send_genbank_file(@allele.genbank_file.targeting_vector)
+    end
   end
 
   def escell_clone_cre_genbank_file
@@ -260,7 +270,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
   def missing_required_data?
     return true if @allele.blank?
-    
+
     if params[:type].blank?
       Rails.logger.info 'Incorrect usage. Please follow the links on the page to navigate between allele.'
       return true
@@ -314,7 +324,7 @@ class TargRep::AllelesController < TargRep::BaseController
       options[:cassetteonly] = true
     end
 
-    options[:mutation_type] = @allele.mutation_type_name  
+    options[:mutation_type] = @allele.mutation_type_name
 
     send_allele_image(
       AlleleImage::Image.new(genbank_data, options).render.to_blob { self.format = "PNG" }

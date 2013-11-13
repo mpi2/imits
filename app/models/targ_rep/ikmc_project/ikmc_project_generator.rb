@@ -66,11 +66,11 @@ module TargRep::IkmcProject::IkmcProjectGenerator
           (SELECT
             ikmc_project_statuses.ikmc_project_id AS ikmc_project_id,
             CASE MIN(ikmc_project_statuses.ikmc_project_status_order)
-              WHEN 1 THEN 14                                      -- Mice - Phenotype Data Available
-              WHEN 2 THEN 13                                      -- Mice - Genotype confirmed
-              WHEN 3 THEN 12                                      -- Mice - Microinjection in progress
-              WHEN 4 THEN 8                                       -- ES Cells - Targeting Confirmed
-              WHEN 5 THEN 5                                       -- Vector Complete
+              WHEN 1 THEN 17                                      -- Mice - Phenotype Data Available
+              WHEN 2 THEN 16                                      -- Mice - Genotype confirmed
+              WHEN 3 THEN 15                                      -- Mice - Microinjection in progress
+              WHEN 4 THEN 12                                       -- ES Cells - Targeting Confirmed
+              WHEN 5 THEN 10                                       -- Vector Complete
               ELSE NULL
             END AS best_ikmc_project_status
             FROM

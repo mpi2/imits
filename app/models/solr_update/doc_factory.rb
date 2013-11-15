@@ -276,15 +276,9 @@ class SolrUpdate::DocFactory
       'project_statuses' => []
     }
 
-    project_hash = {}
+    doc = add_project_details(gene)
 
-    gene.mi_attempts.each do |mi|
-      next if ! mi || ! mi.es_cell || ! mi.es_cell.ikmc_project || ! mi.es_cell.ikmc_project.status
-      next if project_hash.has_key?(mi.es_cell.ikmc_project_id)
-      project_hash[mi.es_cell.ikmc_project_id] = mi.es_cell.ikmc_project.status.name
-      solr_doc['project_ids'].push mi.es_cell.ikmc_project_id
-      solr_doc['project_statuses'].push mi.es_cell.ikmc_project.status.name
-    end
+    solr_doc.merge!(doc) #if doc && ! doc.empty?
 
     plan = gene.relevant_plan
 
@@ -299,6 +293,54 @@ class SolrUpdate::DocFactory
     solr_doc['effective_date'] = s[:date]
 
     return [solr_doc]
+  end
+
+  def self.add_project_details(gene)
+    project_hash = {}
+    vector_project_hash = {}
+    solr_doc = {'project_ids' => [], 'project_statuses' => [], 'vector_project_ids' => [], 'vector_project_statuses' => []}
+
+    gene.mi_attempts.each do |mi|
+      key = mi.try(:es_cell).try(:ikmc_project).try(:name)
+      value = mi.try(:es_cell).try(:ikmc_project).try(:status).try(:name)
+      next if ! key
+      project_hash[key] = value
+    end
+
+    gene.phenotype_attempts.each do |pa|
+      key = pa.try(:mi_attempt).try(:es_cell).try(:ikmc_project).try(:name)
+      value = pa.try(:mi_attempt).try(:es_cell).try(:ikmc_project).try(:status).try(:name)
+      next if ! key
+      project_hash[key] = value
+    end
+
+    gene.allele.each do |allele|
+      allele.es_cells.unique_public_info.map do |es_cell_info|
+        project_hash[es_cell_info[:ikmc_project_name]] = es_cell_info[:ikmc_project_status_name]
+      end
+    end
+
+    gene.allele.each do |allele|
+      allele.targeting_vectors.each do |tv|
+        key = tv.try(:ikmc_project).try(:name)
+        value = tv.try(:ikmc_project).try(:status).try(:name)
+        next if ! key
+        vector_project_hash[key] = value if ! project_hash.has_key? key # don't add to project_hash
+        project_hash[key] = value
+      end
+    end
+
+    vector_project_hash.keys.each do |key|
+      solr_doc['vector_project_ids'].push key
+      solr_doc['vector_project_statuses'].push vector_project_hash[key]
+    end
+
+    project_hash.keys.each do |key|
+      solr_doc['project_ids'].push key
+      solr_doc['project_statuses'].push project_hash[key]
+    end
+
+    solr_doc
   end
 
 end

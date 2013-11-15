@@ -53,9 +53,9 @@ namespace :solr do
       puts "#### enqueueing mi_attempts..."
       enqueuer = SolrUpdate::Enqueuer.new
       counter = 0
-      MiAttempt.all.each do |i| 
+      MiAttempt.all.each do |i|
         enqueuer.mi_attempt_updated(i)
-        counter += 1 
+        counter += 1
         #break if counter > 10
       end
 
@@ -119,19 +119,32 @@ namespace :solr do
     end
   end
 
+  task 'update:genes_single' => [:environment] do
+    pp SolrUpdate::IndexProxy::Allele.get_uri
+    ApplicationModel.transaction do
+      gene = Gene.find_by_marker_symbol 'Atp5d'
+      raise "#### cannot find gene!" if ! gene
+
+      enqueuer = SolrUpdate::Enqueuer.new
+      enqueuer.gene_updated(gene)
+
+      SolrUpdate::Queue.run(:limit => nil)
+    end
+  end
+
   task 'update:genes' => [:environment] do
     pp SolrUpdate::IndexProxy::Allele.get_uri
     ApplicationModel.transaction do
       puts "#### enqueueing genes..."
       enqueuer = SolrUpdate::Enqueuer.new
       counter = 0
-      Gene.all.each do |g| 
-        enqueuer.gene_updated(g) 
+      Gene.all.each do |g|
+        enqueuer.gene_updated(g)
         counter += 1
-        #break if counter > 10
+        #break if counter > 1000
       end
 
-      puts "#### running genes..."
+      puts "#### running genes... (#{counter})"
       SolrUpdate::Queue.run(:limit => nil)
     end
   end

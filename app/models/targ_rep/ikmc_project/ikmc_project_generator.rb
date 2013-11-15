@@ -75,7 +75,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
             END AS best_ikmc_project_status
             FROM
               (SELECT targ_rep_ikmc_projects.id AS ikmc_project_id,
-              CASE WHEN phenotype_attempt_statuses.name = 'Phenotyping Complete' THEN 1
+              CASE WHEN phenotype_attempt_statuses.name = 'Phenotyping Started' THEN 1
                 WHEN mi_attempt_statuses.name = 'Genotype confirmed' THEN 2
                 WHEN mi_attempt_statuses.name IS NOT NULL THEN 3
                 WHEN targ_rep_es_cells.id IS NOT NULL THEN 4

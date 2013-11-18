@@ -1884,7 +1884,7 @@ ALTER SEQUENCE targ_rep_genbank_files_id_seq OWNED BY targ_rep_genbank_files.id;
 CREATE TABLE targ_rep_ikmc_project_statuses (
     id integer NOT NULL,
     name character varying(255),
-    type character varying(255)
+    product_type character varying(255)
 );
 
 
@@ -3870,3 +3870,5 @@ INSERT INTO schema_migrations (version) VALUES ('20131015114400');
 INSERT INTO schema_migrations (version) VALUES ('20131016114401');
 
 INSERT INTO schema_migrations (version) VALUES ('20131016134400');
+
+INSERT INTO schema_migrations (version) VALUES ('20131118000000');

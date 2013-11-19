@@ -708,3 +708,65 @@ EOF
   email_template.welcome_body { welcome_body }
   email_template.update_body  { 'unused' }
 end
+
+Factory.define :phenotype_attempt_ikmc_project, :parent => :phenotype_attempt do |phenotype_attempt|
+  phenotype_attempt.after_create do |pa|
+    pa.mi_attempt = Factory.create(:mi_attempt2_ikmc_project)
+    pa.mi_attempt.save!
+    pa.mi_attempt.reload
+  end
+end
+
+Factory.define :allele_ikmc_project, :parent => :allele do |f|
+  f.after_create do |a|
+    a.es_cells << Factory.create(:es_cell_ikmc_project)
+    a.save!
+    a.reload
+  end
+end
+
+Factory.define :targeting_vector_ikmc_project, :parent => :targeting_vector do |f|
+  f.after_create do |tv|
+    tv.ikmc_project = Factory.create(:ikmc_project)
+    tv.ikmc_project.status.name = ["Vector Complete", "ES Cells - Targeting Confirmed"].sample    # just legal ones for doc factory
+    tv.ikmc_project.status.save!
+    tv.ikmc_project.status.reload
+    tv.save!
+    tv.reload
+  end
+end
+
+Factory.define :allele_ikmc_project2, :parent => :allele do |f|
+  f.after_create do |a|
+    a.targeting_vectors << Factory.create(:targeting_vector_ikmc_project)
+    a.save!
+    a.reload
+  end
+end
+
+Factory.define :ikmc_project_status, :class => 'TargRep::IkmcProject::Status' do |f|
+  f.sequence(:name)  { |n| "ikmc_project_status_name_000#{n}" }
+end
+
+Factory.define :ikmc_project_pipeline, :class => "TargRep::Pipeline" do |f|
+  f.sequence(:name)  { |n| "ikmc_project_pipeline_name_000#{n}" }
+end
+
+Factory.define :ikmc_project, :class => 'TargRep::IkmcProject' do |f|
+  f.association :status,   :factory => :ikmc_project_status
+  f.association :pipeline,   :factory => :ikmc_project_pipeline
+  f.sequence(:name)  { |n| "ikmc_project_name_000#{n}" }
+end
+
+Factory.define :es_cell_ikmc_project, :parent => :es_cell do |f|
+  f.association :ikmc_project,   :factory => :ikmc_project
+end
+
+Factory.define :mi_attempt2_ikmc_project, :parent => :mi_attempt2_status_chr do |mi_attempt|
+  mi_attempt.after_create do |mi|
+    ikmc_project = Factory.create(:ikmc_project)
+    mi.es_cell.ikmc_project = ikmc_project
+    mi.es_cell.save!
+    mi.es_cell.reload
+  end
+end

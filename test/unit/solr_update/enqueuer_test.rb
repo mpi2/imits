@@ -85,6 +85,8 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
     context 'when a phenotype_attempt changes' do
       should 'enqueue an update for it if it has status "cec"' do
         pa = Factory.create :phenotype_attempt_status_cec, :id => 67545
+        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
+        SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_attempt)
         SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'phenotype_attempt', 'id' => pa.id})
         SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
         @enqueuer.phenotype_attempt_updated(pa)
@@ -109,6 +111,8 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
       should 'enqueue a deletion for it if it has been deleted' do
         pa = Factory.create :phenotype_attempt, :id => 568
         SolrUpdate::Queue.expects(:enqueue_for_delete).with({'type' => 'phenotype_attempt', 'id' => pa.id})
+        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
+        SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
         @enqueuer.phenotype_attempt_destroyed(pa)
       end
 
@@ -222,6 +226,7 @@ class SolrUpdate::EnqueuerTest < ActiveSupport::TestCase
 
       should 'enqueue mi_plan to be updated if its phenotype has changed' do
         pa = Factory.create :phenotype_attempt_status_cec, :id => 88
+        SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
         SolrUpdate::Queue.expects(:enqueue_for_update).with({'type' => 'phenotype_attempt', 'id' => 88})
         SolrUpdate::Queue.expects(:enqueue_for_update).with(pa.mi_plan.gene)
         @enqueuer.phenotype_attempt_updated(pa)

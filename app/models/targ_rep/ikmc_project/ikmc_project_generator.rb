@@ -87,8 +87,8 @@ module TargRep::IkmcProject::IkmcProjectGenerator
               LEFT JOIN targ_rep_ikmc_project_statuses ON targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id
               LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
               LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
-              LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id AND mi_attempt_statuses.name != 'Micro-injection aborted' ) ON mi_attempts.es_cell_id = targ_rep_es_cells.id
-              LEFT JOIN (phenotype_attempts JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id AND phenotype_attempt_statuses.name != 'Phenotype Attempt Aborted' ) ON phenotype_attempts.mi_attempt_id = mi_attempts.id
+              LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id AND mi_attempt_statuses.name != 'Micro-injection aborted' ) ON mi_attempts.es_cell_id = targ_rep_es_cells.id AND mi_attempts.report_to_public = true
+              LEFT JOIN (phenotype_attempts JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id AND phenotype_attempt_statuses.name != 'Phenotype Attempt Aborted' ) ON phenotype_attempts.mi_attempt_id = mi_attempts.id  AND phenotype_attempts.report_to_public = true
               ) AS ikmc_project_statuses
           GROUP BY ikmc_project_statuses.ikmc_project_id
         ) AS best_status

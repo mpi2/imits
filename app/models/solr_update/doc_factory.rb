@@ -294,6 +294,8 @@ class SolrUpdate::DocFactory
   end
 
   def self.add_project_details(gene)
+    return nil if ! gene
+
     project_hash = {}
     vector_project_hash = {}
     solr_doc = {'project_ids' => [], 'project_statuses' => [], 'vector_project_ids' => [], 'vector_project_statuses' => []}
@@ -339,8 +341,11 @@ class SolrUpdate::DocFactory
     #"Mice - Microinjection in progress"=>1
     #}
 
+    legal = ["Vector Complete", "ES Cells - Targeting Confirmed"]
+
     vector_project_hash.keys.each do |key|
       next if ! key
+      next if ! legal.include? vector_project_hash[key]
       solr_doc['vector_project_ids'].push key
       solr_doc['vector_project_statuses'].push vector_project_hash[key]
     end

@@ -119,11 +119,16 @@ namespace :solr do
     end
   end
 
-  task 'update:genes_single' => [:environment] do
+  task 'update:gene_single', [:marker_symbol] => :environment do |t, args|
     pp SolrUpdate::IndexProxy::Allele.get_uri
+    args.with_defaults(:marker_symbol => nil)
+
+    raise "#### provide marker symbol!" if ! args[:marker_symbol]
+
     ApplicationModel.transaction do
-      gene = Gene.find_by_marker_symbol 'Atp5d'
-      raise "#### cannot find gene!" if ! gene
+      gene = Gene.find_by_marker_symbol args[:marker_symbol]
+
+      raise "#### cannot find marker symbol '#{args[:marker_symbol]}'" if ! gene
 
       enqueuer = SolrUpdate::Enqueuer.new
       enqueuer.gene_updated(gene)
@@ -153,54 +158,54 @@ namespace :solr do
   #  task :orphans, [:mode] => :environment do |t, args|
   #  task 'update:gene_single' => [:environment] do
 
-  task 'update:gene_single', [:marker_symbol] => :environment do |t, args|
-    pp SolrUpdate::IndexProxy::Allele.get_uri
-    args.with_defaults(:marker_symbol => nil)
-
-    raise "#### provide marker symbol!" if ! args[:marker_symbol]
-
-    gene = Gene.find_by_marker_symbol args[:marker_symbol]
-
-    raise "#### cannot find marker symbol '#{args[:marker_symbol]}'" if ! gene
-
-    #    pp gene
-
-    ApplicationModel.transaction do
-      puts "#### enqueueing gene..."
-      enqueuer = SolrUpdate::Enqueuer.new
-      enqueuer.gene_updated(gene)
-
-      puts "#### enqueueing alleles..."
-      enqueuer = SolrUpdate::Enqueuer.new
-      counter = 0
-      gene.allele.each do |i|
-        enqueuer.allele_updated(i)
-        counter += 1
-      end
-      puts "#### running alleles (#{counter})..."
-      SolrUpdate::Queue.run(:limit => nil)
-
-      puts "#### enqueueing mi_attempts..."
-      enqueuer = SolrUpdate::Enqueuer.new
-      counter = 0
-      gene.mi_attempts.each do |i|
-        enqueuer.mi_attempt_updated(i)
-        counter += 1
-      end
-      puts "#### running mi_attempts (#{counter})..."
-      SolrUpdate::Queue.run(:limit => nil)
-
-      puts "#### enqueueing phenotype_attempts..."
-      enqueuer = SolrUpdate::Enqueuer.new
-      counter = 0
-      gene.phenotype_attempts.each do |i|
-        enqueuer.phenotype_attempt_updated(i)
-        counter += 1
-      end
-      puts "#### running phenotype_attempts (#{counter})..."
-      SolrUpdate::Queue.run(:limit => nil)
-    end
-  end
+  #task 'update:gene_single', [:marker_symbol] => :environment do |t, args|
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #  args.with_defaults(:marker_symbol => nil)
+  #
+  #  raise "#### provide marker symbol!" if ! args[:marker_symbol]
+  #
+  #  gene = Gene.find_by_marker_symbol args[:marker_symbol]
+  #
+  #  raise "#### cannot find marker symbol '#{args[:marker_symbol]}'" if ! gene
+  #
+  #  #    pp gene
+  #
+  #  ApplicationModel.transaction do
+  #    puts "#### enqueueing gene..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    enqueuer.gene_updated(gene)
+  #
+  #    puts "#### enqueueing alleles..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    counter = 0
+  #    gene.allele.each do |i|
+  #      enqueuer.allele_updated(i)
+  #      counter += 1
+  #    end
+  #    puts "#### running alleles (#{counter})..."
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #
+  #    puts "#### enqueueing mi_attempts..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    counter = 0
+  #    gene.mi_attempts.each do |i|
+  #      enqueuer.mi_attempt_updated(i)
+  #      counter += 1
+  #    end
+  #    puts "#### running mi_attempts (#{counter})..."
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #
+  #    puts "#### enqueueing phenotype_attempts..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #    counter = 0
+  #    gene.phenotype_attempts.each do |i|
+  #      enqueuer.phenotype_attempt_updated(i)
+  #      counter += 1
+  #    end
+  #    puts "#### running phenotype_attempts (#{counter})..."
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #  end
+  #end
 
   desc 'Sync phenotype_attempts, mi_attempts'
   task 'update:mi_pa' => ['update:phenotype_attempts', 'update:mi_attempts']

@@ -66,28 +66,29 @@ module TargRep::IkmcProject::IkmcProjectGenerator
           (SELECT
             ikmc_project_statuses.ikmc_project_id AS ikmc_project_id,
             CASE MIN(ikmc_project_statuses.ikmc_project_status_order)
-              WHEN 1 THEN 14                                      -- Mice - Phenotype Data Available
-              WHEN 2 THEN 13                                      -- Mice - Genotype confirmed
-              WHEN 3 THEN 12                                      -- Mice - Microinjection in progress
-              WHEN 4 THEN 8                                       -- ES Cells - Targeting Confirmed
-              WHEN 5 THEN 5                                       -- Vector Complete
+              WHEN 1 THEN 17                                      -- Mice - Phenotype Data Available
+              WHEN 2 THEN 16                                      -- Mice - Genotype confirmed
+              WHEN 3 THEN 15                                      -- Mice - Microinjection in progress
+              WHEN 4 THEN 12                                       -- ES Cells - Targeting Confirmed
+              WHEN 5 THEN 10                                       -- Vector Complete
               ELSE NULL
             END AS best_ikmc_project_status
             FROM
               (SELECT targ_rep_ikmc_projects.id AS ikmc_project_id,
-              CASE WHEN phenotype_attempt_statuses.name = 'Phenotyping Complete' THEN 1
+              CASE WHEN phenotype_attempt_statuses.name = 'Phenotyping Started' THEN 1
                 WHEN mi_attempt_statuses.name = 'Genotype confirmed' THEN 2
                 WHEN mi_attempt_statuses.name IS NOT NULL THEN 3
-                WHEN targ_rep_es_cells.id IS NOT NULL THEN 4
-                WHEN targ_rep_targeting_vectors.id IS NOT NULL THEN 5
+                WHEN targ_rep_es_cells.id IS NOT NULL AND targ_rep_es_cells.report_to_public = 't' THEN 4
+                WHEN targ_rep_targeting_vectors.id IS NOT NULL AND targ_rep_targeting_vectors.report_to_public = 't' AND  targ_rep_ikmc_project_statuses.name NOT IN ('#{es_cell_production_statuses_in_htgt.join("','")}') THEN 5
                 ELSE 6
               END AS ikmc_project_status_order
               FROM
               targ_rep_ikmc_projects
-              LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.ikmc_project_foreign_id = targ_rep_ikmc_projects.id AND targ_rep_targeting_vectors.report_to_public = 't'
-              LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.ikmc_project_foreign_id = targ_rep_ikmc_projects.id AND targ_rep_es_cells.report_to_public = 't'
-              LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id AND mi_attempt_statuses.name != 'Micro-injection aborted' ) ON mi_attempts.es_cell_id = targ_rep_es_cells.id
-              LEFT JOIN (phenotype_attempts JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id AND phenotype_attempt_statuses.name != 'Phenotype Attempt Aborted' ) ON phenotype_attempts.mi_attempt_id = mi_attempts.id
+              LEFT JOIN targ_rep_ikmc_project_statuses ON targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id
+              LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
+              LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
+              LEFT JOIN (mi_attempts JOIN mi_attempt_statuses ON mi_attempt_statuses.id = mi_attempts.status_id AND mi_attempt_statuses.name != 'Micro-injection aborted' ) ON mi_attempts.es_cell_id = targ_rep_es_cells.id AND mi_attempts.report_to_public = true
+              LEFT JOIN (phenotype_attempts JOIN phenotype_attempt_statuses ON phenotype_attempt_statuses.id = phenotype_attempts.status_id AND phenotype_attempt_statuses.name != 'Phenotype Attempt Aborted' ) ON phenotype_attempts.mi_attempt_id = mi_attempts.id  AND phenotype_attempts.report_to_public = true
               ) AS ikmc_project_statuses
           GROUP BY ikmc_project_statuses.ikmc_project_id
         ) AS best_status
@@ -124,7 +125,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         end
 
         sql = <<-EOF
-        SELECT targ_rep_ikmc_projects.id AS ikmc_project_id, targ_rep_ikmc_projects.name AS ikmc_project_name, targ_rep_ikmc_project_statuses.name AS status_name
+        SELECT targ_rep_ikmc_projects.id AS ikmc_project_id, targ_rep_ikmc_projects.name AS ikmc_project_name, targ_rep_ikmc_project_statuses.name AS status_name, targ_rep_ikmc_project_statuses.product_type AS product_type
         FROM targ_rep_ikmc_projects
         LEFT JOIN targ_rep_ikmc_project_statuses ON targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id
         WHERE targ_rep_ikmc_projects.pipeline_id = 7 AND targ_rep_ikmc_projects.name IN ('#{data.keys.join("','")}')
@@ -144,8 +145,9 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         end
 
         results.each do |record|
-          if ! (['Vector Complete',  'ES Cells - Targeting Confirmed'].include?(record['status_name']) or record['type'] = 'Mice')
-            if record['status_name'] != data[record['ikmc_project_name']]['status_name']
+          if ! (['ES Cells - Targeting Confirmed'].include?(record['status_name']) or record['product_type'] == 'Mice')
+            if ( record['status_name'] != 'Vector Complete' and record['status_name'] != data[record['ikmc_project_name']]['status_name'] ) or
+                 ( record['status_name'] == 'Vector Complete' and es_cell_production_statuses_in_htgt.include?(data[record['ikmc_project_name']]['status_name']) )
               TargRep::IkmcProject.find(record['ikmc_project_id']).update_attributes(:status_id => statuses[data[record['ikmc_project_name']]['status_name']])
             end
           end
@@ -156,6 +158,14 @@ module TargRep::IkmcProject::IkmcProjectGenerator
           project_value = record['ikmc_project_name']
           status_name_value = record['status_name']
           if status_name_value
+            if !statuses.has_Key?(status_name_value)
+              create_status = TargRep::IkmcProject:Status.new(:name => project_value, :status_id => status_value, :pipeline_id => 7)
+              if create_status.valid?
+                create_status.save
+              else
+                console.log("Invalid status: name => #{record['ikmc_project_name']}, pipeline_id => 7")
+              end
+            end
             status_value = statuses[status_name_value]
             if !project_value.blank? & !status_value.blank?
               create_project = TargRep::IkmcProject.new(:name => project_value, :status_id => status_value, :pipeline_id => 7)
@@ -169,6 +179,14 @@ module TargRep::IkmcProject::IkmcProjectGenerator
           end
         end
       end
+
+      def es_cell_production_statuses_in_htgt
+        return [ 'ES Cells - Electroporation Unsuccessful',
+                 'ES Cells - Electroporation in Progress',
+                 'ES Cells - No QC Positives'
+               ]
+      end
+
     end
   end
 end

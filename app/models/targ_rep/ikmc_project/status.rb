@@ -18,12 +18,13 @@ class TargRep::IkmcProject::Status < ActiveRecord::Base
 end
 
 
+
 # == Schema Information
 #
 # Table name: targ_rep_ikmc_project_statuses
 #
-#  id   :integer         not null, primary key
-#  name :string(255)
-#  type :string(255)
+#  id           :integer         not null, primary key
+#  name         :string(255)
+#  product_type :string(255)
 #
 

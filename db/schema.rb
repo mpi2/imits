@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131016134400) do
+ActiveRecord::Schema.define(:version => 20131118000000) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -867,7 +867,7 @@ ActiveRecord::Schema.define(:version => 20131016134400) do
 
   create_table "targ_rep_ikmc_project_statuses", :force => true do |t|
     t.string "name"
-    t.string "type"
+    t.string "product_type"
   end
 
   create_table "targ_rep_ikmc_projects", :force => true do |t|

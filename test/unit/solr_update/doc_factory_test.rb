@@ -672,65 +672,65 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
     end
 
     context '#add_project_details' do
-      def mock_ikmc_project(project_name, status_name)
-        status = stub("my status")
-        status.stubs(:name).returns(status_name)
-        ikmc_project = stub("my ikmc_project")
-        ikmc_project.stubs(:name).returns(project_name)
-        ikmc_project.stubs(:status).returns(status)
-        ikmc_project
-      end
-
-      def mock_mi_attempt(project_name, status_name)
-        es_cell = stub("my es_cell")
-        es_cell.stubs(:ikmc_project).returns(mock_ikmc_project(project_name, status_name))
-        mi_attempt = stub("my mi_attempt")
-        mi_attempt.stubs(:es_cell).returns(es_cell)
-        mi_attempt
-      end
-
-      def mock_targeting_vector(project_name, status_name)
-        targeting_vector = stub("my targeting_vector")
-        targeting_vector.stubs(:ikmc_project).returns(mock_ikmc_project(project_name, status_name))
-        targeting_vector
-      end
-
-      setup do
-        phenotype_attempt = stub("my phenotype_attempt")
-        phenotype_attempt.stubs(:mi_attempt).returns(mock_mi_attempt('project_name1', 'status_name1'))
-
-        gene = stub("my gene")
-        gene.stubs(:mi_attempts).returns([mock_mi_attempt('project_name2', 'status_name2')])
-        gene.stubs(:phenotype_attempts).returns([phenotype_attempt])
-
-        es_cell = stub("my es_cell")
-        es_cell.stubs(:unique_public_info).returns([
-            {:ikmc_project_name => 'project_name3', :ikmc_project_status_name => 'status_name3' },
-            { :ikmc_project_name => '', :ikmc_project_status_name => '' }                             # check it doesn't get added
-            ])
-
-        #{
-        #"Vector Complete"=>1,
-        #"ES Cells - Targeting Confirmed"=>1,
-        #"Mice - Phenotype Data Available"=>1,
-        #"Mice - Genotype confirmed"=>1,
-        #"Mice - Microinjection in progress"=>1
-        #}
-
-        allele = stub("my allele")
-        allele.stubs(:es_cells).returns(es_cell)
-        allele.stubs(:targeting_vectors).returns([
-          mock_targeting_vector('project_name4', 'Vector Complete'),
-          mock_targeting_vector('project_name5', 'ES Cells - Targeting Confirmed'),
-          mock_targeting_vector('project_name6', 'Mice - Phenotype Data Available'),                  # ignore the rest
-          mock_targeting_vector('project_name7', 'Mice - Genotype confirmed'),
-          mock_targeting_vector('project_name8', 'Mice - Microinjection in progress')
-          ])
-
-        gene.stubs(:allele).returns([allele])
-
-        @gene = gene
-      end
+      #def mock_ikmc_project(project_name, status_name)
+      #  status = stub("my status")
+      #  status.stubs(:name).returns(status_name)
+      #  ikmc_project = stub("my ikmc_project")
+      #  ikmc_project.stubs(:name).returns(project_name)
+      #  ikmc_project.stubs(:status).returns(status)
+      #  ikmc_project
+      #end
+      #
+      #def mock_mi_attempt(project_name, status_name)
+      #  es_cell = stub("my es_cell")
+      #  es_cell.stubs(:ikmc_project).returns(mock_ikmc_project(project_name, status_name))
+      #  mi_attempt = stub("my mi_attempt")
+      #  mi_attempt.stubs(:es_cell).returns(es_cell)
+      #  mi_attempt
+      #end
+      #
+      #def mock_targeting_vector(project_name, status_name)
+      #  targeting_vector = stub("my targeting_vector")
+      #  targeting_vector.stubs(:ikmc_project).returns(mock_ikmc_project(project_name, status_name))
+      #  targeting_vector
+      #end
+      #
+      #setup do
+      #  phenotype_attempt = stub("my phenotype_attempt")
+      #  phenotype_attempt.stubs(:mi_attempt).returns(mock_mi_attempt('project_name1', 'status_name1'))
+      #
+      #  gene = stub("my gene")
+      #  gene.stubs(:mi_attempts).returns([mock_mi_attempt('project_name2', 'status_name2')])
+      #  gene.stubs(:phenotype_attempts).returns([phenotype_attempt])
+      #
+      #  es_cell = stub("my es_cell")
+      #  es_cell.stubs(:unique_public_info).returns([
+      #      {:ikmc_project_name => 'project_name3', :ikmc_project_status_name => 'status_name3' },
+      #      { :ikmc_project_name => '', :ikmc_project_status_name => '' }                             # check it doesn't get added
+      #      ])
+      #
+      #  #{
+      #  #"Vector Complete"=>1,
+      #  #"ES Cells - Targeting Confirmed"=>1,
+      #  #"Mice - Phenotype Data Available"=>1,
+      #  #"Mice - Genotype confirmed"=>1,
+      #  #"Mice - Microinjection in progress"=>1
+      #  #}
+      #
+      #  allele = stub("my allele")
+      #  allele.stubs(:es_cells).returns(es_cell)
+      #  allele.stubs(:targeting_vectors).returns([
+      #    mock_targeting_vector('project_name4', 'Vector Complete'),
+      #    mock_targeting_vector('project_name5', 'ES Cells - Targeting Confirmed'),
+      #    mock_targeting_vector('project_name6', 'Mice - Phenotype Data Available'),                  # ignore the rest
+      #    mock_targeting_vector('project_name7', 'Mice - Genotype confirmed'),
+      #    mock_targeting_vector('project_name8', 'Mice - Microinjection in progress')
+      #    ])
+      #
+      #  gene.stubs(:allele).returns([allele])
+      #
+      #  @gene = gene
+      #end
 
       should 'behave on finding nil parameter' do
         doc = SolrUpdate::DocFactory.add_project_details(nil)
@@ -744,23 +744,22 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert_equal solr_doc = {'project_ids' => [], 'project_statuses' => [], 'vector_project_ids' => [], 'vector_project_statuses' => []}, doc
       end
 
-      should 'just work' do
-        doc = SolrUpdate::DocFactory.add_project_details(@gene)
-        assert doc
-
-        assert_equal solr_doc = {
-          'project_ids' => ['project_name2', 'project_name1', 'project_name3', 'project_name4', 'project_name5', 'project_name6', 'project_name7', 'project_name8'],
-          'project_statuses' => ['status_name2', 'status_name1', 'status_name3', 'Vector Complete', 'ES Cells - Targeting Confirmed', 'Mice - Phenotype Data Available',
-            'Mice - Genotype confirmed', 'Mice - Microinjection in progress'],
-          'vector_project_ids' => ['project_name4', 'project_name5'],
-          'vector_project_statuses' => ['Vector Complete', 'ES Cells - Targeting Confirmed']}, doc
-      end
+      #should 'just work' do
+      #  doc = SolrUpdate::DocFactory.add_project_details(@gene)
+      #  assert doc
+      #
+      #  assert_equal solr_doc = {
+      #    'project_ids' => ['project_name2', 'project_name1', 'project_name3', 'project_name4', 'project_name5', 'project_name6', 'project_name7', 'project_name8'],
+      #    'project_statuses' => ['status_name2', 'status_name1', 'status_name3', 'Vector Complete', 'ES Cells - Targeting Confirmed', 'Mice - Phenotype Data Available',
+      #      'Mice - Genotype confirmed', 'Mice - Microinjection in progress'],
+      #    'vector_project_ids' => ['project_name4', 'project_name5'],
+      #    'vector_project_statuses' => ['Vector Complete', 'ES Cells - Targeting Confirmed']}, doc
+      #end
 
       should 'work with mi_attempts' do
         mi = Factory.create :mi_attempt2_ikmc_project
         doc = SolrUpdate::DocFactory.add_project_details(mi.mi_plan.gene)
         assert doc
-        #pp doc
         assert_equal solr_doc = {'project_ids' => [mi.es_cell.ikmc_project.name], 'project_statuses' => [mi.es_cell.ikmc_project.status.name], 'vector_project_ids' => [], 'vector_project_statuses' => []}, doc
       end
 

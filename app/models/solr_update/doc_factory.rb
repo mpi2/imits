@@ -283,12 +283,12 @@ class SolrUpdate::DocFactory
     if plan
       solr_doc['consortium'] = plan.consortium.name if plan.consortium
       solr_doc['production_centre'] = plan.production_centre.name if plan.production_centre
+
+      s = gene.relevant_status
+
+      solr_doc['status'] = s[:status].to_s.humanize
+      solr_doc['effective_date'] = s[:date]
     end
-
-    s = gene.relevant_status
-
-    solr_doc['status'] = s[:status].to_s.humanize
-    solr_doc['effective_date'] = s[:date]
 
     return [solr_doc]
   end

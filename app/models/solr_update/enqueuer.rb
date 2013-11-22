@@ -96,7 +96,7 @@ class SolrUpdate::Enqueuer
 
   def gene_updated(gene)
     begin
-      return if gene.mi_plans.size == 0
+      #return if gene.mi_plans.size == 0
       SolrUpdate::Queue.enqueue_for_update(gene)
     rescue SolrUpdate::LookupError
       SolrUpdate::Queue.enqueue_for_delete(gene)

@@ -28,7 +28,7 @@ class ProductionGoalsControllerTest < ActionController::TestCase
             }, :format => 'json'
         end
 
-        assert_response :success 
+        assert_response :success
       end
 
       should 'create duplicate production goals and fail (via JSON)' do
@@ -65,13 +65,13 @@ class ProductionGoalsControllerTest < ActionController::TestCase
 
       end
 
-      should 'destroy a production centre (via JSON)' do
+      should 'destroy a production centre (via JSON) 1' do
         production_goal = Factory.create(:production_goal)
         delete :destroy, 'id' => production_goal.id
         assert_response :success
       end
 
-      should 'destroy a production centre (via JSON)' do
+      should 'destroy a production centre (via JSON) 2' do
         production_goal = Factory.create(:production_goal)
         put :update, 'id' => production_goal.id,
         :production_goal => {

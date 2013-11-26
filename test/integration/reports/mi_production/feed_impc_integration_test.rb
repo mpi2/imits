@@ -55,7 +55,7 @@ class Reports::MiProduction::FeedImpcIntegrationTest < TarMits::IntegrationTest
 
     end
 
-    should 'allow users to visit the feed demo detail page & see entries - just table (without login)' do
+    should 'allow users to visit the feed demo detail page & see entries - just table (without login) 1' do
       visit '/reports/mi_production/summary_by_consortium_and_accumulated_status&feed=true'
       assert_match '/reports/mi_production/summary_by_consortium_and_accumulated_status&feed=true', current_url
 
@@ -68,7 +68,7 @@ class Reports::MiProduction::FeedImpcIntegrationTest < TarMits::IntegrationTest
       sleep(10.seconds) if DEBUG
     end
 
-    should 'allow users to visit the feed demo detail page & see entries - just table (without login)' do
+    should 'allow users to visit the feed demo detail page & see entries - just table (without login) 2' do
       visit '/reports/mi_production/summary_by_consortium_and_accumulated_status?consortium=DTCC-Legacy&type=Microinjection+in+progress&feed=true'
 
       one = "/reports/mi_production/summary_by_consortium_and_accumulated_status?consortium=DTCC-Legacy&type=Microinjection%20in%20progress&feed=true"

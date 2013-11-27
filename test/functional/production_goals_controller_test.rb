@@ -65,11 +65,11 @@ class ProductionGoalsControllerTest < ActionController::TestCase
 
       end
 
-      should 'destroy a production centre (via JSON) 1' do
-        production_goal = Factory.create(:production_goal)
-        delete :destroy, 'id' => production_goal.id
-        assert_response :success
-      end
+      #should 'destroy a production centre (via JSON) 1' do
+      #  production_goal = Factory.create(:production_goal)
+      #  delete :destroy, 'id' => production_goal.id
+      #  assert_response :success
+      #end
 
       should 'destroy a production centre (via JSON) 2' do
         production_goal = Factory.create(:production_goal)

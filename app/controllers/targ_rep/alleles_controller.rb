@@ -193,27 +193,17 @@ class TargRep::AllelesController < TargRep::BaseController
   # GET /alleles/1/escell_clone_genbank_file/
   def escell_clone_genbank_file
     find_allele
-    if @allele.pipeline_names =~ /mirKO/
-      flash[:notice] = 'Genbank file temporarily withdrawn.'
-      redirect_to :action => "show"
-    else
-      return if check_for_genbank_file
-      return if check_for_escell_genbank_file
-      send_genbank_file(@allele.genbank_file.escell_clone)
-    end
+    return if check_for_genbank_file
+    return if check_for_escell_genbank_file
+    send_genbank_file(@allele.genbank_file.escell_clone)
   end
 
   # GET /alleles/1/targeting-vector-genbank-file/
   def targeting_vector_genbank_file
     find_allele
-    if @allele.pipeline_names =~ /mirKO/
-      flash[:notice] = 'Genbank file temporarily withdrawn.'
-      redirect_to :action => "show"
-    else
-      return if check_for_genbank_file
-      return if check_for_vector_genbank_file
-      send_genbank_file(@allele.genbank_file.targeting_vector)
-    end
+    return if check_for_genbank_file
+    return if check_for_vector_genbank_file
+    send_genbank_file(@allele.genbank_file.targeting_vector)
   end
 
   def escell_clone_cre_genbank_file

@@ -36,7 +36,7 @@ module TarMits
       'SolrUpdate::Observer::EsCell',
       'SolrUpdate::Observer::MiPlan',
       'SolrUpdate::Observer::Gene',
-      #'SolrUpdate::Observer::IkmcProject'
+      'SolrUpdate::Observer::IkmcProject'
     ]
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.

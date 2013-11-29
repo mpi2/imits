@@ -42,7 +42,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         FROM targ_rep_ikmc_projects
         LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.ikmc_project_id = targ_rep_ikmc_projects.name AND targ_rep_es_cells.pipeline_id = targ_rep_ikmc_projects.pipeline_id
         LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.ikmc_project_id = targ_rep_ikmc_projects.name AND targ_rep_targeting_vectors.pipeline_id = targ_rep_ikmc_projects.pipeline_id
-        WHERE (targ_rep_es_cells.ikmc_project_foreign_id IS NULL AND targ_rep_es_cells.id IS NOT NULL) OR (targ_rep_targeting_vectors.ikmc_project_foreign_id IS NULL AND targ_rep_targeting_vectors.id IS NOT NULL)
+        WHERE ((targ_rep_es_cells.ikmc_project_foreign_id IS NULL OR targ_rep_es_cells.ikmc_project_id != targ_rep_ikmc_projects.name) AND targ_rep_es_cells.id IS NOT NULL) OR ((targ_rep_targeting_vectors.ikmc_project_foreign_id IS NULL  OR targ_rep_targeting_vectors.ikmc_project_id != targ_rep_ikmc_projects.name) AND targ_rep_targeting_vectors.id IS NOT NULL)
         ;
         EOF
         records = ActiveRecord::Base.connection.execute(sql)
@@ -79,7 +79,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
                 WHEN mi_attempt_statuses.name = 'Genotype confirmed' THEN 2
                 WHEN mi_attempt_statuses.name IS NOT NULL THEN 3
                 WHEN targ_rep_es_cells.id IS NOT NULL AND targ_rep_es_cells.report_to_public = 't' THEN 4
-                WHEN targ_rep_targeting_vectors.id IS NOT NULL AND targ_rep_targeting_vectors.report_to_public = 't' AND  targ_rep_ikmc_project_statuses.name NOT IN ('#{es_cell_production_statuses_in_htgt.join("','")}') THEN 5
+                WHEN targ_rep_targeting_vectors.id IS NOT NULL AND targ_rep_targeting_vectors.report_to_public = 't' AND  (targ_rep_ikmc_project_statuses.name NOT IN ('#{es_cell_production_statuses_in_htgt.join("','")}') OR targ_rep_ikmc_project_statuses.name IS NULL) THEN 5
                 ELSE 6
               END AS ikmc_project_status_order
               FROM
@@ -93,7 +93,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
           GROUP BY ikmc_project_statuses.ikmc_project_id
         ) AS best_status
         JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = best_status.ikmc_project_id
-        WHERE targ_rep_ikmc_projects.status_id != best_status.best_ikmc_project_status
+        WHERE (targ_rep_ikmc_projects.status_id != best_status.best_ikmc_project_status or targ_rep_ikmc_projects.status_id IS NULL) AND best_status.best_ikmc_project_status IS NOT NULL
         EOF
         records = ActiveRecord::Base.connection.execute(sql)
 

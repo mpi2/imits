@@ -9,6 +9,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         assign_project_id_to_tarmit_products
         update_status_of_projects_based_on_tarmits_products
         update_project_status_from_htgt_download
+        delete_projects_without_products_and_status_id
       end
 
       def find_and_create_new_projects_from_tarmits_products
@@ -42,7 +43,8 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         FROM targ_rep_ikmc_projects
         LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.ikmc_project_id = targ_rep_ikmc_projects.name AND targ_rep_es_cells.pipeline_id = targ_rep_ikmc_projects.pipeline_id
         LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.ikmc_project_id = targ_rep_ikmc_projects.name AND targ_rep_targeting_vectors.pipeline_id = targ_rep_ikmc_projects.pipeline_id
-        WHERE ((targ_rep_es_cells.ikmc_project_foreign_id IS NULL OR targ_rep_es_cells.ikmc_project_id != targ_rep_ikmc_projects.name) AND targ_rep_es_cells.id IS NOT NULL) OR ((targ_rep_targeting_vectors.ikmc_project_foreign_id IS NULL  OR targ_rep_targeting_vectors.ikmc_project_id != targ_rep_ikmc_projects.name) AND targ_rep_targeting_vectors.id IS NOT NULL)
+        WHERE ((targ_rep_es_cells.ikmc_project_foreign_id IS NULL OR targ_rep_es_cells.ikmc_project_foreign_id != targ_rep_ikmc_projects.id) AND targ_rep_es_cells.id IS NOT NULL) OR
+              ((targ_rep_targeting_vectors.ikmc_project_foreign_id IS NULL  OR targ_rep_targeting_vectors.ikmc_project_foreign_id != targ_rep_ikmc_projects.id) AND targ_rep_targeting_vectors.id IS NOT NULL)
         ;
         EOF
         records = ActiveRecord::Base.connection.execute(sql)
@@ -71,16 +73,18 @@ module TargRep::IkmcProject::IkmcProjectGenerator
               WHEN 3 THEN 15                                      -- Mice - Microinjection in progress
               WHEN 4 THEN 12                                       -- ES Cells - Targeting Confirmed
               WHEN 5 THEN 10                                       -- Vector Complete
-              ELSE NULL
+              WHEN 6 THEN NULL                                     -- remove status
+              ELSE 400                                             -- Do Nothing
             END AS best_ikmc_project_status
             FROM
               (SELECT targ_rep_ikmc_projects.id AS ikmc_project_id,
               CASE WHEN phenotype_attempt_statuses.name = 'Phenotyping Started' THEN 1
                 WHEN mi_attempt_statuses.name = 'Genotype confirmed' THEN 2
                 WHEN mi_attempt_statuses.name IS NOT NULL THEN 3
-                WHEN targ_rep_es_cells.id IS NOT NULL AND targ_rep_es_cells.report_to_public = 't' THEN 4
-                WHEN targ_rep_targeting_vectors.id IS NOT NULL AND targ_rep_targeting_vectors.report_to_public = 't' AND  (targ_rep_ikmc_project_statuses.name NOT IN ('#{es_cell_production_statuses_in_htgt.join("','")}') OR targ_rep_ikmc_project_statuses.name IS NULL) THEN 5
-                ELSE 6
+                WHEN targ_rep_es_cells.id IS NOT NULL AND targ_rep_es_cells.report_to_public = true THEN 4
+                WHEN targ_rep_targeting_vectors.id IS NOT NULL AND targ_rep_targeting_vectors.report_to_public = true AND  (targ_rep_ikmc_project_statuses.name NOT IN ('#{es_cell_production_statuses_in_htgt.join("','")}') OR targ_rep_ikmc_project_statuses.name IS NULL) THEN 5
+                WHEN (targ_rep_targeting_vectors.id IS NULL or targ_rep_targeting_vectors.report_to_public = false) AND targ_rep_ikmc_project_statuses.name IN ('#{tarmits_production_statuses.join("','")}') THEN 6
+                ELSE 7
               END AS ikmc_project_status_order
               FROM
               targ_rep_ikmc_projects
@@ -93,7 +97,12 @@ module TargRep::IkmcProject::IkmcProjectGenerator
           GROUP BY ikmc_project_statuses.ikmc_project_id
         ) AS best_status
         JOIN targ_rep_ikmc_projects ON targ_rep_ikmc_projects.id = best_status.ikmc_project_id
-        WHERE (targ_rep_ikmc_projects.status_id != best_status.best_ikmc_project_status or targ_rep_ikmc_projects.status_id IS NULL) AND best_status.best_ikmc_project_status IS NOT NULL
+        WHERE (best_status.best_ikmc_project_status != 400 OR best_status.best_ikmc_project_status IS NULL) AND
+              (
+               targ_rep_ikmc_projects.status_id != best_status.best_ikmc_project_status or
+              (targ_rep_ikmc_projects.status_id IS NULL AND best_status.best_ikmc_project_status IS NOT NULL) or
+              (best_status.best_ikmc_project_status IS NULL AND targ_rep_ikmc_projects.status_id IS NOT NULL)
+              )
         EOF
         records = ActiveRecord::Base.connection.execute(sql)
 
@@ -158,7 +167,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
           project_value = record['ikmc_project_name']
           status_name_value = record['status_name']
           if status_name_value
-            if !statuses.has_Key?(status_name_value)
+            if !statuses.has_key?(status_name_value)
               create_status = TargRep::IkmcProject:Status.new(:name => project_value, :status_id => status_value, :pipeline_id => 7)
               if create_status.valid?
                 create_status.save
@@ -185,6 +194,30 @@ module TargRep::IkmcProject::IkmcProjectGenerator
                  'ES Cells - Electroporation in Progress',
                  'ES Cells - No QC Positives'
                ]
+      end
+
+      def tarmits_production_statuses
+        return [
+                 'Mice - Phenotype Data Available',
+                 'Mice - Genotype confirmed',
+                 'Mice - Microinjection in progress',
+                 'ES Cells - Targeting Confirmed',
+                 'Vector Complete'
+               ]
+      end
+
+      def delete_projects_without_products_and_status_id
+        sql = <<-EOF
+          SELECT targ_rep_ikmc_projects.*
+          FROM targ_rep_ikmc_projects
+          LEFT JOIN targ_rep_es_cells ON targ_rep_es_cells.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
+          LEFT JOIN targ_rep_targeting_vectors ON targ_rep_targeting_vectors.ikmc_project_foreign_id = targ_rep_ikmc_projects.id
+          WHERE targ_rep_targeting_vectors.id IS NULL AND targ_rep_es_cells.id IS NULL AND targ_rep_ikmc_projects.status_id IS NULL
+        EOF
+        ikmc_projects_for_deletion = TargRep::IkmcProject.find_by_sql(sql)
+        ikmc_projects_for_deletion.each do |ikmc_project|
+          ikmc_project.destroy
+        end
       end
 
     end

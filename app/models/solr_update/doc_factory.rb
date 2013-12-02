@@ -53,13 +53,8 @@ class SolrUpdate::DocFactory
 
     solr_doc['allele_id'] = mi_attempt.allele_id
 
-    if mi_attempt.mouse_allele_type == 'e'
-      solr_doc['allele_type'] = 'Targeted Non Conditional'
-    else
-      if mi_attempt.es_cell.mutation_subtype
-        solr_doc['allele_type'] = mi_attempt.es_cell.mutation_subtype.titleize
-      end
-    end
+    solr_doc['allele_type'] = mi_attempt.try(:es_cell).try(:allele).try(:mutation_type).try(:name).try(:titleize)
+    solr_doc['allele_type'] = '' if ! solr_doc['allele_type']
 
     if mi_attempt.colony_background_strain
       solr_doc['strain'] = mi_attempt.colony_background_strain.name

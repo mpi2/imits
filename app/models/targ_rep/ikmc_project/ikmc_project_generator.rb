@@ -29,9 +29,10 @@ module TargRep::IkmcProject::IkmcProjectGenerator
           if ikmc_project.valid?
             ikmc_project.save
           else
-            console.log("Invalid project: name => #{project['ikmc_project_id']}, pipeline_id => #{project['pipeline_id']} ")
+            puts "Invalid project: name => #{project['ikmc_project_id']}, pipeline_id => #{project['pipeline_id']} "
           end
         end
+        return 1
       end
 
 
@@ -57,6 +58,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
             target_vector.update_attributes(:ikmc_project_foreign_id => ikmc_project['project_id'])
           end
         end
+        return 1
       end
 
 
@@ -109,6 +111,7 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         records.each do |ikmc_status|
           TargRep::IkmcProject.find(ikmc_status['ikmc_project_id']).update_attributes(:status_id => ikmc_status['best_ikmc_project_status'])
         end
+        return 1
       end
 
       def update_project_status_from_htgt_download
@@ -127,17 +130,32 @@ module TargRep::IkmcProject::IkmcProjectGenerator
             project_index = headers.index('allele_id')
             status_index = headers.index('pipeline_status')
             eucomm_tools_index = headers.index('eucomm_tools')
-            if row[eucomm_tools_index] == '1'
-              data[row[project_index]] = {'ikmc_project_name' => row[project_index], 'status_name' => row[status_index], 'pipeline_id' => '7' }
-            end
+            pipeline = (
+              if row[headers.index('eucomm_tools')] == '1'
+                7
+              elsif row[headers.index('eucomm_tools_cre')] == '1'
+                8
+              elsif row[headers.index('eucomm')] == '1'
+                4
+              elsif row[headers.index('komp')] == '1'
+                1
+              elsif row[headers.index('norcomm')] == '1'
+                3
+              else
+                0
+              end
+              )
+            next if pipeline == 0
+            data[row[project_index]] = {'ikmc_project_name' => row[project_index], 'status_name' => row[status_index], 'pipeline_id' => "#{pipeline}" }
           end
         end
+
 
         sql = <<-EOF
         SELECT targ_rep_ikmc_projects.id AS ikmc_project_id, targ_rep_ikmc_projects.name AS ikmc_project_name, targ_rep_ikmc_project_statuses.name AS status_name, targ_rep_ikmc_project_statuses.product_type AS product_type
         FROM targ_rep_ikmc_projects
         LEFT JOIN targ_rep_ikmc_project_statuses ON targ_rep_ikmc_project_statuses.id = targ_rep_ikmc_projects.status_id
-        WHERE targ_rep_ikmc_projects.pipeline_id = 7 AND targ_rep_ikmc_projects.name IN ('#{data.keys.join("','")}')
+        WHERE targ_rep_ikmc_projects.name IN ('#{data.keys.join("','")}')
         EOF
 
         results = ActiveRecord::Base.connection.execute(sql)
@@ -157,6 +175,8 @@ module TargRep::IkmcProject::IkmcProjectGenerator
           if ! (['ES Cells - Targeting Confirmed'].include?(record['status_name']) or record['product_type'] == 'Mice')
             if ( record['status_name'] != 'Vector Complete' and record['status_name'] != data[record['ikmc_project_name']]['status_name'] ) or
                  ( record['status_name'] == 'Vector Complete' and es_cell_production_statuses_in_htgt.include?(data[record['ikmc_project_name']]['status_name']) )
+
+              status_add_if_missing(statuses, data[record['ikmc_project_name']]['status_name'])
               TargRep::IkmcProject.find(record['ikmc_project_id']).update_attributes(:status_id => statuses[data[record['ikmc_project_name']]['status_name']])
             end
           end
@@ -164,17 +184,11 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         end
 
         data.each do |key, record|
+          next if record['pipeline_id'] != 7
           project_value = record['ikmc_project_name']
           status_name_value = record['status_name']
           if status_name_value
-            if !statuses.has_key?(status_name_value)
-              create_status = TargRep::IkmcProject:Status.new(:name => project_value, :status_id => status_value, :pipeline_id => 7)
-              if create_status.valid?
-                create_status.save
-              else
-                console.log("Invalid status: name => #{record['ikmc_project_name']}, pipeline_id => 7")
-              end
-            end
+            status_add_if_missing(statuses, status_name_value)
             status_value = statuses[status_name_value]
             if !project_value.blank? & !status_value.blank?
               create_project = TargRep::IkmcProject.new(:name => project_value, :status_id => status_value, :pipeline_id => 7)
@@ -182,11 +196,12 @@ module TargRep::IkmcProject::IkmcProjectGenerator
                 create_project.save
                 data.delete(project_value)
               else
-                console.log("Invalid project: name => #{record['ikmc_project_name']}, pipeline_id => 7")
+                puts "Invalid project: name => #{record['ikmc_project_name']}, pipeline_id => 7"
               end
             end
           end
         end
+        return 1
       end
 
       def es_cell_production_statuses_in_htgt
@@ -217,6 +232,20 @@ module TargRep::IkmcProject::IkmcProjectGenerator
         ikmc_projects_for_deletion = TargRep::IkmcProject.find_by_sql(sql)
         ikmc_projects_for_deletion.each do |ikmc_project|
           ikmc_project.destroy
+        end
+        return 1
+      end
+
+
+      def status_add_if_missing(statuses, status)
+        if !statuses.has_key?(status)
+          create_status = TargRep::IkmcProject::Status.new(:name => status)
+          if create_status.valid?
+            create_status.save
+            statuses[status] = create_status.id
+          else
+            puts "Invalid status: name => #{status}"
+          end
         end
       end
 

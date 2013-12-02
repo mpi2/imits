@@ -348,14 +348,29 @@ class SolrUpdate::DocFactory
       next if ! key
       next if ! legal.include? vector_project_hash[key]
       solr_doc['vector_project_ids'].push key
-      solr_doc['vector_project_statuses'].push vector_project_hash[key]
+
+      value = vector_project_hash[key]
+      #puts "#### dodgy: '#{gene.marker_symbol}'" if ! value
+      value = value ? value : 'unknown'
+
+      solr_doc['vector_project_statuses'].push value
     end
 
     project_hash.keys.each do |key|
       next if ! key
       solr_doc['project_ids'].push key
-      solr_doc['project_statuses'].push project_hash[key]
-      solr_doc['project_pipelines'].push pipeline_hash[key] if pipeline_hash[key]
+
+      value = project_hash[key]
+      #puts "#### dodgy: '#{gene.marker_symbol}'" if ! value
+      value = value ? value : 'unknown'
+
+      solr_doc['project_statuses'].push value
+
+      pipeline = pipeline_hash[key]
+      #puts "#### dodgy pipeline: '#{gene.marker_symbol}'" if ! pipeline
+      pipeline = pipeline ? pipeline : 'unknown'
+
+      solr_doc['project_pipelines'].push pipeline
     end
 
     solr_doc

@@ -243,4 +243,19 @@ namespace :solr do
   #  end
   #end
 
+  #task 'update:allele_single' => [:environment] do
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #  ApplicationModel.transaction do
+  #    puts "#### enqueueing allele..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #
+  #    a = TargRep::TargetedAllele.find 26517
+  #    raise "#### cannot find 26517!" if ! a
+  #
+  #    enqueuer.allele_updated(a)
+  #
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #  end
+  #end
+
 end

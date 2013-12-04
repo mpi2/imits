@@ -13,7 +13,6 @@ class TargRep::IkmcProject::Status < ActiveRecord::Base
   ##
 
   validates :name,
-    :uniqueness => {:message => 'has already been taken'},
     :presence => true
 end
 

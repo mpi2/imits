@@ -39,7 +39,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal 1, ActionMailer::Base.deliveries.size
 
       email = ActionMailer::Base.deliveries.last
-      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
+      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'mouse-helpdesk@ebi.ac.uk', notification_mail.subject]
     end
 
     should '#SEND status_email with mi_attempt statuses' do
@@ -65,7 +65,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal 1, ActionMailer::Base.deliveries.size
 
       email = ActionMailer::Base.deliveries.last
-      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
+      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'mouse-helpdesk@ebi.ac.uk', notification_mail.subject]
     end
 
     should '#SEND status_email with phenotype_attempt statuses' do
@@ -107,7 +107,7 @@ class NotificationMailerTest < ActionMailer::TestCase
       assert_equal 1, ActionMailer::Base.deliveries.size
 
       email = ActionMailer::Base.deliveries.last
-      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'info@mousephenotype.org', notification_mail.subject]
+      assert_equal [email.to.first, email.from.first, email.subject],[contact.email, 'mouse-helpdesk@ebi.ac.uk', notification_mail.subject]
     end
 
     should '#NOT SEND status_email with gene.relevant_status[:status] that is in excluded_statuses' do

@@ -83,28 +83,28 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert_false @doc.has_key? 'mgi_accession_id'
       end
 
-      context 'allele_type' do
-        should 'be set from the es_cell if mouse_allele_type is not "e"' do
-          @mi_attempt.mouse_allele_type = 'a'
-
-          @es_cell.mutation_subtype = 'conditional_ready'
-          doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
-          assert_equal 'Conditional Ready', doc['allele_type']
-
-          @es_cell.mutation_subtype = 'deletion'
-          doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
-          assert_equal 'Deletion', doc['allele_type']
-        end
-
-        should 'be set to targeted_non_conditional if mouse_allele_type is "e" regardless of es_cell' do
-          @mi_attempt.mouse_allele_type = 'e'
-          @es_cell.mutation_subtype = 'conditional_ready'
-
-          doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
-          assert_equal 'Targeted Non Conditional', doc['allele_type']
-        end
-
-      end
+      #context 'allele_type' do
+      #  should 'be set from the es_cell if mouse_allele_type is not "e"' do
+      #    @mi_attempt.mouse_allele_type = 'a'
+      #
+      #    @es_cell.mutation_subtype = 'conditional_ready'
+      #    doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
+      #    assert_equal 'Conditional Ready', doc['allele_type']
+      #
+      #    @es_cell.mutation_subtype = 'deletion'
+      #    doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
+      #    assert_equal 'Deletion', doc['allele_type']
+      #  end
+      #
+      #  should 'be set to targeted_non_conditional if mouse_allele_type is "e" regardless of es_cell' do
+      #    @mi_attempt.mouse_allele_type = 'e'
+      #    @es_cell.mutation_subtype = 'conditional_ready'
+      #
+      #    doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
+      #    assert_equal 'Targeted Non Conditional', doc['allele_type']
+      #  end
+      #
+      #end
 
       should 'set allele_id' do
         assert_equal @allele.id, @doc['allele_id']

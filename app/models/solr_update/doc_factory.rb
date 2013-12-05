@@ -327,25 +327,11 @@ class SolrUpdate::DocFactory
       end
     end
 
-    # vector statuses
-
-    #{
-    #"Vector Complete"=>1,
-    #"ES Cells - Targeting Confirmed"=>1,
-    #"Mice - Phenotype Data Available"=>1,
-    #"Mice - Genotype confirmed"=>1,
-    #"Mice - Microinjection in progress"=>1
-    #}
-
-    legal = ["Vector Complete", "ES Cells - Targeting Confirmed"]
-
     vector_project_hash.keys.each do |key|
       next if ! key
-      next if ! legal.include? vector_project_hash[key]
       solr_doc['vector_project_ids'].push key
 
       value = vector_project_hash[key]
-      #puts "#### dodgy: '#{gene.marker_symbol}'" if ! value
       value = value ? value : 'unknown'
 
       solr_doc['vector_project_statuses'].push value
@@ -356,13 +342,11 @@ class SolrUpdate::DocFactory
       solr_doc['project_ids'].push key
 
       value = project_hash[key]
-      #puts "#### dodgy: '#{gene.marker_symbol}'" if ! value
       value = value ? value : 'unknown'
 
       solr_doc['project_statuses'].push value
 
       pipeline = pipeline_hash[key]
-      #puts "#### dodgy pipeline: '#{gene.marker_symbol}'" if ! pipeline
       pipeline = pipeline ? pipeline : 'unknown'
 
       solr_doc['project_pipelines'].push pipeline

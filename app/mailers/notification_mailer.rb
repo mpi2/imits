@@ -3,7 +3,7 @@ class NotificationMailer < ActionMailer::Base
 
   include ActionView::Helpers::TextHelper
 
-  default :from => 'mouse-helpdesk@ebi.ac.uk'
+  default :from => 'info@mousephenotype.org'
 
   def welcome_email(notification)
     @contact = Contact.find(notification.contact_id)

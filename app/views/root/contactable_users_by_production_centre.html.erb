@@ -1,0 +1,36 @@
+<% @title = 'Users by Production Centre' %>
+
+<div class="grid_12">
+  <h2><%= @title %></h2>
+</div>
+
+<div class="grid_12">
+  <span class="contactable-legend">(willing to be contacted)</span>
+  <div class="clear" style="margin-bottom:10px"></div>
+</div>
+
+<div class="grid_12 alpha omega">
+  <%
+    @users_by_production_centre.keys
+      .sort{ |a,b| @users_by_production_centre[a].size <=> @users_by_production_centre[b].size }
+      .each do |production_centre|
+  %>
+    <div class="grid_4">
+      <table class="full_width report_table">
+        <thead>
+          <tr>
+            <th colspan="2"><%= production_centre %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @users_by_production_centre[production_centre].each do |user| %>
+            <tr class="<%= 'contactable' if user.is_contactable? %>">
+              <td><%= user.name %></td>
+              <td><%= mail_to(user.email) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

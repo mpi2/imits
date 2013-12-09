@@ -531,7 +531,7 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
           assert_equal 'na', default_phenotype_attempt.send("#{qc_field}_result")
           assert_equal 'na', default_phenotype_attempt.send(qc_field).try(:description)
         end
-
       end
+    end
   end
 end

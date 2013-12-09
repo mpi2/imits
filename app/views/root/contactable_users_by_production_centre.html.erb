@@ -23,6 +23,8 @@
           </tr>
         </thead>
         <tbody>
+          <td>General Centre Contact</td>
+          <td><%= @centre_contact[production_centre] %></td>
           <% @users_by_production_centre[production_centre].each do |user| %>
             <tr class="<%= 'contactable' if user.is_contactable? %>">
               <td><%= user.name %></td>

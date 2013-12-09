@@ -16,8 +16,6 @@ class TargRep::IkmcProject::Status < ActiveRecord::Base
     :presence => true
 end
 
-
-
 # == Schema Information
 #
 # Table name: targ_rep_ikmc_project_statuses
@@ -26,4 +24,3 @@ end
 #  name         :string(255)
 #  product_type :string(255)
 #
-

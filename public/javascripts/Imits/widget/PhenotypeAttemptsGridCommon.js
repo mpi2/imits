@@ -191,6 +191,119 @@ Ext.define('Imits.widget.PhenotypeAttemptsGridCommon', {
         filter: {
             type: 'boolean'
         }
+    },
+
+    // QC Details
+    {
+        dataIndex: 'qc_southern_blot_result',
+        header: 'Southern Blot',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_five_prime_lr_pcr_result',
+        header: 'Five Prime LR PCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_five_prime_cassette_integrity_result',
+        header: 'Five Prime Cassette Integrity',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_tv_backbone_assay_result',
+        header: 'TV Backbone Assay',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_neo_count_qpcr_result',
+        header: 'Neo Count QPCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_lacz_count_qpcr_result',
+        header: 'Lacz Count QPCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_neo_sr_pcr_result',
+        header: 'Neo SR PCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_loa_qpcr_result',
+        header: 'LOA QPCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_homozygous_loa_sr_pcr_result',
+        header: 'Homozygous LOA SR PCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_lacz_sr_pcr_result',
+        header: 'LacZ SR PCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_mutant_specific_sr_pcr_result',
+        header: 'Mutant Specific SR PCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_loxp_confirmation_result',
+        header: 'LoxP Confirmation',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_three_prime_lr_pcr_result',
+        header: 'Three Prime LR PCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_critical_region_qpcr_result',
+        header: 'Critical Region QPCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_loxp_srpcr_result',
+        header: 'Loxp SRPCR',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'qc_loxp_srpcr_and_sequencing_result',
+        header: 'Loxp SRPRC and Sequencing',
+        sortable: false,
+        editor: 'qccombo'
+    },
+    {
+        dataIndex: 'report_to_public',
+        header: 'Report to Public',
+        xtype: 'boolgridcolumn'
+    },
+    {
+        dataIndex: 'is_active',
+        header: 'Active?',
+        xtype: 'boolgridcolumn'
+    },
+    {
+        dataIndex: 'is_released_from_genotyping',
+        header: 'Released From Genotyping',
+        xtype: 'boolgridcolumn'
     }
     ]
 });

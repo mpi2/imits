@@ -27,9 +27,6 @@ class TargRep::IkmcProject < ActiveRecord::Base
 
 end
 
-
-
-
 # == Schema Information
 #
 # Table name: targ_rep_ikmc_projects
@@ -41,4 +38,3 @@ end
 #  created_at  :datetime        not null
 #  updated_at  :datetime        not null
 #
-

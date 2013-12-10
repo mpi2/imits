@@ -1,7 +1,9 @@
 <% @tab = 'Phenotyping' %>
 
 <% content_for :pre_js_footer do %>
-  <%= javascript_tag "USER_PRODUCTION_CENTRE = #{current_user ? current_user.production_centre.name.to_json : ''}" %>
+  <% production_centre = current_user.try(:production_centre).try(:name) %>
+  <% production_centre = '' if ! production_centre %>
+  <%= javascript_tag "USER_PRODUCTION_CENTRE = '#{production_centre}'" %>
   <%= javascript_tag "CONSORTIUM_OPTIONS = #{Consortium.all.map(&:name).to_json}" %>
   <%= javascript_tag "CENTRE_OPTIONS = #{Centre.all.map(&:name).to_json}" %>
   <%= javascript_tag "PHENOTYPE_STATUS_OPTIONS = #{PhenotypeAttempt::Status.all.map(&:name).to_json}" %>

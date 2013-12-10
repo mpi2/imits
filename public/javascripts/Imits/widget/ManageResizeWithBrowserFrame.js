@@ -6,7 +6,7 @@ Ext.define('Imits.widget.ManageResizeWithBrowserFrame', {
         }
         var newGridHeight = windowHeight - this.getEl().getTop();
         if(newGridHeight < 200) {
-            newGridHeight = 200;
+            newGridHeight = 500;
         }
         this.setHeight(newGridHeight);
         this.setWidth(this.getEl().up('div').getWidth() - 1);

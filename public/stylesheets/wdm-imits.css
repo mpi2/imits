@@ -6,8 +6,12 @@ form fieldset legend,
 html,
 body,
 td,
+p                       { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; font-weight: 400; font-size: 14px !important; line-height: 1.3em; color: #666; font-style: normal; }
+
+/*
 p                       { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; font-weight: 400; font-size: 100% !important; line-height: 1.3em; color: #666; font-style: normal; }
-#p                       { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; font-weight: 400; font-size: 100%; line-height: 1.3em; color: #666; font-style: normal; }
+p                       { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; font-weight: 400; font-size: 100%; line-height: 1.3em; color: #666; font-style: normal; }
+*/
 
 /* Links */
 #userbox-inner a,
@@ -24,7 +28,7 @@ h4                      { font-size: 1.4em; }
 h5                      { font-size: 1.3em; font-weight: 600; color: #666; }
 h6                      { font-size: 1em; font-weight: 600; color: #666; }
 
-/* Abstände */
+/* Abstände (distances) */
 p + h1,
 p + h2,
 p + h3                  { margin-top: 1.5em; }
@@ -36,14 +40,14 @@ p + p                   { margin-top: 1em; }
 #footer                 { border-top: #eee 1px solid; }
 
 /* Boxing system / Grid */
-.container_12           { margin: 0 auto; width: 80%; max-width: 1222px; min-width: 960px; }
+.container_12           { margin: 0 auto; width: 80%; max-width: 1500px; min-width: 960px; }
 .grid_12.alpha.omega    { width: 100%; }
 
 
 
 /* Main navigation */
 #navigation             { margin-top: 20px; margin-bottom: 20px; width: 100%; max-width: none; background: #eee; }
-#navigation ul          { background: none; filter: none; padding: 10px 0; margin: 0 auto; min-width: 960px; width: 80%; max-width: 1222px; }
+#navigation ul          { background: none; filter: none; padding: 10px 0; margin: 0 auto; min-width: 960px; width: 80%; max-width: 1500px; }
 #navigation li          { border: none; line-height: 1em; margin-left: 5px; }
 #navigation li a        { padding: 5px 10px; margin: 0; font-weight: 400; }
 #navigation li a:hover,
@@ -71,3 +75,8 @@ th                      { font-weight: 600; }
 #navigation li          { margin-left: 10px; }
 #navigation li a        { font-size: 1.2em; font-weight: 400; }
 }
+
+/*#mi-planning-grid { height:400px; }
+.x-panel .x-grid-with-col-lines .x-grid-with-row-lines .x-panel-default .x-grid { height:400px !important; }*/
+
+.homepage-links p { margin-top: 5px; }

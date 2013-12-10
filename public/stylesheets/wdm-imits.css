@@ -1,0 +1,73 @@
+/* General */
+body                    { }
+
+/* Font */
+form fieldset legend,
+html,
+body,
+td,
+p                       { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; font-weight: 400; font-size: 100% !important; line-height: 1.3em; color: #666; font-style: normal; }
+#p                       { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; font-weight: 400; font-size: 100%; line-height: 1.3em; color: #666; font-style: normal; }
+
+/* Links */
+#userbox-inner a,
+a                       { color: #0978a1; text-decoration: underline; cursor: pointer; }
+a:hover                 { color: #0978a1; text-decoration: underline; }
+
+/* Headlines */
+h1 a,h2 a,h3 a,h4 a,h5 a,h6 a,h1,h2,h3,h4,h5,h6 { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; color: #333 !important; margin-bottom: 0.5em; line-height: 1em; text-decoration: none; font-weight: 300; letter-spacing: -0.01em; }
+h1                      { font-size: 2.5em; letter-spacing: -1px; }
+h1.title                { font-size: 3em; letter-spacing: -1px; background: #0978a1; color: #fff; padding: 0.6em; margin-bottom: 0; }
+h2                      { font-size: 2.5em; letter-spacing: -1px; }
+h3                      { font-size: 2em; }
+h4                      { font-size: 1.4em; }
+h5                      { font-size: 1.3em; font-weight: 600; color: #666; }
+h6                      { font-size: 1em; font-weight: 600; color: #666; }
+
+/* Abstände */
+p + h1,
+p + h2,
+p + h3                  { margin-top: 1.5em; }
+h3 + p                  { margin-top: -1em; }
+p + p                   { margin-top: 1em; }
+
+/* Container */
+#header_ro              { margin-top: 20px; }
+#footer                 { border-top: #eee 1px solid; }
+
+/* Boxing system / Grid */
+.container_12           { margin: 0 auto; width: 80%; max-width: 1222px; min-width: 960px; }
+.grid_12.alpha.omega    { width: 100%; }
+
+
+
+/* Main navigation */
+#navigation             { margin-top: 20px; margin-bottom: 20px; width: 100%; max-width: none; background: #eee; }
+#navigation ul          { background: none; filter: none; padding: 10px 0; margin: 0 auto; min-width: 960px; width: 80%; max-width: 1222px; }
+#navigation li          { border: none; line-height: 1em; margin-left: 5px; }
+#navigation li a        { padding: 5px 10px; margin: 0; font-weight: 400; }
+#navigation li a:hover,
+#navigation li.current a { background: #EF7B0B; color: #fff; font-weight: 400; }
+
+/* Userbox */
+#userbox-inner          { text-align: right; border: none; padding: none; background: none; }
+
+/* Forms */
+form fieldset           { border-color: #eee; margin: 30px 0; padding-top: 10px; }
+form fieldset legend    { font-size: 1.3em; }
+
+/* Table */
+table.report_table th, .report table th, .report_chunky table th { background: #eee; }
+th                      { font-weight: 600; }
+
+/* Rounded corners */
+#navigation li a        { -webkit-border-radius: 4px; -moz-border-radius: 4px; -o-border-radius: 4px; -ms-border-radius: 4px; border-radius: 4px; }
+
+/* Clear fix */
+.container_12:after     { content:'.'; display: block; height: 0; width: 0; visibility: hidden; clear: both; }
+
+/* Responsive Design */
+@media only screen and (min-width: 1450px) {
+#navigation li          { margin-left: 10px; }
+#navigation li a        { font-size: 1.2em; font-weight: 400; }
+}

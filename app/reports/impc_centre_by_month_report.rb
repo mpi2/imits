@@ -176,7 +176,8 @@ class ImpcCentreByMonthReport
          'Harwell' => ['BaSH', 'MRC'],
          'UCD' => ['DTCC'],
          'WTSI' => ['MGP', 'BaSH'],
-         'Monterotondo' => ['Monterotondo']
+         'Monterotondo' => ['Monterotondo'],
+         'MARC' => ['MARC']
         }
     end
 
@@ -215,6 +216,7 @@ class ImpcCentreByMonthReport
         'Harwell',
         'ICS',
         'JAX',
+        'MARC',
         'Monterotondo',
         'RIKEN BRC',
         'TCP',

@@ -72,3 +72,11 @@ th                      { font-weight: 600; }
 }
 
 .homepage-links p { margin-top: 5px; }
+
+/* nick it from sprites.css so iMits can use it */
+
+.ss_sprite {display:inline;overflow:hidden;height:18px;padding-left:18px;padding-bottom:5px;background-repeat:no-repeat;background-image:url(../../images/targ_rep/sprites.png);}
+.ss_sprite {
+  padding-bottom: 3px;
+}
+.ss_key {background-position:0px -8929px;}

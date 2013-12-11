@@ -7,6 +7,10 @@
   <%= csrf_meta_tag %>
   <title>IKMC Targeting Repository - <%= controller.controller_name.titlecase %>: <%= controller.action_name %></title>
 
+  <!--see http://stackoverflow.com/questions/13789853/integrating-googlefonts-in-ruby-on-rails-3-2-application-->
+
+  <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600" rel="stylesheet" type="text/css" >
+
   <%= javascript_tag "basePath = '#{request.env['SCRIPT_NAME']}';" %>
 
   <%= javascript 'jquery.min', 'rails', 'application'  %>
@@ -32,17 +36,15 @@
 
   </div>
 
-  <div class="container_12">
-    <div id="navigation" class="grid_12 alpha omega">
-      <ul>
-        <li><%= link_to "Home", targ_rep_root_path %></li>
-        <li><%= link_to "Alleles", targ_rep_alleles_path %></li>
-        <li><%= link_to "Gene Trap Alleles", targ_rep_gene_traps_path %></li>
-        <% if user_signed_in? %>
-          <li><%= link_to "ES Cells (Bulk Edit)", bulk_edit_targ_rep_es_cells_path %></li>
-        <% end %>
-      </ul>
-    </div>
+  <div id="navigation" class="grid_12 alpha omega">
+    <ul>
+      <li <% if @tab == "Home" %>class="current"<% end %> ><%= link_to "Home", targ_rep_root_path %></li>
+      <li <% if @tab == "Alleles" %>class="current"<% end %> ><%= link_to "Alleles", targ_rep_alleles_path %></li>
+      <li <% if @tab == "Traps" %>class="current"<% end %> ><%= link_to "Gene Trap Alleles", targ_rep_gene_traps_path %></li>
+      <% if user_signed_in? %>
+        <li <% if @tab == "Bulk" %>class="current"<% end %> ><%= link_to "ES Cells (Bulk Edit)", bulk_edit_targ_rep_es_cells_path %></li>
+      <% end %>
+    </ul>
   </div>
 
   <div class="container_12">
@@ -71,11 +73,16 @@
   <div class="clear"></div>
 
   <div class="container_12">
-    <div id="footer" class="grid_12 alpha omega" style="text-align:right;">
-      <a href="http://www.knockoutmouse.org/disclaimer">Warranty Disclaimer and Copyright Notice</a><br />
-      This site is maintained by the <a href="http://www.knockoutmouse.org/about">I-DCC and the KOMP-DCC</a><br />
-      Supported by the European Union (Project number: 223592)<br />
-      and the National Institutes of Health (Grant number: NIH HG004074)
+    <div id="footer" class="grid_12 alpha omega">
+      <div class="grid_2">
+        <p>Revision: <%= TarMits.git_revision %></p>
+      </div>
+      <div style="text-align:right;">
+        <a href="http://www.knockoutmouse.org/disclaimer">Warranty Disclaimer and Copyright Notice</a><br />
+        This site is maintained by the <a href="http://www.knockoutmouse.org/about">I-DCC and the KOMP-DCC</a><br />
+        Supported by the European Union (Project number: 223592)<br />
+        and the National Institutes of Health (Grant number: NIH HG004074)
+      </div>
     </div>
   </div>
 

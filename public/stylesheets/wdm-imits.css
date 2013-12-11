@@ -8,11 +8,6 @@ body,
 td,
 p                       { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; font-weight: 400; font-size: 14px !important; line-height: 1.3em; color: #666; font-style: normal; }
 
-/*
-p                       { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; font-weight: 400; font-size: 100% !important; line-height: 1.3em; color: #666; font-style: normal; }
-p                       { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; font-weight: 400; font-size: 100%; line-height: 1.3em; color: #666; font-style: normal; }
-*/
-
 /* Links */
 #userbox-inner a,
 a                       { color: #0978a1; text-decoration: underline; cursor: pointer; }
@@ -75,8 +70,5 @@ th                      { font-weight: 600; }
 #navigation li          { margin-left: 10px; }
 #navigation li a        { font-size: 1.2em; font-weight: 400; }
 }
-
-/*#mi-planning-grid { height:400px; }
-.x-panel .x-grid-with-col-lines .x-grid-with-row-lines .x-panel-default .x-grid { height:400px !important; }*/
 
 .homepage-links p { margin-top: 5px; }

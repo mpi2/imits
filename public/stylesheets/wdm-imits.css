@@ -17,7 +17,7 @@ a:hover                 { color: #0978a1; text-decoration: underline; }
 h1 a,h2 a,h3 a,h4 a,h5 a,h6 a,h1,h2,h3,h4,h5,h6 { font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif; color: #333 !important; margin-bottom: 0.5em; line-height: 1em; text-decoration: none; font-weight: 300; letter-spacing: -0.01em; }
 h1                      { font-size: 2.5em; letter-spacing: -1px; }
 h1.title                { font-size: 3em; letter-spacing: -1px; background: #0978a1; color: #fff; padding: 0.6em; margin-bottom: 0; }
-h2                      { font-size: 2.5em; letter-spacing: -1px; }
+h2                      { font-size: 2.0em; letter-spacing: -1px; }
 h3                      { font-size: 2em; }
 h4                      { font-size: 1.4em; }
 h5                      { font-size: 1.3em; font-weight: 600; color: #666; }

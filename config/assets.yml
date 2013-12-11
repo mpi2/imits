@@ -20,6 +20,7 @@ stylesheets:
     - public/stylesheets/targ_rep/sprites.css
     - public/stylesheets/targ_rep/buttons.css
     - public/stylesheets/targ_rep/style.css
+    - public/stylesheets/wdm-imits.css
 
   ie:
     - public/stylesheets/grid_ie.css

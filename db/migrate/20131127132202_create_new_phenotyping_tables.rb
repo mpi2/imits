@@ -12,7 +12,7 @@ class CreateNewPhenotypingTables < ActiveRecord::Migration
       t.integer   :number_of_cre_matings_started, :default => 0, :null => false
       t.integer   :number_of_cre_matings_successful, :default => 0, :null => false
       t.boolean   :no_modification_required, :default => false
-      t.boolean   :cre_excision :default => true, :null => false
+      t.boolean   :cre_excision, :default => true, :null => false
       t.boolean   :tat_cre, :default => false
       t.string    :mouse_allele_type, :limit => 3
       t.string    :allele_category
@@ -108,22 +108,22 @@ class CreateNewPhenotypingTables < ActiveRecord::Migration
 
     execute <<-SQL
       INSERT INTO mouse_allele_mod_statuses (name, order_by, code) VALUES
-      ('Phenotype Attempt Registered', 20, 'par'),
-      ('Mouse Allele Modification Registered', 10, 'mpr'),
-      ('Rederivation Started', 30, 'res'),
-      ('Rederivation Complete', 40, 'rec'),
-      ('Cre Excision Started', 50, 'ces'),
-      ('Cre Excision Complete', 60, 'cec'),
-      ('Mouse Allele Modification Aborted', 1000, 'abt')
+      ('Phenotype Attempt Registered', 420, 'par'),
+      ('Mouse Allele Modification Registered', 410, 'mpr'),
+      ('Rederivation Started', 430, 'res'),
+      ('Rederivation Complete', 440, 'rec'),
+      ('Cre Excision Started', 450, 'ces'),
+      ('Cre Excision Complete', 460, 'cec'),
+      ('Mouse Allele Modification Aborted', 401, 'abt')
     SQL
 
     execute <<-SQL
       INSERT INTO phenotyping_production_statuses (name, order_by, code) VALUES
-      ('Phenotype Attempt Registered', 20, 'mpr'),
-      ('Phenotyping Production Registered', 10, 'ppr'),
-      ('Phenotyping Started', 130, 'pds'),
-      ('Phenotyping Complete', 140, 'pdc'),
-      ('Phenotype Production Aborted', 1000, 'abt')
+      ('Phenotype Attempt Registered', 420, 'mpr'),
+      ('Phenotyping Production Registered', 411, 'ppr'),
+      ('Phenotyping Started', 530, 'pds'),
+      ('Phenotyping Complete', 540, 'pdc'),
+      ('Phenotype Production Aborted', 402, 'abt')
     SQL
   end
 

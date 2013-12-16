@@ -38,11 +38,27 @@ module ApplicationModel::BelongsToMiPlan
 
   #COMMON METHODS
   def consortium_name
-    mi_plan.try(:consortium).try(:name)
+    if @consortium_name.blank?
+      mi_plan.try(:consortium).try(:name)
+    else
+      return @consortium_name
+    end
+  end
+
+  def consortium_name=(arg)
+    @consortium_name = arg
   end
 
   def production_centre_name
-    mi_plan.try(:production_centre).try(:name)
+    if @production_centre_name.blank?
+      mi_plan.try(:production_centre).try(:name)
+    else
+      return @production_centre_name
+    end
+  end
+
+  def production_centre_name=(arg)
+    @production_centre_name = arg
   end
 
 # PUBLIC MODEL

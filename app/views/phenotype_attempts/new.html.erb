@@ -9,7 +9,7 @@
   <%= form_for @phenotype_attempt, :as => :phenotype_attempt, :html => {'onsubmit' => 'return false;'} do |form| %>
 
   <%= form.error_messages %>
-  
+
   <fieldset class="collapsible">
     <legend>ES Cell Details</legend>
     <div>
@@ -28,7 +28,7 @@
       <fieldset class="collapsible">
         <legend>Mi-Plan Details</legend>
           <div id="mi_plan_list_phenotype"></div>
-          <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>">Create new miplan</a></div>
+          <div id="create_plan"><a id="create_plan_link" href=" <%= url_for(:controller => :mi_plans, :action => :gene_selection) %>">Create new miplan</a></input>
       </fieldset>
 
       <%= form.hidden_field 'mi_plan_id', :value => @mi_attempt.mi_plan_id %>

@@ -14,10 +14,12 @@ class PhenotypeAttempt < ApplicationModel
   belongs_to :status
   belongs_to :deleter_strain
   belongs_to :colony_background_strain, :class_name => 'Strain'
-  has_many :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
 
-  has_many :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
+  has_one    :mouse_allele_mod
 
+  has_many   :status_stamps, :order => "#{PhenotypeAttempt::StatusStamp.table_name}.created_at ASC"
+  has_many   :distribution_centres, :class_name => 'PhenotypeAttempt::DistributionCentre'
+  has_many   :phenotyping_productions
   access_association_by_attribute :colony_background_strain, :name
 
   accepts_nested_attributes_for :status_stamps
@@ -71,6 +73,7 @@ class PhenotypeAttempt < ApplicationModel
   end
 
   after_initialize :set_mi_plan # need to set mi_plan if blank before authorize_user_production_centre is fired in controller.
+  before_validation :allow_override_of_plan
   before_validation :change_status
   before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
 #  before_save :ensure_plan_exists # this method is in belongs_to_mi_plan
@@ -78,6 +81,35 @@ class PhenotypeAttempt < ApplicationModel
   before_save :generate_colony_name_if_blank
   after_save :manage_status_stamps
   after_save :set_phenotyping_experiments_started_if_blank
+  after_save :set_allele_mod_and_production
+
+
+## BEFORE VALIDATION FUNCTIONS
+  def allow_override_of_plan
+    plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
+      mi_plan = pa.mi_attempt.mi_plan
+      if !mi_plan.blank? and mi_plan.consortium == self.consortium_name and mi_plan.production_centre == self.production_centre_name
+        mi_plan = [mi_plan]
+      else
+        mi_plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
+      end
+    end
+
+    self.mi_plan = plan
+  end
+
+## AFTER SAVE FUNCTIONS
+  def set_allele_mod_and_production
+    mouse_allele = MouseAlleleMod.create_or_update_from_phenotype_attempt(self)
+    self.reload
+    if self.phenotyping_started or ! self.phenotyping_experiments_started.blank?
+      PhenotypingProduction.create_or_update_from_phenotype_attempt(self)
+    else
+      delete_production_centre = self.phenotyping_productions.includes(:mi_plan).where("mi_plans.consortium_id = #{self.mi_plan.consortium_id} AND mi_plans.production_centre_id = #{self.mi_plan.production_centre_id}")
+      delete_production_centre.first.destroy if !delete_production_centre.blank?
+    end
+    self.reload
+  end
 
   def set_mi_plan
     if ! self.mi_plan.present?
@@ -212,31 +244,48 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: phenotype_attempts
 #
-#  id                               :integer         not null, primary key
-#  mi_attempt_id                    :integer         not null
-#  status_id                        :integer         not null
-#  is_active                        :boolean         default(TRUE), not null
-#  rederivation_started             :boolean         default(FALSE), not null
-#  rederivation_complete            :boolean         default(FALSE), not null
-#  number_of_cre_matings_started    :integer         default(0), not null
-#  number_of_cre_matings_successful :integer         default(0), not null
-#  phenotyping_started              :boolean         default(FALSE), not null
-#  phenotyping_complete             :boolean         default(FALSE), not null
-#  created_at                       :datetime
-#  updated_at                       :datetime
-#  mi_plan_id                       :integer         not null
-#  colony_name                      :string(125)     not null
-#  mouse_allele_type                :string(3)
-#  deleter_strain_id                :integer
-#  colony_background_strain_id      :integer
-#  cre_excision_required            :boolean         default(TRUE), not null
-#  tat_cre                          :boolean         default(FALSE)
-#  report_to_public                 :boolean         default(TRUE), not null
-#  phenotyping_experiments_started  :date
+#  id                                  :integer         not null, primary key
+#  mi_attempt_id                       :integer         not null
+#  status_id                           :integer         not null
+#  is_active                           :boolean         default(TRUE), not null
+#  rederivation_started                :boolean         default(FALSE), not null
+#  rederivation_complete               :boolean         default(FALSE), not null
+#  number_of_cre_matings_started       :integer         default(0), not null
+#  number_of_cre_matings_successful    :integer         default(0), not null
+#  phenotyping_started                 :boolean         default(FALSE), not null
+#  phenotyping_complete                :boolean         default(FALSE), not null
+#  created_at                          :datetime
+#  updated_at                          :datetime
+#  mi_plan_id                          :integer         not null
+#  colony_name                         :string(125)     not null
+#  mouse_allele_type                   :string(3)
+#  deleter_strain_id                   :integer
+#  colony_background_strain_id         :integer
+#  cre_excision_required               :boolean         default(TRUE), not null
+#  tat_cre                             :boolean         default(FALSE)
+#  report_to_public                    :boolean         default(TRUE), not null
+#  phenotyping_experiments_started     :date
+#  qc_southern_blot_id                 :integer
+#  qc_five_prime_lr_pcr_id             :integer
+#  qc_five_prime_cassette_integrity_id :integer
+#  qc_tv_backbone_assay_id             :integer
+#  qc_neo_count_qpcr_id                :integer
+#  qc_neo_sr_pcr_id                    :integer
+#  qc_loa_qpcr_id                      :integer
+#  qc_homozygous_loa_sr_pcr_id         :integer
+#  qc_lacz_sr_pcr_id                   :integer
+#  qc_mutant_specific_sr_pcr_id        :integer
+#  qc_loxp_confirmation_id             :integer
+#  qc_three_prime_lr_pcr_id            :integer
+#  qc_lacz_count_qpcr_id               :integer
+#  qc_critical_region_qpcr_id          :integer
+#  qc_loxp_srpcr_id                    :integer
+#  qc_loxp_srpcr_and_sequencing_id     :integer
 #
 # Indexes
 #

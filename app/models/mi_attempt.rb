@@ -37,6 +37,8 @@ class MiAttempt < ApplicationModel
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
 
+  has_many :mouse_allele_mods
+
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many :phenotype_attempts
 

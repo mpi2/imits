@@ -31,6 +31,7 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
   attr_accessible(*WRITABLE_ATTRIBUTES)
 
   belongs_to :phenotype_attempt
+  belongs_to :mouse_allele_mod
   belongs_to :centre
   belongs_to :deposited_material
 
@@ -40,7 +41,7 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
 
   access_association_by_attribute :deposited_material, :name
   access_association_by_attribute :centre, :name
-  
+
   before_save do
     ## TODO: Update martbuilder so we don't need to continue updating the boolean.
     self[:is_distributed_by_emma] = self.distribution_network == 'EMMA'
@@ -69,6 +70,9 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
 
 end
 
+
+
+
 # == Schema Information
 #
 # Table name: phenotype_attempt_distribution_centres
@@ -83,5 +87,6 @@ end
 #  created_at             :datetime
 #  updated_at             :datetime
 #  distribution_network   :string(255)
+#  mouse_allele_mod_id    :integer
 #
 

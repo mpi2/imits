@@ -29,6 +29,7 @@ class RootController < ApplicationController
         @users_by_production_centre[user.production_centre.try(:name)].push(user)
       end
     end
+
   end
 
   def users_by_production_centre

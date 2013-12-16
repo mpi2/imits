@@ -53,26 +53,26 @@ class PlannedMicroinjectionList
      ),
 
       status_conflict_options AS (
-      SELECT new_intermediate_report.mi_plan_id AS mi_plan_id, new_intermediate_report.gene AS marker_symbol, new_intermediate_report.consortium AS consortium_name,
+      SELECT new_intermediate_report_summary_by_mi_plan.mi_plan_id AS mi_plan_id, new_intermediate_report_summary_by_mi_plan.gene AS marker_symbol, new_intermediate_report_summary_by_mi_plan.consortium AS consortium_name,
              CASE
-               WHEN new_intermediate_report.mi_attempt_status IN ('Genotype confirmed') THEN 'Inspect - GLT Mouse'
-               WHEN new_intermediate_report.mi_attempt_status IN ('Micro-injection in progress', 'Chimeras obtained') THEN 'Inspect - MI Attempt'
-               WHEN new_intermediate_report.mi_plan_status IN ('#{MiPlan::Status.all_assigned.map{|status| status.name}.join("','")}') THEN 'Inspect - Conflict'
-               WHEN new_intermediate_report.mi_plan_status IN ('Conflict') THEN 'Conflict'
+               WHEN new_intermediate_report_summary_by_mi_plan.mi_attempt_status IN ('Genotype confirmed') THEN 'Inspect - GLT Mouse'
+               WHEN new_intermediate_report_summary_by_mi_plan.mi_attempt_status IN ('Micro-injection in progress', 'Chimeras obtained') THEN 'Inspect - MI Attempt'
+               WHEN new_intermediate_report_summary_by_mi_plan.mi_plan_status IN ('#{MiPlan::Status.all_assigned.map{|status| status.name}.join("','")}') THEN 'Inspect - Conflict'
+               WHEN new_intermediate_report_summary_by_mi_plan.mi_plan_status IN ('Conflict') THEN 'Conflict'
                ELSE NULL
              END AS possible_conflict
-      FROM new_intermediate_report
+      FROM new_intermediate_report_summary_by_mi_plan
       )
 
       SELECT
-        new_intermediate_report.mi_plan_id AS mi_plan_id,
-        new_intermediate_report.gene AS marker_symbol,
-        new_intermediate_report.mgi_accession_id AS mgi_accession_id,
-        new_intermediate_report.consortium AS consortium_name,
-        new_intermediate_report.production_centre AS centre_name,
-        new_intermediate_report.sub_project AS sub_project_name,
-        new_intermediate_report.priority AS priority_name,
-        new_intermediate_report.mi_plan_status AS status_name,
+        new_intermediate_report_summary_by_mi_plan.mi_plan_id AS mi_plan_id,
+        new_intermediate_report_summary_by_mi_plan.gene AS marker_symbol,
+        new_intermediate_report_summary_by_mi_plan.mgi_accession_id AS mgi_accession_id,
+        new_intermediate_report_summary_by_mi_plan.consortium AS consortium_name,
+        new_intermediate_report_summary_by_mi_plan.production_centre AS centre_name,
+        new_intermediate_report_summary_by_mi_plan.sub_project AS sub_project_name,
+        new_intermediate_report_summary_by_mi_plan.priority AS priority_name,
+        new_intermediate_report_summary_by_mi_plan.mi_plan_status AS status_name,
         to_char(mi_plan_status_stamps.created_at, 'dd/mm/yyyy') AS status_date,
         mi_plans.is_bespoke_allele AS bespoke,
         mi_plans.is_conditional_allele AS conditional_allele,
@@ -99,19 +99,19 @@ class PlannedMicroinjectionList
         to_char(mi_attempt_counts.plan_aborted_max_date, 'dd/mm/yyyy') AS plan_aborted_max_date
       FROM mi_attempt_counts
         JOIN mi_plans ON mi_plans.id = mi_attempt_counts.plan_id
-        JOIN new_intermediate_report ON new_intermediate_report.mi_plan_id = mi_attempt_counts.plan_id
-        JOIN mi_plan_statuses ON mi_plan_statuses.name = new_intermediate_report.mi_plan_status
-        JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report.mi_plan_id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
-        LEFT JOIN status_conflict_options ON new_intermediate_report.mi_plan_id != status_conflict_options.mi_plan_id AND mi_plan_statuses.name = status_conflict_options.possible_conflict AND new_intermediate_report.gene = status_conflict_options.marker_symbol
+        JOIN new_intermediate_report_summary_by_mi_plan ON new_intermediate_report_summary_by_mi_plan.mi_plan_id = mi_attempt_counts.plan_id
+        JOIN mi_plan_statuses ON mi_plan_statuses.name = new_intermediate_report_summary_by_mi_plan.mi_plan_status
+        JOIN mi_plan_status_stamps ON mi_plan_status_stamps.mi_plan_id = new_intermediate_report_summary_by_mi_plan.mi_plan_id AND mi_plan_status_stamps.status_id = mi_plan_statuses.id
+        LEFT JOIN status_conflict_options ON new_intermediate_report_summary_by_mi_plan.mi_plan_id != status_conflict_options.mi_plan_id AND mi_plan_statuses.name = status_conflict_options.possible_conflict AND new_intermediate_report_summary_by_mi_plan.gene = status_conflict_options.marker_symbol
       GROUP BY
-        new_intermediate_report.mi_plan_id,
-        new_intermediate_report.gene,
-        new_intermediate_report.mgi_accession_id,
-        new_intermediate_report.consortium,
-        new_intermediate_report.production_centre,
-        new_intermediate_report.sub_project,
-        new_intermediate_report.priority,
-        new_intermediate_report.mi_plan_status,
+        new_intermediate_report_summary_by_mi_plan.mi_plan_id,
+        new_intermediate_report_summary_by_mi_plan.gene,
+        new_intermediate_report_summary_by_mi_plan.mgi_accession_id,
+        new_intermediate_report_summary_by_mi_plan.consortium,
+        new_intermediate_report_summary_by_mi_plan.production_centre,
+        new_intermediate_report_summary_by_mi_plan.sub_project,
+        new_intermediate_report_summary_by_mi_plan.priority,
+        new_intermediate_report_summary_by_mi_plan.mi_plan_status,
         mi_plan_status_stamps.created_at,
         mi_plan_statuses.name,
         mi_plans.is_bespoke_allele,
@@ -129,7 +129,7 @@ class PlannedMicroinjectionList
         mi_plans.recovery,
         mi_attempt_counts.plan_aborted_count,
         mi_attempt_counts.plan_aborted_max_date
-      ORDER BY new_intermediate_report.gene
+      ORDER BY new_intermediate_report_summary_by_mi_plan.gene
 
       EOF
 

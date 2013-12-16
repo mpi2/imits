@@ -8,8 +8,6 @@ class BaseSummaryByMonthReport
   attr_accessor :report_hash
 
   def initialize(consortia_list=nil)
-    puts 'HELLO'
-    puts consortia_list
     self.available_consortia = consortia_list
     @report_hash = {
       :dates => {}
@@ -233,8 +231,8 @@ class BaseSummaryByMonthReport
           FROM series
           CROSS JOIN (
             SELECT
-              new_consortia_intermediate_report.consortium,
-              CASE WHEN new_consortia_intermediate_report.gene_interest_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE new_consortia_intermediate_report.gene_interest_date END AS commenece_date,
+              new_intermediate_report_summary_by_consortia.consortium,
+              CASE WHEN new_intermediate_report_summary_by_consortia.gene_interest_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE new_intermediate_report_summary_by_consortia.gene_interest_date END AS commenece_date,
               CASE WHEN assigned_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE assigned_date END AS assigned_date,
               CASE WHEN assigned_es_cell_qc_in_progress_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE assigned_es_cell_qc_in_progress_date END AS assigned_es_cell_qc_in_progress_date,
               CASE WHEN assigned_es_cell_qc_complete_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE assigned_es_cell_qc_complete_date END AS assigned_es_cell_qc_complete_date,
@@ -252,7 +250,7 @@ class BaseSummaryByMonthReport
               CASE WHEN phenotyping_experiments_started_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotyping_experiments_started_date END AS phenotyping_experiments_started_date,
               CASE WHEN phenotyping_complete_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotyping_complete_date END AS phenotyping_complete_date,
               CASE WHEN phenotype_attempt_aborted_date < '2011-06-01 00:00:00' THEN '2011-05-01 00:00:00' ELSE phenotype_attempt_aborted_date END AS phenotype_attempt_aborted_date
-            FROM new_consortia_intermediate_report
+            FROM new_intermediate_report_summary_by_consortia
           ) as report
           WHERE report.consortium in ('#{available_consortia.join('\', \'')}')
           GROUP BY series.date, report.consortium

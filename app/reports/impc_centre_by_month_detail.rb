@@ -43,7 +43,7 @@ class ImpcCentreByMonthDetail
             join targ_rep_es_cells on mi_attempts.es_cell_id = targ_rep_es_cells.id
           where
             #{insert_bit}
-	  and 
+	  and
 	    (centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
 	  OR
 	    centres.name = 'ICS' AND consortia.name IN ('Phenomin', 'Helmholtz GMC')
@@ -65,22 +65,34 @@ class ImpcCentreByMonthDetail
       <<-EOF
           select
             consortia.name as consortium, centres.name as production_centre, genes.marker_symbol,
-            phenotype_attempts.colony_name,
-            phenotype_attempt_statuses.name as current_status,
-            (select to_char(created_at,'YYYY-MM-DD') from phenotype_attempt_status_stamps where phenotype_attempt_id = phenotype_attempts.id and status_id = 2) as registered_date,
-            (select to_char(created_at,'YYYY-MM-DD') from phenotype_attempt_status_stamps where phenotype_attempt_id = phenotype_attempts.id and status_id = 5) as cre_started_date,
-            (select to_char(created_at,'YYYY-MM-DD') from phenotype_attempt_status_stamps where phenotype_attempt_id = phenotype_attempts.id and status_id = 6) as cre_complete_date,
-            (select to_char(created_at,'YYYY-MM-DD') from phenotype_attempt_status_stamps where phenotype_attempt_id = phenotype_attempts.id and status_id = 7) as phenotyping_started_date,
-            (select to_char(created_at,'YYYY-MM-DD') from phenotype_attempt_status_stamps where phenotype_attempt_id = phenotype_attempts.id and status_id = 8) as phenotyping_complete_date,
-            (select to_char(created_at,'YYYY-MM-DD') from phenotype_attempt_status_stamps where phenotype_attempt_id = phenotype_attempts.id and status_id = 1) as phenotyping_aborted_date
-          from mi_plans join consortia on mi_plans.consortium_id = consortia.id
+            case when externally_modified.colony_name is not null then externally_modified.colony_name else mouse_allele_mods.colony_name end,
+            case when phenotyping_production_statuses.order_by >= mouse_allele_mod_statuses.order_by
+              then (CASE WHEN phenotyping_production_statuses.name like '%Aborted%' then 'Phenotype Attempt Aborted' else phenotyping_production_statuses.name end)
+              else (CASE WHEN mouse_allele_mod_statuses.name like '%Aborted%' then 'Phenotype Attempt Aborted' else mouse_allele_mod_statuses.name end)
+            end as current_status,
+            (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and status_id = 1) as registered_date,
+            (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and status_id = 5) as cre_started_date,
+            (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and status_id = 6) as cre_complete_date,
+            case when externally_modified.no_modification_required = true and externally_modified.mi_plan_id != phenotyping_productions.mi_plan_id then 1 else 0 end as mouse_modified_externally,
+            (select to_char(created_at,'YYYY-MM-DD') from phenotyping_production_status_stamps where phenotyping_production_id = phenotyping_productions.id and status_id = 3) as phenotyping_started_date,
+            (select to_char(created_at,'YYYY-MM-DD') from phenotyping_production_status_stamps where phenotyping_production_id = phenotyping_productions.id and status_id = 4) as phenotyping_complete_date,
+            (select to_char(created_at,'YYYY-MM-DD') from mouse_allele_mod_status_stamps where mouse_allele_mod_id = mouse_allele_mods.id and status_id = 7) as phenotyping_aborted_date
+
+            from mi_plans join consortia on mi_plans.consortium_id = consortia.id
             join centres on centres.id = mi_plans.production_centre_id
             join genes on genes.id = mi_plans.gene_id
-            join phenotype_attempts on phenotype_attempts.mi_plan_id = mi_plans.id
-            join phenotype_attempt_statuses on phenotype_attempts.status_id = phenotype_attempt_statuses.id
+            left join
+              (mouse_allele_mods join mouse_allele_mod_statuses on mouse_allele_mods.status_id = mouse_allele_mod_statuses.id
+              ) ON mouse_allele_mods.mi_plan_id = mi_plans.id
+            left join
+              (phenotyping_productions
+                join phenotyping_production_statuses on phenotyping_productions.status_id = phenotyping_production_statuses.id
+                join mouse_allele_mods as externally_modified on externally_modified.id = phenotyping_productions.mouse_allele_mod_id
+              ) ON (mouse_allele_mods.id is NULL AND phenotyping_productions.mi_plan_id = mi_plans.id) OR (mouse_allele_mods.id IS NOT NULL AND mouse_allele_mods.id = phenotyping_productions.mouse_allele_mod_id)
           where
             #{insert_bit}
-	  and 
+      and (mouse_allele_mods.id IS NOT NULL OR phenotyping_productions.id IS NOT NULL)
+	  and
 	    (centres.name = 'HMGU' AND consortia.name = 'Helmholtz GMC'
 	  OR
 	    centres.name = 'ICS' AND consortia.name IN ('Phenomin', 'Helmholtz GMC')

@@ -8,9 +8,6 @@ class NewIntermediateReport < ActiveRecord::Base
 
 end
 
-
-
-
 # == Schema Information
 #
 # Table name: new_intermediate_report

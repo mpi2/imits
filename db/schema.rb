@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131118000000) do
+ActiveRecord::Schema.define(:version => 20131209100237) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -643,26 +643,42 @@ ActiveRecord::Schema.define(:version => 20131118000000) do
   end
 
   create_table "phenotype_attempts", :force => true do |t|
-    t.integer  "mi_attempt_id",                                                      :null => false
-    t.integer  "status_id",                                                          :null => false
-    t.boolean  "is_active",                                       :default => true,  :null => false
-    t.boolean  "rederivation_started",                            :default => false, :null => false
-    t.boolean  "rederivation_complete",                           :default => false, :null => false
-    t.integer  "number_of_cre_matings_started",                   :default => 0,     :null => false
-    t.integer  "number_of_cre_matings_successful",                :default => 0,     :null => false
-    t.boolean  "phenotyping_started",                             :default => false, :null => false
-    t.boolean  "phenotyping_complete",                            :default => false, :null => false
+    t.integer  "mi_attempt_id",                                                         :null => false
+    t.integer  "status_id",                                                             :null => false
+    t.boolean  "is_active",                                          :default => true,  :null => false
+    t.boolean  "rederivation_started",                               :default => false, :null => false
+    t.boolean  "rederivation_complete",                              :default => false, :null => false
+    t.integer  "number_of_cre_matings_started",                      :default => 0,     :null => false
+    t.integer  "number_of_cre_matings_successful",                   :default => 0,     :null => false
+    t.boolean  "phenotyping_started",                                :default => false, :null => false
+    t.boolean  "phenotyping_complete",                               :default => false, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "mi_plan_id",                                                         :null => false
-    t.string   "colony_name",                      :limit => 125,                    :null => false
-    t.string   "mouse_allele_type",                :limit => 3
+    t.integer  "mi_plan_id",                                                            :null => false
+    t.string   "colony_name",                         :limit => 125,                    :null => false
+    t.string   "mouse_allele_type",                   :limit => 3
     t.integer  "deleter_strain_id"
     t.integer  "colony_background_strain_id"
-    t.boolean  "cre_excision_required",                           :default => true,  :null => false
-    t.boolean  "tat_cre",                                         :default => false
-    t.boolean  "report_to_public",                                :default => true,  :null => false
+    t.boolean  "cre_excision_required",                              :default => true,  :null => false
+    t.boolean  "tat_cre",                                            :default => false
+    t.boolean  "report_to_public",                                   :default => true,  :null => false
     t.date     "phenotyping_experiments_started"
+    t.integer  "qc_southern_blot_id"
+    t.integer  "qc_five_prime_lr_pcr_id"
+    t.integer  "qc_five_prime_cassette_integrity_id"
+    t.integer  "qc_tv_backbone_assay_id"
+    t.integer  "qc_neo_count_qpcr_id"
+    t.integer  "qc_neo_sr_pcr_id"
+    t.integer  "qc_loa_qpcr_id"
+    t.integer  "qc_homozygous_loa_sr_pcr_id"
+    t.integer  "qc_lacz_sr_pcr_id"
+    t.integer  "qc_mutant_specific_sr_pcr_id"
+    t.integer  "qc_loxp_confirmation_id"
+    t.integer  "qc_three_prime_lr_pcr_id"
+    t.integer  "qc_lacz_count_qpcr_id"
+    t.integer  "qc_critical_region_qpcr_id"
+    t.integer  "qc_loxp_srpcr_id"
+    t.integer  "qc_loxp_srpcr_and_sequencing_id"
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true
@@ -1008,6 +1024,22 @@ ActiveRecord::Schema.define(:version => 20131118000000) do
 
   add_foreign_key "phenotype_attempts", "mi_plans", :name => "phenotype_attempts_mi_plan_id_fk"
   add_foreign_key "phenotype_attempts", "phenotype_attempt_statuses", :name => "phenotype_attempts_status_id_fk", :column => "status_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_critical_region_qpcr_id_fk", :column => "qc_critical_region_qpcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_five_prime_cassette_integrity_id_fk", :column => "qc_five_prime_cassette_integrity_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_five_prime_lr_pcr_id_fk", :column => "qc_five_prime_lr_pcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_homozygous_loa_sr_pcr_id_fk", :column => "qc_homozygous_loa_sr_pcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_lacz_count_qpcr_id_fk", :column => "qc_lacz_count_qpcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_lacz_sr_pcr_id_fk", :column => "qc_lacz_sr_pcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_loa_qpcr_id_fk", :column => "qc_loa_qpcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_loxp_confirmation_id_fk", :column => "qc_loxp_confirmation_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_loxp_srpcr_and_sequencing_id_fk", :column => "qc_loxp_srpcr_and_sequencing_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_loxp_srpcr_id_fk", :column => "qc_loxp_srpcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_mutant_specific_sr_pcr_id_fk", :column => "qc_mutant_specific_sr_pcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_neo_count_qpcr_id_fk", :column => "qc_neo_count_qpcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_neo_sr_pcr_id_fk", :column => "qc_neo_sr_pcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_southern_blot_id_fk", :column => "qc_southern_blot_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_three_prime_lr_pcr_id_fk", :column => "qc_three_prime_lr_pcr_id"
+  add_foreign_key "phenotype_attempts", "qc_results", :name => "phenotype_attempts_qc_tv_backbone_assay_id_fk", :column => "qc_tv_backbone_assay_id"
   add_foreign_key "phenotype_attempts", "strains", :name => "phenotype_attempts_colony_background_strain_id_fk", :column => "colony_background_strain_id"
 
   add_foreign_key "targ_rep_es_cells", "centres", :name => "targ_rep_es_cells_user_qc_mouse_clinic_id_fk", :column => "user_qc_mouse_clinic_id"

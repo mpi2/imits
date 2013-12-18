@@ -932,19 +932,19 @@ CREATE TABLE mouse_allele_mods (
     rederivation_complete boolean DEFAULT false NOT NULL,
     number_of_cre_matings_started integer DEFAULT 0 NOT NULL,
     number_of_cre_matings_successful integer DEFAULT 0 NOT NULL,
-    mouse_allele_type character varying(3),
-    deleter_strain_id integer,
-    colony_background_strain_id integer,
+    no_modification_required boolean DEFAULT false,
     cre_excision boolean DEFAULT true NOT NULL,
     tat_cre boolean DEFAULT false,
+    mouse_allele_type character varying(3),
+    allele_category character varying(255),
+    deleter_strain_id integer,
+    colony_background_strain_id integer,
     colony_name character varying(125) NOT NULL,
     is_active boolean DEFAULT true NOT NULL,
     report_to_public boolean DEFAULT true NOT NULL,
     phenotype_attempt_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    allele_category character varying(255),
-    no_modification_required boolean DEFAULT false NOT NULL
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -1433,6 +1433,7 @@ CREATE TABLE new_intermediate_report_summary_by_consortia (
     phenotyping_complete_date date,
     phenotype_attempt_aborted_date date,
     phenotyping_mi_attempt_consortium character varying(255),
+    phenotyping_mi_attempt_production_centre character varying(255),
     tm1b_phenotype_attempt_status character varying(255),
     tm1b_phenotype_attempt_registered_date date,
     tm1b_rederivation_started_date date,
@@ -1446,6 +1447,7 @@ CREATE TABLE new_intermediate_report_summary_by_consortia (
     tm1b_colony_name character varying(255),
     tm1b_phenotyping_production_colony_name character varying(255),
     tm1b_phenotyping_mi_attempt_consortium character varying(255),
+    tm1b_phenotyping_mi_attempt_production_centre character varying(255),
     tm1a_phenotype_attempt_status character varying(255),
     tm1a_phenotype_attempt_registered_date date,
     tm1a_rederivation_started_date date,
@@ -1459,6 +1461,7 @@ CREATE TABLE new_intermediate_report_summary_by_consortia (
     tm1a_colony_name character varying(255),
     tm1a_phenotyping_production_colony_name character varying(255),
     tm1a_phenotyping_mi_attempt_consortium character varying(255),
+    tm1a_phenotyping_mi_attempt_production_centre character varying(255),
     distinct_genotype_confirmed_es_cells integer,
     distinct_old_genotype_confirmed_es_cells integer,
     distinct_non_genotype_confirmed_es_cells integer,
@@ -4790,10 +4793,6 @@ INSERT INTO schema_migrations (version) VALUES ('20131127132202');
 
 INSERT INTO schema_migrations (version) VALUES ('20131203111237');
 
-INSERT INTO schema_migrations (version) VALUES ('20131204111237');
-
 INSERT INTO schema_migrations (version) VALUES ('20131206144401');
 
 INSERT INTO schema_migrations (version) VALUES ('20131209100237');
-
-INSERT INTO schema_migrations (version) VALUES ('20131211111237');

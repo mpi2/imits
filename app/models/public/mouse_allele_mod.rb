@@ -95,6 +95,7 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: mouse_allele_mods
@@ -107,18 +108,18 @@ end
 #  rederivation_complete            :boolean         default(FALSE), not null
 #  number_of_cre_matings_started    :integer         default(0), not null
 #  number_of_cre_matings_successful :integer         default(0), not null
-#  mouse_allele_type                :string(3)
-#  deleter_strain_id                :integer
-#  colony_background_strain_id      :integer
+#  no_modification_required         :boolean         default(FALSE)
 #  cre_excision                     :boolean         default(TRUE), not null
 #  tat_cre                          :boolean         default(FALSE)
+#  mouse_allele_type                :string(3)
+#  allele_category                  :string(255)
+#  deleter_strain_id                :integer
+#  colony_background_strain_id      :integer
 #  colony_name                      :string(125)     not null
 #  is_active                        :boolean         default(TRUE), not null
 #  report_to_public                 :boolean         default(TRUE), not null
 #  phenotype_attempt_id             :integer
 #  created_at                       :datetime        not null
 #  updated_at                       :datetime        not null
-#  allele_category                  :string(255)
-#  no_modification_required         :boolean         default(FALSE), not null
 #
 

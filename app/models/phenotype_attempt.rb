@@ -86,16 +86,16 @@ class PhenotypeAttempt < ApplicationModel
 
 ## BEFORE VALIDATION FUNCTIONS
   def allow_override_of_plan
-    plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
-      mi_plan = pa.mi_attempt.mi_plan
-      if !mi_plan.blank? and mi_plan.consortium == self.consortium_name and mi_plan.production_centre == self.production_centre_name
-        mi_plan = [mi_plan]
+    set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
+      plan = pa.mi_attempt.mi_plan
+      if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
+        plan = [plan]
       else
-        mi_plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
+        set_plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
       end
     end
 
-    self.mi_plan = plan
+    self.mi_plan = set_plan
   end
 
 ## AFTER SAVE FUNCTIONS

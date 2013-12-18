@@ -19,7 +19,7 @@ module PhenotypingProduction::StatusManagement
     pt.phenotyping_complete?
   end
 
-  ss.add('Phenotyping Production Aborted') do |pt|
+  ss.add('Phenotype Production Aborted') do |pt|
     ! pt.is_active?
   end
 

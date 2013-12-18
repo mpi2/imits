@@ -100,16 +100,16 @@ class PhenotypingProduction < ApplicationModel
 ## BEFORE VALIDATION FUNCTIONS
   def allow_override_of_plan
     return if self.consortium_name.nil? or self.production_centre_name.nil?
-    plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
-      mi_plan = pa.phenotype_attempt.mi_plan
-      if !mi_plan.blank? and mi_plan.consortium == self.consortium_name and mi_plan.production_centre == self.production_centre_name
-        mi_plan = [mi_plan]
+    set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
+      plan = pa.phenotype_attempt.mi_plan
+      if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
+        plan = [plan]
       else
-        mi_plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
+        plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
       end
     end
 
-    self.mi_plan = plan
+    self.mi_plan = set_plan
   end
 
   def set_mouse_allele_mod_if_blank
@@ -155,7 +155,7 @@ class PhenotypingProduction < ApplicationModel
                        }
       phenotype_status_stamps = {}
       pap.phenotype_attempt.status_stamps.includes(:status).each{|stamp| phenotype_status_stamps[stamp.status.name] = stamp.created_at}
-      pap.status_stamps.includes(:status).each{|stamp| stamp.update_attributes(:created_at => phenotype_status_stamps[stamp.status.name]) if phenotype_status_stamps.has_key?(stamp.status.name)}
+      pap.status_stamps.includes(:status).each{|stamp| stamp.update_attributes(:created_at => phenotype_status_stamps[status_mapping[stamp.status.name]]) if phenotype_status_stamps.has_key?(status_mapping[stamp.status.name])}
     else
       raise PhenotypeAttemptError, "failed to save Phenotyping Production #{pap.errors.messages}."
     end

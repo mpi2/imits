@@ -16,15 +16,39 @@ class V2::Reports::MiProductionController < ApplicationController
   end
 
   def production_detail
+    if params[:type] =~ /Tm1a/
+      @display = 'tm1a_'
+    elsif params[:type] =~ /Tm1b/
+      @display = 'tm1b_'
+    else
+      @display = ''
+    end
+
     @intermediate_report = NewIntermediateReportSummaryByMiPlan.search(params[:q]).result.order('id asc')
   end
 
   def gene_production_detail
+    if params[:type] =~ /Tm1a/
+      @display = 'tm1a_'
+    elsif params[:type] =~ /Tm1b/
+      @display = 'tm1b_'
+    else
+      @display = ''
+    end
+
     @intermediate_report = NewIntermediateReportSummaryByCentreAndConsortia.search(params[:q]).result.order('id asc')
     render :template => 'v2/reports/mi_production/production_detail'
   end
 
   def consortia_production_detail
+    if params[:type] =~ /Tm1a/
+      @display = 'tm1a_'
+    elsif params[:type] =~ /Tm1b/
+      @display = 'tm1b_'
+    else
+      @display = ''
+    end
+
     @intermediate_report = NewIntermediateReportSummaryByConsortia.search(params[:q]).result.order('id asc')
     render :template => 'v2/reports/mi_production/production_detail'
   end

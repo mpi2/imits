@@ -20,7 +20,7 @@ module MouseAlleleMod::StatusManagement
   end
 
   ss.add('Cre Excision Started', 'Mouse Allele Modification Registered') do |pt|
-    ! pt.deleter_strain.blank?
+    (! pt.deleter_strain.blank?) || pt.tat_cre
   end
 
   ss.add('Cre Excision Complete', 'Cre Excision Started') do |pt|

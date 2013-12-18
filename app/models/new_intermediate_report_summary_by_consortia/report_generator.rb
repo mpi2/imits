@@ -294,6 +294,7 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
               best_mouse_allele_mods.gene_id,
               best_mouse_allele_mods.consortium_id,
               mouse_allele_mod_statuses.name AS mouse_allele_mod_status,
+              mouse_allele_mod_statuses.order_by,
               best_mouse_allele_mods.colony_name AS colony_name,
               registered_statuses.created_at::date as phenotype_attempt_registered_date,
               re_started_statuses.created_at::date as rederivation_started_date,
@@ -359,6 +360,7 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
               best_phenotyping_production_by_allele.colony_name AS colony_name,
               best_phenotyping_production_by_allele.id as phenotyping_production_id,
               phenotyping_production_statuses.name AS phenotyping_production_status,
+              phenotyping_production_statuses.order_by,
               registered_statuses.created_at::date as phenotype_attempt_registered_date,
               started_statuses.created_at::date as phenotyping_started_date,
               best_phenotyping_production_by_allele.phenotyping_experiments_started::date as phenotyping_experiments_started_date,
@@ -410,6 +412,7 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
               best_mouse_allele_mods.consortium_id,
               best_mouse_allele_mods.allele_category,
               mouse_allele_mod_statuses.name AS mouse_allele_mod_status,
+              mouse_allele_mod_statuses.order_by,
               best_mouse_allele_mods.colony_name AS phenotype_attempt_colony_name,
               registered_statuses.created_at::date as phenotype_attempt_registered_date,
               re_started_statuses.created_at::date as rederivation_started_date,
@@ -447,6 +450,7 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
                     ORDER BY
                       mi_plans.gene_id,
                       mi_plans.consortium_id,
+                      mouse_allele_mods.allele_category,
                       mouse_allele_mod_statuses.order_by DESC
                 ) AS best_allele_mod_for_plan_and_status
               ) AS attempts_join ON mouse_allele_mods.id = attempts_join.mouse_allele_mod_id
@@ -491,6 +495,7 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
               best_phenotyping_production_by_allele.colony_name AS phenotype_attempt_colony_name,
               best_phenotyping_production_by_allele.id as phenotyping_production_id,
               phenotyping_production_statuses.name AS phenotyping_production_status,
+              phenotyping_production_statuses.order_by,
               registered_statuses.created_at::date as phenotype_attempt_registered_date,
               started_statuses.created_at::date as phenotyping_started_date,
               best_phenotyping_production_by_allele.phenotyping_experiments_started::date as phenotyping_experiments_started_date,
@@ -624,21 +629,35 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
             genes.mgi_accession_id,
             gene_interest_commenced.commenece_date AS gene_interest_date,
             CASE
-              WHEN best_overall_phenotyping_production_by_allele.phenotyping_production_status IS NOT NULL
-                THEN CASE WHEN best_overall_phenotyping_production_by_allele.phenotyping_production_status = 'Phenotype Production Aborted' THEN 'Phenotype Attempt Aborted' ELSE best_overall_phenotyping_production_by_allele.phenotyping_production_status END
+              WHEN best_overall_phenotyping_production_by_allele.phenotyping_production_status = 'Phenotype Production Aborted' AND (best_overall_mouse_allele_modification.mouse_allele_mod_status IS NULL OR best_overall_mouse_allele_modification.mouse_allele_mod_status = 'Mouse Allele Modification Aborted')
+                THEN 'Phenotype Attempt Aborted'
+              WHEN best_overall_phenotyping_production_by_allele.phenotyping_production_status IS NOT NULL AND (best_overall_mouse_allele_modification.mouse_allele_mod_status IS NULL OR best_overall_phenotyping_production_by_allele.order_by > best_overall_mouse_allele_modification.order_by)
+                THEN best_overall_phenotyping_production_by_allele.phenotyping_production_status
+              WHEN best_overall_mouse_allele_modification.mouse_allele_mod_status = 'Mouse Allele Modification Aborted'
+                THEN 'Phenotype Attempt Aborted'
               WHEN best_overall_mouse_allele_modification.mouse_allele_mod_status IS NOT NULL
-                THEN CASE WHEN best_overall_mouse_allele_modification.mouse_allele_mod_status = 'Mouse Allele Modification Aborted' THEN 'Phenotype Attempt Aborted' ELSE best_overall_mouse_allele_modification.mouse_allele_mod_status END
-              WHEN best_mi_attempts.mi_attempt_status IS NOT NULL THEN best_mi_attempts.mi_attempt_status
-              WHEN mi_plan_status IS NOT NULL THEN mi_plan_status
+                THEN best_overall_mouse_allele_modification.mouse_allele_mod_status
+              WHEN best_mi_attempts.mi_attempt_status IS NOT NULL
+                THEN best_mi_attempts.mi_attempt_status
+              WHEN mi_plan_status IS NOT NULL
+                THEN mi_plan_status
               ELSE
                 NULL
             END AS overall_status,
+
             best_mi_plans.mi_plan_status AS mi_plan_status,
             best_mi_attempts.mi_attempt_status,
-            CASE WHEN best_overall_phenotyping_production_by_allele.phenotyping_production_status = 'Phenotype Production Aborted' OR best_overall_mouse_allele_modification.mouse_allele_mod_status = 'Mouse Allele Modification Aborted' THEN 'Phenotype Attempt Aborted'
-              WHEN best_overall_phenotyping_production_by_allele.phenotyping_production_status IS NOT NULL THEN best_overall_phenotyping_production_by_allele.phenotyping_production_status
+
+            CASE
+              WHEN best_overall_phenotyping_production_by_allele.phenotyping_production_status = 'Phenotype Production Aborted' AND (best_overall_mouse_allele_modification.mouse_allele_mod_status IS NULL OR best_overall_mouse_allele_modification.mouse_allele_mod_status = 'Mouse Allele Modification Aborted')
+                THEN 'Phenotype Attempt Aborted'
+              WHEN best_overall_phenotyping_production_by_allele.phenotyping_production_status IS NOT NULL AND (best_overall_mouse_allele_modification.mouse_allele_mod_status IS NULL OR best_overall_phenotyping_production_by_allele.order_by > best_overall_mouse_allele_modification.order_by)
+                THEN best_overall_phenotyping_production_by_allele.phenotyping_production_status
+              WHEN best_overall_mouse_allele_modification.mouse_allele_mod_status = 'Mouse Allele Modification Aborted'
+                THEN 'Phenotype Attempt Aborted'
               ELSE best_overall_mouse_allele_modification.mouse_allele_mod_status
             END AS phenotype_attempt_status,
+
             best_mi_plans.mi_plan_id AS mi_plan_id,
             best_mi_attempts.mi_attempts_id AS mi_attempt_id,
             best_overall_mouse_allele_modification.mouse_allele_mod_id,
@@ -670,13 +689,26 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
             best_overall_mouse_allele_modification.cre_excision_complete_date AS cre_excision_complete_date,
             best_overall_phenotyping_production_by_allele.phenotyping_started_date AS phenotyping_started_date,
             best_overall_phenotyping_production_by_allele.phenotyping_complete_date AS phenotyping_complete_date,
-            best_overall_phenotyping_production_by_allele.phenotype_attempt_aborted_date AS phenotype_attempt_aborted_date,
+
+            CASE
+              WHEN best_overall_mouse_allele_modification.phenotype_attempt_registered_date IS NULL AND best_overall_phenotyping_production_by_allele.phenotype_attempt_aborted_date IS NOT NULL
+                THEN best_overall_phenotyping_production_by_allele.phenotype_attempt_aborted_date
+              ELSE best_overall_mouse_allele_modification.phenotype_attempt_aborted_date
+            END AS phenotype_attempt_aborted_date,
+
             best_overall_phenotyping_production_by_allele.phenotyping_experiments_started_date AS phenotyping_experiments_started_date,
             best_overall_mouse_allele_modification.phenotyping_mi_attempt_consortium AS phenotyping_mi_attempt_consortium,
-            CASE WHEN best_phenotyping_production_for_tm1b.phenotyping_production_status = 'Phenotype Production Aborted' OR best_mouse_allele_mod_for_tm1b.mouse_allele_mod_status = 'Mouse Allele Modification Aborted' THEN 'Phenotype Attempt Aborted'
-              WHEN best_phenotyping_production_for_tm1b.phenotyping_production_status IS NOT NULL THEN best_phenotyping_production_for_tm1b.phenotyping_production_status
+
+            CASE
+              WHEN best_phenotyping_production_for_tm1b.phenotyping_production_status = 'Phenotype Production Aborted' AND (best_mouse_allele_mod_for_tm1b.mouse_allele_mod_status IS NULL OR best_mouse_allele_mod_for_tm1b.mouse_allele_mod_status = 'Mouse Allele Modification Aborted')
+                THEN 'Phenotype Attempt Aborted'
+              WHEN best_phenotyping_production_for_tm1b.phenotyping_production_status IS NOT NULL AND (best_mouse_allele_mod_for_tm1b.mouse_allele_mod_status IS NULL OR best_phenotyping_production_for_tm1b.order_by > best_mouse_allele_mod_for_tm1b.order_by)
+                THEN best_phenotyping_production_for_tm1b.phenotyping_production_status
+              WHEN best_mouse_allele_mod_for_tm1b.mouse_allele_mod_status = 'Mouse Allele Modification Aborted'
+                THEN 'Phenotype Attempt Aborted'
               ELSE best_mouse_allele_mod_for_tm1b.mouse_allele_mod_status
             END AS tm1b_phenotype_attempt_status,
+
             best_mouse_allele_mod_for_tm1b.phenotype_attempt_registered_date AS tm1b_phenotype_attempt_registered_date,
             best_mouse_allele_mod_for_tm1b.rederivation_started_date AS tm1b_rederivation_started_date,
             best_mouse_allele_mod_for_tm1b.rederivation_complete_date AS tm1b_rederivation_complete_date,
@@ -685,14 +717,27 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
             best_phenotyping_production_for_tm1b.phenotyping_experiments_started_date AS tm1b_phenotyping_experiments_started_date,
             best_phenotyping_production_for_tm1b.phenotyping_started_date AS tm1b_phenotyping_started_date,
             best_phenotyping_production_for_tm1b.phenotyping_complete_date AS tm1b_phenotyping_complete_date,
-            best_phenotyping_production_for_tm1b.phenotype_attempt_aborted_date AS tm1b_phenotype_attempt_aborted_date,
+
+            CASE
+              WHEN best_mouse_allele_mod_for_tm1b.phenotype_attempt_registered_date IS NULL AND best_phenotyping_production_for_tm1b.phenotype_attempt_aborted_date IS NOT NULL
+                THEN best_phenotyping_production_for_tm1b.phenotype_attempt_aborted_date
+              ELSE best_mouse_allele_mod_for_tm1b.phenotype_attempt_aborted_date
+            END AS tm1b_phenotype_attempt_aborted_date,
+
             best_mouse_allele_mod_for_tm1b.phenotype_attempt_colony_name AS tm1b_colony_name,
             best_phenotyping_production_for_tm1b.phenotype_attempt_colony_name AS tm1b_phenotyping_production_colony_name,
             best_mouse_allele_mod_for_tm1b.phenotyping_mi_attempt_consortium AS tm1b_phenotyping_mi_attempt_consortium,
-            CASE WHEN best_phenotyping_production_for_tm1a.phenotyping_production_status = 'Phenotype Production Aborted' OR best_mouse_allele_mod_for_tm1a.mouse_allele_mod_status = 'Mouse Allele Modification Aborted' THEN 'Phenotype Attempt Aborted'
-              WHEN best_phenotyping_production_for_tm1a.phenotyping_production_status IS NOT NULL THEN best_phenotyping_production_for_tm1a.phenotyping_production_status
+
+            CASE
+              WHEN best_phenotyping_production_for_tm1a.phenotyping_production_status = 'Phenotype Production Aborted' AND (best_mouse_allele_mod_for_tm1a.mouse_allele_mod_status IS NULL OR best_mouse_allele_mod_for_tm1a.mouse_allele_mod_status = 'Mouse Allele Modification Aborted')
+                THEN 'Phenotype Attempt Aborted'
+              WHEN best_phenotyping_production_for_tm1a.phenotyping_production_status IS NOT NULL AND (best_mouse_allele_mod_for_tm1a.mouse_allele_mod_status IS NULL OR best_phenotyping_production_for_tm1a.order_by > best_mouse_allele_mod_for_tm1a.order_by)
+                THEN best_phenotyping_production_for_tm1a.phenotyping_production_status
+              WHEN best_mouse_allele_mod_for_tm1a.mouse_allele_mod_status = 'Mouse Allele Modification Aborted'
+                THEN 'Phenotype Attempt Aborted'
               ELSE best_mouse_allele_mod_for_tm1a.mouse_allele_mod_status
             END AS tm1a_phenotype_attempt_status,
+
             best_mouse_allele_mod_for_tm1a.phenotype_attempt_registered_date AS tm1a_phenotype_attempt_registered_date,
             best_mouse_allele_mod_for_tm1a.rederivation_started_date AS tm1a_rederivation_started_date,
             best_mouse_allele_mod_for_tm1a.rederivation_complete_date AS tm1a_rederivation_complete_date,
@@ -701,7 +746,13 @@ module NewIntermediateReportSummaryByConsortia::ReportGenerator
             best_phenotyping_production_for_tm1a.phenotyping_started_date AS tm1a_phenotyping_started_date,
             best_phenotyping_production_for_tm1a.phenotyping_experiments_started_date AS tm1a_phenotyping_experiments_started_date,
             best_phenotyping_production_for_tm1a.phenotyping_complete_date AS tm1a_phenotyping_complete_date,
-            best_phenotyping_production_for_tm1a.phenotype_attempt_aborted_date AS tm1a_phenotype_attempt_aborted_date,
+
+            CASE
+              WHEN best_mouse_allele_mod_for_tm1a.phenotype_attempt_registered_date IS NULL AND best_phenotyping_production_for_tm1a.phenotype_attempt_aborted_date IS NOT NULL
+                THEN best_phenotyping_production_for_tm1a.phenotype_attempt_aborted_date
+              ELSE best_mouse_allele_mod_for_tm1a.phenotype_attempt_aborted_date
+            END AS tm1a_phenotype_attempt_aborted_date,
+
             best_mouse_allele_mod_for_tm1a.phenotype_attempt_colony_name AS tm1a_colony_name,
             best_phenotyping_production_for_tm1a.phenotype_attempt_colony_name AS tm1a_phenotyping_production_colony,
             best_mouse_allele_mod_for_tm1a.phenotyping_mi_attempt_consortium AS tm1a_phenotyping_mi_attempt_consortium

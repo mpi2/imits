@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131211111237) do
+ActiveRecord::Schema.define(:version => 20131209100237) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -371,19 +371,19 @@ ActiveRecord::Schema.define(:version => 20131211111237) do
     t.boolean  "rederivation_complete",                           :default => false, :null => false
     t.integer  "number_of_cre_matings_started",                   :default => 0,     :null => false
     t.integer  "number_of_cre_matings_successful",                :default => 0,     :null => false
-    t.string   "mouse_allele_type",                :limit => 3
-    t.integer  "deleter_strain_id"
-    t.integer  "colony_background_strain_id"
+    t.boolean  "no_modification_required",                        :default => false
     t.boolean  "cre_excision",                                    :default => true,  :null => false
     t.boolean  "tat_cre",                                         :default => false
+    t.string   "mouse_allele_type",                :limit => 3
+    t.string   "allele_category"
+    t.integer  "deleter_strain_id"
+    t.integer  "colony_background_strain_id"
     t.string   "colony_name",                      :limit => 125,                    :null => false
     t.boolean  "is_active",                                       :default => true,  :null => false
     t.boolean  "report_to_public",                                :default => true,  :null => false
     t.integer  "phenotype_attempt_id"
     t.datetime "created_at",                                                         :null => false
     t.datetime "updated_at",                                                         :null => false
-    t.string   "allele_category"
-    t.boolean  "no_modification_required",                        :default => false, :null => false
   end
 
   create_table "new_consortia_intermediate_report", :force => true do |t|
@@ -718,13 +718,13 @@ ActiveRecord::Schema.define(:version => 20131211111237) do
     t.integer  "mi_attempt_id"
     t.integer  "mouse_allele_mod_id"
     t.integer  "phenotyping_production_id"
-    t.string   "overall_status",                               :limit => 50
-    t.string   "mi_plan_status",                               :limit => 50
-    t.string   "mi_attempt_status",                            :limit => 50
-    t.string   "phenotype_attempt_status",                     :limit => 50
-    t.string   "consortium",                                                 :null => false
-    t.string   "gene",                                         :limit => 75, :null => false
-    t.string   "mgi_accession_id",                             :limit => 40
+    t.string   "overall_status",                                :limit => 50
+    t.string   "mi_plan_status",                                :limit => 50
+    t.string   "mi_attempt_status",                             :limit => 50
+    t.string   "phenotype_attempt_status",                      :limit => 50
+    t.string   "consortium",                                                  :null => false
+    t.string   "gene",                                          :limit => 75, :null => false
+    t.string   "mgi_accession_id",                              :limit => 40
     t.date     "gene_interest_date"
     t.string   "mi_attempt_colony_name"
     t.string   "mouse_allele_mod_colony_name"
@@ -747,6 +747,7 @@ ActiveRecord::Schema.define(:version => 20131211111237) do
     t.date     "phenotyping_complete_date"
     t.date     "phenotype_attempt_aborted_date"
     t.string   "phenotyping_mi_attempt_consortium"
+    t.string   "phenotyping_mi_attempt_production_centre"
     t.string   "tm1b_phenotype_attempt_status"
     t.date     "tm1b_phenotype_attempt_registered_date"
     t.date     "tm1b_rederivation_started_date"
@@ -760,6 +761,7 @@ ActiveRecord::Schema.define(:version => 20131211111237) do
     t.string   "tm1b_colony_name"
     t.string   "tm1b_phenotyping_production_colony_name"
     t.string   "tm1b_phenotyping_mi_attempt_consortium"
+    t.string   "tm1b_phenotyping_mi_attempt_production_centre"
     t.string   "tm1a_phenotype_attempt_status"
     t.date     "tm1a_phenotype_attempt_registered_date"
     t.date     "tm1a_rederivation_started_date"
@@ -773,6 +775,7 @@ ActiveRecord::Schema.define(:version => 20131211111237) do
     t.string   "tm1a_colony_name"
     t.string   "tm1a_phenotyping_production_colony_name"
     t.string   "tm1a_phenotyping_mi_attempt_consortium"
+    t.string   "tm1a_phenotyping_mi_attempt_production_centre"
     t.integer  "distinct_genotype_confirmed_es_cells"
     t.integer  "distinct_old_genotype_confirmed_es_cells"
     t.integer  "distinct_non_genotype_confirmed_es_cells"

@@ -351,7 +351,7 @@ class ImpcCentreByMonthReport
             count(cre_stamps.*) as cre_excised_or_better_count
           FROM genes_with_plans
           JOIN mouse_allele_mods ON genes_with_plans.mi_plan_id = mouse_allele_mods.mi_plan_id AND mouse_allele_mods.status_id != 7 --not aborted
-          LEFT JOIN mouse_allele_mod_status_stamps as cre_stamps ON mouse_allele_mods.id = cre_stamps.mouse_allele_mod_id AND cre_stamps.status_id = 5 AND cre_stamps.created_at <= '#{cut_off_date}'
+          LEFT JOIN mouse_allele_mod_status_stamps as cre_stamps ON mouse_allele_mods.id = cre_stamps.mouse_allele_mod_id AND cre_stamps.status_id = 6 AND cre_stamps.created_at <= '#{cut_off_date}'
 
           GROUP BY
             genes_with_plans.gene_id,
@@ -368,7 +368,7 @@ class ImpcCentreByMonthReport
             count(pc_stamps.*) as phenotype_complete_count,
             SUM(CASE WHEN phenotyping_experiments_started <= '#{cut_off_date}' THEN 1 ELSE 0 END) AS phenotype_experiments_started_count
           FROM genes_with_plans
-          JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 1
+          JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 5
           LEFT JOIN phenotyping_production_status_stamps as ps_stamps ON phenotyping_productions.id = ps_stamps.phenotyping_production_id AND ps_stamps.status_id = 3 AND ps_stamps.created_at <= '#{cut_off_date}'
           LEFT JOIN phenotyping_production_status_stamps as pc_stamps ON phenotyping_productions.id = pc_stamps.phenotyping_production_id AND pc_stamps.status_id = 4 AND pc_stamps.created_at <= '#{cut_off_date}'
 
@@ -586,7 +586,7 @@ class ImpcCentreByMonthReport
                 date_trunc('MONTH', mouse_allele_mod_status_stamps.created_at) as mam_date
               FROM genes_with_plans
               JOIN mouse_allele_mods ON genes_with_plans.mi_plan_id = mouse_allele_mods.mi_plan_id AND mouse_allele_mods.status_id != 7 --not aborted
-              JOIN mouse_allele_mod_status_stamps ON mouse_allele_mods.id = mouse_allele_mod_status_stamps.mouse_allele_mod_id AND mouse_allele_mod_status_stamps.status_id IN (5) AND mouse_allele_mod_status_stamps.created_at >= '#{start_date}'
+              JOIN mouse_allele_mod_status_stamps ON mouse_allele_mods.id = mouse_allele_mod_status_stamps.mouse_allele_mod_id AND mouse_allele_mod_status_stamps.status_id IN (6) AND mouse_allele_mod_status_stamps.created_at >= '#{start_date}'
               ORDER BY genes_with_plans.gene_id, genes_with_plans.production_centre_name ASC
               ) AS mam_status_by_month
             GROUP BY gene_id, production_centre, mam_date
@@ -607,7 +607,7 @@ class ImpcCentreByMonthReport
               genes_with_plans.production_centre_name as production_centre,
               date_trunc('MONTH', phenotyping_experiments_started) as series_date
             FROM genes_with_plans
-            JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 1 AND phenotyping_productions.phenotyping_experiments_started >= '#{start_date}'
+            JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 5 AND phenotyping_productions.phenotyping_experiments_started >= '#{start_date}'
             ORDER BY genes_with_plans.gene_id, genes_with_plans.production_centre_name ASC
             ) AS pp_counts
           GROUP BY production_centre, series_date
@@ -636,7 +636,7 @@ class ImpcCentreByMonthReport
                 phenotyping_production_status_stamps.status_id AS pps_id,
                 date_trunc('MONTH', phenotyping_production_status_stamps.created_at) as pps_date
               FROM genes_with_plans
-              JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 1
+              JOIN phenotyping_productions ON genes_with_plans.mi_plan_id = phenotyping_productions.mi_plan_id AND phenotyping_productions.status_id != 5
               JOIN phenotyping_production_status_stamps ON phenotyping_production_status_stamps.phenotyping_production_id = phenotyping_productions.id AND phenotyping_production_status_stamps.created_at >= '#{start_date}' AND phenotyping_production_status_stamps.status_id IN (3,4)
               ORDER BY genes_with_plans.gene_id, genes_with_plans.production_centre_name ASC
               ) AS pp_status_by_month

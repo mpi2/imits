@@ -85,16 +85,16 @@ class MouseAlleleMod < ApplicationModel
 
 ## BEFORE VALIDATION FUNCTIONS
   def allow_override_of_plan
-    plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
-      mi_plan = pa.mi_attempt.mi_plan
-      if !mi_plan.blank? and mi_plan.consortium == self.consortium_name and mi_plan.production_centre == self.production_centre_name
-        mi_plan = [mi_plan]
+    set_plan = MiPlan.find_or_create_plan(self, {:gene => self.gene, :consortium_name => self.consortium_name, :production_centre_name => self.production_centre_name, :phenotype_only => true}) do |pa|
+      plan = pa.mi_attempt.mi_plan
+      if !plan.blank? and plan.consortium.try(:name) == self.consortium_name and plan.production_centre.try(:name) == self.production_centre_name
+        plan = [plan]
       else
-        mi_plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
+        plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
       end
     end
 
-    self.mi_plan = plan
+    self.mi_plan = set_plan
   end
 
   def set_allele_category
@@ -165,7 +165,7 @@ class MouseAlleleMod < ApplicationModel
                        }
       phenotype_status_stamps = {}
       mam.phenotype_attempt.status_stamps.includes(:status).each{|stamp| phenotype_status_stamps[stamp.status.name] = stamp.created_at}
-      mam.status_stamps.includes(:status).each{|stamp| stamp.update_attributes(:created_at => phenotype_status_stamps[stamp.status.name]) if phenotype_status_stamps.has_key?(stamp.status.name)}
+      mam.status_stamps.includes(:status).each{|stamp| stamp.update_attributes(:created_at => phenotype_status_stamps[status_mapping[stamp.status.name]]) if phenotype_status_stamps.has_key?(status_mapping[stamp.status.name])}
     else
       raise PhenotypeAttemptError, "failed to save Mouse Allele Mod #{mam.errors.messages}."
     end
@@ -175,6 +175,7 @@ class MouseAlleleMod < ApplicationModel
     'mouse allele modification'
   end
 end
+
 
 
 
@@ -194,18 +195,18 @@ end
 #  rederivation_complete            :boolean         default(FALSE), not null
 #  number_of_cre_matings_started    :integer         default(0), not null
 #  number_of_cre_matings_successful :integer         default(0), not null
-#  mouse_allele_type                :string(3)
-#  deleter_strain_id                :integer
-#  colony_background_strain_id      :integer
+#  no_modification_required         :boolean         default(FALSE)
 #  cre_excision                     :boolean         default(TRUE), not null
 #  tat_cre                          :boolean         default(FALSE)
+#  mouse_allele_type                :string(3)
+#  allele_category                  :string(255)
+#  deleter_strain_id                :integer
+#  colony_background_strain_id      :integer
 #  colony_name                      :string(125)     not null
 #  is_active                        :boolean         default(TRUE), not null
 #  report_to_public                 :boolean         default(TRUE), not null
 #  phenotype_attempt_id             :integer
 #  created_at                       :datetime        not null
 #  updated_at                       :datetime        not null
-#  allele_category                  :string(255)
-#  no_modification_required         :boolean         default(FALSE), not null
 #
 

@@ -409,11 +409,6 @@ class MiAttempt < ApplicationModel
 
 end
 
-
-
-
-
-
 # == Schema Information
 #
 # Table name: mi_attempts
@@ -484,7 +479,6 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-
 
 # == Schema Information
 #

@@ -32,13 +32,8 @@ class SolrUpdate::DocFactory
       'best_status_pa_cre_ex_required' => '',
       'current_pa_status' => '',
       'colony_name' => mi_attempt.colony_name,
-      'project_ids' => [mi_attempt.es_cell.ikmc_project_id],
-      #'project_statuses' => []
+      'project_ids' => [mi_attempt.es_cell.ikmc_project_id]
     }
-
-    #if mi_attempt.es_cell.ikmc_project && mi_attempt.es_cell.ikmc_project.status && mi_attempt.es_cell.ikmc_project.status.name
-      #solr_doc['project_statuses'] = [mi_attempt.es_cell.ikmc_project.status.name]
-    #end
 
     solr_doc['marker_symbol'] = mi_attempt.mi_plan.gene.marker_symbol
 
@@ -58,13 +53,8 @@ class SolrUpdate::DocFactory
 
     solr_doc['allele_id'] = mi_attempt.allele_id
 
-    if mi_attempt.mouse_allele_type == 'e'
-      solr_doc['allele_type'] = 'Targeted Non Conditional'
-    else
-      if mi_attempt.es_cell.mutation_subtype
-        solr_doc['allele_type'] = mi_attempt.es_cell.mutation_subtype.titleize
-      end
-    end
+    solr_doc['allele_type'] = mi_attempt.try(:es_cell).try(:allele).try(:mutation_type).try(:name).try(:titleize)
+    solr_doc['allele_type'] = '' if ! solr_doc['allele_type']
 
     if mi_attempt.colony_background_strain
       solr_doc['strain'] = mi_attempt.colony_background_strain.name
@@ -90,8 +80,7 @@ class SolrUpdate::DocFactory
       'best_status_pa_cre_ex_not_required' => '',
       'best_status_pa_cre_ex_required' => '',
       'current_pa_status' => '',
-      'project_ids' => [phenotype_attempt.mi_attempt.es_cell.ikmc_project_id],
-      #'project_statuses' => [phenotype_attempt.mi_attempt.es_cell.ikmc_project.status.name]
+      'project_ids' => [phenotype_attempt.mi_attempt.es_cell.ikmc_project_id]
     }
 
     solr_doc['marker_symbol'] = phenotype_attempt.mi_plan.gene.marker_symbol
@@ -223,8 +212,7 @@ class SolrUpdate::DocFactory
         'order_from_urls' => [order_from_info[:url]],
         'order_from_names' => [order_from_info[:name]],
         'marker_symbol' => marker_symbol,
-        'project_ids' => [es_cell_info[:ikmc_project_id]],
-        #'project_statuses' => [es_cell_info[:ikmc_project_status_name]]
+        'project_ids' => [es_cell_info[:ikmc_project_id]]
       }
     end
 
@@ -298,26 +286,32 @@ class SolrUpdate::DocFactory
 
     project_hash = {}
     vector_project_hash = {}
-    solr_doc = {'project_ids' => [], 'project_statuses' => [], 'vector_project_ids' => [], 'vector_project_statuses' => []}
+    pipeline_hash = {}
+    solr_doc = {'project_ids' => [], 'project_statuses' => [], 'vector_project_ids' => [], 'vector_project_statuses' => [], 'project_pipelines' => []}
 
     gene.mi_attempts.each do |mi|
       key = mi.try(:es_cell).try(:ikmc_project).try(:name)
       value = mi.try(:es_cell).try(:ikmc_project).try(:status).try(:name)
+      pipeline = mi.try(:es_cell).try(:ikmc_project).try(:pipeline).try(:name)
       next if ! key
       project_hash[key] = value
+      pipeline_hash[key] = pipeline
     end
 
     gene.phenotype_attempts.each do |pa|
       key = pa.try(:mi_attempt).try(:es_cell).try(:ikmc_project).try(:name)
       value = pa.try(:mi_attempt).try(:es_cell).try(:ikmc_project).try(:status).try(:name)
+      pipeline = pa.try(:mi_attempt).try(:es_cell).try(:ikmc_project).try(:pipeline).try(:name)
       next if ! key
       project_hash[key] = value
+      pipeline_hash[key] = pipeline
     end
 
     gene.allele.each do |allele|
       allele.es_cells.unique_public_info.map do |es_cell_info|
         next if es_cell_info[:ikmc_project_name].empty?
         project_hash[es_cell_info[:ikmc_project_name]] = es_cell_info[:ikmc_project_status_name]
+        pipeline_hash[es_cell_info[:ikmc_project_name]] = es_cell_info[:ikmc_project_pipeline]
       end
     end
 
@@ -325,35 +319,37 @@ class SolrUpdate::DocFactory
       allele.targeting_vectors.each do |tv|
         key = tv.try(:ikmc_project).try(:name)
         value = tv.try(:ikmc_project).try(:status).try(:name)
+        pipeline = tv.try(:ikmc_project).try(:pipeline).try(:name)
         next if ! key
         vector_project_hash[key] = value if ! project_hash.has_key? key # don't add to project_hash
         project_hash[key] = value
+        pipeline_hash[key] = pipeline
       end
     end
 
-    # vector statuses
-
-    #{
-    #"Vector Complete"=>1,
-    #"ES Cells - Targeting Confirmed"=>1,
-    #"Mice - Phenotype Data Available"=>1,
-    #"Mice - Genotype confirmed"=>1,
-    #"Mice - Microinjection in progress"=>1
-    #}
-
-    legal = ["Vector Complete", "ES Cells - Targeting Confirmed"]
-
     vector_project_hash.keys.each do |key|
       next if ! key
-      next if ! legal.include? vector_project_hash[key]
       solr_doc['vector_project_ids'].push key
-      solr_doc['vector_project_statuses'].push vector_project_hash[key]
+
+      value = vector_project_hash[key]
+      value = value ? value : 'unknown'
+
+      solr_doc['vector_project_statuses'].push value
     end
 
     project_hash.keys.each do |key|
       next if ! key
       solr_doc['project_ids'].push key
-      solr_doc['project_statuses'].push project_hash[key]
+
+      value = project_hash[key]
+      value = value ? value : 'unknown'
+
+      solr_doc['project_statuses'].push value
+
+      pipeline = pipeline_hash[key]
+      pipeline = pipeline ? pipeline : 'unknown'
+
+      solr_doc['project_pipelines'].push pipeline
     end
 
     solr_doc

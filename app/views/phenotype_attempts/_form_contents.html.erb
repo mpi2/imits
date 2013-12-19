@@ -1,4 +1,4 @@
-<% generator = FieldGenerator.new(form) %>
+<% generator = PhenotypeAttemptFieldGenerator.new(form) %>
 <% phenotype_attempt = form.object %>
 
 <fieldset class="collapsible">
@@ -106,6 +106,14 @@
     </div>
   </div>
 </fieldset>
+
+<fieldset class="collapsible hide-by-default qc-details">
+  <legend>QC Details</legend>
+  <div>
+    <%= generator.qc_fields %>
+  </div>
+</fieldset>
+
 <fieldset class="collapsible" id="distribution_centres">
   <legend>phenotyping</legend>
   <% if @phenotype_attempt.phenotyping_started == true %>
@@ -134,6 +142,7 @@
     </div>
   <% end %>
 </fieldset>
+
 <fieldset class="collapsible">
   <legend>Other</legend>
 

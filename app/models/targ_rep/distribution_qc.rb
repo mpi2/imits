@@ -141,6 +141,40 @@ class TargRep::DistributionQc < ActiveRecord::Base
 
 end
 
+# == Schema Information
+#
+# Table name: targ_rep_distribution_qcs
+#
+#  id                             :integer         not null, primary key
+#  five_prime_sr_pcr              :string(255)
+#  three_prime_sr_pcr             :string(255)
+#  karyotype_low                  :float
+#  karyotype_high                 :float
+#  copy_number                    :string(255)
+#  five_prime_lr_pcr              :string(255)
+#  three_prime_lr_pcr             :string(255)
+#  thawing                        :string(255)
+#  loa                            :string(255)
+#  loxp                           :string(255)
+#  lacz                           :string(255)
+#  chr1                           :string(255)
+#  chr8a                          :string(255)
+#  chr8b                          :string(255)
+#  chr11a                         :string(255)
+#  chr11b                         :string(255)
+#  chry                           :string(255)
+#  es_cell_id                     :integer
+#  es_cell_distribution_centre_id :integer
+#  created_at                     :datetime        not null
+#  updated_at                     :datetime        not null
+#  loxp_srpcr                     :string(255)
+#  unspecified_repository_testing :string(255)
+#  neo_qpcr                       :string(255)
+#
+# Indexes
+#
+#  index_distribution_qcs_centre_es_cell  (es_cell_distribution_centre_id,es_cell_id) UNIQUE
+#
 
 # == Schema Information
 #

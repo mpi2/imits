@@ -46,7 +46,7 @@ namespace :imits do
 
       Updates on gene status will be sent to <%= @contact.email %>.
 
-      For further information / enquiries please write to  info@mousephenotype.org
+      For further information / enquiries please write to  mouse-helpdesk@ebi.ac.uk
 
       Best Regards,
 
@@ -93,7 +93,7 @@ namespace :imits do
 
       You will be notified by email with any future changes in gene status.
 
-      For further information / enquiries please write to  info@mousephenotype.org
+      For further information / enquiries please write to  mouse-helpdesk@ebi.ac.uk
 
       Best Wishes,
 
@@ -156,7 +156,7 @@ Please see the attached csv file for details on the status of each gene in IMPC 
 
 Further updates on the status of individual genes in this list will be sent to <%= @contact_email %>.
 
-Further all further information / enquiries, please write to info@mousephenotype.org
+Further all further information / enquiries, please write to mouse-helpdesk@ebi.ac.uk
 
 Best Regards,
 

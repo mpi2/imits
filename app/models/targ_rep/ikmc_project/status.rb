@@ -13,11 +13,17 @@ class TargRep::IkmcProject::Status < ActiveRecord::Base
   ##
 
   validates :name,
-    :uniqueness => {:message => 'has already been taken'},
     :presence => true
 end
 
-
+# == Schema Information
+#
+# Table name: targ_rep_ikmc_project_statuses
+#
+#  id           :integer         not null, primary key
+#  name         :string(255)
+#  product_type :string(255)
+#
 
 # == Schema Information
 #

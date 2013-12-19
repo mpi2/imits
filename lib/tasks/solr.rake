@@ -210,4 +210,52 @@ namespace :solr do
   desc 'Sync phenotype_attempts, mi_attempts'
   task 'update:mi_pa' => ['update:phenotype_attempts', 'update:mi_attempts']
 
+  #task 'check:genes' => [:environment] do
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #
+  #  Gene.all.each do |g|
+  #    SolrUpdate::DocFactory.add_project_details(g)
+  #  end
+  #end
+  #
+  #task 'update:projects' => [:environment] do
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #
+  #  ApplicationModel.transaction do
+  #    counter = 0
+  #
+  #    TargRep::IkmcProject.find_each(:batch_size => 500) do |object|
+  #
+  #      object.targeting_vectors.each do |vector|
+  #        enqueuer.gene_updated(vector.allele.gene)
+  #        counter += 1
+  #      end
+  #
+  #      object.es_cells.each do |es_cell|
+  #        enqueuer.gene_updated(es_cell.allele.gene)
+  #        counter += 1
+  #      end
+  #    end
+  #
+  #    puts "#### running projects... (#{counter})"
+  #
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #  end
+  #end
+
+  #task 'update:allele_single' => [:environment] do
+  #  pp SolrUpdate::IndexProxy::Allele.get_uri
+  #  ApplicationModel.transaction do
+  #    puts "#### enqueueing allele..."
+  #    enqueuer = SolrUpdate::Enqueuer.new
+  #
+  #    a = TargRep::TargetedAllele.find 26517
+  #    raise "#### cannot find 26517!" if ! a
+  #
+  #    enqueuer.allele_updated(a)
+  #
+  #    SolrUpdate::Queue.run(:limit => nil)
+  #  end
+  #end
+
 end

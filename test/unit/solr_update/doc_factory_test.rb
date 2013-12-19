@@ -83,28 +83,28 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert_false @doc.has_key? 'mgi_accession_id'
       end
 
-      context 'allele_type' do
-        should 'be set from the es_cell if mouse_allele_type is not "e"' do
-          @mi_attempt.mouse_allele_type = 'a'
-
-          @es_cell.mutation_subtype = 'conditional_ready'
-          doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
-          assert_equal 'Conditional Ready', doc['allele_type']
-
-          @es_cell.mutation_subtype = 'deletion'
-          doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
-          assert_equal 'Deletion', doc['allele_type']
-        end
-
-        should 'be set to targeted_non_conditional if mouse_allele_type is "e" regardless of es_cell' do
-          @mi_attempt.mouse_allele_type = 'e'
-          @es_cell.mutation_subtype = 'conditional_ready'
-
-          doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
-          assert_equal 'Targeted Non Conditional', doc['allele_type']
-        end
-
-      end
+      #context 'allele_type' do
+      #  should 'be set from the es_cell if mouse_allele_type is not "e"' do
+      #    @mi_attempt.mouse_allele_type = 'a'
+      #
+      #    @es_cell.mutation_subtype = 'conditional_ready'
+      #    doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
+      #    assert_equal 'Conditional Ready', doc['allele_type']
+      #
+      #    @es_cell.mutation_subtype = 'deletion'
+      #    doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
+      #    assert_equal 'Deletion', doc['allele_type']
+      #  end
+      #
+      #  should 'be set to targeted_non_conditional if mouse_allele_type is "e" regardless of es_cell' do
+      #    @mi_attempt.mouse_allele_type = 'e'
+      #    @es_cell.mutation_subtype = 'conditional_ready'
+      #
+      #    doc = SolrUpdate::DocFactory.create_for_mi_attempt(@mi_attempt).first
+      #    assert_equal 'Targeted Non Conditional', doc['allele_type']
+      #  end
+      #
+      #end
 
       should 'set allele_id' do
         assert_equal @allele.id, @doc['allele_id']
@@ -672,6 +672,7 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
     end
 
     context '#add_project_details' do
+
       #def mock_ikmc_project(project_name, status_name)
       #  status = stub("my status")
       #  status.stubs(:name).returns(status_name)
@@ -741,40 +742,32 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         gene = Factory.create :gene, :mgi_accession_id => 'MGI:9999999991'
         doc = SolrUpdate::DocFactory.add_project_details(gene)
         assert doc
-        assert_equal solr_doc = {'project_ids' => [], 'project_statuses' => [], 'vector_project_ids' => [], 'vector_project_statuses' => []}, doc
+        solr_doc = {'project_ids' => [], 'project_statuses' => [], 'vector_project_ids' => [], 'vector_project_statuses' => [], 'project_pipelines' => []}
+        assert_equal solr_doc, doc
       end
-
-      #should 'just work' do
-      #  doc = SolrUpdate::DocFactory.add_project_details(@gene)
-      #  assert doc
-      #
-      #  assert_equal solr_doc = {
-      #    'project_ids' => ['project_name2', 'project_name1', 'project_name3', 'project_name4', 'project_name5', 'project_name6', 'project_name7', 'project_name8'],
-      #    'project_statuses' => ['status_name2', 'status_name1', 'status_name3', 'Vector Complete', 'ES Cells - Targeting Confirmed', 'Mice - Phenotype Data Available',
-      #      'Mice - Genotype confirmed', 'Mice - Microinjection in progress'],
-      #    'vector_project_ids' => ['project_name4', 'project_name5'],
-      #    'vector_project_statuses' => ['Vector Complete', 'ES Cells - Targeting Confirmed']}, doc
-      #end
 
       should 'work with mi_attempts' do
         mi = Factory.create :mi_attempt2_ikmc_project
         doc = SolrUpdate::DocFactory.add_project_details(mi.mi_plan.gene)
         assert doc
-        assert_equal solr_doc = {'project_ids' => [mi.es_cell.ikmc_project.name], 'project_statuses' => [mi.es_cell.ikmc_project.status.name], 'vector_project_ids' => [], 'vector_project_statuses' => []}, doc
+        solr_doc = {'project_ids' => [mi.es_cell.ikmc_project.name], 'project_statuses' => [mi.es_cell.ikmc_project.status.name], 'vector_project_ids' => [], 'vector_project_statuses' => [], 'project_pipelines' => [mi.es_cell.ikmc_project.pipeline.name]}
+        assert_equal solr_doc, doc
       end
 
       should 'work with phenotype_attempts' do
         pa = Factory.create :phenotype_attempt_ikmc_project
         doc = SolrUpdate::DocFactory.add_project_details(pa.mi_attempt.mi_plan.gene)
         assert doc
-        assert_equal solr_doc = {'project_ids' => [pa.mi_attempt.es_cell.ikmc_project.name], 'project_statuses' => [pa.mi_attempt.es_cell.ikmc_project.status.name], 'vector_project_ids' => [], 'vector_project_statuses' => []}, doc
+        solr_doc = {'project_ids' => [pa.mi_attempt.es_cell.ikmc_project.name], 'project_statuses' => [pa.mi_attempt.es_cell.ikmc_project.status.name], 'vector_project_ids' => [], 'vector_project_statuses' => [], 'project_pipelines' => [pa.mi_attempt.es_cell.ikmc_project.pipeline.name]}
+        assert_equal solr_doc, doc
       end
 
       should 'work with alleles' do
         a = Factory.create :allele_ikmc_project
         doc = SolrUpdate::DocFactory.add_project_details(a.gene)
         assert doc
-        assert_equal solr_doc = {'project_ids' => [a.es_cells[0].ikmc_project.name], 'project_statuses' => [a.es_cells[0].ikmc_project.status.name], 'vector_project_ids' => [], 'vector_project_statuses' => []}, doc
+        solr_doc = {'project_ids' => [a.es_cells[0].ikmc_project.name], 'project_statuses' => [a.es_cells[0].ikmc_project.status.name], 'vector_project_ids' => [], 'vector_project_statuses' => [], 'project_pipelines' => [a.es_cells[0].ikmc_project.pipeline.name]}
+        assert_equal solr_doc, doc
       end
 
       should 'work with targeting_vectors' do
@@ -783,7 +776,9 @@ class SolrUpdate::DocFactoryTest < ActiveSupport::TestCase
         assert doc
         project_id = a.targeting_vectors[0].ikmc_project.name
         project_status = a.targeting_vectors[0].ikmc_project.status.name
-        assert_equal solr_doc = {'project_ids' => [project_id], 'project_statuses' => [project_status], 'vector_project_ids' => [project_id], 'vector_project_statuses' => [project_status]}, doc
+        pipeline = a.targeting_vectors[0].ikmc_project.pipeline.name
+        solr_doc = {'project_ids' => [project_id], 'project_statuses' => [project_status], 'vector_project_ids' => [project_id], 'vector_project_statuses' => [project_status], 'project_pipelines' => [pipeline]}
+        assert_equal solr_doc, doc
       end
 
     end

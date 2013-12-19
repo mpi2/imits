@@ -511,5 +511,27 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       assert_include PhenotypeAttempt.ancestors, ApplicationModel::BelongsToMiPlan
     end
 
+    context 'QC field tests:' do
+      PhenotypeAttempt::QC_FIELDS.each do |qc_field|
+        should "include #{qc_field}" do
+          assert_should belong_to(qc_field)
+        end
+
+        should "have #{qc_field}_result association accessor" do
+          default_phenotype_attempt.send("#{qc_field}_result=", 'pass')
+          assert_equal 'pass', default_phenotype_attempt.send("#{qc_field}_result")
+
+          default_phenotype_attempt.send("#{qc_field}_result=", 'na')
+          assert_equal 'na', default_phenotype_attempt.send("#{qc_field}_result")
+        end
+
+        should "default to 'na' if #{qc_field} is assigned a blank" do
+          default_phenotype_attempt.send("#{qc_field}_result=", '')
+          assert default_phenotype_attempt.valid?
+          assert_equal 'na', default_phenotype_attempt.send("#{qc_field}_result")
+          assert_equal 'na', default_phenotype_attempt.send(qc_field).try(:description)
+        end
+      end
+    end
   end
 end

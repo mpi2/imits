@@ -944,7 +944,23 @@ CREATE TABLE mouse_allele_mods (
     report_to_public boolean DEFAULT true NOT NULL,
     phenotype_attempt_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    qc_southern_blot_id integer,
+    qc_five_prime_lr_pcr_id integer,
+    qc_five_prime_cassette_integrity_id integer,
+    qc_tv_backbone_assay_id integer,
+    qc_neo_count_qpcr_id integer,
+    qc_neo_sr_pcr_id integer,
+    qc_loa_qpcr_id integer,
+    qc_homozygous_loa_sr_pcr_id integer,
+    qc_lacz_sr_pcr_id integer,
+    qc_mutant_specific_sr_pcr_id integer,
+    qc_loxp_confirmation_id integer,
+    qc_three_prime_lr_pcr_id integer,
+    qc_lacz_count_qpcr_id integer,
+    qc_critical_region_qpcr_id integer,
+    qc_loxp_srpcr_id integer,
+    qc_loxp_srpcr_and_sequencing_id integer
 );
 
 
@@ -4222,6 +4238,134 @@ ALTER TABLE ONLY mouse_allele_mods
 
 
 --
+-- Name: mouse_allele_mods_qc_critical_region_qpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_critical_region_qpcr_id_fk FOREIGN KEY (qc_critical_region_qpcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_five_prime_cassette_integrity_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_five_prime_cassette_integrity_id_fk FOREIGN KEY (qc_five_prime_cassette_integrity_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_five_prime_lr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_five_prime_lr_pcr_id_fk FOREIGN KEY (qc_five_prime_lr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_homozygous_loa_sr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_homozygous_loa_sr_pcr_id_fk FOREIGN KEY (qc_homozygous_loa_sr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_lacz_count_qpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_lacz_count_qpcr_id_fk FOREIGN KEY (qc_lacz_count_qpcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_lacz_sr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_lacz_sr_pcr_id_fk FOREIGN KEY (qc_lacz_sr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_loa_qpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_loa_qpcr_id_fk FOREIGN KEY (qc_loa_qpcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_loxp_confirmation_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_loxp_confirmation_id_fk FOREIGN KEY (qc_loxp_confirmation_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_loxp_srpcr_and_sequencing_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_loxp_srpcr_and_sequencing_id_fk FOREIGN KEY (qc_loxp_srpcr_and_sequencing_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_loxp_srpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_loxp_srpcr_id_fk FOREIGN KEY (qc_loxp_srpcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_mutant_specific_sr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_mutant_specific_sr_pcr_id_fk FOREIGN KEY (qc_mutant_specific_sr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_neo_count_qpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_neo_count_qpcr_id_fk FOREIGN KEY (qc_neo_count_qpcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_neo_sr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_neo_sr_pcr_id_fk FOREIGN KEY (qc_neo_sr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_southern_blot_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_southern_blot_id_fk FOREIGN KEY (qc_southern_blot_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_three_prime_lr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_three_prime_lr_pcr_id_fk FOREIGN KEY (qc_three_prime_lr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: mouse_allele_mods_qc_tv_backbone_assay_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY mouse_allele_mods
+    ADD CONSTRAINT mouse_allele_mods_qc_tv_backbone_assay_id_fk FOREIGN KEY (qc_tv_backbone_assay_id) REFERENCES qc_results(id);
+
+
+--
 -- Name: mouse_allele_mods_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4796,3 +4940,5 @@ INSERT INTO schema_migrations (version) VALUES ('20131203111237');
 INSERT INTO schema_migrations (version) VALUES ('20131206144401');
 
 INSERT INTO schema_migrations (version) VALUES ('20131209100237');
+
+INSERT INTO schema_migrations (version) VALUES ('20131219140237');

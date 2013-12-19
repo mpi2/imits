@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131209100237) do
+ActiveRecord::Schema.define(:version => 20131219140237) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -364,26 +364,42 @@ ActiveRecord::Schema.define(:version => 20131209100237) do
   end
 
   create_table "mouse_allele_mods", :force => true do |t|
-    t.integer  "mi_plan_id",                                                         :null => false
-    t.integer  "mi_attempt_id",                                                      :null => false
-    t.integer  "status_id",                                                          :null => false
-    t.boolean  "rederivation_started",                            :default => false, :null => false
-    t.boolean  "rederivation_complete",                           :default => false, :null => false
-    t.integer  "number_of_cre_matings_started",                   :default => 0,     :null => false
-    t.integer  "number_of_cre_matings_successful",                :default => 0,     :null => false
-    t.boolean  "no_modification_required",                        :default => false
-    t.boolean  "cre_excision",                                    :default => true,  :null => false
-    t.boolean  "tat_cre",                                         :default => false
-    t.string   "mouse_allele_type",                :limit => 3
+    t.integer  "mi_plan_id",                                                            :null => false
+    t.integer  "mi_attempt_id",                                                         :null => false
+    t.integer  "status_id",                                                             :null => false
+    t.boolean  "rederivation_started",                               :default => false, :null => false
+    t.boolean  "rederivation_complete",                              :default => false, :null => false
+    t.integer  "number_of_cre_matings_started",                      :default => 0,     :null => false
+    t.integer  "number_of_cre_matings_successful",                   :default => 0,     :null => false
+    t.boolean  "no_modification_required",                           :default => false
+    t.boolean  "cre_excision",                                       :default => true,  :null => false
+    t.boolean  "tat_cre",                                            :default => false
+    t.string   "mouse_allele_type",                   :limit => 3
     t.string   "allele_category"
     t.integer  "deleter_strain_id"
     t.integer  "colony_background_strain_id"
-    t.string   "colony_name",                      :limit => 125,                    :null => false
-    t.boolean  "is_active",                                       :default => true,  :null => false
-    t.boolean  "report_to_public",                                :default => true,  :null => false
+    t.string   "colony_name",                         :limit => 125,                    :null => false
+    t.boolean  "is_active",                                          :default => true,  :null => false
+    t.boolean  "report_to_public",                                   :default => true,  :null => false
     t.integer  "phenotype_attempt_id"
-    t.datetime "created_at",                                                         :null => false
-    t.datetime "updated_at",                                                         :null => false
+    t.datetime "created_at",                                                            :null => false
+    t.datetime "updated_at",                                                            :null => false
+    t.integer  "qc_southern_blot_id"
+    t.integer  "qc_five_prime_lr_pcr_id"
+    t.integer  "qc_five_prime_cassette_integrity_id"
+    t.integer  "qc_tv_backbone_assay_id"
+    t.integer  "qc_neo_count_qpcr_id"
+    t.integer  "qc_neo_sr_pcr_id"
+    t.integer  "qc_loa_qpcr_id"
+    t.integer  "qc_homozygous_loa_sr_pcr_id"
+    t.integer  "qc_lacz_sr_pcr_id"
+    t.integer  "qc_mutant_specific_sr_pcr_id"
+    t.integer  "qc_loxp_confirmation_id"
+    t.integer  "qc_three_prime_lr_pcr_id"
+    t.integer  "qc_lacz_count_qpcr_id"
+    t.integer  "qc_critical_region_qpcr_id"
+    t.integer  "qc_loxp_srpcr_id"
+    t.integer  "qc_loxp_srpcr_and_sequencing_id"
   end
 
   create_table "new_consortia_intermediate_report", :force => true do |t|
@@ -1311,6 +1327,22 @@ ActiveRecord::Schema.define(:version => 20131209100237) do
   add_foreign_key "mouse_allele_mods", "mi_plans", :name => "mouse_allele_mods_mi_plan_id_fk"
   add_foreign_key "mouse_allele_mods", "mouse_allele_mod_statuses", :name => "mouse_allele_mods_status_id_fk", :column => "status_id"
   add_foreign_key "mouse_allele_mods", "phenotype_attempts", :name => "mouse_allele_mods_phenotype_attempt_id_fk"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_critical_region_qpcr_id_fk", :column => "qc_critical_region_qpcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_five_prime_cassette_integrity_id_fk", :column => "qc_five_prime_cassette_integrity_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_five_prime_lr_pcr_id_fk", :column => "qc_five_prime_lr_pcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_homozygous_loa_sr_pcr_id_fk", :column => "qc_homozygous_loa_sr_pcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_lacz_count_qpcr_id_fk", :column => "qc_lacz_count_qpcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_lacz_sr_pcr_id_fk", :column => "qc_lacz_sr_pcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_loa_qpcr_id_fk", :column => "qc_loa_qpcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_loxp_confirmation_id_fk", :column => "qc_loxp_confirmation_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_loxp_srpcr_and_sequencing_id_fk", :column => "qc_loxp_srpcr_and_sequencing_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_loxp_srpcr_id_fk", :column => "qc_loxp_srpcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_mutant_specific_sr_pcr_id_fk", :column => "qc_mutant_specific_sr_pcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_neo_count_qpcr_id_fk", :column => "qc_neo_count_qpcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_neo_sr_pcr_id_fk", :column => "qc_neo_sr_pcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_southern_blot_id_fk", :column => "qc_southern_blot_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_three_prime_lr_pcr_id_fk", :column => "qc_three_prime_lr_pcr_id"
+  add_foreign_key "mouse_allele_mods", "qc_results", :name => "mouse_allele_mods_qc_tv_backbone_assay_id_fk", :column => "qc_tv_backbone_assay_id"
   add_foreign_key "mouse_allele_mods", "strains", :name => "mouse_allele_mods_colony_background_strain_id_fk", :column => "colony_background_strain_id"
   add_foreign_key "mouse_allele_mods", "strains", :name => "mouse_allele_mods_deleter_strain_id_fk", :column => "deleter_strain_id"
 

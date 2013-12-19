@@ -147,7 +147,23 @@ class MouseAlleleMod < ApplicationModel
               :report_to_public                 => phenotype_attempt.report_to_public,
               :consortium_name                  => phenotype_attempt.consortium_name,
               :production_centre_name           => phenotype_attempt.production_centre_name,
-              :no_modification_required         => ! phenotype_attempt.cre_excision_required
+              :no_modification_required         => ! phenotype_attempt.cre_excision_required,
+              :qc_southern_blot_id              => phenotype_attempt.qc_southern_blot_id,
+              :qc_five_prime_lr_pcr_id          => phenotype_attempt.qc_five_prime_lr_pcr_id,
+              :qc_five_prime_cassette_integrity_id => phenotype_attempt.qc_five_prime_cassette_integrity_id,
+              :qc_tv_backbone_assay_id          => phenotype_attempt.qc_tv_backbone_assay_id,
+              :qc_neo_count_qpcr_id             => phenotype_attempt.qc_neo_count_qpcr_id,
+              :qc_neo_sr_pcr_id                 => phenotype_attempt.qc_neo_sr_pcr_id,
+              :qc_loa_qpcr_id                   => phenotype_attempt.qc_loa_qpcr_id,
+              :qc_homozygous_loa_sr_pcr_id      => phenotype_attempt.qc_homozygous_loa_sr_pcr_id,
+              :qc_lacz_sr_pcr_id                => phenotype_attempt.qc_lacz_sr_pcr_id,
+              :qc_mutant_specific_sr_pcr_id     => phenotype_attempt.qc_mutant_specific_sr_pcr_id,
+              :qc_loxp_confirmation_id          => phenotype_attempt.qc_loxp_confirmation_id,
+              :qc_three_prime_lr_pcr_id         => phenotype_attempt.qc_three_prime_lr_pcr_id,
+              :qc_lacz_count_qpcr_id            => phenotype_attempt.qc_lacz_count_qpcr_id,
+              :qc_critical_region_qpcr_id       => phenotype_attempt.qc_critical_region_qpcr_id,
+              :qc_loxp_srpcr_id                 => phenotype_attempt.qc_loxp_srpcr_id,
+              :qc_loxp_srpcr_and_sequencing_id  => phenotype_attempt.qc_loxp_srpcr_and_sequencing_id
               }
     mam = phenotype_attempt.mouse_allele_mod || MouseAlleleMod.new
     params.each{|attr, value| mam[attr] = value}
@@ -183,30 +199,47 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: mouse_allele_mods
 #
-#  id                               :integer         not null, primary key
-#  mi_plan_id                       :integer         not null
-#  mi_attempt_id                    :integer         not null
-#  status_id                        :integer         not null
-#  rederivation_started             :boolean         default(FALSE), not null
-#  rederivation_complete            :boolean         default(FALSE), not null
-#  number_of_cre_matings_started    :integer         default(0), not null
-#  number_of_cre_matings_successful :integer         default(0), not null
-#  no_modification_required         :boolean         default(FALSE)
-#  cre_excision                     :boolean         default(TRUE), not null
-#  tat_cre                          :boolean         default(FALSE)
-#  mouse_allele_type                :string(3)
-#  allele_category                  :string(255)
-#  deleter_strain_id                :integer
-#  colony_background_strain_id      :integer
-#  colony_name                      :string(125)     not null
-#  is_active                        :boolean         default(TRUE), not null
-#  report_to_public                 :boolean         default(TRUE), not null
-#  phenotype_attempt_id             :integer
-#  created_at                       :datetime        not null
-#  updated_at                       :datetime        not null
+#  id                                  :integer         not null, primary key
+#  mi_plan_id                          :integer         not null
+#  mi_attempt_id                       :integer         not null
+#  status_id                           :integer         not null
+#  rederivation_started                :boolean         default(FALSE), not null
+#  rederivation_complete               :boolean         default(FALSE), not null
+#  number_of_cre_matings_started       :integer         default(0), not null
+#  number_of_cre_matings_successful    :integer         default(0), not null
+#  no_modification_required            :boolean         default(FALSE)
+#  cre_excision                        :boolean         default(TRUE), not null
+#  tat_cre                             :boolean         default(FALSE)
+#  mouse_allele_type                   :string(3)
+#  allele_category                     :string(255)
+#  deleter_strain_id                   :integer
+#  colony_background_strain_id         :integer
+#  colony_name                         :string(125)     not null
+#  is_active                           :boolean         default(TRUE), not null
+#  report_to_public                    :boolean         default(TRUE), not null
+#  phenotype_attempt_id                :integer
+#  created_at                          :datetime        not null
+#  updated_at                          :datetime        not null
+#  qc_southern_blot_id                 :integer
+#  qc_five_prime_lr_pcr_id             :integer
+#  qc_five_prime_cassette_integrity_id :integer
+#  qc_tv_backbone_assay_id             :integer
+#  qc_neo_count_qpcr_id                :integer
+#  qc_neo_sr_pcr_id                    :integer
+#  qc_loa_qpcr_id                      :integer
+#  qc_homozygous_loa_sr_pcr_id         :integer
+#  qc_lacz_sr_pcr_id                   :integer
+#  qc_mutant_specific_sr_pcr_id        :integer
+#  qc_loxp_confirmation_id             :integer
+#  qc_three_prime_lr_pcr_id            :integer
+#  qc_lacz_count_qpcr_id               :integer
+#  qc_critical_region_qpcr_id          :integer
+#  qc_loxp_srpcr_id                    :integer
+#  qc_loxp_srpcr_and_sequencing_id     :integer
 #
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131209100237) do
+ActiveRecord::Schema.define(:version => 20131219164213) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -882,8 +882,9 @@ ActiveRecord::Schema.define(:version => 20131209100237) do
   add_index "targ_rep_genbank_files", ["allele_id"], :name => "genbank_files_allele_id_fk"
 
   create_table "targ_rep_ikmc_project_statuses", :force => true do |t|
-    t.string "name"
-    t.string "product_type"
+    t.string  "name"
+    t.string  "product_type"
+    t.integer "order_by"
   end
 
   create_table "targ_rep_ikmc_projects", :force => true do |t|

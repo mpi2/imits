@@ -96,7 +96,6 @@ class TrackingGoal < ActiveRecord::Base
   end
 end
 
-
 # == Schema Information
 #
 # Table name: tracking_goals
@@ -110,4 +109,3 @@ end
 #  updated_at           :datetime        not null
 #  consortium_id        :integer
 #
-

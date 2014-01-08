@@ -114,9 +114,6 @@ class Public::MiAttempt < ::MiAttempt
   end
 end
 
-
-
-
 # == Schema Information
 #
 # Table name: mi_attempts
@@ -187,4 +184,3 @@ end
 #
 #  index_mi_attempts_on_colony_name  (colony_name) UNIQUE
 #
-

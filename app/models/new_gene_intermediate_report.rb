@@ -8,16 +8,6 @@ class NewGeneIntermediateReport < ActiveRecord::Base
 
 end
 
-
-
-
-
-
-
-
-
-
-
 # == Schema Information
 #
 # Table name: new_gene_intermediate_report
@@ -108,4 +98,3 @@ end
 #  non_cre_ex_phenotyping_experiments_started_date  :date
 #  cre_ex_phenotyping_experiments_started_date      :date
 #
-

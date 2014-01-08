@@ -27,7 +27,6 @@ class Centre < ActiveRecord::Base
   end
 end
 
-
 # == Schema Information
 #
 # Table name: centres
@@ -43,4 +42,3 @@ end
 #
 #  index_centres_on_name  (name) UNIQUE
 #
-

@@ -16,7 +16,7 @@ class NavigationTest < TarMits::IntegrationTest
         assert page.has_no_link?('Create MI Attempt')
         assert page.has_link?('Mouse Production', {:href => open_mi_attempts_path})
         assert page.has_link?('Phenotyping', {:href => open_phenotype_attempts_path})
-        assert page.has_link?('Consortia', {:href => consortia_path})
+        assert page.has_link?('Contacts for Production Centres', {:href => contactable_users_by_production_centre_path})
         assert page.has_no_link?('Reports')
         assert page.has_no_link?('Manual')
       end

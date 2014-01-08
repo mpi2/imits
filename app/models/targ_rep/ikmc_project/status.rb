@@ -23,4 +23,6 @@ end
 #  id           :integer         not null, primary key
 #  name         :string(255)
 #  product_type :string(255)
+#  order_by     :integer
 #
+

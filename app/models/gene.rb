@@ -484,6 +484,75 @@ class Gene < ActiveRecord::Base
     return return_value.nil? ? data : data[return_value]
   end
 
+  def self.update_gene_list
+    require 'open-uri'
+    headers = []
+    genes_data = {}
+
+    url = 'ftp://ftp.informatics.jax.org/pub/reports/MGI_MRK_Coord.rpt'
+    open(url) do |file|
+      headers = file.readline.strip.split("\t")
+      mgi_accession_index = headers.index('1. MGI Marker Accession ID')
+      marker_symbol_index = headers.index('4. Marker Symbol')
+      marker_name_index = headers.index('5. Marker Name')
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t")
+        genes_data[row[mgi_accession_index]] = {
+          'mgi_accession_id' => row[mgi_accession_index],
+          'marker_symbol' => row[marker_symbol_index],
+          'marker_name'   => row[marker_name_index]
+        }
+
+      end
+    end
+
+    logger.info "Update Gene List"
+    Gene.all.each do |gene|
+      gene_data = nil
+      gene_data = genes_data.delete(gene.mgi_accession_id)
+      if gene_data.blank?
+        logger.info "MGI accession does not exist: #{gene.mgi_accession_id}"
+        if gene.allele.count == 0 and gene.mi_plans.count == 0
+          gene.delete
+          logger.info "Deleted MGI accession: #{gene.mgi_accession_id}"
+        else
+          logger.error "Cannot delete MGI accession: #{gene.mgi_accession_id}"
+        end
+        next
+      end
+
+      if gene_data['marker_name'] == 'withdrawn'
+        logger.error "MGI Accession has been withdrawn: #{gene.mgi_accession_id}"
+        next
+      end
+      if gene.marker_symbol != gene_data['marker_symbol']
+        logger.info "update marker_symbol for #{gene.mgi_accession_id}"
+        gene.marker_symbol = gene_data['marker_symbol']
+        if gene.valid?
+          gene.save
+          logger.info "Update Successful"
+        else
+          logger.error "Update FAILED"
+        end
+      end
+    end
+
+    puts "COUNT: #{genes_data.count}"
+    genes_data.each do |key, new_gene|
+      logger.info "Creating new gene: #{new_gene['mgi_accession_id']}"
+      ng = Gene.new
+      ng.mgi_accession_id = new_gene['mgi_accession_id']
+      ng.marker_symbol = new_gene['marker_symbol']
+      if ng.valid?
+        logger.info "Successfuly Created new gene: #{new_gene['mgi_accession_id']}"
+        ng.save
+      else
+        logger.error "Failed to create new gene: #{new_gene['mgi_accession_id']}"
+      end
+    end
+
+    nil
+  end
 
 # other class methods
   def self.update_cached_counts_old(logger=Rails.logger)

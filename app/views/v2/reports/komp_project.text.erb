@@ -1,4 +1,4 @@
 <%= IkmcProjectFeed.komp_projects_columns.map{|column| column[0]}.join("\t") %>
 <% for row in @komp_project %>
-  <%= IkmcProjectFeed.komp_projects_columns.map {|column| row[column[1]]}.join("\t").html_safe %>
+<%= IkmcProjectFeed.komp_projects_columns.map {|column| row[column[1]]}.join("\t").html_safe %>
 <% end %>

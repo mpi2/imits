@@ -48,6 +48,10 @@ begin
         ApplicationModel.audited_transaction do
           TargRep::IkmcProject::IkmcProjectGenerator::Generate.update_ikmc_projects
           IkmcProjectFeed.download_gene_list
+          IkmcProjectFeed.download_ccds_list
+          IkmcProjectFeed.download_vega_list
+          IkmcProjectFeed.download_ensembl_list
+          IkmcProjectFeed.download_ncbi_list
           Gene.update_gene_list
         end
       end

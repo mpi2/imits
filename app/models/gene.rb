@@ -488,25 +488,104 @@ class Gene < ActiveRecord::Base
     require 'open-uri'
     headers = []
     genes_data = {}
+    ccds_data = {}
 
+    logger.info "Load gene info"
+    logger.info "downloading MGI_MRK_Coord"
     url = 'ftp://ftp.informatics.jax.org/pub/reports/MGI_MRK_Coord.rpt'
     open(url) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_index = headers.index('1. MGI Marker Accession ID')
       marker_symbol_index = headers.index('4. Marker Symbol')
       marker_name_index = headers.index('5. Marker Name')
+      chr_index = headers.index('6. Chromosome')
+      start_index = headers.index('7. Start Coordinate')
+      end_index = headers.index('8. End Coordinate')
+      strand_index = headers.index('9. Strand')
+      genome_build_index = headers.index('10. Genome Build')
+
       file.each_line do |line|
         row = line.strip.gsub(/\"/, '').split("\t")
         genes_data[row[mgi_accession_index]] = {
           'mgi_accession_id' => row[mgi_accession_index],
           'marker_symbol' => row[marker_symbol_index],
-          'marker_name'   => row[marker_name_index]
+          'marker_name'   => row[marker_name_index],
+          'chr'           => row[chr_index],
+          'start'         => row[start_index],
+          'end'           => row[end_index],
+          'strand'        => row[strand_index],
+          'genome_build'  => row[genome_build_index],
+          'vega_ids'      => [],
+          'ens_ids'       => [],
+          'ncbi_ids'      => []
         }
-
       end
     end
 
+    if genes_data.blank?
+      logger.error "failed to download file"
+      exit
+    end
+
+    logger.info "Downloading Vega report"
+    url = "ftp://ftp.informatics.jax.org/pub/reports/MRK_VEGA.rpt"
+    open(url) do |file|
+      headers = file.readline.strip.split("\t")
+      mgi_accession_id_index = 0
+      vega_ids_index = 5
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t")
+        genes_data[row[mgi_accession_id_index]]['vega_ids'] << row[vega_ids_index]
+      end
+    end
+
+    logger.info "Downloading Ensemble report"
+    url = "ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt"
+    open(url) do |file|
+      headers = file.readline.strip.split("\t")
+      mgi_accession_id_index = 0
+      ens_ids_index = 5
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t")
+        genes_data[row[mgi_accession_id_index]]['ens_ids'] << row[ens_ids_index]
+      end
+    end
+
+    logger.info "Downloading ncbi report"
+    url = "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt"
+    open(url) do |file|
+      headers = file.readline.strip.split("\t")
+      mgi_accession_id_index = 0
+      ncbi_ids_index = 8
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t")
+        if genes_data.has_key?(row[mgi_accession_id_index]) and !row[ncbi_ids_index].blank?
+          genes_data[row[mgi_accession_id_index]]['ncbi_ids'] << row[ncbi_ids_index]
+        end
+      end
+    end
+
+    logger.info "Downloading ccds report"
+    url = "ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_mouse/CCDS.current.txt"
+    open(url) do |file|
+      headers = file.readline.strip.split("\t")
+      ncbi_id_index = headers.index('gene_id')
+      ccds_ids_index = headers.index('ccds_id')
+      file.each_line do |line|
+        row = line.strip.gsub(/\"/, '').split("\t")
+        if !ccds_data.has_key?(row[ncbi_id_index])
+          ccds_data[row[ncbi_id_index]] = {
+            'ccds_ids' => []
+          }
+        end
+        ccds_data[row[ncbi_id_index]]['ccds_ids'] << row[ccds_ids_index]
+      end
+    end
+    logger.error "failed to download file" if ccds_data.blank?
+
+
     logger.info "Update Gene List"
+
     Gene.all.each do |gene|
       gene_data = nil
       gene_data = genes_data.delete(gene.mgi_accession_id)
@@ -525,9 +604,21 @@ class Gene < ActiveRecord::Base
         logger.error "MGI Accession has been withdrawn: #{gene.mgi_accession_id}"
         next
       end
-      if gene.marker_symbol != gene_data['marker_symbol']
-        logger.info "update marker_symbol for #{gene.mgi_accession_id}"
-        gene.marker_symbol = gene_data['marker_symbol']
+      if gene_data['genome_build'] != 'GRCm38'
+        logger.error "genome build is not equal to GRCm38: #{gene.mgi_accession_id}"
+        next
+      end
+      gene.marker_symbol = gene_data['marker_symbol']
+      gene.chromosome = gene_data['chr']
+      gene.start_coordinates = gene_data['start']
+      gene.end_coordinates = gene_data['end']
+      gene.strand = gene_data['strand']
+      gene.vega_ids = gene_data['vega_ids'].join(',')
+      gene.ensembl_ids = gene_data['ens_ids'].join(',')
+      gene.ncbi_ids = gene_data['ncbi_ids'].join(',')
+      gene.ccds_ids = gene_data['ncbi_ids'].map{|ncbi_id| ccds_data[ncbi_id]['ccds_ids'] if ccds_data.has_key?(ncbi_id)}.flatten.join(',')
+      if gene.changed?
+        logger.info "update gene references for #{gene.mgi_accession_id}"
         if gene.valid?
           gene.save
           logger.info "Update Successful"
@@ -543,6 +634,14 @@ class Gene < ActiveRecord::Base
       ng = Gene.new
       ng.mgi_accession_id = new_gene['mgi_accession_id']
       ng.marker_symbol = new_gene['marker_symbol']
+      ng.chromosome = gene_data['chr']
+      ng.start_coordinates = gene_data['start']
+      ng.end_coordinates = gene_data['end']
+      ng.strand = gene_data['strand']
+      ng.vega_ids = gene_data['vega_ids'].join('')
+      ng.ncbi_ids = gene_data['ens_ids'].join('')
+      ng.ensembl_ids = gene_data['ncbi_ids'].join('')
+      ng.ccds_ids = gene_data['ncbi_ids'].map{|ncbi_id| ccds_data[ncbi_id]['ccds_ids']}.flatten.join(',')
       if ng.valid?
         logger.info "Successfuly Created new gene: #{new_gene['mgi_accession_id']}"
         ng.save
@@ -621,6 +720,8 @@ class Gene < ActiveRecord::Base
 
 end
 
+
+
 # == Schema Information
 #
 # Table name: genes
@@ -639,6 +740,14 @@ end
 #  go_annotations_for_gene_count      :integer
 #  created_at                         :datetime
 #  updated_at                         :datetime
+#  chromosome                         :string(2)
+#  start_coordinates                  :integer
+#  end_coordinates                    :integer
+#  strand                             :string(255)
+#  vega_ids                           :string(255)
+#  ncbi_ids                           :string(255)
+#  ensembl_ids                        :string(255)
+#  ccds_ids                           :string(255)
 #
 # Indexes
 #

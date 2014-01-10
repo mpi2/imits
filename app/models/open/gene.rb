@@ -102,6 +102,8 @@ class Open::Gene < ::Gene
 
 end
 
+
+
 # == Schema Information
 #
 # Table name: genes
@@ -120,6 +122,14 @@ end
 #  go_annotations_for_gene_count      :integer
 #  created_at                         :datetime
 #  updated_at                         :datetime
+#  chromosome                         :string(2)
+#  start_coordinates                  :integer
+#  end_coordinates                    :integer
+#  strand                             :string(255)
+#  vega_ids                           :string(255)
+#  ncbi_ids                           :string(255)
+#  ensembl_ids                        :string(255)
+#  ccds_ids                           :string(255)
 #
 # Indexes
 #

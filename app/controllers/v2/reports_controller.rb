@@ -59,6 +59,6 @@ class V2::ReportsController < ApplicationController
 
   def idcc_master_genelist
     @report= IkmcProjectFeed.new
-    @idcc_master_genelist = @report.idcc_master_genelist_additional_data.to_a
+    @idcc_master_genelist = @report.idcc_master_genelist.to_a
   end
 end

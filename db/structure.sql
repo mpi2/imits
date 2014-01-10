@@ -320,7 +320,15 @@ CREATE TABLE genes (
     publications_for_gene_count integer,
     go_annotations_for_gene_count integer,
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    chromosome character varying(2),
+    start_coordinates integer,
+    end_coordinates integer,
+    strand character varying(255),
+    vega_ids character varying(255),
+    ncbi_ids character varying(255),
+    ensembl_ids character varying(255),
+    ccds_ids character varying(255)
 );
 
 
@@ -4021,3 +4029,5 @@ INSERT INTO schema_migrations (version) VALUES ('20131118000000');
 INSERT INTO schema_migrations (version) VALUES ('20131209100237');
 
 INSERT INTO schema_migrations (version) VALUES ('20131219164213');
+
+INSERT INTO schema_migrations (version) VALUES ('20140110150335');

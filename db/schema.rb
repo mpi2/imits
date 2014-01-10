@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131219164213) do
+ActiveRecord::Schema.define(:version => 20140110150335) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -116,6 +116,14 @@ ActiveRecord::Schema.define(:version => 20131219164213) do
     t.integer  "go_annotations_for_gene_count"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "chromosome",                         :limit => 2
+    t.integer  "start_coordinates"
+    t.integer  "end_coordinates"
+    t.string   "strand"
+    t.string   "vega_ids"
+    t.string   "ncbi_ids"
+    t.string   "ensembl_ids"
+    t.string   "ccds_ids"
   end
 
   add_index "genes", ["marker_symbol"], :name => "index_genes_on_marker_symbol", :unique => true

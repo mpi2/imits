@@ -124,7 +124,7 @@ class NotificationMailer < ActionMailer::Base
 #attachments.delete_if { |p| true }
 #add_file(amended_version)
 
-attachments.pop
+#attachments.pop
 
     attachments['gene_list.csv'] = @csv
     

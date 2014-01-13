@@ -609,10 +609,10 @@ class Gene < ActiveRecord::Base
         next
       end
       gene.marker_symbol = gene_data['marker_symbol']
-      gene.chromosome = gene_data['chr']
+      gene.chr = gene_data['chr']
       gene.start_coordinates = gene_data['start']
       gene.end_coordinates = gene_data['end']
-      gene.strand = gene_data['strand']
+      gene.strand_name = gene_data['strand']
       gene.vega_ids = gene_data['vega_ids'].join(',')
       gene.ensembl_ids = gene_data['ens_ids'].join(',')
       gene.ncbi_ids = gene_data['ncbi_ids'].join(',')
@@ -634,10 +634,10 @@ class Gene < ActiveRecord::Base
       ng = Gene.new
       ng.mgi_accession_id = new_gene['mgi_accession_id']
       ng.marker_symbol = new_gene['marker_symbol']
-      ng.chromosome = gene_data['chr']
+      ng.chr = gene_data['chr']
       ng.start_coordinates = gene_data['start']
       ng.end_coordinates = gene_data['end']
-      ng.strand = gene_data['strand']
+      ng.strand_name = gene_data['strand']
       ng.vega_ids = gene_data['vega_ids'].join('')
       ng.ncbi_ids = gene_data['ens_ids'].join('')
       ng.ensembl_ids = gene_data['ncbi_ids'].join('')
@@ -722,6 +722,7 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: genes
@@ -740,10 +741,10 @@ end
 #  go_annotations_for_gene_count      :integer
 #  created_at                         :datetime
 #  updated_at                         :datetime
-#  chromosome                         :string(2)
+#  chr                                :string(2)
 #  start_coordinates                  :integer
 #  end_coordinates                    :integer
-#  strand                             :string(255)
+#  strand_name                        :string(255)
 #  vega_ids                           :string(255)
 #  ncbi_ids                           :string(255)
 #  ensembl_ids                        :string(255)

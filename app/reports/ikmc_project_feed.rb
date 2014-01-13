@@ -68,10 +68,10 @@ class IkmcProjectFeed
 
       SELECT genes.mgi_accession_id AS MGI_ID,
              genes.marker_symbol AS Symbol,
-             genes.chromosome AS chr,
+             genes.chr AS chr,
              genes.start_coordinates AS start,
              genes.end_coordinates AS end,
-             genes.strand AS strand,
+             genes.strand_name AS strand,
              csd.status_name AS CSD,
              reg.status_name AS Regeneron,
              eucomm.status_name AS EUCOMM,

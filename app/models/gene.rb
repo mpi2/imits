@@ -28,6 +28,9 @@ class Gene < ActiveRecord::Base
 
   def relevant_status
     @selected_status = Hash.new
+    
+    puts "#### self.mi_plans:"
+    pp self.mi_plans
 
     self.mi_plans.each do |plan|
       this_status = plan.relevant_status_stamp

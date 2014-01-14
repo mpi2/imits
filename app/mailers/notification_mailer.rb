@@ -33,7 +33,7 @@ class NotificationMailer < ActionMailer::Base
     @contact_email = contact[:contact_email]
     @gene_list = []
     @genes.each do |gene|
-      @gene_list.push gene[:marker_symbol]    #if gene[:relevant_status] && gene[:relevant_status][:status]
+      @gene_list.push gene[:marker_symbol]
     end
 
     @gene_list.sort!

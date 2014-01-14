@@ -28,7 +28,7 @@ class Gene < ActiveRecord::Base
 
   def relevant_status
     @selected_status = Hash.new
-    
+
     self.mi_plans.each do |plan|
       this_status = plan.relevant_status_stamp
 
@@ -755,4 +755,3 @@ end
 #  index_genes_on_marker_symbol     (marker_symbol) UNIQUE
 #  index_genes_on_mgi_accession_id  (mgi_accession_id) UNIQUE
 #
-

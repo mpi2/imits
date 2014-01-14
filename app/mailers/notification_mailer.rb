@@ -1,6 +1,4 @@
 
-require 'pp'
-
 class NotificationMailer < ActionMailer::Base
 
   include ActionView::Helpers::TextHelper
@@ -11,32 +9,16 @@ class NotificationMailer < ActionMailer::Base
     @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)
     @relevant_status = @gene.relevant_status
-    
-    #@relevant_status = 'unknown' if ! @relevant_status || @relevant_status.empty?
-    
-    puts "#### @contact:"
-    pp @contact
-    puts "#### @gene:"
-    pp @gene
-    puts "#### @relevant_status:"
-    pp @relevant_status
-    
     @relevant_status[:status] ||= ''
 
     set_attributes
 
     @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
     email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
-    
-    puts "#### email_body (before):"
-    pp email_body
-    
+
     email_body.gsub!(/\r/, "\n")
     email_body.gsub!(/\n\n+/, "\n\n")
     email_body.gsub!(/\n\n\s+\n\n/, "\n\n")
-
-    puts "#### email_body (after):"
-    pp email_body
 
     mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
       format.text { render :inline => email_body }
@@ -57,9 +39,6 @@ class NotificationMailer < ActionMailer::Base
     @gene_list.sort!
 
     @gene_list = word_wrap(@gene_list.join(", "), :line_width => 80)
-    
-    puts "#### @gene_list:"
-    pp @gene_list
 
     @csv = CSV.generate do |csv|
       headings = ['Marker symbol', 'Mouse production status', 'Link to IMPC', 'Link to IKMC', 'Click to IMPC', 'Click to IKMC', 'IMPC Status Details']
@@ -119,30 +98,8 @@ class NotificationMailer < ActionMailer::Base
     email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
 
     email_body.gsub!(/\n\n+/, "\n\n")
-    
-    #attachments.clear
-#attachments.delete_if { |p| true }
-#add_file(amended_version)
-
-#attachments.pop
 
     attachments['gene_list.csv'] = @csv
-    
-    puts "#### attachments:"
-    pp attachments
-
-    puts "#### email_body:"
-    pp email_body
-
-    #puts "#### attachments.methods:"
-    #puts attachments.methods
-
-    #puts "#### attachments.instance_methods:"
-    #puts attachments.instance_methods
-
-#TestClass.methods.grep(/method1/) # => []
-#TestClass.instance_methods.grep(/method1/) # => ["method1"]
-#TestClass.methods.grep(/new/) # => ["new"]
 
     mail(:to => @contact_email, :subject => "Welcome from the MPI2 (KOMP2) informatics consortium") do |format|
       format.text { render :inline => email_body }
@@ -181,9 +138,6 @@ class NotificationMailer < ActionMailer::Base
   def set_attributes
     @modifier_string = "is not"
     @total_cell_count = @gene.es_cells_count
-    
-    puts "#### @relevant_status:"
-    pp @relevant_status
 
     if(@relevant_status)
       relevant_mi_plan = @relevant_status[:mi_plan_id] ? MiPlan.find(@relevant_status[:mi_plan_id]) : nil
@@ -243,9 +197,6 @@ class NotificationMailer < ActionMailer::Base
 
   def send_welcome_email_bulk
     contacts = Contact.joins(:notifications).where('notifications.welcome_email_sent is null').uniq.pluck(:id)
-    
-    puts "#### contacts:"
-    pp contacts
 
     return if contacts.empty?
 
@@ -254,9 +205,6 @@ class NotificationMailer < ActionMailer::Base
     contacts.each do |contact_id|
       genes_array = []
       notifications = Notification.where("contact_id = #{contact_id} and welcome_email_sent is null")
-  
-      puts "#### notifications:"
-      pp notifications
 
       contact = Contact.find contact_id
 
@@ -278,7 +226,7 @@ class NotificationMailer < ActionMailer::Base
         })
       end
 
-      mailer = self.welcome_email_bulk({:contact_email => contact.email, :genes => genes_array})
+      mailer = NotificationMailer.welcome_email_bulk({:contact_email => contact.email, :genes => genes_array})
       next if ! mailer
 
       ApplicationModel.audited_transaction do

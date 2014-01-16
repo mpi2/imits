@@ -9,12 +9,22 @@ class NotificationMailer < ActionMailer::Base
     @contact = Contact.find(notification.contact_id)
     @gene = Gene.find(notification.gene_id)
     @relevant_status = @gene.relevant_status
+    @relevant_status[:status] ||= ''
 
     set_attributes
 
     @email_template = EmailTemplate.find_by_status(@relevant_status[:status])
     email_body = ERB.new(@email_template.welcome_body).result(binding) rescue nil
+
+    email_body.gsub!(/\r/, "\n")
     email_body.gsub!(/\n\n+/, "\n\n")
+    email_body.gsub!(/\n\n\s+\n\n/, "\n\n")
+
+    Rails.logger.info('#### NotificationMailer::welcome_email start')
+    Rails.logger.info('#### @contact.email: #{@contact.email}')
+    Rails.logger.info('#### @gene.marker_symbol: #{@gene.marker_symbol}')
+    Rails.logger.info('#### email_body: #{email_body}')
+    Rails.logger.info('#### NotificationMailer::welcome_email end')
 
     mail(:to => @contact.email, :subject => "Gene #{@gene.marker_symbol} updates registered") do |format|
       format.text { render :inline => email_body }
@@ -29,7 +39,7 @@ class NotificationMailer < ActionMailer::Base
     @contact_email = contact[:contact_email]
     @gene_list = []
     @genes.each do |gene|
-      @gene_list.push gene[:marker_symbol] if gene[:relevant_status] && gene[:relevant_status][:status]
+      @gene_list.push gene[:marker_symbol]
     end
 
     @gene_list.sort!
@@ -53,6 +63,7 @@ class NotificationMailer < ActionMailer::Base
         ikmc_site_fn = "=HYPERLINK(\"#{ikmc_site}\" #{hyperlink_fn_separator} \"Click here\")" if ikmc_site.length > 0
 
         @relevant_status = gene[:relevant_status]
+        #@relevant_status[:status] ||= ''
 
         email_body2 = ERB.new(File.read("#{Rails.root}/app/views/notification_mailer/welcome_email/_#{gene[:relevant_status][:status]}.text.erb")).result(binding) rescue nil
 
@@ -96,6 +107,11 @@ class NotificationMailer < ActionMailer::Base
 
     attachments['gene_list.csv'] = @csv
 
+    Rails.logger.info('#### NotificationMailer::welcome_email_bulk start')
+    Rails.logger.info('#### @contact_email: #{@contact_email}')
+    Rails.logger.info('#### email_body: #{email_body}')
+    Rails.logger.info('#### NotificationMailer::welcome_email_bulk end')
+
     mail(:to => @contact_email, :subject => "Welcome from the MPI2 (KOMP2) informatics consortium") do |format|
       format.text { render :inline => email_body }
     end
@@ -125,6 +141,13 @@ class NotificationMailer < ActionMailer::Base
     email_body = ERB.new(@email_template.update_body).result(binding) rescue nil
 
     return if @email_template.blank? || email_body.blank?
+
+    Rails.logger.info('#### NotificationMailer::status_email start')
+    Rails.logger.info('#### @contact.email: #{@contact.email}')
+    Rails.logger.info('#### @gene.marker_symbol: #{@gene.marker_symbol}')
+    Rails.logger.info('#### email_body: #{email_body}')
+    Rails.logger.info('#### NotificationMailer::status_email end')
+
     mail(:to => @contact.email, :subject => "Status update for #{@gene.marker_symbol}") do |format|
       format.text { render :inline => email_body }
     end
@@ -221,7 +244,7 @@ class NotificationMailer < ActionMailer::Base
         })
       end
 
-      mailer = self.welcome_email_bulk({:contact_email => contact.email, :genes => genes_array})
+      mailer = NotificationMailer.welcome_email_bulk({:contact_email => contact.email, :genes => genes_array})
       next if ! mailer
 
       ApplicationModel.audited_transaction do

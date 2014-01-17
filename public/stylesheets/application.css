@@ -88,6 +88,18 @@ strong { font-weight: bold; }
     margin-top: 1em;
 }
 
+.x-large-text {
+    font-size: 2em;
+    line-height: 2em;
+    margin-top: 1em;
+}
+
+.xx-large-text {
+    font-size: 3em;
+    line-height: 3em;
+    margin-top: 1em;
+}
+
 /* @end */
 
 /* @group Links */

@@ -27,7 +27,6 @@ class Centre < ActiveRecord::Base
   end
 end
 
-
 # == Schema Information
 #
 # Table name: centres

@@ -260,7 +260,7 @@ class TargRep::AllelesController < TargRep::BaseController
 
   def missing_required_data?
     return true if @allele.blank?
-    
+
     if params[:type].blank?
       Rails.logger.info 'Incorrect usage. Please follow the links on the page to navigate between allele.'
       return true
@@ -314,7 +314,7 @@ class TargRep::AllelesController < TargRep::BaseController
       options[:cassetteonly] = true
     end
 
-    options[:mutation_type] = @allele.mutation_type_name  
+    options[:mutation_type] = @allele.mutation_type_name
 
     if params[:new]
       send_allele_image(

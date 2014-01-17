@@ -145,4 +145,51 @@ class SolrUpdate::ObserverTest < ActiveSupport::TestCase
 
   end
 
+  context 'SolrUpdate::Observer::IkmcProject' do
+    setup do
+      gene = Factory.create :gene, :mgi_accession_id => 'MGI:9999999991'
+
+      es_cell = stub("my es_cell")
+      es_cell.stubs(:unique_public_info).returns([
+          {:ikmc_project_name => 'project_name3', :ikmc_project_status_name => 'status_name3' },
+          { :ikmc_project_name => '', :ikmc_project_status_name => '' }                             # check it doesn't get added
+          ])
+
+      status = stub("my status")
+      status.stubs(:name).returns('Vector Complete')
+      ikmc_project = stub("my ikmc_project")
+      ikmc_project.stubs(:name).returns('project_name')
+      ikmc_project.stubs(:status).returns(status)
+
+      targeting_vector = stub("my targeting_vector")
+      targeting_vector.stubs(:ikmc_project).returns(ikmc_project)
+
+      allele = stub("my allele")
+      allele.stubs(:es_cells).returns(es_cell)
+      targeting_vector.stubs(:allele).returns(allele)
+      allele.stubs(:gene).returns(gene)
+      es_cell.stubs(:allele).returns(allele)
+
+      @gene = gene
+
+      ikmc_project.stubs(:targeting_vectors).returns([targeting_vector])
+      ikmc_project.stubs(:es_cells).returns([es_cell])
+
+      @ikmc_project = ikmc_project
+    end
+
+    should 'enqueue a solr update an gene changes' do
+      SolrUpdate::Enqueuer.any_instance.expects(:gene_updated).with(@gene)
+      o = SolrUpdate::Observer::IkmcProject.new
+      o.after_save @ikmc_project
+    end
+
+    should 'enqueue a solr update when gene is deleted' do
+      SolrUpdate::Enqueuer.any_instance.expects(:gene_updated).with(@gene)
+      o = SolrUpdate::Observer::IkmcProject.new
+      o.after_destroy @ikmc_project
+    end
+
+  end
+
 end

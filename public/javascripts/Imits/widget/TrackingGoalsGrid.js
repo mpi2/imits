@@ -47,7 +47,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
         var typeValue      = self.typeText.getSubmitValue();
 
         if(!centreName || centreName && !centreName.length) {
-            alert("You must enter a valid Consortium.");
+            alert("You must enter a valid Centre.");
             return
         }
 
@@ -171,6 +171,10 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
             }
            ]
         }));
+
+        self.addListener('afterrender', function () {
+            self.filters.createFilters();
+        });
     },
 
     columns: [
@@ -183,6 +187,7 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
         {
             dataIndex: 'production_centre_name',
             header: 'Production centre',
+            sortable: false,
             editor: {
                 xtype: 'simplecombo',
                 store: Ext.Array.merge([''], window.CENTRE_OPTIONS),
@@ -199,12 +204,14 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
         {
             dataIndex: 'year',
             header: 'Year',
-            editor: 'simplenumberfield'
+            editor: 'simplenumberfield',
+           sortable: false
         },
         {
             dataIndex: 'month',
             header: 'Month',
-            editor: 'simplenumberfield'
+            editor: 'simplenumberfield',
+           sortable: false
         },
         {
             dataIndex: 'goal',
@@ -248,6 +255,18 @@ Ext.define('Imits.widget.TrackingGoalsGrid', {
                 return Ext.String.format('<a href="{0}/tracking_goals/{1}/history">View history</a>', window.basePath, pgId);
             },
             sortable: false
+        },
+        {
+            dataIndex: 'no_consortium_id',
+            header: 'No Consortium',
+            filter: {
+                type: 'list',
+                options: ['0','1'],
+                value:'1',
+                active: true
+            },
+           hidden: true,
+           sortable: false
         }
     ]
 });

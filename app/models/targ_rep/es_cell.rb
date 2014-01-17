@@ -13,6 +13,8 @@ class TargRep::EsCell < ActiveRecord::Base
   TEMPLATE_CHARACTER = '@'
   JSON_OPTIONS = {
       :include => {
+        :allele => { :except => [:created_at, :updated_at, :gene_id, :id, :mutation_method_id, :mutation_type_id, :mutation_subtype_id],
+                     :methods => [:mutation_method_name, :mutation_type_name, :mutation_subtype_name, :marker_symbol, :mgi_accession_id]},
         :distribution_qcs => { :except => [:created_at, :updated_at] , :methods => [:es_cell_distribution_centre_name]}
       },
       :methods => [:allele_symbol_superscript, :pipeline_name, :user_qc_mouse_clinic_name]
@@ -160,7 +162,7 @@ class TargRep::EsCell < ActiveRecord::Base
     end
 
     def to_xml( options = {} )
-      super( JSON_OPTIONS )
+      JSON.parse(self.to_json).to_xml(:root => :my_root)
     end
 
     def report_to_public?
@@ -195,7 +197,7 @@ class TargRep::EsCell < ActiveRecord::Base
         return
       end
 
-      md = /\A(tm\d)([a-e])?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
+      md = /\A(tm\d+)([a-e]|.\d+)?(\(\w+\)\w+)\Z/.match(mgi_allele_symbol_superscript)
 
       if md
         self.allele_symbol_superscript_template = md[1] + TEMPLATE_CHARACTER + md[3]

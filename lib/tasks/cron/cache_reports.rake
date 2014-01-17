@@ -4,7 +4,7 @@ begin
   namespace :cron do
 
     desc 'Generate cached reports'
-    task :cache_reports => ['cron:reports:part3', 'cron:reports:part4', 'cron:reports:part5', 'cron:reports:part6']
+    task :cache_reports => [ 'cron:reports:part3', 'cron:reports:part4', 'cron:reports:part5', 'cron:reports:part6']
 
     namespace :reports do
 
@@ -28,7 +28,6 @@ begin
 
       task :part5 => [:environment] do
         ApplicationModel.audited_transaction do
-          Reports::MiProduction::PlannedMicroinjectionList.cache_all
           Reports::MiAttemptsList.new.cache
         end
       end
@@ -48,6 +47,7 @@ begin
       task :ikmc_project_update => [:environment] do
         ApplicationModel.audited_transaction do
           TargRep::IkmcProject::IkmcProjectGenerator::Generate.update_ikmc_projects
+          Gene.update_gene_list
         end
       end
 

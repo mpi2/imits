@@ -27,8 +27,10 @@ class SolrUpdate::Enqueuer
 
   def phenotype_attempt_updated(pa)
     reference = {'type' => 'phenotype_attempt', 'id' => pa.id}
+    reference2 = {'type' => 'mi_attempt', 'id' => pa.mi_attempt.id}
 
     if pa.has_status? :cec and ! pa.has_status? :abt and pa.allele_id > 0 and pa.report_to_public
+      SolrUpdate::Queue.enqueue_for_update(reference2)
       SolrUpdate::Queue.enqueue_for_update(reference)
     else
       SolrUpdate::Queue.enqueue_for_delete(reference)
@@ -38,6 +40,7 @@ class SolrUpdate::Enqueuer
   end
 
   def phenotype_attempt_destroyed(pa)
+    SolrUpdate::Queue.enqueue_for_update({'type' => 'mi_attempt', 'id' => pa.mi_attempt.id})
     SolrUpdate::Queue.enqueue_for_delete({'type' => 'phenotype_attempt', 'id' => pa.id})
 
     mi_plan_updated(pa.mi_plan) if pa.mi_plan
@@ -93,7 +96,7 @@ class SolrUpdate::Enqueuer
 
   def gene_updated(gene)
     begin
-      return if gene.mi_plans.size == 0
+      #return if gene.mi_plans.size == 0
       SolrUpdate::Queue.enqueue_for_update(gene)
     rescue SolrUpdate::LookupError
       SolrUpdate::Queue.enqueue_for_delete(gene)

@@ -4,15 +4,20 @@
     ['Gene Summary', gene_selection_open_mi_plans_path],
     ['Mouse Production', open_mi_attempts_path],
     ['Phenotyping', open_phenotype_attempts_path],
-    ['Consortia, Centres and Contacts', consortia_path],
+    ['Contacts for Production Centres', contactable_users_by_production_centre_path],
     ['Download of all Production', url_for(:controller => 'reports/mi_production', :action => :detail)]
   ]
+
+  @tab2 = @tab
+  @tab2 = 'Consortia, Centres and Contacts' if @tab == 'Consortia'
+  @tab2 = 'Download of all Production' if @tab == 'Summary of all production'
 %>
 
 <ul>
   <% navigation_links.each do |link| %>
-    <li <% if @tab == link[0] %>class="current"<% end %>>
-      <%= link_to *link, :id => "#{link[0]}-link" %>
+    <% clean_link = link[0].gsub(/[,\s]/, '').downcase %>
+    <li <% if @tab2 == link[0] %>class="current"<% end %>>
+      <%= link_to *link, :id => "#{clean_link}-link" %>
     </li>
   <% end %>
 </ul>

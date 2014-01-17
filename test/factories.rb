@@ -127,14 +127,15 @@ end
 
 Factory.define :mi_attempt_with_recent_status_history, :parent => :mi_attempt2_status_gtc do |mi_attempt|
   mi_attempt.after_create do |mi|
-    mi.status_stamps.destroy_all
 
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.genotype_confirmed,
-      :created_at => (Time.now - 1.hour))
-    mi.status_stamps.create!(
-      :status => MiAttempt::Status.micro_injection_in_progress,
-      :created_at => (Time.now - 1.month))
+    stamp = mi.status_stamps.where("status_id = #{MiAttempt::Status.genotype_confirmed.id}").first
+    stamp.created_at = (Time.now - 1.hour)
+    stamp.save
+
+    stamp = mi.status_stamps.where("status_id = #{MiAttempt::Status.micro_injection_in_progress.id}").first
+    stamp.created_at = (Time.now - 1.month)
+    stamp.save
+
 
     mi.mi_plan.status_stamps.first.update_attributes(:created_at => (Time.now - 3.month))
     mi.mi_plan.status_stamps.create!(
@@ -195,7 +196,7 @@ Factory.define :randomly_populated_es_cell, :parent => :es_cell do |es_cell|
   es_cell.association :gene, :factory => :randomly_populated_gene
 end
 
-Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt2 do |mi_attempt|
+Factory.define :randomly_populated_mi_attempt, :parent => :mi_attempt2_status_chr do |mi_attempt|
   mi_attempt.blast_strain { Strain.all.sample }
   mi_attempt.test_cross_strain { Strain.all.sample }
   mi_attempt.colony_background_strain { Strain.all.sample }
@@ -576,6 +577,8 @@ Factory.define :tracking_goal do |tracking_goal|
 end
 
 Factory.define :email_template_without_status, :class => EmailTemplate do |email_template|
+  email_template.status ''
+
   email_template.welcome_body <<-EOF
       Dear colleague,
 
@@ -613,7 +616,7 @@ Factory.define :email_template_without_status, :class => EmailTemplate do |email
 
       Updates on gene status will be sent to <%= @contact.email %>.
 
-      For further information / enquiries please write to  info@mousephenotype.org
+      For further information / enquiries please write to  mouse-helpdesk@ebi.ac.uk
 
       Best Regards,
 
@@ -655,7 +658,7 @@ Factory.define :email_template_without_status, :class => EmailTemplate do |email
 
       You will be notified by email with any future changes in gene status.
 
-      For further information / enquiries please write to  info@mousephenotype.org
+      For further information / enquiries please write to  mouse-helpdesk@ebi.ac.uk
 
       Best Wishes,
 
@@ -695,7 +698,7 @@ Please see the attached csv file for details on the status of each gene in IMPC 
 
 Further updates on the status of individual genes in this list will be sent to <%= @contact_email %>.
 
-Further all further information / enquiries, please write to info@mousephenotype.org
+Further all further information / enquiries, please write to mouse-helpdesk@ebi.ac.uk
 
 Best Regards,
 
@@ -706,4 +709,66 @@ EOF
   email_template.status 'welcome_template'
   email_template.welcome_body { welcome_body }
   email_template.update_body  { 'unused' }
+end
+
+Factory.define :phenotype_attempt_ikmc_project, :parent => :phenotype_attempt do |phenotype_attempt|
+  phenotype_attempt.after_create do |pa|
+    pa.mi_attempt = Factory.create(:mi_attempt2_ikmc_project)
+    pa.mi_attempt.save!
+    pa.mi_attempt.reload
+  end
+end
+
+Factory.define :allele_ikmc_project, :parent => :allele do |f|
+  f.after_create do |a|
+    a.es_cells << Factory.create(:es_cell_ikmc_project)
+    a.save!
+    a.reload
+  end
+end
+
+Factory.define :targeting_vector_ikmc_project, :parent => :targeting_vector do |f|
+  f.after_create do |tv|
+    tv.ikmc_project = Factory.create(:ikmc_project)
+    tv.ikmc_project.status.name = ["Vector Complete", "ES Cells - Targeting Confirmed"].sample    # just legal ones for doc factory
+    tv.ikmc_project.status.save!
+    tv.ikmc_project.status.reload
+    tv.save!
+    tv.reload
+  end
+end
+
+Factory.define :allele_ikmc_project2, :parent => :allele do |f|
+  f.after_create do |a|
+    a.targeting_vectors << Factory.create(:targeting_vector_ikmc_project)
+    a.save!
+    a.reload
+  end
+end
+
+Factory.define :ikmc_project_status, :class => 'TargRep::IkmcProject::Status' do |f|
+  f.sequence(:name)  { |n| "ikmc_project_status_name_000#{n}" }
+end
+
+Factory.define :ikmc_project_pipeline, :class => "TargRep::Pipeline" do |f|
+  f.sequence(:name)  { |n| "ikmc_project_pipeline_name_000#{n}" }
+end
+
+Factory.define :ikmc_project, :class => 'TargRep::IkmcProject' do |f|
+  f.association :status,   :factory => :ikmc_project_status
+  f.association :pipeline,   :factory => :ikmc_project_pipeline
+  f.sequence(:name)  { |n| "ikmc_project_name_000#{n}" }
+end
+
+Factory.define :es_cell_ikmc_project, :parent => :es_cell do |f|
+  f.association :ikmc_project,   :factory => :ikmc_project
+end
+
+Factory.define :mi_attempt2_ikmc_project, :parent => :mi_attempt2_status_chr do |mi_attempt|
+  mi_attempt.after_create do |mi|
+    ikmc_project = Factory.create(:ikmc_project)
+    mi.es_cell.ikmc_project = ikmc_project
+    mi.es_cell.save!
+    mi.es_cell.reload
+  end
 end

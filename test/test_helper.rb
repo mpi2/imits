@@ -227,7 +227,7 @@ class TarMits::JsIntegrationTest < TarMits::IntegrationTest
       tries += 1
       assert page.has_no_css?('.x-mask', :visible => true)
     rescue Selenium::WebDriver::Error::StaleElementReferenceError
-      if tries == 20
+      if tries == 30
         raise
       else
         retry

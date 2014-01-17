@@ -27,9 +27,6 @@ class TargRep::IkmcProject < ActiveRecord::Base
 
 end
 
-
-
-
 # == Schema Information
 #
 # Table name: targ_rep_ikmc_projects

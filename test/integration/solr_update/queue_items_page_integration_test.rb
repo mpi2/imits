@@ -10,7 +10,7 @@ class SolrUpdate::QueueItemsPageIntegrationTest < TarMits::JsIntegrationTest
       assert page.has_no_content?('Solr Update Queue')
     end
 
-    should 'render a grid' do
+    should_if_solr 'render a grid' do
       admin_user = ApplicationModel.uncached { Factory.create :admin_user }
 
       ApplicationModel.uncached do

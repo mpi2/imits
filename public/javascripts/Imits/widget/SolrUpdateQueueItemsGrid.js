@@ -52,13 +52,13 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
         flex: 1,
         renderer: function (value, metaData, record) {
             var ref = record.get('reference');
-            
+
             if(ref.type == "allele") {
               var editUrl = Ext.String.format('{0}/{1}s/{2}', document.location.pathname.replace(/solr_update\/queue\/items/, "targ_rep"), ref.type, ref.id);
             } else {
               var editUrl = Ext.String.format('{0}/{1}s/{2}', window.basePath, ref.type, ref.id);
             }
-            
+
 						var historyUrl =  editUrl + '/history';
 
             return Ext.String.format('<a href="{0}">{1} / {2}</a> (<a href="{3}">audit history</a>)', editUrl, ref.type, ref.id, historyUrl);
@@ -150,7 +150,7 @@ Ext.define('Imits.widget.SolrUpdateQueueItemsGrid', {
         width: 80,
         renderer: function (value, metaData, record) {
             var ref = record.get('reference');
-            return Ext.String.format('<a href="{0}/search?q=type:{1}+id:{2}">{3}</a>',
+            return Ext.String.format('<a href="{0}/search?q=type:{1}+id:{2}&indent=on">{3}</a>',
                 window.SOLR_ALLELE_URL, ref.type, ref.id, 'SOLR view');
         }
     }

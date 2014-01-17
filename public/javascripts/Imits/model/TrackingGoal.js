@@ -9,6 +9,9 @@ Ext.define('Imits.model.TrackingGoal', {
         persist: false
     },
     {
+        name: 'consortium_name'
+    },
+    {
         name: 'production_centre_name'
     },
     {
@@ -22,9 +25,14 @@ Ext.define('Imits.model.TrackingGoal', {
     },
     {
         name: 'goal_type'
+    },
+    {
+        name: 'no_consortium_id',
+        readOnly: true,
+        persist: false
     }
     ],
-    
+
 
     proxy: Ext.create('Imits.data.Proxy', {
         resource: 'tracking_goal'

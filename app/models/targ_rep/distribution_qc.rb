@@ -141,7 +141,6 @@ class TargRep::DistributionQc < ActiveRecord::Base
 
 end
 
-
 # == Schema Information
 #
 # Table name: targ_rep_distribution_qcs

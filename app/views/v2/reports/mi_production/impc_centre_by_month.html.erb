@@ -7,24 +7,35 @@
 <div class="report">
 
   <% ImpcCentreByMonthReport.centres.each do |centre| %>
-    <h2><%= centre %></h2>
-
+    <div><span class="x-large-text"><%= centre %></span> (<%= link_to("#{@consortia[centre].to_sentence}", url_for(:controller => 'v2/reports/mi_production', :action => :impc_centre_by_month_consortia_breakdown, :centre => "#{centre}") )%>)</div>
+    <div>
+      <div><%= link_to("Mouse production Evidence", "impc_centre_mi_detail?centre=#{centre}") %></div>
+      <div><%= link_to("Cre-Excision / phenotyping Evidence","impc_centre_pa_detail?centre=#{centre}") %></div>
+    </div>
     <table>
       <thead>
         <tr>
-          <th rowspan='2'>Date</th>
-          <th rowspan='2'>Production centre</th>
-          <th colspan=<%= @es_cell_columns.keys.size %> style='text-align:center;'>ES Cell supply (number of clones)</th>
-          <% @columns.keys.each do |column| %>
+          <th rowspan='3'>Date</th>
+          <th rowspan='3' style= 'border-right: 2px solid; border-color: #999'>Production centre</th>
+          <th colspan=<%= (@es_cell_columns.keys.size)*2 %> style='text-align:center;'>ES Cell supply (number of clones)</th>
+          <th colspan=2 style= 'border-left: 2px solid; border-color: #999'>Total Clones</th>
+          <th colspan=10 style= 'border-left: 2px solid; border-color: #999'>Total Genes</th>
+        </tr>
+        <tr>
+          <% @es_cell_columns.keys.each do |column| %>
             <th colspan=2><%= column %></th>
+          <% end %>
+          <% @columns.keys.each do |column| %>
+            <th colspan=2 style= 'border-left: 2px solid; border-color: #999'><%= column %></th>
           <% end %>
         </tr>
         <tr>
           <% @es_cell_columns.keys.each do |column| %>
-            <th><%= column %></th>
+            <th>Requested</th>
+            <th>Received</th>
           <% end %>
           <% @columns.each do |column, key| %>
-            <th>Actual</th>
+            <th style= 'border-left: 2px solid; border-color: #999'>Actual</th>
             <th>Goal</th>
           <% end %>
         </tr>
@@ -33,32 +44,36 @@
         <% @centre_by_month[:dates].each do |date| %>
           <tr>
             <td><%= date %></td>
-            <td><%= centre %></td>
+            <td style= 'border-right: 2px solid; border-color: #999'><%= centre %></td>
             <% @es_cell_columns.each do |column, key| %>
-              <td><%= @centre_by_month["#{date}-#{centre}-#{column}"] %></td>
+              <td><%= @centre_by_month["#{date}-#{centre}-#{column}-required"] %></td>
+              <td style='background-color: #eeeeee;'><%= @centre_by_month["#{date}-#{centre}-#{column}-received"] %></td>
             <% end %>
             <% @columns.each do |column, key| %>
-              <td><%= @centre_by_month["#{date}-#{centre}-#{column}"] %></td>
-              <td><%= @centre_by_month["#{date}-#{centre}-#{column}_goal"] %></td>
+              <td style= 'border-left: 2px solid; border-color: #999'><%= @centre_by_month["#{date}-#{centre}-#{column}"] %></td>
+              <td style='background-color: #eeeeee;'><%= @centre_by_month["#{date}-#{centre}-#{column}_goal"] %></td>
             <% end %>
           </tr>
         <% end %>
       </tbody>
       <tfoot>
         <tr>
-          <td colspan='2'>Total to date</td>
+          <td colspan='2' style= 'border-right: 2px solid; border-color: #999'>Total to date</td>
 
           <% @es_cell_columns.each do |key, column| %>
-            <td><%= @cumulative_totals[centre]["#{column}_cumulative"] %></td>
+            <td><%= @cumulative_totals[centre]["#{column[0]}_cumulative"] %></td>
+            <td style='background-color: #eeeeee;'><%= @cumulative_totals[centre]["#{column[1]}_cumulative"] %></td>
           <% end %>
 
           <% @columns.each do |key, column| %>
-            <td><%= @cumulative_totals[centre]["#{column}_cumulative"] %></td>
-            <td><%= @cumulative_totals[centre]["#{column}_goal_cumulative"] %></td>
+            <td style= 'border-left: 2px solid; border-color: #999'><%= @cumulative_totals[centre]["#{column}_cumulative"] %></td>
+            <td style='background-color: #eeeeee;' ><%= @cumulative_totals[centre]["#{column}_goal_cumulative"] %></td>
           <% end %>
         </tr>
       </tfoot>
     </table>
+    <br />
+    <br />
     <br />
   <% end %>
 

@@ -9,20 +9,26 @@
   <table>
     <thead>
       <tr>
-        <th width="150">Consortium</th>
-        <th>All genes</th>
-        <th>ES cell QC (genes)</th>
-        <th>ES QC confirmed (genes)</th>
-        <th>ES QC failed (genes)</th>
-        <th>Production Centre</th>
-        <th>All Accumulated Microinjections (number of attempts)</th>
-        <th>All Accumulated Microinjections (clones)</th>
-        <th>All Accumulated Microinjections (genes)</th>
-        <th>Microinjections COMPLETE (genes)</th>
-        <th>Chimaeras produced (genes)</th>
-        <th>Genotype confirmed mice (genes)</th>
-        <th>Microinjection aborted (genes)</th>
-        <th>Pipeline efficiency</th>
+        <th width="150" rowspan=2>Consortium</th>
+        <th rowspan=2>All genes</th>
+        <th rowspan=2>ES cell QC (genes)</th>
+        <th rowspan=2>ES QC confirmed (genes)</th>
+        <th rowspan=2>ES QC failed (genes)</th>
+        <th rowspan=2>Production Centre</th>
+        <th rowspan=2>All Accumulated Microinjections (number of attempts)</th>
+        <th rowspan=2>All Accumulated Microinjections (clones)</th>
+        <th rowspan=2>All Accumulated Microinjections (genes)</th>
+        <th rowspan=2>Microinjections in progress (genes)</th>
+        <th rowspan=2>Chimaeras produced (genes)</th>
+        <th rowspan=2>Genotype confirmed mice (genes)</th>
+        <th colspan=3>Distribution centres (genes)</th>
+        <th rowspan=2>Microinjection aborted (genes)</th>
+        <th rowspan=2>Pipeline efficiency</th>
+      </tr>
+      <tr>
+        <th width="70">Emma</th>
+        <th width="70">Komp</th>
+        <th width="70">Other</th>
       </tr>
     </thead>
     <tbody>
@@ -33,7 +39,7 @@
           <% rowspan = @consortium_centre_by_status[row['consortium']].size %>
           <tr>
             <% unless count > 0 %>
-              <td rowspan="<%= rowspan %>"><%= row['consortium'] %></td>
+              <td rowspan="<%= rowspan %>"><%= link_to(row['consortium'],  "graph_report_display?consortia=#{row['consortium']}") %></td>
               <td rowspan="<%= rowspan %>"><%= link_to row['count'], report_detail_path(:consortium => row['consortium'], :production_group => 'consortia') %></td>
               <% @mi_plan_statuses.each do |status| %>
                 <td rowspan="<%= rowspan %>"><%= report_link_to(@consortium_by_status, row['consortium'], status, :production_group => 'consortia') %></td>
@@ -47,6 +53,9 @@
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Micro-injection in progress", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Chimeras", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Genotype Confirmed Mice", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= @distribution_centre_counts["mi_attempt-#{row['consortium']}-#{centre}-emma"] if @distribution_centre_counts["mi_attempt-#{row['consortium']}-#{centre}-emma"] and @distribution_centre_counts["mi_attempt-#{row['consortium']}-#{centre}-emma"].to_i > 0 %></td>
+            <td><%= @distribution_centre_counts["mi_attempt-#{row['consortium']}-#{centre}-komp"] if @distribution_centre_counts["mi_attempt-#{row['consortium']}-#{centre}-komp"] and @distribution_centre_counts["mi_attempt-#{row['consortium']}-#{centre}-komp"].to_i > 0 %></td>
+            <td><%= @distribution_centre_counts["mi_attempt-#{row['consortium']}-#{centre}-shelf"] if @distribution_centre_counts["mi_attempt-#{row['consortium']}-#{centre}-shelf"] and @distribution_centre_counts["mi_attempt-#{row['consortium']}-#{centre}-shelf"].to_i > 0%></td>
             <td><%= report_link_to(@consortium_centre_by_status, row['consortium'], "Microinjection aborted", :centre => centre, :production_group => 'gene') %></td>
             <td><%= link_to(@effort_efficiency_totals["#{row['consortium']}-#{centre}-effort_efficiency"].to_f.round(2), sliding_efficiency_path(:production_centre_name => centre, :consortium_name => row['consortium'])) %></td>
           </tr>
@@ -62,16 +71,23 @@
    <table>
     <thead>
       <tr>
-        <th width="150">Consortium</th>
-        <th>Production centre</th>
-        <th>Intent to phenotype (genes)</th>
-        <th>Rederivation started (genes)</th>
-        <th>Rederivation completed (genes)</th>
-        <th>Cre excision started (genes)</th>
-        <th>Cre excision completed (genes)</th>
-        <th>Phenotyping started (genes)</th>
-        <th>Phenotyping aborted (genes)</th>
-        <th>Phenotyping completed (genes)</th>
+        <th width="150" rowspan=2>Consortium</th>
+        <th rowspan=2>Production centre</th>
+        <th rowspan=2>Intent to phenotype [mice externally sourced] (genes)</th>
+        <th rowspan=2>Rederivation started (genes)</th>
+        <th rowspan=2>Rederivation completed (genes)</th>
+        <th rowspan=2>Cre excision started (genes)</th>
+        <th rowspan=2>Cre excision completed (genes)</th>
+        <th colspan=3>Distribution centres (genes)</th>
+        <th rowspan=2>Phenotyping experiments started (genes)</th>
+        <th rowspan=2>Phenotyping data flow started (genes)</th>
+        <th rowspan=2>Phenotyping aborted (genes)</th>
+        <th rowspan=2>Phenotyping completed (genes)</th>
+      </tr>
+      <tr>
+        <th width="70">Emma</th>
+        <th width="70">Komp</th>
+        <th width="70">Other</th>
       </tr>
     </thead>
     <tbody>
@@ -89,11 +105,15 @@
             <% end %>
 
             <td><%= centre %></td>
-            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Intent to phenotype", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Intent to phenotype", :centre => centre, :production_group => 'gene') %> <% if @phenotyping_counts["#{row['consortium']}-#{centre}-Cre Ex Phenotype Attempt Mi Attempt Plan Confliction"].to_i > 0 %>[<%= report_link_to(@phenotyping_counts, row['consortium'], "Cre Ex Phenotype Attempt Mi Attempt Plan Confliction", :centre => centre, :production_group => 'gene') %>]<% end %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Rederivation started", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Rederivation completed", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Cre excision started", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Cre excision completed", :centre => centre, :production_group => 'gene') %></td>
+            <td><%= @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-emma"] if @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-emma"] and @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-emma"].to_i > 0 %></td>
+            <td><%= @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-komp"] if @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-komp"] and @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-komp"].to_i > 0 %></td>
+            <td><%= @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-shelf"] if @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-shelf"] and @distribution_centre_counts["phenotype_attempt-cre_required-#{row['consortium']}-#{centre}-shelf"].to_i > 0%></td>
+            <td><%= report_link_to(@phenotyping_counts, row['consortium'], "Cre Ex Phenotype Experiments Started", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Phenotyping started", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Phenotyping aborted", :centre => centre, :production_group => 'gene') %></td>
             <td><%= report_link_to(@consortium_centre_by_cre_phenotyping_status, row['consortium'], "Cre Ex Phenotyping completed", :centre => centre, :production_group => 'gene') %></td>
@@ -118,16 +138,23 @@
    <table>
     <thead>
       <tr>
-        <th width="150">Consortium</th>
-        <th>Production centre</th>
-        <th>Intent to phenotype (genes)</th>
-        <th>Rederivation started (genes)</th>
-        <th>Rederivation completed (genes)</th>
-        <th>Cre excision started (genes)</th>
-        <th>Cre excision completed (genes)</th>
-        <th>Phenotyping started (genes)</th>
-        <th>Phenotyping aborted (genes)</th>
-        <th>Phenotyping completed (genes)</th>
+        <th width="150" rowspan=2>Consortium</th>
+        <th rowspan=2>Production centre</th>
+        <th rowspan=2>Intent to phenotype [mice externally sourced] (genes)</th>
+        <th rowspan=2>Rederivation started (genes)</th>
+        <th rowspan=2>Rederivation completed (genes)</th>
+        <th rowspan=2>Cre excision started (genes)</th>
+        <th rowspan=2>Cre excision completed (genes)</th>
+        <th colspan=3>Distribution centres (genes)</th>
+        <th rowspan=2>Phenotyping experiments started (genes)</th>
+        <th rowspan=2>Phenotyping data flow started (genes)</th>
+        <th rowspan=2>Phenotyping aborted (genes)</th>
+        <th rowspan=2>Phenotyping completed (genes)</th>
+      </tr>
+      <tr>
+        <th width="70">Emma</th>
+        <th width="70">Komp</th>
+        <th width="70">Other</th>
       </tr>
     </thead>
     <tbody>
@@ -144,11 +171,15 @@
               <% end %>
 
               <td><%= centre %></td>
-              <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Non Cre Ex Intent to phenotype", :centre => centre, :production_group => 'gene') %></td>
+              <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Non Cre Ex Intent to phenotype", :centre => centre, :production_group => 'gene') %> <% if @phenotyping_counts["#{row['consortium']}-#{centre}-Non Cre Ex Phenotype Attempt Mi Attempt Plan Confliction"].to_i > 0 %>[<%= report_link_to(@phenotyping_counts, row['consortium'], "Non Cre Ex Phenotype Attempt Mi Attempt Plan Confliction", :centre => centre, :production_group => 'gene') %>]<% end %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Non Cre Ex Rederivation started", :centre => centre, :production_group => 'gene') %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Non Cre Ex Rederivation completed", :centre => centre, :production_group => 'gene') %></td>
               <td>n/a</td>
               <td>n/a</td>
+              <td><%= @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-emma"] if @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-emma"] and @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-emma"].to_i > 0 %></td>
+              <td><%= @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-komp"] if @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-komp"] and @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-komp"].to_i > 0 %></td>
+              <td><%= @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-shelf"] if @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-shelf"] and @distribution_centre_counts["phenotype_attempt-cre_not_required-#{row['consortium']}-#{centre}-shelf"].to_i > 0%></td>
+              <td><%= report_link_to(@phenotyping_counts, row['consortium'], "Non Cre Ex Phenotype Experiments Started", :centre => centre, :production_group => 'gene') %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Non Cre Ex Phenotyping started", :centre => centre, :production_group => 'gene') %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Non Cre Ex Phenotyping aborted", :centre => centre, :production_group => 'gene') %></td>
               <td><%= report_link_to(@consortium_centre_by_non_cre_phenotyping_status, row['consortium'], "Non Cre Ex Phenotyping completed", :centre => centre, :production_group => 'gene') %></td>
@@ -249,10 +280,10 @@
     </thead>
     <tbody>
       <tr>
-        <th>Intent to Phenotype (genes)</th>
+        <th>Intent to Phenotype [mice externally sourced (genes)</th>
         <td>
           <strong>Cumulative!</strong> Number of Genes where Genotype Confirmed Mice have been Registered for Phenotyping by this Consortium / Production Centre
-          <br />(Mice may be drawn from other consortia)
+          <br />(Mice may be drawn from other consortia). The number of mice drawn from other consortia are indicated in brackets i.e. externally funded mice.
         </td>
       </tr>
       <tr>
@@ -264,7 +295,15 @@
         <td>Total number of Genes for mouse lines where Cre Excision has started/completed.</td>
       </tr>
       <tr>
-        <th>Phenotype started (genes) / completed (genes)</th>
+        <th>Distribution centres (genes)</th>
+        <td>Total number of Genes distributed by each distribution centre. <strong>Note!</strong> The same gene may be distributed by many distribution centres. </td>
+      </tr>
+      <tr>
+        <th>Phenotype experiments started (gene)</th>
+        <td>Genes that have started phenotype experiments</td>
+      </tr>
+      <tr>
+        <th>Data flow Started (genes) / Completed (genes)</th>
         <td>Phenotyping <strong>data</strong> has started / finished flowing to the KOMP2 DCC (MPI2) - currently accessible via machine interface only</td>
       </tr>
     </tbody>

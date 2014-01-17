@@ -1,4 +1,4 @@
-<% @tab = 'Gene Summary' %>
+<% @tab = 'Gene Selection' %>
 
 <%
   gene_search_params = params[:q]
@@ -52,25 +52,33 @@
           %>
         </div>
         <div style="display:inline-block;">
-          <table>
+          <table width="100%">
             <tr>
+              <td style="width:10%">&nbsp;</td>
               <td><label for="q[mi_plans_mi_attempts_id_not_null]">MI in progress:</label></td>
               <% mi_default = params[:q][:mi_plans_mi_attempts_id_not_null] && params[:q][:mi_plans_mi_attempts_id_not_null] == '1' ? "checked" : "unchecked" %>
+              <td style="width:10%">&nbsp;</td>
               <td><%= check_box :q, :mi_plans_mi_attempts_id_not_null, {:checked => mi_default} %></td>
             </tr>
             <tr>
+              <td style="width:10%">&nbsp;</td>
               <td><label for="q[mi_plans_mi_attempts_status_stamps_status_id_in]">Genotype Confirmed MI:</label></td>
               <% mi_default = params[:q][:mi_plans_mi_attempts_status_stamps_status_id_in] && params[:q][:mi_plans_mi_attempts_status_stamps_status_id_in] == '2' ? "checked" : "unchecked" %>
+              <td style="width:10%">&nbsp;</td>
               <td><%= check_box :q, :mi_plans_mi_attempts_status_stamps_status_id_in, {:checked => mi_default}, '2', '' %></td>
             </tr>
             <tr>
+              <td style="width:10%">&nbsp;</td>
               <td><label for="q[mi_plans_phenotype_attempts_id_not_null]">Phenotype in progress:</label></td>
               <% pa_default = params[:q][:mi_plans_phenotype_attempts_id_not_null] && params[:q][:mi_plans_phenotype_attempts_id_not_null] == '1' ? "checked" : "unchecked" %>
+              <td style="width:10%">&nbsp;</td>
               <td><%= check_box :q, :mi_plans_phenotype_attempts_id_not_null, {:checked => pa_default} %></td>
             </tr>
             <tr>
+              <td style="width:10%">&nbsp;</td>
               <td><label for="q[mi_plans_phenotype_attempts_status_stamps_status_id_in]">CreExised Phenotype:</label></td>
               <% pa_default = params[:q][:mi_plans_phenotype_attempts_status_stamps_status_id_in] && params[:q][:mi_plans_phenotype_attempts_status_stamps_status_id_in] == '6' ? "checked" : "unchecked" %>
+              <td style="width:10%">&nbsp;</td>
               <td><%= check_box :q, :mi_plans_phenotype_attempts_status_stamps_status_id_in, {:checked => pa_default}, '6','' %></td>
             </tr>
           </table>
@@ -89,26 +97,24 @@
     <legend>Description of table</legend>
     <div>
 
-      <!--TODO: create a class for the paragraph-->
+      <p class='read_only_description'>Each row in this report shows you available IKMC products for a single MGI gene, as well as planned and ongoing IMPC production for that MGI gene.</p>
 
-      <p style='line-height:180%'>Each row in this report shows you available IKMC products for a single MGI gene, as well as planned and ongoing IMPC production for that MGI gene.</p>
+      <p class='read_only_description'><strong>Non-Assigned Plans:</strong> These are plans for IMPC production which hasn't started, and where there is known IMPC production already on the gene.</p>
 
-      <p style='line-height:180%'><strong>Non-Assigned Plans:</strong> These are plans for IMPC production which hasn't started, and where there is known IMPC production already on the gene.</p>
+      <p class='read_only_description'><strong>Assigned Plans:</strong> These are plans for IMPC production which will start.</p>
 
-      <p style='line-height:180%'><strong>Assigned Plans:</strong> These are plans for IMPC production which will start.</p>
-
-      <p style='line-height:180%'><strong>MIs in Progress:</strong> This represents ongoing IMPC production. Each cell will show a summary of progress in this format:
+      <p class='read_only_description'><strong>MIs in Progress:</strong> This represents ongoing IMPC production. Each cell will show a summary of progress in this format:
       [Consortium, Production Centre, Status]. Clicking on the link will take you to the details of all mouse production for that gene.</p>
 
-      <p style='line-height:180%'><strong>Genotype Confirmed MIs:</strong> This represents IMPC (or Legacy) production where a genotype confirmed mouse has been produced.
+      <p class='read_only_description'><strong>Genotype Confirmed MIs:</strong> This represents IMPC (or Legacy) production where a genotype confirmed mouse has been produced.
       Each cell will show a summary of progress in this format: [Consortium, Production Centre, Status].</p>
 
-      <p style='line-height:180%'>Clicking on the link will take you to the details of all mouse production for that gene.</p>
+      <p class='read_only_description'>Clicking on the link will take you to the details of all mouse production for that gene.</p>
 
-      <p style='line-height:180%'><strong>Phenotype Attempts:</strong> This represents IMPC Cre-excision and Phenotyping based on added IMPC mouse lines.
+      <p class='read_only_description'><strong>Phenotype Attempts:</strong> This represents IMPC Cre-excision and Phenotyping based on added IMPC mouse lines.
       Each cell will show a summary of progress in this format: [Consortium, Production Centre, Status].</p>
 
-      <p style='line-height:180%'>Clicking on the link will take you to the details of all cre-excision and phenotyping for that gene.</p>
+      <p class='read_only_description'>Clicking on the link will take you to the details of all cre-excision and phenotyping for that gene.</p>
 
     </div>
   </fieldset>

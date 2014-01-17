@@ -15,6 +15,23 @@ class RootController < ApplicationController
     end
   end
 
+  def contactable_users_by_production_centre
+    @users_by_production_centre = {}
+    @centre_contact = {}
+
+    Centre.all.each do |centre|
+      @centre_contact[centre.name] = centre.contact_email;
+    end
+
+    User.order('users.name').includes(:production_centre).each do |user|
+      if(user.is_contactable)
+        @users_by_production_centre[user.production_centre.try(:name)] ||= []
+        @users_by_production_centre[user.production_centre.try(:name)].push(user)
+      end
+    end
+
+  end
+
   def users_by_production_centre
     authenticate_user!
     @users_by_production_centre = {}

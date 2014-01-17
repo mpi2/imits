@@ -29,7 +29,7 @@
     </a>
   </div>
   <div class="report-links">
-    <a href="<%= url_for(:controller => :reports, :action => :planned_microinjection_list) %>">
+    <a href="<%= url_for(:controller => "v2/reports/mi_production", :action => :planned_microinjection_list) %>">
       <h4>All Planned Micro-Injections for a Specific Consortium</h4>
     </a>
   </div>
@@ -96,20 +96,8 @@
 
   <h3>IMPC Production Reports</h3>
     <div class="report-links">
-      <a href="<%= url_for(:controller => 'reports/mi_production', :action => :summary_by_consortium_and_accumulated_status) %>">
-        <h4>All Consortia - Key Statuses</h4>
-        <p>All IMPC Consortia for Key Statuses</p>
-      </a>
-    </div>
-    <div class="report-links">
       <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_production_summary) %>">
         <h4>Production for IMPC Consortia</h4>
-      </a>
-    </div>
-
-    <div class="report-links">
-      <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :impc_summary_by_month) %>">
-      <h4>Monthly Production for IMPC Consortia (tables only)</h4>
       </a>
     </div>
 

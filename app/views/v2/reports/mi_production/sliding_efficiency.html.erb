@@ -61,7 +61,7 @@
         <div class='bar'
           data-first='<%= subset.first.id %>'
           data-last='<%= subset.last.id %>'
-          data-date='<%= subset.first.mi_date %>'
+          data-date='<%= subset.last.mi_date %>'
           data-mi-total='<%= subset.size %>'
           data-gene-total='<%= subset_genes %>'
           data-efficiency='<%= efficiency = (subset_genes.to_f / subset.size.to_f).round(2) %>'

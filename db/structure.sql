@@ -320,7 +320,15 @@ CREATE TABLE genes (
     publications_for_gene_count integer,
     go_annotations_for_gene_count integer,
     created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    updated_at timestamp without time zone,
+    chr character varying(2),
+    start_coordinates integer,
+    end_coordinates integer,
+    strand_name character varying(255),
+    vega_ids character varying(255),
+    ncbi_ids character varying(255),
+    ensembl_ids character varying(255),
+    ccds_ids character varying(255)
 );
 
 
@@ -553,7 +561,7 @@ CREATE TABLE mi_attempts (
     number_of_cct_offspring integer,
     number_of_het_offspring integer,
     number_of_live_glt_offspring integer,
-    mouse_allele_type character varying(2),
+    mouse_allele_type character varying(3),
     qc_southern_blot_id integer,
     qc_five_prime_lr_pcr_id integer,
     qc_five_prime_cassette_integrity_id integer,
@@ -578,7 +586,9 @@ CREATE TABLE mi_attempts (
     qc_lacz_count_qpcr_id integer DEFAULT 1,
     qc_critical_region_qpcr_id integer DEFAULT 1,
     qc_loxp_srpcr_id integer DEFAULT 1,
-    qc_loxp_srpcr_and_sequencing_id integer DEFAULT 1
+    qc_loxp_srpcr_and_sequencing_id integer DEFAULT 1,
+    cassette_transmission_verified date,
+    cassette_transmission_verified_auto_complete boolean
 );
 
 
@@ -830,7 +840,8 @@ CREATE TABLE mi_plans (
     point_mutation boolean DEFAULT false NOT NULL,
     conditional_point_mutation boolean DEFAULT false NOT NULL,
     allele_symbol_superscript text,
-    report_to_public boolean DEFAULT true NOT NULL
+    report_to_public boolean DEFAULT true NOT NULL,
+    completion_comment text
 );
 
 
@@ -936,7 +947,10 @@ CREATE TABLE new_consortia_intermediate_report (
     cre_ex_pa_allele_symbol_superscript character varying(255),
     cre_ex_mi_attempt_consortium character varying(255),
     cre_ex_mi_attempt_production_centre character varying(255),
-    cre_ex_phenotype_attempt_colony_name character varying(255)
+    cre_ex_phenotype_attempt_colony_name character varying(255),
+    phenotyping_experiments_started_date date,
+    non_cre_ex_phenotyping_experiments_started_date date,
+    cre_ex_phenotyping_experiments_started_date date
 );
 
 
@@ -1045,7 +1059,10 @@ CREATE TABLE new_gene_intermediate_report (
     cre_ex_pa_allele_symbol_superscript character varying(255),
     cre_ex_mi_attempt_consortium character varying(255),
     cre_ex_mi_attempt_production_centre character varying(255),
-    cre_ex_phenotype_attempt_colony_name character varying(255)
+    cre_ex_phenotype_attempt_colony_name character varying(255),
+    phenotyping_experiments_started_date date,
+    non_cre_ex_phenotyping_experiments_started_date date,
+    cre_ex_phenotyping_experiments_started_date date
 );
 
 
@@ -1148,7 +1165,10 @@ CREATE TABLE new_intermediate_report (
     cre_ex_pa_allele_symbol_superscript character varying(255),
     cre_ex_mi_attempt_consortium character varying(255),
     cre_ex_mi_attempt_production_centre character varying(255),
-    cre_ex_phenotype_attempt_colony_name character varying(255)
+    cre_ex_phenotype_attempt_colony_name character varying(255),
+    phenotyping_experiments_started_date date,
+    non_cre_ex_phenotyping_experiments_started_date date,
+    cre_ex_phenotyping_experiments_started_date date
 );
 
 
@@ -1328,13 +1348,29 @@ CREATE TABLE phenotype_attempts (
     updated_at timestamp without time zone,
     mi_plan_id integer NOT NULL,
     colony_name character varying(125) NOT NULL,
-    mouse_allele_type character varying(2),
+    mouse_allele_type character varying(3),
     deleter_strain_id integer,
     colony_background_strain_id integer,
     cre_excision_required boolean DEFAULT true NOT NULL,
     tat_cre boolean DEFAULT false,
     report_to_public boolean DEFAULT true NOT NULL,
-    phenotyping_experiments_started date
+    phenotyping_experiments_started date,
+    qc_southern_blot_id integer,
+    qc_five_prime_lr_pcr_id integer,
+    qc_five_prime_cassette_integrity_id integer,
+    qc_tv_backbone_assay_id integer,
+    qc_neo_count_qpcr_id integer,
+    qc_neo_sr_pcr_id integer,
+    qc_loa_qpcr_id integer,
+    qc_homozygous_loa_sr_pcr_id integer,
+    qc_lacz_sr_pcr_id integer,
+    qc_mutant_specific_sr_pcr_id integer,
+    qc_loxp_confirmation_id integer,
+    qc_three_prime_lr_pcr_id integer,
+    qc_lacz_count_qpcr_id integer,
+    qc_critical_region_qpcr_id integer,
+    qc_loxp_srpcr_id integer,
+    qc_loxp_srpcr_and_sequencing_id integer
 );
 
 
@@ -1872,7 +1908,8 @@ ALTER SEQUENCE targ_rep_genbank_files_id_seq OWNED BY targ_rep_genbank_files.id;
 CREATE TABLE targ_rep_ikmc_project_statuses (
     id integer NOT NULL,
     name character varying(255),
-    type character varying(255)
+    product_type character varying(255),
+    order_by integer
 );
 
 
@@ -2094,7 +2131,8 @@ CREATE TABLE tracking_goals (
     goal_type character varying(255),
     goal integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    consortium_id integer
 );
 
 
@@ -3541,6 +3579,134 @@ ALTER TABLE ONLY phenotype_attempts
 
 
 --
+-- Name: phenotype_attempts_qc_critical_region_qpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_critical_region_qpcr_id_fk FOREIGN KEY (qc_critical_region_qpcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_five_prime_cassette_integrity_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_five_prime_cassette_integrity_id_fk FOREIGN KEY (qc_five_prime_cassette_integrity_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_five_prime_lr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_five_prime_lr_pcr_id_fk FOREIGN KEY (qc_five_prime_lr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_homozygous_loa_sr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_homozygous_loa_sr_pcr_id_fk FOREIGN KEY (qc_homozygous_loa_sr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_lacz_count_qpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_lacz_count_qpcr_id_fk FOREIGN KEY (qc_lacz_count_qpcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_lacz_sr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_lacz_sr_pcr_id_fk FOREIGN KEY (qc_lacz_sr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_loa_qpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_loa_qpcr_id_fk FOREIGN KEY (qc_loa_qpcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_loxp_confirmation_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_loxp_confirmation_id_fk FOREIGN KEY (qc_loxp_confirmation_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_loxp_srpcr_and_sequencing_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_loxp_srpcr_and_sequencing_id_fk FOREIGN KEY (qc_loxp_srpcr_and_sequencing_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_loxp_srpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_loxp_srpcr_id_fk FOREIGN KEY (qc_loxp_srpcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_mutant_specific_sr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_mutant_specific_sr_pcr_id_fk FOREIGN KEY (qc_mutant_specific_sr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_neo_count_qpcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_neo_count_qpcr_id_fk FOREIGN KEY (qc_neo_count_qpcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_neo_sr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_neo_sr_pcr_id_fk FOREIGN KEY (qc_neo_sr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_southern_blot_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_southern_blot_id_fk FOREIGN KEY (qc_southern_blot_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_three_prime_lr_pcr_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_three_prime_lr_pcr_id_fk FOREIGN KEY (qc_three_prime_lr_pcr_id) REFERENCES qc_results(id);
+
+
+--
+-- Name: phenotype_attempts_qc_tv_backbone_assay_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY phenotype_attempts
+    ADD CONSTRAINT phenotype_attempts_qc_tv_backbone_assay_id_fk FOREIGN KEY (qc_tv_backbone_assay_id) REFERENCES qc_results(id);
+
+
+--
 -- Name: phenotype_attempts_status_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3845,3 +4011,25 @@ INSERT INTO schema_migrations (version) VALUES ('20130801140814');
 INSERT INTO schema_migrations (version) VALUES ('20130805152114');
 
 INSERT INTO schema_migrations (version) VALUES ('20130806153714');
+
+INSERT INTO schema_migrations (version) VALUES ('20130827134214');
+
+INSERT INTO schema_migrations (version) VALUES ('20130827163214');
+
+INSERT INTO schema_migrations (version) VALUES ('20130918163214');
+
+INSERT INTO schema_migrations (version) VALUES ('20131015114400');
+
+INSERT INTO schema_migrations (version) VALUES ('20131016114401');
+
+INSERT INTO schema_migrations (version) VALUES ('20131016134400');
+
+INSERT INTO schema_migrations (version) VALUES ('20131118000000');
+
+INSERT INTO schema_migrations (version) VALUES ('20131209100237');
+
+INSERT INTO schema_migrations (version) VALUES ('20131219164213');
+
+INSERT INTO schema_migrations (version) VALUES ('20140110150335');
+
+INSERT INTO schema_migrations (version) VALUES ('20140113150335');

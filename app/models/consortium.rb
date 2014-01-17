@@ -6,6 +6,7 @@ class Consortium < ActiveRecord::Base
   has_many :users
   has_many :mi_plans
   has_many :production_goals
+  has_many :tracking_goals
 
   def self.[](name)
     return self.find_by_name!(name.to_s)

@@ -62,6 +62,8 @@ class Public::MiAttempt < ::MiAttempt
     distribution_centres_attributes
     mi_plan_id
     status_stamps_attributes
+    cassette_transmission_verified
+    cassette_transmission_verified_auto_complete
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -149,7 +151,7 @@ end
 #  number_of_cct_offspring                         :integer
 #  number_of_het_offspring                         :integer
 #  number_of_live_glt_offspring                    :integer
-#  mouse_allele_type                               :string(2)
+#  mouse_allele_type                               :string(3)
 #  qc_southern_blot_id                             :integer
 #  qc_five_prime_lr_pcr_id                         :integer
 #  qc_five_prime_cassette_integrity_id             :integer
@@ -175,6 +177,8 @@ end
 #  qc_critical_region_qpcr_id                      :integer         default(1)
 #  qc_loxp_srpcr_id                                :integer         default(1)
 #  qc_loxp_srpcr_and_sequencing_id                 :integer         default(1)
+#  cassette_transmission_verified                  :date
+#  cassette_transmission_verified_auto_complete    :boolean
 #
 # Indexes
 #

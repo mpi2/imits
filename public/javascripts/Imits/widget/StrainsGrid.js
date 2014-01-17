@@ -86,7 +86,7 @@ Ext.define('Imits.widget.StrainsGrid', {
       xtype:'actioncolumn',
       width:21,
       items: [{
-        icon: '../images/icons/delete.png',
+        icon: 'images/icons/delete.png',
         tooltip: 'Delete',
         handler: function(grid, rowIndex, colIndex) {
           var record = grid.getStore().getAt(rowIndex);

@@ -1,4 +1,4 @@
-<% @title = 'KOMP2 Production Summaries' %>
+<% @title %>
 
 <h1><%= @title %></h1>
 
@@ -47,8 +47,12 @@
   <td>Genes where exposure to Cre recombinase has been successful</td>
 </tr>
 <tr>
-  <td><strong>Phenotype complete (gene)</strong></td>
-  <td>Phenotyping <strong>data</strong> has finished flowing to the KOMP2 DCC (MPI2) - currently accessible via machine interface only</td>
+  <td><strong>Phenotype experiments started (gene)</strong></td>
+  <td>Genes that have started phenotype experiments</td>
+</tr>
+<tr>
+  <td><strong>Phenotype data started (gene) / Phenotype complete (gene)</strong></td>
+  <td>Phenotyping <strong>data</strong> has started / finished flowing to the KOMP2 DCC (MPI2) - currently accessible via machine interface only</td>
 </tr>
 </tbody>
 </table>
@@ -62,12 +66,12 @@
   params.delete(:format) %>
 <table>
   <tr>
-    <td width = "550">
+    <td width = "550" style = "vertical-align: top;">
       <div class="report_chunky">
       <dl>
       <h1><%= consortium %></h1></br>
-      <pre><%=link_to 'Download as CSV', report_csv_path%>    <%=link_to('Download MI image', url_for({:action => 'graph_report_download_image', :controller => '/v2/reports/mi_production', :chart_file_name => @report.chart_file_names[consortium.downcase]['mi']}.merge(params))) %>    <%= link_to('Download GC image', url_for({:action => 'graph_report_download_image', :controller => '/v2/reports/mi_production', :chart_file_name => @report.chart_file_names[consortium.downcase]['gc']}.merge(params)))
-      %></pre>
+      <pre><%=link_to 'Download as CSV', report_csv_path%>
+<%=link_to('Download MI image', url_for({:action => 'graph_report_download_image', :controller => '/v2/reports/mi_production', :chart_file_name => @report.chart_file_names[consortium.downcase]['mi']}.merge(params))) %> <%= link_to('Download GC image', url_for({:action => 'graph_report_download_image', :controller => '/v2/reports/mi_production', :chart_file_name => @report.chart_file_names[consortium.downcase]['gc']}.merge(params))) %> <%= link_to('Download GC image (inc 2016 goals)', url_for({:action => 'graph_report_download_image', :controller => '/v2/reports/mi_production', :chart_file_name => @report.chart_file_names[consortium.downcase]['all_inc_gc']}.merge(params))) %></pre>
       <dt><table height = "670" width = "450">
         <tr>
           <th>Status</th>
@@ -115,18 +119,24 @@
           <td><%= report_link_to(@report.report_hash, consortium, 'Cre Excision Complete', :date => @date, :production_group => 'consortia')%></td>
         </tr>
         <tr>
-          <td>Phenotyping Complete (genes)</td>
-          <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative Phenotype Complete', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
-          <td><%= report_link_to(@report.report_hash, consortium, 'Phenotyping Complete', :date => @date, :production_group => 'consortia')%></td>
+          <td>Phenotype experiments started (genes)</td>
+          <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative Phenotyping Experiments Started', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
+          <td><%= report_link_to(@report.report_hash, consortium, 'Phenotyping Experiments Started', :date => @date, :production_group => 'consortia')%></td>
+        </tr>
+        <tr>
+          <td>Phenotype data flow started (genes)</td>
+          <td><%= report_link_to(@report.report_hash, consortium, 'Cumulative Phenotype Started', :date => @date, :production_group => 'consortia', :no_limit => true)%></td>
+          <td><%= report_link_to(@report.report_hash, consortium, 'Phenotyping Started', :date => @date, :production_group => 'consortia')%></td>
         </tr>
       </table></dt></dl></div>
     </td>
     <td width = "20"><pre>                 </pre></td>
     <td width = "2000"></br>
       <dl>
-        <dt><%= image_tag( url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['mi']}"}.merge(params)), :height => '380', :width => @report.size[n])%></dt>
+        <dt style = "display:block"><%= image_tag( url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['mi']}"}.merge(params)), :height => '380', :width => @report.size[n], :id => 'mi_graph')%></dt>
         </br>
-        <dt><%= image_tag( url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['gc']}"}.merge(params)), :height => '380', :width => @report.size[n]) %></dt>
+        <dt style = "display:block"><%= image_tag( url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['all_inc_gc']}"}.merge(params)), :mouseover => url_for({:action => 'graph_report_display_image', :controller => '/v2/reports/mi_production', :chart_file_name => "#{@report.chart_file_names[consortium.downcase]['gc']}"}.merge(params)),:height => '380', :width => @report.size[n], :id => 'gc_graph') %></dt>
+        <dt><span style = "padding-left: 150px; color:red">Hover over the graph to zoom in for a more detailed look<span></dt>
       </dl>
     </td>
   </tr>

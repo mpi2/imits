@@ -34,7 +34,10 @@ TarMits::Application.routes.draw do
     end
   end
 
-  resources :production_goals, :tracking_goals
+  resources :production_goals
+  resources :tracking_goals
+  match 'tracking_goals_by_consortium' => "tracking_goals#index_by_consortium"
+
   resources :centres
 
   resources :strains
@@ -110,6 +113,7 @@ TarMits::Application.routes.draw do
   match 'quality_overview_groupings' => "quality_overview_groupings#index"
   match 'quality_overviews/export_to_csv' => "quality_overviews#export_to_csv"
   match 'users_by_production_centre' => "root#users_by_production_centre", :as => :users_by_production_centre
+  match 'contactable_users_by_production_centre' => "root#contactable_users_by_production_centre", :as => :contactable_users_by_production_centre
   match 'consortia' => "root#consortia", :as => :consortia
   match 'debug_info' => 'root#debug_info'
 

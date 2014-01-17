@@ -1,3 +1,4 @@
+require 'pp'
 require 'test_helper'
 
 class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
@@ -42,7 +43,7 @@ class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
 
   context "An Allele" do
     context "with empty attributes" do
-      allele = Factory.build :invalid_allele 
+      allele = Factory.build :invalid_allele
       should "not be saved" do
         assert !allele.save, "Allele saves an empty entry"
       end
@@ -241,13 +242,14 @@ class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
                   :ikmc_project_id => ikmc_project_ids[i],
                   :pipeline => TargRep::Pipeline.find_by_name!('EUCOMM')
         end
-        #allele.reload
+
         allele = TargRep::TargetedAllele.find(allele.id)
         unique_es_cells = allele.es_cells.unique_public_info
         assert_equal 3, unique_es_cells.count
-        assert unique_es_cells.include?({:strain => strains[0][1], :mgi_allele_symbol_superscript => allele_symbol_superscript[0], :pipeline => 'EUCOMM', :ikmc_project_id => '1'})
-        assert unique_es_cells.include?({:strain => strains[1][1], :mgi_allele_symbol_superscript => allele_symbol_superscript[1], :pipeline => 'EUCOMM', :ikmc_project_id => '2'})
-        assert unique_es_cells.include?({:strain => strains[2][1], :mgi_allele_symbol_superscript => allele_symbol_superscript[2], :pipeline => 'EUCOMM', :ikmc_project_id => '3'})
+
+        assert unique_es_cells.include?({:strain => strains[0][1], :mgi_allele_symbol_superscript => allele_symbol_superscript[0], :pipeline => 'EUCOMM', :ikmc_project_id => '1', :ikmc_project_status_name => "", :ikmc_project_name => "", :ikmc_project_pipeline => ""})
+        assert unique_es_cells.include?({:strain => strains[1][1], :mgi_allele_symbol_superscript => allele_symbol_superscript[1], :pipeline => 'EUCOMM', :ikmc_project_id => '2', :ikmc_project_status_name => "", :ikmc_project_name => "", :ikmc_project_pipeline => ""})
+        assert unique_es_cells.include?({:strain => strains[2][1], :mgi_allele_symbol_superscript => allele_symbol_superscript[2], :pipeline => 'EUCOMM', :ikmc_project_id => '3', :ikmc_project_status_name => "", :ikmc_project_name => "", :ikmc_project_pipeline => ""})
       end
 
       should ', if there are ES cells that differ only in pipeline, just emit a row for the first one' do
@@ -262,7 +264,7 @@ class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
                 :mgi_allele_symbol_superscript => 'tm1a(EUCOMM)WTSI',
                 :pipeline => TargRep::Pipeline.find_by_name!('mirKO'),
                 :ikmc_project_id => '1'
-        #allele.reload
+
         allele = TargRep::TargetedAllele.find(allele.id)
         unique_info = allele.es_cells.unique_public_info
         assert_equal 1, unique_info.size
@@ -270,6 +272,9 @@ class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
           :strain => 'C57BL/6N-A<tm1Brd>/a',
           :mgi_allele_symbol_superscript => 'tm1a(EUCOMM)WTSI',
           :ikmc_project_id => '1',
+          :ikmc_project_status_name => "",
+          :ikmc_project_name => "",
+          :ikmc_project_pipeline => "",
           :pipeline => 'EUCOMM'
         }
         assert_equal(expected, unique_info.first)
@@ -288,15 +293,12 @@ class TargRep::TargetedAlleleTest < ActiveSupport::TestCase
                   :ikmc_project_id => ikmc_project_ids[i],
                   :pipeline => TargRep::Pipeline.find_by_name!('EUCOMM GT')
         end
-        #allele.reload
+
         allele = TargRep::TargetedAllele.find(allele.id)
         unique_es_cells = allele.es_cells.unique_public_info
         assert_equal 0, unique_es_cells.count
       end
-
-
     end
 
   end
 end
-

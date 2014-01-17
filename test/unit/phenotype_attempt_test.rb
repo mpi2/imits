@@ -141,6 +141,36 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       end
     end
 
+    context 'phenotyping_experiments_started' do
+      should 'not be set if attempt has not started phenotyping' do
+        pa =  Factory.create :phenotype_attempt_status_cec
+        assert_equal pa.status_stamps.where('status_id = 7').count, 0
+        assert_equal pa.phenotyping_experiments_started, nil
+      end
+
+      should 'default to phenotype_started date when blank' do
+        pa =  Factory.create :phenotype_attempt_status_cec
+        assert_equal pa.phenotyping_experiments_started, nil
+
+        pa.phenotyping_started = true
+        pa.save
+        pa.reload
+        assert_equal pa.phenotyping_experiments_started, pa.status_stamps.where('status_id = 7').first.created_at.to_date
+      end
+
+      should 'not be set to phenotype_started date when not blank' do
+        pes_date = Time.now.to_date - 1.month
+        pa =  Factory.create :phenotype_attempt_status_cec, :phenotyping_experiments_started => pes_date
+        assert_not_nil pa.phenotyping_experiments_started
+
+        pa.phenotyping_started = true
+        pa.save
+        pa.reload
+        assert_not_equal pa.phenotyping_experiments_started, pa.status_stamps.where('status_id = 7').first.created_at.to_date
+        assert_equal pa.phenotyping_experiments_started, pes_date
+      end
+    end
+
     context '#reportable_statuses_with_latest_dates' do
       should 'work' do
         default_phenotype_attempt.deleter_strain = DeleterStrain.first
@@ -481,5 +511,27 @@ class PhenotypeAttemptTest < ActiveSupport::TestCase
       assert_include PhenotypeAttempt.ancestors, ApplicationModel::BelongsToMiPlan
     end
 
+    context 'QC field tests:' do
+      PhenotypeAttempt::QC_FIELDS.each do |qc_field|
+        should "include #{qc_field}" do
+          assert_should belong_to(qc_field)
+        end
+
+        should "have #{qc_field}_result association accessor" do
+          default_phenotype_attempt.send("#{qc_field}_result=", 'pass')
+          assert_equal 'pass', default_phenotype_attempt.send("#{qc_field}_result")
+
+          default_phenotype_attempt.send("#{qc_field}_result=", 'na')
+          assert_equal 'na', default_phenotype_attempt.send("#{qc_field}_result")
+        end
+
+        should "default to 'na' if #{qc_field} is assigned a blank" do
+          default_phenotype_attempt.send("#{qc_field}_result=", '')
+          assert default_phenotype_attempt.valid?
+          assert_equal 'na', default_phenotype_attempt.send("#{qc_field}_result")
+          assert_equal 'na', default_phenotype_attempt.send(qc_field).try(:description)
+        end
+      end
+    end
   end
 end

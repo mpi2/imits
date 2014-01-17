@@ -41,14 +41,11 @@ class ReportsTest < TarMits::IntegrationTest
         visit '/reports'
         click_link 'All Planned Micro-Injections'
 
-        assert_match '/reports/planned_microinjection_list', current_url
+        assert_match '/v2/reports/mi_production/planned_microinjection_list', current_url
         assert page.has_css?('form')
 
         click_button 'Generate Report'
-        assert_match '/reports/planned_microinjection_list', current_url
-
-        click_button 'Generate Report'
-        assert_match '/reports/planned_microinjection_list', current_url
+        assert_match '/v2/reports/mi_production/planned_microinjection_list', current_url
 
         choose 'format_csv'
         click_button 'Generate Report'
@@ -59,10 +56,10 @@ class ReportsTest < TarMits::IntegrationTest
         visit '/reports'
         click_link 'All Planned Micro-Injections'
 
-        select 'MARC', :from => 'consortium_id[]'
+        select 'MARC', :from => 'consortium'
         click_button 'Generate Report'
 
-        assert_match '/reports/planned_microinjection_list', current_url
+        assert_match '/v2/reports/mi_production/planned_microinjection_list', current_url
         assert_match 'Sorry', page.body
       end
 

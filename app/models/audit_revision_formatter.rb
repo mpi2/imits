@@ -1,8 +1,19 @@
 class AuditRevisionFormatter
 
-  TRANSLATIONS = {}
+attr_accessor :model
 
-  def self.build_translations
+  def initialize(options)
+    options.symbolize_keys!
+    @model = options[:model]
+    translations
+    build_translations
+  end
+
+  def translations
+    @translations ||= {}
+  end
+
+  def build_translations
     {
       'production_centre_id' => {klass: Centre},
       'consortium_id' => {klass: Consortium},
@@ -16,7 +27,7 @@ class AuditRevisionFormatter
       klass = opts[:klass]
       attr = opts[:attr] || :name
 
-      TRANSLATIONS[easy_fkey] = proc {|values, opts| values.map {|i| klass.find_by_id(i).try(attr) } }
+      translations[easy_fkey] = proc {|values| values.map {|i| klass.find_by_id(i).try(attr) } }
     end
 
     [
@@ -26,12 +37,12 @@ class AuditRevisionFormatter
       'es_cell_id'
     ].each do |fkey|
       klass_name = fkey.gsub(/_id$/, '').camelize
-      TRANSLATIONS[fkey] = proc do |values, opts|
+      translations[fkey] = proc do |values|
         values.map do |i|
           if ['EsCell', 'TargRep::EsCell'].include?(klass_name)
             klass_name = "TargRep::EsCell"
           elsif ['Status', 'Priority', 'SubProject'].include?(klass_name)
-            klass_name = "#{opts[:model].to_s}::#{klass_name}"
+            klass_name = "#{model.to_s}::#{klass_name}"
           end
 
           Rails.logger.info klass_name
@@ -41,10 +52,8 @@ class AuditRevisionFormatter
       end
     end
 
-    TRANSLATIONS.freeze
   end
 
-  build_translations
 
   def changed_values(h1, h2)
     retval = {}
@@ -74,11 +83,8 @@ class AuditRevisionFormatter
     return translated
   end
 
-  def translate(hash, options)
+  def translate(hash)
     translated = {}
-    options.symbolize_keys!
-
-    model = options[:model]
 
     hash.each do |key, values|
       formatted_key = key.gsub(/_id$/, '')
@@ -89,8 +95,8 @@ class AuditRevisionFormatter
 
       next if values[0].blank? and values[1].blank?
 
-      if TRANSLATIONS.has_key?(key)
-        translated[formatted_key] = TRANSLATIONS[key].call(values, :model => model)
+      if translations.has_key?(key)
+        translated[formatted_key] = translations[key].call(values)
       else
         translated[formatted_key] = values
       end
@@ -99,11 +105,8 @@ class AuditRevisionFormatter
     return translated
   end
 
-  def get_formatted_changes(hash, options = {})
-    options.symbolize_keys!
-    model = options.fetch(:model)
-
-    return translate(pre_translate(hash), :model => model)
+  def get_formatted_changes(hash)
+    return translate(pre_translate(hash))
   end
 
 end

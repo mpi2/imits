@@ -86,6 +86,10 @@
   <div>
     <%= generator.completion_note_type_field%>
   </div>
+  <div>
+    <%= form.label :completion_comment, 'Completion Comment' %>
+    <%= form.text_area :completion_comment %>
+  </div>
   <% [:report_to_public, :ignore_available_mice, :recovery].each do |field| %>
     <div>
       <%= form.label field, field.to_s.titlecase %>

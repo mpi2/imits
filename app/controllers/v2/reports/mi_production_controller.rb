@@ -1,6 +1,6 @@
 class V2::Reports::MiProductionController < ApplicationController
 
-  before_filter :params_cleaned_for_search, :except => [:all_mi_attempt_summary, :genes_gt_mi_attempt_summary]
+  before_filter :params_cleaned_for_search, :except => [:all_mi_attempt_summary, :genes_gt_mi_attempt_summary, :planned_microinjection_list]
 
   before_filter :authenticate_user!, :except => [:production_detail, :gene_production_detail, :consortia_production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
   before_filter :authenticate_user_if_not_sanger, :only => [:production_detail, :gene_production_detail, :consortia_production_detail, :mgp_production_by_subproject, :mgp_production_by_priority]
@@ -38,6 +38,8 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
     @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
+    @distribution_centre_counts = @report.generate_distribution_centre_counts
+    @phenotyping_counts = @report.generate_phenotyping_counts
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -55,10 +57,13 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
     @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
+    @distribution_centre_counts = @report.generate_distribution_centre_counts
+    @phenotyping_counts = @report.generate_phenotyping_counts
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
     @mi_plan_statuses = ImpcProductionReport.mi_plan_statuses
+
 
     render :template => 'v2/reports/mi_production/production_summary'
   end
@@ -71,6 +76,8 @@ class V2::Reports::MiProductionController < ApplicationController
     @consortium_centre_by_status = @report.generate_consortium_centre_by_status
     @consortium_centre_by_cre_phenotyping_status     = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = true)
     @consortium_centre_by_non_cre_phenotyping_status = @report.generate_consortium_centre_by_phenotyping_status(cre_excision_required = false)
+    @distribution_centre_counts = @report.generate_distribution_centre_counts
+    @phenotyping_counts = @report.generate_phenotyping_counts
     @gene_efficiency_totals      = @report.generate_gene_efficiency_totals
     @clone_efficiency_totals     = @report.generate_clone_efficiency_totals
     @effort_efficiency_totals     = @report.generate_effort_efficiency_totals
@@ -95,31 +102,58 @@ class V2::Reports::MiProductionController < ApplicationController
 
   def komp2_summary_by_month
     @report  = Komp2SummaryByMonthReport.new
-    @clone_columns = Komp2SummaryByMonthReport.clone_columns
-    @phenotype_columns = Komp2SummaryByMonthReport.phenotype_columns
-    @consortia = Komp2SummaryByMonthReport.available_consortia
+    @clone_columns = @report.clone_columns
+    @phenotype_columns = @report.phenotype_columns
+    @consortia = @report.available_consortia
 
     @summary_by_month = @report.report_hash
   end
 
   def impc_summary_by_month
     @report  = ImpcSummaryByMonthReport.new
-    @clone_columns = ImpcSummaryByMonthReport.clone_columns
-    @phenotype_columns = ImpcSummaryByMonthReport.phenotype_columns
-    @consortia = ImpcSummaryByMonthReport.available_consortia
+    @clone_columns = @report.clone_columns
+    @phenotype_columns = @report.phenotype_columns
+    @consortia = @report.available_consortia
 
     @summary_by_month = @report.report_hash
   end
 
-   def komp2_graph_report_display
+  def komp2_graph_report_display
+    @title = 'KOMP Production Summaries'
     @report = Komp2GraphReportDisplay.new
-    date = Komp2GraphReportDisplay.date_previous_month.to_date.at_beginning_of_month
-    @consortia = Komp2GraphReportDisplay.available_consortia
+    date = @report.date_previous_month.to_date.at_beginning_of_month
+    @consortia = @report.available_consortia
     @date = date.to_s
     @date_name = Date::ABBR_MONTHNAMES[date.month]
   end
 
+  def graph_report_display
 
+    @consortia = params[:consortia].split(',')
+    @title = "Production Summaries for #{@consortia.to_sentence}"
+
+    @error = false
+    missing_consortia = []
+    error_message = 'The following consortia do not exist: '
+    @consortia.each do |consortium|
+      if !Consortium.find_by_name(consortium)
+        missing_consortia.append(consortium)
+        @error = true
+      end
+    end
+    error_message << missing_consortia.to_sentence
+
+    if ! @error
+      @report = GraphReportDisplay.new(@consortia)
+      date = @report.date_previous_month.to_date.at_beginning_of_month
+      @date = date.to_s
+      @date_name = Date::ABBR_MONTHNAMES[date.month]
+    else
+      flash.now[:alert] = error_message
+      @consortia = []
+    end
+    render :template => 'v2/reports/mi_production/komp2_graph_report_display'
+  end
 
   def graph_report_display_image
     filename = params[:chart_file_name].split('/').pop
@@ -156,8 +190,54 @@ class V2::Reports::MiProductionController < ApplicationController
     @report = ImpcCentreByMonthReport.new
     @centre_by_month = @report.report_rows
     @cumulative_totals = @report.cumulative_totals
+    @consortia = @report.consortia
     @columns = ImpcCentreByMonthReport.columns
     @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
+  end
+
+  def impc_centre_by_month_consortia_breakdown
+    @centre = Centre.find_by_name(params[:centre]).try(:name) || ''
+    if @centre.blank?
+      flash[:alert] = "Invalid Production Centre"
+    end
+    @report = ImpcCentreByMonthReportConsortiaBreakdown.new(@centre)
+    @consortia = @report.consortia
+    @consortium_by_month = @report.report_rows
+    @cumulative_totals = @report.cumulative_totals
+    @columns = ImpcCentreByMonthReport.columns
+    @es_cell_columns = ImpcCentreByMonthReport.es_cell_supply_columns
+  end
+
+  def impc_centre_es_detail
+    @report = ImpcCentreByMonthDetail.new
+  end
+
+  def impc_centre_mi_detail
+    @report = ImpcCentreByMonthDetail.new
+    @centre = params[:centre]
+    @mis = @report.mi_rows(@centre)
+  end
+
+  def planned_microinjection_list
+    if !params[:commit].blank?
+      consortium = Consortium.find_by_name(params[:consortium]).try(:name)
+
+      @report = PlannedMicroinjectionList.new
+      @mi_plan_summary = @report.mi_plan_summary(consortium)
+      @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
+      @pretty_print_assigned_mi_plans = @report.pretty_print_assigned_mi_plans
+      @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
+      @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
+      @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
+      @consortium = consortium.blank? ? 'All' : consortium
+      @count = @report.blank? ? 0 : @mi_plan_summary.count
+    end
+  end
+
+  def impc_centre_pa_detail
+    @report = ImpcCentreByMonthDetail.new
+    @centre = params[:centre]
+    @pas = @report.pa_rows(@centre)
   end
 
   def genes_gt_mi_attempt_summary
@@ -243,7 +323,6 @@ class V2::Reports::MiProductionController < ApplicationController
       else
         lower_limit = false
       end
-
       if hash['type'].to_s.downcase == 'es cell qc'
         hash['mi_plan_status_in'] = ['Assigned - ES Cell QC Complete', 'Assigned - ES Cell QC In Progress', 'Aborted - ES Cell QC Failed']
         translate_date(hash, hash['mi_plan_status_eq'], lower_limit)
@@ -307,9 +386,21 @@ class V2::Reports::MiProductionController < ApplicationController
         hash['phenotype_attempt_status_eq'] = 'Cre Excision Complete'
         translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
 
-      elsif hash['type'].to_s.downcase == 'phenotyping started'
+      elsif ['phenotyping started', 'cumulative phenotype started'].include?(hash['type'].to_s.downcase)
         hash['phenotype_attempt_status_eq'] = 'Phenotyping Started'
         translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
+
+      elsif ['phenotyping experiments started', 'cumulative phenotyping experiments started'].include?(hash['type'].to_s.downcase)
+        hash['phenotyping_experiments_started_date_not_null'] = "1"
+        translate_date(hash, 'Phenotyping Experiments Started', lower_limit)
+
+      elsif ['non cre ex phenotype experiments started'].include?(hash['type'].to_s.downcase)
+        hash['non_cre_ex_phenotyping_experiments_started_date_not_null'] = "1"
+        translate_date(hash, 'Non Cre Ex Phenotyping Experiments Started', lower_limit)
+
+      elsif ['cre ex phenotype experiments started'].include?(hash['type'].to_s.downcase)
+        hash['cre_ex_phenotyping_experiments_started_date_not_null'] = "1"
+        translate_date(hash, 'Cre Ex Phenotyping Experiments Started', lower_limit)
 
       elsif ['phenotyping completed', 'phenotyping complete', 'cumulative phenotype complete'].include?(hash['type'].to_s.downcase)
         hash['phenotype_attempt_status_eq'] = 'Phenotyping Complete'
@@ -399,6 +490,13 @@ class V2::Reports::MiProductionController < ApplicationController
         hash['non_cre_ex_phenotype_attempt_status_eq'] = 'Phenotype Attempt Aborted'
         translate_date(hash, hash['phenotype_attempt_status_eq'], lower_limit)
 
+      elsif hash['type'].to_s.downcase == 'cre ex phenotype attempt mi attempt plan confliction'
+        hash['cre_ex_phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+        hash['cre_ex_mi_attempt_consortium_or_cre_ex_mi_attempt_production_centre_not_in'] = [params[:q]['consortium_eq'],params[:q]['production_centre_eq']]
+
+      elsif hash['type'].to_s.downcase == 'non cre ex phenotype attempt mi attempt plan confliction'
+        hash['non_cre_ex_phenotype_attempt_status_ci_in'] = ['Phenotype Attempt Registered', 'Rederivation Started', 'Rederivation Complete', 'Cre Excision Started', 'Cre Excision Complete', 'Phenotyping Started', 'Phenotyping Complete', 'Phenotype Attempt Aborted']
+        hash['non_cre_ex_mi_attempt_consortium_or_non_cre_ex_mi_attempt_production_centre_not_in'] = [params[:q]['consortium_eq'],params[:q]['production_centre_eq']]
       end
 
       ##
@@ -422,7 +520,6 @@ class V2::Reports::MiProductionController < ApplicationController
 
     def translate_date(hash, type, no_lower_limit = false)
       return if hash['date'].blank?
-
       month_begins = Date.parse(hash['date'])
       next_month = month_begins + 1.month
 
@@ -521,6 +618,25 @@ class V2::Reports::MiProductionController < ApplicationController
           hash['phenotyping_started_date_gteq'] = month_begins
         end
         hash['phenotyping_started_date_lt'] = next_month
+
+      elsif type == 'Phenotyping Experiments Started'
+        if !no_lower_limit
+          hash['phenotyping_experiments_started_date_gteq'] = month_begins
+        end
+        hash['phenotyping_experiments_started_date_lt'] = next_month
+
+
+      elsif type == 'Cre Ex Phenotyping Experiments Started'
+        if !no_lower_limit
+          hash['cre_ex_phenotyping_experiments_started_date_gteq'] = month_begins
+        end
+        hash['cre_ex_phenotyping_experiments_started_date_lt'] = next_month
+
+      elsif type == 'Non Cre Ex Phenotyping Experiments Started'
+        if !no_lower_limit
+          hash['non_cre_ex_phenotyping_experiments_started_date_gteq'] = month_begins
+        end
+        hash['non_cre_ex_phenotyping_experiments_started_date_lt'] = next_month
 
       elsif type == 'Phenotyping Complete'
         if !no_lower_limit

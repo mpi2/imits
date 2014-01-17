@@ -1,0 +1,32 @@
+<% @tab = 'Contacts for Production Centres' %>
+<% @title = 'Contacts For Production Centres' %>
+
+<h2><%= @title %></h2>
+
+  <%
+    @centre_contact.keys.sort.each do |production_centre|
+	    if ( !(@centre_contact[production_centre].nil?) or !(@users_by_production_centre[production_centre].nil?) )
+  %>
+      <table class="report_table">
+        <thead>
+          <tr>
+            <th colspan="2"><%= production_centre %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <td>General Centre Contact</td>
+          <td><%= mail_to(@centre_contact[production_centre]) %></td>
+	  <% if !@users_by_production_centre[production_centre].nil? %>
+          <% @users_by_production_centre[production_centre].each do |user| %>
+            <tr class="<%= 'contactable' if user.is_contactable? %>">
+              <td><%= user.name %></td>
+              <td><%= mail_to(user.email) %></td>
+            </tr>
+          <% end %>
+          <% end %>
+        </tbody>
+      </table>
+  <%
+		end
+    end
+  %>

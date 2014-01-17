@@ -14,11 +14,15 @@
   if current_user.admin?
     navigation_links.push ['Solr Update Queue', solr_update_queue_items_path]
   end
+
+  @tab2 = @tab
+  @tab2 = 'Gene Selection' if @tab == 'Gene Summary'
+
 %>
 
 <ul>
   <% navigation_links.each do |link| %>
-    <li <% if @tab == link[0] %>class="current"<% end %>>
+    <li <% if @tab2 == link[0] %>class="current"<% end %>>
       <%= link_to *link %>
     </li>
   <% end %>

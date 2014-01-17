@@ -147,4 +147,40 @@ module SolrUpdate::Observer
     public_class_method :new
   end
 
+  class IkmcProject < ActiveRecord::Observer
+    observe :"TargRep::IkmcProject"
+
+    def initialize
+      super
+      @enqueuer = SolrUpdate::Enqueuer.new
+    end
+
+    def refresh(object)
+      hash = {}
+
+      object.targeting_vectors.each do |vector|
+        hash[vector.allele.gene.id] = 1
+      end
+
+      object.es_cells.each do |es_cell|
+        hash[es_cell.allele.gene.id] = 1
+      end
+
+      hash.keys.each do |key|
+        @enqueuer.gene_updated(::Gene.find(key))
+      end
+
+    end
+
+    def after_save(object)
+      refresh object
+    end
+
+    def after_destroy(object)
+      refresh object
+    end
+
+    public_class_method :new
+  end
+
 end

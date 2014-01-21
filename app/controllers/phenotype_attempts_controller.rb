@@ -2,7 +2,8 @@
 
 class PhenotypeAttemptsController < ApplicationController
 
-  respond_to :html, :json
+  respond_to :html, :except => [:phenotyping_productions]
+  respond_to :json
 
   before_filter :authenticate_user!
 
@@ -48,6 +49,11 @@ class PhenotypeAttemptsController < ApplicationController
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
 
+    if do_you_need_to_be_hugh?(@phenotype_attempt)
+      render 'new'
+      return
+    end
+
     if ! @phenotype_attempt.valid?
       plan_error = @phenotype_attempt.errors[:mi_plan].find { |e| /cannot be found with supplied parameters/ =~ e}
       if plan_error != nil
@@ -59,7 +65,6 @@ class PhenotypeAttemptsController < ApplicationController
       if ! @phenotype_attempt.errors[:base].blank?
         flash.now[:alert] += '<br/>' + @phenotype_attempt.errors[:base].join('<br/>')
       end
-
     else
       @phenotype_attempt.save!
       flash[:notice] = 'Phenotype attempt created'
@@ -70,27 +75,30 @@ class PhenotypeAttemptsController < ApplicationController
 
   def update
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
-
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
 
-    @phenotype_attempt.update_attributes(params[:phenotype_attempt])
+    if !do_you_need_to_be_hugh?(@phenotype_attempt, params[:phenotype_attempt])
+      @phenotype_attempt.update_attributes(params[:phenotype_attempt])
+      if @phenotype_attempt.valid?
+        flash.now[:notice] = 'Phenotype attempt updated successfully'
+      else
+        flash.now[:alert] = 'Phenotype attempt could not be updated - please check the values you entered'
+      end
+    else
+      @phenotype_attempt.reload
+    end
+
+    set_centres_consortia_and_strains
+    @mi_attempt = @phenotype_attempt.mi_attempt
 
     respond_with @phenotype_attempt do |format|
       format.html do
-        if ! @phenotype_attempt.valid?
-          flash.now[:alert] = 'Phenotype attempt could not be updated - please check the values you entered'
-        else
-          flash.now[:notice] = 'Phenotype attempt updated successfully'
-        end
-        set_centres_consortia_and_strains
-        @phenotype_attempt.reload
-        @mi_attempt = @phenotype_attempt.mi_attempt
         render :action => :show
       end
 
       format.json do
-        if @phenotype_attempt.valid?
+        if !@phenotype_attempt.errors.messages.blank?
           render :json => @phenotype_attempt
         else
           render :json => @phenotype_attempt.errors, :status => :unprocessable_entity
@@ -99,12 +107,38 @@ class PhenotypeAttemptsController < ApplicationController
     end
   end
 
+
+  def do_you_need_to_be_hugh?(phenotype_attempt, changes)
+
+    if changes.has_key?(:phenotyping_started) and phenotype_attempt[:phenotyping_started] != changes[:phenotyping_started] and current_user.email != 'h.morgan@har.mrc.ac.uk'
+      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Phenotyping Started'
+      return true
+    end
+    if changes.has_key?(:ready_for_website) and phenotype_attempt[:ready_for_website] != changes[:ready_for_website] and current_user.email != 'h.morgan@har.mrc.ac.uk'
+      flash.now[:alert] = 'Phenotype attempt could not be updated - Please do not update Ready For Website date'
+      return true
+    end
+    return false
+  end
+
   def show
     set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.find(params[:id])
     @mi_attempt = @phenotype_attempt.mi_attempt
     respond_with @phenotype_attempt
   end
+
+
+  def phenotyping_productions
+    @phenotyping_productions = Public::PhenotypeAttempt.find(params[:id]).phenotyping_productions
+    respond_with @phenotyping_productions do |format|
+      format.json do
+        render :json => @phenotyping_productions
+      end
+    end
+  end
+
+
 
   def history
     @resource = PhenotypeAttempt.find(params[:id])

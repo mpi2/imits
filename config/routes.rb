@@ -88,6 +88,11 @@ TarMits::Application.routes.draw do
     end
   end
 
+  match 'phenotype_attempts/:id/phenotyping_productions' => 'phenotype_attempts#phenotyping_productions'
+
+  resources :phenotyping_productions, :only => [:show, :update, :index, :create]
+  match 'phenotyping_productions/colony_name/:colony_name' => 'phenotyping_productions#colony_name'
+
   resources :contacts do
     collection do
       get 'check_email'

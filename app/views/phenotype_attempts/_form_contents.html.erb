@@ -83,6 +83,7 @@
         <%= form.label :tat_cre, "Cre Excision via TAT-Cre?" %>
         <%= form.check_box :tat_cre %>
       </div>
+
       <div id="tat-cre-hidden-fields" class="<%= @phenotype_attempt.tat_cre ? 'hidden' : '' %>">
         <div>
           <%= form.label :deleter_strain_name, 'Cre-deleter Strain' %>
@@ -116,31 +117,30 @@
 
 <fieldset class="collapsible" id="distribution_centres">
   <legend>phenotyping</legend>
-  <% if @phenotype_attempt.phenotyping_started == true %>
-    <div class="distribution_centres">
-      <table id="phenotyping_productions_table" class="report_table">
-        <thead class="title">
-          <tr>
-           <th>Phenotyping consortium</th>
-            <th>Phenotyping centre</th>
-            <th>Phenotyping colony</th>
-            <th>Experiments Started</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody class="distribution_centres">
-          <%= form.fields_for :phenotyping_productions do |builder| %>
-            <% if phenotype_attempt.phenotyping_productions.length > 0 %>
-              <% if !builder.object.new_record? %>
-                <%= render '/shared/phenotyping_production_fields', f: builder %>
-              <% end %>
+  <div class="distribution_centres">
+    <table id="phenotyping_productions_table" class="report_table">
+      <thead class="title">
+        <tr>
+         <th>Phenotyping consortium</th>
+          <th>Phenotyping centre</th>
+          <th>Colony Name</th>
+          <th>Experiments Started</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody class="distribution_centres">
+        <tr></tr>
+        <%= form.fields_for :phenotyping_productions do |builder| %>
+          <% if phenotype_attempt.phenotyping_productions.length > 0 %>
+            <% if !builder.object.new_record? %>
+              <%= render '/shared/phenotyping_production_fields', f: builder %>
             <% end %>
           <% end %>
-        </tbody>
-      </table>
-      <%= link_to_add_fields "Add Phenotyping Centre", form, :phenotyping_productions %>
-    </div>
-  <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  <%= link_to_add_fields "Add Phenotyping Centre", form, :phenotyping_productions %>
+  </div>
 </fieldset>
 
 <fieldset class="collapsible">

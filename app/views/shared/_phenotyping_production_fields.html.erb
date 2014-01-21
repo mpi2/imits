@@ -6,7 +6,7 @@
         <%= f.select :production_centre_name, Centre.all.map(&:name), :include_blank => true %>
     </td>
     <td>
-        <%= f.text_field(:colony_name, :class => 'x-form-text', :size => 20) %>
+      <%= f.text_field(:colony_name,:class => 'x-form-text', :size => 20) %>
     </td>
     <td>
         <%= f.text_field(:phenotyping_experiments_started, :class => 'x-form-text', :size => 20, :class => 'date-field') %>

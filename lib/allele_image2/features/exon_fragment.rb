@@ -39,6 +39,23 @@ class AlleleImage2::Features::ExonFragment < AlleleImage2::Features::DefaultFeat
 
     drawing.draw(image)
 
+    # if this exon has a rank number, display it
+    if feature.exon_rank
+
+      font_colour = @render_options[:font_colour]
+      font_size   = @render_options[:font_size]
+
+      # write the annotation above
+      drawing.annotate(image, @render_options[:width], @render_options[:top_margin], renderer.x, 0, feature.exon_rank) do
+        self.fill        = font_colour
+        self.gravity     = Magick::CenterGravity
+        self.font_weight = Magick::BoldWeight
+        self.font_style  = Magick::ItalicStyle
+        self.pointsize   = font_size
+      end
+
+    end
+
     return image
   end
 

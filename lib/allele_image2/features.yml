@@ -272,6 +272,7 @@ features:
     fragment:
       width: 12
       colour: "#fbcf3b"
+      font_colour: blue
       secondary_colour: red
       class_name: ExonFragment
 

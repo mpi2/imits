@@ -260,7 +260,7 @@ features:
   exon:
     defaults:
       colour: '#fbcf3b'
-      font_colour: white
+      font_colour: blue
       width: 15
       class_name: Exon
 

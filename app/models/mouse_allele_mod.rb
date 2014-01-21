@@ -166,9 +166,8 @@ class MouseAlleleMod < ApplicationModel
               :qc_loxp_srpcr_and_sequencing_id  => phenotype_attempt.qc_loxp_srpcr_and_sequencing_id
               }
     mam = phenotype_attempt.mouse_allele_mod || MouseAlleleMod.new
-    params.each{|attr, value| mam[attr] = value}
+    mam.update_attributes(params)
     if mam.valid?
-      mam.save
 
       status_mapping = {
                         'Phenotype Attempt Registered'         => 'Phenotype Attempt Registered',

@@ -11,7 +11,6 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     colony_name
     consortium_name
     production_centre_name
-    mi_attempt_colony_name
     is_active
     rederivation_started
     rederivation_complete
@@ -45,6 +44,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     qc_critical_region_qpcr_result
     qc_loxp_srpcr_result
     qc_loxp_srpcr_and_sequencing_result
+    ready_for_website
   }
 
   READABLE_ATTRIBUTES = %w{
@@ -56,6 +56,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     mouse_allele_symbol_superscript
     mouse_allele_symbol
     allele_symbol
+    mi_attempt_colony_name
     mi_attempt_colony_background_strain_name
     mi_attempt_colony_background_mgi_strain_accession_id
     mi_attempt_colony_background_mgi_strain_name
@@ -92,6 +93,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
   # BEGIN Callbacks
 
   # END Callbacks
+
 
   def status_name; status.name; end
 
@@ -163,6 +165,7 @@ end
 #  index_phenotype_attempts_on_colony_name  (colony_name) UNIQUE
 #
 
+
 # == Schema Information
 #
 # Table name: phenotype_attempts
@@ -204,6 +207,7 @@ end
 #  qc_critical_region_qpcr_id          :integer
 #  qc_loxp_srpcr_id                    :integer
 #  qc_loxp_srpcr_and_sequencing_id     :integer
+#  ready_for_website                   :date
 #
 # Indexes
 #

@@ -1792,7 +1792,8 @@ CREATE TABLE phenotype_attempts (
     qc_lacz_count_qpcr_id integer,
     qc_critical_region_qpcr_id integer,
     qc_loxp_srpcr_id integer,
-    qc_loxp_srpcr_and_sequencing_id integer
+    qc_loxp_srpcr_and_sequencing_id integer,
+    ready_for_website date
 );
 
 
@@ -1887,7 +1888,7 @@ CREATE TABLE phenotyping_productions (
     mi_plan_id integer NOT NULL,
     mouse_allele_mod_id integer NOT NULL,
     status_id integer NOT NULL,
-    colony_name character varying(125) NOT NULL,
+    colony_name character varying(255),
     phenotyping_experiments_started date,
     phenotyping_started boolean DEFAULT false NOT NULL,
     phenotyping_complete boolean DEFAULT false NOT NULL,
@@ -1895,7 +1896,8 @@ CREATE TABLE phenotyping_productions (
     report_to_public boolean DEFAULT true NOT NULL,
     phenotype_attempt_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    ready_for_website date
 );
 
 
@@ -4942,3 +4944,5 @@ INSERT INTO schema_migrations (version) VALUES ('20131206144401');
 INSERT INTO schema_migrations (version) VALUES ('20131209100237');
 
 INSERT INTO schema_migrations (version) VALUES ('20131219140237');
+
+INSERT INTO schema_migrations (version) VALUES ('20140113132202');

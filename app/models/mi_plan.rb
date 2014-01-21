@@ -508,12 +508,6 @@ class MiPlan < ApplicationModel
 end
 
 
-
-
-
-
-
-
 # == Schema Information
 #
 # Table name: mi_plans

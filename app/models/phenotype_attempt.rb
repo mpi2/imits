@@ -111,6 +111,7 @@ class PhenotypeAttempt < ApplicationModel
   before_validation :allow_override_of_plan
   before_validation :change_status
   before_validation :set_mi_plan # this is here if mi_plan is edited after initialization
+  before_validation :check_phenotyping_production_for_update
 #  before_save :ensure_plan_exists # this method is in belongs_to_mi_plan
   before_save :deal_with_unassigned_or_inactive_plans # this method is in belongs_to_mi_plan
   before_save :generate_colony_name_if_blank
@@ -133,17 +134,46 @@ class PhenotypeAttempt < ApplicationModel
     self.mi_plan = set_plan
   end
 
+
+  def check_phenotyping_production_for_update
+    linked_pp = []
+    deleting_pp = []
+    self.phenotyping_productions.each{|pp| linked_pp << pp if pp.consortium_name == self.consortium_name and pp.production_centre_name == self.production_centre_name and !pp.marked_for_destruction?}
+    self.phenotyping_productions.each{|pp| deleting_pp << pp if pp.consortium_name == self.consortium_name and pp.production_centre_name == self.production_centre_name and pp.marked_for_destruction?}
+    if linked_pp.count == 1
+      pp_changes = linked_pp.first.changes
+      PhenotypingProduction.phenotype_attempt_updatable_fields.each do |field, default_value|
+        if pp_changes.has_key?(field)
+          self[field] = pp_changes[field][1]
+        end
+      end
+    elsif deleting_pp.count >= 1
+      PhenotypingProduction.phenotype_attempt_updatable_fields.each do |field, default_value|
+        self[field] = default_value
+      end
+    end
+  end
+
 ## AFTER SAVE FUNCTIONS
   def set_allele_mod_and_production
+
     mouse_allele = MouseAlleleMod.create_or_update_from_phenotype_attempt(self)
     self.reload
-    if self.phenotyping_started or ! self.phenotyping_experiments_started.blank?
+    if self.phenotyping_productions.count == 0
       PhenotypingProduction.create_or_update_from_phenotype_attempt(self)
-    else
-      delete_production_centre = self.phenotyping_productions.includes(:mi_plan).where("mi_plans.consortium_id = #{self.mi_plan.consortium_id} AND mi_plans.production_centre_id = #{self.mi_plan.production_centre_id}")
-      delete_production_centre.first.destroy if !delete_production_centre.blank?
+      self.reload
     end
-    self.reload
+
+    linked_pp = []
+    self.phenotyping_productions.each{|pp| linked_pp << pp if pp.consortium_name == self.consortium_name and pp.production_centre_name == self.production_centre_name and !pp.marked_for_destruction?}
+    if linked_pp.count == 1
+      PhenotypingProduction.phenotype_attempt_updatable_fields.each do |field, default_value|
+        if self[field] != linked_pp.first[field]
+          linked_pp.first[field] = self[field]
+        end
+        linked_pp.first.save
+      end
+    end
   end
 
   def set_mi_plan
@@ -275,52 +305,6 @@ class PhenotypeAttempt < ApplicationModel
   end
 end
 
-# == Schema Information
-#
-# Table name: phenotype_attempts
-#
-#  id                                  :integer         not null, primary key
-#  mi_attempt_id                       :integer         not null
-#  status_id                           :integer         not null
-#  is_active                           :boolean         default(TRUE), not null
-#  rederivation_started                :boolean         default(FALSE), not null
-#  rederivation_complete               :boolean         default(FALSE), not null
-#  number_of_cre_matings_started       :integer         default(0), not null
-#  number_of_cre_matings_successful    :integer         default(0), not null
-#  phenotyping_started                 :boolean         default(FALSE), not null
-#  phenotyping_complete                :boolean         default(FALSE), not null
-#  created_at                          :datetime
-#  updated_at                          :datetime
-#  mi_plan_id                          :integer         not null
-#  colony_name                         :string(125)     not null
-#  mouse_allele_type                   :string(3)
-#  deleter_strain_id                   :integer
-#  colony_background_strain_id         :integer
-#  cre_excision_required               :boolean         default(TRUE), not null
-#  tat_cre                             :boolean         default(FALSE)
-#  report_to_public                    :boolean         default(TRUE), not null
-#  phenotyping_experiments_started     :date
-#  qc_southern_blot_id                 :integer
-#  qc_five_prime_lr_pcr_id             :integer
-#  qc_five_prime_cassette_integrity_id :integer
-#  qc_tv_backbone_assay_id             :integer
-#  qc_neo_count_qpcr_id                :integer
-#  qc_neo_sr_pcr_id                    :integer
-#  qc_loa_qpcr_id                      :integer
-#  qc_homozygous_loa_sr_pcr_id         :integer
-#  qc_lacz_sr_pcr_id                   :integer
-#  qc_mutant_specific_sr_pcr_id        :integer
-#  qc_loxp_confirmation_id             :integer
-#  qc_three_prime_lr_pcr_id            :integer
-#  qc_lacz_count_qpcr_id               :integer
-#  qc_critical_region_qpcr_id          :integer
-#  qc_loxp_srpcr_id                    :integer
-#  qc_loxp_srpcr_and_sequencing_id     :integer
-#
-# Indexes
-#
-#  index_phenotype_attempts_on_colony_name  (colony_name) UNIQUE
-#
 
 # == Schema Information
 #
@@ -363,6 +347,7 @@ end
 #  qc_critical_region_qpcr_id          :integer
 #  qc_loxp_srpcr_id                    :integer
 #  qc_loxp_srpcr_and_sequencing_id     :integer
+#  ready_for_website                   :date
 #
 # Indexes
 #

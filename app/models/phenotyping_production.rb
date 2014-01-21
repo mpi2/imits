@@ -24,8 +24,6 @@ class PhenotypingProduction < ApplicationModel
   before_validation :change_status
 
   after_save :manage_status_stamps
-
-
 ## VALIDATION
 
   #mi_plan validatation
@@ -37,19 +35,20 @@ class PhenotypingProduction < ApplicationModel
     end
 
     other_ids = PhenotypingProduction.includes(:mi_plan).where("
-      mi_plans.gene_id = #{pp.mi_plan.id} AND
       mi_plans.consortium_id = #{pp.mi_plan.consortium_id} AND
       mi_plans.production_centre_id = #{pp.mi_plan.production_centre_id} AND
-      mouse_allele_mod_id = #{pp.mouse_allele_mod_id}")
+      mouse_allele_mod_id = #{pp.mouse_allele_mod_id}").map{|a| a.id}
 
-    other_ids -= [mi_plan.id]
+    other_ids -= [self.id]
     if(other_ids.count != 0)
-      plan.errors.add(:phenotyping_productions, 'already has production for this consortium & production centre')
+      pp.errors[:already] << 'has production for this consortium & production centre'
     end
   end
 
-  validate :mouse_allele_mod, :presence => true
-  validate :phenotype_attempt, :presence => true
+  validates :mouse_allele_mod, :presence => true
+  validates :phenotype_attempt, :presence => true
+  validates :colony_name, :presence => true, :uniqueness => {:case_sensitive => false}, :allow_nil => false
+
 
 #  validates :mouse_allele_modification, :presence => true
 #  validates :colony_name, :uniqueness => {:case_sensitive => false}
@@ -108,7 +107,6 @@ class PhenotypingProduction < ApplicationModel
         plan = MiPlan.includes(:consortium, :production_centre, :gene).where("genes.marker_symbol = '#{self.gene.marker_symbol}' AND consortia.name = '#{self.consortium_name}' AND centres.name = '#{self.production_centre_name}' AND phenotype_only = true")
       end
     end
-
     self.mi_plan = set_plan
   end
 
@@ -128,6 +126,7 @@ class PhenotypingProduction < ApplicationModel
               :phenotype_attempt_id             => phenotype_attempt.id,
               :mouse_allele_mod_id              => phenotype_attempt.mouse_allele_mod.id,
               :phenotyping_experiments_started  => phenotype_attempt.phenotyping_experiments_started,
+              :ready_for_website                => phenotype_attempt.ready_for_website,
               :phenotyping_started              => phenotype_attempt.phenotyping_started,
               :phenotyping_complete             => phenotype_attempt.phenotyping_complete,
               :colony_name                      => phenotype_attempt.colony_name,
@@ -142,9 +141,8 @@ class PhenotypingProduction < ApplicationModel
     else
       pap = PhenotypingProduction.new
     end
-    params.each{|attr, value| pap[attr] = value}
+    pap.update_attributes(params)
     if pap.valid?
-      pap.save
 
       status_mapping = {
                         'Phenotype Attempt Registered'      => 'Phenotype Attempt Registered',
@@ -165,7 +163,12 @@ class PhenotypingProduction < ApplicationModel
   def self.readable_name
     'phenotyping productions'
   end
+
+  def self.phenotype_attempt_updatable_fields
+    {'phenotyping_experiments_started' => nil, 'ready_for_website' => nil, 'phenotyping_started' => false, 'phenotyping_completed' => false}
+  end
 end
+
 
 
 
@@ -178,7 +181,7 @@ end
 #  mi_plan_id                      :integer         not null
 #  mouse_allele_mod_id             :integer         not null
 #  status_id                       :integer         not null
-#  colony_name                     :string(125)     not null
+#  colony_name                     :string(255)
 #  phenotyping_experiments_started :date
 #  phenotyping_started             :boolean         default(FALSE), not null
 #  phenotyping_complete            :boolean         default(FALSE), not null
@@ -187,5 +190,6 @@ end
 #  phenotype_attempt_id            :integer
 #  created_at                      :datetime        not null
 #  updated_at                      :datetime        not null
+#  ready_for_website               :date
 #
 

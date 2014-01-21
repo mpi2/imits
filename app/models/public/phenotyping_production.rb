@@ -10,22 +10,18 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
     mi_plan_id
     consortium_name
     production_centre_name
-    status_stamps_attributes
     colony_name
     phenotyping_experiments_started
     phenotyping_started
     phenotyping_complete
     report_to_public
     is_active
+    ready_for_website
     _destroy
 }
 
   READABLE_ATTRIBUTES = %w{
     id
-    status_name
-    status_dates
-    marker_symbol
-    mgi_accession_id
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -36,16 +32,6 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
   # BEGIN Callbacks
 
   # END Callbacks
-
-  def status_name; status.name; end
-
-  def status_dates
-    retval = reportable_statuses_with_latest_dates
-    retval.each do |status_name, date|
-      retval[status_name] = date.to_s
-    end
-    return retval
-  end
 
   def self.translations
     return {
@@ -59,6 +45,7 @@ end
 
 
 
+
 # == Schema Information
 #
 # Table name: phenotyping_productions
@@ -67,7 +54,7 @@ end
 #  mi_plan_id                      :integer         not null
 #  mouse_allele_mod_id             :integer         not null
 #  status_id                       :integer         not null
-#  colony_name                     :string(125)     not null
+#  colony_name                     :string(255)
 #  phenotyping_experiments_started :date
 #  phenotyping_started             :boolean         default(FALSE), not null
 #  phenotyping_complete            :boolean         default(FALSE), not null
@@ -76,5 +63,6 @@ end
 #  phenotype_attempt_id            :integer
 #  created_at                      :datetime        not null
 #  updated_at                      :datetime        not null
+#  ready_for_website               :date
 #
 

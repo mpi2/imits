@@ -47,6 +47,10 @@ module ApplicationModel::BelongsToMiPlan
 
   def consortium_name=(arg)
     @consortium_name = arg
+    if @consortium_name != self.mi_plan.try(:consortium).try(:name)
+      # this forces the changed methods to record a change.
+      self.changed_attributes['consortium_name'] = arg
+    end
   end
 
   def production_centre_name
@@ -59,6 +63,10 @@ module ApplicationModel::BelongsToMiPlan
 
   def production_centre_name=(arg)
     @production_centre_name = arg
+    if @production_centre_name != self.mi_plan.try(:production_centre).try(:name)
+      # this forces the changed methods to record a change.
+      self.changed_attributes['production_centre_name'] = arg
+    end
   end
 
 # PUBLIC MODEL

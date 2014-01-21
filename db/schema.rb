@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131219140237) do
+ActiveRecord::Schema.define(:version => 20140113132202) do
 
   create_table "audits", :force => true do |t|
     t.integer  "auditable_id"
@@ -959,6 +959,7 @@ ActiveRecord::Schema.define(:version => 20131219140237) do
     t.integer  "qc_critical_region_qpcr_id"
     t.integer  "qc_loxp_srpcr_id"
     t.integer  "qc_loxp_srpcr_and_sequencing_id"
+    t.date     "ready_for_website"
   end
 
   add_index "phenotype_attempts", ["colony_name"], :name => "index_phenotype_attempts_on_colony_name", :unique => true
@@ -977,18 +978,19 @@ ActiveRecord::Schema.define(:version => 20131219140237) do
   end
 
   create_table "phenotyping_productions", :force => true do |t|
-    t.integer  "mi_plan_id",                                                        :null => false
-    t.integer  "mouse_allele_mod_id",                                               :null => false
-    t.integer  "status_id",                                                         :null => false
-    t.string   "colony_name",                     :limit => 125,                    :null => false
+    t.integer  "mi_plan_id",                                         :null => false
+    t.integer  "mouse_allele_mod_id",                                :null => false
+    t.integer  "status_id",                                          :null => false
+    t.string   "colony_name"
     t.date     "phenotyping_experiments_started"
-    t.boolean  "phenotyping_started",                            :default => false, :null => false
-    t.boolean  "phenotyping_complete",                           :default => false, :null => false
-    t.boolean  "is_active",                                      :default => true,  :null => false
-    t.boolean  "report_to_public",                               :default => true,  :null => false
+    t.boolean  "phenotyping_started",             :default => false, :null => false
+    t.boolean  "phenotyping_complete",            :default => false, :null => false
+    t.boolean  "is_active",                       :default => true,  :null => false
+    t.boolean  "report_to_public",                :default => true,  :null => false
     t.integer  "phenotype_attempt_id"
-    t.datetime "created_at",                                                        :null => false
-    t.datetime "updated_at",                                                        :null => false
+    t.datetime "created_at",                                         :null => false
+    t.datetime "updated_at",                                         :null => false
+    t.date     "ready_for_website"
   end
 
   create_table "pipelines", :force => true do |t|

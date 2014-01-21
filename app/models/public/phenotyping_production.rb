@@ -22,6 +22,8 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
 
   READABLE_ATTRIBUTES = %w{
     id
+    status_name
+    mouse_allele_mod_status_name
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{
@@ -40,6 +42,10 @@ class Public::PhenotypingProduction < ::PhenotypingProduction
       'production_centre' => 'mi_plan_production_centre'
     }
   end
+
+  def status_name; status.name; end
+
+  def mouse_allele_mod_status_name; mouse_allele_mod.status.name; end
 end
 
 

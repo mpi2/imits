@@ -12,7 +12,6 @@ class Public::MouseAlleleMod < ::MouseAlleleMod
     consortium_name
     production_centre_name
     mi_attempt_colony_name
-    status_stamps_attributes
     colony_name
     rederivation_started
     rederivation_complete
@@ -30,17 +29,6 @@ class Public::MouseAlleleMod < ::MouseAlleleMod
   READABLE_ATTRIBUTES = %w{
     id
     status_name
-    status_dates
-    marker_symbol
-    mouse_allele_symbol_superscript
-    mouse_allele_symbol
-    allele_symbol
-    mi_attempt_colony_background_strain_name
-    mi_attempt_colony_background_mgi_strain_accession_id
-    mi_attempt_colony_background_mgi_strain_name
-    colony_background_strain_mgi_accession
-    colony_background_strain_mgi_name
-    mgi_accession_id
   } + FULL_ACCESS_ATTRIBUTES
 
   WRITABLE_ATTRIBUTES = %w{

@@ -88,6 +88,10 @@ TarMits::Application.routes.draw do
     end
   end
 
+  resources :mouse_allele_mods, :only => [:show, :index]
+  match 'mouse_allele_mods/colony_name/:colony_name' => 'mouse_allele_mods#colony_name'
+
+
   match 'phenotype_attempts/:id/phenotyping_productions' => 'phenotype_attempts#phenotyping_productions'
 
   resources :phenotyping_productions, :only => [:show, :update, :index, :create]

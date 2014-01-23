@@ -106,6 +106,8 @@ class SolrUpdate::DocFactory
       allele_type = phenotype_attempt.mouse_allele_symbol
     end
 
+    allele_type = '' if allele_type.nil?
+
     target = allele_type[/\>(.+)?\(/, 1]
     target = target ? " (#{target})" : ''
 

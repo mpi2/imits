@@ -43,7 +43,7 @@
 <fieldset class="collapsible">
   <legend>Allele Structure</legend>
 
-  <% {'Bespoke allele?'=> :is_bespoke_allele, 'Knockout First tm1a allele?'=> :is_conditional_allele, 'Deletion allele?' => :is_deletion_allele, 'Cre Knock-in allele?' => :is_cre_knock_in_allele, 'Cre BAC allele?'=> :is_cre_bac_allele, 'Conditional tm1c allele?' => :conditional_tm1c , 'Point Mutation allele?' => :point_mutation, 'Conditional Point Mutation allele?' => :conditional_point_mutation}.each do |label, field| %>
+  <% {'Bespoke allele?'=> :is_bespoke_allele, 'Knockout First tm1a allele?'=> :is_conditional_allele, 'Deletion allele?' => :is_deletion_allele, 'Cre Knock-in allele?' => :is_cre_knock_in_allele, 'Cre BAC allele?'=> :is_cre_bac_allele, 'Conditional tm1c allele?' => :conditional_tm1c , 'Point Mutation allele?' => :point_mutation, 'Conditional Point Mutation allele?' => :conditional_point_mutation, 'Mutagenesis via Crispr/Cas9?' => :mutagenesis_via_crispr_cas9}.each do |label, field| %>
     <div>
       <%= form.label field, label.to_s.titlecase %>
       <%= form.check_box field %>

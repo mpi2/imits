@@ -242,6 +242,7 @@ class MiPlanTest < ActiveSupport::TestCase
         assert_should have_db_column(:number_of_es_cells_received)
         assert_should have_db_column(:es_cells_received_on)
         assert_should have_db_column(:es_cells_received_from_id)
+        assert_should have_db_column(:mutagenesis_via_crispr_cas9)
       end
 
       context '#latest_relevant_mi_attempt ' do

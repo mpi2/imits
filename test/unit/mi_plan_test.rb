@@ -592,43 +592,13 @@ class MiPlanTest < ActiveSupport::TestCase
           assert_should have_db_column(:mutagenesis_via_crispr_cas9).with_options(:default => false)
         end
 
-        should 'index' do
-
-          #other_ids = MiPlan.where(:gene_id => plan.gene_id,
-          #      :consortium_id => plan.consortium_id,
-          #      :production_centre_id => plan.production_centre_id,
-          #      :sub_project_id => plan.sub_project_id,
-          #      :is_bespoke_allele => plan.is_bespoke_allele,
-          #      :is_conditional_allele => plan.is_conditional_allele,
-          #      :is_deletion_allele => plan.is_deletion_allele,
-          #      :is_cre_knock_in_allele => plan.is_cre_knock_in_allele,
-          #      :is_cre_bac_allele => plan.is_cre_bac_allele,
-          #      :conditional_tm1c => plan.conditional_tm1c,
-          #      :point_mutation => plan.point_mutation,
-          #      :conditional_point_mutation => plan.conditional_point_mutation,
-          #      :mutagenesis_via_crispr_cas9 => plan.mutagenesis_via_crispr_cas9,
-          #      :phenotype_only => plan.phenotype_only).map(&:id)
+        should 'respect index' do
 
           gene = Factory.create :gene_cbx1
           plan = Factory.create :mi_plan_with_production_centre, :gene => gene, :is_active => true
 
           plan.priority = MiPlan::Priority.find_by_name! 'High'
           plan.save!
-
-          #puts "#### plan.gene_id: #{plan.gene_id}"
-          #puts "#### plan.consortium_id: #{plan.consortium_id}"
-          #puts "#### plan.production_centre_id: #{plan.production_centre_id}"
-          #puts "#### plan.sub_project_id: #{plan.sub_project_id}"
-          #puts "#### plan.is_bespoke_allele: #{plan.is_bespoke_allele}"
-          #puts "#### plan.is_conditional_allele: #{plan.is_conditional_allele}"
-          #puts "#### plan.is_deletion_allele: #{plan.is_deletion_allele}"
-          #puts "#### plan.is_cre_knock_in_allele: #{plan.is_cre_knock_in_allele}"
-          #puts "#### plan.is_cre_bac_allele: #{plan.is_cre_bac_allele}"
-          #puts "#### plan.conditional_tm1c: #{plan.conditional_tm1c}"
-          #puts "#### plan.point_mutation: #{plan.point_mutation}"
-          #puts "#### plan.conditional_point_mutation: #{plan.conditional_point_mutation}"
-          #puts "#### plan.mutagenesis_via_crispr_cas9: #{plan.mutagenesis_via_crispr_cas9}"
-          #puts "#### plan.phenotype_only: #{plan.phenotype_only}"
 
           plan2 = MiPlan.create(
           :gene_id => plan.gene_id,
@@ -648,12 +618,8 @@ class MiPlanTest < ActiveSupport::TestCase
           :priority => plan.priority
           )
 
-         # pp plan
-
           assert_false plan2.valid?
           assert_contains plan2.errors[:gene], /already has a plan by that consortium\/production centre and allele discription/
-
-          #      plan.errors.add(:gene, 'already has a plan by that consortium/production centre and allele discription')
 
           plan3 = MiPlan.create(
           :gene_id => plan.gene_id,

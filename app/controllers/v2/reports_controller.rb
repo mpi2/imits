@@ -73,7 +73,7 @@ class V2::ReportsController < ApplicationController
     end
   end
 
-  def phenotype_attempt_allele_load
+  def mgi_modification_allele_report
     report = PhenotypeAttemptAlleleLoadReport.new
     @phenotype_attempt_mgi_allele = report.phenotype_attempt_mgi_allele
     respond_to do |format|

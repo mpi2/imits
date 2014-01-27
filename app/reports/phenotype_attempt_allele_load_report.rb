@@ -19,6 +19,7 @@ class PhenotypeAttemptAlleleLoadReport
       [{'title' => 'Marker Symbol', 'field' => 'marker_symbol'},
        {'title' => 'MGI Accession ID', 'field' => 'mgi_accession_id'},
        {'title' => 'Mi Attempt Colony Name', 'field' => 'mi_attempt_colony_name'},
+       {'title' => 'Mi Attempt Colony Background Strian', 'field' => 'mi_attempt_colony_background_strain'},
        {'title' => 'Mi Attempt Production Centre', 'field' => 'mi_attempt_production_centre'},
        {'title' => 'Mi Attempt Allele Symbol', 'field' => 'mi_attempt_allele_symbol'},
        {'title' => 'Mi Attempt Es Cell Allele Symbol', 'field' => 'mi_attempt_es_cell_allele_symbol'},
@@ -29,7 +30,8 @@ class PhenotypeAttemptAlleleLoadReport
        {'title' => 'Excision Type', 'field' => 'excision_type'},
        {'title' => 'Tat Cre', 'field' => 'tat_cre'},
        {'title' => 'Phenotype Attempt Deleter Strain', 'field' => 'phenotype_attempt_deleter_strain'},
-       {'title' => 'Phenotype Attempt Colony Background_strain', 'field' => 'phenotype_attempt_colony_background_strain'},
+       {'title' => 'Phenotype Attempt Colony Background Strain', 'field' => 'phenotype_attempt_colony_background_strain'},
+       {'title' => 'Phenotype Attempt Production Centre', 'field' => 'phenotype_attempt_production_centre'},
        {'title' => 'MGI Allele Accession', 'field' => 'MGI_allele_accession'},
        {'title' => 'MGI Allele Name', 'field' => 'MGI_allele_name'}
        ]

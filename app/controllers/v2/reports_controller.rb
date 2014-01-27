@@ -2,7 +2,7 @@ class V2::ReportsController < ApplicationController
 
   helper :reports
 
-  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist]
+  before_filter :authenticate_user!, :except => [:komp_project, :idcc_master_genelist, :mgi_modification_allele_report]
 
   before_filter do
     if params[:format] == 'csv'

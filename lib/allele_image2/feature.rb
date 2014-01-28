@@ -15,6 +15,7 @@ module AlleleImage2
       self.feature_name = note.first
       self.feature_type = bio_feature.feature
 
+      # optionally set exon rank if available
       rank = bio_feature.to_hash['rank']
 
       if rank

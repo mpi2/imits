@@ -1,6 +1,6 @@
 class AlleleImage2::Features::Ori < AlleleImage2::Features::DefaultFeature
 
-  def detailed(renderer, image)
+  def detailed(renderer, image, options = {})
     drawing = Magick::Draw.new
 
     font_colour = @render_options[:font_colour]

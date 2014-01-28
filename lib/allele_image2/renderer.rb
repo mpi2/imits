@@ -28,7 +28,6 @@ module AlleleImage2
         :gap_width             => 10,
         :text_width            => 12,
         :text_height           => 22,
-        :feature_height        => 40,
         :annotation_height     => 100,
         :sequence_stroke_width => 2.5,
         :cassetteonly          => false
@@ -41,7 +40,6 @@ module AlleleImage2
       @gap_width             = @options[:gap_width]
       @text_width            = @options[:text_width]
       @text_height           = @options[:text_height]
-      @feature_height        = @options[:feature_height]
       @annotation_height     = @options[:annotation_height]
       @sequence_stroke_width = @options[:sequence_stroke_width]
       @font_size             = @options[:font_size]
@@ -67,42 +65,44 @@ module AlleleImage2
     # call AlleleImage2::Image#render_image().
     def render
       # Construct the main image components
-      main_image = Magick::ImageList.new
-      cassette   = render_cassette
+      main_image_list       = Magick::ImageList.new
+      cassette_image_list   = render_cassette
 
       # returns cassette image only. Driven off the cassette? flag.
       if @cassetteonly
-        main_image.push(cassette)
-        return main_image
+        main_image_list.push(cassette_image_list)
+        return main_image_list
       end
 
       five_arm   = render_five_arm
       three_arm  = render_three_arm
 
-      main_image.push(five_arm).push(cassette).push(three_arm)
+      main_image_list.push(five_arm).push(cassette_image_list).push(three_arm)
 
       # get the width of the cassette + homology arms
-      bb_width = main_image.append(false).columns
+      bb_width = main_image_list.append(false).columns
 
       # Actually makes more sense to push this functionality into the
       # flank drawing code. Just check for circular/linear and draw.
       five_flank  = render_five_flank
       three_flank = render_three_flank
-      main_image.unshift(five_flank)
-      main_image.push(three_flank)
+      main_image_list.unshift(five_flank)
+      main_image_list.push(three_flank)
 
-      main_image   = main_image.append(false)
+      main_image_list   = main_image_list.append(false)
+
+      width_with_flanks = main_image_list.columns # todo: remove
 
       # Return the allele (i.e no backbone) unless this is a vector
-      return main_image unless @construct.circular
+      return main_image_list unless @construct.circular
 
       # Construct the backbone components and put the two images together
-      vector_image   = Magick::ImageList.new
+      vector_image_list   = Magick::ImageList.new
       backbone_image = render_backbone( :width => bb_width )
 
-      vector_image.push(main_image).push(backbone_image) 
+      vector_image_list.push(main_image_list).push(backbone_image)
 
-      return vector_image.append(true)
+      return vector_image_list.append(true)
     end
 
     def render_backbone( params = {} )
@@ -349,7 +349,7 @@ module AlleleImage2
         end
 
         homology_arm_label = @construct.bac_label ? "3' #{ @construct.bac_label }" : "3 arm"
-        
+
         unless @simple
           annotation_image = draw_homology_arm( annotation_image, homology_arm_label, genomic.last.stop - genomic.first.start )
         end
@@ -379,7 +379,8 @@ module AlleleImage2
       def render_mutant_region( features, params={} )
         cassette_features = insert_gaps_between( features )
         image_list        = Magick::ImageList.new
-        image_width       = params.include?(:width) ? params[:width] : calculate_width( cassette_features )
+        features_width    = calculate_width( cassette_features )
+        image_width       = params.include?(:width) ? params[:width] : features_width
 
         if params[:label]
           label_length = params[:label].split(/\n/).map { |e| e.length }.max
@@ -389,16 +390,17 @@ module AlleleImage2
         end
 
         # Construct the main image
-        image_height = @image_height
-        main_image   = Magick::Image.new( image_width, image_height )
-        @x            = 0
-        @y            = image_height / 2
-        main_image   = draw_sequence( main_image, @x, image_height / 2, image_width, image_height / 2 )
+        image_height   = @image_height
+        main_image     = Magick::Image.new( image_width, image_height )
+        @x             = 0
+        @y             = image_height / 2
+        main_image     = draw_sequence( main_image, @x, image_height / 2, image_width, image_height / 2 )
 
         # Centralize the features on the image
-        features_width = calculate_width( cassette_features )
-        @x              = ( image_width - features_width ) / 2
+        # features_width = calculate_width( cassette_features )
 
+        @x             = ( image_width - features_width ) / 2
+        
         cassette_features.each_with_index do |feature, index|
           feature_width = 0
           if feature.label == "gap"
@@ -406,17 +408,17 @@ module AlleleImage2
           elsif @simple && feature.feature_type == 'promoter'
             promotor_width = @x - (feature.image.width / 2) + 15
             antibiotic_resistance = cassette_features[index + 1]
-            draw_feature( main_image, feature)
-            feature_width = 10
+            draw_feature( main_image, feature, :x => promotor_width, :related_feature => antibiotic_resistance )
+            feature_width = @gap_width
           else
-            draw_feature( main_image, feature)
+            draw_feature( main_image, feature )
             feature_width = feature.image.width
           end
           @x += feature_width ? feature_width : 0
         end
 
-        ## Render a double slash on a deletion for simple images
-        if @simple && @mutation_type == 'Deletion'
+        ## Render a double slash on a deletion
+        if @mutation_type == 'Deletion'
           draw_double_slash(main_image, @x, @y)
         end
 
@@ -434,7 +436,7 @@ module AlleleImage2
 
       def render_genomic_region features, params={}
         exons       = []
-        image_width = params[:width] || 50
+        image_width = params[:width] || 60
 
         if features
           exons = features.select { |feature| feature.feature_type == "exon" }
@@ -447,19 +449,20 @@ module AlleleImage2
         end
 
         # Construct the main image
-        image_height = @image_height
-        main_image   = Magick::Image.new( image_width, image_height )
-        main_image   = draw_sequence( main_image, 0, image_height / 2, image_width, image_height / 2 )
+        # image_height = @image_height # todo: remove
+        main_image   = Magick::Image.new( image_width, @image_height )
+        main_image   = draw_sequence( main_image, 0, @image_height / 2, image_width, @image_height / 2 )
 
-        calculate_first_exon_start image_width, exons
-        @y = image_height / 2
+        calculate_first_exon_start( image_width, exons )
+        @y = @image_height / 2
 
-        features             = []
-        intervening_sequence = AlleleImage2::Feature.new(
+        features = []
+
+        if exons.count >= 5
+          intervening_sequence = AlleleImage2::Feature.new(
           Bio::Feature.new( "intervening sequence", "1..2" ).append(
               Bio::Feature::Qualifier.new( "note", "intervening sequence" ) ) )
 
-        if exons.count >= 5
           features = insert_gaps_between( [ exons.first, intervening_sequence, exons.last ] )
         else
           features = insert_gaps_between( exons )
@@ -470,37 +473,43 @@ module AlleleImage2
           if feature.feature_name == "gap"
             feature_width = @gap_width
           elsif ( feature.feature_name.match(/5' fragment/) )
-            @x =  ( image_width - calculate_exon_image_width( 1 ) ) - 1
-            draw_feature( main_image, feature)
+            @x =  ( image_width - calculate_exon_image_width( 1 ) ) - 5
+            draw_feature( main_image, feature )
           else
-            draw_feature( main_image, feature)
-            feature_width = feature.image.width#@text_width # or Feature#width if it exists
+            draw_feature( main_image, feature )
+            feature_width = @text_width
           end
           @x += feature_width # update the x coordinate
         end
 
-        # Construct the label image
-        label_image, @x, @y = Magick::Image.new( image_width, calculate_labels_image_height ), 0, 0
+        # labels are not added for the simple versions of images
+        unless @simple
+          # Construct the label image
+          label_image, @x, @y = Magick::Image.new( image_width, calculate_labels_image_height ), 0, 0
 
-        # Only label target exons or 5' exon fragments on the 5' arm
-        # do not label central exon fragments ( in target region )
-        exons.each do |exon|
-          if exon.feature_name.match(/^target\s+exon\s+/) or exon.feature_name.match(/5' fragment/)
-            unless exon.feature_name.match(/central fragment/)
-              draw_label( label_image, exon.feature_name.match(/(ENSMUSE\d+)/).captures.last, x, y )
-              @y += @text_height
+          # Only label target exons or 5' exon fragments on the 5' arm
+          # do not label central exon fragments ( in target region )
+          exons.each do |exon|
+            if exon.feature_name.match(/^target\s+exon\s+/) or exon.feature_name.match(/5' fragment/)
+              unless exon.feature_name.match(/central fragment/)
+                draw_label( label_image, exon.feature_name.match(/(ENSMUSE\d+)/).captures.last, x, y )
+                @y += @text_height
+              end
             end
           end
+
         end
 
         # Stack the images vertically
-        image_list.push(main_image)
-        image_list.push( label_image )
+        image_list.push( main_image )
+        unless @simple
+          image_list.push( label_image )
+        end
 
         return image_list.append(true)
       end
 
-      def calculate_first_exon_start image_width, exons
+      def calculate_first_exon_start( image_width, exons )
         default_start = ( image_width - calculate_exon_image_width( exons.count ) ) / 2
         if exons.count == 0
           @x = default_start
@@ -511,15 +520,16 @@ module AlleleImage2
         else
           @x = default_start
         end
+
       end
 
       # DRAW METHODS
 
       # Need to get this method drawing exons as well
-      def draw_feature( image, feature)
+      def draw_feature( image, feature, options = {} )
         feature_renderer = feature.image
         feature_renderer.simplify! if @simple
-        feature_renderer.render(self, image)
+        feature_renderer.render( self, image, options )
       end
 
       # draw the sequence
@@ -645,6 +655,19 @@ module AlleleImage2
         return image
       end
 
+      def draw_double_slash(image, x, y)
+        d = Magick::Draw.new
+
+        d.stroke( "black" )
+        d.stroke_width( @sequence_stroke_width )
+        d.line( x, @image_height - @bottom_margin, x + @text_width / 2, @top_margin )
+        d.draw( image )
+        d.line( x + @text_width / 2, @image_height - @bottom_margin, x + @text_width, @top_margin )
+        d.draw( image )
+
+        return image
+      end
+
       # UTILITY METHODS
       def calculate_genomic_region_width( exons, min_image_width )
         return min_image_width if exons.nil? or exons.empty?
@@ -658,40 +681,51 @@ module AlleleImage2
         if target_exons.nil? or target_exons.empty?
           image_width = calculate_exon_image_width( exons.size ) + @gap_width * 2 # for padding either side
         else
-         image_width = target_exons.map { |e| e.feature_name.match(/(\ENSMUSE\d+)/).captures.last.length }.max * @text_width
+          image_width = target_exons.map { |e| e.feature_name.match(/(\ENSMUSE\d+)/).captures.last.length }.max * @text_width
         end
 
-        return min_image_width if @simple
+        if @simple
+          return min_image_width +5
+        end
         return [ image_width, min_image_width ].max
       end
 
       # Return the width occupied by the exons based on the exon count
-      def calculate_exon_image_width( count )
+      def calculate_exon_image_width( count )        
         count = 3 if count >= 5
-        @text_width * count + @gap_width * ( count - 1 )
+        calc_width = @text_width * count + @gap_width * ( count - 1 )
+        return calc_width
       end
 
       def calculate_labels_image_height
-        cassette_label_rows = 2 # in case of "cassette type\(cassette label)"
-        three_arm_features  = @construct.three_arm_features.select { |f| f.feature_name.match(/^target\s+exon\s+/) }.size
+        num_cassette_label_rows = 2 # in case of "cassette type\(cassette label)"
+        num_three_arm_features  = @construct.three_arm_features.select { |f| f.feature_name.match(/^target\s+exon\s+/) }.size
 
         # we want the maximum here
-        [ cassette_label_rows, three_arm_features ].max * @text_height
+        # for example a 3' arm with 5 exons will have 5 EnsEMBL id labels drawn one under another
+        [ num_cassette_label_rows, num_three_arm_features ].max * @text_height
       end
 
       # find sum of feature labels
       def calculate_width( features )
         width, gaps = 0, 0
         features.each do |feature|
-          if @simple && (feature.feature_name == 'pA' || feature.feature_type == 'promoter' || feature.feature_name =~ /SA/)
-            width += 9 # Add a little spacing
+          if @simple && (feature.label == 'pA' || feature.feature_type == 'promoter' || feature.feature_name =~ /SA/ )          
+            width += @gap_width # Add a little spacing
           elsif feature.feature_name == "gap"
             gaps += @gap_width
           else
             width += feature.image.width ? feature.image.width : 0
           end
+
         end
         width = ( width + gaps ) + 1
+
+        # add extra if a Deletion to allow for double slash
+        if @mutation_type == 'Deletion'
+          width += 34
+        end
+
         return width.to_i
       end
 

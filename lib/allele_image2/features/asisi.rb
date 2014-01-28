@@ -3,11 +3,11 @@ class AlleleImage2::Features::Asisi < AlleleImage2::Features::DefaultFeature
   # From RMagick docs
   # drawing.line(here_x, here_y, there_x, there_y)
 
-  def detailed(renderer, image)
+  def detailed(renderer, image, options = {})
 
     drawing = Magick::Draw.new
 
-    annotation_y = renderer.x# - 10 - @render_options[:height]
+    annotation_y = renderer.x
 
     # draw the AsiSI on the sequence
     
@@ -25,7 +25,7 @@ class AlleleImage2::Features::Asisi < AlleleImage2::Features::DefaultFeature
     end
 
     # Draw the arrow pointing down in the moddle of the annotation
-    draw_arrow(image, [ renderer.x + @render_options[:width] / 2, renderer.y - 2 ], :tail_height => 10, :arm_height => 5, :arm_width => 5)
+    draw_arrow(image, [ renderer.x + @render_options[:width] / 2, @render_options[:height] + 2 ], :tail_height => 10, :arm_height => 5, :arm_width => 5)
 
     return image
 

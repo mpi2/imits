@@ -24,21 +24,27 @@ class AlleleImage2::Features::DefaultFeature
   def simplify!
     ## Set this to true if there is a simple image for your feature.
     @simple_image = true
+
+    if (feature.render_options[:simple])
+      @render_options = @render_options.merge(feature.render_options[:simple])
+    end
+
   end
 
   def width
     @render_options[:width]
   end
 
-  def render(renderer, image)
-    return @simple_image ? simple(renderer, image) : detailed(renderer, image)
+  def render(renderer, image, options = {} )
+    return @simple_image ? simple(renderer, image, options ) : detailed(renderer, image, options )
   end
 
-  # From RMagick docs
-  # drawing.rectangle(x1, y1, x2, y2)
-  # drawing.annotate(img, width, height, x, y, text)
+  ## Default detailed image is a rectangular block containing the feature label text
+  def detailed(renderer, image, options = {})
 
-  def detailed(renderer, image)
+    # From RMagick docs
+    # drawing.rectangle(x1, y1, x2, y2)
+    # drawing.annotate(img, width, height, x, y, text)
     drawing = Magick::Draw.new
     drawing.stroke @render_options[:stroke]
     drawing.fill @render_options[:colour]
@@ -57,8 +63,9 @@ class AlleleImage2::Features::DefaultFeature
 
   end
 
-  ## No simple image for this feature.
-  def simple(renderer, image)
+  ## Default simple image for this feature is the same as the detailed one
+  def simple(renderer, image, options = {})
+    detailed(renderer, image, options)
   end
 
 end

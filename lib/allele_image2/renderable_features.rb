@@ -15,25 +15,47 @@ module AlleleImage2
     # ["pA", "DTA", "PGK"] => "pA_DTA_PGK",
   }
 
+  # SIMPLE_FEATURES = [
+  #   'Rox',
+  #   'EGFP',
+  #   'Cre',
+  #   'pu-Delta-tk',
+  #   'Frt',
+  #   'F3',
+  #   'Puro',
+  #   'TM-lacZ',
+  #   'lacZ',
+  #   'loxP',
+  #   'Neo',
+  #   'NeoR',
+  #   'Neo*',
+  #   'AttP',
+  #   # 'pA',
+  #   'SV40 polyadenylation site',
+  #   'PolyA',
+  #   'sA',
+  #   'SA',
+  #   'En2 SA',
+  #   'Ifitm2 Intron'
+  # ]
+
+  # list of cassette features to show in simple images
+  # NB. the array element here must match to the 'label' element in the features.yml file
   SIMPLE_FEATURES = [
-    'Rox',
-    'EGFP',
-    'Cre',
-    'pu-Delta-tk',
     'FRT',
-    'F3',
-    'Puro',
-    'TM-lacZ',
     'lacZ',
     'loxP',
     'neo',
-    'neo*',
-    'AttP',
     'pA',
-    'sA',
-    'SA',
     'En2 SA',
-    'Ifitm2 Intron'    
+    'Rox',
+    'EGFP',
+    'Cre',
+    'Puro',
+    'F3',
+    'TM-lacZ',
+    'AttP',
+    'Ifitm2 Intron'
   ]
 
   SIMPLE_FEATURE_TYPES = %w(promoter)
@@ -54,12 +76,13 @@ module AlleleImage2
       features
     end
 
-    attr_accessor :feature_type, :feature_name
+    attr_accessor :feature_type, :feature_name, :simple
 
-    def initialize(feature_type, feature_name)
+    def initialize(feature_type, feature_name, simple = false)
       @config = self.class.config
       self.feature_type = feature_type
       self.feature_name = feature_name
+      self.simple = simple
     end
 
     def feature_name=(name)
@@ -73,6 +96,7 @@ module AlleleImage2
     def features
       features_hash = @config[@feature_type]
       return {} if features_hash.blank?
+
       features_hash
     end
 
@@ -88,7 +112,10 @@ module AlleleImage2
         end
       end
 
-      return @feature_properties = features[:defaults] if @feature_properties.blank?
+      if @feature_properties.blank?
+        @feature_properties = {}
+      end
+
       @feature_properties.reverse_merge!(features[:defaults] || {})
 
       @feature_properties

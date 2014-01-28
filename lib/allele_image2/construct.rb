@@ -54,7 +54,8 @@ module AlleleImage2
       @cassette_features ||= initialize_section(:cassette_features)
 
       if @simple
-        @cassette_features = @cassette_features.select {|f| AlleleImage2::SIMPLE_FEATURES.include?(f.feature_name) || AlleleImage2::SIMPLE_FEATURE_TYPES.include?(f.feature_type) }
+        # @cassette_features = @cassette_features.select {|f| AlleleImage2::SIMPLE_FEATURES.include?(f.feature_name) || AlleleImage2::SIMPLE_FEATURE_TYPES.include?(f.feature_type) }
+        @cassette_features = @cassette_features.select {|f| AlleleImage2::SIMPLE_FEATURES.include?(f.label) || AlleleImage2::SIMPLE_FEATURE_TYPES.include?(f.feature_type) }
       end
 
       @cassette_features = @cassette_features.reject { |f| f.feature_name == "Synthetic Cassette" }

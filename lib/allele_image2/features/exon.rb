@@ -3,7 +3,7 @@ class AlleleImage2::Features::Exon < AlleleImage2::Features::DefaultFeature
   # From RMagick docs
   # drawing.rectangle(x1, y1, x2, y2) 
 
-  def detailed(renderer, image)
+  def detailed(renderer, image, options = {})
 
     drawing = Magick::Draw.new
     drawing.stroke @render_options[:stroke]

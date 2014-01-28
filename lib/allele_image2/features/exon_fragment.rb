@@ -4,7 +4,7 @@ class AlleleImage2::Features::ExonFragment < AlleleImage2::Features::DefaultFeat
   # drawing.rectangle(x1, y1, x2, y2) 
   # drawing.polygon(x1, y1,...,xN, yN)
 
-  def detailed(renderer, image)
+  def detailed(renderer, image, options = {})
 
     drawing = Magick::Draw.new
     drawing.stroke @render_options[:stroke]

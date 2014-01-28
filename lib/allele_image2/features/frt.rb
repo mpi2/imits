@@ -4,7 +4,7 @@ class AlleleImage2::Features::Frt < AlleleImage2::Features::DefaultFeature
   # drawing.polygon(x1, y1,...,xN, yN)
   # drawing.annotate(img, width, height, x, y, text)
 
-  def detailed(renderer, image)
+  def detailed(renderer, image, options = {})
 
     b = feature.orientation == "forward" ? renderer.x : renderer.x + @render_options[:width]
 

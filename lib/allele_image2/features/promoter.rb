@@ -3,7 +3,7 @@ class AlleleImage2::Features::Promoter < AlleleImage2::Features::DefaultFeature
   # From RMagick docs
   # drawing.line(here_x, here_y, there_x, there_y)
 
-  def detailed(renderer, image)
+   def detailed(renderer, image, options = {})
 
     AlleleImage2::Features::DefaultFeature.new(feature).render(renderer, image)
 
@@ -44,6 +44,71 @@ class AlleleImage2::Features::Promoter < AlleleImage2::Features::DefaultFeature
 
     return image
 
+  end
+
+  def simple(renderer, image, options = {})
+
+    # make the dimensions constant
+    tail_height  = 15
+    arm_height   = 9
+    arm_width    = 6
+    line_width   = 6
+
+    xloc = options[:x] || renderer.x
+
+    # fetch attached antibiotic feature if present
+    if options[:related_feature]
+      antibiotic_resistance_feature = options[:related_feature]
+      ab_render_options = antibiotic_resistance_feature.render_options[:simple]
+    end
+
+    if antibiotic_resistance_feature && antibiotic_resistance_feature.image.width
+      related_image_width = antibiotic_resistance_feature.image.width
+    else
+      related_image_width = @render_options[:width]
+    end
+
+    # draw the arrow above the related cassette feature
+    first_point  = [ xloc + related_image_width / 2, @render_options[:top_margin]     ]
+    second_point = [ xloc + related_image_width / 2, @render_options[:top_margin] / 2 ]
+    third_point  = [
+      feature.orientation == "forward" ? second_point[0] + tail_height : second_point[0] - tail_height,
+      @render_options[:top_margin] / 2
+    ]
+    arrow_point  = [
+      third_point[0] + arm_width,
+      third_point[1]
+    ]
+    
+    # fetch colours from attached antibiotic feature
+    if ab_render_options && ab_render_options[:colour]
+      arrow_colour = ab_render_options[:colour]
+    end
+
+    unless arrow_colour
+      arrow_colour = 'black'
+    end
+    
+    drawing              = Magick::Draw.new
+
+    # drawing a bezier curve and displaying the border line
+    drawing.stroke       = arrow_colour
+    drawing.stroke_width = line_width
+    drawing.fill_opacity(0)
+    drawing.bezier(first_point[0],first_point[1], first_point[0], third_point[1], first_point[0], third_point[1], third_point[0], third_point[1])
+
+    draw_arrow(
+      image, arrow_point,
+      :direction    => feature.orientation == "forward" ? "east" : "west",
+      :tail_height  => tail_height,
+      :arm_height   => arm_height,
+      :arm_width    => arm_width,
+      :colour       => arrow_colour
+    )
+
+    drawing.draw( image )
+
+    return image
   end
 
   # draw an arrow at the point
@@ -89,6 +154,7 @@ class AlleleImage2::Features::Promoter < AlleleImage2::Features::DefaultFeature
     arrow.draw( image )
 
     return image
+
   end
 
 end

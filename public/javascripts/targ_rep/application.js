@@ -24,9 +24,10 @@ $(function() {
 
   // Gene autocomplete
   $(function() {
+    var $allele_type_gene_id = '#targ_rep_' + $('#allele_type').attr('value') + '_gene_id';
     var $gene_input = $('#gene_marker_symbol');
     var $autocomplete_list = $('#gene_autocomplete');
-    var $hidden_field = $('#targ_rep_allele_gene_id');
+    var $hidden_field = $($allele_type_gene_id);
 
     $('.gene-item', $autocomplete_list).live('click', function() {
       $hidden_field.val($(this).attr('data-id'));
@@ -35,7 +36,7 @@ $(function() {
         .removeClass('active')
         .html('');
 
-      return false;  
+      return false;
     })
 
     if($gene_input.length) {
@@ -43,11 +44,11 @@ $(function() {
         var string = $(this).val();
 
         if(string.length >= 3) {
-          $.get(basePath + '/genes?marker_symbol_cont='+string, function(data) {
+          $.get(basePath + '/genes.json?marker_symbol_cont='+string, function(data) {
             if(data.length) {
               $autocomplete_list.html('')
               $autocomplete_list.addClass('active');
-
+              $autocomplete_list.append($("<li class='gene'>Please select a gene</li>"))
               $.each(data, function(i, item) {
                 $autocomplete_list.append($("<li class='gene'><a href='' class='gene-item' data-id='"+item.id+"'>" + item.marker_symbol + "</a></li>"))
               })
@@ -121,6 +122,6 @@ $(function() {
 //        Form.Element.setValue('gene_marker_symbol', '');
 //      }
 //    });
-//    
+//
 //  }
 //});

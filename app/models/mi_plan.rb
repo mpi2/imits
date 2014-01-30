@@ -470,7 +470,7 @@ class MiPlan < ApplicationModel
   end
 
   def self.get_completion_note_enum
-    ['', "Handoff complete", "Allele not needed"]
+    ['', "Handoff complete", "Allele not needed", "Effort concluded"]
   end
 
   def check_completion_note
@@ -483,6 +483,7 @@ class MiPlan < ApplicationModel
   end
 end
 
+
 # == Schema Information
 #
 # Table name: mi_plans
@@ -491,7 +492,7 @@ end
 #  gene_id                        :integer         not null
 #  consortium_id                  :integer         not null
 #  status_id                      :integer         not null
-#  priority_id                    :integer         not null
+#  priority_id                    :integer
 #  production_centre_id           :integer
 #  created_at                     :datetime
 #  updated_at                     :datetime

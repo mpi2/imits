@@ -69,6 +69,7 @@ class PhenotypeAttempt::DistributionCentre < ApplicationModel
 
 end
 
+
 # == Schema Information
 #
 # Table name: phenotype_attempt_distribution_centres
@@ -83,5 +84,6 @@ end
 #  created_at             :datetime
 #  updated_at             :datetime
 #  distribution_network   :string(255)
+#  mouse_allele_mod_id    :integer
 #
 

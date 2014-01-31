@@ -211,9 +211,8 @@ MiAttempt.transaction do
     filtered_plans = []
 
     plans.each do |plan|
-      raise "#### '#{marker_symbol}' already has mutagenesis_via_crispr_cas9!" if plan.mutagenesis_via_crispr_cas9
-      #production = plan.mi_attempts.size > 0 || plan.phenotype_attempts.size > 0
       next if plan.phenotype_only
+      raise "#### '#{marker_symbol}' already has mutagenesis_via_crispr_cas9!" if plan.mutagenesis_via_crispr_cas9
       production = plan.mi_attempts.size > 0
       filtered_plans.push plan
     end

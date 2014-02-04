@@ -43,6 +43,8 @@
       </p>
     </a>
   </div>
+
+  <% if current_user.admin %>
   <div class="report-links">
     <a href="<%= url_for(:controller => :reports, :action => :notifications_by_gene) %>">
       <h4>Gene interest by notification</h4>
@@ -51,6 +53,17 @@
       </p>
     </a>
   </div>
+  <% end %>
+
+  <div class="report-links">
+    <a href="<%= url_for(:controller => 'v2/reports/mi_production', :action => :notifications_by_gene) %>">
+      <h4>Gene interest by notification - details</h4>
+      <p>
+        Lists all genes that current have subscribed updates and displays further details for each gene.
+      </p>
+    </a>
+  </div>
+
 </div>
 
 <div class="grid_4">

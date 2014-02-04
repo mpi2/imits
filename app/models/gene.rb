@@ -9,6 +9,7 @@ class Gene < ActiveRecord::Base
   has_many :contacts, :through => :notifications
 
   has_many :allele, :class_name => 'TargRep::Allele'
+  has_many :crispr, :class_name => 'TargRep::Crispr'
 
   validates :marker_symbol, :presence => true, :uniqueness => true
 

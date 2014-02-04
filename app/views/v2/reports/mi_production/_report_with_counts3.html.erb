@@ -1,0 +1,35 @@
+<% if @count == 0 %>
+  <p><em>Sorry, no <%= label %> found</em></p>
+<% else %>
+  <p><%= @count %> <%= label %> found for <%= @blurb %> </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Gene</th>
+        <th>MGI Accession ID</th>
+        <th>Number of notifications</th>
+        <th>Non-Assigned Plans</th>
+        <th>Assigned plans</th>
+        <th>Aborted MIs</th>
+        <th>MIs in Progress</th>
+        <th>GLT Mice</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @mi_plan_summary.each do |rec|%>
+        <tr>
+          <td><%= rec['gene'] %></td>
+          <td><%= rec['mgi_accession_id'] %></td>
+          <td><%= rec['number_of_notifications'] %></td>
+          <td><%= @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td><%= @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td><%= @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td><%= @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+          <td><%= @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<% end %>

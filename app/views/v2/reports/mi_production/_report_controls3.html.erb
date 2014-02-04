@@ -1,0 +1,49 @@
+<% suppress_centre_consortium_filters ||= false %>
+<% unless suppress_centre_consortium_filters %>
+  <div class="grid_4">
+    <fieldset>
+      <legend>Filter Data On</legend>
+      <table>
+        <tr>
+          <td>
+            <%= label_tag( 'consortium', "Consortium:" ) %>
+            <%=
+              select_tag(
+                'consortium',
+                options_from_collection_for_select( Consortium.order("name").all, :name, :name, params[:consortium] ),
+                { :include_blank => true, :size => 5 }
+              )
+            %>
+          </td>
+          <td>
+            <%= label_tag( 'production_centre', "Production Centre:" ) %>
+            <%=
+              select_tag(
+                'production_centre',
+                options_from_collection_for_select( Centre.order("name").all, :name, :name, params[:production_centre] ),
+                { :include_blank => true, :multiple => false, :size => 5 }
+              )
+            %>
+          </td>
+        </tr>
+      </table>
+    </fieldset>
+  </div>
+<% end %>
+
+<div class="grid_4">
+  <fieldset>
+    <legend>CSV Download?</legend>
+    yes <%= radio_button_tag( 'format', 'csv' ) %>
+    no <%= radio_button_tag( 'format', 'html', true ) %>
+  </fieldset>
+</div>
+
+<div class="clear"></div>
+
+<div class="grid_12">
+  <%= hidden_field_tag( 'commit', 'true' ) %>
+  <%= submit_tag 'Generate Report', :class => 'disable-on-submit' %>
+</div>
+
+<div class="clear"></div>

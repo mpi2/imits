@@ -282,8 +282,6 @@ class NotificationMailer < ActionMailer::Base
   end
 
   def get_production_centre_report(production_centre = nil)
-    puts "#### calling get_production_centre_report('#{production_centre}')"
-
     @report = NotificationsByGene.new
     @mi_plan_summary = @report.mi_plan_summary(production_centre)
     @pretty_print_non_assigned_mi_plans = @report.pretty_print_non_assigned_mi_plans
@@ -291,16 +289,6 @@ class NotificationMailer < ActionMailer::Base
     @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
     @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
     @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
-
-    #pp @reports.methods
-    #/nfs/users/nfs_r/re4/dev/imits10/app/views/v2/reports/mi_production/notifications_by_gene.csv.erb
-
-    #@mi_plan_summary.each do |plan|
-    #  pp plan
-    #end
-
-    #<% next if @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.length > 0 || @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.length > 0 || @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.length > 0 || @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.length > 0 || @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.length > 0 %>
-
     @production_count = 0
 
     if ! production_centre
@@ -327,36 +315,22 @@ class NotificationMailer < ActionMailer::Base
     ERB.new(template).result(binding) rescue nil
   end
 
-  #def get_production_centre_report_csv(production_centre)
-  #  get_production_centre_report(production_centre)
-  #
-  #  template = IO.read("#{Rails.root}/app/views/v2/reports/mi_production/notifications_by_gene.csv.erb")
-  #
-  #  template.gsub!(/\s+\<\% end \%\>/, '<% end %>')
-  #  template.gsub!(/GLT Mice\s+/, 'GLT Mice')
-  #
-  #  ERB.new(template).result(binding) rescue nil
-  #end
-
   def send_production_centre_email(production_centre, email)
     @email_template = EmailTemplate.find_by_status!('production_centre_report')
 
     @contact_email = email
     @production_centre = production_centre
 
-    @csv2 = @@csv2      #get_production_centre_report
+    @csv2 = @@csv2
     @csv1 = get_production_centre_report production_centre
 
     @csv1count = @csv1.count("\n") - 1
     @csv2count = @csv2.count("\n") - 1
 
     email_body = ERB.new(@email_template.update_body).result(binding) rescue nil
-    #email_body.gsub!(/\r/, "\n")
-    #email_body.gsub!(/\n\n+/, "\n\n")
-    #email_body.gsub!(/\n\n\s+\n\n/, "\n\n")
 
     attachments['production_centre_gene_list.csv'] = @csv1 if @csv1count > 0
-    attachments['production_centre_gene_list_empty.csv'] = @csv2
+    attachments['production_centre_gene_list_idle.csv'] = @csv2
 
     mail(:to => email, :subject => "iMits Production Centre #{production_centre} Report") do |format|
       format.text { render :inline => email_body }
@@ -370,44 +344,9 @@ class NotificationMailer < ActionMailer::Base
   end
 
   def send_production_centre_emails
-    #centre_contact = {}
-    #users_by_production_centre = {}
-    #
-    #Centre.all.each do |centre|
-    #  centre_contact[centre.name] = centre.contact_email;
-    #  users_by_production_centre[centre.name] = []
-    #end
-    #
-    #pp centre_contact
-    #
-    #hash = { 'contacts' => centre_contact }
-    #puts hash.to_yaml
-    #
-    ##centre_contact.keys.each do |key|
-    ##  puts "#### '#{key}' empty!" if centre_contact[key].nil?
-    ##end
-    #
-    #User.order('users.name').includes(:production_centre).each do |user|
-    #  if(user.is_contactable)
-    #    users_by_production_centre[user.production_centre.try(:name)] ||= []
-    #    next if ! users_by_production_centre[user.production_centre.try(:name)].empty?
-    #    users_by_production_centre[user.production_centre.try(:name)].push(user) if user.is_contactable
-    #  end
-    #end
-    #
-    #pp users_by_production_centre
-    #
-    ##users_by_production_centre.keys.each do |key|
-    ##  puts "#### '#{key}' empty!" if users_by_production_centre[key].empty?
-    ##end
-
     contacts = YAML.load_file File.join(Rails.root, 'config', 'production_centre_contacts.yml')
 
     contacts = contacts['contacts']
-
-    # pp contacts
-
-    #NotificationMailer.send_production_centre_email('WTSI', 're4@sanger.ac.uk')
 
     @@csv2 = get_production_centre_report
 

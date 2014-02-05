@@ -17,11 +17,25 @@ features:
     en2 intron:
     mouse en2 intron:
 
-    5' ifitm2 intron:
-      label: Ifitm2 Intron
-    3' ifitm2 intron:
-      label: Ifitm2 Intron
+    5' Ifitm2 intron:
+      label: "Ifitm2 Intron SD"
+      class_name: Ifitm2Intron
+      simple:
+        label: "Ifitm2 SD"
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
 
+    3' Ifitm2 intron:
+      label: "Ifitm2 Intron SA"
+      class_name: Ifitm2Intron
+      simple:
+        label: "Ifitm2 SA"
+        width: 10
+        colour: white
+        font_colour: black
+        font_size: 20
 
   primer_bind:
     defaults:
@@ -102,9 +116,28 @@ features:
         class_name: En2SA
 
     en2 sa (atg):
-      width: 80
+      alias: en2 sa
+
     adenovirus splice acceptor:
       label: SA
+
+    lacz:
+      label: lacZ
+      width: 140
+      colour: blue
+      font_colour: white
+      font_size: 20
+      simple:
+        label: lacZ
+        width: 140
+        stroke: "transparent"
+        colour: blue
+        font_colour: white
+        font_size: 28
+
+    b-galactosidase:
+      alias: lacz
+
     cd4 tm:
       width: 80
       colour: black
@@ -318,6 +351,8 @@ features:
       colour: purple
       font_colour: white
       simple:
+        label: Puro
+        width: 80
         stroke: "transparent"
         colour: purple
         font_colour: white
@@ -396,12 +431,13 @@ features:
 
   exon:
     defaults:
-      width: 15
+      width: 20
+      exon_rectangle_width: 15
       colour: '#fbcf3b'
       font_colour: blue
       class_name: Exon
       simple:
-        width: 15
+        width: 20
         stroke: "transparent"
         colour: '#999'
         font_colour: '#999'
@@ -413,13 +449,14 @@ features:
       intervening sequence:
 
     fragment:
-      width: 15
+      width: 20
+      exon_rectangle_width: 15
       colour: "#fbcf3b"
       font_colour: blue
       secondary_colour: red
       class_name: ExonFragment
       simple:
-        width: 15
+        width: 20
         stroke: 'transparent'
         colour: '#666'
         secondary_colour: '#999'

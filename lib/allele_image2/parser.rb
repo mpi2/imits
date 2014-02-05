@@ -30,7 +30,11 @@ module AlleleImage2
 
         unless f.qualifiers.length == 0
           begin
-            AlleleImage2::Feature.new(f)
+            new_f = AlleleImage2::Feature.new(f)
+            if @simple
+              new_f.simplify!
+            end
+            new_f
           rescue AlleleImage2::Feature::NotRenderableError
           end
         end

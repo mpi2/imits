@@ -2,9 +2,11 @@ module AlleleImage2
   class Feature
     class NotRenderableError < RuntimeError; end
 
-    attr_accessor :feature_name, :feature_type, :start, :stop, :orientation, :exon_rank
+    attr_accessor :feature_name, :feature_type, :start, :stop, :orientation, :exon_rank, :render_options, :simple
 
     def initialize(bio_feature, options = {})
+      @simple = false
+
       self.position = bio_feature.position
       note = bio_feature.to_hash['note']
       
@@ -48,6 +50,13 @@ module AlleleImage2
 
     def image
       @image ||= "AlleleImage2::Features::#{feature_class_name}".constantize.new(self)
+    end
+
+    def simplify!
+      @simple = true
+      if (render_options[:simple])
+        @render_options = render_options.merge(render_options[:simple])
+      end
     end
 
   end

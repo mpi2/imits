@@ -6,13 +6,22 @@ class AlleleImage2::Features::Exon < AlleleImage2::Features::DefaultFeature
   def detailed(renderer, image, options = {})
 
     drawing = Magick::Draw.new
-    drawing.stroke @render_options[:stroke]
-    drawing.fill @render_options[:colour]
+    drawing.stroke feature.render_options[:stroke]
+    
+    drawing.fill feature.render_options[:colour]
 
-    x1 = renderer.x
-    y1 = @render_options[:top_margin]
-    x2 = x1 + @render_options[:width]
-    y2 = (@render_options[:height] / 2) + renderer.y
+    # draw rectangle within larger block to allow for rank text size
+    # x1 = renderer.x + 5
+    # y1 = feature.render_options[:top_margin]
+    # x2 = x1 + feature.render_options[:width] - 10
+    # y2 = (feature.render_options[:height] / 2) + renderer.y
+
+    # x1 = renderer.x
+    x1 = renderer.x + ( feature.render_options[:width] - feature.render_options[:exon_rectangle_width] ) / 2
+    y1 = feature.render_options[:top_margin]
+    # x2 = x1 + feature.render_options[:width]
+    x2 = x1 + feature.render_options[:exon_rectangle_width]
+    y2 = (feature.render_options[:height] / 2) + renderer.y
 
     drawing.rectangle(x1, y1, x2, y2)
     drawing.draw(image)
@@ -20,11 +29,13 @@ class AlleleImage2::Features::Exon < AlleleImage2::Features::DefaultFeature
     # if this exon has a rank number, display it
     if feature.exon_rank
 
-      font_colour = @render_options[:font_colour]
-      font_size   = @render_options[:font_size]
+      font_colour = feature.render_options[:font_colour]
+      font_size   = feature.render_options[:font_size]
 
+      exon_rank_start_x     = renderer.x
+      
       # write the annotation above
-      drawing.annotate(image, @render_options[:width], @render_options[:top_margin], renderer.x, 0, feature.exon_rank) do
+      drawing.annotate(image, feature.render_options[:width], feature.render_options[:top_margin], exon_rank_start_x, 0, feature.exon_rank) do
         self.fill        = font_colour
         self.gravity     = Magick::CenterGravity
         self.font_weight = Magick::BoldWeight

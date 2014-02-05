@@ -6,20 +6,20 @@ class AlleleImage2::Features::F3 < AlleleImage2::Features::DefaultFeature
 
   def detailed(renderer, image, options = {})
 
-    b = feature.orientation == "forward" ? renderer.x : renderer.x + @render_options[:width]
+    b = feature.orientation == "forward" ? renderer.x : renderer.x + feature.render_options[:width]
 
     # Draw the triangle
     drawing = Magick::Draw.new
-    drawing.stroke @render_options[:stroke]
-    drawing.fill @render_options[:colour]
-    drawing.polygon(renderer.x, @render_options[:top_margin], b, @render_options[:top_margin] + @render_options[:height], renderer.x + @render_options[:width], @render_options[:top_margin] )
+    drawing.stroke feature.render_options[:stroke]
+    drawing.fill feature.render_options[:colour]
+    drawing.polygon(renderer.x, feature.render_options[:top_margin], b, feature.render_options[:top_margin] + feature.render_options[:height], renderer.x + feature.render_options[:width], feature.render_options[:top_margin] )
     drawing.draw(image)
 
-    font_colour = @render_options[:font_colour]
-    font_size   = @render_options[:font_size]
+    font_colour = feature.render_options[:font_colour]
+    font_size   = feature.render_options[:font_size]
 
     # write the annotation above
-    drawing.annotate(image, @render_options[:width], @render_options[:top_margin], renderer.x, 0, feature.label) do
+    drawing.annotate(image, feature.render_options[:width], feature.render_options[:top_margin], renderer.x, 0, feature.label) do
       self.fill        = font_colour
       self.gravity     = Magick::CenterGravity
       self.font_weight = Magick::BoldWeight

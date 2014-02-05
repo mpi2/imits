@@ -5,14 +5,14 @@ module AlleleImage2
 
     def initialize options = {}
 
+      @simple         = options[:simple]
       @rcmb_primers   = initialize_rcmb_primers options[:features]
       @features       = replace_functional_units options[:features], AlleleImage2::FUNCTIONAL_UNITS
       @circular       = options[:circular]
       @cassette_label = options[:cassette_label]
       @backbone_label = options[:backbone_label]
       @bac_label      = options[:bac_label]
-      @simple         = options[:simple]
-
+      
       raise "NoRcmbPrimers" unless @rcmb_primers.size > 0
 
       initialize_boundries
@@ -54,7 +54,6 @@ module AlleleImage2
       @cassette_features ||= initialize_section(:cassette_features)
 
       if @simple
-        # @cassette_features = @cassette_features.select {|f| AlleleImage2::SIMPLE_FEATURES.include?(f.feature_name) || AlleleImage2::SIMPLE_FEATURE_TYPES.include?(f.feature_type) }
         @cassette_features = @cassette_features.select {|f| AlleleImage2::SIMPLE_FEATURES.include?(f.label) || AlleleImage2::SIMPLE_FEATURE_TYPES.include?(f.feature_type) }
       end
 
@@ -202,7 +201,11 @@ module AlleleImage2
                 bio_feature = Bio::Feature.new "misc_feature", "#{start}..#{stop}"
                 bio_feature.append Bio::Feature::Qualifier.new("note", label)
 
+                # create the new combination feature
                 feature = AlleleImage2::Feature.new bio_feature
+                if @simple
+                  feature.simplify!
+                end
                 features.slice! feature_index, query.size
                 features.insert feature_index, feature
               end

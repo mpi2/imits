@@ -1,8 +1,4 @@
-class AlleleImage2::Features::PolyA < AlleleImage2::Features::DefaultFeature
-
-  # From RMagick docs
-  # drawing.polygon(x1, y1,...,xN, yN)
-  # drawing.annotate(img, width, height, x, y, text)
+class AlleleImage2::Features::Ifitm2Intron < AlleleImage2::Features::DefaultFeature
 
   def detailed(renderer, image, options = {})
     # draw standard boxes with text
@@ -14,6 +10,11 @@ class AlleleImage2::Features::PolyA < AlleleImage2::Features::DefaultFeature
     width         = feature.render_options[:width]
     height        = feature.render_options[:top_margin]
     label         = feature.render_options[:label ] || feature.feature_name
+    if label.match(/SD/)
+      label = 'SD'
+    elsif label.match(/SA/)
+      label = 'SA'
+    end
     drawing       = Magick::Draw.new
     x             = renderer.x
 

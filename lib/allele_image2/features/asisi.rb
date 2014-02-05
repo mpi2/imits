@@ -11,13 +11,13 @@ class AlleleImage2::Features::Asisi < AlleleImage2::Features::DefaultFeature
 
     # draw the AsiSI on the sequence
     
-    drawing.stroke @render_options[:stroke]
-    drawing.fill @render_options[:colour]
+    drawing.stroke feature.render_options[:stroke]
+    drawing.fill feature.render_options[:colour]
 
-    font_colour = @render_options[:font_colour]
-    font_size   = @render_options[:font_size]
+    font_colour = feature.render_options[:font_colour]
+    font_size   = feature.render_options[:font_size]
 
-    drawing.annotate(image, @render_options[:width], @render_options[:height], renderer.x, annotation_y, feature.label) do
+    drawing.annotate(image, feature.render_options[:width], feature.render_options[:height], renderer.x, annotation_y, feature.label) do
       self.gravity     = Magick::CenterGravity
       self.font_weight = Magick::BoldWeight
       self.fill        = font_colour
@@ -25,7 +25,7 @@ class AlleleImage2::Features::Asisi < AlleleImage2::Features::DefaultFeature
     end
 
     # Draw the arrow pointing down in the moddle of the annotation
-    draw_arrow(image, [ renderer.x + @render_options[:width] / 2, @render_options[:height] + 2 ], :tail_height => 10, :arm_height => 5, :arm_width => 5)
+    draw_arrow(image, [ renderer.x + feature.render_options[:width] / 2, feature.render_options[:height] + 2 ], :tail_height => 10, :arm_height => 5, :arm_width => 5)
 
     return image
 

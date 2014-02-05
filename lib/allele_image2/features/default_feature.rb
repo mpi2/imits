@@ -6,9 +6,10 @@ class AlleleImage2::Features::DefaultFeature
     
     @feature = feature
 
-    @text_width = 14
+    @text_width = 12
+    @exon_min_width = 20 # used in exon, exon_fragment and sequence
 
-    @render_options = {
+    feature.render_options = {
       :top_margin => 25,
       :width => feature.label.length * @text_width,
       :height => 40,
@@ -21,22 +22,12 @@ class AlleleImage2::Features::DefaultFeature
 
   end
 
-  def simplify!
-    ## Set this to true if there is a simple image for your feature.
-    @simple_image = true
-
-    if (feature.render_options[:simple])
-      @render_options = @render_options.merge(feature.render_options[:simple])
-    end
-
-  end
-
   def width
-    @render_options[:width]
+    feature.render_options[:width]
   end
 
   def render(renderer, image, options = {} )
-    return @simple_image ? simple(renderer, image, options ) : detailed(renderer, image, options )
+    return feature.simple ? simple(renderer, image, options ) : detailed(renderer, image, options )
   end
 
   ## Default detailed image is a rectangular block containing the feature label text
@@ -46,15 +37,15 @@ class AlleleImage2::Features::DefaultFeature
     # drawing.rectangle(x1, y1, x2, y2)
     # drawing.annotate(img, width, height, x, y, text)
     drawing = Magick::Draw.new
-    drawing.stroke @render_options[:stroke]
-    drawing.fill @render_options[:colour]
-    drawing.rectangle(renderer.x, @render_options[:top_margin], renderer.x + @render_options[:width], @render_options[:top_margin] + @render_options[:height])
+    drawing.stroke feature.render_options[:stroke]
+    drawing.fill feature.render_options[:colour]
+    drawing.rectangle(renderer.x, feature.render_options[:top_margin], renderer.x + feature.render_options[:width], feature.render_options[:top_margin] + feature.render_options[:height])
     drawing.draw(image)
 
-    font_colour = @render_options[:font_colour]
-    font_size   = @render_options[:font_size]
+    font_colour = feature.render_options[:font_colour]
+    font_size   = feature.render_options[:font_size]
 
-    drawing.annotate(image, @render_options[:width], @render_options[:height], renderer.x, @render_options[:top_margin], feature.label) do
+    drawing.annotate(image, feature.render_options[:width], feature.render_options[:height], renderer.x, feature.render_options[:top_margin], feature.label) do
       self.fill        = font_colour
       self.font_weight = Magick::BoldWeight
       self.gravity     = Magick::CenterGravity

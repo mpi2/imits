@@ -15,39 +15,18 @@ module AlleleImage2
     # ["pA", "DTA", "PGK"] => "pA_DTA_PGK",
   }
 
-  # SIMPLE_FEATURES = [
-  #   'Rox',
-  #   'EGFP',
-  #   'Cre',
-  #   'pu-Delta-tk',
-  #   'Frt',
-  #   'F3',
-  #   'Puro',
-  #   'TM-lacZ',
-  #   'lacZ',
-  #   'loxP',
-  #   'Neo',
-  #   'NeoR',
-  #   'Neo*',
-  #   'AttP',
-  #   # 'pA',
-  #   'SV40 polyadenylation site',
-  #   'PolyA',
-  #   'sA',
-  #   'SA',
-  #   'En2 SA',
-  #   'Ifitm2 Intron'
-  # ]
-
   # list of cassette features to show in simple images
-  # NB. the array element here must match to the 'label' element in the features.yml file
+  # NB. the array element here must match to the 'simple: label:' element in the features.yml file for the corresponding
+  # feature type, and the genbank feature name must match the entry name in the features.yml file 
+  # e.g. 'en2 sa' in 'misc_feature' has label 'SA', and 'sv40 polyadenylation site' in 'misc_feature' has an alias to 'pa' 
+  # which has the label 'pA'
+  # lacZ can be either a 'gene' as 'lacZ' or a 'misc_feature' as 'b-galactosidase' in the genbank file, so needs an entry in both sections in the yml
   SIMPLE_FEATURES = [
     'FRT',
     'lacZ',
     'loxP',
     'neo',
     'pA',
-    'En2 SA',
     'Rox',
     'EGFP',
     'Cre',
@@ -55,7 +34,9 @@ module AlleleImage2
     'F3',
     'TM-lacZ',
     'AttP',
-    'Ifitm2 Intron'
+    'Ifitm2 SD',
+    'Ifitm2 SA',
+    'SA'
   ]
 
   SIMPLE_FEATURE_TYPES = %w(promoter)

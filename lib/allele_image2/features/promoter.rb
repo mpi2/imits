@@ -13,11 +13,11 @@ class AlleleImage2::Features::Promoter < AlleleImage2::Features::DefaultFeature
     arm_width   = 2
 
     # draw the arrow above the cassette feature
-    first_point  = [renderer.x + @render_options[:width] / 2, @render_options[:top_margin]]
-    second_point = [renderer.x + @render_options[:width] / 2, @render_options[:top_margin] / 2]
+    first_point  = [renderer.x + feature.render_options[:width] / 2, feature.render_options[:top_margin]]
+    second_point = [renderer.x + feature.render_options[:width] / 2, feature.render_options[:top_margin] / 2]
     third_point  = [
       feature.orientation == "forward" ? second_point[0] + tail_height : second_point[0] - tail_height,
-      @render_options[:top_margin] / 2
+      feature.render_options[:top_margin] / 2
     ]
     arrow_point = [
       third_point[0] + 6,
@@ -26,8 +26,8 @@ class AlleleImage2::Features::Promoter < AlleleImage2::Features::DefaultFeature
 
     drawing      = Magick::Draw.new
 
-    drawing.stroke @render_options[:stroke]
-    drawing.fill @render_options[:colour]
+    drawing.stroke feature.render_options[:stroke]
+    drawing.fill feature.render_options[:colour]
 
     drawing.stroke_width(1)
     drawing.line(first_point[0], first_point[1], second_point[0], second_point[1])
@@ -54,7 +54,7 @@ class AlleleImage2::Features::Promoter < AlleleImage2::Features::DefaultFeature
     arm_width    = 6
     line_width   = 6
 
-    xloc = options[:x] || renderer.x
+    arrow_xlocn = renderer.x - 15
 
     # fetch attached antibiotic feature if present
     if options[:related_feature]
@@ -65,15 +65,15 @@ class AlleleImage2::Features::Promoter < AlleleImage2::Features::DefaultFeature
     if antibiotic_resistance_feature && antibiotic_resistance_feature.image.width
       related_image_width = antibiotic_resistance_feature.image.width
     else
-      related_image_width = @render_options[:width]
+      related_image_width = feature.render_options[:width]
     end
 
     # draw the arrow above the related cassette feature
-    first_point  = [ xloc + related_image_width / 2, @render_options[:top_margin]     ]
-    second_point = [ xloc + related_image_width / 2, @render_options[:top_margin] / 2 ]
+    first_point  = [ arrow_xlocn + related_image_width / 2, feature.render_options[:top_margin]     ]
+    second_point = [ arrow_xlocn + related_image_width / 2, feature.render_options[:top_margin] / 2 ]
     third_point  = [
       feature.orientation == "forward" ? second_point[0] + tail_height : second_point[0] - tail_height,
-      @render_options[:top_margin] / 2
+      feature.render_options[:top_margin] / 2
     ]
     arrow_point  = [
       third_point[0] + arm_width,

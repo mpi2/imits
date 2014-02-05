@@ -866,6 +866,36 @@ ALTER SEQUENCE mi_plans_id_seq OWNED BY mi_plans.id;
 
 
 --
+-- Name: mutagenesis_factors; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE mutagenesis_factors (
+    id integer NOT NULL,
+    vector_id integer,
+    crispr_method character varying(255) NOT NULL
+);
+
+
+--
+-- Name: mutagenesis_factors_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE mutagenesis_factors_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: mutagenesis_factors_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE mutagenesis_factors_id_seq OWNED BY mutagenesis_factors.id;
+
+
+--
 -- Name: new_consortia_intermediate_report; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -1703,7 +1733,10 @@ ALTER SEQUENCE targ_rep_centre_pipelines_id_seq OWNED BY targ_rep_centre_pipelin
 
 CREATE TABLE targ_rep_crisprs (
     id integer NOT NULL,
-    name character varying(255) NOT NULL,
+    mutagensis_factor_id integer NOT NULL,
+    sequence character varying(255) NOT NULL,
+    start integer,
+    "end" integer,
     gene_id integer NOT NULL,
     created_at timestamp without time zone
 );
@@ -2387,6 +2420,13 @@ ALTER TABLE ONLY mi_plans ALTER COLUMN id SET DEFAULT nextval('mi_plans_id_seq':
 -- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
+ALTER TABLE ONLY mutagenesis_factors ALTER COLUMN id SET DEFAULT nextval('mutagenesis_factors_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
 ALTER TABLE ONLY new_consortia_intermediate_report ALTER COLUMN id SET DEFAULT nextval('new_consortia_intermediate_report_id_seq'::regclass);
 
 
@@ -2759,6 +2799,14 @@ ALTER TABLE ONLY mi_plan_sub_projects
 
 ALTER TABLE ONLY mi_plans
     ADD CONSTRAINT mi_plans_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: mutagenesis_factors_pkey; Type: CONSTRAINT; Schema: public; Owner: -; Tablespace: 
+--
+
+ALTER TABLE ONLY mutagenesis_factors
+    ADD CONSTRAINT mutagenesis_factors_pkey PRIMARY KEY (id);
 
 
 --

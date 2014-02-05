@@ -359,6 +359,11 @@ ActiveRecord::Schema.define(:version => 20140204145302) do
 
   add_index "mi_plans", ["gene_id", "consortium_id", "production_centre_id", "sub_project_id", "is_bespoke_allele", "is_conditional_allele", "is_deletion_allele", "is_cre_knock_in_allele", "is_cre_bac_allele", "conditional_tm1c", "phenotype_only", "mutagenesis_via_crispr_cas9"], :name => "mi_plan_logical_key", :unique => true
 
+  create_table "mutagenesis_factors", :force => true do |t|
+    t.integer "vector_id"
+    t.string  "crispr_method", :null => false
+  end
+
   create_table "new_consortia_intermediate_report", :force => true do |t|
     t.string   "gene",                                             :limit => 75,  :null => false
     t.string   "consortium",                                                      :null => false
@@ -791,8 +796,11 @@ ActiveRecord::Schema.define(:version => 20140204145302) do
   end
 
   create_table "targ_rep_crisprs", :force => true do |t|
-    t.string   "name",       :null => false
-    t.integer  "gene_id",    :null => false
+    t.integer  "mutagensis_factor_id", :null => false
+    t.string   "sequence",             :null => false
+    t.integer  "start"
+    t.integer  "end"
+    t.integer  "gene_id",              :null => false
     t.datetime "created_at"
   end
 

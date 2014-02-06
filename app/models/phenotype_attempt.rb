@@ -244,6 +244,7 @@ class PhenotypeAttempt < ApplicationModel
 end
 
 
+
 # == Schema Information
 #
 # Table name: phenotype_attempts
@@ -285,7 +286,6 @@ end
 #  qc_critical_region_qpcr_id          :integer
 #  qc_loxp_srpcr_id                    :integer
 #  qc_loxp_srpcr_and_sequencing_id     :integer
-#  ready_for_website                   :date
 #
 # Indexes
 #

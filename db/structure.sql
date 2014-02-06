@@ -529,7 +529,7 @@ ALTER SEQUENCE mi_attempt_statuses_id_seq OWNED BY mi_attempt_statuses.id;
 
 CREATE TABLE mi_attempts (
     id integer NOT NULL,
-    es_cell_id integer NOT NULL,
+    es_cell_id integer,
     mi_date date NOT NULL,
     status_id integer NOT NULL,
     colony_name character varying(125),
@@ -588,7 +588,8 @@ CREATE TABLE mi_attempts (
     qc_loxp_srpcr_id integer DEFAULT 1,
     qc_loxp_srpcr_and_sequencing_id integer DEFAULT 1,
     cassette_transmission_verified date,
-    cassette_transmission_verified_auto_complete boolean
+    cassette_transmission_verified_auto_complete boolean,
+    mutagenesis_factor_id integer
 );
 
 
@@ -1733,11 +1734,10 @@ ALTER SEQUENCE targ_rep_centre_pipelines_id_seq OWNED BY targ_rep_centre_pipelin
 
 CREATE TABLE targ_rep_crisprs (
     id integer NOT NULL,
-    mutagensis_factor_id integer NOT NULL,
+    mutagenesis_factor_id integer NOT NULL,
     sequence character varying(255) NOT NULL,
     start integer,
     "end" integer,
-    gene_id integer NOT NULL,
     created_at timestamp without time zone
 );
 

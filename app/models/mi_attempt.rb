@@ -52,19 +52,19 @@ class MiAttempt < ApplicationModel
     access_association_by_attribute qc_field, :description, :attribute_alias => :result
   end
 
-  accepts_nested_attributes_for :status_stamps
+  accepts_nested_attributes_for :status_stamps, :mutagenesis_factor
 
   protected :status=
 
-  validates :es_cell_name, :presence => true
+#  validates :es_cell_name, :presence => true
   validates :status, :presence => true
   validates :colony_name, :uniqueness => {:case_sensitive => false}, :allow_nil => true
   validates :mouse_allele_type, :inclusion => { :in => MOUSE_ALLELE_OPTIONS.keys }
   validates :mi_date, :presence => true
 
   validate do |mi|
-    if !mi.es_cell_name.blank? and mi.es_cell.blank?
-      mi.errors.add :es_cell_name, 'was not found in the marts'
+    if (mi.mutagenesis_factor.blank? and mi.es_cell_name.blank? and mi.es_cell.blank?)  or  (!mi.mutagenesis_factor.blank? and !(mi.es_cell_name.blank? and mi.es_cell.blank?))
+      mi.errors.add :base, 'Please Select EITHER an es_cell_name OR mutagenesis_factor'
     end
   end
 
@@ -145,8 +145,7 @@ class MiAttempt < ApplicationModel
   protected :set_total_chimeras
 
   def set_es_cell_from_es_cell_name
-    if ! self.es_cell
-      ## TODO: This needs modifying previously "find_or_create_from_marts_by_name"
+    if ! self.es_cell and !self.es_cell_name.blank?
       self.es_cell = TargRep::EsCell.find_by_name(self.es_cell_name)
     end
   end
@@ -176,11 +175,11 @@ class MiAttempt < ApplicationModel
 
   def generate_colony_name_if_blank
     return unless self.colony_name.blank?
-
+    product_prefix = self.es_cell.nil? ? 'Crisp' : self.es_cell.name
     i = 0
     begin
       i += 1
-      self.colony_name = "#{self.production_centre.name}-#{self.es_cell.name}-#{i}"
+      self.colony_name = "#{self.production_centre.name}-#{product_prefix}-#{i}"
     end until self.class.find_by_colony_name(self.colony_name).blank?
   end
   protected :generate_colony_name_if_blank
@@ -276,7 +275,7 @@ class MiAttempt < ApplicationModel
   end
 
   def mouse_allele_symbol_superscript
-    if mouse_allele_type.nil? or es_cell.allele_symbol_superscript_template.nil?
+    if mouse_allele_type.nil? or es_cell.nil? or es_cell.allele_symbol_superscript_template.nil?
       return nil
     else
       return es_cell.allele_symbol_superscript_template.sub(
@@ -311,7 +310,7 @@ class MiAttempt < ApplicationModel
   def gene
     if mi_plan.try(:gene)
       return mi_plan.gene
-    elsif es_cell.try(:gene)
+    elsif !es_cell.blank? and es_cell.try(:gene)
       return es_cell.gene
     else
       return nil
@@ -346,8 +345,21 @@ class MiAttempt < ApplicationModel
     return test_cross_strain.try(:mgi_strain_name)
   end
 
-  def es_cell_marker_symbol; es_cell.try(:marker_symbol); end
-  def es_cell_allele_symbol; es_cell.try(:allele_symbol); end
+  def es_cell_marker_symbol
+    if !es_cell.blank?
+      es_cell.try(:marker_symbol)
+    else
+      nil
+    end
+  end
+
+  def es_cell_allele_symbol
+    if !es_cell.blank?
+      es_cell.try(:allele_symbol)
+    else
+      nil
+    end
+  end
 
   delegate :production_centre, :consortium, :to => :mi_plan, :allow_nil => true
 
@@ -408,12 +420,14 @@ class MiAttempt < ApplicationModel
 
 end
 
+
+
 # == Schema Information
 #
 # Table name: mi_attempts
 #
 #  id                                              :integer         not null, primary key
-#  es_cell_id                                      :integer         not null
+#  es_cell_id                                      :integer
 #  mi_date                                         :date            not null
 #  status_id                                       :integer         not null
 #  colony_name                                     :string(125)
@@ -473,6 +487,7 @@ end
 #  qc_loxp_srpcr_and_sequencing_id                 :integer         default(1)
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean
+#  mutagenesis_factor_id                           :integer
 #
 # Indexes
 #

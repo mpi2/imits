@@ -206,7 +206,7 @@ ActiveRecord::Schema.define(:version => 20140204145302) do
   add_index "mi_attempt_statuses", ["name"], :name => "index_mi_attempt_statuses_on_name", :unique => true
 
   create_table "mi_attempts", :force => true do |t|
-    t.integer  "es_cell_id",                                                                        :null => false
+    t.integer  "es_cell_id"
     t.date     "mi_date",                                                                           :null => false
     t.integer  "status_id",                                                                         :null => false
     t.string   "colony_name",                                     :limit => 125
@@ -266,6 +266,7 @@ ActiveRecord::Schema.define(:version => 20140204145302) do
     t.integer  "qc_loxp_srpcr_and_sequencing_id",                                :default => 1
     t.date     "cassette_transmission_verified"
     t.boolean  "cassette_transmission_verified_auto_complete"
+    t.integer  "mutagenesis_factor_id"
   end
 
   add_index "mi_attempts", ["colony_name"], :name => "index_mi_attempts_on_colony_name", :unique => true
@@ -796,11 +797,10 @@ ActiveRecord::Schema.define(:version => 20140204145302) do
   end
 
   create_table "targ_rep_crisprs", :force => true do |t|
-    t.integer  "mutagensis_factor_id", :null => false
-    t.string   "sequence",             :null => false
+    t.integer  "mutagenesis_factor_id", :null => false
+    t.string   "sequence",              :null => false
     t.integer  "start"
     t.integer  "end"
-    t.integer  "gene_id",              :null => false
     t.datetime "created_at"
   end
 

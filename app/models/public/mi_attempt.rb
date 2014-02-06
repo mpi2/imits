@@ -2,6 +2,7 @@ class Public::MiAttempt < ::MiAttempt
 
   include ::Public::Serializable
   include ::Public::DistributionCentresAttributes
+  include ::Public::MutagenesisFactorAttributes
   include ::ApplicationModel::BelongsToMiPlan::Public
 
   FULL_ACCESS_ATTRIBUTES = %w{
@@ -62,6 +63,8 @@ class Public::MiAttempt < ::MiAttempt
     distribution_centres_attributes
     mi_plan_id
     status_stamps_attributes
+    mutagenesis_factor_id
+    mutagenesis_factor_attributes
     cassette_transmission_verified
     cassette_transmission_verified_auto_complete
   }
@@ -114,12 +117,14 @@ class Public::MiAttempt < ::MiAttempt
   end
 end
 
+
+
 # == Schema Information
 #
 # Table name: mi_attempts
 #
 #  id                                              :integer         not null, primary key
-#  es_cell_id                                      :integer         not null
+#  es_cell_id                                      :integer
 #  mi_date                                         :date            not null
 #  status_id                                       :integer         not null
 #  colony_name                                     :string(125)
@@ -179,6 +184,7 @@ end
 #  qc_loxp_srpcr_and_sequencing_id                 :integer         default(1)
 #  cassette_transmission_verified                  :date
 #  cassette_transmission_verified_auto_complete    :boolean
+#  mutagenesis_factor_id                           :integer
 #
 # Indexes
 #

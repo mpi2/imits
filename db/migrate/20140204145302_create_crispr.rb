@@ -3,11 +3,10 @@ class CreateCrispr < ActiveRecord::Migration
   def self.up
 
   create_table :targ_rep_crisprs do |t|
-      t.integer  :mutagensis_factor_id, :null => false
+      t.integer  :mutagenesis_factor_id, :null => false
       t.string   :sequence, :null => false
       t.integer  :start
       t.integer  :end
-      t.integer  :gene_id,   :null => false
       t.datetime :created_at
     end
 
@@ -15,10 +14,16 @@ class CreateCrispr < ActiveRecord::Migration
       t.integer :vector_id, :null => true
       t.string :crispr_method, :null => false
     end
+
+    add_column :mi_attempts, :mutagenesis_factor_id, :integer
+    change_column :mi_attempts, :es_cell_id, :integer, :null => true
   end
 
   def self.down
     drop_table :targ_rep_crisprs
     drop_table :mutagenesis_factors
+
+    change_column :mi_attempts, :es_cell_id, :integer, :null => false
+    remove_column :mi_attempts, :mutagenesis_factor_id
   end
 end

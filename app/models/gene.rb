@@ -493,7 +493,7 @@ class Gene < ActiveRecord::Base
     logger.info "Load gene info"
     logger.info "downloading MGI_MRK_Coord"
     url = 'ftp://ftp.informatics.jax.org/pub/reports/MGI_MRK_Coord.rpt'
-    open(url) do |file|
+    open(url, :proxy => nil) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_index = headers.index('1. MGI Marker Accession ID')
       marker_symbol_index = headers.index('4. Marker Symbol')
@@ -503,6 +503,7 @@ class Gene < ActiveRecord::Base
       end_index = headers.index('8. End Coordinate')
       strand_index = headers.index('9. Strand')
       genome_build_index = headers.index('10. Genome Build')
+      marker_type_index = headers.index('2. Marker Type')
 
       file.each_line do |line|
         row = line.strip.gsub(/\"/, '').split("\t")
@@ -517,7 +518,8 @@ class Gene < ActiveRecord::Base
           'genome_build'  => row[genome_build_index],
           'vega_ids'      => [],
           'ens_ids'       => [],
-          'ncbi_ids'      => []
+          'ncbi_ids'      => [],
+          'marker_type'  => row[marker_type_index]
         }
       end
     end
@@ -529,7 +531,7 @@ class Gene < ActiveRecord::Base
 
     logger.info "Downloading Vega report"
     url = "ftp://ftp.informatics.jax.org/pub/reports/MRK_VEGA.rpt"
-    open(url) do |file|
+    open(url, :proxy => nil) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
       vega_ids_index = 5
@@ -541,7 +543,7 @@ class Gene < ActiveRecord::Base
 
     logger.info "Downloading Ensemble report"
     url = "ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt"
-    open(url) do |file|
+    open(url, :proxy => nil) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
       ens_ids_index = 5
@@ -553,7 +555,7 @@ class Gene < ActiveRecord::Base
 
     logger.info "Downloading ncbi report"
     url = "ftp://ftp.informatics.jax.org/pub/reports/MGI_EntrezGene.rpt"
-    open(url) do |file|
+    open(url, :proxy => nil) do |file|
       headers = file.readline.strip.split("\t")
       mgi_accession_id_index = 0
       ncbi_ids_index = 8
@@ -567,7 +569,7 @@ class Gene < ActiveRecord::Base
 
     logger.info "Downloading ccds report"
     url = "ftp://ftp.ncbi.nlm.nih.gov/pub/CCDS/current_mouse/CCDS.current.txt"
-    open(url) do |file|
+    open(url, :proxy => nil) do |file|
       headers = file.readline.strip.split("\t")
       ncbi_id_index = headers.index('gene_id')
       ccds_ids_index = headers.index('ccds_id')
@@ -610,6 +612,7 @@ class Gene < ActiveRecord::Base
       end
       gene.marker_symbol = gene_data['marker_symbol']
       gene.chr = gene_data['chr']
+      gene.marker_type = gene_data['marker_type']
       gene.start_coordinates = gene_data['start']
       gene.end_coordinates = gene_data['end']
       gene.strand_name = gene_data['strand']
@@ -634,14 +637,15 @@ class Gene < ActiveRecord::Base
       ng = Gene.new
       ng.mgi_accession_id = new_gene['mgi_accession_id']
       ng.marker_symbol = new_gene['marker_symbol']
-      ng.chr = gene_data['chr']
-      ng.start_coordinates = gene_data['start']
-      ng.end_coordinates = gene_data['end']
-      ng.strand_name = gene_data['strand']
-      ng.vega_ids = gene_data['vega_ids'].join('')
-      ng.ncbi_ids = gene_data['ens_ids'].join('')
-      ng.ensembl_ids = gene_data['ncbi_ids'].join('')
-      ng.ccds_ids = gene_data['ncbi_ids'].map{|ncbi_id| ccds_data[ncbi_id]['ccds_ids']}.flatten.join(',')
+      ng.chr = new_gene['chr']
+      ng.marker_type = new_gene['marker_type']
+      ng.start_coordinates = new_gene['start']
+      ng.end_coordinates = new_gene['end']
+      ng.strand_name = new_gene['strand']
+      ng.vega_ids = new_gene['vega_ids'].join('')
+      ng.ncbi_ids = new_gene['ens_ids'].join('')
+      ng.ensembl_ids = new_gene['ncbi_ids'].join('')
+      ng.ccds_ids = new_gene['ncbi_ids'].map{|ncbi_id| ccds_data[ncbi_id]['ccds_ids']}.flatten.join(',')
       if ng.valid?
         logger.info "Successfuly Created new gene: #{new_gene['mgi_accession_id']}"
         ng.save
@@ -746,10 +750,10 @@ end
 #  ncbi_ids                           :string(255)
 #  ensembl_ids                        :string(255)
 #  ccds_ids                           :string(255)
+#  marker_type                        :string(255)
 #
 # Indexes
 #
 #  index_genes_on_marker_symbol     (marker_symbol) UNIQUE
 #  index_genes_on_mgi_accession_id  (mgi_accession_id) UNIQUE
 #
-

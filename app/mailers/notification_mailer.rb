@@ -289,7 +289,7 @@ class NotificationMailer < ActionMailer::Base
     @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
     @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
     @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
-    @production_count = 0
+    #@production_count = 0
 
     if ! production_centre
       @mi_plan_summary = @mi_plan_summary.to_a.reject { |rec| @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.length > 0 ||
@@ -297,14 +297,14 @@ class NotificationMailer < ActionMailer::Base
         @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.length > 0 ||
         @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.length > 0 ||
       @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.length > 0 }
-    else
-      @mi_plan_summary.each do |rec|
-        @production_count += 1 if @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.length > 0 ||
-        @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.length > 0 ||
-        @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.length > 0 ||
-        @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.length > 0 ||
-        @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.length > 0
-      end
+    #else
+    #  @mi_plan_summary.each do |rec|
+    #    @production_count += 1 if @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.length > 0 ||
+    #    @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.length > 0 ||
+    #    @pretty_print_aborted_mi_attempts[rec['marker_symbol']].to_s.length > 0 ||
+    #    @pretty_print_mi_attempts_in_progress[rec['marker_symbol']].to_s.length > 0 ||
+    #    @pretty_print_mi_attempts_genotype_confirmed[rec['marker_symbol']].to_s.length > 0
+    #  end
     end
 
     template = IO.read("#{Rails.root}/app/views/v2/reports/mi_production/notifications_by_gene.csv.erb")
@@ -324,12 +324,15 @@ class NotificationMailer < ActionMailer::Base
     @csv2 = @@csv2
     @csv1 = get_production_centre_report production_centre
 
-    @csv1count = @csv1.count("\n") - 1
-    @csv2count = @csv2.count("\n") - 1
+    @genes_production_count = @csv1.count("\n") - 1
+    @genes_idle_count = @csv2.count("\n") - 1
 
     email_body = ERB.new(@email_template.update_body).result(binding) rescue nil
+    email_body.gsub!(/\r/, "\n")
+    email_body.gsub!(/\n\n+/, "\n\n")
+    email_body.gsub!(/\n\n\s+\n\n/, "\n\n")
 
-    attachments['production_centre_gene_list.csv'] = @csv1 if @csv1count > 0
+    attachments['production_centre_gene_list.csv'] = @csv1 if @genes_production_count > 0
     attachments['production_centre_gene_list_idle.csv'] = @csv2
 
     mail(:to => email, :subject => "iMits Production Centre #{production_centre} Report") do |format|
@@ -361,9 +364,10 @@ class NotificationMailer < ActionMailer::Base
       else
         missing.push centre
       end
+    #  break
     end
 
-    NotificationMailer.send_admin_email('re4@sanger.ac.uk, vvi@sanger.ac.uk', 'Monthly production centre emails', "The following centres do not have contacts: #{missing}") if ! missing.empty?
+   # NotificationMailer.send_admin_email('re4@sanger.ac.uk, vvi@sanger.ac.uk', 'Monthly production centre emails', "The following centres do not have contacts: #{missing}") if ! missing.empty?
   end
 
 end

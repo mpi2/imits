@@ -147,6 +147,7 @@ namespace :solr do
         enqueuer.gene_updated(g)
         counter += 1
         #break if counter > 1000
+        #break if g.marker_type.to_s.length > 0
       end
 
       puts "#### running genes... (#{counter})"

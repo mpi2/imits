@@ -262,7 +262,7 @@ class SolrUpdate::DocFactory
       'marker_symbol' => gene.marker_symbol,
       'project_ids' => [],
       'project_statuses' => [],
-      #'marker_type' => gene.marker_type
+      'marker_type' => gene.marker_type
     }
 
     doc = add_project_details(gene)

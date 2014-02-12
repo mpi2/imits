@@ -36,6 +36,7 @@ class MiAttempt < ApplicationModel
   belongs_to :blast_strain, :class_name => 'Strain'
   belongs_to :colony_background_strain, :class_name => 'Strain'
   belongs_to :test_cross_strain, :class_name => 'Strain'
+  belongs_to :mutagensis_factor
 
   has_many :status_stamps, :order => "#{MiAttempt::StatusStamp.table_name}.created_at ASC"
   has_many :phenotype_attempts
@@ -74,6 +75,10 @@ class MiAttempt < ApplicationModel
     if validate_plan #test whether to continue with validations
       if mi_attempt.mi_plan.phenotype_only
         mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (phenotype only)')
+      end
+
+      if mi_attempt.mi_plan.mutagenesis_via_crispr_cas9
+        mi_attempt.errors.add(:base, 'MiAttempt cannot be assigned to this MiPlan. (mutagenesis_via_crispr_cas9)')
       end
 
 #      if (mi_attempt.es_cell and mi_attempt.es_cell.try(:gene) != mi_attempt.mi_plan.try(:gene))

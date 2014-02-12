@@ -84,6 +84,5 @@ end
 #  created_at             :datetime
 #  updated_at             :datetime
 #  distribution_network   :string(255)
-#  mouse_allele_mod_id    :integer
 #
 

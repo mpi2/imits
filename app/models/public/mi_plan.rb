@@ -141,7 +141,7 @@ end
 #  gene_id                        :integer         not null
 #  consortium_id                  :integer         not null
 #  status_id                      :integer         not null
-#  priority_id                    :integer
+#  priority_id                    :integer         not null
 #  production_centre_id           :integer
 #  created_at                     :datetime
 #  updated_at                     :datetime

@@ -23,6 +23,7 @@
           <td><%= rec['gene'] %></td>
           <td><%= rec['mgi_accession_id'] %></td>
           <td><%= rec['number_of_notifications'] %></td>
+          <!--<td><%= @pretty_print_statuses[rec['marker_symbol']] %></td>-->
           <td><%= rec['status_name'] %></td>
           <td><%= @pretty_print_non_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>
           <td><%= @pretty_print_assigned_mi_plans[rec['marker_symbol']].to_s.gsub('<br/>', ' ') %></td>

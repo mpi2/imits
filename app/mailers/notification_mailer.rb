@@ -289,6 +289,7 @@ class NotificationMailer < ActionMailer::Base
     @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
     @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
     @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
+   # @pretty_print_statuses = @report.pretty_print_statuses
 
     if ! production_centre
       @mi_plan_summary = @mi_plan_summary.to_a.reject do |rec|
@@ -329,7 +330,6 @@ class NotificationMailer < ActionMailer::Base
     attachments['production_centre_gene_list_idle.csv'] = @csv2
 
     mail(:to => email, :subject => "iMits Production Centre #{production_centre} Report", :bcc => bcc) { |format| format.text { render :inline => email_body } }.deliver if bcc
-    puts "#### bcc: #{bcc}" if bcc
     mail(:to => email, :subject => "iMits Production Centre #{production_centre} Report") { |format| format.text { render :inline => email_body } }.deliver if ! bcc
   end
 

@@ -14,19 +14,20 @@ class NotificationsByGene < PlannedMicroinjectionList
 
     <<-EOF
     with notification_details AS (
-      SELECT genes.marker_symbol, count(*) as total
+      SELECT genes.marker_symbol, genes.mgi_accession_id, count(*) as total
       FROM notifications
       JOIN contacts ON contacts.id = notifications.contact_id
       JOIN genes ON genes.id = notifications.gene_id
       WHERE contacts.report_to_public is true
-      GROUP BY genes.marker_symbol
+      GROUP BY genes.marker_symbol, genes.mgi_accession_id
     )
 
     SELECT
       notification_details.marker_symbol as gene,
       notification_details.total as number_of_notifications,
       notification_details.marker_symbol as marker_symbol,
-      new_intermediate_report.mgi_accession_id AS mgi_accession_id
+      notification_details.mgi_accession_id AS mgi_accession_id,
+      new_intermediate_report.mi_plan_status AS status_name
     FROM notification_details
       LEFT JOIN new_intermediate_report ON new_intermediate_report.gene = notification_details.marker_symbol
 
@@ -35,7 +36,9 @@ class NotificationsByGene < PlannedMicroinjectionList
     GROUP BY
       notification_details.marker_symbol,
       notification_details.total,
-      new_intermediate_report.mgi_accession_id
+      new_intermediate_report.mgi_accession_id,
+      notification_details.mgi_accession_id,
+      new_intermediate_report.mi_plan_status
     ORDER BY notification_details.total desc, notification_details.marker_symbol
 
     EOF

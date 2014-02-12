@@ -11,6 +11,7 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     colony_name
     consortium_name
     production_centre_name
+    mi_attempt_colony_name
     is_active
     rederivation_started
     rederivation_complete
@@ -56,7 +57,6 @@ class Public::PhenotypeAttempt < ::PhenotypeAttempt
     mouse_allele_symbol_superscript
     mouse_allele_symbol
     allele_symbol
-    mi_attempt_colony_name
     mi_attempt_colony_background_strain_name
     mi_attempt_colony_background_mgi_strain_accession_id
     mi_attempt_colony_background_mgi_strain_name

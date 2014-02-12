@@ -45,11 +45,13 @@ class PhenotypeAttemptsController < ApplicationController
     set_centres_consortia_and_strains
     @phenotype_attempt = Public::PhenotypeAttempt.new(params[:phenotype_attempt])
     @mi_attempt = MiAttempt.find_by_colony_name(@phenotype_attempt.mi_attempt_colony_name)
+    @phenotype_attempt.mi_attempt = @mi_attempt
 
     return unless authorize_user_production_centre(@phenotype_attempt)
     return if empty_payload?(params[:phenotype_attempt])
 
-    if do_you_need_to_be_hugh?(@phenotype_attempt)
+    default_phenotype_attempt_values = Public::PhenotypeAttempt.new
+    if do_you_need_to_be_hugh?(default_phenotype_attempt_values, params[:phenotype_attempt])
       render 'new'
       return
     end

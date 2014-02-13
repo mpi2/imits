@@ -4,15 +4,19 @@ class NotificationsByGene < PlannedMicroinjectionList
     @mi_plan_summary = ActiveRecord::Base.connection.execute(self._mi_plan_summary(production_centre, consortium))
   end
 
+  def pretty_print_types_of_cells_available
+    hash = {}
+    @mi_plan_summary.each do |row|
+      hash[row['marker_symbol']] = Gene.find_by_marker_symbol(row['marker_symbol']).pretty_print_types_of_cells_available.gsub('<br/>',' ')
+    end
+    hash
+  end
+
   #def pretty_print_statuses
   #  hash = {}
-  #  #marker_symbols = @mi_plan_summary.map {|item| item['marker_symbol'] }
-  #  #Gene.where(:marker_symbol => marker_symbols).each do |gene|
-  #  #  hash[gene.marker_symbol] = gene.relevant_status[:status]
-  #  #end
-  #  ##@mi_plan_summary.each do |row|
-  #  ##  hash[row['marker_symbol']] = Gene.find_by_marker_symbol(row['marker_symbol']).relevant_status[:status]
-  #  ##end
+  #  @mi_plan_summary.each do |row|
+  #    hash[row['marker_symbol']] = Gene.find_by_marker_symbol(row['marker_symbol']).relevant_status[:status]
+  #  end
   #  hash
   #end
 
@@ -39,8 +43,6 @@ class NotificationsByGene < PlannedMicroinjectionList
       notification_details.total as number_of_notifications,
       notification_details.marker_symbol as marker_symbol,
       notification_details.mgi_accession_id AS mgi_accession_id,
-      --new_intermediate_report.overall_status AS status_name
-      --,string_agg(distinct new_intermediate_report.mi_plan_status, ' | ') AS status_name
       string_agg(distinct new_intermediate_report.overall_status, ' | ') AS status_name
     FROM notification_details
       LEFT JOIN new_intermediate_report ON new_intermediate_report.gene = notification_details.marker_symbol
@@ -50,10 +52,7 @@ class NotificationsByGene < PlannedMicroinjectionList
     GROUP BY
       notification_details.marker_symbol,
       notification_details.total,
---      new_intermediate_report.mgi_accession_id,
       notification_details.mgi_accession_id
-      --,new_intermediate_report.overall_status
-      --,new_intermediate_report.mi_plan_status
     ORDER BY notification_details.total desc, notification_details.marker_symbol
 
     EOF

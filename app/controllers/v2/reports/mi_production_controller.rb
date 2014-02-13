@@ -246,7 +246,7 @@ class V2::Reports::MiProductionController < ApplicationController
       @pretty_print_aborted_mi_attempts = @report.pretty_print_aborted_mi_attempts
       @pretty_print_mi_attempts_in_progress= @report.pretty_print_mi_attempts_in_progress
       @pretty_print_mi_attempts_genotype_confirmed = @report.pretty_print_mi_attempts_genotype_confirmed
-    #  @pretty_print_statuses = @report.pretty_print_statuses
+      @pretty_print_types_of_cells_available = @report.pretty_print_types_of_cells_available
       @production_centre = production_centre.blank? ? '' : production_centre
       @consortium = consortium.blank? ? '' : consortium
       @blurb = ""

@@ -100,7 +100,7 @@ class PhenotypeAttemptsController < ApplicationController
       end
 
       format.json do
-        if !@phenotype_attempt.errors.messages.blank?
+        if @phenotype_attempt.errors.messages.blank?
           render :json => @phenotype_attempt
         else
           render :json => @phenotype_attempt.errors, :status => :unprocessable_entity
